@@ -16,7 +16,6 @@
 
 package androidx.credentials.provider;
 
-import static androidx.credentials.GetPublicKeyCredentialOption.BUNDLE_KEY_PREFER_IMMEDIATELY_AVAILABLE_CREDENTIALS;
 import static androidx.credentials.GetPublicKeyCredentialOption.BUNDLE_KEY_REQUEST_JSON;
 
 import static com.google.common.truth.Truth.assertThat;
@@ -117,14 +116,11 @@ public class BeginGetPublicKeyCredentialOptionJavaTest {
             String requestJsonExpected = "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}";
             String clientDataHash = "client_data_hash";
             Bundle expectedData = new Bundle();
-            Boolean expectedHybrid = false;
             expectedData.putString(
                     PublicKeyCredential.BUNDLE_KEY_SUBTYPE,
                     GetPublicKeyCredentialOption
                             .BUNDLE_VALUE_SUBTYPE_GET_PUBLIC_KEY_CREDENTIAL_OPTION);
             expectedData.putString(BUNDLE_KEY_REQUEST_JSON, requestJsonExpected);
-            expectedData.putBoolean(
-                    BUNDLE_KEY_PREFER_IMMEDIATELY_AVAILABLE_CREDENTIALS, expectedHybrid);
             expectedData.putString(GetPublicKeyCredentialOption
                     .BUNDLE_KEY_CLIENT_DATA_HASH, "client_data_hash");
 

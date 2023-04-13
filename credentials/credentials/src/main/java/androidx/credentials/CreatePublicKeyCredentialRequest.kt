@@ -31,27 +31,25 @@ import org.json.JSONObject
  * immediately when there is no available passkey registration offering instead of falling back to
  * discovering remote options, and false (default) otherwise
  * @param origin the origin of a different application if the request is being made on behalf of
- * that application. For API level >=34, setting a non-null value for this parameter, will throw
- * a SecurityException if android.permission.CREDENTIAL_MANAGER_SET_ORIGIN is not present.
+ * that application (Note: for API level >=34, setting a non-null value for this parameter will
+ * throw a SecurityException if android.permission.CREDENTIAL_MANAGER_SET_ORIGIN is not present)
  */
 class CreatePublicKeyCredentialRequest private constructor(
     val requestJson: String,
     val clientDataHash: String?,
-    @get:JvmName("preferImmediatelyAvailableCredentials")
-    val preferImmediatelyAvailableCredentials: Boolean,
+    preferImmediatelyAvailableCredentials: Boolean,
     displayInfo: DisplayInfo,
     origin: String? = null,
 ) : CreateCredentialRequest(
     type = PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL,
-    credentialData = toCredentialDataBundle(requestJson, clientDataHash,
-        preferImmediatelyAvailableCredentials),
+    credentialData = toCredentialDataBundle(requestJson, clientDataHash),
     // The whole request data should be passed during the query phase.
-    candidateQueryData = toCredentialDataBundle(requestJson, clientDataHash,
-        preferImmediatelyAvailableCredentials),
+    candidateQueryData = toCandidateDataBundle(requestJson, clientDataHash),
     isSystemProviderRequired = false,
     isAutoSelectAllowed = false,
     displayInfo,
-    origin
+    origin,
+    preferImmediatelyAvailableCredentials
 ) {
 
     /**
@@ -64,8 +62,8 @@ class CreatePublicKeyCredentialRequest private constructor(
      * immediately when there is no available passkey registration offering instead of falling back to
      * discovering remote options, and false (default) otherwise
      * @param origin the origin of a different application if the request is being made on behalf of
-     * that application. For API level >=34, setting a non-null value for this parameter, will throw
-     * a SecurityException if android.permission.CREDENTIAL_MANAGER_SET_ORIGIN is not present.
+     * that application (Note: for API level >=34, setting a non-null value for this parameter will
+     * throw a SecurityException if android.permission.CREDENTIAL_MANAGER_SET_ORIGIN is not present)
      * @throws NullPointerException If [requestJson] is null
      * @throws IllegalArgumentException If [requestJson] is empty, or if it doesn't have a valid
      * `user.name` defined according to the [webauthn spec](https://w3c.github.io/webauthn/#dictdef-publickeycredentialcreationoptionsjson)
@@ -89,13 +87,13 @@ class CreatePublicKeyCredentialRequest private constructor(
      * immediately when there is no available passkey registration offering instead of falling back to
      * discovering remote options, and false (preferably) otherwise
      * @param origin the origin of a different application if the request is being made on behalf of
-     * that application. For API level >=34, setting a non-null value for this parameter, will throw
-     * a SecurityException if android.permission.CREDENTIAL_MANAGER_SET_ORIGIN is not present.
-     * @param preferDefaultProvider the preferred default provider component name to prioritize in the
-     * selection UI flows. Your app must have the permission
+     * that application (Note: for API level >=34, setting a non-null value for this parameter will
+     * throw a SecurityException if android.permission.CREDENTIAL_MANAGER_SET_ORIGIN is not present)
+     * @param preferDefaultProvider the preferred default provider component name to prioritize in
+     * the selection UI flows (Note: tour app must have the permission
      * android.permission.CREDENTIAL_MANAGER_SET_ALLOWED_PROVIDERS to specify this, or it
-     * would not take effect. Also this bit may not take effect for Android API level 33 and below,
-     * depending on the pre-34 provider(s) you have chosen.
+     * would not take effect; also this bit may not take effect for Android API level 33 and below,
+     * depending on the pre-34 provider(s) you have chosen)
      * @throws NullPointerException If [requestJson] is null
      * @throws IllegalArgumentException If [requestJson] is empty, or if it doesn't have a valid
      * `user.name` defined according to the [webauthn
@@ -116,8 +114,6 @@ class CreatePublicKeyCredentialRequest private constructor(
 
     /** @hide */
     companion object {
-        internal const val BUNDLE_KEY_PREFER_IMMEDIATELY_AVAILABLE_CREDENTIALS =
-            "androidx.credentials.BUNDLE_KEY_PREFER_IMMEDIATELY_AVAILABLE_CREDENTIALS"
         internal const val BUNDLE_KEY_CLIENT_DATA_HASH =
             "androidx.credentials.BUNDLE_KEY_CLIENT_DATA_HASH"
         internal const val BUNDLE_KEY_REQUEST_JSON = "androidx.credentials.BUNDLE_KEY_REQUEST_JSON"
@@ -150,7 +146,6 @@ class CreatePublicKeyCredentialRequest private constructor(
         internal fun toCredentialDataBundle(
             requestJson: String,
             clientDataHash: String? = null,
-            preferImmediatelyAvailableCredentials: Boolean
         ): Bundle {
             val bundle = Bundle()
             bundle.putString(
@@ -159,10 +154,6 @@ class CreatePublicKeyCredentialRequest private constructor(
             )
             bundle.putString(BUNDLE_KEY_REQUEST_JSON, requestJson)
             bundle.putString(BUNDLE_KEY_CLIENT_DATA_HASH, clientDataHash)
-            bundle.putBoolean(
-                BUNDLE_KEY_PREFER_IMMEDIATELY_AVAILABLE_CREDENTIALS,
-                preferImmediatelyAvailableCredentials
-            )
             return bundle
         }
 
@@ -170,7 +161,6 @@ class CreatePublicKeyCredentialRequest private constructor(
         internal fun toCandidateDataBundle(
             requestJson: String,
             clientDataHash: String?,
-            preferImmediatelyAvailableCredentials: Boolean
         ): Bundle {
             val bundle = Bundle()
             bundle.putString(
@@ -179,15 +169,9 @@ class CreatePublicKeyCredentialRequest private constructor(
             )
             bundle.putString(BUNDLE_KEY_REQUEST_JSON, requestJson)
             bundle.putString(BUNDLE_KEY_CLIENT_DATA_HASH, clientDataHash)
-            bundle.putBoolean(
-                BUNDLE_KEY_PREFER_IMMEDIATELY_AVAILABLE_CREDENTIALS,
-                preferImmediatelyAvailableCredentials
-            )
             return bundle
         }
 
-        @Suppress("deprecation") // bundle.get() used for boolean value
-        // to prevent default boolean value from being returned.
         @JvmStatic
         @RequiresApi(23)
         internal fun createFrom(data: Bundle, origin: String? = null):
@@ -196,17 +180,17 @@ class CreatePublicKeyCredentialRequest private constructor(
                 val requestJson = data.getString(BUNDLE_KEY_REQUEST_JSON)
                 val clientDataHash = data.getString(BUNDLE_KEY_CLIENT_DATA_HASH)
                 val preferImmediatelyAvailableCredentials =
-                    data.get(BUNDLE_KEY_PREFER_IMMEDIATELY_AVAILABLE_CREDENTIALS)
+                    data.getBoolean(BUNDLE_KEY_PREFER_IMMEDIATELY_AVAILABLE_CREDENTIALS, false)
                 val displayInfo = DisplayInfo.parseFromCredentialDataBundle(data)
                 return if (displayInfo == null) CreatePublicKeyCredentialRequest(
                     requestJson!!,
                     clientDataHash,
-                    (preferImmediatelyAvailableCredentials!!) as Boolean,
+                    preferImmediatelyAvailableCredentials,
                     origin
                 ) else CreatePublicKeyCredentialRequest(
                     requestJson!!,
                     clientDataHash,
-                    (preferImmediatelyAvailableCredentials!!) as Boolean,
+                    preferImmediatelyAvailableCredentials,
                     displayInfo,
                     origin
                 )

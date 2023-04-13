@@ -46,29 +46,6 @@ class GetPublicKeyCredentialOptionTest {
     }
 
     @Test
-    fun constructor_setPreferImmediatelyAvailableCredentialsToFalseByDefault() {
-        val getPublicKeyCredentialOpt = GetPublicKeyCredentialOption(
-            "JSON"
-        )
-        val preferImmediatelyAvailableCredentialsActual =
-            getPublicKeyCredentialOpt.preferImmediatelyAvailableCredentials
-        assertThat(preferImmediatelyAvailableCredentialsActual).isFalse()
-    }
-
-    @Test
-    fun constructor_setPreferImmediatelyAvailableCredentialsTrue() {
-        val preferImmediatelyAvailableCredentialsExpected = true
-        val clientDataHash = "hash"
-        val getPublicKeyCredentialOpt = GetPublicKeyCredentialOption(
-            "JSON", clientDataHash, preferImmediatelyAvailableCredentialsExpected
-        )
-        val preferImmediatelyAvailableCredentialsActual =
-            getPublicKeyCredentialOpt.preferImmediatelyAvailableCredentials
-        assertThat(preferImmediatelyAvailableCredentialsActual)
-            .isEqualTo(preferImmediatelyAvailableCredentialsExpected)
-    }
-
-    @Test
     fun getter_requestJson_success() {
         val testJsonExpected = "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}"
         val createPublicKeyCredentialReq = GetPublicKeyCredentialOption(testJsonExpected)
@@ -79,7 +56,6 @@ class GetPublicKeyCredentialOptionTest {
     @Test
     fun getter_frameworkProperties_success() {
         val requestJsonExpected = "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}"
-        val preferImmediatelyAvailableCredentialsExpected = false
         val expectedAutoSelectAllowed = true
         val expectedAllowedProviders: Set<ComponentName> = setOf(
             ComponentName("pkg", "cls"),
@@ -98,17 +74,12 @@ class GetPublicKeyCredentialOptionTest {
         expectedData.putString(GetPublicKeyCredentialOption.BUNDLE_KEY_CLIENT_DATA_HASH,
             clientDataHash)
         expectedData.putBoolean(
-            GetPublicKeyCredentialOption.BUNDLE_KEY_PREFER_IMMEDIATELY_AVAILABLE_CREDENTIALS,
-            preferImmediatelyAvailableCredentialsExpected
-        )
-        expectedData.putBoolean(
             CredentialOption.BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED,
             expectedAutoSelectAllowed
         )
 
         val option = GetPublicKeyCredentialOption(
-            requestJsonExpected, clientDataHash, preferImmediatelyAvailableCredentialsExpected,
-            expectedAllowedProviders
+            requestJsonExpected, clientDataHash, expectedAllowedProviders
         )
 
         assertThat(option.type).isEqualTo(PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL)
@@ -127,7 +98,7 @@ class GetPublicKeyCredentialOptionTest {
             ComponentName("pkg2", "cls2")
         )
         val option = GetPublicKeyCredentialOption(
-            "json", clientDataHash, true, expectedAllowedProviders)
+            "json", clientDataHash, expectedAllowedProviders)
 
         val convertedOption = createFrom(
             option.type,
@@ -142,8 +113,6 @@ class GetPublicKeyCredentialOptionTest {
         )
         val convertedSubclassOption = convertedOption as GetPublicKeyCredentialOption
         assertThat(convertedSubclassOption.requestJson).isEqualTo(option.requestJson)
-        assertThat(convertedSubclassOption.preferImmediatelyAvailableCredentials)
-            .isEqualTo(option.preferImmediatelyAvailableCredentials)
         assertThat(convertedOption.allowedProviders)
             .containsAtLeastElementsIn(expectedAllowedProviders)
     }

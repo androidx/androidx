@@ -41,10 +41,10 @@ import android.os.Bundle
  * @param isAutoSelectAllowed defines if a credential entry will be automatically chosen if it is
  * the only one available option, false by default
  * @param allowedProviders a set of provider service [ComponentName] allowed to receive this
- * option. This property will only be honored at API level >= 34; also a [SecurityException] will
- * be thrown if it is set as non-empty but your app does not have
- * android.permission.CREDENTIAL_MANAGER_SET_ALLOWED_PROVIDERS. For API level < 34, control the
- * allowed provider via [library dependencies](https://developer.android.com/training/sign-in/passkeys#add-dependencies).
+ * option (Note: a [SecurityException] will be thrown if it is set as non-empty but your app does
+ * not have android.permission.CREDENTIAL_MANAGER_SET_ALLOWED_PROVIDERS; for API level < 34,
+ * this property will not take effect and you should control the allowed provider via
+ * [library dependencies](https://developer.android.com/training/sign-in/passkeys#add-dependencies))
  * @throws IllegalArgumentException If [type] is empty
  * @throws NullPointerException If [requestData] or [type] is null
  */

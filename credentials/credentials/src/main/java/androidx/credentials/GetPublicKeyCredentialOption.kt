@@ -27,36 +27,26 @@ import androidx.credentials.internal.FrameworkClassParsingException
  * shown [here](https://w3c.github.io/webauthn/#dictdef-publickeycredentialrequestoptionsjson).
  * @property clientDataHash a hash that is used to verify the relying party identity, set only if
  * you have set the [GetCredentialRequest.origin]
- * @property preferImmediatelyAvailableCredentials true if you prefer the operation to return
- * immediately when there is no available credential instead of falling back to discovering remote
- * credentials, and false (default) otherwise
  * @param requestJson the request in JSON format in the standard webauthn web json
  * shown [here](https://w3c.github.io/webauthn/#dictdef-publickeycredentialrequestoptionsjson).
  * @param clientDataHash a hash that is used to verify the relying party identity, set only if
  * you have set the [GetCredentialRequest.origin]
- * @param preferImmediatelyAvailableCredentials true if you prefer the operation to return
- * immediately when there is no available credential instead of falling back to discovering remote
- * credentials, and false (default) otherwise
  * @param allowedProviders a set of provider service [ComponentName] allowed to receive this
- * option. This property will only be honored at API level >= 34; also a [SecurityException] will be
- * thrown if it is set as non-empty but your app does not have
- * android.permission.CREDENTIAL_MANAGER_SET_ALLOWED_PROVIDERS. For API level < 34, control the
- * allowed provider via [library dependencies](https://developer.android.com/training/sign-in/passkeys#add-dependencies).
+ * option (Note: a [SecurityException] will be thrown if it is set as non-empty but your app does
+ * not have android.permission.CREDENTIAL_MANAGER_SET_ALLOWED_PROVIDERS; for API level < 34,
+ * this property will not take effect and you should control the allowed provider via
+ * [library dependencies](https://developer.android.com/training/sign-in/passkeys#add-dependencies))
  * @throws NullPointerException If [requestJson] is null
  * @throws IllegalArgumentException If [requestJson] is empty
  */
 class GetPublicKeyCredentialOption @JvmOverloads constructor(
     val requestJson: String,
     val clientDataHash: String? = null,
-    @get:JvmName("preferImmediatelyAvailableCredentials")
-    val preferImmediatelyAvailableCredentials: Boolean = false,
     allowedProviders: Set<ComponentName> = emptySet(),
 ) : CredentialOption(
     type = PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL,
-    requestData = toRequestDataBundle(requestJson, clientDataHash,
-        preferImmediatelyAvailableCredentials),
-    candidateQueryData = toRequestDataBundle(requestJson, clientDataHash,
-        preferImmediatelyAvailableCredentials),
+    requestData = toRequestDataBundle(requestJson, clientDataHash),
+    candidateQueryData = toRequestDataBundle(requestJson, clientDataHash),
     isSystemProviderRequired = false,
     isAutoSelectAllowed = true,
     allowedProviders,
@@ -67,8 +57,6 @@ class GetPublicKeyCredentialOption @JvmOverloads constructor(
 
     /** @hide */
     companion object {
-        internal const val BUNDLE_KEY_PREFER_IMMEDIATELY_AVAILABLE_CREDENTIALS =
-            "androidx.credentials.BUNDLE_KEY_PREFER_IMMEDIATELY_AVAILABLE_CREDENTIALS"
         internal const val BUNDLE_KEY_CLIENT_DATA_HASH =
             "androidx.credentials.BUNDLE_KEY_CLIENT_DATA_HASH"
         internal const val BUNDLE_KEY_REQUEST_JSON = "androidx.credentials.BUNDLE_KEY_REQUEST_JSON"
@@ -79,7 +67,6 @@ class GetPublicKeyCredentialOption @JvmOverloads constructor(
         internal fun toRequestDataBundle(
             requestJson: String,
             clientDataHash: String?,
-            preferImmediatelyAvailableCredentials: Boolean
         ): Bundle {
             val bundle = Bundle()
             bundle.putString(
@@ -88,8 +75,6 @@ class GetPublicKeyCredentialOption @JvmOverloads constructor(
             )
             bundle.putString(BUNDLE_KEY_REQUEST_JSON, requestJson)
             bundle.putString(BUNDLE_KEY_CLIENT_DATA_HASH, clientDataHash)
-            bundle.putBoolean(BUNDLE_KEY_PREFER_IMMEDIATELY_AVAILABLE_CREDENTIALS,
-                preferImmediatelyAvailableCredentials)
             return bundle
         }
 
@@ -103,12 +88,9 @@ class GetPublicKeyCredentialOption @JvmOverloads constructor(
             try {
                 val requestJson = data.getString(BUNDLE_KEY_REQUEST_JSON)
                 val clientDataHash = data.getString(BUNDLE_KEY_CLIENT_DATA_HASH)
-                val preferImmediatelyAvailableCredentials =
-                    data.get(BUNDLE_KEY_PREFER_IMMEDIATELY_AVAILABLE_CREDENTIALS)
                 return GetPublicKeyCredentialOption(
                     requestJson!!,
                     clientDataHash,
-                    (preferImmediatelyAvailableCredentials!!) as Boolean,
                     allowedProviders
                 )
             } catch (e: Exception) {

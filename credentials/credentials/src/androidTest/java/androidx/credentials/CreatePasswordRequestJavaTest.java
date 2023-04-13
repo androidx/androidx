@@ -16,6 +16,7 @@
 
 package androidx.credentials;
 
+import static androidx.credentials.CreateCredentialRequest.BUNDLE_KEY_PREFER_IMMEDIATELY_AVAILABLE_CREDENTIALS;
 import static androidx.credentials.internal.FrameworkImplHelper.getFinalCreateCredentialData;
 
 import static com.google.common.truth.Truth.assertThat;
@@ -56,6 +57,38 @@ public class CreatePasswordRequestJavaTest {
     }
 
     @Test
+    public void constructor_withDefaults() {
+        String idExpected = "id";
+        String passwordExpected = "password";
+
+        CreatePasswordRequest request = new CreatePasswordRequest(idExpected, passwordExpected);
+
+        assertThat(request.getDisplayInfo().getPreferDefaultProvider()).isNull();
+        assertThat(request.preferImmediatelyAvailableCredentials()).isFalse();
+        assertThat(request.getOrigin()).isNull();
+        assertThat(request.getId()).isEqualTo(idExpected);
+        assertThat(request.getPassword()).isEqualTo(passwordExpected);
+    }
+
+    @Test
+    public void constructor_withoutDefaults() {
+        String idExpected = "id";
+        String passwordExpected = "password";
+        String originExpected = "origin";
+        boolean preferImmediatelyAvailableCredentialsExpected = true;
+
+        CreatePasswordRequest request = new CreatePasswordRequest(idExpected, passwordExpected,
+                originExpected, preferImmediatelyAvailableCredentialsExpected);
+
+        assertThat(request.preferImmediatelyAvailableCredentials())
+                .isEqualTo(preferImmediatelyAvailableCredentialsExpected);
+        assertThat(request.getDisplayInfo().getPreferDefaultProvider()).isNull();
+        assertThat(request.getOrigin()).isEqualTo(originExpected);
+        assertThat(request.getId()).isEqualTo(idExpected);
+        assertThat(request.getPassword()).isEqualTo(passwordExpected);
+    }
+
+    @Test
     public void constructor_emptyPassword_throws() {
         assertThrows(
                 IllegalArgumentException.class,
@@ -65,16 +98,24 @@ public class CreatePasswordRequestJavaTest {
 
     @SdkSuppress(minSdkVersion = 34, codeName = "UpsideDownCake")
     @Test
-    public void constructor_defaultProvider() {
-        String defaultProvider = "com.test/com.test.TestProviderComponent";
+    public void constructor_defaultProviderVariant() {
+        String idExpected = "id";
+        String passwordExpected = "pwd";
+        String originExpected = "origin";
+        boolean preferImmediatelyAvailableCredentialsExpected = true;
+        String defaultProviderExpected = "com.test/com.test.TestProviderComponent";
 
         CreatePasswordRequest request = new CreatePasswordRequest(
-                "id",
-                "password",
-                null,
-                defaultProvider);
+                idExpected, passwordExpected, originExpected, defaultProviderExpected,
+                preferImmediatelyAvailableCredentialsExpected);
 
-        assertThat(request.getDisplayInfo().getPreferDefaultProvider()).isEqualTo(defaultProvider);
+        assertThat(request.getDisplayInfo().getPreferDefaultProvider())
+                .isEqualTo(defaultProviderExpected);
+        assertThat(request.preferImmediatelyAvailableCredentials())
+                .isEqualTo(preferImmediatelyAvailableCredentialsExpected);
+        assertThat(request.getOrigin()).isEqualTo(originExpected);
+        assertThat(request.getId()).isEqualTo(idExpected);
+        assertThat(request.getPassword()).isEqualTo(passwordExpected);
     }
 
     @Test
@@ -97,17 +138,23 @@ public class CreatePasswordRequestJavaTest {
     public void getter_frameworkProperties() {
         String idExpected = "id";
         String passwordExpected = "pwd";
-        Bundle expectedData = new Bundle();
+        boolean preferImmediatelyAvailableCredentialsExpected = true;
+        Bundle expectedCredentialData = new Bundle();
         boolean expectedAutoSelect = false;
-        expectedData.putString(CreatePasswordRequest.BUNDLE_KEY_ID, idExpected);
-        expectedData.putString(CreatePasswordRequest.BUNDLE_KEY_PASSWORD, passwordExpected);
-        expectedData.putBoolean(CreatePasswordRequest.BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED,
+        expectedCredentialData.putString(CreatePasswordRequest.BUNDLE_KEY_ID, idExpected);
+        expectedCredentialData.putString(CreatePasswordRequest.BUNDLE_KEY_PASSWORD,
+                passwordExpected);
+        expectedCredentialData.putBoolean(CreatePasswordRequest.BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED,
                 expectedAutoSelect);
+        expectedCredentialData.putBoolean(
+                BUNDLE_KEY_PREFER_IMMEDIATELY_AVAILABLE_CREDENTIALS,
+                preferImmediatelyAvailableCredentialsExpected);
         Bundle expectedCandidateData = new Bundle();
         expectedCandidateData.putBoolean(CreatePasswordRequest.BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED,
                 expectedAutoSelect);
 
-        CreatePasswordRequest request = new CreatePasswordRequest(idExpected, passwordExpected);
+        CreatePasswordRequest request = new CreatePasswordRequest(idExpected, passwordExpected,
+                /*origin=*/ null, preferImmediatelyAvailableCredentialsExpected);
 
         assertThat(request.getType()).isEqualTo(PasswordCredential.TYPE_PASSWORD_CREDENTIAL);
         CreateCredentialRequest.DisplayInfo displayInfo =
@@ -121,9 +168,9 @@ public class CreatePasswordRequestJavaTest {
                 getFinalCreateCredentialData(
                         request, mContext);
         assertThat(credentialData.keySet())
-                .hasSize(expectedData.size() + /* added request info */ 1);
-        for (String key : expectedData.keySet()) {
-            assertThat(credentialData.get(key)).isEqualTo(credentialData.get(key));
+                .hasSize(expectedCredentialData.size() + /* added request info */ 1);
+        for (String key : expectedCredentialData.keySet()) {
+            assertThat(credentialData.get(key)).isEqualTo(expectedCredentialData.get(key));
         }
         Bundle displayInfoBundle =
                 credentialData.getBundle(
@@ -140,7 +187,13 @@ public class CreatePasswordRequestJavaTest {
     @Test
     public void frameworkConversion_success() {
         String idExpected = "id";
-        CreatePasswordRequest request = new CreatePasswordRequest(idExpected, "password");
+        String passwordExpected = "pwd";
+        boolean preferImmediatelyAvailableCredentialsExpected = true;
+        String originExpected = "origin";
+        String defaultProviderExpected = "com.test/com.test.TestProviderComponent";
+        CreatePasswordRequest request = new CreatePasswordRequest(
+                idExpected, passwordExpected, originExpected, defaultProviderExpected,
+                preferImmediatelyAvailableCredentialsExpected);
 
         CreateCredentialRequest convertedRequest = CreateCredentialRequest.createFrom(
                 request.getType(), getFinalCreateCredentialData(
@@ -152,13 +205,17 @@ public class CreatePasswordRequestJavaTest {
         assertThat(convertedRequest).isInstanceOf(CreatePasswordRequest.class);
         CreatePasswordRequest convertedCreatePasswordRequest =
                 (CreatePasswordRequest) convertedRequest;
-        assertThat(convertedCreatePasswordRequest.getPassword()).isEqualTo(request.getPassword());
-        assertThat(convertedCreatePasswordRequest.getId()).isEqualTo(request.getId());
+        assertThat(convertedCreatePasswordRequest.getPassword()).isEqualTo(passwordExpected);
+        assertThat(convertedCreatePasswordRequest.getId()).isEqualTo(idExpected);
+        assertThat(convertedCreatePasswordRequest.preferImmediatelyAvailableCredentials())
+                .isEqualTo(preferImmediatelyAvailableCredentialsExpected);
+        assertThat(convertedCreatePasswordRequest.getOrigin()).isEqualTo(originExpected);
         CreateCredentialRequest.DisplayInfo displayInfo =
                 convertedCreatePasswordRequest.getDisplayInfo();
         assertThat(displayInfo.getUserDisplayName()).isNull();
         assertThat(displayInfo.getUserId()).isEqualTo(idExpected);
         assertThat(displayInfo.getCredentialTypeIcon().getResId())
                 .isEqualTo(R.drawable.ic_password);
+        assertThat(displayInfo.getPreferDefaultProvider()).isEqualTo(defaultProviderExpected);
     }
 }

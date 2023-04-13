@@ -48,8 +48,11 @@ import android.os.Bundle
  * the only one available option, false by default
  * @param displayInfo the information to be displayed on the screen
  * @param origin the origin of a different application if the request is being made on behalf of
- * that application. For API level >=34, setting a non-null value for this parameter, will throw
- * a SecurityException if android.permission.CREDENTIAL_MANAGER_SET_ORIGIN is not present.
+ * that application (Note: for API level >=34, setting a non-null value for this parameter will
+ * throw a SecurityException if android.permission.CREDENTIAL_MANAGER_SET_ORIGIN is not present)
+ * @param preferImmediatelyAvailableCredentials true if you prefer the operation to return
+ * immediately when there is no available passkey registration offering instead of falling back to
+ * discovering remote options, and false (default) otherwise
  * @throws IllegalArgumentException If [type] is empty
  * @throws NullPointerException If [type], [credentialData], or [candidateQueryData] is null
  */
@@ -62,6 +65,7 @@ open class CreateCustomCredentialRequest
     displayInfo: DisplayInfo,
     isAutoSelectAllowed: Boolean = false,
     origin: String? = null,
+    preferImmediatelyAvailableCredentials: Boolean = false,
 ) : CreateCredentialRequest(
     type,
     credentialData,
@@ -69,7 +73,8 @@ open class CreateCustomCredentialRequest
     isSystemProviderRequired,
     isAutoSelectAllowed,
     displayInfo,
-    origin
+    origin,
+    preferImmediatelyAvailableCredentials
 ) {
     /** Returns the credential type that this request is for. */
     fun getCustomRequestType() = type
