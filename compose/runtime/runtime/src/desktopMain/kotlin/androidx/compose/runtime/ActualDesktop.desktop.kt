@@ -82,6 +82,22 @@ internal actual fun <T> createSnapshotMutableState(
     policy: SnapshotMutationPolicy<T>
 ): SnapshotMutableState<T> = SnapshotMutableStateImpl(value, policy)
 
+internal actual fun createSnapshotMutableIntState(
+    value: Int
+): MutableIntState = SnapshotMutableIntStateImpl(value)
+
+internal actual fun createSnapshotMutableLongState(
+    value: Long
+): MutableLongState = SnapshotMutableLongStateImpl(value)
+
+internal actual fun createSnapshotMutableFloatState(
+    value: Float
+): MutableFloatState = SnapshotMutableFloatStateImpl(value)
+
+internal actual fun createSnapshotMutableDoubleState(
+    value: Double
+): MutableDoubleState = SnapshotMutableDoubleStateImpl(value)
+
 internal actual fun logError(message: String, e: Throwable) {
     System.err.println(message)
     e.printStackTrace(System.err)
