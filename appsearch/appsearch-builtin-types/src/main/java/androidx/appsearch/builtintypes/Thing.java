@@ -342,6 +342,7 @@ public class Thing {
         /**
          * Add a new action to the list of potential actions for this document.
          */
+        @NonNull
         public T addPotentialAction(@NonNull PotentialAction newPotentialAction) {
             resetIfBuilt();
             Preconditions.checkNotNull(newPotentialAction);
@@ -352,6 +353,7 @@ public class Thing {
         /**
          * Clear all the potential actions for this document.
          */
+        @NonNull
         public T clearPotentialActions() {
             resetIfBuilt();
             mPotentialActions.clear();

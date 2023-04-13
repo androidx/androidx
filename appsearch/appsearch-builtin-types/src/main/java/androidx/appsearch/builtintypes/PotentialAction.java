@@ -46,10 +46,10 @@ import androidx.core.util.Preconditions;
 @Document(name = "builtin:PotentialAction")
 public class PotentialAction {
     @Document.Namespace
-    private final String mNamespace;
+    final String mNamespace;
 
     @Document.Id
-    private final String mId;
+    final String mId;
 
     @Document.StringProperty
     private final String mName;
@@ -67,18 +67,6 @@ public class PotentialAction {
         mName = name;
         mDescription = description;
         mUri = uri;
-    }
-
-    /** Returns the namespace (or logical grouping) for this action. */
-    @NonNull
-    public String getNamespace() {
-        return mNamespace;
-    }
-
-    /** Returns the unique identifier for this action. */
-    @NonNull
-    public String getId() {
-        return mId;
     }
 
     /** Returns a string describing the action. */
@@ -115,11 +103,9 @@ public class PotentialAction {
 
     /** Builder for {@link PotentialAction}. */
     public static final class Builder {
-        private String mNamespace;
-        private String mId;
-        private String mName;
-        private String mDescription;
-        private String mUri;
+        @Nullable private String mName;
+        @Nullable private String mDescription;
+        @Nullable private String mUri;
 
         /**
          * Constructor for {@link PotentialAction.Builder}.
@@ -127,10 +113,7 @@ public class PotentialAction {
          * <p> As PotentialAction is used as a DocumentProperty of Thing, it does not need an id or
          * namespace.
          */
-        public Builder() {
-            mNamespace = "";
-            mId = "";
-        }
+        public Builder() { }
 
         /**
          * Constructor with all the existing values.
@@ -139,8 +122,6 @@ public class PotentialAction {
          * namespace.
          */
         public Builder(@NonNull PotentialAction potentialAction) {
-            mNamespace = "";
-            mId = "";
             mName = potentialAction.getName();
             mDescription = potentialAction.getDescription();
             mUri = potentialAction.getUri();
@@ -148,14 +129,14 @@ public class PotentialAction {
 
         /** Sets the name of the action. */
         @NonNull
-        public Builder setName(@NonNull String name) {
+        public Builder setName(@Nullable String name) {
             mName = name;
             return this;
         }
 
         /** Sets the description of the action, such as "Call". */
         @NonNull
-        public Builder setDescription(@NonNull String description) {
+        public Builder setDescription(@Nullable String description) {
             mDescription = description;
             return this;
         }
@@ -172,7 +153,7 @@ public class PotentialAction {
          * {@link android.content.Intent#toUri}.
          */
         @NonNull
-        public Builder setUri(@NonNull String uri) {
+        public Builder setUri(@Nullable String uri) {
             mUri = uri;
             return this;
         }
@@ -180,7 +161,9 @@ public class PotentialAction {
         /** Builds the {@link PotentialAction}. */
         @NonNull
         public PotentialAction build() {
-            return new PotentialAction(mNamespace, mId, mName, mDescription, mUri);
+            // As PotentialAction is used as a DocumentProperty of Thing, it does not need an id or
+            // namespace.
+            return new PotentialAction(/*namespace=*/"", /*id=*/"", mName, mDescription, mUri);
         }
     }
 }
