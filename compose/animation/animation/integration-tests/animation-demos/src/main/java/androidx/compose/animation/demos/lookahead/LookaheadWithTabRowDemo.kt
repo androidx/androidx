@@ -28,14 +28,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.ScrollableTabRow
 import androidx.compose.material.Tab
 import androidx.compose.material.TabPosition
 import androidx.compose.material.TabRow
-import androidx.compose.material.TabRowDefaults
 import androidx.compose.material.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -65,9 +63,9 @@ fun LookaheadWithTabRowDemo() {
             }
         }
         Column(
-            Modifier
+            Modifier.fillMaxWidth()
                 .animateBounds(
-                    if (isWide) Modifier.fillMaxWidth() else Modifier.width(300.dp)
+                    if (isWide) Modifier else Modifier.padding(end = 100.dp)
                 )
                 .fillMaxHeight()
                 .background(Color(0xFFfffbd0))
@@ -79,7 +77,6 @@ fun LookaheadWithTabRowDemo() {
     }
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun FancyTabs() {
     var state by remember { mutableStateOf(0) }
@@ -87,11 +84,6 @@ fun FancyTabs() {
     Column {
         TabRow(
             selectedTabIndex = state,
-            indicator = @Composable { tabPositions ->
-                TabRowDefaults.Indicator(
-                    Modifier.animateBounds(Modifier.tabIndicatorOffset(tabPositions[state]))
-                )
-            },
         ) {
             titles.forEachIndexed { index, title ->
                 FancyTab(title = title, onClick = { state = index }, selected = (index == state))
@@ -105,17 +97,13 @@ fun FancyTabs() {
     }
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun FancyTab(title: String, onClick: () -> Unit, selected: Boolean) {
     Tab(selected, onClick) {
         Column(
             Modifier
                 .padding(10.dp)
-                .height(50.dp)
-                .animateBounds(
-                    Modifier.fillMaxWidth()
-                ),
+                .height(50.dp),
             verticalArrangement = Arrangement.SpaceBetween
         ) {
             Box(

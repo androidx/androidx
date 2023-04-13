@@ -156,6 +156,63 @@ class LookaheadLayoutTest {
     }
 
     @Test
+    fun defaultIntermediateMeasurePolicyInSubcomposeLayout() {
+        val expectedSizes = listOf(
+            IntSize(200, 100),
+            IntSize(400, 300),
+            IntSize(100, 500),
+            IntSize(20, 5),
+            IntSize(90, 120)
+        )
+        val targetSize = IntSize(260, 350)
+        var actualSize by mutableStateOf(IntSize.Zero)
+        var actualTargetSize by mutableStateOf(IntSize.Zero)
+        var iteration by mutableStateOf(0)
+
+        rule.setContent {
+            CompositionLocalProvider(LocalDensity provides Density(1f)) {
+                SubcomposeLayout(
+                    Modifier
+                        .requiredSize(targetSize.width.dp, targetSize.height.dp)
+                        .intermediateLayout { measurable, _ ->
+                            val intermediateConstraints = Constraints.fixed(
+                                expectedSizes[iteration].width,
+                                expectedSizes[iteration].height
+                            )
+                            measurable
+                                .measure(intermediateConstraints)
+                                .run {
+                                    layout(width, height) { place(0, 0) }
+                                }
+                        }) { constraints ->
+                    val placeable = subcompose(0) {
+                        Box(Modifier.fillMaxSize())
+                    }[0].measure(constraints)
+                    val size = placeable.run { IntSize(width, height) }
+                    if (this is SubcomposeIntermediateMeasureScope) {
+                        actualSize = size
+                    } else {
+                        actualTargetSize = size
+                    }
+                    layout(size.width, size.height) {
+                        placeable.place(0, 0)
+                    }
+                }
+            }
+        }
+
+        repeat(5) {
+            rule.runOnIdle {
+                assertEquals(targetSize, actualTargetSize)
+                assertEquals(expectedSizes[iteration], actualSize)
+                if (iteration < 4) {
+                    iteration++
+                }
+            }
+        }
+    }
+
+    @Test
     fun lookaheadLayoutAnimation() {
         var isLarge by mutableStateOf(true)
         var size1 = IntSize.Zero
@@ -1646,7 +1703,7 @@ class LookaheadLayoutTest {
     }
 
     @Test
-    fun subcomposeLayoutDefaultPlacementBehavior() {
+    fun subcomposeLayoutSkipToLookaheadConstraintsPlacementBehavior() {
         val actualPlacementOrder = mutableStateListOf<Int>()
         val expectedPlacementOrder1 = listOf(1, 3, 5, 2, 4, 0)
         val expectedPlacementOrder2 = listOf(2, 0, 3, 1, 5, 4)
@@ -1658,8 +1715,10 @@ class LookaheadLayoutTest {
         // Expect the default placement to be the same as lookahead
         rule.setContent {
             LookaheadScope {
-                val placeables = mutableListOf<Placeable>()
-                SubcomposeLayout { constraints ->
+                SubcomposeLayout(
+                    intermediateMeasurePolicy = { lookaheadMeasurePolicy(lookaheadConstraints) }
+                ) { constraints ->
+                    val placeables = mutableListOf<Placeable>()
                     repeat(3) { id ->
                         subcompose(id) {
                             Box(Modifier.trackMainPassPlacement {

@@ -2350,17 +2350,22 @@ package androidx.compose.ui.layout {
     method @androidx.compose.runtime.Stable public static operator long times(long, long size);
   }
 
-  @androidx.compose.ui.ExperimentalComposeUiApi public sealed interface SubcomposeIntermediateMeasureScope extends androidx.compose.ui.layout.MeasureScope {
+  @androidx.compose.ui.ExperimentalComposeUiApi public sealed interface SubcomposeIntermediateMeasureScope extends androidx.compose.ui.layout.SubcomposeMeasureScope {
+    method public long getLookaheadConstraints();
+    method public kotlin.jvm.functions.Function2<androidx.compose.ui.layout.SubcomposeMeasureScope,androidx.compose.ui.unit.Constraints,androidx.compose.ui.layout.MeasureResult> getLookaheadMeasurePolicy();
     method public long getLookaheadSize();
     method public java.util.List<androidx.compose.ui.layout.Measurable> measurablesForSlot(Object? slotId);
+    method public default java.util.List<androidx.compose.ui.layout.Measurable> subcompose(Object? slotId, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+    property public abstract long lookaheadConstraints;
+    property public abstract kotlin.jvm.functions.Function2<androidx.compose.ui.layout.SubcomposeMeasureScope,androidx.compose.ui.unit.Constraints,androidx.compose.ui.layout.MeasureResult> lookaheadMeasurePolicy;
     property public abstract long lookaheadSize;
   }
 
   public final class SubcomposeLayoutKt {
     method @androidx.compose.runtime.Composable public static void SubcomposeLayout(optional androidx.compose.ui.Modifier modifier, kotlin.jvm.functions.Function2<? super androidx.compose.ui.layout.SubcomposeMeasureScope,? super androidx.compose.ui.unit.Constraints,? extends androidx.compose.ui.layout.MeasureResult> measurePolicy);
-    method @androidx.compose.runtime.Composable @androidx.compose.ui.ExperimentalComposeUiApi public static void SubcomposeLayout(optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function2<? super androidx.compose.ui.layout.SubcomposeIntermediateMeasureScope,? super androidx.compose.ui.unit.Constraints,? extends androidx.compose.ui.layout.MeasureResult>? intermediateMeasurePolicy, kotlin.jvm.functions.Function2<? super androidx.compose.ui.layout.SubcomposeMeasureScope,? super androidx.compose.ui.unit.Constraints,? extends androidx.compose.ui.layout.MeasureResult> measurePolicy);
+    method @androidx.compose.runtime.Composable @androidx.compose.ui.ExperimentalComposeUiApi public static void SubcomposeLayout(optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function2<? super androidx.compose.ui.layout.SubcomposeIntermediateMeasureScope,? super androidx.compose.ui.unit.Constraints,? extends androidx.compose.ui.layout.MeasureResult> intermediateMeasurePolicy, kotlin.jvm.functions.Function2<? super androidx.compose.ui.layout.SubcomposeMeasureScope,? super androidx.compose.ui.unit.Constraints,? extends androidx.compose.ui.layout.MeasureResult> measurePolicy);
     method @androidx.compose.runtime.Composable @androidx.compose.ui.UiComposable public static void SubcomposeLayout(androidx.compose.ui.layout.SubcomposeLayoutState state, optional androidx.compose.ui.Modifier modifier, kotlin.jvm.functions.Function2<? super androidx.compose.ui.layout.SubcomposeMeasureScope,? super androidx.compose.ui.unit.Constraints,? extends androidx.compose.ui.layout.MeasureResult> measurePolicy);
-    method @androidx.compose.runtime.Composable @androidx.compose.ui.ExperimentalComposeUiApi @androidx.compose.ui.UiComposable public static void SubcomposeLayout(androidx.compose.ui.layout.SubcomposeLayoutState state, optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function2<? super androidx.compose.ui.layout.SubcomposeIntermediateMeasureScope,? super androidx.compose.ui.unit.Constraints,? extends androidx.compose.ui.layout.MeasureResult>? intermediateMeasurePolicy, kotlin.jvm.functions.Function2<? super androidx.compose.ui.layout.SubcomposeMeasureScope,? super androidx.compose.ui.unit.Constraints,? extends androidx.compose.ui.layout.MeasureResult> measurePolicy);
+    method @androidx.compose.runtime.Composable @androidx.compose.ui.ExperimentalComposeUiApi @androidx.compose.ui.UiComposable public static void SubcomposeLayout(androidx.compose.ui.layout.SubcomposeLayoutState state, optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function2<? super androidx.compose.ui.layout.SubcomposeIntermediateMeasureScope,? super androidx.compose.ui.unit.Constraints,? extends androidx.compose.ui.layout.MeasureResult> intermediateMeasurePolicy, kotlin.jvm.functions.Function2<? super androidx.compose.ui.layout.SubcomposeMeasureScope,? super androidx.compose.ui.unit.Constraints,? extends androidx.compose.ui.layout.MeasureResult> measurePolicy);
     method public static androidx.compose.ui.layout.SubcomposeSlotReusePolicy SubcomposeSlotReusePolicy(int maxSlotsToRetainForReuse);
   }
 
