@@ -109,6 +109,9 @@ internal class CaptureSessionState(
     }
 
     @GuardedBy("lock")
+    private var hasAttemptedCaptureSession = false
+
+    @GuardedBy("lock")
     private var _surfaceMap: Map<StreamId, Surface>? = null
 
     @GuardedBy("lock")
@@ -296,7 +299,8 @@ internal class CaptureSessionState(
             // If the CameraDevice is never opened, the session will never be created. For cleanup
             // reasons, make sure the session is finalized after shutdown if the cameraDevice was
             // never set.
-            shouldFinalizeSession = _cameraDevice == null && state != State.CLOSED
+            shouldFinalizeSession = state != State.CLOSED &&
+                (_cameraDevice == null || !hasAttemptedCaptureSession)
             _cameraDevice = null
             state = State.CLOSED
         }
@@ -377,6 +381,7 @@ internal class CaptureSessionState(
             }
 
             state = State.CREATING
+            hasAttemptedCaptureSession = true
             sessionCreatingTimestamp = Timestamps.now(timeSource)
         }
 

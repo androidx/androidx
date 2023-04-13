@@ -131,7 +131,7 @@ class CaptureSessionStateTest {
     }
 
     @Test
-    fun disconnectAfterCameraSetDoesNotCallOnSurfaceInactive() = runTest {
+    fun disconnectAfterCaptureSessionDoesNotCallOnSurfaceInactive() = runTest {
         val state =
             CaptureSessionState(
                 fakeGraphListener,
@@ -149,6 +149,10 @@ class CaptureSessionStateTest {
 
         // And a device is set
         state.cameraDevice = fakeCameraDevice
+
+        // Advance to make sure a capture session is created.
+        advanceUntilIdle()
+
         // And the state is then disconnected
         state.disconnect()
 
