@@ -8,16 +8,16 @@ package androidx.wear.protolayout.expression {
   }
 
   public static final class AnimationParameterBuilders.AnimationParameters {
-    method public int getDelayMillis();
-    method public int getDurationMillis();
+    method @IntRange(from=0) public long getDelayMillis();
+    method @IntRange(from=0) public long getDurationMillis();
     method public androidx.wear.protolayout.expression.AnimationParameterBuilders.Easing? getEasing();
   }
 
   public static final class AnimationParameterBuilders.AnimationParameters.Builder {
     ctor public AnimationParameterBuilders.AnimationParameters.Builder();
     method public androidx.wear.protolayout.expression.AnimationParameterBuilders.AnimationParameters build();
-    method public androidx.wear.protolayout.expression.AnimationParameterBuilders.AnimationParameters.Builder setDelayMillis(int);
-    method public androidx.wear.protolayout.expression.AnimationParameterBuilders.AnimationParameters.Builder setDurationMillis(int);
+    method public androidx.wear.protolayout.expression.AnimationParameterBuilders.AnimationParameters.Builder setDelayMillis(@IntRange(from=0) long);
+    method public androidx.wear.protolayout.expression.AnimationParameterBuilders.AnimationParameters.Builder setDurationMillis(@IntRange(from=0) long);
     method public androidx.wear.protolayout.expression.AnimationParameterBuilders.AnimationParameters.Builder setEasing(androidx.wear.protolayout.expression.AnimationParameterBuilders.Easing);
   }
 
