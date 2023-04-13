@@ -43,7 +43,6 @@ import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeoutOrNull
-import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -192,7 +191,6 @@ class SingleTurnCapabilityTest {
         assertThat(session.uiHandle).isSameInstanceAs(capabilityExecutorAsync)
     }
 
-    @Ignore // b/277121577
     @Test
     fun multipleSessions_sequentialExecution(): Unit = runBlocking {
         val executionResultChannel = Channel<ExecutionResult<Output>>()
