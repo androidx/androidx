@@ -26,7 +26,7 @@ HSPLandroidx/compose/foundation/ScrollingLayoutModifier**->**(**)**
 HSPLandroidx/compose/foundation/gestures/**->**(**)**
 #
 # Include everything inside of the interaction namespace
-HSPLandroidx/compose/foundation/interaction/*->**(**)**
+HSPLandroidx/compose/foundation/interaction/*;->**(**)**
 #
 # Include everything inside of the layout namespaces
 HSPLandroidx/compose/foundation/layout/**->**(**)**
@@ -50,7 +50,8 @@ HSPLandroidx/compose/foundation/shape/PercentCornerSize;->**(**)**
 #
 
 # Include everything inside of the text namespace
-HSPLandroidx/compose/foundation/text/*->**(**)**
+HSPLandroidx/compose/foundation/text/*;->**(**)**
+HSPLandroidx/compose/foundation/text/modifiers/**->**(**)**
 HSPLandroidx/compose/foundation/text/selection/SimpleLayoutKt**->**(**)**
 HSPLandroidx/compose/foundation/text/selection/TextFieldSelectionManager;->**(**)**
 
