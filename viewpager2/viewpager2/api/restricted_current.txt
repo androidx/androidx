@@ -24,7 +24,6 @@ package androidx.viewpager2.adapter {
     method public androidx.viewpager2.adapter.FragmentStateAdapter.FragmentTransactionCallback.OnPostEventListener onFragmentMaxLifecyclePreUpdated(androidx.fragment.app.Fragment, androidx.lifecycle.Lifecycle.State);
     method public androidx.viewpager2.adapter.FragmentStateAdapter.FragmentTransactionCallback.OnPostEventListener onFragmentPreAdded(androidx.fragment.app.Fragment);
     method public androidx.viewpager2.adapter.FragmentStateAdapter.FragmentTransactionCallback.OnPostEventListener onFragmentPreRemoved(androidx.fragment.app.Fragment);
-    method public androidx.viewpager2.adapter.FragmentStateAdapter.FragmentTransactionCallback.OnPostEventListener onFragmentPreSavedInstanceState(androidx.fragment.app.Fragment);
   }
 
   public static interface FragmentStateAdapter.FragmentTransactionCallback.OnPostEventListener {

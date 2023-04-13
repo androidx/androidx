@@ -34,6 +34,8 @@ import android.widget.FrameLayout;
 import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
+import androidx.annotation.RequiresOptIn;
 import androidx.collection.ArraySet;
 import androidx.collection.LongSparseArray;
 import androidx.core.view.ViewCompat;
@@ -830,6 +832,7 @@ public abstract class FragmentStateAdapter extends
             return result;
         }
 
+        @OptIn(markerClass = ExperimentalFragmentStateAdapterApi.class)
         public List<OnPostEventListener> dispatchPreSavedInstanceState(Fragment fragment) {
             List<OnPostEventListener> result = new ArrayList<>();
             for (FragmentTransactionCallback callback : mCallbacks) {
@@ -878,6 +881,7 @@ public abstract class FragmentStateAdapter extends
          * @return Listener called after the operation
          */
         @NonNull
+        @ExperimentalFragmentStateAdapterApi // Experimental in v1.1.*. To become stable in v1.2.*.
         public OnPostEventListener onFragmentPreSavedInstanceState(@NonNull Fragment fragment) {
             return NO_OP;
         }
@@ -937,4 +941,7 @@ public abstract class FragmentStateAdapter extends
             @NonNull FragmentTransactionCallback callback) {
         mFragmentEventDispatcher.unregisterCallback(callback);
     }
+
+    @RequiresOptIn(level = RequiresOptIn.Level.WARNING)
+    public @interface ExperimentalFragmentStateAdapterApi { }
 }
