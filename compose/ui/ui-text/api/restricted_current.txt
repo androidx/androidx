@@ -283,14 +283,14 @@ package androidx.compose.ui.text {
   }
 
   public final class PlatformParagraphStyle {
-    ctor @Deprecated public PlatformParagraphStyle(optional boolean includeFontPadding);
-    ctor @Deprecated public PlatformParagraphStyle(optional int emojiSupportMatch, optional boolean includeFontPadding);
+    ctor public PlatformParagraphStyle(optional boolean includeFontPadding);
+    ctor public PlatformParagraphStyle(optional int emojiSupportMatch, optional boolean includeFontPadding);
     ctor public PlatformParagraphStyle(optional int emojiSupportMatch);
     method public int getEmojiSupportMatch();
-    method @Deprecated public boolean getIncludeFontPadding();
+    method public boolean getIncludeFontPadding();
     method public androidx.compose.ui.text.PlatformParagraphStyle merge(androidx.compose.ui.text.PlatformParagraphStyle? other);
     property public final int emojiSupportMatch;
-    property @Deprecated public final boolean includeFontPadding;
+    property public final boolean includeFontPadding;
     field public static final androidx.compose.ui.text.PlatformParagraphStyle.Companion Companion;
   }
 
@@ -312,7 +312,7 @@ package androidx.compose.ui.text {
 
   public final class PlatformTextStyle {
     ctor public PlatformTextStyle(androidx.compose.ui.text.PlatformSpanStyle? spanStyle, androidx.compose.ui.text.PlatformParagraphStyle? paragraphStyle);
-    ctor @Deprecated public PlatformTextStyle(optional boolean includeFontPadding);
+    ctor public PlatformTextStyle(optional boolean includeFontPadding);
     ctor public PlatformTextStyle(int emojiSupportMatch);
     method public androidx.compose.ui.text.PlatformParagraphStyle? getParagraphStyle();
     method public androidx.compose.ui.text.PlatformSpanStyle? getSpanStyle();
