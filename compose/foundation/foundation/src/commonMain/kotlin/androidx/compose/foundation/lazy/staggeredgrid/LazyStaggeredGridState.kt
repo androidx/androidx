@@ -58,7 +58,6 @@ import kotlin.math.abs
  *  [LazyStaggeredGridState.firstVisibleItemScrollOffset]
  * @return created and memoized [LazyStaggeredGridState] with given parameters.
  */
-@ExperimentalFoundationApi
 @Composable
 fun rememberLazyStaggeredGridState(
     initialFirstVisibleItemIndex: Int = 0,
@@ -75,7 +74,7 @@ fun rememberLazyStaggeredGridState(
  * Hoisted state object controlling [LazyVerticalStaggeredGrid] or [LazyHorizontalStaggeredGrid].
  * In most cases, it should be created via [rememberLazyStaggeredGridState].
  */
-@ExperimentalFoundationApi
+@OptIn(ExperimentalFoundationApi::class)
 class LazyStaggeredGridState private constructor(
     initialFirstVisibleItems: IntArray,
     initialFirstVisibleOffsets: IntArray,
