@@ -1,6 +1,7 @@
 import groovy.transform.Field
 import androidx.build.gradle.gcpbuildcache.GcpBuildCache
 import androidx.build.gradle.gcpbuildcache.GcpBuildCacheServiceFactory
+import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
 
 pluginManagement {
     repositories {
@@ -502,7 +503,12 @@ if (isMultiplatformEnabled()) {
     includeProject(":compose:desktop:desktop:desktop-samples", "compose/desktop/desktop/samples", [BuildType.COMPOSE])
     includeProject(":compose:mpp", [BuildType.COMPOSE])
     includeProject(":compose:mpp:demo", [BuildType.COMPOSE])
-    includeProject(":compose:mpp:demo-uikit", [BuildType.COMPOSE])
+
+    // workaround for issue that on linux and windows CommonizeCInterop task fails
+    // It seems that this workaround can be removed after Kotlin 1.8.20
+    if (DefaultNativePlatform.getCurrentOperatingSystem().isMacOsX()) {
+        includeProject(":compose:mpp:demo-uikit", [BuildType.COMPOSE])
+    }
 }
 includeProject(":compose:foundation", [BuildType.COMPOSE])
 includeProject(":compose:foundation:foundation", [BuildType.COMPOSE])
