@@ -44,6 +44,7 @@ class InvalidVideoProfilesQuirk : Quirk {
         private val AFFECTED_MODELS: List<String> = listOf(
             "pixel 4",
             "pixel 4a",
+            "pixel 4a (5g)",
             "pixel 4 xl",
             "pixel 5",
             "pixel 5a",
