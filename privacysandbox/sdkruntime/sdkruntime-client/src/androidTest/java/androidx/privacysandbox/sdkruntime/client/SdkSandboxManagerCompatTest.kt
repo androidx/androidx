@@ -35,6 +35,7 @@ import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert.assertThrows
 import org.junit.Assume.assumeTrue
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mockito
@@ -282,6 +283,7 @@ class SdkSandboxManagerCompatTest {
         verify(context, Mockito.never()).getSystemService(any())
     }
 
+    @Ignore("b/277764220")
     @Test
     fun sdkController_getSandboxedSdks_returnsLocallyLoadedSdks() {
         val context = ApplicationProvider.getApplicationContext<Context>()

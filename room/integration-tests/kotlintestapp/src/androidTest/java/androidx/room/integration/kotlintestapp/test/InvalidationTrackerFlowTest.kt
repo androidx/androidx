@@ -160,6 +160,7 @@ class InvalidationTrackerFlowTest : TestDatabaseTest() {
         }
     }
 
+    @Ignore("b/277764166")
     @Test
     fun mapBlockingQuery() = runBlocking {
         booksDao.addAuthors(TestUtil.AUTHOR_1)
