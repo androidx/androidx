@@ -16,9 +16,10 @@
 
 package androidx.credentials
 
-import android.os.Build
 import android.graphics.drawable.Icon
+import android.os.Build
 import android.os.Bundle
+import android.service.credentials.CallingAppInfo
 import androidx.annotation.RequiresApi
 
 /** True if the two Bundles contain the same elements, and false otherwise. */
@@ -78,4 +79,9 @@ fun isPostFrameworkApiLevel(): Boolean {
 @RequiresApi(Build.VERSION_CODES.P)
 fun equals(a: Icon, b: Icon): Boolean {
     return a.type == b.type && a.resId == b.resId
+}
+
+@RequiresApi(34)
+fun equals(a: CallingAppInfo, b: CallingAppInfo): Boolean {
+    return a.packageName == b.packageName && a.origin == b.origin
 }
