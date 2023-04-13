@@ -73,7 +73,6 @@ dependencies {
     samples(project(":compose:foundation:foundation-layout:foundation-layout-samples"))
     samples(project(":compose:foundation:foundation:foundation-samples"))
     docs(project(":compose:material3:material3"))
-    docs(project(":compose:material3:material3-adaptive"))
     samples(project(":compose:material3:material3:material3-samples"))
     docs(project(":compose:material3:material3-window-size-class"))
     samples(project(":compose:material3:material3-window-size-class:material3-window-size-class-samples"))
