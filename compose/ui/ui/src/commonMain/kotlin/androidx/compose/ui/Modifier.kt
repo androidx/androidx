@@ -236,7 +236,7 @@ interface Modifier {
             isAttached = false
 
             scope?.let {
-                it.cancel("Modifier.Node was detached")
+                it.cancel(StacklessCancellationException("Modifier.Node was detached"))
                 scope = null
             }
             // coordinator = null
