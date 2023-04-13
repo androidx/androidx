@@ -52,6 +52,7 @@ class PagerPrefetcherTest(
 
     var pageSizePx = 30
     val pageSizeDp = with(rule.density) { pageSizePx.toDp() }
+    lateinit var state: PagerState
 
     @Test
     fun notPrefetchingForwardInitially() {
@@ -75,7 +76,7 @@ class PagerPrefetcherTest(
         val preFetchIndex = 2
         rule.runOnIdle {
             runBlocking {
-                pagerState.scrollBy(5f)
+                state.scrollBy(5f)
             }
         }
 
@@ -93,7 +94,7 @@ class PagerPrefetcherTest(
 
         rule.runOnIdle {
             runBlocking {
-                pagerState.scrollBy(-5f)
+                state.scrollBy(-5f)
             }
         }
 
@@ -112,7 +113,7 @@ class PagerPrefetcherTest(
 
         rule.runOnIdle {
             runBlocking {
-                pagerState.scrollBy(5f)
+                state.scrollBy(5f)
             }
         }
         var prefetchIndex = initialIndex + 2
@@ -125,8 +126,8 @@ class PagerPrefetcherTest(
 
         rule.runOnIdle {
             runBlocking {
-                pagerState.scrollBy(-2f)
-                pagerState.scrollBy(-1f)
+                state.scrollBy(-2f)
+                state.scrollBy(-1f)
             }
         }
 
@@ -145,7 +146,7 @@ class PagerPrefetcherTest(
 
         rule.runOnIdle {
             runBlocking {
-                pagerState.scrollBy(5f)
+                state.scrollBy(5f)
             }
         }
 
@@ -153,8 +154,8 @@ class PagerPrefetcherTest(
 
         rule.runOnIdle {
             runBlocking {
-                pagerState.scrollBy(pageSizePx / 2f)
-                pagerState.scrollBy(pageSizePx / 2f)
+                state.scrollBy(pageSizePx / 2f)
+                state.scrollBy(pageSizePx / 2f)
             }
         }
 
@@ -176,7 +177,7 @@ class PagerPrefetcherTest(
 
         rule.runOnIdle {
             runBlocking {
-                pagerState.scrollBy(-5f)
+                state.scrollBy(-5f)
             }
         }
 
@@ -184,8 +185,8 @@ class PagerPrefetcherTest(
 
         rule.runOnIdle {
             runBlocking {
-                pagerState.scrollBy(-pageSizePx / 2f)
-                pagerState.scrollBy(-pageSizePx / 2f)
+                state.scrollBy(-pageSizePx / 2f)
+                state.scrollBy(-pageSizePx / 2f)
             }
         }
 
@@ -206,7 +207,7 @@ class PagerPrefetcherTest(
 
         rule.runOnIdle {
             runBlocking {
-                pagerState.scrollBy(5f)
+                state.scrollBy(5f)
             }
         }
 
@@ -221,8 +222,8 @@ class PagerPrefetcherTest(
 
         rule.runOnIdle {
             runBlocking {
-                pagerState.scrollBy(-2f)
-                pagerState.scrollBy(-1f)
+                state.scrollBy(-2f)
+                state.scrollBy(-1f)
             }
         }
 
@@ -258,7 +259,7 @@ class PagerPrefetcherTest(
 
         rule.runOnIdle {
             runBlocking {
-                pagerState.scrollBy(5f)
+                state.scrollBy(5f)
             }
         }
 
@@ -272,7 +273,7 @@ class PagerPrefetcherTest(
 
         rule.runOnIdle {
             runBlocking {
-                pagerState.scrollBy(-2f)
+                state.scrollBy(-2f)
             }
         }
 
@@ -297,10 +298,11 @@ class PagerPrefetcherTest(
             ) { constraints ->
                 val placeable = if (emit) {
                     subcompose(Unit) {
-                        pagerState = rememberPagerState { 1000 }
+                        state = rememberPagerState()
                         HorizontalOrVerticalPager(
                             modifier = Modifier.mainAxisSize(pageSizeDp * 1.5f),
-                            state = pagerState
+                            state = state,
+                            pageCount = 1000
                         ) {
                             Spacer(
                                 Modifier
@@ -326,7 +328,7 @@ class PagerPrefetcherTest(
         rule.runOnIdle {
             // this will schedule the prefetching
             runBlocking(AutoTestFrameClock()) {
-                pagerState.scrollBy(pageSize.toFloat())
+                state.scrollBy(pageSize.toFloat())
             }
             // then we synchronously dispose LazyColumn
             emit = false
@@ -340,10 +342,11 @@ class PagerPrefetcherTest(
     fun snappingToOtherPositionWhilePrefetchIsScheduled() {
         val composedItems = mutableListOf<Int>()
         rule.setContent {
-            pagerState = rememberPagerState { 1000 }
+            state = rememberPagerState()
             HorizontalOrVerticalPager(
                 modifier = Modifier.mainAxisSize(pageSizeDp * 1.5f),
-                state = pagerState
+                state = state,
+                pageCount = 1000
             ) {
                 composedItems.add(it)
                 Spacer(
@@ -364,10 +367,10 @@ class PagerPrefetcherTest(
             runBlocking(AutoTestFrameClock()) {
                 // this will move the viewport so pages 1 and 2 are visible
                 // and schedule a prefetching for 3
-                pagerState.scrollBy(pageSize.toFloat())
+                state.scrollBy(pageSize.toFloat())
                 // then we move so that pages 100 and 101 are visible.
                 // this should cancel the prefetch for 3
-                pagerState.scrollToPage(100)
+                state.scrollToPage(100)
             }
         }
 
@@ -390,14 +393,14 @@ class PagerPrefetcherTest(
             runBlocking(AutoTestFrameClock()) {
                 // this will move the viewport so pages 1-2 are visible
                 // and schedule a prefetching for 3
-                pagerState.scrollBy(pageSizePx.toFloat())
+                state.scrollBy(pageSizePx.toFloat())
 
                 // move viewport by screen size to pages 4-5, so page 3 is just behind
                 // the first visible page
-                pagerState.scrollBy(pageSizePx * 3f)
+                state.scrollBy(pageSizePx * 3f)
 
                 // move scroll further to pages 5-6, so page 3 is reused
-                pagerState.scrollBy(pageSizePx.toFloat())
+                state.scrollBy(pageSizePx.toFloat())
             }
         }
 
@@ -406,7 +409,7 @@ class PagerPrefetcherTest(
         rule.runOnIdle {
             runBlocking(AutoTestFrameClock()) {
                 // scroll again to ensure page 3 was dropped
-                pagerState.scrollBy(pageSizePx * 100f)
+                state.scrollBy(pageSizePx * 100f)
             }
         }
 
@@ -436,13 +439,16 @@ class PagerPrefetcherTest(
         reverseLayout: Boolean = false,
         contentPadding: PaddingValues = PaddingValues(0.dp)
     ) {
+        state = PagerState(
+            initialPage = initialPage,
+            initialPageOffsetFraction = initialPageOffsetFraction
+        )
         createPager(
+            state = state,
             modifier = Modifier.mainAxisSize(pageSizeDp * 1.5f),
             reverseLayout = reverseLayout,
             contentPadding = contentPadding,
             offscreenPageLimit = paramConfig.beyondBoundsPageCount,
-            initialPage = initialPage,
-            initialPageOffsetFraction = initialPageOffsetFraction,
             pageCount = { 100 },
             pageSize = {
                 object : PageSize {

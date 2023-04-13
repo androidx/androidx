@@ -64,8 +64,11 @@ internal fun LazyLayoutMeasureScope.measurePager(
 ): PagerMeasureResult {
     require(beforeContentPadding >= 0)
     require(afterContentPadding >= 0)
+
     val pageSizeWithSpacing = (pageAvailableSize + spaceBetweenPages).coerceAtLeast(0)
+
     debugLog { "Remeasuring..." }
+
     return if (pageCount <= 0) {
         PagerMeasureResult(
             visiblePagesInfo = emptyList(),

@@ -55,12 +55,13 @@ val Carrousel = listOf(
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun HorizontalCarrouselDemo() {
-    val pagerState = rememberPagerState { PagesCount }
+    val pagerState = rememberPagerState()
 
     Column(modifier = Modifier.fillMaxSize()) {
         HorizontalPager(
             modifier = Modifier,
             state = pagerState,
+            pageCount = PagesCount,
             pageSize = PageSize.Fixed(200.dp)
         ) {
             CarrouselItem(it, Orientation.Vertical)
@@ -72,12 +73,13 @@ private fun HorizontalCarrouselDemo() {
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun VerticalCarrouselDemo() {
-    val pagerState = rememberPagerState { PagesCount }
+    val pagerState = rememberPagerState()
 
     Column(modifier = Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
         VerticalPager(
             modifier = Modifier.weight(0.9f),
             state = pagerState,
+            pageCount = PagesCount,
             pageSize = PageSize.Fixed(200.dp)
         ) {
             CarrouselItem(it, Orientation.Horizontal)
@@ -89,12 +91,13 @@ private fun VerticalCarrouselDemo() {
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun HorizontalCustomPageSizeDemo() {
-    val pagerState = rememberPagerState { PagesCount }
+    val pagerState = rememberPagerState()
 
     Column(modifier = Modifier.fillMaxSize()) {
         HorizontalPager(
             modifier = Modifier,
             state = pagerState,
+            pageCount = PagesCount,
             pageSize = ThreePagesPerViewport,
             pageSpacing = 8.dp
         ) {
@@ -107,12 +110,13 @@ private fun HorizontalCustomPageSizeDemo() {
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun HorizontalCustomPageSizeWithCustomMaxScrollDemo() {
-    val pagerState = rememberPagerState { PagesCount }
+    val pagerState = rememberPagerState()
 
     Column(modifier = Modifier.fillMaxSize()) {
         HorizontalPager(
             modifier = Modifier,
             state = pagerState,
+            pageCount = PagesCount,
             pageSize = ThreePagesPerViewport,
             pageSpacing = 8.dp,
             flingBehavior = PagerDefaults.flingBehavior(
