@@ -71,8 +71,12 @@ class VirtualCameraTest {
         private const val HAS_PROVIDER = true
         private const val NO_PROVIDER = false
         private val INPUT_SIZE = Size(800, 600)
+        private var receivedSessionConfigError: SessionConfig.SessionError? = null
         private val SESSION_CONFIG_WITH_SURFACE = SessionConfig.Builder()
-            .addSurface(FakeDeferrableSurface(INPUT_SIZE, ImageFormat.PRIVATE)).build()
+            .addSurface(FakeDeferrableSurface(INPUT_SIZE, ImageFormat.PRIVATE))
+            .addErrorListener { _, error ->
+                receivedSessionConfigError = error
+            }.build()
     }
 
     private val surfaceEdgesToClose = mutableListOf<SurfaceEdge>()
@@ -175,6 +179,24 @@ class VirtualCameraTest {
         // Set UseCase to active, verify it becomes open again.
         child1.notifyActiveForTesting()
         verifyEdge(child1, OPEN, HAS_PROVIDER)
+    }
+
+    @Test
+    fun resetWithClosedChildSurface_invokesErrorListener() {
+        // Arrange.
+        virtualCamera.bindChildren()
+        virtualCamera.setChildrenEdges(childrenEdges)
+        child1.updateSessionConfigForTesting(SESSION_CONFIG_WITH_SURFACE)
+        child1.notifyActiveForTesting()
+
+        // Act: close the child surface.
+        SESSION_CONFIG_WITH_SURFACE.surfaces[0].close()
+        virtualCamera.onUseCaseReset(child1)
+        shadowOf(getMainLooper()).idle()
+
+        // Assert: error listener is invoked.
+        assertThat(receivedSessionConfigError)
+            .isEqualTo(SessionConfig.SessionError.SESSION_ERROR_SURFACE_NEEDS_RESET)
     }
 
     @Test
