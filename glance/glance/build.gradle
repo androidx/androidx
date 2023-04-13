@@ -63,21 +63,6 @@ dependencies {
     testImplementation("androidx.room:room-runtime:2.4.3")
     testImplementation("androidx.work:work-testing:2.7.1")
     testImplementation("com.google.android.material:material:1.6.0")
-
-    androidTestImplementation('androidx.test:monitor:1.5.0')
-    androidTestImplementation('androidx.core:core-ktx:1.7.0')
-    androidTestImplementation("androidx.work:work-testing:2.7.1")
-    androidTestImplementation("androidx.test.uiautomator:uiautomator:2.2.0")
-    androidTestImplementation(libs.kotlinCoroutinesTest)
-    androidTestImplementation(libs.kotlinTest)
-    androidTestImplementation(libs.testCore)
-    androidTestImplementation(libs.testExtJunit)
-    androidTestImplementation(libs.testExtJunitKtx)
-    androidTestImplementation(libs.testRules)
-    androidTestImplementation(libs.testRunner)
-    androidTestImplementation(libs.truth)
-    androidTestImplementation("androidx.lifecycle:lifecycle-livedata:2.5.1")
-    androidTestImplementation("androidx.lifecycle:lifecycle-livedata-ktx:2.5.1")
 }
 
 android {
