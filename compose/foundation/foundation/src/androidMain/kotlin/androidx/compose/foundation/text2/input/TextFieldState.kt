@@ -33,8 +33,8 @@ import kotlinx.coroutines.flow.collectLatest
  * The editable text state of a text field, including both the [text] itself and position of the
  * cursor or selection.
  *
- * To change the text field contents programmatically, call [edit], [setTextAndSelectAll], or
- * [setTextAndPlaceCursorAtEnd]. To observe the value of the field over time, call
+ * To change the text field contents programmatically, call [edit], [setTextAndSelectAll],
+ * [setTextAndPlaceCursorAtEnd], or [clearText]. To observe the value of the field over time, call
  * [forEachTextValue] or [textAsFlow].
  *
  * When instantiating this class from a composable, use [rememberTextFieldState] to automatically
@@ -170,6 +170,7 @@ fun rememberTextFieldState(): TextFieldState =
  * ```
  *
  * @see setTextAndSelectAll
+ * @see clearText
  * @see TextFieldBuffer.placeCursorAtEnd
  */
 @ExperimentalFoundationApi
@@ -194,6 +195,7 @@ fun TextFieldState.setTextAndPlaceCursorAtEnd(text: String) {
  * ```
  *
  * @see setTextAndPlaceCursorAtEnd
+ * @see clearText
  * @see TextFieldBuffer.selectAll
  */
 @ExperimentalFoundationApi
@@ -201,6 +203,29 @@ fun TextFieldState.setTextAndSelectAll(text: String) {
     edit {
         replace(0, length, text)
         selectAll()
+    }
+}
+
+/**
+ * Deletes all the text in the state.
+ *
+ * To perform more complicated edits on the text, call [TextFieldState.edit]. This function is
+ * equivalent to calling:
+ * ```
+ * edit {
+ *   delete(0, length)
+ *   placeCursorAtEnd()
+ * }
+ * ```
+ *
+ * @see setTextAndPlaceCursorAtEnd
+ * @see setTextAndSelectAll
+ */
+@ExperimentalFoundationApi
+fun TextFieldState.clearText() {
+    edit {
+        delete(0, length)
+        placeCursorAtEnd()
     }
 }
 
