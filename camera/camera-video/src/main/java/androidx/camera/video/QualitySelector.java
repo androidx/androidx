@@ -313,6 +313,55 @@ public final class QualitySelector {
         return new ArrayList<>(sortedQualities);
     }
 
+    /**
+     * Generates a sorted quality list that matches the desired quality settings.
+     *
+     * <p>The method bases on the desired qualities and the fallback strategy to find a matched
+     * quality list on this device. The search algorithm first checks which desired quality is
+     * supported according to the set sequence and adds to the returned list by order. Then the
+     * fallback strategy will be applied to add more valid qualities.
+     *
+     * @param supportedQualities the supported qualities.
+     * @return a sorted supported quality list according to the desired quality settings.
+     */
+    @NonNull
+    List<Quality> getPrioritizedQualities(@NonNull List<Quality> supportedQualities) {
+        if (supportedQualities.isEmpty()) {
+            Logger.w(TAG, "No supported quality on the device.");
+            return new ArrayList<>();
+        }
+        Logger.d(TAG, "supportedQualities = " + supportedQualities);
+
+        // Use LinkedHashSet to prevent from duplicate quality and keep the adding order.
+        Set<Quality> sortedQualities = new LinkedHashSet<>();
+        // Add exact quality.
+        for (Quality quality : mPreferredQualityList) {
+            if (quality == Quality.HIGHEST) {
+                // Highest means user want a quality as higher as possible, so the return list can
+                // contain all supported resolutions from large to small.
+                sortedQualities.addAll(supportedQualities);
+                break;
+            } else if (quality == Quality.LOWEST) {
+                // Opposite to the highest
+                List<Quality> reversedList = new ArrayList<>(supportedQualities);
+                Collections.reverse(reversedList);
+                sortedQualities.addAll(reversedList);
+                break;
+            } else {
+                if (supportedQualities.contains(quality)) {
+                    sortedQualities.add(quality);
+                } else {
+                    Logger.w(TAG, "quality is not supported and will be ignored: " + quality);
+                }
+            }
+        }
+
+        // Add quality by fallback strategy based on fallback quality.
+        addByFallbackStrategy(supportedQualities, sortedQualities);
+
+        return new ArrayList<>(sortedQualities);
+    }
+
     @NonNull
     @Override
     public String toString() {
