@@ -19,7 +19,7 @@ package androidx.appactions.interaction.capabilities.core
 import com.google.common.util.concurrent.ListenableFuture
 
 /** An ListenableFuture-based interface of executing an action. */
-fun interface ActionExecutorAsync<ArgumentsT, OutputT> {
+fun interface CapabilityExecutorAsync<ArgumentsT, OutputT> {
     /**
      * Calls to execute the action.
      *
