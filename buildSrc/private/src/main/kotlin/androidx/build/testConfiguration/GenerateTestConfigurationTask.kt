@@ -73,10 +73,6 @@ abstract class GenerateTestConfigurationTask : DefaultTask() {
     abstract val hasBenchmarkPlugin: Property<Boolean>
 
     @get:Input
-    @get:Optional
-    abstract val benchmarkRunAlsoInterpreted: Property<Boolean>
-
-    @get:Input
     abstract val testRunner: Property<String>
 
     @get:Input
@@ -87,6 +83,9 @@ abstract class GenerateTestConfigurationTask : DefaultTask() {
 
     @get:Input
     abstract val additionalApkKeys: ListProperty<String>
+
+    @get:Input
+    abstract val additionalTags: ListProperty<String>
 
     @get:OutputFile
     abstract val outputXml: RegularFileProperty
@@ -166,9 +165,6 @@ abstract class GenerateTestConfigurationTask : DefaultTask() {
         if (hasBenchmarkPlugin.get()) {
             configBuilder.isBenchmark(true)
             if (configBuilder.isPostsubmit) {
-                if (benchmarkRunAlsoInterpreted.get()) {
-                    configBuilder.tag("microbenchmarks_interpreted")
-                }
                 configBuilder.tag("microbenchmarks")
             } else {
                 // in presubmit, we treat micro benchmarks as regular correctness tests as
@@ -180,12 +176,8 @@ abstract class GenerateTestConfigurationTask : DefaultTask() {
             configBuilder.tag("macrobenchmarks")
         } else {
             configBuilder.tag("androidx_unit_tests")
-            if (testProjectPath.get().startsWith(":compose:")) {
-                configBuilder.tag("compose")
-            } else if (testProjectPath.get().startsWith(":wear:")) {
-                configBuilder.tag("wear")
-            }
         }
+        additionalTags.get().forEach { configBuilder.tag(it) }
         val testApk = testLoader.get().load(testFolder.get())
             ?: throw RuntimeException("Cannot load required APK for task: $name")
         val testApkBuiltArtifact = testApk.elements.single()
