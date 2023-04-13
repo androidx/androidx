@@ -49,7 +49,7 @@ internal class SingleTurnCapabilitySession<
         get() {
             throw UnsupportedOperationException()
         }
-    override val status: CapabilitySession.Status
+    override val isActive: Boolean
         get() {
             throw UnsupportedOperationException()
         }

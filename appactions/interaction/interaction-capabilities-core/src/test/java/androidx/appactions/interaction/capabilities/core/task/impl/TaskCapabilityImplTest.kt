@@ -25,7 +25,6 @@ import androidx.appactions.interaction.capabilities.core.HostProperties
 import androidx.appactions.interaction.capabilities.core.SessionContext
 import androidx.appactions.interaction.capabilities.core.ValidationResult
 import androidx.appactions.interaction.capabilities.core.ValueListener
-import androidx.appactions.interaction.capabilities.core.impl.CapabilitySession
 import androidx.appactions.interaction.capabilities.core.impl.ErrorStatusInternal
 import androidx.appactions.interaction.capabilities.core.impl.UiHandleRegistry
 import androidx.appactions.interaction.capabilities.core.impl.concurrent.Futures
@@ -295,7 +294,7 @@ class TaskCapabilityImplTest {
     }
 
     @Test
-    fun slotFilling_getStatus_smokeTest() {
+    fun slotFilling_isActive_smokeTest() {
         val property: CapabilityTwoEntityValues.Properties =
             CapabilityTwoEntityValues.Properties.newBuilder()
                 .setSlotA(
@@ -347,7 +346,7 @@ class TaskCapabilityImplTest {
             )
 
         val session = capability.createSession(fakeSessionId, hostProperties)
-        assertThat(session.status).isEqualTo(CapabilitySession.Status.UNINITIATED)
+        assertThat(session.isActive).isTrue()
 
         // turn 1
         val callback = FakeCallbackInternal()
@@ -360,7 +359,7 @@ class TaskCapabilityImplTest {
             callback,
         )
         assertThat(callback.receiveResponse().fulfillmentResponse).isNotNull()
-        assertThat(session.status).isEqualTo(CapabilitySession.Status.IN_PROGRESS)
+        assertThat(session.isActive).isTrue()
 
         // turn 2
         val callback2 = FakeCallbackInternal()
@@ -375,7 +374,7 @@ class TaskCapabilityImplTest {
             callback2,
         )
         assertThat(callback2.receiveResponse().fulfillmentResponse).isNotNull()
-        assertThat(session.status).isEqualTo(CapabilitySession.Status.COMPLETED)
+        assertThat(session.isActive).isFalse()
 
         // turn 3
         val callback3 = FakeCallbackInternal()
@@ -384,7 +383,7 @@ class TaskCapabilityImplTest {
             callback3,
         )
         assertThat(callback3.receiveResponse().fulfillmentResponse).isNotNull()
-        assertThat(session.status).isEqualTo(CapabilitySession.Status.DESTROYED)
+        assertThat(session.isActive).isFalse()
     }
 
     @Test
