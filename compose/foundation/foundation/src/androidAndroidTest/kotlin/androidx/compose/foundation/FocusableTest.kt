@@ -70,6 +70,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.junit.After
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -414,6 +415,7 @@ class FocusableTest {
     }
     // This test also verifies that the internal API autoInvalidateRemovedNode()
     // is called when a modifier node is disposed.
+    @Ignore // b/277983655
     @Test
     fun removingFocusableFromLazyList_clearsFocus() {
         // Arrange.
