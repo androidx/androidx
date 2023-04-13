@@ -2537,6 +2537,32 @@ class ScrollableTest {
         }
     }
 
+    @Test
+    fun defaultScrollableState_scrollByWithNan_shouldFilterOutNan() {
+        val controller = ScrollableState {
+            assertThat(it).isNotNaN()
+            0f
+        }
+
+        val nanGenerator = object : FlingBehavior {
+            override suspend fun ScrollScope.performFling(initialVelocity: Float): Float {
+                return scrollBy(Float.NaN)
+            }
+        }
+
+        setScrollableContent {
+            Modifier.scrollable(
+                state = controller,
+                orientation = Orientation.Horizontal,
+                flingBehavior = nanGenerator
+            )
+        }
+
+        rule.onNodeWithTag(scrollableBoxTag).performTouchInput {
+            swipeLeft()
+        }
+    }
+
     private fun setScrollableContent(scrollableModifierFactory: @Composable () -> Modifier) {
         rule.setContentAndGetScope {
             Box {
