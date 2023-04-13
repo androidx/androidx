@@ -30,8 +30,8 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PageSize
 import androidx.compose.foundation.pager.VerticalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.material.Text
 import androidx.compose.material.Button
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -47,9 +47,10 @@ import kotlinx.coroutines.launch
 @Composable
 fun SimpleHorizontalPagerSample() {
     // Creates a 1-pager/viewport horizontal pager with single page snapping
+    val state = rememberPagerState { 10 }
     HorizontalPager(
+        state = state,
         modifier = Modifier.fillMaxSize(),
-        pageCount = 10
     ) { page ->
         Box(
             modifier = Modifier
@@ -69,9 +70,10 @@ fun SimpleHorizontalPagerSample() {
 @Composable
 fun SimpleVerticalPagerSample() {
     // Creates a 1-pager/viewport vertical pager with single page snapping
+    val state = rememberPagerState { 10 }
     VerticalPager(
-        modifier = Modifier.fillMaxSize(),
-        pageCount = 10
+        state = state,
+        modifier = Modifier.fillMaxSize()
     ) { page ->
         Box(
             modifier = Modifier
@@ -91,11 +93,10 @@ fun SimpleVerticalPagerSample() {
 @Composable
 fun PagerWithStateSample() {
     // You can use PagerState to define an initial page
-    val state = rememberPagerState(initialPage = 5)
+    val state = rememberPagerState(initialPage = 5) { 10 }
     HorizontalPager(
         modifier = Modifier.fillMaxSize(),
-        state = state,
-        pageCount = 10
+        state = state
     ) { page ->
         Box(
             modifier = Modifier
@@ -129,9 +130,10 @@ fun CustomPageSizeSample() {
         }
     }
 
+    val state = rememberPagerState { 10 }
     HorizontalPager(
+        state = state,
         modifier = Modifier.fillMaxSize(),
-        pageCount = 10,
         pageSize = CustomPageSize
     ) { page ->
         Box(
@@ -151,12 +153,11 @@ fun CustomPageSizeSample() {
 @Sampled
 @Composable
 fun ObservingStateChangesInPagerStateSample() {
-    val pagerState = rememberPagerState()
+    val pagerState = rememberPagerState { 10 }
     Column(modifier = Modifier.fillMaxSize()) {
         HorizontalPager(
             modifier = Modifier.weight(0.9f),
-            state = pagerState,
-            pageCount = 10
+            state = pagerState
         ) { page ->
             Box(
                 modifier = Modifier
@@ -169,9 +170,11 @@ fun ObservingStateChangesInPagerStateSample() {
                 Text(text = page.toString(), fontSize = 32.sp)
             }
         }
-        Column(modifier = Modifier
-            .weight(0.1f)
-            .fillMaxWidth()) {
+        Column(
+            modifier = Modifier
+                .weight(0.1f)
+                .fillMaxWidth()
+        ) {
             Text(text = "Current Page: ${pagerState.currentPage}")
             Text(text = "Target Page: ${pagerState.targetPage}")
             Text(text = "Settled Page Offset: ${pagerState.settledPage}")
@@ -183,13 +186,12 @@ fun ObservingStateChangesInPagerStateSample() {
 @Sampled
 @Composable
 fun AnimateScrollPageSample() {
-    val state = rememberPagerState()
+    val state = rememberPagerState { 10 }
     val animationScope = rememberCoroutineScope()
     Column {
         HorizontalPager(
             modifier = Modifier.weight(0.7f),
-            state = state,
-            pageCount = 10
+            state = state
         ) { page ->
             Box(
                 modifier = Modifier
@@ -203,7 +205,11 @@ fun AnimateScrollPageSample() {
             }
         }
 
-        Box(modifier = Modifier.weight(0.3f).fillMaxWidth(), contentAlignment = Alignment.Center) {
+        Box(
+            modifier = Modifier
+                .weight(0.3f)
+                .fillMaxWidth(), contentAlignment = Alignment.Center
+        ) {
             Button(onClick = {
                 animationScope.launch {
                     state.animateScrollToPage(state.currentPage + 1)
@@ -219,13 +225,12 @@ fun AnimateScrollPageSample() {
 @Sampled
 @Composable
 fun ScrollToPageSample() {
-    val state = rememberPagerState()
+    val state = rememberPagerState { 10 }
     val scrollScope = rememberCoroutineScope()
     Column {
         HorizontalPager(
             modifier = Modifier.height(400.dp),
-            state = state,
-            pageCount = 10
+            state = state
         ) { page ->
             Box(
                 modifier = Modifier

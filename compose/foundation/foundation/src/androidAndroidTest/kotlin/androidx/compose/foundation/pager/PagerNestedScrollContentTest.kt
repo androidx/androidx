@@ -20,7 +20,6 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.ScrollableDefaults
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyList
@@ -35,10 +34,10 @@ import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import androidx.test.filters.LargeTest
-import org.junit.Assert.assertEquals
 import com.google.common.truth.Truth.assertThat
 import kotlin.math.absoluteValue
 import kotlinx.coroutines.runBlocking
+import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
@@ -54,8 +53,7 @@ class PagerNestedScrollContentTest(
     @Test
     fun nestedScrollContent_shouldNotPropagateUnconsumedFlings() {
         // Arrange
-        val pagerState = PagerState()
-        createPager(pagerState) {
+        createPager(pageCount = { DefaultPageCount }) {
             LazyList(
                 modifier = Modifier.fillMaxSize(),
                 contentPadding = PaddingValues(0.dp),
@@ -93,7 +91,6 @@ class PagerNestedScrollContentTest(
     @Test
     fun nestedScrollContent_shouldPropagateCrossAxisUnconsumedFlings() {
         // Arrange
-        val pagerState = PagerState()
         var postFlingVelocity = Velocity.Zero
         val dataCapturingConnection = object : NestedScrollConnection {
             override suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity {
@@ -101,7 +98,10 @@ class PagerNestedScrollContentTest(
                 return Velocity.Zero
             }
         }
-        createPager(pagerState, nestedScrollConnection = dataCapturingConnection) {
+        createPager(
+            pageCount = { DefaultPageCount },
+            nestedScrollConnection = dataCapturingConnection
+        ) {
             LazyList(
                 modifier = Modifier.fillMaxSize(),
                 contentPadding = PaddingValues(0.dp),
@@ -141,9 +141,8 @@ class PagerNestedScrollContentTest(
     @Test
     fun nestedScrollContent_shouldPropagateScrollCorrectly() {
         // Arrange
-        val pagerState = PagerState()
         val lazyListState = LazyListState(9)
-        createPager(pagerState) {
+        createPager(pageCount = { DefaultPageCount }) {
             LazyList(
                 modifier = Modifier.fillMaxSize(),
                 contentPadding = PaddingValues(0.dp),
