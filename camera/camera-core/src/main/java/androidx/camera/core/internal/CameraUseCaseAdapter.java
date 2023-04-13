@@ -609,6 +609,8 @@ public final class CameraUseCaseAdapter implements Camera {
             existingSurfaces.add(AttachedSurfaceInfo.create(surfaceConfig,
                     useCase.getImageFormat(), useCase.getAttachedSurfaceResolution(),
                     Preconditions.checkNotNull(useCase.getAttachedStreamSpec()).getDynamicRange(),
+                    getCaptureTypes(useCase),
+                    useCase.getAttachedStreamSpec().getImplementationOptions(),
                     useCase.getCurrentConfig().getTargetFrameRate(null)));
             suggestedStreamSpecs.put(useCase, useCase.getAttachedStreamSpec());
         }
@@ -670,6 +672,19 @@ public final class CameraUseCaseAdapter implements Camera {
         if (unusedEffects.size() > 0) {
             Logger.w(TAG, "Unused effects: " + unusedEffects);
         }
+    }
+
+    @NonNull
+    private static List<UseCaseConfigFactory.CaptureType> getCaptureTypes(UseCase useCase) {
+        List<UseCaseConfigFactory.CaptureType> result = new ArrayList<>();
+        if (isStreamSharing(useCase)) {
+            for (UseCase child : ((StreamSharing) useCase).getChildren()) {
+                result.add(child.getCurrentConfig().getCaptureType());
+            }
+        } else {
+            result.add(useCase.getCurrentConfig().getCaptureType());
+        }
+        return result;
     }
 
     /**

@@ -28,6 +28,7 @@ import static androidx.camera.core.impl.ImageOutputConfig.OPTION_SUPPORTED_RESOL
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_TARGET_ROTATION;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_CAMERA_SELECTOR;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_CAPTURE_CONFIG_UNPACKER;
+import static androidx.camera.core.impl.UseCaseConfig.OPTION_CAPTURE_TYPE;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_DEFAULT_CAPTURE_CONFIG;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_DEFAULT_SESSION_CONFIG;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_HIGH_RESOLUTION_DISABLED;
@@ -219,7 +220,8 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
      */
     @NonNull
     public static <T extends VideoOutput> VideoCapture<T> withOutput(@NonNull T videoOutput) {
-        return new VideoCapture.Builder<>(Preconditions.checkNotNull(videoOutput)).build();
+        return new VideoCapture.Builder<>(Preconditions.checkNotNull(videoOutput)).setCaptureType(
+                UseCaseConfigFactory.CaptureType.VIDEO_CAPTURE).build();
     }
 
     /**
@@ -522,7 +524,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
     public UseCaseConfig<?> getDefaultConfig(boolean applyDefaultConfig,
             @NonNull UseCaseConfigFactory factory) {
         Config captureConfig = factory.getConfig(
-                UseCaseConfigFactory.CaptureType.VIDEO_CAPTURE,
+                DEFAULT_CONFIG.getConfig().getCaptureType(),
                 ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY);
 
         if (applyDefaultConfig) {
@@ -805,7 +807,8 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
             Builder<?> builder = new Builder<>(DEFAULT_VIDEO_OUTPUT)
                     .setSurfaceOccupancyPriority(DEFAULT_SURFACE_OCCUPANCY_PRIORITY)
                     .setVideoEncoderInfoFinder(DEFAULT_VIDEO_ENCODER_INFO_FINDER)
-                    .setDynamicRange(DEFAULT_DYNAMIC_RANGE);
+                    .setDynamicRange(DEFAULT_DYNAMIC_RANGE)
+                    .setCaptureType(UseCaseConfigFactory.CaptureType.VIDEO_CAPTURE);
 
             DEFAULT_CONFIG = builder.getUseCaseConfig();
         }
@@ -1770,6 +1773,14 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         @NonNull
         public Builder<T> setTargetFrameRate(@NonNull Range<Integer> targetFrameRate) {
             getMutableConfig().insertOption(OPTION_TARGET_FRAME_RATE, targetFrameRate);
+            return this;
+        }
+
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        @Override
+        public Builder<T> setCaptureType(@NonNull UseCaseConfigFactory.CaptureType captureType) {
+            getMutableConfig().insertOption(OPTION_CAPTURE_TYPE, captureType);
             return this;
         }
     }

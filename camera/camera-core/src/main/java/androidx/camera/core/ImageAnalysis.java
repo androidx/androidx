@@ -32,6 +32,7 @@ import static androidx.camera.core.impl.ImageOutputConfig.OPTION_TARGET_RESOLUTI
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_TARGET_ROTATION;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_CAMERA_SELECTOR;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_CAPTURE_CONFIG_UNPACKER;
+import static androidx.camera.core.impl.UseCaseConfig.OPTION_CAPTURE_TYPE;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_DEFAULT_CAPTURE_CONFIG;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_DEFAULT_SESSION_CONFIG;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_HIGH_RESOLUTION_DISABLED;
@@ -771,7 +772,7 @@ public final class ImageAnalysis extends UseCase {
     public UseCaseConfig<?> getDefaultConfig(boolean applyDefaultConfig,
             @NonNull UseCaseConfigFactory factory) {
         Config captureConfig = factory.getConfig(
-                UseCaseConfigFactory.CaptureType.IMAGE_ANALYSIS,
+                DEFAULT_CONFIG.getConfig().getCaptureType(),
                 ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY);
 
         if (applyDefaultConfig) {
@@ -1022,7 +1023,8 @@ public final class ImageAnalysis extends UseCase {
                     .setDefaultResolution(DEFAULT_TARGET_RESOLUTION)
                     .setSurfaceOccupancyPriority(DEFAULT_SURFACE_OCCUPANCY_PRIORITY)
                     .setTargetAspectRatio(DEFAULT_ASPECT_RATIO)
-                    .setResolutionSelector(DEFAULT_RESOLUTION_SELECTOR);
+                    .setResolutionSelector(DEFAULT_RESOLUTION_SELECTOR)
+                    .setCaptureType(UseCaseConfigFactory.CaptureType.IMAGE_ANALYSIS);
 
             DEFAULT_CONFIG = builder.getUseCaseConfig();
         }
@@ -1598,6 +1600,14 @@ public final class ImageAnalysis extends UseCase {
         @Override
         public Builder setHighResolutionDisabled(boolean disabled) {
             getMutableConfig().insertOption(OPTION_HIGH_RESOLUTION_DISABLED, disabled);
+            return this;
+        }
+
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        @Override
+        public Builder setCaptureType(@NonNull UseCaseConfigFactory.CaptureType captureType) {
+            getMutableConfig().insertOption(OPTION_CAPTURE_TYPE, captureType);
             return this;
         }
     }
