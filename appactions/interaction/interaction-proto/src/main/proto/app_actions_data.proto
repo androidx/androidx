@@ -33,7 +33,7 @@ message ParamValue {
     double number_value = 4;
     google.protobuf.Struct struct_value = 6;
   }
-  reserved 5;  // Deleted DateTime type.
+  reserved 5;  // Deleted DateTime value.
 }
 
 message Entity {
