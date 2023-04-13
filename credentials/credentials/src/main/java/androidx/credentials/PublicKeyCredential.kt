@@ -17,7 +17,6 @@
 package androidx.credentials
 
 import android.os.Bundle
-import androidx.annotation.VisibleForTesting
 import androidx.credentials.internal.FrameworkClassParsingException
 
 /**
@@ -41,18 +40,14 @@ class PublicKeyCredential constructor(
             "authentication response JSON must not be empty" }
     }
 
-    /** @hide */
+    /** Companion constants / helpers for [PublicKeyCredential]. */
     companion object {
-        /**
-         * The type value for public key credential related operations.
-         *
-         * @hide
-         */
+        /** The type value for public key credential related operations. */
         const val TYPE_PUBLIC_KEY_CREDENTIAL: String =
             "androidx.credentials.TYPE_PUBLIC_KEY_CREDENTIAL"
+
         /** The Bundle key value for the public key credential subtype (privileged or regular). */
         internal const val BUNDLE_KEY_SUBTYPE = "androidx.credentials.BUNDLE_KEY_SUBTYPE"
-        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         internal const val BUNDLE_KEY_AUTHENTICATION_RESPONSE_JSON =
             "androidx.credentials.BUNDLE_KEY_AUTHENTICATION_RESPONSE_JSON"
 
