@@ -88,6 +88,10 @@ class SemanticsNode internal constructor(
      */
     val root: RootForTest? get() = layoutNode.owner?.rootForTest
 
+    /**
+     * For newer AccessibilityNodeInfo-based integration test frameworks, it can be matched in the
+     * extras with key "androidx.compose.ui.semantics.id"
+     */
     val id: Int = layoutNode.semanticsId
 
     // GEOMETRY
