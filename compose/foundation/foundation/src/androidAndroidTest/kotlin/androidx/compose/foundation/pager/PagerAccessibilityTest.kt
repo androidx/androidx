@@ -52,22 +52,24 @@ class PagerAccessibilityTest(config: ParamConfig) : BasePagerTest(config = confi
 
     @Test
     fun accessibilityScroll_scrollToPage() {
-        createPager(offscreenPageLimit = 1)
+        val state = PagerState()
+        createPager(state, offscreenPageLimit = 1)
 
-        rule.runOnIdle { assertThat(pagerState.currentPage).isEqualTo(0) }
+        rule.runOnIdle { assertThat(state.currentPage).isEqualTo(0) }
 
         rule.onNodeWithTag("1").assertExists()
         rule.onNodeWithTag("1").performScrollTo()
 
-        rule.runOnIdle { assertThat(pagerState.currentPage).isEqualTo(1) }
-        rule.runOnIdle { assertThat(pagerState.currentPageOffsetFraction).isEqualTo(0.0f) }
+        rule.runOnIdle { assertThat(state.currentPage).isEqualTo(1) }
+        rule.runOnIdle { assertThat(state.currentPageOffsetFraction).isEqualTo(0.0f) }
     }
 
     @Test
     fun accessibilityPaging_animateScrollToPage() {
-        createPager(initialPage = 5, pageCount = { DefaultPageCount })
+        val state = PagerState(initialPage = 5)
+        createPager(state)
 
-        rule.runOnIdle { assertThat(pagerState.currentPage).isEqualTo(5) }
+        rule.runOnIdle { assertThat(state.currentPage).isEqualTo(5) }
 
         val actionBackward = if (vertical) {
             android.R.id.accessibilityActionPageUp
@@ -84,8 +86,8 @@ class PagerAccessibilityTest(config: ParamConfig) : BasePagerTest(config = confi
         }
 
         // Go to the previous page
-        rule.runOnIdle { assertThat(pagerState.currentPage).isEqualTo(4) }
-        rule.runOnIdle { assertThat(pagerState.currentPageOffsetFraction).isEqualTo(0.0f) }
+        rule.runOnIdle { assertThat(state.currentPage).isEqualTo(4) }
+        rule.runOnIdle { assertThat(state.currentPageOffsetFraction).isEqualTo(0.0f) }
 
         val actionForward = if (vertical) {
             android.R.id.accessibilityActionPageDown
@@ -102,15 +104,16 @@ class PagerAccessibilityTest(config: ParamConfig) : BasePagerTest(config = confi
         }
 
         // Go to the next page
-        rule.runOnIdle { assertThat(pagerState.currentPage).isEqualTo(5) }
-        rule.runOnIdle { assertThat(pagerState.currentPageOffsetFraction).isEqualTo(0.0f) }
+        rule.runOnIdle { assertThat(state.currentPage).isEqualTo(5) }
+        rule.runOnIdle { assertThat(state.currentPageOffsetFraction).isEqualTo(0.0f) }
     }
 
     @Test
     fun userScrollEnabledIsOff_shouldNotAllowPageAccessibilityActions() {
         // Arrange
+        val state = PagerState()
         createPager(
-            pageCount = { DefaultPageCount },
+            state = state,
             userScrollEnabled = false,
             modifier = Modifier.fillMaxSize()
         )
@@ -126,22 +129,23 @@ class PagerAccessibilityTest(config: ParamConfig) : BasePagerTest(config = confi
     @Test
     fun focusScroll_forwardAndBackward_shouldGoToPage_pageShouldBeCorrectlyPlaced() {
         // Arrange
-        createPager(pageCount = { DefaultPageCount })
+        val state = PagerState()
+        createPager(state)
         rule.runOnIdle { firstItemFocusRequester.requestFocus() }
 
         // Act: move forward
         rule.runOnIdle { focusManager.moveFocus(FocusDirection.Next) }
 
         // Assert
-        rule.runOnIdle { assertThat(pagerState.currentPage).isEqualTo(1) }
-        rule.runOnIdle { assertThat(pagerState.currentPageOffsetFraction).isEqualTo(0.0f) }
+        rule.runOnIdle { assertThat(state.currentPage).isEqualTo(1) }
+        rule.runOnIdle { assertThat(state.currentPageOffsetFraction).isEqualTo(0.0f) }
 
         // Act: move backward
         rule.runOnIdle { focusManager.moveFocus(FocusDirection.Previous) }
 
         // Assert
-        rule.runOnIdle { assertThat(pagerState.currentPage).isEqualTo(0) }
-        rule.runOnIdle { assertThat(pagerState.currentPageOffsetFraction).isEqualTo(0.0f) }
+        rule.runOnIdle { assertThat(state.currentPage).isEqualTo(0) }
+        rule.runOnIdle { assertThat(state.currentPageOffsetFraction).isEqualTo(0.0f) }
     }
 
     private fun <T> SemanticsNodeInteraction.withSemanticsNode(block: SemanticsNode.() -> T): T {

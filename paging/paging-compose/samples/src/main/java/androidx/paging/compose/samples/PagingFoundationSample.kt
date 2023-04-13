@@ -54,12 +54,13 @@ val pager = Pager(
 @Sampled
 @Composable
 public fun PagingWithHorizontalPager() {
+    val pagerState = rememberPagerState()
     val lazyPagingItems = pager.collectAsLazyPagingItems()
-    val pagerState = rememberPagerState { lazyPagingItems.itemCount }
 
     HorizontalPager(
         modifier = Modifier.fillMaxSize(),
         state = pagerState,
+        pageCount = lazyPagingItems.itemCount,
         pageSize = PageSize.Fixed(200.dp),
         key = lazyPagingItems.itemKey { it }
     ) { index ->
@@ -71,12 +72,13 @@ public fun PagingWithHorizontalPager() {
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 public fun PagingWithVerticalPager() {
+    val pagerState = rememberPagerState()
     val lazyPagingItems = pager.collectAsLazyPagingItems()
-    val pagerState = rememberPagerState { lazyPagingItems.itemCount }
 
     VerticalPager(
         modifier = Modifier.fillMaxSize(),
         state = pagerState,
+        pageCount = lazyPagingItems.itemCount,
         pageSize = PageSize.Fixed(200.dp),
         key = lazyPagingItems.itemKey { it }
     ) { index ->

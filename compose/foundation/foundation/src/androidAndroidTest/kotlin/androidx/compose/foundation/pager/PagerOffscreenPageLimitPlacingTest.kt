@@ -36,11 +36,8 @@ class PagerOffscreenPageLimitPlacingTest(
     @Test
     fun offscreenPageLimitIsUsed_shouldPlaceMoreItemsThanVisibleOnesAsWeScroll() {
         // Arrange
-        createPager(
-            pageCount = { DefaultPageCount },
-            modifier = Modifier.fillMaxSize(),
-            offscreenPageLimit = 1
-        )
+        val state = PagerState()
+        createPager(state = state, modifier = Modifier.fillMaxSize(), offscreenPageLimit = 1)
         val delta = pagerSize * 1.4f * scrollForwardSign
 
         repeat(DefaultAnimationRepetition) {
@@ -53,29 +50,25 @@ class PagerOffscreenPageLimitPlacingTest(
             // Next page was placed
             rule.runOnIdle {
                 Truth.assertThat(placed).contains(
-                    (pagerState.currentPage + 1)
+                    (state.currentPage + 1)
                         .coerceAtMost(DefaultPageCount - 1)
                 )
             }
         }
         rule.waitForIdle()
-        confirmPageIsInCorrectPosition(pagerState.currentPage)
+        confirmPageIsInCorrectPosition(state.currentPage)
     }
 
     @Test
     fun offscreenPageLimitIsUsed_shouldPlaceMoreItemsThanVisibleOnes() {
         // Arrange
         val initialIndex = 5
+        val state = PagerState(initialIndex)
 
         // Act
-        createPager(
-            initialPage = initialIndex,
-            pageCount = { DefaultPageCount },
-            modifier = Modifier.fillMaxSize(),
-            offscreenPageLimit = 2
-        )
-        val firstVisible = pagerState.layoutInfo.visiblePagesInfo.first().index
-        val lastVisible = pagerState.layoutInfo.visiblePagesInfo.last().index
+        createPager(state = state, modifier = Modifier.fillMaxSize(), offscreenPageLimit = 2)
+        val firstVisible = state.layoutInfo.visiblePagesInfo.first().index
+        val lastVisible = state.layoutInfo.visiblePagesInfo.last().index
         // Assert
         rule.runOnIdle {
             Truth.assertThat(placed).contains(firstVisible - 2)
@@ -92,19 +85,15 @@ class PagerOffscreenPageLimitPlacingTest(
     @Test
     fun offscreenPageLimitIsNotUsed_shouldNotPlaceMoreItemsThanVisibleOnes() {
         // Arrange
+        val state = PagerState(5)
 
         // Act
-        createPager(
-            initialPage = 5,
-            pageCount = { DefaultPageCount },
-            modifier = Modifier.fillMaxSize(),
-            offscreenPageLimit = 0
-        )
+        createPager(state = state, modifier = Modifier.fillMaxSize(), offscreenPageLimit = 0)
 
         // Assert
         rule.waitForIdle()
-        val firstVisible = pagerState.layoutInfo.visiblePagesInfo.first().index
-        val lastVisible = pagerState.layoutInfo.visiblePagesInfo.last().index
+        val firstVisible = state.layoutInfo.visiblePagesInfo.first().index
+        val lastVisible = state.layoutInfo.visiblePagesInfo.last().index
         Truth.assertThat(placed).doesNotContain(firstVisible - 1)
         Truth.assertThat(placed).contains(5)
         Truth.assertThat(placed).doesNotContain(lastVisible + 1)

@@ -70,7 +70,6 @@ open class BasePagerTest(private val config: ParamConfig) :
     lateinit var focusManager: FocusManager
     lateinit var firstItemFocusRequester: FocusRequester
     var composeView: View? = null
-    lateinit var pagerState: PagerState
 
     fun TouchInjectionScope.swipeWithVelocityAcrossMainAxis(velocity: Float, delta: Float? = null) {
         val end = if (delta == null) {
@@ -109,10 +108,9 @@ open class BasePagerTest(private val config: ParamConfig) :
         }
 
     internal fun createPager(
-        initialPage: Int = 0,
-        initialPageOffsetFraction: Float = 0f,
-        pageCount: () -> Int = { DefaultPageCount },
+        state: PagerState,
         modifier: Modifier = Modifier,
+        pageCount: () -> Int = { DefaultPageCount },
         offscreenPageLimit: Int = config.beyondBoundsPageCount,
         pageSize: () -> PageSize = { PageSize.Fill },
         userScrollEnabled: Boolean = true,
@@ -128,9 +126,6 @@ open class BasePagerTest(private val config: ParamConfig) :
     ) {
 
         rule.setContent {
-            val state = rememberPagerState(initialPage, initialPageOffsetFraction, pageCount).also {
-                pagerState = it
-            }
             composeView = LocalView.current
             focusManager = LocalFocusManager.current
             val flingBehavior =
@@ -150,6 +145,7 @@ open class BasePagerTest(private val config: ParamConfig) :
                         .nestedScroll(nestedScrollConnection)
                 ) {
                     HorizontalOrVerticalPager(
+                        pageCount = pageCount(),
                         state = state,
                         beyondBoundsPageCount = offscreenPageLimit,
                         modifier = modifier
@@ -266,7 +262,8 @@ open class BasePagerTest(private val config: ParamConfig) :
     @OptIn(ExperimentalFoundationApi::class)
     @Composable
     internal fun HorizontalOrVerticalPager(
-        state: PagerState = rememberPagerState(pageCount = { DefaultPageCount }),
+        pageCount: Int,
+        state: PagerState = rememberPagerState(),
         modifier: Modifier = Modifier,
         userScrollEnabled: Boolean = true,
         reverseLayout: Boolean = false,
@@ -280,6 +277,7 @@ open class BasePagerTest(private val config: ParamConfig) :
     ) {
         if (vertical) {
             VerticalPager(
+                pageCount = pageCount,
                 state = state,
                 modifier = modifier,
                 userScrollEnabled = userScrollEnabled,
@@ -294,6 +292,7 @@ open class BasePagerTest(private val config: ParamConfig) :
             )
         } else {
             HorizontalPager(
+                pageCount = pageCount,
                 state = state,
                 modifier = modifier,
                 userScrollEnabled = userScrollEnabled,
@@ -374,3 +373,7 @@ internal fun testContentPaddings(orientation: Orientation) = listOf(
     PaddingValues(start = 16.dp),
     PaddingValues(end = 16.dp)
 )
+
+open class SingleOrientationPagerTest(
+    orientation: Orientation
+) : BasePagerTest(ParamConfig(orientation))
