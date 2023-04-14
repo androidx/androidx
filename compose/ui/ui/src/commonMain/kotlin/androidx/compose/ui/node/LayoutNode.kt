@@ -1067,7 +1067,7 @@ internal class LayoutNode(
         constraints: Constraints? = layoutDelegate.lastLookaheadConstraints
     ): Boolean {
         // Only lookahead remeasure when the constraints are valid and the node is in
-        // a LookaheadLayout (by checking whether the lookaheadScope is set)
+        // a LookaheadScope (by checking whether the lookaheadScope is set)
         return if (constraints != null && lookaheadRoot != null) {
             lookaheadPassDelegate!!.remeasure(constraints)
         } else {
