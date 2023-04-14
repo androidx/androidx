@@ -125,7 +125,7 @@ public class Button implements LayoutElement {
         @NonNull private final Context mContext;
         @Nullable private LayoutElement mCustomContent;
         @NonNull private final Clickable mClickable;
-        @NonNull private CharSequence mContentDescription = "";
+        @Nullable private StringProp mContentDescription;
         @NonNull private DpProp mSize = DEFAULT_SIZE;
         @Nullable private String mText = null;
         @Nullable private Integer mTypographyName = null;
@@ -157,11 +157,24 @@ public class Button implements LayoutElement {
         }
 
         /**
-         * Sets the content description for the {@link Button}. It is highly recommended to provide
-         * this for button containing icon or image.
+         * Sets the static content description for the {@link Button}. It is highly recommended to
+         * provide this for button containing icon or image.
          */
         @NonNull
         public Builder setContentDescription(@NonNull CharSequence contentDescription) {
+            mContentDescription = new StringProp.Builder(contentDescription.toString()).build();
+            return this;
+        }
+
+        /**
+         * Sets the content description for the {@link Button}. It is highly recommended to provide
+         * this for button containing icon or image.
+         *
+         * <p>While this field is statically accessible from 1.0, it's only bindable since version
+         * 1.2 and renderers supporting version 1.2 will use the dynamic value (if set).
+         */
+        @NonNull
+        public Builder setContentDescription(@NonNull StringProp contentDescription) {
             this.mContentDescription = contentDescription;
             return this;
         }
@@ -313,11 +326,9 @@ public class Button implements LayoutElement {
                                                     getTagBytes(
                                                             checkNotNull(TYPE_TO_TAG.get(mType))))
                                             .build());
-            if (mContentDescription.length() > 0) {
+            if (mContentDescription != null) {
                 modifiers.setSemantics(
-                        new Semantics.Builder()
-                                .setContentDescription(mContentDescription.toString())
-                                .build());
+                        new Semantics.Builder().setContentDescription(mContentDescription).build());
             }
 
             Box.Builder element =
@@ -336,49 +347,49 @@ public class Button implements LayoutElement {
             LayoutElement.Builder content;
             switch (mType) {
                 case ICON:
-                {
-                    DpProp iconSize =
-                            mIconSize != null
-                                    ? mIconSize
-                                    : ButtonDefaults.recommendedIconSize(mSize);
-                    content =
-                            new Image.Builder()
-                                    .setResourceId(checkNotNull(mIcon))
-                                    .setHeight(checkNotNull(iconSize))
-                                    .setWidth(iconSize)
-                                    .setContentScaleMode(CONTENT_SCALE_MODE_FILL_BOUNDS)
-                                    .setColorFilter(
-                                            new ColorFilter.Builder()
-                                                    .setTint(mButtonColors.getContentColor())
-                                                    .build());
+                    {
+                        DpProp iconSize =
+                                mIconSize != null
+                                        ? mIconSize
+                                        : ButtonDefaults.recommendedIconSize(mSize);
+                        content =
+                                new Image.Builder()
+                                        .setResourceId(checkNotNull(mIcon))
+                                        .setHeight(checkNotNull(iconSize))
+                                        .setWidth(iconSize)
+                                        .setContentScaleMode(CONTENT_SCALE_MODE_FILL_BOUNDS)
+                                        .setColorFilter(
+                                                new ColorFilter.Builder()
+                                                        .setTint(mButtonColors.getContentColor())
+                                                        .build());
 
-                    return content.build();
-                }
+                        return content.build();
+                    }
                 case TEXT:
-                {
-                    @TypographyName
-                    int typographyName =
-                            mTypographyName != null
-                                    ? mTypographyName
-                                    : getDefaultTypographyForSize(mSize);
-                    content =
-                            new Text.Builder(mContext, checkNotNull(mText))
-                                    .setMaxLines(1)
-                                    .setTypography(typographyName)
-                                    .setColor(mButtonColors.getContentColor());
+                    {
+                        @TypographyName
+                        int typographyName =
+                                mTypographyName != null
+                                        ? mTypographyName
+                                        : getDefaultTypographyForSize(mSize);
+                        content =
+                                new Text.Builder(mContext, checkNotNull(mText))
+                                        .setMaxLines(1)
+                                        .setTypography(typographyName)
+                                        .setColor(mButtonColors.getContentColor());
 
-                    return content.build();
-                }
+                        return content.build();
+                    }
                 case IMAGE:
-                {
-                    content =
-                            new Image.Builder()
-                                    .setResourceId(checkNotNull(mImage))
-                                    .setHeight(mSize)
-                                    .setWidth(mSize)
-                                    .setContentScaleMode(CONTENT_SCALE_MODE_FILL_BOUNDS);
-                    return content.build();
-                }
+                    {
+                        content =
+                                new Image.Builder()
+                                        .setResourceId(checkNotNull(mImage))
+                                        .setHeight(mSize)
+                                        .setWidth(mSize)
+                                        .setContentScaleMode(CONTENT_SCALE_MODE_FILL_BOUNDS);
+                        return content.build();
+                    }
                 case CUSTOM_CONTENT:
                     return checkNotNull(mCustomContent);
                 case NOT_SET:
@@ -471,16 +482,12 @@ public class Button implements LayoutElement {
 
     /** Returns content description for this Button. */
     @Nullable
-    public CharSequence getContentDescription() {
+    public StringProp getContentDescription() {
         Semantics semantics = checkNotNull(mElement.getModifiers()).getSemantics();
         if (semantics == null) {
             return null;
         }
-        StringProp contentDescriptionProp = semantics.getContentDescription();
-        if (contentDescriptionProp == null) {
-            return null;
-        }
-        return contentDescriptionProp.getValue();
+        return semantics.getContentDescription();
     }
 
     /** Returns size for this Button. */
