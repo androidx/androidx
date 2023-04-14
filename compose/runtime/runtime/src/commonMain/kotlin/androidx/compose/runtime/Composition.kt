@@ -618,10 +618,12 @@ internal class CompositionImpl(
                 if (nonEmptySlotTable || abandonSet.isNotEmpty()) {
                     val manager = RememberEventDispatcher(abandonSet)
                     if (nonEmptySlotTable) {
+                        applier.onBeginChanges()
                         slotTable.write { writer ->
                             writer.removeCurrentGroup(manager)
                         }
                         applier.clear()
+                        applier.onEndChanges()
                         manager.dispatchRememberObservers()
                     }
                     manager.dispatchAbandons()
