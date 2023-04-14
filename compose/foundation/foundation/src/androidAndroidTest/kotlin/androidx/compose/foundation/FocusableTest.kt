@@ -49,6 +49,7 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.layout.LocalPinnableContainer
 import androidx.compose.ui.layout.PinnableContainer
 import androidx.compose.ui.layout.PinnableContainer.PinnedHandle
+import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.platform.InspectableValue
 import androidx.compose.ui.platform.isDebugInspectorInfoEnabled
 import androidx.compose.ui.platform.testTag
@@ -62,6 +63,7 @@ import androidx.compose.ui.test.isNotFocusable
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performSemanticsAction
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -70,7 +72,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.junit.After
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -415,7 +416,6 @@ class FocusableTest {
     }
     // This test also verifies that the internal API autoInvalidateRemovedNode()
     // is called when a modifier node is disposed.
-    @Ignore // b/277983655
     @Test
     fun removingFocusableFromLazyList_clearsFocus() {
         // Arrange.
@@ -450,6 +450,44 @@ class FocusableTest {
         // Assert.
         rule.runOnIdle {
             assertThat(lazyRowHasFocus).isFalse()
+        }
+    }
+
+    @Test
+    fun removingFocusableFromSubcomposeLayout_clearsFocus() {
+        // Arrange.
+        var hasFocus = false
+        var itemVisible by mutableStateOf(true)
+        rule.setContent {
+            SubcomposeLayout(
+                modifier = Modifier
+                    .requiredSize(100.dp)
+                    .onFocusChanged { hasFocus = it.hasFocus },
+            ) { constraints ->
+                val measurable = if (itemVisible) {
+                    subcompose(Unit) {
+                        Box(
+                            Modifier
+                                .requiredSize(10.dp)
+                                .testTag("0")
+                                .focusable()
+                        )
+                    }.single()
+                } else null
+                val placeable = measurable?.measure(constraints)
+                layout(constraints.minWidth, constraints.minHeight) {
+                    placeable?.place(IntOffset.Zero)
+                }
+            }
+        }
+        rule.onNodeWithTag("0").performSemanticsAction(SemanticsActions.RequestFocus)
+
+        // Act.
+        rule.runOnIdle { itemVisible = false }
+
+        // Assert.
+        rule.runOnIdle {
+            assertThat(hasFocus).isFalse()
         }
     }
 
