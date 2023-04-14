@@ -74,6 +74,8 @@ class RoundedPolygon {
      */
     var bounds: RectF by cubicShape::bounds
 
+    companion object {}
+
     /**
      * Constructs a RoundedPolygon object from a given list of vertices, with optional
      * corner-rounding parameters for all corners or per-corner.
