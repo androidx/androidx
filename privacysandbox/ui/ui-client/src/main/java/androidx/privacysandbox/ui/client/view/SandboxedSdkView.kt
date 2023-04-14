@@ -24,11 +24,66 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.RequiresApi
 import androidx.privacysandbox.ui.core.SandboxedUiAdapter
-import java.util.function.Consumer
+import java.util.concurrent.CopyOnWriteArrayList
 import kotlin.math.min
 
+/**
+ * A listener for changes to the state of the UI session associated with SandboxedSdkView.
+ */
+fun interface SandboxedSdkUiSessionStateChangedListener {
+    /**
+     * Called when the state of the session for SandboxedSdkView is updated.
+     */
+    fun onStateChanged(state: SandboxedSdkUiSessionState)
+}
+
+/**
+ * Represents the state of a UI session.
+ *
+ * A UI session refers to the session opened with a [SandboxedUiAdapter] to let the host display UI
+ * from the UI provider. If the host has requested to open a session with its [SandboxedUiAdapter],
+ * the state will be [Loading] until the session has been opened and the content has been displayed.
+ * At this point, the state will become [Active]. If there is no active session and no session is
+ * being loaded, the state is [Idle].
+ */
+sealed class SandboxedSdkUiSessionState private constructor() {
+    /**
+     * A UI session is currently attempting to be opened.
+     *
+     * This state occurs when the UI has requested to open a session with its [SandboxedUiAdapter].
+     * No UI from the [SandboxedUiAdapter] will be shown during this state. When the session has
+     * been successfully opened and the content has been displayed, the state will transition to
+     * [Active].
+     */
+    object Loading : SandboxedSdkUiSessionState()
+
+    /**
+     * There is an open session with the supplied [SandboxedUiAdapter] and its UI is currently
+     * being displayed.
+     */
+    object Active : SandboxedSdkUiSessionState()
+
+    /**
+     * There is no currently open UI session and there is no operation in progress to open one.
+     *
+     * The UI provider may close the session at any point, which will result in the state becoming
+     * [Idle] if the session is closed without an error. If there is an error that causes the
+     * session to close, the state will be [Error].
+     *
+     * If a new [SandboxedUiAdapter] is set on a [SandboxedSdkView], the existing session will close
+     * and the state will become [Idle].
+     */
+    object Idle : SandboxedSdkUiSessionState()
+
+    /**
+     * There was an error in the UI session.
+     *
+     * @param throwable The error that caused the session to end.
+     */
+    class Error(val throwable: Throwable) : SandboxedSdkUiSessionState()
+}
+
 // TODO(b/268014171): Remove API requirements once S- support is added
-// TODO(b/266728841): Add listener that reports the state of SandboxedSdkView
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 class SandboxedSdkView @JvmOverloads constructor(
     context: Context,
@@ -38,11 +93,28 @@ class SandboxedSdkView @JvmOverloads constructor(
     private var adapter: SandboxedUiAdapter? = null
     private var client: Client? = null
     private var isZOrderOnTop = true
-    private var errorConsumer: Consumer<Throwable>? = null
     private var contentView: View? = null
     private var requestedWidth = -1
     private var requestedHeight = -1
     private var isTransitionGroupSet = false
+    internal val stateListenerManager: StateListenerManager = StateListenerManager()
+
+    /**
+     * Adds a state change listener to the UI session and immediately reports the current
+     * state.
+     */
+    fun addStateChangedListener(stateChangedListener: SandboxedSdkUiSessionStateChangedListener) {
+        stateListenerManager.addStateChangedListener(stateChangedListener)
+    }
+
+    /**
+     * Removes the specified state change listener from SandboxedSdkView.
+     */
+    fun removeStateChangedListener(
+        stateChangedListener: SandboxedSdkUiSessionStateChangedListener
+    ) {
+        stateListenerManager.removeStateChangedListener(stateChangedListener)
+    }
 
     fun setAdapter(sandboxedUiAdapter: SandboxedUiAdapter) {
         if (this.adapter === sandboxedUiAdapter) return
@@ -50,11 +122,6 @@ class SandboxedSdkView @JvmOverloads constructor(
         client = null
         this.adapter = sandboxedUiAdapter
         checkClientOpenSession()
-    }
-
-    // TODO(b/269590488): Remove Error Consumer once StateChangeListener is added
-    fun setSdkErrorConsumer(errorConsumer: Consumer<Throwable>?) {
-        this.errorConsumer = errorConsumer
     }
 
     fun setZOrderOnTopAndEnableUserInteraction(setOnTop: Boolean) {
@@ -67,6 +134,7 @@ class SandboxedSdkView @JvmOverloads constructor(
     private fun checkClientOpenSession() {
         val adapter = adapter
         if (client == null && adapter != null && isAttachedToWindow && width > 0 && height > 0) {
+            stateListenerManager.currentUiSessionState = SandboxedSdkUiSessionState.Loading
             client = Client(this)
             adapter.openSession(
                 context,
@@ -104,6 +172,16 @@ class SandboxedSdkView @JvmOverloads constructor(
             super.addView(contentView, 0, generateDefaultLayoutParams())
         } else {
             super.addView(contentView, 0, contentView.layoutParams)
+        }
+        stateListenerManager.currentUiSessionState = SandboxedSdkUiSessionState.Active
+    }
+
+    internal fun onClientClosedSession(error: Throwable? = null) {
+        removeContentView()
+        stateListenerManager.currentUiSessionState = if (error != null) {
+            SandboxedSdkUiSessionState.Error(error)
+        } else {
+            SandboxedSdkUiSessionState.Idle
         }
     }
 
@@ -287,10 +365,10 @@ class SandboxedSdkView @JvmOverloads constructor(
         }
 
         fun close() {
-            sandboxedSdkView?.removeContentView()
-            sandboxedSdkView = null
             session?.close()
             session = null
+            sandboxedSdkView?.onClientClosedSession()
+            sandboxedSdkView = null
         }
 
         override fun onSessionOpened(session: SandboxedUiAdapter.Session) {
@@ -316,14 +394,38 @@ class SandboxedSdkView @JvmOverloads constructor(
 
         override fun onSessionError(throwable: Throwable) {
             if (sandboxedSdkView == null) return
-            sandboxedSdkView?.removeContentView()
-            sandboxedSdkView?.errorConsumer?.accept(throwable) ?: throw throwable
-            sandboxedSdkView = null
+
+            sandboxedSdkView?.onClientClosedSession(throwable)
         }
 
         override fun onResizeRequested(width: Int, height: Int) {
             if (sandboxedSdkView == null) return
             sandboxedSdkView?.requestSize(width, height)
+        }
+    }
+
+    internal class StateListenerManager {
+        internal var currentUiSessionState: SandboxedSdkUiSessionState =
+            SandboxedSdkUiSessionState.Idle
+            set(value) {
+                if (field != value) {
+                    field = value
+                    for (listener in stateChangedListeners) {
+                        listener.onStateChanged(currentUiSessionState)
+                    }
+                }
+            }
+
+        private var stateChangedListeners =
+            CopyOnWriteArrayList<SandboxedSdkUiSessionStateChangedListener>()
+
+        fun addStateChangedListener(listener: SandboxedSdkUiSessionStateChangedListener) {
+            stateChangedListeners.add(listener)
+            listener.onStateChanged(currentUiSessionState)
+        }
+
+        fun removeStateChangedListener(listener: SandboxedSdkUiSessionStateChangedListener) {
+            stateChangedListeners.remove(listener)
         }
     }
 }
