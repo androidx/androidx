@@ -72,7 +72,6 @@ internal class AppInteractionServiceGrpcImpl(
         private const val TAG = "ActionsServiceGrpcImpl"
         private const val ERROR_NO_COLLECTION_SUPPORT = "Session doesn't support collection view"
         private const val ERROR_NO_UI = "No UI set"
-        private const val ERROR_MULTIPLE_UI_TYPES = "Multiple UI types used in current session"
         const val ERROR_NO_SESSION = "Session not available"
         const val ERROR_NO_FULFILLMENT_REQUEST = "Fulfillment request missing"
         const val ERROR_NO_ACTION_CAPABILITY = "Capability was not found"
@@ -306,46 +305,30 @@ internal class AppInteractionServiceGrpcImpl(
                 responseObserver,
             )
         }
-        val tileLayout = uiCache.getCachedTileLayout()
-        val remoteViewsSize = uiCache.getCachedRemoteViewsSize()
-        val remoteViews = uiCache.getCachedRemoteViews()
-        if (tileLayout != null && remoteViews != null) {
-            // TODO(b/272379825): Decide if this is really an invalid state.
-            // both types of UI are present, this is a misused of API. We will treat it as error.
-            destroySession(req.getSessionIdentifier())
-            return respondWithError(
-                StatusRuntimeException(
-                    Status.INTERNAL.withDescription(ERROR_MULTIPLE_UI_TYPES),
-                ),
-                responseObserver,
+        val tileLayout = uiCache.cachedTileLayout
+        val remoteViews = uiCache.cachedRemoteViews
+        val remoteViewsSize = uiCache.cachedRemoteViewsSize
+
+        if (tileLayout == null && (remoteViews == null || remoteViewsSize == null)) {
+            destroySession(req.sessionIdentifier)
+            respondWithError(
+                StatusRuntimeException(Status.INTERNAL.withDescription(ERROR_NO_UI)),
+                responseObserver
             )
         }
-        if (tileLayout != null) {
-            return respondAndComplete(
-                AppInteractionServiceProto.UiResponse.newBuilder()
-                    .setTileLayout(tileLayout.toProto())
-                    .build(),
-                responseObserver,
-            )
-        }
+        val uiResponseBuilder = AppInteractionServiceProto.UiResponse.newBuilder()
+        tileLayout?.let { uiResponseBuilder.tileLayout = it.toProto() }
         if (remoteViews != null && remoteViewsSize != null) {
             RemoteViewsOverMetadataInterceptor.setRemoteViews(remoteViews)
-            return respondAndComplete(
-                AppInteractionServiceProto.UiResponse.newBuilder()
-                    .setRemoteViewsInfo(
-                        RemoteViewsInfo.newBuilder()
-                            .setWidthDp(remoteViewsSize.getWidth())
-                            .setHeightDp(remoteViewsSize.getHeight()),
-                    )
-                    .build(),
-                responseObserver,
-            )
+            uiResponseBuilder
+                .setRemoteViewsInfo(
+                    RemoteViewsInfo.newBuilder()
+                        .setWidthDp(remoteViewsSize.width)
+                        .setHeightDp(remoteViewsSize.height)
+                )
+                .build()
         }
-        destroySession(req.getSessionIdentifier())
-        respondWithError(
-            StatusRuntimeException(Status.INTERNAL.withDescription(ERROR_NO_UI)),
-            responseObserver,
-        )
+        respondAndComplete(uiResponseBuilder.build(), responseObserver)
     }
 
     override fun requestCollection(
