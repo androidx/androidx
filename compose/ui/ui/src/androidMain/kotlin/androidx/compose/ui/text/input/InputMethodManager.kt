@@ -16,19 +16,11 @@
 
 package androidx.compose.ui.text.input
 
-import android.app.Activity
 import android.content.Context
-import android.content.ContextWrapper
-import android.os.Build
 import android.util.Log
 import android.view.View
-import android.view.Window
 import android.view.inputmethod.ExtractedText
-import androidx.annotation.DoNotInline
-import androidx.annotation.RequiresApi
-import androidx.compose.ui.window.DialogWindowProvider
-import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.WindowInsetsControllerCompat
+import androidx.core.view.SoftwareKeyboardControllerCompat
 
 internal interface InputMethodManager {
     fun restartInput()
@@ -61,11 +53,8 @@ internal class InputMethodManagerImpl(private val view: View) : InputMethodManag
             as android.view.inputmethod.InputMethodManager
     }
 
-    private val helper = if (Build.VERSION.SDK_INT < 30) {
-        ImmHelper21(view)
-    } else {
-        ImmHelper30(view)
-    }
+    private val softwareKeyboardControllerCompat =
+        SoftwareKeyboardControllerCompat(view)
 
     override fun restartInput() {
         imm.restartInput(view)
@@ -76,11 +65,11 @@ internal class InputMethodManagerImpl(private val view: View) : InputMethodManag
             Log.d(TAG, "InputMethodManagerImpl: requesting soft input on non focused field")
         }
 
-        helper.showSoftInput(imm)
+        softwareKeyboardControllerCompat.show()
     }
 
     override fun hideSoftInput() {
-        helper.hideSoftInput(imm)
+        softwareKeyboardControllerCompat.hide()
     }
 
     override fun updateExtractedText(
@@ -97,92 +86,5 @@ internal class InputMethodManagerImpl(private val view: View) : InputMethodManag
         compositionEnd: Int
     ) {
         imm.updateSelection(view, selectionStart, selectionEnd, compositionStart, compositionEnd)
-    }
-}
-
-private interface ImmHelper {
-    fun showSoftInput(imm: android.view.inputmethod.InputMethodManager)
-    fun hideSoftInput(imm: android.view.inputmethod.InputMethodManager)
-}
-
-private class ImmHelper21(private val view: View) : ImmHelper {
-
-    @DoNotInline
-    override fun showSoftInput(imm: android.view.inputmethod.InputMethodManager) {
-        view.post {
-            imm.showSoftInput(view, 0)
-        }
-    }
-
-    @DoNotInline
-    override fun hideSoftInput(imm: android.view.inputmethod.InputMethodManager) {
-        imm.hideSoftInputFromWindow(view.windowToken, 0)
-    }
-}
-
-@RequiresApi(30)
-private class ImmHelper30(private val view: View) : ImmHelper {
-
-    /**
-     * Get a [WindowInsetsControllerCompat] for the view. This returns a new instance every time,
-     * since the view may return null or not null at different times depending on window attach
-     * state.
-     */
-    private val insetsControllerCompat
-        // This can return null when, for example, the view is not attached to a window.
-        get() = view.findWindow()?.let { WindowInsetsControllerCompat(it, view) }
-
-    /**
-     * This class falls back to the legacy implementation when the window insets controller isn't
-     * available.
-     */
-    private val immHelper21: ImmHelper21
-        get() = _immHelper21 ?: ImmHelper21(view).also { _immHelper21 = it }
-    private var _immHelper21: ImmHelper21? = null
-
-    @DoNotInline
-    override fun showSoftInput(imm: android.view.inputmethod.InputMethodManager) {
-        insetsControllerCompat?.apply {
-            show(WindowInsetsCompat.Type.ime())
-        } ?: immHelper21.showSoftInput(imm)
-    }
-
-    @DoNotInline
-    override fun hideSoftInput(imm: android.view.inputmethod.InputMethodManager) {
-        insetsControllerCompat?.apply {
-            hide(WindowInsetsCompat.Type.ime())
-        } ?: immHelper21.hideSoftInput(imm)
-    }
-
-    // TODO(b/221889664) Replace with composition local when available.
-    private fun View.findWindow(): Window? {
-        var view: View = this
-        while (true) {
-            if (view is DialogWindowProvider) {
-                return view.window
-            }
-            val parent = view.parent as? View
-            if (parent == null) {
-                // Found the decor view of the current window. We can't get the window directly from
-                // the view, but we can get the window of the view's context. However, there's no
-                // guarantee that the view and its context share a window. For example, in a dialog,
-                // the view's context is the activity hosting the dialog, so the context's view tree
-                // will be entirely separate from the dialog's view tree. We only return the
-                // context's window if we are actually in that window, i.e. have the same root view.
-                // Otherwise we return null to fallback to not using window insets.
-                val windowFromContext = view.context.findWindow() ?: return null
-                val windowDecorView = windowFromContext.decorView
-                return if (windowDecorView === view) windowFromContext else null
-            }
-            view = parent
-        }
-    }
-
-    private tailrec fun Context.findWindow(): Window? {
-        return when (this) {
-            is Activity -> window
-            is ContextWrapper -> baseContext.findWindow()
-            else -> null
-        }
     }
 }
