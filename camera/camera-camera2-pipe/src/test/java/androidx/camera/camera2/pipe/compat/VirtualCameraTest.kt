@@ -16,9 +16,11 @@
 
 package androidx.camera.camera2.pipe.compat
 
+import android.graphics.SurfaceTexture
 import android.hardware.camera2.CameraDevice
 import android.os.Build
 import android.os.Looper.getMainLooper
+import android.view.Surface
 import androidx.camera.camera2.pipe.CameraError
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.RequestTemplate
@@ -45,6 +47,8 @@ import org.junit.After
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.kotlin.mock
+import org.mockito.kotlin.times
+import org.mockito.kotlin.verify
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 
@@ -210,6 +214,48 @@ internal class VirtualCameraStateTest {
         val result2 = virtualAndroidCameraState.createCaptureRequest(RequestTemplate(2))
         assertThat(result1).isNotNull()
         assertThat(result2).isNull()
+    }
+
+    @Test
+    fun virtualAndroidCameraDeviceFinalizesSessionWhenVirtualCameraStateIsDisconnected() = runTest {
+        val virtualCamera = VirtualCameraState(cameraId, graphListener)
+        val cameraState =
+            flowOf(
+                CameraStateOpen(
+                    AndroidCameraDevice(
+                        testCamera.metadata,
+                        testCamera.cameraDevice,
+                        testCamera.cameraId,
+                        cameraErrorListener,
+                    )
+                )
+            )
+        virtualCamera.connect(
+            cameraState,
+            object : Token {
+                override fun release(): Boolean {
+                    return true
+                }
+            })
+
+        virtualCamera.state.first { it !is CameraStateUnopened }
+
+        val virtualCameraState = virtualCamera.value
+        assertThat(virtualCameraState).isInstanceOf(CameraStateOpen::class.java)
+        val deviceWrapper = (virtualCameraState as CameraStateOpen).cameraDevice
+        assertThat(deviceWrapper).isInstanceOf(VirtualAndroidCameraDevice::class.java)
+
+        val virtualAndroidCameraState = deviceWrapper as VirtualAndroidCameraDevice
+        virtualCamera.disconnect()
+
+        val surfaceTexture = SurfaceTexture(0).also { it.setDefaultBufferSize(640, 480) }
+        val surface = Surface(surfaceTexture)
+        val callback: CameraCaptureSessionWrapper.StateCallback = mock()
+        val result = virtualAndroidCameraState.createCaptureSession(listOf(surface), callback, null)
+        assertThat(result).isFalse()
+        verify(callback, times(1)).onSessionFinalized()
+        surface.release()
+        surfaceTexture.release()
     }
 }
 

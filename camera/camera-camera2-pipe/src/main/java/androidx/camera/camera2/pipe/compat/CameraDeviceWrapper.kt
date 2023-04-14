@@ -357,6 +357,7 @@ internal class VirtualAndroidCameraDevice(
     ) = synchronized(lock) {
         if (disconnected) {
             Log.warn { "createCaptureSession failed: Virtual device disconnected" }
+            stateCallback.onSessionFinalized()
             false
         } else {
             androidCameraDevice.createCaptureSession(outputs, stateCallback, handler)
@@ -372,6 +373,7 @@ internal class VirtualAndroidCameraDevice(
     ) = synchronized(lock) {
         if (disconnected) {
             Log.warn { "createReprocessableCaptureSession failed: Virtual device disconnected" }
+            stateCallback.onSessionFinalized()
             false
         } else {
             androidCameraDevice.createReprocessableCaptureSession(
@@ -393,6 +395,7 @@ internal class VirtualAndroidCameraDevice(
             Log.warn {
                 "createConstrainedHighSpeedCaptureSession failed: Virtual device disconnected"
             }
+            stateCallback.onSessionFinalized()
             false
         } else {
             androidCameraDevice.createConstrainedHighSpeedCaptureSession(
@@ -413,6 +416,7 @@ internal class VirtualAndroidCameraDevice(
             Log.warn {
                 "createCaptureSessionByOutputConfigurations failed: Virtual device disconnected"
             }
+            stateCallback.onSessionFinalized()
             false
         } else {
             androidCameraDevice.createCaptureSessionByOutputConfigurations(
@@ -435,6 +439,7 @@ internal class VirtualAndroidCameraDevice(
                 "createReprocessableCaptureSessionByConfigurations failed: " +
                     "Virtual device disconnected"
             }
+            stateCallback.onSessionFinalized()
             false
         } else {
             androidCameraDevice.createReprocessableCaptureSessionByConfigurations(
@@ -450,6 +455,7 @@ internal class VirtualAndroidCameraDevice(
     override fun createCaptureSession(config: SessionConfigData) = synchronized(lock) {
         if (disconnected) {
             Log.warn { "createCaptureSession failed: Virtual device disconnected" }
+            config.stateCallback.onSessionFinalized()
             false
         } else {
             androidCameraDevice.createCaptureSession(config)
