@@ -2727,9 +2727,15 @@ public final class Recorder implements VideoOutput {
     }
 
     /**
-     * Gets the {@link VideoCapabilities} of Recorder.
+     * Returns the {@link VideoCapabilities} of Recorder with respect to input camera information.
+     *
+     * <p>{@link VideoCapabilities} provides methods to query supported dynamic ranges and
+     * qualities. This information can be used for things like checking if HDR is supported for
+     * configuring VideoCapture to record HDR video.
+     *
+     * @param cameraInfo info about the camera.
+     * @return VideoCapabilities with respect to the input camera info.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
     @NonNull
     public static VideoCapabilities getVideoCapabilities(@NonNull CameraInfo cameraInfo) {
         return RecorderVideoCapabilities.from(cameraInfo);

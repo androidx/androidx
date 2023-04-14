@@ -42,6 +42,7 @@ private const val CAMERA_ID_0 = "0"
 
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
+@Suppress("DEPRECATION")
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 class QualitySelectorTest {
 

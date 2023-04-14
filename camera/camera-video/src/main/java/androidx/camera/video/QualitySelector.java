@@ -96,7 +96,10 @@ public final class QualitySelector {
      * in the returned list, but their corresponding qualities are included.
      *
      * @param cameraInfo the cameraInfo
+     *
+     * @deprecated use {@link VideoCapabilities#getSupportedQualities(DynamicRange)} instead.
      */
+    @Deprecated
     @NonNull
     public static List<Quality> getSupportedQualities(@NonNull CameraInfo cameraInfo) {
         return Recorder.getVideoCapabilities(cameraInfo).getSupportedQualities(SDR);
@@ -119,7 +122,10 @@ public final class QualitySelector {
      * @param quality one of the quality constants.
      * @return {@code true} if the quality is supported; {@code false} otherwise.
      * @see #getSupportedQualities(CameraInfo)
+     *
+     * @deprecated use {@link VideoCapabilities#isQualitySupported(Quality, DynamicRange)} instead.
      */
+    @Deprecated
     public static boolean isQualitySupported(@NonNull CameraInfo cameraInfo,
             @NonNull Quality quality) {
         return Recorder.getVideoCapabilities(cameraInfo).isQualitySupported(quality, SDR);

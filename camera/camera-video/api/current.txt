@@ -94,8 +94,8 @@ package androidx.camera.video {
     method public static androidx.camera.video.QualitySelector fromOrderedList(java.util.List<androidx.camera.video.Quality!>);
     method public static androidx.camera.video.QualitySelector fromOrderedList(java.util.List<androidx.camera.video.Quality!>, androidx.camera.video.FallbackStrategy);
     method public static android.util.Size? getResolution(androidx.camera.core.CameraInfo, androidx.camera.video.Quality);
-    method public static java.util.List<androidx.camera.video.Quality!> getSupportedQualities(androidx.camera.core.CameraInfo);
-    method public static boolean isQualitySupported(androidx.camera.core.CameraInfo, androidx.camera.video.Quality);
+    method @Deprecated public static java.util.List<androidx.camera.video.Quality!> getSupportedQualities(androidx.camera.core.CameraInfo);
+    method @Deprecated public static boolean isQualitySupported(androidx.camera.core.CameraInfo, androidx.camera.video.Quality);
   }
 
   @RequiresApi(21) public final class Recorder implements androidx.camera.video.VideoOutput {
@@ -103,6 +103,7 @@ package androidx.camera.video {
     method public java.util.concurrent.Executor? getExecutor();
     method public androidx.camera.video.QualitySelector getQualitySelector();
     method public int getTargetVideoEncodingBitRate();
+    method public static androidx.camera.video.VideoCapabilities getVideoCapabilities(androidx.camera.core.CameraInfo);
     method public void onSurfaceRequested(androidx.camera.core.SurfaceRequest);
     method @RequiresApi(26) public androidx.camera.video.PendingRecording prepareRecording(android.content.Context, androidx.camera.video.FileDescriptorOutputOptions);
     method public androidx.camera.video.PendingRecording prepareRecording(android.content.Context, androidx.camera.video.FileOutputOptions);
@@ -131,6 +132,12 @@ package androidx.camera.video {
     method public abstract androidx.camera.video.AudioStats getAudioStats();
     method public abstract long getNumBytesRecorded();
     method public abstract long getRecordedDurationNanos();
+  }
+
+  @RequiresApi(21) public interface VideoCapabilities {
+    method public java.util.Set<androidx.camera.core.DynamicRange!> getSupportedDynamicRanges();
+    method public java.util.List<androidx.camera.video.Quality!> getSupportedQualities(androidx.camera.core.DynamicRange);
+    method public boolean isQualitySupported(androidx.camera.video.Quality, androidx.camera.core.DynamicRange);
   }
 
   @RequiresApi(21) public final class VideoCapture<T extends androidx.camera.video.VideoOutput> extends androidx.camera.core.UseCase {
