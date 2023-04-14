@@ -26,6 +26,8 @@ import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import android.widget.LinearLayout
 import androidx.annotation.RequiresApi
+import androidx.privacysandbox.ui.client.view.SandboxedSdkUiSessionState
+import androidx.privacysandbox.ui.client.view.SandboxedSdkUiSessionStateChangedListener
 import androidx.privacysandbox.ui.client.view.SandboxedSdkView
 import androidx.privacysandbox.ui.core.SandboxedUiAdapter
 import androidx.test.ext.junit.rules.ActivityScenarioRule
@@ -33,10 +35,10 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.testutils.withActivity
+import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executor
 import java.util.concurrent.TimeUnit
-import java.util.function.Consumer
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Assume
@@ -63,19 +65,10 @@ class SandboxedSdkViewTest {
     private lateinit var openSessionLatch: CountDownLatch
     private lateinit var resizeLatch: CountDownLatch
     private lateinit var configChangedLatch: CountDownLatch
+    private lateinit var stateChangedListener: StateChangedListener
 
     @get:Rule
     var activityScenarioRule = ActivityScenarioRule(UiLibActivity::class.java)
-
-    // TODO(b/269590488): Remove Error Consumer once StateChangeListener is added
-    class TestErrorConsumer(private val latch: CountDownLatch?) : Consumer<Throwable> {
-        var isErrorConsumed = false
-
-        override fun accept(throwable: Throwable) {
-            isErrorConsumed = true
-            latch?.countDown()
-        }
-    }
 
     class FailingTestSandboxedUiAdapter : SandboxedUiAdapter {
         override fun openSession(
@@ -95,7 +88,7 @@ class SandboxedSdkViewTest {
     class TestSandboxedUiAdapter(
         private val openSessionLatch: CountDownLatch?,
         private val resizeLatch: CountDownLatch?,
-        private val configChangedLatch: CountDownLatch?,
+        private val configChangedLatch: CountDownLatch?
     ) : SandboxedUiAdapter {
 
         var isSessionOpened = false
@@ -155,22 +148,78 @@ class SandboxedSdkViewTest {
         }
     }
 
+    open class StateChangedListener : SandboxedSdkUiSessionStateChangedListener {
+        var currentState: SandboxedSdkUiSessionState? = null
+        var latch: CountDownLatch = CountDownLatch(1)
+
+        override fun onStateChanged(state: SandboxedSdkUiSessionState) {
+            currentState = state
+            latch.countDown()
+        }
+    }
+
     @Before
     fun setup() {
         Assume.assumeTrue(Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
         context = InstrumentationRegistry.getInstrumentation().targetContext
         activity = activityScenarioRule.withActivity { this }
         view = SandboxedSdkView(context)
+        stateChangedListener = StateChangedListener()
+        view.addStateChangedListener(stateChangedListener)
+
         layoutParams = LinearLayout.LayoutParams(
             LinearLayout.LayoutParams.WRAP_CONTENT,
-            LinearLayout.LayoutParams.WRAP_CONTENT)
+            LinearLayout.LayoutParams.WRAP_CONTENT
+        )
         view.layoutParams = layoutParams
         openSessionLatch = CountDownLatch(1)
         resizeLatch = CountDownLatch(1)
         configChangedLatch = CountDownLatch(1)
-        testSandboxedUiAdapter =
-            TestSandboxedUiAdapter(openSessionLatch, resizeLatch, configChangedLatch)
+        testSandboxedUiAdapter = TestSandboxedUiAdapter(
+            openSessionLatch, resizeLatch, configChangedLatch
+        )
         view.setAdapter(testSandboxedUiAdapter)
+    }
+
+    @Test
+    fun addAndRemoveStateChangeListenerTest() {
+        // Initial state (Idle) should be sent to listener
+        var stateListenerManager: SandboxedSdkView.StateListenerManager = view.stateListenerManager
+        assertThat(stateChangedListener.latch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
+        assertThat(stateChangedListener.currentState).isEqualTo(SandboxedSdkUiSessionState.Idle)
+
+        // While registered, listener should receive state change
+        stateChangedListener.latch = CountDownLatch(1)
+        stateListenerManager.currentUiSessionState = SandboxedSdkUiSessionState.Active
+        assertThat(stateChangedListener.latch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
+        assertThat(stateChangedListener.currentState).isEqualTo(SandboxedSdkUiSessionState.Active)
+
+        // While unregistered, listener should not receive state change
+        stateChangedListener.latch = CountDownLatch(1)
+        view.removeStateChangedListener(stateChangedListener)
+        stateListenerManager.currentUiSessionState = SandboxedSdkUiSessionState.Loading
+        assertThat(stateChangedListener.latch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isFalse()
+    }
+
+    @Test
+    fun reentrantDispatchTest() {
+        val latch = CountDownLatch(2)
+        var currentState: SandboxedSdkUiSessionState? = SandboxedSdkUiSessionState.Idle
+
+        val listener1 = SandboxedSdkUiSessionStateChangedListener {
+            if (it != currentState) {
+                currentState = it
+                view.stateListenerManager.currentUiSessionState = SandboxedSdkUiSessionState.Active
+                latch.countDown()
+            }
+        }
+
+        view.addStateChangedListener(listener1)
+        assertThat(currentState).isEqualTo(SandboxedSdkUiSessionState.Idle)
+
+        view.stateListenerManager.currentUiSessionState = SandboxedSdkUiSessionState.Loading
+        assertThat(latch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
+        assertThat(currentState).isEqualTo(SandboxedSdkUiSessionState.Active)
     }
 
     @Test
@@ -180,7 +229,6 @@ class SandboxedSdkViewTest {
                 R.id.mainlayout
             ).addView(view)
         })
-
         openSessionLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)
         assertTrue(testSandboxedUiAdapter.isSessionOpened)
         assertTrue(view.childCount == 1)
@@ -188,28 +236,7 @@ class SandboxedSdkViewTest {
     }
 
     @Test
-    fun errorConsumerTest() {
-        var errorConsumedLatch = CountDownLatch(1)
-        val testSandboxedUiAdapter = FailingTestSandboxedUiAdapter()
-        val testErrorConsumer = TestErrorConsumer(errorConsumedLatch)
-        view.setSdkErrorConsumer(testErrorConsumer)
-        view.setAdapter(testSandboxedUiAdapter)
-
-        activity.runOnUiThread(Runnable {
-            activity.findViewById<LinearLayout>(
-                R.id.mainlayout
-            ).addView(view)
-        })
-
-        errorConsumedLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)
-        assertTrue(testErrorConsumer.isErrorConsumed)
-        assertTrue(errorConsumedLatch.count == 0.toLong())
-    }
-
-    @Test
     fun childViewRemovedOnErrorTest() {
-        view.setSdkErrorConsumer(TestErrorConsumer(null))
-
         assertTrue(view.childCount == 0)
 
         activity.runOnUiThread(Runnable {
@@ -320,7 +347,8 @@ class SandboxedSdkViewTest {
         val activity = activityScenarioRule.withActivity { this }
         val view = activity.layoutInflater.inflate(
             R.layout.sandboxedsdkview_transition_group_false,
-            null
+            null,
+            false
         ) as ViewGroup
         assertFalse(
             "XML overrides SandboxedSdkView.isTransitionGroup", view.isTransitionGroup
