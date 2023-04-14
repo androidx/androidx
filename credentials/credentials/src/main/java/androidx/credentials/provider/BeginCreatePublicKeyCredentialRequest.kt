@@ -49,10 +49,7 @@ class BeginCreatePublicKeyCredentialRequest constructor(
 ) : BeginCreateCredentialRequest(
     PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL,
     // TODO ("Use custom version of toCandidateData in this class")
-    toCandidateDataBundle(
-        requestJson,
-        /*preferImmediatelyAvailableCredentials=*/false
-    ),
+    toCandidateDataBundle(requestJson),
     callingAppInfo
 ) {
     init {
@@ -66,7 +63,6 @@ class BeginCreatePublicKeyCredentialRequest constructor(
         @JvmStatic
         internal fun toCandidateDataBundle(
             requestJson: String,
-            preferImmediatelyAvailableCredentials: Boolean
         ): Bundle {
             val bundle = Bundle()
             bundle.putString(
@@ -75,11 +71,6 @@ class BeginCreatePublicKeyCredentialRequest constructor(
                     .BUNDLE_VALUE_SUBTYPE_CREATE_PUBLIC_KEY_CREDENTIAL_REQUEST
             )
             bundle.putString(BUNDLE_KEY_REQUEST_JSON, requestJson)
-            bundle.putBoolean(
-                CreatePublicKeyCredentialRequest
-                    .BUNDLE_KEY_PREFER_IMMEDIATELY_AVAILABLE_CREDENTIALS,
-                preferImmediatelyAvailableCredentials
-            )
             return bundle
         }
 

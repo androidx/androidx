@@ -39,6 +39,24 @@ import androidx.credentials.internal.FrameworkClassParsingException
  * permission android.permission.CREDENTIAL_MANAGER_SET_ALLOWED_PROVIDERS to specify this, or
  * it would not take effect. Notice that this bit may not take effect for Android API level
  * 33 and below, depending on the pre-34 provider(s) you have chosen.
+ * @property preferImmediatelyAvailableCredentials true if you prefer the operation to return
+ * immediately when there is no available credentials instead of falling back to discovering remote
+ * options, and false (default) otherwise
+ * @param credentialOptions the list of [CredentialOption] from which the user can choose
+ * one to authenticate to the app
+ * @param origin the origin of a different application if the request is being made on behalf of
+ * that application (Note: for API level >=34, setting a non-null value for this parameter, will
+ * throw a SecurityException if android.permission.CREDENTIAL_MANAGER_SET_ORIGIN is not present)
+ * @param preferIdentityDocUi the value which signals if the UI should be tailored to display an
+ * identity document like driver license etc
+ * @param preferUiBrandingComponentName a service [ComponentName] from which the Credential
+ * Selector UI will pull its label and icon to render top level branding (Note: your app must have
+ * the permission android.permission.CREDENTIAL_MANAGER_SET_ALLOWED_PROVIDERS to specify this, or
+ * it would not take effect; also this bit may not take effect for Android API level 33 and below,
+ * depending on the pre-34 provider(s) you have chosen
+ * @param preferImmediatelyAvailableCredentials true if you prefer the operation to return
+ * immediately when there is no available credentials instead of falling back to discovering remote
+ * options, and false (default) otherwise
  * @throws IllegalArgumentException If [credentialOptions] is empty
  */
 class GetCredentialRequest
@@ -47,6 +65,8 @@ class GetCredentialRequest
     val origin: String? = null,
     val preferIdentityDocUi: Boolean = false,
     val preferUiBrandingComponentName: ComponentName? = null,
+    @get:JvmName("preferImmediatelyAvailableCredentials")
+    val preferImmediatelyAvailableCredentials: Boolean = false,
 ) {
 
     init {
@@ -58,6 +78,7 @@ class GetCredentialRequest
         private var credentialOptions: MutableList<CredentialOption> = mutableListOf()
         private var origin: String? = null
         private var preferIdentityDocUi: Boolean = false
+        private var preferImmediatelyAvailableCredentials: Boolean = false
         private var preferUiBrandingComponentName: ComponentName? = null
 
         /** Adds a specific type of [CredentialOption]. */
@@ -80,6 +101,19 @@ class GetCredentialRequest
          */
         fun setOrigin(origin: String): Builder {
             this.origin = origin
+            return this
+        }
+
+        /**
+         * Sets whether you prefer the operation to return immediately when there is no available
+         * credentials instead of falling back to discovering remote options. The default value
+         * is false.
+         */
+        @Suppress("MissingGetterMatchingBuilder")
+        fun setPreferImmediatelyAvailableCredentials(
+            preferImmediatelyAvailableCredentials: Boolean
+        ): Builder {
+            this.preferImmediatelyAvailableCredentials = preferImmediatelyAvailableCredentials
             return this
         }
 
@@ -115,13 +149,16 @@ class GetCredentialRequest
                 credentialOptions.toList(),
                 origin,
                 preferIdentityDocUi,
-                preferUiBrandingComponentName
+                preferUiBrandingComponentName,
+                preferImmediatelyAvailableCredentials
             )
         }
     }
 
     /** @hide */
     companion object {
+        internal const val BUNDLE_KEY_PREFER_IMMEDIATELY_AVAILABLE_CREDENTIALS =
+            "androidx.credentials.BUNDLE_KEY_PREFER_IMMEDIATELY_AVAILABLE_CREDENTIALS"
         internal const val BUNDLE_KEY_PREFER_IDENTITY_DOC_UI =
             "androidx.credentials.BUNDLE_KEY_PREFER_IDENTITY_DOC_UI"
         internal const val BUNDLE_KEY_PREFER_UI_BRANDING_COMPONENT_NAME =
@@ -134,6 +171,8 @@ class GetCredentialRequest
         ): Bundle {
             val bundle = Bundle()
             bundle.putBoolean(BUNDLE_KEY_PREFER_IDENTITY_DOC_UI, request.preferIdentityDocUi)
+            bundle.putBoolean(BUNDLE_KEY_PREFER_IMMEDIATELY_AVAILABLE_CREDENTIALS,
+                request.preferImmediatelyAvailableCredentials)
             bundle.putParcelable(
                 BUNDLE_KEY_PREFER_UI_BRANDING_COMPONENT_NAME, request.preferUiBrandingComponentName)
             return bundle
@@ -148,12 +187,15 @@ class GetCredentialRequest
         ): GetCredentialRequest {
             try {
                 val preferIdentityDocUi = data.getBoolean(BUNDLE_KEY_PREFER_IDENTITY_DOC_UI)
+                val preferImmediatelyAvailableCredentials = data.getBoolean(
+                    BUNDLE_KEY_PREFER_IMMEDIATELY_AVAILABLE_CREDENTIALS)
                 @Suppress("DEPRECATION")
                 val preferUiBrandingComponentName = data.getParcelable<ComponentName>(
                     BUNDLE_KEY_PREFER_UI_BRANDING_COMPONENT_NAME)
                 var getCredentialBuilder = Builder().setCredentialOptions(credentialOptions)
                     .setPreferIdentityDocUi(preferIdentityDocUi)
                     .setPreferUiBrandingComponentName(preferUiBrandingComponentName)
+                    .setPreferImmediatelyAvailableCredentials(preferImmediatelyAvailableCredentials)
                 if (origin != null) {
                     getCredentialBuilder.setOrigin(origin)
                 }

@@ -54,6 +54,7 @@ public class GetCredentialRequestJavaTest {
                     expectedCredentialOptions.get(i));
         }
         assertThat(request.getPreferIdentityDocUi()).isFalse();
+        assertThat(request.preferImmediatelyAvailableCredentials()).isFalse();
         assertThat(request.getPreferUiBrandingComponentName()).isNull();
     }
 
@@ -68,6 +69,22 @@ public class GetCredentialRequestJavaTest {
 
         assertThat(request.getCredentialOptions().get(0).isAutoSelectAllowed()).isFalse();
         assertThat(request.getPreferUiBrandingComponentName()).isEqualTo(expectedComponentName);
+    }
+
+    @Test
+    public void constructor_nonDefaultPreferImmediatelyAvailableCredentials() {
+        ArrayList<CredentialOption> options = new ArrayList<>();
+        options.add(new GetPasswordOption());
+        boolean expectedPreferImmediatelyAvailableCredentials = true;
+
+        GetCredentialRequest request = new GetCredentialRequest(
+                options, /*origin=*/ null, /*preferIdentityDocUi=*/false,
+                /*preferUiBrandingComponentName=*/ null,
+                expectedPreferImmediatelyAvailableCredentials);
+
+        assertThat(request.getCredentialOptions().get(0).isAutoSelectAllowed()).isFalse();
+        assertThat(request.preferImmediatelyAvailableCredentials())
+                .isEqualTo(expectedPreferImmediatelyAvailableCredentials);
     }
 
     @Test
@@ -114,6 +131,9 @@ public class GetCredentialRequestJavaTest {
             assertThat(request.getCredentialOptions().get(i)).isEqualTo(
                     expectedCredentialOptions.get(i));
         }
+        assertThat(request.getPreferIdentityDocUi()).isFalse();
+        assertThat(request.preferImmediatelyAvailableCredentials()).isFalse();
+        assertThat(request.getPreferUiBrandingComponentName()).isNull();
     }
 
     @Test
@@ -133,6 +153,28 @@ public class GetCredentialRequestJavaTest {
                     expectedCredentialOptions.get(i));
         }
         assertThat(request.getPreferIdentityDocUi()).isTrue();
+    }
+
+    @Test
+    public void builder_setPreferImmediatelyAvailableCredentials() {
+        ArrayList<CredentialOption> expectedCredentialOptions = new ArrayList<>();
+        expectedCredentialOptions.add(new GetPasswordOption());
+        expectedCredentialOptions.add(new GetPublicKeyCredentialOption("json"));
+        boolean expectedPreferImmediatelyAvailableCredentials = true;
+
+        GetCredentialRequest request = new GetCredentialRequest.Builder()
+                .setCredentialOptions(expectedCredentialOptions)
+                .setPreferImmediatelyAvailableCredentials(
+                        expectedPreferImmediatelyAvailableCredentials)
+                .build();
+
+        assertThat(request.getCredentialOptions()).hasSize(expectedCredentialOptions.size());
+        for (int i = 0; i < expectedCredentialOptions.size(); i++) {
+            assertThat(request.getCredentialOptions().get(i)).isEqualTo(
+                    expectedCredentialOptions.get(i));
+        }
+        assertThat(request.preferImmediatelyAvailableCredentials())
+                .isEqualTo(expectedPreferImmediatelyAvailableCredentials);
     }
 
     @Test
@@ -162,5 +204,31 @@ public class GetCredentialRequestJavaTest {
                 .build();
 
         assertThat(request.getCredentialOptions().get(0).isAutoSelectAllowed()).isFalse();
+    }
+
+    @Test
+    public void frameworkConversion() {
+        ArrayList<CredentialOption> options = new ArrayList<>();
+        options.add(new GetPasswordOption());
+        boolean expectedPreferImmediatelyAvailableCredentials = true;
+        ComponentName expectedComponentName = new ComponentName("test pkg", "test cls");
+        boolean expectedPreferIdentityDocUi = true;
+        String expectedOrigin = "origin";
+        GetCredentialRequest request = new GetCredentialRequest(options, expectedOrigin,
+                expectedPreferIdentityDocUi, expectedComponentName,
+                expectedPreferImmediatelyAvailableCredentials);
+
+
+        GetCredentialRequest convertedRequest = GetCredentialRequest.createFrom(
+                options, request.getOrigin(), GetCredentialRequest.toRequestDataBundle(request)
+        );
+
+        assertThat(convertedRequest.getOrigin()).isEqualTo(expectedOrigin);
+        assertThat(convertedRequest.getPreferIdentityDocUi()).isEqualTo(
+                expectedPreferIdentityDocUi);
+        assertThat(convertedRequest.getPreferUiBrandingComponentName()).isEqualTo(
+                expectedComponentName);
+        assertThat(convertedRequest.preferImmediatelyAvailableCredentials()).isEqualTo(
+                expectedPreferImmediatelyAvailableCredentials);
     }
 }

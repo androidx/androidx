@@ -17,7 +17,6 @@
 package androidx.credentials;
 
 import static androidx.credentials.CredentialOption.BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED;
-import static androidx.credentials.GetPublicKeyCredentialOption.BUNDLE_KEY_PREFER_IMMEDIATELY_AVAILABLE_CREDENTIALS;
 import static androidx.credentials.GetPublicKeyCredentialOption.BUNDLE_KEY_REQUEST_JSON;
 
 import static com.google.common.truth.Truth.assertThat;
@@ -65,29 +64,6 @@ public class GetPublicKeyCredentialOptionJavaTest {
     }
 
     @Test
-    public void constructor_setPreferImmediatelyAvailableCredentialsToFalseByDefault() {
-        GetPublicKeyCredentialOption getPublicKeyCredentialOpt =
-                new GetPublicKeyCredentialOption(
-                        "JSON");
-        boolean preferImmediatelyAvailableCredentialsActual =
-                getPublicKeyCredentialOpt.preferImmediatelyAvailableCredentials();
-        assertThat(preferImmediatelyAvailableCredentialsActual).isFalse();
-    }
-
-    @Test
-    public void constructor_setPreferImmediatelyAvailableCredentialsToTrue() {
-        boolean preferImmediatelyAvailableCredentialsExpected = true;
-        String clientDataHash = "hash";
-        GetPublicKeyCredentialOption getPublicKeyCredentialOpt =
-                new GetPublicKeyCredentialOption(
-                        "JSON", clientDataHash, preferImmediatelyAvailableCredentialsExpected);
-        boolean preferImmediatelyAvailableCredentialsActual =
-                getPublicKeyCredentialOpt.preferImmediatelyAvailableCredentials();
-        assertThat(preferImmediatelyAvailableCredentialsActual).isEqualTo(
-                preferImmediatelyAvailableCredentialsExpected);
-    }
-
-    @Test
     public void getter_requestJson_success() {
         String testJsonExpected = "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}";
         GetPublicKeyCredentialOption getPublicKeyCredentialOpt =
@@ -103,7 +79,6 @@ public class GetPublicKeyCredentialOptionJavaTest {
                 new ComponentName("pkg2", "cls2")
         );
         String requestJsonExpected = "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}";
-        boolean preferImmediatelyAvailableCredentialsExpected = false;
         boolean expectedIsAutoSelect = true;
         String clientDataHash = "hash";
         Bundle expectedData = new Bundle();
@@ -113,14 +88,10 @@ public class GetPublicKeyCredentialOptionJavaTest {
         expectedData.putString(BUNDLE_KEY_REQUEST_JSON, requestJsonExpected);
         expectedData.putString(GetPublicKeyCredentialOption.BUNDLE_KEY_CLIENT_DATA_HASH,
                 clientDataHash);
-        expectedData.putBoolean(
-                BUNDLE_KEY_PREFER_IMMEDIATELY_AVAILABLE_CREDENTIALS,
-                preferImmediatelyAvailableCredentialsExpected);
         expectedData.putBoolean(BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED, expectedIsAutoSelect);
 
         GetPublicKeyCredentialOption option = new GetPublicKeyCredentialOption(
-                requestJsonExpected, clientDataHash,
-                preferImmediatelyAvailableCredentialsExpected, expectedAllowedProviders);
+                requestJsonExpected, clientDataHash, expectedAllowedProviders);
 
         assertThat(option.getType()).isEqualTo(PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL);
         assertThat(TestUtilsKt.equals(option.getRequestData(), expectedData)).isTrue();
@@ -138,7 +109,7 @@ public class GetPublicKeyCredentialOptionJavaTest {
                 new ComponentName("pkg2", "cls2")
         );
         GetPublicKeyCredentialOption option = new GetPublicKeyCredentialOption(
-                "json", clientDataHash, true, expectedAllowedProviders);
+                "json", clientDataHash, expectedAllowedProviders);
 
         CredentialOption convertedOption = CredentialOption.createFrom(
                 option.getType(), option.getRequestData(),
@@ -149,8 +120,6 @@ public class GetPublicKeyCredentialOptionJavaTest {
         GetPublicKeyCredentialOption convertedSubclassOption =
                 (GetPublicKeyCredentialOption) convertedOption;
         assertThat(convertedSubclassOption.getRequestJson()).isEqualTo(option.getRequestJson());
-        assertThat(convertedSubclassOption.preferImmediatelyAvailableCredentials()).isEqualTo(
-                option.preferImmediatelyAvailableCredentials());
         assertThat(convertedSubclassOption.getAllowedProviders())
                 .containsAtLeastElementsIn(expectedAllowedProviders);
     }

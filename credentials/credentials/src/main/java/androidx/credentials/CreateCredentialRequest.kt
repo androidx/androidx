@@ -31,6 +31,13 @@ import androidx.credentials.internal.FrameworkClassParsingException
  * An application can construct a subtype request and call [CredentialManager.createCredential] to
  * launch framework UI flows to collect consent and any other metadata needed from the user to
  * register a new user credential.
+ *
+ * @property preferImmediatelyAvailableCredentials true if you prefer the operation to return
+ * immediately when there is no available credential creation offering instead of falling back to
+ * discovering remote options, and false (preferably) otherwise.
+ * @property origin the origin of a different application if the request is being made on behalf of
+ * that application. For API level >=34, setting a non-null value for this parameter, will throw
+ * a SecurityException if android.permission.CREDENTIAL_MANAGER_SET_ORIGIN is not present.
  */
 abstract class CreateCredentialRequest internal constructor(
     /** @hide */
@@ -51,10 +58,16 @@ abstract class CreateCredentialRequest internal constructor(
     /** @hide */
     val displayInfo: DisplayInfo,
     val origin: String?,
+    @get:JvmName("preferImmediatelyAvailableCredentials")
+    val preferImmediatelyAvailableCredentials: Boolean,
 ) {
 
     init {
         credentialData.putBoolean(BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED, isAutoSelectAllowed)
+        credentialData.putBoolean(
+            BUNDLE_KEY_PREFER_IMMEDIATELY_AVAILABLE_CREDENTIALS,
+            preferImmediatelyAvailableCredentials
+        )
         candidateQueryData.putBoolean(BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED, isAutoSelectAllowed)
     }
 
@@ -194,6 +207,8 @@ abstract class CreateCredentialRequest internal constructor(
 
     /** @hide */
     companion object {
+        internal const val BUNDLE_KEY_PREFER_IMMEDIATELY_AVAILABLE_CREDENTIALS =
+            "androidx.credentials.BUNDLE_KEY_PREFER_IMMEDIATELY_AVAILABLE_CREDENTIALS"
         /** @hide */
         const val BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED =
             "androidx.credentials.BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED"
@@ -243,6 +258,8 @@ abstract class CreateCredentialRequest internal constructor(
                     ) ?: return null,
                     credentialData.getBoolean(BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED, false),
                     origin,
+                    credentialData.getBoolean(
+                        BUNDLE_KEY_PREFER_IMMEDIATELY_AVAILABLE_CREDENTIALS, false),
                 )
             }
         }

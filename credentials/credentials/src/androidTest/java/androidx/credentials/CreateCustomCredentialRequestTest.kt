@@ -38,30 +38,46 @@ class CreateCustomCredentialRequestTest {
         }
     }
 
+    @SdkSuppress(minSdkVersion = 26)
     @Test
     fun getter() {
         val expectedType = "TYPE"
-        val expectedCredentialDataBundle = Bundle()
-        expectedCredentialDataBundle.putString("Test", "Test")
-        val expectedCandidateQueryDataBundle = Bundle()
-        expectedCandidateQueryDataBundle.putBoolean("key", true)
+        val expectedAutoSelectAllowed = true
+        val expectedPreferImmediatelyAvailableCredentials = true
+        val inputCredentialDataBundle = Bundle()
+        inputCredentialDataBundle.putString("Test", "Test")
+        val expectedCredentialDataBundle = inputCredentialDataBundle.deepCopy()
+        expectedCredentialDataBundle.putBoolean(
+            CreateCredentialRequest.BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED,
+            expectedAutoSelectAllowed
+        )
+        expectedCredentialDataBundle.putBoolean(
+            CreateCredentialRequest.BUNDLE_KEY_PREFER_IMMEDIATELY_AVAILABLE_CREDENTIALS,
+            expectedPreferImmediatelyAvailableCredentials
+        )
+        val inputCandidateQueryDataBundle = Bundle()
+        inputCandidateQueryDataBundle.putBoolean("key", true)
+        val expectedCandidateQueryDataBundle = inputCandidateQueryDataBundle.deepCopy()
+        expectedCandidateQueryDataBundle.putBoolean(
+            CreateCredentialRequest.BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED,
+            expectedAutoSelectAllowed
+        )
         val expectedDisplayInfo = DisplayInfo("userId")
-        val expectedAutoSelectAllowed = false
         val expectedSystemProvider = true
         val expectedOrigin = "Origin"
 
         val request = CreateCustomCredentialRequest(
             expectedType,
-            expectedCredentialDataBundle,
-            expectedCandidateQueryDataBundle,
+            inputCredentialDataBundle,
+            inputCandidateQueryDataBundle,
             expectedSystemProvider,
             expectedDisplayInfo,
             expectedAutoSelectAllowed,
-            expectedOrigin
+            expectedOrigin,
+            expectedPreferImmediatelyAvailableCredentials
         )
 
         assertThat(request.type).isEqualTo(expectedType)
-        assertThat(request.getCustomRequestType()).isEqualTo(expectedType)
         assertThat(equals(request.credentialData, expectedCredentialDataBundle))
             .isTrue()
         assertThat(equals(request.getCustomRequestData(), expectedCredentialDataBundle))
@@ -80,6 +96,9 @@ class CreateCustomCredentialRequestTest {
         ).isTrue()
         assertThat(request.isSystemProviderRequired).isEqualTo(expectedSystemProvider)
         assertThat(request.isAutoSelectAllowed).isEqualTo(expectedAutoSelectAllowed)
+        assertThat(request.preferImmediatelyAvailableCredentials).isEqualTo(
+            expectedPreferImmediatelyAvailableCredentials
+        )
         assertThat(request.displayInfo).isEqualTo(expectedDisplayInfo)
         assertThat(request.origin).isEqualTo(expectedOrigin)
         assertThat(request.getCustomRequestOrigin()).isEqualTo(expectedOrigin)
@@ -96,6 +115,7 @@ class CreateCustomCredentialRequestTest {
         val expectedDisplayInfo = DisplayInfo("userId")
         val expectedSystemProvider = true
         val expectedAutoSelectAllowed = true
+        val expectedPreferImmediatelyAvailableCredentials = true
         val expectedOrigin = "Origin"
         val request = CreateCustomCredentialRequest(
             expectedType,
@@ -104,7 +124,8 @@ class CreateCustomCredentialRequestTest {
             expectedSystemProvider,
             expectedDisplayInfo,
             expectedAutoSelectAllowed,
-            expectedOrigin
+            expectedOrigin,
+            expectedPreferImmediatelyAvailableCredentials,
         )
         val finalCredentialData = request.credentialData
         finalCredentialData.putBundle(
@@ -154,5 +175,8 @@ class CreateCustomCredentialRequestTest {
         assertThat(actualRequest.origin).isEqualTo(expectedOrigin)
         assertThat(actualRequest.origin).isEqualTo(expectedOrigin)
         assertThat(actualRequest.getCustomRequestOrigin()).isEqualTo(expectedOrigin)
+        assertThat(actualRequest.preferImmediatelyAvailableCredentials).isEqualTo(
+            expectedPreferImmediatelyAvailableCredentials
+        )
     }
 }
