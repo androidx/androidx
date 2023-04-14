@@ -24,11 +24,11 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams
 import android.widget.LinearLayout
-import androidx.graphics.shapes.Circle
 import androidx.graphics.shapes.CornerRounding
 import androidx.graphics.shapes.CornerRounding.Companion.Unrounded
 import androidx.graphics.shapes.RoundedPolygon
-import androidx.graphics.shapes.Star
+import androidx.graphics.shapes.circle
+import androidx.graphics.shapes.star
 
 class ShapeActivity : Activity() {
 
@@ -67,7 +67,7 @@ class ShapeActivity : Activity() {
         blobR2.transform(matrix2)
 
         //        "Circle" to DefaultShapes.star(4, 1f, 1f),
-        shapes.add(Circle())
+        shapes.add(RoundedPolygon.circle())
         //        "Squirrel" to DefaultShapes.fgSquircle(0.9f),
         shapes.add(RoundedPolygon(4))
         //        "Squircle" to DefaultShapes.fgSquircle(0.7f),
@@ -115,8 +115,8 @@ class ShapeActivity : Activity() {
         val rounding = CornerRounding(.1f, .5f)
         val starRounding = CornerRounding(.05f, .25f)
         shapes.add(RoundedPolygon(numVertices = 4, rounding = rounding))
-        shapes.add(Star(8, radius = 1f, innerRadius = .4f, rounding = starRounding))
-        shapes.add(Star(8, radius = 1f, innerRadius = .4f, rounding = starRounding,
+        shapes.add(RoundedPolygon.star(8, radius = 1f, innerRadius = .4f, rounding = starRounding))
+        shapes.add(RoundedPolygon.star(8, radius = 1f, innerRadius = .4f, rounding = starRounding,
             innerRounding = CornerRounding.Unrounded))
         shapes.add(
             MaterialShapes.clover(rounding = .352f, innerRadius = .1f,
