@@ -35,6 +35,7 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 import kotlin.test.fail
 
+@OptIn(ExperimentalStdlibApi::class)
 @RunWith(JUnit4::class)
 class PagedListTest {
     companion object {

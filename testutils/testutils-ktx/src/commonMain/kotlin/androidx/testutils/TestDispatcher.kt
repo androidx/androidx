@@ -16,11 +16,26 @@
 
 package androidx.testutils
 
+import co.touchlab.stately.collections.IsoArrayDeque
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Runnable
 import kotlin.coroutines.CoroutineContext
 
-object DirectDispatcher : CoroutineDispatcher() {
+/**
+ * [CoroutineDispatcher] which keeps track of all its queued jobs.
+ */
+@OptIn(ExperimentalStdlibApi::class)
+class TestDispatcher : CoroutineDispatcher() {
+    val queue = IsoArrayDeque<Runnable>()
+
     override fun dispatch(context: CoroutineContext, block: Runnable) {
-        block.run()
+        queue.add(block)
+    }
+
+    fun executeAll() {
+        while (queue.isNotEmpty()) {
+            val runnable = queue.removeFirst()
+            runnable.run()
+        }
     }
 }

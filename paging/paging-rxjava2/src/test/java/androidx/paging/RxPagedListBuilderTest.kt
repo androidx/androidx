@@ -38,6 +38,7 @@ import kotlinx.coroutines.asExecutor
 import kotlinx.coroutines.withContext
 
 @Suppress("DEPRECATION")
+@OptIn(ExperimentalStdlibApi::class)
 @RunWith(JUnit4::class)
 class RxPagedListBuilderTest {
     private data class LoadStateEvent(
@@ -329,10 +330,10 @@ class RxPagedListBuilderTest {
 
         // execute first load, represents load attempt on first paging source
         //
-        // using poll().run() instead of executeAll(), because executeAll() + immediate schedulers
+        // using removeFirst().run() instead of executeAll(), because executeAll() + immediate schedulers
         // result in first load + subsequent loads executing immediately and we won't be able to
         // assert the pagedLists/loads incrementally
-        loadDispatcher.queue.poll()?.run()
+        loadDispatcher.queue.removeFirst().run()
 
         // the load failed so there should still be only one PagedList, but the first
         // pagingSource should invalidated, and the second pagingSource is created
@@ -354,7 +355,7 @@ class RxPagedListBuilderTest {
         )
 
         // execute the load attempt on second pagingSource which succeeds
-        loadDispatcher.queue.poll()?.run()
+        loadDispatcher.queue.removeFirst().run()
 
         // ensure second pagedList created with the correct data loaded
         observer.assertValueCount(2)

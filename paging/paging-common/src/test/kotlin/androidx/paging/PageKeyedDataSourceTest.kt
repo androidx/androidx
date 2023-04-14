@@ -34,7 +34,7 @@ import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.test.assertFailsWith
 import kotlinx.coroutines.test.StandardTestDispatcher
 
-@OptIn(ExperimentalCoroutinesApi::class)
+@OptIn(ExperimentalCoroutinesApi::class, ExperimentalStdlibApi::class)
 @RunWith(JUnit4::class)
 class PageKeyedDataSourceTest {
     internal data class Item(val name: String)

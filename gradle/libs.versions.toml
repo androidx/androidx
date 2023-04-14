@@ -256,6 +256,7 @@ skikoLinuxArm64 = { module = "org.jetbrains.skiko:skiko-awt-runtime-linux-arm64"
 sqldelightAndroid = { module = "com.squareup.sqldelight:android-driver", version.ref = "sqldelight" }
 sqldelightCoroutinesExt = { module = "com.squareup.sqldelight:coroutines-extensions", version.ref = "sqldelight" }
 sqliteJdbc = { module = "org.xerial:sqlite-jdbc", version = "3.36.0" }
+statelyIsoCollections = { module = "co.touchlab:stately-iso-collections", version = "1.2.0" }
 testCore = { module = "androidx.test:core", version.ref = "androidxTestCore" }
 testCoreKtx = { module = "androidx.test:core-ktx", version.ref = "androidxTestCore" }
 testExtJunit = { module = "androidx.test.ext:junit", version.ref = "androidxTestExtJunit" }
