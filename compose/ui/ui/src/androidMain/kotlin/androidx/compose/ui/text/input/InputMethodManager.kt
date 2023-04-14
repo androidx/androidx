@@ -155,14 +155,34 @@ private class ImmHelper30(private val view: View) : ImmHelper {
     }
 
     // TODO(b/221889664) Replace with composition local when available.
-    private fun View.findWindow(): Window? =
-        (parent as? DialogWindowProvider)?.window
-            ?: context.findWindow()
+    private fun View.findWindow(): Window? {
+        var view: View = this
+        while (true) {
+            if (view is DialogWindowProvider) {
+                return view.window
+            }
+            val parent = view.parent as? View
+            if (parent == null) {
+                // Found the decor view of the current window. We can't get the window directly from
+                // the view, but we can get the window of the view's context. However, there's no
+                // guarantee that the view and its context share a window. For example, in a dialog,
+                // the view's context is the activity hosting the dialog, so the context's view tree
+                // will be entirely separate from the dialog's view tree. We only return the
+                // context's window if we are actually in that window, i.e. have the same root view.
+                // Otherwise we return null to fallback to not using window insets.
+                val windowFromContext = view.context.findWindow() ?: return null
+                val windowDecorView = windowFromContext.decorView
+                return if (windowDecorView === view) windowFromContext else null
+            }
+            view = parent
+        }
+    }
 
-    private tailrec fun Context.findWindow(): Window? =
-        when (this) {
+    private tailrec fun Context.findWindow(): Window? {
+        return when (this) {
             is Activity -> window
             is ContextWrapper -> baseContext.findWindow()
             else -> null
         }
+    }
 }
