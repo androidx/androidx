@@ -96,6 +96,10 @@ message FontStyle {
   BoolProp underline = 3;
 
   // The text color. If not defined, defaults to white.
+  //
+  // While this field is statically accessible from 1.0, it's only bindable
+  // since version 1.2 and renderers supporting version 1.2 will use the dynamic
+  // value (if set).
   ColorProp color = 4;
 
   // The weight of the font. If the provided value is not supported on a
@@ -162,6 +166,15 @@ message AndroidTextStyle {
 // A text string.
 message Text {
   // The text to render.
+  //
+  // While this field is statically accessible from 1.0, it's only bindable
+  // since version 1.2 and renderers supporting version 1.2 will use the dynamic
+  // value (if set).
+  //
+  // When using a dynamic value, make sure to specify the bounding constraints
+  // for the affected layout element through {@code
+  // setLayoutConstraintsForDynamicText(StringLayoutConstraint)} otherwise
+  // {@code build()} fails.
   StringProp text = 1;
 
   // The style of font to use (size, bold etc). If not specified, defaults to
@@ -244,6 +257,10 @@ message ColorFilter {
   //
   // Note that only Android image resources can be tinted; Inline images will
   // not be tinted, and this property will have no effect.
+  //
+  // While this field is statically accessible from 1.0, it's only bindable
+  // since version 1.2 and renderers supporting version 1.2 will use the dynamic
+  // value (if set).
   ColorProp tint = 1;
 }
 
@@ -282,9 +299,27 @@ message Spacer {
   // The width of this Spacer. When this is added as the direct child of an Arc,
   // this must be specified as an angular dimension, otherwise a linear
   // dimension must be used. If not defined, defaults to 0.
+  //
+  // While this field is statically accessible from 1.0, it's only bindable
+  // since version 1.2 and renderers supporting version 1.2 will use the dynamic
+  // value (if set).
+  //
+  // When using a dynamic value, make sure to specify the bounding constraints
+  // for the affected layout element through {@code
+  // setLayoutConstraintsForDynamicWidth(HorizontalLayoutConstraint)} otherwise
+  // {@code build()} fails.
   SpacerDimension width = 1;
 
   // The height of this spacer. If not defined, defaults to 0.
+  //
+  // While this field is statically accessible from 1.0, it's only bindable
+  // since version 1.2 and renderers supporting version 1.2 will use the dynamic
+  // value (if set).
+  //
+  // When using a dynamic value, make sure to specify the bounding constraints
+  // for the affected layout element through {@code
+  // setLayoutConstraintsForDynamicWidth(HorizontalLayoutConstraint)} otherwise
+  // {@code build()} fails.
   SpacerDimension height = 2;
 
   // Modifiers for this element.
@@ -490,6 +525,15 @@ message Arc {
   // Values do not have to be clamped to the range 0-360; values less than 0
   // degrees will sweep anti-clockwise (i.e. -90 degrees is equivalent to 270
   // degrees), and values >360 will be be placed at X mod 360 degrees.
+  //
+  // While this field is statically accessible from 1.0, it's only bindable
+  // since version 1.2 and renderers supporting version 1.2 will use the dynamic
+  // value (if set).
+  //
+  // When using a dynamic value, make sure to specify the bounding constraints
+  // for the affected layout element through {@code
+  // setLayoutConstraintsForDynamicAnchorAngle(AngularLayoutConstraint)}
+  // otherwise {@code build()} fails.
   DegreesProp anchor_angle = 2;
 
   // How to align the contents of this container relative to anchor_angle. If
@@ -529,12 +573,25 @@ message ArcText {
 // A line that can be used in an Arc and renders as a round progress bar.
 message ArcLine {
   // The length of this line, in degrees. If not defined, defaults to 0.
+  //
+  // While this field is statically accessible from 1.0, it's only bindable
+  // since version 1.2 and renderers supporting version 1.2 will use the dynamic
+  // value (if set).
+  //
+  // When using a dynamic value, make sure to specify the bounding constraints
+  // for the affected layout element through {@code
+  // setLayoutConstraintsForDynamicLength(AngularLayoutConstraint)} otherwise
+  // {@code build()} fails.
   DegreesProp length = 1;
 
   // The thickness of this line. If not defined, defaults to 0.
   DpProp thickness = 2;
 
   // The color of this line.
+  //
+  // While this field is statically accessible from 1.0, it's only bindable
+  // since version 1.2 and renderers supporting version 1.2 will use the dynamic
+  // value (if set).
   ColorProp color = 3;
 
   // Modifiers for this element.
