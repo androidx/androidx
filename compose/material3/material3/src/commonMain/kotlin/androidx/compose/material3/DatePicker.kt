@@ -255,6 +255,7 @@ interface DatePickerState {
  * An interface that controls the selectable dates and years in the date pickers UI.
  */
 @ExperimentalMaterial3Api
+@Stable
 interface SelectableDates {
 
     /**

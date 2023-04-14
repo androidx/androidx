@@ -923,7 +923,7 @@ package androidx.compose.material3 {
   @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Immutable public final class SelectableChipElevation {
   }
 
-  @androidx.compose.material3.ExperimentalMaterial3Api public interface SelectableDates {
+  @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Stable public interface SelectableDates {
     method public default boolean isSelectableDate(long utcTimeMillis);
     method public default boolean isSelectableYear(int year);
   }
