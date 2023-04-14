@@ -71,6 +71,12 @@ public class ParcelCompatTest {
         p.setDataPosition(0);
         assertThrows(BadParcelableException.class, () -> ParcelCompat.readParcelable(p,
                 Rect.class.getClassLoader(), Intent.class));
+
+        p.setDataPosition(0);
+        p.writeParcelable((Rect) null, 0);
+        p.setDataPosition(0);
+        Rect r3 = ParcelCompat.readParcelable(p, Rect.class.getClassLoader(), Rect.class);
+        assertEquals(null, r3);
     }
 
     @Test
