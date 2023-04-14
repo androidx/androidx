@@ -19,6 +19,7 @@ package androidx.wear.tiles.timeline;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.wear.tiles.TimelineBuilders;
 import androidx.wear.protolayout.proto.TimelineProto.TimelineEntry;
 import androidx.wear.tiles.timeline.internal.TilesTimelineCacheInternal;
 
@@ -29,8 +30,7 @@ import androidx.wear.tiles.timeline.internal.TilesTimelineCacheInternal;
 public final class TilesTimelineCache {
     private final TilesTimelineCacheInternal mCache;
 
-    @SuppressWarnings("deprecation") // TODO(b/276343540): Use protolayout types
-    public TilesTimelineCache(@NonNull androidx.wear.tiles.TimelineBuilders.Timeline timeline) {
+    public TilesTimelineCache(@NonNull TimelineBuilders.Timeline timeline) {
         mCache = new TilesTimelineCacheInternal(timeline.toProto());
     }
 
@@ -46,16 +46,14 @@ public final class TilesTimelineCache {
      */
     @MainThread
     @Nullable
-    @SuppressWarnings("deprecation") // TODO(b/276343540): Use protolayout types
-    public androidx.wear.tiles.TimelineBuilders.TimelineEntry findTimelineEntryForTime(
-            long timeMillis) {
+    public TimelineBuilders.TimelineEntry findTimelineEntryForTime(long timeMillis) {
         TimelineEntry entry = mCache.findTimelineEntryForTime(timeMillis);
 
         if (entry == null) {
             return null;
         }
 
-        return androidx.wear.tiles.TimelineBuilders.TimelineEntry.fromProto(entry);
+        return TimelineBuilders.TimelineEntry.fromProto(entry);
     }
 
     /**
@@ -73,16 +71,14 @@ public final class TilesTimelineCache {
      */
     @MainThread
     @Nullable
-    @SuppressWarnings("deprecation") // TODO(b/276343540): Use protolayout types
-    public androidx.wear.tiles.TimelineBuilders.TimelineEntry findClosestTimelineEntry(
-            long timeMillis) {
+    public TimelineBuilders.TimelineEntry findClosestTimelineEntry(long timeMillis) {
         TimelineEntry entry = mCache.findClosestTimelineEntry(timeMillis);
 
         if (entry == null) {
             return null;
         }
 
-        return androidx.wear.tiles.TimelineBuilders.TimelineEntry.fromProto(entry);
+        return TimelineBuilders.TimelineEntry.fromProto(entry);
     }
 
     /**
@@ -97,10 +93,8 @@ public final class TilesTimelineCache {
      *     will be {@link Long#MAX_VALUE} if {@code entry} does not expire.
      */
     @MainThread
-    @SuppressWarnings("deprecation") // TODO(b/276343540): Use protolayout types
     public long findCurrentTimelineEntryExpiry(
-            @NonNull androidx.wear.tiles.TimelineBuilders.TimelineEntry entry,
-            long fromTimeMillis) {
+            @NonNull TimelineBuilders.TimelineEntry entry, long fromTimeMillis) {
         return mCache.findCurrentTimelineEntryExpiry(entry.toProto(), fromTimeMillis);
     }
 }

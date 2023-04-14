@@ -19,17 +19,18 @@ package androidx.appactions.interaction.service
 import androidx.annotation.RestrictTo
 import androidx.appactions.interaction.protobuf.ByteString
 import androidx.appactions.interaction.service.proto.AppInteractionServiceProto
+import androidx.wear.tiles.LayoutElementBuilders
+import androidx.wear.tiles.ResourceBuilders
 
 /**
  * Holder for TileLayout response.
  *
  * @suppress
  */
-@Suppress("deprecation") // for backward compatibility
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 data class TileLayoutInternal(
-    val layout: androidx.wear.tiles.LayoutElementBuilders.Layout,
-    val resources: androidx.wear.tiles.ResourceBuilders.Resources
+    val layout: LayoutElementBuilders.Layout,
+    val resources: ResourceBuilders.Resources
 ) {
 
     fun toProto(): AppInteractionServiceProto.TileLayout {

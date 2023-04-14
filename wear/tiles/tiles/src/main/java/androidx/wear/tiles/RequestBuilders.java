@@ -46,8 +46,8 @@ public final class RequestBuilders {
         }
 
         /**
-         * Gets the {@link DeviceParameters} describing the device requesting the tile update. If it
-         * was not set, a default empty instance is returned.
+         * Gets the {@link DeviceParameters} describing the device requesting the tile update.
+         * If it was not set, a default empty instance is returned.
          *
          * @since 1.0
          */
@@ -80,11 +80,8 @@ public final class RequestBuilders {
          * describing the device requesting the tile update.
          *
          * @since 1.0
-         * @deprecated Use {@link #getDeviceConfiguration()} instead.
          */
-        @Deprecated
         @Nullable
-        @SuppressWarnings("deprecation") // for backward compatibility
         public androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters getDeviceParameters() {
             if (mImpl.hasDeviceConfiguration()) {
                 return androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters.fromProto(
@@ -99,11 +96,8 @@ public final class RequestBuilders {
          * building the tile.
          *
          * @since 1.0
-         * @deprecated Use {@link #getCurrentState()} instead.
          */
-        @Deprecated
         @Nullable
-        @SuppressWarnings("deprecation") // for backward compatibility
         public androidx.wear.tiles.StateBuilders.State getState() {
             if (mImpl.hasCurrentState()) {
                 return androidx.wear.tiles.StateBuilders.State.fromProto(mImpl.getCurrentState());
@@ -112,14 +106,20 @@ public final class RequestBuilders {
             }
         }
 
-        /** Creates a new wrapper instance from the proto. */
+        /**
+         * Creates a new wrapper instance from the proto.
+         *
+         */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public static TileRequest fromProto(@NonNull RequestProto.TileRequest proto) {
             return new TileRequest(proto);
         }
 
-        /** Returns the internal proto instance. */
+        /**
+         * Returns the internal proto instance.
+         *
+         */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public RequestProto.TileRequest toProto() {
@@ -135,7 +135,8 @@ public final class RequestBuilders {
 
             /**
              * Sets a {@link DeviceParameters} object describing the device requesting the tile
-             * update. If not set, a default empty instance is used.
+             * update.
+             * If not set, a default empty instance is used.
              *
              * @since 1.0
              */
@@ -161,9 +162,7 @@ public final class RequestBuilders {
              * describing the device requesting the tile update.
              *
              * @since 1.0
-             * @deprecated Use {@link setDeviceConfiguration(DeviceParameters)} instead.
              */
-            @Deprecated
             @NonNull
             public Builder setDeviceParameters(
                     @NonNull
@@ -178,9 +177,7 @@ public final class RequestBuilders {
              * building the tile.
              *
              * @since 1.0
-             * @deprecated Use {@link setCurrentState(State)} instead.
              */
-            @Deprecated
             @NonNull
             public Builder setState(@NonNull androidx.wear.tiles.StateBuilders.State state) {
                 mImpl.setCurrentState(state.toProto());
@@ -256,11 +253,8 @@ public final class RequestBuilders {
          * describing the device requesting the resources.
          *
          * @since 1.0
-         * @deprecated Use {@link #getDeviceConfiguration()} instead.
          */
-        @Deprecated
         @Nullable
-        @SuppressWarnings("deprecation") // for backward compatibility
         public androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters getDeviceParameters() {
             if (mImpl.hasDeviceConfiguration()) {
                 return androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters.fromProto(
@@ -270,14 +264,20 @@ public final class RequestBuilders {
             }
         }
 
-        /** Creates a new wrapper instance from the proto. */
+        /**
+         * Creates a new wrapper instance from the proto.
+         *
+         */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public static ResourcesRequest fromProto(@NonNull RequestProto.ResourcesRequest proto) {
             return new ResourcesRequest(proto);
         }
 
-        /** Returns the internal proto instance. */
+        /**
+         * Returns the internal proto instance.
+         *
+         */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public RequestProto.ResourcesRequest toProto() {
@@ -323,7 +323,8 @@ public final class RequestBuilders {
 
             /**
              * Sets a {@link DeviceParameters} object describing the device requesting the
-             * resources. If not set, a default empty instance is used.
+             * resources.
+             * If not set, a default empty instance is used.
              *
              * @since 1.0
              */
@@ -338,11 +339,8 @@ public final class RequestBuilders {
              * describing the device requesting the resources.
              *
              * @since 1.0
-             * @deprecated Use {@link setDeviceConfiguration(DeviceParameters)} instead.
              */
-            @Deprecated
             @NonNull
-            @SuppressWarnings("deprecation") // for backward compatibility
             public Builder setDeviceParameters(
                     @NonNull
                             androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters

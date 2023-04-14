@@ -18,6 +18,7 @@ package androidx.wear.tiles.client;
 
 import androidx.annotation.NonNull;
 import androidx.wear.tiles.RequestBuilders;
+import androidx.wear.tiles.ResourceBuilders;
 import androidx.wear.tiles.TileBuilders;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -37,8 +38,7 @@ public interface TileClient {
 
     /** Request a resource bundle from the connected TileService. */
     @NonNull
-    @SuppressWarnings("deprecation") // TODO(b/276343540): Use protolayout types
-    ListenableFuture<androidx.wear.tiles.ResourceBuilders.Resources> requestResources(
+    ListenableFuture<ResourceBuilders.Resources> requestResources(
             @NonNull RequestBuilders.ResourcesRequest requestParams);
 
     /** Send a Tile Added notification to the connected TileService. */
