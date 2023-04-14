@@ -276,7 +276,8 @@ public final class AnimationParameterBuilders {
      *
      * @since 1.2
      */
-    public int getDurationMillis() {
+    @IntRange(from = 0)
+    public long getDurationMillis() {
       return mImpl.getDurationMillis();
     }
 
@@ -301,7 +302,8 @@ public final class AnimationParameterBuilders {
      *
      * @since 1.2
      */
-    public int getDelayMillis() {
+    @IntRange(from = 0)
+    public long getDelayMillis() {
       return mImpl.getDelayMillis();
     }
 
@@ -361,9 +363,9 @@ public final class AnimationParameterBuilders {
        * @since 1.2
        */
       @NonNull
-      public Builder setDurationMillis(int durationMillis) {
+      public Builder setDurationMillis(@IntRange(from = 0) long durationMillis) {
         mImpl.setDurationMillis(durationMillis);
-        mFingerprint.recordPropertyUpdate(1, durationMillis);
+        mFingerprint.recordPropertyUpdate(1, Long.hashCode(durationMillis));
         return this;
       }
 
@@ -389,9 +391,9 @@ public final class AnimationParameterBuilders {
        * @since 1.2
        */
       @NonNull
-      public Builder setDelayMillis(int delayMillis) {
+      public Builder setDelayMillis(@IntRange(from = 0) long delayMillis) {
         mImpl.setDelayMillis(delayMillis);
-        mFingerprint.recordPropertyUpdate(3, delayMillis);
+        mFingerprint.recordPropertyUpdate(3, Long.hashCode(delayMillis));
         return this;
       }
 

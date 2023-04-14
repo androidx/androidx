@@ -182,10 +182,10 @@ public class AnimationsHelper {
     }
 
     static class RepeatDelays {
-        int mForwardRepeatDelay;
-        int mReverseRepeatDelay;
+        long mForwardRepeatDelay;
+        long mReverseRepeatDelay;
 
-        RepeatDelays(int forwardRepeatDelay, int reverseRepeatDelay) {
+        RepeatDelays(long forwardRepeatDelay, long reverseRepeatDelay) {
             mForwardRepeatDelay = forwardRepeatDelay;
             mReverseRepeatDelay = reverseRepeatDelay;
         }
@@ -193,9 +193,9 @@ public class AnimationsHelper {
 
     /** Return the pair of forward repeat delay and reverse repeat delay */
     static RepeatDelays getRepeatDelays(AnimationSpec spec) {
-        int mainDelay = (int) getMainDelayOrDefault(spec).toMillis();
-        int forwardRepeatDelay = mainDelay;
-        int reverseRepeatDelay = mainDelay;
+        long mainDelay = getMainDelayOrDefault(spec).toMillis();
+        long forwardRepeatDelay = mainDelay;
+        long reverseRepeatDelay = mainDelay;
         int repeatCount = getRepeatCountOrDefault(spec);
         if (repeatCount > 0 || repeatCount == ValueAnimator.INFINITE) {
             if (spec.getRepeatable().getForwardRepeatOverride().hasDelayMillis()) {
@@ -230,8 +230,8 @@ public class AnimationsHelper {
             return null;
         }
 
-        int forwardDuration = (int) getMainDurationOrDefault(spec).toMillis();
-        int reverseDuration = (int) getOverrideReverseDurationOrDefault(spec).toMillis();
+        long forwardDuration = getMainDurationOrDefault(spec).toMillis();
+        long reverseDuration = getOverrideReverseDurationOrDefault(spec).toMillis();
         Repeatable repeatable = spec.getRepeatable();
         RepeatDelays repeatDelays = getRepeatDelays(spec);
 
@@ -243,7 +243,7 @@ public class AnimationsHelper {
         AnimationParameters.Builder mainParametersBuilder =
                 AnimationParameters.newBuilder()
                         .setDurationMillis(forwardDuration)
-                        .setDelayMillis((int) getMainDelayOrDefault(spec).toMillis());
+                        .setDelayMillis(getMainDelayOrDefault(spec).toMillis());
         if (easing != null) {
             mainParametersBuilder.setEasing(easing);
         }
