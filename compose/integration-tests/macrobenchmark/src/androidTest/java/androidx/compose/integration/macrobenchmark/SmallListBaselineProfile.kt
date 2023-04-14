@@ -42,7 +42,7 @@ class SmallListBaselineProfile {
             intent.apply {
                 setPackage(packageName)
                 action =
-                    "androidx.compose.integration.macrobenchmark.target.LAZY_COLUMN_ACTIVITY"
+                    "androidx.compose.integration.macrobenchmark.target.BASELINE_PROFILE_ACTIVITY"
                 putExtra("ITEM_COUNT", 200)
             }
             startActivityAndWait(intent)
