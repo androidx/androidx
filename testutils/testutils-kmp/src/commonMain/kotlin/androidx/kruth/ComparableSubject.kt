@@ -37,4 +37,17 @@ open class ComparableSubject<T : Comparable<T>> constructor(actual: T?) : Subjec
             fail("Expected to be less than $other, but was $actual")
         }
     }
+
+    /**
+     * Checks that the subject is greater than or equal to [other].
+     *
+     * @throws NullPointerException if [actual] or [other] is `null`.
+     */
+    fun isAtLeast(other: T?) {
+        if (actual == null || other == null) {
+            throw NullPointerException("Expected to be at least $other, but was $actual")
+        } else if (actual < other) {
+            fail("Expected to be at least $other, but was $actual")
+        }
+    }
 }
