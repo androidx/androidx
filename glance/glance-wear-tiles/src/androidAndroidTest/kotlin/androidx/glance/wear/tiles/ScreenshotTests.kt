@@ -68,6 +68,8 @@ import androidx.glance.wear.tiles.test.R
 import androidx.test.core.app.ApplicationProvider.getApplicationContext
 import androidx.test.screenshot.AndroidXScreenshotTestRule
 import androidx.test.screenshot.matchers.MSSIMMatcher
+import androidx.wear.tiles.LayoutElementBuilders
+import androidx.wear.tiles.ResourceBuilders
 import androidx.wear.tiles.renderer.TileRenderer
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.coroutineScope
@@ -383,7 +385,6 @@ class ScreenshotTests {
         root
     }
 
-    @Suppress("deprecation") // For backwards compatibility.
     private fun runSingleGoldenTest(
         expectedGolden: String,
         content: @Composable () -> Unit
@@ -395,17 +396,13 @@ class ScreenshotTests {
             try {
                 translateTopLevelComposition(context, composition)
             } catch (throwable: Throwable) {
-                CompositionResult(
-                    errorUiLayout(),
-                    androidx.wear.tiles.ResourceBuilders.Resources.Builder())
+                CompositionResult(errorUiLayout(), ResourceBuilders.Resources.Builder())
             }
 
         @Suppress("DEPRECATION")
         val renderer = TileRenderer(
             context,
-            androidx.wear.tiles.LayoutElementBuilders.Layout.Builder()
-                .setRoot(translatedComposition.layout)
-                .build(),
+            LayoutElementBuilders.Layout.Builder().setRoot(translatedComposition.layout).build(),
             translatedComposition.resources.build(),
             ContextCompat.getMainExecutor(getApplicationContext())
         ) {}

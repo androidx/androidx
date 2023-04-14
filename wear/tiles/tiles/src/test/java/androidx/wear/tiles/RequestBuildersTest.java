@@ -62,7 +62,6 @@ public final class RequestBuildersTest {
     }
 
     @Test
-    @SuppressWarnings("deprecation") // for backward compatibility
     public void canBuildBasicTileRequest_compatibleDeviceConfiguration() {
         TileRequest tileRequest =
                 new TileRequest.Builder()
@@ -104,7 +103,6 @@ public final class RequestBuildersTest {
     }
 
     @Test
-    @SuppressWarnings("deprecation") // for backward compatibility
     public void canBuildBasicResourcesRequest_compatibleDeviceConfiguration() {
         ResourcesRequest resourcesRequest =
                 new ResourcesRequest.Builder()
