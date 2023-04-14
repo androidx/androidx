@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package androidx.appactions.builtintypes.types
+package androidx.appactions.builtintypes.experimental.types
 
-import androidx.appactions.builtintypes.properties.Name
-import androidx.appactions.builtintypes.properties.Recipient
-import androidx.appactions.builtintypes.properties.Text
+import androidx.appactions.builtintypes.experimental.properties.Name
+import androidx.appactions.builtintypes.experimental.properties.Recipient
+import androidx.appactions.builtintypes.experimental.properties.Text
 
 interface Message : Thing, CreativeWork {
     val recipientList: List<Recipient>

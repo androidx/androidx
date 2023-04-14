@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-package androidx.appactions.builtintypes.properties
+package androidx.appactions.builtintypes.experimental.properties
 
-import androidx.appactions.builtintypes.types.Person
+import androidx.appactions.builtintypes.experimental.types.Person
 
 /**
- * Represents the value of the union property: http://schema.org/attendee, currently it only can
+ * Represents the value of the union property: http://schema.org/participant, currently it only can
  * contain {@link Person}.
  */
-class Attendee(person: Person) {
+class Participant(person: Person) {
     @get:JvmName("asPerson")
     val asPerson: Person? = person
 }

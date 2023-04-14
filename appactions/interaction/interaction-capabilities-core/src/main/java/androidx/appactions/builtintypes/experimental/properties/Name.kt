@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.appactions.builtintypes.properties
+package androidx.appactions.builtintypes.experimental.properties
 
 class Name(asText: String) {
     @get:JvmName("asText")

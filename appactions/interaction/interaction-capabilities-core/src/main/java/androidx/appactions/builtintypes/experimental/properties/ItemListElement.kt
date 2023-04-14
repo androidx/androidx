@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-package androidx.appactions.builtintypes.properties
+package androidx.appactions.builtintypes.experimental.properties
 
-import java.time.LocalDate
+import androidx.appactions.builtintypes.experimental.types.ListItem
 
-class EndDate(localDate: LocalDate) {
-    val localDate: LocalDate? = localDate
+class ItemListElement(asListItem: ListItem) {
+    @get:JvmName("asListItem")
+    val asListItem: ListItem = asListItem
 }

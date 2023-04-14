@@ -14,15 +14,9 @@
  * limitations under the License.
  */
 
-package androidx.appactions.builtintypes.properties
+package androidx.appactions.builtintypes.experimental.properties
 
-import androidx.appactions.builtintypes.types.Person
-
-/**
- * Represents the value of the union property: http://schema.org/recipient, currently it only can
- * contain {@link Person}.
- */
-class Recipient(person: Person) {
-    @get:JvmName("asPerson")
-    val asPerson: Person? = person
+class Text(asText: String) {
+    @get:JvmName("asText")
+    val asText: String = asText
 }

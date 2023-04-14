@@ -14,9 +14,19 @@
  * limitations under the License.
  */
 
-package androidx.appactions.builtintypes.properties
+package androidx.appactions.builtintypes.experimental.properties
 
-class Text(asText: String) {
-    @get:JvmName("asText")
-    val asText: String = asText
+class CallFormat private constructor(
+    val asText: String?,
+    val asCanonicalValue: CanonicalValue?,
+) {
+
+    constructor(text: String) : this(asText = text, asCanonicalValue = null)
+
+    constructor(canonicalValue: CanonicalValue) : this(
+        asText = null,
+        asCanonicalValue = canonicalValue
+    )
+
+    abstract class CanonicalValue internal constructor(val textValue: String)
 }

@@ -14,10 +14,15 @@
  * limitations under the License.
  */
 
-package androidx.appactions.builtintypes.properties
+package androidx.appactions.builtintypes.experimental.properties
 
-import java.time.LocalDate
+import androidx.appactions.builtintypes.experimental.types.Person
 
-class StartDate(localDate: LocalDate) {
-    val localDate: LocalDate? = localDate
+/**
+ * Represents the value of the union property: http://schema.org/attendee, currently it only can
+ * contain {@link Person}.
+ */
+class Attendee(person: Person) {
+    @get:JvmName("asPerson")
+    val asPerson: Person? = person
 }
