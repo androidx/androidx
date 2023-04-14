@@ -116,8 +116,8 @@ final class TypeSpecBuilder<T, BuilderT> {
      *
      * <p>Comes with bindings for Thing fields.
      */
-    static <T extends androidx.appactions.builtintypes.types.Thing,
-            BuilderT extends androidx.appactions.builtintypes.types.Thing.Builder<?>>
+    static <T extends androidx.appactions.builtintypes.experimental.types.Thing,
+            BuilderT extends androidx.appactions.builtintypes.experimental.types.Thing.Builder<?>>
             TypeSpecBuilder<T, BuilderT> newBuilderForThing(
                     String typeName,
                     Supplier<BuilderT> builderSupplier,

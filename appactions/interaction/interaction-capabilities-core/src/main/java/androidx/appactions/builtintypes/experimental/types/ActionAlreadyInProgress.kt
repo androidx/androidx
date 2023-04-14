@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package androidx.appactions.builtintypes.types
+package androidx.appactions.builtintypes.experimental.types
 
-import androidx.appactions.builtintypes.properties.Name
+import androidx.appactions.builtintypes.experimental.properties.Name
 
 interface ActionAlreadyInProgress : Thing {
     override fun toBuilder(): Builder<*>
