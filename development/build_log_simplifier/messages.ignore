@@ -804,7 +804,149 @@ public abstract void jvmInsert\(@org\.jetbrains\.annotations\.NotNull.*
 public abstract java\.util\.List<androidx\.room\.integration\.kotlintestapp\.test\.JvmNameInDaoTest\.JvmNameEntity> jvmQuery\(\);
 public abstract androidx\.room\.integration\.kotlintestapp\.test\.JvmNameInDaoTest\.JvmNameDao jvmDao\(\);
 \^
+\$SUPPORT/wear/tiles/tiles\-material/src/test/java/androidx/wear/tiles/material/CircularProgressIndicatorTest\.java:[0-9]+: warning: \[deprecation\] LayoutElementBuilders in androidx\.wear\.tiles has been deprecated
+\$SUPPORT/wear/tiles/tiles\-material/src/test/java/androidx/wear/tiles/material/CircularProgressIndicatorTest\.java:[0-9]+: warning: \[deprecation\] ModifiersBuilders in androidx\.wear\.tiles has been deprecated
+\$SUPPORT/wear/tiles/tiles\-material/src/test/java/androidx/wear/tiles/material/layouts/MultiSlotLayoutTest\.java:[0-9]+: warning: \[deprecation\] LayoutElementBuilders in androidx\.wear\.tiles has been deprecated
+\$SUPPORT/wear/tiles/tiles\-material/src/test/java/androidx/wear/tiles/material/layouts/MultiSlotLayoutTest\.java:[0-9]+: warning: \[deprecation\] ModifiersBuilders in androidx\.wear\.tiles has been deprecated
+\$SUPPORT/wear/tiles/tiles\-material/src/test/java/androidx/wear/tiles/material/layouts/EdgeContentLayoutTest\.java:[0-9]+: warning: \[deprecation\] DeviceParametersBuilders in androidx\.wear\.tiles has been deprecated
+\$SUPPORT/wear/tiles/tiles\-material/src/test/java/androidx/wear/tiles/material/layouts/EdgeContentLayoutTest\.java:[0-9]+: warning: \[deprecation\] LayoutElementBuilders in androidx\.wear\.tiles has been deprecated
+\$SUPPORT/wear/tiles/tiles\-material/src/test/java/androidx/wear/tiles/material/layouts/EdgeContentLayoutTest\.java:[0-9]+: warning: \[deprecation\] ModifiersBuilders in androidx\.wear\.tiles has been deprecated
+\$SUPPORT/wear/tiles/tiles\-material/src/test/java/androidx/wear/tiles/material/layouts/PrimaryLayoutTest\.java:[0-9]+: warning: \[deprecation\] ActionBuilders in androidx\.wear\.tiles has been deprecated
+\$SUPPORT/wear/tiles/tiles\-material/src/test/java/androidx/wear/tiles/material/layouts/PrimaryLayoutTest\.java:[0-9]+: warning: \[deprecation\] DeviceParametersBuilders in androidx\.wear\.tiles has been deprecated
+\$SUPPORT/wear/tiles/tiles\-material/src/test/java/androidx/wear/tiles/material/layouts/PrimaryLayoutTest\.java:[0-9]+: warning: \[deprecation\] LayoutElementBuilders in androidx\.wear\.tiles has been deprecated
+\$SUPPORT/wear/tiles/tiles\-material/src/test/java/androidx/wear/tiles/material/layouts/PrimaryLayoutTest\.java:[0-9]+: warning: \[deprecation\] ModifiersBuilders in androidx\.wear\.tiles has been deprecated
+\$SUPPORT/wear/tiles/tiles\-material/src/test/java/androidx/wear/tiles/material/ButtonTest\.java:[0-9]+: warning: \[deprecation\] ColorBuilders in androidx\.wear\.tiles has been deprecated
+\$SUPPORT/wear/tiles/tiles\-material/src/test/java/androidx/wear/tiles/material/ButtonTest\.java:[0-9]+: warning: \[deprecation\] DimensionBuilders in androidx\.wear\.tiles has been deprecated
+\$SUPPORT/wear/tiles/tiles\-material/src/main/java/androidx/wear/tiles/material/layouts/EdgeContentLayout\.java:[0-9]+: warning: \[deprecation\] DimensionBuilders in androidx\.wear\.tiles has been deprecated
+\$SUPPORT/wear/tiles/tiles\-material/src/main/java/androidx/wear/tiles/material/layouts/LayoutDefaults\.java:[0-9]+: warning: \[deprecation\] DimensionBuilders in androidx\.wear\.tiles has been deprecated
+\$SUPPORT/wear/tiles/tiles\-material/src/main/java/androidx/wear/tiles/material/layouts/EdgeContentLayout\.java:[0-9]+: warning: \[deprecation\] DeviceParametersBuilders in androidx\.wear\.tiles has been deprecated
+\$SUPPORT/wear/tiles/tiles\-material/src/main/java/androidx/wear/tiles/material/layouts/EdgeContentLayout\.java:[0-9]+: warning: \[deprecation\] LayoutElementBuilders in androidx\.wear\.tiles has been deprecated
+\$SUPPORT/wear/tiles/tiles\-material/src/main/java/androidx/wear/tiles/material/layouts/EdgeContentLayout\.java:[0-9]+: warning: \[deprecation\] ModifiersBuilders in androidx\.wear\.tiles has been deprecated
+\$SUPPORT/wear/tiles/tiles\-material/src/main/java/androidx/wear/tiles/material/layouts/MultiSlotLayout\.java:[0-9]+: warning: \[deprecation\] DimensionBuilders in androidx\.wear\.tiles has been deprecated
+import androidx\.wear\.tiles\.DimensionBuilders\.SpacerDimension;
+\$SUPPORT/wear/tiles/tiles\-material/src/main/java/androidx/wear/tiles/material/layouts/MultiSlotLayout\.java:[0-9]+: warning: \[deprecation\] LayoutElementBuilders in androidx\.wear\.tiles has been deprecated
+\$SUPPORT/wear/tiles/tiles\-material/src/main/java/androidx/wear/tiles/material/layouts/MultiSlotLayout\.java:[0-9]+: warning: \[deprecation\] ModifiersBuilders in androidx\.wear\.tiles has been deprecated
+\$SUPPORT/wear/tiles/tiles\-material/src/main/java/androidx/wear/tiles/material/layouts/MultiButtonLayout\.java:[0-9]+: warning: \[deprecation\] DimensionBuilders in androidx\.wear\.tiles has been deprecated
 Note: \$SUPPORT/wear/tiles/tiles\-material/src/main/java/androidx/wear/tiles/material/TitleChip\.java has additional uses or overrides of a deprecated API\.
+\$SUPPORT/wear/tiles/tiles\-material/src/main/java/androidx/wear/tiles/material/ChipColors\.java:[0-9]+: warning: \[deprecation\] ColorBuilders in androidx\.wear\.tiles has been deprecated
+\$SUPPORT/wear/tiles/tiles\-material/src/main/java/androidx/wear/tiles/material/ButtonDefaults\.java:[0-9]+: warning: \[deprecation\] DimensionBuilders in androidx\.wear\.tiles has been deprecated
+\$SUPPORT/wear/tiles/tiles\-material/src/main/java/androidx/wear/tiles/material/ButtonColors\.java:[0-9]+: warning: \[deprecation\] ColorBuilders in androidx\.wear\.tiles has been deprecated
+\$SUPPORT/wear/tiles/tiles\-material/src/main/java/androidx/wear/tiles/material/TitleChip\.java:[0-9]+: warning: \[deprecation\] DimensionBuilders in androidx\.wear\.tiles has been deprecated
+\$SUPPORT/wear/tiles/tiles\-material/src/main/java/androidx/wear/tiles/material/TitleChip\.java:[0-9]+: warning: \[deprecation\] LayoutElementBuilders in androidx\.wear\.tiles has been deprecated
+\$SUPPORT/wear/tiles/tiles\-material/src/main/java/androidx/wear/tiles/material/TitleChip\.java:[0-9]+: warning: \[deprecation\] DeviceParametersBuilders in androidx\.wear\.tiles has been deprecated
+\$SUPPORT/wear/tiles/tiles\-material/src/main/java/androidx/wear/tiles/material/TitleChip\.java:[0-9]+: warning: \[deprecation\] ModifiersBuilders in androidx\.wear\.tiles has been deprecated
+\$SUPPORT/wear/tiles/tiles\-material/src/main/java/androidx/wear/tiles/material/Chip\.java:[0-9]+: warning: \[deprecation\] ModifiersBuilders in androidx\.wear\.tiles has been deprecated
+import androidx\.wear\.tiles\.ModifiersBuilders\.Corner;
+\$SUPPORT/wear/tiles/tiles\-material/src/main/java/androidx/wear/tiles/material/Typography\.java:[0-9]+: warning: \[deprecation\] DimensionBuilders in androidx\.wear\.tiles has been deprecated
+import androidx\.wear\.tiles\.DimensionBuilders;
+import androidx\.wear\.tiles\.DimensionBuilders\.SpProp;
+import static androidx\.wear\.tiles\.DimensionBuilders\.sp;
+\$SUPPORT/wear/tiles/tiles\-material/src/main/java/androidx/wear/tiles/material/Typography\.java:[0-9]+: warning: \[deprecation\] LayoutElementBuilders in androidx\.wear\.tiles has been deprecated
+import androidx\.wear\.tiles\.LayoutElementBuilders\.FontVariant;
+import androidx\.wear\.tiles\.LayoutElementBuilders\.FontWeight;
+import static androidx\.wear\.tiles\.LayoutElementBuilders\.FONT_VARIANT_BODY;
+import static androidx\.wear\.tiles\.LayoutElementBuilders\.FONT_VARIANT_TITLE;
+\$SUPPORT/wear/tiles/tiles\-material/src/test/java/androidx/wear/tiles/material/TextTest\.java:[0-9]+: warning: \[deprecation\] ColorBuilders in androidx\.wear\.tiles has been deprecated
+\$SUPPORT/wear/tiles/tiles\-material/src/test/java/androidx/wear/tiles/material/TextTest\.java:[0-9]+: warning: \[deprecation\] LayoutElementBuilders in androidx\.wear\.tiles has been deprecated
+import static androidx\.wear\.tiles\.LayoutElementBuilders\.FONT_WEIGHT_BOLD;
+import static androidx\.wear\.tiles\.LayoutElementBuilders\.FONT_WEIGHT_MEDIUM;
+import static androidx\.wear\.tiles\.LayoutElementBuilders\.FONT_WEIGHT_NORMAL;
+import static androidx\.wear\.tiles\.LayoutElementBuilders\.TEXT_ALIGN_END;
+import static androidx\.wear\.tiles\.LayoutElementBuilders\.TEXT_OVERFLOW_ELLIPSIZE_END;
+import androidx\.wear\.tiles\.LayoutElementBuilders\.FontStyle;
+\$SUPPORT/wear/tiles/tiles\-material/src/test/java/androidx/wear/tiles/material/TextTest\.java:[0-9]+: warning: \[deprecation\] ModifiersBuilders in androidx\.wear\.tiles has been deprecated
+\$SUPPORT/wear/tiles/tiles\-material/src/test/java/androidx/wear/tiles/material/ChipTest\.java:[0-9]+: warning: \[deprecation\] ColorBuilders in androidx\.wear\.tiles has been deprecated
+\$SUPPORT/wear/tiles/tiles\-material/src/test/java/androidx/wear/tiles/material/ChipTest\.java:[0-9]+: warning: \[deprecation\] DimensionBuilders in androidx\.wear\.tiles has been deprecated
+\$SUPPORT/wear/tiles/tiles\-material/src/test/java/androidx/wear/tiles/material/ChipTest\.java:[0-9]+: warning: \[deprecation\] LayoutElementBuilders in androidx\.wear\.tiles has been deprecated
+\$SUPPORT/wear/tiles/tiles\-material/src/test/java/androidx/wear/tiles/material/ChipTest\.java:[0-9]+: warning: \[deprecation\] ActionBuilders in androidx\.wear\.tiles has been deprecated
+\$SUPPORT/wear/tiles/tiles\-material/src/test/java/androidx/wear/tiles/material/ChipTest\.java:[0-9]+: warning: \[deprecation\] DeviceParametersBuilders in androidx\.wear\.tiles has been deprecated
+import androidx\.wear\.tiles\.LayoutElementBuilders\.HorizontalAlignment;
+\$SUPPORT/wear/tiles/tiles\-material/src/test/java/androidx/wear/tiles/material/ChipTest\.java:[0-9]+: warning: \[deprecation\] ModifiersBuilders in androidx\.wear\.tiles has been deprecated
+\$SUPPORT/wear/tiles/tiles\-material/src/test/java/androidx/wear/tiles/material/TitleChipTest\.java:[0-9]+: warning: \[deprecation\] DimensionBuilders in androidx\.wear\.tiles has been deprecated
+\$SUPPORT/wear/tiles/tiles\-material/src/test/java/androidx/wear/tiles/material/TitleChipTest\.java:[0-9]+: warning: \[deprecation\] ActionBuilders in androidx\.wear\.tiles has been deprecated
+\$SUPPORT/wear/tiles/tiles\-material/src/test/java/androidx/wear/tiles/material/TitleChipTest\.java:[0-9]+: warning: \[deprecation\] DeviceParametersBuilders in androidx\.wear\.tiles has been deprecated
+\$SUPPORT/wear/tiles/tiles\-material/src/test/java/androidx/wear/tiles/material/TitleChipTest\.java:[0-9]+: warning: \[deprecation\] LayoutElementBuilders in androidx\.wear\.tiles has been deprecated
+\$SUPPORT/wear/tiles/tiles\-material/src/test/java/androidx/wear/tiles/material/TitleChipTest\.java:[0-9]+: warning: \[deprecation\] ModifiersBuilders in androidx\.wear\.tiles has been deprecated
+\$SUPPORT/wear/tiles/tiles\-material/src/test/java/androidx/wear/tiles/material/CompactChipTest\.java:[0-9]+: warning: \[deprecation\] ActionBuilders in androidx\.wear\.tiles has been deprecated
+\$SUPPORT/wear/tiles/tiles\-material/src/test/java/androidx/wear/tiles/material/CompactChipTest\.java:[0-9]+: warning: \[deprecation\] DeviceParametersBuilders in androidx\.wear\.tiles has been deprecated
+\$SUPPORT/wear/tiles/tiles\-material/src/test/java/androidx/wear/tiles/material/CompactChipTest\.java:[0-9]+: warning: \[deprecation\] LayoutElementBuilders in androidx\.wear\.tiles has been deprecated
+\$SUPPORT/wear/tiles/tiles\-material/src/test/java/androidx/wear/tiles/material/CompactChipTest\.java:[0-9]+: warning: \[deprecation\] ModifiersBuilders in androidx\.wear\.tiles has been deprecated
+\$SUPPORT/wear/tiles/tiles\-material/src/test/java/androidx/wear/tiles/material/layouts/MultiButtonLayoutTest\.java:[0-9]+: warning: \[deprecation\] ActionBuilders in androidx\.wear\.tiles has been deprecated
+\$SUPPORT/wear/tiles/tiles\-material/src/test/java/androidx/wear/tiles/material/layouts/MultiButtonLayoutTest\.java:[0-9]+: warning: \[deprecation\] LayoutElementBuilders in androidx\.wear\.tiles has been deprecated
+\$SUPPORT/wear/tiles/tiles\-material/src/test/java/androidx/wear/tiles/material/layouts/MultiButtonLayoutTest\.java:[0-9]+: warning: \[deprecation\] ModifiersBuilders in androidx\.wear\.tiles has been deprecated
+import static androidx\.wear\.tiles\.DimensionBuilders\.dp;
+\$SUPPORT/wear/tiles/tiles\-material/src/main/java/androidx/wear/tiles/material/Helper\.java:[0-9]+: warning: \[deprecation\] DimensionBuilders in androidx\.wear\.tiles has been deprecated
+\$SUPPORT/wear/tiles/tiles\-material/src/main/java/androidx/wear/tiles/material/Helper\.java:[0-9]+: warning: \[deprecation\] DeviceParametersBuilders in androidx\.wear\.tiles has been deprecated
+import androidx\.wear\.tiles\.DeviceParametersBuilders;
+import androidx\.wear\.tiles\.DeviceParametersBuilders\.DeviceParameters;
+import androidx\.wear\.tiles\.DimensionBuilders\.DpProp;
+\$SUPPORT/wear/tiles/tiles\-material/src/main/java/androidx/wear/tiles/material/Helper\.java:[0-9]+: warning: \[deprecation\] ModifiersBuilders in androidx\.wear\.tiles has been deprecated
+import androidx\.wear\.tiles\.ModifiersBuilders\.ElementMetadata;
+import androidx\.wear\.tiles\.ModifiersBuilders\.Modifiers;
+\$SUPPORT/wear/tiles/tiles\-material/src/main/java/androidx/wear/tiles/material/ProgressIndicatorDefaults\.java:[0-9]+: warning: \[deprecation\] DimensionBuilders in androidx\.wear\.tiles has been deprecated
+import androidx\.wear\.tiles\.DimensionBuilders\.DegreesProp;
+\$SUPPORT/wear/tiles/tiles\-material/src/main/java/androidx/wear/tiles/material/CircularProgressIndicator\.java:[0-9]+: warning: \[deprecation\] LayoutElementBuilders in androidx\.wear\.tiles has been deprecated
+import androidx\.wear\.tiles\.LayoutElementBuilders;
+import androidx\.wear\.tiles\.LayoutElementBuilders\.Arc;
+import androidx\.wear\.tiles\.LayoutElementBuilders\.ArcLine;
+import androidx\.wear\.tiles\.LayoutElementBuilders\.ArcSpacer;
+import androidx\.wear\.tiles\.LayoutElementBuilders\.LayoutElement;
+\$SUPPORT/wear/tiles/tiles\-material/src/main/java/androidx/wear/tiles/material/CircularProgressIndicator\.java:[0-9]+: warning: \[deprecation\] ModifiersBuilders in androidx\.wear\.tiles has been deprecated
+import androidx\.wear\.tiles\.ModifiersBuilders;
+import androidx\.wear\.tiles\.ModifiersBuilders\.Padding;
+import androidx\.wear\.tiles\.ModifiersBuilders\.Semantics;
+\$SUPPORT/wear/tiles/tiles\-material/src/main/java/androidx/wear/tiles/material/ProgressIndicatorColors\.java:[0-9]+: warning: \[deprecation\] ColorBuilders in androidx\.wear\.tiles has been deprecated
+import static androidx\.wear\.tiles\.ColorBuilders\.argb;
+import androidx\.wear\.tiles\.ColorBuilders\.ColorProp;
+\$SUPPORT/wear/tiles/tiles\-material/src/main/java/androidx/wear/tiles/material/CompactChip\.java:[0-9]+: warning: \[deprecation\] DimensionBuilders in androidx\.wear\.tiles has been deprecated
+import static androidx\.wear\.tiles\.DimensionBuilders\.wrap;
+\$SUPPORT/wear/tiles/tiles\-material/src/main/java/androidx/wear/tiles/material/CompactChip\.java:[0-9]+: warning: \[deprecation\] LayoutElementBuilders in androidx\.wear\.tiles has been deprecated
+import static androidx\.wear\.tiles\.LayoutElementBuilders\.HORIZONTAL_ALIGN_CENTER;
+\$SUPPORT/wear/tiles/tiles\-material/src/main/java/androidx/wear/tiles/material/ChipDefaults\.java:[0-9]+: warning: \[deprecation\] DimensionBuilders in androidx\.wear\.tiles has been deprecated
+\$SUPPORT/wear/tiles/tiles\-material/src/main/java/androidx/wear/tiles/material/CompactChip\.java:[0-9]+: warning: \[deprecation\] DeviceParametersBuilders in androidx\.wear\.tiles has been deprecated
+import androidx\.wear\.tiles\.LayoutElementBuilders\.Box;
+\$SUPPORT/wear/tiles/tiles\-material/src/main/java/androidx/wear/tiles/material/CompactChip\.java:[0-9]+: warning: \[deprecation\] ModifiersBuilders in androidx\.wear\.tiles has been deprecated
+import androidx\.wear\.tiles\.ModifiersBuilders\.Clickable;
+\$SUPPORT/wear/tiles/tiles\-material/src/main/java/androidx/wear/tiles/material/Chip\.java:[0-9]+: warning: \[deprecation\] DimensionBuilders in androidx\.wear\.tiles has been deprecated
+\$SUPPORT/wear/tiles/tiles\-material/src/main/java/androidx/wear/tiles/material/Chip\.java:[0-9]+: warning: \[deprecation\] LayoutElementBuilders in androidx\.wear\.tiles has been deprecated
+import androidx\.wear\.tiles\.LayoutElementBuilders\.ColorFilter;
+import androidx\.wear\.tiles\.LayoutElementBuilders\.Image;
+import static androidx\.wear\.tiles\.LayoutElementBuilders\.HORIZONTAL_ALIGN_START;
+import static androidx\.wear\.tiles\.LayoutElementBuilders\.HORIZONTAL_ALIGN_UNDEFINED;
+\$SUPPORT/wear/tiles/tiles\-material/src/main/java/androidx/wear/tiles/material/Chip\.java:[0-9]+: warning: \[deprecation\] ColorBuilders in androidx\.wear\.tiles has been deprecated
+\$SUPPORT/wear/tiles/tiles\-material/src/main/java/androidx/wear/tiles/material/Chip\.java:[0-9]+: warning: \[deprecation\] DeviceParametersBuilders in androidx\.wear\.tiles has been deprecated
+import androidx\.wear\.tiles\.DimensionBuilders\.ContainerDimension;
+Note: Some input files additionally use or override a deprecated API\.
+\$SUPPORT/wear/tiles/tiles\-material/src/androidTest/java/androidx/wear/tiles/material/TestCasesGenerator\.java:[0-9]+: warning: \[deprecation\] ColorBuilders in androidx\.wear\.tiles has been deprecated
+\$SUPPORT/wear/tiles/tiles\-material/src/androidTest/java/androidx/wear/tiles/material/TestCasesGenerator\.java:[0-9]+: warning: \[deprecation\] DimensionBuilders in androidx\.wear\.tiles has been deprecated
+\$SUPPORT/wear/tiles/tiles\-material/src/androidTest/java/androidx/wear/tiles/material/TestCasesGenerator\.java:[0-9]+: warning: \[deprecation\] LayoutElementBuilders in androidx\.wear\.tiles has been deprecated
+import static androidx\.wear\.tiles\.LayoutElementBuilders\.HORIZONTAL_ALIGN_END;
+\$SUPPORT/wear/tiles/tiles\-material/src/androidTest/java/androidx/wear/tiles/material/TestCasesGenerator\.java:[0-9]+: warning: \[deprecation\] ActionBuilders in androidx\.wear\.tiles has been deprecated
+import androidx\.wear\.tiles\.ActionBuilders\.LaunchAction;
+\$SUPPORT/wear/tiles/tiles\-material/src/androidTest/java/androidx/wear/tiles/material/TestCasesGenerator\.java:[0-9]+: warning: \[deprecation\] DeviceParametersBuilders in androidx\.wear\.tiles has been deprecated
+import androidx\.wear\.tiles\.LayoutElementBuilders\.Row;
+\$SUPPORT/wear/tiles/tiles\-material/src/androidTest/java/androidx/wear/tiles/material/TestCasesGenerator\.java:[0-9]+: warning: \[deprecation\] ModifiersBuilders in androidx\.wear\.tiles has been deprecated
+\$SUPPORT/wear/tiles/tiles\-material/src/androidTest/java/androidx/wear/tiles/material/MaterialGoldenTest\.java:[0-9]+: warning: \[deprecation\] DeviceParametersBuilders in androidx\.wear\.tiles has been deprecated
+\$SUPPORT/wear/tiles/tiles\-material/src/androidTest/java/androidx/wear/tiles/material/MaterialGoldenTest\.java:[0-9]+: warning: \[deprecation\] LayoutElementBuilders in androidx\.wear\.tiles has been deprecated
+\$SUPPORT/wear/tiles/tiles\-material/src/androidTest/java/androidx/wear/tiles/material/MaterialGoldenXLTest\.java:[0-9]+: warning: \[deprecation\] DeviceParametersBuilders in androidx\.wear\.tiles has been deprecated
+\$SUPPORT/wear/tiles/tiles\-material/src/androidTest/java/androidx/wear/tiles/material/MaterialGoldenXLTest\.java:[0-9]+: warning: \[deprecation\] LayoutElementBuilders in androidx\.wear\.tiles has been deprecated
+\$SUPPORT/wear/tiles/tiles\-material/src/androidTest/java/androidx/wear/tiles/material/layouts/TestCasesGenerator\.java:[0-9]+: warning: \[deprecation\] ColorBuilders in androidx\.wear\.tiles has been deprecated
+\$SUPPORT/wear/tiles/tiles\-material/src/androidTest/java/androidx/wear/tiles/material/layouts/TestCasesGenerator\.java:[0-9]+: warning: \[deprecation\] DimensionBuilders in androidx\.wear\.tiles has been deprecated
+import static androidx\.wear\.tiles\.DimensionBuilders\.expand;
+\$SUPPORT/wear/tiles/tiles\-material/src/androidTest/java/androidx/wear/tiles/material/layouts/TestCasesGenerator\.java:[0-9]+: warning: \[deprecation\] ActionBuilders in androidx\.wear\.tiles has been deprecated
+\$SUPPORT/wear/tiles/tiles\-material/src/androidTest/java/androidx/wear/tiles/material/layouts/TestCasesGenerator\.java:[0-9]+: warning: \[deprecation\] DeviceParametersBuilders in androidx\.wear\.tiles has been deprecated
+\$SUPPORT/wear/tiles/tiles\-material/src/androidTest/java/androidx/wear/tiles/material/layouts/TestCasesGenerator\.java:[0-9]+: warning: \[deprecation\] LayoutElementBuilders in androidx\.wear\.tiles has been deprecated
+import androidx\.wear\.tiles\.LayoutElementBuilders\.Column;
+import androidx\.wear\.tiles\.LayoutElementBuilders\.Spacer;
+\$SUPPORT/wear/tiles/tiles\-material/src/androidTest/java/androidx/wear/tiles/material/layouts/TestCasesGenerator\.java:[0-9]+: warning: \[deprecation\] ModifiersBuilders in androidx\.wear\.tiles has been deprecated
+import androidx\.wear\.tiles\.ModifiersBuilders\.Background;
+\$SUPPORT/wear/tiles/tiles\-material/src/androidTest/java/androidx/wear/tiles/material/layouts/LayoutsGoldenTest\.java:[0-9]+: warning: \[deprecation\] DeviceParametersBuilders in androidx\.wear\.tiles has been deprecated
+\$SUPPORT/wear/tiles/tiles\-material/src/androidTest/java/androidx/wear/tiles/material/layouts/LayoutsGoldenTest\.java:[0-9]+: warning: \[deprecation\] LayoutElementBuilders in androidx\.wear\.tiles has been deprecated
+\$SUPPORT/wear/tiles/tiles\-material/src/androidTest/java/androidx/wear/tiles/material/layouts/LayoutsGoldenXLTest\.java:[0-9]+: warning: \[deprecation\] DeviceParametersBuilders in androidx\.wear\.tiles has been deprecated
+\$SUPPORT/wear/tiles/tiles\-material/src/androidTest/java/androidx/wear/tiles/material/layouts/LayoutsGoldenXLTest\.java:[0-9]+: warning: \[deprecation\] LayoutElementBuilders in androidx\.wear\.tiles has been deprecated
+@NonNull LayoutElementBuilders\.LayoutElement layoutElement,
+\.setScreenShape\(DeviceParametersBuilders\.SCREEN_SHAPE_RECT\)
+warning: \[deprecation\] LayoutElementBuilders in androidx\.wear\.tiles has been deprecated
 \$SUPPORT/wear/tiles/tiles\-material/src/main/java/androidx/wear/tiles/material/layouts/PrimaryLayout\.java:[0-9]+: warning: \[deprecation\] CompactChip in androidx\.wear\.tiles\.material has been deprecated
 Note: \$SUPPORT/wear/tiles/tiles\-material/src/main/java/androidx/wear/tiles/material/Button\.java has additional uses or overrides of a deprecated API\.
 \$SUPPORT/wear/tiles/tiles\-material/src/androidTest/java/androidx/wear/tiles/material/layouts/TestCasesGenerator\.java:[0-9]+: warning: \[deprecation\] ButtonDefaults in androidx\.wear\.tiles\.material has been deprecated
@@ -1007,12 +1149,16 @@ Observed package id 'platforms;android-33-ext5' in inconsistent location.*
 # > Task :core:core:compileDebugAndroidTestKotlin
 w: file://\$SUPPORT/core/core/src/androidTest/java/androidx/core/util/TypedValueCompatTest\.kt:[0-9]+:[0-9]+ 'scaledDensity: Float' is deprecated\. Deprecated in Java
 # > Task :wear:tiles:tiles-material:compileDebugJavaWithJavac
+\$SUPPORT/wear/tiles/tiles\-material/src/main/java/androidx/wear/tiles/material/CircularProgressIndicator\.java:[0-9]+: warning: \[deprecation\] DimensionBuilders in androidx\.wear\.tiles has been deprecated
+import static androidx\.wear\.tiles\.DimensionBuilders\.degrees;
 \$SUPPORT/wear/tiles/tiles\-material/src/main/java/androidx/wear/tiles/material/CircularProgressIndicator\.java:[0-9]+: warning: \[deprecation\] Helper in androidx\.wear\.tiles\.material has been deprecated
 import static androidx\.wear\.tiles\.material\.Helper\.checkNotNull;
 # > Task :wear:tiles:tiles-material:compileDebugUnitTestJavaWithJavac
+\$SUPPORT/wear/tiles/tiles\-material/src/test/java/androidx/wear/tiles/material/ProgressIndicatorColorsTest\.java:[0-9]+: warning: \[deprecation\] ColorBuilders in androidx\.wear\.tiles has been deprecated
 \$SUPPORT/wear/tiles/tiles\-material/src/test/java/androidx/wear/tiles/material/TextTest\.java:[0-9]+: warning: \[deprecation\] Typography in androidx\.wear\.tiles\.material has been deprecated
 import static androidx\.wear\.tiles\.material\.Typography\.TYPOGRAPHY_BODY[0-9]+;
 # > Task :wear:tiles:tiles-material:compileDebugAndroidTestJavaWithJavac
+\$SUPPORT/wear/tiles/tiles\-material/src/androidTest/java/androidx/wear/tiles/material/RunnerUtils\.java:[0-9]+: warning: \[deprecation\] LayoutElementBuilders in androidx\.wear\.tiles has been deprecated
 \$SUPPORT/wear/tiles/tiles\-material/src/androidTest/java/androidx/wear/tiles/material/layouts/TestCasesGenerator\.java:[0-9]+: warning: \[deprecation\] Button in androidx\.wear\.tiles\.material has been deprecated
 # > Configure project :androidx-demos
 WARNING: The option setting 'android\.experimental\.disableCompileSdkChecks=true' is experimental\.
