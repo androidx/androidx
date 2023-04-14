@@ -19,7 +19,7 @@ package androidx.paging
 import androidx.paging.LoadType.PREPEND
 import androidx.paging.LoadType.REFRESH
 import androidx.paging.PageEvent.Drop
-import androidx.testutils.DirectDispatcher
+import kotlin.coroutines.EmptyCoroutineContext
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
@@ -290,7 +290,7 @@ class PageEventTest {
             )
         }
 
-        private val differ = TestPagingDataDiffer<String>(DirectDispatcher)
+        private val differ = TestPagingDataDiffer<String>(EmptyCoroutineContext)
         private lateinit var pagingData: PagingData<String>
 
         @Before
