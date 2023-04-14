@@ -92,6 +92,10 @@ package androidx.graphics.shapes {
     method public void transform(android.graphics.Matrix matrix);
     property public final android.graphics.RectF bounds;
     property public final android.graphics.PointF center;
+    field public static final androidx.graphics.shapes.RoundedPolygon.Companion Companion;
+  }
+
+  public static final class RoundedPolygon.Companion {
   }
 
   public final class RoundedPolygonKt {
@@ -99,16 +103,16 @@ package androidx.graphics.shapes {
   }
 
   public final class ShapesKt {
-    method public static androidx.graphics.shapes.RoundedPolygon Circle(optional float radius, optional android.graphics.PointF center);
-    method public static androidx.graphics.shapes.RoundedPolygon Circle(optional float radius);
-    method public static androidx.graphics.shapes.RoundedPolygon Circle();
-    method public static androidx.graphics.shapes.RoundedPolygon Star(int numVerticesPerRadius, optional float radius, optional float innerRadius, optional androidx.graphics.shapes.CornerRounding rounding, optional androidx.graphics.shapes.CornerRounding? innerRounding, optional java.util.List<androidx.graphics.shapes.CornerRounding>? perVertexRounding, optional android.graphics.PointF center);
-    method public static androidx.graphics.shapes.RoundedPolygon Star(int numVerticesPerRadius, optional float radius, optional float innerRadius, optional androidx.graphics.shapes.CornerRounding rounding, optional androidx.graphics.shapes.CornerRounding? innerRounding, optional java.util.List<androidx.graphics.shapes.CornerRounding>? perVertexRounding);
-    method public static androidx.graphics.shapes.RoundedPolygon Star(int numVerticesPerRadius, optional float radius, optional float innerRadius, optional androidx.graphics.shapes.CornerRounding rounding, optional androidx.graphics.shapes.CornerRounding? innerRounding);
-    method public static androidx.graphics.shapes.RoundedPolygon Star(int numVerticesPerRadius, optional float radius, optional float innerRadius, optional androidx.graphics.shapes.CornerRounding rounding);
-    method public static androidx.graphics.shapes.RoundedPolygon Star(int numVerticesPerRadius, optional float radius, optional float innerRadius);
-    method public static androidx.graphics.shapes.RoundedPolygon Star(int numVerticesPerRadius, optional float radius);
-    method public static androidx.graphics.shapes.RoundedPolygon Star(int numVerticesPerRadius);
+    method public static androidx.graphics.shapes.RoundedPolygon circle(androidx.graphics.shapes.RoundedPolygon.Companion, optional float radius, optional android.graphics.PointF center);
+    method public static androidx.graphics.shapes.RoundedPolygon circle(androidx.graphics.shapes.RoundedPolygon.Companion, optional float radius);
+    method public static androidx.graphics.shapes.RoundedPolygon circle(androidx.graphics.shapes.RoundedPolygon.Companion);
+    method public static androidx.graphics.shapes.RoundedPolygon star(androidx.graphics.shapes.RoundedPolygon.Companion, int numVerticesPerRadius, optional float radius, optional float innerRadius, optional androidx.graphics.shapes.CornerRounding rounding, optional androidx.graphics.shapes.CornerRounding? innerRounding, optional java.util.List<androidx.graphics.shapes.CornerRounding>? perVertexRounding, optional android.graphics.PointF center);
+    method public static androidx.graphics.shapes.RoundedPolygon star(androidx.graphics.shapes.RoundedPolygon.Companion, int numVerticesPerRadius, optional float radius, optional float innerRadius, optional androidx.graphics.shapes.CornerRounding rounding, optional androidx.graphics.shapes.CornerRounding? innerRounding, optional java.util.List<androidx.graphics.shapes.CornerRounding>? perVertexRounding);
+    method public static androidx.graphics.shapes.RoundedPolygon star(androidx.graphics.shapes.RoundedPolygon.Companion, int numVerticesPerRadius, optional float radius, optional float innerRadius, optional androidx.graphics.shapes.CornerRounding rounding, optional androidx.graphics.shapes.CornerRounding? innerRounding);
+    method public static androidx.graphics.shapes.RoundedPolygon star(androidx.graphics.shapes.RoundedPolygon.Companion, int numVerticesPerRadius, optional float radius, optional float innerRadius, optional androidx.graphics.shapes.CornerRounding rounding);
+    method public static androidx.graphics.shapes.RoundedPolygon star(androidx.graphics.shapes.RoundedPolygon.Companion, int numVerticesPerRadius, optional float radius, optional float innerRadius);
+    method public static androidx.graphics.shapes.RoundedPolygon star(androidx.graphics.shapes.RoundedPolygon.Companion, int numVerticesPerRadius, optional float radius);
+    method public static androidx.graphics.shapes.RoundedPolygon star(androidx.graphics.shapes.RoundedPolygon.Companion, int numVerticesPerRadius);
   }
 
 }

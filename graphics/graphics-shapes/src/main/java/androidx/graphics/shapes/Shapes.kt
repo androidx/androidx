@@ -28,7 +28,7 @@ private const val Sqrt2 = 1.41421356f
  * @param center optional center for the circle, default value is (0, 0)
  */
 @JvmOverloads
-fun Circle(radius: Float = 1f, center: PointF = Zero): RoundedPolygon {
+fun RoundedPolygon.Companion.circle(radius: Float = 1f, center: PointF = Zero): RoundedPolygon {
     return RoundedPolygon(4, rounding = CornerRounding(radius), radius = radius * Sqrt2,
         center = center)
 }
@@ -62,7 +62,7 @@ fun Circle(radius: Float = 1f, center: PointF = Zero): RoundedPolygon {
  * [innerRadius] > [radius].
  */
 @JvmOverloads
-fun Star(
+fun RoundedPolygon.Companion.star(
     numVerticesPerRadius: Int,
     radius: Float = 1f,
     innerRadius: Float = .5f,
