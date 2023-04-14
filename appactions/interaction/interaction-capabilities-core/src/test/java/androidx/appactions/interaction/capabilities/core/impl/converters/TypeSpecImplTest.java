@@ -20,8 +20,8 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
 
-import androidx.appactions.builtintypes.properties.Name;
-import androidx.appactions.builtintypes.types.Thing;
+import androidx.appactions.builtintypes.experimental.properties.Name;
+import androidx.appactions.builtintypes.experimental.types.Thing;
 import androidx.appactions.interaction.capabilities.core.impl.exceptions.StructConversionException;
 import androidx.appactions.interaction.capabilities.core.testing.spec.TestEntity;
 import androidx.appactions.interaction.protobuf.Struct;

@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package androidx.appactions.builtintypes.types
+package androidx.appactions.builtintypes.experimental.types
 
-import androidx.appactions.builtintypes.properties.CallFormat
-import androidx.appactions.builtintypes.properties.Name
-import androidx.appactions.builtintypes.properties.Participant
+import androidx.appactions.builtintypes.experimental.properties.CallFormat
+import androidx.appactions.builtintypes.experimental.properties.Name
+import androidx.appactions.builtintypes.experimental.properties.Participant
 
 interface Call : Thing {
     val callFormat: CallFormat?
@@ -32,7 +32,8 @@ interface Call : Thing {
 
     object CanonicalValue {
         class CallFormat private constructor(textValue: String) :
-            androidx.appactions.builtintypes.properties.CallFormat.CanonicalValue(textValue) {
+            androidx.appactions.builtintypes.experimental.properties.CallFormat
+                .CanonicalValue(textValue) {
             companion object {
                 @JvmField
                 val Audio = CallFormat("Audio")

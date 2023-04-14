@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package androidx.appactions.builtintypes.types
+package androidx.appactions.builtintypes.experimental.types
 
 // TODO(b/271634410): Update Attendee references
-import androidx.appactions.builtintypes.properties.EndDate
-import androidx.appactions.builtintypes.properties.Name
-import androidx.appactions.builtintypes.properties.StartDate
-import androidx.appactions.builtintypes.properties.Attendee
+import androidx.appactions.builtintypes.experimental.properties.EndDate
+import androidx.appactions.builtintypes.experimental.properties.Name
+import androidx.appactions.builtintypes.experimental.properties.StartDate
+import androidx.appactions.builtintypes.experimental.properties.Attendee
 import java.time.LocalDate
 
 interface CalendarEvent : Thing {
