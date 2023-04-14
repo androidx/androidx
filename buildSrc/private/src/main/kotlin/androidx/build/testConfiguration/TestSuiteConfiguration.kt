@@ -81,6 +81,7 @@ fun Project.createTestConfigurationGenerationTask(
         task.testFolder.set(artifacts.get(SingleArtifact.APK))
         task.testLoader.set(artifacts.getBuiltArtifactsLoader())
         task.additionalApkKeys.set(androidXExtension.additionalDeviceTestApkKeys)
+        task.additionalTags.set(androidXExtension.additionalDeviceTestTags)
         task.outputXml.fileValue(File(getTestConfigDirectory(), xmlName))
         task.outputJson.fileValue(File(getTestConfigDirectory(), jsonName))
         task.constrainedOutputXml.fileValue(File(getConstrainedTestConfigDirectory(), xmlName))
@@ -93,9 +94,6 @@ fun Project.createTestConfigurationGenerationTask(
         }
         val hasBenchmarkPlugin = hasBenchmarkPlugin()
         task.hasBenchmarkPlugin.set(hasBenchmarkPlugin)
-        if (hasBenchmarkPlugin) {
-            task.benchmarkRunAlsoInterpreted.set(androidXExtension.benchmarkRunAlsoInterpreted)
-        }
         task.testRunner.set(testRunner)
         task.testProjectPath.set(path)
         val detector = AffectedModuleDetector.getInstance(project)
@@ -342,6 +340,7 @@ private fun Project.configureMacrobenchmarkConfigTask(
         task.testFolder.set(artifacts.get(SingleArtifact.APK))
         task.testLoader.set(artifacts.getBuiltArtifactsLoader())
         task.additionalApkKeys.set(androidXExtension.additionalDeviceTestApkKeys)
+        task.additionalTags.set(androidXExtension.additionalDeviceTestTags)
         task.outputXml.fileValue(
             File(getTestConfigDirectory(), "$fileNamePrefix$variantName.xml")
         )

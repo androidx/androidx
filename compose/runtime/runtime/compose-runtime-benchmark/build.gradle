@@ -62,7 +62,3 @@ dependencies {
     // See aosp/1804059
     androidTestImplementation "androidx.lifecycle:lifecycle-common-java8:2.5.1"
 }
-
-androidx {
-    benchmarkRunAlsoInterpreted = true
-}

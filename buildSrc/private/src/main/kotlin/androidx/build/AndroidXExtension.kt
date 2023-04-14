@@ -372,8 +372,6 @@ open class AndroidXExtension(val project: Project) {
 
     var legacyDisableKotlinStrictApiMode = false
 
-    var benchmarkRunAlsoInterpreted = false
-
     var bypassCoordinateValidation = false
 
     var metalavaK2UastEnabled = false
@@ -381,6 +379,14 @@ open class AndroidXExtension(val project: Project) {
     var disableDeviceTests = false
 
     val additionalDeviceTestApkKeys = mutableListOf<String>()
+
+    val additionalDeviceTestTags: MutableList<String> by lazy {
+        when {
+            project.path.startsWith(":privacysandbox:") -> mutableListOf("privacysandbox")
+            project.path.startsWith(":wear:") -> mutableListOf("wear")
+            else -> mutableListOf()
+        }
+    }
 
     fun shouldEnforceKotlinStrictApiMode(): Boolean {
         return !legacyDisableKotlinStrictApiMode &&
