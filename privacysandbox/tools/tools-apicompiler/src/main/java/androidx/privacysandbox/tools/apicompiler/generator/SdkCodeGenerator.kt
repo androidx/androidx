@@ -55,6 +55,7 @@ internal class SdkCodeGenerator(
     private val sandboxApiVersion: SandboxApiVersion
 ) {
     private val binderCodeConverter = ServerBinderCodeConverter(api)
+    private val target = GenerationTarget.SERVER
 
     fun generate() {
         if (api.services.isEmpty()) {
@@ -103,15 +104,15 @@ internal class SdkCodeGenerator(
 
     private fun generateStubDelegates() {
         val stubDelegateGenerator = StubDelegatesGenerator(basePackageName(), binderCodeConverter)
-        api.services.map { stubDelegateGenerator.generate(it, GenerationTarget.SERVER) }
+        api.services.map { stubDelegateGenerator.generate(it, target) }
             .forEach(::write)
-        api.interfaces.map { stubDelegateGenerator.generate(it, GenerationTarget.SERVER) }
+        api.interfaces.map { stubDelegateGenerator.generate(it, target) }
             .forEach(::write)
     }
 
     private fun generateValueConverters() {
         val valueConverterFileGenerator =
-            ValueConverterFileGenerator(binderCodeConverter, GenerationTarget.SERVER)
+            ValueConverterFileGenerator(binderCodeConverter, target)
         api.values.map(valueConverterFileGenerator::generate).forEach(::write)
         api.interfaces.filter { it.inheritsSandboxedUiAdapter }.map {
             CoreLibInfoAndBinderWrapperConverterGenerator.generate(it).also(::write)
@@ -120,7 +121,7 @@ internal class SdkCodeGenerator(
 
     private fun generateCallbackProxies() {
         val clientProxyGenerator = ClientProxyTypeGenerator(basePackageName(), binderCodeConverter)
-        api.callbacks.map { clientProxyGenerator.generate(it, GenerationTarget.SERVER) }
+        api.callbacks.map { clientProxyGenerator.generate(it, target) }
             .forEach(::write)
     }
 
@@ -146,7 +147,7 @@ internal class SdkCodeGenerator(
     private fun generateSuspendFunctionUtilities() {
         if (!api.hasSuspendFunctions()) return
         TransportCancellationGenerator(basePackageName()).generate().also(::write)
-        ThrowableParcelConverterFileGenerator(basePackageName()).generate(convertToParcel = true)
+        ThrowableParcelConverterFileGenerator(basePackageName(), target).generate()
             .also(::write)
     }
 
