@@ -101,9 +101,6 @@ interface LookaheadLayoutScope {
  * pass to allow transient layout changes in the main pass that gradually morph the layout
  * over the course of multiple frames until it catches up with lookahead.
  *
- * *Caveat:* [SubcomposeLayout] is not yet supported in [LookaheadScope]. It will be supported in
- * an upcoming release.
- *
  * @sample androidx.compose.ui.samples.LookaheadLayoutCoordinatesSample
  *
  * @param content The child composable to be laid out.

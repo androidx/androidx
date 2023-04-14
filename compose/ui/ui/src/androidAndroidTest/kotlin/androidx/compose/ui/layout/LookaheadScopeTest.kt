@@ -96,7 +96,7 @@ const val Debug = false
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
-class LookaheadLayoutTest {
+class LookaheadScopeTest {
     @get:Rule
     val rule = createAndroidComposeRule<ComponentActivity>()
 
