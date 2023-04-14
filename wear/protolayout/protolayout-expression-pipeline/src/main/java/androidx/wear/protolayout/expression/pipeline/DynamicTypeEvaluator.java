@@ -40,6 +40,7 @@ import androidx.wear.protolayout.expression.pipeline.ColorNodes.DynamicAnimatedC
 import androidx.wear.protolayout.expression.pipeline.ColorNodes.FixedColorNode;
 import androidx.wear.protolayout.expression.pipeline.ColorNodes.StateColorSourceNode;
 import androidx.wear.protolayout.expression.pipeline.DurationNodes.BetweenInstancesNode;
+import androidx.wear.protolayout.expression.pipeline.DurationNodes.FixedDurationNode;
 import androidx.wear.protolayout.expression.pipeline.FloatNodes.AnimatableFixedFloatNode;
 import androidx.wear.protolayout.expression.pipeline.FloatNodes.ArithmeticFloatNode;
 import androidx.wear.protolayout.expression.pipeline.FloatNodes.DynamicAnimatedFloatNode;
@@ -870,6 +871,9 @@ public class DynamicTypeEvaluator implements AutoCloseable {
                         durationSource.getBetween().getEndExclusive(),
                         betweenInstancesNode.getRhsIncomingCallback(),
                         resultBuilder);
+                break;
+            case FIXED:
+                node = new FixedDurationNode(durationSource.getFixed(), consumer);
                 break;
             case INNER_NOT_SET:
                 throw new IllegalArgumentException("DynamicDuration has no inner source set");

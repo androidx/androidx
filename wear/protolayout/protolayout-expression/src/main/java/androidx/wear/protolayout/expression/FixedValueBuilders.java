@@ -609,11 +609,104 @@ final class FixedValueBuilders {
         return this;
       }
 
-      @Override
-      @NonNull
-      public FixedInstant build() {
-        return new FixedInstant(mImpl.build(), mFingerprint);
-      }
+            @Override
+            @NonNull
+            public FixedInstant build() {
+                return new FixedInstant(mImpl.build(), mFingerprint);
+            }
+        }
     }
-  }
+
+    /**
+     * A fixed duration type.
+     *
+     * @since 1.2
+     */
+    static final class FixedDuration implements DynamicBuilders.DynamicDuration {
+        private final FixedProto.FixedDuration mImpl;
+        @Nullable
+        private final Fingerprint mFingerprint;
+
+        FixedDuration(FixedProto.FixedDuration impl, @Nullable Fingerprint fingerprint) {
+            this.mImpl = impl;
+            this.mFingerprint = fingerprint;
+        }
+
+        /**
+         * Gets duration in seconds.
+         *
+         * @since 1.2
+         */
+        public long getSeconds() {
+            return mImpl.getSeconds();
+        }
+
+        @Override
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Nullable
+        public Fingerprint getFingerprint() {
+            return mFingerprint;
+        }
+
+        /** Creates a new wrapper instance from the proto. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public static FixedDuration fromProto(
+                @NonNull FixedProto.FixedDuration proto, @Nullable Fingerprint fingerprint) {
+            return new FixedDuration(proto, fingerprint);
+        }
+
+        @NonNull
+        static FixedDuration fromProto(@NonNull FixedProto.FixedDuration proto) {
+            return fromProto(proto, null);
+        }
+
+        /** Returns the internal proto instance. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        FixedProto.FixedDuration toProto() {
+            return mImpl;
+        }
+
+        @Override
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public DynamicProto.DynamicDuration toDynamicDurationProto() {
+            return DynamicProto.DynamicDuration.newBuilder().setFixed(mImpl).build();
+        }
+
+        @Override
+        @NonNull
+        public String toString() {
+            return "FixedDuration{" + "seconds=" + getSeconds() + "}";
+        }
+
+        /** Builder for {@link FixedDuration}. */
+        public static final class Builder implements DynamicBuilders.DynamicDuration.Builder {
+            private final FixedProto.FixedDuration.Builder mImpl =
+                    FixedProto.FixedDuration.newBuilder();
+            private final Fingerprint mFingerprint = new Fingerprint(9029504);
+
+            public Builder() {
+            }
+
+            /**
+             * Sets duration in seconds.
+             *
+             * @since 1.2
+             */
+            @NonNull
+            public Builder setSeconds(long seconds) {
+                mImpl.setSeconds(seconds);
+                mFingerprint.recordPropertyUpdate(1, Long.hashCode(seconds));
+                return this;
+            }
+
+            @Override
+            @NonNull
+            public FixedDuration build() {
+                return new FixedDuration(mImpl.build(), mFingerprint);
+            }
+        }
+    }
 }

@@ -51,6 +51,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.ParameterizedRobolectricTestRunner;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -464,9 +465,7 @@ public class DynamicTypeEvaluatorTest {
     }
 
     private static DynamicDuration durationOfSeconds(long seconds) {
-        Instant now = Instant.now();
-        return DynamicInstant.withSecondsPrecision(now)
-                .durationUntil(DynamicInstant.withSecondsPrecision(now.plusSeconds(seconds)));
+        return DynamicDuration.withSecondsPrecision(Duration.ofSeconds(seconds));
     }
 
     private static ImmutableMap<String, StateEntryValue> generateExampleState() {

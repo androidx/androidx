@@ -129,6 +129,7 @@ package androidx.wear.protolayout.expression {
     method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32 toIntHours();
     method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32 toIntMinutes();
     method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32 toIntSeconds();
+    method public static androidx.wear.protolayout.expression.DynamicBuilders.DynamicDuration withSecondsPrecision(java.time.Duration);
   }
 
   public static interface DynamicBuilders.DynamicFloat extends androidx.wear.protolayout.expression.DynamicBuilders.DynamicType {

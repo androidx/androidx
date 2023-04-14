@@ -31,6 +31,7 @@ import androidx.wear.protolayout.expression.AnimationParameterBuilders.Animation
 import androidx.wear.protolayout.expression.ConditionScopes.ConditionScope;
 import androidx.wear.protolayout.expression.FixedValueBuilders.FixedBool;
 import androidx.wear.protolayout.expression.FixedValueBuilders.FixedColor;
+import androidx.wear.protolayout.expression.FixedValueBuilders.FixedDuration;
 import androidx.wear.protolayout.expression.FixedValueBuilders.FixedFloat;
 import androidx.wear.protolayout.expression.FixedValueBuilders.FixedInstant;
 import androidx.wear.protolayout.expression.FixedValueBuilders.FixedInt32;
@@ -42,6 +43,7 @@ import androidx.wear.protolayout.protobuf.InvalidProtocolBufferException;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.time.Duration;
 import java.time.Instant;
 
 /** Builders for dynamic primitive types used by layout elements. */
@@ -6741,6 +6743,16 @@ public final class DynamicBuilders {
         }
 
         /**
+         * Creates a constant-valued {@link DynamicDuration} from a {@link Duration}. If {@link
+         * Duration} precision is greater than seconds, then any excess precision information will
+         * be dropped.
+         */
+        @NonNull
+        static DynamicDuration withSecondsPrecision(@NonNull Duration duration) {
+            return new FixedDuration.Builder().setSeconds(duration.getSeconds()).build();
+        }
+
+        /**
          * Returns the total number of days in a {@link DynamicDuration} as a {@link DynamicInt32}.
          * The fraction part of the result will be truncated. This is based on the standard
          * definition of a day as 24 hours. As an example, the following is equal to {@code
@@ -6945,6 +6957,9 @@ public final class DynamicBuilders {
             @NonNull DynamicProto.DynamicDuration proto, @Nullable Fingerprint fingerprint) {
         if (proto.hasBetween()) {
             return BetweenDuration.fromProto(proto.getBetween(), fingerprint);
+        }
+        if (proto.hasFixed()) {
+            return FixedDuration.fromProto(proto.getFixed(), fingerprint);
         }
         throw new IllegalStateException("Proto was not a recognised instance of DynamicDuration");
     }

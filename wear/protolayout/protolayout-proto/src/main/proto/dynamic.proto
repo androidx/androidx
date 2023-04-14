@@ -557,6 +557,7 @@ message BetweenDuration {
 message DynamicDuration {
   oneof inner {
     BetweenDuration between = 1;
+    FixedDuration fixed = 2;
   }
 }
 
