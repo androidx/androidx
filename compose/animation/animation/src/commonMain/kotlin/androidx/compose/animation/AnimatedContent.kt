@@ -27,6 +27,7 @@ import androidx.compose.animation.AnimatedContentTransitionScope.SlideDirection.
 import androidx.compose.animation.core.AnimationVector2D
 import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.InternalAnimationApi
+import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.Transition
 import androidx.compose.animation.core.VectorConverter
 import androidx.compose.animation.core.VisibilityThreshold
@@ -84,6 +85,12 @@ import androidx.compose.ui.util.fastForEachIndexed
  * [SizeTransform] is set to `null`. Once the [ContentTransform] is finished, the
  * outgoing content will be disposed.
  *
+ * If [targetState] is expected to mutate frequently and not all mutations should be treated as
+ * target state change, consider defining a mapping between [targetState] and a key in [contentKey].
+ * As a result, transitions will be triggered when the resulting key changes. In other words,
+ * there will be no animation when switching between [targetState]s that share the same same key.
+ * By default, the key will be the same as the targetState object.
+ *
  * By default, the [ContentTransform] will be a delayed [fadeIn] of the target content and a delayed
  * [scaleIn] [togetherWith] a [fadeOut] of the initial content, using a [SizeTransform] to
  * animate any size change of the content. This behavior can be customized using [transitionSpec].
@@ -127,6 +134,7 @@ fun <S> AnimatedContent(
     },
     contentAlignment: Alignment = Alignment.TopStart,
     label: String = "AnimatedContent",
+    contentKey: (targetState: S) -> Any? = { it },
     content: @Composable() AnimatedContentScope.(targetState: S) -> Unit
 ) {
     val transition = updateTransition(targetState = targetState, label = label)
@@ -134,6 +142,7 @@ fun <S> AnimatedContent(
         modifier,
         transitionSpec,
         contentAlignment,
+        contentKey,
         content = content
     )
 }
@@ -210,7 +219,12 @@ class ContentTransform(
 fun SizeTransform(
     clip: Boolean = true,
     sizeAnimationSpec: (initialSize: IntSize, targetSize: IntSize) -> FiniteAnimationSpec<IntSize> =
-        { _, _ -> spring(visibilityThreshold = IntSize.VisibilityThreshold) }
+        { _, _ ->
+            spring(
+                stiffness = Spring.StiffnessMediumLow,
+                visibilityThreshold = IntSize.VisibilityThreshold
+            )
+        }
 ): SizeTransform = SizeTransformImpl(clip, sizeAnimationSpec)
 
 /**
@@ -630,6 +644,13 @@ private class AnimatedContentScopeImpl internal constructor(
  * [SizeTransform] is set to `null`. Once the [ContentTransform] is finished, the
  * outgoing content will be disposed.
  *
+ * If [Transition.targetState] is expected to mutate frequently and not all mutations should be
+ * treated as target state change, consider defining a mapping between [Transition.targetState]
+ * and a key in [contentKey]. As a result, transitions will be triggered when the resulting key
+ * changes. In other words, there will be no animation when switching between
+ * [Transition.targetState]s that share the same same key. By default, the key will be the same as
+ * the targetState object.
+ *
  * By default, the [ContentTransform] will be a delayed [fadeIn] of the target content and a delayed
  * [scaleIn] [togetherWith] a [fadeOut] of the initial content, using a [SizeTransform] to
  * animate any size change of the content. This behavior can be customized using [transitionSpec].
@@ -649,12 +670,6 @@ private class AnimatedContentScopeImpl internal constructor(
  * [AnimatedContentScope]. This allows content to define more local enter/exit transitions
  * via [AnimatedContentScope.animateEnterExit] and [AnimatedContentScope.transition]. These
  * custom enter/exit animations will be triggered as the content enters/leaves the container.
- *
- * [contentKey] can be used to specify a key for each targetState. There will be no animation
- * when switching between target states that share the same same key. By default,
- * the key will be the same as the targetState object. [contentKey] can be particularly useful if
- * target state object gets recreated across save & restore while a more persistent key is needed
- * to properly restore the internal states of the content.
  *
  * @sample androidx.compose.animation.samples.TransitionExtensionAnimatedContentSample
  *
