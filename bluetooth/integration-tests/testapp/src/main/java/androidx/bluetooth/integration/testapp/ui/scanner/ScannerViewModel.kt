@@ -14,16 +14,26 @@
  * limitations under the License.
  */
 
-package androidx.bluetooth.integration.testapp.ui.home
+package androidx.bluetooth.integration.testapp.ui.scanner
 
 import android.bluetooth.le.ScanResult
 import androidx.lifecycle.ViewModel
 
-class HomeViewModel : ViewModel() {
+class ScannerViewModel : ViewModel() {
 
     companion object {
-        private const val TAG = "HomeViewModel"
+        private const val TAG = "ScannerViewModel"
     }
 
-    val scanResults = mutableMapOf<String, ScanResult>()
+    internal val results: List<ScanResult> get() = _results.values.toList()
+
+    private val _results = mutableMapOf<String, ScanResult>()
+
+    fun addScanResultIfNew(scanResult: ScanResult): Boolean {
+        val deviceAddress = scanResult.device.address
+
+        if (_results.containsKey(deviceAddress)) return false
+        _results[deviceAddress] = scanResult
+        return true
+    }
 }

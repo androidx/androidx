@@ -31,7 +31,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 class MainActivity : AppCompatActivity() {
 
     companion object {
-        const val TAG = "MainActivity"
+        private const val TAG = "MainActivity"
     }
 
     private val requestBluetoothPermissions =
