@@ -86,7 +86,6 @@ public abstract class CameraEffect {
 
     /**
      * Bitmask options for the effect targets.
-     *
      */
     @Retention(RetentionPolicy.SOURCE)
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -96,7 +95,6 @@ public abstract class CameraEffect {
 
     /**
      * Bitmask options for the effect targets.
-     *
      */
     @Retention(RetentionPolicy.SOURCE)
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -123,7 +121,8 @@ public abstract class CameraEffect {
     private static final List<Integer> SURFACE_PROCESSOR_TARGETS = Arrays.asList(
             PREVIEW,
             VIDEO_CAPTURE,
-            PREVIEW | VIDEO_CAPTURE);
+            PREVIEW | VIDEO_CAPTURE,
+            PREVIEW | VIDEO_CAPTURE | IMAGE_CAPTURE);
 
     @Targets
     private final int mTargets;
@@ -159,8 +158,15 @@ public abstract class CameraEffect {
 
     /**
      * @param targets          the target {@link UseCase} to which this effect should be applied.
-     *                         Currently {@link SurfaceProcessor} can only target {@link #PREVIEW}.
-     *                         Targeting other {@link UseCase} will throw
+     *                         Currently {@link SurfaceProcessor} can target the following
+     *                         combinations:
+     *                         <ul>
+     *                         <li>{@link #PREVIEW}
+     *                         <li>{@link #PREVIEW} | {@link #VIDEO_CAPTURE}
+     *                         <li>{@link #PREVIEW} | {@link #VIDEO_CAPTURE} |
+     *                         {@link #IMAGE_CAPTURE}
+     *                         </ul>
+     *                         Targeting other {@link UseCase} combinations will throw
      *                         {@link IllegalArgumentException}.
      * @param executor         the {@link Executor} on which the {@param imageProcessor} will be
      *                         invoked.
@@ -208,7 +214,6 @@ public abstract class CameraEffect {
 
     /**
      * Gets the {@link ImageProcessor} associated with this effect.
-     *
      */
     @Nullable
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -223,7 +228,6 @@ public abstract class CameraEffect {
      *
      * <p>Throws {@link IllegalArgumentException} if the effect does not contain a
      * {@link SurfaceProcessor}.
-     *
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @NonNull
