@@ -39,6 +39,7 @@ import androidx.compose.animation.demos.lookahead.AnimateBoundsModifierDemo
 import androidx.compose.animation.demos.lookahead.CraneDemo
 import androidx.compose.animation.demos.lookahead.LookaheadLayoutWithAlignmentLinesDemo
 import androidx.compose.animation.demos.lookahead.LookaheadSamplesDemo
+import androidx.compose.animation.demos.lookahead.LookaheadWithAnimatedContentSize
 import androidx.compose.animation.demos.lookahead.LookaheadWithBoxWithConstraints
 import androidx.compose.animation.demos.lookahead.LookaheadWithDisappearingMovableContentDemo
 import androidx.compose.animation.demos.lookahead.LookaheadWithFlowRowDemo
@@ -112,6 +113,9 @@ val AnimationDemos = DemoCategory(
                 },
                 ComposableDemo("Crane Nested Shared Element") { CraneDemo() },
                 ComposableDemo("Screen Size Change Demo") { ScreenSizeChangeDemo() },
+                ComposableDemo("LookaheadWithAnimatedContentSize") {
+                    LookaheadWithAnimatedContentSize()
+                },
                 ComposableDemo("Lookahead Samples Demo") {
                     LookaheadSamplesDemo()
                 },
