@@ -54,20 +54,11 @@ actual class PlatformTextStyle {
      * Android versions prior to Android 28. Therefore the original reason why includeFontPadding
      * was needed in invalid on Compose.
      *
-     * This configuration was added for migration of the apps in case some code or design  was
-     * relying includeFontPadding=true behavior and will be removed.
+     * This configuration was added for migration of the apps in case some code or design was
+     * relying includeFontPadding=true behavior.
      *
      * @param includeFontPadding Set whether to include extra space beyond font ascent and descent.
      */
-    @Suppress("DEPRECATION")
-    @Deprecated(
-        "includeFontPadding was added to Android in order to prevent clipping issues on tall " +
-            "scripts. However that issue has been fixed since Android 28. Compose backports the " +
-            "fix for Android versions prior to Android 28. Therefore the original reason why " +
-            "includeFontPadding was needed is invalid on Compose." +
-            "This configuration was added for migration of the apps in case some code or design " +
-            "was relying includeFontPadding=true behavior; and will be removed."
-    )
     constructor(
         includeFontPadding: Boolean = DefaultIncludeFontPadding
     ) : this(
@@ -121,7 +112,6 @@ internal actual fun createPlatformTextStyle(
 /**
  * Provides Android specific [ParagraphStyle] configuration options for styling and compatibility.
  */
-@Suppress("DEPRECATION")
 actual class PlatformParagraphStyle {
     actual companion object {
         actual val Default: PlatformParagraphStyle =
@@ -139,9 +129,8 @@ actual class PlatformParagraphStyle {
      * was needed in invalid on Compose.
      *
      * This configuration was added for migration of the apps in case some code or design  was
-     * relying includeFontPadding=true behavior and will be removed.
+     * relying includeFontPadding=true behavior.
      */
-    @Deprecated("Sets includeFontPadding parameter for transitioning. Will be removed.")
     val includeFontPadding: Boolean
 
     /**
@@ -156,7 +145,6 @@ actual class PlatformParagraphStyle {
      *
      * @param includeFontPadding Set whether to include extra space beyond font ascent and descent.
      */
-    @Deprecated("Provides configuration options for behavior compatibility.")
     constructor(includeFontPadding: Boolean = DefaultIncludeFontPadding) {
         this.includeFontPadding = includeFontPadding
         this.emojiSupportMatch = EmojiSupportMatch.Default
@@ -168,7 +156,6 @@ actual class PlatformParagraphStyle {
      * @param emojiSupportMatch control emoji support matches on Android
      * @param includeFontPadding Set whether to include extra space beyond font ascent and descent.
      */
-    @Deprecated("Provides configuration options for behavior compatibility.")
     constructor(
         emojiSupportMatch: EmojiSupportMatch = EmojiSupportMatch.Default,
         includeFontPadding: Boolean = DefaultIncludeFontPadding
@@ -264,7 +251,6 @@ actual class PlatformSpanStyle {
  * between [start] and [stop]. The interpolation can be extrapolated beyond 0.0 and
  * 1.0, so negative values and values greater than 1.0 are valid.
  */
-@Suppress("DEPRECATION")
 actual fun lerp(
     start: PlatformParagraphStyle,
     stop: PlatformParagraphStyle,
