@@ -553,11 +553,26 @@ message BetweenDuration {
   DynamicInstant end_exclusive = 2;
 }
 
+// A conditional operator which yields a duration depending on the boolean
+// operand. This implements:
+// ```duration result = condition ? value_if_true : value_if_false```
+message ConditionalDurationOp {
+  // The condition to use.
+  DynamicBool condition = 1;
+
+  // The duration to yield if condition is true.
+  DynamicDuration value_if_true = 2;
+
+  // The duration to yield if condition is false.
+  DynamicDuration value_if_false = 3;
+}
+
 // A dynamic duration type.
 message DynamicDuration {
   oneof inner {
     BetweenDuration between = 1;
     FixedDuration fixed = 2;
+    ConditionalDurationOp conditional_op = 3;
   }
 }
 

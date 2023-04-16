@@ -172,23 +172,23 @@ public class DynamicTypeEvaluatorTest {
                             .toIntSeconds(),
                     (int) Instant.MAX.getEpochSecond()),
             // Positive duration
-            test(durationOfSeconds(123456L).toIntDays(), 1),
-            test(durationOfSeconds(123456L).toIntHours(), 34),
-            test(durationOfSeconds(123456L).toIntMinutes(), 2057),
-            test(durationOfSeconds(123456L).toIntSeconds(), 123456),
-            test(durationOfSeconds(123456L).getIntDaysPart(), 1),
-            test(durationOfSeconds(123456L).getHoursPart(), 10),
-            test(durationOfSeconds(123456L).getMinutesPart(), 17),
-            test(durationOfSeconds(123456L).getSecondsPart(), 36),
+            test(dynamicDurationOfSeconds(123456L).toIntDays(), 1),
+            test(dynamicDurationOfSeconds(123456L).toIntHours(), 34),
+            test(dynamicDurationOfSeconds(123456L).toIntMinutes(), 2057),
+            test(dynamicDurationOfSeconds(123456L).toIntSeconds(), 123456),
+            test(dynamicDurationOfSeconds(123456L).getIntDaysPart(), 1),
+            test(dynamicDurationOfSeconds(123456L).getHoursPart(), 10),
+            test(dynamicDurationOfSeconds(123456L).getMinutesPart(), 17),
+            test(dynamicDurationOfSeconds(123456L).getSecondsPart(), 36),
             // Negative duration
-            test(durationOfSeconds(-123456L).toIntDays(), -1),
-            test(durationOfSeconds(-123456L).toIntHours(), -34),
-            test(durationOfSeconds(-123456L).toIntMinutes(), -2057),
-            test(durationOfSeconds(-123456L).toIntSeconds(), -123456),
-            test(durationOfSeconds(-123456L).getIntDaysPart(), 1),
-            test(durationOfSeconds(-123456L).getHoursPart(), 10),
-            test(durationOfSeconds(-123456L).getMinutesPart(), 17),
-            test(durationOfSeconds(-123456L).getSecondsPart(), 36),
+            test(dynamicDurationOfSeconds(-123456L).toIntDays(), -1),
+            test(dynamicDurationOfSeconds(-123456L).toIntHours(), -34),
+            test(dynamicDurationOfSeconds(-123456L).toIntMinutes(), -2057),
+            test(dynamicDurationOfSeconds(-123456L).toIntSeconds(), -123456),
+            test(dynamicDurationOfSeconds(-123456L).getIntDaysPart(), 1),
+            test(dynamicDurationOfSeconds(-123456L).getHoursPart(), 10),
+            test(dynamicDurationOfSeconds(-123456L).getMinutesPart(), 17),
+            test(dynamicDurationOfSeconds(-123456L).getSecondsPart(), 36),
             test(
                     DynamicString.onCondition(DynamicBool.constant(true))
                             .use(constant("Hello"))
@@ -228,6 +228,16 @@ public class DynamicTypeEvaluatorTest {
                             .use(DynamicColor.constant(Color.BLUE))
                             .elseUse(DynamicColor.constant(Color.RED)),
                     Color.RED),
+            test(
+                    DynamicDuration.onCondition(DynamicBool.constant(true))
+                            .use(dynamicDurationOfSeconds(10))
+                            .elseUse(Duration.ofSeconds(100)),
+                    Duration.ofSeconds(10)),
+            test(
+                    DynamicDuration.onCondition(DynamicBool.constant(false))
+                            .use(dynamicDurationOfSeconds(10))
+                            .elseUse(Duration.ofSeconds(100)),
+                    Duration.ofSeconds(100)),
             test(
                     DynamicFloat.constant(12.345f)
                             .format(
@@ -361,6 +371,17 @@ public class DynamicTypeEvaluatorTest {
                 instant);
     }
 
+    private static DynamicTypeEvaluatorTest.TestCase<Duration> test(
+            DynamicDuration bindUnderTest, Duration duration) {
+        return new DynamicTypeEvaluatorTest.TestCase<>(
+                bindUnderTest.toDynamicDurationProto().toString(),
+                (evaluator, cb) ->
+                        evaluator
+                                .bind(bindUnderTest, new MainThreadExecutor(), cb)
+                                .startEvaluation(),
+                duration);
+    }
+
     private static DynamicTypeEvaluatorTest.TestCase<Float> test(
             DynamicFloat bindUnderTest, Float expectedValue) {
         return new DynamicTypeEvaluatorTest.TestCase<>(
@@ -464,7 +485,7 @@ public class DynamicTypeEvaluatorTest {
         }
     }
 
-    private static DynamicDuration durationOfSeconds(long seconds) {
+    private static DynamicDuration dynamicDurationOfSeconds(long seconds) {
         return DynamicDuration.withSecondsPrecision(Duration.ofSeconds(seconds));
     }
 

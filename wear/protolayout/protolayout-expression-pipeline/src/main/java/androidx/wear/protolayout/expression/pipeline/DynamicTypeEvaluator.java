@@ -67,6 +67,7 @@ import androidx.wear.protolayout.expression.proto.DynamicProto.AnimatableDynamic
 import androidx.wear.protolayout.expression.proto.DynamicProto.AnimatableDynamicFloat;
 import androidx.wear.protolayout.expression.proto.DynamicProto.AnimatableDynamicInt32;
 import androidx.wear.protolayout.expression.proto.DynamicProto.ConditionalColorOp;
+import androidx.wear.protolayout.expression.proto.DynamicProto.ConditionalDurationOp;
 import androidx.wear.protolayout.expression.proto.DynamicProto.ConditionalFloatOp;
 import androidx.wear.protolayout.expression.proto.DynamicProto.ConditionalInt32Op;
 import androidx.wear.protolayout.expression.proto.DynamicProto.ConditionalStringOp;
@@ -874,6 +875,25 @@ public class DynamicTypeEvaluator implements AutoCloseable {
                 break;
             case FIXED:
                 node = new FixedDurationNode(durationSource.getFixed(), consumer);
+                break;
+            case CONDITIONAL_OP:
+                ConditionalOpNode<Duration> conditionalNode = new ConditionalOpNode<>(consumer);
+
+                ConditionalDurationOp op = durationSource.getConditionalOp();
+                bindRecursively(
+                        op.getCondition(),
+                        conditionalNode.getConditionIncomingCallback(),
+                        resultBuilder);
+                bindRecursively(
+                        op.getValueIfTrue(),
+                        conditionalNode.getTrueValueIncomingCallback(),
+                        resultBuilder);
+                bindRecursively(
+                        op.getValueIfFalse(),
+                        conditionalNode.getFalseValueIncomingCallback(),
+                        resultBuilder);
+
+                node = conditionalNode;
                 break;
             case INNER_NOT_SET:
                 throw new IllegalArgumentException("DynamicDuration has no inner source set");

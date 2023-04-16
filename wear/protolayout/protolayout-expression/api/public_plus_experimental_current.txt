@@ -124,6 +124,7 @@ package androidx.wear.protolayout.expression {
     method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32 getIntDaysPart();
     method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32 getMinutesPart();
     method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32 getSecondsPart();
+    method public static androidx.wear.protolayout.expression.ConditionScopes.ConditionScope<androidx.wear.protolayout.expression.DynamicBuilders.DynamicDuration!,java.time.Duration!> onCondition(androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool);
     method public default byte[] toDynamicDurationByteArray();
     method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32 toIntDays();
     method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32 toIntHours();
