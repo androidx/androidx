@@ -16,19 +16,16 @@
 
 package androidx.wear.tiles.material;
 
-import static androidx.wear.tiles.DimensionBuilders.dp;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
-import androidx.wear.tiles.DimensionBuilders.DpProp;
 
 /**
  * Contains the default values used by {@link CircularProgressIndicator} Tiles components.
  *
- * @deprecated Use the new class
- *     {@link androidx.wear.protolayout.material.CircularProgressIndicator} which provides the
- *     same API and functionality.
+ * @deprecated Use the new class {@link
+ *     androidx.wear.protolayout.material.CircularProgressIndicator} which provides the same API and
+ *     functionality.
  */
 @Deprecated
 @SuppressWarnings("deprecation")
@@ -36,15 +33,15 @@ public class ProgressIndicatorDefaults {
     private ProgressIndicatorDefaults() {}
 
     /** The default stroke width for {@link CircularProgressIndicator} */
-    @NonNull public static final DpProp DEFAULT_STROKE_WIDTH = dp(8);
+    @NonNull
+    public static final androidx.wear.tiles.DimensionBuilders.DpProp DEFAULT_STROKE_WIDTH =
+            androidx.wear.tiles.DimensionBuilders.dp(8);
 
-    /**
-     * The default padding for {@link CircularProgressIndicator}
-     *
-     */
+    /** The default padding for {@link CircularProgressIndicator} */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
-    public static final DpProp DEFAULT_PADDING = dp(6);
+    public static final androidx.wear.tiles.DimensionBuilders.DpProp DEFAULT_PADDING =
+            androidx.wear.tiles.DimensionBuilders.dp(6);
 
     /** The recommended colors for {@link CircularProgressIndicator}. */
     @NonNull

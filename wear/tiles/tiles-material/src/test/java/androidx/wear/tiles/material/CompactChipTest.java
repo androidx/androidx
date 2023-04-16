@@ -27,13 +27,6 @@ import android.graphics.Color;
 
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.wear.tiles.ActionBuilders.LaunchAction;
-import androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters;
-import androidx.wear.tiles.LayoutElementBuilders.Box;
-import androidx.wear.tiles.LayoutElementBuilders.Column;
-import androidx.wear.tiles.ModifiersBuilders.Clickable;
-import androidx.wear.tiles.ModifiersBuilders.ElementMetadata;
-import androidx.wear.tiles.ModifiersBuilders.Modifiers;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -44,13 +37,18 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 @SuppressWarnings("deprecation")
 public class CompactChipTest {
     private static final String MAIN_TEXT = "Action";
-    private static final Clickable CLICKABLE =
-            new Clickable.Builder()
-                    .setOnClick(new LaunchAction.Builder().build())
+    private static final androidx.wear.tiles.ModifiersBuilders.Clickable CLICKABLE =
+            new androidx.wear.tiles.ModifiersBuilders.Clickable.Builder()
+                    .setOnClick(
+                            new androidx.wear.tiles.ActionBuilders.LaunchAction.Builder().build())
                     .setId("action_id")
                     .build();
-    private static final DeviceParameters DEVICE_PARAMETERS =
-            new DeviceParameters.Builder().setScreenWidthDp(192).setScreenHeightDp(192).build();
+    private static final androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters
+            DEVICE_PARAMETERS =
+                    new androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters.Builder()
+                            .setScreenWidthDp(192)
+                            .setScreenHeightDp(192)
+                            .build();
     private static final ChipColors COLORS = new ChipColors(Color.YELLOW, Color.BLUE);
     private static final Context CONTEXT = ApplicationProvider.getApplicationContext();
 
@@ -74,26 +72,29 @@ public class CompactChipTest {
 
     @Test
     public void testWrongElement() {
-        Column box = new Column.Builder().build();
+        androidx.wear.tiles.LayoutElementBuilders.Column box =
+                new androidx.wear.tiles.LayoutElementBuilders.Column.Builder().build();
 
         assertThat(CompactChip.fromLayoutElement(box)).isNull();
     }
 
     @Test
     public void testWrongBox() {
-        Box box = new Box.Builder().build();
+        androidx.wear.tiles.LayoutElementBuilders.Box box =
+                new androidx.wear.tiles.LayoutElementBuilders.Box.Builder().build();
 
         assertThat(CompactChip.fromLayoutElement(box)).isNull();
     }
 
     @Test
     public void testWrongTag() {
-        Box box =
-                new Box.Builder()
+        androidx.wear.tiles.LayoutElementBuilders.Box box =
+                new androidx.wear.tiles.LayoutElementBuilders.Box.Builder()
                         .setModifiers(
-                                new Modifiers.Builder()
+                                new androidx.wear.tiles.ModifiersBuilders.Modifiers.Builder()
                                         .setMetadata(
-                                                new ElementMetadata.Builder()
+                                                new androidx.wear.tiles.ModifiersBuilders
+                                                                .ElementMetadata.Builder()
                                                         .setTagData("test".getBytes(UTF_8))
                                                         .build())
                                         .build())
@@ -116,7 +117,10 @@ public class CompactChipTest {
     }
 
     private void assertFromLayoutElementChipIsEqual(CompactChip chip, ChipColors colors) {
-        Box box = new Box.Builder().addContent(chip).build();
+        androidx.wear.tiles.LayoutElementBuilders.Box box =
+                new androidx.wear.tiles.LayoutElementBuilders.Box.Builder()
+                        .addContent(chip)
+                        .build();
 
         CompactChip newChip = CompactChip.fromLayoutElement(box.getContents().get(0));
 

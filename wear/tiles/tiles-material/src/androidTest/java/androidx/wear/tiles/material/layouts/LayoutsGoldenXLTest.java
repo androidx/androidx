@@ -31,9 +31,6 @@ import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.screenshot.AndroidXScreenshotTestRule;
-import androidx.wear.tiles.DeviceParametersBuilders;
-import androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters;
-import androidx.wear.tiles.LayoutElementBuilders.LayoutElement;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -46,6 +43,7 @@ import java.util.stream.Collectors;
 
 @RunWith(Parameterized.class)
 @LargeTest
+@SuppressWarnings("deprecation")
 public class LayoutsGoldenXLTest {
     /* We set DisplayMetrics in the data() method for creating test cases. However, when running all
     tests together, first all parametrization (data()) methods are called, and then individual
@@ -56,14 +54,16 @@ public class LayoutsGoldenXLTest {
 
     private static final float FONT_SCALE_XXXL = 1.24f;
 
-    private final LayoutElement mLayoutElement;
+    private final androidx.wear.tiles.LayoutElementBuilders.LayoutElement mLayoutElement;
     private final String mExpected;
 
     @Rule
     public AndroidXScreenshotTestRule mScreenshotRule =
             new AndroidXScreenshotTestRule("wear/wear-tiles-material");
 
-    public LayoutsGoldenXLTest(String expected, LayoutElement layoutElement) {
+    public LayoutsGoldenXLTest(
+            String expected,
+            androidx.wear.tiles.LayoutElementBuilders.LayoutElement layoutElement) {
         mLayoutElement = layoutElement;
         mExpected = expected;
     }
@@ -97,16 +97,17 @@ public class LayoutsGoldenXLTest {
         DISPLAY_METRICS_FOR_TEST.setTo(displayMetrics);
 
         float scale = displayMetrics.density;
-        DeviceParameters deviceParameters =
-                new DeviceParameters.Builder()
+        androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters deviceParameters =
+                new androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters.Builder()
                         .setScreenWidthDp(pxToDp(SCREEN_WIDTH, scale))
                         .setScreenHeightDp(pxToDp(SCREEN_HEIGHT, scale))
                         .setScreenDensity(displayMetrics.density)
                         // TODO(b/231543947): Add test cases for round screen.
-                        .setScreenShape(DeviceParametersBuilders.SCREEN_SHAPE_RECT)
+                        .setScreenShape(
+                                androidx.wear.tiles.DeviceParametersBuilders.SCREEN_SHAPE_RECT)
                         .build();
 
-        Map<String, LayoutElement> testCases =
+        Map<String, androidx.wear.tiles.LayoutElementBuilders.LayoutElement> testCases =
                 generateTestCases(context, deviceParameters, XXXL_SCALE_SUFFIX);
 
         // Restore state before this method, so other test have correct context. This is needed here
