@@ -25,6 +25,7 @@ import androidx.credentials.provider.AuthenticationAction
 import androidx.credentials.provider.BeginGetCredentialOption
 import androidx.credentials.provider.BeginGetCredentialRequest
 import androidx.credentials.provider.BeginGetCredentialResponse
+import androidx.credentials.provider.CallingAppInfo
 import androidx.credentials.provider.CredentialEntry
 import androidx.credentials.provider.RemoteEntry
 import java.util.stream.Collectors
@@ -47,7 +48,9 @@ class BeginGetCredentialUtil {
                 )
             }
             return BeginGetCredentialRequest(
-                callingAppInfo = request.callingAppInfo,
+                callingAppInfo = request.callingAppInfo?.let {
+                    CallingAppInfo(it.packageName, it.signingInfo, it.origin)
+                },
                 beginGetCredentialOptions = beginGetCredentialOptions
             )
         }
@@ -121,9 +124,17 @@ class BeginGetCredentialUtil {
 
         fun convertToFrameworkRequest(request: BeginGetCredentialRequest):
             android.service.credentials.BeginGetCredentialRequest {
-            return android.service.credentials.BeginGetCredentialRequest.Builder()
-                .setCallingAppInfo(request.callingAppInfo)
-                .setBeginGetCredentialOptions(request.beginGetCredentialOptions.stream()
+            val builder = android.service.credentials.BeginGetCredentialRequest.Builder()
+            if (request.callingAppInfo != null) {
+                builder.setCallingAppInfo(
+                    android.service.credentials.CallingAppInfo(
+                        request.callingAppInfo.packageName,
+                        request.callingAppInfo.signingInfo,
+                        request.callingAppInfo.origin
+                    )
+                )
+            }
+            return builder.setBeginGetCredentialOptions(request.beginGetCredentialOptions.stream()
                     .map { option -> convertToJetpackBeginOption(option) }
                     .collect(Collectors.toList()))
                 .build()

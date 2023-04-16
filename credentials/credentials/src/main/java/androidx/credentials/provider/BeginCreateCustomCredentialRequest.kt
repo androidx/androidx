@@ -17,7 +17,6 @@
 package androidx.credentials.provider
 
 import android.os.Bundle
-import android.service.credentials.CallingAppInfo
 
 /**
  * Base custom begin create request class for registering a credential.

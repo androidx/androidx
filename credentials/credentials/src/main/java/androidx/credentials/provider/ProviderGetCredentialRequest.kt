@@ -16,10 +16,7 @@
 package androidx.credentials.provider
 
 import android.app.PendingIntent
-import android.service.credentials.CallingAppInfo
-import androidx.annotation.RequiresApi
 import androidx.credentials.CredentialOption
-import java.util.stream.Collectors
 
 /**
  * Request received by the provider after the query phase of the get flow is complete i.e. the user
@@ -49,27 +46,19 @@ import java.util.stream.Collectors
  * Note : Credential providers are not expected to utilize the constructor in this class for any
  * production flow. This constructor must only be used for testing purposes.
  */
-@RequiresApi(34)
 class ProviderGetCredentialRequest constructor(
     val credentialOptions: List<CredentialOption>,
     val callingAppInfo: CallingAppInfo
 ) {
     internal companion object {
-        internal fun createFrom(request: android.service.credentials.GetCredentialRequest):
-            ProviderGetCredentialRequest {
+        @JvmStatic
+        internal fun createFrom(
+            options: List<CredentialOption>,
+            callingAppInfo: CallingAppInfo
+        ): ProviderGetCredentialRequest {
             return ProviderGetCredentialRequest(
-                request.credentialOptions.stream()
-                    .map { option ->
-                        CredentialOption.createFrom(
-                            option.type,
-                            option.credentialRetrievalData,
-                            option.candidateQueryData,
-                            option.isSystemProviderRequired,
-                            option.allowedProviders,
-                        )
-                    }
-                    .collect(Collectors.toList()),
-                request.callingAppInfo)
+                options,
+                callingAppInfo)
         }
     }
 }

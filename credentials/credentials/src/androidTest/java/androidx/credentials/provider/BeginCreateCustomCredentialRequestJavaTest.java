@@ -22,7 +22,6 @@ import static org.junit.Assert.assertThrows;
 
 import android.content.pm.SigningInfo;
 import android.os.Bundle;
-import android.service.credentials.CallingAppInfo;
 
 import androidx.core.os.BuildCompat;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -55,7 +54,8 @@ public class BeginCreateCustomCredentialRequestJavaTest {
         // TODO(b/275416815) - parameterize to account for all individually
         assertThrows("Expected null list to throw NPE",
                 NullPointerException.class,
-                () -> new BeginCreateCustomCredentialRequest(null, null, new CallingAppInfo(
+                () -> new BeginCreateCustomCredentialRequest(null, null,
+                        new CallingAppInfo(
                         "package", new SigningInfo()))
         );
     }

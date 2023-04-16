@@ -18,7 +18,6 @@ package androidx.credentials.provider
 
 import android.content.pm.SigningInfo
 import android.os.Bundle
-import android.service.credentials.CallingAppInfo
 import androidx.core.os.BuildCompat
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test

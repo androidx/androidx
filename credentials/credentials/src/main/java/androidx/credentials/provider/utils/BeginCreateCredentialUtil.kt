@@ -26,6 +26,7 @@ import androidx.credentials.provider.BeginCreateCredentialResponse
 import androidx.credentials.provider.BeginCreateCustomCredentialRequest
 import androidx.credentials.provider.BeginCreatePasswordCredentialRequest
 import androidx.credentials.provider.BeginCreatePublicKeyCredentialRequest
+import androidx.credentials.provider.CallingAppInfo
 import androidx.credentials.provider.CreateEntry
 import androidx.credentials.provider.RemoteEntry
 import java.util.stream.Collectors
@@ -42,20 +43,30 @@ internal class BeginCreateCredentialUtil {
                 when (request.type) {
                     PasswordCredential.TYPE_PASSWORD_CREDENTIAL -> {
                         BeginCreatePasswordCredentialRequest.createFrom(
-                            request.data, request.callingAppInfo
+                            request.data, request.callingAppInfo?.let {
+                                CallingAppInfo(it.packageName,
+                                    it.signingInfo, it.origin)
+                            }
                         )
                     }
 
                     PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL -> {
                         BeginCreatePublicKeyCredentialRequest.createFrom(
-                            request.data, request.callingAppInfo
+                            request.data,
+                            request.callingAppInfo?.let {
+                                CallingAppInfo(it.packageName,
+                                    it.signingInfo, it.origin)
+                            }
                         )
                     }
 
                     else -> {
                         BeginCreateCustomCredentialRequest(
                             request.type, request.data,
-                            request.callingAppInfo
+                            request.callingAppInfo?.let {
+                                CallingAppInfo(it.packageName,
+                                    it.signingInfo, it.origin)
+                            }
                         )
                     }
                 }
@@ -63,7 +74,10 @@ internal class BeginCreateCredentialUtil {
                 BeginCreateCustomCredentialRequest(
                     request.type,
                     request.data,
-                    request.callingAppInfo
+                    request.callingAppInfo?.let {
+                        CallingAppInfo(it.packageName,
+                            it.signingInfo, it.origin)
+                    }
                 )
             }
         }
@@ -108,8 +122,16 @@ internal class BeginCreateCredentialUtil {
 
         fun convertToFrameworkRequest(request: BeginCreateCredentialRequest):
             android.service.credentials.BeginCreateCredentialRequest {
-            return android.service.credentials.BeginCreateCredentialRequest(request.type,
-            request.candidateQueryData, request.callingAppInfo)
+            var callingAppInfo: android.service.credentials.CallingAppInfo? = null
+            if (request.callingAppInfo != null) {
+                callingAppInfo = android.service.credentials.CallingAppInfo(
+                    request.callingAppInfo.packageName,
+                    request.callingAppInfo.signingInfo,
+                    request.callingAppInfo.origin
+                )
+            }
+            return android.service.credentials.BeginCreateCredentialRequest(
+                request.type, request.candidateQueryData, callingAppInfo)
         }
 
         fun convertToJetpackResponse(

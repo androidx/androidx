@@ -17,7 +17,6 @@
 package androidx.credentials.provider
 
 import android.os.Bundle
-import android.service.credentials.CallingAppInfo
 import androidx.annotation.DoNotInline
 import androidx.annotation.OptIn
 import androidx.annotation.RequiresApi

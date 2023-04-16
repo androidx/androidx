@@ -19,7 +19,6 @@ package androidx.credentials.provider
 import android.app.PendingIntent
 import android.content.Intent
 import android.os.Bundle
-import android.service.credentials.CallingAppInfo
 import androidx.credentials.CreatePasswordRequest
 import androidx.credentials.PasswordCredential
 import androidx.credentials.internal.FrameworkClassParsingException

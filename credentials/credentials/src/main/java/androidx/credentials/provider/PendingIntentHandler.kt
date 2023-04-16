@@ -26,10 +26,12 @@ import android.service.credentials.CredentialProviderService
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.credentials.CreateCredentialResponse
+import androidx.credentials.CredentialOption
 import androidx.credentials.GetCredentialResponse
 import androidx.credentials.exceptions.CreateCredentialException
 import androidx.credentials.exceptions.GetCredentialException
 import androidx.credentials.provider.utils.BeginGetCredentialUtil
+import java.util.stream.Collectors
 
 /**
  * PendingIntentHandler to be used by credential providers to extract requests from
@@ -75,7 +77,11 @@ class PendingIntentHandler {
                         requireSystemProvider = false,
                         frameworkReq.callingAppInfo.origin
                     ) ?: return null,
-                frameworkReq.callingAppInfo
+                CallingAppInfo(
+                    frameworkReq.callingAppInfo.packageName,
+                    frameworkReq.callingAppInfo.signingInfo,
+                    frameworkReq.callingAppInfo.origin
+                )
             )
         }
 
@@ -141,7 +147,25 @@ class PendingIntentHandler {
                 Log.i(TAG, "Get request from framework is null")
                 return null
             }
-            return ProviderGetCredentialRequest.createFrom(frameworkReq)
+
+            return ProviderGetCredentialRequest.createFrom(
+                frameworkReq.credentialOptions.stream()
+                    .map { option ->
+                        CredentialOption.createFrom(
+                            option.type,
+                            option.credentialRetrievalData,
+                            option.candidateQueryData,
+                            option.isSystemProviderRequired,
+                            option.allowedProviders,
+                        )
+                    }
+                    .collect(Collectors.toList()),
+                CallingAppInfo(
+                    frameworkReq.callingAppInfo.packageName,
+                    frameworkReq.callingAppInfo.signingInfo,
+                    frameworkReq.callingAppInfo.origin
+                )
+            )
         }
 
         /**

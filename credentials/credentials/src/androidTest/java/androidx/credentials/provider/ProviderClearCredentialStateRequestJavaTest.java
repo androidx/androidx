@@ -21,7 +21,6 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
 
 import android.content.pm.SigningInfo;
-import android.service.credentials.CallingAppInfo;
 
 import androidx.credentials.TestUtilsKt;
 import androidx.test.ext.junit.runners.AndroidJUnit4;

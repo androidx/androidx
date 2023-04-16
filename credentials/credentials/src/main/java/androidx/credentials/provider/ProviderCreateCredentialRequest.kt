@@ -16,7 +16,6 @@
 
 package androidx.credentials.provider
 
-import android.service.credentials.CallingAppInfo
 import androidx.credentials.CreateCredentialRequest
 
 /**

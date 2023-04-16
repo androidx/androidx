@@ -19,9 +19,9 @@ package androidx.credentials
 import android.graphics.drawable.Icon
 import android.os.Build
 import android.os.Bundle
-import android.service.credentials.CallingAppInfo
 import androidx.annotation.RequiresApi
 import androidx.core.os.BuildCompat
+import androidx.credentials.provider.CallingAppInfo
 
 /** True if the two Bundles contain the same elements, and false otherwise. */
 @Suppress("DEPRECATION")

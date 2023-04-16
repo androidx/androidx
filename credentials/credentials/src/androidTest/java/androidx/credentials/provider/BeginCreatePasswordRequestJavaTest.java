@@ -20,7 +20,6 @@ import static com.google.common.truth.Truth.assertThat;
 
 import android.content.pm.SigningInfo;
 import android.os.Bundle;
-import android.service.credentials.CallingAppInfo;
 
 import androidx.core.os.BuildCompat;
 import androidx.credentials.TestUtilsKt;

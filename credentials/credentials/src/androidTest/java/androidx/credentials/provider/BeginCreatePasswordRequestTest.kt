@@ -17,7 +17,6 @@ package androidx.credentials.provider
 
 import android.content.pm.SigningInfo
 import android.os.Bundle
-import android.service.credentials.CallingAppInfo
 import androidx.annotation.RequiresApi
 import androidx.core.os.BuildCompat
 import androidx.credentials.equals

@@ -23,7 +23,6 @@ import static org.junit.Assert.assertThrows;
 import android.content.ComponentName;
 import android.content.pm.SigningInfo;
 import android.os.Bundle;
-import android.service.credentials.CallingAppInfo;
 
 import androidx.core.os.BuildCompat;
 import androidx.credentials.CredentialOption;

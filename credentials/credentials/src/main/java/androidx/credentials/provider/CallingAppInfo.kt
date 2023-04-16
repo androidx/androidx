@@ -16,9 +16,23 @@
 
 package androidx.credentials.provider
 
+import android.content.pm.SigningInfo
+
 /**
- * Request class for clearing a user's credential state from the credential providers.
+ * Information pertaining to the calling application.
  *
- * @property callingAppInfo info pertaining to the calling app that's making the request
+ * @property packageName the calling package name of the calling app
+ * @property signingInfo the signingInfo associated with the calling app
+ * @property origin the origin of the calling app. This is only set when a
+ * privileged app like a browser, calls on behalf of another application.
  */
-class ProviderClearCredentialStateRequest constructor(val callingAppInfo: CallingAppInfo)
+class CallingAppInfo @JvmOverloads constructor(
+    val packageName: String,
+    val signingInfo: SigningInfo,
+    val origin: String? = null
+) {
+
+    init {
+        require(packageName.isNotEmpty()) { "packageName must not be empty" }
+    }
+}
