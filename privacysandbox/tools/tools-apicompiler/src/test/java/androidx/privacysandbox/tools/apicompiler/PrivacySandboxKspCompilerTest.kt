@@ -62,7 +62,7 @@ class PrivacySandboxKspCompilerTest {
         assertThat(ToolMetadata.parseFrom(resourceMap[expectedMetadataRelativePath]))
             .isEqualTo(
                 ToolMetadata.newBuilder()
-                    .setCodeGenerationVersion(1)
+                    .setCodeGenerationVersion(2)
                     .build()
             )
     }
