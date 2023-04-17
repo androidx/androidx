@@ -3259,6 +3259,12 @@ package androidx.core.view {
     method public int computeVerticalScrollRange();
   }
 
+  public final class SoftwareKeyboardControllerCompat {
+    ctor public SoftwareKeyboardControllerCompat(android.view.View);
+    method public void hide();
+    method public void show();
+  }
+
   public interface TintableBackgroundView {
     method public android.content.res.ColorStateList? getSupportBackgroundTintList();
     method public android.graphics.PorterDuff.Mode? getSupportBackgroundTintMode();

@@ -19,7 +19,6 @@ package androidx.core.view;
 import static android.os.Build.VERSION.SDK_INT;
 
 import android.annotation.SuppressLint;
-import android.content.Context;
 import android.inputmethodservice.InputMethodService;
 import android.os.CancellationSignal;
 import android.view.View;
@@ -30,7 +29,6 @@ import android.view.WindowInsetsAnimationController;
 import android.view.WindowInsetsController;
 import android.view.WindowManager;
 import android.view.animation.Interpolator;
-import android.view.inputmethod.InputMethodManager;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
@@ -44,7 +42,6 @@ import androidx.core.view.WindowInsetsCompat.Type.InsetsType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Provide simple controls of windows that generate insets.
@@ -116,18 +113,22 @@ public final class WindowInsetsControllerCompat {
     @RequiresApi(30)
     @Deprecated
     private WindowInsetsControllerCompat(@NonNull WindowInsetsController insetsController) {
-        mImpl = new Impl30(insetsController, this);
+        mImpl = new Impl30(insetsController,
+                this,
+                new SoftwareKeyboardControllerCompat(insetsController));
     }
 
     public WindowInsetsControllerCompat(@NonNull Window window, @NonNull View view) {
+        SoftwareKeyboardControllerCompat softwareKeyboardControllerCompat =
+                new SoftwareKeyboardControllerCompat(view);
         if (SDK_INT >= 30) {
-            mImpl = new Impl30(window, this);
+            mImpl = new Impl30(window, this, softwareKeyboardControllerCompat);
         } else if (SDK_INT >= 26) {
-            mImpl = new Impl26(window, view);
+            mImpl = new Impl26(window, softwareKeyboardControllerCompat);
         } else if (SDK_INT >= 23) {
-            mImpl = new Impl23(window, view);
+            mImpl = new Impl23(window, softwareKeyboardControllerCompat);
         } else if (SDK_INT >= 20) {
-            mImpl = new Impl20(window, view);
+            mImpl = new Impl20(window, softwareKeyboardControllerCompat);
         } else {
             mImpl = new Impl();
         }
@@ -418,11 +419,12 @@ public final class WindowInsetsControllerCompat {
         protected final Window mWindow;
 
         @NonNull
-        private final View mView;
+        private final SoftwareKeyboardControllerCompat mSoftwareKeyboardControllerCompat;
 
-        Impl20(@NonNull Window window, @NonNull View view) {
+        Impl20(@NonNull Window window,
+                @NonNull SoftwareKeyboardControllerCompat softwareKeyboardControllerCompat) {
             mWindow = window;
-            mView = view;
+            mSoftwareKeyboardControllerCompat = softwareKeyboardControllerCompat;
         }
 
         @Override
@@ -446,34 +448,7 @@ public final class WindowInsetsControllerCompat {
                     unsetSystemUiFlag(View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
                     return;
                 case WindowInsetsCompat.Type.IME:
-                    // We'll try to find an available textView to focus to show the IME
-                    View view = mView;
-
-
-                    if (view.isInEditMode() || view.onCheckIsTextEditor()) {
-                        // The IME needs a text view to be focused to be shown
-                        // The view given to retrieve this controller is a textView so we can assume
-                        // that we can focus it in order to show the IME
-                        view.requestFocus();
-                    } else {
-                        view = mWindow.getCurrentFocus();
-                    }
-
-                    // Fallback on the container view
-                    if (view == null) {
-                        view = mWindow.findViewById(android.R.id.content);
-                    }
-
-                    if (view != null && view.hasWindowFocus()) {
-                        final View finalView = view;
-                        finalView.post(() -> {
-                            InputMethodManager imm =
-                                    (InputMethodManager) finalView.getContext()
-                                            .getSystemService(Context.INPUT_METHOD_SERVICE);
-                            imm.showSoftInput(finalView, 0);
-
-                        });
-                    }
+                    mSoftwareKeyboardControllerCompat.show();
             }
         }
 
@@ -497,10 +472,7 @@ public final class WindowInsetsControllerCompat {
                     setSystemUiFlag(View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
                     return;
                 case WindowInsetsCompat.Type.IME:
-                    ((InputMethodManager) mWindow.getContext()
-                            .getSystemService(Context.INPUT_METHOD_SERVICE))
-                            .hideSoftInputFromWindow(mWindow.getDecorView().getWindowToken(),
-                                    0);
+                    mSoftwareKeyboardControllerCompat.hide();
             }
         }
 
@@ -570,8 +542,9 @@ public final class WindowInsetsControllerCompat {
     @RequiresApi(23)
     private static class Impl23 extends Impl20 {
 
-        Impl23(@NonNull Window window, @Nullable View view) {
-            super(window, view);
+        Impl23(@NonNull Window window,
+                @NonNull SoftwareKeyboardControllerCompat softwareKeyboardControllerCompat) {
+            super(window, softwareKeyboardControllerCompat);
         }
 
         @Override
@@ -595,8 +568,9 @@ public final class WindowInsetsControllerCompat {
     @RequiresApi(26)
     private static class Impl26 extends Impl23 {
 
-        Impl26(@NonNull Window window, @Nullable View view) {
-            super(window, view);
+        Impl26(@NonNull Window window,
+                @NonNull SoftwareKeyboardControllerCompat softwareKeyboardControllerCompat) {
+            super(window, softwareKeyboardControllerCompat);
         }
 
         @Override
@@ -622,6 +596,7 @@ public final class WindowInsetsControllerCompat {
 
         final WindowInsetsControllerCompat mCompatController;
         final WindowInsetsController mInsetsController;
+        final SoftwareKeyboardControllerCompat mSoftwareKeyboardControllerCompat;
         private final SimpleArrayMap<
                 WindowInsetsControllerCompat.OnControllableInsetsChangedListener,
                 WindowInsetsController.OnControllableInsetsChangedListener>
@@ -629,57 +604,35 @@ public final class WindowInsetsControllerCompat {
 
         protected Window mWindow;
 
-        Impl30(@NonNull Window window, @NonNull WindowInsetsControllerCompat compatController) {
-            this(window.getInsetsController(), compatController);
+        Impl30(@NonNull Window window,
+                @NonNull WindowInsetsControllerCompat compatController,
+                @NonNull SoftwareKeyboardControllerCompat softwareKeyboardControllerCompat) {
+            this(window.getInsetsController(), compatController, softwareKeyboardControllerCompat);
             mWindow = window;
         }
 
         Impl30(@NonNull WindowInsetsController insetsController,
-                @NonNull WindowInsetsControllerCompat compatController) {
+                @NonNull WindowInsetsControllerCompat compatController,
+                @NonNull SoftwareKeyboardControllerCompat softwareKeyboardControllerCompat) {
             mInsetsController = insetsController;
             mCompatController = compatController;
+            mSoftwareKeyboardControllerCompat = softwareKeyboardControllerCompat;
         }
 
         @Override
         void show(@InsetsType int types) {
-            if (mWindow != null && (types & WindowInsetsCompat.Type.IME) != 0 && SDK_INT < 33) {
-                InputMethodManager imm =
-                        (InputMethodManager) mWindow.getContext()
-                                .getSystemService(Context.INPUT_METHOD_SERVICE);
-
-                // This is a strange-looking workaround by making a call and ignoring the result.
-                // We don't use the return value here, but isActive() has the side-effect of
-                // calling a hidden method checkFocus(), which ensures that the IME state has the
-                // correct view in some situations (especially when the focused view changes).
-                // This is essentially a backport, since an equivalent checkFocus() call was
-                // added in API 32 to improve behavior and an additional change in API 33:
-                // https://issuetracker.google.com/issues/189858204
-                imm.isActive();
+            if ((types & WindowInsetsCompat.Type.IME) != 0) {
+                mSoftwareKeyboardControllerCompat.show();
             }
-            mInsetsController.show(types);
+            mInsetsController.show(types & ~WindowInsetsCompat.Type.IME);
         }
 
         @Override
         void hide(@InsetsType int types) {
-            if (mWindow != null && (types & WindowInsetsCompat.Type.IME) != 0 && SDK_INT <= 33) {
-                final AtomicBoolean isImeInsetsControllable = new AtomicBoolean(false);
-                final WindowInsetsController.OnControllableInsetsChangedListener listener =
-                        (windowInsetsController, typeMask) -> isImeInsetsControllable.set(
-                                (typeMask & WindowInsetsCompat.Type.IME) != 0);
-                // Register the OnControllableInsetsChangedListener would synchronously callback
-                // current controllable insets. Adding the listener here to check if ime inset is
-                // controllable.
-                mInsetsController.addOnControllableInsetsChangedListener(listener);
-                if (!isImeInsetsControllable.get()) {
-                    final InputMethodManager imm = (InputMethodManager) mWindow.getContext()
-                                    .getSystemService(Context.INPUT_METHOD_SERVICE);
-                    // This is a backport when the app is in multi-windowing mode, it cannot control
-                    // the ime insets. Use the InputMethodManager instead.
-                    imm.hideSoftInputFromWindow(mWindow.getDecorView().getWindowToken(), 0);
-                }
-                mInsetsController.removeOnControllableInsetsChangedListener(listener);
+            if ((types & WindowInsetsCompat.Type.IME) != 0) {
+                mSoftwareKeyboardControllerCompat.hide();
             }
-            mInsetsController.hide(types);
+            mInsetsController.hide(types & ~WindowInsetsCompat.Type.IME);
         }
 
         @Override

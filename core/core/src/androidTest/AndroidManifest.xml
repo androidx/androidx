@@ -123,6 +123,12 @@
             android:theme="@android:style/Theme.Light.NoTitleBar" />
 
         <activity
+            android:name="androidx.core.view.SoftwareKeyboardControllerCompatActivity"
+            android:exported="true"
+            android:windowSoftInputMode="adjustResize"
+            android:theme="@android:style/Theme.Light.NoTitleBar" />
+
+        <activity
             android:name="androidx.core.app.GetSystemLocalesActivity"
             android:exported="true" />
 
