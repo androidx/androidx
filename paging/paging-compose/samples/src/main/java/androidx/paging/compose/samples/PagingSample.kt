@@ -31,79 +31,16 @@ import androidx.paging.LoadState
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
-import androidx.paging.PagingSource
-import androidx.paging.PagingState
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemKey
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
-import kotlin.math.ceil
 
-class MyBackend {
-    private val backendDataList = (0..60).toList().map { "[Item $it is from backend]" }
-    val DataBatchSize = 5
-
-    class DesiredLoadResultPageResponse(
-        val data: List<String>
-    )
-
-    /**
-     * Returns [DataBatchSize] items for a key
-     */
-    fun searchItemsByKey(key: Int): DesiredLoadResultPageResponse {
-        val maxKey = ceil(backendDataList.size.toFloat() / DataBatchSize).toInt()
-
-        if (key >= maxKey) {
-            return DesiredLoadResultPageResponse(emptyList())
-        }
-
-        val from = key * DataBatchSize
-        val to = minOf((key + 1) * DataBatchSize, backendDataList.size)
-        val currentSublist = backendDataList.subList(from, to)
-
-        return DesiredLoadResultPageResponse(currentSublist)
-    }
-
-    fun getAllData(): PagingSource<Int, String> {
-        // Example from https://developer.android.com/reference/kotlin/androidx/paging/PagingSource
-        return object : PagingSource<Int, String>() {
-            override suspend fun load(params: LoadParams<Int>): LoadResult<Int, String> {
-                // Simulate latency
-                delay(2000)
-
-                val pageNumber = params.key ?: 0
-
-                val response = searchItemsByKey(pageNumber)
-
-                // Since 0 is the lowest page number, return null to signify no more pages should
-                // be loaded before it.
-                val prevKey = if (pageNumber > 0) pageNumber - 1 else null
-
-                // This API defines that it's out of data when a page returns empty. When out of
-                // data, we return `null` to signify no more pages should be loaded
-                val nextKey = if (response.data.isNotEmpty()) pageNumber + 1 else null
-
-                return LoadResult.Page(
-                    data = response.data,
-                    prevKey = prevKey,
-                    nextKey = nextKey
-                )
-            }
-
-            override fun getRefreshKey(state: PagingState<Int, String>): Int? {
-                return state.anchorPosition?.let {
-                    state.closestPageToPosition(it)?.prevKey?.plus(1)
-                        ?: state.closestPageToPosition(it)?.nextKey?.minus(1)
-                }
-            }
-        }
-    }
-}
+private val DATA = (0..60).toList().map { "[Item $it is from backend]" }
 
 @Sampled
 @Composable
 fun PagingBackendSample() {
-    val myBackend = remember { MyBackend() }
+    val myBackend = remember { TestBackend(DATA) }
 
     val pager = remember {
         Pager(
