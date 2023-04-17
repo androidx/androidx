@@ -24,7 +24,7 @@ object Metadata {
     /** Tool metadata message. It's serialized and stored in every SDK API descriptor. */
     val toolMetadata: ToolMetadata =
         ToolMetadata.newBuilder()
-            .setCodeGenerationVersion(1)
+            .setCodeGenerationVersion(2)
             .build()
 
     /** Relative path to metadata file in SDK API descriptor jar. */
