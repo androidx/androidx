@@ -76,6 +76,6 @@ class IgnoreProblematicDeviceRule : TestRule {
             EMULATOR_HARDWARE_GCE
         )
 
-        private val isEmulator = emulatorHardwareNames.contains(Build.HARDWARE.lowercase())
+        val isEmulator = emulatorHardwareNames.contains(Build.HARDWARE.lowercase())
     }
 }
