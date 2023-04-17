@@ -1,7 +1,0 @@
-// Baseline format: 1.0
-GetterSetterNames: androidx.privacysandbox.ads.adservices.topics.GetTopicsRequest#getShouldRecordObservation():
-    Getter for boolean property `shouldRecordObservation` is named `getShouldRecordObservation` but should match the property name. Use `@get:JvmName` to rename.
-GetterSetterNames: field WebSourceParams.debugKeyAllowed:
-    Invalid name for boolean property `debugKeyAllowed`. Should start with one of `has`, `can`, `should`, `is`.
-GetterSetterNames: field WebTriggerParams.debugKeyAllowed:
-    Invalid name for boolean property `debugKeyAllowed`. Should start with one of `has`, `can`, `should`, `is`.

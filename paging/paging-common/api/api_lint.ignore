@@ -11,20 +11,6 @@ ExecutorRegistration: androidx.paging.PagedList#addWeakCallback(androidx.paging.
     Registration methods should have overload that accepts delivery Executor: `addWeakCallback`
 
 
-GetterSetterNames: field LoadState.endOfPaginationReached:
-    Invalid name for boolean property `endOfPaginationReached`. Should start with one of `has`, `can`, `should`, `is`.
-GetterSetterNames: field PagingSource.LoadParams.placeholdersEnabled:
-    Invalid name for boolean property `placeholdersEnabled`. Should start with one of `has`, `can`, `should`, `is`.
-GetterSetterNames: field PagingSource.invalid:
-    Invalid name for boolean property `invalid`. Should start with one of `has`, `can`, `should`, `is`.
-GetterSetterNames: field PagingSource.jumpingSupported:
-    Invalid name for boolean property `jumpingSupported`. Should start with one of `has`, `can`, `should`, `is`.
-GetterSetterNames: field PagingSource.keyReuseSupported:
-    Invalid name for boolean property `keyReuseSupported`. Should start with one of `has`, `can`, `should`, `is`.
-GetterSetterNames: field RemoteMediator.MediatorResult.Success.endOfPaginationReached:
-    Invalid name for boolean property `endOfPaginationReached`. Should start with one of `has`, `can`, `should`, `is`.
-
-
 KotlinDefaultParameterOrder: androidx.paging.Pager#Pager(androidx.paging.PagingConfig, Key, androidx.paging.RemoteMediator<Key,Value>, kotlin.jvm.functions.Function0<? extends androidx.paging.PagingSource<Key,Value>>) parameter #1:
     Parameter `initialKey` has a default value and should come after all parameters without default values (except for a trailing lambda parameter)
 KotlinDefaultParameterOrder: androidx.paging.PagingDataTransforms#insertFooterItem(androidx.paging.PagingData<T>, androidx.paging.TerminalSeparatorType, T) parameter #1:

@@ -1,10 +1,4 @@
 // Baseline format: 1.0
-GetterSetterNames: field ColorRamp.interpolated:
-    Invalid name for boolean property `interpolated`. Should start with one of `has`, `can`, `should`, `is`.
-GetterSetterNames: field ComplicationData.tapActionLostDueToSerialization:
-    Invalid name for boolean property `tapActionLostDueToSerialization`. Should start with one of `has`, `can`, `should`, `is`.
-
-
 MissingGetterMatchingBuilder: androidx.wear.watchface.complications.data.TimeDifferenceComplicationText.Builder#setDisplayAsNow(boolean):
     androidx.wear.watchface.complications.data.TimeDifferenceComplicationText does not declare a `isDisplayAsNow()` method matching method androidx.wear.watchface.complications.data.TimeDifferenceComplicationText.Builder.setDisplayAsNow(boolean)
 MissingGetterMatchingBuilder: androidx.wear.watchface.complications.data.TimeDifferenceComplicationText.Builder#setText(CharSequence):

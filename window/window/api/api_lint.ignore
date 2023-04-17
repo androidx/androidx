@@ -1,9 +1,3 @@
 // Baseline format: 1.0
 ContextFirst: androidx.window.embedding.ActivityEmbeddingOptions#setLaunchingActivityStack(android.app.ActivityOptions, android.content.Context, androidx.window.embedding.ActivityStack) parameter #1:
     Context is distinct, so it must be the first argument (method `windowLayoutInfoFlowable`)
-GetterSetterNames: field ActivityRule.alwaysExpand:
-    Invalid name for boolean property `alwaysExpand`. Should start with one of `has`, `can`, `should`, `is`.
-GetterSetterNames: field SplitAttributesCalculatorParams.areDefaultConstraintsSatisfied:
-    Invalid name for boolean property `areDefaultConstraintsSatisfied`. Should start with one of `has`, `can`, `should`, `is`.
-GetterSetterNames: field SplitPairRule.clearTop:
-    Invalid name for boolean property `clearTop`. Should start with one of `has`, `can`, `should`, `is`.

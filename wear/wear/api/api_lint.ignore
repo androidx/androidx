@@ -25,10 +25,6 @@ GetterSetterNames: androidx.wear.widget.drawer.WearableDrawerView#setIsAutoPeekE
     Symmetric method for `isAutoPeekEnabled` must be named `setAutoPeekEnabled`; was `setIsAutoPeekEnabled`
 GetterSetterNames: androidx.wear.widget.drawer.WearableDrawerView#setIsLocked(boolean):
     Symmetric method for `isLocked` must be named `setLocked`; was `setIsLocked`
-GetterSetterNames: field AmbientLifecycleObserverInterface.AmbientDetails.burnInProtectionRequired:
-    Invalid name for boolean property `burnInProtectionRequired`. Should start with one of `has`, `can`, `should`, `is`.
-GetterSetterNames: field AmbientLifecycleObserverInterface.AmbientDetails.deviceHasLowBitAmbient:
-    Invalid name for boolean property `deviceHasLowBitAmbient`. Should start with one of `has`, `can`, `should`, `is`.
 
 
 InvalidNullabilityOverride: androidx.wear.widget.ArcLayout#checkLayoutParams(android.view.ViewGroup.LayoutParams) parameter #0:

@@ -9,36 +9,6 @@ DocumentExceptions: androidx.compose.runtime.snapshots.SnapshotApplyResult.Failu
     Method Failure.check appears to be throwing androidx.compose.runtime.snapshots.SnapshotApplyConflictException; this should be recorded with a @Throws annotation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
 
 
-GetterSetterNames: androidx.compose.runtime.BroadcastFrameClock#getHasAwaiters():
-    Getter for boolean property `hasAwaiters` is named `getHasAwaiters` but should match the property name. Use `@get:JvmName` to rename.
-GetterSetterNames: androidx.compose.runtime.Composition#getHasInvalidations():
-    Getter for boolean property `hasInvalidations` is named `getHasInvalidations` but should match the property name. Use `@get:JvmName` to rename.
-GetterSetterNames: androidx.compose.runtime.ControlledComposition#getHasPendingChanges():
-    Getter for boolean property `hasPendingChanges` is named `getHasPendingChanges` but should match the property name. Use `@get:JvmName` to rename.
-GetterSetterNames: androidx.compose.runtime.ProvidedValue#getCanOverride():
-    Getter for boolean property `canOverride` is named `getCanOverride` but should match the property name. Use `@get:JvmName` to rename.
-GetterSetterNames: androidx.compose.runtime.Recomposer#getHasPendingWork():
-    Getter for boolean property `hasPendingWork` is named `getHasPendingWork` but should match the property name. Use `@get:JvmName` to rename.
-GetterSetterNames: androidx.compose.runtime.RecomposerInfo#getHasPendingWork():
-    Getter for boolean property `hasPendingWork` is named `getHasPendingWork` but should match the property name. Use `@get:JvmName` to rename.
-GetterSetterNames: field Composer.defaultsInvalid:
-    Invalid name for boolean property `defaultsInvalid`. Should start with one of `has`, `can`, `should`, `is`.
-GetterSetterNames: field Composer.inserting:
-    Invalid name for boolean property `inserting`. Should start with one of `has`, `can`, `should`, `is`.
-GetterSetterNames: field Composer.skipping:
-    Invalid name for boolean property `skipping`. Should start with one of `has`, `can`, `should`, `is`.
-GetterSetterNames: field MutableSnapshot.readOnly:
-    Invalid name for boolean property `readOnly`. Should start with one of `has`, `can`, `should`, `is`.
-GetterSetterNames: field Snapshot.readOnly:
-    Invalid name for boolean property `readOnly`. Should start with one of `has`, `can`, `should`, `is`.
-GetterSetterNames: field SnapshotApplyResult.Failure.succeeded:
-    Invalid name for boolean property `succeeded`. Should start with one of `has`, `can`, `should`, `is`.
-GetterSetterNames: field SnapshotApplyResult.Success.succeeded:
-    Invalid name for boolean property `succeeded`. Should start with one of `has`, `can`, `should`, `is`.
-GetterSetterNames: field SnapshotApplyResult.succeeded:
-    Invalid name for boolean property `succeeded`. Should start with one of `has`, `can`, `should`, `is`.
-
-
 KotlinOperator: androidx.compose.runtime.Updater#set(V, kotlin.jvm.functions.Function2<? super T,? super V,kotlin.Unit>):
     Note that adding the `operator` keyword would allow calling this method using operator syntax
 KotlinOperator: androidx.compose.runtime.Updater#set(int, kotlin.jvm.functions.Function2<? super T,? super java.lang.Integer,kotlin.Unit>):
@@ -47,9 +17,17 @@ KotlinOperator: androidx.compose.runtime.snapshots.SnapshotStateList#contains(T)
     Note that adding the `operator` keyword would allow calling this method using operator syntax
 
 
+MissingNullability: androidx.compose.runtime.collection.MutableVector#mapIndexedNotNull(kotlin.jvm.functions.Function2<? super java.lang.Integer,? super T,? extends R>):
+    Missing nullability on method `mapIndexedNotNull` return
+MissingNullability: androidx.compose.runtime.collection.MutableVector#mapNotNull(kotlin.jvm.functions.Function1<? super T,? extends R>):
+    Missing nullability on method `mapNotNull` return
 MissingNullability: androidx.compose.runtime.collection.MutableVectorKt#MutableVector(int):
     Missing nullability on method `MutableVector` return
+MissingNullability: androidx.compose.runtime.collection.MutableVectorKt#MutableVector(int, kotlin.jvm.functions.Function1<? super java.lang.Integer,? extends T>):
+    Missing nullability on method `MutableVector` return
 MissingNullability: androidx.compose.runtime.collection.MutableVectorKt#mutableVectorOf():
+    Missing nullability on method `mutableVectorOf` return
+MissingNullability: androidx.compose.runtime.collection.MutableVectorKt#mutableVectorOf(T):
     Missing nullability on method `mutableVectorOf` return
 
 
