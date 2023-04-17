@@ -830,6 +830,8 @@ public class EmojiCompat {
      */
     public int getEmojiStart(@NonNull final CharSequence charSequence,
             @IntRange(from = 0) int offset) {
+        Preconditions.checkState(isInitialized(), "Not initialized yet");
+        Preconditions.checkNotNull(charSequence, "charSequence cannot be null");
         return mHelper.getEmojiStart(charSequence, offset);
     }
 
@@ -838,6 +840,8 @@ public class EmojiCompat {
      */
     public int getEmojiEnd(@NonNull final CharSequence charSequence,
             @IntRange(from = 0) int offset) {
+        Preconditions.checkState(isInitialized(), "Not initialized yet");
+        Preconditions.checkNotNull(charSequence, "charSequence cannot be null");
         return mHelper.getEmojiEnd(charSequence, offset);
     }
 
