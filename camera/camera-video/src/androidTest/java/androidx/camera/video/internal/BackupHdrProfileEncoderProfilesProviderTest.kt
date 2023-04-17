@@ -22,6 +22,7 @@ import android.media.EncoderProfiles.VideoProfile.HDR_HLG
 import androidx.camera.camera2.Camera2Config
 import androidx.camera.camera2.internal.Camera2EncoderProfilesProvider
 import androidx.camera.camera2.pipe.integration.CameraPipeConfig
+import androidx.camera.camera2.pipe.integration.adapter.EncoderProfilesProviderAdapter
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraXConfig
 import androidx.camera.core.DynamicRange
@@ -136,7 +137,11 @@ class BackupHdrProfileEncoderProfilesProviderTest(
             context,
             cameraSelector
         ).cameraInfo as CameraInfoInternal
-        baseProvider = Camera2EncoderProfilesProvider(cameraId)
+        baseProvider = if (implName == CameraPipeConfig::class.simpleName) {
+            EncoderProfilesProviderAdapter(cameraId)
+        } else {
+            Camera2EncoderProfilesProvider(cameraId)
+        }
     }
 
     @After
