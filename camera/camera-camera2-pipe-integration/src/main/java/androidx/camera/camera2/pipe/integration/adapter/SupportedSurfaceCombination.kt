@@ -19,6 +19,7 @@ package androidx.camera.camera2.pipe.integration.adapter
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageManager.FEATURE_CAMERA_CONCURRENT
+import android.graphics.ImageFormat
 import android.graphics.Point
 import android.graphics.SurfaceTexture
 import android.hardware.camera2.CameraCharacteristics
@@ -27,6 +28,7 @@ import android.hardware.display.DisplayManager
 import android.media.CamcorderProfile
 import android.media.MediaRecorder
 import android.os.Build
+import android.util.Rational
 import android.util.Size
 import android.view.Display
 import androidx.annotation.RequiresApi
@@ -36,6 +38,7 @@ import androidx.camera.camera2.pipe.integration.compat.StreamConfigurationMapCom
 import androidx.camera.camera2.pipe.integration.compat.workaround.ExtraSupportedSurfaceCombinationsContainer
 import androidx.camera.camera2.pipe.integration.compat.workaround.OutputSizesCorrector
 import androidx.camera.camera2.pipe.integration.compat.workaround.ResolutionCorrector
+import androidx.camera.camera2.pipe.integration.compat.workaround.TargetAspectRatio
 import androidx.camera.camera2.pipe.integration.impl.DisplayInfoManager
 import androidx.camera.core.impl.AttachedSurfaceInfo
 import androidx.camera.core.impl.CameraMode
@@ -46,6 +49,7 @@ import androidx.camera.core.impl.SurfaceCombination
 import androidx.camera.core.impl.SurfaceConfig
 import androidx.camera.core.impl.SurfaceSizeDefinition
 import androidx.camera.core.impl.UseCaseConfig
+import androidx.camera.core.impl.utils.AspectRatioUtil
 import androidx.camera.core.impl.utils.CompareSizesByArea
 import androidx.camera.core.internal.utils.SizeUtil
 import androidx.camera.core.internal.utils.SizeUtil.RESOLUTION_1080P
@@ -95,6 +99,7 @@ class SupportedSurfaceCombination(
         ExtraSupportedSurfaceCombinationsContainer()
     private val displayInfoManager = DisplayInfoManager(context)
     private val resolutionCorrector = ResolutionCorrector()
+    private val targetAspectRatio: TargetAspectRatio = TargetAspectRatio()
 
     init {
         checkCapabilities()
@@ -229,9 +234,9 @@ class SupportedSurfaceCombination(
         for (index in useCasesPriorityOrder) {
             var supportedOutputSizes: List<Size> =
                 newUseCaseConfigsSupportedSizeMap[newUseCaseConfigs[index]]!!
-            supportedOutputSizes = resolutionCorrector.insertOrPrioritize(
-                SurfaceConfig.getConfigType(newUseCaseConfigs[index].inputFormat),
-                supportedOutputSizes
+            supportedOutputSizes = applyResolutionSelectionOrderRelatedWorkarounds(
+                supportedOutputSizes,
+                newUseCaseConfigs[index].inputFormat
             )
             supportedOutputSizesList.add(supportedOutputSizes)
         }
@@ -289,6 +294,64 @@ class SupportedSurfaceCombination(
             )
         }
         return suggestedStreamSpecMap
+    }
+
+    /**
+     * Applies resolution selection order related workarounds.
+     *
+     * TargetAspectRatio workaround makes CameraX select sizes of specific aspect ratio in priority
+     * to avoid the preview image stretch issue.
+     *
+     * ResolutionCorrector workaround makes CameraX select specific sizes for different capture
+     * types to avoid the preview image stretch issue.
+     *
+     * @see TargetAspectRatio
+     * @see ResolutionCorrector
+     */
+    @VisibleForTesting
+    fun applyResolutionSelectionOrderRelatedWorkarounds(
+        sizeList: List<Size>,
+        imageFormat: Int
+    ): List<Size> {
+        // Applies TargetAspectRatio workaround
+        var ratio: Rational? =
+            when (targetAspectRatio[cameraMetadata, streamConfigurationMapCompat]) {
+                TargetAspectRatio.RATIO_4_3 ->
+                    AspectRatioUtil.ASPECT_RATIO_4_3
+
+                TargetAspectRatio.RATIO_16_9 ->
+                    AspectRatioUtil.ASPECT_RATIO_16_9
+
+                TargetAspectRatio.RATIO_MAX_JPEG -> {
+                    val maxJpegSize = getUpdatedSurfaceSizeDefinitionByFormat(
+                        ImageFormat.JPEG
+                    ).getMaximumSize(ImageFormat.JPEG)
+                    Rational(maxJpegSize.width, maxJpegSize.height)
+                }
+
+                else -> null
+            }
+        val resultList: MutableList<Size>
+        if (ratio == null) {
+            resultList = sizeList.toMutableList()
+        } else {
+            val aspectRatioMatchedSizeList: MutableList<Size> = mutableListOf()
+            resultList = mutableListOf()
+            for (size in sizeList) {
+                if (AspectRatioUtil.hasMatchingAspectRatio(size, ratio)) {
+                    aspectRatioMatchedSizeList.add(size)
+                } else {
+                    resultList.add(size)
+                }
+            }
+            resultList.addAll(0, aspectRatioMatchedSizeList)
+        }
+
+        // Applies ResolutionCorrector workaround and return the result list.
+        return resolutionCorrector.insertOrPrioritize(
+            SurfaceConfig.getConfigType(imageFormat),
+            resultList
+        )
     }
 
     // Utility classes and methods:

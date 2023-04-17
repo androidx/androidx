@@ -25,6 +25,7 @@ import static androidx.camera.core.internal.utils.SizeUtil.RESOLUTION_VGA;
 
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.graphics.ImageFormat;
 import android.graphics.SurfaceTexture;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraDevice;
@@ -33,6 +34,7 @@ import android.media.CamcorderProfile;
 import android.media.MediaRecorder;
 import android.os.Build;
 import android.util.Range;
+import android.util.Rational;
 import android.util.Size;
 
 import androidx.annotation.DoNotInline;
@@ -46,6 +48,7 @@ import androidx.camera.camera2.internal.compat.CameraManagerCompat;
 import androidx.camera.camera2.internal.compat.StreamConfigurationMapCompat;
 import androidx.camera.camera2.internal.compat.workaround.ExtraSupportedSurfaceCombinationsContainer;
 import androidx.camera.camera2.internal.compat.workaround.ResolutionCorrector;
+import androidx.camera.camera2.internal.compat.workaround.TargetAspectRatio;
 import androidx.camera.core.CameraUnavailableException;
 import androidx.camera.core.DynamicRange;
 import androidx.camera.core.impl.AttachedSurfaceInfo;
@@ -56,6 +59,7 @@ import androidx.camera.core.impl.SurfaceCombination;
 import androidx.camera.core.impl.SurfaceConfig;
 import androidx.camera.core.impl.SurfaceSizeDefinition;
 import androidx.camera.core.impl.UseCaseConfig;
+import androidx.camera.core.impl.utils.AspectRatioUtil;
 import androidx.camera.core.impl.utils.CompareSizesByArea;
 import androidx.camera.core.internal.utils.SizeUtil;
 import androidx.core.util.Preconditions;
@@ -104,6 +108,8 @@ final class SupportedSurfaceCombination {
     List<Integer> mSurfaceSizeDefinitionFormats = new ArrayList<>();
     @NonNull
     private final DisplayInfoManager mDisplayInfoManager;
+
+    private final TargetAspectRatio mTargetAspectRatio = new TargetAspectRatio();
     private final ResolutionCorrector mResolutionCorrector = new ResolutionCorrector();
     private final DynamicRangeResolver mDynamicRangeResolver;
 
@@ -562,9 +568,8 @@ final class SupportedSurfaceCombination {
         for (Integer index : useCasesPriorityOrder) {
             UseCaseConfig<?> useCaseConfig = newUseCaseConfigs.get(index);
             List<Size> supportedOutputSizes = newUseCaseConfigsSupportedSizeMap.get(useCaseConfig);
-            supportedOutputSizes = mResolutionCorrector.insertOrPrioritize(
-                    SurfaceConfig.getConfigType(useCaseConfig.getInputFormat()),
-                    supportedOutputSizes);
+            supportedOutputSizes = applyResolutionSelectionOrderRelatedWorkarounds(
+                    supportedOutputSizes, useCaseConfig.getInputFormat());
             supportedOutputSizesList.add(supportedOutputSizes);
         }
 
@@ -679,6 +684,66 @@ final class SupportedSurfaceCombination {
                             + " New configs: " + newUseCaseConfigs);
         }
         return suggestedStreamSpecMap;
+    }
+
+    /**
+     * Applies resolution selection order related workarounds.
+     *
+     * <p>{@link TargetAspectRatio} workaround makes CameraX select sizes of specific aspect
+     * ratio in priority to avoid the preview image stretch issue.
+     *
+     * <p>{@link ResolutionCorrector} workaround makes CameraX select specific sizes for
+     * different capture types to avoid the preview image stretch issue.
+     *
+     * @see TargetAspectRatio
+     * @see ResolutionCorrector
+     */
+    @VisibleForTesting
+    @NonNull
+    List<Size> applyResolutionSelectionOrderRelatedWorkarounds(@NonNull List<Size> sizeList,
+            int imageFormat) {
+        // Applies TargetAspectRatio workaround
+        int targetAspectRatio = mTargetAspectRatio.get(mCameraId, mCharacteristics);
+        Rational ratio = null;
+
+        switch (targetAspectRatio) {
+            case TargetAspectRatio.RATIO_4_3:
+                ratio = AspectRatioUtil.ASPECT_RATIO_4_3;
+                break;
+            case TargetAspectRatio.RATIO_16_9:
+                ratio = AspectRatioUtil.ASPECT_RATIO_16_9;
+                break;
+            case TargetAspectRatio.RATIO_MAX_JPEG:
+                Size maxJpegSize = getUpdatedSurfaceSizeDefinitionByFormat(
+                        ImageFormat.JPEG).getMaximumSize(ImageFormat.JPEG);
+                ratio = new Rational(maxJpegSize.getWidth(), maxJpegSize.getHeight());
+                break;
+            case TargetAspectRatio.RATIO_ORIGINAL:
+                ratio = null;
+        }
+
+        List<Size> resultList;
+
+        if (ratio == null) {
+            resultList = sizeList;
+        } else {
+            List<Size> aspectRatioMatchedSizeList = new ArrayList<>();
+            resultList = new ArrayList<>();
+
+            for (Size size : sizeList) {
+                if (AspectRatioUtil.hasMatchingAspectRatio(size, ratio)) {
+                    aspectRatioMatchedSizeList.add(size);
+                } else {
+                    resultList.add(size);
+                }
+            }
+            resultList.addAll(0, aspectRatioMatchedSizeList);
+        }
+
+        // Applies ResolutionCorrector workaround and return the result list.
+        return mResolutionCorrector.insertOrPrioritize(
+                SurfaceConfig.getConfigType(imageFormat),
+                resultList);
     }
 
     @RequiredMaxBitDepth

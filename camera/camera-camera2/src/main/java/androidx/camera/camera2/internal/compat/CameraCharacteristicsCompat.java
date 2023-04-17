@@ -133,7 +133,7 @@ public class CameraCharacteristicsCompat {
             if (map == null) {
                 throw new IllegalArgumentException("StreamConfigurationMap is null!");
             }
-            OutputSizesCorrector outputSizesCorrector = new OutputSizesCorrector(mCameraId, this);
+            OutputSizesCorrector outputSizesCorrector = new OutputSizesCorrector(mCameraId);
             mStreamConfigurationMapCompat =
                     StreamConfigurationMapCompat.toStreamConfigurationMapCompat(map,
                             outputSizesCorrector);

@@ -630,19 +630,11 @@ public class Camera2CameraInfoImplTest {
         List<Size> resolutions = cameraInfo.getSupportedResolutions(
                 ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE);
 
-        if (Build.VERSION.SDK_INT == 21) {
-            // TargetAspectRatio workaround should be applied to the StreamConfigurationMapCompat
-            assertThat(resolutions).containsExactly(
-                    new Size(1920, 1080),
-                    new Size(1280, 720)
-            );
-        } else {
-            assertThat(resolutions).containsExactly(
-                    new Size(1920, 1080),
-                    new Size(1280, 720),
-                    new Size(640, 480)
-            );
-        }
+        assertThat(resolutions).containsExactly(
+                new Size(1920, 1080),
+                new Size(1280, 720),
+                new Size(640, 480)
+        );
     }
 
     @Test

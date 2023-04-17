@@ -28,7 +28,6 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
-import org.robolectric.shadows.ShadowCameraCharacteristics
 import org.robolectric.shadows.StreamConfigurationMapBuilder
 
 /**
@@ -58,16 +57,12 @@ class StreamConfigurationMapCompatTest {
             }
         }
         val cameraId = "0"
-        val characteristicsCompat = CameraCharacteristicsCompat.toCameraCharacteristicsCompat(
-            ShadowCameraCharacteristics.newCameraCharacteristics(),
-            cameraId
-        )
 
         // **** Camera 0 characteristics ****//
         streamConfigurationMapCompat =
             StreamConfigurationMapCompat.toStreamConfigurationMapCompat(
                 builder.build(),
-                OutputSizesCorrector(cameraId, characteristicsCompat)
+                OutputSizesCorrector(cameraId)
             )
     }
 
