@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,10 +14,13 @@
  * limitations under the License.
  */
 
-package androidx.camera.video.internal.encoder
+package androidx.camera.testing.fakes
 
 import android.util.Range
+import androidx.annotation.RequiresApi
+import androidx.camera.video.internal.encoder.VideoEncoderInfo
 
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class FakeVideoEncoderInfo(
     var _supportedWidths: Range<Int> = Range.create(0, Integer.MAX_VALUE),
     var _supportedHeights: Range<Int> = Range.create(0, Integer.MAX_VALUE),
@@ -46,7 +49,7 @@ class FakeVideoEncoderInfo(
     }
 
     override fun getWidthAlignment(): Int {
-       return _widthAlignment
+        return _widthAlignment
     }
 
     override fun getHeightAlignment(): Int {

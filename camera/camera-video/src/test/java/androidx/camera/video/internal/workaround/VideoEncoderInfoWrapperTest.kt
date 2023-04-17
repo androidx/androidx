@@ -19,7 +19,7 @@ package androidx.camera.video.internal.workaround
 import android.os.Build
 import android.util.Range
 import android.util.Size
-import androidx.camera.video.internal.encoder.FakeVideoEncoderInfo
+import androidx.camera.testing.fakes.FakeVideoEncoderInfo
 import androidx.camera.video.internal.encoder.VideoEncoderInfo
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.assertThrows

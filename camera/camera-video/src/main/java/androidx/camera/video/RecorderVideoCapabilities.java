@@ -255,7 +255,8 @@ public final class RecorderVideoCapabilities implements VideoCapabilities {
     /**
      * This class implements the video capabilities query logic related to quality and resolution.
      */
-    private static class CapabilitiesByQuality {
+    @VisibleForTesting
+    static class CapabilitiesByQuality {
 
         /**
          * Maps quality to supported {@link VideoValidatedEncoderProfilesProxy}. The order is from

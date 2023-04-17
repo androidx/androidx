@@ -35,6 +35,7 @@ dependencies {
     implementation(libs.guavaListenableFuture)
     implementation("androidx.appcompat:appcompat:1.1.0")
     api(project(":camera:camera-core"))
+    api(project(":camera:camera-video"))
     implementation("androidx.core:core:1.1.0")
     implementation("androidx.concurrent:concurrent-futures:1.0.0")
     implementation("androidx.test.espresso:espresso-core:3.5.0")
