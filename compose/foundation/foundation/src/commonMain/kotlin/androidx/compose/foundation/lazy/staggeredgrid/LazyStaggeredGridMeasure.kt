@@ -693,13 +693,14 @@ private fun LazyStaggeredGridMeasureContext.measure(
 
         // start placement
 
+        val contentPadding = beforeContentPadding + afterContentPadding
         val layoutWidth = if (isVertical) {
             constraints.maxWidth
         } else {
-            constraints.constrainWidth(currentItemOffsets.max())
+            constraints.constrainWidth(currentItemOffsets.max() + contentPadding)
         }
         val layoutHeight = if (isVertical) {
-            constraints.constrainHeight(currentItemOffsets.max())
+            constraints.constrainHeight(currentItemOffsets.max() + contentPadding)
         } else {
             constraints.maxHeight
         }
