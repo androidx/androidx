@@ -38,8 +38,7 @@ class PageLayoutPositionOnScrollingTest(
     @Test
     fun swipeForwardAndBackward_verifyPagesAreLaidOutCorrectly() {
         // Arrange
-        val state = PagerState()
-        createPager(state = state, modifier = Modifier.fillMaxSize())
+        createPager(modifier = Modifier.fillMaxSize())
         val delta = pagerSize * 0.4f * scrollForwardSign
 
         // Act and Assert - forward
