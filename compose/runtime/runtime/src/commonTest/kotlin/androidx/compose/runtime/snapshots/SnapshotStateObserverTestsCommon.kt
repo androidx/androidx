@@ -742,6 +742,53 @@ class SnapshotStateObserverTestsCommon {
         assertEquals(1, changes)
     }
 
+    @Test
+    fun readingDerivedState_invalidatesIfReadBeforeSnapshotAdvance() {
+        var changes = 0
+        val changeBlock: (Any) -> Unit = {
+            if (it == "draw_1") {
+                changes++
+            }
+        }
+
+        runSimpleTest { stateObserver, layoutState ->
+            val derivedState = derivedStateOf {
+                layoutState.value
+            }
+
+            // record observation for a draw scope
+            stateObserver.observeReads("draw", changeBlock) {
+                derivedState.value
+            }
+
+            // record observation for a different draw scope
+            stateObserver.observeReads("draw_1", changeBlock) {
+                derivedState.value
+            }
+
+            Snapshot.sendApplyNotifications()
+
+            // record
+            layoutState.value += 1
+
+            // record observation for the first draw scope
+            stateObserver.observeReads("draw", changeBlock) {
+                // read state
+                derivedState.value
+            }
+
+            // second block should be invalidated after we read the value
+            assertEquals(1, changes)
+
+            // record observation for the second draw scope
+            stateObserver.observeReads("draw_1", changeBlock) {
+                // read state
+                derivedState.value
+            }
+        }
+        assertEquals(2, changes)
+    }
+
     private fun runSimpleTest(
         block: (modelObserver: SnapshotStateObserver, data: MutableState<Int>) -> Unit
     ) {
