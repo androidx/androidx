@@ -54,25 +54,27 @@ internal fun IntervalRecord.intervalProto(): DataProto.DataPoint.Builder {
 @SuppressWarnings("GoodTime") // Suppress GoodTime for serialize/de-serialize.
 private fun DataProto.DataPoint.Builder.setMetadata(metadata: Metadata) = apply {
     if (metadata.id != Metadata.EMPTY_ID) {
-        setUid(metadata.id)
+        uid = metadata.id
     }
     if (metadata.dataOrigin.packageName.isNotEmpty()) {
-        setDataOrigin(
+        dataOrigin =
             DataProto.DataOrigin.newBuilder()
                 .setApplicationId(metadata.dataOrigin.packageName)
                 .build()
-        )
     }
 
     if (metadata.lastModifiedTime.isAfter(Instant.EPOCH)) {
-        setUpdateTimeMillis(metadata.lastModifiedTime.toEpochMilli())
+        updateTimeMillis = metadata.lastModifiedTime.toEpochMilli()
     }
 
     metadata.clientRecordId?.let { setClientId(it) }
     if (metadata.clientRecordVersion > 0) {
-        metadata.clientRecordVersion.let { setClientVersion(it) }
+        clientVersion = metadata.clientRecordVersion
     }
     metadata.device?.let { setDevice(it.toProto()) }
+    if (metadata.recordingMethod > 0) {
+        recordingMethod = metadata.recordingMethod
+    }
 }
 
 internal fun Device.toProto(): DataProto.Device {

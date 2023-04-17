@@ -94,7 +94,8 @@ internal val DataProto.DataPoint.metadata: Metadata
             lastModifiedTime = Instant.ofEpochMilli(updateTimeMillis),
             clientRecordId = if (hasClientId()) clientId else null,
             clientRecordVersion = clientVersion,
-            device = device.toDevice()
+            device = device.toDevice(),
+            recordingMethod = recordingMethod
         )
 
 internal fun DataProto.Device.toDevice(): Device {
