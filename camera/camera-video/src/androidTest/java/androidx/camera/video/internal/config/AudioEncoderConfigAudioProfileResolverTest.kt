@@ -22,6 +22,7 @@ import androidx.camera.camera2.Camera2Config
 import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraXConfig
+import androidx.camera.core.DynamicRange.SDR
 import androidx.camera.core.impl.Timebase
 import androidx.camera.core.internal.CameraUseCaseAdapter
 import androidx.camera.testing.CameraPipeConfigTestRule
@@ -29,7 +30,8 @@ import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CameraXUtil
 import androidx.camera.video.AudioSpec
 import androidx.camera.video.Quality
-import androidx.camera.video.LegacyVideoCapabilities
+import androidx.camera.video.Recorder
+import androidx.camera.video.VideoCapabilities
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
@@ -45,6 +47,11 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
+/**
+ * Test used to verify AudioEncoderConfigAudioProfileResolver works as expected.
+ *
+ * Only standard dynamic range is checked, since video and audio should be independent.
+ */
 @RunWith(Parameterized::class)
 @SmallTest
 @SdkSuppress(minSdkVersion = 21)
@@ -73,7 +80,7 @@ class AudioEncoderConfigAudioProfileResolverTest(
     private val timebase = Timebase.UPTIME
 
     private lateinit var cameraUseCaseAdapter: CameraUseCaseAdapter
-    private lateinit var videoCapabilities: LegacyVideoCapabilities
+    private lateinit var videoCapabilities: VideoCapabilities
 
     @Before
     fun setUp() {
@@ -85,8 +92,8 @@ class AudioEncoderConfigAudioProfileResolverTest(
         ).get()
 
         val cameraInfo = CameraUtil.createCameraUseCaseAdapter(context, cameraSelector).cameraInfo
-        videoCapabilities = LegacyVideoCapabilities.from(cameraInfo)
-        Assume.assumeTrue(videoCapabilities.supportedQualities.isNotEmpty())
+        videoCapabilities = Recorder.getVideoCapabilities(cameraInfo)
+        Assume.assumeTrue(videoCapabilities.getSupportedQualities(SDR).isNotEmpty())
     }
 
     @After
@@ -102,8 +109,8 @@ class AudioEncoderConfigAudioProfileResolverTest(
 
     @Test
     fun defaultAudioSpecAndAudioSourceProducesValidSettings() {
-        val supportedProfiles = videoCapabilities.supportedQualities.map {
-            videoCapabilities.getProfiles(it)!!
+        val supportedProfiles = videoCapabilities.getSupportedQualities(SDR).map {
+            videoCapabilities.getProfiles(it, SDR)!!
         }
 
         for (encoderProfiles in supportedProfiles) {
@@ -129,7 +136,7 @@ class AudioEncoderConfigAudioProfileResolverTest(
 
     @Test
     fun increasedChannelCountIncreasesBitrate() {
-        val encoderProfiles = videoCapabilities.getProfiles(Quality.HIGHEST)!!
+        val encoderProfiles = videoCapabilities.getProfiles(Quality.HIGHEST, SDR)!!
         val profile = encoderProfiles.defaultAudioProfile
         Assume.assumeTrue(profile != null)
 
@@ -167,7 +174,7 @@ class AudioEncoderConfigAudioProfileResolverTest(
 
     @Test
     fun increasedSampleRateIncreasesBitrate() {
-        val encoderProfiles = videoCapabilities.getProfiles(Quality.HIGHEST)!!
+        val encoderProfiles = videoCapabilities.getProfiles(Quality.HIGHEST, SDR)!!
         val profile = encoderProfiles.defaultAudioProfile
         Assume.assumeTrue(profile != null)
 
@@ -205,7 +212,7 @@ class AudioEncoderConfigAudioProfileResolverTest(
 
     @Test
     fun bitrateRangeInVideoSpecClampsBitrate() {
-        val encoderProfiles = videoCapabilities.getProfiles(Quality.HIGHEST)!!
+        val encoderProfiles = videoCapabilities.getProfiles(Quality.HIGHEST, SDR)!!
         val profile = encoderProfiles.defaultAudioProfile
         Assume.assumeTrue(profile != null)
 
