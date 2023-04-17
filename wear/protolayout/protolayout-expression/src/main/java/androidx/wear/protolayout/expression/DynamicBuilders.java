@@ -60,7 +60,6 @@ public final class DynamicBuilders {
         PLATFORM_INT32_SOURCE_TYPE_DAILY_STEP_COUNT
     })
     @Retention(RetentionPolicy.SOURCE)
-    @ProtoLayoutExperimental
     @interface PlatformInt32SourceType {}
 
     /**
@@ -68,7 +67,7 @@ public final class DynamicBuilders {
      *
      * @since 1.2
      */
-    @ProtoLayoutExperimental static final int PLATFORM_INT32_SOURCE_TYPE_UNDEFINED = 0;
+    static final int PLATFORM_INT32_SOURCE_TYPE_UNDEFINED = 0;
 
     /**
      * The user's current heart rate. Note that to use this data source, your app must already have
@@ -77,7 +76,7 @@ public final class DynamicBuilders {
      *
      * @since 1.2
      */
-    @ProtoLayoutExperimental static final int PLATFORM_INT32_SOURCE_TYPE_CURRENT_HEART_RATE = 1;
+    static final int PLATFORM_INT32_SOURCE_TYPE_CURRENT_HEART_RATE = 1;
 
     /**
      * The user's current daily steps. This is the number of steps they have taken since midnight,
@@ -87,7 +86,7 @@ public final class DynamicBuilders {
      *
      * @since 1.2
      */
-    @ProtoLayoutExperimental static final int PLATFORM_INT32_SOURCE_TYPE_DAILY_STEP_COUNT = 2;
+    static final int PLATFORM_INT32_SOURCE_TYPE_DAILY_STEP_COUNT = 2;
 
     /**
      * The type of arithmetic operation used in {@link ArithmeticInt32Op} and {@link
@@ -390,7 +389,6 @@ public final class DynamicBuilders {
      *
      * @since 1.2
      */
-    @ProtoLayoutExperimental
     static final class PlatformInt32Source implements DynamicInt32 {
         private final DynamicProto.PlatformInt32Source mImpl;
         @Nullable private final Fingerprint mFingerprint;
