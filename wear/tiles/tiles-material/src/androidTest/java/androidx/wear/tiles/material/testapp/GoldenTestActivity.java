@@ -38,8 +38,8 @@ import androidx.wear.protolayout.LayoutElementBuilders.Layout;
 import androidx.wear.protolayout.ResourceBuilders.AndroidImageResourceByResId;
 import androidx.wear.protolayout.ResourceBuilders.ImageResource;
 import androidx.wear.protolayout.ResourceBuilders.Resources;
-import androidx.wear.tiles.material.R;
 import androidx.wear.protolayout.proto.LayoutElementProto.LayoutElement;
+import androidx.wear.tiles.material.R;
 import androidx.wear.tiles.renderer.TileRenderer;
 
 import java.util.concurrent.Executor;
@@ -74,8 +74,7 @@ public class GoldenTestActivity extends Activity {
         Executor mainExecutor = ContextCompat.getMainExecutor(getApplicationContext());
 
         Resources resources = generateResources();
-        TileRenderer renderer =
-                new TileRenderer(appContext, mainExecutor, i -> {});
+        TileRenderer renderer = new TileRenderer(appContext, mainExecutor, i -> {});
 
         View firstChild = renderer.inflate(layout, resources, root);
 

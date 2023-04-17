@@ -30,10 +30,6 @@ import android.graphics.Color;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.wear.tiles.LayoutElementBuilders.Box;
-import androidx.wear.tiles.LayoutElementBuilders.Column;
-import androidx.wear.tiles.ModifiersBuilders.ElementMetadata;
-import androidx.wear.tiles.ModifiersBuilders.Modifiers;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -89,26 +85,29 @@ public class CircularProgressIndicatorTest {
 
     @Test
     public void testWrongElement() {
-        Column box = new Column.Builder().build();
+        androidx.wear.tiles.LayoutElementBuilders.Column box =
+                new androidx.wear.tiles.LayoutElementBuilders.Column.Builder().build();
 
         assertThat(CircularProgressIndicator.fromLayoutElement(box)).isNull();
     }
 
     @Test
     public void testWrongBox() {
-        Box box = new Box.Builder().build();
+        androidx.wear.tiles.LayoutElementBuilders.Box box =
+                new androidx.wear.tiles.LayoutElementBuilders.Box.Builder().build();
 
         assertThat(CircularProgressIndicator.fromLayoutElement(box)).isNull();
     }
 
     @Test
     public void testWrongTag() {
-        Box box =
-                new Box.Builder()
+        androidx.wear.tiles.LayoutElementBuilders.Box box =
+                new androidx.wear.tiles.LayoutElementBuilders.Box.Builder()
                         .setModifiers(
-                                new Modifiers.Builder()
+                                new androidx.wear.tiles.ModifiersBuilders.Modifiers.Builder()
                                         .setMetadata(
-                                                new ElementMetadata.Builder()
+                                                new androidx.wear.tiles.ModifiersBuilders
+                                                                .ElementMetadata.Builder()
                                                         .setTagData("test".getBytes(UTF_8))
                                                         .build())
                                         .build())
@@ -134,7 +133,10 @@ public class CircularProgressIndicatorTest {
                 expectedThickness,
                 expectedContentDescription);
 
-        Box box = new Box.Builder().addContent(actualCircularProgressIndicator).build();
+        androidx.wear.tiles.LayoutElementBuilders.Box box =
+                new androidx.wear.tiles.LayoutElementBuilders.Box.Builder()
+                        .addContent(actualCircularProgressIndicator)
+                        .build();
 
         CircularProgressIndicator newCpi =
                 CircularProgressIndicator.fromLayoutElement(box.getContents().get(0));

@@ -16,8 +16,6 @@
 
 package androidx.wear.tiles.material;
 
-import static androidx.wear.tiles.ColorBuilders.argb;
-import static androidx.wear.tiles.DimensionBuilders.dp;
 import static androidx.wear.tiles.material.ButtonDefaults.DEFAULT_SIZE;
 import static androidx.wear.tiles.material.ButtonDefaults.EXTRA_LARGE_SIZE;
 import static androidx.wear.tiles.material.ButtonDefaults.LARGE_SIZE;
@@ -33,14 +31,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.wear.tiles.ActionBuilders.LaunchAction;
-import androidx.wear.tiles.DimensionBuilders.DpProp;
-import androidx.wear.tiles.LayoutElementBuilders.Box;
-import androidx.wear.tiles.LayoutElementBuilders.Column;
-import androidx.wear.tiles.LayoutElementBuilders.LayoutElement;
-import androidx.wear.tiles.ModifiersBuilders.Clickable;
-import androidx.wear.tiles.ModifiersBuilders.ElementMetadata;
-import androidx.wear.tiles.ModifiersBuilders.Modifiers;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -53,14 +43,17 @@ public class ButtonTest {
     private static final String RESOURCE_ID = "icon";
     private static final String TEXT = "ABC";
     private static final String CONTENT_DESCRIPTION = "clickable button";
-    private static final Clickable CLICKABLE =
-            new Clickable.Builder()
-                    .setOnClick(new LaunchAction.Builder().build())
+    private static final androidx.wear.tiles.ModifiersBuilders.Clickable CLICKABLE =
+            new androidx.wear.tiles.ModifiersBuilders.Clickable.Builder()
+                    .setOnClick(
+                            new androidx.wear.tiles.ActionBuilders.LaunchAction.Builder().build())
                     .setId("action_id")
                     .build();
     private static final Context CONTEXT = ApplicationProvider.getApplicationContext();
-    private static final LayoutElement CONTENT =
-            new Text.Builder(CONTEXT, "ABC").setColor(argb(0)).build();
+    private static final androidx.wear.tiles.LayoutElementBuilders.LayoutElement CONTENT =
+            new Text.Builder(CONTEXT, "ABC")
+                    .setColor(androidx.wear.tiles.ColorBuilders.argb(0))
+                    .build();
 
     @Test
     public void testButtonCustomAddedContentNoContentDesc() {
@@ -80,7 +73,7 @@ public class ButtonTest {
 
     @Test
     public void testButtonCustom() {
-        DpProp mSize = LARGE_SIZE;
+        androidx.wear.tiles.DimensionBuilders.DpProp mSize = LARGE_SIZE;
         ButtonColors mButtonColors = new ButtonColors(0x11223344, 0);
 
         Button button =
@@ -147,7 +140,8 @@ public class ButtonTest {
 
     @Test
     public void testButtonSetIconCustomSize() {
-        DpProp mSize = dp(36);
+        androidx.wear.tiles.DimensionBuilders.DpProp mSize =
+                androidx.wear.tiles.DimensionBuilders.dp(36);
 
         Button button =
                 new Button.Builder(CONTEXT, CLICKABLE)
@@ -210,26 +204,29 @@ public class ButtonTest {
 
     @Test
     public void testWrongElementForButton() {
-        Column box = new Column.Builder().build();
+        androidx.wear.tiles.LayoutElementBuilders.Column box =
+                new androidx.wear.tiles.LayoutElementBuilders.Column.Builder().build();
 
         assertThat(Button.fromLayoutElement(box)).isNull();
     }
 
     @Test
     public void testWrongBoxForButton() {
-        Box box = new Box.Builder().build();
+        androidx.wear.tiles.LayoutElementBuilders.Box box =
+                new androidx.wear.tiles.LayoutElementBuilders.Box.Builder().build();
 
         assertThat(Button.fromLayoutElement(box)).isNull();
     }
 
     @Test
     public void testWrongTagForButton() {
-        Box box =
-                new Box.Builder()
+        androidx.wear.tiles.LayoutElementBuilders.Box box =
+                new androidx.wear.tiles.LayoutElementBuilders.Box.Builder()
                         .setModifiers(
-                                new Modifiers.Builder()
+                                new androidx.wear.tiles.ModifiersBuilders.Modifiers.Builder()
                                         .setMetadata(
-                                                new ElementMetadata.Builder()
+                                                new androidx.wear.tiles.ModifiersBuilders
+                                                                .ElementMetadata.Builder()
                                                         .setTagData("test".getBytes(UTF_8))
                                                         .build())
                                         .build())
@@ -240,14 +237,15 @@ public class ButtonTest {
 
     private void assertButton(
             @NonNull Button actualButton,
-            @NonNull DpProp expectedSize,
+            @NonNull androidx.wear.tiles.DimensionBuilders.DpProp expectedSize,
             @NonNull ButtonColors expectedButtonColors,
             @Nullable String expectedContentDescription,
             @NonNull String expectedMetadataTag,
             @Nullable String expectedTextContent,
             @Nullable String expectedIconContent,
             @Nullable String expectedImageContent,
-            @Nullable LayoutElement expectedCustomContent) {
+            @Nullable
+                    androidx.wear.tiles.LayoutElementBuilders.LayoutElement expectedCustomContent) {
         assertButtonIsEqual(
                 actualButton,
                 expectedSize,
@@ -275,14 +273,15 @@ public class ButtonTest {
 
     private void assertButtonIsEqual(
             @NonNull Button actualButton,
-            @NonNull DpProp expectedSize,
+            @NonNull androidx.wear.tiles.DimensionBuilders.DpProp expectedSize,
             @NonNull ButtonColors expectedButtonColors,
             @Nullable String expectedContentDescription,
             @NonNull String expectedMetadataTag,
             @Nullable String expectedTextContent,
             @Nullable String expectedIconContent,
             @Nullable String expectedImageContent,
-            @Nullable LayoutElement expectedCustomContent) {
+            @Nullable
+                    androidx.wear.tiles.LayoutElementBuilders.LayoutElement expectedCustomContent) {
         // Mandatory
         assertThat(actualButton.getMetadataTag()).isEqualTo(expectedMetadataTag);
         assertThat(actualButton.getClickable().toProto()).isEqualTo(CLICKABLE.toProto());
@@ -329,15 +328,19 @@ public class ButtonTest {
 
     private void assertFromLayoutElementButtonIsEqual(
             @NonNull Button button,
-            @NonNull DpProp expectedSize,
+            @NonNull androidx.wear.tiles.DimensionBuilders.DpProp expectedSize,
             @NonNull ButtonColors expectedButtonColors,
             @Nullable String expectedContentDescription,
             @NonNull String expectedMetadataTag,
             @Nullable String expectedTextContent,
             @Nullable String expectedIconContent,
             @Nullable String expectedImageContent,
-            @Nullable LayoutElement expectedCustomContent) {
-        Box box = new Box.Builder().addContent(button).build();
+            @Nullable
+                    androidx.wear.tiles.LayoutElementBuilders.LayoutElement expectedCustomContent) {
+        androidx.wear.tiles.LayoutElementBuilders.Box box =
+                new androidx.wear.tiles.LayoutElementBuilders.Box.Builder()
+                        .addContent(button)
+                        .build();
 
         Button newButton = Button.fromLayoutElement(box.getContents().get(0));
 

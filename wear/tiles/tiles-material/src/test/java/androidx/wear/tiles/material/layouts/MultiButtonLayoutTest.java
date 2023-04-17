@@ -26,12 +26,6 @@ import android.content.Context;
 
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.wear.tiles.ActionBuilders.LaunchAction;
-import androidx.wear.tiles.LayoutElementBuilders.Box;
-import androidx.wear.tiles.LayoutElementBuilders.Column;
-import androidx.wear.tiles.ModifiersBuilders.Clickable;
-import androidx.wear.tiles.ModifiersBuilders.ElementMetadata;
-import androidx.wear.tiles.ModifiersBuilders.Modifiers;
 import androidx.wear.tiles.material.Button;
 import androidx.wear.tiles.material.ButtonDefaults;
 
@@ -48,9 +42,10 @@ import java.util.List;
 @SuppressWarnings("deprecation")
 public class MultiButtonLayoutTest {
     private static final Context CONTEXT = ApplicationProvider.getApplicationContext();
-    private static final Clickable CLICKABLE =
-            new Clickable.Builder()
-                    .setOnClick(new LaunchAction.Builder().build())
+    private static final androidx.wear.tiles.ModifiersBuilders.Clickable CLICKABLE =
+            new androidx.wear.tiles.ModifiersBuilders.Clickable.Builder()
+                    .setOnClick(
+                            new androidx.wear.tiles.ActionBuilders.LaunchAction.Builder().build())
                     .setId("action_id")
                     .build();
 
@@ -116,30 +111,33 @@ public class MultiButtonLayoutTest {
 
     @Test
     public void testWrongElement() {
-        Column box = new Column.Builder().build();
+        androidx.wear.tiles.LayoutElementBuilders.Column box =
+                new androidx.wear.tiles.LayoutElementBuilders.Column.Builder().build();
 
         assertThat(MultiButtonLayout.fromLayoutElement(box)).isNull();
     }
 
     @Test
     public void testWrongBox() {
-        Box box = new Box.Builder().build();
+        androidx.wear.tiles.LayoutElementBuilders.Box box =
+                new androidx.wear.tiles.LayoutElementBuilders.Box.Builder().build();
 
         assertThat(MultiButtonLayout.fromLayoutElement(box)).isNull();
     }
 
     @Test
     public void testWrongTag() {
-        Box box =
-                new Box.Builder()
-                    .setModifiers(
-                        new Modifiers.Builder()
-                            .setMetadata(
-                                new ElementMetadata.Builder()
-                                    .setTagData("test".getBytes(UTF_8))
-                                    .build())
-                            .build())
-                    .build();
+        androidx.wear.tiles.LayoutElementBuilders.Box box =
+                new androidx.wear.tiles.LayoutElementBuilders.Box.Builder()
+                        .setModifiers(
+                                new androidx.wear.tiles.ModifiersBuilders.Modifiers.Builder()
+                                        .setMetadata(
+                                                new androidx.wear.tiles.ModifiersBuilders
+                                                                .ElementMetadata.Builder()
+                                                        .setTagData("test".getBytes(UTF_8))
+                                                        .build())
+                                        .build())
+                        .build();
 
         assertThat(MultiButtonLayout.fromLayoutElement(box)).isNull();
     }
@@ -147,7 +145,10 @@ public class MultiButtonLayoutTest {
     private void assertLayout(MultiButtonLayout actualLayout, List<Button> expectedButtons) {
         assertLayoutIsEqual(actualLayout, expectedButtons);
 
-        Box box = new Box.Builder().addContent(actualLayout).build();
+        androidx.wear.tiles.LayoutElementBuilders.Box box =
+                new androidx.wear.tiles.LayoutElementBuilders.Box.Builder()
+                        .addContent(actualLayout)
+                        .build();
 
         MultiButtonLayout newLayout = MultiButtonLayout.fromLayoutElement(box.getContents().get(0));
 

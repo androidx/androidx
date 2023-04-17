@@ -16,12 +16,9 @@
 
 package androidx.wear.tiles.material;
 
-import static androidx.wear.tiles.ColorBuilders.argb;
-
 import static com.google.common.truth.Truth.assertThat;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.wear.tiles.ColorBuilders.ColorProp;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -35,10 +32,14 @@ public class ChipColorsTest {
     private static final int ARGB_CONTENT_COLOR = 0x11223344;
     private static final int ARGB_SECONDARY_CONTENT_COLOR = 0x11223355;
     private static final int ARGB_ICON_COLOR = 0x11223366;
-    private static final ColorProp BACKGROUND_COLOR = argb(ARGB_BACKGROUND_COLOR);
-    private static final ColorProp CONTENT_COLOR = argb(ARGB_CONTENT_COLOR);
-    private static final ColorProp ICON_COLOR = argb(ARGB_ICON_COLOR);
-    private static final ColorProp SECONDARY_CONTENT_COLOR = argb(ARGB_SECONDARY_CONTENT_COLOR);
+    private static final androidx.wear.tiles.ColorBuilders.ColorProp BACKGROUND_COLOR =
+            androidx.wear.tiles.ColorBuilders.argb(ARGB_BACKGROUND_COLOR);
+    private static final androidx.wear.tiles.ColorBuilders.ColorProp CONTENT_COLOR =
+            androidx.wear.tiles.ColorBuilders.argb(ARGB_CONTENT_COLOR);
+    private static final androidx.wear.tiles.ColorBuilders.ColorProp ICON_COLOR =
+            androidx.wear.tiles.ColorBuilders.argb(ARGB_ICON_COLOR);
+    private static final androidx.wear.tiles.ColorBuilders.ColorProp SECONDARY_CONTENT_COLOR =
+            androidx.wear.tiles.ColorBuilders.argb(ARGB_SECONDARY_CONTENT_COLOR);
     private static final Colors COLORS = new Colors(0x123, 0x234, 0x345, 0x456);
 
     @Test
