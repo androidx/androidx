@@ -43,10 +43,6 @@ GetterOnBuilder: androidx.compose.ui.graphics.vector.PathBuilder#getNodes():
     Getter should be on the built object, not the builder: method androidx.compose.ui.graphics.vector.PathBuilder.getNodes()
 
 
-GetterSetterNames: androidx.compose.ui.graphics.ImageBitmap#getHasAlpha():
-    Getter for boolean property `hasAlpha` is named `getHasAlpha` but should match the property name. Use `@get:JvmName` to rename.
-
-
 KotlinDefaultParameterOrder: androidx.compose.ui.graphics.Canvas#drawImageRect(androidx.compose.ui.graphics.ImageBitmap, long, long, long, long, androidx.compose.ui.graphics.Paint) parameter #1:
     Parameter `srcOffset` has a default value and should come after all parameters without default values (except for a trailing lambda parameter)
 KotlinDefaultParameterOrder: androidx.compose.ui.graphics.Canvas#drawImageRect(androidx.compose.ui.graphics.ImageBitmap, long, long, long, long, androidx.compose.ui.graphics.Paint) parameter #2:
@@ -63,12 +59,16 @@ MissingBuildMethod: androidx.compose.ui.graphics.vector.PathBuilder:
     androidx.compose.ui.graphics.vector.PathBuilder does not declare a `build()` method, but builder classes are expected to
 
 
+MissingNullability: androidx.compose.ui.graphics.PaintKt#Paint():
+    Missing nullability on method `Paint` return
+
+
 NotCloseable: androidx.compose.ui.graphics.AndroidPath:
-    Classes that release resources (close()) should implement AutoCloseable and CloseGuard: class androidx.compose.ui.graphics.AndroidPath
+    Classes that release resources (close()) should implement AutoClosable and CloseGuard: class androidx.compose.ui.graphics.AndroidPath
 NotCloseable: androidx.compose.ui.graphics.Path:
-    Classes that release resources (close()) should implement AutoCloseable and CloseGuard: class androidx.compose.ui.graphics.Path
+    Classes that release resources (close()) should implement AutoClosable and CloseGuard: class androidx.compose.ui.graphics.Path
 NotCloseable: androidx.compose.ui.graphics.vector.PathBuilder:
-    Classes that release resources (close()) should implement AutoCloseable and CloseGuard: class androidx.compose.ui.graphics.vector.PathBuilder
+    Classes that release resources (close()) should implement AutoClosable and CloseGuard: class androidx.compose.ui.graphics.vector.PathBuilder
 
 
 TopLevelBuilder: androidx.compose.ui.graphics.vector.PathBuilder:

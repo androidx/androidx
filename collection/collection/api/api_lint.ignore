@@ -1,12 +1,12 @@
 // Baseline format: 1.0
 ArrayReturn: androidx.collection.ArraySet#ArraySet(E[]) parameter #0:
     Method parameter should be Collection<E> (or subclass) instead of raw array; was `E[]`
+ArrayReturn: androidx.collection.ArraySet#toArray():
+    Method should return Collection<Object> (or subclass) instead of raw array; was `java.lang.Object[]`
+ArrayReturn: androidx.collection.ArraySet#toArray(T[]):
+    Method should return Collection<T> (or subclass) instead of raw array; was `T[]`
 ArrayReturn: androidx.collection.ArraySet#toArray(T[]) parameter #0:
     Method parameter should be Collection<T> (or subclass) instead of raw array; was `T[]`
-
-
-GetterSetterNames: androidx.collection.SparseArrayCompat#getIsEmpty():
-    Getter for boolean property `isEmpty` is named `getIsEmpty` but should match the property name. Use `@get:JvmName` to rename.
 
 
 KotlinOperator: androidx.collection.SparseArrayCompat#get(int, E):

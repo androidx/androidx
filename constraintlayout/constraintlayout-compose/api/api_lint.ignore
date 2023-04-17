@@ -5,14 +5,6 @@ ConcreteCollection: androidx.constraintlayout.compose.DesignElements#setMap(java
     Parameter type is concrete collection (`java.util.HashMap`); must be higher-level interface
 
 
-GetterSetterNames: field DebugFlags.showBounds:
-    Invalid name for boolean property `showBounds`. Should start with one of `has`, `can`, `should`, `is`.
-GetterSetterNames: field DebugFlags.showKeyPositions:
-    Invalid name for boolean property `showKeyPositions`. Should start with one of `has`, `can`, `should`, `is`.
-GetterSetterNames: field DebugFlags.showPaths:
-    Invalid name for boolean property `showPaths`. Should start with one of `has`, `can`, `should`, `is`.
-
-
 KotlinDefaultParameterOrder: androidx.constraintlayout.compose.MotionLayoutKt#MotionLayout(androidx.constraintlayout.compose.ConstraintSet, androidx.constraintlayout.compose.ConstraintSet, androidx.compose.ui.Modifier, androidx.constraintlayout.compose.Transition, float, int, androidx.constraintlayout.compose.LayoutInformationReceiver, int, kotlin.jvm.functions.Function1<? super androidx.constraintlayout.compose.MotionLayoutScope,kotlin.Unit>) parameter #2:
     Parameter `modifier` has a default value and should come after all parameters without default values (except for a trailing lambda parameter)
 KotlinDefaultParameterOrder: androidx.constraintlayout.compose.MotionLayoutKt#MotionLayout(androidx.constraintlayout.compose.ConstraintSet, androidx.constraintlayout.compose.ConstraintSet, androidx.compose.ui.Modifier, androidx.constraintlayout.compose.Transition, float, int, androidx.constraintlayout.compose.LayoutInformationReceiver, int, kotlin.jvm.functions.Function1<? super androidx.constraintlayout.compose.MotionLayoutScope,kotlin.Unit>) parameter #3:

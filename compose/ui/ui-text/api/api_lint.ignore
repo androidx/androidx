@@ -25,34 +25,6 @@ GetterOnBuilder: androidx.compose.ui.text.AnnotatedString.Builder#getLength():
     Getter should be on the built object, not the builder: method androidx.compose.ui.text.AnnotatedString.Builder.getLength()
 
 
-GetterSetterNames: androidx.compose.ui.text.MultiParagraphIntrinsics#getHasStaleResolvedFonts():
-    Getter for boolean property `hasStaleResolvedFonts` is named `getHasStaleResolvedFonts` but should match the property name. Use `@get:JvmName` to rename.
-GetterSetterNames: androidx.compose.ui.text.ParagraphIntrinsics#getHasStaleResolvedFonts():
-    Getter for boolean property `hasStaleResolvedFonts` is named `getHasStaleResolvedFonts` but should match the property name. Use `@get:JvmName` to rename.
-GetterSetterNames: androidx.compose.ui.text.TextLayoutResult#getHasVisualOverflow():
-    Getter for boolean property `hasVisualOverflow` is named `getHasVisualOverflow` but should match the property name. Use `@get:JvmName` to rename.
-GetterSetterNames: field FontVariation.Setting.needsDensity:
-    Invalid name for boolean property `needsDensity`. Should start with one of `has`, `can`, `should`, `is`.
-GetterSetterNames: field ImeOptions.autoCorrect:
-    Invalid name for boolean property `autoCorrect`. Should start with one of `has`, `can`, `should`, `is`.
-GetterSetterNames: field ImeOptions.singleLine:
-    Invalid name for boolean property `singleLine`. Should start with one of `has`, `can`, `should`, `is`.
-GetterSetterNames: field MultiParagraph.didExceedMaxLines:
-    Invalid name for boolean property `didExceedMaxLines`. Should start with one of `has`, `can`, `should`, `is`.
-GetterSetterNames: field Paragraph.didExceedMaxLines:
-    Invalid name for boolean property `didExceedMaxLines`. Should start with one of `has`, `can`, `should`, `is`.
-GetterSetterNames: field TextLayoutInput.softWrap:
-    Invalid name for boolean property `softWrap`. Should start with one of `has`, `can`, `should`, `is`.
-GetterSetterNames: field TextLayoutResult.didOverflowHeight:
-    Invalid name for boolean property `didOverflowHeight`. Should start with one of `has`, `can`, `should`, `is`.
-GetterSetterNames: field TextLayoutResult.didOverflowWidth:
-    Invalid name for boolean property `didOverflowWidth`. Should start with one of `has`, `can`, `should`, `is`.
-GetterSetterNames: field TextRange.collapsed:
-    Invalid name for boolean property `collapsed`. Should start with one of `has`, `can`, `should`, `is`.
-GetterSetterNames: field TextRange.reversed:
-    Invalid name for boolean property `reversed`. Should start with one of `has`, `can`, `should`, `is`.
-
-
 KotlinDefaultParameterOrder: androidx.compose.ui.text.ParagraphIntrinsicsKt#ParagraphIntrinsics(String, androidx.compose.ui.text.TextStyle, java.util.List<androidx.compose.ui.text.AnnotatedString.Range<androidx.compose.ui.text.SpanStyle>>, java.util.List<androidx.compose.ui.text.AnnotatedString.Range<androidx.compose.ui.text.Placeholder>>, androidx.compose.ui.unit.Density, androidx.compose.ui.text.font.FontFamily.Resolver) parameter #2:
     Parameter `spanStyles` has a default value and should come after all parameters without default values (except for a trailing lambda parameter)
 KotlinDefaultParameterOrder: androidx.compose.ui.text.ParagraphIntrinsicsKt#ParagraphIntrinsics(String, androidx.compose.ui.text.TextStyle, java.util.List<androidx.compose.ui.text.AnnotatedString.Range<androidx.compose.ui.text.SpanStyle>>, java.util.List<androidx.compose.ui.text.AnnotatedString.Range<androidx.compose.ui.text.Placeholder>>, androidx.compose.ui.unit.Density, androidx.compose.ui.text.font.FontFamily.Resolver) parameter #3:

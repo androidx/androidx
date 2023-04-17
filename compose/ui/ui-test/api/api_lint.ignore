@@ -1,5 +1,3 @@
 // Baseline format: 1.0
-GetterSetterNames: androidx.compose.ui.test.TestMonotonicFrameClock#getHasAwaiters():
-    Getter for boolean property `hasAwaiters` is named `getHasAwaiters` but should match the property name. Use `@get:JvmName` to rename.
-GetterSetterNames: field MainTestClock.autoAdvance:
-    Invalid name for boolean property `autoAdvance`. Should start with one of `has`, `can`, `should`, `is`.
+GetterSetterNames: androidx.compose.ui.test.MainTestClock#getAutoAdvance():
+    Symmetric method for `setAutoAdvance` must be named `isAutoAdvance`; was `getAutoAdvance`
