@@ -478,7 +478,10 @@ class RecorderTest(
         val recording = createRecordingProcess(outputOptions = outputOptions)
 
         // Act.
-        recording.startAndVerify()
+        // To avoid long timeout of finalize, verify the start event to ensure the recording is
+        // started. But don't verify the status count since we don't know how many status will
+        // reach the file size limit.
+        recording.startAndVerify(statusCount = 0)
         recording.verifyFinalize(timeoutMs = 60_000L) { finalize ->
             // Assert.
             assertThat(finalize.error).isEqualTo(ERROR_FILE_SIZE_LIMIT_REACHED)
@@ -1091,7 +1094,9 @@ class RecorderTest(
             recordingsToStop.add(this)
             if (verify) {
                 verifyStart()
-                verifyStatus(statusCount = statusCount, onStatus = onStatus)
+                if (statusCount > 0) {
+                    verifyStatus(statusCount = statusCount, onStatus = onStatus)
+                }
             }
         }
 
