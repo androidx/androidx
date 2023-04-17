@@ -24,6 +24,8 @@ import static java.lang.Math.min;
 import android.annotation.SuppressLint;
 import android.graphics.drawable.AnimatedVectorDrawable;
 import android.icu.util.ULocale;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -46,6 +48,7 @@ import androidx.wear.protolayout.expression.pipeline.DynamicTypeValueReceiver;
 import androidx.wear.protolayout.expression.pipeline.FixedQuotaManagerImpl;
 import androidx.wear.protolayout.expression.pipeline.QuotaManager;
 import androidx.wear.protolayout.expression.pipeline.StateStore;
+import androidx.wear.protolayout.expression.pipeline.TimeGatewayImpl;
 import androidx.wear.protolayout.expression.pipeline.sensor.SensorGateway;
 import androidx.wear.protolayout.expression.proto.DynamicProto.DynamicBool;
 import androidx.wear.protolayout.expression.proto.DynamicProto.DynamicColor;
@@ -92,16 +95,15 @@ public class ProtoLayoutDynamicDataPipeline {
     boolean mFullyVisible;
     @NonNull final QuotaManager mAnimationQuotaManager;
     @NonNull private final DynamicTypeEvaluator mEvaluator;
+    @NonNull private final TimeGatewayImpl mTimeGateway;
 
     /** Creates a {@link ProtoLayoutDynamicDataPipeline} without animation support. */
     @RestrictTo(Scope.LIBRARY_GROUP)
     public ProtoLayoutDynamicDataPipeline(
-            boolean canUpdateGateways,
             @Nullable SensorGateway sensorGateway,
             @NonNull StateStore stateStore) {
         // Build pipeline with quota that doesn't allow any animations.
         this(
-                canUpdateGateways,
                 sensorGateway,
                 stateStore,
                 /* enableAnimations= */ false,
@@ -115,13 +117,11 @@ public class ProtoLayoutDynamicDataPipeline {
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     public ProtoLayoutDynamicDataPipeline(
-            boolean canUpdateGateways,
             @Nullable SensorGateway sensorGateway,
             @NonNull StateStore stateStore,
             @NonNull QuotaManager animationQuotaManager,
             @NonNull QuotaManager dynamicNodesQuotaManager) {
         this(
-                canUpdateGateways,
                 sensorGateway,
                 stateStore,
                 /* enableAnimations= */ true,
@@ -131,7 +131,6 @@ public class ProtoLayoutDynamicDataPipeline {
 
     /** Creates a {@link ProtoLayoutDynamicDataPipeline}. */
     private ProtoLayoutDynamicDataPipeline(
-            boolean canUpdateGateways,
             @Nullable SensorGateway sensorGateway,
             @NonNull StateStore stateStore,
             boolean enableAnimations,
@@ -139,9 +138,10 @@ public class ProtoLayoutDynamicDataPipeline {
             @NonNull QuotaManager dynamicNodeQuotaManager) {
         this.mEnableAnimations = enableAnimations;
         this.mAnimationQuotaManager = animationQuotaManager;
+        this.mTimeGateway = new TimeGatewayImpl(new Handler(Looper.getMainLooper()));
         DynamicTypeEvaluator.Config.Builder evaluatorConfigBuilder =
                 new DynamicTypeEvaluator.Config.Builder()
-                        .setPlatformDataSourcesInitiallyEnabled(canUpdateGateways)
+                        .setTimeGateway(mTimeGateway)
                         .setStateStore(stateStore);
         evaluatorConfigBuilder.setDynamicTypesQuotaManager(dynamicNodeQuotaManager);
         if (sensorGateway != null) {
@@ -150,7 +150,8 @@ public class ProtoLayoutDynamicDataPipeline {
         if (enableAnimations) {
             evaluatorConfigBuilder.setAnimationQuotaManager(animationQuotaManager);
         }
-        this.mEvaluator = new DynamicTypeEvaluator(evaluatorConfigBuilder.build());
+        DynamicTypeEvaluator.Config evaluatorConfig = evaluatorConfigBuilder.build();
+        this.mEvaluator = new DynamicTypeEvaluator(evaluatorConfig);
     }
 
     /** Returns the number of active dynamic types in this pipeline. */
@@ -201,10 +202,12 @@ public class ProtoLayoutDynamicDataPipeline {
     @SuppressWarnings("RestrictTo")
     @RestrictTo(Scope.LIBRARY_GROUP)
     public void setUpdatesEnabled(boolean canUpdate) {
+        // SensorGateway is not owned by ProtoLayoutDynamicDataPipeline, so the callers who create
+        // it are responsible for updates.
         if (canUpdate) {
-            mEvaluator.enablePlatformDataSources();
+            mTimeGateway.enableUpdates();
         } else {
-            mEvaluator.disablePlatformDataSources();
+            mTimeGateway.disableUpdates();
         }
     }
 
@@ -212,7 +215,8 @@ public class ProtoLayoutDynamicDataPipeline {
     @RestrictTo(Scope.LIBRARY_GROUP)
     @SuppressWarnings("RestrictTo")
     public void close() {
-        mEvaluator.close();
+        mPositionIdTree.clear();
+        mTimeGateway.close();
     }
 
     /**

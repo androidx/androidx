@@ -216,7 +216,6 @@ class ComplicationDataExpressionEvaluator(
             evaluator =
                 DynamicTypeEvaluator(
                     DynamicTypeEvaluator.Config.Builder()
-                        .setPlatformDataSourcesInitiallyEnabled(true)
                         .apply { stateStore?.let { setStateStore(it) } }
                         .apply { timeGateway?.let { setTimeGateway(it) } }
                         .apply { sensorGateway?.let { setSensorGateway(it) } }
@@ -243,7 +242,6 @@ class ComplicationDataExpressionEvaluator(
                 for (receiver in pendingReceivers + invalidReceivers + completeReceivers) {
                     receiver.close()
                 }
-                if (this@State::evaluator.isInitialized) evaluator.close()
             }
         }
 

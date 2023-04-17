@@ -326,7 +326,6 @@ public class ParametrizedDynamicTypeEvaluatorTest {
         DynamicTypeEvaluator evaluator =
                 new DynamicTypeEvaluator(
                         new DynamicTypeEvaluator.Config.Builder()
-                                .setPlatformDataSourcesInitiallyEnabled(true)
                                 .setStateStore(stateStore)
                                 .setAnimationQuotaManager(new FixedQuotaManagerImpl(MAX_VALUE))
                                 .build());
@@ -491,6 +490,7 @@ public class ParametrizedDynamicTypeEvaluatorTest {
         }
 
         @Override
+        @NonNull
         public String toString() {
             return mName + " = " + mExpectedValue;
         }
