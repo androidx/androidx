@@ -1270,6 +1270,7 @@ constructor(
         watchState.dump(writer)
         complicationSlotsManager.dump(writer)
         renderer.dumpInternal(writer)
+        broadcastsObserver.dump(writer)
         writer.decreaseIndent()
     }
 }
