@@ -37,6 +37,7 @@ import android.view.textclassifier.TextClassifier;
 import android.widget.TextView;
 
 import androidx.annotation.DrawableRes;
+import androidx.annotation.FloatRange;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -477,6 +478,15 @@ public class AppCompatTextView extends TextView implements TintableBackgroundVie
         TextViewCompat.setLineHeight(this, lineHeight);
     }
 
+    @Override
+    public void setLineHeight(int unit, @FloatRange(from = 0) float lineHeight) {
+        if (Build.VERSION.SDK_INT >= 34) {
+            getSuperCaller().setLineHeight(unit, lineHeight);
+        } else {
+            TextViewCompat.setLineHeight(this, unit, lineHeight);
+        }
+    }
+
     /**
      * See
      * {@link TextViewCompat#setCustomSelectionActionModeCallback(TextView, ActionMode.Callback)}
@@ -789,7 +799,9 @@ public class AppCompatTextView extends TextView implements TintableBackgroundVie
     @RequiresApi(api = 26)
     SuperCaller getSuperCaller() {
         if (mSuperCaller == null) {
-            if (Build.VERSION.SDK_INT >= 28) {
+            if (Build.VERSION.SDK_INT >= 34) {
+                mSuperCaller = new SuperCallerApi34();
+            } else if (Build.VERSION.SDK_INT >= 28) {
                 mSuperCaller = new SuperCallerApi28();
             } else if (Build.VERSION.SDK_INT >= 26) {
                 mSuperCaller = new SuperCallerApi26();
@@ -817,6 +829,9 @@ public class AppCompatTextView extends TextView implements TintableBackgroundVie
         // api 28
         void setFirstBaselineToTopHeight(@Px int firstBaselineToTopHeight);
         void setLastBaselineToBottomHeight(@Px int lastBaselineToBottomHeight);
+
+        // api 34
+        void setLineHeight(int unit, @FloatRange(from = 0) float lineHeight);
     }
 
     @RequiresApi(api = 26)
@@ -878,6 +893,9 @@ public class AppCompatTextView extends TextView implements TintableBackgroundVie
 
         @Override
         public void setLastBaselineToBottomHeight(int lastBaselineToBottomHeight) {}
+
+        @Override
+        public void setLineHeight(int unit, float lineHeight) {}
     }
 
     @RequiresApi(api = 28)
@@ -891,6 +909,14 @@ public class AppCompatTextView extends TextView implements TintableBackgroundVie
         @Override
         public void setLastBaselineToBottomHeight(@Px int lastBaselineToBottomHeight) {
             AppCompatTextView.super.setLastBaselineToBottomHeight(lastBaselineToBottomHeight);
+        }
+    }
+
+    @RequiresApi(api = 34)
+    class SuperCallerApi34 extends SuperCallerApi28 {
+        @Override
+        public void setLineHeight(int unit, float lineHeight) {
+            AppCompatTextView.super.setLineHeight(unit, lineHeight);
         }
     }
 }
