@@ -71,7 +71,7 @@ class PublicKeyCredentialControllerUtility {
 
     companion object {
 
-        // TODO("Make string constants for keys to the json")
+        // TODO(b/262924507) : Make string constants for keys to the json
 
         /**
          * This function converts a request json to a PublicKeyCredentialCreationOptions, where
@@ -107,7 +107,7 @@ class PublicKeyCredentialControllerUtility {
         fun toCreatePasskeyResponseJson(cred: PublicKeyCredential): String {
             val json = JSONObject()
             val authenticatorResponse = cred.response
-            // TODO("Ask why it is missing conditional mediation available")
+            // TODO(b/262924507) : Look for FIDO changes in conditional mediation available
             if (authenticatorResponse is AuthenticatorAttestationResponse) {
                 val responseJson = JSONObject()
                 responseJson.put(
@@ -206,7 +206,7 @@ class PublicKeyCredentialControllerUtility {
                         "userHandle", b64Encode(authenticatorResponse.userHandle!!)
                     )
                 }
-                // TODO("attestation object is missing in fido impl")
+                // TODO(b/262924507) : attestation object missing in fido impl
                 json.put("response", responseJson)
             } else {
                 Log.e(
@@ -229,8 +229,9 @@ class PublicKeyCredentialControllerUtility {
          */
         fun convertToPlayAuthPasskeyRequest(request: GetPublicKeyCredentialOption):
             BeginSignInRequest.PasskeysRequestOptions {
-            // TODO : Make sure this is in compliance with w3
-            // TODO : Improve codebase readability as done here (readable error capture + docs/etc)
+            // TODO(b/262924507) : Make sure this is in compliance with w3 as impl continues
+            // TODO(b/262924507) : Improve codebase readability as done here
+            //  (readable error capture + docs/etc)
             val json = JSONObject(request.requestJson)
             val rpId = json.optString("rpId", "")
             if (rpId.isEmpty()) {
@@ -348,7 +349,7 @@ class PublicKeyCredentialControllerUtility {
                         )
                     )
                 }
-                // TODO("Note userVerification is not settable in current impl")
+                // TODO(b/262924507) : Fido implementation lacks userVerification in current impl
                 builder.setAuthenticatorSelection(
                     authSelectionBuilder.build()
                 )
@@ -401,7 +402,8 @@ class PublicKeyCredentialControllerUtility {
                             descriptorType,
                             descriptorId, transports
                         )
-                    ) // TODO("Confirm allowed mismatch with the spec such as the int algorithm")
+                    ) // TODO(b/262924507) : Ensure spec changes (i.e. int algorithm) in current
+                    // fido impl stays that way - edit if fido modifies
                 }
             }
             builder.setExcludeList(excludeCredentialsList)
@@ -422,8 +424,7 @@ class PublicKeyCredentialControllerUtility {
             val rp = json.getJSONObject("rp")
             val rpId = rp.getString("id")
             val rpName = rp.optString("name", "")
-            // TODO("Decided things not in the spec but in fido impl are used")
-            // TODO("Come back to this if that is ever updated")
+            // TODO(b/262924507) : Fido and spec differ; always keep re-checking if aligns
             var rpIcon: String? = rp.optString("icon", "")
             if (rpIcon!!.isEmpty()) {
                 rpIcon = null

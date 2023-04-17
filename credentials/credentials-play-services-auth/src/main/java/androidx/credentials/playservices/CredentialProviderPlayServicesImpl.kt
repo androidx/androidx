@@ -106,7 +106,8 @@ class CredentialProviderPlayServicesImpl(private val context: Context) : Credent
     }
 
     // https://developers.google.com/android/reference/com/google/android/gms/common/ConnectionResult
-    // TODO(Most codes indicate failure, but two indicate retry-ability - look into handling.)
+    // TODO(b/262924507): Most codes indicate failure, but two indicate retry-ability -
+    //  look into handling.
     private fun isGooglePlayServicesAvailable(context: Context): Int {
         return googleApiAvailability.isGooglePlayServicesAvailable(context)
     }
@@ -157,8 +158,8 @@ class CredentialProviderPlayServicesImpl(private val context: Context) : Credent
             if (cancellationSignal != null) {
                 if (cancellationSignal.isCanceled) {
                     Log.i(TAG, "the flow has been canceled")
-                    // TODO("See if there's a better way to message pass to avoid if statements")
-                    // TODO("And to use a single listener instead")
+                    // TODO(b/262924507): See if there's a better way to message pass to avoid
+                    //  if statements and to use a single listener instead
                     return true
                 }
             } else {
