@@ -53,9 +53,25 @@ private class ThingBuilderImpl : Thing.Builder<ThingBuilderImpl> {
     override fun setName(text: String): ThingBuilderImpl = apply { name = Name(text) }
     override fun setName(name: Name?): ThingBuilderImpl = apply { this.name = name }
     override fun clearName(): ThingBuilderImpl = apply { name = null }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+
+        other as ThingBuilderImpl
+        if (this.name != other.name) return false
+        if (this.identifier != other.identifier) return false
+        return true
+    }
 }
 
 private class ThingImpl(override val identifier: String?, override val name: Name?) : Thing {
     override fun toBuilder(): Thing.Builder<*> =
         ThingBuilderImpl().setIdentifier(identifier).setName(name)
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is ThingImpl) return false
+        if (this.name != other.name) return false
+        if (this.identifier != other.identifier) return false
+        return true
+    }
 }

@@ -72,4 +72,14 @@ private class PersonImpl(
             .setName(name)
             .setEmail(email)
             .setTelephone(telephone)
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is PersonImpl) return false
+        if (email != other.email) return false
+        if (telephone != other.telephone) return false
+        if (identifier != other.identifier) return false
+        if (name != other.name) return false
+        return true
+    }
 }
