@@ -80,23 +80,23 @@ class BluetoothLe(private val context: Context) {
             val bleAdvertiser = bluetoothAdapter.bluetoothLeAdvertiser
 
             val advertiseSettings = with(AdvertiseSettings.Builder()) {
-                advertiseParams.connectable.let { setConnectable(it) }
+                advertiseParams.isConnectable.let { setConnectable(it) }
                 advertiseParams.timeoutMillis.let { setTimeout(it) }
                 // TODO(ofy) Add when AndroidX is targeting Android U
-//                advertiseParams.discoverable.let { setDiscoverable(it) }
+//                advertiseParams.isDiscoverable.let { setDiscoverable(it) }
                 build()
             }
 
             val advertiseData = with(AdvertiseData.Builder()) {
-                advertiseParams.includeDeviceAddress.let { setIncludeDeviceName(it) }
-                advertiseParams.serviceData?.let { serviceData ->
-                    serviceData.forEach { addServiceData(ParcelUuid(it.key), it.value) }
+                advertiseParams.shouldIncludeDeviceName.let { setIncludeDeviceName(it) }
+                advertiseParams.serviceData.forEach {
+                    addServiceData(ParcelUuid(it.key), it.value)
                 }
-                advertiseParams.manufacturerData?.let { manufacturerData ->
-                    manufacturerData.forEach { addManufacturerData(it.key, it.value) }
+                advertiseParams.manufacturerData.forEach {
+                    addManufacturerData(it.key, it.value)
                 }
-                advertiseParams.serviceUuids?.let { serviceUuids ->
-                    serviceUuids.forEach { addServiceUuid(ParcelUuid(it)) }
+                advertiseParams.serviceUuids.forEach {
+                    addServiceUuid(ParcelUuid(it))
                 }
                 build()
             }
