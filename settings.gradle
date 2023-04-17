@@ -23,9 +23,9 @@ buildscript {
     repos.addMavenRepositories(repositories)
 
     dependencies {
-        classpath("com.gradle:gradle-enterprise-gradle-plugin:3.12.4")
-        classpath("com.gradle:common-custom-user-data-gradle-plugin:1.9")
-        classpath("androidx.build.gradle.gcpbuildcache:gcpbuildcache:1.0.0-alpha06")
+        classpath("com.gradle:gradle-enterprise-gradle-plugin:3.13")
+        classpath("com.gradle:common-custom-user-data-gradle-plugin:1.10")
+        classpath("androidx.build.gradle.gcpbuildcache:gcpbuildcache:1.0.0-beta01")
     }
 }
 
