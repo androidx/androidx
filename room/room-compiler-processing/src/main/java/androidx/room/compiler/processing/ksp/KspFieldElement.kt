@@ -103,7 +103,7 @@ internal class KspFieldElement(
         return env.wrap(
             originatingReference = declaration.type,
             ksType = declaration.typeAsMemberOf(ksType)
-        )
+        ).copyWithScope(KSTypeVarianceResolverScope.PropertyType(this))
     }
 
     companion object {

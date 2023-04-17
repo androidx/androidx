@@ -112,15 +112,17 @@ internal sealed class KspMethodElement(
 
     override fun isKotlinPropertyMethod() = false
 
+    abstract override val returnType: KspType
+
     private class KspNormalMethodElement(
         env: KspProcessingEnv,
         declaration: KSFunctionDeclaration
     ) : KspMethodElement(env, declaration) {
-        override val returnType: XType by lazy {
+        override val returnType: KspType by lazy {
             declaration.returnKspType(
                 env = env,
                 containing = enclosingElement.type
-            )
+            ).copyWithScope(KSTypeVarianceResolverScope.MethodReturnType(this))
         }
         override fun isSuspendFunction() = false
     }
@@ -131,11 +133,11 @@ internal sealed class KspMethodElement(
     ) : KspMethodElement(env, declaration) {
         override fun isSuspendFunction() = true
 
-        override val returnType: XType by lazy {
+        override val returnType: KspType by lazy {
             env.wrap(
                 ksType = env.resolver.builtIns.anyType.makeNullable(),
                 allowPrimitives = false
-            )
+            ).copyWithScope(KSTypeVarianceResolverScope.MethodReturnType(this))
         }
 
         override val parameters: List<XExecutableParameterElement>

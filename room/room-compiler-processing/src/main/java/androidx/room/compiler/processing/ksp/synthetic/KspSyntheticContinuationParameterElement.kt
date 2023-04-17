@@ -21,16 +21,15 @@ import androidx.room.compiler.processing.XEquality
 import androidx.room.compiler.processing.XExecutableParameterElement
 import androidx.room.compiler.processing.XMemberContainer
 import androidx.room.compiler.processing.XType
+import androidx.room.compiler.processing.ksp.KSTypeVarianceResolverScope
 import androidx.room.compiler.processing.ksp.KspAnnotated
 import androidx.room.compiler.processing.ksp.KspAnnotated.UseSiteFilter.Companion.NO_USE_SITE
-import androidx.room.compiler.processing.ksp.KspJvmTypeResolutionScope
 import androidx.room.compiler.processing.ksp.KspMethodElement
 import androidx.room.compiler.processing.ksp.KspProcessingEnv
 import androidx.room.compiler.processing.ksp.KspType
 import androidx.room.compiler.processing.ksp.requireContinuationClass
 import androidx.room.compiler.processing.ksp.returnTypeAsMemberOf
 import androidx.room.compiler.processing.ksp.swapResolvedType
-import com.google.devtools.ksp.symbol.KSDeclaration
 import com.google.devtools.ksp.symbol.KSType
 import com.google.devtools.ksp.symbol.Variance
 
@@ -75,15 +74,6 @@ internal class KspSyntheticContinuationParameterElement(
     override val hasDefaultValue: Boolean
         get() = false
 
-    private fun jvmTypeResolutionScope(container: KSDeclaration?): KspJvmTypeResolutionScope {
-        return KspJvmTypeResolutionScope.MethodParameter(
-            kspExecutableElement = enclosingElement,
-            parameterIndex = enclosingElement.parameters.size - 1,
-            annotated = enclosingElement.declaration,
-            container = container
-        )
-    }
-
     override val type: KspType by lazy {
         asMemberOf(enclosingElement.enclosingElement.type?.ksType)
     }
@@ -124,8 +114,11 @@ internal class KspSyntheticContinuationParameterElement(
         return env.wrap(
             ksType = contType,
             allowPrimitives = false
-        ).withJvmTypeResolver(
-            jvmTypeResolutionScope(
+        ).copyWithScope(
+            KSTypeVarianceResolverScope.MethodParameter(
+                kspExecutableElement = enclosingElement,
+                parameterIndex = enclosingElement.parameters.size - 1,
+                annotated = enclosingElement.declaration,
                 container = ksType?.declaration
             )
         )

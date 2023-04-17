@@ -156,6 +156,10 @@ class KspTypeNamesGoldenTest {
                 package $pkg
                 class MyType
                 class MyGeneric<T>
+                class MyGenericIn<in T>
+                class MyGenericOut<out T>
+                class MyGenericMultipleParameters<T1: MyGeneric<*>, T2: MyGeneric<T1>>
+                typealias MyLambdaTypeAlias = (@JvmWildcard MyType) -> @JvmWildcard MyType
                 enum class MyEnum {
                     VAL1,
                     VAL2;
@@ -221,6 +225,58 @@ class KspTypeNamesGoldenTest {
                         fun method11(iter: Iterable<String>): Iterable<String> = TODO()
                         fun method12(iter: Iterable<Number>): Iterable<Number> = TODO()
                         fun method13(iter: Iterable<MyType>): Iterable<MyType> = TODO()
+                        fun method14(list: List<MyLambdaTypeAlias>): MyLambdaTypeAlias = TODO()
+                        fun method15(
+                            list: List<MyGenericMultipleParameters<*, *>>
+                        ): List<MyGenericMultipleParameters<*, *>> = TODO()
+                        fun method16(
+                            param: MyGenericIn<MyGeneric<MyGenericIn<MyGeneric<MyType>>>>
+                        ): MyGenericIn<MyGeneric<MyGenericIn<MyGeneric<MyType>>>> = TODO()
+                        fun method17(
+                            param: MyGeneric<MyGeneric<MyGenericIn<MyGeneric<MyType>>>>
+                        ): MyGeneric<MyGeneric<MyGenericIn<MyGeneric<MyType>>>> = TODO()
+                        fun method18(
+                            param: MyGeneric<in MyGeneric<MyGenericIn<MyGeneric<MyType>>>>
+                        ): MyGeneric<in MyGeneric<MyGenericIn<MyGeneric<MyType>>>> = TODO()
+                        fun method19(
+                            param: MyGeneric<out MyGeneric<MyGenericIn<MyGeneric<MyType>>>>
+                        ): MyGeneric<out MyGeneric<MyGenericIn<MyGeneric<MyType>>>> = TODO()
+                        fun method20(
+                            param: MyGeneric<MyGeneric<out MyGenericIn<MyGeneric<MyType>>>>
+                        ): MyGeneric<MyGeneric<out MyGenericIn<MyGeneric<MyType>>>> = TODO()
+                        fun method21(
+                            param: MyGeneric<MyGeneric<in MyGenericIn<MyGeneric<MyType>>>>
+                        ): MyGeneric<MyGeneric<in MyGenericIn<MyGeneric<MyType>>>> = TODO()
+                        fun method22(
+                            param: MyGenericIn<in MyGeneric<MyGenericIn<MyGeneric<MyType>>>>
+                        ): MyGenericIn<in MyGeneric<MyGenericIn<MyGeneric<MyType>>>> = TODO()
+                        fun method23(
+                            param: MyGenericIn<MyGeneric<in MyGenericIn<MyGeneric<MyType>>>>
+                        ): MyGenericIn<MyGeneric<in MyGenericIn<MyGeneric<MyType>>>> = TODO()
+                        fun method24(
+                            param: MyGenericOut<MyGeneric<MyGenericOut<MyGeneric<MyType>>>>
+                        ): MyGenericOut<MyGeneric<MyGenericOut<MyGeneric<MyType>>>> = TODO()
+                        fun method25(
+                            param: MyGeneric<MyGeneric<MyGenericOut<MyGeneric<MyType>>>>
+                        ): MyGeneric<MyGeneric<MyGenericOut<MyGeneric<MyType>>>> = TODO()
+                        fun method26(
+                            param: MyGeneric<in MyGeneric<MyGenericOut<MyGeneric<MyType>>>>
+                        ): MyGeneric<in MyGeneric<MyGenericOut<MyGeneric<MyType>>>> = TODO()
+                        fun method27(
+                            param: MyGeneric<out MyGeneric<MyGenericOut<MyGeneric<MyType>>>>
+                        ): MyGeneric<out MyGeneric<MyGenericOut<MyGeneric<MyType>>>> = TODO()
+                        fun method28(
+                            param: MyGeneric<MyGeneric<out MyGenericOut<MyGeneric<MyType>>>>
+                        ): MyGeneric<MyGeneric<out MyGenericOut<MyGeneric<MyType>>>> = TODO()
+                        fun method29(
+                            param: MyGeneric<MyGeneric<in MyGenericOut<MyGeneric<MyType>>>>
+                        ): MyGeneric<MyGeneric<in MyGenericOut<MyGeneric<MyType>>>> = TODO()
+                        fun method30(
+                            param: MyGenericOut<out MyGeneric<MyGenericOut<MyGeneric<MyType>>>>
+                        ): MyGenericOut<out MyGeneric<MyGenericOut<MyGeneric<MyType>>>> = TODO()
+                        fun method31(
+                            param: MyGenericOut<MyGeneric<out MyGenericOut<MyGeneric<MyType>>>>
+                        ): MyGenericOut<MyGeneric<out MyGenericOut<MyGeneric<MyType>>>> = TODO()
                     }
                 """.trimIndent()
             ), listOf("Subject")
@@ -284,7 +340,7 @@ class KspTypeNamesGoldenTest {
                     sealedListParent: List<GrandParentSealed.Parent1>,
                     sealedListChild: List<GrandParentSealed.Parent2.Child1>,
                     jvmWildcard: List<@JvmWildcard String>,
-                    suppressJvmWildcard: List<@JvmSuppressWildcards Number>
+                    suppressJvmWildcard: List<@JvmSuppressWildcards Number>,
                 ) {
                     var propWithFinalType: String = ""
                     var propWithOpenType: Number = 3
@@ -305,14 +361,18 @@ class KspTypeNamesGoldenTest {
                     fun listSealedListGrandParent(list: List<GrandParentSealed>): List<GrandParentSealed> { TODO() }
                     fun listSealedListParent(list: List<GrandParentSealed.Parent1>): List<GrandParentSealed.Parent1> { TODO() }
                     fun listSealedListChild(list: List<GrandParentSealed.Parent2.Child1>): List<GrandParentSealed.Parent2.Child1> { TODO() }
+                    fun explicitOutOnInvariant_onType1(
+                        list: MyGeneric<out MyGeneric<MyType>>
+                    ): MyGeneric<out MyGeneric<MyType>> { TODO() }
+                    fun explicitOutOnInvariant_onType2(
+                        list: MyGeneric<MyGeneric<out MyType>>
+                    ): MyGeneric<MyGeneric<out MyType>> { TODO() }
                     fun explicitJvmWildcard(
                         list: List<@JvmWildcard String>
                     ): List<@JvmWildcard String> { TODO() }
-
                     fun explicitJvmSuppressWildcard_OnType(
                         list: List<@JvmSuppressWildcards Number>
                     ): List<@JvmSuppressWildcards Number> { TODO() }
-
                     fun explicitJvmSuppressWildcard_OnType2(
                         list: @JvmSuppressWildcards List<Number>
                     ): @JvmSuppressWildcards List<Number> { TODO() }
@@ -327,11 +387,9 @@ class KspTypeNamesGoldenTest {
                     fun suspendExplicitJvmWildcard(
                         list: List<@JvmWildcard String>
                     ): List<@JvmWildcard String> { TODO() }
-
                     fun suspendExplicitJvmSuppressWildcard_OnType(
                         list: List<@JvmSuppressWildcards Number>
                     ): List<@JvmSuppressWildcards Number> { TODO() }
-
                     fun suspendExplicitJvmSuppressWildcard_OnType2(
                         list: @JvmSuppressWildcards List<Number>
                     ): @JvmSuppressWildcards List<Number> { TODO() }

@@ -16,12 +16,13 @@
 
 package androidx.room.compiler.processing.ksp
 
-import androidx.room.compiler.processing.ksp.KspArrayType.Companion.KOTLIN_ARRAY_Q_NAME
+import com.google.devtools.ksp.KspExperimental
 import com.google.devtools.ksp.isOpen
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.symbol.ClassKind
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSType
+import com.google.devtools.ksp.symbol.KSTypeAlias
 import com.google.devtools.ksp.symbol.KSTypeArgument
 import com.google.devtools.ksp.symbol.KSTypeParameter
 import com.google.devtools.ksp.symbol.Modifier
@@ -43,166 +44,323 @@ import com.google.devtools.ksp.symbol.Variance
  * Until then, the logic here is mostly reverse engineered from KAPT source code +
  * KspTypeNamesGoldenTest ¯\_(ツ)_/¯
  */
-internal class KSTypeVarianceResolver(
-    private val resolver: Resolver
-) {
+internal class KSTypeVarianceResolver(private val resolver: Resolver) {
     /**
-     * @param ksType The Kotlin type on which the variance will be applied
-     * @param wildcardMode `wildcardMode` defines the default behavior of whether to inherit
-     *        variance or not. This depends on the existence of `SuppressWildcard` annotations or
-     *        the type's location (e.g. whether it is a method parameter or return type)
-     * @param declarationType If a type is resolved via inheritance where it is not explicitly
-     *        declared in its container, this value should have its original type from the
-     *        declaration site. e.g. if you have `val BaseClass.x : T`, and the ksType is the
-     *        type of `x` from `SubClass: BaseClass<String>`, `declarationType` would be `T` whereas
-     *        the `ksType` is `String`. If the `ksType` is from the original declaration, this value
-     *        should be `null`.
+     * @param type The Kotlin type declared by the user on which the variance will be applied.
+     * @param scope The [KSTypeVarianceResolverScope] associated with the given type.
      */
-    fun applyTypeVariance(
-        ksType: KSType,
-        wildcardMode: WildcardMode,
-        declarationType: KSType?
-    ): KSType = ksType.inheritVariance(declarationType, wildcardMode, ReferenceStack())
+    @OptIn(KspExperimental::class)
+    fun applyTypeVariance(type: KSType, scope: KSTypeVarianceResolverScope): KSType {
+        if (type.isError ||
+            type.arguments.isEmpty() ||
+            resolver.isJavaRawType(type) ||
+            !scope.needsWildcardResolution) {
+            // There's nothing to resolve in this case, so just return the original type.
+            return type
+        }
 
-    /**
-     * Update the variance of the arguments of this type based on the types declaration.
-     *
-     * For instance, in List<Foo>, it actually inherits the `out` variance from `List`.
-     */
-    private fun KSType.inheritVariance(
-        declarationType: KSType?,
-        wildcardMode: WildcardMode,
-        referenceStack: ReferenceStack
+        val resolvedType = if (hasTypeVariables(scope.declarationType())) {
+            // If the associated declared type contains type variables that were resolved, e.g.
+            // using "asMemberOf", then it has special rules about how to resolve the types.
+            getJavaWildcardWithTypeVariables(
+                type = type,
+                declarationType = getJavaWildcard(scope.declarationType(), scope),
+                scope = scope,
+            )
+        } else {
+            getJavaWildcard(type, scope)
+        }
+
+        // As a final pass, we apply variance from any @JvmSuppressWildcards or @JvmWildcard
+        // annotations on the resolved type.
+        return applyJvmWildcardAnnotations(resolvedType)
+    }
+
+    private fun hasTypeVariables(
+        type: KSType?,
+        stack: ReferenceStack = ReferenceStack()
+    ): Boolean {
+        if (type == null || type.isError || stack.queue.contains(type)) {
+            return false
+        }
+        return stack.withReference(type) {
+            type.isTypeParameter() ||
+                type.arguments.any { hasTypeVariables(it.type?.resolve(), stack) }
+        }
+    }
+
+    private fun getJavaWildcard(
+        type: KSType,
+        scope: KSTypeVarianceResolverScope,
+        typeStack: ReferenceStack = ReferenceStack(),
+        typeArgStack: List<KSTypeArgument> = emptyList(),
+        typeParamStack: List<KSTypeParameter> = emptyList(),
     ): KSType {
-        if (arguments.isEmpty()) return this
-        return referenceStack.withReference(this) {
-            // arrays don't inherit variance unless it is in an inherited method
-            if (this.declaration.qualifiedName?.asString() == KOTLIN_ARRAY_Q_NAME &&
-                declarationType == null
-            ) {
-                return@withReference this
-            }
-
-            // if we have type arguments but the declarationType doesn't, we should consider it like
-            // star projection.
-            // This happens when a given List<X> overrides T. In this case, we need to force X's
-            // wildcards
-            val starProject = declarationType != null && declarationType.arguments.isEmpty()
-
-            // need to swap arguments with the variance from declaration
-            val newArguments = arguments.mapIndexed { index, typeArg ->
-                val param = declaration.typeParameters.getOrNull(index)
-                val declarationArg = declarationType?.arguments?.getOrNull(index)
-                val argWildcardMode = if (starProject) {
-                    WildcardMode.FORCED
-                } else {
-                    wildcardMode
+        if (type.isError || typeStack.queue.contains(type)) {
+            return type
+        }
+        if (type.declaration is KSTypeAlias) {
+            return getJavaWildcard(
+                type = (type.declaration as KSTypeAlias).type.resolve(),
+                scope = scope,
+                typeStack = typeStack,
+                typeArgStack = typeArgStack,
+                typeParamStack = typeParamStack,
+            )
+        }
+        return typeStack.withReference(type) {
+            val resolvedTypeArgs =
+                type.arguments.indices.map { i ->
+                    getJavaWildcard(
+                        typeArg = type.arguments[i],
+                        typeParam = type.declaration.typeParameters[i],
+                        scope = scope,
+                        typeStack = typeStack,
+                        typeArgStack = typeArgStack,
+                        typeParamStack = typeParamStack,
+                    )
                 }
-                typeArg.inheritVariance(declarationArg, argWildcardMode, param, referenceStack)
-            }
-            this.replace(newArguments)
+            type.replace(resolvedTypeArgs)
         }
     }
 
-    private fun KSTypeArgument.inheritVariance(
-        declarationType: KSTypeArgument?,
-        wildcardMode: WildcardMode,
-        param: KSTypeParameter?,
-        referenceStack: ReferenceStack
+    private fun getJavaWildcard(
+        typeArg: KSTypeArgument,
+        typeParam: KSTypeParameter,
+        scope: KSTypeVarianceResolverScope,
+        typeStack: ReferenceStack,
+        typeArgStack: List<KSTypeArgument>,
+        typeParamStack: List<KSTypeParameter>,
     ): KSTypeArgument {
-        if (param == null) {
-            return this
+        val type = typeArg.type?.resolve()
+        if (
+            type == null ||
+            type.isError ||
+            typeArg.variance == Variance.STAR ||
+            typeStack.queue.contains(type)
+        ) {
+            return typeArg
         }
-        val myTypeRef = type ?: return this
-
-        val myType = myTypeRef.resolve()
-
-        if (referenceStack.contains(myType)) {
-            // self referencing type
-            return this
-        }
-        if (variance != Variance.INVARIANT) {
-            return resolver.getTypeArgument(
-                typeRef = myType.inheritVariance(
-                    declarationType?.type?.resolve(),
-                    wildcardMode,
-                    referenceStack
-                ).createTypeReference(),
-                variance = variance
-            )
-        }
-
-        // Now we need to guess from this type. If the type is final, it does not inherit unless
-        // the parameter is CONTRAVARIANT (`in`).
-        val shouldInherit = when {
-            hasJvmWildcardAnnotation() -> {
-                // we actually don't need to check for wildcard annotation here as the TypeName
-                // conversion will do it for the general case. Nevertheless, we check for it for
-                // consistency
-                true
+        val resolvedType = getJavaWildcard(
+            type = type,
+            scope = scope,
+            typeStack = typeStack,
+            typeArgStack = typeArgStack + typeArg,
+            typeParamStack = typeParamStack + typeParam
+        )
+        fun inheritDeclarationSiteVariance(): Boolean {
+            // Before we check the current variance, we need to check the previous variance in the
+            // stack to see if they allow us to inherit the current variance, and that logic differs
+            // depending on the scope.
+            if (scope.isValOrReturnType()) {
+                // For val and return type scopes, we don't use the declaration-site variance if
+                // none of variances in the stack are contravariant.
+                if (typeParamStack.indices.none { i ->
+                        (typeParamStack[i].variance == Variance.CONTRAVARIANT ||
+                            typeArgStack[i].variance == Variance.CONTRAVARIANT) &&
+                        // The declaration and use site variance is ignored when using @JvmWildcard
+                        // explicitly on a type.
+                        !typeArgStack[i].hasJvmWildcardAnnotation()
+                }) {
+                    return false
+                }
+            } else {
+                // For method parameters and var type scopes, we don't use the declaration-site
+                // variance if the last variance in the declaration-site stack was invariant and
+                // the last variance in the use-site stack was not contravariant.
+                if (typeParamStack.lastOrNull()?.variance == Variance.INVARIANT &&
+                    typeArgStack.lastOrNull()?.variance != Variance.CONTRAVARIANT) {
+                    return false
+                }
             }
-            wildcardMode == WildcardMode.SUPPRESSED -> false
-            wildcardMode == WildcardMode.FORCED -> true
-            hasSuppressWildcardsAnnotationInHierarchy() -> false
-            else -> {
-                if (declarationType != null) {
-                    // if there is a declaration type, that means we are being resolved for an
-                    // inherited method/property; hence we should use the variance in the
-                    // declaration
-                    true
-                } else {
-                    param.variance == Variance.CONTRAVARIANT ||
-                        when (val decl = myType.declaration) {
-                            is KSClassDeclaration -> {
-                                decl.isOpen() || decl.classKind == ClassKind.ENUM_CLASS ||
-                                    decl.modifiers.contains(Modifier.SEALED)
-                            }
-                            else -> true
+            return when (typeParam.variance) {
+                // If the current declaration-site variance is invariant then don't inherit it.
+                Variance.INVARIANT -> false
+                // If the current declaration-site variance is contravariant then inherit it.
+                Variance.CONTRAVARIANT -> true
+                // If the current declaration-site variance is covariant then inherit it unless
+                // it's a final class (excluding enum/sealed classes).
+                Variance.COVARIANT -> when (val declaration = type.declaration) {
+                    is KSClassDeclaration -> declaration.isOpen() ||
+                        declaration.classKind == ClassKind.ENUM_CLASS ||
+                        declaration.modifiers.contains(Modifier.SEALED) ||
+                        // For non-open/enum/sealed classes we may still decided to use the
+                        // declaration-site variance based on if any of the type arguments in the
+                        // resolved type has variance and the use-site variance is not equal to
+                        // covariant/contravariant.
+                        resolvedType.arguments.indices.any { i ->
+                            resolvedType.arguments[i].variance != Variance.INVARIANT &&
+                                type.arguments[i].variance != Variance.COVARIANT &&
+                                type.arguments[i].variance != Variance.CONTRAVARIANT
                         }
+                    else -> true
+                }
+                Variance.STAR -> error {
+                    "Declaration site variance was not expected to contain STAR: $typeParam."
                 }
             }
         }
-        val newVariance = if (declarationType?.variance == Variance.STAR) {
-            Variance.COVARIANT
-        } else if (declarationType?.type?.resolve() is KSTypeParameter) {
-            // fallback to the parameter variance if we are swapping a type parameter type
-            param.variance
+        val resolvedVariance = if (inheritDeclarationSiteVariance()) {
+            typeParam.variance
+        } else if (typeParam.variance == typeArg.variance) {
+            // If we're not applying the declaration-site variance, and the use-site variance is the
+            // same as the declaration-site variance then we don't include the use-site variance in
+            // the jvm type either.
+            Variance.INVARIANT
         } else {
-            declarationType?.variance
-        } ?: param.variance
-        return if (shouldInherit) {
-            resolver.getTypeArgument(
-                typeRef = myType.inheritVariance(
-                    declarationType?.type?.resolve(),
-                    wildcardMode,
-                    referenceStack
-                ).createTypeReference(),
-                variance = newVariance
-            )
-        } else {
-            resolver.getTypeArgument(
-                typeRef = myType.inheritVariance(null, wildcardMode, referenceStack)
-                    .createTypeReference(),
-                variance = variance
-            )
+            typeArg.variance
+        }
+        return createTypeArgument(resolvedType, resolvedVariance)
+    }
+
+    private fun getJavaWildcardWithTypeVariables(
+        type: KSType,
+        declarationType: KSType? = null,
+        scope: KSTypeVarianceResolverScope,
+        typeStack: ReferenceStack = ReferenceStack(),
+    ): KSType {
+        if (type.isError || typeStack.queue.contains(type)) {
+            return type
+        }
+        return typeStack.withReference(type) {
+            val resolvedTypeArgs =
+                if (declarationType != null && !declarationType.isTypeParameter()) {
+                    declarationType.arguments.indices.map { i ->
+                        getJavaWildcardWithTypeVariablesForOuterType(
+                            typeArg = type.arguments[i],
+                            declarationTypeArg = declarationType.arguments[i],
+                            scope = scope,
+                            typeStack = typeStack,
+                        )
+                    }
+                } else {
+                    type.arguments.indices.map { i ->
+                        getJavaWildcardWithTypeVariablesForInnerType(
+                            typeArg = type.arguments[i],
+                            declarationTypeParameter = type.declaration.typeParameters[i],
+                            scope = scope,
+                            typeStack = typeStack,
+                        )
+                    }
+                }
+            type.replace(resolvedTypeArgs)
         }
     }
 
-    enum class WildcardMode {
-        /**
-         * Force wildcard inheritance that is commonly used when there is star projection involved
-         */
-        FORCED,
+    private fun getJavaWildcardWithTypeVariablesForInnerType(
+        typeArg: KSTypeArgument,
+        declarationTypeParameter: KSTypeParameter,
+        scope: KSTypeVarianceResolverScope,
+        typeStack: ReferenceStack,
+    ): KSTypeArgument {
+        val type = typeArg.type?.resolve()
+        if (
+            type == null ||
+            type.isError ||
+            typeArg.variance == Variance.STAR ||
+            typeStack.queue.contains(type)
+        ) {
+            return typeArg
+        }
+        val resolvedType = getJavaWildcardWithTypeVariables(
+            type = type,
+            scope = scope,
+            typeStack = typeStack,
+        )
+        val resolvedVariance = if (declarationTypeParameter.variance != Variance.INVARIANT) {
+            declarationTypeParameter.variance
+        } else {
+            typeArg.variance
+        }
+        return createTypeArgument(resolvedType, resolvedVariance)
+    }
 
-        /**
-         * Apply wildcard inheritance when necessary.
-         */
-        PREFERRED,
+    private fun getJavaWildcardWithTypeVariablesForOuterType(
+        typeArg: KSTypeArgument,
+        declarationTypeArg: KSTypeArgument,
+        scope: KSTypeVarianceResolverScope,
+        typeStack: ReferenceStack,
+    ): KSTypeArgument {
+        val type = typeArg.type?.resolve()
+        if (
+            type == null ||
+            type.isError ||
+            typeArg.variance == Variance.STAR ||
+            typeStack.queue.contains(type)
+        ) {
+            return typeArg
+        }
+        val resolvedType = getJavaWildcardWithTypeVariables(
+            type = type,
+            declarationType = declarationTypeArg.type?.resolve(),
+            scope = scope,
+            typeStack = typeStack
+        )
+        val resolvedVariance = if (declarationTypeArg.variance != Variance.INVARIANT &&
+            (!scope.isValOrReturnType() || declarationTypeArg.variance != Variance.COVARIANT)) {
+            declarationTypeArg.variance
+        } else {
+            typeArg.variance
+        }
+        return createTypeArgument(resolvedType, resolvedVariance)
+    }
 
-        /**
-         * Apply wildcard inheritance only if it is explicitly stated with JvmWildcards annotation.
-         */
-        SUPPRESSED
+    private fun applyJvmWildcardAnnotations(
+        type: KSType,
+        typeStack: ReferenceStack = ReferenceStack(),
+    ): KSType {
+        if (type.isError || typeStack.queue.contains(type)) {
+            return type
+        }
+        return typeStack.withReference(type) {
+            val resolvedTypeArgs =
+                type.arguments.indices.map { i ->
+                    applyJvmWildcardAnnotations(
+                        typeArg = type.arguments[i],
+                        typeParameter = type.declaration.typeParameters[i],
+                        typeStack = typeStack,
+                    )
+                }
+            type.replace(resolvedTypeArgs)
+        }
+    }
+
+    private fun applyJvmWildcardAnnotations(
+        typeArg: KSTypeArgument,
+        typeParameter: KSTypeParameter,
+        typeStack: ReferenceStack,
+    ): KSTypeArgument {
+        val type = typeArg.type?.resolve()
+        if (
+            type == null ||
+            type.isError ||
+            typeArg.variance == Variance.STAR ||
+            typeStack.queue.contains(type)
+        ) {
+            return typeArg
+        }
+        val resolvedType = applyJvmWildcardAnnotations(
+            type = type,
+            typeStack = typeStack,
+        )
+        val resolvedVariance = when {
+            typeParameter.variance == Variance.INVARIANT &&
+                typeArg.variance != Variance.INVARIANT -> typeArg.variance
+            typeArg.hasJvmWildcardAnnotation() -> typeParameter.variance
+                typeStack.queue.any { it.hasSuppressJvmWildcardAnnotation() } ||
+                typeArg.hasSuppressWildcardsAnnotationInHierarchy() ||
+                typeParameter.hasSuppressWildcardsAnnotationInHierarchy() -> Variance.INVARIANT
+            else -> typeArg.variance
+        }
+        return createTypeArgument(resolvedType, resolvedVariance)
+    }
+
+    private fun KSType.isTypeParameter(): Boolean {
+        return createTypeReference().isTypeParameterReference()
+    }
+
+    private fun createTypeArgument(type: KSType, variance: Variance): KSTypeArgument {
+        return resolver.getTypeArgument(type.createTypeReference(), variance)
     }
 }
 
@@ -212,20 +370,17 @@ internal class KSTypeVarianceResolver(
  * if a type argument resolves to it, it will stop recursion.
  */
 private class ReferenceStack {
-    @Suppress("PropertyName")
-    val _queue = ArrayDeque<KSType>()
-
-    fun contains(ksType: KSType) = _queue.contains(ksType)
+    val queue = ArrayDeque<KSType>()
 
     inline fun <T> withReference(
         ksType: KSType,
         crossinline block: () -> T
     ): T {
         return try {
-            _queue.addLast(ksType)
+            queue.addLast(ksType)
             block()
         } finally {
-            _queue.removeLast()
+            queue.removeLast()
         }
     }
 }

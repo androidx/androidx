@@ -18,6 +18,7 @@ package androidx.room.compiler.processing.ksp
 
 import androidx.room.compiler.processing.XNullability
 import com.google.devtools.ksp.symbol.KSAnnotated
+import com.google.devtools.ksp.symbol.KSAnnotation
 import com.google.devtools.ksp.symbol.KSDeclaration
 import com.google.devtools.ksp.symbol.KSNode
 import com.google.devtools.ksp.symbol.KSType
@@ -57,19 +58,30 @@ internal fun KSType.withNullability(nullability: XNullability) = when (nullabili
     else -> throw IllegalArgumentException("Cannot set KSType nullability to platform")
 }
 
-private fun KSAnnotated.hasAnnotation(
-     qName: String
- ) = annotations.any {
-     it.annotationType.resolve().declaration.qualifiedName?.asString() == qName
- }
+private fun KSAnnotated.hasAnnotation(qName: String) =
+    annotations.any { it.hasQualifiedName(qName) }
 
- internal fun KSAnnotated.hasJvmWildcardAnnotation() = hasAnnotation(
-     JvmWildcard::class.java.canonicalName!!
- )
+private fun KSAnnotation.hasQualifiedName(qName: String): Boolean {
+    return annotationType.resolve().hasQualifiedName(qName)
+}
 
- internal fun KSAnnotated.hasSuppressJvmWildcardAnnotation() = hasAnnotation(
-     JvmSuppressWildcards::class.java.canonicalName!!
- )
+private fun KSType.hasQualifiedName(qName: String): Boolean {
+    return declaration.qualifiedName?.asString() == qName
+}
+
+internal fun KSAnnotated.hasJvmWildcardAnnotation() =
+    hasAnnotation(JvmWildcard::class.java.canonicalName!!)
+
+internal fun KSAnnotated.hasSuppressJvmWildcardAnnotation() =
+    hasAnnotation(JvmSuppressWildcards::class.java.canonicalName!!)
+
+private fun KSType.hasAnnotation(qName: String) = annotations.any { it.hasQualifiedName(qName) }
+
+internal fun KSType.hasJvmWildcardAnnotation() =
+    hasAnnotation(JvmWildcard::class.java.canonicalName!!)
+
+internal fun KSType.hasSuppressJvmWildcardAnnotation() =
+    hasAnnotation(JvmSuppressWildcards::class.java.canonicalName!!)
 
  internal fun KSNode.hasSuppressWildcardsAnnotationInHierarchy(): Boolean {
      (this as? KSAnnotated)?.let {
