@@ -107,7 +107,7 @@ class CredentialProviderCreatePublicKeyCredentialController(private val activity
         try {
             fidoRegistrationRequest = this.convertRequestToPlayServices(request)
         } catch (e: JSONException) {
-            // TODO("Merge with updated error codes CL")
+            // TODO(b/262924507) : Perfect error code parsing and pass-back
             cancelOrCallbackExceptionOrResult(cancellationSignal) { this.executor.execute {
                 this.callback
                 .onError(CreatePublicKeyCredentialDomException(EncodingError(), e.message)) } }
@@ -189,7 +189,7 @@ class CredentialProviderCreatePublicKeyCredentialController(private val activity
     companion object {
         private val TAG = CredentialProviderCreatePublicKeyCredentialController::class.java.name
         private var controller: CredentialProviderCreatePublicKeyCredentialController? = null
-        // TODO("Ensure this is tested for multiple calls")
+        // TODO(b/262924507) : Test multiple calls (re-instantiation validates but just in case)
 
         /**
          * This finds a past version of the
