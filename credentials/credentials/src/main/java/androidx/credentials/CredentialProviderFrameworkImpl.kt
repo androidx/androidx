@@ -237,6 +237,16 @@ class CredentialProviderFrameworkImpl(context: Context) : CredentialProvider {
         val builder = android.credentials.GetCredentialRequest.Builder(
             GetCredentialRequest.toRequestDataBundle(request))
         request.credentialOptions.forEach {
+            // TODO(b/278308121): clean up the temporary bundle value injection after the Beta 2
+            // release.
+            if (request.preferImmediatelyAvailableCredentials &&
+                it is GetPublicKeyCredentialOption) {
+                it.requestData.putBoolean(
+                    "androidx.credentials.BUNDLE_KEY_PREFER_IMMEDIATELY_AVAILABLE_CREDENTIALS",
+                    true,
+                )
+            }
+
             builder.addCredentialOption(
                 android.credentials.CredentialOption.Builder(
                     it.type, it.requestData, it.candidateQueryData
