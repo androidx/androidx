@@ -18,14 +18,17 @@ package androidx.camera.camera2.internal.compat.params
 
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.params.DynamicRangeProfiles
-import android.hardware.camera2.params.DynamicRangeProfiles.DOLBY_VISION_10B_HDR_OEM
-import android.hardware.camera2.params.DynamicRangeProfiles.DOLBY_VISION_8B_HDR_OEM
-import android.hardware.camera2.params.DynamicRangeProfiles.HDR10
-import android.hardware.camera2.params.DynamicRangeProfiles.HDR10_PLUS
-import android.hardware.camera2.params.DynamicRangeProfiles.HLG10
-import android.hardware.camera2.params.DynamicRangeProfiles.STANDARD
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.camera.camera2.internal.DOLBY_VISION_10B_UNCONSTRAINED
+import androidx.camera.camera2.internal.DOLBY_VISION_10B_UNCONSTRAINED_SLOW
+import androidx.camera.camera2.internal.DOLBY_VISION_8B_UNCONSTRAINED
+import androidx.camera.camera2.internal.HDR10_PLUS_UNCONSTRAINED
+import androidx.camera.camera2.internal.HDR10_UNCONSTRAINED
+import androidx.camera.camera2.internal.HLG10_CONSTRAINED
+import androidx.camera.camera2.internal.HLG10_HDR10_CONSTRAINED
+import androidx.camera.camera2.internal.HLG10_SDR_CONSTRAINED
+import androidx.camera.camera2.internal.HLG10_UNCONSTRAINED
 import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat
 import androidx.camera.core.DynamicRange
 import androidx.camera.core.DynamicRange.BIT_DEPTH_10_BIT
@@ -51,83 +54,6 @@ import org.robolectric.shadows.ShadowCameraCharacteristics
 class DynamicRangesCompatTest {
 
     companion object {
-        val HLG10_UNCONSTRAINED by lazy {
-            DynamicRangeProfiles(longArrayOf(HLG10, 0, 0))
-        }
-
-        val HLG10_CONSTRAINED by lazy {
-            DynamicRangeProfiles(
-                longArrayOf(
-                    HLG10, HLG10, LATENCY_NONE
-                )
-            )
-        }
-
-        val HLG10_SDR_CONSTRAINED by lazy {
-            DynamicRangeProfiles(
-                longArrayOf(
-                    HLG10, HLG10 or STANDARD, LATENCY_NONE
-                )
-            )
-        }
-
-        val HLG10_HDR10_CONSTRAINED by lazy {
-            DynamicRangeProfiles(
-                longArrayOf(
-                    HLG10, HLG10 or HDR10, LATENCY_NONE,
-                    HDR10, HDR10 or HLG10, LATENCY_NONE
-                )
-            )
-        }
-
-        val HDR10_UNCONSTRAINED by lazy {
-            DynamicRangeProfiles(
-                longArrayOf(
-                    HLG10, CONSTRAINTS_NONE, LATENCY_NONE, // HLG is mandated
-                    HDR10, CONSTRAINTS_NONE, LATENCY_NONE
-                )
-            )
-        }
-
-        val HDR10_PLUS_UNCONSTRAINED by lazy {
-            DynamicRangeProfiles(
-                longArrayOf(
-                    HLG10, CONSTRAINTS_NONE, LATENCY_NONE, // HLG is mandated
-                    HDR10_PLUS, CONSTRAINTS_NONE, LATENCY_NONE
-                )
-            )
-        }
-
-        val DOLBY_VISION_10B_UNCONSTRAINED by lazy {
-            DynamicRangeProfiles(
-                longArrayOf(
-                    HLG10, CONSTRAINTS_NONE, LATENCY_NONE, // HLG is mandated
-                    DOLBY_VISION_10B_HDR_OEM, CONSTRAINTS_NONE, LATENCY_NONE
-                )
-            )
-        }
-
-        val DOLBY_VISION_10B_UNCONSTRAINED_SLOW by lazy {
-            DynamicRangeProfiles(
-                longArrayOf(
-                    HLG10, CONSTRAINTS_NONE, LATENCY_NONE, // HLG is mandated
-                    DOLBY_VISION_10B_HDR_OEM, CONSTRAINTS_NONE, LATENCY_NON_ZERO
-                )
-            )
-        }
-
-        val DOLBY_VISION_8B_UNCONSTRAINED by lazy {
-            DynamicRangeProfiles(
-                longArrayOf(
-                    DOLBY_VISION_8B_HDR_OEM, CONSTRAINTS_NONE, LATENCY_NONE
-                )
-            )
-        }
-
-        private const val LATENCY_NONE = 0L
-        private const val LATENCY_NON_ZERO = 3L
-        private const val CONSTRAINTS_NONE = 0L
-
         val DYNAMIC_RANGE_HLG10 = DynamicRange(FORMAT_HLG, BIT_DEPTH_10_BIT)
         val DYNAMIC_RANGE_HDR10 = DynamicRange(FORMAT_HDR10, BIT_DEPTH_10_BIT)
         val DYNAMIC_RANGE_HDR10_PLUS = DynamicRange(FORMAT_HDR10_PLUS, BIT_DEPTH_10_BIT)
