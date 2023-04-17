@@ -16,10 +16,11 @@
 
 package androidx.camera.core.impl;
 
-import androidx.annotation.Nullable;
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.Camera;
 import androidx.camera.core.DynamicRange;
+import androidx.core.util.Preconditions;
 
 /** Configuration containing options for configuring the input image data of a pipeline. */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
@@ -53,10 +54,14 @@ public interface ImageInputConfig extends ReadableConfig {
      *
      * <p>This is the dynamic range that is required as input and it must be
      * satisfied by the producer.
+     *
+     * <p>This method never throws. If the dynamic range is not set,
+     * {@link DynamicRange#UNSPECIFIED} will be returned.
      */
-    @Nullable
-    default DynamicRange getDynamicRange(@Nullable DynamicRange valueIfMissing) {
-        return retrieveOption(OPTION_INPUT_DYNAMIC_RANGE, valueIfMissing);
+    @NonNull
+    default DynamicRange getDynamicRange() {
+        return Preconditions.checkNotNull(retrieveOption(OPTION_INPUT_DYNAMIC_RANGE,
+                DynamicRange.UNSPECIFIED));
     }
 
 }
