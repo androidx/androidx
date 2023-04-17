@@ -30,7 +30,6 @@ dependencies {
     implementation(projectOrArtifact(":compose:foundation:foundation"))
     implementation(projectOrArtifact(":compose:material:material"))
     implementation(project(":paging:paging-compose"))
-    implementation(project(":internal-testutils-paging"))
 }
 
 androidx {
