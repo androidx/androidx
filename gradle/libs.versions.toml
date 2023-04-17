@@ -227,6 +227,7 @@ playCore = { module = "com.google.android.play:core", version = "1.10.3" }
 playServicesAuth = {module = "com.google.android.gms:play-services-auth", version = "20.4.0"}
 playServicesBase = { module = "com.google.android.gms:play-services-base", version = "17.0.0" }
 playServicesBasement = { module = "com.google.android.gms:play-services-basement", version = "17.0.0" }
+playServicesDevicePerformance = { module = "com.google.android.gms:play-services-deviceperformance", version = "16.0.0" }
 playServicesFido = {module = "com.google.android.gms:play-services-fido", version = "19.0.0"}
 playServicesWearable = { module = "com.google.android.gms:play-services-wearable", version = "17.1.0" }
 paparazzi = { module = "app.cash.paparazzi:paparazzi", version.ref = "paparazzi" }
