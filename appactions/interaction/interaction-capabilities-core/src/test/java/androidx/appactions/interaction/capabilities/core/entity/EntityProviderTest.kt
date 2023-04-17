@@ -16,7 +16,7 @@
 
 package androidx.appactions.interaction.capabilities.core.entity
 
-import androidx.appactions.interaction.capabilities.core.values.Alarm
+import androidx.appactions.builtintypes.experimental.types.Alarm
 import androidx.appactions.interaction.proto.Entity
 import androidx.appactions.interaction.proto.GroundingRequest
 import androidx.appactions.interaction.proto.GroundingResponse
@@ -86,7 +86,7 @@ class EntityProviderTest {
     private fun createExternalCandidate(id: String, name: String): EntityLookupCandidate<Alarm> {
         val candidateBuilder: EntityLookupCandidate.Builder<Alarm> =
             EntityLookupCandidate.Builder()
-        candidateBuilder.setCandidate(Alarm.newBuilder().setName(name).setId(id).build())
+        candidateBuilder.setCandidate(Alarm.Builder().setName(name).setIdentifier(id).build())
         return candidateBuilder.build()
     }
 
@@ -148,7 +148,7 @@ class EntityProviderTest {
     fun success() = runBlocking<Unit> {
         val candidateBuilder: EntityLookupCandidate.Builder<Alarm> =
             EntityLookupCandidate.Builder()
-        candidateBuilder.setCandidate(Alarm.newBuilder().setName("testing-alarm").build())
+        candidateBuilder.setCandidate(Alarm.Builder().setName("testing-alarm").build())
         val entityProvider = AlarmProvider(
             "id",
             createExternalResponse(

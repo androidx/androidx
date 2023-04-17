@@ -24,7 +24,7 @@ import androidx.appactions.interaction.capabilities.core.impl.converters.TypeCon
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeSpec
 import androidx.appactions.interaction.capabilities.core.impl.exceptions.StructConversionException
 import androidx.appactions.interaction.capabilities.core.values.SearchAction
-import androidx.appactions.interaction.capabilities.core.values.Thing
+import androidx.appactions.builtintypes.experimental.types.Thing
 import androidx.appactions.interaction.proto.GroundingRequest
 import androidx.appactions.interaction.proto.GroundingResponse
 import androidx.concurrent.futures.await
