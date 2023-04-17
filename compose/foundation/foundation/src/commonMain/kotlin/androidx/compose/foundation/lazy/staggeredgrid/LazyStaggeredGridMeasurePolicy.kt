@@ -33,8 +33,8 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.constrainHeight
 import androidx.compose.ui.unit.constrainWidth
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
-@ExperimentalFoundationApi
 internal fun rememberStaggeredGridMeasurePolicy(
     state: LazyStaggeredGridState,
     itemProvider: LazyStaggeredGridItemProvider,

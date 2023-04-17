@@ -34,7 +34,6 @@ internal interface LazyStaggeredGridItemProvider : LazyLayoutItemProvider {
 }
 
 @Composable
-@ExperimentalFoundationApi
 internal fun rememberStaggeredGridItemProvider(
     state: LazyStaggeredGridState,
     content: LazyStaggeredGridScope.() -> Unit,
@@ -48,7 +47,7 @@ internal fun rememberStaggeredGridItemProvider(
     }
 }
 
-@ExperimentalFoundationApi
+@OptIn(ExperimentalFoundationApi::class)
 private class LazyStaggeredGridItemProviderImpl(
     private val state: LazyStaggeredGridState,
     private val latestContent: () -> (LazyStaggeredGridScope.() -> Unit)

@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.lazy.staggeredgrid
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.FlingBehavior
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.ScrollableDefaults
@@ -36,6 +35,12 @@ import androidx.compose.ui.unit.dp
 /**
  * Vertical staggered grid layout that composes and lays out only items currently visible on screen.
  *
+ * Sample:
+ * @sample androidx.compose.foundation.samples.LazyVerticalStaggeredGridSample
+ *
+ * Sample with custom item spans:
+ * @sample androidx.compose.foundation.samples.LazyVerticalStaggeredGridSpanSample
+ *
  * @param columns description of the size and number of staggered grid columns.
  * @param modifier modifier to apply to the layout.
  * @param state state object that can be used to control and observe staggered grid state.
@@ -53,8 +58,6 @@ import androidx.compose.ui.unit.dp
  *  [LazyStaggeredGridScope.items] to present list of items or [LazyStaggeredGridScope.item] for a
  *  single one.
  */
-// todo(b/182882362): Reverse layout and arrangement support
-@ExperimentalFoundationApi
 @Composable
 fun LazyVerticalStaggeredGrid(
     columns: StaggeredGridCells,
@@ -84,7 +87,6 @@ fun LazyVerticalStaggeredGrid(
 }
 
 /** calculates sizes for columns used in staggered grid measure */
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun rememberColumnSlots(
     columns: StaggeredGridCells,
@@ -123,6 +125,12 @@ private fun rememberColumnSlots(
  * Horizontal staggered grid layout that composes and lays out only items currently
  * visible on screen.
  *
+ * Sample:
+ * @sample androidx.compose.foundation.samples.LazyHorizontalStaggeredGridSample
+ *
+ * Sample with custom item spans:
+ * @sample androidx.compose.foundation.samples.LazyHorizontalStaggeredGridSpanSample
+ *
  * @param rows description of the size and number of staggered grid columns.
  * @param modifier modifier to apply to the layout.
  * @param state state object that can be used to control and observe staggered grid state.
@@ -140,7 +148,6 @@ private fun rememberColumnSlots(
  *  [LazyStaggeredGridScope.items] to present list of items or [LazyStaggeredGridScope.item] for a
  *  single one.
  */
-@ExperimentalFoundationApi
 @Composable
 fun LazyHorizontalStaggeredGrid(
     rows: StaggeredGridCells,
@@ -170,7 +177,6 @@ fun LazyHorizontalStaggeredGrid(
 }
 
 /** calculates sizes for rows used in staggered grid measure */
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun rememberRowSlots(
     rows: StaggeredGridCells,
@@ -237,13 +243,11 @@ internal annotation class LazyStaggeredGridScopeMarker
 /**
  * Receiver scope for itemContent in [LazyStaggeredGridScope.item]
  */
-@ExperimentalFoundationApi
 sealed interface LazyStaggeredGridItemScope
 
 /**
  * Receiver scope for [LazyVerticalStaggeredGrid] and [LazyHorizontalStaggeredGrid]
  */
-@ExperimentalFoundationApi
 @LazyStaggeredGridScopeMarker
 sealed interface LazyStaggeredGridScope {
 
@@ -265,7 +269,6 @@ sealed interface LazyStaggeredGridScope {
      *  [StaggeredGridCells] the item will occupy. By default each item will take one lane.
      * @param content composable content displayed by current item
      */
-    @ExperimentalFoundationApi
     fun item(
         key: Any? = null,
         contentType: Any? = null,
@@ -320,7 +323,6 @@ sealed interface LazyStaggeredGridScope {
  *  by [StaggeredGridCells] the item will occupy. By default each item will take one lane.
  * @param itemContent composable content displayed by the provided item
  */
-@ExperimentalFoundationApi
 inline fun <T> LazyStaggeredGridScope.items(
     items: List<T>,
     noinline key: ((item: T) -> Any)? = null,
@@ -360,7 +362,6 @@ inline fun <T> LazyStaggeredGridScope.items(
  *  by [StaggeredGridCells] the item will occupy. By default each item will take one lane.
  * @param itemContent composable content displayed given item and index
  */
-@ExperimentalFoundationApi
 inline fun <T> LazyStaggeredGridScope.itemsIndexed(
     items: List<T>,
     noinline key: ((index: Int, item: T) -> Any)? = null,
@@ -400,7 +401,6 @@ inline fun <T> LazyStaggeredGridScope.itemsIndexed(
  *  by [StaggeredGridCells] the item will occupy. By default each item will take one lane.
  * @param itemContent composable content displayed by the provided item
  */
-@ExperimentalFoundationApi
 inline fun <T> LazyStaggeredGridScope.items(
     items: Array<T>,
     noinline key: ((item: T) -> Any)? = null,
@@ -440,7 +440,6 @@ inline fun <T> LazyStaggeredGridScope.items(
  *  by [StaggeredGridCells] the item will occupy. By default each item will take one lane.
  * @param itemContent composable content displayed given item and index
  */
-@ExperimentalFoundationApi
 inline fun <T> LazyStaggeredGridScope.itemsIndexed(
     items: Array<T>,
     noinline key: ((index: Int, item: T) -> Any)? = null,
