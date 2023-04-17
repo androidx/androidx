@@ -250,35 +250,43 @@ package androidx.wear.tiles {
   }
 
   public static final class EventBuilders.TileAddEvent {
+    method public int getTileId();
   }
 
   public static final class EventBuilders.TileAddEvent.Builder {
     ctor public EventBuilders.TileAddEvent.Builder();
     method public androidx.wear.tiles.EventBuilders.TileAddEvent build();
+    method public androidx.wear.tiles.EventBuilders.TileAddEvent.Builder setTileId(int);
   }
 
   public static final class EventBuilders.TileEnterEvent {
+    method public int getTileId();
   }
 
   public static final class EventBuilders.TileEnterEvent.Builder {
     ctor public EventBuilders.TileEnterEvent.Builder();
     method public androidx.wear.tiles.EventBuilders.TileEnterEvent build();
+    method public androidx.wear.tiles.EventBuilders.TileEnterEvent.Builder setTileId(int);
   }
 
   public static final class EventBuilders.TileLeaveEvent {
+    method public int getTileId();
   }
 
   public static final class EventBuilders.TileLeaveEvent.Builder {
     ctor public EventBuilders.TileLeaveEvent.Builder();
     method public androidx.wear.tiles.EventBuilders.TileLeaveEvent build();
+    method public androidx.wear.tiles.EventBuilders.TileLeaveEvent.Builder setTileId(int);
   }
 
   public static final class EventBuilders.TileRemoveEvent {
+    method public int getTileId();
   }
 
   public static final class EventBuilders.TileRemoveEvent.Builder {
     ctor public EventBuilders.TileRemoveEvent.Builder();
     method public androidx.wear.tiles.EventBuilders.TileRemoveEvent build();
+    method public androidx.wear.tiles.EventBuilders.TileRemoveEvent.Builder setTileId(int);
   }
 
   @Deprecated public final class LayoutElementBuilders {
@@ -889,6 +897,7 @@ package androidx.wear.tiles {
     method public androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters getDeviceConfiguration();
     method @Deprecated public androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters? getDeviceParameters();
     method public java.util.List<java.lang.String!> getResourceIds();
+    method public int getTileId();
     method public String getVersion();
   }
 
@@ -898,6 +907,7 @@ package androidx.wear.tiles {
     method public androidx.wear.tiles.RequestBuilders.ResourcesRequest build();
     method public androidx.wear.tiles.RequestBuilders.ResourcesRequest.Builder setDeviceConfiguration(androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters);
     method @Deprecated public androidx.wear.tiles.RequestBuilders.ResourcesRequest.Builder setDeviceParameters(androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters);
+    method public androidx.wear.tiles.RequestBuilders.ResourcesRequest.Builder setTileId(int);
     method public androidx.wear.tiles.RequestBuilders.ResourcesRequest.Builder setVersion(String);
   }
 
@@ -906,6 +916,7 @@ package androidx.wear.tiles {
     method public androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters getDeviceConfiguration();
     method @Deprecated public androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters? getDeviceParameters();
     method @Deprecated public androidx.wear.tiles.StateBuilders.State? getState();
+    method public int getTileId();
   }
 
   public static final class RequestBuilders.TileRequest.Builder {
@@ -915,6 +926,7 @@ package androidx.wear.tiles {
     method public androidx.wear.tiles.RequestBuilders.TileRequest.Builder setDeviceConfiguration(androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters);
     method @Deprecated public androidx.wear.tiles.RequestBuilders.TileRequest.Builder setDeviceParameters(androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters);
     method @Deprecated public androidx.wear.tiles.RequestBuilders.TileRequest.Builder setState(androidx.wear.tiles.StateBuilders.State);
+    method public androidx.wear.tiles.RequestBuilders.TileRequest.Builder setTileId(int);
   }
 
   @Deprecated public final class ResourceBuilders {
