@@ -15,6 +15,8 @@
  */
 package androidx.health.connect.client.records.metadata
 
+import androidx.annotation.IntDef
+import androidx.annotation.RestrictTo
 import androidx.health.connect.client.records.Record
 import java.time.Instant
 
@@ -66,6 +68,19 @@ public class Metadata(
 
     /** Optional client supplied device information associated with the data. */
     public val device: Device? = null,
+
+    /**
+     * Optional client supplied data recording method to help to understand how the data was
+     * recorded.
+     *
+     * It should be one of the following: [RECORDING_METHOD_UNKNOWN],
+     * [RECORDING_METHOD_ACTIVELY_RECORDED], [RECORDING_METHOD_AUTOMATICALLY_RECORDED] and
+     * [RECORDING_METHOD_MANUAL_ENTRY].
+     */
+    @param:RecordingMethod
+    @property:RecordingMethod
+    @get:RecordingMethod
+    val recordingMethod: Int = RECORDING_METHOD_UNKNOWN,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -77,6 +92,7 @@ public class Metadata(
         if (clientRecordId != other.clientRecordId) return false
         if (clientRecordVersion != other.clientRecordVersion) return false
         if (device != other.device) return false
+        if (recordingMethod != other.recordingMethod) return false
 
         return true
     }
@@ -88,6 +104,7 @@ public class Metadata(
         result = 31 * result + (clientRecordId?.hashCode() ?: 0)
         result = 31 * result + clientRecordVersion.hashCode()
         result = 31 * result + (device?.hashCode() ?: 0)
+        result = 31 * result + recordingMethod.hashCode()
         return result
     }
 
@@ -96,5 +113,41 @@ public class Metadata(
 
         /** A default instance of metadata with no fields initialised. */
         @JvmField internal val EMPTY = Metadata()
+
+        /** Unknown recording method. */
+        const val RECORDING_METHOD_UNKNOWN = 0
+
+        /**
+         * For actively recorded data by the user.
+         *
+         * For e.g. An exercise session actively recorded by the user using a phone or a watch
+         * device.
+         */
+        const val RECORDING_METHOD_ACTIVELY_RECORDED = 1
+
+        /**
+         * For passively recorded data by the app.
+         *
+         * For e.g. Steps data recorded by a watch or phone without the user starting a session.
+         */
+        const val RECORDING_METHOD_AUTOMATICALLY_RECORDED = 2
+
+        /**
+         * For manually entered data by the user.
+         *
+         * For e.g. Nutrition or weight data entered by the user.
+         */
+        const val RECORDING_METHOD_MANUAL_ENTRY = 3
+
+        /** List of possible Recording method for the [Record]. */
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        @IntDef(
+            RECORDING_METHOD_UNKNOWN,
+            RECORDING_METHOD_ACTIVELY_RECORDED,
+            RECORDING_METHOD_AUTOMATICALLY_RECORDED,
+            RECORDING_METHOD_MANUAL_ENTRY
+        )
+        @Retention(AnnotationRetention.SOURCE)
+        annotation class RecordingMethod
     }
 }
