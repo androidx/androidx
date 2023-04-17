@@ -34,6 +34,7 @@ import androidx.wear.protolayout.DimensionBuilders.ContainerDimension;
 import androidx.wear.protolayout.DimensionBuilders.DegreesProp;
 import androidx.wear.protolayout.DimensionBuilders.DpProp;
 import androidx.wear.protolayout.DimensionBuilders.EmProp;
+import androidx.wear.protolayout.DimensionBuilders.ExtensionDimension;
 import androidx.wear.protolayout.DimensionBuilders.HorizontalLayoutConstraint;
 import androidx.wear.protolayout.DimensionBuilders.ImageDimension;
 import androidx.wear.protolayout.DimensionBuilders.SpProp;
@@ -46,6 +47,7 @@ import androidx.wear.protolayout.TypeBuilders.BoolProp;
 import androidx.wear.protolayout.TypeBuilders.Int32Prop;
 import androidx.wear.protolayout.TypeBuilders.StringLayoutConstraint;
 import androidx.wear.protolayout.TypeBuilders.StringProp;
+import androidx.wear.protolayout.expression.ExperimentalProtoLayoutExtensionApi;
 import androidx.wear.protolayout.expression.Fingerprint;
 import androidx.wear.protolayout.expression.ProtoLayoutExperimental;
 import androidx.wear.protolayout.proto.AlignmentProto;
@@ -54,11 +56,13 @@ import androidx.wear.protolayout.proto.FingerprintProto;
 import androidx.wear.protolayout.proto.FingerprintProto.TreeFingerprint;
 import androidx.wear.protolayout.proto.LayoutElementProto;
 import androidx.wear.protolayout.proto.TypesProto;
+import androidx.wear.protolayout.protobuf.ByteString;
 import androidx.wear.protolayout.protobuf.InvalidProtocolBufferException;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -4238,8 +4242,204 @@ public final class LayoutElementBuilders {
     }
 
     /**
+     * A layout element which can be defined by a renderer extension. The payload in this message
+     * will be passed verbatim to any registered renderer extension in the renderer. It is then
+     * expected that the extension can parse this message, and emit the relevant element.
+     *
+     * <p>If a renderer extension is not installed, this resource will not render any element,
+     * although the specified space will still be occupied. If the payload cannot be parsed by the
+     * renderer extension, then still nothing should be rendered, although this behaviour is defined
+     * by the renderer extension.
+     *
+     * @since 1.2
+     */
+    @ExperimentalProtoLayoutExtensionApi
+    public static final class ExtensionLayoutElement implements LayoutElement {
+        private final LayoutElementProto.ExtensionLayoutElement mImpl;
+        @Nullable private final Fingerprint mFingerprint;
+
+        ExtensionLayoutElement(
+                LayoutElementProto.ExtensionLayoutElement impl, @Nullable Fingerprint fingerprint) {
+            this.mImpl = impl;
+            this.mFingerprint = fingerprint;
+        }
+
+        /**
+         * Gets the content of the renderer extension element. This can be any data; it is expected
+         * that the renderer extension knows how to parse this field.
+         *
+         * @since 1.2
+         */
+        @NonNull
+        public byte[] getPayload() {
+            return mImpl.getPayload().toByteArray();
+        }
+
+        /**
+         * Gets the ID of the renderer extension that should be used for rendering this layout
+         * element.
+         *
+         * @since 1.2
+         */
+        @NonNull
+        public String getExtensionId() {
+            return mImpl.getExtensionId();
+        }
+
+        /**
+         * Gets the width of this element.
+         *
+         * @since 1.2
+         */
+        @Nullable
+        public ExtensionDimension getWidth() {
+            if (mImpl.hasWidth()) {
+                return DimensionBuilders.extensionDimensionFromProto(mImpl.getWidth());
+            } else {
+                return null;
+            }
+        }
+
+        /**
+         * Gets the height of this element.
+         *
+         * @since 1.2
+         */
+        @Nullable
+        public ExtensionDimension getHeight() {
+            if (mImpl.hasHeight()) {
+                return DimensionBuilders.extensionDimensionFromProto(mImpl.getHeight());
+            } else {
+                return null;
+            }
+        }
+
+        @Override
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Nullable
+        public Fingerprint getFingerprint() {
+            return mFingerprint;
+        }
+
+        /** Creates a new wrapper instance from the proto. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public static ExtensionLayoutElement fromProto(
+                @NonNull LayoutElementProto.ExtensionLayoutElement proto,
+                @Nullable Fingerprint fingerprint) {
+            return new ExtensionLayoutElement(proto, fingerprint);
+        }
+
+        @NonNull
+        static ExtensionLayoutElement fromProto(
+                @NonNull LayoutElementProto.ExtensionLayoutElement proto) {
+            return fromProto(proto, null);
+        }
+
+        /** Returns the internal proto instance. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        LayoutElementProto.ExtensionLayoutElement toProto() {
+            return mImpl;
+        }
+
+        @Override
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public LayoutElementProto.LayoutElement toLayoutElementProto() {
+            return LayoutElementProto.LayoutElement.newBuilder()
+                    .setExtension(mImpl)
+                    .build();
+        }
+
+        @Override
+        @NonNull
+        public String toString() {
+            return "ExtensionLayoutElement{"
+                    + "payload="
+                    + Arrays.toString(getPayload())
+                    + ", extensionId="
+                    + getExtensionId()
+                    + ", width="
+                    + getWidth()
+                    + ", height="
+                    + getHeight()
+                    + "}";
+        }
+
+        /** Builder for {@link ExtensionLayoutElement}. */
+        public static final class Builder implements LayoutElement.Builder {
+            private final LayoutElementProto.ExtensionLayoutElement.Builder mImpl =
+                    LayoutElementProto.ExtensionLayoutElement.newBuilder();
+            private final Fingerprint mFingerprint = new Fingerprint(661980356);
+
+            public Builder() {}
+
+            /**
+             * Sets the content of the renderer extension element. This can be any data; it is
+             * expected that the renderer extension knows how to parse this field.
+             *
+             * @since 1.2
+             */
+            @NonNull
+            public Builder setPayload(@NonNull byte[] payload) {
+                mImpl.setPayload(ByteString.copyFrom(payload));
+                mFingerprint.recordPropertyUpdate(1, Arrays.hashCode(payload));
+                return this;
+            }
+
+            /**
+             * Sets the ID of the renderer extension that should be used for rendering this layout
+             * element.
+             *
+             * @since 1.2
+             */
+            @NonNull
+            public Builder setExtensionId(@NonNull String extensionId) {
+                mImpl.setExtensionId(extensionId);
+                mFingerprint.recordPropertyUpdate(2, extensionId.hashCode());
+                return this;
+            }
+
+            /**
+             * Sets the width of this element.
+             *
+             * @since 1.2
+             */
+            @NonNull
+            public Builder setWidth(@NonNull ExtensionDimension width) {
+                mImpl.setWidth(width.toExtensionDimensionProto());
+                mFingerprint.recordPropertyUpdate(
+                        3, checkNotNull(width.getFingerprint()).aggregateValueAsInt());
+                return this;
+            }
+
+            /**
+             * Sets the height of this element.
+             *
+             * @since 1.2
+             */
+            @NonNull
+            public Builder setHeight(@NonNull ExtensionDimension height) {
+                mImpl.setHeight(height.toExtensionDimensionProto());
+                mFingerprint.recordPropertyUpdate(
+                        4, checkNotNull(height.getFingerprint()).aggregateValueAsInt());
+                return this;
+            }
+
+            @Override
+            @NonNull
+            public ExtensionLayoutElement build() {
+                return new ExtensionLayoutElement(mImpl.build(), mFingerprint);
+            }
+        }
+    }
+
+    /**
      * Interface defining the root of all layout elements. This exists to act as a holder for all of
      * the actual layout elements above.
+     *
+     * @since 1.0
      */
     public interface LayoutElement {
         /** Get the protocol buffer representation of this object. */
@@ -4265,6 +4465,7 @@ public final class LayoutElementBuilders {
     /** Creates a new wrapper instance from the proto. */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
+    @OptIn(markerClass = ExperimentalProtoLayoutExtensionApi.class)
     public static LayoutElement layoutElementFromProto(
             @NonNull LayoutElementProto.LayoutElement proto) {
         if (proto.hasColumn()) {
@@ -4290,6 +4491,9 @@ public final class LayoutElementBuilders {
         }
         if (proto.hasSpannable()) {
             return Spannable.fromProto(proto.getSpannable());
+        }
+        if (proto.hasExtension()) {
+            return ExtensionLayoutElement.fromProto(proto.getExtension());
         }
         throw new IllegalStateException("Proto was not a recognised instance of LayoutElement");
     }
@@ -4582,7 +4786,6 @@ public final class LayoutElementBuilders {
      * {@link androidx.wear.protolayout.LayoutElementBuilders.Column}.
      *
      * @since 1.2
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef({
