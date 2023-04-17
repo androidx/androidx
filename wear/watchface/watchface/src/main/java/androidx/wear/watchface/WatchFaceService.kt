@@ -362,6 +362,9 @@ public abstract class WatchFaceService : WallpaperService() {
             waitDeferred: suspend (engine: EngineWrapper) -> V
         ): R? =
             TraceEvent(traceName).use {
+                if (Build.TYPE.equals("userdebug")) {
+                    Log.d(TAG, "awaitDeferredThenRunTaskOnThread task $traceName")
+                }
                 if (engine == null) {
                     Log.w(TAG, "Task $traceName posted after close(), ignoring.")
                     return null
@@ -2242,9 +2245,7 @@ public abstract class WatchFaceService : WallpaperService() {
                     watchState,
                     this,
                     deferredWatchFaceImpl,
-                    uiThreadCoroutineScope,
-                    _context.contentResolver,
-                    wearSdkVersion >= Build.VERSION_CODES.R
+                    uiThreadCoroutineScope
                 )
 
             // There's no point creating BroadcastsReceiver or listening for Accessibility state

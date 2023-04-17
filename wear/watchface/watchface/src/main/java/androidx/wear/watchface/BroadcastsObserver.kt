@@ -17,10 +17,10 @@
 package androidx.wear.watchface
 
 import android.app.KeyguardManager
-import android.content.ContentResolver
 import android.content.Context
 import android.content.Intent
 import androidx.annotation.RestrictTo
+import androidx.annotation.UiThread
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -31,9 +31,7 @@ public class BroadcastsObserver(
     private val watchState: WatchState,
     private val watchFaceHostApi: WatchFaceHostApi,
     private val deferredWatchFaceImpl: Deferred<WatchFaceImpl>,
-    private val uiThreadCoroutineScope: CoroutineScope,
-    private val contentResolver: ContentResolver,
-    private val ambientSettingAvailable: Boolean
+    private val uiThreadCoroutineScope: CoroutineScope
 ) : BroadcastsReceiver.BroadcastEventObserver {
     private var batteryLow: Boolean? = null
     private var charging: Boolean? = null
@@ -124,5 +122,15 @@ public class BroadcastsObserver(
 
         val isAmbient = watchState.isAmbient as MutableStateFlow
         isAmbient.value = false
+    }
+
+    @UiThread
+    internal fun dump(writer: IndentingPrintWriter) {
+        writer.println("BroadcastsObserver:")
+        writer.increaseIndent()
+        writer.println("batteryLow=$batteryLow")
+        writer.println("charging=$charging")
+        writer.println("sysUiHasSentWatchUiState=$sysUiHasSentWatchUiState")
+        writer.decreaseIndent()
     }
 }
