@@ -43,11 +43,12 @@ fun SnapLayoutInfoProvider(
             intItemSize
     }
 
-    override fun Density.calculateSnappingOffsetBounds(): ClosedFloatingPointRange<Float> {
+    override fun Density.calculateSnappingOffset(currentVelocity: Float): Float {
         val layoutCenter = layoutSize() / 2f + scrollState.value + calculateSnapStepSize() / 2f
         val lowerBound = nextFullItemCenter(layoutCenter) - layoutCenter
         val upperBound = previousFullItemCenter(layoutCenter) - layoutCenter
-        return upperBound.rangeTo(lowerBound)
+
+        return calculateFinalOffset(currentVelocity, upperBound, lowerBound)
     }
 
     override fun Density.calculateSnapStepSize(): Float {
