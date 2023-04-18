@@ -30,7 +30,7 @@ dependencies {
 
     implementation("androidx.annotation:annotation-experimental:1.3.0")
     implementation("androidx.concurrent:concurrent-futures:1.1.0")
-    implementation(project(":wear:tiles:tiles-proto"))
+    implementation(project(path: ":wear:tiles:tiles-proto"))
 
     compileOnly(libs.kotlinStdlib) // For annotation-experimental
 
