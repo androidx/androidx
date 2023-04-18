@@ -50,7 +50,7 @@ abstract class AdIdManagerFutures internal constructor() {
         @DoNotInline
         @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_AD_ID)
         override fun getAdIdAsync(): ListenableFuture<AdId> {
-            return CoroutineScope(Dispatchers.Main).async {
+            return CoroutineScope(Dispatchers.Default).async {
                 mAdIdManager.getAdId()
             }.asListenableFuture()
         }

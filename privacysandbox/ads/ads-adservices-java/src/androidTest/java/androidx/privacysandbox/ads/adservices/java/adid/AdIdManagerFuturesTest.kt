@@ -17,6 +17,7 @@
 package androidx.privacysandbox.ads.adservices.java.adid
 
 import android.content.Context
+import android.os.Looper
 import android.os.OutcomeReceiver
 import android.os.ext.SdkExtensions
 import androidx.annotation.RequiresExtension
@@ -27,6 +28,7 @@ import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth
 import com.google.common.util.concurrent.ListenableFuture
+import kotlin.test.assertNotEquals
 import org.junit.Assert
 import org.junit.Assume
 import org.junit.Before
@@ -91,6 +93,7 @@ class AdIdManagerFuturesTest {
             // Set up the response that AdIdManager will return when the compat code calls it.
             val adId = android.adservices.adid.AdId("1234", false)
             val answer = { args: InvocationOnMock ->
+                assertNotEquals(Looper.getMainLooper(), Looper.myLooper())
                 val receiver = args.getArgument<
                     OutcomeReceiver<android.adservices.adid.AdId, Exception>>(1)
                 receiver.onResult(adId)
