@@ -118,7 +118,7 @@ abstract class MeasurementManagerFutures internal constructor() {
         override fun deleteRegistrationsAsync(
             deletionRequest: DeletionRequest
         ): ListenableFuture<Unit> {
-            return CoroutineScope(Dispatchers.Main).async {
+            return CoroutineScope(Dispatchers.Default).async {
                 mMeasurementManager.deleteRegistrations(deletionRequest)
             }.asListenableFuture()
         }
@@ -129,7 +129,7 @@ abstract class MeasurementManagerFutures internal constructor() {
             attributionSource: Uri,
             inputEvent: InputEvent?
         ): ListenableFuture<Unit> {
-            return CoroutineScope(Dispatchers.Main).async {
+            return CoroutineScope(Dispatchers.Default).async {
                 mMeasurementManager.registerSource(attributionSource, inputEvent)
             }.asListenableFuture()
         }
@@ -137,7 +137,7 @@ abstract class MeasurementManagerFutures internal constructor() {
         @DoNotInline
         @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_ATTRIBUTION)
         override fun registerTriggerAsync(trigger: Uri): ListenableFuture<Unit> {
-            return CoroutineScope(Dispatchers.Main).async {
+            return CoroutineScope(Dispatchers.Default).async {
                 mMeasurementManager.registerTrigger(trigger)
             }.asListenableFuture()
         }
@@ -147,7 +147,7 @@ abstract class MeasurementManagerFutures internal constructor() {
         override fun registerWebSourceAsync(
             request: WebSourceRegistrationRequest
         ): ListenableFuture<Unit> {
-            return CoroutineScope(Dispatchers.Main).async {
+            return CoroutineScope(Dispatchers.Default).async {
                 mMeasurementManager.registerWebSource(request)
             }.asListenableFuture()
         }
@@ -157,7 +157,7 @@ abstract class MeasurementManagerFutures internal constructor() {
         override fun registerWebTriggerAsync(
             request: WebTriggerRegistrationRequest,
         ): ListenableFuture<Unit> {
-            return CoroutineScope(Dispatchers.Main).async {
+            return CoroutineScope(Dispatchers.Default).async {
                 mMeasurementManager.registerWebTrigger(request)
             }.asListenableFuture()
         }
@@ -165,7 +165,7 @@ abstract class MeasurementManagerFutures internal constructor() {
         @DoNotInline
         @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_ATTRIBUTION)
         override fun getMeasurementApiStatusAsync(): ListenableFuture<Int> {
-            return CoroutineScope(Dispatchers.Main).async {
+            return CoroutineScope(Dispatchers.Default).async {
                 mMeasurementManager.getMeasurementApiStatus()
             }.asListenableFuture()
         }

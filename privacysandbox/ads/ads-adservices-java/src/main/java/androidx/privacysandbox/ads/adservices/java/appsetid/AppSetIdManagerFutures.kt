@@ -46,7 +46,7 @@ abstract class AppSetIdManagerFutures internal constructor() {
     ) : AppSetIdManagerFutures() {
         @DoNotInline
         override fun getAppSetIdAsync(): ListenableFuture<AppSetId> {
-            return CoroutineScope(Dispatchers.Main).async {
+            return CoroutineScope(Dispatchers.Default).async {
                 mAppSetIdManager.getAppSetId()
             }.asListenableFuture()
         }
