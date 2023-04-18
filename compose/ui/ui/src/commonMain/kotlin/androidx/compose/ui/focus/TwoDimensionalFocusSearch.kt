@@ -186,6 +186,9 @@ private fun DelegatableNode.collectAccessibleChildren(
     accessibleChildren: MutableVector<FocusTargetModifierNode>
 ) {
     visitChildren(Nodes.FocusTarget) {
+        // TODO(b/278765590): Find the root issue why visitChildren returns unattached nodes.
+        if (!it.isAttached) return@visitChildren
+
         if (it.fetchFocusProperties().canFocus) {
             accessibleChildren.add(it)
         } else {
