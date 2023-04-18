@@ -59,8 +59,6 @@ dependencies {
 
     annotationProcessor(libs.nullaway)
 
-    // TODO(shiufai): We need this for assertThrows. Point back to the AndroidX shared version if
-    // it is ever upgraded.
     testImplementation(libs.junit)
     testImplementation(libs.testCore)
     testImplementation(libs.testRunner)
@@ -68,7 +66,7 @@ dependencies {
     testImplementation(libs.mockitoCore4)
     testImplementation(libs.robolectric)
     testImplementation(libs.truth)
-    testImplementation project(path: ':car:app:app-testing')
+    testImplementation(project(":car:app:app-testing"))
 }
 
 project.ext {
