@@ -124,11 +124,13 @@ package androidx.wear.protolayout.expression {
     method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32 getIntDaysPart();
     method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32 getMinutesPart();
     method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32 getSecondsPart();
+    method public static androidx.wear.protolayout.expression.ConditionScopes.ConditionScope<androidx.wear.protolayout.expression.DynamicBuilders.DynamicDuration!,java.time.Duration!> onCondition(androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool);
     method public default byte[] toDynamicDurationByteArray();
     method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32 toIntDays();
     method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32 toIntHours();
     method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32 toIntMinutes();
     method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32 toIntSeconds();
+    method public static androidx.wear.protolayout.expression.DynamicBuilders.DynamicDuration withSecondsPrecision(java.time.Duration);
   }
 
   public static interface DynamicBuilders.DynamicFloat extends androidx.wear.protolayout.expression.DynamicBuilders.DynamicType {
@@ -194,6 +196,7 @@ package androidx.wear.protolayout.expression {
   public static interface DynamicBuilders.DynamicInstant extends androidx.wear.protolayout.expression.DynamicBuilders.DynamicType {
     method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicDuration durationUntil(androidx.wear.protolayout.expression.DynamicBuilders.DynamicInstant);
     method public static androidx.wear.protolayout.expression.DynamicBuilders.DynamicInstant fromByteArray(byte[]);
+    method public static androidx.wear.protolayout.expression.ConditionScopes.ConditionScope<androidx.wear.protolayout.expression.DynamicBuilders.DynamicInstant!,java.time.Instant!> onCondition(androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool);
     method public static androidx.wear.protolayout.expression.DynamicBuilders.DynamicInstant platformTimeWithSecondsPrecision();
     method public default byte[] toDynamicInstantByteArray();
     method public static androidx.wear.protolayout.expression.DynamicBuilders.DynamicInstant withSecondsPrecision(java.time.Instant);

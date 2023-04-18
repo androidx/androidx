@@ -40,6 +40,7 @@ import androidx.wear.protolayout.expression.pipeline.ColorNodes.DynamicAnimatedC
 import androidx.wear.protolayout.expression.pipeline.ColorNodes.FixedColorNode;
 import androidx.wear.protolayout.expression.pipeline.ColorNodes.StateColorSourceNode;
 import androidx.wear.protolayout.expression.pipeline.DurationNodes.BetweenInstancesNode;
+import androidx.wear.protolayout.expression.pipeline.DurationNodes.FixedDurationNode;
 import androidx.wear.protolayout.expression.pipeline.FloatNodes.AnimatableFixedFloatNode;
 import androidx.wear.protolayout.expression.pipeline.FloatNodes.ArithmeticFloatNode;
 import androidx.wear.protolayout.expression.pipeline.FloatNodes.DynamicAnimatedFloatNode;
@@ -66,7 +67,9 @@ import androidx.wear.protolayout.expression.proto.DynamicProto.AnimatableDynamic
 import androidx.wear.protolayout.expression.proto.DynamicProto.AnimatableDynamicFloat;
 import androidx.wear.protolayout.expression.proto.DynamicProto.AnimatableDynamicInt32;
 import androidx.wear.protolayout.expression.proto.DynamicProto.ConditionalColorOp;
+import androidx.wear.protolayout.expression.proto.DynamicProto.ConditionalDurationOp;
 import androidx.wear.protolayout.expression.proto.DynamicProto.ConditionalFloatOp;
+import androidx.wear.protolayout.expression.proto.DynamicProto.ConditionalInstantOp;
 import androidx.wear.protolayout.expression.proto.DynamicProto.ConditionalInt32Op;
 import androidx.wear.protolayout.expression.proto.DynamicProto.ConditionalStringOp;
 import androidx.wear.protolayout.expression.proto.DynamicProto.DynamicBool;
@@ -871,6 +874,28 @@ public class DynamicTypeEvaluator implements AutoCloseable {
                         betweenInstancesNode.getRhsIncomingCallback(),
                         resultBuilder);
                 break;
+            case FIXED:
+                node = new FixedDurationNode(durationSource.getFixed(), consumer);
+                break;
+            case CONDITIONAL_OP:
+                ConditionalOpNode<Duration> conditionalNode = new ConditionalOpNode<>(consumer);
+
+                ConditionalDurationOp op = durationSource.getConditionalOp();
+                bindRecursively(
+                        op.getCondition(),
+                        conditionalNode.getConditionIncomingCallback(),
+                        resultBuilder);
+                bindRecursively(
+                        op.getValueIfTrue(),
+                        conditionalNode.getTrueValueIncomingCallback(),
+                        resultBuilder);
+                bindRecursively(
+                        op.getValueIfFalse(),
+                        conditionalNode.getFalseValueIncomingCallback(),
+                        resultBuilder);
+
+                node = conditionalNode;
+                break;
             case INNER_NOT_SET:
                 throw new IllegalArgumentException("DynamicDuration has no inner source set");
             default:
@@ -896,6 +921,25 @@ public class DynamicTypeEvaluator implements AutoCloseable {
                 break;
             case PLATFORM_SOURCE:
                 node = new PlatformTimeSourceNode(mTimeDataSource, consumer);
+                break;
+            case CONDITIONAL_OP:
+                ConditionalOpNode<Instant> conditionalNode = new ConditionalOpNode<>(consumer);
+
+                ConditionalInstantOp op = instantSource.getConditionalOp();
+                bindRecursively(
+                        op.getCondition(),
+                        conditionalNode.getConditionIncomingCallback(),
+                        resultBuilder);
+                bindRecursively(
+                        op.getValueIfTrue(),
+                        conditionalNode.getTrueValueIncomingCallback(),
+                        resultBuilder);
+                bindRecursively(
+                        op.getValueIfFalse(),
+                        conditionalNode.getFalseValueIncomingCallback(),
+                        resultBuilder);
+
+                node = conditionalNode;
                 break;
 
             case INNER_NOT_SET:

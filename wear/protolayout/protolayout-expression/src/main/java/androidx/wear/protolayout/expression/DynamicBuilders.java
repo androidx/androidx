@@ -31,6 +31,7 @@ import androidx.wear.protolayout.expression.AnimationParameterBuilders.Animation
 import androidx.wear.protolayout.expression.ConditionScopes.ConditionScope;
 import androidx.wear.protolayout.expression.FixedValueBuilders.FixedBool;
 import androidx.wear.protolayout.expression.FixedValueBuilders.FixedColor;
+import androidx.wear.protolayout.expression.FixedValueBuilders.FixedDuration;
 import androidx.wear.protolayout.expression.FixedValueBuilders.FixedFloat;
 import androidx.wear.protolayout.expression.FixedValueBuilders.FixedInstant;
 import androidx.wear.protolayout.expression.FixedValueBuilders.FixedInt32;
@@ -42,6 +43,7 @@ import androidx.wear.protolayout.protobuf.InvalidProtocolBufferException;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.time.Duration;
 import java.time.Instant;
 
 /** Builders for dynamic primitive types used by layout elements. */
@@ -151,8 +153,8 @@ public final class DynamicBuilders {
     /**
      * Rounding mode to use when converting a float to an int32. If the value is larger than {@link
      * Integer#MAX_VALUE} or smaller than {@link Integer#MIN_VALUE}, the result of this operation
-     * will be invalid and will have an invalid value delivered via
-     * {@link DynamicTypeValueReceiver<T>#onInvalidate()}.
+     * will be invalid and will have an invalid value delivered via {@link
+     * DynamicTypeValueReceiver<T>#onInvalidate()}.
      *
      * @since 1.2
      */
@@ -6465,6 +6467,171 @@ public final class DynamicBuilders {
     }
 
     /**
+     * A conditional operator which yields a instant depending on the boolean operand. This
+     * implements:
+     *
+     * <pre>{@code
+     * instant result = condition ? value_if_true : value_if_false
+     * }</pre>
+     *
+     * @since 1.2
+     */
+    static final class ConditionalInstantOp implements DynamicInstant {
+        private final DynamicProto.ConditionalInstantOp mImpl;
+        @Nullable private final Fingerprint mFingerprint;
+
+        ConditionalInstantOp(
+                DynamicProto.ConditionalInstantOp impl, @Nullable Fingerprint fingerprint) {
+            this.mImpl = impl;
+            this.mFingerprint = fingerprint;
+        }
+
+        /**
+         * Gets the condition to use.
+         *
+         * @since 1.2
+         */
+        @Nullable
+        public DynamicBool getCondition() {
+            if (mImpl.hasCondition()) {
+                return DynamicBuilders.dynamicBoolFromProto(mImpl.getCondition());
+            } else {
+                return null;
+            }
+        }
+
+        /**
+         * Gets the instant to yield if condition is true.
+         *
+         * @since 1.2
+         */
+        @Nullable
+        public DynamicInstant getValueIfTrue() {
+            if (mImpl.hasValueIfTrue()) {
+                return DynamicBuilders.dynamicInstantFromProto(mImpl.getValueIfTrue());
+            } else {
+                return null;
+            }
+        }
+
+        /**
+         * Gets the instant to yield if condition is false.
+         *
+         * @since 1.2
+         */
+        @Nullable
+        public DynamicInstant getValueIfFalse() {
+            if (mImpl.hasValueIfFalse()) {
+                return DynamicBuilders.dynamicInstantFromProto(mImpl.getValueIfFalse());
+            } else {
+                return null;
+            }
+        }
+
+        @Override
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Nullable
+        public Fingerprint getFingerprint() {
+            return mFingerprint;
+        }
+
+        /** Creates a new wrapper instance from the proto. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public static ConditionalInstantOp fromProto(
+                @NonNull DynamicProto.ConditionalInstantOp proto,
+                @Nullable Fingerprint fingerprint) {
+            return new ConditionalInstantOp(proto, fingerprint);
+        }
+
+        @NonNull
+        static ConditionalInstantOp fromProto(@NonNull DynamicProto.ConditionalInstantOp proto) {
+            return fromProto(proto, null);
+        }
+
+        /** Returns the internal proto instance. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        DynamicProto.ConditionalInstantOp toProto() {
+            return mImpl;
+        }
+
+        @Override
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public DynamicProto.DynamicInstant toDynamicInstantProto() {
+            return DynamicProto.DynamicInstant.newBuilder().setConditionalOp(mImpl).build();
+        }
+
+        @Override
+        @NonNull
+        public String toString() {
+            return "ConditionalInstantOp{"
+                    + "condition="
+                    + getCondition()
+                    + ", valueIfTrue="
+                    + getValueIfTrue()
+                    + ", valueIfFalse="
+                    + getValueIfFalse()
+                    + "}";
+        }
+
+        /** Builder for {@link ConditionalInstantOp}. */
+        public static final class Builder implements DynamicInstant.Builder {
+            private final DynamicProto.ConditionalInstantOp.Builder mImpl =
+                    DynamicProto.ConditionalInstantOp.newBuilder();
+            private final Fingerprint mFingerprint = new Fingerprint(-1479466239);
+
+            public Builder() {}
+
+            /**
+             * Sets the condition to use.
+             *
+             * @since 1.2
+             */
+            @NonNull
+            public Builder setCondition(@NonNull DynamicBool condition) {
+                mImpl.setCondition(condition.toDynamicBoolProto());
+                mFingerprint.recordPropertyUpdate(
+                        1, checkNotNull(condition.getFingerprint()).aggregateValueAsInt());
+                return this;
+            }
+
+            /**
+             * Sets the instant to yield if condition is true.
+             *
+             * @since 1.2
+             */
+            @NonNull
+            public Builder setValueIfTrue(@NonNull DynamicInstant valueIfTrue) {
+                mImpl.setValueIfTrue(valueIfTrue.toDynamicInstantProto());
+                mFingerprint.recordPropertyUpdate(
+                        2, checkNotNull(valueIfTrue.getFingerprint()).aggregateValueAsInt());
+                return this;
+            }
+
+            /**
+             * Sets the instant to yield if condition is false.
+             *
+             * @since 1.2
+             */
+            @NonNull
+            public Builder setValueIfFalse(@NonNull DynamicInstant valueIfFalse) {
+                mImpl.setValueIfFalse(valueIfFalse.toDynamicInstantProto());
+                mFingerprint.recordPropertyUpdate(
+                        3, checkNotNull(valueIfFalse.getFingerprint()).aggregateValueAsInt());
+                return this;
+            }
+
+            @Override
+            @NonNull
+            public ConditionalInstantOp build() {
+                return new ConditionalInstantOp(mImpl.build(), mFingerprint);
+            }
+        }
+    }
+
+    /**
      * Interface defining a dynamic time instant type.
      *
      * <p>{@link DynamicInstant} precision is seconds. Thus, any time or duration operation will
@@ -6540,6 +6707,24 @@ public final class DynamicBuilders {
                     .build();
         }
 
+        /**
+         * Bind the value of this {@link DynamicInstant} to the result of a conditional expression.
+         * This will use the value given in either {@link ConditionScope#use} or {@link
+         * ConditionScopes.IfTrueScope#elseUse} depending on the value yielded from {@code
+         * condition}.
+         */
+        @NonNull
+        static ConditionScope<DynamicInstant, Instant> onCondition(@NonNull DynamicBool condition) {
+            return new ConditionScopes.ConditionScope<>(
+                    (trueValue, falseValue) ->
+                            new ConditionalInstantOp.Builder()
+                                    .setCondition(condition)
+                                    .setValueIfTrue(trueValue)
+                                    .setValueIfFalse(falseValue)
+                                    .build(),
+                    DynamicInstant::withSecondsPrecision);
+        }
+
         /** Get the fingerprint for this object or null if unknown. */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Nullable
@@ -6565,6 +6750,9 @@ public final class DynamicBuilders {
         }
         if (proto.hasPlatformSource()) {
             return PlatformTimeSource.fromProto(proto.getPlatformSource(), fingerprint);
+        }
+        if (proto.hasConditionalOp()) {
+            return ConditionalInstantOp.fromProto(proto.getConditionalOp(), fingerprint);
         }
         throw new IllegalStateException("Proto was not a recognised instance of DynamicInstant");
     }
@@ -6708,6 +6896,171 @@ public final class DynamicBuilders {
     }
 
     /**
+     * A conditional operator which yields a duration depending on the boolean operand. This
+     * implements:
+     *
+     * <pre>{@code
+     * duration result = condition ? value_if_true : value_if_false
+     * }</pre>
+     *
+     * @since 1.2
+     */
+    static final class ConditionalDurationOp implements DynamicDuration {
+        private final DynamicProto.ConditionalDurationOp mImpl;
+        @Nullable private final Fingerprint mFingerprint;
+
+        ConditionalDurationOp(
+                DynamicProto.ConditionalDurationOp impl, @Nullable Fingerprint fingerprint) {
+            this.mImpl = impl;
+            this.mFingerprint = fingerprint;
+        }
+
+        /**
+         * Gets the condition to use.
+         *
+         * @since 1.2
+         */
+        @Nullable
+        public DynamicBool getCondition() {
+            if (mImpl.hasCondition()) {
+                return DynamicBuilders.dynamicBoolFromProto(mImpl.getCondition());
+            } else {
+                return null;
+            }
+        }
+
+        /**
+         * Gets the duration to yield if condition is true.
+         *
+         * @since 1.2
+         */
+        @Nullable
+        public DynamicDuration getValueIfTrue() {
+            if (mImpl.hasValueIfTrue()) {
+                return DynamicBuilders.dynamicDurationFromProto(mImpl.getValueIfTrue());
+            } else {
+                return null;
+            }
+        }
+
+        /**
+         * Gets the duration to yield if condition is false.
+         *
+         * @since 1.2
+         */
+        @Nullable
+        public DynamicDuration getValueIfFalse() {
+            if (mImpl.hasValueIfFalse()) {
+                return DynamicBuilders.dynamicDurationFromProto(mImpl.getValueIfFalse());
+            } else {
+                return null;
+            }
+        }
+
+        @Override
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Nullable
+        public Fingerprint getFingerprint() {
+            return mFingerprint;
+        }
+
+        /** Creates a new wrapper instance from the proto. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public static ConditionalDurationOp fromProto(
+                @NonNull DynamicProto.ConditionalDurationOp proto,
+                @Nullable Fingerprint fingerprint) {
+            return new ConditionalDurationOp(proto, fingerprint);
+        }
+
+        @NonNull
+        static ConditionalDurationOp fromProto(@NonNull DynamicProto.ConditionalDurationOp proto) {
+            return fromProto(proto, null);
+        }
+
+        /** Returns the internal proto instance. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        DynamicProto.ConditionalDurationOp toProto() {
+            return mImpl;
+        }
+
+        @Override
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public DynamicProto.DynamicDuration toDynamicDurationProto() {
+            return DynamicProto.DynamicDuration.newBuilder().setConditionalOp(mImpl).build();
+        }
+
+        @Override
+        @NonNull
+        public String toString() {
+            return "ConditionalDurationOp{"
+                    + "condition="
+                    + getCondition()
+                    + ", valueIfTrue="
+                    + getValueIfTrue()
+                    + ", valueIfFalse="
+                    + getValueIfFalse()
+                    + "}";
+        }
+
+        /** Builder for {@link ConditionalDurationOp}. */
+        public static final class Builder implements DynamicDuration.Builder {
+            private final DynamicProto.ConditionalDurationOp.Builder mImpl =
+                    DynamicProto.ConditionalDurationOp.newBuilder();
+            private final Fingerprint mFingerprint = new Fingerprint(905401559);
+
+            public Builder() {}
+
+            /**
+             * Sets the condition to use.
+             *
+             * @since 1.2
+             */
+            @NonNull
+            public Builder setCondition(@NonNull DynamicBool condition) {
+                mImpl.setCondition(condition.toDynamicBoolProto());
+                mFingerprint.recordPropertyUpdate(
+                        1, checkNotNull(condition.getFingerprint()).aggregateValueAsInt());
+                return this;
+            }
+
+            /**
+             * Sets the duration to yield if condition is true.
+             *
+             * @since 1.2
+             */
+            @NonNull
+            public Builder setValueIfTrue(@NonNull DynamicDuration valueIfTrue) {
+                mImpl.setValueIfTrue(valueIfTrue.toDynamicDurationProto());
+                mFingerprint.recordPropertyUpdate(
+                        2, checkNotNull(valueIfTrue.getFingerprint()).aggregateValueAsInt());
+                return this;
+            }
+
+            /**
+             * Sets the duration to yield if condition is false.
+             *
+             * @since 1.2
+             */
+            @NonNull
+            public Builder setValueIfFalse(@NonNull DynamicDuration valueIfFalse) {
+                mImpl.setValueIfFalse(valueIfFalse.toDynamicDurationProto());
+                mFingerprint.recordPropertyUpdate(
+                        3, checkNotNull(valueIfFalse.getFingerprint()).aggregateValueAsInt());
+                return this;
+            }
+
+            @Override
+            @NonNull
+            public ConditionalDurationOp build() {
+                return new ConditionalDurationOp(mImpl.build(), mFingerprint);
+            }
+        }
+    }
+
+    /**
      * Interface defining a dynamic duration type.
      *
      * @since 1.2
@@ -6738,6 +7091,16 @@ public final class DynamicBuilders {
         @NonNull
         default byte[] toDynamicDurationByteArray() {
             return toDynamicDurationProto().toByteArray();
+        }
+
+        /**
+         * Creates a constant-valued {@link DynamicDuration} from a {@link Duration}. If {@link
+         * Duration} precision is greater than seconds, then any excess precision information will
+         * be dropped.
+         */
+        @NonNull
+        static DynamicDuration withSecondsPrecision(@NonNull Duration duration) {
+            return new FixedDuration.Builder().setSeconds(duration.getSeconds()).build();
         }
 
         /**
@@ -6923,6 +7286,25 @@ public final class DynamicBuilders {
                     .build();
         }
 
+        /**
+         * Bind the value of this {@link DynamicDuration} to the result of a conditional expression.
+         * This will use the value given in either {@link ConditionScope#use} or {@link
+         * ConditionScopes.IfTrueScope#elseUse} depending on the value yielded from {@code
+         * condition}.
+         */
+        @NonNull
+        static ConditionScope<DynamicDuration, Duration> onCondition(
+                @NonNull DynamicBool condition) {
+            return new ConditionScopes.ConditionScope<>(
+                    (trueValue, falseValue) ->
+                            new ConditionalDurationOp.Builder()
+                                    .setCondition(condition)
+                                    .setValueIfTrue(trueValue)
+                                    .setValueIfFalse(falseValue)
+                                    .build(),
+                    DynamicDuration::withSecondsPrecision);
+        }
+
         /** Get the fingerprint for this object or null if unknown. */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Nullable
@@ -6945,6 +7327,12 @@ public final class DynamicBuilders {
             @NonNull DynamicProto.DynamicDuration proto, @Nullable Fingerprint fingerprint) {
         if (proto.hasBetween()) {
             return BetweenDuration.fromProto(proto.getBetween(), fingerprint);
+        }
+        if (proto.hasFixed()) {
+            return FixedDuration.fromProto(proto.getFixed(), fingerprint);
+        }
+        if (proto.hasConditionalOp()) {
+            return ConditionalDurationOp.fromProto(proto.getConditionalOp());
         }
         throw new IllegalStateException("Proto was not a recognised instance of DynamicDuration");
     }
