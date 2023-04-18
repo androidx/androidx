@@ -22,6 +22,7 @@ import android.graphics.Color
 import android.os.Build
 import android.view.SurfaceView
 import androidx.annotation.RequiresApi
+import androidx.core.os.BuildCompat
 import androidx.graphics.drawSquares
 import androidx.graphics.surface.SurfaceControlCompat
 import androidx.graphics.surface.SurfaceControlUtils
@@ -640,5 +641,6 @@ class CanvasFrontBufferedRendererTest {
         // FTL configured API level 33 emulator instances
         // Additionally some cuttlefish instances don't support rotation based testing (b/277764242)
         !(Build.MODEL.contains("gphone") && Build.VERSION.SDK_INT == 33) &&
-            !(Build.MODEL.contains("Cuttlefish") && Build.VERSION.SDK_INT == 30)
+            !(Build.MODEL.contains("Cuttlefish") &&
+                (Build.VERSION.SDK_INT == 30 || BuildCompat.isAtLeastV()))
 }
