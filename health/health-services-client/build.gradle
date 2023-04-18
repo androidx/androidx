@@ -21,6 +21,7 @@ plugins {
     id("com.android.library")
     id("com.google.protobuf")
     id("org.jetbrains.kotlin.android")
+    id("androidx.stableaidl")
 }
 
 dependencies {
@@ -49,6 +50,11 @@ android {
     }
     buildFeatures {
         aidl = true
+    }
+    buildTypes.all {
+        stableAidl {
+            version 1
+        }
     }
     namespace "androidx.health.services.client"
 }

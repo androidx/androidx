@@ -19,6 +19,7 @@ import androidx.build.LibraryType
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
+    id("androidx.stableaidl")
 }
 dependencies {
     api(project(":car:app:app"))
@@ -60,6 +61,10 @@ android {
     }
     buildTypes.all {
         consumerProguardFiles "proguard-rules.pro"
+
+        stableAidl {
+            version 1
+        }
     }
     useLibrary 'android.car'
     testOptions.unitTests.includeAndroidResources = true

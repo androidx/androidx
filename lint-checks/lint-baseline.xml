@@ -19,4 +19,2425 @@
             file="integration-tests/src/main/java/androidx/ThreadSleepUsageKotlin.kt"/>
     </issue>
 
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.Nullable` instead of `@org.jetbrains.annotations.Nullable`"
+        errorLine1="  @Nullable"
+        errorLine2="  ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/AidlAnnotationElement.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/AidlAnnotationElement.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/AidlAnnotationElement.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  public AidlAnnotationElementImpl(@NotNull ASTNode node) {"
+        errorLine2="                                   ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlAnnotationElementImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  public void accept(@NotNull AidlVisitor visitor) {"
+        errorLine2="                     ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlAnnotationElementImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  public void accept(@NotNull PsiElementVisitor visitor) {"
+        errorLine2="                     ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlAnnotationElementImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.Nullable` instead of `@org.jetbrains.annotations.Nullable`"
+        errorLine1="  @Nullable"
+        errorLine2="  ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlAnnotationElementImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlAnnotationElementImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlAnnotationElementImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/AidlBody.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/AidlBody.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/AidlBody.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/AidlBody.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/AidlBody.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  public AidlBodyImpl(@NotNull ASTNode node) {"
+        errorLine2="                      ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlBodyImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  public void accept(@NotNull AidlVisitor visitor) {"
+        errorLine2="                     ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlBodyImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  public void accept(@NotNull PsiElementVisitor visitor) {"
+        errorLine2="                     ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlBodyImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlBodyImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlBodyImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlBodyImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlBodyImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlBodyImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/AidlConstantDeclaration.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/AidlConstantDeclaration.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/AidlConstantDeclaration.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  public AidlConstantDeclarationImpl(@NotNull ASTNode node) {"
+        errorLine2="                                     ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlConstantDeclarationImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  public void accept(@NotNull AidlVisitor visitor) {"
+        errorLine2="                     ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlConstantDeclarationImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  public void accept(@NotNull PsiElementVisitor visitor) {"
+        errorLine2="                     ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlConstantDeclarationImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlConstantDeclarationImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlConstantDeclarationImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlConstantDeclarationImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/AidlDeclaration.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/AidlDeclaration.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/AidlDeclaration.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/AidlDottedName.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/AidlDottedName.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/AidlDottedName.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  public AidlDottedNameImpl(@NotNull ASTNode node) {"
+        errorLine2="                            ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlDottedNameImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  public void accept(@NotNull AidlVisitor visitor) {"
+        errorLine2="                     ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlDottedNameImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  public void accept(@NotNull PsiElementVisitor visitor) {"
+        errorLine2="                     ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlDottedNameImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlDottedNameImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlDottedNameImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlDottedNameImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  public AidlElementType(@NotNull @NonNls String debugName) {"
+        errorLine2="                         ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/AidlElementType.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/AidlEnumDeclaration.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/AidlEnumDeclaration.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  public AidlEnumDeclarationImpl(@NotNull ASTNode node) {"
+        errorLine2="                                 ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlEnumDeclarationImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  public void accept(@NotNull AidlVisitor visitor) {"
+        errorLine2="                     ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlEnumDeclarationImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  public void accept(@NotNull PsiElementVisitor visitor) {"
+        errorLine2="                     ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlEnumDeclarationImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlEnumDeclarationImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlEnumDeclarationImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.Nullable` instead of `@org.jetbrains.annotations.Nullable`"
+        errorLine1="  @Nullable"
+        errorLine2="  ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/AidlEnumeratorDeclaration.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/AidlEnumeratorDeclaration.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  public AidlEnumeratorDeclarationImpl(@NotNull ASTNode node) {"
+        errorLine2="                                       ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlEnumeratorDeclarationImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  public void accept(@NotNull AidlVisitor visitor) {"
+        errorLine2="                     ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlEnumeratorDeclarationImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  public void accept(@NotNull PsiElementVisitor visitor) {"
+        errorLine2="                     ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlEnumeratorDeclarationImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.Nullable` instead of `@org.jetbrains.annotations.Nullable`"
+        errorLine1="  @Nullable"
+        errorLine2="  ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlEnumeratorDeclarationImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlEnumeratorDeclarationImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.Nullable` instead of `@org.jetbrains.annotations.Nullable`"
+        errorLine1="  @Nullable"
+        errorLine2="  ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/AidlExpression.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.Nullable` instead of `@org.jetbrains.annotations.Nullable`"
+        errorLine1="  @Nullable"
+        errorLine2="  ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/AidlExpression.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.Nullable` instead of `@org.jetbrains.annotations.Nullable`"
+        errorLine1="  @Nullable"
+        errorLine2="  ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/AidlExpression.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.Nullable` instead of `@org.jetbrains.annotations.Nullable`"
+        errorLine1="  @Nullable"
+        errorLine2="  ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/AidlExpression.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.Nullable` instead of `@org.jetbrains.annotations.Nullable`"
+        errorLine1="  @Nullable"
+        errorLine2="  ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/AidlExpression.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.Nullable` instead of `@org.jetbrains.annotations.Nullable`"
+        errorLine1="  @Nullable"
+        errorLine2="  ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/AidlExpression.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  public AidlExpressionImpl(@NotNull ASTNode node) {"
+        errorLine2="                            ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlExpressionImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  public void accept(@NotNull AidlVisitor visitor) {"
+        errorLine2="                     ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlExpressionImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  public void accept(@NotNull PsiElementVisitor visitor) {"
+        errorLine2="                     ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlExpressionImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.Nullable` instead of `@org.jetbrains.annotations.Nullable`"
+        errorLine1="  @Nullable"
+        errorLine2="  ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlExpressionImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.Nullable` instead of `@org.jetbrains.annotations.Nullable`"
+        errorLine1="  @Nullable"
+        errorLine2="  ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlExpressionImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.Nullable` instead of `@org.jetbrains.annotations.Nullable`"
+        errorLine1="  @Nullable"
+        errorLine2="  ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlExpressionImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.Nullable` instead of `@org.jetbrains.annotations.Nullable`"
+        errorLine1="  @Nullable"
+        errorLine2="  ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlExpressionImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.Nullable` instead of `@org.jetbrains.annotations.Nullable`"
+        errorLine1="  @Nullable"
+        errorLine2="  ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlExpressionImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.Nullable` instead of `@org.jetbrains.annotations.Nullable`"
+        errorLine1="  @Nullable"
+        errorLine2="  ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlExpressionImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/AidlFile.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/AidlFile.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/AidlFileType.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/AidlFileType.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.Nullable` instead of `@org.jetbrains.annotations.Nullable`"
+        errorLine1="  @Nullable"
+        errorLine2="  ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/AidlFileType.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/AidlFileType.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/AidlImport.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.Nullable` instead of `@org.jetbrains.annotations.Nullable`"
+        errorLine1="  @Nullable"
+        errorLine2="  ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/AidlImport.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  public AidlImportImpl(@NotNull ASTNode node) {"
+        errorLine2="                        ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlImportImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  public void accept(@NotNull AidlVisitor visitor) {"
+        errorLine2="                     ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlImportImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  public void accept(@NotNull PsiElementVisitor visitor) {"
+        errorLine2="                     ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlImportImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlImportImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.Nullable` instead of `@org.jetbrains.annotations.Nullable`"
+        errorLine1="  @Nullable"
+        errorLine2="  ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlImportImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/AidlInterfaceDeclaration.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/AidlInterfaceDeclaration.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/AidlInterfaceDeclaration.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/AidlInterfaceDeclaration.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/AidlInterfaceDeclaration.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/AidlInterfaceDeclaration.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/AidlInterfaceDeclaration.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/AidlInterfaceDeclaration.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  public AidlInterfaceDeclarationImpl(@NotNull ASTNode node) {"
+        errorLine2="                                      ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlInterfaceDeclarationImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  public void accept(@NotNull AidlVisitor visitor) {"
+        errorLine2="                     ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlInterfaceDeclarationImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  public void accept(@NotNull PsiElementVisitor visitor) {"
+        errorLine2="                     ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlInterfaceDeclarationImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlInterfaceDeclarationImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlInterfaceDeclarationImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlInterfaceDeclarationImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlInterfaceDeclarationImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlInterfaceDeclarationImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlInterfaceDeclarationImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlInterfaceDeclarationImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlInterfaceDeclarationImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/AidlMethodDeclaration.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/AidlMethodDeclaration.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/AidlMethodDeclaration.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/AidlMethodDeclaration.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.Nullable` instead of `@org.jetbrains.annotations.Nullable`"
+        errorLine1="  @Nullable"
+        errorLine2="  ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/AidlMethodDeclaration.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  public AidlMethodDeclarationImpl(@NotNull ASTNode node) {"
+        errorLine2="                                   ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlMethodDeclarationImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  public void accept(@NotNull AidlVisitor visitor) {"
+        errorLine2="                     ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlMethodDeclarationImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  public void accept(@NotNull PsiElementVisitor visitor) {"
+        errorLine2="                     ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlMethodDeclarationImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlMethodDeclarationImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlMethodDeclarationImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlMethodDeclarationImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlMethodDeclarationImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.Nullable` instead of `@org.jetbrains.annotations.Nullable`"
+        errorLine1="  @Nullable"
+        errorLine2="  ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlMethodDeclarationImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/AidlNameComponent.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  public AidlNameComponentImpl(@NotNull ASTNode node) {"
+        errorLine2="                               ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlNameComponentImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  public void accept(@NotNull AidlVisitor visitor) {"
+        errorLine2="                     ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlNameComponentImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  public void accept(@NotNull PsiElementVisitor visitor) {"
+        errorLine2="                     ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlNameComponentImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlNameComponentImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  public AidlNamedElementImpl(@NotNull ASTNode node) {"
+        errorLine2="                              ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlNamedElementImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.Nullable` instead of `@org.jetbrains.annotations.Nullable`"
+        errorLine1="  @Nullable"
+        errorLine2="  ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlNamedElementImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  public PsiElement setName(@NonNls @NotNull String name) throws IncorrectOperationException {"
+        errorLine2="                                    ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlNamedElementImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlNamedElementImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.Nullable` instead of `@org.jetbrains.annotations.Nullable`"
+        errorLine1="  @Nullable"
+        errorLine2="  ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlNamedElementImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/AidlPackage.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  public AidlPackageImpl(@NotNull ASTNode node) {"
+        errorLine2="                         ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlPackageImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  public void accept(@NotNull AidlVisitor visitor) {"
+        errorLine2="                     ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlPackageImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  public void accept(@NotNull PsiElementVisitor visitor) {"
+        errorLine2="                     ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlPackageImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlPackageImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.Nullable` instead of `@org.jetbrains.annotations.Nullable`"
+        errorLine1="  @Nullable"
+        errorLine2="  ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/AidlParameter.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/AidlParameter.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  public AidlParameterImpl(@NotNull ASTNode node) {"
+        errorLine2="                           ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlParameterImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  public void accept(@NotNull AidlVisitor visitor) {"
+        errorLine2="                     ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlParameterImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  public void accept(@NotNull PsiElementVisitor visitor) {"
+        errorLine2="                     ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlParameterImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.Nullable` instead of `@org.jetbrains.annotations.Nullable`"
+        errorLine1="  @Nullable"
+        errorLine2="  ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlParameterImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlParameterImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/AidlParcelableDeclaration.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/AidlParcelableDeclaration.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/AidlParcelableDeclaration.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/AidlParcelableDeclaration.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/AidlParcelableDeclaration.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/AidlParcelableDeclaration.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/AidlParcelableDeclaration.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/AidlParcelableDeclaration.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/AidlParcelableDeclaration.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.Nullable` instead of `@org.jetbrains.annotations.Nullable`"
+        errorLine1="  @Nullable"
+        errorLine2="  ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/AidlParcelableDeclaration.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  public AidlParcelableDeclarationImpl(@NotNull ASTNode node) {"
+        errorLine2="                                       ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlParcelableDeclarationImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  public void accept(@NotNull AidlVisitor visitor) {"
+        errorLine2="                     ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlParcelableDeclarationImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  public void accept(@NotNull PsiElementVisitor visitor) {"
+        errorLine2="                     ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlParcelableDeclarationImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlParcelableDeclarationImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlParcelableDeclarationImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlParcelableDeclarationImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlParcelableDeclarationImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlParcelableDeclarationImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlParcelableDeclarationImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlParcelableDeclarationImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlParcelableDeclarationImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlParcelableDeclarationImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.Nullable` instead of `@org.jetbrains.annotations.Nullable`"
+        errorLine1="  @Nullable"
+        errorLine2="  ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlParcelableDeclarationImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/AidlParserDefinition.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/AidlParserDefinition.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/AidlParserDefinition.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/AidlParserDefinition.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/AidlParserDefinition.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/AidlParserDefinition.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/AidlParserDefinition.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/AidlParserDefinition.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/AidlParserDefinition.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  public AidlPsiCompositeElementImpl(@NotNull ASTNode node) {"
+        errorLine2="                                     ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlPsiCompositeElementImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/AidlQualifiedName.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/AidlQualifiedName.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/AidlQualifiedName.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.Nullable` instead of `@org.jetbrains.annotations.Nullable`"
+        errorLine1="  @Nullable"
+        errorLine2="  ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/AidlQualifiedName.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/AidlQualifiedName.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  public AidlQualifiedNameImpl(@NotNull ASTNode node) {"
+        errorLine2="                               ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlQualifiedNameImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  public void accept(@NotNull AidlVisitor visitor) {"
+        errorLine2="                     ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlQualifiedNameImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  public void accept(@NotNull PsiElementVisitor visitor) {"
+        errorLine2="                     ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlQualifiedNameImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlQualifiedNameImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlQualifiedNameImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlQualifiedNameImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.Nullable` instead of `@org.jetbrains.annotations.Nullable`"
+        errorLine1="  @Nullable"
+        errorLine2="  ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlQualifiedNameImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlQualifiedNameImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  public AidlTokenType(@NotNull @NonNls String debugName) {"
+        errorLine2="                       ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/lexer/AidlTokenType.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/AidlTypeElement.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.Nullable` instead of `@org.jetbrains.annotations.Nullable`"
+        errorLine1="  @Nullable"
+        errorLine2="  ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/AidlTypeElement.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/AidlTypeElement.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  public AidlTypeElementImpl(@NotNull ASTNode node) {"
+        errorLine2="                             ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlTypeElementImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  public void accept(@NotNull AidlVisitor visitor) {"
+        errorLine2="                     ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlTypeElementImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  public void accept(@NotNull PsiElementVisitor visitor) {"
+        errorLine2="                     ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlTypeElementImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlTypeElementImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.Nullable` instead of `@org.jetbrains.annotations.Nullable`"
+        errorLine1="  @Nullable"
+        errorLine2="  ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlTypeElementImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlTypeElementImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/AidlUnionDeclaration.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/AidlUnionDeclaration.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/AidlUnionDeclaration.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/AidlUnionDeclaration.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/AidlUnionDeclaration.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/AidlUnionDeclaration.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/AidlUnionDeclaration.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/AidlUnionDeclaration.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/AidlUnionDeclaration.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  public AidlUnionDeclarationImpl(@NotNull ASTNode node) {"
+        errorLine2="                                  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlUnionDeclarationImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  public void accept(@NotNull AidlVisitor visitor) {"
+        errorLine2="                     ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlUnionDeclarationImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  public void accept(@NotNull PsiElementVisitor visitor) {"
+        errorLine2="                     ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlUnionDeclarationImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlUnionDeclarationImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlUnionDeclarationImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlUnionDeclarationImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlUnionDeclarationImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlUnionDeclarationImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlUnionDeclarationImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlUnionDeclarationImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlUnionDeclarationImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlUnionDeclarationImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.Nullable` instead of `@org.jetbrains.annotations.Nullable`"
+        errorLine1="  @Nullable"
+        errorLine2="  ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/AidlVariableDeclaration.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/AidlVariableDeclaration.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/AidlVariableDeclaration.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  public AidlVariableDeclarationImpl(@NotNull ASTNode node) {"
+        errorLine2="                                     ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlVariableDeclarationImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  public void accept(@NotNull AidlVisitor visitor) {"
+        errorLine2="                     ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlVariableDeclarationImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  public void accept(@NotNull PsiElementVisitor visitor) {"
+        errorLine2="                     ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlVariableDeclarationImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.Nullable` instead of `@org.jetbrains.annotations.Nullable`"
+        errorLine1="  @Nullable"
+        errorLine2="  ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlVariableDeclarationImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlVariableDeclarationImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  @NotNull"
+        errorLine2="  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/impl/AidlVariableDeclarationImpl.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  public void visitAnnotationElement(@NotNull AidlAnnotationElement o) {"
+        errorLine2="                                     ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/AidlVisitor.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  public void visitBody(@NotNull AidlBody o) {"
+        errorLine2="                        ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/AidlVisitor.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  public void visitConstantDeclaration(@NotNull AidlConstantDeclaration o) {"
+        errorLine2="                                       ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/AidlVisitor.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  public void visitDottedName(@NotNull AidlDottedName o) {"
+        errorLine2="                              ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/AidlVisitor.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  public void visitEnumDeclaration(@NotNull AidlEnumDeclaration o) {"
+        errorLine2="                                   ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/AidlVisitor.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  public void visitEnumeratorDeclaration(@NotNull AidlEnumeratorDeclaration o) {"
+        errorLine2="                                         ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/AidlVisitor.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  public void visitExpression(@NotNull AidlExpression o) {"
+        errorLine2="                              ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/AidlVisitor.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  public void visitImport(@NotNull AidlImport o) {"
+        errorLine2="                          ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/AidlVisitor.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  public void visitInterfaceDeclaration(@NotNull AidlInterfaceDeclaration o) {"
+        errorLine2="                                        ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/AidlVisitor.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  public void visitMethodDeclaration(@NotNull AidlMethodDeclaration o) {"
+        errorLine2="                                     ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/AidlVisitor.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  public void visitNameComponent(@NotNull AidlNameComponent o) {"
+        errorLine2="                                 ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/AidlVisitor.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  public void visitPackage(@NotNull AidlPackage o) {"
+        errorLine2="                           ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/AidlVisitor.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  public void visitParameter(@NotNull AidlParameter o) {"
+        errorLine2="                             ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/AidlVisitor.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  public void visitParcelableDeclaration(@NotNull AidlParcelableDeclaration o) {"
+        errorLine2="                                         ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/AidlVisitor.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  public void visitQualifiedName(@NotNull AidlQualifiedName o) {"
+        errorLine2="                                 ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/AidlVisitor.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  public void visitTypeElement(@NotNull AidlTypeElement o) {"
+        errorLine2="                               ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/AidlVisitor.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  public void visitUnionDeclaration(@NotNull AidlUnionDeclaration o) {"
+        errorLine2="                                    ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/AidlVisitor.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  public void visitVariableDeclaration(@NotNull AidlVariableDeclaration o) {"
+        errorLine2="                                       ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/AidlVisitor.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  public void visitDeclaration(@NotNull AidlDeclaration o) {"
+        errorLine2="                               ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/AidlVisitor.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  public void visitNamedElement(@NotNull AidlNamedElement o) {"
+        errorLine2="                                ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/AidlVisitor.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="  public void visitPsiCompositeElement(@NotNull AidlPsiCompositeElement o) {"
+        errorLine2="                                       ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/psi/AidlVisitor.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="    @NotNull"
+        errorLine2="    ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/intellij/analysis/AnalysisBundle.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="    public static @Nls String message(@NotNull @PropertyKey(resourceBundle = BUNDLE) String key,"
+        errorLine2="                                      ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/intellij/analysis/AnalysisBundle.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="            @NotNull Object... params) {"
+        errorLine2="            ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/intellij/analysis/AnalysisBundle.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="    public static boolean isWhitespaceOrComment(@NotNull PsiBuilder builder, @Nullable IElementType type) {"
+        errorLine2="                                                ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/intellij/lang/parser/GeneratedParserUtilBase.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.Nullable` instead of `@org.jetbrains.annotations.Nullable`"
+        errorLine1="    public static boolean isWhitespaceOrComment(@NotNull PsiBuilder builder, @Nullable IElementType type) {"
+        errorLine2="                                                                             ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/intellij/lang/parser/GeneratedParserUtilBase.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="    private static boolean wasAutoSkipped(@NotNull PsiBuilder builder, int steps) {"
+        errorLine2="                                          ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/intellij/lang/parser/GeneratedParserUtilBase.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.Nullable` instead of `@org.jetbrains.annotations.Nullable`"
+        errorLine1="            @Nullable IElementType elementType,"
+        errorLine2="            ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/intellij/lang/parser/GeneratedParserUtilBase.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.Nullable` instead of `@org.jetbrains.annotations.Nullable`"
+        errorLine1="            @Nullable Parser eatMore) {"
+        errorLine2="            ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/intellij/lang/parser/GeneratedParserUtilBase.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.Nullable` instead of `@org.jetbrains.annotations.Nullable`"
+        errorLine1="            @Nullable IElementType elementType,"
+        errorLine2="            ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/intellij/lang/parser/GeneratedParserUtilBase.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.Nullable` instead of `@org.jetbrains.annotations.Nullable`"
+        errorLine1="            @Nullable Parser eatMore) {"
+        errorLine2="            ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/intellij/lang/parser/GeneratedParserUtilBase.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.Nullable` instead of `@org.jetbrains.annotations.Nullable`"
+        errorLine1="    private static void run_hooks_impl_(PsiBuilder builder, ErrorState state, @Nullable IElementType elementType) {"
+        errorLine2="                                                                              ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/intellij/lang/parser/GeneratedParserUtilBase.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.Nullable` instead of `@org.jetbrains.annotations.Nullable`"
+        errorLine1="            @Nullable IElementType elementType,"
+        errorLine2="            ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/intellij/lang/parser/GeneratedParserUtilBase.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.Nullable` instead of `@org.jetbrains.annotations.Nullable`"
+        errorLine1="            @Nullable Parser eatMore) {"
+        errorLine2="            ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/intellij/lang/parser/GeneratedParserUtilBase.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.Nullable` instead of `@org.jetbrains.annotations.Nullable`"
+        errorLine1="    @Nullable"
+        errorLine2="    ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/intellij/lang/parser/GeneratedParserUtilBase.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="    private static PsiBuilderImpl.ProductionMarker getLatestExtensibleDoneMarker(@NotNull PsiBuilder builder) {"
+        errorLine2="                                                                                 ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/intellij/lang/parser/GeneratedParserUtilBase.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="        @NotNull"
+        errorLine2="        ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/intellij/lang/parser/GeneratedParserUtilBase.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="        @NotNull"
+        errorLine2="        ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/intellij/lang/parser/GeneratedParserUtilBase.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="        public @NotNull String getExpected(int position, boolean expected) {"
+        errorLine2="               ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/intellij/lang/parser/GeneratedParserUtilBase.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="        @NotNull"
+        errorLine2="        ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/intellij/lang/parser/GeneratedParserUtilBase.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="        @NotNull"
+        errorLine2="        ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/intellij/lang/parser/GeneratedParserUtilBase.java"/>
+    </issue>
+
+    <issue
+        id="PrivateConstructorForUtilityClass"
+        message="Utility class is missing private constructor"
+        errorLine1="  class Factory {"
+        errorLine2="        ~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/android/tools/idea/lang/aidl/lexer/AidlTokenTypes.java"/>
+    </issue>
+
+    <issue
+        id="PrivateConstructorForUtilityClass"
+        message="Utility class is missing private constructor"
+        errorLine1="public class GeneratedParserUtilBase {"
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/com/intellij/lang/parser/GeneratedParserUtilBase.java"/>
+    </issue>
+
 </issues>
