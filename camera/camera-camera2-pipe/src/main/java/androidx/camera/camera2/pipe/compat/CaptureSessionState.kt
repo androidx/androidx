@@ -22,6 +22,7 @@ import android.hardware.camera2.CameraCaptureSession
 import android.view.Surface
 import androidx.annotation.GuardedBy
 import androidx.annotation.RequiresApi
+import androidx.camera.camera2.pipe.CameraGraph.Flags.FinalizeSessionOnCloseBehavior
 import androidx.camera.camera2.pipe.CameraSurfaceManager
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.core.Debug
@@ -35,6 +36,7 @@ import androidx.camera.camera2.pipe.graph.GraphRequestProcessor
 import java.util.Collections.synchronizedMap
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 internal val captureSessionDebugIds = atomic(0)
@@ -63,6 +65,7 @@ internal class CaptureSessionState(
     private val captureSequenceProcessorFactory: Camera2CaptureSequenceProcessorFactory,
     private val cameraSurfaceManager: CameraSurfaceManager,
     private val timeSource: TimeSource,
+    private val finalizeSessionOnCloseBehavior: FinalizeSessionOnCloseBehavior,
     private val scope: CoroutineScope
 ) : CameraCaptureSessionWrapper.StateCallback {
     private val debugId = captureSessionDebugIds.incrementAndGet()
@@ -182,7 +185,7 @@ internal class CaptureSessionState(
             Log.debug { "$this Finalizing Session" }
             Debug.traceStart { "$this#onSessionFinalized" }
             disconnect()
-            finalizeSession()
+            finalizeSession(0L)
             Debug.traceStop()
         }
     }
@@ -294,30 +297,52 @@ internal class CaptureSessionState(
             Debug.traceStop()
         }
 
-        var shouldFinalizeSession: Boolean
+        var shouldFinalizeSession = false
+        var finalizeSessionDelayMs = 0L
         synchronized(lock) {
             // If the CameraDevice is never opened, the session will never be created. For cleanup
             // reasons, make sure the session is finalized after shutdown if the cameraDevice was
             // never set.
-            shouldFinalizeSession = state != State.CLOSED &&
-                (_cameraDevice == null || !hasAttemptedCaptureSession)
+            if (state != State.CLOSED) {
+                if (_cameraDevice == null || !hasAttemptedCaptureSession) {
+                    shouldFinalizeSession = true
+                } else if (finalizeSessionOnCloseBehavior ==
+                    FinalizeSessionOnCloseBehavior.IMMEDIATE
+                ) {
+                    shouldFinalizeSession = true
+                } else if (finalizeSessionOnCloseBehavior ==
+                    FinalizeSessionOnCloseBehavior.TIMEOUT
+                ) {
+                    shouldFinalizeSession = true
+                    finalizeSessionDelayMs = 2000L
+                }
+            }
             _cameraDevice = null
             state = State.CLOSED
         }
 
         if (shouldFinalizeSession) {
-            finalizeSession()
+            finalizeSession(finalizeSessionDelayMs)
         }
     }
 
-    private fun finalizeSession() {
-        val tokenList =
-            synchronized(lock) {
-                val tokens = _surfaceTokenMap.values.toList()
-                _surfaceTokenMap.clear()
-                tokens
+    private fun finalizeSession(delayMs: Long = 0L) {
+        if (delayMs != 0L) {
+            scope.launch {
+                Log.debug { "Finalizing $this in $delayMs ms" }
+                delay(delayMs)
+                finalizeSession(0L)
             }
-        tokenList.forEach { it.close() }
+        } else {
+            Log.debug { "Finalizing $this" }
+            val tokenList =
+                synchronized(lock) {
+                    val tokens = _surfaceTokenMap.values.toList()
+                    _surfaceTokenMap.clear()
+                    tokens
+                }
+            tokenList.forEach { it.close() }
+        }
     }
 
     private fun finalizeOutputsIfAvailable(retryAllowed: Boolean = true) {
