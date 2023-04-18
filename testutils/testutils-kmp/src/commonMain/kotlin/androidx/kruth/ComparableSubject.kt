@@ -44,9 +44,9 @@ open class ComparableSubject<T : Comparable<T>> constructor(actual: T?) : Subjec
      * @throws NullPointerException if [actual] or [other] is `null`.
      */
     fun isAtLeast(other: T?) {
-        if (actual == null || other == null) {
-            throw NullPointerException("Expected to be at least $other, but was $actual")
-        } else if (actual < other) {
+        requireNonNull(actual) { "Expected to be at least $other, but was $actual" }
+        requireNonNull(other) { "Expected to be at least $other, but was $actual" }
+        if (actual < other) {
             fail("Expected to be at least $other, but was $actual")
         }
     }
