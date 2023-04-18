@@ -123,6 +123,7 @@ open class BasePagerTest(private val config: ParamConfig) :
         pageSpacing: Dp = config.pageSpacing,
         reverseLayout: Boolean = config.reverseLayout,
         snapVelocityThreshold: Dp = MinFlingVelocityDp,
+        snapPositionalThreshold: Float = 0.5f,
         key: ((index: Int) -> Any)? = null,
         pageContent: @Composable (page: Int) -> Unit = { Page(index = it) }
     ) {
@@ -137,7 +138,8 @@ open class BasePagerTest(private val config: ParamConfig) :
                 PagerDefaults.flingBehavior(
                     state = state,
                     pagerSnapDistance = snappingPage,
-                    snapVelocityThreshold = snapVelocityThreshold
+                    snapVelocityThreshold = snapVelocityThreshold,
+                    snapPositionalThreshold = snapPositionalThreshold
                 )
             CompositionLocalProvider(
                 LocalLayoutDirection provides config.layoutDirection,
