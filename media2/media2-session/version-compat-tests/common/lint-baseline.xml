@@ -11,6 +11,51 @@
     </issue>
 
     <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="interface IRemoteMediaBrowserCompat {"
+        errorLine2="^">
+        <location
+            file="src/main/aidl/androidx/media2/test/common/IRemoteMediaBrowserCompat.aidl"/>
+    </issue>
+
+    <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="interface IRemoteMediaController {"
+        errorLine2="^">
+        <location
+            file="src/main/aidl/androidx/media2/test/common/IRemoteMediaController.aidl"/>
+    </issue>
+
+    <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="interface IRemoteMediaControllerCompat {"
+        errorLine2="^">
+        <location
+            file="src/main/aidl/androidx/media2/test/common/IRemoteMediaControllerCompat.aidl"/>
+    </issue>
+
+    <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="interface IRemoteMediaSession {"
+        errorLine2="^">
+        <location
+            file="src/main/aidl/androidx/media2/test/common/IRemoteMediaSession.aidl"/>
+    </issue>
+
+    <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="interface IRemoteMediaSessionCompat {"
+        errorLine2="^">
+        <location
+            file="src/main/aidl/androidx/media2/test/common/IRemoteMediaSessionCompat.aidl"/>
+    </issue>
+
+    <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public static void waitFor(final PollingCheckCondition condition) {"

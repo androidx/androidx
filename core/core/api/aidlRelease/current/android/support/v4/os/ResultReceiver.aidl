@@ -33,5 +33,4 @@
 
 package android.support.v4.os;
 @JavaOnlyStableParcelable
-parcelable ResultReceiver {
-}
+parcelable ResultReceiver;

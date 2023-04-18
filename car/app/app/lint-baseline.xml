@@ -985,15 +985,6 @@
     <issue
         id="BanHideAnnotation"
         message="@hide is not allowed in Javadoc"
-        errorLine1="    public @interface ItemSize {"
-        errorLine2="                      ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/car/app/model/GridTemplate.java"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
         errorLine1="public interface HostCall&lt;ServiceT, ReturnT> {"
         errorLine2="                 ~~~~~~~~">
         <location
@@ -1291,8 +1282,8 @@
     <issue
         id="BanHideAnnotation"
         message="@hide is not allowed in Javadoc"
-        errorLine1="    protected Deque&lt;Screen> getScreenStack() {"
-        errorLine2="                            ~~~~~~~~~~~~~~">
+        errorLine1="    protected Deque&lt;Screen> getScreenStackInternal() {"
+        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/car/app/ScreenManager.java"/>
     </issue>
@@ -1466,6 +1457,222 @@
         errorLine2="      ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/car/app/messaging/model/PersonsEqualityHelper.java"/>
+    </issue>
+
+    <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="oneway interface IAlertCallback {"
+        errorLine2="^">
+        <location
+            file="src/main/aidl/androidx/car/app/model/IAlertCallback.aidl"/>
+    </issue>
+
+    <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="interface IAppHost {"
+        errorLine2="^">
+        <location
+            file="src/main/aidl/androidx/car/app/IAppHost.aidl"/>
+    </issue>
+
+    <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="oneway interface IAppManager {"
+        errorLine2="^">
+        <location
+            file="src/main/aidl/androidx/car/app/IAppManager.aidl"/>
+    </issue>
+
+    <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="oneway interface ICarApp {"
+        errorLine2="^">
+        <location
+            file="src/main/aidl/androidx/car/app/ICarApp.aidl"/>
+    </issue>
+
+    <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="interface ICarAudioCallback {"
+        errorLine2="^">
+        <location
+            file="src/main/aidl/androidx/car/app/media/ICarAudioCallback.aidl"/>
+    </issue>
+
+    <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="interface ICarHost {"
+        errorLine2="^">
+        <location
+            file="src/main/aidl/androidx/car/app/ICarHost.aidl"/>
+    </issue>
+
+    <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="interface IConstraintHost {"
+        errorLine2="^">
+        <location
+            file="src/main/aidl/androidx/car/app/constraints/IConstraintHost.aidl"/>
+    </issue>
+
+    <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="oneway interface IConversationCallback {"
+        errorLine2="^">
+        <location
+            file="src/main/aidl/androidx/car/app/messaging/model/IConversationCallback.aidl"/>
+    </issue>
+
+    <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="oneway interface IInputCallback {"
+        errorLine2="^">
+        <location
+            file="src/main/aidl/androidx/car/app/model/IInputCallback.aidl"/>
+    </issue>
+
+    <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="interface INavigationHost {"
+        errorLine2="^">
+        <location
+            file="src/main/aidl/androidx/car/app/navigation/INavigationHost.aidl"/>
+    </issue>
+
+    <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="oneway interface INavigationManager {"
+        errorLine2="^">
+        <location
+            file="src/main/aidl/androidx/car/app/navigation/INavigationManager.aidl"/>
+    </issue>
+
+    <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="oneway interface IOnCheckedChangeListener {"
+        errorLine2="^">
+        <location
+            file="src/main/aidl/androidx/car/app/model/IOnCheckedChangeListener.aidl"/>
+    </issue>
+
+    <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="oneway interface IOnClickListener {"
+        errorLine2="^">
+        <location
+            file="src/main/aidl/androidx/car/app/model/IOnClickListener.aidl"/>
+    </issue>
+
+    <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="oneway interface IOnContentRefreshListener {"
+        errorLine2="^">
+        <location
+            file="src/main/aidl/androidx/car/app/model/IOnContentRefreshListener.aidl"/>
+    </issue>
+
+    <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="interface IOnDoneCallback {"
+        errorLine2="^">
+        <location
+            file="src/main/aidl/androidx/car/app/IOnDoneCallback.aidl"/>
+    </issue>
+
+    <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="oneway interface IOnItemVisibilityChangedListener {"
+        errorLine2="^">
+        <location
+            file="src/main/aidl/androidx/car/app/model/IOnItemVisibilityChangedListener.aidl"/>
+    </issue>
+
+    <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="interface IOnRequestPermissionsListener {"
+        errorLine2="^">
+        <location
+            file="src/main/aidl/androidx/car/app/IOnRequestPermissionsListener.aidl"/>
+    </issue>
+
+    <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="oneway interface IOnSelectedListener {"
+        errorLine2="^">
+        <location
+            file="src/main/aidl/androidx/car/app/model/IOnSelectedListener.aidl"/>
+    </issue>
+
+    <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="oneway interface IPanModeListener {"
+        errorLine2="^">
+        <location
+            file="src/main/aidl/androidx/car/app/navigation/model/IPanModeListener.aidl"/>
+    </issue>
+
+    <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="oneway interface ISearchCallback {"
+        errorLine2="^">
+        <location
+            file="src/main/aidl/androidx/car/app/model/ISearchCallback.aidl"/>
+    </issue>
+
+    <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="interface IStartCarApp {"
+        errorLine2="^">
+        <location
+            file="src/main/aidl/androidx/car/app/IStartCarApp.aidl"/>
+    </issue>
+
+    <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="interface ISuggestionHost {"
+        errorLine2="^">
+        <location
+            file="src/main/aidl/androidx/car/app/suggestion/ISuggestionHost.aidl"/>
+    </issue>
+
+    <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="oneway interface ISurfaceCallback {"
+        errorLine2="^">
+        <location
+            file="src/main/aidl/androidx/car/app/ISurfaceCallback.aidl"/>
+    </issue>
+
+    <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="oneway interface ITabCallback {"
+        errorLine2="^">
+        <location
+            file="src/main/aidl/androidx/car/app/model/ITabCallback.aidl"/>
     </issue>
 
     <issue

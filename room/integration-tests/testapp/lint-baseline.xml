@@ -164,6 +164,15 @@
     </issue>
 
     <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="interface ISampleDatabaseService {"
+        errorLine2="^">
+        <location
+            file="src/main/aidl/androidx/room/integration/testapp/ISampleDatabaseService.aidl"/>
+    </issue>
+
+    <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public String getName() {"

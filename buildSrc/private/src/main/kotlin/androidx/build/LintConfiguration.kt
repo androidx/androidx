@@ -17,14 +17,21 @@
 package androidx.build
 
 import com.android.build.api.dsl.Lint
+import com.android.build.gradle.BaseExtension
+import com.android.build.gradle.internal.lint.AndroidLintAnalysisTask
 import com.android.build.gradle.internal.lint.AndroidLintTask
+import com.android.build.gradle.internal.lint.LintModelWriterTask
+import com.android.build.gradle.internal.lint.VariantInputs
 import java.io.File
 import java.util.Locale
 import org.gradle.api.GradleException
 import org.gradle.api.Project
+import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.plugins.JavaPluginExtension
+import org.gradle.kotlin.dsl.findByType
 import org.gradle.kotlin.dsl.getByType
+import org.gradle.kotlin.dsl.withType
 
 fun Project.configureNonAndroidProjectForLint(extension: AndroidXExtension) {
     apply(mapOf("plugin" to "com.android.lint"))
@@ -88,6 +95,54 @@ private fun Project.setUpLintDebugIfNeeded() {
     }
 }
 
+/**
+ * Installs AIDL source directories on lint tasks. Adapted from AndroidXComposeImplPlugin's
+ * `configureLintForMultiplatformLibrary` extension function. See b/189250111 for feature request.
+ *
+ * The `UnstableAidlAnnotationDetector` check from `lint-checks` requires that _only_ unstable AIDL
+ * files are passed to Lint, e.g. files in the AGP-defined `aidl` source set but not files in the
+ * Stable AIDL plugin-defined `stableAidl` source set. If we decide to lint Stable AIDL files, we'll
+ * need some other way to distinguish stable from unstable AIDL.
+ */
+fun Project.configureLintForAidl() {
+    afterEvaluate {
+        val extension = project.extensions.findByType<BaseExtension>() ?: return@afterEvaluate
+        if (extension.buildFeatures.aidl != true) return@afterEvaluate
+
+        val mainAidl = extension.sourceSets.getByName("main").aidl.getSourceFiles()
+
+        /**
+         * Helper function to add the missing sourcesets to this [VariantInputs]
+         */
+        fun VariantInputs.addSourceSets() {
+            // Each variant has a source provider for the variant (such as debug) and the 'main'
+            // variant. The actual files that Lint will run on is both of these providers
+            // combined - so we can just add the dependencies to the first we see.
+            val variantAidl = extension.sourceSets.getByName(name.get()).aidl.getSourceFiles()
+            val sourceProvider = sourceProviders.get().firstOrNull() ?: return
+            sourceProvider.javaDirectories.withChangesAllowed {
+                from(mainAidl, variantAidl)
+            }
+        }
+
+        // Lint for libraries is split into two tasks - analysis, and reporting. We need to
+        // add the new sources to both, so all parts of the pipeline are aware.
+        project.tasks.withType<AndroidLintAnalysisTask>().configureEach {
+            it.variantInputs.addSourceSets()
+        }
+
+        project.tasks.withType<AndroidLintTask>().configureEach {
+            it.variantInputs.addSourceSets()
+        }
+
+        // Also configure the model writing task, so that we don't run into mismatches between
+        // analyzed sources in one module and a downstream module
+        project.tasks.withType<LintModelWriterTask>().configureEach {
+            it.variantInputs.addSourceSets()
+        }
+    }
+}
+
 fun Project.configureLint(lint: Lint, extension: AndroidXExtension, isLibrary: Boolean) {
     val lintChecksProject = project.rootProject.findProject(":lint-checks")
         ?: if (allowMissingLintProject()) {
@@ -97,6 +152,8 @@ fun Project.configureLint(lint: Lint, extension: AndroidXExtension, isLibrary: B
         }
 
     project.dependencies.add("lintChecks", lintChecksProject)
+
+    project.configureLintForAidl()
 
     // The purpose of this specific project is to test that lint is running, so
     // it contains expected violations that we do not want to trigger a build failure
@@ -284,6 +341,22 @@ fun Project.configureLintForMultiplatform(extension: AndroidXExtension) = afterE
     // projects, and SourceSet.java.classesDirectory is not configurable. This is not ideal, but
     // better than having no lint checks at all.
     extensions.getByType<Lint>().disable.add("LintError")
+}
+
+/**
+ * Lint uses [ConfigurableFileCollection.disallowChanges] during initialization, which prevents
+ * modifying the file collection separately (there is no time to configure it before AGP has
+ * initialized and disallowed changes). This uses reflection to temporarily allow changes, and
+ * apply [block].
+ */
+private fun ConfigurableFileCollection.withChangesAllowed(
+    block: ConfigurableFileCollection.() -> Unit
+) {
+    val disallowChanges = this::class.java.getDeclaredField("disallowChanges")
+    disallowChanges.isAccessible = true
+    disallowChanges.set(this, false)
+    block()
+    disallowChanges.set(this, true)
 }
 
 val Project.lintBaseline: RegularFileProperty get() =
