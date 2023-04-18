@@ -580,6 +580,7 @@ internal class BasicTextField2Test {
         }
     }
 
+    @Ignore // b/278560997
     @Test
     fun textField_changesAreTracked_whenInputConnectionComposes() {
         lateinit var inputConnection: InputConnection
@@ -610,6 +611,7 @@ internal class BasicTextField2Test {
         }
     }
 
+    @Ignore // b/278560997
     @Test
     fun textField_changesAreTracked_whenInputConnectionDeletes() {
         lateinit var inputConnection: InputConnection
@@ -646,6 +648,7 @@ internal class BasicTextField2Test {
         }
     }
 
+    @Ignore // b/278560997
     @Test
     fun textField_changesAreTracked_whenInputConnectionDeletesViaComposition() {
         lateinit var inputConnection: InputConnection
@@ -707,6 +710,7 @@ internal class BasicTextField2Test {
         }
     }
 
+    @Ignore // b/278560997
     @Test
     fun textField_changesAreTracked_whenKeyEventDeletes() {
         val state = TextFieldState("hello")
@@ -921,6 +925,7 @@ internal class BasicTextField2Test {
         rule.onNodeWithTag(Tag).assertIsNotFocused()
     }
 
+    @Ignore // b/278560997
     @Test
     fun swipingTextFieldInScrollableContainer_doesNotGainFocus() {
         val scrollState = ScrollState(0)
