@@ -41,6 +41,7 @@ import android.util.Size;
 import androidx.annotation.DoNotInline;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
+import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.camera2.internal.compat.CameraAccessExceptionCompat;
@@ -50,6 +51,7 @@ import androidx.camera.camera2.internal.compat.StreamConfigurationMapCompat;
 import androidx.camera.camera2.internal.compat.workaround.ExtraSupportedSurfaceCombinationsContainer;
 import androidx.camera.camera2.internal.compat.workaround.ResolutionCorrector;
 import androidx.camera.camera2.internal.compat.workaround.TargetAspectRatio;
+import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
 import androidx.camera.core.CameraUnavailableException;
 import androidx.camera.core.DynamicRange;
 import androidx.camera.core.impl.AttachedSurfaceInfo;
@@ -501,6 +503,7 @@ final class SupportedSurfaceCombination {
      *                                  of {@link DynamicRange}, or requiring an
      *                                  unsupported combination of camera features.
      */
+    @OptIn(markerClass = ExperimentalCamera2Interop.class)
     @NonNull
     Pair<Map<UseCaseConfig<?>, StreamSpec>, Map<AttachedSurfaceInfo, StreamSpec>>
             getSuggestedStreamSpecifications(
@@ -673,7 +676,10 @@ final class SupportedSurfaceCombination {
                         useCasesPriorityOrder.indexOf(newUseCaseConfigs.indexOf(useCaseConfig)));
                 StreamSpec.Builder streamSpecBuilder = StreamSpec.builder(resolutionForUseCase)
                         .setDynamicRange(Preconditions.checkNotNull(
-                                resolvedDynamicRanges.get(useCaseConfig)));
+                                resolvedDynamicRanges.get(useCaseConfig)))
+                        .setImplementationOptions(
+                                StreamUseCaseUtil.getStreamSpecImplementationOptions(useCaseConfig)
+                        );
                 if (targetFramerateForDevice != null) {
                     streamSpecBuilder.setExpectedFrameRateRange(targetFramerateForDevice);
                 }
@@ -687,7 +693,9 @@ final class SupportedSurfaceCombination {
                             + " Existing surfaces: " + attachedSurfaces
                             + " New configs: " + newUseCaseConfigs);
         }
-        return new Pair<>(suggestedStreamSpecMap, new HashMap<>());
+        Map<AttachedSurfaceInfo, StreamSpec> attachedSurfaceStreamSpecMap = new HashMap<>();
+        // TODO(b/266879290): Invoke StreamUSeCaseUtil.populateStreamUseCaseStreamSpecOption()
+        return new Pair<>(suggestedStreamSpecMap, attachedSurfaceStreamSpecMap);
     }
 
     /**
