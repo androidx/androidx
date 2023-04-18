@@ -29,7 +29,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
-class AmbientLifecycleObserverTest {
+class AmbientLifecycleObserverImplTest {
     private lateinit var scenario: ActivityScenario<AmbientLifecycleObserverTestActivity>
 
     @Before
@@ -154,9 +154,9 @@ class AmbientLifecycleObserverTest {
     fun canQueryInAmbient() {
         scenario.onActivity { activity ->
             val controller = WearableActivityController.getLastInstance()
-            assertFalse(activity.observer.isAmbient())
+            assertFalse(activity.observer.isAmbient)
             controller.isAmbient = true
-            assertTrue(activity.observer.isAmbient())
+            assertTrue(activity.observer.isAmbient)
         }
     }
 }
