@@ -1,15 +1,15 @@
 // Signature format: 4.0
 package androidx.window.extensions.core.util.function {
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.FunctionalInterface public interface Consumer<T> {
+  @java.lang.FunctionalInterface public interface Consumer<T> {
     method public void accept(T!);
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.FunctionalInterface public interface Function<T, R> {
+  @java.lang.FunctionalInterface public interface Function<T, R> {
     method public R! apply(T!);
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.FunctionalInterface public interface Predicate<T> {
+  @java.lang.FunctionalInterface public interface Predicate<T> {
     method public boolean test(T!);
   }
 

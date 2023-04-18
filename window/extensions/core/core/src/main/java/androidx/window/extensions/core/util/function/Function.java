@@ -16,10 +16,6 @@
 
 package androidx.window.extensions.core.util.function;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
-
-import androidx.annotation.RestrictTo;
-
 /**
  * Represents a function that accepts an argument and produces a result.
  * It is used internally to avoid using Java 8 functional interface that leads to desugaring and
@@ -30,7 +26,6 @@ import androidx.annotation.RestrictTo;
  *
  * @see java.util.function.Function
  */
-@RestrictTo(LIBRARY_GROUP_PREFIX)
 @FunctionalInterface
 public interface Function<T, R> {
     /**
