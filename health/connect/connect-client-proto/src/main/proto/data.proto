@@ -31,6 +31,7 @@ message Value {
     double double_val = 2;
     string string_val = 3;
     string enum_val = 4;
+    bool boolean_val = 5;
   }
 }
 
