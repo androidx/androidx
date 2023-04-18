@@ -47,8 +47,8 @@ enum FontVariant {
   // Font variant suited for body text.
   FONT_VARIANT_BODY = 2;
 
-  // Font variant suited for Vendor specified use.
-  FONT_VARIANT_VENDOR_1 = 3;
+  // Placeholder for a custom font variant in the renderer.
+  FONT_VARIANT_EXTENSION_1 = 3;
 }
 
 // An extensible FontVariant property.
@@ -657,28 +657,30 @@ message ArcAdapter {
   BoolProp rotate_contents = 2;
 }
 
-// A layout element which can be defined by a vendor renderer extension. The
-// payload in this message will be passed verbatim to any registered vendor
-// extension in the layout renderer. It is then expected that the extension can
+// A layout element which can be defined by a renderer extension. The
+// payload in this message will be passed verbatim to any registered renderer
+// extension in the renderer. It is then expected that the extension can
 // parse this message, and emit the relevant element.
 //
-// If a vendor extension is not installed, this resource will not render
+// If a renderer extension is not installed, this resource will not render
 // any element, although the specified space will still be occupied. If the
-// payload cannot be parsed by the vendor extension, then still nothing should
-// be rendered, although this behaviour is defined by the vendor extension.
-message VendorExtension {
-  // The content of the vendor extension. This can be any data; it is expected
-  // that the vendor extension knows how to parse this field.
+// payload cannot be parsed by the renderer extension, then still nothing should
+// be rendered, although this behaviour is defined by the renderer extension.
+message ExtensionLayoutElement {
+
+    // The content of the renderer extension element. This can be any data; it is
+  // expected that the renderer extension knows how to parse this field.
   bytes payload = 1;
 
-  // The Vendor ID that this extension is for.
-  string vendor_id = 2;
+  // The ID of the renderer extension that should be used for rendering this
+  // layout element.
+  string extension_id = 2;
 
   // The width of this element.
-  VendorExtensionDimension width = 3;
+  ExtensionDimension width = 3;
 
   // The height of this element.
-  VendorExtensionDimension height = 4;
+  ExtensionDimension height = 4;
 }
 
 // The root of all layout elements. This exists to act as a holder for all of
@@ -693,7 +695,8 @@ message LayoutElement {
     Image image = 6;
     Arc arc = 7;
     Spannable spannable = 8;
-    VendorExtension vendor_extension = 1000;
+
+    ExtensionLayoutElement extension = 1000;
   }
 }
 

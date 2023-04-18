@@ -150,9 +150,9 @@ message SpacerDimension {
   }
 }
 
-// A dimension that can be applied to a VendorExtension element.
-message VendorExtensionDimension {
-  oneof inner {
+// A dimension that can be applied to a ExtensionLayoutElement element.
+message ExtensionDimension {
+      oneof inner {
     DpProp linear_dimension = 1;
   }
 }
