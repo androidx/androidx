@@ -33,13 +33,13 @@ import androidx.compose.ui.focus.FocusStateImpl.Captured
 import androidx.compose.ui.focus.FocusStateImpl.Inactive
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.input.key.KeyEvent
+import androidx.compose.ui.input.key.KeyInputModifierNode
 import androidx.compose.ui.input.rotary.RotaryScrollEvent
 import androidx.compose.ui.node.DelegatableNode
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.NodeKind
 import androidx.compose.ui.node.Nodes
 import androidx.compose.ui.node.ancestors
-import androidx.compose.ui.node.dispatchForKind
 import androidx.compose.ui.node.nearestAncestor
 import androidx.compose.ui.node.visitLocalChildren
 import androidx.compose.ui.platform.InspectorInfo
@@ -185,7 +185,7 @@ internal class FocusOwnerImpl(onRequestApplyChangesListener: (() -> Unit) -> Uni
             "Event can't be processed because we do not have an active focus target."
         }
         val focusedKeyInputNode = activeFocusTarget.lastLocalKeyInputNode()
-            ?: activeFocusTarget.nearestAncestor(Nodes.KeyInput)?.node
+            ?: activeFocusTarget.nearestAncestor(Nodes.KeyInput)
 
         focusedKeyInputNode?.traverseAncestors(
             type = Nodes.KeyInput,
@@ -236,15 +236,15 @@ internal class FocusOwnerImpl(onRequestApplyChangesListener: (() -> Unit) -> Uni
         focusInvalidationManager.scheduleInvalidation(node)
     }
 
-    private inline fun <reified T : DelegatableNode> DelegatableNode.traverseAncestors(
+    private inline fun <reified T : DelegatableNode> T.traverseAncestors(
         type: NodeKind<T>,
         onPreVisit: (T) -> Unit,
         onVisit: (T) -> Unit
     ) {
         val ancestors = ancestors(type)
         ancestors?.fastForEachReversed(onPreVisit)
-        node.dispatchForKind(type, onPreVisit)
-        node.dispatchForKind(type, onVisit)
+        onPreVisit(this)
+        onVisit(this)
         ancestors?.fastForEach(onVisit)
     }
 
@@ -255,11 +255,12 @@ internal class FocusOwnerImpl(onRequestApplyChangesListener: (() -> Unit) -> Uni
         return rootFocusNode.findActiveFocusNode()?.focusRect()
     }
 
-    private fun DelegatableNode.lastLocalKeyInputNode(): Modifier.Node? {
-        var focusedKeyInputNode: Modifier.Node? = null
+    private fun DelegatableNode.lastLocalKeyInputNode(): KeyInputModifierNode? {
+        var focusedKeyInputNode: KeyInputModifierNode? = null
         visitLocalChildren(Nodes.FocusTarget or Nodes.KeyInput) { modifierNode ->
             if (modifierNode.isKind(Nodes.FocusTarget)) return focusedKeyInputNode
 
+            check(modifierNode is KeyInputModifierNode)
             focusedKeyInputNode = modifierNode
         }
         return focusedKeyInputNode
