@@ -17,9 +17,9 @@
 package androidx.paging
 
 import androidx.paging.PagingSource.LoadResult.Page
-import androidx.testutils.DirectDispatcher
 import androidx.testutils.TestDispatcher
 import com.google.common.truth.Truth.assertThat
+import kotlin.coroutines.EmptyCoroutineContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.flow.collectLatest
@@ -56,7 +56,7 @@ class LegacyPagingSourceTest {
 
     @Test
     fun init_invalidDataSource() {
-        val testDispatcher = DirectDispatcher
+        val testContext = EmptyCoroutineContext
         val dataSource = object : DataSource<Int, Int>(KeyType.ITEM_KEYED) {
             var isInvalidCalls = 0
 
@@ -74,7 +74,7 @@ class LegacyPagingSourceTest {
         }
 
         val pagingSource = LegacyPagingSource(
-            fetchDispatcher = testDispatcher,
+            fetchContext = testContext,
             dataSource = dataSource,
         )
 
@@ -111,7 +111,7 @@ class LegacyPagingSourceTest {
             override fun getKey(item: String) = item.hashCode()
         }
         val pagingSource = LegacyPagingSource(
-            fetchDispatcher = Dispatchers.Unconfined,
+            fetchContext = Dispatchers.Unconfined,
             dataSource
         )
 
@@ -157,7 +157,7 @@ class LegacyPagingSourceTest {
             }
         }
         val pagingSource = LegacyPagingSource(
-            fetchDispatcher = Dispatchers.Unconfined,
+            fetchContext = Dispatchers.Unconfined,
             dataSource = dataSource
         )
 
@@ -180,7 +180,7 @@ class LegacyPagingSourceTest {
     @Test
     fun positional() {
         val pagingSource = LegacyPagingSource(
-            fetchDispatcher = Dispatchers.Unconfined,
+            fetchContext = Dispatchers.Unconfined,
             dataSource = createTestPositionalDataSource()
         )
 
@@ -233,7 +233,7 @@ class LegacyPagingSourceTest {
     @Test
     fun invalidateFromPagingSource() {
         val pagingSource = LegacyPagingSource(
-            fetchDispatcher = Dispatchers.Unconfined,
+            fetchContext = Dispatchers.Unconfined,
             dataSource = createTestPositionalDataSource()
         )
         val dataSource = pagingSource.dataSource
@@ -259,7 +259,7 @@ class LegacyPagingSourceTest {
     @Test
     fun invalidateFromDataSource() {
         val pagingSource = LegacyPagingSource(
-            fetchDispatcher = Dispatchers.Unconfined,
+            fetchContext = Dispatchers.Unconfined,
             dataSource = createTestPositionalDataSource()
         )
         val dataSource = pagingSource.dataSource
