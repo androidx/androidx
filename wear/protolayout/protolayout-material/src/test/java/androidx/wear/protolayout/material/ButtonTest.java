@@ -41,6 +41,8 @@ import androidx.wear.protolayout.LayoutElementBuilders.LayoutElement;
 import androidx.wear.protolayout.ModifiersBuilders.Clickable;
 import androidx.wear.protolayout.ModifiersBuilders.ElementMetadata;
 import androidx.wear.protolayout.ModifiersBuilders.Modifiers;
+import androidx.wear.protolayout.TypeBuilders.StringProp;
+import androidx.wear.protolayout.expression.DynamicBuilders.DynamicString;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -51,7 +53,12 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 public class ButtonTest {
     private static final String RESOURCE_ID = "icon";
     private static final String TEXT = "ABC";
-    private static final String CONTENT_DESCRIPTION = "clickable button";
+    private static final StringProp CONTENT_DESCRIPTION =
+            new StringProp.Builder("clickable button").build();
+    private static final StringProp DYNAMIC_CONTENT_DESCRIPTION =
+            new StringProp.Builder("static value")
+                    .setDynamicValue(DynamicString.constant("clickable button"))
+                    .build();
     private static final Clickable CLICKABLE =
             new Clickable.Builder()
                     .setOnClick(new LaunchAction.Builder().build())
@@ -237,11 +244,24 @@ public class ButtonTest {
         assertThat(Button.fromLayoutElement(box)).isNull();
     }
 
+    @Test
+    public void testDynamicContentDescription() {
+        Button button =
+                new Button.Builder(CONTEXT, CLICKABLE)
+                        .setTextContent(TEXT)
+                        .setContentDescription(DYNAMIC_CONTENT_DESCRIPTION)
+                        .setSize(EXTRA_LARGE_SIZE)
+                        .build();
+
+        assertThat(button.getContentDescription().toProto())
+                .isEqualTo(DYNAMIC_CONTENT_DESCRIPTION.toProto());
+    }
+
     private void assertButton(
             @NonNull Button actualButton,
             @NonNull DpProp expectedSize,
             @NonNull ButtonColors expectedButtonColors,
-            @Nullable String expectedContentDescription,
+            @Nullable StringProp expectedContentDescription,
             @NonNull String expectedMetadataTag,
             @Nullable String expectedTextContent,
             @Nullable String expectedIconContent,
@@ -276,7 +296,7 @@ public class ButtonTest {
             @NonNull Button actualButton,
             @NonNull DpProp expectedSize,
             @NonNull ButtonColors expectedButtonColors,
-            @Nullable String expectedContentDescription,
+            @Nullable StringProp expectedContentDescription,
             @NonNull String expectedMetadataTag,
             @Nullable String expectedTextContent,
             @Nullable String expectedIconContent,
@@ -296,8 +316,8 @@ public class ButtonTest {
         if (expectedContentDescription == null) {
             assertThat(actualButton.getContentDescription()).isNull();
         } else {
-            assertThat(actualButton.getContentDescription().toString())
-                    .isEqualTo(expectedContentDescription);
+            assertThat(actualButton.getContentDescription().toProto())
+                    .isEqualTo(expectedContentDescription.toProto());
         }
 
         if (expectedTextContent == null) {
@@ -330,7 +350,7 @@ public class ButtonTest {
             @NonNull Button button,
             @NonNull DpProp expectedSize,
             @NonNull ButtonColors expectedButtonColors,
-            @Nullable String expectedContentDescription,
+            @Nullable StringProp expectedContentDescription,
             @NonNull String expectedMetadataTag,
             @Nullable String expectedTextContent,
             @Nullable String expectedIconContent,

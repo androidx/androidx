@@ -445,8 +445,9 @@ public final class LayoutElementBuilders {
         }
 
         /**
-         * Gets the text color. If not defined, defaults to white. Intended for testing purposes
-         * only.
+         * Gets the text color. If not defined, defaults to white.
+         *
+         * @since 1.0
          */
         @Nullable
         public ColorProp getColor() {
@@ -585,9 +586,8 @@ public final class LayoutElementBuilders {
             /**
              * Sets the text color. If not defined, defaults to white.
              *
-             * <p>This field is made bindable from version 1.2 and will use the dynamic value (if
-             * set). Older renderers will still consider this field as non-bindable and will use the
-             * static value.
+             * <p>While this field is statically accessible from 1.0, it's only bindable since
+             * version 1.2 and renderers supporting version 1.2 will use the dynamic value (if set).
              *
              * @since 1.0
              */
@@ -914,8 +914,8 @@ public final class LayoutElementBuilders {
             public Builder() {}
 
             /**
-             * Sets whether the {@link Text} excludes padding specified by the font, i.e. extra
-             * top and bottom padding above the normal ascent and descent. The default is false.
+             * Sets whether the {@link Text} excludes padding specified by the font, i.e. extra top
+             * and bottom padding above the normal ascent and descent. The default is false.
              *
              * @since 1.2
              */
@@ -945,7 +945,11 @@ public final class LayoutElementBuilders {
             this.mFingerprint = fingerprint;
         }
 
-        /** Gets the text to render. Intended for testing purposes only. */
+        /**
+         * Gets the text to render.
+         *
+         * @since 1.0
+         */
         @Nullable
         public StringProp getText() {
             if (mImpl.hasText()) {
@@ -1119,14 +1123,13 @@ public final class LayoutElementBuilders {
             /**
              * Sets the text to render.
              *
-             * <p>This field is made bindable from version 1.2 and will use the dynamic value (if
-             * set). Older renderers will still consider this field as non-bindable and will use the
-             * static value.
+             * <p>While this field is statically accessible from 1.0, it's only bindable since
+             * version 1.2 and renderers supporting version 1.2 will use the dynamic value (if set).
              *
              * <p>When using a dynamic value, make sure to specify the bounding constraints for the
-             * affected layout element through {@link
-             * #setLayoutConstraintsForDynamicText(StringLayoutConstraint)} otherwise {@link
-             * #build()} fails.
+             * affected layout element through {@code
+             * setLayoutConstraintsForDynamicText(StringLayoutConstraint)} otherwise {@code build()}
+             * fails.
              *
              * @since 1.0
              */
@@ -1404,7 +1407,9 @@ public final class LayoutElementBuilders {
          * alpha channel will be blended with the requested color).
          *
          * <p>Note that only Android image resources can be tinted; Inline images will not be
-         * tinted, and this property will have no effect. Intended for testing purposes only.
+         * tinted, and this property will have no effect.
+         *
+         * @since 1.0
          */
         @Nullable
         public ColorProp getTint() {
@@ -1448,9 +1453,10 @@ public final class LayoutElementBuilders {
              * <p>Note that only Android image resources can be tinted; Inline images will not be
              * tinted, and this property will have no effect.
              *
-             * <p>This field is made bindable from version 1.2 and will use the dynamic value (if
-             * set). Older renderers will still consider this field as non-bindable and will use the
-             * static value.
+             * <p>While this field is statically accessible from 1.0, it's only bindable since
+             * version 1.2 and renderers supporting version 1.2 will use the dynamic value (if set).
+             *
+             * @since 1.0
              */
             @NonNull
             public Builder setTint(@NonNull ColorProp tint) {
@@ -1703,6 +1709,8 @@ public final class LayoutElementBuilders {
          * Gets the width of this {@link Spacer}. When this is added as the direct child of an
          * {@link Arc}, this must be specified as an angular dimension, otherwise a linear dimension
          * must be used. If not defined, defaults to 0.
+         *
+         * @since 1.0
          */
         @Nullable
         public SpacerDimension getWidth() {
@@ -1728,7 +1736,11 @@ public final class LayoutElementBuilders {
             }
         }
 
-        /** Gets the height of this spacer. If not defined, defaults to 0. */
+        /**
+         * Gets the height of this spacer. If not defined, defaults to 0.
+         *
+         * @since 1.0
+         */
         @Nullable
         public SpacerDimension getHeight() {
             if (mImpl.hasHeight()) {
@@ -1803,14 +1815,15 @@ public final class LayoutElementBuilders {
              * {@link Arc}, this must be specified as an angular dimension, otherwise a linear
              * dimension must be used. If not defined, defaults to 0.
              *
-             * <p>This field is made bindable from version 1.2 and will use the dynamic value (if
-             * set). Older renderers will still consider this field as non-bindable and will use the
-             * static value.
+             * <p>While this field is statically accessible from 1.0, it's only bindable since
+             * version 1.2 and renderers supporting version 1.2 will use the dynamic value (if set).
              *
              * <p>When using a dynamic value, make sure to specify the bounding constraints for the
-             * affected layout element through {@link
-             * #setLayoutConstraintsForDynamicWidth(HorizontalLayoutConstraint)} otherwise {@link
-             * #build()} fails.
+             * affected layout element through {@code
+             * setLayoutConstraintsForDynamicWidth(HorizontalLayoutConstraint)} otherwise {@code
+             * build()} fails.
+             *
+             * @since 1.0
              */
             @NonNull
             public Builder setWidth(@NonNull SpacerDimension width) {
@@ -1847,14 +1860,13 @@ public final class LayoutElementBuilders {
             /**
              * Sets the height of this spacer. If not defined, defaults to 0.
              *
-             * <p>This field is made bindable from version 1.2 and will use the dynamic value (if
-             * set). Older renderers will still consider this field as non-bindable and will use the
-             * static value.
+             * <p>While this field is statically accessible from 1.0, it's only bindable since
+             * version 1.2 and renderers supporting version 1.2 will use the dynamic value (if set).
              *
              * <p>When using a dynamic value, make sure to specify the bounding constraints for the
-             * affected layout element through {@link
-             * #setLayoutConstraintsForDynamicWidth(HorizontalLayoutConstraint)} otherwise {@link
-             * #build()} fails.
+             * affected layout element through {@code
+             * setLayoutConstraintsForDynamicWidth(HorizontalLayoutConstraint)} otherwise {@code
+             * build()} fails.
              *
              * @since 1.0
              */
@@ -3252,7 +3264,9 @@ public final class LayoutElementBuilders {
          *
          * <p>Values do not have to be clamped to the range 0-360; values less than 0 degrees will
          * sweep anti-clockwise (i.e. -90 degrees is equivalent to 270 degrees), and values >360
-         * will be be placed at X mod 360 degrees. Intended for testing purposes only.
+         * will be be placed at X mod 360 degrees.
+         *
+         * @since 1.0
          */
         @Nullable
         public DegreesProp getAnchorAngle() {
@@ -3368,14 +3382,13 @@ public final class LayoutElementBuilders {
              * will sweep anti-clockwise (i.e. -90 degrees is equivalent to 270 degrees), and values
              * >360 will be be placed at X mod 360 degrees.
              *
-             * <p>This field is made bindable from version 1.2 and will use the dynamic value (if
-             * set). Older renderers will still consider this field as non-bindable and will use the
-             * static value.
+             * <p>While this field is statically accessible from 1.0, it's only bindable since
+             * version 1.2 and renderers supporting version 1.2 will use the dynamic value (if set).
              *
              * <p>When using a dynamic value, make sure to specify the bounding constraints for the
-             * affected layout element through {@link
-             * #setLayoutConstraintsForDynamicAnchorAngle(AngularLayoutConstraint)} otherwise {@link
-             * #build()} fails.
+             * affected layout element through {@code
+             * setLayoutConstraintsForDynamicAnchorAngle(AngularLayoutConstraint)} otherwise {@code
+             * build()} fails.
              *
              * @since 1.0
              */
@@ -3627,8 +3640,9 @@ public final class LayoutElementBuilders {
         }
 
         /**
-         * Gets the length of this line, in degrees. If not defined, defaults to 0. Intended for
-         * testing purposes only.
+         * Gets the length of this line, in degrees. If not defined, defaults to 0.
+         *
+         * @since 1.0
          */
         @Nullable
         public DegreesProp getLength() {
@@ -3667,7 +3681,11 @@ public final class LayoutElementBuilders {
             }
         }
 
-        /** Gets the color of this line. Intended for testing purposes only. */
+        /**
+         * Gets the color of this line.
+         *
+         * @since 1.0
+         */
         @Nullable
         public ColorProp getColor() {
             if (mImpl.hasColor()) {
@@ -3725,14 +3743,13 @@ public final class LayoutElementBuilders {
             /**
              * Sets the length of this line, in degrees. If not defined, defaults to 0.
              *
-             * <p>This field is made bindable from version 1.2 and will use the dynamic value (if
-             * set). Older renderers will still consider this field as non-bindable and will use the
-             * static value.
+             * <p>While this field is statically accessible from 1.0, it's only bindable since
+             * version 1.2 and renderers supporting version 1.2 will use the dynamic value (if set).
              *
              * <p>When using a dynamic value, make sure to specify the bounding constraints for the
-             * affected layout element through {@link
-             * #setLayoutConstraintsForDynamicLength(AngularLayoutConstraint)} otherwise {@link
-             * #build()} fails.
+             * affected layout element through {@code
+             * setLayoutConstraintsForDynamicLength(AngularLayoutConstraint)} otherwise {@code
+             * build()} fails.
              *
              * @since 1.0
              */
@@ -3773,9 +3790,8 @@ public final class LayoutElementBuilders {
             /**
              * Sets the color of this line.
              *
-             * <p>This field is made bindable from version 1.2 and will use the dynamic value (if
-             * set). Older renderers will still consider this field as non-bindable and will use the
-             * static value.
+             * <p>While this field is statically accessible from 1.0, it's only bindable since
+             * version 1.2 and renderers supporting version 1.2 will use the dynamic value (if set).
              *
              * @since 1.0
              */

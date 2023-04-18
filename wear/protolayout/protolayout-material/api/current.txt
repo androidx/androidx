@@ -5,7 +5,7 @@ package androidx.wear.protolayout.material {
     method public static androidx.wear.protolayout.material.Button? fromLayoutElement(androidx.wear.protolayout.LayoutElementBuilders.LayoutElement);
     method public androidx.wear.protolayout.material.ButtonColors getButtonColors();
     method public androidx.wear.protolayout.ModifiersBuilders.Clickable getClickable();
-    method public CharSequence? getContentDescription();
+    method public androidx.wear.protolayout.TypeBuilders.StringProp? getContentDescription();
     method public androidx.wear.protolayout.LayoutElementBuilders.LayoutElement? getCustomContent();
     method public String? getIconContent();
     method public String? getImageContent();
@@ -18,6 +18,7 @@ package androidx.wear.protolayout.material {
     method public androidx.wear.protolayout.material.Button build();
     method public androidx.wear.protolayout.material.Button.Builder setButtonColors(androidx.wear.protolayout.material.ButtonColors);
     method public androidx.wear.protolayout.material.Button.Builder setContentDescription(CharSequence);
+    method public androidx.wear.protolayout.material.Button.Builder setContentDescription(androidx.wear.protolayout.TypeBuilders.StringProp);
     method public androidx.wear.protolayout.material.Button.Builder setCustomContent(androidx.wear.protolayout.LayoutElementBuilders.LayoutElement);
     method public androidx.wear.protolayout.material.Button.Builder setIconContent(String, androidx.wear.protolayout.DimensionBuilders.DpProp);
     method public androidx.wear.protolayout.material.Button.Builder setIconContent(String);
@@ -51,7 +52,7 @@ package androidx.wear.protolayout.material {
     method public static androidx.wear.protolayout.material.Chip? fromLayoutElement(androidx.wear.protolayout.LayoutElementBuilders.LayoutElement);
     method public androidx.wear.protolayout.material.ChipColors getChipColors();
     method public androidx.wear.protolayout.ModifiersBuilders.Clickable getClickable();
-    method public CharSequence? getContentDescription();
+    method public androidx.wear.protolayout.TypeBuilders.StringProp? getContentDescription();
     method public androidx.wear.protolayout.LayoutElementBuilders.LayoutElement? getCustomContent();
     method public androidx.wear.protolayout.DimensionBuilders.ContainerDimension getHeight();
     method public int getHorizontalAlignment();
@@ -66,6 +67,7 @@ package androidx.wear.protolayout.material {
     method public androidx.wear.protolayout.material.Chip build();
     method public androidx.wear.protolayout.material.Chip.Builder setChipColors(androidx.wear.protolayout.material.ChipColors);
     method public androidx.wear.protolayout.material.Chip.Builder setContentDescription(CharSequence);
+    method public androidx.wear.protolayout.material.Chip.Builder setContentDescription(androidx.wear.protolayout.TypeBuilders.StringProp);
     method public androidx.wear.protolayout.material.Chip.Builder setCustomContent(androidx.wear.protolayout.LayoutElementBuilders.LayoutElement);
     method public androidx.wear.protolayout.material.Chip.Builder setHorizontalAlignment(int);
     method public androidx.wear.protolayout.material.Chip.Builder setIconContent(String);
@@ -100,7 +102,7 @@ package androidx.wear.protolayout.material {
   public class CircularProgressIndicator implements androidx.wear.protolayout.LayoutElementBuilders.LayoutElement {
     method public static androidx.wear.protolayout.material.CircularProgressIndicator? fromLayoutElement(androidx.wear.protolayout.LayoutElementBuilders.LayoutElement);
     method public androidx.wear.protolayout.material.ProgressIndicatorColors getCircularProgressIndicatorColors();
-    method public CharSequence? getContentDescription();
+    method public androidx.wear.protolayout.TypeBuilders.StringProp? getContentDescription();
     method public androidx.wear.protolayout.DimensionBuilders.DegreesProp getEndAngle();
     method public androidx.wear.protolayout.DimensionBuilders.DegreesProp getProgress();
     method public androidx.wear.protolayout.DimensionBuilders.DegreesProp getStartAngle();
@@ -112,6 +114,7 @@ package androidx.wear.protolayout.material {
     method public androidx.wear.protolayout.material.CircularProgressIndicator build();
     method public androidx.wear.protolayout.material.CircularProgressIndicator.Builder setCircularProgressIndicatorColors(androidx.wear.protolayout.material.ProgressIndicatorColors);
     method public androidx.wear.protolayout.material.CircularProgressIndicator.Builder setContentDescription(CharSequence);
+    method public androidx.wear.protolayout.material.CircularProgressIndicator.Builder setContentDescription(androidx.wear.protolayout.TypeBuilders.StringProp);
     method public androidx.wear.protolayout.material.CircularProgressIndicator.Builder setEndAngle(float);
     method public androidx.wear.protolayout.material.CircularProgressIndicator.Builder setProgress(@FloatRange(from=0, to=1) float);
     method public androidx.wear.protolayout.material.CircularProgressIndicator.Builder setStartAngle(float);

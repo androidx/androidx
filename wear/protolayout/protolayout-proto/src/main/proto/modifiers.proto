@@ -60,6 +60,10 @@ message Semantics {
 
   // The content description associated with this element. This will be dictated
   // when the element is focused by the screen reader.
+  //
+  // While this field is statically accessible from 1.0, it's only bindable
+  // since version 1.2 and renderers supporting version 1.2 will use the dynamic
+  // value (if set).
   StringProp content_description = 4;
 
   // The type of user interface element. Accessibility services might use this
@@ -101,6 +105,10 @@ message Border {
   DpProp width = 1;
 
   // The color of the border.
+  //
+  // While this field is statically accessible from 1.0, it's only bindable
+  // since version 1.2 and renderers supporting version 1.2 will use the dynamic
+  // value (if set).
   ColorProp color = 2;
 }
 
@@ -114,6 +122,10 @@ message Corner {
 message Background {
   // The background color for this element. If not defined, defaults to being
   // transparent.
+  //
+  // While this field is statically accessible from 1.0, it's only bindable
+  // since version 1.2 and renderers supporting version 1.2 will use the dynamic
+  // value (if set).
   ColorProp color = 1;
 
   // The corner properties of this element. This only affects the drawing of
