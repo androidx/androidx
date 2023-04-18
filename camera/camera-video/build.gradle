@@ -34,6 +34,8 @@ dependencies {
 
     annotationProcessor(libs.autoValue)
 
+    // TODO(leohuang): We need this for assertThrows. Point back to the AndroidX shared version if
+    //  it is ever upgraded.
     testImplementation(libs.junit)
     testImplementation(libs.kotlinStdlib)
     testImplementation(libs.testCore)
@@ -48,7 +50,7 @@ dependencies {
     })
 
     androidTestImplementation(libs.multidex)
-    androidTestImplementation(project(":camera:camera-camera2"))
+    androidTestImplementation(project(path: ":camera:camera-camera2"))
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)

@@ -21,8 +21,8 @@ plugins {
 
 dependencies {
     implementation(project(":wear:wear"))
-    implementation(project(":recyclerview:recyclerview"))
-    implementation(project(":appcompat:appcompat"))
+    implementation(project(path: ":recyclerview:recyclerview"))
+    implementation(project(path: ":appcompat:appcompat"))
 }
 
 android {
