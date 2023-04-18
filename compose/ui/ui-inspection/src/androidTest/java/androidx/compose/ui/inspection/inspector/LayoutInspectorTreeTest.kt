@@ -177,6 +177,7 @@ class LayoutInspectorTreeTest {
                             text = "helloworld",
                             color = Color.Green,
                             fontSize = 10.sp,
+                            lineHeight = 10.sp,
                             fontFamily = fontFamily
                         )
                         // width: 24.dp, height: 24.dp
@@ -185,7 +186,12 @@ class LayoutInspectorTreeTest {
                             // minwidth: 64.dp, height: 42.dp
                             Button(onClick = {}) {
                                 // width: 20.dp, height: 10.dp
-                                Text(text = "ok", fontSize = 10.sp, fontFamily = fontFamily)
+                                Text(
+                                    text = "ok",
+                                    fontSize = 10.sp,
+                                    lineHeight = 10.sp,
+                                    fontFamily = fontFamily
+                                )
                             }
                         }
                     }
