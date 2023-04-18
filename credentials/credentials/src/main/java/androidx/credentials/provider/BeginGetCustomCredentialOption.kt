@@ -34,9 +34,9 @@ import android.os.Bundle
  * @throws IllegalArgumentException If [type] is null or, empty
  */
 open class BeginGetCustomCredentialOption constructor(
-    override val id: String,
-    override val type: String,
-    override val candidateQueryData: Bundle,
+    id: String,
+    type: String,
+    candidateQueryData: Bundle,
 ) : BeginGetCredentialOption(
     id,
     type,

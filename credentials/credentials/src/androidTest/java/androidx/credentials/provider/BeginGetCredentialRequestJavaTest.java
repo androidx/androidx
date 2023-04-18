@@ -78,7 +78,8 @@ public class BeginGetCredentialRequestJavaTest {
 
         BeginGetCredentialRequest beginGetCredentialRequest =
                 new BeginGetCredentialRequest(Collections.singletonList(
-                        new BeginGetCredentialOption(expectedId, expectedType, expectedBundle)),
+                        new BeginGetCustomCredentialOption(expectedId, expectedType,
+                                expectedBundle)),
                         null);
         List<BeginGetCredentialOption> actualBeginGetCredentialOptionList =
                 beginGetCredentialRequest.getBeginGetCredentialOptions();

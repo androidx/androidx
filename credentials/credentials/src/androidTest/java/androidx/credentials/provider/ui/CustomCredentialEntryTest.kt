@@ -25,6 +25,7 @@ import androidx.credentials.provider.BeginGetCredentialOption
 import androidx.core.os.BuildCompat
 import androidx.credentials.R
 import androidx.credentials.equals
+import androidx.credentials.provider.BeginGetCustomCredentialOption
 import androidx.credentials.provider.CustomCredentialEntry
 import androidx.credentials.provider.CustomCredentialEntry.Companion.fromSlice
 import androidx.test.core.app.ApplicationProvider
@@ -92,7 +93,7 @@ class CustomCredentialEntryTest {
             IllegalArgumentException::class.java
         ) {
             CustomCredentialEntry(
-                mContext, TITLE, mPendingIntent, BeginGetCredentialOption(
+                mContext, TITLE, mPendingIntent, BeginGetCustomCredentialOption(
                     "id", "", Bundle.EMPTY
                 )
             )
@@ -109,7 +110,7 @@ class CustomCredentialEntryTest {
             IllegalArgumentException::class.java
         ) {
             CustomCredentialEntry(
-                mContext, TITLE, mPendingIntent, BeginGetCredentialOption(
+                mContext, TITLE, mPendingIntent, BeginGetCustomCredentialOption(
                     "id", "", Bundle.EMPTY)
             )
         }
@@ -220,7 +221,7 @@ class CustomCredentialEntryTest {
 
     companion object {
         private val TITLE: CharSequence = "title"
-        private val BEGIN_OPTION: BeginGetCredentialOption = BeginGetCredentialOption(
+        private val BEGIN_OPTION: BeginGetCredentialOption = BeginGetCustomCredentialOption(
             "id", "type", Bundle())
         private val SUBTITLE: CharSequence = "subtitle"
         private const val TYPE = "custom_type"

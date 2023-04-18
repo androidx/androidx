@@ -32,6 +32,7 @@ import androidx.core.os.BuildCompat;
 import androidx.credentials.R;
 import androidx.credentials.TestUtilsKt;
 import androidx.credentials.provider.BeginGetCredentialOption;
+import androidx.credentials.provider.BeginGetCustomCredentialOption;
 import androidx.credentials.provider.CustomCredentialEntry;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -56,7 +57,8 @@ public class CustomCredentialEntryJavaTest {
     private static final Icon ICON = Icon.createWithBitmap(Bitmap.createBitmap(
             100, 100, Bitmap.Config.ARGB_8888));
     private static final boolean IS_AUTO_SELECT_ALLOWED = true;
-    private final BeginGetCredentialOption mBeginCredentialOption = new BeginGetCredentialOption(
+    private final BeginGetCredentialOption mBeginCredentialOption =
+            new BeginGetCustomCredentialOption(
             "id", "custom", new Bundle());
 
     private final Context mContext = ApplicationProvider.getApplicationContext();

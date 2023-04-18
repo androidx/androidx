@@ -17,20 +17,31 @@
 package androidx.credentials.provider
 
 import android.os.Bundle
-import androidx.annotation.RestrictTo
 import androidx.credentials.PasswordCredential
 import androidx.credentials.PublicKeyCredential
 
-open class BeginGetCredentialOption internal constructor(
-    /** @hide */
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    open val id: String,
-    /** @hide */
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    open val type: String,
-    /** @hide */
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    open val candidateQueryData: Bundle
+/**
+ * Base class that a credential provider receives during the query phase of a get-credential flow.
+ * Classes derived from this base class contain
+ * parameters required to retrieve a specific type of credential. E.g. [BeginGetPasswordOption]
+ * contains parameters required to retrieve passwords.
+ *
+ * [BeginGetCredentialRequest] will be composed of a list of [BeginGetCredentialOption]
+ * subclasses to indicate the specific credential types and configurations that the credential
+ * provider must include while building the [BeginGetCredentialResponse].
+ *
+ * @property id unique id representing this particular option. Credential providers must
+ * use this Id while constructing the [CredentialEntry] to be set on [BeginGetCredentialResponse]
+ * @property type the type of the credential to be retrieved against this option. E.g. a
+ * [BeginGetPasswordOption] will have type [PasswordCredential.TYPE_PASSWORD_CREDENTIAL]
+ * @property candidateQueryData the parameters needed to retrieve the credentials, in the form of a
+ * [Bundle]. Note that this is a 'Begin' request denoting a query phase. In this phase, only
+ * sensitive information is included in the [candidateQueryData] bundle.
+ */
+abstract class BeginGetCredentialOption internal constructor(
+    val id: String,
+    val type: String,
+    val candidateQueryData: Bundle
 ) {
     /** @hide **/
     companion object {
