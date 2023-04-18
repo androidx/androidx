@@ -16,15 +16,17 @@
 
 package androidx.compose.ui.focus
 
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.focus.FocusStateImpl.Inactive
 import androidx.compose.ui.node.Nodes
-import androidx.compose.ui.node.visitSelfAndChildren
+import androidx.compose.ui.node.visitChildren
 
 /**
  * The [FocusInvalidationManager] allows us to schedule focus related nodes for invalidation.
  * These nodes are invalidated after onApplyChanges. It does this by registering an
  * onApplyChangesListener when nodes are scheduled for invalidation.
  */
+@OptIn(ExperimentalComposeUiApi::class)
 internal class FocusInvalidationManager(
     private val onRequestApplyChangesListener: (() -> Unit) -> Unit
 ) {
@@ -60,7 +62,7 @@ internal class FocusInvalidationManager(
     private val invalidateNodes: () -> Unit = {
         // Process all the invalidated FocusProperties nodes.
         focusPropertiesNodes.forEach {
-            it.visitSelfAndChildren(Nodes.FocusTarget) { focusTarget ->
+            it.visitChildren(Nodes.FocusTarget) { focusTarget ->
                 focusTargetNodes.add(focusTarget)
             }
         }
@@ -82,7 +84,7 @@ internal class FocusInvalidationManager(
             var requiresUpdate = true
             var aggregatedNode = false
             var focusTarget: FocusTargetModifierNode? = null
-            focusEventNode.visitSelfAndChildren(Nodes.FocusTarget) {
+            focusEventNode.visitChildren(Nodes.FocusTarget) {
 
                 // If there are multiple focus targets associated with this focus event node,
                 // we need to calculate the aggregated state.
@@ -99,7 +101,7 @@ internal class FocusInvalidationManager(
                 if (focusTargetNodes.contains(it)) {
                     requiresUpdate = false
                     focusTargetsWithInvalidatedFocusEvents.add(it)
-                    return@visitSelfAndChildren
+                    return@visitChildren
                 }
             }
 

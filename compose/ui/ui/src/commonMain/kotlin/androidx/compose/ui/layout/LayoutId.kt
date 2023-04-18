@@ -52,7 +52,7 @@ private data class LayoutIdModifierElement(
  * will act as parent data, and can be used for example by parent layouts to associate
  * composable children to [Measurable]s when doing layout, as shown below.
  */
-internal class LayoutIdModifier(
+private class LayoutIdModifier(
     layoutId: Any,
 ) : ParentDataModifierNode, LayoutIdParentData, Modifier.Node() {
 

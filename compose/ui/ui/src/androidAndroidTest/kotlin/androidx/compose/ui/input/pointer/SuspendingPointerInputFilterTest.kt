@@ -17,23 +17,17 @@
 package androidx.compose.ui.input.pointer
 
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.node.DelegatingNode
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.ValueElement
 import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.platform.isDebugInspectorInfoEnabled
-import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.semantics.elementFor
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.test.onNodeWithTag
-import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.unit.IntSize
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -697,79 +691,6 @@ class SuspendingPointerInputFilterTest {
         rule.runOnIdle {
             assertThat(resultOfTimeoutOrNull).isNull()
         }
-    }
-
-    @Test
-    @MediumTest
-    fun testDelegatedPointerEvent() {
-        val latch = CountDownLatch(1)
-        val emitter = PointerInputChangeEmitter()
-        val expectedChange = emitter.nextChange(Offset(5f, 5f))
-
-        var returnedChange: PointerEvent? = null
-
-        // Used to manually trigger a PointerEvent created from our PointerInputChange.
-        val suspendingPointerInputModifierNode = SuspendingPointerInputModifierNode {
-            awaitPointerEventScope {
-                returnedChange = awaitPointerEvent()
-                latch.countDown()
-            }
-        }
-        val node = object : DelegatingNode() {
-            val pointer = delegate(suspendingPointerInputModifierNode)
-        }
-
-        rule.setContent {
-            Box(Modifier.elementFor(node))
-        }
-
-        rule.runOnIdle {
-            suspendingPointerInputModifierNode.onPointerEvent(
-                expectedChange.toPointerEvent(),
-                PointerEventPass.Main,
-                IntSize(10, 10)
-            )
-        }
-
-        rule.runOnIdle {
-            assertTrue("Waiting for relaunch timed out", latch.await(200, TimeUnit.MILLISECONDS))
-            assertEquals(expectedChange, returnedChange?.firstChange)
-        }
-    }
-
-    @Test
-    @MediumTest
-    fun testMultipleDelegatedPointerEvents2() {
-        val events = mutableListOf<PointerEvent>()
-        val tag = "input rect"
-
-        val node = object : DelegatingNode() {
-            val piNode1 = delegate(SuspendingPointerInputModifierNode {
-                awaitPointerEventScope {
-                    events += awaitPointerEvent()
-                }
-            })
-
-            val piNode2 = delegate(SuspendingPointerInputModifierNode {
-                awaitPointerEventScope {
-                    events += awaitPointerEvent()
-                }
-            })
-        }
-
-        rule.setContent {
-            Box(
-                Modifier
-                    .fillMaxSize()
-                    .testTag(tag)
-                    .elementFor(node)
-            )
-        }
-
-        rule.onNodeWithTag(tag).performTouchInput {
-            down(Offset.Zero)
-        }
-        assertThat(events).hasSize(2)
     }
 }
 

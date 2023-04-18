@@ -119,7 +119,6 @@ import androidx.compose.ui.node.LayoutNode
 import androidx.compose.ui.node.LayoutNode.UsageByParent
 import androidx.compose.ui.node.LayoutNodeDrawScope
 import androidx.compose.ui.node.MeasureAndLayoutDelegate
-import androidx.compose.ui.node.Nodes
 import androidx.compose.ui.node.OwnedLayer
 import androidx.compose.ui.node.Owner
 import androidx.compose.ui.node.OwnerSnapshotObserver
@@ -128,6 +127,7 @@ import androidx.compose.ui.platform.MotionEventVerifierApi29.isValidMotionEvent
 import androidx.compose.ui.semantics.EmptySemanticsModifierNodeElement
 import androidx.compose.ui.semantics.SemanticsOwner
 import androidx.compose.ui.semantics.findClosestParentNode
+import androidx.compose.ui.semantics.outerSemantics
 import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.InternalTextApi
 import androidx.compose.ui.text.font.Font
@@ -739,7 +739,7 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
                 ) {
                     super.onInitializeAccessibilityNodeInfo(host, info)
                     var parentId = layoutNode
-                        .findClosestParentNode { it.nodes.has(Nodes.Semantics) }
+                        .findClosestParentNode { it.outerSemantics != null }
                         ?.semanticsId
                     if (parentId == null ||
                         parentId == semanticsOwner.unmergedRootSemanticsNode.id

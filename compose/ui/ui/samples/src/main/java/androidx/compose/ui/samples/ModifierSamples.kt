@@ -49,13 +49,11 @@ import androidx.compose.ui.node.LayoutAwareModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.PointerInputModifierNode
 import androidx.compose.ui.node.SemanticsModifierNode
-import androidx.compose.ui.node.requireLayoutDirection
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.semantics.SemanticsConfiguration
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 
@@ -121,7 +119,7 @@ fun SubcomponentModifierSample() {
 @ExperimentalComposeUiApi
 @Sampled
 @Composable
-fun DelegatedNodeSampleExplicit() {
+fun DelegatedNodeSample() {
     class TapGestureNode(var onTap: () -> Unit) : PointerInputModifierNode, Modifier.Node() {
         override fun onPointerEvent(
             pointerEvent: PointerEvent,
@@ -141,7 +139,7 @@ fun DelegatedNodeSampleExplicit() {
             get() = gesture.onTap
             set(value) { gesture.onTap = value }
 
-        val gesture = delegate(TapGestureNode(onTap))
+        val gesture = delegated { TapGestureNode(onTap) }
 
         override fun onPointerEvent(
             pointerEvent: PointerEvent,
@@ -162,151 +160,6 @@ fun DelegatedNodeSampleExplicit() {
                     true
                 }
             }
-    }
-}
-
-@ExperimentalComposeUiApi
-@Sampled
-@Composable
-fun DelegatedNodeSampleImplicit() {
-    class TapGestureNode(var onTap: () -> Unit) : PointerInputModifierNode, Modifier.Node() {
-        override fun onPointerEvent(
-            pointerEvent: PointerEvent,
-            pass: PointerEventPass,
-            bounds: IntSize
-        ) {
-            // ...
-        }
-
-        override fun onCancelPointerInput() {
-            // ...
-        }
-    }
-
-    class TapSemanticsNode(var onTap: () -> Unit) : SemanticsModifierNode, Modifier.Node() {
-        override val semanticsConfiguration: SemanticsConfiguration = SemanticsConfiguration()
-            .apply {
-                onClick {
-                    onTap()
-                    true
-                }
-            }
-    }
-    class TapGestureWithClickSemantics(onTap: () -> Unit) : DelegatingNode() {
-        var onTap: () -> Unit
-            get() = gesture.onTap
-            set(value) {
-                gesture.onTap = value
-                semantics.onTap = value
-            }
-
-        val gesture = delegate(TapGestureNode(onTap))
-        val semantics = delegate(TapSemanticsNode(onTap))
-    }
-}
-
-@ExperimentalComposeUiApi
-@Sampled
-@Composable
-fun LazyDelegationExample() {
-    class ExpensivePositionHandlingOnPointerEvents() : PointerInputModifierNode, DelegatingNode() {
-
-        val globalAwareNode = object : GlobalPositionAwareModifierNode, Modifier.Node() {
-            override fun onGloballyPositioned(coordinates: LayoutCoordinates) {
-                // ...
-            }
-        }
-
-        override fun onPointerEvent(
-            pointerEvent: PointerEvent,
-            pass: PointerEventPass,
-            bounds: IntSize
-        ) {
-            // wait until first pointer event to start listening to global
-            // position
-            if (!globalAwareNode.isAttached) {
-                delegate(globalAwareNode)
-            }
-            // normal input processing
-        }
-
-        override fun onCancelPointerInput() {
-            // ...
-        }
-    }
-
-    class TapGestureNode(var onTap: () -> Unit) : PointerInputModifierNode, Modifier.Node() {
-        override fun onPointerEvent(
-            pointerEvent: PointerEvent,
-            pass: PointerEventPass,
-            bounds: IntSize
-        ) {
-            // ...
-        }
-
-        override fun onCancelPointerInput() {
-            // ...
-        }
-    }
-
-    class TapSemanticsNode(var onTap: () -> Unit) : SemanticsModifierNode, Modifier.Node() {
-        override val semanticsConfiguration: SemanticsConfiguration = SemanticsConfiguration()
-            .apply {
-                onClick {
-                    onTap()
-                    true
-                }
-            }
-    }
-    class TapGestureWithClickSemantics(onTap: () -> Unit) : DelegatingNode() {
-        var onTap: () -> Unit
-            get() = gesture.onTap
-            set(value) {
-                gesture.onTap = value
-                semantics.onTap = value
-            }
-
-        val gesture = delegate(TapGestureNode(onTap))
-        val semantics = delegate(TapSemanticsNode(onTap))
-    }
-}
-
-@Sampled
-fun ConditionalDelegationExample() {
-    class MyModifierNode(global: Boolean) : DelegatingNode() {
-        val globalAwareNode = object : GlobalPositionAwareModifierNode, Modifier.Node() {
-            override fun onGloballyPositioned(coordinates: LayoutCoordinates) {
-                // ...
-            }
-        }.also {
-            if (global) delegate(it)
-        }
-        var global: Boolean = global
-            set(value) {
-                if (global && !value) {
-                    undelegate(globalAwareNode)
-                } else if (!global && value) {
-                    delegate(globalAwareNode)
-                }
-                field = value
-            }
-    }
-}
-
-@Sampled
-fun DelegateInAttachSample() {
-    class MyModifierNode : DelegatingNode() {
-        val globalAwareNode = object : GlobalPositionAwareModifierNode, Modifier.Node() {
-            override fun onGloballyPositioned(coordinates: LayoutCoordinates) {
-                // ...
-            }
-        }
-        override fun onAttach() {
-            // one can conditionally delegate in attach, for instance if certain conditions are met
-            if (requireLayoutDirection() == LayoutDirection.Rtl) {
-                delegate(globalAwareNode)
-            }
-        }
     }
 }
 

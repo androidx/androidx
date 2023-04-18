@@ -40,24 +40,21 @@ interface SemanticsModifierNode : DelegatableNode {
 
 fun SemanticsModifierNode.invalidateSemantics() = requireOwner().onSemanticsChange()
 
+fun SemanticsModifierNode.collapsedSemanticsConfiguration(): SemanticsConfiguration {
+    val next = localChild(Nodes.Semantics)
+    if (next == null || semanticsConfiguration.isClearingSemantics) {
+        return semanticsConfiguration
+    }
+
+    val config = semanticsConfiguration.copy()
+    config.collapsePeer(next.collapsedSemanticsConfiguration())
+    return config
+}
+
 internal val SemanticsModifierNode.useMinimumTouchTarget: Boolean
     get() = semanticsConfiguration.getOrNull(SemanticsActions.OnClick) != null
 
-internal val SemanticsConfiguration.useMinimumTouchTarget: Boolean
-    get() = getOrNull(SemanticsActions.OnClick) != null
-
 internal fun SemanticsModifierNode.touchBoundsInRoot(): Rect {
-    if (!node.isAttached) {
-        return Rect.Zero
-    }
-    if (!useMinimumTouchTarget) {
-        return requireCoordinator(Nodes.Semantics).boundsInRoot()
-    }
-
-    return requireCoordinator(Nodes.Semantics).touchBoundsInRoot()
-}
-
-internal fun Modifier.Node.touchBoundsInRoot(useMinimumTouchTarget: Boolean): Rect {
     if (!node.isAttached) {
         return Rect.Zero
     }
