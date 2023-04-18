@@ -51,12 +51,13 @@ internal fun Class<out Any>.findMethod(
     while (currentClass != null) {
         try {
             return currentClass.getDeclaredMethod(name, *parameterTypes)
-        } catch (_: NoSuchMethodException) { }
+        } catch (_: NoSuchMethodException) {}
         currentClass = currentClass.superclass
     }
     val methodSignature = "$name(${parameterTypes.joinToString { ", " }})"
     throw NoSuchMethodException(
-        "Could not find method $methodSignature neither in $this nor in its superclasses.")
+        "Could not find method $methodSignature neither in $this nor in its superclasses."
+    )
 }
 
 /**
@@ -85,17 +86,17 @@ internal class TileServiceViewAdapter(context: Context, attrs: AttributeSet) :
 
         // tileService.attachBaseContext(context)
         val attachBaseContextMethod =
-            tileServiceClass
-                .findMethod("attachBaseContext", Context::class.java)
-                .apply { isAccessible = true }
+            tileServiceClass.findMethod("attachBaseContext", Context::class.java).apply {
+                isAccessible = true
+            }
         attachBaseContextMethod.invoke(tileService, context)
 
         val deviceParams = context.buildDeviceParameters()
-        val tileRequest = RequestBuilders.TileRequest
-            .Builder()
-            .setState(StateBuilders.State.Builder().build())
-            .setDeviceParameters(deviceParams)
-            .build()
+        val tileRequest =
+            RequestBuilders.TileRequest.Builder()
+                .setState(StateBuilders.State.Builder().build())
+                .setDeviceParameters(deviceParams)
+                .build()
 
         // val tile = tileService.onTileRequest(tileRequest)
         val onTileRequestMethod =
@@ -103,14 +104,15 @@ internal class TileServiceViewAdapter(context: Context, attrs: AttributeSet) :
                 .findMethod("onTileRequest", RequestBuilders.TileRequest::class.java)
                 .apply { isAccessible = true }
         val tile =
-            (onTileRequestMethod.invoke(tileService, tileRequest) as
-                ListenableFuture<TileBuilders.Tile>).get(1, TimeUnit.SECONDS)
+            (onTileRequestMethod.invoke(tileService, tileRequest)
+                    as ListenableFuture<TileBuilders.Tile>)
+                .get(1, TimeUnit.SECONDS)
 
-        val resourceRequest = RequestBuilders.ResourcesRequest
-            .Builder()
-            .setVersion(tile.resourcesVersion)
-            .setDeviceParameters(deviceParams)
-            .build()
+        val resourceRequest =
+            RequestBuilders.ResourcesRequest.Builder()
+                .setVersion(tile.resourcesVersion)
+                .setDeviceParameters(deviceParams)
+                .build()
 
         // val resources = tileService.onResourcesRequest(resourceRequest).get(1, TimeUnit.SECONDS)
         val onResourcesRequestMethod =
@@ -119,20 +121,22 @@ internal class TileServiceViewAdapter(context: Context, attrs: AttributeSet) :
                 .apply { isAccessible = true }
         val resources =
             ResourceBuilders.Resources.fromProto(
-                (onResourcesRequestMethod.invoke(tileService, resourceRequest) as
-                    ListenableFuture<androidx.wear.tiles.ResourceBuilders.Resources>)
-                    .get(1, TimeUnit.SECONDS).toProto()
+                (onResourcesRequestMethod.invoke(tileService, resourceRequest)
+                        as ListenableFuture<androidx.wear.tiles.ResourceBuilders.Resources>)
+                    .get(1, TimeUnit.SECONDS)
+                    .toProto()
             )
 
         val layout = tile.timeline?.getCurrentLayout()
         if (layout != null) {
-            val renderer = TileRenderer(
-                context,
+            val renderer = TileRenderer(context, ContextCompat.getMainExecutor(context)) {}
+            val result = renderer.inflateAsync(layout, resources, this)
+            result.addListener(
+                {
+                    (result.get().layoutParams as FrameLayout.LayoutParams).gravity = Gravity.CENTER
+                },
                 ContextCompat.getMainExecutor(context)
-            ) { }
-            renderer.inflate(layout, resources, this)?.apply {
-                (layoutParams as FrameLayout.LayoutParams).gravity = Gravity.CENTER
-            }
+            )
         }
     }
 }
@@ -140,24 +144,20 @@ internal class TileServiceViewAdapter(context: Context, attrs: AttributeSet) :
 internal fun TimelineBuilders.Timeline?.getCurrentLayout(): LayoutElementBuilders.Layout? {
     val now = System.currentTimeMillis()
     return this?.let {
-        val cache = TilesTimelineCache(it)
-        cache.findTimelineEntryForTime(now) ?: cache.findClosestTimelineEntry(now)
-    }?.layout?.let {
-        LayoutElementBuilders.Layout.fromProto(it.toProto())
-    }
+            val cache = TilesTimelineCache(it)
+            cache.findTimelineEntryForTime(now) ?: cache.findClosestTimelineEntry(now)
+        }
+        ?.layout
+        ?.let { LayoutElementBuilders.Layout.fromProto(it.toProto()) }
 }
 
-/**
- * Creates an instance of [DeviceParametersBuilders.DeviceParameters] from the [Context].
- */
+/** Creates an instance of [DeviceParametersBuilders.DeviceParameters] from the [Context]. */
 internal fun Context.buildDeviceParameters(): DeviceParametersBuilders.DeviceParameters {
     val displayMetrics = resources.displayMetrics
     val isScreenRound = resources.configuration.isScreenRound
     return DeviceParametersBuilders.DeviceParameters.Builder()
-        .setScreenWidthDp(
-            (displayMetrics.widthPixels / displayMetrics.density).roundToInt())
-        .setScreenHeightDp(
-            (displayMetrics.heightPixels / displayMetrics.density).roundToInt())
+        .setScreenWidthDp((displayMetrics.widthPixels / displayMetrics.density).roundToInt())
+        .setScreenHeightDp((displayMetrics.heightPixels / displayMetrics.density).roundToInt())
         .setScreenDensity(displayMetrics.density)
         .setScreenShape(
             if (isScreenRound) DeviceParametersBuilders.SCREEN_SHAPE_ROUND
