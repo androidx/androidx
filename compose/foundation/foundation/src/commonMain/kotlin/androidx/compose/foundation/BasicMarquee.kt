@@ -42,6 +42,8 @@ import androidx.compose.ui.focus.FocusState
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.graphics.drawscope.translate
+import androidx.compose.ui.layout.IntrinsicMeasurable
+import androidx.compose.ui.layout.IntrinsicMeasureScope
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasureResult
@@ -264,6 +266,31 @@ private class MarqueeModifierNode(
             placeable.placeWithLayer(x = (-offset.value * direction).roundToInt(), y = 0)
         }
     }
+
+    // Override intrinsic calculations to avoid setting state (see b/278729564).
+
+    /** Always returns zero since the marquee has no minimum width. */
+    override fun IntrinsicMeasureScope.minIntrinsicWidth(
+        measurable: IntrinsicMeasurable,
+        height: Int
+    ): Int = 0
+
+    override fun IntrinsicMeasureScope.maxIntrinsicWidth(
+        measurable: IntrinsicMeasurable,
+        height: Int
+    ): Int = measurable.maxIntrinsicWidth(height)
+
+    /** Ignores width since marquee contents are always measured with infinite width. */
+    override fun IntrinsicMeasureScope.minIntrinsicHeight(
+        measurable: IntrinsicMeasurable,
+        width: Int
+    ): Int = measurable.minIntrinsicHeight(Constraints.Infinity)
+
+    /** Ignores width since marquee contents are always measured with infinite width. */
+    override fun IntrinsicMeasureScope.maxIntrinsicHeight(
+        measurable: IntrinsicMeasurable,
+        width: Int
+    ): Int = measurable.maxIntrinsicHeight(Constraints.Infinity)
 
     override fun ContentDrawScope.draw() {
         val clipOffset = offset.value * direction
