@@ -37,12 +37,9 @@ import androidx.credentials.provider.utils.BeginCreateCredentialUtil
  * @throws IllegalArgumentException If [createEntries] is empty
  */
 class BeginCreateCredentialResponse constructor(
-    val createEntries: List<CreateEntry>,
+    val createEntries: List<CreateEntry> = listOf(),
     val remoteEntry: RemoteEntry? = null
 ) {
-    init {
-        require(createEntries.isNotEmpty()) { "createEntries should not be empty" }
-    }
 
     /** Builder for [BeginCreateCredentialResponse]. **/
     class Builder {
