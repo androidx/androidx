@@ -15,14 +15,13 @@
  */
 package androidx.wear.watchface.complications.datasource
 
+import android.support.wearable.complications.ComplicationData as WireComplicationData
 import android.content.Intent
 import android.content.res.Resources
-import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.HandlerThread
 import android.os.RemoteException
-import android.support.wearable.complications.ComplicationData as WireComplicationData
 import android.support.wearable.complications.IComplicationManager
 import android.support.wearable.complications.IComplicationProvider
 import android.util.Log
@@ -48,12 +47,10 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.ArgumentMatchers.argThat
 import org.mockito.ArgumentMatchers.eq
 import org.mockito.Mockito.verify
 import org.mockito.kotlin.argumentCaptor
 import org.mockito.kotlin.mock
-import org.mockito.kotlin.whenever
 import org.robolectric.annotation.internal.DoNotInstrument
 import org.robolectric.shadows.ShadowLog
 import org.robolectric.shadows.ShadowLooper.runUiThreadTasks
@@ -113,12 +110,7 @@ class ComplicationDataSourceServiceTest {
         /** Last type provided to [previewData]. */
         var lastPreviewType: ComplicationType? = null
 
-        /** Last error provided to [onComplicationDataError]. */
-        var lastSendError: Throwable? = null
-
         val lastPreviewOrErrorLatch = CountDownLatch(1)
-
-        override var wearPlatformVersion = Build.VERSION.SDK_INT
 
         override fun createMainThreadHandler(): Handler = mPretendMainThreadHandler
 
@@ -136,11 +128,6 @@ class ComplicationDataSourceServiceTest {
             } catch (e: RemoteException) {
                 Log.e(TAG, "onComplicationRequest failed with error: ", e)
             }
-        }
-
-        override fun onComplicationDataError(throwable: Throwable) {
-            lastSendError = throwable
-            lastPreviewOrErrorLatch.countDown()
         }
 
         override fun getPreviewData(type: ComplicationType): ComplicationData? {
@@ -243,74 +230,6 @@ class ComplicationDataSourceServiceTest {
     }
 
     @Test
-    fun testOnComplicationRequestWithExpression_doesNotEvaluateExpression() {
-        // TODO(b/257422920): Set this to the exact platform version.
-        mService.wearPlatformVersion = Build.VERSION_CODES.TIRAMISU + 1
-        mService.responseData =
-            LongTextComplicationData.Builder(
-                    ComplicationTextExpression(
-                        DynamicString.constant("hello").concat(DynamicString.constant(" world"))
-                    ),
-                    ComplicationText.EMPTY
-                )
-                .build()
-        mProvider.onUpdate(
-            /* complicationInstanceId = */ 123,
-            ComplicationType.LONG_TEXT.toWireComplicationType(),
-            mLocalManager
-        )
-
-        runUiThreadTasksWhileAwaitingDataLatch(1000)
-        verify(mRemoteManager)
-            .updateComplicationData(
-                eq(123),
-                eq(
-                    LongTextComplicationData.Builder(
-                            ComplicationTextExpression(
-                                DynamicString.constant("hello")
-                                    .concat(DynamicString.constant(" world"))
-                            ),
-                            ComplicationText.EMPTY
-                        )
-                        .build()
-                        .asWireComplicationData()
-                )
-            )
-    }
-
-    @Test
-    fun testOnComplicationRequestWithExpressionBeforePlatformSupport_evaluatesExpression() {
-        // TODO(b/257422920): Set this to the exact platform version.
-        mService.wearPlatformVersion = Build.VERSION_CODES.TIRAMISU
-        mService.responseData =
-            LongTextComplicationData.Builder(
-                    ComplicationTextExpression(
-                        DynamicString.constant("hello").concat(DynamicString.constant(" world"))
-                    ),
-                    ComplicationText.EMPTY
-                )
-                .build()
-
-        mProvider.onUpdate(
-            /* complicationInstanceId = */ 123,
-            ComplicationType.LONG_TEXT.toWireComplicationType(),
-            mLocalManager
-        )
-
-        runUiThreadTasksWhileAwaitingDataLatch(1000)
-        verify(mRemoteManager)
-            .updateComplicationData(
-                eq(123),
-                argThat { data ->
-                    data.longText ==
-                        PlainComplicationText.Builder("hello world")
-                            .build()
-                            .toWireComplicationText()
-                }
-            )
-    }
-
-    @Test
     fun testOnComplicationRequestWrongType() {
         mService.responseData =
             LongTextComplicationData.Builder(
@@ -344,26 +263,6 @@ class ComplicationDataSourceServiceTest {
         val data = argumentCaptor<WireComplicationData>()
         verify(mRemoteManager).updateComplicationData(eq(id), data.capture())
         assertThat(data.allValues).containsExactly(null)
-    }
-
-    @Test
-    fun testOnComplicationDataError() {
-        val data =
-            LongTextComplicationData.Builder(
-                    PlainComplicationText.Builder("hello").build(),
-                    ComplicationText.EMPTY
-                )
-                .build()
-        mService.responseData = data
-        val id = 123
-        val error = RuntimeException("failed!")
-        whenever(mRemoteManager.updateComplicationData(id, data.asWireComplicationData()))
-            .thenThrow(error)
-
-        mProvider.onUpdate(id, ComplicationType.LONG_TEXT.toWireComplicationType(), mLocalManager)
-        mService.lastPreviewOrErrorLatch.await(1, TimeUnit.SECONDS)
-
-        assertThat(mService.lastSendError).isEqualTo(error)
     }
 
     @Test
