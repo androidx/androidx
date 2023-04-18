@@ -35,6 +35,9 @@ class ComparableSubjectTest {
         assertFailsWith<NullPointerException> {
             assertThat(6).isLessThan(null)
         }
+        assertFailsWith<NullPointerException> {
+            assertThat(6).isAtLeast(null)
+        }
     }
 
     @Test
@@ -52,16 +55,31 @@ class ComparableSubjectTest {
         }
     }
 
+    @Test
+    fun isAtLeast() {
+        assertThat(4).isAtLeast(3)
+        assertThat(4).isAtLeast(4)
+        assertFailsWith<AssertionError> {
+            assertThat(4).isAtLeast(5)
+        }
+    }
+
     // Brief tests with other comparable types (no negative test cases)
 
     @Test
     fun longs() {
         assertThat(4L).isLessThan(5L)
+
+        assertThat(4L).isAtLeast(4L)
+        assertThat(4L).isAtLeast(3L)
     }
 
     @Test
     fun strings() {
         assertThat("gak").isLessThan("kak")
+
+        assertThat("kak").isAtLeast("kak")
+        assertThat("kak").isAtLeast("gak")
     }
 
     @Test
