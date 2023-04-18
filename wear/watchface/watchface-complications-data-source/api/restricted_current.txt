@@ -6,7 +6,6 @@ package androidx.wear.watchface.complications.datasource {
     method public abstract androidx.wear.watchface.complications.data.ComplicationData? getPreviewData(androidx.wear.watchface.complications.data.ComplicationType type);
     method public final android.os.IBinder? onBind(android.content.Intent intent);
     method @MainThread public void onComplicationActivated(int complicationInstanceId, androidx.wear.watchface.complications.data.ComplicationType type);
-    method @MainThread @kotlin.jvm.Throws(exceptionClasses=Throwable::class) public void onComplicationDataError(Throwable throwable) throws java.lang.Throwable;
     method @MainThread public void onComplicationDeactivated(int complicationInstanceId);
     method @MainThread public abstract void onComplicationRequest(androidx.wear.watchface.complications.datasource.ComplicationRequest request, androidx.wear.watchface.complications.datasource.ComplicationDataSourceService.ComplicationRequestListener listener);
     method @MainThread public void onStartImmediateComplicationRequests(int complicationInstanceId);

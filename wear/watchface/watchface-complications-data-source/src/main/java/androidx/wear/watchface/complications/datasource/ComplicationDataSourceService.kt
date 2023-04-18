@@ -27,7 +27,6 @@ import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
 import android.os.RemoteException
-import android.support.wearable.complications.ComplicationData as WireComplicationData
 import android.support.wearable.complications.ComplicationProviderInfo
 import android.support.wearable.complications.IComplicationManager
 import android.support.wearable.complications.IComplicationProvider
@@ -35,9 +34,7 @@ import androidx.annotation.IntDef
 import androidx.annotation.MainThread
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
-import androidx.annotation.VisibleForTesting
 import androidx.wear.watchface.complications.data.ComplicationData
-import androidx.wear.watchface.complications.data.ComplicationDataExpressionEvaluator
 import androidx.wear.watchface.complications.data.ComplicationDataExpressionEvaluator.Companion.hasExpression
 import androidx.wear.watchface.complications.data.ComplicationType
 import androidx.wear.watchface.complications.data.ComplicationType.Companion.fromWireType
@@ -49,18 +46,11 @@ import androidx.wear.watchface.complications.data.PhotoImageComplicationData
 import androidx.wear.watchface.complications.data.RangedValueComplicationData
 import androidx.wear.watchface.complications.data.ShortTextComplicationData
 import androidx.wear.watchface.complications.data.SmallImageComplicationData
-import androidx.wear.watchface.complications.data.WeightedElementsComplicationData
 import androidx.wear.watchface.complications.data.TimeRange
+import androidx.wear.watchface.complications.data.WeightedElementsComplicationData
 import androidx.wear.watchface.complications.datasource.ComplicationDataSourceService.Companion.METADATA_KEY_IMMEDIATE_UPDATE_PERIOD_MILLISECONDS
 import androidx.wear.watchface.complications.datasource.ComplicationDataSourceService.ComplicationRequestListener
-import java.time.Duration
 import java.util.concurrent.CountDownLatch
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withTimeout
 
 /**
  * Data associated with complication request in
@@ -196,17 +186,16 @@ public annotation class IsForSafeWatchFace
  * - A ComplicationDataSourceService must include a `meta-data` tag with
  *   android.support.wearable.complications.SUPPORTED_TYPES in its manifest entry. The value of this
  *   tag should be a comma separated list of types supported by the data source, from this table:
- *
- * | Androidx class                        | Tag name          |
- * |---------------------------------------|-------------------|
- * | [GoalProgressComplicationData]        | GOAL_PROGRESS     |
- * | [LongTextComplicationData]            | LONG_TEXT         |
- * | [MonochromaticImageComplicationData]  | ICON              |
- * | [PhotoImageComplicationData]          | LARGE_IMAGE       |
- * | [RangedValueComplicationData]         | RANGED_TEXT       |
- * | [ShortTextComplicationData]           | SHORT_TEXT        |
- * | [SmallImageComplicationData]          | SMALL_IMAGE       |
- * | [WeightedElementsComplicationData]    | WEIGHTED_ELEMENTS |
+ * | Androidx class                       | Tag name          |
+ * |--------------------------------------|-------------------|
+ * | [GoalProgressComplicationData]       | GOAL_PROGRESS     |
+ * | [LongTextComplicationData]           | LONG_TEXT         |
+ * | [MonochromaticImageComplicationData] | ICON              |
+ * | [PhotoImageComplicationData]         | LARGE_IMAGE       |
+ * | [RangedValueComplicationData]        | RANGED_TEXT       |
+ * | [ShortTextComplicationData]          | SHORT_TEXT        |
+ * | [SmallImageComplicationData]         | SMALL_IMAGE       |
+ * | [WeightedElementsComplicationData]   | WEIGHTED_ELEMENTS |
  *
  * The order in which types are listed has no significance. In the case where a watch face supports
  * multiple types in a single complication slot, the watch face will determine which types it
@@ -222,18 +211,17 @@ public annotation class IsForSafeWatchFace
  * From android T onwards, it is recommended for Complication DataSourceServices to be direct boot
  * aware because the system is able to fetch complications before the lock screen has been removed.
  * To do this add android:directBootAware="true" to your service tag.
- *
  * - A provider can choose to trust one or more watch faces by including the following in its
- * manifest entry:
+ *   manifest entry:
  * ```
  * <meta-data android:name="android.support.wearable.complications.SAFE_WATCH_FACES
  * android:value="com.pkg1/com.trusted.wf1,com.pkg2/com.trusted.wf2"/>
  * ```
+ *
  * The listed watch faces will not need
  * 'com.google.android.wearable.permission.RECEIVE_COMPLICATION_DATA' in order to receive
- * complications from this provider. Also the provider may choose to serve different types to
- * safe watch faces by including the following in its manifest:
- *
+ * complications from this provider. Also the provider may choose to serve different types to safe
+ * watch faces by including the following in its manifest:
  * ```
  * <meta-data android:name=
  *     "androidx.wear.watchface.complications.datasource.SAFE_WATCH_FACE_SUPPORTED_TYPES"
@@ -244,7 +232,6 @@ public annotation class IsForSafeWatchFace
  * [ComplicationRequest.isForSafeWatchFace]. Note SAFE_WATCH_FACE_SUPPORTED_TYPES and
  * isForSafeWatchFace are gated behind the privileged permission
  * `com.google.wear.permission.GET_IS_FOR_SAFE_WATCH_FACE`.
- *
  * - A ComplicationDataSourceService should include a `meta-data` tag with
  *   android.support.wearable.complications.UPDATE_PERIOD_SECONDS its manifest entry. The value of
  *   this tag is the number of seconds the complication data source would like to elapse between
@@ -320,19 +307,7 @@ public annotation class IsForSafeWatchFace
  */
 public abstract class ComplicationDataSourceService : Service() {
     private var wrapper: IComplicationProviderWrapper? = null
-    private var lastExpressionEvaluationJob: Job? = null
     internal val mainThreadHandler by lazy { createMainThreadHandler() }
-
-    /**
-     * Equivalent to [Build.VERSION.SDK_INT], but allows override for any platform-independent
-     * versioning.
-     *
-     * This is meant to only be used in androidTest, which only support testing on one SDK. In
-     * Robolectric tests use `@Config(sdk = [Build.VERSION_CODES.*])`.
-     *
-     * Note that this cannot override platform-dependent versioning, which means inconsistency.
-     */
-    @VisibleForTesting internal open val wearPlatformVersion = Build.VERSION.SDK_INT
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     open fun createMainThreadHandler() = Handler(Looper.getMainLooper())
@@ -346,11 +321,6 @@ public abstract class ComplicationDataSourceService : Service() {
             return wrapper
         }
         return null
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        lastExpressionEvaluationJob?.cancel()
     }
 
     /**
@@ -398,32 +368,6 @@ public abstract class ComplicationDataSourceService : Service() {
     )
 
     /**
-     * Called when sending [ComplicationData] (through [ComplicationRequestListener]) threw an
-     * error.
-     *
-     * This can be due to expression evaluation error, a [RemoteException], or something else.
-     *
-     * It's recommended to override this rather than catch exceptions directly on the
-     * [ComplicationRequestListener] call, because the implementation can be asynchronous.
-     *
-     * When the [ComplicationData] contains an expression, that expression is evaluated locally for
-     * backward compatibility with older platforms. This evaluation is asynchronous, which means an
-     * exception will not be thrown synchronously.
-     *
-     * IMPORTANT: If not overridden, the error will be propagated to the main thread (and
-     * potentially crash the process).
-     *
-     * @throws Throwable Thrown exception will be propagated to the main thread (and potentially
-     *   crash the process).
-     */
-    @MainThread
-    @SuppressWarnings("GenericException") // Error propagation.
-    @Throws(Throwable::class)
-    public open fun onComplicationDataError(throwable: Throwable) {
-        throw throwable
-    }
-
-    /**
      * A request for representative preview data for the complication, for use in the editor UI.
      * Preview data is assumed to be static per type. E.g. for a complication that displays the date
      * and time of an event, rather than returning the real time it should return a fixed date and
@@ -447,16 +391,6 @@ public abstract class ComplicationDataSourceService : Service() {
          * Sends the [ComplicationData] to the system. If null is passed then any previous
          * complication data will not be overwritten. Can be called on any thread. Should only be
          * called once. Note this is mutually exclusive with [onComplicationDataTimeline].
-         *
-         * Errors sending the data are provided to [onComplicationDataError], which re-throws the
-         * error, potentially crashing the main thread.
-         *
-         * As the implementation of [onComplicationData] may be asynchronous, it's better to
-         * override [onComplicationDataError] rather than catch exceptions thrown from this call.
-         *
-         * When the [ComplicationData] contains an expression, that expression is evaluated locally
-         * for backward compatibility with older platforms. This evaluation is asynchronous, which
-         * means an exception will not be thrown synchronously.
          */
         @Throws(RemoteException::class)
         public fun onComplicationData(complicationData: ComplicationData?)
@@ -466,16 +400,6 @@ public abstract class ComplicationDataSourceService : Service() {
          * complication data will not be overwritten. Can be called on any thread. Should only be
          * called once. Note this is mutually exclusive with [onComplicationData]. Note only
          * [ComplicationDataTimeline.defaultComplicationData] is supported by older watch faces .
-         *
-         * Errors sending the data are provided to [onComplicationDataError], which re-throws the
-         * error, potentially crashing the main thread.
-         *
-         * As the implementation of [onComplicationDataTimeline] may be asynchronous, it's better to
-         * override [onComplicationDataError] rather than catch exceptions thrown from this call.
-         *
-         * When the [ComplicationData] contains an expression, that expression is evaluated locally
-         * for backward compatibility with older platforms. This evaluation is asynchronous, which
-         * means an exception will not be thrown synchronously.
          */
         // TODO(alexclarke): Plumb a capability bit so the developers can know if timelines are
         // supported by the watch face.
@@ -582,8 +506,11 @@ public abstract class ComplicationDataSourceService : Service() {
                                     }
                                 }
                             }
-
-                            complicationData?.asWireComplicationData().evaluateAndUpdateManager()
+                            // When no update is needed, the complicationData is going to be null.
+                            iComplicationManager.updateComplicationData(
+                                complicationInstanceId,
+                                complicationData?.asWireComplicationData()
+                            )
                         }
 
                         override fun onComplicationDataTimeline(
@@ -637,50 +564,11 @@ public abstract class ComplicationDataSourceService : Service() {
                                     }
                                 }
                             }
-                            complicationDataTimeline
-                                ?.asWireComplicationData()
-                                .evaluateAndUpdateManager()
-                        }
-
-                        private fun WireComplicationData?.evaluateAndUpdateManager() {
-                            // Cancelling any previous evaluation.
-                            lastExpressionEvaluationJob?.cancel()
-                            if (
-                                // When no update is needed, the data is going to be null.
-                                this == null ||
-                                    // Will be evaluated by the platform.
-                                    // TODO(b/257422920): Set this to the exact platform version.
-                                    wearPlatformVersion >= Build.VERSION_CODES.TIRAMISU + 1 ||
-                                    // Avoid async evaluation to prevent backward incompatibility
-                                    // with try/catch.
-                                    !hasExpression(this)
-                            ) {
-                                try {
-                                    iComplicationManager.updateComplicationData(
-                                        complicationInstanceId,
-                                        this
-                                    )
-                                } catch (e: Throwable) {
-                                    onComplicationDataError(e)
-                                }
-                                return
-                            }
-                            lastExpressionEvaluationJob =
-                                CoroutineScope(Dispatchers.Main).launch {
-                                    // Doing one-off evaluation, the service will be re-invoked.
-                                    try {
-                                        iComplicationManager.updateComplicationData(
-                                            complicationInstanceId,
-                                            withTimeout(EXPRESSION_EVALUATION_TIMEOUT.toMillis()) {
-                                                ComplicationDataExpressionEvaluator()
-                                                    .evaluate(this@evaluateAndUpdateManager)
-                                                    .first()
-                                            }
-                                        )
-                                    } catch (e: Throwable) {
-                                        onComplicationDataError(e)
-                                    }
-                                }
+                            // When no update is needed, the complicationData is going to be null.
+                            iComplicationManager.updateComplicationData(
+                                complicationInstanceId,
+                                complicationDataTimeline?.asWireComplicationData()
+                            )
                         }
                     }
                 )
@@ -876,8 +764,8 @@ public abstract class ComplicationDataSourceService : Service() {
          *
          * Gated behind the privileged permission
          * `com.google.wear.permission.GET_IS_FOR_SAFE_WATCH_FACE', this overrides the
-         * [METADATA_KEY_SUPPORTED_TYPES] list for 'safe' watch faces. I.e.
-         * watch faces in the [METADATA_KEY_SAFE_WATCH_FACES] metadata list.
+         * [METADATA_KEY_SUPPORTED_TYPES] list for 'safe' watch faces. I.e. watch faces in the
+         * [METADATA_KEY_SAFE_WATCH_FACES] metadata list.
          *
          * This means for example trusted watch faces could receive [ComplicationType.SHORT_TEXT]
          * and untrusted ones [ComplicationType.MONOCHROMATIC_IMAGE].
@@ -1038,8 +926,5 @@ public abstract class ComplicationDataSourceService : Service() {
         @SuppressLint("ActionValue")
         public const val EXTRA_CONFIG_DATA_SOURCE_COMPONENT: String =
             "android.support.wearable.complications.EXTRA_CONFIG_PROVIDER_COMPONENT"
-
-        /** How long to allow expression evaluation to execute. */
-        private val EXPRESSION_EVALUATION_TIMEOUT = Duration.ofSeconds(10)
     }
 }
