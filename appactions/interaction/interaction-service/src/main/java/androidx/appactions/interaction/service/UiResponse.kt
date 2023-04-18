@@ -22,8 +22,6 @@ import android.widget.RemoteViews
 import android.widget.RemoteViewsService.RemoteViewsFactory
 import androidx.annotation.IdRes
 import androidx.annotation.RestrictTo
-import androidx.wear.tiles.LayoutElementBuilders
-import androidx.wear.tiles.ResourceBuilders
 
 /**
  * A class representing the UI response being returned to the host. A `UiResponse` cannot be built
@@ -49,9 +47,10 @@ class UiResponse {
     }
 
     /** Builder for TileLayouts, used in Wear OS. */
+    @Suppress("deprecation") // for backward compatibility
     class TileLayoutBuilder {
-        private var layout: LayoutElementBuilders.Layout? = null
-        private var resources: ResourceBuilders.Resources? = null
+        private var layout: androidx.wear.tiles.LayoutElementBuilders.Layout? = null
+        private var resources: androidx.wear.tiles.ResourceBuilders.Resources? = null
 
         /**
          * Sets the [LayoutElementBuilders.Layout] and the associated [ResourceBuilders.Resources]
@@ -63,8 +62,8 @@ class UiResponse {
          */
         @SuppressLint("MissingGetterMatchingBuilder")
         fun setTileLayout(
-            layout: LayoutElementBuilders.Layout,
-            resources: ResourceBuilders.Resources
+            layout: androidx.wear.tiles.LayoutElementBuilders.Layout,
+            resources: androidx.wear.tiles.ResourceBuilders.Resources
         ): TileLayoutBuilder {
             this.layout = layout
             this.resources = resources

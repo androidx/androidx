@@ -36,14 +36,13 @@ import androidx.appactions.interaction.service.testing.internal.FakeCapability.O
 import androidx.appactions.interaction.service.testing.internal.FakeCapability.ExecutionSession
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.wear.tiles.LayoutElementBuilders
-import androidx.wear.tiles.ResourceBuilders
 import com.google.common.truth.Truth.assertThat
 import org.junit.After
 import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
+@Suppress("deprecation") // For backwards compatibility.
 class UiSessionsTest {
     private val sessionFactory = object : ExecutionSessionFactory<ExecutionSession> {
         private val sessions = mutableListOf<ExecutionSession>()
@@ -81,20 +80,24 @@ class UiSessionsTest {
             .addViewIdForCollectionUpdate(changeViewId)
             .build()
     private val layout =
-        LayoutElementBuilders.Layout.Builder()
+        androidx.wear.tiles.LayoutElementBuilders.Layout.Builder()
             .setRoot(
-                LayoutElementBuilders.Box.Builder()
+                androidx.wear.tiles.LayoutElementBuilders.Box.Builder()
                     .addContent(
-                        LayoutElementBuilders.Column.Builder()
+                        androidx.wear.tiles.LayoutElementBuilders.Column.Builder()
                             .addContent(
-                                LayoutElementBuilders.Text.Builder().setText("LA8JE92").build(),
+                                androidx.wear.tiles.LayoutElementBuilders.Text.Builder()
+                                    .setText("LA8JE92")
+                                    .build(),
                             )
                             .build(),
                     )
                     .build(),
             )
             .build()
-    private val resources = ResourceBuilders.Resources.Builder().setVersion("1234").build()
+    private val resources = androidx.wear.tiles.ResourceBuilders.Resources.Builder()
+        .setVersion("1234")
+        .build()
     private val tileLayoutUiResponse: UiResponse =
         UiResponse.TileLayoutBuilder().setTileLayout(layout, resources).build()
 

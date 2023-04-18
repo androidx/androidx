@@ -1,249 +1,249 @@
 // Signature format: 4.0
 package androidx.wear.tiles {
 
-  public final class ActionBuilders {
-    method public static androidx.wear.tiles.ActionBuilders.AndroidBooleanExtra booleanExtra(boolean);
-    method public static androidx.wear.tiles.ActionBuilders.AndroidDoubleExtra doubleExtra(double);
-    method public static androidx.wear.tiles.ActionBuilders.AndroidIntExtra intExtra(int);
-    method public static androidx.wear.tiles.ActionBuilders.AndroidLongExtra longExtra(long);
-    method public static androidx.wear.tiles.ActionBuilders.AndroidStringExtra stringExtra(String);
+  @Deprecated public final class ActionBuilders {
+    method @Deprecated public static androidx.wear.tiles.ActionBuilders.AndroidBooleanExtra booleanExtra(boolean);
+    method @Deprecated public static androidx.wear.tiles.ActionBuilders.AndroidDoubleExtra doubleExtra(double);
+    method @Deprecated public static androidx.wear.tiles.ActionBuilders.AndroidIntExtra intExtra(int);
+    method @Deprecated public static androidx.wear.tiles.ActionBuilders.AndroidLongExtra longExtra(long);
+    method @Deprecated public static androidx.wear.tiles.ActionBuilders.AndroidStringExtra stringExtra(String);
   }
 
-  public static interface ActionBuilders.Action {
+  @Deprecated public static interface ActionBuilders.Action {
   }
 
-  public static interface ActionBuilders.Action.Builder {
-    method public androidx.wear.tiles.ActionBuilders.Action build();
+  @Deprecated public static interface ActionBuilders.Action.Builder {
+    method @Deprecated public androidx.wear.tiles.ActionBuilders.Action build();
   }
 
-  public static final class ActionBuilders.AndroidActivity {
-    method public String getClassName();
-    method public java.util.Map<java.lang.String!,androidx.wear.tiles.ActionBuilders.AndroidExtra!> getKeyToExtraMapping();
-    method public String getPackageName();
+  @Deprecated public static final class ActionBuilders.AndroidActivity {
+    method @Deprecated public String getClassName();
+    method @Deprecated public java.util.Map<java.lang.String!,androidx.wear.tiles.ActionBuilders.AndroidExtra!> getKeyToExtraMapping();
+    method @Deprecated public String getPackageName();
   }
 
-  public static final class ActionBuilders.AndroidActivity.Builder {
-    ctor public ActionBuilders.AndroidActivity.Builder();
-    method public androidx.wear.tiles.ActionBuilders.AndroidActivity.Builder addKeyToExtraMapping(String, androidx.wear.tiles.ActionBuilders.AndroidExtra);
-    method public androidx.wear.tiles.ActionBuilders.AndroidActivity build();
-    method public androidx.wear.tiles.ActionBuilders.AndroidActivity.Builder setClassName(String);
-    method public androidx.wear.tiles.ActionBuilders.AndroidActivity.Builder setPackageName(String);
+  @Deprecated public static final class ActionBuilders.AndroidActivity.Builder {
+    ctor @Deprecated public ActionBuilders.AndroidActivity.Builder();
+    method @Deprecated public androidx.wear.tiles.ActionBuilders.AndroidActivity.Builder addKeyToExtraMapping(String, androidx.wear.tiles.ActionBuilders.AndroidExtra);
+    method @Deprecated public androidx.wear.tiles.ActionBuilders.AndroidActivity build();
+    method @Deprecated public androidx.wear.tiles.ActionBuilders.AndroidActivity.Builder setClassName(String);
+    method @Deprecated public androidx.wear.tiles.ActionBuilders.AndroidActivity.Builder setPackageName(String);
   }
 
-  public static final class ActionBuilders.AndroidBooleanExtra implements androidx.wear.tiles.ActionBuilders.AndroidExtra {
-    method public boolean getValue();
+  @Deprecated public static final class ActionBuilders.AndroidBooleanExtra implements androidx.wear.tiles.ActionBuilders.AndroidExtra {
+    method @Deprecated public boolean getValue();
   }
 
-  public static final class ActionBuilders.AndroidBooleanExtra.Builder implements androidx.wear.tiles.ActionBuilders.AndroidExtra.Builder {
-    ctor public ActionBuilders.AndroidBooleanExtra.Builder();
-    method public androidx.wear.tiles.ActionBuilders.AndroidBooleanExtra build();
-    method public androidx.wear.tiles.ActionBuilders.AndroidBooleanExtra.Builder setValue(boolean);
+  @Deprecated public static final class ActionBuilders.AndroidBooleanExtra.Builder implements androidx.wear.tiles.ActionBuilders.AndroidExtra.Builder {
+    ctor @Deprecated public ActionBuilders.AndroidBooleanExtra.Builder();
+    method @Deprecated public androidx.wear.tiles.ActionBuilders.AndroidBooleanExtra build();
+    method @Deprecated public androidx.wear.tiles.ActionBuilders.AndroidBooleanExtra.Builder setValue(boolean);
   }
 
-  public static final class ActionBuilders.AndroidDoubleExtra implements androidx.wear.tiles.ActionBuilders.AndroidExtra {
-    method public double getValue();
+  @Deprecated public static final class ActionBuilders.AndroidDoubleExtra implements androidx.wear.tiles.ActionBuilders.AndroidExtra {
+    method @Deprecated public double getValue();
   }
 
-  public static final class ActionBuilders.AndroidDoubleExtra.Builder implements androidx.wear.tiles.ActionBuilders.AndroidExtra.Builder {
-    ctor public ActionBuilders.AndroidDoubleExtra.Builder();
-    method public androidx.wear.tiles.ActionBuilders.AndroidDoubleExtra build();
-    method public androidx.wear.tiles.ActionBuilders.AndroidDoubleExtra.Builder setValue(double);
+  @Deprecated public static final class ActionBuilders.AndroidDoubleExtra.Builder implements androidx.wear.tiles.ActionBuilders.AndroidExtra.Builder {
+    ctor @Deprecated public ActionBuilders.AndroidDoubleExtra.Builder();
+    method @Deprecated public androidx.wear.tiles.ActionBuilders.AndroidDoubleExtra build();
+    method @Deprecated public androidx.wear.tiles.ActionBuilders.AndroidDoubleExtra.Builder setValue(double);
   }
 
-  public static interface ActionBuilders.AndroidExtra {
+  @Deprecated public static interface ActionBuilders.AndroidExtra {
   }
 
-  public static interface ActionBuilders.AndroidExtra.Builder {
-    method public androidx.wear.tiles.ActionBuilders.AndroidExtra build();
+  @Deprecated public static interface ActionBuilders.AndroidExtra.Builder {
+    method @Deprecated public androidx.wear.tiles.ActionBuilders.AndroidExtra build();
   }
 
-  public static final class ActionBuilders.AndroidIntExtra implements androidx.wear.tiles.ActionBuilders.AndroidExtra {
-    method public int getValue();
+  @Deprecated public static final class ActionBuilders.AndroidIntExtra implements androidx.wear.tiles.ActionBuilders.AndroidExtra {
+    method @Deprecated public int getValue();
   }
 
-  public static final class ActionBuilders.AndroidIntExtra.Builder implements androidx.wear.tiles.ActionBuilders.AndroidExtra.Builder {
-    ctor public ActionBuilders.AndroidIntExtra.Builder();
-    method public androidx.wear.tiles.ActionBuilders.AndroidIntExtra build();
-    method public androidx.wear.tiles.ActionBuilders.AndroidIntExtra.Builder setValue(int);
+  @Deprecated public static final class ActionBuilders.AndroidIntExtra.Builder implements androidx.wear.tiles.ActionBuilders.AndroidExtra.Builder {
+    ctor @Deprecated public ActionBuilders.AndroidIntExtra.Builder();
+    method @Deprecated public androidx.wear.tiles.ActionBuilders.AndroidIntExtra build();
+    method @Deprecated public androidx.wear.tiles.ActionBuilders.AndroidIntExtra.Builder setValue(int);
   }
 
-  public static final class ActionBuilders.AndroidLongExtra implements androidx.wear.tiles.ActionBuilders.AndroidExtra {
-    method public long getValue();
+  @Deprecated public static final class ActionBuilders.AndroidLongExtra implements androidx.wear.tiles.ActionBuilders.AndroidExtra {
+    method @Deprecated public long getValue();
   }
 
-  public static final class ActionBuilders.AndroidLongExtra.Builder implements androidx.wear.tiles.ActionBuilders.AndroidExtra.Builder {
-    ctor public ActionBuilders.AndroidLongExtra.Builder();
-    method public androidx.wear.tiles.ActionBuilders.AndroidLongExtra build();
-    method public androidx.wear.tiles.ActionBuilders.AndroidLongExtra.Builder setValue(long);
+  @Deprecated public static final class ActionBuilders.AndroidLongExtra.Builder implements androidx.wear.tiles.ActionBuilders.AndroidExtra.Builder {
+    ctor @Deprecated public ActionBuilders.AndroidLongExtra.Builder();
+    method @Deprecated public androidx.wear.tiles.ActionBuilders.AndroidLongExtra build();
+    method @Deprecated public androidx.wear.tiles.ActionBuilders.AndroidLongExtra.Builder setValue(long);
   }
 
-  public static final class ActionBuilders.AndroidStringExtra implements androidx.wear.tiles.ActionBuilders.AndroidExtra {
-    method public String getValue();
+  @Deprecated public static final class ActionBuilders.AndroidStringExtra implements androidx.wear.tiles.ActionBuilders.AndroidExtra {
+    method @Deprecated public String getValue();
   }
 
-  public static final class ActionBuilders.AndroidStringExtra.Builder implements androidx.wear.tiles.ActionBuilders.AndroidExtra.Builder {
-    ctor public ActionBuilders.AndroidStringExtra.Builder();
-    method public androidx.wear.tiles.ActionBuilders.AndroidStringExtra build();
-    method public androidx.wear.tiles.ActionBuilders.AndroidStringExtra.Builder setValue(String);
+  @Deprecated public static final class ActionBuilders.AndroidStringExtra.Builder implements androidx.wear.tiles.ActionBuilders.AndroidExtra.Builder {
+    ctor @Deprecated public ActionBuilders.AndroidStringExtra.Builder();
+    method @Deprecated public androidx.wear.tiles.ActionBuilders.AndroidStringExtra build();
+    method @Deprecated public androidx.wear.tiles.ActionBuilders.AndroidStringExtra.Builder setValue(String);
   }
 
-  public static final class ActionBuilders.LaunchAction implements androidx.wear.tiles.ActionBuilders.Action {
-    method public androidx.wear.tiles.ActionBuilders.AndroidActivity? getAndroidActivity();
+  @Deprecated public static final class ActionBuilders.LaunchAction implements androidx.wear.tiles.ActionBuilders.Action {
+    method @Deprecated public androidx.wear.tiles.ActionBuilders.AndroidActivity? getAndroidActivity();
   }
 
-  public static final class ActionBuilders.LaunchAction.Builder implements androidx.wear.tiles.ActionBuilders.Action.Builder {
-    ctor public ActionBuilders.LaunchAction.Builder();
-    method public androidx.wear.tiles.ActionBuilders.LaunchAction build();
-    method public androidx.wear.tiles.ActionBuilders.LaunchAction.Builder setAndroidActivity(androidx.wear.tiles.ActionBuilders.AndroidActivity);
+  @Deprecated public static final class ActionBuilders.LaunchAction.Builder implements androidx.wear.tiles.ActionBuilders.Action.Builder {
+    ctor @Deprecated public ActionBuilders.LaunchAction.Builder();
+    method @Deprecated public androidx.wear.tiles.ActionBuilders.LaunchAction build();
+    method @Deprecated public androidx.wear.tiles.ActionBuilders.LaunchAction.Builder setAndroidActivity(androidx.wear.tiles.ActionBuilders.AndroidActivity);
   }
 
-  public static final class ActionBuilders.LoadAction implements androidx.wear.tiles.ActionBuilders.Action {
-    method public androidx.wear.tiles.StateBuilders.State? getRequestState();
+  @Deprecated public static final class ActionBuilders.LoadAction implements androidx.wear.tiles.ActionBuilders.Action {
+    method @Deprecated public androidx.wear.tiles.StateBuilders.State? getRequestState();
   }
 
-  public static final class ActionBuilders.LoadAction.Builder implements androidx.wear.tiles.ActionBuilders.Action.Builder {
-    ctor public ActionBuilders.LoadAction.Builder();
-    method public androidx.wear.tiles.ActionBuilders.LoadAction build();
-    method public androidx.wear.tiles.ActionBuilders.LoadAction.Builder setRequestState(androidx.wear.tiles.StateBuilders.State);
+  @Deprecated public static final class ActionBuilders.LoadAction.Builder implements androidx.wear.tiles.ActionBuilders.Action.Builder {
+    ctor @Deprecated public ActionBuilders.LoadAction.Builder();
+    method @Deprecated public androidx.wear.tiles.ActionBuilders.LoadAction build();
+    method @Deprecated public androidx.wear.tiles.ActionBuilders.LoadAction.Builder setRequestState(androidx.wear.tiles.StateBuilders.State);
   }
 
-  public final class ColorBuilders {
-    method public static androidx.wear.tiles.ColorBuilders.ColorProp argb(@ColorInt int);
+  @Deprecated public final class ColorBuilders {
+    method @Deprecated public static androidx.wear.tiles.ColorBuilders.ColorProp argb(@ColorInt int);
   }
 
-  public static final class ColorBuilders.ColorProp {
-    method @ColorInt public int getArgb();
+  @Deprecated public static final class ColorBuilders.ColorProp {
+    method @Deprecated @ColorInt public int getArgb();
   }
 
-  public static final class ColorBuilders.ColorProp.Builder {
-    ctor public ColorBuilders.ColorProp.Builder();
-    method public androidx.wear.tiles.ColorBuilders.ColorProp build();
-    method public androidx.wear.tiles.ColorBuilders.ColorProp.Builder setArgb(@ColorInt int);
+  @Deprecated public static final class ColorBuilders.ColorProp.Builder {
+    ctor @Deprecated public ColorBuilders.ColorProp.Builder();
+    method @Deprecated public androidx.wear.tiles.ColorBuilders.ColorProp build();
+    method @Deprecated public androidx.wear.tiles.ColorBuilders.ColorProp.Builder setArgb(@ColorInt int);
   }
 
-  public final class DeviceParametersBuilders {
-    field public static final int DEVICE_PLATFORM_UNDEFINED = 0; // 0x0
-    field public static final int DEVICE_PLATFORM_WEAR_OS = 1; // 0x1
-    field public static final int SCREEN_SHAPE_RECT = 2; // 0x2
-    field public static final int SCREEN_SHAPE_ROUND = 1; // 0x1
-    field public static final int SCREEN_SHAPE_UNDEFINED = 0; // 0x0
+  @Deprecated public final class DeviceParametersBuilders {
+    field @Deprecated public static final int DEVICE_PLATFORM_UNDEFINED = 0; // 0x0
+    field @Deprecated public static final int DEVICE_PLATFORM_WEAR_OS = 1; // 0x1
+    field @Deprecated public static final int SCREEN_SHAPE_RECT = 2; // 0x2
+    field @Deprecated public static final int SCREEN_SHAPE_ROUND = 1; // 0x1
+    field @Deprecated public static final int SCREEN_SHAPE_UNDEFINED = 0; // 0x0
   }
 
-  public static final class DeviceParametersBuilders.DeviceParameters {
-    method public int getDevicePlatform();
-    method @FloatRange(from=0.0, fromInclusive=false, toInclusive=false) public float getScreenDensity();
-    method @Dimension(unit=androidx.annotation.Dimension.DP) public int getScreenHeightDp();
-    method public int getScreenShape();
-    method @Dimension(unit=androidx.annotation.Dimension.DP) public int getScreenWidthDp();
+  @Deprecated public static final class DeviceParametersBuilders.DeviceParameters {
+    method @Deprecated public int getDevicePlatform();
+    method @Deprecated @FloatRange(from=0.0, fromInclusive=false, toInclusive=false) public float getScreenDensity();
+    method @Deprecated @Dimension(unit=androidx.annotation.Dimension.DP) public int getScreenHeightDp();
+    method @Deprecated public int getScreenShape();
+    method @Deprecated @Dimension(unit=androidx.annotation.Dimension.DP) public int getScreenWidthDp();
   }
 
-  public static final class DeviceParametersBuilders.DeviceParameters.Builder {
-    ctor public DeviceParametersBuilders.DeviceParameters.Builder();
-    method public androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters build();
-    method public androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters.Builder setDevicePlatform(int);
-    method public androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters.Builder setScreenDensity(@FloatRange(from=0.0, fromInclusive=false, toInclusive=false) float);
-    method public androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters.Builder setScreenHeightDp(@Dimension(unit=androidx.annotation.Dimension.DP) int);
-    method public androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters.Builder setScreenShape(int);
-    method public androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters.Builder setScreenWidthDp(@Dimension(unit=androidx.annotation.Dimension.DP) int);
+  @Deprecated public static final class DeviceParametersBuilders.DeviceParameters.Builder {
+    ctor @Deprecated public DeviceParametersBuilders.DeviceParameters.Builder();
+    method @Deprecated public androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters build();
+    method @Deprecated public androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters.Builder setDevicePlatform(int);
+    method @Deprecated public androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters.Builder setScreenDensity(@FloatRange(from=0.0, fromInclusive=false, toInclusive=false) float);
+    method @Deprecated public androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters.Builder setScreenHeightDp(@Dimension(unit=androidx.annotation.Dimension.DP) int);
+    method @Deprecated public androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters.Builder setScreenShape(int);
+    method @Deprecated public androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters.Builder setScreenWidthDp(@Dimension(unit=androidx.annotation.Dimension.DP) int);
   }
 
-  public final class DimensionBuilders {
-    method public static androidx.wear.tiles.DimensionBuilders.DegreesProp degrees(float);
-    method public static androidx.wear.tiles.DimensionBuilders.DpProp dp(@Dimension(unit=androidx.annotation.Dimension.DP) float);
-    method public static androidx.wear.tiles.DimensionBuilders.EmProp em(int);
-    method public static androidx.wear.tiles.DimensionBuilders.EmProp em(float);
-    method public static androidx.wear.tiles.DimensionBuilders.ExpandedDimensionProp expand();
-    method public static androidx.wear.tiles.DimensionBuilders.SpProp sp(@Dimension(unit=androidx.annotation.Dimension.SP) float);
-    method public static androidx.wear.tiles.DimensionBuilders.WrappedDimensionProp wrap();
+  @Deprecated public final class DimensionBuilders {
+    method @Deprecated public static androidx.wear.tiles.DimensionBuilders.DegreesProp degrees(float);
+    method @Deprecated public static androidx.wear.tiles.DimensionBuilders.DpProp dp(@Dimension(unit=androidx.annotation.Dimension.DP) float);
+    method @Deprecated public static androidx.wear.tiles.DimensionBuilders.EmProp em(int);
+    method @Deprecated public static androidx.wear.tiles.DimensionBuilders.EmProp em(float);
+    method @Deprecated public static androidx.wear.tiles.DimensionBuilders.ExpandedDimensionProp expand();
+    method @Deprecated public static androidx.wear.tiles.DimensionBuilders.SpProp sp(@Dimension(unit=androidx.annotation.Dimension.SP) float);
+    method @Deprecated public static androidx.wear.tiles.DimensionBuilders.WrappedDimensionProp wrap();
   }
 
-  public static interface DimensionBuilders.ContainerDimension {
+  @Deprecated public static interface DimensionBuilders.ContainerDimension {
   }
 
-  public static interface DimensionBuilders.ContainerDimension.Builder {
-    method public androidx.wear.tiles.DimensionBuilders.ContainerDimension build();
+  @Deprecated public static interface DimensionBuilders.ContainerDimension.Builder {
+    method @Deprecated public androidx.wear.tiles.DimensionBuilders.ContainerDimension build();
   }
 
-  public static final class DimensionBuilders.DegreesProp {
-    method public float getValue();
+  @Deprecated public static final class DimensionBuilders.DegreesProp {
+    method @Deprecated public float getValue();
   }
 
-  public static final class DimensionBuilders.DegreesProp.Builder {
-    ctor public DimensionBuilders.DegreesProp.Builder();
-    method public androidx.wear.tiles.DimensionBuilders.DegreesProp build();
-    method public androidx.wear.tiles.DimensionBuilders.DegreesProp.Builder setValue(float);
+  @Deprecated public static final class DimensionBuilders.DegreesProp.Builder {
+    ctor @Deprecated public DimensionBuilders.DegreesProp.Builder();
+    method @Deprecated public androidx.wear.tiles.DimensionBuilders.DegreesProp build();
+    method @Deprecated public androidx.wear.tiles.DimensionBuilders.DegreesProp.Builder setValue(float);
   }
 
-  public static final class DimensionBuilders.DpProp implements androidx.wear.tiles.DimensionBuilders.ContainerDimension androidx.wear.tiles.DimensionBuilders.ImageDimension androidx.wear.tiles.DimensionBuilders.SpacerDimension {
-    method @Dimension(unit=androidx.annotation.Dimension.DP) public float getValue();
+  @Deprecated public static final class DimensionBuilders.DpProp implements androidx.wear.tiles.DimensionBuilders.ContainerDimension androidx.wear.tiles.DimensionBuilders.ImageDimension androidx.wear.tiles.DimensionBuilders.SpacerDimension {
+    method @Deprecated @Dimension(unit=androidx.annotation.Dimension.DP) public float getValue();
   }
 
-  public static final class DimensionBuilders.DpProp.Builder implements androidx.wear.tiles.DimensionBuilders.ContainerDimension.Builder androidx.wear.tiles.DimensionBuilders.ImageDimension.Builder androidx.wear.tiles.DimensionBuilders.SpacerDimension.Builder {
-    ctor public DimensionBuilders.DpProp.Builder();
-    method public androidx.wear.tiles.DimensionBuilders.DpProp build();
-    method public androidx.wear.tiles.DimensionBuilders.DpProp.Builder setValue(@Dimension(unit=androidx.annotation.Dimension.DP) float);
+  @Deprecated public static final class DimensionBuilders.DpProp.Builder implements androidx.wear.tiles.DimensionBuilders.ContainerDimension.Builder androidx.wear.tiles.DimensionBuilders.ImageDimension.Builder androidx.wear.tiles.DimensionBuilders.SpacerDimension.Builder {
+    ctor @Deprecated public DimensionBuilders.DpProp.Builder();
+    method @Deprecated public androidx.wear.tiles.DimensionBuilders.DpProp build();
+    method @Deprecated public androidx.wear.tiles.DimensionBuilders.DpProp.Builder setValue(@Dimension(unit=androidx.annotation.Dimension.DP) float);
   }
 
-  public static final class DimensionBuilders.EmProp {
-    method public float getValue();
+  @Deprecated public static final class DimensionBuilders.EmProp {
+    method @Deprecated public float getValue();
   }
 
-  public static final class DimensionBuilders.EmProp.Builder {
-    ctor public DimensionBuilders.EmProp.Builder();
-    method public androidx.wear.tiles.DimensionBuilders.EmProp build();
-    method public androidx.wear.tiles.DimensionBuilders.EmProp.Builder setValue(float);
+  @Deprecated public static final class DimensionBuilders.EmProp.Builder {
+    ctor @Deprecated public DimensionBuilders.EmProp.Builder();
+    method @Deprecated public androidx.wear.tiles.DimensionBuilders.EmProp build();
+    method @Deprecated public androidx.wear.tiles.DimensionBuilders.EmProp.Builder setValue(float);
   }
 
-  public static final class DimensionBuilders.ExpandedDimensionProp implements androidx.wear.tiles.DimensionBuilders.ContainerDimension androidx.wear.tiles.DimensionBuilders.ImageDimension {
+  @Deprecated public static final class DimensionBuilders.ExpandedDimensionProp implements androidx.wear.tiles.DimensionBuilders.ContainerDimension androidx.wear.tiles.DimensionBuilders.ImageDimension {
   }
 
-  public static final class DimensionBuilders.ExpandedDimensionProp.Builder implements androidx.wear.tiles.DimensionBuilders.ContainerDimension.Builder androidx.wear.tiles.DimensionBuilders.ImageDimension.Builder {
-    ctor public DimensionBuilders.ExpandedDimensionProp.Builder();
-    method public androidx.wear.tiles.DimensionBuilders.ExpandedDimensionProp build();
+  @Deprecated public static final class DimensionBuilders.ExpandedDimensionProp.Builder implements androidx.wear.tiles.DimensionBuilders.ContainerDimension.Builder androidx.wear.tiles.DimensionBuilders.ImageDimension.Builder {
+    ctor @Deprecated public DimensionBuilders.ExpandedDimensionProp.Builder();
+    method @Deprecated public androidx.wear.tiles.DimensionBuilders.ExpandedDimensionProp build();
   }
 
-  public static interface DimensionBuilders.ImageDimension {
+  @Deprecated public static interface DimensionBuilders.ImageDimension {
   }
 
-  public static interface DimensionBuilders.ImageDimension.Builder {
-    method public androidx.wear.tiles.DimensionBuilders.ImageDimension build();
+  @Deprecated public static interface DimensionBuilders.ImageDimension.Builder {
+    method @Deprecated public androidx.wear.tiles.DimensionBuilders.ImageDimension build();
   }
 
-  public static final class DimensionBuilders.ProportionalDimensionProp implements androidx.wear.tiles.DimensionBuilders.ImageDimension {
-    method @IntRange(from=0) public int getAspectRatioHeight();
-    method @IntRange(from=0) public int getAspectRatioWidth();
+  @Deprecated public static final class DimensionBuilders.ProportionalDimensionProp implements androidx.wear.tiles.DimensionBuilders.ImageDimension {
+    method @Deprecated @IntRange(from=0) public int getAspectRatioHeight();
+    method @Deprecated @IntRange(from=0) public int getAspectRatioWidth();
   }
 
-  public static final class DimensionBuilders.ProportionalDimensionProp.Builder implements androidx.wear.tiles.DimensionBuilders.ImageDimension.Builder {
-    ctor public DimensionBuilders.ProportionalDimensionProp.Builder();
-    method public androidx.wear.tiles.DimensionBuilders.ProportionalDimensionProp build();
-    method public androidx.wear.tiles.DimensionBuilders.ProportionalDimensionProp.Builder setAspectRatioHeight(@IntRange(from=0) int);
-    method public androidx.wear.tiles.DimensionBuilders.ProportionalDimensionProp.Builder setAspectRatioWidth(@IntRange(from=0) int);
+  @Deprecated public static final class DimensionBuilders.ProportionalDimensionProp.Builder implements androidx.wear.tiles.DimensionBuilders.ImageDimension.Builder {
+    ctor @Deprecated public DimensionBuilders.ProportionalDimensionProp.Builder();
+    method @Deprecated public androidx.wear.tiles.DimensionBuilders.ProportionalDimensionProp build();
+    method @Deprecated public androidx.wear.tiles.DimensionBuilders.ProportionalDimensionProp.Builder setAspectRatioHeight(@IntRange(from=0) int);
+    method @Deprecated public androidx.wear.tiles.DimensionBuilders.ProportionalDimensionProp.Builder setAspectRatioWidth(@IntRange(from=0) int);
   }
 
-  public static final class DimensionBuilders.SpProp {
-    method @Dimension(unit=androidx.annotation.Dimension.SP) public float getValue();
+  @Deprecated public static final class DimensionBuilders.SpProp {
+    method @Deprecated @Dimension(unit=androidx.annotation.Dimension.SP) public float getValue();
   }
 
-  public static final class DimensionBuilders.SpProp.Builder {
-    ctor public DimensionBuilders.SpProp.Builder();
-    method public androidx.wear.tiles.DimensionBuilders.SpProp build();
-    method public androidx.wear.tiles.DimensionBuilders.SpProp.Builder setValue(@Dimension(unit=androidx.annotation.Dimension.SP) float);
+  @Deprecated public static final class DimensionBuilders.SpProp.Builder {
+    ctor @Deprecated public DimensionBuilders.SpProp.Builder();
+    method @Deprecated public androidx.wear.tiles.DimensionBuilders.SpProp build();
+    method @Deprecated public androidx.wear.tiles.DimensionBuilders.SpProp.Builder setValue(@Dimension(unit=androidx.annotation.Dimension.SP) float);
   }
 
-  public static interface DimensionBuilders.SpacerDimension {
+  @Deprecated public static interface DimensionBuilders.SpacerDimension {
   }
 
-  public static interface DimensionBuilders.SpacerDimension.Builder {
-    method public androidx.wear.tiles.DimensionBuilders.SpacerDimension build();
+  @Deprecated public static interface DimensionBuilders.SpacerDimension.Builder {
+    method @Deprecated public androidx.wear.tiles.DimensionBuilders.SpacerDimension build();
   }
 
-  public static final class DimensionBuilders.WrappedDimensionProp implements androidx.wear.tiles.DimensionBuilders.ContainerDimension {
+  @Deprecated public static final class DimensionBuilders.WrappedDimensionProp implements androidx.wear.tiles.DimensionBuilders.ContainerDimension {
   }
 
-  public static final class DimensionBuilders.WrappedDimensionProp.Builder implements androidx.wear.tiles.DimensionBuilders.ContainerDimension.Builder {
-    ctor public DimensionBuilders.WrappedDimensionProp.Builder();
-    method public androidx.wear.tiles.DimensionBuilders.WrappedDimensionProp build();
+  @Deprecated public static final class DimensionBuilders.WrappedDimensionProp.Builder implements androidx.wear.tiles.DimensionBuilders.ContainerDimension.Builder {
+    ctor @Deprecated public DimensionBuilders.WrappedDimensionProp.Builder();
+    method @Deprecated public androidx.wear.tiles.DimensionBuilders.WrappedDimensionProp build();
   }
 
   public final class EventBuilders {
@@ -281,605 +281,605 @@ package androidx.wear.tiles {
     method public androidx.wear.tiles.EventBuilders.TileRemoveEvent build();
   }
 
-  public final class LayoutElementBuilders {
-    field public static final int ARC_ANCHOR_CENTER = 2; // 0x2
-    field public static final int ARC_ANCHOR_END = 3; // 0x3
-    field public static final int ARC_ANCHOR_START = 1; // 0x1
-    field public static final int ARC_ANCHOR_UNDEFINED = 0; // 0x0
-    field public static final int CONTENT_SCALE_MODE_CROP = 2; // 0x2
-    field public static final int CONTENT_SCALE_MODE_FILL_BOUNDS = 3; // 0x3
-    field public static final int CONTENT_SCALE_MODE_FIT = 1; // 0x1
-    field public static final int CONTENT_SCALE_MODE_UNDEFINED = 0; // 0x0
-    field public static final int FONT_VARIANT_BODY = 2; // 0x2
-    field public static final int FONT_VARIANT_TITLE = 1; // 0x1
-    field public static final int FONT_VARIANT_UNDEFINED = 0; // 0x0
-    field public static final int FONT_WEIGHT_BOLD = 700; // 0x2bc
-    field @androidx.wear.tiles.TilesExperimental public static final int FONT_WEIGHT_MEDIUM = 500; // 0x1f4
-    field public static final int FONT_WEIGHT_NORMAL = 400; // 0x190
-    field public static final int FONT_WEIGHT_UNDEFINED = 0; // 0x0
-    field public static final int HORIZONTAL_ALIGN_CENTER = 2; // 0x2
-    field public static final int HORIZONTAL_ALIGN_END = 5; // 0x5
-    field public static final int HORIZONTAL_ALIGN_LEFT = 1; // 0x1
-    field public static final int HORIZONTAL_ALIGN_RIGHT = 3; // 0x3
-    field public static final int HORIZONTAL_ALIGN_START = 4; // 0x4
-    field public static final int HORIZONTAL_ALIGN_UNDEFINED = 0; // 0x0
-    field public static final int SPAN_VERTICAL_ALIGN_BOTTOM = 1; // 0x1
-    field public static final int SPAN_VERTICAL_ALIGN_TEXT_BASELINE = 2; // 0x2
-    field public static final int SPAN_VERTICAL_ALIGN_UNDEFINED = 0; // 0x0
-    field public static final int TEXT_ALIGN_CENTER = 2; // 0x2
-    field public static final int TEXT_ALIGN_END = 3; // 0x3
-    field public static final int TEXT_ALIGN_START = 1; // 0x1
-    field public static final int TEXT_ALIGN_UNDEFINED = 0; // 0x0
-    field public static final int TEXT_OVERFLOW_ELLIPSIZE_END = 2; // 0x2
-    field public static final int TEXT_OVERFLOW_TRUNCATE = 1; // 0x1
-    field public static final int TEXT_OVERFLOW_UNDEFINED = 0; // 0x0
-    field public static final int VERTICAL_ALIGN_BOTTOM = 3; // 0x3
-    field public static final int VERTICAL_ALIGN_CENTER = 2; // 0x2
-    field public static final int VERTICAL_ALIGN_TOP = 1; // 0x1
-    field public static final int VERTICAL_ALIGN_UNDEFINED = 0; // 0x0
-  }
-
-  public static final class LayoutElementBuilders.Arc implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement {
-    method public androidx.wear.tiles.DimensionBuilders.DegreesProp? getAnchorAngle();
-    method public androidx.wear.tiles.LayoutElementBuilders.ArcAnchorTypeProp? getAnchorType();
-    method public java.util.List<androidx.wear.tiles.LayoutElementBuilders.ArcLayoutElement!> getContents();
-    method public androidx.wear.tiles.ModifiersBuilders.Modifiers? getModifiers();
-    method public androidx.wear.tiles.LayoutElementBuilders.VerticalAlignmentProp? getVerticalAlign();
-  }
-
-  public static final class LayoutElementBuilders.Arc.Builder implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement.Builder {
-    ctor public LayoutElementBuilders.Arc.Builder();
-    method public androidx.wear.tiles.LayoutElementBuilders.Arc.Builder addContent(androidx.wear.tiles.LayoutElementBuilders.ArcLayoutElement);
-    method public androidx.wear.tiles.LayoutElementBuilders.Arc build();
-    method public androidx.wear.tiles.LayoutElementBuilders.Arc.Builder setAnchorAngle(androidx.wear.tiles.DimensionBuilders.DegreesProp);
-    method public androidx.wear.tiles.LayoutElementBuilders.Arc.Builder setAnchorType(androidx.wear.tiles.LayoutElementBuilders.ArcAnchorTypeProp);
-    method public androidx.wear.tiles.LayoutElementBuilders.Arc.Builder setAnchorType(int);
-    method public androidx.wear.tiles.LayoutElementBuilders.Arc.Builder setModifiers(androidx.wear.tiles.ModifiersBuilders.Modifiers);
-    method public androidx.wear.tiles.LayoutElementBuilders.Arc.Builder setVerticalAlign(androidx.wear.tiles.LayoutElementBuilders.VerticalAlignmentProp);
-    method public androidx.wear.tiles.LayoutElementBuilders.Arc.Builder setVerticalAlign(int);
-  }
-
-  public static final class LayoutElementBuilders.ArcAdapter implements androidx.wear.tiles.LayoutElementBuilders.ArcLayoutElement {
-    method public androidx.wear.tiles.LayoutElementBuilders.LayoutElement? getContent();
-    method public androidx.wear.tiles.TypeBuilders.BoolProp? getRotateContents();
-  }
-
-  public static final class LayoutElementBuilders.ArcAdapter.Builder implements androidx.wear.tiles.LayoutElementBuilders.ArcLayoutElement.Builder {
-    ctor public LayoutElementBuilders.ArcAdapter.Builder();
-    method public androidx.wear.tiles.LayoutElementBuilders.ArcAdapter build();
-    method public androidx.wear.tiles.LayoutElementBuilders.ArcAdapter.Builder setContent(androidx.wear.tiles.LayoutElementBuilders.LayoutElement);
-    method public androidx.wear.tiles.LayoutElementBuilders.ArcAdapter.Builder setRotateContents(androidx.wear.tiles.TypeBuilders.BoolProp);
-    method public androidx.wear.tiles.LayoutElementBuilders.ArcAdapter.Builder setRotateContents(boolean);
-  }
-
-  public static final class LayoutElementBuilders.ArcAnchorTypeProp {
-    method public int getValue();
-  }
-
-  public static final class LayoutElementBuilders.ArcAnchorTypeProp.Builder {
-    ctor public LayoutElementBuilders.ArcAnchorTypeProp.Builder();
-    method public androidx.wear.tiles.LayoutElementBuilders.ArcAnchorTypeProp build();
-    method public androidx.wear.tiles.LayoutElementBuilders.ArcAnchorTypeProp.Builder setValue(int);
-  }
-
-  public static interface LayoutElementBuilders.ArcLayoutElement {
-  }
-
-  public static interface LayoutElementBuilders.ArcLayoutElement.Builder {
-    method public androidx.wear.tiles.LayoutElementBuilders.ArcLayoutElement build();
-  }
-
-  public static final class LayoutElementBuilders.ArcLine implements androidx.wear.tiles.LayoutElementBuilders.ArcLayoutElement {
-    method public androidx.wear.tiles.ColorBuilders.ColorProp? getColor();
-    method public androidx.wear.tiles.DimensionBuilders.DegreesProp? getLength();
-    method public androidx.wear.tiles.ModifiersBuilders.ArcModifiers? getModifiers();
-    method public androidx.wear.tiles.DimensionBuilders.DpProp? getThickness();
-  }
-
-  public static final class LayoutElementBuilders.ArcLine.Builder implements androidx.wear.tiles.LayoutElementBuilders.ArcLayoutElement.Builder {
-    ctor public LayoutElementBuilders.ArcLine.Builder();
-    method public androidx.wear.tiles.LayoutElementBuilders.ArcLine build();
-    method public androidx.wear.tiles.LayoutElementBuilders.ArcLine.Builder setColor(androidx.wear.tiles.ColorBuilders.ColorProp);
-    method public androidx.wear.tiles.LayoutElementBuilders.ArcLine.Builder setLength(androidx.wear.tiles.DimensionBuilders.DegreesProp);
-    method public androidx.wear.tiles.LayoutElementBuilders.ArcLine.Builder setModifiers(androidx.wear.tiles.ModifiersBuilders.ArcModifiers);
-    method public androidx.wear.tiles.LayoutElementBuilders.ArcLine.Builder setThickness(androidx.wear.tiles.DimensionBuilders.DpProp);
+  @Deprecated public final class LayoutElementBuilders {
+    field @Deprecated public static final int ARC_ANCHOR_CENTER = 2; // 0x2
+    field @Deprecated public static final int ARC_ANCHOR_END = 3; // 0x3
+    field @Deprecated public static final int ARC_ANCHOR_START = 1; // 0x1
+    field @Deprecated public static final int ARC_ANCHOR_UNDEFINED = 0; // 0x0
+    field @Deprecated public static final int CONTENT_SCALE_MODE_CROP = 2; // 0x2
+    field @Deprecated public static final int CONTENT_SCALE_MODE_FILL_BOUNDS = 3; // 0x3
+    field @Deprecated public static final int CONTENT_SCALE_MODE_FIT = 1; // 0x1
+    field @Deprecated public static final int CONTENT_SCALE_MODE_UNDEFINED = 0; // 0x0
+    field @Deprecated public static final int FONT_VARIANT_BODY = 2; // 0x2
+    field @Deprecated public static final int FONT_VARIANT_TITLE = 1; // 0x1
+    field @Deprecated public static final int FONT_VARIANT_UNDEFINED = 0; // 0x0
+    field @Deprecated public static final int FONT_WEIGHT_BOLD = 700; // 0x2bc
+    field @Deprecated @androidx.wear.tiles.TilesExperimental public static final int FONT_WEIGHT_MEDIUM = 500; // 0x1f4
+    field @Deprecated public static final int FONT_WEIGHT_NORMAL = 400; // 0x190
+    field @Deprecated public static final int FONT_WEIGHT_UNDEFINED = 0; // 0x0
+    field @Deprecated public static final int HORIZONTAL_ALIGN_CENTER = 2; // 0x2
+    field @Deprecated public static final int HORIZONTAL_ALIGN_END = 5; // 0x5
+    field @Deprecated public static final int HORIZONTAL_ALIGN_LEFT = 1; // 0x1
+    field @Deprecated public static final int HORIZONTAL_ALIGN_RIGHT = 3; // 0x3
+    field @Deprecated public static final int HORIZONTAL_ALIGN_START = 4; // 0x4
+    field @Deprecated public static final int HORIZONTAL_ALIGN_UNDEFINED = 0; // 0x0
+    field @Deprecated public static final int SPAN_VERTICAL_ALIGN_BOTTOM = 1; // 0x1
+    field @Deprecated public static final int SPAN_VERTICAL_ALIGN_TEXT_BASELINE = 2; // 0x2
+    field @Deprecated public static final int SPAN_VERTICAL_ALIGN_UNDEFINED = 0; // 0x0
+    field @Deprecated public static final int TEXT_ALIGN_CENTER = 2; // 0x2
+    field @Deprecated public static final int TEXT_ALIGN_END = 3; // 0x3
+    field @Deprecated public static final int TEXT_ALIGN_START = 1; // 0x1
+    field @Deprecated public static final int TEXT_ALIGN_UNDEFINED = 0; // 0x0
+    field @Deprecated public static final int TEXT_OVERFLOW_ELLIPSIZE_END = 2; // 0x2
+    field @Deprecated public static final int TEXT_OVERFLOW_TRUNCATE = 1; // 0x1
+    field @Deprecated public static final int TEXT_OVERFLOW_UNDEFINED = 0; // 0x0
+    field @Deprecated public static final int VERTICAL_ALIGN_BOTTOM = 3; // 0x3
+    field @Deprecated public static final int VERTICAL_ALIGN_CENTER = 2; // 0x2
+    field @Deprecated public static final int VERTICAL_ALIGN_TOP = 1; // 0x1
+    field @Deprecated public static final int VERTICAL_ALIGN_UNDEFINED = 0; // 0x0
+  }
+
+  @Deprecated public static final class LayoutElementBuilders.Arc implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement {
+    method @Deprecated public androidx.wear.tiles.DimensionBuilders.DegreesProp? getAnchorAngle();
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.ArcAnchorTypeProp? getAnchorType();
+    method @Deprecated public java.util.List<androidx.wear.tiles.LayoutElementBuilders.ArcLayoutElement!> getContents();
+    method @Deprecated public androidx.wear.tiles.ModifiersBuilders.Modifiers? getModifiers();
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.VerticalAlignmentProp? getVerticalAlign();
+  }
+
+  @Deprecated public static final class LayoutElementBuilders.Arc.Builder implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement.Builder {
+    ctor @Deprecated public LayoutElementBuilders.Arc.Builder();
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.Arc.Builder addContent(androidx.wear.tiles.LayoutElementBuilders.ArcLayoutElement);
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.Arc build();
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.Arc.Builder setAnchorAngle(androidx.wear.tiles.DimensionBuilders.DegreesProp);
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.Arc.Builder setAnchorType(androidx.wear.tiles.LayoutElementBuilders.ArcAnchorTypeProp);
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.Arc.Builder setAnchorType(int);
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.Arc.Builder setModifiers(androidx.wear.tiles.ModifiersBuilders.Modifiers);
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.Arc.Builder setVerticalAlign(androidx.wear.tiles.LayoutElementBuilders.VerticalAlignmentProp);
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.Arc.Builder setVerticalAlign(int);
+  }
+
+  @Deprecated public static final class LayoutElementBuilders.ArcAdapter implements androidx.wear.tiles.LayoutElementBuilders.ArcLayoutElement {
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.LayoutElement? getContent();
+    method @Deprecated public androidx.wear.tiles.TypeBuilders.BoolProp? getRotateContents();
+  }
+
+  @Deprecated public static final class LayoutElementBuilders.ArcAdapter.Builder implements androidx.wear.tiles.LayoutElementBuilders.ArcLayoutElement.Builder {
+    ctor @Deprecated public LayoutElementBuilders.ArcAdapter.Builder();
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.ArcAdapter build();
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.ArcAdapter.Builder setContent(androidx.wear.tiles.LayoutElementBuilders.LayoutElement);
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.ArcAdapter.Builder setRotateContents(androidx.wear.tiles.TypeBuilders.BoolProp);
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.ArcAdapter.Builder setRotateContents(boolean);
+  }
+
+  @Deprecated public static final class LayoutElementBuilders.ArcAnchorTypeProp {
+    method @Deprecated public int getValue();
+  }
+
+  @Deprecated public static final class LayoutElementBuilders.ArcAnchorTypeProp.Builder {
+    ctor @Deprecated public LayoutElementBuilders.ArcAnchorTypeProp.Builder();
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.ArcAnchorTypeProp build();
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.ArcAnchorTypeProp.Builder setValue(int);
+  }
+
+  @Deprecated public static interface LayoutElementBuilders.ArcLayoutElement {
+  }
+
+  @Deprecated public static interface LayoutElementBuilders.ArcLayoutElement.Builder {
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.ArcLayoutElement build();
+  }
+
+  @Deprecated public static final class LayoutElementBuilders.ArcLine implements androidx.wear.tiles.LayoutElementBuilders.ArcLayoutElement {
+    method @Deprecated public androidx.wear.tiles.ColorBuilders.ColorProp? getColor();
+    method @Deprecated public androidx.wear.tiles.DimensionBuilders.DegreesProp? getLength();
+    method @Deprecated public androidx.wear.tiles.ModifiersBuilders.ArcModifiers? getModifiers();
+    method @Deprecated public androidx.wear.tiles.DimensionBuilders.DpProp? getThickness();
+  }
+
+  @Deprecated public static final class LayoutElementBuilders.ArcLine.Builder implements androidx.wear.tiles.LayoutElementBuilders.ArcLayoutElement.Builder {
+    ctor @Deprecated public LayoutElementBuilders.ArcLine.Builder();
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.ArcLine build();
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.ArcLine.Builder setColor(androidx.wear.tiles.ColorBuilders.ColorProp);
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.ArcLine.Builder setLength(androidx.wear.tiles.DimensionBuilders.DegreesProp);
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.ArcLine.Builder setModifiers(androidx.wear.tiles.ModifiersBuilders.ArcModifiers);
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.ArcLine.Builder setThickness(androidx.wear.tiles.DimensionBuilders.DpProp);
   }
 
-  public static final class LayoutElementBuilders.ArcSpacer implements androidx.wear.tiles.LayoutElementBuilders.ArcLayoutElement {
-    method public androidx.wear.tiles.DimensionBuilders.DegreesProp? getLength();
-    method public androidx.wear.tiles.ModifiersBuilders.ArcModifiers? getModifiers();
-    method public androidx.wear.tiles.DimensionBuilders.DpProp? getThickness();
+  @Deprecated public static final class LayoutElementBuilders.ArcSpacer implements androidx.wear.tiles.LayoutElementBuilders.ArcLayoutElement {
+    method @Deprecated public androidx.wear.tiles.DimensionBuilders.DegreesProp? getLength();
+    method @Deprecated public androidx.wear.tiles.ModifiersBuilders.ArcModifiers? getModifiers();
+    method @Deprecated public androidx.wear.tiles.DimensionBuilders.DpProp? getThickness();
   }
 
-  public static final class LayoutElementBuilders.ArcSpacer.Builder implements androidx.wear.tiles.LayoutElementBuilders.ArcLayoutElement.Builder {
-    ctor public LayoutElementBuilders.ArcSpacer.Builder();
-    method public androidx.wear.tiles.LayoutElementBuilders.ArcSpacer build();
-    method public androidx.wear.tiles.LayoutElementBuilders.ArcSpacer.Builder setLength(androidx.wear.tiles.DimensionBuilders.DegreesProp);
-    method public androidx.wear.tiles.LayoutElementBuilders.ArcSpacer.Builder setModifiers(androidx.wear.tiles.ModifiersBuilders.ArcModifiers);
-    method public androidx.wear.tiles.LayoutElementBuilders.ArcSpacer.Builder setThickness(androidx.wear.tiles.DimensionBuilders.DpProp);
-  }
-
-  public static final class LayoutElementBuilders.ArcText implements androidx.wear.tiles.LayoutElementBuilders.ArcLayoutElement {
-    method public androidx.wear.tiles.LayoutElementBuilders.FontStyle? getFontStyle();
-    method public androidx.wear.tiles.ModifiersBuilders.ArcModifiers? getModifiers();
-    method public androidx.wear.tiles.TypeBuilders.StringProp? getText();
-  }
-
-  public static final class LayoutElementBuilders.ArcText.Builder implements androidx.wear.tiles.LayoutElementBuilders.ArcLayoutElement.Builder {
-    ctor public LayoutElementBuilders.ArcText.Builder();
-    method public androidx.wear.tiles.LayoutElementBuilders.ArcText build();
-    method public androidx.wear.tiles.LayoutElementBuilders.ArcText.Builder setFontStyle(androidx.wear.tiles.LayoutElementBuilders.FontStyle);
-    method public androidx.wear.tiles.LayoutElementBuilders.ArcText.Builder setModifiers(androidx.wear.tiles.ModifiersBuilders.ArcModifiers);
-    method public androidx.wear.tiles.LayoutElementBuilders.ArcText.Builder setText(androidx.wear.tiles.TypeBuilders.StringProp);
-    method public androidx.wear.tiles.LayoutElementBuilders.ArcText.Builder setText(String);
-  }
-
-  public static final class LayoutElementBuilders.Box implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement {
-    method public java.util.List<androidx.wear.tiles.LayoutElementBuilders.LayoutElement!> getContents();
-    method public androidx.wear.tiles.DimensionBuilders.ContainerDimension? getHeight();
-    method public androidx.wear.tiles.LayoutElementBuilders.HorizontalAlignmentProp? getHorizontalAlignment();
-    method public androidx.wear.tiles.ModifiersBuilders.Modifiers? getModifiers();
-    method public androidx.wear.tiles.LayoutElementBuilders.VerticalAlignmentProp? getVerticalAlignment();
-    method public androidx.wear.tiles.DimensionBuilders.ContainerDimension? getWidth();
-  }
-
-  public static final class LayoutElementBuilders.Box.Builder implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement.Builder {
-    ctor public LayoutElementBuilders.Box.Builder();
-    method public androidx.wear.tiles.LayoutElementBuilders.Box.Builder addContent(androidx.wear.tiles.LayoutElementBuilders.LayoutElement);
-    method public androidx.wear.tiles.LayoutElementBuilders.Box build();
-    method public androidx.wear.tiles.LayoutElementBuilders.Box.Builder setHeight(androidx.wear.tiles.DimensionBuilders.ContainerDimension);
-    method public androidx.wear.tiles.LayoutElementBuilders.Box.Builder setHorizontalAlignment(androidx.wear.tiles.LayoutElementBuilders.HorizontalAlignmentProp);
-    method public androidx.wear.tiles.LayoutElementBuilders.Box.Builder setHorizontalAlignment(int);
-    method public androidx.wear.tiles.LayoutElementBuilders.Box.Builder setModifiers(androidx.wear.tiles.ModifiersBuilders.Modifiers);
-    method public androidx.wear.tiles.LayoutElementBuilders.Box.Builder setVerticalAlignment(androidx.wear.tiles.LayoutElementBuilders.VerticalAlignmentProp);
-    method public androidx.wear.tiles.LayoutElementBuilders.Box.Builder setVerticalAlignment(int);
-    method public androidx.wear.tiles.LayoutElementBuilders.Box.Builder setWidth(androidx.wear.tiles.DimensionBuilders.ContainerDimension);
+  @Deprecated public static final class LayoutElementBuilders.ArcSpacer.Builder implements androidx.wear.tiles.LayoutElementBuilders.ArcLayoutElement.Builder {
+    ctor @Deprecated public LayoutElementBuilders.ArcSpacer.Builder();
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.ArcSpacer build();
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.ArcSpacer.Builder setLength(androidx.wear.tiles.DimensionBuilders.DegreesProp);
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.ArcSpacer.Builder setModifiers(androidx.wear.tiles.ModifiersBuilders.ArcModifiers);
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.ArcSpacer.Builder setThickness(androidx.wear.tiles.DimensionBuilders.DpProp);
+  }
+
+  @Deprecated public static final class LayoutElementBuilders.ArcText implements androidx.wear.tiles.LayoutElementBuilders.ArcLayoutElement {
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.FontStyle? getFontStyle();
+    method @Deprecated public androidx.wear.tiles.ModifiersBuilders.ArcModifiers? getModifiers();
+    method @Deprecated public androidx.wear.tiles.TypeBuilders.StringProp? getText();
+  }
+
+  @Deprecated public static final class LayoutElementBuilders.ArcText.Builder implements androidx.wear.tiles.LayoutElementBuilders.ArcLayoutElement.Builder {
+    ctor @Deprecated public LayoutElementBuilders.ArcText.Builder();
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.ArcText build();
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.ArcText.Builder setFontStyle(androidx.wear.tiles.LayoutElementBuilders.FontStyle);
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.ArcText.Builder setModifiers(androidx.wear.tiles.ModifiersBuilders.ArcModifiers);
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.ArcText.Builder setText(androidx.wear.tiles.TypeBuilders.StringProp);
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.ArcText.Builder setText(String);
+  }
+
+  @Deprecated public static final class LayoutElementBuilders.Box implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement {
+    method @Deprecated public java.util.List<androidx.wear.tiles.LayoutElementBuilders.LayoutElement!> getContents();
+    method @Deprecated public androidx.wear.tiles.DimensionBuilders.ContainerDimension? getHeight();
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.HorizontalAlignmentProp? getHorizontalAlignment();
+    method @Deprecated public androidx.wear.tiles.ModifiersBuilders.Modifiers? getModifiers();
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.VerticalAlignmentProp? getVerticalAlignment();
+    method @Deprecated public androidx.wear.tiles.DimensionBuilders.ContainerDimension? getWidth();
+  }
+
+  @Deprecated public static final class LayoutElementBuilders.Box.Builder implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement.Builder {
+    ctor @Deprecated public LayoutElementBuilders.Box.Builder();
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.Box.Builder addContent(androidx.wear.tiles.LayoutElementBuilders.LayoutElement);
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.Box build();
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.Box.Builder setHeight(androidx.wear.tiles.DimensionBuilders.ContainerDimension);
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.Box.Builder setHorizontalAlignment(androidx.wear.tiles.LayoutElementBuilders.HorizontalAlignmentProp);
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.Box.Builder setHorizontalAlignment(int);
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.Box.Builder setModifiers(androidx.wear.tiles.ModifiersBuilders.Modifiers);
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.Box.Builder setVerticalAlignment(androidx.wear.tiles.LayoutElementBuilders.VerticalAlignmentProp);
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.Box.Builder setVerticalAlignment(int);
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.Box.Builder setWidth(androidx.wear.tiles.DimensionBuilders.ContainerDimension);
   }
 
-  public static final class LayoutElementBuilders.ColorFilter {
-    method public androidx.wear.tiles.ColorBuilders.ColorProp? getTint();
+  @Deprecated public static final class LayoutElementBuilders.ColorFilter {
+    method @Deprecated public androidx.wear.tiles.ColorBuilders.ColorProp? getTint();
   }
 
-  public static final class LayoutElementBuilders.ColorFilter.Builder {
-    ctor public LayoutElementBuilders.ColorFilter.Builder();
-    method public androidx.wear.tiles.LayoutElementBuilders.ColorFilter build();
-    method public androidx.wear.tiles.LayoutElementBuilders.ColorFilter.Builder setTint(androidx.wear.tiles.ColorBuilders.ColorProp);
+  @Deprecated public static final class LayoutElementBuilders.ColorFilter.Builder {
+    ctor @Deprecated public LayoutElementBuilders.ColorFilter.Builder();
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.ColorFilter build();
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.ColorFilter.Builder setTint(androidx.wear.tiles.ColorBuilders.ColorProp);
   }
 
-  public static final class LayoutElementBuilders.Column implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement {
-    method public java.util.List<androidx.wear.tiles.LayoutElementBuilders.LayoutElement!> getContents();
-    method public androidx.wear.tiles.DimensionBuilders.ContainerDimension? getHeight();
-    method public androidx.wear.tiles.LayoutElementBuilders.HorizontalAlignmentProp? getHorizontalAlignment();
-    method public androidx.wear.tiles.ModifiersBuilders.Modifiers? getModifiers();
-    method public androidx.wear.tiles.DimensionBuilders.ContainerDimension? getWidth();
+  @Deprecated public static final class LayoutElementBuilders.Column implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement {
+    method @Deprecated public java.util.List<androidx.wear.tiles.LayoutElementBuilders.LayoutElement!> getContents();
+    method @Deprecated public androidx.wear.tiles.DimensionBuilders.ContainerDimension? getHeight();
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.HorizontalAlignmentProp? getHorizontalAlignment();
+    method @Deprecated public androidx.wear.tiles.ModifiersBuilders.Modifiers? getModifiers();
+    method @Deprecated public androidx.wear.tiles.DimensionBuilders.ContainerDimension? getWidth();
   }
 
-  public static final class LayoutElementBuilders.Column.Builder implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement.Builder {
-    ctor public LayoutElementBuilders.Column.Builder();
-    method public androidx.wear.tiles.LayoutElementBuilders.Column.Builder addContent(androidx.wear.tiles.LayoutElementBuilders.LayoutElement);
-    method public androidx.wear.tiles.LayoutElementBuilders.Column build();
-    method public androidx.wear.tiles.LayoutElementBuilders.Column.Builder setHeight(androidx.wear.tiles.DimensionBuilders.ContainerDimension);
-    method public androidx.wear.tiles.LayoutElementBuilders.Column.Builder setHorizontalAlignment(androidx.wear.tiles.LayoutElementBuilders.HorizontalAlignmentProp);
-    method public androidx.wear.tiles.LayoutElementBuilders.Column.Builder setHorizontalAlignment(int);
-    method public androidx.wear.tiles.LayoutElementBuilders.Column.Builder setModifiers(androidx.wear.tiles.ModifiersBuilders.Modifiers);
-    method public androidx.wear.tiles.LayoutElementBuilders.Column.Builder setWidth(androidx.wear.tiles.DimensionBuilders.ContainerDimension);
+  @Deprecated public static final class LayoutElementBuilders.Column.Builder implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement.Builder {
+    ctor @Deprecated public LayoutElementBuilders.Column.Builder();
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.Column.Builder addContent(androidx.wear.tiles.LayoutElementBuilders.LayoutElement);
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.Column build();
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.Column.Builder setHeight(androidx.wear.tiles.DimensionBuilders.ContainerDimension);
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.Column.Builder setHorizontalAlignment(androidx.wear.tiles.LayoutElementBuilders.HorizontalAlignmentProp);
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.Column.Builder setHorizontalAlignment(int);
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.Column.Builder setModifiers(androidx.wear.tiles.ModifiersBuilders.Modifiers);
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.Column.Builder setWidth(androidx.wear.tiles.DimensionBuilders.ContainerDimension);
   }
 
-  public static final class LayoutElementBuilders.ContentScaleModeProp {
-    method public int getValue();
+  @Deprecated public static final class LayoutElementBuilders.ContentScaleModeProp {
+    method @Deprecated public int getValue();
   }
 
-  public static final class LayoutElementBuilders.ContentScaleModeProp.Builder {
-    ctor public LayoutElementBuilders.ContentScaleModeProp.Builder();
-    method public androidx.wear.tiles.LayoutElementBuilders.ContentScaleModeProp build();
-    method public androidx.wear.tiles.LayoutElementBuilders.ContentScaleModeProp.Builder setValue(int);
+  @Deprecated public static final class LayoutElementBuilders.ContentScaleModeProp.Builder {
+    ctor @Deprecated public LayoutElementBuilders.ContentScaleModeProp.Builder();
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.ContentScaleModeProp build();
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.ContentScaleModeProp.Builder setValue(int);
   }
 
-  public static final class LayoutElementBuilders.FontStyle {
-    method public androidx.wear.tiles.ColorBuilders.ColorProp? getColor();
-    method public androidx.wear.tiles.TypeBuilders.BoolProp? getItalic();
-    method public androidx.wear.tiles.DimensionBuilders.EmProp? getLetterSpacing();
-    method public androidx.wear.tiles.DimensionBuilders.SpProp? getSize();
-    method public androidx.wear.tiles.TypeBuilders.BoolProp? getUnderline();
-    method @androidx.wear.tiles.TilesExperimental public androidx.wear.tiles.LayoutElementBuilders.FontVariantProp? getVariant();
-    method public androidx.wear.tiles.LayoutElementBuilders.FontWeightProp? getWeight();
+  @Deprecated public static final class LayoutElementBuilders.FontStyle {
+    method @Deprecated public androidx.wear.tiles.ColorBuilders.ColorProp? getColor();
+    method @Deprecated public androidx.wear.tiles.TypeBuilders.BoolProp? getItalic();
+    method @Deprecated public androidx.wear.tiles.DimensionBuilders.EmProp? getLetterSpacing();
+    method @Deprecated public androidx.wear.tiles.DimensionBuilders.SpProp? getSize();
+    method @Deprecated public androidx.wear.tiles.TypeBuilders.BoolProp? getUnderline();
+    method @Deprecated @androidx.wear.tiles.TilesExperimental public androidx.wear.tiles.LayoutElementBuilders.FontVariantProp? getVariant();
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.FontWeightProp? getWeight();
   }
 
-  public static final class LayoutElementBuilders.FontStyle.Builder {
-    ctor public LayoutElementBuilders.FontStyle.Builder();
-    method public androidx.wear.tiles.LayoutElementBuilders.FontStyle build();
-    method public androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder setColor(androidx.wear.tiles.ColorBuilders.ColorProp);
-    method public androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder setItalic(androidx.wear.tiles.TypeBuilders.BoolProp);
-    method public androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder setItalic(boolean);
-    method public androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder setLetterSpacing(androidx.wear.tiles.DimensionBuilders.EmProp);
-    method public androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder setSize(androidx.wear.tiles.DimensionBuilders.SpProp);
-    method public androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder setUnderline(androidx.wear.tiles.TypeBuilders.BoolProp);
-    method public androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder setUnderline(boolean);
-    method @androidx.wear.tiles.TilesExperimental public androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder setVariant(androidx.wear.tiles.LayoutElementBuilders.FontVariantProp);
-    method @androidx.wear.tiles.TilesExperimental public androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder setVariant(int);
-    method public androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder setWeight(androidx.wear.tiles.LayoutElementBuilders.FontWeightProp);
-    method public androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder setWeight(int);
+  @Deprecated public static final class LayoutElementBuilders.FontStyle.Builder {
+    ctor @Deprecated public LayoutElementBuilders.FontStyle.Builder();
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.FontStyle build();
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder setColor(androidx.wear.tiles.ColorBuilders.ColorProp);
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder setItalic(androidx.wear.tiles.TypeBuilders.BoolProp);
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder setItalic(boolean);
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder setLetterSpacing(androidx.wear.tiles.DimensionBuilders.EmProp);
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder setSize(androidx.wear.tiles.DimensionBuilders.SpProp);
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder setUnderline(androidx.wear.tiles.TypeBuilders.BoolProp);
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder setUnderline(boolean);
+    method @Deprecated @androidx.wear.tiles.TilesExperimental public androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder setVariant(androidx.wear.tiles.LayoutElementBuilders.FontVariantProp);
+    method @Deprecated @androidx.wear.tiles.TilesExperimental public androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder setVariant(int);
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder setWeight(androidx.wear.tiles.LayoutElementBuilders.FontWeightProp);
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder setWeight(int);
   }
 
-  public static class LayoutElementBuilders.FontStyles {
-    method public static androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder body1(androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters);
-    method public static androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder body2(androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters);
-    method public static androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder button(androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters);
-    method public static androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder caption1(androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters);
-    method public static androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder caption2(androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters);
-    method public static androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder display1(androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters);
-    method public static androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder display2(androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters);
-    method public static androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder display3(androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters);
-    method public static androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder title1(androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters);
-    method public static androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder title2(androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters);
-    method public static androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder title3(androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters);
+  @Deprecated public static class LayoutElementBuilders.FontStyles {
+    method @Deprecated public static androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder body1(androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters);
+    method @Deprecated public static androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder body2(androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters);
+    method @Deprecated public static androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder button(androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters);
+    method @Deprecated public static androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder caption1(androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters);
+    method @Deprecated public static androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder caption2(androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters);
+    method @Deprecated public static androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder display1(androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters);
+    method @Deprecated public static androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder display2(androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters);
+    method @Deprecated public static androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder display3(androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters);
+    method @Deprecated public static androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder title1(androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters);
+    method @Deprecated public static androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder title2(androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters);
+    method @Deprecated public static androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder title3(androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters);
   }
 
-  @androidx.wear.tiles.TilesExperimental public static final class LayoutElementBuilders.FontVariantProp {
-    method public int getValue();
+  @Deprecated @androidx.wear.tiles.TilesExperimental public static final class LayoutElementBuilders.FontVariantProp {
+    method @Deprecated public int getValue();
   }
 
-  public static final class LayoutElementBuilders.FontVariantProp.Builder {
-    ctor public LayoutElementBuilders.FontVariantProp.Builder();
-    method public androidx.wear.tiles.LayoutElementBuilders.FontVariantProp build();
-    method public androidx.wear.tiles.LayoutElementBuilders.FontVariantProp.Builder setValue(int);
+  @Deprecated public static final class LayoutElementBuilders.FontVariantProp.Builder {
+    ctor @Deprecated public LayoutElementBuilders.FontVariantProp.Builder();
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.FontVariantProp build();
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.FontVariantProp.Builder setValue(int);
   }
 
-  public static final class LayoutElementBuilders.FontWeightProp {
-    method public int getValue();
+  @Deprecated public static final class LayoutElementBuilders.FontWeightProp {
+    method @Deprecated public int getValue();
   }
 
-  public static final class LayoutElementBuilders.FontWeightProp.Builder {
-    ctor public LayoutElementBuilders.FontWeightProp.Builder();
-    method public androidx.wear.tiles.LayoutElementBuilders.FontWeightProp build();
-    method public androidx.wear.tiles.LayoutElementBuilders.FontWeightProp.Builder setValue(int);
+  @Deprecated public static final class LayoutElementBuilders.FontWeightProp.Builder {
+    ctor @Deprecated public LayoutElementBuilders.FontWeightProp.Builder();
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.FontWeightProp build();
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.FontWeightProp.Builder setValue(int);
   }
 
-  public static final class LayoutElementBuilders.HorizontalAlignmentProp {
-    method public int getValue();
+  @Deprecated public static final class LayoutElementBuilders.HorizontalAlignmentProp {
+    method @Deprecated public int getValue();
   }
 
-  public static final class LayoutElementBuilders.HorizontalAlignmentProp.Builder {
-    ctor public LayoutElementBuilders.HorizontalAlignmentProp.Builder();
-    method public androidx.wear.tiles.LayoutElementBuilders.HorizontalAlignmentProp build();
-    method public androidx.wear.tiles.LayoutElementBuilders.HorizontalAlignmentProp.Builder setValue(int);
+  @Deprecated public static final class LayoutElementBuilders.HorizontalAlignmentProp.Builder {
+    ctor @Deprecated public LayoutElementBuilders.HorizontalAlignmentProp.Builder();
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.HorizontalAlignmentProp build();
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.HorizontalAlignmentProp.Builder setValue(int);
   }
 
-  public static final class LayoutElementBuilders.Image implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement {
-    method public androidx.wear.tiles.LayoutElementBuilders.ColorFilter? getColorFilter();
-    method public androidx.wear.tiles.LayoutElementBuilders.ContentScaleModeProp? getContentScaleMode();
-    method public androidx.wear.tiles.DimensionBuilders.ImageDimension? getHeight();
-    method public androidx.wear.tiles.ModifiersBuilders.Modifiers? getModifiers();
-    method public androidx.wear.tiles.TypeBuilders.StringProp? getResourceId();
-    method public androidx.wear.tiles.DimensionBuilders.ImageDimension? getWidth();
+  @Deprecated public static final class LayoutElementBuilders.Image implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement {
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.ColorFilter? getColorFilter();
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.ContentScaleModeProp? getContentScaleMode();
+    method @Deprecated public androidx.wear.tiles.DimensionBuilders.ImageDimension? getHeight();
+    method @Deprecated public androidx.wear.tiles.ModifiersBuilders.Modifiers? getModifiers();
+    method @Deprecated public androidx.wear.tiles.TypeBuilders.StringProp? getResourceId();
+    method @Deprecated public androidx.wear.tiles.DimensionBuilders.ImageDimension? getWidth();
   }
 
-  public static final class LayoutElementBuilders.Image.Builder implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement.Builder {
-    ctor public LayoutElementBuilders.Image.Builder();
-    method public androidx.wear.tiles.LayoutElementBuilders.Image build();
-    method public androidx.wear.tiles.LayoutElementBuilders.Image.Builder setColorFilter(androidx.wear.tiles.LayoutElementBuilders.ColorFilter);
-    method public androidx.wear.tiles.LayoutElementBuilders.Image.Builder setContentScaleMode(androidx.wear.tiles.LayoutElementBuilders.ContentScaleModeProp);
-    method public androidx.wear.tiles.LayoutElementBuilders.Image.Builder setContentScaleMode(int);
-    method public androidx.wear.tiles.LayoutElementBuilders.Image.Builder setHeight(androidx.wear.tiles.DimensionBuilders.ImageDimension);
-    method public androidx.wear.tiles.LayoutElementBuilders.Image.Builder setModifiers(androidx.wear.tiles.ModifiersBuilders.Modifiers);
-    method public androidx.wear.tiles.LayoutElementBuilders.Image.Builder setResourceId(androidx.wear.tiles.TypeBuilders.StringProp);
-    method public androidx.wear.tiles.LayoutElementBuilders.Image.Builder setResourceId(String);
-    method public androidx.wear.tiles.LayoutElementBuilders.Image.Builder setWidth(androidx.wear.tiles.DimensionBuilders.ImageDimension);
+  @Deprecated public static final class LayoutElementBuilders.Image.Builder implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement.Builder {
+    ctor @Deprecated public LayoutElementBuilders.Image.Builder();
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.Image build();
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.Image.Builder setColorFilter(androidx.wear.tiles.LayoutElementBuilders.ColorFilter);
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.Image.Builder setContentScaleMode(androidx.wear.tiles.LayoutElementBuilders.ContentScaleModeProp);
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.Image.Builder setContentScaleMode(int);
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.Image.Builder setHeight(androidx.wear.tiles.DimensionBuilders.ImageDimension);
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.Image.Builder setModifiers(androidx.wear.tiles.ModifiersBuilders.Modifiers);
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.Image.Builder setResourceId(androidx.wear.tiles.TypeBuilders.StringProp);
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.Image.Builder setResourceId(String);
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.Image.Builder setWidth(androidx.wear.tiles.DimensionBuilders.ImageDimension);
   }
 
-  public static final class LayoutElementBuilders.Layout {
-    method @androidx.wear.tiles.TilesExperimental public static androidx.wear.tiles.LayoutElementBuilders.Layout? fromByteArray(byte[]);
-    method public static androidx.wear.tiles.LayoutElementBuilders.Layout fromLayoutElement(androidx.wear.tiles.LayoutElementBuilders.LayoutElement);
-    method public androidx.wear.tiles.LayoutElementBuilders.LayoutElement? getRoot();
-    method @androidx.wear.tiles.TilesExperimental public byte[] toByteArray();
+  @Deprecated public static final class LayoutElementBuilders.Layout {
+    method @Deprecated @androidx.wear.tiles.TilesExperimental public static androidx.wear.tiles.LayoutElementBuilders.Layout? fromByteArray(byte[]);
+    method @Deprecated public static androidx.wear.tiles.LayoutElementBuilders.Layout fromLayoutElement(androidx.wear.tiles.LayoutElementBuilders.LayoutElement);
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.LayoutElement? getRoot();
+    method @Deprecated @androidx.wear.tiles.TilesExperimental public byte[] toByteArray();
   }
 
-  public static final class LayoutElementBuilders.Layout.Builder {
-    ctor public LayoutElementBuilders.Layout.Builder();
-    method public androidx.wear.tiles.LayoutElementBuilders.Layout build();
-    method public androidx.wear.tiles.LayoutElementBuilders.Layout.Builder setRoot(androidx.wear.tiles.LayoutElementBuilders.LayoutElement);
+  @Deprecated public static final class LayoutElementBuilders.Layout.Builder {
+    ctor @Deprecated public LayoutElementBuilders.Layout.Builder();
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.Layout build();
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.Layout.Builder setRoot(androidx.wear.tiles.LayoutElementBuilders.LayoutElement);
   }
 
-  public static interface LayoutElementBuilders.LayoutElement {
+  @Deprecated public static interface LayoutElementBuilders.LayoutElement {
   }
 
-  public static interface LayoutElementBuilders.LayoutElement.Builder {
-    method public androidx.wear.tiles.LayoutElementBuilders.LayoutElement build();
+  @Deprecated public static interface LayoutElementBuilders.LayoutElement.Builder {
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.LayoutElement build();
   }
 
-  public static final class LayoutElementBuilders.Row implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement {
-    method public java.util.List<androidx.wear.tiles.LayoutElementBuilders.LayoutElement!> getContents();
-    method public androidx.wear.tiles.DimensionBuilders.ContainerDimension? getHeight();
-    method public androidx.wear.tiles.ModifiersBuilders.Modifiers? getModifiers();
-    method public androidx.wear.tiles.LayoutElementBuilders.VerticalAlignmentProp? getVerticalAlignment();
-    method public androidx.wear.tiles.DimensionBuilders.ContainerDimension? getWidth();
+  @Deprecated public static final class LayoutElementBuilders.Row implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement {
+    method @Deprecated public java.util.List<androidx.wear.tiles.LayoutElementBuilders.LayoutElement!> getContents();
+    method @Deprecated public androidx.wear.tiles.DimensionBuilders.ContainerDimension? getHeight();
+    method @Deprecated public androidx.wear.tiles.ModifiersBuilders.Modifiers? getModifiers();
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.VerticalAlignmentProp? getVerticalAlignment();
+    method @Deprecated public androidx.wear.tiles.DimensionBuilders.ContainerDimension? getWidth();
   }
 
-  public static final class LayoutElementBuilders.Row.Builder implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement.Builder {
-    ctor public LayoutElementBuilders.Row.Builder();
-    method public androidx.wear.tiles.LayoutElementBuilders.Row.Builder addContent(androidx.wear.tiles.LayoutElementBuilders.LayoutElement);
-    method public androidx.wear.tiles.LayoutElementBuilders.Row build();
-    method public androidx.wear.tiles.LayoutElementBuilders.Row.Builder setHeight(androidx.wear.tiles.DimensionBuilders.ContainerDimension);
-    method public androidx.wear.tiles.LayoutElementBuilders.Row.Builder setModifiers(androidx.wear.tiles.ModifiersBuilders.Modifiers);
-    method public androidx.wear.tiles.LayoutElementBuilders.Row.Builder setVerticalAlignment(androidx.wear.tiles.LayoutElementBuilders.VerticalAlignmentProp);
-    method public androidx.wear.tiles.LayoutElementBuilders.Row.Builder setVerticalAlignment(int);
-    method public androidx.wear.tiles.LayoutElementBuilders.Row.Builder setWidth(androidx.wear.tiles.DimensionBuilders.ContainerDimension);
+  @Deprecated public static final class LayoutElementBuilders.Row.Builder implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement.Builder {
+    ctor @Deprecated public LayoutElementBuilders.Row.Builder();
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.Row.Builder addContent(androidx.wear.tiles.LayoutElementBuilders.LayoutElement);
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.Row build();
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.Row.Builder setHeight(androidx.wear.tiles.DimensionBuilders.ContainerDimension);
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.Row.Builder setModifiers(androidx.wear.tiles.ModifiersBuilders.Modifiers);
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.Row.Builder setVerticalAlignment(androidx.wear.tiles.LayoutElementBuilders.VerticalAlignmentProp);
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.Row.Builder setVerticalAlignment(int);
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.Row.Builder setWidth(androidx.wear.tiles.DimensionBuilders.ContainerDimension);
   }
 
-  public static final class LayoutElementBuilders.Spacer implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement {
-    method public androidx.wear.tiles.DimensionBuilders.SpacerDimension? getHeight();
-    method public androidx.wear.tiles.ModifiersBuilders.Modifiers? getModifiers();
-    method public androidx.wear.tiles.DimensionBuilders.SpacerDimension? getWidth();
+  @Deprecated public static final class LayoutElementBuilders.Spacer implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement {
+    method @Deprecated public androidx.wear.tiles.DimensionBuilders.SpacerDimension? getHeight();
+    method @Deprecated public androidx.wear.tiles.ModifiersBuilders.Modifiers? getModifiers();
+    method @Deprecated public androidx.wear.tiles.DimensionBuilders.SpacerDimension? getWidth();
   }
 
-  public static final class LayoutElementBuilders.Spacer.Builder implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement.Builder {
-    ctor public LayoutElementBuilders.Spacer.Builder();
-    method public androidx.wear.tiles.LayoutElementBuilders.Spacer build();
-    method public androidx.wear.tiles.LayoutElementBuilders.Spacer.Builder setHeight(androidx.wear.tiles.DimensionBuilders.SpacerDimension);
-    method public androidx.wear.tiles.LayoutElementBuilders.Spacer.Builder setModifiers(androidx.wear.tiles.ModifiersBuilders.Modifiers);
-    method public androidx.wear.tiles.LayoutElementBuilders.Spacer.Builder setWidth(androidx.wear.tiles.DimensionBuilders.SpacerDimension);
+  @Deprecated public static final class LayoutElementBuilders.Spacer.Builder implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement.Builder {
+    ctor @Deprecated public LayoutElementBuilders.Spacer.Builder();
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.Spacer build();
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.Spacer.Builder setHeight(androidx.wear.tiles.DimensionBuilders.SpacerDimension);
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.Spacer.Builder setModifiers(androidx.wear.tiles.ModifiersBuilders.Modifiers);
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.Spacer.Builder setWidth(androidx.wear.tiles.DimensionBuilders.SpacerDimension);
   }
 
-  public static interface LayoutElementBuilders.Span {
+  @Deprecated public static interface LayoutElementBuilders.Span {
   }
 
-  public static interface LayoutElementBuilders.Span.Builder {
-    method public androidx.wear.tiles.LayoutElementBuilders.Span build();
+  @Deprecated public static interface LayoutElementBuilders.Span.Builder {
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.Span build();
   }
 
-  public static final class LayoutElementBuilders.SpanImage implements androidx.wear.tiles.LayoutElementBuilders.Span {
-    method public androidx.wear.tiles.LayoutElementBuilders.SpanVerticalAlignmentProp? getAlignment();
-    method public androidx.wear.tiles.DimensionBuilders.DpProp? getHeight();
-    method public androidx.wear.tiles.ModifiersBuilders.SpanModifiers? getModifiers();
-    method public androidx.wear.tiles.TypeBuilders.StringProp? getResourceId();
-    method public androidx.wear.tiles.DimensionBuilders.DpProp? getWidth();
+  @Deprecated public static final class LayoutElementBuilders.SpanImage implements androidx.wear.tiles.LayoutElementBuilders.Span {
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.SpanVerticalAlignmentProp? getAlignment();
+    method @Deprecated public androidx.wear.tiles.DimensionBuilders.DpProp? getHeight();
+    method @Deprecated public androidx.wear.tiles.ModifiersBuilders.SpanModifiers? getModifiers();
+    method @Deprecated public androidx.wear.tiles.TypeBuilders.StringProp? getResourceId();
+    method @Deprecated public androidx.wear.tiles.DimensionBuilders.DpProp? getWidth();
   }
 
-  public static final class LayoutElementBuilders.SpanImage.Builder implements androidx.wear.tiles.LayoutElementBuilders.Span.Builder {
-    ctor public LayoutElementBuilders.SpanImage.Builder();
-    method public androidx.wear.tiles.LayoutElementBuilders.SpanImage build();
-    method public androidx.wear.tiles.LayoutElementBuilders.SpanImage.Builder setAlignment(androidx.wear.tiles.LayoutElementBuilders.SpanVerticalAlignmentProp);
-    method public androidx.wear.tiles.LayoutElementBuilders.SpanImage.Builder setAlignment(int);
-    method public androidx.wear.tiles.LayoutElementBuilders.SpanImage.Builder setHeight(androidx.wear.tiles.DimensionBuilders.DpProp);
-    method public androidx.wear.tiles.LayoutElementBuilders.SpanImage.Builder setModifiers(androidx.wear.tiles.ModifiersBuilders.SpanModifiers);
-    method public androidx.wear.tiles.LayoutElementBuilders.SpanImage.Builder setResourceId(androidx.wear.tiles.TypeBuilders.StringProp);
-    method public androidx.wear.tiles.LayoutElementBuilders.SpanImage.Builder setResourceId(String);
-    method public androidx.wear.tiles.LayoutElementBuilders.SpanImage.Builder setWidth(androidx.wear.tiles.DimensionBuilders.DpProp);
+  @Deprecated public static final class LayoutElementBuilders.SpanImage.Builder implements androidx.wear.tiles.LayoutElementBuilders.Span.Builder {
+    ctor @Deprecated public LayoutElementBuilders.SpanImage.Builder();
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.SpanImage build();
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.SpanImage.Builder setAlignment(androidx.wear.tiles.LayoutElementBuilders.SpanVerticalAlignmentProp);
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.SpanImage.Builder setAlignment(int);
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.SpanImage.Builder setHeight(androidx.wear.tiles.DimensionBuilders.DpProp);
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.SpanImage.Builder setModifiers(androidx.wear.tiles.ModifiersBuilders.SpanModifiers);
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.SpanImage.Builder setResourceId(androidx.wear.tiles.TypeBuilders.StringProp);
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.SpanImage.Builder setResourceId(String);
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.SpanImage.Builder setWidth(androidx.wear.tiles.DimensionBuilders.DpProp);
   }
 
-  public static final class LayoutElementBuilders.SpanText implements androidx.wear.tiles.LayoutElementBuilders.Span {
-    method public androidx.wear.tiles.LayoutElementBuilders.FontStyle? getFontStyle();
-    method public androidx.wear.tiles.ModifiersBuilders.SpanModifiers? getModifiers();
-    method public androidx.wear.tiles.TypeBuilders.StringProp? getText();
+  @Deprecated public static final class LayoutElementBuilders.SpanText implements androidx.wear.tiles.LayoutElementBuilders.Span {
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.FontStyle? getFontStyle();
+    method @Deprecated public androidx.wear.tiles.ModifiersBuilders.SpanModifiers? getModifiers();
+    method @Deprecated public androidx.wear.tiles.TypeBuilders.StringProp? getText();
   }
 
-  public static final class LayoutElementBuilders.SpanText.Builder implements androidx.wear.tiles.LayoutElementBuilders.Span.Builder {
-    ctor public LayoutElementBuilders.SpanText.Builder();
-    method public androidx.wear.tiles.LayoutElementBuilders.SpanText build();
-    method public androidx.wear.tiles.LayoutElementBuilders.SpanText.Builder setFontStyle(androidx.wear.tiles.LayoutElementBuilders.FontStyle);
-    method public androidx.wear.tiles.LayoutElementBuilders.SpanText.Builder setModifiers(androidx.wear.tiles.ModifiersBuilders.SpanModifiers);
-    method public androidx.wear.tiles.LayoutElementBuilders.SpanText.Builder setText(androidx.wear.tiles.TypeBuilders.StringProp);
-    method public androidx.wear.tiles.LayoutElementBuilders.SpanText.Builder setText(String);
+  @Deprecated public static final class LayoutElementBuilders.SpanText.Builder implements androidx.wear.tiles.LayoutElementBuilders.Span.Builder {
+    ctor @Deprecated public LayoutElementBuilders.SpanText.Builder();
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.SpanText build();
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.SpanText.Builder setFontStyle(androidx.wear.tiles.LayoutElementBuilders.FontStyle);
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.SpanText.Builder setModifiers(androidx.wear.tiles.ModifiersBuilders.SpanModifiers);
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.SpanText.Builder setText(androidx.wear.tiles.TypeBuilders.StringProp);
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.SpanText.Builder setText(String);
   }
 
-  public static final class LayoutElementBuilders.SpanVerticalAlignmentProp {
-    method public int getValue();
+  @Deprecated public static final class LayoutElementBuilders.SpanVerticalAlignmentProp {
+    method @Deprecated public int getValue();
   }
 
-  public static final class LayoutElementBuilders.SpanVerticalAlignmentProp.Builder {
-    ctor public LayoutElementBuilders.SpanVerticalAlignmentProp.Builder();
-    method public androidx.wear.tiles.LayoutElementBuilders.SpanVerticalAlignmentProp build();
-    method public androidx.wear.tiles.LayoutElementBuilders.SpanVerticalAlignmentProp.Builder setValue(int);
+  @Deprecated public static final class LayoutElementBuilders.SpanVerticalAlignmentProp.Builder {
+    ctor @Deprecated public LayoutElementBuilders.SpanVerticalAlignmentProp.Builder();
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.SpanVerticalAlignmentProp build();
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.SpanVerticalAlignmentProp.Builder setValue(int);
   }
 
-  public static final class LayoutElementBuilders.Spannable implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement {
-    method public androidx.wear.tiles.DimensionBuilders.SpProp? getLineHeight();
-    method public androidx.wear.tiles.TypeBuilders.Int32Prop? getMaxLines();
-    method public androidx.wear.tiles.ModifiersBuilders.Modifiers? getModifiers();
-    method public androidx.wear.tiles.LayoutElementBuilders.HorizontalAlignmentProp? getMultilineAlignment();
-    method public androidx.wear.tiles.LayoutElementBuilders.TextOverflowProp? getOverflow();
-    method public java.util.List<androidx.wear.tiles.LayoutElementBuilders.Span!> getSpans();
+  @Deprecated public static final class LayoutElementBuilders.Spannable implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement {
+    method @Deprecated public androidx.wear.tiles.DimensionBuilders.SpProp? getLineHeight();
+    method @Deprecated public androidx.wear.tiles.TypeBuilders.Int32Prop? getMaxLines();
+    method @Deprecated public androidx.wear.tiles.ModifiersBuilders.Modifiers? getModifiers();
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.HorizontalAlignmentProp? getMultilineAlignment();
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.TextOverflowProp? getOverflow();
+    method @Deprecated public java.util.List<androidx.wear.tiles.LayoutElementBuilders.Span!> getSpans();
   }
 
-  public static final class LayoutElementBuilders.Spannable.Builder implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement.Builder {
-    ctor public LayoutElementBuilders.Spannable.Builder();
-    method public androidx.wear.tiles.LayoutElementBuilders.Spannable.Builder addSpan(androidx.wear.tiles.LayoutElementBuilders.Span);
-    method public androidx.wear.tiles.LayoutElementBuilders.Spannable build();
-    method public androidx.wear.tiles.LayoutElementBuilders.Spannable.Builder setLineHeight(androidx.wear.tiles.DimensionBuilders.SpProp);
-    method public androidx.wear.tiles.LayoutElementBuilders.Spannable.Builder setMaxLines(androidx.wear.tiles.TypeBuilders.Int32Prop);
-    method public androidx.wear.tiles.LayoutElementBuilders.Spannable.Builder setMaxLines(@IntRange(from=1) int);
-    method public androidx.wear.tiles.LayoutElementBuilders.Spannable.Builder setModifiers(androidx.wear.tiles.ModifiersBuilders.Modifiers);
-    method public androidx.wear.tiles.LayoutElementBuilders.Spannable.Builder setMultilineAlignment(androidx.wear.tiles.LayoutElementBuilders.HorizontalAlignmentProp);
-    method public androidx.wear.tiles.LayoutElementBuilders.Spannable.Builder setMultilineAlignment(int);
-    method public androidx.wear.tiles.LayoutElementBuilders.Spannable.Builder setOverflow(androidx.wear.tiles.LayoutElementBuilders.TextOverflowProp);
-    method public androidx.wear.tiles.LayoutElementBuilders.Spannable.Builder setOverflow(int);
+  @Deprecated public static final class LayoutElementBuilders.Spannable.Builder implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement.Builder {
+    ctor @Deprecated public LayoutElementBuilders.Spannable.Builder();
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.Spannable.Builder addSpan(androidx.wear.tiles.LayoutElementBuilders.Span);
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.Spannable build();
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.Spannable.Builder setLineHeight(androidx.wear.tiles.DimensionBuilders.SpProp);
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.Spannable.Builder setMaxLines(androidx.wear.tiles.TypeBuilders.Int32Prop);
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.Spannable.Builder setMaxLines(@IntRange(from=1) int);
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.Spannable.Builder setModifiers(androidx.wear.tiles.ModifiersBuilders.Modifiers);
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.Spannable.Builder setMultilineAlignment(androidx.wear.tiles.LayoutElementBuilders.HorizontalAlignmentProp);
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.Spannable.Builder setMultilineAlignment(int);
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.Spannable.Builder setOverflow(androidx.wear.tiles.LayoutElementBuilders.TextOverflowProp);
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.Spannable.Builder setOverflow(int);
   }
 
-  public static final class LayoutElementBuilders.Text implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement {
-    method public androidx.wear.tiles.LayoutElementBuilders.FontStyle? getFontStyle();
-    method public androidx.wear.tiles.DimensionBuilders.SpProp? getLineHeight();
-    method public androidx.wear.tiles.TypeBuilders.Int32Prop? getMaxLines();
-    method public androidx.wear.tiles.ModifiersBuilders.Modifiers? getModifiers();
-    method public androidx.wear.tiles.LayoutElementBuilders.TextAlignmentProp? getMultilineAlignment();
-    method public androidx.wear.tiles.LayoutElementBuilders.TextOverflowProp? getOverflow();
-    method public androidx.wear.tiles.TypeBuilders.StringProp? getText();
+  @Deprecated public static final class LayoutElementBuilders.Text implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement {
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.FontStyle? getFontStyle();
+    method @Deprecated public androidx.wear.tiles.DimensionBuilders.SpProp? getLineHeight();
+    method @Deprecated public androidx.wear.tiles.TypeBuilders.Int32Prop? getMaxLines();
+    method @Deprecated public androidx.wear.tiles.ModifiersBuilders.Modifiers? getModifiers();
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.TextAlignmentProp? getMultilineAlignment();
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.TextOverflowProp? getOverflow();
+    method @Deprecated public androidx.wear.tiles.TypeBuilders.StringProp? getText();
   }
 
-  public static final class LayoutElementBuilders.Text.Builder implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement.Builder {
-    ctor public LayoutElementBuilders.Text.Builder();
-    method public androidx.wear.tiles.LayoutElementBuilders.Text build();
-    method public androidx.wear.tiles.LayoutElementBuilders.Text.Builder setFontStyle(androidx.wear.tiles.LayoutElementBuilders.FontStyle);
-    method public androidx.wear.tiles.LayoutElementBuilders.Text.Builder setLineHeight(androidx.wear.tiles.DimensionBuilders.SpProp);
-    method public androidx.wear.tiles.LayoutElementBuilders.Text.Builder setMaxLines(androidx.wear.tiles.TypeBuilders.Int32Prop);
-    method public androidx.wear.tiles.LayoutElementBuilders.Text.Builder setMaxLines(@IntRange(from=1) int);
-    method public androidx.wear.tiles.LayoutElementBuilders.Text.Builder setModifiers(androidx.wear.tiles.ModifiersBuilders.Modifiers);
-    method public androidx.wear.tiles.LayoutElementBuilders.Text.Builder setMultilineAlignment(androidx.wear.tiles.LayoutElementBuilders.TextAlignmentProp);
-    method public androidx.wear.tiles.LayoutElementBuilders.Text.Builder setMultilineAlignment(int);
-    method public androidx.wear.tiles.LayoutElementBuilders.Text.Builder setOverflow(androidx.wear.tiles.LayoutElementBuilders.TextOverflowProp);
-    method public androidx.wear.tiles.LayoutElementBuilders.Text.Builder setOverflow(int);
-    method public androidx.wear.tiles.LayoutElementBuilders.Text.Builder setText(androidx.wear.tiles.TypeBuilders.StringProp);
-    method public androidx.wear.tiles.LayoutElementBuilders.Text.Builder setText(String);
+  @Deprecated public static final class LayoutElementBuilders.Text.Builder implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement.Builder {
+    ctor @Deprecated public LayoutElementBuilders.Text.Builder();
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.Text build();
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.Text.Builder setFontStyle(androidx.wear.tiles.LayoutElementBuilders.FontStyle);
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.Text.Builder setLineHeight(androidx.wear.tiles.DimensionBuilders.SpProp);
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.Text.Builder setMaxLines(androidx.wear.tiles.TypeBuilders.Int32Prop);
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.Text.Builder setMaxLines(@IntRange(from=1) int);
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.Text.Builder setModifiers(androidx.wear.tiles.ModifiersBuilders.Modifiers);
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.Text.Builder setMultilineAlignment(androidx.wear.tiles.LayoutElementBuilders.TextAlignmentProp);
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.Text.Builder setMultilineAlignment(int);
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.Text.Builder setOverflow(androidx.wear.tiles.LayoutElementBuilders.TextOverflowProp);
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.Text.Builder setOverflow(int);
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.Text.Builder setText(androidx.wear.tiles.TypeBuilders.StringProp);
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.Text.Builder setText(String);
   }
 
-  public static final class LayoutElementBuilders.TextAlignmentProp {
-    method public int getValue();
+  @Deprecated public static final class LayoutElementBuilders.TextAlignmentProp {
+    method @Deprecated public int getValue();
   }
 
-  public static final class LayoutElementBuilders.TextAlignmentProp.Builder {
-    ctor public LayoutElementBuilders.TextAlignmentProp.Builder();
-    method public androidx.wear.tiles.LayoutElementBuilders.TextAlignmentProp build();
-    method public androidx.wear.tiles.LayoutElementBuilders.TextAlignmentProp.Builder setValue(int);
+  @Deprecated public static final class LayoutElementBuilders.TextAlignmentProp.Builder {
+    ctor @Deprecated public LayoutElementBuilders.TextAlignmentProp.Builder();
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.TextAlignmentProp build();
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.TextAlignmentProp.Builder setValue(int);
   }
 
-  public static final class LayoutElementBuilders.TextOverflowProp {
-    method public int getValue();
+  @Deprecated public static final class LayoutElementBuilders.TextOverflowProp {
+    method @Deprecated public int getValue();
   }
 
-  public static final class LayoutElementBuilders.TextOverflowProp.Builder {
-    ctor public LayoutElementBuilders.TextOverflowProp.Builder();
-    method public androidx.wear.tiles.LayoutElementBuilders.TextOverflowProp build();
-    method public androidx.wear.tiles.LayoutElementBuilders.TextOverflowProp.Builder setValue(int);
+  @Deprecated public static final class LayoutElementBuilders.TextOverflowProp.Builder {
+    ctor @Deprecated public LayoutElementBuilders.TextOverflowProp.Builder();
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.TextOverflowProp build();
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.TextOverflowProp.Builder setValue(int);
   }
 
-  public static final class LayoutElementBuilders.VerticalAlignmentProp {
-    method public int getValue();
+  @Deprecated public static final class LayoutElementBuilders.VerticalAlignmentProp {
+    method @Deprecated public int getValue();
   }
 
-  public static final class LayoutElementBuilders.VerticalAlignmentProp.Builder {
-    ctor public LayoutElementBuilders.VerticalAlignmentProp.Builder();
-    method public androidx.wear.tiles.LayoutElementBuilders.VerticalAlignmentProp build();
-    method public androidx.wear.tiles.LayoutElementBuilders.VerticalAlignmentProp.Builder setValue(int);
+  @Deprecated public static final class LayoutElementBuilders.VerticalAlignmentProp.Builder {
+    ctor @Deprecated public LayoutElementBuilders.VerticalAlignmentProp.Builder();
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.VerticalAlignmentProp build();
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.VerticalAlignmentProp.Builder setValue(int);
   }
 
-  public final class ModifiersBuilders {
+  @Deprecated public final class ModifiersBuilders {
   }
 
-  public static final class ModifiersBuilders.ArcModifiers {
-    method public androidx.wear.tiles.ModifiersBuilders.Clickable? getClickable();
-    method public androidx.wear.tiles.ModifiersBuilders.Semantics? getSemantics();
+  @Deprecated public static final class ModifiersBuilders.ArcModifiers {
+    method @Deprecated public androidx.wear.tiles.ModifiersBuilders.Clickable? getClickable();
+    method @Deprecated public androidx.wear.tiles.ModifiersBuilders.Semantics? getSemantics();
   }
 
-  public static final class ModifiersBuilders.ArcModifiers.Builder {
-    ctor public ModifiersBuilders.ArcModifiers.Builder();
-    method public androidx.wear.tiles.ModifiersBuilders.ArcModifiers build();
-    method public androidx.wear.tiles.ModifiersBuilders.ArcModifiers.Builder setClickable(androidx.wear.tiles.ModifiersBuilders.Clickable);
-    method public androidx.wear.tiles.ModifiersBuilders.ArcModifiers.Builder setSemantics(androidx.wear.tiles.ModifiersBuilders.Semantics);
+  @Deprecated public static final class ModifiersBuilders.ArcModifiers.Builder {
+    ctor @Deprecated public ModifiersBuilders.ArcModifiers.Builder();
+    method @Deprecated public androidx.wear.tiles.ModifiersBuilders.ArcModifiers build();
+    method @Deprecated public androidx.wear.tiles.ModifiersBuilders.ArcModifiers.Builder setClickable(androidx.wear.tiles.ModifiersBuilders.Clickable);
+    method @Deprecated public androidx.wear.tiles.ModifiersBuilders.ArcModifiers.Builder setSemantics(androidx.wear.tiles.ModifiersBuilders.Semantics);
   }
 
-  public static final class ModifiersBuilders.Background {
-    method public androidx.wear.tiles.ColorBuilders.ColorProp? getColor();
-    method public androidx.wear.tiles.ModifiersBuilders.Corner? getCorner();
+  @Deprecated public static final class ModifiersBuilders.Background {
+    method @Deprecated public androidx.wear.tiles.ColorBuilders.ColorProp? getColor();
+    method @Deprecated public androidx.wear.tiles.ModifiersBuilders.Corner? getCorner();
   }
 
-  public static final class ModifiersBuilders.Background.Builder {
-    ctor public ModifiersBuilders.Background.Builder();
-    method public androidx.wear.tiles.ModifiersBuilders.Background build();
-    method public androidx.wear.tiles.ModifiersBuilders.Background.Builder setColor(androidx.wear.tiles.ColorBuilders.ColorProp);
-    method public androidx.wear.tiles.ModifiersBuilders.Background.Builder setCorner(androidx.wear.tiles.ModifiersBuilders.Corner);
+  @Deprecated public static final class ModifiersBuilders.Background.Builder {
+    ctor @Deprecated public ModifiersBuilders.Background.Builder();
+    method @Deprecated public androidx.wear.tiles.ModifiersBuilders.Background build();
+    method @Deprecated public androidx.wear.tiles.ModifiersBuilders.Background.Builder setColor(androidx.wear.tiles.ColorBuilders.ColorProp);
+    method @Deprecated public androidx.wear.tiles.ModifiersBuilders.Background.Builder setCorner(androidx.wear.tiles.ModifiersBuilders.Corner);
   }
 
-  public static final class ModifiersBuilders.Border {
-    method public androidx.wear.tiles.ColorBuilders.ColorProp? getColor();
-    method public androidx.wear.tiles.DimensionBuilders.DpProp? getWidth();
+  @Deprecated public static final class ModifiersBuilders.Border {
+    method @Deprecated public androidx.wear.tiles.ColorBuilders.ColorProp? getColor();
+    method @Deprecated public androidx.wear.tiles.DimensionBuilders.DpProp? getWidth();
   }
 
-  public static final class ModifiersBuilders.Border.Builder {
-    ctor public ModifiersBuilders.Border.Builder();
-    method public androidx.wear.tiles.ModifiersBuilders.Border build();
-    method public androidx.wear.tiles.ModifiersBuilders.Border.Builder setColor(androidx.wear.tiles.ColorBuilders.ColorProp);
-    method public androidx.wear.tiles.ModifiersBuilders.Border.Builder setWidth(androidx.wear.tiles.DimensionBuilders.DpProp);
+  @Deprecated public static final class ModifiersBuilders.Border.Builder {
+    ctor @Deprecated public ModifiersBuilders.Border.Builder();
+    method @Deprecated public androidx.wear.tiles.ModifiersBuilders.Border build();
+    method @Deprecated public androidx.wear.tiles.ModifiersBuilders.Border.Builder setColor(androidx.wear.tiles.ColorBuilders.ColorProp);
+    method @Deprecated public androidx.wear.tiles.ModifiersBuilders.Border.Builder setWidth(androidx.wear.tiles.DimensionBuilders.DpProp);
   }
 
-  public static final class ModifiersBuilders.Clickable {
-    method public String getId();
-    method public androidx.wear.tiles.ActionBuilders.Action? getOnClick();
+  @Deprecated public static final class ModifiersBuilders.Clickable {
+    method @Deprecated public String getId();
+    method @Deprecated public androidx.wear.tiles.ActionBuilders.Action? getOnClick();
   }
 
-  public static final class ModifiersBuilders.Clickable.Builder {
-    ctor public ModifiersBuilders.Clickable.Builder();
-    method public androidx.wear.tiles.ModifiersBuilders.Clickable build();
-    method public androidx.wear.tiles.ModifiersBuilders.Clickable.Builder setId(String);
-    method public androidx.wear.tiles.ModifiersBuilders.Clickable.Builder setOnClick(androidx.wear.tiles.ActionBuilders.Action);
+  @Deprecated public static final class ModifiersBuilders.Clickable.Builder {
+    ctor @Deprecated public ModifiersBuilders.Clickable.Builder();
+    method @Deprecated public androidx.wear.tiles.ModifiersBuilders.Clickable build();
+    method @Deprecated public androidx.wear.tiles.ModifiersBuilders.Clickable.Builder setId(String);
+    method @Deprecated public androidx.wear.tiles.ModifiersBuilders.Clickable.Builder setOnClick(androidx.wear.tiles.ActionBuilders.Action);
   }
 
-  public static final class ModifiersBuilders.Corner {
-    method public androidx.wear.tiles.DimensionBuilders.DpProp? getRadius();
+  @Deprecated public static final class ModifiersBuilders.Corner {
+    method @Deprecated public androidx.wear.tiles.DimensionBuilders.DpProp? getRadius();
   }
 
-  public static final class ModifiersBuilders.Corner.Builder {
-    ctor public ModifiersBuilders.Corner.Builder();
-    method public androidx.wear.tiles.ModifiersBuilders.Corner build();
-    method public androidx.wear.tiles.ModifiersBuilders.Corner.Builder setRadius(androidx.wear.tiles.DimensionBuilders.DpProp);
+  @Deprecated public static final class ModifiersBuilders.Corner.Builder {
+    ctor @Deprecated public ModifiersBuilders.Corner.Builder();
+    method @Deprecated public androidx.wear.tiles.ModifiersBuilders.Corner build();
+    method @Deprecated public androidx.wear.tiles.ModifiersBuilders.Corner.Builder setRadius(androidx.wear.tiles.DimensionBuilders.DpProp);
   }
 
-  public static final class ModifiersBuilders.ElementMetadata {
-    method public byte[] getTagData();
+  @Deprecated public static final class ModifiersBuilders.ElementMetadata {
+    method @Deprecated public byte[] getTagData();
   }
 
-  public static final class ModifiersBuilders.ElementMetadata.Builder {
-    ctor public ModifiersBuilders.ElementMetadata.Builder();
-    method public androidx.wear.tiles.ModifiersBuilders.ElementMetadata build();
-    method public androidx.wear.tiles.ModifiersBuilders.ElementMetadata.Builder setTagData(byte[]);
+  @Deprecated public static final class ModifiersBuilders.ElementMetadata.Builder {
+    ctor @Deprecated public ModifiersBuilders.ElementMetadata.Builder();
+    method @Deprecated public androidx.wear.tiles.ModifiersBuilders.ElementMetadata build();
+    method @Deprecated public androidx.wear.tiles.ModifiersBuilders.ElementMetadata.Builder setTagData(byte[]);
   }
 
-  public static final class ModifiersBuilders.Modifiers {
-    method public androidx.wear.tiles.ModifiersBuilders.Background? getBackground();
-    method public androidx.wear.tiles.ModifiersBuilders.Border? getBorder();
-    method public androidx.wear.tiles.ModifiersBuilders.Clickable? getClickable();
-    method public androidx.wear.tiles.ModifiersBuilders.ElementMetadata? getMetadata();
-    method public androidx.wear.tiles.ModifiersBuilders.Padding? getPadding();
-    method public androidx.wear.tiles.ModifiersBuilders.Semantics? getSemantics();
+  @Deprecated public static final class ModifiersBuilders.Modifiers {
+    method @Deprecated public androidx.wear.tiles.ModifiersBuilders.Background? getBackground();
+    method @Deprecated public androidx.wear.tiles.ModifiersBuilders.Border? getBorder();
+    method @Deprecated public androidx.wear.tiles.ModifiersBuilders.Clickable? getClickable();
+    method @Deprecated public androidx.wear.tiles.ModifiersBuilders.ElementMetadata? getMetadata();
+    method @Deprecated public androidx.wear.tiles.ModifiersBuilders.Padding? getPadding();
+    method @Deprecated public androidx.wear.tiles.ModifiersBuilders.Semantics? getSemantics();
   }
 
-  public static final class ModifiersBuilders.Modifiers.Builder {
-    ctor public ModifiersBuilders.Modifiers.Builder();
-    method public androidx.wear.tiles.ModifiersBuilders.Modifiers build();
-    method public androidx.wear.tiles.ModifiersBuilders.Modifiers.Builder setBackground(androidx.wear.tiles.ModifiersBuilders.Background);
-    method public androidx.wear.tiles.ModifiersBuilders.Modifiers.Builder setBorder(androidx.wear.tiles.ModifiersBuilders.Border);
-    method public androidx.wear.tiles.ModifiersBuilders.Modifiers.Builder setClickable(androidx.wear.tiles.ModifiersBuilders.Clickable);
-    method public androidx.wear.tiles.ModifiersBuilders.Modifiers.Builder setMetadata(androidx.wear.tiles.ModifiersBuilders.ElementMetadata);
-    method public androidx.wear.tiles.ModifiersBuilders.Modifiers.Builder setPadding(androidx.wear.tiles.ModifiersBuilders.Padding);
-    method public androidx.wear.tiles.ModifiersBuilders.Modifiers.Builder setSemantics(androidx.wear.tiles.ModifiersBuilders.Semantics);
+  @Deprecated public static final class ModifiersBuilders.Modifiers.Builder {
+    ctor @Deprecated public ModifiersBuilders.Modifiers.Builder();
+    method @Deprecated public androidx.wear.tiles.ModifiersBuilders.Modifiers build();
+    method @Deprecated public androidx.wear.tiles.ModifiersBuilders.Modifiers.Builder setBackground(androidx.wear.tiles.ModifiersBuilders.Background);
+    method @Deprecated public androidx.wear.tiles.ModifiersBuilders.Modifiers.Builder setBorder(androidx.wear.tiles.ModifiersBuilders.Border);
+    method @Deprecated public androidx.wear.tiles.ModifiersBuilders.Modifiers.Builder setClickable(androidx.wear.tiles.ModifiersBuilders.Clickable);
+    method @Deprecated public androidx.wear.tiles.ModifiersBuilders.Modifiers.Builder setMetadata(androidx.wear.tiles.ModifiersBuilders.ElementMetadata);
+    method @Deprecated public androidx.wear.tiles.ModifiersBuilders.Modifiers.Builder setPadding(androidx.wear.tiles.ModifiersBuilders.Padding);
+    method @Deprecated public androidx.wear.tiles.ModifiersBuilders.Modifiers.Builder setSemantics(androidx.wear.tiles.ModifiersBuilders.Semantics);
   }
 
-  public static final class ModifiersBuilders.Padding {
-    method public androidx.wear.tiles.DimensionBuilders.DpProp? getBottom();
-    method public androidx.wear.tiles.DimensionBuilders.DpProp? getEnd();
-    method public androidx.wear.tiles.TypeBuilders.BoolProp? getRtlAware();
-    method public androidx.wear.tiles.DimensionBuilders.DpProp? getStart();
-    method public androidx.wear.tiles.DimensionBuilders.DpProp? getTop();
+  @Deprecated public static final class ModifiersBuilders.Padding {
+    method @Deprecated public androidx.wear.tiles.DimensionBuilders.DpProp? getBottom();
+    method @Deprecated public androidx.wear.tiles.DimensionBuilders.DpProp? getEnd();
+    method @Deprecated public androidx.wear.tiles.TypeBuilders.BoolProp? getRtlAware();
+    method @Deprecated public androidx.wear.tiles.DimensionBuilders.DpProp? getStart();
+    method @Deprecated public androidx.wear.tiles.DimensionBuilders.DpProp? getTop();
   }
 
-  public static final class ModifiersBuilders.Padding.Builder {
-    ctor public ModifiersBuilders.Padding.Builder();
-    method public androidx.wear.tiles.ModifiersBuilders.Padding build();
-    method public androidx.wear.tiles.ModifiersBuilders.Padding.Builder setAll(androidx.wear.tiles.DimensionBuilders.DpProp);
-    method public androidx.wear.tiles.ModifiersBuilders.Padding.Builder setBottom(androidx.wear.tiles.DimensionBuilders.DpProp);
-    method public androidx.wear.tiles.ModifiersBuilders.Padding.Builder setEnd(androidx.wear.tiles.DimensionBuilders.DpProp);
-    method public androidx.wear.tiles.ModifiersBuilders.Padding.Builder setRtlAware(androidx.wear.tiles.TypeBuilders.BoolProp);
-    method public androidx.wear.tiles.ModifiersBuilders.Padding.Builder setRtlAware(boolean);
-    method public androidx.wear.tiles.ModifiersBuilders.Padding.Builder setStart(androidx.wear.tiles.DimensionBuilders.DpProp);
-    method public androidx.wear.tiles.ModifiersBuilders.Padding.Builder setTop(androidx.wear.tiles.DimensionBuilders.DpProp);
+  @Deprecated public static final class ModifiersBuilders.Padding.Builder {
+    ctor @Deprecated public ModifiersBuilders.Padding.Builder();
+    method @Deprecated public androidx.wear.tiles.ModifiersBuilders.Padding build();
+    method @Deprecated public androidx.wear.tiles.ModifiersBuilders.Padding.Builder setAll(androidx.wear.tiles.DimensionBuilders.DpProp);
+    method @Deprecated public androidx.wear.tiles.ModifiersBuilders.Padding.Builder setBottom(androidx.wear.tiles.DimensionBuilders.DpProp);
+    method @Deprecated public androidx.wear.tiles.ModifiersBuilders.Padding.Builder setEnd(androidx.wear.tiles.DimensionBuilders.DpProp);
+    method @Deprecated public androidx.wear.tiles.ModifiersBuilders.Padding.Builder setRtlAware(androidx.wear.tiles.TypeBuilders.BoolProp);
+    method @Deprecated public androidx.wear.tiles.ModifiersBuilders.Padding.Builder setRtlAware(boolean);
+    method @Deprecated public androidx.wear.tiles.ModifiersBuilders.Padding.Builder setStart(androidx.wear.tiles.DimensionBuilders.DpProp);
+    method @Deprecated public androidx.wear.tiles.ModifiersBuilders.Padding.Builder setTop(androidx.wear.tiles.DimensionBuilders.DpProp);
   }
 
-  public static final class ModifiersBuilders.Semantics {
-    method public String getContentDescription();
+  @Deprecated public static final class ModifiersBuilders.Semantics {
+    method @Deprecated public String getContentDescription();
   }
 
-  public static final class ModifiersBuilders.Semantics.Builder {
-    ctor public ModifiersBuilders.Semantics.Builder();
-    method public androidx.wear.tiles.ModifiersBuilders.Semantics build();
-    method public androidx.wear.tiles.ModifiersBuilders.Semantics.Builder setContentDescription(String);
+  @Deprecated public static final class ModifiersBuilders.Semantics.Builder {
+    ctor @Deprecated public ModifiersBuilders.Semantics.Builder();
+    method @Deprecated public androidx.wear.tiles.ModifiersBuilders.Semantics build();
+    method @Deprecated public androidx.wear.tiles.ModifiersBuilders.Semantics.Builder setContentDescription(String);
   }
 
-  public static final class ModifiersBuilders.SpanModifiers {
-    method public androidx.wear.tiles.ModifiersBuilders.Clickable? getClickable();
+  @Deprecated public static final class ModifiersBuilders.SpanModifiers {
+    method @Deprecated public androidx.wear.tiles.ModifiersBuilders.Clickable? getClickable();
   }
 
-  public static final class ModifiersBuilders.SpanModifiers.Builder {
-    ctor public ModifiersBuilders.SpanModifiers.Builder();
-    method public androidx.wear.tiles.ModifiersBuilders.SpanModifiers build();
-    method public androidx.wear.tiles.ModifiersBuilders.SpanModifiers.Builder setClickable(androidx.wear.tiles.ModifiersBuilders.Clickable);
+  @Deprecated public static final class ModifiersBuilders.SpanModifiers.Builder {
+    ctor @Deprecated public ModifiersBuilders.SpanModifiers.Builder();
+    method @Deprecated public androidx.wear.tiles.ModifiersBuilders.SpanModifiers build();
+    method @Deprecated public androidx.wear.tiles.ModifiersBuilders.SpanModifiers.Builder setClickable(androidx.wear.tiles.ModifiersBuilders.Clickable);
   }
 
   public final class RequestBuilders {
@@ -887,7 +887,7 @@ package androidx.wear.tiles {
 
   public static final class RequestBuilders.ResourcesRequest {
     method public androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters getDeviceConfiguration();
-    method public androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters? getDeviceParameters();
+    method @Deprecated public androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters? getDeviceParameters();
     method public java.util.List<java.lang.String!> getResourceIds();
     method public String getVersion();
   }
@@ -897,15 +897,15 @@ package androidx.wear.tiles {
     method public androidx.wear.tiles.RequestBuilders.ResourcesRequest.Builder addResourceId(String);
     method public androidx.wear.tiles.RequestBuilders.ResourcesRequest build();
     method public androidx.wear.tiles.RequestBuilders.ResourcesRequest.Builder setDeviceConfiguration(androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters);
-    method public androidx.wear.tiles.RequestBuilders.ResourcesRequest.Builder setDeviceParameters(androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters);
+    method @Deprecated public androidx.wear.tiles.RequestBuilders.ResourcesRequest.Builder setDeviceParameters(androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters);
     method public androidx.wear.tiles.RequestBuilders.ResourcesRequest.Builder setVersion(String);
   }
 
   public static final class RequestBuilders.TileRequest {
     method public androidx.wear.protolayout.StateBuilders.State getCurrentState();
     method public androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters getDeviceConfiguration();
-    method public androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters? getDeviceParameters();
-    method public androidx.wear.tiles.StateBuilders.State? getState();
+    method @Deprecated public androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters? getDeviceParameters();
+    method @Deprecated public androidx.wear.tiles.StateBuilders.State? getState();
   }
 
   public static final class RequestBuilders.TileRequest.Builder {
@@ -913,77 +913,77 @@ package androidx.wear.tiles {
     method public androidx.wear.tiles.RequestBuilders.TileRequest build();
     method public androidx.wear.tiles.RequestBuilders.TileRequest.Builder setCurrentState(androidx.wear.protolayout.StateBuilders.State);
     method public androidx.wear.tiles.RequestBuilders.TileRequest.Builder setDeviceConfiguration(androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters);
-    method public androidx.wear.tiles.RequestBuilders.TileRequest.Builder setDeviceParameters(androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters);
-    method public androidx.wear.tiles.RequestBuilders.TileRequest.Builder setState(androidx.wear.tiles.StateBuilders.State);
+    method @Deprecated public androidx.wear.tiles.RequestBuilders.TileRequest.Builder setDeviceParameters(androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters);
+    method @Deprecated public androidx.wear.tiles.RequestBuilders.TileRequest.Builder setState(androidx.wear.tiles.StateBuilders.State);
   }
 
-  public final class ResourceBuilders {
-    field public static final int IMAGE_FORMAT_RGB_565 = 1; // 0x1
-    field public static final int IMAGE_FORMAT_UNDEFINED = 0; // 0x0
+  @Deprecated public final class ResourceBuilders {
+    field @Deprecated public static final int IMAGE_FORMAT_RGB_565 = 1; // 0x1
+    field @Deprecated public static final int IMAGE_FORMAT_UNDEFINED = 0; // 0x0
   }
 
-  public static final class ResourceBuilders.AndroidImageResourceByResId {
-    method @DrawableRes public int getResourceId();
+  @Deprecated public static final class ResourceBuilders.AndroidImageResourceByResId {
+    method @Deprecated @DrawableRes public int getResourceId();
   }
 
-  public static final class ResourceBuilders.AndroidImageResourceByResId.Builder {
-    ctor public ResourceBuilders.AndroidImageResourceByResId.Builder();
-    method public androidx.wear.tiles.ResourceBuilders.AndroidImageResourceByResId build();
-    method public androidx.wear.tiles.ResourceBuilders.AndroidImageResourceByResId.Builder setResourceId(@DrawableRes int);
+  @Deprecated public static final class ResourceBuilders.AndroidImageResourceByResId.Builder {
+    ctor @Deprecated public ResourceBuilders.AndroidImageResourceByResId.Builder();
+    method @Deprecated public androidx.wear.tiles.ResourceBuilders.AndroidImageResourceByResId build();
+    method @Deprecated public androidx.wear.tiles.ResourceBuilders.AndroidImageResourceByResId.Builder setResourceId(@DrawableRes int);
   }
 
-  public static final class ResourceBuilders.ImageResource {
-    method public androidx.wear.tiles.ResourceBuilders.AndroidImageResourceByResId? getAndroidResourceByResId();
-    method public androidx.wear.tiles.ResourceBuilders.InlineImageResource? getInlineResource();
+  @Deprecated public static final class ResourceBuilders.ImageResource {
+    method @Deprecated public androidx.wear.tiles.ResourceBuilders.AndroidImageResourceByResId? getAndroidResourceByResId();
+    method @Deprecated public androidx.wear.tiles.ResourceBuilders.InlineImageResource? getInlineResource();
   }
 
-  public static final class ResourceBuilders.ImageResource.Builder {
-    ctor public ResourceBuilders.ImageResource.Builder();
-    method public androidx.wear.tiles.ResourceBuilders.ImageResource build();
-    method public androidx.wear.tiles.ResourceBuilders.ImageResource.Builder setAndroidResourceByResId(androidx.wear.tiles.ResourceBuilders.AndroidImageResourceByResId);
-    method public androidx.wear.tiles.ResourceBuilders.ImageResource.Builder setInlineResource(androidx.wear.tiles.ResourceBuilders.InlineImageResource);
+  @Deprecated public static final class ResourceBuilders.ImageResource.Builder {
+    ctor @Deprecated public ResourceBuilders.ImageResource.Builder();
+    method @Deprecated public androidx.wear.tiles.ResourceBuilders.ImageResource build();
+    method @Deprecated public androidx.wear.tiles.ResourceBuilders.ImageResource.Builder setAndroidResourceByResId(androidx.wear.tiles.ResourceBuilders.AndroidImageResourceByResId);
+    method @Deprecated public androidx.wear.tiles.ResourceBuilders.ImageResource.Builder setInlineResource(androidx.wear.tiles.ResourceBuilders.InlineImageResource);
   }
 
-  public static final class ResourceBuilders.InlineImageResource {
-    method public byte[] getData();
-    method public int getFormat();
-    method @Dimension(unit=androidx.annotation.Dimension.PX) public int getHeightPx();
-    method @Dimension(unit=androidx.annotation.Dimension.PX) public int getWidthPx();
+  @Deprecated public static final class ResourceBuilders.InlineImageResource {
+    method @Deprecated public byte[] getData();
+    method @Deprecated public int getFormat();
+    method @Deprecated @Dimension(unit=androidx.annotation.Dimension.PX) public int getHeightPx();
+    method @Deprecated @Dimension(unit=androidx.annotation.Dimension.PX) public int getWidthPx();
   }
 
-  public static final class ResourceBuilders.InlineImageResource.Builder {
-    ctor public ResourceBuilders.InlineImageResource.Builder();
-    method public androidx.wear.tiles.ResourceBuilders.InlineImageResource build();
-    method public androidx.wear.tiles.ResourceBuilders.InlineImageResource.Builder setData(byte[]);
-    method public androidx.wear.tiles.ResourceBuilders.InlineImageResource.Builder setFormat(int);
-    method public androidx.wear.tiles.ResourceBuilders.InlineImageResource.Builder setHeightPx(@Dimension(unit=androidx.annotation.Dimension.PX) int);
-    method public androidx.wear.tiles.ResourceBuilders.InlineImageResource.Builder setWidthPx(@Dimension(unit=androidx.annotation.Dimension.PX) int);
+  @Deprecated public static final class ResourceBuilders.InlineImageResource.Builder {
+    ctor @Deprecated public ResourceBuilders.InlineImageResource.Builder();
+    method @Deprecated public androidx.wear.tiles.ResourceBuilders.InlineImageResource build();
+    method @Deprecated public androidx.wear.tiles.ResourceBuilders.InlineImageResource.Builder setData(byte[]);
+    method @Deprecated public androidx.wear.tiles.ResourceBuilders.InlineImageResource.Builder setFormat(int);
+    method @Deprecated public androidx.wear.tiles.ResourceBuilders.InlineImageResource.Builder setHeightPx(@Dimension(unit=androidx.annotation.Dimension.PX) int);
+    method @Deprecated public androidx.wear.tiles.ResourceBuilders.InlineImageResource.Builder setWidthPx(@Dimension(unit=androidx.annotation.Dimension.PX) int);
   }
 
-  public static final class ResourceBuilders.Resources {
-    method @androidx.wear.tiles.TilesExperimental public static androidx.wear.tiles.ResourceBuilders.Resources? fromByteArray(byte[]);
-    method public java.util.Map<java.lang.String!,androidx.wear.tiles.ResourceBuilders.ImageResource!> getIdToImageMapping();
-    method public String getVersion();
-    method @androidx.wear.tiles.TilesExperimental public byte[] toByteArray();
+  @Deprecated public static final class ResourceBuilders.Resources {
+    method @Deprecated @androidx.wear.tiles.TilesExperimental public static androidx.wear.tiles.ResourceBuilders.Resources? fromByteArray(byte[]);
+    method @Deprecated public java.util.Map<java.lang.String!,androidx.wear.tiles.ResourceBuilders.ImageResource!> getIdToImageMapping();
+    method @Deprecated public String getVersion();
+    method @Deprecated @androidx.wear.tiles.TilesExperimental public byte[] toByteArray();
   }
 
-  public static final class ResourceBuilders.Resources.Builder {
-    ctor public ResourceBuilders.Resources.Builder();
-    method public androidx.wear.tiles.ResourceBuilders.Resources.Builder addIdToImageMapping(String, androidx.wear.tiles.ResourceBuilders.ImageResource);
-    method public androidx.wear.tiles.ResourceBuilders.Resources build();
-    method public androidx.wear.tiles.ResourceBuilders.Resources.Builder setVersion(String);
+  @Deprecated public static final class ResourceBuilders.Resources.Builder {
+    ctor @Deprecated public ResourceBuilders.Resources.Builder();
+    method @Deprecated public androidx.wear.tiles.ResourceBuilders.Resources.Builder addIdToImageMapping(String, androidx.wear.tiles.ResourceBuilders.ImageResource);
+    method @Deprecated public androidx.wear.tiles.ResourceBuilders.Resources build();
+    method @Deprecated public androidx.wear.tiles.ResourceBuilders.Resources.Builder setVersion(String);
   }
 
-  public final class StateBuilders {
+  @Deprecated public final class StateBuilders {
   }
 
-  public static final class StateBuilders.State {
-    method public String getLastClickableId();
+  @Deprecated public static final class StateBuilders.State {
+    method @Deprecated public String getLastClickableId();
   }
 
-  public static final class StateBuilders.State.Builder {
-    ctor public StateBuilders.State.Builder();
-    method public androidx.wear.tiles.StateBuilders.State build();
+  @Deprecated public static final class StateBuilders.State.Builder {
+    ctor @Deprecated public StateBuilders.State.Builder();
+    method @Deprecated public androidx.wear.tiles.StateBuilders.State build();
   }
 
   public final class TileBuilders {
@@ -994,7 +994,7 @@ package androidx.wear.tiles {
     method public String getResourcesVersion();
     method public androidx.wear.protolayout.StateBuilders.State? getState();
     method public androidx.wear.protolayout.TimelineBuilders.Timeline? getTileTimeline();
-    method public androidx.wear.tiles.TimelineBuilders.Timeline? getTimeline();
+    method @Deprecated public androidx.wear.tiles.TimelineBuilders.Timeline? getTimeline();
   }
 
   public static final class TileBuilders.Tile.Builder {
@@ -1004,14 +1004,14 @@ package androidx.wear.tiles {
     method public androidx.wear.tiles.TileBuilders.Tile.Builder setResourcesVersion(String);
     method public androidx.wear.tiles.TileBuilders.Tile.Builder setState(androidx.wear.protolayout.StateBuilders.State);
     method public androidx.wear.tiles.TileBuilders.Tile.Builder setTileTimeline(androidx.wear.protolayout.TimelineBuilders.Timeline);
-    method public androidx.wear.tiles.TileBuilders.Tile.Builder setTimeline(androidx.wear.tiles.TimelineBuilders.Timeline);
+    method @Deprecated public androidx.wear.tiles.TileBuilders.Tile.Builder setTimeline(androidx.wear.tiles.TimelineBuilders.Timeline);
   }
 
   public abstract class TileService extends android.app.Service {
     ctor public TileService();
     method public static androidx.wear.tiles.TileUpdateRequester getUpdater(android.content.Context);
     method public android.os.IBinder? onBind(android.content.Intent);
-    method @MainThread protected com.google.common.util.concurrent.ListenableFuture<androidx.wear.tiles.ResourceBuilders.Resources!> onResourcesRequest(androidx.wear.tiles.RequestBuilders.ResourcesRequest);
+    method @Deprecated @MainThread protected com.google.common.util.concurrent.ListenableFuture<androidx.wear.tiles.ResourceBuilders.Resources!> onResourcesRequest(androidx.wear.tiles.RequestBuilders.ResourcesRequest);
     method @MainThread protected void onTileAddEvent(androidx.wear.tiles.EventBuilders.TileAddEvent);
     method @MainThread protected void onTileEnterEvent(androidx.wear.tiles.EventBuilders.TileEnterEvent);
     method @MainThread protected void onTileLeaveEvent(androidx.wear.tiles.EventBuilders.TileLeaveEvent);
@@ -1030,86 +1030,86 @@ package androidx.wear.tiles {
   @RequiresOptIn(level=androidx.annotation.RequiresOptIn.Level.ERROR) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.TYPE, java.lang.annotation.ElementType.FIELD}) public @interface TilesExperimental {
   }
 
-  public final class TimelineBuilders {
+  @Deprecated public final class TimelineBuilders {
   }
 
-  public static final class TimelineBuilders.TimeInterval {
-    method public long getEndMillis();
-    method public long getStartMillis();
+  @Deprecated public static final class TimelineBuilders.TimeInterval {
+    method @Deprecated public long getEndMillis();
+    method @Deprecated public long getStartMillis();
   }
 
-  public static final class TimelineBuilders.TimeInterval.Builder {
-    ctor public TimelineBuilders.TimeInterval.Builder();
-    method public androidx.wear.tiles.TimelineBuilders.TimeInterval build();
-    method public androidx.wear.tiles.TimelineBuilders.TimeInterval.Builder setEndMillis(long);
-    method public androidx.wear.tiles.TimelineBuilders.TimeInterval.Builder setStartMillis(long);
+  @Deprecated public static final class TimelineBuilders.TimeInterval.Builder {
+    ctor @Deprecated public TimelineBuilders.TimeInterval.Builder();
+    method @Deprecated public androidx.wear.tiles.TimelineBuilders.TimeInterval build();
+    method @Deprecated public androidx.wear.tiles.TimelineBuilders.TimeInterval.Builder setEndMillis(long);
+    method @Deprecated public androidx.wear.tiles.TimelineBuilders.TimeInterval.Builder setStartMillis(long);
   }
 
-  public static final class TimelineBuilders.Timeline {
-    method public static androidx.wear.tiles.TimelineBuilders.Timeline fromLayoutElement(androidx.wear.tiles.LayoutElementBuilders.LayoutElement);
-    method public java.util.List<androidx.wear.tiles.TimelineBuilders.TimelineEntry!> getTimelineEntries();
+  @Deprecated public static final class TimelineBuilders.Timeline {
+    method @Deprecated public static androidx.wear.tiles.TimelineBuilders.Timeline fromLayoutElement(androidx.wear.tiles.LayoutElementBuilders.LayoutElement);
+    method @Deprecated public java.util.List<androidx.wear.tiles.TimelineBuilders.TimelineEntry!> getTimelineEntries();
   }
 
-  public static final class TimelineBuilders.Timeline.Builder {
-    ctor public TimelineBuilders.Timeline.Builder();
-    method public androidx.wear.tiles.TimelineBuilders.Timeline.Builder addTimelineEntry(androidx.wear.tiles.TimelineBuilders.TimelineEntry);
-    method public androidx.wear.tiles.TimelineBuilders.Timeline build();
+  @Deprecated public static final class TimelineBuilders.Timeline.Builder {
+    ctor @Deprecated public TimelineBuilders.Timeline.Builder();
+    method @Deprecated public androidx.wear.tiles.TimelineBuilders.Timeline.Builder addTimelineEntry(androidx.wear.tiles.TimelineBuilders.TimelineEntry);
+    method @Deprecated public androidx.wear.tiles.TimelineBuilders.Timeline build();
   }
 
-  public static final class TimelineBuilders.TimelineEntry {
-    method public static androidx.wear.tiles.TimelineBuilders.TimelineEntry fromLayoutElement(androidx.wear.tiles.LayoutElementBuilders.LayoutElement);
-    method public androidx.wear.tiles.LayoutElementBuilders.Layout? getLayout();
-    method public androidx.wear.tiles.TimelineBuilders.TimeInterval? getValidity();
+  @Deprecated public static final class TimelineBuilders.TimelineEntry {
+    method @Deprecated public static androidx.wear.tiles.TimelineBuilders.TimelineEntry fromLayoutElement(androidx.wear.tiles.LayoutElementBuilders.LayoutElement);
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.Layout? getLayout();
+    method @Deprecated public androidx.wear.tiles.TimelineBuilders.TimeInterval? getValidity();
   }
 
-  public static final class TimelineBuilders.TimelineEntry.Builder {
-    ctor public TimelineBuilders.TimelineEntry.Builder();
-    method public androidx.wear.tiles.TimelineBuilders.TimelineEntry build();
-    method public androidx.wear.tiles.TimelineBuilders.TimelineEntry.Builder setLayout(androidx.wear.tiles.LayoutElementBuilders.Layout);
-    method public androidx.wear.tiles.TimelineBuilders.TimelineEntry.Builder setValidity(androidx.wear.tiles.TimelineBuilders.TimeInterval);
+  @Deprecated public static final class TimelineBuilders.TimelineEntry.Builder {
+    ctor @Deprecated public TimelineBuilders.TimelineEntry.Builder();
+    method @Deprecated public androidx.wear.tiles.TimelineBuilders.TimelineEntry build();
+    method @Deprecated public androidx.wear.tiles.TimelineBuilders.TimelineEntry.Builder setLayout(androidx.wear.tiles.LayoutElementBuilders.Layout);
+    method @Deprecated public androidx.wear.tiles.TimelineBuilders.TimelineEntry.Builder setValidity(androidx.wear.tiles.TimelineBuilders.TimeInterval);
   }
 
-  public final class TypeBuilders {
+  @Deprecated public final class TypeBuilders {
   }
 
-  public static final class TypeBuilders.BoolProp {
-    method public boolean getValue();
+  @Deprecated public static final class TypeBuilders.BoolProp {
+    method @Deprecated public boolean getValue();
   }
 
-  public static final class TypeBuilders.BoolProp.Builder {
-    ctor public TypeBuilders.BoolProp.Builder();
-    method public androidx.wear.tiles.TypeBuilders.BoolProp build();
-    method public androidx.wear.tiles.TypeBuilders.BoolProp.Builder setValue(boolean);
+  @Deprecated public static final class TypeBuilders.BoolProp.Builder {
+    ctor @Deprecated public TypeBuilders.BoolProp.Builder();
+    method @Deprecated public androidx.wear.tiles.TypeBuilders.BoolProp build();
+    method @Deprecated public androidx.wear.tiles.TypeBuilders.BoolProp.Builder setValue(boolean);
   }
 
-  public static final class TypeBuilders.FloatProp {
-    method public float getValue();
+  @Deprecated public static final class TypeBuilders.FloatProp {
+    method @Deprecated public float getValue();
   }
 
-  public static final class TypeBuilders.FloatProp.Builder {
-    ctor public TypeBuilders.FloatProp.Builder();
-    method public androidx.wear.tiles.TypeBuilders.FloatProp build();
-    method public androidx.wear.tiles.TypeBuilders.FloatProp.Builder setValue(float);
+  @Deprecated public static final class TypeBuilders.FloatProp.Builder {
+    ctor @Deprecated public TypeBuilders.FloatProp.Builder();
+    method @Deprecated public androidx.wear.tiles.TypeBuilders.FloatProp build();
+    method @Deprecated public androidx.wear.tiles.TypeBuilders.FloatProp.Builder setValue(float);
   }
 
-  public static final class TypeBuilders.Int32Prop {
-    method public int getValue();
+  @Deprecated public static final class TypeBuilders.Int32Prop {
+    method @Deprecated public int getValue();
   }
 
-  public static final class TypeBuilders.Int32Prop.Builder {
-    ctor public TypeBuilders.Int32Prop.Builder();
-    method public androidx.wear.tiles.TypeBuilders.Int32Prop build();
-    method public androidx.wear.tiles.TypeBuilders.Int32Prop.Builder setValue(int);
+  @Deprecated public static final class TypeBuilders.Int32Prop.Builder {
+    ctor @Deprecated public TypeBuilders.Int32Prop.Builder();
+    method @Deprecated public androidx.wear.tiles.TypeBuilders.Int32Prop build();
+    method @Deprecated public androidx.wear.tiles.TypeBuilders.Int32Prop.Builder setValue(int);
   }
 
-  public static final class TypeBuilders.StringProp {
-    method public String getValue();
+  @Deprecated public static final class TypeBuilders.StringProp {
+    method @Deprecated public String getValue();
   }
 
-  public static final class TypeBuilders.StringProp.Builder {
-    ctor public TypeBuilders.StringProp.Builder();
-    method public androidx.wear.tiles.TypeBuilders.StringProp build();
-    method public androidx.wear.tiles.TypeBuilders.StringProp.Builder setValue(String);
+  @Deprecated public static final class TypeBuilders.StringProp.Builder {
+    ctor @Deprecated public TypeBuilders.StringProp.Builder();
+    method @Deprecated public androidx.wear.tiles.TypeBuilders.StringProp build();
+    method @Deprecated public androidx.wear.tiles.TypeBuilders.StringProp.Builder setValue(String);
   }
 
 }
