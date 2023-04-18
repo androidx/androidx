@@ -6,23 +6,25 @@ import com.mysdk.PrivacySandboxThrowableParcelConverter.toThrowableParcel
 import com.mysdk.TransportCancellationCallback
 import kotlin.Int
 import kotlin.Unit
-import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
 public class MyOtherPackageInterfaceStubDelegate internal constructor(
   public val `delegate`: MyOtherPackageInterface,
   public val context: Context,
 ) : IMyOtherPackageInterface.Stub() {
+  private val coroutineScope: CoroutineScope = CoroutineScope(Dispatchers.Main)
+
   public override fun doStuff(x: Int): Unit {
-    delegate.doStuff(x)
+    coroutineScope.launch {
+      delegate.doStuff(x)
+    }
   }
 
   public override fun useDataClass(x: ParcelableMyOtherPackageDataClass,
       transactionCallback: IUnitTransactionCallback): Unit {
-    @OptIn(DelicateCoroutinesApi::class)
-    val job = GlobalScope.launch(Dispatchers.Main) {
+    val job = coroutineScope.launch {
       try {
         delegate.useDataClass(MyOtherPackageDataClassConverter(context).fromParcelable(x))
         transactionCallback.onSuccess()

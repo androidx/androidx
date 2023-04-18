@@ -145,21 +145,28 @@ fun CodeBlock.Builder.addStatement(builderBlock: CodeBlock.Builder.() -> Unit) {
 }
 
 object SpecNames {
-    val contextPropertyName = "context"
+    const val contextPropertyName = "context"
 
-    val dispatchersMainClass = ClassName("kotlinx.coroutines", "Dispatchers", "Main")
-    val delicateCoroutinesApiClass = ClassName("kotlinx.coroutines", "DelicateCoroutinesApi")
-    val globalScopeClass = ClassName("kotlinx.coroutines", "GlobalScope")
-    val suspendCancellableCoroutineMethod =
-        MemberName("kotlinx.coroutines", "suspendCancellableCoroutine", isExtension = true)
+    // Kotlin coroutines
     val resumeWithExceptionMethod =
         MemberName("kotlin.coroutines", "resumeWithException", isExtension = true)
-    val launchMethod = MemberName("kotlinx.coroutines", "launch", isExtension = true)
 
+    // KotlinX coroutines
+    val coroutineScopeClass = ClassName("kotlinx.coroutines", "CoroutineScope")
+    val dispatchersMainClass = ClassName("kotlinx.coroutines", "Dispatchers", "Main")
+    val launchMethod = MemberName("kotlinx.coroutines", "launch", isExtension = true)
+    val suspendCancellableCoroutineMethod =
+        MemberName("kotlinx.coroutines", "suspendCancellableCoroutine", isExtension = true)
+
+    // Java
     val stackTraceElementClass = ClassName("java.lang", "StackTraceElement")
+
+    // Android
     val iBinderClass = ClassName("android.os", "IBinder")
     val bundleClass = ClassName("android.os", "Bundle")
     val contextClass = ClassName("android.content", "Context")
     val viewClass = ClassName("android.view", "View")
+
+    // Privacy Sandbox UI
     val toCoreLibInfoMethod = MemberName("androidx.privacysandbox.ui.provider", "toCoreLibInfo")
 }
