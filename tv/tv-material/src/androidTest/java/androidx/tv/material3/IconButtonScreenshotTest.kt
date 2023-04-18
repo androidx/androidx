@@ -20,28 +20,26 @@ import android.os.Build
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.testutils.assertAgainstGolden
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.InputMode
-import androidx.compose.ui.input.InputModeManager
-import androidx.compose.ui.platform.LocalInputModeManager
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onChild
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performMouseInput
+import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -211,12 +209,10 @@ class IconButtonScreenshotTest {
     @Test
     fun iconButton_lightTheme_focused() {
         val focusRequester = FocusRequester()
-        var localInputModeManager: InputModeManager? = null
 
         rule.setContent {
             LightMaterialTheme {
-                localInputModeManager = LocalInputModeManager.current
-                Box(Modifier.sizeIn(minWidth = 52.dp, minHeight = 52.dp).testTag(wrapperTestTag)) {
+                Box(Modifier.size(50.dp).testTag(wrapperTestTag)) {
                     IconButton(
                         onClick = { /* doSomething() */ },
                         modifier = Modifier
@@ -229,11 +225,10 @@ class IconButtonScreenshotTest {
             }
         }
 
-        rule.runOnIdle {
-            @OptIn(ExperimentalComposeUiApi::class)
-            localInputModeManager!!.requestInputMode(InputMode.Keyboard)
-            focusRequester.requestFocus()
-        }
+        rule.onNodeWithTag(wrapperTestTag)
+            .onChild()
+            .performSemanticsAction(SemanticsActions.RequestFocus)
+        rule.waitForIdle()
 
         assertAgainstGolden("iconButton_lightTheme_focused")
     }
@@ -241,12 +236,10 @@ class IconButtonScreenshotTest {
     @Test
     fun iconButton_darkTheme_focused() {
         val focusRequester = FocusRequester()
-        var localInputModeManager: InputModeManager? = null
 
         rule.setContent {
             DarkMaterialTheme {
-                localInputModeManager = LocalInputModeManager.current
-                Box(Modifier.sizeIn(minWidth = 52.dp, minHeight = 52.dp).testTag(wrapperTestTag)) {
+                Box(Modifier.size(50.dp).testTag(wrapperTestTag)) {
                     IconButton(
                         onClick = { /* doSomething() */ },
                         modifier = Modifier
@@ -259,11 +252,10 @@ class IconButtonScreenshotTest {
             }
         }
 
-        rule.runOnIdle {
-            @OptIn(ExperimentalComposeUiApi::class)
-            localInputModeManager!!.requestInputMode(InputMode.Keyboard)
-            focusRequester.requestFocus()
-        }
+        rule.onNodeWithTag(wrapperTestTag)
+            .onChild()
+            .performSemanticsAction(SemanticsActions.RequestFocus)
+        rule.waitForIdle()
 
         assertAgainstGolden("iconButton_darkTheme_focused")
     }
