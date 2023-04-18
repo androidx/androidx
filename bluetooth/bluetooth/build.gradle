@@ -36,6 +36,7 @@ dependencies {
     androidTestImplementation(libs.junit)
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.kotlinCoroutinesTest)
+    androidTestImplementation(libs.kotlinTest)
 }
 
 androidx {
