@@ -23,7 +23,7 @@
     <string name="mr_cast_button_connecting" msgid="6629927151350192407">"Трансляциялау. Қосылуда"</string>
     <string name="mr_cast_button_connected" msgid="6073720094880410356">"Трансляциялау. Қосылды."</string>
     <string name="mr_chooser_title" msgid="1419936397646839840">"Келесіге трансляциялау:"</string>
-    <string name="mr_chooser_searching" msgid="6114250663023140921">"Құрылғылар ізделуде"</string>
+    <string name="mr_chooser_searching" msgid="6114250663023140921">"Құрылғылар ізделіп жатыр"</string>
     <string name="mr_controller_disconnect" msgid="7812275474138309497">"Ажырату"</string>
     <string name="mr_controller_stop_casting" msgid="804210341192624074">"Трансляцияны тоқтату"</string>
     <string name="mr_controller_close_description" msgid="5684434439232634509">"Жабу"</string>
