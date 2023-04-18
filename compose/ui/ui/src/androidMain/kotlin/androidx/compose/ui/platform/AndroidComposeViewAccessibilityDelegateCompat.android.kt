@@ -56,9 +56,8 @@ import androidx.compose.ui.layout.boundsInParent
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.node.HitTestResult
 import androidx.compose.ui.node.LayoutNode
+import androidx.compose.ui.node.Nodes
 import androidx.compose.ui.node.OwnerScope
-import androidx.compose.ui.node.SemanticsModifierNode
-import androidx.compose.ui.node.collapsedSemanticsConfiguration
 import androidx.compose.ui.node.requireLayoutNode
 import androidx.compose.ui.platform.accessibility.hasCollectionInfo
 import androidx.compose.ui.platform.accessibility.setCollectionInfo
@@ -76,8 +75,8 @@ import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.semantics.SemanticsOwner
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.SemanticsPropertiesAndroid
+import androidx.compose.ui.semantics.collapsedSemantics
 import androidx.compose.ui.semantics.getOrNull
-import androidx.compose.ui.semantics.outerSemantics
 import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.InternalTextApi
@@ -2032,24 +2031,24 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
     internal fun hitTestSemanticsAt(x: Float, y: Float): Int {
         view.measureAndLayout()
 
-        val hitSemanticsEntities = HitTestResult<SemanticsModifierNode>()
+        val hitSemanticsEntities = HitTestResult()
         view.root.hitTestSemantics(
             pointerPosition = Offset(x, y),
             hitSemanticsEntities = hitSemanticsEntities
         )
 
-        val wrapper = hitSemanticsEntities.lastOrNull()?.requireLayoutNode()?.outerSemantics
+        val layoutNode = hitSemanticsEntities.lastOrNull()?.requireLayoutNode()
+
         var virtualViewId = InvalidId
-        if (wrapper != null) {
+        if (layoutNode?.nodes?.has(Nodes.Semantics) == true) {
 
             // The node below is not added to the tree; it's a wrapper around outer semantics to
             // use the methods available to the SemanticsNode
-            val semanticsNode = SemanticsNode(wrapper, false)
+            val semanticsNode = SemanticsNode(layoutNode, false)
 
             // Do not 'find' invisible nodes when exploring by touch. This will prevent us from
             // sending events for invisible nodes
             if (semanticsNode.isVisible) {
-                val layoutNode = wrapper.requireLayoutNode()
                 val androidView = view
                     .androidViewsHandler
                     .layoutNodeToHolder[layoutNode]
@@ -2212,17 +2211,18 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
             return
         }
         // When we finally send the event, make sure it is an accessibility-focusable node.
-        var semanticsWrapper = layoutNode.outerSemantics
-            ?: layoutNode.findClosestParentNode { it.outerSemantics != null }
-                ?.outerSemantics ?: return
-        if (!semanticsWrapper.collapsedSemanticsConfiguration().isMergingSemanticsOfDescendants) {
-            layoutNode.findClosestParentNode {
-                it.outerSemantics
-                    ?.collapsedSemanticsConfiguration()
-                    ?.isMergingSemanticsOfDescendants == true
-            }?.outerSemantics?.let { semanticsWrapper = it }
+        var semanticsNode = if (layoutNode.nodes.has(Nodes.Semantics))
+                layoutNode
+            else
+                layoutNode.findClosestParentNode { it.nodes.has(Nodes.Semantics) }
+
+        val config = semanticsNode?.collapsedSemantics ?: return
+        if (!config.isMergingSemanticsOfDescendants) {
+            semanticsNode.findClosestParentNode {
+                it.collapsedSemantics?.isMergingSemanticsOfDescendants == true
+            }?.let { semanticsNode = it }
         }
-        val id = semanticsWrapper.requireLayoutNode().semanticsId
+        val id = semanticsNode?.semanticsId ?: return
         if (!subtreeChangedSemanticsNodesIds.add(id)) {
             return
         }
@@ -2376,8 +2376,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
                                 )
                                 // Here we use the merged node
                                 @OptIn(ExperimentalComposeUiApi::class)
-                                val mergedNode =
-                                    SemanticsNode(newNode.outerSemanticsNode, true)
+                                val mergedNode = newNode.copyWithMergingEnabled()
                                 val contentDescription = mergedNode.config.getOrNull(
                                     SemanticsProperties.ContentDescription
                                 )?.fastJoinToString(",")
@@ -3288,14 +3287,12 @@ private fun SemanticsNode.excludeLineAndPageGranularities(): Boolean {
     // text nodes that are part of the 'merged' text field, for example hint or label.
     val ancestor = layoutNode.findClosestParentNode {
         // looking for text field merging node
-        val ancestorSemanticsConfiguration = it.outerSemantics?.collapsedSemanticsConfiguration()
+        val ancestorSemanticsConfiguration = it.collapsedSemantics
         ancestorSemanticsConfiguration?.isMergingSemanticsOfDescendants == true &&
             ancestorSemanticsConfiguration.contains(SemanticsActions.SetText)
     }
     return ancestor != null &&
-        ancestor.outerSemantics
-            ?.collapsedSemanticsConfiguration()
-            ?.getOrNull(SemanticsProperties.Focused) != true
+        ancestor.collapsedSemantics?.getOrNull(SemanticsProperties.Focused) != true
 }
 
 private fun AccessibilityAction<*>.accessibilityEquals(other: Any?): Boolean {
@@ -3350,11 +3347,12 @@ internal fun SemanticsOwner.getAllUncoveredSemanticsNodesToMap():
         ) {
             return
         }
+        val touchBoundsInRoot = currentNode.touchBoundsInRoot
         val boundsInRoot = android.graphics.Rect(
-            currentNode.touchBoundsInRoot.left.roundToInt(),
-            currentNode.touchBoundsInRoot.top.roundToInt(),
-            currentNode.touchBoundsInRoot.right.roundToInt(),
-            currentNode.touchBoundsInRoot.bottom.roundToInt(),
+            touchBoundsInRoot.left.roundToInt(),
+            touchBoundsInRoot.top.roundToInt(),
+            touchBoundsInRoot.right.roundToInt(),
+            touchBoundsInRoot.bottom.roundToInt(),
         )
         val region = Region().also { it.set(boundsInRoot) }
         val virtualViewId = if (currentNode.id == root.id) {

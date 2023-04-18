@@ -199,12 +199,11 @@ private class FocusableNode(
 
     private var focusState: FocusState? = null
 
-    private val focusableSemanticsNode = delegated { FocusableSemanticsNode() }
-
+    private val focusableSemanticsNode = delegate(FocusableSemanticsNode())
     // (lpf) could we remove this if interactionsource is null?
-    private val focusableInteractionNode = delegated { FocusableInteractionNode(interactionSource) }
-    private val focusablePinnableContainer = delegated { FocusablePinnableContainerNode() }
-    private val focusedBoundsNode = delegated { FocusedBoundsNode() }
+    private val focusableInteractionNode = delegate(FocusableInteractionNode(interactionSource))
+    private val focusablePinnableContainer = delegate(FocusablePinnableContainerNode())
+    private val focusedBoundsNode = delegate(FocusedBoundsNode())
 
     // Focusables have a few different cases where they need to make sure they stay visible:
     //
@@ -218,9 +217,9 @@ private class FocusableNode(
     //    See aosp/1964580.
     private val bringIntoViewRequester = BringIntoViewRequester()
 
-    private val bringIntoViewRequesterNode = delegated {
+    private val bringIntoViewRequesterNode = delegate(
         BringIntoViewRequesterNode(bringIntoViewRequester)
-    }
+    )
 
     // TODO(levima) Remove this once delegation can propagate this events on its own
     override fun onPlaced(coordinates: LayoutCoordinates) =

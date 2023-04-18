@@ -528,7 +528,7 @@ private class ClickableNode(
     role: Role?,
     onClick: () -> Unit
 ) : AbstractClickableNode(interactionSource, enabled, onClickLabel, role, onClick) {
-    override val clickableSemanticsNode = delegated {
+    override val clickableSemanticsNode = delegate(
         ClickableSemanticsNode(
             enabled = enabled,
             role = role,
@@ -537,16 +537,16 @@ private class ClickableNode(
             onLongClick = null,
             onLongClickLabel = null
         )
-    }
+    )
 
-    override val clickablePointerInputNode = delegated {
+    override val clickablePointerInputNode = delegate(
         ClickablePointerInputNode(
             enabled = enabled,
             interactionSource = interactionSource,
             onClick = onClick,
             interactionData = interactionData
         )
-    }
+    )
 
     fun update(
         interactionSource: MutableInteractionSource,
@@ -582,7 +582,7 @@ private class CombinedClickableNode(
     private var onLongClick: (() -> Unit)?,
     onDoubleClick: (() -> Unit)?
 ) : AbstractClickableNode(interactionSource, enabled, onClickLabel, role, onClick) {
-    override val clickableSemanticsNode = delegated {
+    override val clickableSemanticsNode = delegate(
         ClickableSemanticsNode(
             enabled = enabled,
             role = role,
@@ -591,9 +591,9 @@ private class CombinedClickableNode(
             onLongClickLabel = onLongClickLabel,
             onLongClick = onLongClick
         )
-    }
+    )
 
-    override val clickablePointerInputNode = delegated {
+    override val clickablePointerInputNode = delegate(
         CombinedClickablePointerInputNode(
             enabled = enabled,
             interactionSource = interactionSource,
@@ -602,7 +602,7 @@ private class CombinedClickableNode(
             onLongClick,
             onDoubleClick
         )
-    }
+    )
 
     fun update(
         interactionSource: MutableInteractionSource,
@@ -846,10 +846,7 @@ private sealed class AbstractClickablePointerInputNode(
         ModifierLocalScrollableContainer.current || isComposeRootInScrollableContainer()
     }
 
-    private val pointerInputNode = SuspendingPointerInputModifierNode { pointerInput() }
-        // TODO: remove `.node` after aosp/2462416 lands and merge everything into one delegated
-        //  block
-        .also { delegated { it.node } }
+    private val pointerInputNode = delegate(SuspendingPointerInputModifierNode { pointerInput() })
 
     protected abstract suspend fun PointerInputScope.pointerInput()
 

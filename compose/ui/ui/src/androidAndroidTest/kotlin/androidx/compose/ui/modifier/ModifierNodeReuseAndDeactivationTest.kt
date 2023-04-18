@@ -958,13 +958,13 @@ private data class DelegatingModifierElement(
     }
 
     class Node(var onReset: () -> Unit) : DelegatingNode() {
-        private val inner = delegated {
+        private val inner = delegate(
             object : Modifier.Node() {
                 override fun onReset() {
                     this@Node.onReset.invoke()
                 }
             }
-        }
+        )
     }
 }
 

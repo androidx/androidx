@@ -20,7 +20,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.node.DelegatingNode
 import androidx.compose.ui.node.ModifierNodeElement
@@ -32,7 +31,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
-@OptIn(ExperimentalComposeUiApi::class)
 @MediumTest
 @RunWith(Parameterized::class)
 class CombinedFocusModifierNodeTest(private val delegatedFocusTarget: Boolean) {
@@ -213,15 +211,10 @@ class CombinedFocusModifierNodeTest(private val delegatedFocusTarget: Boolean) {
         fun initParameters() =
             listOf(
                 false,
-                // TODO: Delegation does not work right now because a delegated node can
-                //  reference the node delegating to it, but it can't reference a delegated node in
-                //  its parent. For some use-cases, a parent needs to invalidate a child. We cannot
-                //  do this when the child is a delegated node.
-                // true
+                true
             )
     }
 
-    @OptIn(ExperimentalComposeUiApi::class)
     private class CombinedFocusNode(delegatedFocusTarget: Boolean) :
         FocusRequesterModifierNode,
         FocusEventModifierNode,
@@ -229,7 +222,7 @@ class CombinedFocusModifierNodeTest(private val delegatedFocusTarget: Boolean) {
         DelegatingNode() {
 
         init {
-            if (delegatedFocusTarget) delegated { FocusTargetModifierNode() }
+            if (delegatedFocusTarget) delegate(FocusTargetModifierNode())
         }
 
         lateinit var focusState: FocusState
