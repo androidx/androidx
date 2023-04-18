@@ -39,6 +39,9 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 import android.view.KeyEvent as AndroidKeyEvent
+import androidx.compose.ui.node.DelegatingNode
+import androidx.compose.ui.semantics.elementFor
+import org.mockito.kotlin.inOrder
 
 /**
  * This test verifies that an Android key event triggers a Compose key event. More detailed test
@@ -96,6 +99,139 @@ class AndroidProcessKeyInputTest(private val keyEventAction: Int) {
             )
             assertThat(keyEvent.key).isEqualTo(A)
             assertThat(keyConsumed).isTrue()
+        }
+    }
+
+    @Test
+    fun delegated_onKeyEvent_triggered() {
+        // Arrange.
+        lateinit var ownerView: View
+        var receivedKeyEvent: KeyEvent? = null
+        val focusRequester = FocusRequester()
+        val node = object : DelegatingNode() {
+            val ki = delegate(object : KeyInputModifierNode, Modifier.Node() {
+                override fun onKeyEvent(event: KeyEvent): Boolean {
+                    receivedKeyEvent = event
+                    return true
+                }
+
+                override fun onPreKeyEvent(event: KeyEvent): Boolean {
+                    return false
+                }
+            })
+        }
+
+        rule.setFocusableContent {
+            ownerView = LocalView.current
+            Box(
+                modifier = Modifier
+                    .focusRequester(focusRequester)
+                    .focusTarget()
+                    .elementFor(node)
+            )
+        }
+        rule.runOnIdle {
+            focusRequester.requestFocus()
+        }
+
+        // Act.
+        val keyConsumed = rule.runOnIdle {
+            ownerView.dispatchKeyEvent(AndroidKeyEvent(keyEventAction, KeyCodeA))
+        }
+
+        // Assert.
+        rule.runOnIdle {
+            val keyEvent = checkNotNull(receivedKeyEvent)
+            assertThat(keyEvent.type).isEqualTo(
+                when (keyEventAction) {
+                    ActionUp -> KeyUp
+                    ActionDown -> KeyDown
+                    else -> error("No tests for this key action.")
+                }
+            )
+            assertThat(keyEvent.key).isEqualTo(A)
+            assertThat(keyConsumed).isTrue()
+        }
+    }
+
+    @Test
+    fun delegated_multiple_onKeyEvent_triggered() {
+        // Arrange.
+        lateinit var ownerView: View
+        var receivedKeyEvent1: KeyEvent? = null
+        var receivedKeyEvent2: KeyEvent? = null
+        val eventLog = mutableListOf<KeyEvent>()
+        val focusRequester = FocusRequester()
+        val node = object : DelegatingNode() {
+            val a = delegate(object : KeyInputModifierNode, Modifier.Node() {
+                override fun onKeyEvent(event: KeyEvent): Boolean {
+                    receivedKeyEvent1 = event
+                    eventLog.add(event)
+                    return false
+                }
+
+                override fun onPreKeyEvent(event: KeyEvent): Boolean {
+                    return false
+                }
+            })
+            val b = delegate(object : KeyInputModifierNode, Modifier.Node() {
+                override fun onKeyEvent(event: KeyEvent): Boolean {
+                    receivedKeyEvent2 = event
+                    eventLog.add(event)
+                    return false
+                }
+
+                override fun onPreKeyEvent(event: KeyEvent): Boolean {
+                    return false
+                }
+            })
+        }
+
+        rule.setFocusableContent {
+            ownerView = LocalView.current
+            Box(
+                modifier = Modifier
+                    .focusRequester(focusRequester)
+                    .elementFor(node)
+                    .focusTarget()
+            )
+        }
+        rule.runOnIdle {
+            focusRequester.requestFocus()
+        }
+
+        // Act.
+        val keyConsumed = rule.runOnIdle {
+            ownerView.dispatchKeyEvent(AndroidKeyEvent(keyEventAction, KeyCodeA))
+        }
+
+        // Assert.
+        rule.runOnIdle {
+            val keyEvent1 = checkNotNull(receivedKeyEvent1)
+            assertThat(keyEvent1.type).isEqualTo(
+                when (keyEventAction) {
+                    ActionUp -> KeyUp
+                    ActionDown -> KeyDown
+                    else -> error("No tests for this key action.")
+                }
+            )
+            assertThat(keyEvent1.key).isEqualTo(A)
+            assertThat(keyConsumed).isFalse()
+
+            val keyEvent2 = checkNotNull(receivedKeyEvent2)
+            assertThat(keyEvent2.type).isEqualTo(
+                when (keyEventAction) {
+                    ActionUp -> KeyUp
+                    ActionDown -> KeyDown
+                    else -> error("No tests for this key action.")
+                }
+            )
+            assertThat(keyEvent2.key).isEqualTo(A)
+            assertThat(keyConsumed).isFalse()
+
+            assertThat(eventLog)
+                .containsExactly(receivedKeyEvent1, receivedKeyEvent2)
+                .inOrder()
         }
     }
 }
