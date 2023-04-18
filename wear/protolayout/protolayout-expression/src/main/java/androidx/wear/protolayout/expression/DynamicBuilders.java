@@ -550,9 +550,17 @@ public final class DynamicBuilders {
             return mFingerprint;
         }
 
+        /** Creates a new wrapper instance from the proto. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public static ArithmeticInt32Op fromProto(
+                @NonNull DynamicProto.ArithmeticInt32Op proto, @Nullable Fingerprint fingerprint) {
+            return new ArithmeticInt32Op(proto, fingerprint);
+        }
+
         @NonNull
         static ArithmeticInt32Op fromProto(@NonNull DynamicProto.ArithmeticInt32Op proto) {
-            return new ArithmeticInt32Op(proto, null);
+            return fromProto(proto, null);
         }
 
         @NonNull
@@ -654,9 +662,17 @@ public final class DynamicBuilders {
             return mFingerprint;
         }
 
+        /** Creates a new wrapper instance from the proto. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public static StateInt32Source fromProto(
+                @NonNull DynamicProto.StateInt32Source proto, @Nullable Fingerprint fingerprint) {
+            return new StateInt32Source(proto, fingerprint);
+        }
+
         @NonNull
         static StateInt32Source fromProto(@NonNull DynamicProto.StateInt32Source proto) {
-            return new StateInt32Source(proto, null);
+            return fromProto(proto, null);
         }
 
         @NonNull
@@ -772,9 +788,17 @@ public final class DynamicBuilders {
             return mFingerprint;
         }
 
+        /** Creates a new wrapper instance from the proto. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public static ConditionalInt32Op fromProto(
+                @NonNull DynamicProto.ConditionalInt32Op proto, @Nullable Fingerprint fingerprint) {
+            return new ConditionalInt32Op(proto, fingerprint);
+        }
+
         @NonNull
         static ConditionalInt32Op fromProto(@NonNull DynamicProto.ConditionalInt32Op proto) {
-            return new ConditionalInt32Op(proto, null);
+            return fromProto(proto, null);
         }
 
         @NonNull
@@ -913,9 +937,17 @@ public final class DynamicBuilders {
             return mFingerprint;
         }
 
+        /** Creates a new wrapper instance from the proto. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public static ConditionalFloatOp fromProto(
+                @NonNull DynamicProto.ConditionalFloatOp proto, @Nullable Fingerprint fingerprint) {
+            return new ConditionalFloatOp(proto, fingerprint);
+        }
+
         @NonNull
         static ConditionalFloatOp fromProto(@NonNull DynamicProto.ConditionalFloatOp proto) {
-            return new ConditionalFloatOp(proto, null);
+            return fromProto(proto, null);
         }
 
         @NonNull
@@ -1032,9 +1064,17 @@ public final class DynamicBuilders {
             return mFingerprint;
         }
 
+        /** Creates a new wrapper instance from the proto. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public static FloatToInt32Op fromProto(
+                @NonNull DynamicProto.FloatToInt32Op proto, @Nullable Fingerprint fingerprint) {
+            return new FloatToInt32Op(proto, fingerprint);
+        }
+
         @NonNull
         static FloatToInt32Op fromProto(@NonNull DynamicProto.FloatToInt32Op proto) {
-            return new FloatToInt32Op(proto, null);
+            return fromProto(proto, null);
         }
 
         @NonNull
@@ -2358,6 +2398,41 @@ public final class DynamicBuilders {
         }
     }
 
+    /** Creates a new wrapper instance from the proto. */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @NonNull
+    public static DynamicInt32 dynamicInt32FromProto(
+            @NonNull DynamicProto.DynamicInt32 proto, @Nullable Fingerprint fingerprint) {
+        if (proto.hasFixed()) {
+            return FixedInt32.fromProto(proto.getFixed(), fingerprint);
+        }
+        if (proto.hasPlatformSource()) {
+            return PlatformInt32Source.fromProto(proto.getPlatformSource(), fingerprint);
+        }
+        if (proto.hasArithmeticOperation()) {
+            return ArithmeticInt32Op.fromProto(proto.getArithmeticOperation(), fingerprint);
+        }
+        if (proto.hasStateSource()) {
+            return StateInt32Source.fromProto(proto.getStateSource(), fingerprint);
+        }
+        if (proto.hasConditionalOp()) {
+            return ConditionalInt32Op.fromProto(proto.getConditionalOp(), fingerprint);
+        }
+        if (proto.hasFloatToInt()) {
+            return FloatToInt32Op.fromProto(proto.getFloatToInt(), fingerprint);
+        }
+        if (proto.hasDurationPart()) {
+            return GetDurationPartOp.fromProto(proto.getDurationPart(), fingerprint);
+        }
+        if (proto.hasAnimatableFixed()) {
+            return AnimatableFixedInt32.fromProto(proto.getAnimatableFixed(), fingerprint);
+        }
+        if (proto.hasAnimatableDynamic()) {
+            return AnimatableDynamicInt32.fromProto(proto.getAnimatableDynamic(), fingerprint);
+        }
+        throw new IllegalStateException("Proto was not a recognised instance of DynamicInt32");
+    }
+
     /**
      * Creates a new wrapper instance from the proto. Intended for testing purposes only. An object
      * created using this method can't be added to any other wrapper.
@@ -2365,34 +2440,7 @@ public final class DynamicBuilders {
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     public static DynamicInt32 dynamicInt32FromProto(@NonNull DynamicProto.DynamicInt32 proto) {
-        if (proto.hasFixed()) {
-            return FixedInt32.fromProto(proto.getFixed());
-        }
-        if (proto.hasPlatformSource()) {
-            return PlatformInt32Source.fromProto(proto.getPlatformSource());
-        }
-        if (proto.hasArithmeticOperation()) {
-            return ArithmeticInt32Op.fromProto(proto.getArithmeticOperation());
-        }
-        if (proto.hasStateSource()) {
-            return StateInt32Source.fromProto(proto.getStateSource());
-        }
-        if (proto.hasConditionalOp()) {
-            return ConditionalInt32Op.fromProto(proto.getConditionalOp());
-        }
-        if (proto.hasFloatToInt()) {
-            return FloatToInt32Op.fromProto(proto.getFloatToInt());
-        }
-        if (proto.hasDurationPart()) {
-            return GetDurationPartOp.fromProto(proto.getDurationPart());
-        }
-        if (proto.hasAnimatableFixed()) {
-            return AnimatableFixedInt32.fromProto(proto.getAnimatableFixed());
-        }
-        if (proto.hasAnimatableDynamic()) {
-            return AnimatableDynamicInt32.fromProto(proto.getAnimatableDynamic());
-        }
-        throw new IllegalStateException("Proto was not a recognised instance of DynamicInt32");
+        return dynamicInt32FromProto(proto, null);
     }
 
     /**
@@ -2453,9 +2501,17 @@ public final class DynamicBuilders {
             return mFingerprint;
         }
 
+        /** Creates a new wrapper instance from the proto. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public static Int32FormatOp fromProto(
+                @NonNull DynamicProto.Int32FormatOp proto, @Nullable Fingerprint fingerprint) {
+            return new Int32FormatOp(proto, fingerprint);
+        }
+
         @NonNull
         static Int32FormatOp fromProto(@NonNull DynamicProto.Int32FormatOp proto) {
-            return new Int32FormatOp(proto, null);
+            return fromProto(proto, null);
         }
 
         @NonNull
@@ -2572,10 +2628,19 @@ public final class DynamicBuilders {
             return mFingerprint;
         }
 
+        /** Creates a new wrapper instance from the proto. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public static StateStringSource fromProto(
+                @NonNull DynamicProto.StateStringSource proto, @Nullable Fingerprint fingerprint) {
+            return new StateStringSource(proto, fingerprint);
+        }
+
         @NonNull
         static StateStringSource fromProto(@NonNull DynamicProto.StateStringSource proto) {
-            return new StateStringSource(proto, null);
+            return fromProto(proto, null);
         }
+
 
         @NonNull
         DynamicProto.StateStringSource toProto() {
@@ -2688,9 +2753,18 @@ public final class DynamicBuilders {
             return mFingerprint;
         }
 
+        /** Creates a new wrapper instance from the proto. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public static ConditionalStringOp fromProto(
+                @NonNull DynamicProto.ConditionalStringOp proto,
+                @Nullable Fingerprint fingerprint) {
+            return new ConditionalStringOp(proto, fingerprint);
+        }
+
         @NonNull
         static ConditionalStringOp fromProto(@NonNull DynamicProto.ConditionalStringOp proto) {
-            return new ConditionalStringOp(proto, null);
+            return fromProto(proto, null);
         }
 
         @NonNull
@@ -2823,9 +2897,17 @@ public final class DynamicBuilders {
             return mFingerprint;
         }
 
+        /** Creates a new wrapper instance from the proto. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public static ConcatStringOp fromProto(
+                @NonNull DynamicProto.ConcatStringOp proto, @Nullable Fingerprint fingerprint) {
+            return new ConcatStringOp(proto, fingerprint);
+        }
+
         @NonNull
         static ConcatStringOp fromProto(@NonNull DynamicProto.ConcatStringOp proto) {
-            return new ConcatStringOp(proto, null);
+            return fromProto(proto, null);
         }
 
         @NonNull
@@ -2977,9 +3059,17 @@ public final class DynamicBuilders {
             return mFingerprint;
         }
 
+        /** Creates a new wrapper instance from the proto. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public static FloatFormatOp fromProto(
+                @NonNull DynamicProto.FloatFormatOp proto, @Nullable Fingerprint fingerprint) {
+            return new FloatFormatOp(proto, fingerprint);
+        }
+
         @NonNull
         static FloatFormatOp fromProto(@NonNull DynamicProto.FloatFormatOp proto) {
-            return new FloatFormatOp(proto, null);
+            return fromProto(proto, null);
         }
 
         @NonNull
@@ -3205,6 +3295,32 @@ public final class DynamicBuilders {
         }
     }
 
+    /** Creates a new wrapper instance from the proto. */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @NonNull
+    public static DynamicString dynamicStringFromProto(
+            @NonNull DynamicProto.DynamicString proto, @Nullable Fingerprint fingerprint) {
+        if (proto.hasFixed()) {
+            return FixedString.fromProto(proto.getFixed(), fingerprint);
+        }
+        if (proto.hasInt32FormatOp()) {
+            return Int32FormatOp.fromProto(proto.getInt32FormatOp(), fingerprint);
+        }
+        if (proto.hasStateSource()) {
+            return StateStringSource.fromProto(proto.getStateSource(), fingerprint);
+        }
+        if (proto.hasConditionalOp()) {
+            return ConditionalStringOp.fromProto(proto.getConditionalOp(), fingerprint);
+        }
+        if (proto.hasConcatOp()) {
+            return ConcatStringOp.fromProto(proto.getConcatOp(), fingerprint);
+        }
+        if (proto.hasFloatFormatOp()) {
+            return FloatFormatOp.fromProto(proto.getFloatFormatOp(), fingerprint);
+        }
+        throw new IllegalStateException("Proto was not a recognised instance of DynamicString");
+    }
+
     /**
      * Creates a new wrapper instance from the proto. Intended for testing purposes only. An object
      * created using this method can't be added to any other wrapper.
@@ -3212,25 +3328,7 @@ public final class DynamicBuilders {
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     public static DynamicString dynamicStringFromProto(@NonNull DynamicProto.DynamicString proto) {
-        if (proto.hasFixed()) {
-            return FixedString.fromProto(proto.getFixed());
-        }
-        if (proto.hasInt32FormatOp()) {
-            return Int32FormatOp.fromProto(proto.getInt32FormatOp());
-        }
-        if (proto.hasStateSource()) {
-            return StateStringSource.fromProto(proto.getStateSource());
-        }
-        if (proto.hasConditionalOp()) {
-            return ConditionalStringOp.fromProto(proto.getConditionalOp());
-        }
-        if (proto.hasConcatOp()) {
-            return ConcatStringOp.fromProto(proto.getConcatOp());
-        }
-        if (proto.hasFloatFormatOp()) {
-            return FloatFormatOp.fromProto(proto.getFloatFormatOp());
-        }
-        throw new IllegalStateException("Proto was not a recognised instance of DynamicString");
+        return dynamicStringFromProto(proto, null);
     }
 
     /**
@@ -3296,9 +3394,17 @@ public final class DynamicBuilders {
             return mFingerprint;
         }
 
+        /** Creates a new wrapper instance from the proto. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public static ArithmeticFloatOp fromProto(
+                @NonNull DynamicProto.ArithmeticFloatOp proto, @Nullable Fingerprint fingerprint) {
+            return new ArithmeticFloatOp(proto, fingerprint);
+        }
+
         @NonNull
         static ArithmeticFloatOp fromProto(@NonNull DynamicProto.ArithmeticFloatOp proto) {
-            return new ArithmeticFloatOp(proto, null);
+            return fromProto(proto, null);
         }
 
         @NonNull
@@ -3400,9 +3506,17 @@ public final class DynamicBuilders {
             return mFingerprint;
         }
 
+        /** Creates a new wrapper instance from the proto. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public static StateFloatSource fromProto(
+                @NonNull DynamicProto.StateFloatSource proto, @Nullable Fingerprint fingerprint) {
+            return new StateFloatSource(proto, fingerprint);
+        }
+
         @NonNull
         static StateFloatSource fromProto(@NonNull DynamicProto.StateFloatSource proto) {
-            return new StateFloatSource(proto, null);
+            return fromProto(proto, null);
         }
 
         @NonNull
@@ -3486,9 +3600,17 @@ public final class DynamicBuilders {
             return mFingerprint;
         }
 
+        /** Creates a new wrapper instance from the proto. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public static Int32ToFloatOp fromProto(
+                @NonNull DynamicProto.Int32ToFloatOp proto, @Nullable Fingerprint fingerprint) {
+            return new Int32ToFloatOp(proto, fingerprint);
+        }
+
         @NonNull
         static Int32ToFloatOp fromProto(@NonNull DynamicProto.Int32ToFloatOp proto) {
-            return new Int32ToFloatOp(proto, null);
+            return fromProto(proto, null);
         }
 
         @NonNull
@@ -3592,9 +3714,18 @@ public final class DynamicBuilders {
             return mFingerprint;
         }
 
+        /** Creates a new wrapper instance from the proto. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public static AnimatableFixedFloat fromProto(
+                @NonNull DynamicProto.AnimatableFixedFloat proto,
+                @Nullable Fingerprint fingerprint) {
+            return new AnimatableFixedFloat(proto, fingerprint);
+        }
+
         @NonNull
         static AnimatableFixedFloat fromProto(@NonNull DynamicProto.AnimatableFixedFloat proto) {
-            return new AnimatableFixedFloat(proto, null);
+            return fromProto(proto, null);
         }
 
         @NonNull
@@ -3731,10 +3862,19 @@ public final class DynamicBuilders {
             return mFingerprint;
         }
 
+        /** Creates a new wrapper instance from the proto. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public static AnimatableDynamicFloat fromProto(
+                @NonNull DynamicProto.AnimatableDynamicFloat proto,
+                @Nullable Fingerprint fingerprint) {
+            return new AnimatableDynamicFloat(proto, fingerprint);
+        }
+
         @NonNull
         static AnimatableDynamicFloat fromProto(
                 @NonNull DynamicProto.AnimatableDynamicFloat proto) {
-            return new AnimatableDynamicFloat(proto, null);
+            return fromProto(proto, null);
         }
 
         @NonNull
@@ -4711,6 +4851,35 @@ public final class DynamicBuilders {
         }
     }
 
+    /** Creates a new wrapper instance from the proto. */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @NonNull
+    public static DynamicFloat dynamicFloatFromProto(
+            @NonNull DynamicProto.DynamicFloat proto, @Nullable Fingerprint fingerprint) {
+        if (proto.hasFixed()) {
+            return FixedFloat.fromProto(proto.getFixed(), fingerprint);
+        }
+        if (proto.hasArithmeticOperation()) {
+            return ArithmeticFloatOp.fromProto(proto.getArithmeticOperation(), fingerprint);
+        }
+        if (proto.hasInt32ToFloatOperation()) {
+            return Int32ToFloatOp.fromProto(proto.getInt32ToFloatOperation(), fingerprint);
+        }
+        if (proto.hasStateSource()) {
+            return StateFloatSource.fromProto(proto.getStateSource(), fingerprint);
+        }
+        if (proto.hasConditionalOp()) {
+            return ConditionalFloatOp.fromProto(proto.getConditionalOp(), fingerprint);
+        }
+        if (proto.hasAnimatableFixed()) {
+            return AnimatableFixedFloat.fromProto(proto.getAnimatableFixed(), fingerprint);
+        }
+        if (proto.hasAnimatableDynamic()) {
+            return AnimatableDynamicFloat.fromProto(proto.getAnimatableDynamic(), fingerprint);
+        }
+        throw new IllegalStateException("Proto was not a recognised instance of DynamicFloat");
+    }
+
     /**
      * Creates a new wrapper instance from the proto. Intended for testing purposes only. An object
      * created using this method can't be added to any other wrapper.
@@ -4718,28 +4887,7 @@ public final class DynamicBuilders {
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     public static DynamicFloat dynamicFloatFromProto(@NonNull DynamicProto.DynamicFloat proto) {
-        if (proto.hasFixed()) {
-            return FixedFloat.fromProto(proto.getFixed());
-        }
-        if (proto.hasArithmeticOperation()) {
-            return ArithmeticFloatOp.fromProto(proto.getArithmeticOperation());
-        }
-        if (proto.hasInt32ToFloatOperation()) {
-            return Int32ToFloatOp.fromProto(proto.getInt32ToFloatOperation());
-        }
-        if (proto.hasStateSource()) {
-            return StateFloatSource.fromProto(proto.getStateSource());
-        }
-        if (proto.hasConditionalOp()) {
-            return ConditionalFloatOp.fromProto(proto.getConditionalOp());
-        }
-        if (proto.hasAnimatableFixed()) {
-            return AnimatableFixedFloat.fromProto(proto.getAnimatableFixed());
-        }
-        if (proto.hasAnimatableDynamic()) {
-            return AnimatableDynamicFloat.fromProto(proto.getAnimatableDynamic());
-        }
-        throw new IllegalStateException("Proto was not a recognised instance of DynamicFloat");
+        return dynamicFloatFromProto(proto, null);
     }
 
     /**
@@ -4773,9 +4921,17 @@ public final class DynamicBuilders {
             return mFingerprint;
         }
 
+        /** Creates a new wrapper instance from the proto. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public static StateBoolSource fromProto(
+                @NonNull DynamicProto.StateBoolSource proto, @Nullable Fingerprint fingerprint) {
+            return new StateBoolSource(proto, fingerprint);
+        }
+
         @NonNull
         static StateBoolSource fromProto(@NonNull DynamicProto.StateBoolSource proto) {
-            return new StateBoolSource(proto, null);
+            return fromProto(proto, null);
         }
 
         @NonNull
@@ -4888,9 +5044,17 @@ public final class DynamicBuilders {
             return mFingerprint;
         }
 
+        /** Creates a new wrapper instance from the proto. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public static ComparisonInt32Op fromProto(
+                @NonNull DynamicProto.ComparisonInt32Op proto, @Nullable Fingerprint fingerprint) {
+            return new ComparisonInt32Op(proto, fingerprint);
+        }
+
         @NonNull
         static ComparisonInt32Op fromProto(@NonNull DynamicProto.ComparisonInt32Op proto) {
-            return new ComparisonInt32Op(proto, null);
+            return fromProto(proto, null);
         }
 
         @NonNull
@@ -5024,9 +5188,17 @@ public final class DynamicBuilders {
             return mFingerprint;
         }
 
+        /** Creates a new wrapper instance from the proto. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public static ComparisonFloatOp fromProto(
+                @NonNull DynamicProto.ComparisonFloatOp proto, @Nullable Fingerprint fingerprint) {
+            return new ComparisonFloatOp(proto, fingerprint);
+        }
+
         @NonNull
         static ComparisonFloatOp fromProto(@NonNull DynamicProto.ComparisonFloatOp proto) {
-            return new ComparisonFloatOp(proto, null);
+            return fromProto(proto, null);
         }
 
         @NonNull
@@ -5132,9 +5304,17 @@ public final class DynamicBuilders {
             return mFingerprint;
         }
 
+        /** Creates a new wrapper instance from the proto. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public static NotBoolOp fromProto(
+                @NonNull DynamicProto.NotBoolOp proto, @Nullable Fingerprint fingerprint) {
+            return new NotBoolOp(proto, fingerprint);
+        }
+
         @NonNull
         static NotBoolOp fromProto(@NonNull DynamicProto.NotBoolOp proto) {
-            return new NotBoolOp(proto, null);
+            return fromProto(proto, null);
         }
 
         @NonNull
@@ -5244,9 +5424,17 @@ public final class DynamicBuilders {
             return mFingerprint;
         }
 
+        /** Creates a new wrapper instance from the proto. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public static LogicalBoolOp fromProto(
+                @NonNull DynamicProto.LogicalBoolOp proto, @Nullable Fingerprint fingerprint) {
+            return new LogicalBoolOp(proto, fingerprint);
+        }
+
         @NonNull
         static LogicalBoolOp fromProto(@NonNull DynamicProto.LogicalBoolOp proto) {
-            return new LogicalBoolOp(proto, null);
+            return fromProto(proto, null);
         }
 
         @NonNull
@@ -5432,6 +5620,33 @@ public final class DynamicBuilders {
         }
     }
 
+
+    /** Creates a new wrapper instance from the proto. */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @NonNull
+    public static DynamicBool dynamicBoolFromProto(
+            @NonNull DynamicProto.DynamicBool proto, @Nullable Fingerprint fingerprint) {
+        if (proto.hasFixed()) {
+            return FixedBool.fromProto(proto.getFixed(), fingerprint);
+        }
+        if (proto.hasStateSource()) {
+            return StateBoolSource.fromProto(proto.getStateSource(), fingerprint);
+        }
+        if (proto.hasInt32Comparison()) {
+            return ComparisonInt32Op.fromProto(proto.getInt32Comparison(), fingerprint);
+        }
+        if (proto.hasNotOp()) {
+            return NotBoolOp.fromProto(proto.getNotOp(), fingerprint);
+        }
+        if (proto.hasLogicalOp()) {
+            return LogicalBoolOp.fromProto(proto.getLogicalOp(), fingerprint);
+        }
+        if (proto.hasFloatComparison()) {
+            return ComparisonFloatOp.fromProto(proto.getFloatComparison(), fingerprint);
+        }
+        throw new IllegalStateException("Proto was not a recognised instance of DynamicBool");
+    }
+
     /**
      * Creates a new wrapper instance from the proto. Intended for testing purposes only. An object
      * created using this method can't be added to any other wrapper.
@@ -5439,25 +5654,7 @@ public final class DynamicBuilders {
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     public static DynamicBool dynamicBoolFromProto(@NonNull DynamicProto.DynamicBool proto) {
-        if (proto.hasFixed()) {
-            return FixedBool.fromProto(proto.getFixed());
-        }
-        if (proto.hasStateSource()) {
-            return StateBoolSource.fromProto(proto.getStateSource());
-        }
-        if (proto.hasInt32Comparison()) {
-            return ComparisonInt32Op.fromProto(proto.getInt32Comparison());
-        }
-        if (proto.hasNotOp()) {
-            return NotBoolOp.fromProto(proto.getNotOp());
-        }
-        if (proto.hasLogicalOp()) {
-            return LogicalBoolOp.fromProto(proto.getLogicalOp());
-        }
-        if (proto.hasFloatComparison()) {
-            return ComparisonFloatOp.fromProto(proto.getFloatComparison());
-        }
-        throw new IllegalStateException("Proto was not a recognised instance of DynamicBool");
+        return dynamicBoolFromProto(proto, null);
     }
 
     /**
@@ -5491,9 +5688,17 @@ public final class DynamicBuilders {
             return mFingerprint;
         }
 
+        /** Creates a new wrapper instance from the proto. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public static StateColorSource fromProto(
+                @NonNull DynamicProto.StateColorSource proto, @Nullable Fingerprint fingerprint) {
+            return new StateColorSource(proto, fingerprint);
+        }
+
         @NonNull
         static StateColorSource fromProto(@NonNull DynamicProto.StateColorSource proto) {
-            return new StateColorSource(proto, null);
+            return fromProto(proto, null);
         }
 
         @NonNull
@@ -5598,9 +5803,18 @@ public final class DynamicBuilders {
             return mFingerprint;
         }
 
+        /** Creates a new wrapper instance from the proto. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public static AnimatableFixedColor fromProto(
+                @NonNull DynamicProto.AnimatableFixedColor proto,
+                @Nullable Fingerprint fingerprint) {
+            return new AnimatableFixedColor(proto, fingerprint);
+        }
+
         @NonNull
         static AnimatableFixedColor fromProto(@NonNull DynamicProto.AnimatableFixedColor proto) {
-            return new AnimatableFixedColor(proto, null);
+            return fromProto(proto, null);
         }
 
         @NonNull
@@ -5737,10 +5951,19 @@ public final class DynamicBuilders {
             return mFingerprint;
         }
 
+        /** Creates a new wrapper instance from the proto. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public static AnimatableDynamicColor fromProto(
+                @NonNull DynamicProto.AnimatableDynamicColor proto,
+                @Nullable Fingerprint fingerprint) {
+            return new AnimatableDynamicColor(proto, fingerprint);
+        }
+
         @NonNull
         static AnimatableDynamicColor fromProto(
                 @NonNull DynamicProto.AnimatableDynamicColor proto) {
-            return new AnimatableDynamicColor(proto, null);
+            return fromProto(proto, null);
         }
 
         @NonNull
@@ -6141,6 +6364,27 @@ public final class DynamicBuilders {
         }
     }
 
+
+    /** Creates a new wrapper instance from the proto. */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @NonNull
+    public static DynamicColor dynamicColorFromProto(
+            @NonNull DynamicProto.DynamicColor proto, @Nullable Fingerprint fingerprint) {
+        if (proto.hasFixed()) {
+            return FixedColor.fromProto(proto.getFixed(), fingerprint);
+        }
+        if (proto.hasStateSource()) {
+            return StateColorSource.fromProto(proto.getStateSource(), fingerprint);
+        }
+        if (proto.hasAnimatableFixed()) {
+            return AnimatableFixedColor.fromProto(proto.getAnimatableFixed(), fingerprint);
+        }
+        if (proto.hasAnimatableDynamic()) {
+            return AnimatableDynamicColor.fromProto(proto.getAnimatableDynamic(), fingerprint);
+        }
+        throw new IllegalStateException("Proto was not a recognised instance of DynamicColor");
+    }
+
     /**
      * Creates a new wrapper instance from the proto. Intended for testing purposes only. An object
      * created using this method can't be added to any other wrapper.
@@ -6148,22 +6392,7 @@ public final class DynamicBuilders {
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     public static DynamicColor dynamicColorFromProto(@NonNull DynamicProto.DynamicColor proto) {
-        if (proto.hasFixed()) {
-            return FixedColor.fromProto(proto.getFixed());
-        }
-        if (proto.hasStateSource()) {
-            return StateColorSource.fromProto(proto.getStateSource());
-        }
-        if (proto.hasAnimatableFixed()) {
-            return AnimatableFixedColor.fromProto(proto.getAnimatableFixed());
-        }
-        if (proto.hasAnimatableDynamic()) {
-            return AnimatableDynamicColor.fromProto(proto.getAnimatableDynamic());
-        }
-        if (proto.hasConditionalOp()) {
-            return ConditionalColorOp.fromProto(proto.getConditionalOp());
-        }
-        throw new IllegalStateException("Proto was not a recognised instance of DynamicColor");
+        return dynamicColorFromProto(proto, null);
     }
 
     /**
@@ -6188,9 +6417,17 @@ public final class DynamicBuilders {
             return mFingerprint;
         }
 
+        /** Creates a new wrapper instance from the proto. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public static PlatformTimeSource fromProto(
+                @NonNull DynamicProto.PlatformTimeSource proto, @Nullable Fingerprint fingerprint) {
+            return new PlatformTimeSource(proto, fingerprint);
+        }
+
         @NonNull
         static PlatformTimeSource fromProto(@NonNull DynamicProto.PlatformTimeSource proto) {
-            return new PlatformTimeSource(proto, null);
+            return fromProto(proto, null);
         }
 
         @NonNull
@@ -6318,6 +6555,20 @@ public final class DynamicBuilders {
         }
     }
 
+    /** Creates a new wrapper instance from the proto. */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @NonNull
+    public static DynamicInstant dynamicInstantFromProto(
+            @NonNull DynamicProto.DynamicInstant proto, @Nullable Fingerprint fingerprint) {
+        if (proto.hasFixed()) {
+            return FixedInstant.fromProto(proto.getFixed(), fingerprint);
+        }
+        if (proto.hasPlatformSource()) {
+            return PlatformTimeSource.fromProto(proto.getPlatformSource(), fingerprint);
+        }
+        throw new IllegalStateException("Proto was not a recognised instance of DynamicInstant");
+    }
+
     /**
      * Creates a new wrapper instance from the proto. Intended for testing purposes only. An object
      * created using this method can't be added to any other wrapper.
@@ -6326,13 +6577,7 @@ public final class DynamicBuilders {
     @NonNull
     public static DynamicInstant dynamicInstantFromProto(
             @NonNull DynamicProto.DynamicInstant proto) {
-        if (proto.hasFixed()) {
-            return FixedInstant.fromProto(proto.getFixed());
-        }
-        if (proto.hasPlatformSource()) {
-            return PlatformTimeSource.fromProto(proto.getPlatformSource());
-        }
-        throw new IllegalStateException("Proto was not a recognised instance of DynamicInstant");
+        return dynamicInstantFromProto(proto, null);
     }
 
     /**
@@ -6384,9 +6629,17 @@ public final class DynamicBuilders {
             return mFingerprint;
         }
 
+        /** Creates a new wrapper instance from the proto. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public static BetweenDuration fromProto(
+                @NonNull DynamicProto.BetweenDuration proto, @Nullable Fingerprint fingerprint) {
+            return new BetweenDuration(proto, fingerprint);
+        }
+
         @NonNull
         static BetweenDuration fromProto(@NonNull DynamicProto.BetweenDuration proto) {
-            return new BetweenDuration(proto, null);
+            return fromProto(proto, null);
         }
 
         @NonNull
@@ -6685,6 +6938,17 @@ public final class DynamicBuilders {
         }
     }
 
+    /** Creates a new wrapper instance from the proto. */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @NonNull
+    public static DynamicDuration dynamicDurationFromProto(
+            @NonNull DynamicProto.DynamicDuration proto, @Nullable Fingerprint fingerprint) {
+        if (proto.hasBetween()) {
+            return BetweenDuration.fromProto(proto.getBetween(), fingerprint);
+        }
+        throw new IllegalStateException("Proto was not a recognised instance of DynamicDuration");
+    }
+
     /**
      * Creates a new wrapper instance from the proto. Intended for testing purposes only. An object
      * created using this method can't be added to any other wrapper.
@@ -6693,10 +6957,7 @@ public final class DynamicBuilders {
     @NonNull
     public static DynamicDuration dynamicDurationFromProto(
             @NonNull DynamicProto.DynamicDuration proto) {
-        if (proto.hasBetween()) {
-            return BetweenDuration.fromProto(proto.getBetween());
-        }
-        throw new IllegalStateException("Proto was not a recognised instance of DynamicDuration");
+        return dynamicDurationFromProto(proto, null);
     }
 
     /**
@@ -6745,9 +7006,17 @@ public final class DynamicBuilders {
             return mFingerprint;
         }
 
+        /** Creates a new wrapper instance from the proto. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public static GetDurationPartOp fromProto(
+                @NonNull DynamicProto.GetDurationPartOp proto, @Nullable Fingerprint fingerprint) {
+            return new GetDurationPartOp(proto, fingerprint);
+        }
+
         @NonNull
         static GetDurationPartOp fromProto(@NonNull DynamicProto.GetDurationPartOp proto) {
-            return new GetDurationPartOp(proto, null);
+            return fromProto(proto, null);
         }
 
         @NonNull

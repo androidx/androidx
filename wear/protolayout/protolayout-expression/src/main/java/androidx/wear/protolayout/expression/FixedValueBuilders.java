@@ -64,9 +64,17 @@ final class FixedValueBuilders {
       return mFingerprint;
     }
 
+    /** Creates a new wrapper instance from the proto. */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @NonNull
+    public static FixedInt32 fromProto(
+            @NonNull FixedProto.FixedInt32 proto, @Nullable Fingerprint fingerprint) {
+      return new FixedInt32(proto, fingerprint);
+    }
+
     @NonNull
     static FixedInt32 fromProto(@NonNull FixedProto.FixedInt32 proto) {
-      return new FixedInt32(proto, null);
+      return fromProto(proto, null);
     }
 
     @NonNull
@@ -155,9 +163,17 @@ final class FixedValueBuilders {
       return mFingerprint;
     }
 
+    /** Creates a new wrapper instance from the proto. */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @NonNull
+    public static FixedString fromProto(
+            @NonNull FixedProto.FixedString proto, @Nullable Fingerprint fingerprint) {
+      return new FixedString(proto, fingerprint);
+    }
+
     @NonNull
     static FixedString fromProto(@NonNull FixedProto.FixedString proto) {
-      return new FixedString(proto, null);
+      return fromProto(proto, null);
     }
 
     @NonNull
@@ -246,9 +262,17 @@ final class FixedValueBuilders {
       return mFingerprint;
     }
 
+    /** Creates a new wrapper instance from the proto. */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @NonNull
+    public static FixedFloat fromProto(
+            @NonNull FixedProto.FixedFloat proto, @Nullable Fingerprint fingerprint) {
+      return new FixedFloat(proto, fingerprint);
+    }
+
     @NonNull
     static FixedFloat fromProto(@NonNull FixedProto.FixedFloat proto) {
-      return new FixedFloat(proto, null);
+      return fromProto(proto, null);
     }
 
     @NonNull
@@ -339,9 +363,17 @@ final class FixedValueBuilders {
       return mFingerprint;
     }
 
+    /** Creates a new wrapper instance from the proto. */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @NonNull
+    public static FixedBool fromProto(
+            @NonNull FixedProto.FixedBool proto, @Nullable Fingerprint fingerprint) {
+      return new FixedBool(proto, fingerprint);
+    }
+
     @NonNull
     static FixedBool fromProto(@NonNull FixedProto.FixedBool proto) {
-      return new FixedBool(proto, null);
+      return fromProto(proto, null);
     }
 
     @NonNull
@@ -430,9 +462,17 @@ final class FixedValueBuilders {
       return mFingerprint;
     }
 
+    /** Creates a new wrapper instance from the proto. */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @NonNull
+    public static FixedColor fromProto(
+            @NonNull FixedProto.FixedColor proto, @Nullable Fingerprint fingerprint) {
+      return new FixedColor(proto, fingerprint);
+    }
+
     @NonNull
     static FixedColor fromProto(@NonNull FixedProto.FixedColor proto) {
-      return new FixedColor(proto, null);
+      return fromProto(proto, null);
     }
 
     @NonNull
@@ -519,9 +559,17 @@ final class FixedValueBuilders {
       return mFingerprint;
     }
 
+    /** Creates a new wrapper instance from the proto. */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @NonNull
+    public static FixedInstant fromProto(
+            @NonNull FixedProto.FixedInstant proto, @Nullable Fingerprint fingerprint) {
+      return new FixedInstant(proto, fingerprint);
+    }
+
     @NonNull
     static FixedInstant fromProto(@NonNull FixedProto.FixedInstant proto) {
-      return new FixedInstant(proto, null);
+      return fromProto(proto, null);
     }
 
     @NonNull
