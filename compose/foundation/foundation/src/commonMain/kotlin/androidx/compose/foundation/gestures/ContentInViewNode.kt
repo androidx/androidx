@@ -19,24 +19,20 @@ package androidx.compose.foundation.gestures
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.Orientation.Horizontal
 import androidx.compose.foundation.gestures.Orientation.Vertical
-import androidx.compose.foundation.onFocusedBoundsChanged
 import androidx.compose.foundation.relocation.BringIntoViewRequester
 import androidx.compose.foundation.relocation.BringIntoViewResponder
-import androidx.compose.foundation.relocation.bringIntoViewResponder
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.layout.LayoutCoordinates
-import androidx.compose.ui.layout.OnPlacedModifier
-import androidx.compose.ui.layout.OnRemeasuredModifier
+import androidx.compose.ui.node.LayoutAwareModifierNode
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.toSize
 import kotlin.math.abs
 import kotlinx.coroutines.CancellableContinuation
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineName
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.job
@@ -55,20 +51,14 @@ private const val TAG = "ContentInViewModifier"
  * the [ScrollableState] to handle [BringIntoViewRequester] requests and keep the currently-focused
  * child in view when the viewport shrinks.
  *
- * Instances of this class should not be directly added to the modifier chain, instead use the
- * [modifier] property since this class relies on some modifiers that must be specified as modifier
- * factory functions and can't be implemented as interfaces.
  */
 // TODO(b/242732126) Make this logic reusable for TV's mario scrolling implementation.
 @OptIn(ExperimentalFoundationApi::class)
-internal class ContentInViewModifier(
-    private val scope: CoroutineScope,
-    private val orientation: Orientation,
-    private val scrollState: ScrollableState,
-    private val reverseDirection: Boolean
-) : BringIntoViewResponder,
-    OnRemeasuredModifier,
-    OnPlacedModifier {
+internal class ContentInViewNode(
+    private var orientation: Orientation,
+    private var scrollState: ScrollableState,
+    private var reverseDirection: Boolean
+) : Modifier.Node(), BringIntoViewResponder, LayoutAwareModifierNode {
 
     /**
      * Ongoing requests from [bringChildIntoView], with the invariant that it is always sorted by
@@ -106,13 +96,6 @@ internal class ContentInViewModifier(
     private var isAnimationRunning = false
     private val animationState = UpdatableAnimationState()
 
-    val modifier: Modifier = this
-        .onFocusedBoundsChanged {
-            focusedChild = it
-            if (DEBUG) println("[$TAG] new focused child: ${getFocusedChildBounds()}")
-        }
-        .bringIntoViewResponder(this)
-
     override fun calculateRectForParent(localRect: Rect): Rect {
         check(viewportSize != IntSize.Zero) {
             "Expected BringIntoViewRequester to not be used before parents are placed."
@@ -135,6 +118,10 @@ internal class ContentInViewModifier(
                 launchAnimation()
             }
         }
+    }
+
+    fun onFocusBoundsChanged(newBounds: LayoutCoordinates?) {
+        focusedChild = newBounds
     }
 
     override fun onPlaced(coordinates: LayoutCoordinates) {
@@ -184,7 +171,7 @@ internal class ContentInViewModifier(
 
         if (DEBUG) println("[$TAG] launchAnimation")
 
-        scope.launch(start = CoroutineStart.UNDISPATCHED) {
+        coroutineScope.launch(start = CoroutineStart.UNDISPATCHED) {
             var cancellationException: CancellationException? = null
             val animationJob = coroutineContext.job
 
@@ -401,6 +388,12 @@ internal class ContentInViewModifier(
     private operator fun Size.compareTo(other: Size): Int = when (orientation) {
         Horizontal -> width.compareTo(other.width)
         Vertical -> height.compareTo(other.height)
+    }
+
+    fun update(orientation: Orientation, state: ScrollableState, reverseDirection: Boolean) {
+        this.orientation = orientation
+        this.scrollState = state
+        this.reverseDirection = reverseDirection
     }
 
     /**

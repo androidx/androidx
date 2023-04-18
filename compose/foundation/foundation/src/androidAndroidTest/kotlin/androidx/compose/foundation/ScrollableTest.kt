@@ -49,6 +49,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.testutils.first
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -2161,7 +2162,8 @@ class ScrollableTest {
             consumeScrollDelta = { it }
         )
         rule.setContentAndGetScope {
-            val modifier = Modifier.scrollable(controller, Orientation.Vertical) as InspectableValue
+            val modifier =
+                Modifier.scrollable(controller, Orientation.Vertical).first() as InspectableValue
             assertThat(modifier.nameFallback).isEqualTo("scrollable")
             assertThat(modifier.valueOverride).isNull()
             assertThat(modifier.inspectableElements.map { it.name }.asIterable()).containsExactly(
