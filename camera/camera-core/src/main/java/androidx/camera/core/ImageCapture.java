@@ -390,6 +390,8 @@ public final class ImageCapture extends UseCase {
             mMetadataMatchingCaptureCallback = new CameraCaptureCallback() {
             };
         } else if (isSessionProcessorEnabledInCurrentCamera()) {
+            // TODO: remove this section and the rest of the code where it needs the
+            //  isSessionProcessorEnabledInCurrentCamera check.
             ImageReaderProxy imageReader;
             // SessionProcessor only outputs JPEG format.
             if (getImageFormat() == ImageFormat.JPEG) {
@@ -1699,10 +1701,6 @@ public final class ImageCapture extends UseCase {
             // Use old pipeline for custom ImageReader.
             return false;
         }
-        if (isSessionProcessorEnabledInCurrentCamera()) {
-            // Use old pipeline when extension is enabled.
-            return false;
-        }
 
         if (config.getBufferFormat(ImageFormat.JPEG) != ImageFormat.JPEG) {
             // Use old pipeline for non-JPEG output format.
@@ -1726,8 +1724,9 @@ public final class ImageCapture extends UseCase {
         Size resolution = streamSpec.getResolution();
 
         checkState(mImagePipeline == null);
-        mImagePipeline = new ImagePipeline(config, resolution, getEffect(),
-                !requireNonNull(getCamera()).getHasTransform());
+        boolean isVirtualCamera = !requireNonNull(getCamera()).getHasTransform()
+                || isSessionProcessorEnabledInCurrentCamera();
+        mImagePipeline = new ImagePipeline(config, resolution, getEffect(), isVirtualCamera);
 
         if (mTakePictureManager == null) {
             // mTakePictureManager is reused when the Surface is reset.
