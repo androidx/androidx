@@ -17,17 +17,53 @@
 package androidx.wear.ambient
 
 import android.app.Activity
-import android.os.Bundle
-import androidx.lifecycle.LifecycleOwner
-import com.google.android.wearable.compat.WearableActivityController
+import androidx.lifecycle.DefaultLifecycleObserver
 import java.util.concurrent.Executor
 
 /**
- * Lifecycle Observer which can be used to add ambient support to an activity on Wearable devices.
+ * Create a new [AmbientLifecycleObserver] for use on a real device.
  *
- * Applications which wish to show layouts in ambient mode should attach this observer to their
- * activities or fragments, passing in a set of callback to be notified about ambient state. In
- * addition, the app needs to declare that it uses the [android.Manifest.permission.WAKE_LOCK]
+ * Applications which wish to show layouts in ambient mode should attach the returned observer to
+ * their activities or fragments, passing in a set of callback to be notified about ambient state.
+ * In addition, the app needs to declare that it uses the [android.Manifest.permission.WAKE_LOCK]
+ * permission in its manifest.
+ *
+ * The created [AmbientLifecycleObserver] can also be used to query whether the device is in
+ * ambient mode.
+ *
+ * As an example of how to use this class, see the following example:
+ *
+ * ```
+ * class MyActivity : ComponentActivity() {
+ *     private val callbacks = object : AmbientLifecycleObserver.AmbientLifecycleCallback {
+ *         // ...
+ *     }
+ *
+ *     private val ambientObserver = AmbientLifecycleObserver(this, callbacks)
+ *
+ *     override fun onCreate(savedInstanceState: Bundle) {
+ *         lifecycle.addObserver(ambientObserver)
+ *     }
+ * }
+ * ```
+ *
+ * @param activity The activity that this observer is being attached to.
+ * @param callbackExecutor The executor to run the provided callbacks on.
+ * @param callbacks An instance of [AmbientLifecycleObserver.AmbientLifecycleCallback], used to
+ *                  notify the observer about changes to the ambient state.
+ */
+fun AmbientLifecycleObserver(
+    activity: Activity,
+    callbackExecutor: Executor,
+    callbacks: AmbientLifecycleObserver.AmbientLifecycleCallback
+): AmbientLifecycleObserver = AmbientLifecycleObserverImpl(activity, callbackExecutor, callbacks)
+
+/**
+ * Create a new [AmbientLifecycleObserver] for use on a real device.
+ *
+ * Applications which wish to show layouts in ambient mode should attach the returned observer to
+ * their activities or fragments, passing in a set of callback to be notified about ambient state.
+ * In addition, the app needs to declare that it uses the [android.Manifest.permission.WAKE_LOCK]
  * permission in its manifest.
  *
  * The created [AmbientLifecycleObserver] can also be used to query whether the device is in
@@ -50,85 +86,74 @@ import java.util.concurrent.Executor
  * ```
  *
  * @param activity The activity that this observer is being attached to.
- * @param callbackExecutor The executor to run the provided callbacks on.
- * @param callbacks An instance of [AmbientLifecycleObserverInterface.AmbientLifecycleCallback], used to
+ * @param callbacks An instance of [AmbientLifecycleObserver.AmbientLifecycleCallback], used to
  *                  notify the observer about changes to the ambient state.
  */
-@Suppress("CallbackName")
-class AmbientLifecycleObserver(
+fun AmbientLifecycleObserver(
     activity: Activity,
-    callbackExecutor: Executor,
-    callbacks: AmbientLifecycleObserverInterface.AmbientLifecycleCallback,
-) : AmbientLifecycleObserverInterface {
-    private val delegate: AmbientDelegate
-    private val callbackTranslator = object : AmbientDelegate.AmbientCallback {
-        override fun onEnterAmbient(ambientDetails: Bundle?) {
-            val burnInProtection = ambientDetails?.getBoolean(
-                WearableActivityController.EXTRA_BURN_IN_PROTECTION) ?: false
-            val lowBitAmbient = ambientDetails?.getBoolean(
-                WearableActivityController.EXTRA_LOWBIT_AMBIENT) ?: false
-            callbackExecutor.run {
-                callbacks.onEnterAmbient(AmbientLifecycleObserverInterface.AmbientDetails(
-                    burnInProtectionRequired = burnInProtection,
-                    deviceHasLowBitAmbient = lowBitAmbient
-                ))
-            }
-        }
+    callbacks: AmbientLifecycleObserver.AmbientLifecycleCallback
+): AmbientLifecycleObserver = AmbientLifecycleObserverImpl(activity, callbacks)
 
-        override fun onUpdateAmbient() {
-            callbackExecutor.run { callbacks.onUpdateAmbient() }
-        }
+/**
+ * Interface for LifecycleObservers which are used to add ambient mode support to activities on
+ * Wearable devices.
+ *
+ * This interface can be implemented, or faked out, to allow for testing activities which use
+ * ambient support.
+ */
+@Suppress("CallbackName")
+interface AmbientLifecycleObserver : DefaultLifecycleObserver {
+    /**
+     * Details about ambient mode support on the current device, passed to
+     * [AmbientLifecycleCallback.onEnterAmbient].
+     *
+     * @param burnInProtectionRequired whether the ambient layout must implement burn-in protection.
+     *     When this property is set to true, views must be shifted around periodically in ambient
+     *     mode. To ensure that content isn't shifted off the screen, avoid placing content within
+     *     10 pixels of the edge of the screen. Activities should also avoid solid white areas to
+     *     prevent pixel burn-in. Both of these requirements  only apply in ambient mode, and only
+     *     when this property is set to true.
+     * @param deviceHasLowBitAmbient whether this device has low-bit ambient mode. When this
+     *     property is set to true, the screen supports fewer bits for each color in ambient mode.
+     *     In this case, activities should disable anti-aliasing in ambient mode.
+     */
+    class AmbientDetails(
+        val burnInProtectionRequired: Boolean,
+        val deviceHasLowBitAmbient: Boolean
+    ) {
+        override fun toString(): String =
+            "AmbientDetails - burnInProtectionRequired: $burnInProtectionRequired, " +
+                "deviceHasLowBitAmbient: $deviceHasLowBitAmbient"
+    }
 
-        override fun onExitAmbient() {
-            callbackExecutor.run { callbacks.onExitAmbient() }
-        }
+    /** Callback to receive ambient mode state changes. */
+    interface AmbientLifecycleCallback {
+        /**
+         * Called when an activity is entering ambient mode. This event is sent while an activity is
+         * running (after onResume, before onPause). All drawing should complete by the conclusion
+         * of this method. Note that {@code invalidate()} calls will be executed before resuming
+         * lower-power mode.
+         *
+         * @param ambientDetails instance of [AmbientDetails] containing information about the
+         *     display being used.
+         */
+        fun onEnterAmbient(ambientDetails: AmbientDetails) {}
 
-        override fun onAmbientOffloadInvalidated() {
-        }
+        /**
+         * Called when the system is updating the display for ambient mode. Activities may use this
+         * opportunity to update or invalidate views.
+         */
+        fun onUpdateAmbient() {}
+
+        /**
+         * Called when an activity should exit ambient mode. This event is sent while an activity is
+         * running (after onResume, before onPause).
+         */
+        fun onExitAmbient() {}
     }
 
     /**
-     * Construct a [AmbientLifecycleObserver], using the UI thread to dispatch ambient
-     * callbacks.
-     *
-     * @param activity The activity that this observer is being attached to.
-     * @param callbacks An instance of [AmbientLifecycleObserverInterface.AmbientLifecycleCallback], used to
-     *                  notify the observer about changes to the ambient state.
+     * @return {@code true} if the activity is currently in ambient.
      */
-    constructor(
-        activity: Activity,
-        callbacks: AmbientLifecycleObserverInterface.AmbientLifecycleCallback
-    ) : this(activity, { r -> r.run() }, callbacks)
-
-    init {
-        delegate = AmbientDelegate(activity, WearableControllerProvider(), callbackTranslator)
-    }
-
-    override fun isAmbient(): Boolean = delegate.isAmbient
-
-    override fun onCreate(owner: LifecycleOwner) {
-        super.onCreate(owner)
-        delegate.onCreate()
-        delegate.setAmbientEnabled()
-    }
-
-    override fun onResume(owner: LifecycleOwner) {
-        super.onResume(owner)
-        delegate.onResume()
-    }
-
-    override fun onPause(owner: LifecycleOwner) {
-        super.onPause(owner)
-        delegate.onPause()
-    }
-
-    override fun onStop(owner: LifecycleOwner) {
-        super.onStop(owner)
-        delegate.onStop()
-    }
-
-    override fun onDestroy(owner: LifecycleOwner) {
-        super.onDestroy(owner)
-        delegate.onDestroy()
-    }
+    val isAmbient: Boolean
 }
