@@ -62,7 +62,7 @@ interface CapabilitySession {
 
     /**
      * The developer-provided external object (either a BaseExecutionSession instance or an
-     * CapabilityExecutor instance).
+     * ExecutionCallback instance).
      */
     val uiHandle: Any
 }

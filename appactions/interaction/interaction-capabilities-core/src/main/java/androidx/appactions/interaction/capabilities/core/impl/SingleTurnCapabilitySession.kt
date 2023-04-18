@@ -17,7 +17,7 @@
 package androidx.appactions.interaction.capabilities.core.impl
 
 import androidx.annotation.RestrictTo
-import androidx.appactions.interaction.capabilities.core.CapabilityExecutor
+import androidx.appactions.interaction.capabilities.core.ExecutionCallback
 import androidx.appactions.interaction.capabilities.core.ExecutionResult
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpec
 import androidx.appactions.interaction.proto.AppActionsContext.AppDialogState
@@ -42,7 +42,7 @@ internal class SingleTurnCapabilitySession<
     >(
     override val sessionId: String,
     private val actionSpec: ActionSpec<*, ArgumentsT, OutputT>,
-    private val capabilityExecutor: CapabilityExecutor<ArgumentsT, OutputT>,
+    private val executionCallback: ExecutionCallback<ArgumentsT, OutputT>,
     private val mutex: Mutex,
     private val scope: CoroutineScope = CoroutineScope(Dispatchers.Default),
 ) : CapabilitySession {
@@ -51,7 +51,7 @@ internal class SingleTurnCapabilitySession<
     override val state: AppDialogState? = null
     override val isActive: Boolean get() = isActiveAtomic.get()
 
-    override val uiHandle: Any = capabilityExecutor.uiHandle
+    override val uiHandle: Any = executionCallback.uiHandle
 
     override fun destroy() {}
 
@@ -75,7 +75,7 @@ internal class SingleTurnCapabilitySession<
             try {
                 mutex.lock(owner = this@SingleTurnCapabilitySession)
                 UiHandleRegistry.registerUiHandle(uiHandle, sessionId)
-                val output = capabilityExecutor.onExecute(arguments)
+                val output = executionCallback.onExecute(arguments)
                 callback.onSuccess(convertToFulfillmentResponse(output))
             } catch (t: Throwable) {
                 callback.onError(ErrorStatusInternal.CANCELLED)
