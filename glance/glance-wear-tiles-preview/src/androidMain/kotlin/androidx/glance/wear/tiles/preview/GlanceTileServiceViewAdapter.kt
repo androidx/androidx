@@ -26,9 +26,7 @@ import androidx.core.content.ContextCompat
 import androidx.glance.wear.tiles.ExperimentalGlanceWearTilesApi
 import androidx.glance.wear.tiles.compose
 import androidx.glance.wear.tiles.preview.ComposableInvoker.invokeComposable
-import androidx.wear.tiles.LayoutElementBuilders
 import androidx.wear.tiles.TileBuilders
-import androidx.wear.tiles.TimelineBuilders
 import kotlinx.coroutines.runBlocking
 import androidx.wear.tiles.renderer.TileRenderer
 
@@ -53,6 +51,7 @@ internal class GlanceTileServiceViewAdapter : FrameLayout {
     }
 
     @OptIn(ExperimentalGlanceWearTilesApi::class)
+    @Suppress("deprecation") // For backwards compatibility
     internal fun init(
         className: String,
         methodName: String,
@@ -73,11 +72,11 @@ internal class GlanceTileServiceViewAdapter : FrameLayout {
         }
         // As far as GlanceWearTiles.compose accepts no timeleine argument, assume we only support
         // [TimelineMode.SingleEntry]
-        val timelineBuilders = TimelineBuilders.Timeline.Builder()
+        val timelineBuilders = androidx.wear.tiles.TimelineBuilders.Timeline.Builder()
         timelineBuilders.addTimelineEntry(
-            TimelineBuilders.TimelineEntry.Builder()
+            androidx.wear.tiles.TimelineBuilders.TimelineEntry.Builder()
                 .setLayout(
-                    LayoutElementBuilders.Layout.Builder()
+                    androidx.wear.tiles.LayoutElementBuilders.Layout.Builder()
                         .setRoot(wearTilesComposition.layout)
                         .build()
                 ).build()
