@@ -519,6 +519,7 @@ object PagerDefaults {
         val density = LocalDensity.current
 
         return remember(
+            state,
             lowVelocityAnimationSpec,
             highVelocityAnimationSpec,
             snapAnimationSpec,

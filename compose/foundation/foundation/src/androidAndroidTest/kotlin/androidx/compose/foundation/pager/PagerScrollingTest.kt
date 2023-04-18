@@ -19,7 +19,12 @@ package androidx.compose.foundation.pager
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.snapping.MinFlingVelocityDp
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performTouchInput
@@ -342,6 +347,66 @@ class PagerScrollingTest(
         rule.waitForIdle()
 
         assertThat(pagerState.currentPage - initialPage).isEqualTo(pageDisplacement)
+    }
+
+    @Test
+    fun pagerStateChange_flingBehaviorShouldRecreate() {
+        var initialPage by mutableStateOf(0)
+        rule.setContent {
+            val state = key(initialPage) {
+                rememberPagerState(
+                    initialPage = initialPage,
+                    initialPageOffsetFraction = 0f
+                ) {
+                   10
+                }
+            }
+
+            HorizontalOrVerticalPager(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .testTag(PagerTestTag),
+                state = state,
+                pageSize = PageSize.Fill
+            ) {
+                Page(index = it)
+            }
+        }
+        val delta = pageSize * 0.4f * scrollForwardSign
+        onPager().performTouchInput {
+            swipeWithVelocityAcrossMainAxis(
+                with(rule.density) { 1.1f * MinFlingVelocityDp.toPx() },
+                delta
+            )
+        }
+
+        rule.waitForIdle()
+        rule.onNodeWithTag("1").assertIsDisplayed()
+        confirmPageIsInCorrectPosition(1)
+
+        onPager().performTouchInput {
+            swipeWithVelocityAcrossMainAxis(
+                with(rule.density) { 1.1f * MinFlingVelocityDp.toPx() },
+                delta
+            )
+        }
+
+        rule.waitForIdle()
+        rule.onNodeWithTag("2").assertIsDisplayed()
+        confirmPageIsInCorrectPosition(2)
+
+        rule.runOnIdle { initialPage = 1 }
+
+        rule.waitForIdle()
+        onPager().performTouchInput {
+            swipeWithVelocityAcrossMainAxis(
+                with(rule.density) { 1.1f * MinFlingVelocityDp.toPx() },
+                delta
+            )
+        }
+
+        rule.waitForIdle()
+        confirmPageIsInCorrectPosition(2)
     }
 
     companion object {
