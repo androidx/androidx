@@ -66,7 +66,7 @@ fun SnapLayoutInfoProvider(
         }
     }
 
-    override fun Density.calculateSnappingOffsetBounds(): ClosedFloatingPointRange<Float> {
+    override fun Density.calculateSnappingOffset(currentVelocity: Float): Float {
         var lowerBoundOffset = Float.NEGATIVE_INFINITY
         var upperBoundOffset = Float.POSITIVE_INFINITY
 
@@ -85,7 +85,7 @@ fun SnapLayoutInfoProvider(
             }
         }
 
-        return lowerBoundOffset.rangeTo(upperBoundOffset)
+        return calculateFinalOffset(currentVelocity, lowerBoundOffset, upperBoundOffset)
     }
 
     override fun Density.calculateSnapStepSize(): Float = with(layoutInfo) {

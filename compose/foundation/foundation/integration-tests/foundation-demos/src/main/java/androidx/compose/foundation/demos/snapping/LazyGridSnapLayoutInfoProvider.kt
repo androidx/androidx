@@ -23,6 +23,8 @@ import androidx.compose.foundation.lazy.grid.LazyGridItemInfo
 import androidx.compose.foundation.lazy.grid.LazyGridLayoutInfo
 import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.ui.unit.Density
+import kotlin.math.sign
+import kotlin.math.abs
 
 @OptIn(ExperimentalFoundationApi::class)
 fun SnapLayoutInfoProvider(
@@ -46,7 +48,9 @@ fun SnapLayoutInfoProvider(
             }
         }
 
-    override fun Density.calculateSnappingOffsetBounds(): ClosedFloatingPointRange<Float> {
+    override fun Density.calculateSnappingOffset(
+        currentVelocity: Float
+    ): Float {
         var distanceFromItemBeforeTarget = Float.NEGATIVE_INFINITY
         var distanceFromItemAfterTarget = Float.POSITIVE_INFINITY
 
@@ -65,7 +69,11 @@ fun SnapLayoutInfoProvider(
             }
         }
 
-        return distanceFromItemBeforeTarget.rangeTo(distanceFromItemAfterTarget)
+        return calculateFinalOffset(
+            currentVelocity,
+            distanceFromItemBeforeTarget,
+            distanceFromItemAfterTarget
+        )
     }
 
     override fun Density.calculateSnapStepSize(): Float {
@@ -118,5 +126,32 @@ private fun LazyGridItemInfo.offsetOnMainAxis(orientation: Orientation): Float {
         offset.y.toFloat()
     } else {
         offset.x.toFloat()
+    }
+}
+
+internal fun calculateFinalOffset(velocity: Float, lowerBound: Float, upperBound: Float): Float {
+
+    fun Float.isValidDistance(): Boolean {
+        return this != Float.POSITIVE_INFINITY && this != Float.NEGATIVE_INFINITY
+    }
+
+    val finalDistance = when (sign(velocity)) {
+        0f -> {
+            if (abs(upperBound) <= abs(lowerBound)) {
+                upperBound
+            } else {
+                lowerBound
+            }
+        }
+
+        1f -> upperBound
+        -1f -> lowerBound
+        else -> 0f
+    }
+
+    return if (finalDistance.isValidDistance()) {
+        finalDistance
+    } else {
+        0f
     }
 }

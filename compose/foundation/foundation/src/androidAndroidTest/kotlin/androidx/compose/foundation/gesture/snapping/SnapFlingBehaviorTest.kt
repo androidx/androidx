@@ -35,7 +35,7 @@ import androidx.compose.foundation.gestures.snapping.MinFlingVelocityDp
 import androidx.compose.foundation.gestures.snapping.NoVelocity
 import androidx.compose.foundation.gestures.snapping.SnapFlingBehavior
 import androidx.compose.foundation.gestures.snapping.SnapLayoutInfoProvider
-import androidx.compose.foundation.gestures.snapping.findClosestOffset
+import androidx.compose.foundation.gestures.snapping.calculateFinalOffset
 import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -239,15 +239,21 @@ class SnapFlingBehaviorTest {
     @Test
     fun findClosestOffset_noFlingDirection_shouldReturnAbsoluteDistance() {
         val testLayoutInfoProvider = TestLayoutInfoProvider()
-        val offset = findClosestOffset(0f, testLayoutInfoProvider, density)
+        val offset = with(testLayoutInfoProvider) {
+            density.calculateSnappingOffset(0f)
+        }
         assertEquals(offset, MinOffset)
     }
 
     @Test
     fun findClosestOffset_flingDirection_shouldReturnCorrectBound() {
         val testLayoutInfoProvider = TestLayoutInfoProvider()
-        val forwardOffset = findClosestOffset(1f, testLayoutInfoProvider, density)
-        val backwardOffset = findClosestOffset(-1f, testLayoutInfoProvider, density)
+        val forwardOffset = with(testLayoutInfoProvider) {
+            density.calculateSnappingOffset(1f)
+        }
+        val backwardOffset = with(testLayoutInfoProvider) {
+            density.calculateSnappingOffset(-1f)
+        }
         assertEquals(forwardOffset, MaxOffset)
         assertEquals(backwardOffset, MinOffset)
     }
@@ -531,8 +537,8 @@ private class TestLayoutInfoProvider(
         return snapStep
     }
 
-    override fun Density.calculateSnappingOffsetBounds(): ClosedFloatingPointRange<Float> {
-        return minOffset.rangeTo(maxOffset)
+    override fun Density.calculateSnappingOffset(currentVelocity: Float): Float {
+        return calculateFinalOffset(currentVelocity, minOffset, maxOffset)
     }
 
     override fun Density.calculateApproachOffset(initialVelocity: Float): Float {

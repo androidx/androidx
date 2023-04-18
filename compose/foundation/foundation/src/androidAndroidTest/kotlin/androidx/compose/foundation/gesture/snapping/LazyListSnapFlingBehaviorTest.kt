@@ -405,9 +405,10 @@ class LazyListSnapFlingBehaviorTest(private val orientation: Orientation) :
                 scrollOffset.last() > scrollOffset[scrollOffset.lastIndex - 1]
         }
 
-        // assert: next calculated bound is the first value emitted by remainingScrollOffset
-        val bounds = with(snapLayoutInfoProvider) { density.calculateSnappingOffsetBounds() }
-        val finalRemainingOffset = bounds.endInclusive
+        // assert: next calculated offset is the first value emitted by remainingScrollOffset
+        val finalRemainingOffset = with(snapLayoutInfoProvider) {
+            density.calculateSnappingOffset(10000f)
+        }
         Truth.assertThat(scrollOffset.last()).isWithin(0.5f)
             .of(finalRemainingOffset)
         rule.mainClock.autoAdvance = true
