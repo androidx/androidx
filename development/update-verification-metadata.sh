@@ -23,9 +23,11 @@ function regenerateVerificationMetadata() {
   # also remove 'version=' lines, https://github.com/gradle/gradle/issues/20192
   cat gradle/verification-metadata.dryrun.xml | sed 's/ \(trusted-key.*\)version="[^"]*"/\1/' > gradle/verification-metadata.xml
 
+  # rename keyring
+  mv gradle/verification-keyring-dryrun.keys gradle/verification-keyring.keys
+
   # remove temporary files
   rm -f gradle/verification-keyring-dryrun.gpg
-  rm -f gradle/verification-keyring-dryrun.keys
   rm -f gradle/verification-metadata.dryrun.xml
 }
 regenerateVerificationMetadata
