@@ -34,7 +34,7 @@ dependencies {
     testImplementation(libs.mockitoCore4)
     testImplementation(libs.robolectric)
     testImplementation(libs.truth)
-    testImplementation(project(":car:app:app-testing"))
+    testImplementation project(path: ':car:app:app-testing')
 }
 
 android {
