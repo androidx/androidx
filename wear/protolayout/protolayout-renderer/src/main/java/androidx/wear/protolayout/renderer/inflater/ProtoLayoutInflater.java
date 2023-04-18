@@ -2583,6 +2583,9 @@ public final class ProtoLayoutInflater {
                 case STROKE_CAP_ROUND:
                     lineView.setStrokeCap(Cap.ROUND);
                     break;
+                case STROKE_CAP_SQUARE:
+                    lineView.setStrokeCap(Cap.SQUARE);
+                    break;
                 case UNRECOGNIZED:
                 case STROKE_CAP_UNDEFINED:
                     Log.w(TAG, "Undefined StrokeCap value.");

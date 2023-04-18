@@ -615,6 +615,10 @@ enum StrokeCap {
   // Begin and end contours with a semi-circle extension. The extension size is
   // proportional to the thickness on the path.
   STROKE_CAP_ROUND = 2;
+
+  // Begin and end contours with a half square extension. The extension size is
+  // proportional to the thickness of the path.
+  STROKE_CAP_SQUARE = 3;
 }
 
 // An extensible StrokeCap property.
