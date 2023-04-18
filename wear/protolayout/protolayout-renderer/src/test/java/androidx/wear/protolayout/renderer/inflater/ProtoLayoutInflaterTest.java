@@ -4205,8 +4205,9 @@ public class ProtoLayoutInflaterTest {
     private static FadeInTransition.Builder fadeIn(int delay) {
         return FadeInTransition.newBuilder()
                 .setAnimationSpec(
-                        AnimationSpec.newBuilder().setAnimationParameters(
-                                AnimationParameters.newBuilder().setDelayMillis(delay)));
+                        AnimationSpec.newBuilder()
+                                .setAnimationParameters(
+                                        AnimationParameters.newBuilder().setDelayMillis(delay)));
     }
 
     private LayoutElement textFadeInSlideIn(String text) {
