@@ -462,7 +462,7 @@ class PagerStateTest(val config: ParamConfig) : BasePagerTest(config) {
     }
 
     @Test
-    fun targetPage_performScrollBelowThreshold_shouldNotShowNextPage() {
+    fun targetPage_performScrollBelowMinThreshold_shouldNotShowNextPage() {
         // Arrange
         createPager(
             modifier = Modifier.fillMaxSize(),

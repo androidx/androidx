@@ -20,6 +20,8 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clipScrollableContainer
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.ScrollableDefaults
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.gestures.snapping.SnapFlingBehavior
 import androidx.compose.foundation.layout.PaddingValues
@@ -46,9 +48,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.PointerInputChange
+import androidx.compose.ui.input.pointer.changedToUp
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.fastAll
+import kotlinx.coroutines.coroutineScope
 
 @ExperimentalFoundationApi
 @Composable
@@ -159,6 +167,7 @@ internal fun Pager(
                 overscrollEffect = overscrollEffect,
                 enabled = userScrollEnabled
             )
+            .dragDirectionDetector(state)
             .nestedScroll(pageNestedScrollConnection),
         measurePolicy = measurePolicy,
         prefetchState = state.prefetchState,
@@ -233,3 +242,27 @@ private fun rememberPagerItemProvider(
         )
     }
 }
+
+/**
+ * A modifier to detect up and down events in a Pager.
+ */
+@OptIn(ExperimentalFoundationApi::class)
+private fun Modifier.dragDirectionDetector(state: PagerState) =
+    this then Modifier.pointerInput(state) {
+        coroutineScope {
+            awaitEachGesture {
+                val downEvent =
+                    awaitFirstDown(requireUnconsumed = false, pass = PointerEventPass.Initial)
+                var upEventOrCancellation: PointerInputChange? = null
+                while (upEventOrCancellation == null) {
+                    val event = awaitPointerEvent(pass = PointerEventPass.Initial)
+                    if (event.changes.fastAll { it.changedToUp() }) {
+                        // All pointers are up
+                        upEventOrCancellation = event.changes[0]
+                    }
+                }
+
+                state.upDownDifference = upEventOrCancellation.position - downEvent.position
+            }
+        }
+    }

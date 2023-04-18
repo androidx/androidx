@@ -975,7 +975,7 @@ package androidx.compose.foundation.pager {
   }
 
   @androidx.compose.foundation.ExperimentalFoundationApi public final class PagerDefaults {
-    method @androidx.compose.runtime.Composable public androidx.compose.foundation.gestures.snapping.SnapFlingBehavior flingBehavior(androidx.compose.foundation.pager.PagerState state, optional androidx.compose.foundation.pager.PagerSnapDistance pagerSnapDistance, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> lowVelocityAnimationSpec, optional androidx.compose.animation.core.DecayAnimationSpec<java.lang.Float> highVelocityAnimationSpec, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> snapAnimationSpec, optional float snapVelocityThreshold);
+    method @androidx.compose.runtime.Composable public androidx.compose.foundation.gestures.snapping.SnapFlingBehavior flingBehavior(androidx.compose.foundation.pager.PagerState state, optional androidx.compose.foundation.pager.PagerSnapDistance pagerSnapDistance, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> lowVelocityAnimationSpec, optional androidx.compose.animation.core.DecayAnimationSpec<java.lang.Float> highVelocityAnimationSpec, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> snapAnimationSpec, optional float snapVelocityThreshold, optional float snapPositionalThreshold);
     method public androidx.compose.ui.input.nestedscroll.NestedScrollConnection pageNestedScrollConnection(androidx.compose.foundation.gestures.Orientation orientation);
     field public static final androidx.compose.foundation.pager.PagerDefaults INSTANCE;
   }
