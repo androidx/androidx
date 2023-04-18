@@ -6,7 +6,7 @@ import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
 pluginManagement {
     repositories {
         maven {
-            url = new File(buildscript.sourceFile.parent + "/../../prebuilts/androidx/external").getCanonicalFile()
+            url = new File(buildscript.sourceFile.parent + "/prebuilts/androidx/external").getCanonicalFile()
         }
         def isJBFork = true
         if (isJBFork) {
@@ -43,7 +43,7 @@ if (!isJBFork) {
 
 // Makes strong assumptions about the project structure.
 def prebuiltsRoot = new File(
-        buildscript.sourceFile.parentFile.parentFile.parentFile,
+        buildscript.sourceFile.parentFile,
         "prebuilts"
 ).absolutePath
 def rootProjectRepositories
@@ -1111,7 +1111,7 @@ includeProject(":media2:media2-session:version-compat-tests:common", [BuildType.
 //
 /////////////////////////////
 
-File externalRoot = new File(rootDir, "../../external")
+File externalRoot = new File(rootDir, "external")
 
 includeProject(":icing", new File(externalRoot, "icing"), [BuildType.MAIN])
 includeProject(":icing:nativeLib", new File(externalRoot, "icing/nativeLib"), [BuildType.MAIN])
@@ -1134,3 +1134,5 @@ includeProject(":placeholder-tests")
 
 // Workaround for b/203825166
 includeBuild("placeholder")
+
+includeProject(":mpp", [BuildType.COMPOSE])
