@@ -22,17 +22,14 @@ import androidx.compose.foundation.gestures.detectTapAndPress
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEvent
+import androidx.compose.ui.input.key.KeyInputModifierNode
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.pointer.PointerEvent
@@ -47,6 +44,7 @@ import androidx.compose.ui.node.PointerInputModifierNode
 import androidx.compose.ui.node.SemanticsModifierNode
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.debugInspectorInfo
+import androidx.compose.ui.platform.inspectable
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsConfiguration
 import androidx.compose.ui.semantics.disabled
@@ -139,56 +137,23 @@ fun Modifier.clickable(
     onClickLabel: String? = null,
     role: Role? = null,
     onClick: () -> Unit
-) = composed(
-    factory = {
-        val pressInteraction = remember { mutableStateOf<PressInteraction.Press?>(null) }
-        val currentKeyPressInteractions = remember { mutableMapOf<Key, PressInteraction.Press>() }
-        val centreOffset = remember { mutableStateOf(Offset.Zero) }
-
-        val interactionModifier = if (enabled) {
-            ClickableInteractionElement(
-                interactionSource,
-                pressInteraction,
-                currentKeyPressInteractions
-            )
-        } else Modifier
-
-        val pointerInputModifier = ClickablePointerInputElement(
-            enabled,
-            interactionSource,
-            onClick,
-            centreOffset,
-            pressInteraction
-        )
-
-        Modifier
-            .genericClickableWithoutGesture(
-                interactionSource = interactionSource,
-                indication = indication,
-                indicationScope = rememberCoroutineScope(),
-                currentKeyPressInteractions = currentKeyPressInteractions,
-                keyClickOffset = centreOffset,
-                enabled = enabled,
-                onClickLabel = onClickLabel,
-                role = role,
-                onLongClickLabel = null,
-                onLongClick = null,
-                onClick = onClick
-            )
-            .then(pointerInputModifier)
-            .then(interactionModifier)
-    },
+) = inspectable(
     inspectorInfo = debugInspectorInfo {
         name = "clickable"
+        properties["interactionSource"] = interactionSource
+        properties["indication"] = indication
         properties["enabled"] = enabled
         properties["onClickLabel"] = onClickLabel
         properties["role"] = role
         properties["onClick"] = onClick
-        properties["indication"] = indication
-        properties["interactionSource"] = interactionSource
     }
-)
-
+) {
+    Modifier
+        .indication(interactionSource, indication)
+        .hoverable(enabled = enabled, interactionSource = interactionSource)
+        .focusableInNonTouchMode(enabled = enabled, interactionSource = interactionSource)
+        .then(ClickableElement(interactionSource, enabled, onClickLabel, role, onClick))
+}
 /**
  * Configure component to receive clicks, double clicks and long clicks via input or accessibility
  * "click" event.
@@ -286,62 +251,11 @@ fun Modifier.combinedClickable(
     onLongClick: (() -> Unit)? = null,
     onDoubleClick: (() -> Unit)? = null,
     onClick: () -> Unit
-) = composed(
-    factory = {
-        val hasLongClick = onLongClick != null
-        val pressInteraction = remember { mutableStateOf<PressInteraction.Press?>(null) }
-        val currentKeyPressInteractions = remember { mutableMapOf<Key, PressInteraction.Press>() }
-        if (enabled) {
-            // Handles the case where a long click causes a null onLongClick lambda to be passed,
-            // so we can cancel the existing press.
-            DisposableEffect(hasLongClick) {
-                onDispose {
-                    pressInteraction.value?.let { oldValue ->
-                        val interaction = PressInteraction.Cancel(oldValue)
-                        interactionSource.tryEmit(interaction)
-                        pressInteraction.value = null
-                    }
-                }
-            }
-        }
-        val centreOffset = remember { mutableStateOf(Offset.Zero) }
-        val interactionModifier = if (enabled) {
-            ClickableInteractionElement(
-                interactionSource,
-                pressInteraction,
-                currentKeyPressInteractions
-            )
-        } else Modifier
-
-        val pointerInputModifier = CombinedClickablePointerInputElement(
-            enabled,
-            interactionSource,
-            onClick,
-            centreOffset,
-            pressInteraction,
-            onLongClick,
-            onDoubleClick
-        )
-
-        Modifier
-            .genericClickableWithoutGesture(
-                interactionSource = interactionSource,
-                indication = indication,
-                indicationScope = rememberCoroutineScope(),
-                currentKeyPressInteractions = currentKeyPressInteractions,
-                keyClickOffset = centreOffset,
-                enabled = enabled,
-                onClickLabel = onClickLabel,
-                role = role,
-                onLongClickLabel = onLongClickLabel,
-                onLongClick = onLongClick,
-                onClick = onClick
-            )
-            .then(pointerInputModifier)
-            .then(interactionModifier)
-    },
+) = inspectable(
     inspectorInfo = debugInspectorInfo {
         name = "combinedClickable"
+        properties["indication"] = indication
+        properties["interactionSource"] = interactionSource
         properties["enabled"] = enabled
         properties["onClickLabel"] = onClickLabel
         properties["role"] = role
@@ -349,15 +263,28 @@ fun Modifier.combinedClickable(
         properties["onDoubleClick"] = onDoubleClick
         properties["onLongClick"] = onLongClick
         properties["onLongClickLabel"] = onLongClickLabel
-        properties["indication"] = indication
-        properties["interactionSource"] = interactionSource
     }
-)
+) {
+    Modifier
+        .indication(interactionSource, indication)
+        .hoverable(enabled = enabled, interactionSource = interactionSource)
+        .focusableInNonTouchMode(enabled = enabled, interactionSource = interactionSource)
+        .then(CombinedClickableElement(
+            interactionSource,
+            enabled,
+            onClickLabel,
+            role,
+            onClick,
+            onLongClickLabel,
+            onLongClick,
+            onDoubleClick
+        ))
+}
 
-internal suspend fun PressGestureScope.handlePressInteraction(
+private suspend fun PressGestureScope.handlePressInteraction(
     pressPoint: Offset,
     interactionSource: MutableInteractionSource,
-    pressInteraction: MutableState<PressInteraction.Press?>,
+    interactionData: AbstractClickableNode.InteractionData,
     delayPressInteraction: () -> Boolean
 ) {
     coroutineScope {
@@ -367,7 +294,7 @@ internal suspend fun PressGestureScope.handlePressInteraction(
             }
             val press = PressInteraction.Press(pressPoint)
             interactionSource.emit(press)
-            pressInteraction.value = press
+            interactionData.pressInteraction = press
         }
         val success = tryAwaitRelease()
         if (delayJob.isActive) {
@@ -382,7 +309,7 @@ internal suspend fun PressGestureScope.handlePressInteraction(
                 interactionSource.emit(release)
             }
         } else {
-            pressInteraction.value?.let { pressInteraction ->
+            interactionData.pressInteraction?.let { pressInteraction ->
                 val endInteraction = if (success) {
                     PressInteraction.Release(pressInteraction)
                 } else {
@@ -391,7 +318,7 @@ internal suspend fun PressGestureScope.handlePressInteraction(
                 interactionSource.emit(endInteraction)
             }
         }
-        pressInteraction.value = null
+        interactionData.pressInteraction = null
     }
 }
 
@@ -479,6 +406,340 @@ internal fun Modifier.genericClickableWithoutGesture(
             .focusableInNonTouchMode(enabled = enabled, interactionSource = interactionSource)
 }
 
+private class ClickableElement(
+    private val interactionSource: MutableInteractionSource,
+    private val enabled: Boolean,
+    private val onClickLabel: String?,
+    private val role: Role? = null,
+    private val onClick: () -> Unit
+) : ModifierNodeElement<ClickableNode>() {
+    override fun create() = ClickableNode(
+        interactionSource,
+        enabled,
+        onClickLabel,
+        role,
+        onClick
+    )
+
+    override fun update(node: ClickableNode) = node.also {
+        it.update(interactionSource, enabled, onClickLabel, role, onClick)
+    }
+
+    // Defined in the factory functions with inspectable
+    override fun InspectorInfo.inspectableProperties() = Unit
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as ClickableElement
+
+        if (interactionSource != other.interactionSource) return false
+        if (enabled != other.enabled) return false
+        if (onClickLabel != other.onClickLabel) return false
+        if (role != other.role) return false
+        if (onClick != other.onClick) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = interactionSource.hashCode()
+        result = 31 * result + enabled.hashCode()
+        result = 31 * result + (onClickLabel?.hashCode() ?: 0)
+        result = 31 * result + (role?.hashCode() ?: 0)
+        result = 31 * result + onClick.hashCode()
+        return result
+    }
+}
+
+private class CombinedClickableElement(
+    private val interactionSource: MutableInteractionSource,
+    private val enabled: Boolean,
+    private val onClickLabel: String?,
+    private val role: Role? = null,
+    private val onClick: () -> Unit,
+    private val onLongClickLabel: String?,
+    private val onLongClick: (() -> Unit)?,
+    private val onDoubleClick: (() -> Unit)?
+) : ModifierNodeElement<CombinedClickableNode>() {
+    override fun create() = CombinedClickableNode(
+        interactionSource,
+        enabled,
+        onClickLabel,
+        role,
+        onClick,
+        onLongClickLabel,
+        onLongClick,
+        onDoubleClick
+    )
+
+    override fun update(node: CombinedClickableNode) = node.also {
+        it.update(
+            interactionSource,
+            enabled,
+            onClickLabel,
+            role,
+            onClick,
+            onLongClickLabel,
+            onLongClick,
+            onDoubleClick
+        )
+    }
+
+    // Defined in the factory functions with inspectable
+    override fun InspectorInfo.inspectableProperties() = Unit
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as CombinedClickableElement
+
+        if (interactionSource != other.interactionSource) return false
+        if (enabled != other.enabled) return false
+        if (onClickLabel != other.onClickLabel) return false
+        if (role != other.role) return false
+        if (onClick != other.onClick) return false
+        if (onLongClickLabel != other.onLongClickLabel) return false
+        if (onLongClick != other.onLongClick) return false
+        if (onDoubleClick != other.onDoubleClick) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = interactionSource.hashCode()
+        result = 31 * result + enabled.hashCode()
+        result = 31 * result + (onClickLabel?.hashCode() ?: 0)
+        result = 31 * result + (role?.hashCode() ?: 0)
+        result = 31 * result + onClick.hashCode()
+        result = 31 * result + (onLongClickLabel?.hashCode() ?: 0)
+        result = 31 * result + (onLongClick?.hashCode() ?: 0)
+        result = 31 * result + (onDoubleClick?.hashCode() ?: 0)
+        return result
+    }
+}
+
+private class ClickableNode(
+    interactionSource: MutableInteractionSource,
+    enabled: Boolean,
+    onClickLabel: String?,
+    role: Role?,
+    onClick: () -> Unit
+) : AbstractClickableNode(interactionSource, enabled, onClickLabel, role, onClick) {
+    override val clickableSemanticsNode = delegated {
+        ClickableSemanticsNode(
+            enabled = enabled,
+            role = role,
+            onClickLabel = onClickLabel,
+            onClick = onClick,
+            onLongClick = null,
+            onLongClickLabel = null
+        )
+    }
+
+    override val clickablePointerInputNode = delegated {
+        ClickablePointerInputNode(
+            enabled = enabled,
+            interactionSource = interactionSource,
+            onClick = onClick,
+            interactionData = interactionData
+        )
+    }
+
+    fun update(
+        interactionSource: MutableInteractionSource,
+        enabled: Boolean,
+        onClickLabel: String?,
+        role: Role?,
+        onClick: () -> Unit
+    ) {
+        updateCommon(interactionSource, enabled, onClickLabel, role, onClick)
+        clickableSemanticsNode.update(
+            enabled = enabled,
+            role = role,
+            onClickLabel = onClickLabel,
+            onClick = onClick,
+            onLongClickLabel = null,
+            onLongClick = null
+        )
+        clickablePointerInputNode.update(
+            enabled = enabled,
+            interactionSource = interactionSource,
+            onClick = onClick
+        )
+    }
+}
+
+private class CombinedClickableNode(
+    interactionSource: MutableInteractionSource,
+    enabled: Boolean,
+    onClickLabel: String?,
+    role: Role?,
+    onClick: () -> Unit,
+    onLongClickLabel: String?,
+    private var onLongClick: (() -> Unit)?,
+    onDoubleClick: (() -> Unit)?
+) : AbstractClickableNode(interactionSource, enabled, onClickLabel, role, onClick) {
+    override val clickableSemanticsNode = delegated {
+        ClickableSemanticsNode(
+            enabled = enabled,
+            role = role,
+            onClickLabel = onClickLabel,
+            onClick = onClick,
+            onLongClickLabel = onLongClickLabel,
+            onLongClick = onLongClick
+        )
+    }
+
+    override val clickablePointerInputNode = delegated {
+        CombinedClickablePointerInputNode(
+            enabled = enabled,
+            interactionSource = interactionSource,
+            onClick = onClick,
+            interactionData = interactionData,
+            onLongClick,
+            onDoubleClick
+        )
+    }
+
+    fun update(
+        interactionSource: MutableInteractionSource,
+        enabled: Boolean,
+        onClickLabel: String?,
+        role: Role?,
+        onClick: () -> Unit,
+        onLongClickLabel: String?,
+        onLongClick: (() -> Unit)?,
+        onDoubleClick: (() -> Unit)?
+    ) {
+        // If we have gone from no long click to having a long click or vice versa,
+        // cancel any existing press interactions.
+        if ((this.onLongClick == null) != (onLongClick == null)) {
+            disposeInteractionSource()
+        }
+        this.onLongClick = onLongClick
+        updateCommon(interactionSource, enabled, onClickLabel, role, onClick)
+        clickableSemanticsNode.update(
+            enabled = enabled,
+            role = role,
+            onClickLabel = onClickLabel,
+            onClick = onClick,
+            onLongClickLabel = onLongClickLabel,
+            onLongClick = onLongClick
+        )
+        clickablePointerInputNode.update(
+            enabled = enabled,
+            interactionSource = interactionSource,
+            onClick = onClick,
+            onLongClick = onLongClick,
+            onDoubleClick = onDoubleClick
+        )
+    }
+}
+
+private sealed class AbstractClickableNode(
+    private var interactionSource: MutableInteractionSource,
+    private var enabled: Boolean,
+    private var onClickLabel: String?,
+    private var role: Role?,
+    private var onClick: () -> Unit
+) : DelegatingNode(), SemanticsModifierNode, PointerInputModifierNode, KeyInputModifierNode {
+    abstract val clickablePointerInputNode: AbstractClickablePointerInputNode
+    abstract val clickableSemanticsNode: ClickableSemanticsNode
+
+    class InteractionData {
+        val currentKeyPressInteractions = mutableMapOf<Key, PressInteraction.Press>()
+        var pressInteraction: PressInteraction.Press? = null
+        var centreOffset: Offset = Offset.Zero
+    }
+
+    protected val interactionData = InteractionData()
+
+    protected fun updateCommon(
+        interactionSource: MutableInteractionSource,
+        enabled: Boolean,
+        onClickLabel: String?,
+        role: Role? = null,
+        onClick: () -> Unit
+    ) {
+        if (this.interactionSource != interactionSource) {
+            disposeInteractionSource()
+            this.interactionSource = interactionSource
+        }
+        if (this.enabled != enabled) {
+            if (!enabled) {
+                disposeInteractionSource()
+            }
+            this.enabled = enabled
+        }
+        this.onClickLabel = onClickLabel
+        this.role = role
+        this.onClick = onClick
+    }
+
+    override fun onDetach() {
+        disposeInteractionSource()
+    }
+
+    protected fun disposeInteractionSource() {
+        interactionData.pressInteraction?.let { oldValue ->
+            val interaction = PressInteraction.Cancel(oldValue)
+            interactionSource.tryEmit(interaction)
+        }
+        interactionData.currentKeyPressInteractions.values.forEach {
+            interactionSource.tryEmit(PressInteraction.Cancel(it))
+        }
+        interactionData.pressInteraction = null
+        interactionData.currentKeyPressInteractions.clear()
+    }
+
+    override val semanticsConfiguration: SemanticsConfiguration
+        get() = clickableSemanticsNode.semanticsConfiguration
+
+    override fun onPointerEvent(
+        pointerEvent: PointerEvent,
+        pass: PointerEventPass,
+        bounds: IntSize
+    ) {
+        clickablePointerInputNode.onPointerEvent(pointerEvent, pass, bounds)
+    }
+
+    override fun onCancelPointerInput() {
+        clickablePointerInputNode.onCancelPointerInput()
+    }
+
+    override fun onKeyEvent(event: KeyEvent): Boolean {
+        return when {
+            enabled && event.isPress -> {
+                // If the key already exists in the map, keyEvent is a repeat event.
+                // We ignore it as we only want to emit an interaction for the initial key press.
+                if (!interactionData.currentKeyPressInteractions.containsKey(event.key)) {
+                    val press = PressInteraction.Press(interactionData.centreOffset)
+                    interactionData.currentKeyPressInteractions[event.key] = press
+                    coroutineScope.launch { interactionSource.emit(press) }
+                    true
+                } else {
+                    false
+                }
+            }
+            enabled && event.isClick -> {
+                interactionData.currentKeyPressInteractions.remove(event.key)?.let {
+                    coroutineScope.launch {
+                        interactionSource.emit(PressInteraction.Release(it))
+                    }
+                }
+                onClick()
+                true
+            }
+            else -> false
+        }
+    }
+
+    override fun onPreKeyEvent(event: KeyEvent) = false
+}
+
 private class ClickableSemanticsElement(
     private val enabled: Boolean,
     private val role: Role?,
@@ -497,12 +758,7 @@ private class ClickableSemanticsElement(
     )
 
     override fun update(node: ClickableSemanticsNode) = node.also {
-        it.enabled = enabled
-        it.role = role
-        it.onLongClickLabel = onLongClickLabel
-        it.onLongClick = onLongClick
-        it.onClickLabel = onClickLabel
-        it.onClick = onClick
+        it.update(enabled, onClickLabel, role, onClick, onLongClickLabel, onLongClick)
     }
 
     override fun InspectorInfo.inspectableProperties() = Unit
@@ -533,13 +789,29 @@ private class ClickableSemanticsElement(
 }
 
 private class ClickableSemanticsNode(
-    var enabled: Boolean,
-    var role: Role?,
-    var onLongClickLabel: String?,
-    var onLongClick: (() -> Unit)?,
-    var onClickLabel: String?,
-    var onClick: () -> Unit,
+    private var enabled: Boolean,
+    private var onClickLabel: String?,
+    private var role: Role?,
+    private var onClick: () -> Unit,
+    private var onLongClickLabel: String?,
+    private var onLongClick: (() -> Unit)?,
 ) : SemanticsModifierNode, Modifier.Node() {
+    fun update(
+        enabled: Boolean,
+        onClickLabel: String?,
+        role: Role?,
+        onClick: () -> Unit,
+        onLongClickLabel: String?,
+        onLongClick: (() -> Unit)?,
+    ) {
+        this.enabled = enabled
+        this.onClickLabel = onClickLabel
+        this.role = role
+        this.onClick = onClick
+        this.onLongClickLabel = onLongClickLabel
+        this.onLongClick = onLongClick
+    }
+
     override val semanticsConfiguration
         get() = SemanticsConfiguration().apply {
             isMergingSemanticsOfDescendants = true
@@ -562,161 +834,11 @@ private class ClickableSemanticsNode(
         }
 }
 
-// Only interactionSource should ever change - the rest must be remembered with no keys.
-private class ClickableInteractionElement(
-    private val interactionSource: MutableInteractionSource,
-    private val pressInteraction: MutableState<PressInteraction.Press?>,
-    private val currentKeyPressInteractions: MutableMap<Key, PressInteraction.Press>
-) : ModifierNodeElement<ClickableInteractionNode>() {
-    override fun create(): ClickableInteractionNode = ClickableInteractionNode(
-        interactionSource,
-        pressInteraction,
-        currentKeyPressInteractions
-    )
-
-    override fun update(node: ClickableInteractionNode) = node.also {
-        it.updateInteractionSource(interactionSource)
-    }
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is ClickableInteractionElement) return false
-
-        if (interactionSource != other.interactionSource) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        return interactionSource.hashCode()
-    }
-
-    override fun InspectorInfo.inspectableProperties() = Unit
-}
-
-private class ClickableInteractionNode(
-    private var interactionSource: MutableInteractionSource,
-    private val pressInteraction: MutableState<PressInteraction.Press?>,
-    private val currentKeyPressInteractions: MutableMap<Key, PressInteraction.Press>
-) : Modifier.Node() {
-    fun updateInteractionSource(interactionSource: MutableInteractionSource) {
-        if (this.interactionSource != interactionSource) {
-            disposeInteractionSource()
-            this.interactionSource = interactionSource
-        }
-    }
-
-    override fun onDetach() {
-        disposeInteractionSource()
-    }
-
-    private fun disposeInteractionSource() {
-        pressInteraction.value?.let { oldValue ->
-            val interaction = PressInteraction.Cancel(oldValue)
-            interactionSource.tryEmit(interaction)
-        }
-        currentKeyPressInteractions.values.forEach {
-            interactionSource.tryEmit(PressInteraction.Cancel(it))
-        }
-        pressInteraction.value = null
-        currentKeyPressInteractions.clear()
-    }
-}
-
-private class ClickablePointerInputElement(
-    private val enabled: Boolean,
-    private val interactionSource: MutableInteractionSource,
-    private val onClick: () -> Unit,
-    private val centreOffset: MutableState<Offset>,
-    private val pressInteraction: MutableState<PressInteraction.Press?>
-) : ModifierNodeElement<ClickablePointerInputNode>() {
-    override fun create(): ClickablePointerInputNode = ClickablePointerInputNode(
-        enabled,
-        interactionSource,
-        onClick,
-        centreOffset,
-        pressInteraction
-    )
-
-    override fun update(node: ClickablePointerInputNode) = node.also {
-        it.updateParameters(enabled, interactionSource, onClick)
-    }
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is ClickablePointerInputElement) return false
-
-        if (enabled != other.enabled) return false
-        if (interactionSource != other.interactionSource) return false
-        if (onClick != other.onClick) return false
-
-        return true
-    }
-
-    override fun InspectorInfo.inspectableProperties() = Unit
-
-    override fun hashCode(): Int {
-        var result = enabled.hashCode()
-        result = 31 * result + interactionSource.hashCode()
-        result = 31 * result + onClick.hashCode()
-        return result
-    }
-}
-
-private class CombinedClickablePointerInputElement(
-    private val enabled: Boolean,
-    private val interactionSource: MutableInteractionSource,
-    private val onClick: () -> Unit,
-    private val centreOffset: MutableState<Offset>,
-    private val pressInteraction: MutableState<PressInteraction.Press?>,
-    private val onLongClick: (() -> Unit)?,
-    private val onDoubleClick: (() -> Unit)?
-) : ModifierNodeElement<CombinedClickablePointerInputNode>() {
-    override fun create(): CombinedClickablePointerInputNode = CombinedClickablePointerInputNode(
-        enabled,
-        interactionSource,
-        onClick,
-        centreOffset,
-        pressInteraction,
-        onLongClick,
-        onDoubleClick
-    )
-
-    override fun update(node: CombinedClickablePointerInputNode) = node.also {
-        it.updateParameters(enabled, interactionSource, onClick, onLongClick, onDoubleClick)
-    }
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is CombinedClickablePointerInputElement) return false
-
-        if (enabled != other.enabled) return false
-        if (interactionSource != other.interactionSource) return false
-        if (onClick != other.onClick) return false
-        if (onLongClick != other.onLongClick) return false
-        if (onDoubleClick != other.onDoubleClick) return false
-
-        return true
-    }
-
-    override fun InspectorInfo.inspectableProperties() = Unit
-
-    override fun hashCode(): Int {
-        var result = enabled.hashCode()
-        result = 31 * result + interactionSource.hashCode()
-        result = 31 * result + onClick.hashCode()
-        result = 31 * result + (onLongClick?.hashCode() ?: 0)
-        result = 31 * result + (onDoubleClick?.hashCode() ?: 0)
-        return result
-    }
-}
-
 private sealed class AbstractClickablePointerInputNode(
     protected var enabled: Boolean,
     protected var interactionSource: MutableInteractionSource?,
     protected var onClick: () -> Unit,
-    protected val centreOffset: MutableState<Offset>,
-    private val pressInteraction: MutableState<PressInteraction.Press?>,
+    protected val interactionData: AbstractClickableNode.InteractionData
 ) : DelegatingNode(), ModifierLocalNode, CompositionLocalConsumerModifierNode,
     PointerInputModifierNode {
 
@@ -748,7 +870,7 @@ private sealed class AbstractClickablePointerInputNode(
             handlePressInteraction(
                 offset,
                 interactionSource,
-                pressInteraction,
+                interactionData,
                 delayPressInteraction
             )
         }
@@ -761,17 +883,15 @@ private class ClickablePointerInputNode(
     enabled: Boolean,
     interactionSource: MutableInteractionSource,
     onClick: () -> Unit,
-    centreOffset: MutableState<Offset>,
-    pressInteraction: MutableState<PressInteraction.Press?>
+    interactionData: AbstractClickableNode.InteractionData
 ) : AbstractClickablePointerInputNode(
     enabled,
     interactionSource,
     onClick,
-    centreOffset,
-    pressInteraction
+    interactionData
 ) {
     override suspend fun PointerInputScope.pointerInput() {
-        centreOffset.value = size.center.toOffset()
+        interactionData.centreOffset = size.center.toOffset()
         detectTapAndPress(
             onPress = { offset ->
                 if (enabled) {
@@ -782,7 +902,7 @@ private class ClickablePointerInputNode(
         )
     }
 
-    fun updateParameters(
+    fun update(
         enabled: Boolean,
         interactionSource: MutableInteractionSource,
         onClick: () -> Unit,
@@ -799,19 +919,17 @@ private class CombinedClickablePointerInputNode(
     enabled: Boolean,
     interactionSource: MutableInteractionSource,
     onClick: () -> Unit,
-    centreOffset: MutableState<Offset>,
-    pressInteraction: MutableState<PressInteraction.Press?>,
+    interactionData: AbstractClickableNode.InteractionData,
     private var onLongClick: (() -> Unit)?,
     private var onDoubleClick: (() -> Unit)?
 ) : AbstractClickablePointerInputNode(
     enabled,
     interactionSource,
     onClick,
-    centreOffset,
-    pressInteraction
+    interactionData
 ) {
     override suspend fun PointerInputScope.pointerInput() {
-        centreOffset.value = size.center.toOffset()
+        interactionData.centreOffset = size.center.toOffset()
         detectTapGestures(
             onDoubleTap = if (enabled && onDoubleClick != null) {
                 { onDoubleClick?.invoke() }
@@ -828,7 +946,7 @@ private class CombinedClickablePointerInputNode(
         )
     }
 
-    fun updateParameters(
+    fun update(
         enabled: Boolean,
         interactionSource: MutableInteractionSource,
         onClick: () -> Unit,
