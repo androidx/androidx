@@ -19,6 +19,7 @@
 package androidx.camera.camera2.pipe.integration.adapter
 
 import android.content.Context
+import android.util.Pair
 import android.util.Size
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraId
@@ -132,7 +133,7 @@ class CameraSurfaceAdapter(
         cameraId: String,
         existingSurfaces: List<AttachedSurfaceInfo>,
         newUseCaseConfigsSupportedSizeMap: Map<UseCaseConfig<*>, List<Size>>
-    ): Map<UseCaseConfig<*>, StreamSpec> {
+    ): Pair<Map<UseCaseConfig<*>, StreamSpec>, Map<AttachedSurfaceInfo, StreamSpec>> {
 
         if (!checkIfSupportedCombinationExist(cameraId)) {
             throw IllegalArgumentException(

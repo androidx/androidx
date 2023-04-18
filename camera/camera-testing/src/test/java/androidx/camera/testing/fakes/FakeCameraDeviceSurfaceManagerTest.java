@@ -132,12 +132,12 @@ public class FakeCameraDeviceSurfaceManagerTest {
                 mFakeCameraDeviceSurfaceManager.getSuggestedStreamSpecs(
                         CameraMode.DEFAULT,
                         FAKE_CAMERA_ID0,
-                        Collections.emptyList(), createConfigOutputSizesMap(mFakeUseCaseConfig));
+                        emptyList(), createConfigOutputSizesMap(mFakeUseCaseConfig)).first;
         Map<UseCaseConfig<?>, StreamSpec> suggestedStreamSpecCamera1 =
                 mFakeCameraDeviceSurfaceManager.getSuggestedStreamSpecs(
                         CameraMode.DEFAULT,
                         FAKE_CAMERA_ID1,
-                        Collections.emptyList(), createConfigOutputSizesMap(mFakeUseCaseConfig));
+                        emptyList(), createConfigOutputSizesMap(mFakeUseCaseConfig)).first;
 
         assertThat(suggestedStreamSpecsCamera0.get(mFakeUseCaseConfig)).isEqualTo(
                 StreamSpec.builder(new Size(FAKE_WIDTH0, FAKE_HEIGHT0)).build());

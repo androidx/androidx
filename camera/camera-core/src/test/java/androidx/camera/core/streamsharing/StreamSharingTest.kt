@@ -29,6 +29,7 @@ import androidx.camera.core.ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY
 import androidx.camera.core.ImageProxy
 import androidx.camera.core.impl.CameraCaptureCallback
 import androidx.camera.core.impl.CameraCaptureResult
+import androidx.camera.core.impl.MutableOptionsBundle
 import androidx.camera.core.impl.SessionConfig
 import androidx.camera.core.impl.StreamSpec
 import androidx.camera.core.impl.UseCaseConfig
@@ -80,6 +81,12 @@ class StreamSharingTest {
     private lateinit var effectProcessor: FakeSurfaceProcessorInternal
     private lateinit var sharingProcessor: FakeSurfaceProcessorInternal
     private lateinit var effect: CameraEffect
+    private val testImplementationOption: androidx.camera.core.impl.Config.Option<Int> =
+        androidx.camera.core.impl.Config.Option.create(
+            "test.testOption",
+            Int::class.javaPrimitiveType!!
+        )
+    private val testImplementationOptionValue = 5
 
     @Before
     fun setUp() {
@@ -181,6 +188,57 @@ class StreamSharingTest {
         // Assert: children receives the metadata with the tag bundle overridden.
         assertThat(result1.getCompleted().tagBundle.getTag(key)).isEqualTo(value)
         assertThat(result2.getCompleted().tagBundle.getTag(key)).isEqualTo(value)
+    }
+
+    @Test
+    fun sessionConfigHasStreamSpecImplementationOptions_whenCreatePipeline() {
+        // Arrange: set up StreamSharing with ImageCapture as child
+        val imageCapture = ImageCapture.Builder().build()
+        streamSharing = StreamSharing(camera, setOf(child1, imageCapture), useCaseConfigFactory)
+        streamSharing.bindToCamera(camera, null, defaultConfig)
+
+        // Act: update stream specification.
+        val streamSpecOptions = MutableOptionsBundle.create()
+        streamSpecOptions.insertOption(testImplementationOption, testImplementationOptionValue)
+        streamSharing.onSuggestedStreamSpecUpdated(
+            StreamSpec.builder(size).setImplementationOptions(streamSpecOptions).build()
+        )
+
+        // Assert: the session config gets the correct implementation options from stream
+        // specification.
+        assertThat(
+            streamSharing.sessionConfig.implementationOptions.retrieveOption(
+                testImplementationOption
+            )
+        ).isEqualTo(testImplementationOptionValue)
+    }
+
+    @Test
+    fun sessionConfigHasStreamSpecImplementationOptions_whenUpdateStreamSpecImplOptions() {
+        // Arrange: set up StreamSharing with ImageCapture as child with initial stream
+        // specification implementation options.
+        val imageCapture = ImageCapture.Builder().build()
+        streamSharing = StreamSharing(camera, setOf(child1, imageCapture), useCaseConfigFactory)
+        streamSharing.bindToCamera(camera, null, defaultConfig)
+        var streamSpecOptions = MutableOptionsBundle.create()
+        streamSpecOptions.insertOption(testImplementationOption, testImplementationOptionValue)
+        streamSharing.updateSuggestedStreamSpec(
+            StreamSpec.builder(size).setImplementationOptions(streamSpecOptions).build()
+        )
+
+        // Act: update stream specification implementation options.
+        val newImplementationOptionValue = 6
+        streamSpecOptions = MutableOptionsBundle.create()
+        streamSpecOptions.insertOption(testImplementationOption, newImplementationOptionValue)
+        streamSharing.updateSuggestedStreamSpecImplementationOptions(streamSpecOptions)
+
+        // Assert: the session config gets the correct implementation options from stream
+        // specification.
+        assertThat(
+            streamSharing.sessionConfig.implementationOptions.retrieveOption(
+                testImplementationOption
+            )
+        ).isEqualTo(newImplementationOptionValue)
     }
 
     private fun FakeUseCase.setTagBundleOnSessionConfigAsync(

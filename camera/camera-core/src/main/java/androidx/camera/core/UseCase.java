@@ -701,6 +701,32 @@ public abstract class UseCase {
     }
 
     /**
+     * Update the implementation options of the stream specification for the UseCase.
+     *
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public void updateSuggestedStreamSpecImplementationOptions(@NonNull Config config) {
+        mAttachedStreamSpec = onSuggestedStreamSpecImplementationOptionsUpdated(config);
+    }
+
+    /**
+     * Called when updating the stream specifications' implementation options of existing use cases
+     * via {@code CameraUseCaseAdapter#updateUseCases}.
+     *
+     * @param config The new implementationOptions for the stream specification.
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @NonNull
+    protected StreamSpec onSuggestedStreamSpecImplementationOptionsUpdated(@NonNull Config config) {
+        if (mAttachedStreamSpec == null) {
+            throw new UnsupportedOperationException("Attempt to update the implementation options "
+                    + "for a use case without attached stream specifications.");
+        }
+        return mAttachedStreamSpec.toBuilder().setImplementationOptions(config).build();
+    }
+
+
+    /**
      * Called when CameraControlInternal is attached into the UseCase. UseCase may need to
      * override this method to configure the CameraControlInternal here. Ex. Setting correct flash
      * mode by CameraControlInternal.setFlashMode to enable correct AE mode and flash state.

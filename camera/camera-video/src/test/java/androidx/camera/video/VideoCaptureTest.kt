@@ -57,6 +57,7 @@ import androidx.camera.core.impl.CameraInfoInternal
 import androidx.camera.core.impl.EncoderProfilesProxy
 import androidx.camera.core.impl.ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE
 import androidx.camera.core.impl.ImageOutputConfig
+import androidx.camera.core.impl.MutableOptionsBundle
 import androidx.camera.core.impl.MutableStateObservable
 import androidx.camera.core.impl.Observable
 import androidx.camera.core.impl.StreamSpec
@@ -141,6 +142,12 @@ class VideoCaptureTest {
     private lateinit var camera: FakeCamera
     private var surfaceRequestsToRelease = mutableListOf<SurfaceRequest>()
     private val handlersToRelease = mutableListOf<Handler>()
+    private val testImplementationOption: androidx.camera.core.impl.Config.Option<Int> =
+        androidx.camera.core.impl.Config.Option.create(
+            "test.testOption",
+            Int::class.javaPrimitiveType!!
+        )
+    private val testImplementationOptionValue = 5
 
     @Before
     fun setup() {
@@ -1274,6 +1281,28 @@ class VideoCaptureTest {
             cropRect = cropRect,
             expectedCropRect = expectedCropRect
         )
+    }
+
+    @Test
+    fun sessionConfigHasStreamSpecImplementationOptions_whenUpdateStreamSpecImplOptions() {
+        // Arrange.
+        setupCamera()
+        createCameraUseCaseAdapter()
+        cameraUseCaseAdapter.setEffects(listOf(createFakeEffect()))
+        val videoCapture = createVideoCapture(createVideoOutput())
+        // Act.
+        addAndAttachUseCases(videoCapture)
+        val newImplementationOptionValue = 6
+        val streamSpecOptions = MutableOptionsBundle.create()
+        streamSpecOptions.insertOption(testImplementationOption, newImplementationOptionValue)
+        videoCapture.updateSuggestedStreamSpecImplementationOptions(streamSpecOptions)
+        addAndAttachUseCases(videoCapture)
+        // Assert.
+        assertThat(
+            videoCapture.sessionConfig.implementationOptions.retrieveOption(
+                testImplementationOption
+            )
+        ).isEqualTo(newImplementationOptionValue)
     }
 
     private fun testSurfaceRequestContainsExpected(

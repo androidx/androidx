@@ -39,6 +39,7 @@ import androidx.camera.core.impl.CameraConfig
 import androidx.camera.core.impl.CameraFactory
 import androidx.camera.core.impl.CaptureConfig
 import androidx.camera.core.impl.Identifier
+import androidx.camera.core.impl.MutableOptionsBundle
 import androidx.camera.core.impl.OptionsBundle
 import androidx.camera.core.impl.SessionConfig
 import androidx.camera.core.impl.SessionProcessor
@@ -116,6 +117,12 @@ class ImageCaptureTest {
         override fun onError(exception: ImageCaptureException) {
         }
     }
+    private val testImplementationOption: androidx.camera.core.impl.Config.Option<Int> =
+        androidx.camera.core.impl.Config.Option.create(
+            "test.testOption",
+            Int::class.javaPrimitiveType!!
+        )
+    private val testImplementationOptionValue = 5
 
     @Before
     @Throws(ExecutionException::class, InterruptedException::class)
@@ -624,6 +631,22 @@ class ImageCaptureTest {
         assertThat(camera.cameraControlInternal).isInstanceOf(FakeCameraControl::class.java)
         val cameraControl = camera.cameraControlInternal as FakeCameraControl
         assertThat(cameraControl.isZslConfigAdded).isTrue()
+    }
+
+    @Test
+    fun sessionConfigHasStreamSpecImplementationOptions_whenUpdateStreamSpecImplOptions() {
+        val imageCapture = bindImageCapture(
+            bufferFormat = ImageFormat.JPEG,
+        )
+        val newImplementationOptionValue = 6
+        val streamSpecOptions = MutableOptionsBundle.create()
+        streamSpecOptions.insertOption(testImplementationOption, newImplementationOptionValue)
+        imageCapture.updateSuggestedStreamSpecImplementationOptions(streamSpecOptions)
+        assertThat(
+            imageCapture.sessionConfig.implementationOptions.retrieveOption(
+                testImplementationOption
+            )
+        ).isEqualTo(newImplementationOptionValue)
     }
 
     @Suppress("DEPRECATION") // test for legacy resolution API

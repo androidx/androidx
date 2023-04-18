@@ -31,6 +31,7 @@ import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.SurfaceTexture;
+import android.util.Pair;
 import android.util.Size;
 import android.view.Surface;
 
@@ -62,6 +63,7 @@ import androidx.camera.core.impl.Config;
 import androidx.camera.core.impl.RestrictedCameraControl;
 import androidx.camera.core.impl.RestrictedCameraControl.CameraOperation;
 import androidx.camera.core.impl.RestrictedCameraInfo;
+import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.SessionProcessor;
 import androidx.camera.core.impl.StreamSpec;
 import androidx.camera.core.impl.SurfaceConfig;
@@ -79,6 +81,7 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -334,6 +337,22 @@ public final class CameraUseCaseAdapter implements Camera {
             }
             mCameraInternal.detachUseCases(cameraUseCasesToDetach);
 
+            // Update StreamSpec for UseCases to keep.
+            if (!cameraUseCasesToDetach.isEmpty()) {
+                // Only do this if we are not removing UseCase, because updating SessionConfig
+                // when removing UseCases may lead to flickering.
+                for (UseCase useCase : cameraUseCasesToKeep) {
+                    if (suggestedStreamSpecMap.containsKey(useCase)) {
+                        StreamSpec newStreamSpec = suggestedStreamSpecMap.get(useCase);
+                        Config config = newStreamSpec.getImplementationOptions();
+                        if (config != null && hasImplementationOptionChanged(newStreamSpec,
+                                useCase.getSessionConfig())) {
+                            useCase.updateSuggestedStreamSpecImplementationOptions(config);
+                        }
+                    }
+                }
+            }
+
             // Attach new UseCases.
             for (UseCase useCase : cameraUseCasesToAttach) {
                 ConfigPair configPair = requireNonNull(configs.get(useCase));
@@ -359,6 +378,29 @@ public final class CameraUseCaseAdapter implements Camera {
             mPlaceholderForExtensions = placeholderForExtensions;
             mStreamSharing = streamSharing;
         }
+    }
+
+    /**
+     * Return true if the given StreamSpec has any option with a different value than that
+     * of the given sessionConfig.
+     */
+    private static boolean hasImplementationOptionChanged(
+            StreamSpec streamSpec,
+            SessionConfig sessionConfig) {
+        Config newStreamSpecOptions = streamSpec.getImplementationOptions();
+        Config sessionConfigOptions = sessionConfig.getImplementationOptions();
+        if (newStreamSpecOptions.listOptions().size()
+                != sessionConfig.getImplementationOptions().listOptions().size()) {
+            return true;
+        }
+        for (Config.Option<?> newOption : newStreamSpecOptions.listOptions()) {
+            if (!sessionConfigOptions.containsOption(newOption)
+                    || !Objects.equals(sessionConfigOptions.retrieveOption(newOption),
+                    newStreamSpecOptions.retrieveOption(newOption))) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private @CameraMode.Mode int getCameraMode() {
@@ -597,6 +639,7 @@ public final class CameraUseCaseAdapter implements Camera {
         List<AttachedSurfaceInfo> existingSurfaces = new ArrayList<>();
         String cameraId = cameraInfoInternal.getCameraId();
         Map<UseCase, StreamSpec> suggestedStreamSpecs = new HashMap<>();
+        Map<AttachedSurfaceInfo, UseCase> surfaceInfoUseCaseMap = new HashMap<>();
 
         // Get resolution for current use cases.
         for (UseCase useCase : currentUseCases) {
@@ -606,12 +649,14 @@ public final class CameraUseCaseAdapter implements Camera {
                             cameraId,
                             useCase.getImageFormat(),
                             useCase.getAttachedSurfaceResolution());
-            existingSurfaces.add(AttachedSurfaceInfo.create(surfaceConfig,
+            AttachedSurfaceInfo attachedSurfaceInfo = AttachedSurfaceInfo.create(surfaceConfig,
                     useCase.getImageFormat(), useCase.getAttachedSurfaceResolution(),
                     Preconditions.checkNotNull(useCase.getAttachedStreamSpec()).getDynamicRange(),
                     getCaptureTypes(useCase),
                     useCase.getAttachedStreamSpec().getImplementationOptions(),
-                    useCase.getCurrentConfig().getTargetFrameRate(null)));
+                    useCase.getCurrentConfig().getTargetFrameRate(null));
+            existingSurfaces.add(attachedSurfaceInfo);
+            surfaceInfoUseCaseMap.put(attachedSurfaceInfo, useCase);
             suggestedStreamSpecs.put(useCase, useCase.getAttachedStreamSpec());
         }
 
@@ -643,7 +688,8 @@ public final class CameraUseCaseAdapter implements Camera {
             }
 
             // Get suggested stream specifications and update the use case session configuration
-            Map<UseCaseConfig<?>, StreamSpec> useCaseConfigStreamSpecMap =
+            Pair<Map<UseCaseConfig<?>, StreamSpec>, Map<AttachedSurfaceInfo, StreamSpec>>
+                    streamSpecMaps =
                     mCameraDeviceSurfaceManager.getSuggestedStreamSpecs(
                             cameraMode,
                             cameraId, existingSurfaces,
@@ -651,7 +697,14 @@ public final class CameraUseCaseAdapter implements Camera {
 
             for (Map.Entry<UseCaseConfig<?>, UseCase> entry : configToUseCaseMap.entrySet()) {
                 suggestedStreamSpecs.put(entry.getValue(),
-                        useCaseConfigStreamSpecMap.get(entry.getKey()));
+                        streamSpecMaps.first.get(entry.getKey()));
+            }
+            for (Map.Entry<AttachedSurfaceInfo, StreamSpec> entry :
+                    streamSpecMaps.second.entrySet()) {
+                if (surfaceInfoUseCaseMap.containsKey(entry.getKey())) {
+                    suggestedStreamSpecs.put(surfaceInfoUseCaseMap.get(entry.getKey()),
+                            entry.getValue());
+                }
             }
         }
         return suggestedStreamSpecs;
