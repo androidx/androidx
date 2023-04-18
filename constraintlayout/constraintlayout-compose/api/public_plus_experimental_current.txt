@@ -69,7 +69,6 @@ package androidx.constraintlayout.compose {
     method public androidx.constraintlayout.compose.VerticalAnchorable getAbsoluteLeft();
     method public androidx.constraintlayout.compose.VerticalAnchorable getAbsoluteRight();
     method public float getAlpha();
-    method @Deprecated public androidx.constraintlayout.compose.Dimension getAsDimension(float);
     method public androidx.constraintlayout.compose.BaselineAnchorable getBaseline();
     method public androidx.constraintlayout.compose.HorizontalAnchorable getBottom();
     method public androidx.constraintlayout.compose.VerticalAnchorable getEnd();
