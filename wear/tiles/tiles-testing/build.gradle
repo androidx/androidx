@@ -29,10 +29,10 @@ dependencies {
     api(libs.guavaListenableFuture)
     api(project(":wear:tiles:tiles-renderer"))
 
-    implementation "androidx.concurrent:concurrent-futures:1.1.0"
-    implementation "androidx.concurrent:concurrent-futures-ktx:1.1.0"
-    implementation "androidx.core:core:1.3.2"
-    implementation "androidx.wear:wear:1.2.0"
+    implementation("androidx.concurrent:concurrent-futures:1.1.0")
+    implementation("androidx.concurrent:concurrent-futures-ktx:1.1.0")
+    implementation("androidx.core:core:1.3.2")
+    implementation("androidx.wear:wear:1.2.0")
 
     implementation(project(":wear:tiles:tiles"))
     implementation(libs.kotlinCoroutinesCore)

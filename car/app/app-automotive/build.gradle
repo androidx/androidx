@@ -34,7 +34,7 @@ dependencies {
     // There is an implicit compile-only dep due to :annotation-experimental
     // Build will complain without this manual declaration.
     api(libs.kotlinStdlib)
-    implementation "androidx.annotation:annotation-experimental:1.3.0"
+    implementation("androidx.annotation:annotation-experimental:1.3.0")
 
     annotationProcessor(libs.nullaway)
     annotationProcessor(libs.autoValue)
@@ -48,7 +48,7 @@ dependencies {
     testImplementation(libs.robolectric)
     testImplementation(libs.truth)
     testImplementation("androidx.fragment:fragment-testing:1.2.3")
-    testImplementation project(path: ':car:app:app-testing')
+    testImplementation(project(":car:app:app-testing"))
 }
 
 android {
