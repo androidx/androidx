@@ -16,9 +16,11 @@
 package androidx.credentials.provider
 
 import android.content.pm.SigningInfo
+import android.os.Bundle
 import android.service.credentials.CallingAppInfo
 import androidx.annotation.RequiresApi
 import androidx.core.os.BuildCompat
+import androidx.credentials.equals
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
@@ -38,7 +40,8 @@ class BeginCreatePasswordRequestTest {
             CallingAppInfo(
                 "sample_package_name",
                 SigningInfo()
-            )
+            ),
+            Bundle()
         )
     }
 
@@ -47,6 +50,9 @@ class BeginCreatePasswordRequestTest {
         if (!BuildCompat.isAtLeastU()) {
             return
         }
+
+        val expectedCandidateQueryBundle = Bundle()
+        expectedCandidateQueryBundle.putString("key", "value")
         val expectedPackageName = "sample_package_name"
         val expectedSigningInfo = SigningInfo()
         val expectedCallingAppInfo = CallingAppInfo(
@@ -54,8 +60,10 @@ class BeginCreatePasswordRequestTest {
             expectedSigningInfo
         )
 
-        val request = BeginCreatePasswordCredentialRequest(expectedCallingAppInfo)
+        val request = BeginCreatePasswordCredentialRequest(
+            expectedCallingAppInfo, expectedCandidateQueryBundle)
 
+        equals(request.candidateQueryData, expectedCandidateQueryBundle)
         assertThat(request.callingAppInfo?.packageName).isEqualTo(expectedPackageName)
         assertThat(request.callingAppInfo?.signingInfo).isEqualTo(expectedSigningInfo)
     }

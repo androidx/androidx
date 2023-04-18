@@ -21,7 +21,6 @@ import android.service.credentials.CallingAppInfo
 import androidx.annotation.DoNotInline
 import androidx.annotation.OptIn
 import androidx.annotation.RequiresApi
-import androidx.annotation.RestrictTo
 import androidx.core.os.BuildCompat
 import androidx.credentials.provider.utils.BeginCreateCredentialUtil
 
@@ -32,12 +31,8 @@ import androidx.credentials.provider.utils.BeginCreateCredentialUtil
  * such as [BeginCreatePasswordCredentialRequest].
  */
 abstract class BeginCreateCredentialRequest constructor(
-    /** @hide */
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    open val type: String,
-    /** @hide */
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    open val candidateQueryData: Bundle,
+    val type: String,
+    val candidateQueryData: Bundle,
     val callingAppInfo: CallingAppInfo?
 ) {
     @RequiresApi(34)

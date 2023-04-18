@@ -43,7 +43,7 @@ import android.service.credentials.CallingAppInfo
  * @throws NullPointerException If [type], or [candidateQueryData] is null
  */
 open class BeginCreateCustomCredentialRequest constructor(
-    final override val type: String,
-    final override val candidateQueryData: Bundle,
+    type: String,
+    candidateQueryData: Bundle,
     callingAppInfo: CallingAppInfo?
 ) : BeginCreateCredentialRequest(type, candidateQueryData, callingAppInfo)
