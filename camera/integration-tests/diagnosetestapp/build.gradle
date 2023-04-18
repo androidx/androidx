@@ -58,7 +58,7 @@ dependencies {
     implementation(libs.material)
     testImplementation(libs.robolectric)
     testImplementation(libs.truth)
-    testImplementation project(path: ':camera:camera-testing')
+    testImplementation(project(":camera:camera-testing"))
     testImplementation("androidx.test:core:1.4.0")
     testImplementation("junit:junit:4.12")
 

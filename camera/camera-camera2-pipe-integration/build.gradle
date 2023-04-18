@@ -48,7 +48,7 @@ configurations {
 dependencies {
     implementation("androidx.core:core:1.3.2")
     implementation("androidx.concurrent:concurrent-listenablefuture-callback:1.0.0-beta01")
-    bundleInside(project(path: ":camera:camera-camera2-pipe"))
+    bundleInside(project(":camera:camera-camera2-pipe"))
 
     // Classes and types that are needed at compile & runtime
     api("androidx.annotation:annotation:1.1.0")
