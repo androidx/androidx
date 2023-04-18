@@ -6,15 +6,19 @@ package androidx.wear.protolayout.expression.pipeline {
     method @UiThread public void startEvaluation();
   }
 
+  public abstract class DynamicTypeBindingRequest {
+    method public static androidx.wear.protolayout.expression.pipeline.DynamicTypeBindingRequest forDynamicBool(androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool, java.util.concurrent.Executor, androidx.wear.protolayout.expression.pipeline.DynamicTypeValueReceiver<java.lang.Boolean!>);
+    method public static androidx.wear.protolayout.expression.pipeline.DynamicTypeBindingRequest forDynamicColor(androidx.wear.protolayout.expression.DynamicBuilders.DynamicColor, java.util.concurrent.Executor, androidx.wear.protolayout.expression.pipeline.DynamicTypeValueReceiver<java.lang.Integer!>);
+    method public static androidx.wear.protolayout.expression.pipeline.DynamicTypeBindingRequest forDynamicDuration(androidx.wear.protolayout.expression.DynamicBuilders.DynamicDuration, java.util.concurrent.Executor, androidx.wear.protolayout.expression.pipeline.DynamicTypeValueReceiver<java.time.Duration!>);
+    method public static androidx.wear.protolayout.expression.pipeline.DynamicTypeBindingRequest forDynamicFloat(androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat, java.util.concurrent.Executor, androidx.wear.protolayout.expression.pipeline.DynamicTypeValueReceiver<java.lang.Float!>);
+    method public static androidx.wear.protolayout.expression.pipeline.DynamicTypeBindingRequest forDynamicInstant(androidx.wear.protolayout.expression.DynamicBuilders.DynamicInstant, java.util.concurrent.Executor, androidx.wear.protolayout.expression.pipeline.DynamicTypeValueReceiver<java.time.Instant!>);
+    method public static androidx.wear.protolayout.expression.pipeline.DynamicTypeBindingRequest forDynamicInt32(androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32, java.util.concurrent.Executor, androidx.wear.protolayout.expression.pipeline.DynamicTypeValueReceiver<java.lang.Integer!>);
+    method public static androidx.wear.protolayout.expression.pipeline.DynamicTypeBindingRequest forDynamicString(androidx.wear.protolayout.expression.DynamicBuilders.DynamicString, android.icu.util.ULocale, java.util.concurrent.Executor, androidx.wear.protolayout.expression.pipeline.DynamicTypeValueReceiver<java.lang.String!>);
+  }
+
   public class DynamicTypeEvaluator implements java.lang.AutoCloseable {
     ctor public DynamicTypeEvaluator(androidx.wear.protolayout.expression.pipeline.DynamicTypeEvaluator.Config);
-    method public androidx.wear.protolayout.expression.pipeline.BoundDynamicType bind(androidx.wear.protolayout.expression.DynamicBuilders.DynamicString, android.icu.util.ULocale, java.util.concurrent.Executor, androidx.wear.protolayout.expression.pipeline.DynamicTypeValueReceiver<java.lang.String!>);
-    method public androidx.wear.protolayout.expression.pipeline.BoundDynamicType bind(androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32, java.util.concurrent.Executor, androidx.wear.protolayout.expression.pipeline.DynamicTypeValueReceiver<java.lang.Integer!>);
-    method public androidx.wear.protolayout.expression.pipeline.BoundDynamicType bind(androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat, java.util.concurrent.Executor, androidx.wear.protolayout.expression.pipeline.DynamicTypeValueReceiver<java.lang.Float!>);
-    method public androidx.wear.protolayout.expression.pipeline.BoundDynamicType bind(androidx.wear.protolayout.expression.DynamicBuilders.DynamicColor, java.util.concurrent.Executor, androidx.wear.protolayout.expression.pipeline.DynamicTypeValueReceiver<java.lang.Integer!>);
-    method public androidx.wear.protolayout.expression.pipeline.BoundDynamicType bind(androidx.wear.protolayout.expression.DynamicBuilders.DynamicDuration, java.util.concurrent.Executor, androidx.wear.protolayout.expression.pipeline.DynamicTypeValueReceiver<java.time.Duration!>);
-    method public androidx.wear.protolayout.expression.pipeline.BoundDynamicType bind(androidx.wear.protolayout.expression.DynamicBuilders.DynamicInstant, java.util.concurrent.Executor, androidx.wear.protolayout.expression.pipeline.DynamicTypeValueReceiver<java.time.Instant!>);
-    method public androidx.wear.protolayout.expression.pipeline.BoundDynamicType bind(androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool, java.util.concurrent.Executor, androidx.wear.protolayout.expression.pipeline.DynamicTypeValueReceiver<java.lang.Boolean!>);
+    method public androidx.wear.protolayout.expression.pipeline.BoundDynamicType bind(androidx.wear.protolayout.expression.pipeline.DynamicTypeBindingRequest) throws androidx.wear.protolayout.expression.pipeline.DynamicTypeEvaluator.EvaluationException;
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void close();
     method @UiThread public void disablePlatformDataSources();
     method @UiThread public void enablePlatformDataSources();
@@ -22,6 +26,7 @@ package androidx.wear.protolayout.expression.pipeline {
 
   public static final class DynamicTypeEvaluator.Config {
     method public androidx.wear.protolayout.expression.pipeline.QuotaManager? getAnimationQuotaManager();
+    method public androidx.wear.protolayout.expression.pipeline.QuotaManager? getDynamicTypesQuotaManager();
     method public androidx.wear.protolayout.expression.pipeline.sensor.SensorGateway? getSensorGateway();
     method public androidx.wear.protolayout.expression.pipeline.StateStore? getStateStore();
     method public androidx.wear.protolayout.expression.pipeline.TimeGateway? getTimeGateway();
@@ -32,10 +37,15 @@ package androidx.wear.protolayout.expression.pipeline {
     ctor public DynamicTypeEvaluator.Config.Builder();
     method public androidx.wear.protolayout.expression.pipeline.DynamicTypeEvaluator.Config build();
     method public androidx.wear.protolayout.expression.pipeline.DynamicTypeEvaluator.Config.Builder setAnimationQuotaManager(androidx.wear.protolayout.expression.pipeline.QuotaManager);
+    method public androidx.wear.protolayout.expression.pipeline.DynamicTypeEvaluator.Config.Builder setDynamicTypesQuotaManager(androidx.wear.protolayout.expression.pipeline.QuotaManager);
     method public androidx.wear.protolayout.expression.pipeline.DynamicTypeEvaluator.Config.Builder setPlatformDataSourcesInitiallyEnabled(boolean);
     method public androidx.wear.protolayout.expression.pipeline.DynamicTypeEvaluator.Config.Builder setSensorGateway(androidx.wear.protolayout.expression.pipeline.sensor.SensorGateway);
     method public androidx.wear.protolayout.expression.pipeline.DynamicTypeEvaluator.Config.Builder setStateStore(androidx.wear.protolayout.expression.pipeline.StateStore);
     method public androidx.wear.protolayout.expression.pipeline.DynamicTypeEvaluator.Config.Builder setTimeGateway(androidx.wear.protolayout.expression.pipeline.TimeGateway);
+  }
+
+  public static class DynamicTypeEvaluator.EvaluationException extends java.lang.Exception {
+    ctor public DynamicTypeEvaluator.EvaluationException(String);
   }
 
   public interface DynamicTypeValueReceiver<T> {

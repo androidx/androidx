@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The Android Open Source Project
+ * Copyright 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -140,6 +140,8 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
     @VisibleForTesting @Nullable ListenableFuture<RenderResult> mRenderFuture = null;
 
     private boolean mCanReattachWithoutRendering = false;
+
+    private static final int DYNAMIC_NODES_MAX_COUNT = Integer.MAX_VALUE;
 
     /**
      * This is used to provide a {@link ResourceResolvers} object to the {@link
@@ -626,7 +628,8 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
                                     updatesEnabled,
                                     config.getSensorGateway(),
                                     stateStore,
-                                    new FixedQuotaManagerImpl(config.getRunningAnimationsLimit()))
+                                    new FixedQuotaManagerImpl(config.getRunningAnimationsLimit()),
+                                    new FixedQuotaManagerImpl(DYNAMIC_NODES_MAX_COUNT))
                             : new ProtoLayoutDynamicDataPipeline(
                                     updatesEnabled, config.getSensorGateway(), stateStore);
             mDataPipeline.setFullyVisible(config.getIsViewFullyVisible());

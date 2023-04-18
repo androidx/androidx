@@ -39,7 +39,9 @@ import androidx.collection.ArrayMap;
 import androidx.collection.ArraySet;
 import androidx.vectordrawable.graphics.drawable.SeekableAnimatedVectorDrawable;
 import androidx.wear.protolayout.expression.pipeline.BoundDynamicType;
+import androidx.wear.protolayout.expression.pipeline.DynamicTypeBindingRequest;
 import androidx.wear.protolayout.expression.pipeline.DynamicTypeEvaluator;
+import androidx.wear.protolayout.expression.pipeline.DynamicTypeEvaluator.EvaluationException;
 import androidx.wear.protolayout.expression.pipeline.DynamicTypeValueReceiver;
 import androidx.wear.protolayout.expression.pipeline.FixedQuotaManagerImpl;
 import androidx.wear.protolayout.expression.pipeline.QuotaManager;
@@ -103,7 +105,8 @@ public class ProtoLayoutDynamicDataPipeline {
                 sensorGateway,
                 stateStore,
                 /* enableAnimations= */ false,
-                DISABLED_ANIMATIONS_QUOTA_MANAGER);
+                DISABLED_ANIMATIONS_QUOTA_MANAGER,
+                new FixedQuotaManagerImpl(Integer.MAX_VALUE));
     }
 
     /**
@@ -115,13 +118,15 @@ public class ProtoLayoutDynamicDataPipeline {
             boolean canUpdateGateways,
             @Nullable SensorGateway sensorGateway,
             @NonNull StateStore stateStore,
-            @NonNull QuotaManager animationQuotaManager) {
+            @NonNull QuotaManager animationQuotaManager,
+            @NonNull QuotaManager dynamicNodesQuotaManager) {
         this(
                 canUpdateGateways,
                 sensorGateway,
                 stateStore,
                 /* enableAnimations= */ true,
-                animationQuotaManager);
+                animationQuotaManager,
+                dynamicNodesQuotaManager);
     }
 
     /** Creates a {@link ProtoLayoutDynamicDataPipeline}. */
@@ -130,13 +135,15 @@ public class ProtoLayoutDynamicDataPipeline {
             @Nullable SensorGateway sensorGateway,
             @NonNull StateStore stateStore,
             boolean enableAnimations,
-            @NonNull QuotaManager animationQuotaManager) {
+            @NonNull QuotaManager animationQuotaManager,
+            @NonNull QuotaManager dynamicNodeQuotaManager) {
         this.mEnableAnimations = enableAnimations;
         this.mAnimationQuotaManager = animationQuotaManager;
         DynamicTypeEvaluator.Config.Builder evaluatorConfigBuilder =
                 new DynamicTypeEvaluator.Config.Builder()
                         .setPlatformDataSourcesInitiallyEnabled(canUpdateGateways)
                         .setStateStore(stateStore);
+        evaluatorConfigBuilder.setDynamicTypesQuotaManager(dynamicNodeQuotaManager);
         if (sensorGateway != null) {
             evaluatorConfigBuilder.setSensorGateway(sensorGateway);
         }
@@ -456,9 +463,10 @@ public class ProtoLayoutDynamicDataPipeline {
                 @NonNull Locale locale,
                 @NonNull String posId,
                 @NonNull DynamicTypeValueReceiver<String> consumer) {
-            BoundDynamicType node =
-                    mEvaluator.bind(stringSource, ULocale.forLocale(locale), consumer);
-            getNodeInfo(posId).addBoundType(node);
+            DynamicTypeBindingRequest bindingRequest =
+                    DynamicTypeBindingRequest.forDynamicStringInternal(
+                            stringSource, ULocale.forLocale(locale), consumer);
+            tryBindRequest(posId, bindingRequest, consumer::onInvalidated);
             return this;
         }
 
@@ -488,8 +496,9 @@ public class ProtoLayoutDynamicDataPipeline {
                 @NonNull DynamicInt32 int32Source,
                 @NonNull String posId,
                 @NonNull DynamicTypeValueReceiver<Integer> consumer) {
-            BoundDynamicType node = mEvaluator.bind(int32Source, consumer);
-            getNodeInfo(posId).addBoundType(node);
+            DynamicTypeBindingRequest bindingRequest =
+                    DynamicTypeBindingRequest.forDynamicInt32Internal(int32Source, consumer);
+            tryBindRequest(posId, bindingRequest, consumer::onInvalidated);
             return this;
         }
 
@@ -520,8 +529,9 @@ public class ProtoLayoutDynamicDataPipeline {
                 @NonNull DynamicFloat floatSource,
                 @NonNull String posId,
                 @NonNull DynamicTypeValueReceiver<Float> consumer) {
-            BoundDynamicType node = mEvaluator.bind(floatSource, consumer);
-            getNodeInfo(posId).addBoundType(node);
+            DynamicTypeBindingRequest bindingRequest =
+                    DynamicTypeBindingRequest.forDynamicFloatInternal(floatSource, consumer);
+            tryBindRequest(posId, bindingRequest, consumer::onInvalidated);
             return this;
         }
 
@@ -551,8 +561,9 @@ public class ProtoLayoutDynamicDataPipeline {
                 @NonNull DynamicColor colorSource,
                 @NonNull String posId,
                 @NonNull DynamicTypeValueReceiver<Integer> consumer) {
-            BoundDynamicType node = mEvaluator.bind(colorSource, consumer);
-            getNodeInfo(posId).addBoundType(node);
+            DynamicTypeBindingRequest bindingRequest =
+                    DynamicTypeBindingRequest.forDynamicColorInternal(colorSource, consumer);
+            tryBindRequest(posId, bindingRequest, consumer::onInvalidated);
             return this;
         }
 
@@ -598,8 +609,9 @@ public class ProtoLayoutDynamicDataPipeline {
                 @NonNull DynamicBool boolSource,
                 @NonNull String posId,
                 @NonNull DynamicTypeValueReceiver<Boolean> consumer) {
-            BoundDynamicType node = mEvaluator.bind(boolSource, consumer);
-            getNodeInfo(posId).addBoundType(node);
+            DynamicTypeBindingRequest bindingRequest =
+                    DynamicTypeBindingRequest.forDynamicBoolInternal(boolSource, consumer);
+            tryBindRequest(posId, bindingRequest, consumer::onInvalidated);
             return this;
         }
 
@@ -629,8 +641,10 @@ public class ProtoLayoutDynamicDataPipeline {
                 @NonNull DpProp dpProp,
                 @NonNull String posId,
                 @NonNull DynamicTypeValueReceiver<Float> consumer) {
-            BoundDynamicType node = mEvaluator.bind(dpProp.getDynamicValue(), consumer);
-            getNodeInfo(posId).addBoundType(node);
+            DynamicTypeBindingRequest bindingRequest =
+                    DynamicTypeBindingRequest.forDynamicFloatInternal(dpProp.getDynamicValue(),
+                            consumer);
+            tryBindRequest(posId, bindingRequest, consumer::onInvalidated);
             return this;
         }
 
@@ -645,8 +659,10 @@ public class ProtoLayoutDynamicDataPipeline {
                 @NonNull DegreesProp degreesProp,
                 @NonNull String posId,
                 @NonNull DynamicTypeValueReceiver<Float> consumer) {
-            BoundDynamicType node = mEvaluator.bind(degreesProp.getDynamicValue(), consumer);
-            getNodeInfo(posId).addBoundType(node);
+            DynamicTypeBindingRequest bindingRequest =
+                    DynamicTypeBindingRequest.forDynamicFloatInternal(
+                            degreesProp.getDynamicValue(), consumer);
+            tryBindRequest(posId, bindingRequest, consumer::onInvalidated);
             return this;
         }
 
@@ -661,8 +677,10 @@ public class ProtoLayoutDynamicDataPipeline {
                 @NonNull ColorProp colorProp,
                 @NonNull String posId,
                 @NonNull DynamicTypeValueReceiver<Integer> consumer) {
-            BoundDynamicType node = mEvaluator.bind(colorProp.getDynamicValue(), consumer);
-            getNodeInfo(posId).addBoundType(node);
+            DynamicTypeBindingRequest bindingRequest =
+                    DynamicTypeBindingRequest.forDynamicColorInternal(
+                            colorProp.getDynamicValue(), consumer);
+            tryBindRequest(posId, bindingRequest, consumer::onInvalidated);
             return this;
         }
 
@@ -711,6 +729,20 @@ public class ProtoLayoutDynamicDataPipeline {
                 @NonNull Consumer<Integer> consumer) {
             return addPipelineFor(
                     colorProp, posId, buildStateUpdateCallback(invalidData, consumer));
+        }
+
+        private void tryBindRequest(
+                String posId, DynamicTypeBindingRequest request, Runnable onFailure) {
+            BoundDynamicType dynamicType = null;
+            NodeInfo nodeInfo = getNodeInfo(posId);
+            try {
+                dynamicType = mEvaluator.bind(request);
+                nodeInfo.addBoundType(dynamicType);
+            } catch (EvaluationException exception) {
+                Log.e(TAG, "Fails to bind dynamicType.", exception);
+                nodeInfo.addFailedBindingRequest(request);
+                onFailure.run();
+            }
         }
 
         /** This store method shall be called during the layout inflation in a background thread. */
@@ -897,7 +929,26 @@ public class ProtoLayoutDynamicDataPipeline {
         }
         playAvdAnimations(Trigger.InnerCase.ON_LOAD_TRIGGER);
         setAnimationVisibility(mFullyVisible);
+
+        // Retry failing binding requests
+        mPositionIdTree.forEach(
+                nodeInfo ->
+                        nodeInfo.getFailedBindingRequest()
+                                .removeIf(request -> retryBindingRequest(nodeInfo, request)));
+
         mPositionIdTree.forEach(NodeInfo::initPendingBoundTypes);
+    }
+
+    private boolean retryBindingRequest(NodeInfo nodeInfo, DynamicTypeBindingRequest request) {
+        BoundDynamicType dynamicType = null;
+        try {
+            dynamicType = mEvaluator.bind(request);
+            nodeInfo.addBoundType(dynamicType);
+            return true;
+        } catch (EvaluationException exception) {
+            Log.v(TAG, "Retry to bind dynamicType failed.", exception);
+        }
+        return false;
     }
 
     /** Play the animation with the given trigger type. */
@@ -913,7 +964,10 @@ public class ProtoLayoutDynamicDataPipeline {
         mPositionIdTree.forEach(info -> info.setVisibility(visible));
     }
 
-    /** Reset the avd animations with the given trigger type. */
+    /**
+     * Reset the avd animations with the given trigger type.
+     *
+     */
     @UiThread
     @VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -921,7 +975,10 @@ public class ProtoLayoutDynamicDataPipeline {
         mPositionIdTree.forEach(info -> info.resetAvdAnimations(triggerCase));
     }
 
-    /** Stops running avd animations and releases their quota. */
+    /**
+     * Stops running avd animations and releases their quota.
+     *
+     */
     @UiThread
     @VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -1017,6 +1074,15 @@ public class ProtoLayoutDynamicDataPipeline {
                 + mExitAnimations.stream()
                         .mapToInt(QuotaAwareAnimationSet::getRunningAnimationCount)
                         .sum();
+    }
+
+    /** Returns How many dynamic data nodes exist in the pipeline. */
+    @VisibleForTesting(otherwise = VisibleForTesting.NONE)
+    @RestrictTo(Scope.TESTS)
+    public int getDynamicExpressionsNodesCount() {
+        return mPositionIdTree.getAllNodes().stream()
+                .mapToInt(NodeInfo::getExpressionNodesCount)
+                .sum();
     }
 
     /** Returns whether all quota has been released. */
