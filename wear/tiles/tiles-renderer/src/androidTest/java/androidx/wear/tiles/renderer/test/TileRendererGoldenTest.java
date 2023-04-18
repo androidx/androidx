@@ -53,6 +53,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.concurrent.TimeUnit;
 
 @RunWith(Parameterized.class)
 @LargeTest
@@ -239,9 +240,10 @@ public class TileRendererGoldenTest {
                         ContextCompat.getMainExecutor(getApplicationContext()),
                         i -> {});
 
-        View firstChild = renderer.inflate(LayoutElementBuilders.Layout.fromProto(
+        View firstChild = renderer.inflateAsync(LayoutElementBuilders.Layout.fromProto(
                 Layout.newBuilder().setRoot(rootElement).build()),
-                ResourceBuilders.Resources.fromProto(generateResources()), mainFrame);
+                ResourceBuilders.Resources.fromProto(generateResources()), mainFrame)
+                .get(30, TimeUnit.MILLISECONDS);
 
         if (firstChild == null) {
             throw new RuntimeException("Failed to inflate " + expectedKey);
