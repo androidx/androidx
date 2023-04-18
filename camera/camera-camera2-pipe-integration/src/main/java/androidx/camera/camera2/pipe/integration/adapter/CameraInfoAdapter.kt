@@ -195,8 +195,10 @@ class CameraInfoAdapter @Inject constructor(
         // TODO: use DynamicRangesCompat instead after it is migrates from camera-camera2.
         if (Build.VERSION.SDK_INT >= 33) {
             val availableProfiles = cameraProperties.metadata[
-                CameraCharacteristics.REQUEST_AVAILABLE_DYNAMIC_RANGE_PROFILES]!!
-            return profileSetToDynamicRangeSet(availableProfiles.supportedProfiles)
+                CameraCharacteristics.REQUEST_AVAILABLE_DYNAMIC_RANGE_PROFILES]
+            if (availableProfiles != null) {
+                return profileSetToDynamicRangeSet(availableProfiles.supportedProfiles)
+            }
         }
         return setOf(DynamicRange.SDR)
     }
