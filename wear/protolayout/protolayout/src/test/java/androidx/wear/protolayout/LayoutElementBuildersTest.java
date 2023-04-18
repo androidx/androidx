@@ -22,6 +22,7 @@ import static org.junit.Assert.assertThrows;
 
 import androidx.wear.protolayout.expression.DynamicBuilders;
 import androidx.wear.protolayout.proto.DimensionProto;
+import androidx.wear.protolayout.proto.LayoutElementProto;
 import androidx.wear.protolayout.proto.TypesProto;
 
 import org.junit.Test;
@@ -76,6 +77,34 @@ public class LayoutElementBuildersTest {
         assertThat(lengthProto.getValueForLayout()).isEqualTo(DEGREES_PROP_CONSTRAINT.getValue());
         assertThat(lengthProto.getAngularAlignmentForLayoutValue())
                 .isEqualTo(DEGREES_PROP_CONSTRAINT.getAngularAlignment());
+    }
+
+    @Test
+    public void testArcLineSetStrokeCap() {
+        LayoutElementBuilders.ArcLine arcLine =
+                new LayoutElementBuilders.ArcLine.Builder()
+                        .setStrokeCap(LayoutElementBuilders.STROKE_CAP_BUTT)
+                        .build();
+
+        LayoutElementProto.StrokeCapProp strokeCapProp = arcLine.toProto().getStrokeCap();
+
+        assertThat(strokeCapProp.getValue())
+                .isEqualTo(LayoutElementProto.StrokeCap.STROKE_CAP_BUTT);
+    }
+
+    @Test
+    public void testArcLineSetStrokeCapProp() {
+        LayoutElementBuilders.ArcLine arcLine =
+                new LayoutElementBuilders.ArcLine.Builder()
+                        .setStrokeCap(new LayoutElementBuilders.StrokeCapProp.Builder()
+                                .setValue(LayoutElementBuilders.STROKE_CAP_BUTT)
+                                .build())
+                        .build();
+
+        LayoutElementProto.StrokeCapProp strokeCapProp = arcLine.toProto().getStrokeCap();
+
+        assertThat(strokeCapProp.getValue())
+                .isEqualTo(LayoutElementProto.StrokeCap.STROKE_CAP_BUTT);
     }
 
     @Test

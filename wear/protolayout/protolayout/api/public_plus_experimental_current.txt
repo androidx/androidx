@@ -346,6 +346,10 @@ package androidx.wear.protolayout {
     field public static final int SPAN_VERTICAL_ALIGN_BOTTOM = 1; // 0x1
     field public static final int SPAN_VERTICAL_ALIGN_TEXT_BASELINE = 2; // 0x2
     field public static final int SPAN_VERTICAL_ALIGN_UNDEFINED = 0; // 0x0
+    field public static final int STROKE_CAP_BUTT = 1; // 0x1
+    field public static final int STROKE_CAP_ROUND = 2; // 0x2
+    field public static final int STROKE_CAP_SQUARE = 3; // 0x3
+    field public static final int STROKE_CAP_UNDEFINED = 0; // 0x0
     field public static final int TEXT_ALIGN_CENTER = 2; // 0x2
     field public static final int TEXT_ALIGN_END = 3; // 0x3
     field public static final int TEXT_ALIGN_START = 1; // 0x1
@@ -427,6 +431,7 @@ package androidx.wear.protolayout {
     method public androidx.wear.protolayout.DimensionBuilders.AngularLayoutConstraint? getLayoutConstraintsForDynamicLength();
     method public androidx.wear.protolayout.DimensionBuilders.DegreesProp? getLength();
     method public androidx.wear.protolayout.ModifiersBuilders.ArcModifiers? getModifiers();
+    method public androidx.wear.protolayout.LayoutElementBuilders.StrokeCapProp? getStrokeCap();
     method public androidx.wear.protolayout.DimensionBuilders.DpProp? getThickness();
   }
 
@@ -437,6 +442,8 @@ package androidx.wear.protolayout {
     method public androidx.wear.protolayout.LayoutElementBuilders.ArcLine.Builder setLayoutConstraintsForDynamicLength(androidx.wear.protolayout.DimensionBuilders.AngularLayoutConstraint);
     method public androidx.wear.protolayout.LayoutElementBuilders.ArcLine.Builder setLength(androidx.wear.protolayout.DimensionBuilders.DegreesProp);
     method public androidx.wear.protolayout.LayoutElementBuilders.ArcLine.Builder setModifiers(androidx.wear.protolayout.ModifiersBuilders.ArcModifiers);
+    method public androidx.wear.protolayout.LayoutElementBuilders.ArcLine.Builder setStrokeCap(androidx.wear.protolayout.LayoutElementBuilders.StrokeCapProp);
+    method public androidx.wear.protolayout.LayoutElementBuilders.ArcLine.Builder setStrokeCap(int);
     method public androidx.wear.protolayout.LayoutElementBuilders.ArcLine.Builder setThickness(androidx.wear.protolayout.DimensionBuilders.DpProp);
   }
 
@@ -756,6 +763,16 @@ package androidx.wear.protolayout {
     method public androidx.wear.protolayout.LayoutElementBuilders.Spannable.Builder setMultilineAlignment(int);
     method public androidx.wear.protolayout.LayoutElementBuilders.Spannable.Builder setOverflow(androidx.wear.protolayout.LayoutElementBuilders.TextOverflowProp);
     method public androidx.wear.protolayout.LayoutElementBuilders.Spannable.Builder setOverflow(int);
+  }
+
+  public static final class LayoutElementBuilders.StrokeCapProp {
+    method public int getValue();
+  }
+
+  public static final class LayoutElementBuilders.StrokeCapProp.Builder {
+    ctor public LayoutElementBuilders.StrokeCapProp.Builder();
+    method public androidx.wear.protolayout.LayoutElementBuilders.StrokeCapProp build();
+    method public androidx.wear.protolayout.LayoutElementBuilders.StrokeCapProp.Builder setValue(int);
   }
 
   public static final class LayoutElementBuilders.Text implements androidx.wear.protolayout.LayoutElementBuilders.LayoutElement {

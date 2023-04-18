@@ -219,6 +219,46 @@ public final class LayoutElementBuilders {
      */
     public static final int CONTENT_SCALE_MODE_FILL_BOUNDS = 3;
 
+    /**
+     * Styles to use for path endings.
+     *
+     * @since 1.2
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @IntDef({STROKE_CAP_UNDEFINED, STROKE_CAP_BUTT, STROKE_CAP_ROUND, STROKE_CAP_SQUARE})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface StrokeCap {}
+
+    /**
+     * {@code StrokeCap} is undefined.
+     *
+     * @since 1.2
+     */
+    public static final int STROKE_CAP_UNDEFINED = 0;
+
+    /**
+     * Begin and end contours with a flat edge and no extension.
+     *
+     * @since 1.2
+     */
+    public static final int STROKE_CAP_BUTT = 1;
+
+    /**
+     * Begin and end contours with a semi-circle extension. The extension size is proportional to
+     * the thickness of the path.
+     *
+     * @since 1.2
+     */
+    public static final int STROKE_CAP_ROUND = 2;
+
+    /**
+     * Begin and end contours with a half square extension. The extension size is proportional to
+     * the thickness of the path.
+     *
+     * @since 1.2
+     */
+    public static final int STROKE_CAP_SQUARE = 3;
+
     /** An extensible {@code FontWeight} property. */
     public static final class FontWeightProp {
         private final LayoutElementProto.FontWeightProp mImpl;
@@ -3708,6 +3748,20 @@ public final class LayoutElementBuilders {
             }
         }
 
+        /**
+         * Gets the line stroke cap. If not defined, defaults to STROKE_CAP_ROUND.
+         *
+         * @since 1.2
+         */
+        @Nullable
+        public StrokeCapProp getStrokeCap() {
+            if (mImpl.hasStrokeCap()) {
+                return StrokeCapProp.fromProto(mImpl.getStrokeCap());
+            } else {
+                return null;
+            }
+        }
+
         @Override
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Nullable
@@ -3736,7 +3790,7 @@ public final class LayoutElementBuilders {
         public static final class Builder implements ArcLayoutElement.Builder {
             private final LayoutElementProto.ArcLine.Builder mImpl =
                     LayoutElementProto.ArcLine.newBuilder();
-            private final Fingerprint mFingerprint = new Fingerprint(-1371793535);
+            private final Fingerprint mFingerprint = new Fingerprint(846148011);
 
             public Builder() {}
 
@@ -3814,6 +3868,33 @@ public final class LayoutElementBuilders {
                 return this;
             }
 
+            /**
+             * Sets the line stroke cap. If not defined, defaults to STROKE_CAP_ROUND.
+             *
+             * @since 1.2
+             */
+            @NonNull
+            public Builder setStrokeCap(@NonNull StrokeCapProp strokeCap) {
+                mImpl.setStrokeCap(strokeCap.toProto());
+                mFingerprint.recordPropertyUpdate(
+                        6, checkNotNull(strokeCap.getFingerprint()).aggregateValueAsInt());
+                return this;
+            }
+
+            /**
+             * Sets the line stroke cap. If not defined, defaults to STROKE_CAP_ROUND.
+             *
+             * @since 1.2
+             */
+            @NonNull
+            public Builder setStrokeCap(@StrokeCap int strokeCap) {
+                mImpl.setStrokeCap(
+                        LayoutElementProto.StrokeCapProp.newBuilder()
+                                .setValue(LayoutElementProto.StrokeCap.forNumber(strokeCap)));
+                mFingerprint.recordPropertyUpdate(6, strokeCap);
+                return this;
+            }
+
             @Override
             @NonNull
             public ArcLine build() {
@@ -3824,6 +3905,86 @@ public final class LayoutElementBuilders {
                                     + "layoutConstraintsForDynamicLength to be present.");
                 }
                 return new ArcLine(mImpl.build(), mFingerprint);
+            }
+        }
+    }
+
+    /**
+     * An extensible {@code StrokeCap} property.
+     *
+     * @since 1.2
+     */
+    public static final class StrokeCapProp {
+        private final LayoutElementProto.StrokeCapProp mImpl;
+        @Nullable private final Fingerprint mFingerprint;
+
+        StrokeCapProp(LayoutElementProto.StrokeCapProp impl, @Nullable Fingerprint fingerprint) {
+            this.mImpl = impl;
+            this.mFingerprint = fingerprint;
+        }
+
+        /**
+         * Gets the value.
+         *
+         * @since 1.2
+         */
+        @StrokeCap
+        public int getValue() {
+            return mImpl.getValue().getNumber();
+        }
+
+        /** Get the fingerprint for this object, or null if unknown. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Nullable
+        public Fingerprint getFingerprint() {
+            return mFingerprint;
+        }
+
+        /** Creates a new wrapper instance from the proto. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public static StrokeCapProp fromProto(
+                @NonNull LayoutElementProto.StrokeCapProp proto,
+                @Nullable Fingerprint fingerprint) {
+            return new StrokeCapProp(proto, fingerprint);
+        }
+
+        @NonNull
+        static StrokeCapProp fromProto(@NonNull LayoutElementProto.StrokeCapProp proto) {
+            return fromProto(proto, null);
+        }
+
+        /** Returns the internal proto instance. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public LayoutElementProto.StrokeCapProp toProto() {
+            return mImpl;
+        }
+
+        /** Builder for {@link StrokeCapProp} */
+        public static final class Builder {
+            private final LayoutElementProto.StrokeCapProp.Builder mImpl =
+                    LayoutElementProto.StrokeCapProp.newBuilder();
+            private final Fingerprint mFingerprint = new Fingerprint(-956183418);
+
+            public Builder() {}
+
+            /**
+             * Sets the value.
+             *
+             * @since 1.2
+             */
+            @NonNull
+            public Builder setValue(@StrokeCap int value) {
+                mImpl.setValue(LayoutElementProto.StrokeCap.forNumber(value));
+                mFingerprint.recordPropertyUpdate(1, value);
+                return this;
+            }
+
+            /** Builds an instance from accumulated values. */
+            @NonNull
+            public StrokeCapProp build() {
+                return new StrokeCapProp(mImpl.build(), mFingerprint);
             }
         }
     }
