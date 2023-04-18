@@ -17,6 +17,7 @@
 package androidx.appactions.interaction.capabilities.core.impl.converters;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
 import androidx.appactions.interaction.capabilities.core.impl.exceptions.StructConversionException;
 import androidx.appactions.interaction.proto.ParamValue;
 
@@ -30,6 +31,7 @@ import java.util.List;
  * @param <T>
  */
 @FunctionalInterface
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 public interface SlotTypeConverter<T> {
     @NonNull
     static <T> SlotTypeConverter<List<T>> ofRepeated(
