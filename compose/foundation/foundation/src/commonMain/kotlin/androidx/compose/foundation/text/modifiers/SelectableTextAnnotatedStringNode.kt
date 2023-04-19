@@ -60,7 +60,7 @@ internal class SelectableTextAnnotatedStringNode(
 ) : DelegatingNode(), LayoutModifierNode, DrawModifierNode, GlobalPositionAwareModifierNode,
     SemanticsModifierNode {
 
-    private val delegate = delegated {
+    private val delegate = delegate(
         TextAnnotatedStringNode(
             text = text,
             style = style,
@@ -74,7 +74,7 @@ internal class SelectableTextAnnotatedStringNode(
             onPlaceholderLayout = onPlaceholderLayout,
             selectionController = selectionController
         )
-    }
+    )
 
     init {
         requireNotNull(selectionController) {

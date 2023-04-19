@@ -144,6 +144,7 @@ package androidx.compose.ui {
     ctor public Modifier.Node();
     method public final kotlinx.coroutines.CoroutineScope getCoroutineScope();
     method public final androidx.compose.ui.Modifier.Node getNode();
+    method public boolean getShouldAutoInvalidate();
     method public final boolean isAttached();
     method public void onAttach();
     method public void onDetach();
@@ -152,6 +153,7 @@ package androidx.compose.ui {
     property public final kotlinx.coroutines.CoroutineScope coroutineScope;
     property public final boolean isAttached;
     property public final androidx.compose.ui.Modifier.Node node;
+    property public boolean shouldAutoInvalidate;
   }
 
   @androidx.compose.runtime.Stable public interface MotionDurationScale extends kotlin.coroutines.CoroutineContext.Element {
@@ -2325,7 +2327,8 @@ package androidx.compose.ui.node {
 
   public abstract class DelegatingNode extends androidx.compose.ui.Modifier.Node {
     ctor public DelegatingNode();
-    method public final <T extends androidx.compose.ui.Modifier.Node> T delegated(kotlin.jvm.functions.Function0<? extends T> fn);
+    method protected final <T extends androidx.compose.ui.node.DelegatableNode> T delegate(T delegatableNode);
+    method protected final void undelegate(androidx.compose.ui.node.DelegatableNode instance);
   }
 
   public interface DrawModifierNode extends androidx.compose.ui.node.DelegatableNode {
@@ -2365,14 +2368,12 @@ package androidx.compose.ui.node {
     ctor public ModifierNodeElement();
     method public abstract N create();
     method public abstract boolean equals(Object? other);
-    method public boolean getAutoInvalidate();
     method public final kotlin.sequences.Sequence<androidx.compose.ui.platform.ValueElement> getInspectableElements();
     method public final String? getNameFallback();
     method public final Object? getValueOverride();
     method public abstract int hashCode();
     method public void inspectableProperties(androidx.compose.ui.platform.InspectorInfo);
     method public abstract N update(N node);
-    property public boolean autoInvalidate;
     property public final kotlin.sequences.Sequence<androidx.compose.ui.platform.ValueElement> inspectableElements;
     property public final String? nameFallback;
     property public final Object? valueOverride;
@@ -2426,7 +2427,6 @@ package androidx.compose.ui.node {
   }
 
   public final class SemanticsModifierNodeKt {
-    method public static androidx.compose.ui.semantics.SemanticsConfiguration collapsedSemanticsConfiguration(androidx.compose.ui.node.SemanticsModifierNode);
     method public static void invalidateSemantics(androidx.compose.ui.node.SemanticsModifierNode);
   }
 

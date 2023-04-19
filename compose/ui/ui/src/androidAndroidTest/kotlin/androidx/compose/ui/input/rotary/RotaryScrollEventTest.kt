@@ -30,7 +30,9 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.focusTarget
 import androidx.compose.ui.focus.setFocusableContent
+import androidx.compose.ui.node.DelegatingNode
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.semantics.elementFor
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onRoot
@@ -85,6 +87,94 @@ class RotaryScrollEventTest {
         // Assert.
         rule.runOnIdle {
             assertThat(receivedEvent).isNotNull()
+        }
+    }
+
+    @Test
+    fun delegated_androidWearCrownRotation_triggersRotaryEvent() {
+        val node = object : DelegatingNode() {
+            val rse = delegate(object : RotaryInputModifierNode, Modifier.Node() {
+                override fun onRotaryScrollEvent(event: RotaryScrollEvent): Boolean {
+                    receivedEvent = event
+                    return true
+                }
+                override fun onPreRotaryScrollEvent(event: RotaryScrollEvent): Boolean {
+                    return false
+                }
+            })
+        }
+        // Arrange.
+        ContentWithInitialFocus {
+            Box(
+                modifier = Modifier
+                    .elementFor(node)
+                    .focusable(initiallyFocused = true)
+            )
+        }
+
+        // Act.
+        rule.runOnIdle {
+            rootView.dispatchGenericMotionEvent(
+                MotionEventBuilder.newBuilder()
+                    .setAction(ACTION_SCROLL)
+                    .setSource(SOURCE_ROTARY_ENCODER)
+                    .build()
+            )
+        }
+
+        // Assert.
+        rule.runOnIdle {
+            assertThat(receivedEvent).isNotNull()
+        }
+    }
+
+    @Test
+    fun delegated_multiple_androidWearCrownRotation_triggersRotaryEvent() {
+        var event1: RotaryScrollEvent? = null
+        var event2: RotaryScrollEvent? = null
+        val node = object : DelegatingNode() {
+            val a = delegate(object : RotaryInputModifierNode, Modifier.Node() {
+                override fun onRotaryScrollEvent(event: RotaryScrollEvent): Boolean {
+                    event1 = event
+                    return false
+                }
+                override fun onPreRotaryScrollEvent(event: RotaryScrollEvent): Boolean {
+                    return false
+                }
+            })
+            val b = delegate(object : RotaryInputModifierNode, Modifier.Node() {
+                override fun onRotaryScrollEvent(event: RotaryScrollEvent): Boolean {
+                    event2 = event
+                    return false
+                }
+                override fun onPreRotaryScrollEvent(event: RotaryScrollEvent): Boolean {
+                    return false
+                }
+            })
+        }
+        // Arrange.
+        ContentWithInitialFocus {
+            Box(
+                modifier = Modifier
+                    .elementFor(node)
+                    .focusable(initiallyFocused = true)
+            )
+        }
+
+        // Act.
+        rule.runOnIdle {
+            rootView.dispatchGenericMotionEvent(
+                MotionEventBuilder.newBuilder()
+                    .setAction(ACTION_SCROLL)
+                    .setSource(SOURCE_ROTARY_ENCODER)
+                    .build()
+            )
+        }
+
+        // Assert.
+        rule.runOnIdle {
+            assertThat(event1).isNotNull()
+            assertThat(event2).isNotNull()
         }
     }
 
