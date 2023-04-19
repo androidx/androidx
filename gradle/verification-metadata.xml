@@ -133,6 +133,7 @@
          <trusted-key id="41cd49b4ef5876f9e9f691dabac30622339994c4">
             <trusting group="com.google.testing.compile"/>
             <trusting group="com.google.truth"/>
+            <trusting group="com.google.truth.extensions"/>
          </trusted-key>
          <trusted-key id="44fbdbbc1a00fe414f1c1873586654072ead6677" group="org.sonatype.oss"/>
          <trusted-key id="47504b76cf89c15c0512d9afe16ab52d79fd224f">
@@ -229,6 +230,7 @@
             <trusting group="^com[.]sun($|([.].*))" regex="true"/>
          </trusted-key>
          <trusted-key id="720746177725a89207a7075bfd5dea07fcb690a8" group="org.codehaus.mojo"/>
+         <trusted-key id="73976c9c39c1479b84e2641a5a68a2249128e2c6" group="com.google.crypto.tink" name="tink-android" version="1.8.0"/>
          <trusted-key id="748f15b2cf9ba8f024155e6ed7c92b70fa1c814d" group="org.apache.logging.log4j"/>
          <trusted-key id="7615ad56144df2376f49d98b1669c4bb543e0445" group="com.google.errorprone"/>
          <trusted-key id="7616eb882daf57a11477aaf559a252fb1199d873" group="com.google.code.findbugs"/>
