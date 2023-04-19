@@ -55,7 +55,7 @@ interface CapabilitySession {
     /**
      * The current state of the multi-turn session including slot values and their statuses.
      */
-    val state: AppDialogState
+    val state: AppDialogState?
 
     /** The current status of the CapabilitySession. */
     val isActive: Boolean

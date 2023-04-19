@@ -45,10 +45,7 @@ internal class SingleTurnCapabilitySession<
     private val mutex: Mutex,
     private val scope: CoroutineScope = CoroutineScope(Dispatchers.Default),
 ) : CapabilitySession {
-    override val state: AppDialogState
-        get() {
-            throw UnsupportedOperationException()
-        }
+    override val state: AppDialogState? = null
     override val isActive: Boolean
         get() {
             throw UnsupportedOperationException()
