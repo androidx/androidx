@@ -41,7 +41,7 @@ import kotlinx.coroutines.launch
 
 class ScannerFragment : Fragment() {
 
-    companion object {
+    private companion object {
         private const val TAG = "ScannerFragment"
     }
 
@@ -58,8 +58,12 @@ class ScannerFragment : Fragment() {
     private var isScanning: Boolean = false
         set(value) {
             field = value
-            if (value) _binding?.buttonScan?.text = getString(R.string.stop_scanning)
-            else _binding?.buttonScan?.text = getString(R.string.start_scanning)
+            if (value) {
+                _binding?.buttonScan?.text = getString(R.string.stop_scanning)
+            } else {
+                _binding?.buttonScan?.text = getString(R.string.start_scanning)
+                scanJob?.cancel()
+            }
         }
 
     private var _binding: FragmentScannerBinding? = null
@@ -84,27 +88,28 @@ class ScannerFragment : Fragment() {
             DividerItemDecoration(context, LinearLayoutManager.VERTICAL)
         )
 
-        return binding.root
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
+        initData()
 
         binding.buttonScan.setOnClickListener {
             if (scanJob?.isActive == true) {
-                scanJob?.cancel()
                 isScanning = false
             } else {
                 startScan()
             }
         }
+
+        return binding.root
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
-        scanJob?.cancel()
         isScanning = false
+    }
+
+    private fun initData() {
+        scannerAdapter?.submitList(scannerViewModel.results)
+        scannerAdapter?.notifyItemRangeChanged(0, scannerViewModel.results.size)
     }
 
     private fun startScan() {
