@@ -362,7 +362,7 @@ public fun Chip(
         shape = shape,
         border = { border.borderStroke(enabled = it) },
         defaultIconSpacing = ChipDefaults.IconSpacing,
-        role = null
+        role = Role.Button
     )
 }
 
@@ -646,7 +646,7 @@ public fun CompactChip(
         defaultIconOnlyCompactChipWidth = ChipDefaults.IconOnlyCompactChipWidth,
         defaultCompactChipTapTargetPadding = ChipDefaults.CompactChipTapTargetPadding,
         defaultIconSpacing = ChipDefaults.IconSpacing,
-        role = null,
+        role = Role.Button,
     )
 }
 

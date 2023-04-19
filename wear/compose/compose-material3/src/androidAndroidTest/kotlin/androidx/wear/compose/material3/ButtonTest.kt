@@ -198,6 +198,28 @@ class ButtonTest {
     }
 
     @Test
+    fun has_role_button_for_three_slot_chip() {
+        rule.setContentWithTheme {
+            Button(
+                onClick = {},
+                label = {},
+                secondaryLabel = {},
+                icon = { TestImage() },
+                enabled = false,
+                modifier = Modifier.testTag(TEST_TAG),
+            )
+        }
+
+        rule.onNodeWithTag(TEST_TAG)
+            .assert(
+                SemanticsMatcher.expectValue(
+                    SemanticsProperties.Role,
+                    Role.Button
+                )
+            )
+    }
+
+    @Test
     fun gives_base_button_correct_text_style() {
         var actualTextStyle = TextStyle.Default
         var expectedTextStyle = TextStyle.Default
