@@ -502,7 +502,7 @@ public abstract class PagedList<T : Any> internal constructor(
             val fetchDispatcher = fetchDispatcher ?: Dispatchers.IO
             val pagingSource = pagingSource ?: dataSource?.let { dataSource ->
                 LegacyPagingSource(
-                    fetchDispatcher = fetchDispatcher,
+                    fetchContext = fetchDispatcher,
                     dataSource = dataSource
                 )
             }
