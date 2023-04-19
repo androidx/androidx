@@ -24,9 +24,13 @@ package androidx.glance.appwidget {
   public final class CheckBoxKt {
     method @androidx.compose.runtime.Composable public static void CheckBox(boolean checked, androidx.glance.action.Action? onCheckedChange, optional androidx.glance.GlanceModifier modifier, optional String text, optional androidx.glance.text.TextStyle? style, optional androidx.glance.appwidget.CheckBoxColors colors, optional int maxLines);
     method @androidx.compose.runtime.Composable public static void CheckBox(boolean checked, kotlin.jvm.functions.Function0<kotlin.Unit> onCheckedChange, optional androidx.glance.GlanceModifier modifier, optional String text, optional androidx.glance.text.TextStyle? style, optional androidx.glance.appwidget.CheckBoxColors colors, optional int maxLines);
-    method @androidx.compose.runtime.Composable public static androidx.glance.appwidget.CheckBoxColors checkBoxColors(long checkedColor, long uncheckedColor);
-    method @androidx.compose.runtime.Composable public static androidx.glance.appwidget.CheckBoxColors checkBoxColors(androidx.glance.unit.ColorProvider checkedColor, androidx.glance.unit.ColorProvider uncheckedColor);
-    method @androidx.compose.runtime.Composable public static androidx.glance.appwidget.CheckBoxColors checkBoxColors();
+  }
+
+  public final class CheckboxDefaults {
+    method @androidx.compose.runtime.Composable public androidx.glance.appwidget.CheckBoxColors colors(androidx.glance.unit.ColorProvider checkedColor, androidx.glance.unit.ColorProvider uncheckedColor);
+    method @androidx.compose.runtime.Composable public androidx.glance.appwidget.CheckBoxColors colors(long checkedColor, long uncheckedColor);
+    method @androidx.compose.runtime.Composable public androidx.glance.appwidget.CheckBoxColors colors();
+    field public static final androidx.glance.appwidget.CheckboxDefaults INSTANCE;
   }
 
   public final class CircularProgressIndicatorKt {
@@ -110,12 +114,16 @@ package androidx.glance.appwidget {
   public final class RadioButtonColors {
   }
 
+  public final class RadioButtonDefaults {
+    method public androidx.glance.appwidget.RadioButtonColors colors(androidx.glance.unit.ColorProvider checkedColor, androidx.glance.unit.ColorProvider uncheckedColor);
+    method public androidx.glance.appwidget.RadioButtonColors colors(long checkedColor, long uncheckedColor);
+    method @androidx.compose.runtime.Composable public androidx.glance.appwidget.RadioButtonColors colors();
+    field public static final androidx.glance.appwidget.RadioButtonDefaults INSTANCE;
+  }
+
   public final class RadioButtonKt {
     method @androidx.compose.runtime.Composable public static void RadioButton(boolean checked, androidx.glance.action.Action? onClick, optional androidx.glance.GlanceModifier modifier, optional boolean enabled, optional String text, optional androidx.glance.text.TextStyle? style, optional androidx.glance.appwidget.RadioButtonColors colors, optional int maxLines);
     method @androidx.compose.runtime.Composable public static void RadioButton(boolean checked, kotlin.jvm.functions.Function0<kotlin.Unit> onClick, optional androidx.glance.GlanceModifier modifier, optional boolean enabled, optional String text, optional androidx.glance.text.TextStyle? style, optional androidx.glance.appwidget.RadioButtonColors colors, optional int maxLines);
-    method public static androidx.glance.appwidget.RadioButtonColors radioButtonColors(androidx.glance.unit.ColorProvider checkedColor, androidx.glance.unit.ColorProvider uncheckedColor);
-    method public static androidx.glance.appwidget.RadioButtonColors radioButtonColors(long checkedColor, long uncheckedColor);
-    method @androidx.compose.runtime.Composable public static androidx.glance.appwidget.RadioButtonColors radioButtonColors();
     method public static androidx.glance.GlanceModifier selectableGroup(androidx.glance.GlanceModifier);
   }
 
@@ -145,11 +153,15 @@ package androidx.glance.appwidget {
   public abstract sealed class SwitchColors {
   }
 
+  public final class SwitchDefaults {
+    method @androidx.compose.runtime.Composable public androidx.glance.appwidget.SwitchColors colors(androidx.glance.unit.ColorProvider checkedThumbColor, androidx.glance.unit.ColorProvider uncheckedThumbColor, androidx.glance.unit.ColorProvider checkedTrackColor, androidx.glance.unit.ColorProvider uncheckedTrackColor);
+    method @androidx.compose.runtime.Composable public androidx.glance.appwidget.SwitchColors colors();
+    field public static final androidx.glance.appwidget.SwitchDefaults INSTANCE;
+  }
+
   public final class SwitchKt {
     method @androidx.compose.runtime.Composable public static void Switch(boolean checked, androidx.glance.action.Action? onCheckedChange, optional androidx.glance.GlanceModifier modifier, optional String text, optional androidx.glance.text.TextStyle? style, optional androidx.glance.appwidget.SwitchColors colors, optional int maxLines);
     method @androidx.compose.runtime.Composable public static void Switch(boolean checked, kotlin.jvm.functions.Function0<kotlin.Unit> onCheckedChange, optional androidx.glance.GlanceModifier modifier, optional String text, optional androidx.glance.text.TextStyle? style, optional androidx.glance.appwidget.SwitchColors colors, optional int maxLines);
-    method @androidx.compose.runtime.Composable public static androidx.glance.appwidget.SwitchColors switchColors(androidx.glance.unit.ColorProvider checkedThumbColor, androidx.glance.unit.ColorProvider uncheckedThumbColor, androidx.glance.unit.ColorProvider checkedTrackColor, androidx.glance.unit.ColorProvider uncheckedTrackColor);
-    method @androidx.compose.runtime.Composable public static androidx.glance.appwidget.SwitchColors switchColors();
   }
 
 }

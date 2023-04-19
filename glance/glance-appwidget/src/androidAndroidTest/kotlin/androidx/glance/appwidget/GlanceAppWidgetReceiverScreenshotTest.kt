@@ -24,7 +24,7 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.glance.Button
-import androidx.glance.ButtonColors
+import androidx.glance.ButtonDefaults
 import androidx.glance.GlanceModifier
 import androidx.glance.Image
 import androidx.glance.ImageProvider
@@ -252,7 +252,7 @@ class GlanceAppWidgetReceiverScreenshotTest {
                         "Start",
                         onClick = actionStartActivity<Activity>(),
                         modifier = GlanceModifier.defaultWeight().fillMaxHeight(),
-                        colors = ButtonColors(
+                        colors = ButtonDefaults.buttonColors(
                             backgroundColor = ColorProvider(Color.Transparent),
                             contentColor = ColorProvider(Color.DarkGray)
                         ),
@@ -262,7 +262,7 @@ class GlanceAppWidgetReceiverScreenshotTest {
                         "End",
                         onClick = actionStartActivity<Activity>(),
                         modifier = GlanceModifier.defaultWeight().fillMaxHeight(),
-                        colors = ButtonColors(
+                        colors = ButtonDefaults.buttonColors(
                             backgroundColor = ColorProvider(Color.Transparent),
                             contentColor = ColorProvider(Color.DarkGray)
                         ),
@@ -656,7 +656,7 @@ private fun RoundedButtonScreenshotTest() {
         Button(
             "Button with textAlign = Start",
             onClick = actionStartActivity<Activity>(),
-            colors = ButtonColors(
+            colors = ButtonDefaults.buttonColors(
                 backgroundColor = ColorProvider(day = buttonBgColors[0], night = buttonBgColors[1]),
                 contentColor = ColorProvider(day = buttonTextColors[0], night = buttonTextColors[1])
             ),
@@ -667,7 +667,7 @@ private fun RoundedButtonScreenshotTest() {
             "Button with textAlign = Center and padding (30dp, 30dp)",
             onClick = actionStartActivity<Activity>(),
             modifier = GlanceModifier.padding(horizontal = 30.dp, vertical = 30.dp),
-            colors = ButtonColors(
+            colors = ButtonDefaults.buttonColors(
                 backgroundColor = ColorProvider(day = buttonBgColors[0], night = buttonBgColors[1]),
                 contentColor = ColorProvider(day = buttonTextColors[0], night = buttonTextColors[1])
             ),
@@ -677,7 +677,7 @@ private fun RoundedButtonScreenshotTest() {
         Button(
             "Button with textAlign = End",
             onClick = actionStartActivity<Activity>(),
-            colors = ButtonColors(
+            colors = ButtonDefaults.buttonColors(
                 backgroundColor = ColorProvider(day = buttonBgColors[0], night = buttonBgColors[1]),
                 contentColor = ColorProvider(day = buttonTextColors[0], night = buttonTextColors[1])
             ),
@@ -699,7 +699,7 @@ private fun CheckBoxScreenshotTest() {
                 fontWeight = FontWeight.Bold,
                 fontStyle = FontStyle.Normal,
             ),
-            colors = checkBoxColors(
+            colors = CheckboxDefaults.colors(
                 checkedColor = ColorProvider(day = Color.Magenta, night = Color.Yellow),
                 uncheckedColor = ColorProvider(day = Color.Black, night = Color.Gray)
             )
@@ -715,7 +715,7 @@ private fun CheckBoxScreenshotTest() {
                 fontWeight = FontWeight.Medium,
                 fontStyle = FontStyle.Italic,
             ),
-            colors = checkBoxColors(checkedColor = Color.Red, uncheckedColor = Color.Green)
+            colors = CheckboxDefaults.colors(checkedColor = Color.Red, uncheckedColor = Color.Green)
         )
     }
 }
@@ -732,7 +732,7 @@ private fun SwitchTest() {
                 fontWeight = FontWeight.Bold,
                 fontStyle = FontStyle.Normal,
             ),
-            colors = switchColors(
+            colors = SwitchDefaults.colors(
                 checkedThumbColor = ColorProvider(day = Color.Blue, night = Color.Red),
                 uncheckedThumbColor = ColorProvider(Color.Magenta),
                 checkedTrackColor = ColorProvider(day = Color.Green, night = Color.Yellow),
@@ -750,7 +750,7 @@ private fun SwitchTest() {
                 fontWeight = FontWeight.Medium,
                 fontStyle = FontStyle.Italic,
             ),
-            colors = switchColors(
+            colors = SwitchDefaults.colors(
                 checkedThumbColor = ColorProvider(Color.Blue),
                 uncheckedThumbColor = ColorProvider(day = Color.Magenta, night = Color.Cyan),
                 checkedTrackColor = ColorProvider(Color.Blue),
@@ -775,7 +775,7 @@ private fun RadioButtonScreenshotTest() {
                 fontWeight = FontWeight.Bold,
                 fontStyle = FontStyle.Normal,
             ),
-            colors = radioButtonColors(
+            colors = RadioButtonDefaults.colors(
                 checkedColor = ColorProvider(day = Color.Magenta, night = Color.Yellow),
                 uncheckedColor = ColorProvider(day = Color.Yellow, night = Color.Magenta)
             )
@@ -791,7 +791,10 @@ private fun RadioButtonScreenshotTest() {
                 fontWeight = FontWeight.Medium,
                 fontStyle = FontStyle.Italic,
             ),
-            colors = radioButtonColors(checkedColor = Color.Red, uncheckedColor = Color.Green)
+            colors = RadioButtonDefaults.colors(
+                checkedColor = Color.Red,
+                uncheckedColor = Color.Green
+            )
         )
     }
 }

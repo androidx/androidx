@@ -51,7 +51,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.glance.Button
-import androidx.glance.ButtonColors
+import androidx.glance.ButtonDefaults
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
 import androidx.glance.Image
@@ -443,7 +443,7 @@ class GlanceAppWidgetReceiverTest {
             Button(
                 text = "Button",
                 onClick = actionStartActivity<Activity>(),
-                colors = ButtonColors(
+                colors = ButtonDefaults.buttonColors(
                     backgroundColor = ColorProvider(Color.Transparent),
                     contentColor = ColorProvider(Color.DarkGray)
                 ),
@@ -470,7 +470,7 @@ class GlanceAppWidgetReceiverTest {
             Button(
                 text = "Button",
                 onClick = actionStartActivity<Activity>(),
-                colors = ButtonColors(
+                colors = ButtonDefaults.buttonColors(
                     backgroundColor = ColorProvider(Color.Transparent),
                     contentColor = ColorProvider(Color.DarkGray)
                 ),
@@ -887,7 +887,7 @@ class GlanceAppWidgetReceiverTest {
                     fontWeight = FontWeight.Bold,
                     fontStyle = FontStyle.Normal,
                 ),
-                colors = switchColors(
+                colors = SwitchDefaults.colors(
                     checkedThumbColor = ColorProvider(
                         day = Color.Blue,
                         night = Color.Red

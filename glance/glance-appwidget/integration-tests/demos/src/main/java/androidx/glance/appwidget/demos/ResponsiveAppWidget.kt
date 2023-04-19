@@ -24,7 +24,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.glance.Button
-import androidx.glance.ButtonColors
+import androidx.glance.ButtonDefaults
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
 import androidx.glance.LocalContext
@@ -157,7 +157,7 @@ private fun ContentItem(
         Button(
             text = text,
             modifier = GlanceModifier.fillMaxSize().padding(8.dp).background(color),
-            colors = ButtonColors(
+            colors = ButtonDefaults.buttonColors(
                 backgroundColor = ColorProvider(color),
                 contentColor = ColorProvider(Color.White)
             ),

@@ -30,7 +30,7 @@ import androidx.glance.appwidget.applyRemoteViews
 import androidx.glance.appwidget.configurationContext
 import androidx.glance.appwidget.findView
 import androidx.glance.appwidget.runAndTranslate
-import androidx.glance.appwidget.switchColors
+import androidx.glance.appwidget.SwitchDefaults
 import androidx.glance.color.ColorProvider
 import androidx.glance.semantics.contentDescription
 import androidx.glance.semantics.semantics
@@ -70,7 +70,7 @@ class SwitchBackportTranslatorTest {
                 checked = false,
                 onCheckedChange = null,
                 text = "Switch",
-                colors = switchColors(
+                colors = SwitchDefaults.colors(
                     checkedThumbColor = ColorProvider(Color.Blue),
                     uncheckedThumbColor = ColorProvider(Color.Red),
                     checkedTrackColor = ColorProvider(Color.Green),
@@ -91,7 +91,7 @@ class SwitchBackportTranslatorTest {
                 checked = true,
                 onCheckedChange = null,
                 text = "Switch",
-                colors = switchColors(
+                colors = SwitchDefaults.colors(
                     checkedThumbColor = ColorProvider(Color.Blue),
                     uncheckedThumbColor = ColorProvider(Color.Red),
                     checkedTrackColor = ColorProvider(Color.Green),
@@ -116,7 +116,7 @@ class SwitchBackportTranslatorTest {
                 checked = false,
                 onCheckedChange = null,
                 text = "Switch",
-                colors = switchColors(
+                colors = SwitchDefaults.colors(
                     checkedThumbColor = ColorProvider(otherColor),
                     uncheckedThumbColor = ColorProvider(day = thumbColor, night = otherColor),
                     checkedTrackColor = ColorProvider(otherColor),
@@ -141,7 +141,7 @@ class SwitchBackportTranslatorTest {
                 checked = false,
                 onCheckedChange = null,
                 text = "Switch",
-                colors = switchColors(
+                colors = SwitchDefaults.colors(
                     checkedThumbColor = ColorProvider(otherColor),
                     uncheckedThumbColor = ColorProvider(day = otherColor, night = thumbColor),
                     checkedTrackColor = ColorProvider(otherColor),
@@ -166,7 +166,7 @@ class SwitchBackportTranslatorTest {
                 checked = true,
                 onCheckedChange = null,
                 text = "Switch",
-                colors = switchColors(
+                colors = SwitchDefaults.colors(
                     checkedThumbColor = ColorProvider(day = thumbColor, night = otherColor),
                     uncheckedThumbColor = ColorProvider(day = otherColor, night = otherColor),
                     checkedTrackColor = ColorProvider(day = trackColor, night = otherColor),
@@ -191,7 +191,7 @@ class SwitchBackportTranslatorTest {
                 checked = true,
                 onCheckedChange = null,
                 text = "Switch",
-                colors = switchColors(
+                colors = SwitchDefaults.colors(
                     checkedThumbColor = ColorProvider(day = otherColor, night = thumbColor),
                     uncheckedThumbColor = ColorProvider(otherColor),
                     checkedTrackColor = ColorProvider(day = otherColor, night = trackColor),
@@ -212,7 +212,7 @@ class SwitchBackportTranslatorTest {
                 checked = false,
                 onCheckedChange = null,
                 text = "Switch",
-                colors = switchColors(
+                colors = SwitchDefaults.colors(
                     checkedThumbColor = ColorProvider(Color.Magenta),
                     uncheckedThumbColor = ColorProvider(Color.Red),
                     checkedTrackColor = ColorProvider(Color.Magenta),
@@ -233,7 +233,7 @@ class SwitchBackportTranslatorTest {
                 checked = true,
                 onCheckedChange = null,
                 text = "Switch",
-                colors = switchColors(
+                colors = SwitchDefaults.colors(
                     checkedThumbColor = ColorProvider(Color.Red),
                     uncheckedThumbColor = ColorProvider(Color.Magenta),
                     checkedTrackColor = ColorProvider(Color.Blue),

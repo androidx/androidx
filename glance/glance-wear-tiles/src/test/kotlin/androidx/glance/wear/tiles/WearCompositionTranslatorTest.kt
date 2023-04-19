@@ -26,7 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.graphics.drawable.toBitmap
 import androidx.glance.Button
-import androidx.glance.ButtonColors
+import androidx.glance.ButtonDefaults
 import androidx.glance.ColorFilter
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
@@ -723,7 +723,7 @@ class WearCompositionTranslatorTest {
                 "Hello World",
                 onClick = actionStartActivity(TestActivity::class.java),
                 modifier = GlanceModifier.padding(1.dp),
-                colors = ButtonColors(
+                colors = ButtonDefaults.buttonColors(
                     backgroundColor = ColorProvider(Color.Black),
                     contentColor = ColorProvider(Color.Magenta)
                 ),
