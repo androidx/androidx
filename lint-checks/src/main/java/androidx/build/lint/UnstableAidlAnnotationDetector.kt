@@ -21,6 +21,7 @@ import androidx.build.lint.aidl.getLocation
 import androidx.com.android.tools.idea.lang.aidl.psi.AidlAnnotationElement
 import androidx.com.android.tools.idea.lang.aidl.psi.AidlDeclaration
 import androidx.com.android.tools.idea.lang.aidl.psi.AidlInterfaceDeclaration
+import androidx.com.android.tools.idea.lang.aidl.psi.AidlParcelableDeclaration
 import com.android.tools.lint.detector.api.Category
 import com.android.tools.lint.detector.api.Context
 import com.android.tools.lint.detector.api.Implementation
@@ -41,8 +42,20 @@ private const val JAVA_PASSTHROUGH = "JavaPassthrough"
 
 class UnstableAidlAnnotationDetector : AidlDefinitionDetector() {
 
+    override fun visitAidlParcelableDeclaration(context: Context, node: AidlParcelableDeclaration) {
+        checkDeclaration(context, node, node.annotationElementList)
+    }
+
     override fun visitAidlInterfaceDeclaration(context: Context, node: AidlInterfaceDeclaration) {
-        var passthruAnnotations: List<AidlAnnotationElement> = node.annotationElementList.filter {
+        checkDeclaration(context, node, node.annotationElementList)
+    }
+
+    private fun checkDeclaration(
+        context: Context,
+        node: AidlDeclaration,
+        annotations: List<AidlAnnotationElement>
+    ) {
+        var passthruAnnotations: List<AidlAnnotationElement> = annotations.filter {
                 annotationElement ->
             annotationElement.qualifiedName.name.equals(JAVA_PASSTHROUGH)
         }

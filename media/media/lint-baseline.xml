@@ -3,7 +3,7 @@
 
     <issue
         id="RequireUnstableAidlAnnotation"
-        message="Unstable AIDL files must be annotated with @RequiresOptIn marker"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
         errorLine1="oneway interface IMediaControllerCallback {"
         errorLine2="^">
         <location
@@ -12,11 +12,83 @@
 
     <issue
         id="RequireUnstableAidlAnnotation"
-        message="Unstable AIDL files must be annotated with @RequiresOptIn marker"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
         errorLine1="interface IMediaSession {"
         errorLine2="^">
         <location
             file="src/main/aidl/android/support/v4/media/session/IMediaSession.aidl"/>
+    </issue>
+
+    <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="@JavaOnlyStableParcelable parcelable MediaDescriptionCompat;"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/aidl/android/support/v4/media/MediaDescriptionCompat.aidl"/>
+    </issue>
+
+    <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="@JavaOnlyStableParcelable parcelable MediaMetadataCompat;"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/aidl/android/support/v4/media/MediaMetadataCompat.aidl"/>
+    </issue>
+
+    <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="@JavaOnlyStableParcelable parcelable MediaSessionCompat.Token;"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/aidl/android/support/v4/media/session/MediaSessionCompat.aidl"/>
+    </issue>
+
+    <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="@JavaOnlyStableParcelable parcelable MediaSessionCompat.QueueItem;"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/aidl/android/support/v4/media/session/MediaSessionCompat.aidl"/>
+    </issue>
+
+    <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="@JavaOnlyStableParcelable parcelable MediaSessionCompat.ResultReceiverWrapper;"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/aidl/android/support/v4/media/session/MediaSessionCompat.aidl"/>
+    </issue>
+
+    <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="@JavaOnlyStableParcelable parcelable ParcelableVolumeInfo;"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/aidl/android/support/v4/media/session/ParcelableVolumeInfo.aidl"/>
+    </issue>
+
+    <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="@JavaOnlyStableParcelable parcelable PlaybackStateCompat;"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/aidl/android/support/v4/media/session/PlaybackStateCompat.aidl"/>
+    </issue>
+
+    <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="@JavaOnlyStableParcelable parcelable RatingCompat;"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/aidl/android/support/v4/media/RatingCompat.aidl"/>
     </issue>
 
     <issue

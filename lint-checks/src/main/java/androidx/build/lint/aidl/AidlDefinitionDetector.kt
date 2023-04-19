@@ -23,6 +23,7 @@ import androidx.com.android.tools.idea.lang.aidl.psi.AidlFile
 import androidx.com.android.tools.idea.lang.aidl.psi.AidlInterfaceDeclaration
 import androidx.com.android.tools.idea.lang.aidl.psi.AidlMethodDeclaration
 import androidx.com.android.tools.idea.lang.aidl.psi.AidlParcelableDeclaration
+import androidx.com.android.tools.idea.lang.aidl.psi.AidlUnionDeclaration
 import com.android.tools.lint.detector.api.Context
 import com.android.tools.lint.detector.api.Detector
 import com.android.tools.lint.detector.api.Location
@@ -72,10 +73,19 @@ abstract class AidlDefinitionDetector : Detector(), OtherFileScanner {
         when (aidlDeclaration) {
             is AidlInterfaceDeclaration ->
                 visitAidlInterfaceDeclaration(context, aidlDeclaration)
-            is AidlMethodDeclaration ->
-                visitAidlMethodDeclaration(context, aidlDeclaration)
             is AidlParcelableDeclaration ->
                 visitAidlParcelableDeclaration(context, aidlDeclaration)
+            is AidlUnionDeclaration -> {
+                listOf(
+                    aidlDeclaration.interfaceDeclarationList,
+                    aidlDeclaration.parcelableDeclarationList,
+                    aidlDeclaration.unionDeclarationList
+                ).forEach { declarationList ->
+                    declarationList.forEach { declaration ->
+                        visitAidlDeclaration(context, declaration)
+                    }
+                }
+            }
         }
     }
 

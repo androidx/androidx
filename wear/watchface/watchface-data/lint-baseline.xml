@@ -22,6 +22,105 @@
     <issue
         id="RequireUnstableAidlAnnotation"
         message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="parcelable ComplicationRenderParams;"
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/aidl/androidx/wear/watchface/control/data/ComplicationRenderParams.aidl"/>
+    </issue>
+
+    <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="parcelable ComplicationSlotMetadataWireFormat;"
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/aidl/androidx/wear/watchface/data/ComplicationSlotMetadataWireFormat.aidl"/>
+    </issue>
+
+    <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="parcelable ComplicationStateWireFormat;"
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/aidl/androidx/wear/watchface/data/ComplicationStateWireFormat.aidl"/>
+    </issue>
+
+    <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="parcelable ContentDescriptionLabel;"
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/aidl/android/support/wearable/watchface/accessibility/ContentDescriptionLabel.aidl"/>
+    </issue>
+
+    <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="parcelable CrashInfoParcel;"
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/aidl/androidx/wear/watchface/control/data/CrashInfoParcel.aidl"/>
+    </issue>
+
+    <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="parcelable DefaultProviderPoliciesParams;"
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/aidl/androidx/wear/watchface/control/data/DefaultProviderPoliciesParams.aidl"/>
+    </issue>
+
+    <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="parcelable EditorStateWireFormat;"
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/aidl/androidx/wear/watchface/editor/data/EditorStateWireFormat.aidl"/>
+    </issue>
+
+    <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="parcelable GetComplicationSlotMetadataParams;"
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/aidl/androidx/wear/watchface/control/data/GetComplicationSlotMetadataParams.aidl"/>
+    </issue>
+
+    <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="parcelable GetUserStyleFlavorsParams;"
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/aidl/androidx/wear/watchface/control/data/GetUserStyleFlavorsParams.aidl"/>
+    </issue>
+
+    <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="parcelable GetUserStyleSchemaParams;"
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/aidl/androidx/wear/watchface/control/data/GetUserStyleSchemaParams.aidl"/>
+    </issue>
+
+    <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="parcelable HeadlessWatchFaceInstanceParams;"
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/aidl/androidx/wear/watchface/control/data/HeadlessWatchFaceInstanceParams.aidl"/>
+    </issue>
+
+    <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
         errorLine1="interface IEditorObserver {"
         errorLine2="^">
         <location
@@ -107,6 +206,150 @@
         errorLine2="^">
         <location
             file="src/main/aidl/androidx/wear/watchface/control/IWatchfaceReadyListener.aidl"/>
+    </issue>
+
+    <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="parcelable IdAndComplicationDataWireFormat;"
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/aidl/androidx/wear/watchface/data/IdAndComplicationDataWireFormat.aidl"/>
+    </issue>
+
+    <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="parcelable IdAndComplicationStateWireFormat;"
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/aidl/androidx/wear/watchface/data/IdAndComplicationStateWireFormat.aidl"/>
+    </issue>
+
+    <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="parcelable IdTypeAndDefaultProviderPolicyWireFormat;"
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/aidl/androidx/wear/watchface/control/data/IdTypeAndDefaultProviderPolicyWireFormat.aidl"/>
+    </issue>
+
+    <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="parcelable ImmutableSystemState;"
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/aidl/androidx/wear/watchface/data/ImmutableSystemState.aidl"/>
+    </issue>
+
+    <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="parcelable ParcelableWrapper;"
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/aidl/android/support/wearable/watchface/ParcelableWrapper.aidl"/>
+    </issue>
+
+    <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="parcelable RenderParametersWireFormat;"
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/aidl/androidx/wear/watchface/data/RenderParametersWireFormat.aidl"/>
+    </issue>
+
+    <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="parcelable UserStyleFlavorsWireFormat;"
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/aidl/androidx/wear/watchface/style/data/UserStyleFlavorsWireFormat.aidl"/>
+    </issue>
+
+    <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="parcelable UserStyleSchemaWireFormat;"
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/aidl/androidx/wear/watchface/style/data/UserStyleSchemaWireFormat.aidl"/>
+    </issue>
+
+    <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="parcelable UserStyleWireFormat;"
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/aidl/androidx/wear/watchface/style/data/UserStyleWireFormat.aidl"/>
+    </issue>
+
+    <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="parcelable WallpaperInteractiveWatchFaceInstanceParams;"
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/aidl/androidx/wear/watchface/control/data/WallpaperInteractiveWatchFaceInstanceParams.aidl"/>
+    </issue>
+
+    <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="parcelable WatchFaceColorsWireFormat;"
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/aidl/androidx/wear/watchface/data/WatchFaceColorsWireFormat.aidl"/>
+    </issue>
+
+    <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="parcelable WatchFaceOverlayStyleWireFormat;"
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/aidl/androidx/wear/watchface/data/WatchFaceOverlayStyleWireFormat.aidl"/>
+    </issue>
+
+    <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="parcelable WatchFaceRenderParams;"
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/aidl/androidx/wear/watchface/control/data/WatchFaceRenderParams.aidl"/>
+    </issue>
+
+    <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="parcelable WatchFaceStyle;"
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/aidl/android/support/wearable/watchface/WatchFaceStyle.aidl"/>
+    </issue>
+
+    <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="parcelable WatchFaceSurfaceRenderParams;"
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/aidl/androidx/wear/watchface/control/data/WatchFaceSurfaceRenderParams.aidl"/>
+    </issue>
+
+    <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="parcelable WatchUiState;"
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/aidl/androidx/wear/watchface/data/WatchUiState.aidl"/>
     </issue>
 
 </issues>
