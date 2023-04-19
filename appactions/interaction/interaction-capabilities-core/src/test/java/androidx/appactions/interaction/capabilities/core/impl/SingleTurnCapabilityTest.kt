@@ -85,7 +85,7 @@ class SingleTurnCapabilityTest {
             ArgumentUtils.buildArgs(
                 mapOf(
                     "optionalString" to
-                        ParamValue.newBuilder().setIdentifier("string argument value").build()
+                        ParamValue.newBuilder().setStringValue("string argument value").build()
                 )
             ),
             callbackInternal
@@ -138,7 +138,7 @@ class SingleTurnCapabilityTest {
             ArgumentUtils.buildArgs(
                 mapOf(
                     "optionalString" to
-                        ParamValue.newBuilder().setIdentifier("string argument value").build()
+                        ParamValue.newBuilder().setStringValue("string argument value").build()
                 )
             ),
             callbackInternal
@@ -218,7 +218,7 @@ class SingleTurnCapabilityTest {
             ArgumentUtils.buildArgs(
                 mapOf(
                     "optionalString" to
-                        ParamValue.newBuilder().setIdentifier("string value 1").build()
+                        ParamValue.newBuilder().setStringValue("string value 1").build()
                 )
             ),
             callbackInternal1
@@ -227,7 +227,7 @@ class SingleTurnCapabilityTest {
             ArgumentUtils.buildArgs(
                 mapOf(
                     "optionalString" to
-                        ParamValue.newBuilder().setIdentifier("string value 2").build()
+                        ParamValue.newBuilder().setStringValue("string value 2").build()
                 )
             ),
             callbackInternal2

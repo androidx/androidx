@@ -38,6 +38,7 @@ interface ParamValueConverter<T> {
          * @param typeSpec the TypeSpec of the structured type, which can
          * read/write objects to/from Struct.
          */
+        @JvmStatic
         fun <T> of(typeSpec: TypeSpec<T>) = object : ParamValueConverter<T> {
             override fun fromParamValue(paramValue: ParamValue): T {
                 return typeSpec.fromValue(paramValueToValue(paramValue))

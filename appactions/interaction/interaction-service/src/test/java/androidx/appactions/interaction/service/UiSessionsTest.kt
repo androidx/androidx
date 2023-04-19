@@ -270,7 +270,7 @@ class UiSessionsTest {
         session.execute(
             buildArgs(
                 mapOf(
-                    "fieldOne" to ParamValue.newBuilder().setIdentifier("hello").build(),
+                    "fieldOne" to ParamValue.newBuilder().setStringValue("hello").build(),
                 ),
             ),
             callback,

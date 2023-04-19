@@ -232,21 +232,6 @@ public final class TypeConvertersTest {
     }
 
     @Test
-    public void toStringValue_withIdentifier() throws Exception {
-        List<ParamValue> input =
-                Collections.singletonList(
-                        ParamValue.newBuilder()
-                                .setIdentifier("id1")
-                                .setStringValue("hello world")
-                                .build());
-
-        assertThat(
-                SlotTypeConverter.ofSingular(TypeConverters.STRING_PARAM_VALUE_CONVERTER)
-                        .convert(input))
-                .isEqualTo("id1");
-    }
-
-    @Test
     public void toStringValue_fromSingleParam() throws Exception {
         ParamValue input = ParamValue.newBuilder().setStringValue("hello world").build();
 
@@ -486,7 +471,7 @@ public final class TypeConvertersTest {
                                         .convert(input));
         assertThat(thrown)
                 .hasMessageThat()
-                .isEqualTo("Cannot parse boolean because bool_value is missing from ParamValue.");
+                .matches("cannot convert .+ into Value.");
     }
 
     @Test
@@ -501,7 +486,7 @@ public final class TypeConvertersTest {
                                         .convert(input));
         assertThat(thrown)
                 .hasMessageThat()
-                .isEqualTo("Cannot parse integer because number_value is missing from ParamValue.");
+                .matches("cannot convert .+ into Value.");
     }
 
     @Test
