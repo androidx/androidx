@@ -550,14 +550,20 @@ class ModalBottomSheetTest {
                 modifier = Modifier.testTag(topTag),
                 scrimColor = scrimColor.value,
                 sheetState = rememberModalBottomSheetState(ModalBottomSheetValue.HalfExpanded),
-                content = { Box(
-                    Modifier
-                        .fillMaxSize()
-                        .testTag(contentTag)) },
-                sheetContent = { Box(
-                    Modifier
-                        .fillMaxSize()
-                        .testTag(sheetTag)) }
+                content = {
+                    Box(
+                        Modifier
+                            .fillMaxSize()
+                            .testTag(contentTag)
+                    )
+                },
+                sheetContent = {
+                    Box(
+                        Modifier
+                            .fillMaxSize()
+                            .testTag(sheetTag)
+                    )
+                }
             )
             closeSheet = getString(Strings.CloseSheet)
         }
@@ -714,14 +720,20 @@ class ModalBottomSheetTest {
             ModalBottomSheetLayout(
                 modifier = Modifier.testTag(topTag),
                 sheetState = rememberModalBottomSheetState(ModalBottomSheetValue.HalfExpanded),
-                content = { Box(
-                    Modifier
-                        .fillMaxSize()
-                        .testTag(contentTag)) },
-                sheetContent = { Box(
-                    Modifier
-                        .fillMaxSize()
-                        .testTag(sheetTag)) }
+                content = {
+                    Box(
+                        Modifier
+                            .fillMaxSize()
+                            .testTag(contentTag)
+                    )
+                },
+                sheetContent = {
+                    Box(
+                        Modifier
+                            .fillMaxSize()
+                            .testTag(sheetTag)
+                    )
+                }
             )
         }
 
@@ -751,10 +763,13 @@ class ModalBottomSheetTest {
             ModalBottomSheetLayout(
                 modifier = Modifier.testTag(topTag),
                 sheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden),
-                content = { Box(
-                    Modifier
-                        .fillMaxSize()
-                        .testTag(contentTag)) },
+                content = {
+                    Box(
+                        Modifier
+                            .fillMaxSize()
+                            .testTag(contentTag)
+                    )
+                },
                 sheetContent = {
                     Box(
                         Modifier
@@ -780,17 +795,23 @@ class ModalBottomSheetTest {
     fun modalBottomSheet_missingAnchors_findsClosest() {
         val topTag = "ModalBottomSheetLayout"
         var showShortContent by mutableStateOf(false)
-        val sheetState = ModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)
+        val sheetState = ModalBottomSheetState(
+            initialValue = ModalBottomSheetValue.Hidden,
+            density = rule.density
+        )
         lateinit var scope: CoroutineScope
         rule.setMaterialContent {
             scope = rememberCoroutineScope()
             ModalBottomSheetLayout(
                 modifier = Modifier.testTag(topTag),
                 sheetState = sheetState,
-                content = { Box(
-                    Modifier
-                        .fillMaxSize()
-                        .testTag(contentTag)) },
+                content = {
+                    Box(
+                        Modifier
+                            .fillMaxSize()
+                            .testTag(contentTag)
+                    )
+                },
                 sheetContent = {
                     if (showShortContent) {
                         Box(
@@ -1140,7 +1161,7 @@ class ModalBottomSheetTest {
 
     @Test
     fun modalBottomSheet_shortSheet_anchorChangeHandler_previousTargetNotInAnchors_reconciles() {
-        val sheetState = ModalBottomSheetState(ModalBottomSheetValue.Hidden)
+        val sheetState = ModalBottomSheetState(ModalBottomSheetValue.Hidden, density = rule.density)
         var hasSheetContent by mutableStateOf(false) // Start out with empty sheet content
         lateinit var scope: CoroutineScope
         rule.setContent {
@@ -1175,7 +1196,7 @@ class ModalBottomSheetTest {
 
     @Test
     fun modalBottomSheet_tallSheet_anchorChangeHandler_previousTargetNotInAnchors_reconciles() {
-        val sheetState = ModalBottomSheetState(ModalBottomSheetValue.Hidden)
+        val sheetState = ModalBottomSheetState(ModalBottomSheetValue.Hidden, density = rule.density)
         var hasSheetContent by mutableStateOf(false) // Start out with empty sheet content
         lateinit var scope: CoroutineScope
         rule.setContent {
@@ -1214,7 +1235,8 @@ class ModalBottomSheetTest {
         val stateRestorationTester = StateRestorationTester(rule)
 
         // Not backed by state as we don't want changes to cause recompositions
-        var sheetState = ModalBottomSheetState(ModalBottomSheetValue.HalfExpanded)
+        var sheetState =
+            ModalBottomSheetState(ModalBottomSheetValue.HalfExpanded, density = rule.density)
         var tallSheetContent = true
 
         stateRestorationTester.setContent {
@@ -1232,7 +1254,8 @@ class ModalBottomSheetTest {
 
         tallSheetContent = false
         // Recreate the sheet state so it doesn't have anchors or an offset yet
-        sheetState = ModalBottomSheetState(ModalBottomSheetValue.HalfExpanded)
+        sheetState =
+            ModalBottomSheetState(ModalBottomSheetValue.HalfExpanded, density = rule.density)
 
         assertThat(sheetState.swipeableState.anchors).isEmpty()
         assertThat(sheetState.swipeableState.offset).isNull()

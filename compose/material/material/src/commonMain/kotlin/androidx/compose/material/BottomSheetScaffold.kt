@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package androidx.compose.material
+
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.layout.Column
@@ -25,6 +26,7 @@ import androidx.compose.foundation.layout.requiredHeightIn
 import androidx.compose.material.BottomSheetValue.Collapsed
 import androidx.compose.material.BottomSheetValue.Expanded
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -42,6 +44,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.collapse
 import androidx.compose.ui.semantics.expand
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.Velocity
@@ -61,6 +64,7 @@ enum class BottomSheetValue {
      * The bottom sheet is visible, but only showing its peek height.
      */
     Collapsed,
+
     /**
      * The bottom sheet is visible at its maximum height.
      */
@@ -70,9 +74,12 @@ enum class BottomSheetValue {
 @Deprecated(
     message = "This constructor is deprecated. confirmStateChange has been renamed to " +
         "confirmValueChange.",
-    replaceWith = ReplaceWith("BottomSheetScaffoldState(initialValue, animationSpec, " +
-        "confirmStateChange)")
+    replaceWith = ReplaceWith(
+        "BottomSheetScaffoldState(initialValue, animationSpec, " +
+            "confirmStateChange)"
+    )
 )
+@Suppress("Deprecation")
 @ExperimentalMaterialApi
 fun BottomSheetScaffoldState(
     initialValue: BottomSheetValue,
@@ -88,20 +95,64 @@ fun BottomSheetScaffoldState(
  * State of the persistent bottom sheet in [BottomSheetScaffold].
  *
  * @param initialValue The initial value of the state.
+ * @param density The density that this state can use to convert values to and from dp.
+ * @param animationSpec The default animation that will be used to animate to a new state.
+ * @param confirmValueChange Optional callback invoked to confirm or veto a pending state change.
+ */
+@Suppress("Deprecation")
+@ExperimentalMaterialApi
+@Stable
+fun BottomSheetState(
+    initialValue: BottomSheetValue,
+    density: Density,
+    animationSpec: AnimationSpec<Float> = SwipeableDefaults.AnimationSpec,
+    confirmValueChange: (BottomSheetValue) -> Boolean = { true }
+) = BottomSheetState(initialValue, animationSpec, confirmValueChange).also {
+    it.density = density
+}
+
+/**
+ * State of the persistent bottom sheet in [BottomSheetScaffold].
+ *
+ * @param initialValue The initial value of the state.
  * @param animationSpec The default animation that will be used to animate to a new state.
  * @param confirmValueChange Optional callback invoked to confirm or veto a pending state change.
  */
 @ExperimentalMaterialApi
 @Stable
-class BottomSheetState(
+class BottomSheetState @Deprecated(
+    "This constructor is deprecated. Density must be provided by the component. " +
+        "Please use the constructor that provides a [Density].",
+    ReplaceWith(
+        """
+            BottomSheetState(
+                initialValue = initialValue,
+                density = LocalDensity.current,
+                animationSpec = animationSpec,
+                confirmValueChange = confirmValueChange
+            )
+            """
+    )
+) constructor(
     initialValue: BottomSheetValue,
     animationSpec: AnimationSpec<Float> = SwipeableDefaults.AnimationSpec,
     confirmValueChange: (BottomSheetValue) -> Boolean = { true }
 ) {
+
     internal val swipeableState = SwipeableV2State(
         initialValue = initialValue,
         animationSpec = animationSpec,
-        confirmValueChange = confirmValueChange
+        confirmValueChange = confirmValueChange,
+        positionalThreshold = {
+            with(requireDensity()) {
+                BottomSheetScaffoldPositionalThreshold.toPx()
+            }
+        },
+        velocityThreshold = {
+            with(requireDensity()) {
+                BottomSheetScaffoldVelocityThreshold.toPx()
+            }
+        }
     )
 
     val currentValue: BottomSheetValue
@@ -171,10 +222,44 @@ class BottomSheetState(
 
     internal val isAnimationRunning: Boolean get() = swipeableState.isAnimationRunning
 
+    internal var density: Density? = null
+    private fun requireDensity() = requireNotNull(density) {
+        "The density on BottomSheetState ($this) was not set. Did you use BottomSheetState with " +
+            "the BottomSheetScaffold composable?"
+    }
+
     companion object {
+
         /**
          * The default [Saver] implementation for [BottomSheetState].
          */
+        fun Saver(
+            animationSpec: AnimationSpec<Float>,
+            confirmStateChange: (BottomSheetValue) -> Boolean,
+            density: Density
+        ): Saver<BottomSheetState, *> = Saver(
+            save = { it.swipeableState.currentValue },
+            restore = {
+                BottomSheetState(
+                    initialValue = it,
+                    density = density,
+                    animationSpec = animationSpec,
+                    confirmValueChange = confirmStateChange
+                )
+            }
+        )
+
+        /**
+         * The default [Saver] implementation for [BottomSheetState].
+         */
+        @Deprecated(
+            message = "This function is deprecated. Please use the overload where Density is" +
+                " provided.",
+            replaceWith = ReplaceWith(
+                "Saver(animationSpec, confirmStateChange, density)"
+            )
+        )
+        @Suppress("Deprecation")
         fun Saver(
             animationSpec: AnimationSpec<Float>,
             confirmStateChange: (BottomSheetValue) -> Boolean
@@ -190,6 +275,7 @@ class BottomSheetState(
         )
     }
 }
+
 /**
  * Create a [BottomSheetState] and [remember] it.
  *
@@ -204,20 +290,24 @@ fun rememberBottomSheetState(
     animationSpec: AnimationSpec<Float> = SwipeableDefaults.AnimationSpec,
     confirmStateChange: (BottomSheetValue) -> Boolean = { true }
 ): BottomSheetState {
+    val density = LocalDensity.current
     return rememberSaveable(
         animationSpec,
         saver = BottomSheetState.Saver(
             animationSpec = animationSpec,
-            confirmStateChange = confirmStateChange
+            confirmStateChange = confirmStateChange,
+            density = density
         )
     ) {
         BottomSheetState(
             initialValue = initialValue,
             animationSpec = animationSpec,
-            confirmValueChange = confirmStateChange
+            confirmValueChange = confirmStateChange,
+            density = density
         )
     }
 }
+
 /**
  * State of the [BottomSheetScaffold] composable.
  *
@@ -232,6 +322,7 @@ class BottomSheetScaffoldState(
     val bottomSheetState: BottomSheetState,
     val snackbarHostState: SnackbarHostState
 )
+
 /**
  * Create and [remember] a [BottomSheetScaffoldState].
  *
@@ -254,6 +345,7 @@ fun rememberBottomSheetScaffoldState(
         )
     }
 }
+
 /**
  * <a href="https://material.io/components/sheets-bottom#standard-bottom-sheet" class="external" target="_blank">Material Design standard bottom sheet</a>.
  *
@@ -329,6 +421,14 @@ fun BottomSheetScaffold(
     contentColor: Color = contentColorFor(backgroundColor),
     content: @Composable (PaddingValues) -> Unit
 ) {
+    // b/278692145 Remove this once deprecated methods without density are removed
+    if (scaffoldState.bottomSheetState.density == null) {
+        val density = LocalDensity.current
+        SideEffect {
+            scaffoldState.bottomSheetState.density = density
+        }
+    }
+
     val peekHeightPx = with(LocalDensity.current) { sheetPeekHeight.toPx() }
     val child = @Composable {
         BottomSheetScaffoldLayout(
@@ -402,6 +502,7 @@ fun BottomSheetScaffold(
         }
     }
 }
+
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 private fun BottomSheet(
@@ -478,12 +579,15 @@ object BottomSheetScaffoldDefaults {
      * The default elevation used by [BottomSheetScaffold].
      */
     val SheetElevation = 8.dp
+
     /**
      * The default peek height used by [BottomSheetScaffold].
      */
     val SheetPeekHeight = 56.dp
 }
+
 private enum class BottomSheetScaffoldLayoutSlot { TopBar, Body, Sheet, Fab, Snackbar }
+
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 private fun BottomSheetScaffoldLayout(
@@ -631,3 +735,5 @@ private fun BottomSheetScaffoldAnchorChangeHandler(
 }
 
 private val FabSpacing = 16.dp
+private val BottomSheetScaffoldPositionalThreshold = 56.dp
+private val BottomSheetScaffoldVelocityThreshold = 125.dp
