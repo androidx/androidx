@@ -17,7 +17,7 @@ function regenerateVerificationMetadata() {
   echo "regenerating verification metadata and keyring"
   # regenerate metadata
   # Need to run a clean build, https://github.com/gradle/gradle/issues/19228
-  runGradle --stacktrace --write-verification-metadata pgp,sha256 --export-keys --dry-run --clean bOS :docs-kmp:zipCombinedKmpDocs
+  runGradle --stacktrace --write-verification-metadata pgp,sha256 --export-keys --dry-run --clean -Pandroidx.update.signatures=true bOS :docs-kmp:zipCombinedKmpDocs
 
   # update verification metadata file
   # also remove 'version=' lines, https://github.com/gradle/gradle/issues/20192
