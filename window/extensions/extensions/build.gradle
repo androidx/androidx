@@ -26,7 +26,7 @@ dependencies {
     api(libs.kotlinStdlib)
     implementation("androidx.annotation:annotation:1.6.0")
     implementation("androidx.annotation:annotation-experimental:1.1.0")
-    implementation("androidx.window.extensions.core:core:1.0.0-beta01")
+    implementation("androidx.window.extensions.core:core:1.0.0-rc01")
 
     testImplementation(libs.robolectric)
     testImplementation(libs.testExtJunit)

@@ -49,7 +49,7 @@ dependencies {
     implementation("androidx.collection:collection:1.1.0")
     implementation("androidx.core:core:1.8.0")
 
-    implementation("androidx.window.extensions.core:core:1.0.0-beta01")
+    implementation("androidx.window.extensions.core:core:1.0.0-rc01")
     compileOnly(project(":window:sidecar:sidecar"))
     compileOnly("androidx.window.extensions:extensions:1.1.0-beta01")
 

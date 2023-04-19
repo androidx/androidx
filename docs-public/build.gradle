@@ -402,7 +402,7 @@ dependencies {
     samples("androidx.wear:wear-input-samples:1.2.0-alpha01")
     docs("androidx.wear:wear-input-testing:1.2.0-alpha02")
     docs("androidx.webkit:webkit:1.7.0-beta01")
-    docs("androidx.window.extensions.core:core:1.0.0-beta02")
+    docs("androidx.window.extensions.core:core:1.0.0-rc01")
     docs("androidx.window:window:1.1.0-beta02")
     stubs(fileTree(dir: "../window/stubs/", include: ["window-sidecar-release-0.1.0-alpha01.aar"]))
     docs("androidx.window:window-core:1.1.0-beta02")
