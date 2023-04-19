@@ -21,7 +21,7 @@ import androidx.lifecycle.ViewModel
 
 class ScannerViewModel : ViewModel() {
 
-    companion object {
+    private companion object {
         private const val TAG = "ScannerViewModel"
     }
 
