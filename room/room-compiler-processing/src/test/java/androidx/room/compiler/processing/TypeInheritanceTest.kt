@@ -60,19 +60,23 @@ class TypeInheritanceTest {
         runProcessorTest(sources = listOf(src), handler = handler)
     }
 
-    private fun XTestInvocation.assertFieldType(fieldName: String, expectedTypeName: String) {
+    private fun XTestInvocation.assertFieldType(
+        fieldName: String,
+        expectedJTypeName: String,
+    ) {
+        val expectedKTypeName = expectedJTypeName.replace("? extends", "out")
         val sub = processingEnv.requireTypeElement("SubClass")
         val subField = sub.getField(fieldName).asMemberOf(sub.type)
-        assertThat(subField.asTypeName().java.toString()).isEqualTo(expectedTypeName)
+        assertThat(subField.asTypeName().java.toString()).isEqualTo(expectedJTypeName)
         if (isKsp) {
-            assertThat(subField.asTypeName().kotlin.toString()).isEqualTo(expectedTypeName)
+            assertThat(subField.asTypeName().kotlin.toString()).isEqualTo(expectedKTypeName)
         }
 
         val base = processingEnv.requireTypeElement("BaseClass")
         val baseField = base.getField(fieldName).asMemberOf(sub.type)
-        assertThat(baseField.asTypeName().java.toString()).isEqualTo(expectedTypeName)
+        assertThat(baseField.asTypeName().java.toString()).isEqualTo(expectedJTypeName)
         if (isKsp) {
-            assertThat(baseField.asTypeName().kotlin.toString()).isEqualTo(expectedTypeName)
+            assertThat(baseField.asTypeName().kotlin.toString()).isEqualTo(expectedKTypeName)
         }
     }
 
@@ -80,8 +84,8 @@ class TypeInheritanceTest {
         methodName: String,
         paramName: String,
         expectedJTypeName: String,
-        expectedKTypeName: String,
     ) {
+        val expectedKTypeName = expectedJTypeName.replace("? extends", "out")
         val sub = processingEnv.requireTypeElement("SubClass")
         val subMethod = sub.getMethodByJvmName(methodName)
         val paramIndex = subMethod.parameters.indexOf(subMethod.getParameter(paramName))
@@ -123,9 +127,9 @@ class TypeInheritanceTest {
             invocation.assertFieldType("varField", "Foo<Bar<Baz>>")
             invocation.assertFieldType("varFieldT1", "Foo<Bar<Baz>>")
             invocation.assertFieldType("varFieldT2", "Foo<Bar<Baz>>")
-            invocation.assertParamType("method", "param", "Foo<Bar<Baz>>", "Foo<Bar<Baz>>")
-            invocation.assertParamType("method", "paramT1", "Foo<Bar<Baz>>", "Foo<Bar<Baz>>")
-            invocation.assertParamType("method", "paramT2", "Foo<Bar<Baz>>", "Foo<Bar<Baz>>")
+            invocation.assertParamType("method", "param", "Foo<Bar<Baz>>")
+            invocation.assertParamType("method", "paramT1", "Foo<Bar<Baz>>")
+            invocation.assertParamType("method", "paramT2", "Foo<Bar<Baz>>")
             invocation.assertReturnType("methodReturn", "Foo<Bar<Baz>>")
             invocation.assertReturnType("methodReturnT1", "Foo<Bar<Baz>>")
             invocation.assertReturnType("methodReturnT2", "Foo<Bar<Baz>>")
@@ -145,9 +149,9 @@ class TypeInheritanceTest {
             invocation.assertFieldType("varField", "Foo<Bar<Baz>>")
             invocation.assertFieldType("varFieldT1", "Foo<Bar<Baz>>")
             invocation.assertFieldType("varFieldT2", "Foo<Bar<Baz>>")
-            invocation.assertParamType("method", "param", "Foo<Bar<Baz>>", "Foo<Bar<Baz>>")
-            invocation.assertParamType("method", "paramT1", "Foo<Bar<Baz>>", "Foo<Bar<Baz>>")
-            invocation.assertParamType("method", "paramT2", "Foo<Bar<Baz>>", "Foo<Bar<Baz>>")
+            invocation.assertParamType("method", "param", "Foo<Bar<Baz>>")
+            invocation.assertParamType("method", "paramT1", "Foo<Bar<Baz>>")
+            invocation.assertParamType("method", "paramT2", "Foo<Bar<Baz>>")
             invocation.assertReturnType("methodReturn", "Foo<Bar<Baz>>")
             invocation.assertReturnType("methodReturnT1", "Foo<Bar<Baz>>")
             invocation.assertReturnType("methodReturnT2", "Foo<Bar<Baz>>")
@@ -167,9 +171,9 @@ class TypeInheritanceTest {
             invocation.assertFieldType("varField", "Foo<Bar<Baz>>")
             invocation.assertFieldType("varFieldT1", "Foo<Bar<Baz>>")
             invocation.assertFieldType("varFieldT2", "Foo<Bar<Baz>>")
-            invocation.assertParamType("method", "param", "Foo<Bar<Baz>>", "Foo<Bar<Baz>>")
-            invocation.assertParamType("method", "paramT1", "Foo<Bar<Baz>>", "Foo<Bar<Baz>>")
-            invocation.assertParamType("method", "paramT2", "Foo<Bar<Baz>>", "Foo<Bar<Baz>>")
+            invocation.assertParamType("method", "param", "Foo<Bar<Baz>>")
+            invocation.assertParamType("method", "paramT1", "Foo<Bar<Baz>>")
+            invocation.assertParamType("method", "paramT2", "Foo<Bar<Baz>>")
             invocation.assertReturnType("methodReturn", "Foo<Bar<Baz>>")
             invocation.assertReturnType("methodReturnT1", "Foo<Bar<Baz>>")
             invocation.assertReturnType("methodReturnT2", "Foo<Bar<Baz>>")
@@ -189,9 +193,9 @@ class TypeInheritanceTest {
             invocation.assertFieldType("varField", "Foo<Bar<Baz>>")
             invocation.assertFieldType("varFieldT1", "Foo<Bar<Baz>>")
             invocation.assertFieldType("varFieldT2", "Foo<Bar<Baz>>")
-            invocation.assertParamType("method", "param", "Foo<Bar<Baz>>", "Foo<Bar<Baz>>")
-            invocation.assertParamType("method", "paramT1", "Foo<Bar<Baz>>", "Foo<Bar<Baz>>")
-            invocation.assertParamType("method", "paramT2", "Foo<Bar<Baz>>", "Foo<Bar<Baz>>")
+            invocation.assertParamType("method", "param", "Foo<Bar<Baz>>")
+            invocation.assertParamType("method", "paramT1", "Foo<Bar<Baz>>")
+            invocation.assertParamType("method", "paramT2", "Foo<Bar<Baz>>")
             invocation.assertReturnType("methodReturn", "Foo<Bar<Baz>>")
             invocation.assertReturnType("methodReturnT1", "Foo<Bar<Baz>>")
             invocation.assertReturnType("methodReturnT2", "Foo<Bar<Baz>>")
@@ -211,9 +215,9 @@ class TypeInheritanceTest {
             invocation.assertFieldType("varField", "Foo<Bar<Baz>>")
             invocation.assertFieldType("varFieldT1", "Foo<Bar<Baz>>")
             invocation.assertFieldType("varFieldT2", "Foo<Bar<Baz>>")
-            invocation.assertParamType("method", "param", "Foo<Bar<Baz>>", "Foo<Bar<Baz>>")
-            invocation.assertParamType("method", "paramT1", "Foo<Bar<Baz>>", "Foo<Bar<Baz>>")
-            invocation.assertParamType("method", "paramT2", "Foo<Bar<Baz>>", "Foo<Bar<Baz>>")
+            invocation.assertParamType("method", "param", "Foo<Bar<Baz>>")
+            invocation.assertParamType("method", "paramT1", "Foo<Bar<Baz>>")
+            invocation.assertParamType("method", "paramT2", "Foo<Bar<Baz>>")
             invocation.assertReturnType("methodReturn", "Foo<Bar<Baz>>")
             invocation.assertReturnType("methodReturnT1", "Foo<Bar<Baz>>")
             invocation.assertReturnType("methodReturnT2", "Foo<Bar<Baz>>")
@@ -233,9 +237,9 @@ class TypeInheritanceTest {
             invocation.assertFieldType("varField", "Foo<Bar<Baz>>")
             invocation.assertFieldType("varFieldT1", "Foo<Bar<Baz>>")
             invocation.assertFieldType("varFieldT2", "Foo<Bar<Baz>>")
-            invocation.assertParamType("method", "param", "Foo<Bar<Baz>>", "Foo<Bar<Baz>>")
-            invocation.assertParamType("method", "paramT1", "Foo<Bar<Baz>>", "Foo<Bar<Baz>>")
-            invocation.assertParamType("method", "paramT2", "Foo<Bar<Baz>>", "Foo<Bar<Baz>>")
+            invocation.assertParamType("method", "param", "Foo<Bar<Baz>>")
+            invocation.assertParamType("method", "paramT1", "Foo<Bar<Baz>>")
+            invocation.assertParamType("method", "paramT2", "Foo<Bar<Baz>>")
             invocation.assertReturnType("methodReturn", "Foo<Bar<Baz>>")
             invocation.assertReturnType("methodReturnT1", "Foo<Bar<Baz>>")
             invocation.assertReturnType("methodReturnT2", "Foo<Bar<Baz>>")
@@ -255,9 +259,9 @@ class TypeInheritanceTest {
             invocation.assertFieldType("varField", "Foo<Bar<Baz>>")
             invocation.assertFieldType("varFieldT1", "Foo<Bar<Baz>>")
             invocation.assertFieldType("varFieldT2", "Foo<Bar<Baz>>")
-            invocation.assertParamType("method", "param", "Foo<Bar<Baz>>", "Foo<Bar<Baz>>")
-            invocation.assertParamType("method", "paramT1", "Foo<Bar<Baz>>", "Foo<Bar<Baz>>")
-            invocation.assertParamType("method", "paramT2", "Foo<Bar<Baz>>", "Foo<Bar<Baz>>")
+            invocation.assertParamType("method", "param", "Foo<Bar<Baz>>")
+            invocation.assertParamType("method", "paramT1", "Foo<Bar<Baz>>")
+            invocation.assertParamType("method", "paramT2", "Foo<Bar<Baz>>")
             invocation.assertReturnType("methodReturn", "Foo<Bar<Baz>>")
             invocation.assertReturnType("methodReturnT1", "Foo<Bar<Baz>>")
             invocation.assertReturnType("methodReturnT2", "Foo<Bar<Baz>>")
@@ -277,9 +281,9 @@ class TypeInheritanceTest {
             invocation.assertFieldType("varField", "Foo<Bar<Baz>>")
             invocation.assertFieldType("varFieldT1", "Foo<Bar<Baz>>")
             invocation.assertFieldType("varFieldT2", "Foo<Bar<Baz>>")
-            invocation.assertParamType("method", "param", "Foo<Bar<Baz>>", "Foo<Bar<Baz>>")
-            invocation.assertParamType("method", "paramT1", "Foo<Bar<Baz>>", "Foo<Bar<Baz>>")
-            invocation.assertParamType("method", "paramT2", "Foo<Bar<Baz>>", "Foo<Bar<Baz>>")
+            invocation.assertParamType("method", "param", "Foo<Bar<Baz>>")
+            invocation.assertParamType("method", "paramT1", "Foo<Bar<Baz>>")
+            invocation.assertParamType("method", "paramT2", "Foo<Bar<Baz>>")
             invocation.assertReturnType("methodReturn", "Foo<Bar<Baz>>")
             invocation.assertReturnType("methodReturnT1", "Foo<Bar<Baz>>")
             invocation.assertReturnType("methodReturnT2", "Foo<Bar<Baz>>")
@@ -298,24 +302,13 @@ class TypeInheritanceTest {
             invocation.assertFieldType("valFieldT2", "Foo<Bar<Baz>>")
             invocation.assertFieldType("varField", "Foo<Bar<Baz>>")
             invocation.assertFieldType("varFieldT1", "Foo<Bar<Baz>>")
-            invocation.assertParamType("method", "param", "Foo<Bar<Baz>>", "Foo<Bar<Baz>>")
-            invocation.assertParamType("method", "paramT1", "Foo<Bar<Baz>>", "Foo<Bar<Baz>>")
-            invocation.assertParamType(
-                "method",
-                "paramT2",
-                "Foo<? extends Bar<Baz>>",
-                "Foo<out Bar<Baz>>"
-            )
+            invocation.assertFieldType("varFieldT2", "Foo<? extends Bar<Baz>>")
+            invocation.assertParamType("method", "param", "Foo<Bar<Baz>>")
+            invocation.assertParamType("method", "paramT1", "Foo<Bar<Baz>>")
+            invocation.assertParamType("method", "paramT2", "Foo<? extends Bar<Baz>>")
             invocation.assertReturnType("methodReturn", "Foo<Bar<Baz>>")
             invocation.assertReturnType("methodReturnT1", "Foo<Bar<Baz>>")
             invocation.assertReturnType("methodReturnT2", "Foo<Bar<Baz>>")
-
-            // TODO(b/237280547): Make KSP type name match KAPT.
-            if (invocation.isKsp) {
-                invocation.assertFieldType("varFieldT2", "Foo<Bar<Baz>>")
-            } else {
-                invocation.assertFieldType("varFieldT2", "Foo<? extends Bar<Baz>>")
-            }
         }
     }
 
@@ -331,24 +324,13 @@ class TypeInheritanceTest {
             invocation.assertFieldType("valFieldT2", "Foo<Bar<Baz>>")
             invocation.assertFieldType("varField", "Foo<Bar<Baz>>")
             invocation.assertFieldType("varFieldT1", "Foo<Bar<Baz>>")
-            invocation.assertParamType("method", "param", "Foo<Bar<Baz>>", "Foo<Bar<Baz>>")
-            invocation.assertParamType("method", "paramT1", "Foo<Bar<Baz>>", "Foo<Bar<Baz>>")
-            invocation.assertParamType(
-                "method",
-                "paramT2",
-                "Foo<? extends Bar<Baz>>",
-                "Foo<out Bar<Baz>>"
-            )
+            invocation.assertFieldType("varFieldT2", "Foo<? extends Bar<Baz>>")
+            invocation.assertParamType("method", "param", "Foo<Bar<Baz>>")
+            invocation.assertParamType("method", "paramT1", "Foo<Bar<Baz>>")
+            invocation.assertParamType("method", "paramT2", "Foo<? extends Bar<Baz>>")
             invocation.assertReturnType("methodReturn", "Foo<Bar<Baz>>")
             invocation.assertReturnType("methodReturnT1", "Foo<Bar<Baz>>")
             invocation.assertReturnType("methodReturnT2", "Foo<Bar<Baz>>")
-
-            // TODO(b/237280547): Make KSP type name match KAPT.
-            if (invocation.isKsp) {
-                invocation.assertFieldType("varFieldT2", "Foo<Bar<Baz>>")
-            } else {
-                invocation.assertFieldType("varFieldT2", "Foo<? extends Bar<Baz>>")
-            }
         }
     }
 
@@ -362,38 +344,15 @@ class TypeInheritanceTest {
             invocation.assertFieldType("valField", "Foo<Bar<Baz>>")
             invocation.assertFieldType("valFieldT1", "Foo<Bar<Baz>>")
             invocation.assertFieldType("valFieldT2", "Foo<Bar<Baz>>")
-            invocation.assertParamType(
-                "method",
-                "param",
-                "Foo<? extends Bar<Baz>>",
-                "Foo<out Bar<Baz>>"
-            )
-            invocation.assertParamType(
-                "method",
-                "paramT1",
-                "Foo<? extends Bar<Baz>>",
-                "Foo<out Bar<Baz>>"
-            )
-            invocation.assertParamType(
-                "method",
-                "paramT2",
-                "Foo<? extends Bar<Baz>>",
-                "Foo<out Bar<Baz>>"
-            )
+            invocation.assertFieldType("varField", "Foo<? extends Bar<Baz>>")
+            invocation.assertFieldType("varFieldT1", "Foo<? extends Bar<Baz>>")
+            invocation.assertFieldType("varFieldT2", "Foo<? extends Bar<Baz>>")
+            invocation.assertParamType("method", "param", "Foo<? extends Bar<Baz>>")
+            invocation.assertParamType("method", "paramT1", "Foo<? extends Bar<Baz>>")
+            invocation.assertParamType("method", "paramT2", "Foo<? extends Bar<Baz>>")
             invocation.assertReturnType("methodReturn", "Foo<Bar<Baz>>")
             invocation.assertReturnType("methodReturnT1", "Foo<Bar<Baz>>")
             invocation.assertReturnType("methodReturnT2", "Foo<Bar<Baz>>")
-
-            // TODO(b/237280547): Make KSP type name match KAPT.
-            if (invocation.isKsp) {
-                invocation.assertFieldType("varField", "Foo<Bar<Baz>>")
-                invocation.assertFieldType("varFieldT1", "Foo<Bar<Baz>>")
-                invocation.assertFieldType("varFieldT2", "Foo<Bar<Baz>>")
-            } else {
-                invocation.assertFieldType("varField", "Foo<? extends Bar<Baz>>")
-                invocation.assertFieldType("varFieldT1", "Foo<? extends Bar<Baz>>")
-                invocation.assertFieldType("varFieldT2", "Foo<? extends Bar<Baz>>")
-            }
         }
     }
 
@@ -409,24 +368,13 @@ class TypeInheritanceTest {
             invocation.assertFieldType("valFieldT2", "Foo<Bar<Baz>>")
             invocation.assertFieldType("varField", "Foo<Bar<Baz>>")
             invocation.assertFieldType("varFieldT1", "Foo<Bar<Baz>>")
-            invocation.assertParamType("method", "param", "Foo<Bar<Baz>>", "Foo<Bar<Baz>>")
-            invocation.assertParamType("method", "paramT1", "Foo<Bar<Baz>>", "Foo<Bar<Baz>>")
-            invocation.assertParamType(
-                "method",
-                "paramT2",
-                "Foo<? extends Bar<Baz>>",
-                "Foo<out Bar<Baz>>"
-            )
+            invocation.assertFieldType("varFieldT2", "Foo<? extends Bar<Baz>>")
+            invocation.assertParamType("method", "param", "Foo<Bar<Baz>>")
+            invocation.assertParamType("method", "paramT1", "Foo<Bar<Baz>>")
+            invocation.assertParamType("method", "paramT2", "Foo<? extends Bar<Baz>>")
             invocation.assertReturnType("methodReturn", "Foo<Bar<Baz>>")
             invocation.assertReturnType("methodReturnT1", "Foo<Bar<Baz>>")
             invocation.assertReturnType("methodReturnT2", "Foo<Bar<Baz>>")
-
-            // TODO(b/237280547): Make KSP type name match KAPT.
-            if (invocation.isKsp) {
-                invocation.assertFieldType("varFieldT2", "Foo<Bar<Baz>>")
-            } else {
-                invocation.assertFieldType("varFieldT2", "Foo<? extends Bar<Baz>>")
-            }
         }
     }
 
@@ -440,38 +388,15 @@ class TypeInheritanceTest {
             invocation.assertFieldType("valField", "Foo<Bar<Baz>>")
             invocation.assertFieldType("valFieldT1", "Foo<Bar<Baz>>")
             invocation.assertFieldType("valFieldT2", "Foo<Bar<Baz>>")
-            invocation.assertParamType(
-                "method",
-                "param",
-                "Foo<? extends Bar<Baz>>",
-                "Foo<out Bar<Baz>>"
-            )
-            invocation.assertParamType(
-                "method",
-                "paramT1",
-                "Foo<? extends Bar<Baz>>",
-                "Foo<out Bar<Baz>>"
-            )
-            invocation.assertParamType(
-                "method",
-                "paramT2",
-                "Foo<? extends Bar<Baz>>",
-                "Foo<out Bar<Baz>>"
-            )
+            invocation.assertFieldType("varField", "Foo<? extends Bar<Baz>>")
+            invocation.assertFieldType("varFieldT1", "Foo<? extends Bar<Baz>>")
+            invocation.assertFieldType("varFieldT2", "Foo<? extends Bar<Baz>>")
+            invocation.assertParamType("method", "param", "Foo<? extends Bar<Baz>>")
+            invocation.assertParamType("method", "paramT1", "Foo<? extends Bar<Baz>>")
+            invocation.assertParamType("method", "paramT2", "Foo<? extends Bar<Baz>>")
             invocation.assertReturnType("methodReturn", "Foo<Bar<Baz>>")
             invocation.assertReturnType("methodReturnT1", "Foo<Bar<Baz>>")
             invocation.assertReturnType("methodReturnT2", "Foo<Bar<Baz>>")
-
-            // TODO(b/237280547): Make KSP type name match KAPT.
-            if (invocation.isKsp) {
-                invocation.assertFieldType("varField", "Foo<Bar<Baz>>")
-                invocation.assertFieldType("varFieldT1", "Foo<Bar<Baz>>")
-                invocation.assertFieldType("varFieldT2", "Foo<Bar<Baz>>")
-            } else {
-                invocation.assertFieldType("varField", "Foo<? extends Bar<Baz>>")
-                invocation.assertFieldType("varFieldT1", "Foo<? extends Bar<Baz>>")
-                invocation.assertFieldType("varFieldT2", "Foo<? extends Bar<Baz>>")
-            }
         }
     }
 
@@ -487,24 +412,13 @@ class TypeInheritanceTest {
             invocation.assertFieldType("valFieldT2", "Foo<Bar<Baz>>")
             invocation.assertFieldType("varField", "Foo<Bar<Baz>>")
             invocation.assertFieldType("varFieldT1", "Foo<Bar<Baz>>")
-            invocation.assertParamType("method", "param", "Foo<Bar<Baz>>", "Foo<Bar<Baz>>")
-            invocation.assertParamType("method", "paramT1", "Foo<Bar<Baz>>", "Foo<Bar<Baz>>")
-            invocation.assertParamType(
-                "method",
-                "paramT2",
-                "Foo<? extends Bar<Baz>>",
-                "Foo<out Bar<Baz>>"
-            )
+            invocation.assertFieldType("varFieldT2", "Foo<? extends Bar<Baz>>")
+            invocation.assertParamType("method", "param", "Foo<Bar<Baz>>")
+            invocation.assertParamType("method", "paramT1", "Foo<Bar<Baz>>")
+            invocation.assertParamType("method", "paramT2", "Foo<? extends Bar<Baz>>")
             invocation.assertReturnType("methodReturn", "Foo<Bar<Baz>>")
             invocation.assertReturnType("methodReturnT1", "Foo<Bar<Baz>>")
             invocation.assertReturnType("methodReturnT2", "Foo<Bar<Baz>>")
-
-            // TODO(b/237280547): Make KSP type name match KAPT.
-            if (invocation.isKsp) {
-                invocation.assertFieldType("varFieldT2", "Foo<Bar<Baz>>")
-            } else {
-                invocation.assertFieldType("varFieldT2", "Foo<? extends Bar<Baz>>")
-            }
         }
     }
 
@@ -518,38 +432,15 @@ class TypeInheritanceTest {
             invocation.assertFieldType("valField", "Foo<Bar<Baz>>")
             invocation.assertFieldType("valFieldT1", "Foo<Bar<Baz>>")
             invocation.assertFieldType("valFieldT2", "Foo<Bar<Baz>>")
-            invocation.assertParamType(
-                "method",
-                "param",
-                "Foo<? extends Bar<Baz>>",
-                "Foo<out Bar<Baz>>"
-            )
-            invocation.assertParamType(
-                "method",
-                "paramT1",
-                "Foo<? extends Bar<Baz>>",
-                "Foo<out Bar<Baz>>"
-            )
-            invocation.assertParamType(
-                "method",
-                "paramT2",
-                "Foo<? extends Bar<Baz>>",
-                "Foo<out Bar<Baz>>"
-            )
+            invocation.assertFieldType("varField", "Foo<? extends Bar<Baz>>")
+            invocation.assertFieldType("varFieldT1", "Foo<? extends Bar<Baz>>")
+            invocation.assertFieldType("varFieldT2", "Foo<? extends Bar<Baz>>")
+            invocation.assertParamType("method", "param", "Foo<? extends Bar<Baz>>")
+            invocation.assertParamType("method", "paramT1", "Foo<? extends Bar<Baz>>")
+            invocation.assertParamType("method", "paramT2", "Foo<? extends Bar<Baz>>")
             invocation.assertReturnType("methodReturn", "Foo<Bar<Baz>>")
             invocation.assertReturnType("methodReturnT1", "Foo<Bar<Baz>>")
             invocation.assertReturnType("methodReturnT2", "Foo<Bar<Baz>>")
-
-            // TODO(b/237280547): Make KSP type name match KAPT.
-            if (invocation.isKsp) {
-                invocation.assertFieldType("varField", "Foo<Bar<Baz>>")
-                invocation.assertFieldType("varFieldT1", "Foo<Bar<Baz>>")
-                invocation.assertFieldType("varFieldT2", "Foo<Bar<Baz>>")
-            } else {
-                invocation.assertFieldType("varField", "Foo<? extends Bar<Baz>>")
-                invocation.assertFieldType("varFieldT1", "Foo<? extends Bar<Baz>>")
-                invocation.assertFieldType("varFieldT2", "Foo<? extends Bar<Baz>>")
-            }
         }
     }
 
@@ -563,38 +454,15 @@ class TypeInheritanceTest {
             invocation.assertFieldType("valField", "Foo<Bar<Baz>>")
             invocation.assertFieldType("valFieldT1", "Foo<Bar<Baz>>")
             invocation.assertFieldType("valFieldT2", "Foo<Bar<Baz>>")
-            invocation.assertParamType(
-                "method",
-                "param",
-                "Foo<? extends Bar<Baz>>",
-                "Foo<out Bar<Baz>>"
-            )
-            invocation.assertParamType(
-                "method",
-                "paramT1",
-                "Foo<? extends Bar<Baz>>",
-                "Foo<out Bar<Baz>>"
-            )
-            invocation.assertParamType(
-                "method",
-                "paramT2",
-                "Foo<? extends Bar<Baz>>",
-                "Foo<out Bar<Baz>>"
-            )
+            invocation.assertFieldType("varField", "Foo<? extends Bar<Baz>>")
+            invocation.assertFieldType("varFieldT1", "Foo<? extends Bar<Baz>>")
+            invocation.assertFieldType("varFieldT2", "Foo<? extends Bar<Baz>>")
+            invocation.assertParamType("method", "param", "Foo<? extends Bar<Baz>>")
+            invocation.assertParamType("method", "paramT1", "Foo<? extends Bar<Baz>>")
+            invocation.assertParamType("method", "paramT2", "Foo<? extends Bar<Baz>>")
             invocation.assertReturnType("methodReturn", "Foo<Bar<Baz>>")
             invocation.assertReturnType("methodReturnT1", "Foo<Bar<Baz>>")
             invocation.assertReturnType("methodReturnT2", "Foo<Bar<Baz>>")
-
-            // TODO(b/237280547): Make KSP type name match KAPT.
-            if (invocation.isKsp) {
-                invocation.assertFieldType("varField", "Foo<Bar<Baz>>")
-                invocation.assertFieldType("varFieldT1", "Foo<Bar<Baz>>")
-                invocation.assertFieldType("varFieldT2", "Foo<Bar<Baz>>")
-            } else {
-                invocation.assertFieldType("varField", "Foo<? extends Bar<Baz>>")
-                invocation.assertFieldType("varFieldT1", "Foo<? extends Bar<Baz>>")
-                invocation.assertFieldType("varFieldT2", "Foo<? extends Bar<Baz>>")
-            }
         }
     }
 
@@ -607,40 +475,16 @@ class TypeInheritanceTest {
         ) { invocation ->
             invocation.assertFieldType("valField", "Foo<Bar<Baz>>")
             invocation.assertFieldType("valFieldT1", "Foo<Bar<Baz>>")
+            invocation.assertFieldType("valFieldT2", "Foo<Bar<? extends Baz>>")
             invocation.assertFieldType("varField", "Foo<Bar<Baz>>")
             invocation.assertFieldType("varFieldT1", "Foo<Bar<Baz>>")
-            invocation.assertParamType("method", "param", "Foo<Bar<Baz>>", "Foo<Bar<Baz>>")
-            invocation.assertParamType(
-                "method",
-                "paramT2",
-                "Foo<Bar<? extends Baz>>",
-                "Foo<Bar<out Baz>>"
-            )
+            invocation.assertFieldType("varFieldT2", "Foo<Bar<? extends Baz>>")
+            invocation.assertParamType("method", "param", "Foo<Bar<Baz>>")
+            invocation.assertParamType("method", "paramT1", "Foo<Bar<Baz>>")
+            invocation.assertParamType("method", "paramT2", "Foo<Bar<? extends Baz>>")
             invocation.assertReturnType("methodReturn", "Foo<Bar<Baz>>")
             invocation.assertReturnType("methodReturnT1", "Foo<Bar<Baz>>")
-
-            // TODO(b/237280547): Make KSP type name match KAPT.
-            if (invocation.isKsp) {
-                invocation.assertFieldType("valFieldT2", "Foo<Bar<Baz>>")
-                invocation.assertFieldType("varFieldT2", "Foo<Bar<Baz>>")
-                invocation.assertParamType(
-                    "method",
-                    "paramT1",
-                    "Foo<Bar<? extends Baz>>",
-                    "Foo<Bar<out Baz>>"
-                )
-                invocation.assertReturnType("methodReturnT2", "Foo<Bar<Baz>>")
-            } else {
-                invocation.assertFieldType("valFieldT2", "Foo<Bar<? extends Baz>>")
-                invocation.assertFieldType("varFieldT2", "Foo<Bar<? extends Baz>>")
-                invocation.assertParamType(
-                    "method",
-                    "paramT1",
-                    "Foo<Bar<Baz>>",
-                    "Foo<Bar<Baz>>"
-                )
-                invocation.assertReturnType("methodReturnT2", "Foo<Bar<? extends Baz>>")
-            }
+            invocation.assertReturnType("methodReturnT2", "Foo<Bar<? extends Baz>>")
         }
     }
 
@@ -653,35 +497,16 @@ class TypeInheritanceTest {
         ) { invocation ->
             invocation.assertFieldType("valField", "Foo<Bar<Baz>>")
             invocation.assertFieldType("valFieldT1", "Foo<Bar<Baz>>")
+            invocation.assertFieldType("valFieldT2", "Foo<Bar<? extends Baz>>")
             invocation.assertFieldType("varField", "Foo<Bar<Baz>>")
             invocation.assertFieldType("varFieldT1", "Foo<Bar<Baz>>")
-            invocation.assertParamType("method", "param", "Foo<Bar<Baz>>", "Foo<Bar<Baz>>")
-            invocation.assertParamType(
-                "method",
-                "paramT2",
-                "Foo<Bar<? extends Baz>>",
-                "Foo<Bar<out Baz>>"
-            )
+            invocation.assertFieldType("varFieldT2", "Foo<Bar<? extends Baz>>")
+            invocation.assertParamType("method", "param", "Foo<Bar<Baz>>")
+            invocation.assertParamType("method", "paramT1", "Foo<Bar<Baz>>")
+            invocation.assertParamType("method", "paramT2", "Foo<Bar<? extends Baz>>")
             invocation.assertReturnType("methodReturn", "Foo<Bar<Baz>>")
             invocation.assertReturnType("methodReturnT1", "Foo<Bar<Baz>>")
-
-            // TODO(b/237280547): Make KSP type name match KAPT.
-            if (invocation.isKsp) {
-                invocation.assertFieldType("valFieldT2", "Foo<Bar<Baz>>")
-                invocation.assertFieldType("varFieldT2", "Foo<Bar<Baz>>")
-                invocation.assertParamType(
-                    "method",
-                    "paramT1",
-                    "Foo<Bar<? extends Baz>>",
-                    "Foo<Bar<out Baz>>"
-                )
-                invocation.assertReturnType("methodReturnT2", "Foo<Bar<Baz>>")
-            } else {
-                invocation.assertFieldType("valFieldT2", "Foo<Bar<? extends Baz>>")
-                invocation.assertFieldType("varFieldT2", "Foo<Bar<? extends Baz>>")
-                invocation.assertParamType("method", "paramT1", "Foo<Bar<Baz>>", "Foo<Bar<Baz>>")
-                invocation.assertReturnType("methodReturnT2", "Foo<Bar<? extends Baz>>")
-            }
+            invocation.assertReturnType("methodReturnT2", "Foo<Bar<? extends Baz>>")
         }
     }
 
@@ -694,35 +519,16 @@ class TypeInheritanceTest {
         ) { invocation ->
             invocation.assertFieldType("valField", "Foo<Bar<Baz>>")
             invocation.assertFieldType("valFieldT1", "Foo<Bar<Baz>>")
+            invocation.assertFieldType("valFieldT2", "Foo<Bar<? extends Baz>>")
             invocation.assertFieldType("varField", "Foo<Bar<Baz>>")
             invocation.assertFieldType("varFieldT1", "Foo<Bar<Baz>>")
-            invocation.assertParamType("method", "param", "Foo<Bar<Baz>>", "Foo<Bar<Baz>>")
-            invocation.assertParamType(
-                "method",
-                "paramT2",
-                "Foo<Bar<? extends Baz>>",
-                "Foo<Bar<out Baz>>"
-            )
+            invocation.assertFieldType("varFieldT2", "Foo<Bar<? extends Baz>>")
+            invocation.assertParamType("method", "param", "Foo<Bar<Baz>>")
+            invocation.assertParamType("method", "paramT1", "Foo<Bar<Baz>>")
+            invocation.assertParamType("method", "paramT2", "Foo<Bar<? extends Baz>>")
             invocation.assertReturnType("methodReturn", "Foo<Bar<Baz>>")
             invocation.assertReturnType("methodReturnT1", "Foo<Bar<Baz>>")
-
-            // TODO(b/237280547): Make KSP type name match KAPT.
-            if (invocation.isKsp) {
-                invocation.assertFieldType("valFieldT2", "Foo<Bar<Baz>>")
-                invocation.assertFieldType("varFieldT2", "Foo<Bar<Baz>>")
-                invocation.assertParamType(
-                    "method",
-                    "paramT1",
-                    "Foo<Bar<? extends Baz>>",
-                    "Foo<Bar<out Baz>>"
-                )
-                invocation.assertReturnType("methodReturnT2", "Foo<Bar<Baz>>")
-            } else {
-                invocation.assertFieldType("valFieldT2", "Foo<Bar<? extends Baz>>")
-                invocation.assertFieldType("varFieldT2", "Foo<Bar<? extends Baz>>")
-                invocation.assertParamType("method", "paramT1", "Foo<Bar<Baz>>", "Foo<Bar<Baz>>")
-                invocation.assertReturnType("methodReturnT2", "Foo<Bar<? extends Baz>>")
-            }
+            invocation.assertReturnType("methodReturnT2", "Foo<Bar<? extends Baz>>")
         }
     }
 
@@ -735,41 +541,16 @@ class TypeInheritanceTest {
         ) { invocation ->
             invocation.assertFieldType("valField", "Foo<Bar<Baz>>")
             invocation.assertFieldType("valFieldT1", "Foo<Bar<Baz>>")
+            invocation.assertFieldType("valFieldT2", "Foo<Bar<? extends Baz>>")
             invocation.assertFieldType("varField", "Foo<Bar<Baz>>")
             invocation.assertFieldType("varFieldT1", "Foo<Bar<Baz>>")
-            invocation.assertParamType(
-                "method",
-                "paramT2",
-                "Foo<Bar<? extends Baz>>",
-                "Foo<Bar<out Baz>>"
-            )
+            invocation.assertFieldType("varFieldT2", "Foo<Bar<? extends Baz>>")
+            invocation.assertParamType("method", "param", "Foo<Bar<Baz>>")
+            invocation.assertParamType("method", "paramT1", "Foo<Bar<Baz>>")
+            invocation.assertParamType("method", "paramT2", "Foo<Bar<? extends Baz>>")
             invocation.assertReturnType("methodReturn", "Foo<Bar<Baz>>")
             invocation.assertReturnType("methodReturnT1", "Foo<Bar<Baz>>")
-
-            // TODO(b/237280547): Make KSP type name match KAPT.
-            if (invocation.isKsp) {
-                invocation.assertFieldType("valFieldT2", "Foo<Bar<Baz>>")
-                invocation.assertFieldType("varFieldT2", "Foo<Bar<Baz>>")
-                invocation.assertParamType(
-                    "method",
-                    "param",
-                    "Foo<Bar<? extends Baz>>",
-                    "Foo<Bar<out Baz>>"
-                )
-                invocation.assertParamType(
-                    "method",
-                    "paramT1",
-                    "Foo<Bar<? extends Baz>>",
-                    "Foo<Bar<out Baz>>"
-                )
-                invocation.assertReturnType("methodReturnT2", "Foo<Bar<Baz>>")
-            } else {
-                invocation.assertFieldType("valFieldT2", "Foo<Bar<? extends Baz>>")
-                invocation.assertFieldType("varFieldT2", "Foo<Bar<? extends Baz>>")
-                invocation.assertParamType("method", "param", "Foo<Bar<Baz>>", "Foo<Bar<Baz>>")
-                invocation.assertParamType("method", "paramT1", "Foo<Bar<Baz>>", "Foo<Bar<Baz>>")
-                invocation.assertReturnType("methodReturnT2", "Foo<Bar<? extends Baz>>")
-            }
+            invocation.assertReturnType("methodReturnT2", "Foo<Bar<? extends Baz>>")
         }
     }
 
@@ -782,40 +563,16 @@ class TypeInheritanceTest {
         ) { invocation ->
             invocation.assertFieldType("valField", "Foo<Bar<Baz>>")
             invocation.assertFieldType("valFieldT1", "Foo<Bar<Baz>>")
+            invocation.assertFieldType("valFieldT2", "Foo<Bar<? extends Baz>>")
             invocation.assertFieldType("varField", "Foo<Bar<Baz>>")
             invocation.assertFieldType("varFieldT1", "Foo<Bar<Baz>>")
-            invocation.assertParamType("method", "param", "Foo<Bar<Baz>>", "Foo<Bar<Baz>>")
-            invocation.assertParamType(
-                "method",
-                "paramT2",
-                "Foo<Bar<? extends Baz>>",
-                "Foo<Bar<out Baz>>"
-            )
+            invocation.assertFieldType("varFieldT2", "Foo<Bar<? extends Baz>>")
+            invocation.assertParamType("method", "param", "Foo<Bar<Baz>>")
+            invocation.assertParamType("method", "paramT1", "Foo<Bar<Baz>>")
+            invocation.assertParamType("method", "paramT2", "Foo<Bar<? extends Baz>>")
             invocation.assertReturnType("methodReturn", "Foo<Bar<Baz>>")
             invocation.assertReturnType("methodReturnT1", "Foo<Bar<Baz>>")
-
-            // TODO(b/237280547): Make KSP type name match KAPT.
-            if (invocation.isKsp) {
-                invocation.assertFieldType("valFieldT2", "Foo<Bar<Baz>>")
-                invocation.assertFieldType("varFieldT2", "Foo<Bar<Baz>>")
-                invocation.assertParamType(
-                    "method",
-                    "paramT1",
-                    "Foo<Bar<? extends Baz>>",
-                    "Foo<Bar<out Baz>>"
-                )
-                invocation.assertReturnType("methodReturnT2", "Foo<Bar<Baz>>")
-            } else {
-                invocation.assertFieldType("valFieldT2", "Foo<Bar<? extends Baz>>")
-                invocation.assertFieldType("varFieldT2", "Foo<Bar<? extends Baz>>")
-                invocation.assertParamType(
-                    "method",
-                    "paramT1",
-                    "Foo<Bar<Baz>>",
-                    "Foo<Bar<Baz>>"
-                )
-                invocation.assertReturnType("methodReturnT2", "Foo<Bar<? extends Baz>>")
-            }
+            invocation.assertReturnType("methodReturnT2", "Foo<Bar<? extends Baz>>")
         }
     }
 
@@ -828,46 +585,16 @@ class TypeInheritanceTest {
         ) { invocation ->
             invocation.assertFieldType("valField", "Foo<Bar<Baz>>")
             invocation.assertFieldType("valFieldT1", "Foo<Bar<Baz>>")
+            invocation.assertFieldType("valFieldT2", "Foo<Bar<? extends Baz>>")
             invocation.assertFieldType("varField", "Foo<Bar<Baz>>")
             invocation.assertFieldType("varFieldT1", "Foo<Bar<Baz>>")
-            invocation.assertParamType(
-                "method",
-                "paramT2",
-                "Foo<Bar<? extends Baz>>",
-                "Foo<Bar<out Baz>>"
-            )
+            invocation.assertFieldType("varFieldT2", "Foo<Bar<? extends Baz>>")
+            invocation.assertParamType("method", "param", "Foo<Bar<Baz>>")
+            invocation.assertParamType("method", "paramT1", "Foo<Bar<Baz>>")
+            invocation.assertParamType("method", "paramT2", "Foo<Bar<? extends Baz>>")
             invocation.assertReturnType("methodReturn", "Foo<Bar<Baz>>")
             invocation.assertReturnType("methodReturnT1", "Foo<Bar<Baz>>")
-
-            // TODO(b/237280547): Make KSP type name match KAPT.
-            if (invocation.isKsp) {
-                invocation.assertFieldType("valFieldT2", "Foo<Bar<Baz>>")
-                invocation.assertFieldType("varFieldT2", "Foo<Bar<Baz>>")
-                invocation.assertParamType(
-                    "method",
-                    "param",
-                    "Foo<Bar<? extends Baz>>",
-                    "Foo<Bar<out Baz>>"
-                )
-                invocation.assertParamType(
-                    "method",
-                    "paramT1",
-                    "Foo<Bar<? extends Baz>>",
-                    "Foo<Bar<out Baz>>"
-                )
-                invocation.assertReturnType("methodReturnT2", "Foo<Bar<Baz>>")
-            } else {
-                invocation.assertFieldType("valFieldT2", "Foo<Bar<? extends Baz>>")
-                invocation.assertFieldType("varFieldT2", "Foo<Bar<? extends Baz>>")
-                invocation.assertParamType("method", "param", "Foo<Bar<Baz>>", "Foo<Bar<Baz>>")
-                invocation.assertParamType(
-                    "method",
-                    "paramT1",
-                    "Foo<Bar<Baz>>",
-                    "Foo<Bar<Baz>>"
-                )
-                invocation.assertReturnType("methodReturnT2", "Foo<Bar<? extends Baz>>")
-            }
+            invocation.assertReturnType("methodReturnT2", "Foo<Bar<? extends Baz>>")
         }
     }
 
@@ -880,46 +607,16 @@ class TypeInheritanceTest {
         ) { invocation ->
             invocation.assertFieldType("valField", "Foo<Bar<Baz>>")
             invocation.assertFieldType("valFieldT1", "Foo<Bar<Baz>>")
+            invocation.assertFieldType("valFieldT2", "Foo<Bar<? extends Baz>>")
             invocation.assertFieldType("varField", "Foo<Bar<Baz>>")
             invocation.assertFieldType("varFieldT1", "Foo<Bar<Baz>>")
-            invocation.assertParamType(
-                "method",
-                "paramT2",
-                "Foo<Bar<? extends Baz>>",
-                "Foo<Bar<out Baz>>"
-            )
+            invocation.assertFieldType("varFieldT2", "Foo<Bar<? extends Baz>>")
+            invocation.assertParamType("method", "param", "Foo<Bar<Baz>>")
+            invocation.assertParamType("method", "paramT1", "Foo<Bar<Baz>>")
+            invocation.assertParamType("method", "paramT2", "Foo<Bar<? extends Baz>>")
             invocation.assertReturnType("methodReturn", "Foo<Bar<Baz>>")
             invocation.assertReturnType("methodReturnT1", "Foo<Bar<Baz>>")
-
-            // TODO(b/237280547): Make KSP type name match KAPT.
-            if (invocation.isKsp) {
-                invocation.assertFieldType("valFieldT2", "Foo<Bar<Baz>>")
-                invocation.assertFieldType("varFieldT2", "Foo<Bar<Baz>>")
-                invocation.assertParamType(
-                    "method",
-                    "param",
-                    "Foo<Bar<? extends Baz>>",
-                    "Foo<Bar<out Baz>>"
-                )
-                invocation.assertParamType(
-                    "method",
-                    "paramT1",
-                    "Foo<Bar<? extends Baz>>",
-                    "Foo<Bar<out Baz>>"
-                )
-                invocation.assertReturnType("methodReturnT2", "Foo<Bar<Baz>>")
-            } else {
-                invocation.assertFieldType("valFieldT2", "Foo<Bar<? extends Baz>>")
-                invocation.assertFieldType("varFieldT2", "Foo<Bar<? extends Baz>>")
-                invocation.assertParamType("method", "param", "Foo<Bar<Baz>>", "Foo<Bar<Baz>>")
-                invocation.assertParamType(
-                    "method",
-                    "paramT1",
-                    "Foo<Bar<Baz>>",
-                    "Foo<Bar<Baz>>"
-                )
-                invocation.assertReturnType("methodReturnT2", "Foo<Bar<? extends Baz>>")
-            }
+            invocation.assertReturnType("methodReturnT2", "Foo<Bar<? extends Baz>>")
         }
     }
 
@@ -932,17 +629,16 @@ class TypeInheritanceTest {
         ) { invocation ->
             invocation.assertFieldType("valField", "Foo<Bar<Baz>>")
             invocation.assertFieldType("valFieldT1", "Foo<Bar<Baz>>")
+            invocation.assertFieldType("valFieldT2", "Foo<Bar<? extends Baz>>")
             invocation.assertFieldType("varField", "Foo<Bar<Baz>>")
             invocation.assertFieldType("varFieldT1", "Foo<Bar<Baz>>")
-
-            // TODO(b/237280547): Make KSP type name match KAPT.
-            if (invocation.isKsp) {
-                invocation.assertFieldType("valFieldT2", "Foo<Bar<Baz>>")
-                invocation.assertFieldType("varFieldT2", "Foo<Bar<Baz>>")
-            } else {
-                invocation.assertFieldType("valFieldT2", "Foo<Bar<? extends Baz>>")
-                invocation.assertFieldType("varFieldT2", "Foo<Bar<? extends Baz>>")
-            }
+            invocation.assertFieldType("varFieldT2", "Foo<Bar<? extends Baz>>")
+            invocation.assertParamType("method", "param", "Foo<Bar<Baz>>")
+            invocation.assertParamType("method", "paramT1", "Foo<Bar<Baz>>")
+            invocation.assertParamType("method", "paramT2", "Foo<Bar<? extends Baz>>")
+            invocation.assertReturnType("methodReturn", "Foo<Bar<Baz>>")
+            invocation.assertReturnType("methodReturnT1", "Foo<Bar<Baz>>")
+            invocation.assertReturnType("methodReturnT2", "Foo<Bar<? extends Baz>>")
         }
     }
 
@@ -955,41 +651,16 @@ class TypeInheritanceTest {
         ) { invocation ->
             invocation.assertFieldType("valField", "Foo<Bar<Baz>>")
             invocation.assertFieldType("valFieldT1", "Foo<Bar<Baz>>")
+            invocation.assertFieldType("valFieldT2", "Foo<Bar<? extends Baz>>")
             invocation.assertFieldType("varField", "Foo<Bar<Baz>>")
-            invocation.assertParamType("method", "param", "Foo<Bar<Baz>>", "Foo<Bar<Baz>>")
-            invocation.assertParamType(
-                "method",
-                "paramT2",
-                "Foo<? extends Bar<? extends Baz>>",
-                "Foo<out Bar<out Baz>>"
-            )
+            invocation.assertFieldType("varFieldT1", "Foo<? extends Bar<? extends Baz>>")
+            invocation.assertFieldType("varFieldT2", "Foo<? extends Bar<? extends Baz>>")
+            invocation.assertParamType("method", "param", "Foo<Bar<Baz>>")
+            invocation.assertParamType("method", "paramT1", "Foo<? extends Bar<? extends Baz>>")
+            invocation.assertParamType("method", "paramT2", "Foo<? extends Bar<? extends Baz>>")
             invocation.assertReturnType("methodReturn", "Foo<Bar<Baz>>")
             invocation.assertReturnType("methodReturnT1", "Foo<Bar<Baz>>")
-
-            // TODO(b/237280547): Make KSP type name match KAPT.
-            if (invocation.isKsp) {
-                invocation.assertFieldType("valFieldT2", "Foo<Bar<Baz>>")
-                invocation.assertFieldType("varFieldT1", "Foo<Bar<Baz>>")
-                invocation.assertFieldType("varFieldT2", "Foo<Bar<Baz>>")
-                invocation.assertParamType(
-                    "method",
-                    "paramT1",
-                    "Foo<Bar<? extends Baz>>",
-                    "Foo<Bar<out Baz>>"
-                )
-                invocation.assertReturnType("methodReturnT2", "Foo<Bar<Baz>>")
-            } else {
-                invocation.assertFieldType("valFieldT2", "Foo<Bar<? extends Baz>>")
-                invocation.assertFieldType("varFieldT1", "Foo<? extends Bar<? extends Baz>>")
-                invocation.assertFieldType("varFieldT2", "Foo<? extends Bar<? extends Baz>>")
-                invocation.assertParamType(
-                    "method",
-                    "paramT1",
-                    "Foo<? extends Bar<? extends Baz>>",
-                    "Foo<out Bar<out Baz>>"
-                )
-                invocation.assertReturnType("methodReturnT2", "Foo<Bar<? extends Baz>>")
-            }
+            invocation.assertReturnType("methodReturnT2", "Foo<Bar<? extends Baz>>")
         }
     }
 
@@ -1002,38 +673,16 @@ class TypeInheritanceTest {
         ) { invocation ->
             invocation.assertFieldType("valField", "Foo<Bar<Baz>>")
             invocation.assertFieldType("valFieldT1", "Foo<Bar<Baz>>")
+            invocation.assertFieldType("valFieldT2", "Foo<Bar<? extends Baz>>")
             invocation.assertFieldType("varField", "Foo<Bar<Baz>>")
-            invocation.assertParamType("method", "param", "Foo<Bar<Baz>>", "Foo<Bar<Baz>>")
-            invocation.assertParamType(
-                "method",
-                "paramT2",
-                "Foo<? extends Bar<? extends Baz>>",
-                "Foo<out Bar<out Baz>>"
-            )
+            invocation.assertFieldType("varFieldT1", "Foo<? extends Bar<? extends Baz>>")
+            invocation.assertFieldType("varFieldT2", "Foo<? extends Bar<? extends Baz>>")
+            invocation.assertParamType("method", "param", "Foo<Bar<Baz>>")
+            invocation.assertParamType("method", "paramT1", "Foo<? extends Bar<? extends Baz>>")
+            invocation.assertParamType("method", "paramT2", "Foo<? extends Bar<? extends Baz>>")
             invocation.assertReturnType("methodReturn", "Foo<Bar<Baz>>")
             invocation.assertReturnType("methodReturnT1", "Foo<Bar<Baz>>")
-
-            // TODO(b/237280547): Make KSP type name match KAPT.
-            if (invocation.isKsp) {
-                invocation.assertFieldType("valFieldT2", "Foo<Bar<Baz>>")
-                invocation.assertFieldType("varFieldT1", "Foo<Bar<Baz>>")
-                invocation.assertFieldType("varFieldT2", "Foo<Bar<Baz>>")
-                invocation.assertParamType(
-                    "method", "paramT1", "Foo<Bar<? extends Baz>>", "Foo<Bar<out Baz>>"
-                )
-                invocation.assertReturnType("methodReturnT2", "Foo<Bar<Baz>>")
-            } else {
-                invocation.assertFieldType("valFieldT2", "Foo<Bar<? extends Baz>>")
-                invocation.assertFieldType("varFieldT1", "Foo<? extends Bar<? extends Baz>>")
-                invocation.assertFieldType("varFieldT2", "Foo<? extends Bar<? extends Baz>>")
-                invocation.assertParamType(
-                    "method",
-                    "paramT1",
-                    "Foo<? extends Bar<? extends Baz>>",
-                    "Foo<out Bar<out Baz>>"
-                )
-                invocation.assertReturnType("methodReturnT2", "Foo<Bar<? extends Baz>>")
-            }
+            invocation.assertReturnType("methodReturnT2", "Foo<Bar<? extends Baz>>")
         }
     }
 
@@ -1046,43 +695,16 @@ class TypeInheritanceTest {
         ) { invocation ->
             invocation.assertFieldType("valField", "Foo<Bar<Baz>>")
             invocation.assertFieldType("valFieldT1", "Foo<Bar<Baz>>")
-
-            invocation.assertParamType(
-                "method",
-                "param",
-                "Foo<? extends Bar<Baz>>",
-                "Foo<out Bar<Baz>>"
-            )
-            invocation.assertParamType(
-                "method",
-                "paramT1",
-                "Foo<? extends Bar<? extends Baz>>",
-                "Foo<out Bar<out Baz>>"
-            )
-            invocation.assertParamType(
-                "method",
-                "paramT2",
-                "Foo<? extends Bar<? extends Baz>>",
-                "Foo<out Bar<out Baz>>"
-            )
-
+            invocation.assertFieldType("valFieldT2", "Foo<Bar<? extends Baz>>")
+            invocation.assertFieldType("varField", "Foo<? extends Bar<Baz>>")
+            invocation.assertFieldType("varFieldT1", "Foo<? extends Bar<? extends Baz>>")
+            invocation.assertFieldType("varFieldT2", "Foo<? extends Bar<? extends Baz>>")
+            invocation.assertParamType("method", "param", "Foo<? extends Bar<Baz>>")
+            invocation.assertParamType("method", "paramT1", "Foo<? extends Bar<? extends Baz>>")
+            invocation.assertParamType("method", "paramT2", "Foo<? extends Bar<? extends Baz>>")
             invocation.assertReturnType("methodReturn", "Foo<Bar<Baz>>")
             invocation.assertReturnType("methodReturnT1", "Foo<Bar<Baz>>")
-
-            // TODO(b/237280547): Make KSP type name match KAPT.
-            if (invocation.isKsp) {
-                invocation.assertFieldType("valFieldT2", "Foo<Bar<Baz>>")
-                invocation.assertFieldType("varField", "Foo<Bar<Baz>>")
-                invocation.assertFieldType("varFieldT1", "Foo<Bar<Baz>>")
-                invocation.assertFieldType("varFieldT2", "Foo<Bar<Baz>>")
-                invocation.assertReturnType("methodReturnT2", "Foo<Bar<Baz>>")
-            } else {
-                invocation.assertFieldType("valFieldT2", "Foo<Bar<? extends Baz>>")
-                invocation.assertFieldType("varField", "Foo<? extends Bar<Baz>>")
-                invocation.assertFieldType("varFieldT1", "Foo<? extends Bar<? extends Baz>>")
-                invocation.assertFieldType("varFieldT2", "Foo<? extends Bar<? extends Baz>>")
-                invocation.assertReturnType("methodReturnT2", "Foo<Bar<? extends Baz>>")
-            }
+            invocation.assertReturnType("methodReturnT2", "Foo<Bar<? extends Baz>>")
         }
     }
 
@@ -1095,53 +717,16 @@ class TypeInheritanceTest {
         ) { invocation ->
             invocation.assertFieldType("valField", "Foo<Bar<Baz>>")
             invocation.assertFieldType("valFieldT1", "Foo<Bar<Baz>>")
+            invocation.assertFieldType("valFieldT2", "Foo<Bar<? extends Baz>>")
+            invocation.assertFieldType("varField", "Foo<? extends Bar<? extends Baz>>")
+            invocation.assertFieldType("varFieldT1", "Foo<? extends Bar<? extends Baz>>")
+            invocation.assertFieldType("varFieldT2", "Foo<? extends Bar<? extends Baz>>")
+            invocation.assertParamType("method", "param", "Foo<? extends Bar<? extends Baz>>")
+            invocation.assertParamType("method", "paramT1", "Foo<? extends Bar<? extends Baz>>")
+            invocation.assertParamType("method", "paramT2", "Foo<? extends Bar<? extends Baz>>")
             invocation.assertReturnType("methodReturn", "Foo<Bar<Baz>>")
             invocation.assertReturnType("methodReturnT1", "Foo<Bar<Baz>>")
-            invocation.assertParamType(
-                "method",
-                "paramT2",
-                "Foo<? extends Bar<? extends Baz>>",
-                "Foo<out Bar<out Baz>>"
-            )
-
-            // TODO(b/237280547): Make KSP type name match KAPT.
-            if (invocation.isKsp) {
-                invocation.assertFieldType("valFieldT2", "Foo<Bar<Baz>>")
-                invocation.assertFieldType("varField", "Foo<Bar<Baz>>")
-                invocation.assertFieldType("varFieldT1", "Foo<Bar<Baz>>")
-                invocation.assertFieldType("varFieldT2", "Foo<Bar<Baz>>")
-                invocation.assertParamType(
-                    "method",
-                    "param",
-                    "Foo<Bar<? extends Baz>>",
-                    "Foo<Bar<out Baz>>"
-                )
-                invocation.assertParamType(
-                    "method",
-                    "paramT1",
-                    "Foo<Bar<? extends Baz>>",
-                    "Foo<Bar<out Baz>>"
-                )
-                invocation.assertReturnType("methodReturnT2", "Foo<Bar<Baz>>")
-            } else {
-                invocation.assertFieldType("valFieldT2", "Foo<Bar<? extends Baz>>")
-                invocation.assertFieldType("varField", "Foo<? extends Bar<? extends Baz>>")
-                invocation.assertFieldType("varFieldT1", "Foo<? extends Bar<? extends Baz>>")
-                invocation.assertFieldType("varFieldT2", "Foo<? extends Bar<? extends Baz>>")
-                invocation.assertParamType(
-                    "method",
-                    "param",
-                    "Foo<? extends Bar<? extends Baz>>",
-                    "Foo<out Bar<out Baz>>"
-                )
-                invocation.assertParamType(
-                    "method",
-                    "paramT1",
-                    "Foo<? extends Bar<? extends Baz>>",
-                    "Foo<out Bar<out Baz>>"
-                )
-                invocation.assertReturnType("methodReturnT2", "Foo<Bar<? extends Baz>>")
-            }
+            invocation.assertReturnType("methodReturnT2", "Foo<Bar<? extends Baz>>")
         }
     }
 
@@ -1154,41 +739,16 @@ class TypeInheritanceTest {
         ) { invocation ->
             invocation.assertFieldType("valField", "Foo<Bar<Baz>>")
             invocation.assertFieldType("valFieldT1", "Foo<Bar<Baz>>")
-            invocation.assertParamType(
-                "method",
-                "param",
-                "Foo<? extends Bar<Baz>>",
-                "Foo<out Bar<Baz>>"
-            )
-            invocation.assertParamType(
-                "method",
-                "paramT1",
-                "Foo<? extends Bar<? extends Baz>>",
-                "Foo<out Bar<out Baz>>"
-            )
-            invocation.assertParamType(
-                "method",
-                "paramT2",
-                "Foo<? extends Bar<? extends Baz>>",
-                "Foo<out Bar<out Baz>>"
-            )
+            invocation.assertFieldType("valFieldT2", "Foo<Bar<? extends Baz>>")
+            invocation.assertFieldType("varField", "Foo<? extends Bar<Baz>>")
+            invocation.assertFieldType("varFieldT1", "Foo<? extends Bar<? extends Baz>>")
+            invocation.assertFieldType("varFieldT2", "Foo<? extends Bar<? extends Baz>>")
+            invocation.assertParamType("method", "param", "Foo<? extends Bar<Baz>>")
+            invocation.assertParamType("method", "paramT1", "Foo<? extends Bar<? extends Baz>>")
+            invocation.assertParamType("method", "paramT2", "Foo<? extends Bar<? extends Baz>>")
             invocation.assertReturnType("methodReturn", "Foo<Bar<Baz>>")
             invocation.assertReturnType("methodReturnT1", "Foo<Bar<Baz>>")
-
-            // TODO(b/237280547): Make KSP type name match KAPT.
-            if (invocation.isKsp) {
-                invocation.assertFieldType("valFieldT2", "Foo<Bar<Baz>>")
-                invocation.assertFieldType("varField", "Foo<Bar<Baz>>")
-                invocation.assertFieldType("varFieldT1", "Foo<Bar<Baz>>")
-                invocation.assertFieldType("varFieldT2", "Foo<Bar<Baz>>")
-                invocation.assertReturnType("methodReturnT2", "Foo<Bar<Baz>>")
-            } else {
-                invocation.assertFieldType("valFieldT2", "Foo<Bar<? extends Baz>>")
-                invocation.assertFieldType("varField", "Foo<? extends Bar<Baz>>")
-                invocation.assertFieldType("varFieldT1", "Foo<? extends Bar<? extends Baz>>")
-                invocation.assertFieldType("varFieldT2", "Foo<? extends Bar<? extends Baz>>")
-                invocation.assertReturnType("methodReturnT2", "Foo<Bar<? extends Baz>>")
-            }
+            invocation.assertReturnType("methodReturnT2", "Foo<Bar<? extends Baz>>")
         }
     }
 
@@ -1201,53 +761,16 @@ class TypeInheritanceTest {
         ) { invocation ->
             invocation.assertFieldType("valField", "Foo<Bar<Baz>>")
             invocation.assertFieldType("valFieldT1", "Foo<Bar<Baz>>")
-            invocation.assertParamType(
-                "method",
-                "paramT2",
-                "Foo<? extends Bar<? extends Baz>>",
-                "Foo<out Bar<out Baz>>"
-            )
+            invocation.assertFieldType("valFieldT2", "Foo<Bar<? extends Baz>>")
+            invocation.assertFieldType("varField", "Foo<? extends Bar<? extends Baz>>")
+            invocation.assertFieldType("varFieldT1", "Foo<? extends Bar<? extends Baz>>")
+            invocation.assertFieldType("varFieldT2", "Foo<? extends Bar<? extends Baz>>")
+            invocation.assertParamType("method", "param", "Foo<? extends Bar<? extends Baz>>")
+            invocation.assertParamType("method", "paramT1", "Foo<? extends Bar<? extends Baz>>")
+            invocation.assertParamType("method", "paramT2", "Foo<? extends Bar<? extends Baz>>")
             invocation.assertReturnType("methodReturn", "Foo<Bar<Baz>>")
             invocation.assertReturnType("methodReturnT1", "Foo<Bar<Baz>>")
-
-            // TODO(b/237280547): Make KSP type name match KAPT.
-            if (invocation.isKsp) {
-                invocation.assertFieldType("valFieldT2", "Foo<Bar<Baz>>")
-                invocation.assertFieldType("varField", "Foo<Bar<Baz>>")
-                invocation.assertFieldType("varFieldT1", "Foo<Bar<Baz>>")
-                invocation.assertFieldType("varFieldT2", "Foo<Bar<Baz>>")
-                invocation.assertParamType(
-                    "method",
-                    "param",
-                    "Foo<Bar<? extends Baz>>",
-                    "Foo<Bar<out Baz>>"
-                )
-                invocation.assertParamType(
-                    "method",
-                    "paramT1",
-                    "Foo<Bar<? extends Baz>>",
-                    "Foo<Bar<out Baz>>"
-                )
-                invocation.assertReturnType("methodReturnT2", "Foo<Bar<Baz>>")
-            } else {
-                invocation.assertFieldType("valFieldT2", "Foo<Bar<? extends Baz>>")
-                invocation.assertFieldType("varField", "Foo<? extends Bar<? extends Baz>>")
-                invocation.assertFieldType("varFieldT1", "Foo<? extends Bar<? extends Baz>>")
-                invocation.assertFieldType("varFieldT2", "Foo<? extends Bar<? extends Baz>>")
-                invocation.assertParamType(
-                    "method",
-                    "param",
-                    "Foo<? extends Bar<? extends Baz>>",
-                    "Foo<out Bar<out Baz>>"
-                )
-                invocation.assertParamType(
-                    "method",
-                    "paramT1",
-                    "Foo<? extends Bar<? extends Baz>>",
-                    "Foo<out Bar<out Baz>>"
-                )
-                invocation.assertReturnType("methodReturnT2", "Foo<Bar<? extends Baz>>")
-            }
+            invocation.assertReturnType("methodReturnT2", "Foo<Bar<? extends Baz>>")
         }
     }
 
@@ -1260,41 +783,16 @@ class TypeInheritanceTest {
         ) { invocation ->
             invocation.assertFieldType("valField", "Foo<Bar<Baz>>")
             invocation.assertFieldType("valFieldT1", "Foo<Bar<Baz>>")
-            invocation.assertParamType(
-                "method",
-                "param",
-                "Foo<? extends Bar<? extends Baz>>",
-                "Foo<out Bar<out Baz>>"
-            )
-            invocation.assertParamType(
-                "method",
-                "paramT1",
-                "Foo<? extends Bar<? extends Baz>>",
-                "Foo<out Bar<out Baz>>"
-            )
-            invocation.assertParamType(
-                "method",
-                "paramT2",
-                "Foo<? extends Bar<? extends Baz>>",
-                "Foo<out Bar<out Baz>>"
-            )
+            invocation.assertFieldType("valFieldT2", "Foo<Bar<? extends Baz>>")
+            invocation.assertFieldType("varField", "Foo<? extends Bar<? extends Baz>>")
+            invocation.assertFieldType("varFieldT1", "Foo<? extends Bar<? extends Baz>>")
+            invocation.assertFieldType("varFieldT2", "Foo<? extends Bar<? extends Baz>>")
+            invocation.assertParamType("method", "param", "Foo<? extends Bar<? extends Baz>>")
+            invocation.assertParamType("method", "paramT1", "Foo<? extends Bar<? extends Baz>>")
+            invocation.assertParamType("method", "paramT2", "Foo<? extends Bar<? extends Baz>>")
             invocation.assertReturnType("methodReturn", "Foo<Bar<Baz>>")
             invocation.assertReturnType("methodReturnT1", "Foo<Bar<Baz>>")
-
-            // TODO(b/237280547): Make KSP type name match KAPT.
-            if (invocation.isKsp) {
-                invocation.assertFieldType("valFieldT2", "Foo<Bar<Baz>>")
-                invocation.assertFieldType("varField", "Foo<Bar<Baz>>")
-                invocation.assertFieldType("varFieldT1", "Foo<Bar<Baz>>")
-                invocation.assertFieldType("varFieldT2", "Foo<Bar<Baz>>")
-                invocation.assertReturnType("methodReturnT2", "Foo<Bar<Baz>>")
-            } else {
-                invocation.assertFieldType("valFieldT2", "Foo<Bar<? extends Baz>>")
-                invocation.assertFieldType("varField", "Foo<? extends Bar<? extends Baz>>")
-                invocation.assertFieldType("varFieldT1", "Foo<? extends Bar<? extends Baz>>")
-                invocation.assertFieldType("varFieldT2", "Foo<? extends Bar<? extends Baz>>")
-                invocation.assertReturnType("methodReturnT2", "Foo<Bar<? extends Baz>>")
-            }
+            invocation.assertReturnType("methodReturnT2", "Foo<Bar<? extends Baz>>")
         }
     }
 
@@ -1307,41 +805,16 @@ class TypeInheritanceTest {
         ) { invocation ->
             invocation.assertFieldType("valField", "Foo<Bar<Baz>>")
             invocation.assertFieldType("valFieldT1", "Foo<Bar<Baz>>")
-            invocation.assertParamType(
-                "method",
-                "param",
-                "Foo<? extends Bar<? extends Baz>>",
-                "Foo<out Bar<out Baz>>"
-            )
-            invocation.assertParamType(
-                "method",
-                "paramT1",
-                "Foo<? extends Bar<? extends Baz>>",
-                "Foo<out Bar<out Baz>>"
-            )
-            invocation.assertParamType(
-                "method",
-                "paramT2",
-                "Foo<? extends Bar<? extends Baz>>",
-                "Foo<out Bar<out Baz>>"
-            )
+            invocation.assertFieldType("valFieldT2", "Foo<Bar<? extends Baz>>")
+            invocation.assertFieldType("varField", "Foo<? extends Bar<? extends Baz>>")
+            invocation.assertFieldType("varFieldT1", "Foo<? extends Bar<? extends Baz>>")
+            invocation.assertFieldType("varFieldT2", "Foo<? extends Bar<? extends Baz>>")
+            invocation.assertParamType("method", "param", "Foo<? extends Bar<? extends Baz>>")
+            invocation.assertParamType("method", "paramT1", "Foo<? extends Bar<? extends Baz>>")
+            invocation.assertParamType("method", "paramT2", "Foo<? extends Bar<? extends Baz>>")
             invocation.assertReturnType("methodReturn", "Foo<Bar<Baz>>")
             invocation.assertReturnType("methodReturnT1", "Foo<Bar<Baz>>")
-
-            // TODO(b/237280547): Make KSP type name match KAPT.
-            if (invocation.isKsp) {
-                invocation.assertFieldType("valFieldT2", "Foo<Bar<Baz>>")
-                invocation.assertFieldType("varField", "Foo<Bar<Baz>>")
-                invocation.assertFieldType("varFieldT1", "Foo<Bar<Baz>>")
-                invocation.assertFieldType("varFieldT2", "Foo<Bar<Baz>>")
-                invocation.assertReturnType("methodReturnT2", "Foo<Bar<Baz>>")
-            } else {
-                invocation.assertFieldType("valFieldT2", "Foo<Bar<? extends Baz>>")
-                invocation.assertFieldType("varField", "Foo<? extends Bar<? extends Baz>>")
-                invocation.assertFieldType("varFieldT1", "Foo<? extends Bar<? extends Baz>>")
-                invocation.assertFieldType("varFieldT2", "Foo<? extends Bar<? extends Baz>>")
-                invocation.assertReturnType("methodReturnT2", "Foo<Bar<? extends Baz>>")
-            }
+            invocation.assertReturnType("methodReturnT2", "Foo<Bar<? extends Baz>>")
         }
     }
 }

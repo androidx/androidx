@@ -31,11 +31,11 @@ import com.squareup.kotlinpoet.javapoet.KTypeName
 internal class KspTypeArgumentType(
     env: KspProcessingEnv,
     val typeArg: KSTypeArgument,
-    jvmTypeResolver: KspJvmTypeResolver?
+    scope: KSTypeVarianceResolverScope?
 ) : KspType(
     env = env,
     ksType = typeArg.requireType(),
-    jvmTypeResolver = jvmTypeResolver
+    scope = scope
 ) {
     /**
      * When KSP resolves classes, it always resolves to the upper bound. Hence, the ksType we
@@ -77,15 +77,15 @@ internal class KspTypeArgumentType(
                 original = typeArg,
                 type = ksType.withNullability(nullability).createTypeReference()
             ),
-            jvmTypeResolver = jvmTypeResolver
+            scope = scope
         )
     }
 
-    override fun copyWithJvmTypeResolver(jvmTypeResolver: KspJvmTypeResolver): KspType {
+    override fun copyWithScope(scope: KSTypeVarianceResolverScope): KspType {
         return KspTypeArgumentType(
             env = env,
             typeArg = typeArg,
-            jvmTypeResolver = jvmTypeResolver
+            scope = scope
         )
     }
 

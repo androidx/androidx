@@ -17,7 +17,6 @@
 package androidx.room.compiler.processing.ksp
 
 import androidx.room.compiler.codegen.JArrayTypeName
-import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.processing.XArrayType
 import androidx.room.compiler.processing.XNullability
 import androidx.room.compiler.processing.XType
@@ -29,11 +28,8 @@ import com.squareup.kotlinpoet.javapoet.KTypeName
 internal sealed class KspArrayType(
     env: KspProcessingEnv,
     ksType: KSType,
-    jvmTypeResolver: KspJvmTypeResolver?
-) : KspType(
-    env, ksType, jvmTypeResolver
-),
-    XArrayType {
+    scope: KSTypeVarianceResolverScope?
+) : KspType(env, ksType, scope), XArrayType {
 
     abstract override val componentType: KspType
 
@@ -56,20 +52,15 @@ internal sealed class KspArrayType(
     private class BoxedArray(
         env: KspProcessingEnv,
         ksType: KSType,
-        jvmTypeResolver: KspJvmTypeResolver?
-    ) : KspArrayType(
-        env, ksType, jvmTypeResolver
-    ) {
-        private val xTypeName: XTypeName by lazy {
-            val componentTypeName = componentType.asTypeName()
-            XTypeName(
-                java = JArrayTypeName.of(componentTypeName.java.box()),
-                kotlin = ksType.asKTypeName(env.resolver),
-                nullability = nullability,
-            )
+        scope: KSTypeVarianceResolverScope?
+    ) : KspArrayType(env, ksType, scope) {
+        override fun resolveJTypeName(): JTypeName {
+            return JArrayTypeName.of(componentType.asTypeName().java.box())
         }
 
-        override fun asTypeName() = xTypeName
+        override fun resolveKTypeName(): KTypeName {
+            return ksType.asKTypeName(env.resolver)
+        }
 
         override val componentType: KspType by lazy {
             val arg = ksType.arguments.single()
@@ -85,15 +76,15 @@ internal sealed class KspArrayType(
             return BoxedArray(
                 env = env,
                 ksType = ksType.withNullability(nullability),
-                jvmTypeResolver = jvmTypeResolver,
+                scope = scope,
             )
         }
 
-        override fun copyWithJvmTypeResolver(jvmTypeResolver: KspJvmTypeResolver): KspType {
+        override fun copyWithScope(scope: KSTypeVarianceResolverScope): KspType {
             return BoxedArray(
                 env = env,
                 ksType = ksType,
-                jvmTypeResolver = jvmTypeResolver
+                scope = scope
             )
         }
     }
@@ -104,37 +95,32 @@ internal sealed class KspArrayType(
     private class PrimitiveArray(
         env: KspProcessingEnv,
         ksType: KSType,
-        jvmTypeResolver: KspJvmTypeResolver?,
+        scope: KSTypeVarianceResolverScope?,
         override val componentType: KspType
-    ) : KspArrayType(
-        env, ksType, jvmTypeResolver
-    ) {
-        private val xTypeName: XTypeName by lazy {
-            val componentTypeName = componentType.asTypeName()
-            XTypeName(
-                java = JArrayTypeName.of(componentTypeName.java.unbox()),
-                kotlin = ksType.asKTypeName(env.resolver),
-                nullability = nullability,
-            )
+    ) : KspArrayType(env, ksType, scope) {
+        override fun resolveJTypeName(): JTypeName {
+            return JArrayTypeName.of(componentType.asTypeName().java.unbox())
         }
 
-        override fun asTypeName() = xTypeName
+        override fun resolveKTypeName(): KTypeName {
+            return ksType.asKTypeName(env.resolver)
+        }
 
         override fun copyWithNullability(nullability: XNullability): PrimitiveArray {
             return PrimitiveArray(
                 env = env,
                 ksType = ksType.withNullability(nullability),
                 componentType = componentType,
-                jvmTypeResolver = jvmTypeResolver
+                scope = scope
             )
         }
 
-        override fun copyWithJvmTypeResolver(jvmTypeResolver: KspJvmTypeResolver): KspType {
+        override fun copyWithScope(scope: KSTypeVarianceResolverScope): KspType {
             return PrimitiveArray(
                 env = env,
                 ksType = ksType,
                 componentType = componentType,
-                jvmTypeResolver = jvmTypeResolver
+                scope = scope
             )
         }
     }
@@ -170,7 +156,7 @@ internal sealed class KspArrayType(
                             primitiveArrayEntry.key
                         ),
                         componentType = primitiveArrayEntry.value,
-                        jvmTypeResolver = null
+                        scope = null
                     )
                 }
             }
@@ -185,7 +171,7 @@ internal sealed class KspArrayType(
                         )
                     )
                 ),
-                jvmTypeResolver = null
+                scope = null
             )
         }
 
@@ -199,7 +185,7 @@ internal sealed class KspArrayType(
                 return BoxedArray(
                     env = env,
                     ksType = ksType,
-                    jvmTypeResolver = null
+                    scope = null
                 )
             }
             builtInArrays[qName]?.let { primitiveType ->
@@ -207,7 +193,7 @@ internal sealed class KspArrayType(
                     env = env,
                     ksType = ksType,
                     componentType = primitiveType,
-                    jvmTypeResolver = null
+                    scope = null
                 )
             }
             return null

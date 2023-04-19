@@ -19,6 +19,7 @@ package androidx.room.compiler.processing.ksp.synthetic
 import androidx.room.compiler.processing.XExecutableType
 import androidx.room.compiler.processing.XMethodType
 import androidx.room.compiler.processing.XType
+import androidx.room.compiler.processing.ksp.KSTypeVarianceResolverScope
 import androidx.room.compiler.processing.ksp.KspProcessingEnv
 import com.google.devtools.ksp.symbol.KSPropertyGetter
 import com.google.devtools.ksp.symbol.KSPropertySetter
@@ -94,7 +95,11 @@ internal sealed class KspSyntheticPropertyMethodType(
                 origin.field.type
             } else {
                 origin.field.asMemberOf(containingType)
-            }
+            }.copyWithScope(
+                KSTypeVarianceResolverScope.PropertyGetterMethodReturnType(
+                    getterMethod = origin as KspSyntheticPropertyMethodElement.Getter
+                )
+            )
         }
     }
 
