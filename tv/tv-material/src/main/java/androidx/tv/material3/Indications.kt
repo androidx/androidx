@@ -61,9 +61,8 @@ import androidx.compose.ui.unit.dp
  * applied to. It takes in parameters like [Color], [Shape], blur radius, and Offset to let users
  * customise it to their brand personality.
  */
-@ExperimentalTvMaterial3Api
 @Stable
-class GlowIndication(
+internal class GlowIndication(
     private val color: Color,
     private val shape: Shape,
     private val glowBlurRadius: Dp,
@@ -84,7 +83,6 @@ class GlowIndication(
     }
 }
 
-@ExperimentalTvMaterial3Api
 private class GlowIndicationInstance(
     color: Color,
     private val shape: Shape,
@@ -154,9 +152,9 @@ private class GlowIndicationInstance(
  * @param offsetY describes the vertical offset of the glow from the composable.
  * @return A remembered instance of [GlowIndication].
  */
-@ExperimentalTvMaterial3Api
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
-fun rememberGlowIndication(
+internal fun rememberGlowIndication(
     color: Color = MaterialTheme.colorScheme.primaryContainer,
     shape: Shape = RectangleShape,
     glowBlurRadius: Dp = 0.dp,
@@ -181,9 +179,8 @@ fun rememberGlowIndication(
  * it's being applied to.
  * @param inset describes the offset of the border from the composable it's being applied to.
  */
-@ExperimentalTvMaterial3Api
 @Immutable
-class BorderIndication(
+internal class BorderIndication(
     private val brush: Brush,
     private val width: Dp,
     private val shape: Shape,
@@ -195,6 +192,7 @@ class BorderIndication(
      * @param border the [androidx.tv.material3.Border] instance that is used to create and return
      * an [BorderIndication] instance
      */
+    @OptIn(ExperimentalTvMaterial3Api::class)
     constructor(border: Border) :
         this(
             brush = border.border.brush,
@@ -262,9 +260,8 @@ internal object ScaleIndicationTokens {
  * ScaleIndication is an [Indication] that scales the composable by the provided factor. This
  * indication by default will create a smooth animation between the state changes.
  */
-@ExperimentalTvMaterial3Api
 @Stable
-class ScaleIndication(private val scale: Float) : Indication {
+internal class ScaleIndication(private val scale: Float) : Indication {
     @Composable
     override fun rememberUpdatedInstance(interactionSource: InteractionSource): IndicationInstance {
         val interaction by interactionSource.interactions.collectAsState(
