@@ -17,12 +17,16 @@
 package androidx.compose.ui.graphics
 
 import android.graphics.Bitmap
+import android.graphics.ColorSpace.Named
 import android.os.Build
 import android.util.DisplayMetrics
 import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.compose.ui.graphics.colorspace.ColorSpace
 import androidx.compose.ui.graphics.colorspace.ColorSpaces
+import androidx.compose.ui.graphics.colorspace.Rgb
+import androidx.compose.ui.graphics.colorspace.TransferParameters
+import androidx.compose.ui.graphics.colorspace.WhitePoint
 
 /**
  * Create an [ImageBitmap] from the given [Bitmap]. Note this does
@@ -184,7 +188,7 @@ internal fun Bitmap.Config.toImageConfig(): ImageBitmapConfig {
  * elimination during compilation time
  */
 @RequiresApi(Build.VERSION_CODES.O)
-private object Api26Bitmap {
+internal object Api26Bitmap {
     @DoNotInline
     @JvmStatic
     internal fun createBitmap(
@@ -214,67 +218,86 @@ private object Api26Bitmap {
     @JvmStatic
     internal fun ColorSpace.toFrameworkColorSpace(): android.graphics.ColorSpace {
         val frameworkNamedSpace = when (this) {
-            ColorSpaces.Srgb -> android.graphics.ColorSpace.Named.SRGB
-            ColorSpaces.Aces -> android.graphics.ColorSpace.Named.ACES
-            ColorSpaces.Acescg -> android.graphics.ColorSpace.Named.ACESCG
-            ColorSpaces.AdobeRgb -> android.graphics.ColorSpace.Named.ADOBE_RGB
-            ColorSpaces.Bt2020 -> android.graphics.ColorSpace.Named.BT2020
-            ColorSpaces.Bt709 -> android.graphics.ColorSpace.Named.BT709
-            ColorSpaces.CieLab -> android.graphics.ColorSpace.Named.CIE_LAB
-            ColorSpaces.CieXyz -> android.graphics.ColorSpace.Named.CIE_XYZ
-            ColorSpaces.DciP3 -> android.graphics.ColorSpace.Named.DCI_P3
-            ColorSpaces.DisplayP3 -> android.graphics.ColorSpace.Named.DISPLAY_P3
-            ColorSpaces.ExtendedSrgb -> android.graphics.ColorSpace.Named.EXTENDED_SRGB
+            ColorSpaces.Srgb -> Named.SRGB
+            ColorSpaces.Aces -> Named.ACES
+            ColorSpaces.Acescg -> Named.ACESCG
+            ColorSpaces.AdobeRgb -> Named.ADOBE_RGB
+            ColorSpaces.Bt2020 -> Named.BT2020
+            ColorSpaces.Bt709 -> Named.BT709
+            ColorSpaces.CieLab -> Named.CIE_LAB
+            ColorSpaces.CieXyz -> Named.CIE_XYZ
+            ColorSpaces.DciP3 -> Named.DCI_P3
+            ColorSpaces.DisplayP3 -> Named.DISPLAY_P3
+            ColorSpaces.ExtendedSrgb -> Named.EXTENDED_SRGB
             ColorSpaces.LinearExtendedSrgb ->
-                android.graphics.ColorSpace.Named.LINEAR_EXTENDED_SRGB
-            ColorSpaces.LinearSrgb -> android.graphics.ColorSpace.Named.LINEAR_SRGB
-            ColorSpaces.Ntsc1953 -> android.graphics.ColorSpace.Named.NTSC_1953
-            ColorSpaces.ProPhotoRgb -> android.graphics.ColorSpace.Named.PRO_PHOTO_RGB
-            ColorSpaces.SmpteC -> android.graphics.ColorSpace.Named.SMPTE_C
-            else -> android.graphics.ColorSpace.Named.SRGB
+                Named.LINEAR_EXTENDED_SRGB
+            ColorSpaces.LinearSrgb -> Named.LINEAR_SRGB
+            ColorSpaces.Ntsc1953 -> Named.NTSC_1953
+            ColorSpaces.ProPhotoRgb -> Named.PRO_PHOTO_RGB
+            ColorSpaces.SmpteC -> Named.SMPTE_C
+            else -> Named.SRGB
         }
         return android.graphics.ColorSpace.get(frameworkNamedSpace)
     }
 
     @DoNotInline
     @JvmStatic
-    internal fun android.graphics.ColorSpace.composeColorSpace(): ColorSpace {
-        return when (this) {
-            android.graphics.ColorSpace.get(android.graphics.ColorSpace.Named.SRGB) ->
-                ColorSpaces.Srgb
-            android.graphics.ColorSpace.get(android.graphics.ColorSpace.Named.ACES) ->
-                ColorSpaces.Aces
-            android.graphics.ColorSpace.get(android.graphics.ColorSpace.Named.ACESCG) ->
-                ColorSpaces.Acescg
-            android.graphics.ColorSpace.get(android.graphics.ColorSpace.Named.ADOBE_RGB) ->
-                ColorSpaces.AdobeRgb
-            android.graphics.ColorSpace.get(android.graphics.ColorSpace.Named.BT2020) ->
-                ColorSpaces.Bt2020
-            android.graphics.ColorSpace.get(android.graphics.ColorSpace.Named.BT709) ->
-                ColorSpaces.Bt709
-            android.graphics.ColorSpace.get(android.graphics.ColorSpace.Named.CIE_LAB) ->
-                ColorSpaces.CieLab
-            android.graphics.ColorSpace.get(android.graphics.ColorSpace.Named.CIE_XYZ) ->
-                ColorSpaces.CieXyz
-            android.graphics.ColorSpace.get(android.graphics.ColorSpace.Named.DCI_P3) ->
-                ColorSpaces.DciP3
-            android.graphics.ColorSpace.get(android.graphics.ColorSpace.Named.DISPLAY_P3) ->
-                ColorSpaces.DisplayP3
-            android.graphics.ColorSpace.get(android.graphics.ColorSpace.Named.EXTENDED_SRGB) ->
-                ColorSpaces.ExtendedSrgb
-            android.graphics.ColorSpace.get(
-                android.graphics.ColorSpace.Named.LINEAR_EXTENDED_SRGB
-            ) ->
-                ColorSpaces.LinearExtendedSrgb
-            android.graphics.ColorSpace.get(android.graphics.ColorSpace.Named.LINEAR_SRGB) ->
-                ColorSpaces.LinearSrgb
-            android.graphics.ColorSpace.get(android.graphics.ColorSpace.Named.NTSC_1953) ->
-                ColorSpaces.Ntsc1953
-            android.graphics.ColorSpace.get(android.graphics.ColorSpace.Named.PRO_PHOTO_RGB) ->
-                ColorSpaces.ProPhotoRgb
-            android.graphics.ColorSpace.get(android.graphics.ColorSpace.Named.SMPTE_C) ->
-                ColorSpaces.SmpteC
-            else -> ColorSpaces.Srgb
+    fun android.graphics.ColorSpace.composeColorSpace(): ColorSpace {
+        return when (this.id) {
+            Named.SRGB.ordinal -> ColorSpaces.Srgb
+            Named.ACES.ordinal -> ColorSpaces.Aces
+            Named.ACESCG.ordinal -> ColorSpaces.Acescg
+            Named.ADOBE_RGB.ordinal -> ColorSpaces.AdobeRgb
+            Named.BT2020.ordinal -> ColorSpaces.Bt2020
+            Named.BT709.ordinal -> ColorSpaces.Bt709
+            Named.CIE_LAB.ordinal -> ColorSpaces.CieLab
+            Named.CIE_XYZ.ordinal -> ColorSpaces.CieXyz
+            Named.DCI_P3.ordinal -> ColorSpaces.DciP3
+            Named.DISPLAY_P3.ordinal -> ColorSpaces.DisplayP3
+            Named.EXTENDED_SRGB.ordinal -> ColorSpaces.ExtendedSrgb
+            Named.LINEAR_EXTENDED_SRGB.ordinal -> ColorSpaces.LinearExtendedSrgb
+            Named.LINEAR_SRGB.ordinal -> ColorSpaces.LinearSrgb
+            Named.NTSC_1953.ordinal -> ColorSpaces.Ntsc1953
+            Named.PRO_PHOTO_RGB.ordinal -> ColorSpaces.ProPhotoRgb
+            Named.SMPTE_C.ordinal -> ColorSpaces.SmpteC
+            else -> {
+                if (this is android.graphics.ColorSpace.Rgb) {
+                    val transferParams = this.transferParameters
+                    val whitePoint = if (this.whitePoint.size == 3) {
+                        WhitePoint(this.whitePoint[0], this.whitePoint[1], this.whitePoint[2])
+                    } else {
+                        WhitePoint(this.whitePoint[0], this.whitePoint[1])
+                    }
+
+                    val composeTransferParams = if (transferParams != null) {
+                        TransferParameters(
+                            gamma = transferParams.g,
+                            a = transferParams.a,
+                            b = transferParams.b,
+                            c = transferParams.c,
+                            d = transferParams.d,
+                            e = transferParams.e,
+                            f = transferParams.f
+                        )
+                    } else {
+                        null
+                    }
+                    Rgb(
+                        name = this.name,
+                        primaries = this.primaries,
+                        whitePoint = whitePoint,
+                        transform = this.transform,
+                        oetf = { x -> this.oetf.applyAsDouble(x) },
+                        eotf = { x -> this.eotf.applyAsDouble(x) },
+                        min = this.getMinValue(0),
+                        max = this.getMaxValue(0),
+                        transferParameters = composeTransferParams,
+                        id = this.id
+                    )
+                } else {
+                    ColorSpaces.Srgb
+                }
+            }
         }
     }
 }
