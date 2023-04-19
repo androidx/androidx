@@ -37,7 +37,7 @@ import java.lang.annotation.RetentionPolicy;
 public final class GrammaticalInflectionManagerCompat {
 
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    @IntDef(flag = true, value = {
+    @IntDef(value = {
             GRAMMATICAL_GENDER_NOT_SPECIFIED,
             GRAMMATICAL_GENDER_NEUTRAL,
             GRAMMATICAL_GENDER_FEMININE,
