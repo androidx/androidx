@@ -35,6 +35,7 @@ import androidx.compose.material.ModalBottomSheetValue.Expanded
 import androidx.compose.material.ModalBottomSheetValue.HalfExpanded
 import androidx.compose.material.ModalBottomSheetValue.Hidden
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
@@ -51,6 +52,7 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.collapse
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.dismiss
@@ -94,6 +96,7 @@ enum class ModalBottomSheetValue {
  *
  * @param initialValue The initial value of the state. <b>Must not be set to
  * [ModalBottomSheetValue.HalfExpanded] if [isSkipHalfExpanded] is set to true.</b>
+ * @param density The density that this state can use to convert values to and from dp.
  * @param animationSpec The default animation that will be used to animate to a new state.
  * @param confirmValueChange Optional callback invoked to confirm or veto a pending state change.
  * @param isSkipHalfExpanded Whether the half expanded state, if the sheet is tall enough, should
@@ -104,6 +107,53 @@ enum class ModalBottomSheetValue {
  * [IllegalArgumentException] will be thrown.
  */
 @ExperimentalMaterialApi
+@Suppress("Deprecation")
+fun ModalBottomSheetState(
+    initialValue: ModalBottomSheetValue,
+    density: Density,
+    animationSpec: AnimationSpec<Float> = SwipeableDefaults.AnimationSpec,
+    confirmValueChange: (ModalBottomSheetValue) -> Boolean = { true },
+    isSkipHalfExpanded: Boolean = false,
+) = ModalBottomSheetState(
+    initialValue = initialValue,
+    animationSpec = animationSpec,
+    isSkipHalfExpanded = isSkipHalfExpanded,
+    confirmStateChange = confirmValueChange
+).also {
+    it.density = density
+}
+
+/**
+ * State of the [ModalBottomSheetLayout] composable.
+ *
+ * @param initialValue The initial value of the state. <b>Must not be set to
+ * [ModalBottomSheetValue.HalfExpanded] if [isSkipHalfExpanded] is set to true.</b>
+ * @param animationSpec The default animation that will be used to animate to a new state.
+ * @param confirmValueChange Optional callback invoked to confirm or veto a pending state change.
+ * @param isSkipHalfExpanded Whether the half expanded state, if the sheet is tall enough, should
+ * be skipped. If true, the sheet will always expand to the [Expanded] state and move to the
+ * [Hidden] state when hiding the sheet, either programmatically or by user interaction.
+ * <b>Must not be set to true if the initialValue is [ModalBottomSheetValue.HalfExpanded].</b>
+ * If supplied with [ModalBottomSheetValue.HalfExpanded] for the initialValue, an
+ * [IllegalArgumentException] will be thrown.
+ */
+@ExperimentalMaterialApi
+@Deprecated(
+    "This constructor is deprecated. Density must be provided by the component. " +
+        "Please use the constructor that provides a [Density].",
+    ReplaceWith(
+        """
+            ModalBottomSheetState(
+                initialValue = initialValue,
+                density =,
+                animationSpec = animationSpec,
+                isSkipHalfExpanded = isSkipHalfExpanded,
+                confirmStateChange = confirmValueChange
+            )
+            """
+
+    )
+)
 @Suppress("Deprecation")
 fun ModalBottomSheetState(
     initialValue: ModalBottomSheetValue,
@@ -135,8 +185,10 @@ fun ModalBottomSheetState(
 class ModalBottomSheetState @Deprecated(
     message = "This constructor is deprecated. confirmStateChange has been renamed to " +
         "confirmValueChange.",
-    replaceWith = ReplaceWith("ModalBottomSheetState(" +
-        "initialValue, animationSpec, confirmStateChange, isSkipHalfExpanded)")
+    replaceWith = ReplaceWith(
+        "ModalBottomSheetState(" +
+            "initialValue, animationSpec, confirmStateChange, isSkipHalfExpanded)"
+    )
 ) constructor(
     initialValue: ModalBottomSheetValue,
     internal val animationSpec: AnimationSpec<Float> = SwipeableDefaults.AnimationSpec,
@@ -148,8 +200,12 @@ class ModalBottomSheetState @Deprecated(
         initialValue = initialValue,
         animationSpec = animationSpec,
         confirmValueChange = confirmStateChange,
-        positionalThreshold = PositionalThreshold,
-        velocityThreshold = VelocityThreshold
+        positionalThreshold = {
+            with(requireDensity()) {
+                ModalBottomSheetPositionalThreshold.toPx()
+            }
+        },
+        velocityThreshold = { with(requireDensity()) { ModalBottomSheetVelocityThreshold.toPx() } }
     )
 
     val currentValue: ModalBottomSheetValue
@@ -170,8 +226,10 @@ class ModalBottomSheetState @Deprecated(
     @Deprecated(
         message = "This constructor is deprecated. confirmStateChange has been renamed to " +
             "confirmValueChange.",
-        replaceWith = ReplaceWith("ModalBottomSheetState(" +
-            "initialValue, animationSpec, confirmStateChange, false)")
+        replaceWith = ReplaceWith(
+            "ModalBottomSheetState(" +
+                "initialValue, animationSpec, confirmStateChange, false)"
+        )
     )
     @Suppress("Deprecation")
     constructor(
@@ -255,12 +313,50 @@ class ModalBottomSheetState @Deprecated(
 
     internal val isAnimationRunning: Boolean get() = swipeableState.isAnimationRunning
 
+    internal var density: Density? = null
+    private fun requireDensity() = requireNotNull(density) {
+        "The density on ModalBottomSheetState ($this) was not set. Did you use " +
+            "ModalBottomSheetState with the ModalBottomSheetLayout composable?"
+    }
+
     companion object {
         /**
          * The default [Saver] implementation for [ModalBottomSheetState].
          * Saves the [currentValue] and recreates a [ModalBottomSheetState] with the saved value as
          * initial value.
          */
+        fun Saver(
+            animationSpec: AnimationSpec<Float>,
+            confirmValueChange: (ModalBottomSheetValue) -> Boolean,
+            skipHalfExpanded: Boolean,
+            density: Density
+        ): Saver<ModalBottomSheetState, *> = Saver(
+            save = { it.currentValue },
+            restore = {
+                ModalBottomSheetState(
+                    initialValue = it,
+                    density = density,
+                    animationSpec = animationSpec,
+                    isSkipHalfExpanded = skipHalfExpanded,
+                    confirmValueChange = confirmValueChange
+                )
+            }
+        )
+
+        /**
+         * The default [Saver] implementation for [ModalBottomSheetState].
+         * Saves the [currentValue] and recreates a [ModalBottomSheetState] with the saved value as
+         * initial value.
+         */
+        @Deprecated(
+            message = "This function is deprecated. Please use the overload where Density is" +
+                " provided.",
+            replaceWith = ReplaceWith(
+                "Saver(animationSpec, confirmValueChange, density, " +
+                    "skipHalfExpanded)"
+            )
+        )
+        @Suppress("Deprecation")
         fun Saver(
             animationSpec: AnimationSpec<Float>,
             confirmValueChange: (ModalBottomSheetValue) -> Boolean,
@@ -285,9 +381,12 @@ class ModalBottomSheetState @Deprecated(
         @Deprecated(
             message = "This function is deprecated. confirmStateChange has been renamed to " +
                 "confirmValueChange.",
-            replaceWith = ReplaceWith("Saver(animationSpec, confirmStateChange, " +
-                "skipHalfExpanded)")
+            replaceWith = ReplaceWith(
+                "Saver(animationSpec, confirmStateChange, " +
+                    "skipHalfExpanded)"
+            )
         )
+        @Suppress("Deprecation")
         fun Saver(
             animationSpec: AnimationSpec<Float>,
             skipHalfExpanded: Boolean,
@@ -321,19 +420,22 @@ fun rememberModalBottomSheetState(
     confirmValueChange: (ModalBottomSheetValue) -> Boolean = { true },
     skipHalfExpanded: Boolean = false,
 ): ModalBottomSheetState {
+    val density = LocalDensity.current
     // Key the rememberSaveable against the initial value. If it changed we don't want to attempt
     // to restore as the restored value could have been saved with a now invalid set of anchors.
     // b/152014032
     return key(initialValue) {
         rememberSaveable(
-            initialValue, animationSpec, skipHalfExpanded, confirmValueChange,
+            initialValue, animationSpec, skipHalfExpanded, confirmValueChange, density,
             saver = Saver(
+                density = density,
                 animationSpec = animationSpec,
                 skipHalfExpanded = skipHalfExpanded,
                 confirmValueChange = confirmValueChange
             )
         ) {
             ModalBottomSheetState(
+                density = density,
                 initialValue = initialValue,
                 animationSpec = animationSpec,
                 isSkipHalfExpanded = skipHalfExpanded,
@@ -359,8 +461,10 @@ fun rememberModalBottomSheetState(
 @Deprecated(
     message = "This function is deprecated. confirmStateChange has been renamed to " +
         "confirmValueChange.",
-    replaceWith = ReplaceWith("rememberModalBottomSheetState(" +
-        "initialValue, animationSpec, confirmStateChange, false)")
+    replaceWith = ReplaceWith(
+        "rememberModalBottomSheetState(" +
+            "initialValue, animationSpec, confirmStateChange, false)"
+    )
 )
 @Composable
 @ExperimentalMaterialApi
@@ -386,8 +490,10 @@ fun rememberModalBottomSheetState(
 @Deprecated(
     message = "This function is deprecated. confirmStateChange has been renamed to " +
         "confirmValueChange.",
-    replaceWith = ReplaceWith("rememberModalBottomSheetState(" +
-        "initialValue, animationSpec, confirmValueChange = confirmStateChange)")
+    replaceWith = ReplaceWith(
+        "rememberModalBottomSheetState(" +
+            "initialValue, animationSpec, confirmValueChange = confirmStateChange)"
+    )
 )
 @Composable
 @ExperimentalMaterialApi
@@ -444,6 +550,13 @@ fun ModalBottomSheetLayout(
     scrimColor: Color = ModalBottomSheetDefaults.scrimColor,
     content: @Composable () -> Unit
 ) {
+    // b/278692145 Remove this once deprecated methods without density are removed
+    if (sheetState.density == null) {
+        val density = LocalDensity.current
+        SideEffect {
+            sheetState.density = density
+        }
+    }
     val scope = rememberCoroutineScope()
     val orientation = Orientation.Vertical
     val anchorChangeHandler = remember(sheetState, scope) {
@@ -669,7 +782,7 @@ private fun ModalBottomSheetAnchorChangeHandler(
         HalfExpanded, Expanded -> {
             val hasHalfExpandedState = newAnchors.containsKey(HalfExpanded)
             val newTarget = if (hasHalfExpandedState) HalfExpanded
-                else if (newAnchors.containsKey(Expanded)) Expanded else Hidden
+            else if (newAnchors.containsKey(Expanded)) Expanded else Hidden
             newTarget
         }
     }
@@ -685,6 +798,6 @@ private fun ModalBottomSheetAnchorChangeHandler(
     }
 }
 
-private val PositionalThreshold: Density.(Float) -> Float = { 56.dp.toPx() }
-private val VelocityThreshold = 125.dp
+private val ModalBottomSheetPositionalThreshold = 56.dp
+private val ModalBottomSheetVelocityThreshold = 125.dp
 private val MaxModalBottomSheetWidth = 640.dp

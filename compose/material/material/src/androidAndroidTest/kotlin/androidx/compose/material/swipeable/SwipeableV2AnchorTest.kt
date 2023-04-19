@@ -27,7 +27,6 @@ import androidx.compose.material.AnchorChangeHandler
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.SwipeableV2Defaults
 import androidx.compose.material.SwipeableV2State
-import androidx.compose.material.fractionalPositionalThreshold
 import androidx.compose.material.rememberSwipeableV2State
 import androidx.compose.material.swipeAnchors
 import androidx.compose.material.swipeable.TestState.A
@@ -177,7 +176,8 @@ class SwipeableV2AnchorTest {
                 SwipeableV2State(
                     initialValue = A,
                     animationSpec = tween(animationDurationMillis, easing = LinearEasing),
-                    positionalThreshold = fractionalPositionalThreshold(0.5f)
+                    positionalThreshold = defaultPositionalThreshold(),
+                    velocityThreshold = defaultVelocityThreshold()
                 )
             }
             scope = rememberCoroutineScope()
@@ -223,7 +223,11 @@ class SwipeableV2AnchorTest {
 
     @Test
     fun swipeable_reconcileAnchorChangeHandler_snapsWhenPreviousAnchorRemoved() {
-        val state = SwipeableV2State(initialValue = A)
+        val state = SwipeableV2State(
+            initialValue = A,
+            positionalThreshold = defaultPositionalThreshold(),
+            velocityThreshold = defaultVelocityThreshold()
+        )
         lateinit var scope: CoroutineScope
 
         val firstAnchors = mapOf(A to 0f, B to 100f, C to 200f)
@@ -265,7 +269,11 @@ class SwipeableV2AnchorTest {
 
     @Test
     fun swipeable_anchorChangeHandler_calledWithUpdatedAnchorsWhenChanged() {
-        val state = SwipeableV2State(initialValue = A)
+        val state = SwipeableV2State(
+            initialValue = A,
+            positionalThreshold = defaultPositionalThreshold(),
+            velocityThreshold = defaultVelocityThreshold()
+        )
         val initialSize = 100.dp
         var size: Dp by mutableStateOf(initialSize)
         var anchorChangeHandlerInvocationCount = 0
@@ -317,7 +325,8 @@ class SwipeableV2AnchorTest {
     fun swipeable_anchorChangeHandler_invokedWithPreviousTarget() {
         val state = SwipeableV2State(
             initialValue = A,
-            positionalThreshold = fractionalPositionalThreshold(0.5f)
+            positionalThreshold = { totalDistance -> totalDistance * 0.5f },
+            velocityThreshold = defaultVelocityThreshold()
         )
         var recordedPreviousTargetValue: TestState? = null
         val testChangeHandler = AnchorChangeHandler<TestState> { previousTarget, _, _ ->
@@ -354,7 +363,11 @@ class SwipeableV2AnchorTest {
 
     @Test
     fun swipeable_anchorChangeHandler_invokedIfInitialValueNotInInitialAnchors() {
-        val state = SwipeableV2State(initialValue = A)
+        val state = SwipeableV2State(
+            initialValue = A,
+            positionalThreshold = defaultPositionalThreshold(),
+            velocityThreshold = defaultVelocityThreshold()
+        )
         var anchorChangeHandlerInvocationCount = 0
         val testChangeHandler = AnchorChangeHandler<TestState> { _, _, _ ->
             anchorChangeHandlerInvocationCount++
@@ -374,5 +387,12 @@ class SwipeableV2AnchorTest {
         }
 
         assertThat(anchorChangeHandlerInvocationCount).isEqualTo(1)
+    }
+
+    private fun defaultPositionalThreshold(): (totalDistance: Float) -> Float = with(rule.density) {
+        { 56.dp.toPx() }
+    }
+    private fun defaultVelocityThreshold(): () -> Float = with(rule.density) {
+        { 125.dp.toPx() }
     }
 }
