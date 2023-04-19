@@ -3771,8 +3771,8 @@ class AndroidAccessibilityTest {
         assertNotNull("Button has no children", lastChild)
         assertTrue("Last child should be fake Button role node", lastChild!!.isFake)
         assertEquals(
-            Role.Button,
             lastChild.unmergedConfig.getOrNull(SemanticsProperties.Role),
+            Role.Button
         )
     }
 
