@@ -949,10 +949,17 @@ internal class LayoutNode(
     /**
      * Used to request a new measurement + layout pass from the owner.
      */
-    internal fun requestRemeasure(forceRequest: Boolean = false) {
+    internal fun requestRemeasure(
+        forceRequest: Boolean = false,
+        scheduleMeasureAndLayout: Boolean = true
+    ) {
         if (!ignoreRemeasureRequests && !isVirtual) {
             val owner = owner ?: return
-            owner.onRequestMeasure(this, forceRequest = forceRequest)
+            owner.onRequestMeasure(
+                layoutNode = this,
+                forceRequest = forceRequest,
+                scheduleMeasureAndLayout = scheduleMeasureAndLayout
+            )
             measurePassDelegate.invalidateIntrinsicsParent(forceRequest)
         }
     }
@@ -961,14 +968,22 @@ internal class LayoutNode(
      * Used to request a new lookahead measurement, lookahead layout, and subsequently
      * measure and layout from the owner.
      */
-    internal fun requestLookaheadRemeasure(forceRequest: Boolean = false) {
+    internal fun requestLookaheadRemeasure(
+        forceRequest: Boolean = false,
+        scheduleMeasureAndLayout: Boolean = true
+    ) {
         check(lookaheadRoot != null) {
             "Lookahead measure cannot be requested on a node that is not a part of the" +
                 "LookaheadLayout"
         }
         val owner = owner ?: return
         if (!ignoreRemeasureRequests && !isVirtual) {
-            owner.onRequestMeasure(this, affectsLookahead = true, forceRequest = forceRequest)
+            owner.onRequestMeasure(
+                layoutNode = this,
+                affectsLookahead = true,
+                forceRequest = forceRequest,
+                scheduleMeasureAndLayout = scheduleMeasureAndLayout
+            )
             lookaheadPassDelegate!!.invalidateIntrinsicsParent(forceRequest)
         }
     }
@@ -1156,10 +1171,11 @@ internal class LayoutNode(
         layoutDelegate.markLookaheadMeasurePending()
 
     override fun forceRemeasure() {
+        // we do not schedule measure and layout as we are going to call it manually right after
         if (lookaheadRoot != null) {
-            requestLookaheadRemeasure()
+            requestLookaheadRemeasure(scheduleMeasureAndLayout = false)
         } else {
-            requestRemeasure()
+            requestRemeasure(scheduleMeasureAndLayout = false)
         }
         val lastConstraints = layoutDelegate.lastConstraints
         if (lastConstraints != null) {
