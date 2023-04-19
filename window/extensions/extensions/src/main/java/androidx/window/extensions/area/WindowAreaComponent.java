@@ -20,6 +20,7 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.os.Build;
 import android.util.ArrayMap;
+import android.util.DisplayMetrics;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
@@ -338,6 +339,22 @@ public interface WindowAreaComponent {
      */
     @Nullable
     default ExtensionWindowAreaPresentation getRearDisplayPresentation() {
+        throw new UnsupportedOperationException("This method must not be called unless there is a"
+                + " corresponding override implementation on the device.");
+    }
+
+    /**
+     * Returns the {@link android.util.DisplayMetrics} associated with the rear facing display. If
+     * there is no rear facing display available on the device, returns an empty
+     * {@link android.util.DisplayMetrics} object.
+     *
+     * TODO(b/273807238): Investigate how we can provide a listener to get runtime
+     *  changes in rear display metrics to better support other form-factors in the future.
+     *
+     * Since {@link WindowExtensions#VENDOR_API_LEVEL_3}
+     */
+    @NonNull
+    default DisplayMetrics getRearDisplayMetrics() {
         throw new UnsupportedOperationException("This method must not be called unless there is a"
                 + " corresponding override implementation on the device.");
     }

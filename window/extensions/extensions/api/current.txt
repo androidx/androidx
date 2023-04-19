@@ -31,6 +31,7 @@ package androidx.window.extensions.area {
     method public void addRearDisplayStatusListener(androidx.window.extensions.core.util.function.Consumer<java.lang.Integer!>);
     method public default void endRearDisplayPresentationSession();
     method public void endRearDisplaySession();
+    method public default android.util.DisplayMetrics getRearDisplayMetrics();
     method public default androidx.window.extensions.area.ExtensionWindowAreaPresentation? getRearDisplayPresentation();
     method public default void removeRearDisplayPresentationStatusListener(androidx.window.extensions.core.util.function.Consumer<androidx.window.extensions.area.ExtensionWindowAreaStatus!>);
     method public void removeRearDisplayStatusListener(androidx.window.extensions.core.util.function.Consumer<java.lang.Integer!>);
