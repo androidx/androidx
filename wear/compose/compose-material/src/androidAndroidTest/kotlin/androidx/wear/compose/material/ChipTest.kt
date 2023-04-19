@@ -74,14 +74,14 @@ class ChipBehaviourTest {
       Chip(
         onClick = {},
         colors = ChipDefaults.primaryChipColors(),
-        modifier = Modifier.testTag("test-item"),
+        modifier = Modifier.testTag(TEST_TAG),
         border = ChipDefaults.chipBorder()
       ) {
         TestImage()
       }
     }
 
-    rule.onNodeWithTag("test-item").assertExists()
+    rule.onNodeWithTag(TEST_TAG).assertExists()
   }
 
   @Test
@@ -91,14 +91,14 @@ class ChipBehaviourTest {
         onClick = {},
         colors = ChipDefaults.primaryChipColors(),
         enabled = true,
-        modifier = Modifier.testTag("test-item"),
+        modifier = Modifier.testTag(TEST_TAG),
         border = ChipDefaults.chipBorder()
       ) {
         TestImage()
       }
     }
 
-    rule.onNodeWithTag("test-item").assertHasClickAction()
+    rule.onNodeWithTag(TEST_TAG).assertHasClickAction()
   }
 
   @Test
@@ -108,14 +108,14 @@ class ChipBehaviourTest {
         onClick = {},
         colors = ChipDefaults.primaryChipColors(),
         enabled = false,
-        modifier = Modifier.testTag("test-item"),
+        modifier = Modifier.testTag(TEST_TAG),
         border = ChipDefaults.chipBorder()
       ) {
         TestImage()
       }
     }
 
-    rule.onNodeWithTag("test-item").assertHasClickAction()
+    rule.onNodeWithTag(TEST_TAG).assertHasClickAction()
   }
 
   @Test
@@ -125,14 +125,14 @@ class ChipBehaviourTest {
         onClick = {},
         colors = ChipDefaults.primaryChipColors(),
         enabled = true,
-        modifier = Modifier.testTag("test-item"),
+        modifier = Modifier.testTag(TEST_TAG),
         border = ChipDefaults.chipBorder()
       ) {
         TestImage()
       }
     }
 
-    rule.onNodeWithTag("test-item").assertIsEnabled()
+    rule.onNodeWithTag(TEST_TAG).assertIsEnabled()
   }
 
   @Test
@@ -142,14 +142,14 @@ class ChipBehaviourTest {
         onClick = {},
         colors = ChipDefaults.primaryChipColors(),
         enabled = false,
-        modifier = Modifier.testTag("test-item"),
+        modifier = Modifier.testTag(TEST_TAG),
         border = ChipDefaults.chipBorder()
       ) {
         TestImage()
       }
     }
 
-    rule.onNodeWithTag("test-item").assertIsNotEnabled()
+    rule.onNodeWithTag(TEST_TAG).assertIsNotEnabled()
   }
 
   @Test
@@ -161,14 +161,14 @@ class ChipBehaviourTest {
         onClick = { clicked = true },
         colors = ChipDefaults.primaryChipColors(),
         enabled = true,
-        modifier = Modifier.testTag("test-item"),
+        modifier = Modifier.testTag(TEST_TAG),
         border = ChipDefaults.chipBorder()
       ) {
         TestImage()
       }
     }
 
-    rule.onNodeWithTag("test-item").performClick()
+    rule.onNodeWithTag(TEST_TAG).performClick()
 
     rule.runOnIdle {
       assertEquals(true, clicked)
@@ -184,14 +184,14 @@ class ChipBehaviourTest {
         onClick = { clicked = true },
         colors = ChipDefaults.primaryChipColors(),
         enabled = false,
-        modifier = Modifier.testTag("test-item"),
+        modifier = Modifier.testTag(TEST_TAG),
         border = ChipDefaults.chipBorder()
       ) {
         TestImage()
       }
     }
 
-    rule.onNodeWithTag("test-item").performClick()
+    rule.onNodeWithTag(TEST_TAG).performClick()
 
     rule.runOnIdle {
       assertEquals(false, clicked)
@@ -205,14 +205,59 @@ class ChipBehaviourTest {
         onClick = {},
         colors = ChipDefaults.primaryChipColors(),
         enabled = false,
-        modifier = Modifier.testTag("test-item"),
+        modifier = Modifier.testTag(TEST_TAG),
         border = ChipDefaults.chipBorder()
       ) {
         TestImage()
       }
     }
 
-    rule.onNodeWithTag("test-item")
+    rule.onNodeWithTag(TEST_TAG)
+      .assert(
+        SemanticsMatcher.expectValue(
+          SemanticsProperties.Role,
+          Role.Button
+        )
+      )
+  }
+
+  @Test
+  fun has_role_button_for_three_slot_chip() {
+    rule.setContentWithTheme {
+      Chip(
+        onClick = {},
+        label = {},
+        secondaryLabel = {},
+        icon = { TestImage() },
+        colors = ChipDefaults.primaryChipColors(),
+        enabled = false,
+        modifier = Modifier.testTag(TEST_TAG),
+      )
+    }
+
+    rule.onNodeWithTag(TEST_TAG)
+      .assert(
+        SemanticsMatcher.expectValue(
+          SemanticsProperties.Role,
+          Role.Button
+        )
+      )
+  }
+
+  @Test
+  fun has_role_button_for_compact_chip() {
+    rule.setContentWithTheme {
+      CompactChip(
+        onClick = {},
+        label = {},
+        icon = { TestImage() },
+        colors = ChipDefaults.primaryChipColors(),
+        enabled = false,
+        modifier = Modifier.testTag(TEST_TAG),
+      )
+    }
+
+    rule.onNodeWithTag(TEST_TAG)
       .assert(
         SemanticsMatcher.expectValue(
           SemanticsProperties.Role,
@@ -225,7 +270,7 @@ class ChipBehaviourTest {
   fun is_stadium_shape_under_ltr() =
     rule.isStadiumShape(LayoutDirection.Ltr) {
       Chip(
-        modifier = Modifier.testTag("test-item"),
+        modifier = Modifier.testTag(TEST_TAG),
         border = ChipDefaults.chipBorder(),
         onClick = {},
         colors = ChipDefaults.primaryChipColors(),
@@ -236,7 +281,7 @@ class ChipBehaviourTest {
   fun is_stadium_shape_under_rtl() =
     rule.isStadiumShape(LayoutDirection.Rtl) {
       Chip(
-        modifier = Modifier.testTag("test-item"),
+        modifier = Modifier.testTag(TEST_TAG),
         border = ChipDefaults.chipBorder(),
         onClick = {},
         colors = ChipDefaults.primaryChipColors(),
@@ -612,13 +657,13 @@ class ChipColorTest {
           content = {},
           colors = ChipDefaults.primaryChipColors(backgroundColor = overrideColor),
           enabled = true,
-          modifier = Modifier.testTag("test-item"),
+          modifier = Modifier.testTag(TEST_TAG),
           border = ChipDefaults.chipBorder()
         )
       }
     }
 
-    rule.onNodeWithTag("test-item")
+    rule.onNodeWithTag(TEST_TAG)
       .captureToImage()
       .assertContainsColor(overrideColor, 50.0f)
   }
@@ -634,13 +679,13 @@ class ChipColorTest {
           content = {},
           colors = ChipDefaults.chipColors(disabledBackgroundColor = overrideColor),
           enabled = false,
-          modifier = Modifier.testTag("test-item"),
+          modifier = Modifier.testTag(TEST_TAG),
           border = ChipDefaults.chipBorder()
         )
       }
     }
 
-    rule.onNodeWithTag("test-item")
+    rule.onNodeWithTag(TEST_TAG)
       .captureToImage()
       .assertContainsColor(overrideColor, 50.0f)
   }
@@ -659,7 +704,7 @@ class ChipColorTest {
           actualContentColor = LocalContentColor.current
         },
         enabled = true,
-        modifier = Modifier.testTag("test-item"),
+        modifier = Modifier.testTag(TEST_TAG),
         border = ChipDefaults.chipBorder()
       )
     }
@@ -687,7 +732,7 @@ class ChipColorTest {
           actualSecondaryContentColor = LocalContentColor.current
         },
         enabled = true,
-        modifier = Modifier.testTag("test-item")
+        modifier = Modifier.testTag(TEST_TAG)
       )
     }
     assertEquals(expectedContent, actualContentColor)
@@ -714,7 +759,7 @@ class ChipColorTest {
           actualIconColor = LocalContentColor.current
         },
         enabled = true,
-        modifier = Modifier.testTag("test-item")
+        modifier = Modifier.testTag(TEST_TAG)
       )
     }
     assertEquals(expectedContent, actualContentColor)
@@ -735,7 +780,7 @@ class ChipColorTest {
           actualContentColor = LocalContentColor.current
         },
         enabled = false,
-        modifier = Modifier.testTag("test-item"),
+        modifier = Modifier.testTag(TEST_TAG),
         border = ChipDefaults.chipBorder()
       )
     }
@@ -768,7 +813,7 @@ class ChipColorTest {
           colors = testChipColors.chipColors(),
           content = { actualContent = LocalContentColor.current },
           enabled = status.enabled(),
-          modifier = Modifier.testTag("test-item"),
+          modifier = Modifier.testTag(TEST_TAG),
           border = ChipDefaults.chipBorder()
         )
       }
@@ -819,7 +864,7 @@ class ChipColorTest {
             colors = testChipColors.chipColors(),
             label = { actualContent = LocalContentColor.current },
             enabled = status.enabled(),
-            modifier = Modifier.testTag("test-item"),
+            modifier = Modifier.testTag(TEST_TAG),
             border = ChipDefaults.chipBorder()
           )
         } else {
@@ -828,7 +873,7 @@ class ChipColorTest {
             colors = testChipColors.chipColors(),
             content = { actualContent = LocalContentColor.current },
             enabled = status.enabled(),
-            modifier = Modifier.testTag("test-item"),
+            modifier = Modifier.testTag(TEST_TAG),
             border = ChipDefaults.chipBorder()
           )
         }
@@ -837,7 +882,7 @@ class ChipColorTest {
 
     assertEquals(expectedContent, actualContent)
 
-    rule.onNodeWithTag("test-item")
+    rule.onNodeWithTag(TEST_TAG)
       .captureToImage()
       .assertContainsColor(
         if (expectedBackground != Color.Transparent) expectedBackground else testBackground,
@@ -898,7 +943,7 @@ class ChipColorTest {
             label = { actualContent = LocalContentColor.current },
             icon = { actualIcon = LocalContentColor.current },
             enabled = status.enabled(),
-            modifier = Modifier.testTag("test-item")
+            modifier = Modifier.testTag(TEST_TAG)
           )
         } else {
           Chip(
@@ -908,7 +953,7 @@ class ChipColorTest {
             secondaryLabel = { actualSecondaryContent = LocalContentColor.current },
             icon = { actualIcon = LocalContentColor.current },
             enabled = status.enabled(),
-            modifier = Modifier.testTag("test-item")
+            modifier = Modifier.testTag(TEST_TAG)
           )
         }
       }
@@ -920,7 +965,7 @@ class ChipColorTest {
     }
     assertEquals(expectedIcon, actualIcon)
 
-    rule.onNodeWithTag("test-item")
+    rule.onNodeWithTag(TEST_TAG)
       .captureToImage()
       .assertContainsColor(
         if (expectedBackground != Color.Transparent) expectedBackground else testBackground,
@@ -967,7 +1012,7 @@ class ChipColorTest {
             label = { actualContent = LocalContentColor.current },
             icon = { actualIcon = LocalContentColor.current },
             enabled = status.enabled(),
-            modifier = Modifier.testTag("test-item")
+            modifier = Modifier.testTag(TEST_TAG)
           )
         } else {
           Chip(
@@ -977,7 +1022,7 @@ class ChipColorTest {
             secondaryLabel = { actualSecondaryContent = LocalContentColor.current },
             icon = { actualIcon = LocalContentColor.current },
             enabled = status.enabled(),
-            modifier = Modifier.testTag("test-item")
+            modifier = Modifier.testTag(TEST_TAG)
           )
         }
       }
@@ -1008,7 +1053,7 @@ class ChipFontTest {
           actualTextStyle = LocalTextStyle.current
         },
         enabled = true,
-        modifier = Modifier.testTag("test-item"),
+        modifier = Modifier.testTag(TEST_TAG),
         border = ChipDefaults.chipBorder()
       )
     }
@@ -1034,7 +1079,7 @@ class ChipFontTest {
           actualSecondaryLabelTextStyle = LocalTextStyle.current
         },
         enabled = true,
-        modifier = Modifier.testTag("test-item")
+        modifier = Modifier.testTag(TEST_TAG)
       )
     }
     assertEquals(expectedTextStyle, actualLabelTextStyle)
@@ -1116,12 +1161,12 @@ class ChipShapeTest {
       chipColor = MaterialTheme.colors.primary
       content(
         Modifier
-          .testTag("test-item")
+          .testTag(TEST_TAG)
           .padding(padding)
           .background(background))
     }
 
-    rule.onNodeWithTag("test-item")
+    rule.onNodeWithTag(TEST_TAG)
       .captureToImage()
       .assertShape(
         density = rule.density,
@@ -1165,7 +1210,7 @@ private fun ComposeContentTestRule.isStadiumShape(
     }
   }
 
-  onNodeWithTag("test-item")
+  onNodeWithTag(TEST_TAG)
     .captureToImage()
     .assertShape(
       density = density,
