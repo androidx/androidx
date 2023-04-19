@@ -18,12 +18,14 @@ package androidx.graphics.surface
 
 import android.graphics.Rect
 import android.graphics.Region
+import android.hardware.DataSpace
 import android.hardware.HardwareBuffer
 import android.os.Build
 import android.view.AttachedSurfaceControl
 import android.view.Surface
 import android.view.SurfaceControl
 import android.view.SurfaceView
+import androidx.annotation.FloatRange
 import androidx.annotation.IntDef
 import androidx.annotation.RequiresApi
 import androidx.hardware.SyncFenceCompat
@@ -467,6 +469,75 @@ class SurfaceControlCompat internal constructor(
         ): Transaction {
             mBufferTransforms[surfaceControl] = transformation
             mImpl.setBufferTransform(surfaceControl.scImpl, transformation)
+            return this
+        }
+
+        /**
+         * Sets the desired extended range brightness for the layer. This only applies for layers
+         * that are displaying [HardwareBuffer] instances with a DataSpace of
+         * [DataSpace.RANGE_EXTENDED].
+         *
+         * @param surfaceControl The layer whose extended range brightness is being specified
+         * @param currentBufferRatio The current hdr/sdr ratio of the current buffer. For example
+         * if the buffer was rendered with a target SDR whitepoint of 100 nits and a max display
+         * brightness of 200 nits, this should be set to 2.0f.
+         *
+         * Default value is 1.0f.
+         *
+         * Transfer functions that encode their own brightness ranges,
+         * such as HLG or PQ, should also set this to 1.0f and instead
+         * communicate extended content brightness information via
+         * metadata such as CTA861_3 or SMPTE2086.
+         *
+         * Must be finite && >= 1.0f
+         *
+         * @param desiredRatio The desired hdr/sdr ratio. This can be used to communicate the max
+         * desired brightness range. This is similar to the "max luminance" value in other HDR
+         * metadata formats, but represented as a ratio of the target SDR whitepoint to the max
+         * display brightness. The system may not be able to, or may choose not to, deliver the
+         * requested range.
+         *
+         * While requesting a large desired ratio will result in the most
+         * dynamic range, voluntarily reducing the requested range can help
+         * improve battery life as well as can improve quality by ensuring
+         * greater bit depth is allocated to the luminance range in use.
+         *
+         * Default value is 1.0f and indicates that extended range brightness
+         * is not being used, so the resulting SDR or HDR behavior will be
+         * determined entirely by the dataspace being used (ie, typically SDR
+         * however PQ or HLG transfer functions will still result in HDR)
+         *
+         * Must be finite && >= 1.0f
+         * @return this
+         **/
+        @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+        fun setExtendedRangeBrightness(
+            surfaceControl: SurfaceControlCompat,
+            @FloatRange(from = 1.0, fromInclusive = true) currentBufferRatio: Float,
+            @FloatRange(from = 1.0, fromInclusive = true) desiredRatio: Float
+        ): Transaction {
+            mImpl.setExtendedRangeBrightness(
+                surfaceControl.scImpl,
+                currentBufferRatio,
+                desiredRatio
+            )
+            return this
+        }
+
+        /**
+         * Set the dataspace for the SurfaceControl. This will control how the buffer
+         * set with [setBuffer] is displayed.
+         *
+         * @param surfaceControl The SurfaceControl to update
+         * @param dataSpace The dataspace to set it to
+         * @return this
+         */
+        @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+        fun setDataSpace(
+            surfaceControl: SurfaceControlCompat,
+            dataSpace: Int
+        ): Transaction {
+            mImpl.setDataSpace(surfaceControl.scImpl, dataSpace)
             return this
         }
 

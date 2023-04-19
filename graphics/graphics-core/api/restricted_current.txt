@@ -298,6 +298,8 @@ package androidx.graphics.surface {
     method public androidx.graphics.surface.SurfaceControlCompat.Transaction setBufferTransform(androidx.graphics.surface.SurfaceControlCompat surfaceControl, int transformation);
     method public androidx.graphics.surface.SurfaceControlCompat.Transaction setCrop(androidx.graphics.surface.SurfaceControlCompat surfaceControl, android.graphics.Rect? crop);
     method public androidx.graphics.surface.SurfaceControlCompat.Transaction setDamageRegion(androidx.graphics.surface.SurfaceControlCompat surfaceControl, android.graphics.Region? region);
+    method @RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU) public androidx.graphics.surface.SurfaceControlCompat.Transaction setDataSpace(androidx.graphics.surface.SurfaceControlCompat surfaceControl, int dataSpace);
+    method @RequiresApi(android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) public androidx.graphics.surface.SurfaceControlCompat.Transaction setExtendedRangeBrightness(androidx.graphics.surface.SurfaceControlCompat surfaceControl, @FloatRange(from=1.0, fromInclusive=true) float currentBufferRatio, @FloatRange(from=1.0, fromInclusive=true) float desiredRatio);
     method public androidx.graphics.surface.SurfaceControlCompat.Transaction setLayer(androidx.graphics.surface.SurfaceControlCompat surfaceControl, int z);
     method public androidx.graphics.surface.SurfaceControlCompat.Transaction setOpaque(androidx.graphics.surface.SurfaceControlCompat surfaceControl, boolean isOpaque);
     method public androidx.graphics.surface.SurfaceControlCompat.Transaction setPosition(androidx.graphics.surface.SurfaceControlCompat surfaceControl, float x, float y);

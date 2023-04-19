@@ -356,6 +356,33 @@ internal class SurfaceControlV29 internal constructor(
         }
 
         /**
+         * See [SurfaceControlCompat.Transaction.setExtendedRangeBrightness]
+         */
+        @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+        override fun setExtendedRangeBrightness(
+            surfaceControl: SurfaceControlImpl,
+            currentBufferRatio: Float,
+            desiredRatio: Float
+        ): SurfaceControlImpl.Transaction {
+            throw UnsupportedOperationException(
+                "Configuring the extended range brightness is only available on Android U+"
+            )
+        }
+
+        /**
+         * See [SurfaceControlCompat.Transaction.setDataSpace]
+         */
+        @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+        override fun setDataSpace(
+            surfaceControl: SurfaceControlImpl,
+            dataSpace: Int
+        ): SurfaceControlImpl.Transaction {
+            throw UnsupportedOperationException(
+                "Configuring the data space is only available on Android T+"
+            )
+        }
+
+        /**
          * See [SurfaceControlWrapper.Transaction.close]
          */
         override fun close() {
