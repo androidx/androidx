@@ -181,42 +181,11 @@ public final class TypeConverters {
                     .build();
 
     public static final ParamValueConverter<Integer> INTEGER_PARAM_VALUE_CONVERTER =
-            new ParamValueConverter<Integer>() {
-                @NonNull
-                @Override
-                public ParamValue toParamValue(Integer value) {
-                    return ParamValue.newBuilder().setNumberValue(value * 1.0).build();
-                }
+            ParamValueConverter.of(TypeSpec.INTEGER_TYPE_SPEC);
 
-                @Override
-                public Integer fromParamValue(@NonNull ParamValue paramValue)
-                        throws StructConversionException {
-                    if (paramValue.hasNumberValue()) {
-                        return (int) paramValue.getNumberValue();
-                    }
-                    throw new StructConversionException(
-                            "Cannot parse integer because number_value"
-                                    + " is missing from ParamValue.");
-                }
-            };
     public static final ParamValueConverter<Boolean> BOOLEAN_PARAM_VALUE_CONVERTER =
-            new ParamValueConverter<Boolean>() {
-                @NonNull
-                @Override
-                public ParamValue toParamValue(Boolean value) {
-                    return ParamValue.newBuilder().setBoolValue(value).build();
-                }
+            ParamValueConverter.of(TypeSpec.BOOL_TYPE_SPEC);
 
-                @Override
-                public Boolean fromParamValue(@NonNull ParamValue paramValue)
-                        throws StructConversionException {
-                    if (paramValue.hasBoolValue()) {
-                        return paramValue.getBoolValue();
-                    }
-                    throw new StructConversionException(
-                            "Cannot parse boolean because bool_value is missing from ParamValue.");
-                }
-            };
     public static final ParamValueConverter<EntityValue> ENTITY_PARAM_VALUE_CONVERTER =
             new ParamValueConverter<EntityValue>() {
                 @NonNull
@@ -237,21 +206,8 @@ public final class TypeConverters {
                 }
             };
     public static final ParamValueConverter<String> STRING_PARAM_VALUE_CONVERTER =
-            new ParamValueConverter<String>() {
-                @NonNull
-                @Override
-                public ParamValue toParamValue(String value) {
-                    return ParamValue.newBuilder().setStringValue(value).build();
-                }
+            ParamValueConverter.of(TypeSpec.STRING_TYPE_SPEC);
 
-                @Override
-                public String fromParamValue(@NonNull ParamValue paramValue) {
-                    if (paramValue.hasIdentifier()) {
-                        return paramValue.getIdentifier();
-                    }
-                    return paramValue.getStringValue();
-                }
-            };
     public static final ParamValueConverter<LocalDate> LOCAL_DATE_PARAM_VALUE_CONVERTER =
             new ParamValueConverter<LocalDate>() {
                 @NonNull
