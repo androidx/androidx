@@ -74,7 +74,7 @@ class CreatePublicKeyCredentialRequestTest {
     fun constructor_setPreferImmediatelyAvailableCredentialsToTrue() {
         val preferImmediatelyAvailableCredentialsExpected = true
         val origin = "origin"
-        val clientDataHash = "hash"
+        val clientDataHash = "hash".toByteArray()
 
         val createPublicKeyCredentialRequest = CreatePublicKeyCredentialRequest(
             TEST_REQUEST_JSON,
@@ -92,7 +92,7 @@ class CreatePublicKeyCredentialRequestTest {
 
     @Test
     fun constructor_defaultProviderVariant() {
-        val clientDataHashExpected = "hash"
+        val clientDataHashExpected = "hash".toByteArray()
         val originExpected = "origin"
         val preferImmediatelyAvailableCredentialsExpected = true
         val defaultProviderExpected = "com.test/com.test.TestProviderComponent"
@@ -125,7 +125,7 @@ class CreatePublicKeyCredentialRequestTest {
     @Test
     fun getter_frameworkProperties_success() {
         val requestJsonExpected = TEST_REQUEST_JSON
-        val clientDataHash = "hash"
+        val clientDataHash = "hash".toByteArray()
         val preferImmediatelyAvailableCredentialsExpected = true
         val autoSelectExpected = false
         val expectedCandidateQueryData = Bundle()
@@ -137,7 +137,7 @@ class CreatePublicKeyCredentialRequestTest {
         expectedCandidateQueryData.putString(
             BUNDLE_KEY_REQUEST_JSON, requestJsonExpected
         )
-        expectedCandidateQueryData.putString(
+        expectedCandidateQueryData.putByteArray(
             CreatePublicKeyCredentialRequest.BUNDLE_KEY_CLIENT_DATA_HASH,
             clientDataHash
         )
@@ -191,7 +191,7 @@ class CreatePublicKeyCredentialRequestTest {
     @SdkSuppress(minSdkVersion = 28)
     @Test
     fun frameworkConversion_success() {
-        val clientDataHashExpected = "hash"
+        val clientDataHashExpected = "hash".toByteArray()
         val originExpected = "origin"
         val preferImmediatelyAvailableCredentialsExpected = true
         val request = CreatePublicKeyCredentialRequest(
