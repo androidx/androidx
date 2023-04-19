@@ -112,5 +112,11 @@ class UiUtils {
             return CreateEntry.Builder(accountName, sPendingIntent).setDescription(description)
                 .build()
         }
+
+        @JvmStatic
+        fun constructRemoteEntry():
+            RemoteEntry {
+            return RemoteEntry(sPendingIntent)
+        }
     }
 }

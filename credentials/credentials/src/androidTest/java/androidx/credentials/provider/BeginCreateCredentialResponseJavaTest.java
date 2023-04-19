@@ -17,6 +17,7 @@
 package androidx.credentials.provider;
 
 import static androidx.credentials.provider.ui.UiUtils.constructCreateEntryWithSimpleParams;
+import static androidx.credentials.provider.ui.UiUtils.constructRemoteEntry;
 import static androidx.credentials.provider.ui.UiUtils.constructRemoteEntryDefault;
 
 import static com.google.common.truth.Truth.assertThat;
@@ -53,6 +54,29 @@ public class BeginCreateCredentialResponseJavaTest {
     }
 
     @Test
+    public void builder_createEntriesOnly_success() {
+        if (!BuildCompat.isAtLeastU()) {
+            return;
+        }
+
+        new BeginCreateCredentialResponse.Builder().setCreateEntries(
+                Arrays.asList(constructCreateEntryWithSimpleParams("AccountName",
+                        "Desc"))
+        ).build();
+    }
+
+    @Test
+    public void builder_remoteEntryOnly_success() {
+        if (!BuildCompat.isAtLeastU()) {
+            return;
+        }
+
+        new BeginCreateCredentialResponse.Builder().setRemoteEntry(
+                constructRemoteEntry()
+        ).build();
+    }
+
+    @Test
     public void constructor_nullList_throws() {
         if (!BuildCompat.isAtLeastU()) {
             return;
@@ -66,19 +90,6 @@ public class BeginCreateCredentialResponseJavaTest {
     }
 
     @Test
-    public void constructor_emptyList_throws() {
-        if (!BuildCompat.isAtLeastU()) {
-            return;
-        }
-
-        assertThrows("Expected empty type to throw IAE",
-                IllegalArgumentException.class,
-                () -> new BeginCreateCredentialResponse(
-                        Arrays.asList(), null)
-        );
-    }
-
-    @Test
     public void buildConstruct_success() {
         if (!BuildCompat.isAtLeastU()) {
             return;
@@ -87,19 +98,6 @@ public class BeginCreateCredentialResponseJavaTest {
         new BeginCreateCredentialResponse.Builder().setCreateEntries(
                 Arrays.asList(constructCreateEntryWithSimpleParams("AccountName",
                         "Desc"))).build();
-    }
-
-    @Test
-    public void buildConstruct_emptyList_throws() {
-        if (!BuildCompat.isAtLeastU()) {
-            return;
-        }
-
-        assertThrows("Expected empty type to throw IAE",
-                IllegalArgumentException.class,
-                () -> new BeginCreateCredentialResponse.Builder().setCreateEntries(
-                        Arrays.asList()).build()
-        );
     }
 
     @Test

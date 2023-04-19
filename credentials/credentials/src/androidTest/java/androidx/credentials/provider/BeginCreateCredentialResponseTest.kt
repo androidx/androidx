@@ -23,7 +23,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
-import org.junit.Assert.assertThrows
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -39,63 +38,41 @@ class BeginCreateCredentialResponseTest {
         }
 
         BeginCreateCredentialResponse(
-            listOf(
+            createEntries = listOf(
                 constructCreateEntryWithSimpleParams(
                     "AccountName",
                     "Desc"
                 )
             ),
-            null
+            remoteEntry = constructRemoteEntryDefault()
         )
     }
 
     @Test
-    fun constructor_emptyList_throws() {
+    fun constructor_createEntriesOnly() {
         if (!BuildCompat.isAtLeastU()) {
             return
         }
 
-        assertThrows(
-            "Expected empty type to throw IAE",
-            IllegalArgumentException::class.java
-        ) {
-            BeginCreateCredentialResponse(
-                listOf(),
-                constructRemoteEntryDefault()
-            )
-        }
-    }
-
-    @Test
-    fun buildConstruct_success() {
-        if (!BuildCompat.isAtLeastU()) {
-            return
-        }
-
-        BeginCreateCredentialResponse.Builder().setCreateEntries(
-            listOf(
+        BeginCreateCredentialResponse(
+            createEntries = listOf(
                 constructCreateEntryWithSimpleParams(
                     "AccountName",
                     "Desc"
                 )
             )
-        ).build()
+        )
     }
 
     @Test
-    fun buildConstruct_emptyList_throws() {
+    fun constructor_remoteEntryOnly() {
         if (!BuildCompat.isAtLeastU()) {
             return
         }
 
-        assertThrows(
-            "Expected empty type to throw IAE",
-            IllegalArgumentException::class.java
-        ) {
-            BeginCreateCredentialResponse.Builder().setCreateEntries(
-                listOf()
-            ).build()
-        }
+        BeginCreateCredentialResponse(
+            remoteEntry = constructRemoteEntryDefault()
+        )
     }
 
     @Test

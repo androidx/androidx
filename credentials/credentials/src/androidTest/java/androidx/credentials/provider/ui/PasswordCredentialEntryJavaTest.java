@@ -54,6 +54,9 @@ public class PasswordCredentialEntryJavaTest {
     private static final CharSequence DISPLAYNAME = "subtitle";
     private static final CharSequence TYPE_DISPLAY_NAME = "Password";
     private static final Long LAST_USED_TIME = 10L;
+
+    private static final boolean IS_AUTO_SELECT_ALLOWED = true;
+
     private static final Icon ICON = Icon.createWithBitmap(Bitmap.createBitmap(
             100, 100, Bitmap.Config.ARGB_8888));
     private final BeginGetPasswordOption mBeginGetPasswordOption = new BeginGetPasswordOption(
@@ -89,7 +92,7 @@ public class PasswordCredentialEntryJavaTest {
         assertNotNull(entry);
         assertNotNull(entry.getSlice());
         assertThat(entry.getType()).isEqualTo(PasswordCredential.TYPE_PASSWORD_CREDENTIAL);
-        assertEntryWithAllParams(entry, false);
+        assertEntryWithAllParams(entry);
     }
 
     @Test
@@ -216,7 +219,7 @@ public class PasswordCredentialEntryJavaTest {
                 originalEntry.getSlice());
 
         assertNotNull(entry);
-        assertEntryWithAllParams(entry, true);
+        assertEntryWithAllParams(entry);
     }
 
     private PasswordCredentialEntry constructEntryWithRequiredParamsOnly() {
@@ -236,6 +239,7 @@ public class PasswordCredentialEntryJavaTest {
                 .setDisplayName(DISPLAYNAME)
                 .setLastUsedTime(Instant.ofEpochMilli(LAST_USED_TIME))
                 .setIcon(ICON)
+                .setAutoSelectAllowed(IS_AUTO_SELECT_ALLOWED)
                 .build();
     }
 
@@ -246,12 +250,12 @@ public class PasswordCredentialEntryJavaTest {
         // TODO: Assert BeginOption
     }
 
-    private void assertEntryWithAllParams(PasswordCredentialEntry entry,
-            Boolean assertOptionIdOnly) {
+    private void assertEntryWithAllParams(PasswordCredentialEntry entry) {
         assertThat(USERNAME.equals(entry.getUsername()));
         assertThat(DISPLAYNAME.equals(entry.getDisplayName()));
         assertThat(TYPE_DISPLAY_NAME.equals(entry.getTypeDisplayName()));
         assertThat(ICON).isEqualTo(entry.getIcon());
+        assertThat(IS_AUTO_SELECT_ALLOWED).isEqualTo(entry.isAutoSelectAllowed());
         assertThat(Instant.ofEpochMilli(LAST_USED_TIME)).isEqualTo(entry.getLastUsedTime());
         assertThat(mPendingIntent).isEqualTo(entry.getPendingIntent());
         // TODO: Assert BeginOption

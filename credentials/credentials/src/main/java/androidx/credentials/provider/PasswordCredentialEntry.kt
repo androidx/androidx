@@ -100,6 +100,7 @@ class PasswordCredentialEntry internal constructor(
         displayName: CharSequence? = null,
         lastUsedTime: Instant? = null,
         icon: Icon = Icon.createWithResource(context, R.drawable.ic_password),
+        isAutoSelectAllowed: Boolean = false
     ) : this(
         username,
         displayName,
@@ -109,7 +110,7 @@ class PasswordCredentialEntry internal constructor(
         pendingIntent,
         lastUsedTime,
         icon,
-        isAutoSelectAllowed = false,
+        isAutoSelectAllowed,
         beginGetPasswordOption,
     )
 
@@ -343,6 +344,16 @@ class PasswordCredentialEntry internal constructor(
         /** Sets the icon to be shown on the UI with this entry */
         fun setIcon(icon: Icon): Builder {
             this.icon = icon
+            return this
+        }
+
+        /**
+         * Sets whether the entry should be auto-selected.
+         * The value is false by default
+         */
+        @Suppress("MissingGetterMatchingBuilder")
+        fun setAutoSelectAllowed(autoSelectAllowed: Boolean): Builder {
+            this.autoSelectAllowed = autoSelectAllowed
             return this
         }
 
