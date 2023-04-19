@@ -49,23 +49,4 @@ internal class EmptyWindowAreaControllerImpl : WindowAreaController {
         windowAreaPresentationSessionCallback.onSessionEnded(
             IllegalStateException("There are no WindowAreas"))
     }
-
-    @Suppress("DEPRECATION")
-    @Deprecated("Replaced with windowAreaInfoList", replaceWith = ReplaceWith("windowAreaInfoList"))
-    override fun rearDisplayStatus(): Flow<WindowAreaStatus> {
-        return flowOf(WindowAreaStatus.UNSUPPORTED)
-    }
-
-    @Deprecated(
-        "Replaced with transferContentToWindowArea",
-        replaceWith = ReplaceWith("transferContentToWindowArea")
-    )
-    override fun rearDisplayMode(
-        activity: Activity,
-        executor: Executor,
-        windowAreaSessionCallback: WindowAreaSessionCallback
-    ) {
-        windowAreaSessionCallback.onSessionEnded(
-            UnsupportedOperationException("Rear Display mode cannot be enabled currently"))
-    }
 }
