@@ -316,16 +316,13 @@ class LayoutInspectorTreeTest {
         val nodes = builder.convert(view)
         dumpNodes(nodes, view, builder)
 
-        if (DEBUG) {
-            validate(nodes, builder) {
-                node("Box", children = listOf("ModalDrawer"))
-                node("ModalDrawer", children = listOf("Column", "Text"))
-                node("Column", children = listOf("Text", "Button"))
-                node("Text")
-                node("Button", children = listOf("Text"))
-                node("Text")
-                node("Text")
-            }
+        validate(nodes, builder) {
+            node("ModalDrawer", isRenderNode = true, children = listOf("Column", "Text"))
+            node("Column", inlined = true, children = listOf("Text", "Button"))
+            node("Text", isRenderNode = true)
+            node("Button", isRenderNode = true, children = listOf("Text"))
+            node("Text", isRenderNode = true)
+            node("Text", isRenderNode = true)
         }
         assertThat(nodes.size).isEqualTo(1)
     }
@@ -357,7 +354,6 @@ class LayoutInspectorTreeTest {
 
         if (DEBUG) {
             validate(nodes, builder) {
-                node("Box", children = listOf("ModalDrawer"))
                 node("ModalDrawer", children = listOf("WithConstraints"))
                 node("WithConstraints", children = listOf("SubcomposeLayout"))
                 node("SubcomposeLayout", children = listOf("Box"))
@@ -1038,6 +1034,7 @@ class LayoutInspectorTreeTest {
             assertWithMessage("No such node found: $name").that(nodeIterator.hasNext()).isTrue()
             val node = nodeIterator.next()
             assertThat(node.name).isEqualTo(name)
+            assertThat(node.anchorId).isNotEqualTo(UNDEFINED_ID)
             val message = "Node: $name"
             assertWithMessage(message).that(node.children.map { it.name })
                 .containsExactlyElementsIn(children).inOrder()
