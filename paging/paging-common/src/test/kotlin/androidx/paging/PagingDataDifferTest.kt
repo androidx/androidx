@@ -21,7 +21,6 @@ import androidx.paging.LoadState.NotLoading
 import androidx.paging.LoadType.PREPEND
 import androidx.paging.PageEvent.Drop
 import androidx.paging.PagingSource.LoadResult
-import androidx.testutils.DirectDispatcher
 import androidx.testutils.MainDispatcherRule
 import androidx.testutils.TestDispatcher
 import com.google.common.truth.Truth.assertThat
@@ -2039,11 +2038,6 @@ class PagingDataDifferTest(
     }
 
     private fun runTest(
-        scope: CoroutineScope = CoroutineScope(DirectDispatcher),
-        differ: SimpleDiffer = SimpleDiffer(
-            differCallback = dummyDifferCallback,
-            coroutineScope = scope,
-        ),
         loadDispatcher: TestDispatcher = TestDispatcher(),
         initialKey: Int? = null,
         pagingSources: MutableList<TestPagingSource> = mutableListOf(),
@@ -2065,11 +2059,15 @@ class PagingDataDifferTest(
             uiReceivers: List<TrackableUiReceiverWrapper>,
             hintReceivers: List<TrackableHintReceiverWrapper>
         ) -> Unit
-    ) {
+    ) = testScope.runTest {
+        val differ = SimpleDiffer(
+            differCallback = dummyDifferCallback,
+            coroutineScope = this,
+        )
         val uiReceivers = mutableListOf<TrackableUiReceiverWrapper>()
         val hintReceivers = mutableListOf<TrackableHintReceiverWrapper>()
 
-        val collection = scope.launch {
+        val collection = launch {
             pager.flow
             .map { pagingData ->
                 PagingData(
