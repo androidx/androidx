@@ -41,14 +41,11 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.node.DelegatingNode
-import androidx.compose.ui.node.GlobalPositionAwareModifierNode
 import androidx.compose.ui.padding
 import androidx.compose.ui.platform.AndroidComposeView
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
-import androidx.compose.ui.semantics.elementFor
 import androidx.compose.ui.test.TestActivity
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onRoot
@@ -546,76 +543,6 @@ class OnGloballyPositionedTest {
 
         assertThat(paddingLeftPx).isEqualTo(realLeft)
         assertThat(paddingTopPx).isEqualTo(realTop)
-    }
-
-    @Test
-    fun delegatedGloballyPositionedNode() {
-        val paddingLeftPx = 100.0f
-        val paddingTopPx = 120.0f
-        var realLeft: Float? = null
-        var realTop: Float? = null
-
-        val positionedLatch = CountDownLatch(1)
-        val node = object : DelegatingNode() {
-            val ogp = delegate(
-                object : GlobalPositionAwareModifierNode, Modifier.Node() {
-                    override fun onGloballyPositioned(coordinates: LayoutCoordinates) {
-                        realLeft = coordinates.positionInParent().x
-                        realTop = coordinates.positionInParent().y
-                        positionedLatch.countDown()
-                    }
-                }
-            )
-        }
-        rule.setContent {
-            with(LocalDensity.current) {
-                Box(
-                    Modifier
-                        .fillMaxSize()
-                        .padding(start = paddingLeftPx.toDp(), top = paddingTopPx.toDp())
-                        .elementFor(node)
-                )
-            }
-        }
-        assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
-
-        assertThat(paddingLeftPx).isEqualTo(realLeft)
-        assertThat(paddingTopPx).isEqualTo(realTop)
-    }
-
-    @Test
-    fun delegatedMultipleGloballyPositionedNodes() {
-        val paddingLeftPx = 100.0f
-        val paddingTopPx = 120.0f
-
-        val positionedLatch = CountDownLatch(2)
-        val node = object : DelegatingNode() {
-            val a = delegate(
-                object : GlobalPositionAwareModifierNode, Modifier.Node() {
-                    override fun onGloballyPositioned(coordinates: LayoutCoordinates) {
-                        positionedLatch.countDown()
-                    }
-                }
-            )
-            val b = delegate(
-                object : GlobalPositionAwareModifierNode, Modifier.Node() {
-                    override fun onGloballyPositioned(coordinates: LayoutCoordinates) {
-                        positionedLatch.countDown()
-                    }
-                }
-            )
-        }
-        rule.setContent {
-            with(LocalDensity.current) {
-                Box(
-                    Modifier
-                        .fillMaxSize()
-                        .padding(start = paddingLeftPx.toDp(), top = paddingTopPx.toDp())
-                        .elementFor(node)
-                )
-            }
-        }
-        assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
     }
 
     @Test

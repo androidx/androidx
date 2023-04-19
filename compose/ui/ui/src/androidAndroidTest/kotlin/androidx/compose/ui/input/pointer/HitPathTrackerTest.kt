@@ -3529,7 +3529,7 @@ class HitPathTrackerTest {
     }
 
     private fun areEqual(actualNode: Node, expectedNode: Node): Boolean {
-        if (actualNode.modifierNode !== expectedNode.modifierNode) {
+        if (actualNode.pointerInputNode !== expectedNode.pointerInputNode) {
             return false
         }
 

@@ -29,11 +29,9 @@ import androidx.compose.ui.modifier.ModifierLocalNode
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.Nodes
 import androidx.compose.ui.node.ObserverNode
-import androidx.compose.ui.node.dispatchForKind
 import androidx.compose.ui.node.observeReads
 import androidx.compose.ui.node.requireOwner
 import androidx.compose.ui.node.visitAncestors
-import androidx.compose.ui.node.visitSelfAndAncestors
 import androidx.compose.ui.platform.InspectorInfo
 
 /**
@@ -85,7 +83,13 @@ class FocusTargetModifierNode : ObserverNode, ModifierLocalNode, Modifier.Node()
      */
     internal fun fetchFocusProperties(): FocusProperties {
         val properties = FocusPropertiesImpl()
-        visitSelfAndAncestors(Nodes.FocusProperties, untilType = Nodes.FocusTarget) {
+        visitAncestors(Nodes.FocusProperties or Nodes.FocusTarget) {
+            // If we reach the previous default focus properties node, we have gone too far, as
+            //  this is applies to the parent focus modifier.
+            if (it.isKind(Nodes.FocusTarget)) return properties
+
+            // Parent can override any values set by this
+            check(it is FocusPropertiesModifierNode)
             it.modifyFocusProperties(properties)
         }
         return properties
@@ -165,23 +169,11 @@ class FocusTargetModifierNode : ObserverNode, ModifierLocalNode, Modifier.Node()
     }
 
     internal fun scheduleInvalidationForFocusEvents() {
-        // include possibility for ourselves to also be a focus event modifier node in case
-        // we are being delegated to
-        node.dispatchForKind(Nodes.FocusEvent) { eventNode ->
-            eventNode.invalidateFocusEvent()
-        }
-        // Since this is potentially called while _this_ node is getting detached, it is possible
-        // that the nodes above us are already detached, thus, we check for isAttached here.
-        // We should investigate changing the order that children.detach() is called relative to
-        // actually nulling out / detaching ones self.
         visitAncestors(Nodes.FocusEvent or Nodes.FocusTarget) {
             if (it.isKind(Nodes.FocusTarget)) return@visitAncestors
 
-            if (it.isAttached) {
-                it.dispatchForKind(Nodes.FocusEvent) { eventNode ->
-                    eventNode.invalidateFocusEvent()
-                }
-            }
+            check(it is FocusEventModifierNode)
+            requireOwner().focusOwner.scheduleInvalidation(it)
         }
     }
 
@@ -197,8 +189,4 @@ class FocusTargetModifierNode : ObserverNode, ModifierLocalNode, Modifier.Node()
         override fun hashCode() = "focusTarget".hashCode()
         override fun equals(other: Any?) = other === this
     }
-}
-
-internal fun FocusTargetModifierNode.invalidateFocusTarget() {
-    requireOwner().focusOwner.scheduleInvalidation(this)
 }

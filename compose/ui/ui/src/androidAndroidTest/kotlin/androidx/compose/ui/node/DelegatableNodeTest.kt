@@ -513,7 +513,7 @@ class DelegatableNodeTest {
 
         // Act.
         val child = rule.runOnIdle {
-            node1.child
+            node1.firstChild(Nodes.Any)
         }
 
         // Assert.
@@ -534,7 +534,27 @@ class DelegatableNodeTest {
 
         // Act.
         val child = rule.runOnIdle {
-            node1.child
+            node1.firstChild(Nodes.Any)
+        }
+
+        // Assert.
+        assertThat(child).isEqualTo(node2)
+    }
+
+    @Test
+    fun firstChild_differentLayoutNode() {
+        // Arrange.
+        val (node1, node2, node3) = List(3) { object : Modifier.Node() {} }
+        rule.setContent {
+            Box(modifier = modifierElementOf { node1 }) {
+                Box(modifier = modifierElementOf { node2 }
+                    .then(modifierElementOf { node3 }))
+            }
+        }
+
+        // Act.
+        val child = rule.runOnIdle {
+            node1.firstChild(Nodes.Any)
         }
 
         // Assert.
@@ -556,7 +576,7 @@ class DelegatableNodeTest {
 
         // Act.
         val child = rule.runOnIdle {
-            node1.child
+            node1.firstChild(Nodes.Any)
         }
 
         // Assert.
@@ -566,9 +586,9 @@ class DelegatableNodeTest {
     @Test
     fun delegatedNodeGetsCoordinator() {
         val node = object : DelegatingNode() {
-            val inner = delegate(
+            val inner = delegated {
                 object : Modifier.Node() { }
-            )
+            }
         }
 
         rule.setContent {
