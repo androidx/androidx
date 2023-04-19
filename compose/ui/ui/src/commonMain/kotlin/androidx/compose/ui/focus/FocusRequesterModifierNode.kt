@@ -20,7 +20,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.focus.FocusDirection.Companion.Enter
 import androidx.compose.ui.node.DelegatableNode
 import androidx.compose.ui.node.Nodes
-import androidx.compose.ui.node.visitChildren
+import androidx.compose.ui.node.visitSelfAndChildren
 
 /**
  * Implement this interface to create a modifier node that can be used to request changes in
@@ -37,7 +37,7 @@ interface FocusRequesterModifierNode : DelegatableNode
  */
 @OptIn(ExperimentalComposeUiApi::class)
 fun FocusRequesterModifierNode.requestFocus(): Boolean {
-    visitChildren(Nodes.FocusTarget) { focusTarget ->
+    visitSelfAndChildren(Nodes.FocusTarget) { focusTarget ->
         val focusProperties = focusTarget.fetchFocusProperties()
         return if (focusProperties.canFocus) {
             focusTarget.requestFocus()
@@ -66,7 +66,7 @@ fun FocusRequesterModifierNode.requestFocus(): Boolean {
  * @sample androidx.compose.ui.samples.CaptureFocusSample
  */
 fun FocusRequesterModifierNode.captureFocus(): Boolean {
-    visitChildren(Nodes.FocusTarget) {
+    visitSelfAndChildren(Nodes.FocusTarget) {
         if (it.captureFocus()) {
             return true
         }
@@ -89,7 +89,7 @@ fun FocusRequesterModifierNode.captureFocus(): Boolean {
  * @sample androidx.compose.ui.samples.CaptureFocusSample
  */
 fun FocusRequesterModifierNode.freeFocus(): Boolean {
-    visitChildren(Nodes.FocusTarget) {
+    visitSelfAndChildren(Nodes.FocusTarget) {
         if (it.freeFocus()) return true
     }
     return false

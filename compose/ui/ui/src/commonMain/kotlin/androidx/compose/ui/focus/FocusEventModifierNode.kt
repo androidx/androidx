@@ -22,8 +22,9 @@ import androidx.compose.ui.focus.FocusStateImpl.Captured
 import androidx.compose.ui.focus.FocusStateImpl.Inactive
 import androidx.compose.ui.node.DelegatableNode
 import androidx.compose.ui.node.Nodes
-import androidx.compose.ui.node.visitAncestors
-import androidx.compose.ui.node.visitChildren
+import androidx.compose.ui.node.requireOwner
+import androidx.compose.ui.node.visitSelfAndAncestors
+import androidx.compose.ui.node.visitSelfAndChildren
 
 /**
  * Implement this interface create a modifier node that can be used to observe focus state changes
@@ -38,14 +39,18 @@ interface FocusEventModifierNode : DelegatableNode {
     fun onFocusEvent(focusState: FocusState)
 }
 
+internal fun FocusEventModifierNode.invalidateFocusEvent() {
+    requireOwner().focusOwner.scheduleInvalidation(this)
+}
+
 internal fun FocusEventModifierNode.getFocusState(): FocusState {
-    visitChildren(Nodes.FocusTarget) {
+    visitSelfAndChildren(Nodes.FocusTarget) {
         when (val focusState = it.focusStateImpl) {
             // If we find a focused child, we use that child's state as the aggregated state.
             Active, ActiveParent, Captured -> return focusState
             // We use the Inactive state only if we don't have a focused child.
             // ie. we ignore this child if another child provides aggregated state.
-            Inactive -> return@visitChildren
+            Inactive -> return@visitSelfAndChildren
         }
     }
     return Inactive
@@ -58,13 +63,8 @@ internal fun FocusEventModifierNode.getFocusState(): FocusState {
  * Make this public after [FocusTargetModifierNode] is made public.
  */
 internal fun FocusTargetModifierNode.refreshFocusEventNodes() {
-    visitAncestors(Nodes.FocusEvent or Nodes.FocusTarget) {
-        // If we reach the previous focus target node, we have gone too far, as
-        //  this is applies to the another focus event.
-        if (it.isKind(Nodes.FocusTarget)) return
-
+    visitSelfAndAncestors(Nodes.FocusEvent, untilType = Nodes.FocusTarget) {
         // TODO(251833873): Consider caching it.getFocusState().
-        check(it is FocusEventModifierNode)
         it.onFocusEvent(it.getFocusState())
     }
 }
