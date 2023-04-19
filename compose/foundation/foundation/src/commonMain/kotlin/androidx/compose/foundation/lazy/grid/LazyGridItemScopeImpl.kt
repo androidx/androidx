@@ -18,7 +18,9 @@ package androidx.compose.foundation.lazy.grid
 
 import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.lazy.layout.LazyLayoutAnimateItemModifierNode
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.node.DelegatingNode
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.ParentDataModifierNode
 import androidx.compose.ui.platform.InspectorInfo
@@ -35,10 +37,11 @@ internal object LazyGridItemScopeImpl : LazyGridItemScope {
 private class AnimateItemPlacementElement(
     val animationSpec: FiniteAnimationSpec<IntOffset>
 ) : ModifierNodeElement<AnimateItemPlacementNode>() {
+
     override fun create(): AnimateItemPlacementNode = AnimateItemPlacementNode(animationSpec)
 
     override fun update(node: AnimateItemPlacementNode): AnimateItemPlacementNode = node.also {
-        it.animationSpec = animationSpec
+        it.delegatingNode.placementAnimationSpec = animationSpec
     }
 
     override fun equals(other: Any?): Boolean {
@@ -58,7 +61,10 @@ private class AnimateItemPlacementElement(
 }
 
 private class AnimateItemPlacementNode(
-    var animationSpec: FiniteAnimationSpec<IntOffset>
-) : Modifier.Node(), ParentDataModifierNode {
-    override fun Density.modifyParentData(parentData: Any?): Any = animationSpec
+    animationSpec: FiniteAnimationSpec<IntOffset>
+) : DelegatingNode(), ParentDataModifierNode {
+
+    val delegatingNode = delegated { LazyLayoutAnimateItemModifierNode(animationSpec) }
+
+    override fun Density.modifyParentData(parentData: Any?): Any = delegatingNode
 }
