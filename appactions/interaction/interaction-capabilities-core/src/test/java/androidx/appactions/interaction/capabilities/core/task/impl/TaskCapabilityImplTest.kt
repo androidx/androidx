@@ -16,6 +16,7 @@
 package androidx.appactions.interaction.capabilities.core.impl.task
 
 import android.util.SizeF
+import androidx.appactions.builtintypes.experimental.types.ListItem
 import androidx.appactions.interaction.capabilities.core.AppEntityListener
 import androidx.appactions.interaction.capabilities.core.Capability
 import androidx.appactions.interaction.capabilities.core.EntitySearchResult
@@ -46,7 +47,6 @@ import androidx.appactions.interaction.capabilities.core.testing.spec.Output
 import androidx.appactions.interaction.capabilities.core.testing.spec.TestEnum
 import androidx.appactions.interaction.capabilities.core.testing.spec.Properties
 import androidx.appactions.interaction.capabilities.core.values.EntityValue
-import androidx.appactions.interaction.capabilities.core.values.ListItem
 import androidx.appactions.interaction.capabilities.core.values.SearchAction
 import androidx.appactions.interaction.capabilities.testing.internal.ArgumentUtils.buildRequestArgs
 import androidx.appactions.interaction.capabilities.testing.internal.ArgumentUtils.buildSearchActionParamValue
@@ -146,6 +146,7 @@ class TaskCapabilityImplTest {
                         override fun onCreate(sessionContext: SessionContext) {
                             onCreateInvocationCount.incrementAndGet()
                         }
+
                         override fun onExecuteAsync(arguments: Arguments) =
                             Futures.immediateFuture(
                                 ExecutionResult.Builder<Output>().build(),
@@ -702,8 +703,9 @@ class TaskCapabilityImplTest {
                 .setListItem(Property.Builder<ListItem>().setRequired(true).build())
                 .setAnyString(Property.Builder<StringValue>().setRequired(true).build())
                 .build()
-        val item1: ListItem = ListItem.newBuilder().setName("red apple").setId("item1").build()
-        val item2: ListItem = ListItem.newBuilder().setName("green apple").setId("item2").build()
+        val item1: ListItem = ListItem.Builder().setName("red apple").setIdentifier("item1").build()
+        val item2: ListItem =
+            ListItem.Builder().setName("green apple").setIdentifier("item2").build()
         val onReceivedDeferred = CompletableDeferred<ListItem>()
         val onExecuteListItemDeferred = CompletableDeferred<ListItem>()
         val onExecuteStringDeferred = CompletableDeferred<String>()

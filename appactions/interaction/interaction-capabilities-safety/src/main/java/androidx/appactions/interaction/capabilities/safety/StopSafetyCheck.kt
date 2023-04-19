@@ -16,15 +16,15 @@
 
 package androidx.appactions.interaction.capabilities.safety
 
+import androidx.appactions.builtintypes.experimental.types.ActionNotInProgress
+import androidx.appactions.builtintypes.experimental.types.GenericErrorStatus
+import androidx.appactions.builtintypes.experimental.types.NoInternetConnection
+import androidx.appactions.builtintypes.experimental.types.SuccessStatus
 import androidx.appactions.interaction.capabilities.core.Capability
 import androidx.appactions.interaction.capabilities.core.BaseExecutionSession
 import androidx.appactions.interaction.capabilities.core.impl.BuilderOf
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
-import androidx.appactions.interaction.capabilities.core.values.GenericErrorStatus
-import androidx.appactions.interaction.capabilities.core.values.SuccessStatus
-import androidx.appactions.interaction.capabilities.core.values.executionstatus.ActionNotInProgress
-import androidx.appactions.interaction.capabilities.core.values.executionstatus.NoInternetConnection
 import androidx.appactions.interaction.capabilities.safety.executionstatus.SafetyAccountNotLoggedIn
 import androidx.appactions.interaction.capabilities.safety.executionstatus.SafetyFeatureNotOnboarded
 import androidx.appactions.interaction.proto.ParamValue

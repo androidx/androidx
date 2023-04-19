@@ -16,6 +16,10 @@
 
 package androidx.appactions.interaction.capabilities.communication
 
+import androidx.appactions.builtintypes.experimental.properties.Participant
+import androidx.appactions.builtintypes.experimental.types.Call
+import androidx.appactions.builtintypes.experimental.types.GenericErrorStatus
+import androidx.appactions.builtintypes.experimental.types.SuccessStatus
 import androidx.appactions.interaction.capabilities.core.Capability
 import androidx.appactions.interaction.capabilities.core.BaseExecutionSession
 import androidx.appactions.interaction.capabilities.core.CapabilityFactory
@@ -27,11 +31,6 @@ import androidx.appactions.interaction.capabilities.core.impl.converters.TypeCon
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters.PARTICIPANT_TYPE_SPEC
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
 import androidx.appactions.interaction.capabilities.core.properties.Property
-import androidx.appactions.interaction.capabilities.core.values.Call
-import androidx.appactions.interaction.capabilities.core.values.Call.CallFormat
-import androidx.appactions.interaction.capabilities.core.values.GenericErrorStatus
-import androidx.appactions.interaction.capabilities.core.values.properties.Participant
-import androidx.appactions.interaction.capabilities.core.values.SuccessStatus
 import androidx.appactions.interaction.proto.ParamValue
 import androidx.appactions.interaction.protobuf.Struct
 import androidx.appactions.interaction.protobuf.Value
@@ -87,7 +86,7 @@ class CreateCall private constructor() {
     // TODO(b/268369632): Remove Property from public capability APIs.
     class Properties
     internal constructor(
-        val callFormat: Property<CallFormat>?,
+        val callFormat: Property<Call.CanonicalValue.CallFormat>?,
         val participant: Property<Participant>?
     ) {
         override fun toString(): String {
@@ -113,13 +112,14 @@ class CreateCall private constructor() {
         }
 
         class Builder {
-            private var callFormat: Property<CallFormat>? = null
+            private var callFormat: Property<Call.CanonicalValue.CallFormat>? = null
 
             private var participant: Property<Participant>? = null
 
-            fun setCallFormat(callFormat: Property<CallFormat>): Builder = apply {
-                this.callFormat = callFormat
-            }
+            fun setCallFormat(callFormat: Property<Call.CanonicalValue.CallFormat>): Builder =
+                apply {
+                    this.callFormat = callFormat
+                }
 
             fun build(): Properties = Properties(callFormat, participant)
         }
@@ -127,7 +127,7 @@ class CreateCall private constructor() {
 
     class Arguments
     internal constructor(
-        val callFormat: CallFormat?,
+        val callFormat: Call.CanonicalValue.CallFormat?,
         val participantList: List<ParticipantValue>,
     ) {
         override fun toString(): String {
@@ -153,10 +153,10 @@ class CreateCall private constructor() {
         }
 
         class Builder : BuilderOf<Arguments> {
-            private var callFormat: CallFormat? = null
+            private var callFormat: Call.CanonicalValue.CallFormat? = null
             private var participantList: List<ParticipantValue> = mutableListOf()
 
-            fun setCallFormat(callFormat: CallFormat): Builder = apply {
+            fun setCallFormat(callFormat: Call.CanonicalValue.CallFormat): Builder = apply {
                 this.callFormat = callFormat
             }
 

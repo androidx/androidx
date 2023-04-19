@@ -16,8 +16,8 @@
 
 package androidx.appactions.interaction.capabilities.core.entity
 
+import androidx.appactions.builtintypes.experimental.types.Alarm
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
-import androidx.appactions.interaction.capabilities.core.values.Alarm
 
 /**  Internal testing object for entity provider */
 class AlarmProvider internal constructor(

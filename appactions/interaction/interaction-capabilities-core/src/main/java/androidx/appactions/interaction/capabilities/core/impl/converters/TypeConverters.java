@@ -17,22 +17,23 @@
 package androidx.appactions.interaction.capabilities.core.impl.converters;
 
 import androidx.annotation.NonNull;
+import androidx.appactions.builtintypes.experimental.properties.Attendee;
+import androidx.appactions.builtintypes.experimental.properties.ItemListElement;
+import androidx.appactions.builtintypes.experimental.properties.Participant;
+import androidx.appactions.builtintypes.experimental.properties.Recipient;
+import androidx.appactions.builtintypes.experimental.types.Alarm;
+import androidx.appactions.builtintypes.experimental.types.CalendarEvent;
+import androidx.appactions.builtintypes.experimental.types.Call;
+import androidx.appactions.builtintypes.experimental.types.ItemList;
+import androidx.appactions.builtintypes.experimental.types.ListItem;
+import androidx.appactions.builtintypes.experimental.types.Message;
+import androidx.appactions.builtintypes.experimental.types.Person;
+import androidx.appactions.builtintypes.experimental.types.SafetyCheck;
+import androidx.appactions.builtintypes.experimental.types.Timer;
 import androidx.appactions.interaction.capabilities.core.impl.exceptions.StructConversionException;
 import androidx.appactions.interaction.capabilities.core.properties.StringValue;
-import androidx.appactions.interaction.capabilities.core.values.Alarm;
-import androidx.appactions.interaction.capabilities.core.values.CalendarEvent;
-import androidx.appactions.interaction.capabilities.core.values.Call;
 import androidx.appactions.interaction.capabilities.core.values.EntityValue;
-import androidx.appactions.interaction.capabilities.core.values.ItemList;
-import androidx.appactions.interaction.capabilities.core.values.ListItem;
-import androidx.appactions.interaction.capabilities.core.values.Message;
-import androidx.appactions.interaction.capabilities.core.values.Person;
-import androidx.appactions.interaction.capabilities.core.values.SafetyCheck;
 import androidx.appactions.interaction.capabilities.core.values.SearchAction;
-import androidx.appactions.interaction.capabilities.core.values.Timer;
-import androidx.appactions.interaction.capabilities.core.values.properties.Attendee;
-import androidx.appactions.interaction.capabilities.core.values.properties.Participant;
-import androidx.appactions.interaction.capabilities.core.values.properties.Recipient;
 import androidx.appactions.interaction.proto.Entity;
 import androidx.appactions.interaction.proto.ParamValue;
 
@@ -42,94 +43,136 @@ import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeParseException;
+import java.util.Optional;
 
 /** Converters for capability argument values. Convert from internal proto types to public types. */
 public final class TypeConverters {
     public static final String FIELD_NAME_TYPE = "@type";
     public static final TypeSpec<ListItem> LIST_ITEM_TYPE_SPEC =
-            TypeSpecBuilder.newBuilderForThing("ListItem", ListItem::newBuilder).build();
-    public static final TypeSpec<ItemList> ITEM_LIST_TYPE_SPEC =
-            TypeSpecBuilder.newBuilderForThing("ItemList", ItemList::newBuilder)
-                    .bindRepeatedSpecField(
-                            "itemListElement",
-                            ItemList::getListItems,
-                            ItemList.Builder::addAllListItems,
+            TypeSpecBuilder.newBuilderForThing(
+                    "ListItem",
+                    ListItem::Builder,
+                    ListItem.Builder::build).build();
+    public static final TypeSpec<ItemListElement> ITEM_LIST_ELEMENT_TYPE_SPEC =
+            new UnionTypeSpec.Builder<ItemListElement>()
+                    .bindMemberType(
+                            ItemListElement::asListItem,
+                            ItemListElement::new,
                             LIST_ITEM_TYPE_SPEC)
                     .build();
+    public static final TypeSpec<ItemList> ITEM_LIST_TYPE_SPEC =
+            TypeSpecBuilder.newBuilderForThing(
+                            "ItemList",
+                            ItemList::Builder,
+                            ItemList.Builder::build)
+                    .bindRepeatedSpecField(
+                            "itemListElement",
+                            ItemList::getItemListElements,
+                            ItemList.Builder::addItemListElements,
+                            ITEM_LIST_ELEMENT_TYPE_SPEC)
+                    .build();
+
     public static final TypeSpec<Person> PERSON_TYPE_SPEC =
-            TypeSpecBuilder.newBuilderForThing("Person", Person::newBuilder)
-                    .bindStringField("email", Person::getEmail, Person.Builder::setEmail)
+            TypeSpecBuilder.newBuilderForThing(
+                            "Person",
+                            Person::Builder,
+                            Person.Builder::build)
+                    .bindStringField("email",
+                            person -> Optional.ofNullable(person.getEmail()),
+                            Person.Builder::setEmail)
                     .bindStringField(
-                            "telephone", Person::getTelephone, Person.Builder::setTelephone)
-                    .bindStringField("name", Person::getName, Person.Builder::setName)
+                            "telephone",
+                            person -> Optional.ofNullable(person.getTelephone()),
+                            Person.Builder::setTelephone)
+                    .bindStringField("name",
+                            person -> Optional.ofNullable(person.getName())
+                                    .flatMap(name -> Optional.ofNullable(name.asText())),
+                            Person.Builder::setName)
                     .build();
     public static final TypeSpec<Alarm> ALARM_TYPE_SPEC =
-            TypeSpecBuilder.newBuilderForThing("Alarm", Alarm::newBuilder).build();
+            TypeSpecBuilder.newBuilderForThing(
+                    "Alarm", Alarm::Builder, Alarm.Builder::build).build();
     public static final TypeSpec<Timer> TIMER_TYPE_SPEC =
-            TypeSpecBuilder.newBuilderForThing("Timer", Timer::newBuilder).build();
+            TypeSpecBuilder.newBuilderForThing(
+                    "Timer", Timer::Builder, Timer.Builder::build).build();
     public static final TypeSpec<Attendee> ATTENDEE_TYPE_SPEC =
             new UnionTypeSpec.Builder<Attendee>()
                     .bindMemberType(
-                            (attendee) -> attendee.asPerson().orElse(null),
+                            Attendee::asPerson,
                             Attendee::new,
                             PERSON_TYPE_SPEC)
                     .build();
     public static final TypeSpec<CalendarEvent> CALENDAR_EVENT_TYPE_SPEC =
-            TypeSpecBuilder.newBuilderForThing("CalendarEvent", CalendarEvent::newBuilder)
+            TypeSpecBuilder.newBuilderForThing(
+                            "CalendarEvent",
+                            CalendarEvent::Builder,
+                            CalendarEvent.Builder::build)
                     .bindZonedDateTimeField(
                             "startDate",
-                            CalendarEvent::getStartDate,
+                            calendarEvent -> Optional.ofNullable(
+                                    calendarEvent.getStartDate().asZonedDateTime()),
                             CalendarEvent.Builder::setStartDate)
                     .bindZonedDateTimeField(
-                            "endDate", CalendarEvent::getEndDate, CalendarEvent.Builder::setEndDate)
+                            "endDate",
+                            calendarEvent -> Optional.ofNullable(
+                                    calendarEvent.getEndDate().asZonedDateTime()),
+                            CalendarEvent.Builder::setEndDate)
                     .bindRepeatedSpecField(
                             "attendee",
                             CalendarEvent::getAttendeeList,
-                            CalendarEvent.Builder::addAllAttendee,
+                            CalendarEvent.Builder::addAttendees,
                             ATTENDEE_TYPE_SPEC)
                     .build();
     public static final TypeSpec<SafetyCheck> SAFETY_CHECK_TYPE_SPEC =
-            TypeSpecBuilder.newBuilderForThing("SafetyCheck", SafetyCheck::newBuilder)
+            TypeSpecBuilder.newBuilderForThing(
+                            "SafetyCheck",
+                            SafetyCheck::Builder,
+                            SafetyCheck.Builder::build)
                     .bindDurationField(
-                            "duration", SafetyCheck::getDuration, SafetyCheck.Builder::setDuration)
+                            "duration",
+                            safetyCheck -> Optional.ofNullable(safetyCheck.getDuration()),
+                            SafetyCheck.Builder::setDuration)
                     .bindZonedDateTimeField(
-                            "checkinTime",
-                            SafetyCheck::getCheckinTime,
-                            SafetyCheck.Builder::setCheckinTime)
+                            "checkInTime",
+                            safetyCheck -> Optional.ofNullable(safetyCheck.getCheckInTime()),
+                            SafetyCheck.Builder::setCheckInTime)
                     .build();
     public static final TypeSpec<Recipient> RECIPIENT_TYPE_SPEC =
             new UnionTypeSpec.Builder<Recipient>()
                     .bindMemberType(
-                            (recipient) -> recipient.asPerson().orElse(null),
+                            Recipient::asPerson,
                             Recipient::new,
                             PERSON_TYPE_SPEC)
                     .build();
     public static final TypeSpec<Participant> PARTICIPANT_TYPE_SPEC =
             new UnionTypeSpec.Builder<Participant>()
                     .bindMemberType(
-                            (participant) -> participant.asPerson().orElse(null),
+                            Participant::asPerson,
                             Participant::new,
                             PERSON_TYPE_SPEC)
                     .build();
     public static final TypeSpec<Message> MESSAGE_TYPE_SPEC =
-            TypeSpecBuilder.newBuilderForThing("Message", Message::newBuilder)
-                    .bindIdentifier(Message::getId)
+            TypeSpecBuilder.newBuilderForThing(
+                            "Message",
+                            Message::Builder,
+                            Message.Builder::build)
+                    .bindIdentifier(message -> Optional.ofNullable(message.getIdentifier()))
                     .bindRepeatedSpecField(
                             "recipient",
                             Message::getRecipientList,
-                            Message.Builder::addAllRecipient,
+                            Message.Builder::addRecipients,
                             RECIPIENT_TYPE_SPEC)
                     .bindStringField(
-                            "text", Message::getMessageText, Message.Builder::setMessageText)
+                            "text",
+                            message -> Optional.of(message.getText().asText()),
+                            Message.Builder::setText)
                     .build();
     public static final TypeSpec<Call> CALL_TYPE_SPEC =
-            TypeSpecBuilder.newBuilderForThing("Call", Call::newBuilder)
-                    .bindIdentifier(Call::getId)
-                    .bindEnumField(
-                            "callFormat",
-                            Call::getCallFormat,
-                            Call.Builder::setCallFormat,
-                            Call.CallFormat.class)
+            TypeSpecBuilder.newBuilderForThing(
+                            "Call",
+                            Call::Builder,
+                            Call.Builder::build)
+                    .bindIdentifier(call -> Optional.ofNullable(call.getIdentifier()))
                     .bindRepeatedSpecField(
                             "participant",
                             Call::getParticipantList,
@@ -331,30 +374,33 @@ public final class TypeConverters {
                     }
                 }
             };
-    public static final ParamValueConverter<Call.CallFormat> CALL_FORMAT_PARAM_VALUE_CONVERTER =
-            new ParamValueConverter<Call.CallFormat>() {
+    public static final ParamValueConverter<Call.CanonicalValue.CallFormat>
+            CALL_FORMAT_PARAM_VALUE_CONVERTER =
+            new ParamValueConverter<Call.CanonicalValue.CallFormat>() {
+
                 @NonNull
                 @Override
-                public ParamValue toParamValue(Call.CallFormat value) {
+                public ParamValue toParamValue(Call.CanonicalValue.CallFormat value) {
                     // TODO(b/275456249)): Implement backwards conversion.
                     return ParamValue.getDefaultInstance();
                 }
 
                 @Override
-                public Call.CallFormat fromParamValue(@NonNull ParamValue paramValue)
+                public Call.CanonicalValue.CallFormat fromParamValue(@NonNull ParamValue paramValue)
                         throws StructConversionException {
                     String identifier = paramValue.getIdentifier();
-                    if (identifier.equals(Call.CallFormat.AUDIO.toString())) {
-                        return Call.CallFormat.AUDIO;
-                    } else if (identifier.equals(Call.CallFormat.VIDEO.toString())) {
-                        return Call.CallFormat.VIDEO;
+                    if (identifier.equals(Call.CanonicalValue.CallFormat.Audio.getTextValue())) {
+                        return Call.CanonicalValue.CallFormat.Audio;
+                    } else if (identifier.equals(
+                            Call.CanonicalValue.CallFormat.Video.getTextValue())) {
+                        return Call.CanonicalValue.CallFormat.Video;
                     }
                     throw new StructConversionException(
                             String.format("Unknown enum format '%s'.", identifier));
                 }
             };
     public static final EntityConverter<
-                    androidx.appactions.interaction.capabilities.core.properties.Entity>
+            androidx.appactions.interaction.capabilities.core.properties.Entity>
             ENTITY_ENTITY_CONVERTER =
                     (entity) -> {
                         Entity.Builder builder =
@@ -382,15 +428,16 @@ public final class TypeConverters {
             (localTime) -> Entity.newBuilder().setStringValue(localTime.toString()).build();
     public static final EntityConverter<Duration> DURATION_ENTITY_CONVERTER =
             (duration) -> Entity.newBuilder().setStringValue(duration.toString()).build();
-    public static final EntityConverter<Call.CallFormat> CALL_FORMAT_ENTITY_CONVERTER =
-            (callFormat) -> Entity.newBuilder().setIdentifier(callFormat.toString()).build();
+    public static final EntityConverter<Call.CanonicalValue.CallFormat>
+            CALL_FORMAT_ENTITY_CONVERTER =
+                    (callFormat) ->
+                            Entity.newBuilder().setIdentifier(callFormat.getTextValue()).build();
 
-    private TypeConverters() {}
+    private TypeConverters() {
+    }
 
     /**
-     * @param nestedTypeSpec
-     * @param <T>
-     * @return
+     *
      */
     @NonNull
     public static <T> TypeSpec<SearchAction<T>> createSearchActionTypeSpec(

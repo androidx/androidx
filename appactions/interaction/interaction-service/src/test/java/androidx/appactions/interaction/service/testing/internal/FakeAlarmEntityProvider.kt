@@ -16,12 +16,12 @@
 
 package androidx.appactions.interaction.service.testing.internal
 
+import androidx.appactions.builtintypes.experimental.types.Alarm
 import androidx.appactions.interaction.capabilities.core.entity.EntityProvider
 import androidx.appactions.interaction.capabilities.core.entity.EntityLookupRequest
 import androidx.appactions.interaction.capabilities.core.entity.EntityLookupResponse
 import androidx.appactions.interaction.capabilities.core.entity.EntityLookupCandidate
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
-import androidx.appactions.interaction.capabilities.core.values.Alarm
 
 class FakeAlarmEntityProvider(
     override val id: String,

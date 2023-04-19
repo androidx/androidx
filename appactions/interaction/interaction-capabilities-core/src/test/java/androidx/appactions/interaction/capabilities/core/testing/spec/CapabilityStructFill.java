@@ -19,6 +19,7 @@ package androidx.appactions.interaction.capabilities.core.testing.spec;
 import static androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters.LIST_ITEM_TYPE_SPEC;
 
 import androidx.annotation.NonNull;
+import androidx.appactions.builtintypes.experimental.types.ListItem;
 import androidx.appactions.interaction.capabilities.core.AppEntityListener;
 import androidx.appactions.interaction.capabilities.core.BaseExecutionSession;
 import androidx.appactions.interaction.capabilities.core.impl.BuilderOf;
@@ -29,7 +30,6 @@ import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpec;
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder;
 import androidx.appactions.interaction.capabilities.core.properties.Property;
 import androidx.appactions.interaction.capabilities.core.properties.StringValue;
-import androidx.appactions.interaction.capabilities.core.values.ListItem;
 
 import com.google.auto.value.AutoValue;
 
