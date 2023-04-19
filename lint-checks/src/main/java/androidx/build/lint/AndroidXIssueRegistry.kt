@@ -70,7 +70,8 @@ class AndroidXIssueRegistry : IssueRegistry() {
                 NullabilityAnnotationsDetector.ISSUE,
                 IgnoreClassLevelDetector.ISSUE,
                 ExperimentalPropertyAnnotationDetector.ISSUE,
-                UnstableAidlAnnotationDetector.ISSUE,
+                // Temporarily disable AIDL lint check due to b/278871118.
+                // UnstableAidlAnnotationDetector.ISSUE,
                 // MissingJvmDefaultWithCompatibilityDetector is intentionally left out of the
                 // registry, see comments on the class for more details.
             )
