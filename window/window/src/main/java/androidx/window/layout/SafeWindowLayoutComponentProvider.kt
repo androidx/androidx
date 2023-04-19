@@ -101,7 +101,6 @@ internal class SafeWindowLayoutComponentProvider(
      */
     private fun hasValidVendorApiLevel2(): Boolean {
         return hasValidVendorApiLevel1() &&
-            isMethodWindowLayoutInfoListenerJavaConsumerUiContextValid() &&
             isMethodWindowLayoutInfoListenerWindowConsumerValid()
     }
 
@@ -176,24 +175,6 @@ internal class SafeWindowLayoutComponentProvider(
             val removeListenerMethod = windowLayoutComponent
                 .getMethod("removeWindowLayoutInfoListener", Consumer::class.java)
             addListenerMethod.isPublic && removeListenerMethod.isPublic
-        }
-    }
-
-    private fun isMethodWindowLayoutInfoListenerJavaConsumerUiContextValid(): Boolean {
-        return validateReflection(
-            "WindowLayoutComponent#addWindowLayoutInfoListener" +
-                "(${Context::class.java.name}, $JAVA_CONSUMER) is not valid"
-        ) {
-            val consumerClass =
-                consumerAdapter.consumerClassOrNull() ?: return@validateReflection false
-            val windowLayoutComponent = windowLayoutComponentClass
-            val addListenerMethod = windowLayoutComponent
-                .getMethod(
-                    "addWindowLayoutInfoListener",
-                    Context::class.java,
-                    consumerClass
-                )
-            addListenerMethod.isPublic
         }
     }
 
