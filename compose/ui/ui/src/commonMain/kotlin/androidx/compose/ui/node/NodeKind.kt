@@ -27,9 +27,6 @@ import androidx.compose.ui.focus.FocusOrderModifier
 import androidx.compose.ui.focus.FocusProperties
 import androidx.compose.ui.focus.FocusPropertiesModifierNode
 import androidx.compose.ui.focus.FocusTargetModifierNode
-import androidx.compose.ui.focus.invalidateFocusEvent
-import androidx.compose.ui.focus.invalidateFocusProperties
-import androidx.compose.ui.focus.invalidateFocusTarget
 import androidx.compose.ui.input.key.KeyInputModifierNode
 import androidx.compose.ui.input.key.SoftKeyboardInterceptionModifierNode
 import androidx.compose.ui.input.pointer.PointerInputModifier
@@ -52,8 +49,6 @@ internal value class NodeKind<T>(val mask: Int) {
 }
 
 internal inline infix fun Int.or(other: NodeKind<*>): Int = this or other.mask
-
-internal inline operator fun Int.contains(value: NodeKind<*>): Boolean = this and value.mask != 0
 
 // For a given NodeCoordinator, the "LayoutAware" nodes that it is concerned with should include
 // its own measureNode if the measureNode happens to implement LayoutAware. If the measureNode
@@ -149,10 +144,6 @@ internal fun calculateNodeKindSetFrom(element: Modifier.Element): Int {
 
 @OptIn(ExperimentalComposeUiApi::class)
 internal fun calculateNodeKindSetFrom(node: Modifier.Node): Int {
-    // This function does not take delegates into account, as a result, the kindSet will never
-    // change, so if it is non-zero, it means we've already calculated it and we can just bail
-    // early here.
-    if (node.kindSet != 0) return node.kindSet
     var mask = Nodes.Any.mask
     if (node is LayoutModifierNode) {
         mask = mask or Nodes.Layout
@@ -209,62 +200,34 @@ private const val Updated = 0
 private const val Inserted = 1
 private const val Removed = 2
 
-internal fun autoInvalidateRemovedNode(node: Modifier.Node) {
+internal fun autoInvalidateRemovedNode(node: Modifier.Node) = autoInvalidateNode(node, Removed)
+
+internal fun autoInvalidateInsertedNode(node: Modifier.Node) = autoInvalidateNode(node, Inserted)
+
+internal fun autoInvalidateUpdatedNode(node: Modifier.Node) = autoInvalidateNode(node, Updated)
+
+private fun autoInvalidateNode(node: Modifier.Node, phase: Int) {
     check(node.isAttached)
-    autoInvalidateNodeIncludingDelegates(node, 0.inv(), Removed)
-}
-
-internal fun autoInvalidateInsertedNode(node: Modifier.Node) {
-    check(node.isAttached)
-    autoInvalidateNodeIncludingDelegates(node, 0.inv(), Inserted)
-}
-
-internal fun autoInvalidateUpdatedNode(node: Modifier.Node) {
-    check(node.isAttached)
-    autoInvalidateNodeIncludingDelegates(node, 0.inv(), Updated)
-}
-
-internal fun autoInvalidateNodeIncludingDelegates(
-    node: Modifier.Node,
-    remainingSet: Int,
-    phase: Int,
-) {
-    if (node is DelegatingNode) {
-        autoInvalidateNodeSelf(node, node.selfKindSet and remainingSet, phase)
-        val newRemaining = remainingSet and node.selfKindSet.inv()
-        node.forEachImmediateDelegate {
-            autoInvalidateNodeIncludingDelegates(it, newRemaining, phase)
-        }
-    } else {
-        autoInvalidateNodeSelf(node, node.kindSet and remainingSet, phase)
-    }
-}
-
-private fun autoInvalidateNodeSelf(node: Modifier.Node, selfKindSet: Int, phase: Int) {
-    // TODO(lmr): Implementing it this way means that delegates of an autoInvalidate=false node will
-    //  still get invalidated. Not sure if that's what we want or not.
-    // Don't invalidate the node if it marks itself as autoInvalidate = false.
-    if (phase == Updated && !node.shouldAutoInvalidate) return
-    if (Nodes.Layout in selfKindSet && node is LayoutModifierNode) {
+    if (node.isKind(Nodes.Layout) && node is LayoutModifierNode) {
         node.invalidateMeasurements()
         if (phase == Removed) {
             val coordinator = node.requireCoordinator(Nodes.Layout)
             coordinator.onRelease()
         }
     }
-    if (Nodes.GlobalPositionAware in selfKindSet && node is GlobalPositionAwareModifierNode) {
+    if (node.isKind(Nodes.GlobalPositionAware) && node is GlobalPositionAwareModifierNode) {
         node.requireLayoutNode().invalidateMeasurements()
     }
-    if (Nodes.Draw in selfKindSet && node is DrawModifierNode) {
+    if (node.isKind(Nodes.Draw) && node is DrawModifierNode) {
         node.invalidateDraw()
     }
-    if (Nodes.Semantics in selfKindSet && node is SemanticsModifierNode) {
+    if (node.isKind(Nodes.Semantics) && node is SemanticsModifierNode) {
         node.invalidateSemantics()
     }
-    if (Nodes.ParentData in selfKindSet && node is ParentDataModifierNode) {
+    if (node.isKind(Nodes.ParentData) && node is ParentDataModifierNode) {
         node.invalidateParentData()
     }
-    if (Nodes.FocusTarget in selfKindSet && node is FocusTargetModifierNode) {
+    if (node.isKind(Nodes.FocusTarget) && node is FocusTargetModifierNode) {
         when (phase) {
             // when we previously had focus target modifier on a node and then this modifier
             // is removed we need to notify the focus tree about so the focus state is reset.
@@ -273,17 +236,17 @@ private fun autoInvalidateNodeSelf(node: Modifier.Node, selfKindSet: Int, phase:
         }
     }
     if (
-        Nodes.FocusProperties in selfKindSet &&
+        node.isKind(Nodes.FocusProperties) &&
         node is FocusPropertiesModifierNode &&
         node.specifiesCanFocusProperty()
     ) {
         when (phase) {
             Removed -> node.scheduleInvalidationOfAssociatedFocusTargets()
-            else -> node.invalidateFocusProperties()
+            else -> node.requireOwner().focusOwner.scheduleInvalidation(node)
         }
     }
-    if (Nodes.FocusEvent in selfKindSet && node is FocusEventModifierNode && phase != Removed) {
-        node.invalidateFocusEvent()
+    if (node.isKind(Nodes.FocusEvent) && node is FocusEventModifierNode && phase != Removed) {
+        node.requireOwner().focusOwner.scheduleInvalidation(node)
     }
 }
 
@@ -291,7 +254,7 @@ private fun FocusPropertiesModifierNode.scheduleInvalidationOfAssociatedFocusTar
     visitChildren(Nodes.FocusTarget) {
         // Schedule invalidation for the focus target,
         // which will cause it to recalculate focus properties.
-        it.invalidateFocusTarget()
+        requireOwner().focusOwner.scheduleInvalidation(it)
     }
 }
 
@@ -317,16 +280,4 @@ private object CanFocusChecker : FocusProperties {
         set(value) { canFocusValue = value }
     fun isCanFocusSet(): Boolean = canFocusValue != null
     fun reset() { canFocusValue = null }
-}
-
-internal fun calculateNodeKindSetFromIncludingDelegates(node: Modifier.Node): Int {
-    return if (node is DelegatingNode) {
-        var mask = node.selfKindSet
-        node.forEachImmediateDelegate {
-            mask = mask or calculateNodeKindSetFromIncludingDelegates(it)
-        }
-        mask
-    } else {
-        calculateNodeKindSetFrom(node)
-    }
 }

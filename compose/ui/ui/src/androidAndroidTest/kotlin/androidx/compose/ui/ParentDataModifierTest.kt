@@ -20,18 +20,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.Layout
-import androidx.compose.ui.layout.LayoutIdModifier
 import androidx.compose.ui.layout.LayoutIdParentData
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.layout.layoutId
-import androidx.compose.ui.node.DelegatingNode
 import androidx.compose.ui.node.LayoutModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.ParentDataModifierNode
 import androidx.compose.ui.node.Ref
-import androidx.compose.ui.semantics.elementFor
 import androidx.compose.ui.test.TestActivity
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
@@ -152,27 +149,6 @@ class ParentDataModifierTest {
                 Layout({
                     Layout(
                         modifier = Modifier.layoutId("data"),
-                        content = {}
-                    ) { _, _ -> layout(0, 0) {} }
-                }) { measurables, constraints ->
-                    val placeable = measurables[0].measure(constraints)
-                    assertEquals("data", (placeable.parentData as? LayoutIdParentData)?.layoutId)
-                    layout(0, 0) { }
-                }
-            }
-        }
-    }
-
-    @Test
-    fun delegatedParentData() {
-        val node = object : DelegatingNode() {
-            val pd = delegate(LayoutIdModifier("data"))
-        }
-        runOnUiThread {
-            activity.setContent {
-                Layout({
-                    Layout(
-                        modifier = Modifier.elementFor(node),
                         content = {}
                     ) { _, _ -> layout(0, 0) {} }
                 }) { measurables, constraints ->

@@ -24,14 +24,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.node.DelegatingNode
-import androidx.compose.ui.node.LayoutAwareModifierNode
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.semantics.elementFor
 import androidx.compose.ui.test.TestActivity
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SmallTest
@@ -272,148 +268,5 @@ class OnSizeChangedTest {
             it.width
         }
         assertNotEquals(Modifier.onSizeChanged(lambda1), Modifier.onSizeChanged(lambda2))
-    }
-
-    @Test
-    @SmallTest
-    fun delegatedSizeChanged() {
-        var latch = CountDownLatch(1)
-        var changedSize = IntSize.Zero
-        var sizePx by mutableStateOf(10)
-        val node = object : DelegatingNode() {
-            val osc = delegate(
-                object : LayoutAwareModifierNode, Modifier.Node() {
-                    override fun onRemeasured(size: IntSize) {
-                        changedSize = size
-                        latch.countDown()
-                    }
-                }
-            )
-        }
-
-        rule.runOnUiThread {
-            activity.setContent {
-                with(LocalDensity.current) {
-                    Box(
-                        Modifier.padding(10.toDp()).elementFor(node)
-                    ) {
-                        Box(Modifier.requiredSize(sizePx.toDp()))
-                    }
-                }
-            }
-        }
-
-        // Initial setting will call onSizeChanged
-        assertTrue(latch.await(1, TimeUnit.SECONDS))
-        assertEquals(10, changedSize.height)
-        assertEquals(10, changedSize.width)
-
-        latch = CountDownLatch(1)
-        sizePx = 20
-
-        // We've changed the size of the contents, so we should receive a onSizeChanged call
-        assertTrue(latch.await(1, TimeUnit.SECONDS))
-        assertEquals(20, changedSize.height)
-        assertEquals(20, changedSize.width)
-    }
-
-    @Test
-    @SmallTest
-    fun multipleDelegatedSizeChanged() {
-        var latch = CountDownLatch(2)
-        var changedSize1 = IntSize.Zero
-        var changedSize2 = IntSize.Zero
-        var sizePx by mutableStateOf(10)
-        val node = object : DelegatingNode() {
-            val a = delegate(
-                object : LayoutAwareModifierNode, Modifier.Node() {
-                    override fun onRemeasured(size: IntSize) {
-                        changedSize1 = size
-                        latch.countDown()
-                    }
-                }
-            )
-            val b = delegate(
-                object : LayoutAwareModifierNode, Modifier.Node() {
-                    override fun onRemeasured(size: IntSize) {
-                        changedSize2 = size
-                        latch.countDown()
-                    }
-                }
-            )
-        }
-
-        rule.runOnUiThread {
-            activity.setContent {
-                with(LocalDensity.current) {
-                    Box(
-                        Modifier.padding(10.toDp()).elementFor(node)
-                    ) {
-                        Box(Modifier.requiredSize(sizePx.toDp()))
-                    }
-                }
-            }
-        }
-
-        // Initial setting will call onSizeChanged
-        assertTrue(latch.await(1, TimeUnit.SECONDS))
-        assertEquals(10, changedSize1.height)
-        assertEquals(10, changedSize1.width)
-        assertEquals(10, changedSize2.height)
-        assertEquals(10, changedSize2.width)
-
-        latch = CountDownLatch(2)
-        sizePx = 20
-
-        // We've changed the size of the contents, so we should receive a onSizeChanged call
-        assertTrue(latch.await(1, TimeUnit.SECONDS))
-        assertEquals(20, changedSize1.height)
-        assertEquals(20, changedSize1.width)
-        assertEquals(20, changedSize2.height)
-        assertEquals(20, changedSize2.width)
-    }
-
-    @Test
-    @SmallTest
-    fun multipleDelegatedOnPlaced() {
-        var latch = CountDownLatch(2)
-        var paddingDp by mutableStateOf(10)
-        val node = object : DelegatingNode() {
-            val a = delegate(
-                object : LayoutAwareModifierNode, Modifier.Node() {
-                    override fun onPlaced(coordinates: LayoutCoordinates) {
-                        latch.countDown()
-                    }
-                }
-            )
-            val b = delegate(
-                object : LayoutAwareModifierNode, Modifier.Node() {
-                    override fun onPlaced(coordinates: LayoutCoordinates) {
-                        latch.countDown()
-                    }
-                }
-            )
-        }
-
-        rule.runOnUiThread {
-            activity.setContent {
-                with(LocalDensity.current) {
-                    Box(
-                        Modifier.padding(paddingDp.toDp()).elementFor(node)
-                    ) {
-                        Box(Modifier.requiredSize(10.dp))
-                    }
-                }
-            }
-        }
-
-        // Initial setting will call onSizeChanged
-        assertTrue(latch.await(1, TimeUnit.SECONDS))
-
-        latch = CountDownLatch(2)
-        paddingDp = 20
-
-        // We've changed the size of the contents, so we should receive a onSizeChanged call
-        assertTrue(latch.await(1, TimeUnit.SECONDS))
     }
 }

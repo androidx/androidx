@@ -326,7 +326,7 @@ private class MouseWheelScrollNode(
     var mouseWheelScrollConfig: ScrollConfig
 ) : DelegatingNode(), PointerInputModifierNode {
 
-    private val pointerInputNode = delegate(SuspendingPointerInputModifierNode {
+    private val pointerInputNode = SuspendingPointerInputModifierNode {
         awaitPointerEventScope {
             while (true) {
                 val event = awaitScrollEvent()
@@ -344,7 +344,10 @@ private class MouseWheelScrollNode(
                 }
             }
         }
-    })
+    }
+        // TODO: remove `.node` after aosp/2462416 lands and merge everything into one delegated
+        //  block
+        .also { delegated { it.node } }
 
     override fun onPointerEvent(
         pointerEvent: PointerEvent,
