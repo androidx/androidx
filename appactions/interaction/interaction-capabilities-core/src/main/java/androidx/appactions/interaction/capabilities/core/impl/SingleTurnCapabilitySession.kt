@@ -23,6 +23,7 @@ import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpec
 import androidx.appactions.interaction.proto.AppActionsContext.AppDialogState
 import androidx.appactions.interaction.proto.FulfillmentResponse
 import androidx.appactions.interaction.proto.ParamValue
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
@@ -45,11 +46,10 @@ internal class SingleTurnCapabilitySession<
     private val mutex: Mutex,
     private val scope: CoroutineScope = CoroutineScope(Dispatchers.Default),
 ) : CapabilitySession {
+    private val isActiveAtomic = AtomicBoolean(true)
+
     override val state: AppDialogState? = null
-    override val isActive: Boolean
-        get() {
-            throw UnsupportedOperationException()
-        }
+    override val isActive: Boolean get() = isActiveAtomic.get()
 
     override val uiHandle: Any = capabilityExecutor.uiHandle
 
@@ -64,6 +64,10 @@ internal class SingleTurnCapabilitySession<
         argumentsWrapper: ArgumentsWrapper,
         callback: CallbackInternal,
     ) {
+        if (!isActiveAtomic.getAndSet(false)) {
+            callback.onError(ErrorStatusInternal.CANCELLED)
+            return
+        }
         val paramValuesMap: Map<String, List<ParamValue>> =
             argumentsWrapper.paramValues.mapValues { entry -> entry.value.mapNotNull { it.value } }
         val arguments = actionSpec.buildArguments(paramValuesMap)
