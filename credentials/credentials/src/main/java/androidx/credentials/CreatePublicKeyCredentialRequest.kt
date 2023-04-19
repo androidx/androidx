@@ -174,7 +174,7 @@ class CreatePublicKeyCredentialRequest private constructor(
 
         @JvmStatic
         @RequiresApi(23)
-        internal fun createFrom(data: Bundle, origin: String? = null):
+        internal fun createFrom(data: Bundle, origin: String?):
             CreatePublicKeyCredentialRequest {
             try {
                 val requestJson = data.getString(BUNDLE_KEY_REQUEST_JSON)
