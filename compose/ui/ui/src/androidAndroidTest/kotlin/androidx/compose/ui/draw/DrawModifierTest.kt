@@ -44,19 +44,14 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.LayoutModifier
-import androidx.compose.ui.layout.LayoutModifierImpl
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.MeasureScope
-import androidx.compose.ui.node.DelegatingNode
 import androidx.compose.ui.platform.InspectableValue
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.isDebugInspectorInfoEnabled
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.semantics.elementFor
 import androidx.compose.ui.test.SemanticsNodeInteraction
-import androidx.compose.ui.test.assertHeightIsEqualTo
-import androidx.compose.ui.test.assertWidthIsEqualTo
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
@@ -724,100 +719,6 @@ class DrawModifierTest {
             assertThat(cacheRebuildCounter).isEqualTo(1)
             assertThat(redrawCounter).isEqualTo(1)
         }
-    }
-
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
-    @Test
-    fun testDelegatedDrawNodesDraw() {
-        val testTag = "testTag"
-        val size = 200
-
-        val node = object : DelegatingNode() {
-            val draw = delegate(DrawBackgroundModifier {
-                drawRect(Color.Red)
-            })
-        }
-
-        rule.setContent {
-            AtLeastSize(
-                size = size,
-                modifier = Modifier
-                    .testTag(testTag)
-                    .elementFor(node)
-            ) { }
-        }
-
-        rule.onNodeWithTag(testTag).apply {
-            captureToBitmap().apply {
-                assertEquals(Color.Red.toArgb(), getPixel(1, 1))
-            }
-        }
-    }
-
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
-    @Test
-    fun testMultipleDelegatedDrawNodes() {
-        val testTag = "testTag"
-
-        val node = object : DelegatingNode() {
-            val a = delegate(DrawBackgroundModifier {
-                drawRect(
-                    Color.Red,
-                    size = Size(10f, 10f)
-                )
-            })
-
-            val b = delegate(DrawBackgroundModifier {
-                drawRect(
-                    Color.Blue,
-                    topLeft = Offset(10f, 0f),
-                    size = Size(10f, 10f))
-            })
-        }
-
-        rule.setContent {
-            AtLeastSize(
-                size = 200,
-                modifier = Modifier
-                    .testTag(testTag)
-                    .elementFor(node)
-            ) { }
-        }
-
-        rule.onNodeWithTag(testTag).apply {
-            captureToBitmap().apply {
-                assertEquals(Color.Red.toArgb(), getPixel(1, 1))
-                assertEquals(Color.Blue.toArgb(), getPixel(11, 1))
-            }
-        }
-    }
-
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
-    @Test
-    fun testDelegatedLayoutModifierNode() {
-        val testTag = "testTag"
-
-        val node = object : DelegatingNode() {
-            val a = delegate(LayoutModifierImpl { measurable, constraints ->
-                val p = measurable.measure(constraints)
-                layout(10.dp.roundToPx(), 10.dp.roundToPx()) {
-                    p.place(0, 0)
-                }
-            })
-        }
-
-        rule.setContent {
-            Box(
-                modifier = Modifier
-                    .testTag(testTag)
-                    .elementFor(node)
-            )
-        }
-
-        rule
-            .onNodeWithTag(testTag)
-            .assertWidthIsEqualTo(10.dp)
-            .assertHeightIsEqualTo(10.dp)
     }
 
     // captureToImage() requires API level 26

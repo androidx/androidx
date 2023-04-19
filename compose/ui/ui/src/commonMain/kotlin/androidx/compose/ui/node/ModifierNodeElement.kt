@@ -38,6 +38,22 @@ import androidx.compose.ui.tryPopulateReflectively
  */
 abstract class ModifierNodeElement<N : Modifier.Node> : Modifier.Element, InspectableValue {
 
+    /**
+     * If this property returns `true`, then nodes will be automatically invalidated after the
+     * [update] callback completes (For example, if the returned Node is a [DrawModifierNode], its
+     * [DrawModifierNode.invalidateDraw] function will be invoked automatically as part of
+     * auto invalidation).
+     *
+     * This is enabled by default, and provides a convenient mechanism to schedule invalidation
+     * and apply changes made to the modifier. You may choose to set this to `false` if your
+     * modifier has auto-invalidatable properties that do not frequently require invalidation to
+     * improve performance by skipping unnecessary invalidation. If `autoInvalidate` is set to
+     * `false`, you must call the appropriate invalidate functions manually in [update] for the
+     * new attributes to become visible.
+     */
+    open val autoInvalidate: Boolean
+        get() = true
+
     private var _inspectorValues: InspectorInfo? = null
     private val inspectorValues: InspectorInfo
         get() = _inspectorValues ?: InspectorInfo()

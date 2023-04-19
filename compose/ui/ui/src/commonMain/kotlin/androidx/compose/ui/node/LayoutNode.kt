@@ -22,6 +22,7 @@ import androidx.compose.runtime.collection.mutableVectorOf
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusTargetModifierNode
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.input.pointer.PointerInputFilter
@@ -53,6 +54,7 @@ import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.platform.ViewConfiguration
 import androidx.compose.ui.platform.simpleIdentityToString
 import androidx.compose.ui.semantics.generateSemanticsId
+import androidx.compose.ui.semantics.outerSemantics
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.DpSize
@@ -418,7 +420,8 @@ internal class LayoutNode(
 
         this.owner = owner
         this.depth = (parent?.depth ?: -1) + 1
-        if (nodes.has(Nodes.Semantics)) {
+        @OptIn(ExperimentalComposeUiApi::class)
+        if (outerSemantics != null) {
             owner.onSemanticsChange()
         }
         owner.onAttach(this)
@@ -468,7 +471,8 @@ internal class LayoutNode(
         layoutDelegate.resetAlignmentLines()
         onDetach?.invoke(owner)
 
-        if (nodes.has(Nodes.Semantics)) {
+        @OptIn(ExperimentalComposeUiApi::class)
+        if (outerSemantics != null) {
             owner.onSemanticsChange()
         }
         nodes.detach()
@@ -884,9 +888,10 @@ internal class LayoutNode(
      * @param hitTestResult The collection that the hit [PointerInputFilter]s will be
      * added to if hit.
      */
+    @OptIn(ExperimentalComposeUiApi::class)
     internal fun hitTest(
         pointerPosition: Offset,
-        hitTestResult: HitTestResult,
+        hitTestResult: HitTestResult<PointerInputModifierNode>,
         isTouchEvent: Boolean = false,
         isInLayer: Boolean = true
     ) {
@@ -901,9 +906,10 @@ internal class LayoutNode(
     }
 
     @Suppress("UNUSED_PARAMETER")
+    @OptIn(ExperimentalComposeUiApi::class)
     internal fun hitTestSemantics(
         pointerPosition: Offset,
-        hitSemanticsEntities: HitTestResult,
+        hitSemanticsEntities: HitTestResult<SemanticsModifierNode>,
         isTouchEvent: Boolean = true,
         isInLayer: Boolean = true
     ) {
@@ -990,11 +996,18 @@ internal class LayoutNode(
         }
     }
 
+    @OptIn(ExperimentalComposeUiApi::class)
     private fun invalidateFocusOnDetach() {
-        nodes.tailToHead(FocusTarget) {
-            if (it.focusState.isFocused) {
-                requireOwner().focusOwner.clearFocus(force = true, refreshFocusEvents = false)
-                it.scheduleInvalidationForFocusEvents()
+        if (nodes.has(FocusTarget)) {
+            nodes.tailToHead {
+                if (
+                    it.isKind(FocusTarget) &&
+                    it is FocusTargetModifierNode &&
+                    it.focusState.isFocused
+                ) {
+                    requireOwner().focusOwner.clearFocus(force = true, refreshFocusEvents = false)
+                    it.scheduleInvalidationForFocusEvents()
+                }
             }
         }
     }
@@ -1191,7 +1204,7 @@ internal class LayoutNode(
     private fun shouldInvalidateParentLayer(): Boolean {
         if (nodes.has(Nodes.Draw) && !nodes.has(Nodes.Layout)) return true
         nodes.headToTail {
-            if (it.isKind(Nodes.Layout)) {
+            if (it.isKind(Nodes.Layout) && it is LayoutModifierNode) {
                 if (it.requireCoordinator(Nodes.Layout).layer != null) {
                     return false
                 }
