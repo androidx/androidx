@@ -27,20 +27,22 @@ import androidx.paging.PagedList.Config
 import androidx.paging.PagingSource.LoadParams.Refresh
 import androidx.paging.PagingSource.LoadResult
 import androidx.paging.PagingSource.LoadResult.Page
-import androidx.testutils.TestDispatcher
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(JUnit4::class)
 class LegacyPageFetcherTest {
-    private val testDispatcher = TestDispatcher()
+    private val testDispatcher = StandardTestDispatcher()
     private val data = List(9) { "$it" }
 
     inner class ImmediateListDataSource(val data: List<String>) : PagingSource<Int, String>() {
@@ -177,7 +179,7 @@ class LegacyPageFetcherTest {
             consumer.takeStateChanges()
         )
 
-        testDispatcher.executeAll()
+        testDispatcher.scheduler.advanceUntilIdle()
 
         assertEquals(listOf(Result(APPEND, rangeResult(6, 8))), consumer.takeResults())
         assertEquals(
@@ -204,7 +206,7 @@ class LegacyPageFetcherTest {
             consumer.takeStateChanges()
         )
 
-        testDispatcher.executeAll()
+        testDispatcher.scheduler.advanceUntilIdle()
 
         assertEquals(
             listOf(Result(PREPEND, rangeResult(2, 4))),
@@ -227,7 +229,7 @@ class LegacyPageFetcherTest {
         val pager = createPager(consumer, 2, 6)
 
         pager.tryScheduleAppend()
-        testDispatcher.executeAll()
+        testDispatcher.scheduler.advanceUntilIdle()
 
         assertEquals(
             listOf(
@@ -248,7 +250,7 @@ class LegacyPageFetcherTest {
         )
 
         pager.tryScheduleAppend()
-        testDispatcher.executeAll()
+        testDispatcher.scheduler.advanceUntilIdle()
 
         assertEquals(
             listOf(
@@ -275,7 +277,7 @@ class LegacyPageFetcherTest {
         val pager = createPager(consumer, 4, 8)
 
         pager.trySchedulePrepend()
-        testDispatcher.executeAll()
+        testDispatcher.scheduler.advanceUntilIdle()
 
         assertEquals(
             listOf(
@@ -295,7 +297,7 @@ class LegacyPageFetcherTest {
         )
 
         pager.trySchedulePrepend()
-        testDispatcher.executeAll()
+        testDispatcher.scheduler.advanceUntilIdle()
 
         assertEquals(
             listOf(
@@ -364,7 +366,7 @@ class LegacyPageFetcherTest {
 
         // try a normal append first
         pager.tryScheduleAppend()
-        testDispatcher.executeAll()
+        testDispatcher.scheduler.advanceUntilIdle()
 
         assertThat(consumer.takeResults()).containsExactly(
             Result(APPEND, rangeResult(3, 5))
@@ -379,7 +381,7 @@ class LegacyPageFetcherTest {
         pagingSource.invalidData = true
 
         pager.tryScheduleAppend()
-        testDispatcher.executeAll()
+        testDispatcher.scheduler.advanceUntilIdle()
 
         // the load should return before returning any data
         assertThat(consumer.takeResults()).isEmpty()
@@ -400,7 +402,7 @@ class LegacyPageFetcherTest {
 
         // try a normal prepend first
         pager.trySchedulePrepend()
-        testDispatcher.executeAll()
+        testDispatcher.scheduler.advanceUntilIdle()
 
         assertThat(consumer.takeResults()).containsExactly(
             Result(PREPEND, rangeResult(4, 6))
@@ -415,7 +417,7 @@ class LegacyPageFetcherTest {
         pagingSource.invalidData = true
 
         pager.trySchedulePrepend()
-        testDispatcher.executeAll()
+        testDispatcher.scheduler.advanceUntilIdle()
 
         // the load should return before returning any data
         assertThat(consumer.takeResults()).isEmpty()
