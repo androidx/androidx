@@ -50,4 +50,12 @@ private class TimerBuilderImpl : Timer.Builder<TimerBuilderImpl> {
 private class TimerImpl(override val identifier: String?, override val name: Name?) : Timer {
     override fun toBuilder(): Timer.Builder<*> =
         TimerBuilderImpl().setIdentifier(identifier).setName(name)
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is TimerImpl) return false
+        if (identifier != other.identifier) return false
+        if (name != other.name) return false
+        return true
+    }
 }

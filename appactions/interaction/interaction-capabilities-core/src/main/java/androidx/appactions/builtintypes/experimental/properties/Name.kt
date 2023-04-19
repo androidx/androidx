@@ -19,4 +19,11 @@ package androidx.appactions.builtintypes.experimental.properties
 class Name(asText: String) {
     @get:JvmName("asText")
     val asText: String = asText
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is Name) return false
+        if (asText != other.asText) return false
+        return true
+    }
 }

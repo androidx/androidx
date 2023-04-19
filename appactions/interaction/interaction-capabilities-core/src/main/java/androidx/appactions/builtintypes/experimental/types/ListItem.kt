@@ -57,4 +57,12 @@ private class ListItemImpl(
 ) : ListItem {
     override fun toBuilder(): ListItem.Builder<*> =
         ListItemBuilderImpl().setIdentifier(identifier).setName(name)
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is ListItemImpl) return false
+        if (this.name != other.name) return false
+        if (this.identifier != other.identifier) return false
+        return true
+    }
 }

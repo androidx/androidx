@@ -25,4 +25,10 @@ import androidx.appactions.builtintypes.experimental.types.Person
 class Participant(person: Person) {
     @get:JvmName("asPerson")
     val asPerson: Person? = person
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is Participant) return false
+        if (asPerson != other.asPerson) return false
+        return true
+    }
 }
