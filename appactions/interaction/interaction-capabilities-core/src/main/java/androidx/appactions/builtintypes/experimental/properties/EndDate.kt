@@ -17,7 +17,21 @@
 package androidx.appactions.builtintypes.experimental.properties
 
 import java.time.LocalDate
+import java.time.ZonedDateTime
 
-class EndDate(localDate: LocalDate) {
-    val localDate: LocalDate? = localDate
+class EndDate internal constructor(
+    @get:JvmName("asDate")
+    val asDate: LocalDate? = null,
+    @get:JvmName("asZonedDateTime")
+    val asZonedDateTime: ZonedDateTime? = null
+) {
+    constructor(date: LocalDate) : this(asDate = date, asZonedDateTime = null)
+    constructor(zonedDateTime: ZonedDateTime) : this(asDate = null, asZonedDateTime = zonedDateTime)
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is EndDate) return false
+        if (asDate != other.asDate) return false
+        if (asZonedDateTime != other.asZonedDateTime) return false
+        return true
+    }
 }

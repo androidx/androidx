@@ -21,4 +21,11 @@ import androidx.appactions.builtintypes.experimental.types.ListItem
 class ItemListElement(asListItem: ListItem) {
     @get:JvmName("asListItem")
     val asListItem: ListItem = asListItem
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is ItemListElement) return false
+        if (asListItem != other.asListItem) return false
+        return true
+    }
 }
