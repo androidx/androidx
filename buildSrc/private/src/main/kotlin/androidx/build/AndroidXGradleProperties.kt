@@ -152,6 +152,11 @@ const val XCODEGEN_DOWNLOAD_URI = "androidx.benchmark.darwin.xcodeGenDownloadUri
  */
 const val ALLOW_CUSTOM_COMPILE_SDK = "androidx.allowCustomCompileSdk"
 
+/**
+ * Whether to update gradle signature verification metadata
+ */
+const val UPDATE_SIGNATURES = "androidx.update.signatures"
+
 val ALL_ANDROIDX_PROPERTIES = setOf(
     ADD_GROUP_CONSTRAINTS,
     ALTERNATIVE_PROJECT_URL,
@@ -179,7 +184,8 @@ val ALL_ANDROIDX_PROPERTIES = setOf(
     ENABLED_KMP_TARGET_PLATFORMS,
     ALLOW_MISSING_LINT_CHECKS_PROJECT,
     XCODEGEN_DOWNLOAD_URI,
-    ALLOW_CUSTOM_COMPILE_SDK
+    ALLOW_CUSTOM_COMPILE_SDK,
+    UPDATE_SIGNATURES
 )
 
 /**

@@ -17,15 +17,17 @@ function regenerateVerificationMetadata() {
   echo "regenerating verification metadata and keyring"
   # regenerate metadata
   # Need to run a clean build, https://github.com/gradle/gradle/issues/19228
-  runGradle --stacktrace --write-verification-metadata pgp,sha256 --export-keys --dry-run --clean bOS :docs-kmp:zipCombinedKmpDocs
+  runGradle --stacktrace --write-verification-metadata pgp,sha256 --export-keys --dry-run --clean -Pandroidx.update.signatures=true bOS :docs-kmp:zipCombinedKmpDocs
 
   # update verification metadata file
   # also remove 'version=' lines, https://github.com/gradle/gradle/issues/20192
   cat gradle/verification-metadata.dryrun.xml | sed 's/ \(trusted-key.*\)version="[^"]*"/\1/' > gradle/verification-metadata.xml
 
+  # rename keyring
+  mv gradle/verification-keyring-dryrun.keys gradle/verification-keyring.keys
+
   # remove temporary files
   rm -f gradle/verification-keyring-dryrun.gpg
-  rm -f gradle/verification-keyring-dryrun.keys
   rm -f gradle/verification-metadata.dryrun.xml
 }
 regenerateVerificationMetadata
