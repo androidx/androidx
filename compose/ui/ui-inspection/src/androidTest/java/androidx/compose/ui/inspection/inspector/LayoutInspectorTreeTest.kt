@@ -97,7 +97,6 @@ import java.util.WeakHashMap
 import kotlin.math.roundToInt
 import org.junit.After
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -165,7 +164,6 @@ class LayoutInspectorTreeTest {
         assertThat(DEBUG).isFalse()
     }
 
-    @Ignore // b/273151077
     @Test
     fun buildTree() {
         val slotTableRecord = CompositionDataRecord.create()
@@ -246,7 +244,6 @@ class LayoutInspectorTreeTest {
         }
     }
 
-    @Ignore // b/273151077
     @Test
     fun buildTreeWithTransformedText() {
         val slotTableRecord = CompositionDataRecord.create()
@@ -468,7 +465,6 @@ class LayoutInspectorTreeTest {
         assertThat(node?.id).isGreaterThan(0)
     }
 
-    @Ignore // b/273151077
     @Test
     fun testSemantics() {
         val slotTableRecord = CompositionDataRecord.create()
@@ -521,7 +517,6 @@ class LayoutInspectorTreeTest {
         }
     }
 
-    @Ignore // b/273151077
     @Test
     fun testDialog() {
         val slotTableRecord = CompositionDataRecord.create()
@@ -594,7 +589,6 @@ class LayoutInspectorTreeTest {
         }
     }
 
-    @Ignore // b/273151077
     @Test
     fun testPopup() {
         val slotTableRecord = CompositionDataRecord.create()
@@ -826,7 +820,6 @@ class LayoutInspectorTreeTest {
     }
     // WARNING: End formatted section
 
-    @Ignore // b/273151077
     @Test
     fun testLineNumbers() {
         // WARNING: The formatting of the lines below here affect test results.
