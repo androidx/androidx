@@ -16,6 +16,11 @@
 
 package androidx.appactions.interaction.capabilities.communication
 
+import androidx.appactions.builtintypes.experimental.properties.Recipient
+import androidx.appactions.builtintypes.experimental.types.GenericErrorStatus
+import androidx.appactions.builtintypes.experimental.types.SuccessStatus
+import androidx.appactions.builtintypes.experimental.types.Message
+
 import androidx.appactions.interaction.capabilities.core.Capability
 import androidx.appactions.interaction.capabilities.core.BaseExecutionSession
 import androidx.appactions.interaction.capabilities.core.CapabilityFactory
@@ -28,10 +33,6 @@ import androidx.appactions.interaction.capabilities.core.impl.converters.TypeCon
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
 import androidx.appactions.interaction.capabilities.core.properties.StringValue
 import androidx.appactions.interaction.capabilities.core.properties.Property
-import androidx.appactions.interaction.capabilities.core.values.GenericErrorStatus
-import androidx.appactions.interaction.capabilities.core.values.Message
-import androidx.appactions.interaction.capabilities.core.values.properties.Recipient
-import androidx.appactions.interaction.capabilities.core.values.SuccessStatus
 import androidx.appactions.interaction.proto.ParamValue
 import androidx.appactions.interaction.protobuf.Struct
 import androidx.appactions.interaction.protobuf.Value
