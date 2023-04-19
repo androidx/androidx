@@ -3151,7 +3151,7 @@ public final class ProtoLayoutInflater {
                                 nodePosId,
                                 pipelineMaker);
                 break;
-            case VENDOR_EXTENSION:
+            case EXTENSION:
                 // TODO(b/276703002): Add support for vendor extension.
                 break;
             case INNER_NOT_SET:
