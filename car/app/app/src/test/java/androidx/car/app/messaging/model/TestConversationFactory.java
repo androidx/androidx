@@ -53,8 +53,8 @@ public final class TestConversationFactory {
      *
      * <p>This method fills in the minimum required data to create a valid {@link Person}.
      */
-    public static Person.Builder createMinimalPersonBuilder() {
-        return new Person.Builder().setName("Person Name");
+    public static Person.Builder createMinimalMessageSenderBuilder() {
+        return new Person.Builder().setName("Person Name").setKey("sender_key");
     }
 
     /**
@@ -62,8 +62,8 @@ public final class TestConversationFactory {
      *
      * <p>This method fills in the minimum required data to create a valid {@link Person}.
      */
-    private static Person createMinimalPerson() {
-        return createMinimalPersonBuilder().build();
+    private static Person createMinimalMessageSender() {
+        return createMinimalMessageSenderBuilder().build();
     }
 
     /**
@@ -72,7 +72,7 @@ public final class TestConversationFactory {
      * <p>This method fills in the minimum required data to create a valid {@link Person}.
      */
     public static Person.Builder createFullyPopulatedPersonBuilder() {
-        return createMinimalPersonBuilder()
+        return createMinimalMessageSenderBuilder()
                 .setKey("Foo Person")
                 .setIcon(TEST_SENDER_ICON)
                 .setUri(TEST_SENDER_URI.toString())
@@ -146,7 +146,7 @@ public final class TestConversationFactory {
         return new ConversationItem.Builder()
                 .setId("conversation_id")
                 .setTitle(CarText.create("Conversation Title"))
-                .setSelf(createMinimalPerson())
+                .setSelf(createMinimalMessageSender())
                 .setMessages(messages)
                 .setConversationCallback(EMPTY_CONVERSATION_CALLBACK);
     }
