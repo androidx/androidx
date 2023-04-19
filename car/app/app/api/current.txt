@@ -225,6 +225,7 @@ package androidx.car.app.constraints {
 
   @androidx.car.app.annotations.RequiresCarApi(2) public class ConstraintManager implements androidx.car.app.managers.Manager {
     method public int getContentLimit(int);
+    method @androidx.car.app.annotations.RequiresCarApi(6) public boolean isAppDrivenRefreshEnabled();
     field public static final int CONTENT_LIMIT_TYPE_GRID = 1; // 0x1
     field public static final int CONTENT_LIMIT_TYPE_LIST = 0; // 0x0
     field public static final int CONTENT_LIMIT_TYPE_PANE = 4; // 0x4
