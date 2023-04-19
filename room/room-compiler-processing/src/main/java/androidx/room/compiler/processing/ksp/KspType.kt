@@ -52,7 +52,7 @@ internal abstract class KspType(
     /**
      * Type resolver to convert KSType into its JVM representation.
      */
-    protected val jvmTypeResolver: KspJvmTypeResolver?
+    protected val scope: KSTypeVarianceResolverScope?
 ) : KspAnnotated(env), XType, XEquality {
     override val rawType by lazy {
         KspRawType(this)
@@ -62,26 +62,33 @@ internal abstract class KspType(
         xTypeName.java
     }
 
-    private val xTypeName: XTypeName by lazy {
-        XTypeName(
-            jvmWildcardType?.asTypeName()?.java ?: resolveJTypeName(),
-            jvmWildcardType?.asTypeName()?.kotlin ?: resolveKTypeName(),
-            nullability
-        )
-    }
-
     override fun asTypeName() = xTypeName
 
     /**
-     * A Kotlin type might have a slightly different type in JVM due to wildcards.
-     * This fields holds onto that value which will be used when creating JVM types.
+     * A Kotlin type might have a slightly different type in JVM vs Kotlin due to wildcards.
+     * The [XTypeName] represents those differences as [JTypeName] and [KTypeName], respectively.
      */
-    private val jvmWildcardType by lazy {
-        jvmTypeResolver?.resolveJvmType(env)
+    private val xTypeName: XTypeName by lazy {
+        val jvmWildcardType = if (scope == null) {
+            this
+        } else {
+            env.resolveWildcards(ksType, scope).let {
+                if (it == ksType) {
+                    this
+                } else {
+                    env.wrap(
+                        ksType = it,
+                        allowPrimitives = this is KspPrimitiveType
+                    ).copyWithScope(scope)
+                }
+            }
+        }
+        XTypeName(
+            jvmWildcardType.resolveJTypeName(),
+            jvmWildcardType.resolveKTypeName(),
+            nullability
+        )
     }
-
-    internal val jvmWildcardTypeOrSelf
-        get() = jvmWildcardType ?: this
 
     protected abstract fun resolveJTypeName(): JTypeName
 
@@ -266,20 +273,7 @@ internal abstract class KspType(
 
     abstract override fun boxed(): KspType
 
-    fun withJvmTypeResolver(
-        jvmTypeResolver: KspJvmTypeResolutionScope
-    ): KspType {
-        return copyWithJvmTypeResolver(
-            KspJvmTypeResolver(
-                scope = jvmTypeResolver,
-                delegate = this
-            )
-        )
-    }
-
-    abstract fun copyWithJvmTypeResolver(
-        jvmTypeResolver: KspJvmTypeResolver
-    ): KspType
+    abstract fun copyWithScope(scope: KSTypeVarianceResolverScope): KspType
 
     /**
      * Create a copy of this type with the given nullability.

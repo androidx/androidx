@@ -22,7 +22,6 @@ import androidx.room.compiler.processing.XMemberContainer
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.ksp.KspAnnotated.UseSiteFilter.Companion.NO_USE_SITE_OR_METHOD_PARAMETER
 import androidx.room.compiler.processing.ksp.synthetic.KspSyntheticPropertyMethodElement
-import com.google.devtools.ksp.symbol.KSDeclaration
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.KSPropertySetter
 import com.google.devtools.ksp.symbol.KSType
@@ -47,15 +46,6 @@ internal class KspExecutableParameterElement(
 
     override val hasDefaultValue: Boolean
         get() = parameter.hasDefault
-
-    private fun jvmTypeResolver(container: KSDeclaration?): KspJvmTypeResolutionScope {
-        return KspJvmTypeResolutionScope.MethodParameter(
-            kspExecutableElement = enclosingElement,
-            parameterIndex = parameterIndex,
-            annotated = parameter.type,
-            container = container
-        )
-    }
 
     override val type: KspType by lazy {
         asMemberOf(enclosingElement.enclosingElement.type?.ksType)
@@ -83,8 +73,11 @@ internal class KspExecutableParameterElement(
                 functionDeclaration = enclosingElement.declaration,
                 ksType = ksType
             )
-        ).withJvmTypeResolver(
-            jvmTypeResolver(
+        ).copyWithScope(
+            KSTypeVarianceResolverScope.MethodParameter(
+                kspExecutableElement = enclosingElement,
+                parameterIndex = parameterIndex,
+                annotated = parameter.type,
                 container = ksType?.declaration
             )
         )

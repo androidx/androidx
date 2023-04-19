@@ -105,7 +105,7 @@ internal class KspProcessingEnv(
             env = this,
             ksType = resolver.builtIns.unitType,
             boxed = false,
-            jvmTypeResolver = null
+            scope = null
         )
 
     override fun findTypeElement(qName: String): KspTypeElement? {
@@ -227,7 +227,7 @@ internal class KspProcessingEnv(
         return KspTypeArgumentType(
             env = this,
             typeArg = ksTypeArgument,
-            jvmTypeResolver = null
+            scope = null
         )
     }
 
@@ -258,14 +258,14 @@ internal class KspProcessingEnv(
             return KspTypeVariableType(
                 env = this,
                 ksType = ksType,
-                jvmTypeResolver = null
+                scope = null
             )
         }
         if (allowPrimitives && qName != null && ksType.nullability == Nullability.NOT_NULL) {
             // check for primitives
             val javaPrimitive = KspTypeMapper.getPrimitiveJavaTypeName(qName)
             if (javaPrimitive != null) {
-                return KspPrimitiveType(this, ksType, jvmTypeResolver = null)
+                return KspPrimitiveType(this, ksType, scope = null)
             }
             // special case for void
             if (qName == "kotlin.Unit") {
@@ -275,7 +275,7 @@ internal class KspProcessingEnv(
         return arrayTypeFactory.createIfArray(ksType) ?: DefaultKspType(
             this,
             ksType,
-            jvmTypeResolver = null
+            scope = null
         )
     }
 
@@ -295,26 +295,8 @@ internal class KspProcessingEnv(
     /**
      * Resolves the wildcards for the given ksType. See [KSTypeVarianceResolver] for details.
      */
-    fun resolveWildcards(
-        /**
-         * The KSType whose wildcards variance will be resolved
-         */
-        ksType: KSType,
-        /**
-         * Default wildcard resolution strategy
-         */
-        wildcardMode: KSTypeVarianceResolver.WildcardMode,
-        /**
-         * The original declaration type if [ksType] is obtained via inheritance.
-         */
-        declarationType: KSType?
-    ): KSType {
-        return ksTypeVarianceResolver.applyTypeVariance(
-            ksType = ksType,
-            wildcardMode = wildcardMode,
-            declarationType = declarationType
-        )
-    }
+    internal fun resolveWildcards(ksType: KSType, scope: KSTypeVarianceResolverScope) =
+        ksTypeVarianceResolver.applyTypeVariance(ksType, scope)
 
     internal fun clearCache() {
         typeElementStore.clear()

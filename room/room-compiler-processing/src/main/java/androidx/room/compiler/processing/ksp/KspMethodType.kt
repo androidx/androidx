@@ -47,7 +47,7 @@ internal sealed class KspMethodType(
             origin.declaration.returnKspType(
                 env = env,
                 containing = containing
-            )
+            ).copyWithScope(KSTypeVarianceResolverScope.MethodReturnType(origin))
         }
     }
 
