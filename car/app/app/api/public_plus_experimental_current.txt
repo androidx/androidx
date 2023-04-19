@@ -1529,14 +1529,12 @@ package androidx.car.app.model {
     method public String getContentId();
     method public androidx.car.app.model.CarIcon getIcon();
     method public androidx.car.app.model.CarText getTitle();
-    method @Deprecated public boolean isActive();
-    method public androidx.car.app.model.Tab.Builder toBuilder();
   }
 
   public static final class Tab.Builder {
     ctor public Tab.Builder();
+    ctor public Tab.Builder(androidx.car.app.model.Tab);
     method public androidx.car.app.model.Tab build();
-    method @Deprecated public androidx.car.app.model.Tab.Builder setActive(boolean);
     method public androidx.car.app.model.Tab.Builder setContentId(String);
     method public androidx.car.app.model.Tab.Builder setIcon(androidx.car.app.model.CarIcon);
     method public androidx.car.app.model.Tab.Builder setTitle(CharSequence);
