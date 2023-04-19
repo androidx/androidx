@@ -399,12 +399,6 @@ private data class GraphicsLayerModifierNodeElement(
     val spotShadowColor: Color,
     val compositingStrategy: CompositingStrategy
 ) : ModifierNodeElement<SimpleGraphicsLayerModifier>() {
-
-    /**
-     * [SimpleGraphicsLayerModifier.invalidateLayerBlock] is doing the manual invalidation.
-     */
-    override val autoInvalidate = false
-
     override fun create(): SimpleGraphicsLayerModifier {
         return SimpleGraphicsLayerModifier(
             scaleX = scaleX,
@@ -549,13 +543,6 @@ fun Modifier.toolingGraphicsLayer() =
 private data class BlockGraphicsLayerElement(
     val block: GraphicsLayerScope.() -> Unit
 ) : ModifierNodeElement<BlockGraphicsLayerModifier>() {
-
-    /**
-     * We can skip remeasuring as we only need to rerun the placement block. we request it
-     * manually in the [update] block.
-     */
-    override val autoInvalidate = false
-
     override fun create() = BlockGraphicsLayerModifier(block)
 
     override fun update(node: BlockGraphicsLayerModifier) = node.apply {
@@ -572,6 +559,12 @@ private data class BlockGraphicsLayerElement(
 private class BlockGraphicsLayerModifier(
     var layerBlock: GraphicsLayerScope.() -> Unit,
 ) : LayoutModifierNode, Modifier.Node() {
+
+    /**
+     * We can skip remeasuring as we only need to rerun the placement block. we request it
+     * manually in the update block.
+     */
+    override val shouldAutoInvalidate: Boolean get() = false
 
     fun invalidateLayerBlock() {
         requireCoordinator(Nodes.Layout).wrapped?.updateLayerBlock(
@@ -614,6 +607,12 @@ private class SimpleGraphicsLayerModifier(
     var spotShadowColor: Color,
     var compositingStrategy: CompositingStrategy = CompositingStrategy.Auto
 ) : LayoutModifierNode, Modifier.Node() {
+
+    /**
+     * We can skip remeasuring as we only need to rerun the placement block. we request it
+     * manually in the update block.
+     */
+    override val shouldAutoInvalidate: Boolean get() = false
 
     private var layerBlock: GraphicsLayerScope.() -> Unit = {
         scaleX = this@SimpleGraphicsLayerModifier.scaleX
