@@ -26,10 +26,12 @@ import static org.junit.Assert.assertThrows;
 import androidx.annotation.NonNull;
 import androidx.appsearch.annotation.Document;
 import androidx.appsearch.app.AppSearchSchema;
+import androidx.appsearch.app.DocumentClassFactoryRegistry;
 import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.app.Migrator;
 import androidx.appsearch.app.PackageIdentifier;
 import androidx.appsearch.app.SetSchemaRequest;
+import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.testutil.AppSearchEmail;
 import androidx.collection.ArrayMap;
 
@@ -374,7 +376,7 @@ public class SetSchemaRequestCtsTest {
     }
 
 
-// @exportToFramework:startStrip()
+    // @exportToFramework:startStrip()
     @Document
     static class Card {
         @Document.Namespace
@@ -473,7 +475,7 @@ public class SetSchemaRequestCtsTest {
                 .addRequiredPermissionsForDocumentClassVisibility(Card.class,
                         ImmutableSet.of(SetSchemaRequest.READ_SMS, SetSchemaRequest.READ_CALENDAR))
                 .addRequiredPermissionsForDocumentClassVisibility(Card.class,
-                ImmutableSet.of(SetSchemaRequest.READ_HOME_APP_SEARCH_DATA));
+                        ImmutableSet.of(SetSchemaRequest.READ_HOME_APP_SEARCH_DATA));
         request = setSchemaRequestBuilder.build();
 
         assertThat(request.getRequiredPermissionsForSchemaTypeVisibility())
@@ -833,4 +835,85 @@ public class SetSchemaRequestCtsTest {
         assertThat(((AppSearchSchema.StringPropertyConfig) properties.get(0)).getTokenizerType())
                 .isEqualTo(AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_RFC822);
     }
+
+    // @exportToFramework:startStrip()
+    @Document
+    static class Outer {
+        @Document.Id String mId;
+        @Document.Namespace String mNamespace;
+        @Document.DocumentProperty Middle mMiddle;
+    }
+
+    @Document
+    static class Middle {
+        @Document.Id String mId;
+        @Document.Namespace String mNamespace;
+        @Document.DocumentProperty Inner mInner;
+    }
+
+    @Document
+    static class Inner {
+        @Document.Id String mId;
+        @Document.Namespace String mNamespace;
+        @Document.StringProperty String mContents;
+    }
+
+    @Test
+    public void testNestedSchemas() throws AppSearchException {
+        SetSchemaRequest request = new SetSchemaRequest.Builder().addDocumentClasses(Outer.class)
+                .setForceOverride(true).build();
+        DocumentClassFactoryRegistry registry = DocumentClassFactoryRegistry.getInstance();
+
+        Set<AppSearchSchema> schemas = request.getSchemas();
+        assertThat(schemas).hasSize(3);
+        assertThat(schemas).contains(registry.getOrCreateFactory(Outer.class).getSchema());
+        assertThat(schemas).contains(registry.getOrCreateFactory(Middle.class).getSchema());
+        assertThat(schemas).contains(registry.getOrCreateFactory(Inner.class).getSchema());
+    }
+
+    @Document
+    static class Parent {
+        @Document.Id String mId;
+        @Document.Namespace String mNamespace;
+        @Document.DocumentProperty Person mPerson;
+        @Document.DocumentProperty Organization mOrganization;
+    }
+
+    @Document
+    static class Person {
+        @Document.Id String mId;
+        @Document.Namespace String mNamespace;
+        @Document.DocumentProperty Common mCommon;
+    }
+
+    @Document
+    static class Organization {
+        @Document.Id String mId;
+        @Document.Namespace String mNamespace;
+        @Document.DocumentProperty Common mCommon;
+    }
+
+    @Document
+    static class Common {
+        @Document.Id String mId;
+        @Document.Namespace String mNamespace;
+        @Document.StringProperty String mContents;
+    }
+
+
+    @Test
+    public void testNestedSchemasMultiplePaths() throws AppSearchException {
+        SetSchemaRequest request = new SetSchemaRequest.Builder().addDocumentClasses(Parent.class)
+                .setForceOverride(true).build();
+        DocumentClassFactoryRegistry registry = DocumentClassFactoryRegistry.getInstance();
+
+        Set<AppSearchSchema> schemas = request.getSchemas();
+        assertThat(schemas).hasSize(4);
+        assertThat(schemas).contains(registry.getOrCreateFactory(Common.class).getSchema());
+        assertThat(schemas).contains(registry.getOrCreateFactory(Organization.class).getSchema());
+        assertThat(schemas).contains(registry.getOrCreateFactory(Person.class).getSchema());
+        assertThat(schemas).contains(registry.getOrCreateFactory(Parent.class).getSchema());
+    }
+
+// @exportToFramework:endStrip()
 }

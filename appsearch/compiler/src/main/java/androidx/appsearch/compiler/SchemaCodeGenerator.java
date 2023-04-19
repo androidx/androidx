@@ -22,11 +22,15 @@ import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.MethodSpec;
+import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
+import com.squareup.javapoet.WildcardTypeName;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.AnnotationMirror;
@@ -43,6 +47,7 @@ class SchemaCodeGenerator {
     private final ProcessingEnvironment mEnv;
     private final IntrospectionHelper mHelper;
     private final DocumentModel mModel;
+    private final Set<ClassName> mDocumentTypesAccumulator = new HashSet<>();
 
     public static void generate(
             @NonNull ProcessingEnvironment env,
@@ -73,17 +78,55 @@ class SchemaCodeGenerator {
                         .addStatement("return SCHEMA_NAME")
                         .build());
 
+        CodeBlock schemaInitializer = createSchemaInitializerGetDocumentTypes();
+
         classBuilder.addMethod(
                 MethodSpec.methodBuilder("getSchema")
                         .addModifiers(Modifier.PUBLIC)
                         .returns(mHelper.getAppSearchClass("AppSearchSchema"))
                         .addAnnotation(Override.class)
                         .addException(mHelper.getAppSearchExceptionClass())
-                        .addStatement("return $L", createSchemaInitializer())
+                        .addStatement("return $L", schemaInitializer)
                         .build());
+
+        classBuilder.addMethod(createNestedClassesMethod());
     }
 
-    private CodeBlock createSchemaInitializer() throws ProcessingException {
+    @NonNull
+    private MethodSpec createNestedClassesMethod() {
+        TypeName setOfClasses = ParameterizedTypeName.get(ClassName.get("java.util", "List"),
+                ParameterizedTypeName.get(ClassName.get(Class.class),
+                        WildcardTypeName.subtypeOf(Object.class)));
+
+        TypeName arraySetOfClasses =
+                ParameterizedTypeName.get(ClassName.get("java.util", "ArrayList"),
+                        ParameterizedTypeName.get(ClassName.get(Class.class),
+                                WildcardTypeName.subtypeOf(Object.class)));
+
+        MethodSpec.Builder methodBuilder = MethodSpec.methodBuilder("getNestedDocumentClasses")
+                .addModifiers(Modifier.PUBLIC)
+                .returns(setOfClasses)
+                .addAnnotation(Override.class)
+                .addException(mHelper.getAppSearchExceptionClass());
+
+        if (mDocumentTypesAccumulator.isEmpty()) {
+            methodBuilder.addStatement("return $T.emptyList()",
+                    ClassName.get("java.util", "Collections"));
+        } else {
+            methodBuilder.addStatement("$T classSet = new $T()", setOfClasses, arraySetOfClasses);
+            for (ClassName className : mDocumentTypesAccumulator) {
+                methodBuilder.addStatement("classSet.add($T.class)", className);
+            }
+            methodBuilder.addStatement("return classSet").build();
+        }
+        return methodBuilder.build();
+    }
+
+    /**
+     * This method accumulates Document-type properties in mDocumentTypesAccumulator by calling
+     * {@link #createPropertySchema}.
+     */
+    private CodeBlock createSchemaInitializerGetDocumentTypes() throws ProcessingException {
         CodeBlock.Builder codeBlock = CodeBlock.builder()
                 .add("new $T(SCHEMA_NAME)", mHelper.getAppSearchClass("AppSearchSchema", "Builder"))
                 .indent();
@@ -94,6 +137,7 @@ class SchemaCodeGenerator {
         return codeBlock.build();
     }
 
+    /** This method accumulates Document-type properties in mDocumentTypesAccumulator. */
     private CodeBlock createPropertySchema(@NonNull VariableElement property)
             throws ProcessingException {
         AnnotationMirror annotation = mModel.getPropertyAnnotation(property);
@@ -166,6 +210,7 @@ class SchemaCodeGenerator {
                     propertyClass.nestedClass("Builder"),
                     propertyName,
                     documentFactoryClass);
+            mDocumentTypesAccumulator.add(documentClass);
         } else {
             codeBlock.add("new $T($S)", propertyClass.nestedClass("Builder"), propertyName);
         }

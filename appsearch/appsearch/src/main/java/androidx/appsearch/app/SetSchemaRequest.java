@@ -367,6 +367,9 @@ public final class SetSchemaRequest {
          * Adds a collection of {@link androidx.appsearch.annotation.Document} annotated classes to
          * the schema.
          *
+         * <p>This will also add all {@link androidx.appsearch.annotation.Document} classes
+         * referenced by the schema via document properties.
+         *
          * <p>Merged list available from {@link #getSchemas()}.
          *
          * @param documentClasses classes annotated with
@@ -386,6 +389,7 @@ public final class SetSchemaRequest {
             for (Class<?> documentClass : documentClasses) {
                 DocumentClassFactory<?> factory = registry.getOrCreateFactory(documentClass);
                 schemas.add(factory.getSchema());
+                addDocumentClasses(factory.getNestedDocumentClasses());
             }
             return addSchemas(schemas);
         }
