@@ -1,6 +1,7 @@
 package androidx.compose.foundation.layout
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.collection.MutableVector
 import androidx.compose.runtime.collection.mutableVectorOf
 import androidx.compose.runtime.remember
@@ -56,7 +57,7 @@ inline fun FlowRow(
     horizontalArrangement: Arrangement.Horizontal = Arrangement.Start,
     verticalArrangement: Arrangement.Vertical = Arrangement.Top,
     maxItemsInEachRow: Int = Int.MAX_VALUE,
-    content: @Composable RowScope.() -> Unit
+    content: @Composable FlowRowScope.() -> Unit
 ) {
     val measurePolicy = rowMeasurementHelper(
         horizontalArrangement,
@@ -64,7 +65,7 @@ inline fun FlowRow(
         maxItemsInEachRow
     )
     Layout(
-        content = { RowScopeInstance.content() },
+        content = { FlowRowScopeInstance.content() },
         measurePolicy = measurePolicy,
         modifier = modifier
     )
@@ -106,7 +107,7 @@ inline fun FlowColumn(
     verticalArrangement: Arrangement.Vertical = Arrangement.Top,
     horizontalArrangement: Arrangement.Horizontal = Arrangement.Start,
     maxItemsInEachColumn: Int = Int.MAX_VALUE,
-    content: @Composable ColumnScope.() -> Unit
+    content: @Composable FlowColumnScope.() -> Unit
 ) {
     val measurePolicy = columnMeasurementHelper(
         verticalArrangement,
@@ -114,11 +115,31 @@ inline fun FlowColumn(
         maxItemsInEachColumn
     )
     Layout(
-        content = { ColumnScopeInstance.content() },
+        content = { FlowColumnScopeInstance.content() },
         measurePolicy = measurePolicy,
         modifier = modifier
     )
 }
+
+/**
+ * Scope for the children of [FlowRow].
+ */
+@LayoutScopeMarker
+@Immutable
+@JvmDefaultWithCompatibility
+interface FlowRowScope : RowScope
+
+/**
+ * Scope for the children of [FlowColumn].
+ */
+@LayoutScopeMarker
+@Immutable
+@JvmDefaultWithCompatibility
+interface FlowColumnScope : ColumnScope
+
+internal object FlowRowScopeInstance : RowScope by RowScopeInstance, FlowRowScope
+
+internal object FlowColumnScopeInstance : ColumnScope by ColumnScopeInstance, FlowColumnScope
 
 private fun getVerticalArrangement(verticalArrangement: Arrangement.Vertical):
         (Int, IntArray, LayoutDirection, Density, IntArray) -> Unit =
