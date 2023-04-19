@@ -80,13 +80,13 @@ public class GetPublicKeyCredentialOptionJavaTest {
         );
         String requestJsonExpected = "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}";
         boolean expectedIsAutoSelect = true;
-        String clientDataHash = "hash";
+        byte[] clientDataHash = "hash".getBytes();
         Bundle expectedData = new Bundle();
         expectedData.putString(
                 PublicKeyCredential.BUNDLE_KEY_SUBTYPE,
                 GetPublicKeyCredentialOption.BUNDLE_VALUE_SUBTYPE_GET_PUBLIC_KEY_CREDENTIAL_OPTION);
         expectedData.putString(BUNDLE_KEY_REQUEST_JSON, requestJsonExpected);
-        expectedData.putString(GetPublicKeyCredentialOption.BUNDLE_KEY_CLIENT_DATA_HASH,
+        expectedData.putByteArray(GetPublicKeyCredentialOption.BUNDLE_KEY_CLIENT_DATA_HASH,
                 clientDataHash);
         expectedData.putBoolean(BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED, expectedIsAutoSelect);
 
@@ -103,7 +103,7 @@ public class GetPublicKeyCredentialOptionJavaTest {
 
     @Test
     public void frameworkConversion_success() {
-        String clientDataHash = "hash";
+        byte[] clientDataHash = "hash".getBytes();
         Set<ComponentName> expectedAllowedProviders = ImmutableSet.of(
                 new ComponentName("pkg", "cls"),
                 new ComponentName("pkg2", "cls2")

@@ -25,8 +25,12 @@ import org.json.JSONObject
 /**
  * A request to register a passkey from the user's public key credential provider.
  *
+ * @property requestJson the request in JSON format in the [standard webauthn web json](https://w3c.github.io/webauthn/#dictdef-publickeycredentialcreationoptionsjson).
+ * @property clientDataHash a clientDataHash value to sign over in place of assembling and hashing
+ * clientDataJSON during the signature request; only meaningful when [origin] is set
  * @param requestJson the request in JSON format in the [standard webauthn web json](https://w3c.github.io/webauthn/#dictdef-publickeycredentialcreationoptionsjson).
- * @param clientDataHash a hash that is used to verify the origin
+ * @param clientDataHash a clientDataHash value to sign over in place of assembling and hashing
+ * clientDataJSON during the signature request; only meaningful when [origin] is set
  * @param preferImmediatelyAvailableCredentials true if you prefer the operation to return
  * immediately when there is no available passkey registration offering instead of falling back to
  * discovering remote options, and false (default) otherwise
@@ -36,7 +40,7 @@ import org.json.JSONObject
  */
 class CreatePublicKeyCredentialRequest private constructor(
     val requestJson: String,
-    val clientDataHash: String?,
+    val clientDataHash: ByteArray?,
     preferImmediatelyAvailableCredentials: Boolean,
     displayInfo: DisplayInfo,
     origin: String? = null,
@@ -70,7 +74,7 @@ class CreatePublicKeyCredentialRequest private constructor(
      */
     @JvmOverloads constructor(
         requestJson: String,
-        clientDataHash: String? = null,
+        clientDataHash: ByteArray? = null,
         preferImmediatelyAvailableCredentials: Boolean = false,
         origin: String? = null
     ) : this(requestJson, clientDataHash, preferImmediatelyAvailableCredentials,
@@ -101,7 +105,7 @@ class CreatePublicKeyCredentialRequest private constructor(
      */
     constructor(
         requestJson: String,
-        clientDataHash: String?,
+        clientDataHash: ByteArray?,
         preferImmediatelyAvailableCredentials: Boolean,
         origin: String?,
         preferDefaultProvider: String?
@@ -145,7 +149,7 @@ class CreatePublicKeyCredentialRequest private constructor(
         @JvmStatic
         internal fun toCredentialDataBundle(
             requestJson: String,
-            clientDataHash: String? = null,
+            clientDataHash: ByteArray? = null,
         ): Bundle {
             val bundle = Bundle()
             bundle.putString(
@@ -153,14 +157,14 @@ class CreatePublicKeyCredentialRequest private constructor(
                 BUNDLE_VALUE_SUBTYPE_CREATE_PUBLIC_KEY_CREDENTIAL_REQUEST
             )
             bundle.putString(BUNDLE_KEY_REQUEST_JSON, requestJson)
-            bundle.putString(BUNDLE_KEY_CLIENT_DATA_HASH, clientDataHash)
+            bundle.putByteArray(BUNDLE_KEY_CLIENT_DATA_HASH, clientDataHash)
             return bundle
         }
 
         @JvmStatic
         internal fun toCandidateDataBundle(
             requestJson: String,
-            clientDataHash: String?,
+            clientDataHash: ByteArray?,
         ): Bundle {
             val bundle = Bundle()
             bundle.putString(
@@ -168,7 +172,7 @@ class CreatePublicKeyCredentialRequest private constructor(
                 BUNDLE_VALUE_SUBTYPE_CREATE_PUBLIC_KEY_CREDENTIAL_REQUEST
             )
             bundle.putString(BUNDLE_KEY_REQUEST_JSON, requestJson)
-            bundle.putString(BUNDLE_KEY_CLIENT_DATA_HASH, clientDataHash)
+            bundle.putByteArray(BUNDLE_KEY_CLIENT_DATA_HASH, clientDataHash)
             return bundle
         }
 
@@ -178,7 +182,7 @@ class CreatePublicKeyCredentialRequest private constructor(
             CreatePublicKeyCredentialRequest {
             try {
                 val requestJson = data.getString(BUNDLE_KEY_REQUEST_JSON)
-                val clientDataHash = data.getString(BUNDLE_KEY_CLIENT_DATA_HASH)
+                val clientDataHash = data.getByteArray(BUNDLE_KEY_CLIENT_DATA_HASH)
                 val preferImmediatelyAvailableCredentials =
                     data.getBoolean(BUNDLE_KEY_PREFER_IMMEDIATELY_AVAILABLE_CREDENTIALS, false)
                 val displayInfo = DisplayInfo.parseFromCredentialDataBundle(data)

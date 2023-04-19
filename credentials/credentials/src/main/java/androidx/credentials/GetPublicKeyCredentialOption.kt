@@ -25,12 +25,14 @@ import androidx.credentials.internal.FrameworkClassParsingException
  *
  * @property requestJson the request in JSON format in the standard webauthn web json
  * shown [here](https://w3c.github.io/webauthn/#dictdef-publickeycredentialrequestoptionsjson).
- * @property clientDataHash a hash that is used to verify the relying party identity, set only if
- * you have set the [GetCredentialRequest.origin]
+ * @property clientDataHash a clientDataHash value to sign over in place of assembling and hashing
+ * clientDataJSON during the signature request; meaningful only if you have set the
+ * [GetCredentialRequest.origin]
  * @param requestJson the request in JSON format in the standard webauthn web json
  * shown [here](https://w3c.github.io/webauthn/#dictdef-publickeycredentialrequestoptionsjson).
- * @param clientDataHash a hash that is used to verify the relying party identity, set only if
- * you have set the [GetCredentialRequest.origin]
+ * @param clientDataHash a clientDataHash value to sign over in place of assembling and hashing
+ * clientDataJSON during the signature request; set only if you have set the
+ * [GetCredentialRequest.origin]
  * @param allowedProviders a set of provider service [ComponentName] allowed to receive this
  * option (Note: a [SecurityException] will be thrown if it is set as non-empty but your app does
  * not have android.permission.CREDENTIAL_MANAGER_SET_ALLOWED_PROVIDERS; for API level < 34,
@@ -41,7 +43,7 @@ import androidx.credentials.internal.FrameworkClassParsingException
  */
 class GetPublicKeyCredentialOption @JvmOverloads constructor(
     val requestJson: String,
-    val clientDataHash: String? = null,
+    val clientDataHash: ByteArray? = null,
     allowedProviders: Set<ComponentName> = emptySet(),
 ) : CredentialOption(
     type = PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL,
@@ -66,7 +68,7 @@ class GetPublicKeyCredentialOption @JvmOverloads constructor(
         @JvmStatic
         internal fun toRequestDataBundle(
             requestJson: String,
-            clientDataHash: String?,
+            clientDataHash: ByteArray?,
         ): Bundle {
             val bundle = Bundle()
             bundle.putString(
@@ -74,7 +76,7 @@ class GetPublicKeyCredentialOption @JvmOverloads constructor(
                 BUNDLE_VALUE_SUBTYPE_GET_PUBLIC_KEY_CREDENTIAL_OPTION
             )
             bundle.putString(BUNDLE_KEY_REQUEST_JSON, requestJson)
-            bundle.putString(BUNDLE_KEY_CLIENT_DATA_HASH, clientDataHash)
+            bundle.putByteArray(BUNDLE_KEY_CLIENT_DATA_HASH, clientDataHash)
             return bundle
         }
 
@@ -87,7 +89,7 @@ class GetPublicKeyCredentialOption @JvmOverloads constructor(
         ): GetPublicKeyCredentialOption {
             try {
                 val requestJson = data.getString(BUNDLE_KEY_REQUEST_JSON)
-                val clientDataHash = data.getString(BUNDLE_KEY_CLIENT_DATA_HASH)
+                val clientDataHash = data.getByteArray(BUNDLE_KEY_CLIENT_DATA_HASH)
                 return GetPublicKeyCredentialOption(
                     requestJson!!,
                     clientDataHash,

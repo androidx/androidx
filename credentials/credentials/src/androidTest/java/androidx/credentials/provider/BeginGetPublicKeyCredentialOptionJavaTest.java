@@ -77,7 +77,7 @@ public class BeginGetPublicKeyCredentialOptionJavaTest {
             new BeginGetPublicKeyCredentialOption(
                     new Bundle(), BUNDLE_ID,
                     "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}",
-                    "client_data_hash");
+                    "client_data_hash".getBytes());
         }
     }
 
@@ -98,14 +98,14 @@ public class BeginGetPublicKeyCredentialOptionJavaTest {
     @Test
     public void getter_clientDataHash_success() {
         if (BuildCompat.isAtLeastU()) {
-            String testClientDataHashExpected = "client_data_hash";
+            byte[] testClientDataHashExpected = "client_data_hash".getBytes();
 
             BeginGetPublicKeyCredentialOption beginGetPublicKeyCredentialOpt =
                     new BeginGetPublicKeyCredentialOption(
                             new Bundle(), BUNDLE_ID, "test_json",
                             testClientDataHashExpected);
 
-            String testClientDataHashActual = beginGetPublicKeyCredentialOpt.getClientDataHash();
+            byte[] testClientDataHashActual = beginGetPublicKeyCredentialOpt.getClientDataHash();
             assertThat(testClientDataHashActual).isEqualTo(testClientDataHashExpected);
         }
     }
@@ -114,15 +114,15 @@ public class BeginGetPublicKeyCredentialOptionJavaTest {
     public void getter_frameworkProperties_success() {
         if (BuildCompat.isAtLeastU()) {
             String requestJsonExpected = "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}";
-            String clientDataHash = "client_data_hash";
+            byte[] clientDataHash = "client_data_hash".getBytes();
             Bundle expectedData = new Bundle();
             expectedData.putString(
                     PublicKeyCredential.BUNDLE_KEY_SUBTYPE,
                     GetPublicKeyCredentialOption
                             .BUNDLE_VALUE_SUBTYPE_GET_PUBLIC_KEY_CREDENTIAL_OPTION);
             expectedData.putString(BUNDLE_KEY_REQUEST_JSON, requestJsonExpected);
-            expectedData.putString(GetPublicKeyCredentialOption
-                    .BUNDLE_KEY_CLIENT_DATA_HASH, "client_data_hash");
+            expectedData.putByteArray(GetPublicKeyCredentialOption.BUNDLE_KEY_CLIENT_DATA_HASH,
+                    clientDataHash);
 
             BeginGetPublicKeyCredentialOption option = new BeginGetPublicKeyCredentialOption(
                     expectedData, BUNDLE_ID, requestJsonExpected, clientDataHash);

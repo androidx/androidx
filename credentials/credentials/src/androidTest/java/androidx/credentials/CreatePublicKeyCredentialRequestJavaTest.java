@@ -83,7 +83,7 @@ public class CreatePublicKeyCredentialRequestJavaTest {
 
     @Test
     public void constructor_defaultProviderVariant() {
-        String clientDataHashExpected = "hash";
+        byte[] clientDataHashExpected = "hash".getBytes();
         String originExpected = "origin";
         Boolean preferImmediatelyAvailableCredentialsExpected = true;
         String defaultProviderExpected = "com.test/com.test.TestProviderComponent";
@@ -114,7 +114,7 @@ public class CreatePublicKeyCredentialRequestJavaTest {
     @Test
     public void constructor_setPreferImmediatelyAvailableCredentialsToTrue() {
         boolean preferImmediatelyAvailableCredentialsExpected = true;
-        String clientDataHash = "hash";
+        byte[] clientDataHash = "hash".getBytes();
         CreatePublicKeyCredentialRequest createPublicKeyCredentialRequest =
                 new CreatePublicKeyCredentialRequest(TEST_REQUEST_JSON,
                         clientDataHash,
@@ -140,7 +140,7 @@ public class CreatePublicKeyCredentialRequestJavaTest {
     @Test
     public void getter_frameworkProperties_success() {
         String requestJsonExpected = TEST_REQUEST_JSON;
-        String clientDataHash = "hash";
+        byte[] clientDataHash = "hash".getBytes();
         boolean preferImmediatelyAvailableCredentialsExpected = true;
         boolean autoSelectExpected = false;
         Bundle expectedCandidateQueryData = new Bundle();
@@ -150,7 +150,7 @@ public class CreatePublicKeyCredentialRequestJavaTest {
                         .BUNDLE_VALUE_SUBTYPE_CREATE_PUBLIC_KEY_CREDENTIAL_REQUEST);
         expectedCandidateQueryData.putString(
                 BUNDLE_KEY_REQUEST_JSON, requestJsonExpected);
-        expectedCandidateQueryData.putString(
+        expectedCandidateQueryData.putByteArray(
                 CreatePublicKeyCredentialRequest.BUNDLE_KEY_CLIENT_DATA_HASH,
                 clientDataHash);
         expectedCandidateQueryData.putBoolean(
@@ -192,7 +192,7 @@ public class CreatePublicKeyCredentialRequestJavaTest {
     @SdkSuppress(minSdkVersion = 28)
     @Test
     public void frameworkConversion_success() {
-        String clientDataHashExpected = "hash";
+        byte[] clientDataHashExpected = "hash".getBytes();
         String originExpected = "origin";
         Boolean preferImmediatelyAvailableCredentialsExpected = true;
         CreatePublicKeyCredentialRequest request = new CreatePublicKeyCredentialRequest(

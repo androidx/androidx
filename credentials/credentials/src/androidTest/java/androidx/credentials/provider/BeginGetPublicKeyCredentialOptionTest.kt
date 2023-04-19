@@ -57,7 +57,7 @@ class BeginGetPublicKeyCredentialOptionTest {
         }
         BeginGetPublicKeyCredentialOption(
             Bundle(), BUNDLE_ID, "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}",
-            "client_data_hash"
+            "client_data_hash".toByteArray()
         )
     }
 
@@ -66,7 +66,7 @@ class BeginGetPublicKeyCredentialOptionTest {
         if (!BuildCompat.isAtLeastU()) {
             return
         }
-        val testClientDataHashExpected = "client_data_hash"
+        val testClientDataHashExpected = "client_data_hash".toByteArray()
 
         val beginGetPublicKeyCredentialOpt = BeginGetPublicKeyCredentialOption(
             Bundle(), BUNDLE_ID, "test_json", testClientDataHashExpected
@@ -97,7 +97,7 @@ class BeginGetPublicKeyCredentialOptionTest {
             return
         }
         val requestJsonExpected = "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}"
-        val clientDataHash = "client_data_hash"
+        val clientDataHash = "client_data_hash".toByteArray()
         val expectedData = Bundle()
         expectedData.putString(
             PublicKeyCredential.BUNDLE_KEY_SUBTYPE,
@@ -105,7 +105,7 @@ class BeginGetPublicKeyCredentialOptionTest {
         expectedData.putString(
             GetPublicKeyCredentialOption.BUNDLE_KEY_REQUEST_JSON,
             requestJsonExpected)
-        expectedData.putString(
+        expectedData.putByteArray(
             GetPublicKeyCredentialOption.BUNDLE_KEY_CLIENT_DATA_HASH,
             clientDataHash)
 

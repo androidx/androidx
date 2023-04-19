@@ -61,7 +61,7 @@ class GetPublicKeyCredentialOptionTest {
             ComponentName("pkg", "cls"),
             ComponentName("pkg2", "cls2")
         )
-        val clientDataHash = "hash"
+        val clientDataHash = "hash".toByteArray()
         val expectedData = Bundle()
         expectedData.putString(
             PublicKeyCredential.BUNDLE_KEY_SUBTYPE,
@@ -71,7 +71,7 @@ class GetPublicKeyCredentialOptionTest {
             GetPublicKeyCredentialOption.BUNDLE_KEY_REQUEST_JSON,
             requestJsonExpected
         )
-        expectedData.putString(GetPublicKeyCredentialOption.BUNDLE_KEY_CLIENT_DATA_HASH,
+        expectedData.putByteArray(GetPublicKeyCredentialOption.BUNDLE_KEY_CLIENT_DATA_HASH,
             clientDataHash)
         expectedData.putBoolean(
             CredentialOption.BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED,
@@ -92,7 +92,7 @@ class GetPublicKeyCredentialOptionTest {
 
     @Test
     fun frameworkConversion_success() {
-        val clientDataHash = "hash"
+        val clientDataHash = "hash".toByteArray()
         val expectedAllowedProviders: Set<ComponentName> = setOf(
             ComponentName("pkg", "cls"),
             ComponentName("pkg2", "cls2")

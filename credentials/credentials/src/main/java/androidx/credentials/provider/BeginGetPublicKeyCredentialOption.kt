@@ -28,7 +28,12 @@ import androidx.credentials.internal.FrameworkClassParsingException
  * shown [here](https://w3c.github.io/webauthn/#dictdef-publickeycredentialrequestoptionsjson)
  * @property clientDataHash a hash that is used to verify the relying party identity, set only if
  * [android.service.credentials.CallingAppInfo.getOrigin] is set
- *
+ * @param requestJson the request in JSON format in the standard webauthn web json
+ * shown [here](https://w3c.github.io/webauthn/#dictdef-publickeycredentialrequestoptionsjson)
+ * @param clientDataHash a hash that is used to verify the relying party identity, set only if
+ * [android.service.credentials.CallingAppInfo.getOrigin] is set
+ * @param id the id of this request option
+ * @param candidateQueryData the request data in the [Bundle] format
  * @throws NullPointerException If [requestJson] is null
  * @throws IllegalArgumentException If [requestJson] is empty
  *
@@ -39,7 +44,7 @@ class BeginGetPublicKeyCredentialOption @JvmOverloads constructor(
     candidateQueryData: Bundle,
     id: String,
     val requestJson: String,
-    val clientDataHash: String? = null,
+    val clientDataHash: ByteArray? = null,
 ) : BeginGetCredentialOption(
     id,
     PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL,
@@ -58,7 +63,7 @@ class BeginGetPublicKeyCredentialOption @JvmOverloads constructor(
             try {
                 val requestJson = data.getString(GetPublicKeyCredentialOption
                     .BUNDLE_KEY_REQUEST_JSON)
-                val clientDataHash = data.getString(GetPublicKeyCredentialOption
+                val clientDataHash = data.getByteArray(GetPublicKeyCredentialOption
                     .BUNDLE_KEY_CLIENT_DATA_HASH)
                 return BeginGetPublicKeyCredentialOption(data, id, requestJson!!, clientDataHash)
             } catch (e: Exception) {
