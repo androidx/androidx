@@ -35,10 +35,13 @@ import androidx.appactions.interaction.capabilities.testing.internal.TestingUtil
 import androidx.appactions.interaction.capabilities.core.testing.spec.Arguments
 import androidx.appactions.interaction.capabilities.core.testing.spec.Output
 import androidx.appactions.interaction.capabilities.core.testing.spec.Properties
+import androidx.appactions.interaction.proto.AppActionsContext.AppAction
+import androidx.appactions.interaction.proto.AppActionsContext.IntentParameter
 import androidx.appactions.interaction.proto.FulfillmentResponse
 import androidx.appactions.interaction.proto.FulfillmentResponse.StructuredOutput
 import androidx.appactions.interaction.proto.FulfillmentResponse.StructuredOutput.OutputValue
 import androidx.appactions.interaction.proto.ParamValue
+import androidx.appactions.interaction.proto.TaskInfo
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.runBlocking
@@ -52,6 +55,62 @@ class SingleTurnCapabilityTest {
     private val hostProperties =
         HostProperties.Builder().setMaxHostSizeDp(SizeF(300f, 500f)).build()
     private val fakeSessionId = "fakeSessionId"
+
+    @Test
+    fun appAction_computedProperty() {
+        val mutableEntityList = mutableListOf<Entity>()
+        val capability = SingleTurnCapabilityImpl(
+            id = "capabilityId",
+            actionSpec = ACTION_SPEC,
+            property = Properties.newBuilder()
+                .setRequiredEntityField(
+                    Property.Builder<Entity>().setPossibleValueSupplier(
+                        mutableEntityList::toList
+                    ).build()
+                )
+                .build(),
+            capabilityExecutor =
+            CapabilityExecutor<Arguments, Output> { ExecutionResult.Builder<Output>().build() }
+        )
+        mutableEntityList.add(Entity.Builder().setName("entity1").build())
+
+        assertThat(capability.appAction).isEqualTo(
+            AppAction.newBuilder()
+                .setIdentifier("capabilityId")
+                .setName("actions.intent.TEST")
+                .addParams(
+                    IntentParameter.newBuilder()
+                        .setName("requiredEntity")
+                        .addPossibleEntities(
+                            androidx.appactions.interaction.proto.Entity.newBuilder()
+                                .setName("entity1")
+                        )
+                )
+                .setTaskInfo(TaskInfo.newBuilder().setSupportsPartialFulfillment(false))
+                .build()
+        )
+
+        mutableEntityList.add(Entity.Builder().setName("entity2").build())
+        assertThat(capability.appAction).isEqualTo(
+            AppAction.newBuilder()
+                .setIdentifier("capabilityId")
+                .setName("actions.intent.TEST")
+                .addParams(
+                    IntentParameter.newBuilder()
+                        .setName("requiredEntity")
+                        .addPossibleEntities(
+                            androidx.appactions.interaction.proto.Entity.newBuilder()
+                                .setName("entity1")
+                        )
+                        .addPossibleEntities(
+                            androidx.appactions.interaction.proto.Entity.newBuilder()
+                                .setName("entity2")
+                        )
+                )
+                .setTaskInfo(TaskInfo.newBuilder().setSupportsPartialFulfillment(false))
+                .build()
+        )
+    }
 
     @Test
     fun oneShotCapability_successWithOutput() {
@@ -263,6 +322,12 @@ class SingleTurnCapabilityTest {
                 .setDescriptor(Properties::class.java)
                 .setArguments(Arguments::class.java, Arguments::newBuilder)
                 .setOutput(Output::class.java)
+                .bindParameter(
+                    "requiredEntity",
+                    Properties::requiredEntityField,
+                    Arguments.Builder::setRequiredEntityField,
+                    TypeConverters.ENTITY_PARAM_VALUE_CONVERTER,
+                    TypeConverters.ENTITY_ENTITY_CONVERTER)
                 .bindOptionalParameter(
                     "optionalString",
                     Properties::optionalStringField,

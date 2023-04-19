@@ -103,7 +103,7 @@ class TaskCapabilityImplTest {
     private val fakeSessionId = "fakeSessionId"
 
     @Test
-    fun getAppAction_smokeTest() {
+    fun appAction_smokeTest() {
         assertThat(capability.appAction)
             .isEqualTo(
                 AppAction.newBuilder()
@@ -117,6 +117,68 @@ class TaskCapabilityImplTest {
                     )
                     .build(),
             )
+    }
+
+    @Test
+    fun appAction_computedProperty() {
+        val mutableEntityList = mutableListOf<
+            androidx.appactions.interaction.capabilities.core.properties.Entity
+        >()
+        val capability = createCapability<EmptyTaskUpdater>(
+            Properties.newBuilder()
+                .setRequiredEntityField(
+                    Property.Builder<
+                        androidx.appactions.interaction.capabilities.core.properties.Entity
+                    >().setPossibleValueSupplier(
+                        mutableEntityList::toList
+                    ).build()
+                )
+                .build(),
+            sessionFactory =
+            {
+                object : ExecutionSession {
+                    override fun onExecuteAsync(arguments: Arguments) =
+                        Futures.immediateFuture(ExecutionResult.Builder<Output>().build())
+                }
+            },
+            sessionBridge = { TaskHandler.Builder<Confirmation>().build() },
+            sessionUpdaterSupplier = ::EmptyTaskUpdater,
+        )
+        mutableEntityList.add(
+            androidx.appactions.interaction.capabilities.core.properties.Entity.Builder()
+                .setName("entity1").build()
+        )
+
+        assertThat(capability.appAction).isEqualTo(
+            AppAction.newBuilder()
+                .setIdentifier("id")
+                .setName("actions.intent.TEST")
+                .addParams(
+                    IntentParameter.newBuilder()
+                        .setName("required")
+                        .addPossibleEntities(Entity.newBuilder().setName("entity1"))
+                )
+                .setTaskInfo(TaskInfo.newBuilder().setSupportsPartialFulfillment(true))
+                .build()
+        )
+
+        mutableEntityList.add(
+            androidx.appactions.interaction.capabilities.core.properties.Entity.Builder()
+                .setName("entity2").build()
+        )
+        assertThat(capability.appAction).isEqualTo(
+            AppAction.newBuilder()
+                .setIdentifier("id")
+                .setName("actions.intent.TEST")
+                .addParams(
+                    IntentParameter.newBuilder()
+                        .setName("required")
+                        .addPossibleEntities(Entity.newBuilder().setName("entity1"))
+                        .addPossibleEntities(Entity.newBuilder().setName("entity2"))
+                )
+                .setTaskInfo(TaskInfo.newBuilder().setSupportsPartialFulfillment(true))
+                .build()
+        )
     }
 
     @Test
