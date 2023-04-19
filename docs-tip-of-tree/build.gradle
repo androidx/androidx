@@ -366,7 +366,7 @@ dependencies {
     docs(project(":window:window-rxjava2"))
     docs(project(":window:window-rxjava3"))
     stubs(project(":window:sidecar:sidecar"))
-    samples(project(":window:window-samples:"))
+    samples(project(":window:window-samples"))
     stubs(project(":window:extensions:extensions"))
     stubs(project(":window:extensions:core:core"))
     docs(project(":window:window-testing"))
