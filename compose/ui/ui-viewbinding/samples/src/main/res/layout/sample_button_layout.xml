@@ -16,17 +16,12 @@
   -->
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/fragment_layout"
+    xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content">
-    <FrameLayout
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:background="#0000FF" />
-    <FrameLayout
-        android:id="@+id/second"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:background="#000000" />
+    <Button android:id="@+id/my_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        tools:text="My Button" />
 </LinearLayout>
