@@ -19,6 +19,7 @@ package androidx.camera.camera2.pipe.compat
 import android.graphics.SurfaceTexture
 import android.os.Build
 import android.view.Surface
+import androidx.camera.camera2.pipe.CameraGraph.Flags.FinalizeSessionOnCloseBehavior
 import androidx.camera.camera2.pipe.CameraSurfaceManager
 import androidx.camera.camera2.pipe.CaptureSequenceProcessor
 import androidx.camera.camera2.pipe.Request
@@ -90,6 +91,7 @@ class CaptureSessionStateTest {
                 captureSequenceProcessorFactory,
                 cameraSurfaceManager,
                 timeSource,
+                FinalizeSessionOnCloseBehavior.OFF,
                 this
             )
         // When disconnect is called first
@@ -112,6 +114,7 @@ class CaptureSessionStateTest {
                 captureSequenceProcessorFactory,
                 cameraSurfaceManager,
                 timeSource,
+                FinalizeSessionOnCloseBehavior.OFF,
                 this
             )
 
@@ -139,6 +142,7 @@ class CaptureSessionStateTest {
                 captureSequenceProcessorFactory,
                 cameraSurfaceManager,
                 timeSource,
+                FinalizeSessionOnCloseBehavior.OFF,
                 this
             )
 
@@ -172,6 +176,7 @@ class CaptureSessionStateTest {
                 captureSequenceProcessorFactory,
                 cameraSurfaceManager,
                 timeSource,
+                FinalizeSessionOnCloseBehavior.OFF,
                 this
             )
         // When surfaces are configured
@@ -195,6 +200,7 @@ class CaptureSessionStateTest {
                 captureSequenceProcessorFactory,
                 cameraSurfaceManager,
                 timeSource,
+                FinalizeSessionOnCloseBehavior.OFF,
                 this
             )
         // When surfaces are configured
@@ -218,6 +224,7 @@ class CaptureSessionStateTest {
                 captureSequenceProcessorFactory,
                 cameraSurfaceManager,
                 timeSource,
+                FinalizeSessionOnCloseBehavior.OFF,
                 this
             )
         // When surfaces are configured

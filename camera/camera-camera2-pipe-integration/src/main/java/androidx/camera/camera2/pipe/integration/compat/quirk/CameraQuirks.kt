@@ -95,6 +95,9 @@ class CameraQuirks @Inject constructor(
         if (CaptureSessionStuckQuirk.isEnabled()) {
             quirks.add(CaptureSessionStuckQuirk())
         }
+        if (FinalizeSessionOnCloseQuirk.isEnabled()) {
+            quirks.add(FinalizeSessionOnCloseQuirk())
+        }
 
         Quirks(quirks)
     }

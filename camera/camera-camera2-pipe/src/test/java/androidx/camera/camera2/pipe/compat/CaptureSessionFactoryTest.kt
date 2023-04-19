@@ -128,6 +128,7 @@ internal class CaptureSessionFactoryTest {
                     },
                     CameraSurfaceManager(),
                     SystemTimeSource(),
+                    CameraGraph.Flags.FinalizeSessionOnCloseBehavior.OFF,
                     this
                 )
             )

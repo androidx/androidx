@@ -138,6 +138,9 @@ class UseCaseCameraConfig(
         }
 
         // Build up a config (using TEMPLATE_PREVIEW by default)
+        // TODO(b/277310425): Turn off CameraGraph.Flags.quirkFinalizeSessionOnCloseBehavior when
+        //  it's not needed. This should be needed only when all use cases are detached (with
+        //  VideoCapture) on devices where Surfaces cannot be released immediately.
         val graph = cameraPipe.create(
             CameraGraph.Config(
                 camera = cameraConfig.cameraId,
