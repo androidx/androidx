@@ -140,7 +140,7 @@ class CreatePasswordRequest private constructor(
 
         @JvmStatic
         @RequiresApi(23)
-        internal fun createFrom(data: Bundle, origin: String? = null): CreatePasswordRequest {
+        internal fun createFrom(data: Bundle, origin: String?): CreatePasswordRequest {
             try {
                 val id = data.getString(BUNDLE_KEY_ID)
                 val password = data.getString(BUNDLE_KEY_PASSWORD)
