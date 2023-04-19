@@ -20,20 +20,6 @@
     </issue>
 
     <issue
-        id="NullabilityAnnotationsDetector"
-        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`">
-        <location
-            file="../../../../../out/androidx/room/room-runtime/build/.transforms/2f53cf4f0bef2712be339765c28ea880/transformed/out/jars/classes.jar!/androidx/room/InvalidationTracker.class"/>
-    </issue>
-
-    <issue
-        id="NullabilityAnnotationsDetector"
-        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`">
-        <location
-            file="../../../../../out/androidx/room/room-runtime/build/.transforms/2f53cf4f0bef2712be339765c28ea880/transformed/out/jars/classes.jar!/androidx/room/InvalidationTracker.class"/>
-    </issue>
-
-    <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public String getName() {"
