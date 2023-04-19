@@ -19,11 +19,11 @@ package androidx.paging
 import com.google.common.truth.Truth.assertWithMessage
 import java.lang.ref.ReferenceQueue
 import java.lang.ref.WeakReference
-import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.concurrent.thread
 import kotlin.random.Random
 import kotlin.reflect.KClass
 import kotlin.time.Duration.Companion.seconds
+import kotlinx.atomicfu.atomic
 
 internal class GarbageCollectionTestHelper {
     private val queue = ReferenceQueue<Any>()
@@ -38,14 +38,14 @@ internal class GarbageCollectionTestHelper {
     fun assertLiveObjects(
         vararg expected: Pair<KClass<*>, Int>
     ) {
-        val continueTriggeringGc = AtomicBoolean(true)
+        var continueTriggeringGc by atomic(true)
         thread {
             val leak: ArrayList<ByteArray> = ArrayList()
             do {
                 val arraySize = Random.nextInt(1000)
                 leak.add(ByteArray(arraySize))
                 System.gc()
-            } while (continueTriggeringGc.get())
+            } while (continueTriggeringGc)
         }
         var collectedItemCount = 0
         val expectedItemCount = size - expected.sumOf { it.second }
@@ -54,7 +54,7 @@ internal class GarbageCollectionTestHelper {
         ) {
             collectedItemCount++
         }
-        continueTriggeringGc.set(false)
+        continueTriggeringGc = false
         val leakedObjects = countLiveObjects()
         val leakedObjectToStrings = references.mapNotNull {
             it.get()

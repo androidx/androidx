@@ -22,6 +22,7 @@ import androidx.annotation.RestrictTo
 import androidx.paging.CombineSource.INITIAL
 import androidx.paging.CombineSource.OTHER
 import androidx.paging.CombineSource.RECEIVER
+import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.SendChannel
@@ -35,7 +36,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.yield
-import java.util.concurrent.atomic.AtomicInteger
 
 /**
  * This File includes custom flow operators that we implement to avoid using experimental APIs
@@ -137,7 +137,7 @@ internal suspend inline fun <T1, T2, R> Flow<T1>.combineWithoutBatching(
     crossinline transform: suspend (T1, T2, updateFrom: CombineSource) -> R,
 ): Flow<R> {
     return simpleChannelFlow {
-        val incompleteFlows = AtomicInteger(2)
+        val incompleteFlows = atomic(2)
         val unbatchedFlowCombiner = UnbatchedFlowCombiner<T1, T2> { t1, t2, updateFrom ->
             send(transform(t1, t2, updateFrom))
         }

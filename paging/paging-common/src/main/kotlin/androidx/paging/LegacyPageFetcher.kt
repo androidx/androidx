@@ -19,10 +19,10 @@ package androidx.paging
 import androidx.paging.LoadState.Loading
 import androidx.paging.LoadState.NotLoading
 import androidx.paging.PagingSource.LoadParams
+import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import java.util.concurrent.atomic.AtomicBoolean
 
 internal class LegacyPageFetcher<K : Any, V : Any>(
     private val pagedListScope: CoroutineScope,
@@ -34,7 +34,7 @@ internal class LegacyPageFetcher<K : Any, V : Any>(
     val pageConsumer: PageConsumer<V>,
     private val keyProvider: KeyProvider<K>
 ) {
-    private val detached = AtomicBoolean(false)
+    private var detached by atomic(false)
 
     @Suppress("DEPRECATION")
     var loadStateManager = object : PagedList.LoadStateManager() {
@@ -43,9 +43,6 @@ internal class LegacyPageFetcher<K : Any, V : Any>(
             pageConsumer.onStateChanged(type, state)
         }
     }
-
-    val isDetached
-        get() = detached.get()
 
     private fun scheduleLoad(type: LoadType, params: LoadParams<K>) {
         // Listen on the BG thread if the paged source is invalid, since it can be expensive.
@@ -68,6 +65,9 @@ internal class LegacyPageFetcher<K : Any, V : Any>(
             }
         }
     }
+
+    val isDetached
+        get() = detached
 
     private fun onLoadSuccess(type: LoadType, value: PagingSource.LoadResult.Page<K, V>) {
         if (isDetached) return // abort!
@@ -154,7 +154,9 @@ internal class LegacyPageFetcher<K : Any, V : Any>(
         }
     }
 
-    fun detach() = detached.set(true)
+    fun detach() {
+        detached = true
+    }
 
     internal interface PageConsumer<V : Any> {
         /**

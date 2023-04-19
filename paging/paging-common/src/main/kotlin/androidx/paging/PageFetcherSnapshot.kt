@@ -31,7 +31,7 @@ import androidx.paging.PagingSource.LoadParams
 import androidx.paging.PagingSource.LoadResult
 import androidx.paging.PagingSource.LoadResult.Page
 import androidx.paging.PagingSource.LoadResult.Page.Companion.COUNT_UNDEFINED
-import java.util.concurrent.atomic.AtomicBoolean
+import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
@@ -71,7 +71,7 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
 
     private val hintHandler = HintHandler()
 
-    private val pageEventChCollected = AtomicBoolean(false)
+    private val pageEventChCollected = atomic(false)
     private val pageEventCh = Channel<PageEvent<Value>>(BUFFERED)
     private val stateHolder = PageFetcherSnapshotState.Holder<Key, Value>(config = config)
 

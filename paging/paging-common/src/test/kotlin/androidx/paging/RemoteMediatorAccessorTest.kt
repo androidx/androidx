@@ -38,9 +38,9 @@ import kotlinx.coroutines.test.runCurrent
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.test.assertEquals
 import kotlin.test.fail
+import kotlinx.atomicfu.atomic
 
 @OptIn(ExperimentalCoroutinesApi::class, ExperimentalPagingApi::class)
 @RunWith(JUnit4::class)
@@ -493,7 +493,7 @@ class RemoteMediatorAccessorTest {
     fun load_concurrentInitializeJobCancelsBoundaryJobs() = testScope.runTest {
         val emptyState = PagingState<Int, Int>(listOf(), null, PagingConfig(10), COUNT_UNDEFINED)
         val remoteMediator = object : RemoteMediatorMock(loadDelay = 1000) {
-            var loading = AtomicBoolean(false)
+            var loading = atomic(false)
             override suspend fun load(
                 loadType: LoadType,
                 state: PagingState<Int, Int>
@@ -503,7 +503,7 @@ class RemoteMediatorAccessorTest {
                 return try {
                     super.load(loadType, state)
                 } finally {
-                    loading.set(false)
+                    loading.value = false
                 }
             }
         }
@@ -576,7 +576,7 @@ class RemoteMediatorAccessorTest {
     fun load_concurrentBoundaryJobsRunsSerially() = testScope.runTest {
         val emptyState = PagingState<Int, Int>(listOf(), null, PagingConfig(10), COUNT_UNDEFINED)
         val remoteMediator = object : RemoteMediatorMock(loadDelay = 1000) {
-            var loading = AtomicBoolean(false)
+            var loading = atomic(false)
             override suspend fun load(
                 loadType: LoadType,
                 state: PagingState<Int, Int>
@@ -586,7 +586,7 @@ class RemoteMediatorAccessorTest {
                 return try {
                     super.load(loadType, state)
                 } finally {
-                    loading.set(false)
+                    loading.value = false
                 }
             }
         }

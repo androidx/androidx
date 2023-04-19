@@ -40,7 +40,7 @@ import kotlinx.coroutines.yield
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import java.util.concurrent.atomic.AtomicInteger
+import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runCurrent
@@ -596,8 +596,8 @@ class CachingTest {
 
     private class ActiveFlowTrackerImpl : ActiveFlowTracker {
         private val counters = mapOf(
-            PAGED_DATA_FLOW to AtomicInteger(0),
-            PAGE_EVENT_FLOW to AtomicInteger(0)
+            PAGED_DATA_FLOW to atomic(0),
+            PAGE_EVENT_FLOW to atomic(0)
         )
 
         override fun onNewCachedEventFlow(cachedPageEventFlow: CachedPageEventFlow<*>) {
@@ -611,8 +611,8 @@ class CachingTest {
             (counters[flowType] ?: error("invalid type $flowType")).decrementAndGet()
         }
 
-        fun pageDataFlowCount() = (counters[PAGED_DATA_FLOW] ?: error("unexpected")).get()
-        fun pageEventFlowCount() = (counters[PAGE_EVENT_FLOW] ?: error("unexpected")).get()
+        fun pageDataFlowCount() = (counters[PAGED_DATA_FLOW] ?: error("unexpected")).value
+        fun pageEventFlowCount() = (counters[PAGE_EVENT_FLOW] ?: error("unexpected")).value
     }
 
     private class AbortCollectionException : Throwable()
