@@ -2,6 +2,69 @@
 <issues format="6" by="lint 7.4.0-alpha08" type="baseline" client="gradle" dependencies="false" name="AGP (7.4.0-alpha08)" variant="all" version="7.4.0-alpha08">
 
     <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="oneway interface ICarAppActivity {"
+        errorLine2="^">
+        <location
+            file="src/main/aidl/androidx/car/app/activity/renderer/ICarAppActivity.aidl"/>
+    </issue>
+
+    <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="interface IInsetsListener {"
+        errorLine2="^">
+        <location
+            file="src/main/aidl/androidx/car/app/activity/renderer/IInsetsListener.aidl"/>
+    </issue>
+
+    <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="interface IProxyInputConnection {"
+        errorLine2="^">
+        <location
+            file="src/main/aidl/androidx/car/app/activity/renderer/IProxyInputConnection.aidl"/>
+    </issue>
+
+    <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="interface IRendererCallback {"
+        errorLine2="^">
+        <location
+            file="src/main/aidl/androidx/car/app/activity/renderer/IRendererCallback.aidl"/>
+    </issue>
+
+    <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="interface IRendererService {"
+        errorLine2="^">
+        <location
+            file="src/main/aidl/androidx/car/app/activity/renderer/IRendererService.aidl"/>
+    </issue>
+
+    <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="oneway interface ISurfaceControl {"
+        errorLine2="^">
+        <location
+            file="src/main/aidl/androidx/car/app/activity/renderer/surface/ISurfaceControl.aidl"/>
+    </issue>
+
+    <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="oneway interface ISurfaceListener {"
+        errorLine2="^">
+        <location
+            file="src/main/aidl/androidx/car/app/activity/renderer/surface/ISurfaceListener.aidl"/>
+    </issue>
+
+    <issue
         id="UnsafeOptInUsageError"
         message="This declaration is opt-in and its usage should be marked with `@androidx.car.app.annotations.ExperimentalCarApi` or `@OptIn(markerClass = androidx.car.app.annotations.ExperimentalCarApi.class)`"
         errorLine1="                        Collections.singleton(CarZone.CAR_ZONE_GLOBAL)))"

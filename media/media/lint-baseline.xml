@@ -2,6 +2,24 @@
 <issues format="6" by="lint 8.0.0-beta03" type="baseline" client="gradle" dependencies="false" name="AGP (8.0.0-beta03)" variant="all" version="8.0.0-beta03">
 
     <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with @RequiresOptIn marker"
+        errorLine1="oneway interface IMediaControllerCallback {"
+        errorLine2="^">
+        <location
+            file="src/main/aidl/android/support/v4/media/session/IMediaControllerCallback.aidl"/>
+    </issue>
+
+    <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with @RequiresOptIn marker"
+        errorLine1="interface IMediaSession {"
+        errorLine2="^">
+        <location
+            file="src/main/aidl/android/support/v4/media/session/IMediaSession.aidl"/>
+    </issue>
+
+    <issue
         id="LambdaLast"
         message="Functional interface parameters (such as parameter 1, &quot;listener&quot;, in androidx.media.AudioFocusRequestCompat.Builder.setOnAudioFocusChangeListener) should be last to improve Kotlin interoperability; see https://kotlinlang.org/docs/reference/java-interop.html#sam-conversions"
         errorLine1="                @NonNull OnAudioFocusChangeListener listener, @NonNull Handler handler) {"

@@ -20,6 +20,7 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("kotlin-android")
+    id("androidx.stableaidl")
 }
 
 dependencies {
@@ -48,6 +49,11 @@ android {
 
     buildFeatures {
         aidl = true
+    }
+    buildTypes.all {
+        stableAidl {
+            version 1
+        }
     }
     namespace "androidx.wear.phone.interactions"
 }

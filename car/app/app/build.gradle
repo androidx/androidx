@@ -41,6 +41,7 @@ buildscript {
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
+    id("androidx.stableaidl")
 }
 
 dependencies {
@@ -87,6 +88,11 @@ android {
 
         resValue "string", "car_app_library_version", androidx.LibraryVersions.CAR_APP.toString()
         consumerProguardFiles "proguard-rules.pro"
+    }
+    buildTypes.all {
+        stableAidl {
+            version 1
+        }
     }
 
     testOptions.unitTests.includeAndroidResources = true

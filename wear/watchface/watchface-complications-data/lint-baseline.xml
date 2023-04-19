@@ -226,4 +226,40 @@
             file="src/main/java/androidx/wear/watchface/complications/data/Type.kt"/>
     </issue>
 
+    <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="interface IComplicationManager {"
+        errorLine2="^">
+        <location
+            file="src/main/aidl/android/support/wearable/complications/IComplicationManager.aidl"/>
+    </issue>
+
+    <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="interface IComplicationProvider {"
+        errorLine2="^">
+        <location
+            file="src/main/aidl/android/support/wearable/complications/IComplicationProvider.aidl"/>
+    </issue>
+
+    <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="oneway interface IPreviewComplicationDataCallback {"
+        errorLine2="^">
+        <location
+            file="src/main/aidl/android/support/wearable/complications/IPreviewComplicationDataCallback.aidl"/>
+    </issue>
+
+    <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="interface IProviderInfoService {"
+        errorLine2="^">
+        <location
+            file="src/main/aidl/android/support/wearable/complications/IProviderInfoService.aidl"/>
+    </issue>
+
 </issues>

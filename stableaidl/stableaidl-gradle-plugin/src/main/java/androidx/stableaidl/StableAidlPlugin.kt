@@ -19,11 +19,13 @@ package androidx.stableaidl
 import com.android.build.api.dsl.SdkComponents
 import com.android.build.api.variant.AndroidComponentsExtension
 import com.android.build.api.variant.DslExtension
+import com.android.build.api.variant.Variant
 import com.android.build.gradle.BaseExtension
 import com.android.utils.usLocaleCapitalize
 import org.gradle.api.GradleException
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.file.FileCollection
 import org.gradle.api.file.RegularFile
 import org.gradle.api.provider.Provider
 
@@ -74,6 +76,7 @@ abstract class StableAidlPlugin : Plugin<Project> {
         androidComponents.onVariants { variant ->
             val sourceDir = variant.sources.getByName(SOURCE_TYPE_STABLE_AIDL)
             val importsDir = variant.sources.getByName(SOURCE_TYPE_STABLE_AIDL_IMPORTS)
+            val depImports = project.getAidlArtifactsOnCompileClasspath(variant)
             val outputDir = project.layout.buildDirectory.dir(
                 "$GENERATED_PATH/${variant.name}")
             val packagedDir = project.layout.buildDirectory.dir(
@@ -94,6 +97,7 @@ abstract class StableAidlPlugin : Plugin<Project> {
                 sourceDir,
                 packagedDir,
                 importsDir,
+                depImports,
                 outputDir
             )
 
@@ -112,6 +116,7 @@ abstract class StableAidlPlugin : Plugin<Project> {
                 aidlFramework,
                 sourceDir,
                 importsDir,
+                depImports,
                 builtApiDir,
                 compileAidlApiTask
             )
@@ -121,6 +126,7 @@ abstract class StableAidlPlugin : Plugin<Project> {
                 aidlExecutable,
                 aidlFramework,
                 importsDir,
+                depImports,
                 lastReleasedApiDir,
                 generateAidlApiTask
             )
@@ -130,6 +136,7 @@ abstract class StableAidlPlugin : Plugin<Project> {
                 aidlExecutable,
                 aidlFramework,
                 importsDir,
+                depImports,
                 lastCheckedInApiDir,
                 generateAidlApiTask,
                 checkAidlApiReleaseTask
@@ -188,3 +195,17 @@ internal fun SdkComponents.aidlFramework(baseExtension: BaseExtension): Provider
             .dir(baseExtension.compileSdkVersion!!)
             .file("framework.aidl")
     }
+
+/**
+ * Returns the AIDL import directories for the given variant of the project.
+ */
+internal fun Project.getAidlArtifactsOnCompileClasspath(variant: Variant): List<FileCollection> {
+    val incoming = project.configurations.findByName("${variant.name}CompileClasspath")?.incoming
+    val aidlFiles = incoming?.artifactView { config ->
+            config.attributes(ArtifactType.AIDL)
+        }?.artifacts?.artifactFiles
+    val stableAidlFiles = incoming?.artifactView { config ->
+            config.attributes(ArtifactType.STABLE_AIDL)
+        }?.artifacts?.artifactFiles
+    return listOfNotNull(aidlFiles, stableAidlFiles)
+}

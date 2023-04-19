@@ -3,6 +3,7 @@ import androidx.build.Publish
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
+    id("androidx.stableaidl")
 }
 
 android {
@@ -11,6 +12,11 @@ android {
     }
     buildFeatures {
         aidl = true
+    }
+    buildTypes.all {
+        stableAidl {
+            version 1
+        }
     }
     testOptions.unitTests.includeAndroidResources = true
     namespace "androidx.browser"

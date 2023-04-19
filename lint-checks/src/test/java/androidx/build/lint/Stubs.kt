@@ -18,6 +18,7 @@
 
 package androidx.build.lint
 
+import com.android.tools.lint.checks.infrastructure.LintDetectorTest
 import com.android.tools.lint.checks.infrastructure.TestFile
 import com.android.tools.lint.checks.infrastructure.TestFiles
 
@@ -308,6 +309,60 @@ package kotlin.jvm
 @Target(AnnotationTarget.CLASS)
 annotation class JvmDefaultWithCompatibility
             """.trimIndent()
+        )
+
+        /**
+         * [TestFile] containing OptIn.kt from the AndroidX experimental annotation library.
+         */
+        val JetpackOptIn: TestFile = LintDetectorTest.kotlin(
+            """
+package androidx.annotation
+
+import kotlin.annotation.Retention
+import kotlin.annotation.Target
+import kotlin.reflect.KClass
+
+@Retention(AnnotationRetention.BINARY)
+@Target(
+    AnnotationTarget.CLASS,
+    AnnotationTarget.PROPERTY,
+    AnnotationTarget.LOCAL_VARIABLE,
+    AnnotationTarget.VALUE_PARAMETER,
+    AnnotationTarget.CONSTRUCTOR,
+    AnnotationTarget.FUNCTION,
+    AnnotationTarget.PROPERTY_GETTER,
+    AnnotationTarget.PROPERTY_SETTER,
+    AnnotationTarget.FILE,
+    AnnotationTarget.TYPEALIAS
+)
+annotation class OptIn(
+    @get:Suppress("ArrayReturn")
+    vararg val markerClass: KClass<out Annotation>
+)
+    """.trimIndent()
+        )
+
+        /**
+         * [TestFile] containing RequiresOptIn.kt from the AndroidX experimental annotation library.
+         */
+        val JetpackRequiresOptIn: TestFile = LintDetectorTest.kotlin(
+            """
+package androidx.annotation
+
+import kotlin.annotation.Retention
+import kotlin.annotation.Target
+
+@Retention(AnnotationRetention.BINARY)
+@Target(AnnotationTarget.ANNOTATION_CLASS)
+annotation class RequiresOptIn(
+    val level: Level = Level.ERROR
+) {
+    enum class Level {
+        WARNING,
+        ERROR
+    }
+}
+    """.trimIndent()
         )
         /* ktlint-enable max-line-length */
     }
