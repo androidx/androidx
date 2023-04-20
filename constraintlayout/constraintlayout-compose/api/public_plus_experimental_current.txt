@@ -23,12 +23,12 @@ package androidx.constraintlayout.compose {
   }
 
   @androidx.constraintlayout.compose.ExperimentalMotionApi public abstract class BaseKeyFrameScope {
-    method protected final <E extends androidx.constraintlayout.compose.NamedPropertyOrValue> kotlin.properties.ObservableProperty<E> addNameOnPropertyChange(E? initialValue, optional String? nameOverride);
-    method protected final <T> kotlin.properties.ObservableProperty<T> addOnPropertyChange(T? initialValue, optional String? nameOverride);
+    method protected final <E extends androidx.constraintlayout.compose.NamedPropertyOrValue> kotlin.properties.ObservableProperty<E> addNameOnPropertyChange(E initialValue, optional String? nameOverride);
+    method protected final <T> kotlin.properties.ObservableProperty<T> addOnPropertyChange(T initialValue, optional String? nameOverride);
   }
 
   @androidx.constraintlayout.compose.ExperimentalMotionApi public class BaseKeyFramesScope {
-    method protected final <E extends androidx.constraintlayout.compose.NamedPropertyOrValue> kotlin.properties.ObservableProperty<E> addNameOnPropertyChange(E? initialValue, optional String? nameOverride);
+    method protected final <E extends androidx.constraintlayout.compose.NamedPropertyOrValue> kotlin.properties.ObservableProperty<E> addNameOnPropertyChange(E initialValue, optional String? nameOverride);
     method public final androidx.constraintlayout.compose.Easing getEasing();
     method protected final androidx.constraintlayout.core.parser.CLArray getFramesContainer();
     method public final void setEasing(androidx.constraintlayout.compose.Easing);

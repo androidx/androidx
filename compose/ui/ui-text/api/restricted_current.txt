@@ -52,19 +52,19 @@ package androidx.compose.ui.text {
   }
 
   @androidx.compose.runtime.Immutable public static final class AnnotatedString.Range<T> {
-    ctor public AnnotatedString.Range(T? item, int start, int end, String tag);
-    ctor public AnnotatedString.Range(T? item, int start, int end);
-    method public T! component1();
+    ctor public AnnotatedString.Range(T item, int start, int end, String tag);
+    ctor public AnnotatedString.Range(T item, int start, int end);
+    method public T component1();
     method public int component2();
     method public int component3();
     method public String component4();
     method public androidx.compose.ui.text.AnnotatedString.Range<T> copy(T! item, int start, int end, String tag);
     method public int getEnd();
-    method public T! getItem();
+    method public T getItem();
     method public int getStart();
     method public String getTag();
     property public final int end;
-    property public final T! item;
+    property public final T item;
     property public final int start;
     property public final String tag;
   }

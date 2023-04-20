@@ -398,10 +398,10 @@ package androidx.navigation {
     method public abstract operator T? get(android.os.Bundle bundle, String key);
     method public String getName();
     method public boolean isNullableAllowed();
-    method public abstract T! parseValue(String value);
-    method public T! parseValue(String value, T? previousValue);
-    method public abstract void put(android.os.Bundle bundle, String key, T? value);
-    method public String serializeAsValue(T? value);
+    method public abstract T parseValue(String value);
+    method public T parseValue(String value, T previousValue);
+    method public abstract void put(android.os.Bundle bundle, String key, T value);
+    method public String serializeAsValue(T value);
     property public boolean isNullableAllowed;
     property public String name;
     field public static final androidx.navigation.NavType<boolean[]> BoolArrayType;
@@ -438,8 +438,8 @@ package androidx.navigation {
   public static final class NavType.ParcelableType<D> extends androidx.navigation.NavType<D> {
     ctor public NavType.ParcelableType(Class<D> type);
     method public D? get(android.os.Bundle bundle, String key);
-    method public D! parseValue(String value);
-    method public void put(android.os.Bundle bundle, String key, D? value);
+    method public D parseValue(String value);
+    method public void put(android.os.Bundle bundle, String key, D value);
     property public String name;
   }
 

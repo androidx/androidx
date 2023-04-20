@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+InvalidNullConversion: androidx.compose.runtime.livedata.LiveDataAdapterKt#observeAsState(androidx.lifecycle.LiveData<T>, R) parameter #1:
+    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter initial in androidx.compose.runtime.livedata.LiveDataAdapterKt.observeAsState(androidx.lifecycle.LiveData<T> arg1, R initial)

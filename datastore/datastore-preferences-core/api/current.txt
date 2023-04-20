@@ -10,8 +10,8 @@ package androidx.datastore.preferences.core {
     method public operator void plusAssign(androidx.datastore.preferences.core.Preferences prefs);
     method public operator void plusAssign(androidx.datastore.preferences.core.Preferences.Pair<?> pair);
     method public void putAll(androidx.datastore.preferences.core.Preferences.Pair<?>... pairs);
-    method public <T> T! remove(androidx.datastore.preferences.core.Preferences.Key<T> key);
-    method public operator <T> void set(androidx.datastore.preferences.core.Preferences.Key<T> key, T? value);
+    method public <T> T remove(androidx.datastore.preferences.core.Preferences.Key<T> key);
+    method public operator <T> void set(androidx.datastore.preferences.core.Preferences.Key<T> key, T value);
   }
 
   public final class PreferenceDataStoreFactory {
@@ -34,7 +34,7 @@ package androidx.datastore.preferences.core {
 
   public static final class Preferences.Key<T> {
     method public String getName();
-    method public infix androidx.datastore.preferences.core.Preferences.Pair<T> to(T? value);
+    method public infix androidx.datastore.preferences.core.Preferences.Pair<T> to(T value);
     property public final String name;
   }
 

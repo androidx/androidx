@@ -1,0 +1,5 @@
+// Baseline format: 1.0
+InvalidNullConversion: androidx.lifecycle.SavedStateHandle#getLiveData(String, T) parameter #1:
+    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter initialValue in androidx.lifecycle.SavedStateHandle.getLiveData(String key, T initialValue)
+InvalidNullConversion: androidx.lifecycle.SavedStateHandle#getStateFlow(String, T) parameter #1:
+    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter initialValue in androidx.lifecycle.SavedStateHandle.getStateFlow(String key, T initialValue)
