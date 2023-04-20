@@ -21,7 +21,6 @@ import android.os.Environment
 import android.os.ParcelFileDescriptor
 import android.util.Log
 import androidx.concurrent.futures.DirectExecutor
-import androidx.core.os.BuildCompat
 import androidx.profileinstaller.DeviceProfileWriter
 import androidx.profileinstaller.ProfileInstaller
 import androidx.test.platform.app.InstrumentationRegistry
@@ -74,24 +73,6 @@ class WithPackageBlock internal constructor(private val packageName: String) {
 
         try {
 
-            // First writes in a temp file the apk from the assets
-            val tmpApkFile = File(dirUsableByAppAndShell, "tmp_$apkName").also { file ->
-                file.delete()
-                file.createNewFile()
-                file.deleteOnExit()
-                file.outputStream().use { instrumentation.context.assets.open(apkName).copyTo(it) }
-            }
-            cleanUpBlocks.add { tmpApkFile.delete() }
-
-            // Then moves it to a destination that can be used to install it
-            val destApkPath = "$TEMP_DIR/$apkName"
-            assertThat(executeCommand("mv ${tmpApkFile.absolutePath} $destApkPath")).isEmpty()
-            cleanUpBlocks.add { executeCommand("rm $destApkPath") }
-
-            // This mimes the behaviour of `adb install-multiple` using an install session.
-            // For reference:
-            // https://source.corp.google.com/android-internal/packages/modules/adb/client/adb_install.cpp
-
             // Creates an install session
             val installCreateOutput = executeCommand("pm install-create -t").first().trim()
             val sessionId = REGEX_SESSION_ID
@@ -102,9 +83,32 @@ class WithPackageBlock internal constructor(private val packageName: String) {
                 .value
                 .toLong()
 
+            // Creates tmp dir for this session
+            val baseTmpFolder = "$TEMP_DIR/$sessionId"
+            assertThat(executeCommand("mkdir -p $baseTmpFolder")).isEmpty()
+            cleanUpBlocks.add { executeCommand("rm -Rf $baseTmpFolder") }
+
+            // First writes in a temp file the apk from the assets
+            val tmpApkFile = File(dirUsableByAppAndShell, "tmp_$apkName").also { file ->
+                file.delete()
+                file.createNewFile()
+                file.deleteOnExit()
+                file.outputStream().use { instrumentation.context.assets.open(apkName).copyTo(it) }
+            }
+            cleanUpBlocks.add { tmpApkFile.delete() }
+
+            // Then moves it to a destination that can be used to install it
+            val destApkPath = "$baseTmpFolder/base.apk"
+            assertThat(executeCommand("mv ${tmpApkFile.absolutePath} $destApkPath")).isEmpty()
+            cleanUpBlocks.add { executeCommand("rm $destApkPath") }
+
+            // This mimes the behaviour of `adb install-multiple` using an install session.
+            // For reference:
+            // https://source.corp.google.com/android-internal/packages/modules/adb/client/adb_install.cpp
+
             // Adds the base apk to the install session
             val successBaseApk =
-                executeCommand("pm install-write $sessionId base.apk $TEMP_DIR/$apkName")
+                executeCommand("pm install-write $sessionId base.apk $destApkPath")
                     .first()
                     .trim()
                     .startsWith("Success")
@@ -129,8 +133,8 @@ class WithPackageBlock internal constructor(private val packageName: String) {
                     DirectExecutor.INSTANCE,
                     EMPTY_DIAGNOSTICS,
                     apkName,
-                    BASELINE_PROF,
-                    BASELINE_PROFM,
+                    "${apkName}_$BASELINE_PROF",
+                    "${apkName}_$BASELINE_PROFM",
                     tmpProfileProfFile
                 )
                 if (!deviceProfileWriter.deviceAllowsProfileInstallerAotWrites()) {
@@ -165,7 +169,7 @@ class WithPackageBlock internal constructor(private val packageName: String) {
                 cleanUpBlocks.add { tmpDmFile.delete() }
 
                 // Then moves it to a destination that can be used to install it
-                val dmFilePath = "$TEMP_DIR/$DM_FILE_NAME"
+                val dmFilePath = "$baseTmpFolder/$DM_FILE_NAME"
                 executeCommand("mv ${tmpDmFile.absolutePath} $dmFilePath")
                 cleanUpBlocks.add { executeCommand("rm $dmFilePath") }
 
@@ -196,7 +200,7 @@ class WithPackageBlock internal constructor(private val packageName: String) {
 
             // Runs all the clean up blocks. This will clean up also partial operations in case
             // there is an issue during install
-            cleanUpBlocks.forEach { it() }
+            cleanUpBlocks.reversed().forEach { it() }
         }
     }
 
@@ -260,7 +264,7 @@ class WithPackageBlock internal constructor(private val packageName: String) {
 
     companion object {
         private const val TAG = "TestManager"
-        private const val TEMP_DIR = "/data/local/tmp/"
+        private const val TEMP_DIR = "/data/local/tmp"
         private const val UI_TIMEOUT = 20000L
         private const val BASELINE_PROF = "baseline.prof"
         private const val BASELINE_PROFM = "baseline.profm"
@@ -284,6 +288,10 @@ class WithPackageBlock internal constructor(private val packageName: String) {
                 .that(lines[2].toBoolean())
                 .isEqualTo(value)
     }
+
+    val isCuttlefish by lazy {
+        executeCommand("getprop ro.product.product.model").any { "cuttlefish" in it.lowercase() }
+    }
 }
 
 private val EMPTY_DIAGNOSTICS: ProfileInstaller.DiagnosticsCallback =
@@ -301,7 +309,8 @@ private val EMPTY_DIAGNOSTICS: ProfileInstaller.DiagnosticsCallback =
 private fun <T> T?.throwIfNull(message: String): T = this ?: throw Exception(message)
 
 val isApi30 by lazy { Build.VERSION.SDK_INT == Build.VERSION_CODES.R }
-val isApi34 by lazy { BuildCompat.isAtLeastU() }
+val isApi28 by lazy { Build.VERSION.SDK_INT == Build.VERSION_CODES.P }
+val isApi29 by lazy { Build.VERSION.SDK_INT == Build.VERSION_CODES.Q }
 
 const val PACKAGE_NAME_WITH_INITIALIZER =
     "androidx.profileinstaller.integration.profileverification.target"
