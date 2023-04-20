@@ -21,8 +21,8 @@ import android.content.pm.PackageManager
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.test.ext.junit.rules.ActivityScenarioRule
-import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
+import org.junit.Assert.assertFalse
 import org.junit.Assume.assumeTrue
 import org.junit.Rule
 import org.junit.Test
@@ -69,7 +69,7 @@ class WindowPropertiesTest {
     }
 
     @Test
-    fun test_property_compat_ignore_orientation_request_when_loop_detected() {
+    fun test_property_allow_ignoring_orientation_request_when_loop_detected() {
         assumeTrue(Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
             // No-op, but to suppress lint
@@ -80,7 +80,8 @@ class WindowPropertiesTest {
             assertFalse(
                 getProperty(
                     activity,
-                    WindowProperties.PROPERTY_COMPAT_IGNORE_ORIENTATION_REQUEST_WHEN_LOOP_DETECTED
+                    WindowProperties
+                        .PROPERTY_COMPAT_ALLOW_IGNORING_ORIENTATION_REQUEST_WHEN_LOOP_DETECTED
                 )
             )
         }
