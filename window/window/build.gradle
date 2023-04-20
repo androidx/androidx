@@ -49,9 +49,11 @@ dependencies {
     implementation("androidx.collection:collection:1.1.0")
     implementation("androidx.core:core:1.8.0")
 
-    implementation("androidx.window.extensions.core:core:1.0.0-rc01")
+    def extensions_core_version = "androidx.window.extensions.core:core:1.0.0-rc01"
+    def extensions_version = "androidx.window.extensions:extensions:1.1.0-rc01"
+    implementation(extensions_core_version)
     compileOnly(project(":window:sidecar:sidecar"))
-    compileOnly("androidx.window.extensions:extensions:1.1.0-rc01")
+    compileOnly(extensions_version)
 
     testImplementation(libs.testCore)
     testImplementation(libs.testRunner)
@@ -61,9 +63,9 @@ dependencies {
     testImplementation(libs.mockitoCore4)
     testImplementation(libs.mockitoKotlin4)
     testImplementation(libs.kotlinCoroutinesTest)
-    testImplementation("androidx.window.extensions.core:core:1.0.0-beta01")
+    testImplementation(extensions_core_version)
     testImplementation(compileOnly(project(":window:sidecar:sidecar")))
-    testImplementation(compileOnly("androidx.window.extensions:extensions:1.1.0-beta01"))
+    testImplementation(compileOnly(extensions_version))
 
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.kotlinTestJunit)
@@ -77,9 +79,9 @@ dependencies {
     androidTestImplementation(libs.multidex)
     androidTestImplementation(libs.truth)
     androidTestImplementation(libs.junit) // Needed for Assert.assertThrows
-    androidTestImplementation("androidx.window.extensions.core:core:1.0.0-beta01")
+    androidTestImplementation(extensions_core_version)
     androidTestImplementation(compileOnly(project(":window:sidecar:sidecar")))
-    androidTestImplementation(compileOnly("androidx.window.extensions:extensions:1.1.0-beta01"))
+    androidTestImplementation(compileOnly(extensions_version))
 }
 
 androidx {
