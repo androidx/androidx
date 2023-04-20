@@ -317,7 +317,8 @@ class ModifierLocalConsumerEntityTest {
         override fun onRequestMeasure(
             layoutNode: LayoutNode,
             affectsLookahead: Boolean,
-            forceRequest: Boolean
+            forceRequest: Boolean,
+            scheduleMeasureAndLayout: Boolean
         ) {
         }
 

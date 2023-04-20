@@ -329,13 +329,18 @@ internal class SkiaBasedOwner(
     override fun onRequestMeasure(
         layoutNode: LayoutNode,
         affectsLookahead: Boolean,
-        forceRequest: Boolean
+        forceRequest: Boolean,
+        scheduleMeasureAndLayout: Boolean
     ) {
         if (affectsLookahead) {
-            if (measureAndLayoutDelegate.requestLookaheadRemeasure(layoutNode, forceRequest)) {
+            if (measureAndLayoutDelegate.requestLookaheadRemeasure(layoutNode, forceRequest) &&
+                scheduleMeasureAndLayout
+            ) {
                 requestLayout()
             }
-        } else if (measureAndLayoutDelegate.requestRemeasure(layoutNode, forceRequest)) {
+        } else if (measureAndLayoutDelegate.requestRemeasure(layoutNode, forceRequest) &&
+            scheduleMeasureAndLayout
+        ) {
             requestLayout()
         }
     }
