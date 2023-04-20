@@ -173,3 +173,6 @@ value class CameraError private constructor(val value: Int) {
 
 // TODO(b/276918807): When we have CameraProperties, handle the exception on a more granular level.
 class DoNotDisturbException(message: String) : RuntimeException(message)
+
+// An exception indicating that the CameraDevice.close() call has stalled.
+class CameraCloseStallException(message: String) : RuntimeException(message)
