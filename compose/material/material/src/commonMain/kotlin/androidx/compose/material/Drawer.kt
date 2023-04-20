@@ -33,6 +33,7 @@ import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.material.BottomDrawerValue.Closed
 import androidx.compose.material.BottomDrawerValue.Expanded
 import androidx.compose.material.BottomDrawerValue.Open
+import androidx.compose.material.SwipeableV2State.AnchorChangedCallback
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.Stable
@@ -50,6 +51,7 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.semantics.contentDescription
@@ -374,6 +376,16 @@ class BottomDrawerState @Deprecated(
      *
      */
     suspend fun expand() = swipeableState.animateTo(Expanded)
+
+    internal suspend fun animateTo(
+        target: BottomDrawerValue,
+        velocity: Float = swipeableState.lastVelocity
+    ) = swipeableState.animateTo(target, velocity)
+
+    internal suspend fun snapTo(target: BottomDrawerValue) = swipeableState.snapTo(target)
+
+    internal fun trySnapTo(target: BottomDrawerValue) = swipeableState.trySnapTo(target)
+
     internal fun confirmStateChange(value: BottomDrawerValue): Boolean =
         swipeableState.confirmValueChange(value)
 
@@ -390,6 +402,9 @@ class BottomDrawerState @Deprecated(
         "The density on BottomDrawerState ($this) was not set. Did you use BottomDrawer" +
             " with the BottomDrawer composable?"
     }
+
+    internal val isAnimationRunning: Boolean get() = swipeableState.isAnimationRunning
+    internal val lastVelocity: Float get() = swipeableState.lastVelocity
 
     companion object {
         /**
@@ -497,13 +512,6 @@ fun ModalDrawer(
     scrimColor: Color = DrawerDefaults.scrimColor,
     content: @Composable () -> Unit
 ) {
-    // b/278692145 Remove this once deprecated methods without density are removed
-    if (drawerState.density == null) {
-        val density = LocalDensity.current
-        SideEffect {
-            drawerState.density = density
-        }
-    }
     val scope = rememberCoroutineScope()
     BoxWithConstraints(modifier.fillMaxSize()) {
         val modalDrawerConstraints = constraints
@@ -511,9 +519,15 @@ fun ModalDrawer(
         if (!modalDrawerConstraints.hasBoundedWidth) {
             throw IllegalStateException("Drawer shouldn't have infinite width")
         }
-
         val minValue = -modalDrawerConstraints.maxWidth.toFloat()
         val maxValue = 0f
+
+        val density = LocalDensity.current
+        SideEffect {
+            drawerState.density = density
+            val anchors = mapOf(DrawerValue.Closed to minValue, DrawerValue.Open to maxValue)
+            drawerState.swipeableState.updateAnchors(anchors)
+        }
 
         val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
         Box(
@@ -524,15 +538,6 @@ fun ModalDrawer(
                     enabled = gesturesEnabled,
                     reverseDirection = isRtl
                 )
-                .swipeAnchors(
-                    drawerState.swipeableState,
-                    possibleValues = setOf(DrawerValue.Closed, DrawerValue.Open)
-                ) { value, _ ->
-                    when (value) {
-                        DrawerValue.Closed -> minValue
-                        DrawerValue.Open -> maxValue
-                    }
-                }
         ) {
             Box {
                 content()
@@ -688,26 +693,24 @@ fun BottomDrawer(
                 visible = drawerState.targetValue != Closed
             )
             val navigationMenu = getString(Strings.NavigationMenu)
-
+            val anchorChangeCallback = remember(drawerState, scope) {
+                BottomDrawerAnchorChangeCallback(drawerState, scope)
+            }
             Surface(
                 drawerConstraints
-                    .swipeAnchors(
-                        drawerState.swipeableState,
-                        possibleValues = setOf(
-                            Closed,
-                            Open,
-                            Expanded
-                        ),
-                        anchorChangeHandler = remember(drawerState, scope) {
-                            BottomDrawerAnchorChangeHandler(state = drawerState, scope = scope)
+                    .onSizeChanged { drawerSize ->
+                        val drawerHeight = drawerSize.height.toFloat()
+                        val anchors = buildMap {
+                            put(Closed, fullHeight)
+                            val peekHeight = fullHeight * BottomDrawerOpenFraction
+                            if (drawerHeight > peekHeight || isLandscape) {
+                                put(Open, peekHeight)
+                            }
+                            if (drawerHeight > 0f) {
+                                put(Expanded, max(0f, fullHeight - drawerHeight))
+                            }
                         }
-                    ) { value, layoutSize ->
-                        val drawerHeight = layoutSize.height.toFloat()
-                        calculateAnchors(
-                            fullHeight = fullHeight,
-                            drawerHeight = drawerHeight,
-                            isLandscape = isLandscape
-                        )[value]
+                        drawerState.swipeableState.updateAnchors(anchors, anchorChangeCallback)
                     }
                     .offset {
                         IntOffset(
@@ -914,50 +917,31 @@ private fun ConsumeSwipeWithinBottomSheetBoundsNestedScrollConnection(
 }
 
 @OptIn(ExperimentalMaterialApi::class)
-private fun BottomDrawerAnchorChangeHandler(
-    state: BottomDrawerState,
-    scope: CoroutineScope
-) = AnchorChangeHandler<BottomDrawerValue> { previousTarget, previousAnchors, newAnchors ->
-    fun animateTo(target: BottomDrawerValue, velocity: Float) {
-        scope.launch {
-            state.swipeableState.animateTo(
-                target,
-                velocity = velocity
-            )
-        }
-    }
+private fun BottomDrawerAnchorChangeCallback(state: BottomDrawerState, scope: CoroutineScope) =
+    AnchorChangedCallback<BottomDrawerValue> { previousTarget, previousAnchors, newAnchors ->
+        val previousTargetOffset = previousAnchors[previousTarget]
+        val newTarget = when (previousTarget) {
+            Closed -> Closed
+            Open, Expanded -> {
+                val hasHalfExpandedState = newAnchors.containsKey(Open)
+                val newTarget = if (hasHalfExpandedState) {
+                    Open
+                } else {
+                    if (newAnchors.containsKey(Expanded)) Expanded else Closed
+                }
 
-    fun snapTo(target: BottomDrawerValue) {
-        val didSnapSynchronously = state.swipeableState.trySnapTo(target)
-        if (!didSnapSynchronously) scope.launch {
-            state.swipeableState.snapTo(
-                target
-            )
-        }
-    }
-
-    val previousTargetOffset = previousAnchors[previousTarget]
-    val newTarget = when (previousTarget) {
-        Closed -> Closed
-        Open, Expanded -> {
-            val hasHalfExpandedState = newAnchors.containsKey(Open)
-            val newTarget = if (hasHalfExpandedState) {
-                Open
-            } else {
-                if (newAnchors.containsKey(Expanded)) Expanded else Closed
+                newTarget
             }
-
-            newTarget
+        }
+        val newTargetOffset = newAnchors.getValue(newTarget)
+        if (newTargetOffset != previousTargetOffset) {
+            if (state.isAnimationRunning) {
+                // Re-target the animation to the new offset if it changed
+                scope.launch { state.animateTo(newTarget, velocity = state.lastVelocity) }
+            } else {
+                // Snap to the new offset value of the target if no animation was running
+                val didSnapSynchronously = state.trySnapTo(newTarget)
+                if (!didSnapSynchronously) scope.launch { state.snapTo(newTarget) }
+            }
         }
     }
-    val newTargetOffset = newAnchors.getValue(newTarget)
-    if (newTargetOffset != previousTargetOffset) {
-        if (state.swipeableState.isAnimationRunning) {
-            // Re-target the animation to the new offset if it changed
-            animateTo(newTarget, state.swipeableState.lastVelocity)
-        } else {
-            // Snap to the new offset value of the target if no animation was running
-            snapTo(newTarget)
-        }
-    }
-}

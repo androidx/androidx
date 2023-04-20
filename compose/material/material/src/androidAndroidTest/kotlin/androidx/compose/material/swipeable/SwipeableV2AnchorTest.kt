@@ -19,26 +19,22 @@ package androidx.compose.material.swipeable
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.AnchorChangeHandler
+import androidx.compose.material.SwipeableV2State.AnchorChangedCallback
 import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.SwipeableV2Defaults
+import androidx.compose.material.SwipeableV2Defaults.ReconcileAnimationOnAnchorChangedCallback
 import androidx.compose.material.SwipeableV2State
-import androidx.compose.material.rememberSwipeableV2State
-import androidx.compose.material.swipeAnchors
-import androidx.compose.material.swipeable.TestState.A
-import androidx.compose.material.swipeable.TestState.B
-import androidx.compose.material.swipeable.TestState.C
+import androidx.compose.material.swipeable.SwipeableTestValue.A
+import androidx.compose.material.swipeable.SwipeableTestValue.B
+import androidx.compose.material.swipeable.SwipeableTestValue.C
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
@@ -61,107 +57,9 @@ class SwipeableV2AnchorTest {
     val rule = createComposeRule()
 
     @Test
-    fun swipeable_swipeAnchors_updatedInSameFrame() {
-        rule.mainClock.autoAdvance = false
-
-        var compositionCounter = 0
-        lateinit var state: SwipeableV2State<TestState>
-
-        rule.setContent {
-            state = rememberSwipeableV2State(initialValue = A)
-            compositionCounter++
-            Box(
-                Modifier
-                    .height(200.dp)
-                    .swipeAnchors(
-                        state,
-                        possibleValues = setOf(A, B, C)
-                    ) { state, layoutSize ->
-                        when (state) {
-                            A -> 0f
-                            B -> layoutSize.height.toFloat() / 2
-                            C -> layoutSize.height.toFloat()
-                        }
-                    }
-            )
-        }
-        // Verify composed initially but didn't recompose
-        assertThat(compositionCounter).isEqualTo(1)
-        // Verify that the anchors are present after one composition
-        assertThat(state.anchors).containsKey(A)
-        assertThat(state.anchors).containsKey(B)
-        assertThat(state.anchors).containsKey(C)
-    }
-
-    @Test
-    fun swipeable_swipeAnchors_calculatedCorrectlyFromLayoutSize() {
-        lateinit var state: SwipeableV2State<TestState>
-
-        fun anchorA() = 0f
-        fun anchorB(layoutHeight: Int) = layoutHeight / 2f
-        fun anchorC(layoutHeight: Int) = layoutHeight.toFloat()
-
-        val swipeableSize = 200.dp
-
-        rule.setContent {
-            state = rememberSwipeableV2State(initialValue = A)
-            Box(
-                Modifier
-                    .requiredHeight(swipeableSize)
-                    .swipeAnchors(
-                        state,
-                        possibleValues = setOf(A, B, C)
-                    ) { state, layoutSize ->
-                        when (state) {
-                            A -> 0f
-                            B -> anchorB(layoutSize.height)
-                            C -> anchorC(layoutSize.height)
-                        }
-                    }
-            )
-        }
-
-        val expectedHeight = with(rule.density) { swipeableSize.roundToPx() }
-        assertThat(state.anchors[A]).isEqualTo(anchorA())
-        assertThat(state.anchors[B]).isEqualTo(anchorB(expectedHeight))
-        assertThat(state.anchors[C]).isEqualTo(anchorC(expectedHeight))
-    }
-
-    @Test
-    fun swipeable_swipeAnchors_updateOnSizeChange() {
-        lateinit var state: SwipeableV2State<TestState>
-
-        val firstAnchors = mapOf(A to 0f, B to 100f, C to 200f)
-        val secondAnchors = mapOf(B to 300f, C to 600f)
-        var anchors = firstAnchors
-        var size by mutableStateOf(100)
-
-        rule.setContent {
-            state = rememberSwipeableV2State(A)
-            Box(
-                Modifier
-                    .size(size.dp) // Trigger remeasure when size changes
-                    .swipeAnchors(
-                        state,
-                        possibleValues = setOf(A, B, C),
-                        calculateAnchor = { state, _ -> anchors[state] }
-                    )
-            )
-        }
-
-        assertThat(state.anchors).isEqualTo(firstAnchors)
-
-        anchors = secondAnchors
-        size = 200
-        rule.waitForIdle()
-
-        assertThat(state.anchors).isEqualTo(secondAnchors)
-    }
-
-    @Test
     fun swipeable_reconcileAnchorChangeHandler_retargetsAnimationWhenOffsetChanged() {
         val animationDurationMillis = 2000
-        lateinit var state: SwipeableV2State<TestState>
+        lateinit var state: SwipeableV2State<SwipeableTestValue>
         lateinit var scope: CoroutineScope
 
         val firstAnchors = mapOf(A to 0f, B to 100f, C to 200f)
@@ -182,28 +80,15 @@ class SwipeableV2AnchorTest {
             }
             scope = rememberCoroutineScope()
             val anchorChangeHandler = remember(state, scope) {
-                SwipeableV2Defaults.ReconcileAnimationOnAnchorChangeHandler(
-                    state = state,
-                    animate = { target, velocity ->
-                        scope.launch {
-                            state.animateTo(
-                                target,
-                                velocity
-                            )
-                        }
-                    },
-                    snap = { target -> scope.launch { state.snapTo(target) } }
+                ReconcileAnimationOnAnchorChangedCallback(
+                    state,
+                    scope
                 )
             }
             Box(
                 Modifier
                     .size(size.dp) // Trigger anchor recalculation when size changes
-                    .swipeAnchors(
-                        state = state,
-                        possibleValues = setOf(A, B, C),
-                        anchorChangeHandler = anchorChangeHandler,
-                        calculateAnchor = { state, _ -> anchors[state] }
-                    )
+                    .onSizeChanged { state.updateAnchors(anchors, anchorChangeHandler) }
             )
         }
 
@@ -228,7 +113,6 @@ class SwipeableV2AnchorTest {
             positionalThreshold = defaultPositionalThreshold(),
             velocityThreshold = defaultVelocityThreshold()
         )
-        lateinit var scope: CoroutineScope
 
         val firstAnchors = mapOf(A to 0f, B to 100f, C to 200f)
         val secondAnchors = mapOf(B to 400f, C to 600f)
@@ -236,25 +120,14 @@ class SwipeableV2AnchorTest {
         var size by mutableStateOf(100)
 
         rule.setContent {
-            scope = rememberCoroutineScope()
+            val scope = rememberCoroutineScope()
             val anchorChangeHandler = remember(state, scope) {
-                SwipeableV2Defaults.ReconcileAnimationOnAnchorChangeHandler(
-                    state = state,
-                    animate = { target, velocity ->
-                        scope.launch { state.animateTo(target, velocity) }
-                    },
-                    snap = { target -> scope.launch { state.snapTo(target) } }
-                )
+                ReconcileAnimationOnAnchorChangedCallback(state, scope)
             }
             Box(
                 Modifier
                     .size(size.dp) // Trigger anchor recalculation when size changes
-                    .swipeAnchors(
-                        state = state,
-                        possibleValues = setOf(A, B, C),
-                        anchorChangeHandler = anchorChangeHandler,
-                        calculateAnchor = { state, _ -> anchors[state] }
-                    )
+                    .onSizeChanged { state.updateAnchors(anchors, anchorChangeHandler) }
             )
         }
 
@@ -269,6 +142,14 @@ class SwipeableV2AnchorTest {
 
     @Test
     fun swipeable_anchorChangeHandler_calledWithUpdatedAnchorsWhenChanged() {
+        var anchorChangeHandlerInvocationCount = 0
+        var actualPreviousAnchors: Map<SwipeableTestValue, Float>? = null
+        var actualNewAnchors: Map<SwipeableTestValue, Float>? = null
+        val testChangeHandler = AnchorChangedCallback { _, previousAnchors, newAnchors ->
+            anchorChangeHandlerInvocationCount++
+            actualPreviousAnchors = previousAnchors
+            actualNewAnchors = newAnchors
+        }
         val state = SwipeableV2State(
             initialValue = A,
             positionalThreshold = defaultPositionalThreshold(),
@@ -276,29 +157,20 @@ class SwipeableV2AnchorTest {
         )
         val initialSize = 100.dp
         var size: Dp by mutableStateOf(initialSize)
-        var anchorChangeHandlerInvocationCount = 0
-        var actualPreviousAnchors: Map<TestState, Float>? = null
-        var actualNewAnchors: Map<TestState, Float>? = null
-        val testChangeHandler = AnchorChangeHandler { _, previousAnchors, newAnchors ->
-            anchorChangeHandlerInvocationCount++
-            actualPreviousAnchors = previousAnchors
-            actualNewAnchors = newAnchors
-        }
-        fun calculateAnchor(value: TestState, layoutSize: IntSize) = when (value) {
-            A -> 0f
-            B -> layoutSize.height / 2f
-            C -> layoutSize.height.toFloat()
-        }
         rule.setContent {
             Box(
                 Modifier
                     .requiredSize(size) // Trigger anchor recalculation when size changes
-                    .swipeAnchors(
-                        state = state,
-                        possibleValues = setOf(A, B, C),
-                        anchorChangeHandler = testChangeHandler,
-                        calculateAnchor = ::calculateAnchor
-                    )
+                    .onSizeChanged { layoutSize ->
+                        state.updateAnchors(
+                            mapOf(
+                                A to 0f,
+                                B to layoutSize.height / 2f,
+                                C to layoutSize.height.toFloat()
+                            ),
+                            testChangeHandler
+                        )
+                    }
             )
         }
 
@@ -310,9 +182,9 @@ class SwipeableV2AnchorTest {
         val sizePx = with(rule.density) { size.roundToPx() }
         val layoutSize = IntSize(sizePx, sizePx)
         val expectedNewAnchors = mapOf(
-            A to calculateAnchor(A, layoutSize),
-            B to calculateAnchor(B, layoutSize),
-            C to calculateAnchor(C, layoutSize),
+            A to 0f,
+            B to layoutSize.height / 2f,
+            C to layoutSize.height.toFloat()
         )
         rule.waitForIdle()
 
@@ -323,68 +195,42 @@ class SwipeableV2AnchorTest {
 
     @Test
     fun swipeable_anchorChangeHandler_invokedWithPreviousTarget() {
+        var recordedPreviousTargetValue: SwipeableTestValue? = null
+        val testChangeHandler =
+            AnchorChangedCallback<SwipeableTestValue> { previousTarget, _, _ ->
+                recordedPreviousTargetValue = previousTarget
+            }
         val state = SwipeableV2State(
             initialValue = A,
             positionalThreshold = { totalDistance -> totalDistance * 0.5f },
             velocityThreshold = defaultVelocityThreshold()
         )
-        var recordedPreviousTargetValue: TestState? = null
-        val testChangeHandler = AnchorChangeHandler<TestState> { previousTarget, _, _ ->
-            recordedPreviousTargetValue = previousTarget
-        }
         var anchors = mapOf(
             A to 0f,
             B to 100f,
             C to 200f
         )
-        var recompose by mutableStateOf(false)
-
-        rule.setContent {
-            Box(
-                key(recompose) {
-                    Modifier
-                        .swipeAnchors(
-                            state = state,
-                            possibleValues = setOf(A, B, C),
-                            anchorChangeHandler = testChangeHandler,
-                            calculateAnchor = { value, _ -> anchors[value] }
-                        )
-                }
-            )
-        }
+        state.updateAnchors(anchors, testChangeHandler)
 
         assertThat(state.targetValue).isEqualTo(A)
         anchors = mapOf(B to 500f)
-        recompose = true
-        rule.waitForIdle()
+        state.updateAnchors(anchors, testChangeHandler)
         assertThat(recordedPreviousTargetValue).isEqualTo(A) // A is not in the anchors anymore, so
         // we can be sure that is not the targetValue calculated from the new anchors
     }
 
     @Test
     fun swipeable_anchorChangeHandler_invokedIfInitialValueNotInInitialAnchors() {
+        var anchorChangeHandlerInvocationCount = 0
+        val testChangeHandler = AnchorChangedCallback<SwipeableTestValue> { _, _, _ ->
+            anchorChangeHandlerInvocationCount++
+        }
         val state = SwipeableV2State(
             initialValue = A,
             positionalThreshold = defaultPositionalThreshold(),
             velocityThreshold = defaultVelocityThreshold()
         )
-        var anchorChangeHandlerInvocationCount = 0
-        val testChangeHandler = AnchorChangeHandler<TestState> { _, _, _ ->
-            anchorChangeHandlerInvocationCount++
-        }
-        val anchors = mapOf(B to 100f, C to 200f)
-
-        rule.setContent {
-            Box(
-                Modifier
-                    .swipeAnchors(
-                        state = state,
-                        possibleValues = setOf(B, C),
-                        anchorChangeHandler = testChangeHandler,
-                        calculateAnchor = { value, _ -> anchors[value] }
-                    )
-            )
-        }
+        state.updateAnchors(mapOf(B to 100f, C to 200f), testChangeHandler)
 
         assertThat(anchorChangeHandlerInvocationCount).isEqualTo(1)
     }

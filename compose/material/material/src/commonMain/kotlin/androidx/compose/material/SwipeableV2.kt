@@ -26,6 +26,7 @@ import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.offset
+import androidx.compose.material.SwipeableV2State.AnchorChangedCallback
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.derivedStateOf
@@ -35,12 +36,11 @@ import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import kotlin.math.abs
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
@@ -81,47 +81,6 @@ internal fun <T> Modifier.swipeableV2(
 )
 
 /**
- * Define anchor points for a given [SwipeableV2State] based on this node's layout size and update
- * the state with them.
- *
- * @param state The associated [SwipeableV2State]
- * @param possibleValues All possible values the [SwipeableV2State] could be in.
- * @param anchorChangeHandler A callback to be invoked when the anchors have changed,
- * `null` by default. Components with custom reconciliation logic should implement this callback,
- * i.e. to re-target an in-progress animation.
- * @param calculateAnchor This method will be invoked to calculate the position of all
- * [possibleValues], given this node's layout size. Return the anchor's offset from the initial
- * anchor, or `null` to indicate that a value does not have an anchor.
- */
-@ExperimentalMaterialApi
-internal fun <T> Modifier.swipeAnchors(
-    state: SwipeableV2State<T>,
-    possibleValues: Set<T>,
-    anchorChangeHandler: AnchorChangeHandler<T>? = null,
-    calculateAnchor: (value: T, layoutSize: IntSize) -> Float?,
-) = onSizeChanged { layoutSize ->
-    val previousAnchors = state.anchors
-    val newAnchors = mutableMapOf<T, Float>()
-    possibleValues.forEach {
-        val anchorValue = calculateAnchor(it, layoutSize)
-        if (anchorValue != null) {
-            newAnchors[it] = anchorValue
-        }
-    }
-    if (previousAnchors != newAnchors) {
-        val previousTarget = state.targetValue
-        val stateRequiresCleanup = state.updateAnchors(newAnchors)
-        if (stateRequiresCleanup) {
-            anchorChangeHandler?.onAnchorsChanged(
-                previousTarget,
-                previousAnchors,
-                newAnchors
-            )
-        }
-    }
-}
-
-/**
  * State of the [swipeableV2] modifier.
  *
  * This contains necessary information about any ongoing swipe or animation and provides methods
@@ -146,7 +105,7 @@ internal class SwipeableV2State<T>(
     internal val positionalThreshold: (totalDistance: Float) -> Float,
     internal val velocityThreshold: () -> Float,
     internal val animationSpec: AnimationSpec<Float> = SwipeableV2Defaults.AnimationSpec,
-    internal val confirmValueChange: (newValue: T) -> Boolean = { true },
+    internal val confirmValueChange: (newValue: T) -> Boolean = { true }
 ) {
 
     private val swipeMutex = InternalMutatorMutex()
@@ -266,23 +225,40 @@ internal class SwipeableV2State<T>(
     /**
      * Update the anchors.
      * If the previous set of anchors was empty, attempt to update the offset to match the initial
-     * value's anchor.
+     * value's anchor. If the [newAnchors] are different to the existing anchors, or there is no
+     * anchor for the [currentValue], the [onAnchorsChanged] callback will be invoked.
      *
-     * @return true if the state needs to be adjusted after updating the anchors, e.g. if the
-     * initial value is not found in the initial set of anchors. false if no further updates are
-     * needed.
+     * <b>If your anchors depend on the size of the layout, updateAnchors should be called in the
+     * layout (placement) phase, e.g. through Modifier.onSizeChanged.</b> This ensures that the
+     * state is set up within the same frame.
+     * For static anchors, or anchors with different data dependencies, updateAnchors is safe to be
+     * called any time, for example from a side effect.
+     *
+     * @param newAnchors The new anchors
+     * @param onAnchorsChanged Optional callback to be invoked if the state needs to be updated
+     * after updating the anchors, for example if the anchor for the [currentValue] has been removed
      */
-    internal fun updateAnchors(newAnchors: Map<T, Float>): Boolean {
-        val previousAnchorsEmpty = anchors.isEmpty()
-        anchors = newAnchors
-        val initialValueHasAnchor = if (previousAnchorsEmpty) {
-            val initialValue = currentValue
-            val initialValueAnchor = anchors[initialValue]
-            val initialValueHasAnchor = initialValueAnchor != null
-            if (initialValueHasAnchor) trySnapTo(initialValue)
-            initialValueHasAnchor
-        } else true
-        return !initialValueHasAnchor || !previousAnchorsEmpty
+    internal fun updateAnchors(
+        newAnchors: Map<T, Float>,
+        onAnchorsChanged: AnchorChangedCallback<T>? = null
+    ) {
+        if (anchors != newAnchors) {
+            val previousAnchors = anchors
+            val previousTarget = targetValue
+            val previousAnchorsEmpty = anchors.isEmpty()
+            anchors = newAnchors
+
+            val currentValueHasAnchor = anchors[currentValue] != null
+            if (previousAnchorsEmpty && currentValueHasAnchor) {
+                snap(currentValue)
+            } else {
+                onAnchorsChanged?.onAnchorsChanged(
+                    previousTargetValue = previousTarget,
+                    previousAnchors = previousAnchors,
+                    newAnchors = newAnchors
+                )
+            }
+        }
     }
 
     /**
@@ -473,6 +449,34 @@ internal class SwipeableV2State<T>(
             }
         )
     }
+
+    /**
+     * Defines a callback that is invoked when the anchors have changed.
+     *
+     * Components with custom reconciliation logic should implement this callback, for example to
+     * re-target an in-progress animation when the anchors change.
+     *
+     * @see SwipeableV2Defaults.ReconcileAnimationOnAnchorChangedCallback for a default
+     * implementation
+     */
+    @ExperimentalMaterialApi
+    fun interface AnchorChangedCallback<T> {
+
+        /**
+         * Callback that is invoked when the anchors have changed, after the [SwipeableV2State] has
+         * been updated with them. Use this hook to re-launch animations or interrupt them if
+         * needed.
+         *
+         * @param previousTargetValue The target value before the anchors were updated
+         * @param previousAnchors The previously set anchors
+         * @param newAnchors The newly set anchors
+         */
+        fun onAnchorsChanged(
+            previousTargetValue: T,
+            previousAnchors: Map<T, Float>,
+            newAnchors: Map<T, Float>,
+        )
+    }
 }
 
 /**
@@ -539,61 +543,32 @@ internal object SwipeableV2Defaults {
         }
 
     /**
-     * A [AnchorChangeHandler] implementation that attempts to reconcile an in-progress animation
+     * A [AnchorChangedCallback] implementation that attempts to reconcile an in-progress animation
      * by re-targeting it if necessary or finding the closest new anchor.
      * If the previous anchor is not in the new set of anchors, this implementation will snap to the
      * closest anchor.
      *
      * Consider implementing a custom handler for more complex components like sheets.
-     * The [animate] and [snap] lambdas hoist the animation and snap logic. Usually these will just
-     * delegate to [SwipeableV2State].
-     *
-     * @param state The [SwipeableV2State] the change handler will read from
-     * @param animate A lambda that gets invoked to start an animation to a new target
-     * @param snap A lambda that gets invoked to snap to a new target
      */
     @ExperimentalMaterialApi
-    internal fun <T> ReconcileAnimationOnAnchorChangeHandler(
+    internal fun <T> ReconcileAnimationOnAnchorChangedCallback(
         state: SwipeableV2State<T>,
-        animate: (target: T, velocity: Float) -> Unit,
-        snap: (target: T) -> Unit
-    ) = AnchorChangeHandler { previousTarget, previousAnchors, newAnchors ->
-        val previousTargetOffset = previousAnchors[previousTarget]
-        val newTargetOffset = newAnchors[previousTarget]
-        if (previousTargetOffset != newTargetOffset) {
-            if (newTargetOffset != null) {
-                animate(previousTarget, state.lastVelocity)
-            } else {
-                snap(newAnchors.closestAnchor(offset = state.requireOffset()))
+        scope: CoroutineScope
+    ) = AnchorChangedCallback<T> { previousTarget, previousAnchors, newAnchors ->
+            val previousTargetOffset = previousAnchors[previousTarget]
+            val newTargetOffset = newAnchors[previousTarget]
+            if (previousTargetOffset != newTargetOffset) {
+                if (newTargetOffset != null) {
+                    scope.launch {
+                        state.animateTo(previousTarget, state.lastVelocity)
+                    }
+                } else {
+                    scope.launch {
+                        state.snapTo(newAnchors.closestAnchor(offset = state.requireOffset()))
+                    }
+                }
             }
         }
-    }
-}
-
-/**
- * Defines a callback that is invoked when the anchors have changed.
- *
- * Components with custom reconciliation logic should implement this callback, for example to
- * re-target an in-progress animation when the anchors change.
- *
- * @see SwipeableV2Defaults.ReconcileAnimationOnAnchorChangeHandler for a default implementation
- */
-@ExperimentalMaterialApi
-internal fun interface AnchorChangeHandler<T> {
-
-    /**
-     * Callback that is invoked when the anchors have changed, after the [SwipeableV2State] has been
-     * updated with them. Use this hook to re-launch animations or interrupt them if needed.
-     *
-     * @param previousTargetValue The target value before the anchors were updated
-     * @param previousAnchors The previously set anchors
-     * @param newAnchors The newly set anchors
-     */
-    fun onAnchorsChanged(
-        previousTargetValue: T,
-        previousAnchors: Map<T, Float>,
-        newAnchors: Map<T, Float>
-    )
 }
 
 private fun <T> Map<T, Float>.closestAnchor(
