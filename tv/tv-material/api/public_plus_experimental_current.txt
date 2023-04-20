@@ -18,12 +18,6 @@ package androidx.tv.material3 {
     property public final androidx.tv.material3.Border None;
   }
 
-  @androidx.compose.runtime.Immutable @androidx.tv.material3.ExperimentalTvMaterial3Api public final class BorderIndication implements androidx.compose.foundation.Indication {
-    ctor public BorderIndication(androidx.compose.ui.graphics.Brush brush, float width, androidx.compose.ui.graphics.Shape shape, optional float inset);
-    ctor public BorderIndication(androidx.tv.material3.Border border);
-    method @androidx.compose.runtime.Composable public androidx.compose.foundation.IndicationInstance rememberUpdatedInstance(androidx.compose.foundation.interaction.InteractionSource interactionSource);
-  }
-
   @androidx.compose.runtime.Immutable @androidx.tv.material3.ExperimentalTvMaterial3Api public final class ButtonBorder {
   }
 
@@ -305,11 +299,6 @@ package androidx.tv.material3 {
     property public final androidx.tv.material3.Glow None;
   }
 
-  @androidx.compose.runtime.Stable @androidx.tv.material3.ExperimentalTvMaterial3Api public final class GlowIndication implements androidx.compose.foundation.Indication {
-    ctor public GlowIndication(long color, androidx.compose.ui.graphics.Shape shape, float glowBlurRadius, float offsetX, float offsetY);
-    method @androidx.compose.runtime.Composable public androidx.compose.foundation.IndicationInstance rememberUpdatedInstance(androidx.compose.foundation.interaction.InteractionSource interactionSource);
-  }
-
   @androidx.tv.material3.ExperimentalTvMaterial3Api public final class IconButtonDefaults {
     method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.tv.material3.ButtonBorder border(optional androidx.tv.material3.Border border, optional androidx.tv.material3.Border focusedBorder, optional androidx.tv.material3.Border pressedBorder, optional androidx.tv.material3.Border disabledBorder, optional androidx.tv.material3.Border focusedDisabledBorder);
     method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.tv.material3.ButtonColors colors(optional long containerColor, optional long contentColor, optional long focusedContainerColor, optional long focusedContentColor, optional long pressedContainerColor, optional long pressedContentColor, optional long disabledContainerColor, optional long disabledContentColor);
@@ -361,10 +350,6 @@ package androidx.tv.material3 {
 
   @androidx.compose.runtime.Immutable @androidx.tv.material3.ExperimentalTvMaterial3Api public final class ImmersiveListScope {
     method public androidx.compose.ui.Modifier immersiveListItem(androidx.compose.ui.Modifier, int index);
-  }
-
-  public final class IndicationsKt {
-    method @androidx.compose.runtime.Composable @androidx.tv.material3.ExperimentalTvMaterial3Api public static androidx.tv.material3.GlowIndication rememberGlowIndication(optional long color, optional androidx.compose.ui.graphics.Shape shape, optional float glowBlurRadius, optional float offsetX, optional float offsetY);
   }
 
   public final class MaterialTheme {
@@ -423,11 +408,6 @@ package androidx.tv.material3 {
     property public final float SmallButtonSize;
     property public final float SmallIconSize;
     field public static final androidx.tv.material3.OutlinedIconButtonDefaults INSTANCE;
-  }
-
-  @androidx.compose.runtime.Stable @androidx.tv.material3.ExperimentalTvMaterial3Api public final class ScaleIndication implements androidx.compose.foundation.Indication {
-    ctor public ScaleIndication(float scale);
-    method @androidx.compose.runtime.Composable public androidx.compose.foundation.IndicationInstance rememberUpdatedInstance(androidx.compose.foundation.interaction.InteractionSource interactionSource);
   }
 
   @androidx.tv.material3.ExperimentalTvMaterial3Api public sealed interface ScrollPauseHandle {
