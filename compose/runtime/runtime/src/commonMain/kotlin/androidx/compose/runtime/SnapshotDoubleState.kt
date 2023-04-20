@@ -19,6 +19,7 @@
 package androidx.compose.runtime
 
 import androidx.compose.runtime.internal.JvmDefaultWithCompatibility
+import androidx.compose.runtime.snapshots.AutoboxingStateValueProperty
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.runtime.snapshots.SnapshotMutableState
 import androidx.compose.runtime.snapshots.StateObject
@@ -55,6 +56,7 @@ fun mutableStateOf(
 @Stable
 @JvmDefaultWithCompatibility
 interface DoubleState : State<Double> {
+    @AutoboxingStateValueProperty("doubleValue")
     override val value: Double
         @Suppress("AutoBoxing") get() = doubleValue
 
@@ -83,6 +85,7 @@ inline operator fun DoubleState.getValue(
 @Stable
 @JvmDefaultWithCompatibility
 interface MutableDoubleState : DoubleState, MutableState<Double> {
+    @AutoboxingStateValueProperty("doubleValue")
     override var value: Double
         @Suppress("AutoBoxing") get() = doubleValue
         set(value) { doubleValue = value }
