@@ -33,7 +33,6 @@ import androidx.compose.foundation.lazy.layout.lazyLayoutSemantics
 import androidx.compose.foundation.overscroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -79,11 +78,6 @@ internal fun LazyList(
 
     val semanticState = rememberLazyListSemanticState(state, isVertical)
     val beyondBoundsInfo = remember { LazyListBeyondBoundsInfo() }
-    val scope = rememberCoroutineScope()
-    val placementAnimator = remember(state, isVertical) {
-        LazyListItemPlacementAnimator(scope, isVertical)
-    }
-    state.placementAnimator = placementAnimator
 
     val measurePolicy = rememberLazyListMeasurePolicy(
         itemProvider,
@@ -96,8 +90,7 @@ internal fun LazyList(
         horizontalAlignment,
         verticalAlignment,
         horizontalArrangement,
-        verticalArrangement,
-        placementAnimator,
+        verticalArrangement
     )
 
     ScrollPositionUpdater(itemProvider, state)
@@ -174,8 +167,6 @@ private fun rememberLazyListMeasurePolicy(
     horizontalArrangement: Arrangement.Horizontal? = null,
     /** The vertical arrangement for items. Required when isVertical is true */
     verticalArrangement: Arrangement.Vertical? = null,
-    /** Item placement animator. Should be notified with the measuring result */
-    placementAnimator: LazyListItemPlacementAnimator
 ) = remember<LazyLayoutMeasureScope.(Constraints) -> MeasureResult>(
     state,
     beyondBoundsInfo,
@@ -185,8 +176,7 @@ private fun rememberLazyListMeasurePolicy(
     horizontalAlignment,
     verticalAlignment,
     horizontalArrangement,
-    verticalArrangement,
-    placementAnimator
+    verticalArrangement
 ) {
     { containerConstraints ->
         checkScrollableContainerConstraints(
@@ -284,8 +274,7 @@ private fun rememberLazyListMeasurePolicy(
                 afterContentPadding = afterContentPadding,
                 spacing = spacing,
                 visualOffset = visualItemOffset,
-                key = key,
-                placementAnimator = placementAnimator
+                key = key
             )
         }
         state.premeasureConstraints = measuredItemProvider.childConstraints
@@ -315,7 +304,7 @@ private fun rememberLazyListMeasurePolicy(
             horizontalArrangement = horizontalArrangement,
             reverseLayout = reverseLayout,
             density = this,
-            placementAnimator = placementAnimator,
+            placementAnimator = state.placementAnimator,
             beyondBoundsInfo = beyondBoundsInfo,
             beyondBoundsItemCount = beyondBoundsItemCount,
             pinnedItems = state.pinnedItems,
