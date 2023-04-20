@@ -938,7 +938,6 @@ private fun LazyWithFlingConfig() {
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Preview
 @Composable
 private fun LazyStaggeredGridDemo() {
