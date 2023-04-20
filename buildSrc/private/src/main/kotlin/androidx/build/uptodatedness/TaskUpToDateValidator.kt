@@ -136,7 +136,6 @@ val ALLOW_RERUNNING_TASKS = setOf(
 // Additional tasks that are expected to be temporarily out-of-date after running once
 // Tasks in this set we don't even try to rerun, because they're known to be unnecessary
 val DONT_TRY_RERUNNING_TASKS = setOf(
-    ":buildSrc-tests:project-subsets:test",
     "listTaskOutputs",
     "tasks",
 
