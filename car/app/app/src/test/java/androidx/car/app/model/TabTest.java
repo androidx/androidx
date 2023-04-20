@@ -108,22 +108,22 @@ public class TabTest {
     }
 
     @Test
-    public void equals_Builder() {
-        Tab tab = TEST_TAB.toBuilder().build();
+    public void equals_copy() {
+        Tab tab = new Tab.Builder(TEST_TAB).build();
 
         assertEquals(tab, TEST_TAB);
     }
 
     @Test
     public void notEquals_differentTitle() {
-        Tab tab = TEST_TAB.toBuilder().setTitle("New Tab").build();
+        Tab tab = new Tab.Builder(TEST_TAB).setTitle("New Tab").build();
 
         assertNotEquals(tab, TEST_TAB);
     }
 
     @Test
     public void notEquals_differentIcon() {
-        Tab tab = TEST_TAB.toBuilder()
+        Tab tab = new Tab.Builder(TEST_TAB)
                 .setIcon(TestUtils.getTestCarIcon(
                         ApplicationProvider.getApplicationContext(),
                         "ic_test_2"))
@@ -134,7 +134,7 @@ public class TabTest {
 
     @Test
     public void notEquals_differentContentId() {
-        Tab tab = TEST_TAB.toBuilder().setContentId("new id").build();
+        Tab tab = new Tab.Builder(TEST_TAB).setContentId("new id").build();
 
         assertNotEquals(tab, TEST_TAB);
     }
