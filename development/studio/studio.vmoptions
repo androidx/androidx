@@ -1,6 +1,6 @@
 -Xmx8g
 -Dappinspection.use.dev.jar=true
--Dlayout.inspector.rel.jar.location=../../../../../../out/androidx/compose/ui/ui-inspection/build/androidx_inspection/assembleInspectorJar/release
+-Dlayout.inspector.rel.jar.location=#studio/../../../../../../out/dist/inspection
 # https://github.com/google/google-java-format#intellij-jre-config
 --add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED
 --add-exports=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED
