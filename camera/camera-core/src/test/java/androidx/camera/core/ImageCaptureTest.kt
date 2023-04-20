@@ -328,14 +328,14 @@ class ImageCaptureTest {
 
     @Config(minSdk = 28)
     @Test
-    fun extensionIsOn_pipelineDisabled() {
-        assertThat(
-            bindImageCapture(
-                useProcessingPipeline = true,
-                bufferFormat = ImageFormat.JPEG,
-                sessionProcessor = FakeSessionProcessor(null, null)
-            ).isProcessingPipelineEnabled
-        ).isFalse()
+    fun extensionIsOn_pipelineEnabled() {
+        val imageCapture = bindImageCapture(
+            useProcessingPipeline = true,
+            bufferFormat = ImageFormat.JPEG,
+            sessionProcessor = FakeSessionProcessor(null, null)
+        )
+        assertThat(imageCapture.isProcessingPipelineEnabled).isTrue()
+        assertThat(imageCapture.imagePipeline!!.expectsMetadata()).isFalse()
     }
 
     @Test
