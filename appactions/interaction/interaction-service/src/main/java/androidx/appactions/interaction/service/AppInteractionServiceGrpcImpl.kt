@@ -173,16 +173,20 @@ internal class AppInteractionServiceGrpcImpl(
 
         override fun onError(t: Throwable) {
             respondWithError(t, startSessionResponseObserver)
-            currentSessionId?.let(::destroySession)
-            currentSessionId = null
+            currentSessionId?.let {
+                destroyAndRemoveSession(it)
+                UiSessions.removeUiCache(it)
+            }
         }
 
         override fun onCompleted() {
             synchronized(startSessionResponseObserver) {
                 startSessionResponseObserver.onCompleted()
             }
-            currentSessionId?.let(::destroySession)
-            currentSessionId = null
+            currentSessionId?.let {
+                destroyAndRemoveSession(it)
+                UiSessions.removeUiCache(it)
+            }
         }
     }
 
@@ -248,6 +252,7 @@ internal class AppInteractionServiceGrpcImpl(
                                     .addAllViewIds(uiCache.getCachedChangedViewIds()),
                             )
                         }
+                        // TODO(b/278583168) fix read flag behavior
                         uiCache.resetUnreadUiResponse()
                     }
                     respondAndComplete(responseBuilder.build(), responseObserver)
@@ -279,8 +284,7 @@ internal class AppInteractionServiceGrpcImpl(
         responseObserver: StreamObserver<AppInteractionServiceProto.UiResponse>,
     ) {
         val sessionId = req.getSessionIdentifier()!!
-        val currentSession = SessionManager.getSession(sessionId)
-        if (currentSession == null) {
+        if (SessionManager.getSession(sessionId) == null) {
             return respondWithError(
                 StatusRuntimeException(
                     Status.FAILED_PRECONDITION.withDescription(ERROR_NO_SESSION),
@@ -288,18 +292,8 @@ internal class AppInteractionServiceGrpcImpl(
                 responseObserver,
             )
         }
-        if (!currentSession.isActive) {
-            destroySession(req.getSessionIdentifier())
-            return respondWithError(
-                StatusRuntimeException(
-                    Status.FAILED_PRECONDITION.withDescription(ERROR_SESSION_ENDED),
-                ),
-                responseObserver,
-            )
-        }
         val uiCache = UiSessions.getUiCacheOrNull(sessionId)
         if (uiCache == null) {
-            destroySession(req.getSessionIdentifier())
             return respondWithError(
                 StatusRuntimeException(Status.INTERNAL.withDescription(ERROR_NO_UI)),
                 responseObserver,
@@ -310,8 +304,8 @@ internal class AppInteractionServiceGrpcImpl(
         val remoteViewsSize = uiCache.cachedRemoteViewsSize
 
         if (tileLayout == null && (remoteViews == null || remoteViewsSize == null)) {
-            destroySession(req.sessionIdentifier)
-            respondWithError(
+            UiSessions.removeUiCache(sessionId)
+            return respondWithError(
                 StatusRuntimeException(Status.INTERNAL.withDescription(ERROR_NO_UI)),
                 responseObserver
             )
@@ -336,8 +330,7 @@ internal class AppInteractionServiceGrpcImpl(
         responseObserver: StreamObserver<CollectionResponse>,
     ) {
         val sessionId = req.getSessionIdentifier()!!
-        val currentSession = SessionManager.getSession(sessionId)
-        if (currentSession == null) {
+        if (SessionManager.getSession(sessionId) == null) {
             return respondWithError(
                 StatusRuntimeException(
                     Status.FAILED_PRECONDITION.withDescription(ERROR_NO_SESSION),
@@ -345,18 +338,8 @@ internal class AppInteractionServiceGrpcImpl(
                 responseObserver,
             )
         }
-        if (!currentSession.isActive) {
-            destroySession(req.getSessionIdentifier())
-            return respondWithError(
-                StatusRuntimeException(
-                    Status.FAILED_PRECONDITION.withDescription(ERROR_SESSION_ENDED),
-                ),
-                responseObserver,
-            )
-        }
         val uiCache = UiSessions.getUiCacheOrNull(sessionId)
         if (uiCache == null) {
-            destroySession(req.getSessionIdentifier())
             return respondWithError(
                 StatusRuntimeException(Status.INTERNAL.withDescription(ERROR_NO_UI)),
                 responseObserver,
@@ -364,7 +347,6 @@ internal class AppInteractionServiceGrpcImpl(
         }
         val factory = uiCache.onGetViewFactoryInternal(req.getViewId())
         if (factory == null) {
-            destroySession(req.getSessionIdentifier())
             return respondWithError(
                 StatusRuntimeException(
                     Status.UNIMPLEMENTED.withDescription(ERROR_NO_COLLECTION_SUPPORT),
@@ -547,7 +529,11 @@ internal class AppInteractionServiceGrpcImpl(
         return builder.build()
     }
 
-    private fun destroySession(sessionId: String) {
+    /**
+     * Calls destroy on the session if it's found in SessionManager.
+     * Also removes the session from map.
+     */
+    internal fun destroyAndRemoveSession(sessionId: String) {
         SessionManager.getSession(sessionId)?.destroy()
         SessionManager.removeSession(sessionId)
     }
