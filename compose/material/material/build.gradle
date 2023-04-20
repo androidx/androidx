@@ -39,7 +39,7 @@ dependencies {
         api(project(":compose:material:material-ripple"))
         api("androidx.compose.runtime:runtime:1.2.1")
         api("androidx.compose.ui:ui:1.2.1")
-        api("androidx.compose.ui:ui-text:1.2.1")
+        api(project(":compose:ui:ui-text"))
 
         implementation(libs.kotlinStdlibCommon)
         implementation("androidx.compose.animation:animation:1.2.1")

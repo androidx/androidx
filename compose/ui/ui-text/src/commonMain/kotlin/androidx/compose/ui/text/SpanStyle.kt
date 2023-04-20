@@ -23,6 +23,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.drawscope.DrawStyle
 import androidx.compose.ui.graphics.drawscope.Fill
+import androidx.compose.ui.graphics.isSpecified
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.text.font.FontFamily
@@ -37,6 +38,7 @@ import androidx.compose.ui.text.style.TextForegroundStyle
 import androidx.compose.ui.text.style.TextGeometricTransform
 import androidx.compose.ui.text.style.lerp
 import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.isSpecified
 import androidx.compose.ui.unit.isUnspecified
 import androidx.compose.ui.unit.lerp
 import androidx.compose.ui.unit.sp
@@ -423,35 +425,26 @@ class SpanStyle internal constructor(
     @Stable
     fun merge(other: SpanStyle? = null): SpanStyle {
         if (other == null) return this
-
-        return SpanStyle(
-            textForegroundStyle = textForegroundStyle.merge(other.textForegroundStyle),
-            fontFamily = other.fontFamily ?: this.fontFamily,
-            fontSize = if (!other.fontSize.isUnspecified) other.fontSize else this.fontSize,
-            fontWeight = other.fontWeight ?: this.fontWeight,
-            fontStyle = other.fontStyle ?: this.fontStyle,
-            fontSynthesis = other.fontSynthesis ?: this.fontSynthesis,
-            fontFeatureSettings = other.fontFeatureSettings ?: this.fontFeatureSettings,
-            letterSpacing = if (!other.letterSpacing.isUnspecified) {
-                other.letterSpacing
-            } else {
-                this.letterSpacing
-            },
-            baselineShift = other.baselineShift ?: this.baselineShift,
-            textGeometricTransform = other.textGeometricTransform ?: this.textGeometricTransform,
-            localeList = other.localeList ?: this.localeList,
-            background = other.background.takeOrElse { this.background },
-            textDecoration = other.textDecoration ?: this.textDecoration,
-            shadow = other.shadow ?: this.shadow,
-            platformStyle = mergePlatformStyle(other.platformStyle),
-            drawStyle = other.drawStyle ?: this.drawStyle
+        return fastMerge(
+            color = other.textForegroundStyle.color,
+            brush = other.textForegroundStyle.brush,
+            alpha = other.textForegroundStyle.alpha,
+            fontSize = other.fontSize,
+            fontWeight = other.fontWeight,
+            fontStyle = other.fontStyle,
+            fontSynthesis = other.fontSynthesis,
+            fontFamily = other.fontFamily,
+            fontFeatureSettings = other.fontFeatureSettings,
+            letterSpacing = other.letterSpacing,
+            baselineShift = other.baselineShift,
+            textGeometricTransform = other.textGeometricTransform,
+            localeList = other.localeList,
+            background = other.background,
+            textDecoration = other.textDecoration,
+            shadow = other.shadow,
+            platformStyle = other.platformStyle,
+            drawStyle = other.drawStyle
         )
-    }
-
-    private fun mergePlatformStyle(other: PlatformSpanStyle?): PlatformSpanStyle? {
-        if (platformStyle == null) return other
-        if (other == null) return platformStyle
-        return platformStyle.merge(other)
     }
 
     /**
@@ -859,3 +852,100 @@ internal fun resolveSpanStyleDefaults(style: SpanStyle) = SpanStyle(
     platformStyle = style.platformStyle,
     drawStyle = style.drawStyle ?: Fill
 )
+
+@OptIn(ExperimentalTextApi::class)
+internal fun SpanStyle.fastMerge(
+    color: Color,
+    brush: Brush?,
+    alpha: Float,
+    fontSize: TextUnit,
+    fontWeight: FontWeight?,
+    fontStyle: FontStyle?,
+    fontSynthesis: FontSynthesis?,
+    fontFamily: FontFamily?,
+    fontFeatureSettings: String?,
+    letterSpacing: TextUnit,
+    baselineShift: BaselineShift?,
+    textGeometricTransform: TextGeometricTransform?,
+    localeList: LocaleList?,
+    background: Color,
+    textDecoration: TextDecoration?,
+    shadow: Shadow?,
+    platformStyle: PlatformSpanStyle?,
+    drawStyle: DrawStyle?
+): SpanStyle {
+    // prioritize the parameters to Text in diffs here
+    /**
+     *  color: Color
+     *  fontSize: TextUnit
+     *  fontStyle: FontStyle?
+     *  fontWeight: FontWeight?
+     *  fontFamily: FontFamily?
+     *  letterSpacing: TextUnit
+     *  textDecoration: TextDecoration?
+     *  textAlign: TextAlign?
+     *  lineHeight: TextUnit
+     */
+
+    // any new vals should do a pre-merge check here
+    val requiresAlloc = fontSize.isSpecified && fontSize != this.fontSize ||
+        brush == null && color != textForegroundStyle.color ||
+        fontStyle != null && fontStyle != this.fontStyle ||
+        fontWeight != null && fontWeight != this.fontWeight ||
+        // ref check for font-family, since we don't want to compare lists in fast path
+        fontFamily != null && fontFamily !== this.fontFamily ||
+        letterSpacing.isSpecified && letterSpacing != this.letterSpacing ||
+        textDecoration != null && textDecoration != this.textDecoration ||
+        // then compare the remaining params, for potential non-Text merges
+        brush != textForegroundStyle.brush ||
+        brush != null && alpha != this.textForegroundStyle.alpha ||
+        fontSynthesis != null && fontSynthesis != this.fontSynthesis ||
+        fontFeatureSettings != null && fontFeatureSettings != this.fontFeatureSettings ||
+        baselineShift != null && baselineShift != this.baselineShift ||
+        textGeometricTransform != null && textGeometricTransform != this.textGeometricTransform ||
+        localeList != null && localeList != this.localeList ||
+        background.isSpecified && background != this.background ||
+        shadow != null && shadow != this.shadow ||
+        platformStyle != null && platformStyle != this.platformStyle ||
+        drawStyle != null && drawStyle != this.drawStyle
+
+    if (!requiresAlloc) {
+        // we're done
+        return this
+    }
+
+    val otherTextForegroundStyle = if (brush != null) {
+        TextForegroundStyle.from(brush, alpha)
+    } else {
+        TextForegroundStyle.from(color)
+    }
+
+    return SpanStyle(
+        textForegroundStyle = textForegroundStyle.merge(otherTextForegroundStyle),
+        fontFamily = fontFamily ?: this.fontFamily,
+        fontSize = if (!fontSize.isUnspecified) fontSize else this.fontSize,
+        fontWeight = fontWeight ?: this.fontWeight,
+        fontStyle = fontStyle ?: this.fontStyle,
+        fontSynthesis = fontSynthesis ?: this.fontSynthesis,
+        fontFeatureSettings = fontFeatureSettings ?: this.fontFeatureSettings,
+        letterSpacing = if (!letterSpacing.isUnspecified) {
+            letterSpacing
+        } else {
+            this.letterSpacing
+        },
+        baselineShift = baselineShift ?: this.baselineShift,
+        textGeometricTransform = textGeometricTransform ?: this.textGeometricTransform,
+        localeList = localeList ?: this.localeList,
+        background = background.takeOrElse { this.background },
+        textDecoration = textDecoration ?: this.textDecoration,
+        shadow = shadow ?: this.shadow,
+        platformStyle = mergePlatformStyle(platformStyle),
+        drawStyle = drawStyle ?: this.drawStyle
+    )
+}
+
+private fun SpanStyle.mergePlatformStyle(other: PlatformSpanStyle?): PlatformSpanStyle? {
+    if (platformStyle == null) return other
+    if (other == null) return platformStyle
+    return platformStyle.merge(other)
+}
