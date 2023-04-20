@@ -1,3 +1,7 @@
 // Baseline format: 1.0
+GetterSetterNames: field ChangesResponse.changesTokenExpired:
+    Invalid name for boolean property `changesTokenExpired`. Should start with one of `has`, `can`, `should`, `is`.
+
+
 MissingJvmstatic: androidx.health.connect.client.HealthConnectClient#ACTION_HEALTH_CONNECT_SETTINGS:
     Companion object constants like ACTION_HEALTH_CONNECT_SETTINGS should be using @JvmField, not @JvmStatic; see https://developer.android.com/kotlin/interop#companion_constants

@@ -13,7 +13,7 @@ package androidx.benchmark.junit4 {
 
   public final class BenchmarkRule.Scope {
     method @kotlin.PublishedApi internal androidx.benchmark.BenchmarkState getOuterState();
-    method public inline <T> T! runWithTimingDisabled(kotlin.jvm.functions.Function0<? extends T> block);
+    method public inline <T> T runWithTimingDisabled(kotlin.jvm.functions.Function0<? extends T> block);
   }
 
   public final class BenchmarkRuleKt {

@@ -156,7 +156,7 @@ package androidx.compose.foundation {
   @androidx.compose.runtime.Stable public final class MutatorMutex {
     ctor public MutatorMutex();
     method public suspend <R> Object? mutate(optional androidx.compose.foundation.MutatePriority priority, kotlin.jvm.functions.Function1<? super kotlin.coroutines.Continuation<? super R>,?> block, kotlin.coroutines.Continuation<? super R>);
-    method public suspend <T, R> Object? mutateWith(T? receiver, optional androidx.compose.foundation.MutatePriority priority, kotlin.jvm.functions.Function2<? super T,? super kotlin.coroutines.Continuation<? super R>,?> block, kotlin.coroutines.Continuation<? super R>);
+    method public suspend <T, R> Object? mutateWith(T receiver, optional androidx.compose.foundation.MutatePriority priority, kotlin.jvm.functions.Function2<? super T,? super kotlin.coroutines.Continuation<? super R>,?> block, kotlin.coroutines.Continuation<? super R>);
   }
 
   @androidx.compose.foundation.ExperimentalFoundationApi @androidx.compose.runtime.Stable public final class OverscrollConfiguration {
@@ -746,10 +746,10 @@ package androidx.compose.foundation.lazy.layout {
   public static final class IntervalList.Interval<T> {
     method public int getSize();
     method public int getStartIndex();
-    method public T! getValue();
+    method public T getValue();
     property public final int size;
     property public final int startIndex;
-    property public final T! value;
+    property public final T value;
   }
 
   @androidx.compose.foundation.ExperimentalFoundationApi public abstract class LazyLayoutIntervalContent<Interval extends androidx.compose.foundation.lazy.layout.LazyLayoutIntervalContent.Interval> {
@@ -832,7 +832,7 @@ package androidx.compose.foundation.lazy.layout {
 
   @androidx.compose.foundation.ExperimentalFoundationApi public final class MutableIntervalList<T> implements androidx.compose.foundation.lazy.layout.IntervalList<T> {
     ctor public MutableIntervalList();
-    method public void addInterval(int size, T? value);
+    method public void addInterval(int size, T value);
     method public void forEach(int fromIndex, int toIndex, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.lazy.layout.IntervalList.Interval<? extends T>,kotlin.Unit> block);
     method public androidx.compose.foundation.lazy.layout.IntervalList.Interval<T> get(int index);
     method public int getSize();

@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+InvalidNullConversion: androidx.compose.ui.tooling.animation.ToolingState#ToolingState(T) parameter #0:
+    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter default in androidx.compose.ui.tooling.animation.ToolingState(T default)

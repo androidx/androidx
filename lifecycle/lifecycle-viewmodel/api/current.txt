@@ -122,7 +122,7 @@ package androidx.lifecycle.viewmodel {
   public final class MutableCreationExtras extends androidx.lifecycle.viewmodel.CreationExtras {
     ctor public MutableCreationExtras(optional androidx.lifecycle.viewmodel.CreationExtras initialExtras);
     method public <T> T? get(androidx.lifecycle.viewmodel.CreationExtras.Key<T> key);
-    method public operator <T> void set(androidx.lifecycle.viewmodel.CreationExtras.Key<T> key, T? t);
+    method public operator <T> void set(androidx.lifecycle.viewmodel.CreationExtras.Key<T> key, T t);
   }
 
   @kotlin.DslMarker public @interface ViewModelFactoryDsl {

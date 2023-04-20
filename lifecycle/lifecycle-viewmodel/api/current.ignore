@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+InvalidNullConversion: androidx.lifecycle.viewmodel.MutableCreationExtras#set(androidx.lifecycle.viewmodel.CreationExtras.Key<T>, T) parameter #1:
+    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter t in androidx.lifecycle.viewmodel.MutableCreationExtras.set(androidx.lifecycle.viewmodel.CreationExtras.Key<T> key, T t)

@@ -9,6 +9,18 @@ ChangedType: androidx.collection.SparseArrayCompat#clone():
     Method androidx.collection.SparseArrayCompat.clone has changed return type from androidx.collection.SparseArrayCompat<E!> to androidx.collection.SparseArrayCompat<E>
 
 
+InvalidNullConversion: androidx.collection.ArraySet#add(E) parameter #0:
+    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter element in androidx.collection.ArraySet.add(E element)
+InvalidNullConversion: androidx.collection.ArraySet#contains(E) parameter #0:
+    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter element in androidx.collection.ArraySet.contains(E element)
+InvalidNullConversion: androidx.collection.ArraySet#remove(E) parameter #0:
+    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter element in androidx.collection.ArraySet.remove(E element)
+InvalidNullConversion: androidx.collection.SimpleArrayMap#containsKey(K) parameter #0:
+    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter key in androidx.collection.SimpleArrayMap.containsKey(K key)
+InvalidNullConversion: androidx.collection.SimpleArrayMap#indexOfKey(K) parameter #0:
+    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter key in androidx.collection.SimpleArrayMap.indexOfKey(K key)
+
+
 RemovedMethod: androidx.collection.ArraySet#ArraySet(androidx.collection.ArraySet<E>):
     Removed constructor androidx.collection.ArraySet(androidx.collection.ArraySet<E>)
 RemovedMethod: androidx.collection.ArraySet#ArraySet(java.util.Collection<E>):

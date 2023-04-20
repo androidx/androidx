@@ -36,7 +36,7 @@ package androidx.activity.compose {
 
   public final class ManagedActivityResultLauncher<I, O> extends androidx.activity.result.ActivityResultLauncher<I> {
     method public androidx.activity.result.contract.ActivityResultContract<I,?> getContract();
-    method public void launch(I? input, androidx.core.app.ActivityOptionsCompat? options);
+    method public void launch(I input, androidx.core.app.ActivityOptionsCompat? options);
     method @Deprecated public void unregister();
   }
 

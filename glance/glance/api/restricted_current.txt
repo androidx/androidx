@@ -37,12 +37,12 @@ package androidx.glance {
     ctor public CombinedGlanceModifier(androidx.glance.GlanceModifier outer, androidx.glance.GlanceModifier inner);
     method public boolean all(kotlin.jvm.functions.Function1<? super androidx.glance.GlanceModifier.Element,java.lang.Boolean> predicate);
     method public boolean any(kotlin.jvm.functions.Function1<? super androidx.glance.GlanceModifier.Element,java.lang.Boolean> predicate);
-    method public <R> R! foldIn(R? initial, kotlin.jvm.functions.Function2<? super R,? super androidx.glance.GlanceModifier.Element,? extends R> operation);
-    method public <R> R! foldOut(R? initial, kotlin.jvm.functions.Function2<? super androidx.glance.GlanceModifier.Element,? super R,? extends R> operation);
+    method public <R> R foldIn(R initial, kotlin.jvm.functions.Function2<? super R,? super androidx.glance.GlanceModifier.Element,? extends R> operation);
+    method public <R> R foldOut(R initial, kotlin.jvm.functions.Function2<? super androidx.glance.GlanceModifier.Element,? super R,? extends R> operation);
   }
 
   public final class CompositionLocalsKt {
-    method @androidx.compose.runtime.Composable public static inline <reified T> T? currentState();
+    method @androidx.compose.runtime.Composable public static inline <reified T> T currentState();
     method @androidx.compose.runtime.Composable public static inline <reified T> T? currentState(androidx.datastore.preferences.core.Preferences.Key<T> key);
     method public static androidx.compose.runtime.ProvidableCompositionLocal<android.content.Context> getLocalContext();
     method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.glance.GlanceId> getLocalGlanceId();
@@ -63,8 +63,8 @@ package androidx.glance {
   @androidx.compose.runtime.Stable @kotlin.jvm.JvmDefaultWithCompatibility public interface GlanceModifier {
     method public boolean all(kotlin.jvm.functions.Function1<? super androidx.glance.GlanceModifier.Element,java.lang.Boolean> predicate);
     method public boolean any(kotlin.jvm.functions.Function1<? super androidx.glance.GlanceModifier.Element,java.lang.Boolean> predicate);
-    method public <R> R! foldIn(R? initial, kotlin.jvm.functions.Function2<? super R,? super androidx.glance.GlanceModifier.Element,? extends R> operation);
-    method public <R> R! foldOut(R? initial, kotlin.jvm.functions.Function2<? super androidx.glance.GlanceModifier.Element,? super R,? extends R> operation);
+    method public <R> R foldIn(R initial, kotlin.jvm.functions.Function2<? super R,? super androidx.glance.GlanceModifier.Element,? extends R> operation);
+    method public <R> R foldOut(R initial, kotlin.jvm.functions.Function2<? super androidx.glance.GlanceModifier.Element,? super R,? extends R> operation);
     method public default infix androidx.glance.GlanceModifier then(androidx.glance.GlanceModifier other);
     field public static final androidx.glance.GlanceModifier.Companion Companion;
   }
@@ -72,15 +72,15 @@ package androidx.glance {
   public static final class GlanceModifier.Companion implements androidx.glance.GlanceModifier {
     method public boolean all(kotlin.jvm.functions.Function1<? super androidx.glance.GlanceModifier.Element,java.lang.Boolean> predicate);
     method public boolean any(kotlin.jvm.functions.Function1<? super androidx.glance.GlanceModifier.Element,java.lang.Boolean> predicate);
-    method public <R> R! foldIn(R? initial, kotlin.jvm.functions.Function2<? super R,? super androidx.glance.GlanceModifier.Element,? extends R> operation);
-    method public <R> R! foldOut(R? initial, kotlin.jvm.functions.Function2<? super androidx.glance.GlanceModifier.Element,? super R,? extends R> operation);
+    method public <R> R foldIn(R initial, kotlin.jvm.functions.Function2<? super R,? super androidx.glance.GlanceModifier.Element,? extends R> operation);
+    method public <R> R foldOut(R initial, kotlin.jvm.functions.Function2<? super androidx.glance.GlanceModifier.Element,? super R,? extends R> operation);
   }
 
   @kotlin.jvm.JvmDefaultWithCompatibility public static interface GlanceModifier.Element extends androidx.glance.GlanceModifier {
     method public default boolean all(kotlin.jvm.functions.Function1<? super androidx.glance.GlanceModifier.Element,java.lang.Boolean> predicate);
     method public default boolean any(kotlin.jvm.functions.Function1<? super androidx.glance.GlanceModifier.Element,java.lang.Boolean> predicate);
-    method public default <R> R! foldIn(R? initial, kotlin.jvm.functions.Function2<? super R,? super androidx.glance.GlanceModifier.Element,? extends R> operation);
-    method public default <R> R! foldOut(R? initial, kotlin.jvm.functions.Function2<? super androidx.glance.GlanceModifier.Element,? super R,? extends R> operation);
+    method public default <R> R foldIn(R initial, kotlin.jvm.functions.Function2<? super R,? super androidx.glance.GlanceModifier.Element,? extends R> operation);
+    method public default <R> R foldOut(R initial, kotlin.jvm.functions.Function2<? super androidx.glance.GlanceModifier.Element,? super R,? extends R> operation);
   }
 
   public final class GlanceTheme {
@@ -385,10 +385,10 @@ package androidx.glance.semantics {
 
   public final class SemanticsConfiguration implements androidx.glance.semantics.SemanticsPropertyReceiver {
     ctor public SemanticsConfiguration();
-    method public operator <T> T! get(androidx.glance.semantics.SemanticsPropertyKey<T> key);
+    method public operator <T> T get(androidx.glance.semantics.SemanticsPropertyKey<T> key);
     method public <T> T? getOrElseNullable(androidx.glance.semantics.SemanticsPropertyKey<T> key, kotlin.jvm.functions.Function0<? extends T> defaultValue);
     method public <T> T? getOrNull(androidx.glance.semantics.SemanticsPropertyKey<T> key);
-    method public <T> void set(androidx.glance.semantics.SemanticsPropertyKey<T> key, T? value);
+    method public <T> void set(androidx.glance.semantics.SemanticsPropertyKey<T> key, T value);
   }
 
   public final class SemanticsModifierKt {
@@ -409,12 +409,12 @@ package androidx.glance.semantics {
   public final class SemanticsPropertyKey<T> {
     ctor public SemanticsPropertyKey(String name, optional kotlin.jvm.functions.Function2<? super T,? super T,? extends T> mergePolicy);
     method public String getName();
-    method public T? merge(T? parentValue, T? childValue);
+    method public T? merge(T? parentValue, T childValue);
     property public final String name;
   }
 
   public interface SemanticsPropertyReceiver {
-    method public operator <T> void set(androidx.glance.semantics.SemanticsPropertyKey<T> key, T? value);
+    method public operator <T> void set(androidx.glance.semantics.SemanticsPropertyKey<T> key, T value);
   }
 
 }
