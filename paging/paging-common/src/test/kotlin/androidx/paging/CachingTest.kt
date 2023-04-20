@@ -25,7 +25,6 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancelAndJoin
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.filterIsInstance
@@ -221,10 +220,7 @@ class CachingTest {
         assertThat(tracker.pageEventFlowCount()).isEqualTo(0)
         assertThat(tracker.pageDataFlowCount()).isEqualTo(0)
         val items = runBlocking {
-            pageFlow.collectItemsUntilSize(9) {
-                // see http://b/146676984
-                delay(10)
-            }
+            pageFlow.collectItemsUntilSize(9)
         }
         val firstList = buildItems(
             version = 0,
@@ -234,10 +230,7 @@ class CachingTest {
         )
         assertThat(tracker.pageDataFlowCount()).isEqualTo(1)
         val items2 = runBlocking {
-            pageFlow.collectItemsUntilSize(21) {
-                // see http://b/146676984
-                delay(10)
-            }
+            pageFlow.collectItemsUntilSize(21)
         }
         assertThat(items2).isEqualTo(
             buildItems(
@@ -401,7 +394,6 @@ class CachingTest {
 
     private suspend fun Flow<PagingData<Item>>.collectItemsUntilSize(
         expectedSize: Int,
-        onEach: (suspend () -> Unit)? = null
     ): List<Item> {
         return this
             .mapLatest { pagingData ->
@@ -411,9 +403,6 @@ class CachingTest {
                 val receiver = pagingData.hintReceiver
                 var loadedPageCount = 0
                 pagingData.flow.filterIsInstance<PageEvent.Insert<Item>>()
-                    .onEach {
-                        onEach?.invoke()
-                    }
                     .onEach {
                         items.addAll(
                             it.pages.flatMap {
