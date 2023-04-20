@@ -24,6 +24,7 @@ import androidx.camera.core.CameraEffect.IMAGE_CAPTURE
 import androidx.camera.core.CameraEffect.PREVIEW
 import androidx.camera.core.CameraEffect.VIDEO_CAPTURE
 import androidx.camera.core.ImageCapture
+import androidx.camera.core.ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY
 import androidx.camera.core.ImageProxy
 import androidx.camera.core.impl.CameraCaptureCallback
 import androidx.camera.core.impl.CameraCaptureResult
@@ -99,9 +100,10 @@ class StreamSharingTest {
     }
 
     @Test
-    fun childTakingPicture_triggersSnapshot() {
-        // Arrange: set up StreamSharing with ImageCapture as child
-        val imageCapture = ImageCapture.Builder().build()
+    fun childTakingPicture_getJpegQuality() {
+        // Arrange: set up StreamSharing with min latency ImageCapture as child
+        val imageCapture =
+            ImageCapture.Builder().setCaptureMode(CAPTURE_MODE_MINIMIZE_LATENCY).build()
         streamSharing = StreamSharing(camera, setOf(child1, imageCapture), useCaseConfigFactory)
         streamSharing.bindToCamera(camera, null, defaultConfig)
         streamSharing.onSuggestedStreamSpecUpdated(StreamSpec.builder(size).build())
@@ -112,8 +114,8 @@ class StreamSharingTest {
         })
         shadowOf(getMainLooper()).idle()
 
-        // Assert: the snapshot is triggered.
-        assertThat(sharingProcessor.isSnapshotTriggered).isTrue()
+        // Assert: the jpeg quality of min latency capture is 95.
+        assertThat(sharingProcessor.jpegQuality).isEqualTo(95)
     }
 
     @Test

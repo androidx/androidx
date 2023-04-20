@@ -18,6 +18,7 @@ package androidx.camera.testing.fakes;
 
 import android.os.Build;
 
+import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.utils.futures.Futures;
@@ -35,7 +36,7 @@ public class FakeSurfaceProcessorInternal extends FakeSurfaceProcessor implement
         SurfaceProcessorInternal {
 
     private boolean mIsReleased;
-    private boolean mIsSnapshotTriggered = false;
+    private int mJpegQuality = 0;
 
     /**
      * {@inheritDoc}
@@ -64,12 +65,13 @@ public class FakeSurfaceProcessorInternal extends FakeSurfaceProcessor implement
 
     @Override
     @NonNull
-    public ListenableFuture<Void> snapshot() {
-        mIsSnapshotTriggered = true;
+    public ListenableFuture<Void> snapshot(int jpegQuality) {
+        mJpegQuality = jpegQuality;
         return Futures.immediateFuture(null);
     }
 
-    public boolean isSnapshotTriggered() {
-        return mIsSnapshotTriggered;
+    @IntRange(from = 0, to = 100)
+    public int getJpegQuality() {
+        return mJpegQuality;
     }
 }
