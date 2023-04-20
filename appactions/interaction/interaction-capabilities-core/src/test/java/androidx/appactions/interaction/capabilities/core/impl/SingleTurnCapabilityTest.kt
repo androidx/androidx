@@ -79,6 +79,8 @@ class SingleTurnCapabilityTest {
 
         val capabilitySession = capability.createSession(fakeSessionId, hostProperties)
         assertThat(capabilitySession.sessionId).isEqualTo(fakeSessionId)
+        assertThat(capabilitySession.state).isNull()
+        assertThat(capabilitySession.isActive).isTrue()
 
         val callbackInternal = FakeCallbackInternal(CB_TIMEOUT)
         capabilitySession.execute(
@@ -91,6 +93,7 @@ class SingleTurnCapabilityTest {
             callbackInternal
         )
 
+        assertThat(capabilitySession.isActive).isFalse()
         val response = callbackInternal.receiveResponse()
         assertThat(response.fulfillmentResponse).isNotNull()
         assertThat(response.fulfillmentResponse)

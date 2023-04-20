@@ -459,7 +459,7 @@ class TaskCapabilityImplTest {
         )
         assertThat(callback.receiveResponse().fulfillmentResponse).isNotNull()
         assertThat(onExecuteInvocationCount.get()).isEqualTo(0)
-        assertThat(getCurrentValues("slotA", session.state))
+        assertThat(getCurrentValues("slotA", session.state!!))
             .containsExactly(
                 CurrentValue.newBuilder()
                     .setValue(
@@ -468,7 +468,7 @@ class TaskCapabilityImplTest {
                     .setStatus(CurrentValue.Status.ACCEPTED)
                     .build(),
             )
-        assertThat(getCurrentValues("slotB", session.state))
+        assertThat(getCurrentValues("slotB", session.state!!))
             .containsExactly(
                 CurrentValue.newBuilder()
                     .setValue(
@@ -518,7 +518,7 @@ class TaskCapabilityImplTest {
             callback,
         )
         assertThat(callback.receiveResponse()).isNotNull()
-        assertThat(getCurrentValues("required", session.state))
+        assertThat(getCurrentValues("required", session.state!!))
             .containsExactly(
                 CurrentValue.newBuilder()
                     .setValue(
@@ -527,7 +527,7 @@ class TaskCapabilityImplTest {
                     .setStatus(CurrentValue.Status.ACCEPTED)
                     .build(),
             )
-        assertThat(getCurrentValues("optionalEnum", session.state)).isEmpty()
+        assertThat(getCurrentValues("optionalEnum", session.state!!)).isEmpty()
 
         // TURN 2.
         val callback2 = FakeCallbackInternal()
@@ -536,8 +536,8 @@ class TaskCapabilityImplTest {
             callback2,
         )
         assertThat(callback2.receiveResponse().fulfillmentResponse).isNotNull()
-        assertThat(getCurrentValues("required", session.state)).isEmpty()
-        assertThat(getCurrentValues("optionalEnum", session.state))
+        assertThat(getCurrentValues("required", session.state!!)).isEmpty()
+        assertThat(getCurrentValues("optionalEnum", session.state!!))
             .containsExactly(
                 CurrentValue.newBuilder()
                     .setValue(ParamValue.newBuilder().setIdentifier("VALUE_2"))
