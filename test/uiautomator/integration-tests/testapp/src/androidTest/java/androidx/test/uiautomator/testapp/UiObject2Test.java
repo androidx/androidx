@@ -329,6 +329,18 @@ public class UiObject2Test extends BaseTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 26)
+    public void testGetHint() {
+        launchTestActivity(HintTestActivity.class);
+
+        UiObject2 hintNotSetObj = mDevice.findObject(By.res(TEST_APP, "hint_not_set"));
+        UiObject2 hintSetObj = mDevice.findObject(By.res(TEST_APP, "hint_set"));
+
+        assertNull(hintNotSetObj.getHint());
+        assertEquals("sample_hint", hintSetObj.getHint());
+    }
+
+    @Test
     public void testGetVisibleBounds() {
         launchTestActivity(VisibleBoundsTestActivity.class);
 

@@ -16,9 +16,13 @@
 
 package androidx.test.uiautomator;
 
+import android.os.Build;
 import android.util.Log;
 import android.util.Xml;
 import android.view.accessibility.AccessibilityNodeInfo;
+
+import androidx.annotation.DoNotInline;
+import androidx.annotation.RequiresApi;
 
 import org.xmlpull.v1.XmlSerializer;
 
@@ -79,6 +83,9 @@ class AccessibilityNodeInfoDumper {
         serializer.attribute("", "visible-to-user", Boolean.toString(node.isVisibleToUser()));
         serializer.attribute("", "bounds", AccessibilityNodeInfoHelper.getVisibleBoundsInScreen(
                 node, width, height, false).toShortString());
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            serializer.attribute("", "hint", safeCharSeqToString(Api26Impl.getHintText(node)));
+        }
         int count = node.getChildCount();
         for (int i = 0; i < count; i++) {
             AccessibilityNodeInfo child = node.getChild(i);
@@ -187,5 +194,17 @@ class AccessibilityNodeInfoDumper {
             }
         }
         return ret.toString();
+    }
+
+    @RequiresApi(26)
+    static class Api26Impl {
+        private Api26Impl() {
+        }
+
+        @DoNotInline
+        static String getHintText(AccessibilityNodeInfo accessibilityNodeInfo) {
+            CharSequence chars = accessibilityNodeInfo.getHintText();
+            return chars != null ? chars.toString() : null;
+        }
     }
 }

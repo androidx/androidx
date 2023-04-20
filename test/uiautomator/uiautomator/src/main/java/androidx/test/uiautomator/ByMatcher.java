@@ -16,10 +16,13 @@
 
 package androidx.test.uiautomator;
 
+import android.os.Build;
 import android.util.Log;
 import android.view.accessibility.AccessibilityNodeInfo;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -217,8 +220,8 @@ class ByMatcher {
          * Returns true if the node matches the selector, ignoring child selectors.
          *
          * @param selector search criteria to match
-         * @param node node to check
-         * @param depth distance between the node and its relevant ancestor
+         * @param node     node to check
+         * @param depth    distance between the node and its relevant ancestor
          */
         private static boolean matchesSelector(
                 BySelector selector, AccessibilityNodeInfo node, int depth) {
@@ -237,7 +240,8 @@ class ByMatcher {
                     && matchesCriteria(selector.mFocusable, node.isFocusable())
                     && matchesCriteria(selector.mLongClickable, node.isLongClickable())
                     && matchesCriteria(selector.mScrollable, node.isScrollable())
-                    && matchesCriteria(selector.mSelected, node.isSelected());
+                    && matchesCriteria(selector.mSelected, node.isSelected())
+                    && matchesHint(selector.mHint, node);
         }
 
         /** Returns true if the criteria is null or matches the value. */
@@ -251,6 +255,15 @@ class ByMatcher {
         /** Returns true if the criteria is null or equal to the value. */
         private static boolean matchesCriteria(Boolean criteria, boolean value) {
             return criteria == null || criteria.equals(value);
+        }
+
+        /** Returns true if the criteria is null or equal to the hint text of node. */
+        private static boolean matchesHint(Pattern criteria, AccessibilityNodeInfo node) {
+            if (criteria == null) {
+                return true;
+            }
+            return Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && matchesCriteria(criteria,
+                    Api26Impl.getHintText(node));
         }
 
         /**
@@ -307,6 +320,18 @@ class ByMatcher {
             }
             for (PartialMatch pm : mChildMatches) {
                 pm.recycleNodes();
+            }
+        }
+
+        @RequiresApi(26)
+        static class Api26Impl {
+            private Api26Impl() {
+            }
+
+            @DoNotInline
+            static String getHintText(AccessibilityNodeInfo accessibilityNodeInfo) {
+                CharSequence chars = accessibilityNodeInfo.getHintText();
+                return chars != null ? chars.toString() : null;
             }
         }
     }

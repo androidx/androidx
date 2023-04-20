@@ -361,6 +361,18 @@ public class UiObject2 implements Searchable {
     }
 
     /**
+     * Returns the hint text of this object, or null if hint text is not preset.
+     * <p>Hint text is displayed when there's no user input text.
+     *
+     * @see TextView#getHint()
+     */
+    @RequiresApi(26)
+    @Nullable
+    public String getHint() {
+        return Api26Impl.getHintText(getAccessibilityNodeInfo());
+    }
+
+    /**
      * Returns {@code true} if this object is checkable.
      *
      * @see Checkable
@@ -952,6 +964,18 @@ public class UiObject2 implements Searchable {
         static void getBoundsInScreen(AccessibilityWindowInfo accessibilityWindowInfo,
                 Rect outBounds) {
             accessibilityWindowInfo.getBoundsInScreen(outBounds);
+        }
+    }
+
+    @RequiresApi(26)
+    static class Api26Impl {
+        private Api26Impl() {
+        }
+
+        @DoNotInline
+        static String getHintText(AccessibilityNodeInfo accessibilityNodeInfo) {
+            CharSequence chars = accessibilityNodeInfo.getHintText();
+            return chars != null ? chars.toString() : null;
         }
     }
 
