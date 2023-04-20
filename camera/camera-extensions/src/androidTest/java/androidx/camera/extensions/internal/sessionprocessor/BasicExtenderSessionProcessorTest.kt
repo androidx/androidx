@@ -265,7 +265,7 @@ class BasicExtenderSessionProcessorTest(
             analysisSemaphore
         )
 
-        fakeLifecycleOwner.pauseAndStop()
+        withContext(Dispatchers.Main) { fakeLifecycleOwner.pauseAndStop() }
 
         delay(1000)
         previewSemaphore.drainPermits()
@@ -308,24 +308,28 @@ class BasicExtenderSessionProcessorTest(
             })
         }
 
-        fakeLifecycleOwner.pauseAndStop()
+        withContext(Dispatchers.Main) { fakeLifecycleOwner.pauseAndStop() }
         assertThat(cameraClosedLatch.await(1, TimeUnit.SECONDS)).isTrue()
 
-        fakeCaptureExtenderImpl.assertInvokeOrder(listOf(
-            "onInit",
-            "onPresetSession",
-            "onEnableSession",
-            "onDisableSession",
-            "onDeInit",
-        ))
+        fakeCaptureExtenderImpl.assertInvokeOrder(
+            listOf(
+                "onInit",
+                "onPresetSession",
+                "onEnableSession",
+                "onDisableSession",
+                "onDeInit",
+            )
+        )
 
-        fakePreviewExtenderImpl.assertInvokeOrder(listOf(
-            "onInit",
-            "onPresetSession",
-            "onEnableSession",
-            "onDisableSession",
-            "onDeInit",
-        ))
+        fakePreviewExtenderImpl.assertInvokeOrder(
+            listOf(
+                "onInit",
+                "onPresetSession",
+                "onEnableSession",
+                "onDisableSession",
+                "onDeInit",
+            )
+        )
     }
 
     class ResultMonitor {
@@ -342,6 +346,7 @@ class BasicExtenderSessionProcessorTest(
                 }
             }
         }
+
         fun assertCaptureKey(key: CaptureRequest.Key<*>, value: Any) {
             keyToCheck = key
             valueToCheck = value
@@ -370,9 +375,11 @@ class BasicExtenderSessionProcessorTest(
         val previewSemaphore = Semaphore(0)
         val analysisSemaphore = Semaphore(0)
         fakePreviewExtenderImpl.captureStage = createCaptureStage(
-            parameters = listOf(Pair(
-                CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_OFF
-            ))
+            parameters = listOf(
+                Pair(
+                    CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_OFF
+                )
+            )
         )
 
         verifyUseCasesOutput(
@@ -420,8 +427,11 @@ class BasicExtenderSessionProcessorTest(
         // Trigger RequestUpdateProcessor to update repeating request to have new parameters.
         fakePreviewExtenderImpl.fakeRequestUpdateProcessor?.captureStage =
             createCaptureStage(
-                parameters = listOf(Pair(CaptureRequest.CONTROL_AE_MODE,
-                    CaptureRequest.CONTROL_AE_MODE_OFF)
+                parameters = listOf(
+                    Pair(
+                        CaptureRequest.CONTROL_AE_MODE,
+                        CaptureRequest.CONTROL_AE_MODE_OFF
+                    )
                 )
             )
 
@@ -724,6 +734,7 @@ class BasicExtenderSessionProcessorTest(
         fun assertInvokeOrder(expectList: List<String>) {
             assertThat(expectList).containsExactlyElementsIn(invokeList).inOrder()
         }
+
         override fun onInit(
             cameraId: String,
             cameraCharacteristics: CameraCharacteristics,
@@ -735,14 +746,17 @@ class BasicExtenderSessionProcessorTest(
         override fun onDeInit() {
             recordInvoking("onDeInit")
         }
+
         override fun onPresetSession(): CaptureStageImpl? {
             recordInvoking("onPresetSession")
             return null
         }
+
         override fun onEnableSession(): CaptureStageImpl? {
             recordInvoking("onEnableSession")
             return onEnableSessionCaptureStage
         }
+
         override fun onDisableSession(): CaptureStageImpl? {
             recordInvoking("onDisableSession")
             return onDisableSessionCaptureStage
@@ -762,17 +776,21 @@ class BasicExtenderSessionProcessorTest(
             when (processorType) {
                 PROCESSOR_TYPE_REQUEST_UPDATE_ONLY ->
                     fakeRequestUpdateProcessor = FakeRequestUpdateProcessor()
+
                 PROCESSOR_TYPE_IMAGE_PROCESSOR ->
                     fakePreviewImageProcessorImpl = FakePreviewImageProcessorImpl()
+
                 PROCESSOR_TYPE_NONE -> {}
             }
         }
+
         override fun isExtensionAvailable(
             cameraId: String,
             cameraCharacteristics: CameraCharacteristics
         ): Boolean {
             return true
         }
+
         override fun init(cameraId: String, cameraCharacteristics: CameraCharacteristics) {
             recordInvoking("init")
         }
@@ -795,6 +813,7 @@ class BasicExtenderSessionProcessorTest(
         fun setCaptureStage(captureStage: CaptureStageImpl) {
             _captureStage = captureStage
         }
+
         override fun getProcessorType() = processorType
         override fun getProcessor() =
             when (processorType) {
@@ -832,6 +851,7 @@ class BasicExtenderSessionProcessorTest(
         override fun init(cameraId: String, cameraCharacteristics: CameraCharacteristics) {
             recordInvoking("init")
         }
+
         override fun getCaptureProcessor() = fakeCaptureProcessorImpl
 
         override fun getCaptureStages() = _captureStages
@@ -959,6 +979,7 @@ class BasicExtenderSessionProcessorTest(
                 deferredSubmit = CompletableDeferred<List<RequestProcessor.Request>>()
             }
         }
+
         override fun submit(
             request: RequestProcessor.Request,
             callback: RequestProcessor.Callback
