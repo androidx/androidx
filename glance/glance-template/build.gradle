@@ -75,6 +75,7 @@ android {
 androidx {
     name = "Glance Templates Library"
     type = LibraryType.PUBLISHED_LIBRARY
+    mavenVersion = LibraryVersions.GLANCE_TEMPLATE
     inceptionYear = "2021"
     description = "Glance allows developers to build layouts for remote surfaces using a Jetpack " +
             "Compose-style API."
