@@ -16,6 +16,7 @@
 package androidx.camera.video.internal.encoder
 
 import android.media.MediaCodecInfo
+import android.os.Build
 import androidx.camera.core.impl.Observable.Observer
 import androidx.camera.core.impl.Timebase
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
@@ -40,6 +41,7 @@ import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.junit.After
+import org.junit.Assume.assumeFalse
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -128,6 +130,12 @@ class AudioEncoderTest {
 
     @Test
     fun canRestartEncoder() {
+        // Skip for b/269129619
+        assumeFalse(
+            "Skip test for Cuttlefish API 30 flaky native crash",
+            Build.MODEL.contains("Cuttlefish") && Build.VERSION.SDK_INT == 30
+        )
+
         // Arrange.
         fakeAudioLoop.start()
 
