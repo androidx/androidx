@@ -76,6 +76,17 @@ public final class RequestBuilders {
         }
 
         /**
+         * Gets the instance ID of the tile being requested, allocated when the tile instance is
+         * added to the carousel. This ID will remain the same for this tile instance as long it
+         * is not removed from the carousel.
+         *
+         * @since 1.0
+         */
+        public int getTileId() {
+            return mImpl.getTileId();
+        }
+
+        /**
          * Gets the {@link androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters} object
          * describing the device requesting the tile update.
          *
@@ -153,6 +164,17 @@ public final class RequestBuilders {
             @NonNull
             public Builder setCurrentState(@NonNull State currentState) {
                 mImpl.setCurrentState(currentState.toProto());
+                return this;
+            }
+
+            /**
+             * Sets the ID of the tile being requested.
+             *
+             * @since 1.0
+             */
+            @NonNull
+            public Builder setTileId(int tileId) {
+                mImpl.setTileId(tileId);
                 return this;
             }
 
@@ -252,6 +274,17 @@ public final class RequestBuilders {
         }
 
         /**
+         * Gets the instance ID of the tile for which resources are being requested, allocated when
+         * the tile instance is added to the carousel. This ID will remain the same for this tile
+         * instance as long it is not removed from the carousel.
+         *
+         * @since 1.0
+         */
+        public int getTileId() {
+            return mImpl.getTileId();
+        }
+
+        /**
          * Gets the {@link androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters} object
          * describing the device requesting the resources.
          *
@@ -330,6 +363,17 @@ public final class RequestBuilders {
             @NonNull
             public Builder setDeviceConfiguration(@NonNull DeviceParameters deviceConfiguration) {
                 mImpl.setDeviceConfiguration(deviceConfiguration.toProto());
+                return this;
+            }
+
+            /**
+             * Sets the ID of the tile for which resources are being requested.
+             *
+             * @since 1.0
+             */
+            @NonNull
+            public Builder setTileId(int tileId) {
+                mImpl.setTileId(tileId);
                 return this;
             }
 

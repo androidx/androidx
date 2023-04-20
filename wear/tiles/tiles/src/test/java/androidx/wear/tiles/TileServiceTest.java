@@ -194,6 +194,7 @@ public class TileServiceTest {
         shadowOf(Looper.getMainLooper()).idle();
 
         expect.that(mFakeTileServiceController.get().mOnTileAddCalled).isTrue();
+        expect.that(mFakeTileServiceController.get().mTileId).isEqualTo(TILE_ID);
     }
 
     @Test
@@ -206,6 +207,7 @@ public class TileServiceTest {
         shadowOf(Looper.getMainLooper()).idle();
 
         expect.that(mFakeTileServiceController.get().mOnTileRemoveCalled).isTrue();
+        expect.that(mFakeTileServiceController.get().mTileId).isEqualTo(TILE_ID);
     }
 
     @Test
@@ -218,6 +220,7 @@ public class TileServiceTest {
         shadowOf(Looper.getMainLooper()).idle();
 
         expect.that(mFakeTileServiceController.get().mOnTileEnterCalled).isTrue();
+        expect.that(mFakeTileServiceController.get().mTileId).isEqualTo(TILE_ID);
     }
 
     @Test
@@ -230,6 +233,23 @@ public class TileServiceTest {
         shadowOf(Looper.getMainLooper()).idle();
 
         expect.that(mFakeTileServiceController.get().mOnTileLeaveCalled).isTrue();
+        expect.that(mFakeTileServiceController.get().mTileId).isEqualTo(TILE_ID);
+    }
+
+    @Test
+    public void tileService_tileRequest_setsTileId() throws Exception {
+        mTileProviderServiceStub.onTileRequest(
+                TILE_ID,
+                new TileRequestData(
+                        RequestProto.TileRequest.newBuilder()
+                                .build()
+                                .toByteArray(),
+                        TileRequestData.VERSION_PROTOBUF),
+                mMockTileCallback);
+
+        shadowOf(Looper.getMainLooper()).idle();
+
+        expect.that(mFakeTileServiceController.get().mTileId).isEqualTo(TILE_ID);
     }
 
     @Test
@@ -288,6 +308,23 @@ public class TileServiceTest {
                         .getRendererSchemaVersion();
         expect.that(schemaVersion.getMajor()).isEqualTo(3);
         expect.that(schemaVersion.getMinor()).isEqualTo(5);
+    }
+
+    @Test
+    public void tileService_resourcesRequest_setsTileId() throws Exception {
+        // Resources request needs to have DeviceParameters least to fill in the default.
+        mTileProviderServiceStub.onResourcesRequest(
+                TILE_ID,
+                new ResourcesRequestData(
+                        RequestProto.ResourcesRequest.newBuilder()
+                                .build()
+                                .toByteArray(),
+                        ResourcesRequestData.VERSION_PROTOBUF),
+                mMockResourcesCallback);
+
+        shadowOf(Looper.getMainLooper()).idle();
+
+        expect.that(mFakeTileServiceController.get().mTileId).isEqualTo(TILE_ID);
     }
 
     @Test
@@ -402,25 +439,30 @@ public class TileServiceTest {
         @Nullable TileRequest mTileRequestParams = null;
         @Nullable ResourcesRequest mResourcesRequestParams = null;
         @Nullable RuntimeException mRequestFailure = null;
+        int mTileId = -1;
 
         @Override
         protected void onTileAddEvent(@NonNull TileAddEvent requestParams) {
             mOnTileAddCalled = true;
+            mTileId = requestParams.getTileId();
         }
 
         @Override
         protected void onTileRemoveEvent(@NonNull TileRemoveEvent requestParams) {
             mOnTileRemoveCalled = true;
+            mTileId = requestParams.getTileId();
         }
 
         @Override
         protected void onTileEnterEvent(@NonNull TileEnterEvent requestParams) {
             mOnTileEnterCalled = true;
+            mTileId = requestParams.getTileId();
         }
 
         @Override
         protected void onTileLeaveEvent(@NonNull TileLeaveEvent requestParams) {
             mOnTileLeaveCalled = true;
+            mTileId = requestParams.getTileId();
         }
 
         @Override
@@ -428,6 +470,7 @@ public class TileServiceTest {
         protected ListenableFuture<TileBuilders.Tile> onTileRequest(
                 @NonNull TileRequest requestParams) {
             mTileRequestParams = requestParams;
+            mTileId = requestParams.getTileId();
             if (mRequestFailure != null) {
                 return Futures.immediateFailedFuture(mRequestFailure);
             }
@@ -439,6 +482,7 @@ public class TileServiceTest {
         protected ListenableFuture<Resources> onTileResourcesRequest(
                 @NonNull ResourcesRequest requestParams) {
             mResourcesRequestParams = requestParams;
+            mTileId = requestParams.getTileId();
             if (mRequestFailure != null) {
                 return Futures.immediateFailedFuture(mRequestFailure);
             }
