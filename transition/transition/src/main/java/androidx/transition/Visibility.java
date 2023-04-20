@@ -456,7 +456,6 @@ public abstract class Visibility extends Transition {
                 DisappearListener disappearListener = new DisappearListener(viewToKeep,
                         endVisibility, true);
                 animator.addListener(disappearListener);
-                AnimatorUtils.addPauseListener(animator, disappearListener);
                 getRootTransition().addListener(disappearListener);
             } else {
                 ViewUtils.setTransitionVisibility(viewToKeep, originalVisibility);
@@ -526,24 +525,6 @@ public abstract class Visibility extends Transition {
             suppressLayout(true);
         }
 
-        // This overrides both AnimatorListenerAdapter and
-        // AnimatorUtilsApi14.AnimatorPauseListenerCompat
-        @Override
-        public void onAnimationPause(Animator animation) {
-            if (!mCanceled) {
-                ViewUtils.setTransitionVisibility(mView, mFinalVisibility);
-            }
-        }
-
-        // This overrides both AnimatorListenerAdapter and
-        // AnimatorUtilsApi14.AnimatorPauseListenerCompat
-        @Override
-        public void onAnimationResume(Animator animation) {
-            if (!mCanceled) {
-                ViewUtils.setTransitionVisibility(mView, View.VISIBLE);
-            }
-        }
-
         @Override
         public void onAnimationCancel(Animator animation) {
             mCanceled = true;
@@ -596,11 +577,17 @@ public abstract class Visibility extends Transition {
         @Override
         public void onTransitionPause(@NonNull Transition transition) {
             suppressLayout(false);
+            if (!mCanceled) {
+                ViewUtils.setTransitionVisibility(mView, mFinalVisibility);
+            }
         }
 
         @Override
         public void onTransitionResume(@NonNull Transition transition) {
             suppressLayout(true);
+            if (!mCanceled) {
+                ViewUtils.setTransitionVisibility(mView, View.VISIBLE);
+            }
         }
 
         private void hideViewWhenNotCanceled() {
