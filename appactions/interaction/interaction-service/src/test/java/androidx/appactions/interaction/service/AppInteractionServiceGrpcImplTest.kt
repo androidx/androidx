@@ -115,7 +115,7 @@ class AppInteractionServiceGrpcImplTest {
     }
 
     @Test
-    fun startUpSession_validRequest_shouldGetValidStartSessionResponse(): Unit = runBlocking {
+    fun startUpSession_validRequest_success(): Unit = runBlocking {
         val server =
             createInProcessServer(
                 AppInteractionServiceGrpcImpl(appInteractionService),
@@ -145,6 +145,11 @@ class AppInteractionServiceGrpcImplTest {
         val startSessionResponse = responseCaptor.firstValue
         assertThat(startSessionResponse).isEqualTo(StartSessionResponse.getDefaultInstance())
         verify(startSessionResponseObserver, times(1)).onNext(any())
+        assertThat(SessionManager.getSession(sessionId)).isNotNull()
+
+        // end startSession stream
+        startSessionRequestObserver.onCompleted()
+        assertThat(SessionManager.getSession(sessionId)).isNull()
 
         server.shutdownNow()
     }
