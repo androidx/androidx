@@ -529,7 +529,11 @@ class SurfaceControlCompat internal constructor(
          * set with [setBuffer] is displayed.
          *
          * @param surfaceControl The SurfaceControl to update
-         * @param dataSpace The dataspace to set it to
+         * @param dataSpace The dataspace to set it to. Must be one of named
+         * [android.hardware.DataSpace] types.
+         *
+         * @see [android.view.SurfaceControl.Transaction.setDataSpace]
+         *
          * @return this
          */
         @RequiresApi(Build.VERSION_CODES.TIRAMISU)
