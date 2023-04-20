@@ -337,6 +337,7 @@ internal class ParagraphLayoutCache(
         val annotatedString = AnnotatedString(text)
         paragraph ?: return null
         paragraphIntrinsics ?: return null
+        val finalConstraints = prevConstraints.copy(minWidth = 0, minHeight = 0)
 
         // and redo layout with MultiParagraph
         return TextLayoutResult(
@@ -350,7 +351,7 @@ internal class ParagraphLayoutCache(
                 localDensity,
                 localLayoutDirection,
                 fontFamilyResolver,
-                prevConstraints
+                finalConstraints
             ),
             MultiParagraph(
                 MultiParagraphIntrinsics(
@@ -360,7 +361,7 @@ internal class ParagraphLayoutCache(
                     density = localDensity,
                     fontFamilyResolver = fontFamilyResolver
                 ),
-                prevConstraints,
+                finalConstraints,
                 maxLines,
                 overflow == TextOverflow.Ellipsis
             ),
