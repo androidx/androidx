@@ -16,6 +16,7 @@
 package androidx.health.connect.client
 
 import androidx.activity.result.contract.ActivityResultContract
+import androidx.annotation.RestrictTo
 import androidx.core.os.BuildCompat
 import androidx.core.os.BuildCompat.PrereleaseSdkCheck
 import androidx.health.connect.client.HealthConnectClient.Companion.DEFAULT_PROVIDER_PACKAGE_NAME
@@ -48,6 +49,17 @@ interface PermissionController {
     suspend fun revokeAllPermissions()
 
     companion object {
+
+        @JvmStatic
+        @JvmOverloads
+        @Suppress("IllegalExperimentalApiUsage")
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        fun createRequestPermissionResultContractLegacy(
+            providerPackageName: String = DEFAULT_PROVIDER_PACKAGE_NAME
+        ): ActivityResultContract<Set<String>, Set<String>> {
+            return HealthDataRequestPermissionsInternal(providerPackageName = providerPackageName)
+        }
+
         /**
          * Creates an [ActivityResultContract] to request Health permissions.
          *
