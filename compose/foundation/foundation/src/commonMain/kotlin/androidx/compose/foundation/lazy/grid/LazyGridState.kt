@@ -24,6 +24,7 @@ import androidx.compose.foundation.gestures.ScrollableState
 import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.lazy.AwaitFirstLayoutModifier
+import androidx.compose.foundation.lazy.layout.LazyLayoutBeyondBoundsInfo
 import androidx.compose.foundation.lazy.layout.LazyLayoutPrefetchState
 import androidx.compose.foundation.lazy.layout.LazyLayoutPinnedItemList
 import androidx.compose.foundation.lazy.layout.animateScrollToItem
@@ -200,7 +201,7 @@ class LazyGridState constructor(
      * The [Remeasurement] object associated with our layout. It allows us to remeasure
      * synchronously during scroll.
      */
-    private var remeasurement: Remeasurement? by mutableStateOf(null)
+    internal var remeasurement: Remeasurement? by mutableStateOf(null)
 
     /**
      * The modifier which provides [remeasurement].
@@ -224,6 +225,8 @@ class LazyGridState constructor(
         mutableStateOf({ emptyList() })
 
     internal val placementAnimator = LazyGridItemPlacementAnimator()
+
+    internal val beyondBoundsInfo = LazyLayoutBeyondBoundsInfo()
 
     private val animateScrollScope = LazyGridAnimateScrollScope(this)
 
