@@ -1,3 +1,9 @@
 // Baseline format: 1.0
+InvalidNullConversion: androidx.navigation.NavType#put(android.os.Bundle, String, T) parameter #2:
+    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter value in androidx.navigation.NavType.put(android.os.Bundle bundle, String key, T value)
+InvalidNullConversion: androidx.navigation.NavType.ParcelableType#put(android.os.Bundle, String, D) parameter #2:
+    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter value in androidx.navigation.NavType.ParcelableType.put(android.os.Bundle bundle, String key, D value)
+
+
 RemovedClass: androidx.navigation.NavArgsLazyKt:
     Removed class androidx.navigation.NavArgsLazyKt

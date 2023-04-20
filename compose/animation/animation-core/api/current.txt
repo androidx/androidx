@@ -2,27 +2,27 @@
 package androidx.compose.animation.core {
 
   public final class Animatable<T, V extends androidx.compose.animation.core.AnimationVector> {
-    ctor public Animatable(T? initialValue, androidx.compose.animation.core.TwoWayConverter<T,V> typeConverter, optional T? visibilityThreshold, optional String label);
-    ctor @Deprecated public Animatable(T? initialValue, androidx.compose.animation.core.TwoWayConverter<T,V> typeConverter, optional T? visibilityThreshold);
-    method public suspend Object? animateDecay(T? initialVelocity, androidx.compose.animation.core.DecayAnimationSpec<T> animationSpec, optional kotlin.jvm.functions.Function1<? super androidx.compose.animation.core.Animatable<T,V>,kotlin.Unit>? block, optional kotlin.coroutines.Continuation<? super androidx.compose.animation.core.AnimationResult<T,V>>);
-    method public suspend Object? animateTo(T? targetValue, optional androidx.compose.animation.core.AnimationSpec<T> animationSpec, optional T? initialVelocity, optional kotlin.jvm.functions.Function1<? super androidx.compose.animation.core.Animatable<T,V>,kotlin.Unit>? block, optional kotlin.coroutines.Continuation<? super androidx.compose.animation.core.AnimationResult<T,V>>);
+    ctor public Animatable(T initialValue, androidx.compose.animation.core.TwoWayConverter<T,V> typeConverter, optional T? visibilityThreshold, optional String label);
+    ctor @Deprecated public Animatable(T initialValue, androidx.compose.animation.core.TwoWayConverter<T,V> typeConverter, optional T? visibilityThreshold);
+    method public suspend Object? animateDecay(T initialVelocity, androidx.compose.animation.core.DecayAnimationSpec<T> animationSpec, optional kotlin.jvm.functions.Function1<? super androidx.compose.animation.core.Animatable<T,V>,kotlin.Unit>? block, optional kotlin.coroutines.Continuation<? super androidx.compose.animation.core.AnimationResult<T,V>>);
+    method public suspend Object? animateTo(T targetValue, optional androidx.compose.animation.core.AnimationSpec<T> animationSpec, optional T initialVelocity, optional kotlin.jvm.functions.Function1<? super androidx.compose.animation.core.Animatable<T,V>,kotlin.Unit>? block, optional kotlin.coroutines.Continuation<? super androidx.compose.animation.core.AnimationResult<T,V>>);
     method public androidx.compose.runtime.State<T> asState();
     method public String getLabel();
     method public T? getLowerBound();
-    method public T! getTargetValue();
+    method public T getTargetValue();
     method public androidx.compose.animation.core.TwoWayConverter<T,V> getTypeConverter();
     method public T? getUpperBound();
     method public T! getValue();
     method public T! getVelocity();
     method public V getVelocityVector();
     method public boolean isRunning();
-    method public suspend Object? snapTo(T? targetValue, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public suspend Object? snapTo(T targetValue, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public suspend Object? stop(kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public void updateBounds(optional T? lowerBound, optional T? upperBound);
     property public final boolean isRunning;
     property public final String label;
     property public final T? lowerBound;
-    property public final T! targetValue;
+    property public final T targetValue;
     property public final androidx.compose.animation.core.TwoWayConverter<T,V> typeConverter;
     property public final T? upperBound;
     property public final T! value;
@@ -51,21 +51,21 @@ package androidx.compose.animation.core {
     method @Deprecated @androidx.compose.runtime.Composable public static androidx.compose.runtime.State<? extends androidx.compose.ui.geometry.Rect> animateRectAsState(androidx.compose.ui.geometry.Rect targetValue, optional androidx.compose.animation.core.AnimationSpec<androidx.compose.ui.geometry.Rect> animationSpec, optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.geometry.Rect,? extends kotlin.Unit>? finishedListener);
     method @androidx.compose.runtime.Composable public static androidx.compose.runtime.State<androidx.compose.ui.geometry.Size> animateSizeAsState(long targetValue, optional androidx.compose.animation.core.AnimationSpec<androidx.compose.ui.geometry.Size> animationSpec, optional String label, optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.geometry.Size,kotlin.Unit>? finishedListener);
     method @Deprecated @androidx.compose.runtime.Composable public static androidx.compose.runtime.State<? extends androidx.compose.ui.geometry.Size> animateSizeAsState(long targetValue, optional androidx.compose.animation.core.AnimationSpec<androidx.compose.ui.geometry.Size> animationSpec, optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.geometry.Size,? extends kotlin.Unit>? finishedListener);
-    method @androidx.compose.runtime.Composable public static <T, V extends androidx.compose.animation.core.AnimationVector> androidx.compose.runtime.State<T> animateValueAsState(T? targetValue, androidx.compose.animation.core.TwoWayConverter<T,V> typeConverter, optional androidx.compose.animation.core.AnimationSpec<T> animationSpec, optional T? visibilityThreshold, optional String label, optional kotlin.jvm.functions.Function1<? super T,kotlin.Unit>? finishedListener);
-    method @Deprecated @androidx.compose.runtime.Composable public static <T, V extends androidx.compose.animation.core.AnimationVector> androidx.compose.runtime.State<? extends T> animateValueAsState(T? targetValue, androidx.compose.animation.core.TwoWayConverter<T,V> typeConverter, optional androidx.compose.animation.core.AnimationSpec<T> animationSpec, optional T? visibilityThreshold, optional kotlin.jvm.functions.Function1<? super T,? extends kotlin.Unit>? finishedListener);
+    method @androidx.compose.runtime.Composable public static <T, V extends androidx.compose.animation.core.AnimationVector> androidx.compose.runtime.State<T> animateValueAsState(T targetValue, androidx.compose.animation.core.TwoWayConverter<T,V> typeConverter, optional androidx.compose.animation.core.AnimationSpec<T> animationSpec, optional T? visibilityThreshold, optional String label, optional kotlin.jvm.functions.Function1<? super T,kotlin.Unit>? finishedListener);
+    method @Deprecated @androidx.compose.runtime.Composable public static <T, V extends androidx.compose.animation.core.AnimationVector> androidx.compose.runtime.State<? extends T> animateValueAsState(T targetValue, androidx.compose.animation.core.TwoWayConverter<T,V> typeConverter, optional androidx.compose.animation.core.AnimationSpec<T> animationSpec, optional T? visibilityThreshold, optional kotlin.jvm.functions.Function1<? super T,? extends kotlin.Unit>? finishedListener);
   }
 
   @kotlin.jvm.JvmDefaultWithCompatibility public interface Animation<T, V extends androidx.compose.animation.core.AnimationVector> {
     method public long getDurationNanos();
-    method public T! getTargetValue();
+    method public T getTargetValue();
     method public androidx.compose.animation.core.TwoWayConverter<T,V> getTypeConverter();
-    method public T! getValueFromNanos(long playTimeNanos);
+    method public T getValueFromNanos(long playTimeNanos);
     method public V getVelocityVectorFromNanos(long playTimeNanos);
     method public default boolean isFinishedFromNanos(long playTimeNanos);
     method public boolean isInfinite();
     property public abstract long durationNanos;
     property public abstract boolean isInfinite;
-    property public abstract T! targetValue;
+    property public abstract T targetValue;
     property public abstract androidx.compose.animation.core.TwoWayConverter<T,V> typeConverter;
   }
 
@@ -84,8 +84,8 @@ package androidx.compose.animation.core {
 
   public final class AnimationKt {
     method public static androidx.compose.animation.core.DecayAnimation<java.lang.Float,androidx.compose.animation.core.AnimationVector1D> DecayAnimation(androidx.compose.animation.core.FloatDecayAnimationSpec animationSpec, float initialValue, optional float initialVelocity);
-    method public static <T, V extends androidx.compose.animation.core.AnimationVector> androidx.compose.animation.core.TargetBasedAnimation<T,V> TargetBasedAnimation(androidx.compose.animation.core.AnimationSpec<T> animationSpec, androidx.compose.animation.core.TwoWayConverter<T,V> typeConverter, T? initialValue, T? targetValue, T? initialVelocity);
-    method public static <T, V extends androidx.compose.animation.core.AnimationVector> T! getVelocityFromNanos(androidx.compose.animation.core.Animation<T,V>, long playTimeNanos);
+    method public static <T, V extends androidx.compose.animation.core.AnimationVector> androidx.compose.animation.core.TargetBasedAnimation<T,V> TargetBasedAnimation(androidx.compose.animation.core.AnimationSpec<T> animationSpec, androidx.compose.animation.core.TwoWayConverter<T,V> typeConverter, T initialValue, T targetValue, T initialVelocity);
+    method public static <T, V extends androidx.compose.animation.core.AnimationVector> T getVelocityFromNanos(androidx.compose.animation.core.Animation<T,V>, long playTimeNanos);
   }
 
   public final class AnimationResult<T, V extends androidx.compose.animation.core.AnimationVector> {
@@ -101,9 +101,9 @@ package androidx.compose.animation.core {
     method public long getFinishedTimeNanos();
     method public long getLastFrameTimeNanos();
     method public long getStartTimeNanos();
-    method public T! getTargetValue();
+    method public T getTargetValue();
     method public androidx.compose.animation.core.TwoWayConverter<T,V> getTypeConverter();
-    method public T! getValue();
+    method public T getValue();
     method public T! getVelocity();
     method public V getVelocityVector();
     method public boolean isRunning();
@@ -112,9 +112,9 @@ package androidx.compose.animation.core {
     property public final boolean isRunning;
     property public final long lastFrameTimeNanos;
     property public final long startTimeNanos;
-    property public final T! targetValue;
+    property public final T targetValue;
     property public final androidx.compose.animation.core.TwoWayConverter<T,V> typeConverter;
-    property public final T! value;
+    property public final T value;
     property public final T! velocity;
     property public final V velocityVector;
   }
@@ -135,11 +135,11 @@ package androidx.compose.animation.core {
   }
 
   public final class AnimationState<T, V extends androidx.compose.animation.core.AnimationVector> implements androidx.compose.runtime.State<T> {
-    ctor public AnimationState(androidx.compose.animation.core.TwoWayConverter<T,V> typeConverter, T? initialValue, optional V? initialVelocityVector, optional long lastFrameTimeNanos, optional long finishedTimeNanos, optional boolean isRunning);
+    ctor public AnimationState(androidx.compose.animation.core.TwoWayConverter<T,V> typeConverter, T initialValue, optional V? initialVelocityVector, optional long lastFrameTimeNanos, optional long finishedTimeNanos, optional boolean isRunning);
     method public long getFinishedTimeNanos();
     method public long getLastFrameTimeNanos();
     method public androidx.compose.animation.core.TwoWayConverter<T,V> getTypeConverter();
-    method public T! getValue();
+    method public T getValue();
     method public T! getVelocity();
     method public V getVelocityVector();
     method public boolean isRunning();
@@ -147,17 +147,17 @@ package androidx.compose.animation.core {
     property public final boolean isRunning;
     property public final long lastFrameTimeNanos;
     property public final androidx.compose.animation.core.TwoWayConverter<T,V> typeConverter;
-    property public T! value;
+    property public T value;
     property public final T! velocity;
     property public final V velocityVector;
   }
 
   public final class AnimationStateKt {
     method public static androidx.compose.animation.core.AnimationState<java.lang.Float,androidx.compose.animation.core.AnimationVector1D> AnimationState(float initialValue, optional float initialVelocity, optional long lastFrameTimeNanos, optional long finishedTimeNanos, optional boolean isRunning);
-    method public static <T, V extends androidx.compose.animation.core.AnimationVector> androidx.compose.animation.core.AnimationState<T,V> AnimationState(androidx.compose.animation.core.TwoWayConverter<T,V> typeConverter, T? initialValue, T? initialVelocity, optional long lastFrameTimeNanos, optional long finishedTimeNanos, optional boolean isRunning);
-    method public static <T, V extends androidx.compose.animation.core.AnimationVector> androidx.compose.animation.core.AnimationState<T,V> copy(androidx.compose.animation.core.AnimationState<T,V>, optional T? value, optional V? velocityVector, optional long lastFrameTimeNanos, optional long finishedTimeNanos, optional boolean isRunning);
+    method public static <T, V extends androidx.compose.animation.core.AnimationVector> androidx.compose.animation.core.AnimationState<T,V> AnimationState(androidx.compose.animation.core.TwoWayConverter<T,V> typeConverter, T initialValue, T initialVelocity, optional long lastFrameTimeNanos, optional long finishedTimeNanos, optional boolean isRunning);
+    method public static <T, V extends androidx.compose.animation.core.AnimationVector> androidx.compose.animation.core.AnimationState<T,V> copy(androidx.compose.animation.core.AnimationState<T,V>, optional T value, optional V? velocityVector, optional long lastFrameTimeNanos, optional long finishedTimeNanos, optional boolean isRunning);
     method public static androidx.compose.animation.core.AnimationState<java.lang.Float,androidx.compose.animation.core.AnimationVector1D> copy(androidx.compose.animation.core.AnimationState<java.lang.Float,androidx.compose.animation.core.AnimationVector1D>, optional float value, optional float velocity, optional long lastFrameTimeNanos, optional long finishedTimeNanos, optional boolean isRunning);
-    method public static <T, V extends androidx.compose.animation.core.AnimationVector> V createZeroVectorFrom(androidx.compose.animation.core.TwoWayConverter<T,V>, T? value);
+    method public static <T, V extends androidx.compose.animation.core.AnimationVector> V createZeroVectorFrom(androidx.compose.animation.core.TwoWayConverter<T,V>, T value);
     method public static boolean isFinished(androidx.compose.animation.core.AnimationState<?,?>);
   }
 
@@ -213,22 +213,22 @@ package androidx.compose.animation.core {
   }
 
   public final class DecayAnimation<T, V extends androidx.compose.animation.core.AnimationVector> implements androidx.compose.animation.core.Animation<T,V> {
-    ctor public DecayAnimation(androidx.compose.animation.core.VectorizedDecayAnimationSpec<V> animationSpec, androidx.compose.animation.core.TwoWayConverter<T,V> typeConverter, T? initialValue, V initialVelocityVector);
-    ctor public DecayAnimation(androidx.compose.animation.core.DecayAnimationSpec<T> animationSpec, androidx.compose.animation.core.TwoWayConverter<T,V> typeConverter, T? initialValue, V initialVelocityVector);
-    ctor public DecayAnimation(androidx.compose.animation.core.DecayAnimationSpec<T> animationSpec, androidx.compose.animation.core.TwoWayConverter<T,V> typeConverter, T? initialValue, T? initialVelocity);
+    ctor public DecayAnimation(androidx.compose.animation.core.VectorizedDecayAnimationSpec<V> animationSpec, androidx.compose.animation.core.TwoWayConverter<T,V> typeConverter, T initialValue, V initialVelocityVector);
+    ctor public DecayAnimation(androidx.compose.animation.core.DecayAnimationSpec<T> animationSpec, androidx.compose.animation.core.TwoWayConverter<T,V> typeConverter, T initialValue, V initialVelocityVector);
+    ctor public DecayAnimation(androidx.compose.animation.core.DecayAnimationSpec<T> animationSpec, androidx.compose.animation.core.TwoWayConverter<T,V> typeConverter, T initialValue, T initialVelocity);
     method public long getDurationNanos();
-    method public T! getInitialValue();
+    method public T getInitialValue();
     method public V getInitialVelocityVector();
-    method public T! getTargetValue();
+    method public T getTargetValue();
     method public androidx.compose.animation.core.TwoWayConverter<T,V> getTypeConverter();
-    method public T! getValueFromNanos(long playTimeNanos);
+    method public T getValueFromNanos(long playTimeNanos);
     method public V getVelocityVectorFromNanos(long playTimeNanos);
     method public boolean isInfinite();
     property public long durationNanos;
-    property public final T! initialValue;
+    property public final T initialValue;
     property public final V initialVelocityVector;
     property public boolean isInfinite;
-    property public T! targetValue;
+    property public T targetValue;
     property public androidx.compose.animation.core.TwoWayConverter<T,V> typeConverter;
   }
 
@@ -237,7 +237,7 @@ package androidx.compose.animation.core {
   }
 
   public final class DecayAnimationSpecKt {
-    method public static <T, V extends androidx.compose.animation.core.AnimationVector> T! calculateTargetValue(androidx.compose.animation.core.DecayAnimationSpec<T>, androidx.compose.animation.core.TwoWayConverter<T,V> typeConverter, T? initialValue, T? initialVelocity);
+    method public static <T, V extends androidx.compose.animation.core.AnimationVector> T calculateTargetValue(androidx.compose.animation.core.DecayAnimationSpec<T>, androidx.compose.animation.core.TwoWayConverter<T,V> typeConverter, T initialValue, T initialVelocity);
     method public static float calculateTargetValue(androidx.compose.animation.core.DecayAnimationSpec<java.lang.Float>, float initialValue, float initialVelocity);
     method public static <T> androidx.compose.animation.core.DecayAnimationSpec<T> exponentialDecay(optional float frictionMultiplier, optional float absVelocityThreshold);
     method public static <T> androidx.compose.animation.core.DecayAnimationSpec<T> generateDecayAnimationSpec(androidx.compose.animation.core.FloatDecayAnimationSpec);
@@ -415,19 +415,19 @@ package androidx.compose.animation.core {
     method public androidx.compose.animation.core.AnimationSpec<T> getAnimationSpec();
     method public String getLabel();
     method public androidx.compose.animation.core.TwoWayConverter<T,V> getTypeConverter();
-    method public T! getValue();
+    method public T getValue();
     property public final androidx.compose.animation.core.TargetBasedAnimation<T,V> animation;
     property public final androidx.compose.animation.core.AnimationSpec<T> animationSpec;
     property public final String label;
     property public final androidx.compose.animation.core.TwoWayConverter<T,V> typeConverter;
-    property public T! value;
+    property public T value;
   }
 
   public final class InfiniteTransitionKt {
     method @androidx.compose.runtime.Composable public static androidx.compose.runtime.State<java.lang.Float> animateFloat(androidx.compose.animation.core.InfiniteTransition, float initialValue, float targetValue, androidx.compose.animation.core.InfiniteRepeatableSpec<java.lang.Float> animationSpec, optional String label);
     method @Deprecated @androidx.compose.runtime.Composable public static androidx.compose.runtime.State<? extends java.lang.Float> animateFloat(androidx.compose.animation.core.InfiniteTransition, float initialValue, float targetValue, androidx.compose.animation.core.InfiniteRepeatableSpec<java.lang.Float> animationSpec);
-    method @androidx.compose.runtime.Composable public static <T, V extends androidx.compose.animation.core.AnimationVector> androidx.compose.runtime.State<T> animateValue(androidx.compose.animation.core.InfiniteTransition, T? initialValue, T? targetValue, androidx.compose.animation.core.TwoWayConverter<T,V> typeConverter, androidx.compose.animation.core.InfiniteRepeatableSpec<T> animationSpec, optional String label);
-    method @Deprecated @androidx.compose.runtime.Composable public static <T, V extends androidx.compose.animation.core.AnimationVector> androidx.compose.runtime.State<? extends T> animateValue(androidx.compose.animation.core.InfiniteTransition, T? initialValue, T? targetValue, androidx.compose.animation.core.TwoWayConverter<T,V> typeConverter, androidx.compose.animation.core.InfiniteRepeatableSpec<T> animationSpec);
+    method @androidx.compose.runtime.Composable public static <T, V extends androidx.compose.animation.core.AnimationVector> androidx.compose.runtime.State<T> animateValue(androidx.compose.animation.core.InfiniteTransition, T initialValue, T targetValue, androidx.compose.animation.core.TwoWayConverter<T,V> typeConverter, androidx.compose.animation.core.InfiniteRepeatableSpec<T> animationSpec, optional String label);
+    method @Deprecated @androidx.compose.runtime.Composable public static <T, V extends androidx.compose.animation.core.AnimationVector> androidx.compose.runtime.State<? extends T> animateValue(androidx.compose.animation.core.InfiniteTransition, T initialValue, T targetValue, androidx.compose.animation.core.TwoWayConverter<T,V> typeConverter, androidx.compose.animation.core.InfiniteRepeatableSpec<T> animationSpec);
     method @androidx.compose.runtime.Composable public static androidx.compose.animation.core.InfiniteTransition rememberInfiniteTransition(optional String label);
     method @Deprecated @androidx.compose.runtime.Composable public static androidx.compose.animation.core.InfiniteTransition rememberInfiniteTransition();
   }
@@ -444,8 +444,8 @@ package androidx.compose.animation.core {
 
   public static final class KeyframesSpec.KeyframesSpecConfig<T> {
     ctor public KeyframesSpec.KeyframesSpecConfig();
-    method public infix androidx.compose.animation.core.KeyframesSpec.KeyframeEntity<T> at(T?, int timeStamp);
-    method public infix androidx.compose.animation.core.KeyframesSpec.KeyframeEntity<T> atFraction(T?, float fraction);
+    method public infix androidx.compose.animation.core.KeyframesSpec.KeyframeEntity<T> at(T, int timeStamp);
+    method public infix androidx.compose.animation.core.KeyframesSpec.KeyframeEntity<T> atFraction(T, float fraction);
     method public int getDelayMillis();
     method public int getDurationMillis();
     method public void setDelayMillis(int);
@@ -456,14 +456,14 @@ package androidx.compose.animation.core {
   }
 
   public final class MutableTransitionState<S> {
-    ctor public MutableTransitionState(S? initialState);
-    method public S! getCurrentState();
-    method public S! getTargetState();
+    ctor public MutableTransitionState(S initialState);
+    method public S getCurrentState();
+    method public S getTargetState();
     method public boolean isIdle();
     method public void setTargetState(S!);
-    property public final S! currentState;
+    property public final S currentState;
     property public final boolean isIdle;
-    property public final S! targetState;
+    property public final S targetState;
   }
 
   public enum RepeatMode {
@@ -543,25 +543,25 @@ package androidx.compose.animation.core {
 
   public final class SuspendAnimationKt {
     method public static suspend Object? animate(float initialValue, float targetValue, optional float initialVelocity, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, kotlin.jvm.functions.Function2<? super java.lang.Float,? super java.lang.Float,kotlin.Unit> block, kotlin.coroutines.Continuation<? super kotlin.Unit>);
-    method public static suspend <T, V extends androidx.compose.animation.core.AnimationVector> Object? animate(androidx.compose.animation.core.TwoWayConverter<T,V> typeConverter, T? initialValue, T? targetValue, optional T? initialVelocity, optional androidx.compose.animation.core.AnimationSpec<T> animationSpec, kotlin.jvm.functions.Function2<? super T,? super T,kotlin.Unit> block, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public static suspend <T, V extends androidx.compose.animation.core.AnimationVector> Object? animate(androidx.compose.animation.core.TwoWayConverter<T,V> typeConverter, T initialValue, T targetValue, optional T? initialVelocity, optional androidx.compose.animation.core.AnimationSpec<T> animationSpec, kotlin.jvm.functions.Function2<? super T,? super T,kotlin.Unit> block, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public static suspend Object? animateDecay(float initialValue, float initialVelocity, androidx.compose.animation.core.FloatDecayAnimationSpec animationSpec, kotlin.jvm.functions.Function2<? super java.lang.Float,? super java.lang.Float,kotlin.Unit> block, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public static suspend <T, V extends androidx.compose.animation.core.AnimationVector> Object? animateDecay(androidx.compose.animation.core.AnimationState<T,V>, androidx.compose.animation.core.DecayAnimationSpec<T> animationSpec, optional boolean sequentialAnimation, optional kotlin.jvm.functions.Function1<? super androidx.compose.animation.core.AnimationScope<T,V>,kotlin.Unit> block, optional kotlin.coroutines.Continuation<? super kotlin.Unit>);
-    method public static suspend <T, V extends androidx.compose.animation.core.AnimationVector> Object? animateTo(androidx.compose.animation.core.AnimationState<T,V>, T? targetValue, optional androidx.compose.animation.core.AnimationSpec<T> animationSpec, optional boolean sequentialAnimation, optional kotlin.jvm.functions.Function1<? super androidx.compose.animation.core.AnimationScope<T,V>,kotlin.Unit> block, optional kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public static suspend <T, V extends androidx.compose.animation.core.AnimationVector> Object? animateTo(androidx.compose.animation.core.AnimationState<T,V>, T targetValue, optional androidx.compose.animation.core.AnimationSpec<T> animationSpec, optional boolean sequentialAnimation, optional kotlin.jvm.functions.Function1<? super androidx.compose.animation.core.AnimationScope<T,V>,kotlin.Unit> block, optional kotlin.coroutines.Continuation<? super kotlin.Unit>);
   }
 
   public final class TargetBasedAnimation<T, V extends androidx.compose.animation.core.AnimationVector> implements androidx.compose.animation.core.Animation<T,V> {
-    ctor public TargetBasedAnimation(androidx.compose.animation.core.AnimationSpec<T> animationSpec, androidx.compose.animation.core.TwoWayConverter<T,V> typeConverter, T? initialValue, T? targetValue, optional V? initialVelocityVector);
+    ctor public TargetBasedAnimation(androidx.compose.animation.core.AnimationSpec<T> animationSpec, androidx.compose.animation.core.TwoWayConverter<T,V> typeConverter, T initialValue, T targetValue, optional V? initialVelocityVector);
     method public long getDurationNanos();
-    method public T! getInitialValue();
-    method public T! getTargetValue();
+    method public T getInitialValue();
+    method public T getTargetValue();
     method public androidx.compose.animation.core.TwoWayConverter<T,V> getTypeConverter();
-    method public T! getValueFromNanos(long playTimeNanos);
+    method public T getValueFromNanos(long playTimeNanos);
     method public V getVelocityVectorFromNanos(long playTimeNanos);
     method public boolean isInfinite();
     property public long durationNanos;
-    property public final T! initialValue;
+    property public final T initialValue;
     property public boolean isInfinite;
-    property public T! targetValue;
+    property public T targetValue;
     property public androidx.compose.animation.core.TwoWayConverter<T,V> typeConverter;
   }
 
@@ -570,7 +570,7 @@ package androidx.compose.animation.core {
     method public S! getCurrentState();
     method public String? getLabel();
     method public androidx.compose.animation.core.Transition.Segment<S> getSegment();
-    method public S! getTargetState();
+    method public S getTargetState();
     method public long getTotalDurationNanos();
     method public java.util.List<androidx.compose.animation.core.Transition<?>> getTransitions();
     method public boolean isRunning();
@@ -579,17 +579,17 @@ package androidx.compose.animation.core {
     property public final boolean isRunning;
     property public final String? label;
     property public final androidx.compose.animation.core.Transition.Segment<S> segment;
-    property public final S! targetState;
+    property public final S targetState;
     property public final long totalDurationNanos;
     property public final java.util.List<androidx.compose.animation.core.Transition<?>> transitions;
   }
 
   @kotlin.jvm.JvmDefaultWithCompatibility public static interface Transition.Segment<S> {
-    method public S! getInitialState();
-    method public S! getTargetState();
-    method public default infix boolean isTransitioningTo(S?, S? targetState);
-    property public abstract S! initialState;
-    property public abstract S! targetState;
+    method public S getInitialState();
+    method public S getTargetState();
+    method public default infix boolean isTransitioningTo(S, S targetState);
+    property public abstract S initialState;
+    property public abstract S targetState;
   }
 
   @androidx.compose.runtime.Stable public final class Transition.TransitionAnimationState<T, V extends androidx.compose.animation.core.AnimationVector> implements androidx.compose.runtime.State<T> {
@@ -597,12 +597,12 @@ package androidx.compose.animation.core {
     method public androidx.compose.animation.core.FiniteAnimationSpec<T> getAnimationSpec();
     method public String getLabel();
     method public androidx.compose.animation.core.TwoWayConverter<T,V> getTypeConverter();
-    method public T! getValue();
+    method public T getValue();
     property public final androidx.compose.animation.core.TargetBasedAnimation<T,V> animation;
     property public final androidx.compose.animation.core.FiniteAnimationSpec<T> animationSpec;
     property public final String label;
     property public final androidx.compose.animation.core.TwoWayConverter<T,V> typeConverter;
-    property public T! value;
+    property public T value;
   }
 
   public final class TransitionKt {
@@ -615,7 +615,7 @@ package androidx.compose.animation.core {
     method @androidx.compose.runtime.Composable public static inline <S> androidx.compose.runtime.State<androidx.compose.ui.geometry.Rect> animateRect(androidx.compose.animation.core.Transition<S>, optional kotlin.jvm.functions.Function1<? super androidx.compose.animation.core.Transition.Segment<S>,? extends androidx.compose.animation.core.FiniteAnimationSpec<androidx.compose.ui.geometry.Rect>> transitionSpec, optional String label, kotlin.jvm.functions.Function1<? super S,androidx.compose.ui.geometry.Rect> targetValueByState);
     method @androidx.compose.runtime.Composable public static inline <S> androidx.compose.runtime.State<androidx.compose.ui.geometry.Size> animateSize(androidx.compose.animation.core.Transition<S>, optional kotlin.jvm.functions.Function1<? super androidx.compose.animation.core.Transition.Segment<S>,? extends androidx.compose.animation.core.FiniteAnimationSpec<androidx.compose.ui.geometry.Size>> transitionSpec, optional String label, kotlin.jvm.functions.Function1<? super S,androidx.compose.ui.geometry.Size> targetValueByState);
     method @androidx.compose.runtime.Composable public static inline <S, T, V extends androidx.compose.animation.core.AnimationVector> androidx.compose.runtime.State<T> animateValue(androidx.compose.animation.core.Transition<S>, androidx.compose.animation.core.TwoWayConverter<T,V> typeConverter, optional kotlin.jvm.functions.Function1<? super androidx.compose.animation.core.Transition.Segment<S>,? extends androidx.compose.animation.core.FiniteAnimationSpec<T>> transitionSpec, optional String label, kotlin.jvm.functions.Function1<? super S,? extends T> targetValueByState);
-    method @androidx.compose.runtime.Composable public static <T> androidx.compose.animation.core.Transition<T> updateTransition(T? targetState, optional String? label);
+    method @androidx.compose.runtime.Composable public static <T> androidx.compose.animation.core.Transition<T> updateTransition(T targetState, optional String? label);
     method @androidx.compose.runtime.Composable public static <T> androidx.compose.animation.core.Transition<T> updateTransition(androidx.compose.animation.core.MutableTransitionState<T> transitionState, optional String? label);
   }
 

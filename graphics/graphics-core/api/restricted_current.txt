@@ -17,12 +17,12 @@ package androidx.graphics.lowlatency {
     method public boolean isValid();
     method public void release(boolean cancelPending, optional kotlin.jvm.functions.Function0<kotlin.Unit>? onReleaseComplete);
     method public void release(boolean cancelPending);
-    method public void renderFrontBufferedLayer(T? param);
+    method public void renderFrontBufferedLayer(T param);
     method public void renderMultiBufferedLayer(java.util.Collection<? extends T> params);
   }
 
   @kotlin.jvm.JvmDefaultWithCompatibility public static interface CanvasFrontBufferedRenderer.Callback<T> {
-    method @WorkerThread public void onDrawFrontBufferedLayer(android.graphics.Canvas canvas, int bufferWidth, int bufferHeight, T? param);
+    method @WorkerThread public void onDrawFrontBufferedLayer(android.graphics.Canvas canvas, int bufferWidth, int bufferHeight, T param);
     method @WorkerThread public void onDrawMultiBufferedLayer(android.graphics.Canvas canvas, int bufferWidth, int bufferHeight, java.util.Collection<? extends T> params);
     method @WorkerThread public default void onFrontBufferedLayerRenderComplete(androidx.graphics.surface.SurfaceControlCompat frontBufferedLayerSurfaceControl, androidx.graphics.surface.SurfaceControlCompat.Transaction transaction);
     method @WorkerThread public default void onMultiBufferedLayerRenderComplete(androidx.graphics.surface.SurfaceControlCompat frontBufferedLayerSurfaceControl, androidx.graphics.surface.SurfaceControlCompat.Transaction transaction);
@@ -46,12 +46,12 @@ package androidx.graphics.lowlatency {
     method public boolean isValid();
     method public void release(boolean cancelPending, optional kotlin.jvm.functions.Function0<kotlin.Unit>? onReleaseComplete);
     method public void release(boolean cancelPending);
-    method public void renderFrontBufferedLayer(T? param);
+    method public void renderFrontBufferedLayer(T param);
     method public void renderMultiBufferedLayer(java.util.Collection<? extends T> params);
   }
 
   @kotlin.jvm.JvmDefaultWithCompatibility public static interface GLFrontBufferedRenderer.Callback<T> {
-    method @WorkerThread public void onDrawFrontBufferedLayer(androidx.graphics.opengl.egl.EGLManager eglManager, androidx.graphics.lowlatency.BufferInfo bufferInfo, float[] transform, T? param);
+    method @WorkerThread public void onDrawFrontBufferedLayer(androidx.graphics.opengl.egl.EGLManager eglManager, androidx.graphics.lowlatency.BufferInfo bufferInfo, float[] transform, T param);
     method @WorkerThread public void onDrawMultiBufferedLayer(androidx.graphics.opengl.egl.EGLManager eglManager, androidx.graphics.lowlatency.BufferInfo bufferInfo, float[] transform, java.util.Collection<? extends T> params);
     method @WorkerThread public default void onFrontBufferedLayerRenderComplete(androidx.graphics.surface.SurfaceControlCompat frontBufferedLayerSurfaceControl, androidx.graphics.surface.SurfaceControlCompat.Transaction transaction);
     method @WorkerThread public default void onMultiBufferedLayerRenderComplete(androidx.graphics.surface.SurfaceControlCompat frontBufferedLayerSurfaceControl, androidx.graphics.surface.SurfaceControlCompat.Transaction transaction);

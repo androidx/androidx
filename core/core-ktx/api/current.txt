@@ -50,7 +50,7 @@ package androidx.core.content.res {
     method public static String getStringOrThrow(android.content.res.TypedArray, @StyleableRes int index);
     method public static CharSequence![] getTextArrayOrThrow(android.content.res.TypedArray, @StyleableRes int index);
     method public static CharSequence getTextOrThrow(android.content.res.TypedArray, @StyleableRes int index);
-    method public static inline <R> R! use(android.content.res.TypedArray, kotlin.jvm.functions.Function1<? super android.content.res.TypedArray,? extends R> block);
+    method public static inline <R> R use(android.content.res.TypedArray, kotlin.jvm.functions.Function1<? super android.content.res.TypedArray,? extends R> block);
   }
 
 }
@@ -72,7 +72,7 @@ package androidx.core.database {
 package androidx.core.database.sqlite {
 
   public final class SQLiteDatabaseKt {
-    method public static inline <T> T! transaction(android.database.sqlite.SQLiteDatabase, optional boolean exclusive, kotlin.jvm.functions.Function1<? super android.database.sqlite.SQLiteDatabase,? extends T> body);
+    method public static inline <T> T transaction(android.database.sqlite.SQLiteDatabase, optional boolean exclusive, kotlin.jvm.functions.Function1<? super android.database.sqlite.SQLiteDatabase,? extends T> body);
   }
 
 }
@@ -333,7 +333,7 @@ package androidx.core.os {
   }
 
   public final class TraceKt {
-    method @Deprecated public static inline <T> T! trace(String sectionName, kotlin.jvm.functions.Function0<? extends T> block);
+    method @Deprecated public static inline <T> T trace(String sectionName, kotlin.jvm.functions.Function0<? extends T> block);
   }
 
 }
@@ -428,18 +428,18 @@ package androidx.core.util {
   public final class LongSparseArrayKt {
     method @RequiresApi(16) public static inline operator <T> boolean contains(android.util.LongSparseArray<T>, long key);
     method @RequiresApi(16) public static inline <T> boolean containsKey(android.util.LongSparseArray<T>, long key);
-    method @RequiresApi(16) public static inline <T> boolean containsValue(android.util.LongSparseArray<T>, T? value);
+    method @RequiresApi(16) public static inline <T> boolean containsValue(android.util.LongSparseArray<T>, T value);
     method @RequiresApi(16) public static inline <T> void forEach(android.util.LongSparseArray<T>, kotlin.jvm.functions.Function2<? super java.lang.Long,? super T,kotlin.Unit> action);
-    method @RequiresApi(16) public static inline <T> T! getOrDefault(android.util.LongSparseArray<T>, long key, T? defaultValue);
-    method @RequiresApi(16) public static inline <T> T! getOrElse(android.util.LongSparseArray<T>, long key, kotlin.jvm.functions.Function0<? extends T> defaultValue);
+    method @RequiresApi(16) public static inline <T> T getOrDefault(android.util.LongSparseArray<T>, long key, T defaultValue);
+    method @RequiresApi(16) public static inline <T> T getOrElse(android.util.LongSparseArray<T>, long key, kotlin.jvm.functions.Function0<? extends T> defaultValue);
     method @RequiresApi(16) public static inline <T> int getSize(android.util.LongSparseArray<T>);
     method @RequiresApi(16) public static inline <T> boolean isEmpty(android.util.LongSparseArray<T>);
     method @RequiresApi(16) public static inline <T> boolean isNotEmpty(android.util.LongSparseArray<T>);
     method @RequiresApi(16) public static <T> kotlin.collections.LongIterator keyIterator(android.util.LongSparseArray<T>);
     method @RequiresApi(16) public static operator <T> android.util.LongSparseArray<T> plus(android.util.LongSparseArray<T>, android.util.LongSparseArray<T> other);
     method @RequiresApi(16) public static <T> void putAll(android.util.LongSparseArray<T>, android.util.LongSparseArray<T> other);
-    method @RequiresApi(16) public static <T> boolean remove(android.util.LongSparseArray<T>, long key, T? value);
-    method @RequiresApi(16) public static inline operator <T> void set(android.util.LongSparseArray<T>, long key, T? value);
+    method @RequiresApi(16) public static <T> boolean remove(android.util.LongSparseArray<T>, long key, T value);
+    method @RequiresApi(16) public static inline operator <T> void set(android.util.LongSparseArray<T>, long key, T value);
     method @RequiresApi(16) public static <T> java.util.Iterator<T> valueIterator(android.util.LongSparseArray<T>);
   }
 
@@ -448,10 +448,10 @@ package androidx.core.util {
   }
 
   public final class PairKt {
-    method public static inline operator <F, S> F! component1(androidx.core.util.Pair<F,S>);
-    method public static inline operator <F, S> F! component1(android.util.Pair<F,S>);
-    method public static inline operator <F, S> S! component2(androidx.core.util.Pair<F,S>);
-    method public static inline operator <F, S> S! component2(android.util.Pair<F,S>);
+    method public static inline operator <F, S> F component1(androidx.core.util.Pair<F,S>);
+    method public static inline operator <F, S> F component1(android.util.Pair<F,S>);
+    method public static inline operator <F, S> S component2(androidx.core.util.Pair<F,S>);
+    method public static inline operator <F, S> S component2(android.util.Pair<F,S>);
     method public static inline <F, S> android.util.Pair<F,S> toAndroidPair(kotlin.Pair<? extends F,? extends S>);
     method public static inline <F, S> androidx.core.util.Pair<F,S> toAndroidXPair(kotlin.Pair<? extends F,? extends S>);
     method public static inline <F, S> kotlin.Pair<F,S> toKotlinPair(androidx.core.util.Pair<F,S>);
@@ -483,18 +483,18 @@ package androidx.core.util {
   public final class SparseArrayKt {
     method public static inline operator <T> boolean contains(android.util.SparseArray<T>, int key);
     method public static inline <T> boolean containsKey(android.util.SparseArray<T>, int key);
-    method public static inline <T> boolean containsValue(android.util.SparseArray<T>, T? value);
+    method public static inline <T> boolean containsValue(android.util.SparseArray<T>, T value);
     method public static inline <T> void forEach(android.util.SparseArray<T>, kotlin.jvm.functions.Function2<? super java.lang.Integer,? super T,kotlin.Unit> action);
-    method public static inline <T> T! getOrDefault(android.util.SparseArray<T>, int key, T? defaultValue);
-    method public static inline <T> T! getOrElse(android.util.SparseArray<T>, int key, kotlin.jvm.functions.Function0<? extends T> defaultValue);
+    method public static inline <T> T getOrDefault(android.util.SparseArray<T>, int key, T defaultValue);
+    method public static inline <T> T getOrElse(android.util.SparseArray<T>, int key, kotlin.jvm.functions.Function0<? extends T> defaultValue);
     method public static inline <T> int getSize(android.util.SparseArray<T>);
     method public static inline <T> boolean isEmpty(android.util.SparseArray<T>);
     method public static inline <T> boolean isNotEmpty(android.util.SparseArray<T>);
     method public static <T> kotlin.collections.IntIterator keyIterator(android.util.SparseArray<T>);
     method public static operator <T> android.util.SparseArray<T> plus(android.util.SparseArray<T>, android.util.SparseArray<T> other);
     method public static <T> void putAll(android.util.SparseArray<T>, android.util.SparseArray<T> other);
-    method public static <T> boolean remove(android.util.SparseArray<T>, int key, T? value);
-    method public static inline operator <T> void set(android.util.SparseArray<T>, int key, T? value);
+    method public static <T> boolean remove(android.util.SparseArray<T>, int key, T value);
+    method public static inline operator <T> void set(android.util.SparseArray<T>, int key, T value);
     method public static <T> java.util.Iterator<T> valueIterator(android.util.SparseArray<T>);
   }
 

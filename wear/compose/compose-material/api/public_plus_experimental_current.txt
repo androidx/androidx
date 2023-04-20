@@ -633,13 +633,13 @@ package androidx.wear.compose.material {
   }
 
   @androidx.compose.runtime.Immutable @androidx.wear.compose.material.ExperimentalWearMaterialApi public final class SwipeProgress<T> {
-    ctor public SwipeProgress(T? from, T? to, float fraction);
+    ctor public SwipeProgress(T from, T to, float fraction);
     method public float getFraction();
-    method public T! getFrom();
-    method public T! getTo();
+    method public T getFrom();
+    method public T getTo();
     property public final float fraction;
-    property public final T! from;
-    property public final T! to;
+    property public final T from;
+    property public final T to;
   }
 
   public final class SwipeToDismissBoxDefaults {
@@ -699,9 +699,9 @@ package androidx.wear.compose.material {
   }
 
   @androidx.compose.runtime.Stable @androidx.wear.compose.material.ExperimentalWearMaterialApi public class SwipeableState<T> {
-    ctor public SwipeableState(T? initialValue, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, optional kotlin.jvm.functions.Function1<? super T,java.lang.Boolean> confirmStateChange);
-    method @androidx.wear.compose.material.ExperimentalWearMaterialApi public final suspend Object? animateTo(T? targetValue, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> anim, optional kotlin.coroutines.Continuation<? super kotlin.Unit>);
-    method public final T! getCurrentValue();
+    ctor public SwipeableState(T initialValue, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, optional kotlin.jvm.functions.Function1<? super T,java.lang.Boolean> confirmStateChange);
+    method @androidx.wear.compose.material.ExperimentalWearMaterialApi public final suspend Object? animateTo(T targetValue, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> anim, optional kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public final T getCurrentValue();
     method public final float getDirection();
     method public final androidx.compose.runtime.State<java.lang.Float> getOffset();
     method public final androidx.compose.runtime.State<java.lang.Float> getOverflow();
@@ -709,8 +709,8 @@ package androidx.wear.compose.material {
     method public final T! getTargetValue();
     method public final boolean isAnimationRunning();
     method @androidx.wear.compose.material.ExperimentalWearMaterialApi public final suspend Object? performFling(float velocity, kotlin.coroutines.Continuation<? super kotlin.Unit>);
-    method @androidx.wear.compose.material.ExperimentalWearMaterialApi public final suspend Object? snapTo(T? targetValue, kotlin.coroutines.Continuation<? super kotlin.Unit>);
-    property public final T! currentValue;
+    method @androidx.wear.compose.material.ExperimentalWearMaterialApi public final suspend Object? snapTo(T targetValue, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    property public final T currentValue;
     property @androidx.wear.compose.material.ExperimentalWearMaterialApi public final float direction;
     property public final boolean isAnimationRunning;
     property @androidx.wear.compose.material.ExperimentalWearMaterialApi public final androidx.compose.runtime.State<java.lang.Float> offset;

@@ -29,25 +29,25 @@ package androidx.collection {
     ctor public ArraySet(androidx.collection.ArraySet<? extends E>? set);
     ctor public ArraySet(java.util.Collection<? extends E>? set);
     ctor public ArraySet(E![]? array);
-    method public boolean add(E? element);
+    method public boolean add(E element);
     method public void addAll(androidx.collection.ArraySet<? extends E> array);
     method public boolean addAll(java.util.Collection<? extends E> elements);
     method public void clear();
-    method public operator boolean contains(E? element);
+    method public operator boolean contains(E element);
     method public boolean containsAll(java.util.Collection<E!> elements);
     method public void ensureCapacity(int minimumCapacity);
     method public int getSize();
     method public int indexOf(Object? key);
     method public boolean isEmpty();
     method public java.util.Iterator<E> iterator();
-    method public boolean remove(E? element);
+    method public boolean remove(E element);
     method public boolean removeAll(androidx.collection.ArraySet<? extends E> array);
     method public boolean removeAll(java.util.Collection<E!> elements);
-    method public E! removeAt(int index);
+    method public E removeAt(int index);
     method public boolean retainAll(java.util.Collection<E!> elements);
     method public Object![] toArray();
     method public <T> T![] toArray(T![] array);
-    method public E! valueAt(int index);
+    method public E valueAt(int index);
     property public int size;
   }
 
@@ -59,15 +59,15 @@ package androidx.collection {
   public final class CircularArray<E> {
     ctor public CircularArray(optional int minCapacity);
     ctor public CircularArray();
-    method public void addFirst(E? element);
-    method public void addLast(E? element);
+    method public void addFirst(E element);
+    method public void addLast(E element);
     method public void clear();
-    method public operator E! get(int index);
+    method public operator E get(int index);
     method public E! getFirst();
     method public E! getLast();
     method public boolean isEmpty();
-    method public E! popFirst();
-    method public E! popLast();
+    method public E popFirst();
+    method public E popLast();
     method public void removeFromEnd(int count);
     method public void removeFromStart(int count);
     method public int size();
@@ -97,42 +97,42 @@ package androidx.collection {
   public class LongSparseArray<E> implements java.lang.Cloneable {
     ctor public LongSparseArray(optional int initialCapacity);
     ctor public LongSparseArray();
-    method public void append(long key, E? value);
+    method public void append(long key, E value);
     method public void clear();
     method public androidx.collection.LongSparseArray<E> clone();
     method public boolean containsKey(long key);
-    method public boolean containsValue(E? value);
+    method public boolean containsValue(E value);
     method @Deprecated public void delete(long key);
     method public operator E? get(long key);
-    method public E! get(long key, E? defaultValue);
+    method public E get(long key, E defaultValue);
     method public int indexOfKey(long key);
-    method public int indexOfValue(E? value);
+    method public int indexOfValue(E value);
     method public boolean isEmpty();
     method public long keyAt(int index);
-    method public void put(long key, E? value);
+    method public void put(long key, E value);
     method public void putAll(androidx.collection.LongSparseArray<? extends E> other);
-    method public E? putIfAbsent(long key, E? value);
+    method public E? putIfAbsent(long key, E value);
     method public void remove(long key);
-    method public boolean remove(long key, E? value);
+    method public boolean remove(long key, E value);
     method public void removeAt(int index);
-    method public E? replace(long key, E? value);
-    method public boolean replace(long key, E? oldValue, E? newValue);
-    method public void setValueAt(int index, E? value);
+    method public E? replace(long key, E value);
+    method public boolean replace(long key, E oldValue, E newValue);
+    method public void setValueAt(int index, E value);
     method public int size();
-    method public E! valueAt(int index);
+    method public E valueAt(int index);
   }
 
   public final class LongSparseArrayKt {
     method public static inline operator <T> boolean contains(androidx.collection.LongSparseArray<T>, long key);
     method public static inline <T> void forEach(androidx.collection.LongSparseArray<T>, kotlin.jvm.functions.Function2<? super java.lang.Long,? super T,kotlin.Unit> action);
-    method public static inline <T> T! getOrDefault(androidx.collection.LongSparseArray<T>, long key, T? defaultValue);
-    method public static inline <T> T! getOrElse(androidx.collection.LongSparseArray<T>, long key, kotlin.jvm.functions.Function0<? extends T> defaultValue);
+    method public static inline <T> T getOrDefault(androidx.collection.LongSparseArray<T>, long key, T defaultValue);
+    method public static inline <T> T getOrElse(androidx.collection.LongSparseArray<T>, long key, kotlin.jvm.functions.Function0<? extends T> defaultValue);
     method public static inline <T> int getSize(androidx.collection.LongSparseArray<T>);
     method public static inline <T> boolean isNotEmpty(androidx.collection.LongSparseArray<T>);
     method public static <T> kotlin.collections.LongIterator keyIterator(androidx.collection.LongSparseArray<T>);
     method public static operator <T> androidx.collection.LongSparseArray<T> plus(androidx.collection.LongSparseArray<T>, androidx.collection.LongSparseArray<T> other);
-    method @Deprecated public static <T> boolean remove(androidx.collection.LongSparseArray<T>, long key, T? value);
-    method public static inline operator <T> void set(androidx.collection.LongSparseArray<T>, long key, T? value);
+    method @Deprecated public static <T> boolean remove(androidx.collection.LongSparseArray<T>, long key, T value);
+    method public static inline operator <T> void set(androidx.collection.LongSparseArray<T>, long key, T value);
     method public static <T> java.util.Iterator<T> valueIterator(androidx.collection.LongSparseArray<T>);
   }
 
@@ -166,69 +166,69 @@ package androidx.collection {
     ctor public SimpleArrayMap();
     ctor public SimpleArrayMap(androidx.collection.SimpleArrayMap<? extends K,? extends V>? map);
     method public void clear();
-    method public boolean containsKey(K? key);
-    method public boolean containsValue(V? value);
+    method public boolean containsKey(K key);
+    method public boolean containsValue(V value);
     method public void ensureCapacity(int minimumCapacity);
-    method public operator V? get(K? key);
-    method public V! getOrDefault(Object? key, V? defaultValue);
-    method public int indexOfKey(K? key);
+    method public operator V? get(K key);
+    method public V getOrDefault(Object? key, V defaultValue);
+    method public int indexOfKey(K key);
     method public boolean isEmpty();
-    method public K! keyAt(int index);
-    method public V? put(K? key, V? value);
+    method public K keyAt(int index);
+    method public V? put(K key, V value);
     method public void putAll(androidx.collection.SimpleArrayMap<? extends K,? extends V> map);
-    method public V? putIfAbsent(K? key, V? value);
-    method public V? remove(K? key);
-    method public boolean remove(K? key, V? value);
-    method public V! removeAt(int index);
-    method public V? replace(K? key, V? value);
-    method public boolean replace(K? key, V? oldValue, V? newValue);
-    method public V! setValueAt(int index, V? value);
+    method public V? putIfAbsent(K key, V value);
+    method public V? remove(K key);
+    method public boolean remove(K key, V value);
+    method public V removeAt(int index);
+    method public V? replace(K key, V value);
+    method public boolean replace(K key, V oldValue, V newValue);
+    method public V setValueAt(int index, V value);
     method public int size();
-    method public V! valueAt(int index);
+    method public V valueAt(int index);
   }
 
   public class SparseArrayCompat<E> implements java.lang.Cloneable {
     ctor public SparseArrayCompat(optional int initialCapacity);
     ctor public SparseArrayCompat();
-    method public void append(int key, E? value);
+    method public void append(int key, E value);
     method public void clear();
     method public androidx.collection.SparseArrayCompat<E> clone();
     method public boolean containsKey(int key);
-    method public boolean containsValue(E? value);
+    method public boolean containsValue(E value);
     method @Deprecated public void delete(int key);
     method public operator E? get(int key);
-    method public E! get(int key, E? defaultValue);
+    method public E get(int key, E defaultValue);
     method public final boolean getIsEmpty();
     method public int indexOfKey(int key);
-    method public int indexOfValue(E? value);
+    method public int indexOfValue(E value);
     method public boolean isEmpty();
     method public int keyAt(int index);
-    method public void put(int key, E? value);
+    method public void put(int key, E value);
     method public void putAll(androidx.collection.SparseArrayCompat<? extends E> other);
-    method public E? putIfAbsent(int key, E? value);
+    method public E? putIfAbsent(int key, E value);
     method public void remove(int key);
     method public boolean remove(int key, Object? value);
     method public void removeAt(int index);
     method public void removeAtRange(int index, int size);
-    method public E? replace(int key, E? value);
-    method public boolean replace(int key, E? oldValue, E? newValue);
-    method public void setValueAt(int index, E? value);
+    method public E? replace(int key, E value);
+    method public boolean replace(int key, E oldValue, E newValue);
+    method public void setValueAt(int index, E value);
     method public int size();
-    method public E! valueAt(int index);
+    method public E valueAt(int index);
     property public final boolean isEmpty;
   }
 
   public final class SparseArrayKt {
     method public static inline operator <T> boolean contains(androidx.collection.SparseArrayCompat<T>, int key);
     method public static inline <T> void forEach(androidx.collection.SparseArrayCompat<T>, kotlin.jvm.functions.Function2<? super java.lang.Integer,? super T,kotlin.Unit> action);
-    method public static inline <T> T! getOrDefault(androidx.collection.SparseArrayCompat<T>, int key, T? defaultValue);
-    method public static inline <T> T! getOrElse(androidx.collection.SparseArrayCompat<T>, int key, kotlin.jvm.functions.Function0<? extends T> defaultValue);
+    method public static inline <T> T getOrDefault(androidx.collection.SparseArrayCompat<T>, int key, T defaultValue);
+    method public static inline <T> T getOrElse(androidx.collection.SparseArrayCompat<T>, int key, kotlin.jvm.functions.Function0<? extends T> defaultValue);
     method public static inline <T> int getSize(androidx.collection.SparseArrayCompat<T>);
     method public static inline <T> boolean isNotEmpty(androidx.collection.SparseArrayCompat<T>);
     method public static <T> kotlin.collections.IntIterator keyIterator(androidx.collection.SparseArrayCompat<T>);
     method public static operator <T> androidx.collection.SparseArrayCompat<T> plus(androidx.collection.SparseArrayCompat<T>, androidx.collection.SparseArrayCompat<T> other);
-    method @Deprecated public static <T> boolean remove(androidx.collection.SparseArrayCompat<T>, int key, T? value);
-    method public static inline operator <T> void set(androidx.collection.SparseArrayCompat<T>, int key, T? value);
+    method @Deprecated public static <T> boolean remove(androidx.collection.SparseArrayCompat<T>, int key, T value);
+    method public static inline operator <T> void set(androidx.collection.SparseArrayCompat<T>, int key, T value);
     method public static <T> java.util.Iterator<T> valueIterator(androidx.collection.SparseArrayCompat<T>);
   }
 

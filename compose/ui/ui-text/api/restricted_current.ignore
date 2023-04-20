@@ -3,5 +3,11 @@ ChangedType: androidx.compose.ui.text.AnnotatedString.Builder#append(char):
     Method androidx.compose.ui.text.AnnotatedString.Builder.append has changed return type from androidx.compose.ui.text.AnnotatedString.Builder to void
 
 
+InvalidNullConversion: androidx.compose.ui.text.AnnotatedString.Range#Range(T, int, int) parameter #0:
+    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter item in androidx.compose.ui.text.AnnotatedString.Range(T item, int start, int end)
+InvalidNullConversion: androidx.compose.ui.text.AnnotatedString.Range#Range(T, int, int, String) parameter #0:
+    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter item in androidx.compose.ui.text.AnnotatedString.Range(T item, int start, int end, String tag)
+
+
 RemovedDeprecatedMethod: androidx.compose.ui.text.AnnotatedString.Builder#deprecated_append_returning_void(char):
     Removed deprecated method androidx.compose.ui.text.AnnotatedString.Builder.deprecated_append_returning_void(char)
