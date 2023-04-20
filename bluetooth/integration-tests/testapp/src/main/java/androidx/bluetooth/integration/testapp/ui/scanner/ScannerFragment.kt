@@ -31,6 +31,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 
 // TODO(ofy) Migrate to androidx.bluetooth.BluetoothLe once scan API is in place
 import androidx.bluetooth.integration.testapp.experimental.BluetoothLe
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 
@@ -60,9 +61,14 @@ class ScannerFragment : Fragment() {
             field = value
             if (value) {
                 _binding?.buttonScan?.text = getString(R.string.stop_scanning)
+                _binding?.buttonScan?.backgroundTintList =
+                    ContextCompat.getColorStateList(requireContext(), R.color.red_500)
             } else {
                 _binding?.buttonScan?.text = getString(R.string.start_scanning)
+                _binding?.buttonScan?.backgroundTintList =
+                    ContextCompat.getColorStateList(requireContext(), R.color.indigo_500)
                 scanJob?.cancel()
+                scanJob = null
             }
         }
 
