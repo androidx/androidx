@@ -105,8 +105,9 @@ fi
 function buildAndroidx() {
   RETURN_CODE=0
   LOG_PROCESSOR="$SCRIPTS_DIR/../development/build_log_processor.sh"
+  # Remove -Pandroid.overrideVersionCheck=true once we upgrade to Gradle 8.1
   if "$LOG_PROCESSOR" frameworks/support/gradlew -p frameworks/support $androidxArguments --profile \
-    --dependency-verification=off -Pandroid.experimental.lint.version=$GRADLE_PLUGIN_VERSION; then # building against tip of tree of AGP that potentially pulls in new dependencies
+    --dependency-verification=off -Pandroid.overrideVersionCheck=true -Pandroid.experimental.lint.version=$GRADLE_PLUGIN_VERSION; then # building against tip of tree of AGP that potentially pulls in new dependencies
     echo build passed
   else
     RETURN_CODE=1
