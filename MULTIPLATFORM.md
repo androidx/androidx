@@ -28,11 +28,10 @@ Run tests for UIKit:
 ```
 
 ### Run samples
-Run jvm desktop sample:
+Run jvm desktop samples:
 ```bash
 ./gradlew :compose:mpp:demo:runDesktop
 ```
-another jvm desktop samples:
 ```bash
 ./gradlew :compose:desktop:desktop:desktop-samples:run1
 ```
@@ -53,6 +52,9 @@ another jvm desktop samples:
 ```
 ```bash
 ./gradlew :compose:desktop:desktop:desktop-samples:runLayout
+```
+```bash
+./gradlew :compose:desktop:desktop:desktop-samples-material3:runScaffold
 ```
 
 Run wasm sample:
