@@ -27,6 +27,26 @@
     <string name="scan_result_icon">Scan Result Icon</string>
     <string name="connect">Connect</string>
 
+    <!-- Advertiser -->
+    <string name="configure_advertising_packet">Configure Advertising Packet</string>
+    <string name="display_name">Display Name</string>
+    <string name="include_device_name">Include Device Name</string>
+    <string name="connectable">Connectable</string>
+    <string name="discoverable">Discoverable</string>
+    <string name="advertising_data">Advertising Data</string>
+    <string name="add_data">Add Data</string>
+    <string name="start_advertising">Start Advertising</string>
+    <string name="stop_advertising">Stop Advertising</string>
+    <string name="service_uuid">Service UUID</string>
+    <string name="uuid_or_service_name">UUID or service name</string>
+    <string name="service_data">Service Data</string>
+    <string name="data_hex">Data (HEX)</string>
+    <string name="manufacturer_data">Manufacturer Data</string>
+    <string name="sixteen_bit_company_identifier">16-bit Company Identifier</string>
+    <string name="add">Add</string>
+    <string name="cancel">Cancel</string>
+    <string name="clear_data">Clear Data</string>
+
     <string name="scan_using_androidx_bluetooth">Scan using AndroidX Bluetooth APIs</string>
     <string name="scan_start_message">Scan started. Results are in Logcat</string>
 
