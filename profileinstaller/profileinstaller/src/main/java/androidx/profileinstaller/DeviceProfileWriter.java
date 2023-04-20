@@ -130,7 +130,10 @@ public class DeviceProfileWriter {
             }
         } else {
             try {
-                mCurProfile.createNewFile();
+                if (!mCurProfile.createNewFile()) {
+                    result(ProfileInstaller.RESULT_NOT_WRITABLE, null);
+                    return false;
+                }
             } catch (IOException e) {
                 // If the file cannot be created it's the same of the profile file not being
                 // writeable
@@ -138,7 +141,6 @@ public class DeviceProfileWriter {
                 return false;
             }
         }
-
 
         mDeviceSupportsAotProfile = true;
         return true;

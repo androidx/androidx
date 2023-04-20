@@ -1,3 +1,9 @@
+import com.google.common.io.Files
+import org.apache.commons.compress.utils.IOUtils
+
+import java.util.zip.ZipEntry
+import java.util.zip.ZipFile
+
 /*
  * Copyright (C) 2022 The Android Open Source Project
  *
@@ -20,23 +26,58 @@ plugins {
 }
 
 // This task copies the apks provided by the `apkAssets` configuration and places them in the
-// assets folder. This allows a build time generation of the sample apps.
-def copyApkTaskProvider = tasks.register("copyApkAssets", Copy) {
-    description = "Copies the asset apks provided by profile-verification-sample projects"
-    dependsOn(configurations.getByName("apkAssets"))
-    from(configurations.getByName("apkAssets").incoming.artifactView {}.files)
-    into(layout.buildDirectory.dir("intermediates/apkAssets"))
+// assets folder. It also extracts the profiles to make them available to the test app.
+// This allows a build time generation of the sample apps.
+abstract class PrepareAssetsTask extends DefaultTask {
 
-    // Note that the artifact directory included contain multiple output-metadata.json files built
-    // with the apks. Since we're not interested in those we can simply exclude duplicates.
-    duplicatesStrategy(DuplicatesStrategy.EXCLUDE)
+    @InputFiles
+    @PathSensitive(PathSensitivity.NONE)
+    abstract ConfigurableFileCollection getApkAssetsFolders()
+
+    @OutputDirectory
+    abstract DirectoryProperty getOutputDir()
+
+    @TaskAction
+    void exec() {
+        for (File folder : apkAssetsFolders.files) {
+            for (File file : folder.listFiles()) {
+
+                // Consider only apk files (skip json metadata)
+                if (!file.name.endsWith(".apk")) {
+                    continue
+                }
+
+                // Copies the apk in the output dir
+                Files.copy(file, outputDir.file(file.name).get().asFile)
+
+                // Extract the profile in the apk and places it in the assets
+                ZipFile zipFile = new ZipFile(file)
+                extractZipEntry(zipFile, "assets/dexopt/baseline.prof", "${file.name}_baseline.prof")
+                extractZipEntry(zipFile, "assets/dexopt/baseline.profm", "${file.name}_baseline.profm")
+            }
+        }
+    }
+
+    private void extractZipEntry(ZipFile zipFile, String zipEntryName, String outputFileName) {
+        ZipEntry entry = zipFile.entries().find { it.name == zipEntryName }
+        File outputFile = outputDir.file(outputFileName).get().asFile
+        try (FileOutputStream os = new FileOutputStream(outputFile)) {
+            IOUtils.copy(zipFile.getInputStream(entry), os)
+        }
+    }
+}
+
+def prepareAssetsTaskProvider = tasks.register("prepareAssets", PrepareAssetsTask) {
+    description = "Copies the apks and profiles provided by profile-verification-sample projects into the assets."
+    apkAssetsFolders.from(configurations.getByName("apkAssets").incoming.artifactView {}.files)
+    outputDir.set(layout.buildDirectory.dir("intermediates/profile-verification-assets"))
 }
 
 android {
     defaultConfig {
         minSdkVersion 23
     }
-    sourceSets.androidTest.assets.srcDir(copyApkTaskProvider)
+    sourceSets.androidTest.assets.srcDir(prepareAssetsTaskProvider.map { it.outputDir })
     namespace "androidx.profileinstaller.integration.profileverification"
 }
 
@@ -71,5 +112,5 @@ dependencies {
 
 // It makes sure that the apks are generated before the assets are packed.
 afterEvaluate {
-    tasks.named("generateDebugAndroidTestAssets").configure { it.dependsOn(copyApkTaskProvider) }
+    tasks.named("generateDebugAndroidTestAssets").configure { it.dependsOn(prepareAssetsTaskProvider) }
 }
