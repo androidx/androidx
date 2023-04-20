@@ -2230,6 +2230,9 @@ class ComplicationData : Parcelable, Serializable {
                 FIELD_END_TIME,
                 FIELD_TIMELINE_ENTRIES,
                 FIELD_TIMELINE_ENTRY_TYPE,
+                // Placeholder or fallback.
+                FIELD_PLACEHOLDER_FIELDS,
+                FIELD_PLACEHOLDER_TYPE,
             )
 
         // Used for validation. OPTIONAL_FIELDS[i] is a list containing all the fields which are
@@ -2313,8 +2316,6 @@ class ComplicationData : Parcelable, Serializable {
                         FIELD_LONG_TEXT,
                         FIELD_MAX_VALUE,
                         FIELD_MIN_VALUE,
-                        FIELD_PLACEHOLDER_FIELDS,
-                        FIELD_PLACEHOLDER_TYPE,
                         FIELD_SMALL_IMAGE,
                         FIELD_SMALL_IMAGE_BURN_IN_PROTECTION,
                         FIELD_SHORT_TITLE,
