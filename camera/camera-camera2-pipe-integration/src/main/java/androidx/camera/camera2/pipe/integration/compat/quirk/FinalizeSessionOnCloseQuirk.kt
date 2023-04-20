@@ -44,11 +44,19 @@ class FinalizeSessionOnCloseQuirk : Quirk {
         fun isEnabled() = true
 
         fun getBehavior() =
-            if (Build.BRAND == "google") {
+            if (CameraQuirks.isImmediateSurfaceReleaseAllowed()) {
                 // Finalize immediately for devices that allow immediate Surface reuse.
                 FinalizeSessionOnCloseBehavior.IMMEDIATE
-            } else {
+            } else if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+                // When CloseCaptureSessionOnVideoQuirk is enabled, we close the capture session
+                // in anticipation that the onClosed() callback would finalize the session. However,
+                // on API levels < M, it could be possible that onClosed() isn't invoked if a new
+                // capture session (or CameraGraph) is created too soon (read b/144817309 or
+                // CaptureSessionOnClosedNotCalledQuirk for more context). Therefore, we're enabling
+                // this quirk (on a timeout) for API levels < M, too.
                 FinalizeSessionOnCloseBehavior.TIMEOUT
+            } else {
+                FinalizeSessionOnCloseBehavior.OFF
             }
     }
 }

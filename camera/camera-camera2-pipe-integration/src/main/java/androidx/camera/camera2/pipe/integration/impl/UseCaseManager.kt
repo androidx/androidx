@@ -23,6 +23,7 @@ import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.integration.adapter.CameraStateAdapter
+import androidx.camera.camera2.pipe.integration.compat.quirk.CameraQuirks
 import androidx.camera.camera2.pipe.integration.config.CameraConfig
 import androidx.camera.camera2.pipe.integration.config.CameraScope
 import androidx.camera.camera2.pipe.integration.config.UseCaseCameraComponent
@@ -72,6 +73,7 @@ class UseCaseManager @Inject constructor(
     private val controls: java.util.Set<UseCaseCameraControl>,
     private val camera2CameraControl: Camera2CameraControl,
     private val cameraStateAdapter: CameraStateAdapter,
+    private val cameraQuirks: CameraQuirks,
     private val cameraGraphFlags: CameraGraph.Flags,
     cameraProperties: CameraProperties,
     displayInfoManager: DisplayInfoManager,
@@ -257,7 +259,14 @@ class UseCaseManager @Inject constructor(
 
         // Create and configure the new camera component.
         _activeComponent =
-            builder.config(UseCaseCameraConfig(useCases, cameraStateAdapter, cameraGraphFlags))
+            builder.config(
+                UseCaseCameraConfig(
+                    useCases,
+                    cameraStateAdapter,
+                    cameraQuirks,
+                    cameraGraphFlags
+                )
+            )
                 .build()
         for (control in allControls) {
             control.useCaseCamera = camera

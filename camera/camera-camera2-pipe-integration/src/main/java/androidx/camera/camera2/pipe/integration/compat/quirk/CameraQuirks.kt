@@ -62,8 +62,17 @@ class CameraQuirks @Inject constructor(
         if (CameraNoResponseWhenEnablingFlashQuirk.isEnabled(cameraMetadata)) {
             quirks.add(CameraNoResponseWhenEnablingFlashQuirk())
         }
+        if (CaptureSessionStuckQuirk.isEnabled()) {
+            quirks.add(CaptureSessionStuckQuirk())
+        }
+        if (CloseCaptureSessionOnVideoQuirk.isEnabled()) {
+            quirks.add(CloseCaptureSessionOnVideoQuirk())
+        }
         if (ConfigureSurfaceToSecondarySessionFailQuirk.isEnabled(cameraMetadata)) {
             quirks.add(ConfigureSurfaceToSecondarySessionFailQuirk())
+        }
+        if (FinalizeSessionOnCloseQuirk.isEnabled()) {
+            quirks.add(FinalizeSessionOnCloseQuirk())
         }
         if (FlashTooSlowQuirk.isEnabled(cameraMetadata)) {
             quirks.add(FlashTooSlowQuirk())
@@ -92,13 +101,13 @@ class CameraQuirks @Inject constructor(
         if (YuvImageOnePixelShiftQuirk.isEnabled()) {
             quirks.add(YuvImageOnePixelShiftQuirk())
         }
-        if (CaptureSessionStuckQuirk.isEnabled()) {
-            quirks.add(CaptureSessionStuckQuirk())
-        }
-        if (FinalizeSessionOnCloseQuirk.isEnabled()) {
-            quirks.add(FinalizeSessionOnCloseQuirk())
-        }
 
         Quirks(quirks)
+    }
+
+    companion object {
+        fun isImmediateSurfaceReleaseAllowed(): Boolean {
+            return Build.BRAND == "google"
+        }
     }
 }

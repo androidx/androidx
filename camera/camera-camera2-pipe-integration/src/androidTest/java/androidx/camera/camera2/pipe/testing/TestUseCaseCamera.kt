@@ -19,6 +19,7 @@
 package androidx.camera.camera2.pipe.testing
 
 import android.content.Context
+import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CaptureRequest
 import androidx.annotation.RequiresApi
@@ -30,7 +31,10 @@ import androidx.camera.camera2.pipe.RequestTemplate
 import androidx.camera.camera2.pipe.integration.adapter.CameraStateAdapter
 import androidx.camera.camera2.pipe.integration.adapter.CaptureConfigAdapter
 import androidx.camera.camera2.pipe.integration.adapter.SessionConfigAdapter
+import androidx.camera.camera2.pipe.integration.compat.StreamConfigurationMapCompat
+import androidx.camera.camera2.pipe.integration.compat.quirk.CameraQuirks
 import androidx.camera.camera2.pipe.integration.compat.workaround.NoOpInactiveSurfaceCloser
+import androidx.camera.camera2.pipe.integration.compat.workaround.OutputSizesCorrector
 import androidx.camera.camera2.pipe.integration.config.CameraConfig
 import androidx.camera.camera2.pipe.integration.config.UseCaseCameraConfig
 import androidx.camera.camera2.pipe.integration.impl.CameraCallbackMap
@@ -68,10 +72,22 @@ class TestUseCaseCamera(
         NoOpInactiveSurfaceCloser,
     ),
 ) : UseCaseCamera {
+    val cameraMetadata =
+        cameraPipe.cameras().awaitCameraMetadata(CameraId.fromCamera2Id(cameraId))!!
+    val streamConfigurationMap =
+        cameraMetadata[CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP]
+    val cameraQuirks = CameraQuirks(
+        cameraMetadata,
+        StreamConfigurationMapCompat(
+            streamConfigurationMap,
+            OutputSizesCorrector(cameraMetadata, streamConfigurationMap)
+        )
+    )
     val useCaseCameraGraphConfig =
         UseCaseCameraConfig(
             useCases,
             CameraStateAdapter(),
+            cameraQuirks,
             CameraGraph.Flags()
         ).provideUseCaseGraphConfig(
             callbackMap = callbackMap,
