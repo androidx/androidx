@@ -526,10 +526,10 @@ public class TransitionSet extends Transition {
             public void onTransitionCancel(@NonNull Transition transition) {
                 mTransitions.remove(transition);
                 if (mTransitions.isEmpty()) {
-                    notifyListeners(TransitionNotification.ON_CANCEL);
+                    notifyListeners(TransitionNotification.ON_CANCEL, false);
                     if (!mEnded) {
                         mEnded = true;
-                        notifyListeners(TransitionNotification.ON_END);
+                        notifyListeners(TransitionNotification.ON_END, false);
                     }
                 }
             }
@@ -572,11 +572,12 @@ public class TransitionSet extends Transition {
         ) {
             return;
         }
+        boolean isReverse = playTimeMillis < lastPlayTimeMillis;
         if ((playTimeMillis >= 0 && lastPlayTimeMillis < 0)
-                || (playTimeMillis <= duration && lastPlayTimeMillis > 0)
+                || (playTimeMillis <= duration && lastPlayTimeMillis > duration)
             ) {
             mEnded = false;
-            notifyListeners(TransitionNotification.ON_START);
+            notifyListeners(TransitionNotification.ON_START, isReverse);
         }
         if (mPlayTogether) {
             for (int i = 0; i < mTransitions.size(); i++) {
@@ -619,7 +620,7 @@ public class TransitionSet extends Transition {
             if (playTimeMillis > duration) {
                 mEnded = true;
             }
-            notifyListeners(TransitionNotification.ON_END);
+            notifyListeners(TransitionNotification.ON_END, isReverse);
         }
     }
 

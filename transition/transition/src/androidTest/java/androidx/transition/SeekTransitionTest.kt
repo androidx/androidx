@@ -28,12 +28,14 @@ import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.testutils.AnimationDurationScaleRule.Companion.createForAllTests
+import androidx.transition.Transition.TransitionListener
 import androidx.transition.test.R
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.fail
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.mockito.ArgumentMatchers.eq
 import org.mockito.Mockito.any
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.never
@@ -658,12 +660,14 @@ class SeekTransitionTest : BaseTest() {
         }
 
         rule.runOnUiThread {
-            // seek to the end of the fade out
-            seekController.currentPlayTimeMillis = 300
+            // seek to near the end of the fade out
+            seekController.currentPlayTimeMillis = 299
 
             seekController.animateToStart()
         }
-        verify(listener, timeout(3000)).onTransitionEnd(any())
+        verify(listener, timeout(3000)).onTransitionEnd(any(), eq(true))
+        verify(listener, never()).onTransitionEnd(any(), eq(false))
+        verify(listener, times(1)).onTransitionEnd(any(), eq(true))
 
         val transition2 = TransitionSet().also {
             it.addTransition(Fade(Fade.MODE_OUT))
@@ -679,10 +683,11 @@ class SeekTransitionTest : BaseTest() {
             view.visibility = View.VISIBLE
             view2.visibility = View.GONE
         }
-        verify(listener2, timeout(3000)).onTransitionStart(any())
+        verify(listener2, timeout(3000)).onTransitionStart(any(), eq(false))
 
         rule.runOnUiThread {
-            verify(listener, times(1)).onTransitionEnd(any())
+            verify(listener, times(1)).onTransitionCancel(any())
+            verify(listener, times(1)).onTransitionEnd(any(), eq(false))
             verify(listener2, times(1)).onTransitionEnd(any())
             val runningTransitions = TransitionManager.getRunningTransitions()
             assertThat(runningTransitions[root]).isEmpty()
@@ -755,6 +760,124 @@ class SeekTransitionTest : BaseTest() {
 
             verify(listener, times(1)).onTransitionEnd(any())
         }
+    }
+
+    @Test
+    fun onTransitionCallsForwardAndReversed() {
+        if (!BuildCompat.isAtLeastU()) return
+        val listener = spy(TransitionListenerAdapter())
+        transition = Fade()
+        transition.addListener(listener)
+
+        lateinit var seekController: TransitionSeekController
+        rule.runOnUiThread {
+            seekController = TransitionManager.controlDelayedTransition(root, transition)!!
+            view.visibility = View.GONE
+        }
+        rule.runOnUiThread {
+            verifyCallCounts(listener, startForward = 1)
+            seekController.currentPlayTimeMillis = 300
+            verifyCallCounts(listener, startForward = 1, endForward = 1)
+            seekController.currentPlayTimeMillis = 150
+            verifyCallCounts(listener, startForward = 1, endForward = 1, startReverse = 1)
+            seekController.currentPlayTimeMillis = 0
+            verifyCallCounts(
+                listener,
+                startForward = 1,
+                endForward = 1,
+                startReverse = 1,
+                endReverse = 1
+            )
+        }
+    }
+
+    @Test
+    fun onTransitionCallsForwardAndReversedTransitionSet() {
+        if (!BuildCompat.isAtLeastU()) return
+        val fadeOut = Fade(Fade.MODE_OUT)
+        val outListener = spy(TransitionListenerAdapter())
+        fadeOut.addListener(outListener)
+        val fadeIn = Fade(Fade.MODE_IN)
+        val inListener = spy(TransitionListenerAdapter())
+        fadeIn.addListener(inListener)
+        val set = TransitionSet()
+        set.addTransition(fadeOut)
+        set.addTransition(fadeIn)
+        set.setOrdering(TransitionSet.ORDERING_SEQUENTIAL)
+        val setListener = spy(TransitionListenerAdapter())
+        set.addListener(setListener)
+
+        val view2 = View(view.context)
+
+        lateinit var seekController: TransitionSeekController
+        rule.runOnUiThread {
+            seekController = TransitionManager.controlDelayedTransition(root, set)!!
+            view.visibility = View.GONE
+            root.addView(view2, ViewGroup.LayoutParams(100, 100))
+        }
+
+        rule.runOnUiThread {
+            verifyCallCounts(setListener, startForward = 1)
+            verifyCallCounts(outListener, startForward = 1)
+            verifyCallCounts(inListener)
+            seekController.currentPlayTimeMillis = 301
+            verifyCallCounts(setListener, startForward = 1)
+            verifyCallCounts(outListener, startForward = 1, endForward = 1)
+            verifyCallCounts(inListener, startForward = 1)
+            seekController.currentPlayTimeMillis = 600
+            verifyCallCounts(setListener, startForward = 1, endForward = 1)
+            verifyCallCounts(outListener, startForward = 1, endForward = 1)
+            verifyCallCounts(inListener, startForward = 1, endForward = 1)
+            seekController.currentPlayTimeMillis = 301
+            verifyCallCounts(setListener, startForward = 1, endForward = 1, startReverse = 1)
+            verifyCallCounts(outListener, startForward = 1, endForward = 1)
+            verifyCallCounts(inListener, startForward = 1, endForward = 1, startReverse = 1)
+            seekController.currentPlayTimeMillis = 299
+            verifyCallCounts(setListener, startForward = 1, endForward = 1, startReverse = 1)
+            verifyCallCounts(outListener, startForward = 1, endForward = 1, startReverse = 1)
+            verifyCallCounts(
+                inListener,
+                startForward = 1,
+                endForward = 1,
+                startReverse = 1,
+                endReverse = 1
+            )
+            seekController.currentPlayTimeMillis = 0
+            verifyCallCounts(
+                setListener,
+                startForward = 1,
+                endForward = 1,
+                startReverse = 1,
+                endReverse = 1
+            )
+            verifyCallCounts(
+                outListener,
+                startForward = 1,
+                endForward = 1,
+                startReverse = 1,
+                endReverse = 1
+            )
+            verifyCallCounts(
+                inListener,
+                startForward = 1,
+                endForward = 1,
+                startReverse = 1,
+                endReverse = 1
+            )
+        }
+    }
+
+    private fun verifyCallCounts(
+        listener: TransitionListener,
+        startForward: Int = 0,
+        endForward: Int = 0,
+        startReverse: Int = 0,
+        endReverse: Int = 0
+    ) {
+        verify(listener, times(startForward)).onTransitionStart(any(), eq(false))
+        verify(listener, times(endForward)).onTransitionEnd(any(), eq(false))
+        verify(listener, times(startReverse)).onTransitionStart(any(), eq(true))
+        verify(listener, times(endReverse)).onTransitionEnd(any(), eq(true))
     }
 
     @Test

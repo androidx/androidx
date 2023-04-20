@@ -1823,7 +1823,7 @@ public abstract class Transition implements Cloneable {
                 Animator animator = mCurrentAnimators.get(i);
                 AnimatorUtils.pause(animator);
             }
-            notifyListeners(TransitionNotification.ON_PAUSE);
+            notifyListeners(TransitionNotification.ON_PAUSE, false);
             mPaused = true;
         }
     }
@@ -1843,7 +1843,7 @@ public abstract class Transition implements Cloneable {
                     Animator animator = mCurrentAnimators.get(i);
                     AnimatorUtils.resume(animator);
                 }
-                notifyListeners(TransitionNotification.ON_RESUME);
+                notifyListeners(TransitionNotification.ON_RESUME, false);
             }
             mPaused = false;
         }
@@ -1887,10 +1887,11 @@ public abstract class Transition implements Cloneable {
                             transition.mCurrentAnimators.remove(anim);
                             runningAnimators.remove(anim);
                             if (transition.mCurrentAnimators.size() == 0) {
-                                transition.notifyListeners(TransitionNotification.ON_CANCEL);
+                                transition.notifyListeners(TransitionNotification.ON_CANCEL, false);
                                 if (!transition.mEnded) {
                                     transition.mEnded = true;
-                                    transition.notifyListeners(TransitionNotification.ON_END);
+                                    transition.notifyListeners(TransitionNotification.ON_END,
+                                            false);
                                 }
                             }
                         } else if (anim.isRunning() || anim.isStarted()) {
@@ -2024,7 +2025,7 @@ public abstract class Transition implements Cloneable {
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     protected void start() {
         if (mNumInstances == 0) {
-            notifyListeners(TransitionNotification.ON_START);
+            notifyListeners(TransitionNotification.ON_START, false);
             mEnded = false;
         }
         mNumInstances++;
@@ -2044,7 +2045,7 @@ public abstract class Transition implements Cloneable {
     protected void end() {
         --mNumInstances;
         if (mNumInstances == 0) {
-            notifyListeners(TransitionNotification.ON_END);
+            notifyListeners(TransitionNotification.ON_END, false);
             for (int i = 0; i < mStartValues.mItemIdValues.size(); ++i) {
                 View view = mStartValues.mItemIdValues.valueAt(i);
                 if (view != null) {
@@ -2097,7 +2098,7 @@ public abstract class Transition implements Cloneable {
             Animator animator = mCurrentAnimators.get(i);
             animator.cancel();
         }
-        notifyListeners(TransitionNotification.ON_CANCEL);
+        notifyListeners(TransitionNotification.ON_CANCEL, false);
     }
 
     /**
@@ -2326,7 +2327,7 @@ public abstract class Transition implements Cloneable {
     /**
      * Calls notification on each listener.
      */
-    void notifyListeners(TransitionNotification notification) {
+    void notifyListeners(TransitionNotification notification, boolean isReversed) {
         if (mListeners != null && !mListeners.isEmpty()) {
             // Use a cache so that we don't have to keep allocating on every notification
             int size = mListeners.size();
@@ -2335,7 +2336,7 @@ public abstract class Transition implements Cloneable {
             mListenersCache = null;
             listeners = mListeners.toArray(listeners);
             for (int i = 0; i < size; i++) {
-                notification.notifyListener(listeners[i], Transition.this);
+                notification.notifyListener(listeners[i], Transition.this, isReversed);
                 listeners[i] = null;
             }
             mListenersCache = listeners;
@@ -2364,10 +2365,11 @@ public abstract class Transition implements Cloneable {
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     void setCurrentPlayTimeMillis(long playTimeMillis, long lastPlayTimeMillis) {
         long duration = getTotalDurationMillis();
+        boolean isReversed = playTimeMillis < lastPlayTimeMillis;
         if ((lastPlayTimeMillis < 0 && playTimeMillis >= 0)
                 || (lastPlayTimeMillis > duration && playTimeMillis <= duration)) {
             mEnded = false;
-            notifyListeners(TransitionNotification.ON_START);
+            notifyListeners(TransitionNotification.ON_START, isReversed);
         }
         for (int i = 0; i < mCurrentAnimators.size(); i++) {
             Animator animator = mCurrentAnimators.get(i);
@@ -2384,7 +2386,7 @@ public abstract class Transition implements Cloneable {
                 // receive pause/resume calls.
                 mEnded = true;
             }
-            notifyListeners(TransitionNotification.ON_END);
+            notifyListeners(TransitionNotification.ON_END, isReversed);
         }
     }
 
@@ -2446,6 +2448,16 @@ public abstract class Transition implements Cloneable {
         void onTransitionStart(@NonNull Transition transition);
 
         /**
+         * Notification about the start of the transition.
+         *
+         * @param transition The started transition.
+         * @param isReverse {@code true} when seeking the transition backwards from the end.
+         */
+        default void onTransitionStart(@NonNull Transition transition, boolean isReverse) {
+            onTransitionStart(transition);
+        }
+
+        /**
          * Notification about the end of the transition. Canceled transitions
          * will always notify listeners of both the cancellation and end
          * events. That is, {@link #onTransitionEnd(Transition)} is always called,
@@ -2455,6 +2467,21 @@ public abstract class Transition implements Cloneable {
          * @param transition The transition which reached its end.
          */
         void onTransitionEnd(@NonNull Transition transition);
+
+        /**
+         * Notification about the end of the transition. Canceled transitions
+         * will always notify listeners of both the cancellation and end
+         * events. That is, {@link #onTransitionEnd(Transition, boolean)} is always called,
+         * regardless of whether the transition was canceled or played
+         * through to completion. Canceled transitions will have {@code isReverse}
+         * set to {@code false}.
+         *
+         * @param transition The transition which reached its end.
+         * @param isReverse {@code true} when seeking the transition backwards past the start.
+         */
+        default void onTransitionEnd(@NonNull Transition transition, boolean isReverse) {
+            onTransitionEnd(transition);
+        }
 
         /**
          * Notification about the cancellation of the transition.
@@ -2607,7 +2634,8 @@ public abstract class Transition implements Cloneable {
          */
         void notifyListener(
                 @NonNull TransitionListener listener,
-                @NonNull Transition transition
+                @NonNull Transition transition,
+                boolean isReversed
         );
 
         /**
@@ -2623,17 +2651,20 @@ public abstract class Transition implements Cloneable {
         /**
          * Call for TransitionListener#onTransitionCancel()
          */
-        TransitionNotification ON_CANCEL = TransitionListener::onTransitionCancel;
+        TransitionNotification ON_CANCEL =
+                (listener, transition, isReversed) -> listener.onTransitionCancel(transition);
 
         /**
          * Call for TransitionListener#onTransitionPause()
          */
-        TransitionNotification ON_PAUSE = TransitionListener::onTransitionPause;
+        TransitionNotification ON_PAUSE =
+                (listener, transition, isReversed) -> listener.onTransitionPause(transition);
 
         /**
          * Call for TransitionListener#onTransitionResume()
          */
-        TransitionNotification ON_RESUME = TransitionListener::onTransitionResume;
+        TransitionNotification ON_RESUME =
+                (listener, transition, isReversed) -> listener.onTransitionResume(transition);
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -2783,7 +2814,7 @@ public abstract class Transition implements Cloneable {
             mAnimator.addListener(new AnimatorListenerAdapter() {
                 @Override
                 public void onAnimationEnd(Animator animation) {
-                    notifyListeners(TransitionNotification.ON_END);
+                    notifyListeners(TransitionNotification.ON_END, false);
                 }
             });
             mAnimator.start();

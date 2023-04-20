@@ -215,9 +215,11 @@ package androidx.transition {
   public static interface Transition.TransitionListener {
     method public void onTransitionCancel(androidx.transition.Transition);
     method public void onTransitionEnd(androidx.transition.Transition);
+    method public default void onTransitionEnd(androidx.transition.Transition, boolean);
     method public void onTransitionPause(androidx.transition.Transition);
     method public void onTransitionResume(androidx.transition.Transition);
     method public void onTransitionStart(androidx.transition.Transition);
+    method public default void onTransitionStart(androidx.transition.Transition, boolean);
   }
 
   public class TransitionInflater {
