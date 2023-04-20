@@ -1018,6 +1018,8 @@ import static androidx\.wear\.tiles\.material\.Typography\.TYPOGRAPHY_BODY[0-9]+
 # > Configure project :androidx-demos
 WARNING: The option setting 'android\.experimental\.disableCompileSdkChecks=true' is experimental\.
 The current default is 'false'\.
+# > Task :compose:foundation:foundation:processDebugAndroidTestManifest
+\$SUPPORT/compose/foundation/foundation/src/androidAndroidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 # > Task :camera:camera-video:compileDebugAndroidTestKotlin
 w: file://\$SUPPORT/camera/camera\-video/src/androidTest/java/androidx/camera/video/internal/audio/AudioStreamImplTest\.kt:[0-9]+:[0-9]+ 'RequiresDevice' is deprecated\. Deprecated in Java
 # > Task :benchmark:benchmark-macro:compileDebugAndroidTestKotlin
