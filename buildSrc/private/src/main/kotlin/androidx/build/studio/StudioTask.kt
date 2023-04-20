@@ -229,11 +229,15 @@ abstract class StudioTask : DefaultTask() {
      */
     private fun launch() {
         if (checkLicenseAgreement(services)) {
-            if (requiresProjectList && !System.getenv().containsKey("ANDROIDX_PROJECTS")) {
+            if (requiresProjectList &&
+                !System.getenv().containsKey("ANDROIDX_PROJECTS") &&
+                !System.getenv().containsKey("PROJECT_PREFIX")
+                ) {
                 throw GradleException(
                     """
                     Please specify which set of projects you'd like to open in studio
                     with ANDROIDX_PROJECTS=MAIN ./gradlew studio
+                    or PROJECT_PREFIX=:room: ./gradlew studio
 
                     For possible options see settings.gradle
                     """.trimIndent()
