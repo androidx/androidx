@@ -112,12 +112,13 @@ fun ListItem(
         hasOverline = decoratedOverlineContent != null,
         hasSupporting = decoratedSupportingContent != null
     )
+    val isThreeLine = listItemType == ListItemType.ThreeLine
 
     val decoratedLeadingContent: @Composable (RowScope.() -> Unit)? = leadingContent?.let {
         {
             LeadingContent(
                 contentColor = colors.leadingIconColor(enabled = true).value,
-                topAlign = listItemType == ListItemType.ThreeLine,
+                topAlign = isThreeLine,
                 content = it
             )
         }
@@ -127,7 +128,7 @@ fun ListItem(
         {
             TrailingContent(
                 contentColor = colors.trailingIconColor(enabled = true).value,
-                topAlign = listItemType == ListItemType.ThreeLine,
+                topAlign = isThreeLine,
                 content = it
             )
         }
@@ -137,19 +138,15 @@ fun ListItem(
         ListItemType.TwoLine -> ListTokens.ListItemTwoLineContainerHeight
         else -> ListTokens.ListItemThreeLineContainerHeight // 3
     }
+    val verticalPadding = if (isThreeLine) ListItemThreeLineVerticalPadding else
+        ListItemVerticalPadding
     val outerPaddingValues =
         PaddingValues(
-            horizontal = ListItemHorizontalPadding,
-            vertical = if (listItemType == ListItemType.ThreeLine)
-                ListItemThreeLineVerticalPadding else ListItemVerticalPadding
+            start = ListItemStartPadding,
+            top = verticalPadding,
+            end = ListItemEndPadding,
+            bottom = verticalPadding,
         )
-    val contentPaddingValues = PaddingValues(
-        end = if (listItemType == ListItemType.ThreeLine) ContentEndPadding else 0.dp
-    )
-    val columnArrangement = if (listItemType == ListItemType.ThreeLine)
-        Arrangement.Top else Arrangement.Center
-    val boxAlignment = if (listItemType == ListItemType.ThreeLine)
-        Alignment.Top else CenterVertically
 
     ListItem(
         modifier = modifier,
@@ -166,9 +163,8 @@ fun ListItem(
         Column(
             modifier = Modifier
                 .weight(1f)
-                .padding(contentPaddingValues)
-                .align(boxAlignment),
-            verticalArrangement = columnArrangement
+                .align(if (isThreeLine) Alignment.Top else CenterVertically),
+            verticalArrangement = if (isThreeLine) Arrangement.Top else Arrangement.Center
         ) {
             if (decoratedOverlineContent != null) {
                 decoratedOverlineContent()
@@ -249,7 +245,7 @@ private fun RowScope.TrailingContent(
     content: @Composable () -> Unit,
 ) = Box(
     Modifier
-        .padding(horizontal = TrailingHorizontalPadding)
+        .padding(start = TrailingContentStartPadding)
         .then(if (!topAlign) Modifier.align(CenterVertically) else Modifier),
     ) {
         ProvideTextStyleFromToken(
@@ -430,17 +426,14 @@ private value class ListItemType private constructor(private val lines: Int) :
 // Container related defaults
 // TODO: Make sure these values stay up to date until replaced with tokens.
 private val ListItemVerticalPadding = 8.dp
-private val ListItemThreeLineVerticalPadding = 16.dp
-private val ListItemHorizontalPadding = 16.dp
+private val ListItemThreeLineVerticalPadding = 12.dp
+private val ListItemStartPadding = 16.dp
+private val ListItemEndPadding = 24.dp
 
 // Icon related defaults.
 // TODO: Make sure these values stay up to date until replaced with tokens.
 private val LeadingContentEndPadding = 16.dp
 
-// Content related defaults.
-// TODO: Make sure these values stay up to date until replaced with tokens.
-private val ContentEndPadding = 8.dp
-
 // Trailing related defaults.
 // TODO: Make sure these values stay up to date until replaced with tokens.
-private val TrailingHorizontalPadding = 8.dp
+private val TrailingContentStartPadding = 16.dp
