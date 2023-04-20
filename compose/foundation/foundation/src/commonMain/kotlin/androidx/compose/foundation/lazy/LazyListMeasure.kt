@@ -20,8 +20,6 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.fastFilter
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.lazy.layout.LazyLayoutPinnedItemList
-import androidx.compose.foundation.lazy.layout.findIndexByKey
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.unit.Constraints
@@ -31,7 +29,6 @@ import androidx.compose.ui.unit.constrainHeight
 import androidx.compose.ui.unit.constrainWidth
 import androidx.compose.ui.util.fastForEach
 import kotlin.math.abs
-import kotlin.math.min
 import kotlin.math.roundToInt
 import kotlin.math.sign
 
@@ -42,7 +39,6 @@ import kotlin.math.sign
 @OptIn(ExperimentalFoundationApi::class)
 internal fun measureLazyList(
     itemsCount: Int,
-    itemProvider: LazyListItemProvider,
     measuredItemProvider: LazyListMeasuredItemProvider,
     mainAxisAvailableSize: Int,
     beforeContentPadding: Int,
@@ -59,9 +55,8 @@ internal fun measureLazyList(
     reverseLayout: Boolean,
     density: Density,
     placementAnimator: LazyListItemPlacementAnimator,
-    beyondBoundsInfo: LazyListBeyondBoundsInfo,
     beyondBoundsItemCount: Int,
-    pinnedItems: LazyLayoutPinnedItemList,
+    pinnedItems: List<Int>,
     layout: (Int, Int, Placeable.PlacementScope.() -> Unit) -> MeasureResult
 ): LazyListMeasureResult {
     require(beforeContentPadding >= 0)
@@ -235,11 +230,8 @@ internal fun measureLazyList(
 
         // Compose extra items before
         val extraItemsBefore = createItemsBeforeList(
-            beyondBoundsInfo = beyondBoundsInfo,
             currentFirstItemIndex = currentFirstItemIndex,
             measuredItemProvider = measuredItemProvider,
-            itemProvider = itemProvider,
-            itemsCount = itemsCount,
             beyondBoundsItemCount = beyondBoundsItemCount,
             pinnedItems = pinnedItems
         )
@@ -251,10 +243,8 @@ internal fun measureLazyList(
 
         // Compose items after last item
         val extraItemsAfter = createItemsAfterList(
-            beyondBoundsInfo = beyondBoundsInfo,
             visibleItems = visibleItems,
             measuredItemProvider = measuredItemProvider,
-            itemProvider = itemProvider,
             itemsCount = itemsCount,
             beyondBoundsItemCount = beyondBoundsItemCount,
             pinnedItems = pinnedItems
@@ -341,18 +331,13 @@ internal fun measureLazyList(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 private fun createItemsAfterList(
-    beyondBoundsInfo: LazyListBeyondBoundsInfo,
     visibleItems: MutableList<LazyListMeasuredItem>,
     measuredItemProvider: LazyListMeasuredItemProvider,
-    itemProvider: LazyListItemProvider,
     itemsCount: Int,
     beyondBoundsItemCount: Int,
-    pinnedItems: LazyLayoutPinnedItemList
+    pinnedItems: List<Int>
 ): List<LazyListMeasuredItem> {
-    fun LazyListBeyondBoundsInfo.endIndex() = min(end, itemsCount - 1)
-
     var list: MutableList<LazyListMeasuredItem>? = null
 
     var end = visibleItems.last().index
@@ -364,19 +349,14 @@ private fun createItemsAfterList(
         )
     }
 
-    if (beyondBoundsInfo.hasIntervals()) {
-        end = maxOf(beyondBoundsInfo.endIndex(), end)
-    }
-
     end = minOf(end + beyondBoundsItemCount, itemsCount - 1)
 
     for (i in visibleItems.last().index + 1..end) {
         addItem(i)
     }
 
-    pinnedItems.fastForEach { item ->
-        val index = itemProvider.findIndexByKey(item.key, item.index)
-        if (index > end && index < itemsCount) {
+    pinnedItems.fastForEach { index ->
+        if (index > end) {
             addItem(index)
         }
     }
@@ -384,18 +364,12 @@ private fun createItemsAfterList(
     return list ?: emptyList()
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 private fun createItemsBeforeList(
-    beyondBoundsInfo: LazyListBeyondBoundsInfo,
     currentFirstItemIndex: DataIndex,
     measuredItemProvider: LazyListMeasuredItemProvider,
-    itemProvider: LazyListItemProvider,
-    itemsCount: Int,
     beyondBoundsItemCount: Int,
-    pinnedItems: LazyLayoutPinnedItemList
+    pinnedItems: List<Int>
 ): List<LazyListMeasuredItem> {
-    fun LazyListBeyondBoundsInfo.startIndex() = min(start, itemsCount - 1)
-
     var list: MutableList<LazyListMeasuredItem>? = null
 
     var start = currentFirstItemIndex.value
@@ -407,18 +381,13 @@ private fun createItemsBeforeList(
         )
     }
 
-    if (beyondBoundsInfo.hasIntervals()) {
-        start = minOf(beyondBoundsInfo.startIndex(), start)
-    }
-
     start = maxOf(0, start - beyondBoundsItemCount)
 
     for (i in currentFirstItemIndex.value - 1 downTo start) {
         addItem(i)
     }
 
-    pinnedItems.fastForEach { item ->
-        val index = itemProvider.findIndexByKey(item.key, item.index)
+    pinnedItems.fastForEach { index ->
         if (index < start) {
             addItem(index)
         }

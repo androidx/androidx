@@ -33,11 +33,14 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 internal fun Modifier.lazyListBeyondBoundsModifier(
     state: LazyListState,
     beyondBoundsInfo: LazyListBeyondBoundsInfo,
+    beyondBoundsItemCount: Int,
     reverseLayout: Boolean,
     orientation: Orientation
 ): Modifier {
     val layoutDirection = LocalLayoutDirection.current
-    val beyondBoundsState = remember(state) { LazyListBeyondBoundsState(state) }
+    val beyondBoundsState = remember(state, beyondBoundsItemCount) {
+        LazyListBeyondBoundsState(state, beyondBoundsItemCount)
+    }
     return this then remember(
         beyondBoundsState,
         beyondBoundsInfo,
@@ -55,7 +58,11 @@ internal fun Modifier.lazyListBeyondBoundsModifier(
     }
 }
 
-internal class LazyListBeyondBoundsState(val state: LazyListState) : BeyondBoundsState {
+internal class LazyListBeyondBoundsState(
+    val state: LazyListState,
+    val beyondBoundsItemCount: Int
+) : BeyondBoundsState {
+
     override fun remeasure() {
         state.remeasurement?.forceRemeasure()
     }
@@ -65,7 +72,10 @@ internal class LazyListBeyondBoundsState(val state: LazyListState) : BeyondBound
     override val hasVisibleItems: Boolean
         get() = state.layoutInfo.visibleItemsInfo.isNotEmpty()
     override val firstVisibleIndex: Int
-        get() = state.firstVisibleItemIndex
+        get() = maxOf(0, state.firstVisibleItemIndex - beyondBoundsItemCount)
     override val lastVisibleIndex: Int
-        get() = state.layoutInfo.visibleItemsInfo.last().index
+        get() = minOf(
+            itemCount - 1,
+            state.layoutInfo.visibleItemsInfo.last().index + beyondBoundsItemCount
+        )
 }

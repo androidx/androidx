@@ -29,6 +29,7 @@ import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.lazy.layout.LazyLayout
 import androidx.compose.foundation.lazy.layout.LazyLayoutMeasureScope
+import androidx.compose.foundation.lazy.layout.findIndexByKey
 import androidx.compose.foundation.lazy.layout.lazyLayoutSemantics
 import androidx.compose.foundation.overscroll
 import androidx.compose.runtime.Composable
@@ -43,6 +44,8 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.constrainHeight
 import androidx.compose.ui.unit.constrainWidth
 import androidx.compose.ui.unit.offset
+import androidx.compose.ui.util.fastForEach
+import kotlin.math.min
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -109,7 +112,13 @@ internal fun LazyList(
                 reverseScrolling = reverseLayout
             )
             .clipScrollableContainer(orientation)
-            .lazyListBeyondBoundsModifier(state, beyondBoundsInfo, reverseLayout, orientation)
+            .lazyListBeyondBoundsModifier(
+                state,
+                beyondBoundsInfo,
+                beyondBoundsItemCount,
+                reverseLayout,
+                orientation
+            )
             .overscroll(overscrollEffect)
             .scrollable(
                 orientation = orientation,
@@ -286,9 +295,29 @@ private fun rememberLazyListMeasurePolicy(
             firstVisibleScrollOffset = state.firstVisibleItemScrollOffset
         }
 
+        val pinnedItems = if (!beyondBoundsInfo.hasIntervals() && state.pinnedItems.isEmpty()) {
+            emptyList()
+        } else {
+            val pinnedItems = mutableListOf<Int>()
+            val beyondBoundsRange = if (beyondBoundsInfo.hasIntervals()) {
+                beyondBoundsInfo.start..min(beyondBoundsInfo.end, itemsCount - 1)
+            } else {
+                IntRange.EMPTY
+            }
+            state.pinnedItems.fastForEach {
+                val index = itemProvider.findIndexByKey(it.key, it.index)
+                if (index in beyondBoundsRange) return@fastForEach
+                if (index !in 0 until itemsCount) return@fastForEach
+                pinnedItems.add(index)
+            }
+            for (i in beyondBoundsRange) {
+                pinnedItems.add(i)
+            }
+            pinnedItems
+        }
+
         measureLazyList(
             itemsCount = itemsCount,
-            itemProvider = itemProvider,
             measuredItemProvider = measuredItemProvider,
             mainAxisAvailableSize = mainAxisAvailableSize,
             beforeContentPadding = beforeContentPadding,
@@ -305,9 +334,8 @@ private fun rememberLazyListMeasurePolicy(
             reverseLayout = reverseLayout,
             density = this,
             placementAnimator = state.placementAnimator,
-            beyondBoundsInfo = beyondBoundsInfo,
             beyondBoundsItemCount = beyondBoundsItemCount,
-            pinnedItems = state.pinnedItems,
+            pinnedItems = pinnedItems,
             layout = { width, height, placement ->
                 layout(
                     containerConstraints.constrainWidth(width + totalHorizontalPadding),
