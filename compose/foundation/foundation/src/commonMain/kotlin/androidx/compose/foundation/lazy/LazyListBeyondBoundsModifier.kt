@@ -17,7 +17,7 @@
 package androidx.compose.foundation.lazy
 
 import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.lazy.layout.BeyondBoundsState
+import androidx.compose.foundation.lazy.layout.LazyLayoutBeyondBoundsState
 import androidx.compose.foundation.lazy.layout.LazyLayoutBeyondBoundsModifierLocal
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -32,7 +32,6 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 @Composable
 internal fun Modifier.lazyListBeyondBoundsModifier(
     state: LazyListState,
-    beyondBoundsInfo: LazyListBeyondBoundsInfo,
     beyondBoundsItemCount: Int,
     reverseLayout: Boolean,
     orientation: Orientation
@@ -41,6 +40,7 @@ internal fun Modifier.lazyListBeyondBoundsModifier(
     val beyondBoundsState = remember(state, beyondBoundsItemCount) {
         LazyListBeyondBoundsState(state, beyondBoundsItemCount)
     }
+    val beyondBoundsInfo = state.beyondBoundsInfo
     return this then remember(
         beyondBoundsState,
         beyondBoundsInfo,
@@ -61,7 +61,7 @@ internal fun Modifier.lazyListBeyondBoundsModifier(
 internal class LazyListBeyondBoundsState(
     val state: LazyListState,
     val beyondBoundsItemCount: Int
-) : BeyondBoundsState {
+) : LazyLayoutBeyondBoundsState {
 
     override fun remeasure() {
         state.remeasurement?.forceRemeasure()

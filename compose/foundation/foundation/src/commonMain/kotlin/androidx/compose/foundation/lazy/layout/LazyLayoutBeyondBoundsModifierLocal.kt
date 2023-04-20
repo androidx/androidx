@@ -17,8 +17,7 @@
 package androidx.compose.foundation.lazy.layout
 
 import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.lazy.LazyListBeyondBoundsInfo
-import androidx.compose.foundation.lazy.LazyListBeyondBoundsInfo.Interval
+import androidx.compose.foundation.lazy.layout.LazyLayoutBeyondBoundsInfo.Interval
 import androidx.compose.ui.layout.BeyondBoundsLayout
 import androidx.compose.ui.layout.BeyondBoundsLayout.BeyondBoundsScope
 import androidx.compose.ui.layout.BeyondBoundsLayout.LayoutDirection.Companion.Above
@@ -35,8 +34,8 @@ import androidx.compose.ui.unit.LayoutDirection.Ltr
 import androidx.compose.ui.unit.LayoutDirection.Rtl
 
 internal class LazyLayoutBeyondBoundsModifierLocal(
-    private val state: BeyondBoundsState,
-    private val beyondBoundsInfo: LazyListBeyondBoundsInfo,
+    private val state: LazyLayoutBeyondBoundsState,
+    private val beyondBoundsInfo: LazyLayoutBeyondBoundsInfo,
     private val reverseLayout: Boolean,
     private val layoutDirection: LayoutDirection,
     private val orientation: Orientation

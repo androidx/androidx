@@ -20,9 +20,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.fastFilter
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.layout.Arrangement.Absolute.spacedBy
-import androidx.compose.foundation.lazy.LazyListBeyondBoundsInfo
 import androidx.compose.foundation.lazy.layout.LazyLayoutMeasureScope
-import androidx.compose.foundation.lazy.layout.LazyLayoutPinnedItemList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.Placeable
@@ -35,7 +33,6 @@ import androidx.compose.ui.unit.constrainWidth
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastMaxBy
 import kotlin.math.abs
-import kotlin.math.min
 import kotlin.math.roundToInt
 import kotlin.math.sign
 
@@ -58,8 +55,7 @@ internal fun LazyLayoutMeasureScope.measurePager(
     visualPageOffset: IntOffset,
     pageAvailableSize: Int,
     beyondBoundsPageCount: Int,
-    beyondBoundsInfo: LazyListBeyondBoundsInfo,
-    pinnedPages: LazyLayoutPinnedItemList,
+    pinnedPages: List<Int>,
     layout: (Int, Int, Placeable.PlacementScope.() -> Unit) -> MeasureResult
 ): PagerMeasureResult {
     require(beforeContentPadding >= 0)
@@ -289,9 +285,7 @@ internal fun LazyLayoutMeasureScope.measurePager(
 
         // Compose extra pages before
         val extraPagesBefore = createPagesBeforeList(
-            beyondBoundsInfo = beyondBoundsInfo,
             currentFirstPage = currentFirstPage,
-            pagesCount = pageCount,
             beyondBoundsPageCount = beyondBoundsPageCount,
             pinnedPages = pinnedPages
         ) {
@@ -318,8 +312,7 @@ internal fun LazyLayoutMeasureScope.measurePager(
 
         // Compose pages after last page
         val extraPagesAfter = createPagesAfterList(
-            beyondBoundsInfo = beyondBoundsInfo,
-            visiblePages = visiblePages,
+            currentLastPage = visiblePages.last().index,
             pagesCount = pageCount,
             beyondBoundsPageCount = beyondBoundsPageCount,
             pinnedPages = pinnedPages
@@ -440,59 +433,44 @@ private fun Density.calculateDistanceToDesiredSnapPosition(
     return itemCurrentPosition - desiredDistance
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 private fun createPagesAfterList(
-    beyondBoundsInfo: LazyListBeyondBoundsInfo,
-    visiblePages: MutableList<MeasuredPage>,
+    currentLastPage: Int,
     pagesCount: Int,
     beyondBoundsPageCount: Int,
-    pinnedPages: LazyLayoutPinnedItemList,
+    pinnedPages: List<Int>,
     getAndMeasure: (Int) -> MeasuredPage
 ): List<MeasuredPage> {
-    fun LazyListBeyondBoundsInfo.endIndex() = min(end, pagesCount - 1)
-
     var list: MutableList<MeasuredPage>? = null
 
-    var end = visiblePages.last().index
+    val end = minOf(currentLastPage + beyondBoundsPageCount, pagesCount - 1)
 
     fun addPage(index: Int) {
         if (list == null) list = mutableListOf()
         requireNotNull(list).add(getAndMeasure(index))
     }
 
-    if (beyondBoundsInfo.hasIntervals()) {
-        end = maxOf(beyondBoundsInfo.endIndex(), end)
-    }
-
-    end = minOf(end + beyondBoundsPageCount, pagesCount - 1)
-
-    for (i in visiblePages.last().index + 1..end) {
+    for (i in currentLastPage + 1..end) {
         addPage(i)
     }
 
-    pinnedPages.fastForEach { page ->
-        if (page.index in (end + 1) until pagesCount) {
-            addPage(page.index)
+    pinnedPages.fastForEach { pageIndex ->
+        if (pageIndex in (end + 1) until pagesCount) {
+            addPage(pageIndex)
         }
     }
 
     return list ?: emptyList()
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 private fun createPagesBeforeList(
-    beyondBoundsInfo: LazyListBeyondBoundsInfo,
     currentFirstPage: Int,
-    pagesCount: Int,
     beyondBoundsPageCount: Int,
-    pinnedPages: LazyLayoutPinnedItemList,
+    pinnedPages: List<Int>,
     getAndMeasure: (Int) -> MeasuredPage
 ): List<MeasuredPage> {
-    fun LazyListBeyondBoundsInfo.startIndex() = min(start, pagesCount - 1)
-
     var list: MutableList<MeasuredPage>? = null
 
-    var start = currentFirstPage
+    val start = maxOf(0, currentFirstPage - beyondBoundsPageCount)
 
     fun addPage(index: Int) {
         if (list == null) list = mutableListOf()
@@ -501,19 +479,13 @@ private fun createPagesBeforeList(
         )
     }
 
-    if (beyondBoundsInfo.hasIntervals()) {
-        start = minOf(beyondBoundsInfo.startIndex(), start)
-    }
-
-    start = maxOf(0, start - beyondBoundsPageCount)
-
     for (i in currentFirstPage - 1 downTo start) {
         addPage(i)
     }
 
-    pinnedPages.fastForEach { page ->
-        if (page.index < start) {
-            addPage(page.index)
+    pinnedPages.fastForEach { pageIndex ->
+        if (pageIndex < start) {
+            addPage(pageIndex)
         }
     }
 
