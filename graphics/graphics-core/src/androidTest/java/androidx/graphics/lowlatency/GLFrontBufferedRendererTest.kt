@@ -25,6 +25,7 @@ import android.os.Build
 import android.view.SurfaceHolder
 import android.view.SurfaceView
 import androidx.annotation.RequiresApi
+import androidx.graphics.opengl.GLRenderer
 import androidx.graphics.opengl.egl.EGLManager
 import androidx.graphics.surface.SurfaceControlCompat
 import androidx.graphics.surface.SurfaceControlUtils
@@ -37,9 +38,11 @@ import androidx.test.platform.app.InstrumentationRegistry
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
+import kotlin.IllegalStateException
 import kotlin.math.roundToInt
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
+import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
 import org.junit.Ignore
@@ -1216,6 +1219,92 @@ class GLFrontBufferedRendererTest {
         } finally {
             renderer.blockingRelease(10000)
         }
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
+    @Test
+    fun testReleaseRemovedSurfaceCallbacks() {
+        val callbacks = object : GLFrontBufferedRenderer.Callback<Any> {
+            override fun onDrawFrontBufferedLayer(
+                eglManager: EGLManager,
+                bufferInfo: BufferInfo,
+                transform: FloatArray,
+                param: Any
+            ) {
+                // NO-OP
+            }
+
+            override fun onDrawMultiBufferedLayer(
+                eglManager: EGLManager,
+                bufferInfo: BufferInfo,
+                transform: FloatArray,
+                params: Collection<Any>
+            ) {
+                // NO-OP
+            }
+        }
+        var renderer: GLFrontBufferedRenderer<Any>? = null
+        var surfaceView: FrontBufferedRendererTestActivity.TestSurfaceView? = null
+        val createLatch = CountDownLatch(1)
+        ActivityScenario.launch(FrontBufferedRendererTestActivity::class.java)
+            .moveToState(Lifecycle.State.CREATED)
+            .onActivity {
+                surfaceView = it.getSurfaceView()
+                renderer = GLFrontBufferedRenderer(surfaceView!!, callbacks)
+                createLatch.countDown()
+            }
+
+        assertTrue(createLatch.await(3000, TimeUnit.MILLISECONDS))
+        // Capture surfaceView with local val to avoid Kotlin warnings regarding the surfaceView
+        // parameter changing potentially
+        val resolvedSurfaceView = surfaceView
+        try {
+            if (resolvedSurfaceView != null) {
+                assertEquals(1, resolvedSurfaceView.getCallbackCount())
+                val releaseLatch = CountDownLatch(1)
+                renderer!!.release(true) {
+                    releaseLatch.countDown()
+                }
+                assertTrue(releaseLatch.await(3000, TimeUnit.MILLISECONDS))
+                assertEquals(0, resolvedSurfaceView.getCallbackCount())
+                renderer = null
+            } else {
+                fail("Unable to resolve SurfaceView, was the test Activity created?")
+            }
+        } finally {
+            renderer?.blockingRelease()
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
+    @Test
+    fun testGLFrontBufferedRendererCreationFromUnstartedGLRenderer() {
+        val callbacks = object : GLFrontBufferedRenderer.Callback<Any> {
+            override fun onDrawFrontBufferedLayer(
+                eglManager: EGLManager,
+                bufferInfo: BufferInfo,
+                transform: FloatArray,
+                param: Any
+            ) {
+                // NO-OP
+            }
+
+            override fun onDrawMultiBufferedLayer(
+                eglManager: EGLManager,
+                bufferInfo: BufferInfo,
+                transform: FloatArray,
+                params: Collection<Any>
+            ) {
+                // NO-OP
+            }
+        }
+        ActivityScenario.launch(FrontBufferedRendererTestActivity::class.java)
+            .moveToState(Lifecycle.State.CREATED)
+            .onActivity {
+                assertThrows(IllegalStateException::class.java) {
+                    GLFrontBufferedRenderer(it.getSurfaceView(), callbacks, GLRenderer())
+                }
+            }
     }
 
     @RequiresApi(Build.VERSION_CODES.Q)

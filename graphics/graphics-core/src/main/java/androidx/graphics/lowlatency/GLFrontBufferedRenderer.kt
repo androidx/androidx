@@ -35,6 +35,7 @@ import androidx.graphics.surface.SurfaceControlCompat
 import androidx.hardware.SyncFenceCompat
 import androidx.opengl.EGLExt.Companion.EGL_ANDROID_NATIVE_FENCE_SYNC
 import androidx.opengl.EGLExt.Companion.EGL_KHR_FENCE_SYNC
+import java.lang.IllegalStateException
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.Executors
 
@@ -288,6 +289,11 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
         } else {
             // ... otherwise use the [GLRenderer] that is being provided for us
             mIsManagingGLRenderer = false
+            if (!glRenderer.isRunning()) {
+                throw IllegalStateException("The provided GLRenderer must be running prior to " +
+                    "creation of GLFrontBufferedRenderer, " +
+                    "did you forget to call GLRenderer#start()?")
+            }
             glRenderer
         }
         renderer.registerEGLContextCallback(mContextCallbacks)
@@ -496,38 +502,27 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
      * release SurfaceControl instances
      */
     internal fun detachTargets(cancelPending: Boolean, onReleaseComplete: (() -> Unit)? = null) {
-        // Wrap the callback into a separate lambda to ensure it is invoked only after
-        // both the front and multi buffered layer target renderers are detached
-        var callbackCount = 0
-        var expectedCount = 0
-        if (mFrontBufferedRenderTarget?.isAttached() == true) {
-            expectedCount++
-        }
+        // GLRenderer processes requests in order on a single thread. So detach the corresponding
+        // render targets then queue a request to teardown all resources
+        mFrontBufferedRenderTarget?.detach(cancelPending)
+        mMultiBufferedLayerRenderTarget?.detach(cancelPending)
 
-        if (mMultiBufferedLayerRenderTarget?.isAttached() == true) {
-            expectedCount++
-        }
         val frontBufferedLayerSurfaceControl = mFrontBufferedLayerSurfaceControl
-        val wrappedCallback: (GLRenderer.RenderTarget) -> Unit = {
-            callbackCount++
-            if (callbackCount >= expectedCount) {
-                mBufferPool?.let { releaseBuffers(it) }
-                clearParamQueues()
-
-                frontBufferedLayerSurfaceControl?.let {
-                    val transaction = SurfaceControlCompat.Transaction()
-                        .reparent(it, null)
-                    mParentRenderLayer.release(transaction)
-                    transaction.commit()
-                    it.release()
-                }
-
-                onReleaseComplete?.invoke()
-            }
-        }
         mFrontBufferedLayerSurfaceControl = null
-        mFrontBufferedRenderTarget?.detach(cancelPending, wrappedCallback)
-        mMultiBufferedLayerRenderTarget?.detach(cancelPending, wrappedCallback)
+        mGLRenderer.execute {
+            mBufferPool?.let { releaseBuffers(it) }
+            clearParamQueues()
+
+            val transaction = SurfaceControlCompat.Transaction()
+            if (frontBufferedLayerSurfaceControl != null) {
+                transaction.reparent(frontBufferedLayerSurfaceControl, null)
+            }
+            mParentRenderLayer.release(transaction)
+            transaction.commit()
+            frontBufferedLayerSurfaceControl?.release()
+
+            onReleaseComplete?.invoke()
+        }
         mFrontBufferedRenderTarget = null
         mMultiBufferedLayerRenderTarget = null
         mWidth = -1
