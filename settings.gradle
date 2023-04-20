@@ -2,6 +2,9 @@ import groovy.transform.Field
 import androidx.build.gradle.gcpbuildcache.GcpBuildCache
 import androidx.build.gradle.gcpbuildcache.GcpBuildCacheServiceFactory
 
+import java.util.regex.Matcher
+import java.util.regex.Pattern
+
 pluginManagement {
     repositories {
         maven {
@@ -303,6 +306,22 @@ def includeProject(name, List<BuildType> filter = []) {
     includeProject(name, null, filter)
 }
 
+// A map of project path to a set of project paths referenced directly by this project.
+@Field Map<String, Set<String>> projectReferences = new HashMap<String, Set<String>>()
+
+// A map of all project paths to their project directory.
+@Field Map<String, File> allProjects = new HashMap<String, File>()
+// A set of projects that the user asked to filter to.
+@Field Set<String> filteredProjects = new HashSet<String>()
+
+@Field Pattern projectReferencePattern = Pattern.compile(
+        "(project|projectOrArtifact)\\((path: )?[\"'](?<name>\\S*)[\"'](, configuration: .*)?\\)"
+)
+@Field Pattern inspection = Pattern.compile("packageInspector\\(project, \"(.*)\"\\)")
+@Field Pattern composePlugin = Pattern.compile("id\\(\"AndroidXComposePlugin\"\\)")
+@Field Pattern paparazziPlugin = Pattern.compile("id\\(\"AndroidXPaparazziPlugin\"\\)")
+@Field Pattern iconGenerator = Pattern.compile("IconGenerationTask\\.register")
+
 // Calling includeProject(name, filePath) is shorthand for:
 //
 //   include(name)
@@ -313,9 +332,7 @@ def includeProject(name, List<BuildType> filter = []) {
 //   the Maven artifactId
 //
 def includeProject(name, filePath, List<BuildType> filter = []) {
-    if (!shouldIncludeForFilter(filter)) return
-    settings.include(name)
-
+    if (shouldIncludeForFilter(filter)) filteredProjects.add(name)
     def file
     if (filePath != null) {
         if (filePath instanceof String) {
@@ -326,9 +343,35 @@ def includeProject(name, filePath, List<BuildType> filter = []) {
         } else {
             file = filePath
         }
-        project(name).projectDir = file
     } else {
-        file = project(name).projectDir
+        file = new File(rootDir, name.substring(1).replace(":", "/"))
+    }
+    allProjects[name] = file
+    File buildGradle = new File(file, "build.gradle")
+    if (buildGradle.exists()) {
+        Set<String> links = new HashSet<String>()
+        for (line in buildGradle.readLines()) {
+            Matcher m = projectReferencePattern.matcher(line)
+            if (m.find()) {
+                links.add(m.group("name"))
+            }
+            Matcher matcherInspection = inspection.matcher(line)
+            if (matcherInspection) {
+                links.add(matcherInspection.group(1))
+            }
+            if (composePlugin.matcher(line).find()) {
+                links.add(":compose:compiler:compiler")
+                links.add(":compose:lint:internal-lint-checks")
+            }
+            if (paparazziPlugin.matcher(line).find()) {
+                links.add(":test:screenshot:screenshot-proto")
+                links.add(":internal-testutils-paparazzi")
+            }
+            if (iconGenerator.matcher(line).find()) {
+                links.add(":compose:material:material:icons:generator")
+            }
+        }
+        projectReferences[name] = links
     }
     if (!file.exists()) {
         // This option is supported so that development/simplify_build_failure.sh can try
@@ -426,7 +469,6 @@ if (startParameter.projectProperties.containsKey("androidx.useMaxDepVersions")) 
     includeProject(":buildSrc-tests:max-dep-versions:buildSrc-tests-max-dep-versions-dep", [BuildType.MAIN])
     includeProject(":buildSrc-tests:max-dep-versions:buildSrc-tests-max-dep-versions-main", [BuildType.MAIN])
 }
-includeProject(":buildSrc-tests:project-subsets", [BuildType.MAIN])
 includeProject(":camera:camera-camera2", [BuildType.CAMERA])
 includeProject(":camera:camera-camera2-pipe", [BuildType.CAMERA])
 includeProject(":camera:camera-camera2-pipe-integration", [BuildType.CAMERA])
@@ -566,7 +608,7 @@ includeProject(":compose:ui:ui-geometry", [BuildType.COMPOSE])
 includeProject(":compose:ui:ui-graphics", [BuildType.COMPOSE])
 includeProject(":compose:ui:ui-graphics-lint", [BuildType.COMPOSE])
 includeProject(":compose:ui:ui-graphics:ui-graphics-benchmark", "compose/ui/ui-graphics/benchmark", [BuildType.COMPOSE])
-includeProject(":compose:ui:ui-graphics:ui-graphics-benchmark:test", [BuildType.COMPOSE])
+includeProject(":compose:ui:ui-graphics:ui-graphics-benchmark:test", "compose/ui/ui-graphics/benchmark/test", [BuildType.COMPOSE])
 includeProject(":compose:ui:ui-graphics:ui-graphics-samples", "compose/ui/ui-graphics/samples", [BuildType.COMPOSE])
 includeProject(":compose:ui:ui-inspection", [BuildType.COMPOSE])
 includeProject(":compose:ui:ui-lint", [BuildType.COMPOSE])
@@ -1127,3 +1169,20 @@ includeProject(":placeholder-tests")
 
 // Workaround for b/203825166
 includeBuild("placeholder")
+
+// For a given project path add the transitive project references to the include set.
+void addReferences(String projectPath, Set<String> included) {
+    if (projectPath in included) return
+    included.add(projectPath)
+    for (reference in projectReferences[projectPath]) {
+        addReferences(reference, included)
+    }
+}
+Set<String> projectsToInclude = new HashSet<>()
+for (filteredProject in filteredProjects) {
+    addReferences(filteredProject, projectsToInclude)
+}
+for (entry in projectsToInclude) {
+    settings.include(entry)
+    project(entry).projectDir = allProjects[entry]
+}
