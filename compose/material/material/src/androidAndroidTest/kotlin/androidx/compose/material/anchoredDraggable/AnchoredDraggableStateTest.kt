@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.compose.material.swipeable
+package androidx.compose.material.anchoredDraggable
 
 import androidx.compose.animation.core.FloatSpringSpec
 import androidx.compose.animation.core.LinearEasing
@@ -26,15 +26,15 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.requiredSize
-import androidx.compose.material.SwipeableV2State.AnchorChangedCallback
+import androidx.compose.material.AnchoredDraggableState.AnchorChangedCallback
 import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.SwipeableV2Defaults
-import androidx.compose.material.SwipeableV2State
-import androidx.compose.material.rememberSwipeableV2State
-import androidx.compose.material.swipeable.SwipeableTestValue.A
-import androidx.compose.material.swipeable.SwipeableTestValue.B
-import androidx.compose.material.swipeable.SwipeableTestValue.C
-import androidx.compose.material.swipeableV2
+import androidx.compose.material.AnchoredDraggableDefaults
+import androidx.compose.material.AnchoredDraggableState
+import androidx.compose.material.rememberAnchoredDraggableState
+import androidx.compose.material.anchoredDraggable.AnchoredDraggableTestValue.A
+import androidx.compose.material.anchoredDraggable.AnchoredDraggableTestValue.B
+import androidx.compose.material.anchoredDraggable.AnchoredDraggableTestValue.C
+import androidx.compose.material.anchoredDraggable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MonotonicFrameClock
 import androidx.compose.runtime.SideEffect
@@ -75,25 +75,25 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 @LargeTest
 @OptIn(ExperimentalMaterialApi::class)
-class SwipeableV2StateTest {
+class AnchoredDraggableStateTest {
 
     @get:Rule
     val rule = createComposeRule()
 
-    private val SwipeableTestTag = "swipebox"
-    private val SwipeableBoxSize = 200.dp
+    private val AnchoredDraggableTestTag = "dragbox"
+    private val AnchoredDraggableBoxSize = 200.dp
 
     @Test
-    fun swipeable_state_canSkipStateByFling() {
-        lateinit var state: SwipeableV2State<SwipeableTestValue>
+    fun anchoredDraggable_state_canSkipStateByFling() {
+        lateinit var state: AnchoredDraggableState<AnchoredDraggableTestValue>
         rule.setContent {
-            state = rememberSwipeableV2State(initialValue = A)
+            state = rememberAnchoredDraggableState(initialValue = A)
             Box(Modifier.fillMaxSize()) {
                 Box(
                     Modifier
-                        .requiredSize(SwipeableBoxSize)
-                        .testTag(SwipeableTestTag)
-                        .swipeableV2(
+                        .requiredSize(AnchoredDraggableBoxSize)
+                        .testTag(AnchoredDraggableTestTag)
+                        .anchoredDraggable(
                             state = state,
                             orientation = Orientation.Vertical
                         )
@@ -118,7 +118,7 @@ class SwipeableV2StateTest {
             }
         }
 
-        rule.onNodeWithTag(SwipeableTestTag)
+        rule.onNodeWithTag(AnchoredDraggableTestTag)
             .performTouchInput { swipeDown() }
 
         rule.waitForIdle()
@@ -127,16 +127,16 @@ class SwipeableV2StateTest {
     }
 
     @Test
-    fun swipeable_targetState_updatedOnSwipe() {
-        lateinit var state: SwipeableV2State<SwipeableTestValue>
+    fun anchoredDraggable_targetState_updatedOnSwipe() {
+        lateinit var state: AnchoredDraggableState<AnchoredDraggableTestValue>
         rule.setContent {
-            state = rememberSwipeableV2State(initialValue = A)
+            state = rememberAnchoredDraggableState(initialValue = A)
             Box(Modifier.fillMaxSize()) {
                 Box(
                     Modifier
-                        .requiredSize(SwipeableBoxSize)
-                        .testTag(SwipeableTestTag)
-                        .swipeableV2(
+                        .requiredSize(AnchoredDraggableBoxSize)
+                        .testTag(AnchoredDraggableTestTag)
+                        .anchoredDraggable(
                             state = state,
                             orientation = Orientation.Vertical
                         )
@@ -161,45 +161,45 @@ class SwipeableV2StateTest {
             }
         }
 
-        rule.onNodeWithTag(SwipeableTestTag)
+        rule.onNodeWithTag(AnchoredDraggableTestTag)
             .performTouchInput { swipeDown(endY = bottom * 0.45f) }
         rule.waitForIdle()
         assertThat(state.targetValue).isEqualTo(B)
 
         // Assert that swipe below threshold upward settles at current state
-        rule.onNodeWithTag(SwipeableTestTag)
+        rule.onNodeWithTag(AnchoredDraggableTestTag)
             .performTouchInput { swipeUp(endY = bottom * 0.95f, durationMillis = 1000) }
         rule.waitForIdle()
         assertThat(state.targetValue).isEqualTo(B)
 
         // Assert that swipe below threshold downward settles at current state
-        rule.onNodeWithTag(SwipeableTestTag)
+        rule.onNodeWithTag(AnchoredDraggableTestTag)
             .performTouchInput { swipeDown(endY = bottom * 0.05f) }
         rule.waitForIdle()
         assertThat(state.targetValue).isEqualTo(B)
 
-        rule.onNodeWithTag(SwipeableTestTag)
+        rule.onNodeWithTag(AnchoredDraggableTestTag)
             .performTouchInput { swipeDown(endY = bottom * 0.9f) }
         rule.waitForIdle()
         assertThat(state.targetValue).isEqualTo(C)
 
-        rule.onNodeWithTag(SwipeableTestTag)
+        rule.onNodeWithTag(AnchoredDraggableTestTag)
             .performTouchInput { swipeUp(endY = top * 1.1f) }
         rule.waitForIdle()
         assertThat(state.targetValue).isEqualTo(A)
     }
 
     @Test
-    fun swipeable_targetState_updatedWithAnimation() {
+    fun anchoredDraggable_targetState_updatedWithAnimation() {
         rule.mainClock.autoAdvance = false
         val animationDuration = 300
         val frameLengthMillis = 16L
-        lateinit var state: SwipeableV2State<SwipeableTestValue>
+        lateinit var state: AnchoredDraggableState<AnchoredDraggableTestValue>
         lateinit var scope: CoroutineScope
         rule.setContent {
-            val velocityThreshold = SwipeableV2Defaults.velocityThreshold
+            val velocityThreshold = AnchoredDraggableDefaults.velocityThreshold
             state = remember(velocityThreshold) {
-                SwipeableV2State(
+                AnchoredDraggableState(
                     initialValue = A,
                     animationSpec = tween(animationDuration, easing = LinearEasing),
                     positionalThreshold = { distance -> distance * 0.5f },
@@ -210,9 +210,9 @@ class SwipeableV2StateTest {
             Box(Modifier.fillMaxSize()) {
                 Box(
                     Modifier
-                        .requiredSize(SwipeableBoxSize)
-                        .testTag(SwipeableTestTag)
-                        .swipeableV2(
+                        .requiredSize(AnchoredDraggableBoxSize)
+                        .testTag(AnchoredDraggableTestTag)
+                        .anchoredDraggable(
                             state = state,
                             orientation = Orientation.Vertical
                         )
@@ -261,17 +261,17 @@ class SwipeableV2StateTest {
     }
 
     @Test
-    fun swipeable_progress_matchesSwipePosition() {
-        lateinit var state: SwipeableV2State<SwipeableTestValue>
+    fun anchoredDraggable_progress_matchesSwipePosition() {
+        lateinit var state: AnchoredDraggableState<AnchoredDraggableTestValue>
         rule.setContent {
-            state = rememberSwipeableV2State(initialValue = A)
+            state = rememberAnchoredDraggableState(initialValue = A)
             WithTouchSlop(touchSlop = 0f) {
                 Box(Modifier.fillMaxSize()) {
                     Box(
                         Modifier
-                            .requiredSize(SwipeableBoxSize)
-                            .testTag(SwipeableTestTag)
-                            .swipeableV2(
+                            .requiredSize(AnchoredDraggableBoxSize)
+                            .testTag(AnchoredDraggableTestTag)
+                            .anchoredDraggable(
                                 state = state,
                                 orientation = Orientation.Vertical
                             )
@@ -302,7 +302,7 @@ class SwipeableV2StateTest {
         val almostAnchorB = anchorB * 0.9f
         var expectedProgress = almostAnchorB / (anchorB - anchorA)
 
-        rule.onNodeWithTag(SwipeableTestTag)
+        rule.onNodeWithTag(AnchoredDraggableTestTag)
             .performTouchInput { swipeDown(endY = almostAnchorB) }
 
         assertThat(state.targetValue).isEqualTo(B)
@@ -311,7 +311,7 @@ class SwipeableV2StateTest {
         val almostAnchorA = anchorA + ((anchorB - anchorA) * 0.1f)
         expectedProgress = 1 - (almostAnchorA / (anchorB - anchorA))
 
-        rule.onNodeWithTag(SwipeableTestTag)
+        rule.onNodeWithTag(AnchoredDraggableTestTag)
             .performTouchInput { swipeUp(startY = anchorB, endY = almostAnchorA) }
 
         assertThat(state.targetValue).isEqualTo(A)
@@ -319,16 +319,16 @@ class SwipeableV2StateTest {
     }
 
     @Test
-    fun swipeable_snapTo_updatesImmediately() = runBlocking {
-        lateinit var state: SwipeableV2State<SwipeableTestValue>
+    fun anchoredDraggable_snapTo_updatesImmediately() = runBlocking {
+        lateinit var state: AnchoredDraggableState<AnchoredDraggableTestValue>
         rule.setContent {
-            state = rememberSwipeableV2State(initialValue = A)
+            state = rememberAnchoredDraggableState(initialValue = A)
             Box(Modifier.fillMaxSize()) {
                 Box(
                     Modifier
-                        .requiredSize(SwipeableBoxSize)
-                        .testTag(SwipeableTestTag)
-                        .swipeableV2(
+                        .requiredSize(AnchoredDraggableBoxSize)
+                        .testTag(AnchoredDraggableTestTag)
+                        .anchoredDraggable(
                             state = state,
                             orientation = Orientation.Vertical
                         )
@@ -359,16 +359,16 @@ class SwipeableV2StateTest {
     }
 
     @Test
-    fun swipeable_rememberSwipeableState_restored() {
+    fun anchoredDraggable_rememberanchoredDraggableState_restored() {
         val restorationTester = StateRestorationTester(rule)
 
         val initialState = C
         val animationSpec = tween<Float>(durationMillis = 1000)
-        lateinit var state: SwipeableV2State<SwipeableTestValue>
+        lateinit var state: AnchoredDraggableState<AnchoredDraggableTestValue>
         lateinit var scope: CoroutineScope
 
         restorationTester.setContent {
-            state = rememberSwipeableV2State(initialState, animationSpec)
+            state = rememberAnchoredDraggableState(initialState, animationSpec)
             SideEffect {
                 state.updateAnchors(mapOf(A to 0f, B to 100f, C to 200f))
             }
@@ -391,19 +391,19 @@ class SwipeableV2StateTest {
     }
 
     @Test
-    fun swipeable_targetState_accessedInInitialComposition() {
-        lateinit var targetState: SwipeableTestValue
+    fun anchoredDraggable_targetState_accessedInInitialComposition() {
+        lateinit var targetState: AnchoredDraggableTestValue
         rule.setContent {
-            val state = rememberSwipeableV2State(initialValue = B)
+            val state = rememberAnchoredDraggableState(initialValue = B)
             LaunchedEffect(state.targetValue) {
                 targetState = state.targetValue
             }
             Box(Modifier.fillMaxSize()) {
                 Box(
                     Modifier
-                        .requiredSize(SwipeableBoxSize)
-                        .testTag(SwipeableTestTag)
-                        .swipeableV2(
+                        .requiredSize(AnchoredDraggableBoxSize)
+                        .testTag(AnchoredDraggableTestTag)
+                        .anchoredDraggable(
                             state = state,
                             orientation = Orientation.Horizontal
                         )
@@ -432,19 +432,19 @@ class SwipeableV2StateTest {
     }
 
     @Test
-    fun swipeable_progress_accessedInInitialComposition() {
+    fun anchoredDraggable_progress_accessedInInitialComposition() {
         var progress = Float.NaN
         rule.setContent {
-            val state = rememberSwipeableV2State(initialValue = B)
+            val state = rememberAnchoredDraggableState(initialValue = B)
             LaunchedEffect(state.progress) {
                 progress = state.progress
             }
             Box(Modifier.fillMaxSize()) {
                 Box(
                     Modifier
-                        .requiredSize(SwipeableBoxSize)
-                        .testTag(SwipeableTestTag)
-                        .swipeableV2(
+                        .requiredSize(AnchoredDraggableBoxSize)
+                        .testTag(AnchoredDraggableTestTag)
+                        .anchoredDraggable(
                             state = state,
                             orientation = Orientation.Horizontal
                         )
@@ -474,18 +474,18 @@ class SwipeableV2StateTest {
 
     @Test
     @Ignore("Todo: Fix differences between tests and real code - this shouldn't work :)")
-    fun swipeable_requireOffset_accessedInInitialComposition_throws() {
+    fun anchoredDraggable_requireOffset_accessedInInitialComposition_throws() {
         var exception: Throwable? = null
-        lateinit var state: SwipeableV2State<SwipeableTestValue>
+        lateinit var state: AnchoredDraggableState<AnchoredDraggableTestValue>
         var offset: Float? = null
         rule.setContent {
-            state = rememberSwipeableV2State(initialValue = B)
+            state = rememberAnchoredDraggableState(initialValue = B)
             Box(Modifier.fillMaxSize()) {
                 Box(
                     Modifier
-                        .requiredSize(SwipeableBoxSize)
-                        .testTag(SwipeableTestTag)
-                        .swipeableV2(
+                        .requiredSize(AnchoredDraggableBoxSize)
+                        .testTag(AnchoredDraggableTestTag)
+                        .anchoredDraggable(
                             state = state,
                             orientation = Orientation.Horizontal
                         )
@@ -520,10 +520,10 @@ class SwipeableV2StateTest {
 
     @Test
     @Ignore("LaunchedEffects execute instantly in tests. How can we delay?")
-    fun swipeable_requireOffset_accessedInEffect_doesntThrow() {
+    fun anchoredDraggable_requireOffset_accessedInEffect_doesntThrow() {
         var exception: Throwable? = null
         rule.setContent {
-            val state = rememberSwipeableV2State(initialValue = B)
+            val state = rememberAnchoredDraggableState(initialValue = B)
             LaunchedEffect(Unit) {
                 exception = runCatching { state.requireOffset() }.exceptionOrNull()
             }
@@ -533,7 +533,7 @@ class SwipeableV2StateTest {
     }
 
     @Test
-    fun swipeable_animateTo_animatesBeyondBounds() {
+    fun anchoredDraggable_animateTo_animatesBeyondBounds() {
         rule.mainClock.autoAdvance = false
         val minBound = 0f
         val maxBound = 500f
@@ -549,12 +549,12 @@ class SwipeableV2StateTest {
             initialVelocity = 0f
         ).let { TimeUnit.NANOSECONDS.toMillis(it) }
 
-        lateinit var state: SwipeableV2State<SwipeableTestValue>
+        lateinit var state: AnchoredDraggableState<AnchoredDraggableTestValue>
         lateinit var scope: CoroutineScope
 
         rule.setContent {
             scope = rememberCoroutineScope()
-            state = rememberSwipeableV2State(
+            state = rememberAnchoredDraggableState(
                 initialValue = A,
                 animationSpec = animationSpec
             )
@@ -564,9 +564,9 @@ class SwipeableV2StateTest {
             Box(Modifier.fillMaxSize()) {
                 Box(
                     Modifier
-                        .requiredSize(SwipeableBoxSize)
-                        .testTag(SwipeableTestTag)
-                        .swipeableV2(
+                        .requiredSize(AnchoredDraggableBoxSize)
+                        .testTag(AnchoredDraggableTestTag)
+                        .anchoredDraggable(
                             state = state,
                             orientation = Orientation.Vertical
                         )
@@ -594,10 +594,10 @@ class SwipeableV2StateTest {
     }
 
     @Test
-    fun swipeable_bounds_minBoundIsSmallestAnchor() {
+    fun anchoredDraggable_bounds_minBoundIsSmallestAnchor() {
         var minBound = 0f
         var maxBound = 500f
-        val state = SwipeableV2State(
+        val state = AnchoredDraggableState(
             initialValue = A,
             positionalThreshold = defaultPositionalThreshold,
             velocityThreshold = defaultVelocityThreshold
@@ -630,8 +630,8 @@ class SwipeableV2StateTest {
     }
 
     @Test
-    fun swipeable_targetNotInAnchors_animateTo_updatesCurrentValue() {
-        val state = SwipeableV2State(
+    fun anchoredDraggable_targetNotInAnchors_animateTo_updatesCurrentValue() {
+        val state = AnchoredDraggableState(
             initialValue = A,
             positionalThreshold = defaultPositionalThreshold,
             velocityThreshold = defaultVelocityThreshold
@@ -643,8 +643,8 @@ class SwipeableV2StateTest {
     }
 
     @Test
-    fun swipeable_targetNotInAnchors_snapTo_updatesCurrentValue() {
-        val state = SwipeableV2State(
+    fun anchoredDraggable_targetNotInAnchors_snapTo_updatesCurrentValue() {
+        val state = AnchoredDraggableState(
             initialValue = A,
             positionalThreshold = defaultPositionalThreshold,
             velocityThreshold = defaultVelocityThreshold
@@ -656,12 +656,13 @@ class SwipeableV2StateTest {
     }
 
     @Test
-    fun swipeable_updateAnchors_initialUpdate_initialValueInAnchors_shouldntUpdate() {
+    fun anchoredDraggable_updateAnchors_initialUpdate_initialValueInAnchors_shouldntUpdate() {
         var anchorChangeHandlerInvoked = false
-        val testAnchorChangeHandler = AnchorChangedCallback<SwipeableTestValue> { _, _, _ ->
+        val testAnchorChangeHandler =
+            AnchorChangedCallback<AnchoredDraggableTestValue> { _, _, _ ->
             anchorChangeHandlerInvoked = true
         }
-        val state = SwipeableV2State(
+        val state = AnchoredDraggableState(
             initialValue = A,
             positionalThreshold = defaultPositionalThreshold,
             velocityThreshold = defaultVelocityThreshold
@@ -672,12 +673,13 @@ class SwipeableV2StateTest {
     }
 
     @Test
-    fun swipeable_updateAnchors_initialUpdate_initialValueNotInAnchors_shouldUpdate() {
+    fun anchoredDraggable_updateAnchors_initialUpdate_initialValueNotInAnchors_shouldUpdate() {
         var anchorChangeHandlerInvoked = false
-        val testAnchorChangedCallback = AnchorChangedCallback<SwipeableTestValue> { _, _, _ ->
+        val testAnchorChangedCallback =
+            AnchorChangedCallback<AnchoredDraggableTestValue> { _, _, _ ->
             anchorChangeHandlerInvoked = true
         }
-        val state = SwipeableV2State(
+        val state = AnchoredDraggableState(
             initialValue = A,
             positionalThreshold = defaultPositionalThreshold,
             velocityThreshold = defaultVelocityThreshold
@@ -688,12 +690,13 @@ class SwipeableV2StateTest {
     }
 
     @Test
-    fun swipeable_updateAnchors_updateExistingAnchors_shouldUpdate() {
+    fun anchoredDraggable_updateAnchors_updateExistingAnchors_shouldUpdate() {
         var anchorChangeHandlerInvoked = false
-        val testAnchorChangedCallback = AnchorChangedCallback<SwipeableTestValue> { _, _, _ ->
+        val testAnchorChangedCallback =
+            AnchorChangedCallback<AnchoredDraggableTestValue> { _, _, _ ->
             anchorChangeHandlerInvoked = true
         }
-        val state = SwipeableV2State(
+        val state = AnchoredDraggableState(
             initialValue = A,
             positionalThreshold = defaultPositionalThreshold,
             velocityThreshold = defaultVelocityThreshold
@@ -708,16 +711,17 @@ class SwipeableV2StateTest {
     }
 
     @Test
-    fun swipeable_updateAnchors_ongoingOffsetMutation_shouldNotUpdate() = runBlocking {
+    fun anchoredDraggable_updateAnchors_ongoingOffsetMutation_shouldNotUpdate() = runBlocking {
         val clock = HandPumpTestFrameClock()
         val animationScope = CoroutineScope(clock)
         val animationDuration = 2000
 
         var anchorChangeHandlerInvoked = false
-        val testAnchorChangedCallback = AnchorChangedCallback<SwipeableTestValue> { _, _, _ ->
+        val testAnchorChangedCallback =
+            AnchorChangedCallback<AnchoredDraggableTestValue> { _, _, _ ->
             anchorChangeHandlerInvoked = true
         }
-        val state = SwipeableV2State(
+        val state = AnchoredDraggableState(
             initialValue = A,
             animationSpec = tween(animationDuration),
             positionalThreshold = defaultPositionalThreshold,

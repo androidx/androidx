@@ -14,20 +14,20 @@
  * limitations under the License.
  */
 
-package androidx.compose.material.swipeable
+package androidx.compose.material.anchoredDraggable
 
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.SwipeableV2State.AnchorChangedCallback
+import androidx.compose.material.AnchoredDraggableState.AnchorChangedCallback
 import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.SwipeableV2Defaults.ReconcileAnimationOnAnchorChangedCallback
-import androidx.compose.material.SwipeableV2State
-import androidx.compose.material.swipeable.SwipeableTestValue.A
-import androidx.compose.material.swipeable.SwipeableTestValue.B
-import androidx.compose.material.swipeable.SwipeableTestValue.C
+import androidx.compose.material.AnchoredDraggableDefaults.ReconcileAnimationOnAnchorChangedCallback
+import androidx.compose.material.AnchoredDraggableState
+import androidx.compose.material.anchoredDraggable.AnchoredDraggableTestValue.A
+import androidx.compose.material.anchoredDraggable.AnchoredDraggableTestValue.B
+import androidx.compose.material.anchoredDraggable.AnchoredDraggableTestValue.C
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -51,15 +51,15 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 @LargeTest
 @OptIn(ExperimentalMaterialApi::class)
-class SwipeableV2AnchorTest {
+class AnchoredDraggableAnchorsTest {
 
     @get:Rule
     val rule = createComposeRule()
 
     @Test
-    fun swipeable_reconcileAnchorChangeHandler_retargetsAnimationWhenOffsetChanged() {
+    fun anchoredDraggable_reconcileAnchorChangeHandler_retargetsAnimationWhenOffsetChanged() {
         val animationDurationMillis = 2000
-        lateinit var state: SwipeableV2State<SwipeableTestValue>
+        lateinit var state: AnchoredDraggableState<AnchoredDraggableTestValue>
         lateinit var scope: CoroutineScope
 
         val firstAnchors = mapOf(A to 0f, B to 100f, C to 200f)
@@ -71,7 +71,7 @@ class SwipeableV2AnchorTest {
 
         rule.setContent {
             state = remember {
-                SwipeableV2State(
+                AnchoredDraggableState(
                     initialValue = A,
                     animationSpec = tween(animationDurationMillis, easing = LinearEasing),
                     positionalThreshold = defaultPositionalThreshold(),
@@ -107,8 +107,8 @@ class SwipeableV2AnchorTest {
     }
 
     @Test
-    fun swipeable_reconcileAnchorChangeHandler_snapsWhenPreviousAnchorRemoved() {
-        val state = SwipeableV2State(
+    fun anchoredDraggable_reconcileAnchorChangeHandler_snapsWhenPreviousAnchorRemoved() {
+        val state = AnchoredDraggableState(
             initialValue = A,
             positionalThreshold = defaultPositionalThreshold(),
             velocityThreshold = defaultVelocityThreshold()
@@ -141,16 +141,16 @@ class SwipeableV2AnchorTest {
     }
 
     @Test
-    fun swipeable_anchorChangeHandler_calledWithUpdatedAnchorsWhenChanged() {
+    fun anchoredDraggable_anchorChangeHandler_calledWithUpdatedAnchorsWhenChanged() {
         var anchorChangeHandlerInvocationCount = 0
-        var actualPreviousAnchors: Map<SwipeableTestValue, Float>? = null
-        var actualNewAnchors: Map<SwipeableTestValue, Float>? = null
+        var actualPreviousAnchors: Map<AnchoredDraggableTestValue, Float>? = null
+        var actualNewAnchors: Map<AnchoredDraggableTestValue, Float>? = null
         val testChangeHandler = AnchorChangedCallback { _, previousAnchors, newAnchors ->
             anchorChangeHandlerInvocationCount++
             actualPreviousAnchors = previousAnchors
             actualNewAnchors = newAnchors
         }
-        val state = SwipeableV2State(
+        val state = AnchoredDraggableState(
             initialValue = A,
             positionalThreshold = defaultPositionalThreshold(),
             velocityThreshold = defaultVelocityThreshold()
@@ -194,13 +194,13 @@ class SwipeableV2AnchorTest {
     }
 
     @Test
-    fun swipeable_anchorChangeHandler_invokedWithPreviousTarget() {
-        var recordedPreviousTargetValue: SwipeableTestValue? = null
+    fun anchoredDraggable_anchorChangeHandler_invokedWithPreviousTarget() {
+        var recordedPreviousTargetValue: AnchoredDraggableTestValue? = null
         val testChangeHandler =
-            AnchorChangedCallback<SwipeableTestValue> { previousTarget, _, _ ->
+            AnchorChangedCallback<AnchoredDraggableTestValue> { previousTarget, _, _ ->
                 recordedPreviousTargetValue = previousTarget
             }
-        val state = SwipeableV2State(
+        val state = AnchoredDraggableState(
             initialValue = A,
             positionalThreshold = { totalDistance -> totalDistance * 0.5f },
             velocityThreshold = defaultVelocityThreshold()
@@ -220,12 +220,12 @@ class SwipeableV2AnchorTest {
     }
 
     @Test
-    fun swipeable_anchorChangeHandler_invokedIfInitialValueNotInInitialAnchors() {
+    fun anchoredDraggable_anchorChangeHandler_invokedIfInitialValueNotInInitialAnchors() {
         var anchorChangeHandlerInvocationCount = 0
-        val testChangeHandler = AnchorChangedCallback<SwipeableTestValue> { _, _, _ ->
+        val testChangeHandler = AnchorChangedCallback<AnchoredDraggableTestValue> { _, _, _ ->
             anchorChangeHandlerInvocationCount++
         }
-        val state = SwipeableV2State(
+        val state = AnchoredDraggableState(
             initialValue = A,
             positionalThreshold = defaultPositionalThreshold(),
             velocityThreshold = defaultVelocityThreshold()
