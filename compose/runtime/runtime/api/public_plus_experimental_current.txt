@@ -286,7 +286,7 @@ package androidx.compose.runtime {
     method public double getDoubleValue();
     method public default Double getValue();
     property public abstract double doubleValue;
-    property public default Double value;
+    property @androidx.compose.runtime.snapshots.AutoboxingStateValueProperty(preferredPropertyName="doubleValue") public default Double value;
   }
 
   public final class EffectsKt {
@@ -314,7 +314,7 @@ package androidx.compose.runtime {
     method public float getFloatValue();
     method public default Float getValue();
     property public abstract float floatValue;
-    property public default Float value;
+    property @androidx.compose.runtime.snapshots.AutoboxingStateValueProperty(preferredPropertyName="floatValue") public default Float value;
   }
 
   @androidx.compose.runtime.StableMarker @kotlin.annotation.MustBeDocumented @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.CLASS) public @interface Immutable {
@@ -324,7 +324,7 @@ package androidx.compose.runtime {
     method public int getIntValue();
     method public default Integer getValue();
     property public abstract int intValue;
-    property public default Integer value;
+    property @androidx.compose.runtime.snapshots.AutoboxingStateValueProperty(preferredPropertyName="intValue") public default Integer value;
   }
 
   @kotlin.RequiresOptIn(level=kotlin.RequiresOptIn.Level.ERROR, message="This is internal API for Compose modules that may change frequently " + "and without warning.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.CLASS, kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.PROPERTY}) public @interface InternalComposeApi {
@@ -337,7 +337,7 @@ package androidx.compose.runtime {
     method public long getLongValue();
     method public default Long getValue();
     property public abstract long longValue;
-    property public default Long value;
+    property @androidx.compose.runtime.snapshots.AutoboxingStateValueProperty(preferredPropertyName="longValue") public default Long value;
   }
 
   @kotlin.jvm.JvmDefaultWithCompatibility public interface MonotonicFrameClock extends kotlin.coroutines.CoroutineContext.Element {
@@ -385,28 +385,28 @@ package androidx.compose.runtime {
     method public void setDoubleValue(double);
     method public default void setValue(double);
     property public abstract double doubleValue;
-    property public default Double value;
+    property @androidx.compose.runtime.snapshots.AutoboxingStateValueProperty(preferredPropertyName="doubleValue") public default Double value;
   }
 
   @androidx.compose.runtime.Stable @kotlin.jvm.JvmDefaultWithCompatibility public interface MutableFloatState extends androidx.compose.runtime.FloatState androidx.compose.runtime.MutableState<java.lang.Float> {
     method public void setFloatValue(float);
     method public default void setValue(float);
     property public abstract float floatValue;
-    property public default Float value;
+    property @androidx.compose.runtime.snapshots.AutoboxingStateValueProperty(preferredPropertyName="floatValue") public default Float value;
   }
 
   @androidx.compose.runtime.Stable @kotlin.jvm.JvmDefaultWithCompatibility public interface MutableIntState extends androidx.compose.runtime.IntState androidx.compose.runtime.MutableState<java.lang.Integer> {
     method public void setIntValue(int);
     method public default void setValue(int);
     property public abstract int intValue;
-    property public default Integer value;
+    property @androidx.compose.runtime.snapshots.AutoboxingStateValueProperty(preferredPropertyName="intValue") public default Integer value;
   }
 
   @androidx.compose.runtime.Stable @kotlin.jvm.JvmDefaultWithCompatibility public interface MutableLongState extends androidx.compose.runtime.LongState androidx.compose.runtime.MutableState<java.lang.Long> {
     method public void setLongValue(long);
     method public default void setValue(long);
     property public abstract long longValue;
-    property public default Long value;
+    property @androidx.compose.runtime.snapshots.AutoboxingStateValueProperty(preferredPropertyName="longValue") public default Long value;
   }
 
   @androidx.compose.runtime.Stable public interface MutableState<T> extends androidx.compose.runtime.State<T> {
@@ -789,6 +789,11 @@ package androidx.compose.runtime.reflect {
 }
 
 package androidx.compose.runtime.snapshots {
+
+  @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.PROPERTY) public @interface AutoboxingStateValueProperty {
+    method public abstract String preferredPropertyName();
+    property public abstract String preferredPropertyName;
+  }
 
   public class MutableSnapshot extends androidx.compose.runtime.snapshots.Snapshot {
     method public androidx.compose.runtime.snapshots.SnapshotApplyResult apply();

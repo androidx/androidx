@@ -30,6 +30,7 @@ class RuntimeIssueRegistry : IssueRegistry() {
     override val api = 14
     override val minApi = CURRENT_API
     override val issues get() = listOf(
+        AutoboxingStateValuePropertyDetector.AutoboxingStateValueProperty,
         ComposableCoroutineCreationDetector.CoroutineCreationDuringComposition,
         ComposableFlowOperatorDetector.FlowOperatorInvokedInComposition,
         ComposableLambdaParameterDetector.ComposableLambdaParameterNaming,

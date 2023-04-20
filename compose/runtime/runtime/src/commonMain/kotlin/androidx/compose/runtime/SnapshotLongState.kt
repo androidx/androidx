@@ -19,6 +19,7 @@
 package androidx.compose.runtime
 
 import androidx.compose.runtime.internal.JvmDefaultWithCompatibility
+import androidx.compose.runtime.snapshots.AutoboxingStateValueProperty
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.runtime.snapshots.SnapshotMutableState
 import androidx.compose.runtime.snapshots.StateObject
@@ -55,6 +56,7 @@ fun mutableStateOf(
 @Stable
 @JvmDefaultWithCompatibility
 interface LongState : State<Long> {
+    @AutoboxingStateValueProperty("longValue")
     override val value: Long
         @Suppress("AutoBoxing") get() = longValue
 
@@ -80,6 +82,7 @@ inline operator fun LongState.getValue(thisObj: Any?, property: KProperty<*>): L
 @Stable
 @JvmDefaultWithCompatibility
 interface MutableLongState : LongState, MutableState<Long> {
+    @AutoboxingStateValueProperty("longValue")
     override var value: Long
         @Suppress("AutoBoxing") get() = longValue
         set(value) { longValue = value }
