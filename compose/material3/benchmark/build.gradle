@@ -24,6 +24,7 @@ plugins {
 
 dependencies {
 
+    androidTestImplementation(project(":compose:material:material-icons-core"))
     androidTestImplementation(project(":compose:material3:material3"))
     androidTestImplementation(project(":benchmark:benchmark-junit4"))
     androidTestImplementation(project(":compose:runtime:runtime"))
