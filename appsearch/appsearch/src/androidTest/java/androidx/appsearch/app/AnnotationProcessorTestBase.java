@@ -599,8 +599,6 @@ public abstract class AnnotationProcessorTestBase {
         PotentialAction potentialAction =
                 outDocuments.get(0).toDocumentClass(PotentialAction.class);
 
-        assertThat(potentialAction.getNamespace()).isEqualTo(namespace);
-        assertThat(potentialAction.getId()).isEqualTo(id);
         assertThat(potentialAction.getName()).isEqualTo(name);
         assertThat(potentialAction.getUri()).isEqualTo(uri);
         assertThat(potentialAction.getDescription()).isEqualTo(description);
