@@ -101,7 +101,7 @@ constructor(
             captureSequenceProcessorFactory,
             cameraSurfaceManager,
             timeSource,
-            config.flags.quirkFinalizeSessionOnCloseBehavior,
+            config.flags,
             scope
         )
         currentSession = session
