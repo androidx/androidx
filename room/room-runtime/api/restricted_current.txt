@@ -35,19 +35,19 @@ package androidx.room {
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public abstract class EntityDeletionOrUpdateAdapter<T> extends androidx.room.SharedSQLiteStatement {
     ctor public EntityDeletionOrUpdateAdapter(androidx.room.RoomDatabase database);
-    method protected abstract void bind(androidx.sqlite.db.SupportSQLiteStatement statement, T? entity);
-    method public final int handle(T? entity);
+    method protected abstract void bind(androidx.sqlite.db.SupportSQLiteStatement statement, T entity);
+    method public final int handle(T entity);
     method public final int handleMultiple(Iterable<? extends T> entities);
     method public final int handleMultiple(T![] entities);
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public abstract class EntityInsertionAdapter<T> extends androidx.room.SharedSQLiteStatement {
     ctor public EntityInsertionAdapter(androidx.room.RoomDatabase database);
-    method protected abstract void bind(androidx.sqlite.db.SupportSQLiteStatement statement, T? entity);
-    method public final void insert(T? entity);
+    method protected abstract void bind(androidx.sqlite.db.SupportSQLiteStatement statement, T entity);
+    method public final void insert(T entity);
     method public final void insert(T![] entities);
     method public final void insert(Iterable<? extends T> entities);
-    method public final long insertAndReturnId(T? entity);
+    method public final long insertAndReturnId(T entity);
     method public final long[] insertAndReturnIdsArray(java.util.Collection<? extends T> entities);
     method public final long[] insertAndReturnIdsArray(T![] entities);
     method public final Long![] insertAndReturnIdsArrayBox(java.util.Collection<? extends T> entities);
@@ -58,10 +58,10 @@ package androidx.room {
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class EntityUpsertionAdapter<T> {
     ctor public EntityUpsertionAdapter(androidx.room.EntityInsertionAdapter<T> insertionAdapter, androidx.room.EntityDeletionOrUpdateAdapter<T> updateAdapter);
-    method public void upsert(T? entity);
+    method public void upsert(T entity);
     method public void upsert(T![] entities);
     method public void upsert(Iterable<? extends T> entities);
-    method public long upsertAndReturnId(T? entity);
+    method public long upsertAndReturnId(T entity);
     method public long[] upsertAndReturnIdsArray(T![] entities);
     method public long[] upsertAndReturnIdsArray(java.util.Collection<? extends T> entities);
     method public Long![] upsertAndReturnIdsArrayBox(T![] entities);
@@ -122,7 +122,7 @@ package androidx.room {
     method public android.database.Cursor query(androidx.sqlite.db.SupportSQLiteQuery query, optional android.os.CancellationSignal? signal);
     method public android.database.Cursor query(androidx.sqlite.db.SupportSQLiteQuery query);
     method public void runInTransaction(Runnable body);
-    method public <V> V! runInTransaction(java.util.concurrent.Callable<V> body);
+    method public <V> V runInTransaction(java.util.concurrent.Callable<V> body);
     method @Deprecated public void setTransactionSuccessful();
     property public androidx.room.InvalidationTracker invalidationTracker;
     property public boolean isOpen;
@@ -305,7 +305,7 @@ package androidx.room.util {
     method public static android.database.Cursor copyAndClose(android.database.Cursor c);
     method public static int getColumnIndex(android.database.Cursor c, String name);
     method public static int getColumnIndexOrThrow(android.database.Cursor c, String name);
-    method public static inline <R> R! useCursor(android.database.Cursor, kotlin.jvm.functions.Function1<? super android.database.Cursor,? extends R> block);
+    method public static inline <R> R useCursor(android.database.Cursor, kotlin.jvm.functions.Function1<? super android.database.Cursor,? extends R> block);
     method public static android.database.Cursor wrapMappedColumns(android.database.Cursor cursor, String![] columnNames, int[] mapping);
   }
 

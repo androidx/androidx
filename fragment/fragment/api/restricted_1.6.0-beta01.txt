@@ -200,7 +200,7 @@ package androidx.fragment.app {
     ctor public FragmentContainerView(android.content.Context context);
     ctor public FragmentContainerView(android.content.Context context, android.util.AttributeSet? attrs, optional int defStyleAttr);
     ctor public FragmentContainerView(android.content.Context context, android.util.AttributeSet? attrs);
-    method public <F extends androidx.fragment.app.Fragment> F! getFragment();
+    method public <F extends androidx.fragment.app.Fragment> F getFragment();
   }
 
   public class FragmentController {
