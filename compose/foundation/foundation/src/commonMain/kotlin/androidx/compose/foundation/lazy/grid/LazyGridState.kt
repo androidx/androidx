@@ -223,7 +223,7 @@ class LazyGridState constructor(
     internal var prefetchInfoRetriever: (line: LineIndex) -> List<Pair<Int, Constraints>> by
         mutableStateOf({ emptyList() })
 
-    internal var placementAnimator by mutableStateOf<LazyGridItemPlacementAnimator?>(null)
+    internal val placementAnimator = LazyGridItemPlacementAnimator()
 
     private val animateScrollScope = LazyGridAnimateScrollScope(this)
 
@@ -254,7 +254,7 @@ class LazyGridState constructor(
     internal fun snapToItemIndexInternal(index: Int, scrollOffset: Int) {
         scrollPosition.requestPosition(ItemIndex(index), scrollOffset)
         // placement animation is not needed because we snap into a new position.
-        placementAnimator?.reset()
+        placementAnimator.reset()
         remeasurement?.forceRemeasure()
     }
 

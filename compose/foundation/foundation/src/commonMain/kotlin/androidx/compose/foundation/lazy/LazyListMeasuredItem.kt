@@ -16,8 +16,8 @@
 
 package androidx.compose.foundation.lazy
 
-import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.lazy.layout.LazyLayoutAnimateItemModifierNode
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.unit.IntOffset
@@ -38,7 +38,6 @@ internal class LazyListMeasuredItem @ExperimentalFoundationApi constructor(
     private val reverseLayout: Boolean,
     private val beforeContentPadding: Int,
     private val afterContentPadding: Int,
-    private val placementAnimator: LazyListItemPlacementAnimator,
     /**
      * Extra spacing to be added to [size] aside from the sum of the [placeables] size. It
      * is usually representing the spacing after the item.
@@ -78,6 +77,10 @@ internal class LazyListMeasuredItem @ExperimentalFoundationApi constructor(
         crossAxisSize = maxCrossAxis
     }
 
+    val placeablesCount: Int get() = placeables.size
+
+    fun getParentData(index: Int) = placeables[index].parentData
+
     /**
      * Calculates positions for the inner placeables at [offset] main axis position.
      * If [reverseOrder] is true the inner placeables would be placed in the inverted order.
@@ -111,7 +114,6 @@ internal class LazyListMeasuredItem @ExperimentalFoundationApi constructor(
             maxMainAxisOffset = mainAxisLayoutSize + afterContentPadding,
             isVertical = isVertical,
             wrappers = wrappers,
-            placementAnimator = placementAnimator,
             visualOffset = visualOffset,
             reverseLayout = reverseLayout,
             mainAxisLayoutSize = mainAxisLayoutSize
@@ -126,9 +128,8 @@ internal class LazyListPositionedItem(
     override val size: Int,
     private val minMainAxisOffset: Int,
     private val maxMainAxisOffset: Int,
-    private val isVertical: Boolean,
+    val isVertical: Boolean,
     private val wrappers: List<LazyListPlaceableWrapper>,
-    private val placementAnimator: LazyListItemPlacementAnimator,
     private val visualOffset: IntOffset,
     private val reverseLayout: Boolean,
     private val mainAxisLayoutSize: Int
@@ -137,20 +138,7 @@ internal class LazyListPositionedItem(
 
     fun getOffset(index: Int) = wrappers[index].offset
 
-    fun getMainAxisSize(index: Int) = wrappers[index].placeable.mainAxisSize
-
-    @Suppress("UNCHECKED_CAST")
-    fun getAnimationSpec(index: Int) =
-        wrappers[index].placeable.parentData as? FiniteAnimationSpec<IntOffset>?
-
-    val hasAnimations = run {
-        repeat(placeablesCount) { index ->
-            if (getAnimationSpec(index) != null) {
-                return@run true
-            }
-        }
-        false
-    }
+    fun getParentData(index: Int) = wrappers[index].placeable.parentData
 
     fun place(
         scope: Placeable.PlacementScope,
@@ -159,28 +147,33 @@ internal class LazyListPositionedItem(
             val placeable = wrappers[index].placeable
             val minOffset = minMainAxisOffset - placeable.mainAxisSize
             val maxOffset = maxMainAxisOffset
-            val offset = if (getAnimationSpec(index) != null) {
-                placementAnimator.getAnimatedOffset(
-                    key, index, minOffset, maxOffset, getOffset(index)
-                )
-            } else {
-                getOffset(index)
+            var offset = getOffset(index)
+            val animateNode = getParentData(index) as? LazyLayoutAnimateItemModifierNode
+            if (animateNode != null) {
+                val animatedOffset = offset + animateNode.placementDelta
+                // cancel the animation if current and target offsets are both out of the bounds.
+                if ((offset.mainAxis <= minOffset && animatedOffset.mainAxis <= minOffset) ||
+                    (offset.mainAxis >= maxOffset && animatedOffset.mainAxis >= maxOffset)
+                ) {
+                    animateNode.cancelAnimation()
+                }
+                offset = animatedOffset
             }
-            val reverseLayoutAwareOffset = if (reverseLayout) {
-                offset.copy { mainAxisOffset ->
+            if (reverseLayout) {
+                offset = offset.copy { mainAxisOffset ->
                     mainAxisLayoutSize - mainAxisOffset - placeable.mainAxisSize
                 }
-            } else {
-                offset
             }
+            offset += visualOffset
             if (isVertical) {
-                placeable.placeWithLayer(reverseLayoutAwareOffset + visualOffset)
+                placeable.placeWithLayer(offset)
             } else {
-                placeable.placeRelativeWithLayer(reverseLayoutAwareOffset + visualOffset)
+                placeable.placeRelativeWithLayer(offset)
             }
         }
     }
 
+    private val IntOffset.mainAxis get() = if (isVertical) y else x
     private val Placeable.mainAxisSize get() = if (isVertical) height else width
     private inline fun IntOffset.copy(mainAxisMap: (Int) -> Int): IntOffset =
         IntOffset(if (isVertical) x else mainAxisMap(x), if (isVertical) mainAxisMap(y) else y)

@@ -1068,7 +1068,7 @@ private fun AnimateItemPlacementDemo() {
                 .weight(1f), reverseLayout = reverse) {
             items(items, key = { it }) { item ->
                 val selected = selectedIndexes.getOrDefault(item, false)
-                val modifier = if (selected) Modifier.animateItemPlacement() else Modifier
+                val modifier = Modifier.animateItemPlacement()
                 var height by remember { mutableStateOf(40.dp) }
                 Row(
                     modifier

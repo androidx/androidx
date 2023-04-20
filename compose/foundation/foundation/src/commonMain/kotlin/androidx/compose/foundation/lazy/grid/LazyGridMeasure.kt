@@ -274,7 +274,8 @@ internal fun measureLazyGrid(
             layoutHeight = layoutHeight,
             positionedItems = positionedItems,
             itemProvider = measuredItemProvider,
-            spanLayoutProvider = spanLayoutProvider
+            spanLayoutProvider = spanLayoutProvider,
+            isVertical = isVertical
         )
 
         return LazyGridMeasureResult(

@@ -33,7 +33,6 @@ import androidx.compose.foundation.lazy.layout.lazyLayoutSemantics
 import androidx.compose.foundation.overscroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.MeasureResult
@@ -79,12 +78,6 @@ internal fun LazyGrid(
 
     val semanticState = rememberLazyGridSemanticState(state, reverseLayout)
 
-    val scope = rememberCoroutineScope()
-    val placementAnimator = remember(state, isVertical) {
-        LazyGridItemPlacementAnimator(scope, isVertical)
-    }
-    state.placementAnimator = placementAnimator
-
     val measurePolicy = rememberLazyGridMeasurePolicy(
         itemProvider,
         state,
@@ -93,8 +86,7 @@ internal fun LazyGrid(
         reverseLayout,
         isVertical,
         horizontalArrangement,
-        verticalArrangement,
-        placementAnimator
+        verticalArrangement
     )
 
     state.isVertical = isVertical
@@ -171,8 +163,6 @@ private fun rememberLazyGridMeasurePolicy(
     horizontalArrangement: Arrangement.Horizontal? = null,
     /** The vertical arrangement for items. Required when isVertical is true */
     verticalArrangement: Arrangement.Vertical? = null,
-    /** Item placement animator. Should be notified with the measuring result */
-    placementAnimator: LazyGridItemPlacementAnimator
 ) = remember<LazyLayoutMeasureScope.(Constraints) -> MeasureResult>(
     state,
     slots,
@@ -180,8 +170,7 @@ private fun rememberLazyGridMeasurePolicy(
     reverseLayout,
     isVertical,
     horizontalArrangement,
-    verticalArrangement,
-    placementAnimator
+    verticalArrangement
 ) {
     { containerConstraints ->
         checkScrollableContainerConstraints(
@@ -273,8 +262,7 @@ private fun rememberLazyGridMeasurePolicy(
                 beforeContentPadding = beforeContentPadding,
                 afterContentPadding = afterContentPadding,
                 visualOffset = visualItemOffset,
-                placeables = placeables,
-                placementAnimator = placementAnimator
+                placeables = placeables
             )
         }
         val measuredLineProvider = LazyGridMeasuredLineProvider(
@@ -344,7 +332,7 @@ private fun rememberLazyGridMeasurePolicy(
             horizontalArrangement = horizontalArrangement,
             reverseLayout = reverseLayout,
             density = this,
-            placementAnimator = placementAnimator,
+            placementAnimator = state.placementAnimator,
             spanLayoutProvider = spanLayoutProvider,
             pinnedItems = state.pinnedItems,
             layout = { width, height, placement ->
