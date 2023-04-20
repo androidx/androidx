@@ -841,13 +841,18 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
     override fun onRequestMeasure(
         layoutNode: LayoutNode,
         affectsLookahead: Boolean,
-        forceRequest: Boolean
+        forceRequest: Boolean,
+        scheduleMeasureAndLayout: Boolean
     ) {
         if (affectsLookahead) {
-            if (measureAndLayoutDelegate.requestLookaheadRemeasure(layoutNode, forceRequest)) {
+            if (measureAndLayoutDelegate.requestLookaheadRemeasure(layoutNode, forceRequest) &&
+                scheduleMeasureAndLayout
+            ) {
                 scheduleMeasureAndLayout(layoutNode)
             }
-        } else if (measureAndLayoutDelegate.requestRemeasure(layoutNode, forceRequest)) {
+        } else if (measureAndLayoutDelegate.requestRemeasure(layoutNode, forceRequest) &&
+            scheduleMeasureAndLayout
+        ) {
             scheduleMeasureAndLayout(layoutNode)
         }
     }

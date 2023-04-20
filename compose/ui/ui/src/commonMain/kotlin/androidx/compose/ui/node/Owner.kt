@@ -154,7 +154,8 @@ internal interface Owner {
     fun onRequestMeasure(
         layoutNode: LayoutNode,
         affectsLookahead: Boolean = false,
-        forceRequest: Boolean = false
+        forceRequest: Boolean = false,
+        scheduleMeasureAndLayout: Boolean = true
     )
 
     /**
