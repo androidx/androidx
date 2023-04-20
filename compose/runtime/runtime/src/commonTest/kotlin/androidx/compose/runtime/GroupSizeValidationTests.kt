@@ -32,7 +32,7 @@ class GroupSizeValidationTests {
     fun spacerLike() = compositionTest {
         slotExpect(
             name = "SpacerLike",
-            noMoreGroupsThan = 6,
+            noMoreGroupsThan = 5,
             noMoreSlotsThan = 9,
         ) {
             SpacerLike(Modifier)
@@ -43,7 +43,7 @@ class GroupSizeValidationTests {
     fun columnLikeSize() = compositionTest {
         slotExpect(
             name = "ColumnLike",
-            noMoreGroupsThan = 9,
+            noMoreGroupsThan = 6,
             noMoreSlotsThan = 8,
         ) {
             ColumnLike { }
@@ -54,7 +54,7 @@ class GroupSizeValidationTests {
     fun textLikeSize() = compositionTest {
         slotExpect(
             name = "TextLike",
-            noMoreGroupsThan = 13,
+            noMoreGroupsThan = 11,
             noMoreSlotsThan = 15
         ) {
             TextLike("")
@@ -65,7 +65,7 @@ class GroupSizeValidationTests {
     fun checkboxLike() = compositionTest {
         slotExpect(
             name = "CheckboxLike",
-            noMoreGroupsThan = 13,
+            noMoreGroupsThan = 12,
             noMoreSlotsThan = 20
         ) {
             CheckboxLike(checked = false, onCheckedChange = { })
@@ -337,10 +337,11 @@ private fun TextLike(
     onTextLayout: (TextLayoutResult) -> Unit = {},
     style: TextStyle = LocalTextStyle.current
 ) {
-
+    val localColor = LocalContentColor.current
+    val localAlpha = LocalContentAlpha.current
     val textColor = color.takeOrElse {
         style.color.takeOrElse {
-            LocalContentColor.current.copy(alpha = LocalContentAlpha.current)
+            localColor.copy(localAlpha)
         }
     }
 
