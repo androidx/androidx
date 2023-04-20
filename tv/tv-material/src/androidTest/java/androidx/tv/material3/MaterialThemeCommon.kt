@@ -17,6 +17,7 @@
 package androidx.tv.material3
 
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.test.junit4.ComposeContentTestRule
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
@@ -31,5 +32,23 @@ fun LightMaterialTheme(content: @Composable () -> Unit) {
 fun DarkMaterialTheme(content: @Composable () -> Unit) {
     MaterialTheme(darkColorScheme()) {
         content()
+    }
+}
+
+/**
+ * Wraps Compose content in a [MaterialTheme].
+ *
+ * @param colorScheme a [ColorScheme] to provide to the theme. Usually a [lightColorScheme],
+ * [darkColorScheme], or a dynamic one
+ */
+@OptIn(ExperimentalTvMaterial3Api::class)
+fun ComposeContentTestRule.setMaterialContent(
+    colorScheme: ColorScheme,
+    content: @Composable () -> Unit
+) {
+    setContent {
+        MaterialTheme(colorScheme = colorScheme) {
+            content()
+        }
     }
 }
