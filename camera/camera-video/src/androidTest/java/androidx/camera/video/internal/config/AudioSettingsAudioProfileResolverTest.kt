@@ -30,6 +30,7 @@ import androidx.camera.testing.AudioUtil
 import androidx.camera.testing.CameraPipeConfigTestRule
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CameraXUtil
+import androidx.camera.testing.IgnoreAudioProblematicDeviceRule
 import androidx.camera.video.AudioSpec
 import androidx.camera.video.Quality
 import androidx.camera.video.Recorder
@@ -63,6 +64,10 @@ class AudioSettingsAudioProfileResolverTest(
     private val implName: String,
     private val cameraConfig: CameraXConfig
 ) {
+
+    // Ignore problematic device for b/277176784
+    @get:Rule
+    val ignoreProblematicDeviceRule = IgnoreAudioProblematicDeviceRule()
 
     companion object {
         @JvmStatic

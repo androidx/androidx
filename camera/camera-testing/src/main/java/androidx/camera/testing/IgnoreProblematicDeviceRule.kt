@@ -30,23 +30,9 @@ import org.junit.runners.model.Statement
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class IgnoreProblematicDeviceRule : TestRule {
-    private var avdName: String = try {
-        val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
-        device.executeShellCommand("getprop ro.kernel.qemu.avd_name").filterNot {
-            it == '_' || it == '-' || it == ' '
-        }
-    } catch (e: Exception) {
-        Log.d("ProblematicDeviceRule", "Cannot get avd name", e)
-        ""
-    }
-
-    private val pixel2Api26Emulator = isEmulator && avdName.contains(
-        "Pixel2", ignoreCase = true
-    ) && Build.VERSION.SDK_INT == Build.VERSION_CODES.O
-
     private val api21Emulator = isEmulator && Build.VERSION.SDK_INT == Build.VERSION_CODES.LOLLIPOP
 
-    private val isProblematicDevices = pixel2Api26Emulator || api21Emulator
+    private val isProblematicDevices = isPixel2Api26Emulator || api21Emulator
 
     override fun apply(base: Statement, description: Description): Statement {
         return object : Statement() {
@@ -75,7 +61,19 @@ class IgnoreProblematicDeviceRule : TestRule {
             EMULATOR_HARDWARE_RANCHU,
             EMULATOR_HARDWARE_GCE
         )
+        private var avdName: String = try {
+            val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+            device.executeShellCommand("getprop ro.kernel.qemu.avd_name").filterNot {
+                it == '_' || it == '-' || it == ' '
+            }
+        } catch (e: Exception) {
+            Log.d("ProblematicDeviceRule", "Cannot get avd name", e)
+            ""
+        }
 
         val isEmulator = emulatorHardwareNames.contains(Build.HARDWARE.lowercase())
+        val isPixel2Api26Emulator = isEmulator && avdName.contains(
+            "Pixel2", ignoreCase = true
+        ) && Build.VERSION.SDK_INT == Build.VERSION_CODES.O
     }
 }
