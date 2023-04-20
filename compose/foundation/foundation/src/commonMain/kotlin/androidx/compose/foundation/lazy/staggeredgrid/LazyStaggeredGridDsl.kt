@@ -241,11 +241,6 @@ private class LazyStaggeredGridSlotCache(
 internal annotation class LazyStaggeredGridScopeMarker
 
 /**
- * Receiver scope for itemContent in [LazyStaggeredGridScope.item]
- */
-sealed interface LazyStaggeredGridItemScope
-
-/**
  * Receiver scope for [LazyVerticalStaggeredGrid] and [LazyHorizontalStaggeredGrid]
  */
 @LazyStaggeredGridScopeMarker
