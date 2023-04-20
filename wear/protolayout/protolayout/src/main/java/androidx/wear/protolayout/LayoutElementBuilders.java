@@ -89,8 +89,14 @@ public final class LayoutElementBuilders {
      * can be selected using this field.
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    @IntDef({FONT_VARIANT_UNDEFINED, FONT_VARIANT_TITLE, FONT_VARIANT_BODY})
+    @IntDef({
+            FONT_VARIANT_UNDEFINED,
+            FONT_VARIANT_TITLE,
+            FONT_VARIANT_BODY,
+            FONT_VARIANT_CUSTOM_1
+    })
     @Retention(RetentionPolicy.SOURCE)
+    @OptIn(markerClass = ProtoLayoutExperimental.class)
     public @interface FontVariant {}
 
     /** Font variant is undefined. */
@@ -101,6 +107,13 @@ public final class LayoutElementBuilders {
 
     /** Font variant suited for body text. */
     public static final int FONT_VARIANT_BODY = 2;
+
+    /** Renderer dependent Font variant. If not supported, will behave similar to
+     *  {@link #FONT_VARIANT_UNDEFINED}.
+     */
+    @ProtoLayoutExperimental
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public static final int FONT_VARIANT_CUSTOM_1 = 3;
 
     /**
      * The alignment of a {@link SpanImage} within the line height of the surrounding {@link
