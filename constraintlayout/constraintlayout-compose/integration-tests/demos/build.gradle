@@ -36,10 +36,5 @@ dependencies {
 
 android {
     namespace "androidx.constraintlayout.compose.demos"
-
-    lint {
-        // ConstraintLayoutDslDetector fails with NoClassDefFoundError in ChainsDemo.kt
-        disable "IncorrectReferencesDeclaration", "IncorrectMatchParentUsage", "IncorrectChainMarginsUsage"
-    }
 }
 
