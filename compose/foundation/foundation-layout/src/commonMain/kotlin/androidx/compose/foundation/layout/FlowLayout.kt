@@ -624,6 +624,7 @@ internal fun MeasureScope.breakDownItems(
             leftOver - (nextSize ?: 0) < 0
         ) {
             mainAxisTotalSize = maxOf(mainAxisTotalSize, currentLineMainAxisSize)
+            mainAxisTotalSize = minOf(mainAxisTotalSize, mainAxisMax)
             currentLineMainAxisSize = 0
             leftOver = mainAxisMax
             startBreakLineIndex = index + 1
