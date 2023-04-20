@@ -71,6 +71,7 @@ import org.junit.runner.RunWith
 class DefaultSurfaceProcessorTest {
 
     companion object {
+        private const val JPEG_QUALITY = 100
         private const val WIDTH = 640
         private const val HEIGHT = 480
         private const val CUSTOM_SHADER_FORMAT = """
@@ -143,7 +144,7 @@ class DefaultSurfaceProcessorTest {
         createSurfaceProcessor()
 
         // Act: take a snapshot and then release the processor.
-        val snapshotFuture = surfaceProcessor.snapshot()
+        val snapshotFuture = surfaceProcessor.snapshot(JPEG_QUALITY)
         surfaceProcessor.release()
 
         // Assert: the snapshot future should receive an exception.
@@ -176,7 +177,7 @@ class DefaultSurfaceProcessorTest {
         surfaceProcessor.onOutputSurface(surfaceOutput)
 
         // Act: take a snapshot and draw a Bitmap to the input Surface
-        surfaceProcessor.snapshot()
+        surfaceProcessor.snapshot(JPEG_QUALITY)
         val inputImage = createBitmap(WIDTH, HEIGHT)
         val inputSurface = surfaceRequest.deferrableSurface.surface.get()
         val canvas = inputSurface.lockHardwareCanvas()

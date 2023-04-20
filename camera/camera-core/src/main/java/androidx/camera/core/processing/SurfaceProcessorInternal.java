@@ -18,6 +18,7 @@ package androidx.camera.core.processing;
 
 import android.os.Build;
 
+import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.SurfaceProcessor;
@@ -51,7 +52,7 @@ public interface SurfaceProcessorInternal extends SurfaceProcessor {
      * Takes a snapshot of the next available frame and write it to JPEG outputs.
      */
     @NonNull
-    default ListenableFuture<Void> snapshot() {
+    default ListenableFuture<Void> snapshot(@IntRange(from = 0, to = 100) int jpegQuality) {
         return Futures.immediateFuture(null);
     }
 }
