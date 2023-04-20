@@ -1697,11 +1697,6 @@ public final class ImageCapture extends UseCase {
     private boolean isNodeEnabled() {
         checkMainThread();
         ImageCaptureConfig config = (ImageCaptureConfig) getCurrentConfig();
-        if (config.getImageReaderProxyProvider() != null) {
-            // Use old pipeline for custom ImageReader.
-            return false;
-        }
-
         if (config.getBufferFormat(ImageFormat.JPEG) != ImageFormat.JPEG) {
             // Use old pipeline for non-JPEG output format.
             return false;

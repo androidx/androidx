@@ -28,6 +28,7 @@ import androidx.camera.core.ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY
 import androidx.camera.core.ImageCapture.CaptureMode
 import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.ImageProxy
+import androidx.camera.core.ImageReaderProxyProvider
 import androidx.camera.core.SafeCloseImageReaderProxy
 import androidx.camera.core.imagecapture.CaptureNode.MAX_IMAGES
 import androidx.camera.core.imagecapture.ImagePipeline.JPEG_QUALITY_MAX_QUALITY
@@ -89,9 +90,10 @@ class ImagePipelineTest {
     @Before
     fun setUp() {
         // Create ImageCaptureConfig.
-        val builder = ImageCapture.Builder().setCaptureOptionUnpacker { _, builder ->
-            builder.templateType = TEMPLATE_TYPE
-        }
+        val builder = ImageCapture.Builder()
+            .setCaptureOptionUnpacker { _, builder ->
+                builder.templateType = TEMPLATE_TYPE
+            }
         builder.mutableConfig.insertOption(OPTION_IO_EXECUTOR, mainThreadExecutor())
         builder.mutableConfig.insertOption(ImageInputConfig.OPTION_INPUT_FORMAT, ImageFormat.JPEG)
         imageCaptureConfig = builder.useCaseConfig
@@ -101,6 +103,31 @@ class ImagePipelineTest {
     @After
     fun tearDown() {
         imagePipeline.close()
+    }
+
+    @Test
+    fun createPipeline_captureNodeHasImageReaderProxyProvider() {
+        // Arrange.
+        val imageReaderProxyProvider = ImageReaderProxyProvider { _, _, _, _, _ ->
+            FakeImageReaderProxy(MAX_IMAGES)
+        }
+        val builder = ImageCapture.Builder()
+            .setImageReaderProxyProvider(imageReaderProxyProvider)
+            .setCaptureOptionUnpacker { _, builder ->
+                builder.templateType = TEMPLATE_TYPE
+            }
+        builder.mutableConfig.insertOption(ImageInputConfig.OPTION_INPUT_FORMAT, ImageFormat.JPEG)
+        // Act.
+        val pipeline = ImagePipeline(builder.useCaseConfig, SIZE)
+        // Assert.
+        assertThat(pipeline.captureNode.inputEdge.imageReaderProxyProvider).isEqualTo(
+            imageReaderProxyProvider
+        )
+    }
+
+    @Test
+    fun createPipelineWithoutImageReaderProxyProvider_isNull() {
+        assertThat(imagePipeline.captureNode.inputEdge.imageReaderProxyProvider).isNull()
     }
 
     @Test

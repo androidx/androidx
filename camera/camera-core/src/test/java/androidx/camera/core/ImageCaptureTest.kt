@@ -306,14 +306,14 @@ class ImageCaptureTest {
     }
 
     @Test
-    fun useImageReaderProvider_pipelineDisabled() {
+    fun useImageReaderProvider_pipelineEnabled() {
         assertThat(
             bindImageCapture(
                 useProcessingPipeline = true,
                 bufferFormat = ImageFormat.JPEG,
                 imageReaderProxyProvider = getImageReaderProxyProvider(),
             ).isProcessingPipelineEnabled
-        ).isFalse()
+        ).isTrue()
     }
 
     @Test
