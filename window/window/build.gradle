@@ -51,7 +51,7 @@ dependencies {
 
     implementation("androidx.window.extensions.core:core:1.0.0-rc01")
     compileOnly(project(":window:sidecar:sidecar"))
-    compileOnly("androidx.window.extensions:extensions:1.1.0-beta01")
+    compileOnly("androidx.window.extensions:extensions:1.1.0-rc01")
 
     testImplementation(libs.testCore)
     testImplementation(libs.testRunner)
