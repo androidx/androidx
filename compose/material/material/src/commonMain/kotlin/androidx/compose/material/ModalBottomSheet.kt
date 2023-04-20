@@ -34,6 +34,7 @@ import androidx.compose.material.ModalBottomSheetState.Companion.Saver
 import androidx.compose.material.ModalBottomSheetValue.Expanded
 import androidx.compose.material.ModalBottomSheetValue.HalfExpanded
 import androidx.compose.material.ModalBottomSheetValue.Hidden
+import androidx.compose.material.SwipeableV2State.AnchorChangedCallback
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
@@ -52,6 +53,7 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.collapse
 import androidx.compose.ui.semantics.contentDescription
@@ -67,6 +69,7 @@ import androidx.compose.ui.unit.dp
 import kotlin.math.max
 import kotlin.math.roundToInt
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 /**
@@ -559,17 +562,8 @@ fun ModalBottomSheetLayout(
     }
     val scope = rememberCoroutineScope()
     val orientation = Orientation.Vertical
-    val anchorChangeHandler = remember(sheetState, scope) {
-        ModalBottomSheetAnchorChangeHandler(
-            state = sheetState,
-            animateTo = { target, velocity ->
-                scope.launch { sheetState.animateTo(target, velocity = velocity) }
-            },
-            snapTo = { target ->
-                val didSnapSynchronously = sheetState.trySnapTo(target)
-                if (!didSnapSynchronously) scope.launch { sheetState.snapTo(target) }
-            }
-        )
+    val anchorChangeCallback = remember(sheetState, scope) {
+        ModalBottomSheetAnchorChangeCallback(sheetState, scope)
     }
     BoxWithConstraints(modifier) {
         val fullHeight = constraints.maxHeight.toFloat()
@@ -611,23 +605,18 @@ fun ModalBottomSheetLayout(
                     orientation = orientation,
                     enabled = sheetState.swipeableState.currentValue != Hidden,
                 )
-                .swipeAnchors(
-                    state = sheetState.swipeableState,
-                    possibleValues = setOf(Hidden, HalfExpanded, Expanded),
-                    anchorChangeHandler = anchorChangeHandler
-                ) { state, sheetSize ->
-                    when (state) {
-                        Hidden -> fullHeight
-                        HalfExpanded -> when {
-                            sheetSize.height < fullHeight / 2f -> null
-                            sheetState.isSkipHalfExpanded -> null
-                            else -> fullHeight / 2f
+                .onSizeChanged { sheetSize ->
+                    val anchors = buildMap {
+                        put(Hidden, fullHeight)
+                        val halfHeight = fullHeight / 2f
+                        if (!sheetState.isSkipHalfExpanded && sheetSize.height > halfHeight) {
+                            put(HalfExpanded, halfHeight)
                         }
-
-                        Expanded -> if (sheetSize.height != 0) {
-                            max(0f, fullHeight - sheetSize.height)
-                        } else null
+                        if (sheetSize.height != 0) {
+                            put(Expanded, max(0f, fullHeight - sheetSize.height))
+                        }
                     }
+                    sheetState.swipeableState.updateAnchors(anchors, anchorChangeCallback)
                 }
                 .semantics {
                     if (sheetState.isVisible) {
@@ -771,13 +760,12 @@ private fun ConsumeSwipeWithinBottomSheetBoundsNestedScrollConnection(
 }
 
 @OptIn(ExperimentalMaterialApi::class)
-private fun ModalBottomSheetAnchorChangeHandler(
+private fun ModalBottomSheetAnchorChangeCallback(
     state: ModalBottomSheetState,
-    animateTo: (target: ModalBottomSheetValue, velocity: Float) -> Unit,
-    snapTo: (target: ModalBottomSheetValue) -> Unit,
-) = AnchorChangeHandler<ModalBottomSheetValue> { previousTarget, previousAnchors, newAnchors ->
-    val previousTargetOffset = previousAnchors[previousTarget]
-    val newTarget = when (previousTarget) {
+    scope: CoroutineScope
+) = AnchorChangedCallback<ModalBottomSheetValue> { prevTarget, prevAnchors, newAnchors ->
+    val previousTargetOffset = prevAnchors[prevTarget]
+    val newTarget = when (prevTarget) {
         Hidden -> Hidden
         HalfExpanded, Expanded -> {
             val hasHalfExpandedState = newAnchors.containsKey(HalfExpanded)
@@ -790,10 +778,11 @@ private fun ModalBottomSheetAnchorChangeHandler(
     if (newTargetOffset != previousTargetOffset) {
         if (state.isAnimationRunning) {
             // Re-target the animation to the new offset if it changed
-            animateTo(newTarget, state.lastVelocity)
+            scope.launch { state.animateTo(newTarget, velocity = state.lastVelocity) }
         } else {
             // Snap to the new offset value of the target if no animation was running
-            snapTo(newTarget)
+            val didSnapSynchronously = state.trySnapTo(newTarget)
+            if (!didSnapSynchronously) scope.launch { state.snapTo(newTarget) }
         }
     }
 }
