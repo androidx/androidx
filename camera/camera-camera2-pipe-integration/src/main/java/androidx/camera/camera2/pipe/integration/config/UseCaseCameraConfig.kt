@@ -18,6 +18,7 @@
 
 package androidx.camera.camera2.pipe.integration.config
 
+import android.media.MediaCodec
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraId
@@ -30,6 +31,8 @@ import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.integration.adapter.CameraStateAdapter
 import androidx.camera.camera2.pipe.integration.adapter.SessionConfigAdapter
 import androidx.camera.camera2.pipe.integration.adapter.SessionConfigAdapter.Companion.toCamera2ImplConfig
+import androidx.camera.camera2.pipe.integration.compat.quirk.CameraQuirks
+import androidx.camera.camera2.pipe.integration.compat.quirk.CloseCaptureSessionOnVideoQuirk
 import androidx.camera.camera2.pipe.integration.compat.workaround.CapturePipelineTorchCorrection
 import androidx.camera.camera2.pipe.integration.impl.CameraCallbackMap
 import androidx.camera.camera2.pipe.integration.impl.CameraInteropStateCallbackRepository
@@ -82,6 +85,7 @@ abstract class UseCaseCameraModule {
 class UseCaseCameraConfig(
     private val useCases: List<UseCase>,
     private val cameraStateAdapter: CameraStateAdapter,
+    private val cameraQuirks: CameraQuirks,
     private val cameraGraphFlags: CameraGraph.Flags,
 ) {
     @UseCaseCameraScope
@@ -106,6 +110,7 @@ class UseCaseCameraConfig(
     ): UseCaseGraphConfig {
         val streamConfigMap = mutableMapOf<CameraStream.Config, DeferrableSurface>()
 
+        var containsVideo = false
         // TODO: This may need to combine outputs that are (or will) share the same output
         //  imageReader or surface.
         val sessionConfigAdapter = SessionConfigAdapter(useCases)
@@ -134,8 +139,25 @@ class UseCaseCameraConfig(
                     "Prepare config for: $deferrableSurface (${deferrableSurface.prescribedSize}," +
                         " ${deferrableSurface.prescribedStreamFormat})"
                 }
+                if (deferrableSurface.containerClass == MediaCodec::class.java) {
+                    containsVideo = true
+                }
             }
         }
+
+        val shouldCloseCaptureSessionOnDisconnect =
+            if (CameraQuirks.isImmediateSurfaceReleaseAllowed()) {
+                // If we can release Surfaces immediately, we'll finalize the session when the
+                // camera graph is closed (through FinalizeSessionOnCloseQuirk), and thus we won't
+                // need to explicitly close the capture session.
+                false
+            } else {
+                cameraQuirks.quirks.contains(CloseCaptureSessionOnVideoQuirk::class.java) &&
+                    containsVideo
+            }
+        val combinedFlags = cameraGraphFlags.copy(
+            quirkCloseCaptureSessionOnDisconnect = shouldCloseCaptureSessionOnDisconnect,
+        )
 
         // Build up a config (using TEMPLATE_PREVIEW by default)
         // TODO(b/277310425): Turn off CameraGraph.Flags.quirkFinalizeSessionOnCloseBehavior when
@@ -146,7 +168,7 @@ class UseCaseCameraConfig(
                 camera = cameraConfig.cameraId,
                 streams = streamConfigMap.keys.toList(),
                 defaultListeners = listOf(callbackMap, requestListener),
-                flags = cameraGraphFlags,
+                flags = combinedFlags,
             )
         )
 

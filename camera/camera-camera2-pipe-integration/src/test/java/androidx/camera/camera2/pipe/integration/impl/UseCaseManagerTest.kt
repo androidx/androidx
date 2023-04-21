@@ -22,6 +22,9 @@ import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.integration.adapter.CameraStateAdapter
 import androidx.camera.camera2.pipe.integration.adapter.RobolectricCameraPipeTestRunner
+import androidx.camera.camera2.pipe.integration.compat.StreamConfigurationMapCompat
+import androidx.camera.camera2.pipe.integration.compat.quirk.CameraQuirks
+import androidx.camera.camera2.pipe.integration.compat.workaround.OutputSizesCorrector
 import androidx.camera.camera2.pipe.integration.config.CameraConfig
 import androidx.camera.camera2.pipe.integration.impl.UseCaseCamera.RunningUseCasesChangeListener
 import androidx.camera.camera2.pipe.integration.interop.Camera2CameraControl
@@ -29,6 +32,7 @@ import androidx.camera.camera2.pipe.integration.interop.ExperimentalCamera2Inter
 import androidx.camera.camera2.pipe.integration.testing.FakeCamera2CameraControlCompat
 import androidx.camera.camera2.pipe.integration.testing.FakeCameraProperties
 import androidx.camera.camera2.pipe.integration.testing.FakeUseCaseCameraComponentBuilder
+import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.Preview
 import androidx.camera.core.UseCase
@@ -276,6 +280,10 @@ class UseCaseManagerTest {
         ),
         cameraStateAdapter = CameraStateAdapter(),
         cameraGraphFlags = CameraGraph.Flags(),
+        cameraQuirks = CameraQuirks(
+            FakeCameraMetadata(),
+            StreamConfigurationMapCompat(null, OutputSizesCorrector(FakeCameraMetadata(), null))
+        ),
         displayInfoManager = DisplayInfoManager(ApplicationProvider.getApplicationContext()),
     ).also {
         useCaseManagerList.add(it)

@@ -153,7 +153,30 @@ interface CameraGraph : AutoCloseable {
          */
         val quirkWaitForRepeatingRequestOnDisconnect: Boolean? = null,
 
+        /**
+         * A quirk that finalizes [androidx.camera.camera2.pipe.compat.CaptureSessionState] when
+         * the CameraGraph is stopped or closed. When a CameraGraph is started, the app might
+         * wait for the Surfaces to be released before setting the new Surfaces. This creates a
+         * potential deadlock, and this quirk is aimed to mitigate such behavior by releasing the
+         * Surfaces (finalizing the session) when the graph is stopped or closed.
+         *
+         * - Bug(s): b/277310425
+         * - Device(s): All (but behaviors might differ across devices)
+         * - API levels: All
+         */
         val quirkFinalizeSessionOnCloseBehavior: FinalizeSessionOnCloseBehavior = OFF,
+
+        /**
+         * A quirk that closes the camera capture session when the CameraGraph is stopped or closed.
+         * This is needed in cases where the app that do not wish to receive further frames, or
+         * in cases where not closing the capture session before closing the camera device might
+         * cause the camera close call itself to hang indefinitely.
+         *
+         * - Bug(s): b/277310425, b/277310425
+         * - Device(s): Depends on the situation and the use case.
+         * - API levels: All
+         */
+        val quirkCloseCaptureSessionOnDisconnect: Boolean = false,
     ) {
 
         @JvmInline
