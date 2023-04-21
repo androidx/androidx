@@ -268,15 +268,15 @@ inline fun ConstraintLayout(
             for (constraints in channel) {
                 val newConstraints = channel.tryReceive().getOrNull() ?: constraints
                 val currentConstraints =
-                    if (direction.value == 1) startConstraint else endConstraint
+                    if (direction.intValue == 1) startConstraint else endConstraint
                 if (newConstraints != currentConstraints) {
-                    if (direction.value == 1) {
+                    if (direction.intValue == 1) {
                         endConstraint = newConstraints
                     } else {
                         startConstraint = newConstraints
                     }
-                    progress.animateTo(direction.value.toFloat(), animationSpec)
-                    direction.value = if (direction.value == 1) 0 else 1
+                    progress.animateTo(direction.intValue.toFloat(), animationSpec)
+                    direction.intValue = if (direction.intValue == 1) 0 else 1
                     finishedAnimationListener?.invoke()
                 }
             }

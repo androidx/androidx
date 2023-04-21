@@ -502,9 +502,9 @@ class PlaceholderTest {
         expectedPlaceholderStage: PlaceholderStage = PlaceholderStage.ShowPlaceholder
     ) {
         val animationLoopStart =
-            (frameMillis.value.div(PLACEHOLDER_SHIMMER_GAP_BETWEEN_ANIMATION_LOOPS_MS) + 1) *
+            (frameMillis.longValue.div(PLACEHOLDER_SHIMMER_GAP_BETWEEN_ANIMATION_LOOPS_MS) + 1) *
                 PLACEHOLDER_SHIMMER_GAP_BETWEEN_ANIMATION_LOOPS_MS
-        frameMillis.value = animationLoopStart
+        frameMillis.longValue = animationLoopStart
         rule.waitForIdle()
         assertThat(placeholderStage).isEqualTo(expectedPlaceholderStage)
     }
