@@ -89,7 +89,9 @@ class DateTimeFormatJdkStylesTest {
         val jdkFormatter = DateFormat.getTimeInstance(javaStyle, locale)
         val options = DateTimeFormatterJdkStyleOptions.createTimeInstance(javaStyle)
         val compatFormatter = DateTimeFormatter(options, locale)
-        assertEquals(jdkFormatter.format(testCalendar.time), compatFormatter.format(testCalendar))
+        assertEquals(
+            Helper.normalizeNnbsp(jdkFormatter.format(testCalendar.time)),
+            Helper.normalizeNnbsp(compatFormatter.format(testCalendar)))
     }
 
     private fun checkDateTime(
@@ -101,7 +103,9 @@ class DateTimeFormatJdkStylesTest {
         val options =
             DateTimeFormatterJdkStyleOptions.createDateTimeInstance(javaDateStyle, javaTimeStyle)
         val compatFormatter = DateTimeFormatter(options, locale)
-        assertEquals(jdkFormatter.format(testCalendar.time), compatFormatter.format(testCalendar))
+        assertEquals(
+            Helper.normalizeNnbsp(jdkFormatter.format(testCalendar.time)),
+            Helper.normalizeNnbsp(compatFormatter.format(testCalendar)))
     }
 
     @Test @SmallTest
