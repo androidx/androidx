@@ -51,7 +51,7 @@ constructor(
     private val sessionUpdaterSupplier: Supplier<SessionUpdaterT>
 ) : Capability(id) {
 
-    override val appAction: AppAction =
+    override val appAction: AppAction get() =
         actionSpec
             .convertPropertyToProto(property)
             .toBuilder()
