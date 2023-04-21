@@ -53,6 +53,7 @@ android {
 androidx {
     name = "Android Glance Wear Tiles Preview"
     type = LibraryType.PUBLISHED_LIBRARY
+    mavenVersion = LibraryVersions.GLANCE_WEAR_TILES
     inceptionYear = "2022"
     description = "Glance tooling library. This library provides the API required for the " +
             "GlanceTileService components and its Glance @Composable to be previewable in the IDE."

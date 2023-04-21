@@ -57,8 +57,9 @@ ENTERPRISE = "1.1.0-rc01"
 EXIFINTERFACE = "1.4.0-alpha01"
 FRAGMENT = "1.6.0-beta01"
 FUTURES = "1.2.0-alpha01"
-GLANCE = "1.0.0-alpha06"
-GLANCE_TEMPLATE = "1.0.0-alpha01"
+GLANCE = "1.0.0-beta01"
+GLANCE_TEMPLATE = "1.0.0-alpha06"
+GLANCE_WEAR_TILES = "1.0.0-alpha06"
 GRAPHICS_CORE = "1.0.0-alpha04"
 GRAPHICS_FILTERS = "1.0.0-alpha01"
 GRAPHICS_SHAPES = "1.0.0-alpha02"
@@ -204,7 +205,6 @@ ENTERPRISE = { group = "androidx.enterprise", atomicGroupVersion = "versions.ENT
 EXIFINTERFACE = { group = "androidx.exifinterface", atomicGroupVersion = "versions.EXIFINTERFACE" }
 FRAGMENT = { group = "androidx.fragment", atomicGroupVersion = "versions.FRAGMENT" }
 GLANCE = { group = "androidx.glance", atomicGroupVersion = "versions.GLANCE" }
-GLANCE_TEMPLATE = { group = "androidx.template", atomicGroupVersion = "versions.GLANCE_TEMPLATE" }
 GRAPHICS = { group = "androidx.graphics" }
 GRAPHICS_FILTERS = { group = "androidx.graphics.filters", atomicGroupVersion = "versions.GRAPHICS_FILTERS" }
 GRIDLAYOUT = { group = "androidx.gridlayout", atomicGroupVersion = "versions.GRIDLAYOUT" }

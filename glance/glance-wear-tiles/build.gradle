@@ -92,6 +92,7 @@ android {
 androidx {
     name = "Glance for Wear Tiles"
     type = LibraryType.PUBLISHED_LIBRARY
+    mavenVersion = LibraryVersions.GLANCE_WEAR_TILES
     inceptionYear = "2021"
     description = "Glance allows developers to build layouts for Wear Tiles using a Jetpack " +
             "Compose-style API."
