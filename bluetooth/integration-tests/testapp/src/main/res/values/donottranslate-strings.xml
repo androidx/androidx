@@ -26,6 +26,13 @@
     <string name="stop_scanning">Stop scanning</string>
     <string name="scan_result_icon">Scan Result Icon</string>
     <string name="connect">Connect</string>
+    <string name="scan_results">Scan Results</string>
+    <string name="not_connected">Not Connected</string>
+    <string name="connecting">Connecting…</string>
+    <string name="connected">Connected</string>
+    <string name="connection_failed">Connection Failed</string>
+    <string name="generic_attribute">Generic Attribute</string>
+    <string name="primary_service">Primary Service</string>
 
     <!-- Advertiser -->
     <string name="configure_advertising_packet">Configure Advertising Packet</string>
