@@ -24,6 +24,7 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.net.Uri
 import android.os.Bundle
+import android.provider.Settings
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
@@ -44,6 +45,11 @@ class SdkApi(sdkContext: Context) : ISdkApi.Stub() {
         return BannerAd(isWebView).toCoreLibInfo(mContext!!)
     }
 
+    private fun isAirplaneModeOn(): Boolean {
+        return Settings.Global.getInt(
+            mContext?.contentResolver, Settings.Global.AIRPLANE_MODE_ON, 0) != 0
+    }
+
     private inner class BannerAd(private val isWebView: Boolean) : SandboxedUiAdapter {
         override fun openSession(
             context: Context,
@@ -56,6 +62,13 @@ class SdkApi(sdkContext: Context) : ISdkApi.Stub() {
             Log.d(TAG, "Session requested")
             lateinit var adView: View
             if (isWebView) {
+                // To test error cases.
+                if (isAirplaneModeOn()) {
+                    clientExecutor.execute {
+                        client.onSessionError(Throwable("Cannot load WebView in airplane mode."))
+                    }
+                    return
+                }
                 val webView = WebView(context)
                 webView.loadUrl(AD_URL)
                 webView.layoutParams = ViewGroup.LayoutParams(
@@ -120,6 +133,6 @@ class SdkApi(sdkContext: Context) : ISdkApi.Stub() {
 
     companion object {
         private const val TAG = "TestSandboxSdk"
-        private const val AD_URL = "http://www.google.com/"
+        private const val AD_URL = "https://www.google.com/"
     }
 }
