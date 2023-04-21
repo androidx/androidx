@@ -40,12 +40,7 @@ class DateTimeFormatterCommonOptionsTest {
     )
 
     @Test @SmallTest
-    @SdkSuppress(maxSdkVersion = 33) // b/262909049: Do not run this test on pre-release Android U.
     fun test() {
-        if (Build.VERSION.SDK_INT == 33 && Build.VERSION.CODENAME != "REL") {
-            return // b/262909049: Do not run this test on pre-release Android U.
-        }
-
         val commonFormats = mapOf(
             DateTimeFormatterCommonOptions.ABBR_MONTH_WEEKDAY_DAY to "Sun, Sep 19",
             DateTimeFormatterCommonOptions.ABBR_MONTH_DAY to "Sep 19",
