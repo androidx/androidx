@@ -26,7 +26,6 @@ import android.view.KeyEvent
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputConnection
-import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.text2.input.TextEditFilter
@@ -230,7 +229,7 @@ internal class AndroidTextInputAdapter constructor(
          * and grab the [InputConnection] to inject commands.
          */
         @TestOnly
-        @RestrictTo(RestrictTo.Scope.TESTS)
+        @VisibleForTesting
         fun setInputConnectionCreatedListenerForTests(
             listener: ((EditorInfo, InputConnection) -> Unit)?
         ) {

@@ -17,7 +17,6 @@ package androidx.emoji2.text;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
-import static androidx.annotation.RestrictTo.Scope.TESTS;
 
 import android.app.Application;
 import android.content.Context;
@@ -43,6 +42,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
+import androidx.annotation.VisibleForTesting;
 import androidx.collection.ArraySet;
 import androidx.core.util.Preconditions;
 
@@ -618,7 +618,7 @@ public class EmojiCompat {
      *
      * @hide
      */
-    @RestrictTo(TESTS)
+    @VisibleForTesting
     @Nullable
     public static EmojiCompat reset(@Nullable final EmojiCompat emojiCompat) {
         synchronized (INSTANCE_LOCK) {
@@ -632,7 +632,7 @@ public class EmojiCompat {
      *
      * @hide
      */
-    @RestrictTo(TESTS)
+    @VisibleForTesting
     public static void skipDefaultConfigurationLookup(boolean shouldSkip) {
         synchronized (CONFIG_LOCK) {
             sHasDoneDefaultConfigLookup = shouldSkip;

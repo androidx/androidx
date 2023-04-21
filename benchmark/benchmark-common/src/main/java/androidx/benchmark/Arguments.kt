@@ -19,6 +19,7 @@ package androidx.benchmark
 import android.os.Bundle
 import android.util.Log
 import androidx.annotation.RestrictTo
+import androidx.annotation.VisibleForTesting
 import androidx.test.platform.app.InstrumentationRegistry
 
 /**
@@ -26,13 +27,13 @@ import androidx.test.platform.app.InstrumentationRegistry
  *
  * @hide
  */
-@RestrictTo(RestrictTo.Scope.TESTS)
+@VisibleForTesting
 public var argumentSource: Bundle? = null
 
 /**
  * Allows tests to override profiler
  */
-@RestrictTo(RestrictTo.Scope.TESTS)
+@VisibleForTesting
 internal var profilerOverride: Profiler? = null
 
 /**

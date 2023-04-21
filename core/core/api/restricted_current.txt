@@ -894,7 +894,6 @@ package androidx.core.app {
   }
 
   public final class NotificationManagerCompat {
-    ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.TESTS) @VisibleForTesting protected NotificationManagerCompat(android.app.NotificationManager, android.content.Context);
     method public boolean areNotificationsEnabled();
     method public boolean canUseFullScreenIntent();
     method public void cancel(int);

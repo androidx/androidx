@@ -16,7 +16,6 @@
 package androidx.emoji2.text;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
-import static androidx.annotation.RestrictTo.Scope.TESTS;
 
 import android.annotation.SuppressLint;
 import android.graphics.Paint;
@@ -26,6 +25,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
+import androidx.annotation.VisibleForTesting;
 import androidx.core.util.Preconditions;
 
 /**
@@ -125,7 +125,7 @@ public abstract class EmojiSpan extends ReplacementSpan {
      *
      * @hide
      */
-    @RestrictTo(TESTS)
+    @VisibleForTesting
     public final int getHeight() {
         return mHeight;
     }
@@ -143,7 +143,7 @@ public abstract class EmojiSpan extends ReplacementSpan {
      *
      * @hide
      */
-    @RestrictTo(TESTS)
+    @VisibleForTesting
     public final int getId() {
         return getTypefaceRasterizer().getId();
     }

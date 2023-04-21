@@ -18,7 +18,7 @@ package androidx.camera.view;
 
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
+import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.Camera;
 import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraSelector;
@@ -68,6 +68,6 @@ interface ProcessCameraProviderWrapper {
      *
      */
     @NonNull
-    @RestrictTo(RestrictTo.Scope.TESTS)
+    @VisibleForTesting
     ListenableFuture<Void> shutdown();
 }
