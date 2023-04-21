@@ -27,6 +27,25 @@ Run tests for UIKit:
 ./gradlew :mpp:testUIKit
 ```
 
+### Publishing
+Compose Multiplatform core libraries can be published to local Maven with the following steps:
+1. Set `COMPOSE_CUSTOM_VERSION` environment variable
+```bash
+export COMPOSE_CUSTOM_VERSION=0.0.0-custom-version
+```
+2. Publish core libraries
+```bash
+./gradlew :mpp:publishComposeJbToMavenLocal -Pcompose.platforms=all
+```
+`-Pcompose.platforms=all` could be replace with comma-separated list of platforms, such as `js,jvm,androidDebug,androidRelease,macosx64,uikit`.
+
+3. Publish extended icons
+```bash
+./gradlew :mpp:publishComposeJbExtendedIconsToMavenLocal -Pcompose.platforms=all --max-workers=1
+```
+
+4. (Optional) Publish Gradle plugin using [instructions](https://github.com/JetBrains/compose-multiplatform/tree/master/compose#publishing) to check changes locally.
+
 ### Run samples
 Run jvm desktop samples:
 ```bash
