@@ -27,6 +27,7 @@ import android.util.Size;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.camera.core.DynamicRange;
 import androidx.camera.core.Logger;
 import androidx.camera.core.internal.compat.workaround.SurfaceSorter;
 
@@ -110,6 +111,17 @@ public final class SessionConfig {
         public abstract int getSurfaceGroupId();
 
         /**
+         * Returns the dynamic range for this output configuration.
+         *
+         * <p>The dynamic range will determine the dynamic range format and profile of pixels in
+         * the surfaces associated with this output configuration.
+         *
+         * <p>If not set, this defaults to {@link DynamicRange#SDR}.
+         */
+        @NonNull
+        public abstract DynamicRange getDynamicRange();
+
+        /**
          * Creates the {@link Builder} instance with specified {@link DeferrableSurface}.
          */
         @NonNull
@@ -118,7 +130,8 @@ public final class SessionConfig {
                     .setSurface(surface)
                     .setSharedSurfaces(Collections.emptyList())
                     .setPhysicalCameraId(null)
-                    .setSurfaceGroupId(SURFACE_GROUP_ID_NONE);
+                    .setSurfaceGroupId(SURFACE_GROUP_ID_NONE)
+                    .setDynamicRange(DynamicRange.SDR);
         }
 
         /**
@@ -155,6 +168,15 @@ public final class SessionConfig {
              */
             @NonNull
             public abstract Builder setSurfaceGroupId(int surfaceGroupId);
+
+            /**
+             * Returns the dynamic range for this output configuration.
+             *
+             * <p>The dynamic range will determine the dynamic range format and profile of pixels in
+             * the surfaces associated with this output configuration.
+             */
+            @NonNull
+            public abstract Builder setDynamicRange(@NonNull DynamicRange dynamicRange);
 
             /**
              * Creates the instance.
@@ -558,10 +580,27 @@ public final class SessionConfig {
         }
 
 
-        /** Add a surface to the set that the session repeatedly writes data to. */
+        /**
+         * Add a surface to the set that the session repeatedly writes data to.
+         *
+         * <p>The dynamic range of this surface will default to {@link DynamicRange#SDR}. To
+         * manually set the dynamic range, use {@link #addSurface(DeferrableSurface, DynamicRange)}.
+         */
         @NonNull
         public Builder addSurface(@NonNull DeferrableSurface surface) {
-            OutputConfig outputConfig = OutputConfig.builder(surface).build();
+            return addSurface(surface, DynamicRange.SDR);
+        }
+
+        /**
+         * Add a surface with the provided dynamic range to the set that the session repeatedly
+         * writes data to.
+         */
+        @NonNull
+        public Builder addSurface(@NonNull DeferrableSurface surface,
+                @NonNull DynamicRange dynamicRange) {
+            OutputConfig outputConfig = OutputConfig.builder(surface)
+                    .setDynamicRange(dynamicRange)
+                    .build();
             mOutputConfigs.add(outputConfig);
             mCaptureConfigBuilder.addSurface(surface);
             return this;
@@ -581,10 +620,28 @@ public final class SessionConfig {
             return this;
         }
 
-        /** Add a surface for the session which only used for single captures. */
+        /**
+         * Add a surface for the session which only used for single captures.
+         *
+         * <p>The dynamic range of this surface will default to {@link DynamicRange#SDR}. To
+         * manually set the dynamic range, use
+         * {@link #addNonRepeatingSurface(DeferrableSurface, DynamicRange)}.
+         */
         @NonNull
         public Builder addNonRepeatingSurface(@NonNull DeferrableSurface surface) {
-            OutputConfig outputConfig = OutputConfig.builder(surface).build();
+            return addNonRepeatingSurface(surface, DynamicRange.SDR);
+        }
+
+        /**
+         * Add a surface with the provided dynamic range for the session which only used for
+         * single captures.
+         */
+        @NonNull
+        public Builder addNonRepeatingSurface(@NonNull DeferrableSurface surface,
+                @NonNull DynamicRange dynamicRange) {
+            OutputConfig outputConfig = OutputConfig.builder(surface)
+                    .setDynamicRange(dynamicRange)
+                    .build();
             mOutputConfigs.add(outputConfig);
             return this;
         }

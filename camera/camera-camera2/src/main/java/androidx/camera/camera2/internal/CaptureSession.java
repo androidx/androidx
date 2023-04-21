@@ -22,6 +22,8 @@ import android.hardware.camera2.CameraCaptureSession.CaptureCallback;
 import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.TotalCaptureResult;
+import android.hardware.camera2.params.DynamicRangeProfiles;
+import android.os.Build;
 import android.view.Surface;
 
 import androidx.annotation.GuardedBy;
@@ -31,12 +33,15 @@ import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.impl.Camera2ImplConfig;
 import androidx.camera.camera2.impl.CameraEventCallbacks;
+import androidx.camera.camera2.internal.compat.params.DynamicRangeConversions;
+import androidx.camera.camera2.internal.compat.params.DynamicRangesCompat;
 import androidx.camera.camera2.internal.compat.params.InputConfigurationCompat;
 import androidx.camera.camera2.internal.compat.params.OutputConfigurationCompat;
 import androidx.camera.camera2.internal.compat.params.SessionConfigurationCompat;
 import androidx.camera.camera2.internal.compat.workaround.StillCaptureFlow;
 import androidx.camera.camera2.internal.compat.workaround.TorchStateReset;
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
+import androidx.camera.core.DynamicRange;
 import androidx.camera.core.Logger;
 import androidx.camera.core.impl.CameraCaptureCallback;
 import androidx.camera.core.impl.CaptureConfig;
@@ -135,11 +140,14 @@ final class CaptureSession implements CaptureSessionInterface {
     final StillCaptureFlow mStillCaptureFlow = new StillCaptureFlow();
     final TorchStateReset mTorchStateReset = new TorchStateReset();
 
+    private final DynamicRangesCompat mDynamicRangesCompat;
+
     /**
      * Constructor for CaptureSession.
      */
-    CaptureSession() {
+    CaptureSession(@NonNull DynamicRangesCompat dynamicRangesCompat) {
         mState = State.INITIALIZED;
+        mDynamicRangesCompat = dynamicRangesCompat;
         mCaptureSessionStateCallback = new StateCallback();
     }
 
@@ -416,6 +424,23 @@ final class CaptureSession implements CaptureSessionInterface {
                 outputConfiguration.addSurface(sharedSurface);
             }
         }
+
+        long dynamicRangeProfile = DynamicRangeProfiles.STANDARD;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            DynamicRange requestedDynamicRange = outputConfig.getDynamicRange();
+            Long dynamicRangeProfileOrNull =
+                    DynamicRangeConversions.dynamicRangeToFirstSupportedProfile(
+                            outputConfig.getDynamicRange(),
+                            mDynamicRangesCompat.toDynamicRangeProfiles());
+            if (dynamicRangeProfileOrNull == null) {
+                Logger.e(TAG, "Requested dynamic range is not supported. Defaulting to STANDARD "
+                        + "dynamic range profile.\nRequested dynamic range:\n  "
+                        + requestedDynamicRange);
+            } else {
+                dynamicRangeProfile = dynamicRangeProfileOrNull;
+            }
+        }
+        outputConfiguration.setDynamicRangeProfile(dynamicRangeProfile);
         return outputConfiguration;
     }
 

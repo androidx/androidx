@@ -58,6 +58,7 @@ dependencies {
     androidTestImplementation(project(":camera:camera-video"))
     androidTestImplementation(project(":internal-testutils-truth"))
     androidTestImplementation(project(":camera:camera-testlib-extensions"))
+    androidTestImplementation("androidx.concurrent:concurrent-futures-ktx:1.1.0")
     // To use the testlib to have the implementation of the extensions-stub interface.
 }
 

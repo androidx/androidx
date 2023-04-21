@@ -19,6 +19,7 @@ package androidx.camera.camera2.internal;
 import static android.os.Build.VERSION.SDK_INT;
 
 import static com.google.common.truth.Truth.assertThat;
+import static com.google.common.truth.Truth.assertWithMessage;
 
 import static junit.framework.TestCase.assertTrue;
 import static junit.framework.TestCase.fail;
@@ -39,11 +40,11 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import android.content.Context;
 import android.graphics.ImageFormat;
 import android.graphics.SurfaceTexture;
+import android.hardware.DataSpace;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCaptureSession;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraDevice;
-import android.hardware.camera2.CameraManager;
 import android.hardware.camera2.CameraMetadata;
 import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.CaptureResult;
@@ -58,17 +59,23 @@ import android.os.Looper;
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.Camera2Config;
 import androidx.camera.camera2.impl.Camera2ImplConfig;
 import androidx.camera.camera2.impl.CameraEventCallback;
 import androidx.camera.camera2.impl.CameraEventCallbacks;
 import androidx.camera.camera2.internal.CaptureSession.State;
+import androidx.camera.camera2.internal.compat.CameraAccessExceptionCompat;
+import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
+import androidx.camera.camera2.internal.compat.CameraManagerCompat;
+import androidx.camera.camera2.internal.compat.params.DynamicRangesCompat;
 import androidx.camera.camera2.internal.compat.params.OutputConfigurationCompat;
 import androidx.camera.camera2.internal.compat.params.SessionConfigurationCompat;
 import androidx.camera.camera2.internal.compat.quirk.ConfigureSurfaceToSecondarySessionFailQuirk;
 import androidx.camera.camera2.internal.compat.quirk.DeviceQuirks;
 import androidx.camera.camera2.internal.compat.quirk.PreviewOrientationIncorrectQuirk;
+import androidx.camera.core.DynamicRange;
 import androidx.camera.core.impl.CameraCaptureCallback;
 import androidx.camera.core.impl.CameraCaptureCallbacks;
 import androidx.camera.core.impl.CameraCaptureResult;
@@ -82,8 +89,10 @@ import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.camera.testing.CameraUtil;
+import androidx.camera.testing.SurfaceTextureProvider;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.os.HandlerCompat;
+import androidx.core.util.Preconditions;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
@@ -119,6 +128,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Tests for {@link CaptureSession}. This requires an environment where a valid {@link
@@ -131,6 +141,9 @@ import java.util.concurrent.TimeoutException;
 @SdkSuppress(minSdkVersion = 21)
 @RequiresApi(21)
 public final class CaptureSessionTest {
+    private static final DynamicRange DYNAMIC_RANGE_HLG10 =
+            new DynamicRange(DynamicRange.FORMAT_HLG, DynamicRange.BIT_DEPTH_10_BIT);
+
     /** Thread for all asynchronous calls. */
     private static HandlerThread sHandlerThread;
     /** Handler for all asynchronous calls. */
@@ -150,6 +163,10 @@ public final class CaptureSessionTest {
 
     private final List<CaptureSession> mCaptureSessions = new ArrayList<>();
     private final List<DeferrableSurface> mDeferrableSurfaces = new ArrayList<>();
+
+    private CameraCharacteristicsCompat mCameraCharacteristics;
+
+    private DynamicRangesCompat mDynamicRangesCompat;
 
     @Rule
     public TestRule getUseCameraRule() {
@@ -204,7 +221,20 @@ public final class CaptureSessionTest {
                 mScheduledExecutor, mHandler, mCaptureSessionRepository,
                 new Quirks(new ArrayList<>()), DeviceQuirks.getAll());
 
-        mCameraDeviceHolder = CameraUtil.getCameraDevice(
+        String cameraId = CameraUtil.getBackwardCompatibleCameraIdListOrThrow().get(0);
+        Context context = ApplicationProvider.getApplicationContext();
+        CameraManagerCompat cameraManager = CameraManagerCompat.from(context, mHandler);
+        try {
+            mCameraCharacteristics =
+                    cameraManager.getCameraCharacteristicsCompat(cameraId);
+        } catch (CameraAccessExceptionCompat e) {
+            throw new AssumptionViolatedException("Could not retrieve camera characteristics", e);
+        }
+
+        mDynamicRangesCompat =
+                DynamicRangesCompat.fromCameraCharacteristics(mCameraCharacteristics);
+
+        mCameraDeviceHolder = CameraUtil.getCameraDevice(cameraId,
                 mCaptureSessionRepository.getCameraStateCallback());
     }
 
@@ -279,17 +309,9 @@ public final class CaptureSessionTest {
     }
 
     private boolean isLegacyCamera() {
-        String cameraId = CameraUtil.getBackwardCompatibleCameraIdListOrThrow().get(0);
-        Context context = ApplicationProvider.getApplicationContext();
-        CameraManager cameraManager =
-                (CameraManager) context.getSystemService(Context.CAMERA_SERVICE);
-        try {
-            return cameraManager.getCameraCharacteristics(cameraId)
-                    .get(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL)
-                    == CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY;
-        } catch (CameraAccessException e) {
-        }
-        return false;
+        return Preconditions.checkNotNull(mCameraCharacteristics
+                .get(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL))
+                == CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY;
     }
 
     // Set stream use case is not supported before API 33
@@ -318,6 +340,26 @@ public final class CaptureSessionTest {
                 CameraMetadata.SCALER_AVAILABLE_STREAM_USE_CASES_PREVIEW);
         assertTrue(outputConfigurationCompat.getStreamUseCase()
                 == CameraMetadata.SCALER_AVAILABLE_STREAM_USE_CASES_PREVIEW);
+    }
+
+    @SdkSuppress(minSdkVersion = 33) // Can only verify data space on API 33+
+    @Test
+    public void openCaptureSessionWithDefault_usesSdrDynamicRange()
+            throws ExecutionException, InterruptedException, TimeoutException {
+        openCaptureSessionAndVerifyDynamicRangeApplied(
+                /*inputDynamicRange=*/null, // Should default to SDR
+                DataSpace.STANDARD_BT709,
+                DataSpace.TRANSFER_SRGB);
+    }
+
+    @SdkSuppress(minSdkVersion = 33) // HLG dynamic range only supported since API 33
+    @Test
+    public void openCaptureSessionWithHlgDynamicRange()
+            throws ExecutionException, InterruptedException, TimeoutException {
+        openCaptureSessionAndVerifyDynamicRangeApplied(
+                DYNAMIC_RANGE_HLG10,
+                DataSpace.STANDARD_BT2020,
+                DataSpace.TRANSFER_HLG);
     }
 
     // Sharing surface of YUV format is supported since API 28
@@ -1103,7 +1145,7 @@ public final class CaptureSessionTest {
     }
 
     private CaptureSession createCaptureSession() {
-        CaptureSession captureSession = new CaptureSession();
+        CaptureSession captureSession = new CaptureSession(mDynamicRangesCompat);
         mCaptureSessions.add(captureSession);
         return captureSession;
     }
@@ -1365,7 +1407,7 @@ public final class CaptureSessionTest {
         SynchronizedCaptureSessionOpener opener = new SynchronizedCaptureSessionOpener(fakeOpener);
         // Don't use #createCaptureSession since FakeOpenerImpl won't create CameraCaptureSession
         // so no need to be released.
-        CaptureSession captureSession = new CaptureSession();
+        CaptureSession captureSession = new CaptureSession(mDynamicRangesCompat);
         captureSession.open(sessionConfigBuilder.build(), mCameraDeviceHolder.get(), opener);
 
         ArgumentCaptor<SessionConfigurationCompat> captor =
@@ -1510,6 +1552,94 @@ public final class CaptureSessionTest {
 
         // Wait for #onReady which means there is no repeating request.
         verify(stateCallback, timeout(3000L)).onReady(any());
+    }
+
+    @RequiresApi(33) // SurfaceTexture.getDataSpace() was added in API 33
+    private void openCaptureSessionAndVerifyDynamicRangeApplied(
+            @Nullable DynamicRange inputDynamicRange,
+            int expectedColorStandard,
+            int expectedTransferFn)
+            throws ExecutionException, InterruptedException, TimeoutException {
+        // 1. Arrange
+        if (inputDynamicRange != null) {
+            // Only run test on devices that support the
+            assumeTrue(
+                    mDynamicRangesCompat.getSupportedDynamicRanges().contains(inputDynamicRange));
+        }
+
+        assumeFalse("Cuttlefish does not set the data space correctly for camera targets.",
+                Build.MODEL.contains("Cuttlefish"));
+
+        CountDownLatch latch0 = new CountDownLatch(1);
+        AtomicInteger dataSpace = new AtomicInteger(DataSpace.DATASPACE_UNKNOWN);
+        ListenableFuture<SurfaceTextureProvider.SurfaceTextureHolder> surfaceTextureHolderFuture =
+                SurfaceTextureProvider.createAutoDrainingSurfaceTextureAsync(mExecutor, 640, 480,
+                        surfaceTexture -> {
+                            dataSpace.set(surfaceTexture.getDataSpace());
+                            latch0.countDown();
+                        }, /* onClosed= */null);
+
+        DeferrableSurface deferrableSurface = new DeferrableSurface() {
+            @NonNull
+            @Override
+            protected ListenableFuture<Surface> provideSurface() {
+                return Futures.transform(surfaceTextureHolderFuture,
+                        surfaceTextureHolder -> {
+                            Surface surface = new Surface(surfaceTextureHolder.getSurfaceTexture());
+                            getTerminationFuture().addListener(surface::release, mExecutor);
+                            return surface;
+                        },
+                        CameraXExecutors.directExecutor());
+            }
+        };
+
+        deferrableSurface.getTerminationFuture().addListener(
+                () -> Futures.addCallback(surfaceTextureHolderFuture,
+                        new FutureCallback<SurfaceTextureProvider.SurfaceTextureHolder>() {
+                            @Override
+                            public void onSuccess(
+                                    @Nullable SurfaceTextureProvider.SurfaceTextureHolder result) {
+                                try {
+                                    Preconditions.checkNotNull(result).close();
+                                } catch (Exception e) {
+                                    throw new AssertionError("Unable to release SurfaceTexture", e);
+                                }
+                            }
+
+                            @Override
+                            public void onFailure(@NonNull Throwable t) {
+                                throw new AssertionError("Unable to retrieve SurfaceTexture", t);
+                            }
+                        }, mExecutor), CameraXExecutors.directExecutor());
+
+        mDeferrableSurfaces.add(deferrableSurface);
+
+        SessionConfig.OutputConfig.Builder outputConfigBuilder =
+                SessionConfig.OutputConfig.builder(deferrableSurface);
+        if (inputDynamicRange != null) {
+            outputConfigBuilder.setDynamicRange(inputDynamicRange);
+        }
+        SessionConfig sessionConfig =
+                new SessionConfig.Builder()
+                        .addOutputConfig(outputConfigBuilder.build())
+                        .setTemplateType(CameraDevice.TEMPLATE_PREVIEW)
+                        .build();
+
+        // 2. Act
+        CaptureSession captureSession = createCaptureSession();
+        captureSession.setSessionConfig(sessionConfig); // set repeating request
+        ListenableFuture<Void> future = captureSession.open(sessionConfig,
+                mCameraDeviceHolder.get(), mCaptureSessionOpenerBuilder.build());
+        future.get(2, TimeUnit.SECONDS);
+
+        // 3. Assert
+        assertWithMessage("Timed out while waiting for frame to be produced.")
+                .that(latch0.await(2, TimeUnit.SECONDS))
+                .isTrue();
+
+        // Ensure the dataspace matches what is expected
+        assertThat(DataSpace.getStandard(dataSpace.get())).isEqualTo(expectedColorStandard);
+        assertThat(DataSpace.getTransfer(dataSpace.get())).isEqualTo(expectedTransferFn);
     }
 
     /**
