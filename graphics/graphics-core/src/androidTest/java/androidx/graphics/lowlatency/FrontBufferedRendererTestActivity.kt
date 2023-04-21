@@ -17,24 +17,60 @@
 package androidx.graphics.lowlatency
 
 import android.app.Activity
+import android.content.Context
 import android.os.Bundle
+import android.view.SurfaceHolder
 import android.view.SurfaceView
 import android.view.ViewGroup
 
 class FrontBufferedRendererTestActivity : Activity() {
 
-    private lateinit var mSurfaceView: SurfaceView
+    private lateinit var mSurfaceView: TestSurfaceView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val surfaceView = SurfaceView(this).also { mSurfaceView = it }
+        val surfaceView = TestSurfaceView(this).also { mSurfaceView = it }
         setContentView(surfaceView, ViewGroup.LayoutParams(WIDTH, HEIGHT))
     }
 
-    fun getSurfaceView(): SurfaceView = mSurfaceView
+    fun getSurfaceView(): TestSurfaceView = mSurfaceView
 
     companion object {
         const val WIDTH = 100
         const val HEIGHT = 100
+    }
+
+    class TestSurfaceView(context: Context) : SurfaceView(context) {
+
+        private var mHolderWrapper: HolderWrapper? = null
+
+        override fun getHolder(): SurfaceHolder {
+            var wrapper = mHolderWrapper
+            if (wrapper == null) {
+                wrapper = HolderWrapper(super.getHolder()).also { mHolderWrapper = it }
+            }
+            return wrapper
+        }
+
+        fun getCallbackCount(): Int = mHolderWrapper?.mCallbacks?.size ?: 0
+
+        class HolderWrapper(val wrapped: SurfaceHolder) : SurfaceHolder by wrapped {
+
+            val mCallbacks = ArrayList<SurfaceHolder.Callback>()
+
+            override fun addCallback(callback: SurfaceHolder.Callback) {
+                if (!mCallbacks.contains(callback)) {
+                    mCallbacks.add(callback)
+                    wrapped.addCallback(callback)
+                }
+            }
+
+            override fun removeCallback(callback: SurfaceHolder.Callback) {
+                if (mCallbacks.contains(callback)) {
+                    mCallbacks.remove(callback)
+                    wrapped.removeCallback(callback)
+                }
+            }
+        }
     }
 }
