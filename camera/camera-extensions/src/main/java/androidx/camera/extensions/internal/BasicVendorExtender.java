@@ -19,7 +19,9 @@ package androidx.camera.extensions.internal;
 import android.content.Context;
 import android.graphics.ImageFormat;
 import android.hardware.camera2.CameraCharacteristics;
+import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.params.StreamConfigurationMap;
+import android.os.Build;
 import android.util.Pair;
 import android.util.Range;
 import android.util.Size;
@@ -28,6 +30,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
+import androidx.annotation.VisibleForTesting;
 import androidx.camera.camera2.interop.Camera2CameraInfo;
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
 import androidx.camera.core.CameraInfo;
@@ -50,10 +53,9 @@ import androidx.camera.extensions.internal.compat.workaround.ExtensionDisabledVa
 import androidx.camera.extensions.internal.sessionprocessor.BasicExtenderSessionProcessor;
 import androidx.core.util.Preconditions;
 
-import org.jetbrains.annotations.TestOnly;
-
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -69,6 +71,24 @@ public class BasicVendorExtender implements VendorExtender {
     private PreviewExtenderImpl mPreviewExtenderImpl = null;
     private ImageCaptureExtenderImpl mImageCaptureExtenderImpl = null;
     private CameraInfo mCameraInfo;
+
+    static final List<CaptureRequest.Key> sBaseSupportedKeys = new ArrayList<>(Arrays.asList(
+            CaptureRequest.SCALER_CROP_REGION,
+            CaptureRequest.CONTROL_AF_MODE,
+            CaptureRequest.CONTROL_AF_TRIGGER,
+            CaptureRequest.CONTROL_AF_REGIONS,
+            CaptureRequest.CONTROL_AE_REGIONS,
+            CaptureRequest.CONTROL_AWB_REGIONS,
+            CaptureRequest.CONTROL_AE_MODE,
+            CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER,
+            CaptureRequest.FLASH_MODE,
+            CaptureRequest.CONTROL_AE_EXPOSURE_COMPENSATION
+    ));
+    static {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            sBaseSupportedKeys.add(CaptureRequest.CONTROL_ZOOM_RATIO);
+        }
+    }
 
     public BasicVendorExtender(@ExtensionMode.Mode int mode) {
         try {
@@ -102,7 +122,7 @@ public class BasicVendorExtender implements VendorExtender {
         }
     }
 
-    @TestOnly
+    @VisibleForTesting
     BasicVendorExtender(ImageCaptureExtenderImpl imageCaptureExtenderImpl,
             PreviewExtenderImpl previewExtenderImpl) {
         mPreviewExtenderImpl = previewExtenderImpl;
@@ -285,11 +305,37 @@ public class BasicVendorExtender implements VendorExtender {
         return getOutputSizes(ImageFormat.YUV_420_888);
     }
 
+    @NonNull
+    private List<CaptureRequest.Key> getSupportedParameterKeys() {
+        if (ExtensionVersion.getRuntimeVersion().compareTo(Version.VERSION_1_3) >= 0) {
+            try {
+                List<CaptureRequest.Key> keys =
+                        Collections.unmodifiableList(
+                                mImageCaptureExtenderImpl.getAvailableCaptureRequestKeys());
+                if (keys == null) {
+                    keys = Collections.emptyList();
+                }
+                return keys;
+            } catch (Exception e) {
+                // it could crash on some OEMs.
+                Logger.e(TAG, "ImageCaptureExtenderImpl.getAvailableCaptureRequestKeys "
+                        + "throws exceptions", e);
+                return Collections.emptyList();
+            }
+        } else {
+            // For Basic Extender implementing v1.2 or below, we assume zoom/tap-to-focus/flash/EC
+            // are supported for compatibility reason.
+            return Collections.unmodifiableList(sBaseSupportedKeys);
+        }
+    }
+
     @Nullable
     @Override
     public SessionProcessor createSessionProcessor(@NonNull Context context) {
         Preconditions.checkNotNull(mCameraInfo, "VendorExtender#init() must be called first");
-        return new BasicExtenderSessionProcessor(mPreviewExtenderImpl, mImageCaptureExtenderImpl,
+        return new BasicExtenderSessionProcessor(
+                mPreviewExtenderImpl, mImageCaptureExtenderImpl,
+                getSupportedParameterKeys(),
                 context);
     }
 }

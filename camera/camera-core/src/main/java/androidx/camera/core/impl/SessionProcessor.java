@@ -24,7 +24,9 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.CameraInfo;
 
+import java.util.Collections;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * A processor for (1) transforming the surfaces used in Preview/ImageCapture/ImageAnalysis
@@ -124,6 +126,14 @@ public interface SessionProcessor {
      */
     default int startTrigger(@NonNull Config config, @NonNull CaptureCallback callback) {
         return -1;
+    }
+
+    /**
+     * Returns the supported camera operations when the SessionProcessor is enabled.
+     */
+    @NonNull
+    default @RestrictedCameraControl.CameraOperation Set<Integer> getSupportedCameraOperations() {
+        return Collections.emptySet();
     }
 
     /**
