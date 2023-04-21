@@ -40,6 +40,7 @@ import androidx.wear.protolayout.expression.pipeline.sensor.SensorGateway;
 import androidx.wear.protolayout.proto.LayoutElementProto.Layout;
 import androidx.wear.protolayout.proto.ResourceProto;
 import androidx.wear.protolayout.proto.StateProto.State;
+import androidx.wear.protolayout.renderer.ProtoLayoutExtensionViewProvider;
 import androidx.wear.protolayout.renderer.ProtoLayoutTheme;
 import androidx.wear.protolayout.renderer.ProtoLayoutVisibilityState;
 import androidx.wear.protolayout.renderer.dynamicdata.ProtoLayoutDynamicDataPipeline;
@@ -95,6 +96,8 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
     @NonNull private final ListeningExecutorService mUiExecutorService;
     @NonNull private final ListeningExecutorService mBgExecutorService;
     @NonNull private final String mClickableIdExtra;
+
+    @Nullable private final ProtoLayoutExtensionViewProvider mExtensionViewProvider;
 
     private final boolean mAnimationEnabled;
 
@@ -299,6 +302,7 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
         @NonNull private final LoadActionListener mLoadActionListener;
         @NonNull private final ListeningExecutorService mUiExecutorService;
         @NonNull private final ListeningExecutorService mBgExecutorService;
+        @Nullable private final ProtoLayoutExtensionViewProvider mExtensionViewProvider;
         @NonNull private final String mClickableIdExtra;
         private final boolean mAnimationEnabled;
         private final int mRunningAnimationsLimit;
@@ -317,6 +321,7 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
                 @NonNull LoadActionListener loadActionListener,
                 @NonNull ListeningExecutorService uiExecutorService,
                 @NonNull ListeningExecutorService bgExecutorService,
+                @Nullable ProtoLayoutExtensionViewProvider extensionViewProvider,
                 @NonNull String clickableIdExtra,
                 boolean animationEnabled,
                 int runningAnimationsLimit,
@@ -332,6 +337,7 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
             this.mLoadActionListener = loadActionListener;
             this.mUiExecutorService = uiExecutorService;
             this.mBgExecutorService = bgExecutorService;
+            this.mExtensionViewProvider = extensionViewProvider;
             this.mClickableIdExtra = clickableIdExtra;
             this.mAnimationEnabled = animationEnabled;
             this.mRunningAnimationsLimit = runningAnimationsLimit;
@@ -396,6 +402,13 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
             return mBgExecutorService;
         }
 
+        /** Returns provider for renderer extension. */
+        @RestrictTo(Scope.LIBRARY)
+        @Nullable
+        public ProtoLayoutExtensionViewProvider getExtensionViewProvider() {
+            return mExtensionViewProvider;
+        }
+
         /** Returns extra used for storing clickable id. */
         @NonNull
         public String getClickableIdExtra() {
@@ -444,6 +457,7 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
             @Nullable private LoadActionListener mLoadActionListener;
             @NonNull private final ListeningExecutorService mUiExecutorService;
             @NonNull private final ListeningExecutorService mBgExecutorService;
+            @Nullable private ProtoLayoutExtensionViewProvider mExtensionViewProvider;
             @NonNull private final String mClickableIdExtra;
             private boolean mAnimationEnabled = true;
             private int mRunningAnimationsLimit = DEFAULT_MAX_CONCURRENT_RUNNING_ANIMATIONS;
@@ -517,6 +531,15 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
             @NonNull
             public Builder setLoadActionListener(@NonNull LoadActionListener loadActionListener) {
                 this.mLoadActionListener = loadActionListener;
+                return this;
+            }
+
+            /** Sets provider for the renderer extension. */
+            @RestrictTo(Scope.LIBRARY)
+            @NonNull
+            public Builder setExtensionViewProvider(
+                    @NonNull ProtoLayoutExtensionViewProvider extensionViewProvider) {
+                this.mExtensionViewProvider = extensionViewProvider;
                 return this;
             }
 
@@ -596,6 +619,7 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
                         loadActionListener,
                         mUiExecutorService,
                         mBgExecutorService,
+                        mExtensionViewProvider,
                         mClickableIdExtra,
                         mAnimationEnabled,
                         mRunningAnimationsLimit,
@@ -614,6 +638,7 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
         this.mLoadActionListener = config.getLoadActionListener();
         this.mUiExecutorService = config.getUiExecutorService();
         this.mBgExecutorService = config.getBgExecutorService();
+        this.mExtensionViewProvider = config.getExtensionViewProvider();
         this.mAnimationEnabled = config.getAnimationEnabled();
         this.mClickableIdExtra = config.getClickableIdExtra();
         this.mAdaptiveUpdateRatesEnabled = config.getAdaptiveUpdateRatesEnabled();
@@ -665,6 +690,10 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
                         .setAllowLayoutChangingBindsWithoutDefault(true);
         if (mDataPipeline != null) {
             inflaterConfigBuilder.setDynamicDataPipeline(mDataPipeline);
+        }
+
+        if (mExtensionViewProvider != null) {
+            inflaterConfigBuilder.setExtensionViewProvider(mExtensionViewProvider);
         }
 
         ProtoLayoutInflater inflater = new ProtoLayoutInflater(inflaterConfigBuilder.build());

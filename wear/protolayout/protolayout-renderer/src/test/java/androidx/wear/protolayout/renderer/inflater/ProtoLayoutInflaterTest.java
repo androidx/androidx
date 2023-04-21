@@ -56,6 +56,7 @@ import android.os.Build.VERSION_CODES;
 import android.os.Looper;
 import android.os.SystemClock;
 import android.text.TextUtils.TruncateAt;
+import android.util.Pair;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.MeasureSpec;
@@ -66,6 +67,7 @@ import android.widget.FrameLayout;
 import android.widget.FrameLayout.LayoutParams;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.Space;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -115,6 +117,7 @@ import androidx.wear.protolayout.proto.DimensionProto.DegreesProp;
 import androidx.wear.protolayout.proto.DimensionProto.DpProp;
 import androidx.wear.protolayout.proto.DimensionProto.ExpandedAngularDimensionProp;
 import androidx.wear.protolayout.proto.DimensionProto.ExpandedDimensionProp;
+import androidx.wear.protolayout.proto.DimensionProto.ExtensionDimension;
 import androidx.wear.protolayout.proto.DimensionProto.ImageDimension;
 import androidx.wear.protolayout.proto.DimensionProto.ProportionalDimensionProp;
 import androidx.wear.protolayout.proto.DimensionProto.SpacerDimension;
@@ -128,6 +131,7 @@ import androidx.wear.protolayout.proto.LayoutElementProto.ArcText;
 import androidx.wear.protolayout.proto.LayoutElementProto.Box;
 import androidx.wear.protolayout.proto.LayoutElementProto.ColorFilter;
 import androidx.wear.protolayout.proto.LayoutElementProto.Column;
+import androidx.wear.protolayout.proto.LayoutElementProto.ExtensionLayoutElement;
 import androidx.wear.protolayout.proto.LayoutElementProto.FontStyle;
 import androidx.wear.protolayout.proto.LayoutElementProto.Image;
 import androidx.wear.protolayout.proto.LayoutElementProto.Layout;
@@ -200,6 +204,7 @@ import org.robolectric.shadows.ShadowPackageManager;
 import org.robolectric.shadows.ShadowSystemClock;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -2345,6 +2350,79 @@ public class ProtoLayoutInflaterTest {
         RatioViewWrapper rvw = (RatioViewWrapper) rootLayout.getChildAt(0);
         ImageView iv = (ImageView) rvw.getChildAt(0);
         assertThat(iv.getImageTintList().getDefaultColor()).isEqualTo(0xFFFFFFFF);
+    }
+
+    @Test
+    public void inflate_extension_onlySpaceIfNoExtension() {
+        byte[] payload = "Hello World".getBytes(StandardCharsets.UTF_8);
+        int size = 5;
+
+        ExtensionDimension dim =
+                ExtensionDimension.newBuilder().setLinearDimension(dp(size)).build();
+        LayoutElement rootElement =
+                LayoutElement.newBuilder()
+                        .setExtension(
+                                ExtensionLayoutElement.newBuilder()
+                                        .setExtensionId("foo")
+                                        .setPayload(ByteString.copyFrom(payload))
+                                        .setWidth(dim)
+                                        .setHeight(dim))
+                        .build();
+
+        FrameLayout inflatedLayout = renderer(fingerprintedLayout(rootElement)).inflate();
+
+        assertThat(inflatedLayout.getChildCount()).isEqualTo(1);
+        assertThat(inflatedLayout.getChildAt(0)).isInstanceOf(Space.class);
+
+        Space s = (Space) inflatedLayout.getChildAt(0);
+        assertThat(s.getMeasuredWidth()).isEqualTo(size);
+        assertThat(s.getMeasuredHeight()).isEqualTo(size);
+    }
+
+    @Test
+    public void inflate_rendererExtension_withExtension_callsExtension() {
+        List<Pair<byte[], String>> invokedExtensions = new ArrayList<>();
+
+        final byte[] payload = "Hello World".getBytes(StandardCharsets.UTF_8);
+        final int size = 5;
+        final String extensionId = "foo";
+
+        ExtensionDimension dim =
+                ExtensionDimension.newBuilder().setLinearDimension(dp(size)).build();
+        LayoutElement rootElement =
+                LayoutElement.newBuilder()
+                        .setExtension(
+                                ExtensionLayoutElement.newBuilder()
+                                        .setExtensionId(extensionId)
+                                        .setPayload(ByteString.copyFrom(payload))
+                                        .setWidth(dim)
+                                        .setHeight(dim))
+                        .build();
+
+        FrameLayout inflatedLayout =
+                renderer(
+                                newRendererConfigBuilder(fingerprintedLayout(rootElement))
+                                        .setExtensionViewProvider(
+                                                (extensionPayload, id) -> {
+                                                    invokedExtensions.add(
+                                                            new Pair<>(extensionPayload, id));
+                                                    TextView returnedView =
+                                                            new TextView(getApplicationContext());
+                                                    returnedView.setText("testing");
+
+                                                    return returnedView;
+                                                }))
+                        .inflate();
+
+        assertThat(inflatedLayout.getChildCount()).isEqualTo(1);
+        assertThat(inflatedLayout.getChildAt(0)).isInstanceOf(TextView.class);
+
+        TextView tv = (TextView) inflatedLayout.getChildAt(0);
+        assertThat(tv.getText().toString()).isEqualTo("testing");
+
+        assertThat(invokedExtensions).hasSize(1);
+        assertThat(invokedExtensions.get(0).first).isEqualTo(payload);
+        assertThat(invokedExtensions.get(0).second).isEqualTo(extensionId);
     }
 
     @Test

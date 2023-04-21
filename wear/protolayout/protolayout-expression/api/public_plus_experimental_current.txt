@@ -275,6 +275,9 @@ package androidx.wear.protolayout.expression {
   public static interface DynamicBuilders.DynamicType {
   }
 
+  @RequiresOptIn(level=androidx.annotation.RequiresOptIn.Level.ERROR) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.TYPE, java.lang.annotation.ElementType.FIELD}) public @interface ExperimentalProtoLayoutExtensionApi {
+  }
+
   @androidx.wear.protolayout.expression.ProtoLayoutExperimental public class PlatformHealthSources {
     method @RequiresApi(android.os.Build.VERSION_CODES.Q) @RequiresPermission(android.Manifest.permission.ACTIVITY_RECOGNITION) @androidx.wear.protolayout.expression.ProtoLayoutExperimental public static androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32 dailySteps();
     method @RequiresPermission(android.Manifest.permission.BODY_SENSORS) @androidx.wear.protolayout.expression.ProtoLayoutExperimental public static androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32 heartRateBpm();

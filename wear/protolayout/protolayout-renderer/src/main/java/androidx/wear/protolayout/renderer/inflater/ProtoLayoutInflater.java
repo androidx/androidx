@@ -116,6 +116,7 @@ import androidx.wear.protolayout.proto.DimensionProto.SpProp;
 import androidx.wear.protolayout.proto.DimensionProto.SpacerDimension;
 import androidx.wear.protolayout.proto.DimensionProto.WrappedDimensionProp;
 import androidx.wear.protolayout.proto.FingerprintProto.NodeFingerprint;
+import androidx.wear.protolayout.proto.LayoutElementProto.ExtensionLayoutElement;
 import androidx.wear.protolayout.proto.LayoutElementProto.Arc;
 import androidx.wear.protolayout.proto.LayoutElementProto.ArcLayoutElement;
 import androidx.wear.protolayout.proto.LayoutElementProto.ArcLine;
@@ -161,6 +162,7 @@ import androidx.wear.protolayout.proto.TriggerProto.OnConditionMetTrigger;
 import androidx.wear.protolayout.proto.TriggerProto.OnLoadTrigger;
 import androidx.wear.protolayout.proto.TriggerProto.Trigger;
 import androidx.wear.protolayout.proto.TypesProto.StringProp;
+import androidx.wear.protolayout.renderer.ProtoLayoutExtensionViewProvider;
 import androidx.wear.protolayout.renderer.ProtoLayoutTheme;
 import androidx.wear.protolayout.renderer.ProtoLayoutTheme.FontSet;
 import androidx.wear.protolayout.renderer.R;
@@ -271,6 +273,8 @@ public final class ProtoLayoutInflater {
     private final ResourceResolvers mLayoutResourceResolvers;
 
     private final Optional<ProtoLayoutDynamicDataPipeline> mDataPipeline;
+
+    @Nullable private final ProtoLayoutExtensionViewProvider mExtensionViewProvider;
 
     private final boolean mAllowLayoutChangingBindsWithoutDefault;
     final String mClickableIdExtra;
@@ -490,6 +494,7 @@ public final class ProtoLayoutInflater {
         @NonNull private final ProtoLayoutTheme mProtoLayoutTheme;
         @Nullable private final ProtoLayoutDynamicDataPipeline mDataPipeline;
         @NonNull private final String mClickableIdExtra;
+        @Nullable private final ProtoLayoutExtensionViewProvider mExtensionViewProvider;
         private final boolean mAnimationEnabled;
         private final boolean mAllowLayoutChangingBindsWithoutDefault;
 
@@ -502,6 +507,7 @@ public final class ProtoLayoutInflater {
                 @NonNull Resources rendererResources,
                 @NonNull ProtoLayoutTheme protoLayoutTheme,
                 @Nullable ProtoLayoutDynamicDataPipeline dataPipeline,
+                @Nullable ProtoLayoutExtensionViewProvider extensionViewProvider,
                 @NonNull String clickableIdExtra,
                 boolean animationEnabled,
                 boolean allowLayoutChangingBindsWithoutDefault) {
@@ -516,6 +522,7 @@ public final class ProtoLayoutInflater {
             this.mAnimationEnabled = animationEnabled;
             this.mAllowLayoutChangingBindsWithoutDefault = allowLayoutChangingBindsWithoutDefault;
             this.mClickableIdExtra = clickableIdExtra;
+            this.mExtensionViewProvider = extensionViewProvider;
         }
 
         /** A {@link Context} suitable for interacting with UI. */
@@ -581,6 +588,12 @@ public final class ProtoLayoutInflater {
             return mClickableIdExtra;
         }
 
+        /** View provider for the renderer extension. */
+        @Nullable
+        public ProtoLayoutExtensionViewProvider getExtensionViewProvider() {
+            return mExtensionViewProvider;
+        }
+
         /** Whether animation is enabled, which decides whether to load contentUpdateAnimations. */
         public boolean getAnimationEnabled() {
             return mAnimationEnabled;
@@ -609,6 +622,7 @@ public final class ProtoLayoutInflater {
             private boolean mAllowLayoutChangingBindsWithoutDefault = false;
             @Nullable private String mClickableIdExtra;
 
+            @Nullable private ProtoLayoutExtensionViewProvider mExtensionViewProvider = null;
             /**
              * @param uiContext A {@link Context} suitable for interacting with UI with.
              * @param layout The layout to be rendered.
@@ -679,6 +693,14 @@ public final class ProtoLayoutInflater {
                 return this;
             }
 
+            /** Sets the view provider for the renderer extension. */
+            @NonNull
+            public Builder setExtensionViewProvider(
+                    @NonNull ProtoLayoutExtensionViewProvider extensionViewProvider) {
+                this.mExtensionViewProvider = extensionViewProvider;
+                return this;
+            }
+
             /**
              * Sets whether animation is enabled, which decides whether to load
              * contentUpdateAnimations. Defaults to true.
@@ -738,6 +760,7 @@ public final class ProtoLayoutInflater {
                         mRendererResources,
                         checkNotNull(mProtoLayoutTheme),
                         mDataPipeline,
+                        mExtensionViewProvider,
                         checkNotNull(mClickableIdExtra),
                         mAnimationEnabled,
                         mAllowLayoutChangingBindsWithoutDefault);
@@ -763,6 +786,7 @@ public final class ProtoLayoutInflater {
         this.mAllowLayoutChangingBindsWithoutDefault =
                 config.getAllowLayoutChangingBindsWithoutDefault();
         this.mClickableIdExtra = config.getClickableIdExtra();
+        this.mExtensionViewProvider = config.getExtensionViewProvider();
     }
 
     private int safeDpToPx(float dp) {
@@ -3152,7 +3176,13 @@ public final class ProtoLayoutInflater {
                                 pipelineMaker);
                 break;
             case EXTENSION:
-                // TODO(b/276703002): Add support for vendor extension.
+                try {
+                    inflatedView =
+                            inflateExtension(
+                                    parentViewWrapper, element.getExtension());
+                } catch (IllegalStateException ex) {
+                    Log.w(TAG, "Error inflating Extension.", ex);
+                }
                 break;
             case INNER_NOT_SET:
                 Log.w(TAG, "Unknown child type: " + element.getInnerCase().name());
@@ -3178,6 +3208,56 @@ public final class ProtoLayoutInflater {
             pipelineMaker.ifPresent(pipe -> pipe.rememberNode(nodePosId));
         }
         return inflatedView;
+    }
+
+    @Nullable
+    private InflatedView inflateExtension(
+            ParentViewWrapper parentViewWrapper, ExtensionLayoutElement element) {
+        int widthPx = safeDpToPx(element.getWidth().getLinearDimension());
+        int heightPx = safeDpToPx(element.getHeight().getLinearDimension());
+
+        if (widthPx == 0 && heightPx == 0) {
+            return null;
+        }
+
+        if (mExtensionViewProvider == null) {
+            Log.e(TAG, "Layout has extension payload, but no extension provider is available.");
+            return inflateFailedExtension(parentViewWrapper, element);
+        }
+
+        View view =
+                mExtensionViewProvider.provideView(
+                        element.getPayload().toByteArray(), element.getExtensionId());
+
+        if (view == null) {
+            Log.w(TAG, "Extension view provider returned null.");
+            // A failed extension should still occupy space.
+            return inflateFailedExtension(parentViewWrapper, element);
+        }
+
+        if (view.getTag() != null) {
+            throw new IllegalStateException("Extension must not set View's default tag");
+        }
+
+        LayoutParams lp = new LayoutParams(widthPx, heightPx);
+        parentViewWrapper.maybeAddView(view, lp);
+
+        return new InflatedView(
+                view, parentViewWrapper.getParentProperties().applyPendingChildLayoutParams(lp));
+    }
+
+    private InflatedView inflateFailedExtension(
+            ParentViewWrapper parentViewWrapper, ExtensionLayoutElement element) {
+        int widthPx = safeDpToPx(element.getWidth().getLinearDimension());
+        int heightPx = safeDpToPx(element.getHeight().getLinearDimension());
+
+        Space space = new Space(mUiContext);
+
+        LayoutParams lp = new LayoutParams(widthPx, heightPx);
+        parentViewWrapper.maybeAddView(space, lp);
+
+        return new InflatedView(
+                space, parentViewWrapper.getParentProperties().applyPendingChildLayoutParams(lp));
     }
 
     /**
