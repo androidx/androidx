@@ -184,7 +184,7 @@ private class AnimateItemPlacementNode(
     animationSpec: FiniteAnimationSpec<IntOffset>
 ) : DelegatingNode(), ParentDataModifierNode {
 
-    val delegatingNode = delegated { LazyLayoutAnimateItemModifierNode(animationSpec) }
+    val delegatingNode = delegate(LazyLayoutAnimateItemModifierNode(animationSpec))
 
     override fun Density.modifyParentData(parentData: Any?): Any = delegatingNode
 }

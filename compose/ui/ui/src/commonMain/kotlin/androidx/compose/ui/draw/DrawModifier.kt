@@ -111,7 +111,7 @@ private data class DrawBehindElement(
 }
 
 @OptIn(ExperimentalComposeUiApi::class)
-private class DrawBackgroundModifier(
+internal class DrawBackgroundModifier(
     var onDraw: DrawScope.() -> Unit
 ) : Modifier.Node(), DrawModifierNode {
 
