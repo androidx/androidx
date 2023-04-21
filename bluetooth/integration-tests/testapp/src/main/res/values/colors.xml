@@ -21,6 +21,4 @@
     <color name="green_500">#4CAF50</color>
     <color name="red_500">#F44336</color>
     <color name="black">#FF000000</color>
-    <color name="purple_500">#FF6200EE</color>
-    <color name="black_alpha_50">#80000000</color>
 </resources>
