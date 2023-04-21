@@ -38,7 +38,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.structuralEqualityPolicy
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.layout.IntrinsicMeasurable
@@ -95,16 +94,16 @@ class ScrollState(initial: Int) : ScrollableState {
     /**
      * current scroll position value in pixels
      */
-    var value: Int by mutableStateOf(initial, structuralEqualityPolicy())
+    var value: Int by mutableStateOf(initial)
         private set
 
     /**
      * maximum bound for [value], or [Int.MAX_VALUE] if still unknown
      */
     var maxValue: Int
-        get() = _maxValueState.value
+        get() = _maxValueState.intValue
         internal set(newMax) {
-            _maxValueState.value = newMax
+            _maxValueState.intValue = newMax
             if (value > newMax) {
                 value = newMax
             }
@@ -113,7 +112,7 @@ class ScrollState(initial: Int) : ScrollableState {
     /**
      * Size of the viewport on the scrollable axis, or 0 if still unknown.
      */
-    internal var viewportSize: Int by mutableStateOf(0, structuralEqualityPolicy())
+    internal var viewportSize: Int by mutableStateOf(0)
 
     /**
      * [InteractionSource] that will be used to dispatch drag events when this
@@ -124,7 +123,7 @@ class ScrollState(initial: Int) : ScrollableState {
 
     internal val internalInteractionSource: MutableInteractionSource = MutableInteractionSource()
 
-    private var _maxValueState = mutableStateOf(Int.MAX_VALUE, structuralEqualityPolicy())
+    private var _maxValueState = mutableStateOf(Int.MAX_VALUE)
 
     /**
      * We receive scroll events in floats but represent the scroll position in ints so we have to

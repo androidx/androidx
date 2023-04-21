@@ -25,10 +25,10 @@ import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.FloatState
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
-import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -97,12 +97,12 @@ internal open class CarouselSwipeableState<T>(
      * You should use this state to offset your content accordingly. The recommended way is to
      * use `Modifier.offsetPx`. This includes the resistance by default, if resistance is enabled.
      */
-    val offset: State<Float> get() = offsetState
+    val offset: FloatState get() = offsetState
 
     /**
      * The amount by which the [carouselSwipeable] has been swiped past its bounds.
      */
-    val overflow: State<Float> get() = overflowState
+    val overflow: FloatState get() = overflowState
 
     // Use `Float.NaN` as a placeholder while the state is uninitialised.
     private val offsetState = mutableStateOf(0f)
@@ -132,8 +132,8 @@ internal open class CarouselSwipeableState<T>(
             requireNotNull(initialOffset) {
                 "The initial value must have an associated anchor."
             }
-            offsetState.value = initialOffset
-            absoluteOffset.value = initialOffset
+            offsetState.floatValue = initialOffset
+            absoluteOffset.floatValue = initialOffset
         }
     }
 
@@ -168,10 +168,10 @@ internal open class CarouselSwipeableState<T>(
                 newState ?: newAnchors.keys.minByOrNull { abs(it - animationTargetValue) }!!
             } else {
                 // we're not animating, proceed by finding the new anchors for an old value
-                val actualOldValue = oldAnchors[offset.value]
+                val actualOldValue = oldAnchors[offset.floatValue]
                 val value = if (actualOldValue == currentValue) currentValue else actualOldValue
                 newAnchors.getOffset(value) ?: newAnchors
-                    .keys.minByOrNull { abs(it - offset.value) }!!
+                    .keys.minByOrNull { abs(it - offset.floatValue) }!!
             }
             try {
                 animateInternalToOffset(targetOffset, animationSpec)
@@ -193,24 +193,24 @@ internal open class CarouselSwipeableState<T>(
     internal var resistance: ResistanceConfig? by mutableStateOf(null)
 
     internal val draggableState = DraggableState {
-        val newAbsolute = absoluteOffset.value + it
+        val newAbsolute = absoluteOffset.floatValue + it
         val clamped = newAbsolute.coerceIn(minBound, maxBound)
         val overflow = newAbsolute - clamped
         val resistanceDelta = resistance?.computeResistance(overflow) ?: 0f
-        offsetState.value = clamped + resistanceDelta
-        overflowState.value = overflow
-        absoluteOffset.value = newAbsolute
+        offsetState.floatValue = clamped + resistanceDelta
+        overflowState.floatValue = overflow
+        absoluteOffset.floatValue = newAbsolute
     }
 
     private suspend fun snapInternalToOffset(target: Float) {
         draggableState.drag {
-            dragBy(target - absoluteOffset.value)
+            dragBy(target - absoluteOffset.floatValue)
         }
     }
 
     private suspend fun animateInternalToOffset(target: Float, spec: AnimationSpec<Float>) {
         draggableState.drag {
-            var prevValue = absoluteOffset.value
+            var prevValue = absoluteOffset.floatValue
             animationTarget.value = target
             isAnimationRunning = true
             try {
@@ -236,8 +236,8 @@ internal open class CarouselSwipeableState<T>(
         get() {
             // TODO(calintat): Track current velocity (b/149549482) and use that here.
             val target = animationTarget.value ?: computeTarget(
-                offset = offset.value,
-                lastValue = anchors.getOffset(currentValue) ?: offset.value,
+                offset = offset.floatValue,
+                lastValue = anchors.getOffset(currentValue) ?: offset.floatValue,
                 anchors = anchors.keys,
                 thresholds = thresholds,
                 velocity = 0f,
@@ -253,7 +253,7 @@ internal open class CarouselSwipeableState<T>(
      */
     val progress: SwipeProgress<T>
         get() {
-            val bounds = findBounds(offset.value, anchors.keys)
+            val bounds = findBounds(offset.floatValue, anchors.keys)
             val from: T
             val to: T
             val fraction: Float
@@ -277,7 +277,7 @@ internal open class CarouselSwipeableState<T>(
                         }
                     from = anchors.getValue(a)
                     to = anchors.getValue(b)
-                    fraction = (offset.value - a) / (b - a)
+                    fraction = (offset.floatValue - a) / (b - a)
                 }
             }
             return SwipeProgress(from, to, fraction)
@@ -290,7 +290,7 @@ internal open class CarouselSwipeableState<T>(
      * moving from right to left or bottom to top, or 0f if no swipe or animation is in progress.
      */
     val direction: Float
-        get() = anchors.getOffset(currentValue)?.let { sign(offset.value - it) } ?: 0f
+        get() = anchors.getOffset(currentValue)?.let { sign(offset.floatValue - it) } ?: 0f
 
     /**
      * Set the state without any animation and suspend until it's set
@@ -323,7 +323,7 @@ internal open class CarouselSwipeableState<T>(
                 }
                 animateInternalToOffset(targetOffset, anim)
             } finally {
-                val endOffset = absoluteOffset.value
+                val endOffset = absoluteOffset.floatValue
                 val endValue = anchors
                     // fighting rounding error once again, anchor should be as close as 0.5 pixels
                     .filterKeys { anchorOffset -> abs(anchorOffset - endOffset) < 0.5f }
@@ -350,7 +350,7 @@ internal open class CarouselSwipeableState<T>(
         latestNonEmptyAnchorsFlow.collect { anchors ->
             val lastAnchor = anchors.getOffset(currentValue)!!
             val targetValue = computeTarget(
-                offset = offset.value,
+                offset = offset.floatValue,
                 lastValue = lastAnchor,
                 anchors = anchors.keys,
                 thresholds = thresholds,
@@ -381,9 +381,9 @@ internal open class CarouselSwipeableState<T>(
      * @return the amount of [delta] consumed
      */
     fun performDrag(delta: Float): Float {
-        val potentiallyConsumed = absoluteOffset.value + delta
+        val potentiallyConsumed = absoluteOffset.floatValue + delta
         val clamped = potentiallyConsumed.coerceIn(minBound, maxBound)
-        val deltaToConsume = clamped - absoluteOffset.value
+        val deltaToConsume = clamped - absoluteOffset.floatValue
         if (abs(deltaToConsume) > 0) {
             draggableState.dispatchRawDelta(deltaToConsume)
         }
@@ -849,7 +849,7 @@ internal val <T> CarouselSwipeableState<T>.PreUpPostDownNestedScrollConnection:
 
         override suspend fun onPreFling(available: Velocity): Velocity {
             val toFling = Offset(available.x, available.y).toFloat()
-            return if (toFling < 0 && offset.value > minBound) {
+            return if (toFling < 0 && offset.floatValue > minBound) {
                 performFling(velocity = toFling)
                 // since we go to the anchor with tween settling, consume all for the best UX
                 available

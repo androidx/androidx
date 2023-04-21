@@ -18,8 +18,7 @@ package androidx.tv.foundation.lazy.list
 
 import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.State
+import androidx.compose.runtime.IntState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.LayoutModifier
@@ -37,11 +36,11 @@ import kotlin.math.roundToInt
 
 internal class TvLazyListItemScopeImpl : TvLazyListItemScope {
 
-    private var maxWidthState: MutableState<Int> = mutableStateOf(Int.MAX_VALUE)
-    private var maxHeightState: MutableState<Int> = mutableStateOf(Int.MAX_VALUE)
+    private val maxWidthState = mutableStateOf(Int.MAX_VALUE)
+    private val maxHeightState = mutableStateOf(Int.MAX_VALUE)
     fun setMaxSize(width: Int, height: Int) {
-        maxWidthState.value = width
-        maxHeightState.value = height
+        maxWidthState.intValue = width
+        maxHeightState.intValue = height
     }
 
     override fun Modifier.fillParentMaxSize(fraction: Float) = then(
@@ -90,21 +89,21 @@ internal class TvLazyListItemScopeImpl : TvLazyListItemScope {
 private class ParentSizeModifier(
     val fraction: Float,
     inspectorInfo: InspectorInfo.() -> Unit,
-    val widthState: State<Int>? = null,
-    val heightState: State<Int>? = null,
+    val widthState: IntState? = null,
+    val heightState: IntState? = null,
 ) : LayoutModifier, InspectorValueInfo(inspectorInfo) {
 
     override fun MeasureScope.measure(
         measurable: Measurable,
         constraints: Constraints
     ): MeasureResult {
-        val width = if (widthState != null && widthState.value != Constraints.Infinity) {
-            (widthState.value * fraction).roundToInt()
+        val width = if (widthState != null && widthState.intValue != Constraints.Infinity) {
+            (widthState.intValue * fraction).roundToInt()
         } else {
             Constraints.Infinity
         }
-        val height = if (heightState != null && heightState.value != Constraints.Infinity) {
-            (heightState.value * fraction).roundToInt()
+        val height = if (heightState != null && heightState.intValue != Constraints.Infinity) {
+            (heightState.intValue * fraction).roundToInt()
         } else {
             Constraints.Infinity
         }
