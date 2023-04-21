@@ -73,7 +73,6 @@ fun MultiParagraph.onCanvas(
     return bitmap
 }
 
-@OptIn(ExperimentalTextApi::class)
 fun Paragraph.bitmap(
     color: Color = Color.Unspecified,
     shadow: Shadow? = null,
@@ -93,7 +92,6 @@ fun Paragraph.bitmap(
     }
 }
 
-@OptIn(ExperimentalTextApi::class)
 fun Paragraph.bitmap(
     brush: Brush,
     alpha: Float,
@@ -123,7 +121,6 @@ fun Paragraph.bitmap(
  * We have to re-specify the brush during paint(draw) to apply it according to the total size of
  * MultiParagraph.
  */
-@OptIn(ExperimentalTextApi::class)
 fun MultiParagraph.bitmap(
     brush: Brush? = null,
     alpha: Float = Float.NaN,

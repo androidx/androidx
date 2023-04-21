@@ -102,7 +102,6 @@ class FontListFontFamilyTypefaceAdapterTest {
         fontLoader.cacheKey
     )
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun onResolve_onlyBlockingFonts_doesNotLoad() {
         val expected = Typeface.MONOSPACE
@@ -117,7 +116,6 @@ class FontListFontFamilyTypefaceAdapterTest {
         assertThat(result).isImmutableTypefaceOf(expected)
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun onResolve_blockingAndAsyncFonts_matchesBlocking_doesLoad() {
         val expected = Typeface.MONOSPACE
@@ -365,7 +363,6 @@ class FontListFontFamilyTypefaceAdapterTest {
         )
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun onResolve_optionalAndAsyncFonts_matchesOptional_doesLoad() {
         val expected = Typeface.MONOSPACE
@@ -470,7 +467,6 @@ class FontListFontFamilyTypefaceAdapterTest {
         scope.advanceUntilIdle()
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun onResolve_optionalAndAsyncAndBlockingFonts_matchesOptional_doesNotLoadBlockingAsync() {
         val asyncFont = AsyncFauxFont(typefaceLoader)
@@ -689,7 +685,6 @@ class FontListFontFamilyTypefaceAdapterTest {
         requestAndCompleteOnRealDispatcher()
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun runtimeExceptionOnRealDispatcher_informsExceptionHandler() {
         val exception: CompletableDeferred<Throwable> = CompletableDeferred()

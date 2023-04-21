@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-@file:OptIn(ExperimentalTextApi::class)
-
 package androidx.compose.ui.text
 
 import com.google.common.truth.Truth.assertThat
@@ -23,7 +21,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-@Suppress("DEPRECATION")
 @RunWith(JUnit4::class)
 class PlatformParagraphStyleTest {
 

@@ -56,7 +56,6 @@ import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
 class TextStyleTest {
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun `constructor with default values`() {
         val style = TextStyle()
@@ -85,7 +84,6 @@ class TextStyleTest {
         assertThat(style.lineBreak).isNull()
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun `constructor with customized brush`() {
         val brush = Brush.linearGradient(colors = listOf(Color.Blue, Color.Red))
@@ -95,7 +93,6 @@ class TextStyleTest {
         assertThat(style.brush).isEqualTo(brush)
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun `constructor with customized brush and alpha`() {
         val brush = Brush.linearGradient(colors = listOf(Color.Blue, Color.Red))
@@ -106,7 +103,6 @@ class TextStyleTest {
         assertThat(style.alpha).isEqualTo(0.3f)
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun `constructor with gradient brush has unspecified color`() {
         val brush = Brush.linearGradient(colors = listOf(Color.Blue, Color.Red))
@@ -116,7 +112,6 @@ class TextStyleTest {
         assertThat(style.color).isEqualTo(Color.Unspecified)
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun `constructor with SolidColor converts to regular color`() {
         val brush = SolidColor(Color.Red)
@@ -126,7 +121,6 @@ class TextStyleTest {
         assertThat(style.color).isEqualTo(Color.Red)
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun `constructor with customized textMotion`() {
         val style = TextStyle(textMotion = TextMotion.Animated)
@@ -134,7 +128,6 @@ class TextStyleTest {
         assertThat(style.textMotion).isEqualTo(TextMotion.Animated)
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun `empty copy with existing brush should not remove brush`() {
         val brush = Brush.linearGradient(listOf(Color.Red, Color.Blue))
@@ -151,7 +144,6 @@ class TextStyleTest {
         assertThat(style.copy().color).isEqualTo(Color.Red)
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun `empty copy with existing drawStyle should not remove drawStyle`() {
         val style = TextStyle(drawStyle = Stroke(2f))
@@ -160,7 +152,6 @@ class TextStyleTest {
     }
 
     @Suppress("DEPRECATION")
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun `platformTextStyle copy with existing drawStyle should not remove drawStyle`() {
         val style = TextStyle(drawStyle = Stroke(2f))
@@ -170,7 +161,6 @@ class TextStyleTest {
         ).isEqualTo(Stroke(2f))
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun `empty copy with existing hyphens should not remove hyphens`() {
         val style = TextStyle(hyphens = Hyphens.Auto)
@@ -185,7 +175,6 @@ class TextStyleTest {
         assertThat(style.copy(hyphens = Hyphens.None).hyphens).isEqualTo(Hyphens.None)
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun `brush copy with existing color should remove color`() {
         val style = TextStyle(color = Color.Red)
@@ -197,7 +186,6 @@ class TextStyleTest {
         }
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun `color copy with existing brush should remove brush`() {
         val brush = Brush.linearGradient(listOf(Color.Red, Color.Blue))
@@ -209,7 +197,6 @@ class TextStyleTest {
         }
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun `copy with textMotion returns new textMotion`() {
         val style = TextStyle(textMotion = TextMotion.Animated)
@@ -246,7 +233,6 @@ class TextStyleTest {
         assertThat(style.color).isEqualTo(color)
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun `constructor with half-transparent color`() {
         val color = Color.Red.copy(alpha = 0.5f)
@@ -365,7 +351,6 @@ class TextStyleTest {
         assertThat(style.lineBreak).isEqualTo(LineBreak.Heading)
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun `constructor with customized drawStyle`() {
         val stroke = Stroke(width = 8f)
@@ -593,7 +578,6 @@ class TextStyleTest {
         assertThat(newStyle.textDecoration).isEqualTo(otherStyle.textDecoration)
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun `merge with other's drawStyle is null should use this' drawStyle`() {
         val drawStyle1 = Stroke(cap = StrokeCap.Butt)
@@ -604,7 +588,6 @@ class TextStyleTest {
         assertThat(newTextStyle.drawStyle).isEqualTo(drawStyle1)
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun `merge with other's drawStyle is set should use other's drawStyle`() {
         val drawStyle1 = Stroke(cap = StrokeCap.Butt)
@@ -758,7 +741,6 @@ class TextStyleTest {
         assertThat(mergedStyle.platformStyle).isNull()
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun `merge with brush has other brush and no color`() {
         val brush = Brush.linearGradient(listOf(Color.Blue, Color.Red))
@@ -772,7 +754,6 @@ class TextStyleTest {
         assertThat(mergedStyle.brush).isEqualTo(brush)
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun `merge with unspecified brush has original brush`() {
         val brush = Brush.linearGradient(listOf(Color.Blue, Color.Red))
@@ -786,7 +767,6 @@ class TextStyleTest {
         assertThat(mergedStyle.brush).isEqualTo(brush)
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun `merge brush with brush uses other's alpha`() {
         val brush = Brush.linearGradient(listOf(Color.Blue, Color.Red))
@@ -801,7 +781,6 @@ class TextStyleTest {
         assertThat(mergedStyle.alpha).isEqualTo(0.6f)
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun `merge brush with brush uses current alpha if other's is NaN`() {
         val brush = Brush.linearGradient(listOf(Color.Blue, Color.Red))
@@ -856,7 +835,6 @@ class TextStyleTest {
         assertThat(mergedStyle.lineBreak).isEqualTo(otherStyle.lineBreak)
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun `merge null and non-null textMotion uses other's textMotion`() {
         val style = TextStyle(textMotion = null)
@@ -867,7 +845,6 @@ class TextStyleTest {
         assertThat(mergedStyle.textMotion).isEqualTo(otherStyle.textMotion)
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun `merge non-null and null textMotion uses original`() {
         val style = TextStyle(textMotion = TextMotion.Animated)
@@ -878,7 +855,6 @@ class TextStyleTest {
         assertThat(mergedStyle.textMotion).isEqualTo(style.textMotion)
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun `merge with both null textMotion uses null`() {
         val style = TextStyle(textMotion = null)
@@ -889,7 +865,6 @@ class TextStyleTest {
         assertThat(mergedStyle.textMotion).isEqualTo(null)
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun `merge with both non-null textMotion uses other's textMotion`() {
         val style = TextStyle(textMotion = TextMotion.Animated)
@@ -1290,7 +1265,6 @@ class TextStyleTest {
         assertThat(newStyle.textDecoration).isEqualTo(decoration2)
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun `lerp drawStyle with a and b are not null and fraction is smaller than half`() {
         val drawStyle1 = Fill
@@ -1304,7 +1278,6 @@ class TextStyleTest {
         assertThat(newStyle.drawStyle).isEqualTo(drawStyle1)
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun `lerp drawStyle with a and b are not null and fraction is larger than half`() {
         val drawStyle1 = Fill
@@ -1453,7 +1426,6 @@ class TextStyleTest {
         assertThat(newStyle.platformStyle).isEqualTo(style.platformStyle)
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun `lerp brush with a specified, b specified and t is smaller than half`() {
         val brush = Brush.linearGradient(listOf(Color.Blue, Color.Red))
@@ -1466,7 +1438,6 @@ class TextStyleTest {
         assertThat(newStyle.color).isEqualTo(Color.Unspecified)
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun `lerp brush with a specified, b specified and t is larger than half`() {
         val brush = Brush.linearGradient(listOf(Color.Blue, Color.Red))
@@ -1479,7 +1450,6 @@ class TextStyleTest {
         assertThat(newStyle.color).isEqualTo(Color.Red)
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun `lerp brush with a specified, b not specified and t is larger than half`() {
         val brush = Brush.linearGradient(listOf(Color.Blue, Color.Red))
@@ -1532,7 +1502,6 @@ class TextStyleTest {
         assertThat(lerpedStyle.lineBreak).isSameInstanceAs(otherStyle.lineBreak)
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun `lerp with non-null start, null end, closer to start has non-null textMotion`() {
         val style = TextStyle(textMotion = TextMotion.Animated)
@@ -1543,7 +1512,6 @@ class TextStyleTest {
         assertThat(lerpedStyle.textMotion).isSameInstanceAs(style.textMotion)
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun `lerp with non-null start, null end, closer to end has null textMotion`() {
         val style = TextStyle(textMotion = TextMotion.Animated)
@@ -1554,7 +1522,6 @@ class TextStyleTest {
         assertThat(lerpedStyle.textMotion).isNull()
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun `lerp with null start, non-null end, closer to start has null textMotion`() {
         val style = TextStyle(textMotion = null)
@@ -1565,7 +1532,6 @@ class TextStyleTest {
         assertThat(lerpedStyle.textMotion).isNull()
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun `lerp with null start, non-null end, closer to end has non-null textMotion`() {
         val style = TextStyle(textMotion = null)
@@ -1630,7 +1596,6 @@ class TextStyleTest {
         )
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun `toSpanStyle return attributes with correct values for brush`() {
         val brush = Brush.linearGradient(listOf(Color.Blue, Color.Red))
@@ -1688,7 +1653,6 @@ class TextStyleTest {
         )
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun `toParagraphStyle return attributes with correct values`() {
         val textAlign = TextAlign.Justify
