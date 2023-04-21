@@ -22,6 +22,7 @@ import android.hardware.camera2.CameraCaptureSession
 import android.view.Surface
 import androidx.annotation.GuardedBy
 import androidx.annotation.RequiresApi
+import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraGraph.Flags.FinalizeSessionOnCloseBehavior
 import androidx.camera.camera2.pipe.CameraSurfaceManager
 import androidx.camera.camera2.pipe.StreamId
@@ -65,7 +66,7 @@ internal class CaptureSessionState(
     private val captureSequenceProcessorFactory: Camera2CaptureSequenceProcessorFactory,
     private val cameraSurfaceManager: CameraSurfaceManager,
     private val timeSource: TimeSource,
-    private val finalizeSessionOnCloseBehavior: FinalizeSessionOnCloseBehavior,
+    private val cameraGraphFlags: CameraGraph.Flags,
     private val scope: CoroutineScope
 ) : CameraCaptureSessionWrapper.StateCallback {
     private val debugId = captureSessionDebugIds.incrementAndGet()
@@ -270,7 +271,7 @@ internal class CaptureSessionState(
         val graphProcessor = configuredCaptureSession?.processor
         if (graphProcessor != null) {
             // WARNING:
-            // This does NOT call close on the captureSession to avoid potentially slow
+            // This normally does NOT call close on the captureSession to avoid potentially slow
             // reconfiguration during mode switch and shutdown. This avoids unintentional restarts
             // by clearing the internal captureSession variable, clearing all repeating requests,
             // and by aborting any pending single requests.
@@ -294,6 +295,23 @@ internal class CaptureSessionState(
                 Debug.traceStop()
             }
 
+            // There are rare, extraordinary circumstances where we might need to close the capture
+            // session. It is possible the app might explicitly wait for the captures to be
+            // completely stopped through signals from CameraSurfaceManager, and in which case
+            // closing the capture session would eventually release the Surfaces [1]. Additionally,
+            // on certain devices, we need to close the capture session, or else the camera device
+            // close call might stall indefinitely [2].
+            //
+            // [1] b/277310425
+            // [2] b/277675483
+            if (cameraGraphFlags.quirkCloseCaptureSessionOnDisconnect) {
+                val captureSession = configuredCaptureSession?.session
+                checkNotNull(captureSession)
+                Debug.trace("$this CameraCaptureSessionWrapper#close") {
+                    Log.debug { "Closing capture session for $this" }
+                    captureSession.close()
+                }
+            }
             Debug.traceStop()
         }
 
@@ -306,15 +324,17 @@ internal class CaptureSessionState(
             if (state != State.CLOSED) {
                 if (_cameraDevice == null || !hasAttemptedCaptureSession) {
                     shouldFinalizeSession = true
-                } else if (finalizeSessionOnCloseBehavior ==
-                    FinalizeSessionOnCloseBehavior.IMMEDIATE
-                ) {
-                    shouldFinalizeSession = true
-                } else if (finalizeSessionOnCloseBehavior ==
-                    FinalizeSessionOnCloseBehavior.TIMEOUT
-                ) {
-                    shouldFinalizeSession = true
-                    finalizeSessionDelayMs = 2000L
+                } else {
+                    when (cameraGraphFlags.quirkFinalizeSessionOnCloseBehavior) {
+                        FinalizeSessionOnCloseBehavior.IMMEDIATE -> {
+                            shouldFinalizeSession = true
+                        }
+
+                        FinalizeSessionOnCloseBehavior.TIMEOUT -> {
+                            shouldFinalizeSession = true
+                            finalizeSessionDelayMs = 2000L
+                        }
+                    }
                 }
             }
             _cameraDevice = null

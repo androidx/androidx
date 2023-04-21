@@ -23,6 +23,7 @@ import android.os.Looper
 import android.util.Size
 import android.view.Surface
 import androidx.camera.camera2.pipe.CameraGraph
+import androidx.camera.camera2.pipe.CameraGraph.Flags.FinalizeSessionOnCloseBehavior
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.CameraPipe
@@ -128,7 +129,10 @@ internal class CaptureSessionFactoryTest {
                     },
                     CameraSurfaceManager(),
                     SystemTimeSource(),
-                    CameraGraph.Flags.FinalizeSessionOnCloseBehavior.OFF,
+                    CameraGraph.Flags(
+                        quirkFinalizeSessionOnCloseBehavior = FinalizeSessionOnCloseBehavior.OFF,
+                        quirkCloseCaptureSessionOnDisconnect = false,
+                    ),
                     this
                 )
             )
