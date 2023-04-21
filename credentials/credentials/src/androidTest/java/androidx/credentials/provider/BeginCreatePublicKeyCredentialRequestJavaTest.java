@@ -73,6 +73,19 @@ public class BeginCreatePublicKeyCredentialRequestJavaTest {
     }
 
     @Test
+    public void constructorWithClientDataHash_success() {
+        if (BuildCompat.isAtLeastU()) {
+            new BeginCreatePublicKeyCredentialRequest(
+                    "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}",
+                    new CallingAppInfo(
+                            "sample_package_name", new SigningInfo()
+                    ),
+                    "client_data_hash".getBytes()
+            );
+        }
+    }
+
+    @Test
     public void getter_requestJson_success() {
         if (BuildCompat.isAtLeastU()) {
             String testJsonExpected = "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}";
@@ -86,6 +99,24 @@ public class BeginCreatePublicKeyCredentialRequestJavaTest {
 
             String testJsonActual = createPublicKeyCredentialReq.getRequestJson();
             assertThat(testJsonActual).isEqualTo(testJsonExpected);
+            assertThat(createPublicKeyCredentialReq.getClientDataHash()).isNull();
+
+        }
+    }
+
+    @Test
+    public void getter_clientDataHash_success() {
+        if (BuildCompat.isAtLeastU()) {
+            String testClientDataHashExpected = "client_data_hash";
+            BeginCreatePublicKeyCredentialRequest createPublicKeyCredentialReq =
+                    new BeginCreatePublicKeyCredentialRequest(
+                            "json",
+                            new CallingAppInfo("sample_package_name",
+                                    new SigningInfo()),
+                            testClientDataHashExpected.getBytes());
+
+            assertThat(createPublicKeyCredentialReq.getClientDataHash())
+                    .isEqualTo(testClientDataHashExpected);
         }
     }
     // TODO ("Add framework conversion, createFrom & preferImmediatelyAvailable tests")

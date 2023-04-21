@@ -63,6 +63,20 @@ class BeginCreatePublicKeyCredentialRequestTest {
     }
 
     @Test
+    fun constructorWithClientDataHash_success() {
+        if (!BuildCompat.isAtLeastU()) {
+            return
+        }
+        BeginCreatePublicKeyCredentialRequest(
+            "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}",
+            CallingAppInfo(
+                "sample_package_name", SigningInfo()
+            ),
+            "client_data_hash".toByteArray()
+        )
+    }
+
+    @Test
     fun getter_requestJson_success() {
         if (!BuildCompat.isAtLeastU()) {
             return
@@ -78,6 +92,25 @@ class BeginCreatePublicKeyCredentialRequestTest {
 
         val testJsonActual = createPublicKeyCredentialReq.requestJson
         assertThat(testJsonActual).isEqualTo(testJsonExpected)
+        assertThat(createPublicKeyCredentialReq.clientDataHash).isNull()
+    }
+
+    @Test
+    fun getter_clientDataHash_success() {
+        if (!BuildCompat.isAtLeastU()) {
+            return
+        }
+        val testClientDataHashExpected = "client_data_hash".toByteArray()
+        val createPublicKeyCredentialReq = BeginCreatePublicKeyCredentialRequest(
+            "json",
+            CallingAppInfo(
+                "sample_package_name", SigningInfo()
+            ),
+            testClientDataHashExpected
+        )
+
+        val testClientDataHashActual = createPublicKeyCredentialReq.clientDataHash
+        assertThat(testClientDataHashActual).isEqualTo(testClientDataHashExpected)
     }
     // TODO ("Add framework conversion, createFrom & preferImmediatelyAvailable tests")
 }
