@@ -24,11 +24,13 @@ import androidx.annotation.Dimension;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.wear.protolayout.TypeBuilders.FloatProp;
 import androidx.wear.protolayout.expression.DynamicBuilders;
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat;
+import androidx.wear.protolayout.expression.ExperimentalProtoLayoutExtensionApi;
 import androidx.wear.protolayout.expression.Fingerprint;
 import androidx.wear.protolayout.proto.DimensionProto;
 
@@ -103,13 +105,9 @@ public final class DimensionBuilders {
         return WRAP;
     }
 
-    /**
-     * A type for linear dimensions, measured in dp.
-     *
-     * @since 1.0
-     */
+    @OptIn(markerClass = ExperimentalProtoLayoutExtensionApi.class)
     public static final class DpProp
-            implements ContainerDimension, ImageDimension, SpacerDimension {
+            implements ContainerDimension, ImageDimension, SpacerDimension, ExtensionDimension {
         private final DimensionProto.DpProp mImpl;
         @Nullable private final Fingerprint mFingerprint;
 
@@ -191,6 +189,14 @@ public final class DimensionBuilders {
         }
 
         @Override
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        @ExperimentalProtoLayoutExtensionApi
+        public DimensionProto.ExtensionDimension toExtensionDimensionProto() {
+            return DimensionProto.ExtensionDimension.newBuilder().setLinearDimension(mImpl).build();
+        }
+
+        @Override
         @NonNull
         public String toString() {
             return "DpProp{" + "value=" + getValue() + ", dynamicValue=" + getDynamicValue() + "}";
@@ -200,7 +206,8 @@ public final class DimensionBuilders {
         public static final class Builder
                 implements ContainerDimension.Builder,
                         ImageDimension.Builder,
-                        SpacerDimension.Builder {
+                        SpacerDimension.Builder,
+                        ExtensionDimension.Builder {
             private final DimensionProto.DpProp.Builder mImpl = DimensionProto.DpProp.newBuilder();
             private final Fingerprint mFingerprint = new Fingerprint(756413087);
 
@@ -270,8 +277,8 @@ public final class DimensionBuilders {
 
         /**
          * Gets the value to use when laying out components which can have a dynamic value.
-         * Constrains the layout so that components are not changing size or location regardless
-         * of the dynamic value that is being provided.
+         * Constrains the layout so that components are not changing size or location regardless of
+         * the dynamic value that is being provided.
          *
          * @since 1.2
          */
@@ -305,9 +312,8 @@ public final class DimensionBuilders {
              * Creates a new builder for {@link DpPropLayoutConstraint}.
              *
              * @param value Sets the value to use when laying out components which can have a
-             *              dynamic value. Constrains the layout so that components are not
-             *              changing size or location regardless of the dynamic value that is
-             *              being provided.
+             *     dynamic value. Constrains the layout so that components are not changing size or
+             *     location regardless of the dynamic value that is being provided.
              * @since 1.2
              */
             protected Builder(@Dimension(unit = DP) float value) {
@@ -316,8 +322,8 @@ public final class DimensionBuilders {
 
             /**
              * Sets the value to use when laying out components which can have a dynamic value.
-             * Constrains the layout so that components are not changing size or location
-             * regardless of the dynamic value that is being provided.
+             * Constrains the layout so that components are not changing size or location regardless
+             * of the dynamic value that is being provided.
              *
              * @since 1.2
              */
@@ -362,9 +368,8 @@ public final class DimensionBuilders {
              * Creates a new builder for {@link HorizontalLayoutConstraint}.
              *
              * @param value Sets the value to use when laying out components which can have a
-             *              dynamic value. Constrains the layout so that components are not
-             *              changing size or location regardless of the dynamic value that is
-             *              being provided.
+             *     dynamic value. Constrains the layout so that components are not changing size or
+             *     location regardless of the dynamic value that is being provided.
              * @since 1.2
              */
             public Builder(@Dimension(unit = DP) float value) {
@@ -425,9 +430,8 @@ public final class DimensionBuilders {
              * Creates a new builder for {@link VerticalLayoutConstraint}.
              *
              * @param value Sets the value to use when laying out components which can have a
-             *              dynamic value. Constrains the layout so that components are not
-             *              changing size or location regardless of the dynamic value that is
-             *              being provided.
+             *     dynamic value. Constrains the layout so that components are not changing size or
+             *     location regardless of the dynamic value that is being provided.
              * @since 1.2
              */
             public Builder(@Dimension(unit = DP) float value) {
@@ -1359,5 +1363,51 @@ public final class DimensionBuilders {
     @NonNull
     static SpacerDimension spacerDimensionFromProto(@NonNull DimensionProto.SpacerDimension proto) {
         return spacerDimensionFromProto(proto, null);
+    }
+
+    /**
+     * Interface defining a dimension that can be applied to a {@link
+     * androidx.wear.protolayout.LayoutElementBuilders.ExtensionLayoutElement} element.
+     *
+     * @since 1.0
+     */
+    @ExperimentalProtoLayoutExtensionApi
+    public interface ExtensionDimension {
+        /** Get the protocol buffer representation of this object. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        DimensionProto.ExtensionDimension toExtensionDimensionProto();
+
+        /** Get the fingerprint for this object or null if unknown. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Nullable
+        Fingerprint getFingerprint();
+
+        /** Builder to create {@link ExtensionDimension} objects. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        interface Builder {
+
+            /** Builds an instance with values accumulated in this Builder. */
+            @NonNull
+            ExtensionDimension build();
+        }
+    }
+
+    /** Creates a new wrapper instance from the proto. */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @NonNull
+    public static ExtensionDimension extensionDimensionFromProto(
+            @NonNull DimensionProto.ExtensionDimension proto, @Nullable Fingerprint fingerprint) {
+        if (proto.hasLinearDimension()) {
+            return DpProp.fromProto(proto.getLinearDimension(), fingerprint);
+        }
+        throw new IllegalStateException(
+                "Proto was not a recognised instance of ExtensionDimension");
+    }
+
+    @NonNull
+    static ExtensionDimension extensionDimensionFromProto(
+            @NonNull DimensionProto.ExtensionDimension proto) {
+        return extensionDimensionFromProto(proto, null);
     }
 }

@@ -224,7 +224,7 @@ package androidx.wear.protolayout {
     method public androidx.wear.protolayout.DimensionBuilders.DegreesProp.Builder setValue(float);
   }
 
-  public static final class DimensionBuilders.DpProp implements androidx.wear.protolayout.DimensionBuilders.ContainerDimension androidx.wear.protolayout.DimensionBuilders.ImageDimension androidx.wear.protolayout.DimensionBuilders.SpacerDimension {
+  public static final class DimensionBuilders.DpProp implements androidx.wear.protolayout.DimensionBuilders.ContainerDimension androidx.wear.protolayout.DimensionBuilders.ExtensionDimension androidx.wear.protolayout.DimensionBuilders.ImageDimension androidx.wear.protolayout.DimensionBuilders.SpacerDimension {
     method public androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat? getDynamicValue();
     method @Dimension(unit=androidx.annotation.Dimension.DP) public float getValue();
   }
@@ -255,6 +255,9 @@ package androidx.wear.protolayout {
     ctor public DimensionBuilders.ExpandedDimensionProp.Builder();
     method public androidx.wear.protolayout.DimensionBuilders.ExpandedDimensionProp build();
     method public androidx.wear.protolayout.DimensionBuilders.ExpandedDimensionProp.Builder setLayoutWeight(androidx.wear.protolayout.TypeBuilders.FloatProp);
+  }
+
+  @androidx.wear.protolayout.expression.ExperimentalProtoLayoutExtensionApi public static interface DimensionBuilders.ExtensionDimension {
   }
 
   public static final class DimensionBuilders.HorizontalLayoutConstraint {
@@ -535,6 +538,22 @@ package androidx.wear.protolayout {
     ctor public LayoutElementBuilders.ContentScaleModeProp.Builder();
     method public androidx.wear.protolayout.LayoutElementBuilders.ContentScaleModeProp build();
     method public androidx.wear.protolayout.LayoutElementBuilders.ContentScaleModeProp.Builder setValue(int);
+  }
+
+  @androidx.wear.protolayout.expression.ExperimentalProtoLayoutExtensionApi public static final class LayoutElementBuilders.ExtensionLayoutElement implements androidx.wear.protolayout.LayoutElementBuilders.LayoutElement {
+    method public String getExtensionId();
+    method public androidx.wear.protolayout.DimensionBuilders.ExtensionDimension? getHeight();
+    method public byte[] getPayload();
+    method public androidx.wear.protolayout.DimensionBuilders.ExtensionDimension? getWidth();
+  }
+
+  public static final class LayoutElementBuilders.ExtensionLayoutElement.Builder implements androidx.wear.protolayout.LayoutElementBuilders.LayoutElement.Builder {
+    ctor public LayoutElementBuilders.ExtensionLayoutElement.Builder();
+    method public androidx.wear.protolayout.LayoutElementBuilders.ExtensionLayoutElement build();
+    method public androidx.wear.protolayout.LayoutElementBuilders.ExtensionLayoutElement.Builder setExtensionId(String);
+    method public androidx.wear.protolayout.LayoutElementBuilders.ExtensionLayoutElement.Builder setHeight(androidx.wear.protolayout.DimensionBuilders.ExtensionDimension);
+    method public androidx.wear.protolayout.LayoutElementBuilders.ExtensionLayoutElement.Builder setPayload(byte[]);
+    method public androidx.wear.protolayout.LayoutElementBuilders.ExtensionLayoutElement.Builder setWidth(androidx.wear.protolayout.DimensionBuilders.ExtensionDimension);
   }
 
   public static final class LayoutElementBuilders.FontStyle {
