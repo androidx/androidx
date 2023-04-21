@@ -25,6 +25,7 @@ import android.widget.Button
 import android.widget.TextView
 
 import androidx.bluetooth.integration.testapp.R
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -62,8 +63,9 @@ class ScannerAdapter(private val onClick: (ScanResult) -> Unit) :
         @SuppressLint("MissingPermission")
         fun bind(scanResult: ScanResult) {
             currentScanResult = scanResult
-            textViewDeviceName.text = scanResult.device.name
             textViewDeviceAddress.text = scanResult.device.address
+            textViewDeviceName.text = scanResult.device.name
+            textViewDeviceName.isVisible = scanResult.device.name.isNullOrEmpty().not()
         }
     }
 }
