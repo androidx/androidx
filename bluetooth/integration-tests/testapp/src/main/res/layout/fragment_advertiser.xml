@@ -88,12 +88,12 @@
 
     <Button
         android:id="@+id/button_add_data"
-        style="@style/Widget.AppCompat.Button.Borderless"
+        style="@style/Widget.MaterialComponents.Button.Icon"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:text="@string/add_data"
-        android:textColor="@color/purple_500"
+        app:icon="@drawable/baseline_add_24"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/text_view_advertising_data" />
 
@@ -108,12 +108,13 @@
         tools:listitem="@layout/item_advertiser_data" />
 
     <View
-        android:id="@+id/view_overlay"
+        android:id="@+id/view_recycler_view_overlay"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@color/black_alpha_50"
+        android:layout_height="0dp"
         android:clickable="true"
-        android:visibility="gone" />
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/button_add_data" />
 
     <Button
         android:id="@+id/button_advertise"

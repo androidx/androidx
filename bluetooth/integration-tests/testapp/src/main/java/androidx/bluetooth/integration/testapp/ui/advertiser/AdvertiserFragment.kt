@@ -30,6 +30,7 @@ import androidx.bluetooth.AdvertiseResult
 import androidx.bluetooth.BluetoothLe
 import androidx.bluetooth.integration.testapp.R
 import androidx.bluetooth.integration.testapp.databinding.FragmentAdvertiserBinding
+import androidx.bluetooth.integration.testapp.ui.common.getColor
 import androidx.bluetooth.integration.testapp.ui.common.setViewEditText
 import androidx.bluetooth.integration.testapp.ui.common.toast
 import androidx.core.view.isVisible
@@ -63,12 +64,19 @@ class AdvertiserFragment : Fragment() {
             field = value
             if (value) {
                 _binding?.buttonAdvertise?.text = getString(R.string.stop_advertising)
+                _binding?.buttonAdvertise?.backgroundTintList = getColor(R.color.red_500)
             } else {
                 _binding?.buttonAdvertise?.text = getString(R.string.start_advertising)
+                _binding?.buttonAdvertise?.backgroundTintList = getColor(R.color.indigo_500)
                 advertiseJob?.cancel()
                 advertiseJob = null
             }
-            _binding?.viewOverlay?.isVisible = value
+            _binding?.textInputEditTextDisplayName?.isEnabled = !value
+            _binding?.checkBoxIncludeDeviceName?.isEnabled = !value
+            _binding?.checkBoxConnectable?.isEnabled = !value
+            _binding?.checkBoxDiscoverable?.isEnabled = !value
+            _binding?.buttonAddData?.isEnabled = !value
+            _binding?.viewRecyclerViewOverlay?.isVisible = value
         }
 
     private var _binding: FragmentAdvertiserBinding? = null

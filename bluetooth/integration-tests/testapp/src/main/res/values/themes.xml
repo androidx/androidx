@@ -19,6 +19,6 @@
         <item name="colorPrimary">@color/indigo_500</item>
         <item name="colorPrimaryVariant">@color/indigo_700</item>
         <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
-        <item name="android:textColorPrimary">@color/white</item>
+        <item name="actionBarTheme">@style/ThemeOverlay.MaterialComponents.Dark.ActionBar</item>
     </style>
 </resources>

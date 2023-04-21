@@ -16,8 +16,14 @@
 
 package androidx.bluetooth.integration.testapp.ui.common
 
+import android.content.res.ColorStateList
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+
+fun Fragment.getColor(color: Int): ColorStateList? {
+    return ContextCompat.getColorStateList(requireContext(), color)
+}
 
 fun Fragment.toast(msg: String): Toast {
     return Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT)
