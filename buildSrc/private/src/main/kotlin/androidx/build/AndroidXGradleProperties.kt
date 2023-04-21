@@ -80,12 +80,6 @@ const val ENABLE_COMPOSE_COMPILER_REPORTS = "androidx.enableComposeCompilerRepor
 const val ENABLE_DOCUMENTATION = "androidx.enableDocumentation"
 
 /**
- * Adjusts the set of projects participating in this build.
- * See settings.gradle for more information
- */
-const val PROJECT_SUBSET = "androidx.projects"
-
-/**
  * Setting this property puts a summary of the relevant failure messages into standard error
  */
 const val SUMMARIZE_STANDARD_ERROR = "androidx.summarizeStderr"
@@ -167,7 +161,6 @@ val ALL_ANDROIDX_PROPERTIES = setOf(
     ENABLE_COMPOSE_COMPILER_REPORTS,
     DISPLAY_TEST_OUTPUT,
     ENABLE_DOCUMENTATION,
-    PROJECT_SUBSET,
     STUDIO_TYPE,
     SUMMARIZE_STANDARD_ERROR,
     USE_MAX_DEP_VERSIONS,

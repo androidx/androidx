@@ -202,11 +202,6 @@ enum BuildType {
 }
 
 private String getRequestedProjectSubsetName() {
-    def prop = providers.gradleProperty("androidx.projects")
-    if (prop.isPresent()) {
-        return prop.get().toUpperCase()
-    }
-
     def envProp = providers.environmentVariable("ANDROIDX_PROJECTS")
     if (envProp.isPresent()) {
         return envProp.get().toUpperCase()
@@ -214,8 +209,15 @@ private String getRequestedProjectSubsetName() {
     return null
 }
 
+private String getRequestedProjectPrefix() {
+    def envProp = providers.environmentVariable("PROJECT_PREFIX")
+    if (envProp.isPresent()) {
+        return envProp.get()
+    }
+    return null
+}
+
 boolean isAllProjects() {
-    String projectSubsetName = getRequestedProjectSubsetName()
     return requestedProjectSubsetName == null || requestedProjectSubsetName == "ALL"
 }
 
@@ -313,10 +315,12 @@ def includeProject(name, List<BuildType> filter = []) {
 @Field Map<String, File> allProjects = new HashMap<String, File>()
 // A set of projects that the user asked to filter to.
 @Field Set<String> filteredProjects = new HashSet<String>()
+filteredProjects.add(":lint-checks")
 
 @Field Pattern projectReferencePattern = Pattern.compile(
         "(project|projectOrArtifact)\\((path: )?[\"'](?<name>\\S*)[\"'](, configuration: .*)?\\)"
 )
+@Field Pattern multilineProjectReference = Pattern.compile("project\\(\$")
 @Field Pattern inspection = Pattern.compile("packageInspector\\(project, \"(.*)\"\\)")
 @Field Pattern composePlugin = Pattern.compile("id\\(\"AndroidXComposePlugin\"\\)")
 @Field Pattern paparazziPlugin = Pattern.compile("id\\(\"AndroidXPaparazziPlugin\"\\)")
@@ -331,8 +335,10 @@ def includeProject(name, List<BuildType> filter = []) {
 //   the project name in the IDE
 //   the Maven artifactId
 //
-def includeProject(name, filePath, List<BuildType> filter = []) {
-    if (shouldIncludeForFilter(filter)) filteredProjects.add(name)
+def includeProject(String name, filePath, List<BuildType> filter = []) {
+    if (getRequestedProjectPrefix() != null) {
+        if (name.startsWith(getRequestedProjectPrefix())) filteredProjects.add(name)
+    } else if (shouldIncludeForFilter(filter)) filteredProjects.add(name)
     def file
     if (filePath != null) {
         if (filePath instanceof String) {
@@ -349,11 +355,18 @@ def includeProject(name, filePath, List<BuildType> filter = []) {
     allProjects[name] = file
     File buildGradle = new File(file, "build.gradle")
     if (buildGradle.exists()) {
+        def buildGradleProperty = settings.services.get(ObjectFactory).fileProperty().fileValue(buildGradle)
+        def contents = settings.providers.fileContents(buildGradleProperty).getAsText().get()
         Set<String> links = new HashSet<String>()
-        for (line in buildGradle.readLines()) {
+        for (line in contents.lines()) {
             Matcher m = projectReferencePattern.matcher(line)
             if (m.find()) {
                 links.add(m.group("name"))
+            }
+            if (multilineProjectReference.matcher(line).find()) {
+                throw new IllegalStateException(
+                        "Multi-line project() references are not supported. Please fix $file.absolutePath"
+                )
             }
             Matcher matcherInspection = inspection.matcher(line)
             if (matcherInspection) {
@@ -1175,6 +1188,10 @@ includeProject(":placeholder-tests")
 // Workaround for b/203825166
 includeBuild("placeholder")
 
+// ---------------------------------------------------------------------
+// --- there should be no includeProject additions after this line -----
+// ---------------------------------------------------------------------
+
 // For a given project path add the transitive project references to the include set.
 void addReferences(String projectPath, Set<String> included) {
     if (projectPath in included) return
@@ -1183,11 +1200,33 @@ void addReferences(String projectPath, Set<String> included) {
         addReferences(reference, included)
     }
 }
-Set<String> projectsToInclude = new HashSet<>()
-for (filteredProject in filteredProjects) {
-    addReferences(filteredProject, projectsToInclude)
+
+void includeRequestedProjectsAndDependencies() {
+    // Adding by including `:foo:bar` Gradle will automatically load `:foo`, so we need to
+    // add those implicit parent project references.
+    for (projectPath in projectReferences.keySet()) {
+        Set<String> newReferences = new HashSet<>()
+        for (reference in projectReferences[projectPath]) {
+            String[] segments = reference.substring(1).split(":")
+            String subpath = ""
+            for (int i = 0; i < segments.length; i++) {
+                subpath += ":" + segments[i]
+                if (allProjects.containsKey(subpath)) {
+                    newReferences.add(subpath)
+                }
+            }
+        }
+        projectReferences[projectPath].addAll(newReferences)
+    }
+
+    Set<String> projectsToInclude = new HashSet<>()
+    for (filteredProject in filteredProjects) {
+        addReferences(filteredProject, projectsToInclude)
+    }
+    for (entry in projectsToInclude) {
+        settings.include(entry)
+        project(entry).projectDir = allProjects[entry]
+    }
 }
-for (entry in projectsToInclude) {
-    settings.include(entry)
-    project(entry).projectDir = allProjects[entry]
-}
+
+includeRequestedProjectsAndDependencies()
