@@ -40,6 +40,7 @@ import androidx.camera.video.internal.audio.AudioSource
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
+import androidx.test.rule.GrantPermissionRule
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.Dispatchers
@@ -77,6 +78,11 @@ class AudioSettingsAudioProfileResolverTest(
             arrayOf(CameraPipeConfig::class.simpleName, CameraPipeConfig.defaultConfig())
         )
     }
+
+    @get:Rule
+    val grantPermissionRule: GrantPermissionRule = GrantPermissionRule.grant(
+        android.Manifest.permission.RECORD_AUDIO
+    )
 
     @get:Rule
     val cameraPipeConfigTestRule = CameraPipeConfigTestRule(
