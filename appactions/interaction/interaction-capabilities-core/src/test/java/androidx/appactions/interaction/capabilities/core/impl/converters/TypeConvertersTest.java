@@ -490,16 +490,13 @@ public final class TypeConvertersTest {
     }
 
     @Test
-    public void toLocalDate_success() throws Exception {
-        List<ParamValue> input =
-                Collections.singletonList(
-                        ParamValue.newBuilder().setStringValue("2018-06-17").build());
+    public void localDate_success() throws Exception {
+        ParamValueConverter<LocalDate> converter = TypeConverters.LOCAL_DATE_PARAM_VALUE_CONVERTER;
+        ParamValue paramValue = ParamValue.newBuilder().setStringValue("2018-06-17").build();
+        LocalDate localDate = LocalDate.of(2018, 6, 17);
 
-        assertThat(
-                SlotTypeConverter.ofSingular(
-                                TypeConverters.LOCAL_DATE_PARAM_VALUE_CONVERTER)
-                        .convert(input))
-                .isEqualTo(LocalDate.of(2018, 6, 17));
+        assertThat(converter.fromParamValue(paramValue)).isEqualTo(localDate);
+        assertThat(converter.toParamValue(localDate)).isEqualTo(paramValue);
     }
 
     @Test
@@ -537,16 +534,13 @@ public final class TypeConvertersTest {
     }
 
     @Test
-    public void toLocalTime_success() throws Exception {
-        List<ParamValue> input =
-                Collections.singletonList(
-                        ParamValue.newBuilder().setStringValue("15:10:05").build());
+    public void localTime_success() throws Exception {
+        ParamValueConverter<LocalTime> converter = TypeConverters.LOCAL_TIME_PARAM_VALUE_CONVERTER;
+        ParamValue paramValue = ParamValue.newBuilder().setStringValue("15:10:05").build();
+        LocalTime localTime = LocalTime.of(15, 10, 5);
 
-        assertThat(
-                SlotTypeConverter.ofSingular(
-                                TypeConverters.LOCAL_TIME_PARAM_VALUE_CONVERTER)
-                        .convert(input))
-                .isEqualTo(LocalTime.of(15, 10, 5));
+        assertThat(converter.fromParamValue(paramValue)).isEqualTo(localTime);
+        assertThat(converter.toParamValue(localTime)).isEqualTo(paramValue);
     }
 
     @Test
@@ -583,15 +577,13 @@ public final class TypeConvertersTest {
     }
 
     @Test
-    public void toZoneId_success() throws Exception {
-        List<ParamValue> input =
-                Collections.singletonList(
-                        ParamValue.newBuilder().setStringValue("America/New_York").build());
+    public void zoneId_success() throws Exception {
+        ParamValueConverter<ZoneId> converter = TypeConverters.ZONE_ID_PARAM_VALUE_CONVERTER;
+        ParamValue paramValue = ParamValue.newBuilder().setStringValue("America/New_York").build();
+        ZoneId zoneId = ZoneId.of("America/New_York");
 
-        assertThat(
-                SlotTypeConverter.ofSingular(TypeConverters.ZONE_ID_PARAM_VALUE_CONVERTER)
-                        .convert(input))
-                .isEqualTo(ZoneId.of("America/New_York"));
+        assertThat(converter.fromParamValue(paramValue)).isEqualTo(zoneId);
+        assertThat(converter.toParamValue(zoneId)).isEqualTo(paramValue);
     }
 
     @Test
@@ -627,16 +619,15 @@ public final class TypeConvertersTest {
     }
 
     @Test
-    public void toZonedDateTime_fromList() throws Exception {
-        List<ParamValue> input =
-                Collections.singletonList(
-                        ParamValue.newBuilder().setStringValue("2018-06-17T15:10:05Z").build());
+    public void zonedDateTime_success() throws Exception {
+        ParamValueConverter<ZonedDateTime> converter =
+                TypeConverters.ZONED_DATETIME_PARAM_VALUE_CONVERTER;
+        ParamValue paramValue =
+                ParamValue.newBuilder().setStringValue("2018-06-17T15:10:05Z").build();
+        ZonedDateTime zonedDateTime = ZonedDateTime.of(2018, 6, 17, 15, 10, 5, 0, ZoneOffset.UTC);
 
-        assertThat(
-                SlotTypeConverter.ofSingular(
-                                TypeConverters.ZONED_DATETIME_PARAM_VALUE_CONVERTER)
-                        .convert(input))
-                .isEqualTo(ZonedDateTime.of(2018, 6, 17, 15, 10, 5, 0, ZoneOffset.UTC));
+        assertThat(converter.fromParamValue(paramValue)).isEqualTo(zonedDateTime);
+        assertThat(converter.toParamValue(zonedDateTime)).isEqualTo(paramValue);
     }
 
     @Test
@@ -678,15 +669,14 @@ public final class TypeConvertersTest {
     }
 
     @Test
-    public void toDuration_success() throws Exception {
-        List<ParamValue> input =
-                Collections.singletonList(ParamValue.newBuilder().setStringValue("PT5M").build());
+    public void duration_success() throws Exception {
+        ParamValueConverter<Duration> converter = TypeConverters.DURATION_PARAM_VALUE_CONVERTER;
+        ParamValue paramValue =
+                ParamValue.newBuilder().setStringValue("PT5M").build();
+        Duration duration = Duration.ofMinutes(5);
 
-        Duration convertedDuration =
-                SlotTypeConverter.ofSingular(TypeConverters.DURATION_PARAM_VALUE_CONVERTER)
-                        .convert(input);
-
-        assertThat(convertedDuration).isEqualTo(Duration.ofMinutes(5));
+        assertThat(converter.fromParamValue(paramValue)).isEqualTo(duration);
+        assertThat(converter.toParamValue(duration)).isEqualTo(paramValue);
     }
 
     @Test
