@@ -174,18 +174,6 @@ class ComposerParamTransformer(
         return super.visitLocalDelegatedProperty(declaration)
     }
 
-    override fun visitProperty(declaration: IrProperty): IrStatement {
-        if (declaration.getter?.isComposableDelegatedAccessor() == true) {
-            declaration.getter!!.annotations += createComposableAnnotation()
-        }
-
-        if (declaration.setter?.isComposableDelegatedAccessor() == true) {
-            declaration.setter!!.annotations += createComposableAnnotation()
-        }
-
-        return super.visitProperty(declaration)
-    }
-
     private fun createComposableAnnotation() =
         IrConstructorCallImpl(
             startOffset = SYNTHETIC_OFFSET,
