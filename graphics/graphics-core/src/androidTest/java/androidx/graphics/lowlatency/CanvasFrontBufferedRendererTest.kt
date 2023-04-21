@@ -37,6 +37,7 @@ import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import kotlin.math.roundToInt
 import org.junit.Assert
+import org.junit.Assert.fail
 import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -620,6 +621,57 @@ class CanvasFrontBufferedRendererTest {
             automation.setRotation(UiAutomation.ROTATION_UNFREEZE)
             automation.waitForIdle(1000, 3000)
             renderer.blockingRelease()
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
+    @Test
+    fun testReleaseRemovedSurfaceCallbacks() {
+        val callbacks = object : CanvasFrontBufferedRenderer.Callback<Any> {
+            override fun onDrawFrontBufferedLayer(
+                canvas: Canvas,
+                bufferWidth: Int,
+                bufferHeight: Int,
+                param: Any
+            ) {
+                // no-op
+            }
+
+            override fun onDrawMultiBufferedLayer(
+                canvas: Canvas,
+                bufferWidth: Int,
+                bufferHeight: Int,
+                params: Collection<Any>
+            ) {
+                // no-op
+            }
+        }
+        var renderer: CanvasFrontBufferedRenderer<Any>? = null
+        var surfaceView: FrontBufferedRendererTestActivity.TestSurfaceView? = null
+        val createLatch = CountDownLatch(1)
+        ActivityScenario.launch(FrontBufferedRendererTestActivity::class.java)
+            .moveToState(Lifecycle.State.CREATED)
+            .onActivity {
+                surfaceView = it.getSurfaceView()
+                renderer = CanvasFrontBufferedRenderer(surfaceView!!, callbacks)
+                createLatch.countDown()
+            }
+
+        Assert.assertTrue(createLatch.await(3000, TimeUnit.MILLISECONDS))
+        // Capture surfaceView with local val to avoid Kotlin warnings regarding the surfaceView
+        // parameter changing potentially
+        val resolvedSurfaceView = surfaceView
+        try {
+            if (resolvedSurfaceView != null) {
+                Assert.assertEquals(1, resolvedSurfaceView.getCallbackCount())
+                renderer?.release(true)
+                renderer = null
+                Assert.assertEquals(0, resolvedSurfaceView.getCallbackCount())
+            } else {
+                fail("Unable to resolve SurfaceView, was the Activity created?")
+            }
+        } finally {
+            renderer?.release(true)
         }
     }
 
