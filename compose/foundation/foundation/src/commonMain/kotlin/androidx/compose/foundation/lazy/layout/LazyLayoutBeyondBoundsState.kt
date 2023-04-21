@@ -28,9 +28,9 @@ internal interface LazyLayoutBeyondBoundsState {
 
     val hasVisibleItems: Boolean
 
-    val firstVisibleIndex: Int
+    val firstPlacedIndex: Int
 
-    val lastVisibleIndex: Int
+    val lastPlacedIndex: Int
 }
 
 @OptIn(ExperimentalFoundationApi::class)

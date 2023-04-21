@@ -62,9 +62,9 @@ internal class LazyLayoutBeyondBoundsModifierLocal(
 
         // We use a new interval each time because this function is re-entrant.
         val startIndex = if (direction.isForward()) {
-            state.lastVisibleIndex
+            state.lastPlacedIndex
         } else {
-            state.firstVisibleIndex
+            state.firstPlacedIndex
         }
         var interval = beyondBoundsInfo.addInterval(startIndex, startIndex)
         var found: T? = null

@@ -71,9 +71,9 @@ internal class LazyListBeyondBoundsState(
         get() = state.layoutInfo.totalItemsCount
     override val hasVisibleItems: Boolean
         get() = state.layoutInfo.visibleItemsInfo.isNotEmpty()
-    override val firstVisibleIndex: Int
+    override val firstPlacedIndex: Int
         get() = maxOf(0, state.firstVisibleItemIndex - beyondBoundsItemCount)
-    override val lastVisibleIndex: Int
+    override val lastPlacedIndex: Int
         get() = minOf(
             itemCount - 1,
             state.layoutInfo.visibleItemsInfo.last().index + beyondBoundsItemCount

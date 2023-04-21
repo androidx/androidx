@@ -68,8 +68,8 @@ internal class LazyGridBeyondBoundsState(
         get() = state.layoutInfo.totalItemsCount
     override val hasVisibleItems: Boolean
         get() = state.layoutInfo.visibleItemsInfo.isNotEmpty()
-    override val firstVisibleIndex: Int
+    override val firstPlacedIndex: Int
         get() = state.firstVisibleItemIndex
-    override val lastVisibleIndex: Int
+    override val lastPlacedIndex: Int
         get() = state.layoutInfo.visibleItemsInfo.last().index
 }
