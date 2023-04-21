@@ -29,7 +29,7 @@ import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.lazy.layout.LazyLayout
 import androidx.compose.foundation.lazy.layout.LazyLayoutMeasureScope
-import androidx.compose.foundation.lazy.layout.findIndexByKey
+import androidx.compose.foundation.lazy.layout.calculateLazyLayoutPinnedIndices
 import androidx.compose.foundation.lazy.layout.lazyLayoutSemantics
 import androidx.compose.foundation.overscroll
 import androidx.compose.runtime.Composable
@@ -44,8 +44,6 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.constrainHeight
 import androidx.compose.ui.unit.constrainWidth
 import androidx.compose.ui.unit.offset
-import androidx.compose.ui.util.fastForEach
-import kotlin.math.min
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -80,12 +78,10 @@ internal fun LazyList(
     val itemProvider = rememberLazyListItemProvider(state, content)
 
     val semanticState = rememberLazyListSemanticState(state, isVertical)
-    val beyondBoundsInfo = remember { LazyListBeyondBoundsInfo() }
 
     val measurePolicy = rememberLazyListMeasurePolicy(
         itemProvider,
         state,
-        beyondBoundsInfo,
         contentPadding,
         reverseLayout,
         isVertical,
@@ -114,7 +110,6 @@ internal fun LazyList(
             .clipScrollableContainer(orientation)
             .lazyListBeyondBoundsModifier(
                 state,
-                beyondBoundsInfo,
                 beyondBoundsItemCount,
                 reverseLayout,
                 orientation
@@ -158,8 +153,6 @@ private fun rememberLazyListMeasurePolicy(
     itemProvider: LazyListItemProvider,
     /** The state of the list. */
     state: LazyListState,
-    /** Keeps track of the number of items we measure and place that are beyond visible bounds. */
-    beyondBoundsInfo: LazyListBeyondBoundsInfo,
     /** The inner padding to be added for the whole content(nor for each individual item) */
     contentPadding: PaddingValues,
     /** reverse the direction of scrolling and layout */
@@ -178,7 +171,6 @@ private fun rememberLazyListMeasurePolicy(
     verticalArrangement: Arrangement.Vertical? = null,
 ) = remember<LazyLayoutMeasureScope.(Constraints) -> MeasureResult>(
     state,
-    beyondBoundsInfo,
     contentPadding,
     reverseLayout,
     isVertical,
@@ -295,26 +287,10 @@ private fun rememberLazyListMeasurePolicy(
             firstVisibleScrollOffset = state.firstVisibleItemScrollOffset
         }
 
-        val pinnedItems = if (!beyondBoundsInfo.hasIntervals() && state.pinnedItems.isEmpty()) {
-            emptyList()
-        } else {
-            val pinnedItems = mutableListOf<Int>()
-            val beyondBoundsRange = if (beyondBoundsInfo.hasIntervals()) {
-                beyondBoundsInfo.start..min(beyondBoundsInfo.end, itemsCount - 1)
-            } else {
-                IntRange.EMPTY
-            }
-            state.pinnedItems.fastForEach {
-                val index = itemProvider.findIndexByKey(it.key, it.index)
-                if (index in beyondBoundsRange) return@fastForEach
-                if (index !in 0 until itemsCount) return@fastForEach
-                pinnedItems.add(index)
-            }
-            for (i in beyondBoundsRange) {
-                pinnedItems.add(i)
-            }
-            pinnedItems
-        }
+        val pinnedItems = itemProvider.calculateLazyLayoutPinnedIndices(
+            pinnedItemList = state.pinnedItems,
+            beyondBoundsInfo = state.beyondBoundsInfo
+        )
 
         measureLazyList(
             itemsCount = itemsCount,

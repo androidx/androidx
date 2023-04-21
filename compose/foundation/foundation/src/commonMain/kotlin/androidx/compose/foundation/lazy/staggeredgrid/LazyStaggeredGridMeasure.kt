@@ -20,7 +20,6 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.fastMaxOfOrNull
 import androidx.compose.foundation.lazy.layout.LazyLayoutItemProvider
 import androidx.compose.foundation.lazy.layout.LazyLayoutMeasureScope
-import androidx.compose.foundation.lazy.layout.findIndexByKey
 import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridLaneInfo.Companion.FullSpan
 import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridLaneInfo.Companion.Unset
 import androidx.compose.runtime.snapshots.Snapshot
@@ -76,6 +75,7 @@ private inline fun debugLog(message: () -> String) {
 @ExperimentalFoundationApi
 internal fun LazyLayoutMeasureScope.measureStaggeredGrid(
     state: LazyStaggeredGridState,
+    pinnedItems: List<Int>,
     itemProvider: LazyStaggeredGridItemProvider,
     resolvedSlots: LazyStaggeredGridSlots,
     constraints: Constraints,
@@ -89,6 +89,7 @@ internal fun LazyLayoutMeasureScope.measureStaggeredGrid(
 ): LazyStaggeredGridMeasureResult {
     val context = LazyStaggeredGridMeasureContext(
         state = state,
+        pinnedItems = pinnedItems,
         itemProvider = itemProvider,
         resolvedSlots = resolvedSlots,
         constraints = constraints,
@@ -165,6 +166,7 @@ internal fun LazyLayoutMeasureScope.measureStaggeredGrid(
 @OptIn(ExperimentalFoundationApi::class)
 private class LazyStaggeredGridMeasureContext(
     val state: LazyStaggeredGridState,
+    val pinnedItems: List<Int>,
     val itemProvider: LazyStaggeredGridItemProvider,
     val resolvedSlots: LazyStaggeredGridSlots,
     val constraints: Constraints,
@@ -844,10 +846,7 @@ private inline fun LazyStaggeredGridMeasureContext.calculateExtraItems(
 ): List<LazyStaggeredGridPositionedItem> {
     var result: MutableList<LazyStaggeredGridPositionedItem>? = null
 
-    val pinnedItems = state.pinnedItems
-    pinnedItems.fastForEach { item ->
-        val index = itemProvider.findIndexByKey(item.key, item.index)
-
+    pinnedItems.fastForEach { index ->
         if (filter(index)) {
             val spanRange = itemProvider.getSpanRange(index, 0)
             if (result == null) {

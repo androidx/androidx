@@ -23,6 +23,7 @@ import androidx.compose.foundation.gestures.ScrollableState
 import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.lazy.layout.LazyAnimateScrollScope
+import androidx.compose.foundation.lazy.layout.LazyLayoutBeyondBoundsInfo
 import androidx.compose.foundation.lazy.layout.LazyLayoutItemProvider
 import androidx.compose.foundation.lazy.layout.LazyLayoutPrefetchState
 import androidx.compose.foundation.lazy.layout.LazyLayoutPrefetchState.PrefetchHandle
@@ -156,13 +157,16 @@ class LazyStaggeredGridState private constructor(
     /** implementation of [LazyAnimateScrollScope] scope required for [animateScrollToItem] **/
     private val animateScrollScope = LazyStaggeredGridAnimateScrollScope(this)
 
-    private var remeasurement: Remeasurement? = null
+    internal var remeasurement: Remeasurement? = null
+        private set
 
     internal val remeasurementModifier = object : RemeasurementModifier {
         override fun onRemeasurementAvailable(remeasurement: Remeasurement) {
             this@LazyStaggeredGridState.remeasurement = remeasurement
         }
     }
+
+    internal val beyondBoundsInfo = LazyLayoutBeyondBoundsInfo()
 
     /**
      * Only used for testing to disable prefetching when needed to test the main logic.

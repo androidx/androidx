@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.lazy.layout.LazyLayoutMeasureScope
+import androidx.compose.foundation.lazy.layout.calculateLazyLayoutPinnedIndices
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.unit.Constraints
@@ -96,8 +97,14 @@ internal fun rememberStaggeredGridMeasurePolicy(
             calculateTopPadding() + calculateBottomPadding()
         }.roundToPx()
 
+        val pinnedItems = itemProvider.calculateLazyLayoutPinnedIndices(
+            state.pinnedItems,
+            state.beyondBoundsInfo
+        )
+
         measureStaggeredGrid(
             state = state,
+            pinnedItems = pinnedItems,
             itemProvider = itemProvider,
             resolvedSlots = resolvedSlots,
             constraints = constraints.copy(
