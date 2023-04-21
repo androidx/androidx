@@ -1,4 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?><!--
+<?xml version="1.0" encoding="utf-8"?>
+<!--
   Copyright 2023 The Android Open Source Project
 
   Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,6 +15,7 @@
   limitations under the License.
   -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -38,17 +40,17 @@
         android:paddingEnd="8dp">
 
         <TextView
-            android:id="@+id/text_view_device_name"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textColor="#000000"
-            tools:text="Omer S23 Ultra" />
-
-        <TextView
             android:id="@+id/text_view_device_address"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:textColor="@color/black"
             tools:text="AB:CD:12:34:56:78" />
+
+        <TextView
+            android:id="@+id/text_view_device_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            tools:text="Omer S23 Ultra" />
 
     </LinearLayout>
 
@@ -56,6 +58,7 @@
         android:id="@+id/button_connect"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/connect" />
+        android:text="@string/connect"
+        app:backgroundTint="@color/green_500" />
 
 </LinearLayout>
