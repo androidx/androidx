@@ -458,10 +458,10 @@ Java_androidx_camera_integration_core_OpenGLRenderer_renderTexture(
              1.0f, -1.0f  // Upper-right
     };
     constexpr GLfloat texCoords[] = {
+            0.0f, 1.0f, // Upper-left
+            1.0f, 1.0f, // Upper-right
             0.0f, 0.0f, // Lower-left
             1.0f, 0.0f, // Lower-right
-            0.0f, 1.0f, // Upper-left (order must match the vertices)
-            1.0f, 1.0f  // Upper-right
     };
 
     GLint vertexComponents = 2;
