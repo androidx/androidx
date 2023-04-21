@@ -115,10 +115,7 @@ BundleInsideHelper.forInsideJarKmp(
 )
 
 dependencies {
-    bundleInside(project(
-            path: ":datastore:datastore-preferences-proto",
-            configuration: "export"
-    ))
+    bundleInside(project(path: ":datastore:datastore-preferences-proto", configuration: "export"))
 }
 
 androidx {

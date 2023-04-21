@@ -86,8 +86,6 @@ if (AndroidXComposePlugin.isMultiplatformEnabled(project)) {
     }
 }
 
-def allThemes = ["filled", "outlined", "rounded", "sharp", "twotone"]
-
 configurations {
     embedThemesDebug {
         attributes {
@@ -105,10 +103,17 @@ configurations {
 }
 
 if (!AndroidXComposePlugin.isMultiplatformEnabled(project)) {
-    for (themeName in allThemes) {
-        def otherProject = project(":compose:material:material-icons-extended-" + themeName)
-        project.dependencies.add("embedThemesDebug", otherProject)
-        project.dependencies.add("embedThemesRelease", otherProject)
+    def allThemeProjects = [
+            project(":compose:material:material-icons-extended-filled"),
+            project(":compose:material:material-icons-extended-outlined"),
+            project(":compose:material:material-icons-extended-rounded"),
+            project(":compose:material:material-icons-extended-sharp"),
+            project(":compose:material:material-icons-extended-twotone")
+    ]
+
+    for (themeProject in allThemeProjects) {
+        project.dependencies.add("embedThemesDebug", themeProject)
+        project.dependencies.add("embedThemesRelease", themeProject)
     }
     // Compiling all of the icons in this project takes a while,
     // so when possible, we compile each theme in its own project and merge them here.

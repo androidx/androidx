@@ -30,10 +30,7 @@ BundleInsideHelper.forInsideAar(
 )
 
 dependencies {
-    bundleInside(project(
-            path: ":test:screenshot:screenshot-proto",
-            configuration: "export"
-    ))
+    bundleInside(project(path: ":test:screenshot:screenshot-proto", configuration: "export"))
     implementation("androidx.annotation:annotation:1.0.0")
     implementation("androidx.core:core:1.5.0-rc02")
 

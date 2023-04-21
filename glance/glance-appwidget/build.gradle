@@ -36,10 +36,7 @@ BundleInsideHelper.forInsideAar(
 AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project, /* isMultiplatformEnabled= */ false)
 
 dependencies {
-    bundleInside(project(
-            path: ":glance:glance-appwidget-proto",
-            configuration: "export"
-    ))
+    bundleInside(project(path: ":glance:glance-appwidget-proto", configuration: "export"))
 
     api(project(":glance:glance"))
     api("androidx.annotation:annotation:1.1.0")
