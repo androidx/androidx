@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.compose.material.swipeable
+package androidx.compose.material.anchoredDraggable
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.Orientation
@@ -24,11 +24,11 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.material.AutoTestFrameClock
 import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.SwipeableV2State
-import androidx.compose.material.swipeable.SwipeableTestValue.A
-import androidx.compose.material.swipeable.SwipeableTestValue.B
-import androidx.compose.material.swipeable.SwipeableTestValue.C
-import androidx.compose.material.swipeableV2
+import androidx.compose.material.AnchoredDraggableState
+import androidx.compose.material.anchoredDraggable.AnchoredDraggableTestValue.A
+import androidx.compose.material.anchoredDraggable.AnchoredDraggableTestValue.B
+import androidx.compose.material.anchoredDraggable.AnchoredDraggableTestValue.C
+import androidx.compose.material.anchoredDraggable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.testutils.WithTouchSlop
@@ -64,17 +64,17 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 @LargeTest
 @OptIn(ExperimentalMaterialApi::class)
-class SwipeableV2GestureTest {
+class AnchoredDraggableGestureTest {
 
     @get:Rule
     val rule = createComposeRule()
 
-    private val SwipeableTestTag = "swipebox"
-    private val SwipeableBoxSize = 200.dp
+    private val AnchoredDraggableTestTag = "dragbox"
+    private val AnchoredDraggableBoxSize = 200.dp
 
     @Test
-    fun swipeable_swipe_horizontal() {
-        val state = SwipeableV2State(
+    fun anchoredDraggable_swipe_horizontal() {
+        val state = AnchoredDraggableState(
             initialValue = A,
             positionalThreshold = DefaultPositionalThreshold,
             velocityThreshold = DefaultVelocityThreshold
@@ -92,9 +92,9 @@ class SwipeableV2GestureTest {
                     Box(Modifier.fillMaxSize()) {
                         Box(
                             Modifier
-                                .requiredSize(SwipeableBoxSize)
-                                .testTag(SwipeableTestTag)
-                                .swipeableV2(
+                                .requiredSize(AnchoredDraggableBoxSize)
+                                .testTag(AnchoredDraggableTestTag)
+                                .anchoredDraggable(
                                     state = state,
                                     orientation = Orientation.Horizontal
                                 )
@@ -114,27 +114,27 @@ class SwipeableV2GestureTest {
 
         assertThat(state.currentValue).isEqualTo(A)
 
-        rule.onNodeWithTag(SwipeableTestTag)
+        rule.onNodeWithTag(AnchoredDraggableTestTag)
             .performTouchInput { swipeRight(endX = right / 2) }
         rule.waitForIdle()
 
         assertThat(state.currentValue).isEqualTo(B)
         assertThat(state.offset).isEqualTo(anchors.getValue(B))
 
-        rule.onNodeWithTag(SwipeableTestTag)
+        rule.onNodeWithTag(AnchoredDraggableTestTag)
             .performTouchInput { swipeRight(startX = right / 2, endX = right) }
         rule.waitForIdle()
         assertThat(state.currentValue).isEqualTo(C)
         assertThat(state.offset).isEqualTo(anchors.getValue(C))
 
-        rule.onNodeWithTag(SwipeableTestTag)
+        rule.onNodeWithTag(AnchoredDraggableTestTag)
             .performTouchInput { swipeLeft(endX = right / 2) }
         rule.waitForIdle()
 
         assertThat(state.currentValue).isEqualTo(B)
         assertThat(state.offset).isEqualTo(anchors.getValue(B))
 
-        rule.onNodeWithTag(SwipeableTestTag)
+        rule.onNodeWithTag(AnchoredDraggableTestTag)
             .performTouchInput { swipeLeft(startX = right / 2) }
         rule.waitForIdle()
 
@@ -143,8 +143,8 @@ class SwipeableV2GestureTest {
     }
 
     @Test
-    fun swipeable_swipe_vertical() {
-        val state = SwipeableV2State(
+    fun anchoredDraggable_swipe_vertical() {
+        val state = AnchoredDraggableState(
             initialValue = A,
             positionalThreshold = DefaultPositionalThreshold,
             velocityThreshold = DefaultVelocityThreshold
@@ -162,9 +162,9 @@ class SwipeableV2GestureTest {
                     Box(Modifier.fillMaxSize()) {
                         Box(
                             Modifier
-                                .requiredSize(SwipeableBoxSize)
-                                .testTag(SwipeableTestTag)
-                                .swipeableV2(
+                                .requiredSize(AnchoredDraggableBoxSize)
+                                .testTag(AnchoredDraggableTestTag)
+                                .anchoredDraggable(
                                     state = state,
                                     orientation = Orientation.Vertical
                                 )
@@ -184,27 +184,27 @@ class SwipeableV2GestureTest {
 
         assertThat(state.currentValue).isEqualTo(A)
 
-        rule.onNodeWithTag(SwipeableTestTag)
+        rule.onNodeWithTag(AnchoredDraggableTestTag)
             .performTouchInput { swipeDown(startY = top, endY = bottom / 2) }
         rule.waitForIdle()
 
         assertThat(state.currentValue).isEqualTo(B)
         assertThat(state.offset).isEqualTo(anchors.getValue(B))
 
-        rule.onNodeWithTag(SwipeableTestTag)
+        rule.onNodeWithTag(AnchoredDraggableTestTag)
             .performTouchInput { swipeDown(startY = bottom / 2, endY = bottom) }
         rule.waitForIdle()
         assertThat(state.currentValue).isEqualTo(C)
         assertThat(state.offset).isEqualTo(anchors.getValue(C))
 
-        rule.onNodeWithTag(SwipeableTestTag)
+        rule.onNodeWithTag(AnchoredDraggableTestTag)
             .performTouchInput { swipeUp(startY = bottom, endY = bottom / 2) }
         rule.waitForIdle()
 
         assertThat(state.currentValue).isEqualTo(B)
         assertThat(state.offset).isEqualTo(anchors.getValue(B))
 
-        rule.onNodeWithTag(SwipeableTestTag)
+        rule.onNodeWithTag(AnchoredDraggableTestTag)
             .performTouchInput { swipeUp(startY = bottom / 2, endY = top) }
         rule.waitForIdle()
 
@@ -213,8 +213,8 @@ class SwipeableV2GestureTest {
     }
 
     @Test
-    fun swipeable_swipe_disabled_horizontal() {
-        val state = SwipeableV2State(
+    fun anchoredDraggable_swipe_disabled_horizontal() {
+        val state = AnchoredDraggableState(
             initialValue = A,
             positionalThreshold = DefaultPositionalThreshold,
             velocityThreshold = DefaultVelocityThreshold
@@ -232,9 +232,9 @@ class SwipeableV2GestureTest {
                     Box(Modifier.fillMaxSize()) {
                         Box(
                             Modifier
-                                .requiredSize(SwipeableBoxSize)
-                                .testTag(SwipeableTestTag)
-                                .swipeableV2(
+                                .requiredSize(AnchoredDraggableBoxSize)
+                                .testTag(AnchoredDraggableTestTag)
+                                .anchoredDraggable(
                                     state = state,
                                     orientation = Orientation.Horizontal,
                                     enabled = false
@@ -255,7 +255,7 @@ class SwipeableV2GestureTest {
 
         assertThat(state.currentValue).isEqualTo(A)
 
-        rule.onNodeWithTag(SwipeableTestTag)
+        rule.onNodeWithTag(AnchoredDraggableTestTag)
             .performTouchInput { swipeRight(startX = left, endX = right) }
         rule.waitForIdle()
 
@@ -264,8 +264,8 @@ class SwipeableV2GestureTest {
     }
 
     @Test
-    fun swipeable_swipe_disabled_vertical() {
-        val state = SwipeableV2State(
+    fun anchoredDraggable_swipe_disabled_vertical() {
+        val state = AnchoredDraggableState(
             initialValue = A,
             positionalThreshold = DefaultPositionalThreshold,
             velocityThreshold = DefaultVelocityThreshold
@@ -283,9 +283,9 @@ class SwipeableV2GestureTest {
                     Box(Modifier.fillMaxSize()) {
                         Box(
                             Modifier
-                                .requiredSize(SwipeableBoxSize)
-                                .testTag(SwipeableTestTag)
-                                .swipeableV2(
+                                .requiredSize(AnchoredDraggableBoxSize)
+                                .testTag(AnchoredDraggableTestTag)
+                                .anchoredDraggable(
                                     state = state,
                                     orientation = Orientation.Vertical,
                                     enabled = false
@@ -306,7 +306,7 @@ class SwipeableV2GestureTest {
 
         assertThat(state.currentValue).isEqualTo(A)
 
-        rule.onNodeWithTag(SwipeableTestTag)
+        rule.onNodeWithTag(AnchoredDraggableTestTag)
             .performTouchInput { swipeDown(startY = top, endY = bottom) }
         rule.waitForIdle()
 
@@ -315,10 +315,10 @@ class SwipeableV2GestureTest {
     }
 
     @Test
-    fun swipeable_positionalThresholds_fractional_targetState() {
+    fun anchoredDraggable_positionalThresholds_fractional_targetState() {
         val positionalThreshold = 0.5f
         val absThreshold = abs(positionalThreshold)
-        val state = SwipeableV2State(
+        val state = AnchoredDraggableState(
             initialValue = A,
             positionalThreshold = { totalDistance -> totalDistance * positionalThreshold },
             velocityThreshold = DefaultVelocityThreshold
@@ -327,9 +327,9 @@ class SwipeableV2GestureTest {
             Box(Modifier.fillMaxSize()) {
                 Box(
                     Modifier
-                        .requiredSize(SwipeableBoxSize)
-                        .testTag(SwipeableTestTag)
-                        .swipeableV2(
+                        .requiredSize(AnchoredDraggableBoxSize)
+                        .testTag(AnchoredDraggableTestTag)
+                        .anchoredDraggable(
                             state = state,
                             orientation = Orientation.Horizontal
                         )
@@ -394,10 +394,10 @@ class SwipeableV2GestureTest {
     }
 
     @Test
-    fun swipeable_positionalThresholds_fractional_negativeThreshold_targetState() {
+    fun anchoredDraggable_positionalThresholds_fractional_negativeThreshold_targetState() {
         val positionalThreshold = -0.5f
         val absThreshold = abs(positionalThreshold)
-        val state = SwipeableV2State(
+        val state = AnchoredDraggableState(
             initialValue = A,
             positionalThreshold = { totalDistance -> totalDistance * positionalThreshold },
             velocityThreshold = DefaultVelocityThreshold
@@ -406,9 +406,9 @@ class SwipeableV2GestureTest {
             Box(Modifier.fillMaxSize()) {
                 Box(
                     Modifier
-                        .requiredSize(SwipeableBoxSize)
-                        .testTag(SwipeableTestTag)
-                        .swipeableV2(
+                        .requiredSize(AnchoredDraggableBoxSize)
+                        .testTag(AnchoredDraggableTestTag)
+                        .anchoredDraggable(
                             state = state,
                             orientation = Orientation.Horizontal
                         )
@@ -473,11 +473,11 @@ class SwipeableV2GestureTest {
     }
 
     @Test
-    fun swipeable_positionalThresholds_fixed_targetState() {
+    fun anchoredDraggable_positionalThresholds_fixed_targetState() {
         val positionalThreshold = 56.dp
         val positionalThresholdPx = with(rule.density) { positionalThreshold.toPx() }
         val absThreshold = abs(positionalThresholdPx)
-        val state = SwipeableV2State(
+        val state = AnchoredDraggableState(
             initialValue = A,
             positionalThreshold = { positionalThresholdPx },
             velocityThreshold = DefaultVelocityThreshold
@@ -486,9 +486,9 @@ class SwipeableV2GestureTest {
             Box(Modifier.fillMaxSize()) {
                 Box(
                     Modifier
-                        .requiredSize(SwipeableBoxSize)
-                        .testTag(SwipeableTestTag)
-                        .swipeableV2(
+                        .requiredSize(AnchoredDraggableBoxSize)
+                        .testTag(AnchoredDraggableTestTag)
+                        .anchoredDraggable(
                             state = state,
                             orientation = Orientation.Horizontal
                         )
@@ -556,11 +556,11 @@ class SwipeableV2GestureTest {
     }
 
     @Test
-    fun swipeable_positionalThresholds_fixed_negativeThreshold_targetState() {
+    fun anchoredDraggable_positionalThresholds_fixed_negativeThreshold_targetState() {
         val positionalThreshold = (-56).dp
         val positionalThresholdPx = with(rule.density) { positionalThreshold.toPx() }
         val absThreshold = abs(positionalThresholdPx)
-        val state = SwipeableV2State(
+        val state = AnchoredDraggableState(
             initialValue = A,
             positionalThreshold = { positionalThresholdPx },
             velocityThreshold = DefaultVelocityThreshold
@@ -569,9 +569,9 @@ class SwipeableV2GestureTest {
             Box(Modifier.fillMaxSize()) {
                 Box(
                     Modifier
-                        .requiredSize(SwipeableBoxSize)
-                        .testTag(SwipeableTestTag)
-                        .swipeableV2(
+                        .requiredSize(AnchoredDraggableBoxSize)
+                        .testTag(AnchoredDraggableTestTag)
+                        .anchoredDraggable(
                             state = state,
                             orientation = Orientation.Horizontal
                         )
@@ -639,11 +639,11 @@ class SwipeableV2GestureTest {
     }
 
     @Test
-    fun swipeable_velocityThreshold_settle_velocityHigherThanThreshold_advances() =
+    fun anchoredDraggable_velocityThreshold_settle_velocityHigherThanThreshold_advances() =
         runBlocking(AutoTestFrameClock()) {
             val velocity = 100.dp
             val velocityPx = with(rule.density) { velocity.toPx() }
-            val state = SwipeableV2State(
+            val state = AnchoredDraggableState(
                 initialValue = A,
                 positionalThreshold = DefaultPositionalThreshold,
                 velocityThreshold = { velocityPx / 2f }
@@ -662,11 +662,11 @@ class SwipeableV2GestureTest {
         }
 
     @Test
-    fun swipeable_velocityThreshold_settle_velocityLowerThanThreshold_doesntAdvance() =
+    fun anchoredDraggable_velocityThreshold_settle_velocityLowerThanThreshold_doesntAdvance() =
         runBlocking(AutoTestFrameClock()) {
             val velocity = 100.dp
             val velocityPx = with(rule.density) { velocity.toPx() }
-            val state = SwipeableV2State(
+            val state = AnchoredDraggableState(
                 initialValue = A,
                 velocityThreshold = { velocityPx },
                 positionalThreshold = { Float.POSITIVE_INFINITY }
@@ -684,9 +684,9 @@ class SwipeableV2GestureTest {
         }
 
     @Test
-    fun swipeable_velocityThreshold_swipe_velocityHigherThanThreshold_advances() {
+    fun anchoredDraggable_velocityThreshold_swipe_velocityHigherThanThreshold_advances() {
         val velocityThreshold = 100.dp
-        val state = SwipeableV2State(
+        val state = AnchoredDraggableState(
             initialValue = A,
             positionalThreshold = DefaultPositionalThreshold,
             velocityThreshold = { with(rule.density) { velocityThreshold.toPx() } }
@@ -695,9 +695,9 @@ class SwipeableV2GestureTest {
             Box(Modifier.fillMaxSize()) {
                 Box(
                     Modifier
-                        .requiredSize(SwipeableBoxSize)
-                        .testTag(SwipeableTestTag)
-                        .swipeableV2(
+                        .requiredSize(AnchoredDraggableBoxSize)
+                        .testTag(AnchoredDraggableTestTag)
+                        .anchoredDraggable(
                             state = state,
                             orientation = Orientation.Horizontal
                         )
@@ -721,7 +721,7 @@ class SwipeableV2GestureTest {
             }
         }
 
-        rule.onNodeWithTag(SwipeableTestTag)
+        rule.onNodeWithTag(AnchoredDraggableTestTag)
             .performTouchInput {
                 swipeWithVelocity(
                     start = Offset(left, 0f),
@@ -735,9 +735,9 @@ class SwipeableV2GestureTest {
     }
 
     @Test
-    fun swipeable_velocityThreshold_swipe_velocityLowerThanThreshold_doesntAdvance() {
+    fun anchoredDraggable_velocityThreshold_swipe_velocityLowerThanThreshold_doesntAdvance() {
         val velocityThreshold = 100.dp
-        val state = SwipeableV2State(
+        val state = AnchoredDraggableState(
             initialValue = A,
             velocityThreshold = { with(rule.density) { velocityThreshold.toPx() } },
             positionalThreshold = { Float.POSITIVE_INFINITY }
@@ -746,9 +746,9 @@ class SwipeableV2GestureTest {
             Box(Modifier.fillMaxSize()) {
                 Box(
                     Modifier
-                        .requiredSize(SwipeableBoxSize)
-                        .testTag(SwipeableTestTag)
-                        .swipeableV2(
+                        .requiredSize(AnchoredDraggableBoxSize)
+                        .testTag(AnchoredDraggableTestTag)
+                        .anchoredDraggable(
                             state = state,
                             orientation = Orientation.Horizontal
                         )
@@ -772,7 +772,7 @@ class SwipeableV2GestureTest {
             }
         }
 
-        rule.onNodeWithTag(SwipeableTestTag)
+        rule.onNodeWithTag(AnchoredDraggableTestTag)
             .performTouchInput {
                 swipeWithVelocity(
                     start = Offset(left, 0f),
@@ -786,12 +786,12 @@ class SwipeableV2GestureTest {
     }
 
     @Test
-    fun swipeable_dragBeyondBounds_clampsAndSwipesBack() {
+    fun anchoredDraggable_dragBeyondBounds_clampsAndSwipesBack() {
         val anchors = mapOf(
             A to 0f,
             C to 500f
         )
-        val state = SwipeableV2State(
+        val state = AnchoredDraggableState(
             initialValue = A,
             positionalThreshold = DefaultPositionalThreshold,
             velocityThreshold = { 0f }
@@ -801,9 +801,9 @@ class SwipeableV2GestureTest {
             Box(Modifier.fillMaxSize()) {
                 Box(
                     Modifier
-                        .requiredSize(SwipeableBoxSize)
-                        .testTag(SwipeableTestTag)
-                        .swipeableV2(
+                        .requiredSize(AnchoredDraggableBoxSize)
+                        .testTag(AnchoredDraggableTestTag)
+                        .anchoredDraggable(
                             state = state,
                             orientation = Orientation.Horizontal
                         )
@@ -822,7 +822,7 @@ class SwipeableV2GestureTest {
         val overdrag = 100f
         val maxBound = state.anchors.getValue(C)
 
-        rule.onNodeWithTag(SwipeableTestTag)
+        rule.onNodeWithTag(AnchoredDraggableTestTag)
             .performTouchInput {
                 down(Offset(0f, 0f))
                 moveBy(Offset(x = maxBound + overdrag, y = 0f))
@@ -839,14 +839,14 @@ class SwipeableV2GestureTest {
     }
 
     @Test
-    fun swipeable_animationCancelledByDrag_resetsTargetValueToClosest() {
+    fun anchoredDraggable_animationCancelledByDrag_resetsTargetValueToClosest() {
         rule.mainClock.autoAdvance = false
         val anchors = mapOf(
             A to 0f,
             B to 250f,
             C to 500f
         )
-        val state = SwipeableV2State(
+        val state = AnchoredDraggableState(
             initialValue = A,
             positionalThreshold = { totalDistance -> totalDistance * 0.5f },
             velocityThreshold = DefaultVelocityThreshold
@@ -859,9 +859,9 @@ class SwipeableV2GestureTest {
                 Box(Modifier.fillMaxSize()) {
                     Box(
                         Modifier
-                            .requiredSize(SwipeableBoxSize)
-                            .testTag(SwipeableTestTag)
-                            .swipeableV2(
+                            .requiredSize(AnchoredDraggableBoxSize)
+                            .testTag(AnchoredDraggableTestTag)
+                            .anchoredDraggable(
                                 state = state,
                                 orientation = Orientation.Horizontal
                             )
@@ -888,7 +888,7 @@ class SwipeableV2GestureTest {
         } // Advance until our closest anchor is B
         assertThat(state.targetValue).isEqualTo(C)
 
-        rule.onNodeWithTag(SwipeableTestTag)
+        rule.onNodeWithTag(AnchoredDraggableTestTag)
             .performTouchInput {
                 down(Offset.Zero)
             }

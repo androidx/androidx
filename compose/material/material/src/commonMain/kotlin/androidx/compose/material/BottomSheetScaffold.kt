@@ -25,7 +25,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.requiredHeightIn
 import androidx.compose.material.BottomSheetValue.Collapsed
 import androidx.compose.material.BottomSheetValue.Expanded
-import androidx.compose.material.SwipeableV2State.AnchorChangedCallback
+import androidx.compose.material.AnchoredDraggableState.AnchorChangedCallback
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.Stable
@@ -142,7 +142,7 @@ class BottomSheetState @Deprecated(
     confirmValueChange: (BottomSheetValue) -> Boolean = { true }
 ) {
 
-    internal val swipeableState = SwipeableV2State(
+    internal val anchoredDraggableState = AnchoredDraggableState(
         initialValue = initialValue,
         animationSpec = animationSpec,
         confirmValueChange = confirmValueChange,
@@ -159,19 +159,19 @@ class BottomSheetState @Deprecated(
     )
 
     val currentValue: BottomSheetValue
-        get() = swipeableState.currentValue
+        get() = anchoredDraggableState.currentValue
 
     /**
      * Whether the bottom sheet is expanded.
      */
     val isExpanded: Boolean
-        get() = swipeableState.currentValue == Expanded
+        get() = anchoredDraggableState.currentValue == Expanded
 
     /**
      * Whether the bottom sheet is collapsed.
      */
     val isCollapsed: Boolean
-        get() = swipeableState.currentValue == Collapsed
+        get() = anchoredDraggableState.currentValue == Collapsed
 
     /**
      * The fraction of the progress going from [currentValue] to the targetValue, within [0f..1f]
@@ -179,7 +179,7 @@ class BottomSheetState @Deprecated(
      */
     /*@FloatRange(from = 0f, to = 1f)*/
     val progress: Float
-        get() = swipeableState.progress
+        get() = anchoredDraggableState.progress
 
     /**
      * Expand the bottom sheet with an animation and suspend until the animation finishes or is
@@ -190,8 +190,8 @@ class BottomSheetState @Deprecated(
      * This method will throw [CancellationException] if the animation is interrupted.
      */
     suspend fun expand() {
-        val target = if (swipeableState.hasAnchorForValue(Expanded)) Expanded else Collapsed
-        swipeableState.animateTo(target)
+        val target = if (anchoredDraggableState.hasAnchorForValue(Expanded)) Expanded else Collapsed
+        anchoredDraggableState.animateTo(target)
     }
 
     /**
@@ -199,7 +199,7 @@ class BottomSheetState @Deprecated(
      * has been cancelled. This method will throw [CancellationException] if the animation is
      * interrupted.
      */
-    suspend fun collapse() = swipeableState.animateTo(Collapsed)
+    suspend fun collapse() = anchoredDraggableState.animateTo(Collapsed)
 
     @Deprecated(
         message = "Use requireOffset() to access the offset.",
@@ -212,18 +212,18 @@ class BottomSheetState @Deprecated(
      *
      * @throws IllegalStateException If the offset has not been initialized yet
      */
-    fun requireOffset() = swipeableState.requireOffset()
+    fun requireOffset() = anchoredDraggableState.requireOffset()
 
     internal suspend fun animateTo(
         target: BottomSheetValue,
-        velocity: Float = swipeableState.lastVelocity
-    ) = swipeableState.animateTo(target, velocity)
+        velocity: Float = anchoredDraggableState.lastVelocity
+    ) = anchoredDraggableState.animateTo(target, velocity)
 
-    internal suspend fun snapTo(target: BottomSheetValue) = swipeableState.snapTo(target)
+    internal suspend fun snapTo(target: BottomSheetValue) = anchoredDraggableState.snapTo(target)
 
-    internal fun trySnapTo(target: BottomSheetValue) = swipeableState.trySnapTo(target)
+    internal fun trySnapTo(target: BottomSheetValue) = anchoredDraggableState.trySnapTo(target)
 
-    internal val isAnimationRunning: Boolean get() = swipeableState.isAnimationRunning
+    internal val isAnimationRunning: Boolean get() = anchoredDraggableState.isAnimationRunning
 
     internal var density: Density? = null
     private fun requireDensity() = requireNotNull(density) {
@@ -231,7 +231,7 @@ class BottomSheetState @Deprecated(
             "the BottomSheetScaffold composable?"
     }
 
-    internal val lastVelocity: Float get() = swipeableState.lastVelocity
+    internal val lastVelocity: Float get() = anchoredDraggableState.lastVelocity
 
     companion object {
 
@@ -243,7 +243,7 @@ class BottomSheetState @Deprecated(
             confirmStateChange: (BottomSheetValue) -> Boolean,
             density: Density
         ): Saver<BottomSheetState, *> = Saver(
-            save = { it.swipeableState.currentValue },
+            save = { it.anchoredDraggableState.currentValue },
             restore = {
                 BottomSheetState(
                     initialValue = it,
@@ -269,7 +269,7 @@ class BottomSheetState @Deprecated(
             animationSpec: AnimationSpec<Float>,
             confirmStateChange: (BottomSheetValue) -> Boolean
         ): Saver<BottomSheetState, *> = Saver(
-            save = { it.swipeableState.currentValue },
+            save = { it.anchoredDraggableState.currentValue },
             restore = {
                 BottomSheetState(
                     initialValue = it,
@@ -443,9 +443,9 @@ fun BottomSheetScaffold(
                 val nestedScroll = if (sheetGesturesEnabled) {
                     Modifier
                         .nestedScroll(
-                            remember(scaffoldState.bottomSheetState.swipeableState) {
+                            remember(scaffoldState.bottomSheetState.anchoredDraggableState) {
                                 ConsumeSwipeWithinBottomSheetBoundsNestedScrollConnection(
-                                    state = scaffoldState.bottomSheetState.swipeableState,
+                                    state = scaffoldState.bottomSheetState.anchoredDraggableState,
                                     orientation = Orientation.Vertical
                                 )
                             }
@@ -529,13 +529,13 @@ private fun BottomSheet(
     }
     Surface(
         modifier
-            .swipeableV2(
-                state = state.swipeableState,
+            .anchoredDraggable(
+                state = state.anchoredDraggableState,
                 orientation = Orientation.Vertical,
                 enabled = sheetGesturesEnabled,
             )
             .onSizeChanged { layoutSize ->
-                state.swipeableState.updateAnchors(
+                state.anchoredDraggableState.updateAnchors(
                     newAnchors = calculateAnchors(layoutSize),
                     onAnchorsChanged = anchorChangeCallback
                 )
@@ -543,17 +543,17 @@ private fun BottomSheet(
             .semantics {
                 // If we don't have anchors yet, or have only one anchor we don't want any
                 // accessibility actions
-                if (state.swipeableState.anchors.size > 1) {
+                if (state.anchoredDraggableState.anchors.size > 1) {
                     if (state.isCollapsed) {
                         expand {
-                            if (state.swipeableState.confirmValueChange(Expanded)) {
+                            if (state.anchoredDraggableState.confirmValueChange(Expanded)) {
                                 scope.launch { state.expand() }
                             }
                             true
                         }
                     } else {
                         collapse {
-                            if (state.swipeableState.confirmValueChange(Collapsed)) {
+                            if (state.anchoredDraggableState.confirmValueChange(Collapsed)) {
                                 scope.launch { state.collapse() }
                             }
                             true
@@ -656,7 +656,7 @@ private fun BottomSheetScaffoldLayout(
 
 @OptIn(ExperimentalMaterialApi::class)
 private fun ConsumeSwipeWithinBottomSheetBoundsNestedScrollConnection(
-    state: SwipeableV2State<*>,
+    state: AnchoredDraggableState<*>,
     orientation: Orientation
 ): NestedScrollConnection = object : NestedScrollConnection {
     override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {

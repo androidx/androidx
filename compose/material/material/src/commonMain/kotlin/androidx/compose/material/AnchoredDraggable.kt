@@ -26,7 +26,7 @@ import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.offset
-import androidx.compose.material.SwipeableV2State.AnchorChangedCallback
+import androidx.compose.material.AnchoredDraggableState.AnchorChangedCallback
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.derivedStateOf
@@ -45,27 +45,27 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
 /**
- * Enable swipe gestures between a set of predefined values.
+ * Enable drag gestures between a set of predefined values.
  *
- * When a swipe is detected, the offset of the [SwipeableV2State] will be updated with the swipe
+ * When a drag is detected, the offset of the [AnchoredDraggableState] will be updated with the drag
  * delta. You should use this offset to move your content accordingly (see [Modifier.offset]).
- * When the swipe ends, the offset will be animated to one of the anchors and when that anchor is
- * reached, the value of the [SwipeableV2State] will also be updated to the value corresponding to
- * the new anchor.
+ * When the drag ends, the offset will be animated to one of the anchors and when that anchor is
+ * reached, the value of the [AnchoredDraggableState] will also be updated to the value
+ * corresponding to the new anchor.
  *
- * Swiping is constrained between the minimum and maximum anchors.
+ * Dragging is constrained between the minimum and maximum anchors.
  *
- * @param state The associated [SwipeableV2State].
- * @param orientation The orientation in which the swipeable can be swiped.
- * @param enabled Whether this [swipeableV2] is enabled and should react to the user's input.
- * @param reverseDirection Whether to reverse the direction of the swipe, so a top to bottom
- * swipe will behave like bottom to top, and a left to right swipe will behave like right to left.
+ * @param state The associated [AnchoredDraggableState].
+ * @param orientation The orientation in which the [anchoredDraggable] can be dragged.
+ * @param enabled Whether this [anchoredDraggable] is enabled and should react to the user's input.
+ * @param reverseDirection Whether to reverse the direction of the drag, so a top to bottom
+ * drag will behave like bottom to top, and a left to right drag will behave like right to left.
  * @param interactionSource Optional [MutableInteractionSource] that will passed on to
  * the internal [Modifier.draggable].
  */
 @ExperimentalMaterialApi
-internal fun <T> Modifier.swipeableV2(
-    state: SwipeableV2State<T>,
+internal fun <T> Modifier.anchoredDraggable(
+    state: AnchoredDraggableState<T>,
     orientation: Orientation,
     enabled: Boolean = true,
     reverseDirection: Boolean = false,
@@ -81,17 +81,17 @@ internal fun <T> Modifier.swipeableV2(
 )
 
 /**
- * State of the [swipeableV2] modifier.
+ * State of the [anchoredDraggable] modifier.
  *
- * This contains necessary information about any ongoing swipe or animation and provides methods
+ * This contains necessary information about any ongoing drag or animation and provides methods
  * to change the state either immediately or by starting an animation. To create and remember a
- * [SwipeableV2State] use [rememberSwipeableV2State].
+ * [AnchoredDraggableState] use [rememberAnchoredDraggableState].
  *
  * @param initialValue The initial value of the state.
  * @param animationSpec The default animation that will be used to animate to a new state.
  * @param confirmValueChange Optional callback invoked to confirm or veto a pending state change.
  * @param positionalThreshold The positional threshold, in px, to be used when calculating the
- * target state while a swipe is in progress and when settling after the swipe ends. This is the
+ * target state while a drag is in progress and when settling after the drag ends. This is the
  * distance from the start of a transition. It will be, depending on the direction of the
  * interaction, added or subtracted from/to the origin offset. It should always be a positive value.
  * @param velocityThreshold The velocity threshold (in px per second) that the end velocity has to
@@ -100,20 +100,20 @@ internal fun <T> Modifier.swipeableV2(
  */
 @Stable
 @ExperimentalMaterialApi
-internal class SwipeableV2State<T>(
+internal class AnchoredDraggableState<T>(
     initialValue: T,
     internal val positionalThreshold: (totalDistance: Float) -> Float,
     internal val velocityThreshold: () -> Float,
-    internal val animationSpec: AnimationSpec<Float> = SwipeableV2Defaults.AnimationSpec,
+    internal val animationSpec: AnimationSpec<Float> = AnchoredDraggableDefaults.AnimationSpec,
     internal val confirmValueChange: (newValue: T) -> Boolean = { true }
 ) {
 
-    private val swipeMutex = InternalMutatorMutex()
+    private val dragMutex = InternalMutatorMutex()
 
     internal val swipeDraggableState = object : DraggableState {
         private val dragScope = object : DragScope {
             override fun dragBy(pixels: Float) {
-                this@SwipeableV2State.dispatchRawDelta(pixels)
+                this@AnchoredDraggableState.dispatchRawDelta(pixels)
             }
         }
 
@@ -121,16 +121,16 @@ internal class SwipeableV2State<T>(
             dragPriority: MutatePriority,
             block: suspend DragScope.() -> Unit
         ) {
-            swipe(dragPriority) { dragScope.block() }
+            this@AnchoredDraggableState.drag(dragPriority) { dragScope.block() }
         }
 
         override fun dispatchRawDelta(delta: Float) {
-            this@SwipeableV2State.dispatchRawDelta(delta)
+            this@AnchoredDraggableState.dispatchRawDelta(delta)
         }
     }
 
     /**
-     * The current value of the [SwipeableV2State].
+     * The current value of the [AnchoredDraggableState].
      */
     var currentValue: T by mutableStateOf(initialValue)
         private set
@@ -153,7 +153,7 @@ internal class SwipeableV2State<T>(
      * The current offset, or null if it has not been initialized yet.
      *
      * The offset will be initialized during the first measurement phase of the node that the
-     * [swipeableV2] modifier is attached to. These are the phases:
+     * [anchoredDraggable] modifier is attached to. These are the phases:
      * Composition { -> Effects } -> Layout { Measurement -> Placement } -> Drawing
      * During the first composition, the offset will be null. In subsequent compositions, the offset
      * will be derived from the anchors of the previous pass.
@@ -277,7 +277,7 @@ internal class SwipeableV2State<T>(
      * @param targetValue The target value of the animation
      */
     suspend fun snapTo(targetValue: T) {
-        swipe { snap(targetValue) }
+        drag { snap(targetValue) }
     }
 
     /**
@@ -298,7 +298,7 @@ internal class SwipeableV2State<T>(
         val targetOffset = anchors[targetValue]
         if (targetOffset != null) {
             try {
-                swipe {
+                drag {
                     animationTarget = targetValue
                     var prev = offset ?: 0f
                     animate(prev, targetOffset, velocity, animationSpec) { value, velocity ->
@@ -345,9 +345,9 @@ internal class SwipeableV2State<T>(
     }
 
     /**
-     * Swipe by the [delta], coerce it in the bounds and dispatch it to the [SwipeableV2State].
+     * Drag by the [delta], coerce it in the bounds and dispatch it to the [AnchoredDraggableState].
      *
-     * @return The delta the consumed by the [SwipeableV2State]
+     * @return The delta the consumed by the [AnchoredDraggableState]
      */
     fun dispatchRawDelta(delta: Float): Float {
         val currentDragPosition = offset ?: 0f
@@ -401,19 +401,19 @@ internal class SwipeableV2State<T>(
         }
     }
 
-    private suspend fun swipe(
-        swipePriority: MutatePriority = MutatePriority.Default,
+    private suspend fun drag(
+        priority: MutatePriority = MutatePriority.Default,
         action: suspend () -> Unit
-    ): Unit = coroutineScope { swipeMutex.mutate(swipePriority, action) }
+    ): Unit = coroutineScope { dragMutex.mutate(priority, action) }
 
     /**
-     * Attempt to snap synchronously. Snapping can happen synchronously when there is no other swipe
+     * Attempt to snap synchronously. Snapping can happen synchronously when there is no other drag
      * transaction like a drag or an animation is progress. If there is another interaction in
      * progress, the suspending [snapTo] overload needs to be used.
      *
      * @return true if the synchronous snap was successful, or false if we couldn't snap synchronous
      */
-    internal fun trySnapTo(targetValue: T): Boolean = swipeMutex.tryMutate { snap(targetValue) }
+    internal fun trySnapTo(targetValue: T): Boolean = dragMutex.tryMutate { snap(targetValue) }
 
     private fun snap(targetValue: T) {
         val targetOffset = anchors[targetValue]
@@ -428,7 +428,7 @@ internal class SwipeableV2State<T>(
 
     companion object {
         /**
-         * The default [Saver] implementation for [SwipeableV2State].
+         * The default [Saver] implementation for [AnchoredDraggableState].
          */
         @ExperimentalMaterialApi
         fun <T : Any> Saver(
@@ -436,10 +436,10 @@ internal class SwipeableV2State<T>(
             confirmValueChange: (T) -> Boolean,
             positionalThreshold: (distance: Float) -> Float,
             velocityThreshold: () -> Float
-        ) = Saver<SwipeableV2State<T>, T>(
+        ) = Saver<AnchoredDraggableState<T>, T>(
             save = { it.currentValue },
             restore = {
-                SwipeableV2State(
+                AnchoredDraggableState(
                     initialValue = it,
                     animationSpec = animationSpec,
                     confirmValueChange = confirmValueChange,
@@ -456,16 +456,16 @@ internal class SwipeableV2State<T>(
      * Components with custom reconciliation logic should implement this callback, for example to
      * re-target an in-progress animation when the anchors change.
      *
-     * @see SwipeableV2Defaults.ReconcileAnimationOnAnchorChangedCallback for a default
+     * @see AnchoredDraggableDefaults.ReconcileAnimationOnAnchorChangedCallback for a default
      * implementation
      */
     @ExperimentalMaterialApi
     fun interface AnchorChangedCallback<T> {
 
         /**
-         * Callback that is invoked when the anchors have changed, after the [SwipeableV2State] has
-         * been updated with them. Use this hook to re-launch animations or interrupt them if
-         * needed.
+         * Callback that is invoked when the anchors have changed, after the
+         * [AnchoredDraggableState] has been updated with them. Use this hook to re-launch
+         * animations or interrupt them if needed.
          *
          * @param previousTargetValue The target value before the anchors were updated
          * @param previousAnchors The previously set anchors
@@ -480,7 +480,7 @@ internal class SwipeableV2State<T>(
 }
 
 /**
- * Create and remember a [SwipeableV2State].
+ * Create and remember a [AnchoredDraggableState].
  *
  * @param initialValue The initial value.
  * @param animationSpec The default animation that will be used to animate to a new value.
@@ -488,23 +488,23 @@ internal class SwipeableV2State<T>(
  */
 @Composable
 @ExperimentalMaterialApi
-internal fun <T : Any> rememberSwipeableV2State(
+internal fun <T : Any> rememberAnchoredDraggableState(
     initialValue: T,
-    animationSpec: AnimationSpec<Float> = SwipeableV2Defaults.AnimationSpec,
+    animationSpec: AnimationSpec<Float> = AnchoredDraggableDefaults.AnimationSpec,
     confirmValueChange: (newValue: T) -> Boolean = { true }
-): SwipeableV2State<T> {
-    val positionalThreshold = SwipeableV2Defaults.positionalThreshold
-    val velocityThreshold = SwipeableV2Defaults.velocityThreshold
+): AnchoredDraggableState<T> {
+    val positionalThreshold = AnchoredDraggableDefaults.positionalThreshold
+    val velocityThreshold = AnchoredDraggableDefaults.velocityThreshold
     return rememberSaveable(
         initialValue, animationSpec, confirmValueChange, positionalThreshold, velocityThreshold,
-        saver = SwipeableV2State.Saver(
+        saver = AnchoredDraggableState.Saver(
             animationSpec = animationSpec,
             confirmValueChange = confirmValueChange,
             positionalThreshold = positionalThreshold,
             velocityThreshold = velocityThreshold
         ),
     ) {
-        SwipeableV2State(
+        AnchoredDraggableState(
             initialValue = initialValue,
             animationSpec = animationSpec,
             confirmValueChange = confirmValueChange,
@@ -515,27 +515,34 @@ internal fun <T : Any> rememberSwipeableV2State(
 }
 
 /**
- * Contains useful defaults for [swipeableV2] and [SwipeableV2State].
+ * Contains useful defaults for [anchoredDraggable] and [AnchoredDraggableState].
  */
 @Stable
 @ExperimentalMaterialApi
-internal object SwipeableV2Defaults {
+internal object AnchoredDraggableDefaults {
     /**
-     * The default animation used by [SwipeableV2State].
+     * The default animation used by [AnchoredDraggableState].
      */
+    @get:ExperimentalMaterialApi
+    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
     @ExperimentalMaterialApi
     val AnimationSpec = SpringSpec<Float>()
 
     /**
-     * The default velocity threshold (1.8 dp per millisecond) used by [rememberSwipeableV2State].
+     * The default velocity threshold (1.8 dp per millisecond) used by
+     * [rememberAnchoredDraggableState].
      */
+    @get:ExperimentalMaterialApi
+    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
     @ExperimentalMaterialApi
     val velocityThreshold: () -> Float
         @Composable get() = with(LocalDensity.current) { { 125.dp.toPx() } }
 
     /**
-     * The default positional threshold (56 dp) used by [rememberSwipeableV2State]
+     * The default positional threshold (56 dp) used by [rememberAnchoredDraggableState]
      */
+    @get:ExperimentalMaterialApi
+    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
     @ExperimentalMaterialApi
     val positionalThreshold: (totalDistance: Float) -> Float
         @Composable get() = with(LocalDensity.current) {
@@ -552,7 +559,7 @@ internal object SwipeableV2Defaults {
      */
     @ExperimentalMaterialApi
     internal fun <T> ReconcileAnimationOnAnchorChangedCallback(
-        state: SwipeableV2State<T>,
+        state: AnchoredDraggableState<T>,
         scope: CoroutineScope
     ) = AnchorChangedCallback<T> { previousTarget, previousAnchors, newAnchors ->
             val previousTargetOffset = previousAnchors[previousTarget]

@@ -108,8 +108,8 @@ fun Switch(
     // a new checked value.
     var forceAnimationCheck by remember { mutableStateOf(false) }
     val switchVelocityThresholdPx = with(LocalDensity.current) { SwitchVelocityThreshold.toPx() }
-    val swipeableState = remember(switchVelocityThresholdPx) {
-        SwipeableV2State(
+    val anchoredDraggableState = remember(switchVelocityThresholdPx) {
+        AnchoredDraggableState(
             initialValue = checked,
             animationSpec = AnimationSpec,
             positionalThreshold = { distance -> distance * SwitchPositionalThreshold },
@@ -119,10 +119,10 @@ fun Switch(
     val currentOnCheckedChange by rememberUpdatedState(onCheckedChange)
     val currentChecked by rememberUpdatedState(checked)
     SideEffect {
-        swipeableState.updateAnchors(mapOf(false to minBound, true to maxBound))
+        anchoredDraggableState.updateAnchors(mapOf(false to minBound, true to maxBound))
     }
-    LaunchedEffect(swipeableState) {
-        snapshotFlow { swipeableState.currentValue }
+    LaunchedEffect(anchoredDraggableState) {
+        snapshotFlow { anchoredDraggableState.currentValue }
             .collectLatest { newValue ->
                 if (currentChecked != newValue) {
                     currentOnCheckedChange?.invoke(newValue)
@@ -131,8 +131,8 @@ fun Switch(
             }
     }
     LaunchedEffect(checked, forceAnimationCheck) {
-        if (checked != swipeableState.currentValue) {
-            swipeableState.animateTo(checked)
+        if (checked != anchoredDraggableState.currentValue) {
+            anchoredDraggableState.animateTo(checked)
         }
     }
     val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
@@ -160,8 +160,8 @@ fun Switch(
                 }
             )
             .then(toggleableModifier)
-            .swipeableV2(
-                state = swipeableState,
+            .anchoredDraggable(
+                state = anchoredDraggableState,
                 orientation = Orientation.Horizontal,
                 enabled = enabled && onCheckedChange != null,
                 reverseDirection = isRtl,
@@ -172,10 +172,10 @@ fun Switch(
             .requiredSize(SwitchWidth, SwitchHeight)
     ) {
         SwitchImpl(
-            checked = swipeableState.targetValue,
+            checked = anchoredDraggableState.targetValue,
             enabled = enabled,
             colors = colors,
-            thumbValue = { swipeableState.requireOffset() },
+            thumbValue = { anchoredDraggableState.requireOffset() },
             interactionSource = interactionSource
         )
     }
