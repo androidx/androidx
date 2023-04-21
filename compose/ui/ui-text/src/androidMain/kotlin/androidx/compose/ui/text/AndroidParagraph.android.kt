@@ -459,7 +459,6 @@ internal class AndroidParagraph(
         paint(canvas)
     }
 
-    @OptIn(ExperimentalTextApi::class)
     override fun paint(
         canvas: Canvas,
         color: Color,
@@ -482,7 +481,6 @@ internal class AndroidParagraph(
         textPaint.blendMode = currBlendMode
     }
 
-    @OptIn(ExperimentalTextApi::class)
     override fun paint(
         canvas: Canvas,
         brush: Brush,

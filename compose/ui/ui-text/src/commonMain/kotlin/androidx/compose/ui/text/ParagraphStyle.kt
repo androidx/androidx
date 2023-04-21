@@ -62,7 +62,7 @@ private val DefaultLineHeight = TextUnit.Unspecified
  * @see TextStyle
  */
 @Immutable
-class ParagraphStyle @ExperimentalTextApi constructor(
+class ParagraphStyle constructor(
     val textAlign: TextAlign? = null,
     val textDirection: TextDirection? = null,
     val lineHeight: TextUnit = TextUnit.Unspecified,
@@ -71,9 +71,6 @@ class ParagraphStyle @ExperimentalTextApi constructor(
     val lineHeightStyle: LineHeightStyle? = null,
     val lineBreak: LineBreak? = null,
     val hyphens: Hyphens? = null,
-    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-    @get:ExperimentalTextApi
-    @property:ExperimentalTextApi
     val textMotion: TextMotion? = null
 ) {
 
@@ -89,7 +86,6 @@ class ParagraphStyle @ExperimentalTextApi constructor(
             "constructor.",
         level = DeprecationLevel.HIDDEN
     )
-    @OptIn(ExperimentalTextApi::class)
     constructor(
         textAlign: TextAlign? = null,
         textDirection: TextDirection? = null,
@@ -113,7 +109,6 @@ class ParagraphStyle @ExperimentalTextApi constructor(
             "constructors.",
         level = DeprecationLevel.HIDDEN
     )
-    @OptIn(ExperimentalTextApi::class)
     constructor(
         textAlign: TextAlign? = null,
         textDirection: TextDirection? = null,
@@ -133,35 +128,12 @@ class ParagraphStyle @ExperimentalTextApi constructor(
         textMotion = null
     )
 
-    /**
-     * Paragraph styling configuration for a paragraph. The difference between [SpanStyle] and
-     * `ParagraphStyle` is that, `ParagraphStyle` can be applied to a whole [Paragraph] while
-     * [SpanStyle] can be applied at the character level.
-     * Once a portion of the text is marked with a `ParagraphStyle`, that portion will be separated from
-     * the remaining as if a line feed character was added.
-     *
-     * @sample androidx.compose.ui.text.samples.ParagraphStyleSample
-     * @sample androidx.compose.ui.text.samples.ParagraphStyleAnnotatedStringsSample
-     *
-     * @param textAlign The alignment of the text within the lines of the paragraph.
-     * @param textDirection The algorithm to be used to resolve the final text direction:
-     * Left To Right or Right To Left.
-     * @param lineHeight Line height for the [Paragraph] in [TextUnit] unit, e.g. SP or EM.
-     * @param textIndent The indentation of the paragraph.
-     * @param platformStyle Platform specific [ParagraphStyle] parameters.
-     * @param lineHeightStyle the configuration for line height such as vertical alignment of the
-     * line, whether to apply additional space as a result of line height to top of first line top and
-     * bottom of last line. The configuration is applied only when a [lineHeight] is defined.
-     * When null, [LineHeightStyle.Default] is used.
-     * @param lineBreak The line breaking configuration for the text.
-     * @param hyphens The configuration of hyphenation.
-     *
-     * @see Paragraph
-     * @see AnnotatedString
-     * @see SpanStyle
-     * @see TextStyle
-     */
-    @OptIn(ExperimentalTextApi::class)
+    @Deprecated(
+        "ParagraphStyle constructors that do not take new stable parameters " +
+            "like LineBreak, Hyphens, TextMotion are deprecated. Please use the new stable " +
+            "constructors.",
+        level = DeprecationLevel.HIDDEN
+    )
     constructor(
         textAlign: TextAlign? = null,
         textDirection: TextDirection? = null,
@@ -198,7 +170,6 @@ class ParagraphStyle @ExperimentalTextApi constructor(
      *
      * If the given paragraph style is null, returns this paragraph style.
      */
-    @OptIn(ExperimentalTextApi::class)
     @Stable
     fun merge(other: ParagraphStyle? = null): ParagraphStyle {
         if (other == null) return this
@@ -238,7 +209,6 @@ class ParagraphStyle @ExperimentalTextApi constructor(
             "copy constructor.",
         level = DeprecationLevel.HIDDEN
     )
-    @OptIn(ExperimentalTextApi::class)
     fun copy(
         textAlign: TextAlign? = this.textAlign,
         textDirection: TextDirection? = this.textDirection,
@@ -264,7 +234,6 @@ class ParagraphStyle @ExperimentalTextApi constructor(
             "copy constructor.",
         level = DeprecationLevel.HIDDEN
     )
-    @OptIn(ExperimentalTextApi::class)
     fun copy(
         textAlign: TextAlign? = this.textAlign,
         textDirection: TextDirection? = this.textDirection,
@@ -286,7 +255,12 @@ class ParagraphStyle @ExperimentalTextApi constructor(
         )
     }
 
-    @OptIn(ExperimentalTextApi::class)
+    @Deprecated(
+        "ParagraphStyle copy constructors that do not take new stable parameters " +
+            "like LineBreak, Hyphens, TextMotion are deprecated. Please use the new stable " +
+            "copy constructor.",
+        level = DeprecationLevel.HIDDEN
+    )
     fun copy(
         textAlign: TextAlign? = this.textAlign,
         textDirection: TextDirection? = this.textDirection,
@@ -310,7 +284,6 @@ class ParagraphStyle @ExperimentalTextApi constructor(
         )
     }
 
-    @ExperimentalTextApi
     fun copy(
         textAlign: TextAlign? = this.textAlign,
         textDirection: TextDirection? = this.textDirection,
@@ -335,7 +308,6 @@ class ParagraphStyle @ExperimentalTextApi constructor(
         )
     }
 
-    @OptIn(ExperimentalTextApi::class)
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is ParagraphStyle) return false
@@ -353,7 +325,6 @@ class ParagraphStyle @ExperimentalTextApi constructor(
         return true
     }
 
-    @OptIn(ExperimentalTextApi::class)
     override fun hashCode(): Int {
         var result = textAlign?.hashCode() ?: 0
         result = 31 * result + (textDirection?.hashCode() ?: 0)
@@ -367,7 +338,6 @@ class ParagraphStyle @ExperimentalTextApi constructor(
         return result
     }
 
-    @OptIn(ExperimentalTextApi::class)
     override fun toString(): String {
         return "ParagraphStyle(" +
             "textAlign=$textAlign, " +
@@ -396,7 +366,6 @@ class ParagraphStyle @ExperimentalTextApi constructor(
  * between [start] and [stop]. The interpolation can be extrapolated beyond 0.0 and
  * 1.0, so negative values and values greater than 1.0 are valid.
  */
-@OptIn(ExperimentalTextApi::class)
 @Stable
 fun lerp(start: ParagraphStyle, stop: ParagraphStyle, fraction: Float): ParagraphStyle {
     return ParagraphStyle(
@@ -435,7 +404,6 @@ private fun lerpPlatformStyle(
     return lerp(startNonNull, stopNonNull, fraction)
 }
 
-@OptIn(ExperimentalTextApi::class)
 internal fun resolveParagraphStyleDefaults(
     style: ParagraphStyle,
     direction: LayoutDirection

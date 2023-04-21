@@ -254,6 +254,10 @@ expect sealed interface Paragraph {
      * TextDecoration on this paragraph, `null` does not change the currently set [TextDecoration]
      * configuration.
      */
+    @Deprecated(
+        "Use the new paint function that takes canvas as the only required parameter.",
+        level = DeprecationLevel.HIDDEN
+    )
     fun paint(
         canvas: Canvas,
         color: Color = Color.Unspecified,
@@ -281,7 +285,6 @@ expect sealed interface Paragraph {
      * currently set DrawStyle.
      * @param blendMode Blending algorithm to be applied to the Paragraph while painting.
      */
-    @ExperimentalTextApi
     fun paint(
         canvas: Canvas,
         color: Color = Color.Unspecified,
@@ -316,7 +319,6 @@ expect sealed interface Paragraph {
      * currently set DrawStyle.
      * @param blendMode Blending algorithm to be applied to the Paragraph while painting.
      */
-    @ExperimentalTextApi
     fun paint(
         canvas: Canvas,
         brush: Brush,
