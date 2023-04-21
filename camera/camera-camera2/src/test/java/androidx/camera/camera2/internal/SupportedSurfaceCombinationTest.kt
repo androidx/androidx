@@ -896,7 +896,7 @@ class SupportedSurfaceCombinationTest {
         val privUseCase = createUseCase(CaptureType.PREVIEW)
         val jpegUseCase = createUseCase(CaptureType.IMAGE_CAPTURE)
         val useCaseExpectedResultMap = mutableMapOf<UseCase, Size>().apply {
-            put(privUseCase, PREVIEW_SIZE)
+            put(privUseCase, if (Build.VERSION.SDK_INT == 21) RESOLUTION_VGA else PREVIEW_SIZE)
             put(jpegUseCase, MAXIMUM_SIZE)
         }
         getSuggestedSpecsAndVerify(useCaseExpectedResultMap)
@@ -910,7 +910,7 @@ class SupportedSurfaceCombinationTest {
         val yuvUseCase = createUseCase(CaptureType.IMAGE_ANALYSIS) // YUV
         val jpegUseCase = createUseCase(CaptureType.IMAGE_CAPTURE) // JPEG
         val useCaseExpectedResultMap = mutableMapOf<UseCase, Size>().apply {
-            put(yuvUseCase, PREVIEW_SIZE)
+            put(yuvUseCase, if (Build.VERSION.SDK_INT == 21) RESOLUTION_VGA else PREVIEW_SIZE)
             put(jpegUseCase, MAXIMUM_SIZE)
         }
         getSuggestedSpecsAndVerify(useCaseExpectedResultMap)
@@ -924,8 +924,8 @@ class SupportedSurfaceCombinationTest {
         val privUseCase1 = createUseCase(CaptureType.PREVIEW) // PRIV
         val privUseCase2 = createUseCase(CaptureType.VIDEO_CAPTURE) // PRIV
         val useCaseExpectedResultMap = mutableMapOf<UseCase, Size>().apply {
-            put(privUseCase1, PREVIEW_SIZE)
-            put(privUseCase2, PREVIEW_SIZE)
+            put(privUseCase1, if (Build.VERSION.SDK_INT == 21) RESOLUTION_VGA else PREVIEW_SIZE)
+            put(privUseCase2, if (Build.VERSION.SDK_INT == 21) RESOLUTION_VGA else PREVIEW_SIZE)
         }
         getSuggestedSpecsAndVerify(useCaseExpectedResultMap)
     }
@@ -938,8 +938,8 @@ class SupportedSurfaceCombinationTest {
         val privUseCase = createUseCase(CaptureType.PREVIEW) // PRIV
         val yuvUseCase = createUseCase(CaptureType.IMAGE_ANALYSIS) // YUV
         val useCaseExpectedResultMap = mutableMapOf<UseCase, Size>().apply {
-            put(privUseCase, PREVIEW_SIZE)
-            put(yuvUseCase, PREVIEW_SIZE)
+            put(privUseCase, if (Build.VERSION.SDK_INT == 21) RESOLUTION_VGA else PREVIEW_SIZE)
+            put(yuvUseCase, if (Build.VERSION.SDK_INT == 21) RESOLUTION_VGA else PREVIEW_SIZE)
         }
         getSuggestedSpecsAndVerify(useCaseExpectedResultMap)
     }
@@ -953,8 +953,8 @@ class SupportedSurfaceCombinationTest {
         val yuvUseCase = createUseCase(CaptureType.IMAGE_ANALYSIS) // YUV
         val jpegUseCase = createUseCase(CaptureType.IMAGE_CAPTURE) // JPEG
         val useCaseExpectedResultMap = mutableMapOf<UseCase, Size>().apply {
-            put(privUseCase, PREVIEW_SIZE)
-            put(yuvUseCase, PREVIEW_SIZE)
+            put(privUseCase, if (Build.VERSION.SDK_INT == 21) RESOLUTION_VGA else PREVIEW_SIZE)
+            put(yuvUseCase, if (Build.VERSION.SDK_INT == 21) RESOLUTION_VGA else PREVIEW_SIZE)
             put(jpegUseCase, MAXIMUM_SIZE)
         }
         getSuggestedSpecsAndVerify(useCaseExpectedResultMap)
@@ -2858,6 +2858,86 @@ class SupportedSurfaceCombinationTest {
         SupportedSurfaceCombination(
             context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
         )
+    }
+
+    @Test
+    fun applyLegacyApi21QuirkCorrectly() {
+        setupCameraAndInitCameraX()
+        val supportedSurfaceCombination = SupportedSurfaceCombination(
+            context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
+        )
+        val sortedSizeList = listOf(
+            // 16:9 sizes are put in the front of the list
+            Size(3840, 2160), // 16:9
+            Size(1920, 1080), // 16:9
+            Size(1280, 720), // 16:9
+            Size(960, 544), // a mod16 version of resolution with 16:9 aspect ratio.
+            Size(800, 450), // 16:9
+
+            // 4:3 sizes are put in the end of the list
+            Size(4032, 3024), // 4:3
+            Size(1920, 1440), // 4:3
+            Size(1280, 960), // 4:3
+            Size(640, 480), // 4:3
+        )
+        val resultList =
+            supportedSurfaceCombination.applyResolutionSelectionOrderRelatedWorkarounds(
+                sortedSizeList,
+                ImageFormat.YUV_420_888
+            )
+        val expectedResultList = if (Build.VERSION.SDK_INT == 21) {
+            listOf(
+                // 4:3 sizes are pulled to the front of the list
+                Size(4032, 3024), // 4:3
+                Size(1920, 1440), // 4:3
+                Size(1280, 960), // 4:3
+                Size(640, 480), // 4:3
+
+                // 16:9 sizes are put in the end of the list
+                Size(3840, 2160), // 16:9
+                Size(1920, 1080), // 16:9
+                Size(1280, 720), // 16:9
+                Size(960, 544), // a mod16 version of resolution with 16:9 aspect ratio.
+                Size(800, 450), // 16:9
+            )
+        } else {
+            sortedSizeList
+        }
+        assertThat(resultList).containsExactlyElementsIn(expectedResultList).inOrder()
+    }
+
+    @Test
+    fun applyResolutionCorrectorWorkaroundCorrectly() {
+        ReflectionHelpers.setStaticField(Build::class.java, "BRAND", "Samsung")
+        ReflectionHelpers.setStaticField(Build::class.java, "MODEL", "SM-J710MN")
+        setupCameraAndInitCameraX(hardwareLevel = INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED)
+        val supportedSurfaceCombination = SupportedSurfaceCombination(
+            context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
+        )
+        val resultList =
+            supportedSurfaceCombination.applyResolutionSelectionOrderRelatedWorkarounds(
+                DEFAULT_SUPPORTED_SIZES.toList(),
+                ImageFormat.YUV_420_888
+            )
+        val expectedResultList = if (Build.VERSION.SDK_INT in 21..26) {
+            listOf(
+                // 1280x720 is pulled to the first position for YUV format.
+                Size(1280, 720),
+
+                // The remaining sizes keep the original order
+                Size(4032, 3024),
+                Size(3840, 2160),
+                Size(1920, 1440),
+                Size(1920, 1080),
+                Size(1280, 960),
+                Size(960, 544),
+                Size(800, 450),
+                Size(640, 480),
+            )
+        } else {
+            DEFAULT_SUPPORTED_SIZES.toList()
+        }
+        assertThat(resultList).containsExactlyElementsIn(expectedResultList).inOrder()
     }
 
     /**
