@@ -30,6 +30,8 @@ import java.util.regex.Pattern;
 @RunWith(AndroidJUnit4.class)
 public class BySelectorTest {
 
+    private static final BySelector SELECTOR = By.res("id");
+
     @Test
     public void testClazz_nullValue() {
         assertThrows(NullPointerException.class, () -> By.clazz((String) null));
@@ -152,13 +154,51 @@ public class BySelectorTest {
     }
 
     @Test(expected = NullPointerException.class)
+    public void testHasParent_nullValue() {
+        By.hasParent(null);
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void testHasParent_alreadyDefined() {
+        By.hasParent(SELECTOR).hasParent(SELECTOR);
+    }
+
+    @Test
+    public void testHasAncestor_nullValue() {
+        assertThrows(NullPointerException.class, () -> By.hasAncestor(null));
+        assertThrows(NullPointerException.class, () -> By.hasAncestor(null, 1));
+    }
+
+    @Test
+    public void testHasAncestor_alreadyDefined() {
+        assertThrows(IllegalStateException.class,
+                () -> By.hasAncestor(SELECTOR).hasAncestor(SELECTOR));
+        assertThrows(IllegalStateException.class,
+                () -> By.hasAncestor(SELECTOR).hasAncestor(SELECTOR, 1));
+    }
+
+    @Test(expected = NullPointerException.class)
     public void testHasChild_nullValue() {
         By.hasChild(null);
+    }
+
+    @Test
+    public void testHasChild_nestedAncestor() {
+        assertThrows(IllegalArgumentException.class, () -> By.hasChild(By.hasParent(SELECTOR)));
+        assertThrows(IllegalArgumentException.class, () -> By.hasChild(By.hasAncestor(SELECTOR)));
     }
 
     @Test
     public void testHasDescendant_nullValue() {
         assertThrows(NullPointerException.class, () -> By.hasDescendant(null));
         assertThrows(NullPointerException.class, () -> By.hasDescendant(null, 0));
+    }
+
+    @Test
+    public void testHasDescendant_nestedAncestor() {
+        assertThrows(IllegalArgumentException.class,
+                () -> By.hasDescendant(By.hasParent(SELECTOR)));
+        assertThrows(IllegalArgumentException.class,
+                () -> By.hasDescendant(By.hasAncestor(SELECTOR)));
     }
 }
