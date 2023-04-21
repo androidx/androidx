@@ -35,15 +35,15 @@ class ToneMappingImageEffect : CameraEffect(
 ) {
 
     fun isInvoked(): Boolean {
-        return (imageProcessor as ToneMappingImageProcessor).processoed
+        return (imageProcessor as ToneMappingImageProcessor).processed
     }
 
     private class ToneMappingImageProcessor : ImageProcessor {
 
-        var processoed = false
+        var processed = false
 
         override fun process(request: ImageProcessor.Request): Response {
-            processoed = true
+            processed = true
             val inputImage = request.inputImage as RgbaImageProxy
             val bitmap = inputImage.createBitmap()
             applyToneMapping(bitmap)
