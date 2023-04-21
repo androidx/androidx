@@ -136,40 +136,6 @@ class CameraControllerFragmentTest(
     }
 
     @Test
-    fun enableEffect_previewEffectIsEnabled() {
-        // Arrange: launch app and verify effect is inactive.
-        fragment.assertPreviewIsStreaming()
-        val processor =
-            fragment.mToneMappingSurfaceEffect.surfaceProcessor as ToneMappingSurfaceProcessor
-        assertThat(processor.isSurfaceRequestedAndProvided()).isFalse()
-
-        // Act: turn on effect.
-        val effectToggleId = "androidx.camera.integration.view:id/effect_toggle"
-        uiDevice.findObject(UiSelector().resourceId(effectToggleId)).click()
-        instrumentation.waitForIdleSync()
-
-        // Assert: verify that effect is active.
-        assertThat(processor.isSurfaceRequestedAndProvided()).isTrue()
-    }
-
-    @Test
-    fun enableEffect_imageCaptureEffectIsEnabled() {
-        // Arrange: launch app and verify effect is inactive.
-        fragment.assertPreviewIsStreaming()
-        val effect = fragment.mToneMappingImageEffect as ToneMappingImageEffect
-        assertThat(effect.isInvoked()).isFalse()
-
-        // Act: turn on effect.
-        val effectToggleId = "androidx.camera.integration.view:id/effect_toggle"
-        uiDevice.findObject(UiSelector().resourceId(effectToggleId)).click()
-        instrumentation.waitForIdleSync()
-        fragment.assertCanTakePicture()
-
-        // Assert: verify that effect is active.
-        assertThat(effect.isInvoked()).isTrue()
-    }
-
-    @Test
     fun controllerBound_canGetCameraControl() {
         fragment.assertPreviewIsStreaming()
         instrumentation.runOnMainSync {

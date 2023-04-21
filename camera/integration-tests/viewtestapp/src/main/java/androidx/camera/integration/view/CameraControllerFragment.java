@@ -20,8 +20,6 @@ import static androidx.camera.core.impl.utils.TransformUtils.getRectToRect;
 import static androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor;
 import static androidx.camera.video.VideoRecordEvent.Finalize.ERROR_NONE;
 
-import static java.util.Arrays.asList;
-
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Dialog;
@@ -88,7 +86,6 @@ import java.io.File;
 import java.nio.ByteBuffer;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.concurrent.ExecutorService;
@@ -111,7 +108,6 @@ public class CameraControllerFragment extends Fragment {
     private FrameLayout mContainer;
     private Button mFlashMode;
     private ToggleButton mCameraToggle;
-    private ToggleButton mEffectToggle;
     private ExecutorService mExecutorService;
     private ToggleButton mCaptureEnabledToggle;
     private ToggleButton mAnalysisEnabledToggle;
@@ -148,10 +144,6 @@ public class CameraControllerFragment extends Fragment {
     // Wrapped analyzer for tests to receive callbacks.
     @Nullable
     private ImageAnalysis.Analyzer mWrappedAnalyzer;
-
-    @VisibleForTesting
-    ToneMappingSurfaceEffect mToneMappingSurfaceEffect;
-    ToneMappingImageEffect mToneMappingImageEffect;
 
     private final ImageAnalysis.Analyzer mAnalyzer = image -> {
         byte[] bytes = new byte[image.getPlanes()[0].getBuffer().remaining()];
@@ -220,13 +212,6 @@ public class CameraControllerFragment extends Fragment {
                 mContainer.removeView(mPreviewView);
             }
         });
-
-        // Set up post-processing effects.
-        mToneMappingSurfaceEffect = new ToneMappingSurfaceEffect();
-        mToneMappingImageEffect = new ToneMappingImageEffect();
-        mEffectToggle = view.findViewById(R.id.effect_toggle);
-        mEffectToggle.setOnCheckedChangeListener((compoundButton, isChecked) -> onEffectsToggled());
-        onEffectsToggled();
 
         // Set up the button to change the PreviewView's size.
         view.findViewById(R.id.shrink).setOnClickListener(v -> {
@@ -370,16 +355,6 @@ public class CameraControllerFragment extends Fragment {
             mExecutorService.shutdown();
         }
         mRotationProvider.removeListener(mRotationListener);
-        mToneMappingSurfaceEffect.release();
-    }
-
-    private void onEffectsToggled() {
-        if (mEffectToggle.isChecked()) {
-            mCameraController.setEffects(
-                    new HashSet<>(asList(mToneMappingSurfaceEffect, mToneMappingImageEffect)));
-        } else {
-            mCameraController.clearEffects();
-        }
     }
 
     void checkFailedFuture(ListenableFuture<Void> voidFuture) {
@@ -610,29 +585,21 @@ public class CameraControllerFragment extends Fragment {
     // For testing
     // -----------------
 
-    /**
-     */
     @RestrictTo(RestrictTo.Scope.TESTS)
     LifecycleCameraController getCameraController() {
         return mCameraController;
     }
 
-    /**
-     */
     @RestrictTo(RestrictTo.Scope.TESTS)
     void setWrappedAnalyzer(@Nullable ImageAnalysis.Analyzer analyzer) {
         mWrappedAnalyzer = analyzer;
     }
 
-    /**
-     */
     @RestrictTo(RestrictTo.Scope.TESTS)
     PreviewView getPreviewView() {
         return mPreviewView;
     }
 
-    /**
-     */
     @RestrictTo(RestrictTo.Scope.TESTS)
     int getSensorRotation() {
         return mRotation;
