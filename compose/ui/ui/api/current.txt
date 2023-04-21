@@ -2312,7 +2312,7 @@ package androidx.compose.ui.node {
 
   public final class LayoutModifierNodeKt {
     method public static void invalidateLayer(androidx.compose.ui.node.LayoutModifierNode);
-    method public static void invalidateMeasurements(androidx.compose.ui.node.LayoutModifierNode);
+    method public static void invalidateMeasurement(androidx.compose.ui.node.LayoutModifierNode);
     method public static void invalidatePlacement(androidx.compose.ui.node.LayoutModifierNode);
   }
 
