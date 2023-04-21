@@ -18,7 +18,7 @@ package androidx.appactions.interaction.capabilities.core
 
 import com.google.common.util.concurrent.ListenableFuture
 
-/** An ListenableFuture-based interface of executing an action. */
+/** An ListenableFuture-based interface to handle executing an action. */
 fun interface ExecutionCallbackAsync<ArgumentsT, OutputT> {
     /**
      * Calls to execute the action.
@@ -26,5 +26,6 @@ fun interface ExecutionCallbackAsync<ArgumentsT, OutputT> {
      * @param arguments the argument for this action.
      * @return A ListenableFuture containing the ExecutionResult
      */
+    @Suppress("AsyncSuffixFuture")
     fun onExecute(arguments: ArgumentsT): ListenableFuture<ExecutionResult<OutputT>>
 }

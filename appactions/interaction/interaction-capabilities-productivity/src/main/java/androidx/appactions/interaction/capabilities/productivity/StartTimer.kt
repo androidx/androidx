@@ -20,7 +20,7 @@ import androidx.appactions.builtintypes.experimental.types.GenericErrorStatus
 import androidx.appactions.builtintypes.experimental.types.SuccessStatus
 import androidx.appactions.interaction.capabilities.core.Capability
 import androidx.appactions.interaction.capabilities.core.BaseExecutionSession
-import androidx.appactions.interaction.capabilities.core.ExecutionSessionFactory
+import androidx.appactions.interaction.capabilities.core.HostProperties
 import androidx.appactions.interaction.capabilities.core.ValueListener
 import androidx.appactions.interaction.capabilities.core.impl.BuilderOf
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
@@ -102,7 +102,7 @@ class StartTimer private constructor() {
         override val sessionBridge: SessionBridge<ExecutionSession, Confirmation> = SESSION_BRIDGE
 
         public override fun setExecutionSessionFactory(
-            sessionFactory: ExecutionSessionFactory<ExecutionSession>,
+            sessionFactory: (hostProperties: HostProperties?) -> ExecutionSession,
         ): CapabilityBuilder = super.setExecutionSessionFactory(sessionFactory)
 
         override fun build(): Capability {

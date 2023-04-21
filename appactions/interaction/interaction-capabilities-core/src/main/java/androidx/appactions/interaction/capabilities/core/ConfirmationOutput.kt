@@ -16,12 +16,14 @@
 
 package androidx.appactions.interaction.capabilities.core
 
+import androidx.annotation.RestrictTo
 import java.util.Objects
 
 /**
  * Class that represents the response after all slots are filled and accepted and the task is ready
  * to enter the confirmation turn.
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class ConfirmationOutput<ConfirmationT> internal constructor(val confirmation: ConfirmationT?) {
     override fun toString() =
         "ConfirmationOutput(confirmation=$confirmation)"
