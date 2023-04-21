@@ -35,7 +35,7 @@ dependencies {
 
     implementation("androidx.core:core:1.1.0")
 
-    api(project(":compose:runtime:runtime"))
+    api("androidx.compose.runtime:runtime:1.2.1")
     api(project(":glance:glance"))
     api(project(":glance:glance-appwidget"))
 
