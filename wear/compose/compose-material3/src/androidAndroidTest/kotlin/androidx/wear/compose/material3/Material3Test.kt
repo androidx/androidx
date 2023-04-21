@@ -38,6 +38,8 @@ import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.SemanticsNodeInteraction
+import androidx.compose.ui.test.assertTouchHeightIsEqualTo
+import androidx.compose.ui.test.assertTouchWidthIsEqualTo
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.onNodeWithTag
@@ -119,6 +121,20 @@ fun ComposeContentTestRule.setContentWithTheme(
             Box(modifier = modifier, content = composable)
         }
     }
+}
+
+internal fun ComposeContentTestRule.verifyTapSize(
+    expectedSize: Dp,
+    content: @Composable (modifier: Modifier) -> Unit
+) {
+    setContentWithTheme {
+        content(Modifier.testTag(TEST_TAG))
+    }
+    waitForIdle()
+
+    onNodeWithTag(TEST_TAG)
+        .assertTouchHeightIsEqualTo(expectedSize)
+        .assertTouchWidthIsEqualTo(expectedSize)
 }
 
 @RequiresApi(Build.VERSION_CODES.O)

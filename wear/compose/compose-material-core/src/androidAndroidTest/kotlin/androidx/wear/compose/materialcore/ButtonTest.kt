@@ -30,15 +30,12 @@ import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.compositeOver
-import androidx.compose.ui.graphics.painter.ColorPainter
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsProperties
@@ -343,11 +340,9 @@ class ButtonTest {
                     .background(testBackground)
             ) {
                 ButtonWithDefaults(
-                    background = { enabled ->
+                    backgroundColor = { enabled ->
                         rememberUpdatedState(
-                            ColorPainter(
-                                if (enabled) enabledBackgroundColor else disabledBackgroundColor
-                            )
+                            if (enabled) enabledBackgroundColor else disabledBackgroundColor
                         )
                     },
                     border = { enabled ->
@@ -404,8 +399,8 @@ class ButtonTest {
         modifier: Modifier = Modifier,
         onClick: () -> Unit = {},
         enabled: Boolean = true,
-        background: @Composable (enabled: Boolean) -> State<Painter> = {
-            remember { mutableStateOf(ColorPainter(DEFAULT_SHAPE_COLOR)) }
+        backgroundColor: @Composable (enabled: Boolean) -> State<Color> = {
+            rememberUpdatedState(DEFAULT_SHAPE_COLOR)
         },
         interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
         shape: Shape = CircleShape,
@@ -415,7 +410,7 @@ class ButtonTest {
         onClick = onClick,
         modifier = modifier,
         enabled = enabled,
-        background = background,
+        backgroundColor = backgroundColor,
         interactionSource = interactionSource,
         shape = shape,
         border = border,

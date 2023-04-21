@@ -381,7 +381,7 @@ fun Button(
             secondaryLabel
         ) },
         icon = icon?.let {
-            provideIcon(colors.iconColor(enabled), icon)
+            provideScopeContent(colors.iconColor(enabled), icon)
         },
         defaultIconSpacing = ButtonDefaults.IconSpacing,
         role = role
@@ -917,8 +917,6 @@ object ButtonDefaults {
      * [Button].
      */
     internal val IconSpacing = 6.dp
-
-    internal const val DisabledBorderAndContainerAlpha = 0.12f
 }
 
 /**

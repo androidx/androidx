@@ -31,7 +31,6 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
@@ -159,7 +158,7 @@ public fun Button(
         onClick = onClick,
         modifier = modifier,
         enabled = enabled,
-        background = { rememberUpdatedState(ColorPainter(colors.backgroundColor(it).value)) },
+        backgroundColor = { colors.backgroundColor(it) },
         interactionSource = interactionSource,
         shape = shape,
         border = { border.borderStroke(enabled = it) },
@@ -341,7 +340,7 @@ public fun CompactButton(
             .padding(backgroundPadding)
             .requiredSize(ButtonDefaults.ExtraSmallButtonSize),
         enabled = enabled,
-        background = { rememberUpdatedState(ColorPainter(colors.backgroundColor(it).value)) },
+        backgroundColor = { colors.backgroundColor(it) },
         interactionSource = interactionSource,
         shape = shape,
         border = { border.borderStroke(it) },
