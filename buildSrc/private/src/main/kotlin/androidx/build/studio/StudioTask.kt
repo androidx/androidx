@@ -22,8 +22,6 @@ import androidx.build.getOperatingSystem
 import androidx.build.getSdkPath
 import androidx.build.getSupportRootFolder
 import androidx.build.getVersionByName
-import androidx.build.hasSupportRootFolder
-import androidx.build.setSupportRootFolder
 import com.android.Version.ANDROID_GRADLE_PLUGIN_VERSION
 import java.io.File
 import java.nio.file.Files
@@ -125,6 +123,12 @@ abstract class StudioTask : DefaultTask() {
     open val vmOptions = File(project.getSupportRootFolder(), "development/studio/studio.vmoptions")
 
     /**
+     * The path to the SDK directory used by Studio.
+     */
+    @get:Internal
+    open val localSdkPath = project.getSdkPath()
+
+    /**
      * List of additional environment variables to pass into the Studio application.
      */
     @get:Internal
@@ -179,18 +183,6 @@ abstract class StudioTask : DefaultTask() {
      */
     private fun setupSymlinksIfNeeded() {
         val paths = listOf("system-images", "emulator")
-
-        // The support root folder may not have been set yet, in which case we'll optimistically
-        // assume that it matches the root project. This won't work for ui or Playground, but we'll
-        // fail gracefully later.
-        val hadSupportRootFolder = project.hasSupportRootFolder()
-        if (!hadSupportRootFolder) {
-            project.setSupportRootFolder(project.rootDir)
-        }
-        val localSdkPath = project.getSdkPath()
-        if (!hadSupportRootFolder) {
-            project.setSupportRootFolder(null)
-        }
         if (!localSdkPath.exists()) {
             // We probably got the support root folder wrong. Fail gracefully.
             return
