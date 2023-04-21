@@ -39,7 +39,7 @@ internal class SingleTurnCapabilityImpl<
 ) : Capability(id) {
     private val mutex = Mutex()
 
-    override val appAction: AppAction =
+    override val appAction: AppAction get() =
         actionSpec.convertPropertyToProto(property).toBuilder()
             .setTaskInfo(TaskInfo.newBuilder().setSupportsPartialFulfillment(false))
             .setIdentifier(id)
