@@ -963,17 +963,20 @@ class ModalBottomSheetTest {
         rule.waitForIdle()
         assertThat(state.currentValue).isEqualTo(ModalBottomSheetValue.HalfExpanded) // We should
         // retain the current value if possible
-        assertThat(state.swipeableState.anchors).containsKey(ModalBottomSheetValue.Hidden)
-        assertThat(state.swipeableState.anchors).containsKey(ModalBottomSheetValue.HalfExpanded)
-        assertThat(state.swipeableState.anchors).containsKey(ModalBottomSheetValue.Expanded)
+        assertThat(state.anchoredDraggableState.anchors)
+            .containsKey(ModalBottomSheetValue.Hidden)
+        assertThat(state.anchoredDraggableState.anchors)
+            .containsKey(ModalBottomSheetValue.HalfExpanded)
+        assertThat(state.anchoredDraggableState.anchors).containsKey(ModalBottomSheetValue.Expanded)
 
         amountOfItems = 0 // When the sheet height is 0, we should only have a hidden anchor
         rule.waitForIdle()
         assertThat(state.currentValue).isEqualTo(ModalBottomSheetValue.Hidden)
-        assertThat(state.swipeableState.anchors).containsKey(ModalBottomSheetValue.Hidden)
-        assertThat(state.swipeableState.anchors)
+        assertThat(state.anchoredDraggableState.anchors).containsKey(ModalBottomSheetValue.Hidden)
+        assertThat(state.anchoredDraggableState.anchors)
             .doesNotContainKey(ModalBottomSheetValue.HalfExpanded)
-        assertThat(state.swipeableState.anchors).doesNotContainKey(ModalBottomSheetValue.Expanded)
+        assertThat(state.anchoredDraggableState.anchors)
+            .doesNotContainKey(ModalBottomSheetValue.Expanded)
     }
 
     @Test
@@ -990,11 +993,12 @@ class ModalBottomSheetTest {
             )
         }
 
-        assertThat(state.swipeableState.currentValue).isEqualTo(ModalBottomSheetValue.Hidden)
+        assertThat(state.currentValue).isEqualTo(ModalBottomSheetValue.Hidden)
         scope.launch { state.expand() }
         rule.waitForIdle()
 
-        assertThat(state.swipeableState.currentValue).isEqualTo(ModalBottomSheetValue.Hidden)
+        assertThat(state.currentValue)
+            .isEqualTo(ModalBottomSheetValue.Hidden)
     }
 
     @Test
@@ -1178,10 +1182,12 @@ class ModalBottomSheetTest {
         }
 
         assertThat(sheetState.currentValue).isEqualTo(ModalBottomSheetValue.Hidden)
-        assertThat(sheetState.swipeableState.hasAnchorForValue(ModalBottomSheetValue.HalfExpanded))
-            .isFalse()
-        assertThat(sheetState.swipeableState.hasAnchorForValue(ModalBottomSheetValue.Expanded))
-            .isFalse()
+        assertThat(sheetState.anchoredDraggableState.hasAnchorForValue(
+            ModalBottomSheetValue.HalfExpanded
+        )).isFalse()
+        assertThat(sheetState.anchoredDraggableState.hasAnchorForValue(
+            ModalBottomSheetValue.Expanded
+        )).isFalse()
 
         scope.launch { sheetState.show() }
         rule.waitForIdle()
@@ -1213,9 +1219,11 @@ class ModalBottomSheetTest {
         }
 
         assertThat(sheetState.currentValue).isEqualTo(ModalBottomSheetValue.Hidden)
-        assertThat(sheetState.swipeableState.hasAnchorForValue(ModalBottomSheetValue.HalfExpanded))
+        assertThat(sheetState.anchoredDraggableState
+            .hasAnchorForValue(ModalBottomSheetValue.HalfExpanded))
             .isFalse()
-        assertThat(sheetState.swipeableState.hasAnchorForValue(ModalBottomSheetValue.Expanded))
+        assertThat(sheetState.anchoredDraggableState
+            .hasAnchorForValue(ModalBottomSheetValue.Expanded))
             .isFalse()
 
         scope.launch { sheetState.show() }
@@ -1257,8 +1265,8 @@ class ModalBottomSheetTest {
         sheetState =
             ModalBottomSheetState(ModalBottomSheetValue.HalfExpanded, density = rule.density)
 
-        assertThat(sheetState.swipeableState.anchors).isEmpty()
-        assertThat(sheetState.swipeableState.offset).isNull()
+        assertThat(sheetState.anchoredDraggableState.anchors).isEmpty()
+        assertThat(sheetState.anchoredDraggableState.offset).isNull()
 
         stateRestorationTester.emulateSavedInstanceStateRestore()
         rule.waitForIdle()

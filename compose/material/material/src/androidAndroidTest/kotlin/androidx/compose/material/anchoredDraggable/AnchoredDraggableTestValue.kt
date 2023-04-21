@@ -16,8 +16,8 @@
 
 @file:OptIn(ExperimentalMaterialApi::class)
 
-package androidx.compose.material.swipeable
+package androidx.compose.material.anchoredDraggable
 
 import androidx.compose.material.ExperimentalMaterialApi
 
-internal enum class SwipeableTestValue { A, B, C }
+internal enum class AnchoredDraggableTestValue { A, B, C }
