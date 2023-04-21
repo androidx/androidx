@@ -72,6 +72,7 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.SurfaceTextureProvider
 import androidx.camera.testing.fakes.FakeLifecycleOwner
+import androidx.concurrent.futures.await
 import androidx.lifecycle.Observer
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
@@ -549,7 +550,7 @@ class BasicExtenderSessionProcessorTest(
         }
     }
 
-    private fun initBasicExtenderSessionProcessor(): AutoCloseable {
+    private suspend fun initBasicExtenderSessionProcessor(): AutoCloseable {
         val width = 640
         val height = 480
         val maxImages = 2
@@ -557,9 +558,9 @@ class BasicExtenderSessionProcessorTest(
         val handlerThread = HandlerThread("CameraX-AutoDrainThread")
         handlerThread.start()
         val handler = Handler(handlerThread.looper)
-        val surfaceTextureHolder = SurfaceTextureProvider.createAutoDrainingSurfaceTexture(
-            CameraXExecutors.newHandlerExecutor(handler), width, height
-        ) {}
+        val surfaceTextureHolder = SurfaceTextureProvider.createAutoDrainingSurfaceTextureAsync(
+            CameraXExecutors.newHandlerExecutor(handler), width, height, null
+        ) { handlerThread.quitSafely() }.await()
         val previewOutputSurface = OutputSurface.create(
             Surface(surfaceTextureHolder.surfaceTexture),
             Size(width, height),
@@ -583,7 +584,6 @@ class BasicExtenderSessionProcessorTest(
         return AutoCloseable {
             jpegImageReader.close()
             surfaceTextureHolder.close()
-            handlerThread.quitSafely()
         }
     }
 

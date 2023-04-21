@@ -34,6 +34,7 @@ import android.util.Size
 import android.view.Surface
 import androidx.camera.camera2.Camera2Config
 import androidx.camera.camera2.internal.compat.CameraManagerCompat
+import androidx.camera.camera2.internal.compat.params.DynamicRangesCompat
 import androidx.camera.camera2.internal.compat.quirk.DeviceQuirks
 import androidx.camera.camera2.interop.CaptureRequestOptions
 import androidx.camera.core.CameraSelector
@@ -195,9 +196,16 @@ class ProcessingCaptureSessionTest(
 
         val cameraId = CameraUtil.getCameraIdWithLensFacing(lensFacing)!!
         val camera2Info = Camera2CameraInfoImpl(cameraId, cameraManagerCompat)
+        val dynamicRangesCompat = cameraManagerCompat.getCameraCharacteristicsCompat(cameraId).let {
+            DynamicRangesCompat.fromCameraCharacteristics(it)
+        }
 
         return ProcessingCaptureSession(
-            sessionProcessor, camera2Info, executor, executor as ScheduledExecutorService
+            sessionProcessor,
+            camera2Info,
+            dynamicRangesCompat,
+            executor,
+            executor as ScheduledExecutorService
         )
     }
 
