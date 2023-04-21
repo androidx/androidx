@@ -16,6 +16,7 @@
 
 package androidx.test.uiautomator;
 
+import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 
 import java.util.regex.Pattern;
@@ -301,6 +302,34 @@ public class By {
      */
     public static @NonNull BySelector depth(int depth) {
         return new BySelector().depth(depth);
+    }
+
+    /**
+     * Constructs a new {@link BySelector} and adds a parent selector criteria.
+     *
+     * @see BySelector#hasParent(BySelector)
+     */
+    public static @NonNull BySelector hasParent(@NonNull BySelector parentSelector) {
+        return new BySelector().hasParent(parentSelector);
+    }
+
+    /**
+     * Constructs a new {@link BySelector} and adds an ancestor selector criteria.
+     *
+     * @see BySelector#hasAncestor(BySelector)
+     */
+    public static @NonNull BySelector hasAncestor(@NonNull BySelector ancestorSelector) {
+        return new BySelector().hasAncestor(ancestorSelector);
+    }
+
+    /**
+     * Constructs a new {@link BySelector} and adds an ancestor selector criteria.
+     *
+     * @see BySelector#hasAncestor(BySelector, int)
+     */
+    public static @NonNull BySelector hasAncestor(@NonNull BySelector ancestorSelector,
+            @IntRange(from = 1) int maxHeight) {
+        return new BySelector().hasAncestor(ancestorSelector, maxHeight);
     }
 
     /**
