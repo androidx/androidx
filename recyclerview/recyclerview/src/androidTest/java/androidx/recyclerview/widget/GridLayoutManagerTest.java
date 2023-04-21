@@ -1161,28 +1161,6 @@ public class GridLayoutManagerTest extends BaseGridLayoutManagerTest {
 
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-    public void performActionScrollInDirection_focusRight_vertical_withAvailableTarget()
-            throws Throwable {
-
-        // TODO(b/267511848): suppress to LOLLIPOP once U constants are finalized and available in
-        //  earlier android version.
-
-        final UiAutomation uiAutomation = setUpGridLayoutManagerAccessibilityTest(4, VERTICAL);
-        /*
-        This generates the following grid:
-        1   2   3
-        4
-        */
-        runScrollInDirectionOnMultipleItemsAndSucceed(uiAutomation, View.FOCUS_RIGHT,
-                new HashMap<Integer, String>() {{
-                    put(0, "Item (2)");
-                    put(1, "Item (3)");
-                    put(2, "Item (4)");
-                }});
-    }
-
-    @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public void performActionScrollInDirection_setsRowColumnIndices()
             throws Throwable {
         // TODO(b/267511848): suppress to LOLLIPOP once U constants are finalized and available in
@@ -1198,6 +1176,96 @@ public class GridLayoutManagerTest extends BaseGridLayoutManagerTest {
                 });
         assertThat(mGlm.mRowWithAccessibilityFocus).isEqualTo(0);
         assertThat(mGlm.mColumnWithAccessibilityFocus).isEqualTo(0);
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    public void performActionScrollInDirection_startPositionOnADifferentRowColumn_updatesIndices()
+            throws Throwable {
+        // TODO(b/267511848): suppress to LOLLIPOP once U constants are finalized and available in
+        //  earlier android version.
+
+        final UiAutomation uiAutomation = setUpGridLayoutManagerAccessibilityTest(6, VERTICAL);
+        /*
+        This generates the following grid:
+        1   2   3
+        4   5   6
+        */
+        mGlm.mRowWithAccessibilityFocus = 0;
+        mGlm.mColumnWithAccessibilityFocus = 0;
+
+        // Accessibility focus is on a different row and column than the stored row/column indices.
+        setAccessibilityFocus(uiAutomation, mGlm.getChildAt(5));
+        mActivityRule.runOnUiThread(
+                () -> {
+                    mRecyclerView.getLayoutManager().performAccessibilityAction(
+                            ACTION_SCROLL_IN_DIRECTION.getId(),
+                            bundleWithDirectionArg(View.FOCUS_RIGHT));
+                });
+        assertThat(mGlm.mRowWithAccessibilityFocus).isEqualTo(1);
+        assertThat(mGlm.mColumnWithAccessibilityFocus).isEqualTo(2);
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    public void performActionScrollInDirection_startPositionInTheSameSpan_doesNotUpdateIndices()
+            throws Throwable {
+        // TODO(b/267511848): suppress to LOLLIPOP once U constants are finalized and available in
+        //  earlier android version.
+
+        final UiAutomation uiAutomation = setUpGridLayoutManagerAccessibilityTest(5, VERTICAL);
+        mGlm.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
+            @Override
+            public int getSpanSize(int position) {
+                if (position == 3) {
+                    return 2;
+                }
+                return 1;
+            }
+        });
+
+        /*
+        This generates the following grid...
+        1   2   3
+        4   4   5
+        ... with "4" (adapter position 3) spanning 2 columns.
+        */
+
+        mGlm.mRowWithAccessibilityFocus = 1;
+        mGlm.mColumnWithAccessibilityFocus = 1;
+
+        // Accessibility focus is on "4" (adapter position 3), with the same row but different
+        // column index (0) than the stored column index (1).
+        setAccessibilityFocus(uiAutomation, mGlm.getChildAt(3));
+        mActivityRule.runOnUiThread(
+                () -> {
+                    mRecyclerView.getLayoutManager().performAccessibilityAction(
+                            ACTION_SCROLL_IN_DIRECTION.getId(),
+                            bundleWithDirectionArg(View.FOCUS_RIGHT));
+                });
+        assertThat(mGlm.mRowWithAccessibilityFocus).isEqualTo(1);
+        assertThat(mGlm.mColumnWithAccessibilityFocus).isEqualTo(1);
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    public void performActionScrollInDirection_focusRight_vertical_withAvailableTarget()
+            throws Throwable {
+        // TODO(b/267511848): suppress to LOLLIPOP once U constants are finalized and available in
+        //  earlier android version.
+
+        final UiAutomation uiAutomation = setUpGridLayoutManagerAccessibilityTest(4, VERTICAL);
+        /*
+        This generates the following grid:
+        1   2   3
+        4
+        */
+        runScrollInDirectionOnMultipleItemsAndSucceed(uiAutomation, View.FOCUS_RIGHT,
+                new HashMap<Integer, String>() {{
+                    put(0, "Item (2)");
+                    put(1, "Item (3)");
+                    put(2, "Item (4)");
+                }});
     }
 
     @Test

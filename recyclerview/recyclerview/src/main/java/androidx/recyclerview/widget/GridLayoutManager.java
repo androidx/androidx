@@ -289,11 +289,8 @@ public class GridLayoutManager extends LinearLayoutManager {
                 return false;
             }
 
-            if (mRowWithAccessibilityFocus == INVALID_POSITION) {
+            if (hasAccessibilityFocusChanged(startingAdapterPosition)) {
                 mRowWithAccessibilityFocus = startingRow;
-            }
-
-            if (mColumnWithAccessibilityFocus == INVALID_POSITION) {
                 mColumnWithAccessibilityFocus = startingColumn;
             }
 
@@ -602,16 +599,60 @@ public class GridLayoutManager extends LinearLayoutManager {
         return INVALID_POSITION;
     }
 
+    /**
+     * Returns the row index associated with a position. If the item at this position spans multiple
+     * rows, it returns the first row index. To get all row indices for a position, use
+     * {@link #getRowIndices(int)}.
+     */
     private int getRowIndex(int position) {
         return mOrientation == VERTICAL ? getSpanGroupIndex(mRecyclerView.mRecycler,
                 mRecyclerView.mState, position) : getSpanIndex(mRecyclerView.mRecycler,
                 mRecyclerView.mState, position);
     }
 
+    /**
+     * Returns the column index associated with a position. If the item at this position spans
+     * multiple columns, it returns the first column index. To get all column indices, use
+     * {@link #getColumnIndices(int)}.
+     */
     private int getColumnIndex(int position) {
         return mOrientation == HORIZONTAL ? getSpanGroupIndex(mRecyclerView.mRecycler,
                 mRecyclerView.mState, position) : getSpanIndex(mRecyclerView.mRecycler,
                 mRecyclerView.mState, position);
+    }
+
+    /**
+     * Returns the row indices for a cell associated with {@code position}. For example, in this
+     * grid...
+     * 0   2   3
+     * 1   2   4
+     * ... the rows for the view at position 2 will be [0, 1] and the rows for position 3 will be
+     * [0].
+     */
+    private Set<Integer> getRowIndices(int position) {
+        return getRowOrColumnIndices(getRowIndex(position), position);
+    }
+
+    /**
+     * Returns the column indices for a cell associated with {@code position}. For example, in this
+     * grid...
+     * 0   1
+     * 2   2
+     * 3   4
+     * ... the columns for the view at position 2 will be [0, 1] and the columns for position 3
+     * will be [0].
+     */
+    private Set<Integer> getColumnIndices(int position) {
+        return getRowOrColumnIndices(getColumnIndex(position), position);
+    }
+
+    private Set<Integer> getRowOrColumnIndices(int rowOrColumnIndex, int position) {
+        Set<Integer> indices = new HashSet<>();
+        int spanSize = getSpanSize(mRecyclerView.mRecycler, mRecyclerView.mState, position);
+        for (int i = rowOrColumnIndex;  i <  rowOrColumnIndex + spanSize; i++) {
+            indices.add(i);
+        }
+        return indices;
     }
 
     @Nullable
@@ -632,6 +673,22 @@ public class GridLayoutManager extends LinearLayoutManager {
             }
         }
         return child;
+    }
+
+    /**
+     * Returns true if the values stored in {@link #mRowWithAccessibilityFocus} and
+     * {@link #mColumnWithAccessibilityFocus} are not correct for the view at
+     * {@code adapterPosition}.
+     *
+     * Note that for cells that span multiple rows or multiple columns, {@link
+     * #mRowWithAccessibilityFocus} and {@link #mColumnWithAccessibilityFocus} can be set to more
+     * than one of several values. Accessibility focus is considered unchanged if any of the
+     * possible row values for a cell are the same as {@link #mRowWithAccessibilityFocus} and any
+     * of the possible column values are the same as {@link #mColumnWithAccessibilityFocus}.
+     */
+    private boolean hasAccessibilityFocusChanged(int adapterPosition) {
+        return !getRowIndices(adapterPosition).contains(mRowWithAccessibilityFocus)
+                || !getColumnIndices(adapterPosition).contains(mColumnWithAccessibilityFocus);
     }
 
     @Override
