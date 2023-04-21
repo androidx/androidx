@@ -1021,6 +1021,8 @@ import static androidx\.wear\.tiles\.material\.Typography\.TYPOGRAPHY_BODY[0-9]+
 \$SUPPORT/wear/tiles/tiles\-material/src/androidTest/java/androidx/wear/tiles/material/layouts/TestCasesGenerator\.java:[0-9]+: warning: \[deprecation\] Button in androidx\.wear\.tiles\.material has been deprecated
 # > Configure project :androidx-demos
 WARNING: The option setting 'android\.experimental\.disableCompileSdkChecks=true' is experimental\.
+# Remove once aosp/2548452 is reverted
+WARNING: The option setting 'android\.overrideVersionCheck=true' is experimental\.
 The current default is 'false'\.
 # > Task :compose:foundation:foundation:processDebugAndroidTestManifest
 \$SUPPORT/compose/foundation/foundation/src/androidAndroidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
