@@ -106,7 +106,7 @@ class ProcessingNodeDeviceTest {
     private suspend fun processYuvAndVerifyOutputSize(outputFileOptions: OutputFileOptions?) {
         // Arrange: create node with JPEG input and grayscale effect.
         val node = ProcessingNode(mainThreadExecutor())
-        val nodeIn = ProcessingNode.In.of(ImageFormat.YUV_420_888)
+        val nodeIn = ProcessingNode.In.of(ImageFormat.YUV_420_888, ImageFormat.JPEG)
         val imageIn = createYuvFakeImageProxy(
             CameraCaptureResultImageInfo(CAMERA_CAPTURE_RESULT),
             WIDTH,
@@ -126,7 +126,7 @@ class ProcessingNodeDeviceTest {
             mainThreadExecutor(),
             InternalImageProcessor(GrayscaleImageEffect())
         )
-        val nodeIn = ProcessingNode.In.of(ImageFormat.JPEG)
+        val nodeIn = ProcessingNode.In.of(ImageFormat.JPEG, ImageFormat.JPEG)
         val imageIn = createJpegFakeImageProxy(
             CameraCaptureResultImageInfo(CAMERA_CAPTURE_RESULT),
             createJpegBytes(WIDTH, HEIGHT)
@@ -175,7 +175,7 @@ class ProcessingNodeDeviceTest {
     ) {
         // Arrange: create a request with no cropping
         val node = ProcessingNode(mainThreadExecutor())
-        val nodeIn = ProcessingNode.In.of(ImageFormat.JPEG)
+        val nodeIn = ProcessingNode.In.of(ImageFormat.JPEG, ImageFormat.JPEG)
         node.transform(nodeIn)
         val takePictureCallback = FakeTakePictureCallback()
 
@@ -213,7 +213,7 @@ class ProcessingNodeDeviceTest {
     private suspend fun inMemoryInputPacket_callbackInvoked(outputFileOptions: OutputFileOptions?) {
         // Arrange.
         val node = ProcessingNode(mainThreadExecutor())
-        val nodeIn = ProcessingNode.In.of(ImageFormat.JPEG)
+        val nodeIn = ProcessingNode.In.of(ImageFormat.JPEG, ImageFormat.JPEG)
         node.transform(nodeIn)
         val takePictureCallback = FakeTakePictureCallback()
 
@@ -246,7 +246,7 @@ class ProcessingNodeDeviceTest {
     private suspend fun saveJpegOnDisk_verifyOutput(outputFileOptions: OutputFileOptions?) {
         // Arrange: create a on-disk processing request.
         val node = ProcessingNode(mainThreadExecutor())
-        val nodeIn = ProcessingNode.In.of(ImageFormat.JPEG)
+        val nodeIn = ProcessingNode.In.of(ImageFormat.JPEG, ImageFormat.JPEG)
         node.transform(nodeIn)
         val takePictureCallback = FakeTakePictureCallback()
         val jpegBytes = ExifUtil.updateExif(createJpegBytes(640, 480)) {

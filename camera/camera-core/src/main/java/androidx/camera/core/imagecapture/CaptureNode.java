@@ -23,6 +23,7 @@ import static androidx.core.util.Preconditions.checkState;
 
 import static java.util.Objects.requireNonNull;
 
+import android.graphics.ImageFormat;
 import android.media.ImageReader;
 import android.os.Build;
 import android.util.Size;
@@ -96,21 +97,13 @@ class CaptureNode implements Node<CaptureNode.In, CaptureNode.Out> {
                 "CaptureNode does not support recreation yet.");
         mInputEdge = inputEdge;
         Size size = inputEdge.getSize();
-        int format = inputEdge.getFormat();
+        int format = inputEdge.getInputFormat();
 
         // Create and configure ImageReader.
         Consumer<ProcessingRequest> requestConsumer;
         ImageReaderProxy wrappedImageReader;
         boolean hasMetadata = !inputEdge.isVirtualCamera();
-        if (inputEdge.getImageReaderProxyProvider() != null) {
-            wrappedImageReader = inputEdge.getImageReaderProxyProvider().newInstance(
-                    size.getWidth(), size.getHeight(), format, MAX_IMAGES, 0);
-            requestConsumer = request -> {
-                // Ignore incoming requests. ImageReaderProxyProvider is only for unit tests. If
-                // we make it public later, we need to also drop the TakePictureRequest in the
-                // TakePictureManager.
-            };
-        } else if (hasMetadata) {
+        if (hasMetadata && inputEdge.getImageReaderProxyProvider() == null) {
             // Use MetadataImageReader if the input edge expects metadata.
             MetadataImageReader metadataImageReader = new MetadataImageReader(size.getWidth(),
                     size.getHeight(), format, MAX_IMAGES);
@@ -120,8 +113,8 @@ class CaptureNode implements Node<CaptureNode.In, CaptureNode.Out> {
         } else {
             // Use NoMetadataImageReader if the input edge does not expect metadata.
             NoMetadataImageReader noMetadataImageReader = new NoMetadataImageReader(
-                    ImageReaderProxys.createIsolatedReader(
-                            size.getWidth(), size.getHeight(), format, MAX_IMAGES));
+                    createImageReaderProxy(inputEdge.getImageReaderProxyProvider(),
+                            size.getWidth(), size.getHeight(), format));
             wrappedImageReader = noMetadataImageReader;
             // Forward the request to the NoMetadataImageReader to create fake metadata.
             requestConsumer = request -> {
@@ -150,8 +143,20 @@ class CaptureNode implements Node<CaptureNode.In, CaptureNode.Out> {
         inputEdge.getRequestEdge().setListener(requestConsumer);
         inputEdge.getErrorEdge().setListener(this::sendCaptureError);
 
-        mOutputEdge = Out.of(inputEdge.getFormat(), inputEdge.isVirtualCamera());
+        mOutputEdge = Out.of(inputEdge.getInputFormat(), inputEdge.getOutputFormat(),
+                inputEdge.isVirtualCamera());
         return mOutputEdge;
+    }
+
+    @NonNull
+    private static ImageReaderProxy createImageReaderProxy(
+            @Nullable ImageReaderProxyProvider imageReaderProxyProvider, int width, int height,
+            int format) {
+        if (imageReaderProxyProvider != null) {
+            return imageReaderProxyProvider.newInstance(width, height, format, MAX_IMAGES, 0);
+        } else {
+            return ImageReaderProxys.createIsolatedReader(width, height, format, MAX_IMAGES);
+        }
     }
 
     @VisibleForTesting
@@ -291,9 +296,17 @@ class CaptureNode implements Node<CaptureNode.In, CaptureNode.Out> {
         abstract Size getSize();
 
         /**
-         * Size of the {@link ImageReader} format.
+         * The input format of the pipeline. The format of the {@link ImageReader}.
          */
-        abstract int getFormat();
+        abstract int getInputFormat();
+
+        /**
+         * The output format of the pipeline.
+         *
+         * <p> For public users, only {@link ImageFormat#JPEG} is supported. Other formats are
+         * only used by in-memory capture in tests.
+         */
+        abstract int getOutputFormat();
 
         /**
          * Whether the pipeline is connected to a virtual camera.
@@ -330,7 +343,7 @@ class CaptureNode implements Node<CaptureNode.In, CaptureNode.Out> {
 
         void setSurface(@NonNull Surface surface) {
             checkState(mSurface == null, "The surface is already set.");
-            mSurface = new ImmediateSurface(surface, getSize(), getFormat());
+            mSurface = new ImmediateSurface(surface, getSize(), getInputFormat());
         }
 
         /**
@@ -348,9 +361,9 @@ class CaptureNode implements Node<CaptureNode.In, CaptureNode.Out> {
         }
 
         @NonNull
-        static In of(Size size, int format, boolean isVirtualCamera,
+        static In of(Size size, int inputFormat, int outputFormat, boolean isVirtualCamera,
                 @Nullable ImageReaderProxyProvider imageReaderProxyProvider) {
-            return new AutoValue_CaptureNode_In(size, format, isVirtualCamera,
+            return new AutoValue_CaptureNode_In(size, inputFormat, outputFormat, isVirtualCamera,
                     imageReaderProxyProvider, new Edge<>(), new Edge<>());
         }
     }
@@ -376,16 +389,24 @@ class CaptureNode implements Node<CaptureNode.In, CaptureNode.Out> {
         /**
          * Format of the {@link ImageProxy} in {@link #getImageEdge()}.
          */
-        abstract int getFormat();
+        abstract int getInputFormat();
+
+        /**
+         * Output format of the pipeline.
+         *
+         * <p> For public users, only {@link ImageFormat#JPEG} is supported. Other formats are
+         * only used by in-memory capture in tests.
+         */
+        abstract int getOutputFormat();
 
         /**
          * Whether the pipeline is connected to a virtual camera.
          */
         abstract boolean isVirtualCamera();
 
-        static Out of(int format, boolean isVirtualCamera) {
-            return new AutoValue_CaptureNode_Out(new Edge<>(), new Edge<>(), format,
-                    isVirtualCamera);
+        static Out of(int inputFormat, int outputFormat, boolean isVirtualCamera) {
+            return new AutoValue_CaptureNode_Out(new Edge<>(), new Edge<>(), inputFormat,
+                    outputFormat, isVirtualCamera);
         }
     }
 }
