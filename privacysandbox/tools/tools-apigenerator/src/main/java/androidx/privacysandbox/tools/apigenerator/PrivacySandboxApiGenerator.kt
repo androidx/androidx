@@ -25,6 +25,7 @@ import androidx.privacysandbox.tools.core.generator.ClientBinderCodeConverter
 import androidx.privacysandbox.tools.core.generator.ClientProxyTypeGenerator
 import androidx.privacysandbox.tools.core.generator.GenerationTarget
 import androidx.privacysandbox.tools.core.generator.PrivacySandboxExceptionFileGenerator
+import androidx.privacysandbox.tools.core.generator.PrivacySandboxCancellationExceptionFileGenerator
 import androidx.privacysandbox.tools.core.generator.ServiceFactoryFileGenerator
 import androidx.privacysandbox.tools.core.generator.StubDelegatesGenerator
 import androidx.privacysandbox.tools.core.generator.ThrowableParcelConverterFileGenerator
@@ -228,9 +229,9 @@ class PrivacySandboxApiGenerator {
         output: File
     ) {
         if (!api.hasSuspendFunctions()) return
-        ThrowableParcelConverterFileGenerator(basePackageName).generate(
-            convertFromParcel = true
-        ).writeTo(output)
+        ThrowableParcelConverterFileGenerator(basePackageName, GenerationTarget.CLIENT)
+            .generate().writeTo(output)
         PrivacySandboxExceptionFileGenerator(basePackageName).generate().writeTo(output)
+        PrivacySandboxCancellationExceptionFileGenerator(basePackageName).generate().writeTo(output)
     }
 }

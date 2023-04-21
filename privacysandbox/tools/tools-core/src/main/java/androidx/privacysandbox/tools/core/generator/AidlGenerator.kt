@@ -217,6 +217,7 @@ class AidlGenerator private constructor(
                 "suppressedExceptions",
                 AidlTypeSpec(throwableParcelType(), isList = true, kind = AidlTypeKind.PARCELABLE)
             )
+            addProperty("isCancellationException", primitive("boolean"))
         }
     }
 

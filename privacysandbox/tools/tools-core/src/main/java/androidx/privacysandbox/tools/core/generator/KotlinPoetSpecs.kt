@@ -150,6 +150,8 @@ object SpecNames {
     // Kotlin coroutines
     val resumeWithExceptionMethod =
         MemberName("kotlin.coroutines", "resumeWithException", isExtension = true)
+    val cancellationExceptionClass =
+        ClassName("kotlin.coroutines.cancellation", "CancellationException")
 
     // KotlinX coroutines
     val coroutineScopeClass = ClassName("kotlinx.coroutines", "CoroutineScope")
