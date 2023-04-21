@@ -24,7 +24,7 @@ import android.view.inputmethod.BaseInputConnection
 import android.view.inputmethod.ExtractedText
 import android.view.inputmethod.InputMethodManager
 import androidx.annotation.RequiresApi
-import androidx.annotation.RestrictTo
+import androidx.annotation.VisibleForTesting
 import androidx.core.view.SoftwareKeyboardControllerCompat
 import org.jetbrains.annotations.TestOnly
 
@@ -88,7 +88,7 @@ private var ComposeInputMethodManagerFactory: (View) -> ComposeInputMethodManage
  * avoid breaking unrelated tests.
  */
 @TestOnly
-@RestrictTo(RestrictTo.Scope.TESTS)
+@VisibleForTesting
 internal fun overrideComposeInputMethodManagerFactoryForTests(
     factory: (View) -> ComposeInputMethodManager
 ): (View) -> ComposeInputMethodManager {

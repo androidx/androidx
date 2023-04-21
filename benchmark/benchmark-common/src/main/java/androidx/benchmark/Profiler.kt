@@ -20,7 +20,7 @@ import android.os.Build
 import android.os.Debug
 import android.util.Log
 import androidx.annotation.RequiresApi
-import androidx.annotation.RestrictTo
+import androidx.annotation.VisibleForTesting
 import androidx.benchmark.BenchmarkState.Companion.TAG
 import androidx.benchmark.Outputs.dateToFileName
 import androidx.benchmark.simpleperf.ProfileSession
@@ -132,7 +132,7 @@ internal fun stopRuntimeMethodTracing() {
 }
 
 internal object StackSamplingLegacy : Profiler() {
-    @get:RestrictTo(RestrictTo.Scope.TESTS)
+    @get:VisibleForTesting
     var isRunning = false
 
     override fun start(traceUniqueName: String): ResultFile {

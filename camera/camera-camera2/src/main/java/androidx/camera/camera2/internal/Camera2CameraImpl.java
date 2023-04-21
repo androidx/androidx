@@ -37,7 +37,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
-import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.camera2.internal.annotation.CameraExecutor;
 import androidx.camera.camera2.internal.compat.ApiCompat;
@@ -679,7 +678,7 @@ final class Camera2CameraImpl implements CameraInternal {
      * block until completion.
      *
      */
-    @RestrictTo(RestrictTo.Scope.TESTS)
+    @VisibleForTesting
     boolean isUseCaseAttached(@NonNull UseCase useCase) {
         try {
             String useCaseId = getUseCaseId(useCase);
@@ -1031,7 +1030,7 @@ final class Camera2CameraImpl implements CameraInternal {
     }
 
     @NonNull
-    @RestrictTo(RestrictTo.Scope.TESTS)
+    @VisibleForTesting
     public CameraAvailability getCameraAvailability() {
         return mCameraAvailability;
     }

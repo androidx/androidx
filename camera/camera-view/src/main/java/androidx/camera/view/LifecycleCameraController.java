@@ -16,8 +16,6 @@
 
 package androidx.camera.view;
 
-import static androidx.annotation.RestrictTo.Scope.TESTS;
-
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -28,7 +26,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RequiresPermission;
-import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.Camera;
 import androidx.camera.core.CameraEffect;
@@ -154,7 +151,7 @@ public final class LifecycleCameraController extends CameraController {
 
     /**
      */
-    @RestrictTo(TESTS)
+    @VisibleForTesting
     @SuppressWarnings("FutureReturnValueIgnored")
     void shutDownForTests() {
         if (mCameraProvider != null) {

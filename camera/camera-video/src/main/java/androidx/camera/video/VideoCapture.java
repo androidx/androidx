@@ -741,7 +741,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
      *
      */
     @Nullable
-    @RestrictTo(Scope.TESTS)
+    @VisibleForTesting
     SurfaceEdge getCameraEdge() {
         return mCameraEdge;
     }
