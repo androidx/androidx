@@ -42,6 +42,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.Optional;
 
@@ -213,8 +214,9 @@ public final class TypeConverters {
                 @NonNull
                 @Override
                 public ParamValue toParamValue(LocalDate value) {
-                    // TODO(b/275456249): Implement backwards conversion.
-                    return ParamValue.getDefaultInstance();
+                    return ParamValue.newBuilder()
+                            .setStringValue(value.format(DateTimeFormatter.ISO_LOCAL_DATE))
+                            .build();
                 }
 
                 @Override
@@ -237,8 +239,9 @@ public final class TypeConverters {
                 @NonNull
                 @Override
                 public ParamValue toParamValue(LocalTime value) {
-                    // TODO(b/275456249)): Implement backwards conversion.
-                    return ParamValue.getDefaultInstance();
+                    return ParamValue.newBuilder()
+                            .setStringValue(value.format(DateTimeFormatter.ISO_LOCAL_TIME))
+                            .build();
                 }
 
                 @Override
@@ -261,8 +264,7 @@ public final class TypeConverters {
                 @NonNull
                 @Override
                 public ParamValue toParamValue(ZoneId value) {
-                    // TODO(b/275456249)): Implement backwards conversion.
-                    return ParamValue.getDefaultInstance();
+                    return ParamValue.newBuilder().setStringValue(value.getId()).build();
                 }
 
                 @Override
@@ -285,8 +287,9 @@ public final class TypeConverters {
                 @NonNull
                 @Override
                 public ParamValue toParamValue(ZonedDateTime value) {
-                    // TODO(b/275456249)): Implement backwards conversion.
-                    return ParamValue.getDefaultInstance();
+                    return ParamValue.newBuilder()
+                            .setStringValue(value.format(DateTimeFormatter.ISO_ZONED_DATE_TIME))
+                            .build();
                 }
 
                 @Override
@@ -310,8 +313,7 @@ public final class TypeConverters {
                 @NonNull
                 @Override
                 public ParamValue toParamValue(Duration value) {
-                    // TODO(b/275456249)): Implement backwards conversion.
-                    return ParamValue.getDefaultInstance();
+                    return ParamValue.newBuilder().setStringValue(value.toString()).build();
                 }
 
                 @Override
@@ -337,8 +339,9 @@ public final class TypeConverters {
                 @NonNull
                 @Override
                 public ParamValue toParamValue(Call.CanonicalValue.CallFormat value) {
-                    // TODO(b/275456249)): Implement backwards conversion.
-                    return ParamValue.getDefaultInstance();
+                    return ParamValue.newBuilder()
+                        .setStringValue(value.getTextValue())
+                        .build();
                 }
 
                 @Override
