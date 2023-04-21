@@ -56,7 +56,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.OptIn;
 import androidx.annotation.RequiresPermission;
-import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ImageAnalysis;
@@ -585,22 +584,22 @@ public class CameraControllerFragment extends Fragment {
     // For testing
     // -----------------
 
-    @RestrictTo(RestrictTo.Scope.TESTS)
+    @VisibleForTesting
     LifecycleCameraController getCameraController() {
         return mCameraController;
     }
 
-    @RestrictTo(RestrictTo.Scope.TESTS)
+    @VisibleForTesting
     void setWrappedAnalyzer(@Nullable ImageAnalysis.Analyzer analyzer) {
         mWrappedAnalyzer = analyzer;
     }
 
-    @RestrictTo(RestrictTo.Scope.TESTS)
+    @VisibleForTesting
     PreviewView getPreviewView() {
         return mPreviewView;
     }
 
-    @RestrictTo(RestrictTo.Scope.TESTS)
+    @VisibleForTesting
     int getSensorRotation() {
         return mRotation;
     }

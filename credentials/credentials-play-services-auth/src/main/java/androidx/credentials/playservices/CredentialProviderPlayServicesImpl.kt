@@ -20,7 +20,6 @@ import android.content.Context
 import android.os.CancellationSignal
 import android.util.Log
 import androidx.credentials.ClearCredentialStateRequest
-import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import androidx.credentials.CreateCredentialRequest
 import androidx.credentials.CreateCredentialResponse
@@ -51,8 +50,7 @@ import java.util.concurrent.Executor
 @Suppress("deprecation")
 class CredentialProviderPlayServicesImpl(private val context: Context) : CredentialProvider {
 
-    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    @set:RestrictTo(RestrictTo.Scope.TESTS)
+    @VisibleForTesting
     var googleApiAvailability = GoogleApiAvailability.getInstance()
     override fun onGetCredential(
         context: Context,

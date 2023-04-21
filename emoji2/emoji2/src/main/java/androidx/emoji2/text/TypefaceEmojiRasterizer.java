@@ -17,7 +17,6 @@ package androidx.emoji2.text;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
-import static androidx.annotation.RestrictTo.Scope.TESTS;
 
 import android.annotation.SuppressLint;
 import android.graphics.Canvas;
@@ -30,6 +29,7 @@ import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
+import androidx.annotation.VisibleForTesting;
 import androidx.emoji2.text.flatbuffer.MetadataItem;
 import androidx.emoji2.text.flatbuffer.MetadataList;
 
@@ -235,7 +235,7 @@ public class TypefaceEmojiRasterizer {
      *
      * @hide
      */
-    @RestrictTo(TESTS)
+    @VisibleForTesting
     public void resetHasGlyphCache() {
         boolean willExclude = isPreferredSystemRender();
         if (willExclude) {
