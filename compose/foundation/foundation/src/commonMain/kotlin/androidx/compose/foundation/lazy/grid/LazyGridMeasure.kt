@@ -20,8 +20,6 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.fastFilter
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.lazy.layout.LazyLayoutPinnedItemList
-import androidx.compose.foundation.lazy.layout.findIndexByKey
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.unit.Constraints
@@ -43,7 +41,6 @@ import kotlin.math.sign
 @OptIn(ExperimentalFoundationApi::class)
 internal fun measureLazyGrid(
     itemsCount: Int,
-    itemProvider: LazyGridItemProvider,
     measuredLineProvider: LazyGridMeasuredLineProvider,
     measuredItemProvider: LazyGridMeasuredItemProvider,
     mainAxisAvailableSize: Int,
@@ -61,7 +58,7 @@ internal fun measureLazyGrid(
     density: Density,
     placementAnimator: LazyGridItemPlacementAnimator,
     spanLayoutProvider: LazyGridSpanLayoutProvider,
-    pinnedItems: LazyLayoutPinnedItemList,
+    pinnedItems: List<Int>,
     layout: (Int, Int, Placeable.PlacementScope.() -> Unit) -> MeasureResult
 ): LazyGridMeasureResult {
     require(beforeContentPadding >= 0)
@@ -213,7 +210,6 @@ internal fun measureLazyGrid(
         val extraItemsBefore = calculateExtraItems(
             pinnedItems,
             measuredItemProvider,
-            itemProvider,
             itemConstraints = { measuredLineProvider.itemConstraints(it) },
             filter = { it in 0 until firstItemIndex }
         )
@@ -221,7 +217,6 @@ internal fun measureLazyGrid(
         val extraItemsAfter = calculateExtraItems(
             pinnedItems,
             measuredItemProvider,
-            itemProvider,
             itemConstraints = { measuredLineProvider.itemConstraints(it) },
             filter = { it in (lastItemIndex + 1) until itemsCount }
         )
@@ -307,16 +302,14 @@ internal fun measureLazyGrid(
 
 @ExperimentalFoundationApi
 private inline fun calculateExtraItems(
-    pinnedItems: LazyLayoutPinnedItemList,
+    pinnedItems: List<Int>,
     measuredItemProvider: LazyGridMeasuredItemProvider,
-    itemProvider: LazyGridItemProvider,
     itemConstraints: (ItemIndex) -> Constraints,
     filter: (Int) -> Boolean
 ): List<LazyGridMeasuredItem> {
     var items: MutableList<LazyGridMeasuredItem>? = null
 
-    pinnedItems.fastForEach { item ->
-        val index = itemProvider.findIndexByKey(item.key, item.index)
+    pinnedItems.fastForEach { index ->
         if (filter(index)) {
             val itemIndex = ItemIndex(index)
             val constraints = itemConstraints(itemIndex)

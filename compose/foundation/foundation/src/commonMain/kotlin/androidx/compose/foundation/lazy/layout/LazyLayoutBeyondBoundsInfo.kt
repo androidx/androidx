@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,24 +14,25 @@
  * limitations under the License.
  */
 
-package androidx.compose.foundation.lazy
+package androidx.compose.foundation.lazy.layout
 
 import androidx.compose.runtime.collection.mutableVectorOf
 
 /**
  * This data structure is used to save information about the number of "beyond bounds items"
- * that we want to compose. These items are not within the visible bounds of the lazylist,
+ * that we want to compose. These items are not within the visible bounds of the lazy layout,
  * but we compose them because they are explicitly requested through the
  * [beyond bounds layout API][androidx.compose.ui.layout.BeyondBoundsLayout].
  *
- * When the LazyList receives a
- * [searchBeyondBounds][androidx.compose.ui.layout.BeyondBoundsLayout.searchBeyondBounds] request to
- * layout items beyond visible bounds, it creates an instance of [LazyListBeyondBoundsInfo] by using
- * the [addInterval] function. This returns the interval of items that are currently composed,
- * and we can edit this interval to control the number of beyond bounds items.
+ * When the lazy layout receives a
+ * [layout][androidx.compose.ui.layout.BeyondBoundsLayout.layout] request to layout items beyond
+ * visible bounds, it creates an instance of [LazyLayoutBeyondBoundsInfo.Interval] by using the
+ * [addInterval] function.
+ * This returns the interval of items that are currently composed, and we can request other
+ * intervals to control the number of beyond bounds items.
  *
- * There can be multiple intervals created at the same time, and LazyList merges all the
- * intervals to calculate the effective beyond bounds items.
+ * There can be multiple intervals created at the same time, and [LazyLayoutBeyondBoundsInfo] merges
+ * all the intervals to calculate the effective beyond bounds items.
  *
  * The [beyond bounds layout API][androidx.compose.ui.layout.BeyondBoundsLayout] is designed to be
  * synchronous, so once you are done using the items, call [removeInterval] to remove
@@ -43,11 +44,10 @@ import androidx.compose.runtime.collection.mutableVectorOf
  *
  * 1. To allow items to be pinned while they are being scrolled into view.
  *
- * 2. To allow users to call
- * [searchBeyondBounds][androidx.compose.ui.layout.BeyondBoundsLayout.searchBeyondBounds]
- * from within the completion block of another searchBeyondBounds call.
+ * 2. To allow users to call [layout][androidx.compose.ui.layout.BeyondBoundsLayout.layout] from
+ * within the completion block of another layout call.
  */
-internal class LazyListBeyondBoundsInfo {
+internal class LazyLayoutBeyondBoundsInfo {
     private val beyondBoundsItems = mutableVectorOf<Interval>()
 
     /**
@@ -108,7 +108,7 @@ internal class LazyListBeyondBoundsInfo {
         }
 
     /**
-     * The Interval used to implement [LazyListBeyondBoundsInfo].
+     * The Interval used to implement [LazyLayoutBeyondBoundsInfo].
      */
     internal data class Interval(
         /** The start index for the interval. */

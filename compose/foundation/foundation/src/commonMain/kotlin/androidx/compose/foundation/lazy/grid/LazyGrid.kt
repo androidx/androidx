@@ -29,6 +29,7 @@ import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.lazy.layout.LazyLayout
 import androidx.compose.foundation.lazy.layout.LazyLayoutMeasureScope
+import androidx.compose.foundation.lazy.layout.calculateLazyLayoutPinnedIndices
 import androidx.compose.foundation.lazy.layout.lazyLayoutSemantics
 import androidx.compose.foundation.overscroll
 import androidx.compose.runtime.Composable
@@ -86,7 +87,7 @@ internal fun LazyGrid(
         reverseLayout,
         isVertical,
         horizontalArrangement,
-        verticalArrangement
+        verticalArrangement,
     )
 
     state.isVertical = isVertical
@@ -106,6 +107,11 @@ internal fun LazyGrid(
                 reverseScrolling = reverseLayout
             )
             .clipScrollableContainer(orientation)
+            .lazyGridBeyondBoundsModifier(
+                state,
+                reverseLayout,
+                orientation
+            )
             .overscroll(overscrollEffect)
             .scrollable(
                 orientation = orientation,
@@ -170,7 +176,7 @@ private fun rememberLazyGridMeasurePolicy(
     reverseLayout,
     isVertical,
     horizontalArrangement,
-    verticalArrangement
+    verticalArrangement,
 ) {
     { containerConstraints ->
         checkScrollableContainerConstraints(
@@ -314,9 +320,14 @@ private fun rememberLazyGridMeasurePolicy(
                 firstVisibleLineScrollOffset = 0
             }
         }
+
+        val pinnedItems = itemProvider.calculateLazyLayoutPinnedIndices(
+            state.pinnedItems,
+            state.beyondBoundsInfo
+        )
+
         measureLazyGrid(
             itemsCount = itemsCount,
-            itemProvider = itemProvider,
             measuredLineProvider = measuredLineProvider,
             measuredItemProvider = measuredItemProvider,
             mainAxisAvailableSize = mainAxisAvailableSize,
@@ -334,7 +345,7 @@ private fun rememberLazyGridMeasurePolicy(
             density = this,
             placementAnimator = state.placementAnimator,
             spanLayoutProvider = spanLayoutProvider,
-            pinnedItems = state.pinnedItems,
+            pinnedItems = pinnedItems,
             layout = { width, height, placement ->
                 layout(
                     containerConstraints.constrainWidth(width + totalHorizontalPadding),

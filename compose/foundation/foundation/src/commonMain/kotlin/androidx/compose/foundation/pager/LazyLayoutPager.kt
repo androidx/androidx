@@ -25,7 +25,6 @@ import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.gestures.snapping.SnapFlingBehavior
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.lazy.LazyListBeyondBoundsInfo
 import androidx.compose.foundation.lazy.NearestItemsExtraItemCount
 import androidx.compose.foundation.lazy.NearestItemsSlidingWindowSize
 import androidx.compose.foundation.lazy.layout.IntervalList
@@ -105,8 +104,6 @@ internal fun Pager(
         key = key
     ) { state.pageCount }
 
-    val beyondBoundsInfo = remember { LazyListBeyondBoundsInfo() }
-
     val measurePolicy = rememberPagerMeasurePolicy(
         state = state,
         contentPadding = contentPadding,
@@ -119,7 +116,6 @@ internal fun Pager(
         verticalAlignment = verticalAlignment,
         itemProvider = pagerItemProvider,
         pageCount = { state.pageCount },
-        beyondBoundsInfo = beyondBoundsInfo
     )
 
     val pagerFlingBehavior = remember(flingBehavior, state) {
@@ -152,7 +148,12 @@ internal fun Pager(
                 reverseScrolling = reverseLayout
             )
             .clipScrollableContainer(orientation)
-            .pagerBeyondBoundsModifier(state, beyondBoundsInfo, reverseLayout, orientation)
+            .pagerBeyondBoundsModifier(
+                state,
+                beyondBoundsPageCount,
+                reverseLayout,
+                orientation
+            )
             .overscroll(overscrollEffect)
             .scrollable(
                 orientation = orientation,
