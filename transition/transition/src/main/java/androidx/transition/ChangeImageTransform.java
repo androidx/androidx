@@ -17,6 +17,7 @@
 package androidx.transition;
 
 import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
 import android.animation.TypeEvaluator;
 import android.content.Context;
@@ -79,7 +80,12 @@ public class ChangeImageTransform extends Transition {
         super(context, attrs);
     }
 
-    private void captureValues(TransitionValues transitionValues) {
+    @Override
+    public boolean isSeekingSupported() {
+        return true;
+    }
+
+    private void captureValues(TransitionValues transitionValues, boolean useIntermediate) {
         View view = transitionValues.view;
         if (!(view instanceof ImageView) || view.getVisibility() != View.VISIBLE) {
             return;
@@ -98,17 +104,24 @@ public class ChangeImageTransform extends Transition {
 
         Rect bounds = new Rect(left, top, right, bottom);
         values.put(PROPNAME_BOUNDS, bounds);
-        values.put(PROPNAME_MATRIX, copyImageMatrix(imageView));
+        Matrix matrix = null;
+        if (useIntermediate) {
+            matrix = (Matrix) imageView.getTag(R.id.transition_image_transform);
+        }
+        if (matrix == null) {
+            matrix = copyImageMatrix(imageView);
+        }
+        values.put(PROPNAME_MATRIX, matrix);
     }
 
     @Override
     public void captureStartValues(@NonNull TransitionValues transitionValues) {
-        captureValues(transitionValues);
+        captureValues(transitionValues, true);
     }
 
     @Override
     public void captureEndValues(@NonNull TransitionValues transitionValues) {
-        captureValues(transitionValues);
+        captureValues(transitionValues, false);
     }
 
     @Override
@@ -168,6 +181,10 @@ public class ChangeImageTransform extends Transition {
             }
             ANIMATED_TRANSFORM_PROPERTY.set(imageView, startMatrix);
             animator = createMatrixAnimator(imageView, startMatrix, endMatrix);
+            Listener listener = new Listener(imageView, startMatrix, endMatrix);
+            animator.addListener(listener);
+            AnimatorUtils.addPauseListener(animator, listener);
+            addListener(listener);
         }
 
         return animator;
@@ -241,4 +258,84 @@ public class ChangeImageTransform extends Transition {
         return matrix;
     }
 
+    private static class Listener extends AnimatorListenerAdapter implements TransitionListener {
+        private final ImageView mImageView;
+        private final Matrix mStartMatrix;
+        private final Matrix mEndMatrix;
+        private boolean mIsBeforeAnimator = true;
+
+        Listener(ImageView imageView, Matrix startMatrix, Matrix endMatrix) {
+            mImageView = imageView;
+            mStartMatrix = startMatrix;
+            mEndMatrix = endMatrix;
+        }
+
+        @Override
+        public void onTransitionStart(@NonNull Transition transition) {
+        }
+
+        @Override
+        public void onTransitionEnd(@NonNull Transition transition) {
+        }
+
+        @Override
+        public void onTransitionCancel(@NonNull Transition transition) {
+        }
+
+        @Override
+        public void onTransitionPause(@NonNull Transition transition) {
+            if (mIsBeforeAnimator) {
+                saveMatrix(mStartMatrix);
+            }
+        }
+
+        @Override
+        public void onTransitionResume(@NonNull Transition transition) {
+            restoreMatrix();
+        }
+
+        @Override
+        public void onAnimationStart(@NonNull Animator animation, boolean isReverse) {
+            mIsBeforeAnimator = false;
+        }
+
+        @Override
+        public void onAnimationStart(Animator animation) {
+            mIsBeforeAnimator = false;
+        }
+
+        @Override
+        public void onAnimationEnd(@NonNull Animator animation, boolean isReverse) {
+            mIsBeforeAnimator = isReverse;
+        }
+
+        @Override
+        public void onAnimationEnd(Animator animation) {
+            mIsBeforeAnimator = false;
+        }
+
+        @Override
+        public void onAnimationPause(Animator animation) {
+            Matrix pauseMatrix = (Matrix) ((ObjectAnimator) animation).getAnimatedValue();
+            saveMatrix(pauseMatrix);
+        }
+
+        @Override
+        public void onAnimationResume(Animator animation) {
+            restoreMatrix();
+        }
+
+        private void restoreMatrix() {
+            Matrix pauseMatrix = (Matrix) mImageView.getTag(R.id.transition_image_transform);
+            if (pauseMatrix != null) {
+                ImageViewUtils.animateTransform(mImageView, pauseMatrix);
+                mImageView.setTag(R.id.transition_image_transform, null);
+            }
+        }
+
+        private void saveMatrix(Matrix pauseMatrix) {
+            mImageView.setTag(R.id.transition_image_transform, pauseMatrix);
+            ImageViewUtils.animateTransform(mImageView, mEndMatrix);
+        }
+    }
 }
