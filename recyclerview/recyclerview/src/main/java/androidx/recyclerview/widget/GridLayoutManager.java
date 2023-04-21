@@ -37,8 +37,10 @@ import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.Accessibilit
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.TreeMap;
 
 /**
@@ -53,6 +55,13 @@ public class GridLayoutManager extends LinearLayoutManager {
     private static final String TAG = "GridLayoutManager";
     public static final int DEFAULT_SPAN_COUNT = -1;
     private static final int INVALID_POSITION = -1;
+
+    private static final Set<Integer> sSupportedDirectionsForActionScrollInDirection =
+            Collections.unmodifiableSet(new HashSet<>(Arrays.asList(
+                    View.FOCUS_LEFT,
+                    View.FOCUS_RIGHT,
+                    View.FOCUS_UP,
+                    View.FOCUS_DOWN)));
 
     /**
      * Span size have been changed but we've not done a new layout calculation.
@@ -83,6 +92,36 @@ public class GridLayoutManager extends LinearLayoutManager {
      * be emitted.
      */
     private int mPositionTargetedByScrollInDirection = INVALID_POSITION;
+
+    /**
+     * Stores the index of the row with accessibility focus for use with
+     * {@link  AccessibilityNodeInfoCompat.AccessibilityActionCompat#ACTION_SCROLL_IN_DIRECTION}.
+     * This may include a position that is spanned by a grid child. For example, in the following
+     * grid...
+     * 0  3  4
+     * 1  3  5
+     * 2  3  6
+     * ...the child at adapter position 3 (which spans three rows) could have a row index of either
+     * 0, 1, or 2, and the choice may depend on which row of the grid previously had
+     * accessibility focus. Note that for single span cells, the row index stored here should be
+     * the same as the value returned by {@code getRowIndex()}.
+     */
+    int mRowWithAccessibilityFocus = INVALID_POSITION;
+
+    /**
+     * Stores the index of the column with accessibility focus for use with
+     * {@link  AccessibilityNodeInfoCompat.AccessibilityActionCompat#ACTION_SCROLL_IN_DIRECTION}.
+     * This may include a position that is spanned by a grid child. For example, in the following
+     * grid...
+     * 0  1  2
+     * 3  3  3
+     * 4  5  6
+     * ... the child at adapter position 3 (which spans three columns) could have a column index
+     * of either 0, 1, or 2, and the choice may depend on which column of the grid previously had
+     * accessibility focus. Note that for single span cells, the column index stored here should be
+     * the same as the value returned by {@code getColumnIndex()}.
+     */
+    int mColumnWithAccessibilityFocus = INVALID_POSITION;
 
     /**
      * Constructor used when layout manager is set in XML by RecyclerView attribute
@@ -219,6 +258,14 @@ public class GridLayoutManager extends LinearLayoutManager {
             final int direction = args.getInt(
                     AccessibilityNodeInfo.ACTION_ARGUMENT_DIRECTION_INT, INVALID_POSITION);
 
+            if (!sSupportedDirectionsForActionScrollInDirection.contains(direction)) {
+                if (DEBUG) {
+                    Log.w(TAG, "Direction equals " + direction
+                            + "which is unsupported when using ACTION_SCROLL_IN_DIRECTION");
+                }
+                return false;
+            }
+
             RecyclerView.ViewHolder vh =
                     mRecyclerView.getChildViewHolder(viewWithAccessibilityFocus);
             if (vh == null) {
@@ -240,6 +287,14 @@ public class GridLayoutManager extends LinearLayoutManager {
                             + "less than 0.");
                 }
                 return false;
+            }
+
+            if (mRowWithAccessibilityFocus == INVALID_POSITION) {
+                mRowWithAccessibilityFocus = startingRow;
+            }
+
+            if (mColumnWithAccessibilityFocus == INVALID_POSITION) {
+                mColumnWithAccessibilityFocus = startingColumn;
             }
 
             int scrollTargetPosition;

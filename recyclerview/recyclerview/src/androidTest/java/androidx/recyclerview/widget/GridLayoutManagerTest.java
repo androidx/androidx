@@ -1127,6 +1127,8 @@ public class GridLayoutManagerTest extends BaseGridLayoutManagerTest {
                             ACTION_SCROLL_IN_DIRECTION.getId(), null);
                 });
         assertThat(returnValue[0]).isFalse();
+        assertThat(mGlm.mRowWithAccessibilityFocus).isEqualTo(-1);
+        assertThat(mGlm.mColumnWithAccessibilityFocus).isEqualTo(-1);
     }
 
     @Test
@@ -1139,6 +1141,8 @@ public class GridLayoutManagerTest extends BaseGridLayoutManagerTest {
         final UiAutomation uiAutomation = setUpGridLayoutManagerAccessibilityTest(6, HORIZONTAL);
         setAccessibilityFocus(uiAutomation, mGlm.getChildAt(0));
         runScrollInDirectionAndFail(-1);
+        assertThat(mGlm.mRowWithAccessibilityFocus).isEqualTo(-1);
+        assertThat(mGlm.mColumnWithAccessibilityFocus).isEqualTo(-1);
     }
 
     @Test
@@ -1151,6 +1155,8 @@ public class GridLayoutManagerTest extends BaseGridLayoutManagerTest {
         // Return value of this call is not used.
         setUpGridLayoutManagerAccessibilityTest(6, HORIZONTAL);
         runScrollInDirectionAndFail(View.FOCUS_RIGHT);
+        assertThat(mGlm.mRowWithAccessibilityFocus).isEqualTo(-1);
+        assertThat(mGlm.mColumnWithAccessibilityFocus).isEqualTo(-1);
     }
 
     @Test
@@ -1173,6 +1179,25 @@ public class GridLayoutManagerTest extends BaseGridLayoutManagerTest {
                     put(1, "Item (3)");
                     put(2, "Item (4)");
                 }});
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    public void performActionScrollInDirection_setsRowColumnIndices()
+            throws Throwable {
+        // TODO(b/267511848): suppress to LOLLIPOP once U constants are finalized and available in
+        //  earlier android version.
+
+        final UiAutomation uiAutomation = setUpGridLayoutManagerAccessibilityTest(5, VERTICAL);
+        setAccessibilityFocus(uiAutomation, mGlm.getChildAt(0));
+        mActivityRule.runOnUiThread(
+                () -> {
+                    mRecyclerView.getLayoutManager().performAccessibilityAction(
+                            ACTION_SCROLL_IN_DIRECTION.getId(),
+                            bundleWithDirectionArg(View.FOCUS_RIGHT));
+                });
+        assertThat(mGlm.mRowWithAccessibilityFocus).isEqualTo(0);
+        assertThat(mGlm.mColumnWithAccessibilityFocus).isEqualTo(0);
     }
 
     @Test
