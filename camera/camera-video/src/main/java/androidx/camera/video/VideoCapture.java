@@ -403,6 +403,22 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         return getMirrorModeInternal();
     }
 
+    @SuppressWarnings("unchecked")
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @NonNull
+    @Override
+    protected StreamSpec onSuggestedStreamSpecUpdated(@NonNull StreamSpec suggestedStreamSpec) {
+        Logger.d(TAG, "onSuggestedStreamSpecUpdated: " + suggestedStreamSpec);
+        VideoCaptureConfig<T> config = (VideoCaptureConfig<T>) getCurrentConfig();
+        List<Size> customOrderedResolutions = config.getCustomOrderedResolutions(null);
+        if (customOrderedResolutions != null
+                && !customOrderedResolutions.contains(suggestedStreamSpec.getResolution())) {
+            Logger.w(TAG, "suggested resolution " + suggestedStreamSpec.getResolution()
+                    + " is not in custom ordered resolutions " + customOrderedResolutions);
+        }
+        return suggestedStreamSpec;
+    }
+
     /**
      * {@inheritDoc}
      *
@@ -498,7 +514,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
     protected UseCaseConfig<?> onMergeConfig(@NonNull CameraInfoInternal cameraInfo,
             @NonNull UseCaseConfig.Builder<?, ?, ?> builder) {
 
-        updateSupportedResolutionsByQuality(cameraInfo, builder);
+        updateCustomOrderedResolutionsByQuality(cameraInfo, builder);
 
         return builder.getUseCaseConfig();
     }
@@ -1176,13 +1192,13 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
     }
 
     /**
-     * Set {@link ImageOutputConfig#OPTION_SUPPORTED_RESOLUTIONS} according to the resolution found
-     * by the {@link QualitySelector} in VideoOutput.
+     * Set {@link ImageOutputConfig#OPTION_CUSTOM_ORDERED_RESOLUTIONS} according to the resolution
+     * found by the {@link QualitySelector} in VideoOutput.
      *
      * @throws IllegalArgumentException if not able to find a resolution by the QualitySelector
      *                                  in VideoOutput.
      */
-    private void updateSupportedResolutionsByQuality(@NonNull CameraInfoInternal cameraInfo,
+    private void updateCustomOrderedResolutionsByQuality(@NonNull CameraInfoInternal cameraInfo,
             @NonNull UseCaseConfig.Builder<?, ?, ?> builder) throws IllegalArgumentException {
         MediaSpec mediaSpec = getMediaSpec();
 
@@ -1221,15 +1237,14 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         Map<Quality, Size> sizeMap = getQualityToResolutionMap(videoCapabilities, dynamicRange);
         QualityRatioToResolutionsTable qualityRatioTable = new QualityRatioToResolutionsTable(
                 cameraInfo.getSupportedResolutions(getImageFormat()), sizeMap);
-        List<Size> supportedResolutions = new ArrayList<>();
+        List<Size> customOrderedResolutions = new ArrayList<>();
         for (Quality selectedQuality : selectedQualities) {
-            supportedResolutions.addAll(
+            customOrderedResolutions.addAll(
                     qualityRatioTable.getResolutions(selectedQuality, aspectRatio));
         }
-        Logger.d(TAG, "Set supported resolutions = " + supportedResolutions);
-
+        Logger.d(TAG, "Set custom ordered resolutions = " + customOrderedResolutions);
         builder.getMutableConfig().insertOption(OPTION_CUSTOM_ORDERED_RESOLUTIONS,
-                supportedResolutions);
+                customOrderedResolutions);
     }
 
     private static boolean hasVideoQualityQuirkAndWorkaroundBySurfaceProcessing() {
