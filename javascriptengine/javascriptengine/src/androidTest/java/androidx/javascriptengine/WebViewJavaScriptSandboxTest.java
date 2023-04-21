@@ -19,6 +19,7 @@ package androidx.javascriptengine;
 import android.content.Context;
 
 import androidx.annotation.GuardedBy;
+import androidx.annotation.NonNull;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
@@ -957,7 +958,8 @@ public class WebViewJavaScriptSandboxTest {
             }
 
             @Override
-            public void onConsoleMessage(JavaScriptConsoleCallback.ConsoleMessage message) {
+            public void onConsoleMessage(
+                    @NonNull JavaScriptConsoleCallback.ConsoleMessage message) {
                 synchronized (mLock) {
                     mMessages.append(message.toString()).append("\n");
                 }
@@ -1123,7 +1125,7 @@ public class WebViewJavaScriptSandboxTest {
             CountDownLatch latch = new CountDownLatch(1);
             jsIsolate.setConsoleCallback(new JavaScriptConsoleCallback() {
                 @Override
-                public void onConsoleMessage(ConsoleMessage message) {}
+                public void onConsoleMessage(@NonNull ConsoleMessage message) {}
 
                 @Override
                 public void onConsoleClear() {
