@@ -5,5 +5,10 @@ package androidx.privacysandbox.ui.provider {
     method @RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU) public static android.os.Bundle toCoreLibInfo(androidx.privacysandbox.ui.core.SandboxedUiAdapter, android.content.Context context);
   }
 
+  public final class SdkActivityLauncherFactory {
+    method public static androidx.privacysandbox.ui.core.SdkActivityLauncher fromLauncherInfo(android.os.Bundle launcherInfo);
+    field public static final androidx.privacysandbox.ui.provider.SdkActivityLauncherFactory INSTANCE;
+  }
+
 }
 

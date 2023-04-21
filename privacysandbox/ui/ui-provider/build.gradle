@@ -25,7 +25,13 @@ plugins {
 dependencies {
     api(libs.kotlinStdlib)
     api("androidx.annotation:annotation:1.1.0")
+
     implementation project(path: ':privacysandbox:ui:ui-core')
+    // For BundleCompat#getBinder.
+    // TODO(b/280561849): Use stable version when available.
+    implementation("androidx.core:core:1.12.0-alpha03")
+    implementation(libs.kotlinCoroutinesCore)
+
     androidTestImplementation(libs.junit)
     androidTestImplementation(libs.kotlinStdlib)
     androidTestImplementation(libs.testExtJunit)

@@ -37,4 +37,22 @@
             file="src/main/aidl/androidx/privacysandbox/ui/core/ISandboxedUiAdapter.aidl"/>
     </issue>
 
+    <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="oneway interface ISdkActivityLauncher {"
+        errorLine2="^">
+        <location
+            file="src/main/aidl/androidx/privacysandbox/ui/core/ISdkActivityLauncher.aidl"/>
+    </issue>
+
+    <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="oneway interface ISdkActivityLauncherCallback {"
+        errorLine2="^">
+        <location
+            file="src/main/aidl/androidx/privacysandbox/ui/core/ISdkActivityLauncherCallback.aidl"/>
+    </issue>
+
 </issues>
