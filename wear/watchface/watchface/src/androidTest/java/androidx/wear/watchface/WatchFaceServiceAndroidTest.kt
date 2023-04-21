@@ -21,6 +21,7 @@ import android.graphics.drawable.Icon
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import androidx.test.filters.SdkSuppress
 import androidx.wear.watchface.control.InteractiveInstanceManager
 import androidx.wear.watchface.style.UserStyleSchema
 import androidx.wear.watchface.style.UserStyleSetting
@@ -38,6 +39,7 @@ class WatchFaceServiceAndroidTest {
         InteractiveInstanceManager.setParameterlessEngine(null)
     }
 
+    @SdkSuppress(maxSdkVersion = 32) // b/275361339
     @Test
     fun measuresWatchFaceIconsFromCustomContext() {
         val context: Context = ApplicationProvider.getApplicationContext()
