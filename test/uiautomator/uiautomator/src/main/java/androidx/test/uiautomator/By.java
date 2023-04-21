@@ -328,8 +328,8 @@ public class By {
      * @see BySelector#hasAncestor(BySelector, int)
      */
     public static @NonNull BySelector hasAncestor(@NonNull BySelector ancestorSelector,
-            @IntRange(from = 1) int maxHeight) {
-        return new BySelector().hasAncestor(ancestorSelector, maxHeight);
+            @IntRange(from = 1) int maxAncestorDistance) {
+        return new BySelector().hasAncestor(ancestorSelector, maxAncestorDistance);
     }
 
     /**

@@ -59,14 +59,14 @@ class ByMatcher {
 
     // Inverts parent-child relationships until a root selector is found.
     private BySelector invertSelector(BySelector selector) {
-        if (selector.mParentSelector == null) {
+        if (selector.mAncestorSelector == null) {
             return selector;
         }
-        BySelector parent = new BySelector(selector.mParentSelector);
-        selector.mParentSelector = null;
-        selector.mMaxDepth = selector.mParentHeight;
-        selector.mParentHeight = null;
-        return invertSelector(parent.hasDescendant(selector));
+        BySelector ancestor = new BySelector(selector.mAncestorSelector);
+        selector.mAncestorSelector = null;
+        selector.mMaxDepth = selector.mMaxAncestorDistance;
+        selector.mMaxAncestorDistance = null;
+        return invertSelector(ancestor.hasDescendant(selector));
     }
 
     /**

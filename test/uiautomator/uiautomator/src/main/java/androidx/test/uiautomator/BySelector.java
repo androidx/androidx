@@ -51,9 +51,9 @@ public class BySelector {
     Integer mMinDepth;
     Integer mMaxDepth;
 
-    // Parent selector
-    BySelector mParentSelector;
-    Integer mParentHeight;
+    // Ancestor selector
+    BySelector mAncestorSelector;
+    Integer mMaxAncestorDistance;
 
     // Child selectors
     final List<BySelector> mChildSelectors = new LinkedList<>();
@@ -87,9 +87,9 @@ public class BySelector {
         mMinDepth = original.mMinDepth;
         mMaxDepth = original.mMaxDepth;
 
-        mParentSelector = original.mParentSelector == null ? null :
-                new BySelector(original.mParentSelector);
-        mParentHeight = original.mParentHeight;
+        mAncestorSelector = original.mAncestorSelector == null ? null :
+                new BySelector(original.mAncestorSelector);
+        mMaxAncestorDistance = original.mMaxAncestorDistance;
 
         for (BySelector childSelector : original.mChildSelectors) {
             mChildSelectors.add(new BySelector(childSelector));
@@ -595,10 +595,10 @@ public class BySelector {
      */
     public @NonNull BySelector hasAncestor(@NonNull BySelector ancestorSelector) {
         checkNotNull(ancestorSelector, "ancestorSelector cannot be null");
-        if (mParentSelector != null) {
+        if (mAncestorSelector != null) {
             throw new IllegalStateException("Parent/ancestor selector is already defined");
         }
-        mParentSelector = ancestorSelector;
+        mAncestorSelector = ancestorSelector;
         return this;
     }
 
@@ -607,14 +607,16 @@ public class BySelector {
      * it has an ancestor element which matches the {@code ancestorSelector} and all other
      * criteria for this selector are met.
      *
-     * @param ancestorSelector The selector used to find a matching ancestor element.
-     * @param maxHeight        The maximum height above the element to search for the ancestor.
+     * @param ancestorSelector    The selector used to find a matching ancestor element.
+     * @param maxAncestorDistance The maximum distance between the element and its relevant
+     *                            ancestor in the view hierarchy, e.g. 1 only matches the parent
+     *                            element, 2 matches parent or grandparent.
      * @return A reference to this {@link BySelector}.
      */
     public @NonNull BySelector hasAncestor(@NonNull BySelector ancestorSelector,
-            @IntRange(from = 1) int maxHeight) {
+            @IntRange(from = 1) int maxAncestorDistance) {
         hasAncestor(ancestorSelector);
-        mParentHeight = maxHeight;
+        mMaxAncestorDistance = maxAncestorDistance;
         return this;
     }
 
@@ -626,7 +628,7 @@ public class BySelector {
      *
      * @param childSelector The selector used to find a matching child element.
      * @return A reference to this {@link BySelector}.
-     * @throws IllegalArgumentException if the selector has a parent selector
+     * @throws IllegalArgumentException if the selector has a parent/ancestor selector
      */
     public @NonNull BySelector hasChild(@NonNull BySelector childSelector) {
         checkNotNull(childSelector, "childSelector cannot be null");
@@ -641,11 +643,11 @@ public class BySelector {
      *
      * @param descendantSelector The selector used to find a matching descendant element.
      * @return A reference to this {@link BySelector}.
-     * @throws IllegalArgumentException if the selector has a parent selector
+     * @throws IllegalArgumentException if the selector has a parent/ancestor selector
      */
     public @NonNull BySelector hasDescendant(@NonNull BySelector descendantSelector) {
         checkNotNull(descendantSelector, "descendantSelector cannot be null");
-        if (descendantSelector.mParentSelector != null) {
+        if (descendantSelector.mAncestorSelector != null) {
             // Search root is ambiguous with nested parent selectors.
             throw new IllegalArgumentException(
                     "Nested parent/ancestor selectors are not supported");
@@ -663,7 +665,7 @@ public class BySelector {
      * @param descendantSelector The selector used to find a matching descendant element.
      * @param maxDepth The maximum depth under the element to search the descendant.
      * @return A reference to this {@link BySelector}.
-     * @throws IllegalArgumentException if the selector has a parent selector
+     * @throws IllegalArgumentException if the selector has a parent/ancestor selector
      */
     public @NonNull BySelector hasDescendant(@NonNull BySelector descendantSelector, int maxDepth) {
         hasDescendant(descendantSelector);
@@ -721,9 +723,9 @@ public class BySelector {
         if (mSelected != null) {
             builder.append("SELECTED='").append(mSelected).append("', ");
         }
-        if (mParentSelector != null) {
-            builder.append("PARENT='")
-                    .append(mParentSelector.toString().substring(11))
+        if (mAncestorSelector != null) {
+            builder.append("ANCESTOR='")
+                    .append(mAncestorSelector.toString().substring(11))
                     .append("', ");
         }
         for (BySelector childSelector : mChildSelectors) {
@@ -741,4 +743,3 @@ public class BySelector {
         return value;
     }
 }
-
