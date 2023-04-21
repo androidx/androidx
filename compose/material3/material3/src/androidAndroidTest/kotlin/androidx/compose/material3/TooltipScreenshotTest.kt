@@ -20,7 +20,6 @@ import android.os.Build
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.testutils.assertAgainstGolden
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
@@ -124,7 +123,7 @@ class TooltipScreenshotTest {
 
     @Composable
     private fun PlainTooltipTest() {
-        val tooltipState = remember { PlainTooltipState() }
+        val tooltipState = rememberPlainTooltipState()
         PlainTooltipBox(
             tooltip = { Text("Tooltip Description") },
             modifier = Modifier.testTag(TooltipTestTag),
@@ -135,14 +134,14 @@ class TooltipScreenshotTest {
                 contentDescription = null,
                 modifier = Modifier
                     .testTag(AnchorTestTag)
-                    .tooltipAnchor()
+                    .tooltipTrigger()
             )
         }
     }
 
     @Composable
     private fun RichTooltipTest() {
-        val tooltipState = remember { RichTooltipState() }
+        val tooltipState = rememberRichTooltipState(isPersistent = true)
         RichTooltipBox(
             title = { Text("Title") },
             text = {
@@ -160,7 +159,7 @@ class TooltipScreenshotTest {
                 contentDescription = null,
                 modifier = Modifier
                     .testTag(AnchorTestTag)
-                    .tooltipAnchor()
+                    .tooltipTrigger()
             )
         }
     }
