@@ -44,6 +44,7 @@ import kotlinx.coroutines.Deferred
 internal interface Result3AStateListener {
     fun onRequestSequenceCreated(requestNumber: RequestNumber)
     fun update(requestNumber: RequestNumber, frameMetadata: FrameMetadata): Boolean
+    fun onRequestSequenceStopped()
 }
 
 internal class Result3AStateListenerImpl(
@@ -125,6 +126,10 @@ internal class Result3AStateListenerImpl(
         }
         _result.complete(Result3A(Result3A.Status.OK, frameMetadata))
         return true
+    }
+
+    override fun onRequestSequenceStopped() {
+        _result.complete(Result3A(Result3A.Status.SUBMIT_CANCELLED))
     }
 
     fun getDeferredResult(): Deferred<Result3A> {

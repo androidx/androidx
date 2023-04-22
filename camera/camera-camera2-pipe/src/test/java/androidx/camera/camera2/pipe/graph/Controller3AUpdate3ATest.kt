@@ -56,6 +56,20 @@ internal class Controller3AUpdate3ATest {
         Controller3A(graphProcessor, FakeCameraMetadata(), graphState3A, listener3A)
 
     @Test
+    fun testUpdate3AFailsImmediatelyWithoutRepeatingRequest() = runTest {
+        val graphProcessor2 = FakeGraphProcessor()
+        val controller3A =
+            Controller3A(
+                graphProcessor2,
+                FakeCameraMetadata(),
+                graphProcessor2.graphState3A,
+                listener3A
+            )
+        val result = controller3A.update3A(afMode = AfMode.OFF)
+        assertThat(result.await().status).isEqualTo(Result3A.Status.SUBMIT_FAILED)
+    }
+
+    @Test
     fun testUpdate3AUpdatesState3A() {
         initGraphProcessor()
 
