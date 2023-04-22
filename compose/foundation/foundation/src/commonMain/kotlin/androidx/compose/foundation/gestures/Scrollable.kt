@@ -64,6 +64,7 @@ import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.util.fastAll
 import androidx.compose.ui.util.fastForEach
 import kotlin.math.abs
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -271,23 +272,28 @@ private fun Modifier.pointerScrollable(
     val draggableState = remember { ScrollDraggableState(scrollLogic) }
     val scrollConfig = platformScrollConfig()
 
-    return draggable(
-        draggableState,
-        orientation = orientation,
-        enabled = enabled,
-        interactionSource = interactionSource,
-        reverseDirection = false,
-        startDragImmediately = { scrollLogic.value.shouldScrollImmediately() },
-        onDragStopped = { velocity ->
-            nestedScrollDispatcher.value.coroutineScope.launch {
-                scrollLogic.value.onDragStopped(velocity)
-            }
-        },
-        canDrag = { down -> down.type != PointerType.Mouse }
-    )
+    return this
+        .then(DraggableElement(
+            state = draggableState,
+            orientation = orientation,
+            enabled = enabled,
+            interactionSource = interactionSource,
+            reverseDirection = false,
+            startDragImmediately = { scrollLogic.value.shouldScrollImmediately() },
+            onDragStarted = NoOpOnDragStarted,
+            onDragStopped = { velocity ->
+                nestedScrollDispatcher.value.coroutineScope.launch {
+                    scrollLogic.value.onDragStopped(velocity)
+                }
+            },
+            canDrag = { down -> down.type != PointerType.Mouse }
+        ))
         .then(MouseWheelScrollElement(scrollLogic, scrollConfig))
         .nestedScroll(nestedScrollConnection, nestedScrollDispatcher.value)
 }
+
+// {} isn't being memoized for us, so extract this to make sure we compare equally on recomposition.
+private val NoOpOnDragStarted: suspend CoroutineScope.(startedPosition: Offset) -> Unit = {}
 
 private class MouseWheelScrollElement(
     val scrollingLogicState: State<ScrollingLogic>,
