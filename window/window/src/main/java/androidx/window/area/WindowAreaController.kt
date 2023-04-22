@@ -23,9 +23,8 @@ import android.util.Log
 import androidx.annotation.RestrictTo
 import androidx.window.area.WindowAreaInfo.Type.Companion.TYPE_REAR_FACING
 import androidx.window.core.BuildConfig
+import androidx.window.core.ExtensionsUtil
 import androidx.window.core.VerificationMode
-import androidx.window.extensions.WindowExtensionsProvider
-import androidx.window.extensions.area.WindowAreaComponent
 import java.util.concurrent.Executor
 import kotlinx.coroutines.flow.Flow
 
@@ -134,24 +133,23 @@ interface WindowAreaController {
         @JvmName("getOrCreate")
         @JvmStatic
         fun getOrCreate(): WindowAreaController {
-            var windowAreaComponentExtensions: WindowAreaComponent?
-            var vendorApiLevel: Int = -1
-            try {
-                val windowExtensions = WindowExtensionsProvider.getWindowExtensions()
-                vendorApiLevel = windowExtensions.vendorApiLevel
-                windowAreaComponentExtensions = windowExtensions.windowAreaComponent
+            val windowAreaComponentExtensions = try {
+                this::class.java.classLoader?.let {
+                    SafeWindowAreaComponentProvider(it).windowAreaComponent
+                }
             } catch (t: Throwable) {
                 if (BuildConfig.verificationMode == VerificationMode.LOG) {
                     Log.d(TAG, "Failed to load WindowExtensions")
                 }
-                windowAreaComponentExtensions = null
+                null
             }
             val controller =
                 if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q ||
                     windowAreaComponentExtensions == null) {
                     EmptyWindowAreaControllerImpl()
                 } else {
-                    WindowAreaControllerImpl(windowAreaComponentExtensions, vendorApiLevel)
+                    WindowAreaControllerImpl(
+                        windowAreaComponentExtensions, ExtensionsUtil.safeVendorApiLevel)
                 }
             return decorator.decorate(controller)
         }
