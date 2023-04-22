@@ -23,9 +23,9 @@ import androidx.concurrent.futures.await
  * An interface of executing the action.
  *
  * Actions are executed asynchronously using Kotlin coroutines.
- * For a Future-based solution, see CapabilityExecutorAsync.
+ * For a Future-based solution, see ExecutionCallbackAsync.
  */
-fun interface CapabilityExecutor<ArgumentsT, OutputT> {
+fun interface ExecutionCallback<ArgumentsT, OutputT> {
     @get:RestrictTo(RestrictTo.Scope.LIBRARY)
     val uiHandle: Any
         get() = this
@@ -40,9 +40,9 @@ fun interface CapabilityExecutor<ArgumentsT, OutputT> {
 }
 
 internal fun <ArgumentsT, OutputT>
-    CapabilityExecutorAsync<ArgumentsT, OutputT>.toCapabilityExecutor():
-    CapabilityExecutor<ArgumentsT, OutputT> = object : CapabilityExecutor<ArgumentsT, OutputT> {
-    override val uiHandle = this@toCapabilityExecutor
+    ExecutionCallbackAsync<ArgumentsT, OutputT>.toExecutionCallback():
+    ExecutionCallback<ArgumentsT, OutputT> = object : ExecutionCallback<ArgumentsT, OutputT> {
+    override val uiHandle = this@toExecutionCallback
     override suspend fun onExecute(arguments: ArgumentsT): ExecutionResult<OutputT> =
-        this@toCapabilityExecutor.onExecute(arguments).await()
+        this@toExecutionCallback.onExecute(arguments).await()
 }
