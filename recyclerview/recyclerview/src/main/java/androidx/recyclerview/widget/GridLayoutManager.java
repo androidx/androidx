@@ -302,8 +302,13 @@ public class GridLayoutManager extends LinearLayoutManager {
                             startingColumn, startingAdapterPosition);
                     break;
                 case View.FOCUS_RIGHT:
-                    scrollTargetPosition = findScrollTargetPositionOnTheRight(startingRow,
-                            startingColumn, startingAdapterPosition);
+                    int row = (mRowWithAccessibilityFocus == INVALID_POSITION) ? startingRow
+                            : mRowWithAccessibilityFocus;
+                    int column = (mColumnWithAccessibilityFocus == INVALID_POSITION)
+                            ? startingColumn : mColumnWithAccessibilityFocus;
+                    scrollTargetPosition =
+                            findScrollTargetPositionOnTheRight(row, column,
+                                    startingAdapterPosition);
                     break;
                 case View.FOCUS_UP:
                     scrollTargetPosition = findScrollTargetPositionAbove(startingRow,
@@ -323,9 +328,11 @@ public class GridLayoutManager extends LinearLayoutManager {
                 // Handle case in grids with horizontal orientation where the scroll target is on
                 // a different row.
                 if (direction == View.FOCUS_LEFT) {
-                    scrollTargetPosition = findPositionOfLastItemOnARowAbove(startingRow);
+                    scrollTargetPosition = findPositionOfLastItemOnARowAboveForHorizontalGrid(
+                            startingRow);
                 } else if (direction == View.FOCUS_RIGHT) {
-                    scrollTargetPosition = findPositionOfFirstItemOnARowBelow(startingRow);
+                    scrollTargetPosition = findPositionOfFirstItemOnARowBelowForHorizontalGrid(
+                            startingRow);
                 }
             }
 
@@ -401,28 +408,40 @@ public class GridLayoutManager extends LinearLayoutManager {
                 return INVALID_POSITION;
             }
 
-            // Canonical case: target is on the same row. TODO (b/268487724): handle RTL.
-            if (currentRow == startingRow && currentColumn > startingColumn) {
-                return i;
-            } else {
-                if (mOrientation == VERTICAL) {
-                    /*
-                    * Grids with vertical layouts are laid out row by row...
-                    * 1   2   3
-                    * 4   5   6
-                    * 7   8
-                    * ... and the scroll target may lie on a following row.
-                    */
-                    if (currentRow > startingRow) {
-                        scrollTargetPosition = i;
-                        break;
-                    }
-                } else { // HORIZONTAL
-                    // TODO (b/268487724): handle case where the scroll target spans multiple
-                    //  rows/columns.
+            if (mOrientation == VERTICAL) {
+                /*
+                 * For grids with vertical orientation...
+                 * 1   2   3
+                 * 4   5   5
+                 * 6   7
+                 * ... the scroll target may lie on the same or a following row.
+                 */
+                // TODO (b/268487724): handle RTL.
+                if ((currentRow == startingRow && currentColumn > startingColumn)
+                        || (currentRow > startingRow)) {
+                    mRowWithAccessibilityFocus = currentRow;
+                    mColumnWithAccessibilityFocus = currentColumn;
+                    return i;
+                }
+            } else { // HORIZONTAL
+                /*
+                 * For grids with horizontal orientation, the scroll target may span multiple
+                 * rows. For example, in this grid...
+                 * 1   4   6
+                 * 2   5   7
+                 * 3   5   8
+                 * ... moving from 3 to 5 is considered staying on the "same row" because 5 spans
+                 *  multiple rows and the row indices for 5 include 3's row.
+                 */
+                if (currentColumn > startingColumn && getRowIndices(i).contains(startingRow)) {
+                    // Note: mRowWithAccessibilityFocus not updated since the scroll target is on
+                    // the same row.
+                    mColumnWithAccessibilityFocus = currentColumn;
+                    return i;
                 }
             }
         }
+
         return scrollTargetPosition;
     }
 
@@ -517,11 +536,21 @@ public class GridLayoutManager extends LinearLayoutManager {
 
     @SuppressWarnings("ConstantConditions") // For the spurious NPE warning related to getting a
         // value from a map using one of the map keys.
-    int findPositionOfLastItemOnARowAbove(int startingRow) {
+    int findPositionOfLastItemOnARowAboveForHorizontalGrid(int startingRow) {
         if (startingRow < 0) {
             if (DEBUG) {
                 throw new RuntimeException(
                         "startingRow equals " + startingRow + ". It cannot be less than zero");
+            }
+            return INVALID_POSITION;
+        }
+
+        if (mOrientation == VERTICAL) {
+            // This only handles cases of grids with horizontal orientation.
+            if (DEBUG) {
+                Log.w(TAG, "You should not "
+                        + "use findPositionOfLastItemOnARowAboveForHorizontalGrid(...) with grids "
+                        + "with VERTICAL orientation");
             }
             return INVALID_POSITION;
         }
@@ -558,11 +587,21 @@ public class GridLayoutManager extends LinearLayoutManager {
 
     @SuppressWarnings("ConstantConditions") // For the spurious NPE warning related to getting a
         // value from a map using one of the map keys.
-    int findPositionOfFirstItemOnARowBelow(int startingRow) {
+    int findPositionOfFirstItemOnARowBelowForHorizontalGrid(int startingRow) {
         if (startingRow < 0) {
             if (DEBUG) {
                 throw new RuntimeException(
                         "startingRow equals " + startingRow + ". It cannot be less than zero");
+            }
+            return INVALID_POSITION;
+        }
+
+        if (mOrientation == VERTICAL) {
+            // This only handles cases of grids with horizontal orientation.
+            if (DEBUG) {
+                Log.w(TAG, "You should not "
+                        + "use findPositionOfFirstItemOnARowBelowForHorizontalGrid(...) with grids "
+                        + "with VERTICAL orientation");
             }
             return INVALID_POSITION;
         }
@@ -575,25 +614,37 @@ public class GridLayoutManager extends LinearLayoutManager {
         // 3   6
         // ... the generated map - {0 -> 0, 1 -> 1, 2 -> 2} - can be used to scroll from, say,
         // "7" (adapter position 6) in the first row to "2" (adapter position 1) in the next row.
+        // Sometimes cells span multiple rows. In this example:
+        // 1   3   6
+        // 1   4   7
+        // 2   5   8
+        // ... the generated map - {0 -> 0, 1 -> 0, 2 -> 1} - can be used to scroll right from,
+        // say, "6" (adapter position 5) in the first row to "1" (adapter position 0) on the
+        // second row, and then to "4" (adapter position 3).
         Map<Integer, Integer> rowToFirstItemPositionMap = new TreeMap<>();
         for (int position = 0; position < getItemCount(); position++) {
-            int row = getRowIndex(position);
-            if (row < 0) {
-                if (DEBUG) {
-                    throw new RuntimeException(
-                            "row equals " + row + ". It cannot be less than zero");
+            Set<Integer> rows = getRowIndices(position);
+            for (int row : rows) {
+                if (row < 0) {
+                    if (DEBUG) {
+                        throw new RuntimeException(
+                                "row equals " + row + ". It cannot be less than zero");
+                    }
+                    return INVALID_POSITION;
                 }
-                return INVALID_POSITION;
-            }
-
-            if (!rowToFirstItemPositionMap.containsKey(row)) {
-                rowToFirstItemPositionMap.put(row, position);
+                // We only care about the first item on each row.
+                if (!rowToFirstItemPositionMap.containsKey(row)) {
+                    rowToFirstItemPositionMap.put(row, position);
+                }
             }
         }
 
         for (int row : rowToFirstItemPositionMap.keySet()) {
             if (row > startingRow) {
-                return rowToFirstItemPositionMap.get(row);
+                int scrollTargetPosition = rowToFirstItemPositionMap.get(row);
+                mRowWithAccessibilityFocus = row;
+                mColumnWithAccessibilityFocus = 0;
+                return scrollTargetPosition;
             }
         }
         return INVALID_POSITION;
