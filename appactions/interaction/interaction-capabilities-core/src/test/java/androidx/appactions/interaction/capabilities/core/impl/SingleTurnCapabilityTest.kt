@@ -17,9 +17,9 @@
 package androidx.appactions.interaction.capabilities.core.impl
 
 import android.util.SizeF
-import androidx.appactions.interaction.capabilities.core.CapabilityExecutor
-import androidx.appactions.interaction.capabilities.core.CapabilityExecutorAsync
-import androidx.appactions.interaction.capabilities.core.toCapabilityExecutor
+import androidx.appactions.interaction.capabilities.core.ExecutionCallback
+import androidx.appactions.interaction.capabilities.core.ExecutionCallbackAsync
+import androidx.appactions.interaction.capabilities.core.toExecutionCallback
 import androidx.appactions.interaction.capabilities.core.ExecutionResult
 import androidx.appactions.interaction.capabilities.core.HostProperties
 import androidx.appactions.interaction.capabilities.core.impl.concurrent.Futures
@@ -69,8 +69,9 @@ class SingleTurnCapabilityTest {
                     ).build()
                 )
                 .build(),
-            capabilityExecutor =
-            CapabilityExecutor<Arguments, Output> { ExecutionResult.Builder<Output>().build() }
+            executionCallback = ExecutionCallback<Arguments, Output> {
+                ExecutionResult.Builder<Output>().build()
+            }
         )
         mutableEntityList.add(Entity.Builder().setName("entity1").build())
 
@@ -114,8 +115,8 @@ class SingleTurnCapabilityTest {
 
     @Test
     fun oneShotCapability_successWithOutput() {
-        val capabilityExecutor =
-            CapabilityExecutor<Arguments, Output> {
+        val executionCallback =
+            ExecutionCallback<Arguments, Output> {
                 ExecutionResult.Builder<Output>()
                     .setOutput(
                         Output.builder().setOptionalStringField("stringOutput").build()
@@ -133,7 +134,7 @@ class SingleTurnCapabilityTest {
                     )
                     .setOptionalStringField(Property.prohibited())
                     .build(),
-                capabilityExecutor = capabilityExecutor
+                executionCallback = executionCallback
             )
 
         val capabilitySession = capability.createSession(fakeSessionId, hostProperties)
@@ -178,8 +179,8 @@ class SingleTurnCapabilityTest {
 
     @Test
     fun oneShotCapability_failure() {
-        val capabilityExecutor =
-            CapabilityExecutor<Arguments, Output> { throw IllegalStateException("") }
+        val executionCallback =
+            ExecutionCallback<Arguments, Output> { throw IllegalStateException("") }
         val capability =
             SingleTurnCapabilityImpl(
                 id = "capabilityId",
@@ -191,7 +192,7 @@ class SingleTurnCapabilityTest {
                     )
                     .setOptionalStringField(Property.prohibited())
                     .build(),
-                capabilityExecutor = capabilityExecutor
+                executionCallback = executionCallback
             )
 
         val capabilitySession = capability.createSession(fakeSessionId, hostProperties)
@@ -212,9 +213,9 @@ class SingleTurnCapabilityTest {
     }
 
     @Test
-    fun oneShotSession_uiHandle_withCapabilityExecutor() {
-        val capabilityExecutor =
-            CapabilityExecutor<Arguments, Output> { ExecutionResult.Builder<Output>().build() }
+    fun oneShotSession_uiHandle_withExecutionCallback() {
+        val executionCallback =
+            ExecutionCallback<Arguments, Output> { ExecutionResult.Builder<Output>().build() }
         val capability =
             SingleTurnCapabilityImpl(
                 id = "capabilityId",
@@ -225,16 +226,16 @@ class SingleTurnCapabilityTest {
                         Property.Builder<Entity>().build()
                     )
                     .build(),
-                capabilityExecutor = capabilityExecutor
+                executionCallback = executionCallback
             )
         val session = capability.createSession(fakeSessionId, hostProperties)
-        assertThat(session.uiHandle).isSameInstanceAs(capabilityExecutor)
+        assertThat(session.uiHandle).isSameInstanceAs(executionCallback)
     }
 
     @Test
-    fun oneShotSession_uiHandle_withCapabilityExecutorAsync() {
-        val capabilityExecutorAsync =
-            CapabilityExecutorAsync<Arguments, Output> {
+    fun oneShotSession_uiHandle_withExecutionCallbackAsync() {
+        val executionCallbackAsync =
+            ExecutionCallbackAsync<Arguments, Output> {
                 Futures.immediateFuture(ExecutionResult.Builder<Output>().build())
             }
         val capability =
@@ -247,10 +248,10 @@ class SingleTurnCapabilityTest {
                         Property.Builder<Entity>().build()
                     )
                     .build(),
-                capabilityExecutor = capabilityExecutorAsync.toCapabilityExecutor()
+                executionCallback = executionCallbackAsync.toExecutionCallback()
             )
         val session = capability.createSession(fakeSessionId, hostProperties)
-        assertThat(session.uiHandle).isSameInstanceAs(capabilityExecutorAsync)
+        assertThat(session.uiHandle).isSameInstanceAs(executionCallbackAsync)
     }
 
     @Test
@@ -258,7 +259,7 @@ class SingleTurnCapabilityTest {
         val executionResultChannel = Channel<ExecutionResult<Output>>()
         val argumentChannel = Channel<Arguments>()
 
-        val capabilityExecutor = CapabilityExecutor<Arguments, Output> {
+        val executionCallback = ExecutionCallback<Arguments, Output> {
             argumentChannel.send(it)
             executionResultChannel.receive()
         }
@@ -268,7 +269,7 @@ class SingleTurnCapabilityTest {
             property = Properties.newBuilder().setRequiredEntityField(
                 Property.Builder<Entity>().build()
             ).build(),
-            capabilityExecutor = capabilityExecutor
+            executionCallback = executionCallback
         )
         val session1 = capability.createSession("session1", hostProperties)
         val session2 = capability.createSession("session2", hostProperties)
@@ -295,7 +296,7 @@ class SingleTurnCapabilityTest {
             callbackInternal2
         )
 
-        // verify CapabilityExecutor receives 1st request.
+        // verify ExecutionCallback receives 1st request.
         assertThat(argumentChannel.receive()).isEqualTo(
             Arguments.newBuilder().setOptionalStringField("string value 1").build()
         )
@@ -330,7 +331,8 @@ class SingleTurnCapabilityTest {
                     Properties::requiredEntityField,
                     Arguments.Builder::setRequiredEntityField,
                     TypeConverters.ENTITY_PARAM_VALUE_CONVERTER,
-                    TypeConverters.ENTITY_ENTITY_CONVERTER)
+                    TypeConverters.ENTITY_ENTITY_CONVERTER
+                )
                 .bindOptionalParameter(
                     "optionalString",
                     Properties::optionalStringField,

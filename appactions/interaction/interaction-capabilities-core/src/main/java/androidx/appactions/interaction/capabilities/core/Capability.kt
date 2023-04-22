@@ -77,7 +77,7 @@ abstract class Capability internal constructor(
     ) {
         private var id: String? = null
         private var property: PropertyT? = null
-        private var capabilityExecutor: CapabilityExecutor<ArgumentsT, OutputT>? = null
+        private var executionCallback: ExecutionCallback<ArgumentsT, OutputT>? = null
         private var sessionFactory: ExecutionSessionFactory<ExecutionSessionT>? = null
 
         /**
@@ -111,39 +111,40 @@ abstract class Capability internal constructor(
         }
 
         /**
-         * Sets the CapabilityExecutor for this capability.
+         * Sets the ExecutionCallback for this capability.
          *
-         * setExecutionSessionFactory and setExecutor are mutually exclusive, so calling one will
-         * nullify the other.
+         * [setExecutionSessionFactory] and [setExecutionCallback] are mutually exclusive, so
+         * calling one will nullify the other.
          *
-         * This method accepts a coroutine-based CapabilityExecutor instance. There is also an overload
-         * which accepts the CapabilityExecutorAsync instead.
+         * This method accepts a coroutine-based ExecutionCallback instance. There is also an
+         * overload which accepts the ExecutionCallbackAsync instead.
          */
-        fun setExecutor(capabilityExecutor: CapabilityExecutor<ArgumentsT, OutputT>) =
+        fun setExecutionCallback(executionCallback: ExecutionCallback<ArgumentsT, OutputT>) =
             asBuilder().apply {
-                this.capabilityExecutor = capabilityExecutor
+                this.executionCallback = executionCallback
             }
 
         /**
-         * Sets the CapabilityExecutorAsync for this capability.
+         * Sets the ExecutionCallbackAsync for this capability.
          *
-         * setExecutionSessionFactory and setExecutor are mutually exclusive, so calling one will
-         * nullify the other.
+         * setExecutionSessionFactory and setExecutionCallback are mutually exclusive, so calling
+         * one will nullify the other.
          *
-         * This method accepts the CapabilityExecutorAsync interface which returns a ListenableFuture.
+         * This method accepts the ExecutionCallbackAsync interface which returns a
+         * []ListenableFuture].
          */
-        fun setExecutor(
-            capabilityExecutorAsync: CapabilityExecutorAsync<ArgumentsT, OutputT>
+        fun setExecutionCallback(
+            executionCallbackAsync: ExecutionCallbackAsync<ArgumentsT, OutputT>
         ) = asBuilder().apply {
-            this.capabilityExecutor = capabilityExecutorAsync.toCapabilityExecutor()
+            this.executionCallback = executionCallbackAsync.toExecutionCallback()
         }
 
         /**
          * Sets the SessionBuilder instance which is used to create Session instaces for this
          * capability.
          *
-         * [setExecutionSessionFactory] and [setExecutor] are mutually exclusive, so calling one
-         * will nullify the other.
+         * [setExecutionSessionFactory] and [setExecutionCallback] are mutually exclusive, so
+         * calling one will nullify the other.
          */
         protected open fun setExecutionSessionFactory(
             sessionFactory: ExecutionSessionFactory<ExecutionSessionT>
@@ -155,16 +156,17 @@ abstract class Capability internal constructor(
         open fun build(): Capability {
             val checkedId = requireNotNull(id) { "setId must be called before build" }
             val checkedProperty = requireNotNull(property) { "property must not be null." }
-            if (capabilityExecutor != null) {
+            if (executionCallback != null) {
                 return SingleTurnCapabilityImpl(
                     checkedId,
                     actionSpec,
                     checkedProperty,
-                    capabilityExecutor!!
+                    executionCallback!!
                 )
             } else {
                 val checkedSessionFactory = requireNotNull(sessionFactory) {
-                    "either setExecutor or setExecutionSessionFactory must be called before build"
+                    "either setExecutionCallback or setExecutionSessionFactory" +
+                        " must be called before build"
                 }
                 return TaskCapabilityImpl(
                     checkedId,
