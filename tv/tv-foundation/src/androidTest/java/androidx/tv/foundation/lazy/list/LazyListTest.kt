@@ -1489,15 +1489,24 @@ class LazyListTest(orientation: Orientation) : BaseLazyListTestWithOrientation(o
                 userScrollEnabled = false,
             ) {
                 items(5) {
-                    Spacer(Modifier.size(itemSize).testTag("$it"))
+                    Box(
+                        modifier = Modifier
+                            .size(itemSize)
+                            .border(2.dp, Color.Blue)
+                            .testTag("$it")
+                            .focusable()
+                    ) {
+                        BasicText("$it")
+                    }
                 }
             }
         }
 
-        rule.keyPress(1)
+        rule.onNodeWithTag("2").performSemanticsAction(SemanticsActions.RequestFocus)
+        rule.keyPress(2)
 
-        rule.onNodeWithTag("1")
-            .assertStartPositionInRootIsEqualTo(itemSize)
+        rule.onNodeWithTag("1").assertIsDisplayed()
+        rule.onNodeWithTag("3").assertIsNotDisplayed()
     }
 
     @Test
