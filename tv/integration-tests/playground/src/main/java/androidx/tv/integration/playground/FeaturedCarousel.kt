@@ -151,7 +151,7 @@ internal fun FeaturedCarousel(modifier: Modifier = Modifier) {
 }
 
 @Composable
-private fun OverlayButton(modifier: Modifier = Modifier, text: String = "Test Button") {
+private fun OverlayButton(modifier: Modifier = Modifier, text: String = "Play") {
     var isFocused by remember { mutableStateOf(false) }
 
     Button(
