@@ -47,6 +47,10 @@ dependencies {
     compileOnly("androidx.annotation:annotation:1.1.0")
 }
 
+jar {
+    exclude "**/*.proto"
+}
+
 protobuf {
     protoc {
         artifact = libs.protobufCompiler.get()
