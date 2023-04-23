@@ -203,7 +203,7 @@ fun BasicTextField2(
             enabled = enabled && scrollState.maxValue > 0
         )
 
-    Box(decorationModifiers) {
+    Box(decorationModifiers, propagateMinConstraints = true) {
         decorationBox(innerTextField = {
             val minLines: Int
             val maxLines: Int
