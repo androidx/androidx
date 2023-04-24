@@ -31,6 +31,11 @@
 // with such a backward incompatible change, it has a high risk of breaking
 // later when a module using the interface is updated, e.g., Mainline modules.
 
-package androidx.versionedparcelable;
-@JavaOnlyStableParcelable
-parcelable ParcelImpl;
+package androidx.car.app.activity.renderer.surface;
+/* @hide */
+interface ISurfaceControl {
+  oneway void setSurfaceWrapper(in androidx.car.app.serialization.Bundleable surfaceWrapper) = 1;
+  oneway void onTouchEvent(in android.view.MotionEvent event) = 2;
+  oneway void onWindowFocusChanged(boolean hasFocus, boolean isInTouchMode) = 3;
+  oneway void onKeyEvent(in android.view.KeyEvent event) = 4;
+}

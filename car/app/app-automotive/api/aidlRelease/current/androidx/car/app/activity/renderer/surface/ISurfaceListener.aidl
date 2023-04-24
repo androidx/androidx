@@ -31,6 +31,10 @@
 // with such a backward incompatible change, it has a high risk of breaking
 // later when a module using the interface is updated, e.g., Mainline modules.
 
-package androidx.versionedparcelable;
-@JavaOnlyStableParcelable
-parcelable ParcelImpl;
+package androidx.car.app.activity.renderer.surface;
+/* @hide */
+interface ISurfaceListener {
+  oneway void onSurfaceAvailable(in androidx.car.app.serialization.Bundleable surfaceWrapper) = 1;
+  oneway void onSurfaceChanged(in androidx.car.app.serialization.Bundleable surfaceWrapper) = 2;
+  oneway void onSurfaceDestroyed(in androidx.car.app.serialization.Bundleable surfaceWrapper) = 3;
+}

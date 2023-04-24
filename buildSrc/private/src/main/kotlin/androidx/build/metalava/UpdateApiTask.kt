@@ -18,6 +18,9 @@ package androidx.build.metalava
 
 import androidx.build.checkapi.ApiLocation
 import com.google.common.io.Files
+import java.io.File
+import java.security.MessageDigest
+import org.apache.commons.io.FileUtils
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.logging.Logger
@@ -25,14 +28,13 @@ import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.InputFiles
+import org.gradle.api.tasks.Internal
+import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputFiles
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
-import java.io.File
-import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.options.Option
 
 /**
@@ -187,6 +189,54 @@ fun copy(
             logger?.lifecycle("Deleted $dest because $source does not exist")
         }
     }
+}
+
+fun copyDir(
+    source: File,
+    dest: File,
+    permitOverwriting: Boolean,
+    logger: Logger
+) {
+    val sourceHash = if (source.exists()) {
+        hashDir(source)
+    } else {
+        null
+    }
+    val overwriting = dest.exists() && !sourceHash.contentEquals(hashDir(dest))
+    val changing = overwriting || (dest.exists() != source.exists())
+    if (changing) {
+        if (overwriting && !permitOverwriting) {
+            val message = "Modifying the API definition for a previously released artifact " +
+                "having a final API version (version not ending in '-alpha') is not " +
+                "allowed.\n\n" +
+                "Previously declared definition is $dest\n" +
+                "Current generated   definition is $source\n\n" +
+                "Did you mean to increment the library version first?\n\n" +
+                "If you have reason to overwrite the API files for the previous release " +
+                "anyway, you can run `./gradlew updateApi -Pforce` to ignore this message"
+            throw GradleException(message)
+        }
+        FileUtils.deleteDirectory(dest)
+        if (source.exists()) {
+            FileUtils.copyDirectory(source, dest)
+            logger.lifecycle("Copied $source to $dest")
+        } else {
+            logger.lifecycle("Deleted $dest because $source does not exist")
+        }
+    }
+}
+
+fun hashDir(dir: File): ByteArray {
+    val digest = MessageDigest.getInstance("SHA-256")
+    dir.listFiles()?.forEach { file ->
+        val fileBytes = if (file.isDirectory) {
+            hashDir(file)
+        } else {
+            file.readBytes()
+        }
+        digest.update(fileBytes)
+    }
+    return digest.digest()
 }
 
 /**

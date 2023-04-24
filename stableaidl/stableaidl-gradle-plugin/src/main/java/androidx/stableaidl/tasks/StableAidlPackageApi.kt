@@ -31,10 +31,12 @@ import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
+import org.gradle.work.DisableCachingByDefault
 
 /**
  * Transforms an AAR by adding parcelable headers.
  */
+@DisableCachingByDefault(because = "Primarily filesystem operations")
 abstract class StableAidlPackageApi : DefaultTask() {
     @get:InputFile
     @get:PathSensitive(PathSensitivity.RELATIVE)
