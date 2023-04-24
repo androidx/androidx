@@ -154,8 +154,7 @@ public class ProtoLayoutDynamicDataPipeline {
     }
 
     /** Returns the number of active dynamic types in this pipeline. */
-    @VisibleForTesting(otherwise = VisibleForTesting.NONE)
-    @RestrictTo(Scope.TESTS)
+    @VisibleForTesting
     public int size() {
         return mPositionIdTree.getAllNodes().stream().mapToInt(NodeInfo::size).sum();
     }
@@ -186,7 +185,6 @@ public class ProtoLayoutDynamicDataPipeline {
      */
     @VisibleForTesting
     @NonNull
-    @RestrictTo(Scope.TESTS)
     public PipelineMaker newPipelineMaker() {
         return newPipelineMaker(
                 (enterTransition, view) -> new AnimationSet(/* shareInterpolator= */ false),
@@ -1062,8 +1060,7 @@ public class ProtoLayoutDynamicDataPipeline {
     }
 
     /** Returns how many animations are running. */
-    @VisibleForTesting(otherwise = VisibleForTesting.NONE)
-    @RestrictTo(Scope.TESTS)
+    @VisibleForTesting
     public int getRunningAnimationsCount() {
         return mPositionIdTree.getAllNodes().stream()
                         .mapToInt(NodeInfo::getRunningAnimationCount)
@@ -1077,8 +1074,7 @@ public class ProtoLayoutDynamicDataPipeline {
     }
 
     /** Returns How many dynamic data nodes exist in the pipeline. */
-    @VisibleForTesting(otherwise = VisibleForTesting.NONE)
-    @RestrictTo(Scope.TESTS)
+    @VisibleForTesting
     public int getDynamicExpressionsNodesCount() {
         return mPositionIdTree.getAllNodes().stream()
                 .mapToInt(NodeInfo::getExpressionNodesCount)
@@ -1086,8 +1082,7 @@ public class ProtoLayoutDynamicDataPipeline {
     }
 
     /** Returns whether all quota has been released. */
-    @VisibleForTesting(otherwise = VisibleForTesting.NONE)
-    @RestrictTo(Scope.TESTS)
+    @VisibleForTesting
     public boolean isAllQuotaReleased() {
         return mAnimationQuotaManager instanceof FixedQuotaManagerImpl
                 && ((FixedQuotaManagerImpl) mAnimationQuotaManager).isAllQuotaReleased();

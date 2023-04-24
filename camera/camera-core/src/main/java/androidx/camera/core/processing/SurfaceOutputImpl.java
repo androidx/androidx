@@ -34,7 +34,6 @@ import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
-import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.CameraEffect;
 import androidx.camera.core.Logger;
@@ -239,7 +238,7 @@ final class SurfaceOutputImpl implements SurfaceOutput {
     /**
      * Returns the close state.
      */
-    @RestrictTo(RestrictTo.Scope.TESTS)
+    @VisibleForTesting
     public boolean isClosed() {
         synchronized (mLock) {
             return mIsClosed;

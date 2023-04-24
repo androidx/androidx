@@ -24,7 +24,6 @@ import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
-import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.CameraProvider;
 import androidx.camera.core.CameraSelector;
@@ -277,7 +276,7 @@ public final class ExtensionsManager {
      */
     // TODO: Will need to be rewritten to be threadsafe with use in conjunction with
     //  ExtensionsManager.init(...) if this is to be released for use outside of testing.
-    @RestrictTo(RestrictTo.Scope.TESTS)
+    @VisibleForTesting
     @NonNull
     public ListenableFuture<Void> shutdown() {
         synchronized (EXTENSIONS_LOCK) {

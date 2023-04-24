@@ -27,7 +27,7 @@ import androidx.annotation.ChecksSdkIntAtLeast;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RequiresOptIn;
-import androidx.annotation.RestrictTo;
+import androidx.annotation.VisibleForTesting;
 
 import java.util.Locale;
 
@@ -50,7 +50,7 @@ public class BuildCompat {
      *
      * @hide
      */
-    @RestrictTo(RestrictTo.Scope.TESTS)
+    @VisibleForTesting
     protected static boolean isAtLeastPreReleaseCodename(@NonNull String codename,
             @NonNull String buildCodename) {
 

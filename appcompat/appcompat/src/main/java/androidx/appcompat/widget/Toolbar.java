@@ -18,7 +18,6 @@ package androidx.appcompat.widget;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
-import static androidx.annotation.RestrictTo.Scope.TESTS;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -56,6 +55,7 @@ import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.StringRes;
 import androidx.annotation.StyleRes;
+import androidx.annotation.VisibleForTesting;
 import androidx.appcompat.R;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.content.res.AppCompatResources;
@@ -1607,7 +1607,7 @@ public class Toolbar extends ViewGroup implements MenuHost {
      * Returns the navigation button view.
      *
      */
-    @RestrictTo(RestrictTo.Scope.TESTS)
+    @VisibleForTesting
     @Nullable
     View getNavButtonView() {
         return mNavButtonView;
@@ -2418,7 +2418,7 @@ public class Toolbar extends ViewGroup implements MenuHost {
 
     /**
      */
-    @RestrictTo(TESTS)
+    @VisibleForTesting
     @Nullable
     final TextView getTitleTextView() {
         return mTitleTextView;
@@ -2426,7 +2426,7 @@ public class Toolbar extends ViewGroup implements MenuHost {
 
     /**
      */
-    @RestrictTo(TESTS)
+    @VisibleForTesting
     @Nullable
     final TextView getSubtitleTextView() {
         return mSubtitleTextView;

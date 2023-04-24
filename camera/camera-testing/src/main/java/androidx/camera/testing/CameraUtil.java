@@ -50,7 +50,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RequiresPermission;
-import androidx.annotation.RestrictTo;
+import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.CameraXConfig;
@@ -556,7 +556,7 @@ public final class CameraUtil {
      * @param cameraCoordinator The camera coordinator for concurrent cameras.
      * @param cameraSelector The selector to select cameras with.
      */
-    @RestrictTo(RestrictTo.Scope.TESTS)
+    @VisibleForTesting
     @NonNull
     public static CameraUseCaseAdapter createCameraUseCaseAdapter(
             @NonNull Context context,
@@ -591,7 +591,7 @@ public final class CameraUtil {
      * @param context        The context used to initialize CameraX
      * @param cameraSelector The selector to select cameras with.
      */
-    @RestrictTo(RestrictTo.Scope.TESTS)
+    @VisibleForTesting
     @NonNull
     public static CameraUseCaseAdapter createCameraUseCaseAdapter(
             @NonNull Context context,
@@ -616,7 +616,7 @@ public final class CameraUtil {
      * @param cameraSelector The selector to select cameras with.
      * @param useCases       The UseCases to attach to the CameraUseCaseAdapter.
      */
-    @RestrictTo(RestrictTo.Scope.TESTS)
+    @VisibleForTesting
     @NonNull
     public static CameraUseCaseAdapter createCameraAndAttachUseCase(
             @NonNull Context context,

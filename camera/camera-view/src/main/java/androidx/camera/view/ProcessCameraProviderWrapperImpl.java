@@ -20,6 +20,7 @@ import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.Camera;
 import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraSelector;
@@ -66,6 +67,7 @@ class ProcessCameraProviderWrapperImpl implements ProcessCameraProviderWrapper {
         return mProcessCameraProvider.bindToLifecycle(lifecycleOwner, cameraSelector, useCaseGroup);
     }
 
+    @VisibleForTesting
     @NonNull
     @Override
     public ListenableFuture<Void> shutdown() {
