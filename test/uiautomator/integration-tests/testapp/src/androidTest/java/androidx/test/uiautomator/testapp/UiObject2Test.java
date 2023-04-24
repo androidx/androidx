@@ -102,7 +102,7 @@ public class UiObject2Test extends BaseTest {
         // Short click with a time duration as a parameter (`click(long duration)`).
         UiObject2 button4 = mDevice.findObject(By.res(TEST_APP, "button4"));
         assertEquals("text4", button4.getText());
-        button4.click((long) (ViewConfiguration.getLongPressTimeout() / 1.5));
+        button4.click(50L);
         button4.wait(Until.textEquals("text4_clicked"), TIMEOUT_MS);
         assertEquals("text4_clicked", button4.getText());
 
@@ -121,8 +121,7 @@ public class UiObject2Test extends BaseTest {
         // Short click with two parameters (`click(Point point, long duration)`).
         UiObject2 button6 = mDevice.findObject(By.res(TEST_APP, "button6"));
         assertEquals("text6", button6.getText());
-        button6.click(getPointInsideBounds(button6),
-                (long) (ViewConfiguration.getLongPressTimeout() / 1.5));
+        button6.click(getPointInsideBounds(button6), 50L);
         button6.wait(Until.textEquals("text6_clicked"), TIMEOUT_MS);
         assertEquals("text6_clicked", button6.getText());
 
