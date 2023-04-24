@@ -111,8 +111,11 @@ public class ImagePipeline {
                 cameraEffect != null ? new InternalImageProcessor(cameraEffect) : null);
 
         // Connect nodes
-        mPipelineIn = CaptureNode.In.of(cameraSurfaceSize, mUseCaseConfig.getInputFormat(),
-                isVirtualCamera);
+        mPipelineIn = CaptureNode.In.of(
+                cameraSurfaceSize,
+                mUseCaseConfig.getInputFormat(),
+                isVirtualCamera,
+                mUseCaseConfig.getImageReaderProxyProvider());
         CaptureNode.Out captureOut = mCaptureNode.transform(mPipelineIn);
         ProcessingNode.In processingIn = mBundlingNode.transform(captureOut);
         mProcessingNode.transform(processingIn);
