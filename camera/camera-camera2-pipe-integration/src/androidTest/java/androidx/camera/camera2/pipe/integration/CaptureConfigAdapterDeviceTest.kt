@@ -24,6 +24,7 @@ import android.hardware.camera2.CameraDevice
 import android.view.Surface
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.integration.adapter.CameraControlAdapter
+import androidx.camera.camera2.pipe.testing.toCameraControlAdapter
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.impl.CameraCaptureCallback
@@ -101,7 +102,7 @@ class CaptureConfigAdapterDeviceTest {
             }
         }
 
-        cameraControl = camera!!.cameraControl as CameraControlAdapter
+        cameraControl = camera!!.cameraControl.toCameraControlAdapter()
     }
 
     @After

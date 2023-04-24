@@ -27,6 +27,7 @@ import androidx.camera.camera2.pipe.integration.impl.UseCaseCamera
 import androidx.camera.camera2.pipe.integration.impl.UseCaseCameraControl
 import androidx.camera.camera2.pipe.integration.impl.UseCaseThreads
 import androidx.camera.core.CameraControl
+import androidx.camera.core.impl.CameraControlInternal
 import androidx.camera.core.impl.utils.futures.Futures
 import androidx.core.util.Preconditions
 import com.google.common.util.concurrent.ListenableFuture
@@ -186,11 +187,12 @@ private constructor(
          */
         @JvmStatic
         fun from(cameraControl: CameraControl): Camera2CameraControl {
+            var cameraControlImpl = (cameraControl as CameraControlInternal).implementation
             Preconditions.checkArgument(
-                cameraControl is CameraControlAdapter,
+                cameraControlImpl is CameraControlAdapter,
                 "CameraControl doesn't contain Camera2 implementation."
             )
-            return (cameraControl as CameraControlAdapter).camera2cameraControl
+            return (cameraControlImpl as CameraControlAdapter).camera2cameraControl
         }
 
         /**
