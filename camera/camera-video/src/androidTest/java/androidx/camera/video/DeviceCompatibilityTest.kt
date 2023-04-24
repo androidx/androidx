@@ -19,6 +19,7 @@ package androidx.camera.video
 import android.content.Context
 import android.media.MediaCodec
 import android.media.MediaCodecInfo
+import android.os.Build
 import androidx.camera.camera2.Camera2Config
 import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.CameraSelector
@@ -118,13 +119,19 @@ class DeviceCompatibilityTest(
 
             // Act.
             val (width, height) = videoProfile.width to videoProfile.height
+            // Pass if VideoCapabilities.isSizeSupported() is true
+            if (capabilities.isSizeSupported(width, height)) {
+                return@forEach
+            }
+
             val supportedWidths = capabilities.supportedWidths
             val supportedHeights = capabilities.supportedHeights
             val supportedWidthsForHeight = capabilities.getWidthsForHeightQuietly(height)
             val supportedHeightForWidth = capabilities.getHeightsForWidthQuietly(width)
 
             // Assert.
-            val msg = "mime: $mime, size: ${width}x$height is not in " +
+            val msg = "Build.BRAND: ${Build.BRAND}, Build.MODEL: ${Build.MODEL} " +
+                "mime: $mime, size: ${width}x$height is not in " +
                 "supported widths $supportedWidths/$supportedWidthsForHeight " +
                 "or heights $supportedHeights/$supportedHeightForWidth, " +
                 "the width/height alignment is " +
