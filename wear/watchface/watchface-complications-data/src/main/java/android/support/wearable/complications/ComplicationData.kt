@@ -1115,6 +1115,15 @@ class ComplicationData : Parcelable, Serializable {
     val endDateTimeMillis: Long
         get() = fields.getLong(FIELD_END_TIME, Long.MAX_VALUE)
 
+    /** Returns `true` if the complication contains an expression that needs to be evaluated. */
+    fun hasExpression(): Boolean =
+        (hasRangedValueExpression() && rangedValueExpression != null) ||
+            (hasLongText() && longText?.expression != null) ||
+            (hasLongTitle() && longTitle?.expression != null) ||
+            (hasShortText() && shortText?.expression != null) ||
+            (hasShortTitle() && shortTitle?.expression != null) ||
+            (hasContentDescription() && contentDescription?.expression != null)
+
     /**
      * Returns true if the complication data contains at least one text field with a value that may
      * change based on the current time.
@@ -2230,6 +2239,9 @@ class ComplicationData : Parcelable, Serializable {
                 FIELD_END_TIME,
                 FIELD_TIMELINE_ENTRIES,
                 FIELD_TIMELINE_ENTRY_TYPE,
+                // Placeholder or fallback.
+                FIELD_PLACEHOLDER_FIELDS,
+                FIELD_PLACEHOLDER_TYPE,
             )
 
         // Used for validation. OPTIONAL_FIELDS[i] is a list containing all the fields which are
@@ -2313,8 +2325,6 @@ class ComplicationData : Parcelable, Serializable {
                         FIELD_LONG_TEXT,
                         FIELD_MAX_VALUE,
                         FIELD_MIN_VALUE,
-                        FIELD_PLACEHOLDER_FIELDS,
-                        FIELD_PLACEHOLDER_TYPE,
                         FIELD_SMALL_IMAGE,
                         FIELD_SMALL_IMAGE_BURN_IN_PROTECTION,
                         FIELD_SHORT_TITLE,

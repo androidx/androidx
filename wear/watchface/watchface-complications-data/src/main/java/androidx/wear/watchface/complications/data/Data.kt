@@ -113,7 +113,8 @@ constructor(
     public val validTimeRange: TimeRange = TimeRange.ALWAYS,
     public val dataSource: ComponentName?,
     @ComplicationPersistencePolicy public val persistencePolicy: Int,
-    @ComplicationDisplayPolicy public val displayPolicy: Int
+    @ComplicationDisplayPolicy public val displayPolicy: Int,
+    private val fallback: ComplicationData?,
 ) {
     /**
      * [tapAction] which is a [PendingIntent] unfortunately can't be serialized. This property is
@@ -150,6 +151,13 @@ constructor(
         builder.setDataSource(dataSource)
         builder.setPersistencePolicy(persistencePolicy)
         builder.setDisplayPolicy(displayPolicy)
+        if (fallback == null) {
+            builder.setPlaceholder(null)
+        } else {
+            val placeholderBuilder = fallback.createWireComplicationDataBuilder()
+            fallback.fillWireComplicationDataBuilder(placeholderBuilder)
+            builder.setPlaceholder(placeholderBuilder.build())
+        }
     }
 
     /**
@@ -190,6 +198,7 @@ constructor(
         internal var dataSource: ComponentName? = null
         internal var persistencePolicy = ComplicationPersistencePolicies.CACHING_ALLOWED
         internal var displayPolicy = ComplicationDisplayPolicies.ALWAYS_DISPLAY
+        internal var fallback: BuiltT? = null
 
         /**
          * Sets the [ComponentName] of the ComplicationDataSourceService that provided this
@@ -230,6 +239,15 @@ constructor(
             return this as BuilderT
         }
 
+        /** Sets the complication's fallback, use in case any expression has been invalidated. */
+        // TODO(b/269414040): Unhide complication expression APIs.
+        @Suppress("UNCHECKED_CAST", "SetterReturnsThis")
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public fun setFallback(fallback: BuiltT?): BuilderT {
+            this.fallback = fallback
+            return this as BuilderT
+        }
+
         /** Builds the ComplicationData */
         abstract fun build(): BuiltT
     }
@@ -265,7 +283,8 @@ internal constructor(
         dataSource = null,
         persistencePolicy = placeholder?.persistencePolicy
                 ?: ComplicationPersistencePolicies.CACHING_ALLOWED,
-        displayPolicy = placeholder?.displayPolicy ?: ComplicationDisplayPolicies.ALWAYS_DISPLAY
+        displayPolicy = placeholder?.displayPolicy ?: ComplicationDisplayPolicies.ALWAYS_DISPLAY,
+        fallback = placeholder,
     ) {
 
     /** Constructs a NoDataComplicationData without a [placeholder]. */
@@ -290,17 +309,6 @@ internal constructor(
             is WeightedElementsComplicationData -> placeholder.contentDescription
             else -> null
         }
-
-    override fun fillWireComplicationDataBuilder(builder: WireComplicationDataBuilder) {
-        super.fillWireComplicationDataBuilder(builder)
-        if (placeholder == null) {
-            builder.setPlaceholder(null)
-        } else {
-            val placeholderBuilder = placeholder.createWireComplicationDataBuilder()
-            placeholder.fillWireComplicationDataBuilder(placeholderBuilder)
-            builder.setPlaceholder(placeholderBuilder.build())
-        }
-    }
 
     override fun toString(): String {
         return "NoDataComplicationData(" +
@@ -329,7 +337,8 @@ public class EmptyComplicationData :
         cachedWireComplicationData = null,
         dataSource = null,
         persistencePolicy = ComplicationPersistencePolicies.CACHING_ALLOWED,
-        displayPolicy = ComplicationDisplayPolicies.ALWAYS_DISPLAY
+        displayPolicy = ComplicationDisplayPolicies.ALWAYS_DISPLAY,
+        fallback = null,
     ) {
     // Always empty.
     override fun fillWireComplicationDataBuilder(builder: WireComplicationDataBuilder) {}
@@ -358,7 +367,8 @@ public class NotConfiguredComplicationData :
         cachedWireComplicationData = null,
         dataSource = null,
         persistencePolicy = ComplicationPersistencePolicies.CACHING_ALLOWED,
-        displayPolicy = ComplicationDisplayPolicies.ALWAYS_DISPLAY
+        displayPolicy = ComplicationDisplayPolicies.ALWAYS_DISPLAY,
+        fallback = null,
     ) {
     // Always empty.
     override fun fillWireComplicationDataBuilder(builder: WireComplicationDataBuilder) {}
@@ -421,6 +431,7 @@ public class NotConfiguredComplicationData :
  *   be rendered as a light grey box.
  * @property contentDescription The content description field for accessibility. Please do not
  *   include the word 'complication' in the description.
+ * @property fallback Used in case any expression has been invalidated.
  */
 public class ShortTextComplicationData
 internal constructor(
@@ -434,7 +445,9 @@ internal constructor(
     cachedWireComplicationData: WireComplicationData?,
     dataSource: ComponentName?,
     @ComplicationPersistencePolicy persistencePolicy: Int,
-    @ComplicationDisplayPolicy displayPolicy: Int
+    @ComplicationDisplayPolicy displayPolicy: Int,
+    // TODO(b/269414040): Unhide complication expression APIs.
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val fallback: ShortTextComplicationData?,
 ) :
     ComplicationData(
         TYPE,
@@ -443,7 +456,8 @@ internal constructor(
         validTimeRange = validTimeRange ?: TimeRange.ALWAYS,
         dataSource = dataSource,
         persistencePolicy = persistencePolicy,
-        displayPolicy = displayPolicy
+        displayPolicy = displayPolicy,
+        fallback = fallback,
     ) {
     /**
      * Builder for [ShortTextComplicationData].
@@ -503,7 +517,8 @@ internal constructor(
                 cachedWireComplicationData,
                 dataSource,
                 persistencePolicy,
-                displayPolicy
+                displayPolicy,
+                fallback,
             )
     }
 
@@ -530,7 +545,8 @@ internal constructor(
             "contentDescription=$contentDescription, " +
             "tapActionLostDueToSerialization=$tapActionLostDueToSerialization, " +
             "tapAction=$tapAction, validTimeRange=$validTimeRange, dataSource=$dataSource, " +
-            "persistencePolicy=$persistencePolicy, displayPolicy=$displayPolicy)"
+            "persistencePolicy=$persistencePolicy, displayPolicy=$displayPolicy, " +
+            "fallback=$fallback)"
     }
 
     override fun hasPlaceholderFields() =
@@ -600,6 +616,7 @@ internal constructor(
  *   be rendered as a light grey box.
  * @property contentDescription The content description field for accessibility. Please do not
  *   include the word 'complication' in the description.
+ * @property fallback Used in case any expression has been invalidated.
  */
 public class LongTextComplicationData
 internal constructor(
@@ -613,7 +630,9 @@ internal constructor(
     cachedWireComplicationData: WireComplicationData?,
     dataSource: ComponentName?,
     @ComplicationPersistencePolicy persistencePolicy: Int,
-    @ComplicationDisplayPolicy displayPolicy: Int
+    @ComplicationDisplayPolicy displayPolicy: Int,
+    // TODO(b/269414040): Unhide complication expression APIs.
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val fallback: LongTextComplicationData?,
 ) :
     ComplicationData(
         TYPE,
@@ -622,7 +641,8 @@ internal constructor(
         validTimeRange = validTimeRange ?: TimeRange.ALWAYS,
         dataSource = dataSource,
         persistencePolicy = persistencePolicy,
-        displayPolicy = displayPolicy
+        displayPolicy = displayPolicy,
+        fallback = fallback,
     ) {
     /**
      * Builder for [LongTextComplicationData].
@@ -683,7 +703,8 @@ internal constructor(
                 cachedWireComplicationData,
                 dataSource,
                 persistencePolicy,
-                displayPolicy
+                displayPolicy,
+                fallback,
             )
     }
 
@@ -710,7 +731,8 @@ internal constructor(
             "contentDescription=$contentDescription), " +
             "tapActionLostDueToSerialization=$tapActionLostDueToSerialization, " +
             "tapAction=$tapAction, validTimeRange=$validTimeRange, dataSource=$dataSource, " +
-            "persistencePolicy=$persistencePolicy, displayPolicy=$displayPolicy)"
+            "persistencePolicy=$persistencePolicy, displayPolicy=$displayPolicy, " +
+            "fallback=$fallback)"
     }
 
     override fun hasPlaceholderFields() =
@@ -850,6 +872,7 @@ public class ColorRamp(
  * @property valueType The semantic meaning of [value]. The complication renderer may choose to
  *   visually differentiate between the different types, for example rendering a dot on a line/arc
  *   to indicate the value for a [TYPE_RATING].
+ * @property fallback Used in case any expression has been invalidated.
  */
 public class RangedValueComplicationData
 internal constructor(
@@ -869,7 +892,10 @@ internal constructor(
     public val colorRamp: ColorRamp?,
     @RangedValueType public val valueType: Int,
     @ComplicationPersistencePolicy persistencePolicy: Int,
-    @ComplicationDisplayPolicy displayPolicy: Int
+    @ComplicationDisplayPolicy displayPolicy: Int,
+    // TODO(b/269414040): Unhide complication expression APIs.
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public val fallback: RangedValueComplicationData?,
 ) :
     ComplicationData(
         TYPE,
@@ -878,15 +904,15 @@ internal constructor(
         validTimeRange = validTimeRange ?: TimeRange.ALWAYS,
         dataSource = dataSource,
         persistencePolicy = persistencePolicy,
-        displayPolicy = displayPolicy
+        displayPolicy = displayPolicy,
+        fallback = fallback,
     ) {
     /**
      * The [DynamicFloat] optionally set by the data source. If present the system will dynamically
      * evaluate this and store the result in [value]. Watch faces can typically ignore this field.
-     *
-     * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    // TODO(b/269414040): Unhide complication expression APIs.
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public val valueExpression: DynamicFloat? = valueExpression
 
     @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -943,6 +969,7 @@ internal constructor(
          *   complications do not have textual representation this attribute can be used for
          *   providing such. Please do not include the word 'complication' in the description.
          */
+        // TODO(b/269414040): Unhide complication expression APIs.
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public constructor(
             valueExpression: DynamicFloat,
@@ -1043,7 +1070,8 @@ internal constructor(
                 colorRamp,
                 valueType,
                 persistencePolicy,
-                displayPolicy
+                displayPolicy,
+                fallback,
             )
         }
     }
@@ -1094,7 +1122,7 @@ internal constructor(
             "tapActionLostDueToSerialization=$tapActionLostDueToSerialization, " +
             "tapAction=$tapAction, validTimeRange=$validTimeRange, dataSource=$dataSource, " +
             "colorRamp=$colorRamp, persistencePolicy=$persistencePolicy, " +
-            "displayPolicy=$displayPolicy)"
+            "displayPolicy=$displayPolicy, fallback=$fallback)"
     }
 
     override fun hasPlaceholderFields() =
@@ -1211,6 +1239,7 @@ internal constructor(
  *   include the word 'complication' in the description.
  * @property colorRamp Optional hint to render the progress bar representing [value] with the
  *   specified [ColorRamp].
+ * @property fallback Used in case any expression has been invalidated.
  */
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 public class GoalProgressComplicationData
@@ -1229,7 +1258,10 @@ internal constructor(
     dataSource: ComponentName?,
     public val colorRamp: ColorRamp?,
     @ComplicationPersistencePolicy persistencePolicy: Int,
-    @ComplicationDisplayPolicy displayPolicy: Int
+    @ComplicationDisplayPolicy displayPolicy: Int,
+    // TODO(b/269414040): Unhide complication expression APIs.
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public val fallback: GoalProgressComplicationData?,
 ) :
     ComplicationData(
         TYPE,
@@ -1238,15 +1270,15 @@ internal constructor(
         validTimeRange = validTimeRange ?: TimeRange.ALWAYS,
         dataSource = dataSource,
         persistencePolicy = persistencePolicy,
-        displayPolicy = displayPolicy
+        displayPolicy = displayPolicy,
+        fallback = fallback,
     ) {
     /**
      * The [DynamicFloat] optionally set by the data source. If present the system will dynamically
      * evaluate this and store the result in [value]. Watch faces can typically ignore this field.
-     *
-     * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    // TODO(b/269414040): Unhide complication expression APIs.
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public val valueExpression: DynamicFloat? = valueExpression
 
     /**
@@ -1292,6 +1324,7 @@ internal constructor(
          *   complications do not have textual representation this attribute can be used for
          *   providing such. Please do not include the word 'complication' in the description.
          */
+        // TODO(b/269414040): Unhide complication expression APIs.
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public constructor(
             valueExpression: DynamicFloat,
@@ -1376,6 +1409,7 @@ internal constructor(
                 colorRamp,
                 persistencePolicy,
                 displayPolicy,
+                fallback = fallback,
             )
         }
     }
@@ -1424,7 +1458,7 @@ internal constructor(
             "tapActionLostDueToSerialization=$tapActionLostDueToSerialization, " +
             "tapAction=$tapAction, validTimeRange=$validTimeRange, dataSource=$dataSource, " +
             "colorRamp=$colorRamp, persistencePolicy=$persistencePolicy, " +
-            "displayPolicy=$displayPolicy)"
+            "displayPolicy=$displayPolicy, fallback=$fallback)"
     }
 
     override fun hasPlaceholderFields() =
@@ -1519,6 +1553,7 @@ internal constructor(
  *   grey box.
  * @property contentDescription The content description field for accessibility. Please do not
  *   include the word 'complication' in the description.
+ * @property fallback Used in case any expression has been invalidated.
  */
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 public class WeightedElementsComplicationData
@@ -1535,7 +1570,10 @@ internal constructor(
     cachedWireComplicationData: WireComplicationData?,
     dataSource: ComponentName?,
     @ComplicationPersistencePolicy persistencePolicy: Int,
-    @ComplicationDisplayPolicy displayPolicy: Int
+    @ComplicationDisplayPolicy displayPolicy: Int,
+    // TODO(b/269414040): Unhide complication expression APIs.
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public val fallback: WeightedElementsComplicationData?,
 ) :
     ComplicationData(
         TYPE,
@@ -1544,7 +1582,8 @@ internal constructor(
         validTimeRange = validTimeRange ?: TimeRange.ALWAYS,
         dataSource = dataSource,
         persistencePolicy = persistencePolicy,
-        displayPolicy = displayPolicy
+        displayPolicy = displayPolicy,
+        fallback = fallback,
     ) {
     /**
      * Describes a single value within a [WeightedElementsComplicationData].
@@ -1690,7 +1729,8 @@ internal constructor(
                 cachedWireComplicationData,
                 dataSource,
                 persistencePolicy,
-                displayPolicy
+                displayPolicy,
+                fallback,
             )
         }
     }
@@ -1738,7 +1778,8 @@ internal constructor(
             "text=$text, contentDescription=$contentDescription), " +
             "tapActionLostDueToSerialization=$tapActionLostDueToSerialization, " +
             "tapAction=$tapAction, validTimeRange=$validTimeRange, dataSource=$dataSource, " +
-            "persistencePolicy=$persistencePolicy, displayPolicy=$displayPolicy)"
+            "persistencePolicy=$persistencePolicy, displayPolicy=$displayPolicy, " +
+            "fallback=$fallback)"
     }
 
     override fun hasPlaceholderFields() =
@@ -1792,6 +1833,7 @@ internal constructor(
  *   any information to the user, then provide an empty content description. If no content
  *   description is provided, a generic content description will be used instead. Please do not
  *   include the word 'complication' in the description.
+ * @property fallback Used in case any expression has been invalidated.
  */
 public class MonochromaticImageComplicationData
 internal constructor(
@@ -1802,7 +1844,10 @@ internal constructor(
     cachedWireComplicationData: WireComplicationData?,
     dataSource: ComponentName?,
     @ComplicationPersistencePolicy persistencePolicy: Int,
-    @ComplicationDisplayPolicy displayPolicy: Int
+    @ComplicationDisplayPolicy displayPolicy: Int,
+    // TODO(b/269414040): Unhide complication expression APIs.
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public val fallback: MonochromaticImageComplicationData?,
 ) :
     ComplicationData(
         TYPE,
@@ -1811,7 +1856,8 @@ internal constructor(
         validTimeRange = validTimeRange ?: TimeRange.ALWAYS,
         dataSource = dataSource,
         persistencePolicy = persistencePolicy,
-        displayPolicy = displayPolicy
+        displayPolicy = displayPolicy,
+        fallback = fallback,
     ) {
     /**
      * Builder for [MonochromaticImageComplicationData].
@@ -1852,7 +1898,8 @@ internal constructor(
                 cachedWireComplicationData,
                 dataSource,
                 persistencePolicy,
-                displayPolicy
+                displayPolicy,
+                fallback,
             )
     }
 
@@ -1877,7 +1924,8 @@ internal constructor(
             "contentDescription=$contentDescription), " +
             "tapActionLostDueToSerialization=$tapActionLostDueToSerialization, " +
             "tapAction=$tapAction, validTimeRange=$validTimeRange, dataSource=$dataSource, " +
-            "persistencePolicy=$persistencePolicy, displayPolicy=$displayPolicy)"
+            "persistencePolicy=$persistencePolicy, displayPolicy=$displayPolicy, " +
+            "fallback=$fallback)"
     }
 
     /** @hide */
@@ -1908,6 +1956,7 @@ internal constructor(
  *   any information to the user, then provide an empty content description. If no content
  *   description is provided, a generic content description will be used instead. Please do not
  *   include the word 'complication' in the description.
+ * @property fallback Used in case any expression has been invalidated.
  */
 public class SmallImageComplicationData
 internal constructor(
@@ -1918,7 +1967,10 @@ internal constructor(
     cachedWireComplicationData: WireComplicationData?,
     dataSource: ComponentName?,
     @ComplicationPersistencePolicy persistencePolicy: Int,
-    @ComplicationDisplayPolicy displayPolicy: Int
+    @ComplicationDisplayPolicy displayPolicy: Int,
+    // TODO(b/269414040): Unhide complication expression APIs.
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public val fallback: SmallImageComplicationData?,
 ) :
     ComplicationData(
         TYPE,
@@ -1927,7 +1979,8 @@ internal constructor(
         validTimeRange = validTimeRange ?: TimeRange.ALWAYS,
         dataSource = dataSource,
         persistencePolicy = persistencePolicy,
-        displayPolicy = displayPolicy
+        displayPolicy = displayPolicy,
+        fallback = fallback,
     ) {
     /**
      * Builder for [SmallImageComplicationData].
@@ -1968,7 +2021,8 @@ internal constructor(
                 cachedWireComplicationData,
                 dataSource,
                 persistencePolicy,
-                displayPolicy
+                displayPolicy,
+                fallback,
             )
     }
 
@@ -1991,7 +2045,8 @@ internal constructor(
             "contentDescription=$contentDescription), " +
             "tapActionLostDueToSerialization=$tapActionLostDueToSerialization, " +
             "tapAction=$tapAction, validTimeRange=$validTimeRange, dataSource=$dataSource, " +
-            "persistencePolicy=$persistencePolicy, displayPolicy=$displayPolicy)"
+            "persistencePolicy=$persistencePolicy, displayPolicy=$displayPolicy, " +
+            "fallback=$fallback)"
     }
 
     override fun hasPlaceholderFields() = smallImage.isPlaceholder()
@@ -2029,6 +2084,7 @@ internal constructor(
  *   any information to the user, then provide an empty content description. If no content
  *   description is provided, a generic content description will be used instead. Please do not
  *   include the word 'complication' in the description.
+ * @property fallback Used in case any expression has been invalidated.
  */
 public class PhotoImageComplicationData
 internal constructor(
@@ -2039,7 +2095,10 @@ internal constructor(
     cachedWireComplicationData: WireComplicationData?,
     dataSource: ComponentName?,
     @ComplicationPersistencePolicy persistencePolicy: Int,
-    @ComplicationDisplayPolicy displayPolicy: Int
+    @ComplicationDisplayPolicy displayPolicy: Int,
+    // TODO(b/269414040): Unhide complication expression APIs.
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public val fallback: PhotoImageComplicationData?,
 ) :
     ComplicationData(
         TYPE,
@@ -2048,7 +2107,8 @@ internal constructor(
         validTimeRange = validTimeRange ?: TimeRange.ALWAYS,
         dataSource = dataSource,
         persistencePolicy = persistencePolicy,
-        displayPolicy = displayPolicy
+        displayPolicy = displayPolicy,
+        fallback = fallback,
     ) {
     /**
      * Builder for [PhotoImageComplicationData].
@@ -2090,7 +2150,8 @@ internal constructor(
                 cachedWireComplicationData,
                 dataSource,
                 persistencePolicy,
-                displayPolicy
+                displayPolicy,
+                fallback,
             )
     }
 
@@ -2113,7 +2174,8 @@ internal constructor(
             "contentDescription=$contentDescription), " +
             "tapActionLostDueToSerialization=$tapActionLostDueToSerialization, " +
             "tapAction=$tapAction, validTimeRange=$validTimeRange, dataSource=$dataSource, " +
-            "persistencePolicy=$persistencePolicy, displayPolicy=$displayPolicy)"
+            "persistencePolicy=$persistencePolicy, displayPolicy=$displayPolicy, " +
+            "fallback=$fallback)"
     }
 
     override fun hasPlaceholderFields() = photoImage.isPlaceholder()
@@ -2179,7 +2241,8 @@ internal constructor(
         cachedWireComplicationData = cachedWireComplicationData,
         dataSource = dataSource,
         persistencePolicy = persistencePolicy,
-        displayPolicy = displayPolicy
+        displayPolicy = displayPolicy,
+        fallback = null,
     ) {
     /** Builder for [NoPermissionComplicationData]. */
     public class Builder : BaseBuilder<Builder, NoPermissionComplicationData>() {
@@ -2291,6 +2354,7 @@ private fun WireComplicationData.toApiComplicationData(
                     dataSource = dataSource,
                     persistencePolicy = persistencePolicy,
                     displayPolicy = displayPolicy,
+                    fallback = placeholder?.toTypedApiComplicationData(),
                 )
             LongTextComplicationData.TYPE.toWireComplicationType() ->
                 LongTextComplicationData(
@@ -2306,6 +2370,7 @@ private fun WireComplicationData.toApiComplicationData(
                     dataSource = dataSource,
                     persistencePolicy = persistencePolicy,
                     displayPolicy = displayPolicy,
+                    fallback = placeholder?.toTypedApiComplicationData(),
                 )
             RangedValueComplicationData.TYPE.toWireComplicationType() ->
                 RangedValueComplicationData(
@@ -2327,6 +2392,7 @@ private fun WireComplicationData.toApiComplicationData(
                     valueType = rangedValueType,
                     persistencePolicy = persistencePolicy,
                     displayPolicy = displayPolicy,
+                    fallback = placeholder?.toTypedApiComplicationData(),
                 )
             MonochromaticImageComplicationData.TYPE.toWireComplicationType() ->
                 MonochromaticImageComplicationData(
@@ -2339,6 +2405,7 @@ private fun WireComplicationData.toApiComplicationData(
                     dataSource = dataSource,
                     persistencePolicy = persistencePolicy,
                     displayPolicy = displayPolicy,
+                    fallback = placeholder?.toTypedApiComplicationData(),
                 )
             SmallImageComplicationData.TYPE.toWireComplicationType() ->
                 SmallImageComplicationData(
@@ -2351,6 +2418,7 @@ private fun WireComplicationData.toApiComplicationData(
                     dataSource = dataSource,
                     persistencePolicy = persistencePolicy,
                     displayPolicy = displayPolicy,
+                    fallback = placeholder?.toTypedApiComplicationData(),
                 )
             PhotoImageComplicationData.TYPE.toWireComplicationType() ->
                 PhotoImageComplicationData(
@@ -2363,6 +2431,7 @@ private fun WireComplicationData.toApiComplicationData(
                     dataSource = dataSource,
                     persistencePolicy = persistencePolicy,
                     displayPolicy = displayPolicy,
+                    fallback = placeholder?.toTypedApiComplicationData(),
                 )
             NoPermissionComplicationData.TYPE.toWireComplicationType() ->
                 NoPermissionComplicationData(
@@ -2393,6 +2462,7 @@ private fun WireComplicationData.toApiComplicationData(
                     colorRamp = colorRamp?.let { ColorRamp(it, isColorRampInterpolated!!) },
                     persistencePolicy = persistencePolicy,
                     displayPolicy = displayPolicy,
+                    fallback = placeholder?.toTypedApiComplicationData(),
                 )
             WeightedElementsComplicationData.TYPE.toWireComplicationType() ->
                 WeightedElementsComplicationData(
@@ -2427,6 +2497,7 @@ private fun WireComplicationData.toApiComplicationData(
                     dataSource = dataSource,
                     persistencePolicy = persistencePolicy,
                     displayPolicy = displayPolicy,
+                    fallback = placeholder?.toTypedApiComplicationData(),
                 )
             else -> NoDataComplicationData()
         }
@@ -2439,6 +2510,11 @@ private fun WireComplicationData.toApiComplicationData(
         throw e
     }
 }
+
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@Suppress("UNCHECKED_CAST")
+public fun <T : ComplicationData> WireComplicationData.toTypedApiComplicationData(): T =
+    toApiComplicationData() as T
 
 private fun WireComplicationData.parseTimeRange() =
     if ((startDateTimeMillis == 0L) and (endDateTimeMillis == Long.MAX_VALUE)) {
