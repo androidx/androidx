@@ -33,6 +33,7 @@ import androidx.work.WorkInfo.State
 import androidx.work.WorkManager
 import androidx.work.WorkerFactory
 import androidx.work.WorkerParameters
+import androidx.work.impl.WorkManagerImpl
 import androidx.work.testing.SynchronousExecutor
 import androidx.work.testing.WorkManagerTestInitHelper
 import com.google.common.truth.Truth.assertThat
@@ -115,6 +116,8 @@ class GlanceSessionManagerTest {
         testScope.cancel()
         workerStateScope.cancel()
         WorkManager.getInstance(context).cancelAllWork()
+        // TODO(b/242026176): remove this once WorkManager allows closing the test database.
+        WorkManagerImpl.getInstance(context).workDatabase.close()
     }
 
     @Test
