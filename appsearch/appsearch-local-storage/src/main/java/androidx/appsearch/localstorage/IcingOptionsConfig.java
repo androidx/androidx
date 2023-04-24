@@ -36,6 +36,12 @@ public interface IcingOptionsConfig {
     float DEFAULT_OPTIMIZE_REBUILD_INDEX_THRESHOLD = 0.0f;
 
     /**
+     * The default compression level in IcingSearchEngineOptions proto matches the
+     * previously-hardcoded document compression level in Icing (which is 3).
+     */
+    int DEFAULT_COMPRESSION_LEVEL = 3;
+
+    /**
      * The maximum allowable token length. All tokens in excess of this size will be truncated to
      * max_token_length before being indexed.
      *
@@ -79,4 +85,11 @@ public interface IcingOptionsConfig {
      * for most cases.
      */
     float getOptimizeRebuildIndexThreshold();
+
+    /**
+     * The level of gzip compression for documents in the Icing document store.
+     *
+     * <p>NO_COMPRESSION = 0, BEST_SPEED = 1, BEST_COMPRESSION = 9
+     */
+    int getCompressionLevel();
 }

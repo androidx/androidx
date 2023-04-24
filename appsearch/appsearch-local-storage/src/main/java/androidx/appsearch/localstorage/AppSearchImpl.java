@@ -306,6 +306,7 @@ public final class AppSearchImpl implements Closeable {
                             icingOptionsConfig.getDocumentStoreNamespaceIdFingerprint())
                     .setOptimizeRebuildIndexThreshold(
                             icingOptionsConfig.getOptimizeRebuildIndexThreshold())
+                    .setCompressionLevel(icingOptionsConfig.getCompressionLevel())
                     .build();
             LogUtil.piiTrace(TAG, "Constructing IcingSearchEngine, request", options);
             mIcingSearchEngineLocked = new IcingSearchEngine(options);
