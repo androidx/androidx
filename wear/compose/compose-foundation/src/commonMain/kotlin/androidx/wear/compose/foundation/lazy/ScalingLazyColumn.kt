@@ -30,7 +30,6 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.runtime.Composable
@@ -57,6 +56,8 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.offset
+import androidx.wear.compose.foundation.ExperimentalWearFoundationApi
+import androidx.wear.compose.foundation.LocalReduceMotion
 
 /**
  * Receiver scope which is used by [ScalingLazyColumn].
@@ -321,6 +322,7 @@ public class AutoCenteringParams(
  * manually arrange the items.
  * @param content The content of the [ScalingLazyColumn]
  */
+@OptIn(ExperimentalWearFoundationApi::class)
 @Composable
 public fun ScalingLazyColumn(
     modifier: Modifier = Modifier,
@@ -344,7 +346,11 @@ public fun ScalingLazyColumn(
     BoxWithConstraints(modifier = modifier, propagateMinConstraints = true) {
         val density = LocalDensity.current
         val layoutDirection = LocalLayoutDirection.current
+        val reduceMotion = LocalReduceMotion.current
         val extraPaddingInPixels = scalingParams.resolveViewportVerticalOffset(constraints)
+
+        val actualScalingParams =
+            if (reduceMotion.enabled()) ReduceMotionScalingParams(scalingParams) else scalingParams
 
         with(density) {
             val extraPadding = extraPaddingInPixels.toDp()
@@ -377,7 +383,7 @@ public fun ScalingLazyColumn(
                 )
 
             // Set up transient state
-            state.scalingParams.value = scalingParams
+            state.scalingParams.value = actualScalingParams
             state.extraPaddingPx.value = extraPaddingInPixels
             state.beforeContentPaddingPx.value = beforeContentPaddingInPx
             state.afterContentPaddingPx.value = afterContentPaddingInPx

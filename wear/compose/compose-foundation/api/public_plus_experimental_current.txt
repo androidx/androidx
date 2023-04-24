@@ -26,6 +26,11 @@ package androidx.wear.compose.foundation {
     method public static void basicCurvedText(androidx.wear.compose.foundation.CurvedScope, String text, androidx.wear.compose.foundation.CurvedTextStyle style, optional androidx.wear.compose.foundation.CurvedModifier modifier, optional androidx.wear.compose.foundation.CurvedDirection.Angular? angularDirection, optional int overflow);
   }
 
+  public final class CompositionLocalsKt {
+    method @androidx.wear.compose.foundation.ExperimentalWearFoundationApi public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.wear.compose.foundation.ReduceMotion> getLocalReduceMotion();
+    property @androidx.wear.compose.foundation.ExperimentalWearFoundationApi public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.wear.compose.foundation.ReduceMotion> LocalReduceMotion;
+  }
+
   public interface CurvedAlignment {
   }
 
@@ -203,6 +208,10 @@ package androidx.wear.compose.foundation {
     method @androidx.compose.runtime.Composable @androidx.wear.compose.foundation.ExperimentalWearFoundationApi public static void OnFocusChange(kotlin.jvm.functions.Function2<? super kotlinx.coroutines.CoroutineScope,? super java.lang.Boolean,kotlin.Unit> onFocusChanged);
     method @androidx.compose.runtime.Composable @androidx.wear.compose.foundation.ExperimentalWearFoundationApi public static void RequestFocusWhenActive(androidx.compose.ui.focus.FocusRequester focusRequester);
     method @androidx.compose.runtime.Composable @androidx.wear.compose.foundation.ExperimentalWearFoundationApi public static androidx.compose.ui.focus.FocusRequester rememberActiveFocusRequester();
+  }
+
+  @androidx.wear.compose.foundation.ExperimentalWearFoundationApi public fun interface ReduceMotion {
+    method @androidx.compose.runtime.Composable public boolean enabled();
   }
 
   @androidx.wear.compose.foundation.ExperimentalWearFoundationApi public interface RevealScope {
