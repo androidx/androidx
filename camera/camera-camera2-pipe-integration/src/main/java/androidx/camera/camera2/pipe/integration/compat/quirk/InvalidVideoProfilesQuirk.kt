@@ -28,12 +28,13 @@ import androidx.camera.core.impl.Quirk
  * Quirk denoting the video profile list returns by [EncoderProfiles] is invalid.
  *
  * QuirkSummary
- * - Bug Id: 267727595
+ * - Bug Id: 267727595, 278860860
  * - Description: When using [EncoderProfiles] on TP1A or TD1A builds of Android API 33,
  *   [EncoderProfiles.getVideoProfiles] returns a list with size one, but the single value in the
  *   list is null. This is not the expected behavior, and makes [EncoderProfiles] lack of video
  *   information.
- * - Device(s): Pixel 4 and above pixel devices with TP1A or TD1A builds (API 33).
+ * - Device(s): Pixel 4 and above pixel devices with TP1A or TD1A builds (API 33), Samsung devices
+ *              with TP1A build (API 33).
  *
  * TODO: enable CameraXQuirksClassDetector lint check when kotlin is supported.
  */
@@ -41,7 +42,7 @@ import androidx.camera.core.impl.Quirk
 class InvalidVideoProfilesQuirk : Quirk {
 
     companion object {
-        private val AFFECTED_MODELS: List<String> = listOf(
+        private val AFFECTED_PIXEL_MODELS: List<String> = listOf(
             "pixel 4",
             "pixel 4a",
             "pixel 4a (5g)",
@@ -56,25 +57,33 @@ class InvalidVideoProfilesQuirk : Quirk {
         )
 
         fun isEnabled(): Boolean {
-            return isAffectedModel() && isAffectedBuild()
+            return isAffectedSamsungDevices() || isAffectedPixelDevices()
         }
 
-        private fun isAffectedModel(): Boolean {
-            return AFFECTED_MODELS.contains(
+        private fun isAffectedSamsungDevices(): Boolean {
+            return "samsung".equals(Build.BRAND, true) && isTp1aBuild()
+        }
+
+        private fun isAffectedPixelDevices(): Boolean {
+            return isAffectedPixelModel() && isAffectedPixelBuild()
+        }
+
+        private fun isAffectedPixelModel(): Boolean {
+            return AFFECTED_PIXEL_MODELS.contains(
                 Build.MODEL.lowercase()
             )
         }
 
-        private fun isAffectedBuild(): Boolean {
+        private fun isAffectedPixelBuild(): Boolean {
             return isTp1aBuild() || isTd1aBuild()
         }
 
         private fun isTp1aBuild(): Boolean {
-            return Build.ID.startsWith("TP1A")
+            return Build.ID.startsWith("TP1A", true)
         }
 
         private fun isTd1aBuild(): Boolean {
-            return Build.ID.startsWith("TD1A")
+            return Build.ID.startsWith("TD1A", true)
         }
     }
 }
