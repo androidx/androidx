@@ -19,16 +19,11 @@ package androidx.credentials
 import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.content.Context
-import android.content.Intent
-import android.net.Uri
 import android.os.CancellationSignal
 import androidx.annotation.RequiresApi
 import androidx.credentials.exceptions.ClearCredentialException
-import androidx.credentials.exceptions.ClearCredentialProviderConfigurationException
 import androidx.credentials.exceptions.CreateCredentialException
-import androidx.credentials.exceptions.CreateCredentialProviderConfigurationException
 import androidx.credentials.exceptions.GetCredentialException
-import androidx.credentials.exceptions.GetCredentialProviderConfigurationException
 import java.util.concurrent.Executor
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
@@ -91,18 +86,15 @@ import kotlinx.coroutines.suspendCancellableCoroutine
  */
 @RequiresApi(16)
 @SuppressLint("ObsoleteSdkInt")
-@Suppress("UNUSED_PARAMETER")
-class CredentialManager private constructor(private val context: Context) {
+interface CredentialManager {
     companion object {
-        @JvmStatic
-        fun create(context: Context): CredentialManager = CredentialManager(context)
-
         /**
-         * An intent action that shows a screen that let user enable a Credential Manager provider.
+         * Creates a [CredentialManager] based on the given [context].
+         *
+         * @param context the context with which the CredentialManager should be associated
          */
-        private const val
-        INTENT_ACTION_FOR_CREDENTIAL_PROVIDER_SETTINGS: String =
-        "android.settings.CREDENTIAL_PROVIDER"
+        @JvmStatic
+        fun create(context: Context): CredentialManager = CredentialManagerImpl(context)
     }
 
     /**
@@ -340,20 +332,7 @@ class CredentialManager private constructor(private val context: Context) {
         cancellationSignal: CancellationSignal?,
         executor: Executor,
         callback: CredentialManagerCallback<GetCredentialResponse, GetCredentialException>,
-    ) {
-        val provider: CredentialProvider? = CredentialProviderFactory
-            .getBestAvailableProvider(this.context)
-        if (provider == null) {
-            // TODO (Update with the right error code when ready)
-            callback.onError(
-                GetCredentialProviderConfigurationException(
-                    "getCredentialAsync no provider dependencies found - please ensure " +
-                        "the desired provider dependencies are added")
-            )
-            return
-        }
-        provider.onGetCredential(context, request, cancellationSignal, executor, callback)
-    }
+    )
 
     /**
      * Requests a credential from the user.
@@ -383,11 +362,7 @@ class CredentialManager private constructor(private val context: Context) {
         cancellationSignal: CancellationSignal?,
         executor: Executor,
         callback: CredentialManagerCallback<GetCredentialResponse, GetCredentialException>,
-    ) {
-        val provider = CredentialProviderFactory.getUAndAboveProvider(context)
-        provider.onGetCredential(
-            context, pendingGetCredentialHandle, cancellationSignal, executor, callback)
-    }
+    )
 
     /**
      * Prepares for a get-credential operation. Returns a [PrepareGetCredentialResponse]
@@ -412,10 +387,7 @@ class CredentialManager private constructor(private val context: Context) {
         cancellationSignal: CancellationSignal?,
         executor: Executor,
         callback: CredentialManagerCallback<PrepareGetCredentialResponse, GetCredentialException>,
-    ) {
-        val provider = CredentialProviderFactory.getUAndAboveProvider(context)
-        provider.onPrepareCredential(request, cancellationSignal, executor, callback)
-    }
+    )
 
     /**
      * Registers a user credential that can be used to authenticate the user to
@@ -439,18 +411,7 @@ class CredentialManager private constructor(private val context: Context) {
         cancellationSignal: CancellationSignal?,
         executor: Executor,
         callback: CredentialManagerCallback<CreateCredentialResponse, CreateCredentialException>,
-    ) {
-        val provider: CredentialProvider? = CredentialProviderFactory
-            .getBestAvailableProvider(this.context)
-        if (provider == null) {
-            // TODO (Update with the right error code when ready)
-            callback.onError(CreateCredentialProviderConfigurationException(
-                "createCredentialAsync no provider dependencies found - please ensure the " +
-                    "desired provider dependencies are added"))
-            return
-        }
-        provider.onCreateCredential(context, request, cancellationSignal, executor, callback)
-    }
+    )
 
     /**
      * Clears the current user credential state from all credential providers.
@@ -476,27 +437,12 @@ class CredentialManager private constructor(private val context: Context) {
         cancellationSignal: CancellationSignal?,
         executor: Executor,
         callback: CredentialManagerCallback<Void?, ClearCredentialException>,
-    ) {
-        val provider: CredentialProvider? = CredentialProviderFactory
-            .getBestAvailableProvider(context)
-        if (provider == null) {
-            // TODO (Update with the right error code when ready)
-            callback.onError(ClearCredentialProviderConfigurationException(
-                "clearCredentialStateAsync no provider dependencies found - please ensure the " +
-                    "desired provider dependencies are added"))
-            return
-        }
-        provider.onClearCredential(request, cancellationSignal, executor, callback)
-    }
+    )
 
     /**
      * Returns a pending intent that shows a screen that lets a user enable a Credential Manager provider.
      * @return the pending intent that can be launched
      */
     @RequiresApi(34)
-    fun createSettingsPendingIntent(): PendingIntent {
-        val intent: Intent = Intent(INTENT_ACTION_FOR_CREDENTIAL_PROVIDER_SETTINGS)
-        intent.setData(Uri.parse("package:" + context.getPackageName()))
-        return PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_IMMUTABLE)
-    }
+    fun createSettingsPendingIntent(): PendingIntent
 }
