@@ -54,6 +54,7 @@ android {
 androidx {
     name = "Android Glance AppWidget Preview"
     type = LibraryType.PUBLISHED_LIBRARY
+    mavenVersion = LibraryVersions.GLANCE_PREVIEW
     inceptionYear = "2022"
     description = "Glance tooling library. This library provides the API required for the " +
             "GlanceAppWidget components and its Glance @Composable to be previewable in the IDE."
