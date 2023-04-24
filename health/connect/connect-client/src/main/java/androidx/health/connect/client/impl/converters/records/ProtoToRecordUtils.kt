@@ -18,6 +18,8 @@
 package androidx.health.connect.client.impl.converters.records
 
 import androidx.annotation.RestrictTo
+import androidx.health.connect.client.records.SleepSessionRecord
+import androidx.health.connect.client.records.SleepSessionRecord.Companion.STAGE_TYPE_STRING_TO_INT_MAP
 import androidx.health.connect.client.records.metadata.DataOrigin
 import androidx.health.connect.client.records.metadata.Device
 import androidx.health.connect.client.records.metadata.Metadata
@@ -104,4 +106,15 @@ internal fun DataProto.Device.toDevice(): Device {
         model = if (hasModel()) model else null,
         type = DEVICE_TYPE_STRING_TO_INT_MAP.getOrDefault(type, Device.TYPE_UNKNOWN)
     )
+}
+
+internal fun DataProto.DataPoint.SubTypeDataList.toStageList(): List<SleepSessionRecord.Stage> {
+    return valuesList.map {
+        SleepSessionRecord.Stage(
+            startTime = Instant.ofEpochMilli(it.startTimeMillis),
+            endTime = Instant.ofEpochMilli(it.endTimeMillis),
+            stage = STAGE_TYPE_STRING_TO_INT_MAP[it.valuesMap["stage"]?.enumVal]
+                ?: SleepSessionRecord.STAGE_TYPE_UNKNOWN
+        )
+    }
 }

@@ -741,8 +741,30 @@ class AllRecordsConverterTest {
     fun testSleepSession() {
         val data =
             SleepSessionRecord(
-                title = null,
-                notes = null,
+                title = "title",
+                notes = "notes",
+                startTime = START_TIME,
+                startZoneOffset = START_ZONE_OFFSET,
+                endTime = END_TIME,
+                endZoneOffset = END_ZONE_OFFSET,
+                metadata = TEST_METADATA,
+                stages = listOf(
+                    SleepSessionRecord.Stage(
+                        startTime = Instant.ofEpochMilli(1234L),
+                        endTime = Instant.ofEpochMilli(1236L),
+                        stage = SleepSessionRecord.STAGE_TYPE_DEEP,
+                    )
+                )
+            )
+
+        checkProtoAndRecordTypeNameMatch(data)
+        assertThat(toRecord(data.toProto())).isEqualTo(data)
+    }
+
+    @Test
+    fun testSleepSessionWithEmptyStageList() {
+        val data =
+            SleepSessionRecord(
                 startTime = START_TIME,
                 startZoneOffset = START_ZONE_OFFSET,
                 endTime = END_TIME,
