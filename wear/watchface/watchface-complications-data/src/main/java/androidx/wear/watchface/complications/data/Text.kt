@@ -611,6 +611,7 @@ public fun WireTimeDependentText.toApiComplicationText(): ComplicationText =
  * the time this reaches the watch face's Renderer, it'll have been converted to a plain
  * ComplicationText.
  */
+// TODO(b/269414040): Unhide complication expression APIs.
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class ComplicationTextExpression(public val expression: DynamicString) : ComplicationText {
     private val delegate = DelegatingComplicationText(WireComplicationText(expression))
