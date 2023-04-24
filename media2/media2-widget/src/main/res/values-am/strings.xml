@@ -45,5 +45,5 @@
     <string name="mcv2_next_button_desc" msgid="1204572886248099893">"ቀጣይ ማህደረ መረጃ"</string>
     <string name="mcv2_rewind_button_desc" msgid="578809901971186362">"በ10 ሰከንዶች አጠንጥን"</string>
     <string name="mcv2_ffwd_button_desc" msgid="611689280746097673">"ወደፊት በ30 ሰከንዶች ሂድ"</string>
-    <string name="mcv2_full_screen_button_desc" msgid="1609817079594941003">"ሙሉ ማያ ገጽ"</string>
+    <string name="mcv2_full_screen_button_desc" msgid="1609817079594941003">"ሙሉ ማያ ገፅ"</string>
 </resources>
