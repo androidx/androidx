@@ -933,7 +933,7 @@ public abstract class UseCase {
 
         int rotationDegrees = getRelativeRotation(camera);
 
-        return ResolutionInfo.create(resolution, cropRect, rotationDegrees);
+        return new ResolutionInfo(resolution, cropRect, rotationDegrees);
     }
 
     /**
