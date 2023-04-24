@@ -151,7 +151,7 @@ fun LayoutModifierNode.invalidatePlacement() = requireLayoutNode().requestRelayo
  * This invalidates the current node's measure result, and ensures that a remeasurement
  * (the measurement block rerun) of this node will happen for the next frame.
  */
-fun LayoutModifierNode.invalidateMeasurements() = requireLayoutNode().invalidateMeasurements()
+fun LayoutModifierNode.invalidateMeasurement() = requireLayoutNode().invalidateMeasurements()
 
 internal fun LayoutModifierNode.requestRemeasure() = requireLayoutNode().requestRemeasure()
 

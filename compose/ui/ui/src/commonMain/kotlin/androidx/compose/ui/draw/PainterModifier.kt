@@ -38,7 +38,7 @@ import androidx.compose.ui.node.LayoutModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.invalidateDraw
 import androidx.compose.ui.node.invalidateLayer
-import androidx.compose.ui.node.invalidateMeasurements
+import androidx.compose.ui.node.invalidateMeasurement
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntSize
@@ -119,7 +119,7 @@ private data class PainterModifierNodeElement(
 
         // Only remeasure if intrinsics have changed.
         if (intrinsicsChanged) {
-            node.invalidateMeasurements()
+            node.invalidateMeasurement()
         }
         // redraw because one of the node properties has changed.
         node.invalidateDraw()

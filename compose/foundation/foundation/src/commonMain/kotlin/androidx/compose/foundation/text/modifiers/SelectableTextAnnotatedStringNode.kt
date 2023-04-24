@@ -30,7 +30,7 @@ import androidx.compose.ui.node.DrawModifierNode
 import androidx.compose.ui.node.GlobalPositionAwareModifierNode
 import androidx.compose.ui.node.LayoutModifierNode
 import androidx.compose.ui.node.SemanticsModifierNode
-import androidx.compose.ui.node.invalidateMeasurements
+import androidx.compose.ui.node.invalidateMeasurement
 import androidx.compose.ui.semantics.SemanticsConfiguration
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.Placeholder
@@ -149,6 +149,6 @@ internal class SelectableTextAnnotatedStringNode(
             )
         )
         // we always relayout when we're selectable
-        invalidateMeasurements()
+        invalidateMeasurement()
     }
 }

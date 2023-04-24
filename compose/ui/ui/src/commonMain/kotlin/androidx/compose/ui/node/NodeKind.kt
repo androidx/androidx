@@ -246,7 +246,7 @@ private fun autoInvalidateNodeSelf(node: Modifier.Node, selfKindSet: Int, phase:
     // Don't invalidate the node if it marks itself as autoInvalidate = false.
     if (phase == Updated && !node.shouldAutoInvalidate) return
     if (Nodes.Layout in selfKindSet && node is LayoutModifierNode) {
-        node.invalidateMeasurements()
+        node.invalidateMeasurement()
         if (phase == Removed) {
             val coordinator = node.requireCoordinator(Nodes.Layout)
             coordinator.onRelease()
