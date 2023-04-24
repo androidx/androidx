@@ -30,6 +30,7 @@ import androidx.benchmark.macro.perfetto.FrameTimingQuery
 import androidx.benchmark.macro.perfetto.FrameTimingQuery.SubMetric
 import androidx.benchmark.macro.perfetto.FrameTimingQuery.getFrameSubMetrics
 import androidx.benchmark.macro.perfetto.MemoryCountersQuery
+import androidx.benchmark.macro.perfetto.MemoryUsageQuery
 import androidx.benchmark.macro.perfetto.PowerQuery
 import androidx.benchmark.macro.perfetto.StartupTimingQuery
 import androidx.benchmark.macro.perfetto.camelCase
@@ -512,13 +513,11 @@ class PowerMetric(
     companion object {
         internal const val MEASURE_BLOCK_SECTION_NAME = "measureBlock"
 
-        @Suppress("FunctionName")
         @JvmStatic
         fun Battery(): Type.Battery {
             return Type.Battery()
         }
 
-        @Suppress("FunctionName")
         @JvmStatic
         fun Energy(
             categories: Map<PowerCategory, PowerCategoryDisplayLevel> = emptyMap()
@@ -526,7 +525,6 @@ class PowerMetric(
             return Type.Energy(categories)
         }
 
-        @Suppress("FunctionName")
         @JvmStatic
         fun Power(
             categories: Map<PowerCategory, PowerCategoryDisplayLevel> = emptyMap()
@@ -674,6 +672,84 @@ class PowerMetric(
                 }
             }
         }.flatten().associate { pair -> Pair(pair.first, pair.second) }
+    }
+}
+
+/**
+ * Metric for tracking the memory usage of the target application.
+ *
+ * There are two modes for measurement - `Last`, which represents the last observed value
+ * during an iteration, and `Max`, which represents the largest sample observed per measurement.
+ *
+ * By default, reports:
+ * * `memoryRssAnonKb` - Anonymous resident/allocated memory owned by the process, not including
+ *   memory mapped files or shared memory.
+ * * `memoryRssAnonFileKb` - Memory allocated by the process to map files.
+ * * `memoryHeapSizeKb` - Heap memory allocations from the Android Runtime, sampled after each GC.
+ * * `memoryGpuKb` - GPU Memory allocated for the process.
+ *
+ * By passing a custom `subMetrics` list, you can enable other [SubMetric]s.
+ */
+@ExperimentalMetricApi
+class MemoryUsageMetric(
+    private val mode: Mode,
+    private val subMetrics: List<SubMetric> = listOf(
+        SubMetric.HeapSize,
+        SubMetric.RssAnon,
+        SubMetric.RssFile,
+        SubMetric.Gpu,
+    )
+) : TraceMetric() {
+    enum class Mode {
+        /**
+         * Select the last available sample for each value. Useful for inspecting the final state of
+         * e.g. Heap Size.
+         */
+        Last,
+
+        /**
+         * Select the maximum value observed.
+         *
+         * Useful for inspecting the worst case state, e.g. finding worst heap size during a given
+         * scenario.
+         */
+        Max
+    }
+    enum class SubMetric(
+        /**
+         * Name of counter in trace.
+         */
+        internal val counterName: String,
+        /**
+         * False if the metric is represented in the trace in bytes,
+         * and must be divided by 1024 to be converted to KB.
+         */
+        internal val alreadyInKb: Boolean
+    ) {
+        HeapSize("Heap size (KB)", alreadyInKb = true),
+        RssAnon("mem.rss.anon", alreadyInKb = false),
+        RssFile("mem.rss.file", alreadyInKb = false),
+        RssShmem("mem.rss.shmem", alreadyInKb = false),
+        Gpu("GPU Memory", alreadyInKb = false)
+    }
+
+    override fun getResult(
+        captureInfo: CaptureInfo,
+        traceSession: PerfettoTraceProcessor.Session
+    ): List<Measurement> {
+
+        val suffix = mode.toString()
+        return MemoryUsageQuery.getMemoryUsageKb(
+            session = traceSession,
+            targetPackageName = captureInfo.targetPackageName,
+            mode = mode
+        )?.mapNotNull {
+            if (it.key in subMetrics) {
+                Measurement("memory${it.key}${suffix}Kb", it.value.toDouble())
+            } else {
+                null
+            }
+        } ?: listOf()
     }
 }
 

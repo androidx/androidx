@@ -16,8 +16,6 @@
 
 package androidx.benchmark.macro.perfetto
 
-import android.util.Log
-import androidx.benchmark.macro.TAG
 import androidx.benchmark.perfetto.PerfettoTraceProcessor
 import androidx.benchmark.perfetto.processNameLikePkg
 import org.intellij.lang.annotations.Language
@@ -25,18 +23,17 @@ import org.intellij.lang.annotations.Language
 internal object MemoryCountersQuery {
     // https://perfetto.dev/docs/data-sources/memory-counters
     @Language("sql")
-    internal fun getFullQuery(targetPackageName: String) = """
+    internal fun getQuery(targetPackageName: String) = """
         SELECT
             track.name as counter_name,
-            process.name as process_name,
-            ts,
-            value
+            SUM(value)
         FROM counter
             LEFT JOIN process_counter_track as track on counter.track_id = track.id
             LEFT JOIN process using (upid)
         WHERE
             ${processNameLikePkg(targetPackageName)} AND
             track.name LIKE 'mem.%.count'
+        GROUP BY counter_name
     """.trimIndent()
 
     private const val MINOR_PAGE_FAULTS_COUNT = "mem.mm.min_flt.count"
@@ -66,58 +63,24 @@ internal object MemoryCountersQuery {
         targetPackageName: String
     ): SubMetrics? {
         val queryResultIterator = session.query(
-            query = getFullQuery(targetPackageName = targetPackageName)
+            query = getQuery(targetPackageName = targetPackageName)
         )
 
-        var minorPageFaults = 0.0
-        var majorPageFaults = 0.0
-        var faultsBackedBySwapCache = 0.0
-        var faultsBackedByReadIO = 0.0
-        var memoryCompactionEvents = 0.0
-        var memoryReclaimEvents = 0.0
-
         val rows = queryResultIterator.toList()
-        if (rows.isEmpty()) {
-            return null
+        return if (rows.isEmpty()) {
+            null
         } else {
-            rows.forEach { row ->
-                when (row.string("counter_name")) {
-
-                    MINOR_PAGE_FAULTS_COUNT -> {
-                        minorPageFaults += row.double("value")
-                    }
-
-                    MAJOR_PAGE_FAULTS_COUNT -> {
-                        majorPageFaults += row.double("value")
-                    }
-
-                    PAGE_FAULTS_BACKED_BY_SWAP_CACHE_COUNT -> {
-                        faultsBackedBySwapCache += row.double("value")
-                    }
-
-                    PAGE_FAULTS_BACKED_BY_READ_IO_COUNT -> {
-                        faultsBackedByReadIO += row.double("value")
-                    }
-
-                    MEMORY_COMPACTION_EVENTS_COUNT -> {
-                        memoryCompactionEvents += row.double("value")
-                    }
-
-                    MEMORY_RECLAIM_EVENTS_COUNT -> {
-                        memoryReclaimEvents += row.double("value")
-                    }
-
-                    else -> Log.d(TAG, "Unknown counter: $row")
-                }
+            val summations: Map<String, Double> = rows.associate {
+                it.string("counter_name") to it.double("SUM(value)")
             }
-
-            return SubMetrics(
-                minorPageFaults = minorPageFaults,
-                majorPageFaults = majorPageFaults,
-                pageFaultsBackedBySwapCache = faultsBackedBySwapCache,
-                pageFaultsBackedByReadIO = faultsBackedByReadIO,
-                memoryCompactionEvents = memoryCompactionEvents,
-                memoryReclaimEvents = memoryReclaimEvents
+            SubMetrics(
+                minorPageFaults = summations[MINOR_PAGE_FAULTS_COUNT] ?: 0.0,
+                majorPageFaults = summations[MAJOR_PAGE_FAULTS_COUNT] ?: 0.0,
+                pageFaultsBackedBySwapCache = summations[PAGE_FAULTS_BACKED_BY_SWAP_CACHE_COUNT]
+                    ?: 0.0,
+                pageFaultsBackedByReadIO = summations[PAGE_FAULTS_BACKED_BY_READ_IO_COUNT] ?: 0.0,
+                memoryCompactionEvents = summations[MEMORY_COMPACTION_EVENTS_COUNT] ?: 0.0,
+                memoryReclaimEvents = summations[MEMORY_RECLAIM_EVENTS_COUNT] ?: 0.0
             )
         }
     }

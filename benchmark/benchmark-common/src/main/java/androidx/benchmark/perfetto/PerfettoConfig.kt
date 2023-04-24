@@ -246,6 +246,7 @@ internal fun perfettoConfig(
         PACKAGE_LIST_DATASOURCE,
         LINUX_SYS_STATS_DATASOURCE,
         ANDROID_POWER_DATASOURCE,
+        TraceConfig.DataSource(DataSourceConfig("android.gpu.memory")),
         TraceConfig.DataSource(DataSourceConfig("android.surfaceflinger.frame")),
         TraceConfig.DataSource(DataSourceConfig("android.surfaceflinger.frametimeline")),
         TraceConfig.DataSource(DataSourceConfig("track_event")) // required by tracing-perfetto

@@ -80,6 +80,28 @@ package androidx.benchmark.macro {
     method public java.util.List<androidx.benchmark.macro.Metric.Measurement> getResult(androidx.benchmark.macro.Metric.CaptureInfo captureInfo, androidx.benchmark.perfetto.PerfettoTraceProcessor.Session traceSession);
   }
 
+  @androidx.benchmark.macro.ExperimentalMetricApi public final class MemoryUsageMetric extends androidx.benchmark.macro.TraceMetric {
+    ctor public MemoryUsageMetric(androidx.benchmark.macro.MemoryUsageMetric.Mode mode, optional java.util.List<? extends androidx.benchmark.macro.MemoryUsageMetric.SubMetric> subMetrics);
+    method public java.util.List<androidx.benchmark.macro.Metric.Measurement> getResult(androidx.benchmark.macro.Metric.CaptureInfo captureInfo, androidx.benchmark.perfetto.PerfettoTraceProcessor.Session traceSession);
+  }
+
+  public enum MemoryUsageMetric.Mode {
+    method public static androidx.benchmark.macro.MemoryUsageMetric.Mode valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
+    method public static androidx.benchmark.macro.MemoryUsageMetric.Mode[] values();
+    enum_constant public static final androidx.benchmark.macro.MemoryUsageMetric.Mode Last;
+    enum_constant public static final androidx.benchmark.macro.MemoryUsageMetric.Mode Max;
+  }
+
+  public enum MemoryUsageMetric.SubMetric {
+    method public static androidx.benchmark.macro.MemoryUsageMetric.SubMetric valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
+    method public static androidx.benchmark.macro.MemoryUsageMetric.SubMetric[] values();
+    enum_constant public static final androidx.benchmark.macro.MemoryUsageMetric.SubMetric Gpu;
+    enum_constant public static final androidx.benchmark.macro.MemoryUsageMetric.SubMetric HeapSize;
+    enum_constant public static final androidx.benchmark.macro.MemoryUsageMetric.SubMetric RssAnon;
+    enum_constant public static final androidx.benchmark.macro.MemoryUsageMetric.SubMetric RssFile;
+    enum_constant public static final androidx.benchmark.macro.MemoryUsageMetric.SubMetric RssShmem;
+  }
+
   public abstract sealed class Metric {
   }
 
