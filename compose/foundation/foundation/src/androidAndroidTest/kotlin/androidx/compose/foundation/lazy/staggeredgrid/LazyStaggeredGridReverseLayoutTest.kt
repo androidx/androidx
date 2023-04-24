@@ -397,9 +397,40 @@ class LazyStaggeredGridReverseLayoutTest(
 
         // bottom padding applies instead of the top
         rule.onNodeWithTag("0")
-            .assertMainAxisStartPositionInRootIsEqualTo(itemSize * 3)
+            .assertMainAxisStartPositionInRootIsEqualTo(itemSize * 2)
         rule.onNodeWithTag("1")
-            .assertMainAxisStartPositionInRootIsEqualTo(itemSize * 3)
+            .assertMainAxisStartPositionInRootIsEqualTo(itemSize * 2)
+    }
+
+    @Test
+    fun contentPadding_isPreserved() {
+        val state = LazyStaggeredGridState()
+        rule.setContent {
+            LazyStaggeredGrid(
+                lanes = 2,
+                modifier = Modifier
+                    .axisSize(itemSize * 2, itemSize * 5)
+                    .testTag(StaggeredGridTag),
+                contentPadding = PaddingValues(afterContent = itemSize * 2),
+                reverseLayout = true,
+                state = state
+            ) {
+                items(6) {
+                    Box(Modifier.size(itemSize).testTag("$it"))
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            assertThat(state.firstVisibleItemIndex).isEqualTo(0)
+            assertThat(state.firstVisibleItemScrollOffset).isEqualTo(0)
+        }
+
+        // bottom padding applies instead of the top
+        rule.onNodeWithTag("0")
+            .assertMainAxisStartPositionInRootIsEqualTo(itemSize * 2)
+        rule.onNodeWithTag("1")
+            .assertMainAxisStartPositionInRootIsEqualTo(itemSize * 2)
     }
 
     @Test
