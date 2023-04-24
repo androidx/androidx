@@ -21,6 +21,7 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
 
 import android.content.pm.SigningInfo;
+import android.os.Bundle;
 import android.service.credentials.CallingAppInfo;
 
 import androidx.core.os.BuildCompat;
@@ -40,7 +41,9 @@ public class BeginCreatePublicKeyCredentialRequestJavaTest {
                     IllegalArgumentException.class,
                     () -> new BeginCreatePublicKeyCredentialRequest(
                             "",
-                            new CallingAppInfo("sample_package_name", new SigningInfo())
+                            new CallingAppInfo(
+                                    "sample_package_name", new SigningInfo()),
+                            new Bundle()
                     )
             );
         }
@@ -54,7 +57,8 @@ public class BeginCreatePublicKeyCredentialRequestJavaTest {
                     () -> new BeginCreatePublicKeyCredentialRequest(
                             null,
                             new CallingAppInfo("sample_package_name",
-                                    new SigningInfo())
+                                    new SigningInfo()),
+                            new Bundle()
                     )
             );
         }
@@ -67,7 +71,8 @@ public class BeginCreatePublicKeyCredentialRequestJavaTest {
                     "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}",
                     new CallingAppInfo(
                             "sample_package_name", new SigningInfo()
-                    )
+                    ),
+                    new Bundle()
             );
         }
     }
@@ -80,6 +85,7 @@ public class BeginCreatePublicKeyCredentialRequestJavaTest {
                     new CallingAppInfo(
                             "sample_package_name", new SigningInfo()
                     ),
+                    new Bundle(),
                     "client_data_hash".getBytes()
             );
         }
@@ -94,7 +100,8 @@ public class BeginCreatePublicKeyCredentialRequestJavaTest {
                     createPublicKeyCredentialReq = new BeginCreatePublicKeyCredentialRequest(
                     testJsonExpected,
                     new CallingAppInfo(
-                            "sample_package_name", new SigningInfo())
+                            "sample_package_name", new SigningInfo()),
+                    new Bundle()
             );
 
             String testJsonActual = createPublicKeyCredentialReq.getRequestJson();
@@ -113,6 +120,7 @@ public class BeginCreatePublicKeyCredentialRequestJavaTest {
                             "json",
                             new CallingAppInfo("sample_package_name",
                                     new SigningInfo()),
+                            new Bundle(),
                             testClientDataHashExpected.getBytes());
 
             assertThat(createPublicKeyCredentialReq.getClientDataHash())

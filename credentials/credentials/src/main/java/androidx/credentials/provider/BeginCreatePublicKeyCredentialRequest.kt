@@ -49,17 +49,20 @@ import androidx.credentials.internal.FrameworkClassParsingException
 class BeginCreatePublicKeyCredentialRequest @JvmOverloads constructor(
     val requestJson: String,
     callingAppInfo: CallingAppInfo?,
-    val clientDataHash: ByteArray? = null
+    candidateQueryData: Bundle,
+    val clientDataHash: ByteArray? = null,
 ) : BeginCreateCredentialRequest(
     PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL,
-    toCandidateDataBundle(
-        requestJson,
-        clientDataHash
-    ),
+    candidateQueryData,
     callingAppInfo
 ) {
     init {
         require(requestJson.isNotEmpty()) { "json must not be empty" }
+        initiateBundle(candidateQueryData, requestJson)
+    }
+
+    private fun initiateBundle(candidateQueryData: Bundle, requestJson: String) {
+        candidateQueryData.putString(BUNDLE_KEY_REQUEST_JSON, requestJson)
     }
 
     /** @hide **/
@@ -67,31 +70,13 @@ class BeginCreatePublicKeyCredentialRequest @JvmOverloads constructor(
     companion object {
         /** @hide */
         @JvmStatic
-        internal fun toCandidateDataBundle(
-            requestJson: String,
-            clientDataHash: ByteArray?
-        ): Bundle {
-            val bundle = Bundle()
-            bundle.putString(
-                PublicKeyCredential.BUNDLE_KEY_SUBTYPE,
-                CreatePublicKeyCredentialRequest
-                    .BUNDLE_VALUE_SUBTYPE_CREATE_PUBLIC_KEY_CREDENTIAL_REQUEST
-            )
-            bundle.putString(BUNDLE_KEY_REQUEST_JSON, requestJson)
-            bundle.putByteArray(BUNDLE_KEY_CLIENT_DATA_HASH, clientDataHash)
-            return bundle
-        }
-
-        /** @hide */
-        @JvmStatic
         internal fun createFrom(data: Bundle, callingAppInfo: CallingAppInfo?):
             BeginCreatePublicKeyCredentialRequest {
             try {
                 val requestJson = data.getString(BUNDLE_KEY_REQUEST_JSON)
                 val clientDataHash = data.getByteArray(BUNDLE_KEY_CLIENT_DATA_HASH)
-
                 return BeginCreatePublicKeyCredentialRequest(requestJson!!,
-                    callingAppInfo, clientDataHash)
+                    callingAppInfo, data, clientDataHash)
             } catch (e: Exception) {
                 throw FrameworkClassParsingException()
             }

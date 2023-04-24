@@ -16,6 +16,7 @@
 package androidx.credentials.provider
 
 import android.content.pm.SigningInfo
+import android.os.Bundle
 import android.service.credentials.CallingAppInfo
 import androidx.annotation.RequiresApi
 import androidx.core.os.BuildCompat
@@ -44,7 +45,8 @@ class BeginCreatePublicKeyCredentialRequestTest {
                 CallingAppInfo(
                     "sample_package_name",
                     SigningInfo()
-                )
+                ),
+                Bundle()
             )
         }
     }
@@ -58,7 +60,8 @@ class BeginCreatePublicKeyCredentialRequestTest {
             "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}",
             CallingAppInfo(
                 "sample_package_name", SigningInfo()
-            )
+            ),
+            Bundle()
         )
     }
 
@@ -72,6 +75,7 @@ class BeginCreatePublicKeyCredentialRequestTest {
             CallingAppInfo(
                 "sample_package_name", SigningInfo()
             ),
+            Bundle(),
             "client_data_hash".toByteArray()
         )
     }
@@ -87,7 +91,8 @@ class BeginCreatePublicKeyCredentialRequestTest {
             testJsonExpected,
             CallingAppInfo(
                 "sample_package_name", SigningInfo()
-            )
+            ),
+            Bundle()
         )
 
         val testJsonActual = createPublicKeyCredentialReq.requestJson
@@ -106,6 +111,7 @@ class BeginCreatePublicKeyCredentialRequestTest {
             CallingAppInfo(
                 "sample_package_name", SigningInfo()
             ),
+            Bundle(),
             testClientDataHashExpected
         )
 

@@ -42,24 +42,17 @@ import androidx.credentials.internal.FrameworkClassParsingException
  * production flow. This constructor must only be used for testing purposes.
  */
 class BeginCreatePasswordCredentialRequest constructor(
-    callingAppInfo: CallingAppInfo?
+    callingAppInfo: CallingAppInfo?,
+    candidateQueryData: Bundle
 ) : BeginCreateCredentialRequest(
     PasswordCredential.TYPE_PASSWORD_CREDENTIAL,
-    toCandidateDataBundle(),
+    candidateQueryData,
     callingAppInfo,
 ) {
 
     /** @hide **/
     @Suppress("AcronymName")
     companion object {
-
-        // No credential data should be sent during the query phase.
-        /** @hide **/
-        @JvmStatic
-        internal fun toCandidateDataBundle(): Bundle {
-            return Bundle()
-        }
-
         /** @hide **/
         @JvmStatic
         @Suppress("UNUSED_PARAMETER")
@@ -67,8 +60,7 @@ class BeginCreatePasswordCredentialRequest constructor(
             BeginCreatePasswordCredentialRequest {
             try {
                 return BeginCreatePasswordCredentialRequest(
-                    callingAppInfo
-                )
+                    callingAppInfo, data)
             } catch (e: Exception) {
                 throw FrameworkClassParsingException()
             }

@@ -19,9 +19,11 @@ package androidx.credentials.provider;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.content.pm.SigningInfo;
+import android.os.Bundle;
 import android.service.credentials.CallingAppInfo;
 
 import androidx.core.os.BuildCompat;
+import androidx.credentials.TestUtilsKt;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
 
@@ -36,23 +38,28 @@ public class BeginCreatePasswordRequestJavaTest {
         if (BuildCompat.isAtLeastU()) {
             new BeginCreatePasswordCredentialRequest(
                     new CallingAppInfo("sample_package_name",
-                            new SigningInfo()));
+                            new SigningInfo()),
+                    new Bundle());
         }
     }
 
     @Test
     public void getter_callingAppInfo() {
         if (BuildCompat.isAtLeastU()) {
+            Bundle expectedCandidateQueryBundle = new Bundle();
+            expectedCandidateQueryBundle.putString("key", "value");
             String expectedPackageName = "sample_package_name";
             SigningInfo expectedSigningInfo = new SigningInfo();
             CallingAppInfo expectedCallingAppInfo = new CallingAppInfo(expectedPackageName,
                     expectedSigningInfo);
 
             BeginCreatePasswordCredentialRequest request =
-                    new BeginCreatePasswordCredentialRequest(expectedCallingAppInfo);
+                    new BeginCreatePasswordCredentialRequest(expectedCallingAppInfo,
+                            expectedCandidateQueryBundle);
 
             assertThat(request.getCallingAppInfo().getPackageName()).isEqualTo(expectedPackageName);
             assertThat(request.getCallingAppInfo().getSigningInfo()).isEqualTo(expectedSigningInfo);
+            TestUtilsKt.equals(request.getCandidateQueryData(), expectedCandidateQueryBundle);
         }
     }
 
