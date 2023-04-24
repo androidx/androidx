@@ -1115,6 +1115,15 @@ class ComplicationData : Parcelable, Serializable {
     val endDateTimeMillis: Long
         get() = fields.getLong(FIELD_END_TIME, Long.MAX_VALUE)
 
+    /** Returns `true` if the complication contains an expression that needs to be evaluated. */
+    fun hasExpression(): Boolean =
+        (hasRangedValueExpression() && rangedValueExpression != null) ||
+            (hasLongText() && longText?.expression != null) ||
+            (hasLongTitle() && longTitle?.expression != null) ||
+            (hasShortText() && shortText?.expression != null) ||
+            (hasShortTitle() && shortTitle?.expression != null) ||
+            (hasContentDescription() && contentDescription?.expression != null)
+
     /**
      * Returns true if the complication data contains at least one text field with a value that may
      * change based on the current time.

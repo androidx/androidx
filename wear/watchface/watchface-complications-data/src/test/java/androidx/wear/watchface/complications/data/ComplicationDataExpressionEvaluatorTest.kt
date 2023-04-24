@@ -26,7 +26,6 @@ import androidx.wear.protolayout.expression.StateEntryBuilders.StateEntryValue
 import androidx.wear.protolayout.expression.pipeline.StateStore
 import androidx.wear.protolayout.expression.pipeline.TimeGateway
 import androidx.wear.watchface.complications.data.ComplicationDataExpressionEvaluator.Companion.INVALID_DATA
-import androidx.wear.watchface.complications.data.ComplicationDataExpressionEvaluator.Companion.hasExpression
 import com.google.common.truth.Expect
 import com.google.common.truth.Truth.assertThat
 import java.time.Instant
@@ -59,10 +58,14 @@ class ComplicationDataExpressionEvaluatorTest {
 
     @Test
     fun evaluate_noExpression_returnsUnevaluated() = runBlocking {
+        val data =
+            WireComplicationData.Builder(WireComplicationData.TYPE_NO_DATA)
+                .setRangedValue(10f)
+                .build()
+
         val evaluator = ComplicationDataExpressionEvaluator()
 
-        assertThat(evaluator.evaluate(DATA_WITH_NO_EXPRESSION).firstOrNull())
-            .isEqualTo(DATA_WITH_NO_EXPRESSION)
+        assertThat(evaluator.evaluate(data).firstOrNull()).isEqualTo(data)
     }
 
     /**
@@ -203,8 +206,7 @@ class ComplicationDataExpressionEvaluatorTest {
         for (scenario in DataWithExpressionScenario.values()) {
             // Defensive copy due to in-place evaluation.
             val expressed = WireComplicationData.Builder(scenario.expressed).build()
-            val stateStore =
-                StateStore(mapOf())
+            val stateStore = StateStore(mapOf())
             val evaluator = ComplicationDataExpressionEvaluator(stateStore)
             val allEvaluations =
                 evaluator
@@ -294,57 +296,7 @@ class ComplicationDataExpressionEvaluatorTest {
             )
     }
 
-    enum class HasExpressionDataWithExpressionScenario(val data: WireComplicationData) {
-        RANGED_VALUE(
-            WireComplicationData.Builder(WireComplicationData.TYPE_NO_DATA)
-                .setRangedValueExpression(DynamicFloat.constant(1f))
-                .build()
-        ),
-        LONG_TEXT(
-            WireComplicationData.Builder(WireComplicationData.TYPE_NO_DATA)
-                .setLongText(WireComplicationText(DynamicString.constant("Long Text")))
-                .build()
-        ),
-        LONG_TITLE(
-            WireComplicationData.Builder(WireComplicationData.TYPE_NO_DATA)
-                .setLongTitle(WireComplicationText(DynamicString.constant("Long Title")))
-                .build()
-        ),
-        SHORT_TEXT(
-            WireComplicationData.Builder(WireComplicationData.TYPE_NO_DATA)
-                .setShortText(WireComplicationText(DynamicString.constant("Short Text")))
-                .build()
-        ),
-        SHORT_TITLE(
-            WireComplicationData.Builder(WireComplicationData.TYPE_NO_DATA)
-                .setShortTitle(WireComplicationText(DynamicString.constant("Short Title")))
-                .build()
-        ),
-        CONTENT_DESCRIPTION(
-            WireComplicationData.Builder(WireComplicationData.TYPE_NO_DATA)
-                .setContentDescription(WireComplicationText(DynamicString.constant("Description")))
-                .build()
-        ),
-    }
-
-    @Test
-    fun hasExpression_dataWithExpression_returnsTrue() {
-        for (scenario in HasExpressionDataWithExpressionScenario.values()) {
-            expect.withMessage(scenario.name).that(hasExpression(scenario.data)).isTrue()
-        }
-    }
-
-    @Test
-    fun hasExpression_dataWithoutExpression_returnsFalse() {
-        assertThat(hasExpression(DATA_WITH_NO_EXPRESSION)).isFalse()
-    }
-
     private companion object {
-        val DATA_WITH_NO_EXPRESSION =
-            WireComplicationData.Builder(WireComplicationData.TYPE_NO_DATA)
-                .setRangedValue(10f)
-                .build()
-
         /** Converts `[{a: A}, {b: B}, {c: C}]` to `[{a: A}, {a: A, b: B}, {a: A, b: B, c: C}]`. */
         fun <K, V> aggregate(vararg maps: Map<K, V>): List<Map<K, V>> =
             maps.fold(listOf()) { acc, map -> acc + ((acc.lastOrNull() ?: mapOf()) + map) }
