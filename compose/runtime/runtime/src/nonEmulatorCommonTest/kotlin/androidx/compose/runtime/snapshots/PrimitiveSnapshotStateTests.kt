@@ -20,7 +20,10 @@ import androidx.compose.runtime.MutableDoubleState
 import androidx.compose.runtime.MutableFloatState
 import androidx.compose.runtime.MutableIntState
 import androidx.compose.runtime.MutableLongState
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableDoubleStateOf
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableLongStateOf
 import kotlin.reflect.KCallable
 import kotlin.reflect.KMutableProperty1
 import kotlin.test.assertEquals
@@ -95,7 +98,7 @@ class PrimitiveSnapshotStateTests<S, T>(
             arrayOf(
                 PrimitiveSnapshotStateImplementation(
                 clazz = MutableIntState::class.java,
-                creator = ::mutableStateOf,
+                creator = ::mutableIntStateOf,
                 valueProperty = MutableIntState::intValue,
                 sampleValues = generateSequence(1) { it + 1 }
                 )
@@ -103,7 +106,7 @@ class PrimitiveSnapshotStateTests<S, T>(
             arrayOf(
                 PrimitiveSnapshotStateImplementation(
                 clazz = MutableLongState::class.java,
-                creator = ::mutableStateOf,
+                creator = ::mutableLongStateOf,
                 valueProperty = MutableLongState::longValue,
                 sampleValues = generateSequence(1) { it + 1 }
                 )
@@ -111,7 +114,7 @@ class PrimitiveSnapshotStateTests<S, T>(
             arrayOf(
                 PrimitiveSnapshotStateImplementation(
                 clazz = MutableFloatState::class.java,
-                creator = ::mutableStateOf,
+                creator = ::mutableFloatStateOf,
                 valueProperty = MutableFloatState::floatValue,
                 sampleValues = generateSequence(1f) { it + 1 }
                 )
@@ -119,7 +122,7 @@ class PrimitiveSnapshotStateTests<S, T>(
             arrayOf(
                 PrimitiveSnapshotStateImplementation(
                 clazz = MutableDoubleState::class.java,
-                creator = ::mutableStateOf,
+                creator = ::mutableDoubleStateOf,
                 valueProperty = MutableDoubleState::value,
                 sampleValues = generateSequence(1.0) { it + 1 }
                 )

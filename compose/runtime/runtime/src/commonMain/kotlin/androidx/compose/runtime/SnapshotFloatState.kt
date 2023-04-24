@@ -40,8 +40,12 @@ import kotlin.reflect.KProperty
  *
  * @see FloatState
  * @see MutableFloatState
+ * @see mutableStateOf
+ * @see mutableIntStateOf
+ * @see mutableLongStateOf
+ * @see mutableDoubleStateOf
  */
-fun mutableStateOf(
+fun mutableFloatStateOf(
     value: Float
 ): MutableFloatState = createSnapshotMutableFloatState(value)
 
@@ -50,7 +54,7 @@ fun mutableStateOf(
  * function cause the current [RecomposeScope] to subscribe to changes of that value.
  *
  * @see MutableFloatState
- * @see mutableStateOf
+ * @see mutableDoubleStateOf
  */
 @Stable
 @JvmDefaultWithCompatibility
@@ -76,7 +80,7 @@ inline operator fun FloatState.getValue(thisObj: Any?, property: KProperty<*>): 
  * scheduled.
  *
  * @see [FloatState]
- * @see [mutableStateOf]
+ * @see [mutableDoubleStateOf]
  */
 @Stable
 @JvmDefaultWithCompatibility
@@ -112,7 +116,7 @@ internal expect fun createSnapshotMutableFloatState(
  *
  * @param value the wrapped value
  *
- * @see [mutableStateOf]
+ * @see [mutableDoubleStateOf]
  */
 internal open class SnapshotMutableFloatStateImpl(
     value: Float

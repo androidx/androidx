@@ -59,6 +59,7 @@ import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -190,8 +191,8 @@ fun Slider(
             scale(valueRange.start, valueRange.endInclusive, userValue, minPx, maxPx)
 
         val scope = rememberCoroutineScope()
-        val rawOffset = remember { mutableStateOf(scaleToOffset(value)) }
-        val pressOffset = remember { mutableStateOf(0f) }
+        val rawOffset = remember { mutableFloatStateOf(scaleToOffset(value)) }
+        val pressOffset = remember { mutableFloatStateOf(0f) }
 
         val draggableState = remember(minPx, maxPx, valueRange) {
             SliderDraggableState {
@@ -328,8 +329,8 @@ fun RangeSlider(
         fun scaleToOffset(userValue: Float) =
             scale(valueRange.start, valueRange.endInclusive, userValue, minPx, maxPx)
 
-        val rawOffsetStart = remember { mutableStateOf(scaleToOffset(value.start)) }
-        val rawOffsetEnd = remember { mutableStateOf(scaleToOffset(value.endInclusive)) }
+        val rawOffsetStart = remember { mutableFloatStateOf(scaleToOffset(value.start)) }
+        val rawOffsetEnd = remember { mutableFloatStateOf(scaleToOffset(value.endInclusive)) }
 
         CorrectValueSideEffect(
             ::scaleToOffset,
