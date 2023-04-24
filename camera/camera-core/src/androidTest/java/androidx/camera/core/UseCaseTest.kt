@@ -200,7 +200,7 @@ class UseCaseTest {
     @Test
     fun returnNullResolutionInfo_beforeAddingToCameraUseCaseAdapter() {
         val fakeUseCase = FakeUseCase()
-        assertThat(fakeUseCase.resolutionInfo).isNull()
+        assertThat(fakeUseCase.resolutionInfoInternal).isNull()
     }
 
     @Test
@@ -209,7 +209,7 @@ class UseCaseTest {
         val fakeUseCase = FakeUseCase()
         val cameraUseCaseAdapter = createCameraUseCaseAdapter()
         cameraUseCaseAdapter.addUseCases(listOf<UseCase>(fakeUseCase))
-        val resolutionInfo = fakeUseCase.resolutionInfo
+        val resolutionInfo = fakeUseCase.resolutionInfoInternal
         assertThat(resolutionInfo).isNotNull()
         assertThat(resolutionInfo!!.resolution).isEqualTo(SURFACE_RESOLUTION)
         assertThat(resolutionInfo.cropRect).isEqualTo(
@@ -228,7 +228,7 @@ class UseCaseTest {
         val cameraUseCaseAdapter = createCameraUseCaseAdapter()
         cameraUseCaseAdapter.addUseCases(listOf<UseCase>(fakeUseCase))
         cameraUseCaseAdapter.removeUseCases(listOf<UseCase>(fakeUseCase))
-        val resolutionInfo = fakeUseCase.resolutionInfo
+        val resolutionInfo = fakeUseCase.resolutionInfoInternal
         assertThat(resolutionInfo).isNull()
     }
 
@@ -239,7 +239,7 @@ class UseCaseTest {
         fakeUseCase.targetRotationInternal = Surface.ROTATION_90
         val cameraUseCaseAdapter = createCameraUseCaseAdapter()
         cameraUseCaseAdapter.addUseCases(listOf<UseCase>(fakeUseCase))
-        val resolutionInfo = fakeUseCase.resolutionInfo
+        val resolutionInfo = fakeUseCase.resolutionInfoInternal
         assertThat(resolutionInfo!!.rotationDegrees).isEqualTo(270)
     }
 
@@ -255,7 +255,7 @@ class UseCaseTest {
             )
         )
         cameraUseCaseAdapter.addUseCases(listOf<UseCase>(fakeUseCase))
-        val resolutionInfo = fakeUseCase.resolutionInfo
+        val resolutionInfo = fakeUseCase.resolutionInfoInternal
         assertThat(resolutionInfo!!.cropRect).isEqualTo(Rect(0, 60, 640, 420))
     }
 

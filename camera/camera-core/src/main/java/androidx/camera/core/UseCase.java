@@ -60,7 +60,6 @@ import androidx.camera.core.internal.utils.UseCaseConfigUtil;
 import androidx.camera.core.resolutionselector.ResolutionSelector;
 import androidx.camera.core.streamsharing.StreamSharing;
 import androidx.core.util.Preconditions;
-import androidx.lifecycle.LifecycleOwner;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -888,23 +887,6 @@ public abstract class UseCase {
     @RestrictTo(Scope.LIBRARY_GROUP)
     public int getImageFormat() {
         return mCurrentConfig.getInputFormat();
-    }
-
-    /**
-     * Returns {@link ResolutionInfo} of the use case.
-     *
-     * <p>The resolution information might change if the use case is unbound and then rebound or
-     * the target rotation setting is changed. The application needs to call
-     * {@code getResolutionInfo()} again to get the latest {@link ResolutionInfo} for the changes.
-     *
-     * @return the resolution information if the use case has been bound by the
-     * {@link androidx.camera.lifecycle.ProcessCameraProvider#bindToLifecycle(LifecycleOwner
-     *, CameraSelector, UseCase...)} API, or null if the use case is not bound yet.
-     */
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    @Nullable
-    public ResolutionInfo getResolutionInfo() {
-        return getResolutionInfoInternal();
     }
 
     /**
