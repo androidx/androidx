@@ -660,6 +660,10 @@ package androidx.car.app.model {
     method public androidx.car.app.model.OnClickDelegate getOnClickDelegate();
   }
 
+  @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(6) public interface Content {
+    method public String getContentId();
+  }
+
   @androidx.car.app.annotations.CarProtocol public final class DateTimeWithZone {
     method public static androidx.car.app.model.DateTimeWithZone create(long, @IntRange(from=0xffff02e0, to=64800) int, String);
     method public static androidx.car.app.model.DateTimeWithZone create(long, java.util.TimeZone);
@@ -1062,6 +1066,60 @@ package androidx.car.app.model {
     method public static androidx.car.app.model.SectionedItemList create(androidx.car.app.model.ItemList, CharSequence);
     method public androidx.car.app.model.CarText getHeader();
     method public androidx.car.app.model.ItemList getItemList();
+  }
+
+  @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(6) public final class Tab implements androidx.car.app.model.Content {
+    method public String getContentId();
+    method public androidx.car.app.model.CarIcon getIcon();
+    method public androidx.car.app.model.CarText getTitle();
+  }
+
+  public static final class Tab.Builder {
+    ctor public Tab.Builder();
+    ctor public Tab.Builder(androidx.car.app.model.Tab);
+    method public androidx.car.app.model.Tab build();
+    method public androidx.car.app.model.Tab.Builder setContentId(String);
+    method public androidx.car.app.model.Tab.Builder setIcon(androidx.car.app.model.CarIcon);
+    method public androidx.car.app.model.Tab.Builder setTitle(CharSequence);
+  }
+
+  @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(6) public interface TabCallbackDelegate {
+    method public void sendTabSelected(String, androidx.car.app.OnDoneCallback);
+  }
+
+  @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(6) public class TabContents implements androidx.car.app.model.Content {
+    method public String getContentId();
+    method public androidx.car.app.model.Template getTemplate();
+    field public static final String CONTENT_ID = "TAB_CONTENTS_CONTENT_ID";
+  }
+
+  public static final class TabContents.Builder {
+    ctor public TabContents.Builder(androidx.car.app.model.Template);
+    method public androidx.car.app.model.TabContents build();
+  }
+
+  @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(6) public class TabTemplate implements androidx.car.app.model.Template {
+    method public String getActiveTabContentId();
+    method public androidx.car.app.model.Action getHeaderAction();
+    method public androidx.car.app.model.TabCallbackDelegate getTabCallbackDelegate();
+    method public androidx.car.app.model.TabContents getTabContents();
+    method public java.util.List<androidx.car.app.model.Tab!> getTabs();
+    method public boolean isLoading();
+  }
+
+  public static final class TabTemplate.Builder {
+    ctor public TabTemplate.Builder(androidx.car.app.model.TabTemplate.TabCallback);
+    ctor public TabTemplate.Builder(androidx.car.app.model.TabTemplate);
+    method public androidx.car.app.model.TabTemplate.Builder addTab(androidx.car.app.model.Tab);
+    method public androidx.car.app.model.TabTemplate build();
+    method public androidx.car.app.model.TabTemplate.Builder setActiveTabContentId(String);
+    method public androidx.car.app.model.TabTemplate.Builder setHeaderAction(androidx.car.app.model.Action);
+    method public androidx.car.app.model.TabTemplate.Builder setLoading(boolean);
+    method public androidx.car.app.model.TabTemplate.Builder setTabContents(androidx.car.app.model.TabContents);
+  }
+
+  public static interface TabTemplate.TabCallback {
+    method public default void onTabSelected(String);
   }
 
   @androidx.car.app.annotations.CarProtocol public interface Template {
