@@ -1836,13 +1836,13 @@ class ComplicationData : Parcelable, Serializable {
          *
          * Returns this Builder to allow chaining.
          */
-        fun setListEntryCollection(timelineEntries: Collection<ComplicationData>?) = apply {
-            if (timelineEntries == null) {
+        fun setListEntryCollection(listEntries: Collection<ComplicationData>?) = apply {
+            if (listEntries == null) {
                 fields.remove(EXP_FIELD_LIST_ENTRIES)
             } else {
                 fields.putParcelableArray(
                     EXP_FIELD_LIST_ENTRIES,
-                    timelineEntries
+                    listEntries
                         .map { data ->
                             data.fields.putInt(EXP_FIELD_LIST_ENTRY_TYPE, data.type)
                             data.fields
