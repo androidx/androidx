@@ -36,6 +36,7 @@ import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.ForwardingImageProxy;
 import androidx.camera.core.ImageCaptureException;
 import androidx.camera.core.ImageProxy;
+import androidx.camera.core.ImageReaderProxyProvider;
 import androidx.camera.core.ImageReaderProxys;
 import androidx.camera.core.Logger;
 import androidx.camera.core.MetadataImageReader;
@@ -101,7 +102,15 @@ class CaptureNode implements Node<CaptureNode.In, CaptureNode.Out> {
         Consumer<ProcessingRequest> requestConsumer;
         ImageReaderProxy wrappedImageReader;
         boolean hasMetadata = !inputEdge.isVirtualCamera();
-        if (hasMetadata) {
+        if (inputEdge.getImageReaderProxyProvider() != null) {
+            wrappedImageReader = inputEdge.getImageReaderProxyProvider().newInstance(
+                    size.getWidth(), size.getHeight(), format, MAX_IMAGES, 0);
+            requestConsumer = request -> {
+                // Ignore incoming requests. ImageReaderProxyProvider is only for unit tests. If
+                // we make it public later, we need to also drop the TakePictureRequest in the
+                // TakePictureManager.
+            };
+        } else if (hasMetadata) {
             // Use MetadataImageReader if the input edge expects metadata.
             MetadataImageReader metadataImageReader = new MetadataImageReader(size.getWidth(),
                     size.getHeight(), format, MAX_IMAGES);
@@ -292,6 +301,12 @@ class CaptureNode implements Node<CaptureNode.In, CaptureNode.Out> {
         abstract boolean isVirtualCamera();
 
         /**
+         * Whether the pipeline is connected to a virtual camera.
+         */
+        @Nullable
+        abstract ImageReaderProxyProvider getImageReaderProxyProvider();
+
+        /**
          * Edge that accepts {@link ProcessingRequest}.
          */
         @NonNull
@@ -333,9 +348,10 @@ class CaptureNode implements Node<CaptureNode.In, CaptureNode.Out> {
         }
 
         @NonNull
-        static In of(Size size, int format, boolean isVirtualCamera) {
+        static In of(Size size, int format, boolean isVirtualCamera,
+                @Nullable ImageReaderProxyProvider imageReaderProxyProvider) {
             return new AutoValue_CaptureNode_In(size, format, isVirtualCamera,
-                    new Edge<>(), new Edge<>());
+                    imageReaderProxyProvider, new Edge<>(), new Edge<>());
         }
     }
 

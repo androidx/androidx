@@ -21,9 +21,11 @@ import android.os.Build
 import android.os.Looper.getMainLooper
 import android.util.Size
 import androidx.camera.core.ImageProxy
+import androidx.camera.core.ImageReaderProxyProvider
 import androidx.camera.core.imagecapture.Utils.createCaptureBundle
 import androidx.camera.core.imagecapture.Utils.createFakeImage
 import androidx.camera.core.impl.utils.futures.Futures
+import androidx.camera.testing.fakes.FakeImageReaderProxy
 import com.google.common.truth.Truth.assertThat
 import org.junit.After
 import org.junit.Before
@@ -52,7 +54,7 @@ class CaptureNodeTest {
 
     @Before
     fun setUp() {
-        captureNodeIn = CaptureNode.In.of(Size(10, 10), ImageFormat.JPEG, false)
+        captureNodeIn = CaptureNode.In.of(Size(10, 10), ImageFormat.JPEG, false, null)
         captureNodeOut = captureNode.transform(captureNodeIn)
         captureNodeOut.imageEdge.setListener {
             imagePropagated.add(it)
@@ -65,6 +67,22 @@ class CaptureNodeTest {
     @After
     fun tearDown() {
         captureNode.release()
+    }
+
+    @Test
+    fun hasImageReaderProxyProvider_useTheProvidedImageReader() {
+        // Arrange: create a fake ImageReaderProxyProvider.
+        val imageReader = FakeImageReaderProxy(CaptureNode.MAX_IMAGES)
+        val imageReaderProvider = ImageReaderProxyProvider { _, _, _, _, _ ->
+            imageReader
+        }
+        val input = CaptureNode.In.of(Size(10, 10), ImageFormat.JPEG, false, imageReaderProvider)
+        // Act: transform.
+        val node = CaptureNode()
+        node.transform(input)
+        // Assert: ImageReaderProxyProvider is used.
+        assertThat(input.surface.surface.get()).isEqualTo(imageReader.surface)
+        node.release()
     }
 
     @Test
