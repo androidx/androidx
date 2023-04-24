@@ -71,10 +71,7 @@ public interface ComplicationText {
     /** @hide */
     @RestrictTo(RestrictTo.Scope.SUBCLASSES) public fun getTimeDependentText(): TimeDependentText
 
-    /**
-     * Converts this value to [WireComplicationText] object used for serialization.
-     *
-     */
+    /** Converts this value to [WireComplicationText] object used for serialization. */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun toWireComplicationText(): WireComplicationText
 
@@ -548,12 +545,10 @@ private class DelegatingComplicationText(private val delegate: WireComplicationT
 }
 
 /** Converts a [WireComplicationText] into an equivalent [ComplicationText] instead. */
-internal fun WireComplicationText.toApiComplicationText(): ComplicationText =
-    DelegatingComplicationText(this)
-
-/** Converts a [WireComplicationText] into an equivalent [ComplicationText] instead. */
-internal fun WireComplicationText.toApiComplicationTextPlaceholderAware(): ComplicationText =
-    if (isPlaceholder) {
+internal fun WireComplicationText.toApiComplicationText(
+    placeholderAware: Boolean = false
+): ComplicationText =
+    if (placeholderAware && isPlaceholder) {
         ComplicationText.PLACEHOLDER
     } else {
         DelegatingComplicationText(this)
@@ -615,7 +610,6 @@ public fun WireTimeDependentText.toApiComplicationText(): ComplicationText =
  * A [ComplicationText] where the system evaluates a [DynamicString] on behalf of the watch face. By
  * the time this reaches the watch face's Renderer, it'll have been converted to a plain
  * ComplicationText.
- *
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class ComplicationTextExpression(public val expression: DynamicString) : ComplicationText {
