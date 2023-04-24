@@ -26,6 +26,7 @@ android {
 androidx {
     name = "Android Glance Preview"
     type = LibraryType.PUBLISHED_LIBRARY
+    mavenVersion = LibraryVersions.GLANCE_PREVIEW
     inceptionYear = "2022"
     description = "Glance preview library. This library provides the API required for marking the" +
             "glance @Composable components that should have preview in the Android Studio."
