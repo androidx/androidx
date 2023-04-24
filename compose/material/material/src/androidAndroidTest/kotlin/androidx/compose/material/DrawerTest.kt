@@ -1440,9 +1440,10 @@ class DrawerTest {
         }
 
         assertThat(drawerState.currentValue).isEqualTo(BottomDrawerValue.Closed)
-        assertThat(drawerState.anchoredDraggableState.hasAnchorForValue(BottomDrawerValue.Open))
+        assertThat(drawerState.anchoredDraggableState.anchors.hasAnchorFor(BottomDrawerValue.Open))
             .isFalse()
-        assertThat(drawerState.anchoredDraggableState.hasAnchorForValue(BottomDrawerValue.Expanded))
+        assertThat(drawerState.anchoredDraggableState.anchors
+            .hasAnchorFor(BottomDrawerValue.Expanded))
             .isFalse()
 
         scope.launch { drawerState.open() }
@@ -1476,9 +1477,10 @@ class DrawerTest {
         }
 
         assertThat(drawerState.currentValue).isEqualTo(BottomDrawerValue.Closed)
-        assertThat(drawerState.anchoredDraggableState.hasAnchorForValue(BottomDrawerValue.Open))
+        assertThat(drawerState.anchoredDraggableState.anchors.hasAnchorFor(BottomDrawerValue.Open))
             .isFalse()
-        assertThat(drawerState.anchoredDraggableState.hasAnchorForValue(BottomDrawerValue.Expanded))
+        assertThat(drawerState.anchoredDraggableState.anchors
+            .hasAnchorFor(BottomDrawerValue.Expanded))
             .isFalse()
 
         scope.launch { drawerState.open() }

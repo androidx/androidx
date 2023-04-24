@@ -850,6 +850,8 @@ class ModalBottomSheetTest {
         }
 
         showShortContent = true
+        // We use a immediate dispatcher in tests, so wait for composition
+        rule.waitForIdle()
         scope.launch { sheetState.show() } // We can't use LaunchedEffect with Swipeable in tests
         // yet, so we're invoking this outside of composition. See b/254115946.
 
@@ -1017,20 +1019,21 @@ class ModalBottomSheetTest {
         rule.waitForIdle()
         assertThat(state.currentValue).isEqualTo(ModalBottomSheetValue.HalfExpanded) // We should
         // retain the current value if possible
-        assertThat(state.anchoredDraggableState.anchors)
-            .containsKey(ModalBottomSheetValue.Hidden)
-        assertThat(state.anchoredDraggableState.anchors)
-            .containsKey(ModalBottomSheetValue.HalfExpanded)
-        assertThat(state.anchoredDraggableState.anchors).containsKey(ModalBottomSheetValue.Expanded)
+        assertThat(state.anchoredDraggableState.anchors.hasAnchorFor(ModalBottomSheetValue.Hidden))
+            .isTrue()
+        assertThat(
+            state.anchoredDraggableState.anchors.hasAnchorFor(ModalBottomSheetValue.HalfExpanded)
+        ).isTrue()
+        assertThat(
+            state.anchoredDraggableState.anchors.hasAnchorFor(ModalBottomSheetValue.Expanded)
+        ).isTrue()
 
         amountOfItems = 0 // When the sheet height is 0, we should only have a hidden anchor
         rule.waitForIdle()
         assertThat(state.currentValue).isEqualTo(ModalBottomSheetValue.Hidden)
-        assertThat(state.anchoredDraggableState.anchors).containsKey(ModalBottomSheetValue.Hidden)
-        assertThat(state.anchoredDraggableState.anchors)
-            .doesNotContainKey(ModalBottomSheetValue.HalfExpanded)
-        assertThat(state.anchoredDraggableState.anchors)
-            .doesNotContainKey(ModalBottomSheetValue.Expanded)
+        assertThat(state.anchoredDraggableState.anchors.hasAnchorFor(ModalBottomSheetValue.Hidden))
+            .isTrue()
+        assertThat(state.anchoredDraggableState.anchors.size).isEqualTo(1)
     }
 
     @Test
@@ -1236,12 +1239,9 @@ class ModalBottomSheetTest {
         }
 
         assertThat(sheetState.currentValue).isEqualTo(ModalBottomSheetValue.Hidden)
-        assertThat(sheetState.anchoredDraggableState.hasAnchorForValue(
-            ModalBottomSheetValue.HalfExpanded
-        )).isFalse()
-        assertThat(sheetState.anchoredDraggableState.hasAnchorForValue(
-            ModalBottomSheetValue.Expanded
-        )).isFalse()
+        val anchors = sheetState.anchoredDraggableState.anchors
+        assertThat(anchors.hasAnchorFor(ModalBottomSheetValue.HalfExpanded)).isFalse()
+        assertThat(anchors.hasAnchorFor(ModalBottomSheetValue.Expanded)).isFalse()
 
         scope.launch { sheetState.show() }
         rule.waitForIdle()
@@ -1273,11 +1273,11 @@ class ModalBottomSheetTest {
         }
 
         assertThat(sheetState.currentValue).isEqualTo(ModalBottomSheetValue.Hidden)
-        assertThat(sheetState.anchoredDraggableState
-            .hasAnchorForValue(ModalBottomSheetValue.HalfExpanded))
+        assertThat(sheetState.anchoredDraggableState.anchors
+            .hasAnchorFor(ModalBottomSheetValue.HalfExpanded))
             .isFalse()
-        assertThat(sheetState.anchoredDraggableState
-            .hasAnchorForValue(ModalBottomSheetValue.Expanded))
+        assertThat(sheetState.anchoredDraggableState.anchors
+            .hasAnchorFor(ModalBottomSheetValue.Expanded))
             .isFalse()
 
         scope.launch { sheetState.show() }
@@ -1319,7 +1319,7 @@ class ModalBottomSheetTest {
         sheetState =
             ModalBottomSheetState(ModalBottomSheetValue.HalfExpanded, density = rule.density)
 
-        assertThat(sheetState.anchoredDraggableState.anchors).isEmpty()
+        assertThat(sheetState.anchoredDraggableState.anchors.size).isEqualTo(0)
         assertThat(sheetState.anchoredDraggableState.offset).isNaN()
 
         stateRestorationTester.emulateSavedInstanceStateRestore()
