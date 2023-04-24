@@ -190,9 +190,6 @@ public class MainActivity extends AppCompatActivity {
             case R.id.mlkit:
                 mFragmentType = FragmentType.MLKIT;
                 break;
-            case R.id.effects:
-                mFragmentType = FragmentType.EFFECTS;
-                break;
         }
         startFragment();
         return true;
@@ -225,9 +222,6 @@ public class MainActivity extends AppCompatActivity {
             case MLKIT:
                 startFragment(R.string.mlkit, new MlKitFragment());
                 break;
-            case EFFECTS:
-                startFragment(R.string.effects, new EffectsFragment());
-                break;
         }
     }
 
@@ -249,6 +243,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private enum FragmentType {
-        PREVIEW_VIEW, CAMERA_CONTROLLER, TRANSFORM, COMPOSE_UI, MLKIT, EFFECTS
+        PREVIEW_VIEW, CAMERA_CONTROLLER, TRANSFORM, COMPOSE_UI, MLKIT
     }
 }

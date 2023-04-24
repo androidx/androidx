@@ -36,8 +36,4 @@
         android:id="@+id/mlkit"
         android:title="@string/mlkit"
         app:showAsAction="never" />
-    <item
-        android:id="@+id/effects"
-        android:title="@string/effects"
-        app:showAsAction="never" />
 </menu>
