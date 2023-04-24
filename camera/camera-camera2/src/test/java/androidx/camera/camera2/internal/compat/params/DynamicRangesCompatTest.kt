@@ -177,6 +177,16 @@ class DynamicRangesCompatTest {
 
     @Config(minSdk = Build.VERSION_CODES.TIRAMISU)
     @Test
+    fun producesNullDynamicRangeProfilesFromNullCharacteristics() {
+        val characteristics = newCameraCharacteristicsCompat()
+
+        val dynamicRangesCompat = DynamicRangesCompat.fromCameraCharacteristics(characteristics)
+
+        assertThat(dynamicRangesCompat.toDynamicRangeProfiles()).isNull()
+    }
+
+    @Config(minSdk = Build.VERSION_CODES.TIRAMISU)
+    @Test
     fun canProduceDynamicRangesCompatFromCharacteristics() {
         val characteristics = newCameraCharacteristicsCompat()
         Shadow.extract<ShadowCameraCharacteristics>(
