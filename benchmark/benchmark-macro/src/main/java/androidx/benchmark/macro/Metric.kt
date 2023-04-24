@@ -28,6 +28,7 @@ import androidx.benchmark.macro.perfetto.AudioUnderrunQuery
 import androidx.benchmark.macro.perfetto.BatteryDischargeQuery
 import androidx.benchmark.macro.perfetto.FrameTimingQuery
 import androidx.benchmark.macro.perfetto.FrameTimingQuery.SubMetric
+import androidx.benchmark.macro.perfetto.FrameTimingQuery.getFrameSubMetrics
 import androidx.benchmark.macro.perfetto.MemoryCountersQuery
 import androidx.benchmark.macro.perfetto.PowerQuery
 import androidx.benchmark.macro.perfetto.StartupTimingQuery
@@ -193,11 +194,12 @@ class FrameTimingMetric : Metric() {
         captureInfo: CaptureInfo,
         traceSession: PerfettoTraceProcessor.Session
     ): List<Measurement> {
-        return FrameTimingQuery.getFrameSubMetrics(
+        return FrameTimingQuery.getFrameData(
             session = traceSession,
             captureApiLevel = Build.VERSION.SDK_INT,
             packageName = captureInfo.targetPackageName
         )
+            .getFrameSubMetrics(Build.VERSION.SDK_INT)
             .filterKeys { it == SubMetric.FrameDurationCpuNs || it == SubMetric.FrameOverrunNs }
             .map {
                 Measurement(
