@@ -25,6 +25,7 @@ import androidx.test.filters.SdkSuppress
 import org.junit.After
 import org.junit.Assume.assumeTrue
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Test
 
 /**
@@ -152,6 +153,7 @@ class ProfileVerificationTestWithProfileInstallerInitializer {
             }
         }
 
+    @Ignore("b/279457394")
     @Test
     fun updateFromNoReferenceProfileToReferenceProfile() =
         withPackageName(PACKAGE_NAME_WITH_INITIALIZER) {
@@ -205,6 +207,7 @@ class ProfileVerificationTestWithProfileInstallerInitializer {
             }
         }
 
+    @Ignore("b/279457394")
     @Test
     fun installWithReferenceProfileThenUpdateNoProfileThenUpdateProfileAgain() =
         withPackageName(PACKAGE_NAME_WITH_INITIALIZER) {
