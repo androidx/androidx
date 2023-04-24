@@ -34,7 +34,6 @@ import com.google.common.truth.Truth.assertThat
 import java.time.Instant
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.firstOrNull
@@ -327,6 +326,7 @@ class ComplicationDataEvaluatorTest {
 
     @Test
     fun evaluate_cancelled_cleansUp() = runBlocking {
+        // Arrange
         val expressed =
             WireComplicationData.Builder(TYPE_NO_DATA)
                 .setRangedDynamicValue(
@@ -343,15 +343,19 @@ class ComplicationDataEvaluatorTest {
 
         // Validity check - TimeGateway not used until Flow collection.
         verifyNoInteractions(timeGateway)
-        val job = launch(Dispatchers.Main.immediate) { flow.collect {} }
+        val job = launch(dispatcher) { flow.collect {} }
         try {
+            advanceUntilIdle()
             // Validity check - TimeGateway registered while collection is in progress.
             verify(timeGateway).registerForUpdates(any(), any())
             verifyNoMoreInteractions(timeGateway)
         } finally {
+            // Act
             job.cancel()
         }
 
+        // Assert
+        advanceUntilIdle()
         verify(timeGateway).unregisterForUpdates(any())
         verifyNoMoreInteractions(timeGateway)
     }

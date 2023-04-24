@@ -20,9 +20,10 @@ import android.icu.util.ULocale
 import android.support.wearable.complications.ComplicationData as WireComplicationData
 import android.support.wearable.complications.ComplicationData.Companion.TYPE_NO_DATA
 import android.support.wearable.complications.ComplicationText as WireComplicationText
-import androidx.annotation.MainThread
+import android.util.Log
 import androidx.annotation.RestrictTo
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat
+import androidx.wear.protolayout.expression.DynamicBuilders.DynamicString
 import androidx.wear.protolayout.expression.PlatformDataKey
 import androidx.wear.protolayout.expression.pipeline.BoundDynamicType
 import androidx.wear.protolayout.expression.pipeline.DynamicTypeBindingRequest
@@ -37,15 +38,16 @@ import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.SendChannel
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.channels.onFailure
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.conflate
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.emitAll
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.mapNotNull
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.invoke
 import kotlinx.coroutines.launch
 
@@ -60,6 +62,18 @@ class ComplicationDataEvaluator(
     private val platformDataProviders: Map<PlatformDataProvider, Set<PlatformDataKey<*>>> = mapOf(),
     private val keepDynamicValues: Boolean = false,
 ) {
+    private val evaluator =
+        DynamicTypeEvaluator(
+            DynamicTypeEvaluator.Config.Builder()
+                .apply { stateStore?.let { setStateStore(it) } }
+                .apply { timeGateway?.let { setTimeGateway(it) } }
+                .apply {
+                    for ((platformDataProvider, dataKeys) in platformDataProviders) {
+                        addPlatformDataProvider(platformDataProvider, dataKeys)
+                    }
+                }
+                .build()
+        )
     /**
      * Returns a [Flow] that provides the evaluated [WireComplicationData].
      *
@@ -79,27 +93,55 @@ class ComplicationDataEvaluator(
             .combineWithEvaluatedPlaceholder(unevaluatedData.placeholder)
             .distinctUntilChanged()
 
-    /** Evaluates "local" fields, excluding fields of type WireComplicationData. */
+    /** Evaluates "local" fields, excluding fields of type [WireComplicationData]. */
     private fun evaluateTopLevelFields(
         unevaluatedData: WireComplicationData
-    ): Flow<WireComplicationData> = flow {
-        val state: MutableStateFlow<State> = unevaluatedData.buildState()
-        state.value.use {
-            val evaluatedData: Flow<WireComplicationData> =
-                state.mapNotNull {
-                    when {
-                        // Emitting INVALID_DATA if there's an invalid receiver.
-                        it.invalidReceivers.isNotEmpty() -> INVALID_DATA
-                        // Emitting the data if all pending receivers are done and all
-                        // pre-updates are satisfied.
-                        it.pendingReceivers.isEmpty() -> it.data
-                        // Skipping states that are not ready for be emitted.
-                        else -> null
-                    }
+    ): Flow<WireComplicationData> {
+        // Combine setter flows into one flow...
+        return combine(
+            unevaluatedData.topLevelSetterFlows().ifEmpty {
+                return flowOf(unevaluatedData) // If no field needs evaluation, don't combine.
+            }
+        ) { setters ->
+            // ... that builds the data from all the setters.
+            setters
+                .fold(WireComplicationData.Builder(unevaluatedData)) { builder, setter ->
+                    setter(builder) ?: return@combine INVALID_DATA
                 }
-            emitAll(evaluatedData)
+                .build()
         }
     }
+
+    /**
+     * Returns list of [Flow]s describing how to build the [WireComplicationData] based on dynamic
+     * values in "local" fields, excluding fields of type [WireComplicationData].
+     *
+     * When evaluation is triggered, the [Flow] emits a method that sets field(s) in the provided
+     * [WireComplicationData.Builder].
+     *
+     * Each `bindX` call returns a [Flow] of [WireComplicationDataSetter] that sets the provided
+     * fields based on the type (e.g. [Float] vs [String]), and potentially trims the dynamic value
+     * (based on [keepDynamicValues]).
+     */
+    private fun WireComplicationData.topLevelSetterFlows(): List<Flow<WireComplicationDataSetter>> =
+        buildList {
+            if (hasRangedDynamicValue()) {
+                add(
+                    bindDynamicFloat(
+                        rangedDynamicValue,
+                        dynamicValueTrimmer = { setRangedDynamicValue(null) },
+                        floatSetter = { setRangedValue(it) },
+                    )
+                )
+            }
+            if (hasLongText()) add(bindDynamicText(longText) { setLongText(it) })
+            if (hasLongTitle()) add(bindDynamicText(longTitle) { setLongTitle(it) })
+            if (hasShortText()) add(bindDynamicText(shortText) { setShortText(it) })
+            if (hasShortTitle()) add(bindDynamicText(shortTitle) { setShortTitle(it) })
+            if (hasContentDescription()) {
+                add(bindDynamicText(contentDescription) { setContentDescription(it) })
+            }
+        }
 
     /**
      * Combines the receiver with the evaluated version of the provided list.
@@ -166,230 +208,147 @@ class ComplicationDataEvaluator(
         }
     }
 
-    private suspend fun WireComplicationData.buildState() =
-        MutableStateFlow(State(this)).apply {
-            if (hasRangedDynamicValue()) {
-                addReceiver(
-                    rangedDynamicValue,
-                    dynamicValueTrimmer = { setRangedDynamicValue(null) },
-                    setter = { setRangedValue(it) },
-                )
-            }
-            if (hasLongText()) addReceiver(longText) { setLongText(it) }
-            if (hasLongTitle()) addReceiver(longTitle) { setLongTitle(it) }
-            if (hasShortText()) addReceiver(shortText) { setShortText(it) }
-            if (hasShortTitle()) addReceiver(shortTitle) { setShortTitle(it) }
-            if (hasContentDescription()) {
-                addReceiver(contentDescription) { setContentDescription(it) }
-            }
-            // Add all the receivers before we start binding them because binding can synchronously
-            // trigger the receiver, which would update the data before all the fields are
-            // evaluated.
-            value.initEvaluation()
-        }
-
-    private suspend fun MutableStateFlow<State>.addReceiver(
-        dynamicValue: DynamicFloat?,
+    /**
+     * Returns a [Flow] of [WireComplicationDataSetter] based on [DynamicFloat] evaluation.
+     *
+     * Uses the generic [bindDynamicType] that provides a default [Executor] and
+     * [DynamicTypeValueReceiver] based on the generated [Flow].
+     */
+    private fun bindDynamicFloat(
+        dynamicFloat: DynamicFloat?,
         dynamicValueTrimmer: WireComplicationData.Builder.() -> WireComplicationData.Builder,
-        setter: WireComplicationData.Builder.(Float) -> WireComplicationData.Builder,
-    ) {
-        dynamicValue ?: return
-        val executor = currentCoroutineContext().asExecutor()
-        update { state ->
-            state.withPendingReceiver(
-                ComplicationEvaluationResultReceiver<Float>(
-                    this,
-                    setter = { value ->
-                        if (!keepDynamicValues) dynamicValueTrimmer(this)
-                        setter(this, value)
-                    },
-                    binder = { receiver ->
-                        value.evaluator.bind(
-                            DynamicTypeBindingRequest.forDynamicFloat(
-                                dynamicValue,
-                                executor,
-                                receiver
-                            )
-                        )
-                    },
-                )
-            )
-        }
-    }
-
-    private suspend fun MutableStateFlow<State>.addReceiver(
-        text: WireComplicationText?,
-        setter: WireComplicationData.Builder.(WireComplicationText) -> WireComplicationData.Builder,
-    ) {
-        val dynamicValue = text?.dynamicValue ?: return
-        val executor = currentCoroutineContext().asExecutor()
-        update {
-            it.withPendingReceiver(
-                ComplicationEvaluationResultReceiver<String>(
-                    this,
-                    setter = { value ->
-                        setter(
-                            if (keepDynamicValues) {
-                                WireComplicationText(value, dynamicValue)
-                            } else {
-                                WireComplicationText(value)
-                            }
-                        )
-                    },
-                    binder = { receiver ->
-                        value.evaluator.bind(
-                            DynamicTypeBindingRequest.forDynamicString(
-                                dynamicValue,
-                                ULocale.getDefault(),
-                                executor,
-                                receiver
-                            )
-                        )
-                    },
-                )
-            )
-        }
+        floatSetter: WireComplicationData.Builder.(Float) -> WireComplicationData.Builder,
+    ): Flow<WireComplicationDataSetter> {
+        // If there's no dynamic value, return a no-op setter.
+        dynamicFloat ?: return flowOf { it }
+        return bindDynamicType(
+            bindingRequest = { executor, receiver ->
+                DynamicTypeBindingRequest.forDynamicFloat(dynamicFloat, executor, receiver)
+            },
+            builderSetter = { builder, value ->
+                val trimmed = if (keepDynamicValues) builder else dynamicValueTrimmer(builder)
+                floatSetter(trimmed, value)
+            }
+        )
     }
 
     /**
-     * Holds the state of the continuously evaluated [WireComplicationData] and the various
-     * [ComplicationEvaluationResultReceiver] that are evaluating it.
+     * Returns a [Flow] of [WireComplicationDataSetter] based on [DynamicString] evaluation (within
+     * a [WireComplicationText].
+     *
+     * Uses the generic [bindDynamicType] that provides a default [Executor] and
+     * [DynamicTypeValueReceiver] based on the generated [Flow].
      */
-    private inner class State(
-        val data: WireComplicationData,
-        val pendingReceivers: Set<ComplicationEvaluationResultReceiver<out Any>> = setOf(),
-        val invalidReceivers: Set<ComplicationEvaluationResultReceiver<out Any>> = setOf(),
-        val completeReceivers: Set<ComplicationEvaluationResultReceiver<out Any>> = setOf(),
-    ) : AutoCloseable {
-        lateinit var evaluator: DynamicTypeEvaluator
-
-        fun withPendingReceiver(receiver: ComplicationEvaluationResultReceiver<out Any>) =
-            copy(pendingReceivers = pendingReceivers + receiver)
-
-        fun withInvalidReceiver(receiver: ComplicationEvaluationResultReceiver<out Any>) =
-            copy(
-                pendingReceivers = pendingReceivers - receiver,
-                invalidReceivers = invalidReceivers + receiver,
-                completeReceivers = completeReceivers - receiver,
-            )
-
-        fun withUpdatedData(
-            data: WireComplicationData,
-            receiver: ComplicationEvaluationResultReceiver<out Any>,
-        ) =
-            copy(
-                data,
-                pendingReceivers = pendingReceivers - receiver,
-                invalidReceivers = invalidReceivers - receiver,
-                completeReceivers = completeReceivers + receiver,
-            )
-
-        /**
-         * Initializes the internal [DynamicTypeEvaluator] if there are pending receivers.
-         *
-         * Should be called after all receivers were added.
-         */
-        suspend fun initEvaluation() {
-            if (pendingReceivers.isEmpty()) return
-            require(!this::evaluator.isInitialized) { "initEvaluator must be called exactly once." }
-            evaluator =
-                DynamicTypeEvaluator(
-                    DynamicTypeEvaluator.Config.Builder()
-                        .apply { stateStore?.let { setStateStore(it) } }
-                        .apply { timeGateway?.let { setTimeGateway(it) } }
-                        .apply {
-                            for ((platformDataProvider, dataKeys) in platformDataProviders) {
-                                addPlatformDataProvider(platformDataProvider, dataKeys)
-                            }
-                        }
-                        .build()
+    private fun bindDynamicText(
+        unevaluatedText: WireComplicationText?,
+        textSetter:
+            WireComplicationData.Builder.(WireComplicationText) -> WireComplicationData.Builder,
+    ): Flow<WireComplicationDataSetter> {
+        // If there's no dynamic value, return a no-op setter.
+        val dynamicString: DynamicString = unevaluatedText?.dynamicValue ?: return flowOf { it }
+        return bindDynamicType(
+            bindingRequest = { executor, receiver ->
+                DynamicTypeBindingRequest.forDynamicString(
+                    dynamicString,
+                    ULocale.getDefault(),
+                    executor,
+                    receiver,
                 )
-            try {
-                for (receiver in pendingReceivers) receiver.bind()
-                // TODO(b/270697243): Remove this invoke once DynamicTypeEvaluator is thread safe.
-                Dispatchers.Main.immediate.invoke {
-                    // These need to be called on the main thread.
-                    for (receiver in pendingReceivers) receiver.startEvaluation()
-                }
-            } catch (e: Throwable) {
-                // Cleanup on initialization failure.
-                close()
-                throw e
+            },
+            builderSetter = { builder, value ->
+                val evaluatedText =
+                    if (keepDynamicValues) {
+                        WireComplicationText(value, dynamicString)
+                    } else {
+                        WireComplicationText(value)
+                    }
+                textSetter(builder, evaluatedText)
             }
-        }
-
-        override fun close() {
-            // TODO(b/270697243): Remove this launch once DynamicTypeEvaluator is thread safe.
-            CoroutineScope(Dispatchers.Main.immediate).launch {
-                // These need to be called on the main thread.
-                for (receiver in pendingReceivers + invalidReceivers + completeReceivers) {
-                    receiver.close()
-                }
-            }
-        }
-
-        private fun copy(
-            data: WireComplicationData = this.data,
-            pendingReceivers: Set<ComplicationEvaluationResultReceiver<out Any>> =
-                this.pendingReceivers,
-            invalidReceivers: Set<ComplicationEvaluationResultReceiver<out Any>> =
-                this.invalidReceivers,
-            completeReceivers: Set<ComplicationEvaluationResultReceiver<out Any>> =
-                this.completeReceivers,
-        ) =
-            State(
-                data = data,
-                pendingReceivers = pendingReceivers,
-                invalidReceivers = invalidReceivers,
-                completeReceivers = completeReceivers,
-            )
+        )
     }
 
-    private inner class ComplicationEvaluationResultReceiver<T : Any>(
-        private val state: MutableStateFlow<State>,
-        private val setter: WireComplicationData.Builder.(T) -> WireComplicationData.Builder,
-        private val binder: (ComplicationEvaluationResultReceiver<T>) -> BoundDynamicType,
-    ) : DynamicTypeValueReceiver<T>, AutoCloseable {
-        @Volatile // In case bind() and close() are called on different threads.
-        private lateinit var boundDynamicType: BoundDynamicType
-
-        fun bind() {
-            boundDynamicType = binder(this)
-        }
-
-        // TODO(b/270697243): Remove this annotation once DynamicTypeEvaluator is thread safe.
-        @MainThread
-        fun startEvaluation() {
-            boundDynamicType.startEvaluation()
-        }
-
-        // TODO(b/270697243): Remove this annotation once DynamicTypeEvaluator is thread safe.
-        @MainThread
-        override fun close() {
-            boundDynamicType.close()
-        }
-
-        override fun onData(newData: T) {
-            state.update {
-                it.withUpdatedData(
-                    setter(WireComplicationData.Builder(it.data), newData).build(),
-                    this
-                )
+    /**
+     * Returns a [Flow] of [WireComplicationDataSetter] based on a [DynamicTypeBindingRequest] and a
+     * [builderSetter] that takes the evaluated raw value and sets the relevant builder field..
+     *
+     * In high-level terms, this converts the [DynamicTypeValueReceiver] callback given to
+     * [DynamicTypeEvaluator.bind] into a Kotlin [Flow], for easier use (e.g. to [combine] binding
+     * of multiple fields). The [Flow] is conflated (ignoring emissions that we didn't have time to
+     * process), as only the latest evaluation matters.
+     *
+     * The actual implementation of [DynamicTypeValueReceiver] is separated to the helper class
+     * [DynamicTypeValueReceiverToChannelConverter].
+     */
+    private fun <T : Any> bindDynamicType(
+        bindingRequest: (Executor, DynamicTypeValueReceiver<T>) -> DynamicTypeBindingRequest,
+        builderSetter: (WireComplicationData.Builder, T) -> WireComplicationData.Builder,
+    ): Flow<WireComplicationDataSetter> =
+        callbackFlow {
+                // Binding DynamicTypeEvaluator to the provided binding request.
+                val boundDynamicType: BoundDynamicType =
+                    evaluator.bind(
+                        bindingRequest(
+                            currentCoroutineContext().asExecutor(),
+                            DynamicTypeValueReceiverToChannelConverter(
+                                /* callbackFlow */ channel,
+                                builderSetter
+                            )
+                        )
+                    )
+                // Start evaluation.
+                // TODO(b/267599473): Remove dispatches when DynamicTypeEvaluator is thread safe.
+                Dispatchers.Main.immediate { boundDynamicType.startEvaluation() }
+                awaitClose {
+                    // Stop evaluation when the Flow (created by callbackFlow) is closed.
+                    CoroutineScope(Dispatchers.Main.immediate).launch { boundDynamicType.close() }
+                }
             }
+            .conflate() // We only care about the latest data for each field.
+
+    /**
+     * Converts [DynamicTypeValueReceiver] into a [SendChannel] (from a [callbackFlow]).
+     *
+     * When [onData] is invoked, emits a method that applies the [builderSetter] on the data. When
+     * [onInvalidated] is invoked, emits a method that returns `null`.
+     */
+    private class DynamicTypeValueReceiverToChannelConverter<T : Any>(
+        private val channel: SendChannel<WireComplicationDataSetter>,
+        private val builderSetter:
+            (WireComplicationData.Builder, T) -> WireComplicationData.Builder,
+    ) : DynamicTypeValueReceiver<T> {
+        override fun onData(newData: T) {
+            channel
+                // Setter method that applies the builderSetter.
+                .trySend { builder -> builderSetter(builder, newData) }
+                // Shouldn't fail for overflow as we conflate the flow.
+                .onFailure { e -> Log.e(TAG, "Failed sending dynamic update.", e) }
         }
 
         override fun onInvalidated() {
-            state.update { it.withInvalidReceiver(this) }
+            channel
+                // Setter method that returns null.
+                .trySend { null }
+                // Shouldn't fail for overflow as we conflate the flow.
+                .onFailure { e -> Log.e(TAG, "Failed sending dynamic update.", e) }
         }
     }
 
     companion object {
+        private const val TAG = "ComplicationDataEvaluator"
+
         val INVALID_DATA: WireComplicationData = NoDataComplicationData().asWireComplicationData()
     }
 }
 
 /**
- * Replacement for CoroutineDispatcher.asExecutor extension due to
+ * Describes a method that sets values on the [WireComplicationData.Builder]. When field is
+ * invalidated, the method should return `null`.
+ */
+private typealias WireComplicationDataSetter =
+    (WireComplicationData.Builder) -> WireComplicationData.Builder?
+
+/**
+ * Replacement for [kotlinx.coroutines.asExecutor] extension due to
  * https://github.com/Kotlin/kotlinx.coroutines/pull/3683.
  */
 internal fun CoroutineContext.asExecutor() = Executor { runnable ->
