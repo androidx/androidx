@@ -427,17 +427,21 @@ final class CaptureSession implements CaptureSessionInterface {
 
         long dynamicRangeProfile = DynamicRangeProfiles.STANDARD;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            DynamicRange requestedDynamicRange = outputConfig.getDynamicRange();
-            Long dynamicRangeProfileOrNull =
-                    DynamicRangeConversions.dynamicRangeToFirstSupportedProfile(
-                            outputConfig.getDynamicRange(),
-                            mDynamicRangesCompat.toDynamicRangeProfiles());
-            if (dynamicRangeProfileOrNull == null) {
-                Logger.e(TAG, "Requested dynamic range is not supported. Defaulting to STANDARD "
-                        + "dynamic range profile.\nRequested dynamic range:\n  "
-                        + requestedDynamicRange);
-            } else {
-                dynamicRangeProfile = dynamicRangeProfileOrNull;
+            DynamicRangeProfiles dynamicRangeProfiles =
+                    mDynamicRangesCompat.toDynamicRangeProfiles();
+            if (dynamicRangeProfiles != null) {
+                DynamicRange requestedDynamicRange = outputConfig.getDynamicRange();
+                Long dynamicRangeProfileOrNull =
+                        DynamicRangeConversions.dynamicRangeToFirstSupportedProfile(
+                                requestedDynamicRange, dynamicRangeProfiles);
+                if (dynamicRangeProfileOrNull == null) {
+                    Logger.e(TAG,
+                            "Requested dynamic range is not supported. Defaulting to STANDARD "
+                                    + "dynamic range profile.\nRequested dynamic range:\n  "
+                                    + requestedDynamicRange);
+                } else {
+                    dynamicRangeProfile = dynamicRangeProfileOrNull;
+                }
             }
         }
         outputConfiguration.setDynamicRangeProfile(dynamicRangeProfile);
