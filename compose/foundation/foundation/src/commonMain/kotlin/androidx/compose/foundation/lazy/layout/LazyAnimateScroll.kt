@@ -208,7 +208,11 @@ internal suspend fun LazyAnimateScrollScope.animateScrollToItem(
                     // We don't throw ItemFoundInScroll when we snap, because once we've snapped to
                     // the final position, there's no need to animate to it.
                     if (isOvershot()) {
-                        debugLog { "Overshot" }
+                        debugLog {
+                            "Overshot, " +
+                                "item $firstVisibleItemIndex at $firstVisibleItemScrollOffset, " +
+                                "target is $scrollOffset"
+                        }
                         snapToItem(index = index, scrollOffset = scrollOffset)
                         loop = false
                         cancelAnimation()
