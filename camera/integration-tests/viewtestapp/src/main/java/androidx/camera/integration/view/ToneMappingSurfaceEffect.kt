@@ -22,15 +22,11 @@ import androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecu
 /**
  * A tone mapping effect for Preview/VideoCapture UseCase.
  */
-internal class ToneMappingSurfaceEffect(
-    targets: Int = PREVIEW or VIDEO_CAPTURE,
-    private val processor: ToneMappingSurfaceProcessor = ToneMappingSurfaceProcessor()
-) :
-    CameraEffect(
-        targets, mainThreadExecutor(), processor
-    ) {
+internal class ToneMappingSurfaceEffect : CameraEffect(
+    PREVIEW or VIDEO_CAPTURE, mainThreadExecutor(), ToneMappingSurfaceProcessor()
+) {
 
     fun release() {
-        (processor as? ToneMappingSurfaceProcessor)?.release()
+        (surfaceProcessor as? ToneMappingSurfaceProcessor)?.release()
     }
 }
