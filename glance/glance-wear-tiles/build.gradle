@@ -38,9 +38,8 @@ dependencies {
 
     implementation(libs.kotlinStdlib)
     implementation(libs.kotlinCoroutinesGuava)
-    implementation(projectOrArtifact(":lifecycle:lifecycle-runtime"))
-    implementation(projectOrArtifact(":lifecycle:lifecycle-runtime-ktx"))
-    implementation(projectOrArtifact(":lifecycle:lifecycle-service"))
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.1")
+    implementation("androidx.lifecycle:lifecycle-service:2.6.1")
 
     testImplementation(libs.testCore)
     testImplementation(libs.testRules)
