@@ -17,7 +17,6 @@
 package androidx.profileinstaller.integration.profileverification
 
 import androidx.profileinstaller.ProfileVerifier.CompilationStatus.RESULT_CODE_COMPILED_WITH_PROFILE
-import androidx.profileinstaller.ProfileVerifier.CompilationStatus.RESULT_CODE_COMPILED_WITH_PROFILE_NON_MATCHING
 import androidx.profileinstaller.ProfileVerifier.CompilationStatus.RESULT_CODE_PROFILE_ENQUEUED_FOR_COMPILATION
 import androidx.profileinstaller.ProfileVersion
 import androidx.test.filters.LargeTest
@@ -25,7 +24,6 @@ import androidx.test.filters.SdkSuppress
 import org.junit.After
 import org.junit.Assume.assumeTrue
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Test
 
 /**
@@ -153,7 +151,6 @@ class ProfileVerificationTestWithProfileInstallerInitializer {
             }
         }
 
-    @Ignore("b/279457394")
     @Test
     fun updateFromNoReferenceProfileToReferenceProfile() =
         withPackageName(PACKAGE_NAME_WITH_INITIALIZER) {
@@ -171,14 +168,7 @@ class ProfileVerificationTestWithProfileInstallerInitializer {
             install(apkName = APK_WITH_INITIALIZER_V3, withProfile = true)
             start(ACTIVITY_NAME)
             evaluateUI {
-
-                // Taimen Api 28 and Cuttlefish Api 29 behave differently.
-                if ((isApi29 && isCuttlefish) || (isApi28 && !isCuttlefish)) {
-                    profileInstalled(RESULT_CODE_COMPILED_WITH_PROFILE_NON_MATCHING)
-                } else {
-                    profileInstalled(RESULT_CODE_COMPILED_WITH_PROFILE)
-                }
-
+                profileInstalled(RESULT_CODE_COMPILED_WITH_PROFILE)
                 hasReferenceProfile(true)
                 hasCurrentProfile(true)
             }
@@ -207,7 +197,6 @@ class ProfileVerificationTestWithProfileInstallerInitializer {
             }
         }
 
-    @Ignore("b/279457394")
     @Test
     fun installWithReferenceProfileThenUpdateNoProfileThenUpdateProfileAgain() =
         withPackageName(PACKAGE_NAME_WITH_INITIALIZER) {
@@ -234,13 +223,7 @@ class ProfileVerificationTestWithProfileInstallerInitializer {
             install(apkName = APK_WITH_INITIALIZER_V3, withProfile = true)
             start(ACTIVITY_NAME)
             evaluateUI {
-
-                // Taimen Api 28 and Cuttlefish Api 29 behave differently.
-                if ((isApi29 && isCuttlefish) || (isApi28 && !isCuttlefish)) {
-                    profileInstalled(RESULT_CODE_COMPILED_WITH_PROFILE_NON_MATCHING)
-                } else {
-                    profileInstalled(RESULT_CODE_COMPILED_WITH_PROFILE)
-                }
+                profileInstalled(RESULT_CODE_COMPILED_WITH_PROFILE)
                 hasReferenceProfile(true)
                 hasCurrentProfile(true)
             }
