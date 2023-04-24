@@ -614,7 +614,7 @@ package androidx.compose.foundation.lazy.grid {
     method public java.util.List<java.lang.Integer> calculateCrossAxisCellSizes(androidx.compose.ui.unit.Density, int availableSize, int spacing);
   }
 
-  @androidx.compose.foundation.ExperimentalFoundationApi public static final class GridCells.FixedSize implements androidx.compose.foundation.lazy.grid.GridCells {
+  public static final class GridCells.FixedSize implements androidx.compose.foundation.lazy.grid.GridCells {
     ctor public GridCells.FixedSize(float size);
     method public java.util.List<java.lang.Integer> calculateCrossAxisCellSizes(androidx.compose.ui.unit.Density, int availableSize, int spacing);
   }
