@@ -25,11 +25,17 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.CollectionInfo
+import androidx.compose.ui.semantics.CollectionItemInfo
+import androidx.compose.ui.semantics.collectionInfo
+import androidx.compose.ui.semantics.collectionItemInfo
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.tv.foundation.ExperimentalTvFoundationApi
 import androidx.tv.foundation.PivotOffsets
 import androidx.tv.foundation.lazy.list.TvLazyColumn
 import androidx.tv.foundation.lazy.list.TvLazyRow
+import androidx.tv.foundation.lazy.list.itemsIndexed
 
 const val rowsCount = 20
 const val columnsCount = 100
@@ -58,19 +64,35 @@ fun SampleLazyRow(modifier: Modifier = Modifier) {
     val backgroundColors = List(columnsCount) { colors.random() }
 
     FocusGroup {
-        TvLazyRow(modifier, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            backgroundColors.forEachIndexed { index, backgroundColor ->
-                item {
-                    Card(
-                        backgroundColor = backgroundColor,
-                        modifier =
-                        if (index == 0)
-                            Modifier.initiallyFocused()
-                        else
-                            Modifier.restorableFocus()
-                    )
-                }
+        TvLazyRow(
+            modifier = modifier.lazyListSemantics(1, columnsCount),
+            horizontalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            itemsIndexed(backgroundColors) { index, item ->
+                val cardModifier =
+                    if (index == 0)
+                        Modifier.initiallyFocused()
+                    else
+                        Modifier.restorableFocus()
+
+                Card(
+                    modifier = cardModifier.semantics {
+                        collectionItemInfo = CollectionItemInfo(0, 1, index, 1)
+                    },
+                    backgroundColor = item
+                )
             }
         }
     }
+}
+
+@Composable
+fun Modifier.lazyListSemantics(rowCount: Int = -1, columnCount: Int = -1): Modifier {
+    return this.then(
+        remember(rowCount, columnCount) {
+            Modifier.semantics {
+                collectionInfo = CollectionInfo(rowCount, columnCount)
+            }
+        }
+    )
 }

@@ -275,7 +275,6 @@ class CarouselTest {
         rule.onNodeWithText("Text 2").assertIsDisplayed()
     }
 
-    @OptIn(ExperimentalAnimationApi::class)
     @Test
     fun carousel_pagerIndicatorDisplayed() {
         rule.setContent {
@@ -287,7 +286,6 @@ class CarouselTest {
         rule.onNodeWithTag("indicator").assertIsDisplayed()
     }
 
-    @OptIn(ExperimentalAnimationApi::class)
     @Test
     fun carousel_withAnimatedContent_successfulTransition() {
         rule.setContent {
@@ -308,7 +306,6 @@ class CarouselTest {
         rule.onNodeWithText("PLAY").assertIsDisplayed()
     }
 
-    @OptIn(ExperimentalAnimationApi::class)
     @Test
     fun carousel_withAnimatedContent_successfulFocusIn() {
         rule.setContent {
@@ -326,8 +323,9 @@ class CarouselTest {
         rule.mainClock.advanceTimeBy(animationTime, false)
         rule.mainClock.advanceTimeByFrame()
 
-        rule.onNodeWithText("Play 0").assertIsDisplayed()
-        rule.onNodeWithText("Play 0").assertIsFocused()
+        rule.onNodeWithText("Play 0", useUnmergedTree = true)
+            .assertIsDisplayed()
+            .assertIsFocused()
     }
 
     @Test
@@ -353,7 +351,7 @@ class CarouselTest {
         rule.waitForIdle()
 
         // Check if the overlay button is focused
-        rule.onNodeWithText("Button-1").assertIsFocused()
+        rule.onNodeWithText("Button-1", useUnmergedTree = true).assertIsFocused()
 
         // Trigger back press event to exit focus
         performKeyPress(NativeKeyEvent.KEYCODE_BACK)
@@ -361,11 +359,10 @@ class CarouselTest {
         rule.waitForIdle()
 
         // Check if carousel loses focus and parent container gains focus
-        rule.onNodeWithText("Button-1").assertIsNotFocused()
+        rule.onNodeWithText("Button-1", useUnmergedTree = true).assertIsNotFocused()
         rule.onNodeWithTag("box-container").assertIsFocused()
     }
 
-    @OptIn(ExperimentalAnimationApi::class)
     @Test
     fun carousel_withCarouselItem_parentContainerGainsFocus_onBackPress() {
         rule.setContent {
@@ -391,7 +388,7 @@ class CarouselTest {
         rule.waitForIdle()
 
         // Check if the overlay button is focused
-        rule.onNodeWithText("Play 0").assertIsFocused()
+        rule.onNodeWithText("Play 0", useUnmergedTree = true).assertIsFocused()
 
         // Trigger back press event to exit focus
         performKeyPress(NativeKeyEvent.KEYCODE_BACK)
@@ -399,11 +396,10 @@ class CarouselTest {
         rule.waitForIdle()
 
         // Check if carousel loses focus and parent container gains focus
-        rule.onNodeWithText("Play 0").assertIsNotFocused()
+        rule.onNodeWithText("Play 0", useUnmergedTree = true).assertIsNotFocused()
         rule.onNodeWithTag("box-container").assertIsFocused()
     }
 
-    @OptIn(ExperimentalAnimationApi::class)
     @Test
     fun carousel_scrollToRegainFocus_checkBringIntoView() {
         val focusRequester = FocusRequester()
@@ -491,7 +487,6 @@ class CarouselTest {
         assertThat(checkNodeCompletelyVisible(rule, "featured-carousel")).isTrue()
     }
 
-    @OptIn(ExperimentalAnimationApi::class)
     @Test
     fun carousel_zeroItemCount_shouldNotCrash() {
         val testTag = "emptyCarousel"
@@ -502,7 +497,6 @@ class CarouselTest {
         rule.onNodeWithTag(testTag).assertExists()
     }
 
-    @OptIn(ExperimentalAnimationApi::class)
     @Test
     fun carousel_oneItemCount_shouldNotCrash() {
         val testTag = "emptyCarousel"
@@ -571,7 +565,6 @@ class CarouselTest {
         rule.onNodeWithText("Button-1").assertIsFocused()
     }
 
-    @OptIn(ExperimentalAnimationApi::class)
     @Test
     fun carousel_manualScrolling_fastMultipleKeyPresses() {
         val carouselState = CarouselState()
@@ -615,13 +608,13 @@ class CarouselTest {
         rule.mainClock.advanceTimeBy(animationTime)
 
         val finalItem = itemProgression.sum()
-        rule.onNodeWithText("Play $finalItem").assertIsFocused()
+        rule.onNodeWithText("Play $finalItem", useUnmergedTree = true).assertIsFocused()
 
         performKeyPress(NativeKeyEvent.KEYCODE_DPAD_RIGHT, 3)
 
         rule.mainClock.advanceTimeBy((animationTime) * 3)
 
-        rule.onNodeWithText("Play ${finalItem + 3}").assertIsFocused()
+        rule.onNodeWithText("Play ${finalItem + 3}", useUnmergedTree = true).assertIsFocused()
     }
 
     @Test
@@ -798,7 +791,7 @@ class CarouselTest {
     }
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class, ExperimentalAnimationApi::class)
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 private fun SampleCarousel(
     carouselState: CarouselState = remember { CarouselState() },
