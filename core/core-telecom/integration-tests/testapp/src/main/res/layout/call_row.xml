@@ -106,6 +106,13 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="speaker" />
+
+            <Button
+                android:id="@+id/bluetoothButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="bluetooth" />
         </LinearLayout>
 
     </LinearLayout>

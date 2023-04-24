@@ -36,17 +36,49 @@ package androidx.core.telecom {
   public interface CallControlScope {
     method public suspend Object? answer(int callType, kotlin.coroutines.Continuation<? super java.lang.Boolean>);
     method public suspend Object? disconnect(android.telecom.DisconnectCause disconnectCause, kotlin.coroutines.Continuation<? super java.lang.Boolean>);
-    method public kotlinx.coroutines.flow.Flow<java.util.List<android.telecom.CallEndpoint>> getAvailableEndpoints();
+    method public kotlinx.coroutines.flow.Flow<java.util.List<androidx.core.telecom.CallEndpoint>> getAvailableEndpoints();
     method public android.os.ParcelUuid getCallId();
-    method public kotlinx.coroutines.flow.Flow<android.telecom.CallEndpoint> getCurrentCallEndpoint();
+    method public kotlinx.coroutines.flow.Flow<androidx.core.telecom.CallEndpoint> getCurrentCallEndpoint();
     method public kotlinx.coroutines.flow.Flow<java.lang.Boolean> isMuted();
-    method public suspend Object? requestEndpointChange(android.telecom.CallEndpoint endpoint, kotlin.coroutines.Continuation<? super java.lang.Boolean>);
+    method public suspend Object? requestEndpointChange(androidx.core.telecom.CallEndpoint endpoint, kotlin.coroutines.Continuation<? super java.lang.Boolean>);
     method public suspend Object? setActive(kotlin.coroutines.Continuation<? super java.lang.Boolean>);
     method public void setCallback(androidx.core.telecom.CallControlCallback callControlCallback);
     method public suspend Object? setInactive(kotlin.coroutines.Continuation<? super java.lang.Boolean>);
-    property public abstract kotlinx.coroutines.flow.Flow<java.util.List<android.telecom.CallEndpoint>> availableEndpoints;
-    property public abstract kotlinx.coroutines.flow.Flow<android.telecom.CallEndpoint> currentCallEndpoint;
+    property public abstract kotlinx.coroutines.flow.Flow<java.util.List<androidx.core.telecom.CallEndpoint>> availableEndpoints;
+    property public abstract kotlinx.coroutines.flow.Flow<androidx.core.telecom.CallEndpoint> currentCallEndpoint;
     property public abstract kotlinx.coroutines.flow.Flow<java.lang.Boolean> isMuted;
+  }
+
+  @RequiresApi(android.os.Build.VERSION_CODES.O) public final class CallEndpoint {
+    ctor public CallEndpoint(CharSequence name, int type, android.os.ParcelUuid identifier);
+    method public android.os.ParcelUuid getIdentifier();
+    method public CharSequence getName();
+    method public int getType();
+    property public final android.os.ParcelUuid identifier;
+    property public final CharSequence name;
+    property public final int type;
+    field public static final androidx.core.telecom.CallEndpoint.Companion Companion;
+    field public static final int TYPE_BLUETOOTH = 2; // 0x2
+    field public static final int TYPE_EARPIECE = 1; // 0x1
+    field public static final int TYPE_SPEAKER = 4; // 0x4
+    field public static final int TYPE_STREAMING = 5; // 0x5
+    field public static final int TYPE_UNKNOWN = -1; // 0xffffffff
+    field public static final int TYPE_WIRED_HEADSET = 3; // 0x3
+  }
+
+  public static final class CallEndpoint.Companion {
+  }
+
+  public final class CallException extends java.lang.RuntimeException {
+    ctor public CallException(optional int code, optional String? message);
+    method public int getCode();
+    property public final int code;
+    field public static final androidx.core.telecom.CallException.Companion Companion;
+    field public static final int ERROR_CALLBACKS_CODE = 2; // 0x2
+    field public static final int ERROR_UNKNOWN_CODE = 1; // 0x1
+  }
+
+  public static final class CallException.Companion {
   }
 
   @RequiresApi(android.os.Build.VERSION_CODES.O) public final class CallsManager {

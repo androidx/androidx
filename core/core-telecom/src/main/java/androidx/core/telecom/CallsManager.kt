@@ -19,30 +19,27 @@ package androidx.core.telecom
 import android.content.ComponentName
 import android.content.Context
 import android.os.Build.VERSION_CODES
-import android.os.Bundle
 import android.os.OutcomeReceiver
-import android.os.ParcelUuid
 import android.os.Process
 import android.telecom.CallControl
-import android.telecom.CallEndpoint
 import android.telecom.CallException
-import android.telecom.DisconnectCause
 import android.telecom.PhoneAccount
 import android.telecom.PhoneAccountHandle
 import android.telecom.TelecomManager
 import androidx.annotation.IntDef
 import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresPermission
+import androidx.annotation.RestrictTo
 import androidx.core.telecom.CallAttributes.Companion.CALL_TYPE_VIDEO_CALL
+import androidx.core.telecom.internal.CallChannels
 import androidx.core.telecom.internal.CallSession
-import androidx.core.telecom.internal.Utils
+import androidx.core.telecom.internal.CallSessionLegacy
+import androidx.core.telecom.internal.JetpackConnectionService
+import androidx.core.telecom.internal.utils.Utils
+import java.util.concurrent.CancellationException
 import java.util.concurrent.Executor
-import kotlinx.coroutines.flow.Flow
-import java.util.function.Consumer
 import kotlin.coroutines.coroutineContext
 import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.job
 
 /**
@@ -60,14 +57,17 @@ import kotlinx.coroutines.job
 @RequiresApi(VERSION_CODES.O)
 class CallsManager constructor(context: Context) {
     private val mContext: Context = context
+    private var mPhoneAccount: PhoneAccount? = null
     private val mTelecomManager: TelecomManager =
         mContext.getSystemService(Context.TELECOM_SERVICE) as TelecomManager
+    private val mConnectionService: JetpackConnectionService = JetpackConnectionService()
+
     // A single declared constant for a direct [Executor], since the coroutines primitives we invoke
     // from the associated callbacks will perform their own dispatch as needed.
     private val mDirectExecutor = Executor { it.run() }
 
     companion object {
-        /** @hide */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @Target(AnnotationTarget.VALUE_PARAMETER, AnnotationTarget.TYPE)
         @IntDef(
             CAPABILITY_BASELINE,
@@ -112,22 +112,14 @@ class CallsManager constructor(context: Context) {
          */
         const val CAPABILITY_SUPPORTS_CALL_STREAMING = 1 shl 2
 
-        /**
-         * @hide
-         */
-        private const val PACKAGE_HANDLE_ID: String = "Jetpack"
-
-        /**
-         * @hide
-         */
-        private const val PACKAGE_LABEL: String = "Telecom-Jetpack"
-
-        /**
-         * @hide
-         */
-        private const val ERROR_CALLBACKS: String = "Error, when using the [CallControlScope]," +
-            " you must first set the [androidx.core.telecom.CallControlCallback]s via " +
-            "[CallControlScope]#[setCallback]"
+        // identifiers that indicate the call was established with core-telecom
+        internal const val PACKAGE_HANDLE_ID: String = "Jetpack"
+        internal const val PACKAGE_LABEL: String = "Telecom-Jetpack"
+        internal const val CONNECTION_SERVICE_CLASS =
+            "androidx.core.telecom.internal.JetpackConnectionService"
+        // fail messages specific to addCall
+        internal const val CALL_CREATION_FAILURE_MSG =
+            "The call failed to be added."
     }
 
     /**
@@ -136,32 +128,29 @@ class CallsManager constructor(context: Context) {
      *
      * Note: Registering capabilities must be done before calling [addCall] or an exception will
      * be thrown by [addCall].
-     * @throws Exception
+     *
+     * @Throws UnsupportedOperationException if the device is on an invalid build
      */
     @RequiresPermission(value = "android.permission.MANAGE_OWN_CALLS")
     fun registerAppWithTelecom(@Capability capabilities: Int) {
-        var requiredPlatformCapabilities: Int = PhoneAccount.CAPABILITY_SELF_MANAGED
-
+        // verify the build version supports this API and throw an exception if not
+        Utils.verifyBuildVersion()
+        // start to build the PhoneAccount that will be registered via the platform API
+        var platformCapabilities: Int = PhoneAccount.CAPABILITY_SELF_MANAGED
         val phoneAccountBuilder = PhoneAccount.builder(
             getPhoneAccountHandleForPackage(),
             PACKAGE_LABEL
         )
-
+        // append additional capabilities if the device is on a U build or above
         if (Utils.hasPlatformV2Apis()) {
-            requiredPlatformCapabilities = requiredPlatformCapabilities or
-                PhoneAccount.CAPABILITY_SUPPORTS_TRANSACTIONAL_OPERATIONS
-        } else {
-            throw Exception(Utils.ERROR_BUILD_VERSION)
+            platformCapabilities = PhoneAccount.CAPABILITY_SUPPORTS_TRANSACTIONAL_OPERATIONS or
+                Utils.remapJetpackCapabilitiesToPlatformCapabilities(capabilities)
         }
-
         // remap and set capabilities
-        phoneAccountBuilder.setCapabilities(
-            requiredPlatformCapabilities
-                or Utils.remapJetpackCapabilitiesToPlatformCapabilities(capabilities)
-        )
-
+        phoneAccountBuilder.setCapabilities(platformCapabilities)
         // build and register the PhoneAccount via the Platform API
-        mTelecomManager.registerPhoneAccount(phoneAccountBuilder.build())
+        mPhoneAccount = phoneAccountBuilder.build()
+        mTelecomManager.registerPhoneAccount(mPhoneAccount)
     }
 
     /**
@@ -171,8 +160,9 @@ class CallsManager constructor(context: Context) {
      * @param callAttributes     attributes of the new call (incoming or outgoing, address, etc. )
      * @param block              DSL interface block that will run when the call is ready
      *
-     * @throws Exception    if any [CallControlScope] API is called before
-     * [CallControlScope.setCallback] or if this module does not support the device build.
+     * @Throws UnsupportedOperationException if the device is on an invalid build
+     * @Throws CancellationException if the call failed to be added
+     * @Throws CallException if [CallControlScope.setCallback] is not called first within the block
      */
     @RequiresPermission(value = "android.permission.MANAGE_OWN_CALLS")
     @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
@@ -181,6 +171,14 @@ class CallsManager constructor(context: Context) {
         callAttributes: CallAttributes,
         block: CallControlScope.() -> Unit
     ) {
+        // This API is not supported for device running anything below Android O (26)
+        Utils.verifyBuildVersion()
+        // Setup channels for the CallEventCallbacks that only provide info updates
+        val callChannels = CallChannels()
+        callAttributes.mHandle = getPhoneAccountHandleForPackage()
+
+        // create a call session based off the build version
+        @RequiresApi(34)
         if (Utils.hasPlatformV2Apis()) {
             // CompletableDeferred pauses the execution of this method until the CallControl is
             // returned by the Platform.
@@ -188,10 +186,6 @@ class CallsManager constructor(context: Context) {
             // CallSession is responsible for handling both CallControl responses from the Platform
             // and propagates CallControlCallbacks that originate in the Platform out to the client.
             val callSession = CallSession(coroutineContext)
-            // Setup channels for the CallEventCallbacks that only provide info updates
-            val currentEndpointChannel = Channel<CallEndpoint>(Channel.UNLIMITED)
-            val availableEndpointChannel = Channel<List<CallEndpoint>>(Channel.UNLIMITED)
-            val isMutedChannel = Channel<Boolean>(Channel.UNLIMITED)
 
             /**
              * The Platform [android.telecom.TelecomManager.addCall] requires a
@@ -207,11 +201,9 @@ class CallsManager constructor(context: Context) {
 
                     override fun onError(reason: CallException) {
                         // close all channels
-                        currentEndpointChannel.close()
-                        availableEndpointChannel.close()
-                        isMutedChannel.close()
+                        callChannels.closeAllChannels()
                         // fail if we were still waiting for a CallControl
-                        openResult.completeExceptionally(reason)
+                        openResult.cancel(CancellationException(CALL_CREATION_FAILURE_MSG))
                     }
                 }
 
@@ -220,134 +212,59 @@ class CallsManager constructor(context: Context) {
                 callAttributes.toTelecomCallAttributes(getPhoneAccountHandleForPackage()),
                 mDirectExecutor,
                 callControlOutcomeReceiver,
-                object : android.telecom.CallControlCallback {
-                    override fun onSetActive(wasCompleted: Consumer<Boolean>) {
-                        callSession.onSetActive(wasCompleted)
-                    }
-
-                    override fun onSetInactive(wasCompleted: Consumer<Boolean>) {
-                        callSession.onSetInactive(wasCompleted)
-                    }
-
-                    override fun onAnswer(videoState: Int, wasCompleted: Consumer<Boolean>) {
-                        callSession.onAnswer(videoState, wasCompleted)
-                    }
-
-                    override fun onDisconnect(
-                        disconnectCause: DisconnectCause,
-                        wasCompleted: Consumer<Boolean>
-                    ) {
-                        callSession.onDisconnect(disconnectCause, wasCompleted)
-                    }
-
-                    override fun onCallStreamingStarted(wasCompleted: Consumer<Boolean>) {
-                        TODO("Implement with the CallStreaming code")
-                    }
-                },
-                object : android.telecom.CallEventCallback {
-                    override fun onCallEndpointChanged(endpoint: CallEndpoint) {
-                        currentEndpointChannel.trySend(endpoint).getOrThrow()
-                    }
-
-                    override fun onAvailableCallEndpointsChanged(endpoints: List<CallEndpoint>) {
-                        availableEndpointChannel.trySend(endpoints).getOrThrow()
-                    }
-
-                    override fun onMuteStateChanged(isMuted: Boolean) {
-                        isMutedChannel.trySend(isMuted).getOrThrow()
-                    }
-
-                    override fun onCallStreamingFailed(reason: Int) {
-                        TODO("Implement with the CallStreaming code")
-                    }
-
-                    override fun onEvent(event: String, extras: Bundle) {
-                        TODO("Implement when events are agreed upon by ICS and package")
-                    }
-                }
+                CallSession.CallControlCallbackImpl(callSession),
+                CallSession.CallEventCallbackImpl(callChannels)
             )
 
             openResult.await() /* wait for the platform to provide a CallControl object */
             /* at this point in time we have CallControl object */
-            val session = openResult.getCompleted()
+            val scope =
+                CallSession.CallControlScopeImpl(openResult.getCompleted(), callChannels)
 
-            val scope = object : CallControlScope {
-                //  handle actionable/handshake events that originate in the platform
-                //  and require a response from the client
-                override fun setCallback(callControlCallback: CallControlCallback) {
-                    session.setCallControlCallback(callControlCallback)
-                }
-
-                // handle requests that originate from the client and propagate into platform
-                //  return the platforms response which indicates success of the request.
-                override fun getCallId(): ParcelUuid {
-                    verifySessionCallbacks()
-                    return session.getCallId()
-                }
-
-                // TODO:: expose in CallControlScope when events are agreed upon by ICS and package
-                fun sendEvent(event: String, extras: Bundle) {
-                    verifySessionCallbacks()
-                    session.sendEvent(event, extras)
-                }
-
-                override suspend fun setActive(): Boolean {
-                    verifySessionCallbacks()
-                    return session.setActive()
-                }
-
-                override suspend fun setInactive(): Boolean {
-                    verifySessionCallbacks()
-                    return session.setInactive()
-                }
-
-                override suspend fun answer(callType: Int): Boolean {
-                    verifySessionCallbacks()
-                    return session.answer(callType)
-                }
-
-                override suspend fun disconnect(disconnectCause: DisconnectCause): Boolean {
-                    verifySessionCallbacks()
-                    return session.disconnect(disconnectCause)
-                }
-
-                override suspend fun requestEndpointChange(endpoint: CallEndpoint): Boolean {
-                    verifySessionCallbacks()
-                    return session.requestEndpointChange(endpoint)
-                }
-
-                // Send these events out to the client to collect
-                override val currentCallEndpoint: Flow<CallEndpoint> =
-                    currentEndpointChannel.receiveAsFlow()
-
-                override val availableEndpoints: Flow<List<CallEndpoint>> =
-                    availableEndpointChannel.receiveAsFlow()
-
-                override val isMuted: Flow<Boolean> =
-                    isMutedChannel.receiveAsFlow()
-
-                private fun verifySessionCallbacks() {
-                    if (!session.hasClientSetCallbacks()) {
-                        throw Exception(ERROR_CALLBACKS)
-                    }
-                }
-            }
             // Run the clients code with the session active and exposed via the CallControlScope
             // interface implementation declared above.
             scope.block()
         } else {
-            throw Exception(Utils.ERROR_BUILD_VERSION)
+            // CompletableDeferred pauses the execution of this method until the Connection
+            // is created in JetpackConnectionService
+            val openResult =
+                CompletableDeferred<CallSessionLegacy>(parent = coroutineContext.job)
+
+            mConnectionService.createConnectionRequest(
+                mTelecomManager,
+                JetpackConnectionService.PendingConnectionRequest(
+                    callAttributes, callChannels, coroutineContext, openResult
+                )
+            )
+
+            openResult.await()
+
+            val scope =
+                CallSessionLegacy.CallControlScopeImpl(openResult.getCompleted(), callChannels)
+
+            // Run the clients code with the session active and exposed via the
+            // CallControlScope interface implementation declared above.
+            scope.block()
         }
     }
 
-    /**
-     * @hide
-     */
-    private fun getPhoneAccountHandleForPackage(): PhoneAccountHandle {
+    internal fun getPhoneAccountHandleForPackage(): PhoneAccountHandle {
+        // This API is not supported for device running anything below Android O (26)
+        Utils.verifyBuildVersion()
+
+        val className = if (Utils.hasPlatformV2Apis()) {
+            mContext.packageName
+        } else {
+            CONNECTION_SERVICE_CLASS
+        }
         return PhoneAccountHandle(
-            ComponentName(mContext.packageName, mContext.packageName),
+            ComponentName(mContext.packageName, className),
             PACKAGE_HANDLE_ID,
             Process.myUserHandle()
         )
+    }
+
+    internal fun getBuiltPhoneAccount(): PhoneAccount? {
+        return mPhoneAccount
     }
 }

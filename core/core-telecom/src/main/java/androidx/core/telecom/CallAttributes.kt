@@ -18,10 +18,11 @@ package androidx.core.telecom
 
 import android.net.Uri
 import android.telecom.PhoneAccountHandle
-import androidx.annotation.DoNotInline
 import androidx.annotation.IntDef
 import androidx.annotation.RequiresApi
-import androidx.core.telecom.internal.Utils
+import androidx.annotation.RestrictTo
+import androidx.core.telecom.internal.utils.CallAttributesUtils
+import androidx.core.telecom.internal.utils.Utils
 import java.util.Objects
 
 /**
@@ -42,6 +43,8 @@ class CallAttributes constructor(
     @CallType val callType: Int = CALL_TYPE_AUDIO_CALL,
     @CallCapability val callCapabilities: Int = SUPPORTS_SET_INACTIVE
 ) {
+    internal var mHandle: PhoneAccountHandle? = null
+
     override fun toString(): String {
         return "CallAttributes(" +
             "displayName=[$displayName], " +
@@ -65,7 +68,7 @@ class CallAttributes constructor(
     }
 
     companion object {
-        /** @hide */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @Retention(AnnotationRetention.SOURCE)
         @IntDef(DIRECTION_INCOMING, DIRECTION_OUTGOING)
         @Target(AnnotationTarget.TYPE, AnnotationTarget.PROPERTY, AnnotationTarget.VALUE_PARAMETER)
@@ -81,7 +84,7 @@ class CallAttributes constructor(
          */
         const val DIRECTION_OUTGOING = 2
 
-        /** @hide */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @Retention(AnnotationRetention.SOURCE)
         @IntDef(CALL_TYPE_AUDIO_CALL, CALL_TYPE_VIDEO_CALL)
         @Target(AnnotationTarget.TYPE, AnnotationTarget.VALUE_PARAMETER, AnnotationTarget.PROPERTY)
@@ -98,7 +101,7 @@ class CallAttributes constructor(
          */
         const val CALL_TYPE_VIDEO_CALL = 2
 
-        /** @hide */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @Retention(AnnotationRetention.SOURCE)
         @IntDef(SUPPORTS_SET_INACTIVE, SUPPORTS_STREAM, SUPPORTS_TRANSFER, flag = true)
         @Target(AnnotationTarget.TYPE, AnnotationTarget.PROPERTY, AnnotationTarget.VALUE_PARAMETER)
@@ -125,17 +128,11 @@ class CallAttributes constructor(
         const val SUPPORTS_TRANSFER = 1 shl 3
     }
 
-    /**
-     * @hide
-     */
     @RequiresApi(34)
-    fun toTelecomCallAttributes(
+    internal fun toTelecomCallAttributes(
         phoneAccountHandle: PhoneAccountHandle
     ): android.telecom.CallAttributes {
-        if (!Utils.hasPlatformV2Apis()) {
-            throw Exception(Utils.ERROR_BUILD_VERSION)
-        }
-        return Api34PlusImpl.toTelecomCallAttributes(
+        return CallAttributesUtils.Api34PlusImpl.toTelecomCallAttributes(
             phoneAccountHandle,
             direction,
             displayName,
@@ -145,71 +142,6 @@ class CallAttributes constructor(
         )
     }
 
-    /**
-     * @hide
-     */
-    @RequiresApi(34)
-    private object Api34PlusImpl {
-
-        @JvmStatic
-        @DoNotInline
-        fun toTelecomCallAttributes(
-            phoneAccountHandle: PhoneAccountHandle,
-            direction: Int,
-            displayName: CharSequence,
-            address: Uri,
-            callType: Int,
-            callCapabilities: Int
-        ): android.telecom.CallAttributes {
-            return android.telecom.CallAttributes.Builder(
-                phoneAccountHandle,
-                direction,
-                displayName,
-                address
-            )
-                .setCallType(remapCallType(callType))
-                .setCallCapabilities(remapCapabilities(callCapabilities))
-                .build()
-        }
-
-        private fun remapCallType(callType: Int): Int {
-            return if (callType == CALL_TYPE_AUDIO_CALL) {
-                android.telecom.CallAttributes.AUDIO_CALL
-            } else {
-                android.telecom.CallAttributes.VIDEO_CALL
-            }
-        }
-
-        private fun remapCapabilities(callCapabilities: Int): Int {
-            var bitMap: Int = 0
-            if (hasSupportsSetInactiveCapability(callCapabilities)) {
-                bitMap = bitMap or android.telecom.CallAttributes.SUPPORTS_SET_INACTIVE
-            }
-            if (hasStreamCapability(callCapabilities)) {
-                bitMap = bitMap or android.telecom.CallAttributes.SUPPORTS_STREAM
-            }
-            if (hasTransferCapability(callCapabilities)) {
-                bitMap = bitMap or android.telecom.CallAttributes.SUPPORTS_TRANSFER
-            }
-            return bitMap
-        }
-
-        private fun hasSupportsSetInactiveCapability(callCapabilities: Int): Boolean {
-            return Utils.hasCapability(SUPPORTS_SET_INACTIVE, callCapabilities)
-        }
-
-        private fun hasStreamCapability(callCapabilities: Int): Boolean {
-            return Utils.hasCapability(SUPPORTS_STREAM, callCapabilities)
-        }
-
-        private fun hasTransferCapability(callCapabilities: Int): Boolean {
-            return Utils.hasCapability(SUPPORTS_TRANSFER, callCapabilities)
-        }
-    }
-
-    /**
-     * @hide
-     */
     private fun directionToString(): String {
         return if (direction == DIRECTION_OUTGOING) {
             "Outgoing"
@@ -218,9 +150,6 @@ class CallAttributes constructor(
         }
     }
 
-    /**
-     * @hide
-     */
     private fun callTypeToString(): String {
         return if (callType == CALL_TYPE_AUDIO_CALL) {
             "Audio"
@@ -229,30 +158,18 @@ class CallAttributes constructor(
         }
     }
 
-    /**
-     * @hide
-     */
     private fun hasSupportsSetInactiveCapability(): Boolean {
         return Utils.hasCapability(SUPPORTS_SET_INACTIVE, callCapabilities)
     }
 
-    /**
-     * @hide
-     */
     private fun hasStreamCapability(): Boolean {
         return Utils.hasCapability(SUPPORTS_STREAM, callCapabilities)
     }
 
-    /**
-     * @hide
-     */
     private fun hasTransferCapability(): Boolean {
         return Utils.hasCapability(SUPPORTS_TRANSFER, callCapabilities)
     }
 
-    /**
-     * @hide
-     */
     private fun capabilitiesToString(): String {
         val sb = StringBuilder()
         sb.append("[")
@@ -267,5 +184,9 @@ class CallAttributes constructor(
         }
         sb.append("])")
         return sb.toString()
+    }
+
+    internal fun isOutgoingCall(): Boolean {
+        return direction == DIRECTION_OUTGOING
     }
 }

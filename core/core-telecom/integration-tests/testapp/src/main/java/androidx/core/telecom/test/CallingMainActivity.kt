@@ -29,6 +29,7 @@ import androidx.core.telecom.CallsManager
 import androidx.core.view.WindowCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.launchIn
@@ -118,31 +119,34 @@ class CallingMainActivity : Activity() {
         Log.i(TAG, "addCallWithAttributes: attributes=$attributes")
         val callObject = VoipCall()
 
-        CoroutineScope(Dispatchers.Default).launch {
+        CoroutineScope(Dispatchers.IO).launch {
             val coroutineScope = this
+            try {
+                mCallsManager!!.addCall(attributes) {
+                    // set the client callback implementation
+                    setCallback(callObject.mCallControlCallbackImpl)
 
-            mCallsManager!!.addCall(attributes) {
-                // set the client callback implementation
-                setCallback(callObject.mCallControlCallbackImpl)
+                    // inject client control interface into the VoIP call object
+                    callObject.setCallId(getCallId().toString())
+                    callObject.setCallControl(this)
 
-                // inject client control interface into the VoIP call object
-                callObject.setCallId(getCallId().toString())
-                callObject.setCallControl(this)
+                    // Collect updates
+                    currentCallEndpoint
+                        .onEach { callObject.onCallEndpointChanged(it) }
+                        .launchIn(coroutineScope)
 
-                // Collect updates
-                currentCallEndpoint
-                    .onEach { callObject.onCallEndpointChanged(it) }
-                    .launchIn(coroutineScope)
+                    availableEndpoints
+                        .onEach { callObject.onAvailableCallEndpointsChanged(it) }
+                        .launchIn(coroutineScope)
 
-                availableEndpoints
-                    .onEach { callObject.onAvailableCallEndpointsChanged(it) }
-                    .launchIn(coroutineScope)
-
-                isMuted
-                    .onEach { callObject.onMuteStateChanged(it) }
-                    .launchIn(coroutineScope)
+                    isMuted
+                        .onEach { callObject.onMuteStateChanged(it) }
+                        .launchIn(coroutineScope)
+                }
+                addCallRow(callObject)
+            } catch (e: CancellationException) {
+                Log.i(TAG, "addCallWithAttributes: cancellationException:$e")
             }
-            addCallRow(callObject)
         }
     }
 

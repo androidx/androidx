@@ -17,7 +17,6 @@
 package androidx.core.telecom
 
 import android.os.ParcelUuid
-import android.telecom.CallEndpoint
 import kotlinx.coroutines.flow.Flow
 
 /**
