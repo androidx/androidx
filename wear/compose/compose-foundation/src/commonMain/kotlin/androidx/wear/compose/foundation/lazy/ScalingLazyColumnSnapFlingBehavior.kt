@@ -124,6 +124,8 @@ internal class ScalingLazyColumnSnapFlingBehavior(
                 scrollBy(value - lastValue)
                 lastValue = value
             }
+            // We consider all velocity consumed
+            return 0.0f
         }
 
         return animationState.velocity
