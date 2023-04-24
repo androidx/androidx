@@ -1,14 +1,4 @@
 // Baseline format: 1.0
-AddedAbstractMethod: androidx.work.WorkManager#getWorkInfoByIdFlow(java.util.UUID):
-    Added method androidx.work.WorkManager.getWorkInfoByIdFlow(java.util.UUID)
-AddedAbstractMethod: androidx.work.WorkManager#getWorkInfosByTagFlow(String):
-    Added method androidx.work.WorkManager.getWorkInfosByTagFlow(String)
-AddedAbstractMethod: androidx.work.WorkManager#getWorkInfosFlow(androidx.work.WorkQuery):
-    Added method androidx.work.WorkManager.getWorkInfosFlow(androidx.work.WorkQuery)
-AddedAbstractMethod: androidx.work.WorkManager#getWorkInfosForUniqueWorkFlow(String):
-    Added method androidx.work.WorkManager.getWorkInfosForUniqueWorkFlow(String)
-
-
 ChangedType: androidx.work.Configuration#getInitializationExceptionHandler():
     Method androidx.work.Configuration.getInitializationExceptionHandler has changed return type from androidx.core.util.Consumer<java.lang.Throwable!> to androidx.core.util.Consumer<java.lang.Throwable>
 ChangedType: androidx.work.Configuration#getSchedulingExceptionHandler():

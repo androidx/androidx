@@ -1,3 +1,0 @@
-// Baseline format: 1.0
-RemovedDeprecatedMethod: androidx.window.extensions.layout.WindowLayoutComponent#addWindowLayoutInfoListener(android.content.Context, java.util.function.Consumer<androidx.window.extensions.layout.WindowLayoutInfo>):
-    Removed deprecated method androidx.window.extensions.layout.WindowLayoutComponent.addWindowLayoutInfoListener(android.content.Context,java.util.function.Consumer<androidx.window.extensions.layout.WindowLayoutInfo>)
