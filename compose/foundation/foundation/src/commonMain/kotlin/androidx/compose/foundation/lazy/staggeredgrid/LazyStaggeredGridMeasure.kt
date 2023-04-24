@@ -708,7 +708,12 @@ private fun LazyStaggeredGridMeasureContext.measure(
         }
 
         val mainAxisLayoutSize =
-            min(if (isVertical) layoutHeight else layoutWidth, mainAxisAvailableSize)
+            min(if (isVertical) layoutHeight else layoutWidth, mainAxisAvailableSize).let {
+                // The offsets are calculated in [-beforePad; size + afterPad] interval
+                // Ensure the layout size used for positioning (and reverse layout calculation)
+                // is in the same interval.
+                it - beforeContentPadding + afterContentPadding
+            }
 
         var extraItemOffset = itemScrollOffsets[0]
         val extraItemsBefore = calculateExtraItems(
