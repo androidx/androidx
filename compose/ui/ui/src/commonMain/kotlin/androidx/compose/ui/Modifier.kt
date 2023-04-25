@@ -246,7 +246,6 @@ interface Modifier {
             check(coordinator != null)
             isAttached = true
             onAttach()
-            // TODO(lmr): run side effects?
         }
 
         internal open fun detach() {
@@ -306,6 +305,7 @@ interface Modifier {
          *
          * This API can only be called if the node [isAttached].
          */
+        @ExperimentalComposeUiApi
         fun sideEffect(effect: () -> Unit) {
             requireOwner().registerOnEndApplyChangesListener(effect)
         }
