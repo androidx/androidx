@@ -28,7 +28,15 @@ import kotlinx.coroutines.flow.flowOf
 public class PagingData<T : Any> internal constructor(
     internal val flow: Flow<PageEvent<T>>,
     internal val uiReceiver: UiReceiver,
-    internal val hintReceiver: HintReceiver
+    internal val hintReceiver: HintReceiver,
+
+    /**
+     * A lambda returning a nullable PageEvent.Insert containing data which can be accessed
+     * and displayed synchronously without requiring collection.
+     *
+     * For example, the data may be real loaded data that has been cached via [cachedIn].
+     */
+    private val cachedPageEvent: () -> PageEvent.Insert<T>? = { null }
 ) {
     public companion object {
         internal val NOOP_UI_RECEIVER = object : UiReceiver {
@@ -137,4 +145,6 @@ public class PagingData<T : Any> internal constructor(
             hintReceiver = NOOP_HINT_RECEIVER,
         )
     }
+
+    internal fun cachedEvent(): PageEvent.Insert<T>? = cachedPageEvent()
 }
