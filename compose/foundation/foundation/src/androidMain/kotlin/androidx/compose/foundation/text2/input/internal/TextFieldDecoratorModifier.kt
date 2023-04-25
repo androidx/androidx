@@ -96,7 +96,7 @@ internal data class TextFieldDecoratorModifier(
         singleLine = singleLine,
     )
 
-    override fun update(node: TextFieldDecoratorModifierNode): TextFieldDecoratorModifierNode {
+    override fun update(node: TextFieldDecoratorModifierNode) {
         node.updateNode(
             textFieldState = textFieldState,
             textLayoutState = textLayoutState,
@@ -108,7 +108,6 @@ internal data class TextFieldDecoratorModifier(
             keyboardActions = keyboardActions,
             singleLine = singleLine,
         )
-        return node
     }
 
     override fun InspectorInfo.inspectableProperties() {

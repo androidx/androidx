@@ -2377,7 +2377,7 @@ package androidx.compose.ui.node {
     method public final Object? getValueOverride();
     method public abstract int hashCode();
     method public void inspectableProperties(androidx.compose.ui.platform.InspectorInfo);
-    method public abstract N update(N node);
+    method public abstract void update(N node);
     property public final kotlin.sequences.Sequence<androidx.compose.ui.platform.ValueElement> inspectableElements;
     property public final String? nameFallback;
     property public final Object? valueOverride;

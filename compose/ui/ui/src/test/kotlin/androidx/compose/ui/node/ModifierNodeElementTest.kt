@@ -40,7 +40,7 @@ class ModifierNodeElementTest {
         ) : ModifierNodeElement<Modifier.Node>() {
             var classProperty = 0
             override fun create() = object : Modifier.Node() {}
-            override fun update(node: Modifier.Node) = node
+            override fun update(node: Modifier.Node) {}
             // We don't use equals or hashCode in this test, so bad implementations are okay.
             override fun hashCode() = 0
             override fun equals(other: Any?) = (this === other)

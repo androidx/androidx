@@ -40,8 +40,8 @@ private class AnimateItemPlacementElement(
 
     override fun create(): AnimateItemPlacementNode = AnimateItemPlacementNode(animationSpec)
 
-    override fun update(node: AnimateItemPlacementNode): AnimateItemPlacementNode = node.also {
-        it.delegatingNode.placementAnimationSpec = animationSpec
+    override fun update(node: AnimateItemPlacementNode) {
+        node.delegatingNode.placementAnimationSpec = animationSpec
     }
 
     override fun equals(other: Any?): Boolean {

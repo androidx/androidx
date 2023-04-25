@@ -319,10 +319,8 @@ internal class SuspendPointerInputModifierNodeElement(
         return SuspendingPointerInputModifierNodeImpl(pointerInputHandler)
     }
 
-    override fun update(node: SuspendingPointerInputModifierNodeImpl):
-        SuspendingPointerInputModifierNodeImpl {
+    override fun update(node: SuspendingPointerInputModifierNodeImpl) {
         node.pointerInputHandler = pointerInputHandler
-        return node
     }
 
     override fun equals(other: Any?): Boolean {

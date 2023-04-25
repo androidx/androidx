@@ -1060,5 +1060,5 @@ internal fun Modifier.elementFor(node: Modifier.Node): Modifier {
 
 internal data class NodeElement(val node: Modifier.Node) : ModifierNodeElement<Modifier.Node>() {
     override fun create(): Modifier.Node = node
-    override fun update(node: Modifier.Node): Modifier.Node = node
+    override fun update(node: Modifier.Node) {}
 }
