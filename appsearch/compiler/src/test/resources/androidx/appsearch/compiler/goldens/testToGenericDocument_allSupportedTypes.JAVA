@@ -6,6 +6,7 @@ import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.exceptions.AppSearchException;
 import java.lang.Boolean;
 import java.lang.Byte;
+import java.lang.Class;
 import java.lang.Double;
 import java.lang.Float;
 import java.lang.Integer;
@@ -158,6 +159,13 @@ public final class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
             .setShouldIndexNestedProperties(false)
             .build())
           .build();
+  }
+
+  @Override
+  public List<Class<?>> getNestedDocumentClasses() throws AppSearchException {
+    List<Class<?>> classSet = new ArrayList<Class<?>>();
+    classSet.add(Gift.class);
+    return classSet;
   }
 
   @Override

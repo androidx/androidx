@@ -19,6 +19,8 @@ package androidx.appsearch.app;
 import androidx.annotation.NonNull;
 import androidx.appsearch.exceptions.AppSearchException;
 
+import java.util.List;
+
 /**
  * An interface for factories which can convert between instances of classes annotated with
  * \@{@link androidx.appsearch.annotation.Document} and instances of {@link GenericDocument}.
@@ -37,6 +39,13 @@ public interface DocumentClassFactory<T> {
     /** Returns the schema for this document class. */
     @NonNull
     AppSearchSchema getSchema() throws AppSearchException;
+
+    /**
+     * Returns dependent document classes used in used in this document class. This is useful as we
+     * can set dependent schemas without requiring clients to explicitly set all dependent schemas.
+     */
+    @NonNull
+    List<Class<?>> getNestedDocumentClasses() throws AppSearchException;
 
     /**
      * Converts an instance of the class annotated with

@@ -32,6 +32,7 @@ import static org.junit.Assume.assumeTrue;
 import androidx.annotation.NonNull;
 import androidx.appsearch.annotation.Document;
 import androidx.appsearch.builtintypes.PotentialAction;
+import androidx.appsearch.builtintypes.Thing;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.testutil.AppSearchEmail;
 import androidx.appsearch.util.DocumentIdUtil;
@@ -602,5 +603,87 @@ public abstract class AnnotationProcessorTestBase {
         assertThat(potentialAction.getName()).isEqualTo(name);
         assertThat(potentialAction.getUri()).isEqualTo(uri);
         assertThat(potentialAction.getDescription()).isEqualTo(description);
+    }
+
+    @Test
+    public void testDependentSchemas() throws Exception {
+        // Test that makes sure if you call setSchema on Thing, PotentialAction also goes in.
+        String namespace = "namespace";
+        String name = "View";
+        String uri = "package://view";
+        String description = "View action";
+        long creationMillis = 300;
+
+        GenericDocument genericDocAction = new GenericDocument.Builder<>(namespace, "actionid",
+                "builtin:PotentialAction")
+                .setPropertyString("name", name)
+                .setPropertyString("uri", uri)
+                .setPropertyString("description", description)
+                .setCreationTimestampMillis(creationMillis)
+                .build();
+
+        Thing thing = new Thing.Builder(namespace, "thingid")
+                .setName(name)
+                .setCreationTimestampMillis(creationMillis).build();
+
+        SetSchemaRequest request = new SetSchemaRequest.Builder().addDocumentClasses(Thing.class)
+                .setForceOverride(true).build();
+
+        // Both Thing and PotentialAction should be set as schemas
+        assertThat(request.getSchemas()).hasSize(2);
+        mSession.setSchemaAsync(request).get();
+
+        assertThat(mSession.getSchemaAsync().get().getSchemas()).hasSize(2);
+
+        // We should be able to put a PotentialAction as well as a Thing
+        checkIsBatchResultSuccess(
+                mSession.putAsync(new PutDocumentsRequest.Builder()
+                        .addDocuments(thing)
+                        .addGenericDocuments(genericDocAction)
+                        .build()));
+
+        GetByDocumentIdRequest getDocRequest = new GetByDocumentIdRequest.Builder(namespace)
+                .addIds("thingid")
+                .build();
+        List<GenericDocument> outDocuments = doGet(mSession, getDocRequest);
+        assertThat(outDocuments).hasSize(1);
+        Thing potentialAction = outDocuments.get(0).toDocumentClass(Thing.class);
+
+        assertThat(potentialAction.getNamespace()).isEqualTo(namespace);
+        assertThat(potentialAction.getId()).isEqualTo("thingid");
+        assertThat(potentialAction.getName()).isEqualTo(name);
+        assertThat(potentialAction.getPotentialActions()).isEmpty();
+    }
+
+    @Document
+    static class Outer {
+        @Document.Id String mId;
+        @Document.Namespace String mNamespace;
+        @Document.DocumentProperty Middle mMiddle;
+    }
+
+    @Document
+    static class Middle {
+        @Document.Id String mId;
+        @Document.Namespace String mNamespace;
+        @Document.DocumentProperty Inner mInner;
+    }
+
+    @Document
+    static class Inner {
+        @Document.Id String mId;
+        @Document.Namespace String mNamespace;
+        @Document.StringProperty String mContents;
+    }
+
+    @Test
+    public void testMultipleDependentSchemas() throws Exception {
+        SetSchemaRequest request = new SetSchemaRequest.Builder().addDocumentClasses(Outer.class)
+                .setForceOverride(true).build();
+
+        // Outer, as well as Middle and Inner should be set.
+        assertThat(request.getSchemas()).hasSize(3);
+        mSession.setSchemaAsync(request).get();
+        assertThat(mSession.getSchemaAsync().get().getSchemas()).hasSize(3);
     }
 }

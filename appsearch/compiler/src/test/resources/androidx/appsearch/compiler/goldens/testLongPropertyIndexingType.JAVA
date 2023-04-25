@@ -4,10 +4,13 @@ import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.DocumentClassFactory;
 import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.exceptions.AppSearchException;
+import java.lang.Class;
 import java.lang.Integer;
 import java.lang.Long;
 import java.lang.Override;
 import java.lang.String;
+import java.util.Collections;
+import java.util.List;
 import javax.annotation.processing.Generated;
 
 @Generated("androidx.appsearch.compiler.AppSearchCompiler")
@@ -63,6 +66,11 @@ public final class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
             .setIndexingType(AppSearchSchema.LongPropertyConfig.INDEXING_TYPE_RANGE)
             .build())
           .build();
+  }
+
+  @Override
+  public List<Class<?>> getNestedDocumentClasses() throws AppSearchException {
+    return Collections.emptyList();
   }
 
   @Override
