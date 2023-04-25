@@ -13,12 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:OptIn(ExperimentalComposeUiApi::class)
 
 package androidx.compose.ui.node
 
 import androidx.compose.runtime.snapshots.Snapshot
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.MutableRect
 import androidx.compose.ui.geometry.Offset
@@ -112,7 +110,7 @@ internal abstract class NodeCoordinator(
         }
     }
 
-    fun hasNode(type: NodeKind<*>): Boolean {
+    private fun hasNode(type: NodeKind<*>): Boolean {
         return headNode(type.includeSelfInTraversal)?.has(type) == true
     }
 
@@ -233,13 +231,13 @@ internal abstract class NodeCoordinator(
             val thisNode = tail
             if (layoutNode.nodes.has(Nodes.ParentData)) {
                 with(layoutNode.density) {
-                    layoutNode.nodes.tailToHead {
-                        if (it.isKind(Nodes.ParentData)) {
-                            it.dispatchForKind(Nodes.ParentData) {
+                    layoutNode.nodes.tailToHead { node ->
+                        if (node.isKind(Nodes.ParentData)) {
+                            node.dispatchForKind(Nodes.ParentData) {
                                 data = with(it) { modifyParentData(data) }
                             }
                         }
-                        if (it === thisNode) return@tailToHead
+                        if (node === thisNode) return@tailToHead
                     }
                 }
             }
@@ -347,7 +345,6 @@ internal abstract class NodeCoordinator(
         wrapped?.draw(canvas)
     }
 
-    @OptIn(ExperimentalComposeUiApi::class)
     fun onPlaced() {
         visitNodes(Nodes.LayoutAware) {
             it.onPlaced(this)
@@ -1038,7 +1035,7 @@ internal abstract class NodeCoordinator(
         if (ancestor1 === ancestor2) {
             val otherNode = other.tail
             // They are on the same node, but we don't know which is the deeper of the two
-            tail.visitLocalParents(Nodes.Layout.mask) {
+            tail.visitLocalAncestors(Nodes.Layout.mask) {
                 if (it === otherNode) return other
             }
             return this
@@ -1071,7 +1068,7 @@ internal abstract class NodeCoordinator(
 
     fun shouldSharePointerInputWithSiblings(): Boolean {
         val start = headNode(Nodes.PointerInput.includeSelfInTraversal) ?: return false
-        start.visitLocalChildren(Nodes.PointerInput) {
+        start.visitLocalDescendants(Nodes.PointerInput) {
             if (it.sharePointerInputWithSiblings()) return true
         }
         return false
@@ -1202,7 +1199,6 @@ internal abstract class NodeCoordinator(
         /**
          * Hit testing specifics for pointer input.
          */
-        @OptIn(ExperimentalComposeUiApi::class)
         val PointerInputSource =
             object : HitTestSource {
                 override fun entityType() = Nodes.PointerInput
