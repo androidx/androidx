@@ -1,264 +1,958 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.2.0-beta06">
+<issues format="6" by="lint 8.1.0-alpha11" type="baseline" client="gradle" dependencies="false" name="AGP (8.1.0-alpha11)" variant="all" version="8.1.0-alpha11">
 
     <issue
-        id="BanConcurrentHashMap"
-        severity="Error"
-        message="Detected ConcurrentHashMap usage."
-        category="Correctness"
-        priority="5"
-        summary="ConcurrentHashMap usage is not allowed"
-        explanation="ConcurrentHashMap has an issue on Android’s Lollipop release that can lead to lost updates under thread contention."
-        errorLine1="import java.util.concurrent.ConcurrentHashMap;"
-        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        id="MissingClass"
+        message="Class referenced in the manifest, `androidx.core.app.JobIntentService`, was not found in the project or the libraries"
+        errorLine1="        &lt;service android:name=&quot;androidx.core.app.JobIntentService&quot;>"
+        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="$SUPPORT/lint-checks/integration-tests/src/main/java/androidx/Sample.java"
-            line="19"
-            column="1"/>
+            file="src/main/AndroidManifest.xml"/>
     </issue>
 
     <issue
-        id="ClassVerificationFailure"
-        severity="Error"
-        message="This call references a method added in API level 30; however, the containing class androidx.AutofixUnsafeConstructorReferenceJava is reachable from earlier API levels and will fail run-time class verification."
-        category="Correctness"
-        priority="5"
-        summary="Even in cases where references to new APIs are gated on SDK_INT checks, run-time class verification will still fail on references to APIs that may not be available at run time, including platform APIs introduced after a library&apos;s minSdkVersion."
-        explanation="The Java language requires a virtual machine to verify the class files it&#xA;loads and executes. A class may fail verification for a wide variety of&#xA;reasons, but in practice it‘s usually because the class’s code refers to&#xA;unknown classes or methods.&#xA;&#xA;References to APIs added after a library&apos;s minSdkVersion -- regardless of&#xA;any surrounding version checks -- will fail run-time class verification if&#xA;the API does not exist on the device, leading to reduced run-time&#xA;performance.&#xA;&#xA;Gating references on SDK checks alone DOES NOT address class verification&#xA;failures.&#xA;&#xA;To prevent class verification failures, references to new APIs must be&#xA;moved to inner classes that are only initialized inside of an appropriate&#xA;SDK check.&#xA;&#xA;For example, if our minimum SDK is 14 and platform method a.x(params...)&#xA;was added in SDK 16, the method call must be moved to an inner class like:&#xA;&#xA;@RequiresApi(16)&#xA;private static class Api16Impl{&#xA;  @DoNotInline&#xA;  static void callX(params...) {&#xA;    a.x(params...);&#xA;  }&#xA;}&#xA;&#xA;The call site is changed from a.x(params...) to Api16Impl.callX(params).&#xA;&#xA;Since ART will only try to optimize Api16Impl when it&apos;s on the execution&#xA;path, we are guaranteed to have a.x(...) available.&#xA;&#xA;In addition, optimizers like R8 or Proguard may inline the method in the&#xA;separate class and replace the wrapper call with the actual call, so you&#xA;must disable inlining using the @DoNotInline annotation.&#xA;&#xA;Failure to do the above may result in overall performance degradation."
-        errorLine1="            AccessibilityNodeInfo node = new AccessibilityNodeInfo(new View(context), 1);"
-        errorLine2="                                         ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="$SUPPORT/lint-checks/integration-tests/src/main/java/androidx/AutofixUnsafeConstructorReferenceJava.java"
-            line="35"
-            column="42"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        severity="Error"
-        message="This call references a method added in API level 23; however, the containing class androidx.AutofixUnsafeGenericMethodReferenceJava is reachable from earlier API levels and will fail run-time class verification."
-        category="Correctness"
-        priority="5"
-        summary="Even in cases where references to new APIs are gated on SDK_INT checks, run-time class verification will still fail on references to APIs that may not be available at run time, including platform APIs introduced after a library&apos;s minSdkVersion."
-        explanation="The Java language requires a virtual machine to verify the class files it&#xA;loads and executes. A class may fail verification for a wide variety of&#xA;reasons, but in practice it‘s usually because the class’s code refers to&#xA;unknown classes or methods.&#xA;&#xA;References to APIs added after a library&apos;s minSdkVersion -- regardless of&#xA;any surrounding version checks -- will fail run-time class verification if&#xA;the API does not exist on the device, leading to reduced run-time&#xA;performance.&#xA;&#xA;Gating references on SDK checks alone DOES NOT address class verification&#xA;failures.&#xA;&#xA;To prevent class verification failures, references to new APIs must be&#xA;moved to inner classes that are only initialized inside of an appropriate&#xA;SDK check.&#xA;&#xA;For example, if our minimum SDK is 14 and platform method a.x(params...)&#xA;was added in SDK 16, the method call must be moved to an inner class like:&#xA;&#xA;@RequiresApi(16)&#xA;private static class Api16Impl{&#xA;  @DoNotInline&#xA;  static void callX(params...) {&#xA;    a.x(params...);&#xA;  }&#xA;}&#xA;&#xA;The call site is changed from a.x(params...) to Api16Impl.callX(params).&#xA;&#xA;Since ART will only try to optimize Api16Impl when it&apos;s on the execution&#xA;path, we are guaranteed to have a.x(...) available.&#xA;&#xA;In addition, optimizers like R8 or Proguard may inline the method in the&#xA;separate class and replace the wrapper call with the actual call, so you&#xA;must disable inlining using the @DoNotInline annotation.&#xA;&#xA;Failure to do the above may result in overall performance degradation."
-        errorLine1="            return context.getSystemService(serviceClass);"
-        errorLine2="                           ~~~~~~~~~~~~~~~~">
-        <location
-            file="$SUPPORT/lint-checks/integration-tests/src/main/java/androidx/AutofixUnsafeGenericMethodReferenceJava.java"
-            line="34"
-            column="28"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        severity="Error"
-        message="This call references a method added in API level 21; however, the containing class androidx.AutofixUnsafeReferenceWithExistingClassJava is reachable from earlier API levels and will fail run-time class verification."
-        category="Correctness"
-        priority="5"
-        summary="Even in cases where references to new APIs are gated on SDK_INT checks, run-time class verification will still fail on references to APIs that may not be available at run time, including platform APIs introduced after a library&apos;s minSdkVersion."
-        explanation="The Java language requires a virtual machine to verify the class files it&#xA;loads and executes. A class may fail verification for a wide variety of&#xA;reasons, but in practice it‘s usually because the class’s code refers to&#xA;unknown classes or methods.&#xA;&#xA;References to APIs added after a library&apos;s minSdkVersion -- regardless of&#xA;any surrounding version checks -- will fail run-time class verification if&#xA;the API does not exist on the device, leading to reduced run-time&#xA;performance.&#xA;&#xA;Gating references on SDK checks alone DOES NOT address class verification&#xA;failures.&#xA;&#xA;To prevent class verification failures, references to new APIs must be&#xA;moved to inner classes that are only initialized inside of an appropriate&#xA;SDK check.&#xA;&#xA;For example, if our minimum SDK is 14 and platform method a.x(params...)&#xA;was added in SDK 16, the method call must be moved to an inner class like:&#xA;&#xA;@RequiresApi(16)&#xA;private static class Api16Impl{&#xA;  @DoNotInline&#xA;  static void callX(params...) {&#xA;    a.x(params...);&#xA;  }&#xA;}&#xA;&#xA;The call site is changed from a.x(params...) to Api16Impl.callX(params).&#xA;&#xA;Since ART will only try to optimize Api16Impl when it&apos;s on the execution&#xA;path, we are guaranteed to have a.x(...) available.&#xA;&#xA;In addition, optimizers like R8 or Proguard may inline the method in the&#xA;separate class and replace the wrapper call with the actual call, so you&#xA;must disable inlining using the @DoNotInline annotation.&#xA;&#xA;Failure to do the above may result in overall performance degradation."
-        errorLine1="            view.setBackgroundTintList(new ColorStateList(null, null));"
-        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="$SUPPORT/lint-checks/integration-tests/src/main/java/androidx/AutofixUnsafeReferenceWithExistingClassJava.java"
-            line="36"
-            column="18"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        severity="Error"
-        message="This call references a method added in API level 17; however, the containing class androidx.AutofixUnsafeStaticMethodReferenceJava is reachable from earlier API levels and will fail run-time class verification."
-        category="Correctness"
-        priority="5"
-        summary="Even in cases where references to new APIs are gated on SDK_INT checks, run-time class verification will still fail on references to APIs that may not be available at run time, including platform APIs introduced after a library&apos;s minSdkVersion."
-        explanation="The Java language requires a virtual machine to verify the class files it&#xA;loads and executes. A class may fail verification for a wide variety of&#xA;reasons, but in practice it‘s usually because the class’s code refers to&#xA;unknown classes or methods.&#xA;&#xA;References to APIs added after a library&apos;s minSdkVersion -- regardless of&#xA;any surrounding version checks -- will fail run-time class verification if&#xA;the API does not exist on the device, leading to reduced run-time&#xA;performance.&#xA;&#xA;Gating references on SDK checks alone DOES NOT address class verification&#xA;failures.&#xA;&#xA;To prevent class verification failures, references to new APIs must be&#xA;moved to inner classes that are only initialized inside of an appropriate&#xA;SDK check.&#xA;&#xA;For example, if our minimum SDK is 14 and platform method a.x(params...)&#xA;was added in SDK 16, the method call must be moved to an inner class like:&#xA;&#xA;@RequiresApi(16)&#xA;private static class Api16Impl{&#xA;  @DoNotInline&#xA;  static void callX(params...) {&#xA;    a.x(params...);&#xA;  }&#xA;}&#xA;&#xA;The call site is changed from a.x(params...) to Api16Impl.callX(params).&#xA;&#xA;Since ART will only try to optimize Api16Impl when it&apos;s on the execution&#xA;path, we are guaranteed to have a.x(...) available.&#xA;&#xA;In addition, optimizers like R8 or Proguard may inline the method in the&#xA;separate class and replace the wrapper call with the actual call, so you&#xA;must disable inlining using the @DoNotInline annotation.&#xA;&#xA;Failure to do the above may result in overall performance degradation."
-        errorLine1="            return View.generateViewId();"
-        errorLine2="                        ~~~~~~~~~~~~~~">
-        <location
-            file="$SUPPORT/lint-checks/integration-tests/src/main/java/androidx/AutofixUnsafeStaticMethodReferenceJava.java"
-            line="33"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        severity="Error"
-        message="This call references a method added in API level 21; however, the containing class androidx.AutofixUnsafeVoidMethodReferenceJava is reachable from earlier API levels and will fail run-time class verification."
-        category="Correctness"
-        priority="5"
-        summary="Even in cases where references to new APIs are gated on SDK_INT checks, run-time class verification will still fail on references to APIs that may not be available at run time, including platform APIs introduced after a library&apos;s minSdkVersion."
-        explanation="The Java language requires a virtual machine to verify the class files it&#xA;loads and executes. A class may fail verification for a wide variety of&#xA;reasons, but in practice it‘s usually because the class’s code refers to&#xA;unknown classes or methods.&#xA;&#xA;References to APIs added after a library&apos;s minSdkVersion -- regardless of&#xA;any surrounding version checks -- will fail run-time class verification if&#xA;the API does not exist on the device, leading to reduced run-time&#xA;performance.&#xA;&#xA;Gating references on SDK checks alone DOES NOT address class verification&#xA;failures.&#xA;&#xA;To prevent class verification failures, references to new APIs must be&#xA;moved to inner classes that are only initialized inside of an appropriate&#xA;SDK check.&#xA;&#xA;For example, if our minimum SDK is 14 and platform method a.x(params...)&#xA;was added in SDK 16, the method call must be moved to an inner class like:&#xA;&#xA;@RequiresApi(16)&#xA;private static class Api16Impl{&#xA;  @DoNotInline&#xA;  static void callX(params...) {&#xA;    a.x(params...);&#xA;  }&#xA;}&#xA;&#xA;The call site is changed from a.x(params...) to Api16Impl.callX(params).&#xA;&#xA;Since ART will only try to optimize Api16Impl when it&apos;s on the execution&#xA;path, we are guaranteed to have a.x(...) available.&#xA;&#xA;In addition, optimizers like R8 or Proguard may inline the method in the&#xA;separate class and replace the wrapper call with the actual call, so you&#xA;must disable inlining using the @DoNotInline annotation.&#xA;&#xA;Failure to do the above may result in overall performance degradation."
-        errorLine1="            view.setBackgroundTintList(new ColorStateList(null, null));"
-        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="$SUPPORT/lint-checks/integration-tests/src/main/java/androidx/AutofixUnsafeVoidMethodReferenceJava.java"
-            line="34"
-            column="18"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        severity="Error"
-        message="This call references a method added in API level 21; however, the containing class androidx.ClassVerificationFailureFromJava is reachable from earlier API levels and will fail run-time class verification."
-        category="Correctness"
-        priority="5"
-        summary="Even in cases where references to new APIs are gated on SDK_INT checks, run-time class verification will still fail on references to APIs that may not be available at run time, including platform APIs introduced after a library&apos;s minSdkVersion."
-        explanation="The Java language requires a virtual machine to verify the class files it&#xA;loads and executes. A class may fail verification for a wide variety of&#xA;reasons, but in practice it‘s usually because the class’s code refers to&#xA;unknown classes or methods.&#xA;&#xA;References to APIs added after a library&apos;s minSdkVersion -- regardless of&#xA;any surrounding version checks -- will fail run-time class verification if&#xA;the API does not exist on the device, leading to reduced run-time&#xA;performance.&#xA;&#xA;Gating references on SDK checks alone DOES NOT address class verification&#xA;failures.&#xA;&#xA;To prevent class verification failures, references to new APIs must be&#xA;moved to inner classes that are only initialized inside of an appropriate&#xA;SDK check.&#xA;&#xA;For example, if our minimum SDK is 14 and platform method a.x(params...)&#xA;was added in SDK 16, the method call must be moved to an inner class like:&#xA;&#xA;@RequiresApi(16)&#xA;private static class Api16Impl{&#xA;  @DoNotInline&#xA;  static void callX(params...) {&#xA;    a.x(params...);&#xA;  }&#xA;}&#xA;&#xA;The call site is changed from a.x(params...) to Api16Impl.callX(params).&#xA;&#xA;Since ART will only try to optimize Api16Impl when it&apos;s on the execution&#xA;path, we are guaranteed to have a.x(...) available.&#xA;&#xA;In addition, optimizers like R8 or Proguard may inline the method in the&#xA;separate class and replace the wrapper call with the actual call, so you&#xA;must disable inlining using the @DoNotInline annotation.&#xA;&#xA;Failure to do the above may result in overall performance degradation."
-        errorLine1="            view.setBackgroundTintList(tint);"
-        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="$SUPPORT/lint-checks/integration-tests/src/main/java/androidx/ClassVerificationFailureFromJava.java"
-            line="38"
-            column="18"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        severity="Error"
-        message="This call references a method added in API level 17; however, the containing class androidx.ClassVerificationFailureFromJava is reachable from earlier API levels and will fail run-time class verification."
-        category="Correctness"
-        priority="5"
-        summary="Even in cases where references to new APIs are gated on SDK_INT checks, run-time class verification will still fail on references to APIs that may not be available at run time, including platform APIs introduced after a library&apos;s minSdkVersion."
-        explanation="The Java language requires a virtual machine to verify the class files it&#xA;loads and executes. A class may fail verification for a wide variety of&#xA;reasons, but in practice it‘s usually because the class’s code refers to&#xA;unknown classes or methods.&#xA;&#xA;References to APIs added after a library&apos;s minSdkVersion -- regardless of&#xA;any surrounding version checks -- will fail run-time class verification if&#xA;the API does not exist on the device, leading to reduced run-time&#xA;performance.&#xA;&#xA;Gating references on SDK checks alone DOES NOT address class verification&#xA;failures.&#xA;&#xA;To prevent class verification failures, references to new APIs must be&#xA;moved to inner classes that are only initialized inside of an appropriate&#xA;SDK check.&#xA;&#xA;For example, if our minimum SDK is 14 and platform method a.x(params...)&#xA;was added in SDK 16, the method call must be moved to an inner class like:&#xA;&#xA;@RequiresApi(16)&#xA;private static class Api16Impl{&#xA;  @DoNotInline&#xA;  static void callX(params...) {&#xA;    a.x(params...);&#xA;  }&#xA;}&#xA;&#xA;The call site is changed from a.x(params...) to Api16Impl.callX(params).&#xA;&#xA;Since ART will only try to optimize Api16Impl when it&apos;s on the execution&#xA;path, we are guaranteed to have a.x(...) available.&#xA;&#xA;In addition, optimizers like R8 or Proguard may inline the method in the&#xA;separate class and replace the wrapper call with the actual call, so you&#xA;must disable inlining using the @DoNotInline annotation.&#xA;&#xA;Failure to do the above may result in overall performance degradation."
-        errorLine1="            return View.generateViewId();"
-        errorLine2="                        ~~~~~~~~~~~~~~">
-        <location
-            file="$SUPPORT/lint-checks/integration-tests/src/main/java/androidx/ClassVerificationFailureFromJava.java"
-            line="47"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        severity="Error"
-        message="This call references a method added in API level 23; however, the containing class androidx.ClassVerificationFailureFromJava is reachable from earlier API levels and will fail run-time class verification."
-        category="Correctness"
-        priority="5"
-        summary="Even in cases where references to new APIs are gated on SDK_INT checks, run-time class verification will still fail on references to APIs that may not be available at run time, including platform APIs introduced after a library&apos;s minSdkVersion."
-        explanation="The Java language requires a virtual machine to verify the class files it&#xA;loads and executes. A class may fail verification for a wide variety of&#xA;reasons, but in practice it‘s usually because the class’s code refers to&#xA;unknown classes or methods.&#xA;&#xA;References to APIs added after a library&apos;s minSdkVersion -- regardless of&#xA;any surrounding version checks -- will fail run-time class verification if&#xA;the API does not exist on the device, leading to reduced run-time&#xA;performance.&#xA;&#xA;Gating references on SDK checks alone DOES NOT address class verification&#xA;failures.&#xA;&#xA;To prevent class verification failures, references to new APIs must be&#xA;moved to inner classes that are only initialized inside of an appropriate&#xA;SDK check.&#xA;&#xA;For example, if our minimum SDK is 14 and platform method a.x(params...)&#xA;was added in SDK 16, the method call must be moved to an inner class like:&#xA;&#xA;@RequiresApi(16)&#xA;private static class Api16Impl{&#xA;  @DoNotInline&#xA;  static void callX(params...) {&#xA;    a.x(params...);&#xA;  }&#xA;}&#xA;&#xA;The call site is changed from a.x(params...) to Api16Impl.callX(params).&#xA;&#xA;Since ART will only try to optimize Api16Impl when it&apos;s on the execution&#xA;path, we are guaranteed to have a.x(...) available.&#xA;&#xA;In addition, optimizers like R8 or Proguard may inline the method in the&#xA;separate class and replace the wrapper call with the actual call, so you&#xA;must disable inlining using the @DoNotInline annotation.&#xA;&#xA;Failure to do the above may result in overall performance degradation."
+        id="NewApi"
+        message="Call requires API level 23 (current min is 14): `android.view.View#getAccessibilityClassName`"
         errorLine1="        return view.getAccessibilityClassName();"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="$SUPPORT/lint-checks/integration-tests/src/main/java/androidx/ClassVerificationFailureFromJava.java"
-            line="58"
-            column="21"/>
+            file="src/main/java/androidx/ClassVerificationFailureFromJava.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 16): `java.lang.Character#isSurrogate`"
+        errorLine1="            Character.isSurrogate(c)"
+        errorLine2="                      ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/RequiresApiKotlin.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `java.lang.Character#isSurrogate`"
+        errorLine1="            Character.isSurrogate(c)"
+        errorLine2="                      ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/RequiresApiKotlin.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 16): `java.lang.Character#isSurrogate`"
+        errorLine1="            Character.isSurrogate(c)"
+        errorLine2="                      ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/RequiresApiKotlin.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 16): `java.lang.Character#isSurrogate`"
+        errorLine1="            Character.isSurrogate(c)"
+        errorLine2="                      ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/RequiresApiKotlin.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 16): `java.lang.Character#isSurrogate`"
+        errorLine1="            Character.isSurrogate(c)"
+        errorLine2="                      ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/RequiresApiKotlin.kt"/>
+    </issue>
+
+    <issue
+        id="BanKeepAnnotation"
+        message="Uses @Keep annotation"
+        errorLine1="@Keep"
+        errorLine2="~~~~~">
+        <location
+            file="src/main/java/androidx/KeepAnnotationUsageJava.java"/>
+    </issue>
+
+    <issue
+        id="BanKeepAnnotation"
+        message="Uses @Keep annotation"
+        errorLine1="@Keep"
+        errorLine2="~~~~~">
+        <location
+            file="src/main/java/androidx/KeepAnnotationUsageKotlin.kt"/>
+    </issue>
+
+    <issue
+        id="BanParcelableUsage"
+        message="Class implements android.os.Parcelable"
+        errorLine1="public class ParcelableUsageJava implements Parcelable {"
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/ParcelableUsageJava.java"/>
+    </issue>
+
+    <issue
+        id="BanParcelableUsage"
+        message="Class implements android.os.Parcelable"
+        errorLine1="open class ParcelableUsageKotlin protected constructor(parcel: Parcel) : Parcelable {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/ParcelableUsageKotlin.kt"/>
+    </issue>
+
+    <issue
+        id="BanTargetApiAnnotation"
+        message="Use `@RequiresApi` instead of `@TargetApi`"
+        errorLine1="@TargetApi(29)"
+        errorLine2="~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/TargetApiUsageJava.java"/>
+    </issue>
+
+    <issue
+        id="BanTargetApiAnnotation"
+        message="Use `@RequiresApi` instead of `@TargetApi`"
+        errorLine1="    @TargetApi(30)"
+        errorLine2="    ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/TargetApiUsageJava.java"/>
+    </issue>
+
+    <issue
+        id="BanTargetApiAnnotation"
+        message="Use `@RequiresApi` instead of `@TargetApi`"
+        errorLine1="@TargetApi(29)"
+        errorLine2="~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/TargetApiUsageKotlin.kt"/>
+    </issue>
+
+    <issue
+        id="BanTargetApiAnnotation"
+        message="Use `@RequiresApi` instead of `@TargetApi`"
+        errorLine1="    @TargetApi(30)"
+        errorLine2="    ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/TargetApiUsageKotlin.kt"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(1000);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/main/java/androidx/ThreadSleepUsageJava.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(1000)"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/main/java/androidx/ThreadSleepUsageKotlin.kt"/>
+    </issue>
+
+    <issue
+        id="BanUncheckedReflection"
+        message="Calling `Method.invoke` without an SDK check"
+        errorLine1="                        performStopActivity3ParamsMethod.invoke(activityThread,"
+        errorLine2="                        ^">
+        <location
+            file="src/main/java/androidx/sample/core/app/ActivityRecreator.java"/>
+    </issue>
+
+    <issue
+        id="BanUncheckedReflection"
+        message="Calling `Method.invoke` without an SDK check"
+        errorLine1="                        performStopActivity2ParamsMethod.invoke(activityThread,"
+        errorLine2="                        ^">
+        <location
+            file="src/main/java/androidx/sample/core/app/ActivityRecreator.java"/>
+    </issue>
+
+    <issue
+        id="BanUncheckedReflection"
+        message="Calling `Method.invoke` without an SDK check"
+        errorLine1="                        performStopActivity3ParamsMethod!!.invoke("
+        errorLine2="                        ^">
+        <location
+            file="src/main/java/androidx/sample/core/app/ActivityRecreatorKt.kt"/>
+    </issue>
+
+    <issue
+        id="BanUncheckedReflection"
+        message="Calling `Method.invoke` without an SDK check"
+        errorLine1="                        performStopActivity2ParamsMethod!!.invoke("
+        errorLine2="                        ^">
+        <location
+            file="src/main/java/androidx/sample/core/app/ActivityRecreatorKt.kt"/>
     </issue>
 
     <issue
         id="ClassVerificationFailure"
-        severity="Error"
+        message="This call references a method added in API level 21; however, the containing class androidx.sample.appcompat.widget.ActionBarBackgroundDrawable is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                mContainer.mSplitBackground.getOutline(outline);"
+        errorLine2="                                            ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/sample/appcompat/widget/ActionBarBackgroundDrawable.java"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.sample.appcompat.widget.ActionBarBackgroundDrawable is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                mContainer.mBackground.getOutline(outline);"
+        errorLine2="                                       ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/sample/appcompat/widget/ActionBarBackgroundDrawable.java"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 27; however, the containing class androidx.AutofixOnUnsafeCallWithImplicitVarArgsCast is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="        adapter.setAutofillOptions();"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/AutofixOnUnsafeCallWithImplicitVarArgsCast.java"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 27; however, the containing class androidx.AutofixOnUnsafeCallWithImplicitVarArgsCast is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="        adapter.setAutofillOptions(vararg);"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/AutofixOnUnsafeCallWithImplicitVarArgsCast.java"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 27; however, the containing class androidx.AutofixOnUnsafeCallWithImplicitVarArgsCast is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="        adapter.setAutofillOptions(vararg1, vararg2, vararg3);"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/AutofixOnUnsafeCallWithImplicitVarArgsCast.java"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 28; however, the containing class androidx.AutofixUnsafeCallOnCast is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            ((DisplayCutout) secretDisplayCutout).getSafeInsetTop();"
+        errorLine2="                                                  ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/AutofixUnsafeCallOnCast.java"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.AutofixUnsafeCallToThis is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            getClipToPadding();"
+        errorLine2="            ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/AutofixUnsafeCallToThis.java"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.AutofixUnsafeCallToThis is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            this.getClipToPadding();"
+        errorLine2="                 ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/AutofixUnsafeCallToThis.java"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.AutofixUnsafeCallToThis is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            super.getClipToPadding();"
+        errorLine2="                  ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/AutofixUnsafeCallToThis.java"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class androidx.AutofixUnsafeCallWithImplicitParamCast is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="        style.setBuilder(builder);"
+        errorLine2="              ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/AutofixUnsafeCallWithImplicitParamCast.java"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 20; however, the containing class androidx.AutofixUnsafeCallWithImplicitParamCast is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="        builder.extend(extender);"
+        errorLine2="                ~~~~~~">
+        <location
+            file="src/main/java/androidx/AutofixUnsafeCallWithImplicitParamCast.java"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.AutofixUnsafeCallWithImplicitReturnCast is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="        return new AdaptiveIconDrawable(null, null);"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/AutofixUnsafeCallWithImplicitReturnCast.java"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.AutofixUnsafeCallWithImplicitReturnCast is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="        return new AdaptiveIconDrawable(null, null);"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/AutofixUnsafeCallWithImplicitReturnCast.java"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.AutofixUnsafeCallWithImplicitReturnCast is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="        return Icon.createWithAdaptiveBitmap(null);"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/AutofixUnsafeCallWithImplicitReturnCast.java"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.AutofixUnsafeCallWithImplicitReturnCast is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="        return Icon.createWithAdaptiveBitmap(null);"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/AutofixUnsafeCallWithImplicitReturnCast.java"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 24; however, the containing class androidx.AutofixUnsafeCallWithImplicitReturnCast is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="        useStyle(new Notification.DecoratedCustomViewStyle());"
+        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/AutofixUnsafeCallWithImplicitReturnCast.java"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 24; however, the containing class androidx.AutofixUnsafeConstructorQualifiedClass is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="        return new Notification.DecoratedCustomViewStyle();"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/AutofixUnsafeConstructorQualifiedClass.java"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 30; however, the containing class androidx.AutofixUnsafeConstructorReferenceJava is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            AccessibilityNodeInfo node = new AccessibilityNodeInfo(new View(context), 1);"
+        errorLine2="                                         ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/AutofixUnsafeConstructorReferenceJava.java"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class androidx.AutofixUnsafeGenericMethodReferenceJava is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            return context.getSystemService(serviceClass);"
+        errorLine2="                           ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/AutofixUnsafeGenericMethodReferenceJava.java"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class androidx.AutofixUnsafeMethodWithQualifiedClass is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="        return builder.setMediaSize(mediaSize);"
+        errorLine2="                       ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/AutofixUnsafeMethodWithQualifiedClass.java"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.AutofixUnsafeReferenceWithExistingClassJava is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            view.setBackgroundTintList(new ColorStateList(null, null));"
+        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/AutofixUnsafeReferenceWithExistingClassJava.java"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.AutofixUnsafeReferenceWithExistingFix is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="        view.setBackgroundTintList(new ColorStateList(null, null));"
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/AutofixUnsafeReferenceWithExistingFix.java"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.AutofixUnsafeReferenceWithExistingFix is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="        drawable.getOutline(null);"
+        errorLine2="                 ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/AutofixUnsafeReferenceWithExistingFix.java"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 17; however, the containing class androidx.AutofixUnsafeStaticMethodReferenceJava is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            return View.generateViewId();"
+        errorLine2="                        ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/AutofixUnsafeStaticMethodReferenceJava.java"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.AutofixUnsafeVoidMethodReferenceJava is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            view.setBackgroundTintList(new ColorStateList(null, null));"
+        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/AutofixUnsafeVoidMethodReferenceJava.java"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.ClassVerificationFailureFromJava is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            view.setBackgroundTintList(tint);"
+        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/ClassVerificationFailureFromJava.java"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 17; however, the containing class androidx.ClassVerificationFailureFromJava is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            return View.generateViewId();"
+        errorLine2="                        ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/ClassVerificationFailureFromJava.java"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class androidx.ClassVerificationFailureFromJava is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="        return view.getAccessibilityClassName();"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/ClassVerificationFailureFromJava.java"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
         message="This call references a method added in API level 19; however, the containing class androidx.sample.core.widget.ListViewCompat is reachable from earlier API levels and will fail run-time class verification."
-        category="Correctness"
-        priority="5"
-        summary="Even in cases where references to new APIs are gated on SDK_INT checks, run-time class verification will still fail on references to APIs that may not be available at run time, including platform APIs introduced after a library&apos;s minSdkVersion."
-        explanation="The Java language requires a virtual machine to verify the class files it&#xA;loads and executes. A class may fail verification for a wide variety of&#xA;reasons, but in practice it‘s usually because the class’s code refers to&#xA;unknown classes or methods.&#xA;&#xA;References to APIs added after a library&apos;s minSdkVersion -- regardless of&#xA;any surrounding version checks -- will fail run-time class verification if&#xA;the API does not exist on the device, leading to reduced run-time&#xA;performance.&#xA;&#xA;Gating references on SDK checks alone DOES NOT address class verification&#xA;failures.&#xA;&#xA;To prevent class verification failures, references to new APIs must be&#xA;moved to inner classes that are only initialized inside of an appropriate&#xA;SDK check.&#xA;&#xA;For example, if our minimum SDK is 14 and platform method a.x(params...)&#xA;was added in SDK 16, the method call must be moved to an inner class like:&#xA;&#xA;@RequiresApi(16)&#xA;private static class Api16Impl{&#xA;  @DoNotInline&#xA;  static void callX(params...) {&#xA;    a.x(params...);&#xA;  }&#xA;}&#xA;&#xA;The call site is changed from a.x(params...) to Api16Impl.callX(params).&#xA;&#xA;Since ART will only try to optimize Api16Impl when it&apos;s on the execution&#xA;path, we are guaranteed to have a.x(...) available.&#xA;&#xA;In addition, optimizers like R8 or Proguard may inline the method in the&#xA;separate class and replace the wrapper call with the actual call, so you&#xA;must disable inlining using the @DoNotInline annotation.&#xA;&#xA;Failure to do the above may result in overall performance degradation."
         errorLine1="            listView.scrollListBy(y);"
         errorLine2="                     ~~~~~~~~~~~~">
         <location
-            file="$SUPPORT/lint-checks/integration-tests/src/main/java/androidx/core/widget/ListViewCompat.java"
-            line="39"
-            column="22"/>
+            file="src/main/java/androidx/sample/core/widget/ListViewCompat.java"/>
     </issue>
 
     <issue
         id="ClassVerificationFailure"
-        severity="Error"
         message="This call references a method added in API level 19; however, the containing class androidx.sample.core.widget.ListViewCompat is reachable from earlier API levels and will fail run-time class verification."
-        category="Correctness"
-        priority="5"
-        summary="Even in cases where references to new APIs are gated on SDK_INT checks, run-time class verification will still fail on references to APIs that may not be available at run time, including platform APIs introduced after a library&apos;s minSdkVersion."
-        explanation="The Java language requires a virtual machine to verify the class files it&#xA;loads and executes. A class may fail verification for a wide variety of&#xA;reasons, but in practice it‘s usually because the class’s code refers to&#xA;unknown classes or methods.&#xA;&#xA;References to APIs added after a library&apos;s minSdkVersion -- regardless of&#xA;any surrounding version checks -- will fail run-time class verification if&#xA;the API does not exist on the device, leading to reduced run-time&#xA;performance.&#xA;&#xA;Gating references on SDK checks alone DOES NOT address class verification&#xA;failures.&#xA;&#xA;To prevent class verification failures, references to new APIs must be&#xA;moved to inner classes that are only initialized inside of an appropriate&#xA;SDK check.&#xA;&#xA;For example, if our minimum SDK is 14 and platform method a.x(params...)&#xA;was added in SDK 16, the method call must be moved to an inner class like:&#xA;&#xA;@RequiresApi(16)&#xA;private static class Api16Impl{&#xA;  @DoNotInline&#xA;  static void callX(params...) {&#xA;    a.x(params...);&#xA;  }&#xA;}&#xA;&#xA;The call site is changed from a.x(params...) to Api16Impl.callX(params).&#xA;&#xA;Since ART will only try to optimize Api16Impl when it&apos;s on the execution&#xA;path, we are guaranteed to have a.x(...) available.&#xA;&#xA;In addition, optimizers like R8 or Proguard may inline the method in the&#xA;separate class and replace the wrapper call with the actual call, so you&#xA;must disable inlining using the @DoNotInline annotation.&#xA;&#xA;Failure to do the above may result in overall performance degradation."
         errorLine1="            return listView.canScrollList(direction);"
         errorLine2="                            ~~~~~~~~~~~~~">
         <location
-            file="$SUPPORT/lint-checks/integration-tests/src/main/java/androidx/core/widget/ListViewCompat.java"
-            line="69"
-            column="29"/>
+            file="src/main/java/androidx/sample/core/widget/ListViewCompat.java"/>
     </issue>
 
     <issue
-        id="PrivateConstructorForUtilityClass"
-        severity="Error"
-        message="Utility class is missing private constructor"
-        category="Correctness"
-        priority="5"
-        summary="Utility classes should have a private constructor"
-        explanation="Classes which are not intended to be instantiated should be made non-instantiable with a private constructor. This includes utility classes (classes with only static members), and the main class."
-        errorLine1="    static class DefaultInnerClass {"
-        errorLine2="                 ~~~~~~~~~~~~~~~~~">
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class androidx.sample.core.widget.ListViewCompatKotlin is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            listView.scrollListBy(y)"
+        errorLine2="                     ~~~~~~~~~~~~">
         <location
-            file="$SUPPORT/lint-checks/integration-tests/src/main/java/androidx/PrivateConstructorForUtilityClassJava.java"
-            line="37"
-            column="18"/>
+            file="src/main/java/androidx/sample/core/widget/ListViewCompatKotlin.kt"/>
     </issue>
 
     <issue
-        id="PrivateConstructorForUtilityClass"
-        severity="Error"
-        message="Utility class is missing private constructor"
-        category="Correctness"
-        priority="5"
-        summary="Utility classes should have a private constructor"
-        explanation="Classes which are not intended to be instantiated should be made non-instantiable with a private constructor. This includes utility classes (classes with only static members), and the main class."
-        errorLine1="    protected static class ProtectedInnerClass {"
-        errorLine2="                           ~~~~~~~~~~~~~~~~~~~">
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class androidx.sample.core.widget.ListViewCompatKotlin is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            listView.canScrollList(direction)"
+        errorLine2="                     ~~~~~~~~~~~~~">
         <location
-            file="$SUPPORT/lint-checks/integration-tests/src/main/java/androidx/PrivateConstructorForUtilityClassJava.java"
-            line="46"
-            column="28"/>
+            file="src/main/java/androidx/sample/core/widget/ListViewCompatKotlin.kt"/>
     </issue>
 
     <issue
-        id="PrivateConstructorForUtilityClass"
-        severity="Error"
-        message="Utility class is missing private constructor"
-        category="Correctness"
-        priority="5"
-        summary="Utility classes should have a private constructor"
-        explanation="Classes which are not intended to be instantiated should be made non-instantiable with a private constructor. This includes utility classes (classes with only static members), and the main class."
-        errorLine1="    public static class PublicInnerClass {"
-        errorLine2="                        ~~~~~~~~~~~~~~~~">
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class androidx.RequiresApiKotlinNoAnnotationFails.MyStaticClass is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            Character.isSurrogate(c)"
+        errorLine2="                      ~~~~~~~~~~~">
         <location
-            file="$SUPPORT/lint-checks/integration-tests/src/main/java/androidx/PrivateConstructorForUtilityClassJava.java"
-            line="55"
-            column="25"/>
+            file="src/main/java/androidx/RequiresApiKotlin.kt"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class androidx.RequiresApiKotlinOuter16Fails.MyStaticClass is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            Character.isSurrogate(c)"
+        errorLine2="                      ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/RequiresApiKotlin.kt"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class androidx.RequiresApiKotlinInner16Fails.MyStaticClass is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            Character.isSurrogate(c)"
+        errorLine2="                      ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/RequiresApiKotlin.kt"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class androidx.RequiresApiKotlinInner16Outer16Fails.MyStaticClass is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            Character.isSurrogate(c)"
+        errorLine2="                      ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/RequiresApiKotlin.kt"/>
+    </issue>
+
+    <issue
+        id="ImplicitCastClassVerificationFailure"
+        message="This expression has type android.app.Notification.CarExtender (introduced in API level 23) but it used as type android.app.Notification.Extender (introduced in API level 20). Run-time class verification will not be able to validate this implicit cast on devices between these API levels."
+        errorLine1="        builder.extend(extender);"
+        errorLine2="                       ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/AutofixUnsafeCallWithImplicitParamCast.java"/>
+    </issue>
+
+    <issue
+        id="ImplicitCastClassVerificationFailure"
+        message="This expression has type android.graphics.drawable.AdaptiveIconDrawable (introduced in API level 26) but it used as type android.graphics.drawable.Drawable (introduced in API level 1). Run-time class verification will not be able to validate this implicit cast on devices between these API levels."
+        errorLine1="        return new AdaptiveIconDrawable(null, null);"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/AutofixUnsafeCallWithImplicitReturnCast.java"/>
+    </issue>
+
+    <issue
+        id="ImplicitCastClassVerificationFailure"
+        message="This expression has type android.app.Notification.DecoratedCustomViewStyle (introduced in API level 24) but it used as type android.app.Notification.Style (introduced in API level 16). Run-time class verification will not be able to validate this implicit cast on devices between these API levels."
+        errorLine1="        useStyle(new Notification.DecoratedCustomViewStyle());"
+        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/AutofixUnsafeCallWithImplicitReturnCast.java"/>
+    </issue>
+
+    <issue
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 24 (ActivityRecreatorChecked)"
+        errorLine1="                    Log.e(LOG_TAG, &quot;Exception while invoking performStopActivity&quot;, t);"
+        errorLine2="                          ~~~~~~~">
+        <location
+            file="src/main/java/androidx/sample/core/app/ActivityRecreatorChecked.java"/>
+    </issue>
+
+    <issue
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 24 (ActivityRecreatorChecked)"
+        errorLine1="            Log.e(LOG_TAG, &quot;Exception while fetching field values&quot;, t);"
+        errorLine2="                  ~~~~~~~">
+        <location
+            file="src/main/java/androidx/sample/core/app/ActivityRecreatorChecked.java"/>
+    </issue>
+
+    <issue
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 24 (ActivityRecreatorChecked)"
+        errorLine1="                        LOG_TAG,"
+        errorLine2="                        ~~~~~~~">
+        <location
+            file="src/main/java/androidx/sample/core/app/ActivityRecreatorKtChecked.kt"/>
+    </issue>
+
+    <issue
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 24 (ActivityRecreatorChecked)"
+        errorLine1="            Log.e(LOG_TAG, &quot;Exception while fetching field values&quot;, t)"
+        errorLine2="                  ~~~~~~~">
+        <location
+            file="src/main/java/androidx/sample/core/app/ActivityRecreatorKtChecked.kt"/>
+    </issue>
+
+    <issue
+        id="MetadataTagInsideApplicationTag"
+        message="Detected &lt;application>-level meta-data tag."
+        errorLine1="        &lt;meta-data android:name=&quot;name&quot; android:value=&quot;value&quot; />"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/AndroidManifest.xml"/>
+    </issue>
+
+    <issue
+        id="MissingServiceExportedEqualsTrue"
+        message="Missing exported=true in &lt;service> tag"
+        errorLine1="        &lt;service android:name=&quot;androidx.core.app.JobIntentService&quot;>"
+        errorLine2="        ^">
+        <location
+            file="src/main/AndroidManifest.xml"/>
+    </issue>
+
+    <issue
+        id="UsesNonDefaultVisibleForTesting"
+        message="Found non-default `otherwise` value for @VisibleForTesting"
+        errorLine1="    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/VisibleForTestingUsageJava.java"/>
+    </issue>
+
+    <issue
+        id="UsesNonDefaultVisibleForTesting"
+        message="Found non-default `otherwise` value for @VisibleForTesting"
+        errorLine1="    @VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/VisibleForTestingUsageJava.java"/>
+    </issue>
+
+    <issue
+        id="UsesNonDefaultVisibleForTesting"
+        message="Found non-default `otherwise` value for @VisibleForTesting"
+        errorLine1="    @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/VisibleForTestingUsageJava.java"/>
+    </issue>
+
+    <issue
+        id="UsesNonDefaultVisibleForTesting"
+        message="Found non-default `otherwise` value for @VisibleForTesting"
+        errorLine1="    @VisibleForTesting(otherwise = VisibleForTesting.NONE)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/VisibleForTestingUsageJava.java"/>
+    </issue>
+
+    <issue
+        id="UsesNonDefaultVisibleForTesting"
+        message="Found non-default `otherwise` value for @VisibleForTesting"
+        errorLine1="    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/VisibleForTestingUsageKotlin.kt"/>
+    </issue>
+
+    <issue
+        id="UsesNonDefaultVisibleForTesting"
+        message="Found non-default `otherwise` value for @VisibleForTesting"
+        errorLine1="    @VisibleForTesting(otherwise = VisibleForTesting.Companion.PRIVATE)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/VisibleForTestingUsageKotlin.kt"/>
+    </issue>
+
+    <issue
+        id="UsesNonDefaultVisibleForTesting"
+        message="Found non-default `otherwise` value for @VisibleForTesting"
+        errorLine1="    @VisibleForTesting(VisibleForTesting.PRIVATE)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/VisibleForTestingUsageKotlin.kt"/>
+    </issue>
+
+    <issue
+        id="UsesNonDefaultVisibleForTesting"
+        message="Found non-default `otherwise` value for @VisibleForTesting"
+        errorLine1="    @VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/VisibleForTestingUsageKotlin.kt"/>
+    </issue>
+
+    <issue
+        id="UsesNonDefaultVisibleForTesting"
+        message="Found non-default `otherwise` value for @VisibleForTesting"
+        errorLine1="    @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/VisibleForTestingUsageKotlin.kt"/>
+    </issue>
+
+    <issue
+        id="UsesNonDefaultVisibleForTesting"
+        message="Found non-default `otherwise` value for @VisibleForTesting"
+        errorLine1="    @VisibleForTesting(otherwise = VisibleForTesting.NONE)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/VisibleForTestingUsageKotlin.kt"/>
+    </issue>
+
+    <issue
+        id="UsesNonDefaultVisibleForTesting"
+        message="Found non-default `otherwise` value for @VisibleForTesting"
+        errorLine1="    @get:VisibleForTesting(NONE)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/VisibleForTestingUsageKotlin.kt"/>
+    </issue>
+
+    <issue
+        id="UsesRestrictToTestsScope"
+        message="Replace `@RestrictTo(TESTS)` with `@VisibleForTesting`"
+        errorLine1="    @RestrictTo(androidx.annotation.RestrictTo.Scope.TESTS)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/RestrictToTestsAnnotationUsageJava.java"/>
+    </issue>
+
+    <issue
+        id="UsesRestrictToTestsScope"
+        message="Replace `@RestrictTo(TESTS)` with `@VisibleForTesting`"
+        errorLine1="    @RestrictTo(RestrictTo.Scope.TESTS)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/RestrictToTestsAnnotationUsageJava.java"/>
+    </issue>
+
+    <issue
+        id="UsesRestrictToTestsScope"
+        message="Replace `@RestrictTo(TESTS)` with `@VisibleForTesting`"
+        errorLine1="    @RestrictTo(Scope.TESTS)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/RestrictToTestsAnnotationUsageJava.java"/>
+    </issue>
+
+    <issue
+        id="UsesRestrictToTestsScope"
+        message="Replace `@RestrictTo(TESTS)` with `@VisibleForTesting`"
+        errorLine1="    @RestrictTo(TESTS)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/RestrictToTestsAnnotationUsageJava.java"/>
+    </issue>
+
+    <issue
+        id="UsesRestrictToTestsScope"
+        message="Replace `@RestrictTo(TESTS)` with `@VisibleForTesting`"
+        errorLine1="    @RestrictTo({Scope.TESTS, Scope.LIBRARY})"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/RestrictToTestsAnnotationUsageJava.java"/>
+    </issue>
+
+    <issue
+        id="UsesRestrictToTestsScope"
+        message="Replace `@RestrictTo(TESTS)` with `@VisibleForTesting`"
+        errorLine1="    @RestrictTo(RestrictTo.Scope.TESTS)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/RestrictToTestsAnnotationUsageKotlin.kt"/>
+    </issue>
+
+    <issue
+        id="UsesRestrictToTestsScope"
+        message="Replace `@RestrictTo(TESTS)` with `@VisibleForTesting`"
+        errorLine1="    @RestrictTo(RestrictTo.Scope.TESTS, RestrictTo.Scope.LIBRARY)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/RestrictToTestsAnnotationUsageKotlin.kt"/>
+    </issue>
+
+    <issue
+        id="UsesRestrictToTestsScope"
+        message="Replace `@RestrictTo(TESTS)` with `@VisibleForTesting`"
+        errorLine1="    @get:RestrictTo(RestrictTo.Scope.TESTS)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/RestrictToTestsAnnotationUsageKotlin.kt"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19 from outer annotation (`@RequiresApi(19)`)"
+        errorLine1="    @RequiresApi(16)"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/RequiresApiKotlin.kt"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        severity="Fatal"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        category="Interoperability:Kotlin Interoperability"
-        priority="6"
-        summary="Unknown nullness"
-        explanation="To improve referencing this code from Kotlin, consider adding&#xA;explicit nullness information here with either `@NonNull` or `@Nullable`.&#xA;&#xA;You can set the environment variable&#xA;    `ANDROID_LINT_NULLNESS_IGNORE_DEPRECATED=true`&#xA;if you want lint to ignore classes and members that have been annotated with&#xA;`@Deprecated`."
-        url="https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        urls="https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static Sample confirmIntrinisicLintChecksRun() {"
-        errorLine2="                  ~~~~~~">
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void callVarArgsMethodNoArgs(BaseAdapter adapter) {"
+        errorLine2="                                        ~~~~~~~~~~~">
         <location
-            file="$SUPPORT/lint-checks/integration-tests/src/main/java/androidx/Sample.java"
-            line="32"
-            column="19"/>
+            file="src/main/java/androidx/AutofixOnUnsafeCallWithImplicitVarArgsCast.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        severity="Fatal"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        category="Interoperability:Kotlin Interoperability"
-        priority="6"
-        summary="Unknown nullness"
-        explanation="To improve referencing this code from Kotlin, consider adding&#xA;explicit nullness information here with either `@NonNull` or `@Nullable`.&#xA;&#xA;You can set the environment variable&#xA;    `ANDROID_LINT_NULLNESS_IGNORE_DEPRECATED=true`&#xA;if you want lint to ignore classes and members that have been annotated with&#xA;`@Deprecated`."
-        url="https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        urls="https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static void confirmCustomAndroidXChecksRun(ConcurrentHashMap m) {"
-        errorLine2="                                                      ~~~~~~~~~~~~~~~~~">
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void callVarArgsMethodOneArg(BaseAdapter adapter, CharBuffer vararg) {"
+        errorLine2="                                        ~~~~~~~~~~~">
         <location
-            file="$SUPPORT/lint-checks/integration-tests/src/main/java/androidx/Sample.java"
-            line="41"
-            column="55"/>
+            file="src/main/java/androidx/AutofixOnUnsafeCallWithImplicitVarArgsCast.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void callVarArgsMethodOneArg(BaseAdapter adapter, CharBuffer vararg) {"
+        errorLine2="                                                             ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/AutofixOnUnsafeCallWithImplicitVarArgsCast.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void callVarArgsMethodManyArgs(BaseAdapter adapter, CharBuffer vararg1,"
+        errorLine2="                                          ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/AutofixOnUnsafeCallWithImplicitVarArgsCast.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void callVarArgsMethodManyArgs(BaseAdapter adapter, CharBuffer vararg1,"
+        errorLine2="                                                               ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/AutofixOnUnsafeCallWithImplicitVarArgsCast.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="            CharBuffer vararg2, CharBuffer vararg3) {"
+        errorLine2="            ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/AutofixOnUnsafeCallWithImplicitVarArgsCast.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="            CharBuffer vararg2, CharBuffer vararg3) {"
+        errorLine2="                                ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/AutofixOnUnsafeCallWithImplicitVarArgsCast.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void unsafeReferenceOnCastObject(Object secretDisplayCutout) {"
+        errorLine2="                                            ~~~~~~">
+        <location
+            file="src/main/java/androidx/AutofixUnsafeCallOnCast.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void castReceiver(Notification.MessagingStyle style, Notification.Builder builder) {"
+        errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/AutofixUnsafeCallWithImplicitParamCast.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void castReceiver(Notification.MessagingStyle style, Notification.Builder builder) {"
+        errorLine2="                                                                ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/AutofixUnsafeCallWithImplicitParamCast.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void castParameter(Notification.Builder builder, Notification.CarExtender extender) {"
+        errorLine2="                              ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/AutofixUnsafeCallWithImplicitParamCast.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void castParameter(Notification.Builder builder, Notification.CarExtender extender) {"
+        errorLine2="                                                            ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/AutofixUnsafeCallWithImplicitParamCast.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public Drawable createAdaptiveIconDrawableReturnDrawable() {"
+        errorLine2="           ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/AutofixUnsafeCallWithImplicitReturnCast.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public AdaptiveIconDrawable createAndReturnAdaptiveIconDrawable() {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/AutofixUnsafeCallWithImplicitReturnCast.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public Object methodReturnsIconAsObject() {"
+        errorLine2="           ~~~~~~">
+        <location
+            file="src/main/java/androidx/AutofixUnsafeCallWithImplicitReturnCast.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public Icon methodReturnsIconAsIcon() {"
+        errorLine2="           ~~~~">
+        <location
+            file="src/main/java/androidx/AutofixUnsafeCallWithImplicitReturnCast.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public Notification.DecoratedCustomViewStyle callQualifiedConstructor() {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/AutofixUnsafeConstructorQualifiedClass.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public PrintAttributes.Builder unsafeReferenceWithQualifiedClasses("
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/AutofixUnsafeMethodWithQualifiedClass.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="            PrintAttributes.Builder builder,"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/AutofixUnsafeMethodWithQualifiedClass.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="            PrintAttributes.MediaSize mediaSize"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/AutofixUnsafeMethodWithQualifiedClass.java"/>
     </issue>
 
 </issues>

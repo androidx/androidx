@@ -49,7 +49,7 @@ class Camera2CameraControl
 private constructor(
     private val compat: Camera2CameraControlCompat,
     private val threads: UseCaseThreads,
-    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) internal val requestListener:
+    @VisibleForTesting internal val requestListener:
     ComboRequestListener,
 ) : UseCaseCameraControl {
 

@@ -54,7 +54,7 @@ public final class WearableButtons {
      *
      * @param provider The new {@link WearableButtonsProvider} to use.
      */
-    @VisibleForTesting(otherwise = VisibleForTesting.NONE)
+    @VisibleForTesting
     public static void setWearableButtonsProvider(@NonNull WearableButtonsProvider provider) {
         sButtonsProvider = provider;
     }
