@@ -27,7 +27,7 @@ import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.core.telecom.CallControlCallback
 import androidx.core.telecom.CallControlScope
-import androidx.core.telecom.CallEndpoint
+import androidx.core.telecom.CallEndpointCompat
 import androidx.core.telecom.CallException
 import androidx.core.telecom.internal.utils.EndpointUtils
 import kotlin.coroutines.CoroutineContext
@@ -98,11 +98,11 @@ internal class CallSessionLegacy(
             Api28PlusImpl.refreshBluetoothDeviceCache(mCachedBluetoothDevices, state)
         }
         callChannels.currentEndpointChannel.trySend(
-            EndpointUtils.wrapCallAudioStateIntoCurrentEndpoint(state)
+            EndpointUtils.toCallEndpointCompat(state)
         ).getOrThrow()
 
         callChannels.availableEndpointChannel.trySend(
-            EndpointUtils.wrapCallAudioStateIntoAvailableEndpoints(state)
+            EndpointUtils.toCallEndpointsCompat(state)
         ).getOrThrow()
 
         callChannels.isMutedChannel.trySend(state.isMuted).getOrThrow()
@@ -141,7 +141,7 @@ internal class CallSessionLegacy(
     }
 
     @Suppress("deprecation")
-    fun requestEndpointChange(callEndpoint: CallEndpoint): Boolean {
+    fun requestEndpointChange(callEndpoint: CallEndpointCompat): Boolean {
         return if (Build.VERSION.SDK_INT < VERSION_CODES.P) {
             Api26PlusImpl.setAudio(callEndpoint, this)
             true
@@ -155,7 +155,7 @@ internal class CallSessionLegacy(
     private object Api26PlusImpl {
         @JvmStatic
         @DoNotInline
-        fun setAudio(callEndpoint: CallEndpoint, connection: CallSessionLegacy) {
+        fun setAudio(callEndpoint: CallEndpointCompat, connection: CallSessionLegacy) {
             connection.setAudioRoute(EndpointUtils.mapTypeToRoute(callEndpoint.type))
         }
     }
@@ -166,11 +166,11 @@ internal class CallSessionLegacy(
         @JvmStatic
         @DoNotInline
         fun setAudio(
-            callEndpoint: CallEndpoint,
+            callEndpoint: CallEndpointCompat,
             connection: CallSessionLegacy,
             btCache: ArrayList<BluetoothDevice>
         ): Boolean {
-            if (callEndpoint.type == CallEndpoint.TYPE_BLUETOOTH) {
+            if (callEndpoint.type == CallEndpointCompat.TYPE_BLUETOOTH) {
                 val btDevice = getBluetoothDeviceFromEndpoint(btCache, callEndpoint)
                 if (btDevice != null) {
                     connection.requestBluetoothAudio(btDevice)
@@ -197,7 +197,7 @@ internal class CallSessionLegacy(
         @DoNotInline
         fun getBluetoothDeviceFromEndpoint(
             btCacheList: ArrayList<BluetoothDevice>,
-            endpoint: CallEndpoint
+            endpoint: CallEndpointCompat
         ): BluetoothDevice? {
             for (btDevice in btCacheList) {
                 if (bluetoothDeviceMatchesEndpoint(btDevice, endpoint)) {
@@ -207,7 +207,7 @@ internal class CallSessionLegacy(
             return null
         }
 
-        fun bluetoothDeviceMatchesEndpoint(btDevice: BluetoothDevice, endpoint: CallEndpoint):
+        fun bluetoothDeviceMatchesEndpoint(btDevice: BluetoothDevice, endpoint: CallEndpointCompat):
             Boolean {
             return (btDevice.address?.equals(endpoint.mMackAddress) ?: false)
         }
@@ -297,16 +297,16 @@ internal class CallSessionLegacy(
             return session.setConnectionDisconnect(disconnectCause)
         }
 
-        override suspend fun requestEndpointChange(endpoint: CallEndpoint): Boolean {
+        override suspend fun requestEndpointChange(endpoint: CallEndpointCompat): Boolean {
             verifySessionCallbacks()
             return session.requestEndpointChange(endpoint)
         }
 
         // Send these events out to the client to collect
-        override val currentCallEndpoint: Flow<CallEndpoint> =
+        override val currentCallEndpoint: Flow<CallEndpointCompat> =
             callChannels.currentEndpointChannel.receiveAsFlow()
 
-        override val availableEndpoints: Flow<List<CallEndpoint>> =
+        override val availableEndpoints: Flow<List<CallEndpointCompat>> =
             callChannels.availableEndpointChannel.receiveAsFlow()
 
         override val isMuted: Flow<Boolean> =

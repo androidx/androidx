@@ -24,7 +24,7 @@ import android.telecom.DisconnectCause
 import androidx.annotation.RequiresApi
 import androidx.core.telecom.CallControlCallback
 import androidx.core.telecom.CallControlScope
-import androidx.core.telecom.CallEndpoint
+import androidx.core.telecom.CallEndpointCompat
 import androidx.core.telecom.internal.utils.EndpointUtils
 import java.util.function.Consumer
 import kotlin.coroutines.CoroutineContext
@@ -74,7 +74,7 @@ internal class CallSession(coroutineContext: CoroutineContext) {
             endpoint: android.telecom.CallEndpoint
         ) {
             callChannels.currentEndpointChannel.trySend(
-                EndpointUtils.Api34PlusImpl.fromPlatformEndpointToAndroidXEndpoint(endpoint)
+                EndpointUtils.Api34PlusImpl.toCallEndpointCompat(endpoint)
             ).getOrThrow()
         }
 
@@ -82,7 +82,7 @@ internal class CallSession(coroutineContext: CoroutineContext) {
             endpoints: List<android.telecom.CallEndpoint>
         ) {
             callChannels.availableEndpointChannel.trySend(
-                EndpointUtils.Api34PlusImpl.fromPlatformEndpointsToAndroidXEndpoints(endpoints)
+                EndpointUtils.Api34PlusImpl.toCallEndpointsCompat(endpoints)
             ).getOrThrow()
         }
 
@@ -254,19 +254,19 @@ internal class CallSession(coroutineContext: CoroutineContext) {
             return session.disconnect(disconnectCause)
         }
 
-        override suspend fun requestEndpointChange(endpoint: CallEndpoint):
+        override suspend fun requestEndpointChange(endpoint: CallEndpointCompat):
             Boolean {
             verifySessionCallbacks()
             return session.requestEndpointChange(
-                EndpointUtils.Api34PlusImpl.toPlatformEndpoint(endpoint)
+                EndpointUtils.Api34PlusImpl.toCallEndpoint(endpoint)
             )
         }
 
         // Send these events out to the client to collect
-        override val currentCallEndpoint: Flow<CallEndpoint> =
+        override val currentCallEndpoint: Flow<CallEndpointCompat> =
             callChannels.currentEndpointChannel.receiveAsFlow()
 
-        override val availableEndpoints: Flow<List<CallEndpoint>> =
+        override val availableEndpoints: Flow<List<CallEndpointCompat>> =
             callChannels.availableEndpointChannel.receiveAsFlow()
 
         override val isMuted: Flow<Boolean> =

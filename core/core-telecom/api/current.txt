@@ -1,8 +1,8 @@
 // Signature format: 4.0
 package androidx.core.telecom {
 
-  public final class CallAttributes {
-    ctor public CallAttributes(CharSequence displayName, android.net.Uri address, int direction, optional int callType, optional int callCapabilities);
+  public final class CallAttributesCompat {
+    ctor public CallAttributesCompat(CharSequence displayName, android.net.Uri address, int direction, optional int callType, optional int callCapabilities);
     method public android.net.Uri getAddress();
     method public int getCallCapabilities();
     method public int getCallType();
@@ -15,7 +15,7 @@ package androidx.core.telecom {
     property public final CharSequence displayName;
     field public static final int CALL_TYPE_AUDIO_CALL = 1; // 0x1
     field public static final int CALL_TYPE_VIDEO_CALL = 2; // 0x2
-    field public static final androidx.core.telecom.CallAttributes.Companion Companion;
+    field public static final androidx.core.telecom.CallAttributesCompat.Companion Companion;
     field public static final int DIRECTION_INCOMING = 1; // 0x1
     field public static final int DIRECTION_OUTGOING = 2; // 0x2
     field public static final int SUPPORTS_SET_INACTIVE = 2; // 0x2
@@ -23,7 +23,7 @@ package androidx.core.telecom {
     field public static final int SUPPORTS_TRANSFER = 8; // 0x8
   }
 
-  public static final class CallAttributes.Companion {
+  public static final class CallAttributesCompat.Companion {
   }
 
   public interface CallControlCallback {
@@ -36,28 +36,28 @@ package androidx.core.telecom {
   public interface CallControlScope {
     method public suspend Object? answer(int callType, kotlin.coroutines.Continuation<? super java.lang.Boolean>);
     method public suspend Object? disconnect(android.telecom.DisconnectCause disconnectCause, kotlin.coroutines.Continuation<? super java.lang.Boolean>);
-    method public kotlinx.coroutines.flow.Flow<java.util.List<androidx.core.telecom.CallEndpoint>> getAvailableEndpoints();
+    method public kotlinx.coroutines.flow.Flow<java.util.List<androidx.core.telecom.CallEndpointCompat>> getAvailableEndpoints();
     method public android.os.ParcelUuid getCallId();
-    method public kotlinx.coroutines.flow.Flow<androidx.core.telecom.CallEndpoint> getCurrentCallEndpoint();
+    method public kotlinx.coroutines.flow.Flow<androidx.core.telecom.CallEndpointCompat> getCurrentCallEndpoint();
     method public kotlinx.coroutines.flow.Flow<java.lang.Boolean> isMuted();
-    method public suspend Object? requestEndpointChange(androidx.core.telecom.CallEndpoint endpoint, kotlin.coroutines.Continuation<? super java.lang.Boolean>);
+    method public suspend Object? requestEndpointChange(androidx.core.telecom.CallEndpointCompat endpoint, kotlin.coroutines.Continuation<? super java.lang.Boolean>);
     method public suspend Object? setActive(kotlin.coroutines.Continuation<? super java.lang.Boolean>);
     method public void setCallback(androidx.core.telecom.CallControlCallback callControlCallback);
     method public suspend Object? setInactive(kotlin.coroutines.Continuation<? super java.lang.Boolean>);
-    property public abstract kotlinx.coroutines.flow.Flow<java.util.List<androidx.core.telecom.CallEndpoint>> availableEndpoints;
-    property public abstract kotlinx.coroutines.flow.Flow<androidx.core.telecom.CallEndpoint> currentCallEndpoint;
+    property public abstract kotlinx.coroutines.flow.Flow<java.util.List<androidx.core.telecom.CallEndpointCompat>> availableEndpoints;
+    property public abstract kotlinx.coroutines.flow.Flow<androidx.core.telecom.CallEndpointCompat> currentCallEndpoint;
     property public abstract kotlinx.coroutines.flow.Flow<java.lang.Boolean> isMuted;
   }
 
-  @RequiresApi(android.os.Build.VERSION_CODES.O) public final class CallEndpoint {
-    ctor public CallEndpoint(CharSequence name, int type, android.os.ParcelUuid identifier);
+  @RequiresApi(android.os.Build.VERSION_CODES.O) public final class CallEndpointCompat {
+    ctor public CallEndpointCompat(CharSequence name, int type, android.os.ParcelUuid identifier);
     method public android.os.ParcelUuid getIdentifier();
     method public CharSequence getName();
     method public int getType();
     property public final android.os.ParcelUuid identifier;
     property public final CharSequence name;
     property public final int type;
-    field public static final androidx.core.telecom.CallEndpoint.Companion Companion;
+    field public static final androidx.core.telecom.CallEndpointCompat.Companion Companion;
     field public static final int TYPE_BLUETOOTH = 2; // 0x2
     field public static final int TYPE_EARPIECE = 1; // 0x1
     field public static final int TYPE_SPEAKER = 4; // 0x4
@@ -66,7 +66,7 @@ package androidx.core.telecom {
     field public static final int TYPE_WIRED_HEADSET = 3; // 0x3
   }
 
-  public static final class CallEndpoint.Companion {
+  public static final class CallEndpointCompat.Companion {
   }
 
   public final class CallException extends java.lang.RuntimeException {
@@ -83,7 +83,7 @@ package androidx.core.telecom {
 
   @RequiresApi(android.os.Build.VERSION_CODES.O) public final class CallsManager {
     ctor public CallsManager(android.content.Context context);
-    method @RequiresPermission("android.permission.MANAGE_OWN_CALLS") public suspend Object? addCall(androidx.core.telecom.CallAttributes callAttributes, kotlin.jvm.functions.Function1<? super androidx.core.telecom.CallControlScope,kotlin.Unit> block, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method @RequiresPermission("android.permission.MANAGE_OWN_CALLS") public suspend Object? addCall(androidx.core.telecom.CallAttributesCompat callAttributes, kotlin.jvm.functions.Function1<? super androidx.core.telecom.CallControlScope,kotlin.Unit> block, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method @RequiresPermission("android.permission.MANAGE_OWN_CALLS") public void registerAppWithTelecom(int capabilities);
     field public static final int CAPABILITY_BASELINE = 1; // 0x1
     field public static final int CAPABILITY_SUPPORTS_CALL_STREAMING = 4; // 0x4

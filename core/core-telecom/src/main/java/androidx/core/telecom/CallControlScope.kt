@@ -90,7 +90,7 @@ interface CallControlScope {
      * other call is held or disconnected) which means that your app cannot answer this call at
      * this time.
      */
-    suspend fun answer(@CallAttributes.Companion.CallType callType: Int): Boolean
+    suspend fun answer(@CallAttributesCompat.Companion.CallType callType: Int): Boolean
 
     /**
      * Inform Telecom that your app wishes to disconnect the call and remove the call from telecom
@@ -114,27 +114,27 @@ interface CallControlScope {
     suspend fun disconnect(disconnectCause: android.telecom.DisconnectCause): Boolean
 
     /**
-     * Request a [CallEndpoint] change. Clients should not define their own [CallEndpoint] when
-     * requesting a change. Instead, the new [endpoint] should be one of the valid [CallEndpoint]s
+     * Request a [CallEndpointCompat] change. Clients should not define their own [CallEndpointCompat] when
+     * requesting a change. Instead, the new [endpoint] should be one of the valid [CallEndpointCompat]s
      * provided by [availableEndpoints].
      *
-     * @param endpoint The [CallEndpoint] to change to.
+     * @param endpoint The [CallEndpointCompat] to change to.
      *
      * Telecom will return true if your app is able to switch to the requested new endpoint.
      * Otherwise false will be returned.
      */
-    suspend fun requestEndpointChange(endpoint: CallEndpoint): Boolean
+    suspend fun requestEndpointChange(endpoint: CallEndpointCompat): Boolean
 
     /**
-     * Collect the new [CallEndpoint] through which call media flows (i.e. speaker,
+     * Collect the new [CallEndpointCompat] through which call media flows (i.e. speaker,
      * bluetooth, etc.).
      */
-    val currentCallEndpoint: Flow<CallEndpoint>
+    val currentCallEndpoint: Flow<CallEndpointCompat>
 
     /**
-     * Collect the set of available [CallEndpoint]s reported by Telecom.
+     * Collect the set of available [CallEndpointCompat]s reported by Telecom.
      */
-    val availableEndpoints: Flow<List<CallEndpoint>>
+    val availableEndpoints: Flow<List<CallEndpointCompat>>
 
     /**
      * Collect the current mute state of the call. This Flow is updated every time the mute state

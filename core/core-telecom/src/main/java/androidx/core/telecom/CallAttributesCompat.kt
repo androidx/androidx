@@ -36,7 +36,7 @@ import java.util.Objects
  * @param callCapabilities Allows a package to opt into capabilities on the telecom side,
  *                         on a per-call basis
  */
-class CallAttributes constructor(
+class CallAttributesCompat constructor(
     val displayName: CharSequence,
     val address: Uri,
     @Direction val direction: Int,
@@ -55,7 +55,7 @@ class CallAttributes constructor(
     }
 
     override fun equals(other: Any?): Boolean {
-        return other is CallAttributes &&
+        return other is CallAttributesCompat &&
             displayName == other.displayName &&
             address == other.address &&
             direction == other.direction &&
@@ -129,7 +129,7 @@ class CallAttributes constructor(
     }
 
     @RequiresApi(34)
-    internal fun toTelecomCallAttributes(
+    internal fun toCallAttributes(
         phoneAccountHandle: PhoneAccountHandle
     ): android.telecom.CallAttributes {
         return CallAttributesUtils.Api34PlusImpl.toTelecomCallAttributes(

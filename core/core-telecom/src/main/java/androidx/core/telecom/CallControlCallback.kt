@@ -66,10 +66,10 @@ interface CallControlCallback {
      * @param callType that call is requesting to be answered as.
      *
      * @return true to indicate your VoIP application can answer the call with the given
-     * [CallAttributes.Companion.CallType]. Otherwise, return false to indicate your application is
+     * [CallAttributesCompat.Companion.CallType]. Otherwise, return false to indicate your application is
      * unable to process the request and telecom will cancel the external request.
      */
-    suspend fun onAnswer(@CallAttributes.Companion.CallType callType: Int): Boolean
+    suspend fun onAnswer(@CallAttributesCompat.Companion.CallType callType: Int): Boolean
 
     /**
      * Telecom is informing your VoIP application to disconnect the call. Telecom is requesting this

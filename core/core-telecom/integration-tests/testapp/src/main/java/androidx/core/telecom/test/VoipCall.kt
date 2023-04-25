@@ -21,7 +21,7 @@ import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.telecom.CallControlCallback
 import androidx.core.telecom.CallControlScope
-import androidx.core.telecom.CallEndpoint
+import androidx.core.telecom.CallEndpointCompat
 
 @RequiresApi(34)
 class VoipCall {
@@ -29,8 +29,8 @@ class VoipCall {
 
     var mAdapter: CallListAdapter? = null
     var mCallControl: CallControlScope? = null
-    var mCurrentEndpoint: CallEndpoint? = null
-    var mAvailableEndpoints: List<CallEndpoint>? = ArrayList()
+    var mCurrentEndpoint: CallEndpointCompat? = null
+    var mAvailableEndpoints: List<CallEndpointCompat>? = ArrayList()
     var mIsMuted = false
     var mTelecomCallId: String = ""
 
@@ -65,13 +65,13 @@ class VoipCall {
         mTelecomCallId = callId
     }
 
-    fun onCallEndpointChanged(endpoint: CallEndpoint) {
+    fun onCallEndpointChanged(endpoint: CallEndpointCompat) {
         Log.i(TAG, "onCallEndpointChanged: endpoint=$endpoint")
         mCurrentEndpoint = endpoint
         mAdapter?.updateEndpoint(mTelecomCallId, endpoint.name.toString())
     }
 
-    fun onAvailableCallEndpointsChanged(endpoints: List<CallEndpoint>) {
+    fun onAvailableCallEndpointsChanged(endpoints: List<CallEndpointCompat>) {
         Log.i(TAG, "onAvailableCallEndpointsChanged:")
         for (endpoint in endpoints) {
             Log.i(TAG, "onAvailableCallEndpointsChanged: --> endpoint=$endpoint")
@@ -84,7 +84,7 @@ class VoipCall {
         mIsMuted = isMuted
     }
 
-    fun getEndpointType(type: Int): CallEndpoint? {
+    fun getEndpointType(type: Int): CallEndpointCompat? {
         for (endpoint in mAvailableEndpoints!!) {
             if (endpoint.type == type) {
                 return endpoint
