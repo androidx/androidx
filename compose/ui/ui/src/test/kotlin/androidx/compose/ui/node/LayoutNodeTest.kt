@@ -1393,7 +1393,7 @@ class LayoutNodeTest {
             private val node: Modifier.Node
         ) : ModifierNodeElement<Modifier.Node>() {
             override fun create() = node
-            override fun update(node: Modifier.Node) {}
+            override fun update(node: Modifier.Node) = node
         }
         val semanticsModifierElement1 = TestSemanticsModifierElement(semanticsModifier1)
         val semanticsModifierElement2 = TestSemanticsModifierElement(semanticsModifier2)

@@ -143,8 +143,9 @@ fun DrawModifierNodeSample() {
     }
     data class CircleElement(val color: Color) : ModifierNodeElement<CircleNode>() {
         override fun create() = CircleNode(color)
-        override fun update(node: CircleNode) {
+        override fun update(node: CircleNode): CircleNode {
             node.color = color
+            return node
         }
         override fun InspectorInfo.inspectableProperties() {
             name = "color"

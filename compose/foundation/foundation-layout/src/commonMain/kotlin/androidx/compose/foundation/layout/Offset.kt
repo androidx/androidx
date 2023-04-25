@@ -151,10 +151,10 @@ private class OffsetElement(
         return OffsetNode(x, y, rtlAware)
     }
 
-    override fun update(node: OffsetNode) {
-        node.x = x
-        node.y = y
-        node.rtlAware = rtlAware
+    override fun update(node: OffsetNode): OffsetNode = node.also {
+        it.x = x
+        it.y = y
+        it.rtlAware = rtlAware
     }
 
     override fun equals(other: Any?): Boolean {
@@ -208,9 +208,9 @@ private class OffsetPxElement(
         return OffsetPxNode(offset, rtlAware)
     }
 
-    override fun update(node: OffsetPxNode) {
-        node.offset = offset
-        node.rtlAware = rtlAware
+    override fun update(node: OffsetPxNode): OffsetPxNode = node.also {
+        it.offset = offset
+        it.rtlAware = rtlAware
     }
 
     override fun equals(other: Any?): Boolean {

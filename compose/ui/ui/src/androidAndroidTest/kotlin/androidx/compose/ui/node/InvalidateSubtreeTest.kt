@@ -152,7 +152,7 @@ class InvalidateSubtreeTest {
         override fun create() = object : Modifier.Node() {}
             .apply<Modifier.Node>(onCreate)
 
-        override fun update(node: Modifier.Node) {}
+        override fun update(node: Modifier.Node) = node
 
         override fun InspectorInfo.inspectableProperties() {
             name = "Invalidate Subtree Modifier.Node"

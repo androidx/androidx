@@ -100,8 +100,8 @@ private data class DrawBehindElement(
 ) : ModifierNodeElement<DrawBackgroundModifier>() {
     override fun create() = DrawBackgroundModifier(onDraw)
 
-    override fun update(node: DrawBackgroundModifier) {
-        node.onDraw = onDraw
+    override fun update(node: DrawBackgroundModifier) = node.apply {
+        onDraw = this@DrawBehindElement.onDraw
     }
 
     override fun InspectorInfo.inspectableProperties() {
@@ -148,8 +148,8 @@ private data class DrawWithCacheElement(
         return CacheDrawNode(CacheDrawScope(), onBuildDrawCache)
     }
 
-    override fun update(node: CacheDrawNode) {
-        node.block = onBuildDrawCache
+    override fun update(node: CacheDrawNode) = node.apply {
+        block = onBuildDrawCache
     }
 
     override fun InspectorInfo.inspectableProperties() {
@@ -281,8 +281,8 @@ private data class DrawWithContentElement(
 ) : ModifierNodeElement<DrawWithContentModifier>() {
     override fun create() = DrawWithContentModifier(onDraw)
 
-    override fun update(node: DrawWithContentModifier) {
-        node.onDraw = onDraw
+    override fun update(node: DrawWithContentModifier) = node.apply {
+        onDraw = this@DrawWithContentElement.onDraw
     }
 
     override fun InspectorInfo.inspectableProperties() {

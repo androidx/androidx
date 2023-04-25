@@ -89,10 +89,10 @@ private class ParentSizeElement(
         )
     }
 
-    override fun update(node: ParentSizeNode) {
-        node.fraction = fraction
-        node.widthState = widthState
-        node.heightState = heightState
+    override fun update(node: ParentSizeNode): ParentSizeNode = node.also {
+        it.fraction = fraction
+        it.widthState = widthState
+        it.heightState = heightState
     }
 
     override fun equals(other: Any?): Boolean {
@@ -160,8 +160,8 @@ private class AnimateItemPlacementElement(
 
     override fun create(): AnimateItemPlacementNode = AnimateItemPlacementNode(animationSpec)
 
-    override fun update(node: AnimateItemPlacementNode) {
-        node.delegatingNode.placementAnimationSpec = animationSpec
+    override fun update(node: AnimateItemPlacementNode): AnimateItemPlacementNode = node.also {
+        it.delegatingNode.placementAnimationSpec = animationSpec
     }
 
     override fun equals(other: Any?): Boolean {

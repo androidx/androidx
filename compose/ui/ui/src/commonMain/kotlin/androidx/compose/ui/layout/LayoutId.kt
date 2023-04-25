@@ -37,8 +37,8 @@ private data class LayoutIdModifierElement(
 ) : ModifierNodeElement<LayoutIdModifier>() {
     override fun create() = LayoutIdModifier(layoutId)
 
-    override fun update(node: LayoutIdModifier) {
-        node.layoutId = layoutId
+    override fun update(node: LayoutIdModifier): LayoutIdModifier = node.also {
+        it.layoutId = layoutId
     }
 
     override fun InspectorInfo.inspectableProperties() {

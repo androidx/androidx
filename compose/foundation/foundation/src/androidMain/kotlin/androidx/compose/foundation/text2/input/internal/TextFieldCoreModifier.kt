@@ -90,7 +90,7 @@ internal data class TextFieldCoreModifier(
         orientation = orientation,
     )
 
-    override fun update(node: TextFieldCoreModifierNode) {
+    override fun update(node: TextFieldCoreModifierNode): TextFieldCoreModifierNode {
         node.updateNode(
             isFocused = isFocused,
             textLayoutState = textLayoutState,
@@ -100,6 +100,7 @@ internal data class TextFieldCoreModifier(
             scrollState = scrollState,
             orientation = orientation,
         )
+        return node
     }
 
     override fun InspectorInfo.inspectableProperties() {

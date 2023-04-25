@@ -615,9 +615,9 @@ private class FillElement(
 ) : ModifierNodeElement<FillNode>() {
     override fun create(): FillNode = FillNode(direction = direction, fraction = fraction)
 
-    override fun update(node: FillNode) {
-        node.direction = direction
-        node.fraction = fraction
+    override fun update(node: FillNode): FillNode = node.also {
+        it.direction = direction
+        it.fraction = fraction
     }
 
     override fun InspectorInfo.inspectableProperties() {
@@ -723,12 +723,12 @@ private class SizeElement(
             enforceIncoming = enforceIncoming
         )
 
-    override fun update(node: SizeNode) {
-        node.minWidth = minWidth
-        node.minHeight = minHeight
-        node.maxWidth = maxWidth
-        node.maxHeight = maxHeight
-        node.enforceIncoming = enforceIncoming
+    override fun update(node: SizeNode): SizeNode = node.also {
+        it.minWidth = minWidth
+        it.minHeight = minHeight
+        it.maxWidth = maxWidth
+        it.maxHeight = maxHeight
+        it.enforceIncoming = enforceIncoming
     }
 
     override fun InspectorInfo.inspectableProperties() {
@@ -903,10 +903,10 @@ private class WrapContentElement(
         alignmentCallback
     )
 
-    override fun update(node: WrapContentNode) {
-        node.direction = direction
-        node.unbounded = unbounded
-        node.alignmentCallback = alignmentCallback
+    override fun update(node: WrapContentNode): WrapContentNode = node.also {
+        it.direction = direction
+        it.unbounded = unbounded
+        it.alignmentCallback = alignmentCallback
     }
 
     override fun InspectorInfo.inspectableProperties() {
@@ -1029,9 +1029,9 @@ private class UnspecifiedConstraintsElement(
         minHeight = minHeight
     )
 
-    override fun update(node: UnspecifiedConstraintsNode) {
-        node.minWidth = minWidth
-        node.minHeight = minHeight
+    override fun update(node: UnspecifiedConstraintsNode) = node.also {
+        it.minWidth = minWidth
+        it.minHeight = minHeight
     }
 
     override fun InspectorInfo.inspectableProperties() {

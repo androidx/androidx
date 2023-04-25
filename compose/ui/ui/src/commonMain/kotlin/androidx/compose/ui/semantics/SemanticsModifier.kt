@@ -57,7 +57,7 @@ internal object EmptySemanticsModifierNodeElement :
 
     override fun create() = CoreSemanticsModifierNode(semanticsConfiguration)
 
-    override fun update(node: CoreSemanticsModifierNode) {}
+    override fun update(node: CoreSemanticsModifierNode) = node
 
     override fun InspectorInfo.inspectableProperties() {
         // Nothing to inspect.
@@ -130,8 +130,8 @@ internal data class AppendedSemanticsModifierNodeElement(
         return CoreSemanticsModifierNode(semanticsConfiguration)
     }
 
-    override fun update(node: CoreSemanticsModifierNode) {
-        node.semanticsConfiguration = semanticsConfiguration
+    override fun update(node: CoreSemanticsModifierNode) = node.apply {
+        semanticsConfiguration = this@AppendedSemanticsModifierNodeElement.semanticsConfiguration
     }
 
     override fun InspectorInfo.inspectableProperties() {
@@ -179,8 +179,8 @@ internal data class ClearAndSetSemanticsModifierNodeElement(
         return CoreSemanticsModifierNode(semanticsConfiguration)
     }
 
-    override fun update(node: CoreSemanticsModifierNode) {
-        node.semanticsConfiguration = semanticsConfiguration
+    override fun update(node: CoreSemanticsModifierNode) = node.apply {
+        semanticsConfiguration = this@ClearAndSetSemanticsModifierNodeElement.semanticsConfiguration
     }
 
     override fun InspectorInfo.inspectableProperties() {

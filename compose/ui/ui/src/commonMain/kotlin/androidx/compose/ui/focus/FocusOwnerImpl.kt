@@ -65,7 +65,7 @@ internal class FocusOwnerImpl(onRequestApplyChangesListener: (() -> Unit) -> Uni
     override val modifier: Modifier = object : ModifierNodeElement<FocusTargetModifierNode>() {
         override fun create() = rootFocusNode
 
-        override fun update(node: FocusTargetModifierNode) {}
+        override fun update(node: FocusTargetModifierNode) = node
 
         override fun InspectorInfo.inspectableProperties() {
             name = "RootFocusTarget"

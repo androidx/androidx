@@ -303,9 +303,9 @@ private class MouseWheelScrollElement(
         return MouseWheelScrollNode(scrollingLogicState, mouseWheelScrollConfig)
     }
 
-    override fun update(node: MouseWheelScrollNode) {
-        node.scrollingLogicState = scrollingLogicState
-        node.mouseWheelScrollConfig = mouseWheelScrollConfig
+    override fun update(node: MouseWheelScrollNode): MouseWheelScrollNode = node.also {
+        it.scrollingLogicState = scrollingLogicState
+        it.mouseWheelScrollConfig = mouseWheelScrollConfig
     }
 
     override fun hashCode(): Int {

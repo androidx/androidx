@@ -269,9 +269,10 @@ private class BoxChildDataElement(
         return BoxChildDataNode(alignment, matchParentSize)
     }
 
-    override fun update(node: BoxChildDataNode) {
+    override fun update(node: BoxChildDataNode): BoxChildDataNode {
         node.alignment = alignment
         node.matchParentSize = matchParentSize
+        return node
     }
 
     override fun InspectorInfo.inspectableProperties() {

@@ -83,9 +83,10 @@ private class AspectRatioElement(
         )
     }
 
-    override fun update(node: AspectRatioNode) {
+    override fun update(node: AspectRatioNode): AspectRatioNode {
         node.aspectRatio = aspectRatio
         node.matchHeightConstraintsFirst = matchHeightConstraintsFirst
+        return node
     }
 
     override fun InspectorInfo.inspectableProperties() { inspectorInfo() }
