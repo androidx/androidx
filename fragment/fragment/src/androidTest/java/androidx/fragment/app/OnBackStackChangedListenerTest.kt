@@ -404,4 +404,45 @@ class OnBackStackChangedListenerTest {
             assertThat(committedCount).isEqualTo(0)
         }
     }
+
+    @Test
+    fun testOnBackChangeNoAddToBackstackWithAddToBackStack() {
+        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+            val fragmentManager = withActivity { supportFragmentManager }
+
+            val fragment = StrictFragment()
+            val fragment2 = StrictFragment()
+            var startedCount = 0
+            var committedCount = 0
+            val listener = object : OnBackStackChangedListener {
+                override fun onBackStackChanged() { /* nothing */ }
+
+                override fun onBackStackChangeStarted(fragment: Fragment, pop: Boolean) {
+                    startedCount++
+                }
+
+                override fun onBackStackChangeCommitted(fragment: Fragment, pop: Boolean) {
+                    committedCount++
+                }
+            }
+            fragmentManager.addOnBackStackChangedListener(listener)
+
+            withActivity {
+                fragmentManager.beginTransaction()
+                    .setReorderingAllowed(true)
+                    .add(R.id.content, fragment)
+                    .commit()
+
+                fragmentManager.beginTransaction()
+                    .setReorderingAllowed(true)
+                    .add(R.id.content, fragment2)
+                    .addToBackStack(null)
+                    .commit()
+                executePendingTransactions()
+            }
+
+            assertThat(startedCount).isEqualTo(1)
+            assertThat(committedCount).isEqualTo(1)
+        }
+    }
 }
