@@ -338,10 +338,10 @@ private class ScrollingLayoutElement(
         )
     }
 
-    override fun update(node: ScrollingLayoutNode): ScrollingLayoutNode = node.also {
-        it.scrollerState = scrollState
-        it.isReversed = isReversed
-        it.isVertical = isVertical
+    override fun update(node: ScrollingLayoutNode) {
+        node.scrollerState = scrollState
+        node.isReversed = isReversed
+        node.isVertical = isVertical
     }
 
     override fun hashCode(): Int {

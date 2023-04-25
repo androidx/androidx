@@ -789,7 +789,7 @@ private fun unattachedLayout(vararg modifiers: Modifier.Node): LayoutNode {
 
 internal data class NodeElement(val node: Modifier.Node) : ModifierNodeElement<Modifier.Node>() {
     override fun create(): Modifier.Node = node
-    override fun update(node: Modifier.Node): Modifier.Node = node
+    override fun update(node: Modifier.Node) {}
 }
 
 class Recorder : (Any) -> Unit {

@@ -106,8 +106,8 @@ private class BringIntoViewResponderElement(
 ) : ModifierNodeElement<BringIntoViewResponderNode>() {
     override fun create(): BringIntoViewResponderNode = BringIntoViewResponderNode(responder)
 
-    override fun update(node: BringIntoViewResponderNode) = node.also {
-        it.responder = responder
+    override fun update(node: BringIntoViewResponderNode) {
+        node.responder = responder
     }
     override fun equals(other: Any?): Boolean {
         return (this === other) ||

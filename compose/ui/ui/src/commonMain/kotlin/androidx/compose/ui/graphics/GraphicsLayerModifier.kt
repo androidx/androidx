@@ -421,7 +421,7 @@ private data class GraphicsLayerModifierNodeElement(
         )
     }
 
-    override fun update(node: SimpleGraphicsLayerModifier): SimpleGraphicsLayerModifier {
+    override fun update(node: SimpleGraphicsLayerModifier) {
         node.scaleX = scaleX
         node.scaleY = scaleY
         node.alpha = alpha
@@ -440,8 +440,6 @@ private data class GraphicsLayerModifierNodeElement(
         node.spotShadowColor = spotShadowColor
         node.compositingStrategy = compositingStrategy
         node.invalidateLayerBlock()
-
-        return node
     }
 
     override fun InspectorInfo.inspectableProperties() {
@@ -545,9 +543,9 @@ private data class BlockGraphicsLayerElement(
 ) : ModifierNodeElement<BlockGraphicsLayerModifier>() {
     override fun create() = BlockGraphicsLayerModifier(block)
 
-    override fun update(node: BlockGraphicsLayerModifier) = node.apply {
-        layerBlock = block
-        invalidateLayerBlock()
+    override fun update(node: BlockGraphicsLayerModifier) {
+        node.layerBlock = block
+        node.invalidateLayerBlock()
     }
 
     override fun InspectorInfo.inspectableProperties() {

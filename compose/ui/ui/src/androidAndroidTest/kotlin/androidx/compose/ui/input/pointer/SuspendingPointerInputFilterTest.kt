@@ -830,7 +830,7 @@ private fun elementFor(
     }
 
     override fun create() = instance
-    override fun update(node: Modifier.Node) = node
+    override fun update(node: Modifier.Node) {}
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is SuspendPointerInputModifierNodeElement) return false

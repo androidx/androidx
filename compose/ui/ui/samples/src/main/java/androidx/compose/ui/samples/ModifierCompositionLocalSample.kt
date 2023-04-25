@@ -44,7 +44,7 @@ fun CompositionLocalConsumingModifierSample() {
     }
     val BackgroundColorModifierElement = object : ModifierNodeElement<BackgroundColor>() {
         override fun create() = BackgroundColor()
-        override fun update(node: BackgroundColor) = node
+        override fun update(node: BackgroundColor) {}
         override fun hashCode() = System.identityHashCode(this)
         override fun equals(other: Any?) = (other === this)
         override fun InspectorInfo.inspectableProperties() {

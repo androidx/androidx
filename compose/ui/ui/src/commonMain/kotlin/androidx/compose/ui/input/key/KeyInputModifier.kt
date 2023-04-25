@@ -56,9 +56,9 @@ private data class KeyInputElement(
 ) : ModifierNodeElement<KeyInputModifierNodeImpl>() {
     override fun create() = KeyInputModifierNodeImpl(onKeyEvent, onPreKeyEvent)
 
-    override fun update(node: KeyInputModifierNodeImpl) = node.apply {
-        onEvent = onKeyEvent
-        onPreEvent = onPreKeyEvent
+    override fun update(node: KeyInputModifierNodeImpl) {
+        node.onEvent = onKeyEvent
+        node.onPreEvent = onPreKeyEvent
     }
 
     override fun InspectorInfo.inspectableProperties() {

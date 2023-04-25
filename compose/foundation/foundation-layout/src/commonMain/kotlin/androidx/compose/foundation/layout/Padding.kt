@@ -347,12 +347,12 @@ private class PaddingElement(
         return PaddingNode(start, top, end, bottom, rtlAware)
     }
 
-    override fun update(node: PaddingNode): PaddingNode = node.also {
-        it.start = start
-        it.top = top
-        it.end = end
-        it.bottom = bottom
-        it.rtlAware = rtlAware
+    override fun update(node: PaddingNode) {
+        node.start = start
+        node.top = top
+        node.end = end
+        node.bottom = bottom
+        node.rtlAware = rtlAware
     }
 
     override fun hashCode(): Int {
@@ -416,8 +416,8 @@ private class PaddingValuesModifierElement(
         return PaddingValuesModifier(paddingValues)
     }
 
-    override fun update(node: PaddingValuesModifier): PaddingValuesModifier = node.also {
-        it.paddingValues = paddingValues
+    override fun update(node: PaddingValuesModifier) {
+        node.paddingValues = paddingValues
     }
 
     override fun hashCode(): Int = paddingValues.hashCode()

@@ -83,9 +83,9 @@ private data class OnRotaryScrollEventElement(
         onPreEvent = onPreRotaryScrollEvent
     )
 
-    override fun update(node: RotaryInputModifierNodeImpl) = node.apply {
-        onEvent = onRotaryScrollEvent
-        onPreEvent = onPreRotaryScrollEvent
+    override fun update(node: RotaryInputModifierNodeImpl) {
+        node.onEvent = onRotaryScrollEvent
+        node.onPreEvent = onPreRotaryScrollEvent
     }
 
     override fun InspectorInfo.inspectableProperties() {
