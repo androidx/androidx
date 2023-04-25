@@ -79,9 +79,15 @@ fun Modifier.scrollableWithPivot(
     factory = {
         val coroutineScope = rememberCoroutineScope()
         val keepFocusedChildInViewModifier =
-            remember(coroutineScope, orientation, state, reverseDirection, pivotOffsets) {
+            remember(coroutineScope, orientation, state, reverseDirection, pivotOffsets, enabled) {
                 ContentInViewModifier(
-                    coroutineScope, orientation, state, reverseDirection, pivotOffsets)
+                    scope = coroutineScope,
+                    orientation = orientation,
+                    scrollState = state,
+                    reverseDirection = reverseDirection,
+                    pivotOffsets = pivotOffsets,
+                    userScrollEnabled = enabled
+                )
             }
 
         Modifier
