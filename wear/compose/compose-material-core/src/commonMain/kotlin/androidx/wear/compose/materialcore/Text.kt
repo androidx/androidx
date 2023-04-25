@@ -99,23 +99,20 @@ public fun Text(
     onTextLayout: (TextLayoutResult) -> Unit,
     style: TextStyle
 ) {
-    val mergedStyle = style.merge(
-        TextStyle(
-            color = color,
-            fontSize = fontSize,
-            fontWeight = fontWeight,
-            textAlign = textAlign,
-            lineHeight = lineHeight,
-            fontFamily = fontFamily,
-            textDecoration = textDecoration,
-            fontStyle = fontStyle,
-            letterSpacing = letterSpacing
-        )
-    )
     BasicText(
         text = text,
         modifier = modifier,
-        style = mergedStyle,
+        style = style.merge(
+                color = color,
+                fontSize = fontSize,
+                fontWeight = fontWeight,
+                textAlign = textAlign,
+                lineHeight = lineHeight,
+                fontFamily = fontFamily,
+                textDecoration = textDecoration,
+                fontStyle = fontStyle,
+                letterSpacing = letterSpacing
+        ),
         onTextLayout = onTextLayout,
         overflow = overflow,
         softWrap = softWrap,
