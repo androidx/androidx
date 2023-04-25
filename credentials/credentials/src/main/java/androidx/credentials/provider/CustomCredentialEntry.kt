@@ -309,7 +309,7 @@ class CustomCredentialEntry internal constructor(
                     typeDisplayName,
                     icon!!,
                     lastUsedTime,
-                    BeginGetCredentialOption(
+                    BeginGetCustomCredentialOption(
                         beginGetCredentialOptionId!!.toString(),
                         type,
                         Bundle()

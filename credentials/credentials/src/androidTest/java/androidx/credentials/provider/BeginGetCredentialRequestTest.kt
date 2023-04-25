@@ -47,7 +47,7 @@ class BeginGetCredentialRequestTest {
 
         val beginGetCredentialRequest = BeginGetCredentialRequest(
             listOf(
-                BeginGetCredentialOption(expectedId, expectedType, expectedBundle)
+                BeginGetCustomCredentialOption(expectedId, expectedType, expectedBundle)
             ),
             null
         )
