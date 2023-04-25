@@ -51,8 +51,8 @@ private class FocusedBoundsObserverElement(
 ) : ModifierNodeElement<FocusedBoundsObserverNode>() {
     override fun create(): FocusedBoundsObserverNode = FocusedBoundsObserverNode(onPositioned)
 
-    override fun update(node: FocusedBoundsObserverNode): FocusedBoundsObserverNode = node.also {
-        it.onPositioned = onPositioned
+    override fun update(node: FocusedBoundsObserverNode) {
+        node.onPositioned = onPositioned
     }
 
     override fun hashCode(): Int = onPositioned.hashCode()

@@ -421,8 +421,8 @@ private class ClickableElement(
         onClick
     )
 
-    override fun update(node: ClickableNode) = node.also {
-        it.update(interactionSource, enabled, onClickLabel, role, onClick)
+    override fun update(node: ClickableNode) {
+        node.update(interactionSource, enabled, onClickLabel, role, onClick)
     }
 
     // Defined in the factory functions with inspectable
@@ -474,8 +474,8 @@ private class CombinedClickableElement(
         onDoubleClick
     )
 
-    override fun update(node: CombinedClickableNode) = node.also {
-        it.update(
+    override fun update(node: CombinedClickableNode) {
+        node.update(
             interactionSource,
             enabled,
             onClickLabel,
@@ -757,8 +757,8 @@ private class ClickableSemanticsElement(
         onClick = onClick
     )
 
-    override fun update(node: ClickableSemanticsNode) = node.also {
-        it.update(enabled, onClickLabel, role, onClick, onLongClickLabel, onLongClick)
+    override fun update(node: ClickableSemanticsNode) {
+        node.update(enabled, onClickLabel, role, onClick, onLongClickLabel, onLongClick)
     }
 
     override fun InspectorInfo.inspectableProperties() = Unit

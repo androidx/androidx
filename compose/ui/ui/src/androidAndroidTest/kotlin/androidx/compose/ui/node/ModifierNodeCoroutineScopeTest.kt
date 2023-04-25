@@ -58,7 +58,7 @@ class ModifierNodeCoroutineScopeTest {
 
         val testElement = object : ModifierNodeElement<TestNode>() {
             override fun create(): TestNode = TestNode()
-            override fun update(node: TestNode): TestNode = node
+            override fun update(node: TestNode) {}
 
             override fun hashCode(): Int = 0
             override fun equals(other: Any?): Boolean = other === this

@@ -212,9 +212,8 @@ fun LayoutModifierNodeSample() {
         val padding: Dp
     ) : ModifierNodeElement<VerticalPadding>() {
         override fun create() = VerticalPadding(padding)
-        override fun update(node: VerticalPadding): VerticalPadding {
+        override fun update(node: VerticalPadding) {
             node.padding = padding
-            return node
         }
         override fun InspectorInfo.inspectableProperties() {
             name = "verticalPadding"

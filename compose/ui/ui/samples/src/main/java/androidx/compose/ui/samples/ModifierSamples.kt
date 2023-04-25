@@ -323,9 +323,8 @@ fun ModifierNodeElementSample() {
         val color: Color
     ) : ModifierNodeElement<Circle>() {
         override fun create() = Circle(color)
-        override fun update(node: Circle): Circle {
+        override fun update(node: Circle) {
             node.color = color
-            return node
         }
         override fun InspectorInfo.inspectableProperties() {
             name = "circle"
@@ -350,9 +349,8 @@ fun SemanticsModifierNodeSample() {
     val HeadingElement = object : ModifierNodeElement<HeadingNode>() {
         override fun create() = HeadingNode()
 
-        override fun update(node: HeadingNode): HeadingNode {
+        override fun update(node: HeadingNode) {
             // Nothing to update.
-            return node
         }
 
         override fun InspectorInfo.inspectableProperties() {
@@ -391,9 +389,8 @@ fun PointerInputModifierNodeSample() {
         val callback: (PointerEvent) -> Unit
     ) : ModifierNodeElement<OnPointerEventNode>() {
         override fun create() = OnPointerEventNode(callback)
-        override fun update(node: OnPointerEventNode): OnPointerEventNode {
+        override fun update(node: OnPointerEventNode) {
             node.callback = callback
-            return node
         }
 
         override fun InspectorInfo.inspectableProperties() {
@@ -418,9 +415,8 @@ fun LayoutAwareModifierNodeSample() {
 
     data class LogSizeElement(val id: String) : ModifierNodeElement<SizeLoggerNode>() {
         override fun create(): SizeLoggerNode = SizeLoggerNode(id)
-        override fun update(node: SizeLoggerNode): SizeLoggerNode {
+        override fun update(node: SizeLoggerNode) {
             node.id = id
-            return node
         }
         override fun InspectorInfo.inspectableProperties() {
             name = "logSize"
@@ -452,9 +448,8 @@ fun GlobalPositionAwareModifierNodeSample() {
 
     data class PositionLoggerElement(val id: String) : ModifierNodeElement<PositionLoggerNode>() {
         override fun create() = PositionLoggerNode(id)
-        override fun update(node: PositionLoggerNode): PositionLoggerNode {
+        override fun update(node: PositionLoggerNode) {
             node.id = id
-            return node
         }
         override fun InspectorInfo.inspectableProperties() {
             name = "logPosition"
@@ -481,9 +476,8 @@ fun JustReadingOrProvidingModifierLocalNodeSample() {
         val logger: Logger
     ) : ModifierNodeElement<ProvideLoggerNode>() {
         override fun create() = ProvideLoggerNode(logger)
-        override fun update(node: ProvideLoggerNode): ProvideLoggerNode {
+        override fun update(node: ProvideLoggerNode) {
             node.provide(loggerLocal, logger)
-            return node
         }
         override fun InspectorInfo.inspectableProperties() {
             name = "provideLogger"
@@ -503,9 +497,8 @@ fun JustReadingOrProvidingModifierLocalNodeSample() {
         val id: String
     ) : ModifierNodeElement<SizeLoggerNode>() {
         override fun create() = SizeLoggerNode(id)
-        override fun update(node: SizeLoggerNode): SizeLoggerNode {
+        override fun update(node: SizeLoggerNode) {
             node.id = id
-            return node
         }
         override fun InspectorInfo.inspectableProperties() {
             name = "logSize"
