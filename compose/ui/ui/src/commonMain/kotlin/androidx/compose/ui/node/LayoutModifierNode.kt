@@ -26,7 +26,6 @@ import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.layout.Placeable
-import androidx.compose.ui.layout.Remeasurement
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
@@ -45,13 +44,7 @@ import androidx.compose.ui.unit.IntSize
  *
  * @see androidx.compose.ui.layout.Layout
  */
-interface LayoutModifierNode : Remeasurement, DelegatableNode {
-    // NOTE(lmr): i guess RemeasurementModifier was created because there are some use
-    //  cases where we want to call forceRemeasure but we don't want to implement MeasureNode.
-    //  I think maybe we should just add this as an API on DelegatingNode. I don't think we need
-    //  to burn a NodeType on this...
-    override fun forceRemeasure() = requireLayoutNode().forceRemeasure()
-
+interface LayoutModifierNode : DelegatableNode {
     /**
      * The function used to measure the modifier. The [measurable] corresponds to the
      * wrapped content, and it can be measured with the desired constraints according
@@ -133,6 +126,13 @@ interface LayoutModifierNode : Remeasurement, DelegatableNode {
         width
     )
 }
+
+/**
+ * Performs the node remeasuring synchronously even if the node was not marked as needs
+ * remeasure before. Useful for cases like when during scrolling you need to re-execute the
+ * measure block to consume the scroll offset and remeasure your children in a blocking way.
+ */
+fun LayoutModifierNode.remeasureSync() = requireLayoutNode().forceRemeasure()
 
 /**
  * This will invalidate the current node's layer, and ensure that the layer is redrawn for the next
