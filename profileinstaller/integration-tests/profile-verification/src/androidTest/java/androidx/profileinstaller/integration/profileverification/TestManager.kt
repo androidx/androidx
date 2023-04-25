@@ -273,10 +273,10 @@ class WithPackageBlock internal constructor(private val packageName: String) {
     }
 
     class AssertUiBlock(private val lines: List<String>) {
-        fun profileInstalled(resultCode: Int) =
+        fun profileInstalled(vararg resultCodes: Int) =
             assertWithMessage("Unexpected profile verification result code")
                 .that(lines[0].toInt())
-                .isEqualTo(resultCode)
+                .isIn(resultCodes.asIterable())
 
         fun hasReferenceProfile(value: Boolean) =
             assertWithMessage("Unexpected hasReferenceProfile value")
