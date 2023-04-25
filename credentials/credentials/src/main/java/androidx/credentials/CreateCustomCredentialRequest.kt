@@ -36,12 +36,12 @@ import android.os.Bundle
  * @param type the credential type determined by the credential-type-specific subclass for
  * custom use cases
  * @param credentialData the data of this [CreateCustomCredentialRequest] in the [Bundle]
- * format (note: bundle keys in the form of `androidx.credentials.*` are reserved for internal
- * library use)
+ * format (note: bundle keys in the form of `androidx.credentials.*` and `android.credentials.*` are
+ * reserved for internal library usage)
  * @param candidateQueryData the partial request data in the [Bundle] format that will be sent
  * to the provider during the initial candidate query stage, which should not contain sensitive
- * user credential information (note: bundle keys in the form of `androidx.credentials.*` are
- * reserved for internal library use)
+ * user credential information (note: bundle keys in the form of `androidx.credentials.*` and
+ * `android.credentials.*` are reserved for internal library usage)
  * @param isSystemProviderRequired true if must only be fulfilled by a system provider and
  * false otherwise
  * @param isAutoSelectAllowed defines if a create entry will be automatically chosen if it is
@@ -76,26 +76,6 @@ open class CreateCustomCredentialRequest
     origin,
     preferImmediatelyAvailableCredentials
 ) {
-    /** Returns the credential type that this request is for. */
-    fun getCustomRequestType() = type
-
-    /** Returns the content of this [CreateCustomCredentialRequest] in the [Bundle] format. */
-    fun getCustomRequestData() = credentialData
-
-    /**
-     * Returns the part of the request content that will be sent to the provider during the initial
-     * candidate query stage, which should not contain sensitive user credential information.
-     */
-    fun getCustomRequestCandidateQueryData() = candidateQueryData
-
-    /**
-     * Returns the origin of a different application if the request is being made on behalf of
-     * that application. For API level >=34, only apps with the permission
-     * android.permission.CREDENTIAL_MANAGER_SET_ORIGIN will be able to set this value, as
-     * validated by the framework.
-     */
-    fun getCustomRequestOrigin() = origin
-
     init {
         require(type.isNotEmpty()) { "type should not be empty" }
     }

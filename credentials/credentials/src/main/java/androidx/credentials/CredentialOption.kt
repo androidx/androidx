@@ -18,7 +18,6 @@ package androidx.credentials
 
 import android.content.ComponentName
 import android.os.Bundle
-import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import androidx.credentials.internal.FrameworkClassParsingException
 
@@ -28,27 +27,28 @@ import androidx.credentials.internal.FrameworkClassParsingException
  * [GetCredentialRequest] will be composed of a list of [CredentialOption] subclasses to indicate
  * the specific credential types and configurations that your app accepts.
  *
+ * @property type the credential type determined by the credential-type-specific subclass (e.g.
+ * the type for [GetPasswordOption] is [PasswordCredential.TYPE_PASSWORD_CREDENTIAL] and for
+ * [GetPublicKeyCredentialOption] is [PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL])
+ * @property requestData the request data in the [Bundle] format
+ * @property candidateQueryData the partial request data in the [Bundle] format that will be sent to
+ * the provider during the initial candidate query stage, which will not contain sensitive user
+ * information
+ * @property isSystemProviderRequired true if must only be fulfilled by a system provider and false
+ * otherwise
+ * @property isAutoSelectAllowed whether a credential entry will be automatically chosen if it is
+ * the only one available option
  * @property allowedProviders a set of provider service [ComponentName] allowed to receive this
- * option. This property will only be honored at API level >= 34; also a [SecurityException] will
- * be thrown if it is set as non-empty but your app does not have
- * android.permission.CREDENTIAL_MANAGER_SET_ALLOWED_PROVIDERS. For API level < 34, control the
- * allowed provider via [library dependencies](https://developer.android.com/training/sign-in/passkeys#add-dependencies).
+ * option (Note: a [SecurityException] will be thrown if it is set as non-empty but your app does
+ * not have android.permission.CREDENTIAL_MANAGER_SET_ALLOWED_PROVIDERS; for API level < 34,
+ * this property will not take effect and you should control the allowed provider via
+ * [library dependencies](https://developer.android.com/training/sign-in/passkeys#add-dependencies))
  */
 abstract class CredentialOption internal constructor(
-    /** @hide */
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     val type: String,
-    /** @hide */
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     val requestData: Bundle,
-    /** @hide */
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     val candidateQueryData: Bundle,
-    /** @hide */
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     val isSystemProviderRequired: Boolean,
-    /** @hide */
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     val isAutoSelectAllowed: Boolean,
     val allowedProviders: Set<ComponentName>,
 ) {

@@ -80,17 +80,9 @@ class CreateCustomCredentialRequestTest {
         assertThat(request.type).isEqualTo(expectedType)
         assertThat(equals(request.credentialData, expectedCredentialDataBundle))
             .isTrue()
-        assertThat(equals(request.getCustomRequestData(), expectedCredentialDataBundle))
-            .isTrue()
         assertThat(
             equals(
                 request.candidateQueryData,
-                expectedCandidateQueryDataBundle
-            )
-        ).isTrue()
-        assertThat(
-            equals(
-                request.getCustomRequestCandidateQueryData(),
                 expectedCandidateQueryDataBundle
             )
         ).isTrue()
@@ -101,7 +93,6 @@ class CreateCustomCredentialRequestTest {
         )
         assertThat(request.displayInfo).isEqualTo(expectedDisplayInfo)
         assertThat(request.origin).isEqualTo(expectedOrigin)
-        assertThat(request.getCustomRequestOrigin()).isEqualTo(expectedOrigin)
     }
 
     @SdkSuppress(minSdkVersion = 23)
@@ -141,7 +132,6 @@ class CreateCustomCredentialRequestTest {
         assertThat(convertedRequest).isInstanceOf(CreateCustomCredentialRequest::class.java)
         val actualRequest = convertedRequest as CreateCustomCredentialRequest
         assertThat(actualRequest.type).isEqualTo(expectedType)
-        assertThat(actualRequest.getCustomRequestType()).isEqualTo(expectedType)
         assertThat(
             equals(
                 actualRequest.credentialData,
@@ -150,19 +140,7 @@ class CreateCustomCredentialRequestTest {
         ).isTrue()
         assertThat(
             equals(
-                actualRequest.getCustomRequestData(),
-                expectedCredentialDataBundle
-            )
-        ).isTrue()
-        assertThat(
-            equals(
                 actualRequest.candidateQueryData,
-                expectedCandidateQueryDataBundle
-            )
-        ).isTrue()
-        assertThat(
-            equals(
-                actualRequest.getCustomRequestCandidateQueryData(),
                 expectedCandidateQueryDataBundle
             )
         ).isTrue()
@@ -174,7 +152,6 @@ class CreateCustomCredentialRequestTest {
             .isEqualTo(expectedDisplayInfo.userDisplayName)
         assertThat(actualRequest.origin).isEqualTo(expectedOrigin)
         assertThat(actualRequest.origin).isEqualTo(expectedOrigin)
-        assertThat(actualRequest.getCustomRequestOrigin()).isEqualTo(expectedOrigin)
         assertThat(actualRequest.preferImmediatelyAvailableCredentials).isEqualTo(
             expectedPreferImmediatelyAvailableCredentials
         )

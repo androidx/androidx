@@ -17,20 +17,20 @@
 package androidx.credentials
 
 import android.os.Bundle
-import androidx.annotation.RestrictTo
 import androidx.credentials.internal.FrameworkClassParsingException
 
 /**
  * Base response class for the credential creation operation made with the
  * [CreateCredentialRequest].
+ *
+ * @property type the credential type determined by the credential-type-specific subclass (e.g.
+ * the type for [CreatePasswordResponse] is [PasswordCredential.TYPE_PASSWORD_CREDENTIAL] and for
+ * [CreatePublicKeyCredentialResponse] is [PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL])
+ * @property data the response data in the [Bundle] format
  */
 abstract class CreateCredentialResponse internal constructor(
-    /** @hide */
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    open val type: String,
-    /** @hide */
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    open val data: Bundle,
+    val type: String,
+    val data: Bundle,
 ) {
     /** @hide */
     companion object {

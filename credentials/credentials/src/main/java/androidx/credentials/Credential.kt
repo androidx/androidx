@@ -17,19 +17,19 @@
 package androidx.credentials
 
 import android.os.Bundle
-import androidx.annotation.RestrictTo
 import androidx.credentials.internal.FrameworkClassParsingException
 
 /**
  * Base class for a credential with which the user consented to authenticate to the app.
+ *
+ * @property type the credential type determined by the credential-type-specific subclass (e.g.
+ * [PasswordCredential.TYPE_PASSWORD_CREDENTIAL] for `PasswordCredential` or
+ * [PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL] for `PublicKeyCredential`)
+ * @property data the credential data in the [Bundle] format
  */
 abstract class Credential internal constructor(
-    /** @hide */
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    open val type: String,
-    /** @hide */
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    open val data: Bundle,
+    val type: String,
+    val data: Bundle,
 ) {
     /** @hide */
     companion object {

@@ -111,11 +111,7 @@ public class CreateCustomCredentialRequestJavaTest {
         assertThat(request.getType()).isEqualTo(expectedType);
         assertThat(TestUtilsKt.equals(request.getCredentialData(), expectedCredentialDataBundle))
                 .isTrue();
-        assertThat(TestUtilsKt.equals(request.getCustomRequestData(), expectedCredentialDataBundle))
-                .isTrue();
         assertThat(TestUtilsKt.equals(request.getCandidateQueryData(),
-                expectedCandidateQueryDataBundle)).isTrue();
-        assertThat(TestUtilsKt.equals(request.getCustomRequestCandidateQueryData(),
                 expectedCandidateQueryDataBundle)).isTrue();
         assertThat(request.isSystemProviderRequired()).isEqualTo(expectedSystemProvider);
         assertThat(request.isAutoSelectAllowed()).isEqualTo(expectedAutoSelectAllowed);
@@ -123,7 +119,6 @@ public class CreateCustomCredentialRequestJavaTest {
                 expectedPreferImmediatelyAvailableCredentials);
         assertThat(request.getDisplayInfo()).isEqualTo(expectedDisplayInfo);
         assertThat(request.getOrigin()).isEqualTo(expectedOrigin);
-        assertThat(request.getCustomRequestOrigin()).isEqualTo(expectedOrigin);
     }
 
     @Test
@@ -171,16 +166,10 @@ public class CreateCustomCredentialRequestJavaTest {
         CreateCustomCredentialRequest actualRequest =
                 (CreateCustomCredentialRequest) convertedRequest;
         assertThat(actualRequest.getType()).isEqualTo(expectedType);
-        assertThat(actualRequest.getCustomRequestType()).isEqualTo(expectedType);
         assertThat(TestUtilsKt.equals(actualRequest.getCredentialData(),
                 expectedCredentialDataBundle))
                 .isTrue();
-        assertThat(TestUtilsKt.equals(actualRequest.getCustomRequestData(),
-                expectedCredentialDataBundle))
-                .isTrue();
         assertThat(TestUtilsKt.equals(actualRequest.getCandidateQueryData(),
-                expectedCandidateQueryDataBundle)).isTrue();
-        assertThat(TestUtilsKt.equals(actualRequest.getCustomRequestCandidateQueryData(),
                 expectedCandidateQueryDataBundle)).isTrue();
         assertThat(actualRequest.isSystemProviderRequired()).isEqualTo(expectedSystemProvider);
         assertThat(actualRequest.isAutoSelectAllowed()).isEqualTo(expectedAutoSelectAllowed);
@@ -189,7 +178,6 @@ public class CreateCustomCredentialRequestJavaTest {
         assertThat(actualRequest.getDisplayInfo().getUserDisplayName())
                 .isEqualTo(expectedDisplayInfo.getUserDisplayName());
         assertThat(actualRequest.getOrigin()).isEqualTo(expectedOrigin);
-        assertThat(actualRequest.getCustomRequestOrigin()).isEqualTo(expectedOrigin);
         assertThat(actualRequest.preferImmediatelyAvailableCredentials()).isEqualTo(
                 expectedPreferImmediatelyAvailableCredentials);
     }
