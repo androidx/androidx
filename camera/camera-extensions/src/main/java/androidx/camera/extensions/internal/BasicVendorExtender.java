@@ -49,6 +49,7 @@ import androidx.camera.extensions.impl.ImageCaptureExtenderImpl;
 import androidx.camera.extensions.impl.NightImageCaptureExtenderImpl;
 import androidx.camera.extensions.impl.NightPreviewExtenderImpl;
 import androidx.camera.extensions.impl.PreviewExtenderImpl;
+import androidx.camera.extensions.internal.compat.workaround.AvailableKeysRetriever;
 import androidx.camera.extensions.internal.compat.workaround.ExtensionDisabledValidator;
 import androidx.camera.extensions.internal.sessionprocessor.BasicExtenderSessionProcessor;
 import androidx.core.util.Preconditions;
@@ -71,6 +72,9 @@ public class BasicVendorExtender implements VendorExtender {
     private PreviewExtenderImpl mPreviewExtenderImpl = null;
     private ImageCaptureExtenderImpl mImageCaptureExtenderImpl = null;
     private CameraInfo mCameraInfo;
+    private String mCameraId;
+    private CameraCharacteristics mCameraCharacteristics;
+    private AvailableKeysRetriever mAvailableKeysRetriever = new AvailableKeysRetriever();
 
     static final List<CaptureRequest.Key> sBaseSupportedKeys = new ArrayList<>(Arrays.asList(
             CaptureRequest.SCALER_CROP_REGION,
@@ -156,11 +160,11 @@ public class BasicVendorExtender implements VendorExtender {
             return;
         }
 
-        String cameraId = Camera2CameraInfo.from(cameraInfo).getCameraId();
-        CameraCharacteristics cameraCharacteristics =
+        mCameraId = Camera2CameraInfo.from(cameraInfo).getCameraId();
+        mCameraCharacteristics =
                 Camera2CameraInfo.extractCameraCharacteristics(cameraInfo);
-        mPreviewExtenderImpl.init(cameraId, cameraCharacteristics);
-        mImageCaptureExtenderImpl.init(cameraId, cameraCharacteristics);
+        mPreviewExtenderImpl.init(mCameraId, mCameraCharacteristics);
+        mImageCaptureExtenderImpl.init(mCameraId, mCameraCharacteristics);
 
         Logger.d(TAG, "PreviewExtender processorType= " + mPreviewExtenderImpl.getProcessorType());
         Logger.d(TAG, "ImageCaptureExtender processor= "
@@ -306,12 +310,16 @@ public class BasicVendorExtender implements VendorExtender {
     }
 
     @NonNull
-    private List<CaptureRequest.Key> getSupportedParameterKeys() {
+    private List<CaptureRequest.Key> getSupportedParameterKeys(Context context) {
         if (ExtensionVersion.getRuntimeVersion().compareTo(Version.VERSION_1_3) >= 0) {
             try {
                 List<CaptureRequest.Key> keys =
                         Collections.unmodifiableList(
-                                mImageCaptureExtenderImpl.getAvailableCaptureRequestKeys());
+                                mAvailableKeysRetriever.getAvailableCaptureRequestKeys(
+                                        mImageCaptureExtenderImpl,
+                                        mCameraId,
+                                        mCameraCharacteristics,
+                                        context));
                 if (keys == null) {
                     keys = Collections.emptyList();
                 }
@@ -335,7 +343,7 @@ public class BasicVendorExtender implements VendorExtender {
         Preconditions.checkNotNull(mCameraInfo, "VendorExtender#init() must be called first");
         return new BasicExtenderSessionProcessor(
                 mPreviewExtenderImpl, mImageCaptureExtenderImpl,
-                getSupportedParameterKeys(),
+                getSupportedParameterKeys(context),
                 context);
     }
 }
