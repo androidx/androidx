@@ -646,17 +646,15 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
 
         StateStore stateStore = config.getStateStore();
         if (stateStore != null) {
-            boolean updatesEnabled = config.getUpdatesEnabled();
             mDataPipeline =
                     config.getAnimationEnabled()
                             ? new ProtoLayoutDynamicDataPipeline(
-                                    updatesEnabled,
-                                    config.getSensorGateway(),
+                            config.getSensorGateway(),
                                     stateStore,
                                     new FixedQuotaManagerImpl(config.getRunningAnimationsLimit()),
                                     new FixedQuotaManagerImpl(DYNAMIC_NODES_MAX_COUNT))
                             : new ProtoLayoutDynamicDataPipeline(
-                                    updatesEnabled, config.getSensorGateway(), stateStore);
+                                    config.getSensorGateway(), stateStore);
             mDataPipeline.setFullyVisible(config.getIsViewFullyVisible());
         } else {
             mDataPipeline = null;

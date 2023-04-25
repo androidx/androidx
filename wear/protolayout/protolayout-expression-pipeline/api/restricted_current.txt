@@ -16,12 +16,9 @@ package androidx.wear.protolayout.expression.pipeline {
     method public static androidx.wear.protolayout.expression.pipeline.DynamicTypeBindingRequest forDynamicString(androidx.wear.protolayout.expression.DynamicBuilders.DynamicString, android.icu.util.ULocale, java.util.concurrent.Executor, androidx.wear.protolayout.expression.pipeline.DynamicTypeValueReceiver<java.lang.String!>);
   }
 
-  public class DynamicTypeEvaluator implements java.lang.AutoCloseable {
+  public class DynamicTypeEvaluator {
     ctor public DynamicTypeEvaluator(androidx.wear.protolayout.expression.pipeline.DynamicTypeEvaluator.Config);
     method public androidx.wear.protolayout.expression.pipeline.BoundDynamicType bind(androidx.wear.protolayout.expression.pipeline.DynamicTypeBindingRequest) throws androidx.wear.protolayout.expression.pipeline.DynamicTypeEvaluator.EvaluationException;
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void close();
-    method @UiThread public void disablePlatformDataSources();
-    method @UiThread public void enablePlatformDataSources();
   }
 
   public static final class DynamicTypeEvaluator.Config {
@@ -30,7 +27,6 @@ package androidx.wear.protolayout.expression.pipeline {
     method public androidx.wear.protolayout.expression.pipeline.sensor.SensorGateway? getSensorGateway();
     method public androidx.wear.protolayout.expression.pipeline.StateStore? getStateStore();
     method public androidx.wear.protolayout.expression.pipeline.TimeGateway? getTimeGateway();
-    method public boolean isPlatformDataSourcesInitiallyEnabled();
   }
 
   public static final class DynamicTypeEvaluator.Config.Builder {
@@ -38,7 +34,6 @@ package androidx.wear.protolayout.expression.pipeline {
     method public androidx.wear.protolayout.expression.pipeline.DynamicTypeEvaluator.Config build();
     method public androidx.wear.protolayout.expression.pipeline.DynamicTypeEvaluator.Config.Builder setAnimationQuotaManager(androidx.wear.protolayout.expression.pipeline.QuotaManager);
     method public androidx.wear.protolayout.expression.pipeline.DynamicTypeEvaluator.Config.Builder setDynamicTypesQuotaManager(androidx.wear.protolayout.expression.pipeline.QuotaManager);
-    method public androidx.wear.protolayout.expression.pipeline.DynamicTypeEvaluator.Config.Builder setPlatformDataSourcesInitiallyEnabled(boolean);
     method public androidx.wear.protolayout.expression.pipeline.DynamicTypeEvaluator.Config.Builder setSensorGateway(androidx.wear.protolayout.expression.pipeline.sensor.SensorGateway);
     method public androidx.wear.protolayout.expression.pipeline.DynamicTypeEvaluator.Config.Builder setStateStore(androidx.wear.protolayout.expression.pipeline.StateStore);
     method public androidx.wear.protolayout.expression.pipeline.DynamicTypeEvaluator.Config.Builder setTimeGateway(androidx.wear.protolayout.expression.pipeline.TimeGateway);

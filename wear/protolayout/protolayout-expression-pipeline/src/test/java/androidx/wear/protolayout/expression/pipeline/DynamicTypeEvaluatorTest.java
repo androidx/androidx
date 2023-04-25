@@ -92,7 +92,6 @@ public class DynamicTypeEvaluatorTest {
         StateStore stateStore = new StateStore(new HashMap<>());
         return new DynamicTypeEvaluator(
                 new DynamicTypeEvaluator.Config.Builder()
-                        .setPlatformDataSourcesInitiallyEnabled(true)
                         .setStateStore(stateStore)
                         .setAnimationQuotaManager(animationQuota)
                         .setDynamicTypesQuotaManager(dynamicTypesQuota)
