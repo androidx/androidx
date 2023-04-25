@@ -150,6 +150,7 @@ public class Fade extends Visibility {
             Log.d(LOG_TAG, "Fade.onAppear: startView, startVis, endView, endVis = "
                     + startView + ", " + view);
         }
+        ViewUtils.saveNonTransitionAlpha(view);
         float startAlpha = getStartAlpha(startValues, 0);
         if (startAlpha == 1) {
             startAlpha = 0;
@@ -202,10 +203,10 @@ public class Fade extends Visibility {
         @Override
         public void onAnimationEnd(Animator animation) {
             ViewUtils.setTransitionAlpha(mView, 1);
+            ViewUtils.clearNonTransitionAlpha(mView);
             if (mLayerTypeChanged) {
                 mView.setLayerType(View.LAYER_TYPE_NONE, null);
             }
-            ViewUtils.clearNonTransitionAlpha(mView);
         }
 
         @Override
