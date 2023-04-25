@@ -28,5 +28,5 @@
     <string name="emoji_category_symbols" msgid="5626171724310261787">"符號"</string>
     <string name="emoji_category_flags" msgid="6185639503532784871">"旗幟"</string>
     <string name="emoji_empty_non_recent_category" msgid="288822832574892625">"沒有可用的 Emoji"</string>
-    <string name="emoji_empty_recent_category" msgid="7863877827879290200">"您尚未使用任何 Emoji"</string>
+    <string name="emoji_empty_recent_category" msgid="7863877827879290200">"你尚未使用任何 Emoji"</string>
 </resources>
