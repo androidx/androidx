@@ -71,13 +71,11 @@ class UiSessionsTest {
 
     private val context: Context = ApplicationProvider.getApplicationContext()
     private val remoteViewsFactoryId = 123
-    private val changeViewId = 111
     private val remoteViews = RemoteViews(context.packageName, R.layout.remote_view)
     private val remoteViewsUiResponse =
         UiResponse.RemoteViewsUiBuilder()
             .setRemoteViews(remoteViews, SizeF(10f, 15f))
             .addRemoteViewsFactory(remoteViewsFactoryId, FakeRemoteViewsFactory())
-            .addViewIdForCollectionUpdate(changeViewId)
             .build()
     private val layout =
         androidx.wear.tiles.LayoutElementBuilders.Layout.Builder()
@@ -140,10 +138,9 @@ class UiSessionsTest {
         callback.receiveResponse()
         val uiCache = UiSessions.getUiCacheOrNull(sessionId)
         assertThat(uiCache).isNotNull()
-        assertThat(uiCache?.hasUnreadUiResponse()).isTrue()
-        assertThat(uiCache?.cachedChangedViewIds).containsExactly(changeViewId)
-        assertThat(uiCache?.cachedRemoteViewsSize).isEqualTo(SizeF(10f, 15f))
-        assertThat(uiCache?.cachedRemoteViews).isEqualTo(remoteViews)
+        assertThat(uiCache?.hasUnreadUiResponse).isTrue()
+        assertThat(uiCache?.cachedRemoteViewsInternal?.size).isEqualTo(SizeF(10f, 15f))
+        assertThat(uiCache?.cachedRemoteViewsInternal?.remoteViews).isEqualTo(remoteViews)
 
         // Test removing.
         assertThat(UiSessions.removeUiCache(sessionId)).isTrue()
@@ -176,11 +173,10 @@ class UiSessionsTest {
         callback.receiveResponse()
         val uiCache = UiSessions.getUiCacheOrNull(sessionId)
         assertThat(uiCache).isNotNull()
-        assertThat(uiCache?.hasUnreadUiResponse()).isTrue()
-        assertThat(uiCache?.cachedChangedViewIds).containsExactly(changeViewId)
-        assertThat(uiCache?.cachedRemoteViewsSize).isEqualTo(SizeF(10f, 15f))
-        assertThat(uiCache?.cachedRemoteViews).isEqualTo(remoteViews)
-        assertThat(uiCache?.cachedTileLayout).isNotNull()
+        assertThat(uiCache?.hasUnreadUiResponse).isTrue()
+        assertThat(uiCache?.cachedRemoteViewsInternal?.size).isEqualTo(SizeF(10f, 15f))
+        assertThat(uiCache?.cachedRemoteViewsInternal?.remoteViews).isEqualTo(remoteViews)
+        assertThat(uiCache?.cachedTileLayoutInternal).isNotNull()
     }
 
     @Test
@@ -232,20 +228,19 @@ class UiSessionsTest {
 
         val uiCache1 = UiSessions.getUiCacheOrNull(sessionId1)
         assertThat(uiCache1).isNotNull()
-        assertThat(uiCache1?.hasUnreadUiResponse()).isTrue()
-        assertThat(uiCache1?.cachedRemoteViews).isEqualTo(remoteViews)
-        assertThat(uiCache1?.cachedTileLayout).isNull()
+        assertThat(uiCache1?.hasUnreadUiResponse).isTrue()
+        assertThat(uiCache1?.cachedRemoteViewsInternal?.remoteViews).isEqualTo(remoteViews)
+        assertThat(uiCache1?.cachedTileLayoutInternal).isNull()
 
         val uiCache2 = UiSessions.getUiCacheOrNull(sessionId2)
         assertThat(uiCache2).isNotNull()
-        assertThat(uiCache2?.hasUnreadUiResponse()).isTrue()
-        assertThat(uiCache2?.cachedTileLayout).isNotNull()
-        assertThat(uiCache2?.cachedRemoteViews).isNull()
+        assertThat(uiCache2?.hasUnreadUiResponse).isTrue()
+        assertThat(uiCache2?.cachedTileLayoutInternal).isNotNull()
+        assertThat(uiCache2?.cachedRemoteViewsInternal).isNull()
 
         // Assert that UiCache2 response still marked unread.
         uiCache1?.resetUnreadUiResponse()
-        assertThat(uiCache2?.hasUnreadUiResponse()).isTrue()
-        assertThat(uiCache2?.cachedTileLayout).isNotNull()
+        assertThat(uiCache2?.hasUnreadUiResponse).isTrue()
 
         UiSessions.removeUiCache(sessionId1)
         UiSessions.removeUiCache(sessionId2)
@@ -278,9 +273,8 @@ class UiSessionsTest {
         callback.receiveResponse()
         val uiCache = UiSessions.getUiCacheOrNull(sessionId)
         assertThat(uiCache).isNotNull()
-        assertThat(uiCache?.hasUnreadUiResponse()).isTrue()
-        assertThat(uiCache?.cachedChangedViewIds).containsExactly(changeViewId)
-        assertThat(uiCache?.cachedRemoteViewsSize).isEqualTo(SizeF(10f, 15f))
-        assertThat(uiCache?.cachedRemoteViews).isEqualTo(remoteViews)
+        assertThat(uiCache?.hasUnreadUiResponse).isTrue()
+        assertThat(uiCache?.cachedRemoteViewsInternal?.size).isEqualTo(SizeF(10f, 15f))
+        assertThat(uiCache?.cachedRemoteViewsInternal?.remoteViews).isEqualTo(remoteViews)
     }
 }
