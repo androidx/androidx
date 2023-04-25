@@ -396,8 +396,8 @@ private class RemeasurementModifierElement(
     override fun create() = RemeasurementModifierNode().also {
         onRemeasurementAvailable(it)
     }
-    override fun update(node: RemeasurementModifierNode) {
-        onRemeasurementAvailable(node)
+    override fun update(node: RemeasurementModifierNode) = node.also {
+        onRemeasurementAvailable(it)
     }
     override fun hashCode(): Int = 242
     override fun equals(other: Any?) = other === this

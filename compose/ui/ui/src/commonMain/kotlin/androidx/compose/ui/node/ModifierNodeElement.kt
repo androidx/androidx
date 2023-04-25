@@ -67,7 +67,7 @@ abstract class ModifierNodeElement<N : Modifier.Node> : Modifier.Element, Inspec
      * application. This function will have the current node instance passed in as a parameter, and
      * it is expected that the node will be brought up to date.
      */
-    abstract fun update(node: N)
+    abstract fun update(node: N): N
 
     /**
      * Populates an [InspectorInfo] object with attributes to display in the layout inspector. This

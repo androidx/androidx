@@ -227,9 +227,7 @@ fun SimpleDrawChild(drawLatch: CountDownLatch) {
 private data class ParentDataAndLayoutElement(val data: String) :
     ModifierNodeElement<ParentDataAndLayoutNode>() {
     override fun create() = ParentDataAndLayoutNode(data)
-    override fun update(node: ParentDataAndLayoutNode) {
-        node.data = data
-    }
+    override fun update(node: ParentDataAndLayoutNode) = node.also { it.data = data }
 }
 
 class ParentDataAndLayoutNode(var data: String) : Modifier.Node(), LayoutModifierNode,

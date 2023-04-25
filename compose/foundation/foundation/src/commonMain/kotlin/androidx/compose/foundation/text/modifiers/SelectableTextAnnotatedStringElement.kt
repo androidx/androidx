@@ -60,7 +60,7 @@ internal data class SelectableTextAnnotatedStringElement(
 
     override fun update(
         node: SelectableTextAnnotatedStringNode
-    ) {
+    ): SelectableTextAnnotatedStringNode {
         node.update(
             text = text,
             style = style,
@@ -74,6 +74,7 @@ internal data class SelectableTextAnnotatedStringElement(
             onPlaceholderLayout = onPlaceholderLayout,
             selectionController = selectionController
         )
+        return node
     }
 
     override fun equals(other: Any?): Boolean {

@@ -40,8 +40,8 @@ private data class OnPlacedElement(
 ) : ModifierNodeElement<OnPlacedNode>() {
     override fun create() = OnPlacedNode(callback = onPlaced)
 
-    override fun update(node: OnPlacedNode) {
-        node.callback = onPlaced
+    override fun update(node: OnPlacedNode) = node.apply {
+        callback = onPlaced
     }
 
     override fun InspectorInfo.inspectableProperties() {

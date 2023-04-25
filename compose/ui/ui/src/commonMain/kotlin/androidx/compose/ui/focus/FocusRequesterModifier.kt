@@ -55,10 +55,10 @@ private data class FocusRequesterElement(
 ) : ModifierNodeElement<FocusRequesterModifierNodeImpl>() {
     override fun create() = FocusRequesterModifierNodeImpl(focusRequester)
 
-    override fun update(node: FocusRequesterModifierNodeImpl) {
-        node.focusRequester.focusRequesterNodes -= node
-        node.focusRequester = focusRequester
-        node.focusRequester.focusRequesterNodes += node
+    override fun update(node: FocusRequesterModifierNodeImpl) = node.apply {
+        focusRequester.focusRequesterNodes -= this
+        focusRequester = this@FocusRequesterElement.focusRequester
+        focusRequester.focusRequesterNodes += this
     }
 
     override fun InspectorInfo.inspectableProperties() {

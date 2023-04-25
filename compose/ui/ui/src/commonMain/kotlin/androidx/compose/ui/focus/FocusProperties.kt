@@ -187,8 +187,8 @@ private data class FocusPropertiesElement(
 ) : ModifierNodeElement<FocusPropertiesModifierNodeImpl>() {
     override fun create() = FocusPropertiesModifierNodeImpl(scope)
 
-    override fun update(node: FocusPropertiesModifierNodeImpl) {
-        node.focusPropertiesScope = scope
+    override fun update(node: FocusPropertiesModifierNodeImpl) = node.apply {
+        focusPropertiesScope = scope
     }
 
     override fun InspectorInfo.inspectableProperties() {

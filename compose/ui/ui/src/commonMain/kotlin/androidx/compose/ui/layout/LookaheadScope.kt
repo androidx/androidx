@@ -156,9 +156,8 @@ private data class IntermediateLayoutElement(
     ) -> MeasureResult,
 ) : ModifierNodeElement<IntermediateLayoutModifierNode>() {
     override fun create() = IntermediateLayoutModifierNode(measure)
-    override fun update(node: IntermediateLayoutModifierNode) {
-        node.measureBlock = measure
-    }
+    override fun update(node: IntermediateLayoutModifierNode): IntermediateLayoutModifierNode =
+        node.apply { this.measureBlock = measure }
 
     override fun InspectorInfo.inspectableProperties() {
         name = "intermediateLayout"

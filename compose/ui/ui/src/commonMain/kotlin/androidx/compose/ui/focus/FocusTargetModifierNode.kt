@@ -188,7 +188,7 @@ class FocusTargetModifierNode : ObserverNode, ModifierLocalNode, Modifier.Node()
     internal object FocusTargetModifierElement : ModifierNodeElement<FocusTargetModifierNode>() {
         override fun create() = FocusTargetModifierNode()
 
-        override fun update(node: FocusTargetModifierNode) {}
+        override fun update(node: FocusTargetModifierNode) = node
 
         override fun InspectorInfo.inspectableProperties() {
             name = "focusTarget"
