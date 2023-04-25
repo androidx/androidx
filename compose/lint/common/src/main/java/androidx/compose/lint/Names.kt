@@ -41,6 +41,10 @@ object Names {
         val State = Name(PackageName, "State")
         val MutableState = Name(PackageName, "MutableState")
         val MutableStateOf = Name(PackageName, "mutableStateOf")
+        val MutableIntStateOf = Name(PackageName, "mutableIntStateOf")
+        val MutableLongStateOf = Name(PackageName, "mutableLongStateOf")
+        val MutableFloatStateOf = Name(PackageName, "mutableFloatStateOf")
+        val MutableDoubleStateOf = Name(PackageName, "mutableDoubleStateOf")
         val MutableStateListOf = Name(PackageName, "mutableStateListOf")
         val MutableStateMapOf = Name(PackageName, "mutableStateMapOf")
         val ProduceState = Name(PackageName, "produceState")
@@ -50,6 +54,7 @@ object Names {
         val LaunchedEffect = Name(PackageName, "LaunchedEffect")
         val ReusableContent = Name(PackageName, "ReusableContent")
         val Key = Name(PackageName, "key")
+        val StructuralEqualityPolicy = Name(PackageName, "structuralEqualityPolicy")
     }
     object Ui {
         val PackageName = Package("androidx.compose.ui")
