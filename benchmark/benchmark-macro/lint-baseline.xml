@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.0.0-beta03" type="baseline" client="gradle" dependencies="false" name="AGP (8.0.0-beta03)" variant="all" version="8.0.0-beta03">
+<issues format="6" by="lint 8.1.0-alpha11" type="baseline" client="gradle" dependencies="false" name="AGP (8.1.0-alpha11)" variant="all" version="8.1.0-alpha11">
 
     <issue
         id="BanThreadSleep"
@@ -107,15 +107,6 @@
         errorLine2="                                      ~~~~~">
         <location
             file="src/androidTest/java/androidx/benchmark/macro/perfetto/PerfettoCaptureSweepTest.kt"/>
-    </issue>
-
-    <issue
-        id="BanThreadSleep"
-        message="Uses Thread.sleep()"
-        errorLine1="            Thread.sleep(5)"
-        errorLine2="                   ~~~~~">
-        <location
-            file="src/main/java/androidx/benchmark/macro/perfetto/server/PerfettoHttpServer.kt"/>
     </issue>
 
     <issue
