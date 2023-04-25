@@ -93,7 +93,8 @@ public class GreedyScheduler implements Scheduler, WorkConstraintsCallback, Exec
     ) {
         mContext = context;
         mWorkConstraintsTracker = new WorkConstraintsTrackerImpl(trackers, this);
-        mDelayedWorkTracker = new DelayedWorkTracker(this, configuration.getRunnableScheduler());
+        mDelayedWorkTracker = new DelayedWorkTracker(
+                this, configuration.getRunnableScheduler(), configuration.getClock());
         mConfiguration = configuration;
         mProcessor = processor;
         mWorkLauncher = workLauncher;
@@ -152,7 +153,7 @@ public class GreedyScheduler implements Scheduler, WorkConstraintsCallback, Exec
             }
             long throttled = throttleIfNeeded(workSpec);
             long nextRunTime = max(workSpec.calculateNextRunTime(), throttled);
-            long now = System.currentTimeMillis();
+            long now = mConfiguration.getClock().currentTimeMillis();
             if (workSpec.state == WorkInfo.State.ENQUEUED) {
                 if (now < nextRunTime) {
                     // Future work
@@ -290,7 +291,7 @@ public class GreedyScheduler implements Scheduler, WorkConstraintsCallback, Exec
             AttemptData firstRunAttempt = mFirstRunAttempts.get(id);
             if (firstRunAttempt == null) {
                 firstRunAttempt = new AttemptData(workSpec.runAttemptCount,
-                        System.currentTimeMillis());
+                        mConfiguration.getClock().currentTimeMillis());
                 mFirstRunAttempts.put(id, firstRunAttempt);
             }
             return firstRunAttempt.mTimeStamp
