@@ -26,9 +26,13 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.Quirk;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.Locale;
+
 /**
  * <p>QuirkSummary
- *     Bug Id: 192431846, 199582287, 218841498, 203481899, 216583006
+ *     Bug Id: 192431846, 199582287, 218841498, 203481899, 216583006, 278843124
  *     Description: Quirk which denotes {@link MediaCodecInfo} queried by {@link MediaCodecList}
  *                  returns incorrect info.
  *                  On Nokia 1, {@link CamcorderProfile} indicates it can support resolutions
@@ -55,19 +59,19 @@ import androidx.camera.core.impl.Quirk;
  *                  experimental result, H.264 + 3840x2160 can be used to record video on this
  *                  device. Hence use quirk to workaround this case. See b/203481899#comment2.
  *                  @link MediaCodecInfo} searched by {@link MediaCodecList#getCodecInfos()}
- *                  shows the maximum supported resolution of the AVC encoder is 1920x1072 on
- *                  Redmi note 4 and LG K10 LTE K430. However, the 1920x1080 option can be
- *                  successfully configured properly. See b/216583006.
+ *                  shows the maximum supported resolution of the AVC encoder is 1920x1072.
+ *                  However, the 1920x1080 option can be successfully configured properly.
+ *                  See b/216583006, b/278843124.
  *
  *     Device(s): Nokia 1, Motc C, X650, LG-X230, Positivo Twist 2 Pro, Huawei Mate9, Redmi note 4
- *                , LG K10 LTE K430
+ *                , LG K10 LTE K430, Samsung Galaxy A03 Core, Vivo Y75, Realme C11 2021
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class MediaCodecInfoReportIncorrectInfoQuirk implements Quirk {
 
     static boolean load() {
         return isNokia1() || isMotoC() || isX650() || isX230() || isHuaweiMate9()
-                || isPositivoTwist2Pro() || isRedmiNote4() || isLGK430();
+                || isPositivoTwist2Pro() || isFHDProblematicDevice();
     }
 
     private static boolean isNokia1() {
@@ -96,14 +100,13 @@ public class MediaCodecInfoReportIncorrectInfoQuirk implements Quirk {
                 Build.MODEL);
     }
 
-    private static boolean isRedmiNote4() {
-        return "Xiaomi".equalsIgnoreCase(Build.BRAND) && "redmi note 4".equalsIgnoreCase(
-                Build.MODEL);
-    }
-
-    private static boolean isLGK430() {
-        return "lge".equalsIgnoreCase(Build.BRAND) && "lg-k430".equalsIgnoreCase(Build.MODEL);
-    }
+    public static final List<String> INCORRECT_FHD_PROFILE_MODEL_LIST = Arrays.asList(
+            "lg-k430",
+            "redmi note 4",
+            "rmx3231",
+            "v2117",
+            "sm-a032f"
+    );
 
     /** Check if problematic MediaFormat info for these candidate devices. */
     public boolean isUnSupportMediaCodecInfo(@NonNull MediaFormat mediaFormat) {
@@ -116,7 +119,7 @@ public class MediaCodecInfoReportIncorrectInfoQuirk implements Quirk {
             int width = mediaFormat.getInteger(MediaFormat.KEY_WIDTH);
             int height = mediaFormat.getInteger(MediaFormat.KEY_HEIGHT);
             return (width == 3840 && height == 2160);
-        } else if (isRedmiNote4() || isLGK430()) {
+        } else if (isFHDProblematicDevice()) {
             if (MediaFormat.MIMETYPE_VIDEO_AVC.equals(
                     mediaFormat.getString(MediaFormat.KEY_MIME))) {
                 int width = mediaFormat.getInteger(MediaFormat.KEY_WIDTH);
@@ -130,5 +133,9 @@ public class MediaCodecInfoReportIncorrectInfoQuirk implements Quirk {
     private boolean isVideoFormat(@NonNull MediaFormat mediaFormat) {
         String mimeType = mediaFormat.getString(MediaFormat.KEY_MIME);
         return mimeType.contains("video/");
+    }
+
+    private static boolean isFHDProblematicDevice() {
+        return INCORRECT_FHD_PROFILE_MODEL_LIST.contains(Build.MODEL.toLowerCase(Locale.US));
     }
 }
