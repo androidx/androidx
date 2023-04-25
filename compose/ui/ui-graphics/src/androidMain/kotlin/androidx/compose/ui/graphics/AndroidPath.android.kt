@@ -180,6 +180,10 @@ inline fun Path.asAndroidPath(): android.graphics.Path =
         internalPath.reset()
     }
 
+    override fun rewind() {
+        internalPath.rewind()
+    }
+
     override fun translate(offset: Offset) {
         mMatrix.reset()
         mMatrix.setTranslate(offset.x, offset.y)

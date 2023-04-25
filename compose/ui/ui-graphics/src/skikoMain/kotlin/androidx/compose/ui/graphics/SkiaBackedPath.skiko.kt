@@ -164,6 +164,10 @@ internal class SkiaBackedPath(
         this.fillType = fillType
     }
 
+    override fun rewind() {
+        internalPath.rewind()
+    }
+
     override fun translate(offset: Offset) {
         internalPath.transform(Matrix33.makeTranslate(offset.x, offset.y))
     }
