@@ -207,8 +207,9 @@ private fun ListItem(
     paddingValues: PaddingValues,
     content: @Composable RowScope.() -> Unit,
 ) {
+    val semanticModifier = Modifier.semantics(mergeDescendants = true) { }.then(modifier)
     Surface(
-        modifier = modifier,
+        modifier = semanticModifier,
         shape = shape,
         color = containerColor,
         contentColor = contentColor,
@@ -218,8 +219,7 @@ private fun ListItem(
         Row(
             modifier = Modifier
                 .heightIn(min = minHeight)
-                .padding(paddingValues)
-                .semantics(mergeDescendants = true) {},
+                .padding(paddingValues),
             content = content
         )
     }
