@@ -692,7 +692,13 @@ class CanvasFrontBufferedRendererTest {
         // See "b/277225133" these tests pass on cuttlefish + other devices but fail for some reason
         // FTL configured API level 33 emulator instances
         // Additionally some cuttlefish instances don't support rotation based testing (b/277764242)
-        !(Build.MODEL.contains("gphone") && Build.VERSION.SDK_INT == 33) &&
-            !(Build.MODEL.contains("Cuttlefish") &&
-                (Build.VERSION.SDK_INT == 30 || BuildCompat.isAtLeastV()))
+        isSupportedGphone() && isSupportedCuttlefish()
+
+    private fun isSupportedGphone() =
+        !(Build.MODEL.contains("gphone") &&
+            (Build.VERSION.SDK_INT == 33 || Build.VERSION.SDK_INT == 30))
+
+    private fun isSupportedCuttlefish() =
+        !(Build.MODEL.contains("Cuttlefish") &&
+            (Build.VERSION.SDK_INT == 30 || BuildCompat.isAtLeastV()))
 }
