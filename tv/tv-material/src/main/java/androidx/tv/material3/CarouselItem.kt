@@ -16,12 +16,15 @@
 
 package androidx.tv.material3
 
+import android.content.Context
+import android.view.accessibility.AccessibilityManager
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ContentTransform
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
@@ -37,8 +40,13 @@ import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusState
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.semantics.CollectionItemInfo
+import androidx.compose.ui.semantics.collectionItemInfo
+import androidx.compose.ui.semantics.isContainer
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.tv.material3.KeyEventPropagation.ContinuePropagation
 
@@ -67,6 +75,10 @@ internal fun CarouselItem(
         CarouselItemDefaults.contentTransformStartToEnd,
     content: @Composable () -> Unit,
 ) {
+    val context = LocalContext.current
+    val accessibilityManager = remember {
+        context.getSystemService(Context.ACCESSIBILITY_SERVICE) as AccessibilityManager
+    }
     var containerBoxFocusState: FocusState? by remember { mutableStateOf(null) }
     val focusManager = LocalFocusManager.current
     var exitFocus by remember { mutableStateOf(false) }
@@ -81,6 +93,16 @@ internal fun CarouselItem(
     // This box holds the focus until the overlay animation completes
     Box(
         modifier = modifier
+            .semantics(mergeDescendants = true) {
+                isContainer = true
+                collectionItemInfo =
+                    CollectionItemInfo(
+                        rowIndex = 0,
+                        rowSpan = 1,
+                        columnIndex = itemIndex,
+                        columnSpan = 1
+                    )
+            }
             .onKeyEvent {
                 exitFocus = it.isBackPress() && it.isTypeKeyDown()
                 ContinuePropagation
@@ -92,7 +114,14 @@ internal fun CarouselItem(
                     exitFocus = false
                 }
             }
-            .focusable()
+            .then(
+                if (accessibilityManager.isEnabled)
+                    Modifier.clickable {
+                        focusManager.moveFocus(FocusDirection.Enter)
+                    }
+                else
+                    Modifier.focusable()
+            )
     ) {
         background()
 
@@ -102,7 +131,10 @@ internal fun CarouselItem(
             exit = contentTransform.initialContentExit,
         ) {
             LaunchedEffect(transition.isRunning, containerBoxFocusState?.isFocused) {
-                if (!transition.isRunning && containerBoxFocusState?.isFocused == true) {
+                if (!transition.isRunning &&
+                    containerBoxFocusState?.isFocused == true &&
+                    !accessibilityManager.isEnabled
+                ) {
                     focusManager.moveFocus(FocusDirection.Enter)
                 }
             }

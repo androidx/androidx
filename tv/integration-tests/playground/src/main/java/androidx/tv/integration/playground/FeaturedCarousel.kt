@@ -16,7 +16,6 @@
 
 package androidx.tv.integration.playground
 
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.focusable
@@ -42,8 +41,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
-import androidx.tv.foundation.ExperimentalTvFoundationApi
 import androidx.tv.material3.Carousel
 import androidx.tv.material3.CarouselDefaults
 import androidx.tv.material3.CarouselState
@@ -88,9 +88,7 @@ fun FeaturedCarouselContent() {
     }
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class, ExperimentalAnimationApi::class,
-    ExperimentalTvFoundationApi::class
-)
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 internal fun FeaturedCarousel(modifier: Modifier = Modifier) {
     val backgrounds = listOf(
@@ -105,41 +103,47 @@ internal fun FeaturedCarousel(modifier: Modifier = Modifier) {
     )
 
     val carouselState = remember { CarouselState() }
-    FocusGroup {
-        Carousel(
-            itemCount = backgrounds.size,
-            carouselState = carouselState,
-            modifier = modifier
-                .height(300.dp)
-                .fillMaxWidth(),
-            carouselIndicator = {
-                CarouselDefaults.IndicatorRow(
-                    itemCount = backgrounds.size,
-                    activeItemIndex = carouselState.activeItemIndex,
+    Carousel(
+        itemCount = backgrounds.size,
+        carouselState = carouselState,
+        modifier = modifier
+            .height(300.dp)
+            .fillMaxWidth(),
+        carouselIndicator = {
+            CarouselDefaults.IndicatorRow(
+                itemCount = backgrounds.size,
+                activeItemIndex = carouselState.activeItemIndex,
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(16.dp),
+            )
+        }
+    ) { itemIndex ->
+        CarouselItem(
+            modifier = Modifier.semantics {
+                contentDescription = "Featured Content"
+            },
+            background = {
+                Box(
                     modifier = Modifier
-                        .align(Alignment.BottomEnd)
-                        .padding(16.dp),
+                        .background(backgrounds[itemIndex])
+                        .fillMaxSize()
                 )
-            }
-        ) { itemIndex ->
-            CarouselItem(
-                background = {
-                    Box(
-                        modifier = Modifier
-                            .background(backgrounds[itemIndex])
-                            .fillMaxSize()
-                    )
-                },
-                modifier =
-                if (itemIndex == 0)
-                    Modifier.initiallyFocused()
-                else
-                    Modifier.restorableFocus()
+            },
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(20.dp),
+                contentAlignment = Alignment.BottomStart
             ) {
-                Box(modifier = Modifier) {
-                    OverlayButton(
-                        modifier = Modifier
-                    )
+                Column {
+                    Text(text = "This is sample text content.", color = Color.Yellow)
+                    Text(text = "Sample description.", color = Color.Yellow)
+                    Row {
+                        OverlayButton(text = "Play")
+                        OverlayButton(text = "Add to Watchlist")
+                    }
                 }
             }
         }
@@ -147,14 +151,16 @@ internal fun FeaturedCarousel(modifier: Modifier = Modifier) {
 }
 
 @Composable
-private fun OverlayButton(modifier: Modifier = Modifier) {
+private fun OverlayButton(modifier: Modifier = Modifier, text: String = "Test Button") {
     var isFocused by remember { mutableStateOf(false) }
 
     Button(
         onClick = { },
         modifier = modifier
-            .onFocusChanged { isFocused = it.isFocused }
-            .padding(40.dp)
+            .onFocusChanged {
+                isFocused = it.isFocused
+            }
+            .padding(20.dp)
             .border(
                 width = 2.dp,
                 color = if (isFocused) Color.Red else Color.Transparent,
@@ -162,6 +168,6 @@ private fun OverlayButton(modifier: Modifier = Modifier) {
             )
             .padding(vertical = 2.dp, horizontal = 5.dp)
     ) {
-        Text(text = "Play")
+        Text(text = text)
     }
 }
