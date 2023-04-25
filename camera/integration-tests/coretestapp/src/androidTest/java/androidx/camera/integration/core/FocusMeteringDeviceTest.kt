@@ -17,12 +17,9 @@
 package androidx.camera.integration.core
 
 import android.content.Context
-import android.hardware.camera2.CameraCaptureSession
 import android.hardware.camera2.CameraCharacteristics.CONTROL_MAX_REGIONS_AE
 import android.hardware.camera2.CameraCharacteristics.CONTROL_MAX_REGIONS_AF
 import android.hardware.camera2.CameraCharacteristics.CONTROL_MAX_REGIONS_AWB
-import android.hardware.camera2.CaptureRequest
-import android.hardware.camera2.TotalCaptureResult
 import androidx.camera.camera2.Camera2Config
 import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.Camera
@@ -35,7 +32,6 @@ import androidx.camera.core.FocusMeteringAction.FLAG_AF
 import androidx.camera.core.FocusMeteringAction.FLAG_AWB
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.SurfaceOrientedMeteringPointFactory
-import androidx.camera.integration.core.util.CameraPipeUtil
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.CameraPipeConfigTestRule
 import androidx.camera.testing.CameraUtil
@@ -45,7 +41,6 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
 import com.google.common.util.concurrent.ListenableFuture
-import java.util.concurrent.CountDownLatch
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.Dispatchers
@@ -126,7 +121,6 @@ class FocusMeteringDeviceTest(
 
         ProcessCameraProvider.configureInstance(cameraXConfig)
         cameraProvider = ProcessCameraProvider.getInstance(context)[10, TimeUnit.SECONDS]
-        val captureCallback = CameraSessionCaptureCallback()
 
         withContext(Dispatchers.Main) {
             val fakeLifecycleOwner = FakeLifecycleOwner()
@@ -134,22 +128,8 @@ class FocusMeteringDeviceTest(
             camera = cameraProvider.bindToLifecycle(
                 fakeLifecycleOwner,
                 cameraSelector,
-                ImageCapture.Builder().also { builder ->
-                    captureCallback.let {
-                        CameraPipeUtil.setCameraCaptureSessionCallback(
-                            implName,
-                            builder,
-                            it
-                        )
-                    }
-                }.build()
+                ImageCapture.Builder().build()
             )
-        }
-
-        if (implName == CameraPipeConfig::class.simpleName) {
-            // TODO(b/263211462): Remove this waiting for camera opening to be completed
-            //  when focus metering request can be submitted without the waiting
-            captureCallback.await(5000)
         }
     }
 
@@ -432,24 +412,6 @@ class FocusMeteringDeviceTest(
             future[10, TimeUnit.SECONDS]
         }.apply {
             assertThat(cause).isInstanceOf(CameraControl.OperationCanceledException::class.java)
-        }
-    }
-
-    class CameraSessionCaptureCallback : CameraCaptureSession.CaptureCallback() {
-        private val latch = CountDownLatch(1)
-
-        override fun onCaptureCompleted(
-            session: CameraCaptureSession,
-            request: CaptureRequest,
-            result: TotalCaptureResult
-        ) {
-            latch.countDown()
-        }
-
-        suspend fun await(timeoutMs: Long = 10000) {
-            withContext(Dispatchers.IO) {
-                latch.await(timeoutMs, TimeUnit.MILLISECONDS)
-            }
         }
     }
 }
