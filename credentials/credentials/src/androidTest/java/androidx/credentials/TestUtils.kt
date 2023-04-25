@@ -21,6 +21,7 @@ import android.os.Build
 import android.os.Bundle
 import android.service.credentials.CallingAppInfo
 import androidx.annotation.RequiresApi
+import androidx.core.os.BuildCompat
 
 /** True if the two Bundles contain the same elements, and false otherwise. */
 @Suppress("DEPRECATION")
@@ -71,9 +72,7 @@ const val MAX_CRED_MAN_PRE_FRAMEWORK_API_LEVEL = Build.VERSION_CODES.TIRAMISU
 /** True if the device running the test is post framework api level,
  * false if pre framework api level. */
 fun isPostFrameworkApiLevel(): Boolean {
-    return !((Build.VERSION.SDK_INT <= MAX_CRED_MAN_PRE_FRAMEWORK_API_LEVEL) &&
-        !(Build.VERSION.SDK_INT == MAX_CRED_MAN_PRE_FRAMEWORK_API_LEVEL &&
-            Build.VERSION.PREVIEW_SDK_INT > 0))
+    return BuildCompat.isAtLeastU()
 }
 
 @RequiresApi(Build.VERSION_CODES.P)
