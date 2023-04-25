@@ -24,7 +24,6 @@ import androidx.room.compiler.processing.ksp.KspAnnotated.UseSiteFilter.Companio
 import androidx.room.compiler.processing.ksp.synthetic.KspSyntheticPropertyMethodElement
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.KSPropertySetter
-import com.google.devtools.ksp.symbol.KSType
 import com.google.devtools.ksp.symbol.KSValueParameter
 
 internal class KspExecutableParameterElement(
@@ -48,7 +47,7 @@ internal class KspExecutableParameterElement(
         get() = parameter.hasDefault
 
     override val type: KspType by lazy {
-        asMemberOf(enclosingElement.enclosingElement.type?.ksType)
+        createAsMemberOf(closestMemberContainer.type)
     }
 
     override val closestMemberContainer: XMemberContainer by lazy {
@@ -59,26 +58,28 @@ internal class KspExecutableParameterElement(
         get() = "$name in ${enclosingElement.fallbackLocationText}"
 
     override fun asMemberOf(other: XType): KspType {
-        if (closestMemberContainer.type?.isSameType(other) != false) {
-            return type
+        return if (closestMemberContainer.type?.isSameType(other) != false) {
+            type
+        } else {
+            createAsMemberOf(other)
         }
-        check(other is KspType)
-        return asMemberOf(other.ksType)
     }
 
-    private fun asMemberOf(ksType: KSType?): KspType {
+    private fun createAsMemberOf(container: XType?): KspType {
+        check(container is KspType?)
         return env.wrap(
             originatingReference = parameter.type,
             ksType = parameter.typeAsMemberOf(
                 functionDeclaration = enclosingElement.declaration,
-                ksType = ksType
+                ksType = container?.ksType
             )
         ).copyWithScope(
             KSTypeVarianceResolverScope.MethodParameter(
                 kspExecutableElement = enclosingElement,
                 parameterIndex = parameterIndex,
                 annotated = parameter.type,
-                container = ksType?.declaration
+                container = container?.ksType?.declaration,
+                asMemberOf = container,
             )
         )
     }

@@ -166,10 +166,17 @@ internal class KSTypeVarianceResolver(private val resolver: Resolver) {
                 }
             } else {
                 // For method parameters and var type scopes, we don't use the declaration-site
-                // variance if the last variance in the declaration-site stack was invariant and
-                // the last variance in the use-site stack was not contravariant.
-                if (typeParamStack.lastOrNull()?.variance == Variance.INVARIANT &&
-                    typeArgStack.lastOrNull()?.variance != Variance.CONTRAVARIANT) {
+                // variance if all of the following conditions apply.
+                if ( // If the last variance in the type argument stack is not contravariant
+                    typeArgStack.isNotEmpty() &&
+                    typeArgStack.last().variance != Variance.CONTRAVARIANT &&
+                    // And the type parameter stack contains at least one invariant parameter.
+                    typeParamStack.isNotEmpty() &&
+                    typeParamStack.any { it.variance == Variance.INVARIANT } &&
+                    // And the first invariant comes before the last contravariant (if any).
+                    typeParamStack.indexOfFirst { it.variance == Variance.INVARIANT } >=
+                    typeParamStack.indexOfLast { it.variance == Variance.CONTRAVARIANT }
+                ) {
                     return false
                 }
             }
@@ -218,6 +225,7 @@ internal class KSTypeVarianceResolver(private val resolver: Resolver) {
         declarationType: KSType? = null,
         scope: KSTypeVarianceResolverScope,
         typeStack: ReferenceStack = ReferenceStack(),
+        typeParamStack: List<KSTypeParameter> = emptyList(),
     ): KSType {
         if (type.isError || typeStack.queue.contains(type)) {
             return type
@@ -237,9 +245,10 @@ internal class KSTypeVarianceResolver(private val resolver: Resolver) {
                     type.arguments.indices.map { i ->
                         getJavaWildcardWithTypeVariablesForInnerType(
                             typeArg = type.arguments[i],
-                            declarationTypeParameter = type.declaration.typeParameters[i],
+                            typeParam = type.declaration.typeParameters[i],
                             scope = scope,
                             typeStack = typeStack,
+                            typeParamStack = typeParamStack
                         )
                     }
                 }
@@ -249,9 +258,10 @@ internal class KSTypeVarianceResolver(private val resolver: Resolver) {
 
     private fun getJavaWildcardWithTypeVariablesForInnerType(
         typeArg: KSTypeArgument,
-        declarationTypeParameter: KSTypeParameter,
+        typeParam: KSTypeParameter,
         scope: KSTypeVarianceResolverScope,
         typeStack: ReferenceStack,
+        typeParamStack: List<KSTypeParameter>,
     ): KSTypeArgument {
         val type = typeArg.type?.resolve()
         if (
@@ -266,9 +276,20 @@ internal class KSTypeVarianceResolver(private val resolver: Resolver) {
             type = type,
             scope = scope,
             typeStack = typeStack,
+            typeParamStack = typeParamStack + typeParam,
         )
-        val resolvedVariance = if (declarationTypeParameter.variance != Variance.INVARIANT) {
-            declarationTypeParameter.variance
+        val resolvedVariance = if (
+            typeParam.variance != Variance.INVARIANT &&
+            // This is a weird rule, but empirically whether or not we inherit type variance in
+            // this case depends on the scope of the type used when calling asMemberOf. For
+            // example, if XMethodElement#asMemberOf(XType) is called with an XType that has no
+            // scope or has a matching method scope then we inherit the parameter variance; however,
+            // if asMemberOf was called with an XType that was from a different scope we only
+            // inherit variance here if there is at least one contravariant in the param stack.
+            (scope.asMemberOfScopeOrSelf() == scope ||
+                typeParamStack.any { it.variance == Variance.CONTRAVARIANT })
+        ) {
+            typeParam.variance
         } else {
             typeArg.variance
         }
@@ -296,8 +317,7 @@ internal class KSTypeVarianceResolver(private val resolver: Resolver) {
             scope = scope,
             typeStack = typeStack
         )
-        val resolvedVariance = if (declarationTypeArg.variance != Variance.INVARIANT &&
-            (!scope.isValOrReturnType() || declarationTypeArg.variance != Variance.COVARIANT)) {
+        val resolvedVariance = if (declarationTypeArg.variance != Variance.INVARIANT) {
             declarationTypeArg.variance
         } else {
             typeArg.variance
