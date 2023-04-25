@@ -16,7 +16,6 @@
 
 package androidx.tv.material3
 
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.focusable
@@ -50,7 +49,7 @@ class CarouselScopeTest {
     @get:Rule
     val rule = createComposeRule()
 
-    @OptIn(ExperimentalTvMaterial3Api::class, ExperimentalAnimationApi::class)
+    @OptIn(ExperimentalTvMaterial3Api::class)
     @Test
     fun carouselItem_parentContainerGainsFocused_onBackPress() {
         val containerBoxTag = "container-box"
@@ -69,7 +68,8 @@ class CarouselScopeTest {
             ) {
                 CarouselScope(carouselState = carouselState)
                     .CarouselItem(
-                        modifier = Modifier.testTag(carouselItemTag),
+                        modifier = Modifier
+                            .testTag(carouselItemTag),
                         background = {
                             Box(
                                 modifier = Modifier
@@ -87,7 +87,8 @@ class CarouselScopeTest {
         rule.waitForIdle()
 
         // Check if overlay button in carousel item is focused
-        rule.onNodeWithTag(sampleButtonTag).assertIsFocused()
+        rule.onNodeWithTag(sampleButtonTag, useUnmergedTree = true)
+            .assertIsFocused()
 
         // Trigger back press
         performKeyPress(NativeKeyEvent.KEYCODE_BACK)
