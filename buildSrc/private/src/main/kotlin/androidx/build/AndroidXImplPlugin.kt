@@ -45,6 +45,7 @@ import com.android.build.api.dsl.TestOptions
 import com.android.build.api.variant.ApplicationAndroidComponentsExtension
 import com.android.build.api.variant.HasAndroidTest
 import com.android.build.api.variant.LibraryAndroidComponentsExtension
+import com.android.build.api.variant.Variant
 import com.android.build.gradle.AppExtension
 import com.android.build.gradle.AppPlugin
 import com.android.build.gradle.BaseExtension
@@ -329,7 +330,10 @@ class AndroidXImplPlugin @Inject constructor(val componentFactory: SoftwareCompo
         }
 
         project.extensions.getByType<ApplicationAndroidComponentsExtension>().apply {
-            onVariants { it.configureTests() }
+            onVariants {
+                it.configureTests()
+                it.artRewritingWorkaround()
+            }
             finalizeDsl {
                 project.configureAndroidProjectForLint(
                     it.lint,
@@ -356,6 +360,14 @@ class AndroidXImplPlugin @Inject constructor(val componentFactory: SoftwareCompo
     private fun HasAndroidTest.configureTests() {
         configureLicensePackaging()
         excludeVersionFilesFromTestApks()
+    }
+
+    private fun Variant.artRewritingWorkaround() {
+        // b/279234807
+        experimentalProperties.put(
+            "android.experimental.art-profile-r8-rewriting",
+            false
+        )
     }
 
     private fun HasAndroidTest.configureLicensePackaging() {
@@ -443,7 +455,10 @@ class AndroidXImplPlugin @Inject constructor(val componentFactory: SoftwareCompo
             beforeVariants(selector().withBuildType("release")) { variant ->
                 variant.enableUnitTest = false
             }
-            onVariants { it.configureTests() }
+            onVariants {
+                it.configureTests()
+                it.artRewritingWorkaround()
+            }
             finalizeDsl {
                 project.configureAndroidProjectForLint(it.lint, androidXExtension, isLibrary = true)
             }
