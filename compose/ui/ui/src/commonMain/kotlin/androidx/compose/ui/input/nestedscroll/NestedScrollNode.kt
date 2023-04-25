@@ -16,16 +16,29 @@
 
 package androidx.compose.ui.input.nestedscroll
 
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.modifier.ModifierLocalMap
 import androidx.compose.ui.modifier.ModifierLocalNode
 import androidx.compose.ui.modifier.modifierLocalMapOf
 import androidx.compose.ui.modifier.modifierLocalOf
-import androidx.compose.ui.node.DelegatingNode
+import androidx.compose.ui.node.DelegatableNode
 import androidx.compose.ui.unit.Velocity
 import kotlinx.coroutines.CoroutineScope
 
 internal val ModifierLocalNestedScroll = modifierLocalOf<NestedScrollNode?> { null }
+
+/**
+ * This creates a Nested Scroll Modifier node that can be delegated to. In most case you should
+ * use [Modifier.nestedScroll] since that implementation also uses this. Use this factory to create
+ * nodes that can be delegated to.
+ */
+fun nestedScrollModifierNode(
+    connection: NestedScrollConnection,
+    dispatcher: NestedScrollDispatcher?
+): DelegatableNode {
+    return NestedScrollNode(connection, dispatcher)
+}
 
 /**
  * NestedScroll using ModifierLocal as implementation.
@@ -33,7 +46,7 @@ internal val ModifierLocalNestedScroll = modifierLocalOf<NestedScrollNode?> { nu
 internal class NestedScrollNode(
     var connection: NestedScrollConnection,
     dispatcher: NestedScrollDispatcher?
-) : ModifierLocalNode, NestedScrollConnection, DelegatingNode() {
+) : ModifierLocalNode, NestedScrollConnection, DelegatableNode, Modifier.Node() {
 
     // Resolved dispatcher for re-use in case of null dispatcher is passed.
     private var resolvedDispatcher: NestedScrollDispatcher
@@ -46,7 +59,7 @@ internal class NestedScrollNode(
         get() = if (isAttached) ModifierLocalNestedScroll.current else null
 
     private val parentConnection: NestedScrollConnection?
-        get() = ModifierLocalNestedScroll.current
+        get() = if (isAttached) ModifierLocalNestedScroll.current else null
 
     override val providedValues: ModifierLocalMap
         get() = modifierLocalMapOf(ModifierLocalNestedScroll to this)
@@ -99,7 +112,7 @@ internal class NestedScrollNode(
     }
 
     // On receiving a new dispatcher, re-setting fields
-    fun updateDispatcher(newDispatcher: NestedScrollDispatcher?) {
+    private fun updateDispatcher(newDispatcher: NestedScrollDispatcher?) {
         resetDispatcherFields() // Reset fields of current dispatcher.
 
         // Update dispatcher associated with this node.
@@ -138,5 +151,13 @@ internal class NestedScrollNode(
 
     private fun resetDispatcherFields() {
         resolvedDispatcher.modifierLocalNode = null
+    }
+
+    internal fun updateNode(
+        connection: NestedScrollConnection,
+        dispatcher: NestedScrollDispatcher?
+    ) {
+        this.connection = connection
+        updateDispatcher(dispatcher)
     }
 }
