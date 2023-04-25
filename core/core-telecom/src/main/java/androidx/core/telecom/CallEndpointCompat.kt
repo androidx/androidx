@@ -26,7 +26,7 @@ import java.util.Objects
 import java.util.UUID
 
 /**
- * Constructor for a [CallEndpoint] object.
+ * Constructor for a [CallEndpointCompat] object.
  *
  * @param name Human-readable name associated with the endpoint
  * @param type The type of endpoint through which call media being routed
@@ -40,7 +40,7 @@ import java.util.UUID
  * @param identifier A unique identifier for this endpoint on the device
  */
 @RequiresApi(VERSION_CODES.O)
-class CallEndpoint(val name: CharSequence, val type: Int, val identifier: ParcelUuid) {
+class CallEndpointCompat(val name: CharSequence, val type: Int, val identifier: ParcelUuid) {
     internal var mMackAddress: String = "-1"
 
     override fun toString(): String {
@@ -51,7 +51,7 @@ class CallEndpoint(val name: CharSequence, val type: Int, val identifier: Parcel
     }
 
     override fun equals(other: Any?): Boolean {
-        return other is CallEndpoint &&
+        return other is CallEndpointCompat &&
             name == other.name &&
             type == other.type &&
             identifier == other.identifier

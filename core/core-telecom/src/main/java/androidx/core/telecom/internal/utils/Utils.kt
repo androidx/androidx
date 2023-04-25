@@ -24,7 +24,7 @@ import android.telecom.PhoneAccountHandle
 import android.telecom.TelecomManager
 import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
-import androidx.core.telecom.CallAttributes
+import androidx.core.telecom.CallAttributesCompat
 import androidx.core.telecom.CallException
 import androidx.core.telecom.CallsManager
 
@@ -101,7 +101,7 @@ internal class Utils {
         }
 
         fun getBundleWithPhoneAccountHandle(
-            callAttributes: CallAttributes,
+            callAttributes: CallAttributesCompat,
             handle: PhoneAccountHandle
         ): Bundle {
             return if (VERSION.SDK_INT >= VERSION_CODES.M) {
@@ -115,7 +115,10 @@ internal class Utils {
         private object Api23PlusImpl {
             @JvmStatic
             @DoNotInline
-            fun createExtras(callAttributes: CallAttributes, handle: PhoneAccountHandle): Bundle {
+            fun createExtras(
+                callAttributes: CallAttributesCompat,
+                handle: PhoneAccountHandle
+            ): Bundle {
                 val extras = Bundle()
                 extras.putParcelable(
                     TelecomManager.EXTRA_PHONE_ACCOUNT_HANDLE,

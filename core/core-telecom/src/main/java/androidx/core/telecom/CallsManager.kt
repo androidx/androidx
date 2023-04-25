@@ -30,7 +30,7 @@ import androidx.annotation.IntDef
 import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresPermission
 import androidx.annotation.RestrictTo
-import androidx.core.telecom.CallAttributes.Companion.CALL_TYPE_VIDEO_CALL
+import androidx.core.telecom.CallAttributesCompat.Companion.CALL_TYPE_VIDEO_CALL
 import androidx.core.telecom.internal.CallChannels
 import androidx.core.telecom.internal.CallSession
 import androidx.core.telecom.internal.CallSessionLegacy
@@ -95,8 +95,8 @@ class CallsManager constructor(context: Context) {
          * time).
          *
          * Whether a call can make a video call is ultimately controlled by
-         * [androidx.core.telecom.CallAttributes]s capability
-         * [androidx.core.telecom.CallAttributes.CallType]#[CALL_TYPE_VIDEO_CALL],
+         * [androidx.core.telecom.CallAttributesCompat]s capability
+         * [androidx.core.telecom.CallAttributesCompat.CallType]#[CALL_TYPE_VIDEO_CALL],
          * which indicates that particular call is currently capable of making a video call.
          */
         const val CAPABILITY_SUPPORTS_VIDEO_CALLING = 1 shl 1
@@ -106,7 +106,7 @@ class CallsManager constructor(context: Context) {
          * a call can be streamed from a root device to another device to continue the call
          * without completely transferring it. The call continues to take place on the source
          * device, however media and control are streamed to another device.
-         * [androidx.core.telecom.CallAttributes.CallType]#[CAPABILITY_SUPPORTS_CALL_STREAMING]
+         * [androidx.core.telecom.CallAttributesCompat.CallType]#[CAPABILITY_SUPPORTS_CALL_STREAMING]
          * must also be set on per call basis in the event an application wants to gate this
          * capability on a stricter basis.
          */
@@ -154,7 +154,7 @@ class CallsManager constructor(context: Context) {
     }
 
     /**
-     * Adds a new call with the specified [CallAttributes] to the telecom service. This method
+     * Adds a new call with the specified [CallAttributesCompat] to the telecom service. This method
      * can be used to add both incoming and outgoing calls.
      *
      * @param callAttributes     attributes of the new call (incoming or outgoing, address, etc. )
@@ -168,7 +168,7 @@ class CallsManager constructor(context: Context) {
     @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
     @Suppress("ClassVerificationFailure")
     suspend fun addCall(
-        callAttributes: CallAttributes,
+        callAttributes: CallAttributesCompat,
         block: CallControlScope.() -> Unit
     ) {
         // This API is not supported for device running anything below Android O (26)
@@ -209,7 +209,7 @@ class CallsManager constructor(context: Context) {
 
             // leverage the platform API
             mTelecomManager.addCall(
-                callAttributes.toTelecomCallAttributes(getPhoneAccountHandleForPackage()),
+                callAttributes.toCallAttributes(getPhoneAccountHandleForPackage()),
                 mDirectExecutor,
                 callControlOutcomeReceiver,
                 CallSession.CallControlCallbackImpl(callSession),

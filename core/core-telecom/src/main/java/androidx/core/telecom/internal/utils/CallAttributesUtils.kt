@@ -20,7 +20,7 @@ import android.net.Uri
 import android.telecom.PhoneAccountHandle
 import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
-import androidx.core.telecom.CallAttributes
+import androidx.core.telecom.CallAttributesCompat
 
 @RequiresApi(34)
 internal class CallAttributesUtils {
@@ -47,7 +47,7 @@ internal class CallAttributesUtils {
         }
 
         private fun remapCallType(callType: Int): Int {
-            return if (callType == CallAttributes.CALL_TYPE_AUDIO_CALL) {
+            return if (callType == CallAttributesCompat.CALL_TYPE_AUDIO_CALL) {
                 android.telecom.CallAttributes.AUDIO_CALL
             } else {
                 android.telecom.CallAttributes.VIDEO_CALL
@@ -69,15 +69,15 @@ internal class CallAttributesUtils {
         }
 
         private fun hasSupportsSetInactiveCapability(callCapabilities: Int): Boolean {
-            return Utils.hasCapability(CallAttributes.SUPPORTS_SET_INACTIVE, callCapabilities)
+            return Utils.hasCapability(CallAttributesCompat.SUPPORTS_SET_INACTIVE, callCapabilities)
         }
 
         private fun hasStreamCapability(callCapabilities: Int): Boolean {
-            return Utils.hasCapability(CallAttributes.SUPPORTS_STREAM, callCapabilities)
+            return Utils.hasCapability(CallAttributesCompat.SUPPORTS_STREAM, callCapabilities)
         }
 
         private fun hasTransferCapability(callCapabilities: Int): Boolean {
-            return Utils.hasCapability(CallAttributes.SUPPORTS_TRANSFER, callCapabilities)
+            return Utils.hasCapability(CallAttributesCompat.SUPPORTS_TRANSFER, callCapabilities)
         }
     }
 }

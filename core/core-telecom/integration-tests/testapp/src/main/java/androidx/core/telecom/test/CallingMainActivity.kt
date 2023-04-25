@@ -24,7 +24,7 @@ import android.util.Log
 import android.widget.Button
 import android.widget.CheckBox
 import androidx.annotation.RequiresApi
-import androidx.core.telecom.CallAttributes
+import androidx.core.telecom.CallAttributesCompat
 import androidx.core.telecom.CallsManager
 import androidx.core.view.WindowCompat
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -115,7 +115,7 @@ class CallingMainActivity : Activity() {
         mCallsManager?.registerAppWithTelecom(capabilities)
     }
 
-    private suspend fun addCallWithAttributes(attributes: CallAttributes) {
+    private suspend fun addCallWithAttributes(attributes: CallAttributesCompat) {
         Log.i(TAG, "addCallWithAttributes: attributes=$attributes")
         val callObject = VoipCall()
 

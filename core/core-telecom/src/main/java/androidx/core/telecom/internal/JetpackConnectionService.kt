@@ -25,7 +25,7 @@ import android.telecom.TelecomManager
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresPermission
-import androidx.core.telecom.CallAttributes
+import androidx.core.telecom.CallAttributesCompat
 import androidx.core.telecom.CallsManager
 import androidx.core.telecom.internal.utils.Utils
 import java.util.UUID
@@ -44,7 +44,7 @@ internal class JetpackConnectionService : ConnectionService() {
      * Wrap all the objects that are associated with a new CallSession request into a class
      */
     data class PendingConnectionRequest(
-        val callAttributes: CallAttributes,
+        val callAttributes: CallAttributesCompat,
         val callChannel: CallChannels,
         val coroutineContext: CoroutineContext,
         val completableDeferred: CompletableDeferred<CallSessionLegacy>
@@ -56,7 +56,7 @@ internal class JetpackConnectionService : ConnectionService() {
     }
 
     /**
-     * Request the Platform create a new Connection with the properties given by [CallAttributes].
+     * Request the Platform create a new Connection with the properties given by [CallAttributesCompat].
      * This request will have a timeout of [CONNECTION_CREATION_TIMEOUT] and be removed when the
      * result is completed.
      */
@@ -90,11 +90,14 @@ internal class JetpackConnectionService : ConnectionService() {
         CoroutineScope(pendingConnectionRequest.coroutineContext).launch {
             delay(CONNECTION_CREATION_TIMEOUT)
             if (!pendingConnectionRequest.completableDeferred.isCompleted) {
-                Log.i(TAG, "The request to create a connection timed out. Cancelling the" +
-                    "request to add the call to Telecom.")
+                Log.i(
+                    TAG, "The request to create a connection timed out. Cancelling the" +
+                        "request to add the call to Telecom."
+                )
                 mPendingConnectionRequests.remove(pendingConnectionRequest)
                 pendingConnectionRequest.completableDeferred.cancel(
-                    CancellationException(CallsManager.CALL_CREATION_FAILURE_MSG))
+                    CancellationException(CallsManager.CALL_CREATION_FAILURE_MSG)
+                )
             }
         }
     }
@@ -108,7 +111,7 @@ internal class JetpackConnectionService : ConnectionService() {
     ): Connection? {
         return createSelfManagedConnection(
             request,
-            CallAttributes.DIRECTION_OUTGOING
+            CallAttributesCompat.DIRECTION_OUTGOING
         )
     }
 
@@ -119,7 +122,7 @@ internal class JetpackConnectionService : ConnectionService() {
         val pendingRequest: PendingConnectionRequest? =
             findTargetPendingConnectionRequest(
                 request,
-                CallAttributes.DIRECTION_OUTGOING
+                CallAttributesCompat.DIRECTION_OUTGOING
             )
         pendingRequest?.completableDeferred?.cancel()
 
@@ -135,7 +138,7 @@ internal class JetpackConnectionService : ConnectionService() {
     ): Connection? {
         return createSelfManagedConnection(
             request,
-            CallAttributes.DIRECTION_INCOMING
+            CallAttributesCompat.DIRECTION_INCOMING
         )
     }
 
@@ -146,7 +149,7 @@ internal class JetpackConnectionService : ConnectionService() {
         val pendingRequest: PendingConnectionRequest? =
             findTargetPendingConnectionRequest(
                 request,
-                CallAttributes.DIRECTION_INCOMING
+                CallAttributesCompat.DIRECTION_INCOMING
             )
         pendingRequest?.completableDeferred?.cancel()
         mPendingConnectionRequests.remove(pendingRequest)
@@ -189,11 +192,14 @@ internal class JetpackConnectionService : ConnectionService() {
         return null
     }
 
-    private fun isSameDirection(callAttributes: CallAttributes, direction: Int): Boolean {
+    private fun isSameDirection(callAttributes: CallAttributesCompat, direction: Int): Boolean {
         return (callAttributes.direction == direction)
     }
 
-    private fun isSameAddress(callAttributes: CallAttributes, request: ConnectionRequest): Boolean {
+    private fun isSameAddress(
+        callAttributes: CallAttributesCompat,
+        request: ConnectionRequest
+    ): Boolean {
         return request.address?.equals(callAttributes.address) ?: false
     }
 

@@ -26,14 +26,14 @@ import org.junit.Assert.assertEquals
 import org.junit.Test
 
 @RequiresApi(VERSION_CODES.O)
-class CallEndpointTest {
+class CallEndpointCompatTest {
 
     @Test
     fun testCallEndpointConstructor() {
         val name = "Endpoint"
-        val type = CallEndpoint.TYPE_EARPIECE
+        val type = CallEndpointCompat.TYPE_EARPIECE
         val identifier = ParcelUuid.fromString(UUID.randomUUID().toString())
-        val endpoint = CallEndpoint(name, type, identifier)
+        val endpoint = CallEndpointCompat(name, type, identifier)
         assertEquals(name, endpoint.name)
         assertEquals(type, endpoint.type)
         assertEquals(identifier, endpoint.identifier)
@@ -42,9 +42,9 @@ class CallEndpointTest {
     @Test
     fun testWrappingAudioStateIntoAEndpoint() {
         val state = CallAudioState(false, CallAudioState.ROUTE_EARPIECE, 0)
-        val endpoint = EndpointUtils.wrapCallAudioStateIntoCurrentEndpoint(state)
+        val endpoint = EndpointUtils.toCallEndpointCompat(state)
         assertEquals("EARPIECE", endpoint.name)
-        assertEquals(CallEndpoint.TYPE_EARPIECE, endpoint.type)
+        assertEquals(CallEndpointCompat.TYPE_EARPIECE, endpoint.type)
     }
 
     @Test
@@ -52,56 +52,56 @@ class CallEndpointTest {
         val supportedRouteMask = CallAudioState.ROUTE_EARPIECE or
             CallAudioState.ROUTE_SPEAKER or CallAudioState.ROUTE_WIRED_HEADSET
         val state = CallAudioState(false, CallAudioState.ROUTE_EARPIECE, supportedRouteMask)
-        val endpoints = EndpointUtils.wrapCallAudioStateIntoAvailableEndpoints(state)
+        val endpoints = EndpointUtils.toCallEndpointsCompat(state)
         assertEquals(3, endpoints.size)
     }
 
     @Test
     fun testCallAudioRouteToEndpointTypeMapping() {
         assertEquals(
-            CallEndpoint.TYPE_EARPIECE,
+            CallEndpointCompat.TYPE_EARPIECE,
             EndpointUtils.mapRouteToType(CallAudioState.ROUTE_EARPIECE)
         )
         assertEquals(
-            CallEndpoint.TYPE_SPEAKER,
+            CallEndpointCompat.TYPE_SPEAKER,
             EndpointUtils.mapRouteToType(CallAudioState.ROUTE_SPEAKER)
         )
         assertEquals(
-            CallEndpoint.TYPE_WIRED_HEADSET,
+            CallEndpointCompat.TYPE_WIRED_HEADSET,
             EndpointUtils.mapRouteToType(CallAudioState.ROUTE_WIRED_HEADSET)
         )
         assertEquals(
-            CallEndpoint.TYPE_BLUETOOTH,
+            CallEndpointCompat.TYPE_BLUETOOTH,
             EndpointUtils.mapRouteToType(CallAudioState.ROUTE_BLUETOOTH)
         )
         assertEquals(
-            CallEndpoint.TYPE_STREAMING,
+            CallEndpointCompat.TYPE_STREAMING,
             EndpointUtils.mapRouteToType(CallAudioState.ROUTE_STREAMING)
         )
-        assertEquals(CallEndpoint.TYPE_UNKNOWN, EndpointUtils.mapRouteToType(-1))
+        assertEquals(CallEndpointCompat.TYPE_UNKNOWN, EndpointUtils.mapRouteToType(-1))
     }
 
     @Test
     fun testTypeToRouteMapping() {
         assertEquals(
             CallAudioState.ROUTE_EARPIECE,
-            EndpointUtils.mapTypeToRoute(CallEndpoint.TYPE_EARPIECE)
+            EndpointUtils.mapTypeToRoute(CallEndpointCompat.TYPE_EARPIECE)
         )
         assertEquals(
             CallAudioState.ROUTE_SPEAKER,
-            EndpointUtils.mapTypeToRoute(CallEndpoint.TYPE_SPEAKER)
+            EndpointUtils.mapTypeToRoute(CallEndpointCompat.TYPE_SPEAKER)
         )
         assertEquals(
             CallAudioState.ROUTE_BLUETOOTH,
-            EndpointUtils.mapTypeToRoute(CallEndpoint.TYPE_BLUETOOTH)
+            EndpointUtils.mapTypeToRoute(CallEndpointCompat.TYPE_BLUETOOTH)
         )
         assertEquals(
             CallAudioState.ROUTE_WIRED_HEADSET,
-            EndpointUtils.mapTypeToRoute(CallEndpoint.TYPE_WIRED_HEADSET)
+            EndpointUtils.mapTypeToRoute(CallEndpointCompat.TYPE_WIRED_HEADSET)
         )
         assertEquals(
             CallAudioState.ROUTE_STREAMING,
-            EndpointUtils.mapTypeToRoute(CallEndpoint.TYPE_STREAMING)
+            EndpointUtils.mapTypeToRoute(CallEndpointCompat.TYPE_STREAMING)
         )
         assertEquals(
             CallAudioState.ROUTE_EARPIECE,

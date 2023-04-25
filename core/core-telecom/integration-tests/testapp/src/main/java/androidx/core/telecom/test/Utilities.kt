@@ -18,23 +18,23 @@ package androidx.core.telecom.test
 
 import android.net.Uri
 import androidx.annotation.RequiresApi
-import androidx.core.telecom.CallAttributes
-import androidx.core.telecom.CallAttributes.Companion.DIRECTION_INCOMING
-import androidx.core.telecom.CallAttributes.Companion.DIRECTION_OUTGOING
-import androidx.core.telecom.CallAttributes.Companion.CALL_TYPE_VIDEO_CALL
+import androidx.core.telecom.CallAttributesCompat
+import androidx.core.telecom.CallAttributesCompat.Companion.DIRECTION_INCOMING
+import androidx.core.telecom.CallAttributesCompat.Companion.DIRECTION_OUTGOING
+import androidx.core.telecom.CallAttributesCompat.Companion.CALL_TYPE_VIDEO_CALL
 
 @RequiresApi(34)
 class Utilities {
     companion object {
         const val APP_SCHEME = "MyCustomScheme"
-        const val ALL_CALL_CAPABILITIES = (CallAttributes.SUPPORTS_SET_INACTIVE
-        or CallAttributes.SUPPORTS_STREAM or CallAttributes.SUPPORTS_TRANSFER)
+        const val ALL_CALL_CAPABILITIES = (CallAttributesCompat.SUPPORTS_SET_INACTIVE
+        or CallAttributesCompat.SUPPORTS_STREAM or CallAttributesCompat.SUPPORTS_TRANSFER)
 
         // outgoing attributes constants
         const val OUTGOING_NAME = "Darth Maul"
         val OUTGOING_URI: Uri = Uri.parse("tel:6506958985")
         // Define the minimal set of properties to start an outgoing call
-        var OUTGOING_CALL_ATTRIBUTES = CallAttributes(
+        var OUTGOING_CALL_ATTRIBUTES = CallAttributesCompat(
             OUTGOING_NAME,
             OUTGOING_URI,
             DIRECTION_OUTGOING)
@@ -44,7 +44,7 @@ class Utilities {
         val INCOMING_URI: Uri = Uri.parse("tel:6506958985")
         // Define all possible properties for CallAttributes
         val INCOMING_CALL_ATTRIBUTES =
-            CallAttributes(
+            CallAttributesCompat(
                 INCOMING_NAME,
                 INCOMING_URI,
                 DIRECTION_INCOMING,

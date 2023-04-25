@@ -16,12 +16,12 @@
 
 package androidx.core.telecom.internal
 
-import androidx.core.telecom.CallEndpoint
+import androidx.core.telecom.CallEndpointCompat
 import kotlinx.coroutines.channels.Channel
 
 internal class CallChannels(
-    val currentEndpointChannel: Channel<CallEndpoint> = Channel(Channel.UNLIMITED),
-    val availableEndpointChannel: Channel<List<CallEndpoint>> = Channel(Channel.UNLIMITED),
+    val currentEndpointChannel: Channel<CallEndpointCompat> = Channel(Channel.UNLIMITED),
+    val availableEndpointChannel: Channel<List<CallEndpointCompat>> = Channel(Channel.UNLIMITED),
     val isMutedChannel: Channel<Boolean> = Channel(Channel.UNLIMITED)
 ) {
     fun closeAllChannels() {
