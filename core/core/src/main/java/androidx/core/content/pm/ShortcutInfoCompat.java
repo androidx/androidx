@@ -38,6 +38,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
+import androidx.collection.ArraySet;
 import androidx.core.app.Person;
 import androidx.core.content.LocusIdCompat;
 import androidx.core.graphics.drawable.IconCompat;
@@ -800,7 +801,9 @@ public class ShortcutInfoCompat {
          */
         @NonNull
         public Builder setCategories(@NonNull Set<String> categories) {
-            mInfo.mCategories = categories;
+            ArraySet<String> set = new ArraySet<>();
+            set.addAll(categories);
+            mInfo.mCategories = set;
             return this;
         }
 
