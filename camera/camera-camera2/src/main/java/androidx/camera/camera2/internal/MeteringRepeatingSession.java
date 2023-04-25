@@ -36,6 +36,7 @@ import androidx.camera.core.impl.ImmediateSurface;
 import androidx.camera.core.impl.MutableOptionsBundle;
 import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.UseCaseConfig;
+import androidx.camera.core.impl.UseCaseConfigFactory;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.Futures;
@@ -177,6 +178,12 @@ class MeteringRepeatingSession {
         @Override
         public Config getConfig() {
             return mConfig;
+        }
+
+        @NonNull
+        @Override
+        public UseCaseConfigFactory.CaptureType getCaptureType() {
+            return UseCaseConfigFactory.CaptureType.METERING_REPEATING;
         }
     }
 
