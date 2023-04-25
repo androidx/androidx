@@ -92,12 +92,8 @@ public class GetCustomCredentialOptionJavaTest {
                 expectedAllowedProviders);
 
         assertThat(option.getType()).isEqualTo(expectedType);
-        assertThat(option.getCustomRequestType()).isEqualTo(expectedType);
         assertThat(TestUtilsKt.equals(option.getRequestData(), expectedBundle)).isTrue();
-        assertThat(TestUtilsKt.equals(option.getCustomRequestData(), expectedBundle)).isTrue();
         assertThat(TestUtilsKt.equals(option.getCandidateQueryData(),
-                expectedCandidateQueryDataBundle)).isTrue();
-        assertThat(TestUtilsKt.equals(option.getCustomRequestCandidateQueryData(),
                 expectedCandidateQueryDataBundle)).isTrue();
         assertThat(option.isAutoSelectAllowed()).isEqualTo(expectedAutoSelectAllowed);
         assertThat(option.isSystemProviderRequired()).isEqualTo(expectedSystemProvider);
@@ -131,14 +127,9 @@ public class GetCustomCredentialOptionJavaTest {
 
         assertThat(convertedOption).isInstanceOf(GetCustomCredentialOption.class);
         GetCustomCredentialOption actualOption = (GetCustomCredentialOption) convertedOption;
-        assertThat(actualOption.getCustomRequestType()).isEqualTo(expectedType);
         assertThat(actualOption.getType()).isEqualTo(expectedType);
         assertThat(TestUtilsKt.equals(actualOption.getRequestData(), expectedBundle)).isTrue();
-        assertThat(TestUtilsKt.equals(actualOption.getCustomRequestData(), expectedBundle))
-                .isTrue();
         assertThat(TestUtilsKt.equals(actualOption.getCandidateQueryData(),
-                expectedCandidateQueryDataBundle)).isTrue();
-        assertThat(TestUtilsKt.equals(actualOption.getCustomRequestCandidateQueryData(),
                 expectedCandidateQueryDataBundle)).isTrue();
         assertThat(actualOption.isAutoSelectAllowed()).isEqualTo(expectedAutoSelectAllowed);
         assertThat(actualOption.isSystemProviderRequired()).isEqualTo(expectedSystemProvider);

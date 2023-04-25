@@ -20,7 +20,6 @@ import android.graphics.drawable.Icon
 import android.os.Bundle
 import android.text.TextUtils
 import androidx.annotation.RequiresApi
-import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import androidx.credentials.PublicKeyCredential.Companion.BUNDLE_KEY_SUBTYPE
 import androidx.credentials.internal.FrameworkClassParsingException
@@ -32,30 +31,32 @@ import androidx.credentials.internal.FrameworkClassParsingException
  * launch framework UI flows to collect consent and any other metadata needed from the user to
  * register a new user credential.
  *
- * @property preferImmediatelyAvailableCredentials true if you prefer the operation to return
- * immediately when there is no available credential creation offering instead of falling back to
- * discovering remote options, and false (preferably) otherwise.
+ * @property type the credential type determined by the credential-type-specific subclass (e.g.
+ * the type for [CreatePasswordRequest] is [PasswordCredential.TYPE_PASSWORD_CREDENTIAL] and for
+ * [CreatePublicKeyCredentialRequest] is [PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL])
+ * @property credentialData the request data in the [Bundle] format
+ * @property candidateQueryData the partial request data in the [Bundle] format that will be sent
+ * to the provider during the initial candidate query stage, which should not contain sensitive
+ * user credential information (note: bundle keys in the form of `androidx.credentials.*` are
+ * reserved for internal library use)
+ * @property isSystemProviderRequired true if must only be fulfilled by a system provider and
+ * false otherwise
+ * @property isAutoSelectAllowed whether a create option will be automatically chosen if it is
+ * the only one available to the user
+ * @property displayInfo the information to be displayed on the screen
  * @property origin the origin of a different application if the request is being made on behalf of
- * that application. For API level >=34, setting a non-null value for this parameter, will throw
- * a SecurityException if android.permission.CREDENTIAL_MANAGER_SET_ORIGIN is not present.
+ * that application (Note: for API level >=34, setting a non-null value for this parameter will
+ * throw a SecurityException if android.permission.CREDENTIAL_MANAGER_SET_ORIGIN is not present)
+ * @property preferImmediatelyAvailableCredentials true if you prefer the operation to return
+ * immediately when there is no available passkey registration offering instead of falling back to
+ * discovering remote options, and false (preferred by default) otherwise
  */
 abstract class CreateCredentialRequest internal constructor(
-    /** @hide */
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     val type: String,
-    /** @hide */
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     val credentialData: Bundle,
-    /** @hide */
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     val candidateQueryData: Bundle,
-    /** @hide */
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     val isSystemProviderRequired: Boolean,
-    /** @hide */
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     val isAutoSelectAllowed: Boolean,
-    /** @hide */
     val displayInfo: DisplayInfo,
     val origin: String?,
     @get:JvmName("preferImmediatelyAvailableCredentials")

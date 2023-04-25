@@ -75,18 +75,10 @@ class GetCustomCredentialOptionTest {
         )
 
         assertThat(option.type).isEqualTo(expectedType)
-        assertThat(option.getCustomRequestType()).isEqualTo(expectedType)
         assertThat(equals(option.requestData, expectedBundle)).isTrue()
-        assertThat(equals(option.getCustomRequestData(), expectedBundle)).isTrue()
         assertThat(
             equals(
                 option.candidateQueryData,
-                expectedCandidateQueryDataBundle
-            )
-        ).isTrue()
-        assertThat(
-            equals(
-                option.getCustomRequestCandidateQueryData(),
                 expectedCandidateQueryDataBundle
             )
         ).isTrue()
@@ -125,20 +117,11 @@ class GetCustomCredentialOptionTest {
 
         assertThat(convertedOption).isInstanceOf(GetCustomCredentialOption::class.java)
         val actualOption = convertedOption as GetCustomCredentialOption
-        assertThat(actualOption.getCustomRequestType()).isEqualTo(expectedType)
         assertThat(actualOption.type).isEqualTo(expectedType)
         assertThat(equals(actualOption.requestData, expectedBundle)).isTrue()
-        assertThat(equals(actualOption.getCustomRequestData(), expectedBundle))
-            .isTrue()
         assertThat(
             equals(
                 actualOption.candidateQueryData,
-                expectedCandidateQueryDataBundle
-            )
-        ).isTrue()
-        assertThat(
-            equals(
-                actualOption.getCustomRequestCandidateQueryData(),
                 expectedCandidateQueryDataBundle
             )
         ).isTrue()

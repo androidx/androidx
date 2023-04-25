@@ -33,9 +33,12 @@ import android.os.Bundle
  * @param type the credential type determined by the credential-type-specific subclass
  * generated for custom use cases
  * @param requestData the request data in the [Bundle] format, generated for custom use cases
+ * (note: bundle keys in the form of `androidx.credentials.*` and `android.credentials.*` are
+ * reserved for internal library usage)
  * @param candidateQueryData the partial request data in the [Bundle] format that will be sent to
  * the provider during the initial candidate query stage, which should not contain sensitive user
- * information
+ * information (note: bundle keys in the form of `androidx.credentials.*` and
+ * `android.credentials.*` are reserved for internal library usage)
  * @param isSystemProviderRequired true if must only be fulfilled by a system provider and false
  * otherwise
  * @param isAutoSelectAllowed defines if a credential entry will be automatically chosen if it is
@@ -63,17 +66,6 @@ open class GetCustomCredentialOption @JvmOverloads constructor(
     isAutoSelectAllowed = isAutoSelectAllowed,
     allowedProviders = allowedProviders,
 ) {
-    /** Returns the credential type that this request is for. */
-    fun getCustomRequestType() = type
-
-    /** Returns the content of this [GetCustomCredentialOption] in the [Bundle] format. */
-    fun getCustomRequestData() = requestData
-
-    /**
-     * Returns the part of the request content that will be sent to the provider during the initial
-     * candidate query stage, which should not contain sensitive user credential information.
-     */
-    fun getCustomRequestCandidateQueryData() = candidateQueryData
 
     init {
         require(type.isNotEmpty()) { "type should not be empty" }
