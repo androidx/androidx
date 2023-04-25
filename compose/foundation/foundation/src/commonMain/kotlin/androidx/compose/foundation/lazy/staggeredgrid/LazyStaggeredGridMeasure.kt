@@ -664,7 +664,7 @@ private fun LazyStaggeredGridMeasureContext.measure(
         // even if we compose items to fill before content padding we should ignore items fully
         // located there for the state's scroll position calculation (first item + first offset)
         debugLog { "adjusting for content padding" }
-        if (beforeContentPadding > 0) {
+        if (beforeContentPadding > mainAxisSpacing) {
             for (laneIndex in measuredItems.indices) {
                 val laneItems = measuredItems[laneIndex]
                 for (i in laneItems.indices) {
@@ -676,7 +676,6 @@ private fun LazyStaggeredGridMeasureContext.measure(
                         firstItemOffsets[laneIndex] != 0 &&
                         firstItemOffsets[laneIndex] >= size
                     ) {
-
                         firstItemOffsets[laneIndex] -= size
                         firstItemIndices[laneIndex] = laneItems[i + 1].index
                     } else {
@@ -1043,9 +1042,9 @@ private class LazyStaggeredGridMeasuredItem(
             index = index,
             key = key,
             size = if (isVertical) {
-                IntSize(crossAxisSize, sizeWithSpacings)
+                IntSize(crossAxisSize, mainAxisSize)
             } else {
-                IntSize(sizeWithSpacings, crossAxisSize)
+                IntSize(mainAxisSize, crossAxisSize)
             },
             placeables = placeables,
             isVertical = isVertical,

@@ -50,15 +50,18 @@ internal class LazyStaggeredGridAnimateScrollScope(
     }
 
     override fun expectedDistanceTo(index: Int, targetScrollOffset: Int): Float {
-        val visibleItems = state.layoutInfo.visibleItemsInfo
-        val itemSizeSum = visibleItems
-            .fastSumBy { if (state.isVertical) it.size.height else it.size.width }
-        val averageMainAxisItemSize = itemSizeSum / (visibleItems.size * state.laneCount)
+        val layoutInfo = state.layoutInfo
+        val visibleItems = layoutInfo.visibleItemsInfo
+        val itemSizeSum = visibleItems.fastSumBy {
+            if (state.isVertical) it.size.height else it.size.width
+        }
+        val averageMainAxisItemSize =
+            itemSizeSum / visibleItems.size + layoutInfo.mainAxisItemSpacing
 
-        val indexesDiff = index - firstVisibleItemIndex
+        val lineDiff = index / state.laneCount - firstVisibleItemIndex / state.laneCount
         var coercedOffset = minOf(abs(targetScrollOffset), averageMainAxisItemSize)
         if (targetScrollOffset < 0) coercedOffset *= -1
-        return (averageMainAxisItemSize * indexesDiff).toFloat() +
+        return averageMainAxisItemSize * lineDiff.toFloat() +
             coercedOffset - firstVisibleItemScrollOffset
     }
 
