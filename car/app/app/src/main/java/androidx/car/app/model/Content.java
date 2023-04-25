@@ -18,12 +18,10 @@ package androidx.car.app.model;
 
 import androidx.annotation.NonNull;
 import androidx.car.app.annotations.CarProtocol;
-import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.RequiresCarApi;
 
 /** Interface implemented by models that can be invalidated and refreshed individually. */
 @CarProtocol
-@ExperimentalCarApi
 @RequiresCarApi(6)
 public interface Content {
 
