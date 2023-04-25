@@ -106,7 +106,7 @@ private data class PainterModifierNodeElement(
         )
     }
 
-    override fun update(node: PainterModifierNode): PainterModifierNode {
+    override fun update(node: PainterModifierNode) {
         val intrinsicsChanged = node.sizeToIntrinsics != sizeToIntrinsics ||
             (sizeToIntrinsics && node.painter.intrinsicSize != painter.intrinsicSize)
 
@@ -123,8 +123,6 @@ private data class PainterModifierNodeElement(
         }
         // redraw because one of the node properties has changed.
         node.invalidateDraw()
-
-        return node
     }
 
     override fun InspectorInfo.inspectableProperties() {

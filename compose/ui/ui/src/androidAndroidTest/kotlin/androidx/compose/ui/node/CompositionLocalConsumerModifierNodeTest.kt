@@ -304,7 +304,7 @@ class CompositionLocalConsumerModifierNodeTest(layoutComposableParam: LayoutComp
         crossinline create: () -> T
     ): ModifierNodeElement<T> = object : ModifierNodeElement<T>() {
         override fun create(): T = create()
-        override fun update(node: T) = node
+        override fun update(node: T) {}
         override fun hashCode(): Int = System.identityHashCode(this)
         override fun equals(other: Any?) = (other === this)
     }

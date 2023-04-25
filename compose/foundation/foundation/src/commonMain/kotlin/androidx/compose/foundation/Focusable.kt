@@ -137,7 +137,7 @@ private val FocusableInNonTouchModeElement =
     object : ModifierNodeElement<FocusableInNonTouchMode>() {
         override fun create(): FocusableInNonTouchMode = FocusableInNonTouchMode()
 
-        override fun update(node: FocusableInNonTouchMode): FocusableInNonTouchMode = node
+        override fun update(node: FocusableInNonTouchMode) {}
 
         override fun hashCode(): Int = System.identityHashCode(this)
 
@@ -168,8 +168,8 @@ private class FocusableElement(
     override fun create(): FocusableNode =
         FocusableNode(interactionSource)
 
-    override fun update(node: FocusableNode) = node.also {
-        it.update(interactionSource)
+    override fun update(node: FocusableNode) {
+        node.update(interactionSource)
     }
 
     override fun equals(other: Any?): Boolean {

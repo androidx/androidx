@@ -253,7 +253,7 @@ private abstract class TestModifierElement<T : Modifier.Node>(
     val node: T
 ) : ModifierNodeElement<T>() {
     override fun create(): T = node
-    override fun update(node: T): T = this.node
+    override fun update(node: T) {}
     override fun InspectorInfo.inspectableProperties() {
         name = modifierName
     }

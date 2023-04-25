@@ -637,10 +637,9 @@ internal class LayoutWeightElement(
         return LayoutWeightNode(weight, fill)
     }
 
-    override fun update(node: LayoutWeightNode): LayoutWeightNode {
+    override fun update(node: LayoutWeightNode) {
         node.weight = weight
         node.fill = fill
-        return node
     }
 
     override fun InspectorInfo.inspectableProperties() {
@@ -682,10 +681,8 @@ internal class WithAlignmentLineBlockElement(
         return SiblingsAlignedNode.WithAlignmentLineBlockNode(block)
     }
 
-    override fun update(node: SiblingsAlignedNode.WithAlignmentLineBlockNode):
-        SiblingsAlignedNode.WithAlignmentLineBlockNode {
+    override fun update(node: SiblingsAlignedNode.WithAlignmentLineBlockNode) {
         node.block = block
-        return node
     }
 
     override fun equals(other: Any?): Boolean {
@@ -709,10 +706,8 @@ internal class WithAlignmentLineElement(
         return SiblingsAlignedNode.WithAlignmentLineNode(alignmentLine)
     }
 
-    override fun update(node: SiblingsAlignedNode.WithAlignmentLineNode):
-        SiblingsAlignedNode.WithAlignmentLineNode {
+    override fun update(node: SiblingsAlignedNode.WithAlignmentLineNode) {
         node.alignmentLine = alignmentLine
-        return node
     }
 
     override fun InspectorInfo.inspectableProperties() {
@@ -762,9 +757,8 @@ internal class HorizontalAlignElement(
         return HorizontalAlignNode(horizontal)
     }
 
-    override fun update(node: HorizontalAlignNode): HorizontalAlignNode {
+    override fun update(node: HorizontalAlignNode) {
         node.horizontal = horizontal
-        return node
     }
 
     override fun InspectorInfo.inspectableProperties() {
@@ -797,9 +791,8 @@ internal class VerticalAlignElement(
         return VerticalAlignNode(alignment)
     }
 
-    override fun update(node: VerticalAlignNode): VerticalAlignNode {
+    override fun update(node: VerticalAlignNode) {
         node.vertical = alignment
-        return node
     }
 
     override fun InspectorInfo.inspectableProperties() {

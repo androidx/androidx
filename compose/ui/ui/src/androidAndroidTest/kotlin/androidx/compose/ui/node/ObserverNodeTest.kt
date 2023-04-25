@@ -170,7 +170,7 @@ class ObserverNodeTest {
         val node: T
     ) : ModifierNodeElement<T>() {
         override fun create(): T = node
-        override fun update(node: T) = this.node
+        override fun update(node: T) {}
         override fun InspectorInfo.inspectableProperties() {
             name = "testNode"
         }

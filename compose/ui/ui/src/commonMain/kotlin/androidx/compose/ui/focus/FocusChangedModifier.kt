@@ -39,8 +39,8 @@ private data class FocusChangedElement(
 ) : ModifierNodeElement<FocusChangedModifierNode>() {
     override fun create() = FocusChangedModifierNode(onFocusChanged)
 
-    override fun update(node: FocusChangedModifierNode) = node.apply {
-        onFocusChanged = this@FocusChangedElement.onFocusChanged
+    override fun update(node: FocusChangedModifierNode) {
+        node.onFocusChanged = onFocusChanged
     }
 
     override fun InspectorInfo.inspectableProperties() {
