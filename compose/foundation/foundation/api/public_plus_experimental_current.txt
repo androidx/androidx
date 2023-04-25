@@ -865,7 +865,8 @@ package androidx.compose.foundation.lazy.staggeredgrid {
     property public abstract long size;
   }
 
-  public sealed interface LazyStaggeredGridItemScope {
+  @androidx.compose.runtime.Stable public sealed interface LazyStaggeredGridItemScope {
+    method @androidx.compose.foundation.ExperimentalFoundationApi public androidx.compose.ui.Modifier animateItemPlacement(androidx.compose.ui.Modifier, optional androidx.compose.animation.core.FiniteAnimationSpec<androidx.compose.ui.unit.IntOffset> animationSpec);
   }
 
   public sealed interface LazyStaggeredGridLayoutInfo {

@@ -636,7 +636,7 @@ package androidx.compose.foundation.lazy.staggeredgrid {
     property public abstract long size;
   }
 
-  public sealed interface LazyStaggeredGridItemScope {
+  @androidx.compose.runtime.Stable public sealed interface LazyStaggeredGridItemScope {
   }
 
   public sealed interface LazyStaggeredGridLayoutInfo {

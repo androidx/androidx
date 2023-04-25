@@ -214,6 +214,8 @@ class LazyStaggeredGridState private constructor(
      */
     internal val pinnedItems = LazyLayoutPinnedItemList()
 
+    internal val placementAnimator = LazyStaggeredGridItemPlacementAnimator()
+
     /**
      * Call this function to take control of scrolling and gain the ability to send scroll events
      * via [ScrollScope.scrollBy]. All actions that change the logical scroll position must be

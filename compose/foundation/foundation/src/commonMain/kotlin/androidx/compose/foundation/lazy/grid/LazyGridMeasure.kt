@@ -423,6 +423,6 @@ private fun LazyGridMeasuredItem.positionExtraItem(
         crossAxisOffset = 0,
         layoutWidth = layoutWidth,
         layoutHeight = layoutHeight,
-        row = 0,
-        column = 0
+        row = -1,
+        column = -1
     )
