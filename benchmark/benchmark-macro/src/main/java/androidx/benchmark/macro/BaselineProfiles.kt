@@ -302,18 +302,14 @@ private fun reportResults(
 private fun extractProfile(packageName: String): String {
 
     val dumpCommand = "pm dump-profiles --dump-classes-and-methods $packageName"
-    if (BuildCompat.isAtLeastU()) {
-        // On api 34 this will produce an output like:
-        // Profile saved to '/data/misc/profman/<PACKAGE_NAME>-primary.prof.txt'
-        val stdout = Shell.executeScriptCaptureStdout(dumpCommand).trim()
-        val expected = "Profile saved to '/data/misc/profman/$packageName-primary.prof.txt'"
-        check(stdout == expected) {
-            "Expected `pm dump-profiles` stdout to be $expected but was $stdout"
-        }
-    } else {
-        // On api 33 and below this command does not produce any output
-        Shell.executeScriptSilent(dumpCommand)
+    val stdout = Shell.executeScriptCaptureStdout(dumpCommand).trim()
+    val expected = "Profile saved to '/data/misc/profman/$packageName-primary.prof.txt'"
+
+    // Output of profman was empty in previous version and can be `expected` on newer versions.
+    check(stdout.isBlank() || stdout == expected) {
+        "Expected `pm dump-profiles` stdout to be either black or `$expected` but was $stdout"
     }
+
     val fileName = "$packageName-primary.prof.txt"
     Shell.executeScriptSilent(
         "mv /data/misc/profman/$fileName ${Outputs.dirUsableByAppAndShell}/"
