@@ -1611,6 +1611,10 @@ package androidx.compose.ui.input.nestedscroll {
     method public static androidx.compose.ui.Modifier nestedScroll(androidx.compose.ui.Modifier, androidx.compose.ui.input.nestedscroll.NestedScrollConnection connection, optional androidx.compose.ui.input.nestedscroll.NestedScrollDispatcher? dispatcher);
   }
 
+  public final class NestedScrollNodeKt {
+    method public static androidx.compose.ui.node.DelegatableNode nestedScrollModifierNode(androidx.compose.ui.input.nestedscroll.NestedScrollConnection connection, androidx.compose.ui.input.nestedscroll.NestedScrollDispatcher? dispatcher);
+  }
+
   @kotlin.jvm.JvmInline public final value class NestedScrollSource {
     field public static final androidx.compose.ui.input.nestedscroll.NestedScrollSource.Companion Companion;
   }
