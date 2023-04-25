@@ -16,12 +16,14 @@
 
 package androidx.benchmark.perfetto
 
+import androidx.benchmark.Outputs
 import androidx.benchmark.Shell
 import androidx.benchmark.macro.createTempFileFromAsset
 import androidx.benchmark.perfetto.PerfettoHelper.Companion.isAbiSupported
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
+import java.io.File
 import java.net.ConnectException
 import java.net.HttpURLConnection
 import java.net.URL
@@ -249,5 +251,27 @@ class PerfettoTraceProcessorTest {
 
         // Check server is not running
         assertTrue(!isRunning())
+    }
+
+    @Test
+    fun parseLongTrace() {
+        val traceFile = File
+            .createTempFile("long_trace", ".trace", Outputs.dirUsableByAppAndShell)
+            .apply {
+                var length = 0L
+                val out = outputStream()
+                while (length < 70 * 1024 * 1024) {
+                    length += InstrumentationRegistry
+                        .getInstrumentation()
+                        .context
+                        .assets
+                        .open("api31_startup_cold.perfetto-trace")
+                        .copyTo(out)
+                }
+            }
+        PerfettoTraceProcessor.runSingleSessionServer(traceFile.absolutePath) {
+            // This would throw an exception if there is an error in the parsing.
+            getTraceMetrics("android_startup")
+        }
     }
 }
