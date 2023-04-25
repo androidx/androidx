@@ -34,6 +34,7 @@ import androidx.room.compiler.processing.ksp.KspAnnotated.UseSiteFilter.Companio
 import androidx.room.compiler.processing.ksp.KspAnnotated.UseSiteFilter.Companion.NO_USE_SITE_OR_SET_PARAM
 import androidx.room.compiler.processing.ksp.KspFieldElement
 import androidx.room.compiler.processing.ksp.KspHasModifiers
+import androidx.room.compiler.processing.ksp.KspMemberContainer
 import androidx.room.compiler.processing.ksp.KspProcessingEnv
 import androidx.room.compiler.processing.ksp.KspType
 import androidx.room.compiler.processing.ksp.findEnclosingMemberContainer
@@ -84,7 +85,7 @@ internal sealed class KspSyntheticPropertyMethodElement(
 
     final override fun isExtensionFunction() = false
 
-    final override val enclosingElement: XMemberContainer
+    final override val enclosingElement: KspMemberContainer
         get() = this.field.enclosingElement
 
     final override val closestMemberContainer: XMemberContainer by lazy {
@@ -119,6 +120,7 @@ internal sealed class KspSyntheticPropertyMethodElement(
     }
 
     final override fun asMemberOf(other: XType): XMethodType {
+        check(other is KspType)
         return KspSyntheticPropertyMethodType.create(
             env = env,
             element = this,
@@ -168,7 +170,10 @@ internal sealed class KspSyntheticPropertyMethodElement(
 
         override val returnType: XType by lazy {
             field.type.copyWithScope(
-                KSTypeVarianceResolverScope.PropertyGetterMethodReturnType(this)
+                KSTypeVarianceResolverScope.PropertyGetterMethodReturnType(
+                    getterMethod = this,
+                    asMemberOf = enclosingElement.type,
+                )
             )
         }
 
@@ -247,7 +252,10 @@ internal sealed class KspSyntheticPropertyMethodElement(
 
             override val type: KspType by lazy {
                 enclosingElement.field.type.copyWithScope(
-                    KSTypeVarianceResolverScope.PropertySetterParameterType(enclosingElement)
+                    KSTypeVarianceResolverScope.PropertySetterParameterType(
+                        setterMethod = enclosingElement,
+                        asMemberOf = enclosingElement.enclosingElement.type,
+                    )
                 )
             }
 
@@ -262,9 +270,16 @@ internal sealed class KspSyntheticPropertyMethodElement(
             }
 
             override fun asMemberOf(other: XType): KspType {
+                if (closestMemberContainer.type?.isSameType(other) != false) {
+                    return type
+                }
+                check(other is KspType)
                 return enclosingElement.field.asMemberOf(other)
                     .copyWithScope(
-                        KSTypeVarianceResolverScope.PropertySetterParameterType(enclosingElement)
+                        KSTypeVarianceResolverScope.PropertySetterParameterType(
+                            setterMethod = enclosingElement,
+                            asMemberOf = other,
+                        )
                     )
             }
 

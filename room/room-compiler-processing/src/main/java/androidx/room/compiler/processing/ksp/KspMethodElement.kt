@@ -122,7 +122,12 @@ internal sealed class KspMethodElement(
             declaration.returnKspType(
                 env = env,
                 containing = enclosingElement.type
-            ).copyWithScope(KSTypeVarianceResolverScope.MethodReturnType(this))
+            ).copyWithScope(
+                KSTypeVarianceResolverScope.MethodReturnType(
+                    method = this,
+                    asMemberOf = enclosingElement.type,
+                )
+            )
         }
         override fun isSuspendFunction() = false
     }
@@ -137,7 +142,12 @@ internal sealed class KspMethodElement(
             env.wrap(
                 ksType = env.resolver.builtIns.anyType.makeNullable(),
                 allowPrimitives = false
-            ).copyWithScope(KSTypeVarianceResolverScope.MethodReturnType(this))
+            ).copyWithScope(
+                KSTypeVarianceResolverScope.MethodReturnType(
+                    method = this,
+                    asMemberOf = enclosingElement.type
+                )
+            )
         }
 
         override val parameters: List<XExecutableParameterElement>

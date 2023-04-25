@@ -52,7 +52,7 @@ internal abstract class KspType(
     /**
      * Type resolver to convert KSType into its JVM representation.
      */
-    protected val scope: KSTypeVarianceResolverScope?
+    val scope: KSTypeVarianceResolverScope?
 ) : KspAnnotated(env), XType, XEquality {
     override val rawType by lazy {
         KspRawType(this)
