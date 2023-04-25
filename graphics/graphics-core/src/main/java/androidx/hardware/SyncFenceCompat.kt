@@ -21,6 +21,7 @@ import android.opengl.EGL15
 import android.opengl.GLES20
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.graphics.lowlatency.FrontBufferUtils
 import androidx.opengl.EGLExt
 import androidx.graphics.surface.SurfaceControlCompat
 import androidx.opengl.EGLSyncKHR
@@ -46,7 +47,9 @@ class SyncFenceCompat : AutoCloseable {
          */
         @JvmStatic
         fun createNativeSyncFence(): SyncFenceCompat {
-            return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            val usePlatformSyncFence = !FrontBufferUtils.UseCompatSurfaceControl &&
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
+            return if (usePlatformSyncFence) {
                 SyncFenceCompatVerificationHelper.createSyncFenceCompatV33()
             } else {
                 val display = EGL14.eglGetDisplay(EGL14.EGL_DEFAULT_DISPLAY)

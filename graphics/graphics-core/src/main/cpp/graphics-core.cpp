@@ -291,8 +291,12 @@ void JniBindings_nSetBuffer(JNIEnv *env, jclass, jlong surfaceTransaction,
     if (android_get_device_api_level() >= 29) {
         auto transaction = reinterpret_cast<ASurfaceTransaction *>(surfaceTransaction);
         auto sc = reinterpret_cast<ASurfaceControl *>(surfaceControl);
-        auto hardwareBuffer = AHardwareBuffer_fromHardwareBuffer(env, hBuffer);
-        auto fence_fd = dup_fence_fd(env, syncFence);
+        AHardwareBuffer* hardwareBuffer;
+        auto fence_fd = -1;
+        if (hBuffer) {
+            hardwareBuffer = AHardwareBuffer_fromHardwareBuffer(env, hBuffer);
+            fence_fd = dup_fence_fd(env, syncFence);
+        }
         ASurfaceTransaction_setBuffer(transaction, sc, hardwareBuffer, fence_fd);
     }
 }

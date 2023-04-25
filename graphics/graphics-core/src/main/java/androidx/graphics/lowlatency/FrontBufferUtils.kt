@@ -47,11 +47,14 @@ internal class FrontBufferUtils private constructor() {
                 USAGE_COMPOSER_OVERLAY
 
         internal fun obtainHardwareBufferUsageFlags(): Long =
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (!UseCompatSurfaceControl &&
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 UsageFlagsVerificationHelper.obtainUsageFlagsV33()
             } else {
                 BaseFlags
             }
+
+        internal const val UseCompatSurfaceControl = false
     }
 }
 
