@@ -2139,7 +2139,7 @@ public abstract class FragmentManager implements FragmentResultOwner {
         Set<Fragment> fragments = new HashSet<>();
         for (int i = 0; i < record.mOps.size(); i++) {
             Fragment f = record.mOps.get(i).mFragment;
-            if (f != null) {
+            if (f != null && record.mAddToBackStack) {
                 fragments.add(f);
             }
         }
