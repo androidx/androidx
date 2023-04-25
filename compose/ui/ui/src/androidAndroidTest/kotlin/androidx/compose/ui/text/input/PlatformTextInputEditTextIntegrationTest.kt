@@ -42,6 +42,7 @@ import androidx.compose.ui.test.performTextClearance
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTextInputSelection
 import androidx.compose.ui.test.performTextReplacement
+import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -59,7 +60,7 @@ private const val ExpectedActionCode = 42
  * This test exercises the use case of an [EditText] embedded in a composition using the text input
  * plugin system to wire into Compose's testing framework.
  */
-@OptIn(ExperimentalTestApi::class)
+@OptIn(ExperimentalTestApi::class, ExperimentalTextApi::class)
 @SmallTest
 @RunWith(AndroidJUnit4::class)
 class PlatformTextInputEditTextIntegrationTest {
