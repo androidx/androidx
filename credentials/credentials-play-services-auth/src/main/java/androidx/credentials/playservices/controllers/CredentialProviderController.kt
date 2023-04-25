@@ -57,7 +57,6 @@ abstract class CredentialProviderController<T1 : Any, T2 : Any, R2 : Any, R1 : A
         @JvmStatic
         protected fun maybeReportErrorResultCodeCreate(
             resultCode: Int,
-            type: String,
             cancelOnError: (
                 CancellationSignal?,
                     () -> Unit
@@ -67,11 +66,11 @@ abstract class CredentialProviderController<T1 : Any, T2 : Any, R2 : Any, R1 : A
         ): Boolean {
             if (resultCode != Activity.RESULT_OK) {
                 var exception: CreateCredentialException = CreateCredentialUnknownException(
-                    generateErrorStringUnknown(type, resultCode)
+                    generateErrorStringUnknown(resultCode)
                 )
                 if (resultCode == Activity.RESULT_CANCELED) {
                     exception = CreateCredentialCancellationException(
-                        generateErrorStringCanceled(type)
+                        generateErrorStringCanceled()
                     )
                 }
                 cancelOnError(cancellationSignal) { onError(exception) }
@@ -80,12 +79,12 @@ abstract class CredentialProviderController<T1 : Any, T2 : Any, R2 : Any, R1 : A
             return false
         }
 
-        internal fun generateErrorStringUnknown(type: String, resultCode: Int): String {
-            return "$type activity with result code: $resultCode indicating not RESULT_OK"
+        internal fun generateErrorStringUnknown(resultCode: Int): String {
+            return "activity with result code: $resultCode indicating not RESULT_OK"
         }
 
-        internal fun generateErrorStringCanceled(type: String): String {
-            return "$type activity is cancelled by the user."
+        internal fun generateErrorStringCanceled(): String {
+            return "activity is cancelled by the user."
         }
 
         /**
@@ -96,7 +95,6 @@ abstract class CredentialProviderController<T1 : Any, T2 : Any, R2 : Any, R1 : A
         @JvmStatic
         protected fun maybeReportErrorResultCodeGet(
             resultCode: Int,
-            type: String,
             cancelOnError: (
                 CancellationSignal?,
                     () -> Unit
@@ -106,11 +104,11 @@ abstract class CredentialProviderController<T1 : Any, T2 : Any, R2 : Any, R1 : A
         ): Boolean {
             if (resultCode != Activity.RESULT_OK) {
                 var exception: GetCredentialException = GetCredentialUnknownException(
-                    generateErrorStringUnknown(type, resultCode)
+                    generateErrorStringUnknown(resultCode)
                 )
                 if (resultCode == Activity.RESULT_CANCELED) {
                     exception = GetCredentialCancellationException(
-                        generateErrorStringCanceled(type)
+                        generateErrorStringCanceled()
                     )
                 }
                 cancelOnError(cancellationSignal) { onError(exception) }
