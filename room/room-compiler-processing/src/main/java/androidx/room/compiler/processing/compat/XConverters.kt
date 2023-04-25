@@ -56,6 +56,7 @@ import androidx.room.compiler.processing.ksp.KspTypeElement
 import androidx.room.compiler.processing.ksp.synthetic.KspSyntheticContinuationParameterElement
 import androidx.room.compiler.processing.ksp.synthetic.KspSyntheticPropertyMethodElement
 import androidx.room.compiler.processing.ksp.synthetic.KspSyntheticReceiverParameterElement
+import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.processing.SymbolProcessorEnvironment
 import com.google.devtools.ksp.symbol.KSAnnotated
 import com.google.devtools.ksp.symbol.KSAnnotation
@@ -171,6 +172,9 @@ object XConverters {
 
     @JvmStatic
     fun XProcessingEnv.toKS(): SymbolProcessorEnvironment = (this as KspProcessingEnv).delegate
+
+    @JvmStatic
+    fun XProcessingEnv.toKSResolver(): Resolver = (this as KspProcessingEnv).resolver
 
     @JvmStatic
     fun XTypeElement.toKS(): KSClassDeclaration = (this as KspTypeElement).declaration
