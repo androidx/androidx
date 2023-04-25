@@ -46,8 +46,8 @@ private data class FocusEventElement(
 ) : ModifierNodeElement<FocusEventModifierNodeImpl>() {
     override fun create() = FocusEventModifierNodeImpl(onFocusEvent)
 
-    override fun update(node: FocusEventModifierNodeImpl) {
-        node.onFocusEvent = onFocusEvent
+    override fun update(node: FocusEventModifierNodeImpl) = node.apply {
+        onFocusEvent = this@FocusEventElement.onFocusEvent
     }
 
     override fun InspectorInfo.inspectableProperties() {

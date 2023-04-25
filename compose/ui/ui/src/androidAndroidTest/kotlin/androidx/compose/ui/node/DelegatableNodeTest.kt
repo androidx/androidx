@@ -593,7 +593,7 @@ class DelegatableNodeTest {
         val factory: () -> T
     ) : ModifierNodeElement<T>() {
         override fun create(): T = factory()
-        override fun update(node: T) {}
+        override fun update(node: T) = node
         override fun InspectorInfo.inspectableProperties() {
             name = "testNode"
         }

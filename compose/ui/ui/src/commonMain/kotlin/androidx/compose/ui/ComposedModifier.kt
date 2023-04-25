@@ -304,7 +304,7 @@ internal class CompositionLocalMapInjectionElement(
     val map: CompositionLocalMap
 ) : ModifierNodeElement<CompositionLocalMapInjectionNode>() {
     override fun create() = CompositionLocalMapInjectionNode(map)
-    override fun update(node: CompositionLocalMapInjectionNode) { node.map = map }
+    override fun update(node: CompositionLocalMapInjectionNode) = node.also { it.map = map }
     override fun hashCode(): Int = map.hashCode()
     override fun equals(other: Any?): Boolean {
         return other is CompositionLocalMapInjectionElement && other.map == map

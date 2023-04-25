@@ -77,9 +77,10 @@ private class ExcludeFromSystemGestureElement(
         return ExcludeFromSystemGestureNode(exclusion)
     }
 
-    override fun update(node: ExcludeFromSystemGestureNode) {
-        node.exclusion = exclusion
-    }
+    override fun update(node: ExcludeFromSystemGestureNode): ExcludeFromSystemGestureNode =
+        node.also {
+            it.exclusion = exclusion
+        }
 
     override fun hashCode(): Int {
         return exclusion.hashCode()

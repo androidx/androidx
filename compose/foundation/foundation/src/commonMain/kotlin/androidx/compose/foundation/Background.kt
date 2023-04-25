@@ -104,11 +104,12 @@ private class BackgroundElement(
         )
     }
 
-    override fun update(node: BackgroundNode) {
+    override fun update(node: BackgroundNode): BackgroundNode {
         node.color = color
         node.brush = brush
         node.alpha = alpha
         node.shape = shape
+        return node
     }
 
     override fun InspectorInfo.inspectableProperties() {

@@ -127,7 +127,7 @@ internal class NodeChain(val layoutNode: LayoutNode) {
                         // this is "the same" modifier, but some things have changed so we want to
                         // reuse the node but also update it
                         val beforeUpdate = node
-                        node = updateNode(prev, next, beforeUpdate)
+                        node = updateNodeAndReplaceIfNeeded(prev, next, beforeUpdate)
                         logger?.nodeUpdated(i, i, prev, next, beforeUpdate, node)
                     }
                     ActionReuse -> {
@@ -395,7 +395,7 @@ internal class NodeChain(val layoutNode: LayoutNode) {
             val next = after[newIndex]
             if (prev != next) {
                 val beforeUpdate = node
-                node = updateNode(prev, next, beforeUpdate)
+                node = updateNodeAndReplaceIfNeeded(prev, next, beforeUpdate)
                 logger?.nodeUpdated(oldIndex, newIndex, prev, next, beforeUpdate, node)
             } else {
                 logger?.nodeReused(oldIndex, newIndex, prev, next, node)
@@ -573,23 +573,35 @@ internal class NodeChain(val layoutNode: LayoutNode) {
         return node
     }
 
-    private fun updateNode(
+    private fun updateNodeAndReplaceIfNeeded(
         prev: Modifier.Element,
         next: Modifier.Element,
         node: Modifier.Node
     ): Modifier.Node {
         when {
             prev is ModifierNodeElement<*> && next is ModifierNodeElement<*> -> {
-                next.updateUnsafe(node)
-                if (node.isAttached) {
-                    // the modifier element is labeled as "auto invalidate", which means
-                    // that since the node was updated, we need to invalidate everything
-                    // relevant to it.
-                    autoInvalidateUpdatedNode(node)
+                val updated = next.updateUnsafe(node)
+                if (updated !== node) {
+                    check(!updated.isAttached)
+                    updated.insertedNodeAwaitingAttachForInvalidation = true
+                    // if a new instance is returned, we want to detach the old one
+                    if (node.isAttached) {
+                        autoInvalidateRemovedNode(node)
+                        node.detach()
+                    }
+                    return replaceNode(node, updated)
                 } else {
-                    node.updatedNodeAwaitingAttachForInvalidation = true
+                    // the node was updated. we are done.
+                    if (updated.isAttached) {
+                        // the modifier element is labeled as "auto invalidate", which means
+                        // that since the node was updated, we need to invalidate everything
+                        // relevant to it.
+                        autoInvalidateUpdatedNode(updated)
+                    } else {
+                        updated.updatedNodeAwaitingAttachForInvalidation = true
+                    }
+                    return updated
                 }
-                return node
             }
             node is BackwardsCompatNode -> {
                 node.element = next
@@ -735,9 +747,9 @@ internal fun actionForModifiers(prev: Modifier.Element, next: Modifier.Element):
 
 private fun <T : Modifier.Node> ModifierNodeElement<T>.updateUnsafe(
     node: Modifier.Node
-) {
+): Modifier.Node {
     @Suppress("UNCHECKED_CAST")
-    update(node as T)
+    return update(node as T)
 }
 
 private fun Modifier.fillVector(

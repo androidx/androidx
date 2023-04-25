@@ -246,7 +246,7 @@ class ModifierNodeReuseAndDeactivationTest {
             override fun create(): Modifier.Node = nodeInstance
             override fun hashCode(): Int = System.identityHashCode(this)
             override fun equals(other: Any?) = (other === this)
-            override fun update(node: Modifier.Node) { }
+            override fun update(node: Modifier.Node) = nodeInstance
         }
 
         var active by mutableStateOf(true)
@@ -909,7 +909,7 @@ private fun createModifier(
             }
         }
 
-        override fun update(node: Modifier.Node) { onUpdate() }
+        override fun update(node: Modifier.Node) = node.apply { onUpdate() }
 
         override fun hashCode(): Int = "ModifierNodeReuseAndDeactivationTest".hashCode()
 
@@ -929,9 +929,9 @@ private data class StatelessModifierElement(
 ) : ModifierNodeElement<StatelessModifierElement.Node>() {
     override fun create() = Node(size, onInvalidate)
 
-    override fun update(node: Node) {
-        node.size = size
-        node.onMeasure = onInvalidate
+    override fun update(node: Node) = node.also {
+        it.size = size
+        it.onMeasure = onInvalidate
     }
 
     class Node(var size: Int, var onMeasure: () -> Unit) : Modifier.Node(), LayoutModifierNode {
@@ -953,8 +953,8 @@ private data class DelegatingModifierElement(
 ) : ModifierNodeElement<DelegatingModifierElement.Node>() {
     override fun create() = Node(onDelegatedNodeReset)
 
-    override fun update(node: Node) {
-        node.onReset = onDelegatedNodeReset
+    override fun update(node: Node) = node.also {
+        it.onReset = onDelegatedNodeReset
     }
 
     class Node(var onReset: () -> Unit) : DelegatingNode() {
@@ -973,8 +973,8 @@ private data class LayerModifierElement(
 ) : ModifierNodeElement<LayerModifierElement.Node>() {
     override fun create() = Node(layerBlock)
 
-    override fun update(node: Node) {
-        node.layerBlock = layerBlock
+    override fun update(node: Node) = node.also {
+        it.layerBlock = layerBlock
     }
 
     class Node(var layerBlock: () -> Unit) : Modifier.Node(), LayoutModifierNode {
@@ -997,8 +997,8 @@ private data class ObserverModifierElement(
 ) : ModifierNodeElement<ObserverModifierElement.Node>() {
     override fun create() = Node(observedBlock)
 
-    override fun update(node: Node) {
-        node.observedBlock = observedBlock
+    override fun update(node: Node) = node.also {
+        it.observedBlock = observedBlock
     }
 
     class Node(var observedBlock: () -> Unit) : Modifier.Node(), ObserverNode {
@@ -1024,8 +1024,8 @@ private data class LayoutModifierElement(
 ) : ModifierNodeElement<LayoutModifierElement.Node>() {
     override fun create() = Node(measureBlock)
 
-    override fun update(node: Node) {
-        node.measureBlock = measureBlock
+    override fun update(node: Node) = node.also {
+        it.measureBlock = measureBlock
     }
 
     class Node(var measureBlock: () -> Unit) : Modifier.Node(), LayoutModifierNode {
@@ -1062,8 +1062,8 @@ private data class DrawModifierElement(
 ) : ModifierNodeElement<DrawModifierElement.Node>() {
     override fun create() = Node(drawBlock)
 
-    override fun update(node: Node) {
-        node.drawBlock = drawBlock
+    override fun update(node: Node) = node.also {
+        it.drawBlock = drawBlock
     }
 
     class Node(var drawBlock: () -> Unit) : Modifier.Node(), DrawModifierNode {
@@ -1084,7 +1084,7 @@ private data class OldDrawModifier(
 
 private object StatelessLayoutElement1 : ModifierNodeElement<StatelessLayoutModifier1>() {
     override fun create() = StatelessLayoutModifier1()
-    override fun update(node: StatelessLayoutModifier1) {}
+    override fun update(node: StatelessLayoutModifier1) = node
     override fun hashCode(): Int = 241
     override fun equals(other: Any?) = other === this
 }
@@ -1103,7 +1103,7 @@ private class StatelessLayoutModifier1 : Modifier.Node(), LayoutModifierNode {
 
 private object StatelessLayoutElement2 : ModifierNodeElement<StatelessLayoutModifier2>() {
     override fun create() = StatelessLayoutModifier2()
-    override fun update(node: StatelessLayoutModifier2) {}
+    override fun update(node: StatelessLayoutModifier2) = node
     override fun hashCode(): Int = 242
     override fun equals(other: Any?) = other === this
 }

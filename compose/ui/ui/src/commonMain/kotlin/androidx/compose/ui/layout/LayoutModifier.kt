@@ -274,8 +274,8 @@ private data class LayoutModifierElement(
 ) : ModifierNodeElement<LayoutModifierImpl>() {
     override fun create() = LayoutModifierImpl(measure)
 
-    override fun update(node: LayoutModifierImpl) {
-        node.measureBlock = measure
+    override fun update(node: LayoutModifierImpl) = node.apply {
+        measureBlock = measure
     }
 
     override fun InspectorInfo.inspectableProperties() {

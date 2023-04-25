@@ -229,7 +229,7 @@ inline fun <reified T : Modifier.Node> modifierOf(crossinline fn: () -> T) =
         override fun create() = fn()
         override fun hashCode() = System.identityHashCode(this)
         override fun equals(other: Any?) = other === this
-        override fun update(node: T) {}
+        override fun update(node: T) = node
     }
 
 class ConsumeInDrawNode : CompositionLocalConsumerModifierNode, DrawModifierNode, Modifier.Node() {
