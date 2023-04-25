@@ -42,8 +42,8 @@ fun Modifier.zIndex(zIndex: Float): Modifier = this then ZIndexElement(zIndex = 
 
 internal data class ZIndexElement(val zIndex: Float) : ModifierNodeElement<ZIndexModifier>() {
     override fun create() = ZIndexModifier(zIndex)
-    override fun update(node: ZIndexModifier) = node.also {
-        it.zIndex = zIndex
+    override fun update(node: ZIndexModifier) {
+        node.zIndex = zIndex
     }
     override fun InspectorInfo.inspectableProperties() {
         name = "zIndex"

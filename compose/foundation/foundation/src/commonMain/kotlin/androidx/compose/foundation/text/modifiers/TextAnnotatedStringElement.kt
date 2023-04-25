@@ -60,7 +60,7 @@ internal class TextAnnotatedStringElement(
         selectionController
     )
 
-    override fun update(node: TextAnnotatedStringNode): TextAnnotatedStringNode {
+    override fun update(node: TextAnnotatedStringNode) {
         node.doInvalidations(
             textChanged = node.updateText(
                 text = text
@@ -80,7 +80,6 @@ internal class TextAnnotatedStringElement(
                 selectionController = selectionController
             )
         )
-        return node
     }
 
     override fun equals(other: Any?): Boolean {

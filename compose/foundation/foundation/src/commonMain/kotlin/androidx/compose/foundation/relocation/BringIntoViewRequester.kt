@@ -120,10 +120,9 @@ private class BringIntoViewRequesterElement(
         return BringIntoViewRequesterNode(requester)
     }
 
-    override fun update(node: BringIntoViewRequesterNode): BringIntoViewRequesterNode =
-        node.also {
-            it.updateRequester(requester)
-        }
+    override fun update(node: BringIntoViewRequesterNode) {
+        node.updateRequester(requester)
+    }
 
     override fun InspectorInfo.inspectableProperties() {
         name = "bringIntoViewRequester"
