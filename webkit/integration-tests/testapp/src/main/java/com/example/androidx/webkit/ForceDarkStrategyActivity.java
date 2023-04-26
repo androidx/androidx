@@ -16,7 +16,6 @@
 
 package com.example.androidx.webkit;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.os.Bundle;
 import android.util.Base64;
@@ -38,7 +37,6 @@ import androidx.webkit.WebViewFeature;
  * Activity allows setting WebViews to use UA darkening, Web theme darkening (media query vs
  * meta-tag) or both.
  */
-@SuppressLint("RestrictedApi")
 public class ForceDarkStrategyActivity extends AppCompatActivity {
     private final String mNoDarkThemeSupport = Base64.encodeToString((
                       "<html>"
