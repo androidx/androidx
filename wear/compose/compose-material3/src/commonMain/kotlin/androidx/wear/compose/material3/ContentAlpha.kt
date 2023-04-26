@@ -122,3 +122,5 @@ private object LowContrastContentAlpha {
     const val medium: Float = 0.60f
     const val disabled: Float = 0.38f
 }
+
+internal const val DisabledBorderAndContainerAlpha = 0.12f
