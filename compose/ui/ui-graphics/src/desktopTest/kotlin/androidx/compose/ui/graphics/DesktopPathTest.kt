@@ -20,6 +20,8 @@ import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.RoundRect
 import androidx.compose.ui.test.InternalTestApi
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
+import org.junit.Assert.assertFalse
 import org.junit.Test
 
 @OptIn(InternalTestApi::class)
@@ -210,5 +212,17 @@ class DesktopPathTest : DesktopGraphicsTest() {
         path.reset()
 
         assertEquals(PathFillType.EvenOdd, path.fillType)
+    }
+
+    @Test
+    fun testRewind() {
+        val path = Path().apply {
+            addRect(Rect(0f, 0f, 100f, 200f))
+        }
+        assertFalse(path.isEmpty)
+
+        path.rewind()
+
+        assertTrue(path.isEmpty)
     }
 }

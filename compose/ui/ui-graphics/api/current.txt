@@ -623,6 +623,7 @@ package androidx.compose.ui.graphics {
     method public void relativeMoveTo(float dx, float dy);
     method public void relativeQuadraticBezierTo(float dx1, float dy1, float dx2, float dy2);
     method public void reset();
+    method public default void rewind();
     method public void setFillType(int);
     method public void translate(long offset);
     property public abstract int fillType;

@@ -25,6 +25,8 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import kotlin.math.PI
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
@@ -77,5 +79,31 @@ class PathTest {
                 height / 2 - x
             ]
         )
+    }
+
+    @Test
+    fun testRewindPath() {
+        val androidPath = TestAndroidPath()
+        val path = androidPath.asComposePath().apply {
+            addRect(Rect(0f, 0f, 100f, 200f))
+        }
+        assertFalse(path.isEmpty)
+
+        path.rewind()
+
+        assertTrue(path.isEmpty)
+        // Reset should not be invoked as the rewind method is implemented to call into the
+        // corresponding rewind call in the framework and not call the default fallback
+        assertEquals(0, androidPath.resetCount)
+    }
+
+    class TestAndroidPath : android.graphics.Path() {
+
+        var resetCount = 0
+
+        override fun reset() {
+            resetCount++
+            super.reset()
+        }
     }
 }

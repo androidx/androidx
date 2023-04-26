@@ -179,6 +179,10 @@ class PathParserTest {
             // NO-OP
         }
 
+        override fun rewind() {
+            // NO-OP
+        }
+
         override fun translate(offset: Offset) {
             // NO-OP
         }

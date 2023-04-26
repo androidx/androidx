@@ -218,6 +218,16 @@ expect fun Path(): Path
     fun reset()
 
     /**
+     * Rewinds the path: clears any lines and curves from the path but keeps the internal data
+     * structure for faster reuse.
+     */
+    fun rewind() {
+        // Call reset to avoid AbstractMethodAdded lint API errors. Implementations are already
+        // calling into the respective platform Path#rewind equivalent.
+        reset()
+    }
+
+    /**
      * Translates all the segments of every subpath by the given offset.
      */
     fun translate(offset: Offset)
