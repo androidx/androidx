@@ -47,6 +47,7 @@ import androidx.camera.core.imagecapture.Utils.injectRotationOptionQuirk
 import androidx.camera.core.impl.CaptureConfig
 import androidx.camera.core.impl.CaptureConfig.OPTION_ROTATION
 import androidx.camera.core.impl.ImageCaptureConfig
+import androidx.camera.core.impl.ImageCaptureConfig.OPTION_BUFFER_FORMAT
 import androidx.camera.core.impl.ImageInputConfig
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor
 import androidx.camera.core.impl.utils.futures.Futures
@@ -54,6 +55,7 @@ import androidx.camera.core.internal.IoConfig.OPTION_IO_EXECUTOR
 import androidx.camera.core.processing.Packet
 import androidx.camera.testing.TestImageUtil.createJpegBytes
 import androidx.camera.testing.TestImageUtil.createJpegFakeImageProxy
+import androidx.camera.testing.TestImageUtil.createYuvFakeImageProxy
 import androidx.camera.testing.fakes.FakeCameraCaptureResult
 import androidx.camera.testing.fakes.FakeImageInfo
 import androidx.camera.testing.fakes.FakeImageReaderProxy
@@ -333,6 +335,34 @@ class ImagePipelineTest {
         val captureConfig = cameraRequest.captureConfigs.single()
         assertThat(captureConfig.tagBundle.getTag(processingRequest.tagBundleKey))
             .isEqualTo(processingRequest.stageIds.single())
+    }
+
+    @Test
+    fun createPipelineWithYuvOutput_getsYuvImage() {
+        val builder = ImageCapture.Builder().setCaptureOptionUnpacker { _, builder ->
+            builder.templateType = TEMPLATE_TYPE
+        }
+        builder.mutableConfig.insertOption(OPTION_BUFFER_FORMAT, ImageFormat.YUV_420_888)
+        builder.mutableConfig.insertOption(OPTION_IO_EXECUTOR, mainThreadExecutor())
+        builder.mutableConfig.insertOption(ImageInputConfig.OPTION_INPUT_FORMAT, ImageFormat.JPEG)
+        val pipeline = ImagePipeline(builder.useCaseConfig, SIZE)
+
+        // Arrange.
+        val processingRequest = imagePipeline.createRequests(
+            IN_MEMORY_REQUEST, CALLBACK, Futures.immediateFuture(null)
+        ).second!!
+        val imageInfo = createCameraCaptureResultImageInfo(
+            processingRequest.tagBundleKey,
+            processingRequest.stageIds.single()
+        )
+        val image = createYuvFakeImageProxy(imageInfo, WIDTH, HEIGHT)
+
+        // Act: send processing request and the image.
+        pipeline.submitProcessingRequest(processingRequest)
+        pipeline.captureNode.onImageProxyAvailable(image)
+        shadowOf(getMainLooper()).idle()
+
+        assertThat(CALLBACK.inMemoryResult!!.format).isEqualTo(ImageFormat.YUV_420_888)
     }
 
     @Test

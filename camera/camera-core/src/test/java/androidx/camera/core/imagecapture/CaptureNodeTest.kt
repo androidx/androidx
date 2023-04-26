@@ -16,7 +16,7 @@
 
 package androidx.camera.core.imagecapture
 
-import android.graphics.ImageFormat
+import android.graphics.ImageFormat.JPEG
 import android.os.Build
 import android.os.Looper.getMainLooper
 import android.util.Size
@@ -54,7 +54,7 @@ class CaptureNodeTest {
 
     @Before
     fun setUp() {
-        captureNodeIn = CaptureNode.In.of(Size(10, 10), ImageFormat.JPEG, false, null)
+        captureNodeIn = CaptureNode.In.of(Size(10, 10), JPEG, JPEG, false, null)
         captureNodeOut = captureNode.transform(captureNodeIn)
         captureNodeOut.imageEdge.setListener {
             imagePropagated.add(it)
@@ -76,7 +76,7 @@ class CaptureNodeTest {
         val imageReaderProvider = ImageReaderProxyProvider { _, _, _, _, _ ->
             imageReader
         }
-        val input = CaptureNode.In.of(Size(10, 10), ImageFormat.JPEG, false, imageReaderProvider)
+        val input = CaptureNode.In.of(Size(10, 10), JPEG, JPEG, false, imageReaderProvider)
         // Act: transform.
         val node = CaptureNode()
         node.transform(input)

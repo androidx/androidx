@@ -16,10 +16,12 @@
 
 package androidx.camera.core.imagecapture;
 
+import static android.graphics.ImageFormat.JPEG;
 import static android.graphics.ImageFormat.YUV_420_888;
 
 import static androidx.camera.core.ImageCapture.ERROR_UNKNOWN;
 import static androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor;
+import static androidx.core.util.Preconditions.checkArgument;
 import static androidx.core.util.Preconditions.checkState;
 
 import static java.util.Objects.requireNonNull;
@@ -63,6 +65,7 @@ public class ProcessingNode implements Node<ProcessingNode.In, Void> {
     @Nullable
     final InternalImageProcessor mImageProcessor;
 
+    private ProcessingNode.In mInputEdge;
     private Operation<InputPacket, Packet<ImageProxy>> mInput2Packet;
     private Operation<Image2JpegBytes.In, Packet<byte[]>> mImage2JpegBytes;
     private Operation<Bitmap2JpegBytes.In, Packet<byte[]>> mBitmap2JpegBytes;
@@ -100,6 +103,7 @@ public class ProcessingNode implements Node<ProcessingNode.In, Void> {
     @NonNull
     @Override
     public Void transform(@NonNull ProcessingNode.In inputEdge) {
+        mInputEdge = inputEdge;
         // Listen to the input edge.
         inputEdge.getEdge().setListener(
                 inputPacket -> {
@@ -116,7 +120,7 @@ public class ProcessingNode implements Node<ProcessingNode.In, Void> {
         mBitmap2JpegBytes = new Bitmap2JpegBytes();
         mJpegBytes2Disk = new JpegBytes2Disk();
         mJpegImage2Result = new JpegImage2Result();
-        if (inputEdge.getFormat() == YUV_420_888 || mImageProcessor != null) {
+        if (inputEdge.getInputFormat() == YUV_420_888 || mImageProcessor != null) {
             // Convert JPEG bytes to ImageProxy for:
             // - YUV input: YUV -> JPEG -> ImageProxy
             // - Effects: JPEG -> Bitmap -> effect -> Bitmap -> JPEG -> ImageProxy
@@ -162,6 +166,9 @@ public class ProcessingNode implements Node<ProcessingNode.In, Void> {
     @WorkerThread
     ImageCapture.OutputFileResults processOnDiskCapture(@NonNull InputPacket inputPacket)
             throws ImageCaptureException {
+        checkArgument(mInputEdge.getOutputFormat() == JPEG,
+                String.format("On-disk capture only support JPEG output format. Output format: %s",
+                        mInputEdge.getOutputFormat()));
         ProcessingRequest request = inputPacket.getProcessingRequest();
         Packet<ImageProxy> originalImage = mInput2Packet.apply(inputPacket);
         Packet<byte[]> jpegBytes = mImage2JpegBytes.apply(
@@ -179,7 +186,8 @@ public class ProcessingNode implements Node<ProcessingNode.In, Void> {
             throws ImageCaptureException {
         ProcessingRequest request = inputPacket.getProcessingRequest();
         Packet<ImageProxy> image = mInput2Packet.apply(inputPacket);
-        if (image.getFormat() == YUV_420_888 || mBitmapEffect != null) {
+        if ((image.getFormat() == YUV_420_888 || mBitmapEffect != null)
+                && mInputEdge.getOutputFormat() == JPEG) {
             Packet<byte[]> jpegBytes = mImage2JpegBytes.apply(
                     Image2JpegBytes.In.of(image, request.getJpegQuality()));
             if (mBitmapEffect != null) {
@@ -195,7 +203,7 @@ public class ProcessingNode implements Node<ProcessingNode.In, Void> {
      */
     private Packet<byte[]> cropAndMaybeApplyEffect(Packet<byte[]> jpegPacket, int jpegQuality)
             throws ImageCaptureException {
-        checkState(jpegPacket.getFormat() == ImageFormat.JPEG);
+        checkState(jpegPacket.getFormat() == JPEG);
         Packet<Bitmap> bitmapPacket = mJpegBytes2CroppedBitmap.apply(jpegPacket);
         if (mBitmapEffect != null) {
             // Apply effect if present.
@@ -251,10 +259,18 @@ public class ProcessingNode implements Node<ProcessingNode.In, Void> {
         /**
          * Gets the format of the image in {@link InputPacket}.
          */
-        abstract int getFormat();
+        abstract int getInputFormat();
 
-        static In of(int format) {
-            return new AutoValue_ProcessingNode_In(new Edge<>(), format);
+        /**
+         * The output format of the pipeline.
+         *
+         * <p> For public users, only {@link ImageFormat#JPEG} is supported. Other formats are
+         * only used by in-memory capture in tests.
+         */
+        abstract int getOutputFormat();
+
+        static In of(int inputFormat, int outputFormat) {
+            return new AutoValue_ProcessingNode_In(new Edge<>(), inputFormat, outputFormat);
         }
     }
 
