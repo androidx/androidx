@@ -16,6 +16,14 @@
 
 package androidx.camera.camera2.internal;
 
+import static android.hardware.DataSpace.STANDARD_BT2020;
+import static android.hardware.DataSpace.TRANSFER_GAMMA2_2;
+import static android.hardware.DataSpace.TRANSFER_GAMMA2_6;
+import static android.hardware.DataSpace.TRANSFER_GAMMA2_8;
+import static android.hardware.DataSpace.TRANSFER_HLG;
+import static android.hardware.DataSpace.TRANSFER_SMPTE_170M;
+import static android.hardware.DataSpace.TRANSFER_SRGB;
+import static android.hardware.DataSpace.TRANSFER_UNSPECIFIED;
 import static android.os.Build.VERSION.SDK_INT;
 
 import static com.google.common.truth.Truth.assertThat;
@@ -118,8 +126,10 @@ import org.mockito.Mockito;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
@@ -143,6 +153,20 @@ import java.util.concurrent.atomic.AtomicInteger;
 public final class CaptureSessionTest {
     private static final DynamicRange DYNAMIC_RANGE_HLG10 =
             new DynamicRange(DynamicRange.FORMAT_HLG, DynamicRange.BIT_DEPTH_10_BIT);
+
+    // Enumerate possible SDR transfer functions. This may need to be updated if more transfer
+    // functions are added to the DataSpace class.
+    // This set is notably missing the HLG and PQ transfer functions, though HLG could
+    // technically be used with 8-bit for SDR.
+    // We also exclude LINEAR as most devices should at least apply gamma for SDR.
+    private static final HashSet<Integer> POSSIBLE_COLOR_STANDARDS_SDR =
+            new HashSet<>(Arrays.asList(
+                    TRANSFER_UNSPECIFIED, // Some devices may use this as a default for SDR
+                    TRANSFER_GAMMA2_2,
+                    TRANSFER_GAMMA2_6,
+                    TRANSFER_GAMMA2_8,
+                    TRANSFER_SMPTE_170M,
+                    TRANSFER_SRGB));
 
     /** Thread for all asynchronous calls. */
     private static HandlerThread sHandlerThread;
@@ -348,8 +372,9 @@ public final class CaptureSessionTest {
             throws ExecutionException, InterruptedException, TimeoutException {
         openCaptureSessionAndVerifyDynamicRangeApplied(
                 /*inputDynamicRange=*/null, // Should default to SDR
-                DataSpace.STANDARD_BT709,
-                DataSpace.TRANSFER_SRGB);
+                /*possibleColorStandards=*/null, // Do not check ColorSpace for SDR; could be many.
+                POSSIBLE_COLOR_STANDARDS_SDR
+        );
     }
 
     @SdkSuppress(minSdkVersion = 33) // HLG dynamic range only supported since API 33
@@ -358,8 +383,8 @@ public final class CaptureSessionTest {
             throws ExecutionException, InterruptedException, TimeoutException {
         openCaptureSessionAndVerifyDynamicRangeApplied(
                 DYNAMIC_RANGE_HLG10,
-                DataSpace.STANDARD_BT2020,
-                DataSpace.TRANSFER_HLG);
+                Collections.singleton(STANDARD_BT2020),
+                Collections.singleton(TRANSFER_HLG));
     }
 
     // Sharing surface of YUV format is supported since API 28
@@ -1557,8 +1582,8 @@ public final class CaptureSessionTest {
     @RequiresApi(33) // SurfaceTexture.getDataSpace() was added in API 33
     private void openCaptureSessionAndVerifyDynamicRangeApplied(
             @Nullable DynamicRange inputDynamicRange,
-            int expectedColorStandard,
-            int expectedTransferFn)
+            @Nullable Set<Integer> possibleColorStandards,
+            @Nullable Set<Integer> possibleTransferFns)
             throws ExecutionException, InterruptedException, TimeoutException {
         // 1. Arrange
         if (inputDynamicRange != null) {
@@ -1566,9 +1591,6 @@ public final class CaptureSessionTest {
             assumeTrue(
                     mDynamicRangesCompat.getSupportedDynamicRanges().contains(inputDynamicRange));
         }
-
-        assumeFalse("Cuttlefish does not set the data space correctly for camera targets.",
-                Build.MODEL.contains("Cuttlefish"));
 
         CountDownLatch latch0 = new CountDownLatch(1);
         AtomicInteger dataSpace = new AtomicInteger(DataSpace.DATASPACE_UNKNOWN);
@@ -1638,12 +1660,16 @@ public final class CaptureSessionTest {
                 .isTrue();
 
         // Ensure the dataspace matches what is expected
-        assertThat(DataSpace.getStandard(dataSpace.get())).isEqualTo(expectedColorStandard);
-        assertThat(DataSpace.getTransfer(dataSpace.get())).isEqualTo(expectedTransferFn);
+        if (possibleColorStandards != null) {
+            assertThat(DataSpace.getStandard(dataSpace.get())).isIn(possibleColorStandards);
+        }
+        if (possibleTransferFns != null) {
+            assertThat(DataSpace.getTransfer(dataSpace.get())).isIn(possibleTransferFns);
+        }
     }
 
     /**
-     * A implementation to test {@link CameraEventCallback} on CaptureSession.
+     * A implementation to test {@link CameraEventCallback} on CaptureSession.f
      */
     private static class TestCameraEventCallback extends CameraEventCallback {
 
