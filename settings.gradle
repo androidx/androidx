@@ -424,6 +424,7 @@ includeProject(":appactions:interaction:interaction-capabilities-testing", [Buil
 includeProject(":appactions:interaction:interaction-proto", [BuildType.MAIN])
 includeProject(":appactions:interaction:interaction-service", [BuildType.MAIN])
 includeProject(":appactions:interaction:interaction-service-proto", [BuildType.MAIN])
+includeProject(":appactions:interaction:integration-tests:testapp", [BuildType.MAIN])
 includeProject(":appcompat:appcompat", [BuildType.MAIN])
 includeProject(":appcompat:appcompat-benchmark", [BuildType.MAIN])
 includeProject(":appcompat:appcompat-lint", [BuildType.MAIN])
