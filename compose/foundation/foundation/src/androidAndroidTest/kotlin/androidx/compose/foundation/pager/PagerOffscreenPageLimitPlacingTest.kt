@@ -22,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.performTouchInput
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
@@ -32,6 +33,11 @@ import org.junit.runners.Parameterized
 class PagerOffscreenPageLimitPlacingTest(
     val config: ParamConfig
 ) : BasePagerTest(config) {
+
+    @Before
+    fun setUp() {
+        rule.mainClock.autoAdvance = false
+    }
 
     @Test
     fun offscreenPageLimitIsUsed_shouldPlaceMoreItemsThanVisibleOnesAsWeScroll() {
@@ -45,11 +51,12 @@ class PagerOffscreenPageLimitPlacingTest(
 
         repeat(DefaultAnimationRepetition) {
             // Act
-            onPager().performTouchInput {
-                swipeWithVelocityAcrossMainAxis(0f, delta)
+            runAndWaitForPageSettling {
+                onPager().performTouchInput {
+                    swipeWithVelocityAcrossMainAxis(0f, delta)
+                }
             }
 
-            rule.waitForIdle()
             // Next page was placed
             rule.runOnIdle {
                 Truth.assertThat(placed).contains(
@@ -58,7 +65,7 @@ class PagerOffscreenPageLimitPlacingTest(
                 )
             }
         }
-        rule.waitForIdle()
+
         confirmPageIsInCorrectPosition(pagerState.currentPage)
     }
 
@@ -102,7 +109,6 @@ class PagerOffscreenPageLimitPlacingTest(
         )
 
         // Assert
-        rule.waitForIdle()
         val firstVisible = pagerState.layoutInfo.visiblePagesInfo.first().index
         val lastVisible = pagerState.layoutInfo.visiblePagesInfo.last().index
         Truth.assertThat(placed).doesNotContain(firstVisible - 1)

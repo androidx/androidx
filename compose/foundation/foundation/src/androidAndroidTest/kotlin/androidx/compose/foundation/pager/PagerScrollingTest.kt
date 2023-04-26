@@ -32,6 +32,7 @@ import androidx.compose.ui.unit.dp
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.runBlocking
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
@@ -43,6 +44,11 @@ class PagerScrollingTest(
     val config: ParamConfig
 ) : BasePagerTest(config) {
 
+    @Before
+    fun setUp() {
+        rule.mainClock.autoAdvance = false
+    }
+
     @Test
     fun swipeWithLowVelocity_positionalThresholdLessThanDefaultThreshold_shouldBounceBack() {
         // Arrange
@@ -51,26 +57,28 @@ class PagerScrollingTest(
         val delta = pagerSize * swipeValue * scrollForwardSign
 
         // Act - forward
-        onPager().performTouchInput {
-            swipeWithVelocityAcrossMainAxis(
-                with(rule.density) { 0.5f * MinFlingVelocityDp.toPx() },
-                delta
-            )
+        runAndWaitForPageSettling {
+            onPager().performTouchInput {
+                swipeWithVelocityAcrossMainAxis(
+                    with(rule.density) { 0.5f * MinFlingVelocityDp.toPx() },
+                    delta
+                )
+            }
         }
-        rule.waitForIdle()
 
         // Assert
         rule.onNodeWithTag("5").assertIsDisplayed()
         confirmPageIsInCorrectPosition(5)
 
         // Act - backward
-        onPager().performTouchInput {
-            swipeWithVelocityAcrossMainAxis(
-                with(rule.density) { 0.5f * MinFlingVelocityDp.toPx() },
-                delta * -1
-            )
+        runAndWaitForPageSettling {
+            onPager().performTouchInput {
+                swipeWithVelocityAcrossMainAxis(
+                    with(rule.density) { 0.5f * MinFlingVelocityDp.toPx() },
+                    delta * -1
+                )
+            }
         }
-        rule.waitForIdle()
 
         // Assert
         rule.onNodeWithTag("5").assertIsDisplayed()
@@ -89,26 +97,28 @@ class PagerScrollingTest(
         val delta = pagerSize * swipeValue * scrollForwardSign
 
         // Act - forward
-        onPager().performTouchInput {
-            swipeWithVelocityAcrossMainAxis(
-                with(rule.density) { 0.5f * MinFlingVelocityDp.toPx() },
-                delta
-            )
+        runAndWaitForPageSettling {
+            onPager().performTouchInput {
+                swipeWithVelocityAcrossMainAxis(
+                    with(rule.density) { 0.5f * MinFlingVelocityDp.toPx() },
+                    delta
+                )
+            }
         }
-        rule.waitForIdle()
 
         // Assert
         rule.onNodeWithTag("5").assertIsDisplayed()
         confirmPageIsInCorrectPosition(5)
 
         // Act - backward
-        onPager().performTouchInput {
-            swipeWithVelocityAcrossMainAxis(
-                with(rule.density) { 0.5f * MinFlingVelocityDp.toPx() },
-                delta * -1
-            )
+        runAndWaitForPageSettling {
+            onPager().performTouchInput {
+                swipeWithVelocityAcrossMainAxis(
+                    with(rule.density) { 0.5f * MinFlingVelocityDp.toPx() },
+                    delta * -1
+                )
+            }
         }
-        rule.waitForIdle()
 
         // Assert
         rule.onNodeWithTag("5").assertIsDisplayed()
@@ -127,26 +137,28 @@ class PagerScrollingTest(
         val delta = pagerSize * swipeValue * scrollForwardSign
 
         // Act - forward
-        onPager().performTouchInput {
-            swipeWithVelocityAcrossMainAxis(
-                with(rule.density) { 0.5f * MinFlingVelocityDp.toPx() },
-                delta
-            )
+        runAndWaitForPageSettling {
+            onPager().performTouchInput {
+                swipeWithVelocityAcrossMainAxis(
+                    with(rule.density) { 0.5f * MinFlingVelocityDp.toPx() },
+                    delta
+                )
+            }
         }
-        rule.waitForIdle()
 
         // Assert
         rule.onNodeWithTag("5").assertIsDisplayed()
         confirmPageIsInCorrectPosition(5)
 
         // Act - backward
-        onPager().performTouchInput {
-            swipeWithVelocityAcrossMainAxis(
-                with(rule.density) { 0.5f * MinFlingVelocityDp.toPx() },
-                delta * -1
-            )
+        runAndWaitForPageSettling {
+            onPager().performTouchInput {
+                swipeWithVelocityAcrossMainAxis(
+                    with(rule.density) { 0.5f * MinFlingVelocityDp.toPx() },
+                    delta * -1
+                )
+            }
         }
-        rule.waitForIdle()
 
         // Assert
         rule.onNodeWithTag("5").assertIsDisplayed()
@@ -163,26 +175,28 @@ class PagerScrollingTest(
         val delta = (2.4f * pageSize) * scrollForwardSign // 2.4 pages
 
         // Act - forward
-        onPager().performTouchInput {
-            swipeWithVelocityAcrossMainAxis(
-                with(rule.density) { 0.5f * MinFlingVelocityDp.toPx() },
-                delta
-            )
+        runAndWaitForPageSettling {
+            onPager().performTouchInput {
+                swipeWithVelocityAcrossMainAxis(
+                    with(rule.density) { 0.5f * MinFlingVelocityDp.toPx() },
+                    delta
+                )
+            }
         }
-        rule.waitForIdle()
 
         // Assert
         rule.onNodeWithTag("4").assertIsDisplayed()
         confirmPageIsInCorrectPosition(4)
 
         // Act - backward
-        onPager().performTouchInput {
-            swipeWithVelocityAcrossMainAxis(
-                with(rule.density) { 0.5f * MinFlingVelocityDp.toPx() },
-                delta * -1
-            )
+        runAndWaitForPageSettling {
+            onPager().performTouchInput {
+                swipeWithVelocityAcrossMainAxis(
+                    with(rule.density) { 0.5f * MinFlingVelocityDp.toPx() },
+                    delta * -1
+                )
+            }
         }
-        rule.waitForIdle()
 
         // Assert
         rule.onNodeWithTag("2").assertIsDisplayed()
@@ -197,26 +211,28 @@ class PagerScrollingTest(
         val delta = pagerSize * swipeValue * scrollForwardSign
 
         // Act - forward
-        onPager().performTouchInput {
-            swipeWithVelocityAcrossMainAxis(
-                with(rule.density) { 0.5f * MinFlingVelocityDp.toPx() },
-                delta
-            )
+        runAndWaitForPageSettling {
+            onPager().performTouchInput {
+                swipeWithVelocityAcrossMainAxis(
+                    with(rule.density) { 0.5f * MinFlingVelocityDp.toPx() },
+                    delta
+                )
+            }
         }
-        rule.waitForIdle()
 
         // Assert
         rule.onNodeWithTag("6").assertIsDisplayed()
         confirmPageIsInCorrectPosition(6)
 
         // Act - backward
-        onPager().performTouchInput {
-            swipeWithVelocityAcrossMainAxis(
-                with(rule.density) { 0.5f * MinFlingVelocityDp.toPx() },
-                delta * -1
-            )
+        runAndWaitForPageSettling {
+            onPager().performTouchInput {
+                swipeWithVelocityAcrossMainAxis(
+                    with(rule.density) { 0.5f * MinFlingVelocityDp.toPx() },
+                    delta * -1
+                )
+            }
         }
-        rule.waitForIdle()
 
         // Assert
         rule.onNodeWithTag("5").assertIsDisplayed()
@@ -235,26 +251,28 @@ class PagerScrollingTest(
         val delta = pagerSize * swipeValue * scrollForwardSign
 
         // Act - forward
-        onPager().performTouchInput {
-            swipeWithVelocityAcrossMainAxis(
-                with(rule.density) { 0.5f * MinFlingVelocityDp.toPx() },
-                delta
-            )
+        runAndWaitForPageSettling {
+            onPager().performTouchInput {
+                swipeWithVelocityAcrossMainAxis(
+                    with(rule.density) { 0.5f * MinFlingVelocityDp.toPx() },
+                    delta
+                )
+            }
         }
-        rule.waitForIdle()
 
         // Assert
         rule.onNodeWithTag("6").assertIsDisplayed()
         confirmPageIsInCorrectPosition(6)
 
         // Act - backward
-        onPager().performTouchInput {
-            swipeWithVelocityAcrossMainAxis(
-                with(rule.density) { 0.5f * MinFlingVelocityDp.toPx() },
-                delta * -1
-            )
+        runAndWaitForPageSettling {
+            onPager().performTouchInput {
+                swipeWithVelocityAcrossMainAxis(
+                    with(rule.density) { 0.5f * MinFlingVelocityDp.toPx() },
+                    delta * -1
+                )
+            }
         }
-        rule.waitForIdle()
 
         // Assert
         rule.onNodeWithTag("5").assertIsDisplayed()
@@ -275,26 +293,28 @@ class PagerScrollingTest(
         val delta = 2.6f * pageSize * scrollForwardSign
 
         // Act - forward
-        onPager().performTouchInput {
-            swipeWithVelocityAcrossMainAxis(
-                with(rule.density) { 0.5f * MinFlingVelocityDp.toPx() },
-                delta
-            )
+        runAndWaitForPageSettling {
+            onPager().performTouchInput {
+                swipeWithVelocityAcrossMainAxis(
+                    with(rule.density) { 0.5f * MinFlingVelocityDp.toPx() },
+                    delta
+                )
+            }
         }
-        rule.waitForIdle()
 
         // Assert
         rule.onNodeWithTag("5").assertIsDisplayed()
         confirmPageIsInCorrectPosition(5)
 
         // Act - backward
-        onPager().performTouchInput {
-            swipeWithVelocityAcrossMainAxis(
-                with(rule.density) { 0.5f * MinFlingVelocityDp.toPx() },
-                delta * -1
-            )
+        runAndWaitForPageSettling {
+            onPager().performTouchInput {
+                swipeWithVelocityAcrossMainAxis(
+                    with(rule.density) { 0.5f * MinFlingVelocityDp.toPx() },
+                    delta * -1
+                )
+            }
         }
-        rule.waitForIdle()
 
         // Assert
         rule.onNodeWithTag("2").assertIsDisplayed()
@@ -313,26 +333,28 @@ class PagerScrollingTest(
         val delta = pagerSize * swipeValue * scrollForwardSign
 
         // Act - forward
-        onPager().performTouchInput {
-            swipeWithVelocityAcrossMainAxis(
-                with(rule.density) { 0.5f * MinFlingVelocityDp.toPx() },
-                delta
-            )
+        runAndWaitForPageSettling {
+            onPager().performTouchInput {
+                swipeWithVelocityAcrossMainAxis(
+                    with(rule.density) { 0.5f * MinFlingVelocityDp.toPx() },
+                    delta
+                )
+            }
         }
-        rule.waitForIdle()
 
         // Assert
         rule.onNodeWithTag("6").assertIsDisplayed()
         confirmPageIsInCorrectPosition(6)
 
         // Act - backward
-        onPager().performTouchInput {
-            swipeWithVelocityAcrossMainAxis(
-                with(rule.density) { 0.5f * MinFlingVelocityDp.toPx() },
-                delta * -1
-            )
+        runAndWaitForPageSettling {
+            onPager().performTouchInput {
+                swipeWithVelocityAcrossMainAxis(
+                    with(rule.density) { 0.5f * MinFlingVelocityDp.toPx() },
+                    delta * -1
+                )
+            }
         }
-        rule.waitForIdle()
 
         // Assert
         rule.onNodeWithTag("5").assertIsDisplayed()
@@ -351,26 +373,28 @@ class PagerScrollingTest(
         val delta = pagerSize * 0.4f * scrollForwardSign
 
         // Act - forward
-        onPager().performTouchInput {
-            swipeWithVelocityAcrossMainAxis(
-                with(rule.density) { 0.5f * snapVelocityThreshold.toPx() },
-                delta
-            )
+        runAndWaitForPageSettling {
+            onPager().performTouchInput {
+                swipeWithVelocityAcrossMainAxis(
+                    with(rule.density) { 0.5f * snapVelocityThreshold.toPx() },
+                    delta
+                )
+            }
         }
-        rule.waitForIdle()
 
         // Assert
         rule.onNodeWithTag("5").assertIsDisplayed()
         confirmPageIsInCorrectPosition(5)
 
         // Act - backward
-        onPager().performTouchInput {
-            swipeWithVelocityAcrossMainAxis(
-                with(rule.density) { 0.5f * snapVelocityThreshold.toPx() },
-                delta * -1
-            )
+        runAndWaitForPageSettling {
+            onPager().performTouchInput {
+                swipeWithVelocityAcrossMainAxis(
+                    with(rule.density) { 0.5f * snapVelocityThreshold.toPx() },
+                    delta * -1
+                )
+            }
         }
-        rule.waitForIdle()
 
         // Assert
         rule.onNodeWithTag("5").assertIsDisplayed()
@@ -385,26 +409,28 @@ class PagerScrollingTest(
         val delta = pagerSize * 0.4f * scrollForwardSign
 
         // Act - forward
-        onPager().performTouchInput {
-            swipeWithVelocityAcrossMainAxis(
-                with(rule.density) { 1.1f * MinFlingVelocityDp.toPx() },
-                delta
-            )
+        runAndWaitForPageSettling {
+            onPager().performTouchInput {
+                swipeWithVelocityAcrossMainAxis(
+                    with(rule.density) { 1.1f * MinFlingVelocityDp.toPx() },
+                    delta
+                )
+            }
         }
-        rule.waitForIdle()
 
         // Assert
         rule.onNodeWithTag("6").assertIsDisplayed()
         confirmPageIsInCorrectPosition(6)
 
         // Act - backward
-        onPager().performTouchInput {
-            swipeWithVelocityAcrossMainAxis(
-                with(rule.density) { 1.1f * MinFlingVelocityDp.toPx() },
-                delta * -1
-            )
+        runAndWaitForPageSettling {
+            onPager().performTouchInput {
+                swipeWithVelocityAcrossMainAxis(
+                    with(rule.density) { 1.1f * MinFlingVelocityDp.toPx() },
+                    delta * -1
+                )
+            }
         }
-        rule.waitForIdle()
 
         // Assert
         rule.onNodeWithTag("5").assertIsDisplayed()
@@ -424,26 +450,28 @@ class PagerScrollingTest(
         val delta = pagerSize * 0.4f * scrollForwardSign
 
         // Act - forward
-        onPager().performTouchInput {
-            swipeWithVelocityAcrossMainAxis(
-                with(rule.density) { 1.1f * snapVelocityThreshold.toPx() },
-                delta
-            )
+        runAndWaitForPageSettling {
+            onPager().performTouchInput {
+                swipeWithVelocityAcrossMainAxis(
+                    with(rule.density) { 1.1f * snapVelocityThreshold.toPx() },
+                    delta
+                )
+            }
         }
-        rule.waitForIdle()
 
         // Assert
         rule.onNodeWithTag("6").assertIsDisplayed()
         confirmPageIsInCorrectPosition(6)
 
         // Act - backward
-        onPager().performTouchInput {
-            swipeWithVelocityAcrossMainAxis(
-                with(rule.density) { 1.1f * snapVelocityThreshold.toPx() },
-                delta * -1
-            )
+        runAndWaitForPageSettling {
+            onPager().performTouchInput {
+                swipeWithVelocityAcrossMainAxis(
+                    with(rule.density) { 1.1f * snapVelocityThreshold.toPx() },
+                    delta * -1
+                )
+            }
         }
-        rule.waitForIdle()
 
         // Assert
         rule.onNodeWithTag("5").assertIsDisplayed()
@@ -458,26 +486,28 @@ class PagerScrollingTest(
         val delta = pagerSize * 0.8f * scrollForwardSign
 
         // Act - forward
-        onPager().performTouchInput {
-            swipeWithVelocityAcrossMainAxis(
-                with(rule.density) { 1.1f * MinFlingVelocityDp.toPx() },
-                delta
-            )
+        runAndWaitForPageSettling {
+            onPager().performTouchInput {
+                swipeWithVelocityAcrossMainAxis(
+                    with(rule.density) { 1.1f * MinFlingVelocityDp.toPx() },
+                    delta
+                )
+            }
         }
-        rule.waitForIdle()
 
         // Assert
         rule.onNodeWithTag("6").assertIsDisplayed()
         confirmPageIsInCorrectPosition(6)
 
         // Act - backward
-        onPager().performTouchInput {
-            swipeWithVelocityAcrossMainAxis(
-                with(rule.density) { 1.1f * MinFlingVelocityDp.toPx() },
-                delta * -1
-            )
+        runAndWaitForPageSettling {
+            onPager().performTouchInput {
+                swipeWithVelocityAcrossMainAxis(
+                    with(rule.density) { 1.1f * MinFlingVelocityDp.toPx() },
+                    delta * -1
+                )
+            }
         }
-        rule.waitForIdle()
 
         // Assert
         rule.onNodeWithTag("5").assertIsDisplayed()
@@ -492,10 +522,11 @@ class PagerScrollingTest(
         val delta = pagerSize * 1.4f * scrollForwardSign
 
         // Act - forward
-        onPager().performTouchInput {
-            swipeWithVelocityAcrossMainAxis(0f, delta)
+        runAndWaitForPageSettling {
+            onPager().performTouchInput {
+                swipeWithVelocityAcrossMainAxis(0f, delta)
+            }
         }
-        rule.waitForIdle()
 
         // Assert
         assertThat(pagerState.currentPage).isAtMost(7)
@@ -503,10 +534,11 @@ class PagerScrollingTest(
         confirmPageIsInCorrectPosition(pagerState.currentPage)
 
         // Act - backward
-        onPager().performTouchInput {
-            swipeWithVelocityAcrossMainAxis(0f, delta * -1)
+        runAndWaitForPageSettling {
+            onPager().performTouchInput {
+                swipeWithVelocityAcrossMainAxis(0f, delta * -1)
+            }
         }
-        rule.waitForIdle()
 
         // Assert
         assertThat(pagerState.currentPage).isAtLeast(5)
@@ -621,8 +653,8 @@ class PagerScrollingTest(
                     initialPage = initialPage,
                     initialPageOffsetFraction = 0f
                 ) {
-                   10
-                }
+                    10
+                }.also { pagerState = it }
             }
 
             HorizontalOrVerticalPager(
@@ -636,39 +668,41 @@ class PagerScrollingTest(
             }
         }
         val delta = pageSize * 0.4f * scrollForwardSign
-        onPager().performTouchInput {
-            swipeWithVelocityAcrossMainAxis(
-                with(rule.density) { 1.1f * MinFlingVelocityDp.toPx() },
-                delta
-            )
+        runAndWaitForPageSettling {
+            onPager().performTouchInput {
+                swipeWithVelocityAcrossMainAxis(
+                    with(rule.density) { 1.1f * MinFlingVelocityDp.toPx() },
+                    delta
+                )
+            }
         }
-
-        rule.waitForIdle()
         rule.onNodeWithTag("1").assertIsDisplayed()
         confirmPageIsInCorrectPosition(1)
 
-        onPager().performTouchInput {
-            swipeWithVelocityAcrossMainAxis(
-                with(rule.density) { 1.1f * MinFlingVelocityDp.toPx() },
-                delta
-            )
+        runAndWaitForPageSettling {
+            onPager().performTouchInput {
+                swipeWithVelocityAcrossMainAxis(
+                    with(rule.density) { 1.1f * MinFlingVelocityDp.toPx() },
+                    delta
+                )
+            }
         }
 
-        rule.waitForIdle()
         rule.onNodeWithTag("2").assertIsDisplayed()
         confirmPageIsInCorrectPosition(2)
 
         rule.runOnIdle { initialPage = 1 }
 
         rule.waitForIdle()
-        onPager().performTouchInput {
-            swipeWithVelocityAcrossMainAxis(
-                with(rule.density) { 1.1f * MinFlingVelocityDp.toPx() },
-                delta
-            )
+        runAndWaitForPageSettling {
+            onPager().performTouchInput {
+                swipeWithVelocityAcrossMainAxis(
+                    with(rule.density) { 1.1f * MinFlingVelocityDp.toPx() },
+                    delta
+                )
+            }
         }
 
-        rule.waitForIdle()
         confirmPageIsInCorrectPosition(2)
     }
 
