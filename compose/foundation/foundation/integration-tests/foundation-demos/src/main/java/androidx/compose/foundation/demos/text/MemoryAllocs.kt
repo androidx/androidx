@@ -30,10 +30,12 @@ import androidx.compose.runtime.produceState
 import androidx.compose.runtime.withFrameMillis
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
+private val style = TextStyle(color = Color.Magenta)
 /**
  * These demos are for using the memory profiler to observe initial compo and recompo memory
  * pressure.
@@ -107,7 +109,10 @@ fun Preamble(sourceCode: String) {
 @Composable
 fun IfNotEmptyText(text: State<String>) {
     if (text.value.isNotEmpty()) {
-        Text(text.value)
+        Text(
+            text.value,
+            style = style
+        )
     }
 }
 
@@ -118,6 +123,7 @@ fun LazyListReuse(active: State<Pair<Boolean, Int>>) {
         ReusableContent(active.value.second) {
             Text(
                 "Some static text",
+                style = style,
                 modifier = Modifier.fillMaxWidth()
             )
         }
@@ -126,7 +132,7 @@ fun LazyListReuse(active: State<Pair<Boolean, Int>>) {
 
 @Composable
 private fun SetText(text: State<String>) {
-    Text(text.value)
+    Text(text.value, style = style)
 }
 
 @Composable

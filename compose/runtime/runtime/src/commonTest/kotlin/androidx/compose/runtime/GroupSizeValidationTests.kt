@@ -54,10 +54,21 @@ class GroupSizeValidationTests {
     fun textLikeSize() = compositionTest {
         slotExpect(
             name = "TextLike",
-            noMoreGroupsThan = 11,
-            noMoreSlotsThan = 15
+            noMoreGroupsThan = 5,
+            noMoreSlotsThan = 4
         ) {
             TextLike("")
+        }
+    }
+
+    @Test
+    fun basicTextLikeSize() = compositionTest {
+        slotExpect(
+            name = "TextLike",
+            noMoreGroupsThan = 9,
+            noMoreSlotsThan = 13
+        ) {
+            BasicTextLike("")
         }
     }
 
@@ -290,7 +301,19 @@ private class TextStyle(
 ) {
     @Stable
     @Suppress("UNUSED_PARAMETER")
-    fun merge(other: TextStyle? = null) = this
+    fun merge2(
+        color: Color,
+        fontSize: TextUnit,
+        fontWeight: FontWeight?,
+        textAlign: TextAlign?,
+        lineHeight: TextUnit,
+        fontFamily: FontFamily?,
+        textDecoration: TextDecoration?,
+        fontStyle: FontStyle?,
+        letterSpacing: TextUnit
+    ): TextStyle {
+        return this
+    }
 
     companion object {
         val Default = TextStyle()
@@ -345,21 +368,18 @@ private fun TextLike(
         }
     }
 
-    val mergedStyle = style.merge(
-        TextStyle(
-            color = textColor,
-            fontSize = fontSize,
-            fontWeight = fontWeight,
-            textAlign = textAlign,
-            lineHeight = lineHeight,
-            fontFamily = fontFamily,
-            textDecoration = textDecoration,
-            fontStyle = fontStyle,
-            letterSpacing = letterSpacing
-        )
+    val mergedStyle = style.merge2(
+        color = textColor,
+        fontSize = fontSize,
+        fontWeight = fontWeight,
+        textAlign = textAlign,
+        lineHeight = lineHeight,
+        fontFamily = fontFamily,
+        textDecoration = textDecoration,
+        fontStyle = fontStyle,
+        letterSpacing = letterSpacing
     )
-
-    BasicTextLike(
+    EmptyBasicTextLikeComposable(
         text = text,
         modifier = modifier,
         style = mergedStyle,
@@ -370,6 +390,22 @@ private fun TextLike(
         minLines = minLines
     )
 }
+
+/**
+ * This composable adds no internal overhead, to isolate material text details
+ */
+@Suppress("UNUSED_PARAMETER")
+@Composable
+private fun EmptyBasicTextLikeComposable(
+    text: String,
+    modifier: Modifier = Modifier,
+    style: TextStyle = TextStyle.Default,
+    onTextLayout: (TextLayoutResult) -> Unit = {},
+    overflow: TextOverflow = TextOverflow.Clip,
+    softWrap: Boolean = true,
+    maxLines: Int = Int.MAX_VALUE,
+    minLines: Int = 1
+) = Unit
 
 private fun CompositionTestScope.slotExpect(
     name: String,

@@ -513,6 +513,102 @@ class TextStyle internal constructor(
     }
 
     /**
+     * Fast merge non-default values and parameters.
+     *
+     * This is the same algorithm as [merge] but does not require allocating a [TextStyle] to call.
+     *
+     * This is a similar algorithm to [copy] but when either this or a parameter are set to a
+     * default value, the other value will take precedent.
+     *
+     * To explain better, consider the following examples:
+     *
+     * Example 1:
+     * - this.color = [Color.Unspecified]
+     * - [color] = [Color.Red]
+     * - result => [Color.Red]
+     *
+     * Example 2:
+     * - this.color = [Color.Red]
+     * - [color] = [Color.Unspecified]
+     * - result => [Color.Red]
+     *
+     * Example 3:
+     * - this.color = [Color.Red]
+     * - [color] = [Color.Blue]
+     * - result => [Color.Blue]]
+     *
+     * You should _always_ use this method over the [merge]([TextStyle]) overload when you do not
+     * already have a TextStyle allocated. You should chose this over [copy] when building a theming
+     * system and applying styling information to a specific usage.
+     *
+     * @return this or a new TextLayoutResult with all parameters chosen to the non-default option
+     * provided.
+     *
+     * @see merge
+     */
+    @Stable
+    fun merge(
+        color: Color = Color.Unspecified,
+        fontSize: TextUnit = TextUnit.Unspecified,
+        fontWeight: FontWeight? = null,
+        fontStyle: FontStyle? = null,
+        fontSynthesis: FontSynthesis? = null,
+        fontFamily: FontFamily? = null,
+        fontFeatureSettings: String? = null,
+        letterSpacing: TextUnit = TextUnit.Unspecified,
+        baselineShift: BaselineShift? = null,
+        textGeometricTransform: TextGeometricTransform? = null,
+        localeList: LocaleList? = null,
+        background: Color = Color.Unspecified,
+        textDecoration: TextDecoration? = null,
+        shadow: Shadow? = null,
+        drawStyle: DrawStyle? = null,
+        textAlign: TextAlign? = null,
+        textDirection: TextDirection? = null,
+        lineHeight: TextUnit = TextUnit.Unspecified,
+        textIndent: TextIndent? = null,
+        lineHeightStyle: LineHeightStyle? = null,
+        lineBreak: LineBreak? = null,
+        hyphens: Hyphens? = null,
+        platformStyle: PlatformTextStyle? = null,
+        textMotion: TextMotion? = null
+    ): TextStyle {
+        val mergedSpanStyle: SpanStyle = spanStyle.fastMerge(
+            color = color,
+            brush = null,
+            alpha = Float.NaN,
+            fontSize = fontSize,
+            fontWeight = fontWeight,
+            fontStyle = fontStyle,
+            fontSynthesis = fontSynthesis,
+            fontFamily = fontFamily,
+            fontFeatureSettings = fontFeatureSettings,
+            letterSpacing = letterSpacing,
+            baselineShift = baselineShift,
+            textGeometricTransform = textGeometricTransform,
+            localeList = localeList,
+            background = background,
+            textDecoration = textDecoration,
+            shadow = shadow,
+            platformStyle = platformStyle?.spanStyle,
+            drawStyle = drawStyle
+        )
+        val mergedParagraphStyle: ParagraphStyle = paragraphStyle.fastMerge(
+            textAlign = textAlign,
+            textDirection = textDirection,
+            lineHeight = lineHeight,
+            textIndent = textIndent,
+            platformStyle = platformStyle?.paragraphStyle,
+            lineHeightStyle = lineHeightStyle,
+            lineBreak = lineBreak,
+            hyphens = hyphens,
+            textMotion = textMotion
+        )
+        if (spanStyle === mergedSpanStyle && paragraphStyle === mergedParagraphStyle) return this
+        return TextStyle(mergedSpanStyle, mergedParagraphStyle)
+    }
+
+    /**
      * Returns a new text style that is a combination of this style and the given [other] style.
      *
      * @see merge

@@ -18,10 +18,12 @@ package androidx.compose.ui.text
 
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Brush.Companion.linearGradient
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.DrawStyle
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.lerp
@@ -35,8 +37,6 @@ import androidx.compose.ui.text.style.BaselineShift
 import androidx.compose.ui.text.style.Hyphens
 import androidx.compose.ui.text.style.LineBreak
 import androidx.compose.ui.text.style.LineHeightStyle
-import androidx.compose.ui.text.style.LineHeightStyle.Alignment
-import androidx.compose.ui.text.style.LineHeightStyle.Trim
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextDirection
@@ -50,6 +50,13 @@ import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.isUnspecified
 import androidx.compose.ui.unit.sp
 import com.google.common.truth.Truth.assertThat
+import kotlin.reflect.KClass
+import kotlin.reflect.KParameter
+import kotlin.reflect.KProperty1
+import kotlin.reflect.KVisibility
+import kotlin.reflect.full.memberProperties
+import kotlin.reflect.jvm.jvmErasure
+import kotlin.test.assertNotEquals
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -1660,8 +1667,8 @@ class TextStyleTest {
         val lineHeight = 100.sp
         val textIndent = TextIndent(firstLine = 20.sp, restLine = 40.sp)
         val lineHeightStyle = LineHeightStyle(
-            alignment = Alignment.Center,
-            trim = Trim.None
+            alignment = LineHeightStyle.Alignment.Center,
+            trim = LineHeightStyle.Trim.None
         )
         val hyphens = Hyphens.Auto
         val lineBreak = LineBreak(
@@ -1779,14 +1786,14 @@ class TextStyleTest {
     fun `hashCode is different for different line height behavior`() {
         val style = TextStyle(
             lineHeightStyle = LineHeightStyle(
-                alignment = Alignment.Bottom,
-                trim = Trim.None
+                alignment = LineHeightStyle.Alignment.Bottom,
+                trim = LineHeightStyle.Trim.None
             )
         )
         val otherStyle = TextStyle(
             lineHeightStyle = LineHeightStyle(
-                alignment = Alignment.Center,
-                trim = Trim.Both
+                alignment = LineHeightStyle.Alignment.Center,
+                trim = LineHeightStyle.Trim.Both
             )
         )
 
@@ -1797,13 +1804,13 @@ class TextStyleTest {
     fun `copy with lineHeightStyle returns new lineHeightStyle`() {
         val style = TextStyle(
             lineHeightStyle = LineHeightStyle(
-                alignment = Alignment.Bottom,
-                trim = Trim.None
+                alignment = LineHeightStyle.Alignment.Bottom,
+                trim = LineHeightStyle.Trim.None
             )
         )
         val newLineHeightStyle = LineHeightStyle(
-            alignment = Alignment.Center,
-            trim = Trim.Both
+            alignment = LineHeightStyle.Alignment.Center,
+            trim = LineHeightStyle.Trim.Both
         )
         val newStyle = style.copy(lineHeightStyle = newLineHeightStyle)
 
@@ -1814,8 +1821,8 @@ class TextStyleTest {
     fun `copy without lineHeightStyle uses existing lineHeightStyle`() {
         val style = TextStyle(
             lineHeightStyle = LineHeightStyle(
-                alignment = Alignment.Bottom,
-                trim = Trim.None
+                alignment = LineHeightStyle.Alignment.Bottom,
+                trim = LineHeightStyle.Trim.None
             )
         )
         val newStyle = style.copy()
@@ -1857,14 +1864,14 @@ class TextStyleTest {
     fun `merge with both non-null lineHeightStyle returns other's lineHeightStyle`() {
         val style = TextStyle(
             lineHeightStyle = LineHeightStyle(
-                alignment = Alignment.Center,
-                trim = Trim.None
+                alignment = LineHeightStyle.Alignment.Center,
+                trim = LineHeightStyle.Trim.None
             )
         )
         val otherStyle = TextStyle(
             lineHeightStyle = LineHeightStyle(
-                alignment = Alignment.Bottom,
-                trim = Trim.Both
+                alignment = LineHeightStyle.Alignment.Bottom,
+                trim = LineHeightStyle.Trim.Both
             )
         )
 
@@ -1980,5 +1987,125 @@ class TextStyleTest {
                 TextDirection.Rtl
             )
         ).isEqualTo(TextDirection.Rtl)
+    }
+
+    @Test
+    fun textStyle_allParamsMerge_nonDefaultWins() {
+        val subject = TextStyle.Default
+        val parameters = TextStyle::class.allConstructorParams()
+        val others = parameters.map { (param, constructor) ->
+            val args = mapOf(param to subject.getNotEqualValueFor(param))
+                .addPairwiseArgsToFix(parameters.map { it.first })
+            param to constructor.callBy(args)
+        }
+        for ((param, other) in others) {
+            val merged = subject.merge(other)
+            val inverseMerged = other.merge(subject)
+
+            // hand-rolling error messages since this is a all-params test
+            assertNotEquals(subject, merged,
+                "subject.merge(other) on param=`${param.name}` failed" +
+                    "\n\tmerged  = $merged" +
+                    "\n\tother   = $other" +
+                    "\n\tsubject = $subject"
+            )
+            assertNotEquals(subject, inverseMerged,
+                "other.merge(subject) on param=`${param.name}` failed" +
+                    "\n\tmerged  = $merged" +
+                    "\n\tother   = $other" +
+                    "\n\tsubject = $subject"
+            )
+        }
+    }
+}
+
+/**
+ * Some params such as (brush, alpha) require a sibling parameter.
+ *
+ * This function is to fix the args map for them.
+ */
+private fun Map<KParameter, Any?>.addPairwiseArgsToFix(
+    params: Collection<KParameter>
+): Map<KParameter, Any?> {
+    val name = keys.first().name
+    return this + when (name) {
+        "brush" -> {
+            val alpha = params.first { it.name == "alpha" }
+            mapOf(alpha to 0.7f)
+        }
+        "alpha" -> {
+            val brush = params.first { it.name == "brush" }
+            mapOf(brush to linearGradient(listOf(Color.Red)))
+        }
+        else -> emptyMap()
+    }
+}
+
+/**
+ * All parameters on any public constructor, distinct by name
+ */
+private fun KClass<TextStyle>.allConstructorParams() = this.constructors
+    .filter { it.visibility == KVisibility.PUBLIC }
+    .flatMap { it.parameters.map { param -> param to it } }
+    .fastDistinctBy { it.first.name }
+
+/**
+ * Compute a distinct value for [KParameter] from the value in [kParameter]
+ */
+@OptIn(ExperimentalTextApi::class)
+private fun TextStyle.getNotEqualValueFor(kParameter: KParameter): Any {
+    val prop: KProperty1<TextStyle, *> =
+        TextStyle::class.memberProperties.first { it.name == kParameter.name }
+    val currentValue = prop.get(this)
+    val newValue: Any = when (kParameter.type.jvmErasure) {
+        Color::class -> Color.Magenta
+        TextUnit::class -> 4.em
+        FontWeight::class -> FontWeight(712)
+        FontStyle::class -> FontStyle.Italic
+        FontSynthesis::class -> FontSynthesis.Weight
+        FontFamily::class -> FontFamily.Cursive
+        String::class -> (currentValue as? String ?: "") + " more text"
+        BaselineShift::class -> BaselineShift.Superscript
+        TextGeometricTransform::class -> TextGeometricTransform(0.5f, 0.5f)
+        LocaleList::class -> LocaleList("fr")
+        TextDecoration::class -> TextDecoration.Underline
+        Shadow::class -> Shadow(color = Color.Red)
+        TextAlign::class -> TextAlign.Justify
+        TextDirection::class -> TextDirection.Rtl
+        TextIndent::class -> TextIndent(10.sp)
+        PlatformTextStyle::class -> PlatformTextStyle(emojiSupportMatch = EmojiSupportMatch.None)
+        LineHeightStyle::class -> LineHeightStyle(
+            LineHeightStyle.Alignment.Center,
+            LineHeightStyle.Trim.None
+        )
+        LineBreak::class -> LineBreak.Heading
+        Hyphens::class -> Hyphens.Auto
+        DrawStyle::class -> Stroke(1f)
+        TextMotion::class -> TextMotion.Animated
+        Brush::class -> linearGradient(listOf(Color.Blue, Color.Red))
+        Float::class -> (currentValue as? Float).nextDistinct()
+        Int::class -> (currentValue as? Int ?: 0) + 4
+        else -> TODO("Please add an branch to this switch for ${kParameter.type}")
+    }
+    require(newValue != currentValue) {
+        "Logic for making distinct values failed, update this function so that" +
+            " $currentValue != $newValue for ${prop.name}; you may need to add logic" +
+            " based on $currentValue inside the switch"
+    }
+    return newValue
+}
+
+/**
+ * Floats can break addition on NaN and Infinity, hardcode distinct values
+ */
+private fun Float?.nextDistinct(): Float {
+    return if (this == null) {
+        1f
+    } else if (this.isNaN()) {
+        2f
+    } else if (this.isInfinite()) {
+        3f
+    } else {
+        this + 4.2f
     }
 }
