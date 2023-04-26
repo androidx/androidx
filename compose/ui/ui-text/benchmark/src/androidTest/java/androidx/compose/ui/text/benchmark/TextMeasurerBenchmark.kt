@@ -25,7 +25,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.drawscope.CanvasDrawScope
 import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.TextMeasurer
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.drawText
@@ -44,7 +43,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
-@OptIn(ExperimentalTextApi::class)
 @LargeTest
 @RunWith(Parameterized::class)
 class TextMeasurerBenchmark(
@@ -94,7 +92,6 @@ class TextMeasurerBenchmark(
         return AnnotatedString(text = text, spanStyles = spanStyles)
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun text_measurer_no_cache() {
         textBenchmarkRule.generator { textGenerator ->
@@ -115,7 +112,6 @@ class TextMeasurerBenchmark(
         }
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun text_measurer_cached() {
         textBenchmarkRule.generator { textGenerator ->
@@ -136,7 +132,6 @@ class TextMeasurerBenchmark(
         }
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun drawText_TextLayoutResult_no_change() {
         textBenchmarkRule.generator { textGenerator ->
@@ -168,7 +163,6 @@ class TextMeasurerBenchmark(
         }
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun drawText_TextLayoutResult_color_override() {
         textBenchmarkRule.generator { textGenerator ->

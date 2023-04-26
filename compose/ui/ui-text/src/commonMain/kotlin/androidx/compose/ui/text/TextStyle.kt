@@ -78,7 +78,6 @@ class TextStyle internal constructor(
             "constructor.",
         level = DeprecationLevel.HIDDEN
     )
-    @OptIn(ExperimentalTextApi::class)
     constructor(
         color: Color = Color.Unspecified,
         fontSize: TextUnit = TextUnit.Unspecified,
@@ -137,7 +136,6 @@ class TextStyle internal constructor(
             "constructor.",
         level = DeprecationLevel.HIDDEN
     )
-    @OptIn(ExperimentalTextApi::class)
     constructor(
         color: Color = Color.Unspecified,
         fontSize: TextUnit = TextUnit.Unspecified,
@@ -229,6 +227,12 @@ class TextStyle internal constructor(
      * @param lineBreak The line breaking configuration for the text.
      * @param hyphens The configuration of hyphenation.
      */
+    @Deprecated(
+        "TextStyle constructors that do not take new stable parameters " +
+            "like TextMotion are deprecated. Please use the new stable " +
+            "constructor.",
+        level = DeprecationLevel.HIDDEN
+    )
     constructor(
         color: Color = Color.Unspecified,
         fontSize: TextUnit = TextUnit.Unspecified,
@@ -323,7 +327,6 @@ class TextStyle internal constructor(
      * @param hyphens The configuration of hyphenation.
      * @param textMotion Text character placement, whether to optimize for animated or static text.
      */
-    @ExperimentalTextApi
     constructor(
         color: Color = Color.Unspecified,
         fontSize: TextUnit = TextUnit.Unspecified,
@@ -425,7 +428,6 @@ class TextStyle internal constructor(
      * @param hyphens The configuration of hyphenation.
      * @param textMotion Text character placement, whether to optimize for animated or static text.
      */
-    @ExperimentalTextApi
     constructor(
         brush: Brush?,
         alpha: Float = Float.NaN,
@@ -560,7 +562,6 @@ class TextStyle internal constructor(
             "copy constructor.",
         level = DeprecationLevel.HIDDEN
     )
-    @OptIn(ExperimentalTextApi::class)
     fun copy(
         color: Color = this.spanStyle.color,
         fontSize: TextUnit = this.spanStyle.fontSize,
@@ -625,7 +626,6 @@ class TextStyle internal constructor(
             "copy constructor.",
         level = DeprecationLevel.HIDDEN
     )
-    @OptIn(ExperimentalTextApi::class)
     fun copy(
         color: Color = this.spanStyle.color,
         fontSize: TextUnit = this.spanStyle.fontSize,
@@ -686,7 +686,12 @@ class TextStyle internal constructor(
         )
     }
 
-    @OptIn(ExperimentalTextApi::class)
+    @Deprecated(
+        "TextStyle copy constructors that do not take new stable parameters " +
+            "like LineBreak, Hyphens, and TextMotion are deprecated. Please use the new stable " +
+            "copy constructor.",
+        level = DeprecationLevel.HIDDEN
+    )
     fun copy(
         color: Color = this.spanStyle.color,
         fontSize: TextUnit = this.spanStyle.fontSize,
@@ -749,7 +754,6 @@ class TextStyle internal constructor(
         )
     }
 
-    @ExperimentalTextApi
     fun copy(
         color: Color = this.spanStyle.color,
         fontSize: TextUnit = this.spanStyle.fontSize,
@@ -814,7 +818,6 @@ class TextStyle internal constructor(
         )
     }
 
-    @ExperimentalTextApi
     fun copy(
         brush: Brush?,
         alpha: Float = this.spanStyle.alpha,
@@ -880,9 +883,6 @@ class TextStyle internal constructor(
     /**
      * The brush to use when drawing text. If not null, overrides [color].
      */
-    @ExperimentalTextApi
-    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-    @get:ExperimentalTextApi
     val brush: Brush? get() = this.spanStyle.brush
 
     /**
@@ -894,9 +894,6 @@ class TextStyle internal constructor(
      * Opacity of text. This value is either provided along side Brush, or via alpha channel in
      * color.
      */
-    @ExperimentalTextApi
-    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-    @get:ExperimentalTextApi
     val alpha: Float get() = this.spanStyle.alpha
 
     /**
@@ -972,9 +969,6 @@ class TextStyle internal constructor(
     /**
      * Drawing style of text, whether fill in the text while drawing or stroke around the edges.
      */
-    @ExperimentalTextApi
-    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-    @get:ExperimentalTextApi
     val drawStyle: DrawStyle? get() = this.spanStyle.drawStyle
 
     /**
@@ -1022,9 +1016,6 @@ class TextStyle internal constructor(
     /**
      * Text character placement configuration, whether to optimize for animated or static text.
      */
-    @ExperimentalTextApi
-    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-    @get:ExperimentalTextApi
     val textMotion: TextMotion? get() = this.paragraphStyle.textMotion
 
     override fun equals(other: Any?): Boolean {
@@ -1070,7 +1061,6 @@ class TextStyle internal constructor(
         return result
     }
 
-    @OptIn(ExperimentalTextApi::class)
     override fun toString(): String {
         return "TextStyle(" +
             "color=$color, " +

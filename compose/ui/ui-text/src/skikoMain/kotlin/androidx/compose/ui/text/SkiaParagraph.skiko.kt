@@ -310,7 +310,6 @@ internal class SkiaParagraph(
         para.paint(canvas.nativeCanvas, 0.0f, 0.0f)
     }
 
-    @ExperimentalTextApi
     override fun paint(
         canvas: Canvas,
         color: Color,
@@ -332,7 +331,6 @@ internal class SkiaParagraph(
     }
 
     // TODO(b/229518449): Implement this paint function that draws text with a Brush.
-    @ExperimentalTextApi
     override fun paint(
         canvas: Canvas,
         brush: Brush,

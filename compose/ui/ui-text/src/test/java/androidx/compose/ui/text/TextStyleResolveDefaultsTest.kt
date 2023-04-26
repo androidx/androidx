@@ -49,7 +49,6 @@ class TextStyleResolveDefaultsTest {
     private val DefaultLineHeight = TextUnit.Unspecified
     private val DefaultColor = Color.Black
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun test_default_values() {
         // We explicitly expect the default values since we do not want to change these values.
@@ -79,7 +78,6 @@ class TextStyleResolveDefaultsTest {
         }
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun test_use_provided_values_brush() {
         val brush = Brush.linearGradient(listOf(Color.White, Color.Black))
@@ -102,7 +100,6 @@ class TextStyleResolveDefaultsTest {
         ).isEqualTo(Hyphens.Auto)
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun test_use_provided_values_shader_brush_color_unspecified() {
         val brush = Brush.linearGradient(listOf(Color.White, Color.Black))

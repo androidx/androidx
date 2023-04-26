@@ -22,7 +22,6 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
@@ -355,7 +354,6 @@ class TextPaintExtensionsTest {
         assertThat(notApplied?.color).isEqualTo(Color.Unspecified)
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun setTextMotion_setsCorrectFlags_forLinearAndSubpixel() {
         val textMotion = TextMotion(TextMotion.Linearity.Linear, true)
@@ -369,7 +367,6 @@ class TextPaintExtensionsTest {
         assertThat(tp.hinting).isEqualTo(TextPaint.HINTING_OFF)
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun setTextMotion_setsCorrectFlags_forFontHintingAndSubpixel() {
         val textMotion = TextMotion(TextMotion.Linearity.FontHinting, true)
@@ -383,7 +380,6 @@ class TextPaintExtensionsTest {
         assertThat(tp.hinting).isEqualTo(TextPaint.HINTING_ON)
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun setTextMotion_setsCorrectFlags_forNoneAndSubpixel() {
         val textMotion = TextMotion(TextMotion.Linearity.None, true)
@@ -397,7 +393,6 @@ class TextPaintExtensionsTest {
         assertThat(tp.hinting).isEqualTo(TextPaint.HINTING_OFF)
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun setTextMotion_setsCorrectFlags_forLinear() {
         val textMotion = TextMotion(TextMotion.Linearity.Linear, false)
@@ -409,7 +404,6 @@ class TextPaintExtensionsTest {
         assertThat(tp.hinting).isEqualTo(TextPaint.HINTING_OFF)
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun setTextMotion_setsCorrectFlags_forFontHinting() {
         val textMotion = TextMotion(TextMotion.Linearity.FontHinting, false)
@@ -421,7 +415,6 @@ class TextPaintExtensionsTest {
         assertThat(tp.hinting).isEqualTo(TextPaint.HINTING_ON)
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun setTextMotion_setsCorrectFlags_forNone() {
         val textMotion = TextMotion(TextMotion.Linearity.None, false)

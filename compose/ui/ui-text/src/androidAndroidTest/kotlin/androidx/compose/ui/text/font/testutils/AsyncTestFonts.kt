@@ -18,7 +18,6 @@ package androidx.compose.ui.text.font.testutils
 
 import android.content.Context
 import android.graphics.Typeface
-import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.font.AndroidFont
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontLoadingStrategy.Companion.Async
@@ -156,7 +155,6 @@ class OptionalFauxFont(
     }
 }
 
-@OptIn(ExperimentalTextApi::class)
 class BlockingFauxFont(
     typefaceLoader: AsyncTestTypefaceLoader,
     internal val typeface: Typeface,

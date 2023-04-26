@@ -101,9 +101,7 @@ class SpanStyle internal constructor(
     val textDecoration: TextDecoration? = null,
     val shadow: Shadow? = null,
     val platformStyle: PlatformSpanStyle? = null,
-    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-    @property:ExperimentalTextApi
-    @get:ExperimentalTextApi val drawStyle: DrawStyle? = null
+    val drawStyle: DrawStyle? = null
 ) {
 
     /**
@@ -138,6 +136,12 @@ class SpanStyle internal constructor(
      * @see TextStyle
      * @see ParagraphStyle
      */
+    @Deprecated(
+        "SpanStyle constructors that do not take new stable parameters " +
+            "like PlatformStyle, DrawStyle are deprecated. Please use the new stable " +
+            "constructor.",
+        level = DeprecationLevel.HIDDEN
+    )
     constructor(
         color: Color = Color.Unspecified,
         fontSize: TextUnit = TextUnit.Unspecified,
@@ -204,6 +208,12 @@ class SpanStyle internal constructor(
      * @see TextStyle
      * @see ParagraphStyle
      */
+    @Deprecated(
+        "SpanStyle constructors that do not take new stable parameters " +
+            "like PlatformStyle, DrawStyle are deprecated. Please use the new stable " +
+            "constructor.",
+        level = DeprecationLevel.HIDDEN
+    )
     constructor(
         color: Color = Color.Unspecified,
         fontSize: TextUnit = TextUnit.Unspecified,
@@ -273,7 +283,6 @@ class SpanStyle internal constructor(
      * @see TextStyle
      * @see ParagraphStyle
      */
-    @ExperimentalTextApi
     constructor(
         color: Color = Color.Unspecified,
         fontSize: TextUnit = TextUnit.Unspecified,
@@ -349,7 +358,6 @@ class SpanStyle internal constructor(
      * @see TextStyle
      * @see ParagraphStyle
      */
-    @ExperimentalTextApi
     constructor(
         brush: Brush?,
         alpha: Float = Float.NaN,
@@ -395,18 +403,12 @@ class SpanStyle internal constructor(
     /**
      * Brush to draw text. If not null, overrides [color].
      */
-    @ExperimentalTextApi
-    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-    @get:ExperimentalTextApi
     val brush: Brush? get() = this.textForegroundStyle.brush
 
     /**
      * Opacity of text. This value is either provided along side Brush, or via alpha channel in
      * color.
      */
-    @ExperimentalTextApi
-    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-    @get:ExperimentalTextApi
     val alpha: Float get() = this.textForegroundStyle.alpha
 
     /**
@@ -418,7 +420,6 @@ class SpanStyle internal constructor(
      *
      * If the given span style is null, returns this span style.
      */
-    @OptIn(ExperimentalTextApi::class)
     @Stable
     fun merge(other: SpanStyle? = null): SpanStyle {
         if (other == null) return this
@@ -459,7 +460,12 @@ class SpanStyle internal constructor(
     @Stable
     operator fun plus(other: SpanStyle): SpanStyle = this.merge(other)
 
-    @OptIn(ExperimentalTextApi::class)
+    @Deprecated(
+        "SpanStyle copy constructors that do not take new stable parameters " +
+            "like PlatformStyle, DrawStyle are deprecated. Please use the new stable " +
+            "copy constructor.",
+        level = DeprecationLevel.HIDDEN
+    )
     fun copy(
         color: Color = this.color,
         fontSize: TextUnit = this.fontSize,
@@ -500,6 +506,12 @@ class SpanStyle internal constructor(
         )
     }
 
+    @Deprecated(
+        "SpanStyle copy constructors that do not take new stable parameters " +
+            "like PlatformStyle, DrawStyle are deprecated. Please use the new stable " +
+            "copy constructor.",
+        level = DeprecationLevel.HIDDEN
+    )
     fun copy(
         color: Color = this.color,
         fontSize: TextUnit = this.fontSize,
@@ -540,7 +552,6 @@ class SpanStyle internal constructor(
         )
     }
 
-    @ExperimentalTextApi
     fun copy(
         color: Color = this.color,
         fontSize: TextUnit = this.fontSize,
@@ -583,7 +594,6 @@ class SpanStyle internal constructor(
         )
     }
 
-    @ExperimentalTextApi
     fun copy(
         brush: Brush?,
         alpha: Float = this.alpha,
@@ -647,7 +657,6 @@ class SpanStyle internal constructor(
         return true
     }
 
-    @OptIn(ExperimentalTextApi::class)
     private fun hasSameNonLayoutAttributes(other: SpanStyle): Boolean {
         if (textForegroundStyle != other.textForegroundStyle) return false
         if (textDecoration != other.textDecoration) return false
@@ -656,7 +665,6 @@ class SpanStyle internal constructor(
         return true
     }
 
-    @OptIn(ExperimentalTextApi::class)
     override fun hashCode(): Int {
         var result = color.hashCode()
         result = 31 * result + brush.hashCode()
@@ -695,7 +703,6 @@ class SpanStyle internal constructor(
         return result
     }
 
-    @OptIn(ExperimentalTextApi::class)
     override fun toString(): String {
         return "SpanStyle(" +
             "color=$color, " +
@@ -748,7 +755,6 @@ internal fun <T> lerpDiscrete(a: T, b: T, fraction: Float): T = if (fraction < 0
  * between [start] and [stop]. The interpolation can be extrapolated beyond 0.0 and
  * 1.0, so negative values and values greater than 1.0 are valid.
  */
-@OptIn(ExperimentalTextApi::class)
 fun lerp(start: SpanStyle, stop: SpanStyle, fraction: Float): SpanStyle {
     return SpanStyle(
         textForegroundStyle = lerp(start.textForegroundStyle, stop.textForegroundStyle, fraction),
@@ -829,7 +835,6 @@ private fun lerpPlatformStyle(
     return lerp(startNonNull, stopNonNull, fraction)
 }
 
-@OptIn(ExperimentalTextApi::class)
 internal fun resolveSpanStyleDefaults(style: SpanStyle) = SpanStyle(
     textForegroundStyle = style.textForegroundStyle.takeOrElse {
         TextForegroundStyle.from(DefaultColor)
