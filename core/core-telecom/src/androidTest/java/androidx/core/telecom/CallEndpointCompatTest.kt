@@ -19,14 +19,13 @@ package androidx.core.telecom
 import android.os.Build.VERSION_CODES
 import android.os.ParcelUuid
 import android.telecom.CallAudioState
-import androidx.annotation.RequiresApi
 import androidx.core.telecom.internal.utils.EndpointUtils
 import androidx.test.filters.SdkSuppress
 import java.util.UUID
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
-@RequiresApi(VERSION_CODES.O)
+@SdkSuppress(minSdkVersion = VERSION_CODES.O /* api=26 */)
 class CallEndpointCompatTest {
 
     @Test
@@ -40,7 +39,6 @@ class CallEndpointCompatTest {
         assertEquals(identifier, endpoint.identifier)
     }
 
-    @SdkSuppress(minSdkVersion = VERSION_CODES.O)
     @Test
     fun testWrappingAudioStateIntoAEndpoint() {
         val state = CallAudioState(false, CallAudioState.ROUTE_EARPIECE, 0)
@@ -49,7 +47,6 @@ class CallEndpointCompatTest {
         assertEquals(CallEndpointCompat.TYPE_EARPIECE, endpoint.type)
     }
 
-    @SdkSuppress(minSdkVersion = VERSION_CODES.O)
     @Test
     fun testSupportedMask() {
         val supportedRouteMask = CallAudioState.ROUTE_EARPIECE or
@@ -59,7 +56,6 @@ class CallEndpointCompatTest {
         assertEquals(3, endpoints.size)
     }
 
-    @SdkSuppress(minSdkVersion = VERSION_CODES.O)
     @Test
     fun testCallAudioRouteToEndpointTypeMapping() {
         assertEquals(
@@ -85,7 +81,6 @@ class CallEndpointCompatTest {
         assertEquals(CallEndpointCompat.TYPE_UNKNOWN, EndpointUtils.mapRouteToType(-1))
     }
 
-    @SdkSuppress(minSdkVersion = VERSION_CODES.O)
     @Test
     fun testTypeToRouteMapping() {
         assertEquals(
