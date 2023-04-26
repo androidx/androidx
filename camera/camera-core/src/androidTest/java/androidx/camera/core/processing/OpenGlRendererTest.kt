@@ -37,14 +37,15 @@ import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
 import java.util.Locale
 import kotlin.coroutines.ContinuationInterceptor
-import kotlin.coroutines.resume
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.android.asCoroutineDispatcher
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeoutOrNull
 import org.junit.After
+import org.junit.Assert.fail
 import org.junit.Before
 import org.junit.BeforeClass
 import org.junit.Rule
@@ -147,18 +148,22 @@ class OpenGlRendererTest {
         val inputSurface = Surface(surfaceTexture).apply {
             surfacesToRelease.add(this)
         }
-        // Create Bitmap for drawing
-        val inputImage = createBitmap(WIDTH, HEIGHT)
+        // Listen for OnFrameAvailable updates before drawing.
+        val deferredOnFrameAvailable = CompletableDeferred<Unit>()
+        surfaceTexture.setOnFrameAvailableListener({
+            deferredOnFrameAvailable.complete(Unit)
+        }, Handler(Looper.getMainLooper()))
+
         // Draw bitmap to inputSurface.
+        val inputImage = createBitmap(WIDTH, HEIGHT)
         val canvas = inputSurface.lockHardwareCanvas()
         canvas.drawBitmap(inputImage, 0f, 0f, null)
         inputSurface.unlockCanvasAndPost(canvas)
+
         // Wait for frame available and update texture.
-        suspendCancellableCoroutine { continuation ->
-            surfaceTexture.setOnFrameAvailableListener({
-                continuation.resume(Unit)
-            }, Handler(Looper.getMainLooper()))
-        }
+        withTimeoutOrNull(5_000) {
+            deferredOnFrameAvailable.await()
+        } ?: fail("Timed out waiting for SurfaceTexture frame available.")
         surfaceTexture.updateTexImage()
 
         // Act: take a snapshot.
