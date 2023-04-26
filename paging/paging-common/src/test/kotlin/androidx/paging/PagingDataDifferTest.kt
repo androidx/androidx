@@ -39,6 +39,7 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.consumeAsFlow
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
@@ -2038,6 +2039,151 @@ class PagingDataDifferTest(
         testScope.coroutineContext.cancelChildren()
     }
 
+    @Test
+    fun cachedData() {
+        val data = List(50) { it }
+        val cachedPagingData = createCachedPagingData(data)
+        val simpleDiffer = SimpleDiffer(dummyDifferCallback, cachedPagingData)
+        assertThat(simpleDiffer.snapshot()).isEqualTo(data)
+        assertThat(simpleDiffer.size).isEqualTo(data.size)
+    }
+
+    @Test
+    fun emptyCachedData() {
+        val cachedPagingData = createCachedPagingData(emptyList())
+        val simpleDiffer = SimpleDiffer(dummyDifferCallback, cachedPagingData)
+        assertThat(simpleDiffer.snapshot()).isEmpty()
+        assertThat(simpleDiffer.size).isEqualTo(0)
+    }
+
+    @Test
+    fun cachedLoadStates() {
+        val data = List(50) { it }
+        val localStates = loadStates(refresh = Loading)
+        val mediatorStates = loadStates()
+        val cachedPagingData = createCachedPagingData(
+            data = data,
+            sourceLoadStates = localStates,
+            mediatorLoadStates = mediatorStates
+        )
+        val simpleDiffer = SimpleDiffer(dummyDifferCallback, cachedPagingData)
+        val expected = simpleDiffer.loadStateFlow.value
+        assertThat(expected).isNotNull()
+        assertThat(expected!!.source).isEqualTo(localStates)
+        assertThat(expected.mediator).isEqualTo(mediatorStates)
+    }
+
+    @Test
+    fun cachedData_doesNotSetHintReceiver() = testScope.runTest {
+        val data = List(50) { it }
+        val hintReceiver = HintReceiverFake()
+        val cachedPagingData = createCachedPagingData(
+            data = data,
+            sourceLoadStates = loadStates(refresh = Loading),
+            mediatorLoadStates = null,
+            hintReceiver = hintReceiver
+        )
+        val differ = SimpleDiffer(dummyDifferCallback, cachedPagingData)
+        differ[5]
+        assertThat(hintReceiver.hints).hasSize(0)
+
+        val flow = flowOf(
+            localRefresh(pages = listOf(TransformablePage(listOf(0, 1, 2, 3, 4)))),
+        )
+        val hintReceiver2 = HintReceiverFake()
+
+        val job1 = launch {
+            differ.collectFrom(PagingData(flow, dummyUiReceiver, hintReceiver2))
+        }
+        assertThat(hintReceiver.hints).hasSize(0)
+        assertThat(hintReceiver2.hints).hasSize(1)
+        job1.cancel()
+    }
+
+    @Test
+    fun cachedData_doesNotSetUiReceiver() = testScope.runTest {
+        val data = List(50) { it }
+        val uiReceiver = UiReceiverFake()
+        val cachedPagingData = createCachedPagingData(
+            data = data,
+            sourceLoadStates = loadStates(refresh = Loading),
+            mediatorLoadStates = null,
+            uiReceiver = uiReceiver
+        )
+        val differ = SimpleDiffer(dummyDifferCallback, cachedPagingData)
+        differ.refresh()
+        advanceUntilIdle()
+        assertThat(uiReceiver.refreshEvents).hasSize(0)
+
+        val flow = flowOf(
+            localRefresh(pages = listOf(TransformablePage(listOf(0, 1, 2, 3, 4)))),
+        )
+        val uiReceiver2 = UiReceiverFake()
+        val job1 = launch {
+            differ.collectFrom(PagingData(flow, uiReceiver2, dummyHintReceiver))
+        }
+        differ.refresh()
+        assertThat(uiReceiver.refreshEvents).hasSize(0)
+        assertThat(uiReceiver2.refreshEvents).hasSize(1)
+        job1.cancel()
+    }
+
+    @Test
+    fun cachedData_thenRealData() = testScope.runTest {
+        val data = List(2) { it }
+        val cachedPagingData = createCachedPagingData(
+            data = data,
+            sourceLoadStates = loadStates(refresh = Loading),
+            mediatorLoadStates = null,
+        )
+        val differ = SimpleDiffer(dummyDifferCallback, cachedPagingData)
+        val data2 = List(10) { it }
+        val flow = flowOf(
+            localRefresh(pages = listOf(TransformablePage(data2))),
+        )
+        val job1 = launch {
+            differ.collectFrom(PagingData(flow, dummyUiReceiver, dummyHintReceiver))
+        }
+
+        assertThat(differ.snapshot()).isEqualTo(data2)
+        job1.cancel()
+    }
+
+    @Test
+    fun cachedData_thenLoadError() = testScope.runTest {
+        val data = List(3) { it }
+        val cachedPagingData = createCachedPagingData(
+            data = data,
+            sourceLoadStates = loadStates(refresh = Loading),
+            mediatorLoadStates = null,
+        )
+        val differ = SimpleDiffer(dummyDifferCallback, cachedPagingData)
+
+        val channel = Channel<PageEvent<Int>>(Channel.UNLIMITED)
+        val hintReceiver = HintReceiverFake()
+        val uiReceiver = UiReceiverFake()
+        val job1 = launch {
+            differ.collectFrom(PagingData(channel.consumeAsFlow(), uiReceiver, hintReceiver))
+        }
+        val error = LoadState.Error(Exception())
+        channel.trySend(
+            localLoadStateUpdate(refreshLocal = error)
+        )
+        assertThat(differ.nonNullLoadStateFlow.first()).isEqualTo(
+            localLoadStatesOf(refreshLocal = error)
+        )
+
+        // ui receiver is set upon processing a LoadStateUpdate so we can still trigger
+        // refresh/retry
+        differ.refresh()
+        assertThat(uiReceiver.refreshEvents).hasSize(1)
+        // but hint receiver is only set if differ has presented a refresh from this PagingData
+        // which did not happen in this case
+        differ[2]
+        assertThat(hintReceiver.hints).hasSize(0)
+        job1.cancel()
+    }
+
     private fun runTest(
         loadDispatcher: TestDispatcher = StandardTestDispatcher(),
         initialKey: Int? = null,
@@ -2112,6 +2258,30 @@ private fun infinitelySuspendingPagingData(
     hintReceiver
 )
 
+private fun createCachedPagingData(
+    data: List<Int>,
+    placeholdersBefore: Int = 0,
+    placeholdersAfter: Int = 0,
+    uiReceiver: UiReceiver = PagingData.NOOP_UI_RECEIVER,
+    hintReceiver: HintReceiver = PagingData.NOOP_HINT_RECEIVER,
+    sourceLoadStates: LoadStates = LoadStates.IDLE,
+    mediatorLoadStates: LoadStates? = null,
+): PagingData<Int> =
+    PagingData(
+        flow = emptyFlow(),
+        uiReceiver = uiReceiver,
+        hintReceiver = hintReceiver,
+        cachedPageEvent = {
+            PageEvent.Insert.Refresh(
+                pages = listOf(TransformablePage(0, data)),
+                placeholdersBefore = placeholdersBefore,
+                placeholdersAfter = placeholdersAfter,
+                sourceLoadStates = sourceLoadStates,
+                mediatorLoadStates = mediatorLoadStates
+            )
+        }
+    )
+
 private class UiReceiverFake : UiReceiver {
     val retryEvents = mutableListOf<Unit>()
     val refreshEvents = mutableListOf<Unit>()
@@ -2178,8 +2348,9 @@ private class TrackableHintReceiverWrapper(
 @OptIn(ExperimentalCoroutinesApi::class)
 private class SimpleDiffer(
     differCallback: DifferCallback,
+    cachedPagingData: PagingData<Int>? = null,
     val coroutineScope: CoroutineScope = TestScope(UnconfinedTestDispatcher())
-) : PagingDataDiffer<Int>(differCallback) {
+) : PagingDataDiffer<Int>(differCallback = differCallback, cachedPagingData = cachedPagingData) {
     override suspend fun presentNewList(
         previousList: NullPaddedList<Int>,
         newList: NullPaddedList<Int>,

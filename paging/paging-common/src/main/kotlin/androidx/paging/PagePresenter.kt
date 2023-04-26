@@ -353,7 +353,12 @@ internal class PagePresenter<T : Any>(
         private val INITIAL = PagePresenter(EMPTY_REFRESH_LOCAL)
 
         @Suppress("UNCHECKED_CAST", "SyntheticAccessor")
-        internal fun <T : Any> initial(): PagePresenter<T> = INITIAL as PagePresenter<T>
+        internal fun <T : Any> initial(event: PageEvent.Insert<T>?): PagePresenter<T> =
+            if (event != null) {
+                PagePresenter(event)
+            } else {
+                INITIAL as PagePresenter<T>
+            }
     }
 
     /**
