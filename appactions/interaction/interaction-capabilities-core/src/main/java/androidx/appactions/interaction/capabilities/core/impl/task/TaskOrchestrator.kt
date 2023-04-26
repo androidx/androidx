@@ -27,12 +27,12 @@ import androidx.appactions.interaction.capabilities.core.impl.TouchEventCallback
 import androidx.appactions.interaction.capabilities.core.impl.UiHandleRegistry
 import androidx.appactions.interaction.capabilities.core.impl.exceptions.StructConversionException
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpec
-import androidx.appactions.interaction.capabilities.core.impl.utils.CapabilityLogger
-import androidx.appactions.interaction.capabilities.core.impl.utils.LoggerInternal
 import androidx.appactions.interaction.capabilities.core.impl.task.exceptions.InvalidResolverException
 import androidx.appactions.interaction.capabilities.core.impl.task.exceptions.MissingEntityConverterException
 import androidx.appactions.interaction.capabilities.core.impl.task.exceptions.MissingRequiredArgException
 import androidx.appactions.interaction.capabilities.core.impl.task.exceptions.MissingSearchActionConverterException
+import androidx.appactions.interaction.capabilities.core.impl.utils.CapabilityLogger
+import androidx.appactions.interaction.capabilities.core.impl.utils.LoggerInternal
 import androidx.appactions.interaction.proto.AppActionsContext
 import androidx.appactions.interaction.proto.CurrentValue
 import androidx.appactions.interaction.proto.FulfillmentRequest
@@ -42,7 +42,8 @@ import androidx.appactions.interaction.proto.TouchEventMetadata
 import java.util.concurrent.locks.ReentrantReadWriteLock
 import kotlin.concurrent.read
 import kotlin.concurrent.write
-import kotlin.jvm.Throws
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.isActive
 
 /**
  * TaskOrchestrator is responsible for holding session state, and processing assistant / manual
@@ -59,6 +60,7 @@ internal class TaskOrchestrator<ArgumentsT, OutputT, ConfirmationT>(
     private val appAction: AppActionsContext.AppAction,
     private val taskHandler: TaskHandler<ConfirmationT>,
     private val externalSession: BaseExecutionSession<ArgumentsT, OutputT>,
+    private val scope: CoroutineScope,
 ) {
     /** This enum describes the current status of the TaskOrchestrator. */
     internal enum class Status {
@@ -348,6 +350,9 @@ internal class TaskOrchestrator<ArgumentsT, OutputT, ConfirmationT>(
     ) {
         var currentResult = SlotProcessingResult(true, emptyList())
         for ((name, fulfillmentValues) in fulfillmentValuesMap) {
+            if (!scope.isActive) {
+                break
+            }
             currentResult =
                 maybeProcessSlotAndUpdateCurrentValues(currentResult, name, fulfillmentValues)
         }
