@@ -262,10 +262,6 @@ or sample to run or debug it, search through classes, and so on.
         Experimental, make sure that "Do not build Gradle task list during
         Gradle sync" is unchecked. Note that unchecking this can reduce Studio's
         performance.
-*   If compose inspection is not working in the Layout Inspector and there is a
-    banner saying something like "File not found: <path>. Make sure the..."
-    Build the inspection jar with:
-    *   `./gradlew copyInspectionArtifacts`.
 
 If in the future you encounter unexpected errors in Studio and you want to check
 for the possibility it is due to some incorrect settings or other generated
