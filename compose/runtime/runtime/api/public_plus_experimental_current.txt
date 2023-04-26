@@ -218,8 +218,8 @@ package androidx.compose.runtime {
   }
 
   @androidx.compose.runtime.Stable public abstract sealed class CompositionLocal<T> {
-    method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public final inline T! getCurrent();
-    property @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public final inline T! current;
+    method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public final inline T getCurrent();
+    property @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public final inline T current;
   }
 
   @androidx.compose.runtime.Stable public final class CompositionLocalContext {

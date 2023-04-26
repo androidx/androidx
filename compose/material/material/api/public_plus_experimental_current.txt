@@ -777,7 +777,7 @@ package androidx.compose.material {
     method public final androidx.compose.runtime.State<java.lang.Float> getOffset();
     method public final androidx.compose.runtime.State<java.lang.Float> getOverflow();
     method public final androidx.compose.material.SwipeProgress<T> getProgress();
-    method public final T! getTargetValue();
+    method public final T getTargetValue();
     method public final boolean isAnimationRunning();
     method public final float performDrag(float delta);
     method public final suspend Object? performFling(float velocity, kotlin.coroutines.Continuation<? super kotlin.Unit>);
@@ -788,7 +788,7 @@ package androidx.compose.material {
     property public final androidx.compose.runtime.State<java.lang.Float> offset;
     property public final androidx.compose.runtime.State<java.lang.Float> overflow;
     property @androidx.compose.material.ExperimentalMaterialApi public final androidx.compose.material.SwipeProgress<T> progress;
-    property @androidx.compose.material.ExperimentalMaterialApi public final T! targetValue;
+    property @androidx.compose.material.ExperimentalMaterialApi public final T targetValue;
     field public static final androidx.compose.material.SwipeableState.Companion Companion;
   }
 
