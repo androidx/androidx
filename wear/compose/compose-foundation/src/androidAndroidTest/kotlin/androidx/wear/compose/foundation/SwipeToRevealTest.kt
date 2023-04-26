@@ -138,11 +138,11 @@ class SwipeToRevealTest {
 
     @Composable
     private fun swipeToRevealWithDefaults(
-        action: @Composable () -> Unit = { getAction() },
+        action: @Composable RevealScope.() -> Unit = { getAction() },
         state: RevealState = rememberRevealState(),
         modifier: Modifier = Modifier,
-        additionalAction: (@Composable () -> Unit)? = null,
-        undoAction: (@Composable () -> Unit)? = null,
+        additionalAction: (@Composable RevealScope.() -> Unit)? = null,
+        undoAction: (@Composable RevealScope.() -> Unit)? = null,
         content: @Composable () -> Unit = { getBoxContent() }
     ) {
         SwipeToReveal(

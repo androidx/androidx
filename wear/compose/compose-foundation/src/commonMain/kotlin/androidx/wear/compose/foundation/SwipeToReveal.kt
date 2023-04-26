@@ -32,6 +32,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -235,7 +236,14 @@ public fun rememberRevealState(
  * It is strongly recommended to have icons represent the actions and maybe a text and icon for
  * the undo action.
  *
- * TODO: Add Sample
+ * Example of SwipeToReveal with mandatory action and undo action
+ * @sample androidx.wear.compose.foundation.samples.SwipeToRevealSample
+ *
+ * Example of SwipeToReveal using [RevealScope]
+ * @sample androidx.wear.compose.foundation.samples.SwipeToRevealWithRevealOffset
+ *
+ * Example of SwipeToReveal used with Expandables
+ * @sample androidx.wear.compose.foundation.samples.SwipeToRevealWithExpandables
  *
  * @param action The mandatory action that needs to be added to the component.
  * @param modifier Optional [Modifier] for this component.
@@ -251,81 +259,111 @@ public fun rememberRevealState(
 @ExperimentalWearFoundationApi
 @Composable
 public fun SwipeToReveal(
-    action: @Composable () -> Unit,
+    action: @Composable RevealScope.() -> Unit,
     modifier: Modifier = Modifier,
     onFullSwipe: () -> Unit = {},
     state: RevealState = rememberRevealState(),
-    additionalAction: (@Composable () -> Unit)? = null,
-    undoAction: (@Composable () -> Unit)? = null,
+    additionalAction: (@Composable RevealScope.() -> Unit)? = null,
+    undoAction: (@Composable RevealScope.() -> Unit)? = null,
     content: @Composable () -> Unit
-) = Box(
-    modifier = modifier
-        .swipeableV2(
-            state = state.swipeableState,
-            orientation = Orientation.Horizontal,
-            enabled = true,
-        )
-        .swipeAnchors(
-            state = state.swipeableState,
-            possibleValues = state.swipeAnchors.keys
-        ) { value, layoutSize ->
-            val swipeableWidth = layoutSize.width.toFloat()
-            // Multiply the anchor with -1f to get the actual swipeable anchor
-            -state.swipeAnchors[value]!! * swipeableWidth
-        }
 ) {
-    val swipeCompleted by remember {
-        derivedStateOf { state.currentValue == RevealValue.Revealed }
-    }
-    val density = LocalDensity.current
-
-    // Total width available for the slot(s) based on the current swipe offset
-    val availableWidth = if (state.offset.isNaN()) 0.dp
-        else with(density) { abs(state.offset).toDp() }
-    // Total padding between the slots based on the available actions
-    val totalPadding = if (additionalAction != null) SwipeToRevealDefaults.padding * 2
-        else SwipeToRevealDefaults.padding
-
-    Row(
-        modifier = Modifier.matchParentSize(),
-        horizontalArrangement = Arrangement.Absolute.Right
-    ) {
-        if (swipeCompleted && undoAction != null) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center
-            ) {
-                ActionSlot(content = undoAction)
-            }
-        } else {
-            Row(
-                modifier = Modifier.width(availableWidth.minus(totalPadding)),
-                horizontalArrangement = Arrangement.Absolute.Right
-            ) {
-                if (additionalAction != null) {
-                    Spacer(Modifier.size(SwipeToRevealDefaults.padding))
-                    ActionSlot(content = additionalAction)
-                }
-                Spacer(Modifier.size(SwipeToRevealDefaults.padding))
-                ActionSlot(content = action)
-            }
-        }
-    }
-    Row(
-        modifier = Modifier.absoluteOffset {
-            IntOffset(
-                x = state.requireOffset().roundToInt().coerceAtMost(0),
-                y = 0
+    // Initialise to zero, updated when the size changes
+    val revealScope = remember(state) { RevealScopeImpl(state) }
+    Box(
+        modifier = modifier
+            .swipeableV2(
+                state = state.swipeableState,
+                orientation = Orientation.Horizontal,
+                enabled = true,
             )
-        }
+            .swipeAnchors(
+                state = state.swipeableState,
+                possibleValues = state.swipeAnchors.keys
+            ) { value, layoutSize ->
+                val swipeableWidth = layoutSize.width.toFloat()
+                // Update the total width which will be used to calculate the anchors
+                revealScope.width.value = swipeableWidth
+                // Multiply the anchor with -1f to get the actual swipeable anchor
+                -state.swipeAnchors[value]!! * swipeableWidth
+            }
     ) {
-        content()
-    }
-    LaunchedEffect(state.currentValue) {
-        if (state.currentValue == RevealValue.Revealed) {
-            onFullSwipe()
+        val swipeCompleted by remember {
+            derivedStateOf { state.currentValue == RevealValue.Revealed }
+        }
+        val density = LocalDensity.current
+
+        // Total width available for the slot(s) based on the current swipe offset
+        val availableWidth = if (state.offset.isNaN()) 0.dp
+        else with(density) { abs(state.offset).toDp() }
+
+        Row(
+            modifier = Modifier.matchParentSize(),
+            horizontalArrangement = Arrangement.Absolute.Right
+        ) {
+            if (swipeCompleted && undoAction != null) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    ActionSlot(revealScope, content = undoAction)
+                }
+            } else {
+                Row(
+                    modifier = Modifier.width(availableWidth),
+                    horizontalArrangement = Arrangement.Absolute.Right
+                ) {
+                    if (additionalAction != null &&
+                        abs(state.offset) <= revealScope.revealOffset) {
+                        Spacer(Modifier.size(SwipeToRevealDefaults.padding))
+                        ActionSlot(revealScope, content = additionalAction)
+                    }
+                    Spacer(Modifier.size(SwipeToRevealDefaults.padding))
+                    ActionSlot(revealScope, content = action)
+                }
+            }
+        }
+        Row(
+            modifier = Modifier.absoluteOffset {
+                IntOffset(
+                    x = state.requireOffset().roundToInt().coerceAtMost(0),
+                    y = 0
+                )
+            }
+        ) {
+            content()
+        }
+        LaunchedEffect(state.currentValue) {
+            if (state.currentValue == RevealValue.Revealed) {
+                onFullSwipe()
+            }
         }
     }
+}
+
+@ExperimentalWearFoundationApi
+public interface RevealScope {
+
+    /**
+     * The offset, in pixels, where the revealed actions are fully visible but the existing content
+     * would be left in place if the reveal action was stopped. This offset is used to create the
+     * anchor for [RevealValue.Revealing].
+     * If there is no such anchor defined for [RevealValue.Revealing], it returns 0.0f.
+     */
+    public val revealOffset: Float
+}
+
+@OptIn(ExperimentalWearFoundationApi::class)
+private class RevealScopeImpl constructor(
+    private val revealState: RevealState
+) : RevealScope {
+
+    /**
+     * The total width of the overlay content in float.
+     */
+    val width = mutableStateOf(0.0f)
+
+    override val revealOffset: Float
+        get() = width.value * (revealState.swipeAnchors[RevealValue.Revealing] ?: 0.0f)
 }
 
 /**
@@ -343,15 +381,19 @@ internal object SwipeToRevealDefaults {
     internal fun defaultThreshold() = fractionalPositionalThreshold(threshold)
 }
 
+@OptIn(ExperimentalWearFoundationApi::class)
 @Composable
 private fun RowScope.ActionSlot(
+    revealScope: RevealScope,
     modifier: Modifier = Modifier,
-    content: @Composable () -> Unit
+    content: @Composable RevealScope.() -> Unit
 ) {
     Box(
         modifier = modifier.fillMaxHeight().weight(1f),
         contentAlignment = Alignment.Center
     ) {
-        content()
+        with(revealScope) {
+            content()
+        }
     }
 }
