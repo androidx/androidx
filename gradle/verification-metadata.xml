@@ -4,7 +4,9 @@
    <configuration>
       <verify-metadata>true</verify-metadata>
       <verify-signatures>true</verify-signatures>
-      <key-servers enabled="false"/>
+      <key-servers enabled="false">
+          <key-server uri="https://keyserver.ubuntu.com"/>
+      </key-servers>
       <trusted-artifacts>
          <trust group="ch.qos.logback" name="logback-classic" version="1.2.11" reason="b/234161459"/>
          <trust group="ch.qos.logback" name="logback-core" version="1.2.11" reason="b/234161459"/>
