@@ -27,5 +27,7 @@ class CallbacksApiGeneratorDiffTest : AbstractApiGeneratorDiffTest() {
         "com/sdkwithcallbacks/ISdkCallback.java",
         "com/sdkwithcallbacks/ISdkService.java",
         "com/sdkwithcallbacks/ParcelableResponse.java",
+        "com/sdkwithcallbacks/IMyUiInterface.java",
+        "com/sdkwithcallbacks/IMyUiInterfaceCoreLibInfoAndBinderWrapper.java"
     )
 }

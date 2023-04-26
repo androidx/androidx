@@ -1,6 +1,7 @@
 package com.mysdk
 
 import android.content.Context
+import androidx.privacysandbox.ui.provider.toCoreLibInfo
 
 public class MyCallbackClientProxy(
     public val remote: IMyCallback,
@@ -16,5 +17,10 @@ public class MyCallbackClientProxy(
 
     public override fun onCompleteInterface(myInterface: MyInterface): Unit {
         remote.onCompleteInterface(MyInterfaceStubDelegate(myInterface, context))
+    }
+
+    public override fun onCompleteUiInterface(myUiInterface: MyUiInterface): Unit {
+        remote.onCompleteUiInterface(IMyUiInterfaceCoreLibInfoAndBinderWrapperConverter.toParcelable(myUiInterface.toCoreLibInfo(context),
+                MyUiInterfaceStubDelegate(myUiInterface, context)))
     }
 }

@@ -25,14 +25,22 @@ import androidx.privacysandbox.tools.core.model.AnnotatedValue
 import androidx.privacysandbox.tools.core.model.ParsedApi
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.CodeBlock
+import com.squareup.kotlinpoet.TypeName
 
 class ServerBinderCodeConverter(private val api: ParsedApi) : BinderCodeConverter(api) {
     override fun convertToInterfaceModelCode(
         annotatedInterface: AnnotatedInterface,
         expression: String
-    ): CodeBlock = CodeBlock.of(
-        "(%L as %T).delegate", expression, annotatedInterface.stubDelegateNameSpec()
-    )
+    ): CodeBlock {
+        if (annotatedInterface.inheritsSandboxedUiAdapter) {
+            return CodeBlock.of(
+                "(%L.binder as %T).delegate", expression, annotatedInterface.stubDelegateNameSpec()
+            )
+        }
+        return CodeBlock.of(
+            "(%L as %T).delegate", expression, annotatedInterface.stubDelegateNameSpec()
+        )
+    }
 
     override fun convertToInterfaceBinderCode(
         annotatedInterface: AnnotatedInterface,
@@ -67,8 +75,12 @@ class ServerBinderCodeConverter(private val api: ParsedApi) : BinderCodeConverte
         )
     }
 
-    override fun convertToInterfaceBinderType(annotatedInterface: AnnotatedInterface) =
-        annotatedInterface.aidlType().innerType.poetTypeName()
+    override fun convertToInterfaceBinderType(annotatedInterface: AnnotatedInterface): TypeName {
+        if (annotatedInterface.inheritsSandboxedUiAdapter) {
+            return annotatedInterface.uiAdapterAidlWrapper().poetTypeName()
+        }
+        return annotatedInterface.aidlType().innerType.poetTypeName()
+    }
 
     override fun convertToValueBinderCode(value: AnnotatedValue, expression: String): CodeBlock =
         CodeBlock.of(

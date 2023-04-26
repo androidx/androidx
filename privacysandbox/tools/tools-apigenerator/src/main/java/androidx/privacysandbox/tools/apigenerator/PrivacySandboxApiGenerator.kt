@@ -23,6 +23,7 @@ import androidx.privacysandbox.tools.core.generator.AidlGenerator
 import androidx.privacysandbox.tools.core.generator.BinderCodeConverter
 import androidx.privacysandbox.tools.core.generator.ClientBinderCodeConverter
 import androidx.privacysandbox.tools.core.generator.ClientProxyTypeGenerator
+import androidx.privacysandbox.tools.core.generator.CoreLibInfoAndBinderWrapperConverterGenerator
 import androidx.privacysandbox.tools.core.generator.GenerationTarget
 import androidx.privacysandbox.tools.core.generator.PrivacySandboxExceptionFileGenerator
 import androidx.privacysandbox.tools.core.generator.PrivacySandboxCancellationExceptionFileGenerator
@@ -111,6 +112,7 @@ class PrivacySandboxApiGenerator {
         )
         generateValueConverters(api, binderCodeConverter, output)
         generateSuspendFunctionUtilities(api, basePackageName, output)
+        generateCoreLibInfoConverters(api, output)
     }
 
     private fun generateBinders(api: ParsedApi, aidlCompiler: AidlCompiler, output: File) {
@@ -177,6 +179,12 @@ class PrivacySandboxApiGenerator {
         api.values.forEach {
             valueFileGenerator.generate(it).writeTo(output)
             valueConverterFileGenerator.generate(it).writeTo(output)
+        }
+    }
+
+    private fun generateCoreLibInfoConverters(api: ParsedApi, output: File) {
+        api.interfaces.filter { it.inheritsSandboxedUiAdapter }.map {
+            CoreLibInfoAndBinderWrapperConverterGenerator.generate(it).writeTo(output)
         }
     }
 
