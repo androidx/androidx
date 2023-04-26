@@ -110,13 +110,14 @@ class BluetoothLe(private val context: Context) {
         fun getServices(): List<BluetoothGattService>
         fun getService(uuid: UUID): BluetoothGattService?
 
-        suspend fun read(characteristic: BluetoothGattCharacteristic): Result<ByteArray>
-        suspend fun write(
+        suspend fun readCharacteristic(characteristic: BluetoothGattCharacteristic):
+            Result<ByteArray>
+        suspend fun writeCharacteristic(
             characteristic: BluetoothGattCharacteristic,
             value: ByteArray,
             writeType: Int
         ): Result<Unit>
-        fun subscribeCharacteristic(characteristic: BluetoothGattCharacteristic): Flow<ByteArray>
+        fun subscribeToCharacteristic(characteristic: BluetoothGattCharacteristic): Flow<ByteArray>
         suspend fun awaitClose(onClosed: () -> Unit)
     }
 

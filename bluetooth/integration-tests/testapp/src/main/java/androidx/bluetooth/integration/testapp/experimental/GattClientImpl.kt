@@ -22,16 +22,23 @@ import android.bluetooth.BluetoothGatt
 import android.bluetooth.BluetoothGatt.GATT_SUCCESS
 import android.bluetooth.BluetoothGattCallback
 import android.bluetooth.BluetoothGattCharacteristic
+import android.bluetooth.BluetoothGattDescriptor
 import android.bluetooth.BluetoothGattService
 import android.content.Context
 import android.util.Log
+import androidx.collection.arrayMapOf
 import java.util.UUID
+import kotlin.coroutines.cancellation.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.job
 import kotlinx.coroutines.launch
 
@@ -39,7 +46,9 @@ internal class GattClientImpl {
     companion object {
         private const val TAG = "GattClientImpl"
         private const val GATT_MAX_MTU = 517
+        private val CCCD_UID = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb")
     }
+
     private data class ClientTask(
         val taskBlock: () -> Unit
     ) {
@@ -48,18 +57,25 @@ internal class GattClientImpl {
     }
 
     private sealed interface ClientCallback {
-        val characteristic: BluetoothGattCharacteristic
-
-        class OnRead(
-            override val characteristic: BluetoothGattCharacteristic,
+        class OnCharacteristicRead(
+            val characteristic: BluetoothGattCharacteristic,
             val value: ByteArray,
             val status: Int
         ) : ClientCallback
 
-        class OnWrite(
-            override val characteristic: BluetoothGattCharacteristic,
+        class OnCharacteristicWrite(
+            val characteristic: BluetoothGattCharacteristic,
             val status: Int
         ) : ClientCallback
+
+        class OnDescriptorWrite(
+            val descriptor: BluetoothGattDescriptor,
+            val status: Int
+        ) : ClientCallback
+    }
+
+    private interface SubscribeListener {
+        fun onCharacteristicNotification(value: ByteArray)
     }
 
     @SuppressLint("MissingPermission")
@@ -71,6 +87,7 @@ internal class GattClientImpl {
         val connectResult = CompletableDeferred<Boolean>(parent = coroutineContext.job)
         val finished = Job(parent = coroutineContext.job)
         var currentTask: ClientTask? = null
+        val subscribeMap: MutableMap<BluetoothGattCharacteristic, SubscribeListener> = arrayMapOf()
 
         val callback = object : BluetoothGattCallback() {
             override fun onConnectionStateChange(gatt: BluetoothGatt?, status: Int, newState: Int) {
@@ -104,7 +121,7 @@ internal class GattClientImpl {
                 status: Int
             ) {
                 currentTask?.callbackChannel?.trySend(
-                    ClientCallback.OnRead(characteristic, value, status))
+                    ClientCallback.OnCharacteristicRead(characteristic, value, status))
             }
 
             override fun onCharacteristicWrite(
@@ -113,14 +130,33 @@ internal class GattClientImpl {
                 status: Int
             ) {
                 currentTask?.callbackChannel?.trySend(
-                    ClientCallback.OnWrite(characteristic, status))
+                    ClientCallback.OnCharacteristicWrite(characteristic, status))
+            }
+
+            override fun onDescriptorWrite(
+                gatt: BluetoothGatt,
+                descriptor: BluetoothGattDescriptor,
+                status: Int
+            ) {
+                currentTask?.callbackChannel?.trySend(
+                    ClientCallback.OnDescriptorWrite(descriptor, status))
+            }
+
+            override fun onCharacteristicChanged(
+                gatt: BluetoothGatt,
+                characteristic: BluetoothGattCharacteristic,
+                value: ByteArray
+            ) {
+                synchronized(subscribeMap) {
+                    subscribeMap[characteristic]?.onCharacteristicNotification(value)
+                }
             }
         }
         val bluetoothGatt = device.connectGatt(context, /*autoConnect=*/false, callback)
         val tasks: Channel<ClientTask> = Channel(10)
 
         if (!connectResult.await()) {
-            Log.d(TAG, "Failed to connect to the remote GATT server")
+            Log.w(TAG, "Failed to connect to the remote GATT server")
             return@coroutineScope
         }
         val gattScope = object : BluetoothLe.GattClientScope {
@@ -147,7 +183,7 @@ internal class GattClientImpl {
                 return bluetoothGatt.getService(uuid)
             }
 
-            override suspend fun read(characteristic: BluetoothGattCharacteristic):
+            override suspend fun readCharacteristic(characteristic: BluetoothGattCharacteristic):
                 Result<ByteArray> {
                 val task = ClientTask {
                     bluetoothGatt.readCharacteristic(characteristic)
@@ -155,7 +191,7 @@ internal class GattClientImpl {
                 tasks.send(task)
                 while (true) {
                     val res = task.callbackChannel.receive()
-                    if (res !is ClientCallback.OnRead) continue
+                    if (res !is ClientCallback.OnCharacteristicRead) continue
                     if (res.characteristic != characteristic) continue
 
                     task.finished.complete(res.status == GATT_SUCCESS)
@@ -164,8 +200,7 @@ internal class GattClientImpl {
                 }
             }
 
-            @Suppress("ClassVerificationFailure")
-            override suspend fun write(
+            override suspend fun writeCharacteristic(
                 characteristic: BluetoothGattCharacteristic,
                 value: ByteArray,
                 writeType: Int
@@ -176,7 +211,7 @@ internal class GattClientImpl {
                 tasks.send(task)
                 while (true) {
                     val res = task.callbackChannel.receive()
-                    if (res !is ClientCallback.OnWrite) continue
+                    if (res !is ClientCallback.OnCharacteristicWrite) continue
                     if (res.characteristic.uuid != characteristic.uuid) continue
 
                     task.finished.complete(res.status == GATT_SUCCESS)
@@ -185,9 +220,50 @@ internal class GattClientImpl {
                 }
             }
 
-            override fun subscribeCharacteristic(characteristic: BluetoothGattCharacteristic):
+            override fun subscribeToCharacteristic(characteristic: BluetoothGattCharacteristic):
                 Flow<ByteArray> {
-                TODO("Not yet implemented")
+                val cccd = characteristic.getDescriptor(CCCD_UID) ?: return emptyFlow()
+
+                return callbackFlow {
+                    val listener = object : SubscribeListener {
+                        override fun onCharacteristicNotification(value: ByteArray) {
+                            trySend(value)
+                        }
+                    }
+                    if (!registerSubscribeListener(characteristic, listener)) {
+                        cancel(CancellationException("already subscribed"))
+                    }
+
+                    val task = ClientTask {
+                        bluetoothGatt.setCharacteristicNotification(characteristic, /*enable=*/true)
+                        bluetoothGatt.writeDescriptor(
+                            cccd,
+                            BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE
+                        )
+                    }
+                    tasks.send(task)
+                    while (true) {
+                        val res = task.callbackChannel.receive()
+                        if (res !is ClientCallback.OnDescriptorWrite) continue
+                        if (res.descriptor != cccd) continue
+
+                        task.finished.complete(res.status == GATT_SUCCESS)
+                        if (res.status != GATT_SUCCESS) {
+                            cancel(CancellationException("failed to set notification"))
+                        }
+                        break
+                    }
+
+                    this.awaitClose {
+                        unregisterSubscribeListener(characteristic)
+                        bluetoothGatt.setCharacteristicNotification(characteristic,
+                            /*enable=*/false)
+                        bluetoothGatt.writeDescriptor(
+                            cccd,
+                            BluetoothGattDescriptor.DISABLE_NOTIFICATION_VALUE
+                        )
+                    }
+                }
             }
 
             override suspend fun awaitClose(onClosed: () -> Unit) {
@@ -196,6 +272,25 @@ internal class GattClientImpl {
                     finished.join()
                 } finally {
                     onClosed()
+                }
+            }
+
+            private fun registerSubscribeListener(
+                characteristic: BluetoothGattCharacteristic,
+                callback: SubscribeListener
+            ): Boolean {
+                synchronized(subscribeMap) {
+                    if (subscribeMap.containsKey(characteristic)) {
+                        return false
+                    }
+                    subscribeMap[characteristic] = callback
+                    return true
+                }
+            }
+
+            private fun unregisterSubscribeListener(characteristic: BluetoothGattCharacteristic) {
+                synchronized(subscribeMap) {
+                    subscribeMap.remove(characteristic)
                 }
             }
         }
