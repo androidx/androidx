@@ -354,7 +354,7 @@ class ButtonTest {
             status = Status.Disabled,
             colors = { ButtonDefaults.filledButtonColors() },
             expectedContainerColor = { MaterialTheme.colorScheme.onSurface.copy(
-                alpha = DisabledContainerAlpha
+                alpha = DisabledBorderAndContainerAlpha
             ) },
             expectedContentColor = { MaterialTheme.colorScheme.onSurface.copy(
                 alpha = ContentAlpha.disabled
@@ -380,7 +380,7 @@ class ButtonTest {
             status = Status.Disabled,
             colors = { ButtonDefaults.filledTonalButtonColors() },
             expectedContainerColor = { MaterialTheme.colorScheme.onSurface.copy(
-                alpha = DisabledContainerAlpha
+                alpha = DisabledBorderAndContainerAlpha
             ) },
             expectedContentColor = { MaterialTheme.colorScheme.onSurface.copy(
                 alpha = ContentAlpha.disabled
@@ -430,7 +430,7 @@ class ButtonTest {
             status = Status.Disabled,
             colors = { ButtonDefaults.childButtonColors() },
             expectedContainerColor = { MaterialTheme.colorScheme.onSurface.copy(
-                alpha = DisabledContainerAlpha
+                alpha = DisabledBorderAndContainerAlpha
             ) },
             expectedContentColor = { MaterialTheme.colorScheme.onSurface.copy(
                 alpha = ContentAlpha.disabled
@@ -689,7 +689,7 @@ internal fun ComposeContentTestRule.verifyButtonBorderColor(
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
-internal fun ComposeContentTestRule.isShape(
+private fun ComposeContentTestRule.isShape(
     expectedShape: Shape,
     colors: @Composable () -> ButtonColors,
     content: @Composable (Modifier) -> Unit
@@ -726,4 +726,4 @@ internal fun ComposeContentTestRule.isShape(
         )
 }
 
-const val DisabledContainerAlpha = 0.12f
+val MinimumButtonTapSize = 48.dp

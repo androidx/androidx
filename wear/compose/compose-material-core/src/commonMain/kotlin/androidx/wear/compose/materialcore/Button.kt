@@ -17,6 +17,7 @@ package androidx.wear.compose.materialcore
 
 import androidx.annotation.RestrictTo
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.Interaction
@@ -30,10 +31,8 @@ import androidx.compose.runtime.State
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.paint
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.Dp
 
@@ -50,7 +49,7 @@ import androidx.compose.ui.unit.Dp
  * @param modifier Modifier to be applied to the button.
  * @param enabled Controls the enabled state of the button. When `false`, this button will not
  * be clickable.
- * @param background Resolves the background for this button in different states.
+ * @param backgroundColor Resolves the background for this button in different states.
  * @param interactionSource The [MutableInteractionSource] representing the stream of
  * [Interaction]s for this Button. You can create and pass in your own remembered
  * [MutableInteractionSource] if you want to observe [Interaction]s and customize the
@@ -67,7 +66,7 @@ fun Button(
     onClick: () -> Unit,
     modifier: Modifier,
     enabled: Boolean,
-    background: @Composable (enabled: Boolean) -> State<Painter>,
+    backgroundColor: @Composable (enabled: Boolean) -> State<Color>,
     interactionSource: MutableInteractionSource,
     shape: Shape,
     border: @Composable (enabled: Boolean) -> State<BorderStroke?>?,
@@ -93,13 +92,13 @@ fun Button(
             )
             .size(buttonSize)
             .clip(shape) // Clip for the painted background area after size has been applied.
-            .paint(
-                painter = background(enabled).value,
-                contentScale = ContentScale.Crop
-            )
             .then(
                 if (borderStroke != null) Modifier.border(border = borderStroke, shape = shape)
                 else Modifier
+            )
+            .background(
+                color = backgroundColor(enabled).value,
+                shape = shape
             ),
         content = content
     )
