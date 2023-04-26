@@ -222,7 +222,7 @@ class CombinedFocusModifierNodeTest(private val delegatedFocusTarget: Boolean) {
         DelegatingNode() {
 
         init {
-            if (delegatedFocusTarget) delegate(FocusTargetModifierNode())
+            if (delegatedFocusTarget) delegate(FocusTargetNode())
         }
 
         lateinit var focusState: FocusState

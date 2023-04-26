@@ -28,11 +28,11 @@ import androidx.compose.ui.node.visitSelfAndChildren
 internal class FocusInvalidationManager(
     private val onRequestApplyChangesListener: (() -> Unit) -> Unit
 ) {
-    private var focusTargetNodes = mutableSetOf<FocusTargetModifierNode>()
+    private var focusTargetNodes = mutableSetOf<FocusTargetNode>()
     private var focusEventNodes = mutableSetOf<FocusEventModifierNode>()
     private var focusPropertiesNodes = mutableSetOf<FocusPropertiesModifierNode>()
 
-    fun scheduleInvalidation(node: FocusTargetModifierNode) {
+    fun scheduleInvalidation(node: FocusTargetNode) {
         focusTargetNodes.scheduleInvalidation(node)
     }
 
@@ -67,7 +67,7 @@ internal class FocusInvalidationManager(
         focusPropertiesNodes.clear()
 
         // Process all the focus events nodes.
-        val focusTargetsWithInvalidatedFocusEvents = mutableSetOf<FocusTargetModifierNode>()
+        val focusTargetsWithInvalidatedFocusEvents = mutableSetOf<FocusTargetNode>()
         focusEventNodes.forEach { focusEventNode ->
             // When focus nodes are removed, the corresponding focus events are scheduled for
             // invalidation. If the focus event was also removed, we don't need to invalidate it.
@@ -81,7 +81,7 @@ internal class FocusInvalidationManager(
 
             var requiresUpdate = true
             var aggregatedNode = false
-            var focusTarget: FocusTargetModifierNode? = null
+            var focusTarget: FocusTargetNode? = null
             focusEventNode.visitSelfAndChildren(Nodes.FocusTarget) {
 
                 // If there are multiple focus targets associated with this focus event node,

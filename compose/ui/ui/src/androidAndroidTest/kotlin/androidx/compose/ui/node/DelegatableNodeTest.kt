@@ -21,7 +21,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusTargetModifierNode
+import androidx.compose.ui.focus.FocusTargetNode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -466,8 +466,8 @@ class DelegatableNodeTest {
     @Test
     fun findAncestors() {
         // Arrange.
-        val (node1, node2, node3, node4) = List(4) { FocusTargetModifierNode() }
-        val (node5, node6, node7, node8) = List(4) { FocusTargetModifierNode() }
+        val (node1, node2, node3, node4) = List(4) { FocusTargetNode() }
+        val (node5, node6, node7, node8) = List(4) { FocusTargetNode() }
         rule.setContent {
             Box(
                 modifier = modifierElementOf { node1 }

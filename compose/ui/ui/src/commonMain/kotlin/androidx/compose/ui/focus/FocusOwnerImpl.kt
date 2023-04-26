@@ -53,7 +53,7 @@ import androidx.compose.ui.util.fastForEachReversed
  */
 internal class FocusOwnerImpl(onRequestApplyChangesListener: (() -> Unit) -> Unit) : FocusOwner {
 
-    internal var rootFocusNode = FocusTargetModifierNode()
+    internal var rootFocusNode = FocusTargetNode()
 
     private val focusInvalidationManager = FocusInvalidationManager(onRequestApplyChangesListener)
 
@@ -62,10 +62,10 @@ internal class FocusOwnerImpl(onRequestApplyChangesListener: (() -> Unit) -> Uni
      * list that contains the modifiers required by the focus system. (Eg, a root focus modifier).
      */
     // TODO(b/168831247): return an empty Modifier when there are no focusable children.
-    override val modifier: Modifier = object : ModifierNodeElement<FocusTargetModifierNode>() {
+    override val modifier: Modifier = object : ModifierNodeElement<FocusTargetNode>() {
         override fun create() = rootFocusNode
 
-        override fun update(node: FocusTargetModifierNode) {}
+        override fun update(node: FocusTargetNode) {}
 
         override fun InspectorInfo.inspectableProperties() {
             name = "RootFocusTarget"
@@ -224,7 +224,7 @@ internal class FocusOwnerImpl(onRequestApplyChangesListener: (() -> Unit) -> Uni
         return false
     }
 
-    override fun scheduleInvalidation(node: FocusTargetModifierNode) {
+    override fun scheduleInvalidation(node: FocusTargetNode) {
         focusInvalidationManager.scheduleInvalidation(node)
     }
 

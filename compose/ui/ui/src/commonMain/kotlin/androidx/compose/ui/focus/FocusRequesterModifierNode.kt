@@ -24,7 +24,7 @@ import androidx.compose.ui.node.visitSelfAndChildren
 
 /**
  * Implement this interface to create a modifier node that can be used to request changes in
- * the focus state of a [FocusTargetModifierNode] down the hierarchy.
+ * the focus state of a [FocusTargetNode] down the hierarchy.
  */
 interface FocusRequesterModifierNode : DelegatableNode
 

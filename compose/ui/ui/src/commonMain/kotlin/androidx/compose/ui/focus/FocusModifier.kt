@@ -16,7 +16,6 @@
 
 package androidx.compose.ui.focus
 
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 
 /**
@@ -32,8 +31,7 @@ import androidx.compose.ui.Modifier
  *
  * @sample androidx.compose.ui.samples.FocusableSampleUsingLowerLevelFocusTarget
  */
-@OptIn(ExperimentalComposeUiApi::class)
-fun Modifier.focusTarget(): Modifier = this then FocusTargetModifierNode.FocusTargetModifierElement
+fun Modifier.focusTarget(): Modifier = this then FocusTargetNode.FocusTargetElement
 
 /**
  * Add this modifier to a component to make it focusable.

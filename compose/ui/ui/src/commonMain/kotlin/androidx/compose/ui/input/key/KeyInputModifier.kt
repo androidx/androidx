@@ -53,10 +53,10 @@ fun Modifier.onPreviewKeyEvent(
 private data class KeyInputElement(
     val onKeyEvent: ((KeyEvent) -> Boolean)?,
     val onPreKeyEvent: ((KeyEvent) -> Boolean)?
-) : ModifierNodeElement<KeyInputModifierNodeImpl>() {
-    override fun create() = KeyInputModifierNodeImpl(onKeyEvent, onPreKeyEvent)
+) : ModifierNodeElement<KeyInputNode>() {
+    override fun create() = KeyInputNode(onKeyEvent, onPreKeyEvent)
 
-    override fun update(node: KeyInputModifierNodeImpl) {
+    override fun update(node: KeyInputNode) {
         node.onEvent = onKeyEvent
         node.onPreEvent = onPreKeyEvent
     }
@@ -73,7 +73,7 @@ private data class KeyInputElement(
     }
 }
 
-private class KeyInputModifierNodeImpl(
+private class KeyInputNode(
     var onEvent: ((KeyEvent) -> Boolean)?,
     var onPreEvent: ((KeyEvent) -> Boolean)?
 ) : KeyInputModifierNode, Modifier.Node() {
