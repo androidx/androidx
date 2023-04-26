@@ -228,7 +228,7 @@ public final class SoftwareKeyboardControllerCompat {
                 insetsController.hide(WindowInsets.Type.ime());
             } else {
                 // Couldn't find an insets controller, fallback to old implementation
-                super.show();
+                super.hide();
             }
         }
     }
