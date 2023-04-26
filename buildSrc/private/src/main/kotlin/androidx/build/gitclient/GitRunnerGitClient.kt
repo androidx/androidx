@@ -66,17 +66,6 @@ class GitRunnerGitClient(
             ?.firstOrNull()
     }
 
-    private fun findGitDirInParentFilepath(filepath: File): File? {
-        var curDirectory: File = filepath
-        while (curDirectory.path != "/") {
-            if (File("$curDirectory/.git").exists()) {
-                return curDirectory
-            }
-            curDirectory = curDirectory.parentFile
-        }
-        return null
-    }
-
     private fun parseCommitLogString(
         commitLogString: String,
         commitStartDelimiter: String,
@@ -213,4 +202,18 @@ class GitRunnerGitClient(
         const val CHANGED_FILES_CMD_PREFIX = "git diff --name-only"
         const val GIT_LOG_CMD_PREFIX = "git log --name-only"
     }
+}
+
+/**
+ * Finds the git directory containing the given File by checking parent directories
+ */
+internal fun findGitDirInParentFilepath(filepath: File): File? {
+    var curDirectory: File = filepath
+    while (curDirectory.path != "/") {
+        if (File("$curDirectory/.git").exists()) {
+            return curDirectory
+        }
+        curDirectory = curDirectory.parentFile
+    }
+    return null
 }

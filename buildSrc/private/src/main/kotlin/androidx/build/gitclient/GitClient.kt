@@ -83,8 +83,16 @@ interface GitClient {
         fun getManifestPath(project: Project): Provider<String> {
             return project.providers.environmentVariable("MANIFEST").orElse("")
         }
+        fun forProject(project: Project): GitClient {
+            return create(
+                project.projectDir,
+                project.logger,
+                GitClient.getChangeInfoPath(project).get(),
+                GitClient.getManifestPath(project).get()
+            )
+        }
         fun create(
-            rootProjectDir: File,
+            projectDir: File,
             logger: Logger,
             changeInfoPath: String,
             manifestPath: String
@@ -107,8 +115,12 @@ interface GitClient {
                     "manifest $manifestPath")
                 return ChangeInfoGitClient(changeInfoText, manifestText)
             }
+            val gitRoot = findGitDirInParentFilepath(projectDir)
+            check(gitRoot != null) {
+                "Could not find .git dir for $projectDir"
+            }
             logger.info("UsingGitRunnerGitClient")
-            return GitRunnerGitClient(rootProjectDir, logger)
+            return GitRunnerGitClient(gitRoot, logger)
         }
     }
 }
