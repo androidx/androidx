@@ -37,6 +37,7 @@ import org.chromium.android_webview.js_sandbox.common.IJsSandboxIsolateSyncCallb
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.concurrent.Executor;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -89,15 +90,17 @@ public final class JavaScriptIsolate implements AutoCloseable {
 
     private class IJsSandboxIsolateSyncCallbackStubWrapper extends
             IJsSandboxIsolateSyncCallback.Stub {
+        @NonNull
         private CallbackToFutureAdapter.Completer<String> mCompleter;
 
         IJsSandboxIsolateSyncCallbackStubWrapper(
-                CallbackToFutureAdapter.Completer<String> completer) {
+                @NonNull CallbackToFutureAdapter.Completer<String> completer) {
             mCompleter = completer;
         }
 
         @Override
         public void reportResultWithFd(AssetFileDescriptor afd) {
+            Objects.requireNonNull(afd);
             mJsSandbox.mThreadPoolTaskExecutor.execute(
                     () -> {
                         String result;
@@ -128,6 +131,7 @@ public final class JavaScriptIsolate implements AutoCloseable {
 
         @Override
         public void reportErrorWithFd(@ExecutionErrorTypes int type, AssetFileDescriptor afd) {
+            Objects.requireNonNull(afd);
             mJsSandbox.mThreadPoolTaskExecutor.execute(
                     () -> {
                         String error;
@@ -147,29 +151,36 @@ public final class JavaScriptIsolate implements AutoCloseable {
     }
 
     private class IJsSandboxIsolateCallbackStubWrapper extends IJsSandboxIsolateCallback.Stub {
+        @NonNull
         private CallbackToFutureAdapter.Completer<String> mCompleter;
 
-        IJsSandboxIsolateCallbackStubWrapper(CallbackToFutureAdapter.Completer<String> completer) {
+        IJsSandboxIsolateCallbackStubWrapper(
+                @NonNull CallbackToFutureAdapter.Completer<String> completer) {
             mCompleter = completer;
         }
 
         @Override
         public void reportResult(String result) {
+            Objects.requireNonNull(result);
             handleEvaluationResult(mCompleter, result);
         }
 
         @Override
         public void reportError(@ExecutionErrorTypes int type, String error) {
+            Objects.requireNonNull(error);
             handleEvaluationError(mCompleter, type, error);
         }
     }
 
     private static final class JsSandboxConsoleCallbackRelay
             extends IJsSandboxConsoleCallback.Stub {
+        @NonNull
         private final Executor mExecutor;
+        @NonNull
         private final JavaScriptConsoleCallback mCallback;
 
-        JsSandboxConsoleCallbackRelay(Executor executor, JavaScriptConsoleCallback callback) {
+        JsSandboxConsoleCallbackRelay(@NonNull Executor executor,
+                @NonNull JavaScriptConsoleCallback callback) {
             mExecutor = executor;
             mCallback = callback;
         }
@@ -185,12 +196,8 @@ public final class JavaScriptIsolate implements AutoCloseable {
                         throw new IllegalArgumentException(
                                 "invalid console level " + level + " provided by isolate");
                     }
-                    if (message == null) {
-                        throw new IllegalArgumentException("null message provided by isolate");
-                    }
-                    if (source == null) {
-                        throw new IllegalArgumentException("null source provided by isolate");
-                    }
+                    Objects.requireNonNull(message);
+                    Objects.requireNonNull(source);
                     mCallback.onConsoleMessage(
                             new JavaScriptConsoleCallback.ConsoleMessage(
                                 level, message, source, line, column, trace));
@@ -215,8 +222,8 @@ public final class JavaScriptIsolate implements AutoCloseable {
         }
     }
 
-    JavaScriptIsolate(IJsSandboxIsolate jsIsolateStub, JavaScriptSandbox sandbox,
-            IsolateStartupParameters settings) {
+    JavaScriptIsolate(@NonNull IJsSandboxIsolate jsIsolateStub, @NonNull JavaScriptSandbox sandbox,
+            @NonNull IsolateStartupParameters settings) {
         mJsSandbox = sandbox;
         mJsIsolateStub = jsIsolateStub;
         mStartupParameters = settings;
@@ -266,6 +273,7 @@ public final class JavaScriptIsolate implements AutoCloseable {
     @SuppressWarnings("NullAway")
     @NonNull
     public ListenableFuture<String> evaluateJavaScriptAsync(@NonNull String code) {
+        Objects.requireNonNull(code);
         if (!mSandboxClosed.get() && mJsSandbox.isFeatureSupported(
                 JavaScriptSandbox.JS_FEATURE_EVALUATE_WITHOUT_TRANSACTION_LIMIT)) {
             // This process can be made more memory efficient by converting the String to
@@ -324,6 +332,7 @@ public final class JavaScriptIsolate implements AutoCloseable {
     @RequiresFeature(name = JavaScriptSandbox.JS_FEATURE_EVALUATE_WITHOUT_TRANSACTION_LIMIT,
             enforcement = "androidx.javascriptengine.JavaScriptSandbox#isFeatureSupported")
     public ListenableFuture<String> evaluateJavaScriptAsync(@NonNull byte[] code) {
+        Objects.requireNonNull(code);
         if (mJsIsolateStub == null) {
             throw new IllegalStateException(
                     "Calling evaluateJavaScriptAsync() after closing the Isolate");
@@ -441,11 +450,10 @@ public final class JavaScriptIsolate implements AutoCloseable {
     @RequiresFeature(name = JavaScriptSandbox.JS_FEATURE_PROVIDE_CONSUME_ARRAY_BUFFER,
             enforcement = "androidx.javascriptengine.JavaScriptSandbox#isFeatureSupported")
     public boolean provideNamedData(@NonNull String name, @NonNull byte[] inputBytes) {
+        Objects.requireNonNull(name);
+        Objects.requireNonNull(inputBytes);
         if (mJsIsolateStub == null) {
             throw new IllegalStateException("Calling provideNamedData() after closing the Isolate");
-        }
-        if (name == null) {
-            throw new NullPointerException("name parameter cannot be null");
         }
         try {
             AssetFileDescriptor codeAfd = Utils.writeBytesIntoPipeAsync(inputBytes,
@@ -465,8 +473,8 @@ public final class JavaScriptIsolate implements AutoCloseable {
         return false;
     }
 
-    void handleEvaluationError(CallbackToFutureAdapter.Completer<String> completer,
-            int type, String error) {
+    void handleEvaluationError(@NonNull CallbackToFutureAdapter.Completer<String> completer,
+            int type, @NonNull String error) {
         boolean crashing = false;
         switch (type) {
             case IJsSandboxIsolateSyncCallback.JS_EVALUATION_ERROR:
@@ -488,8 +496,8 @@ public final class JavaScriptIsolate implements AutoCloseable {
         }
     }
 
-    void handleEvaluationResult(CallbackToFutureAdapter.Completer<String> completer,
-            String result) {
+    void handleEvaluationResult(@NonNull CallbackToFutureAdapter.Completer<String> completer,
+            @NonNull String result) {
         completer.set(result);
         removePending(completer);
     }
@@ -501,7 +509,7 @@ public final class JavaScriptIsolate implements AutoCloseable {
 
     // Cancel all pending and future evaluations with the given exception.
     // Only the first call to this method has any effect.
-    void cancelAllPendingEvaluations(Exception e) {
+    void cancelAllPendingEvaluations(@NonNull Exception e) {
         final HashSet<CallbackToFutureAdapter.Completer<String>> pendingSet;
         synchronized (mSetLock) {
             if (mPendingCompleterSet == null) return;
@@ -514,7 +522,7 @@ public final class JavaScriptIsolate implements AutoCloseable {
         }
     }
 
-    void removePending(CallbackToFutureAdapter.Completer<String> completer) {
+    void removePending(@NonNull CallbackToFutureAdapter.Completer<String> completer) {
         synchronized (mSetLock) {
             if (mPendingCompleterSet != null) {
                 mPendingCompleterSet.remove(completer);
@@ -568,12 +576,8 @@ public final class JavaScriptIsolate implements AutoCloseable {
             enforcement = "androidx.javascriptengine.JavaScriptSandbox#isFeatureSupported")
     public void setConsoleCallback(@NonNull Executor executor,
             @NonNull JavaScriptConsoleCallback callback) {
-        if (executor == null) {
-            throw new IllegalArgumentException("executor cannot be null");
-        }
-        if (callback == null) {
-            throw new IllegalArgumentException("callback cannot be null");
-        }
+        Objects.requireNonNull(executor);
+        Objects.requireNonNull(callback);
         if (mJsIsolateStub == null) {
             throw new IllegalStateException(
                     "Calling setConsoleCallback() after closing the Isolate");
@@ -597,6 +601,7 @@ public final class JavaScriptIsolate implements AutoCloseable {
     @RequiresFeature(name = JavaScriptSandbox.JS_FEATURE_CONSOLE_MESSAGING,
             enforcement = "androidx.javascriptengine.JavaScriptSandbox#isFeatureSupported")
     public void setConsoleCallback(@NonNull JavaScriptConsoleCallback callback) {
+        Objects.requireNonNull(callback);
         setConsoleCallback(mJsSandbox.getMainExecutor(), callback);
     }
 
