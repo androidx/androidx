@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import kotlin.math.min
 import kotlin.math.roundToInt
 import androidx.compose.foundation.layout.internal.JvmDefaultWithCompatibility
+
 /**
  * Used to specify the arrangement of the layout's children in layouts like [Row] or [Column] in
  * the main axis direction (horizontal and vertical, respectively).
@@ -664,13 +665,18 @@ object Arrangement {
         outPosition: IntArray,
         reverseInput: Boolean
     ) {
+        if (size.isEmpty()) return
+
         val consumedSize = size.fold(0) { a, b -> a + b }
-        val gapSize = if (size.size > 1) {
-            (totalSize - consumedSize).toFloat() / (size.size - 1)
-        } else {
-            0f
-        }
+        val noOfGaps = maxOf(size.lastIndex, 1)
+        val gapSize = (totalSize - consumedSize).toFloat() / noOfGaps
+
         var current = 0f
+        if (reverseInput && size.size == 1) {
+            // If the layout direction is right-to-left and there is only one gap,
+            // we start current with the gap size. That forces the single item to be right-aligned.
+            current = gapSize
+        }
         size.forEachIndexed(reverseInput) { index, it ->
             outPosition[index] = current.roundToInt()
             current += it.toFloat() + gapSize
