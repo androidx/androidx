@@ -46,6 +46,7 @@ import static androidx.camera.core.impl.UseCaseConfig.OPTION_HIGH_RESOLUTION_DIS
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_ZSL_DISABLED;
 import static androidx.camera.core.impl.utils.Threads.checkMainThread;
 import static androidx.camera.core.impl.utils.TransformUtils.is90or270;
+import static androidx.camera.core.impl.utils.TransformUtils.within360;
 import static androidx.camera.core.internal.utils.ImageUtil.computeCropRectFromAspectRatio;
 import static androidx.camera.core.internal.utils.ImageUtil.isAspectRatioValid;
 import static androidx.core.util.Preconditions.checkNotNull;
@@ -700,8 +701,7 @@ public final class ImageCapture extends UseCase {
      *
      * <p>The rotation can be set prior to constructing an ImageCapture using
      * {@link ImageCapture.Builder#setTargetRotation(int)} or dynamically by calling
-     * {@link ImageCapture#setTargetRotation(int)} or
-     * {@link ImageCapture#setTargetRotationDegrees(int)}. The rotation of an image taken is
+     * {@link ImageCapture#setTargetRotation(int)}. The rotation of an image taken is
      * determined by the rotation value set at the time image capture is initiated, such as when
      * calling {@link #takePicture(Executor, OnImageCapturedCallback)}.
      *
@@ -731,10 +731,11 @@ public final class ImageCapture extends UseCase {
      * set the target rotation.  This way, the rotation output will indicate which way is down for
      * a given image.  This is important since display orientation may be locked by device
      * default, user setting, or app configuration, and some devices may not transition to a
-     * reverse-portrait display orientation. In these cases,
-     * use {@link #setTargetRotationDegrees} to set target rotation dynamically according to the
-     * {@link android.view.OrientationEventListener}, without re-creating the use case.
-     * See {@link #setTargetRotationDegrees} for more information.
+     * reverse-portrait display orientation. In these cases, set target rotation dynamically
+     * according to the {@link android.view.OrientationEventListener}, without re-creating the
+     * use case. {@link UseCase#snapToSurfaceRotation(int)} is a helper function to convert the
+     * orientation of the {@link android.view.OrientationEventListener} to a rotation value.
+     * See {@link UseCase#snapToSurfaceRotation(int)} for more information and sample code.
      *
      * <p>When this function is called, value set by
      * {@link ImageCapture.Builder#setTargetResolution(Size)} will be updated automatically to make
@@ -843,9 +844,12 @@ public final class ImageCapture extends UseCase {
      * @param degrees Desired rotation degree of the output image.
      * @see #setTargetRotation(int)
      * @see #getTargetRotation()
+     * @deprecated Use {@link UseCase#snapToSurfaceRotation(int)} and
+     * {@link #setTargetRotation(int)} to convert and set the rotation.
      */
+    @Deprecated // TODO(b/277999375): Remove API setTargetRotationDegrees.
     public void setTargetRotationDegrees(int degrees) {
-        setTargetRotation(orientationDegreesToSurfaceRotation(degrees));
+        setTargetRotation(snapToSurfaceRotation(within360(degrees)));
     }
 
     /**
@@ -2790,7 +2794,7 @@ public final class ImageCapture extends UseCase {
          * Rotation values are relative to the "natural" rotation, {@link Surface#ROTATION_0}.
          *
          * <p>In general, it is best to additionally set the target rotation dynamically on the use
-         * case.  See {@link androidx.camera.core.ImageCapture#setTargetRotationDegrees(int)} for
+         * case. See {@link androidx.camera.core.ImageCapture#setTargetRotation(int)} for
          * additional documentation.
          *
          * <p>If not set, the target rotation will default to the value of
@@ -2800,7 +2804,6 @@ public final class ImageCapture extends UseCase {
          * @param rotation The rotation of the intended target.
          * @return The current Builder.
          * @see androidx.camera.core.ImageCapture#setTargetRotation(int)
-         * @see androidx.camera.core.ImageCapture#setTargetRotationDegrees(int)
          * @see android.view.OrientationEventListener
          */
         @NonNull

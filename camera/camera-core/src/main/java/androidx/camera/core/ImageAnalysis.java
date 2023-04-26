@@ -41,6 +41,7 @@ import static androidx.camera.core.impl.UseCaseConfig.OPTION_TARGET_CLASS;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_TARGET_NAME;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_USE_CASE_EVENT_CALLBACK;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_ZSL_DISABLED;
+import static androidx.camera.core.impl.utils.TransformUtils.within360;
 import static androidx.camera.core.internal.ThreadConfig.OPTION_BACKGROUND_EXECUTOR;
 
 import android.graphics.ImageFormat;
@@ -441,8 +442,7 @@ public final class ImageAnalysis extends UseCase {
      * <p>
      * The rotation can be set when constructing an {@link ImageAnalysis} instance using
      * {@link ImageAnalysis.Builder#setTargetRotation(int)}, or dynamically by calling
-     * {@link ImageAnalysis#setTargetRotation(int)} or
-     * {@link ImageAnalysis#setTargetRotationDegrees(int)}. If not set, the target rotation
+     * {@link ImageAnalysis#setTargetRotation(int)}. If not set, the target rotation
      * defaults to the value of {@link Display#getRotation()} of the default display at the time
      * the use case is created. The use case is fully created once it has been attached to a camera.
      * </p>
@@ -471,10 +471,11 @@ public final class ImageAnalysis extends UseCase {
      * set the target rotation.  This way, the rotation output to the Analyzer will indicate
      * which way is down for a given image.  This is important since display orientation may be
      * locked by device default, user setting, or app configuration, and some devices may not
-     * transition to a reverse-portrait display orientation.  In these cases, use
-     * {@link ImageAnalysis#setTargetRotationDegrees(int)} to set target rotation dynamically
-     * according to the {@link android.view.OrientationEventListener}, without re-creating the
-     * use case. See {@link #setTargetRotationDegrees} for more information.
+     * transition to a reverse-portrait display orientation. In these cases, set target rotation
+     * dynamically according to the {@link android.view.OrientationEventListener}, without
+     * re-creating the use case. {@link UseCase#snapToSurfaceRotation(int)} is a helper function to
+     * convert the orientation of the {@link android.view.OrientationEventListener} to a rotation
+     * value. See {@link UseCase#snapToSurfaceRotation(int)} for more information and sample code.
      *
      * <p>When this function is called, value set by
      * {@link ImageAnalysis.Builder#setTargetResolution(Size)} will be updated automatically to
@@ -497,6 +498,7 @@ public final class ImageAnalysis extends UseCase {
         }
     }
 
+    // TODO(b/277999375): Remove API setTargetRotationDegrees.
     /**
      * Sets the target rotation in degrees.
      *
@@ -560,9 +562,12 @@ public final class ImageAnalysis extends UseCase {
      * @param degrees Desired rotation degree of the output image.
      * @see #setTargetRotation(int)
      * @see #getTargetRotation()
+     * @deprecated Use {@link UseCase#snapToSurfaceRotation(int)} and
+     * {@link #setTargetRotation(int)} to convert and set the rotation.
      */
+    @Deprecated // TODO(b/277999375): Remove API setTargetRotationDegrees.
     public void setTargetRotationDegrees(int degrees) {
-        setTargetRotation(orientationDegreesToSurfaceRotation(degrees));
+        setTargetRotation(snapToSurfaceRotation(within360(degrees)));
     }
 
     /**
@@ -1315,9 +1320,8 @@ public final class ImageAnalysis extends UseCase {
          * Rotation values are relative to the "natural" rotation, {@link Surface#ROTATION_0}.
          *
          * <p>In general, it is best to additionally set the target rotation dynamically on the use
-         * case.  See
-         * {@link androidx.camera.core.ImageAnalysis#setTargetRotationDegrees(int)} for additional
-         * documentation.
+         * case. See {@link androidx.camera.core.ImageAnalysis#setTargetRotation(int)} for
+         * additional documentation.
          *
          * <p>If not set, the target rotation will default to the value of
          * {@link android.view.Display#getRotation()} of the default display at the time the
@@ -1326,7 +1330,6 @@ public final class ImageAnalysis extends UseCase {
          * @param rotation The rotation of the intended target.
          * @return The current Builder.
          * @see androidx.camera.core.ImageAnalysis#setTargetRotation(int)
-         * @see androidx.camera.core.ImageAnalysis#setTargetRotationDegrees(int)
          * @see android.view.OrientationEventListener
          */
         @NonNull

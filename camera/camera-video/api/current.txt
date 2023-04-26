@@ -139,7 +139,7 @@ package androidx.camera.video {
     method public android.util.Range<java.lang.Integer!> getTargetFrameRate();
     method public int getTargetRotation();
     method public void setTargetRotation(int);
-    method public void setTargetRotationDegrees(int);
+    method @Deprecated public void setTargetRotationDegrees(int);
     method public static <T extends androidx.camera.video.VideoOutput> androidx.camera.video.VideoCapture<T!> withOutput(T);
   }
 
