@@ -51,7 +51,6 @@ internal class TaskCapabilitySession<
     // single-turn capability does not have status
     override val isActive: Boolean
         get() = when (sessionOrchestrator.status) {
-            TaskOrchestrator.Status.COMPLETED,
             TaskOrchestrator.Status.DESTROYED -> false
             else -> true
         }
