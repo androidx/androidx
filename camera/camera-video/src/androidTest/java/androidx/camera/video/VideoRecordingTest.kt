@@ -32,6 +32,7 @@ import android.util.Log
 import android.util.Rational
 import android.util.Size
 import android.view.Surface
+import androidx.annotation.RequiresApi
 import androidx.camera.camera2.Camera2Config
 import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.AspectRatio
@@ -1063,13 +1064,7 @@ class VideoRecordingTest(
     }
 
     private fun assumeExtraCroppingQuirk() {
-        val msg =
-            "Devices in ExtraCroppingQuirk will get a fixed resolution regardless of any settings"
-        if (implName.contains(CameraPipeConfig::class.simpleName!!)) {
-            assumeTrue(msg, PipeDeviceQuirks[PipeExtraCroppingQuirk::class.java] == null)
-        } else {
-            assumeTrue(msg, Camera2DeviceQuirks.get(Camera2ExtraCroppingQuirk::class.java) == null)
-        }
+        assumeExtraCroppingQuirk(implName)
     }
 
     private class ImageSavedCallback :
@@ -1163,3 +1158,14 @@ internal fun MediaMetadataRetriever.hasVideo(): Boolean =
 
 internal fun MediaMetadataRetriever.getDuration(): Long? =
     extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)?.toLong()
+
+@RequiresApi(21)
+fun assumeExtraCroppingQuirk(implName: String) {
+    val msg =
+        "Devices in ExtraCroppingQuirk will get a fixed resolution regardless of any settings"
+    if (implName.contains(CameraPipeConfig::class.simpleName!!)) {
+        assumeTrue(msg, PipeDeviceQuirks[PipeExtraCroppingQuirk::class.java] == null)
+    } else {
+        assumeTrue(msg, Camera2DeviceQuirks.get(Camera2ExtraCroppingQuirk::class.java) == null)
+    }
+}
