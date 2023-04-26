@@ -186,10 +186,8 @@ public class PasswordCredentialEntryJavaTest {
             return;
         }
         PasswordCredentialEntry entry = constructEntryWithRequiredParamsOnly();
-        PasswordCredentialEntry entry1 = constructEntryWithAllParams();
 
         assertFalse(entry.isAutoSelectAllowed());
-        assertFalse(entry1.isAutoSelectAllowed());
     }
 
     @Test

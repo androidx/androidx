@@ -124,7 +124,7 @@ public class BeginCreatePublicKeyCredentialRequestJavaTest {
                             testClientDataHashExpected.getBytes());
 
             assertThat(createPublicKeyCredentialReq.getClientDataHash())
-                    .isEqualTo(testClientDataHashExpected);
+                    .isEqualTo(testClientDataHashExpected.getBytes());
         }
     }
     // TODO ("Add framework conversion, createFrom & preferImmediatelyAvailable tests")
