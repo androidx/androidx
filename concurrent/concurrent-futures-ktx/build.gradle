@@ -28,6 +28,7 @@ dependencies {
     api(libs.kotlinCoroutinesCore)
 
     testImplementation(libs.junit)
+    testImplementation(libs.truth)
     testImplementation(libs.kotlinTest)
     testImplementation(libs.kotlinCoroutinesTest)
 }
