@@ -16,6 +16,7 @@
 
 package androidx.build.gitclient
 
+import androidx.build.parseXml
 import com.google.gson.Gson
 import java.io.File
 import org.gradle.api.GradleException
@@ -29,8 +30,6 @@ import org.gradle.api.GradleException
  *
  * For more information, see b/171569941
  */
-private const val mainProject: String = "platform/frameworks/support"
-
 class ChangeInfoGitClient(
     /**
      * The file containing the information about which changes are new in this build
@@ -39,9 +38,45 @@ class ChangeInfoGitClient(
     /**
      * The file containing version information
      */
-    private val versionInfo: String
+    private val versionInfo: String,
+    /**
+     * The project directory relative to the root of the checkout
+     * The repository is derived from this value
+     */
+    private val projectPath: String
 ) : GitClient {
 
+    /**
+     * The name of the current git repository. In many cases this is 'platform/frameworks/support'
+     */
+    private val projectName: String by lazy {
+        computeProjectName(versionInfo)
+    }
+
+    private fun computeProjectName(config: String): String {
+        val document = parseXml(config, mapOf())
+        val projectIterator = document.rootElement.elementIterator()
+        while (projectIterator.hasNext()) {
+          val project = projectIterator.next()
+            val repositoryPath = project.attributeValue("path")
+            if (repositoryPath != null) {
+                if (pathContains(repositoryPath, projectPath)) {
+                    val name = project.attributeValue("name")
+                    check(name != null) {
+                        "Could not get name for project $project"
+                    }
+                    return name
+                }
+            }
+        }
+        throw GradleException(
+            "Could not find project with path '$projectPath' in config '$versionInfo'"
+        )
+    }
+
+    /**
+     * Object representing changes
+     */
     private val changeInfo: ChangeInfo by lazy {
         val gson = Gson()
         gson.fromJson(changeInfoText, ChangeInfo::class.java)
@@ -65,20 +100,22 @@ class ChangeInfoGitClient(
 
     private val changesInThisRepo: List<ChangeEntry>
         get() {
-            return changeInfo.changes?.filter { it.project == mainProject } ?: emptyList()
+            return changeInfo.changes?.filter { it.project == projectName } ?: emptyList()
         }
 
-    private fun parseSupportVersion(config: String): String {
+    private fun extractVersion(config: String): String {
         val revisionRegex = Regex("revision=\"([^\"]*)\"")
         for (line in config.split("\n")) {
-            if (line.contains("path=\"frameworks/support\"")) {
+            if (line.contains("name=\"${projectName}\"")) {
                 val result = revisionRegex.find(line)?.groupValues?.get(1)
                 if (result != null) {
                     return result
                 }
             }
         }
-        throw GradleException("Could not identify frameworks/support version from text '$config'")
+        throw GradleException(
+            "Could not identify version of project '$projectName' from config text '$config'"
+        )
     }
 
     /**
@@ -153,9 +190,13 @@ class ChangeInfoGitClient(
         }
         return listOf(
             Commit(
-                "_CommitSHA:${parseSupportVersion(versionInfo)}",
+                "_CommitSHA:${extractVersion(versionInfo)}",
                 fullProjectDir.toString()
             )
         )
     }
+}
+
+private fun pathContains(ancestor: String, child: String): Boolean {
+    return (child + "/").startsWith(ancestor + "/")
 }

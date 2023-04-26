@@ -226,15 +226,25 @@ class ChangeInfoGitClientTest {
     }
 
     fun getChangedFiles(config: String): List<String> {
-        return ChangeInfoGitClient(config, "").findChangedFilesSince("", "", false)
+        val client = ChangeInfoGitClient(
+            config,
+            """
+            <manifest>
+                <project path="frameworks/support" name="platform/frameworks/support"/>
+            </manifest>
+            """,
+            "frameworks/support")
+        return client.findChangedFilesSince("", "", false)
     }
 
     @Test
     fun getGitLog_hasVersion() {
         checkVersion("""
-            <project path="prebuilts/internal" revision="prebuiltsVersion1"/>
-            <project path="frameworks/support" revision="supportVersion1"/>
-            <project path="tools/external/gradle" revision="gradleVersion1"/>
+            <manifest>
+                <project path="prebuilts/internal" name="platform/prebuilts/internal" revision="prebuiltsVersion1"/>
+                <project path="frameworks/support" name="platform/frameworks/support" revision="supportVersion1"/>
+                <project path="tools/external/gradle" name="platform/tools/external/gradle" revision="gradleVersion1"/>
+            </manifest>
             """,
             "supportVersion1"
         )
@@ -245,6 +255,7 @@ class ChangeInfoGitClientTest {
         var threw = false
         try {
             checkVersion("""
+                <manifest/>
                 """,
                 null
             )
@@ -258,7 +269,7 @@ class ChangeInfoGitClientTest {
         assertEquals(expectedVersion, getVersion(config))
     }
     fun getVersion(config: String): String? {
-        return ChangeInfoGitClient("{}", config)
+        return ChangeInfoGitClient("{}", config, "frameworks/support")
             .getGitLog(GitCommitRange(n = 1), keepMerges = true, fullProjectDir = File("."))
             .getOrNull(0)?.sha
     }

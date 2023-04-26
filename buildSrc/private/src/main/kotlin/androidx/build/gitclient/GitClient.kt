@@ -16,6 +16,7 @@
 
 package androidx.build.gitclient
 
+import androidx.build.getCheckoutRoot
 import androidx.build.releasenotes.getBuganizerLink
 import androidx.build.releasenotes.getChangeIdAOSPLink
 import java.io.File
@@ -87,6 +88,7 @@ interface GitClient {
         fun forProject(project: Project): GitClient {
             return create(
                 project.projectDir,
+                project.getCheckoutRoot(),
                 project.logger,
                 GitClient.getChangeInfoPath(project).get(),
                 GitClient.getManifestPath(project).get()
@@ -94,6 +96,7 @@ interface GitClient {
         }
         fun create(
             projectDir: File,
+            checkoutRoot: File,
             logger: Logger,
             changeInfoPath: String,
             manifestPath: String
@@ -112,9 +115,14 @@ interface GitClient {
                 }
                 val changeInfoText = changeInfoFile.readText()
                 val manifestText = manifestFile.readText()
+                val projectDirRelativeToRoot = projectDir.relativeTo(checkoutRoot).toString()
                 logger.info("Using ChangeInfoGitClient with change info path $changeInfoPath, " +
-                    "manifest $manifestPath")
-                return ChangeInfoGitClient(changeInfoText, manifestText)
+                    "manifest $manifestPath project dir $projectDirRelativeToRoot")
+                return ChangeInfoGitClient(
+                    changeInfoText,
+                    manifestText,
+                    projectDirRelativeToRoot
+                )
             }
             val gitRoot = findGitDirInParentFilepath(projectDir)
             check(gitRoot != null) {
@@ -127,6 +135,7 @@ interface GitClient {
 }
 
 data class MultiGitClient(
+    val checkoutRoot: File,
     val logger: Logger,
     val changeInfoPath: String,
     val manifestPath: String
@@ -140,13 +149,14 @@ data class MultiGitClient(
         return cache.getOrPut(
             key = projectDir
         ) {
-            GitClient.create(projectDir, logger, changeInfoPath, manifestPath)
+            GitClient.create(projectDir, checkoutRoot, logger, changeInfoPath, manifestPath)
         }
     }
 
     companion object {
         fun create(project: Project): MultiGitClient {
             return MultiGitClient(
+                project.getCheckoutRoot(),
                 project.logger,
                 GitClient.getChangeInfoPath(project).get(),
                 GitClient.getManifestPath(project).get()
