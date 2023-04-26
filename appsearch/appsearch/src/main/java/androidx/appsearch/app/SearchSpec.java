@@ -718,50 +718,39 @@ public final class SearchSpec {
          * <p>Numeric literals, arithmetic operators, mathematical functions, and document-based
          * functions are supported to build expressions.
          *
-         * <p>The following are examples of numeric literals:
-         * <ul>
-         *     <li>Integer
-         *     <p>Example: 0, 1, 2, 13
-         *     <li>Floating-point number
-         *     <p>Example: 0.333, 0.5, 123.456
-         *     <li>Negative number
-         *     <p>Example: -5, -10.5, -100.123
-         * </ul>
-         *
          * <p>The following are supported arithmetic operators:
          * <ul>
          *     <li>Addition(+)
-         *     <p>Example: "1 + 1" will be evaluated to 2.
          *     <li>Subtraction(-)
-         *     <p>Example: "2 - 1.5" will be evaluated to 0.5.
          *     <li>Multiplication(*)
-         *     <p>Example: "2 * -2" will be evaluated to -4.
-         *     <li>Division(/)
-         *     <p>Example: "5 / 2" will be evaluated to 2.5.
+         *     <li>Floating Point Division(/)
          * </ul>
          *
-         * <p>Multiplication and division have higher precedences than addition and subtraction,
-         * but multiplication has the same precedence as division, and addition has the same
-         * precedence as subtraction. Parentheses are supported to change precedences.
+         * <p>Operator precedences are compliant with the Java Language, and parentheses are
+         * supported. For example, "2.2 + (3 - 4) / 2" evaluates to 1.7.
          *
-         * <p>For example:
-         * <ul>
-         *     <li>"2 + 3 - 4 * 5" will be evaluated to -15
-         *     <li>"(2 + 3) - (4 * 5)" will be evaluated to -15
-         *     <li>"2 + (3 - 4) * 5" will be evaluated to -3
-         * </ul>
-         *
-         * <p>The following are supported mathematical functions:
+         * <p>The following are supported basic mathematical functions:
          * <ul>
          *     <li>log(x) - the natural log of x
          *     <li>log(x, y) - the log of y with base x
          *     <li>pow(x, y) - x to the power of y
-         *     <li>max(v1, v2, ..., vn) with n > 0 - the maximum value among v1, ..., vn
-         *     <li>min(v1, v2, ..., vn) with n > 0 - the minimum value among v1, ..., vn
-         *     <li>sqrt(x) - the square root of x
-         *     <li>abs(x) - the absolute value of x
-         *     <li>sin(x), cos(x), tan(x) - trigonometric functions of x
+         *     <li>sqrt(x)
+         *     <li>abs(x)
+         *     <li>sin(x), cos(x), tan(x)
          *     <li>Example: "max(abs(-100), 10) + pow(2, 10)" will be evaluated to 1124
+         * </ul>
+         *
+         * <p>The following variadic mathematical functions are supported, with n > 0. They also
+         * accept list value parameters. For example, if V is a value of list type, we can call
+         * sum(V) to get the sum of all the values in V. List literals are not supported, so a
+         * value of list type can only be constructed as a return value of some particular
+         * document-based functions.
+         * <ul>
+         *     <li>max(v1, v2, ..., vn) or max(V)
+         *     <li>min(v1, v2, ..., vn) or min(V)
+         *     <li>len(v1, v2, ..., vn) or len(V)
+         *     <li>sum(v1, v2, ..., vn) or sum(V)
+         *     <li>avg(v1, v2, ..., vn) or avg(V)
          * </ul>
          *
          * <p>Document-based functions must be called via "this", which represents the current
@@ -782,21 +771,52 @@ public final class SearchSpec {
          *     document, where type must be evaluated to an integer from 1 to 2. Type 1 refers to
          *     usages reported by {@link AppSearchSession#reportUsageAsync}, and type 2 refers to
          *     usages reported by {@link GlobalSearchSession#reportSystemUsageAsync}.
+         *     <li>this.childrenScores()
+         *     <p>Returns a list of children document scores. Currently, a document can only be a
+         *     child of another document in the context of joins. If this function is called
+         *     without the Join API enabled, a type error will be raised.
+         *     <li>this.propertyWeights()
+         *     <p>Returns a list of the normalized weights of the matched properties for the
+         *     current document being scored. Property weights come from what's specified in
+         *     {@link SearchSpec}. After normalizing, each provided weight will be divided by the
+         *     maximum weight, so that each of them will be <= 1.
          * </ul>
          *
          * <p>Some errors may occur when using advanced ranking.
+         *
+         * <p>Syntax Error: the expression violates the syntax of the advanced ranking language.
+         * Below are some examples.
          * <ul>
-         *     <li>Syntax Error: the expression violates the syntax of the advanced ranking
-         *     language, such as unbalanced parenthesis.
-         *     <li>Type Error: the expression fails a static type check, such as getting the wrong
-         *     number of arguments for a function.
-         *     <li>Evaluation Error: an error occurred while evaluating the value of the
-         *     expression, such as getting a non-finite value in the middle of evaluation.
-         *     Expressions like "1 / 0" and "log(0) fall into this category.
+         *     <li>"1 + " - missing operand
+         *     <li>"2 * (1 + 2))" - unbalanced parenthesis
+         *     <li>"2 ^ 3" - unknown operator
+         * </ul>
+         *
+         * <p>Type Error: the expression fails a static type check. Below are some examples.
+         * <ul>
+         *     <li>"sin(2, 3)" - wrong number of arguments for the sin function
+         *     <li>"this.childrenScores() + 1" - cannot add a list with a number
+         *     <li>"this.propertyWeights()" - the final type of the overall expression cannot be
+         *     a list, which can be fixed by "max(this.propertyWeights())"
+         *     <li>"abs(this.propertyWeights())" - the abs function does not support list type
+         *     arguments
+         *     <li>"print(2)" - unknown function
+         * </ul>
+         *
+         * <p>Evaluation Error: an error occurred while evaluating the value of the expression.
+         * Below are some examples.
+         * <ul>
+         *     <li>"1 / 0", "log(0)", "1 + sqrt(-1)" - getting a non-finite value in the middle
+         *     of evaluation
+         *     <li>"this.usageCount(1 + 0.5)" - expect the argument to be an integer. Note that
+         *     this is not a type error and "this.usageCount(1.5 + 1/2)" can succeed without any
+         *     issues
+         *     <li>"this.documentScore()" - in case of an IO error, this will be an evaluation error
          * </ul>
          *
          * <p>Syntax errors and type errors will fail the entire search and will cause
-         * {@link SearchResults#getNextPageAsync} to throw an {@link AppSearchException}.
+         * {@link SearchResults#getNextPageAsync} to throw an {@link AppSearchException} with the
+         * result code of {@link AppSearchResult#RESULT_INVALID_ARGUMENT}.
          * <p>Evaluation errors will result in the offending documents receiving the default score.
          * For {@link #ORDER_DESCENDING}, the default score will be 0, for
          * {@link #ORDER_ASCENDING} the default score will be infinity.
@@ -1442,9 +1462,11 @@ public final class SearchSpec {
             bundle.putInt(RESULT_GROUPING_TYPE_FLAGS, mGroupingTypeFlags);
             bundle.putInt(RESULT_GROUPING_LIMIT, mGroupingLimit);
             if (!mTypePropertyWeights.isEmpty()
-                    && RANKING_STRATEGY_RELEVANCE_SCORE != mRankingStrategy) {
+                    && RANKING_STRATEGY_RELEVANCE_SCORE != mRankingStrategy
+                    && RANKING_STRATEGY_ADVANCED_RANKING_EXPRESSION != mRankingStrategy) {
                 throw new IllegalArgumentException("Property weights are only compatible with the "
-                        + "RANKING_STRATEGY_RELEVANCE_SCORE ranking strategy.");
+                        + "RANKING_STRATEGY_RELEVANCE_SCORE and "
+                        + "RANKING_STRATEGY_ADVANCED_RANKING_EXPRESSION ranking strategies.");
             }
             bundle.putBundle(TYPE_PROPERTY_WEIGHTS_FIELD, mTypePropertyWeights);
             bundle.putString(ADVANCED_RANKING_EXPRESSION, mAdvancedRankingExpression);
