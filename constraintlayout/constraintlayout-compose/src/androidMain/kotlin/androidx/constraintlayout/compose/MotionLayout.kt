@@ -28,7 +28,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.neverEqualPolicy
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
@@ -51,7 +50,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.core.widgets.Optimizer
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.launch
 
 /**
  * Measure flags for MotionLayout
@@ -116,7 +114,6 @@ enum class MotionLayoutDebugFlags {
  * should be bound to an ID defined in the [ConstraintSet]s using
  * [Modifier.layoutId][androidx.compose.ui.layout.layoutId].
  */
-@ExperimentalMotionApi
 @Composable
 inline fun MotionLayout(
     start: ConstraintSet,
@@ -128,19 +125,45 @@ inline fun MotionLayout(
     optimizationLevel: Int = Optimizer.OPTIMIZATION_STANDARD,
     crossinline content: @Composable MotionLayoutScope.() -> Unit
 ) {
-    val motionProgress = createAndUpdateMotionProgress(progress = progress)
+    /**
+     * MutableState used to track content recompositions. It's reassigned at the content's
+     * composition scope, so that any function reading it is recomposed with the content.
+     * NeverEqualPolicy is used so that we don't have to assign any particular value to trigger a
+     * State change.
+     */
+    val contentTracker = remember { mutableStateOf(Unit, neverEqualPolicy()) }
+    val compositionSource =
+        remember { Ref<CompositionSource>().apply { value = CompositionSource.Unknown } }
+
+    /**
+     * Delegate to handle composition tracking before calling the non-inline Composable
+     */
+    val contentDelegate: @Composable MotionLayoutScope.() -> Unit = {
+        // Perform a reassignment to the State tracker, this will force readers to recompose at
+        // the same pass as the content. The only expected reader is our MeasurePolicy.
+        contentTracker.value = Unit
+
+        if (compositionSource.value == CompositionSource.Unknown) {
+            // Set the content as the original composition source if the MotionLayout was not
+            // recomposed by the caller or by itself
+            compositionSource.value = CompositionSource.Content
+        }
+        content()
+    }
     MotionLayoutCore(
         start = start,
         end = end,
-        transition = transition as? TransitionImpl,
-        motionProgress = motionProgress,
+        transition = transition,
+        progress = progress,
         informationReceiver = null,
         optimizationLevel = optimizationLevel,
         showBounds = debugFlags.showBounds,
         showPaths = debugFlags.showPaths,
         showKeyPositions = debugFlags.showKeyPositions,
         modifier = modifier,
-        content = content
+        contentTracker = contentTracker,
+        compositionSource = compositionSource,
+        content = contentDelegate
     )
 }
 
@@ -196,7 +219,6 @@ inline fun MotionLayout(
  * should be bound to an ID defined in the [ConstraintSet]s using
  * [Modifier.layoutId][androidx.compose.ui.layout.layoutId].
  */
-@ExperimentalMotionApi
 @Composable
 inline fun MotionLayout(
     motionScene: MotionScene,
@@ -207,14 +229,42 @@ inline fun MotionLayout(
     optimizationLevel: Int = Optimizer.OPTIMIZATION_STANDARD,
     crossinline content: @Composable (MotionLayoutScope.() -> Unit),
 ) {
+    /**
+     * MutableState used to track content recompositions. It's reassigned at the content's
+     * composition scope, so that any function reading it is recomposed with the content.
+     * NeverEqualPolicy is used so that we don't have to assign any particular value to trigger a
+     * State change.
+     */
+    val contentTracker = remember { mutableStateOf(Unit, neverEqualPolicy()) }
+    val compositionSource =
+        remember { Ref<CompositionSource>().apply { value = CompositionSource.Unknown } }
+
+    /**
+     * Delegate to handle composition tracking before calling the non-inline Composable
+     */
+    val contentDelegate: @Composable MotionLayoutScope.() -> Unit = {
+        // Perform a reassignment to the State tracker, this will force readers to recompose at
+        // the same pass as the content. The only expected reader is our MeasurePolicy.
+        contentTracker.value = Unit
+
+        if (compositionSource.value == CompositionSource.Unknown) {
+            // Set the content as the original composition source if the MotionLayout was not
+            // recomposed by the caller or by itself
+            compositionSource.value = CompositionSource.Content
+        }
+        content()
+    }
+
     MotionLayoutCore(
         motionScene = motionScene,
         progress = progress,
+        transitionName = transitionName,
+        optimizationLevel = optimizationLevel,
         debugFlags = debugFlags,
         modifier = modifier,
-        optimizationLevel = optimizationLevel,
-        transitionName = transitionName,
-        content = content
+        contentTracker = contentTracker,
+        compositionSource = compositionSource,
+        content = contentDelegate
     )
 }
 
@@ -288,7 +338,6 @@ inline fun MotionLayout(
  * should be bound to an ID defined in the [ConstraintSet]s using
  * [Modifier.layoutId][androidx.compose.ui.layout.layoutId].
  */
-@ExperimentalMotionApi
 @Composable
 inline fun MotionLayout(
     motionScene: MotionScene,
@@ -300,6 +349,61 @@ inline fun MotionLayout(
     optimizationLevel: Int = Optimizer.OPTIMIZATION_STANDARD,
     @Suppress("HiddenTypeParameter")
     crossinline content: @Composable (MotionLayoutScope.() -> Unit)
+) {
+    /**
+     * MutableState used to track content recompositions. It's reassigned at the content's
+     * composition scope, so that any function reading it is recomposed with the content.
+     * NeverEqualPolicy is used so that we don't have to assign any particular value to trigger a
+     * State change.
+     */
+    val contentTracker = remember { mutableStateOf(Unit, neverEqualPolicy()) }
+    val compositionSource =
+        remember { Ref<CompositionSource>().apply { value = CompositionSource.Unknown } }
+
+    /**
+     * Delegate to handle composition tracking before calling the non-inline Composable
+     */
+    val contentDelegate: @Composable MotionLayoutScope.() -> Unit = {
+        // Perform a reassignment to the State tracker, this will force readers to recompose at
+        // the same pass as the content. The only expected reader is our MeasurePolicy.
+        contentTracker.value = Unit
+
+        if (compositionSource.value == CompositionSource.Unknown) {
+            // Set the content as the original composition source if the MotionLayout was not
+            // recomposed by the caller or by itself
+            compositionSource.value = CompositionSource.Content
+        }
+        content()
+    }
+
+    MotionLayoutCore(
+        motionScene = motionScene,
+        constraintSetName = constraintSetName,
+        animationSpec = animationSpec,
+        modifier = modifier,
+        finishedAnimationListener = finishedAnimationListener,
+        debugFlags = debugFlags,
+        optimizationLevel = optimizationLevel,
+        contentTracker = contentTracker,
+        compositionSource = compositionSource,
+        content = contentDelegate
+    )
+}
+
+@PublishedApi
+@Composable
+internal fun MotionLayoutCore(
+    motionScene: MotionScene,
+    constraintSetName: String?,
+    animationSpec: AnimationSpec<Float>,
+    modifier: Modifier = Modifier,
+    finishedAnimationListener: (() -> Unit)? = null,
+    debugFlags: DebugFlags = DebugFlags.None,
+    optimizationLevel: Int = Optimizer.OPTIMIZATION_STANDARD,
+    contentTracker: State<Unit>,
+    compositionSource: Ref<CompositionSource>,
+    @Suppress("HiddenTypeParameter")
+    content: @Composable (MotionLayoutScope.() -> Unit)
 ) {
     val needsUpdate = remember {
         mutableStateOf(0L)
@@ -362,65 +466,27 @@ inline fun MotionLayout(
             }
         }
     }
-
-    val scope = rememberCoroutineScope()
-    val motionProgress = remember {
-        MotionProgress.fromState(progress.asState()) {
-            scope.launch { progress.snapTo(it) }
-        }
-    }
     MotionLayoutCore(
         start = start,
         end = end,
-        transition = transition as? TransitionImpl,
-        motionProgress = motionProgress,
+        transition = transition,
+        progress = progress.value,
         informationReceiver = motionScene as? LayoutInformationReceiver,
         optimizationLevel = optimizationLevel,
         showBounds = debugFlags.showBounds,
         showPaths = debugFlags.showPaths,
         showKeyPositions = debugFlags.showKeyPositions,
         modifier = modifier,
+        contentTracker = contentTracker,
+        compositionSource = compositionSource,
         content = content
     )
 }
 
 @PublishedApi
-@ExperimentalMotionApi
 @Composable
 @Suppress("UnavailableSymbol")
-internal inline fun MotionLayout(
-    start: ConstraintSet,
-    end: ConstraintSet,
-    progress: Float,
-    modifier: Modifier = Modifier,
-    @Suppress("HiddenTypeParameter")
-    transition: Transition? = null,
-    debugFlags: DebugFlags = DebugFlags.None,
-    informationReceiver: LayoutInformationReceiver? = null,
-    optimizationLevel: Int = Optimizer.OPTIMIZATION_STANDARD,
-    @Suppress("HiddenTypeParameter")
-    crossinline content: @Composable MotionLayoutScope.() -> Unit
-) {
-    MotionLayoutCore(
-        start = start,
-        end = end,
-        transition = transition as? TransitionImpl,
-        motionProgress = createAndUpdateMotionProgress(progress = progress),
-        informationReceiver = informationReceiver,
-        optimizationLevel = optimizationLevel,
-        showBounds = debugFlags.showBounds,
-        showPaths = debugFlags.showPaths,
-        showKeyPositions = debugFlags.showKeyPositions,
-        modifier = modifier,
-        content = content
-    )
-}
-
-@ExperimentalMotionApi
-@PublishedApi
-@Composable
-@Suppress("UnavailableSymbol")
-internal inline fun MotionLayoutCore(
+internal fun MotionLayoutCore(
     @Suppress("HiddenTypeParameter")
     motionScene: MotionScene,
     progress: Float,
@@ -428,8 +494,10 @@ internal inline fun MotionLayoutCore(
     optimizationLevel: Int,
     debugFlags: DebugFlags,
     modifier: Modifier,
+    contentTracker: State<Unit>,
+    compositionSource: Ref<CompositionSource>,
     @Suppress("HiddenTypeParameter")
-    crossinline content: @Composable MotionLayoutScope.() -> Unit,
+    content: @Composable MotionLayoutScope.() -> Unit,
 ) {
     val transition = remember(motionScene, transitionName) {
         motionScene.getTransitionInstance(transitionName)
@@ -447,37 +515,44 @@ internal inline fun MotionLayoutCore(
         return
     }
 
-    MotionLayout(
+    MotionLayoutCore(
         start = start,
         end = end,
         transition = transition,
         progress = progress,
-        debugFlags = debugFlags,
         informationReceiver = motionScene as? LayoutInformationReceiver,
-        modifier = modifier,
         optimizationLevel = optimizationLevel,
+        showBounds = debugFlags.showBounds,
+        showPaths = debugFlags.showPaths,
+        showKeyPositions = debugFlags.showKeyPositions,
+        modifier = modifier,
+        contentTracker = contentTracker,
+        compositionSource = compositionSource,
         content = content
     )
 }
 
-@ExperimentalMotionApi
 @PublishedApi
 @Composable
 @Suppress("UnavailableSymbol")
-internal inline fun MotionLayoutCore(
+internal fun MotionLayoutCore(
     start: ConstraintSet,
     end: ConstraintSet,
-    @SuppressWarnings("HiddenTypeParameter") transition: TransitionImpl?,
-    motionProgress: MotionProgress,
+    transition: Transition?,
+    progress: Float,
     informationReceiver: LayoutInformationReceiver?,
     optimizationLevel: Int,
     showBounds: Boolean,
     showPaths: Boolean,
     showKeyPositions: Boolean,
     modifier: Modifier,
+    contentTracker: State<Unit>,
+    compositionSource: Ref<CompositionSource>,
     @Suppress("HiddenTypeParameter")
-    crossinline content: @Composable MotionLayoutScope.() -> Unit
+    content: @Composable MotionLayoutScope.() -> Unit
 ) {
+    val motionProgress = createAndUpdateMotionProgress(progress = progress)
+    val transitionImpl = (transition as? TransitionImpl) ?: TransitionImpl.EMPTY
     // TODO: Merge this snippet with UpdateWithForcedIfNoUserChange
     val needsUpdate = remember { mutableStateOf(0L) }
     needsUpdate.value // Read the value to allow recomposition from informationReceiver
@@ -488,15 +563,6 @@ internal inline fun MotionLayoutCore(
         informationReceiver = informationReceiver
     )
 
-    /**
-     * MutableState used to track content recompositions. It's reassigned at the content's
-     * composition scope, so that any function reading it is recomposed with the content.
-     * NeverEqualPolicy is used so that we don't have to assign any particular value to trigger a
-     * State change.
-     */
-    val contentTracker = remember { mutableStateOf(Unit, neverEqualPolicy()) }
-    val compositionSource =
-        remember { Ref<CompositionSource>().apply { value = CompositionSource.Unknown } }
     val density = LocalDensity.current
     val layoutDirection = LocalLayoutDirection.current
     val measurer = remember { MotionMeasurer(density) }
@@ -507,7 +573,7 @@ internal inline fun MotionLayoutCore(
             start = start,
             end = end,
             layoutDirection = layoutDirection,
-            transition = transition ?: TransitionImpl.EMPTY,
+            transition = transitionImpl,
             progress = motionProgress.currentProgress
         )
         true // Remember is required to return a non-Unit value
@@ -518,7 +584,7 @@ internal inline fun MotionLayoutCore(
         compositionSource = compositionSource,
         constraintSetStart = start,
         constraintSetEnd = end,
-        transition = transition ?: TransitionImpl.EMPTY,
+        transition = transitionImpl,
         motionProgress = motionProgress,
         measurer = measurer,
         optimizationLevel = optimizationLevel
@@ -557,24 +623,13 @@ internal inline fun MotionLayoutCore(
             .semantics { designInfoProvider = measurer },
         measurePolicy = measurePolicy,
         content = {
-            // Perform a reassignment to the State tracker, this will force readers to recompose at
-            // the same pass as the content. The only expected reader is our MeasurePolicy.
-            contentTracker.value = Unit
-
-            if (compositionSource.value == CompositionSource.Unknown) {
-                // Set the content as the original composition source if the MotionLayout was not
-                // recomposed by the caller or by itself
-                compositionSource.value = CompositionSource.Content
-            }
             scope.content()
         }
     )
 }
 
 @LayoutScopeMarker
-@ExperimentalMotionApi
-class MotionLayoutScope @Suppress("ShowingMemberInHiddenClass")
-@PublishedApi internal constructor(
+class MotionLayoutScope @Suppress("ShowingMemberInHiddenClass") internal constructor(
     private val measurer: MotionMeasurer,
     private val motionProgress: MotionProgress
 ) {
@@ -589,7 +644,6 @@ class MotionLayoutScope @Suppress("ShowingMemberInHiddenClass")
      * bounds while ignoring their positioning during animation. Such as when implementing
      * DragAndDrop logic.
      */
-    @ExperimentalMotionApi
     fun Modifier.onStartEndBoundsChanged(
         layoutId: Any,
         onBoundsChanged: (startBounds: Rect, endBounds: Rect) -> Unit
@@ -668,7 +722,6 @@ class MotionLayoutScope @Suppress("ShowingMemberInHiddenClass")
         }
     }
 
-    @ExperimentalMotionApi
     inner class CustomProperties internal constructor(private val id: String) {
         /**
          * Return the current [Color] value of the custom property [name], of the [id] layout.
@@ -716,7 +769,7 @@ class MotionLayoutScope @Suppress("ShowingMemberInHiddenClass")
         }
     }
 
-    @ExperimentalMotionApi // TODO: Remove for 1.2.0-alphaXX with all dependent functions
+    // TODO: Remove for 1.2.0-alphaXX with all dependent functions
     inner class MotionProperties internal constructor(
         id: String,
         tag: String?
@@ -872,8 +925,6 @@ class MotionLayoutScope @Suppress("ShowingMemberInHiddenClass")
     }
 }
 
-@PublishedApi
-@ExperimentalMotionApi
 internal fun motionLayoutMeasurePolicy(
     contentTracker: State<Unit>,
     compositionSource: Ref<CompositionSource>,
@@ -914,7 +965,6 @@ internal fun motionLayoutMeasurePolicy(
  *
  * User changes, (reflected in [MotionProgress.currentProgress]) take priority.
  */
-@PublishedApi
 @Composable
 internal fun UpdateWithForcedIfNoUserChange(
     motionProgress: MotionProgress,
@@ -945,7 +995,6 @@ internal fun UpdateWithForcedIfNoUserChange(
  * @param progress User progress, if changed, updates the underlying [MotionProgress]
  * @return A [MotionProgress] instance that may change from internal or external calls
  */
-@PublishedApi
 @Composable
 internal fun createAndUpdateMotionProgress(progress: Float): MotionProgress {
     val motionProgress = remember {
@@ -960,8 +1009,6 @@ internal fun createAndUpdateMotionProgress(progress: Float): MotionProgress {
     return motionProgress
 }
 
-@PublishedApi
-@ExperimentalMotionApi
 internal fun Modifier.motionDebug(
     measurer: MotionMeasurer,
     scaleFactor: Float,
@@ -1011,7 +1058,6 @@ internal enum class CompositionSource {
 /**
  * Internal representation to read and set values for the progress.
  */
-@PublishedApi
 internal interface MotionProgress {
     // TODO: Since this class has no other uses anymore, consider to substitute it with a simple
     //  MutableState<Float>
@@ -1049,7 +1095,6 @@ internal interface MotionProgress {
  * @see DebugFlags.None
  * @see DebugFlags.All
  */
-@ExperimentalMotionApi
 @JvmInline
 value class DebugFlags internal constructor(private val flags: Int) {
     /**
