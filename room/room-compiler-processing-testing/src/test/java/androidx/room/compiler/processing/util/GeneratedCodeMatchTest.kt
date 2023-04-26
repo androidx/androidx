@@ -16,17 +16,19 @@
 
 package androidx.room.compiler.processing.util
 
+import com.squareup.kotlinpoet.TypeSpec as KTypeSpec
 import androidx.room.compiler.processing.ExperimentalProcessingApi
+import androidx.room.compiler.processing.XElement
+import androidx.room.compiler.processing.compat.XConverters.toXProcessing
 import com.google.common.truth.Truth.assertThat
 import com.squareup.javapoet.JavaFile
 import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeSpec
 import com.squareup.kotlinpoet.BOOLEAN
 import com.squareup.kotlinpoet.FileSpec
-import com.squareup.kotlinpoet.TypeSpec as KTypeSpec
 import java.io.File
-import org.junit.Test
 import org.junit.AssumptionViolatedException
+import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
@@ -46,6 +48,38 @@ class GeneratedCodeMatchTest internal constructor(
                 invocation.processingEnv.filer.write(
                     file
                 )
+            }
+            invocation.assertCompilationResult {
+                generatedSource(
+                    Source.java(
+                        "foo.bar.Baz",
+                        file.toString()
+                    )
+                )
+            }
+        }
+    }
+
+    @Test
+    fun successfulGeneratedJavaCodeMatchWithWriteSource() {
+        val file = JavaFile.builder(
+            "foo.bar",
+            TypeSpec.classBuilder("Baz").build()
+        ).build()
+        runTest { invocation ->
+            if (invocation.processingEnv.findTypeElement("foo.bar.Baz") == null) {
+                val originatingElements: List<XElement> =
+                    file.typeSpec.originatingElements.map {
+                        it.toXProcessing(invocation.processingEnv)
+                    }
+                invocation.processingEnv.filer.writeSource(
+                    file.packageName,
+                    file.typeSpec.name,
+                    "java",
+                    originatingElements
+                ).bufferedWriter().use {
+                    it.write(file.toString())
+                }
             }
             invocation.assertCompilationResult {
                 generatedSource(
@@ -117,6 +151,38 @@ class GeneratedCodeMatchTest internal constructor(
             )
         )
         assertThat(result.exceptionOrNull()).hasMessageThat().contains(mismatch.toString())
+    }
+
+    @Test
+    fun successfulGeneratedKotlinCodeMatchWithWriteSource() {
+        // java environment will not generate kotlin files
+        runTest.assumeCanCompileKotlin()
+
+        val type = KTypeSpec.classBuilder("Baz").build()
+        val file = FileSpec.builder("foo.bar", "Baz")
+            .addType(type)
+            .build()
+        runTest { invocation ->
+            if (invocation.processingEnv.findTypeElement("foo.bar.Baz") == null) {
+                val originatingElements: List<XElement> =
+                    type.originatingElements.map {
+                        it.toXProcessing(invocation.processingEnv)
+                    }
+                invocation.processingEnv.filer.writeSource(
+                    file.packageName,
+                    file.name,
+                    "kt",
+                    originatingElements
+                ).bufferedWriter().use {
+                    it.write(file.toString())
+                }
+            }
+            invocation.assertCompilationResult {
+                generatedSource(
+                    Source.kotlin(combine("foo", "bar", "Baz.kt"), file.toString())
+                )
+            }
+        }
     }
 
     @Test
