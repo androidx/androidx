@@ -222,6 +222,8 @@ class VideoCaptureDeviceTest(
 
     @Test
     fun addUseCases_setSupportedQuality_getCorrectResolution() = runBlocking {
+        assumeExtraCroppingQuirk(implName)
+
         val videoCapabilities = createFakeVideoCapabilities(supportedResolutionMap)
         assumeTrue(videoCapabilities.getSupportedQualities(dynamicRange).isNotEmpty())
         // Cuttlefish API 29 has inconsistent resolution issue. See b/184015059.
