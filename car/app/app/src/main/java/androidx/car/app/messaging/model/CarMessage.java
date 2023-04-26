@@ -36,7 +36,7 @@ import java.util.Objects;
 /** Represents a single message in a {@link ConversationItem} */
 @ExperimentalCarApi
 @CarProtocol
-@RequiresCarApi(6)
+@RequiresCarApi(7)
 @KeepFields
 public class CarMessage {
     @Nullable

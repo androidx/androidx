@@ -43,7 +43,7 @@ import java.util.Objects;
 @ExperimentalCarApi
 @CarProtocol
 @KeepFields
-@RequiresCarApi(6)
+@RequiresCarApi(7)
 public class ConversationItem implements Item {
     @NonNull
     private final String mId;
