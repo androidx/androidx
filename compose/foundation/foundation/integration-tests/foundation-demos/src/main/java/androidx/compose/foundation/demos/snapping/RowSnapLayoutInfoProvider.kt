@@ -20,9 +20,11 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.gestures.snapping.SnapLayoutInfoProvider
 import androidx.compose.ui.unit.Density
+import kotlin.math.abs
 import kotlin.math.ceil
 import kotlin.math.floor
 import kotlin.math.roundToInt
+import kotlin.math.sign
 
 @OptIn(ExperimentalFoundationApi::class)
 fun SnapLayoutInfoProvider(
@@ -56,4 +58,31 @@ fun SnapLayoutInfoProvider(
     }
 
     override fun Density.calculateApproachOffset(initialVelocity: Float): Float = 0f
+}
+
+internal fun calculateFinalOffset(velocity: Float, lowerBound: Float, upperBound: Float): Float {
+
+    fun Float.isValidDistance(): Boolean {
+        return this != Float.POSITIVE_INFINITY && this != Float.NEGATIVE_INFINITY
+    }
+
+    val finalDistance = when (sign(velocity)) {
+        0f -> {
+            if (abs(upperBound) <= abs(lowerBound)) {
+                upperBound
+            } else {
+                lowerBound
+            }
+        }
+
+        1f -> upperBound
+        -1f -> lowerBound
+        else -> 0f
+    }
+
+    return if (finalDistance.isValidDistance()) {
+        finalDistance
+    } else {
+        0f
+    }
 }
