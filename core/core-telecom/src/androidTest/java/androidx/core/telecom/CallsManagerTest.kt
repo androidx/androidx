@@ -25,17 +25,17 @@ import androidx.core.telecom.internal.utils.Utils
 import androidx.core.telecom.internal.utils.BuildVersionAdapter
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
-import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
-import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 @RequiresApi(VERSION_CODES.O)
+@SdkSuppress(minSdkVersion = VERSION_CODES.O /* api=26 */)
 class CallsManagerTest {
     private val mTestClassName = "androidx.core.telecom.test"
     private val mContext: Context = ApplicationProvider.getApplicationContext()
@@ -69,16 +69,6 @@ class CallsManagerTest {
         override fun hasInvalidBuildVersion(): Boolean {
             return true
         }
-    }
-
-    @Before
-    fun setUp() {
-        // do setup here
-    }
-
-    @After
-    fun tearDown() {
-        // do cleanup here
     }
 
     @SmallTest
