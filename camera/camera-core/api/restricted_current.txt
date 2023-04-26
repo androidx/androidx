@@ -213,7 +213,7 @@ package androidx.camera.core {
     method public boolean isOutputImageRotationEnabled();
     method public void setAnalyzer(java.util.concurrent.Executor, androidx.camera.core.ImageAnalysis.Analyzer);
     method public void setTargetRotation(int);
-    method public void setTargetRotationDegrees(int);
+    method @Deprecated public void setTargetRotationDegrees(int);
     field public static final int COORDINATE_SYSTEM_ORIGINAL = 0; // 0x0
     field public static final int OUTPUT_IMAGE_FORMAT_RGBA_8888 = 2; // 0x2
     field public static final int OUTPUT_IMAGE_FORMAT_YUV_420_888 = 1; // 0x1
@@ -253,7 +253,7 @@ package androidx.camera.core {
     method public void setCropAspectRatio(android.util.Rational);
     method public void setFlashMode(int);
     method public void setTargetRotation(int);
-    method public void setTargetRotationDegrees(int);
+    method @Deprecated public void setTargetRotationDegrees(int);
     method public void takePicture(java.util.concurrent.Executor, androidx.camera.core.ImageCapture.OnImageCapturedCallback);
     method public void takePicture(androidx.camera.core.ImageCapture.OutputFileOptions, java.util.concurrent.Executor, androidx.camera.core.ImageCapture.OnImageSavedCallback);
     field public static final int CAPTURE_MODE_MAXIMIZE_QUALITY = 0; // 0x0
@@ -474,6 +474,7 @@ package androidx.camera.core {
   }
 
   @RequiresApi(21) public abstract class UseCase {
+    method public static int snapToSurfaceRotation(@IntRange(from=0, to=359) int);
   }
 
   @RequiresApi(21) public final class UseCaseGroup {

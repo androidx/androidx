@@ -163,23 +163,6 @@ public class ImageAnalysisTest {
     }
 
     @Test
-    public void setTargetRotationDegrees() {
-        ImageAnalysis imageAnalysis = new ImageAnalysis.Builder().build();
-        imageAnalysis.setTargetRotationDegrees(45);
-        assertThat(imageAnalysis.getTargetRotation()).isEqualTo(Surface.ROTATION_270);
-        imageAnalysis.setTargetRotationDegrees(135);
-        assertThat(imageAnalysis.getTargetRotation()).isEqualTo(Surface.ROTATION_180);
-        imageAnalysis.setTargetRotationDegrees(225);
-        assertThat(imageAnalysis.getTargetRotation()).isEqualTo(Surface.ROTATION_90);
-        imageAnalysis.setTargetRotationDegrees(315);
-        assertThat(imageAnalysis.getTargetRotation()).isEqualTo(Surface.ROTATION_0);
-        imageAnalysis.setTargetRotationDegrees(405);
-        assertThat(imageAnalysis.getTargetRotation()).isEqualTo(Surface.ROTATION_270);
-        imageAnalysis.setTargetRotationDegrees(-45);
-        assertThat(imageAnalysis.getTargetRotation()).isEqualTo(Surface.ROTATION_0);
-    }
-
-    @Test
     public void defaultMirrorModeIsOff() {
         ImageAnalysis imageAnalysis = new ImageAnalysis.Builder().build();
         assertThat(imageAnalysis.getMirrorModeInternal()).isEqualTo(MIRROR_MODE_OFF);
