@@ -37,17 +37,14 @@ interface GitClient {
     fun getGitLog(
         gitCommitRange: GitCommitRange,
         keepMerges: Boolean,
-        fullProjectDir: File
+        projectDir: File?
     ): List<Commit>
 
     /**
-     * Returns the full commit sha for the HEAD of the given git root directory.
-     *
-     * @param projectDir Root directory of the git project
+     * Returns the full commit sha for the HEAD of the git repository
      */
-    fun getHeadSha(
-        projectDir: File
-    ): String {
+    fun getHeadSha(): String {
+        val projectDir = null
         val commitList: List<Commit> =
             getGitLog(
                 GitCommitRange(
@@ -56,7 +53,7 @@ interface GitClient {
                     n = 1
                 ),
                 keepMerges = true,
-                fullProjectDir = projectDir
+                projectDir = projectDir
             )
         if (commitList.isEmpty()) {
             throw RuntimeException("Failed to find git commit for HEAD!")

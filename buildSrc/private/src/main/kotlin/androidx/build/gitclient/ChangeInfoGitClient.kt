@@ -175,7 +175,7 @@ class ChangeInfoGitClient(
     override fun getGitLog(
         gitCommitRange: GitCommitRange,
         keepMerges: Boolean,
-        fullProjectDir: File
+        projectDir: File?
     ): List<Commit> {
         if (gitCommitRange.n != 1) {
             throw UnsupportedOperationException(
@@ -191,7 +191,7 @@ class ChangeInfoGitClient(
         return listOf(
             Commit(
                 "_CommitSHA:${extractVersion(versionInfo)}",
-                fullProjectDir.toString()
+                projectPath
             )
         )
     }

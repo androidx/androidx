@@ -259,7 +259,7 @@ abstract class CreateLibraryBuildInfoFileTask : DefaultTask() {
          */
         fun Project.getFrameworksSupportCommitShaAtHead(): String {
             val gitClient = GitClient.forProject(project)
-            return gitClient.getHeadSha(getSupportRootFolder())
+            return gitClient.getHeadSha()
         }
     }
 }
