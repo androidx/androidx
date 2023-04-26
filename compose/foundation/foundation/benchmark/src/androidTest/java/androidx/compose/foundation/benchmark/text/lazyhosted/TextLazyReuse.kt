@@ -32,6 +32,7 @@ import androidx.compose.testutils.benchmark.toggleStateBenchmarkDraw
 import androidx.compose.testutils.benchmark.toggleStateBenchmarkRecompose
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -48,7 +49,10 @@ class TextLazyReuse(
     private var active = mutableStateOf(true)
     private var reuseKey = mutableStateOf(0)
 
-    private val style = TextStyle.Default.copy(fontFamily = FontFamily.Monospace)
+    private val style = TextStyle.Default.copy(
+        fontFamily = FontFamily.Monospace,
+        color = Color.Red,
+    )
 
     @Composable
     override fun MeasuredContent() {
@@ -57,6 +61,7 @@ class TextLazyReuse(
                 Text(
                     toggleText.value,
                     style = style,
+                    color = style.color, /* for now, ignore color merge allocs */
                     modifier = Modifier.fillMaxWidth()
                 )
             }

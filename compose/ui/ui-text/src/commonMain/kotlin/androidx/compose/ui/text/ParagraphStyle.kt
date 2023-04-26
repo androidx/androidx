@@ -28,6 +28,7 @@ import androidx.compose.ui.text.style.TextMotion
 import androidx.compose.ui.text.style.lerp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.isSpecified
 import androidx.compose.ui.unit.isUnspecified
 
 private val DefaultLineHeight = TextUnit.Unspecified
@@ -174,27 +175,17 @@ class ParagraphStyle constructor(
     fun merge(other: ParagraphStyle? = null): ParagraphStyle {
         if (other == null) return this
 
-        return ParagraphStyle(
-            lineHeight = if (other.lineHeight.isUnspecified) {
-                this.lineHeight
-            } else {
-                other.lineHeight
-            },
-            textIndent = other.textIndent ?: this.textIndent,
-            textAlign = other.textAlign ?: this.textAlign,
-            textDirection = other.textDirection ?: this.textDirection,
-            platformStyle = mergePlatformStyle(other.platformStyle),
-            lineHeightStyle = other.lineHeightStyle ?: this.lineHeightStyle,
-            lineBreak = other.lineBreak ?: this.lineBreak,
-            hyphens = other.hyphens ?: this.hyphens,
-            textMotion = other.textMotion ?: this.textMotion
+        return fastMerge(
+            textAlign = other.textAlign,
+            textDirection = other.textDirection,
+            lineHeight = other.lineHeight,
+            textIndent = other.textIndent,
+            platformStyle = other.platformStyle,
+            lineHeightStyle = other.lineHeightStyle,
+            lineBreak = other.lineBreak,
+            hyphens = other.hyphens,
+            textMotion = other.textMotion
         )
-    }
-
-    private fun mergePlatformStyle(other: PlatformParagraphStyle?): PlatformParagraphStyle? {
-        if (platformStyle == null) return other
-        if (other == null) return platformStyle
-        return platformStyle.merge(other)
     }
 
     /**
@@ -418,3 +409,61 @@ internal fun resolveParagraphStyleDefaults(
     hyphens = style.hyphensOrDefault,
     textMotion = style.textMotion ?: TextMotion.Static
 )
+
+ @OptIn(ExperimentalTextApi::class)
+ internal fun ParagraphStyle.fastMerge(
+    textAlign: TextAlign?,
+    textDirection: TextDirection?,
+    lineHeight: TextUnit,
+    textIndent: TextIndent?,
+    platformStyle: PlatformParagraphStyle?,
+    lineHeightStyle: LineHeightStyle?,
+    lineBreak: LineBreak?,
+    hyphens: Hyphens?,
+    textMotion: TextMotion?
+): ParagraphStyle {
+     // prioritize the parameters to Text in diffs here
+     /**
+      *  textAlign: TextAlign?
+      *  lineHeight: TextUnit
+      */
+
+     // any new vals should do a pre-merge check here
+     val requiresAlloc = textAlign != null && textAlign != this.textAlign ||
+         lineHeight.isSpecified && lineHeight != this.lineHeight ||
+         textIndent != null && textIndent != this.textIndent ||
+         textDirection != null && textDirection != this.textDirection ||
+         platformStyle != null && platformStyle != this.platformStyle ||
+         lineHeightStyle != null && lineHeightStyle != this.lineHeightStyle ||
+         lineBreak != null && lineBreak != this.lineBreak ||
+         hyphens != null && hyphens != this.hyphens ||
+         textMotion != null && textMotion != this.textMotion
+
+     if (!requiresAlloc) {
+         return this
+     }
+
+     return ParagraphStyle(
+         lineHeight = if (lineHeight.isUnspecified) {
+             this.lineHeight
+         } else {
+             lineHeight
+         },
+         textIndent = textIndent ?: this.textIndent,
+         textAlign = textAlign ?: this.textAlign,
+         textDirection = textDirection ?: this.textDirection,
+         platformStyle = mergePlatformStyle(platformStyle),
+         lineHeightStyle = lineHeightStyle ?: this.lineHeightStyle,
+         lineBreak = lineBreak ?: this.lineBreak,
+         hyphens = hyphens ?: this.hyphens,
+         textMotion = textMotion ?: this.textMotion
+     )
+}
+
+private fun ParagraphStyle.mergePlatformStyle(
+    other: PlatformParagraphStyle?
+): PlatformParagraphStyle? {
+    if (platformStyle == null) return other
+    if (other == null) return platformStyle
+    return platformStyle.merge(other)
+}
