@@ -27,6 +27,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
+import java.lang.ref.WeakReference;
 import java.util.WeakHashMap;
 
 /**
@@ -34,7 +35,7 @@ import java.util.WeakHashMap;
  */
 @SuppressWarnings("unused")
 public final class DisplayManagerCompat {
-    private static final WeakHashMap<Context, DisplayManagerCompat> sInstances =
+    private static final WeakHashMap<Context, WeakReference<DisplayManagerCompat>> sInstances =
             new WeakHashMap<>();
 
     /**
@@ -63,12 +64,12 @@ public final class DisplayManagerCompat {
     @NonNull
     public static DisplayManagerCompat getInstance(@NonNull Context context) {
         synchronized (sInstances) {
-            DisplayManagerCompat instance = sInstances.get(context);
-            if (instance == null) {
-                instance = new DisplayManagerCompat(context);
+            WeakReference<DisplayManagerCompat> instance = sInstances.get(context);
+            if (instance == null || instance.get() == null) {
+                instance = new WeakReference<>(new DisplayManagerCompat(context));
                 sInstances.put(context, instance);
             }
-            return instance;
+            return instance.get();
         }
     }
 
