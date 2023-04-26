@@ -42,4 +42,9 @@ public class JetpackIcingOptionsConfig implements IcingOptionsConfig {
     public float getOptimizeRebuildIndexThreshold() {
         return 0.9f;
     }
+
+    @Override
+    public int getCompressionLevel() {
+        return DEFAULT_COMPRESSION_LEVEL;
+    }
 }
