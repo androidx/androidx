@@ -929,7 +929,7 @@ public final class ImageCapture extends UseCase {
 
         int rotationDegrees = getRelativeRotation(camera);
 
-        return ResolutionInfo.create(resolution, requireNonNull(cropRect), rotationDegrees);
+        return new ResolutionInfo(resolution, requireNonNull(cropRect), rotationDegrees);
     }
 
     /**
