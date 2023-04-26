@@ -424,19 +424,19 @@
       </trusted-keys>
    </configuration>
    <components>
-      <component group="" name="kotlin-native-prebuilt-linux-x86_64" version="1.8.20">
-         <artifact name="kotlin-native-prebuilt-linux-x86_64-1.8.20.tar.gz">
-            <sha256 value="39a5933464cb4d5ae8b5c309c2e2c1641f0de9b12fae164114c6f98b2204fd8b" origin="Hand-built using sha256sum kotlin-native-prebuilt-linux-x86_64-1.8.20.tar.gz" reason="Artifact is not signed"/>
+      <component group="" name="kotlin-native-prebuilt-linux-x86_64" version="1.8.21">
+         <artifact name="kotlin-native-prebuilt-linux-x86_64-1.8.21.tar.gz">
+            <sha256 value="a4ad0664076b44a80d182f3a3f40ca35a7b4ca4c13c84ad90c2e32fb3a829fd3" origin="Hand-built using sha256sum kotlin-native-prebuilt-linux-x86_64-1.8.21.tar.gz" reason="Artifact is not signed"/>
          </artifact>
       </component>
-      <component group="" name="kotlin-native-prebuilt-macos-aarch64" version="1.8.20">
-         <artifact name="kotlin-native-prebuilt-macos-aarch64-1.8.20.tar.gz">
-            <sha256 value="b5bf0147a7d9497174a4fbafd0dffb1c519abd341b84eb17e621fc861ec7aea4" origin="Hand-built using sha256sum kotlin-native-prebuilt-macos-aarch64-1.8.20.tar.gz"/>
+      <component group="" name="kotlin-native-prebuilt-macos-aarch64" version="1.8.21">
+         <artifact name="kotlin-native-prebuilt-macos-aarch64-1.8.21.tar.gz">
+            <sha256 value="f6ae002832b6727fb6da8701429d9d9ad7f4b9ac410aca446d9a1880293882aa" origin="Hand-built using sha256sum kotlin-native-prebuilt-macos-aarch64-1.8.21.tar.gz"/>
          </artifact>
       </component>
-      <component group="" name="kotlin-native-prebuilt-macos-x86_64" version="1.8.20">
-         <artifact name="kotlin-native-prebuilt-macos-x86_64-1.8.20.tar.gz">
-            <sha256 value="0327fa1c7cc7defbb1aa7b6101e9a71fc182c3b6a9d1889e8aaf4d716200ffa8" origin="Hand-built using sha256sum kotlin-native-prebuilt-macos-x86_64-1.8.20.tar.gz"/>
+      <component group="" name="kotlin-native-prebuilt-macos-x86_64" version="1.8.21">
+         <artifact name="kotlin-native-prebuilt-macos-x86_64-1.8.21.tar.gz">
+            <sha256 value="a4fefa2fd40d16fcdf1b0095cfaf3c1b2857a79290972b436c797fbb20df9b63" origin="Hand-built using sha256sum kotlin-native-prebuilt-macos-x86_64-1.8.21.tar.gz"/>
          </artifact>
       </component>
       <component group="com.fasterxml.jackson.core" name="jackson-databind" version="2.12.7.1">
