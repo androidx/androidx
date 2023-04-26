@@ -25,12 +25,10 @@ import androidx.compose.ui.graphics.ShaderBrush
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.drawscope.DrawStyle
-import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.MultiParagraph
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.util.fastForEach
 
-@OptIn(ExperimentalTextApi::class)
 internal actual fun MultiParagraph.drawMultiParagraph(
     canvas: Canvas,
     brush: Brush,
@@ -80,7 +78,6 @@ internal actual fun MultiParagraph.drawMultiParagraph(
     canvas.restore()
 }
 
-@OptIn(ExperimentalTextApi::class)
 private fun MultiParagraph.drawParagraphs(
     canvas: Canvas,
     brush: Brush,

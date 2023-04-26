@@ -215,7 +215,6 @@ internal fun Spannable.setSpanStyles(
     }
 }
 
-@OptIn(ExperimentalTextApi::class)
 private fun Spannable.setSpanStyle(
     spanStyleRange: AnnotatedString.Range<SpanStyle>,
     density: Density

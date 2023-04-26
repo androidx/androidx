@@ -1,4 +1,10 @@
 // Baseline format: 1.0
+AddedAbstractMethod: androidx.compose.ui.text.Paragraph#paint(androidx.compose.ui.graphics.Canvas, androidx.compose.ui.graphics.Brush, float, androidx.compose.ui.graphics.Shadow, androidx.compose.ui.text.style.TextDecoration, androidx.compose.ui.graphics.drawscope.DrawStyle, int):
+    Added method androidx.compose.ui.text.Paragraph.paint(androidx.compose.ui.graphics.Canvas,androidx.compose.ui.graphics.Brush,float,androidx.compose.ui.graphics.Shadow,androidx.compose.ui.text.style.TextDecoration,androidx.compose.ui.graphics.drawscope.DrawStyle,int)
+AddedAbstractMethod: androidx.compose.ui.text.Paragraph#paint(androidx.compose.ui.graphics.Canvas, long, androidx.compose.ui.graphics.Shadow, androidx.compose.ui.text.style.TextDecoration, androidx.compose.ui.graphics.drawscope.DrawStyle, int):
+    Added method androidx.compose.ui.text.Paragraph.paint(androidx.compose.ui.graphics.Canvas,long,androidx.compose.ui.graphics.Shadow,androidx.compose.ui.text.style.TextDecoration,androidx.compose.ui.graphics.drawscope.DrawStyle,int)
+
+
 ChangedType: androidx.compose.ui.text.AnnotatedString.Builder#append(char):
     Method androidx.compose.ui.text.AnnotatedString.Builder.append has changed return type from androidx.compose.ui.text.AnnotatedString.Builder to void
 

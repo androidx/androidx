@@ -1512,7 +1512,6 @@ class MultiParagraphIntegrationTest {
         }
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun multiParagraph_appliesBrush_toTheWholeText() = with(defaultDensity) {
         val fontSize = 20.sp
@@ -1550,7 +1549,6 @@ class MultiParagraphIntegrationTest {
             .isEqualToBitmap(multiParagraph2.bitmap(brush))
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun multiParagraph_overridesAlphaDuringDraw() = with(defaultDensity) {
         val fontSize = 20.sp
