@@ -17,7 +17,6 @@
 package androidx.paging
 
 import androidx.paging.PagingSource.LoadResult.Page
-import androidx.testutils.TestDispatcher
 import com.google.common.truth.Truth.assertThat
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlinx.coroutines.Dispatchers
@@ -27,6 +26,7 @@ import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Assert
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -35,7 +35,9 @@ import java.util.concurrent.Executors
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(JUnit4::class)
 class LegacyPagingSourceTest {
     private val fakePagingState = PagingState(
@@ -357,7 +359,7 @@ class LegacyPagingSourceTest {
             }
         }
 
-        val testDispatcher = TestDispatcher()
+        val testDispatcher = StandardTestDispatcher()
         val pagingSourceFactory = dataSourceFactory.asPagingSourceFactory(
             fetchDispatcher = testDispatcher
         ).let {
@@ -365,14 +367,14 @@ class LegacyPagingSourceTest {
         }
 
         val pagingSource0 = pagingSourceFactory()
-        testDispatcher.executeAll()
+        testDispatcher.scheduler.advanceUntilIdle()
         assertTrue { pagingSource0.dataSource.isInvalid }
         assertTrue { pagingSource0.invalid }
         assertTrue { dataSourceFactory.dataSources[0].isInvalid }
         assertEquals(dataSourceFactory.dataSources[0], pagingSource0.dataSource)
 
         val pagingSource1 = pagingSourceFactory()
-        testDispatcher.executeAll()
+        testDispatcher.scheduler.advanceUntilIdle()
         assertFalse { pagingSource1.dataSource.isInvalid }
         assertFalse { pagingSource1.invalid }
         assertFalse { dataSourceFactory.dataSources[1].isInvalid }
