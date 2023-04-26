@@ -29,7 +29,18 @@ import java.time.Instant
  * vertical accuracy.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-public class ExerciseRoute(val route: List<Location>) {
+public class ExerciseRoute(route: List<Location>) {
+    public val route: List<Location> = route.sortedWith { a, b -> a.time.compareTo(b.time) }
+
+    init {
+        for (i in 0 until this.route.lastIndex) {
+            require(this.route[i].time.isBefore(this.route[i + 1].time))
+        }
+    }
+    internal fun isWithin(startTime: Instant, endTime: Instant): Boolean {
+        // startTime is inclusive, endTime is exclusive
+        return !route.first().time.isBefore(startTime) && route.last().time.isBefore(endTime)
+    }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

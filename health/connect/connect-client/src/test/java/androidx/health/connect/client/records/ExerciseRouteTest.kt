@@ -27,15 +27,15 @@ class ExerciseRouteTest {
     @Test
     fun validLocation_equals() {
         assertThat(
-                ExerciseRoute.Location(
-                    time = Instant.ofEpochMilli(1234L),
-                    latitude = 34.5,
-                    longitude = -34.5,
-                    horizontalAccuracy = Length.meters(0.4),
-                    verticalAccuracy = Length.meters(1.3),
-                    altitude = Length.meters(23.4)
-                )
+            ExerciseRoute.Location(
+                time = Instant.ofEpochMilli(1234L),
+                latitude = 34.5,
+                longitude = -34.5,
+                horizontalAccuracy = Length.meters(0.4),
+                verticalAccuracy = Length.meters(1.3),
+                altitude = Length.meters(23.4)
             )
+        )
             .isEqualTo(
                 ExerciseRoute.Location(
                     time = Instant.ofEpochMilli(1234L),
@@ -96,5 +96,39 @@ class ExerciseRouteTest {
             )
         assertThat(ExerciseRoute(listOf(location1, location2)))
             .isEqualTo(ExerciseRoute(listOf(location1, location2)))
+    }
+
+    @Test
+    fun locationTimeOverlap_throws() {
+        val location1 = ExerciseRoute.Location(
+            time = Instant.ofEpochMilli(1234L),
+            latitude = 34.5,
+            longitude = -34.5,
+        )
+        val location2 =
+            ExerciseRoute.Location(
+                time = Instant.ofEpochMilli(1234L),
+                latitude = 34.8,
+                longitude = -34.8,
+            )
+        assertFailsWith<IllegalArgumentException> { ExerciseRoute(listOf(location1, location2)) }
+    }
+
+    @Test
+    fun locationTime_sorted() {
+        val location1 = ExerciseRoute.Location(
+            time = Instant.ofEpochMilli(1236L),
+            latitude = 34.5,
+            longitude = -34.5,
+        )
+        val location2 =
+            ExerciseRoute.Location(
+                time = Instant.ofEpochMilli(1235L),
+                latitude = 34.8,
+                longitude = -34.8,
+            )
+        assertThat(ExerciseRoute(listOf(location1, location2)).route).isEqualTo(
+            listOf(location2, location1)
+        )
     }
 }
