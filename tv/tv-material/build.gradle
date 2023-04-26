@@ -38,7 +38,7 @@ dependencies {
     api("androidx.compose.foundation:foundation-layout:$composeVersion")
     api("androidx.compose.material:material-icons-core:$composeVersion")
     api("androidx.compose.ui:ui-graphics:$composeVersion")
-    api("androidx.compose.ui:ui-text:$composeVersion")
+    api(project(":compose:ui:ui-text"))
     api("androidx.compose.ui:ui-util:$composeVersion")
     api(project(":tv:tv-foundation"))
 
