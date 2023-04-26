@@ -46,8 +46,7 @@ import kotlin.math.sign
 @ExperimentalFoundationApi
 fun SnapLayoutInfoProvider(
     lazyListState: LazyListState,
-    positionInLayout: Density.(layoutSize: Float, itemSize: Float) -> Float =
-        { layoutSize, itemSize -> (layoutSize / 2f - itemSize / 2f) }
+    positionInLayout: SnapPositionInLayout = SnapPositionInLayout.CenterToCenter
 ): SnapLayoutInfoProvider = object : SnapLayoutInfoProvider {
 
     private val layoutInfo: LazyListLayoutInfo
@@ -111,16 +110,18 @@ fun rememberSnapFlingBehavior(lazyListState: LazyListState): FlingBehavior {
     return rememberSnapFlingBehavior(snappingLayout)
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 internal fun Density.calculateDistanceToDesiredSnapPosition(
     layoutInfo: LazyListLayoutInfo,
     item: LazyListItemInfo,
-    positionInLayout: Density.(layoutSize: Float, itemSize: Float) -> Float
+    positionInLayout: SnapPositionInLayout
 ): Float {
     val containerSize =
         with(layoutInfo) { singleAxisViewportSize - beforeContentPadding - afterContentPadding }
 
-    val desiredDistance =
-        positionInLayout(containerSize.toFloat(), item.size.toFloat())
+    val desiredDistance = with(positionInLayout) {
+        position(containerSize, item.size, item.index)
+    }.toFloat()
 
     val itemCurrentPosition = item.offset
     return itemCurrentPosition - desiredDistance
