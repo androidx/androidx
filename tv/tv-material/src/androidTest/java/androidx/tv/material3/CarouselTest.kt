@@ -67,6 +67,7 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
+import kotlin.math.abs
 import kotlinx.coroutines.delay
 import org.junit.Rule
 import org.junit.Test
@@ -364,7 +365,7 @@ class CarouselTest {
     }
 
     @Test
-    fun carousel_withCarouselItem_parentContainerGainsFocus_onBackPress() {
+    fun carousel_withCarouselItem_parentContainerGainsFocusOnBackPress() {
         rule.setContent {
             Box(modifier = Modifier
                 .testTag("box-container")
@@ -508,7 +509,7 @@ class CarouselTest {
     }
 
     @Test
-    fun carousel_manualScrolling_withFocusableItemsOnTop() {
+    fun carousel_manualScrollingWithFocusableItemsOnTop_focusStaysWithinCarousel() {
         rule.setContent {
             Column {
                 Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -545,8 +546,7 @@ class CarouselTest {
 
         // Check that item 2 is in view and button 2 has focus
         rule.onNodeWithText("Button-2").assertIsDisplayed()
-        // TODO: Fix button 2 isn't gaining focus
-        // rule.onNodeWithText("Button-2").assertIsFocused()
+        rule.onNodeWithText("Button-2").assertIsFocused()
 
         // Check if the first focusable element in parent has focus
         rule.onNodeWithText("Row-button-1").assertIsNotFocused()
@@ -566,15 +566,23 @@ class CarouselTest {
     }
 
     @Test
-    fun carousel_manualScrolling_fastMultipleKeyPresses() {
+    fun carousel_manualScrollingFastMultipleKeyPresses_focusStaysWithinCarousel() {
         val carouselState = CarouselState()
         val tabs = listOf("Tab 1", "Tab 2", "Tab 3")
+        var numberOfTimesTabGainedFocus = 0
 
         rule.setContent {
             var selectedTabIndex by remember { mutableStateOf(0) }
 
             Column {
-                TabRow(selectedTabIndex = selectedTabIndex) {
+                TabRow(
+                    modifier = Modifier.onFocusChanged {
+                        if (it.hasFocus || it.isFocused) {
+                            numberOfTimesTabGainedFocus++
+                        }
+                    },
+                    selectedTabIndex = selectedTabIndex
+                ) {
                     tabs.forEachIndexed { index, tab ->
                         Tab(
                             selected = index == selectedTabIndex,
@@ -592,22 +600,25 @@ class CarouselTest {
         }
 
         rule.waitForIdle()
-        rule.onNodeWithTag("pager").performSemanticsAction(SemanticsActions.RequestFocus)
+        rule.onNodeWithText("Play 0").performSemanticsAction(SemanticsActions.RequestFocus)
         rule.waitForIdle()
 
         val itemProgression = listOf(6, 3, -4, 3, -6, 5, 3)
+        // reset the counter at test start.
+        numberOfTimesTabGainedFocus = 0
 
         itemProgression.forEach {
-            if (it < 0) {
-                performKeyPress(NativeKeyEvent.KEYCODE_DPAD_LEFT, it * -1)
-            } else {
-                performKeyPress(NativeKeyEvent.KEYCODE_DPAD_RIGHT, it)
-            }
+            performKeyPress(
+                if (it < 0) NativeKeyEvent.KEYCODE_DPAD_LEFT else NativeKeyEvent.KEYCODE_DPAD_RIGHT,
+                abs(it)
+            )
+            rule.waitForIdle()
         }
 
         rule.mainClock.advanceTimeBy(animationTime)
 
         val finalItem = itemProgression.sum()
+        assertThat(numberOfTimesTabGainedFocus).isEqualTo(0)
         rule.onNodeWithText("Play $finalItem", useUnmergedTree = true).assertIsFocused()
 
         performKeyPress(NativeKeyEvent.KEYCODE_DPAD_RIGHT, 3)
@@ -618,7 +629,7 @@ class CarouselTest {
     }
 
     @Test
-    fun carousel_manualScrolling_onDpadLongPress() {
+    fun carousel_manualScrollingDpadLongPress_moveOnlyOneSlide() {
         rule.setContent {
             SampleCarousel(itemCount = 6) { index ->
                 SampleButton("Button ${index + 1}")
@@ -663,7 +674,7 @@ class CarouselTest {
     }
 
     @Test
-    fun carousel_manualScrolling_ltr() {
+    fun carousel_manualScrollingLtr_RightMovesToNextSlideLeftMovesToPrevSlide() {
         rule.setContent {
             SampleCarousel { index ->
                 SampleButton("Button ${index + 1}")
@@ -709,7 +720,7 @@ class CarouselTest {
     }
 
     @Test
-    fun carousel_manualScrolling_rtl() {
+    fun carousel_manualScrollingRtl_LeftMovesToNextSlideRightMovesToPrevSlide() {
         rule.setContent {
             CompositionLocalProvider(
                 LocalLayoutDirection provides LayoutDirection.Rtl
@@ -788,6 +799,27 @@ class CarouselTest {
         }
 
         rule.waitUntil(timeoutMillis = 5000) { itemChanges > minSuccessfulItemChanges }
+    }
+
+    @Test
+    fun carousel_slideWithTwoButtonsInARow_focusMovesWithinSlideAndChangesSlideOnlyOnFocusExit() {
+        rule.setContent {
+            // No AutoScrolling
+            SampleCarousel(timeToDisplayItemMillis = Long.MAX_VALUE) {
+                Row {
+                    SampleButton("Left Button ${it + 1}")
+                    SampleButton("Right Button ${it + 1}")
+                }
+            }
+        }
+
+        rule.onNodeWithText("Left Button 1").performSemanticsAction(SemanticsActions.RequestFocus)
+        performKeyPress(KeyEvent.KEYCODE_DPAD_RIGHT)
+        // focus should have moved from left to right button
+        rule.onNodeWithText("Right Button 1").assertIsFocused()
+        performKeyPress(KeyEvent.KEYCODE_DPAD_RIGHT)
+        // slide should have changed.
+        rule.onNodeWithText("Left Button 2").assertIsFocused()
     }
 }
 
