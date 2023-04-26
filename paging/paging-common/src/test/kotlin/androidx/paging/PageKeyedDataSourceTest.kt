@@ -16,7 +16,6 @@
 
 package androidx.paging
 
-import androidx.testutils.TestDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -33,12 +32,11 @@ import org.mockito.Mockito.verify
 import org.mockito.Mockito.verifyNoMoreInteractions
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.test.assertFailsWith
+import kotlinx.coroutines.test.StandardTestDispatcher
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(JUnit4::class)
 class PageKeyedDataSourceTest {
-    private val mainThread = TestDispatcher()
-    private val backgroundThread = TestDispatcher()
-
     internal data class Item(val name: String)
 
     internal data class Page(val prev: String?, val data: List<Item>, val next: String?)
@@ -244,7 +242,7 @@ class PageKeyedDataSourceTest {
         @Suppress("UNCHECKED_CAST", "DEPRECATION")
         val boundaryCallback =
             mock(PagedList.BoundaryCallback::class.java) as PagedList.BoundaryCallback<String>
-        val dispatcher = TestDispatcher()
+        val dispatcher = StandardTestDispatcher()
 
         val testCoroutineScope = CoroutineScope(EmptyCoroutineContext)
         @Suppress("DEPRECATION")
@@ -259,7 +257,7 @@ class PageKeyedDataSourceTest {
 
         verifyNoMoreInteractions(boundaryCallback)
 
-        dispatcher.executeAll()
+        dispatcher.scheduler.advanceUntilIdle()
 
         // verify boundary callbacks are triggered
         verify(boundaryCallback).onItemAtFrontLoaded("A")
@@ -297,7 +295,7 @@ class PageKeyedDataSourceTest {
         @Suppress("UNCHECKED_CAST", "DEPRECATION")
         val boundaryCallback =
             mock(PagedList.BoundaryCallback::class.java) as PagedList.BoundaryCallback<String>
-        val dispatcher = TestDispatcher()
+        val dispatcher = StandardTestDispatcher()
 
         val testCoroutineScope = CoroutineScope(EmptyCoroutineContext)
         @Suppress("DEPRECATION")
@@ -312,7 +310,7 @@ class PageKeyedDataSourceTest {
 
         verifyNoMoreInteractions(boundaryCallback)
 
-        dispatcher.executeAll()
+        dispatcher.scheduler.advanceUntilIdle()
 
         // verify boundary callbacks are triggered
         verify(boundaryCallback).onItemAtFrontLoaded("B")
@@ -510,13 +508,6 @@ class PageKeyedDataSourceTest {
             }
             PAGE_MAP = map
             ITEM_LIST = list
-        }
-    }
-
-    private fun drain() {
-        while (backgroundThread.queue.isNotEmpty() || mainThread.queue.isNotEmpty()) {
-            backgroundThread.executeAll()
-            mainThread.executeAll()
         }
     }
 }
