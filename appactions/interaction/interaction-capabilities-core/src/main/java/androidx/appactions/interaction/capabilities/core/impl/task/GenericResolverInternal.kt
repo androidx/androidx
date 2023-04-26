@@ -26,7 +26,7 @@ import androidx.appactions.interaction.capabilities.core.impl.converters.ParamVa
 import androidx.appactions.interaction.capabilities.core.impl.converters.SlotTypeConverter
 import androidx.appactions.interaction.capabilities.core.impl.exceptions.StructConversionException
 import androidx.appactions.interaction.capabilities.core.impl.task.exceptions.InvalidResolverException
-import androidx.appactions.interaction.capabilities.core.values.SearchAction
+import androidx.appactions.interaction.capabilities.core.SearchAction
 import androidx.appactions.interaction.proto.ParamValue
 
 /**
