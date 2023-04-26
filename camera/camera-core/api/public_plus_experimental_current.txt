@@ -426,10 +426,11 @@ package androidx.camera.core {
     ctor public ProcessingException();
   }
 
-  @RequiresApi(21) @com.google.auto.value.AutoValue public abstract class ResolutionInfo {
-    method public abstract android.graphics.Rect getCropRect();
-    method public abstract android.util.Size getResolution();
-    method public abstract int getRotationDegrees();
+  @RequiresApi(21) public class ResolutionInfo {
+    ctor public ResolutionInfo(android.util.Size, android.graphics.Rect, int);
+    method public android.graphics.Rect getCropRect();
+    method public android.util.Size getResolution();
+    method public int getRotationDegrees();
   }
 
   @RequiresApi(21) public class SurfaceOrientedMeteringPointFactory extends androidx.camera.core.MeteringPointFactory {
