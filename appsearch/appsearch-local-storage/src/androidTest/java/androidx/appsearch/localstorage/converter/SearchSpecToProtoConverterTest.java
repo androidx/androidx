@@ -44,6 +44,8 @@ import com.google.android.icing.proto.TypePropertyWeights;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -58,6 +60,24 @@ public class SearchSpecToProtoConverterTest {
 
     @Rule
     public final TemporaryFolder mTemporaryFolder = new TemporaryFolder();
+
+    private AppSearchImpl mAppSearchImpl;
+
+    @Before
+    public void setUp() throws Exception {
+        mAppSearchImpl = AppSearchImpl.create(
+                mTemporaryFolder.newFolder(),
+                new UnlimitedLimitConfig(),
+                new JetpackIcingOptionsConfig(),
+                /*initStatsBuilder=*/ null,
+                ALWAYS_OPTIMIZE,
+                /*visibilityChecker=*/null);
+    }
+
+    @After
+    public void tearDown() {
+        mAppSearchImpl.close();
+    }
 
     @Test
     public void testToSearchSpecProto() throws Exception {
@@ -209,14 +229,7 @@ public class SearchSpecToProtoConverterTest {
                                 prefix2 + "typeA", configProto,
                                 prefix2 + "typeB", configProto)));
 
-        AppSearchImpl appSearchImpl = AppSearchImpl.create(
-                mTemporaryFolder.newFolder(),
-                new UnlimitedLimitConfig(),
-                new JetpackIcingOptionsConfig(),
-                /*initStatsBuilder=*/null,
-                ALWAYS_OPTIMIZE,
-                /*visibilityChecker=*/null);
-        VisibilityStore visibilityStore = new VisibilityStore(appSearchImpl);
+        VisibilityStore visibilityStore = new VisibilityStore(mAppSearchImpl);
         converter.removeInaccessibleSchemaFilter(
                 new CallerAccess(/*callingPackageName=*/"package"),
                 visibilityStore,
@@ -932,14 +945,7 @@ public class SearchSpecToProtoConverterTest {
 
     @Test
     public void testRemoveInaccessibleSchemaFilter() throws Exception {
-        AppSearchImpl appSearchImpl = AppSearchImpl.create(
-                mTemporaryFolder.newFolder(),
-                new UnlimitedLimitConfig(),
-                new JetpackIcingOptionsConfig(),
-                /*initStatsBuilder=*/null,
-                ALWAYS_OPTIMIZE,
-                /*visibilityChecker=*/null);
-        VisibilityStore visibilityStore = new VisibilityStore(appSearchImpl);
+        VisibilityStore visibilityStore = new VisibilityStore(mAppSearchImpl);
 
         final String prefix = PrefixUtil.createPrefix("package", "database");
         SchemaTypeConfigProto schemaTypeConfigProto =
@@ -1035,14 +1041,7 @@ public class SearchSpecToProtoConverterTest {
 
     @Test
     public void testRemoveInaccessibleSchemaFilterWithEmptyNestedFilter() throws Exception {
-        AppSearchImpl appSearchImpl = AppSearchImpl.create(
-                mTemporaryFolder.newFolder(),
-                new UnlimitedLimitConfig(),
-                new JetpackIcingOptionsConfig(),
-                /*initStatsBuilder=*/null,
-                ALWAYS_OPTIMIZE,
-                /*visibilityChecker=*/null);
-        VisibilityStore visibilityStore = new VisibilityStore(appSearchImpl);
+        VisibilityStore visibilityStore = new VisibilityStore(mAppSearchImpl);
 
         final String prefix = PrefixUtil.createPrefix("package", "database");
         SchemaTypeConfigProto schemaTypeConfigProto =
