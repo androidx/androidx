@@ -20,7 +20,6 @@ import android.content.Context
 import android.os.Build.VERSION_CODES
 import android.telecom.PhoneAccount.CAPABILITY_SELF_MANAGED
 import android.telecom.PhoneAccount.CAPABILITY_SUPPORTS_TRANSACTIONAL_OPERATIONS
-import androidx.annotation.RequiresApi
 import androidx.core.telecom.internal.utils.Utils
 import androidx.core.telecom.internal.utils.BuildVersionAdapter
 import androidx.test.core.app.ApplicationProvider
@@ -34,7 +33,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
-@RequiresApi(VERSION_CODES.O)
 @SdkSuppress(minSdkVersion = VERSION_CODES.O /* api=26 */)
 class CallsManagerTest {
     private val mTestClassName = "androidx.core.telecom.test"
