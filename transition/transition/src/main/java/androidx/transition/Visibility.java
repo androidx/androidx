@@ -506,7 +506,7 @@ public abstract class Visibility extends Transition {
     }
 
     private static class DisappearListener extends AnimatorListenerAdapter
-            implements TransitionListener, AnimatorUtils.AnimatorPauseListenerCompat {
+            implements TransitionListener {
 
         private final View mView;
         private final int mFinalVisibility;
@@ -610,7 +610,8 @@ public abstract class Visibility extends Transition {
         }
     }
 
-    private class OverlayListener extends AnimatorListenerAdapter implements TransitionListener {
+    private class OverlayListener extends AnimatorListenerAdapter implements TransitionListener,
+            AnimatorUtils.AnimatorPauseListenerCompat {
         private final ViewGroup mOverlayHost;
         private final View mOverlayView;
         private final View mStartView;
