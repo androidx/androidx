@@ -46,6 +46,37 @@ internal class JavacFiler(
         fileSpec.writeTo(delegate)
     }
 
+    override fun writeSource(
+        packageName: String,
+        fileNameWithoutExtension: String,
+        extension: String,
+        originatingElements: List<XElement>,
+        mode: XFiler.Mode
+    ): OutputStream {
+        require(extension == "java" || extension == "kt") {
+            "Source file extension must be either 'java' or 'kt', but was: $extension"
+        }
+        val javaOriginatingElements =
+            originatingElements.filterIsInstance<JavacElement>().map { it.element }.toTypedArray()
+        return when (extension) {
+            "java" -> {
+                delegate.createSourceFile(
+                    "$packageName.$fileNameWithoutExtension",
+                    *javaOriginatingElements
+                ).openOutputStream()
+            }
+            "kt" -> {
+                delegate.createResource(
+                    StandardLocation.SOURCE_OUTPUT,
+                    packageName,
+                    "$fileNameWithoutExtension.$extension",
+                    *javaOriginatingElements
+                ).openOutputStream()
+            }
+            else -> error("file type not supported: $extension")
+        }
+    }
+
     override fun writeResource(
         filePath: Path,
         originatingElements: List<XElement>,
