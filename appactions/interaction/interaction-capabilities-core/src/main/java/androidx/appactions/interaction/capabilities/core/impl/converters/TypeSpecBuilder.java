@@ -97,6 +97,13 @@ final class TypeSpecBuilder<T, BuilderT> {
         return new TypeSpecBuilder<>(typeName, builderSupplier, BuilderT::build);
     }
 
+    static <T, BuilderT> TypeSpecBuilder<T, BuilderT> newBuilder(
+            String typeName,
+            Supplier<BuilderT> builderSupplier,
+            Function<BuilderT, T> builderFinalizer) {
+        return new TypeSpecBuilder<>(typeName, builderSupplier, builderFinalizer);
+    }
+
     /**
      * Creates a new TypeSpecBuilder for a child class of Thing (temporary BuiltInTypes).
      *

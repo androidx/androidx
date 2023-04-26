@@ -19,7 +19,7 @@ import androidx.appactions.builtintypes.experimental.properties.Participant
 import androidx.appactions.interaction.capabilities.core.impl.converters.ParamValueConverter
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
 import androidx.appactions.interaction.capabilities.core.impl.converters.UnionTypeSpec
-import androidx.appactions.interaction.capabilities.core.values.SearchAction
+import androidx.appactions.interaction.capabilities.core.SearchAction
 
 class ParticipantValue private constructor(
     val asParticipant: Participant?,

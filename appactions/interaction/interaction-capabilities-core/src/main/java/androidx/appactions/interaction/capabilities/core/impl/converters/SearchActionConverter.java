@@ -17,8 +17,8 @@
 package androidx.appactions.interaction.capabilities.core.impl.converters;
 
 import androidx.annotation.NonNull;
+import androidx.appactions.interaction.capabilities.core.SearchAction;
 import androidx.appactions.interaction.capabilities.core.impl.exceptions.StructConversionException;
-import androidx.appactions.interaction.capabilities.core.values.SearchAction;
 import androidx.appactions.interaction.proto.ParamValue;
 
 /**

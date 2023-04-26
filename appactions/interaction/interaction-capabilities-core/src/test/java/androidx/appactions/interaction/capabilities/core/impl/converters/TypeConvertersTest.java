@@ -42,9 +42,9 @@ import androidx.appactions.builtintypes.experimental.types.Message;
 import androidx.appactions.builtintypes.experimental.types.Person;
 import androidx.appactions.builtintypes.experimental.types.SafetyCheck;
 import androidx.appactions.builtintypes.experimental.types.Timer;
+import androidx.appactions.interaction.capabilities.core.SearchAction;
 import androidx.appactions.interaction.capabilities.core.impl.exceptions.StructConversionException;
 import androidx.appactions.interaction.capabilities.core.values.EntityValue;
-import androidx.appactions.interaction.capabilities.core.values.SearchAction;
 import androidx.appactions.interaction.proto.Entity;
 import androidx.appactions.interaction.proto.ParamValue;
 import androidx.appactions.interaction.protobuf.ListValue;
@@ -720,7 +720,8 @@ public final class TypeConvertersTest {
                 TypeConverters.createSearchActionConverter(TypeConverters.ITEM_LIST_TYPE_SPEC)
                         .toSearchAction(input);
 
-        assertThat(output).isEqualTo(SearchAction.newBuilder().setQuery("grocery").build());
+        assertThat(output)
+                .isEqualTo(new SearchAction.Builder<String>().setQuery("grocery").build());
     }
 
     @Test
@@ -740,7 +741,7 @@ public final class TypeConvertersTest {
                                                         .setStringValue("SearchAction")
                                                         .build())
                                         .putFields(
-                                                "object",
+                                                "filter",
                                                 Value.newBuilder()
                                                         .setStructValue(nestedObject)
                                                         .build())
@@ -751,7 +752,8 @@ public final class TypeConvertersTest {
                 TypeConverters.createSearchActionConverter(TypeConverters.ITEM_LIST_TYPE_SPEC)
                         .toSearchAction(input);
 
-        assertThat(output).isEqualTo(SearchAction.newBuilder().setObject(itemList).build());
+        assertThat(output)
+                .isEqualTo(new SearchAction.Builder<ItemList>().setFilter(itemList).build());
     }
 
     @Test
