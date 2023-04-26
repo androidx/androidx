@@ -55,6 +55,7 @@ dependencies {
     docs(project(":camera:camera-viewfinder"))
     docs(project(":camera:camera-video"))
     docs(project(":camera:camera-view"))
+    docs(project(":camera:camera-viewfinder-core"))
     docs(project(":car:app:app"))
     docs(project(":car:app:app-automotive"))
     docs(project(":car:app:app-projected"))
