@@ -18,10 +18,10 @@ package androidx.constraintlayout.compose
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationSpec
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.LayoutScopeMarker
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
@@ -71,17 +71,59 @@ enum class MotionLayoutDebugFlags {
 }
 
 /**
- * Layout that interpolate its children layout given two sets of constraint and
- * a progress (from 0 to 1)
+ * Layout that can animate between two different layout states described in [ConstraintSet]s.
+ *
+ * &nbsp;
+ *
+ * The animation is driven by the [progress] value, so it will typically be a result of
+ * using an [Animatable][androidx.compose.animation.core.Animatable] or
+ * [animateFloatAsState][androidx.compose.animation.core.animateFloatAsState]:
+ * ```
+ *  var animateToEnd by remember { mutableStateOf(false) }
+ *  MotionLayout(
+ *      start = ConstraintSet {
+ *          constrain(createRefFor("button")) {
+ *              top.linkTo(parent.top)
+ *          }
+ *      },
+ *      end = ConstraintSet {
+ *          constrain(createRefFor("button")) {
+ *              bottom.linkTo(parent.bottom)
+ *          }
+ *      },
+ *      progress = animateFloatAsState(if (animateToEnd) 1f else 0f).value,
+ *      modifier = Modifier.fillMaxSize()
+ *  ) {
+ *      Button(onClick = { animateToEnd = !animateToEnd }, Modifier.layoutId("button")) {
+ *          Text("Hello, World!")
+ *      }
+ *  }
+ * ```
+ *
+ * Note that you must use [Modifier.layoutId][androidx.compose.ui.layout.layoutId] to bind the
+ * the references used in the [ConstraintSet]s to the Composable.
+ *
+ * @param start ConstraintSet that defines the layout at 0f progress.
+ * @param end ConstraintSet that defines the layout at 1f progress.
+ * @param progress Sets the interpolated position of the layout between the ConstraintSets.
+ * @param modifier Modifier to apply to this layout node.
+ * @param transition Defines the interpolation parameters between the [ConstraintSet]s to achieve
+ * fine-tuned animations.
+ * @param optimizationLevel Optimization parameter for the underlying ConstraintLayout,
+ * [Optimizer.OPTIMIZATION_STANDARD] by default.
+ * @param debugFlags Flags to enable visual debugging. [DebugFlags.None] by default.
+ * @param content The content to be laid out by MotionLayout, note that each layout Composable
+ * should be bound to an ID defined in the [ConstraintSet]s using
+ * [Modifier.layoutId][androidx.compose.ui.layout.layoutId].
  */
 @ExperimentalMotionApi
 @Composable
 inline fun MotionLayout(
     start: ConstraintSet,
     end: ConstraintSet,
+    progress: Float,
     modifier: Modifier = Modifier,
     transition: Transition? = null,
-    progress: Float,
     debugFlags: DebugFlags = DebugFlags.None,
     optimizationLevel: Int = Optimizer.OPTIMIZATION_STANDARD,
     crossinline content: @Composable MotionLayoutScope.() -> Unit
@@ -103,8 +145,56 @@ inline fun MotionLayout(
 }
 
 /**
- * Layout that animates the default transition of a [MotionScene] with a progress value (from 0 to
- * 1).
+ * Layout that can animate between multiple [ConstraintSet]s as defined by [Transition]s in the
+ * given [MotionScene].
+ *
+ * &nbsp;
+ *
+ * The animation is driven by the [progress] value, so it will typically be a result of
+ * using an [Animatable][androidx.compose.animation.core.Animatable] or
+ * [animateFloatAsState][androidx.compose.animation.core.animateFloatAsState]:
+ * ```
+ *  var animateToEnd by remember { mutableStateOf(false) }
+ *  MotionLayout(
+ *      motionScene = MotionScene {
+ *          val buttonRef = createRefFor("button")
+ *          defaultTransition(
+ *              from = constraintSet {
+ *                  constrain(buttonRef) {
+ *                      top.linkTo(parent.top)
+ *                  }
+ *              },
+ *              to = constraintSet {
+ *                  constrain(buttonRef) {
+ *                      bottom.linkTo(parent.bottom)
+ *                  }
+ *              }
+ *          )
+ *      },
+ *      progress = animateFloatAsState(if (animateToEnd) 1f else 0f).value,
+ *      modifier = Modifier.fillMaxSize()
+ *  ) {
+ *      Button(onClick = { animateToEnd = !animateToEnd }, Modifier.layoutId("button")) {
+ *          Text("Hello, World!")
+ *      }
+ *  }
+ * ```
+ *
+ * Note that you must use [Modifier.layoutId][androidx.compose.ui.layout.layoutId] to bind the
+ * the references used in the [ConstraintSet]s to the Composable.
+ *
+ * @param motionScene Holds all the layout states defined in [ConstraintSet]s and the
+ * interpolation associated between them (known as [Transition]s).
+ * @param progress Sets the interpolated position of the layout between the ConstraintSets.
+ * @param modifier Modifier to apply to this layout node.
+ * @param transitionName The name of the transition to apply on the layout. By default, it will
+ * target the transition defined with [MotionSceneScope.defaultTransition].
+ * @param optimizationLevel Optimization parameter for the underlying ConstraintLayout,
+ * [Optimizer.OPTIMIZATION_STANDARD] by default.
+ * @param debugFlags Flags to enable visual debugging. [DebugFlags.None] by default.
+ * @param content The content to be laid out by MotionLayout, note that each layout Composable
+ * should be bound to an ID defined in the [ConstraintSet]s using
+ * [Modifier.layoutId][androidx.compose.ui.layout.layoutId].
  */
 @ExperimentalMotionApi
 @Composable
@@ -129,83 +219,85 @@ inline fun MotionLayout(
 }
 
 /**
- * Layout that takes a MotionScene and animates by providing a [constraintSetName] to animate to.
+ * Layout that can animate between multiple [ConstraintSet]s as defined by [Transition]s in the
+ * given [MotionScene].
  *
- * During recomposition, MotionLayout will interpolate from whichever ConstraintSet it is currently
- * in, to [constraintSetName].
+ * &nbsp;
  *
- * Typically the first value of [constraintSetName] should match the start ConstraintSet in the
- * default transition, or be null.
+ * The animation is driven based on the given [constraintSetName]. During recomposition,
+ * MotionLayout will interpolate from whichever [ConstraintSet] it currently is, to the one
+ * corresponding to [constraintSetName]. So, a null [constraintSetName] will result in no changes.
  *
- * Animation is run by [animationSpec], and will only start another animation once any other ones
- * are finished. Use [finishedAnimationListener] to know when a transition has stopped.
+ * ```
+ *  var name by remember { mutableStateOf(0) }
+ *  MotionLayout(
+ *      motionScene = MotionScene {
+ *          val buttonRef = createRefFor("button")
+ *          val initialStart = constraintSet("0") {
+ *              constrain(buttonRef) {
+ *                  centerHorizontallyTo(parent, bias = 0f)
+ *                  centerVerticallyTo(parent, bias = 0f)
+ *              }
+ *          }
+ *          val initialEnd = constraintSet("1") {
+ *              constrain(buttonRef) {
+ *                  centerHorizontallyTo(parent, bias = 0f)
+ *                  centerVerticallyTo(parent, bias = 1f)
+ *              }
+ *          }
+ *          constraintSet("2") {
+ *              constrain(buttonRef) {
+ *                  centerHorizontallyTo(parent, bias = 1f)
+ *                  centerVerticallyTo(parent, bias = 0f)
+ *              }
+ *          }
+ *          constraintSet("3") {
+ *              constrain(buttonRef) {
+ *                  centerHorizontallyTo(parent, bias = 1f)
+ *                  centerVerticallyTo(parent, bias = 1f)
+ *              }
+ *          }
+ *          // We need at least the default transition to define the initial state
+ *          defaultTransition(initialStart, initialEnd)
+ *      },
+ *      constraintSetName = name.toString(),
+ *      animationSpec = tween(1200),
+ *      modifier = Modifier.fillMaxSize()
+ *  ) {
+ *      // Switch to a random ConstraintSet on click
+ *      Button(onClick = { name = IntRange(0, 3).random() }, Modifier.layoutId("button")) {
+ *          Text("Hello, World!")
+ *      }
+ *  }
+ * ```
+ *
+ * Animations are run one after the other, if multiple are queued, only the last one will be
+ * executed. You may use [finishedAnimationListener] to know whenever an animation is finished.
+ *
+ * @param motionScene Holds all the layout states defined in [ConstraintSet]s and the
+ * interpolation associated between them (known as [Transition]s).
+ * @param constraintSetName The name of the [ConstraintSet] to animate to. Null for no animation.
+ * @param animationSpec Specifies how the internal progress value is animated.
+ * @param modifier Modifier to apply to this layout node.
+ * @param finishedAnimationListener Called when an animation triggered by a change in
+ * [constraintSetName] has ended.
+ * @param optimizationLevel Optimization parameter for the underlying ConstraintLayout,
+ * [Optimizer.OPTIMIZATION_STANDARD] by default.
+ * @param debugFlags Flags to enable visual debugging. [DebugFlags.None] by default.
+ * @param content The content to be laid out by MotionLayout, note that each layout Composable
+ * should be bound to an ID defined in the [ConstraintSet]s using
+ * [Modifier.layoutId][androidx.compose.ui.layout.layoutId].
  */
 @ExperimentalMotionApi
 @Composable
 inline fun MotionLayout(
     motionScene: MotionScene,
+    constraintSetName: String?,
+    animationSpec: AnimationSpec<Float>,
     modifier: Modifier = Modifier,
-    constraintSetName: String? = null,
-    animationSpec: AnimationSpec<Float> = tween(),
-    debugFlags: DebugFlags = DebugFlags.None,
-    optimizationLevel: Int = Optimizer.OPTIMIZATION_STANDARD,
     noinline finishedAnimationListener: (() -> Unit)? = null,
-    crossinline content: @Composable (MotionLayoutScope.() -> Unit)
-) {
-    MotionLayoutCore(
-        motionScene = motionScene,
-        constraintSetName = constraintSetName,
-        animationSpec = animationSpec,
-        debugFlags = debugFlags,
-        modifier = modifier,
-        optimizationLevel = optimizationLevel,
-        finishedAnimationListener = finishedAnimationListener,
-        content = content
-    )
-}
-
-@ExperimentalMotionApi
-@Composable
-inline fun MotionLayout(
-    start: ConstraintSet,
-    end: ConstraintSet,
-    modifier: Modifier = Modifier,
-    transition: Transition? = null,
-    progress: Float,
-    debugFlags: DebugFlags = DebugFlags.None,
-    informationReceiver: LayoutInformationReceiver? = null,
-    optimizationLevel: Int = Optimizer.OPTIMIZATION_STANDARD,
-    crossinline content: @Composable (MotionLayoutScope.() -> Unit)
-) {
-    val motionProgress = createAndUpdateMotionProgress(progress = progress)
-    MotionLayoutCore(
-        start = start,
-        end = end,
-        transition = transition as? TransitionImpl,
-        motionProgress = motionProgress,
-        informationReceiver = informationReceiver,
-        optimizationLevel = optimizationLevel,
-        showBounds = debugFlags.showBounds,
-        showPaths = debugFlags.showPaths,
-        showKeyPositions = debugFlags.showKeyPositions,
-        modifier = modifier,
-        content = content
-    )
-}
-
-@ExperimentalMotionApi
-@PublishedApi
-@Composable
-@Suppress("UnavailableSymbol")
-internal inline fun MotionLayoutCore(
-    @Suppress("HiddenTypeParameter")
-    motionScene: MotionScene,
-    modifier: Modifier = Modifier,
-    constraintSetName: String? = null,
-    animationSpec: AnimationSpec<Float> = tween(),
     debugFlags: DebugFlags = DebugFlags.None,
     optimizationLevel: Int = Optimizer.OPTIMIZATION_STANDARD,
-    noinline finishedAnimationListener: (() -> Unit)? = null,
     @Suppress("HiddenTypeParameter")
     crossinline content: @Composable (MotionLayoutScope.() -> Unit)
 ) {
@@ -292,6 +384,38 @@ internal inline fun MotionLayoutCore(
     )
 }
 
+@PublishedApi
+@ExperimentalMotionApi
+@Composable
+@Suppress("UnavailableSymbol")
+internal inline fun MotionLayout(
+    start: ConstraintSet,
+    end: ConstraintSet,
+    progress: Float,
+    modifier: Modifier = Modifier,
+    @Suppress("HiddenTypeParameter")
+    transition: Transition? = null,
+    debugFlags: DebugFlags = DebugFlags.None,
+    informationReceiver: LayoutInformationReceiver? = null,
+    optimizationLevel: Int = Optimizer.OPTIMIZATION_STANDARD,
+    @Suppress("HiddenTypeParameter")
+    crossinline content: @Composable MotionLayoutScope.() -> Unit
+) {
+    MotionLayoutCore(
+        start = start,
+        end = end,
+        transition = transition as? TransitionImpl,
+        motionProgress = createAndUpdateMotionProgress(progress = progress),
+        informationReceiver = informationReceiver,
+        optimizationLevel = optimizationLevel,
+        showBounds = debugFlags.showBounds,
+        showPaths = debugFlags.showPaths,
+        showKeyPositions = debugFlags.showKeyPositions,
+        modifier = modifier,
+        content = content
+    )
+}
+
 @ExperimentalMotionApi
 @PublishedApi
 @Composable
@@ -332,71 +456,6 @@ internal inline fun MotionLayoutCore(
         informationReceiver = motionScene as? LayoutInformationReceiver,
         modifier = modifier,
         optimizationLevel = optimizationLevel,
-        content = content
-    )
-}
-
-@ExperimentalMotionApi
-@Composable
-inline fun MotionLayout(
-    motionScene: MotionScene,
-    motionLayoutState: MotionLayoutState,
-    modifier: Modifier = Modifier,
-    optimizationLevel: Int = Optimizer.OPTIMIZATION_STANDARD,
-    crossinline content: @Composable MotionLayoutScope.() -> Unit
-) {
-    MotionLayoutCore(
-        modifier = modifier,
-        optimizationLevel = optimizationLevel,
-        motionLayoutState = motionLayoutState as MotionLayoutStateImpl,
-        motionScene = motionScene,
-        transitionName = "default",
-        content = content
-    )
-}
-
-@PublishedApi
-@ExperimentalMotionApi
-@Composable
-@Suppress("UnavailableSymbol")
-internal inline fun MotionLayoutCore(
-    @Suppress("HiddenTypeParameter")
-    motionScene: MotionScene,
-    transitionName: String,
-    motionLayoutState: MotionLayoutStateImpl,
-    optimizationLevel: Int,
-    modifier: Modifier,
-    @Suppress("HiddenTypeParameter")
-    crossinline content: @Composable MotionLayoutScope.() -> Unit
-) {
-    val transition = remember(motionScene, transitionName) {
-        motionScene.getTransitionInstance(transitionName)
-    }
-
-    val start = remember(motionScene, transition) {
-        val startId = transition?.getStartConstraintSetId() ?: "start"
-        motionScene.getConstraintSetInstance(startId)
-    }
-    val end = remember(motionScene, transition) {
-        val endId = transition?.getEndConstraintSetId() ?: "end"
-        motionScene.getConstraintSetInstance(endId)
-    }
-
-    if (start == null || end == null) {
-        return
-    }
-    val showDebug = motionLayoutState.debugMode == MotionLayoutDebugFlags.SHOW_ALL
-    MotionLayoutCore(
-        start = start,
-        end = end,
-        transition = transition as? TransitionImpl,
-        motionProgress = motionLayoutState.motionProgress,
-        informationReceiver = motionScene as? JSONMotionScene,
-        optimizationLevel = optimizationLevel,
-        showBounds = showDebug,
-        showPaths = showDebug,
-        showKeyPositions = showDebug,
-        modifier = modifier,
         content = content
     )
 }
@@ -474,7 +533,7 @@ internal inline fun MotionLayoutCore(
     var doShowPaths = showPaths
     var doShowKeyPositions = showKeyPositions
 
-    if (forcedDebug != null) {
+    if (forcedDebug != null && forcedDebug != MotionLayoutDebugFlags.UNKNOWN) {
         doShowBounds = forcedDebug === MotionLayoutDebugFlags.SHOW_ALL
         doShowPaths = doShowBounds
         doShowKeyPositions = doShowBounds
@@ -950,14 +1009,45 @@ internal enum class CompositionSource {
 }
 
 /**
+ * Internal representation to read and set values for the progress.
+ */
+@PublishedApi
+internal interface MotionProgress {
+    // TODO: Since this class has no other uses anymore, consider to substitute it with a simple
+    //  MutableState<Float>
+
+    val currentProgress: Float
+
+    fun updateProgress(newProgress: Float)
+
+    companion object {
+        fun fromMutableState(mutableProgress: MutableState<Float>): MotionProgress =
+            fromState(mutableProgress) { mutableProgress.value = it }
+
+        fun fromState(
+            progressState: State<Float>,
+            onUpdate: (newProgress: Float) -> Unit
+        ): MotionProgress =
+            object : MotionProgress {
+                override val currentProgress: Float
+                    get() = progressState.value
+
+                override fun updateProgress(newProgress: Float) {
+                    onUpdate(newProgress)
+                }
+            }
+    }
+}
+
+/**
  * Flags to use with MotionLayout to enable visual debugging.
  *
  * @property showBounds
  * @property showPaths
  * @property showKeyPositions
  *
- * @see None
- * @see All
+ * @see DebugFlags.None
+ * @see DebugFlags.All
  */
 @ExperimentalMotionApi
 @JvmInline
