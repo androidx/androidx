@@ -134,7 +134,7 @@ class CredentialProviderBeginSignInController(private val context: Context) :
             )
             return
         }
-        if (maybeReportErrorResultCodeGet(resultCode, TAG,
+        if (maybeReportErrorResultCodeGet(resultCode,
                 { s, f -> cancelOrCallbackExceptionOrResult(s, f) }, { e ->
                     this.executor.execute {
                         this.callback.onError(e)

@@ -113,7 +113,7 @@ class CredentialProviderCreatePasswordController(private val context: Context) :
                 "$CONTROLLER_REQUEST_CODE which does not match what was given $uniqueRequestCode")
             return
         }
-        if (maybeReportErrorResultCodeCreate(resultCode, TAG,
+        if (maybeReportErrorResultCodeCreate(resultCode,
                 { s, f -> cancelOrCallbackExceptionOrResult(s, f) }, { e -> this.executor.execute {
                     this.callback.onError(e) } }, cancellationSignal)) return
         val response: CreateCredentialResponse = convertResponseToCredentialManager(Unit)

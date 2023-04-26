@@ -134,7 +134,7 @@ class CredentialProviderCreatePublicKeyCredentialController(private val context:
                 "$CONTROLLER_REQUEST_CODE does not match what was given $uniqueRequestCode")
             return
         }
-        if (maybeReportErrorResultCodeCreate(resultCode, TAG,
+        if (maybeReportErrorResultCodeCreate(resultCode,
                 { s, f -> cancelOrCallbackExceptionOrResult(s, f) }, { e -> this.executor.execute {
                     this.callback.onError(e) } }, cancellationSignal)) return
         val bytes: ByteArray? = data?.getByteArrayExtra(Fido.FIDO2_KEY_CREDENTIAL_EXTRA)
