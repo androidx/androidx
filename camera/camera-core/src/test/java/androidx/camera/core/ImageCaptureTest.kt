@@ -45,6 +45,7 @@ import androidx.camera.core.impl.SessionProcessor
 import androidx.camera.core.impl.TagBundle
 import androidx.camera.core.impl.UseCaseConfig
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
+import androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor
 import androidx.camera.core.impl.utils.futures.Futures
 import androidx.camera.core.internal.CameraUseCaseAdapter
 import androidx.camera.core.internal.utils.SizeUtil
@@ -300,13 +301,13 @@ class ImageCaptureTest {
     }
 
     @Test
-    fun yuvFormat_pipelineDisabled() {
+    fun yuvFormat_pipelineEnabled() {
         assertThat(
             bindImageCapture(
                 useProcessingPipeline = true,
                 bufferFormat = ImageFormat.YUV_420_888,
             ).isProcessingPipelineEnabled
-        ).isFalse()
+        ).isTrue()
     }
 
     @Config(minSdk = 28)
@@ -331,11 +332,10 @@ class ImageCaptureTest {
         )
 
         // Act
-        imageCapture.takePicture(executor, onImageCapturedCallback)
+        imageCapture.takePicture(mainThreadExecutor(), onImageCapturedCallback)
         // Send fake image.
         fakeImageReaderProxy?.triggerImageAvailable(TagBundle.create(Pair("TagBundleKey", 0)), 0)
         shadowOf(getMainLooper()).idle()
-        flushHandler(callbackHandler)
 
         // Assert.
         // The expected value is based on fitting the 1:1 view port into a rect with the size of
@@ -381,11 +381,10 @@ class ImageCaptureTest {
         )
 
         // Act
-        imageCapture.takePicture(executor, onImageCapturedCallback)
+        imageCapture.takePicture(mainThreadExecutor(), onImageCapturedCallback)
         // Send fake image.
         fakeImageReaderProxy?.triggerImageAvailable(TagBundle.create(Pair("TagBundleKey", 0)), 0)
         shadowOf(getMainLooper()).idle()
-        flushHandler(callbackHandler)
 
         // Assert.
         assertThat(capturedImage!!.width).isEqualTo(fakeImageReaderProxy?.width)
@@ -717,6 +716,7 @@ class ImageCaptureTest {
             .setTargetRotation(Surface.ROTATION_0)
             .setCaptureMode(captureMode)
             .setFlashMode(ImageCapture.FLASH_MODE_OFF)
+            .setIoExecutor(mainThreadExecutor())
             .setCaptureOptionUnpacker { _: UseCaseConfig<*>?, _: CaptureConfig.Builder? -> }
             .setSessionOptionUnpacker { _: Size, _: UseCaseConfig<*>?,
                 _: SessionConfig.Builder? ->

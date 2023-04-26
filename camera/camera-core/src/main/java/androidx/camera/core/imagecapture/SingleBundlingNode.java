@@ -53,7 +53,8 @@ class SingleBundlingNode implements BundlingNode {
         captureNodeOut.getImageEdge().setListener(this::matchImageWithRequest);
         captureNodeOut.getRequestEdge().setListener(this::trackIncomingRequest);
         // Set up output edge.
-        mOutputEdge = ProcessingNode.In.of(captureNodeOut.getFormat());
+        mOutputEdge = ProcessingNode.In.of(captureNodeOut.getInputFormat(),
+                captureNodeOut.getOutputFormat());
         return mOutputEdge;
     }
 

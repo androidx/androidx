@@ -1699,11 +1699,6 @@ public final class ImageCapture extends UseCase {
     @MainThread
     private boolean isNodeEnabled() {
         checkMainThread();
-        ImageCaptureConfig config = (ImageCaptureConfig) getCurrentConfig();
-        if (config.getBufferFormat(ImageFormat.JPEG) != ImageFormat.JPEG) {
-            // Use old pipeline for non-JPEG output format.
-            return false;
-        }
         return mUseProcessingPipeline;
     }
 
