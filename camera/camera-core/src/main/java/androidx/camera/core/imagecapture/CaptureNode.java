@@ -143,8 +143,7 @@ class CaptureNode implements Node<CaptureNode.In, CaptureNode.Out> {
         inputEdge.getRequestEdge().setListener(requestConsumer);
         inputEdge.getErrorEdge().setListener(this::sendCaptureError);
 
-        mOutputEdge = Out.of(inputEdge.getInputFormat(), inputEdge.getOutputFormat(),
-                inputEdge.isVirtualCamera());
+        mOutputEdge = Out.of(inputEdge.getInputFormat(), inputEdge.getOutputFormat());
         return mOutputEdge;
     }
 
@@ -399,14 +398,9 @@ class CaptureNode implements Node<CaptureNode.In, CaptureNode.Out> {
          */
         abstract int getOutputFormat();
 
-        /**
-         * Whether the pipeline is connected to a virtual camera.
-         */
-        abstract boolean isVirtualCamera();
-
-        static Out of(int inputFormat, int outputFormat, boolean isVirtualCamera) {
+        static Out of(int inputFormat, int outputFormat) {
             return new AutoValue_CaptureNode_Out(new Edge<>(), new Edge<>(), inputFormat,
-                    outputFormat, isVirtualCamera);
+                    outputFormat);
         }
     }
 }

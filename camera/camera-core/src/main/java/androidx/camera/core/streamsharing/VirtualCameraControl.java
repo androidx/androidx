@@ -41,6 +41,7 @@ import java.util.List;
 public class VirtualCameraControl extends ForwardingCameraControl {
 
     private static final int DEFAULT_JPEG_QUALITY = 100;
+    private static final int DEFAULT_ROTATION_DEGREES = 0;
 
     private final StreamSharing.Control mStreamSharingControl;
 
@@ -57,12 +58,18 @@ public class VirtualCameraControl extends ForwardingCameraControl {
             @ImageCapture.CaptureMode int captureMode,
             @ImageCapture.FlashType int flashType) {
         checkArgument(captureConfigs.size() == 1, "Only support one capture config.");
-        int jpegQuality = getJpegQuality(captureConfigs.get(0));
-        return Futures.allAsList(singletonList(mStreamSharingControl.jpegSnapshot(jpegQuality)));
+        return Futures.allAsList(singletonList(mStreamSharingControl.jpegSnapshot(
+                getJpegQuality(captureConfigs.get(0)),
+                getRotationDegrees(captureConfigs.get(0)))));
     }
 
     private int getJpegQuality(@NonNull CaptureConfig captureConfig) {
         return requireNonNull(captureConfig.getImplementationOptions().retrieveOption(
                 CaptureConfig.OPTION_JPEG_QUALITY, DEFAULT_JPEG_QUALITY));
+    }
+
+    private int getRotationDegrees(@NonNull CaptureConfig captureConfig) {
+        return requireNonNull(captureConfig.getImplementationOptions().retrieveOption(
+                CaptureConfig.OPTION_ROTATION, DEFAULT_ROTATION_DEGREES));
     }
 }

@@ -37,6 +37,7 @@ public class FakeSurfaceProcessorInternal extends FakeSurfaceProcessor implement
 
     private boolean mIsReleased;
     private int mJpegQuality = 0;
+    private int mRotationDegrees = 0;
 
     /**
      * {@inheritDoc}
@@ -65,13 +66,21 @@ public class FakeSurfaceProcessorInternal extends FakeSurfaceProcessor implement
 
     @Override
     @NonNull
-    public ListenableFuture<Void> snapshot(int jpegQuality) {
+    public ListenableFuture<Void> snapshot(
+            @IntRange(from = 0, to = 100) int jpegQuality,
+            @IntRange(from = 0, to = 359) int rotationDegrees) {
         mJpegQuality = jpegQuality;
+        mRotationDegrees = rotationDegrees;
         return Futures.immediateFuture(null);
     }
 
     @IntRange(from = 0, to = 100)
     public int getJpegQuality() {
         return mJpegQuality;
+    }
+
+    @IntRange(from = 0, to = 359)
+    public int getRotationDegrees() {
+        return mRotationDegrees;
     }
 }
