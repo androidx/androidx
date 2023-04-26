@@ -296,9 +296,6 @@ class CameraControlAdapterDeviceTest {
         val action = FocusMeteringAction.Builder(factory.createPoint(0f, 0f)).build()
         bindUseCase(imageAnalysis)
 
-        // TODO(b/269968191): wait till camera is ready for submitting requests
-        waitForResult(1).verify({ _, _ -> true }, TIMEOUT)
-
         // Act.
         cameraControl.startFocusAndMetering(action).await()
 
@@ -344,9 +341,6 @@ class CameraControlAdapterDeviceTest {
         val factory = SurfaceOrientedMeteringPointFactory(1.0f, 1.0f)
         val action = FocusMeteringAction.Builder(factory.createPoint(0f, 0f)).build()
         bindUseCase(imageAnalysis)
-
-        // TODO(b/269968191): wait till camera is ready for submitting requests
-        waitForResult(1).verify({ _, _ -> true }, TIMEOUT)
 
         // Act.
         cameraControl.startFocusAndMetering(action).await()
