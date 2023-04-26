@@ -18,6 +18,7 @@ package androidx.health.services.client
 
 import androidx.health.services.client.data.Availability
 import androidx.health.services.client.data.DataType
+import androidx.health.services.client.data.ExerciseEvent
 import androidx.health.services.client.data.ExerciseLapSummary
 import androidx.health.services.client.data.ExerciseState
 import androidx.health.services.client.data.ExerciseUpdate
@@ -59,4 +60,10 @@ public interface ExerciseUpdateCallback {
      * @param availability the new [Availability] state
      */
     public fun onAvailabilityChanged(dataType: DataType<*, *>, availability: Availability)
+
+    /**
+     * Called when an [ExerciseEvent] is emitted. May be called during any exercise state
+     * except for PREPARING or ENDED.
+     */
+    public fun onExerciseEventReceived(event: ExerciseEvent) {}
 }

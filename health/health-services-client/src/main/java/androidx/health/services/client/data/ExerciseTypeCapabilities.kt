@@ -22,7 +22,9 @@ import androidx.health.services.client.proto.DataProto.ExerciseTypeCapabilities.
 
 /** Provides exercise specific capabilities data. */
 @Suppress("ParcelCreator")
-public class ExerciseTypeCapabilities(
+public class ExerciseTypeCapabilities
+@JvmOverloads
+constructor(
     /** Supported [DataType]s for a given exercise. */
     public val supportedDataTypes: Set<DataType<*, *>>,
     /** Map from supported goals [DataType]s to a set of compatible [ComparisonType]s. */
@@ -31,6 +33,11 @@ public class ExerciseTypeCapabilities(
     public val supportedMilestones: Map<AggregateDataType<*, *>, Set<ComparisonType>>,
     /** Returns `true` if the given exercise supports auto pause and resume. */
     public val supportsAutoPauseAndResume: Boolean,
+    /** Supported [ExerciseEvent]s for a given exercise. */
+    public val supportedExerciseEvents: Set<ExerciseEventType<*>> = emptySet(),
+    /** Map from [ExerciseEventType]s to their [ExerciseEventCapabilities]. */
+    internal val exerciseEventCapabilities: Map<ExerciseEventType<*>, ExerciseEventCapabilities> =
+    emptyMap(),
 ) {
 
     internal constructor(
@@ -62,6 +69,16 @@ public class ExerciseTypeCapabilities(
             }
             .toMap(),
         supportsAutoPauseAndResume = proto.isAutoPauseAndResumeSupported,
+        supportedExerciseEvents =
+            proto.supportedExerciseEventsList
+                .map { ExerciseEventType.fromProto(it.exerciseEventType) }
+                .toSet(),
+            proto.supportedExerciseEventsList
+                .map { entry ->
+                    ExerciseEventType.fromProto(entry.exerciseEventType) to
+                      ExerciseEventCapabilities.fromProto(entry)
+                }
+                .toMap(),
     )
 
     internal val proto: DataProto.ExerciseTypeCapabilities =
@@ -88,7 +105,16 @@ public class ExerciseTypeCapabilities(
                     .sortedBy { it.dataType.name } // Sorting to ensure equals() works
             )
             .setIsAutoPauseAndResumeSupported(supportsAutoPauseAndResume)
+            .addAllSupportedExerciseEvents(exerciseEventCapabilities.map { it.value.toProto() })
             .build()
+
+    /** Returns the [ExerciseEventCapabilities] for a requested [ExerciseEventType]. */
+    public fun <C : ExerciseEventCapabilities> getExerciseEventCapabilityDetails(
+        exerciseEventType: ExerciseEventType<C>
+    ): C? {
+        @Suppress("UNCHECKED_CAST") // Map's keys' and values' types will match
+        return exerciseEventCapabilities[exerciseEventType] as C?
+    }
 
     override fun toString(): String =
         "ExerciseTypeCapabilities(" +
