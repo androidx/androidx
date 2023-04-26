@@ -12,8 +12,8 @@ package androidx.compose.animation.core {
     method public T getTargetValue();
     method public androidx.compose.animation.core.TwoWayConverter<T,V> getTypeConverter();
     method public T? getUpperBound();
-    method public T! getValue();
-    method public T! getVelocity();
+    method public T getValue();
+    method public T getVelocity();
     method public V getVelocityVector();
     method public boolean isRunning();
     method public suspend Object? snapTo(T targetValue, kotlin.coroutines.Continuation<? super kotlin.Unit>);
@@ -25,8 +25,8 @@ package androidx.compose.animation.core {
     property public final T targetValue;
     property public final androidx.compose.animation.core.TwoWayConverter<T,V> typeConverter;
     property public final T? upperBound;
-    property public final T! value;
-    property public final T! velocity;
+    property public final T value;
+    property public final T velocity;
     property public final V velocityVector;
   }
 
@@ -104,7 +104,7 @@ package androidx.compose.animation.core {
     method public T getTargetValue();
     method public androidx.compose.animation.core.TwoWayConverter<T,V> getTypeConverter();
     method public T getValue();
-    method public T! getVelocity();
+    method public T getVelocity();
     method public V getVelocityVector();
     method public boolean isRunning();
     method public androidx.compose.animation.core.AnimationState<T,V> toAnimationState();
@@ -115,7 +115,7 @@ package androidx.compose.animation.core {
     property public final T targetValue;
     property public final androidx.compose.animation.core.TwoWayConverter<T,V> typeConverter;
     property public final T value;
-    property public final T! velocity;
+    property public final T velocity;
     property public final V velocityVector;
   }
 
@@ -140,7 +140,7 @@ package androidx.compose.animation.core {
     method public long getLastFrameTimeNanos();
     method public androidx.compose.animation.core.TwoWayConverter<T,V> getTypeConverter();
     method public T getValue();
-    method public T! getVelocity();
+    method public T getVelocity();
     method public V getVelocityVector();
     method public boolean isRunning();
     property public final long finishedTimeNanos;
@@ -148,7 +148,7 @@ package androidx.compose.animation.core {
     property public final long lastFrameTimeNanos;
     property public final androidx.compose.animation.core.TwoWayConverter<T,V> typeConverter;
     property public T value;
-    property public final T! velocity;
+    property public final T velocity;
     property public final V velocityVector;
   }
 
@@ -568,7 +568,7 @@ package androidx.compose.animation.core {
   @androidx.compose.runtime.Stable public final class Transition<S> {
     ctor @kotlin.PublishedApi internal Transition(androidx.compose.animation.core.MutableTransitionState<S> transitionState, optional String? label);
     method public java.util.List<androidx.compose.animation.core.Transition<S>.TransitionAnimationState<?,?>> getAnimations();
-    method public S! getCurrentState();
+    method public S getCurrentState();
     method public String? getLabel();
     method public androidx.compose.animation.core.Transition.Segment<S> getSegment();
     method public S getTargetState();
@@ -576,7 +576,7 @@ package androidx.compose.animation.core {
     method public java.util.List<androidx.compose.animation.core.Transition<?>> getTransitions();
     method public boolean isRunning();
     property public final java.util.List<androidx.compose.animation.core.Transition<S>.TransitionAnimationState<?,?>> animations;
-    property public final S! currentState;
+    property public final S currentState;
     property public final boolean isRunning;
     property public final String? label;
     property public final androidx.compose.animation.core.Transition.Segment<S> segment;

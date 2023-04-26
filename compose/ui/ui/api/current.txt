@@ -2229,7 +2229,7 @@ package androidx.compose.ui.modifier {
   }
 
   public interface ModifierLocalNode extends androidx.compose.ui.modifier.ModifierLocalReadScope androidx.compose.ui.node.DelegatableNode {
-    method public default <T> T! getCurrent(androidx.compose.ui.modifier.ModifierLocal<T>);
+    method public default <T> T getCurrent(androidx.compose.ui.modifier.ModifierLocal<T>);
     method public default androidx.compose.ui.modifier.ModifierLocalMap getProvidedValues();
     method public default <T> void provide(androidx.compose.ui.modifier.ModifierLocal<T> key, T value);
     property public default androidx.compose.ui.modifier.ModifierLocalMap providedValues;

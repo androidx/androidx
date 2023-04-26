@@ -63,16 +63,16 @@ package androidx.collection {
     method public void addLast(E element);
     method public void clear();
     method public operator E get(int index);
-    method public E! getFirst();
-    method public E! getLast();
+    method public E getFirst();
+    method public E getLast();
     method public boolean isEmpty();
     method public E popFirst();
     method public E popLast();
     method public void removeFromEnd(int count);
     method public void removeFromStart(int count);
     method public int size();
-    property public final E! first;
-    property public final E! last;
+    property public final E first;
+    property public final E last;
   }
 
   public final class CircularIntArray {
