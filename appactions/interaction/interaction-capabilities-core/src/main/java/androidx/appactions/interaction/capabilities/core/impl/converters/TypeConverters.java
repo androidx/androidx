@@ -30,10 +30,10 @@ import androidx.appactions.builtintypes.experimental.types.Message;
 import androidx.appactions.builtintypes.experimental.types.Person;
 import androidx.appactions.builtintypes.experimental.types.SafetyCheck;
 import androidx.appactions.builtintypes.experimental.types.Timer;
+import androidx.appactions.interaction.capabilities.core.SearchAction;
 import androidx.appactions.interaction.capabilities.core.impl.exceptions.StructConversionException;
 import androidx.appactions.interaction.capabilities.core.properties.StringValue;
 import androidx.appactions.interaction.capabilities.core.values.EntityValue;
-import androidx.appactions.interaction.capabilities.core.values.SearchAction;
 import androidx.appactions.interaction.proto.Entity;
 import androidx.appactions.interaction.proto.ParamValue;
 
@@ -392,23 +392,21 @@ public final class TypeConverters {
                     (callFormat) ->
                             Entity.newBuilder().setIdentifier(callFormat.getTextValue()).build();
 
-    private TypeConverters() {
-    }
-
-    /**
-     *
-     */
     @NonNull
     public static <T> TypeSpec<SearchAction<T>> createSearchActionTypeSpec(
             @NonNull TypeSpec<T> nestedTypeSpec) {
-        return TypeSpecBuilder.<SearchAction<T>, SearchAction.Builder<T>>newBuilder(
-                        "SearchAction", SearchAction::newBuilder)
+        return TypeSpecBuilder.newBuilder(
+                        "SearchAction",
+                        SearchAction.Builder<T>::new,
+                        SearchAction.Builder<T>::build)
                 .bindStringField(
-                        "query", SearchAction<T>::getQuery, SearchAction.Builder<T>::setQuery)
+                        "query",
+                        (searchAction) -> Optional.ofNullable(searchAction.getQuery()),
+                        SearchAction.Builder<T>::setQuery)
                 .bindSpecField(
-                        "object",
-                        SearchAction<T>::getObject,
-                        SearchAction.Builder<T>::setObject,
+                        "filter",
+                        (searchAction) -> Optional.ofNullable(searchAction.getFilter()),
+                        SearchAction.Builder<T>::setFilter,
                         nestedTypeSpec)
                 .build();
     }
@@ -419,5 +417,8 @@ public final class TypeConverters {
             @NonNull TypeSpec<T> nestedTypeSpec) {
         final TypeSpec<SearchAction<T>> typeSpec = createSearchActionTypeSpec(nestedTypeSpec);
         return ParamValueConverter.Companion.of(typeSpec)::fromParamValue;
+    }
+
+    private TypeConverters() {
     }
 }

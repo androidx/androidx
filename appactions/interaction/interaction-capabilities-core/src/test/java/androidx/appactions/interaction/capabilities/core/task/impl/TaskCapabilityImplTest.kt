@@ -47,7 +47,7 @@ import androidx.appactions.interaction.capabilities.core.testing.spec.Output
 import androidx.appactions.interaction.capabilities.core.testing.spec.TestEnum
 import androidx.appactions.interaction.capabilities.core.testing.spec.Properties
 import androidx.appactions.interaction.capabilities.core.values.EntityValue
-import androidx.appactions.interaction.capabilities.core.values.SearchAction
+import androidx.appactions.interaction.capabilities.core.SearchAction
 import androidx.appactions.interaction.capabilities.testing.internal.ArgumentUtils.buildRequestArgs
 import androidx.appactions.interaction.capabilities.testing.internal.ArgumentUtils.buildSearchActionParamValue
 import androidx.appactions.interaction.capabilities.testing.internal.FakeCallbackInternal
@@ -1063,7 +1063,7 @@ class TaskCapabilityImplTest {
             }
 
         private fun <T> getTrivialSearchActionConverter() = SearchActionConverter {
-            SearchAction.newBuilder<T>().build()
+            SearchAction.Builder<T>().build()
         }
 
         private const val CAPABILITY_NAME = "actions.intent.TEST"

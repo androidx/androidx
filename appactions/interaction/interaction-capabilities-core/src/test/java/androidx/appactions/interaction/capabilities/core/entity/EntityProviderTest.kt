@@ -42,7 +42,7 @@ private val VALID_GROUNDING_REQUEST = GroundingRequest.newBuilder()
                                 Value.newBuilder().setStringValue("SearchAction").build(),
                             )
                             .putFields(
-                                "object",
+                                "filter",
                                 Value.newBuilder()
                                     .setStructValue(
                                         Struct.newBuilder()

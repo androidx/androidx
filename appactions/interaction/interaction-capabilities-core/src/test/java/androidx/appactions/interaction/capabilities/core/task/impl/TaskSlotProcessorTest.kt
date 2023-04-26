@@ -22,7 +22,7 @@ import androidx.appactions.interaction.capabilities.core.ValidationResult
 import androidx.appactions.interaction.capabilities.core.ValueListener
 import androidx.appactions.interaction.capabilities.core.impl.concurrent.Futures
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
-import androidx.appactions.interaction.capabilities.core.values.SearchAction
+import androidx.appactions.interaction.capabilities.core.SearchAction
 import androidx.appactions.interaction.capabilities.testing.internal.ArgumentUtils
 import androidx.appactions.interaction.capabilities.testing.internal.TestingUtils.awaitSync
 import androidx.appactions.interaction.proto.CurrentValue
@@ -358,7 +358,7 @@ class TaskSlotProcessorTest {
                 TypeConverters.STRING_PARAM_VALUE_CONVERTER, // Not invoked
                 { Entity.getDefaultInstance() },
             ) {
-                SearchAction.newBuilder<String>().setQuery("A").setObject("nested").build()
+                SearchAction.Builder<String>().setQuery("A").setFilter("nested").build()
             }
         val taskParamMap: MutableMap<String, TaskParamBinding<*>> = HashMap()
         taskParamMap["appDrivenSlot"] = binding
@@ -376,7 +376,7 @@ class TaskSlotProcessorTest {
         assertThat(onReceivedDeferred.isCompleted).isFalse()
         assertThat(appSearchDeferred.isCompleted).isTrue()
         assertThat(appSearchDeferred.awaitSync())
-            .isEqualTo(SearchAction.newBuilder<String>().setQuery("A").setObject("nested").build())
+            .isEqualTo(SearchAction.Builder<String>().setQuery("A").setFilter("nested").build())
         assertThat(processedValues)
             .containsExactly(
                 CurrentValue.newBuilder()
