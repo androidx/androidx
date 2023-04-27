@@ -51,7 +51,7 @@ import androidx.compose.ui.unit.Velocity
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.math.sign
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Job
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.SendChannel
 import kotlinx.coroutines.coroutineScope
@@ -290,20 +290,44 @@ internal class DraggableNode(
     private var onDragStopped: suspend CoroutineScope.(velocity: Velocity) -> Unit,
     private var reverseDirection: Boolean
 ) : DelegatingNode(), PointerInputModifierNode {
+    // Use wrapper lambdas here to make sure that if these properties are updated while we suspend,
+    // we point to the new reference when we invoke them.
+    private val _canDrag: (PointerInputChange) -> Boolean = { canDrag(it) }
+    private val _startDragImmediately: () -> Boolean = { startDragImmediately() }
+    private val velocityTracker = VelocityTracker()
+
     private val pointerInputNode = delegate(SuspendingPointerInputModifierNode {
         // TODO: conditionally undelegate when aosp/2462416 lands?
         if (!enabled) return@SuspendingPointerInputModifierNode
         coroutineScope {
+            launch(start = CoroutineStart.UNDISPATCHED) {
+                while (isActive) {
+                    var event = channel.receive()
+                    if (event !is DragStarted) continue
+                    processDragStart(event)
+                    try {
+                        state.drag(MutatePriority.UserInput) {
+                            while (event !is DragStopped && event !is DragCancelled) {
+                                (event as? DragDelta)?.let { dragBy(it.delta.toFloat(orientation)) }
+                                event = channel.receive()
+                            }
+                        }
+                        if (event is DragStopped) {
+                            processDragStop(event as DragStopped)
+                        } else if (event is DragCancelled) {
+                            processDragCancel()
+                        }
+                    } catch (c: CancellationException) {
+                        processDragCancel()
+                    }
+                }
+            }
             try {
                 awaitPointerEventScope {
                     while (isActive) {
-                        val velocityTracker = VelocityTracker()
-                        @Suppress("UnnecessaryLambdaCreation")
                         awaitDownAndSlop(
-                            // Use lambdas here to make sure that if these properties are updated
-                            // while we suspend, we point to the new reference when we invoke them.
-                            { canDrag(it) },
-                            { startDragImmediately() },
+                            _canDrag,
+                            _startDragImmediately,
                             velocityTracker,
                             orientation
                         )?.let {
@@ -322,8 +346,8 @@ internal class DraggableNode(
                                 if (!isActive) throw cancellation
                             } finally {
                                 val event = if (isDragSuccessful) {
-                                    val velocity =
-                                        velocityTracker.calculateVelocity()
+                                    val velocity = velocityTracker.calculateVelocity()
+                                    velocityTracker.resetTracking()
                                     DragStopped(velocity * if (reverseDirection) -1f else 1f)
                                 } else {
                                     DragCancelled
@@ -342,12 +366,7 @@ internal class DraggableNode(
     })
 
     private val channel = Channel<DragEvent>(capacity = Channel.UNLIMITED)
-    private var observeChannelJob: Job? = null
     private var dragInteraction: DragInteraction.Start? = null
-
-    override fun onAttach() {
-        observeChannel()
-    }
 
     override fun onDetach() {
         disposeInteractionSource()
@@ -378,9 +397,8 @@ internal class DraggableNode(
     ) {
         var resetPointerInputHandling = false
         if (this.state != state) {
-            // Reset observation when the state changes
-            observeChannel()
             this.state = state
+            resetPointerInputHandling = true
         }
         this.canDrag = canDrag
         if (this.orientation != orientation) {
@@ -407,32 +425,6 @@ internal class DraggableNode(
         }
         if (resetPointerInputHandling) {
             pointerInputNode.resetPointerInputHandler()
-        }
-    }
-
-    private fun observeChannel() {
-        observeChannelJob?.cancel()
-        observeChannelJob = coroutineScope.launch {
-            while (isActive) {
-                var event = channel.receive()
-                if (event !is DragStarted) continue
-                processDragStart(event)
-                try {
-                    state.drag(MutatePriority.UserInput) {
-                        while (event !is DragStopped && event !is DragCancelled) {
-                            (event as? DragDelta)?.let { dragBy(it.delta.toFloat(orientation)) }
-                            event = channel.receive()
-                        }
-                    }
-                    if (event is DragStopped) {
-                        processDragStop(event as DragStopped)
-                    } else if (event is DragCancelled) {
-                        processDragCancel()
-                    }
-                } catch (c: CancellationException) {
-                    processDragCancel()
-                }
-            }
         }
     }
 
