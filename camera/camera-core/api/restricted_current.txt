@@ -536,19 +536,19 @@ package androidx.camera.core.resolutionselector {
   }
 
   @RequiresApi(21) public final class ResolutionSelector {
+    method public int getAllowedResolutionMode();
     method public androidx.camera.core.resolutionselector.AspectRatioStrategy getAspectRatioStrategy();
-    method public int getHighResolutionEnabledFlag();
     method public androidx.camera.core.resolutionselector.ResolutionFilter? getResolutionFilter();
     method public androidx.camera.core.resolutionselector.ResolutionStrategy? getResolutionStrategy();
-    field public static final int HIGH_RESOLUTION_FLAG_OFF = 0; // 0x0
-    field public static final int HIGH_RESOLUTION_FLAG_ON = 1; // 0x1
+    field public static final int ALLOWED_RESOLUTIONS_NORMAL = 0; // 0x0
+    field public static final int ALLOWED_RESOLUTIONS_SLOW = 1; // 0x1
   }
 
   public static final class ResolutionSelector.Builder {
     ctor public ResolutionSelector.Builder();
     method public androidx.camera.core.resolutionselector.ResolutionSelector build();
+    method public androidx.camera.core.resolutionselector.ResolutionSelector.Builder setAllowedResolutionMode(int);
     method public androidx.camera.core.resolutionselector.ResolutionSelector.Builder setAspectRatioStrategy(androidx.camera.core.resolutionselector.AspectRatioStrategy);
-    method public androidx.camera.core.resolutionselector.ResolutionSelector.Builder setHighResolutionEnabledFlag(int);
     method public androidx.camera.core.resolutionselector.ResolutionSelector.Builder setResolutionFilter(androidx.camera.core.resolutionselector.ResolutionFilter);
     method public androidx.camera.core.resolutionselector.ResolutionSelector.Builder setResolutionStrategy(androidx.camera.core.resolutionselector.ResolutionStrategy);
   }
