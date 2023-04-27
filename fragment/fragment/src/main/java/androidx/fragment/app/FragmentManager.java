@@ -2735,7 +2735,7 @@ public abstract class FragmentManager implements FragmentResultOwner {
                     new ActivityResultCallback<ActivityResult>() {
                         @Override
                         public void onActivityResult(ActivityResult result) {
-                            LaunchedFragmentInfo requestInfo = mLaunchedFragments.pollFirst();
+                            LaunchedFragmentInfo requestInfo = mLaunchedFragments.pollLast();
                             if (requestInfo == null) {
                                 Log.w(TAG, "No Activities were started for result for " + this);
                                 return;
