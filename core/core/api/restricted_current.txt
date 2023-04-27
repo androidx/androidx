@@ -2683,6 +2683,10 @@ package androidx.core.util {
     method public static void buildShortClassTag(Object!, StringBuilder!);
   }
 
+  @java.lang.FunctionalInterface public interface Function<T, R> {
+    method public R! apply(T!);
+  }
+
   @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class LogWriter extends java.io.Writer {
     ctor @Deprecated public LogWriter(String!);
     method @Deprecated public void close();
