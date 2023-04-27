@@ -24,6 +24,7 @@ import androidx.compose.ui.platform.AndroidComposeView
 import androidx.compose.ui.platform.LocalPlatformTextInputPluginRegistry
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
@@ -31,6 +32,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
+@OptIn(ExperimentalTextApi::class)
 @SmallTest
 @RunWith(AndroidJUnit4::class)
 class PlatformTextInputViewIntegrationTest {

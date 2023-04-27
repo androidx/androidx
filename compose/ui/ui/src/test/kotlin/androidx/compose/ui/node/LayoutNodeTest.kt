@@ -61,6 +61,7 @@ import androidx.compose.ui.platform.WindowInfo
 import androidx.compose.ui.platform.invertTo
 import androidx.compose.ui.semantics.SemanticsConfiguration
 import androidx.compose.ui.semantics.SemanticsModifier
+import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.PlatformTextInputPluginRegistry
@@ -2531,6 +2532,7 @@ internal class MockOwner(
         get() = Density(1f)
     override val textInputService: TextInputService
         get() = TODO("Not yet implemented")
+    @OptIn(ExperimentalTextApi::class)
     override val platformTextInputPluginRegistry: PlatformTextInputPluginRegistry
         get() = TODO("Not yet implemented")
     override val pointerIconService: PointerIconService

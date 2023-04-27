@@ -36,13 +36,13 @@ private const val DEBUG = false
 
 /** See kdoc on actual interfaces. */
 // Experimental in desktop.
-@OptIn(ExperimentalTextApi::class)
+@ExperimentalTextApi
 @Immutable
 expect interface PlatformTextInputPlugin<T : PlatformTextInputAdapter>
 
 /** See kdoc on actual interfaces. */
 // Experimental in desktop.
-@OptIn(ExperimentalTextApi::class)
+@ExperimentalTextApi
 expect interface PlatformTextInputAdapter
 
 /**
@@ -58,6 +58,7 @@ internal expect fun PlatformTextInputAdapter.dispose()
  * methods that allow adapters to interact with it. Instances are passed to
  * [PlatformTextInputPlugin.createAdapter].
  */
+@ExperimentalTextApi
 sealed interface PlatformTextInput {
     /**
      * Requests that the platform input be connected to this receiver until either:
@@ -90,6 +91,7 @@ sealed interface PlatformTextInput {
  */
 // Implementation note: this is separated as a sealed interface + impl pair to avoid exposing
 // @InternalTextApi members to code reading LocalPlatformTextInputAdapterProvider.
+@ExperimentalTextApi
 @Stable
 sealed interface PlatformTextInputPluginRegistry {
     /**

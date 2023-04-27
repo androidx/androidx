@@ -1082,21 +1082,21 @@ package androidx.compose.ui.text.input {
     property public final char mask;
   }
 
-  public sealed interface PlatformTextInput {
+  @androidx.compose.ui.text.ExperimentalTextApi public sealed interface PlatformTextInput {
     method public void releaseInputFocus();
     method public void requestInputFocus();
   }
 
-  public interface PlatformTextInputAdapter {
+  @androidx.compose.ui.text.ExperimentalTextApi public interface PlatformTextInputAdapter {
     method public android.view.inputmethod.InputConnection? createInputConnection(android.view.inputmethod.EditorInfo outAttrs);
     method public default void onDisposed();
   }
 
-  @androidx.compose.runtime.Immutable public fun interface PlatformTextInputPlugin<T extends androidx.compose.ui.text.input.PlatformTextInputAdapter> {
+  @androidx.compose.runtime.Immutable @androidx.compose.ui.text.ExperimentalTextApi public fun interface PlatformTextInputPlugin<T extends androidx.compose.ui.text.input.PlatformTextInputAdapter> {
     method public T createAdapter(androidx.compose.ui.text.input.PlatformTextInput platformTextInput, android.view.View view);
   }
 
-  @androidx.compose.runtime.Stable public sealed interface PlatformTextInputPluginRegistry {
+  @androidx.compose.runtime.Stable @androidx.compose.ui.text.ExperimentalTextApi public sealed interface PlatformTextInputPluginRegistry {
     method @androidx.compose.runtime.Composable public <T extends androidx.compose.ui.text.input.PlatformTextInputAdapter> T rememberAdapter(androidx.compose.ui.text.input.PlatformTextInputPlugin<T> plugin);
   }
 

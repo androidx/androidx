@@ -20,6 +20,7 @@ import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputConnection
 import androidx.compose.runtime.Immutable
+import androidx.compose.ui.text.ExperimentalTextApi
 
 /**
  * Defines a plugin to the Compose text input system. Instances of this interface should be
@@ -35,6 +36,7 @@ import androidx.compose.runtime.Immutable
  * Implementations are intended to be used only by your text editor implementation, and probably not
  * exposed as public API.
  */
+@ExperimentalTextApi
 @Immutable
 actual fun interface PlatformTextInputPlugin<T : PlatformTextInputAdapter> {
     /**
@@ -68,6 +70,7 @@ actual fun interface PlatformTextInputPlugin<T : PlatformTextInputAdapter> {
  * exposed as public API. Your adapter can define whatever internal API it needs to communicate with
  * the rest of your text editor code.
  */
+@ExperimentalTextApi
 actual interface PlatformTextInputAdapter {
     // TODO(b/267235947) When fleshing out the desktop actual, we might want to pull some of these
     //  members up into the expect interface (e.g. maybe inputForTests).
@@ -82,6 +85,7 @@ actual interface PlatformTextInputAdapter {
     fun onDisposed() {}
 }
 
+@OptIn(ExperimentalTextApi::class)
 internal actual fun PlatformTextInputAdapter.dispose() {
     onDisposed()
 }
