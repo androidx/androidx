@@ -490,7 +490,6 @@ internal fun MotionLayoutCore(
 
 @PublishedApi
 @Composable
-@Suppress("UnavailableSymbol")
 internal fun MotionLayoutCore(
     @Suppress("HiddenTypeParameter")
     motionScene: MotionScene,
@@ -539,7 +538,6 @@ internal fun MotionLayoutCore(
 
 @PublishedApi
 @Composable
-@Suppress("UnavailableSymbol")
 internal fun MotionLayoutCore(
     start: ConstraintSet,
     end: ConstraintSet,
