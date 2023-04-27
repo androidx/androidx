@@ -34,5 +34,9 @@
             android:name=
                 "android.window.PROPERTY_COMPAT_ALLOW_IGNORING_ORIENTATION_REQUEST_WHEN_LOOP_DETECTED"
             android:value="false" />
+        <property
+            android:name=
+                "android.window.PROPERTY_COMPAT_ALLOW_MIN_ASPECT_RATIO_OVERRIDE"
+            android:value="false" />
     </application>
 </manifest>
