@@ -16,6 +16,10 @@
 
 package androidx.constraintlayout.compose
 
+import android.os.Build
+import android.view.View
+import androidx.annotation.DoNotInline
+import androidx.annotation.RequiresApi
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.foundation.layout.LayoutScopeMarker
@@ -42,6 +46,7 @@ import androidx.compose.ui.layout.onPlaced
 import androidx.compose.ui.node.Ref
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
@@ -604,6 +609,10 @@ internal fun MotionLayoutCore(
         doShowPaths = doShowBounds
         doShowKeyPositions = doShowBounds
     }
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R &&
+        Api30Impl.isShowingLayoutBounds(LocalView.current)) {
+        doShowBounds = true
+    }
 
     @Suppress("DEPRECATION")
     MultiMeasureLayout(
@@ -1155,5 +1164,17 @@ value class DebugFlags internal constructor(private val flags: Int) {
          * Note that this includes any flags added in the future.
          */
         val All = DebugFlags(-1)
+    }
+}
+
+/**
+ * Wrapper to pass Class Verification from calling methods unavailable on older API.
+ */
+@RequiresApi(30)
+private object Api30Impl {
+    @JvmStatic
+    @DoNotInline
+    fun isShowingLayoutBounds(view: View): Boolean {
+        return view.isShowingLayoutBounds
     }
 }
