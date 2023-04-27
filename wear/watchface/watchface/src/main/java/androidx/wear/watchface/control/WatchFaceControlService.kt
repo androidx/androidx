@@ -61,6 +61,7 @@ public open class WatchFaceControlService : Service() {
     public companion object {
         public const val ACTION_WATCHFACE_CONTROL_SERVICE: String =
             "com.google.android.wearable.action.WATCH_FACE_CONTROL"
+        internal const val TAG = "IWatchFaceInstanceServiceStub"
     }
 
     override fun onBind(intent: Intent?): IBinder? =
@@ -83,6 +84,7 @@ public open class WatchFaceControlService : Service() {
             }
             watchFaceServiceClass.getConstructor().newInstance() as WatchFaceService
         } catch (e: ClassNotFoundException) {
+            Log.w(TAG, "createWatchFaceService failed for $watchFaceName", e)
             null
         }
     }
