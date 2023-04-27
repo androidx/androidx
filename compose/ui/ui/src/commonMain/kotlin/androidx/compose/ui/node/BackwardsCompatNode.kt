@@ -72,7 +72,6 @@ import androidx.compose.ui.unit.toSize
  * everything to the modifier instance, but those interfaces should only be called in the cases
  * where the modifier would have been previously.
  */
-@Suppress("NOTHING_TO_INLINE")
 @OptIn(ExperimentalComposeUiApi::class)
 internal class BackwardsCompatNode(element: Modifier.Element) :
     LayoutModifierNode,
@@ -167,7 +166,7 @@ internal class BackwardsCompatNode(element: Modifier.Element) :
             }
         }
         if (element is RemeasurementModifier) {
-            element.onRemeasurementAvailable(this)
+            element.onRemeasurementAvailable(requireLayoutNode())
         }
         if (isKind(Nodes.LayoutAware)) {
             if (element is OnRemeasuredModifier) {
