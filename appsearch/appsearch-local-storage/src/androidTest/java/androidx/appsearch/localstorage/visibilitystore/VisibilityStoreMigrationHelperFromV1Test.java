@@ -141,5 +141,6 @@ public class VisibilityStoreMigrationHelperFromV1Test {
                         ImmutableSet.of(SetSchemaRequest.READ_SMS, SetSchemaRequest.READ_CALENDAR),
                         ImmutableSet.of(SetSchemaRequest.READ_HOME_APP_SEARCH_DATA),
                         ImmutableSet.of(SetSchemaRequest.READ_ASSISTANT_APP_SEARCH_DATA)));
+        appSearchImpl.close();
     }
 }

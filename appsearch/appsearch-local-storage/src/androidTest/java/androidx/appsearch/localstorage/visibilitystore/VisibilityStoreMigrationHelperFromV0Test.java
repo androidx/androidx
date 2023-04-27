@@ -160,6 +160,7 @@ public class VisibilityStoreMigrationHelperFromV0Test {
                         .build();
         assertThat(actualDocument1).isEqualTo(expectedDocument1);
         assertThat(actualDocument2).isEqualTo(expectedDocument2);
+        appSearchImpl.close();
     }
 
     /** Build AppSearchImpl with deprecated visibility schemas version 0.     */
