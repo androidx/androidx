@@ -20,11 +20,10 @@ import androidx.appactions.interaction.capabilities.core.AppEntityListener
 import androidx.appactions.interaction.capabilities.core.BaseExecutionSession
 import androidx.appactions.interaction.capabilities.core.ExecutionResult
 import androidx.appactions.interaction.capabilities.core.impl.concurrent.Futures
-import androidx.appactions.interaction.capabilities.core.values.EntityValue
 
 interface ExecutionSession : BaseExecutionSession<Arguments, Output> {
 
-    fun getRequiredEntityListener(): AppEntityListener<EntityValue>? = null
+    fun getRequiredStringListener(): AppEntityListener<String>? = null
 
     companion object {
         @JvmStatic

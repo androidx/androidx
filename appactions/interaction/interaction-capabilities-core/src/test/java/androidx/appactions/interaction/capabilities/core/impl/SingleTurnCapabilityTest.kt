@@ -26,8 +26,8 @@ import androidx.appactions.interaction.capabilities.core.impl.concurrent.Futures
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpec
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
-import androidx.appactions.interaction.capabilities.core.properties.Entity
 import androidx.appactions.interaction.capabilities.core.properties.Property
+import androidx.appactions.interaction.capabilities.core.properties.StringValue
 import androidx.appactions.interaction.capabilities.testing.internal.ArgumentUtils
 import androidx.appactions.interaction.capabilities.testing.internal.FakeCallbackInternal
 import androidx.appactions.interaction.capabilities.testing.internal.TestingUtils.CB_TIMEOUT
@@ -58,13 +58,13 @@ class SingleTurnCapabilityTest {
 
     @Test
     fun appAction_computedProperty() {
-        val mutableEntityList = mutableListOf<Entity>()
+        val mutableEntityList = mutableListOf<StringValue>()
         val capability = SingleTurnCapabilityImpl(
             id = "capabilityId",
             actionSpec = ACTION_SPEC,
             property = Properties.newBuilder()
-                .setRequiredEntityField(
-                    Property.Builder<Entity>().setPossibleValueSupplier(
+                .setRequiredStringField(
+                    Property.Builder<StringValue>().setPossibleValueSupplier(
                         mutableEntityList::toList
                     ).build()
                 )
@@ -73,7 +73,7 @@ class SingleTurnCapabilityTest {
                 ExecutionResult.Builder<Output>().build()
             }
         )
-        mutableEntityList.add(Entity.Builder().setName("entity1").build())
+        mutableEntityList.add(StringValue.of("entity1"))
 
         assertThat(capability.appAction).isEqualTo(
             AppAction.newBuilder()
@@ -81,9 +81,10 @@ class SingleTurnCapabilityTest {
                 .setName("actions.intent.TEST")
                 .addParams(
                     IntentParameter.newBuilder()
-                        .setName("requiredEntity")
+                        .setName("requiredString")
                         .addPossibleEntities(
                             androidx.appactions.interaction.proto.Entity.newBuilder()
+                                .setIdentifier("entity1")
                                 .setName("entity1")
                         )
                 )
@@ -91,20 +92,22 @@ class SingleTurnCapabilityTest {
                 .build()
         )
 
-        mutableEntityList.add(Entity.Builder().setName("entity2").build())
+        mutableEntityList.add(StringValue.of("entity2"))
         assertThat(capability.appAction).isEqualTo(
             AppAction.newBuilder()
                 .setIdentifier("capabilityId")
                 .setName("actions.intent.TEST")
                 .addParams(
                     IntentParameter.newBuilder()
-                        .setName("requiredEntity")
+                        .setName("requiredString")
                         .addPossibleEntities(
                             androidx.appactions.interaction.proto.Entity.newBuilder()
+                                .setIdentifier("entity1")
                                 .setName("entity1")
                         )
                         .addPossibleEntities(
                             androidx.appactions.interaction.proto.Entity.newBuilder()
+                                .setIdentifier("entity2")
                                 .setName("entity2")
                         )
                 )
@@ -129,8 +132,8 @@ class SingleTurnCapabilityTest {
                 actionSpec = ACTION_SPEC,
                 property =
                 Properties.newBuilder()
-                    .setRequiredEntityField(
-                        Property.Builder<Entity>().build()
+                    .setRequiredStringField(
+                        Property.Builder<StringValue>().build()
                     )
                     .setOptionalStringField(Property.prohibited())
                     .build(),
@@ -187,8 +190,8 @@ class SingleTurnCapabilityTest {
                 actionSpec = ACTION_SPEC,
                 property =
                 Properties.newBuilder()
-                    .setRequiredEntityField(
-                        Property.Builder<Entity>().build()
+                    .setRequiredStringField(
+                        Property.Builder<StringValue>().build()
                     )
                     .setOptionalStringField(Property.prohibited())
                     .build(),
@@ -222,8 +225,8 @@ class SingleTurnCapabilityTest {
                 actionSpec = ACTION_SPEC,
                 property =
                 Properties.newBuilder()
-                    .setRequiredEntityField(
-                        Property.Builder<Entity>().build()
+                    .setRequiredStringField(
+                        Property.Builder<StringValue>().build()
                     )
                     .build(),
                 executionCallback = executionCallback
@@ -244,8 +247,8 @@ class SingleTurnCapabilityTest {
                 actionSpec = ACTION_SPEC,
                 property =
                 Properties.newBuilder()
-                    .setRequiredEntityField(
-                        Property.Builder<Entity>().build()
+                    .setRequiredStringField(
+                        Property.Builder<StringValue>().build()
                     )
                     .build(),
                 executionCallback = executionCallbackAsync.toExecutionCallback()
@@ -266,8 +269,8 @@ class SingleTurnCapabilityTest {
         val capability = SingleTurnCapabilityImpl(
             id = "capabilityId",
             actionSpec = ACTION_SPEC,
-            property = Properties.newBuilder().setRequiredEntityField(
-                Property.Builder<Entity>().build()
+            property = Properties.newBuilder().setRequiredStringField(
+                Property.Builder<StringValue>().build()
             ).build(),
             executionCallback = executionCallback
         )
@@ -327,11 +330,11 @@ class SingleTurnCapabilityTest {
                 .setArguments(Arguments::class.java, Arguments::newBuilder)
                 .setOutput(Output::class.java)
                 .bindParameter(
-                    "requiredEntity",
-                    Properties::requiredEntityField,
-                    Arguments.Builder::setRequiredEntityField,
-                    TypeConverters.ENTITY_PARAM_VALUE_CONVERTER,
-                    TypeConverters.ENTITY_ENTITY_CONVERTER
+                    "requiredString",
+                    Properties::requiredStringField,
+                    Arguments.Builder::setRequiredStringField,
+                    TypeConverters.STRING_PARAM_VALUE_CONVERTER,
+                    TypeConverters.STRING_VALUE_ENTITY_CONVERTER
                 )
                 .bindOptionalParameter(
                     "optionalString",

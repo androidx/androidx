@@ -44,7 +44,6 @@ import androidx.appactions.builtintypes.experimental.types.SafetyCheck;
 import androidx.appactions.builtintypes.experimental.types.Timer;
 import androidx.appactions.interaction.capabilities.core.SearchAction;
 import androidx.appactions.interaction.capabilities.core.impl.exceptions.StructConversionException;
-import androidx.appactions.interaction.capabilities.core.values.EntityValue;
 import androidx.appactions.interaction.proto.Entity;
 import androidx.appactions.interaction.proto.ParamValue;
 import androidx.appactions.interaction.protobuf.ListValue;
@@ -189,22 +188,6 @@ public final class TypeConvertersTest {
 
     private static ParamValue toParamValue(Struct struct, String identifier) {
         return ParamValue.newBuilder().setIdentifier(identifier).setStructValue(struct).build();
-    }
-
-    @Test
-    public void toEntityValue() throws Exception {
-        List<ParamValue> input =
-                Collections.singletonList(
-                        ParamValue.newBuilder()
-                                .setIdentifier("entity-id")
-                                .setStringValue("string-val")
-                                .build());
-
-        assertThat(
-                SlotTypeConverter.ofSingular(TypeConverters.ENTITY_PARAM_VALUE_CONVERTER)
-                        .convert(input))
-                .isEqualTo(
-                        EntityValue.newBuilder().setId("entity-id").setValue("string-val").build());
     }
 
     @Test
