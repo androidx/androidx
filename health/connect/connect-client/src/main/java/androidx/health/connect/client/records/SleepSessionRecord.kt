@@ -32,14 +32,15 @@ import java.time.ZoneOffset
  * continuous but shouldn't overlap.
  *
  * Example code demonstrate how to read sleep session with stages:
+ *
  * @sample androidx.health.connect.client.samples.ReadSleepSessions
  *
  * When deleting a session, associated sleep stage records need to be deleted separately:
- * @sample androidx.health.connect.client.samples.DeleteSleepSession
  *
+ * @sample androidx.health.connect.client.samples.DeleteSleepSession
  * @see SleepStageRecord
  */
-public class SleepSessionRecord @RestrictTo(RestrictTo.Scope.LIBRARY) constructor(
+public class SleepSessionRecord(
     override val startTime: Instant,
     override val startZoneOffset: ZoneOffset?,
     override val endTime: Instant,
@@ -48,30 +49,9 @@ public class SleepSessionRecord @RestrictTo(RestrictTo.Scope.LIBRARY) constructo
     public val title: String? = null,
     /** Additional notes for the session. Optional field. */
     public val notes: String? = null,
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY)
     public val stages: List<Stage> = emptyList(),
     override val metadata: Metadata = Metadata.EMPTY,
 ) : IntervalRecord {
-    public constructor(
-        startTime: Instant,
-        startZoneOffset: ZoneOffset?,
-        endTime: Instant,
-        endZoneOffset: ZoneOffset?,
-        /** Title of the session. Optional field. */
-        title: String? = null,
-        /** Additional notes for the session. Optional field. */
-        notes: String? = null,
-        metadata: Metadata = Metadata.EMPTY,
-    ) : this(
-        startTime,
-        startZoneOffset,
-        endTime,
-        endZoneOffset,
-        title,
-        notes,
-        emptyList(),
-        metadata
-    )
 
     init {
         require(startTime.isBefore(endTime)) { "startTime must be before endTime." }
@@ -124,38 +104,30 @@ public class SleepSessionRecord @RestrictTo(RestrictTo.Scope.LIBRARY) constructo
             AggregateMetric.durationMetric("SleepSession")
 
         /** Use this type if the stage of sleep is unknown. */
-        @RestrictTo(RestrictTo.Scope.LIBRARY)
         const val STAGE_TYPE_UNKNOWN = 0
 
         /**
          * The user is awake and either known to be in bed, or it is unknown whether they are in bed
          * or not.
          */
-        @RestrictTo(RestrictTo.Scope.LIBRARY)
         const val STAGE_TYPE_AWAKE = 1
 
         /** The user is asleep but the particular stage of sleep (light, deep or REM) is unknown. */
-        @RestrictTo(RestrictTo.Scope.LIBRARY)
         const val STAGE_TYPE_SLEEPING = 2
 
         /** The user is out of bed and assumed to be awake. */
-        @RestrictTo(RestrictTo.Scope.LIBRARY)
         const val STAGE_TYPE_OUT_OF_BED = 3
 
         /** The user is in a light sleep stage. */
-        @RestrictTo(RestrictTo.Scope.LIBRARY)
         const val STAGE_TYPE_LIGHT = 4
 
         /** The user is in a deep sleep stage. */
-        @RestrictTo(RestrictTo.Scope.LIBRARY)
         const val STAGE_TYPE_DEEP = 5
 
         /** The user is in a REM sleep stage. */
-        @RestrictTo(RestrictTo.Scope.LIBRARY)
         const val STAGE_TYPE_REM = 6
 
         /** The user is awake and in bed. */
-        @RestrictTo(RestrictTo.Scope.LIBRARY)
         const val STAGE_TYPE_AWAKE_IN_BED = 7
 
         @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -180,21 +152,22 @@ public class SleepSessionRecord @RestrictTo(RestrictTo.Scope.LIBRARY) constructo
 
     /**
      * Type of sleep stage.
+     *
      * @suppress
      */
     @Retention(AnnotationRetention.SOURCE)
     @IntDef(
         value =
-        [
-            STAGE_TYPE_UNKNOWN,
-            STAGE_TYPE_AWAKE,
-            STAGE_TYPE_SLEEPING,
-            STAGE_TYPE_OUT_OF_BED,
-            STAGE_TYPE_LIGHT,
-            STAGE_TYPE_DEEP,
-            STAGE_TYPE_REM,
-            STAGE_TYPE_AWAKE_IN_BED,
-        ]
+            [
+                STAGE_TYPE_UNKNOWN,
+                STAGE_TYPE_AWAKE,
+                STAGE_TYPE_SLEEPING,
+                STAGE_TYPE_OUT_OF_BED,
+                STAGE_TYPE_LIGHT,
+                STAGE_TYPE_DEEP,
+                STAGE_TYPE_REM,
+                STAGE_TYPE_AWAKE_IN_BED,
+            ]
     )
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     annotation class StageTypes
@@ -204,7 +177,6 @@ public class SleepSessionRecord @RestrictTo(RestrictTo.Scope.LIBRARY) constructo
      *
      * @see SleepSessionRecord
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
     public class Stage(
         val startTime: Instant,
         val endTime: Instant,
