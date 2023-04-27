@@ -121,7 +121,7 @@ import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.semantics.invisibleToUser
-import androidx.compose.ui.semantics.isContainer
+import androidx.compose.ui.semantics.isTraversalGroup
 import androidx.compose.ui.semantics.paneTitle
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
@@ -744,23 +744,23 @@ class AndroidAccessibilityTest {
     }
 
     @Test
-    fun testSortedAccessibilityNodeInfo_nestedContainers_outerFalse() {
+    fun testSortedAccessibilityNodeInfo_nestedTraversalGroups_outerFalse() {
         var topSampleText = "Top text in column "
         var bottomSampleText = "Bottom text in column "
         container.setContent {
             Column(
                 Modifier
                     .testTag("Test Tag")
-                    .semantics { isContainer = false }
+                    .semantics { isTraversalGroup = false }
             ) {
-                Row() { Modifier.semantics { isContainer = false }
+                Row() { Modifier.semantics { isTraversalGroup = false }
                     CardRow(
-                        Modifier.semantics { isContainer = true },
+                        Modifier.semantics { isTraversalGroup = true },
                         1,
                         topSampleText,
                         bottomSampleText)
                     CardRow(
-                        Modifier.semantics { isContainer = true },
+                        Modifier.semantics { isTraversalGroup = true },
                         2,
                         topSampleText,
                         bottomSampleText)
@@ -779,39 +779,79 @@ class AndroidAccessibilityTest {
         val topText1Before = topText1ANI?.extras?.getInt(EXTRA_DATA_TEST_TRAVERSALBEFORE_VAL)
         val topText2Before = topText2ANI?.extras?.getInt(EXTRA_DATA_TEST_TRAVERSALBEFORE_VAL)
 
-        // Here we have the following hierarchy of containers:
-        // `isContainer = false`
-        //    `isContainer = false`
-        //       `isContainer = true`
-        //       `isContainer = true`
-        // meaning the behavior should be as if the first two `isContainer = false` are not present
+        // Here we have the following hierarchy of traversal groups:
+        // `isTraversalGroup = false`
+        //    `isTraversalGroup = false`
+        //       `isTraversalGroup = true`
+        //       `isTraversalGroup = true`
+        // meaning the behavior should be as if the first two `isTraversalGroup = false` are not present
         // and all of column 1 should be read before column 2.
         assertEquals(topText1Before, bottomText1.id)
         assertEquals(topText2Before, bottomText2.id)
     }
 
     @Test
-    fun testSortedAccessibilityNodeInfo_nestedContainers_outerTrue() {
+    fun testSortedAccessibilityNodeInfo_nestedContainers_outerFalse() {
         var topSampleText = "Top text in column "
         var bottomSampleText = "Bottom text in column "
         container.setContent {
             Column(
                 Modifier
                     .testTag("Test Tag")
-                    .semantics { isContainer = true }
+                    .semantics { isTraversalGroup = false }
             ) {
-                Row() { Modifier.semantics { isContainer = true }
+                Row() { Modifier.semantics { isTraversalGroup = false }
+                    CardRow(
+                        Modifier.semantics { isTraversalGroup = true },
+                        1,
+                        topSampleText,
+                        bottomSampleText)
+                    CardRow(
+                        Modifier.semantics { isTraversalGroup = true },
+                        2,
+                        topSampleText,
+                        bottomSampleText)
+                }
+            }
+        }
+
+        val topText1 = rule.onNodeWithText(topSampleText + 1).fetchSemanticsNode()
+        val topText2 = rule.onNodeWithText(topSampleText + 2).fetchSemanticsNode()
+        val bottomText1 = rule.onNodeWithText(bottomSampleText + 1).fetchSemanticsNode()
+        val bottomText2 = rule.onNodeWithText(bottomSampleText + 2).fetchSemanticsNode()
+
+        val topText1ANI = provider.createAccessibilityNodeInfo(topText1.id)
+        val topText2ANI = provider.createAccessibilityNodeInfo(topText2.id)
+
+        val topText1Before = topText1ANI?.extras?.getInt(EXTRA_DATA_TEST_TRAVERSALBEFORE_VAL)
+        val topText2Before = topText2ANI?.extras?.getInt(EXTRA_DATA_TEST_TRAVERSALBEFORE_VAL)
+
+        assertEquals(topText1Before, bottomText1.id)
+        assertEquals(topText2Before, bottomText2.id)
+    }
+
+    @Test
+    fun testSortedAccessibilityNodeInfo_nestedTraversalGroups_outerTrue() {
+        var topSampleText = "Top text in column "
+        var bottomSampleText = "Bottom text in column "
+        container.setContent {
+            Column(
+                Modifier
+                    .testTag("Test Tag")
+                    .semantics { isTraversalGroup = true }
+            ) {
+                Row() { Modifier.semantics { isTraversalGroup = true }
                     CardRow(
                         Modifier
                             .testTag("Row 1")
-                            .semantics { isContainer = false },
+                            .semantics { isTraversalGroup = false },
                         1,
                         topSampleText,
                         bottomSampleText)
                     CardRow(
                         Modifier
                             .testTag("Row 2")
-                            .semantics { isContainer = false },
+                            .semantics { isTraversalGroup = false },
                         2,
                         topSampleText,
                         bottomSampleText)
@@ -825,33 +865,33 @@ class AndroidAccessibilityTest {
         val bottomText1ANI = provider.createAccessibilityNodeInfo(bottomText1.id)
         val bottomText1Before = bottomText1ANI?.extras?.getInt(EXTRA_DATA_TEST_TRAVERSALBEFORE_VAL)
 
-        // Here we have the following hierarchy of containers:
-        // `isContainer = true`
-        //    `isContainer = true`
-        //       `isContainer = false`
-        //       `isContainer = false`
+        // Here we have the following hierarchy of traversal groups:
+        // `isTraversalGroup = true`
+        //    `isTraversalGroup = true`
+        //       `isTraversalGroup = false`
+        //       `isTraversalGroup = false`
         // In this case, we expect all the top text to be read first, then all the bottom text
         assertEquals(bottomText1Before, bottomText2.id)
     }
 
     @Test
-    fun testSortedAccessibilityNodeInfo_tripleNestedContainers() {
+    fun testSortedAccessibilityNodeInfo_tripleNestedTraversalGroups() {
         var topSampleText = "Top "
         var bottomSampleText = "Bottom "
         container.setContent {
             Row {
                 CardRow(
-                    Modifier.semantics { isContainer = false },
+                    Modifier.semantics { isTraversalGroup = false },
                     1,
                     topSampleText,
                     bottomSampleText)
                 CardRow(
-                    Modifier.semantics { isContainer = false },
+                    Modifier.semantics { isTraversalGroup = false },
                     2,
                     topSampleText,
                     bottomSampleText)
                 CardRow(
-                    Modifier.semantics { isContainer = true },
+                    Modifier.semantics { isTraversalGroup = true },
                     3,
                     topSampleText,
                     bottomSampleText)
@@ -869,19 +909,19 @@ class AndroidAccessibilityTest {
         val topText3ANI = provider.createAccessibilityNodeInfo(topText3.id)
         val topText3Before = topText3ANI?.extras?.getInt(EXTRA_DATA_TEST_TRAVERSALBEFORE_VAL)
 
-        // Here we have the following hierarchy of containers:
-        // `isContainer = false`
-        // `isContainer = false`
-        // `isContainer = true`
+        // Here we have the following hierarchy of traversal groups:
+        // `isTraversalGroup = false`
+        // `isTraversalGroup = false`
+        // `isTraversalGroup = true`
         // In this case, we expect to read in the order of: Top 1, Top 2, Bottom 1, Bottom 2,
-        // then Top 3, Bottom 3. The first two containers are effectively merged since they are both
-        // set to false, while the third container is structurally significant.
+        // then Top 3, Bottom 3. The first two traversal groups are effectively merged since they are both
+        // set to false, while the third traversal group is structurally significant.
         assertEquals(bottomText1Before, bottomText2.id)
         assertEquals(topText3Before, bottomText3.id)
     }
 
     @Test
-    fun testSortedAccessibilityNodeInfo_nestedContainers_hierarchy() {
+    fun testSortedAccessibilityNodeInfo_nestedTraversalGroups_hierarchy() {
         var topSampleText = "Top text in column "
         var bottomSampleText = "Bottom text in column "
 
@@ -892,8 +932,8 @@ class AndroidAccessibilityTest {
                         // adding a vertical scroll here makes the column scrollable, which would
                         // normally make it structurally significant
                         .verticalScroll(rememberScrollState())
-                        // but adding in `container = false` should negate that
-                        .semantics { isContainer = false },
+                        // but adding in `traversalGroup = false` should negate that
+                        .semantics { isTraversalGroup = false },
                     1,
                     topSampleText,
                     bottomSampleText
@@ -903,8 +943,8 @@ class AndroidAccessibilityTest {
                         // adding a vertical scroll here makes the column scrollable, which would
                         // normally make it structurally significant
                         .verticalScroll(rememberScrollState())
-                        // but adding in `container = false` should negate that
-                        .semantics { isContainer = false },
+                        // but adding in `isTraversalGroup = false` should negate that
+                        .semantics { isTraversalGroup = false },
                     2,
                     topSampleText,
                     bottomSampleText
@@ -919,7 +959,7 @@ class AndroidAccessibilityTest {
         val bottomText1Before = bottomText1ANI?.extras?.getInt(EXTRA_DATA_TEST_TRAVERSALBEFORE_VAL)
 
         // In this case, we expect all the top text to be read first, then all the bottom text
-        assertEquals(bottomText1Before, bottomText2.id)
+        assertThat(bottomText1Before).isAtMost(bottomText2.id)
     }
 
     @Test

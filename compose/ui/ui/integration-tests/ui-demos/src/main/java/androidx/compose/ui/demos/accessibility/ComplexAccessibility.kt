@@ -41,7 +41,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.semantics.isContainer
+import androidx.compose.ui.semantics.isTraversalGroup
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -117,16 +117,16 @@ fun NestedContainersFalseDemo() {
     Column(
         Modifier
             .testTag("Test Tag")
-            .semantics { isContainer = true }
+            .semantics { isTraversalGroup = true }
     ) {
-        Row() { Modifier.semantics { isContainer = true }
+        Row() { Modifier.semantics { isTraversalGroup = true }
             CardRow(
-                Modifier.semantics { isContainer = false },
+                Modifier.semantics { isTraversalGroup = false },
                 1,
                 topSampleText,
                 bottomSampleText)
             CardRow(
-                Modifier.semantics { isContainer = false },
+                Modifier.semantics { isTraversalGroup = false },
                 2,
                 topSampleText,
                 bottomSampleText)
@@ -142,16 +142,16 @@ fun NestedContainersTrueDemo() {
     Column(
         Modifier
             .testTag("Test Tag")
-            .semantics { isContainer = true }
+            .semantics { isTraversalGroup = true }
     ) {
-        Row() { Modifier.semantics { isContainer = true }
+        Row() { Modifier.semantics { isTraversalGroup = true }
             CardRow(
-                Modifier.semantics { isContainer = true },
+                Modifier.semantics { isTraversalGroup = true },
                 1,
                 topSampleText,
                 bottomSampleText)
             CardRow(
-                Modifier.semantics { isContainer = true },
+                Modifier.semantics { isTraversalGroup = true },
                 2,
                 topSampleText,
                 bottomSampleText)

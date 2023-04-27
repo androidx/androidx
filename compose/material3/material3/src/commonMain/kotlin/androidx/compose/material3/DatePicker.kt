@@ -1080,7 +1080,10 @@ internal fun DateEntryContainer(
     Column(
         modifier = modifier
             .sizeIn(minWidth = DatePickerModalTokens.ContainerWidth)
-            .semantics { isContainer = true }
+        .semantics {
+            @Suppress("DEPRECATION")
+            isContainer = true
+        }
     ) {
         DatePickerHeader(
             modifier = Modifier,
@@ -1166,7 +1169,10 @@ private fun SwitchableDateEntryContent(
     Crossfade(
         targetState = displayMode,
         animationSpec = spring(),
-        modifier = Modifier.semantics { isContainer = true }) { mode ->
+        modifier = Modifier.semantics {
+            @Suppress("DEPRECATION")
+            isContainer = true
+        }) { mode ->
         when (mode) {
             DisplayMode.Picker -> DatePickerContent(
                 selectedDateMillis = selectedDateMillis,

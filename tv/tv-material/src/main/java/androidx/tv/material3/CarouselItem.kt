@@ -94,6 +94,7 @@ internal fun CarouselItem(
     Box(
         modifier = modifier
             .semantics(mergeDescendants = true) {
+                @Suppress("DEPRECATION")
                 isContainer = true
                 collectionItemInfo =
                     CollectionItemInfo(

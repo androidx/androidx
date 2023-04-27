@@ -122,7 +122,7 @@ class SemanticsTests {
     }
 
     @Test
-    fun containerProperty() {
+    fun isTraversalGroupProperty() {
         rule.setContent {
             Surface(
                 Modifier.testTag(TestTag)
@@ -133,7 +133,7 @@ class SemanticsTests {
 
         rule.onNodeWithTag(TestTag)
             .assert(SemanticsMatcher.expectValue(
-                SemanticsProperties.IsContainer, true))
+                SemanticsProperties.IsTraversalGroup, true))
     }
 
     @Test

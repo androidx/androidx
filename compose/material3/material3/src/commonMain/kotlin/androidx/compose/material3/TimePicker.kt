@@ -980,6 +980,7 @@ private fun PeriodToggleImpl(
     Layout(
         modifier = modifier
             .semantics {
+                @Suppress("DEPRECATION")
                 isContainer = true
                 this.contentDescription = contentDescription
             }
@@ -1133,6 +1134,7 @@ internal fun ClockFace(
             .background(shape = CircleShape, color = colors.clockDialColor)
             .size(ClockDialContainerSize)
             .semantics {
+                @Suppress("DEPRECATION")
                 isContainer = false
                 selectableGroup()
             },
