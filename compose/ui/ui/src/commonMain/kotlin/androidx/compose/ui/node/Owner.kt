@@ -33,6 +33,7 @@ import androidx.compose.ui.platform.ClipboardManager
 import androidx.compose.ui.platform.TextToolbar
 import androidx.compose.ui.platform.ViewConfiguration
 import androidx.compose.ui.platform.WindowInfo
+import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.PlatformTextInputPluginRegistry
@@ -111,6 +112,7 @@ internal interface Owner {
 
     val textInputService: TextInputService
 
+    @OptIn(ExperimentalTextApi::class)
     val platformTextInputPluginRegistry: PlatformTextInputPluginRegistry
 
     val pointerIconService: PointerIconService
