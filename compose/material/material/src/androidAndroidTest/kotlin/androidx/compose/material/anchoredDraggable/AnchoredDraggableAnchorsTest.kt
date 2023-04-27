@@ -21,13 +21,14 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.AnchoredDraggableState.AnchorChangedCallback
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.AnchoredDraggableDefaults.ReconcileAnimationOnAnchorChangedCallback
 import androidx.compose.material.AnchoredDraggableState
+import androidx.compose.material.AnchoredDraggableState.AnchorChangedCallback
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.anchoredDraggable.AnchoredDraggableTestValue.A
 import androidx.compose.material.anchoredDraggable.AnchoredDraggableTestValue.B
 import androidx.compose.material.anchoredDraggable.AnchoredDraggableTestValue.C
+import androidx.compose.material.animateTo
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
