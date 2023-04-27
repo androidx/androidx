@@ -98,6 +98,9 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.toComposeRect
+import androidx.compose.ui.input.pointer.PointerEvent
+import androidx.compose.ui.input.pointer.PointerEventType
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.platform.AndroidComposeView
@@ -2823,6 +2826,81 @@ class AndroidAccessibilityTest {
                 )
             )
         }
+    }
+
+    @Test
+    fun testViewInterop_dualHoverEnterExit() {
+        val colTag = "ColTag"
+        val textTag = "TextTag"
+        val buttonText = "button text"
+        val events = mutableListOf<PointerEvent>()
+        container.setContent {
+            Column(Modifier
+                .testTag(colTag)
+                .pointerInput(Unit) {
+                    awaitPointerEventScope {
+                        while (true) {
+                            val event = awaitPointerEvent()
+                            event.changes[0].consume()
+                            events += event
+                        }
+                    }
+                }
+            ) {
+                AndroidView(::Button) {
+                    it.text = buttonText
+                    it.setOnClickListener {}
+                }
+                BasicText(text = "text", modifier = Modifier.testTag(textTag))
+            }
+        }
+
+        val colSemanticsNode = rule.onNodeWithTag(colTag)
+            .fetchSemanticsNode("can't find node with tag $colTag")
+        rule.runOnUiThread {
+            val bounds = colSemanticsNode.replacedChildren[0].boundsInRoot
+            val hoverEnter = createHoverMotionEvent(
+                action = ACTION_HOVER_ENTER,
+                x = (bounds.left + bounds.right) / 2f,
+                y = (bounds.top + bounds.bottom) / 2f
+            )
+            assertTrue(androidComposeView.dispatchHoverEvent(hoverEnter))
+            assertEquals(
+                AndroidComposeViewAccessibilityDelegateCompat.InvalidId,
+                delegate.hoveredVirtualViewId
+            )
+            // Assert that the hover event has also been dispatched
+            assertThat(events).hasSize(1)
+            // and that the hover event is an enter event
+            assertHoverEvent(events[0], isEnter = true)
+        }
+        rule.runOnIdle {
+            verify(container, times(1)).requestSendAccessibilityEvent(
+                eq(androidComposeView),
+                argThat(
+                    ArgumentMatcher {
+                        it.eventType == AccessibilityEvent.TYPE_VIEW_HOVER_ENTER
+                    }
+                )
+            )
+        }
+    }
+
+    private fun assertHoverEvent(
+        event: PointerEvent,
+        isEnter: Boolean = false,
+        isExit: Boolean = false
+    ) {
+        assertThat(event.changes).hasSize(1)
+        val change = event.changes[0]
+        assertThat(change.pressed).isFalse()
+        assertThat(change.previousPressed).isFalse()
+        val expectedHoverType = when {
+            isEnter -> PointerEventType.Enter
+            isExit -> PointerEventType.Exit
+            else -> PointerEventType.Move
+        }
+        assertThat(event.type).isEqualTo(expectedHoverType)
     }
 
     fun createHoverMotionEvent(action: Int, x: Float, y: Float): MotionEvent {
