@@ -16,7 +16,8 @@
 
 package androidx.compose.material3
 
-import androidx.compose.animation.Crossfade
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.SizeTransform
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.DecayAnimationSpec
 import androidx.compose.animation.core.Spring
@@ -27,6 +28,9 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.FlingBehavior
@@ -1080,10 +1084,10 @@ internal fun DateEntryContainer(
     Column(
         modifier = modifier
             .sizeIn(minWidth = DatePickerModalTokens.ContainerWidth)
-        .semantics {
-            @Suppress("DEPRECATION")
-            isContainer = true
-        }
+            .semantics {
+                @Suppress("DEPRECATION")
+                isContainer = true
+            }
     ) {
         DatePickerHeader(
             modifier = Modifier,
@@ -1164,15 +1168,55 @@ private fun SwitchableDateEntryContent(
     selectableDates: SelectableDates,
     colors: DatePickerColors
 ) {
-    // TODO(b/266480386): Apply the motion spec for this once we have it. Consider replacing this
-    //  with AnimatedContent when it's out of experimental.
-    Crossfade(
+    // Parallax effect offset that will slightly scroll in and out the navigation part of the picker
+    // when the display mode changes.
+    val parallaxTarget = with(LocalDensity.current) { -48.dp.roundToPx() }
+    AnimatedContent(
         targetState = displayMode,
-        animationSpec = spring(),
         modifier = Modifier.semantics {
             @Suppress("DEPRECATION")
             isContainer = true
-        }) { mode ->
+        },
+        transitionSpec = {
+            // When animating the input mode, fade out the calendar picker and slide in the text
+            // field from the bottom with a delay to show up after the picker is hidden.
+            if (targetState == DisplayMode.Input) {
+                slideInVertically { height -> height } + fadeIn(
+                    animationSpec = tween(
+                        durationMillis = MotionTokens.DurationShort2.toInt(),
+                        delayMillis = MotionTokens.DurationShort2.toInt()
+                    )
+                ) togetherWith fadeOut(
+                    tween(durationMillis = MotionTokens.DurationShort2.toInt())
+                ) + slideOutVertically(targetOffsetY = { _ -> parallaxTarget })
+            } else {
+                // When animating the picker mode, slide out text field and fade in calendar
+                // picker with a delay to show up after the text field is hidden.
+                slideInVertically(
+                    animationSpec = tween(
+                        delayMillis = MotionTokens.DurationShort1.toInt()
+                    ),
+                    initialOffsetY = { _ -> parallaxTarget }
+                ) + fadeIn(
+                    animationSpec = tween(
+                        durationMillis = MotionTokens.DurationShort2.toInt(),
+                        delayMillis = MotionTokens.DurationShort2.toInt()
+                    )
+                ) togetherWith slideOutVertically(targetOffsetY = { fullHeight -> fullHeight }) +
+                    fadeOut(animationSpec = tween(MotionTokens.DurationShort2.toInt()))
+            }.using(
+                SizeTransform(
+                    clip = true,
+                    sizeAnimationSpec = { _, _ ->
+                        tween(
+                            MotionTokens.DurationLong2.toInt(),
+                            easing = MotionTokens.EasingEmphasizedDecelerateCubicBezier
+                        )
+                    })
+            )
+        },
+        label = "DatePickerDisplayModeAnimation"
+    ) { mode ->
         when (mode) {
             DisplayMode.Picker -> DatePickerContent(
                 selectedDateMillis = selectedDateMillis,
