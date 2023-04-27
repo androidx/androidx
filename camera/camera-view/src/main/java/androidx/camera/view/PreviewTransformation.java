@@ -178,19 +178,16 @@ final class PreviewTransformation {
      * whether the camera transform is present.
      */
     private int getRemainingRotationDegrees() {
-        if (mTargetRotation == ROTATION_NOT_SPECIFIED && !mHasCameraTransform) {
+        if (!mHasCameraTransform) {
             // If the Surface is not connected to the camera, then the SurfaceView/TextureView will
             // not apply any transformation. In that case, we need to apply the rotation
             // calculated by CameraX.
             return mPreviewRotationDegrees;
-        } else if (mHasCameraTransform && mTargetRotation != ROTATION_NOT_SPECIFIED) {
+        } else {
             // If the Surface is connected to the camera, then the SurfaceView/TextureView
             // will be the one to apply the camera orientation. In that case, only the Surface
             // rotation needs to be applied by PreviewView.
             return -surfaceRotationToDegrees(mTargetRotation);
-        } else {
-            throw new IllegalStateException("Target rotation must be specified. Target rotation: "
-                    + mTargetRotation + " hasCameraTransform " + mHasCameraTransform);
         }
     }
 
