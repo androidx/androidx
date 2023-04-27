@@ -78,8 +78,7 @@ class UiResponse {
     class RemoteViewsUiBuilder {
         private var remoteViews: RemoteViews? = null
         private var size: SizeF? = null
-        private val changedViewIds: HashSet<Int> = HashSet()
-        private val remoteViewsFactories: HashMap<Int, RemoteViewsFactory> = HashMap()
+        private val collectionViewFactories: HashMap<Int, RemoteViewsFactory> = HashMap()
 
         /**
          * Sets the `RemoteViews` to be displayed in the host.
@@ -91,18 +90,6 @@ class UiResponse {
         fun setRemoteViews(remoteViews: RemoteViews, size: SizeF?): RemoteViewsUiBuilder {
             this.remoteViews = remoteViews
             this.size = size
-            return this
-        }
-
-        /**
-         * Add the specified view ID to the list of changed views for RemoteViews collection update.
-         *
-         * Any errors resulting from the provided view IDs will contain "RemoteViewsCollection
-         * error: " errors with some message from the host.
-         */
-        @SuppressLint("MissingGetterMatchingBuilder")
-        fun addViewIdForCollectionUpdate(@IdRes viewId: Int): RemoteViewsUiBuilder {
-            changedViewIds.add(viewId)
             return this
         }
 
@@ -119,14 +106,14 @@ class UiResponse {
             @IdRes viewId: Int,
             factory: RemoteViewsFactory
         ): RemoteViewsUiBuilder {
-            remoteViewsFactories.put(viewId, factory)
+            collectionViewFactories.put(viewId, factory)
             return this
         }
 
         /** Builds the UiResponse. */
         fun build() =
             UiResponse(
-                RemoteViewsInternal(remoteViews!!, size!!, changedViewIds, remoteViewsFactories)
+                RemoteViewsInternal(remoteViews!!, size!!, collectionViewFactories)
             )
     }
 }
