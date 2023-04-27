@@ -520,6 +520,7 @@ fun toRecord(proto: DataProto.DataPoint): Record =
                     startZoneOffset = startZoneOffset,
                     endTime = endTime,
                     endZoneOffset = endZoneOffset,
+                    stages = subTypeDataListsMap["stages"]?.toStageList() ?: listOf(),
                     metadata = metadata
                 )
             "SleepStage" ->
