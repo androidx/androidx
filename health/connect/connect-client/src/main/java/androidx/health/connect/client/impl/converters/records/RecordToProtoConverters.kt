@@ -75,38 +75,41 @@ fun Record.toProto(): DataProto.DataPoint =
                 .apply {
                     putValues("temperature", doubleVal(temperature.inCelsius))
                     enumValFromInt(
-                            measurementLocation,
-                            BodyTemperatureMeasurementLocation
-                                .MEASUREMENT_LOCATION_INT_TO_STRING_MAP,
-                        )
+                        measurementLocation,
+                        BodyTemperatureMeasurementLocation
+                            .MEASUREMENT_LOCATION_INT_TO_STRING_MAP,
+                    )
                         ?.let { putValues("measurementLocation", it) }
                 }
                 .build()
+
         is BasalMetabolicRateRecord ->
             instantaneousProto()
                 .setDataType(protoDataType("BasalMetabolicRate"))
                 .apply { putValues("bmr", doubleVal(basalMetabolicRate.inKilocaloriesPerDay)) }
                 .build()
+
         is BloodGlucoseRecord ->
             instantaneousProto()
                 .setDataType(protoDataType("BloodGlucose"))
                 .apply {
                     putValues("level", doubleVal(level.inMillimolesPerLiter))
                     enumValFromInt(
-                            specimenSource,
-                            BloodGlucoseRecord.SPECIMEN_SOURCE_INT_TO_STRING_MAP
-                        )
+                        specimenSource,
+                        BloodGlucoseRecord.SPECIMEN_SOURCE_INT_TO_STRING_MAP
+                    )
                         ?.let { putValues("specimenSource", it) }
                     enumValFromInt(mealType, MealType.MEAL_TYPE_INT_TO_STRING_MAP)?.let {
                         putValues("mealType", it)
                     }
                     enumValFromInt(
-                            relationToMeal,
-                            BloodGlucoseRecord.RELATION_TO_MEAL_INT_TO_STRING_MAP,
-                        )
+                        relationToMeal,
+                        BloodGlucoseRecord.RELATION_TO_MEAL_INT_TO_STRING_MAP,
+                    )
                         ?.let { putValues("relationToMeal", it) }
                 }
                 .build()
+
         is BloodPressureRecord ->
             instantaneousProto()
                 .setDataType(protoDataType("BloodPressure"))
@@ -114,45 +117,50 @@ fun Record.toProto(): DataProto.DataPoint =
                     putValues("systolic", doubleVal(systolic.inMillimetersOfMercury))
                     putValues("diastolic", doubleVal(diastolic.inMillimetersOfMercury))
                     enumValFromInt(
-                            bodyPosition,
-                            BloodPressureRecord.BODY_POSITION_INT_TO_STRING_MAP
-                        )
+                        bodyPosition,
+                        BloodPressureRecord.BODY_POSITION_INT_TO_STRING_MAP
+                    )
                         ?.let { putValues("bodyPosition", it) }
                     enumValFromInt(
-                            measurementLocation,
-                            BloodPressureRecord.MEASUREMENT_LOCATION_INT_TO_STRING_MAP
-                        )
+                        measurementLocation,
+                        BloodPressureRecord.MEASUREMENT_LOCATION_INT_TO_STRING_MAP
+                    )
                         ?.let { putValues("measurementLocation", it) }
                 }
                 .build()
+
         is BodyFatRecord ->
             instantaneousProto()
                 .setDataType(protoDataType("BodyFat"))
                 .apply { putValues("percentage", doubleVal(percentage.value)) }
                 .build()
+
         is BodyTemperatureRecord ->
             instantaneousProto()
                 .setDataType(protoDataType("BodyTemperature"))
                 .apply {
                     putValues("temperature", doubleVal(temperature.inCelsius))
                     enumValFromInt(
-                            measurementLocation,
-                            BodyTemperatureMeasurementLocation
-                                .MEASUREMENT_LOCATION_INT_TO_STRING_MAP,
-                        )
+                        measurementLocation,
+                        BodyTemperatureMeasurementLocation
+                            .MEASUREMENT_LOCATION_INT_TO_STRING_MAP,
+                    )
                         ?.let { putValues("measurementLocation", it) }
                 }
                 .build()
+
         is BodyWaterMassRecord ->
             instantaneousProto()
                 .setDataType(protoDataType("BodyWaterMass"))
                 .apply { putValues("mass", doubleVal(mass.inKilograms)) }
                 .build()
+
         is BoneMassRecord ->
             instantaneousProto()
                 .setDataType(protoDataType("BoneMass"))
                 .apply { putValues("mass", doubleVal(mass.inKilograms)) }
                 .build()
+
         is CervicalMucusRecord ->
             instantaneousProto()
                 .setDataType(protoDataType("CervicalMucus"))
@@ -165,6 +173,7 @@ fun Record.toProto(): DataProto.DataPoint =
                     }
                 }
                 .build()
+
         is CyclingPedalingCadenceRecord ->
             toProto(dataTypeName = "CyclingPedalingCadenceSeries") { sample ->
                 DataProto.SeriesValue.newBuilder()
@@ -172,6 +181,7 @@ fun Record.toProto(): DataProto.DataPoint =
                     .setInstantTimeMillis(sample.time.toEpochMilli())
                     .build()
             }
+
         is HeartRateRecord ->
             toProto(dataTypeName = "HeartRateSeries") { sample ->
                 DataProto.SeriesValue.newBuilder()
@@ -179,23 +189,28 @@ fun Record.toProto(): DataProto.DataPoint =
                     .setInstantTimeMillis(sample.time.toEpochMilli())
                     .build()
             }
+
         is HeightRecord ->
             instantaneousProto()
                 .setDataType(protoDataType("Height"))
                 .apply { putValues("height", doubleVal(height.inMeters)) }
                 .build()
+
         is HeartRateVariabilityRmssdRecord ->
             instantaneousProto()
                 .setDataType(protoDataType("HeartRateVariabilityRmssd"))
                 .apply { putValues("heartRateVariability", doubleVal(heartRateVariabilityMillis)) }
                 .build()
+
         is IntermenstrualBleedingRecord ->
             instantaneousProto().setDataType(protoDataType("IntermenstrualBleeding")).build()
+
         is LeanBodyMassRecord ->
             instantaneousProto()
                 .setDataType(protoDataType("LeanBodyMass"))
                 .apply { putValues("mass", doubleVal(mass.inKilograms)) }
                 .build()
+
         is MenstruationFlowRecord ->
             instantaneousProto()
                 .setDataType(protoDataType("Menstruation"))
@@ -205,8 +220,10 @@ fun Record.toProto(): DataProto.DataPoint =
                     }
                 }
                 .build()
+
         is MenstruationPeriodRecord ->
             intervalProto().setDataType(protoDataType("MenstruationPeriod")).build()
+
         is OvulationTestRecord ->
             instantaneousProto()
                 .setDataType(protoDataType("OvulationTest"))
@@ -216,11 +233,13 @@ fun Record.toProto(): DataProto.DataPoint =
                     }
                 }
                 .build()
+
         is OxygenSaturationRecord ->
             instantaneousProto()
                 .setDataType(protoDataType("OxygenSaturation"))
                 .apply { putValues("percentage", doubleVal(percentage.value)) }
                 .build()
+
         is PowerRecord ->
             toProto(dataTypeName = "PowerSeries") { sample ->
                 DataProto.SeriesValue.newBuilder()
@@ -228,27 +247,31 @@ fun Record.toProto(): DataProto.DataPoint =
                     .setInstantTimeMillis(sample.time.toEpochMilli())
                     .build()
             }
+
         is RespiratoryRateRecord ->
             instantaneousProto()
                 .setDataType(protoDataType("RespiratoryRate"))
                 .apply { putValues("rate", doubleVal(rate)) }
                 .build()
+
         is RestingHeartRateRecord ->
             instantaneousProto()
                 .setDataType(protoDataType("RestingHeartRate"))
                 .apply { putValues("bpm", longVal(beatsPerMinute)) }
                 .build()
+
         is SexualActivityRecord ->
             instantaneousProto()
                 .setDataType(protoDataType("SexualActivity"))
                 .apply {
                     enumValFromInt(
-                            protectionUsed,
-                            SexualActivityRecord.PROTECTION_USED_INT_TO_STRING_MAP
-                        )
+                        protectionUsed,
+                        SexualActivityRecord.PROTECTION_USED_INT_TO_STRING_MAP
+                    )
                         ?.let { putValues("protectionUsed", it) }
                 }
                 .build()
+
         is SpeedRecord ->
             toProto(dataTypeName = "SpeedSeries") { sample ->
                 DataProto.SeriesValue.newBuilder()
@@ -256,6 +279,7 @@ fun Record.toProto(): DataProto.DataPoint =
                     .setInstantTimeMillis(sample.time.toEpochMilli())
                     .build()
             }
+
         is StepsCadenceRecord ->
             toProto(dataTypeName = "StepsCadenceSeries") { sample ->
                 DataProto.SeriesValue.newBuilder()
@@ -263,28 +287,32 @@ fun Record.toProto(): DataProto.DataPoint =
                     .setInstantTimeMillis(sample.time.toEpochMilli())
                     .build()
             }
+
         is Vo2MaxRecord ->
             instantaneousProto()
                 .setDataType(protoDataType("Vo2Max"))
                 .apply {
                     putValues("vo2", doubleVal(vo2MillilitersPerMinuteKilogram))
                     enumValFromInt(
-                            measurementMethod,
-                            Vo2MaxRecord.MEASUREMENT_METHOD_INT_TO_STRING_MAP
-                        )
+                        measurementMethod,
+                        Vo2MaxRecord.MEASUREMENT_METHOD_INT_TO_STRING_MAP
+                    )
                         ?.let { putValues("measurementMethod", it) }
                 }
                 .build()
+
         is WeightRecord ->
             instantaneousProto()
                 .setDataType(protoDataType("Weight"))
                 .apply { putValues("weight", doubleVal(weight.inKilograms)) }
                 .build()
+
         is ActiveCaloriesBurnedRecord ->
             intervalProto()
                 .setDataType(protoDataType("ActiveCaloriesBurned"))
                 .apply { putValues("energy", doubleVal(energy.inKilocalories)) }
                 .build()
+
         is ExerciseSessionRecord ->
             intervalProto()
                 .setDataType(protoDataType("ActivitySession"))
@@ -300,26 +328,31 @@ fun Record.toProto(): DataProto.DataPoint =
                     notes?.let { putValues("notes", stringVal(it)) }
                 }
                 .build()
+
         is DistanceRecord ->
             intervalProto()
                 .setDataType(protoDataType("Distance"))
                 .apply { putValues("distance", doubleVal(distance.inMeters)) }
                 .build()
+
         is ElevationGainedRecord ->
             intervalProto()
                 .setDataType(protoDataType("ElevationGained"))
                 .apply { putValues("elevation", doubleVal(elevation.inMeters)) }
                 .build()
+
         is FloorsClimbedRecord ->
             intervalProto()
                 .setDataType(protoDataType("FloorsClimbed"))
                 .apply { putValues("floors", doubleVal(floors)) }
                 .build()
+
         is HydrationRecord ->
             intervalProto()
                 .setDataType(protoDataType("Hydration"))
                 .apply { putValues("volume", doubleVal(volume.inLiters)) }
                 .build()
+
         is NutritionRecord ->
             intervalProto()
                 .setDataType(protoDataType("Nutrition"))
@@ -456,14 +489,20 @@ fun Record.toProto(): DataProto.DataPoint =
                     name?.let { putValues("name", stringVal(it)) }
                 }
                 .build()
+
         is SleepSessionRecord ->
             intervalProto()
                 .setDataType(protoDataType("SleepSession"))
+                .putSubTypeDataLists("stages",
+                    DataProto.DataPoint.SubTypeDataList.newBuilder()
+                        .addAllValues(stages.map { it.toProto() }).build()
+                )
                 .apply {
                     title?.let { putValues("title", stringVal(it)) }
                     notes?.let { putValues("notes", stringVal(it)) }
                 }
                 .build()
+
         is SleepStageRecord ->
             intervalProto()
                 .setDataType(protoDataType("SleepStage"))
@@ -473,21 +512,25 @@ fun Record.toProto(): DataProto.DataPoint =
                     }
                 }
                 .build()
+
         is StepsRecord ->
             intervalProto()
                 .setDataType(protoDataType("Steps"))
                 .apply { putValues("count", longVal(count)) }
                 .build()
+
         is TotalCaloriesBurnedRecord ->
             intervalProto()
                 .setDataType(protoDataType("TotalCaloriesBurned"))
                 .apply { putValues("energy", doubleVal(energy.inKilocalories)) }
                 .build()
+
         is WheelchairPushesRecord ->
             intervalProto()
                 .setDataType(protoDataType("WheelchairPushes"))
                 .apply { putValues("count", longVal(count)) }
                 .build()
+
         else -> throw RuntimeException("Unsupported yet!")
     }
 
