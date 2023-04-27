@@ -25,12 +25,16 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.assertTopPositionInRootIsEqualTo
+import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
@@ -42,6 +46,8 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingSource
 import androidx.paging.TestPagingSource
+import androidx.paging.cachedIn
+import androidx.paging.localLoadStatesOf
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
@@ -49,6 +55,8 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import org.junit.Assert.assertFalse
 import org.junit.Ignore
 import org.junit.Rule
@@ -934,6 +942,223 @@ class LazyPagingItemsTest {
         assertThat(lazyPagingItems.itemSnapshotList).containsExactlyElementsIn(
             items
         )
+    }
+
+    @Test
+    fun cachedData() {
+        val flow = createPager().flow.cachedIn(TestScope(UnconfinedTestDispatcher()))
+        lateinit var lazyPagingItems: LazyPagingItems<Int>
+        val restorationTester = StateRestorationTester(rule)
+        val dispatcher = StandardTestDispatcher()
+        var maxItem by mutableStateOf(6)
+        restorationTester.setContent {
+            lazyPagingItems = flow.collectAsLazyPagingItems(dispatcher)
+            // load until we get 6 items
+            for (i in 0 until minOf(lazyPagingItems.itemCount, maxItem - 1)) {
+                lazyPagingItems[i]
+            }
+        }
+
+        rule.waitUntil {
+            dispatcher.scheduler.advanceUntilIdle() // let items load
+            lazyPagingItems.itemCount == maxItem
+        }
+
+        // we don't advance load dispatchers after restoration to prevent loads
+        restorationTester.emulateSavedInstanceStateRestore()
+
+        // ensure we received the cached data
+        rule.runOnIdle {
+            assertThat(lazyPagingItems.itemCount).isEqualTo(6)
+            assertThat(lazyPagingItems.itemSnapshotList).isEqualTo(listOf(1, 2, 3, 4, 5, 6))
+        }
+
+        // try to load more data
+        maxItem = 7
+        rule.waitUntil {
+            dispatcher.scheduler.advanceUntilIdle() // let items load
+            lazyPagingItems.itemCount == maxItem
+        }
+
+        rule.runOnIdle {
+            assertThat(lazyPagingItems.itemCount).isEqualTo(7)
+            assertThat(lazyPagingItems.itemSnapshotList).isEqualTo(listOf(1, 2, 3, 4, 5, 6, 7))
+        }
+    }
+
+    @Test
+    fun cachedEmptyData() {
+        val flow = createPager().flow.cachedIn(TestScope(UnconfinedTestDispatcher()))
+        lateinit var lazyPagingItems: LazyPagingItems<Int>
+        val restorationTester = StateRestorationTester(rule)
+        val dispatcher = StandardTestDispatcher()
+        restorationTester.setContent {
+            lazyPagingItems = flow.collectAsLazyPagingItems(dispatcher)
+            // load until we get 6 items
+            for (i in 0 until minOf(lazyPagingItems.itemCount, 5)) {
+                lazyPagingItems[i]
+            }
+        }
+
+        rule.runOnIdle {
+            assertThat(lazyPagingItems.itemSnapshotList).isEmpty()
+        }
+
+        // we don't let dispatchers load and directly restore state
+        restorationTester.emulateSavedInstanceStateRestore()
+
+        // empty cache
+        rule.runOnIdle {
+            assertThat(lazyPagingItems.itemCount).isEqualTo(0)
+            assertThat(lazyPagingItems.itemSnapshotList).isEmpty()
+        }
+
+        // check that new data can be loaded in properly
+        rule.waitUntil {
+            dispatcher.scheduler.advanceUntilIdle() // let items load
+            lazyPagingItems.itemCount == 6
+        }
+        rule.runOnIdle {
+            assertThat(lazyPagingItems.itemCount).isEqualTo(6)
+            assertThat(lazyPagingItems.itemSnapshotList).isEqualTo(listOf(1, 2, 3, 4, 5, 6))
+        }
+    }
+
+    @Test
+    fun cachedData_withPlaceholders() {
+        val flow = createPagerWithPlaceholders().flow
+            .cachedIn(TestScope(UnconfinedTestDispatcher()))
+        lateinit var lazyPagingItems: LazyPagingItems<Int>
+        val restorationTester = StateRestorationTester(rule)
+        val dispatcher = StandardTestDispatcher()
+        var maxItem by mutableStateOf(6)
+        var loadedMaxItem = false
+        restorationTester.setContent {
+            lazyPagingItems = flow.collectAsLazyPagingItems(dispatcher)
+            // load until we get 6 items
+            for (i in 0 until minOf(lazyPagingItems.itemCount, maxItem)) {
+                lazyPagingItems[i]
+                loadedMaxItem = lazyPagingItems.peek(i) == maxItem
+            }
+        }
+
+        rule.waitUntil {
+            dispatcher.scheduler.advanceUntilIdle() // let items load
+            loadedMaxItem
+        }
+
+        // we don't advance load dispatchers after restoration to prevent loads
+        restorationTester.emulateSavedInstanceStateRestore()
+
+        // ensure we received the cached data + placeholders
+        rule.runOnIdle {
+            assertThat(lazyPagingItems.itemCount).isEqualTo(10)
+            assertThat(lazyPagingItems.itemSnapshotList).isEqualTo(
+                listOf(1, 2, 3, 4, 5, 6, null, null, null, null)
+            )
+        }
+
+        // try to load more data
+        maxItem = 7
+        loadedMaxItem = false
+        rule.waitUntil {
+            dispatcher.scheduler.advanceUntilIdle() // let items load
+            loadedMaxItem
+        }
+        rule.runOnIdle {
+            assertThat(lazyPagingItems.itemSnapshotList).isEqualTo(
+                listOf(1, 2, 3, 4, 5, 6, 7, null, null, null)
+            )
+        }
+    }
+
+    @Test
+    fun cachedData_loadStates() {
+        val flow = createPager().flow.cachedIn(TestScope(UnconfinedTestDispatcher()))
+        lateinit var lazyPagingItems: LazyPagingItems<Int>
+        val restorationTester = StateRestorationTester(rule)
+        val dispatcher = StandardTestDispatcher()
+        var maxItem by mutableStateOf(4)
+        restorationTester.setContent {
+            lazyPagingItems = flow.collectAsLazyPagingItems(dispatcher)
+            // load until we get 6 items
+            for (i in 0 until minOf(lazyPagingItems.itemCount, maxItem - 1)) {
+                lazyPagingItems[i]
+            }
+        }
+
+        rule.waitUntil {
+            dispatcher.scheduler.advanceUntilIdle() // let items load
+            lazyPagingItems.itemCount == maxItem
+        }
+
+        assertThat(lazyPagingItems.loadState).isEqualTo(
+            localLoadStatesOf(
+                refreshLocal = LoadState.NotLoading(false),
+                prependLocal = LoadState.NotLoading(true)
+            )
+        )
+
+        // we don't advance load dispatchers after restoration to prevent loads
+        restorationTester.emulateSavedInstanceStateRestore()
+
+        // ensure we received the cached loadstates
+        rule.runOnIdle {
+            assertThat(lazyPagingItems.loadState).isEqualTo(
+                localLoadStatesOf(
+                    refreshLocal = LoadState.NotLoading(false),
+                    prependLocal = LoadState.NotLoading(true)
+                )
+            )
+        }
+    }
+
+    @Test
+    fun cachedData_restoresListState() {
+        val flow = createPager().flow.cachedIn(TestScope(UnconfinedTestDispatcher()))
+        lateinit var lazyPagingItems: LazyPagingItems<Int>
+        lateinit var state: LazyListState
+        val restorationTester = StateRestorationTester(rule)
+        val dispatcher = StandardTestDispatcher()
+        restorationTester.setContent {
+            state = rememberLazyListState()
+            lazyPagingItems = flow.collectAsLazyPagingItems(dispatcher)
+            // load until we get 6 items
+            for (i in 0 until minOf(lazyPagingItems.itemCount, 5)) {
+                lazyPagingItems[i]
+            }
+            LazyColumn(Modifier.height(itemsSizeDp * 2.5f), state) {
+                // Static items are what triggers scroll state to erroneously reset to 0
+                item {
+                    Content("header")
+                }
+                items(
+                    lazyPagingItems.itemCount, lazyPagingItems.itemKey()
+                ) { index ->
+                    val item = lazyPagingItems[index]
+                    Content("$item")
+                }
+            }
+        }
+
+        rule.waitUntil {
+            dispatcher.scheduler.advanceUntilIdle() // let items load
+            lazyPagingItems.itemCount == 6
+        }
+
+        rule.runOnIdle {
+            runBlocking { state.scrollToItem(3) }
+            assertThat(state.firstVisibleItemIndex).isEqualTo(3)
+        }
+
+        // we don't advance load dispatchers after restoration to prevent loads
+        restorationTester.emulateSavedInstanceStateRestore()
+
+        // ensure we received the cached data and preserved scroll state
+        rule.runOnIdle {
+            assertThat(lazyPagingItems.itemCount).isEqualTo(6)
+            assertThat(state.firstVisibleItemIndex).isEqualTo(3)
+        }
     }
 
     @Composable
