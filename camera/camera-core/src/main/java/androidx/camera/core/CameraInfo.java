@@ -34,7 +34,7 @@ import androidx.lifecycle.Observer;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.Collections;
-import java.util.List;
+import java.util.Set;
 
 /**
  * An interface for retrieving camera information.
@@ -271,8 +271,8 @@ public interface CameraInfo {
     }
 
     /**
-     * Returns a list of the frame rate ranges, in frames per second, supported by this device's
-     * AE algorithm.
+     * Returns an unordered set of the frame rate ranges, in frames per second, supported by this
+     * device's AE algorithm.
      *
      * <p>These are the frame rate ranges that the AE algorithm on the device can support. When
      * CameraX is configured to run with the camera2 implementation, this list will be derived
@@ -284,12 +284,14 @@ public interface CameraInfo {
      * combination of use cases. If attempting to run the device using an unsupported range, there
      * may be stability issues or the device may quietly choose another frame rate operating range.
      *
-     * @return The list of FPS ranges supported by the device's AE algorithm
+     * <p>The returned set does not have any ordering guarantees and frame rate ranges may overlap.
+     *
+     * @return The set of FPS ranges supported by the device's AE algorithm
      * @see androidx.camera.video.VideoCapture.Builder#setTargetFrameRate(Range)
      */
     @NonNull
-    default List<Range<Integer>> getSupportedFrameRateRanges() {
-        return Collections.emptyList();
+    default Set<Range<Integer>> getSupportedFrameRateRanges() {
+        return Collections.emptySet();
     }
 
     /**

@@ -69,6 +69,7 @@ import androidx.lifecycle.Observer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -493,14 +494,14 @@ public final class Camera2CameraInfoImpl implements CameraInfoInternal {
 
     @NonNull
     @Override
-    public List<Range<Integer>> getSupportedFrameRateRanges() {
+    public Set<Range<Integer>> getSupportedFrameRateRanges() {
         Range<Integer>[] availableTargetFpsRanges =
                 mCameraCharacteristicsCompat.get(
                         CameraCharacteristics.CONTROL_AE_AVAILABLE_TARGET_FPS_RANGES);
         if (availableTargetFpsRanges != null) {
-            return Arrays.asList(availableTargetFpsRanges);
+            return new HashSet<>(Arrays.asList(availableTargetFpsRanges));
         } else {
-            return Collections.emptyList();
+            return Collections.emptySet();
         }
     }
 
