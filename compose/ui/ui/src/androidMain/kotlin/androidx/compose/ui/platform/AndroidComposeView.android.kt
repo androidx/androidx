@@ -26,7 +26,6 @@ import android.os.Looper
 import android.os.SystemClock
 import android.util.Log
 import android.util.SparseArray
-import android.view.InputDevice
 import android.view.MotionEvent
 import android.view.MotionEvent.ACTION_CANCEL
 import android.view.MotionEvent.ACTION_DOWN
@@ -1592,12 +1591,11 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
         if (isBadMotionEvent(event) || !isAttachedToWindow) {
             return false // Bad MotionEvent. Don't handle it.
         }
-        if (event.isFromSource(InputDevice.SOURCE_TOUCHSCREEN) &&
-            event.getToolType(0) == MotionEvent.TOOL_TYPE_FINGER
-        ) {
-            // Accessibility touch exploration
-            return accessibilityDelegate.dispatchHoverEvent(event)
-        }
+
+        // Always call accessibilityDelegate dispatchHoverEvent (since accessibilityDelegate's
+        // dispatchHoverEvent only runs if touch exploration is enabled)
+        accessibilityDelegate.dispatchHoverEvent(event)
+
         when (event.actionMasked) {
             ACTION_HOVER_EXIT -> {
                 if (isInBounds(event)) {
