@@ -169,6 +169,25 @@ class ModelValidatorTest {
     }
 
     @Test
+    fun serviceExtendsUiAdapter_throws() {
+        val api = ParsedApi(
+            services = setOf(
+                AnnotatedInterface(
+                    type = Type(packageName = "com.mysdk", simpleName = "MySdk"),
+                    superTypes = listOf(Types.sandboxedUiAdapter),
+                ),
+            )
+        )
+        val validationResult = ModelValidator.validate(api)
+        assertThat(validationResult.isFailure).isTrue()
+        assertThat(validationResult.errors).containsExactly(
+            "Interfaces annotated with @PrivacySandboxService may not extend any other " +
+                "interface. To define a SandboxedUiAdapter, use @PrivacySandboxInterface and " +
+                "return it from this service."
+        )
+    }
+
+    @Test
     fun nonSuspendFunctionReturningValue_throws() {
         val api = ParsedApi(
             services = setOf(
