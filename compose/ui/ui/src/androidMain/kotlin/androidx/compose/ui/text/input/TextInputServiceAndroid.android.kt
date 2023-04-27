@@ -52,16 +52,9 @@ private const val DEBUG_CLASS = "TextInputServiceAndroid"
 internal class TextInputServiceAndroid(
     val view: View,
     private val inputMethodManager: InputMethodManager,
-    private val platformTextInput: PlatformTextInput?,
+    private val platformTextInput: PlatformTextInput? = null,
     private val inputCommandProcessorExecutor: Executor = Choreographer.getInstance().asExecutor(),
 ) : PlatformTextInputService {
-
-    // Non-experimental constructor.
-    constructor(
-        view: View,
-        inputMethodManager: InputMethodManager,
-        inputCommandProcessorExecutor: Executor = Choreographer.getInstance().asExecutor(),
-    ) : this(view, inputMethodManager, platformTextInput = null, inputCommandProcessorExecutor)
 
     /**
      * Commands that can be sent into [textInputCommandQueue] to be processed by
