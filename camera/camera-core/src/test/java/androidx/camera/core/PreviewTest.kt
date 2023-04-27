@@ -23,6 +23,7 @@ import android.os.Build
 import android.os.Handler
 import android.os.HandlerThread
 import android.os.Looper.getMainLooper
+import android.util.Range
 import android.util.Rational
 import android.util.Size
 import android.view.Surface
@@ -667,6 +668,13 @@ class PreviewTest {
                 .setResolutionSelector(ResolutionSelector.Builder().build())
                 .build()
         }
+    }
+
+    @Test
+    fun canSetTargetFrameRate() {
+        val preview = Preview.Builder().setTargetFrameRate(Range(15, 30))
+            .build()
+        assertThat(preview.targetFrameRate).isEqualTo(Range(15, 30))
     }
 
     private fun bindToLifecycleAndGetSurfaceRequest(): SurfaceRequest {
