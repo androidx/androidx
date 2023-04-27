@@ -24,7 +24,7 @@ import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.structuralEqualityPolicy
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.takeOrElse
+import androidx.compose.ui.graphics.isSpecified
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.Paragraph
 import androidx.compose.ui.text.TextLayoutResult
@@ -109,18 +109,21 @@ fun Text(
     onTextLayout: ((TextLayoutResult) -> Unit)? = null,
     style: TextStyle = LocalTextStyle.current
 ) {
-
-    val textColor = color.takeOrElse {
-        style.color.takeOrElse {
-            LocalContentColor.current.copy(alpha = LocalContentAlpha.current)
-        }
+    // weird coding to avoid groups
+    val localContentColor = LocalContentColor.current
+    val localContentAlpha = LocalContentAlpha.current
+    val overrideColorOrUnspecified: Color = if (color.isSpecified) {
+        color
+    } else if (style.color.isSpecified) {
+        style.color
+    } else {
+        localContentColor.copy(localContentAlpha)
     }
 
     BasicText(
         text = text,
         modifier = modifier,
         style = style.merge(
-            color = textColor,
             fontSize = fontSize,
             fontWeight = fontWeight,
             textAlign = textAlign,
@@ -134,7 +137,8 @@ fun Text(
         overflow = overflow,
         softWrap = softWrap,
         maxLines = maxLines,
-        minLines = minLines
+        minLines = minLines,
+        color = { overrideColorOrUnspecified }
     )
 }
 
@@ -257,17 +261,21 @@ fun Text(
     onTextLayout: (TextLayoutResult) -> Unit = {},
     style: TextStyle = LocalTextStyle.current
 ) {
-    val textColor = color.takeOrElse {
-        style.color.takeOrElse {
-            LocalContentColor.current.copy(alpha = LocalContentAlpha.current)
-        }
+    // weird coding to avoid groups
+    val localContentColor = LocalContentColor.current
+    val localContentAlpha = LocalContentAlpha.current
+    val overrideColorOrUnspecified = if (color.isSpecified) {
+        color
+    } else if (style.color.isSpecified) {
+        style.color
+    } else {
+        localContentColor.copy(localContentAlpha)
     }
 
     BasicText(
         text = text,
         modifier = modifier,
         style = style.merge(
-            color = textColor,
             fontSize = fontSize,
             fontWeight = fontWeight,
             textAlign = textAlign,
@@ -282,7 +290,8 @@ fun Text(
         softWrap = softWrap,
         maxLines = maxLines,
         minLines = minLines,
-        inlineContent = inlineContent
+        inlineContent = inlineContent,
+        color = { overrideColorOrUnspecified }
     )
 }
 

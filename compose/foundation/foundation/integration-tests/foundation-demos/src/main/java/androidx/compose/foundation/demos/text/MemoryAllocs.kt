@@ -35,7 +35,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-private val style = TextStyle(color = Color.Magenta)
+private val style = TextStyle.Default
 /**
  * These demos are for using the memory profiler to observe initial compo and recompo memory
  * pressure.
