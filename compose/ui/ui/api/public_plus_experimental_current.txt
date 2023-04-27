@@ -2526,8 +2526,7 @@ package androidx.compose.ui.node {
     method public default void onRemeasured(long size);
   }
 
-  public interface LayoutModifierNode extends androidx.compose.ui.layout.Remeasurement androidx.compose.ui.node.DelegatableNode {
-    method public default void forceRemeasure();
+  public interface LayoutModifierNode extends androidx.compose.ui.node.DelegatableNode {
     method public default int maxIntrinsicHeight(androidx.compose.ui.layout.IntrinsicMeasureScope, androidx.compose.ui.layout.IntrinsicMeasurable measurable, int width);
     method public default int maxIntrinsicWidth(androidx.compose.ui.layout.IntrinsicMeasureScope, androidx.compose.ui.layout.IntrinsicMeasurable measurable, int height);
     method public androidx.compose.ui.layout.MeasureResult measure(androidx.compose.ui.layout.MeasureScope, androidx.compose.ui.layout.Measurable measurable, long constraints);
@@ -2539,6 +2538,7 @@ package androidx.compose.ui.node {
     method public static void invalidateLayer(androidx.compose.ui.node.LayoutModifierNode);
     method public static void invalidateMeasurement(androidx.compose.ui.node.LayoutModifierNode);
     method public static void invalidatePlacement(androidx.compose.ui.node.LayoutModifierNode);
+    method public static void remeasureSync(androidx.compose.ui.node.LayoutModifierNode);
   }
 
   public abstract class ModifierNodeElement<N extends androidx.compose.ui.Modifier.Node> implements androidx.compose.ui.platform.InspectableValue androidx.compose.ui.Modifier.Element {
