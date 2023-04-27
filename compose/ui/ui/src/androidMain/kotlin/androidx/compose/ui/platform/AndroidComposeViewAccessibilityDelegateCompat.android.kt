@@ -42,7 +42,6 @@ import androidx.annotation.DoNotInline
 import androidx.annotation.IntRange
 import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
-import androidx.annotation.VisibleForTesting.Companion.PRIVATE
 import androidx.collection.ArrayMap
 import androidx.collection.ArraySet
 import androidx.collection.SparseArrayCompat
@@ -468,7 +467,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         position: Offset
     ): Boolean = canScroll(currentSemanticsNodes.values, vertical, direction, position)
 
-    @VisibleForTesting(otherwise = PRIVATE)
+    @VisibleForTesting
     internal fun canScroll(
         currentSemanticsNodes: Collection<SemanticsNodeWithAdjustedBounds>,
         vertical: Boolean,
@@ -2862,7 +2861,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         }
     }
 
-    @VisibleForTesting(otherwise = PRIVATE)
+    @VisibleForTesting
     internal fun sendContentCaptureSemanticsStructureChangeEvents(
         newNode: SemanticsNode,
         oldNode: SemanticsNodeCopy

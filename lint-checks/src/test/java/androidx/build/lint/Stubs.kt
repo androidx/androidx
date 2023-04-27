@@ -364,6 +364,28 @@ annotation class RequiresOptIn(
 }
     """.trimIndent()
         )
+
+        /**
+         * [TestFile] containing VisibleForTesting.kt from the AndroidX annotation library.
+         */
+        val VisibleForTesting: TestFile = LintDetectorTest.kotlin(
+            """
+package androidx.annotation
+
+@MustBeDocumented
+@Retention(AnnotationRetention.BINARY)
+public annotation class VisibleForTesting(
+    @ProductionVisibility val otherwise: Int = PRIVATE
+) {
+    public companion object {
+        public const val PRIVATE: Int = 2
+        public const val PACKAGE_PRIVATE: Int = 3
+        public const val PROTECTED: Int = 4
+        public const val NONE: Int = 5
+    }
+}
+            """.trimIndent()
+        )
         /* ktlint-enable max-line-length */
     }
 }

@@ -108,7 +108,6 @@ fun <T, V : AnimationVector> Animation<T, V>.getVelocityFromNanos(playTimeNanos:
  * @param initialVelocity the initial velocity to start the animation at
  * @suppress
  */
-/*@VisibleForTesting(otherwise = PACKAGE_PRIVATE)*/
 fun <V : AnimationVector> VectorizedAnimationSpec<V>.createAnimation(
     initialValue: V,
     targetValue: V,
