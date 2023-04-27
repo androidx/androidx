@@ -215,7 +215,7 @@ public fun Alert(
 }
 
 /**
- * @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+ * @VisibleForTesting
  */
 @Suppress("DEPRECATION")
 @Deprecated("Used only for testing")
@@ -413,7 +413,7 @@ public fun Alert(
 }
 
 /**
- * @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+ * @VisibleForTesting
  */
 @Suppress("DEPRECATION")
 @Deprecated("Used only for testing")
@@ -603,7 +603,7 @@ public fun Confirmation(
 }
 
 /**
- * @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+ * @VisibleForTesting
  */
 @Suppress("DEPRECATION")
 @Deprecated("Used only for testing")

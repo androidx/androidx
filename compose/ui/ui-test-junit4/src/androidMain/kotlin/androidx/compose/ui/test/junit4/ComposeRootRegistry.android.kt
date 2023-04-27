@@ -61,7 +61,7 @@ internal class ComposeRootRegistry {
     /**
      * Cleans up the changes made by [setupRegistry]. Call this after your test has run.
      */
-    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    @VisibleForTesting
     internal fun tearDownRegistry() {
         synchronized(lock) {
             // Stop accepting new roots

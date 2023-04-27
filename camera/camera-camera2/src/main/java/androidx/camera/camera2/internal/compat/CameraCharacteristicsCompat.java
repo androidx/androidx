@@ -62,7 +62,7 @@ public class CameraCharacteristicsCompat {
      * Tests might need to create CameraCharacteristicsCompat directly for convenience. Elsewhere
      * we should get the CameraCharacteristicsCompat instance from {@link CameraManagerCompat}.
      */
-    @VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)
+    @VisibleForTesting
     @NonNull
     public static CameraCharacteristicsCompat toCameraCharacteristicsCompat(
             @NonNull CameraCharacteristics characteristics, @NonNull String cameraId) {

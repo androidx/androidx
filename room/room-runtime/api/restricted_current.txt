@@ -303,6 +303,7 @@ package androidx.room.util {
 
   @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) public final class CursorUtil {
     method public static android.database.Cursor copyAndClose(android.database.Cursor c);
+    method @VisibleForTesting public static int findColumnIndexBySuffix(String![] columnNames, String name);
     method public static int getColumnIndex(android.database.Cursor c, String name);
     method public static int getColumnIndexOrThrow(android.database.Cursor c, String name);
     method public static inline <R> R useCursor(android.database.Cursor, kotlin.jvm.functions.Function1<? super android.database.Cursor,? extends R> block);

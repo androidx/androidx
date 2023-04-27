@@ -43,7 +43,7 @@ internal actual class DefaultTimeSource actual constructor(timeFormat: String) :
 }
 
 @Composable
-@VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+@VisibleForTesting
 internal fun currentTime(
     time: () -> Long,
     timeFormat: String

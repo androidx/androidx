@@ -955,7 +955,7 @@ public class ProtoLayoutDynamicDataPipeline {
 
     /** Play the animation with the given trigger type. */
     @RestrictTo(Scope.LIBRARY_GROUP)
-    @VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)
+    @VisibleForTesting
     public void playAvdAnimations(@NonNull Trigger.InnerCase triggerCase) {
         mPositionIdTree.forEach(info -> info.playAvdAnimations(triggerCase));
     }
@@ -971,7 +971,7 @@ public class ProtoLayoutDynamicDataPipeline {
      *
      */
     @UiThread
-    @VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)
+    @VisibleForTesting
     @RestrictTo(Scope.LIBRARY_GROUP)
     public void resetAvdAnimations(@NonNull Trigger.InnerCase triggerCase) {
         mPositionIdTree.forEach(info -> info.resetAvdAnimations(triggerCase));
@@ -982,7 +982,7 @@ public class ProtoLayoutDynamicDataPipeline {
      *
      */
     @UiThread
-    @VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)
+    @VisibleForTesting
     @RestrictTo(Scope.LIBRARY_GROUP)
     public void stopAvdAnimations(@NonNull Trigger.InnerCase triggerCase) {
         mPositionIdTree.forEach(info -> info.stopAvdAnimations(triggerCase));
