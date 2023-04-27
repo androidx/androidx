@@ -386,6 +386,7 @@ package androidx.camera.core {
   @RequiresApi(21) public final class Preview extends androidx.camera.core.UseCase {
     method public androidx.camera.core.ResolutionInfo? getResolutionInfo();
     method public androidx.camera.core.resolutionselector.ResolutionSelector? getResolutionSelector();
+    method public android.util.Range<java.lang.Integer!> getTargetFrameRate();
     method public int getTargetRotation();
     method @UiThread public void setSurfaceProvider(java.util.concurrent.Executor, androidx.camera.core.Preview.SurfaceProvider?);
     method @UiThread public void setSurfaceProvider(androidx.camera.core.Preview.SurfaceProvider?);
@@ -397,6 +398,7 @@ package androidx.camera.core {
     method public androidx.camera.core.Preview build();
     method public androidx.camera.core.Preview.Builder setResolutionSelector(androidx.camera.core.resolutionselector.ResolutionSelector);
     method @Deprecated public androidx.camera.core.Preview.Builder setTargetAspectRatio(int);
+    method public androidx.camera.core.Preview.Builder setTargetFrameRate(android.util.Range<java.lang.Integer!>);
     method public androidx.camera.core.Preview.Builder setTargetName(String);
     method @Deprecated public androidx.camera.core.Preview.Builder setTargetResolution(android.util.Size);
     method public androidx.camera.core.Preview.Builder setTargetRotation(int);
