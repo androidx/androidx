@@ -20,14 +20,23 @@ abstract class AssertEqualsAndCleanUpTask extends DefaultTask {
     @TaskAction
     void exec() {
 
+        File expectedFile = getExpectedFile().get().asFile
         File actualFile = new File(actualFilePath.get())
+
+        if (!expectedFile.exists() && actualFile.exists()) {
+            throw new GradleException("No profile was expected in ${actualFile.absolutePath}.")
+        }
+        if (expectedFile.exists() && !actualFile.exists()) {
+            throw new GradleException("A profile was expected in ${actualFile.absolutePath}.")
+        }
+
         if (!actualFile.exists()) {
             throw new GradleException(
                     "A profile was expected in ${actualFile.absolutePath}."
             )
         }
 
-        def expectedIter = getExpectedFile().get().asFile.text.lines().iterator()
+        def expectedIter = expectedFile.text.lines().iterator()
         def actualIter = actualFile.text.lines().iterator()
 
         def lineCounter = 0

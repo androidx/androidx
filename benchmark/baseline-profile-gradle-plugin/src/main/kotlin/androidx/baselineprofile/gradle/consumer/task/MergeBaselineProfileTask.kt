@@ -232,7 +232,12 @@ abstract class MergeBaselineProfileTask : DefaultTask() {
             .file(BASELINE_PROFILE_FILENAME)
             .get()
             .asFile
-            .writeText(filteredProfileRules.joinToString(System.lineSeparator()))
+            .apply {
+                delete()
+                if (filteredProfileRules.isNotEmpty()) {
+                    writeText(filteredProfileRules.joinToString(System.lineSeparator()))
+                }
+            }
 
         // If this is a library we can stop here and don't manage the startup profiles.
         if (library.get()) {
@@ -242,6 +247,17 @@ abstract class MergeBaselineProfileTask : DefaultTask() {
         // Same process with startup profiles.
         val startupRules = baselineProfileFileCollection.files
             .readLines { FILENAME_MATCHER_STARTUP_PROFILE in it.name }
+
+        if (variantName.isPresent && startupRules.isEmpty()) {
+            logger.warn(
+                """
+                No startup profile rules were generated for the variant `${variantName.get()}`.
+                This is most likely because there are no instrumentation test with baseline profile
+                rule, which specify `includeInStartupProfile = true`. If this is not intentional
+                check that tests for this variant exist in the `baselineProfile` dependency module.
+            """.trimIndent()
+            )
+        }
 
         // Use same sorting without filter for startup profiles.
         val sortedProfileRules = startupRules
@@ -258,7 +274,12 @@ abstract class MergeBaselineProfileTask : DefaultTask() {
             .file(STARTUP_PROFILE_FILENAME)
             .get()
             .asFile
-            .writeText(sortedProfileRules.joinToString(System.lineSeparator()))
+            .apply {
+                delete()
+                if (sortedProfileRules.isNotEmpty()) {
+                    writeText(sortedProfileRules.joinToString(System.lineSeparator()))
+                }
+            }
     }
 
     private fun Pair<RuleType, String>.isInclude(): Boolean = first == RuleType.INCLUDE
