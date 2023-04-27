@@ -49,7 +49,7 @@ import androidx.compose.ui.unit.LayoutDirection.Rtl
  * @param layoutDirection the current system [LayoutDirection].
  */
 @OptIn(ExperimentalComposeUiApi::class)
-internal fun FocusTargetModifierNode.customFocusSearch(
+internal fun FocusTargetNode.customFocusSearch(
     focusDirection: FocusDirection,
     layoutDirection: LayoutDirection
 ): FocusRequester {
@@ -96,10 +96,10 @@ internal fun FocusTargetModifierNode.customFocusSearch(
  * otherwise we return the result of [onFound].
  */
 @OptIn(ExperimentalComposeUiApi::class)
-internal fun FocusTargetModifierNode.focusSearch(
+internal fun FocusTargetNode.focusSearch(
     focusDirection: FocusDirection,
     layoutDirection: LayoutDirection,
-    onFound: (FocusTargetModifierNode) -> Boolean
+    onFound: (FocusTargetNode) -> Boolean
 ): Boolean {
     return when (focusDirection) {
         Next, Previous -> oneDimensionalFocusSearch(focusDirection, onFound)
@@ -122,18 +122,18 @@ internal fun FocusTargetModifierNode.focusSearch(
  * Returns the bounding box of the focus layout area in the root or [Rect.Zero] if the
  * FocusModifier has not had a layout.
  */
-internal fun FocusTargetModifierNode.focusRect(): Rect = coordinator?.let {
+internal fun FocusTargetNode.focusRect(): Rect = coordinator?.let {
     it.findRootCoordinates().localBoundingBoxOf(it, clipBounds = false)
 } ?: Rect.Zero
 
 /**
  * Whether this node should be considered when searching for the next item during a traversal.
  */
-internal val FocusTargetModifierNode.isEligibleForFocusSearch: Boolean
+internal val FocusTargetNode.isEligibleForFocusSearch: Boolean
     get() = coordinator?.layoutNode?.isPlaced == true &&
         coordinator?.layoutNode?.isAttached == true
 
-internal val FocusTargetModifierNode.activeChild: FocusTargetModifierNode?
+internal val FocusTargetNode.activeChild: FocusTargetNode?
     get() {
         if (!node.isAttached) return null
 
@@ -147,7 +147,7 @@ internal val FocusTargetModifierNode.activeChild: FocusTargetModifierNode?
     }
 
 @OptIn(ExperimentalComposeUiApi::class)
-internal fun FocusTargetModifierNode.findActiveFocusNode(): FocusTargetModifierNode? {
+internal fun FocusTargetNode.findActiveFocusNode(): FocusTargetNode? {
     when (focusStateImpl) {
         Active, Captured -> return this
         ActiveParent -> {
@@ -162,7 +162,7 @@ internal fun FocusTargetModifierNode.findActiveFocusNode(): FocusTargetModifierN
 
 @Suppress("ModifierFactoryExtensionFunction", "ModifierFactoryReturnType")
 @OptIn(ExperimentalComposeUiApi::class)
-private fun FocusTargetModifierNode.findNonDeactivatedParent(): FocusTargetModifierNode? {
+private fun FocusTargetNode.findNonDeactivatedParent(): FocusTargetNode? {
     visitAncestors(Nodes.FocusTarget) {
         if (it.fetchFocusProperties().canFocus) return it
     }

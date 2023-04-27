@@ -38,11 +38,11 @@ import androidx.compose.ui.platform.InspectorInfo
 
 /**
  * This modifier node can be used to create a modifier that makes a component focusable.
- * Use a different instance of [FocusTargetModifierNode] for each focusable component.
+ * Use a different instance of [FocusTargetNode] for each focusable component.
  */
-class FocusTargetModifierNode : ObserverNode, ModifierLocalNode, Modifier.Node() {
+class FocusTargetNode : ObserverNode, ModifierLocalNode, Modifier.Node() {
     /**
-     * The [FocusState] associated with this [FocusTargetModifierNode].
+     * The [FocusState] associated with this [FocusTargetNode].
      */
     val focusState: FocusState
         get() = focusStateImpl
@@ -101,7 +101,6 @@ class FocusTargetModifierNode : ObserverNode, ModifierLocalNode, Modifier.Node()
      * This function prevents that re-entrant scenario by ensuring there is only one concurrent
      * invocation of this lambda.
      */
-    @OptIn(ExperimentalComposeUiApi::class)
     internal inline fun fetchCustomEnter(
         focusDirection: FocusDirection,
         block: (FocusRequester) -> Unit
@@ -109,6 +108,7 @@ class FocusTargetModifierNode : ObserverNode, ModifierLocalNode, Modifier.Node()
         if (!isProcessingCustomEnter) {
             isProcessingCustomEnter = true
             try {
+                @OptIn(ExperimentalComposeUiApi::class)
                 fetchFocusProperties().enter(focusDirection).also {
                     if (it !== Default) block(it)
                 }
@@ -128,7 +128,6 @@ class FocusTargetModifierNode : ObserverNode, ModifierLocalNode, Modifier.Node()
      * This function prevents that re-entrant scenario by ensuring there is only one concurrent
      * invocation of this lambda.
      */
-    @OptIn(ExperimentalComposeUiApi::class)
     internal inline fun fetchCustomExit(
         focusDirection: FocusDirection,
         block: (FocusRequester) -> Unit
@@ -136,6 +135,7 @@ class FocusTargetModifierNode : ObserverNode, ModifierLocalNode, Modifier.Node()
         if (!isProcessingCustomExit) {
             isProcessingCustomExit = true
             try {
+                @OptIn(ExperimentalComposeUiApi::class)
                 fetchFocusProperties().exit(focusDirection).also {
                     if (it !== Default) block(it)
                 }
@@ -185,10 +185,10 @@ class FocusTargetModifierNode : ObserverNode, ModifierLocalNode, Modifier.Node()
         }
     }
 
-    internal object FocusTargetModifierElement : ModifierNodeElement<FocusTargetModifierNode>() {
-        override fun create() = FocusTargetModifierNode()
+    internal object FocusTargetElement : ModifierNodeElement<FocusTargetNode>() {
+        override fun create() = FocusTargetNode()
 
-        override fun update(node: FocusTargetModifierNode) {}
+        override fun update(node: FocusTargetNode) {}
 
         override fun InspectorInfo.inspectableProperties() {
             name = "focusTarget"
@@ -199,6 +199,6 @@ class FocusTargetModifierNode : ObserverNode, ModifierLocalNode, Modifier.Node()
     }
 }
 
-internal fun FocusTargetModifierNode.invalidateFocusTarget() {
+internal fun FocusTargetNode.invalidateFocusTarget() {
     requireOwner().focusOwner.scheduleInvalidation(this)
 }
