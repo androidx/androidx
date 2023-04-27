@@ -34,7 +34,7 @@ import java.time.ZoneOffset
  *
  * @sample androidx.health.connect.client.samples.ReadExerciseSessions
  */
-public class ExerciseSessionRecord(
+public class ExerciseSessionRecord @RestrictTo(RestrictTo.Scope.LIBRARY) constructor(
     override val startTime: Instant,
     override val startZoneOffset: ZoneOffset?,
     override val endTime: Instant,
@@ -46,10 +46,130 @@ public class ExerciseSessionRecord(
     /** Additional notes for the session. Optional field. */
     public val notes: String? = null,
     override val metadata: Metadata = Metadata.EMPTY,
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY)
+    /** [ExerciseSegment]s of the session. Optional field.
+     * Time in segments should be within the parent session, and should not overlap with each other.
+     */
+    public val segments: List<ExerciseSegment> = emptyList(),
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY)
+    /** [ExerciseLap]s of the session. Optional field.
+     * Time in laps should be within the parent session, and should not overlap with each other.
+     */
+    public val laps: List<ExerciseLap> = emptyList(),
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY)
+    /** [ExerciseRoute]s of the session. Optional field. */
+    public val route: ExerciseRoute? = null,
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY)
+    /** Indicates whether or not the underlying [ExerciseSessionRecord] has a route, even it's not
+     *  present because lack of permission.
+     */
+    public val hasRoute: Boolean = false,
 ) : IntervalRecord {
+
+    public constructor(
+        startTime: Instant,
+        startZoneOffset: ZoneOffset?,
+        endTime: Instant,
+        endZoneOffset: ZoneOffset?,
+        /** Type of exercise (e.g. walking, swimming). Required field. */
+        exerciseType: Int,
+        /** Title of the session. Optional field. */
+        title: String? = null,
+        /** Additional notes for the session. Optional field. */
+        notes: String? = null,
+        metadata: Metadata = Metadata.EMPTY,
+    ) : this(
+        startTime,
+        startZoneOffset,
+        endTime,
+        endZoneOffset,
+        exerciseType,
+        title,
+        notes,
+        metadata,
+        emptyList(),
+        emptyList(),
+        null,
+        false
+    )
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public constructor(
+        startTime: Instant,
+        startZoneOffset: ZoneOffset?,
+        endTime: Instant,
+        endZoneOffset: ZoneOffset?,
+        /** Type of exercise (e.g. walking, swimming). Required field. */
+        exerciseType: Int,
+        /** Title of the session. Optional field. */
+        title: String? = null,
+        /** Additional notes for the session. Optional field. */
+        notes: String? = null,
+        metadata: Metadata = Metadata.EMPTY,
+        segments: List<ExerciseSegment> = emptyList(),
+        laps: List<ExerciseLap> = emptyList(),
+        route: ExerciseRoute? = null,
+    ) : this(
+        startTime,
+        startZoneOffset,
+        endTime,
+        endZoneOffset,
+        exerciseType,
+        title,
+        notes,
+        metadata,
+        segments,
+        laps,
+        route,
+        route != null
+    )
 
     init {
         require(startTime.isBefore(endTime)) { "startTime must be before endTime." }
+        if (segments.isNotEmpty()) {
+            var sortedSegments = segments.sortedWith { a, b -> a.startTime.compareTo(b.startTime) }
+            for (i in 0 until sortedSegments.lastIndex) {
+                require(!sortedSegments[i].endTime.isAfter(sortedSegments[i + 1].startTime)) {
+                    "segments can not overlap."
+                }
+            }
+            // check all segments are within parent session duration
+            require(!sortedSegments.first().startTime.isBefore(startTime)) {
+                "segments can not be out of parent time range."
+            }
+            require(!sortedSegments.last().endTime.isAfter(endTime)) {
+                "segments can not be out of parent time range."
+            }
+            for (segment in sortedSegments) {
+                require(segment.isCompatibleWith(exerciseType)) {
+                    "segmentType and sessionType is not compatible."
+                }
+            }
+        }
+        if (laps.isNotEmpty()) {
+            val sortedLaps = laps.sortedWith { a, b -> a.startTime.compareTo(b.startTime) }
+            for (i in 0 until sortedLaps.lastIndex) {
+                require(!sortedLaps[i].endTime.isAfter(sortedLaps[i + 1].startTime)) {
+                    "laps can not overlap."
+                }
+            }
+            // check all laps are within parent session duration
+            require(!sortedLaps.first().startTime.isBefore(startTime)) {
+                "laps can not be out of parent time range."
+            }
+            require(!sortedLaps.last().endTime.isAfter(endTime)) {
+                "laps can not be out of parent time range."
+            }
+        }
+        require(route == null || hasRoute) { "hasRoute must be true if the route is not null" }
+        if (route != null) {
+            require(
+                route.isWithin(
+                    startTime,
+                    endTime
+                )
+            ) { "route can not be out of parent time range." }
+        }
     }
 
     override fun equals(other: Any?): Boolean {
@@ -64,6 +184,10 @@ public class ExerciseSessionRecord(
         if (endTime != other.endTime) return false
         if (endZoneOffset != other.endZoneOffset) return false
         if (metadata != other.metadata) return false
+        if (segments != other.segments) return false
+        if (laps != other.laps) return false
+        if (route != other.route) return false
+        if (hasRoute != other.hasRoute) return false
 
         return true
     }
