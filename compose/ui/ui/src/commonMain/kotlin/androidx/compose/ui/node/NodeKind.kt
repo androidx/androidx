@@ -26,7 +26,7 @@ import androidx.compose.ui.focus.FocusEventModifierNode
 import androidx.compose.ui.focus.FocusOrderModifier
 import androidx.compose.ui.focus.FocusProperties
 import androidx.compose.ui.focus.FocusPropertiesModifierNode
-import androidx.compose.ui.focus.FocusTargetModifierNode
+import androidx.compose.ui.focus.FocusTargetNode
 import androidx.compose.ui.focus.invalidateFocusEvent
 import androidx.compose.ui.focus.invalidateFocusProperties
 import androidx.compose.ui.focus.invalidateFocusTarget
@@ -88,7 +88,7 @@ internal object Nodes {
     @JvmStatic
     inline val IntermediateMeasure get() = NodeKind<IntermediateLayoutModifierNode>(0b1 shl 9)
     @JvmStatic
-    inline val FocusTarget get() = NodeKind<FocusTargetModifierNode>(0b1 shl 10)
+    inline val FocusTarget get() = NodeKind<FocusTargetNode>(0b1 shl 10)
     @JvmStatic
     inline val FocusProperties get() = NodeKind<FocusPropertiesModifierNode>(0b1 shl 11)
     @JvmStatic
@@ -181,7 +181,7 @@ internal fun calculateNodeKindSetFrom(node: Modifier.Node): Int {
     if (node is IntermediateLayoutModifierNode) {
         mask = mask or Nodes.IntermediateMeasure
     }
-    if (node is FocusTargetModifierNode) {
+    if (node is FocusTargetNode) {
         mask = mask or Nodes.FocusTarget
     }
     if (node is FocusPropertiesModifierNode) {
@@ -264,7 +264,7 @@ private fun autoInvalidateNodeSelf(node: Modifier.Node, selfKindSet: Int, phase:
     if (Nodes.ParentData in selfKindSet && node is ParentDataModifierNode) {
         node.invalidateParentData()
     }
-    if (Nodes.FocusTarget in selfKindSet && node is FocusTargetModifierNode) {
+    if (Nodes.FocusTarget in selfKindSet && node is FocusTargetNode) {
         when (phase) {
             // when we previously had focus target modifier on a node and then this modifier
             // is removed we need to notify the focus tree about so the focus state is reset.

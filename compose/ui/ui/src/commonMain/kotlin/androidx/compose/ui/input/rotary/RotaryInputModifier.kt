@@ -41,7 +41,7 @@ import androidx.compose.ui.platform.InspectorInfo
  */
 fun Modifier.onRotaryScrollEvent(
     onRotaryScrollEvent: (RotaryScrollEvent) -> Boolean
-): Modifier = this then OnRotaryScrollEventElement(
+): Modifier = this then RotaryInputElement(
     onRotaryScrollEvent = onRotaryScrollEvent,
     onPreRotaryScrollEvent = null
 )
@@ -69,21 +69,21 @@ fun Modifier.onRotaryScrollEvent(
  */
 fun Modifier.onPreRotaryScrollEvent(
     onPreRotaryScrollEvent: (RotaryScrollEvent) -> Boolean
-): Modifier = this then OnRotaryScrollEventElement(
+): Modifier = this then RotaryInputElement(
     onRotaryScrollEvent = null,
     onPreRotaryScrollEvent = onPreRotaryScrollEvent
 )
 
-private data class OnRotaryScrollEventElement(
+private data class RotaryInputElement(
     val onRotaryScrollEvent: ((RotaryScrollEvent) -> Boolean)?,
     val onPreRotaryScrollEvent: ((RotaryScrollEvent) -> Boolean)?
-) : ModifierNodeElement<RotaryInputModifierNodeImpl>() {
-    override fun create() = RotaryInputModifierNodeImpl(
+) : ModifierNodeElement<RotaryInputNode>() {
+    override fun create() = RotaryInputNode(
         onEvent = onRotaryScrollEvent,
         onPreEvent = onPreRotaryScrollEvent
     )
 
-    override fun update(node: RotaryInputModifierNodeImpl) {
+    override fun update(node: RotaryInputNode) {
         node.onEvent = onRotaryScrollEvent
         node.onPreEvent = onPreRotaryScrollEvent
     }
@@ -100,7 +100,7 @@ private data class OnRotaryScrollEventElement(
     }
 }
 
-private class RotaryInputModifierNodeImpl(
+private class RotaryInputNode(
     var onEvent: ((RotaryScrollEvent) -> Boolean)?,
     var onPreEvent: ((RotaryScrollEvent) -> Boolean)?
 ) : RotaryInputModifierNode, Modifier.Node() {

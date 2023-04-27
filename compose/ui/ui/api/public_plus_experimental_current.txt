@@ -546,8 +546,8 @@ package androidx.compose.ui.focus {
     property public abstract boolean isFocused;
   }
 
-  public final class FocusTargetModifierNode extends androidx.compose.ui.Modifier.Node implements androidx.compose.ui.modifier.ModifierLocalNode androidx.compose.ui.node.ObserverNode {
-    ctor public FocusTargetModifierNode();
+  public final class FocusTargetNode extends androidx.compose.ui.Modifier.Node implements androidx.compose.ui.modifier.ModifierLocalNode androidx.compose.ui.node.ObserverNode {
+    ctor public FocusTargetNode();
     method public androidx.compose.ui.focus.FocusState getFocusState();
     method public void onObservedReadsChanged();
     property public final androidx.compose.ui.focus.FocusState focusState;

@@ -16,7 +16,6 @@
 
 package androidx.compose.ui.focus
 
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.platform.InspectorInfo
@@ -40,13 +39,12 @@ fun Modifier.onFocusEvent(
     onFocusEvent: (FocusState) -> Unit
 ): Modifier = this then FocusEventElement(onFocusEvent)
 
-@OptIn(ExperimentalComposeUiApi::class)
 private data class FocusEventElement(
     val onFocusEvent: (FocusState) -> Unit
-) : ModifierNodeElement<FocusEventModifierNodeImpl>() {
-    override fun create() = FocusEventModifierNodeImpl(onFocusEvent)
+) : ModifierNodeElement<FocusEventNode>() {
+    override fun create() = FocusEventNode(onFocusEvent)
 
-    override fun update(node: FocusEventModifierNodeImpl) {
+    override fun update(node: FocusEventNode) {
         node.onFocusEvent = onFocusEvent
     }
 
@@ -56,8 +54,7 @@ private data class FocusEventElement(
     }
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
-private class FocusEventModifierNodeImpl(
+private class FocusEventNode(
     var onFocusEvent: (FocusState) -> Unit
 ) : FocusEventModifierNode, Modifier.Node() {
 
