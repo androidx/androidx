@@ -21,9 +21,8 @@ import androidx.appactions.interaction.capabilities.core.AppEntityListener
 import androidx.appactions.interaction.capabilities.core.Capability
 import androidx.appactions.interaction.capabilities.core.EntitySearchResult
 import androidx.appactions.interaction.capabilities.core.ExecutionResult
-import androidx.appactions.interaction.capabilities.core.ExecutionSessionFactory
 import androidx.appactions.interaction.capabilities.core.HostProperties
-import androidx.appactions.interaction.capabilities.core.SessionContext
+import androidx.appactions.interaction.capabilities.core.SessionConfig
 import androidx.appactions.interaction.capabilities.core.ValidationResult
 import androidx.appactions.interaction.capabilities.core.ValueListener
 import androidx.appactions.interaction.capabilities.core.impl.ErrorStatusInternal
@@ -85,7 +84,7 @@ class TaskCapabilityImplTest {
         createCapability<EmptyTaskUpdater>(
             SINGLE_REQUIRED_FIELD_PROPERTY,
             sessionFactory =
-            {
+            { _ ->
                 object : ExecutionSession {
                     override fun onExecuteAsync(arguments: Arguments) =
                         Futures.immediateFuture(ExecutionResult.Builder<Output>().build())
@@ -203,9 +202,8 @@ class TaskCapabilityImplTest {
             createCapability(
                 SINGLE_REQUIRED_FIELD_PROPERTY,
                 sessionFactory =
-                ExecutionSessionFactory {
-                    object : ExecutionSession {
-                        override fun onCreate(sessionContext: SessionContext) {
+                { _ -> object : ExecutionSession {
+                        override fun onCreate(sessionConfig: SessionConfig) {
                             onCreateInvocationCount.incrementAndGet()
                         }
 
@@ -213,8 +211,7 @@ class TaskCapabilityImplTest {
                             Futures.immediateFuture(
                                 ExecutionResult.Builder<Output>().build(),
                             )
-                    }
-                },
+                    } },
                 sessionBridge = SessionBridge { TaskHandler.Builder<Confirmation>().build() },
                 sessionUpdaterSupplier = ::EmptyTaskUpdater,
             )
@@ -291,7 +288,7 @@ class TaskCapabilityImplTest {
         }
         val capability: Capability = createCapability(
             SINGLE_REQUIRED_FIELD_PROPERTY,
-            sessionFactory = ExecutionSessionFactory { externalSession },
+            sessionFactory = { _ -> externalSession },
             sessionBridge = SessionBridge { TaskHandler.Builder<Confirmation>().build() },
             sessionUpdaterSupplier = ::RequiredTaskUpdater,
         )
@@ -322,7 +319,7 @@ class TaskCapabilityImplTest {
             createCapability(
                 SINGLE_REQUIRED_FIELD_PROPERTY,
                 sessionFactory =
-                ExecutionSessionFactory {
+                { _ ->
                     object : ExecutionSession {
                         override fun onExecuteAsync(arguments: Arguments) =
                             Futures.immediateFuture(
@@ -375,8 +372,9 @@ class TaskCapabilityImplTest {
                         .build(),
                 )
                 .build()
-        val sessionFactory =
-            ExecutionSessionFactory<CapabilityTwoEntityValues.ExecutionSession> {
+        val sessionFactory:
+            (hostProperties: HostProperties?) -> CapabilityTwoEntityValues.ExecutionSession =
+            { _ ->
                 object : CapabilityTwoEntityValues.ExecutionSession {
                     override suspend fun onExecute(
                         arguments: CapabilityTwoEntityValues.Arguments,
@@ -470,8 +468,9 @@ class TaskCapabilityImplTest {
                         .build(),
                 )
                 .build()
-        val sessionFactory =
-            ExecutionSessionFactory<CapabilityTwoEntityValues.ExecutionSession> {
+        val sessionFactory:
+            (hostProperties: HostProperties?) -> CapabilityTwoEntityValues.ExecutionSession =
+            { _ ->
                 object : CapabilityTwoEntityValues.ExecutionSession {
                     override suspend fun onExecute(
                         arguments: CapabilityTwoEntityValues.Arguments,
@@ -563,7 +562,7 @@ class TaskCapabilityImplTest {
         val capability: Capability =
             createCapability(
                 property,
-                sessionFactory = ExecutionSessionFactory { ExecutionSession.DEFAULT },
+                sessionFactory = { _ -> ExecutionSession.DEFAULT },
                 sessionBridge = SessionBridge { TaskHandler.Builder<Confirmation>().build() },
                 sessionUpdaterSupplier = ::EmptyTaskUpdater,
             )
@@ -772,8 +771,9 @@ class TaskCapabilityImplTest {
         val onExecuteListItemDeferred = CompletableDeferred<ListItem>()
         val onExecuteStringDeferred = CompletableDeferred<String>()
 
-        val sessionFactory =
-            ExecutionSessionFactory<CapabilityStructFill.ExecutionSession> {
+        val sessionFactory:
+            (hostProperties: HostProperties?) -> CapabilityStructFill.ExecutionSession =
+            { _ ->
                 object : CapabilityStructFill.ExecutionSession {
                     override suspend fun onExecute(
                         arguments: CapabilityStructFill.Arguments,
@@ -908,8 +908,8 @@ class TaskCapabilityImplTest {
     @Test
     @kotlin.Throws(Exception::class)
     fun executionResult_resultReturned() {
-        val sessionFactory =
-            ExecutionSessionFactory<ExecutionSession> {
+        val sessionFactory: (hostProperties: HostProperties?) -> ExecutionSession =
+            { _ ->
                 object : ExecutionSession {
                     override suspend fun onExecute(arguments: Arguments) =
                         ExecutionResult.Builder<Output>()
@@ -970,12 +970,12 @@ class TaskCapabilityImplTest {
     @Test
     @kotlin.Throws(Exception::class)
     fun executionResult_shouldStartDictation_resultReturned() {
-        val sessionFactory =
-            ExecutionSessionFactory<ExecutionSession> {
+        val sessionFactory: (hostProperties: HostProperties?) -> ExecutionSession =
+            { _ ->
                 object : ExecutionSession {
                     override suspend fun onExecute(arguments: Arguments) =
                         ExecutionResult.Builder<Output>()
-                            .setStartDictation(true)
+                            .setShouldStartDictation(true)
                             .build()
                 }
             }
@@ -1019,7 +1019,7 @@ class TaskCapabilityImplTest {
         }
 
         public override fun setExecutionSessionFactory(
-            sessionFactory: ExecutionSessionFactory<ExecutionSession>,
+            sessionFactory: (hostProperties: HostProperties?) -> ExecutionSession,
         ): CapabilityBuilder = super.setExecutionSessionFactory(sessionFactory)
     }
 
@@ -1154,7 +1154,7 @@ class TaskCapabilityImplTest {
          */
         private fun <SessionUpdaterT : AbstractTaskUpdater> createCapability(
             property: Properties,
-            sessionFactory: ExecutionSessionFactory<ExecutionSession>,
+            sessionFactory: (hostProperties: HostProperties?) -> ExecutionSession,
             sessionBridge: SessionBridge<ExecutionSession, Confirmation>,
             sessionUpdaterSupplier: Supplier<SessionUpdaterT>,
         ): TaskCapabilityImpl<

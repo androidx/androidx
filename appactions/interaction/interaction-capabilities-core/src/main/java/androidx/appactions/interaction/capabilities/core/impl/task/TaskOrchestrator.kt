@@ -19,7 +19,7 @@ import androidx.annotation.GuardedBy
 import androidx.appactions.interaction.capabilities.core.BaseExecutionSession
 import androidx.appactions.interaction.capabilities.core.ConfirmationOutput
 import androidx.appactions.interaction.capabilities.core.ExecutionResult
-import androidx.appactions.interaction.capabilities.core.SessionContext
+import androidx.appactions.interaction.capabilities.core.SessionConfig
 import androidx.appactions.interaction.capabilities.core.impl.ArgumentsWrapper
 import androidx.appactions.interaction.capabilities.core.impl.ErrorStatusInternal
 import androidx.appactions.interaction.capabilities.core.impl.FulfillmentResult
@@ -281,7 +281,7 @@ internal class TaskOrchestrator<ArgumentsT, OutputT, ConfirmationT>(
 
     private fun maybeInitializeTask() {
         if (status === Status.UNINITIATED) {
-            externalSession.onCreate(SessionContext())
+            externalSession.onCreate(SessionConfig())
         }
         status = Status.IN_PROGRESS
     }

@@ -16,13 +16,22 @@
 
 package androidx.appactions.interaction.capabilities.core
 
+import androidx.annotation.RestrictTo
 import java.util.Objects
 /**
- * Class that represents the response after a Capability fulfills an action.
+ * A class that represents the response after a [Capability] fulfills an action.
+ * An [ExecutionResult] may contain an [output] based on the capability associated
+ * with the execution.
+ * For example, an execution associated with the CreateCalendarEvent capability would
+ * produce an ExecutionResult containing a CreateCalendarEvent.Output, the created event.
+ *
+ * If [output] is null, the assistant client will know the execution has completed, but
+ * may be unable to provide a natural language response or support confirmation from the user.
+ *
+ * @property output the object created by executing the capability.
  */
 class ExecutionResult<OutputT> internal constructor(
-    @get:JvmName("shouldStartDictation")
-    val shouldStartDictation: Boolean,
+    internal val shouldStartDictation: Boolean,
     val output: OutputT?,
 ) {
     override fun toString() =
@@ -34,6 +43,9 @@ class ExecutionResult<OutputT> internal constructor(
 
     override fun hashCode() = Objects.hash(shouldStartDictation, output)
 
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    fun shouldStartDictation(): Boolean = shouldStartDictation
+
     /**
      * Builder for ExecutionResult.
      */
@@ -41,8 +53,12 @@ class ExecutionResult<OutputT> internal constructor(
         private var shouldStartDictation: Boolean = false
         private var output: OutputT? = null
 
-        /** Sets whether or not this fulfillment should start dictation. */
-        fun setStartDictation(startDictation: Boolean) = apply {
+        /**
+         * If true, start dictation after returning the result of executing the [Capability].
+         * Defaults to false.
+         */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        fun setShouldStartDictation(startDictation: Boolean) = apply {
             this.shouldStartDictation = startDictation
         }
 
