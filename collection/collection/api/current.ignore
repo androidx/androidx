@@ -1,4 +1,8 @@
 // Baseline format: 1.0
+ChangedAbstract: androidx.collection.ArraySet#size():
+    Method androidx.collection.ArraySet.size has changed 'abstract' qualifier
+
+
 ChangedType: androidx.collection.ArraySet#iterator():
     Method androidx.collection.ArraySet.iterator has changed return type from java.util.Iterator<E!> to java.util.Iterator<E>
 ChangedType: androidx.collection.LongSparseArray#clone():
@@ -25,9 +29,5 @@ RemovedMethod: androidx.collection.ArraySet#ArraySet(androidx.collection.ArraySe
     Removed constructor androidx.collection.ArraySet(androidx.collection.ArraySet<E>)
 RemovedMethod: androidx.collection.ArraySet#ArraySet(java.util.Collection<E>):
     Removed constructor androidx.collection.ArraySet(java.util.Collection<E>)
-RemovedMethod: androidx.collection.ArraySet#size():
-    Removed method androidx.collection.ArraySet.size()
-RemovedMethod: androidx.collection.LruCache#toString():
-    Removed method androidx.collection.LruCache.toString()
 RemovedMethod: androidx.collection.SimpleArrayMap#SimpleArrayMap(androidx.collection.SimpleArrayMap<K,V>):
     Removed constructor androidx.collection.SimpleArrayMap(androidx.collection.SimpleArrayMap<K,V>)

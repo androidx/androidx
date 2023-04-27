@@ -7,7 +7,3 @@ InvalidNullConversion: androidx.activity.result.contract.ActivityResultContract#
     Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter input in androidx.activity.result.contract.ActivityResultContract.getSynchronousResult(android.content.Context context, I input)
 InvalidNullConversion: androidx.activity.result.contract.ActivityResultContract.SynchronousResult#SynchronousResult(T) parameter #0:
     Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter value in androidx.activity.result.contract.ActivityResultContract.SynchronousResult(T value)
-
-
-RemovedMethod: androidx.activity.ComponentActivity#onBackPressed():
-    Removed method androidx.activity.ComponentActivity.onBackPressed()
