@@ -19,6 +19,7 @@ package androidx.camera.video;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 
@@ -46,8 +47,9 @@ public abstract class AudioStats {
     }
 
     @NonNull
-    static AudioStats of(@AudioState int state, @Nullable Throwable errorCause) {
-        return new AutoValue_AudioStats(state, errorCause);
+    static AudioStats of(@AudioState int state, @Nullable Throwable errorCause,
+            double audioAmplitude) {
+        return new AutoValue_AudioStats(state, audioAmplitude, errorCause);
     }
 
     /**
@@ -84,7 +86,7 @@ public abstract class AudioStats {
     public static final int AUDIO_STATE_ENCODER_ERROR = 3;
 
     /**
-     *  The recording is muted because the audio source encountered errors.
+     * The recording is muted because the audio source encountered errors.
      *
      * <p>If the audio source encounters errors during recording, audio stats generated after the
      * error will contain this audio state, and the recording will proceed without audio.
@@ -97,6 +99,13 @@ public abstract class AudioStats {
      * The recording is muted by {@link Recording#mute(boolean)}.
      */
     public static final int AUDIO_STATE_MUTED = 5;
+
+    /**
+     * Should audio recording be disabled, any attempts to retrieve the amplitude will
+     * return this value.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public static final double AUDIO_AMPLITUDE_NONE = 0;
 
     @IntDef({AUDIO_STATE_ACTIVE, AUDIO_STATE_DISABLED, AUDIO_STATE_SOURCE_SILENCED,
             AUDIO_STATE_ENCODER_ERROR, AUDIO_STATE_SOURCE_ERROR, AUDIO_STATE_MUTED})
@@ -145,10 +154,38 @@ public abstract class AudioStats {
     public abstract int getAudioState();
 
     /**
+     * Returns the average amplitude of the most recent audio samples.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    abstract double getAudioAmplitudeInternal();
+
+    /**
      * Gets the error cause.
      *
      * <p>Returns {@code null} if {@link #hasError()} returns {@code false}.
      */
     @Nullable
     public abstract Throwable getErrorCause();
+
+    /**
+     * Returns the maximum absolute amplitude of the audio most recently sampled. Returns
+     * {@link #AUDIO_AMPLITUDE_NONE} if audio is disabled.
+     *
+     * <p>The amplitude is the maximum absolute value over all channels which the audio was
+     * most recently sampled from.
+     *
+     * <p>Amplitude is a relative measure of the maximum sound pressure/voltage range of the device
+     * microphone.
+     *
+     * <p>The amplitude value returned will be a double between {@code 0} and {@code 1}.
+     */
+    @OptIn(markerClass = ExperimentalAudioApi.class)
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public double getAudioAmplitude() {
+        if (getAudioState() == AUDIO_STATE_DISABLED) {
+            return AUDIO_AMPLITUDE_NONE;
+        } else {
+            return getAudioAmplitudeInternal();
+        }
+    }
 }

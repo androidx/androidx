@@ -942,7 +942,8 @@ public final class Recorder implements VideoOutput {
                         recordingToFinalize.getOutputOptions(),
                         RecordingStats.of(/*duration=*/0L,
                                 /*bytes=*/0L,
-                                AudioStats.of(AudioStats.AUDIO_STATE_DISABLED, mAudioErrorCause)),
+                                AudioStats.of(AudioStats.AUDIO_STATE_DISABLED, mAudioErrorCause,
+                                        AudioStats.AUDIO_AMPLITUDE_NONE)),
                         OutputResults.of(Uri.EMPTY),
                         error,
                         cause));
@@ -2478,7 +2479,8 @@ public final class Recorder implements VideoOutput {
     @NonNull
     RecordingStats getInProgressRecordingStats() {
         return RecordingStats.of(mRecordingDurationNs, mRecordingBytes,
-                AudioStats.of(internalAudioStateToAudioStatsState(mAudioState), mAudioErrorCause));
+                AudioStats.of(internalAudioStateToAudioStatsState(mAudioState), mAudioErrorCause,
+                        5));
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
