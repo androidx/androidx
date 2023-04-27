@@ -138,8 +138,8 @@ constructor(
 
     override fun setSurface(stream: StreamId, surface: Surface?) {
         Debug.traceStart { "$stream#setSurface" }
-        check(surface == null || surface.isValid) {
-            "Failed to set $surface to $stream: The surface was not valid."
+        if (surface != null && !surface.isValid) {
+            Log.warn { "$this#setSurface: $surface is invalid" }
         }
         surfaceGraph[stream] = surface
         Debug.traceStop()
