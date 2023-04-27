@@ -1,1 +1,202 @@
 // Signature format: 4.0
+package androidx.appactions.builtintypes.properties {
+
+  public final class Description {
+    ctor public Description(String text);
+    ctor public Description(androidx.appactions.builtintypes.properties.Description.CanonicalValue canonicalValue);
+    method public androidx.appactions.builtintypes.properties.Description.CanonicalValue? getAsCanonicalValue();
+    method public String? getAsText();
+    method public <R> R mapWhen(androidx.appactions.builtintypes.properties.Description.Mapper<R> mapper);
+    property public final androidx.appactions.builtintypes.properties.Description.CanonicalValue? asCanonicalValue;
+    property public final String? asText;
+  }
+
+  public abstract static class Description.CanonicalValue {
+    method public abstract String getTextValue();
+    property public abstract String textValue;
+  }
+
+  public static interface Description.Mapper<R> {
+    method public default R canonicalValue(androidx.appactions.builtintypes.properties.Description.CanonicalValue instance);
+    method public R orElse();
+    method public default R text(String instance);
+  }
+
+  public final class DisambiguatingDescription {
+    ctor public DisambiguatingDescription(String text);
+    ctor public DisambiguatingDescription(androidx.appactions.builtintypes.properties.DisambiguatingDescription.CanonicalValue canonicalValue);
+    method public androidx.appactions.builtintypes.properties.DisambiguatingDescription.CanonicalValue? getAsCanonicalValue();
+    method public String? getAsText();
+    method public <R> R mapWhen(androidx.appactions.builtintypes.properties.DisambiguatingDescription.Mapper<R> mapper);
+    property public final androidx.appactions.builtintypes.properties.DisambiguatingDescription.CanonicalValue? asCanonicalValue;
+    property public final String? asText;
+  }
+
+  public abstract static class DisambiguatingDescription.CanonicalValue {
+    method public abstract String getTextValue();
+    property public abstract String textValue;
+  }
+
+  public static interface DisambiguatingDescription.Mapper<R> {
+    method public default R canonicalValue(androidx.appactions.builtintypes.properties.DisambiguatingDescription.CanonicalValue instance);
+    method public R orElse();
+    method public default R text(String instance);
+  }
+
+  public final class Name {
+    ctor public Name(String text);
+    ctor public Name(androidx.appactions.builtintypes.properties.Name.CanonicalValue canonicalValue);
+    method public androidx.appactions.builtintypes.properties.Name.CanonicalValue? getAsCanonicalValue();
+    method public String? getAsText();
+    method public <R> R mapWhen(androidx.appactions.builtintypes.properties.Name.Mapper<R> mapper);
+    property public final androidx.appactions.builtintypes.properties.Name.CanonicalValue? asCanonicalValue;
+    property public final String? asText;
+  }
+
+  public abstract static class Name.CanonicalValue {
+    method public abstract String getTextValue();
+    property public abstract String textValue;
+  }
+
+  public static interface Name.Mapper<R> {
+    method public default R canonicalValue(androidx.appactions.builtintypes.properties.Name.CanonicalValue instance);
+    method public R orElse();
+    method public default R text(String instance);
+  }
+
+  public final class Temporal {
+    ctor public Temporal(java.time.LocalDateTime localDateTime);
+    ctor public Temporal(java.time.ZonedDateTime zonedDateTime);
+    ctor public Temporal(String text);
+    ctor public Temporal(androidx.appactions.builtintypes.properties.Temporal.CanonicalValue canonicalValue);
+    method public androidx.appactions.builtintypes.properties.Temporal.CanonicalValue? getAsCanonicalValue();
+    method public java.time.LocalDateTime? getAsLocalDateTime();
+    method public String? getAsText();
+    method public java.time.ZonedDateTime? getAsZonedDateTime();
+    method public <R> R mapWhen(androidx.appactions.builtintypes.properties.Temporal.Mapper<R> mapper);
+    property public final androidx.appactions.builtintypes.properties.Temporal.CanonicalValue? asCanonicalValue;
+    property public final java.time.LocalDateTime? asLocalDateTime;
+    property public final String? asText;
+    property public final java.time.ZonedDateTime? asZonedDateTime;
+  }
+
+  public abstract static class Temporal.CanonicalValue {
+    method public abstract String getTextValue();
+    property public abstract String textValue;
+  }
+
+  public static interface Temporal.Mapper<R> {
+    method public default R canonicalValue(androidx.appactions.builtintypes.properties.Temporal.CanonicalValue instance);
+    method public default R localDateTime(java.time.LocalDateTime instance);
+    method public R orElse();
+    method public default R text(String instance);
+    method public default R zonedDateTime(java.time.ZonedDateTime instance);
+  }
+
+}
+
+package androidx.appactions.builtintypes.types {
+
+  public abstract class GenericThing<Self extends androidx.appactions.builtintypes.types.GenericThing<Self, Builder>, Builder extends androidx.appactions.builtintypes.types.GenericThing.Builder<Builder, Self>> implements androidx.appactions.builtintypes.types.Thing {
+    ctor public GenericThing(androidx.appactions.builtintypes.types.Thing thing);
+    method public final boolean equals(Object? other);
+    method protected abstract java.util.Map<java.lang.String,java.lang.Object> getAdditionalProperties();
+    method public final androidx.appactions.builtintypes.properties.Description? getDescription();
+    method public final androidx.appactions.builtintypes.properties.DisambiguatingDescription? getDisambiguatingDescription();
+    method public final String? getIdentifier();
+    method public final androidx.appactions.builtintypes.properties.Name? getName();
+    method protected abstract String getSelfTypeName();
+    method public final androidx.appactions.builtintypes.properties.Temporal? getTemporal();
+    method public final int hashCode();
+    method public final Builder toBuilder();
+    method protected abstract Builder toBuilderWithAdditionalPropertiesOnly();
+    method public final String toString();
+    property protected abstract java.util.Map<java.lang.String,java.lang.Object> additionalProperties;
+    property public final androidx.appactions.builtintypes.properties.Description? description;
+    property public final androidx.appactions.builtintypes.properties.DisambiguatingDescription? disambiguatingDescription;
+    property public final String? identifier;
+    property public final androidx.appactions.builtintypes.properties.Name? name;
+    property protected abstract String selfTypeName;
+    property public final androidx.appactions.builtintypes.properties.Temporal? temporal;
+  }
+
+  public abstract static class GenericThing.Builder<Self extends androidx.appactions.builtintypes.types.GenericThing.Builder<Self, Built>, Built extends androidx.appactions.builtintypes.types.GenericThing<Built, Self>> implements androidx.appactions.builtintypes.types.Thing.Builder<Self> {
+    ctor public GenericThing.Builder();
+    method public final Built build();
+    method protected abstract Built buildFromThing(androidx.appactions.builtintypes.types.Thing thing);
+    method public final boolean equals(Object? other);
+    method protected abstract java.util.Map<java.lang.String,java.lang.Object> getAdditionalProperties();
+    method protected abstract String getSelfTypeName();
+    method public final int hashCode();
+    method public final Self setDescription(androidx.appactions.builtintypes.properties.Description? description);
+    method public final Self setDisambiguatingDescription(androidx.appactions.builtintypes.properties.DisambiguatingDescription? disambiguatingDescription);
+    method public final Self setIdentifier(String? text);
+    method public final Self setName(androidx.appactions.builtintypes.properties.Name? name);
+    method public final Self setTemporal(androidx.appactions.builtintypes.properties.Temporal? temporal);
+    method public final String toString();
+    property protected abstract java.util.Map<java.lang.String,java.lang.Object> additionalProperties;
+    property protected abstract String selfTypeName;
+  }
+
+  public interface Thing {
+    method public default static androidx.appactions.builtintypes.types.Thing.Builder<?> Builder();
+    method public androidx.appactions.builtintypes.properties.Description? getDescription();
+    method public androidx.appactions.builtintypes.properties.DisambiguatingDescription? getDisambiguatingDescription();
+    method public String? getIdentifier();
+    method public androidx.appactions.builtintypes.properties.Name? getName();
+    method public androidx.appactions.builtintypes.properties.Temporal? getTemporal();
+    method public androidx.appactions.builtintypes.types.Thing.Builder<?> toBuilder();
+    property public abstract androidx.appactions.builtintypes.properties.Description? description;
+    property public abstract androidx.appactions.builtintypes.properties.DisambiguatingDescription? disambiguatingDescription;
+    property public abstract String? identifier;
+    property public abstract androidx.appactions.builtintypes.properties.Name? name;
+    property public abstract androidx.appactions.builtintypes.properties.Temporal? temporal;
+    field public static final androidx.appactions.builtintypes.types.Thing.Companion Companion;
+  }
+
+  public static interface Thing.Builder<Self extends androidx.appactions.builtintypes.types.Thing.Builder<Self>> {
+    method public androidx.appactions.builtintypes.types.Thing build();
+    method public default Self setDescription(String text);
+    method public Self setDescription(androidx.appactions.builtintypes.properties.Description? description);
+    method public default Self setDisambiguatingDescription(String text);
+    method public default Self setDisambiguatingDescription(androidx.appactions.builtintypes.types.Thing.DisambiguatingDescriptionValue canonicalValue);
+    method public Self setDisambiguatingDescription(androidx.appactions.builtintypes.properties.DisambiguatingDescription? disambiguatingDescription);
+    method public Self setIdentifier(String? text);
+    method public default Self setName(String text);
+    method public Self setName(androidx.appactions.builtintypes.properties.Name? name);
+    method public default Self setTemporal(java.time.LocalDateTime localDateTime);
+    method public default Self setTemporal(java.time.ZonedDateTime zonedDateTime);
+    method public default Self setTemporal(String text);
+    method public Self setTemporal(androidx.appactions.builtintypes.properties.Temporal? temporal);
+  }
+
+  public static final class Thing.Companion {
+    method public androidx.appactions.builtintypes.types.Thing.Builder<?> Builder();
+  }
+
+  public static final class Thing.DisambiguatingDescriptionValue extends androidx.appactions.builtintypes.properties.DisambiguatingDescription.CanonicalValue {
+    method public String getTextValue();
+    property public String textValue;
+    field public static final androidx.appactions.builtintypes.types.Thing.DisambiguatingDescriptionValue ALBUM;
+    field public static final androidx.appactions.builtintypes.types.Thing.DisambiguatingDescriptionValue AUDIOBOOK;
+    field public static final androidx.appactions.builtintypes.types.Thing.DisambiguatingDescriptionValue.Companion Companion;
+    field public static final androidx.appactions.builtintypes.types.Thing.DisambiguatingDescriptionValue EPISODE;
+    field public static final androidx.appactions.builtintypes.types.Thing.DisambiguatingDescriptionValue MOVIE;
+    field public static final androidx.appactions.builtintypes.types.Thing.DisambiguatingDescriptionValue MUSIC;
+    field public static final androidx.appactions.builtintypes.types.Thing.DisambiguatingDescriptionValue OTHER;
+    field public static final androidx.appactions.builtintypes.types.Thing.DisambiguatingDescriptionValue PHOTOGRAPH;
+    field public static final androidx.appactions.builtintypes.types.Thing.DisambiguatingDescriptionValue PODCAST;
+    field public static final androidx.appactions.builtintypes.types.Thing.DisambiguatingDescriptionValue SONG;
+    field public static final androidx.appactions.builtintypes.types.Thing.DisambiguatingDescriptionValue SOUNDTRACK;
+    field public static final androidx.appactions.builtintypes.types.Thing.DisambiguatingDescriptionValue TELEVISION_CHANNEL;
+    field public static final androidx.appactions.builtintypes.types.Thing.DisambiguatingDescriptionValue TELEVISION_SHOW;
+    field public static final androidx.appactions.builtintypes.types.Thing.DisambiguatingDescriptionValue TRAILER;
+    field public static final androidx.appactions.builtintypes.types.Thing.DisambiguatingDescriptionValue VIDEO;
+    field public static final androidx.appactions.builtintypes.types.Thing.DisambiguatingDescriptionValue VIDEO_GAME;
+  }
+
+  public static final class Thing.DisambiguatingDescriptionValue.Companion {
+  }
+
+}
+
