@@ -84,8 +84,13 @@ function areNativeLibsNewEnoughForKonan() {
 }
 if ! areNativeLibsNewEnoughForKonan; then
   KONAN_HOST_LIBS="$OUT_DIR/konan-host-libs"
-  $SCRIPT_DIR/prepare-linux-sysroot.sh "$KONAN_HOST_LIBS"
-  export LD_LIBRARY_PATH=$KONAN_HOST_LIBS
+  LOG="$KONAN_HOST_LIBS.log"
+  if $SCRIPT_DIR/prepare-linux-sysroot.sh "$KONAN_HOST_LIBS" > $LOG 2>$LOG; then
+    export LD_LIBRARY_PATH=$KONAN_HOST_LIBS
+  else
+    cat $LOG >&2
+    exit 1
+  fi
 fi
 
 # run the build
