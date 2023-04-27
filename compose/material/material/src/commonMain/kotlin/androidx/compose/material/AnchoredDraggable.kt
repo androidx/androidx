@@ -71,7 +71,7 @@ internal fun <T> Modifier.anchoredDraggable(
     reverseDirection: Boolean = false,
     interactionSource: MutableInteractionSource? = null
 ) = draggable(
-    state = state.swipeDraggableState,
+    state = state.draggableState,
     orientation = orientation,
     enabled = enabled,
     interactionSource = interactionSource,
@@ -79,6 +79,26 @@ internal fun <T> Modifier.anchoredDraggable(
     startDragImmediately = state.isAnimationRunning,
     onDragStopped = { velocity -> launch { state.settle(velocity) } }
 )
+
+/**
+ * Scope used for suspending anchored drag blocks. Allows to set [AnchoredDraggableState.offset] to
+ * a new value.
+ *
+ * @see [AnchoredDraggableState.anchoredDrag] to learn how to start the anchored drag and get the
+ * access to this scope.
+ */
+internal interface AnchoredDragScope {
+    /**
+     * Assign a new value for an offset value for [AnchoredDraggableState].
+     *
+     * @param newOffset new value for [AnchoredDraggableState.offset].
+     * @param lastKnownVelocity last known velocity (if known)
+     */
+    fun dragTo(
+        newOffset: Float,
+        lastKnownVelocity: Float = 0f
+    )
+}
 
 /**
  * State of the [anchoredDraggable] modifier.
@@ -104,16 +124,19 @@ internal class AnchoredDraggableState<T>(
     initialValue: T,
     internal val positionalThreshold: (totalDistance: Float) -> Float,
     internal val velocityThreshold: () -> Float,
-    internal val animationSpec: AnimationSpec<Float> = AnchoredDraggableDefaults.AnimationSpec,
+    val animationSpec: AnimationSpec<Float> = AnchoredDraggableDefaults.AnimationSpec,
     internal val confirmValueChange: (newValue: T) -> Boolean = { true }
 ) {
 
     private val dragMutex = InternalMutatorMutex()
 
-    internal val swipeDraggableState = object : DraggableState {
+    internal val draggableState = object : DraggableState {
+
         private val dragScope = object : DragScope {
             override fun dragBy(pixels: Float) {
-                this@AnchoredDraggableState.dispatchRawDelta(pixels)
+                with(anchoredDragScope) {
+                    dragTo(newOffsetForDelta(pixels))
+                }
             }
         }
 
@@ -121,7 +144,9 @@ internal class AnchoredDraggableState<T>(
             dragPriority: MutatePriority,
             block: suspend DragScope.() -> Unit
         ) {
-            this@AnchoredDraggableState.drag(dragPriority) { dragScope.block() }
+            this@AnchoredDraggableState.anchoredDrag(dragPriority) {
+                with(dragScope) { block() }
+            }
         }
 
         override fun dispatchRawDelta(delta: Float) {
@@ -250,7 +275,7 @@ internal class AnchoredDraggableState<T>(
 
             val currentValueHasAnchor = anchors[currentValue] != null
             if (previousAnchorsEmpty && currentValueHasAnchor) {
-                snap(currentValue)
+                trySnapTo(currentValue)
             } else {
                 onAnchorsChanged?.onAnchorsChanged(
                     previousTargetValue = previousTarget,
@@ -265,66 +290,6 @@ internal class AnchoredDraggableState<T>(
      * Whether the [value] has an anchor associated with it.
      */
     fun hasAnchorForValue(value: T): Boolean = anchors.containsKey(value)
-
-    /**
-     * Snap to a [targetValue] without any animation.
-     * If the [targetValue] is not in the set of anchors, the [currentValue] will be updated to the
-     * [targetValue] without updating the offset.
-     *
-     * @throws CancellationException if the interaction interrupted by another interaction like a
-     * gesture interaction or another programmatic interaction like a [animateTo] or [snapTo] call.
-     *
-     * @param targetValue The target value of the animation
-     */
-    suspend fun snapTo(targetValue: T) {
-        drag { snap(targetValue) }
-    }
-
-    /**
-     * Animate to a [targetValue].
-     * If the [targetValue] is not in the set of anchors, the [currentValue] will be updated to the
-     * [targetValue] without updating the offset.
-     *
-     * @throws CancellationException if the interaction interrupted by another interaction like a
-     * gesture interaction or another programmatic interaction like a [animateTo] or [snapTo] call.
-     *
-     * @param targetValue The target value of the animation
-     * @param velocity The velocity the animation should start with, [lastVelocity] by default
-     */
-    suspend fun animateTo(
-        targetValue: T,
-        velocity: Float = lastVelocity,
-    ) {
-        val targetOffset = anchors[targetValue]
-        if (targetOffset != null) {
-            try {
-                drag {
-                    animationTarget = targetValue
-                    var prev = offset ?: 0f
-                    animate(prev, targetOffset, velocity, animationSpec) { value, velocity ->
-                        // Our onDrag coerces the value within the bounds, but an animation may
-                        // overshoot, for example a spring animation or an overshooting interpolator
-                        // We respect the user's intention and allow the overshoot, but still use
-                        // DraggableState's drag for its mutex.
-                        offset = value
-                        prev = value
-                        lastVelocity = velocity
-                    }
-                    lastVelocity = 0f
-                }
-            } finally {
-                animationTarget = null
-                val endOffset = requireOffset()
-                val endState = anchors
-                    .entries
-                    .firstOrNull { (_, anchorOffset) -> abs(anchorOffset - endOffset) < 0.5f }
-                    ?.key
-                this.currentValue = endState ?: currentValue
-            }
-        } else {
-            currentValue = targetValue
-        }
-    }
 
     /**
      * Find the closest anchor taking into account the velocity and settle at it with an animation.
@@ -342,22 +307,6 @@ internal class AnchoredDraggableState<T>(
             // If the user vetoed the state change, rollback to the previous state.
             animateTo(previousValue, velocity)
         }
-    }
-
-    /**
-     * Drag by the [delta], coerce it in the bounds and dispatch it to the [AnchoredDraggableState].
-     *
-     * @return The delta the consumed by the [AnchoredDraggableState]
-     */
-    fun dispatchRawDelta(delta: Float): Float {
-        val currentDragPosition = offset ?: 0f
-        val potentiallyConsumed = currentDragPosition + delta
-        val clamped = potentiallyConsumed.coerceIn(minOffset, maxOffset)
-        val deltaToConsume = clamped - currentDragPosition
-        if (abs(deltaToConsume) >= 0) {
-            offset = ((offset ?: 0f) + deltaToConsume).coerceIn(minOffset, maxOffset)
-        }
-        return deltaToConsume
     }
 
     private fun computeTarget(
@@ -401,10 +350,97 @@ internal class AnchoredDraggableState<T>(
         }
     }
 
-    private suspend fun drag(
-        priority: MutatePriority = MutatePriority.Default,
-        action: suspend () -> Unit
-    ): Unit = coroutineScope { dragMutex.mutate(priority, action) }
+    private val anchoredDragScope: AnchoredDragScope = object : AnchoredDragScope {
+        override fun dragTo(newOffset: Float, lastKnownVelocity: Float) {
+            offset = newOffset
+            lastVelocity = lastKnownVelocity
+        }
+    }
+
+    /**
+     * Call this function to take control of drag logic and perform anchored drag.
+     *
+     * All actions that change the [offset] of this [AnchoredDraggableState] must be performed
+     * within an [anchoredDrag] block (even if they don't call any other methods on this object)
+     * in order to guarantee that mutual exclusion is enforced.
+     *
+     * If [anchoredDrag] is called from elsewhere with the [dragPriority] higher or equal to ongoing
+     * drag, ongoing drag will be canceled.
+     *
+     * @param dragPriority of the drag operation
+     * @param block perform anchored drag given the current anchor provided
+     */
+    suspend fun anchoredDrag(
+        dragPriority: MutatePriority = MutatePriority.Default,
+        block: suspend AnchoredDragScope.(anchors: Map<T, Float>) -> Unit
+    ): Unit = doAnchoredDrag(null, dragPriority, block)
+
+    /**
+     * Call this function to take control of drag logic and perform anchored drag.
+     *
+     * All actions that change the [offset] of this [AnchoredDraggableState] must be performed
+     * within an [anchoredDrag] block (even if they don't call any other methods on this object)
+     * in order to guarantee that mutual exclusion is enforced.
+     *
+     * This overload allows the caller to hint the target value that this [anchoredDrag] is intended
+     * to arrive to. This will set [AnchoredDraggableState.targetValue] to provided value so
+     * consumers can reflect it in their UIs.
+     *
+     * If [anchoredDrag] is called from elsewhere with the [dragPriority] higher or equal to ongoing
+     * drag, ongoing drag will be canceled.
+     *
+     * @param targetValue hint the target value that this [anchoredDrag] is intended to arrive to
+     * @param dragPriority of the drag operation
+     * @param block perform anchored drag given the current anchor provided
+     */
+    suspend fun anchoredDrag(
+        targetValue: T,
+        dragPriority: MutatePriority = MutatePriority.Default,
+        block: suspend AnchoredDragScope.(anchors: Map<T, Float>) -> Unit
+    ): Unit = doAnchoredDrag(targetValue, dragPriority, block)
+
+    private suspend fun doAnchoredDrag(
+        targetValue: T?,
+        dragPriority: MutatePriority,
+        block: suspend AnchoredDragScope.(anchors: Map<T, Float>) -> Unit
+    ) = coroutineScope {
+        if (targetValue == null || anchors.containsKey(targetValue)) {
+            try {
+                dragMutex.mutate(dragPriority) {
+                    if (targetValue != null) animationTarget = targetValue
+                    anchoredDragScope.block(anchors)
+                }
+            } finally {
+                if (targetValue != null) animationTarget = null
+                val endState = offset?.let { endOffset ->
+                    anchors
+                        .entries
+                        .firstOrNull { (_, anchorOffset) -> abs(anchorOffset - endOffset) < 0.5f }
+                        ?.key
+                }
+                if (endState != null && confirmValueChange.invoke(endState)) {
+                    currentValue = endState
+                }
+            }
+        } else if (confirmValueChange(targetValue)) {
+            currentValue = targetValue
+        }
+    }
+
+    internal fun newOffsetForDelta(delta: Float) =
+        ((offset ?: 0f) + delta).coerceIn(minOffset, maxOffset)
+
+    /**
+     * Drag by the [delta], coerce it in the bounds and dispatch it to the [AnchoredDraggableState].
+     *
+     * @return The delta the consumed by the [AnchoredDraggableState]
+     */
+    fun dispatchRawDelta(delta: Float): Float {
+        val newOffset = newOffsetForDelta(delta)
+        val oldOffset = offset ?: 0f
+        offset = newOffset
+        return newOffset - oldOffset
+    }
 
     /**
      * Attempt to snap synchronously. Snapping can happen synchronously when there is no other drag
@@ -413,15 +449,13 @@ internal class AnchoredDraggableState<T>(
      *
      * @return true if the synchronous snap was successful, or false if we couldn't snap synchronous
      */
-    internal fun trySnapTo(targetValue: T): Boolean = dragMutex.tryMutate { snap(targetValue) }
-
-    private fun snap(targetValue: T) {
-        val targetOffset = anchors[targetValue]
-        if (targetOffset != null) {
-            dispatchRawDelta(targetOffset - (offset ?: 0f))
-            currentValue = targetValue
-            animationTarget = null
-        } else {
+    internal fun trySnapTo(targetValue: T): Boolean = dragMutex.tryMutate {
+        with(anchoredDragScope) {
+            val targetOffset = anchors[targetValue]
+            if (targetOffset != null) {
+                dragTo(targetOffset)
+                animationTarget = null
+            }
             currentValue = targetValue
         }
     }
@@ -476,6 +510,56 @@ internal class AnchoredDraggableState<T>(
             previousAnchors: Map<T, Float>,
             newAnchors: Map<T, Float>,
         )
+    }
+}
+
+/**
+ * Snap to a [targetValue] without any animation.
+ * If the [targetValue] is not in the set of anchors, the [AnchoredDraggableState.currentValue] will
+ * be updated to the [targetValue] without updating the offset.
+ *
+ * @throws CancellationException if the interaction interrupted by another interaction like a
+ * gesture interaction or another programmatic interaction like a [animateTo] or [snapTo] call.
+ *
+ * @param targetValue The target value of the animation
+ */
+@ExperimentalMaterialApi
+internal suspend fun <T> AnchoredDraggableState<T>.snapTo(targetValue: T) {
+    anchoredDrag(targetValue = targetValue) { anchors ->
+        val targetOffset = anchors[targetValue]
+        if (targetOffset != null) dragTo(targetOffset)
+    }
+}
+
+/**
+ * Animate to a [targetValue].
+ * If the [targetValue] is not in the set of anchors, the [AnchoredDraggableState.currentValue] will
+ * be updated to the [targetValue] without updating the offset.
+ *
+ * @throws CancellationException if the interaction interrupted by another interaction like a
+ * gesture interaction or another programmatic interaction like a [animateTo] or [snapTo] call.
+ *
+ * @param targetValue The target value of the animation
+ * @param velocity The velocity the animation should start with
+ */
+@ExperimentalMaterialApi
+internal suspend fun <T> AnchoredDraggableState<T>.animateTo(
+    targetValue: T,
+    velocity: Float = this.lastVelocity,
+) {
+    anchoredDrag(targetValue = targetValue) { anchors ->
+        val targetOffset = anchors[targetValue]
+        if (targetOffset != null) {
+            var prev = offset ?: 0f
+            animate(prev, targetOffset, velocity, animationSpec) { value, velocity ->
+                // Our onDrag coerces the value within the bounds, but an animation may
+                // overshoot, for example a spring animation or an overshooting interpolator
+                // We respect the user's intention and allow the overshoot, but still use
+                // DraggableState's drag for its mutex.
+                dragTo(value, velocity)
+                prev = value
+            }
+        }
     }
 }
 
@@ -562,20 +646,20 @@ internal object AnchoredDraggableDefaults {
         state: AnchoredDraggableState<T>,
         scope: CoroutineScope
     ) = AnchorChangedCallback<T> { previousTarget, previousAnchors, newAnchors ->
-            val previousTargetOffset = previousAnchors[previousTarget]
-            val newTargetOffset = newAnchors[previousTarget]
-            if (previousTargetOffset != newTargetOffset) {
-                if (newTargetOffset != null) {
-                    scope.launch {
-                        state.animateTo(previousTarget, state.lastVelocity)
-                    }
-                } else {
-                    scope.launch {
-                        state.snapTo(newAnchors.closestAnchor(offset = state.requireOffset()))
-                    }
+        val previousTargetOffset = previousAnchors[previousTarget]
+        val newTargetOffset = newAnchors[previousTarget]
+        if (previousTargetOffset != newTargetOffset) {
+            if (newTargetOffset != null) {
+                scope.launch {
+                    state.animateTo(previousTarget, state.lastVelocity)
+                }
+            } else {
+                scope.launch {
+                    state.snapTo(newAnchors.closestAnchor(offset = state.requireOffset()))
                 }
             }
         }
+    }
 }
 
 private fun <T> Map<T, Float>.closestAnchor(
