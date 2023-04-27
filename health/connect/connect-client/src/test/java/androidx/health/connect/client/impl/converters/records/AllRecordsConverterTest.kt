@@ -30,8 +30,12 @@ import androidx.health.connect.client.records.CervicalMucusRecord
 import androidx.health.connect.client.records.CyclingPedalingCadenceRecord
 import androidx.health.connect.client.records.DistanceRecord
 import androidx.health.connect.client.records.ElevationGainedRecord
+import androidx.health.connect.client.records.ExerciseLap
+import androidx.health.connect.client.records.ExerciseRoute
+import androidx.health.connect.client.records.ExerciseSegment
 import androidx.health.connect.client.records.ExerciseSessionRecord
 import androidx.health.connect.client.records.ExerciseSessionRecord.Companion.EXERCISE_TYPE_BADMINTON
+import androidx.health.connect.client.records.ExerciseSessionRecord.Companion.EXERCISE_TYPE_CALISTHENICS
 import androidx.health.connect.client.records.FloorsClimbedRecord
 import androidx.health.connect.client.records.HeartRateRecord
 import androidx.health.connect.client.records.HeartRateVariabilityRmssdRecord
@@ -64,6 +68,7 @@ import androidx.health.connect.client.records.metadata.DataOrigin
 import androidx.health.connect.client.records.metadata.Device
 import androidx.health.connect.client.records.metadata.Metadata
 import androidx.health.connect.client.units.BloodGlucose
+import androidx.health.connect.client.units.Length
 import androidx.health.connect.client.units.celsius
 import androidx.health.connect.client.units.grams
 import androidx.health.connect.client.units.kilocalories
@@ -84,10 +89,13 @@ import org.junit.runner.RunWith
 
 @SuppressWarnings("GoodTime") // Safe to use in test
 private val START_TIME = Instant.ofEpochMilli(1234L)
+
 @SuppressWarnings("GoodTime") // Safe to use in test
 private val END_TIME = Instant.ofEpochMilli(5678L)
+
 @SuppressWarnings("GoodTime") // Safe to use in test
 private val START_ZONE_OFFSET = ZoneOffset.ofHours(1)
+
 @SuppressWarnings("GoodTime") // Safe to use in test
 private val END_ZONE_OFFSET = ZoneOffset.ofHours(2)
 private val TEST_METADATA =
@@ -117,7 +125,7 @@ class AllRecordsConverterTest {
             BasalBodyTemperatureRecord(
                 temperature = 1.celsius,
                 measurementLocation =
-                    BodyTemperatureMeasurementLocation.MEASUREMENT_LOCATION_ARMPIT,
+                BodyTemperatureMeasurementLocation.MEASUREMENT_LOCATION_ARMPIT,
                 time = START_TIME,
                 zoneOffset = END_ZONE_OFFSET,
                 metadata = TEST_METADATA
@@ -251,16 +259,16 @@ class AllRecordsConverterTest {
                 endTime = END_TIME,
                 endZoneOffset = END_ZONE_OFFSET,
                 samples =
-                    listOf(
-                        CyclingPedalingCadenceRecord.Sample(
-                            time = START_TIME,
-                            revolutionsPerMinute = 1.0,
-                        ),
-                        CyclingPedalingCadenceRecord.Sample(
-                            time = START_TIME,
-                            revolutionsPerMinute = 2.0,
-                        ),
+                listOf(
+                    CyclingPedalingCadenceRecord.Sample(
+                        time = START_TIME,
+                        revolutionsPerMinute = 1.0,
                     ),
+                    CyclingPedalingCadenceRecord.Sample(
+                        time = START_TIME,
+                        revolutionsPerMinute = 2.0,
+                    ),
+                ),
                 metadata = TEST_METADATA,
             )
 
@@ -277,20 +285,20 @@ class AllRecordsConverterTest {
                 endTime = END_TIME,
                 endZoneOffset = END_ZONE_OFFSET,
                 samples =
-                    listOf(
-                        HeartRateRecord.Sample(
-                            time = START_TIME,
-                            beatsPerMinute = 100L,
-                        ),
-                        HeartRateRecord.Sample(
-                            time = START_TIME,
-                            beatsPerMinute = 110L,
-                        ),
-                        HeartRateRecord.Sample(
-                            time = START_TIME,
-                            beatsPerMinute = 120L,
-                        ),
+                listOf(
+                    HeartRateRecord.Sample(
+                        time = START_TIME,
+                        beatsPerMinute = 100L,
                     ),
+                    HeartRateRecord.Sample(
+                        time = START_TIME,
+                        beatsPerMinute = 110L,
+                    ),
+                    HeartRateRecord.Sample(
+                        time = START_TIME,
+                        beatsPerMinute = 120L,
+                    ),
+                ),
                 metadata = TEST_METADATA,
             )
 
@@ -440,16 +448,16 @@ class AllRecordsConverterTest {
                 endTime = END_TIME,
                 endZoneOffset = END_ZONE_OFFSET,
                 samples =
-                    listOf(
-                        PowerRecord.Sample(
-                            time = START_TIME,
-                            power = 1.watts,
-                        ),
-                        PowerRecord.Sample(
-                            time = START_TIME,
-                            power = 2.watts,
-                        ),
+                listOf(
+                    PowerRecord.Sample(
+                        time = START_TIME,
+                        power = 1.watts,
                     ),
+                    PowerRecord.Sample(
+                        time = START_TIME,
+                        power = 2.watts,
+                    ),
+                ),
                 metadata = TEST_METADATA,
             )
 
@@ -508,16 +516,16 @@ class AllRecordsConverterTest {
                 endTime = END_TIME,
                 endZoneOffset = END_ZONE_OFFSET,
                 samples =
-                    listOf(
-                        SpeedRecord.Sample(
-                            time = START_TIME,
-                            speed = 1.metersPerSecond,
-                        ),
-                        SpeedRecord.Sample(
-                            time = START_TIME,
-                            speed = 2.metersPerSecond,
-                        ),
+                listOf(
+                    SpeedRecord.Sample(
+                        time = START_TIME,
+                        speed = 1.metersPerSecond,
                     ),
+                    SpeedRecord.Sample(
+                        time = START_TIME,
+                        speed = 2.metersPerSecond,
+                    ),
+                ),
                 metadata = TEST_METADATA,
             )
 
@@ -534,16 +542,16 @@ class AllRecordsConverterTest {
                 endTime = END_TIME,
                 endZoneOffset = END_ZONE_OFFSET,
                 samples =
-                    listOf(
-                        StepsCadenceRecord.Sample(
-                            time = START_TIME,
-                            rate = 1.0,
-                        ),
-                        StepsCadenceRecord.Sample(
-                            time = START_TIME,
-                            rate = 2.0,
-                        ),
+                listOf(
+                    StepsCadenceRecord.Sample(
+                        time = START_TIME,
+                        rate = 1.0,
                     ),
+                    StepsCadenceRecord.Sample(
+                        time = START_TIME,
+                        rate = 2.0,
+                    ),
+                ),
                 metadata = TEST_METADATA,
             )
 
@@ -600,14 +608,71 @@ class AllRecordsConverterTest {
     fun testActivitySession() {
         val data =
             ExerciseSessionRecord(
-                exerciseType = EXERCISE_TYPE_BADMINTON,
-                title = null,
-                notes = null,
+                exerciseType = EXERCISE_TYPE_CALISTHENICS,
+                title = "title",
+                notes = "notes",
                 startTime = START_TIME,
                 startZoneOffset = START_ZONE_OFFSET,
                 endTime = END_TIME,
                 endZoneOffset = END_ZONE_OFFSET,
-                metadata = TEST_METADATA
+                metadata = TEST_METADATA,
+                segments = listOf(
+                    ExerciseSegment(
+                        startTime = Instant.ofEpochMilli(1234L),
+                        endTime = Instant.ofEpochMilli(1235L),
+                        segmentType = ExerciseSegment.EXERCISE_SEGMENT_TYPE_CRUNCH,
+                        repetitions = 10
+                    ),
+                    ExerciseSegment(
+                        startTime = Instant.ofEpochMilli(1235L),
+                        endTime = Instant.ofEpochMilli(1236L),
+                        segmentType = ExerciseSegment.EXERCISE_SEGMENT_TYPE_CRUNCH,
+                    )
+                ),
+                laps = listOf(
+                    ExerciseLap(
+                        startTime = Instant.ofEpochMilli(1234L),
+                        endTime = Instant.ofEpochMilli(1235L),
+                        length = 1.meters
+                    ),
+                    ExerciseLap(
+                        startTime = Instant.ofEpochMilli(1235L),
+                        endTime = Instant.ofEpochMilli(1236L),
+                    )
+                ),
+                route = ExerciseRoute(
+                    route = listOf(
+                        ExerciseRoute.Location(
+                            time = Instant.ofEpochMilli(1234L),
+                            latitude = 34.5,
+                            longitude = -34.5,
+                            horizontalAccuracy = Length.meters(0.4),
+                            verticalAccuracy = Length.meters(1.3),
+                            altitude = Length.meters(23.4)
+                        ),
+                        ExerciseRoute.Location(
+                            time = Instant.ofEpochMilli(1235L),
+                            latitude = 34.5,
+                            longitude = -34.5,
+                        ),
+                    )
+                ),
+                hasRoute = true,
+            )
+
+        checkProtoAndRecordTypeNameMatch(data)
+        assertThat(toRecord(data.toProto())).isEqualTo(data)
+    }
+
+    @Test
+    fun testActivitySessionWithOnlyRequiredData() {
+        val data =
+            ExerciseSessionRecord(
+                exerciseType = EXERCISE_TYPE_BADMINTON,
+                startTime = START_TIME,
+                startZoneOffset = null,
+                endTime = END_TIME,
+                endZoneOffset = null,
             )
 
         checkProtoAndRecordTypeNameMatch(data)
