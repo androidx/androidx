@@ -113,22 +113,4 @@ class ExerciseRouteTest {
             )
         assertFailsWith<IllegalArgumentException> { ExerciseRoute(listOf(location1, location2)) }
     }
-
-    @Test
-    fun locationTime_sorted() {
-        val location1 = ExerciseRoute.Location(
-            time = Instant.ofEpochMilli(1236L),
-            latitude = 34.5,
-            longitude = -34.5,
-        )
-        val location2 =
-            ExerciseRoute.Location(
-                time = Instant.ofEpochMilli(1235L),
-                latitude = 34.8,
-                longitude = -34.8,
-            )
-        assertThat(ExerciseRoute(listOf(location1, location2)).route).isEqualTo(
-            listOf(location2, location1)
-        )
-    }
 }

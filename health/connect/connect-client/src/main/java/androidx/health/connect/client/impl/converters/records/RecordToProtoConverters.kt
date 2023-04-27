@@ -316,6 +316,7 @@ fun Record.toProto(): DataProto.DataPoint =
         is ExerciseSessionRecord ->
             intervalProto()
                 .setDataType(protoDataType("ActivitySession"))
+                .putValues("hasRoute", boolVal(hasRoute))
                 .apply {
                     val exerciseType =
                         enumValFromInt(
@@ -326,6 +327,27 @@ fun Record.toProto(): DataProto.DataPoint =
                     putValues("activityType", exerciseType)
                     title?.let { putValues("title", stringVal(it)) }
                     notes?.let { putValues("notes", stringVal(it)) }
+                    if (segments.isNotEmpty()) {
+                        putSubTypeDataLists(
+                            "segments",
+                            DataProto.DataPoint.SubTypeDataList.newBuilder()
+                                .addAllValues(segments.map { it.toProto() }).build()
+                        )
+                    }
+                    if (laps.isNotEmpty()) {
+                        putSubTypeDataLists(
+                            "laps",
+                            DataProto.DataPoint.SubTypeDataList.newBuilder()
+                                .addAllValues(laps.map { it.toProto() }).build()
+                        )
+                    }
+                    route?.let { exerciseRoute ->
+                        putSubTypeDataLists(
+                            "route",
+                            DataProto.DataPoint.SubTypeDataList.newBuilder()
+                                .addAllValues(exerciseRoute.route.map { it.toProto() }).build()
+                        )
+                    }
                 }
                 .build()
 
