@@ -33,6 +33,8 @@ import androidx.appactions.interaction.capabilities.core.impl.task.exceptions.Mi
 import androidx.appactions.interaction.capabilities.core.impl.task.exceptions.MissingSearchActionConverterException
 import androidx.appactions.interaction.capabilities.core.impl.utils.CapabilityLogger
 import androidx.appactions.interaction.capabilities.core.impl.utils.LoggerInternal
+import androidx.appactions.interaction.capabilities.core.impl.utils.invokeExternalBlock
+import androidx.appactions.interaction.capabilities.core.impl.utils.invokeExternalSuspendBlock
 import androidx.appactions.interaction.proto.AppActionsContext
 import androidx.appactions.interaction.proto.CurrentValue
 import androidx.appactions.interaction.proto.FulfillmentRequest
@@ -281,7 +283,9 @@ internal class TaskOrchestrator<ArgumentsT, OutputT, ConfirmationT>(
 
     private fun maybeInitializeTask() {
         if (status === Status.UNINITIATED) {
-            externalSession.onCreate(SessionConfig())
+            invokeExternalBlock("onCreate") {
+                externalSession.onCreate(SessionConfig())
+            }
         }
         status = Status.IN_PROGRESS
     }
@@ -293,14 +297,15 @@ internal class TaskOrchestrator<ArgumentsT, OutputT, ConfirmationT>(
      * turn, so the logic should include onEnter, arg validation, and onExit.
      */
     private suspend fun handleSync(argumentsWrapper: ArgumentsWrapper): FulfillmentResult {
-        maybeInitializeTask()
-        clearMissingArgs(argumentsWrapper)
         return try {
+            maybeInitializeTask()
+            clearMissingArgs(argumentsWrapper)
             processFulfillmentValues(argumentsWrapper.paramValues)
             val fulfillmentResponse = maybeConfirmOrExecute()
             LoggerInternal.log(CapabilityLogger.LogLevel.INFO, LOG_TAG, "Task sync success")
             FulfillmentResult(fulfillmentResponse)
         } catch (t: Throwable) {
+            // TODO(b/276354491) implement fine-grained exception handling
             LoggerInternal.log(CapabilityLogger.LogLevel.ERROR, LOG_TAG, "Task sync fail", t)
             FulfillmentResult(ErrorStatusInternal.SYNC_REQUEST_FAILURE)
         }
@@ -317,6 +322,7 @@ internal class TaskOrchestrator<ArgumentsT, OutputT, ConfirmationT>(
             LoggerInternal.log(CapabilityLogger.LogLevel.INFO, LOG_TAG, "Task confirm success")
             FulfillmentResult(fulfillmentResponse)
         } catch (t: Throwable) {
+            // TODO(b/276354491) implement fine-grained exception handling
             LoggerInternal.log(CapabilityLogger.LogLevel.ERROR, LOG_TAG, "Task confirm fail")
             FulfillmentResult(ErrorStatusInternal.CONFIRMATION_REQUEST_FAILURE)
         }
@@ -450,7 +456,9 @@ internal class TaskOrchestrator<ArgumentsT, OutputT, ConfirmationT>(
     private suspend fun getFulfillmentResponseForConfirmation(
         finalArguments: Map<String, List<ParamValue>>,
     ): FulfillmentResponse {
-        val result = taskHandler.onReadyToConfirmListener!!.onReadyToConfirm(finalArguments)
+        val result = invokeExternalSuspendBlock("onReadyToConfirm") {
+            taskHandler.onReadyToConfirmListener!!.onReadyToConfirm(finalArguments)
+        }
         val fulfillmentResponse = FulfillmentResponse.newBuilder()
         convertToConfirmationOutput(result)?.let { fulfillmentResponse.confirmationData = it }
         return fulfillmentResponse.build()
@@ -460,7 +468,9 @@ internal class TaskOrchestrator<ArgumentsT, OutputT, ConfirmationT>(
     private suspend fun getFulfillmentResponseForExecution(
         finalArguments: Map<String, List<ParamValue>>,
     ): FulfillmentResponse {
-        val result = externalSession.onExecute(actionSpec.buildArguments(finalArguments))
+        val result = invokeExternalSuspendBlock("onExecute") {
+            externalSession.onExecute(actionSpec.buildArguments(finalArguments))
+        }
         status = Status.COMPLETED
         val fulfillmentResponse =
             FulfillmentResponse.newBuilder().setStartDictation(result.shouldStartDictation)
