@@ -16,7 +16,7 @@
 
 package androidx.compose.foundation.text.modifiers
 
-import androidx.compose.foundation.text.TextUsingModifier
+import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -40,7 +40,7 @@ class BasicTextSemanticsTest {
     fun semanticsTextChanges_String() {
         var text by mutableStateOf("before")
         rule.setContent {
-            TextUsingModifier(text)
+            BasicText(text)
         }
         rule.onNodeWithText("before").assertExists()
         text = "after"
@@ -51,7 +51,7 @@ class BasicTextSemanticsTest {
     fun semanticsTextChanges_AnnotatedString() {
         var text by mutableStateOf("before")
         rule.setContent {
-            TextUsingModifier(AnnotatedString(text))
+            BasicText(AnnotatedString(text))
         }
         rule.onNodeWithText("before").assertExists()
         text = "after"
