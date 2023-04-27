@@ -52,6 +52,7 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.semantics.ScrollAxisRange
 import androidx.compose.ui.semantics.horizontalScrollAxisRange
+import androidx.compose.ui.semantics.isTraversalGroup
 import androidx.compose.ui.semantics.scrollBy
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.verticalScrollAxisRange
@@ -267,6 +268,7 @@ private fun Modifier.scroll(
         val overscrollEffect = ScrollableDefaults.overscrollEffect()
         val coroutineScope = rememberCoroutineScope()
         val semantics = Modifier.semantics {
+            isTraversalGroup = true
             val accessibilityScrollState = ScrollAxisRange(
                 value = { state.value.toFloat() },
                 maxValue = { state.maxValue.toFloat() },

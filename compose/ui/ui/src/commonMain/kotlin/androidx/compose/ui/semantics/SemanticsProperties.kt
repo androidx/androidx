@@ -98,7 +98,15 @@ object SemanticsProperties {
     /**
      * @see SemanticsPropertyReceiver.isContainer
      */
-    val IsContainer = SemanticsPropertyKey<Boolean>("IsContainer")
+    @Deprecated("Use `isTraversalGroup` instead.",
+        replaceWith = ReplaceWith("IsTraversalGroup"),
+    )
+    val IsContainer = SemanticsPropertyKey<Boolean>("IsTraversalGroup")
+
+    /**us
+     * @see SemanticsPropertyReceiver.isTraversalGroup
+     */
+    val IsTraversalGroup = SemanticsPropertyKey<Boolean>("IsTraversalGroup")
 
     /**
      * @see SemanticsPropertyReceiver.invisibleToUser
@@ -782,7 +790,18 @@ var SemanticsPropertyReceiver.focused by SemanticsProperties.Focused
  *
  * @see SemanticsProperties.IsContainer
  */
-var SemanticsPropertyReceiver.isContainer by SemanticsProperties.IsContainer
+@Deprecated("Use `isTraversalGroup` instead.",
+    replaceWith = ReplaceWith("isTraversalGroup"),
+)
+var SemanticsPropertyReceiver.isContainer by SemanticsProperties.IsTraversalGroup
+
+/**
+ * Whether this semantics node is a traversal group. This is defined as a node whose function
+ * is to serve as a boundary or border in organizing its children.
+ *
+ * @see SemanticsProperties.IsTraversalGroup
+ */
+var SemanticsPropertyReceiver.isTraversalGroup by SemanticsProperties.IsTraversalGroup
 
 /**
  * Whether this node is specially known to be invisible to the user.
