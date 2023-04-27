@@ -30,7 +30,6 @@ import org.junit.runner.RunWith
 class UiResponseTest {
     private val context: Context = ApplicationProvider.getApplicationContext()
     private val remoteViewsFactoryId = 123
-    private val changeViewId = 111
 
     @Test
     fun uiResponse_remoteViewsBuilder_withFactory_success() {
@@ -39,7 +38,6 @@ class UiResponseTest {
             UiResponse.RemoteViewsUiBuilder()
                 .setRemoteViews(views, SizeF(10f, 15f))
                 .addRemoteViewsFactory(remoteViewsFactoryId, FakeRemoteViewsFactory())
-                .addViewIdForCollectionUpdate(changeViewId)
                 .build()
 
         assertThat(uiResponse.tileLayoutInternal).isNull()
@@ -47,9 +45,8 @@ class UiResponseTest {
         assertThat(uiResponse.remoteViewsInternal?.size?.height).isEqualTo(15)
         assertThat(uiResponse.remoteViewsInternal?.remoteViews?.`package`)
             .isEqualTo(context.packageName)
-        assertThat(uiResponse.remoteViewsInternal?.remoteViewsFactories)
+        assertThat(uiResponse.remoteViewsInternal?.collectionViewFactories)
             .containsKey(remoteViewsFactoryId)
-        assertThat(uiResponse.remoteViewsInternal?.changedViewIds).containsExactly(changeViewId)
     }
 
     @Test
@@ -63,7 +60,6 @@ class UiResponseTest {
         assertThat(uiResponse.remoteViewsInternal?.size?.height).isEqualTo(15)
         assertThat(uiResponse.remoteViewsInternal?.remoteViews?.`package`)
             .isEqualTo(context.packageName)
-        assertThat(uiResponse.remoteViewsInternal?.changedViewIds).isEmpty()
     }
 
     @Test
@@ -74,7 +70,6 @@ class UiResponseTest {
         assertThrows(NullPointerException::class.java) {
             UiResponse.RemoteViewsUiBuilder()
                 .addRemoteViewsFactory(remoteViewsFactoryId, FakeRemoteViewsFactory())
-                .addViewIdForCollectionUpdate(changeViewId)
                 .build()
         }
     }

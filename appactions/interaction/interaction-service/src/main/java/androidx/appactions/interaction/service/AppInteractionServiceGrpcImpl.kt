@@ -244,15 +244,18 @@ internal class AppInteractionServiceGrpcImpl(
                         convertFulfillmentResponse(fulfillmentResponse, capability)
                             .toBuilder()
                     val uiCache = UiSessions.getUiCacheOrNull(sessionId)
-                    if (uiCache != null && uiCache.hasUnreadUiResponse()) {
+                    if (uiCache != null && uiCache.hasUnreadUiResponse) {
+                        val cachedRemoteViewsInternal = uiCache.cachedRemoteViewsInternal
                         responseBuilder.setUiUpdate(UiUpdate.getDefaultInstance())
-                        if (!uiCache.getCachedChangedViewIds().isEmpty()) {
+                        if (cachedRemoteViewsInternal != null &&
+                            !cachedRemoteViewsInternal.collectionViewFactories.keys.isEmpty()) {
                             responseBuilder.setCollectionUpdate(
                                 AppInteractionServiceProto.CollectionUpdate.newBuilder()
-                                    .addAllViewIds(uiCache.getCachedChangedViewIds()),
+                                    .addAllViewIds(
+                                        cachedRemoteViewsInternal.collectionViewFactories.keys
+                                    ),
                             )
                         }
-                        // TODO(b/278583168) fix read flag behavior
                         uiCache.resetUnreadUiResponse()
                     }
                     respondAndComplete(responseBuilder.build(), responseObserver)
@@ -299,11 +302,10 @@ internal class AppInteractionServiceGrpcImpl(
                 responseObserver,
             )
         }
-        val tileLayout = uiCache.cachedTileLayout
-        val remoteViews = uiCache.cachedRemoteViews
-        val remoteViewsSize = uiCache.cachedRemoteViewsSize
+        val tileLayoutInternal = uiCache.cachedTileLayoutInternal
+        val remoteViewsInternal = uiCache.cachedRemoteViewsInternal
 
-        if (tileLayout == null && (remoteViews == null || remoteViewsSize == null)) {
+        if (tileLayoutInternal == null && remoteViewsInternal == null) {
             UiSessions.removeUiCache(sessionId)
             return respondWithError(
                 StatusRuntimeException(Status.INTERNAL.withDescription(ERROR_NO_UI)),
@@ -311,14 +313,14 @@ internal class AppInteractionServiceGrpcImpl(
             )
         }
         val uiResponseBuilder = AppInteractionServiceProto.UiResponse.newBuilder()
-        tileLayout?.let { uiResponseBuilder.tileLayout = it.toProto() }
-        if (remoteViews != null && remoteViewsSize != null) {
-            RemoteViewsOverMetadataInterceptor.setRemoteViews(remoteViews)
+        tileLayoutInternal?.let { uiResponseBuilder.tileLayout = it.toProto() }
+        if (remoteViewsInternal != null) {
+            RemoteViewsOverMetadataInterceptor.setRemoteViews(remoteViewsInternal.remoteViews)
             uiResponseBuilder
                 .setRemoteViewsInfo(
                     RemoteViewsInfo.newBuilder()
-                        .setWidthDp(remoteViewsSize.width)
-                        .setHeightDp(remoteViewsSize.height)
+                        .setWidthDp(remoteViewsInternal.size.width)
+                        .setHeightDp(remoteViewsInternal.size.height)
                 )
                 .build()
         }
@@ -345,7 +347,9 @@ internal class AppInteractionServiceGrpcImpl(
                 responseObserver,
             )
         }
-        val factory = uiCache.onGetViewFactoryInternal(req.getViewId())
+        val factory = uiCache.cachedRemoteViewsInternal?.collectionViewFactories?.get(
+            req.getViewId()
+        )
         if (factory == null) {
             return respondWithError(
                 StatusRuntimeException(
