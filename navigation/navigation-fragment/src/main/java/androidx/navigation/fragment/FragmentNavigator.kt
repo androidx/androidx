@@ -29,7 +29,6 @@ import androidx.fragment.app.FragmentManager.OnBackStackChangedListener
 import androidx.fragment.app.FragmentTransaction
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
-import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.CreationExtras
@@ -75,38 +74,34 @@ public open class FragmentNavigator(
      */
     internal val backStack get() = state.backStack
 
-    private val fragmentObserver = object : LifecycleEventObserver {
-        override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
-            if (event == Lifecycle.Event.ON_DESTROY) {
-                val fragment = source as Fragment
-                val entry = state.transitionsInProgress.value.lastOrNull { entry ->
-                    entry.id == fragment.tag
+    private val fragmentObserver = LifecycleEventObserver { source, event ->
+        if (event == Lifecycle.Event.ON_DESTROY) {
+            val fragment = source as Fragment
+            val entry = state.transitionsInProgress.value.lastOrNull { entry ->
+                entry.id == fragment.tag
+            }
+            if (entry != null) {
+                entriesToPop.remove(entry.id)
+                if (!state.backStack.value.contains(entry)) {
+                    state.markTransitionComplete(entry)
                 }
-                entry?.let {
-                    entriesToPop.remove(entry.id)
-                    state.markTransitionComplete(it)
-                }
-                fragment.lifecycle.removeObserver(this)
             }
         }
     }
 
     private val fragmentViewObserver = { entry: NavBackStackEntry ->
-        object : LifecycleEventObserver {
-            override fun onStateChanged(
-                source: LifecycleOwner,
-                event: Lifecycle.Event
-            ) {
-                // Once the lifecycle reaches RESUMED, we can mark the transition complete
-                if (event == Lifecycle.Event.ON_RESUME) {
+        LifecycleEventObserver { _, event ->
+            // Once the lifecycle reaches RESUMED, if the entry is in the back stack we can mark
+            // the transition complete
+            if (event == Lifecycle.Event.ON_RESUME && state.backStack.value.contains(entry)) {
+                state.markTransitionComplete(entry)
+            }
+            // Once the lifecycle reaches DESTROYED, if the entry is not in the back stack, we can
+            // mark the transition complete
+            if (event == Lifecycle.Event.ON_DESTROY) {
+                entriesToPop.remove(entry.id)
+                if (!state.backStack.value.contains(entry)) {
                     state.markTransitionComplete(entry)
-                }
-                // Once the lifecycle reaches DESTROYED, we can mark the transition complete and
-                // remove the observer.
-                if (event == Lifecycle.Event.ON_DESTROY) {
-                    entriesToPop.remove(entry.id)
-                    state.markTransitionComplete(entry)
-                    source.lifecycle.removeObserver(this)
                 }
             }
         }
