@@ -347,6 +347,7 @@ package androidx.compose.foundation.gestures {
 
   public final class TransformableKt {
     method public static androidx.compose.ui.Modifier transformable(androidx.compose.ui.Modifier, androidx.compose.foundation.gestures.TransformableState state, optional boolean lockRotationOnZoomPan, optional boolean enabled);
+    method @androidx.compose.foundation.ExperimentalFoundationApi public static androidx.compose.ui.Modifier transformable(androidx.compose.ui.Modifier, androidx.compose.foundation.gestures.TransformableState state, kotlin.jvm.functions.Function0<java.lang.Boolean> canPan, optional boolean lockRotationOnZoomPan, optional boolean enabled);
   }
 
   @kotlin.jvm.JvmDefaultWithCompatibility public interface TransformableState {

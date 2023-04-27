@@ -18,16 +18,17 @@ package androidx.compose.foundation
 
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.gestures.TransformableState
-import androidx.compose.foundation.gestures.rememberTransformableState
 import androidx.compose.foundation.gestures.animatePanBy
 import androidx.compose.foundation.gestures.animateRotateBy
 import androidx.compose.foundation.gestures.animateZoomBy
 import androidx.compose.foundation.gestures.panBy
+import androidx.compose.foundation.gestures.rememberTransformableState
 import androidx.compose.foundation.gestures.rotateBy
 import androidx.compose.foundation.gestures.stopTransformation
-import androidx.compose.foundation.gestures.zoomBy
 import androidx.compose.foundation.gestures.transformable
+import androidx.compose.foundation.gestures.zoomBy
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
@@ -119,8 +120,6 @@ class TransformableTest {
             )
         }
 
-        rule.mainClock.advanceTimeBy(milliseconds = 1000)
-
         rule.runOnIdle {
             assertWithMessage("Should have scaled at least 4x").that(cumulativeScale).isAtLeast(4f)
         }
@@ -151,8 +150,6 @@ class TransformableTest {
             up(2)
         }
 
-        rule.mainClock.advanceTimeBy(milliseconds = 1000)
-
         rule.runOnIdle {
             assertWithMessage("Should have panned 20/10").that(cumulativePan).isEqualTo(expected)
         }
@@ -180,10 +177,95 @@ class TransformableTest {
             up(1)
         }
 
-        rule.mainClock.advanceTimeBy(milliseconds = 1000)
-
         rule.runOnIdle {
             assertWithMessage("Should have panned 20/10").that(cumulativePan).isEqualTo(expected)
+        }
+    }
+
+    @OptIn(ExperimentalFoundationApi::class)
+    @Test
+    fun transformable_pan_disallowed() {
+        var cumulativePan = Offset.Zero
+        var touchSlop = 0f
+        val canStartPanState = mutableStateOf(false)
+        val state = TransformableState { _, pan, _ ->
+            cumulativePan += pan
+        }
+
+        setTransformableContent {
+            touchSlop = LocalViewConfiguration.current.touchSlop
+            Modifier.transformable(
+                state = state,
+                canPan = { canStartPanState.value }
+            )
+        }
+
+        val expected = Offset(50f + touchSlop, 0f)
+
+        rule.onNodeWithTag(TEST_TAG).performTouchInput {
+            down(1, center)
+            moveBy(1, expected)
+            up(1)
+        }
+
+        rule.runOnIdle {
+            // we disallow just pan,
+            assertThat(state.isTransformInProgress).isFalse()
+            assertWithMessage("just pan is disallowed").that(cumulativePan).isEqualTo(Offset.Zero)
+            canStartPanState.value = true
+        }
+
+        rule.onNodeWithTag(TEST_TAG).performTouchInput {
+            down(1, center)
+            moveBy(1, expected)
+            up(1)
+        }
+
+        rule.runOnIdle {
+            assertWithMessage("Should have panned the amount equal to finger move")
+                .that(cumulativePan).isEqualTo(expected)
+        }
+    }
+
+    @OptIn(ExperimentalFoundationApi::class)
+    @Test
+    fun transformableInsideScroll_pan_disallowed_parentScrolls() {
+        var touchSlop = 0f
+        val scrollState = ScrollState(0)
+
+        rule.setContent {
+            touchSlop = LocalViewConfiguration.current.touchSlop
+            Column(
+                Modifier
+                    .size(100.dp)
+                    .testTag(TEST_TAG)
+                    .verticalScroll(scrollState)
+            ) {
+                repeat(3) {
+                    Box(
+                        Modifier
+                            .size(100.dp)
+                            .transformable(
+                                state = rememberTransformableState { _, _, _ ->
+                                    // no-op
+                                },
+                                canPan = { false }
+                            )
+                    )
+                }
+            }
+        }
+
+        val expected = Offset(0f, -50f - touchSlop)
+
+        rule.onNodeWithTag(TEST_TAG).performTouchInput {
+            down(1, center)
+            moveBy(1, expected)
+            up(1)
+        }
+
+        rule.runOnIdle {
+            assertThat(scrollState.value).isEqualTo(50)
         }
     }
 
@@ -206,8 +288,6 @@ class TransformableTest {
             up(1)
             up(2)
         }
-
-        rule.mainClock.advanceTimeBy(milliseconds = 1000)
 
         rule.runOnIdle {
             assertWithMessage("Should have rotated -90").that(cumulativeRotation).isEqualTo(-90f)
@@ -247,8 +327,6 @@ class TransformableTest {
             up(2)
         }
 
-        rule.mainClock.advanceTimeBy(milliseconds = 1000)
-
         rule.runOnIdle {
             assertWithMessage("Should have rotated -90").that(cumulativeRotation).isEqualTo(-90f)
             cumulativeRotation = 0f
@@ -270,8 +348,6 @@ class TransformableTest {
             up(1)
             up(2)
         }
-
-        rule.mainClock.advanceTimeBy(milliseconds = 1000)
 
         rule.runOnIdle {
             assertWithMessage("Rotation should be locked").that(cumulativeRotation).isEqualTo(0f)
@@ -303,8 +379,6 @@ class TransformableTest {
                 Offset(rightEndX, center.y)
             )
         }
-
-        rule.mainClock.advanceTimeBy(milliseconds = 1000)
 
         rule.runOnIdle {
             assertWithMessage("Should have scaled down at least 4x")
@@ -375,8 +449,6 @@ class TransformableTest {
                 Offset(rightEndX, center.y)
             )
         }
-
-        rule.mainClock.advanceTimeBy(milliseconds = 1000)
 
         val prevScale = rule.runOnIdle {
             assertWithMessage("Should have scaled at least 4x").that(cumulativeScale).isAtLeast(4f)
@@ -651,14 +723,20 @@ class TransformableTest {
             assertThat(modifier.inspectableElements.map { it.name }.asIterable()).containsExactly(
                 "state",
                 "lockRotationOnZoomPan",
-                "enabled"
+                "enabled",
+                "canPan"
             )
         }
     }
 
     private fun setTransformableContent(getModifier: @Composable () -> Modifier) {
         rule.setContentAndGetScope {
-            Box(Modifier.size(600.dp).testTag(TEST_TAG).then(getModifier()))
+            Box(
+                Modifier
+                    .size(600.dp)
+                    .testTag(TEST_TAG)
+                    .then(getModifier())
+            )
         }
     }
 }
