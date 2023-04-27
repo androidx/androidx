@@ -19,6 +19,7 @@
 package androidx.camera.camera2.pipe.integration.config
 
 import android.media.MediaCodec
+import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraId
@@ -152,17 +153,23 @@ class UseCaseCameraConfig(
                 // need to explicitly close the capture session.
                 false
             } else {
-                cameraQuirks.quirks.contains(CloseCaptureSessionOnVideoQuirk::class.java) &&
+                if (cameraQuirks.quirks.contains(CloseCaptureSessionOnVideoQuirk::class.java) &&
                     containsVideo
+                ) {
+                    true
+                } else
+                // TODO(b/277675483): From the current test results, older devices (Android
+                //  version <= 8.1.0) seem to have a higher chance of encountering an issue where
+                //  not closing the capture session would lead to CameraDevice.close stalling
+                //  indefinitely. This version check might need to be further fine-turned down the
+                //  line.
+                    Build.VERSION.SDK_INT <= Build.VERSION_CODES.O_MR1
             }
         val combinedFlags = cameraGraphFlags.copy(
             quirkCloseCaptureSessionOnDisconnect = shouldCloseCaptureSessionOnDisconnect,
         )
 
         // Build up a config (using TEMPLATE_PREVIEW by default)
-        // TODO(b/277310425): Turn off CameraGraph.Flags.quirkFinalizeSessionOnCloseBehavior when
-        //  it's not needed. This should be needed only when all use cases are detached (with
-        //  VideoCapture) on devices where Surfaces cannot be released immediately.
         val graph = cameraPipe.create(
             CameraGraph.Config(
                 camera = cameraConfig.cameraId,
