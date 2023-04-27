@@ -265,16 +265,20 @@ class InterfaceParserTest {
             "com/mysdk/MySdk.kt", """
                     package com.mysdk
                     import androidx.privacysandbox.tools.PrivacySandboxService
+                    import androidx.privacysandbox.tools.PrivacySandboxInterface
 
                     interface FooInterface {}
 
                     @PrivacySandboxService
-                    interface MySdk : FooInterface {
+                    interface MySdk {}
+
+                    @PrivacySandboxInterface
+                    interface MyInterface : FooInterface {
                         suspend fun foo(): Int
                     }"""
         )
         checkSourceFails(source).containsExactlyErrors(
-            "Error in com.mysdk.MySdk: annotated interface inherits prohibited types (" +
+            "Error in com.mysdk.MyInterface: annotated interface inherits prohibited types (" +
                 "FooInterface)."
         )
     }
@@ -285,6 +289,7 @@ class InterfaceParserTest {
             "com/mysdk/MySdk.kt", """
                     package com.mysdk
                     import androidx.privacysandbox.tools.PrivacySandboxService
+                    import androidx.privacysandbox.tools.PrivacySandboxInterface
 
                     interface A {}
                     interface B {}
@@ -292,13 +297,16 @@ class InterfaceParserTest {
                     interface D {}
 
                     @PrivacySandboxService
-                    interface MySdk : B, C, D, A {
+                    interface MySdk {}
+
+                    @PrivacySandboxInterface
+                    interface MyInterface : B, C, D, A {
                         suspend fun foo(): Int
                     }"""
         )
         checkSourceFails(source).containsExactlyErrors(
-            "Error in com.mysdk.MySdk: annotated interface inherits prohibited types (A, B, C, " +
-                "...)."
+            "Error in com.mysdk.MyInterface: annotated interface inherits prohibited types (A, " +
+                "B, C, ...)."
         )
     }
 
