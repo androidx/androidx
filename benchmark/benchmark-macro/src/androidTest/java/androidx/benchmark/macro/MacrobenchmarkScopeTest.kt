@@ -23,7 +23,6 @@ import androidx.benchmark.DeviceInfo
 import androidx.benchmark.Shell
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
-import androidx.test.filters.RequiresDevice
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
@@ -71,10 +70,13 @@ class MacrobenchmarkScopeTest {
         assertFalse(Shell.isPackageAlive(Packages.TARGET))
     }
 
-    @RequiresDevice // b/264938965
     @SdkSuppress(minSdkVersion = 24)
     @Test
     fun compile_speedProfile() {
+
+        // Emulator api 30 does not have dex2oat (b/264938965)
+        assumeTrue(Build.VERSION.SDK_INT != Build.VERSION_CODES.R)
+
         val scope = MacrobenchmarkScope(Packages.TARGET, launchWithClearTask = true)
         val iterations = 1
         var executions = 0
@@ -93,9 +95,12 @@ class MacrobenchmarkScopeTest {
         assertEquals(iterations, executions)
     }
 
-    @RequiresDevice // b/264938965
     @Test
     fun compile_full() {
+
+        // Emulator api 30 does not have dex2oat (b/264938965)
+        assumeTrue(Build.VERSION.SDK_INT != Build.VERSION_CODES.R)
+
         val scope = MacrobenchmarkScope(Packages.TARGET, launchWithClearTask = true)
         val compilation = CompilationMode.Full()
         compilation.resetAndCompile(
