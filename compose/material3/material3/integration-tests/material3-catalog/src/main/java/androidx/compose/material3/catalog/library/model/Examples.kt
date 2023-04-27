@@ -101,6 +101,7 @@ import androidx.compose.material3.samples.PermanentNavigationDrawerSample
 import androidx.compose.material3.samples.PinnedTopAppBar
 import androidx.compose.material3.samples.PlainTooltipSample
 import androidx.compose.material3.samples.PlainTooltipWithManualInvocationSample
+import androidx.compose.material3.samples.PrimaryTabs
 import androidx.compose.material3.samples.RadioButtonSample
 import androidx.compose.material3.samples.RadioGroupSample
 import androidx.compose.material3.samples.RangeSliderSample
@@ -113,8 +114,11 @@ import androidx.compose.material3.samples.ScaffoldWithIndefiniteSnackbar
 import androidx.compose.material3.samples.ScaffoldWithMultilineSnackbar
 import androidx.compose.material3.samples.ScaffoldWithSimpleSnackbar
 import androidx.compose.material3.samples.ScrollingFancyIndicatorContainerTabs
+import androidx.compose.material3.samples.ScrollingPrimaryTabs
+import androidx.compose.material3.samples.ScrollingSecondaryTabs
 import androidx.compose.material3.samples.ScrollingTextTabs
 import androidx.compose.material3.samples.SearchBarSample
+import androidx.compose.material3.samples.SecondaryTabs
 import androidx.compose.material3.samples.SimpleBottomAppBar
 import androidx.compose.material3.samples.SimpleBottomSheetScaffoldSample
 import androidx.compose.material3.samples.SimpleCenterAlignedTopAppBar
@@ -894,6 +898,20 @@ private const val TabsExampleDescription = "Tabs examples"
 private const val TabsExampleSourceUrl = "$SampleSourceUrl/TabSamples.kt"
 val TabsExamples = listOf(
     Example(
+        name = ::PrimaryTabs.name,
+        description = TabsExampleDescription,
+        sourceUrl = TabsExampleSourceUrl
+    ) {
+        PrimaryTabs()
+    },
+    Example(
+        name = ::SecondaryTabs.name,
+        description = TabsExampleDescription,
+        sourceUrl = TabsExampleSourceUrl
+    ) {
+        SecondaryTabs()
+    },
+    Example(
         name = ::TextTabs.name,
         description = TabsExampleDescription,
         sourceUrl = TabsExampleSourceUrl
@@ -920,6 +938,20 @@ val TabsExamples = listOf(
         sourceUrl = TabsExampleSourceUrl
     ) {
         LeadingIconTabs()
+    },
+    Example(
+        name = ::ScrollingPrimaryTabs.name,
+        description = TabsExampleDescription,
+        sourceUrl = TabsExampleSourceUrl
+    ) {
+        ScrollingPrimaryTabs()
+    },
+    Example(
+        name = ::ScrollingSecondaryTabs.name,
+        description = TabsExampleDescription,
+        sourceUrl = TabsExampleSourceUrl
+    ) {
+        ScrollingSecondaryTabs()
     },
     Example(
         name = ::ScrollingTextTabs.name,
