@@ -16,9 +16,12 @@
 
 package androidx.appactions.interaction.capabilities.core
 
+import androidx.annotation.RestrictTo
+
 /**
  * A request to perform a search for in-app entities.
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class SearchAction<FilterT> internal constructor(
     val query: String?,
     val filter: FilterT?

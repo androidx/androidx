@@ -26,8 +26,8 @@ import androidx.appactions.interaction.capabilities.core.impl.task.EmptyTaskUpda
 import androidx.appactions.interaction.proto.AppActionsContext.AppAction
 
 /**
- * A Capability represents some supported Built-In-Intent. Register capabilities within an app to
- * declare support for the capability.
+ * A Capability represents a supported [built-in intent](https://developer.android.com/reference/app-actions/built-in-intents).
+ * [Register](https://developer.android.com/guide/app-actions/intents) capabilities within an app to declare support for the capability.
  */
 abstract class Capability internal constructor(
     /** Returns the unique Id of this capability declaration. */
@@ -72,13 +72,18 @@ abstract class Capability internal constructor(
         OutputT,
         ConfirmationT,
         ExecutionSessionT : BaseExecutionSession<ArgumentsT, OutputT>
-        > protected constructor(
-        private val actionSpec: ActionSpec<PropertyT, ArgumentsT, OutputT>
-    ) {
+        > private constructor() {
         private var id: String? = null
         private var property: PropertyT? = null
         private var executionCallback: ExecutionCallback<ArgumentsT, OutputT>? = null
-        private var sessionFactory: ExecutionSessionFactory<ExecutionSessionT>? = null
+        private var sessionFactory:
+                    (hostProperties: HostProperties?) -> ExecutionSessionT? = { _ -> null }
+        private var actionSpec: ActionSpec<PropertyT, ArgumentsT, OutputT>? = null
+
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        constructor(actionSpec: ActionSpec<PropertyT, ArgumentsT, OutputT>) : this() {
+            this.actionSpec = actionSpec
+        }
 
         /**
          * The SessionBridge object, which is used to normalize Session instances to TaskHandler.
@@ -103,10 +108,10 @@ abstract class Capability internal constructor(
         }
 
         /**
-         * Sets the Property instance for this capability. Must be called before {@link
-         * Builder#build}.
+         * Sets the Property instance for this capability.
          */
-        protected fun setProperty(property: PropertyT) = asBuilder().apply {
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        fun setProperty(property: PropertyT) = asBuilder().apply {
             this.property = property
         }
 
@@ -131,7 +136,7 @@ abstract class Capability internal constructor(
          * one will nullify the other.
          *
          * This method accepts the ExecutionCallbackAsync interface which returns a
-         * []ListenableFuture].
+         * [ListenableFuture].
          */
         fun setExecutionCallback(
             executionCallbackAsync: ExecutionCallbackAsync<ArgumentsT, OutputT>
@@ -140,14 +145,14 @@ abstract class Capability internal constructor(
         }
 
         /**
-         * Sets the SessionBuilder instance which is used to create Session instaces for this
+         * Sets the lambda used to create [ExecutionSession] instances for this
          * capability.
          *
          * [setExecutionSessionFactory] and [setExecutionCallback] are mutually exclusive, so
          * calling one will nullify the other.
          */
-        protected open fun setExecutionSessionFactory(
-            sessionFactory: ExecutionSessionFactory<ExecutionSessionT>
+        open fun setExecutionSessionFactory(
+            sessionFactory: (hostProperties: HostProperties?) -> ExecutionSessionT
         ): BuilderT = asBuilder().apply {
             this.sessionFactory = sessionFactory
         }
@@ -159,7 +164,7 @@ abstract class Capability internal constructor(
             if (executionCallback != null) {
                 return SingleTurnCapabilityImpl(
                     checkedId,
-                    actionSpec,
+                    actionSpec!!,
                     checkedProperty,
                     executionCallback!!
                 )
@@ -170,7 +175,7 @@ abstract class Capability internal constructor(
                 }
                 return TaskCapabilityImpl(
                     checkedId,
-                    actionSpec,
+                    actionSpec!!,
                     checkedProperty,
                     checkedSessionFactory,
                     sessionBridge!!,

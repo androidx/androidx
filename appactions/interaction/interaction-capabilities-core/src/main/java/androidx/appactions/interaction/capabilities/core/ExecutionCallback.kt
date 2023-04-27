@@ -20,7 +20,7 @@ import androidx.annotation.RestrictTo
 import androidx.concurrent.futures.await
 
 /**
- * An interface of executing the action.
+ * An interface for executing the action.
  *
  * Actions are executed asynchronously using Kotlin coroutines.
  * For a Future-based solution, see ExecutionCallbackAsync.

@@ -1,0 +1,15 @@
+// Baseline format: 1.0
+BuilderSetStyle: androidx.appactions.interaction.capabilities.core.Capability.Builder#asBuilder():
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.appactions.interaction.capabilities.core.Capability.Builder.asBuilder()
+
+
+MissingGetterMatchingBuilder: androidx.appactions.interaction.capabilities.core.Capability.Builder#setExecutionCallback(androidx.appactions.interaction.capabilities.core.ExecutionCallback<ArgumentsT,OutputT>):
+    androidx.appactions.interaction.capabilities.core.Capability does not declare a `getExecutionCallback()` method matching method androidx.appactions.interaction.capabilities.core.Capability.Builder.setExecutionCallback(androidx.appactions.interaction.capabilities.core.ExecutionCallback<ArgumentsT,OutputT>)
+MissingGetterMatchingBuilder: androidx.appactions.interaction.capabilities.core.Capability.Builder#setExecutionCallback(androidx.appactions.interaction.capabilities.core.ExecutionCallbackAsync<ArgumentsT,OutputT>):
+    androidx.appactions.interaction.capabilities.core.Capability does not declare a `getExecutionCallback()` method matching method androidx.appactions.interaction.capabilities.core.Capability.Builder.setExecutionCallback(androidx.appactions.interaction.capabilities.core.ExecutionCallbackAsync<ArgumentsT,OutputT>)
+MissingGetterMatchingBuilder: androidx.appactions.interaction.capabilities.core.Capability.Builder#setExecutionSessionFactory(kotlin.jvm.functions.Function1<? super androidx.appactions.interaction.capabilities.core.HostProperties,? extends ExecutionSessionT>):
+    androidx.appactions.interaction.capabilities.core.Capability does not declare a `getExecutionSessionFactory()` method matching method androidx.appactions.interaction.capabilities.core.Capability.Builder.setExecutionSessionFactory(kotlin.jvm.functions.Function1<? super androidx.appactions.interaction.capabilities.core.HostProperties,? extends ExecutionSessionT>)
+
+
+StaticFinalBuilder: androidx.appactions.interaction.capabilities.core.Capability.Builder:
+    Builder must be final: androidx.appactions.interaction.capabilities.core.Capability.Builder

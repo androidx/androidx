@@ -17,18 +17,9 @@
 package androidx.appactions.interaction.capabilities.core
 
 /**
- * Interface to be implemented for creating [ExecutionSessionT] instances.
+ * [SessionConfig] contains data passed to [BaseExecutionSession.onCreate].
  */
-fun interface ExecutionSessionFactory<ExecutionSessionT> {
-    /**
-     * Implement this method to create session for handling assistant requests.
-     *
-     * @param hostProperties only applicable while used with AppInteractionService. Contains the
-     *   dimensions of the UI area. Null when used without AppInteractionService.
-     *
-     * @return A new ExecutionSessionT instance for handling a task.
-     */
-    fun createSession(
-        hostProperties: HostProperties?,
-    ): ExecutionSessionT
+class SessionConfig internal constructor() {
+    override fun toString() =
+        "SessionConfig()"
 }

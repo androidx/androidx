@@ -22,7 +22,6 @@ import android.widget.RemoteViews
 import androidx.appactions.interaction.capabilities.core.ExecutionCallback
 import androidx.appactions.interaction.capabilities.core.ExecutionResult
 import androidx.appactions.interaction.capabilities.core.HostProperties
-import androidx.appactions.interaction.capabilities.core.ExecutionSessionFactory
 import androidx.appactions.interaction.proto.FulfillmentRequest.Fulfillment.Type.SYNC
 import androidx.appactions.interaction.proto.ParamValue
 import androidx.appactions.interaction.service.test.R
@@ -44,14 +43,11 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 @Suppress("deprecation") // For backwards compatibility.
 class UiSessionsTest {
-    private val sessionFactory = object : ExecutionSessionFactory<ExecutionSession> {
+    private class SessionList() {
         private val sessions = mutableListOf<ExecutionSession>()
         private var index = 0
-        override fun createSession(
-            hostProperties: HostProperties?,
-        ): ExecutionSession {
-            return sessions[index++]
-        }
+        val sessionFactory: (hostProperties: HostProperties?) -> ExecutionSession =
+            { _ -> sessions[index++] }
 
         fun addExecutionSessions(vararg session: ExecutionSession) {
             sessions.addAll(session)
@@ -62,12 +58,13 @@ class UiSessionsTest {
             index = 0
         }
     }
+    private val sessionList = SessionList()
     private val sessionId = "fakeSessionId"
     private val hostProperties =
         HostProperties.Builder().setMaxHostSizeDp(SizeF(300f, 500f)).build()
     private val multiTurnCapability = FakeCapability.CapabilityBuilder()
         .setId("multiTurnCapability")
-        .setExecutionSessionFactory(sessionFactory).build()
+        .setExecutionSessionFactory(sessionList.sessionFactory).build()
 
     private val context: Context = ApplicationProvider.getApplicationContext()
     private val remoteViewsFactoryId = 123
@@ -101,7 +98,7 @@ class UiSessionsTest {
 
     @After
     fun cleanup() {
-        sessionFactory.reset()
+        sessionList.reset()
         UiSessions.removeUiCache(sessionId)
     }
 
@@ -122,7 +119,7 @@ class UiSessionsTest {
     fun sessionExtensionMethod_createCache_removeCache() {
         assertThat(UiSessions.getUiCacheOrNull(sessionId)).isNull()
 
-        sessionFactory.addExecutionSessions(
+        sessionList.addExecutionSessions(
             createFakeSessionWithUiResponses(remoteViewsUiResponse),
         )
         val session = multiTurnCapability.createSession(sessionId, hostProperties)
@@ -150,7 +147,7 @@ class UiSessionsTest {
     @Test
     fun multipleUpdate_sharesCache() {
         assertThat(UiSessions.getUiCacheOrNull(sessionId)).isNull()
-        sessionFactory.addExecutionSessions(object : ExecutionSession {
+        sessionList.addExecutionSessions(object : ExecutionSession {
             override suspend fun onExecute(
                 arguments: Arguments,
             ): ExecutionResult<Output> {
@@ -183,7 +180,7 @@ class UiSessionsTest {
     fun multipleSession_haveTheirOwnCache() {
         val sessionId1 = "fakeSessionId1"
         val sessionId2 = "fakeSessionId2"
-        sessionFactory.addExecutionSessions(
+        sessionList.addExecutionSessions(
             object : ExecutionSession {
                 override suspend fun onExecute(
                     arguments: Arguments,

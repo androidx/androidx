@@ -1,1 +1,53 @@
 // Signature format: 4.0
+package androidx.appactions.interaction.capabilities.core {
+
+  public interface BaseExecutionSession<ArgumentsT, OutputT> {
+    method public default void onCreate(androidx.appactions.interaction.capabilities.core.SessionConfig sessionConfig);
+    method public default void onDestroy();
+    method public default suspend Object? onExecute(ArgumentsT arguments, kotlin.coroutines.Continuation<? super androidx.appactions.interaction.capabilities.core.ExecutionResult<OutputT>>);
+    method public default com.google.common.util.concurrent.ListenableFuture<androidx.appactions.interaction.capabilities.core.ExecutionResult<OutputT>> onExecuteAsync(ArgumentsT arguments);
+  }
+
+  public abstract class Capability {
+    method public String getId();
+    property public String id;
+  }
+
+  public abstract static class Capability.Builder<BuilderT extends androidx.appactions.interaction.capabilities.core.Capability.Builder<BuilderT, PropertyT, ArgumentsT, OutputT, ConfirmationT, ExecutionSessionT>, PropertyT, ArgumentsT, OutputT, ConfirmationT, ExecutionSessionT extends androidx.appactions.interaction.capabilities.core.BaseExecutionSession<ArgumentsT, OutputT>> {
+    method public final BuilderT asBuilder();
+    method public androidx.appactions.interaction.capabilities.core.Capability build();
+    method public final BuilderT setExecutionCallback(androidx.appactions.interaction.capabilities.core.ExecutionCallback<ArgumentsT,OutputT> executionCallback);
+    method public final BuilderT setExecutionCallback(androidx.appactions.interaction.capabilities.core.ExecutionCallbackAsync<ArgumentsT,OutputT> executionCallbackAsync);
+    method public BuilderT setExecutionSessionFactory(kotlin.jvm.functions.Function1<? super androidx.appactions.interaction.capabilities.core.HostProperties,? extends ExecutionSessionT> sessionFactory);
+    method public final BuilderT setId(String id);
+  }
+
+  public fun interface ExecutionCallback<ArgumentsT, OutputT> {
+    method public suspend Object? onExecute(ArgumentsT arguments, kotlin.coroutines.Continuation<? super androidx.appactions.interaction.capabilities.core.ExecutionResult<OutputT>>);
+  }
+
+  public fun interface ExecutionCallbackAsync<ArgumentsT, OutputT> {
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.appactions.interaction.capabilities.core.ExecutionResult<OutputT>> onExecute(ArgumentsT arguments);
+  }
+
+  public final class ExecutionResult<OutputT> {
+    method public OutputT? getOutput();
+    property public final OutputT? output;
+  }
+
+  public static final class ExecutionResult.Builder<OutputT> {
+    ctor public ExecutionResult.Builder();
+    method public androidx.appactions.interaction.capabilities.core.ExecutionResult<OutputT> build();
+    method public androidx.appactions.interaction.capabilities.core.ExecutionResult.Builder<OutputT> setOutput(OutputT output);
+  }
+
+  public final class HostProperties {
+    method public android.util.SizeF getMaxHostSizeDp();
+    property public final android.util.SizeF maxHostSizeDp;
+  }
+
+  public final class SessionConfig {
+  }
+
+}
+
