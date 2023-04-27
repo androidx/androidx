@@ -118,6 +118,7 @@ private const val DEFAULT_STATUS_COUNT = 5
 private const val GENERAL_TIMEOUT = 5000L
 private const val STATUS_TIMEOUT = 15000L
 private const val TEST_ATTRIBUTION_TAG = "testAttribution"
+
 // For the file size is small, the final file length possibly exceeds the file size limit
 // after adding the file header. We still add the buffer for the tolerance of comparing the
 // file length and file size limit.
@@ -546,6 +547,7 @@ class RecorderTest(
     fun checkStreamState() {
         // Arrange.
         val recorder = createRecorder()
+
         @Suppress("UNCHECKED_CAST")
         val streamInfoObserver = mock(Observer::class.java) as Observer<StreamInfo>
         val inOrder = inOrder(streamInfoObserver)
@@ -902,6 +904,46 @@ class RecorderTest(
     }
 
     @Test
+    fun audioAmplitudeIsNoneWhenAudioIsDisabled() {
+        // Arrange.
+        val recording = createRecordingProcess(withAudio = false)
+
+        // Act.
+        recording.startAndVerify { onStatus ->
+            val amplitude = onStatus[0].recordingStats.audioStats.audioAmplitude
+            assertThat(amplitude).isEqualTo(AudioStats.AUDIO_AMPLITUDE_NONE)
+        }
+
+        recording.stopAndVerify { finalize ->
+            // Assert.
+            val uri = finalize.outputResults.outputUri
+            checkFileHasAudioAndVideo(uri, hasAudio = false)
+            assertThat(finalize.recordingStats.audioStats.audioAmplitude)
+                .isEqualTo(AudioStats.AUDIO_AMPLITUDE_NONE)
+        }
+    }
+
+    @Test
+    fun canGetAudioStatsAmplitude() {
+        // Arrange.
+        val recording = createRecordingProcess()
+
+        // Act.
+        recording.startAndVerify { onStatus ->
+            val amplitude = onStatus[0].recordingStats.audioStats.audioAmplitude
+            assertThat(amplitude).isAtLeast(AudioStats.AUDIO_AMPLITUDE_NONE)
+        }
+
+        recording.stopAndVerify { finalize ->
+            // Assert.
+            val uri = finalize.outputResults.outputUri
+            checkFileHasAudioAndVideo(uri, hasAudio = true)
+            assertThat(finalize.recordingStats.audioStats.audioAmplitude)
+                .isAtLeast(AudioStats.AUDIO_AMPLITUDE_NONE)
+        }
+    }
+
+    @Test
     fun cannotStartMultiplePendingRecordingsWhileInitializing() {
         // Arrange: Prepare 1st recording and start.
         val recorder = createRecorder(sendSurfaceRequest = false)
@@ -922,13 +964,13 @@ class RecorderTest(
         var createEncoderRequestCount = 0
         val recorder = createRecorder(
             videoEncoderFactory = { executor, config ->
-            if (createEncoderRequestCount < 2) {
-                createEncoderRequestCount++
-                throw InvalidConfigException("Create video encoder fail on purpose.")
-            } else {
-                Recorder.DEFAULT_ENCODER_FACTORY.createEncoder(executor, config)
-            }
-        })
+                if (createEncoderRequestCount < 2) {
+                    createEncoderRequestCount++
+                    throw InvalidConfigException("Create video encoder fail on purpose.")
+                } else {
+                    Recorder.DEFAULT_ENCODER_FACTORY.createEncoder(executor, config)
+                }
+            })
         // Recorder initialization should fail by 1st encoder creation fail.
         // Wait STREAM_ID_ERROR which indicates Recorder enter the error state.
         withTimeoutOrNull(3000) {
@@ -1194,8 +1236,10 @@ class RecorderTest(
             it.setDataSource(context, uri)
             // Only test on mp4 output format, others will be ignored.
             val mime = it.extractMetadata(MediaMetadataRetriever.METADATA_KEY_MIMETYPE)
-            assumeTrue("Unsupported mime = $mime",
-                "video/mp4".equals(mime, ignoreCase = true))
+            assumeTrue(
+                "Unsupported mime = $mime",
+                "video/mp4".equals(mime, ignoreCase = true)
+            )
             val value = it.extractMetadata(MediaMetadataRetriever.METADATA_KEY_LOCATION)
             assertThat(value).isNotNull()
             // ex: (90, 180) => "+90.0000+180.0000/" (ISO-6709 standard)
