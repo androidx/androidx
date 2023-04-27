@@ -26,7 +26,7 @@ import androidx.appsearch.app.PackageIdentifier;
 import androidx.appsearch.app.VisibilityDocument;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.localstorage.AppSearchImpl;
-import androidx.appsearch.localstorage.JetpackIcingOptionsConfig;
+import androidx.appsearch.localstorage.DefaultIcingOptionsConfig;
 import androidx.appsearch.localstorage.OptimizeStrategy;
 import androidx.appsearch.localstorage.UnlimitedLimitConfig;
 import androidx.appsearch.localstorage.util.PrefixUtil;
@@ -61,7 +61,7 @@ public class VisibilityStoreTest {
         mAppSearchImpl = AppSearchImpl.create(
                 mAppSearchDir,
                 new UnlimitedLimitConfig(),
-                new JetpackIcingOptionsConfig(),
+                new DefaultIcingOptionsConfig(),
                 /*initStatsBuilder=*/ null,
                 ALWAYS_OPTIMIZE,
                 /*visibilityChecker=*/null);

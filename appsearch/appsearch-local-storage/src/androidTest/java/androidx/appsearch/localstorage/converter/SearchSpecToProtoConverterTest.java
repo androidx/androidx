@@ -26,7 +26,7 @@ import static com.google.common.truth.Truth.assertThat;
 import androidx.appsearch.app.JoinSpec;
 import androidx.appsearch.app.SearchSpec;
 import androidx.appsearch.localstorage.AppSearchImpl;
-import androidx.appsearch.localstorage.JetpackIcingOptionsConfig;
+import androidx.appsearch.localstorage.DefaultIcingOptionsConfig;
 import androidx.appsearch.localstorage.OptimizeStrategy;
 import androidx.appsearch.localstorage.UnlimitedLimitConfig;
 import androidx.appsearch.localstorage.util.PrefixUtil;
@@ -68,7 +68,7 @@ public class SearchSpecToProtoConverterTest {
         mAppSearchImpl = AppSearchImpl.create(
                 mTemporaryFolder.newFolder(),
                 new UnlimitedLimitConfig(),
-                new JetpackIcingOptionsConfig(),
+                new DefaultIcingOptionsConfig(),
                 /*initStatsBuilder=*/ null,
                 ALWAYS_OPTIMIZE,
                 /*visibilityChecker=*/null);
