@@ -16,7 +16,6 @@
 
 package androidx.compose.ui.layout
 
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.GraphicsLayerScope
 import androidx.compose.ui.internal.JvmDefaultWithCompatibility
@@ -115,9 +114,9 @@ interface LayoutModifier : Modifier.Element {
 
 // TODO(popam): deduplicate from the copy-pasted logic of Layout.kt without making it public
 private object MeasuringIntrinsics {
-    internal fun minWidth(
+    fun minWidth(
         modifier: LayoutModifier,
-        instrinsicMeasureScope: IntrinsicMeasureScope,
+        intrinsicMeasureScope: IntrinsicMeasureScope,
         intrinsicMeasurable: IntrinsicMeasurable,
         h: Int
     ): Int {
@@ -128,15 +127,15 @@ private object MeasuringIntrinsics {
         )
         val constraints = Constraints(maxHeight = h)
         val layoutResult = with(modifier) {
-            IntrinsicsMeasureScope(instrinsicMeasureScope, instrinsicMeasureScope.layoutDirection)
+            IntrinsicsMeasureScope(intrinsicMeasureScope, intrinsicMeasureScope.layoutDirection)
                 .measure(measurable, constraints)
         }
         return layoutResult.width
     }
 
-    internal fun minHeight(
+    fun minHeight(
         modifier: LayoutModifier,
-        instrinsicMeasureScope: IntrinsicMeasureScope,
+        intrinsicMeasureScope: IntrinsicMeasureScope,
         intrinsicMeasurable: IntrinsicMeasurable,
         w: Int
     ): Int {
@@ -147,15 +146,15 @@ private object MeasuringIntrinsics {
         )
         val constraints = Constraints(maxWidth = w)
         val layoutResult = with(modifier) {
-            IntrinsicsMeasureScope(instrinsicMeasureScope, instrinsicMeasureScope.layoutDirection)
+            IntrinsicsMeasureScope(intrinsicMeasureScope, intrinsicMeasureScope.layoutDirection)
                 .measure(measurable, constraints)
         }
         return layoutResult.height
     }
 
-    internal fun maxWidth(
+    fun maxWidth(
         modifier: LayoutModifier,
-        instrinsicMeasureScope: IntrinsicMeasureScope,
+        intrinsicMeasureScope: IntrinsicMeasureScope,
         intrinsicMeasurable: IntrinsicMeasurable,
         h: Int
     ): Int {
@@ -166,15 +165,15 @@ private object MeasuringIntrinsics {
         )
         val constraints = Constraints(maxHeight = h)
         val layoutResult = with(modifier) {
-            IntrinsicsMeasureScope(instrinsicMeasureScope, instrinsicMeasureScope.layoutDirection)
+            IntrinsicsMeasureScope(intrinsicMeasureScope, intrinsicMeasureScope.layoutDirection)
                 .measure(measurable, constraints)
         }
         return layoutResult.width
     }
 
-    internal fun maxHeight(
+    fun maxHeight(
         modifier: LayoutModifier,
-        instrinsicMeasureScope: IntrinsicMeasureScope,
+        intrinsicMeasureScope: IntrinsicMeasureScope,
         intrinsicMeasurable: IntrinsicMeasurable,
         w: Int
     ): Int {
@@ -185,7 +184,7 @@ private object MeasuringIntrinsics {
         )
         val constraints = Constraints(maxWidth = w)
         val layoutResult = with(modifier) {
-            IntrinsicsMeasureScope(instrinsicMeasureScope, instrinsicMeasureScope.layoutDirection)
+            IntrinsicsMeasureScope(intrinsicMeasureScope, intrinsicMeasureScope.layoutDirection)
                 .measure(measurable, constraints)
         }
         return layoutResult.height
@@ -266,10 +265,9 @@ private object MeasuringIntrinsics {
  */
 fun Modifier.layout(
     measure: MeasureScope.(Measurable, Constraints) -> MeasureResult
-) = this then LayoutModifierElement(measure)
+) = this then LayoutElement(measure)
 
-@OptIn(ExperimentalComposeUiApi::class)
-private data class LayoutModifierElement(
+private data class LayoutElement(
     val measure: MeasureScope.(Measurable, Constraints) -> MeasureResult
 ) : ModifierNodeElement<LayoutModifierImpl>() {
     override fun create() = LayoutModifierImpl(measure)
@@ -284,7 +282,6 @@ private data class LayoutModifierElement(
     }
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 internal class LayoutModifierImpl(
     var measureBlock: MeasureScope.(Measurable, Constraints) -> MeasureResult
 ) : LayoutModifierNode, Modifier.Node() {

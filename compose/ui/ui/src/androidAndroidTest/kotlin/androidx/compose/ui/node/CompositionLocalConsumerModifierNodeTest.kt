@@ -95,7 +95,7 @@ class CompositionLocalConsumerModifierNodeTest(layoutComposableParam: LayoutComp
             }
         }
         rule.setContent {
-            testLayout(modifierNodeElementOf { node })
+            testLayout(elementOf { node })
         }
 
         rule.runOnIdle {
@@ -115,7 +115,7 @@ class CompositionLocalConsumerModifierNodeTest(layoutComposableParam: LayoutComp
         }
         rule.setContent {
             CompositionLocalProvider(localInt provides 2) {
-                testLayout(modifierNodeElementOf { node })
+                testLayout(elementOf { node })
             }
         }
 
@@ -138,7 +138,7 @@ class CompositionLocalConsumerModifierNodeTest(layoutComposableParam: LayoutComp
         }
         rule.setContent {
             CompositionLocalProvider(localInt provides providedValue) {
-                testLayout(modifierNodeElementOf { node })
+                testLayout(elementOf { node })
             }
         }
 
@@ -165,7 +165,7 @@ class CompositionLocalConsumerModifierNodeTest(layoutComposableParam: LayoutComp
             }
         }
         rule.setContent {
-            testLayout(modifierNodeElementOf { node })
+            testLayout(elementOf { node })
         }
 
         rule.runOnIdle {
@@ -185,7 +185,7 @@ class CompositionLocalConsumerModifierNodeTest(layoutComposableParam: LayoutComp
         }
         rule.setContent {
             CompositionLocalProvider(staticLocalInt provides 2) {
-                testLayout(modifierNodeElementOf { node })
+                testLayout(elementOf { node })
             }
         }
 
@@ -208,7 +208,7 @@ class CompositionLocalConsumerModifierNodeTest(layoutComposableParam: LayoutComp
         }
         rule.setContent {
             CompositionLocalProvider(staticLocalInt provides providedValue) {
-                testLayout(modifierNodeElementOf { node })
+                testLayout(elementOf { node })
             }
         }
 
@@ -232,7 +232,7 @@ class CompositionLocalConsumerModifierNodeTest(layoutComposableParam: LayoutComp
         var providedValue by mutableStateOf(42)
 
         var contentKey by mutableStateOf(1)
-        val modifier = modifierNodeElementOf {
+        val modifier = elementOf {
             object : Modifier.Node(), DrawModifierNode,
                 CompositionLocalConsumerModifierNode {
                 override fun ContentDrawScope.draw() {
@@ -270,7 +270,7 @@ class CompositionLocalConsumerModifierNodeTest(layoutComposableParam: LayoutComp
         var providedValue by mutableStateOf(32)
 
         var contentKey by mutableStateOf(1)
-        val modifier = modifierNodeElementOf {
+        val modifier = elementOf {
             object : Modifier.Node(), DrawModifierNode,
                 CompositionLocalConsumerModifierNode {
                 override fun ContentDrawScope.draw() {
@@ -300,7 +300,7 @@ class CompositionLocalConsumerModifierNodeTest(layoutComposableParam: LayoutComp
         }
     }
 
-    private inline fun <reified T : Modifier.Node> modifierNodeElementOf(
+    private inline fun <reified T : Modifier.Node> elementOf(
         crossinline create: () -> T
     ): ModifierNodeElement<T> = object : ModifierNodeElement<T>() {
         override fun create(): T = create()

@@ -546,7 +546,7 @@ package androidx.compose.ui.focus {
     property public abstract boolean isFocused;
   }
 
-  public final class FocusTargetNode extends androidx.compose.ui.Modifier.Node implements androidx.compose.ui.modifier.ModifierLocalNode androidx.compose.ui.node.ObserverNode {
+  public final class FocusTargetNode extends androidx.compose.ui.Modifier.Node implements androidx.compose.ui.modifier.ModifierLocalModifierNode androidx.compose.ui.node.ObserverModifierNode {
     ctor public FocusTargetNode();
     method public androidx.compose.ui.focus.FocusState getFocusState();
     method public void onObservedReadsChanged();
@@ -1622,10 +1622,10 @@ package androidx.compose.ui.input.nestedscroll {
   public static final class NestedScrollSource.Companion {
     method public int getDrag();
     method public int getFling();
-    method @Deprecated public int getRelocate();
+    method @Deprecated @androidx.compose.ui.ExperimentalComposeUiApi public int getRelocate();
     property public final int Drag;
     property public final int Fling;
-    property @Deprecated public final int Relocate;
+    property @Deprecated @androidx.compose.ui.ExperimentalComposeUiApi public final int Relocate;
   }
 
 }
@@ -2439,14 +2439,14 @@ package androidx.compose.ui.modifier {
   public abstract sealed class ModifierLocalMap {
   }
 
-  public interface ModifierLocalNode extends androidx.compose.ui.modifier.ModifierLocalReadScope androidx.compose.ui.node.DelegatableNode {
+  public interface ModifierLocalModifierNode extends androidx.compose.ui.modifier.ModifierLocalReadScope androidx.compose.ui.node.DelegatableNode {
     method public default <T> T getCurrent(androidx.compose.ui.modifier.ModifierLocal<T>);
     method public default androidx.compose.ui.modifier.ModifierLocalMap getProvidedValues();
     method public default <T> void provide(androidx.compose.ui.modifier.ModifierLocal<T> key, T value);
     property public default androidx.compose.ui.modifier.ModifierLocalMap providedValues;
   }
 
-  public final class ModifierLocalNodeKt {
+  public final class ModifierLocalModifierNodeKt {
     method public static androidx.compose.ui.modifier.ModifierLocalMap modifierLocalMapOf();
     method public static <T> androidx.compose.ui.modifier.ModifierLocalMap modifierLocalMapOf(androidx.compose.ui.modifier.ModifierLocal<T> key);
     method public static <T> androidx.compose.ui.modifier.ModifierLocalMap modifierLocalMapOf(kotlin.Pair<? extends androidx.compose.ui.modifier.ModifierLocal<T>,? extends T> entry);
@@ -2556,12 +2556,12 @@ package androidx.compose.ui.node {
     property public final Object? valueOverride;
   }
 
-  public interface ObserverNode extends androidx.compose.ui.node.DelegatableNode {
+  public interface ObserverModifierNode extends androidx.compose.ui.node.DelegatableNode {
     method public void onObservedReadsChanged();
   }
 
-  public final class ObserverNodeKt {
-    method public static <T extends androidx.compose.ui.Modifier.Node & androidx.compose.ui.node.ObserverNode> void observeReads(T, kotlin.jvm.functions.Function0<kotlin.Unit> block);
+  public final class ObserverModifierNodeKt {
+    method public static <T extends androidx.compose.ui.Modifier.Node & androidx.compose.ui.node.ObserverModifierNode> void observeReads(T, kotlin.jvm.functions.Function0<kotlin.Unit> block);
   }
 
   public interface ParentDataModifierNode extends androidx.compose.ui.node.DelegatableNode {

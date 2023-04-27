@@ -20,7 +20,7 @@ import androidx.compose.runtime.Stable
 import androidx.compose.ui.internal.JvmDefaultWithCompatibility
 import androidx.compose.ui.node.DelegatableNode
 import androidx.compose.ui.node.DrawModifierNode
-import androidx.compose.ui.node.ModifierNodeOwnerScope
+import androidx.compose.ui.node.ObserverNodeOwnerScope
 import androidx.compose.ui.node.NodeCoordinator
 import androidx.compose.ui.node.NodeKind
 import androidx.compose.ui.node.invalidateDraw
@@ -159,7 +159,7 @@ interface Modifier {
      * @see androidx.compose.ui.node.DrawModifierNode
      * @see androidx.compose.ui.node.SemanticsModifierNode
      * @see androidx.compose.ui.node.PointerInputModifierNode
-     * @see androidx.compose.ui.modifier.ModifierLocalNode
+     * @see androidx.compose.ui.modifier.ModifierLocalModifierNode
      * @see androidx.compose.ui.node.ParentDataModifierNode
      * @see androidx.compose.ui.node.LayoutAwareModifierNode
      * @see androidx.compose.ui.node.GlobalPositionAwareModifierNode
@@ -199,7 +199,7 @@ interface Modifier {
         internal var aggregateChildKindSet: Int = 0
         internal var parent: Node? = null
         internal var child: Node? = null
-        internal var ownerScope: ModifierNodeOwnerScope? = null
+        internal var ownerScope: ObserverNodeOwnerScope? = null
         internal var coordinator: NodeCoordinator? = null
             private set
         internal var insertedNodeAwaitingAttachForInvalidation = false

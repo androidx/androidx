@@ -17,7 +17,6 @@ package androidx.compose.ui.node
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.DrawModifier
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
@@ -37,7 +36,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@OptIn(ExperimentalComposeUiApi::class)
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class InvalidateSubtreeTest {
@@ -50,7 +48,7 @@ class InvalidateSubtreeTest {
         val counter1 = LayoutAndDrawCounter()
         val counter2 = LayoutAndDrawCounter()
         val counter3 = LayoutAndDrawCounter()
-        val captureInvalidate = CaptureInvalidateCounter { node ->
+        val captureInvalidate = CaptureInvalidateCounterElement { node ->
             invalidate = { node.invalidateSubtree() }
         }
         rule.setContent {
@@ -95,7 +93,7 @@ class InvalidateSubtreeTest {
         val counter2 = LayoutAndDrawCounter()
         val counter3 = LayoutAndDrawCounter()
         val counter4 = LayoutAndDrawCounter()
-        val captureInvalidate = CaptureInvalidateCounter { node ->
+        val captureInvalidate = CaptureInvalidateCounterElement { node ->
             invalidate = { node.invalidateSubtree() }
         }
         rule.setContent {
@@ -146,7 +144,7 @@ class InvalidateSubtreeTest {
         }
     }
 
-    private class CaptureInvalidateCounter(
+    private class CaptureInvalidateCounterElement(
         private val onCreate: (node: Modifier.Node) -> Unit
     ) : ModifierNodeElement<Modifier.Node>() {
         override fun create() = object : Modifier.Node() {}

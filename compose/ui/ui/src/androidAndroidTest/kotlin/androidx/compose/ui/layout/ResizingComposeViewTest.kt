@@ -274,7 +274,7 @@ class ResizingComposeViewTest {
             composeView.setContent {
                 ResizingChild(
                     layoutHeight = { childHeight },
-                    modifier = RemeasurementModifierElement { remeasurement = it }
+                    modifier = RemeasurementElement { remeasurement = it }
                 )
             }
         }
@@ -302,7 +302,7 @@ class ResizingComposeViewTest {
             composeView.setContent {
                 ResizingChild(
                     layoutHeight = { 10 },
-                    modifier = RemeasurementModifierElement { remeasurement = it }
+                    modifier = RemeasurementElement { remeasurement = it }
                 )
             }
         }
@@ -390,7 +390,7 @@ private val WrapContentLayoutParams = ViewGroup.LayoutParams(
     ViewGroup.LayoutParams.WRAP_CONTENT
 )
 
-private class RemeasurementModifierElement(
+private class RemeasurementElement(
     private val onRemeasurementAvailable: (Remeasurement) -> Unit
 ) : ModifierNodeElement<RemeasurementModifierNode>() {
     override fun create() = RemeasurementModifierNode(onRemeasurementAvailable)

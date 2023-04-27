@@ -131,7 +131,7 @@ fun Modifier.padding(all: Dp) = this then PaddingElement(
  * @sample androidx.compose.foundation.layout.samples.PaddingValuesModifier
  */
 @Stable
-fun Modifier.padding(paddingValues: PaddingValues) = this then PaddingValuesModifierElement(
+fun Modifier.padding(paddingValues: PaddingValues) = this then PaddingValuesElement(
     paddingValues = paddingValues,
     inspectorInfo = {
         name = "padding"
@@ -408,7 +408,7 @@ private class PaddingNode(
     }
 }
 
-private class PaddingValuesModifierElement(
+private class PaddingValuesElement(
     val paddingValues: PaddingValues,
     val inspectorInfo: InspectorInfo.() -> Unit
 ) : ModifierNodeElement<PaddingValuesModifier>() {
@@ -423,8 +423,8 @@ private class PaddingValuesModifierElement(
     override fun hashCode(): Int = paddingValues.hashCode()
 
     override fun equals(other: Any?): Boolean {
-        val otherModifierElement = other as? PaddingValuesModifierElement ?: return false
-        return paddingValues == otherModifierElement.paddingValues
+        val otherElement = other as? PaddingValuesElement ?: return false
+        return paddingValues == otherElement.paddingValues
     }
 
     override fun InspectorInfo.inspectableProperties() {

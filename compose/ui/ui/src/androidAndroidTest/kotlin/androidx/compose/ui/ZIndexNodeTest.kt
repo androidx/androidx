@@ -23,7 +23,7 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Test
 
-class ZIndexModifierTest {
+class ZIndexNodeTest {
     @Before
     fun before() {
         isDebugInspectorInfoEnabled = true

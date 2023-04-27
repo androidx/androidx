@@ -14,16 +14,12 @@
  * limitations under the License.
  */
 
-@file:Suppress("DEPRECATION", "NOTHING_TO_INLINE")
-
 package androidx.compose.ui.node
 
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.DrawModifier
-import androidx.compose.ui.focus.FocusEventModifier
 import androidx.compose.ui.focus.FocusEventModifierNode
-import androidx.compose.ui.focus.FocusOrderModifier
 import androidx.compose.ui.focus.FocusProperties
 import androidx.compose.ui.focus.FocusPropertiesModifierNode
 import androidx.compose.ui.focus.FocusTargetNode
@@ -41,18 +37,21 @@ import androidx.compose.ui.layout.OnPlacedModifier
 import androidx.compose.ui.layout.OnRemeasuredModifier
 import androidx.compose.ui.layout.ParentDataModifier
 import androidx.compose.ui.modifier.ModifierLocalConsumer
-import androidx.compose.ui.modifier.ModifierLocalNode
+import androidx.compose.ui.modifier.ModifierLocalModifierNode
 import androidx.compose.ui.modifier.ModifierLocalProvider
 import androidx.compose.ui.semantics.SemanticsModifier
 
+@Suppress("NOTHING_TO_INLINE")
 @JvmInline
 internal value class NodeKind<T>(val mask: Int) {
     inline infix fun or(other: NodeKind<*>): Int = mask or other.mask
     inline infix fun or(other: Int): Int = mask or other
 }
 
+@Suppress("NOTHING_TO_INLINE")
 internal inline infix fun Int.or(other: NodeKind<*>): Int = this or other.mask
 
+@Suppress("NOTHING_TO_INLINE")
 internal inline operator fun Int.contains(value: NodeKind<*>): Boolean = this and value.mask != 0
 
 // For a given NodeCoordinator, the "LayoutAware" nodes that it is concerned with should include
@@ -78,7 +77,7 @@ internal object Nodes {
     @JvmStatic
     inline val PointerInput get() = NodeKind<PointerInputModifierNode>(0b1 shl 4)
     @JvmStatic
-    inline val Locals get() = NodeKind<ModifierLocalNode>(0b1 shl 5)
+    inline val Locals get() = NodeKind<ModifierLocalModifierNode>(0b1 shl 5)
     @JvmStatic
     inline val ParentData get() = NodeKind<ParentDataModifierNode>(0b1 shl 6)
     @JvmStatic
@@ -126,10 +125,12 @@ internal fun calculateNodeKindSetFrom(element: Modifier.Element): Int {
     ) {
         mask = mask or Nodes.Locals
     }
-    if (element is FocusEventModifier) {
+    @Suppress("DEPRECATION")
+    if (element is androidx.compose.ui.focus.FocusEventModifier) {
         mask = mask or Nodes.FocusEvent
     }
-    if (element is FocusOrderModifier) {
+    @Suppress("DEPRECATION")
+    if (element is androidx.compose.ui.focus.FocusOrderModifier) {
         mask = mask or Nodes.FocusProperties
     }
     if (element is OnGloballyPositionedModifier) {
@@ -166,7 +167,7 @@ internal fun calculateNodeKindSetFrom(node: Modifier.Node): Int {
     if (node is PointerInputModifierNode) {
         mask = mask or Nodes.PointerInput
     }
-    if (node is ModifierLocalNode) {
+    if (node is ModifierLocalModifierNode) {
         mask = mask or Nodes.Locals
     }
     if (node is ParentDataModifierNode) {
@@ -205,8 +206,11 @@ internal fun calculateNodeKindSetFrom(node: Modifier.Node): Int {
     return mask
 }
 
+@Suppress("ConstPropertyName")
 private const val Updated = 0
+@Suppress("ConstPropertyName")
 private const val Inserted = 1
+@Suppress("ConstPropertyName")
 private const val Removed = 2
 
 internal fun autoInvalidateRemovedNode(node: Modifier.Node) {

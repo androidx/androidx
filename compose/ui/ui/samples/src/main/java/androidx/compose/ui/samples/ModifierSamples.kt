@@ -39,7 +39,7 @@ import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.layout.positionInWindow
-import androidx.compose.ui.modifier.ModifierLocalNode
+import androidx.compose.ui.modifier.ModifierLocalModifierNode
 import androidx.compose.ui.modifier.modifierLocalMapOf
 import androidx.compose.ui.modifier.modifierLocalOf
 import androidx.compose.ui.node.DelegatingNode
@@ -209,7 +209,7 @@ fun DelegatedNodeSampleImplicit() {
 @Sampled
 @Composable
 fun LazyDelegationExample() {
-    class ExpensivePositionHandlingOnPointerEvents() : PointerInputModifierNode, DelegatingNode() {
+    class ExpensivePositionHandlingOnPointerEvents : PointerInputModifierNode, DelegatingNode() {
 
         val globalAwareNode = object : GlobalPositionAwareModifierNode, Modifier.Node() {
             override fun onGloballyPositioned(coordinates: LayoutCoordinates) {
@@ -466,9 +466,9 @@ fun GlobalPositionAwareModifierNodeSample() {
 fun JustReadingOrProvidingModifierLocalNodeSample() {
     class Logger { fun log(string: String) { println(string) } }
 
-    val loggerLocal = modifierLocalOf<Logger> { Logger() }
+    val loggerLocal = modifierLocalOf { Logger() }
 
-    class ProvideLoggerNode(logger: Logger) : ModifierLocalNode, Modifier.Node() {
+    class ProvideLoggerNode(logger: Logger) : ModifierLocalModifierNode, Modifier.Node() {
         override val providedValues = modifierLocalMapOf(loggerLocal to logger)
     }
 
@@ -487,7 +487,7 @@ fun JustReadingOrProvidingModifierLocalNodeSample() {
 
     class SizeLoggerNode(
         var id: String
-    ) : ModifierLocalNode, LayoutAwareModifierNode, Modifier.Node() {
+    ) : ModifierLocalModifierNode, LayoutAwareModifierNode, Modifier.Node() {
         override fun onRemeasured(size: IntSize) {
             loggerLocal.current.log("The size of $id was $size")
         }
@@ -510,7 +510,6 @@ fun JustReadingOrProvidingModifierLocalNodeSample() {
     fun Modifier.provideLogger(logger: Logger) = this then ProvideLoggerElement(logger)
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Sampled
 @Composable
 fun ModifierNodeResetSample() {
