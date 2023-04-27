@@ -69,7 +69,7 @@ protobuf {
         // Add any additional directories specified in the "main" source set to the Java
         // source directories of the main source set.
         ofSourceSet("main").each { task ->
-            sourceSets.main.java.srcDir(task)
+            project.sourceSets.main.java.srcDir(task)
         }
         all().each { task ->
             task.builtins {
