@@ -26,6 +26,7 @@ import android.view.Choreographer;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.collection.SimpleArrayMap;
 
@@ -41,7 +42,6 @@ import java.util.ArrayList;
  * AnimationFrameCallbackProvider can be set on the handler to provide timing pulse that
  * may be independent of UI frame update. This could be useful in testing.
  */
-@VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)
 public class AnimationHandler {
     /**
      * Callbacks that receives notifications for animation timing
@@ -96,10 +96,12 @@ public class AnimationHandler {
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     long mCurrentFrameTime = 0;
     private boolean mListDirty = false;
-    @VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @VisibleForTesting
     public float mDurationScale = 1.0f;
     @Nullable
-    @VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @VisibleForTesting
     public DurationScaleChangeListener mDurationScaleChangeListener;
 
     static AnimationHandler getInstance() {
@@ -232,7 +234,6 @@ public class AnimationHandler {
      * Default provider of timing pulse that uses Choreographer for frame callbacks.
      */
     @RequiresApi(Build.VERSION_CODES.JELLY_BEAN)
-    @VisibleForTesting
     static final class FrameCallbackScheduler16 implements FrameCallbackScheduler {
 
         private final Choreographer mChoreographer = Choreographer.getInstance();
@@ -253,7 +254,6 @@ public class AnimationHandler {
      * Frame provider for ICS and ICS-MR1 releases. The frame callback is achieved via posting
      * a Runnable to the main thread Handler with a delay.
      */
-    @VisibleForTesting
     static class FrameCallbackScheduler14 implements FrameCallbackScheduler {
 
         private final Handler mHandler = new Handler(Looper.myLooper());
@@ -278,7 +278,7 @@ public class AnimationHandler {
     /**
      * Returns the system-wide scaling factor for animations.
      */
-    @VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)
+    @VisibleForTesting
     public float getDurationScale() {
         return mDurationScale;
     }
@@ -286,8 +286,9 @@ public class AnimationHandler {
     /**
      * T+ listener for changes to the system-wide scaling factor for Animator-based animations.
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     @RequiresApi(api = 33)
-    @VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)
+    @VisibleForTesting
     public class DurationScaleChangeListener33 implements DurationScaleChangeListener {
         ValueAnimator.DurationScaleChangeListener mListener;
 
@@ -311,6 +312,7 @@ public class AnimationHandler {
     /**
      * listener for changes to the system-wide scaling factor for Animator-based animations.
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     @VisibleForTesting
     public interface DurationScaleChangeListener {
         /**

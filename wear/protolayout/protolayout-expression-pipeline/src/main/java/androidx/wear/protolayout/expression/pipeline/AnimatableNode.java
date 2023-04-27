@@ -58,7 +58,7 @@ abstract class AnimatableNode {
         }
     }
 
-    @VisibleForTesting(otherwise = VisibleForTesting.NONE)
+    @VisibleForTesting
     AnimatableNode(@NonNull QuotaAwareAnimator quotaAwareAnimator) {
         mQuotaAwareAnimator = quotaAwareAnimator;
     }
@@ -111,7 +111,7 @@ abstract class AnimatableNode {
     }
 
     /** Returns whether the animator in this node has an infinite duration. */
-    @VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)
+    @VisibleForTesting
     protected boolean isInfiniteAnimator() {
         return mQuotaAwareAnimator.isInfiniteAnimator();
     }

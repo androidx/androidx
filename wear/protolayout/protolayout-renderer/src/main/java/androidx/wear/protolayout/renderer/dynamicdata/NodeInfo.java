@@ -145,7 +145,7 @@ class NodeInfo implements TreeNode {
     }
 
     /** Returns the number of active bound dynamic types. */
-    @VisibleForTesting(otherwise = VisibleForTesting.NONE)
+    @VisibleForTesting
     @SuppressWarnings("RestrictTo")
     int size() {
         return mActiveBoundTypes.stream().mapToInt(BoundDynamicType::getDynamicNodeCount).sum();
@@ -223,7 +223,7 @@ class NodeInfo implements TreeNode {
     }
 
     /** Returns how many animations are running. */
-    @VisibleForTesting(otherwise = VisibleForTesting.NONE)
+    @VisibleForTesting
     @SuppressWarnings("RestrictTo")
     int getRunningAnimationCount() {
         return (int)
@@ -234,7 +234,7 @@ class NodeInfo implements TreeNode {
     }
 
     /** Returns how many expression nodes evaluated. */
-    @VisibleForTesting(otherwise = VisibleForTesting.NONE)
+    @VisibleForTesting
     public int getExpressionNodesCount() {
         return mActiveBoundTypes.stream().mapToInt(BoundDynamicType::getDynamicNodeCount).sum();
     }

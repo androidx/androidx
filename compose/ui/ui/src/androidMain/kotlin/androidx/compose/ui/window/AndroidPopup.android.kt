@@ -391,7 +391,7 @@ internal class PopupLayout(
     private val windowManager =
         composeView.context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
 
-    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    @VisibleForTesting
     internal val params = createLayoutParams()
 
     /** The logic of positioning the popup relative to its parent. */
@@ -616,7 +616,7 @@ internal class PopupLayout(
      * changed since the last call, calls [updatePosition] to actually calculate the popup's new
      * position and update the window.
      */
-    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    @VisibleForTesting
     internal fun updateParentBounds() {
         val coordinates = parentLayoutCoordinates ?: return
         val layoutSize = coordinates.size
@@ -752,7 +752,7 @@ internal class PopupLayout(
  * Collection of methods delegated to platform methods to support APIs only available on newer
  * platforms and testing.
  */
-@VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+@VisibleForTesting
 internal interface PopupLayoutHelper {
     fun getWindowVisibleDisplayFrame(composeView: View, outRect: Rect)
     fun setGestureExclusionRects(composeView: View, width: Int, height: Int)

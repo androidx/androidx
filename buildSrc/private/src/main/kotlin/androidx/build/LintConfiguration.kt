@@ -231,6 +231,9 @@ fun Project.configureLint(lint: Lint, extension: AndroidXExtension, isLibrary: B
         // Disable until ag/19949626 goes in (b/261918265)
         disable.add("MissingQuantity")
 
+        // Disable new lint check so that we can land incrementally.
+        disable.add("VisibleForTests")
+
         // Provide stricter enforcement for project types intended to run on a device.
         if (extension.type.compilationTarget == CompilationTarget.DEVICE) {
             fatal.add("Assert")

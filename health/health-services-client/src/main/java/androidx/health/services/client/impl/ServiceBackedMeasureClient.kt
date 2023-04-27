@@ -18,7 +18,6 @@ package androidx.health.services.client.impl
 
 import android.content.Context
 import androidx.annotation.RestrictTo
-import androidx.annotation.VisibleForTesting
 import androidx.core.content.ContextCompat
 import androidx.health.services.client.MeasureCallback
 import androidx.health.services.client.MeasureClient
@@ -43,10 +42,8 @@ import java.util.concurrent.Executor
 
 /**
  * [MeasureClient] implementation that is backed by Health Services.
- *
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-@VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)
 public class ServiceBackedMeasureClient(
     private val context: Context,
     connectionManager: ConnectionManager = HsConnectionManager.getInstance(context)

@@ -466,7 +466,6 @@ open class InvalidationTracker @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    @VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)
     fun notifyObserversByTableNames(vararg tables: String) {
         synchronized(observerMap) {
             observerMap.forEach { (observer, wrapper) ->

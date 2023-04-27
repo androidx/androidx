@@ -643,7 +643,7 @@ internal val DisplayStateTwoWayConverter: TwoWayConverter<DisplayState, Animatio
  * maximum value. E.g. If displaying a volume value from 0..11 then the [fraction] will be
  * volume/11.
  *
- * @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+ * @VisibleForTesting
  */
 internal class FractionPositionIndicatorState(
     private val fraction: () -> Float
@@ -666,7 +666,7 @@ internal class FractionPositionIndicatorState(
  *
  * @param scrollState the [ScrollState] to adapt
  *
- * @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+ * @VisibleForTesting
  */
 internal class ScrollStateAdapter(private val scrollState: ScrollState) : PositionIndicatorState {
     override val positionFraction: Float
@@ -711,7 +711,7 @@ internal class ScrollStateAdapter(private val scrollState: ScrollState) : Positi
 
  * @param state the [ScalingLazyListState] to adapt.
  *
- * @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+ * @VisibleForTesting
  */
 internal class ScalingLazyColumnStateAdapter(
     private val state: ScalingLazyListState
@@ -932,7 +932,7 @@ internal abstract class BaseScalingLazyColumnStateAdapter : PositionIndicatorSta
  *
  * @param state the [LazyListState] to adapt.
  *
- * @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+ * @VisibleForTesting
  */
 internal class LazyColumnStateAdapter(
     private val state: LazyListState

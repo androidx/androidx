@@ -557,7 +557,7 @@ constructor(
     private val watchFaceHostApi: WatchFaceHostApi,
     private val watchState: WatchState,
     internal val currentUserStyleRepository: CurrentUserStyleRepository,
-    @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    @get:VisibleForTesting
     public var complicationSlotsManager: ComplicationSlotsManager,
     internal val broadcastsObserver: BroadcastsObserver,
     internal var broadcastsReceiver: BroadcastsReceiver?
