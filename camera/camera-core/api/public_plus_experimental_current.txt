@@ -25,8 +25,9 @@ package androidx.camera.core {
   }
 
   @RequiresApi(21) public abstract class CameraEffect {
-    ctor protected CameraEffect(int, java.util.concurrent.Executor, androidx.camera.core.ImageProcessor);
-    ctor protected CameraEffect(int, java.util.concurrent.Executor, androidx.camera.core.SurfaceProcessor);
+    ctor protected CameraEffect(int, java.util.concurrent.Executor, androidx.camera.core.ImageProcessor, androidx.core.util.Consumer<java.lang.Throwable!>);
+    ctor protected CameraEffect(int, java.util.concurrent.Executor, androidx.camera.core.SurfaceProcessor, androidx.core.util.Consumer<java.lang.Throwable!>);
+    method public androidx.core.util.Consumer<java.lang.Throwable!> getErrorListener();
     method public java.util.concurrent.Executor getExecutor();
     method public androidx.camera.core.SurfaceProcessor? getSurfaceProcessor();
     method public int getTargets();
