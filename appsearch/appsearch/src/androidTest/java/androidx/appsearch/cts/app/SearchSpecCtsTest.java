@@ -202,6 +202,52 @@ public class SearchSpecCtsTest {
     }
 
     @Test
+    public void testGetTypePropertyWeightsWithAdvancedRanking() {
+        SearchSpec searchSpec = new SearchSpec.Builder()
+                .setTermMatch(SearchSpec.TERM_MATCH_PREFIX)
+                .setRankingStrategy("sum(this.propertyWeights())")
+                .setPropertyWeights("TypeA", ImmutableMap.of("property1", 1.0, "property2", 2.0))
+                .setPropertyWeights("TypeB", ImmutableMap.of("property1", 1.0, "property2"
+                        + ".nested", 2.0))
+                .build();
+
+        Map<String, Map<String, Double>> typePropertyWeightsMap = searchSpec.getPropertyWeights();
+
+        assertThat(typePropertyWeightsMap.keySet())
+                .containsExactly("TypeA", "TypeB");
+        assertThat(typePropertyWeightsMap.get("TypeA")).containsExactly("property1", 1.0,
+                "property2", 2.0);
+        assertThat(typePropertyWeightsMap.get("TypeB")).containsExactly("property1", 1.0,
+                "property2.nested", 2.0);
+    }
+
+    @Test
+    public void testGetTypePropertyWeightPathsWithAdvancedRanking() {
+        SearchSpec searchSpec = new SearchSpec.Builder()
+                .setTermMatch(SearchSpec.TERM_MATCH_PREFIX)
+                .setRankingStrategy("sum(this.propertyWeights())")
+                .setPropertyWeightPaths("TypeA",
+                        ImmutableMap.of(new PropertyPath("property1"), 1.0,
+                                new PropertyPath("property2"), 2.0))
+                .setPropertyWeightPaths("TypeB",
+                        ImmutableMap.of(new PropertyPath("property1"), 1.0,
+                                new PropertyPath("property2.nested"), 2.0))
+                .build();
+
+        Map<String, Map<PropertyPath, Double>> typePropertyWeightsMap =
+                searchSpec.getPropertyWeightPaths();
+
+        assertThat(typePropertyWeightsMap.keySet())
+                .containsExactly("TypeA", "TypeB");
+        assertThat(typePropertyWeightsMap.get("TypeA"))
+                .containsExactly(new PropertyPath("property1"), 1.0,
+                        new PropertyPath("property2"), 2.0);
+        assertThat(typePropertyWeightsMap.get("TypeB"))
+                .containsExactly(new PropertyPath("property1"), 1.0,
+                        new PropertyPath("property2.nested"), 2.0);
+    }
+
+    @Test
     public void testSetPropertyWeights_nonPositiveWeight() {
         SearchSpec.Builder searchSpecBuilder = new SearchSpec.Builder();
         Map<String, Double> negativePropertyWeight = ImmutableMap.of("property", -1.0);
