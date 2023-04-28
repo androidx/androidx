@@ -26,46 +26,12 @@ import androidx.appactions.interaction.capabilities.core.properties.Property
 import java.time.LocalTime
 import java.util.Optional
 
-/** GetHealthObservation.kt in interaction-capabilities-fitness */
-private const val CAPABILITY_NAME = "actions.intent.START_EXERCISE"
+private const val CAPABILITY_NAME = "actions.intent.GET_HEALTH_OBSERVATION"
 
-// TODO(b/273602015): Update to use Name property from builtintype library.
-@Suppress("UNCHECKED_CAST")
-private val ACTION_SPEC =
-    ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
-        .setArguments(
-            GetHealthObservation.Arguments::class.java,
-            GetHealthObservation.Arguments::Builder
-        )
-        .setOutput(GetHealthObservation.Output::class.java)
-        .bindOptionalParameter(
-            "healthObservation.startTime",
-            { properties ->
-                Optional.ofNullable(
-                    properties[GetHealthObservation.PropertyMapStrings.START_TIME.key]
-                        as Property<LocalTime>
-                )
-            },
-            GetHealthObservation.Arguments.Builder::setStartTime,
-            TypeConverters.LOCAL_TIME_PARAM_VALUE_CONVERTER,
-            TypeConverters.LOCAL_TIME_ENTITY_CONVERTER
-        )
-        .bindOptionalParameter(
-            "healthObservation.endTime",
-            { properties ->
-                Optional.ofNullable(
-                    properties[GetHealthObservation.PropertyMapStrings.END_TIME.key]
-                        as Property<LocalTime>
-                )
-            },
-            GetHealthObservation.Arguments.Builder::setEndTime,
-            TypeConverters.LOCAL_TIME_PARAM_VALUE_CONVERTER,
-            TypeConverters.LOCAL_TIME_ENTITY_CONVERTER
-        )
-        .build()
-
+/** A capability corresponding to actions.intent.GET_HEALTH_OBSERVATION */
 @CapabilityFactory(name = CAPABILITY_NAME)
 class GetHealthObservation private constructor() {
+
     internal enum class PropertyMapStrings(val key: String) {
         START_TIME("healthObservation.startTime"),
         END_TIME("healthObservation.endTime"),
@@ -138,4 +104,41 @@ class GetHealthObservation private constructor() {
     class Confirmation internal constructor()
 
     sealed interface ExecutionSession : BaseExecutionSession<Arguments, Output>
+
+    companion object {
+        // TODO(b/273602015): Update to use Name property from builtintype library.
+        @Suppress("UNCHECKED_CAST")
+        private val ACTION_SPEC =
+            ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
+                .setArguments(
+                    Arguments::class.java,
+                    Arguments::Builder
+                )
+                .setOutput(Output::class.java)
+                .bindOptionalParameter(
+                    "healthObservation.startTime",
+                    { properties ->
+                        Optional.ofNullable(
+                            properties[PropertyMapStrings.START_TIME.key]
+                                as Property<LocalTime>
+                        )
+                    },
+                    Arguments.Builder::setStartTime,
+                    TypeConverters.LOCAL_TIME_PARAM_VALUE_CONVERTER,
+                    TypeConverters.LOCAL_TIME_ENTITY_CONVERTER
+                )
+                .bindOptionalParameter(
+                    "healthObservation.endTime",
+                    { properties ->
+                        Optional.ofNullable(
+                            properties[PropertyMapStrings.END_TIME.key]
+                                as Property<LocalTime>
+                        )
+                    },
+                    Arguments.Builder::setEndTime,
+                    TypeConverters.LOCAL_TIME_PARAM_VALUE_CONVERTER,
+                    TypeConverters.LOCAL_TIME_ENTITY_CONVERTER
+                )
+                .build()
+    }
 }

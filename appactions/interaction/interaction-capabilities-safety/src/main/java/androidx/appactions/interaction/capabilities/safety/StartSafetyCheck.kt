@@ -23,6 +23,7 @@ import androidx.appactions.builtintypes.experimental.types.SafetyCheck
 import androidx.appactions.builtintypes.experimental.types.SuccessStatus
 import androidx.appactions.interaction.capabilities.core.BaseExecutionSession
 import androidx.appactions.interaction.capabilities.core.Capability
+import androidx.appactions.interaction.capabilities.core.CapabilityFactory
 import androidx.appactions.interaction.capabilities.core.impl.BuilderOf
 import androidx.appactions.interaction.capabilities.core.impl.converters.ParamValueConverter
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
@@ -39,51 +40,10 @@ import java.time.Duration
 import java.time.ZonedDateTime
 import java.util.Optional
 
-/** StartSafetyCheck.kt in interaction-capabilities-safety */
 private const val CAPABILITY_NAME = "actions.intent.START_SAFETY_CHECK"
 
-@Suppress("UNCHECKED_CAST")
-private val ACTION_SPEC =
-    ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
-        .setArguments(StartSafetyCheck.Arguments::class.java, StartSafetyCheck.Arguments::Builder)
-        .setOutput(StartSafetyCheck.Output::class.java)
-        .bindOptionalParameter(
-            "safetyCheck.duration",
-            { properties ->
-                Optional.ofNullable(
-                    properties[StartSafetyCheck.PropertyMapStrings.DURATION.key]
-                        as Property<Duration>
-                )
-            },
-            StartSafetyCheck.Arguments.Builder::setDuration,
-            TypeConverters.DURATION_PARAM_VALUE_CONVERTER,
-            TypeConverters.DURATION_ENTITY_CONVERTER
-        )
-        .bindOptionalParameter(
-            "safetyCheck.checkInTime",
-            { property ->
-                Optional.ofNullable(
-                    property[StartSafetyCheck.PropertyMapStrings.CHECK_IN_TIME.key]
-                        as Property<ZonedDateTime>
-                )
-            },
-            StartSafetyCheck.Arguments.Builder::setCheckInTime,
-            TypeConverters.ZONED_DATETIME_PARAM_VALUE_CONVERTER,
-            TypeConverters.ZONED_DATETIME_ENTITY_CONVERTER
-        )
-        .bindOptionalOutput(
-            "safetyCheck",
-            { output -> Optional.ofNullable(output.safetyCheck) },
-            ParamValueConverter.of(SAFETY_CHECK_TYPE_SPEC)::toParamValue
-        )
-        .bindOptionalOutput(
-            "executionStatus",
-            { output -> Optional.ofNullable(output.executionStatus) },
-            StartSafetyCheck.ExecutionStatus::toParamValue
-        )
-        .build()
-
-// TODO(b/267806701): Add capability factory annotation once the testing library is fully migrated.
+/** A capability corresponding to actions.intent.START_SAFETY_CHECK */
+@CapabilityFactory(name = CAPABILITY_NAME)
 class StartSafetyCheck private constructor() {
     internal enum class PropertyMapStrings(val key: String) {
         DURATION("safetycheck.duration"),
@@ -265,4 +225,47 @@ class StartSafetyCheck private constructor() {
     class Confirmation internal constructor()
 
     sealed interface ExecutionSession : BaseExecutionSession<Arguments, Output>
+
+    companion object {
+        @Suppress("UNCHECKED_CAST")
+        private val ACTION_SPEC =
+            ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
+                .setArguments(Arguments::class.java, Arguments::Builder)
+                .setOutput(Output::class.java)
+                .bindOptionalParameter(
+                    "safetyCheck.duration",
+                    { properties ->
+                        Optional.ofNullable(
+                            properties[PropertyMapStrings.DURATION.key]
+                                as Property<Duration>
+                        )
+                    },
+                    Arguments.Builder::setDuration,
+                    TypeConverters.DURATION_PARAM_VALUE_CONVERTER,
+                    TypeConverters.DURATION_ENTITY_CONVERTER
+                )
+                .bindOptionalParameter(
+                    "safetyCheck.checkInTime",
+                    { property ->
+                        Optional.ofNullable(
+                            property[PropertyMapStrings.CHECK_IN_TIME.key]
+                                as Property<ZonedDateTime>
+                        )
+                    },
+                    Arguments.Builder::setCheckInTime,
+                    TypeConverters.ZONED_DATETIME_PARAM_VALUE_CONVERTER,
+                    TypeConverters.ZONED_DATETIME_ENTITY_CONVERTER
+                )
+                .bindOptionalOutput(
+                    "safetyCheck",
+                    { output -> Optional.ofNullable(output.safetyCheck) },
+                    ParamValueConverter.of(SAFETY_CHECK_TYPE_SPEC)::toParamValue
+                )
+                .bindOptionalOutput(
+                    "executionStatus",
+                    { output -> Optional.ofNullable(output.executionStatus) },
+                    ExecutionStatus::toParamValue
+                )
+                .build()
+    }
 }
