@@ -16,32 +16,21 @@
 
 package androidx.window.area
 
-import android.util.DisplayMetrics
-import androidx.core.view.WindowInsetsCompat
 import androidx.window.area.WindowAreaCapability.Status.Companion.WINDOW_AREA_STATUS_ACTIVE
 import androidx.window.area.WindowAreaCapability.Status.Companion.WINDOW_AREA_STATUS_AVAILABLE
 import androidx.window.area.WindowAreaCapability.Status.Companion.WINDOW_AREA_STATUS_UNAVAILABLE
 import androidx.window.area.WindowAreaCapability.Status.Companion.WINDOW_AREA_STATUS_UNSUPPORTED
-import androidx.window.core.Bounds
 import androidx.window.extensions.area.WindowAreaComponent
 import androidx.window.extensions.area.WindowAreaComponent.STATUS_ACTIVE
 import androidx.window.extensions.area.WindowAreaComponent.STATUS_AVAILABLE
 import androidx.window.extensions.area.WindowAreaComponent.STATUS_UNAVAILABLE
 import androidx.window.extensions.area.WindowAreaComponent.STATUS_UNSUPPORTED
-import androidx.window.layout.WindowMetrics
 
 /**
  * Adapter object to assist in translating values received from [WindowAreaComponent]
  * to developer friendly values in [WindowAreaController]
  */
 internal object WindowAreaAdapter {
-
-    internal fun translate(displayMetrics: DisplayMetrics): WindowMetrics {
-        return WindowMetrics(
-            Bounds(0, 0, displayMetrics.widthPixels, displayMetrics.heightPixels),
-            WindowInsetsCompat.Builder().build()
-        )
-    }
 
     internal fun translate(
         status: @WindowAreaComponent.WindowAreaStatus Int

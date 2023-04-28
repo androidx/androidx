@@ -309,7 +309,7 @@ class WindowAreaControllerImplTest {
             vendorApiLevel = 3
         )
         var windowAreaInfo: WindowAreaInfo? = null
-        extensionComponent.updateRearDisplayStatusListeners(STATUS_UNAVAILABLE)
+        extensionComponent.updateRearDisplayStatusListeners(STATUS_AVAILABLE)
         extensionComponent.updateRearDisplayPresentationStatusListeners(STATUS_UNAVAILABLE)
         testScope.launch(Job()) {
             windowAreaInfo = controller.windowAreaInfos.firstOrNull()
@@ -432,6 +432,14 @@ class WindowAreaControllerImplTest {
             )
         }
 
+        override fun getRearDisplayMetrics(): DisplayMetrics {
+            return DisplayMetrics().apply {
+                widthPixels = 1080
+                heightPixels = 1080
+                densityDpi = 240
+            }
+        }
+
         fun updateRearDisplayStatusListeners(newStatus: Int) {
             currentRearDisplayStatus = newStatus
             for (consumer in rearDisplayStatusListeners) {
@@ -492,7 +500,11 @@ class WindowAreaControllerImplTest {
         }
 
         override fun getWindowAreaDisplayMetrics(): DisplayMetrics {
-            return DisplayMetrics()
+            return DisplayMetrics().apply {
+                widthPixels = 1080
+                heightPixels = 1080
+                densityDpi = 240
+            }
         }
     }
 

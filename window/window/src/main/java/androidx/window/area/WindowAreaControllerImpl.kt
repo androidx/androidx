@@ -19,25 +19,23 @@ package androidx.window.area
 import android.app.Activity
 import android.os.Binder
 import android.os.Build
-import android.util.DisplayMetrics
 import android.util.Log
 import androidx.annotation.RequiresApi
-import androidx.core.view.WindowInsetsCompat
 import androidx.window.area.WindowAreaCapability.Status.Companion.WINDOW_AREA_STATUS_ACTIVE
 import androidx.window.area.WindowAreaCapability.Status.Companion.WINDOW_AREA_STATUS_AVAILABLE
 import androidx.window.area.WindowAreaCapability.Status.Companion.WINDOW_AREA_STATUS_UNSUPPORTED
-import androidx.window.core.Bounds
 import androidx.window.core.BuildConfig
 import androidx.window.core.VerificationMode
 import androidx.window.extensions.area.ExtensionWindowAreaStatus
 import androidx.window.extensions.area.WindowAreaComponent
 import androidx.window.extensions.area.WindowAreaComponent.SESSION_STATE_ACTIVE
-import androidx.window.extensions.area.WindowAreaComponent.SESSION_STATE_INACTIVE
 import androidx.window.extensions.area.WindowAreaComponent.SESSION_STATE_CONTENT_INVISIBLE
 import androidx.window.extensions.area.WindowAreaComponent.SESSION_STATE_CONTENT_VISIBLE
+import androidx.window.extensions.area.WindowAreaComponent.SESSION_STATE_INACTIVE
 import androidx.window.extensions.area.WindowAreaComponent.WindowAreaSessionState
 import androidx.window.extensions.core.util.function.Consumer
 import androidx.window.layout.WindowMetrics
+import androidx.window.layout.WindowMetricsCalculator
 import java.util.concurrent.Executor
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
@@ -100,11 +98,21 @@ internal class WindowAreaControllerImpl(
     private fun updateRearDisplayAvailability(
         status: @WindowAreaComponent.WindowAreaStatus Int
     ) {
+        val windowMetrics = if (vendorApiLevel >= 3) {
+            WindowMetricsCalculator.fromDisplayMetrics(
+                displayMetrics = windowAreaComponent.rearDisplayMetrics
+            )
+        } else { // TODO(b/281135171): Update with the device-specific metrics
+            WindowMetricsCalculator.fromDisplayMetrics(
+                displayMetrics = null
+            )
+        }
+
         currentRearDisplayModeStatus = WindowAreaAdapter.translate(status)
         updateRearDisplayWindowArea(
             WindowAreaCapability.Operation.OPERATION_TRANSFER_ACTIVITY_TO_AREA,
             currentRearDisplayModeStatus,
-            createEmptyWindowMetrics() /* metrics */,
+            windowMetrics
         )
     }
 
@@ -113,7 +121,7 @@ internal class WindowAreaControllerImpl(
     ) {
         currentRearDisplayPresentationStatus =
             WindowAreaAdapter.translate(extensionWindowAreaStatus.windowAreaStatus)
-        val windowMetrics = WindowAreaAdapter.translate(
+        val windowMetrics = WindowMetricsCalculator.fromDisplayMetrics(
             displayMetrics = extensionWindowAreaStatus.windowAreaDisplayMetrics
         )
 
@@ -124,6 +132,15 @@ internal class WindowAreaControllerImpl(
         )
     }
 
+    /**
+     * Updates the [WindowAreaInfo] object with the [REAR_DISPLAY_BINDER_DESCRIPTOR] binder token
+     * with the updated [status] corresponding to the [operation] and with the updated [metrics]
+     * received from the device for this window area.
+     *
+     * @param operation Operation that we are updating the status of.
+     * @param status New status for the operation provided on this window area.
+     * @param metrics Updated [WindowMetrics] for this window area.
+     */
     private fun updateRearDisplayWindowArea(
         operation: WindowAreaCapability.Operation,
         status: WindowAreaCapability.Status,
@@ -152,9 +169,10 @@ internal class WindowAreaControllerImpl(
             }
             val capability = WindowAreaCapability(operation, status)
             rearDisplayAreaInfo.capabilityMap[operation] = capability
+            rearDisplayAreaInfo.metrics =
+                determineUpdatedWindowMetrics(rearDisplayAreaInfo, metrics)
             currentWindowAreaInfoMap[REAR_DISPLAY_BINDER_DESCRIPTOR] = rearDisplayAreaInfo
         }
-        rearDisplayAreaInfo?.metrics = metrics
     }
 
     /**
@@ -168,6 +186,23 @@ internal class WindowAreaControllerImpl(
             }
         }
         return true
+    }
+
+    /**
+     * Returns the updated [WindowMetrics] that should be added to the [windowAreaInfo] provided.
+     *
+     * If the updated [newMetrics] is not empty, then we return that value. If it is empty, then
+     * the previous metrics value on the [windowAreaInfo] object is returned.
+     */
+    private fun determineUpdatedWindowMetrics(
+        windowAreaInfo: WindowAreaInfo,
+        newMetrics: WindowMetrics
+    ): WindowMetrics {
+        return if (newMetrics != WindowMetricsCalculator.fromDisplayMetrics(null)) {
+            newMetrics
+        } else {
+            windowAreaInfo.metrics
+        }
     }
 
     override fun transferActivityToWindowArea(
@@ -323,13 +358,5 @@ internal class WindowAreaControllerImpl(
         private val TAG = WindowAreaControllerImpl::class.simpleName
 
         private const val REAR_DISPLAY_BINDER_DESCRIPTOR = "WINDOW_AREA_REAR_DISPLAY"
-
-        internal fun createEmptyWindowMetrics(): WindowMetrics {
-            val displayMetrics = DisplayMetrics()
-            return WindowMetrics(
-                Bounds(0, 0, displayMetrics.widthPixels, displayMetrics.heightPixels),
-                WindowInsetsCompat.Builder().build()
-            )
-        }
     }
 }

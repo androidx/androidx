@@ -143,6 +143,7 @@ interface WindowAreaController {
                 }
                 null
             }
+            // TODO(b/281135171): Restrict to pre-U devices or devices we can guarantee metrics for
             val controller =
                 if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q ||
                     windowAreaComponentExtensions == null) {
