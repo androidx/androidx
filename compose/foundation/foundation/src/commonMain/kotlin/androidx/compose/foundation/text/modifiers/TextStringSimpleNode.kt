@@ -324,13 +324,7 @@ internal class TextStringSimpleNode(
                 val drawStyle = style.drawStyle ?: Fill
                 val brush = overrideBrush?.invoke() ?: style.brush
                 if (brush != null) {
-                    val localAlpha = overrideAlpha
-                    @Suppress("IfThenToElvis") // boxing
-                    val localAlphaResolved = if (localAlpha != null) {
-                        localAlpha.invoke()
-                    } else {
-                        Float.NaN
-                    }
+                    val localAlphaResolved = overrideAlpha?.invoke() ?: Float.NaN
                     val alpha = if (!localAlphaResolved.isNaN()) localAlphaResolved else style.alpha
                     localParagraph.paint(
                         alpha = alpha,
@@ -341,13 +335,7 @@ internal class TextStringSimpleNode(
                         textDecoration = textDecoration
                     )
                 } else {
-                    val localColorOverride = overrideColor
-                    @Suppress("IfThenToElvis") // don't box that Color
-                    val overrideColorVal = if (localColorOverride != null) {
-                        localColorOverride.invoke()
-                    } else {
-                        Color.Unspecified
-                    }
+                    val overrideColorVal = overrideColor?.invoke() ?: Color.Unspecified
                     val color = if (overrideColorVal.isSpecified) {
                         overrideColorVal
                     } else if (style.color.isSpecified) {
