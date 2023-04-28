@@ -18,7 +18,6 @@ package androidx.compose.ui.input.nestedscroll
 
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.modifier.ModifierLocalMap
 import androidx.compose.ui.modifier.ModifierLocalModifierNode
 import androidx.compose.ui.modifier.modifierLocalMapOf
 import androidx.compose.ui.modifier.modifierLocalOf
@@ -61,8 +60,8 @@ internal class NestedScrollNode(
     private val parentConnection: NestedScrollConnection?
         get() = if (isAttached) ModifierLocalNestedScroll.current else null
 
-    override val providedValues: ModifierLocalMap
-        get() = modifierLocalMapOf(ModifierLocalNestedScroll to this)
+    // Avoid get() to prevent constant allocations for static map.
+    override val providedValues = modifierLocalMapOf(entry = ModifierLocalNestedScroll to this)
 
     private val nestedCoroutineScope: CoroutineScope
         get() = parentModifierLocal?.nestedCoroutineScope

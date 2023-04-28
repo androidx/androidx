@@ -20,6 +20,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.layout.LayoutCoordinates
+import androidx.compose.ui.modifier.ModifierLocalMap
 import androidx.compose.ui.modifier.modifierLocalMapOf
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.platform.InspectorInfo
@@ -135,7 +136,8 @@ private class BringIntoViewResponderNode(
     var responder: BringIntoViewResponder
 ) : BringIntoViewChildNode(), BringIntoViewParent {
 
-    override val providedValues = modifierLocalMapOf(ModifierLocalBringIntoViewParent to this)
+    override val providedValues: ModifierLocalMap =
+        modifierLocalMapOf(entry = ModifierLocalBringIntoViewParent to this)
 
     /**
      * Responds to a child's request by first converting [boundsProvider] into this node's [LayoutCoordinates]
