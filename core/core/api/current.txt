@@ -1701,8 +1701,11 @@ package androidx.core.location {
     method public static boolean hasSpeedAccuracy(android.location.Location);
     method public static boolean hasVerticalAccuracy(android.location.Location);
     method public static boolean isMock(android.location.Location);
+    method public static void removeBearingAccuracy(android.location.Location);
     method public static void removeMslAltitude(android.location.Location);
     method public static void removeMslAltitudeAccuracy(android.location.Location);
+    method public static void removeSpeedAccuracy(android.location.Location);
+    method public static void removeVerticalAccuracy(android.location.Location);
     method public static void setBearingAccuracyDegrees(android.location.Location, float);
     method public static void setMock(android.location.Location, boolean);
     method public static void setMslAltitudeAccuracyMeters(android.location.Location, @FloatRange(from=0.0) float);

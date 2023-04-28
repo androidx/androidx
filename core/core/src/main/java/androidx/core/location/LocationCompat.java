@@ -19,6 +19,7 @@ package androidx.core.location;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
 
+import android.annotation.SuppressLint;
 import android.location.Location;
 import android.os.Build.VERSION;
 import android.os.Bundle;
@@ -31,6 +32,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.core.util.Preconditions;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
@@ -80,6 +82,14 @@ public final class LocationCompat {
 
     @Nullable
     private static Method sSetIsFromMockProviderMethod;
+    @Nullable
+    private static Field sFieldsMaskField;
+    @Nullable
+    private static Integer sHasSpeedAccuracyMask;
+    @Nullable
+    private static Integer sHasBearingAccuracyMask;
+    @Nullable
+    private static Integer sHasVerticalAccuracyMask;
 
     private LocationCompat() {
     }
@@ -186,6 +196,23 @@ public final class LocationCompat {
     }
 
     /**
+     * Removes the vertical accuracy from the location.
+     */
+    public static void removeVerticalAccuracy(@NonNull Location location) {
+        if (VERSION.SDK_INT >= 33) {
+            Api33Impl.removeVerticalAccuracy(location);
+        } else if (VERSION.SDK_INT >= 29) {
+            Api29Impl.removeVerticalAccuracy(location);
+        } else if (VERSION.SDK_INT >= 28) {
+            Api28Impl.removeVerticalAccuracy(location);
+        } else if (VERSION.SDK_INT >= 26) {
+            Api26Impl.removeVerticalAccuracy(location);
+        } else {
+            removeExtra(location, EXTRA_VERTICAL_ACCURACY);
+        }
+    }
+
+    /**
      * Returns true if this location has a speed accuracy.
      *
      * @see Location#hasSpeedAccuracy()
@@ -240,6 +267,23 @@ public final class LocationCompat {
     }
 
     /**
+     * Removes the speed accuracy from the location.
+     */
+    public static void removeSpeedAccuracy(@NonNull Location location) {
+        if (VERSION.SDK_INT >= 33) {
+            Api33Impl.removeSpeedAccuracy(location);
+        }  else if (VERSION.SDK_INT >= 29) {
+            Api29Impl.removeSpeedAccuracy(location);
+        }  else if (VERSION.SDK_INT >= 28) {
+            Api28Impl.removeSpeedAccuracy(location);
+        } else if (VERSION.SDK_INT >= 26) {
+            Api26Impl.removeSpeedAccuracy(location);
+        } else {
+            removeExtra(location, EXTRA_SPEED_ACCURACY);
+        }
+    }
+
+    /**
      * Returns true if this location has a bearing accuracy.
      *
      * @see Location#hasBearingAccuracy()
@@ -290,6 +334,23 @@ public final class LocationCompat {
             Api26Impl.setBearingAccuracyDegrees(location, bearingAccuracyD);
         } else {
             getOrCreateExtras(location).putFloat(EXTRA_BEARING_ACCURACY, bearingAccuracyD);
+        }
+    }
+
+    /**
+     * Removes the bearing accuracy from the location.
+     */
+    public static void removeBearingAccuracy(@NonNull Location location) {
+        if (VERSION.SDK_INT >= 33) {
+            Api33Impl.removeBearingAccuracy(location);
+        } else if (VERSION.SDK_INT >= 29) {
+            Api29Impl.removeBearingAccuracy(location);
+        } else if (VERSION.SDK_INT >= 28) {
+            Api28Impl.removeBearingAccuracy(location);
+        } else if (VERSION.SDK_INT >= 26) {
+            Api26Impl.removeBearingAccuracy(location);
+        } else {
+            removeExtra(location, EXTRA_BEARING_ACCURACY);
         }
     }
 
@@ -560,6 +621,246 @@ public final class LocationCompat {
         }
     }
 
+    @RequiresApi(33)
+    private static class Api33Impl {
+
+        private Api33Impl() {}
+
+        @DoNotInline
+        static void removeVerticalAccuracy(Location location) {
+            location.removeVerticalAccuracy();
+        }
+
+        @DoNotInline
+        static void removeSpeedAccuracy(Location location) {
+            location.removeSpeedAccuracy();
+        }
+
+        @DoNotInline
+        static void removeBearingAccuracy(Location location) {
+            location.removeBearingAccuracy();
+        }
+    }
+
+    @RequiresApi(29)
+    private static class Api29Impl {
+
+        private Api29Impl() {}
+
+        @DoNotInline
+        static void removeVerticalAccuracy(Location location) {
+            if (!location.hasVerticalAccuracy()) {
+                return;
+            }
+
+            // reflection of non-SDK APIs doesn't work on P+, fallback to resetting the location
+            double elapsedRealtimeUncertaintyNs = location.getElapsedRealtimeUncertaintyNanos();
+            Api28Impl.removeVerticalAccuracy(location);
+            location.setElapsedRealtimeUncertaintyNanos(elapsedRealtimeUncertaintyNs);
+        }
+
+        @DoNotInline
+        static void removeSpeedAccuracy(Location location) {
+            if (!location.hasSpeedAccuracy()) {
+                return;
+            }
+
+            // reflection of non-SDK APIs doesn't work on P+, fallback to resetting the location
+            double elapsedRealtimeUncertaintyNs = location.getElapsedRealtimeUncertaintyNanos();
+            Api28Impl.removeSpeedAccuracy(location);
+            location.setElapsedRealtimeUncertaintyNanos(elapsedRealtimeUncertaintyNs);
+        }
+
+        @DoNotInline
+        static void removeBearingAccuracy(Location location) {
+            if (!location.hasBearingAccuracy()) {
+                return;
+            }
+
+            // reflection of non-SDK APIs doesn't work on P+, fallback to resetting the location
+            double elapsedRealtimeUncertaintyNs = location.getElapsedRealtimeUncertaintyNanos();
+            Api28Impl.removeBearingAccuracy(location);
+            location.setElapsedRealtimeUncertaintyNanos(elapsedRealtimeUncertaintyNs);
+        }
+    }
+
+    @RequiresApi(28)
+    private static class Api28Impl {
+
+        private Api28Impl() {}
+
+        @DoNotInline
+        static void removeVerticalAccuracy(Location location) {
+            if (!location.hasVerticalAccuracy()) {
+                return;
+            }
+
+            // reflection of non-SDK APIs doesn't work on P+, fallback to resetting the location
+            // (which unfortunately means a new Bundle will be created)
+
+            String provider = location.getProvider();
+            long time = location.getTime();
+            long elapsedRealtimeNs = location.getElapsedRealtimeNanos();
+            double latitude = location.getLatitude();
+            double longitude = location.getLongitude();
+            boolean hasAltitude = location.hasAltitude();
+            double altitude = location.getAltitude();
+            boolean hasSpeed = location.hasSpeed();
+            float speed = location.getSpeed();
+            boolean hasBearing = location.hasBearing();
+            float bearing = location.getBearing();
+            boolean hasAccuracy = location.hasAccuracy();
+            float accuracy = location.getAccuracy();
+            boolean hasSpeedAccuracy = location.hasSpeedAccuracy();
+            float speedAccuracy = location.getSpeedAccuracyMetersPerSecond();
+            boolean hasBearingAccuracy = location.hasBearingAccuracy();
+            float bearingAccuracy = location.getBearingAccuracyDegrees();
+            Bundle extras = location.getExtras();
+
+            location.reset();
+            location.setProvider(provider);
+            location.setTime(time);
+            location.setElapsedRealtimeNanos(elapsedRealtimeNs);
+            location.setLatitude(latitude);
+            location.setLongitude(longitude);
+            if (hasAltitude) {
+                location.setAltitude(altitude);
+            }
+            if (hasSpeed) {
+                location.setSpeed(speed);
+            }
+            if (hasBearing) {
+                location.setBearing(bearing);
+            }
+            if (hasAccuracy) {
+                location.setAccuracy(accuracy);
+            }
+            if (hasSpeedAccuracy) {
+                location.setSpeedAccuracyMetersPerSecond(speedAccuracy);
+            }
+            if (hasBearingAccuracy) {
+                location.setBearingAccuracyDegrees(bearingAccuracy);
+            }
+            if (extras != null) {
+                location.setExtras(extras);
+            }
+        }
+
+        @DoNotInline
+        static void removeSpeedAccuracy(Location location) {
+            if (!location.hasSpeedAccuracy()) {
+                return;
+            }
+
+            // reflection of non-SDK APIs doesn't work on P+, fallback to resetting the location
+            // (which unfortunately means a new Bundle will be created)
+
+            String provider = location.getProvider();
+            long time = location.getTime();
+            long elapsedRealtimeNs = location.getElapsedRealtimeNanos();
+            double latitude = location.getLatitude();
+            double longitude = location.getLongitude();
+            boolean hasAltitude = location.hasAltitude();
+            double altitude = location.getAltitude();
+            boolean hasSpeed = location.hasSpeed();
+            float speed = location.getSpeed();
+            boolean hasBearing = location.hasBearing();
+            float bearing = location.getBearing();
+            boolean hasAccuracy = location.hasAccuracy();
+            float accuracy = location.getAccuracy();
+            boolean hasVerticalAccuracy = location.hasVerticalAccuracy();
+            float verticalAccuracy = location.getVerticalAccuracyMeters();
+            boolean hasBearingAccuracy = location.hasBearingAccuracy();
+            float bearingAccuracy = location.getBearingAccuracyDegrees();
+            Bundle extras = location.getExtras();
+
+            location.reset();
+            location.setProvider(provider);
+            location.setTime(time);
+            location.setElapsedRealtimeNanos(elapsedRealtimeNs);
+            location.setLatitude(latitude);
+            location.setLongitude(longitude);
+            if (hasAltitude) {
+                location.setAltitude(altitude);
+            }
+            if (hasSpeed) {
+                location.setSpeed(speed);
+            }
+            if (hasBearing) {
+                location.setBearing(bearing);
+            }
+            if (hasAccuracy) {
+                location.setAccuracy(accuracy);
+            }
+            if (hasVerticalAccuracy) {
+                location.setVerticalAccuracyMeters(verticalAccuracy);
+            }
+            if (hasBearingAccuracy) {
+                location.setBearingAccuracyDegrees(bearingAccuracy);
+            }
+            if (extras != null) {
+                location.setExtras(extras);
+            }
+        }
+
+        @DoNotInline
+        static void removeBearingAccuracy(Location location) {
+            if (!location.hasBearingAccuracy()) {
+                return;
+            }
+
+            // reflection of non-SDK APIs doesn't work on P+, fallback to resetting the location
+            // (which unfortunately means a new Bundle will be created)
+
+            String provider = location.getProvider();
+            long time = location.getTime();
+            long elapsedRealtimeNs = location.getElapsedRealtimeNanos();
+            double latitude = location.getLatitude();
+            double longitude = location.getLongitude();
+            boolean hasAltitude = location.hasAltitude();
+            double altitude = location.getAltitude();
+            boolean hasSpeed = location.hasSpeed();
+            float speed = location.getSpeed();
+            boolean hasBearing = location.hasBearing();
+            float bearing = location.getBearing();
+            boolean hasAccuracy = location.hasAccuracy();
+            float accuracy = location.getAccuracy();
+            boolean hasVerticalAccuracy = location.hasVerticalAccuracy();
+            float verticalAccuracy = location.getVerticalAccuracyMeters();
+            boolean hasSpeedAccuracy = location.hasSpeedAccuracy();
+            float speedAccuracy = location.getSpeedAccuracyMetersPerSecond();
+            Bundle extras = location.getExtras();
+
+            location.reset();
+            location.setProvider(provider);
+            location.setTime(time);
+            location.setElapsedRealtimeNanos(elapsedRealtimeNs);
+            location.setLatitude(latitude);
+            location.setLongitude(longitude);
+            if (hasAltitude) {
+                location.setAltitude(altitude);
+            }
+            if (hasSpeed) {
+                location.setSpeed(speed);
+            }
+            if (hasBearing) {
+                location.setBearing(bearing);
+            }
+            if (hasAccuracy) {
+                location.setAccuracy(accuracy);
+            }
+            if (hasVerticalAccuracy) {
+                location.setVerticalAccuracyMeters(verticalAccuracy);
+            }
+            if (hasSpeedAccuracy) {
+                location.setBearingAccuracyDegrees(speedAccuracy);
+            }
+            if (extras != null) {
+                location.setExtras(extras);
+            }
+        }
+    }
+
     @RequiresApi(26)
     private static class Api26Impl {
 
@@ -582,6 +883,19 @@ public final class LocationCompat {
         }
 
         @DoNotInline
+        static void removeVerticalAccuracy(Location location) {
+            try {
+                byte fieldsMask = getFieldsMaskField().getByte(location);
+                fieldsMask = (byte) (fieldsMask & ~getHasVerticalAccuracyMask());
+                getFieldsMaskField().setByte(location, fieldsMask);
+            } catch (NoSuchFieldException | IllegalAccessException e) {
+                Error error = new IllegalAccessError();
+                error.initCause(e);
+                throw error;
+            }
+        }
+
+        @DoNotInline
         static boolean hasSpeedAccuracy(Location location) {
             return location.hasSpeedAccuracy();
         }
@@ -597,6 +911,23 @@ public final class LocationCompat {
         }
 
         @DoNotInline
+        static void removeSpeedAccuracy(Location location) {
+            try {
+                byte fieldsMask = getFieldsMaskField().getByte(location);
+                fieldsMask = (byte) (fieldsMask & ~getHasSpeedAccuracyMask());
+                getFieldsMaskField().setByte(location, fieldsMask);
+            } catch (NoSuchFieldException e) {
+                Error error = new NoSuchFieldError();
+                error.initCause(e);
+                throw error;
+            } catch (IllegalAccessException e) {
+                Error error = new IllegalAccessError();
+                error.initCause(e);
+                throw error;
+            }
+        }
+
+        @DoNotInline
         static boolean hasBearingAccuracy(Location location) {
             return location.hasBearingAccuracy();
         }
@@ -609,6 +940,23 @@ public final class LocationCompat {
         @DoNotInline
         static void setBearingAccuracyDegrees(Location location, float bearingAccuracyD) {
             location.setBearingAccuracyDegrees(bearingAccuracyD);
+        }
+
+        @DoNotInline
+        static void removeBearingAccuracy(Location location) {
+            try {
+                byte fieldsMask = getFieldsMaskField().getByte(location);
+                fieldsMask = (byte) (fieldsMask & ~getHasBearingAccuracyMask());
+                getFieldsMaskField().setByte(location, fieldsMask);
+            } catch (NoSuchFieldException e) {
+                Error error = new NoSuchFieldError();
+                error.initCause(e);
+                throw error;
+            } catch (IllegalAccessException e) {
+                Error error = new IllegalAccessError();
+                error.initCause(e);
+                throw error;
+            }
         }
     }
 
@@ -644,6 +992,55 @@ public final class LocationCompat {
         }
 
         return sSetIsFromMockProviderMethod;
+    }
+
+    @SuppressLint("BlockedPrivateApi")
+    static Field getFieldsMaskField() throws NoSuchFieldException {
+        if (sFieldsMaskField == null) {
+            sFieldsMaskField = Location.class.getDeclaredField("mFieldsMask");
+            sFieldsMaskField.setAccessible(true);
+        }
+
+        return sFieldsMaskField;
+    }
+
+    @SuppressLint("SoonBlockedPrivateApi")
+    static int getHasSpeedAccuracyMask() throws NoSuchFieldException,
+            IllegalAccessException {
+        if (sHasSpeedAccuracyMask == null) {
+            Field hasSpeedAccuracyMaskField = Location.class.getDeclaredField(
+                    "HAS_SPEED_ACCURACY_MASK");
+            hasSpeedAccuracyMaskField.setAccessible(true);
+            sHasSpeedAccuracyMask = hasSpeedAccuracyMaskField.getInt(null);
+        }
+
+        return sHasSpeedAccuracyMask;
+    }
+
+    @SuppressLint("SoonBlockedPrivateApi")
+    static int getHasBearingAccuracyMask()
+            throws NoSuchFieldException, IllegalAccessException {
+        if (sHasBearingAccuracyMask == null) {
+            Field hasBearingAccuracyMaskField = Location.class.getDeclaredField(
+                    "HAS_BEARING_ACCURACY_MASK");
+            hasBearingAccuracyMaskField.setAccessible(true);
+            sHasBearingAccuracyMask = hasBearingAccuracyMaskField.getInt(null);
+        }
+
+        return sHasBearingAccuracyMask;
+    }
+
+    @SuppressLint("SoonBlockedPrivateApi")
+    static int getHasVerticalAccuracyMask()
+            throws NoSuchFieldException, IllegalAccessException {
+        if (sHasVerticalAccuracyMask == null) {
+            Field hasVerticalAccuracyMaskField = Location.class.getDeclaredField(
+                    "HAS_VERTICAL_ACCURACY_MASK");
+            hasVerticalAccuracyMaskField.setAccessible(true);
+            sHasVerticalAccuracyMask = hasVerticalAccuracyMaskField.getInt(null);
+        }
+
+        return sHasVerticalAccuracyMask;
     }
 
     private static Bundle getOrCreateExtras(@NonNull Location location) {
