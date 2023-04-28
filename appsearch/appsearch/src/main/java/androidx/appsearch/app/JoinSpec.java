@@ -99,7 +99,7 @@ public final class JoinSpec {
      * <p> For instance, if a document with an id of "id1" exists in the namespace "ns" within
      * the database "db" created by package "pkg", this would evaluate to "pkg$db/ns#id1".
      *
-     * @exportToFramework:hide
+     * <!--@exportToFramework:hide-->
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final String QUALIFIED_ID = "this.qualifiedId()";
