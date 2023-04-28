@@ -59,7 +59,10 @@ class TestUwbManager : UwbManager {
                 uwbClient, RangingCapabilities(
                     rangingCapabilities.supportsDistance(),
                     rangingCapabilities.supportsAzimuthalAngle(),
-                    rangingCapabilities.supportsElevationAngle()
+                    rangingCapabilities.supportsElevationAngle(),
+                    rangingCapabilities.getMinRangingInterval(),
+                    rangingCapabilities.getSupportedChannels().toSet(),
+                    rangingCapabilities.getSupportedConfigIds().toSet()
                 ),
                 UwbAddress(localAddress.address),
                 androidx.core.uwb.UwbComplexChannel(
@@ -71,7 +74,10 @@ class TestUwbManager : UwbManager {
                 uwbClient, RangingCapabilities(
                     rangingCapabilities.supportsDistance(),
                     rangingCapabilities.supportsAzimuthalAngle(),
-                    rangingCapabilities.supportsElevationAngle()
+                    rangingCapabilities.supportsElevationAngle(),
+                    rangingCapabilities.getMinRangingInterval(),
+                    rangingCapabilities.getSupportedChannels().toSet(),
+                    rangingCapabilities.getSupportedConfigIds().toSet()
                 ),
                 UwbAddress(localAddress.address)
             )

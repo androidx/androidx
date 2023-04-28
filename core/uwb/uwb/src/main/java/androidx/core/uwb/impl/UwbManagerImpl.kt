@@ -90,7 +90,10 @@ internal class UwbManagerImpl(private val context: Context) : UwbManager {
             val rangingCapabilities = RangingCapabilities(
                 nearbyRangingCapabilities.supportsDistance(),
                 nearbyRangingCapabilities.supportsAzimuthalAngle(),
-                nearbyRangingCapabilities.supportsElevationAngle())
+                nearbyRangingCapabilities.supportsElevationAngle(),
+                nearbyRangingCapabilities.getMinRangingInterval(),
+                nearbyRangingCapabilities.getSupportedChannels().toSet(),
+                nearbyRangingCapabilities.getSupportedConfigIds().toSet())
             return if (isController) {
                 val uwbComplexChannel = uwbClient.complexChannel.await()
                 UwbControllerSessionScopeImpl(
@@ -128,7 +131,10 @@ internal class UwbManagerImpl(private val context: Context) : UwbManager {
                 RangingCapabilities(
                     it.supportsDistance,
                     it.supportsAzimuthalAngle,
-                    it.supportsElevationAngle)
+                    it.supportsElevationAngle,
+                    it.minRangingInterval,
+                    it.supportedChannels.toSet(),
+                    it.supportedConfigIds.toSet())
             }
             return if (isController) {
                 val uwbComplexChannel = uwbClient.complexChannel

@@ -21,9 +21,15 @@ package androidx.core.uwb
  * @property isDistanceSupported - Whether distance ranging is supported
  * @property isAzimuthalAngleSupported - Whether azimuthal angle of arrival is supported
  * @property isElevationAngleSupported - Whether elevation angle of arrival is supported
+ * @property minRangingInterval - Minimum ranging interval
+ * @property supportedChannels - Array of supported channels
+ * @property supportedConfigIds - Array of supported config ids
  **/
 class RangingCapabilities(
     val isDistanceSupported: Boolean,
     val isAzimuthalAngleSupported: Boolean,
-    val isElevationAngleSupported: Boolean
+    val isElevationAngleSupported: Boolean,
+    val minRangingInterval: Int,
+    val supportedChannels: Set<Int>,
+    val supportedConfigIds: Set<Int>
 )
