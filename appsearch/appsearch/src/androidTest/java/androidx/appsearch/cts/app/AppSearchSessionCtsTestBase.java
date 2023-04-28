@@ -517,7 +517,6 @@ public abstract class AppSearchSessionCtsTestBase {
 
     @Test
     public void testGetSchema_longPropertyIndexingTypeNone_succeeds() throws Exception {
-        assumeFalse(mDb1.getFeatures().isFeatureSupported(Features.NUMERIC_SEARCH));
         AppSearchSchema inSchema = new AppSearchSchema.Builder("Test")
                 .addProperty(new LongPropertyConfig.Builder("long")
                         .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
@@ -548,8 +547,10 @@ public abstract class AppSearchSessionCtsTestBase {
         SetSchemaRequest request = new SetSchemaRequest.Builder()
                 .addSchemas(inSchema).build();
 
-        assertThrows(UnsupportedOperationException.class, () ->
+        UnsupportedOperationException e = assertThrows(UnsupportedOperationException.class, () ->
                 mDb1.setSchemaAsync(request).get());
+        assertThat(e.getMessage()).isEqualTo("LongProperty.INDEXING_TYPE_RANGE is not "
+                + "supported on this AppSearch implementation.");
     }
 
     @Test
@@ -581,7 +582,6 @@ public abstract class AppSearchSessionCtsTestBase {
 
     @Test
     public void testGetSchema_joinableValueTypeNone_succeeds() throws Exception {
-        assumeFalse(mDb1.getFeatures().isFeatureSupported(Features.JOIN_SPEC_AND_QUALIFIED_ID));
         AppSearchSchema inSchema = new AppSearchSchema.Builder("Test")
                 .addProperty(new StringPropertyConfig.Builder("optionalString")
                         .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
@@ -620,8 +620,11 @@ public abstract class AppSearchSessionCtsTestBase {
         SetSchemaRequest request = new SetSchemaRequest.Builder()
                 .addSchemas(inSchema).build();
 
-        assertThrows(UnsupportedOperationException.class, () ->
+        UnsupportedOperationException e = assertThrows(UnsupportedOperationException.class, () ->
                 mDb1.setSchemaAsync(request).get());
+        assertThat(e.getMessage()).isEqualTo(
+                "StringPropertyConfig.JOINABLE_VALUE_TYPE_QUALIFIED_ID is not supported on this "
+                        + "AppSearch implementation.");
     }
 
     @Test
