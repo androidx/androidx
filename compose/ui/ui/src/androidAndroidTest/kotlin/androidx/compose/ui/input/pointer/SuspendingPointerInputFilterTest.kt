@@ -492,8 +492,7 @@ class SuspendingPointerInputFilterTest {
         rule.setContent {
             val pointerInputHandler: suspend PointerInputScope.() -> Unit = {}
             val modifier =
-                Modifier.pointerInput(Unit, pointerInputHandler)
-                    as SuspendPointerInputModifierNodeElement
+                Modifier.pointerInput(Unit, pointerInputHandler) as SuspendPointerInputElement
 
             assertThat(modifier.nameFallback).isEqualTo("pointerInput")
             assertThat(modifier.valueOverride).isNull()
@@ -716,6 +715,7 @@ class SuspendingPointerInputFilterTest {
             }
         }
         val node = object : DelegatingNode() {
+            @Suppress("unused")
             val pointer = delegate(suspendingPointerInputModifierNode)
         }
 
@@ -744,12 +744,14 @@ class SuspendingPointerInputFilterTest {
         val tag = "input rect"
 
         val node = object : DelegatingNode() {
+            @Suppress("unused")
             val piNode1 = delegate(SuspendingPointerInputModifierNode {
                 awaitPointerEventScope {
                     events += awaitPointerEvent()
                 }
             })
 
+            @Suppress("unused")
             val piNode2 = delegate(SuspendingPointerInputModifierNode {
                 awaitPointerEventScope {
                     events += awaitPointerEvent()
@@ -833,7 +835,7 @@ private fun elementFor(
     override fun update(node: Modifier.Node) {}
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (other !is SuspendPointerInputModifierNodeElement) return false
+        if (other !is SuspendPointerInputElement) return false
         if (key1 != other.key1) return false
         return true
     }

@@ -69,7 +69,7 @@ import androidx.compose.ui.node.MeasureAndLayoutDelegate
 import androidx.compose.ui.node.Owner
 import androidx.compose.ui.node.OwnerSnapshotObserver
 import androidx.compose.ui.node.RootForTest
-import androidx.compose.ui.semantics.EmptySemanticsModifierNodeElement
+import androidx.compose.ui.semantics.EmptySemanticsElement
 import androidx.compose.ui.semantics.SemanticsOwner
 import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.input.PlatformTextInputPluginRegistry
@@ -123,7 +123,7 @@ internal class SkiaBasedOwner(
 
     override val sharedDrawScope = LayoutNodeDrawScope()
 
-    private val semanticsModifier = EmptySemanticsModifierNodeElement
+    private val semanticsModifier = EmptySemanticsElement
 
     override val focusOwner: FocusOwner = FocusOwnerImpl {
         registerOnEndApplyChangesListener(it)

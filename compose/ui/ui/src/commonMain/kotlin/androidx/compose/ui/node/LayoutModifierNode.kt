@@ -148,7 +148,7 @@ fun LayoutModifierNode.invalidateLayer() =
 fun LayoutModifierNode.invalidatePlacement() = requireLayoutNode().requestRelayout()
 
 /**
- * This invalidates the current node's measure result, and ensures that a remeasurement
+ * This invalidates the current node's measure result, and ensures that a re-measurement
  * (the measurement block rerun) of this node will happen for the next frame.
  */
 fun LayoutModifierNode.invalidateMeasurement() = requireLayoutNode().invalidateMeasurements()
@@ -163,7 +163,7 @@ internal object NodeMeasuringIntrinsics {
 
     internal fun minWidth(
         measureBlock: MeasureBlock,
-        instrinsicMeasureScope: IntrinsicMeasureScope,
+        intrinsicMeasureScope: IntrinsicMeasureScope,
         intrinsicMeasurable: IntrinsicMeasurable,
         h: Int
     ): Int {
@@ -176,8 +176,8 @@ internal object NodeMeasuringIntrinsics {
         val layoutResult =
             with(measureBlock) {
                 IntrinsicsMeasureScope(
-                    instrinsicMeasureScope,
-                    instrinsicMeasureScope.layoutDirection
+                    intrinsicMeasureScope,
+                    intrinsicMeasureScope.layoutDirection
                 ).measure(measurable, constraints)
             }
 
@@ -186,7 +186,7 @@ internal object NodeMeasuringIntrinsics {
 
     internal fun minHeight(
         measureBlock: MeasureBlock,
-        instrinsicMeasureScope: IntrinsicMeasureScope,
+        intrinsicMeasureScope: IntrinsicMeasureScope,
         intrinsicMeasurable: IntrinsicMeasurable,
         w: Int
     ): Int {
@@ -197,7 +197,7 @@ internal object NodeMeasuringIntrinsics {
         )
         val constraints = Constraints(maxWidth = w)
         val layoutResult = with(measureBlock) {
-            IntrinsicsMeasureScope(instrinsicMeasureScope, instrinsicMeasureScope.layoutDirection)
+            IntrinsicsMeasureScope(intrinsicMeasureScope, intrinsicMeasureScope.layoutDirection)
                 .measure(measurable, constraints)
         }
         return layoutResult.height
@@ -205,7 +205,7 @@ internal object NodeMeasuringIntrinsics {
 
     internal fun maxWidth(
         measureBlock: MeasureBlock,
-        instrinsicMeasureScope: IntrinsicMeasureScope,
+        intrinsicMeasureScope: IntrinsicMeasureScope,
         intrinsicMeasurable: IntrinsicMeasurable,
         h: Int
     ): Int {
@@ -216,7 +216,7 @@ internal object NodeMeasuringIntrinsics {
         )
         val constraints = Constraints(maxHeight = h)
         val layoutResult = with(measureBlock) {
-            IntrinsicsMeasureScope(instrinsicMeasureScope, instrinsicMeasureScope.layoutDirection)
+            IntrinsicsMeasureScope(intrinsicMeasureScope, intrinsicMeasureScope.layoutDirection)
                 .measure(measurable, constraints)
         }
         return layoutResult.width
@@ -224,7 +224,7 @@ internal object NodeMeasuringIntrinsics {
 
     internal fun maxHeight(
         measureBlock: MeasureBlock,
-        instrinsicMeasureScope: IntrinsicMeasureScope,
+        intrinsicMeasureScope: IntrinsicMeasureScope,
         intrinsicMeasurable: IntrinsicMeasurable,
         w: Int
     ): Int {
@@ -235,7 +235,7 @@ internal object NodeMeasuringIntrinsics {
         )
         val constraints = Constraints(maxWidth = w)
         val layoutResult = with(measureBlock) {
-            IntrinsicsMeasureScope(instrinsicMeasureScope, instrinsicMeasureScope.layoutDirection)
+            IntrinsicsMeasureScope(intrinsicMeasureScope, intrinsicMeasureScope.layoutDirection)
                 .measure(measurable, constraints)
         }
         return layoutResult.height

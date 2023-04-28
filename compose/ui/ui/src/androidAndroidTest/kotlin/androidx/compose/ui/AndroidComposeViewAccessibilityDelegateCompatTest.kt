@@ -39,7 +39,7 @@ import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.SemanticsNodeWithAdjustedBounds
 import androidx.compose.ui.platform.getAllUncoveredSemanticsNodesToMap
 import androidx.compose.ui.semantics.CustomAccessibilityAction
-import androidx.compose.ui.semantics.EmptySemanticsModifierNodeElement
+import androidx.compose.ui.semantics.EmptySemanticsElement
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.semantics.Role
@@ -709,7 +709,7 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
     @FlakyTest(bugId = 195287742)
     fun sendScrollEvent_byStateObservation() {
         var scrollValue by mutableStateOf(0f, structuralEqualityPolicy())
-        var scrollMaxValue by mutableStateOf(100f, structuralEqualityPolicy())
+        val scrollMaxValue = 100f
 
         val semanticsNode = createSemanticsNodeWithProperties(1, false) {
             verticalScrollAxisRange = ScrollAxisRange({ scrollValue }, { scrollMaxValue })
@@ -956,12 +956,11 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
         )
     }
 
-    @OptIn(ExperimentalComposeUiApi::class)
     @Test
     fun testUncoveredNodes_notPlacedNodes_notIncluded() {
         val nodes = SemanticsOwner(
             LayoutNode().also {
-                it.modifier = EmptySemanticsModifierNodeElement
+                it.modifier = EmptySemanticsElement
             }
         ).getAllUncoveredSemanticsNodesToMap()
         assertEquals(0, nodes.size)
@@ -1594,7 +1593,6 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
         accessibilityDelegate.sendSemanticsPropertyChangeEvents(mapOf(nodeId to newTextNode))
     }
 
-    @OptIn(ExperimentalComposeUiApi::class)
     private fun createSemanticsNodeWithProperties(
         id: Int,
         mergeDescendants: Boolean,

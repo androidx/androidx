@@ -16,7 +16,6 @@
 
 package androidx.compose.ui.node
 
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.InspectableValue
 import androidx.compose.ui.platform.ValueElement
@@ -25,14 +24,13 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-@OptIn(ExperimentalComposeUiApi::class)
 @RunWith(JUnit4::class)
 class ModifierNodeElementTest {
 
     @Test
     fun testDefaultInspectableProperties() {
         @Suppress("unused", "UNUSED_PARAMETER")
-        class AModifierElement(
+        class AElement(
             val string: String,
             val int: Int,
             val map: Map<String, Any>,
@@ -46,7 +44,7 @@ class ModifierNodeElementTest {
             override fun equals(other: Any?) = (this === other)
         }
 
-        val modifier = AModifierElement(
+        val modifier = AElement(
             string = "parameter 1",
             int = 12345,
             map = mapOf("key" to "value"),
@@ -57,7 +55,7 @@ class ModifierNodeElementTest {
 
         assertEquals(
             "The modifier's inspectable value was not automatically populated as expected",
-            expectedName = "AModifierElement",
+            expectedName = "AElement",
             expectedValue = null,
             expectedProperties = listOf(
                 ValueElement("classProperty", 42),

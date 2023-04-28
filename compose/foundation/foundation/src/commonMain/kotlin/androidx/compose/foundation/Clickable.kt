@@ -36,7 +36,7 @@ import androidx.compose.ui.input.pointer.PointerEvent
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.PointerInputScope
 import androidx.compose.ui.input.pointer.SuspendingPointerInputModifierNode
-import androidx.compose.ui.modifier.ModifierLocalNode
+import androidx.compose.ui.modifier.ModifierLocalModifierNode
 import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
 import androidx.compose.ui.node.DelegatingNode
 import androidx.compose.ui.node.ModifierNodeElement
@@ -839,7 +839,7 @@ private sealed class AbstractClickablePointerInputNode(
     protected var interactionSource: MutableInteractionSource?,
     protected var onClick: () -> Unit,
     protected val interactionData: AbstractClickableNode.InteractionData
-) : DelegatingNode(), ModifierLocalNode, CompositionLocalConsumerModifierNode,
+) : DelegatingNode(), ModifierLocalModifierNode, CompositionLocalConsumerModifierNode,
     PointerInputModifierNode {
 
     private val delayPressInteraction = {

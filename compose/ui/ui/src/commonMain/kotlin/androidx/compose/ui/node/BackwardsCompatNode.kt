@@ -53,7 +53,7 @@ import androidx.compose.ui.modifier.BackwardsCompatLocalMap
 import androidx.compose.ui.modifier.ModifierLocal
 import androidx.compose.ui.modifier.ModifierLocalConsumer
 import androidx.compose.ui.modifier.ModifierLocalMap
-import androidx.compose.ui.modifier.ModifierLocalNode
+import androidx.compose.ui.modifier.ModifierLocalModifierNode
 import androidx.compose.ui.modifier.ModifierLocalProvider
 import androidx.compose.ui.modifier.ModifierLocalReadScope
 import androidx.compose.ui.modifier.modifierLocalMapOf
@@ -78,7 +78,7 @@ internal class BackwardsCompatNode(element: Modifier.Element) :
     DrawModifierNode,
     SemanticsModifierNode,
     PointerInputModifierNode,
-    ModifierLocalNode,
+    ModifierLocalModifierNode,
     ModifierLocalReadScope,
     ParentDataModifierNode,
     LayoutAwareModifierNode,
@@ -371,7 +371,6 @@ internal class BackwardsCompatNode(element: Modifier.Element) :
         }
     }
 
-    @OptIn(ExperimentalComposeUiApi::class)
     override fun sharePointerInputWithSiblings(): Boolean {
         return with(element as PointerInputModifier) {
             pointerInputFilter.shareWithSiblings

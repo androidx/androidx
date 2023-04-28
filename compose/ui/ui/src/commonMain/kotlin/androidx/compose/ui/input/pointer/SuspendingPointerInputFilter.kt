@@ -17,7 +17,6 @@
 package androidx.compose.ui.input.pointer
 
 import androidx.compose.runtime.collection.mutableVectorOf
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.fastMapNotNull
 import androidx.compose.ui.geometry.Size
@@ -53,7 +52,7 @@ import kotlinx.coroutines.Job
  * Receiver scope for awaiting pointer events in a call to
  * [PointerInputScope.awaitPointerEventScope].
  *
- * This is a restricted suspension scope. Code in this scope is always called undispatched and
+ * This is a restricted suspension scope. Code in this scope is always called un-dispatched and
  * may only suspend for calls to [awaitPointerEvent]. These functions
  * resume synchronously and the caller may mutate the result **before** the next await call to
  * affect the next stage of the input processing pipeline.
@@ -176,6 +175,7 @@ interface PointerInputScope : Density {
     ): R
 }
 
+@Suppress("ConstPropertyName")
 private const val PointerInputModifierNoParamError =
     "Modifier.pointerInput must provide one or more 'key' parameters that define the identity of " +
         "the modifier and determine when its previous input processing coroutine should be " +
@@ -189,9 +189,8 @@ private const val PointerInputModifierNoParamError =
 // This deprecated-error function shadows the varargs overload so that the varargs version
 // is not used without key parameters.
 @Suppress(
-    "DeprecatedCallableAddReplaceWith",
     "UNUSED_PARAMETER",
-    "unused",
+    "UnusedReceiverParameter",
     "ModifierFactoryUnreferencedReceiver"
 )
 @Deprecated(PointerInputModifierNoParamError, level = DeprecationLevel.ERROR)
@@ -227,7 +226,7 @@ fun Modifier.pointerInput(
 fun Modifier.pointerInput(
     key1: Any?,
     block: suspend PointerInputScope.() -> Unit
-): Modifier = this then SuspendPointerInputModifierNodeElement(
+): Modifier = this then SuspendPointerInputElement(
     key1 = key1,
     pointerInputHandler = block
 )
@@ -262,7 +261,7 @@ fun Modifier.pointerInput(
     key1: Any?,
     key2: Any?,
     block: suspend PointerInputScope.() -> Unit
-): Modifier = this then SuspendPointerInputModifierNodeElement(
+): Modifier = this then SuspendPointerInputElement(
     key1 = key1,
     key2 = key2,
     pointerInputHandler = block
@@ -296,12 +295,12 @@ fun Modifier.pointerInput(
 fun Modifier.pointerInput(
     vararg keys: Any?,
     block: suspend PointerInputScope.() -> Unit
-): Modifier = this then SuspendPointerInputModifierNodeElement(
+): Modifier = this then SuspendPointerInputElement(
     keys = keys,
     pointerInputHandler = block
 )
 
-internal class SuspendPointerInputModifierNodeElement(
+internal class SuspendPointerInputElement(
     val key1: Any? = null,
     val key2: Any? = null,
     val keys: Array<out Any?>? = null,
@@ -325,7 +324,7 @@ internal class SuspendPointerInputModifierNodeElement(
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (other !is SuspendPointerInputModifierNodeElement) return false
+        if (other !is SuspendPointerInputElement) return false
 
         if (key1 != other.key1) return false
         if (key2 != other.key2) return false
@@ -397,7 +396,6 @@ sealed interface SuspendingPointerInputModifierNode : PointerInputModifierNode {
  * Note: The coroutine that executes the passed pointer event handler is launched lazily when the
  * first event is fired (making it more efficient) and is cancelled via resetPointerInputHandler().
  */
-@OptIn(ExperimentalComposeUiApi::class)
 internal class SuspendingPointerInputModifierNodeImpl(
     pointerInputHandler: suspend PointerInputScope.() -> Unit
 ) : Modifier.Node(),
@@ -625,7 +623,7 @@ internal class SuspendingPointerInputModifierNodeImpl(
             // We also create the coroutine with both a receiver and a completion continuation
             // of the handlerCoroutine itself; we don't use our currently available suspended
             // continuation as the resume point because handlerCoroutine needs to remove the
-            // ContinuationInterceptor from the supplied CoroutineContext to have undispatched
+            // ContinuationInterceptor from the supplied CoroutineContext to have un-dispatched
             // behavior in our restricted suspension scope. This is required so that we can
             // process event-awaits synchronously and affect the next stage in the pipeline
             // without running too late due to dispatch.
@@ -643,7 +641,7 @@ internal class SuspendingPointerInputModifierNodeImpl(
      *
      * [PointerEventHandlerCoroutine] implements [AwaitPointerEventScope] to provide the
      * input handler DSL, and [Continuation] so that it can wrap [completion] and remove the
-     * [ContinuationInterceptor] from the calling context and run undispatched.
+     * [ContinuationInterceptor] from the calling context and run un-dispatched.
      */
     private inner class PointerEventHandlerCoroutine<R>(
         private val completion: Continuation<R>,

@@ -91,7 +91,6 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
-@OptIn(ExperimentalComposeUiApi::class)
 class LayoutNodeTest {
     // Ensure that attach and detach work properly
     @Test
@@ -1384,22 +1383,22 @@ class LayoutNodeTest {
     @Test
     fun hitTestSemantics_pointerInMinimumTouchTarget_closestHit() {
         val semanticsConfiguration = SemanticsConfiguration()
-        val semanticsModifier1 = object : SemanticsModifierNode, Modifier.Node() {
+        val semanticsNode1 = object : SemanticsModifierNode, Modifier.Node() {
             override val semanticsConfiguration: SemanticsConfiguration = semanticsConfiguration
         }
-        val semanticsModifier2 = object : SemanticsModifierNode, Modifier.Node() {
+        val semanticsNode2 = object : SemanticsModifierNode, Modifier.Node() {
             override val semanticsConfiguration: SemanticsConfiguration = semanticsConfiguration
         }
-        data class TestSemanticsModifierElement(
+        data class TestSemanticsElement(
             private val node: Modifier.Node
         ) : ModifierNodeElement<Modifier.Node>() {
             override fun create() = node
             override fun update(node: Modifier.Node) {}
         }
-        val semanticsModifierElement1 = TestSemanticsModifierElement(semanticsModifier1)
-        val semanticsModifierElement2 = TestSemanticsModifierElement(semanticsModifier2)
-        val layoutNode1 = LayoutNode(0, 0, 5, 5, semanticsModifierElement1, DpSize(48.dp, 48.dp))
-        val layoutNode2 = LayoutNode(6, 6, 11, 11, semanticsModifierElement2, DpSize(48.dp, 48.dp))
+        val semanticsElement1 = TestSemanticsElement(semanticsNode1)
+        val semanticsElement2 = TestSemanticsElement(semanticsNode2)
+        val layoutNode1 = LayoutNode(0, 0, 5, 5, semanticsElement1, DpSize(48.dp, 48.dp))
+        val layoutNode2 = LayoutNode(6, 6, 11, 11, semanticsElement2, DpSize(48.dp, 48.dp))
         val outerNode = LayoutNode(0, 0, 11, 11).apply { attach(MockOwner()) }
         outerNode.add(layoutNode1)
         outerNode.add(layoutNode2)
@@ -1411,42 +1410,42 @@ class LayoutNodeTest {
         outerNode.hitTestSemantics(Offset(5.1f, 5.5f), hit1, true)
 
         assertThat(hit1).hasSize(1)
-        assertThat(hit1[0]).isEqualTo(semanticsModifier1)
+        assertThat(hit1[0]).isEqualTo(semanticsNode1)
 
         // Hit closer to layoutNode2
         val hit2 = HitTestResult()
         outerNode.hitTestSemantics(Offset(5.9f, 5.5f), hit2, true)
 
         assertThat(hit2).hasSize(1)
-        assertThat(hit2[0]).isEqualTo(semanticsModifier2)
+        assertThat(hit2[0]).isEqualTo(semanticsNode2)
 
         // Hit closer to layoutNode1
         val hit3 = HitTestResult()
         outerNode.hitTestSemantics(Offset(5.5f, 5.1f), hit3, true)
 
         assertThat(hit3).hasSize(1)
-        assertThat(hit3[0]).isEqualTo(semanticsModifier1)
+        assertThat(hit3[0]).isEqualTo(semanticsNode1)
 
         // Hit closer to layoutNode2
         val hit4 = HitTestResult()
         outerNode.hitTestSemantics(Offset(5.5f, 5.9f), hit4, true)
 
         assertThat(hit4).hasSize(1)
-        assertThat(hit4[0]).isEqualTo(semanticsModifier2)
+        assertThat(hit4[0]).isEqualTo(semanticsNode2)
 
         // Hit inside layoutNode1
         val hit5 = HitTestResult()
         outerNode.hitTestSemantics(Offset(4.9f, 4.9f), hit5, true)
 
         assertThat(hit5).hasSize(1)
-        assertThat(hit5[0]).isEqualTo(semanticsModifier1)
+        assertThat(hit5[0]).isEqualTo(semanticsNode1)
 
         // Hit inside layoutNode2
         val hit6 = HitTestResult()
         outerNode.hitTestSemantics(Offset(6.1f, 6.1f), hit6, true)
 
         assertThat(hit6).hasSize(1)
-        assertThat(hit6[0]).isEqualTo(semanticsModifier2)
+        assertThat(hit6[0]).isEqualTo(semanticsNode2)
     }
 
     @Test
@@ -2496,9 +2495,8 @@ private class EmptyLayoutModifier : LayoutModifier {
     }
 }
 
-@OptIn(InternalCoreApi::class)
 internal class MockOwner(
-    val position: IntOffset = IntOffset.Zero,
+    private val position: IntOffset = IntOffset.Zero,
     override val root: LayoutNode = LayoutNode(),
     override val coroutineContext: CoroutineContext =
         Executors.newFixedThreadPool(3).asCoroutineDispatcher()
@@ -2553,6 +2551,7 @@ internal class MockOwner(
         get() = TODO("Not yet implemented")
     override val layoutDirection: LayoutDirection
         get() = LayoutDirection.Ltr
+    @InternalCoreApi
     override var showLayoutBounds: Boolean = false
     override val snapshotObserver = OwnerSnapshotObserver { it.invoke() }
     override val modifierLocalManager: ModifierLocalManager = ModifierLocalManager(this)
@@ -2721,7 +2720,6 @@ internal class MockOwner(
     override val sharedDrawScope = LayoutNodeDrawScope()
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 private fun LayoutNode.hitTest(
     pointerPosition: Offset,
     hitPointerInputFilters: MutableList<Modifier.Node>,
@@ -2783,7 +2781,6 @@ private fun mockPointerInputFilter(
 // This returns the corresponding modifier that produced the PointerInputNode. This is only
 // possible for PointerInputNodes that are BackwardsCompatNodes and once we refactor the
 // pointerInput modifier to use Modifier.Nodes directly, the tests that use this should be rewritten
-@OptIn(ExperimentalComposeUiApi::class)
 fun PointerInputModifierNode.toFilter(): PointerInputFilter {
     val node = this as? BackwardsCompatNode
         ?: error("Incorrectly assumed PointerInputNode was a BackwardsCompatNode")
@@ -2792,7 +2789,6 @@ fun PointerInputModifierNode.toFilter(): PointerInputFilter {
     return modifier.pointerInputFilter
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 fun List<Modifier.Node>.toFilters(): List<PointerInputFilter> = map {
     (it as PointerInputModifierNode).toFilter()
 }
@@ -2800,7 +2796,6 @@ fun List<Modifier.Node>.toFilters(): List<PointerInputFilter> = map {
 // This returns the corresponding modifier that produced the Node. This is only possible for
 // Nodes that are BackwardsCompatNodes and once we refactor semantics / pointer input to use
 // Modifier.Nodes directly, the tests that use this should be rewritten
-@OptIn(ExperimentalComposeUiApi::class)
 fun DelegatableNode.toModifier(): Modifier.Element {
     val node = node as? BackwardsCompatNode
         ?: error("Incorrectly assumed Modifier.Node was a BackwardsCompatNode")

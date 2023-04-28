@@ -25,10 +25,10 @@ import androidx.compose.ui.focus.FocusStateImpl.Captured
 import androidx.compose.ui.focus.FocusStateImpl.Inactive
 import androidx.compose.ui.layout.BeyondBoundsLayout
 import androidx.compose.ui.layout.ModifierLocalBeyondBoundsLayout
-import androidx.compose.ui.modifier.ModifierLocalNode
+import androidx.compose.ui.modifier.ModifierLocalModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.Nodes
-import androidx.compose.ui.node.ObserverNode
+import androidx.compose.ui.node.ObserverModifierNode
 import androidx.compose.ui.node.dispatchForKind
 import androidx.compose.ui.node.observeReads
 import androidx.compose.ui.node.requireOwner
@@ -40,7 +40,7 @@ import androidx.compose.ui.platform.InspectorInfo
  * This modifier node can be used to create a modifier that makes a component focusable.
  * Use a different instance of [FocusTargetNode] for each focusable component.
  */
-class FocusTargetNode : ObserverNode, ModifierLocalNode, Modifier.Node() {
+class FocusTargetNode : ObserverModifierNode, ModifierLocalModifierNode, Modifier.Node() {
     /**
      * The [FocusState] associated with this [FocusTargetNode].
      */

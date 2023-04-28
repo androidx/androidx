@@ -360,7 +360,7 @@ fun Modifier.graphicsLayer(
     ambientShadowColor: Color = DefaultShadowColor,
     spotShadowColor: Color = DefaultShadowColor,
     compositingStrategy: CompositingStrategy = CompositingStrategy.Auto
-) = this then GraphicsLayerModifierNodeElement(
+) = this then GraphicsLayerElement(
     scaleX,
     scaleY,
     alpha,
@@ -380,7 +380,7 @@ fun Modifier.graphicsLayer(
     compositingStrategy
 )
 
-private data class GraphicsLayerModifierNodeElement(
+private data class GraphicsLayerElement(
     val scaleX: Float,
     val scaleY: Float,
     val alpha: Float,

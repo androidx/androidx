@@ -19,7 +19,7 @@ package androidx.compose.ui.input.nestedscroll
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.modifier.ModifierLocalMap
-import androidx.compose.ui.modifier.ModifierLocalNode
+import androidx.compose.ui.modifier.ModifierLocalModifierNode
 import androidx.compose.ui.modifier.modifierLocalMapOf
 import androidx.compose.ui.modifier.modifierLocalOf
 import androidx.compose.ui.node.DelegatableNode
@@ -46,7 +46,7 @@ fun nestedScrollModifierNode(
 internal class NestedScrollNode(
     var connection: NestedScrollConnection,
     dispatcher: NestedScrollDispatcher?
-) : ModifierLocalNode, NestedScrollConnection, DelegatableNode, Modifier.Node() {
+) : ModifierLocalModifierNode, NestedScrollConnection, DelegatableNode, Modifier.Node() {
 
     // Resolved dispatcher for re-use in case of null dispatcher is passed.
     private var resolvedDispatcher: NestedScrollDispatcher

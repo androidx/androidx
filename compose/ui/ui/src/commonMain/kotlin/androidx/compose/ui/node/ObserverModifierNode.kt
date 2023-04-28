@@ -23,7 +23,7 @@ import androidx.compose.ui.Modifier
  * [onObservedReadsChanged] that will be called whenever the value of read object has changed.
  * To trigger [onObservedReadsChanged], read values within an [observeReads] block.
  */
-interface ObserverNode : DelegatableNode {
+interface ObserverModifierNode : DelegatableNode {
 
     /**
      * This callback is called when any values that are read within the [observeReads] block
@@ -32,12 +32,14 @@ interface ObserverNode : DelegatableNode {
     fun onObservedReadsChanged()
 }
 
-internal class ModifierNodeOwnerScope(internal val observerNode: ObserverNode) : OwnerScope {
+internal class ObserverNodeOwnerScope(
+    internal val observerNode: ObserverModifierNode
+) : OwnerScope {
     override val isValidOwnerScope: Boolean
         get() = observerNode.node.isAttached
 
     companion object {
-        internal val OnObserveReadsChanged: (ModifierNodeOwnerScope) -> Unit = {
+        internal val OnObserveReadsChanged: (ObserverNodeOwnerScope) -> Unit = {
             if (it.isValidOwnerScope) it.observerNode.onObservedReadsChanged()
         }
     }
@@ -46,11 +48,11 @@ internal class ModifierNodeOwnerScope(internal val observerNode: ObserverNode) :
 /**
  * Use this function to observe reads within the specified [block].
  */
-fun <T> T.observeReads(block: () -> Unit) where T : Modifier.Node, T : ObserverNode {
-    val target = ownerScope ?: ModifierNodeOwnerScope(this).also { ownerScope = it }
+fun <T> T.observeReads(block: () -> Unit) where T : Modifier.Node, T : ObserverModifierNode {
+    val target = ownerScope ?: ObserverNodeOwnerScope(this).also { ownerScope = it }
     requireOwner().snapshotObserver.observeReads(
         target = target,
-        onChanged = ModifierNodeOwnerScope.OnObserveReadsChanged,
+        onChanged = ObserverNodeOwnerScope.OnObserveReadsChanged,
         block = block
     )
 }

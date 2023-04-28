@@ -33,16 +33,16 @@ import androidx.compose.ui.platform.InspectorInfo
 @Sampled
 @Composable
 fun CompositionLocalConsumingModifierSample() {
-    val LocalBackgroundColor = compositionLocalOf { Color.White }
+    val localBackgroundColor = compositionLocalOf { Color.White }
     class BackgroundColor : Modifier.Node(), DrawModifierNode,
         CompositionLocalConsumerModifierNode {
         override fun ContentDrawScope.draw() {
-            val backgroundColor = currentValueOf(LocalBackgroundColor)
+            val backgroundColor = currentValueOf(localBackgroundColor)
             drawRect(backgroundColor)
             drawContent()
         }
     }
-    val BackgroundColorModifierElement = object : ModifierNodeElement<BackgroundColor>() {
+    val backgroundColorElement = object : ModifierNodeElement<BackgroundColor>() {
         override fun create() = BackgroundColor()
         override fun update(node: BackgroundColor) {}
         override fun hashCode() = System.identityHashCode(this)
@@ -51,7 +51,7 @@ fun CompositionLocalConsumingModifierSample() {
             name = "backgroundColor"
         }
     }
-    fun Modifier.backgroundColor() = this then BackgroundColorModifierElement
+    fun Modifier.backgroundColor() = this then backgroundColorElement
     Box(Modifier.backgroundColor()) {
         Text("Hello, world!")
     }

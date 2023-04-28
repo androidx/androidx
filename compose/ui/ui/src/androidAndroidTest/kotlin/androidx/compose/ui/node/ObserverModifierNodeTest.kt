@@ -34,7 +34,7 @@ import org.junit.runner.RunWith
 @OptIn(ExperimentalComposeUiApi::class)
 @MediumTest
 @RunWith(AndroidJUnit4::class)
-class ObserverNodeTest {
+class ObserverModifierNodeTest {
     @get:Rule
     val rule = createComposeRule()
 
@@ -45,7 +45,7 @@ class ObserverNodeTest {
         var callbackInvoked = false
         val observerNode = TestObserverNode { callbackInvoked = true }
         rule.setContent {
-            Box(Modifier.modifierElementOf(observerNode))
+            Box(Modifier.elementOf(observerNode))
         }
 
         // Act.
@@ -67,7 +67,7 @@ class ObserverNodeTest {
         var callbackInvoked = false
         val observerNode = TestObserverNode { callbackInvoked = true }
         rule.setContent {
-            Box(Modifier.modifierElementOf(observerNode))
+            Box(Modifier.elementOf(observerNode))
         }
 
         // Act.
@@ -115,7 +115,7 @@ class ObserverNodeTest {
         val observerNode = TestObserverNode { callbackInvoked = true }
         var attached by mutableStateOf(true)
         rule.setContent {
-            Box(if (attached) Modifier.modifierElementOf(observerNode) else Modifier)
+            Box(if (attached) Modifier.elementOf(observerNode) else Modifier)
         }
 
         // Act.
@@ -140,7 +140,7 @@ class ObserverNodeTest {
         val observerNode = TestObserverNode { callbackInvoked = true }
         var attached by mutableStateOf(true)
         rule.setContent {
-            Box(if (attached) Modifier.modifierElementOf(observerNode) else Modifier)
+            Box(if (attached) Modifier.elementOf(observerNode) else Modifier)
         }
 
         // Act.
@@ -162,11 +162,11 @@ class ObserverNodeTest {
     }
 
     @ExperimentalComposeUiApi
-    private inline fun <reified T : Modifier.Node> Modifier.modifierElementOf(node: T): Modifier {
-        return this then ModifierElementOf(node)
+    private inline fun <reified T : Modifier.Node> Modifier.elementOf(node: T): Modifier {
+        return this then ElementOf(node)
     }
 
-    private data class ModifierElementOf<T : Modifier.Node>(
+    private data class ElementOf<T : Modifier.Node>(
         val node: T
     ) : ModifierNodeElement<T>() {
         override fun create(): T = node
@@ -178,7 +178,7 @@ class ObserverNodeTest {
 
     class TestObserverNode(
         private val onObserveReadsChanged: () -> Unit,
-    ) : ObserverNode, Modifier.Node() {
+    ) : ObserverModifierNode, Modifier.Node() {
         override fun onObservedReadsChanged() {
             this.onObserveReadsChanged()
         }

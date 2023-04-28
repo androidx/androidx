@@ -16,7 +16,6 @@
 
 package androidx.compose.ui.draw
 
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Canvas
@@ -26,7 +25,7 @@ import androidx.compose.ui.internal.JvmDefaultWithCompatibility
 import androidx.compose.ui.node.DrawModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.Nodes
-import androidx.compose.ui.node.ObserverNode
+import androidx.compose.ui.node.ObserverModifierNode
 import androidx.compose.ui.node.invalidateDraw
 import androidx.compose.ui.node.observeReads
 import androidx.compose.ui.node.requireCoordinator
@@ -94,7 +93,6 @@ fun Modifier.drawBehind(
     onDraw: DrawScope.() -> Unit
 ) = this then DrawBehindElement(onDraw)
 
-@OptIn(ExperimentalComposeUiApi::class)
 private data class DrawBehindElement(
     val onDraw: DrawScope.() -> Unit
 ) : ModifierNodeElement<DrawBackgroundModifier>() {
@@ -110,7 +108,6 @@ private data class DrawBehindElement(
     }
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 internal class DrawBackgroundModifier(
     var onDraw: DrawScope.() -> Unit
 ) : Modifier.Node(), DrawModifierNode {
@@ -136,7 +133,6 @@ internal class DrawBackgroundModifier(
  * @sample androidx.compose.ui.samples.DrawWithCacheModifierStateParameterSample
  * @sample androidx.compose.ui.samples.DrawWithCacheContentSample
  */
-@OptIn(ExperimentalComposeUiApi::class)
 fun Modifier.drawWithCache(
     onBuildDrawCache: CacheDrawScope.() -> DrawResult
 ) = this then DrawWithCacheElement(onBuildDrawCache)
@@ -161,7 +157,7 @@ private data class DrawWithCacheElement(
 private class CacheDrawNode(
     private val cacheDrawScope: CacheDrawScope,
     block: CacheDrawScope.() -> DrawResult
-) : Modifier.Node(), DrawModifierNode, ObserverNode, BuildDrawCacheParams {
+) : Modifier.Node(), DrawModifierNode, ObserverModifierNode, BuildDrawCacheParams {
 
     private var isCacheValid = false
     var block: CacheDrawScope.() -> DrawResult = block
@@ -275,7 +271,6 @@ fun Modifier.drawWithContent(
     onDraw: ContentDrawScope.() -> Unit
 ): Modifier = this then DrawWithContentElement(onDraw)
 
-@OptIn(ExperimentalComposeUiApi::class)
 private data class DrawWithContentElement(
     val onDraw: ContentDrawScope.() -> Unit
 ) : ModifierNodeElement<DrawWithContentModifier>() {
@@ -291,7 +286,6 @@ private data class DrawWithContentElement(
     }
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 private class DrawWithContentModifier(
     var onDraw: ContentDrawScope.() -> Unit
 ) : Modifier.Node(), DrawModifierNode {

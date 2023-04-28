@@ -17,7 +17,6 @@
 package androidx.compose.ui.draw
 
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.Modifier
@@ -58,7 +57,6 @@ import kotlin.math.roundToInt
  *
  * @sample androidx.compose.ui.samples.PainterModifierSample
  */
-@OptIn(ExperimentalComposeUiApi::class)
 fun Modifier.paint(
     painter: Painter,
     sizeToIntrinsics: Boolean = true,
@@ -66,7 +64,7 @@ fun Modifier.paint(
     contentScale: ContentScale = ContentScale.Inside,
     alpha: Float = DefaultAlpha,
     colorFilter: ColorFilter? = null
-) = this then PainterModifierNodeElement(
+) = this then PainterElement(
     painter = painter,
     sizeToIntrinsics = sizeToIntrinsics,
     alignment = alignment,
@@ -87,16 +85,16 @@ fun Modifier.paint(
  *
  * @sample androidx.compose.ui.samples.PainterModifierSample
  */
-private data class PainterModifierNodeElement(
+private data class PainterElement(
     val painter: Painter,
     val sizeToIntrinsics: Boolean,
     val alignment: Alignment,
     val contentScale: ContentScale,
     val alpha: Float,
     val colorFilter: ColorFilter?
-) : ModifierNodeElement<PainterModifierNode>() {
-    override fun create(): PainterModifierNode {
-        return PainterModifierNode(
+) : ModifierNodeElement<PainterNode>() {
+    override fun create(): PainterNode {
+        return PainterNode(
             painter = painter,
             sizeToIntrinsics = sizeToIntrinsics,
             alignment = alignment,
@@ -106,7 +104,7 @@ private data class PainterModifierNodeElement(
         )
     }
 
-    override fun update(node: PainterModifierNode) {
+    override fun update(node: PainterNode) {
         val intrinsicsChanged = node.sizeToIntrinsics != sizeToIntrinsics ||
             (sizeToIntrinsics && node.painter.intrinsicSize != painter.intrinsicSize)
 
@@ -143,11 +141,10 @@ private data class PainterModifierNodeElement(
  *
  * IMPORTANT NOTE: This class sets [androidx.compose.ui.Modifier.Node.shouldAutoInvalidate]
  * to false which means it MUST invalidate both draw and the layout. It invalidates both in the
- * [PainterModifierNodeElement.update] method through [LayoutModifierNode.invalidateLayer]
+ * [PainterElement.update] method through [LayoutModifierNode.invalidateLayer]
  * (invalidates draw) and [LayoutModifierNode.invalidateLayout] (invalidates layout).
  */
-@OptIn(ExperimentalComposeUiApi::class)
-private class PainterModifierNode(
+private class PainterNode(
     var painter: Painter,
     var sizeToIntrinsics: Boolean,
     var alignment: Alignment = Alignment.Center,
