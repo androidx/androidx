@@ -106,7 +106,7 @@ private constructor(
     }
 
     internal fun close() {
-        Log.warn { "Closing $this" }
+        Log.debug { "Closing $this" }
         if (closed.compareAndSet(expect = false, update = true)) {
             captureSequenceProcessor.close()
         }
