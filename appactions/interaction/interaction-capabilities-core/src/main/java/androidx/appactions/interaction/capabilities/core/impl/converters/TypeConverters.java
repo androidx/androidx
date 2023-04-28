@@ -33,7 +33,6 @@ import androidx.appactions.builtintypes.experimental.types.Timer;
 import androidx.appactions.interaction.capabilities.core.SearchAction;
 import androidx.appactions.interaction.capabilities.core.impl.exceptions.StructConversionException;
 import androidx.appactions.interaction.capabilities.core.properties.StringValue;
-import androidx.appactions.interaction.capabilities.core.values.EntityValue;
 import androidx.appactions.interaction.proto.Entity;
 import androidx.appactions.interaction.proto.ParamValue;
 
@@ -187,25 +186,6 @@ public final class TypeConverters {
     public static final ParamValueConverter<Boolean> BOOLEAN_PARAM_VALUE_CONVERTER =
             ParamValueConverter.of(TypeSpec.BOOL_TYPE_SPEC);
 
-    public static final ParamValueConverter<EntityValue> ENTITY_PARAM_VALUE_CONVERTER =
-            new ParamValueConverter<EntityValue>() {
-                @NonNull
-                @Override
-                public ParamValue toParamValue(EntityValue value) {
-                    throw new IllegalStateException(
-                            "EntityValue should never be sent back to " + "Assistant.");
-                }
-
-                @Override
-                public EntityValue fromParamValue(@NonNull ParamValue paramValue) {
-                    EntityValue.Builder value = EntityValue.newBuilder();
-                    if (paramValue.hasIdentifier()) {
-                        value.setId(paramValue.getIdentifier());
-                    }
-                    value.setValue(paramValue.getStringValue());
-                    return value.build();
-                }
-            };
     public static final ParamValueConverter<String> STRING_PARAM_VALUE_CONVERTER =
             ParamValueConverter.of(TypeSpec.STRING_TYPE_SPEC);
 
@@ -358,19 +338,6 @@ public final class TypeConverters {
                             String.format("Unknown enum format '%s'.", identifier));
                 }
             };
-    public static final EntityConverter<
-            androidx.appactions.interaction.capabilities.core.properties.Entity>
-            ENTITY_ENTITY_CONVERTER =
-                    (entity) -> {
-                        Entity.Builder builder =
-                                Entity.newBuilder()
-                                        .setName(entity.getName())
-                                        .addAllAlternateNames(entity.getAlternateNames());
-                        if (entity.getId() != null) {
-                            builder.setIdentifier(entity.getId());
-                        }
-                        return builder.build();
-                    };
     public static final EntityConverter<StringValue> STRING_VALUE_ENTITY_CONVERTER =
             (stringValue) ->
                     Entity.newBuilder()

@@ -18,7 +18,6 @@ package androidx.appactions.interaction.capabilities.core.testing.spec;
 
 import androidx.annotation.NonNull;
 import androidx.appactions.interaction.capabilities.core.impl.BuilderOf;
-import androidx.appactions.interaction.capabilities.core.properties.Entity;
 import androidx.appactions.interaction.capabilities.core.properties.Property;
 import androidx.appactions.interaction.capabilities.core.properties.StringValue;
 
@@ -34,7 +33,7 @@ public abstract class Properties {
         return new AutoValue_Properties.Builder();
     }
 
-    public abstract Property<Entity> requiredEntityField();
+    public abstract Property<StringValue> requiredStringField();
 
     public abstract Optional<Property<StringValue>> optionalStringField();
 
@@ -46,7 +45,7 @@ public abstract class Properties {
     @AutoValue.Builder
     public abstract static class Builder implements BuilderOf<Properties> {
 
-        public abstract Builder setRequiredEntityField(Property<Entity> property);
+        public abstract Builder setRequiredStringField(Property<StringValue> property);
 
         public abstract Builder setOptionalStringField(Property<StringValue> property);
 

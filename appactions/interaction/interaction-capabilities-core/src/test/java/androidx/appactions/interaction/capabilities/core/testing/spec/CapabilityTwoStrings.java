@@ -17,6 +17,7 @@
 package androidx.appactions.interaction.capabilities.core.testing.spec;
 
 import androidx.annotation.NonNull;
+import androidx.appactions.interaction.capabilities.core.BaseExecutionSession;
 import androidx.appactions.interaction.capabilities.core.impl.BuilderOf;
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters;
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpec;
@@ -103,4 +104,6 @@ public final class CapabilityTwoStrings {
             public abstract Properties build();
         }
     }
+
+    public interface ExecutionSession extends BaseExecutionSession<Arguments, Void> {}
 }
