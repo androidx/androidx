@@ -35,6 +35,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.listSaver
@@ -181,7 +183,7 @@ abstract class PagerState(
      * Difference between the last up and last down events of a scroll event.
      */
     internal var upDownDifference: Offset by mutableStateOf(Offset.Zero)
-    internal var snapRemainingScrollOffset by mutableStateOf(0f)
+    internal var snapRemainingScrollOffset by mutableFloatStateOf(0f)
 
     private val scrollPosition = PagerScrollPosition(initialPage, 0)
 
@@ -283,9 +285,9 @@ abstract class PagerState(
      */
     val currentPage: Int get() = scrollPosition.currentPage
 
-    private var animationTargetPage by mutableStateOf(-1)
+    private var animationTargetPage by mutableIntStateOf(-1)
 
-    private var settledPageState by mutableStateOf(initialPage)
+    private var settledPageState by mutableIntStateOf(initialPage)
 
     /**
      * The page that is currently "settled". This is an animation/gesture unaware page in the sense

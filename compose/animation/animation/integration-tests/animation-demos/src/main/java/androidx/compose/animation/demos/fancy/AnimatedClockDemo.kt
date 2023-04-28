@@ -38,7 +38,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -63,9 +64,9 @@ private class Time(hours: State<Int>, minutes: State<Int>, seconds: State<Int>) 
 @Composable
 fun AnimatedClockDemo() {
     val calendar = remember { Calendar.getInstance() }
-    val seconds = remember { mutableStateOf(calendar[Calendar.SECOND]) }
-    val minutes = remember { mutableStateOf(calendar[Calendar.MINUTE]) }
-    val hours = remember { mutableStateOf(calendar[Calendar.HOUR_OF_DAY]) }
+    val seconds = remember { mutableIntStateOf(calendar[Calendar.SECOND]) }
+    val minutes = remember { mutableIntStateOf(calendar[Calendar.MINUTE]) }
+    val hours = remember { mutableIntStateOf(calendar[Calendar.HOUR_OF_DAY]) }
     LaunchedEffect(key1 = Unit) {
         // Start from 23:59:50 to give an impressive animation for all numbers
         calendar.set(2020, 10, 10, 23, 59, 50)
@@ -74,9 +75,9 @@ fun AnimatedClockDemo() {
         while (isActive) {
             withInfiniteAnimationFrameMillis {
                 calendar.timeInMillis = it - firstFrameTime + initialTime
-                seconds.value = calendar[Calendar.SECOND]
-                minutes.value = calendar[Calendar.MINUTE]
-                hours.value = calendar[Calendar.HOUR_OF_DAY]
+                seconds.intValue = calendar[Calendar.SECOND]
+                minutes.intValue = calendar[Calendar.MINUTE]
+                hours.intValue = calendar[Calendar.HOUR_OF_DAY]
             }
         }
     }
@@ -110,7 +111,7 @@ private fun NumberColumn(maxDigit: Int, digit: Int) {
         targetValue = ((9 - digit) * digitHeight).dp,
         animationSpec = tween(moveDuration),
     ).value
-    var circleOffset by remember { mutableStateOf(0f) }
+    var circleOffset by remember { mutableFloatStateOf(0f) }
     LaunchedEffect(digit) {
         if (digit == 0) return@LaunchedEffect // Don't animate for 0 as direction is reversed
         animate(
@@ -124,7 +125,7 @@ private fun NumberColumn(maxDigit: Int, digit: Int) {
             animationSpec = spring(dampingRatio = 0.6f)
         ) { animationValue, _ -> circleOffset = animationValue }
     }
-    var circleStretch by remember { mutableStateOf(1f) }
+    var circleStretch by remember { mutableFloatStateOf(1f) }
     LaunchedEffect(digit) {
         if (digit == 0) return@LaunchedEffect // Don't animate for 0 as direction is reversed
         animate(

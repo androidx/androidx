@@ -32,7 +32,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -360,7 +360,7 @@ private class RevealScopeImpl constructor(
     /**
      * The total width of the overlay content in float.
      */
-    val width = mutableStateOf(0.0f)
+    val width = mutableFloatStateOf(0.0f)
 
     override val revealOffset: Float
         get() = width.value * (revealState.swipeAnchors[RevealValue.Revealing] ?: 0.0f)

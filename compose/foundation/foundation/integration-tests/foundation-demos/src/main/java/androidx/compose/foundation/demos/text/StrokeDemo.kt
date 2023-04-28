@@ -27,6 +27,7 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -45,7 +46,7 @@ import androidx.compose.ui.unit.sp
 @OptIn(ExperimentalTextApi::class)
 @Composable
 fun TextStrokeDemo() {
-    var dashInterval by remember { mutableStateOf(2f) }
+    var dashInterval by remember { mutableFloatStateOf(2f) }
     var stroke by remember {
         mutableStateOf(
             Stroke(

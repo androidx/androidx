@@ -36,7 +36,7 @@ import androidx.compose.material.samples.LinearProgressIndicatorSample
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -92,7 +92,7 @@ fun ProgressIndicatorDemo() {
 }
 
 private class ProgressState {
-    var progress by mutableStateOf(0f)
+    var progress by mutableFloatStateOf(0f)
 
     fun start() {
         handler.postDelayed(updateProgress, 500)

@@ -29,6 +29,8 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.neverEqualPolicy
 import androidx.compose.runtime.remember
@@ -411,18 +413,18 @@ internal fun MotionLayoutCore(
     content: @Composable (MotionLayoutScope.() -> Unit)
 ) {
     val needsUpdate = remember {
-        mutableStateOf(0L)
+        mutableLongStateOf(0L)
     }
 
-    val transition = remember(motionScene, needsUpdate.value) {
+    val transition = remember(motionScene, needsUpdate.longValue) {
         motionScene.getTransitionInstance("default")
     }
 
-    val initialStart = remember(motionScene, needsUpdate.value) {
+    val initialStart = remember(motionScene, needsUpdate.longValue) {
         val startId = transition?.getStartConstraintSetId() ?: "start"
         motionScene.getConstraintSetInstance(startId)
     }
-    val initialEnd = remember(motionScene, needsUpdate.value) {
+    val initialEnd = remember(motionScene, needsUpdate.longValue) {
         val endId = transition?.getEndConstraintSetId() ?: "end"
         motionScene.getConstraintSetInstance(endId)
     }
@@ -557,8 +559,8 @@ internal fun MotionLayoutCore(
     val motionProgress = createAndUpdateMotionProgress(progress = progress)
     val transitionImpl = (transition as? TransitionImpl) ?: TransitionImpl.EMPTY
     // TODO: Merge this snippet with UpdateWithForcedIfNoUserChange
-    val needsUpdate = remember { mutableStateOf(0L) }
-    needsUpdate.value // Read the value to allow recomposition from informationReceiver
+    val needsUpdate = remember { mutableLongStateOf(0L) }
+    needsUpdate.longValue // Read the value to allow recomposition from informationReceiver
     informationReceiver?.setUpdateFlag(needsUpdate)
 
     UpdateWithForcedIfNoUserChange(
@@ -1005,7 +1007,7 @@ internal fun UpdateWithForcedIfNoUserChange(
 @Composable
 internal fun createAndUpdateMotionProgress(progress: Float): MotionProgress {
     val motionProgress = remember {
-        MotionProgress.fromMutableState(mutableStateOf(progress))
+        MotionProgress.fromMutableState(mutableFloatStateOf(progress))
     }
     val last = remember { Ref<Float>().apply { value = progress } }
     if (last.value != progress) {

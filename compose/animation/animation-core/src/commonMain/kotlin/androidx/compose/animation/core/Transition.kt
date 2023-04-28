@@ -39,6 +39,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import kotlin.math.max
 import androidx.compose.animation.core.internal.JvmDefaultWithCompatibility
+import androidx.compose.runtime.mutableLongStateOf
 import kotlin.jvm.JvmName
 
 /**
@@ -231,8 +232,8 @@ class Transition<S> @PublishedApi internal constructor(
      * @suppress
      */
     @InternalAnimationApi
-    var playTimeNanos by mutableStateOf(0L)
-    private var startTimeNanos by mutableStateOf(AnimationConstants.UnspecifiedTime)
+    var playTimeNanos by mutableLongStateOf(0L)
+    private var startTimeNanos by mutableLongStateOf(AnimationConstants.UnspecifiedTime)
 
     // This gets calculated every time child is updated/added
     internal var updateChildrenNeeded: Boolean by mutableStateOf(true)
@@ -495,7 +496,7 @@ class Transition<S> @PublishedApi internal constructor(
             private set
 
         internal var isFinished: Boolean by mutableStateOf(true)
-        private var offsetTimeNanos by mutableStateOf(0L)
+        private var offsetTimeNanos by mutableLongStateOf(0L)
         private var needsReset by mutableStateOf(false)
 
         // Changed during animation, no concerns of rolling back

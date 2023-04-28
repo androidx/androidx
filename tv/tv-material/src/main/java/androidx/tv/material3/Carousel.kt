@@ -38,6 +38,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
@@ -339,12 +340,12 @@ private fun CarouselStateUpdater(carouselState: CarouselState, itemCount: Int) {
 @Stable
 @ExperimentalTvMaterial3Api
 class CarouselState(initialActiveItemIndex: Int = 0) {
-    internal var activePauseHandlesCount by mutableStateOf(0)
+    internal var activePauseHandlesCount by mutableIntStateOf(0)
 
     /**
      * The index of the item that is currently displayed by the carousel
      */
-    var activeItemIndex by mutableStateOf(initialActiveItemIndex)
+    var activeItemIndex by mutableIntStateOf(initialActiveItemIndex)
         internal set
 
     /**

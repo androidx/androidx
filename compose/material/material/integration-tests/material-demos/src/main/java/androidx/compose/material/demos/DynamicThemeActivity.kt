@@ -42,7 +42,7 @@ import androidx.compose.material.lightColors
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -57,12 +57,12 @@ import kotlinx.coroutines.flow.collect
  * as the user scrolls. This has the effect of going from a 'light' theme to a 'dark' theme.
  */
 class DynamicThemeActivity : ComponentActivity() {
-    private val scrollFraction = mutableStateOf(0f)
+    private val scrollFraction = mutableFloatStateOf(0f)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            val palette = interpolateTheme(scrollFraction.value)
+            val palette = interpolateTheme(scrollFraction.floatValue)
             val darkenedPrimary = palette.darkenedPrimary
             window.statusBarColor = darkenedPrimary
             window.navigationBarColor = darkenedPrimary
