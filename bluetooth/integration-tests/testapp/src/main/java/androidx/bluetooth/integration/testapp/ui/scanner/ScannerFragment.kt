@@ -16,6 +16,10 @@
 
 package androidx.bluetooth.integration.testapp.ui.scanner
 
+// TODO(ofy) Migrate from androidx.bluetooth.integration.testapp.experimental.BluetoothLe to
+// androidx.bluetooth.BluetoothDevice once in place
+// TODO(ofy) Migrate from androidx.bluetooth.integration.testapp.experimental.BluetoothLe to
+// androidx.bluetooth.BluetoothLe once scan API is in place
 import android.bluetooth.le.ScanResult
 import android.bluetooth.le.ScanSettings
 import android.os.Bundle
@@ -28,8 +32,6 @@ import android.widget.TextView
 import androidx.bluetooth.integration.testapp.R
 import androidx.bluetooth.integration.testapp.databinding.FragmentScannerBinding
 import android.annotation.SuppressLint
-// TODO(ofy) Migrate to androidx.bluetooth.BluetoothDevice once in place
-// TODO(ofy) Migrate to androidx.bluetooth.BluetoothLe once scan API is in place
 import androidx.bluetooth.integration.testapp.experimental.BluetoothLe
 import androidx.bluetooth.integration.testapp.ui.common.getColor
 import androidx.core.view.isVisible

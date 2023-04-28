@@ -18,12 +18,11 @@
 @file:JvmMultifileClass
 package androidx.compose.runtime
 
+import kotlin.coroutines.CoroutineContext
+import kotlin.jvm.JvmMultifileClass
+import kotlin.jvm.JvmName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.suspendCancellableCoroutine
-import kotlin.coroutines.CoroutineContext
-// Explicit imports for these needed in common source sets.
-import kotlin.jvm.JvmName
-import kotlin.jvm.JvmMultifileClass
 
 /**
  * Receiver scope for use with [produceState].
