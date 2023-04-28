@@ -142,7 +142,7 @@ class CombinedFocusModifierNodeTest(private val delegatedFocusTarget: Boolean) {
     }
 
     /**
-     * This test checks that [FocusPropertiesModifierNode.modifyFocusProperties] is called when a
+     * This test checks that [FocusPropertiesModifierNode.applyFocusProperties] is called when a
      * property changes.
      */
     @Test
@@ -233,7 +233,7 @@ class CombinedFocusModifierNodeTest(private val delegatedFocusTarget: Boolean) {
             this.focusState = focusState
         }
 
-        override fun modifyFocusProperties(focusProperties: FocusProperties) {
+        override fun applyFocusProperties(focusProperties: FocusProperties) {
             focusProperties.canFocus = canFocus
         }
     }

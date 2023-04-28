@@ -310,7 +310,7 @@ private fun FocusPropertiesModifierNode.scheduleInvalidationOfAssociatedFocusTar
  */
 private fun FocusPropertiesModifierNode.specifiesCanFocusProperty(): Boolean {
     CanFocusChecker.reset()
-    modifyFocusProperties(CanFocusChecker)
+    applyFocusProperties(CanFocusChecker)
     return CanFocusChecker.isCanFocusSet()
 }
 
