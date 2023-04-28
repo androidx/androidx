@@ -74,8 +74,8 @@ private class FocusedBoundsObserverNode(
     private val parent: ((LayoutCoordinates?) -> Unit)?
         get() = if (isAttached) ModifierLocalFocusedBoundsObserver.current else null
 
-    override val providedValues: ModifierLocalMap
-        get() = modifierLocalMapOf(ModifierLocalFocusedBoundsObserver to this)
+    override val providedValues: ModifierLocalMap =
+        modifierLocalMapOf(entry = ModifierLocalFocusedBoundsObserver to this)
 
     /** Called when a child gains/loses focus or is focused and changes position. */
     override fun invoke(focusedBounds: LayoutCoordinates?) {
