@@ -23,7 +23,7 @@ import androidx.core.util.Consumer;
 
 /**
  * Returned from {@link TransitionManager#controlDelayedTransition(ViewGroup, Transition)}
- * to control allow manually controlling the animations within a Transition using
+ * to allow manually controlling the animations within a Transition using
  * {@link #setCurrentPlayTimeMillis(long)}. The transition will be ready to seek when
  * {@link #isReady()} is {@code true}.
  */
