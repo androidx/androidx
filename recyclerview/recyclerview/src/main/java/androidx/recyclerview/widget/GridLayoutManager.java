@@ -17,19 +17,29 @@ package androidx.recyclerview.widget;
 
 import android.content.Context;
 import android.graphics.Rect;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.SparseIntArray;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.accessibility.AccessibilityEvent;
+import android.view.accessibility.AccessibilityNodeInfo;
 import android.widget.GridView;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
+import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat;
 
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Map;
+import java.util.Objects;
+import java.util.TreeMap;
 
 /**
  * A {@link RecyclerView.LayoutManager} implementations that lays out items in a grid.
@@ -42,6 +52,7 @@ public class GridLayoutManager extends LinearLayoutManager {
     private static final boolean DEBUG = false;
     private static final String TAG = "GridLayoutManager";
     public static final int DEFAULT_SPAN_COUNT = -1;
+    private static final int INVALID_POSITION = -1;
 
     /**
      * Span size have been changed but we've not done a new layout calculation.
@@ -65,6 +76,13 @@ public class GridLayoutManager extends LinearLayoutManager {
     final Rect mDecorInsets = new Rect();
 
     private boolean mUsingSpansToEstimateScrollBarDimensions;
+
+    /**
+     * Used to track the position of the target node brought on screen by
+     * {@code ACTIONS_SCROLL_IN_DIRECTION} so that a {@code TYPE_VIEW_TARGETED_BY_SCROLL} event can
+     * be emitted.
+     */
+    private int mPositionTargetedByScrollInDirection = INVALID_POSITION;
 
     /**
      * Constructor used when layout manager is set in XML by RecyclerView attribute
@@ -179,7 +197,94 @@ public class GridLayoutManager extends LinearLayoutManager {
 
     @Override
     boolean performAccessibilityAction(int action, @Nullable Bundle args) {
-        if (action == android.R.id.accessibilityActionScrollToPosition) {
+        // TODO (267511848): when U constants are finalized:
+        //  - convert if/else blocks to switch statement
+        //  - remove SDK check
+        //  - remove the -1 check (this check makes accessibilityActionScrollInDirection
+        //  no-op for < 34; see action definition in AccessibilityNodeInfoCompat.java).
+        if (action == AccessibilityActionCompat.ACTION_SCROLL_IN_DIRECTION.getId()
+                && action != -1) {
+            final View viewWithAccessibilityFocus = findChildWithAccessibilityFocus();
+            if (viewWithAccessibilityFocus == null) {
+                // TODO(b/268487724#comment2): handle rare cases when the requesting service does
+                //  not place accessibility focus on a child. Consider scrolling forward/backward?
+                return false;
+            }
+
+            // Direction must be specified.
+            if (args == null) {
+                return false;
+            }
+
+            final int direction = args.getInt(
+                    AccessibilityNodeInfo.ACTION_ARGUMENT_DIRECTION_INT, INVALID_POSITION);
+
+            RecyclerView.ViewHolder vh =
+                    mRecyclerView.getChildViewHolder(viewWithAccessibilityFocus);
+            if (vh == null) {
+                if (DEBUG) {
+                    throw new RuntimeException(
+                            "viewHolder is null for " + viewWithAccessibilityFocus);
+                }
+                return false;
+            }
+
+            int startingAdapterPosition = vh.getAbsoluteAdapterPosition();
+            int startingRow = getRowIndex(startingAdapterPosition);
+            int startingColumn = getColumnIndex(startingAdapterPosition);
+
+            if (startingRow < 0 || startingColumn < 0) {
+                if (DEBUG) {
+                    throw new RuntimeException("startingRow equals " + startingRow + ", and "
+                            + "startingColumn equals " + startingColumn + ", and neither can be "
+                            + "less than 0.");
+                }
+                return false;
+            }
+
+            int scrollTargetPosition;
+
+            switch (direction) {
+                case View.FOCUS_LEFT:
+                    scrollTargetPosition = findScrollTargetPositionOnTheLeft(startingRow,
+                            startingColumn, startingAdapterPosition);
+                    break;
+                case View.FOCUS_RIGHT:
+                    scrollTargetPosition = findScrollTargetPositionOnTheRight(startingRow,
+                            startingColumn, startingAdapterPosition);
+                    break;
+                case View.FOCUS_UP:
+                    scrollTargetPosition = findScrollTargetPositionAbove(startingRow,
+                            startingColumn, startingAdapterPosition);
+                    break;
+                case View.FOCUS_DOWN:
+                    scrollTargetPosition = findScrollTargetPositionBelow(startingRow,
+                            startingColumn, startingAdapterPosition);
+                    break;
+                default:
+                    return false;
+            }
+
+            if (scrollTargetPosition == INVALID_POSITION
+                    && mOrientation == RecyclerView.HORIZONTAL) {
+                // TODO (b/268487724): handle RTL.
+                // Handle case in grids with horizontal orientation where the scroll target is on
+                // a different row.
+                if (direction == View.FOCUS_LEFT) {
+                    scrollTargetPosition = findPositionOfLastItemOnARowAbove(startingRow);
+                } else if (direction == View.FOCUS_RIGHT) {
+                    scrollTargetPosition = findPositionOfFirstItemOnARowBelow(startingRow);
+                }
+            }
+
+            if (scrollTargetPosition != INVALID_POSITION) {
+                scrollToPosition(scrollTargetPosition);
+                mPositionTargetedByScrollInDirection = scrollTargetPosition;
+                return true;
+            }
+
+            return false;
+        } else if (action == android.R.id.accessibilityActionScrollToPosition) {
             final int noRow = -1;
             final int noColumn = -1;
             if (args != null) {
@@ -228,6 +333,252 @@ public class GridLayoutManager extends LinearLayoutManager {
         return super.performAccessibilityAction(action, args);
     }
 
+    private int findScrollTargetPositionOnTheRight(int startingRow, int startingColumn,
+            int startingAdapterPosition) {
+        int scrollTargetPosition = INVALID_POSITION;
+        for (int i = startingAdapterPosition + 1; i < getItemCount(); i++) {
+            int currentRow = getRowIndex(i);
+            int currentColumn = getColumnIndex(i);
+
+            if (currentRow < 0 || currentColumn < 0) {
+                if (DEBUG) {
+                    throw new RuntimeException("currentRow equals " + currentRow + ", and "
+                            + "currentColumn equals " + currentColumn + ", and neither can be "
+                            + "less than 0.");
+                }
+                return INVALID_POSITION;
+            }
+
+            // Canonical case: target is on the same row. TODO (b/268487724): handle RTL.
+            if (currentRow == startingRow && currentColumn > startingColumn) {
+                return i;
+            } else {
+                if (mOrientation == VERTICAL) {
+                    /*
+                    * Grids with vertical layouts are laid out row by row...
+                    * 1   2   3
+                    * 4   5   6
+                    * 7   8
+                    * ... and the scroll target may lie on a following row.
+                    */
+                    if (currentRow > startingRow) {
+                        scrollTargetPosition = i;
+                        break;
+                    }
+                } else { // HORIZONTAL
+                    // TODO (b/268487724): handle case where the scroll target spans multiple
+                    //  rows/columns.
+                }
+            }
+        }
+        return scrollTargetPosition;
+    }
+
+    private int findScrollTargetPositionOnTheLeft(int startingRow, int startingColumn,
+            int startingAdapterPosition) {
+        int scrollTargetPosition = INVALID_POSITION;
+        for (int i = startingAdapterPosition - 1; i >= 0; i--) {
+            int currentRow = getRowIndex(i);
+            int currentColumn = getColumnIndex(i);
+
+            if (currentRow < 0 || currentColumn < 0) {
+                if (DEBUG) {
+                    throw new RuntimeException("currentRow equals " + currentRow + ", and "
+                            + "currentColumn equals " + currentColumn + ", and neither can be "
+                            + "less than 0.");
+                }
+                return INVALID_POSITION;
+            }
+
+            // Canonical case: target is on the same row. TODO (b/268487724): handle RTL.
+            if (currentRow == startingRow && currentColumn < startingColumn) {
+                return i;
+            } else {
+                if (mOrientation == VERTICAL) {
+                    /*
+                     * Grids with vertical layouts are laid out row by row...
+                     * 1   2   3
+                     * 4   5   6
+                     * 7   8
+                     * ... and the scroll target may lie on a preceding row.
+                     */
+                    if (currentRow < startingRow) {
+                        scrollTargetPosition = i;
+                        break;
+                    }
+                } else { // HORIZONTAL
+                    // TODO (b/268487724): handle case where the scroll target spans multiple
+                    //  rows/columns.
+                }
+            }
+        }
+        return scrollTargetPosition;
+    }
+
+    private int findScrollTargetPositionAbove(int startingRow, int startingColumn,
+            int startingAdapterPosition) {
+        int scrollTargetPosition = INVALID_POSITION;
+        for (int i = startingAdapterPosition - 1; i >= 0; i--) {
+            int currentRow = getRowIndex(i);
+            int currentColumn = getColumnIndex(i);
+
+            if (currentRow < 0 || currentColumn < 0) {
+                if (DEBUG) {
+                    throw new RuntimeException("currentRow equals " + currentRow + ", and "
+                            + "currentColumn equals " + currentColumn + ", and neither can be "
+                            + "less than 0.");
+                }
+                return INVALID_POSITION;
+            }
+
+            if (currentRow < startingRow && currentColumn == startingColumn) {
+                scrollTargetPosition = i;
+                break;
+            }
+        }
+        return scrollTargetPosition;
+    }
+
+    private int findScrollTargetPositionBelow(int startingRow, int startingColumn,
+            int startingAdapterPosition) {
+        int scrollTargetPosition = INVALID_POSITION;
+        for (int i = startingAdapterPosition + 1; i < getItemCount(); i++) {
+            int currentRow = getRowIndex(i);
+            int currentColumn = getColumnIndex(i);
+
+            if (currentRow < 0 || currentColumn < 0) {
+                if (DEBUG) {
+                    throw new RuntimeException("currentRow equals " + currentRow + ", and "
+                            + "currentColumn equals " + currentColumn + ", and neither can be "
+                            + "less than 0.");
+                }
+                return INVALID_POSITION;
+            }
+
+            if (currentRow > startingRow && currentColumn == startingColumn) {
+                scrollTargetPosition = i;
+                break;
+            }
+        }
+        return scrollTargetPosition;
+    }
+
+    @SuppressWarnings("ConstantConditions") // For the spurious NPE warning related to getting a
+        // value from a map using one of the map keys.
+    int findPositionOfLastItemOnARowAbove(int startingRow) {
+        if (startingRow < 0) {
+            if (DEBUG) {
+                throw new RuntimeException(
+                        "startingRow equals " + startingRow + ". It cannot be less than zero");
+            }
+            return INVALID_POSITION;
+        }
+
+        // Map where the keys are row numbers and values are the adapter positions of the last
+        // item in each row. This map is used to locate a scroll target on a previous row in grids
+        // with horizontal orientation. In this example...
+        // 1   4   7
+        // 2   5   8
+        // 3   6
+        // ... the generated map - {2 -> 5, 1 -> 7, 0 -> 6} - can be used to scroll from,
+        // say, "2" (adapter position 1) in the second row to "7" (adapter position 6) in the
+        // preceding row.
+        Map<Integer, Integer> rowToLastItemPositionMap = new TreeMap<>(Collections.reverseOrder());
+        for (int position = 0; position < getItemCount(); position++) {
+            int row = getRowIndex(position);
+            if (row < 0) {
+                if (DEBUG) {
+                    throw new RuntimeException(
+                            "row equals " + row + ". It cannot be less than zero");
+                }
+                return INVALID_POSITION;
+            }
+            rowToLastItemPositionMap.put(row, position);
+        }
+
+        for (int row : rowToLastItemPositionMap.keySet()) {
+            if (row < startingRow) {
+                return rowToLastItemPositionMap.get(row);
+            }
+        }
+        return INVALID_POSITION;
+    }
+
+    @SuppressWarnings("ConstantConditions") // For the spurious NPE warning related to getting a
+        // value from a map using one of the map keys.
+    int findPositionOfFirstItemOnARowBelow(int startingRow) {
+        if (startingRow < 0) {
+            if (DEBUG) {
+                throw new RuntimeException(
+                        "startingRow equals " + startingRow + ". It cannot be less than zero");
+            }
+            return INVALID_POSITION;
+        }
+
+        // Map where the keys are row numbers and values are the adapter positions of the first
+        // item in each row. This map is used to locate a scroll target on a following row in grids
+        // with horizontal orientation. In this example:
+        // 1   4   7
+        // 2   5   8
+        // 3   6
+        // ... the generated map - {0 -> 0, 1 -> 1, 2 -> 2} - can be used to scroll from, say,
+        // "7" (adapter position 6) in the first row to "2" (adapter position 1) in the next row.
+        Map<Integer, Integer> rowToFirstItemPositionMap = new TreeMap<>();
+        for (int position = 0; position < getItemCount(); position++) {
+            int row = getRowIndex(position);
+            if (row < 0) {
+                if (DEBUG) {
+                    throw new RuntimeException(
+                            "row equals " + row + ". It cannot be less than zero");
+                }
+                return INVALID_POSITION;
+            }
+
+            if (!rowToFirstItemPositionMap.containsKey(row)) {
+                rowToFirstItemPositionMap.put(row, position);
+            }
+        }
+
+        for (int row : rowToFirstItemPositionMap.keySet()) {
+            if (row > startingRow) {
+                return rowToFirstItemPositionMap.get(row);
+            }
+        }
+        return INVALID_POSITION;
+    }
+
+    private int getRowIndex(int position) {
+        return mOrientation == VERTICAL ? getSpanGroupIndex(mRecyclerView.mRecycler,
+                mRecyclerView.mState, position) : getSpanIndex(mRecyclerView.mRecycler,
+                mRecyclerView.mState, position);
+    }
+
+    private int getColumnIndex(int position) {
+        return mOrientation == HORIZONTAL ? getSpanGroupIndex(mRecyclerView.mRecycler,
+                mRecyclerView.mState, position) : getSpanIndex(mRecyclerView.mRecycler,
+                mRecyclerView.mState, position);
+    }
+
+    @Nullable
+    private View findChildWithAccessibilityFocus() {
+        View child = null;
+        // SDK check needed for View#isAccessibilityFocused()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            boolean childFound = false;
+            int i;
+            for (i = 0; i < getChildCount(); i++) {
+                if (Api21Impl.isAccessibilityFocused(Objects.requireNonNull(getChildAt(i)))) {
+                    childFound = true;
+                    break;
+                }
+            }
+            if (childFound) {
+                child = getChildAt(i);
+            }
+        }
+        return child;
+    }
+
     @Override
     public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
         if (state.isPreLayout()) {
@@ -244,6 +595,19 @@ public class GridLayoutManager extends LinearLayoutManager {
     public void onLayoutCompleted(RecyclerView.State state) {
         super.onLayoutCompleted(state);
         mPendingSpanCountChange = false;
+        if (mPositionTargetedByScrollInDirection != INVALID_POSITION) {
+            View viewTargetedByScrollInDirection = findViewByPosition(
+                    mPositionTargetedByScrollInDirection);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN
+                    && viewTargetedByScrollInDirection != null) {
+                // Send event after the scroll associated with ACTION_SCROLL_IN_DIRECTION (see
+                // performAccessibilityAction()) concludes and layout completes. Accessibility
+                // services can listen for this event and change UI state as needed.
+                viewTargetedByScrollInDirection.sendAccessibilityEvent(
+                        AccessibilityEvent.TYPE_VIEW_TARGETED_BY_SCROLL);
+                mPositionTargetedByScrollInDirection = INVALID_POSITION;
+            }
+        }
     }
 
     private void clearPreLayoutSpanMappingCache() {
@@ -1504,6 +1868,19 @@ public class GridLayoutManager extends LinearLayoutManager {
          */
         public int getSpanSize() {
             return mSpanSize;
+        }
+    }
+
+
+    @RequiresApi(21)
+    private static class Api21Impl {
+        private Api21Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static boolean isAccessibilityFocused(@NonNull View view) {
+            return view.isAccessibilityFocused();
         }
     }
 }
