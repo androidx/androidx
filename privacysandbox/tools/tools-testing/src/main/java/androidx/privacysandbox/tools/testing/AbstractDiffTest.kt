@@ -58,8 +58,9 @@ abstract class AbstractDiffTest {
 
     @Test
     fun generatedSourcesHaveExpectedContents() {
+        val expectedSourcesPath = "src/test/test-data/$subdirectoryName/output"
         val expectedKotlinSources =
-            loadSourcesFromDirectory(File("src/test/test-data/$subdirectoryName/output"))
+            loadSourcesFromDirectory(File(expectedSourcesPath))
 
         val expectedRelativePaths =
             expectedKotlinSources.map(Source::relativePath) + relativePathsToExpectedAidlClasses
@@ -68,9 +69,14 @@ abstract class AbstractDiffTest {
 
         val actualRelativePathMap = generatedSources.associateBy(Source::relativePath)
         for (expectedKotlinSource in expectedKotlinSources) {
+            val outputFilePath = "$outputDir/${expectedKotlinSource.relativePath}"
+            val goldenPath = System.getProperty("user.dir") + "/" + expectedSourcesPath + "/" +
+                expectedKotlinSource.relativePath
             Truth.assertWithMessage(
                 "Contents of generated file ${expectedKotlinSource.relativePath} don't " +
-                    "match golden. Here's the path to generated sources: $outputDir"
+                    "match golden.\n" +
+                    "Approval command:\n" +
+                    "cp $outputFilePath $goldenPath"
             ).that(actualRelativePathMap[expectedKotlinSource.relativePath]?.contents)
                 .isEqualTo(expectedKotlinSource.contents)
         }
