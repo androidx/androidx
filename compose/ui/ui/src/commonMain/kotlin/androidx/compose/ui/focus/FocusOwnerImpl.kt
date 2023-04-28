@@ -41,7 +41,7 @@ import androidx.compose.ui.node.Nodes
 import androidx.compose.ui.node.ancestors
 import androidx.compose.ui.node.dispatchForKind
 import androidx.compose.ui.node.nearestAncestor
-import androidx.compose.ui.node.visitLocalChildren
+import androidx.compose.ui.node.visitLocalDescendants
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.util.fastForEach
@@ -257,7 +257,7 @@ internal class FocusOwnerImpl(onRequestApplyChangesListener: (() -> Unit) -> Uni
 
     private fun DelegatableNode.lastLocalKeyInputNode(): Modifier.Node? {
         var focusedKeyInputNode: Modifier.Node? = null
-        visitLocalChildren(Nodes.FocusTarget or Nodes.KeyInput) { modifierNode ->
+        visitLocalDescendants(Nodes.FocusTarget or Nodes.KeyInput) { modifierNode ->
             if (modifierNode.isKind(Nodes.FocusTarget)) return focusedKeyInputNode
 
             focusedKeyInputNode = modifierNode
