@@ -37,6 +37,7 @@ import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import kotlinx.coroutines.runBlocking
+import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -428,6 +429,32 @@ class LazyListLayoutInfoTest(
         rule.runOnIdle {
             assertThat(state.layoutInfo.orientation)
                 .isEqualTo(if (vertical) Orientation.Vertical else Orientation.Horizontal)
+        }
+    }
+
+    @Test
+    fun contentTypeIsCorrect() {
+        // no reasons to run the test in all variants
+        assumeTrue(vertical && !reverseLayout)
+
+        lateinit var state: LazyListState
+        rule.setContent {
+            LazyColumnOrRow(
+                state = rememberLazyListState().also { state = it },
+                modifier = Modifier.requiredSize(itemSizeDp * 3f)
+            ) {
+                items(2, contentType = { it }) {
+                    Box(Modifier.requiredSize(itemSizeDp))
+                }
+                item {
+                    Box(Modifier.requiredSize(itemSizeDp))
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            assertThat(state.layoutInfo.visibleItemsInfo.map { it.contentType })
+                .isEqualTo(listOf(0, 1, null))
         }
     }
 

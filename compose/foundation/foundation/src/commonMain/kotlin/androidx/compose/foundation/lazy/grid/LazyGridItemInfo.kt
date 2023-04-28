@@ -60,6 +60,11 @@ sealed interface LazyGridItemInfo {
      */
     val size: IntSize
 
+    /**
+     * The content type of the item which was passed to the item() or items() function.
+     */
+    val contentType: Any?
+
     companion object {
         /**
          * Possible value for [row], when they are unknown. This can happen when the item is
