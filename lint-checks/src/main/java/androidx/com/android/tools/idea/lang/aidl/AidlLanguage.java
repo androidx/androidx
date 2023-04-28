@@ -25,10 +25,9 @@ public class AidlLanguage extends Language {
   public static final Language INSTANCE = getOrCreate();
 
   private static Language getOrCreate() {
-    for(Language lang : Language.getRegisteredLanguages()) {
-      if (ID.equals(lang.getID())) {
-        return lang;
-      }
+    Language lang = Language.findLanguageByID(ID);
+    if (lang != null) {
+      return lang;
     }
     return new AidlLanguage();
   }
