@@ -82,6 +82,21 @@ open class SplitDeviceStateActivityBase : AppCompatActivity(), View.OnClickListe
         activityA = ComponentName(this, SplitDeviceStateActivityA::class.java.name)
         activityB = ComponentName(this, SplitDeviceStateActivityB::class.java.name)
 
+        val radioGroup = viewBinding.splitAttributesOptionsRadioGroup
+        if (componentName == activityA) {
+            // Set to the first option
+            radioGroup.check(R.id.use_default_split_attributes)
+            onCheckedChanged(radioGroup, radioGroup.checkedRadioButtonId)
+            radioGroup.setOnCheckedChangeListener(this)
+        } else {
+            // Only update split pair rule on the primary Activity. The secondary Activity can only
+            // finish itself to prevent confusing users. We only apply the rule when the Activity is
+            // launched from the primary.
+            viewBinding.chooseLayoutTextView.visibility = View.GONE
+            radioGroup.visibility = View.GONE
+            viewBinding.launchActivityToSide.text = "Finish this Activity"
+        }
+
         viewBinding.showHorizontalLayoutInTabletopCheckBox.setOnCheckedChangeListener(this)
         viewBinding.showFullscreenInBookModeCheckBox.setOnCheckedChangeListener(this)
         viewBinding.swapPrimarySecondaryPositionCheckBox.setOnCheckedChangeListener(this)
