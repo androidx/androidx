@@ -28,6 +28,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.NonRestartableComposable
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -54,6 +55,49 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.tv.material3.tokens.Elevation
 import kotlinx.coroutines.launch
+
+/**
+ * The [Surface] is a building block component that will be used for any element on TV such as
+ * buttons, cards, navigation, or a simple background etc. This non-interactive Surface is similar
+ * to Compose Material's Surface composable
+ *
+ * @param modifier Modifier to be applied to the layout corresponding to the surface
+ * @param tonalElevation When [color] is [ColorScheme.surface], a higher the elevation will result
+ * in a darker color in light theme and lighter color in dark theme.
+ * @param shape Defines the surface's shape.
+ * @param color Color to be used on background of the Surface
+ * @param contentColor The preferred content color provided by this Surface to its children.
+ * @param border Defines a border around the Surface.
+ * @param glow Diffused shadow to be shown behind the Surface.
+ * @param content defines the [Composable] content inside the surface
+ */
+@ExperimentalTvMaterial3Api
+@NonRestartableComposable
+@Composable
+fun Surface(
+    modifier: Modifier = Modifier,
+    tonalElevation: Dp = 0.dp,
+    shape: Shape = NonInteractiveSurfaceDefaults.shape,
+    color: Color = NonInteractiveSurfaceDefaults.color,
+    contentColor: Color = NonInteractiveSurfaceDefaults.contentColor,
+    border: Border = NonInteractiveSurfaceDefaults.border,
+    glow: Glow = NonInteractiveSurfaceDefaults.glow,
+    content: @Composable (BoxScope.() -> Unit)
+) {
+    SurfaceImpl(
+        modifier = modifier,
+        checked = false,
+        enabled = true,
+        tonalElevation = tonalElevation,
+        shape = shape,
+        color = color,
+        contentColor = contentColor,
+        scale = 1.0f,
+        border = border,
+        glow = glow,
+        content = content
+    )
+}
 
 /**
  * The [Surface] is a building block component that will be used for any focusable
@@ -272,7 +316,7 @@ private fun SurfaceImpl(
     border: Border,
     glow: Glow,
     tonalElevation: Dp,
-    interactionSource: MutableInteractionSource,
+    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     content: @Composable (BoxScope.() -> Unit)
 ) {
     val focused by interactionSource.collectIsFocusedAsState()

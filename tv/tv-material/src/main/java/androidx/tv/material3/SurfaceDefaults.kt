@@ -26,6 +26,38 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.dp
 
 /**
+ * Contains the default values used by a non-interactive [Surface]
+ */
+@ExperimentalTvMaterial3Api
+object NonInteractiveSurfaceDefaults {
+    /**
+     * Represents the default shape used by a non-interactive [Surface]
+     */
+    val shape: Shape @ReadOnlyComposable @Composable get() = MaterialTheme.shapes.medium
+
+    /**
+     * Represents the default container color used by a non-interactive [Surface]
+     */
+    val color: Color @ReadOnlyComposable @Composable get() = MaterialTheme.colorScheme.surface
+
+    /**
+     * Represents the default content color used by a non-interactive [Surface]
+     */
+    val contentColor: Color @ReadOnlyComposable @Composable get() =
+        MaterialTheme.colorScheme.onSurface
+
+    /**
+     * Represents the default border used by a non-interactive [Surface]
+     */
+    internal val border: Border = Border.None
+
+    /**
+     * Represents the default glow used by a non-interactive [Surface]
+     */
+    internal val glow: Glow = Glow.None
+}
+
+/**
  * Contains the default values used by clickable Surface.
  */
 @ExperimentalTvMaterial3Api
