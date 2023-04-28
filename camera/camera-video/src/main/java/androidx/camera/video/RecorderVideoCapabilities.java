@@ -16,11 +16,12 @@
 
 package androidx.camera.video;
 
+import static androidx.camera.core.DynamicRange.BIT_DEPTH_UNSPECIFIED;
+import static androidx.camera.core.DynamicRange.FORMAT_HDR_UNSPECIFIED;
 import static androidx.camera.core.DynamicRange.FORMAT_HLG;
-import static androidx.camera.core.DynamicRange.HDR_UNSPECIFIED_10_BIT;
-import static androidx.camera.core.DynamicRange.SDR;
+import static androidx.camera.core.DynamicRange.FORMAT_SDR;
+import static androidx.camera.core.DynamicRange.FORMAT_UNSPECIFIED;
 import static androidx.camera.video.internal.BackupHdrProfileEncoderProfilesProvider.DEFAULT_VALIDATOR;
-import static androidx.camera.video.internal.utils.DynamicRangeUtil.VP_TO_DR_FORMAT_MAP;
 
 import android.util.Size;
 
@@ -51,7 +52,6 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -74,7 +74,17 @@ public final class RecorderVideoCapabilities implements VideoCapabilities {
 
     private static final String TAG = "RecorderVideoCapabilities";
 
-    private final Map<DynamicRange, CapabilitiesByQuality> mCapabilitiesMap = new HashMap<>();
+    private final EncoderProfilesProvider mProfilesProvider;
+
+    // Mappings of DynamicRange to recording capability information. The mappings are divided
+    // into two collections based on the key's (DynamicRange) category, one for specified
+    // DynamicRange and one for others. Specified DynamicRange means that its bit depth and
+    // format are specified values, not some wildcards, such as: FORMAT_UNSPECIFIED,
+    // FORMAT_HDR_UNSPECIFIED or BIT_DEPTH_UNSPECIFIED.
+    private final Map<DynamicRange, CapabilitiesByQuality>
+            mCapabilitiesMapForFullySpecifiedDynamicRange = new HashMap<>();
+    private final Map<DynamicRange, CapabilitiesByQuality>
+            mCapabilitiesMapForNonFullySpecifiedDynamicRange = new HashMap<>();
 
     /**
      * Creates a RecorderVideoCapabilities.
@@ -106,23 +116,18 @@ public final class RecorderVideoCapabilities implements VideoCapabilities {
         Quirks deviceQuirks = DeviceQuirks.getAll();
         encoderProfilesProvider = new QualityValidatedEncoderProfilesProvider(
                 encoderProfilesProvider, cameraInfoInternal, deviceQuirks);
+        mProfilesProvider = encoderProfilesProvider;
 
         // Group by dynamic range.
-        for (DynamicRange dynamicRange : getCandidateDynamicRanges(encoderProfilesProvider)) {
-            if (!isDynamicRangeSupported(dynamicRange, cameraInfoInternal)) {
-                continue;
-            }
-
+        for (DynamicRange dynamicRange : cameraInfoInternal.getSupportedDynamicRanges()) {
             // Filter video profiles to include only the profiles match with the target dynamic
             // range.
             EncoderProfilesProvider constrainedProvider =
-                    new DynamicRangeMatchedEncoderProfilesProvider(encoderProfilesProvider,
-                            dynamicRange);
-            CapabilitiesByQuality capabilitiesByQuality =
-                    new CapabilitiesByQuality(constrainedProvider);
+                    new DynamicRangeMatchedEncoderProfilesProvider(mProfilesProvider, dynamicRange);
+            CapabilitiesByQuality capabilities = new CapabilitiesByQuality(constrainedProvider);
 
-            if (!capabilitiesByQuality.getSupportedQualities().isEmpty()) {
-                mCapabilitiesMap.put(dynamicRange, capabilitiesByQuality);
+            if (!capabilities.getSupportedQualities().isEmpty()) {
+                mCapabilitiesMapForFullySpecifiedDynamicRange.put(dynamicRange, capabilities);
             }
         }
     }
@@ -144,25 +149,20 @@ public final class RecorderVideoCapabilities implements VideoCapabilities {
     @NonNull
     @Override
     public Set<DynamicRange> getSupportedDynamicRanges() {
-        Set<DynamicRange> dynamicRanges = mCapabilitiesMap.keySet();
-
-        // Remove HDR_UNSPECIFIED_10_BIT from output, since it does not have explicit content.
-        dynamicRanges.remove(HDR_UNSPECIFIED_10_BIT);
-
-        return dynamicRanges;
+        return mCapabilitiesMapForFullySpecifiedDynamicRange.keySet();
     }
 
     @NonNull
     @Override
     public List<Quality> getSupportedQualities(@NonNull DynamicRange dynamicRange) {
-        CapabilitiesByQuality capabilities = mCapabilitiesMap.get(dynamicRange);
+        CapabilitiesByQuality capabilities = getCapabilities(dynamicRange);
         return capabilities == null ? new ArrayList<>() : capabilities.getSupportedQualities();
     }
 
     @Override
     public boolean isQualitySupported(@NonNull Quality quality,
             @NonNull DynamicRange dynamicRange) {
-        CapabilitiesByQuality capabilities = mCapabilitiesMap.get(dynamicRange);
+        CapabilitiesByQuality capabilities = getCapabilities(dynamicRange);
         return capabilities != null && capabilities.isQualitySupported(quality);
     }
 
@@ -170,7 +170,7 @@ public final class RecorderVideoCapabilities implements VideoCapabilities {
     @Override
     public VideoValidatedEncoderProfilesProxy getProfiles(@NonNull Quality quality,
             @NonNull DynamicRange dynamicRange) {
-        CapabilitiesByQuality capabilities = mCapabilitiesMap.get(dynamicRange);
+        CapabilitiesByQuality capabilities = getCapabilities(dynamicRange);
         return capabilities == null ? null : capabilities.getProfiles(quality);
     }
 
@@ -178,7 +178,7 @@ public final class RecorderVideoCapabilities implements VideoCapabilities {
     @Override
     public VideoValidatedEncoderProfilesProxy findHighestSupportedEncoderProfilesFor(
             @NonNull Size size, @NonNull DynamicRange dynamicRange) {
-        CapabilitiesByQuality capabilities = mCapabilitiesMap.get(dynamicRange);
+        CapabilitiesByQuality capabilities = getCapabilities(dynamicRange);
         return capabilities == null ? null : capabilities.findHighestSupportedEncoderProfilesFor(
                 size);
     }
@@ -187,55 +187,26 @@ public final class RecorderVideoCapabilities implements VideoCapabilities {
     @Override
     public Quality findHighestSupportedQualityFor(@NonNull Size size,
             @NonNull DynamicRange dynamicRange) {
-        CapabilitiesByQuality capabilities = mCapabilitiesMap.get(dynamicRange);
+        CapabilitiesByQuality capabilities = getCapabilities(dynamicRange);
         return capabilities == null ? Quality.NONE : capabilities.findHighestSupportedQualityFor(
                 size);
     }
 
-    @NonNull
-    private static Set<DynamicRange> getCandidateDynamicRanges(
-            @NonNull EncoderProfilesProvider provider) {
-        Set<DynamicRange> dynamicRanges = new HashSet<>();
-        for (Quality quality : Quality.getSortedQualities()) {
-            int qualityValue = ((Quality.ConstantQuality) quality).getValue();
-            EncoderProfilesProxy encoderProfiles = provider.getAll(qualityValue);
-
-            if (encoderProfiles != null) {
-                for (VideoProfileProxy videoProfile : encoderProfiles.getVideoProfiles()) {
-                    Integer format = VP_TO_DR_FORMAT_MAP.get(videoProfile.getHdrFormat());
-                    if (format != null) {
-                        dynamicRanges.add(new DynamicRange(format, videoProfile.getBitDepth()));
-                    }
-                }
-            }
+    @Nullable
+    private CapabilitiesByQuality getCapabilities(@NonNull DynamicRange dynamicRange) {
+        if (isFullySpecified(dynamicRange)) {
+            return mCapabilitiesMapForFullySpecifiedDynamicRange.get(dynamicRange);
         }
 
-        dynamicRanges.add(SDR);
-        dynamicRanges.add(HDR_UNSPECIFIED_10_BIT);
-
-        return dynamicRanges;
-    }
-
-    private static boolean isDynamicRangeSupported(@NonNull DynamicRange dynamicRange,
-            @NonNull CameraInfoInternal cameraInfoInternal) {
-        Set<DynamicRange> supportedDynamicRanges = cameraInfoInternal.getSupportedDynamicRanges();
-        if (supportedDynamicRanges.contains(dynamicRange)) {
-            return true;
+        // Handle dynamic range that is not fully specified.
+        if (mCapabilitiesMapForNonFullySpecifiedDynamicRange.containsKey(dynamicRange)) {
+            return mCapabilitiesMapForNonFullySpecifiedDynamicRange.get(dynamicRange);
         } else {
-            return dynamicRange.equals(HDR_UNSPECIFIED_10_BIT) && contains10BitHdrDynamicRange(
-                    supportedDynamicRanges);
+            CapabilitiesByQuality capabilities =
+                    generateCapabilitiesForNonFullySpecifiedDynamicRange(dynamicRange);
+            mCapabilitiesMapForNonFullySpecifiedDynamicRange.put(dynamicRange, capabilities);
+            return capabilities;
         }
-    }
-
-    private static boolean contains10BitHdrDynamicRange(@NonNull Set<DynamicRange> dynamicRanges) {
-        for (DynamicRange dynamicRange : dynamicRanges) {
-            if (dynamicRange.getFormat() != DynamicRange.FORMAT_SDR
-                    && dynamicRange.getBitDepth() == DynamicRange.BIT_DEPTH_10_BIT) {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     private static boolean isHlg10SupportedByCamera(
@@ -250,6 +221,78 @@ public final class RecorderVideoCapabilities implements VideoCapabilities {
         }
 
         return false;
+    }
+
+    @Nullable
+    private CapabilitiesByQuality generateCapabilitiesForNonFullySpecifiedDynamicRange(
+            @NonNull DynamicRange dynamicRange) {
+        if (!canResolve(dynamicRange, getSupportedDynamicRanges())) {
+            return null;
+        }
+
+        // Filter video profiles to include only the profiles match with the target dynamic
+        // range.
+        EncoderProfilesProvider constrainedProvider =
+                new DynamicRangeMatchedEncoderProfilesProvider(mProfilesProvider, dynamicRange);
+        return new CapabilitiesByQuality(constrainedProvider);
+    }
+
+    /**
+     * Returns {@code true} if the test dynamic range can resolve to the fully specified dynamic
+     * range set.
+     *
+     * <p>A range can resolve if test fields are unspecified and appropriately match the fields
+     * of the fully specified dynamic range, or the test fields exactly match the fields of
+     * the fully specified dynamic range.
+     */
+    private static boolean canResolve(@NonNull DynamicRange dynamicRangeToTest,
+            @NonNull Set<DynamicRange> fullySpecifiedDynamicRanges) {
+        if (isFullySpecified(dynamicRangeToTest)) {
+            return fullySpecifiedDynamicRanges.contains(dynamicRangeToTest);
+        } else {
+            for (DynamicRange fullySpecifiedDynamicRange : fullySpecifiedDynamicRanges) {
+                if (canMatchBitDepth(dynamicRangeToTest, fullySpecifiedDynamicRange)
+                        && canMatchFormat(dynamicRangeToTest, fullySpecifiedDynamicRange)) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+    }
+
+    private static boolean canMatchBitDepth(@NonNull DynamicRange dynamicRangeToTest,
+            @NonNull DynamicRange fullySpecifiedDynamicRange) {
+        Preconditions.checkState(isFullySpecified(fullySpecifiedDynamicRange), "Fully specified "
+                + "range is not actually fully specified.");
+        if (dynamicRangeToTest.getBitDepth() == BIT_DEPTH_UNSPECIFIED) {
+            return true;
+        }
+
+        return dynamicRangeToTest.getBitDepth() == fullySpecifiedDynamicRange.getBitDepth();
+    }
+
+    private static boolean canMatchFormat(@NonNull DynamicRange dynamicRangeToTest,
+            @NonNull DynamicRange fullySpecifiedDynamicRange) {
+        Preconditions.checkState(isFullySpecified(fullySpecifiedDynamicRange), "Fully specified "
+                + "range is not actually fully specified.");
+        int formatToTest = dynamicRangeToTest.getFormat();
+        if (formatToTest == FORMAT_UNSPECIFIED) {
+            return true;
+        }
+
+        int fullySpecifiedFormat = fullySpecifiedDynamicRange.getFormat();
+        if (formatToTest == FORMAT_HDR_UNSPECIFIED && fullySpecifiedFormat != FORMAT_SDR) {
+            return true;
+        }
+
+        return formatToTest == fullySpecifiedFormat;
+    }
+
+    private static boolean isFullySpecified(@NonNull DynamicRange dynamicRange) {
+        return dynamicRange.getFormat() != FORMAT_UNSPECIFIED
+                && dynamicRange.getFormat() != FORMAT_HDR_UNSPECIFIED
+                && dynamicRange.getBitDepth() != BIT_DEPTH_UNSPECIFIED;
     }
 
     /**
