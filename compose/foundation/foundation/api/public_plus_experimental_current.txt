@@ -537,10 +537,12 @@ package androidx.compose.foundation.lazy {
   }
 
   public interface LazyListItemInfo {
+    method public default Object? getContentType();
     method public int getIndex();
     method public Object getKey();
     method public int getOffset();
     method public int getSize();
+    property public default Object? contentType;
     property public abstract int index;
     property public abstract Object key;
     property public abstract int offset;
@@ -650,12 +652,14 @@ package androidx.compose.foundation.lazy.grid {
 
   public sealed interface LazyGridItemInfo {
     method public int getColumn();
+    method public Object? getContentType();
     method public int getIndex();
     method public Object getKey();
     method public long getOffset();
     method public int getRow();
     method public long getSize();
     property public abstract int column;
+    property public abstract Object? contentType;
     property public abstract int index;
     property public abstract Object key;
     property public abstract long offset;
@@ -868,11 +872,13 @@ package androidx.compose.foundation.lazy.staggeredgrid {
   }
 
   public sealed interface LazyStaggeredGridItemInfo {
+    method public Object? getContentType();
     method public int getIndex();
     method public Object getKey();
     method public int getLane();
     method public long getOffset();
     method public long getSize();
+    property public abstract Object? contentType;
     property public abstract int index;
     property public abstract Object key;
     property public abstract int lane;

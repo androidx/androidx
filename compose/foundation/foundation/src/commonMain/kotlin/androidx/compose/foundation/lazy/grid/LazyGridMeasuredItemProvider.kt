@@ -42,6 +42,7 @@ internal class LazyGridMeasuredItemProvider @ExperimentalFoundationApi construct
         constraints: Constraints
     ): LazyGridMeasuredItem {
         val key = itemProvider.getKey(index.value)
+        val contentType = itemProvider.getContentType(index.value)
         val placeables = measureScope.measure(index.value, constraints)
         val crossAxisSize = if (constraints.hasFixedWidth) {
             constraints.minWidth
@@ -52,6 +53,7 @@ internal class LazyGridMeasuredItemProvider @ExperimentalFoundationApi construct
         return measuredItemFactory.createItem(
             index,
             key,
+            contentType,
             crossAxisSize,
             mainAxisSpacing,
             placeables
@@ -70,6 +72,7 @@ internal fun interface MeasuredItemFactory {
     fun createItem(
         index: ItemIndex,
         key: Any,
+        contentType: Any?,
         crossAxisSize: Int,
         mainAxisSpacing: Int,
         placeables: List<Placeable>

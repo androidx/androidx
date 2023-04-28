@@ -186,7 +186,7 @@ internal class LazyStaggeredGridMeasureContext(
         itemProvider = itemProvider,
         measureScope = measureScope,
         resolvedSlots = resolvedSlots,
-    ) { index, lane, span, key, placeables ->
+    ) { index, lane, span, key, contentType, placeables ->
         LazyStaggeredGridMeasuredItem(
             index = index,
             key = key,
@@ -196,7 +196,8 @@ internal class LazyStaggeredGridMeasureContext(
             lane = lane,
             span = span,
             beforeContentPadding = beforeContentPadding,
-            afterContentPadding = afterContentPadding
+            afterContentPadding = afterContentPadding,
+            contentType = contentType
         )
     }
 
@@ -1013,8 +1014,16 @@ internal class LazyStaggeredGridMeasureProvider(
 
     fun getAndMeasure(index: Int, span: SpanRange): LazyStaggeredGridMeasuredItem {
         val key = itemProvider.getKey(index)
+        val contentType = itemProvider.getContentType(index)
         val placeables = measureScope.measure(index, childConstraints(span.start, span.size))
-        return measuredItemFactory.createItem(index, span.start, span.size, key, placeables)
+        return measuredItemFactory.createItem(
+            index,
+            span.start,
+            span.size,
+            key,
+            contentType,
+            placeables
+        )
     }
 
     val keyToIndexMap: LazyLayoutKeyIndexMap get() = itemProvider.keyToIndexMap
@@ -1027,6 +1036,7 @@ internal fun interface MeasuredItemFactory {
         lane: Int,
         span: Int,
         key: Any,
+        contentType: Any?,
         placeables: List<Placeable>
     ): LazyStaggeredGridMeasuredItem
 }
@@ -1041,6 +1051,7 @@ internal class LazyStaggeredGridMeasuredItem(
     val span: Int,
     private val beforeContentPadding: Int,
     private val afterContentPadding: Int,
+    private val contentType: Any?
 ) {
     var isVisible = true
 
@@ -1083,7 +1094,8 @@ internal class LazyStaggeredGridMeasuredItem(
             mainAxisLayoutSize = mainAxisLayoutSize,
             minMainAxisOffset = -beforeContentPadding,
             maxMainAxisOffset = mainAxisLayoutSize + afterContentPadding,
-            span = span
+            span = span,
+            contentType = contentType
         )
 }
 
@@ -1098,7 +1110,8 @@ internal class LazyStaggeredGridPositionedItem(
     private val mainAxisLayoutSize: Int,
     private val minMainAxisOffset: Int,
     private val maxMainAxisOffset: Int,
-    val span: Int
+    val span: Int,
+    override val contentType: Any?
 ) : LazyStaggeredGridItemInfo {
 
     val placeablesCount: Int get() = placeables.size

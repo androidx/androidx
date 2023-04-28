@@ -259,7 +259,7 @@ private fun rememberLazyListMeasurePolicy(
             isVertical,
             itemProvider,
             this
-        ) { index, key, placeables ->
+        ) { index, key, contentType, placeables ->
             // we add spaceBetweenItems as an extra spacing for all items apart from the last one so
             // the lazy list measuring logic will take it into account.
             val spacing = if (index.value == itemsCount - 1) 0 else spaceBetweenItems
@@ -275,7 +275,8 @@ private fun rememberLazyListMeasurePolicy(
                 afterContentPadding = afterContentPadding,
                 spacing = spacing,
                 visualOffset = visualItemOffset,
-                key = key
+                key = key,
+                contentType = contentType
             )
         }
         state.premeasureConstraints = measuredItemProvider.childConstraints

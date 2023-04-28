@@ -256,7 +256,7 @@ private fun rememberLazyGridMeasurePolicy(
             itemProvider,
             this,
             spaceBetweenLines
-        ) { index, key, crossAxisSize, mainAxisSpacing, placeables ->
+        ) { index, key, contentType, crossAxisSize, mainAxisSpacing, placeables ->
             LazyGridMeasuredItem(
                 index = index,
                 key = key,
@@ -268,7 +268,8 @@ private fun rememberLazyGridMeasurePolicy(
                 beforeContentPadding = beforeContentPadding,
                 afterContentPadding = afterContentPadding,
                 visualOffset = visualItemOffset,
-                placeables = placeables
+                placeables = placeables,
+                contentType = contentType
             )
         }
         val measuredLineProvider = LazyGridMeasuredLineProvider(

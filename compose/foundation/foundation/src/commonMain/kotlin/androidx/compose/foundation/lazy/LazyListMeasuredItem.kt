@@ -49,6 +49,7 @@ internal class LazyListMeasuredItem @ExperimentalFoundationApi constructor(
      */
     private val visualOffset: IntOffset,
     val key: Any,
+    private val contentType: Any?
 ) {
     /**
      * Sum of the main axis sizes of all the inner placeables.
@@ -116,7 +117,8 @@ internal class LazyListMeasuredItem @ExperimentalFoundationApi constructor(
             wrappers = wrappers,
             visualOffset = visualOffset,
             reverseLayout = reverseLayout,
-            mainAxisLayoutSize = mainAxisLayoutSize
+            mainAxisLayoutSize = mainAxisLayoutSize,
+            contentType = contentType
         )
     }
 }
@@ -132,7 +134,8 @@ internal class LazyListPositionedItem(
     private val wrappers: List<LazyListPlaceableWrapper>,
     private val visualOffset: IntOffset,
     private val reverseLayout: Boolean,
-    private val mainAxisLayoutSize: Int
+    private val mainAxisLayoutSize: Int,
+    override val contentType: Any?
 ) : LazyListItemInfo {
     val placeablesCount: Int get() = wrappers.size
 
