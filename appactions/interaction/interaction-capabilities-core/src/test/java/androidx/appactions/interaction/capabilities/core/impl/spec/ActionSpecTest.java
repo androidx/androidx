@@ -23,11 +23,9 @@ import androidx.appactions.interaction.capabilities.core.impl.BuilderOf;
 import androidx.appactions.interaction.capabilities.core.impl.converters.EntityConverter;
 import androidx.appactions.interaction.capabilities.core.impl.converters.ParamValueConverter;
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters;
-import androidx.appactions.interaction.capabilities.core.properties.Entity;
 import androidx.appactions.interaction.capabilities.core.properties.Property;
 import androidx.appactions.interaction.capabilities.core.properties.StringValue;
 import androidx.appactions.interaction.capabilities.core.testing.spec.Output;
-import androidx.appactions.interaction.capabilities.core.values.EntityValue;
 import androidx.appactions.interaction.proto.AppActionsContext.AppAction;
 import androidx.appactions.interaction.proto.AppActionsContext.IntentParameter;
 import androidx.appactions.interaction.proto.FulfillmentResponse.StructuredOutput;
@@ -51,24 +49,6 @@ public final class ActionSpecTest {
                     .setDescriptor(Properties.class)
                     .setArguments(Arguments.class, Arguments::newBuilder)
                     .setOutput(Output.class)
-                    .bindParameter(
-                            "requiredEntity",
-                            Properties::requiredEntityField,
-                            Arguments.Builder::setRequiredEntityField,
-                            TypeConverters.ENTITY_PARAM_VALUE_CONVERTER,
-                            TypeConverters.ENTITY_ENTITY_CONVERTER)
-                    .bindOptionalParameter(
-                            "optionalEntity",
-                            Properties::optionalEntityField,
-                            Arguments.Builder::setOptionalEntityField,
-                            TypeConverters.ENTITY_PARAM_VALUE_CONVERTER,
-                            TypeConverters.ENTITY_ENTITY_CONVERTER)
-                    .bindRepeatedParameter(
-                            "repeatedEntity",
-                            Properties::repeatedEntityField,
-                            Arguments.Builder::setRepeatedEntityField,
-                            TypeConverters.ENTITY_PARAM_VALUE_CONVERTER,
-                            TypeConverters.ENTITY_ENTITY_CONVERTER)
                     .bindParameter(
                             "requiredString",
                             Properties::requiredStringField,
@@ -198,16 +178,10 @@ public final class ActionSpecTest {
     public void getAppAction_onlyRequiredProperty() {
         Properties property =
                 Properties.create(
-                        new Property.Builder<Entity>()
-                                .setPossibleValues(
-                                        new Entity.Builder()
-                                                .setId("contact_2")
-                                                .setName("Donald")
-                                                .setAlternateNames("Duck")
-                                                .build())
+                        new Property.Builder<StringValue>()
+                                .setPossibleValues(StringValue.of("Donald"))
                                 .setValueMatchRequired(true)
-                                .build(),
-                        new Property.Builder<StringValue>().build());
+                                .build());
 
         assertThat(ACTION_SPEC.convertPropertyToProto(property))
                 .isEqualTo(
@@ -215,17 +189,13 @@ public final class ActionSpecTest {
                                 .setName("actions.intent.TEST")
                                 .addParams(
                                         IntentParameter.newBuilder()
-                                                .setName("requiredEntity")
+                                                .setName("requiredString")
+                                                .setEntityMatchRequired(true)
                                                 .addPossibleEntities(
                                                         androidx.appactions.interaction.proto.Entity
                                                                 .newBuilder()
-                                                                .setIdentifier("contact_2")
-                                                                .setName("Donald")
-                                                                .addAlternateNames("Duck")
-                                                                .build())
-                                                .setIsRequired(false)
-                                                .setEntityMatchRequired(true))
-                                .addParams(IntentParameter.newBuilder().setName("requiredString"))
+                                                                .setIdentifier("Donald")
+                                                                .setName("Donald")))
                                 .build());
     }
 
@@ -233,39 +203,9 @@ public final class ActionSpecTest {
     public void getAppAction_allProperties() {
         Properties property =
                 Properties.create(
-                        new Property.Builder<Entity>()
-                                .setPossibleValues(
-                                        new Entity.Builder()
-                                                .setId("contact_2")
-                                                .setName("Donald")
-                                                .setAlternateNames("Duck")
-                                                .build())
-                                .build(),
-                        Optional.of(
-                                new Property.Builder<Entity>()
-                                        .setPossibleValues(
-                                                new Entity.Builder()
-                                                        .setId("entity1")
-                                                        .setName("optional possible entity")
-                                                        .build())
-                                        .setRequired(true)
-                                        .build()),
                         Optional.of(
                                 new Property.Builder<TestEnum>()
                                         .setPossibleValues(TestEnum.VALUE_1)
-                                        .setRequired(true)
-                                        .build()),
-                        Optional.of(
-                                new Property.Builder<Entity>()
-                                        .setPossibleValues(
-                                                new Entity.Builder()
-                                                        .setId("entity1")
-                                                        .setName("repeated entity1")
-                                                        .build(),
-                                                new Entity.Builder()
-                                                        .setId("entity2")
-                                                        .setName("repeated entity2")
-                                                        .build())
                                         .setRequired(true)
                                         .build()),
                         new Property.Builder<StringValue>().build(),
@@ -281,46 +221,6 @@ public final class ActionSpecTest {
                 .isEqualTo(
                         AppAction.newBuilder()
                                 .setName("actions.intent.TEST")
-                                .addParams(
-                                        IntentParameter.newBuilder()
-                                                .setName("requiredEntity")
-                                                .addPossibleEntities(
-                                                        androidx.appactions.interaction.proto.Entity
-                                                                .newBuilder()
-                                                                .setIdentifier("contact_2")
-                                                                .setName("Donald")
-                                                                .addAlternateNames("Duck")
-                                                                .build())
-                                                .setIsRequired(false)
-                                                .setEntityMatchRequired(false))
-                                .addParams(
-                                        IntentParameter.newBuilder()
-                                                .setName("optionalEntity")
-                                                .addPossibleEntities(
-                                                        androidx.appactions.interaction.proto.Entity
-                                                                .newBuilder()
-                                                                .setIdentifier("entity1")
-                                                                .setName("optional possible entity")
-                                                                .build())
-                                                .setIsRequired(true)
-                                                .setEntityMatchRequired(false))
-                                .addParams(
-                                        IntentParameter.newBuilder()
-                                                .setName("repeatedEntity")
-                                                .addPossibleEntities(
-                                                        androidx.appactions.interaction.proto.Entity
-                                                                .newBuilder()
-                                                                .setIdentifier("entity1")
-                                                                .setName("repeated entity1")
-                                                                .build())
-                                                .addPossibleEntities(
-                                                        androidx.appactions.interaction.proto.Entity
-                                                                .newBuilder()
-                                                                .setIdentifier("entity2")
-                                                                .setName("repeated entity2")
-                                                                .build())
-                                                .setIsRequired(true)
-                                                .setEntityMatchRequired(false))
                                 .addParams(IntentParameter.newBuilder().setName("requiredString"))
                                 .addParams(
                                         IntentParameter.newBuilder()
@@ -416,12 +316,6 @@ public final class ActionSpecTest {
             return new AutoValue_ActionSpecTest_Arguments.Builder();
         }
 
-        abstract EntityValue requiredEntityField();
-
-        abstract EntityValue optionalEntityField();
-
-        abstract List<EntityValue> repeatedEntityField();
-
         abstract String requiredStringField();
 
         abstract String optionalStringField();
@@ -430,12 +324,6 @@ public final class ActionSpecTest {
 
         @AutoValue.Builder
         abstract static class Builder implements BuilderOf<Arguments> {
-
-            abstract Builder setRequiredEntityField(EntityValue value);
-
-            abstract Builder setOptionalEntityField(EntityValue value);
-
-            abstract Builder setRepeatedEntityField(List<EntityValue> repeated);
 
             abstract Builder setRequiredStringField(String value);
 
@@ -453,43 +341,27 @@ public final class ActionSpecTest {
     abstract static class Properties {
 
         static Properties create(
-                Property<Entity> requiredEntityField,
-                Optional<Property<Entity>> optionalEntityField,
                 Optional<Property<TestEnum>> optionalEnumField,
-                Optional<Property<Entity>> repeatedEntityField,
                 Property<StringValue> requiredStringField,
                 Optional<Property<StringValue>> optionalStringField,
                 Optional<Property<StringValue>> repeatedStringField) {
             return new AutoValue_ActionSpecTest_Properties(
-                    requiredEntityField,
-                    optionalEntityField,
                     optionalEnumField,
-                    repeatedEntityField,
                     requiredStringField,
                     optionalStringField,
                     repeatedStringField);
         }
 
         static Properties create(
-                Property<Entity> requiredEntityField,
                 Property<StringValue> requiredStringField) {
             return create(
-                    requiredEntityField,
-                    Optional.empty(),
-                    Optional.empty(),
                     Optional.empty(),
                     requiredStringField,
                     Optional.empty(),
                     Optional.empty());
         }
 
-        abstract Property<Entity> requiredEntityField();
-
-        abstract Optional<Property<Entity>> optionalEntityField();
-
         abstract Optional<Property<TestEnum>> optionalEnumField();
-
-        abstract Optional<Property<Entity>> repeatedEntityField();
 
         abstract Property<StringValue> requiredStringField();
 

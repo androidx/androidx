@@ -18,7 +18,6 @@ package androidx.appactions.interaction.capabilities.core.testing.spec;
 
 import androidx.annotation.NonNull;
 import androidx.appactions.interaction.capabilities.core.impl.BuilderOf;
-import androidx.appactions.interaction.capabilities.core.values.EntityValue;
 
 import com.google.auto.value.AutoValue;
 
@@ -33,7 +32,7 @@ public abstract class Arguments {
         return new AutoValue_Arguments.Builder();
     }
 
-    public abstract Optional<EntityValue> requiredEntityField();
+    public abstract Optional<String> requiredStringField();
 
     public abstract Optional<String> optionalStringField();
 
@@ -45,7 +44,7 @@ public abstract class Arguments {
     @AutoValue.Builder
     public abstract static class Builder implements BuilderOf<Arguments> {
 
-        public abstract Builder setRequiredEntityField(EntityValue value);
+        public abstract Builder setRequiredStringField(String value);
 
         public abstract Builder setOptionalStringField(String value);
 
