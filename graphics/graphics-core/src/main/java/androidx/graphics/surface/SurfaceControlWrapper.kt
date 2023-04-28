@@ -69,7 +69,7 @@ internal class JniBindings {
         external fun nSetBuffer(
             surfaceTransaction: Long,
             surfaceControl: Long,
-            hardwareBuffer: HardwareBuffer,
+            hardwareBuffer: HardwareBuffer?,
             acquireFieldFd: SyncFenceV19
         )
 
@@ -288,7 +288,7 @@ internal class SurfaceControlWrapper {
         @JvmOverloads
         fun setBuffer(
             surfaceControl: SurfaceControlWrapper,
-            hardwareBuffer: HardwareBuffer,
+            hardwareBuffer: HardwareBuffer?,
             syncFence: SyncFenceV19 = SyncFenceV19(-1)
         ): Transaction {
             JniBindings.nSetBuffer(

@@ -1307,6 +1307,161 @@ class GLFrontBufferedRendererTest {
             }
     }
 
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
+    @Test
+    fun testFrontBufferClearAfterRender() {
+        var frontLatch = CountDownLatch(1)
+        val commitLatch = CountDownLatch(1)
+        val executor = Executors.newSingleThreadExecutor()
+        val callbacks = object : GLFrontBufferedRenderer.Callback<Any> {
+
+            private val mOrthoMatrix = FloatArray(16)
+            private val mProjectionMatrix = FloatArray(16)
+
+            // Should only render once
+            private var mShouldRender = true
+
+            override fun onDrawFrontBufferedLayer(
+                eglManager: EGLManager,
+                bufferInfo: BufferInfo,
+                transform: FloatArray,
+                param: Any
+            ) {
+                if (mShouldRender) {
+                    GLES20.glViewport(0, 0, bufferInfo.width, bufferInfo.height)
+                    Matrix.orthoM(
+                        mOrthoMatrix,
+                        0,
+                        0f,
+                        bufferInfo.width.toFloat(),
+                        0f,
+                        bufferInfo.height.toFloat(),
+                        -1f,
+                        1f
+                    )
+                    Matrix.multiplyMM(mProjectionMatrix, 0, mOrthoMatrix, 0, transform, 0)
+                    Rectangle().draw(mProjectionMatrix, Color.RED, 0f, 0f, 100f, 100f)
+                    mShouldRender = false
+                }
+            }
+
+            override fun onDrawMultiBufferedLayer(
+                eglManager: EGLManager,
+                bufferInfo: BufferInfo,
+                transform: FloatArray,
+                params: Collection<Any>
+            ) {
+                GLES20.glViewport(0, 0, bufferInfo.width, bufferInfo.height)
+                Matrix.orthoM(
+                    mOrthoMatrix,
+                    0,
+                    0f,
+                    bufferInfo.width.toFloat(),
+                    0f,
+                    bufferInfo.height.toFloat(),
+                    -1f,
+                    1f
+                )
+                Matrix.multiplyMM(mProjectionMatrix, 0, mOrthoMatrix, 0, transform, 0)
+                Rectangle().draw(mProjectionMatrix, Color.BLUE, 0f, 0f, 100f, 100f)
+            }
+
+            override fun onMultiBufferedLayerRenderComplete(
+                frontBufferedLayerSurfaceControl: SurfaceControlCompat,
+                transaction: SurfaceControlCompat.Transaction
+            ) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    transaction.addTransactionCommittedListener(
+                        executor,
+                        object : SurfaceControlCompat.TransactionCommittedListener {
+                            override fun onTransactionCommitted() {
+                                commitLatch.countDown()
+                            }
+                        })
+                } else {
+                    commitLatch.countDown()
+                }
+            }
+
+            override fun onFrontBufferedLayerRenderComplete(
+                frontBufferedLayerSurfaceControl: SurfaceControlCompat,
+                transaction: SurfaceControlCompat.Transaction
+            ) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    transaction.addTransactionCommittedListener(
+                        executor,
+                        object : SurfaceControlCompat.TransactionCommittedListener {
+                            override fun onTransactionCommitted() {
+                                frontLatch.countDown()
+                            }
+                        })
+                } else {
+                    frontLatch.countDown()
+                }
+            }
+        }
+        var renderer: GLFrontBufferedRenderer<Any>? = null
+        var surfaceView: SurfaceView? = null
+        try {
+            val scenario = ActivityScenario.launch(FrontBufferedRendererTestActivity::class.java)
+                .moveToState(Lifecycle.State.CREATED)
+                .onActivity {
+                    surfaceView = it.getSurfaceView()
+                    renderer = GLFrontBufferedRenderer(surfaceView!!, callbacks)
+                }
+
+            scenario.moveToState(Lifecycle.State.RESUMED).onActivity {
+                renderer?.renderFrontBufferedLayer(Any())
+                assertTrue(frontLatch.await(3000, TimeUnit.MILLISECONDS))
+                renderer?.commit()
+
+                assertTrue(commitLatch.await(3000, TimeUnit.MILLISECONDS))
+                // Contents should be cleared and the front buffer should be visible but transparent
+                frontLatch = CountDownLatch(1)
+                renderer?.renderFrontBufferedLayer(Any())
+            }
+            assertTrue(frontLatch.await(3000, TimeUnit.MILLISECONDS))
+
+            val coords = IntArray(2)
+            val width: Int
+            val height: Int
+            with(surfaceView!!) {
+                getLocationOnScreen(coords)
+                width = this.width
+                height = this.height
+            }
+
+            SurfaceControlUtils.validateOutput { bitmap ->
+                (Math.abs(
+                    Color.red(Color.BLUE) - Color.red(
+                        bitmap.getPixel(
+                            coords[0] + width / 2,
+                            coords[1] + height / 2
+                        )
+                    )
+                ) < 2) &&
+                    (Math.abs(
+                        Color.green(Color.BLUE) - Color.green(
+                            bitmap.getPixel(
+                                coords[0] + width / 2,
+                                coords[1] + height / 2
+                            )
+                        )
+                    ) < 2) &&
+                    (Math.abs(
+                        Color.blue(Color.BLUE) - Color.blue(
+                            bitmap.getPixel(
+                                coords[0] + width / 2,
+                                coords[1] + height / 2
+                            )
+                        )
+                    ) < 2)
+            }
+        } finally {
+            renderer.blockingRelease()
+        }
+    }
+
     @RequiresApi(Build.VERSION_CODES.Q)
     private fun GLFrontBufferedRenderer<*>?.blockingRelease(timeoutMillis: Long = 3000) {
         if (this != null) {

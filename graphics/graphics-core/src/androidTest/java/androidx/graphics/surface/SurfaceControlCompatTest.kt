@@ -1269,6 +1269,52 @@ class SurfaceControlCompatTest {
     }
 
     @Test
+    fun testTransactionSetNullBuffer() {
+        val scenario = ActivityScenario.launch(SurfaceControlWrapperTestActivity::class.java)
+            .moveToState(
+                Lifecycle.State.CREATED
+            ).onActivity {
+                val callback = object : SurfaceHolderCallback() {
+                    override fun surfaceCreated(sh: SurfaceHolder) {
+                        val scCompat = SurfaceControlCompat
+                            .Builder()
+                            .setParent(it.getSurfaceView())
+                            .setName("SurfaceControlCompatTest")
+                            .build()
+
+                        // Buffer colorspace is RGBA, so Color.BLUE will be visually Red
+                        val buffer = SurfaceControlUtils.getSolidBuffer(
+                            SurfaceControlWrapperTestActivity.DEFAULT_WIDTH,
+                            SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT,
+                            Color.BLUE
+                        )
+                        SurfaceControlCompat.Transaction()
+                            .setBuffer(scCompat, buffer)
+                            .setOpaque(
+                                scCompat,
+                                false
+                            )
+                            .commit()
+
+                        SurfaceControlCompat.Transaction()
+                            .setBuffer(scCompat, null)
+                            .commit()
+                    }
+                }
+
+                it.addSurface(it.mSurfaceView, callback)
+            }
+
+        scenario.moveToState(Lifecycle.State.RESUMED).onActivity {
+            SurfaceControlUtils.validateOutput { bitmap ->
+                val coord = intArrayOf(0, 0)
+                it.mSurfaceView.getLocationOnScreen(coord)
+                Color.BLACK == bitmap.getPixel(coord[0], coord[1])
+            }
+        }
+    }
+
+    @Test
     fun testTransactionSetAlpha_0_0() {
         val scenario = ActivityScenario.launch(SurfaceControlWrapperTestActivity::class.java)
             .moveToState(

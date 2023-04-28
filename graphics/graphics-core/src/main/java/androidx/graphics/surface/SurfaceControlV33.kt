@@ -121,7 +121,7 @@ internal class SurfaceControlV33 internal constructor(
          */
         override fun setBuffer(
             surfaceControl: SurfaceControlImpl,
-            buffer: HardwareBuffer,
+            buffer: HardwareBuffer?,
             fence: SyncFenceImpl?,
             releaseCallback: (() -> Unit)?
         ): Transaction {
