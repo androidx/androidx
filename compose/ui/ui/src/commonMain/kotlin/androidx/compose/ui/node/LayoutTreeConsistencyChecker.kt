@@ -26,7 +26,7 @@ import androidx.compose.ui.util.fastForEach
  */
 internal class LayoutTreeConsistencyChecker(
     private val root: LayoutNode,
-    private val relayoutNodes: DepthSortedSet,
+    private val relayoutNodes: DepthSortedSetsForDifferentPasses,
     private val postponedMeasureRequests: List<MeasureAndLayoutDelegate.PostponedRequest>
 ) {
     fun assertConsistent() {
@@ -88,13 +88,13 @@ internal class LayoutTreeConsistencyChecker(
                 return true
             }
             if (lookaheadMeasurePending) {
-                return relayoutNodes.contains(this) ||
+                return relayoutNodes.contains(this, true) ||
                     parent?.lookaheadMeasurePending == true ||
                     parentLayoutState == LayoutNode.LayoutState.LookaheadMeasuring ||
                     (parent?.measurePending == true && lookaheadRoot == this)
             }
             if (lookaheadLayoutPending) {
-                return relayoutNodes.contains(this) ||
+                return relayoutNodes.contains(this, true) ||
                     parent == null ||
                     parent.lookaheadMeasurePending ||
                     parent.lookaheadLayoutPending ||

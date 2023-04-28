@@ -163,3 +163,5 @@ class DepthSortedSetTest {
             get() = LayoutNode()
     }
 }
+
+private fun DepthSortedSet() = DepthSortedSet(extraAssertions = true)

@@ -1929,6 +1929,60 @@ class LookaheadScopeTest {
     }
 
     @Test
+    fun forceMeasureSubtreeWhileLookaheadMeasureRequestedFromSubtree() {
+        var iterations by mutableStateOf(0)
+        rule.setContent {
+            Box(Modifier.fillMaxSize()) {
+                LookaheadScope {
+                    // Fill max size will cause the remeasure requests to go down the
+                    // forceMeasureSubtree code path.
+                    CompositionLocalProvider(LocalDensity provides Density(1f)) {
+                        Column(Modifier.fillMaxSize()) {
+                            // This box will get a remeasure request when `iterations` changes.
+                            // Subsequently this Box's size change will trigger a measurement pass
+                            // from Column.
+                            Box(Modifier.intermediateLayout { measurable, _ ->
+                                // Force a state-read, so that this node is the node where
+                                // remeasurement starts.
+                                @Suppress("UNUSED_EXPRESSION")
+                                iterations
+                                measurable.measure(Constraints.fixed(200, 200))
+                                    .run {
+                                        layout(width, height) {
+                                            place(0, 0)
+                                        }
+                                    }
+                            }) {
+                                // Swap modifiers. If lookahead re-measurement from this node isn't
+                                // handled before parent's non-lookahead remeasurement, this would
+                                // lead to a crash.
+                                Box(
+                                    if (iterations % 2 == 0)
+                                        Modifier.size(100.dp)
+                                    else
+                                        Modifier.intermediateLayout { measurable, constraints ->
+                                            measurable.measure(constraints).run {
+                                                layout(width, height) {
+                                                    place(5, 5)
+                                                }
+                                            }
+                                        }.padding(5.dp)
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        repeat(4) {
+            rule.runOnIdle {
+                iterations++
+            }
+        }
+    }
+
+    @Test
     fun multiMeasureLayoutInLookahead() {
         var horizontal by mutableStateOf(true)
         rule.setContent {
@@ -2069,13 +2123,19 @@ class LookaheadScopeTest {
                     // Also check that localPositionOf with non-zero offset works
                     // correctly for lookahead coordinates and LayoutCoordinates.
                     val randomOffset = Offset(
-                        Random.nextInt(0, 1000).toFloat(),
-                        Random.nextInt(0, 1000).toFloat()
+                        Random
+                            .nextInt(0, 1000)
+                            .toFloat(),
+                        Random
+                            .nextInt(0, 1000)
+                            .toFloat()
                     )
                     assertEquals(
-                        lookaheadLayoutCoordinates!!.toLookaheadCoordinates().localPositionOf(
-                            onPlacedCoordinates!!.toLookaheadCoordinates(),
-                            randomOffset
+                        lookaheadLayoutCoordinates!!
+                            .toLookaheadCoordinates()
+                            .localPositionOf(
+                                onPlacedCoordinates!!.toLookaheadCoordinates(),
+                                randomOffset
                             ),
                         lookaheadLayoutCoordinates!!.localPositionOf(
                             onPlacedCoordinates!!,
