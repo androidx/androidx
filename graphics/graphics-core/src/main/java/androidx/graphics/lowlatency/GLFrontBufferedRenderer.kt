@@ -37,7 +37,6 @@ import androidx.opengl.EGLExt.Companion.EGL_ANDROID_NATIVE_FENCE_SYNC
 import androidx.opengl.EGLExt.Companion.EGL_KHR_FENCE_SYNC
 import java.lang.IllegalStateException
 import java.util.concurrent.ConcurrentLinkedQueue
-import java.util.concurrent.Executors
 
 /**
  * Class responsible for supporting a "front buffered" rendering system. This allows for lower
@@ -86,12 +85,11 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
             frontBufferedLayerSurfaceControl: SurfaceControlCompat,
             transaction: SurfaceControlCompat.Transaction
         ) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                transaction.addTransactionCommittedListener(mExecutor, mCommittedListener)
-            } else {
-                clearFrontBuffer()
-            }
             mFrontBufferSyncStrategy.isVisible = false
+
+            // Set a null buffer here so that the original front buffer's release callback
+            // gets invoked and we can clear the content of the front buffer
+            transaction.setBuffer(frontBufferedLayerSurfaceControl, null)
             callback.onMultiBufferedLayerRenderComplete(
                 frontBufferedLayerSurfaceControl,
                 transaction
@@ -111,17 +109,16 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
         }
     }
 
-    private val mExecutor = Executors.newSingleThreadExecutor()
-
-    private val mCommittedListener = object : SurfaceControlCompat.TransactionCommittedListener {
-        override fun onTransactionCommitted() {
-            clearFrontBuffer()
+    // GLThread
+    private val mClearFrontBufferRunnable = Runnable {
+        mFrontLayerBuffer?.let { frameBuffer ->
+            if (mPendingClear) {
+                frameBuffer.makeCurrent()
+                GLES20.glClearColor(0.0f, 0.0f, 0.0f, 0.0f)
+                GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
+                mPendingClear = false
+            }
         }
-    }
-
-    internal fun clearFrontBuffer() {
-        mFrontBufferedLayerRenderer?.clear()
-        mFrontBufferedRenderTarget?.requestRender()
     }
 
     /**
@@ -169,6 +166,19 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
 
         override fun getFrameBufferPool(): FrameBufferPool? =
             mBufferPool
+    }
+
+    /**
+     * Flag to determine if a request to clear the front buffer content is pending. This should
+     * only be accessed on the GLThread
+     */
+    private var mPendingClear = false
+
+    /**
+     * Runnable exdecuted on the GLThread to flip the [mPendingClear] flag
+     */
+    private val mSetPendingClearRunnable = Runnable {
+        mPendingClear = true
     }
 
     /**
@@ -455,6 +465,7 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
     fun commit() {
         if (isValid()) {
             mSegments.add(mActiveSegment.release())
+            mGLRenderer.execute(mSetPendingClearRunnable)
             mMultiBufferedLayerRenderTarget?.requestRender()
         } else {
             Log.w(
@@ -560,7 +571,6 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
             mGLRenderer.stop(false)
         }
 
-        mExecutor.shutdown()
         mIsReleased = true
     }
 
@@ -601,6 +611,11 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
 
                 @WorkerThread
                 override fun onDraw(eglManager: EGLManager) {
+                    if (mPendingClear) {
+                        GLES20.glClearColor(0.0f, 0.0f, 0.0f, 0.0f)
+                        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
+                        mPendingClear = false
+                    }
                     bufferInfo.apply {
                         this.width = mParentRenderLayer.getBufferWidth()
                         this.height = mParentRenderLayer.getBufferHeight()
@@ -628,7 +643,9 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
                             frontBufferedLayerSurfaceControl,
                             frameBuffer.hardwareBuffer,
                             syncFenceCompat
-                        )
+                        ) {
+                            mGLRenderer.execute(mClearFrontBufferRunnable)
+                        }
                         .setVisibility(frontBufferedLayerSurfaceControl, true)
                     val inverseTransform = mParentRenderLayer.getInverseBufferTransform()
                     if (inverseTransform != BufferTransformHintResolver.UNKNOWN_TRANSFORM) {

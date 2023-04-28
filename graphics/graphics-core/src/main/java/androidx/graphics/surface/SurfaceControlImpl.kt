@@ -175,7 +175,7 @@ internal interface SurfaceControlImpl {
          */
         fun setBuffer(
             surfaceControl: SurfaceControlImpl,
-            buffer: HardwareBuffer,
+            buffer: HardwareBuffer?,
             fence: SyncFenceImpl? = null,
             releaseCallback: (() -> Unit)? = null
         ): Transaction
