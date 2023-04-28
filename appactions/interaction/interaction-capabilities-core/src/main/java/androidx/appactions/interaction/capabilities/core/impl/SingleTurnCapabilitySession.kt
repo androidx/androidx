@@ -20,6 +20,7 @@ import androidx.annotation.RestrictTo
 import androidx.appactions.interaction.capabilities.core.ExecutionCallback
 import androidx.appactions.interaction.capabilities.core.ExecutionResult
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpec
+import androidx.appactions.interaction.capabilities.core.impl.utils.invokeExternalSuspendBlock
 import androidx.appactions.interaction.proto.AppActionsContext.AppDialogState
 import androidx.appactions.interaction.proto.FulfillmentResponse
 import androidx.appactions.interaction.proto.ParamValue
@@ -75,9 +76,12 @@ internal class SingleTurnCapabilitySession<
             try {
                 mutex.lock(owner = this@SingleTurnCapabilitySession)
                 UiHandleRegistry.registerUiHandle(uiHandle, sessionId)
-                val output = executionCallback.onExecute(arguments)
+                val output = invokeExternalSuspendBlock("onExecute") {
+                    executionCallback.onExecute(arguments)
+                }
                 callback.onSuccess(convertToFulfillmentResponse(output))
             } catch (t: Throwable) {
+                // TODO(b/276354491) add fine-grained error handling
                 callback.onError(ErrorStatusInternal.CANCELLED)
             } finally {
                 UiHandleRegistry.unregisterUiHandle(uiHandle)
