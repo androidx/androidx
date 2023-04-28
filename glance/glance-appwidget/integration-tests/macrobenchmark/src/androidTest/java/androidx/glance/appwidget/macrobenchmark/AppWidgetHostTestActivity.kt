@@ -44,8 +44,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.max
 import androidx.compose.ui.unit.min
 import java.util.Locale
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.first
 import org.junit.Assert.fail
 
 @RequiresApi(26)
@@ -147,13 +147,10 @@ class TestAppWidgetHost(context: Context, hostId: Int) : AppWidgetHost(context, 
 class TestAppWidgetHostView(context: Context) : AppWidgetHostView(context) {
 
     init {
-        // Prevent asynchronous inflation of the App Widget
-        setExecutor(null)
         layoutDirection = View.LAYOUT_DIRECTION_LOCALE
     }
 
-    private var mLatch: CountDownLatch? = null
-    private var mRemoteViews: RemoteViews? = null
+    private val remoteViews = MutableStateFlow<RemoteViews?>(null)
     private var mPortraitSize: DpSize = DpSize(0.dp, 0.dp)
     private var mLandscapeSize: DpSize = DpSize(0.dp, 0.dp)
 
@@ -161,31 +158,19 @@ class TestAppWidgetHostView(context: Context) : AppWidgetHostView(context) {
      * Wait for the new remote views to be received. If a remote views was already received, return
      * immediately.
      */
-    fun waitForRemoteViews() {
-        synchronized(this) {
-            mRemoteViews?.let { return }
-            mLatch = CountDownLatch(1)
-        }
-        val result = mLatch?.await(5, TimeUnit.SECONDS)!!
-        require(result) { "Timeout before getting RemoteViews" }
+    suspend fun waitForRemoteViews() {
+        remoteViews.first { it != null }
+    }
+
+    suspend fun runAndWaitForRemoteViews(block: () -> Unit) {
+        remoteViews.value = null
+        block()
+        waitForRemoteViews()
     }
 
     override fun updateAppWidget(remoteViews: RemoteViews?) {
         super.updateAppWidget(remoteViews)
-        synchronized(this) {
-            mRemoteViews = remoteViews
-            if (remoteViews != null) {
-                mLatch?.countDown()
-            }
-        }
-    }
-
-    /** Reset the latch used to detect the arrival of a new RemoteViews. */
-    fun resetRemoteViewsLatch() {
-        synchronized(this) {
-            mRemoteViews = null
-            mLatch = null
-        }
+        this.remoteViews.value = remoteViews
     }
 
     fun setSizes(portraitSize: DpSize, landscapeSize: DpSize) {
@@ -211,7 +196,7 @@ class TestAppWidgetHostView(context: Context) : AppWidgetHostView(context) {
         TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, value, displayMetrics).toInt()
 
     fun reapplyRemoteViews() {
-        mRemoteViews?.let { super.updateAppWidget(it) }
+        remoteViews.value?.let { super.updateAppWidget(it) }
     }
 }
 
