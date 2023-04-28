@@ -20,6 +20,7 @@ import android.view.Choreographer
 import android.view.Display
 import android.view.View
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.lazy.layout.LazyLayoutPrefetchState.AverageTimeTracker
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.RememberObserver
 import androidx.compose.runtime.collection.mutableVectorOf
@@ -71,26 +72,7 @@ internal actual fun LazyLayoutPrefetcher(
  *    Frame 4 - prefetch [e], [f]
  *    Something similar is not possible with LazyColumn yet.
  *
- * 2) Prefetching time estimation only captured during the prefetch.
- *    We currently don't track the time of the regular subcompose call happened during the regular
- *    measure pass, only the ones which are done during the prefetching. The downside is we build
- *    our prefetch information only after scrolling has started and items are showing up. Your very
- *    first scroll won't know if it's safe to prefetch. Why:
- *    a) SubcomposeLayout is not exposing an API to understand if subcompose() call is going to
- *    do the real work. The work could be skipped if the same lambda was passed as for the
- *    previous invocation or if there were no recompositions scheduled. We could workaround it
- *    by keeping the extra state in LazyListState about what items we already composed and to
- *    only measure the first composition for the given slot, or consider exposing extra
- *    information in SubcomposeLayoutState API.
- *    b) It allows us to nicely decouple the logic, now the prefetching logic is build on
- *    top of the regular LazyColumn measuring functionallity and the main logic knows nothing
- *    about prefetch
- *    c) Maybe the better approach would be to wait till the low-level runtime infra is ready to
- *    do subcompositions on the different threads which illuminates the need to calculate the
- *    deadlines completely.
- *    Tracking bug: b/187393381.
- *
- * 3) Prefetch is not aware of item type.
+ * 2) Prefetch is not aware of item type.
  *    RecyclerView separates timing metadata about different item types. For example, in play
  *    store style UI, this allows RecyclerView to separately estimate the cost of a header,
  *    separator, and item row. In this implementation, all of these would be averaged together in
@@ -121,14 +103,6 @@ internal class LazyLayoutPrefetcher(
      */
     private val prefetchRequests = mutableVectorOf<PrefetchRequest>()
 
-    /**
-     * Average time the prefetching operations takes. Keeping it allows us to not start the work
-     * if in this frame we are most likely not going to finish the work in time to not delay the
-     * next frame.
-     */
-    private var averagePrecomposeTimeNs: Long = 0
-    private var averagePremeasureTimeNs: Long = 0
-
     private var prefetchScheduled = false
 
     private val choreographer = Choreographer.getInstance()
@@ -138,6 +112,10 @@ internal class LazyLayoutPrefetcher(
 
     init {
         calculateFrameIntervalIfNeeded(view)
+    }
+
+    override val timeTracker: AverageTimeTracker = object : AverageTimeTracker() {
+        override fun currentTime(): Long = System.nanoTime()
     }
 
     /**
@@ -165,14 +143,13 @@ internal class LazyLayoutPrefetcher(
                     val beforeTimeNs = System.nanoTime()
                     // check if there is enough time left in this frame. otherwise, we schedule
                     // a next frame callback in which we will post the message in the handler again.
-                    if (enoughTimeLeft(beforeTimeNs, nextFrameNs, averagePrecomposeTimeNs)) {
+                    if (enoughTimeLeft(beforeTimeNs, nextFrameNs, timeTracker.compositionTimeNs)) {
                         val key = itemProvider.getKey(request.index)
                         val content = itemContentFactory.getContent(request.index, key)
-                        request.precomposeHandle = subcomposeLayoutState.precompose(key, content)
-                        averagePrecomposeTimeNs = calculateAverageTime(
-                            System.nanoTime() - beforeTimeNs,
-                            averagePrecomposeTimeNs
-                        )
+                        timeTracker.trackComposition {
+                            request.precomposeHandle =
+                                subcomposeLayoutState.precompose(key, content)
+                        }
                     } else {
                         scheduleForNextFrame = true
                     }
@@ -181,18 +158,16 @@ internal class LazyLayoutPrefetcher(
                 check(!request.measured)
                 trace("compose:lazylist:prefetch:measure") {
                     val beforeTimeNs = System.nanoTime()
-                    if (enoughTimeLeft(beforeTimeNs, nextFrameNs, averagePremeasureTimeNs)) {
+                    if (enoughTimeLeft(beforeTimeNs, nextFrameNs, timeTracker.measurementTimeNs)) {
                         val handle = request.precomposeHandle!!
-                        repeat(handle.placeablesCount) { placeableIndex ->
-                            handle.premeasure(
-                                placeableIndex,
-                                request.constraints
-                            )
+                        timeTracker.trackMeasurement {
+                            repeat(handle.placeablesCount) { placeableIndex ->
+                                handle.premeasure(
+                                    placeableIndex,
+                                    request.constraints
+                                )
+                            }
                         }
-                        averagePremeasureTimeNs = calculateAverageTime(
-                            System.nanoTime() - beforeTimeNs,
-                            averagePremeasureTimeNs
-                        )
                         // we finished this request
                         prefetchRequests.removeAt(0)
                     } else {
@@ -222,18 +197,6 @@ internal class LazyLayoutPrefetcher(
     override fun doFrame(frameTimeNanos: Long) {
         if (isActive) {
             view.post(this)
-        }
-    }
-
-    private fun calculateAverageTime(new: Long, current: Long): Long {
-        // Calculate a weighted moving average of time taken to compose an item. We use weighted
-        // moving average to bias toward more recent measurements, and to minimize storage /
-        // computation cost. (the idea is taken from RecycledViewPool)
-        return if (current == 0L) {
-            new
-        } else {
-            // dividing first to avoid a potential overflow
-            current / 4 * 3 + new / 4
         }
     }
 
