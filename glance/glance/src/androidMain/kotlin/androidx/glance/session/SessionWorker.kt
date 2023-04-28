@@ -61,7 +61,7 @@ internal data class TimeoutOptions(
  */
 internal class SessionWorker(
     appContext: Context,
-    params: WorkerParameters,
+    private val params: WorkerParameters,
     private val sessionManager: SessionManager = GlanceSessionManager,
     private val timeouts: TimeoutOptions = TimeoutOptions(),
     @Deprecated("Deprecated by super class, replacement in progress, see b/245353737")
@@ -98,7 +98,15 @@ internal class SessionWorker(
 
     private suspend fun TimerScope.work(): Result {
         val session = sessionManager.getSession(key)
-            ?: error("No session available for key $key")
+            ?: if (params.runAttemptCount == 0) {
+                error("No session available for key $key")
+            } else {
+                // If this is a retry because the process was restarted (e.g. on app upgrade or
+                // reinstall), the Session object won't be available because it's not persistable
+                // at the moment.
+                Log.w(TAG, "SessionWorker attempted restart but Session is not available for $key")
+                return Result.success()
+            }
 
         if (DEBUG) Log.d(TAG, "Setting up composition for ${session.key}")
         val frameClock = InteractiveFrameClock(this)
