@@ -32,6 +32,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.ColorLambda
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.Layout
@@ -48,6 +49,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.FloatLambda
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.util.fastForEach
 import kotlin.math.floor
@@ -120,7 +122,9 @@ fun BasicText(
                 placeholders = null,
                 onPlaceholderLayout = null,
                 selectionController = selectionController,
-                color = color
+                color = color,
+                brush = null,
+                alpha = null
             )
     } else {
         modifier
@@ -133,7 +137,101 @@ fun BasicText(
             softWrap = softWrap,
             maxLines = maxLines,
             minLines = minLines,
-            color = color
+            color = color,
+            brush = null,
+            alpha = null
+        )
+    }
+    Layout(finalModifier, EmptyMeasurePolicy)
+}
+
+/**
+ * Basic element that displays text and provides semantics / accessibility information.
+ * Typically you will instead want to use [androidx.compose.material.Text], which is
+ * a higher level Text element that contains semantics and consumes style information from a theme.
+ *
+ * @param text The text to be displayed.
+ * @param modifier [Modifier] to apply to this layout node.
+ * @param style Style configuration for the text such as color, font, line height etc.
+ * @param onTextLayout Callback that is executed when a new text layout is calculated. A
+ * [TextLayoutResult] object that callback provides contains paragraph information, size of the
+ * text, baselines and other details. The callback can be used to add additional decoration or
+ * functionality to the text. For example, to draw selection around the text.
+ * @param overflow How visual overflow should be handled.
+ * @param softWrap Whether the text should break at soft line breaks. If false, the glyphs in the
+ * text will be positioned as if there was unlimited horizontal space. If [softWrap] is false,
+ * [overflow] and TextAlign may have unexpected effects.
+ * @param maxLines An optional maximum number of lines for the text to span, wrapping if
+ * necessary. If the text exceeds the given number of lines, it will be truncated according to
+ * [overflow] and [softWrap]. It is required that 1 <= [minLines] <= [maxLines].
+ * @param minLines The minimum height in terms of minimum number of visible lines. It is required
+ * that 1 <= [minLines] <= [maxLines].
+ * @param brush Overrides the brush provided in [style]
+ * @param alpha Overrides the brush alpha provided in [style]
+ */
+@Composable
+fun BasicText(
+    text: String,
+    modifier: Modifier = Modifier,
+    style: TextStyle = TextStyle.Default,
+    onTextLayout: ((TextLayoutResult) -> Unit)? = null,
+    overflow: TextOverflow = TextOverflow.Clip,
+    softWrap: Boolean = true,
+    maxLines: Int = Int.MAX_VALUE,
+    minLines: Int = 1,
+    brush: (() -> Brush)? = null,
+    alpha: FloatLambda? = null
+) {
+    validateMinMaxLines(
+        minLines = minLines,
+        maxLines = maxLines
+    )
+    val selectionRegistrar = LocalSelectionRegistrar.current
+    val selectionController = if (selectionRegistrar != null) {
+        val backgroundSelectionColor = LocalTextSelectionColors.current.backgroundColor
+        remember(selectionRegistrar, backgroundSelectionColor) {
+            SelectionController(
+                selectionRegistrar,
+                backgroundSelectionColor
+            )
+        }
+    } else {
+        null
+    }
+    val finalModifier = if (selectionController != null || onTextLayout != null) {
+        modifier
+            // TODO(b/274781644): Remove this graphicsLayer
+            .graphicsLayer()
+            .textModifier(
+                AnnotatedString(text = text),
+                style = style,
+                onTextLayout = onTextLayout,
+                overflow = overflow,
+                softWrap = softWrap,
+                maxLines = maxLines,
+                minLines = minLines,
+                fontFamilyResolver = LocalFontFamilyResolver.current,
+                placeholders = null,
+                onPlaceholderLayout = null,
+                selectionController = selectionController,
+                color = null,
+                brush = brush,
+                alpha = alpha
+            )
+    } else {
+        modifier
+            // TODO(b/274781644): Remove this graphicsLayer
+            .graphicsLayer() then TextStringSimpleElement(
+            text = text,
+            style = style,
+            fontFamilyResolver = LocalFontFamilyResolver.current,
+            overflow = overflow,
+            softWrap = softWrap,
+            maxLines = maxLines,
+            minLines = minLines,
+            color = null,
+            brush = brush,
+            alpha = alpha
         )
     }
     Layout(finalModifier, EmptyMeasurePolicy)
@@ -211,7 +309,9 @@ fun BasicText(
                     placeholders = null,
                     onPlaceholderLayout = null,
                     selectionController = selectionController,
-                    color = color
+                    color = color,
+                    brush = null,
+                    alpha = null
                 ),
             EmptyMeasurePolicy
         )
@@ -240,8 +340,124 @@ fun BasicText(
                 placeholders = placeholders,
                 onPlaceholderLayout = { measuredPlaceholderPositions.value = it },
                 selectionController = selectionController,
-                color = color
+                color = color,
+                brush = null,
+                alpha = null
             ),
+            measurePolicy = TextMeasurePolicy { measuredPlaceholderPositions.value }
+        )
+    }
+}
+
+/**
+ * Basic element that displays text and provides semantics / accessibility information.
+ * Typically you will instead want to use [androidx.compose.material.Text], which is
+ * a higher level Text element that contains semantics and consumes style information from a theme.
+ *
+ * @param text The text to be displayed.
+ * @param modifier [Modifier] to apply to this layout node.
+ * @param style Style configuration for the text such as color, font, line height etc.
+ * @param onTextLayout Callback that is executed when a new text layout is calculated. A
+ * [TextLayoutResult] object that callback provides contains paragraph information, size of the
+ * text, baselines and other details. The callback can be used to add additional decoration or
+ * functionality to the text. For example, to draw selection around the text.
+ * @param overflow How visual overflow should be handled.
+ * @param softWrap Whether the text should break at soft line breaks. If false, the glyphs in the
+ * text will be positioned as if there was unlimited horizontal space. If [softWrap] is false,
+ * [overflow] and TextAlign may have unexpected effects.
+ * @param maxLines An optional maximum number of lines for the text to span, wrapping if
+ * necessary. If the text exceeds the given number of lines, it will be truncated according to
+ * [overflow] and [softWrap]. It is required that 1 <= [minLines] <= [maxLines].
+ * @param minLines The minimum height in terms of minimum number of visible lines. It is required
+ * that 1 <= [minLines] <= [maxLines].
+ * @param inlineContent A map store composables that replaces certain ranges of the text. It's
+ * used to insert composables into text layout. Check [InlineTextContent] for more information.
+ * @param brush Overrides the brush provided in [style]
+ * @param alpha Overrides the brush alpha provided in [style]
+ */
+@Composable
+fun BasicText(
+    text: AnnotatedString,
+    modifier: Modifier = Modifier,
+    style: TextStyle = TextStyle.Default,
+    onTextLayout: ((TextLayoutResult) -> Unit)? = null,
+    overflow: TextOverflow = TextOverflow.Clip,
+    softWrap: Boolean = true,
+    maxLines: Int = Int.MAX_VALUE,
+    minLines: Int = 1,
+    inlineContent: Map<String, InlineTextContent> = mapOf(),
+    brush: (() -> Brush)? = null,
+    alpha: FloatLambda? = null
+) {
+    validateMinMaxLines(
+        minLines = minLines,
+        maxLines = maxLines
+    )
+    val selectionRegistrar = LocalSelectionRegistrar.current
+    val selectionController = if (selectionRegistrar != null) {
+        val backgroundSelectionColor = LocalTextSelectionColors.current.backgroundColor
+        remember(selectionRegistrar, backgroundSelectionColor) {
+            SelectionController(
+                selectionRegistrar,
+                backgroundSelectionColor
+            )
+        }
+    } else {
+        null
+    }
+    if (!text.hasInlineContent()) {
+        // this is the same as text: String, use all the early exits
+        Layout(
+            modifier = modifier
+                // TODO(b/274781644): Remove this graphicsLayer
+                .graphicsLayer()
+                .textModifier(
+                    text = text,
+                    style = style,
+                    onTextLayout = onTextLayout,
+                    overflow = overflow,
+                    softWrap = softWrap,
+                    maxLines = maxLines,
+                    minLines = minLines,
+                    fontFamilyResolver = LocalFontFamilyResolver.current,
+                    placeholders = null,
+                    onPlaceholderLayout = null,
+                    selectionController = selectionController,
+                    color = null,
+                    brush = brush,
+                    alpha = alpha
+                ),
+            EmptyMeasurePolicy
+        )
+    } else {
+        // do the inline content allocs
+        val (placeholders, inlineComposables) = text.resolveInlineContent(
+            inlineContent = inlineContent
+        )
+        val measuredPlaceholderPositions = remember<MutableState<List<Rect?>?>> {
+            mutableStateOf(null)
+        }
+        Layout(
+            content = { InlineChildren(text = text, inlineContents = inlineComposables) },
+            modifier = modifier
+                // TODO(b/274781644): Remove this graphicsLayer
+                .graphicsLayer()
+                .textModifier(
+                    text = text,
+                    style = style,
+                    onTextLayout = onTextLayout,
+                    overflow = overflow,
+                    softWrap = softWrap,
+                    maxLines = maxLines,
+                    minLines = minLines,
+                    fontFamilyResolver = LocalFontFamilyResolver.current,
+                    placeholders = placeholders,
+                    onPlaceholderLayout = { measuredPlaceholderPositions.value = it },
+                    selectionController = selectionController,
+                    color = null,
+                    brush = brush,
+                    alpha = alpha
+                ),
             measurePolicy = TextMeasurePolicy { measuredPlaceholderPositions.value }
         )
     }
@@ -397,7 +613,9 @@ private fun Modifier.textModifier(
     placeholders: List<AnnotatedString.Range<Placeholder>>?,
     onPlaceholderLayout: ((List<Rect?>) -> Unit)?,
     selectionController: SelectionController?,
-    color: ColorLambda?
+    color: ColorLambda?,
+    brush: (() -> Brush)?,
+    alpha: FloatLambda?
 ): Modifier {
     if (selectionController == null) {
         val staticTextModifier = TextAnnotatedStringElement(
@@ -412,7 +630,9 @@ private fun Modifier.textModifier(
             placeholders,
             onPlaceholderLayout,
             null,
-            color
+            color,
+            brush,
+            alpha
         )
         return this then Modifier /* selection position */ then staticTextModifier
     } else {
@@ -428,7 +648,9 @@ private fun Modifier.textModifier(
             placeholders,
             onPlaceholderLayout,
             selectionController,
-            color
+            color,
+            brush,
+            alpha
         )
         return this then selectionController.modifier then selectableTextModifier
     }
