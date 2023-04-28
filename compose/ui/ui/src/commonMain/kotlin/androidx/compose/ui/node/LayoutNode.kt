@@ -52,6 +52,7 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.platform.ViewConfiguration
 import androidx.compose.ui.platform.simpleIdentityToString
+import androidx.compose.ui.semantics.SemanticsConfiguration
 import androidx.compose.ui.semantics.generateSemanticsId
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
@@ -392,6 +393,37 @@ internal class LayoutNode(
         invalidateMeasurements()
     }
 
+    private var _collapsedSemantics: SemanticsConfiguration? = null
+    internal fun invalidateSemantics() {
+        _collapsedSemantics = null
+        // TODO(lmr): this ends up scheduling work that diffs the entire tree, but we should
+        //  eventually move to marking just this node as invalidated since we are invalidating
+        //  on a per-node level. This should preserve current behavior for now.
+        requireOwner().onSemanticsChange()
+    }
+    internal val collapsedSemantics: SemanticsConfiguration?
+        get() {
+            if (!nodes.has(Nodes.Semantics) || _collapsedSemantics != null) {
+                return _collapsedSemantics
+            }
+
+            var config = SemanticsConfiguration()
+            requireOwner().snapshotObserver.observeSemanticsReads(this) {
+                nodes.tailToHead(Nodes.Semantics) {
+                    if (it.shouldClearDescendantSemantics) {
+                        config = SemanticsConfiguration()
+                        config.isClearingSemantics = true
+                    }
+                    if (it.shouldMergeDescendantSemantics) {
+                        config.isMergingSemanticsOfDescendants = true
+                    }
+                    with(config) { with(it) { applySemantics() } }
+                }
+            }
+            _collapsedSemantics = config
+            return config
+        }
+
     /**
      * Set the [Owner] of this LayoutNode. This LayoutNode must not already be attached.
      * [owner] must match its [parent].[owner].
@@ -419,7 +451,7 @@ internal class LayoutNode(
         this.owner = owner
         this.depth = (parent?.depth ?: -1) + 1
         if (nodes.has(Nodes.Semantics)) {
-            owner.onSemanticsChange()
+            invalidateSemantics()
         }
         owner.onAttach(this)
 
@@ -469,7 +501,7 @@ internal class LayoutNode(
         onDetach?.invoke(owner)
 
         if (nodes.has(Nodes.Semantics)) {
-            owner.onSemanticsChange()
+            invalidateSemantics()
         }
         nodes.detach()
         owner.onDetach(this)
@@ -1139,10 +1171,8 @@ internal class LayoutNode(
     fun invalidateSubtree(isRootOfInvalidation: Boolean = true) {
         if (isRootOfInvalidation) {
             parent?.invalidateLayer()
-            // Invalidate semantics. We can do this once because there isn't a node-by-node
-            // invalidation mechanism.
-            requireOwner().onSemanticsChange()
         }
+        invalidateSemantics()
         requestRemeasure()
         nodes.headToTail(Nodes.Layout) {
             it.requireCoordinator(Nodes.Layout).layer?.invalidate()

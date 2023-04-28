@@ -18,6 +18,7 @@ package androidx.compose.ui.semantics
 
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.node.LayoutNode
+import androidx.compose.ui.node.Nodes
 import androidx.compose.ui.util.fastForEach
 
 /**
@@ -37,7 +38,16 @@ class SemanticsOwner internal constructor(private val rootNode: LayoutNode) {
 
     val unmergedRootSemanticsNode: SemanticsNode
         get() {
-            return SemanticsNode(rootNode, mergingEnabled = false)
+            return SemanticsNode(
+                outerSemanticsNode = rootNode.nodes.head(Nodes.Semantics)!!.node,
+                layoutNode = rootNode,
+                mergingEnabled = false,
+                // Forcing an empty SemanticsConfiguration here since the root node will always
+                // have an empty config, but if we don't pass this in explicitly here it will try
+                // to call `rootNode.collapsedSemantics` which will fail because the LayoutNode
+                // is not yet attached when this getter is first called.
+                unmergedConfig = SemanticsConfiguration()
+            )
         }
 }
 

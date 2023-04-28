@@ -51,6 +51,7 @@ import androidx.compose.ui.platform.LocalInputModeManager
 import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.platform.inspectable
 import androidx.compose.ui.semantics.SemanticsConfiguration
+import androidx.compose.ui.semantics.SemanticsPropertyReceiver
 import androidx.compose.ui.semantics.focused
 import androidx.compose.ui.semantics.requestFocus
 import kotlinx.coroutines.launch
@@ -246,9 +247,9 @@ private class FocusableNode(
     }
 
     // TODO(levima) Remove this once delegation can propagate this events on its own
-    override val semanticsConfiguration: SemanticsConfiguration
-        get() = focusableSemanticsNode.semanticsConfiguration
-
+    override fun SemanticsPropertyReceiver.applySemantics() {
+        with(focusableSemanticsNode) { applySemantics() }
+    }
     // TODO(levima) Remove this once delegation can propagate this events on its own
     override fun onGloballyPositioned(coordinates: LayoutCoordinates) {
         focusedBoundsNode.onGloballyPositioned(coordinates)
@@ -362,11 +363,10 @@ private class FocusableSemanticsNode : Modifier.Node(), SemanticsModifierNode,
         this.isFocused = focused
     }
 
-    override val semanticsConfiguration: SemanticsConfiguration
-        get() = semanticsConfigurationCache.apply {
-            focused = isFocused
-            requestFocus {
-                this@FocusableSemanticsNode.requestFocus()
-            }
+    override fun SemanticsPropertyReceiver.applySemantics() {
+        focused = isFocused
+        requestFocus {
+            this@FocusableSemanticsNode.requestFocus()
         }
+    }
 }

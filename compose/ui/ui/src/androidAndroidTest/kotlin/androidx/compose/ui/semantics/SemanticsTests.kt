@@ -106,22 +106,6 @@ class SemanticsTests {
     }
 
     @Test
-    fun valueSemanticsAreEqual() {
-        assertEquals(
-            Modifier.semantics {
-                text = AnnotatedString("text")
-                contentDescription = "foo"
-                popup()
-            },
-            Modifier.semantics {
-                text = AnnotatedString("text")
-                contentDescription = "foo"
-                popup()
-            }
-        )
-    }
-
-    @Test
     fun isTraversalGroupProperty() {
         rule.setContent {
             Surface(
@@ -1083,10 +1067,9 @@ internal fun SemanticsMod(
     properties: SemanticsPropertyReceiver.() -> Unit
 ): CoreSemanticsModifierNode {
     return CoreSemanticsModifierNode(
-        SemanticsConfiguration().apply {
-            isMergingSemanticsOfDescendants = mergeDescendants
-            properties()
-        }
+        mergeDescendants = mergeDescendants,
+        isClearingSemantics = false,
+        properties = properties,
     )
 }
 

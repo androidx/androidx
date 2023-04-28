@@ -2604,8 +2604,11 @@ package androidx.compose.ui.node {
   }
 
   public interface SemanticsModifierNode extends androidx.compose.ui.node.DelegatableNode {
-    method public androidx.compose.ui.semantics.SemanticsConfiguration getSemanticsConfiguration();
-    property public abstract androidx.compose.ui.semantics.SemanticsConfiguration semanticsConfiguration;
+    method public void applySemantics(androidx.compose.ui.semantics.SemanticsPropertyReceiver);
+    method public default boolean getShouldClearDescendantSemantics();
+    method public default boolean getShouldMergeDescendantSemantics();
+    property public default boolean shouldClearDescendantSemantics;
+    property public default boolean shouldMergeDescendantSemantics;
   }
 
   public final class SemanticsModifierNodeKt {

@@ -46,7 +46,7 @@ import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.platform.inspectable
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.semantics.SemanticsConfiguration
+import androidx.compose.ui.semantics.SemanticsPropertyReceiver
 import androidx.compose.ui.semantics.disabled
 import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.onLongClick
@@ -645,7 +645,7 @@ private sealed class AbstractClickableNode(
     private var onClickLabel: String?,
     private var role: Role?,
     private var onClick: () -> Unit
-) : DelegatingNode(), SemanticsModifierNode, PointerInputModifierNode, KeyInputModifierNode {
+) : DelegatingNode(), PointerInputModifierNode, KeyInputModifierNode {
     abstract val clickablePointerInputNode: AbstractClickablePointerInputNode
     abstract val clickableSemanticsNode: ClickableSemanticsNode
 
@@ -694,9 +694,6 @@ private sealed class AbstractClickableNode(
         interactionData.pressInteraction = null
         interactionData.currentKeyPressInteractions.clear()
     }
-
-    override val semanticsConfiguration: SemanticsConfiguration
-        get() = clickableSemanticsNode.semanticsConfiguration
 
     override fun onPointerEvent(
         pointerEvent: PointerEvent,
@@ -812,26 +809,26 @@ private class ClickableSemanticsNode(
         this.onLongClick = onLongClick
     }
 
-    override val semanticsConfiguration
-        get() = SemanticsConfiguration().apply {
-            isMergingSemanticsOfDescendants = true
-            if (this@ClickableSemanticsNode.role != null) {
-                role = this@ClickableSemanticsNode.role!!
-            }
-            onClick(
-                action = { onClick(); true },
-                label = onClickLabel
-            )
-            if (onLongClick != null) {
-                onLongClick(
-                    action = { onLongClick?.invoke(); true },
-                    label = onLongClickLabel
-                )
-            }
-            if (!enabled) {
-                disabled()
-            }
+    override val shouldMergeDescendantSemantics: Boolean
+        get() = true
+    override fun SemanticsPropertyReceiver.applySemantics() {
+        if (this@ClickableSemanticsNode.role != null) {
+            role = this@ClickableSemanticsNode.role!!
         }
+        onClick(
+            action = { onClick(); true },
+            label = onClickLabel
+        )
+        if (onLongClick != null) {
+            onLongClick(
+                action = { onLongClick?.invoke(); true },
+                label = onLongClickLabel
+            )
+        }
+        if (!enabled) {
+            disabled()
+        }
+    }
 }
 
 private sealed class AbstractClickablePointerInputNode(

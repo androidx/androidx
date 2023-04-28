@@ -51,7 +51,7 @@ import androidx.compose.ui.node.PointerInputModifierNode
 import androidx.compose.ui.node.SemanticsModifierNode
 import androidx.compose.ui.node.requireLayoutDirection
 import androidx.compose.ui.platform.InspectorInfo
-import androidx.compose.ui.semantics.SemanticsConfiguration
+import androidx.compose.ui.semantics.SemanticsPropertyReceiver
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.unit.IntSize
@@ -155,13 +155,12 @@ fun DelegatedNodeSampleExplicit() {
             gesture.onCancelPointerInput()
         }
 
-        override val semanticsConfiguration: SemanticsConfiguration = SemanticsConfiguration()
-            .apply {
-                onClick {
-                    gesture.onTap()
-                    true
-                }
+        override fun SemanticsPropertyReceiver.applySemantics() {
+            onClick {
+                gesture.onTap()
+                true
             }
+        }
     }
 }
 
@@ -184,13 +183,12 @@ fun DelegatedNodeSampleImplicit() {
     }
 
     class TapSemanticsNode(var onTap: () -> Unit) : SemanticsModifierNode, Modifier.Node() {
-        override val semanticsConfiguration: SemanticsConfiguration = SemanticsConfiguration()
-            .apply {
-                onClick {
-                    onTap()
-                    true
-                }
+        override fun SemanticsPropertyReceiver.applySemantics() {
+            onClick {
+                onTap()
+                true
             }
+        }
     }
     class TapGestureWithClickSemantics(onTap: () -> Unit) : DelegatingNode() {
         var onTap: () -> Unit
@@ -250,13 +248,12 @@ fun LazyDelegationExample() {
     }
 
     class TapSemanticsNode(var onTap: () -> Unit) : SemanticsModifierNode, Modifier.Node() {
-        override val semanticsConfiguration: SemanticsConfiguration = SemanticsConfiguration()
-            .apply {
-                onClick {
-                    onTap()
-                    true
-                }
+        override fun SemanticsPropertyReceiver.applySemantics() {
+            onClick {
+                onTap()
+                true
             }
+        }
     }
     class TapGestureWithClickSemantics(onTap: () -> Unit) : DelegatingNode() {
         var onTap: () -> Unit
@@ -340,10 +337,9 @@ fun ModifierNodeElementSample() {
 @Composable
 fun SemanticsModifierNodeSample() {
     class HeadingNode : SemanticsModifierNode, Modifier.Node() {
-        override val semanticsConfiguration: SemanticsConfiguration = SemanticsConfiguration()
-            .apply {
-                heading()
-            }
+        override fun SemanticsPropertyReceiver.applySemantics() {
+            heading()
+        }
     }
 
     val HeadingElement = object : ModifierNodeElement<HeadingNode>() {
