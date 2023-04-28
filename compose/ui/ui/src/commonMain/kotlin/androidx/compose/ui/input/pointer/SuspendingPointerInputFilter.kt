@@ -602,9 +602,6 @@ internal class SuspendingPointerInputModifierNodeImpl(
         dispatchPointerEvent(cancelEvent, PointerEventPass.Final)
 
         lastPointerEvent = null
-
-        // Cancels existing coroutine (Job) handling events.
-        resetPointerInputHandler()
     }
 
     override suspend fun <R> awaitPointerEventScope(
