@@ -158,7 +158,7 @@ class CallAttributesCompat constructor(
         }
     }
 
-    private fun hasSupportsSetInactiveCapability(): Boolean {
+    internal fun hasSupportsSetInactiveCapability(): Boolean {
         return Utils.hasCapability(SUPPORTS_SET_INACTIVE, callCapabilities)
     }
 

@@ -22,6 +22,7 @@ import android.telecom.ConnectionRequest
 import android.telecom.ConnectionService
 import android.telecom.PhoneAccountHandle
 import android.telecom.TelecomManager
+import android.telecom.VideoProfile
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresPermission
@@ -47,7 +48,7 @@ internal class JetpackConnectionService : ConnectionService() {
         val callAttributes: CallAttributesCompat,
         val callChannel: CallChannels,
         val coroutineContext: CoroutineContext,
-        val completableDeferred: CompletableDeferred<CallSessionLegacy>
+        val completableDeferred: CompletableDeferred<CallSessionLegacy>?
     )
 
     companion object {
@@ -89,7 +90,7 @@ internal class JetpackConnectionService : ConnectionService() {
         // create a job that times out if the connection cannot be created in x amount of time
         CoroutineScope(pendingConnectionRequest.coroutineContext).launch {
             delay(CONNECTION_CREATION_TIMEOUT)
-            if (!pendingConnectionRequest.completableDeferred.isCompleted) {
+            if (!pendingConnectionRequest.completableDeferred!!.isCompleted) {
                 Log.i(
                     TAG, "The request to create a connection timed out. Cancelling the" +
                         "request to add the call to Telecom."
@@ -155,21 +156,54 @@ internal class JetpackConnectionService : ConnectionService() {
         mPendingConnectionRequests.remove(pendingRequest)
     }
 
-    private fun createSelfManagedConnection(request: ConnectionRequest, direction: Int):
+    internal fun createSelfManagedConnection(request: ConnectionRequest, direction: Int):
         Connection? {
-        var jetpackConnection: CallSessionLegacy? = null
-        val targetRequest: PendingConnectionRequest? =
-            findTargetPendingConnectionRequest(request, direction)
+        val targetRequest: PendingConnectionRequest =
+            findTargetPendingConnectionRequest(request, direction) ?: return null
 
-        if (targetRequest != null) {
-            jetpackConnection = CallSessionLegacy(
-                ParcelUuid.fromString(UUID.randomUUID().toString()),
-                targetRequest.callChannel,
-                targetRequest.coroutineContext
-            )
-            targetRequest.completableDeferred.complete(jetpackConnection)
-            mPendingConnectionRequests.remove(targetRequest)
+        val jetpackConnection = CallSessionLegacy(
+            ParcelUuid.fromString(UUID.randomUUID().toString()),
+            targetRequest.callChannel,
+            targetRequest.coroutineContext
+        )
+
+        // set display name
+        jetpackConnection.setCallerDisplayName(
+            targetRequest.callAttributes.displayName.toString(),
+            TelecomManager.PRESENTATION_ALLOWED
+        )
+
+        // set address
+        jetpackConnection.setAddress(
+            targetRequest.callAttributes.address,
+            TelecomManager.PRESENTATION_ALLOWED
+        )
+
+        // set the call state for the given direction
+        if (direction == CallAttributesCompat.DIRECTION_OUTGOING) {
+            jetpackConnection.setDialing()
+        } else {
+            jetpackConnection.setRinging()
         }
+
+        // set the callType
+        if (targetRequest.callAttributes.callType
+            == CallAttributesCompat.CALL_TYPE_VIDEO_CALL
+        ) {
+            jetpackConnection.setVideoState(VideoProfile.STATE_BIDIRECTIONAL)
+        } else {
+            jetpackConnection.setVideoState(VideoProfile.STATE_AUDIO_ONLY)
+        }
+
+        // set the call capabilities
+        if (targetRequest.callAttributes.hasSupportsSetInactiveCapability()) {
+            jetpackConnection.setConnectionCapabilities(
+                Connection.CAPABILITY_HOLD or Connection.CAPABILITY_SUPPORT_HOLD
+            )
+        }
+
+        targetRequest.completableDeferred?.complete(jetpackConnection)
+        mPendingConnectionRequests.remove(targetRequest)
 
         return jetpackConnection
     }
