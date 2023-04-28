@@ -22,6 +22,7 @@ import androidx.appsearch.app.AppSearchResult;
 import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.app.InternalSetSchemaResponse;
+import androidx.appsearch.app.JoinSpec;
 import androidx.appsearch.app.SearchResultPage;
 import androidx.appsearch.app.SearchSpec;
 import androidx.appsearch.exceptions.AppSearchException;
@@ -54,6 +55,7 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -708,6 +710,160 @@ public class AppSearchLoggerTest {
         assertThat(sStats.getPackageName()).isEqualTo(testPackageName);
         assertThat(sStats.getDatabase()).isEqualTo(testPackageName);
         assertThat(sStats.getStatusCode()).isEqualTo(AppSearchResult.RESULT_SECURITY_ERROR);
+    }
+
+    @Test
+    public void testLoggingStats_search_join() throws Exception {
+        AppSearchSchema actionSchema = new AppSearchSchema.Builder("ViewAction")
+                .addProperty(new AppSearchSchema.StringPropertyConfig.Builder("entityId")
+                        .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setIndexingType(
+                                AppSearchSchema.StringPropertyConfig.INDEXING_TYPE_EXACT_TERMS)
+                        .setJoinableValueType(AppSearchSchema.StringPropertyConfig
+                                .JOINABLE_VALUE_TYPE_QUALIFIED_ID)
+                        .setTokenizerType(AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                        .build()
+                ).build();
+
+        AppSearchSchema entitySchema = new AppSearchSchema.Builder("entity")
+                .addProperty(new AppSearchSchema.StringPropertyConfig.Builder("subject")
+                        .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setIndexingType(
+                                AppSearchSchema.StringPropertyConfig.INDEXING_TYPE_PREFIXES)
+                        .setTokenizerType(AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                        .build())
+                .build();
+        List<AppSearchSchema> schemas = Arrays.asList(actionSchema, entitySchema);
+
+        // Insert schema
+        final String testPackageName = "testPackage";
+        final String testDatabase = "testDatabase";
+        InternalSetSchemaResponse internalSetSchemaResponse = mAppSearchImpl.setSchema(
+                testPackageName,
+                testDatabase,
+                schemas,
+                /*visibilityDocuments=*/ Collections.emptyList(),
+                /*forceOverride=*/ false,
+                /*version=*/ 0,
+                /* setSchemaStatsBuilder= */ null);
+
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
+        GenericDocument entity1 =
+                new GenericDocument.Builder<>("namespace", "id1", "entity")
+                        .setPropertyString("subject", "an entity")
+                        .build();
+        GenericDocument entity2 =
+                new GenericDocument.Builder<>("namespace", "id2", "entity")
+                        .setPropertyString("subject", "another entity")
+                        .build();
+
+        GenericDocument action1 =
+                new GenericDocument.Builder<>("namespace", "action1", "ViewAction")
+                        .setPropertyString("entityId",
+                                "testPackage$testDatabase/namespace#id1")
+                        .build();
+        GenericDocument action2 =
+                new GenericDocument.Builder<>("namespace", "action2", "ViewAction")
+                        .setPropertyString("entityId",
+                                "testPackage$testDatabase/namespace#id1")
+                        .build();
+        GenericDocument action3 =
+                new GenericDocument.Builder<>("namespace", "action3", "ViewAction")
+                        .setPropertyString("entityId",
+                                "testPackage$testDatabase/namespace#id1")
+                        .build();
+        GenericDocument action4 =
+                new GenericDocument.Builder<>("namespace", "action4", "ViewAction")
+                        .setPropertyString("entityId",
+                                "testPackage$testDatabase/namespace#id2")
+                        .build();
+
+        mAppSearchImpl.putDocument(
+                testPackageName,
+                testDatabase,
+                entity1,
+                /*sendChangeNotifications=*/ false,
+                mLogger);
+        mAppSearchImpl.putDocument(
+                testPackageName,
+                testDatabase,
+                entity2,
+                /*sendChangeNotifications=*/ false,
+                mLogger);
+        mAppSearchImpl.putDocument(
+                testPackageName,
+                testDatabase,
+                action1,
+                /*sendChangeNotifications=*/ false,
+                mLogger);
+        mAppSearchImpl.putDocument(
+                testPackageName,
+                testDatabase,
+                action2,
+                /*sendChangeNotifications=*/ false,
+                mLogger);
+        mAppSearchImpl.putDocument(
+                testPackageName,
+                testDatabase,
+                action3,
+                /*sendChangeNotifications=*/ false,
+                mLogger);
+        mAppSearchImpl.putDocument(
+                testPackageName,
+                testDatabase,
+                action4,
+                /*sendChangeNotifications=*/ false,
+                mLogger);
+
+        SearchSpec nestedSearchSpec =
+                new SearchSpec.Builder()
+                        .setRankingStrategy(SearchSpec.RANKING_STRATEGY_DOCUMENT_SCORE)
+                        .setOrder(SearchSpec.ORDER_ASCENDING)
+                        .build();
+
+        JoinSpec js = new JoinSpec.Builder("entityId")
+                .setNestedSearch("", nestedSearchSpec)
+                .setAggregationScoringStrategy(JoinSpec.AGGREGATION_SCORING_RESULT_COUNT)
+                .build();
+
+        SearchSpec searchSpec = new SearchSpec.Builder()
+                .setRankingStrategy(SearchSpec.RANKING_STRATEGY_JOIN_AGGREGATE_SCORE)
+                .setJoinSpec(js)
+                .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                .build();
+
+        String queryStr = "entity";
+        SearchResultPage searchResultPage = mAppSearchImpl.query(testPackageName, testDatabase,
+                queryStr, searchSpec, /*logger=*/ mLogger);
+
+        assertThat(searchResultPage.getResults()).hasSize(2);
+        assertThat(searchResultPage.getResults().get(0).getGenericDocument()).isEqualTo(entity1);
+        assertThat(searchResultPage.getResults().get(1).getGenericDocument()).isEqualTo(entity2);
+
+        SearchStats sStats = mLogger.mSearchStats;
+
+        assertThat(sStats).isNotNull();
+
+        assertThat(sStats.getPackageName()).isEqualTo(testPackageName);
+        assertThat(sStats.getDatabase()).isEqualTo(testDatabase);
+        assertThat(sStats.getStatusCode()).isEqualTo(AppSearchResult.RESULT_OK);
+        assertThat(sStats.getVisibilityScope()).isEqualTo(SearchStats.VISIBILITY_SCOPE_LOCAL);
+        assertThat(sStats.getTermCount()).isEqualTo(1);
+        assertThat(sStats.getQueryLength()).isEqualTo(queryStr.length());
+        assertThat(sStats.getFilteredNamespaceCount()).isEqualTo(1);
+        assertThat(sStats.getFilteredSchemaTypeCount()).isEqualTo(2);
+        assertThat(sStats.getCurrentPageReturnedResultCount()).isEqualTo(2);
+        assertThat(sStats.isFirstPage()).isTrue();
+        assertThat(sStats.getRankingStrategy()).isEqualTo(
+                ScoringSpecProto.RankingStrategy.Code.JOIN_AGGREGATE_SCORE_VALUE);
+        assertThat(sStats.getScoredDocumentCount()).isEqualTo(2);
+        assertThat(sStats.getResultWithSnippetsCount()).isEqualTo(0);
+        // Join-specific stats. If the process goes really fast, the total latency could be 0.
+        // Since the default of total latency is also 0, we just remove the assertion on
+        // JoinLatencyMillis.
+        assertThat(sStats.getJoinType()).isEqualTo(
+                AppSearchSchema.StringPropertyConfig.JOINABLE_VALUE_TYPE_QUALIFIED_ID);
+        assertThat(sStats.getNumJoinedResultsCurrentPage()).isEqualTo(4);
     }
 
     @Test

@@ -21,6 +21,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.annotation.CanIgnoreReturnValue;
 import androidx.appsearch.app.AppSearchResult;
+import androidx.appsearch.app.AppSearchSchema.StringPropertyConfig.JoinableValueType;
 import androidx.appsearch.app.SearchSpec;
 import androidx.core.util.Preconditions;
 
@@ -130,7 +131,12 @@ public final class SearchStats {
     private final int mJavaToNativeJniLatencyMillis;
     /** Time used to send data across the JNI boundary from native to java side. */
     private final int mNativeToJavaJniLatencyMillis;
-
+    /** The type of join performed. Zero if no join is performed */
+    @JoinableValueType private final int mJoinType;
+    /** The total number of joined documents in the current page. */
+    private final int mNativeNumJoinedResultsCurrentPage;
+    /** Time taken to join documents together. */
+    private final int mNativeJoinLatencyMillis;
 
     SearchStats(@NonNull Builder builder) {
         Preconditions.checkNotNull(builder);
@@ -161,6 +167,9 @@ public final class SearchStats {
         mNativeLockAcquisitionLatencyMillis = builder.mNativeLockAcquisitionLatencyMillis;
         mJavaToNativeJniLatencyMillis = builder.mJavaToNativeJniLatencyMillis;
         mNativeToJavaJniLatencyMillis = builder.mNativeToJavaJniLatencyMillis;
+        mJoinType = builder.mJoinType;
+        mNativeNumJoinedResultsCurrentPage = builder.mNativeNumJoinedResultsCurrentPage;
+        mNativeJoinLatencyMillis = builder.mNativeJoinLatencyMillis;
     }
 
     /** Returns the package name of the session. */
@@ -318,6 +327,21 @@ public final class SearchStats {
         return mNativeToJavaJniLatencyMillis;
     }
 
+    /** Returns the type of join performed. Blank if no join is performed */
+    public @JoinableValueType int getJoinType() {
+        return mJoinType;
+    }
+
+    /** Returns the total number of joined documents in the current page. */
+    public int getNumJoinedResultsCurrentPage() {
+        return mNativeNumJoinedResultsCurrentPage;
+    }
+
+    /** Returns the time taken to join documents together. */
+    public int getJoinLatencyMillis() {
+        return mNativeJoinLatencyMillis;
+    }
+
     /** Builder for {@link SearchStats} */
     public static class Builder {
         @NonNull
@@ -350,7 +374,9 @@ public final class SearchStats {
         int mNativeLockAcquisitionLatencyMillis;
         int mJavaToNativeJniLatencyMillis;
         int mNativeToJavaJniLatencyMillis;
-
+        @JoinableValueType int mJoinType;
+        int mNativeNumJoinedResultsCurrentPage;
+        int mNativeJoinLatencyMillis;
 
         /**
          * Constructor
@@ -574,6 +600,27 @@ public final class SearchStats {
         @NonNull
         public Builder setNativeToJavaJniLatencyMillis(int nativeToJavaJniLatencyMillis) {
             mNativeToJavaJniLatencyMillis = nativeToJavaJniLatencyMillis;
+            return this;
+        }
+
+        /** Sets whether or not this is a join query */
+        @NonNull
+        public Builder setJoinType(@JoinableValueType int joinType) {
+            mJoinType = joinType;
+            return this;
+        }
+
+        /** Set the total number of joined documents in a page. */
+        @NonNull
+        public Builder setNativeNumJoinedResultsCurrentPage(int nativeNumJoinedResultsCurrentPage) {
+            mNativeNumJoinedResultsCurrentPage = nativeNumJoinedResultsCurrentPage;
+            return this;
+        }
+
+        /** Sets time it takes to join documents together in icing. */
+        @NonNull
+        public Builder setNativeJoinLatencyMillis(int nativeJoinLatencyMillis) {
+            mNativeJoinLatencyMillis = nativeJoinLatencyMillis;
             return this;
         }
 

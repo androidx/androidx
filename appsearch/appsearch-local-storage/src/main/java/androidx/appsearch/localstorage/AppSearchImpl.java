@@ -1503,6 +1503,11 @@ public final class AppSearchImpl implements Closeable {
                 TAG, "search, response", searchResultProto.getResultsCount(), searchResultProto);
         if (sStatsBuilder != null) {
             sStatsBuilder.setStatusCode(statusProtoToResultCode(searchResultProto.getStatus()));
+            if (searchSpec.hasJoinSpec()) {
+                // TODO(b/276349029): Log different join types when they get added.
+                sStatsBuilder.setJoinType(AppSearchSchema.StringPropertyConfig
+                        .JOINABLE_VALUE_TYPE_QUALIFIED_ID);
+            }
             AppSearchLoggerHelper.copyNativeStats(searchResultProto.getQueryStats(), sStatsBuilder);
         }
         checkSuccess(searchResultProto.getStatus());
@@ -1640,6 +1645,8 @@ public final class AppSearchImpl implements Closeable {
 
             if (sStatsBuilder != null) {
                 sStatsBuilder.setStatusCode(statusProtoToResultCode(searchResultProto.getStatus()));
+                // Join query stats are handled by SearchResultsImpl, which has access to the
+                // original SearchSpec.
                 AppSearchLoggerHelper.copyNativeStats(searchResultProto.getQueryStats(),
                         sStatsBuilder);
             }
