@@ -40,16 +40,15 @@ android {
 }
 
 dependencies {
-    implementation("androidx.core:core-ktx:1.9.0")
-    implementation('androidx.appcompat:appcompat:1.6.1')
     implementation(libs.constraintLayout)
+    implementation("androidx.annotation:annotation:1.4.0")
+    implementation("androidx.core:core:1.9.0")
+    implementation(project(":core:core-telecom"))
+    implementation('androidx.appcompat:appcompat:1.6.1')
     implementation('androidx.navigation:navigation-fragment-ktx:2.5.3')
     implementation('androidx.navigation:navigation-ui-ktx:2.5.3')
-    implementation(project(":core:core-telecom"))
     implementation('androidx.recyclerview:recyclerview:1.2.1')
-    androidTestImplementation("androidx.test:runner:1.5.2")
-    androidTestImplementation('androidx.test.ext:junit:1.1.5')
-    androidTestImplementation('androidx.test.espresso:espresso-core:3.5.1')
-    androidTestImplementation(project(":annotation:annotation"))
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testRunner)
 }
 
