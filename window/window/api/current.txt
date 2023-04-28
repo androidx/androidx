@@ -43,8 +43,6 @@ package androidx.window.area {
     method public default static androidx.window.area.WindowAreaController getOrCreate();
     method public kotlinx.coroutines.flow.Flow<java.util.List<androidx.window.area.WindowAreaInfo>> getWindowAreaInfos();
     method public void presentContentOnWindowArea(android.os.Binder token, android.app.Activity activity, java.util.concurrent.Executor executor, androidx.window.area.WindowAreaPresentationSessionCallback windowAreaPresentationSessionCallback);
-    method @Deprecated public void rearDisplayMode(android.app.Activity activity, java.util.concurrent.Executor executor, androidx.window.area.WindowAreaSessionCallback windowAreaSessionCallback);
-    method @Deprecated public kotlinx.coroutines.flow.Flow<androidx.window.area.WindowAreaStatus> rearDisplayStatus();
     method public void transferActivityToWindowArea(android.os.Binder token, android.app.Activity activity, java.util.concurrent.Executor executor, androidx.window.area.WindowAreaSessionCallback windowAreaSessionCallback);
     property public abstract kotlinx.coroutines.flow.Flow<java.util.List<androidx.window.area.WindowAreaInfo>> windowAreaInfos;
     field public static final androidx.window.area.WindowAreaController.Companion Companion;
@@ -93,16 +91,6 @@ package androidx.window.area {
     method public android.content.Context getContext();
     method public void setContentView(android.view.View view);
     property public abstract android.content.Context context;
-  }
-
-  @Deprecated public final class WindowAreaStatus {
-    field @Deprecated public static final androidx.window.area.WindowAreaStatus AVAILABLE;
-    field @Deprecated public static final androidx.window.area.WindowAreaStatus.Companion Companion;
-    field @Deprecated public static final androidx.window.area.WindowAreaStatus UNAVAILABLE;
-    field @Deprecated public static final androidx.window.area.WindowAreaStatus UNSUPPORTED;
-  }
-
-  @Deprecated public static final class WindowAreaStatus.Companion {
   }
 
 }

@@ -52,7 +52,6 @@ import kotlinx.coroutines.flow.callbackFlow
  * [Build.VERSION_CODES.S] as that's the min level of support for
  * this functionality.
  */
-@Suppress("DEPRECATION")
 @RequiresApi(Build.VERSION_CODES.Q)
 internal class WindowAreaControllerImpl(
     private val windowAreaComponent: WindowAreaComponent,
@@ -64,8 +63,6 @@ internal class WindowAreaControllerImpl(
         WINDOW_AREA_STATUS_UNSUPPORTED
     private var currentRearDisplayPresentationStatus: WindowAreaCapability.Status =
         WINDOW_AREA_STATUS_UNSUPPORTED
-    // TODO(272053105): Removed when rear display API's are removed
-    private var currentStatus: WindowAreaStatus = WindowAreaStatus.UNSUPPORTED
 
     private val currentWindowAreaInfoMap = HashMap<String, WindowAreaInfo>()
 
@@ -231,32 +228,6 @@ internal class WindowAreaControllerImpl(
         rearDisplaySessionConsumer =
             RearDisplaySessionConsumer(executor, windowAreaSessionCallback, windowAreaComponent)
         windowAreaComponent.startRearDisplaySession(activity, rearDisplaySessionConsumer)
-    }
-
-    @Deprecated(
-        "Replaced with transferContentToWindowArea",
-        replaceWith = ReplaceWith("transferContentToWindowArea")
-    )
-    override fun rearDisplayMode(
-        activity: Activity,
-        executor: Executor,
-        windowAreaSessionCallback: WindowAreaSessionCallback
-    ) {
-        startRearDisplayMode(activity, executor, windowAreaSessionCallback)
-    }
-
-    @Deprecated("Replaced with windowAreaInfoList", replaceWith = ReplaceWith("windowAreaInfoList"))
-    override fun rearDisplayStatus(): Flow<WindowAreaStatus> {
-        return callbackFlow {
-            val listener = Consumer<Int> { status ->
-                currentStatus = WindowAreaStatus.translate(status)
-                channel.trySend(currentStatus)
-            }
-            windowAreaComponent.addRearDisplayStatusListener(listener)
-            awaitClose {
-                windowAreaComponent.removeRearDisplayStatusListener(listener)
-            }
-        }
     }
 
     private fun startRearDisplayPresentationMode(

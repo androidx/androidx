@@ -72,7 +72,7 @@ interface WindowAreaController {
      * [WindowAreaSessionCallback.onSessionEnded] is called.
      *
      * @param token [Binder] token identifying the window area to be transferred to.
-     * @param activity Base Activity making the call to [rearDisplayMode].
+     * @param activity Base Activity making the call to [transferActivityToWindowArea].
      * @param executor Executor used to provide updates to [windowAreaSessionCallback].
      * @param windowAreaSessionCallback to be notified when the rear display session is started and
      * ended.
@@ -120,20 +120,6 @@ interface WindowAreaController {
         activity: Activity,
         executor: Executor,
         windowAreaPresentationSessionCallback: WindowAreaPresentationSessionCallback
-    )
-
-    @Suppress("DEPRECATION")
-    @Deprecated("Replaced with windowAreaInfoList", replaceWith = ReplaceWith("windowAreaInfoList"))
-    fun rearDisplayStatus(): Flow<WindowAreaStatus>
-
-    @Deprecated(
-        "Replaced with transferContentToWindowArea",
-        replaceWith = ReplaceWith("transferContentToWindowArea")
-    )
-    fun rearDisplayMode(
-        activity: Activity,
-        executor: Executor,
-        windowAreaSessionCallback: WindowAreaSessionCallback
     )
 
     public companion object {
