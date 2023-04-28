@@ -38,8 +38,10 @@ internal actual fun getString(string: Strings): String {
         Strings.SliderRangeStart -> resources.getString(R.string.range_start)
         Strings.SliderRangeEnd -> resources.getString(R.string.range_end)
         Strings.Dialog -> resources.getString(androidx.compose.material3.R.string.dialog)
-        Strings.MenuExpanded -> resources.getString(androidx.compose.material3.R.string.expanded)
-        Strings.MenuCollapsed -> resources.getString(androidx.compose.material3.R.string.collapsed)
+        Strings.MenuExpanded ->
+            resources.getString(androidx.compose.material3.R.string.m3c_dropdown_menu_expanded)
+        Strings.MenuCollapsed ->
+            resources.getString(androidx.compose.material3.R.string.m3c_dropdown_menu_collapsed)
         Strings.SnackbarDismiss -> resources.getString(
             androidx.compose.material3.R.string.snackbar_dismiss
         )
