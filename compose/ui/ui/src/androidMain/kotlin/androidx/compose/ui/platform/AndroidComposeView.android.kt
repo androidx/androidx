@@ -124,7 +124,7 @@ import androidx.compose.ui.node.Owner
 import androidx.compose.ui.node.OwnerSnapshotObserver
 import androidx.compose.ui.node.RootForTest
 import androidx.compose.ui.platform.MotionEventVerifierApi29.isValidMotionEvent
-import androidx.compose.ui.semantics.EmptySemanticsModifierNodeElement
+import androidx.compose.ui.semantics.EmptySemanticsElement
 import androidx.compose.ui.semantics.SemanticsOwner
 import androidx.compose.ui.semantics.findClosestParentNode
 import androidx.compose.ui.text.ExperimentalTextApi
@@ -187,7 +187,7 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
     override var density = Density(context)
         private set
 
-    private val semanticsModifier = EmptySemanticsModifierNodeElement
+    private val semanticsModifier = EmptySemanticsElement
 
     override val focusOwner: FocusOwner = FocusOwnerImpl { registerOnEndApplyChangesListener(it) }
 

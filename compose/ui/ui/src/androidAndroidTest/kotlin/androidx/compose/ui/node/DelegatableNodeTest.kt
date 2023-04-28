@@ -19,7 +19,6 @@ package androidx.compose.ui.node
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusTargetNode
 import androidx.compose.ui.graphics.Color
@@ -33,7 +32,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@OptIn(ExperimentalComposeUiApi::class)
 @SmallTest
 @RunWith(AndroidJUnit4::class)
 class DelegatableNodeTest {
@@ -47,7 +45,7 @@ class DelegatableNodeTest {
         val testNode = object : Modifier.Node() {}
         val visitedChildren = mutableListOf<Modifier.Node>()
         rule.setContent {
-            Box(modifier = modifierElementOf { testNode })
+            Box(modifier = elementOf { testNode })
         }
 
         // Act.
@@ -68,9 +66,9 @@ class DelegatableNodeTest {
         val visitedChildren = mutableListOf<Modifier.Node>()
         rule.setContent {
             Box(
-                modifier = modifierElementOf { node1 }
-                    .then(modifierElementOf { node2 })
-                    .then(modifierElementOf { node3 })
+                modifier = elementOf { node1 }
+                    .then(elementOf { node2 })
+                    .then(elementOf { node3 })
             )
         }
 
@@ -92,9 +90,9 @@ class DelegatableNodeTest {
         val visitedChildren = mutableListOf<Modifier.Node>()
         rule.setContent {
             Box(
-                modifier = modifierElementOf { node1 }
+                modifier = elementOf { node1 }
                     .otherModifier()
-                    .then(modifierElementOf { node2 })
+                    .then(elementOf { node2 })
             )
         }
 
@@ -115,12 +113,12 @@ class DelegatableNodeTest {
         val (node1, node2, node3, node4, node5) = List(5) { object : Modifier.Node() {} }
         val visitedChildren = mutableListOf<Modifier.Node>()
         rule.setContent {
-            Box(modifier = modifierElementOf { node1 }) {
-                Box(modifier = modifierElementOf { node2 }) {
-                    Box(modifier = modifierElementOf { node3 })
+            Box(modifier = elementOf { node1 }) {
+                Box(modifier = elementOf { node2 }) {
+                    Box(modifier = elementOf { node3 })
                 }
-                Box(modifier = modifierElementOf { node4 }) {
-                    Box(modifier = modifierElementOf { node5 })
+                Box(modifier = elementOf { node4 }) {
+                    Box(modifier = elementOf { node5 })
                 }
             }
         }
@@ -143,13 +141,13 @@ class DelegatableNodeTest {
         val (node4, node5, node6) = List(3) { object : Modifier.Node() {} }
         val visitedChildren = mutableListOf<Modifier.Node>()
         rule.setContent {
-            Box(modifier = modifierElementOf { node1 }) {
-                Box(modifier = modifierElementOf { node2 }) {
-                    Box(modifier = modifierElementOf { node3 })
-                    Box(modifier = modifierElementOf { node4 }) {
-                        Box(modifier = modifierElementOf { node6 })
+            Box(modifier = elementOf { node1 }) {
+                Box(modifier = elementOf { node2 }) {
+                    Box(modifier = elementOf { node3 })
+                    Box(modifier = elementOf { node4 }) {
+                        Box(modifier = elementOf { node6 })
                     }
-                    Box(modifier = modifierElementOf { node5 })
+                    Box(modifier = elementOf { node5 })
                 }
             }
         }
@@ -174,13 +172,13 @@ class DelegatableNodeTest {
         val (node4, node5, node6) = List(3) { object : Modifier.Node() {} }
         val visitedChildren = mutableListOf<Modifier.Node>()
         rule.setContent {
-            Box(modifier = modifierElementOf { node1 }) {
-                Box(modifier = modifierElementOf { node2 }) {
-                    Box(modifier = modifierElementOf { node3 })
-                    Box(modifier = modifierElementOf { node4 }) {
-                        Box(modifier = modifierElementOf { node6 })
+            Box(modifier = elementOf { node1 }) {
+                Box(modifier = elementOf { node2 }) {
+                    Box(modifier = elementOf { node3 })
+                    Box(modifier = elementOf { node4 }) {
+                        Box(modifier = elementOf { node6 })
                     }
-                    Box(modifier = modifierElementOf { node5 })
+                    Box(modifier = elementOf { node5 })
                 }
             }
         }
@@ -205,25 +203,25 @@ class DelegatableNodeTest {
         val visitedChildren = mutableListOf<Modifier.Node>()
         rule.setContent {
             Box(
-                modifier = modifierElementOf { node1 }
-                    .then(modifierElementOf { node2 })
+                modifier = elementOf { node1 }
+                    .then(elementOf { node2 })
             ) {
                 Box(
-                    modifier = modifierElementOf { node3 }
-                        .then(modifierElementOf { node4 })
+                    modifier = elementOf { node3 }
+                        .then(elementOf { node4 })
                 ) {
                     Box(
-                        modifier = modifierElementOf { node7 }
-                            .then(modifierElementOf { node8 })
+                        modifier = elementOf { node7 }
+                            .then(elementOf { node8 })
                     )
                 }
                 Box(
-                    modifier = modifierElementOf { node5 }
-                        .then(modifierElementOf { node6 })
+                    modifier = elementOf { node5 }
+                        .then(elementOf { node6 })
                 ) {
                     Box(
-                        modifier = modifierElementOf { node9 }
-                            .then(modifierElementOf { node10 })
+                        modifier = elementOf { node9 }
+                            .then(elementOf { node10 })
                     )
                 }
             }
@@ -250,8 +248,8 @@ class DelegatableNodeTest {
         val visitedAncestors = mutableListOf<Modifier.Node>()
         rule.setContent {
             Box(
-                modifier = modifierElementOf { node1 }
-                    .then(modifierElementOf { node2 })
+                modifier = elementOf { node1 }
+                    .then(elementOf { node2 })
             )
         }
 
@@ -273,9 +271,9 @@ class DelegatableNodeTest {
         val visitedAncestors = mutableListOf<Modifier.Node>()
         rule.setContent {
             Box(
-                modifier = modifierElementOf { node1 }
+                modifier = elementOf { node1 }
                     .border(10.dp, Color.Red)
-                    .then(modifierElementOf { node2 })
+                    .then(elementOf { node2 })
             )
         }
 
@@ -296,17 +294,17 @@ class DelegatableNodeTest {
         val (node1, node2, node3, node4, node5) = List(5) { object : Modifier.Node() {} }
         val visitedAncestors = mutableListOf<Modifier.Node>()
         rule.setContent {
-            Box(modifier = modifierElementOf { node1 }) {
+            Box(modifier = elementOf { node1 }) {
                 Box(
                     modifier = Modifier
-                        .then(modifierElementOf { node2 })
-                        .then(modifierElementOf { node3 })
+                        .then(elementOf { node2 })
+                        .then(elementOf { node3 })
                 ) {
                     Box {
                         Box(
                             modifier = Modifier
-                                .then(modifierElementOf { node4 })
-                                .then(modifierElementOf { node5 })
+                                .then(elementOf { node4 })
+                                .then(elementOf { node5 })
                         )
                     }
                 }
@@ -331,9 +329,9 @@ class DelegatableNodeTest {
         // Arrange.
         val (node1, node2) = List(2) { object : Modifier.Node() {} }
         rule.setContent {
-            Box(modifier = modifierElementOf { node1 }) {
+            Box(modifier = elementOf { node1 }) {
                 Box {
-                    Box(modifier = modifierElementOf { node2 })
+                    Box(modifier = elementOf { node2 })
                 }
             }
         }
@@ -358,9 +356,9 @@ class DelegatableNodeTest {
         val removeNode = mutableStateOf(false)
         rule.setContent {
             Box(
-                modifier = modifierElementOf { node1 }
-                    .then(modifierElementOf { node2 })
-                    .then(if (removeNode.value) Modifier else modifierElementOf { detachableNode })
+                modifier = elementOf { node1 }
+                    .then(elementOf { node2 })
+                    .then(if (removeNode.value) Modifier else elementOf { detachableNode })
             )
         }
 
@@ -385,9 +383,9 @@ class DelegatableNodeTest {
         }
         val removeNode = mutableStateOf(false)
         rule.setContent {
-            Box(modifierElementOf { node1 }) {
-                Box(modifierElementOf { node2 }) {
-                    Box(if (removeNode.value) Modifier else modifierElementOf { detachableNode })
+            Box(elementOf { node1 }) {
+                Box(elementOf { node2 }) {
+                    Box(if (removeNode.value) Modifier else elementOf { detachableNode })
                 }
             }
         }
@@ -409,8 +407,8 @@ class DelegatableNodeTest {
         val (node1, node2) = List(2) { object : Modifier.Node() {} }
         rule.setContent {
             Box(
-                modifier = modifierElementOf { node1 }
-                    .then(modifierElementOf { node2 })
+                modifier = elementOf { node1 }
+                    .then(elementOf { node2 })
             )
         }
 
@@ -429,9 +427,9 @@ class DelegatableNodeTest {
         val (node1, node2) = List(2) { object : Modifier.Node() {} }
         rule.setContent {
             Box(
-                modifier = modifierElementOf { node1 }
+                modifier = elementOf { node1 }
                     .otherModifier()
-                    .then(modifierElementOf { node2 })
+                    .then(elementOf { node2 })
             )
         }
 
@@ -449,8 +447,8 @@ class DelegatableNodeTest {
         // Arrange.
         val (node1, node2) = List(2) { object : Modifier.Node() {} }
         rule.setContent {
-            Box(modifier = modifierElementOf { node1 }) {
-                Box(modifier = modifierElementOf { node2 })
+            Box(modifier = elementOf { node1 }) {
+                Box(modifier = elementOf { node2 })
             }
         }
 
@@ -470,21 +468,21 @@ class DelegatableNodeTest {
         val (node5, node6, node7, node8) = List(4) { FocusTargetNode() }
         rule.setContent {
             Box(
-                modifier = modifierElementOf { node1 }
-                    .then(modifierElementOf { node2 })
+                modifier = elementOf { node1 }
+                    .then(elementOf { node2 })
             ) {
                 Box {
-                    Box(modifier = modifierElementOf { node3 })
+                    Box(modifier = elementOf { node3 })
                     Box(
-                        modifier = modifierElementOf { node4 }
-                            .then(modifierElementOf { node5 })
+                        modifier = elementOf { node4 }
+                            .then(elementOf { node5 })
                     ) {
                         Box(
-                            modifier = modifierElementOf { node6 }
-                                .then(modifierElementOf { node7 })
+                            modifier = elementOf { node6 }
+                                .then(elementOf { node7 })
                         )
                     }
-                    Box(modifier = modifierElementOf { node8 })
+                    Box(modifier = elementOf { node8 })
                 }
             }
         }
@@ -505,9 +503,9 @@ class DelegatableNodeTest {
         val (node1, node2, node3) = List(3) { object : Modifier.Node() {} }
         rule.setContent {
             Box(
-                modifier = modifierElementOf { node1 }
-                    .then(modifierElementOf { node2 })
-                    .then(modifierElementOf { node3 })
+                modifier = elementOf { node1 }
+                    .then(elementOf { node2 })
+                    .then(elementOf { node3 })
             )
         }
 
@@ -526,9 +524,9 @@ class DelegatableNodeTest {
         val (node1, node2) = List(3) { object : Modifier.Node() {} }
         rule.setContent {
             Box(
-                modifier = modifierElementOf { node1 }
+                modifier = elementOf { node1 }
                     .otherModifier()
-                    .then(modifierElementOf { node2 })
+                    .then(elementOf { node2 })
             )
         }
 
@@ -545,10 +543,10 @@ class DelegatableNodeTest {
         // Arrange.
         val (node1, node2) = List(3) { object : Modifier.Node() {} }
         rule.setContent {
-            Box(modifier = modifierElementOf { node1 }) {
+            Box(modifier = elementOf { node1 }) {
                 Box {
                     Box(modifier = Modifier.otherModifier()) {
-                        Box(modifier = modifierElementOf { node2 })
+                        Box(modifier = elementOf { node2 })
                     }
                 }
             }
@@ -572,7 +570,7 @@ class DelegatableNodeTest {
         }
 
         rule.setContent {
-            Box(modifier = modifierElementOf { node })
+            Box(modifier = elementOf { node })
         }
 
         rule.runOnIdle {
@@ -586,10 +584,10 @@ class DelegatableNodeTest {
 
     private fun Modifier.otherModifier(): Modifier = this.then(Modifier)
 
-    private inline fun <reified T : Modifier.Node> modifierElementOf(noinline create: () -> T) =
-        ModifierElementOf(create)
+    private inline fun <reified T : Modifier.Node> elementOf(noinline create: () -> T) =
+        ElementOf(create)
 
-    private data class ModifierElementOf<T : Modifier.Node>(
+    private data class ElementOf<T : Modifier.Node>(
         val factory: () -> T
     ) : ModifierNodeElement<T>() {
         override fun create(): T = factory()

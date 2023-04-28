@@ -16,7 +16,6 @@
 
 package androidx.compose.ui.semantics
 
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.internal.JvmDefaultWithCompatibility
 import androidx.compose.ui.node.ModifierNodeElement
@@ -47,7 +46,7 @@ interface SemanticsModifier : Modifier.Element {
     val semanticsConfiguration: SemanticsConfiguration
 }
 
-internal object EmptySemanticsModifierNodeElement :
+internal object EmptySemanticsElement :
     ModifierNodeElement<CoreSemanticsModifierNode>() {
 
     private val semanticsConfiguration = SemanticsConfiguration().apply {
@@ -67,7 +66,6 @@ internal object EmptySemanticsModifierNodeElement :
     override fun equals(other: Any?) = (other === this)
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 internal class CoreSemanticsModifierNode(
     override var semanticsConfiguration: SemanticsConfiguration
 ) : Modifier.Node(), SemanticsModifierNode
@@ -102,17 +100,16 @@ internal class CoreSemanticsModifierNode(
  * @param properties properties to add to the semantics. [SemanticsPropertyReceiver] will be
  * provided in the scope to allow access for common properties and its values.
  */
-@OptIn(ExperimentalComposeUiApi::class)
 fun Modifier.semantics(
     mergeDescendants: Boolean = false,
     properties: (SemanticsPropertyReceiver.() -> Unit)
-): Modifier = this then AppendedSemanticsModifierNodeElement(
+): Modifier = this then AppendedSemanticsElement(
     mergeDescendants = mergeDescendants,
     properties = properties
 )
 
 // Implement SemanticsModifier to allow tooling to inspect the semantics configuration
-internal data class AppendedSemanticsModifierNodeElement(
+internal data class AppendedSemanticsElement(
     override val semanticsConfiguration: SemanticsConfiguration
 ) : ModifierNodeElement<CoreSemanticsModifierNode>(), SemanticsModifier {
 
@@ -156,13 +153,12 @@ internal data class AppendedSemanticsModifierNodeElement(
  * @param properties properties to add to the semantics. [SemanticsPropertyReceiver] will be
  * provided in the scope to allow access for common properties and its values.
  */
-@OptIn(ExperimentalComposeUiApi::class)
 fun Modifier.clearAndSetSemantics(
     properties: (SemanticsPropertyReceiver.() -> Unit)
-): Modifier = this then ClearAndSetSemanticsModifierNodeElement(properties)
+): Modifier = this then ClearAndSetSemanticsElement(properties)
 
 // Implement SemanticsModifier to allow tooling to inspect the semantics configuration
-internal data class ClearAndSetSemanticsModifierNodeElement(
+internal data class ClearAndSetSemanticsElement(
     override val semanticsConfiguration: SemanticsConfiguration
 ) : ModifierNodeElement<CoreSemanticsModifierNode>(), SemanticsModifier {
 

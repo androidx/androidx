@@ -25,11 +25,11 @@ import androidx.compose.ui.node.Nodes
 import androidx.compose.ui.node.visitAncestors
 
 /**
- * An opaque key-value holder of [ModifierLocal]s to be used with [ModifierLocalNode].
+ * An opaque key-value holder of [ModifierLocal]s to be used with [ModifierLocalModifierNode].
  *
  * @see modifierLocalMapOf
  */
-sealed class ModifierLocalMap() {
+sealed class ModifierLocalMap {
     internal abstract operator fun <T> set(key: ModifierLocal<T>, value: T)
     internal abstract operator fun <T> get(key: ModifierLocal<T>): T?
     internal abstract operator fun contains(key: ModifierLocal<*>): Boolean
@@ -113,7 +113,7 @@ internal object EmptyMap : ModifierLocalMap() {
  * @see ModifierLocal
  * @see androidx.compose.runtime.CompositionLocal
  */
-interface ModifierLocalNode : ModifierLocalReadScope, DelegatableNode {
+interface ModifierLocalModifierNode : ModifierLocalReadScope, DelegatableNode {
     /**
      * The map of provided ModifierLocal <-> value pairs that this node is providing. This value
      * must be overridden if you are going to provide any values. It should be overridden as a
@@ -136,10 +136,10 @@ interface ModifierLocalNode : ModifierLocalReadScope, DelegatableNode {
      * any time on the UI thread, but in order to use this API, [providedValues] must be
      * implemented and [key] must be a key that was included in it.
      *
-     * By providing this new value, any [ModifierLocalNode] below it in the tree will read this
-     * [value] when reading [current], until another [ModifierLocalNode] provides a value for the
-     * same [key], however, consuming [ModifierLocalNode]s will NOT be notified that a new value
-     * was provided.
+     * By providing this new value, any [ModifierLocalModifierNode] below it in the tree will read
+     * this [value] when reading [current], until another [ModifierLocalModifierNode] provides a
+     * value for the same [key], however, consuming [ModifierLocalModifierNode]s will NOT be
+     * notified that a new value was provided.
      */
     fun <T> provide(key: ModifierLocal<T>, value: T) {
         require(providedValues !== EmptyMap) {

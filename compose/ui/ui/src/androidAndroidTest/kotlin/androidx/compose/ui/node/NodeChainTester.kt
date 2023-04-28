@@ -14,11 +14,8 @@
  * limitations under the License.
  */
 
-@file:OptIn(ExperimentalComposeUiApi::class)
-
 package androidx.compose.ui.node
 
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.InspectorInfo
 import com.google.common.base.Objects
@@ -26,8 +23,8 @@ import org.junit.Assert
 
 internal fun chainTester() = NodeChainTester()
 
-class DiffLog() {
-    val oplog = mutableListOf<DiffOp>()
+class DiffLog {
+    private val oplog = mutableListOf<DiffOp>()
     fun op(op: DiffOp) = oplog.add(op)
     fun clear() = oplog.clear()
 
@@ -48,12 +45,9 @@ class DiffLog() {
 }
 
 internal class NodeChainTester : NodeChain.Logger {
-    val layoutNode = LayoutNode()
+    private val layoutNode = LayoutNode()
     val chain = layoutNode.nodes.also { it.useLogger(this) }
-    val log = DiffLog()
-
-    val tail get() = chain.tail
-    val head get() = chain.head
+    private val log = DiffLog()
     val nodes: List<Modifier.Node>
         get() {
             val result = mutableListOf<Modifier.Node>()
@@ -136,8 +130,8 @@ internal class NodeChainTester : NodeChain.Logger {
 }
 
 sealed class DiffOp(
-    val element: Modifier.Element,
-    val opChar: String,
+    private val element: Modifier.Element,
+    private val opChar: String,
     val opString: String,
 ) {
     fun elementDiffString(): String {
@@ -146,12 +140,12 @@ sealed class DiffOp(
 
     abstract fun debug(): String
     class Same(
-        val oldIndex: Int,
-        val newIndex: Int,
-        val beforeEl: Modifier.Element,
-        val afterEl: Modifier.Element,
-        val beforeEntity: Modifier.Node,
-        val afterEntity: Modifier.Node,
+        private val oldIndex: Int,
+        private val newIndex: Int,
+        private val beforeEl: Modifier.Element,
+        private val afterEl: Modifier.Element,
+        private val beforeEntity: Modifier.Node,
+        private val afterEntity: Modifier.Node,
         val updated: Boolean,
     ) : DiffOp(beforeEl, if (updated) "*" else " ", "Same") {
         override fun debug() = """
@@ -165,11 +159,11 @@ sealed class DiffOp(
     }
 
     class Insert(
-        val oldIndex: Int,
-        val newIndex: Int,
-        val afterEl: Modifier.Element,
+        private val oldIndex: Int,
+        private val newIndex: Int,
+        private val afterEl: Modifier.Element,
         val child: Modifier.Node,
-        val inserted: Modifier.Node,
+        private val inserted: Modifier.Node,
     ) : DiffOp(afterEl, "+", "Insert") {
         override fun debug() = """
             <$opString>
@@ -181,9 +175,9 @@ sealed class DiffOp(
     }
 
     class Remove(
-        val oldIndex: Int,
-        val beforeEl: Modifier.Element,
-        val beforeEntity: Modifier.Node,
+        private val oldIndex: Int,
+        private val beforeEl: Modifier.Element,
+        private val beforeEntity: Modifier.Node,
     ) : DiffOp(beforeEl, "-", "Remove") {
         override fun debug() = """
             <$opString>
@@ -215,7 +209,7 @@ class A : Modifier.Node() {
 }
 
 fun modifierA(params: Any? = null): Modifier.Element {
-    return object : TestModifierElement<A>("a", params, A()) {}
+    return object : TestElement<A>("a", params, A()) {}
 }
 
 class B : Modifier.Node() {
@@ -223,7 +217,7 @@ class B : Modifier.Node() {
 }
 
 fun modifierB(params: Any? = null): Modifier.Element {
-    return object : TestModifierElement<B>("b", params, B()) {}
+    return object : TestElement<B>("b", params, B()) {}
 }
 
 class C : Modifier.Node() {
@@ -231,11 +225,11 @@ class C : Modifier.Node() {
 }
 
 fun modifierC(params: Any? = null): Modifier.Element {
-    return object : TestModifierElement<C>("c", params, C()) {}
+    return object : TestElement<C>("c", params, C()) {}
 }
 
 fun modifierD(params: Any? = null): Modifier.Element {
-    return object : TestModifierElement<Modifier.Node>("d", params,
+    return object : TestElement<Modifier.Node>("d", params,
         object : Modifier.Node() {}
     ) {}
 }
@@ -243,11 +237,11 @@ fun modifierD(params: Any? = null): Modifier.Element {
 fun managedModifier(
     name: String,
     params: Any? = null
-): ModifierNodeElement<*> = object : TestModifierElement<Modifier.Node>(name, params,
+): ModifierNodeElement<*> = object : TestElement<Modifier.Node>(name, params,
     object : Modifier.Node() {}
 ) {}
 
-private abstract class TestModifierElement<T : Modifier.Node>(
+private abstract class TestElement<T : Modifier.Node>(
     val modifierName: String,
     val param: Any? = null,
     val node: T
@@ -262,7 +256,7 @@ private abstract class TestModifierElement<T : Modifier.Node>(
 
     override fun equals(other: Any?): Boolean {
         if (other === this) return true
-        return other is TestModifierElement<*> &&
+        return other is TestElement<*> &&
             javaClass == other.javaClass &&
             modifierName == other.modifierName &&
             param == other.param

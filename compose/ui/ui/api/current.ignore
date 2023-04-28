@@ -29,3 +29,7 @@ InvalidNullConversion: androidx.compose.ui.semantics.SemanticsPropertyReceiver#s
 
 RemovedClass: androidx.compose.ui.platform.AndroidComposeView_androidKt:
     Removed class androidx.compose.ui.platform.AndroidComposeView_androidKt
+
+
+RemovedDeprecatedMethod: androidx.compose.ui.input.nestedscroll.NestedScrollSource.Companion#getRelocate():
+    Removed deprecated method androidx.compose.ui.input.nestedscroll.NestedScrollSource.Companion.getRelocate()

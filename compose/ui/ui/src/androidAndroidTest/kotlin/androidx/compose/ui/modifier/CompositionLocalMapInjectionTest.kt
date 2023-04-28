@@ -41,7 +41,7 @@ import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
 import androidx.compose.ui.node.DrawModifierNode
 import androidx.compose.ui.node.LayoutModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
-import androidx.compose.ui.node.ObserverNode
+import androidx.compose.ui.node.ObserverModifierNode
 import androidx.compose.ui.node.currentValueOf
 import androidx.compose.ui.node.observeReads
 import androidx.compose.ui.platform.LocalDensity
@@ -264,7 +264,8 @@ class ConsumeInLayoutNode :
     }
 }
 
-class ConsumeInAttachNode : CompositionLocalConsumerModifierNode, ObserverNode, Modifier.Node() {
+class ConsumeInAttachNode :
+    CompositionLocalConsumerModifierNode, ObserverModifierNode, Modifier.Node() {
     var view: View? = null
     var int: Int? = null
     private fun readLocals() {
