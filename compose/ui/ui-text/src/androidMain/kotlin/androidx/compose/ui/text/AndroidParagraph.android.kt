@@ -50,8 +50,8 @@ import androidx.compose.ui.text.android.LayoutCompat.DEFAULT_BREAK_STRATEGY
 import androidx.compose.ui.text.android.LayoutCompat.DEFAULT_JUSTIFICATION_MODE
 import androidx.compose.ui.text.android.LayoutCompat.DEFAULT_LINESPACING_MULTIPLIER
 import androidx.compose.ui.text.android.LayoutCompat.HYPHENATION_FREQUENCY_NONE
-import androidx.compose.ui.text.android.LayoutCompat.HYPHENATION_FREQUENCY_NORMAL
-import androidx.compose.ui.text.android.LayoutCompat.HYPHENATION_FREQUENCY_NORMAL_FAST
+import androidx.compose.ui.text.android.LayoutCompat.HYPHENATION_FREQUENCY_FULL
+import androidx.compose.ui.text.android.LayoutCompat.HYPHENATION_FREQUENCY_FULL_FAST
 import androidx.compose.ui.text.android.LayoutCompat.DEFAULT_LINE_BREAK_STYLE
 import androidx.compose.ui.text.android.LayoutCompat.DEFAULT_LINE_BREAK_WORD_STYLE
 import androidx.compose.ui.text.android.LayoutCompat.JUSTIFICATION_MODE_INTER_WORD
@@ -562,9 +562,9 @@ private fun toLayoutAlign(align: TextAlign?): Int = when (align) {
 @OptIn(InternalPlatformTextApi::class)
 private fun toLayoutHyphenationFrequency(hyphens: Hyphens?): Int = when (hyphens) {
     Hyphens.Auto -> if (Build.VERSION.SDK_INT <= 32) {
-        HYPHENATION_FREQUENCY_NORMAL
+        HYPHENATION_FREQUENCY_FULL
     } else {
-        HYPHENATION_FREQUENCY_NORMAL_FAST
+        HYPHENATION_FREQUENCY_FULL_FAST
     }
     Hyphens.None -> HYPHENATION_FREQUENCY_NONE
     else -> DEFAULT_HYPHENATION_FREQUENCY
