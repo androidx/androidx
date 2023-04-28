@@ -131,20 +131,34 @@ class ExampleWindowInitializer : Initializer<RuleController> {
                 }
             }
             TAG_SHOW_DIFFERENT_LAYOUT_WITH_SIZE -> {
-                return SplitAttributes.Builder()
-                    .setSplitType(SPLIT_TYPE_HINGE)
-                    .setLayoutDirection(
-                        if (shouldReversed) {
-                            BOTTOM_TO_TOP
-                        } else {
-                            TOP_TO_BOTTOM
-                        }
-                    ).build()
+                return if (config.screenWidthDp < 600) {
+                    SplitAttributes.Builder()
+                        .setSplitType(SPLIT_TYPE_EQUAL)
+                        .setLayoutDirection(
+                            if (shouldReversed) {
+                                BOTTOM_TO_TOP
+                            } else {
+                                TOP_TO_BOTTOM
+                            }
+                        )
+                        .build()
+                } else {
+                    SplitAttributes.Builder()
+                        .setSplitType(SPLIT_TYPE_EQUAL)
+                        .setLayoutDirection(
+                            if (shouldReversed) {
+                                RIGHT_TO_LEFT
+                            } else {
+                                LEFT_TO_RIGHT
+                            }
+                        )
+                        .build()
+                }
             }
             TAG_SHOW_DIFFERENT_LAYOUT_WITH_SIZE + SUFFIX_AND_FULLSCREEN_IN_BOOK_MODE -> {
                 return if (isBookMode) {
                     expandContainersAttrs
-                } else if (config.screenWidthDp <= 600) {
+                } else if (config.screenWidthDp < 600) {
                     SplitAttributes.Builder()
                         .setSplitType(SPLIT_TYPE_EQUAL)
                         .setLayoutDirection(
