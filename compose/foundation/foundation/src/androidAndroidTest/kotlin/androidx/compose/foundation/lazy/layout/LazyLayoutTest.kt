@@ -375,6 +375,28 @@ class LazyLayoutTest {
         }
     }
 
+    @Test
+    fun regularCompositionIsUsedInPrefetchTimeCalculation() {
+        val itemProvider = itemProvider({ 1 }) {
+            Box(Modifier.fillMaxSize())
+        }
+        val prefetchState = LazyLayoutPrefetchState()
+        rule.setContent {
+            LazyLayout(itemProvider, prefetchState = prefetchState) { constraint ->
+                val item = measure(0, constraint)[0]
+                layout(100, 100) {
+                    item.place(0, 0)
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            val timeTracker = requireNotNull(prefetchState.prefetcher?.timeTracker)
+            assertThat(timeTracker.compositionTimeNs).isGreaterThan(0L)
+            assertThat(timeTracker.measurementTimeNs).isGreaterThan(0L)
+        }
+    }
+
     private fun itemProvider(
         itemCount: () -> Int,
         itemContent: @Composable (Int) -> Unit

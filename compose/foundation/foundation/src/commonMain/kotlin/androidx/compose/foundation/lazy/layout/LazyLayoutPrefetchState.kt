@@ -51,6 +51,55 @@ class LazyLayoutPrefetchState {
 
     internal interface Prefetcher {
         fun schedulePrefetch(index: Int, constraints: Constraints): PrefetchHandle
+
+        val timeTracker: AverageTimeTracker
+    }
+
+    internal abstract class AverageTimeTracker {
+
+        /**
+         * Average time the prefetching operations takes. Keeping it allows us to not start the work
+         * if in this frame we are most likely not going to finish the work in time to not delay the
+         * next frame.
+         */
+        var compositionTimeNs: Long = 0
+            private set
+        var measurementTimeNs: Long = 0
+            private set
+
+        abstract fun currentTime(): Long
+
+        inline fun <T> trackComposition(block: () -> T): T {
+            val beforeTimeNs = currentTime()
+            val returnValue = block()
+            compositionTimeNs = calculateAverageTime(
+                currentTime() - beforeTimeNs,
+                compositionTimeNs
+            )
+            return returnValue
+        }
+
+        inline fun <T> trackMeasurement(block: () -> T): T {
+            val beforeTimeNs = currentTime()
+            val returnValue = block()
+            measurementTimeNs = calculateAverageTime(
+                currentTime() - beforeTimeNs,
+                measurementTimeNs
+            )
+            return returnValue
+        }
+
+        private fun calculateAverageTime(new: Long, current: Long): Long {
+            // Calculate a weighted moving average of time taken to compose an item. We use weighted
+            // moving average to bias toward more recent measurements, and to minimize storage /
+            // computation cost. (the idea is taken from RecycledViewPool)
+            return if (current == 0L) {
+                new
+            } else {
+                // dividing first to avoid a potential overflow
+                current / 4 * 3 + new / 4
+            }
+        }
     }
 }
 
