@@ -173,6 +173,7 @@ package androidx.camera.video {
     field public static final int ERROR_NONE = 0; // 0x0
     field public static final int ERROR_NO_VALID_DATA = 8; // 0x8
     field public static final int ERROR_RECORDER_ERROR = 7; // 0x7
+    field public static final int ERROR_RECORDING_GARBAGE_COLLECTED = 10; // 0xa
     field public static final int ERROR_SOURCE_INACTIVE = 4; // 0x4
     field public static final int ERROR_UNKNOWN = 1; // 0x1
   }
