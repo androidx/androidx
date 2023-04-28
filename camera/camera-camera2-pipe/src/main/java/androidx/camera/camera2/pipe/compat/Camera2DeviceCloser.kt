@@ -21,17 +21,15 @@ import android.hardware.camera2.CameraCaptureSession
 import android.hardware.camera2.CameraDevice
 import android.view.Surface
 import androidx.annotation.RequiresApi
-import androidx.camera.camera2.pipe.CameraCloseStallException
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.core.Debug
 import androidx.camera.camera2.pipe.core.Log
+import androidx.camera.camera2.pipe.core.Threading
 import androidx.camera.camera2.pipe.core.Threads
 import java.util.concurrent.CountDownLatch
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.atomicfu.atomic
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withTimeoutOrNull
 
 internal interface Camera2DeviceCloser {
     fun closeCamera(
@@ -84,12 +82,8 @@ internal class Camera2DeviceCloserImpl @Inject constructor(
             }
         }
         Log.debug { "Closing $cameraDevice" }
-        runBlocking {
-            withTimeoutOrNull(2000L) {
-                cameraDevice.closeWithTrace()
-            } ?: {
-                throw CameraCloseStallException("The camera close call failed to return in 2000ms")
-            }
+        Threading.runBlockingWithTimeout(threads.backgroundDispatcher, 2000L) {
+            cameraDevice.closeWithTrace()
         }
         if (camera2Quirks.shouldWaitForCameraDeviceOnClosed(cameraId)) {
             Log.debug { "Waiting for camera device to be completely closed" }
