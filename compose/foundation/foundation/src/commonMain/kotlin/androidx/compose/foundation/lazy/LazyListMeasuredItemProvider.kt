@@ -45,8 +45,9 @@ internal class LazyListMeasuredItemProvider @ExperimentalFoundationApi construct
      */
     fun getAndMeasure(index: DataIndex): LazyListMeasuredItem {
         val key = itemProvider.getKey(index.value)
+        val contentType = itemProvider.getContentType(index.value)
         val placeables = measureScope.measure(index.value, childConstraints)
-        return measuredItemFactory.createItem(index, key, placeables)
+        return measuredItemFactory.createItem(index, key, contentType, placeables)
     }
 
     /**
@@ -61,6 +62,7 @@ internal fun interface MeasuredItemFactory {
     fun createItem(
         index: DataIndex,
         key: Any,
+        contentType: Any?,
         placeables: List<Placeable>
     ): LazyListMeasuredItem
 }

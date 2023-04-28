@@ -52,6 +52,11 @@ sealed interface LazyStaggeredGridItemInfo {
      * their sizes.
      */
     val size: IntSize
+
+    /**
+     * The content type of the item which was passed to the item() or items() function.
+     */
+    val contentType: Any?
 }
 
 /**

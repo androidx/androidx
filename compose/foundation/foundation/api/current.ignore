@@ -1,3 +1,7 @@
 // Baseline format: 1.0
+AddedAbstractMethod: androidx.compose.foundation.lazy.grid.LazyGridItemInfo#getContentType():
+    Added method androidx.compose.foundation.lazy.grid.LazyGridItemInfo.getContentType()
+
+
 InvalidNullConversion: androidx.compose.foundation.MutatorMutex#mutateWith(T, androidx.compose.foundation.MutatePriority, kotlin.jvm.functions.Function2<? super T,? super kotlin.coroutines.Continuation<? super R>,?>, kotlin.coroutines.Continuation<? super R>) parameter #0:
     Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter receiver in androidx.compose.foundation.MutatorMutex.mutateWith(T receiver, androidx.compose.foundation.MutatePriority priority, kotlin.jvm.functions.Function2<? super T,? super kotlin.coroutines.Continuation<? super R>,?> block, kotlin.coroutines.Continuation<? super R> arg4)
