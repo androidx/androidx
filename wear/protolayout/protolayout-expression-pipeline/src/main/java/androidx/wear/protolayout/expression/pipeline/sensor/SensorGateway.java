@@ -28,26 +28,14 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.annotation.UiThread;
 
-import java.io.Closeable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.concurrent.Executor;
 
 /**
  * Gateway for proto layout expression library to be able to access sensor data, e.g. health data.
- *
- * <p>Implementations of this class should track a few things:
- *
- * <ul>
- *   <li>Surface lifecycle. Implementations should keep track of the surface provider, registered
- *       consumers, and deregister them all when the surface is not longer available.
- *   <li>Device state. Implementations should react to device state (i.e. ambient mode), and
- *       activity state (i.e. surface being in the foreground), and appropriately set the sampling
- *       rate of the sensor (e.g. high rate when surface is in the foreground, otherwise low-rate or
- *       off).
- * </ul>
  */
-public interface SensorGateway extends Closeable {
+public interface SensorGateway {
 
     /** Sensor data types that can be subscribed to from {@link SensorGateway}. */
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -192,8 +180,4 @@ public interface SensorGateway extends Closeable {
     @UiThread
     void unregisterSensorGatewayConsumer(
             @SensorDataType int requestedDataType, @NonNull Consumer consumer);
-
-    /** See {@link Closeable#close()}. */
-    @Override
-    void close();
 }
