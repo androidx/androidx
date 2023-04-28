@@ -312,7 +312,7 @@ public fun <T : Any> Flow<PagingData<T>>.collectAsLazyPagingItems(
  * [itemContentType] helper functions.
  */
 @Deprecated(
-    message = "Call LazyListScope.items directly with LazyPagingItems #itemKey and" +
+    message = "Call LazyListScope.items directly with LazyPagingItems #itemKey and " +
         "#itemContentType helper functions.",
     replaceWith = ReplaceWith(
         expression = """items(
@@ -369,8 +369,8 @@ public fun <T : Any> LazyListScope.items(
  * with LazyPagingItems #itemKey and #itemContentType helper functions.
  */
 @Deprecated(
-    message = "Deprecating support for indexed keys on non-null items as it is susceptible to" +
-        "errors when items indices shift due to prepends. Call LazyListScope.items directly" +
+    message = "Deprecating support for indexed keys on non-null items as it is susceptible to " +
+        "errors when items indices shift due to prepends. Call LazyListScope.items directly " +
         "with LazyPagingItems #itemKey and #itemContentType helper functions.",
     replaceWith = ReplaceWith(
         expression = """items(
