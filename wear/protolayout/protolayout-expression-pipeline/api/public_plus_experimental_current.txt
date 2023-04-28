@@ -72,8 +72,7 @@ package androidx.wear.protolayout.expression.pipeline {
 
 package androidx.wear.protolayout.expression.pipeline.sensor {
 
-  public interface SensorGateway extends java.io.Closeable {
-    method public void close();
+  public interface SensorGateway {
     method @UiThread public void registerSensorGatewayConsumer(int, androidx.wear.protolayout.expression.pipeline.sensor.SensorGateway.Consumer);
     method @UiThread public void registerSensorGatewayConsumer(int, java.util.concurrent.Executor, androidx.wear.protolayout.expression.pipeline.sensor.SensorGateway.Consumer);
     method @UiThread public void unregisterSensorGatewayConsumer(int, androidx.wear.protolayout.expression.pipeline.sensor.SensorGateway.Consumer);

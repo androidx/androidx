@@ -74,8 +74,7 @@ package androidx.wear.protolayout.expression.pipeline {
 
 package androidx.wear.protolayout.expression.pipeline.sensor {
 
-  public interface SensorGateway extends java.io.Closeable {
-    method public void close();
+  public interface SensorGateway {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void disableUpdates();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void enableUpdates();
     method @UiThread public void registerSensorGatewayConsumer(int, androidx.wear.protolayout.expression.pipeline.sensor.SensorGateway.Consumer);

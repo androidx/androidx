@@ -405,8 +405,5 @@ public class Int32NodesTest {
                 @SensorDataType int requestedDataType, @NonNull Consumer consumer) {
             registeredConsumers.remove(consumer);
         }
-
-        @Override
-        public void close() {}
     }
 }
