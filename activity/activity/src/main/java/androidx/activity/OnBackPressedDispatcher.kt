@@ -27,6 +27,7 @@ import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
 import androidx.core.os.BuildCompat
 import androidx.core.os.BuildCompat.PrereleaseSdkCheck
+import androidx.core.util.Consumer
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
@@ -57,15 +58,26 @@ import androidx.lifecycle.LifecycleOwner
  * When constructing an instance of this class, the [fallbackOnBackPressed] can be set to
  * receive a callback if [onBackPressed] is called when [hasEnabledCallbacks] returns `false`.
  */
+// Implementation/API compatibility note: previous releases included only the Runnable? constructor,
+// which permitted both first-argument and trailing lambda call syntax to specify
+// fallbackOnBackPressed. To avoid silently breaking source compatibility the new
+// primary constructor has no optional parameters to avoid ambiguity/wrong overload resolution
+// when a single parameter is provided as a trailing lambda.
 @OptIn(PrereleaseSdkCheck::class)
-class OnBackPressedDispatcher @JvmOverloads constructor(
-    private val fallbackOnBackPressed: Runnable? = null
+class OnBackPressedDispatcher constructor(
+    private val fallbackOnBackPressed: Runnable?,
+    private val onHasEnabledCallbacksChanged: Consumer<Boolean>?
 ) {
     private val onBackPressedCallbacks = ArrayDeque<OnBackPressedCallback>()
-    private var enabledChangedCallback: (() -> Unit)? = null
     private var onBackInvokedCallback: OnBackInvokedCallback? = null
     private var invokedDispatcher: OnBackInvokedDispatcher? = null
     private var backInvokedCallbackRegistered = false
+    private var hasEnabledCallbacks = false
+
+    @JvmOverloads
+    constructor(
+        fallbackOnBackPressed: Runnable? = null
+    ) : this(fallbackOnBackPressed, null)
 
     /**
      * Sets the [OnBackInvokedDispatcher] for handling system back for Android SDK T+.
@@ -75,12 +87,11 @@ class OnBackPressedDispatcher @JvmOverloads constructor(
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     fun setOnBackInvokedDispatcher(invoker: OnBackInvokedDispatcher) {
         invokedDispatcher = invoker
-        updateBackInvokedCallbackState()
+        updateBackInvokedCallbackState(hasEnabledCallbacks)
     }
 
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
-    internal fun updateBackInvokedCallbackState() {
-        val shouldBeRegistered = hasEnabledCallbacks()
+    private fun updateBackInvokedCallbackState(shouldBeRegistered: Boolean) {
         val dispatcher = invokedDispatcher
         val onBackInvokedCallback = onBackInvokedCallback
         if (dispatcher != null && onBackInvokedCallback != null) {
@@ -101,11 +112,20 @@ class OnBackPressedDispatcher @JvmOverloads constructor(
         }
     }
 
+    private fun updateEnabledCallbacks() {
+        val hadEnabledCallbacks = hasEnabledCallbacks
+        val hasEnabledCallbacks = onBackPressedCallbacks.any { it.isEnabled }
+        this.hasEnabledCallbacks = hasEnabledCallbacks
+        if (hasEnabledCallbacks != hadEnabledCallbacks) {
+            onHasEnabledCallbacksChanged?.accept(hasEnabledCallbacks)
+            if (Build.VERSION.SDK_INT >= 33) {
+                updateBackInvokedCallbackState(hasEnabledCallbacks)
+            }
+        }
+    }
+
     init {
         if (Build.VERSION.SDK_INT >= 33) {
-            enabledChangedCallback = {
-                updateBackInvokedCallbackState()
-            }
             onBackInvokedCallback = if (BuildCompat.isAtLeastU()) {
                 Api34Impl.createOnBackAnimationCallback(
                     { backEvent -> onBackStarted(backEvent) },
@@ -153,10 +173,8 @@ class OnBackPressedDispatcher @JvmOverloads constructor(
         onBackPressedCallbacks.add(onBackPressedCallback)
         val cancellable = OnBackPressedCancellable(onBackPressedCallback)
         onBackPressedCallback.addCancellable(cancellable)
-        if (Build.VERSION.SDK_INT >= 33) {
-            updateBackInvokedCallbackState()
-            onBackPressedCallback.enabledChangedCallback = enabledChangedCallback
-        }
+        updateEnabledCallbacks()
+        onBackPressedCallback.enabledChangedCallback = ::updateEnabledCallbacks
         return cancellable
     }
 
@@ -194,22 +212,18 @@ class OnBackPressedDispatcher @JvmOverloads constructor(
         onBackPressedCallback.addCancellable(
             LifecycleOnBackPressedCancellable(lifecycle, onBackPressedCallback)
         )
-        if (Build.VERSION.SDK_INT >= 33) {
-            updateBackInvokedCallbackState()
-            onBackPressedCallback.enabledChangedCallback = enabledChangedCallback
-        }
+        updateEnabledCallbacks()
+        onBackPressedCallback.enabledChangedCallback = ::updateEnabledCallbacks
     }
 
     /**
-     * Checks if there is at least one [enabled][OnBackPressedCallback.isEnabled]
+     * Returns `true` if there is at least one [enabled][OnBackPressedCallback.isEnabled]
      * callback registered with this dispatcher.
      *
      * @return True if there is at least one enabled callback.
      */
     @MainThread
-    fun hasEnabledCallbacks(): Boolean = onBackPressedCallbacks.any {
-        it.isEnabled
-    }
+    fun hasEnabledCallbacks(): Boolean = hasEnabledCallbacks
 
     @VisibleForTesting
     @RequiresApi(34)
@@ -295,10 +309,8 @@ class OnBackPressedDispatcher @JvmOverloads constructor(
         override fun cancel() {
             onBackPressedCallbacks.remove(onBackPressedCallback)
             onBackPressedCallback.removeCancellable(this)
-            if (Build.VERSION.SDK_INT >= 33) {
-                onBackPressedCallback.enabledChangedCallback = null
-                updateBackInvokedCallbackState()
-            }
+            onBackPressedCallback.enabledChangedCallback?.invoke()
+            onBackPressedCallback.enabledChangedCallback = null
         }
     }
 

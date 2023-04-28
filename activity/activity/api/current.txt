@@ -96,6 +96,7 @@ package androidx.activity {
   }
 
   public final class OnBackPressedDispatcher {
+    ctor public OnBackPressedDispatcher(Runnable? fallbackOnBackPressed, androidx.core.util.Consumer<java.lang.Boolean>? onHasEnabledCallbacksChanged);
     ctor public OnBackPressedDispatcher(optional Runnable? fallbackOnBackPressed);
     ctor public OnBackPressedDispatcher();
     method @MainThread public void addCallback(androidx.activity.OnBackPressedCallback onBackPressedCallback);
