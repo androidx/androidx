@@ -52,7 +52,6 @@ import java.util.HashSet;
 /**
  * An {@link Activity} to exercise WebMessageListener related functionality.
  */
-@SuppressLint("RestrictedApi")
 public class WebMessageListenerActivity extends AppCompatActivity {
     private TextView mTextView;
     private final Uri mExampleUri = new Uri.Builder()
