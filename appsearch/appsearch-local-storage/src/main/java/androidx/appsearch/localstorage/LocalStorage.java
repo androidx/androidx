@@ -340,7 +340,7 @@ public class LocalStorage {
         mAppSearchImpl = AppSearchImpl.create(
                 icingDir,
                 new UnlimitedLimitConfig(),
-                new JetpackIcingOptionsConfig(),
+                new DefaultIcingOptionsConfig(),
                 initStatsBuilder,
                 new JetpackOptimizeStrategy(),
                 /*visibilityChecker=*/null);

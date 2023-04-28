@@ -74,7 +74,7 @@ public class AppSearchLoggerTest {
         mAppSearchImpl = AppSearchImpl.create(
                 mTemporaryFolder.newFolder(),
                 new UnlimitedLimitConfig(),
-                new JetpackIcingOptionsConfig(),
+                new DefaultIcingOptionsConfig(),
                 /*initStatsBuilder=*/ null,
                 ALWAYS_OPTIMIZE,
                 /*visibilityChecker=*/null);
@@ -349,7 +349,7 @@ public class AppSearchLoggerTest {
         AppSearchImpl appSearchImpl = AppSearchImpl.create(
                 mTemporaryFolder.newFolder(),
                 new UnlimitedLimitConfig(),
-                new JetpackIcingOptionsConfig(),
+                new DefaultIcingOptionsConfig(),
                 initStatsBuilder,
                 ALWAYS_OPTIMIZE,
                 /*visibilityChecker=*/null);
@@ -380,7 +380,7 @@ public class AppSearchLoggerTest {
         AppSearchImpl appSearchImpl = AppSearchImpl.create(
                 folder,
                 new UnlimitedLimitConfig(),
-                new JetpackIcingOptionsConfig(),
+                new DefaultIcingOptionsConfig(),
                 /*initStatsBuilder=*/ null,
                 ALWAYS_OPTIMIZE,
                 /*visibilityChecker=*/null);
@@ -417,7 +417,7 @@ public class AppSearchLoggerTest {
         // Create another appsearchImpl on the same folder
         InitializeStats.Builder initStatsBuilder = new InitializeStats.Builder();
         appSearchImpl = AppSearchImpl.create(
-                folder, new UnlimitedLimitConfig(), new JetpackIcingOptionsConfig(),
+                folder, new UnlimitedLimitConfig(), new DefaultIcingOptionsConfig(),
                 initStatsBuilder, ALWAYS_OPTIMIZE, /*visibilityChecker=*/null);
         InitializeStats iStats = initStatsBuilder.build();
 
@@ -444,7 +444,7 @@ public class AppSearchLoggerTest {
         final File folder = mTemporaryFolder.newFolder();
 
         AppSearchImpl appSearchImpl = AppSearchImpl.create(
-                folder, new UnlimitedLimitConfig(), new JetpackIcingOptionsConfig(),
+                folder, new UnlimitedLimitConfig(), new DefaultIcingOptionsConfig(),
                 /*initStatsBuilder=*/ null, ALWAYS_OPTIMIZE, /*visibilityChecker=*/null);
 
         List<AppSearchSchema> schemas = ImmutableList.of(
@@ -483,7 +483,7 @@ public class AppSearchLoggerTest {
         // Create another appsearchImpl on the same folder
         InitializeStats.Builder initStatsBuilder = new InitializeStats.Builder();
         appSearchImpl = AppSearchImpl.create(
-                folder, new UnlimitedLimitConfig(), new JetpackIcingOptionsConfig(),
+                folder, new UnlimitedLimitConfig(), new DefaultIcingOptionsConfig(),
                 initStatsBuilder, ALWAYS_OPTIMIZE, /*visibilityChecker=*/null);
         InitializeStats iStats = initStatsBuilder.build();
 
