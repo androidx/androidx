@@ -20,13 +20,14 @@ import androidx.appactions.interaction.capabilities.core.AppEntityListener
 import androidx.appactions.interaction.capabilities.core.EntitySearchResult
 import androidx.appactions.interaction.capabilities.core.InventoryListListener
 import androidx.appactions.interaction.capabilities.core.InventoryListener
+import androidx.appactions.interaction.capabilities.core.SearchAction
 import androidx.appactions.interaction.capabilities.core.ValidationResult
 import androidx.appactions.interaction.capabilities.core.ValueListener
 import androidx.appactions.interaction.capabilities.core.impl.converters.ParamValueConverter
 import androidx.appactions.interaction.capabilities.core.impl.converters.SlotTypeConverter
 import androidx.appactions.interaction.capabilities.core.impl.exceptions.StructConversionException
 import androidx.appactions.interaction.capabilities.core.impl.task.exceptions.InvalidResolverException
-import androidx.appactions.interaction.capabilities.core.SearchAction
+import androidx.appactions.interaction.capabilities.core.impl.utils.invokeExternalSuspendBlock
 import androidx.appactions.interaction.proto.ParamValue
 
 /**
@@ -44,18 +45,22 @@ private constructor(
     val appEntity: AppEntityListener<ValueTypeT>? = null,
     val appEntityList: AppEntityListListener<ValueTypeT>? = null,
     val inventory: InventoryListener<ValueTypeT>? = null,
-    val inventoryList: InventoryListListener<ValueTypeT>? = null,
+    val inventoryList: InventoryListListener<ValueTypeT>? = null
 ) {
 
     /** Wrapper which should invoke the `lookupAndRender` provided by the developer. */
     @Throws(InvalidResolverException::class)
     suspend fun invokeLookup(
-        searchAction: SearchAction<ValueTypeT>,
+        searchAction: SearchAction<ValueTypeT>
     ): EntitySearchResult<ValueTypeT> {
         return if (appEntity != null) {
-            appEntity.lookupAndRender(searchAction)
+            invokeExternalSuspendBlock("lookupAndRender") {
+                appEntity.lookupAndRender(searchAction)
+            }
         } else if (appEntityList != null) {
-            appEntityList.lookupAndRender(searchAction)
+            invokeExternalSuspendBlock("lookupAndRender") {
+                appEntityList.lookupAndRender(searchAction)
+            }
         } else {
             throw InvalidResolverException("invokeLookup is not supported on this resolver")
         }
@@ -68,9 +73,13 @@ private constructor(
     @Throws(InvalidResolverException::class)
     suspend fun invokeEntityRender(entityIds: List<String>) {
         if (inventory != null) {
-            inventory.renderChoices(entityIds)
+            invokeExternalSuspendBlock("renderChoices") {
+                inventory.renderChoices(entityIds)
+            }
         } else if (inventoryList != null) {
-            inventoryList.renderChoices(entityIds)
+            invokeExternalSuspendBlock("renderChoices") {
+                inventoryList.renderChoices(entityIds)
+            }
         } else {
             throw InvalidResolverException("invokeEntityRender is not supported on this resolver")
         }
@@ -83,22 +92,24 @@ private constructor(
     @Throws(StructConversionException::class)
     suspend fun notifyValueChange(
         paramValues: List<ParamValue>,
-        converter: ParamValueConverter<ValueTypeT>,
+        converter: ParamValueConverter<ValueTypeT>
     ): ValidationResult {
         val singularConverter = SlotTypeConverter.ofSingular(converter)
         val repeatedConverter = SlotTypeConverter.ofRepeated(converter)
-        return when {
-            value != null -> value.onReceived(singularConverter.convert(paramValues))
-            valueList != null -> valueList.onReceived(repeatedConverter.convert(paramValues))
-            appEntity != null ->
-                appEntity.onReceived(singularConverter.convert(paramValues))
-            appEntityList != null ->
-                appEntityList.onReceived(repeatedConverter.convert(paramValues))
-            inventory != null ->
-                inventory.onReceived(singularConverter.convert(paramValues))
-            inventoryList != null ->
-                inventoryList.onReceived(repeatedConverter.convert(paramValues))
-            else -> throw IllegalStateException("unreachable")
+        return invokeExternalSuspendBlock("onReceived") {
+            when {
+                value != null -> value.onReceived(singularConverter.convert(paramValues))
+                valueList != null -> valueList.onReceived(repeatedConverter.convert(paramValues))
+                appEntity != null ->
+                    appEntity.onReceived(singularConverter.convert(paramValues))
+                appEntityList != null ->
+                    appEntityList.onReceived(repeatedConverter.convert(paramValues))
+                inventory != null ->
+                    inventory.onReceived(singularConverter.convert(paramValues))
+                inventoryList != null ->
+                    inventoryList.onReceived(repeatedConverter.convert(paramValues))
+                else -> throw IllegalStateException("unreachable")
+            }
         }
     }
 
@@ -113,14 +124,14 @@ private constructor(
             GenericResolverInternal(appEntity = appEntity)
 
         fun <ValueTypeT> fromAppEntityListListener(
-            appEntityList: AppEntityListListener<ValueTypeT>,
+            appEntityList: AppEntityListListener<ValueTypeT>
         ) = GenericResolverInternal(appEntityList = appEntityList)
 
         fun <ValueTypeT> fromInventoryListener(inventory: InventoryListener<ValueTypeT>) =
             GenericResolverInternal(inventory = inventory)
 
         fun <ValueTypeT> fromInventoryListListener(
-            inventoryList: InventoryListListener<ValueTypeT>,
+            inventoryList: InventoryListListener<ValueTypeT>
         ) = GenericResolverInternal(inventoryList = inventoryList)
     }
 }

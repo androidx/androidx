@@ -57,7 +57,6 @@ internal class TaskCapabilitySession<
         }
 
     override fun destroy() {
-        // TODO(b/270751989): cancel current processing request immediately
         this.sessionOrchestrator.terminate()
         scope.cancel()
     }
