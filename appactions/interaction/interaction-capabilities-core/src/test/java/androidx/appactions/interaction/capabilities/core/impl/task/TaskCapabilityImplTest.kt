@@ -58,7 +58,7 @@ import androidx.appactions.interaction.proto.AppActionsContext.IntentParameter
 import androidx.appactions.interaction.proto.CurrentValue
 import androidx.appactions.interaction.proto.DisambiguationData
 import androidx.appactions.interaction.proto.Entity
-import androidx.appactions.interaction.proto.FulfillmentRequest.Fulfillment.Type
+import androidx.appactions.interaction.proto.FulfillmentRequest.Fulfillment.SyncStatus
 import androidx.appactions.interaction.proto.FulfillmentRequest.Fulfillment.Type.CANCEL
 import androidx.appactions.interaction.proto.FulfillmentRequest.Fulfillment.Type.SYNC
 import androidx.appactions.interaction.proto.FulfillmentRequest.Fulfillment.Type.UNKNOWN_TYPE
@@ -1036,7 +1036,6 @@ class TaskCapabilityImplTest {
 
     @Test
     @kotlin.Throws(Exception::class)
-    @Suppress("DEPRECATION") // TODO(b/279830425) implement tryExecute (INTENT_CONFIRMED can be used instead)
     fun fulfillmentType_syncWithConfirmation_stateClearedAfterConfirmation() {
         val sessionFactory: (hostProperties: HostProperties?) -> ExecutionSession =
             { _ ->
@@ -1090,7 +1089,7 @@ class TaskCapabilityImplTest {
         // active
         val callback2 = FakeCallbackInternal()
         session.execute(
-            buildRequestArgs(Type.CONFIRM),
+            buildRequestArgs(SYNC, SyncStatus.INTENT_CONFIRMED),
             callback2
         )
 
@@ -1147,6 +1146,259 @@ class TaskCapabilityImplTest {
         assertThat(session.isActive).isEqualTo(false)
         assertThat(callback2.receiveResponse().errorStatus)
             .isEqualTo(ErrorStatusInternal.SESSION_ALREADY_DESTROYED)
+    }
+    @Test
+    @kotlin.Throws(Exception::class)
+    fun syncStatus_unknown_errorReported() {
+        val capability: Capability =
+            createCapability(
+                SINGLE_REQUIRED_FIELD_PROPERTY,
+                sessionFactory =
+                    { _ ->
+                        object : ExecutionSession {
+                            override suspend fun onExecute(arguments: Arguments) =
+                                ExecutionResult.Builder<Output>().build()
+                        }
+                    },
+                sessionBridge = SessionBridge { TaskHandler.Builder<Arguments, Confirmation>()
+                    .build() },
+                sessionUpdaterSupplier = ::RequiredTaskUpdater,
+            )
+        val session = capability.createSession(fakeSessionId, hostProperties)
+
+        assertThat(capability.appAction)
+            .isEqualTo(
+                AppAction.newBuilder()
+                    .setName("actions.intent.TEST")
+                    .setIdentifier("id")
+                    .addParams(
+                        IntentParameter.newBuilder().setName("required").setIsRequired(true),
+                    )
+                    .setTaskInfo(
+                        TaskInfo.newBuilder().setSupportsPartialFulfillment(true),
+                    )
+                    .build(),
+            )
+
+        // TURN 1 (UNKNOWN).
+        val errorCallback = FakeCallbackInternal()
+        session.execute(buildRequestArgs(SYNC, SyncStatus.UNKNOWN_SYNC_STATUS),
+            errorCallback)
+        assertThat(errorCallback.receiveResponse().errorStatus)
+            .isEqualTo(ErrorStatusInternal.INVALID_REQUEST)
+
+        // TURN 2 (UNRECOGNIZED)
+        val errorCallback2 = FakeCallbackInternal()
+        session.execute(buildRequestArgs(SYNC, SyncStatus.UNRECOGNIZED),
+            errorCallback2)
+        assertThat(errorCallback2.receiveResponse().errorStatus)
+            .isEqualTo(ErrorStatusInternal.INVALID_REQUEST)
+    }
+
+    @Test
+    @kotlin.Throws(Exception::class)
+    fun syncStatus_slotsIncomplete_taskNotExecuted() {
+        val property = mapOf(
+            "required" to Property.Builder<StringValue>().setRequired(true).build()
+        )
+        val onExecuteInvocationCount = AtomicInteger(0)
+        val sessionFactory: (hostProperties: HostProperties?) -> ExecutionSession =
+            { _ ->
+                object : ExecutionSession {
+                    override suspend fun onExecute(arguments: Arguments): ExecutionResult<Output> {
+                        onExecuteInvocationCount.incrementAndGet()
+                        return ExecutionResult.Builder<Output>().build()
+                    }
+                }
+            }
+        val capability: Capability =
+            createCapability(
+                property,
+                sessionFactory = sessionFactory,
+                sessionBridge = SessionBridge { TaskHandler.Builder<Arguments, Confirmation>()
+                    .build() },
+                sessionUpdaterSupplier = ::EmptyTaskUpdater,
+            )
+        val session = capability.createSession(fakeSessionId, hostProperties)
+
+        /** TURN 1. Not providing all the required slots and passing SyncStatus as SLOTS_INCOMPLETE
+         *  Execution should not happen as sync status is SLOTS_INCOMPLETE
+         */
+        val callback = FakeCallbackInternal()
+        session.execute(buildRequestArgs(SYNC, SyncStatus.SLOTS_INCOMPLETE), callback)
+        assertThat(callback.receiveResponse()).isNotNull()
+        assertThat(getCurrentValues("required", session.state!!)).isEmpty()
+        assertThat(onExecuteInvocationCount.get()).isEqualTo(0)
+
+        /** TURN 2. Providing all the required slots but still passing SyncStatus as
+         * SLOTS_INCOMPLETE. Execution should not happen as sync status is SLOTS_INCOMPLETE
+         */
+        val callback2 = FakeCallbackInternal()
+        session.execute(
+            buildRequestArgs(
+                SYNC,
+                SyncStatus.SLOTS_INCOMPLETE,
+                "required",
+                ParamValue.newBuilder().setIdentifier("foo").setStringValue("foo").build(),
+            ),
+            callback2,
+        )
+        assertThat(callback2.receiveResponse()).isNotNull()
+        assertThat(getCurrentValues("required", session.state!!))
+            .containsExactly(
+                CurrentValue.newBuilder()
+                    .setValue(
+                        ParamValue.newBuilder().setIdentifier("foo").setStringValue("foo"),
+                    )
+                    .setStatus(CurrentValue.Status.ACCEPTED)
+                    .build(),
+            )
+        assertThat(onExecuteInvocationCount.get()).isEqualTo(0)
+
+        /**
+         *  TURN 3. Providing all the required slots and passing SyncStatus as SLOTS_COMPLETE
+         *  Execution should happen
+         */
+        val callback3 = FakeCallbackInternal()
+        session.execute(
+            buildRequestArgs(
+                SYNC,
+                SyncStatus.SLOTS_COMPLETE,
+                "required",
+                ParamValue.newBuilder().setIdentifier("foo").setStringValue("foo").build(),
+            ),
+            callback3,
+        )
+        assertThat(callback3.receiveResponse()).isNotNull()
+        assertThat(onExecuteInvocationCount.get()).isEqualTo(1)
+    }
+
+    @Test
+    @kotlin.Throws(Exception::class)
+    fun syncStatus_intentConfirmed_taskExecuted() {
+        val onConfirmationInvocationCount = AtomicInteger(0)
+        var onReadyConfirm =
+            object : OnReadyToConfirmListener<Arguments, Confirmation> {
+                override suspend fun onReadyToConfirm(arguments: Arguments):
+                    ConfirmationOutput<Confirmation> {
+                    onConfirmationInvocationCount.incrementAndGet()
+                    return ConfirmationOutput.Builder<Confirmation>()
+                        .setConfirmation(Confirmation.Builder().setOptionalStringField("bar")
+                            .build())
+                        .build()
+                }
+            }
+        val property = mapOf(
+            "required" to Property.Builder<StringValue>().setRequired(true).build()
+        )
+        val onExecuteInvocationCount = AtomicInteger(0)
+        val sessionFactory: (hostProperties: HostProperties?) -> ExecutionSession =
+            { _ ->
+                object : ExecutionSession {
+                    override suspend fun onExecute(arguments: Arguments): ExecutionResult<Output> {
+                        onExecuteInvocationCount.incrementAndGet()
+                        return ExecutionResult.Builder<Output>()
+                            .setOutput(
+                                Output.Builder()
+                                    .setOptionalStringField("baz")
+                                    .setRepeatedStringField(listOf("baz1", "baz2"))
+                                    .build())
+                            .build()
+                    }
+                }
+            }
+        val capability: Capability =
+            createCapability(
+                property,
+                sessionFactory = sessionFactory,
+                sessionBridge = {
+                                    TaskHandler.Builder<Arguments, Confirmation>()
+                                        .setOnReadyToConfirmListener(onReadyConfirm)
+                                        .registerConfirmationOutput(
+                                            "optionalStringOutput",
+                                            Confirmation::optionalStringField,
+                                            TypeConverters.STRING_PARAM_VALUE_CONVERTER
+                                            ::toParamValue)
+                                        .build() },
+                sessionUpdaterSupplier = ::EmptyTaskUpdater,
+            )
+
+        val session = capability.createSession(fakeSessionId, hostProperties)
+
+        /** TURN 1. Providing all the required slots and passing SyncStatus as SLOTS_COMPLETE
+         *  This should trigger the confirmation. Execution should not happen
+         */
+        val callback = FakeCallbackInternal()
+        session.execute(buildRequestArgs(
+            SYNC,
+            SyncStatus.SLOTS_COMPLETE,
+            "required",
+            ParamValue.newBuilder().setIdentifier("foo").setStringValue("foo").build(),
+        ), callback)
+        assertThat(callback.receiveResponse()).isNotNull()
+        assertThat(getCurrentValues("required", session.state!!))
+            .containsExactly(
+                CurrentValue.newBuilder()
+                    .setValue(
+                        ParamValue.newBuilder().setIdentifier("foo").setStringValue("foo"),
+                    )
+                    .setStatus(CurrentValue.Status.ACCEPTED)
+                    .build(),
+            )
+        assertThat(onExecuteInvocationCount.get()).isEqualTo(0)
+        assertThat(onConfirmationInvocationCount.get()).isEqualTo(1)
+
+        // Confirm the BIC
+        val expectedConfirmationOutput: StructuredOutput =
+            StructuredOutput.newBuilder()
+                .addOutputValues(
+                    OutputValue.newBuilder()
+                        .setName("optionalStringOutput")
+                        .addValues(ParamValue.newBuilder().setStringValue("bar").build())
+                        .build())
+                .build()
+        assertThat(callback.receiveResponse()
+            .fulfillmentResponse!!
+            .confirmationData
+            .outputValuesList
+        )
+            .containsExactlyElementsIn(expectedConfirmationOutput.outputValuesList)
+
+        /** TURN 2. Send CONFIRM request using INTENT_CONFIRMED sync status.
+         *  Execution should happen
+         */
+        val callback2 = FakeCallbackInternal()
+        session.execute(
+            buildRequestArgs(
+                SYNC,
+                SyncStatus.INTENT_CONFIRMED,
+            ),
+            callback2,
+        )
+        assertThat(callback2.receiveResponse()).isNotNull()
+        assertThat(onExecuteInvocationCount.get()).isEqualTo(1)
+
+        // Confirm the BIO
+        val expectedOutput: StructuredOutput =
+            StructuredOutput.newBuilder()
+                .addOutputValues(
+                    OutputValue.newBuilder()
+                        .setName("optionalStringOutput")
+                        .addValues(ParamValue.newBuilder().setStringValue("baz"))
+                        .build())
+                .addOutputValues(
+                    OutputValue.newBuilder()
+                        .setName("repeatedStringOutput")
+                        .addValues(ParamValue.newBuilder().setStringValue("baz1").build())
+                        .addValues(ParamValue.newBuilder().setStringValue("baz2").build())
+                        .build()
+                )
+                .build()
+        assertThat(callback2.receiveResponse()
+            .fulfillmentResponse!!
+            .getExecutionOutput()
+            .getOutputValuesList())
+            .containsExactlyElementsIn(expectedOutput.getOutputValuesList())
     }
 
     @Test
