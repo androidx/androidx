@@ -17,6 +17,8 @@
 package androidx.tv.material3
 
 import android.os.Build
+import android.os.SystemClock
+import android.view.KeyEvent
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.FocusInteraction
@@ -36,13 +38,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.testutils.assertContainsColor
 import androidx.compose.testutils.assertDoesNotContainColor
 import androidx.compose.testutils.assertShape
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.nativeKeyCode
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
@@ -52,6 +54,7 @@ import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertHasClickAction
 import androidx.compose.ui.test.assertIsEnabled
@@ -59,10 +62,12 @@ import androidx.compose.ui.test.assertIsFocused
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.captureToImage
+import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performKeyInput
+import androidx.compose.ui.test.performKeyPress
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.pressKey
 import androidx.compose.ui.unit.Dp
@@ -83,7 +88,6 @@ private fun assertFloatPrecision(a: Float, b: Float) =
     Truth.assertThat(abs(a - b)).isLessThan(0.0001f)
 
 @OptIn(
-    ExperimentalComposeUiApi::class,
     ExperimentalTestApi::class,
     ExperimentalTvMaterial3Api::class
 )
@@ -214,6 +218,31 @@ class SurfaceTest {
     }
 
     @Test
+    fun clickableOverload_longClickSemantics() {
+        val count = mutableStateOf(0)
+        rule.setContent {
+            Surface(
+                modifier = Modifier
+                    .testTag("surface"),
+                onClick = { },
+                onLongClick = { count.value += 1 }
+            ) {
+                Text("${count.value}")
+                Spacer(Modifier.size(30.toDp()))
+            }
+        }
+        rule.onNodeWithTag("surface")
+            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .assertHasClickAction()
+            .assert(SemanticsMatcher.keyIsDefined(SemanticsActions.OnLongClick))
+            .assertIsEnabled()
+            // since we merge descendants we should have text on the same node
+            .assertTextEquals("0")
+            .performLongKeyPress(rule, Key.DirectionCenter)
+            .assertTextEquals("1")
+    }
+
+    @Test
     fun clickableOverload_customSemantics() {
         val count = mutableStateOf(0)
         rule.setContent {
@@ -259,6 +288,67 @@ class SurfaceTest {
         rule.onNodeWithTag("surface").performKeyInput { pressKey(Key.DirectionCenter) }
             .performKeyInput { pressKey(Key.DirectionCenter) }
         Truth.assertThat(count.value).isEqualTo(3)
+    }
+
+    @Test
+    fun clickableOverload_longClickAction() {
+        val count = mutableStateOf(0)
+
+        rule.setContent {
+            Surface(
+                modifier = Modifier
+                    .testTag("surface"),
+                onClick = { },
+                onLongClick = { count.value += 1 }
+            ) {
+                Spacer(modifier = Modifier.size(30.toDp()))
+            }
+        }
+
+        rule.onNodeWithTag("surface")
+            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .performLongKeyPress(rule, Key.DirectionCenter, 1)
+        Truth.assertThat(count.value).isEqualTo(1)
+
+        rule.onNodeWithTag("surface")
+            .performLongKeyPress(rule, Key.DirectionCenter, 1, 2)
+        Truth.assertThat(count.value).isEqualTo(3)
+    }
+
+    @Test
+    fun clickableOverload_clickAction_withLongClick() {
+        val count1 = mutableStateOf(0)
+        val count2 = mutableStateOf(0)
+
+        rule.setContent {
+            Surface(
+                modifier = Modifier
+                    .testTag("surface"),
+                onClick = { count1.value += 1 },
+                onLongClick = { count2.value += 1 }
+            ) {
+                Spacer(modifier = Modifier.size(30.toDp()))
+            }
+        }
+
+        rule.onNodeWithTag("surface")
+            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .performKeyInput { pressKey(Key.DirectionCenter) }
+            .performLongKeyPress(rule, Key.DirectionCenter, 1)
+        Truth.assertThat(count1.value).isEqualTo(1)
+        Truth.assertThat(count2.value).isEqualTo(1)
+
+        rule.onNodeWithTag("surface")
+            .performKeyInput { pressKey(Key.DirectionCenter) }
+            .performKeyInput { pressKey(Key.DirectionCenter) }
+        Truth.assertThat(count1.value).isEqualTo(3)
+        Truth.assertThat(count2.value).isEqualTo(1)
+
+        rule.onNodeWithTag("surface")
+            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .performLongKeyPress(rule, Key.DirectionCenter, 1, 2)
+        Truth.assertThat(count1.value).isEqualTo(3)
+        Truth.assertThat(count2.value).isEqualTo(3)
     }
 
     @Test
@@ -489,6 +579,32 @@ class SurfaceTest {
     }
 
     @Test
+    fun toggleable_longClickSemantics() {
+        var isChecked by mutableStateOf(false)
+        rule.setContent {
+            Surface(
+                checked = isChecked,
+                modifier = Modifier
+                    .testTag("surface"),
+                onCheckedChange = { },
+                onLongClick = { isChecked = !isChecked }
+            ) {
+                Text("$isChecked")
+                Spacer(Modifier.size(30.toDp()))
+            }
+        }
+        rule.onNodeWithTag("surface")
+            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .assertHasClickAction()
+            .assert(SemanticsMatcher.keyIsDefined(SemanticsActions.OnLongClick))
+            .assertIsEnabled()
+            // since we merge descendants we should have text on the same node
+            .assertTextEquals("false")
+            .performLongKeyPress(rule, Key.DirectionCenter)
+            .assertTextEquals("true")
+    }
+
+    @Test
     fun toggleable_customSemantics() {
         var isChecked by mutableStateOf(false)
         rule.setContent {
@@ -535,6 +651,69 @@ class SurfaceTest {
 
         rule.onNodeWithTag("surface").performKeyInput { pressKey(Key.DirectionCenter) }
         Truth.assertThat(isChecked).isFalse()
+    }
+
+    @Test
+    fun toggleable_longClickAction() {
+        val count = mutableStateOf(0)
+
+        rule.setContent {
+            Surface(
+                checked = false,
+                modifier = Modifier
+                    .testTag("surface"),
+                onCheckedChange = { },
+                onLongClick = { count.value += 1 }
+            ) {
+                Spacer(modifier = Modifier.size(30.toDp()))
+            }
+        }
+
+        rule.onNodeWithTag("surface")
+            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .performLongKeyPress(rule, Key.DirectionCenter, 1)
+        Truth.assertThat(count.value).isEqualTo(1)
+
+        rule.onNodeWithTag("surface")
+            .performLongKeyPress(rule, Key.DirectionCenter, 1, 2)
+        Truth.assertThat(count.value).isEqualTo(3)
+    }
+
+    @Test
+    fun toggleable_clickAction_withLongClick() {
+        val count1 = mutableStateOf(0)
+        val count2 = mutableStateOf(0)
+
+        rule.setContent {
+            Surface(
+                checked = false,
+                modifier = Modifier
+                    .testTag("surface"),
+                onCheckedChange = { count1.value += 1 },
+                onLongClick = { count2.value += 1 }
+            ) {
+                Spacer(modifier = Modifier.size(30.toDp()))
+            }
+        }
+
+        rule.onNodeWithTag("surface")
+            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .performKeyInput { pressKey(Key.DirectionCenter) }
+            .performLongKeyPress(rule, Key.DirectionCenter, 1)
+        Truth.assertThat(count1.value).isEqualTo(1)
+        Truth.assertThat(count2.value).isEqualTo(1)
+
+        rule.onNodeWithTag("surface")
+            .performKeyInput { pressKey(Key.DirectionCenter) }
+            .performKeyInput { pressKey(Key.DirectionCenter) }
+        Truth.assertThat(count1.value).isEqualTo(3)
+        Truth.assertThat(count2.value).isEqualTo(1)
+
+        rule.onNodeWithTag("surface")
+            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .performLongKeyPress(rule, Key.DirectionCenter, 1, 2)
+        Truth.assertThat(count1.value).isEqualTo(3)
+        Truth.assertThat(count2.value).isEqualTo(3)
     }
 
     @Test
@@ -792,4 +971,38 @@ class SurfaceTest {
         // Assert surface is disabled
         rule.onNodeWithTag("surface").captureToImage().assertContainsColor(Color.Red)
     }
+}
+
+internal fun SemanticsNodeInteraction.performLongKeyPress(
+    rule: ComposeContentTestRule,
+    key: Key,
+    keyRepeatCount: Int = 1,
+    count: Int = 1
+): SemanticsNodeInteraction {
+    repeat(count) {
+        // Trigger the first key down event to simulate key press
+        val firstKeyDownEvent = KeyEvent(
+            SystemClock.uptimeMillis(), SystemClock.uptimeMillis(),
+            KeyEvent.ACTION_DOWN, key.nativeKeyCode, 0, 0, 0, 0
+        )
+        this.performKeyPress(androidx.compose.ui.input.key.KeyEvent(firstKeyDownEvent))
+        rule.waitForIdle()
+
+        // Trigger multiple key down events with repeat count (>0) to simulate key long press
+        val repeatedKeyDownEvent = KeyEvent(
+            SystemClock.uptimeMillis(), SystemClock.uptimeMillis(),
+            KeyEvent.ACTION_DOWN, key.nativeKeyCode, keyRepeatCount, 0, 0, 0
+        )
+        this.performKeyPress(androidx.compose.ui.input.key.KeyEvent(repeatedKeyDownEvent))
+        rule.waitForIdle()
+
+        // Trigger the final key up event to simulate key release
+        val keyUpEvent = KeyEvent(
+            SystemClock.uptimeMillis(), SystemClock.uptimeMillis(),
+            KeyEvent.ACTION_UP, key.nativeKeyCode, 0, 0, 0, 0
+        )
+        this.performKeyPress(androidx.compose.ui.input.key.KeyEvent(keyUpEvent))
+        rule.waitForIdle()
+    }
+    return this
 }
