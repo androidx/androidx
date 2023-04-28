@@ -58,7 +58,31 @@ class UnstableAidlAnnotationDetectorTest : AbstractLintDetectorTest(
     }
 
     @Test
-    fun wrongAnnotation() {
+    fun wrongAnnotationParcelable() {
+        val input = aidl(
+            "android/support/v4/os/ResultReceiver.aidl",
+            """
+                package android.support.v4.os;
+
+                @JavaOnlyStableParcelable
+                parcelable Receiver;
+            """.trimIndent()
+        )
+
+        /* ktlint-disable max-line-length */
+        val expected = """
+            src/main/aidl/android/support/v4/os/ResultReceiver.aidl:4: Error: Unstable AIDL files must be annotated with @RequiresOptIn marker [RequireUnstableAidlAnnotation]
+            parcelable Receiver;
+            ~~~~~~~~~~~~~~~~~~~~
+            1 errors, 0 warnings
+        """.trimIndent()
+        /* ktlint-enable max-line-length */
+
+        check(input).expect(expected)
+    }
+
+    @Test
+    fun wrongAnnotationInterface() {
         val input = arrayOf(
             java(
                 "src/androidx/core/MyAnnotation.java",

@@ -229,6 +229,24 @@
     <issue
         id="RequireUnstableAidlAnnotation"
         message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="parcelable ComplicationData;"
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/aidl/android/support/wearable/complications/ComplicationData.aidl"/>
+    </issue>
+
+    <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="parcelable ComplicationProviderInfo;"
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/aidl/android/support/wearable/complications/ComplicationProviderInfo.aidl"/>
+    </issue>
+
+    <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
         errorLine1="interface IComplicationManager {"
         errorLine2="^">
         <location
