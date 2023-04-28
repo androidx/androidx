@@ -21,6 +21,15 @@ package androidx.bluetooth {
     property public final int timeoutMillis;
   }
 
+  public final class BluetoothAddress {
+    ctor public BluetoothAddress(String address, int addressType);
+    method public String getAddress();
+    method public int getAddressType();
+    method public void setAddressType(int);
+    property public final String address;
+    property public final int addressType;
+  }
+
   public final class BluetoothDevice {
     method @RequiresPermission(anyOf={"android.permission.BLUETOOTH", "android.permission.BLUETOOTH_CONNECT"}) public int getBondState();
     method public java.util.UUID getId();
