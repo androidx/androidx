@@ -1178,6 +1178,18 @@ class GlanceAppWidgetReceiverTest {
         }
     }
 
+    @Test
+    fun rootViewIdIsNotReservedId() = runTest {
+        TestGlanceAppWidget.uiDefinition = {
+            Column {}
+        }
+
+        mHostRule.startHost()
+        mHostRule.onUnboxedHostView<View> { root ->
+            assertThat(root.id).isNotIn(0..1)
+        }
+    }
+
     // Check there is a single span of the given type and that it passes the [check].
     private inline
     fun <reified T> SpannedString.checkHasSingleTypedSpan(check: (T) -> Unit) {

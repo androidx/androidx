@@ -146,6 +146,8 @@ private fun combineLandscapeAndPortrait(views: List<RemoteViews>): RemoteViews =
         else -> throw IllegalArgumentException("There must be between 1 and 2 views.")
     }
 
+private const val LastInvalidViewId = 1
+
 internal data class TranslationContext(
     val context: Context,
     val appWidgetId: Int,
@@ -153,7 +155,7 @@ internal data class TranslationContext(
     val layoutConfiguration: LayoutConfiguration?,
     val itemPosition: Int,
     val isLazyCollectionDescendant: Boolean = false,
-    val lastViewId: AtomicInteger = AtomicInteger(0),
+    val lastViewId: AtomicInteger = AtomicInteger(LastInvalidViewId),
     val parentContext: InsertedViewInfo = InsertedViewInfo(),
     val isBackgroundSpecified: AtomicBoolean = AtomicBoolean(false),
     val layoutSize: DpSize = DpSize.Zero,
@@ -172,7 +174,7 @@ internal data class TranslationContext(
         forChild(pos = 0, parent = root.view)
             .copy(
                 isBackgroundSpecified = AtomicBoolean(false),
-                lastViewId = AtomicInteger(0),
+                lastViewId = AtomicInteger(LastInvalidViewId),
             )
 
     fun resetViewId(newViewId: Int = 0) = copy(lastViewId = AtomicInteger(newViewId))
