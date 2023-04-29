@@ -22,6 +22,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorLambda
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.graphics.drawscope.Fill
@@ -70,7 +71,8 @@ internal class TextAnnotatedStringNode(
     private var minLines: Int = DefaultMinLines,
     private var placeholders: List<AnnotatedString.Range<Placeholder>>? = null,
     private var onPlaceholderLayout: ((List<Rect?>) -> Unit)? = null,
-    private var selectionController: SelectionController? = null
+    private var selectionController: SelectionController? = null,
+    private var overrideColor: ColorLambda? = null
 ) : Modifier.Node(), LayoutModifierNode, DrawModifierNode, SemanticsModifierNode {
     private var baselineCache: Map<AlignmentLine, Int>? = null
 
@@ -94,6 +96,19 @@ internal class TextAnnotatedStringNode(
 
     private fun getLayoutCache(density: Density): MultiParagraphLayoutCache {
         return layoutCache.also { it.density = density }
+    }
+
+    /**
+     * Element has draw parameters to update
+     */
+    fun updateDraw(color: ColorLambda?, style: TextStyle): Boolean {
+        var changed = false
+        if (color != this.overrideColor) {
+            changed = true
+        }
+        overrideColor = color
+        changed = changed || !style.hasSameDrawAffectingAttributes(this.style)
+        return changed
     }
 
     /**
@@ -186,6 +201,7 @@ internal class TextAnnotatedStringNode(
      * Do appropriate invalidate calls based on the results of update above.
      */
     fun doInvalidations(
+        drawChanged: Boolean,
         textChanged: Boolean,
         layoutChanged: Boolean,
         callbacksChanged: Boolean
@@ -207,8 +223,11 @@ internal class TextAnnotatedStringNode(
                 placeholders = placeholders
             )
             invalidateMeasurement()
+            invalidateDraw()
         }
-        invalidateDraw()
+        if (drawChanged) {
+            invalidateDraw()
+        }
     }
 
     private var _semanticsConfiguration: SemanticsConfiguration? = null
@@ -382,7 +401,16 @@ internal class TextAnnotatedStringNode(
                         decoration = textDecoration
                     )
                 } else {
-                    val color = if (style.color.isSpecified) {
+                    val localColorOverride = overrideColor
+                    @Suppress("IfThenToElvis") // don't box that Color
+                    val overrideColorVal = if (localColorOverride != null) {
+                        localColorOverride.invoke()
+                    } else {
+                        Color.Unspecified
+                    }
+                    val color = if (overrideColorVal.isSpecified) {
+                        overrideColorVal
+                    } else if (style.color.isSpecified) {
                         style.color
                     } else {
                         Color.Black

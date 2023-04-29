@@ -1143,6 +1143,10 @@ class TextStyle internal constructor(
             spanStyle.hasSameLayoutAffectingAttributes(other.spanStyle))
     }
 
+    fun hasSameDrawAffectingAttributes(other: TextStyle): Boolean {
+        return (this === other) || (spanStyle.hasSameNonLayoutAttributes(other.spanStyle))
+    }
+
     override fun hashCode(): Int {
         var result = spanStyle.hashCode()
         result = 31 * result + paragraphStyle.hashCode()

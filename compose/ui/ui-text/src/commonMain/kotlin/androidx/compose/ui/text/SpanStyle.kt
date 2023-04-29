@@ -650,7 +650,7 @@ class SpanStyle internal constructor(
         return true
     }
 
-    private fun hasSameNonLayoutAttributes(other: SpanStyle): Boolean {
+    internal fun hasSameNonLayoutAttributes(other: SpanStyle): Boolean {
         if (textForegroundStyle != other.textForegroundStyle) return false
         if (textDecoration != other.textDecoration) return false
         if (shadow != other.shadow) return false
@@ -889,7 +889,7 @@ internal fun SpanStyle.fastMerge(
 
     // any new vals should do a pre-merge check here
     val requiresAlloc = fontSize.isSpecified && fontSize != this.fontSize ||
-        brush == null && color != textForegroundStyle.color ||
+        brush == null && color.isSpecified && color != textForegroundStyle.color ||
         fontStyle != null && fontStyle != this.fontStyle ||
         fontWeight != null && fontWeight != this.fontWeight ||
         // ref check for font-family, since we don't want to compare lists in fast path
