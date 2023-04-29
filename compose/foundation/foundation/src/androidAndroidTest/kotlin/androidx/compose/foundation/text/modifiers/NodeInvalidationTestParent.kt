@@ -18,6 +18,7 @@ package androidx.compose.foundation.text.modifiers
 
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorLambda
 import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
@@ -41,6 +42,28 @@ abstract class NodeInvalidationTestParent {
         )
         assertThat(layoutChange).isFalse()
         assertThat(textChange).isFalse()
+    }
+
+    @Test
+    fun colorChanged_usingLambda_doesInvalidateDraw() {
+        val params = generateParams()
+        val redFactory = { Color.Red }
+        val blueFactory = { Color.Blue }
+        val drawParams = DrawParams(params.style, redFactory)
+        val subject = createSubject(params, drawParams)
+        val drawChanged = subject.updateDrawArgs(drawParams.copy(color = blueFactory))
+        assertThat(drawChanged).isTrue()
+    }
+
+    @Test
+    fun colorChanged_usingStyle_doesInvalidateDraw() {
+        val params = generateParams()
+        val drawParams = DrawParams(params.style, { Color.Unspecified })
+        val subject = createSubject(params, drawParams)
+        val drawChanged = subject.updateDrawArgs(
+            drawParams = drawParams.copy(style = drawParams.style.copy(color = Color.Red))
+        )
+        assertThat(drawChanged).isTrue()
     }
 
     @OptIn(ExperimentalTextApi::class)
@@ -121,8 +144,10 @@ abstract class NodeInvalidationTestParent {
         assertThat(textChange).isFalse()
     }
 
+    abstract fun Any.updateDrawArgs(drawParams: DrawParams): Boolean
     abstract fun Any.updateAll(params: Params): Pair<Boolean, Boolean>
     abstract fun createSubject(params: Params): Any
+    abstract fun createSubject(params: Params, drawParams: DrawParams): Any
     private fun generateParams(): Params {
         return Params(
             "text",
@@ -143,5 +168,12 @@ abstract class NodeInvalidationTestParent {
         val softWrap: Boolean,
         val maxLines: Int,
         val minLines: Int
+    )
+
+    data class DrawParams(
+        val style: TextStyle,
+        val color: ColorLambda? = null,
+        val brush: Brush? = null,
+        val alpha: Float = Float.NaN
     )
 }

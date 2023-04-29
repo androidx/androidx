@@ -18,6 +18,7 @@ package androidx.compose.foundation.text.modifiers
 
 import androidx.compose.foundation.text.DefaultMinLines
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.graphics.ColorLambda
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.text.AnnotatedString
@@ -43,7 +44,8 @@ internal class TextAnnotatedStringElement(
     private val minLines: Int = DefaultMinLines,
     private val placeholders: List<AnnotatedString.Range<Placeholder>>? = null,
     private val onPlaceholderLayout: ((List<Rect?>) -> Unit)? = null,
-    private val selectionController: SelectionController? = null
+    private val selectionController: SelectionController? = null,
+    private val color: ColorLambda? = null
 ) : ModifierNodeElement<TextAnnotatedStringNode>() {
 
     override fun create(): TextAnnotatedStringNode = TextAnnotatedStringNode(
@@ -57,11 +59,13 @@ internal class TextAnnotatedStringElement(
         minLines,
         placeholders,
         onPlaceholderLayout,
-        selectionController
+        selectionController,
+        color
     )
 
     override fun update(node: TextAnnotatedStringNode) {
         node.doInvalidations(
+            drawChanged = node.updateDraw(color, style),
             textChanged = node.updateText(
                 text = text
             ),
@@ -88,7 +92,8 @@ internal class TextAnnotatedStringElement(
         if (other !is TextAnnotatedStringElement) return false
 
         // these three are most likely to actually change
-        if (text != other.text) return false
+        if (color != other.color) return false
+        if (text != other.text) return false /* expensive to check, do it after color */
         if (style != other.style) return false
         if (placeholders != other.placeholders) return false
 
@@ -119,6 +124,7 @@ internal class TextAnnotatedStringElement(
         result = 31 * result + (placeholders?.hashCode() ?: 0)
         result = 31 * result + (onPlaceholderLayout?.hashCode() ?: 0)
         result = 31 * result + (selectionController?.hashCode() ?: 0)
+        result = 31 * result + (color?.hashCode() ?: 0)
         return result
     }
 

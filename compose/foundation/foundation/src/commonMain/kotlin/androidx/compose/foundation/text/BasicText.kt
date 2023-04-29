@@ -32,6 +32,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.graphics.ColorLambda
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.Measurable
@@ -73,8 +74,8 @@ import kotlin.math.roundToInt
  * [overflow] and [softWrap]. It is required that 1 <= [minLines] <= [maxLines].
  * @param minLines The minimum height in terms of minimum number of visible lines. It is required
  * that 1 <= [minLines] <= [maxLines].
+ * @param color Overrides the text color provided in [style]
  */
-@OptIn(InternalFoundationTextApi::class)
 @Composable
 fun BasicText(
     text: String,
@@ -84,7 +85,8 @@ fun BasicText(
     overflow: TextOverflow = TextOverflow.Clip,
     softWrap: Boolean = true,
     maxLines: Int = Int.MAX_VALUE,
-    minLines: Int = 1
+    minLines: Int = 1,
+    color: ColorLambda? = null
 ) {
     validateMinMaxLines(
         minLines = minLines,
@@ -117,7 +119,8 @@ fun BasicText(
                 fontFamilyResolver = LocalFontFamilyResolver.current,
                 placeholders = null,
                 onPlaceholderLayout = null,
-                selectionController = selectionController
+                selectionController = selectionController,
+                color = color
             )
     } else {
         modifier
@@ -129,7 +132,8 @@ fun BasicText(
             overflow = overflow,
             softWrap = softWrap,
             maxLines = maxLines,
-            minLines = minLines
+            minLines = minLines,
+            color = color
         )
     }
     Layout(finalModifier, EmptyMeasurePolicy)
@@ -158,8 +162,8 @@ fun BasicText(
  * that 1 <= [minLines] <= [maxLines].
  * @param inlineContent A map store composables that replaces certain ranges of the text. It's
  * used to insert composables into text layout. Check [InlineTextContent] for more information.
+ * @param color Overrides the text color provided in [style]
  */
-@OptIn(InternalFoundationTextApi::class)
 @Composable
 fun BasicText(
     text: AnnotatedString,
@@ -170,7 +174,8 @@ fun BasicText(
     softWrap: Boolean = true,
     maxLines: Int = Int.MAX_VALUE,
     minLines: Int = 1,
-    inlineContent: Map<String, InlineTextContent> = mapOf()
+    inlineContent: Map<String, InlineTextContent> = mapOf(),
+    color: ColorLambda? = null
 ) {
     validateMinMaxLines(
         minLines = minLines,
@@ -205,7 +210,8 @@ fun BasicText(
                     fontFamilyResolver = LocalFontFamilyResolver.current,
                     placeholders = null,
                     onPlaceholderLayout = null,
-                    selectionController = selectionController
+                    selectionController = selectionController,
+                    color = color
                 ),
             EmptyMeasurePolicy
         )
@@ -233,7 +239,8 @@ fun BasicText(
                 fontFamilyResolver = LocalFontFamilyResolver.current,
                 placeholders = placeholders,
                 onPlaceholderLayout = { measuredPlaceholderPositions.value = it },
-                selectionController = selectionController
+                selectionController = selectionController,
+                color = color
             ),
             measurePolicy = TextMeasurePolicy { measuredPlaceholderPositions.value }
         )
@@ -287,6 +294,43 @@ fun BasicText(
         inlineContent = inlineContent
     )
 }
+
+@Deprecated("Maintained for binary compat", level = DeprecationLevel.HIDDEN)
+@Composable
+fun BasicText(
+    text: String,
+    modifier: Modifier = Modifier,
+    style: TextStyle = TextStyle.Default,
+    onTextLayout: ((TextLayoutResult) -> Unit)? = null,
+    overflow: TextOverflow = TextOverflow.Clip,
+    softWrap: Boolean = true,
+    maxLines: Int = Int.MAX_VALUE,
+    minLines: Int = 1
+) = BasicText(text, modifier, style, onTextLayout, overflow, softWrap, maxLines, minLines)
+
+@Deprecated("Maintained for binary compat", level = DeprecationLevel.HIDDEN)
+@Composable
+fun BasicText(
+    text: AnnotatedString,
+    modifier: Modifier = Modifier,
+    style: TextStyle = TextStyle.Default,
+    onTextLayout: ((TextLayoutResult) -> Unit)? = null,
+    overflow: TextOverflow = TextOverflow.Clip,
+    softWrap: Boolean = true,
+    maxLines: Int = Int.MAX_VALUE,
+    minLines: Int = 1,
+    inlineContent: Map<String, InlineTextContent> = mapOf()
+) = BasicText(
+    text = text,
+    modifier = modifier,
+    style = style,
+    onTextLayout = onTextLayout,
+    overflow = overflow,
+    softWrap = softWrap,
+    maxLines = maxLines,
+    minLines = minLines,
+    inlineContent = inlineContent
+)
 
 /**
  * A custom saver that won't save if no selection is active.
@@ -352,7 +396,8 @@ private fun Modifier.textModifier(
     fontFamilyResolver: FontFamily.Resolver,
     placeholders: List<AnnotatedString.Range<Placeholder>>?,
     onPlaceholderLayout: ((List<Rect?>) -> Unit)?,
-    selectionController: SelectionController?
+    selectionController: SelectionController?,
+    color: ColorLambda?
 ): Modifier {
     if (selectionController == null) {
         val staticTextModifier = TextAnnotatedStringElement(
@@ -366,7 +411,8 @@ private fun Modifier.textModifier(
             minLines,
             placeholders,
             onPlaceholderLayout,
-            null
+            null,
+            color
         )
         return this then Modifier /* selection position */ then staticTextModifier
     } else {
@@ -381,7 +427,8 @@ private fun Modifier.textModifier(
             minLines,
             placeholders,
             onPlaceholderLayout,
-            selectionController
+            selectionController,
+            color
         )
         return this then selectionController.modifier then selectableTextModifier
     }

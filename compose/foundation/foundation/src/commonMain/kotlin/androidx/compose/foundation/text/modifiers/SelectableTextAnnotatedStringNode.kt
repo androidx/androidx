@@ -18,6 +18,7 @@ package androidx.compose.foundation.text.modifiers
 
 import androidx.compose.foundation.text.DefaultMinLines
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.graphics.ColorLambda
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.layout.IntrinsicMeasurable
 import androidx.compose.ui.layout.IntrinsicMeasureScope
@@ -56,7 +57,8 @@ internal class SelectableTextAnnotatedStringNode(
     minLines: Int = DefaultMinLines,
     placeholders: List<AnnotatedString.Range<Placeholder>>? = null,
     onPlaceholderLayout: ((List<Rect?>) -> Unit)? = null,
-    private val selectionController: SelectionController? = null
+    private val selectionController: SelectionController? = null,
+    overrideColor: ColorLambda? = null
 ) : DelegatingNode(), LayoutModifierNode, DrawModifierNode, GlobalPositionAwareModifierNode,
     SemanticsModifierNode {
 
@@ -72,7 +74,8 @@ internal class SelectableTextAnnotatedStringNode(
             minLines = minLines,
             placeholders = placeholders,
             onPlaceholderLayout = onPlaceholderLayout,
-            selectionController = selectionController
+            selectionController = selectionController,
+            overrideColor = overrideColor
         )
     )
 
@@ -127,9 +130,11 @@ internal class SelectableTextAnnotatedStringNode(
         overflow: TextOverflow,
         onTextLayout: ((TextLayoutResult) -> Unit)?,
         onPlaceholderLayout: ((List<Rect?>) -> Unit)?,
-        selectionController: SelectionController?
+        selectionController: SelectionController?,
+        color: ColorLambda?
     ) {
         delegate.doInvalidations(
+            drawChanged = delegate.updateDraw(color, style),
             textChanged = delegate.updateText(
                 text = text
             ),
@@ -146,7 +151,7 @@ internal class SelectableTextAnnotatedStringNode(
                 onTextLayout = onTextLayout,
                 onPlaceholderLayout = onPlaceholderLayout,
                 selectionController = selectionController
-            )
+            ),
         )
         // we always relayout when we're selectable
         invalidateMeasurement()

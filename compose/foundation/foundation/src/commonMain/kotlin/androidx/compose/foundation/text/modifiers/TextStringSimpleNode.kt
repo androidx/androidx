@@ -22,6 +22,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorLambda
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.graphics.drawscope.Fill
@@ -69,7 +70,8 @@ internal class TextStringSimpleNode(
     private var overflow: TextOverflow = TextOverflow.Clip,
     private var softWrap: Boolean = true,
     private var maxLines: Int = Int.MAX_VALUE,
-    private var minLines: Int = DefaultMinLines
+    private var minLines: Int = DefaultMinLines,
+    private var overrideColor: ColorLambda? = null
 ) : Modifier.Node(), LayoutModifierNode, DrawModifierNode, SemanticsModifierNode {
     private var baselineCache: Map<AlignmentLine, Int>? = null
 
@@ -92,6 +94,16 @@ internal class TextStringSimpleNode(
 
     private fun getLayoutCache(density: Density): ParagraphLayoutCache {
         return layoutCache.also { it.density = density }
+    }
+
+    fun updateDraw(color: ColorLambda?, style: TextStyle): Boolean {
+        var changed = false
+        if (color != this.overrideColor) {
+            changed = true
+        }
+        overrideColor = color
+        changed = changed || !style.hasSameDrawAffectingAttributes(this.style)
+        return changed
     }
 
     /**
@@ -151,6 +163,7 @@ internal class TextStringSimpleNode(
      * request invalidate based on the results of [updateText] and [updateLayoutRelatedArgs]
      */
     fun doInvalidations(
+        drawChanged: Boolean,
         textChanged: Boolean,
         layoutChanged: Boolean
     ) {
@@ -170,8 +183,11 @@ internal class TextStringSimpleNode(
                 minLines = minLines
             )
             invalidateMeasurement()
+            invalidateDraw()
         }
-        invalidateDraw()
+        if (drawChanged) {
+            invalidateDraw()
+        }
     }
 
     private var _semanticsConfiguration: SemanticsConfiguration? = null
@@ -301,7 +317,16 @@ internal class TextStringSimpleNode(
                         textDecoration = textDecoration
                     )
                 } else {
-                    val color = if (style.color.isSpecified) {
+                    val localColorOverride = overrideColor
+                    @Suppress("IfThenToElvis") // don't box that Color
+                    val overrideColorVal = if (localColorOverride != null) {
+                        localColorOverride.invoke()
+                    } else {
+                        Color.Unspecified
+                    }
+                    val color = if (overrideColorVal.isSpecified) {
+                        overrideColorVal
+                    } else if (style.color.isSpecified) {
                         style.color
                     } else {
                         Color.Black

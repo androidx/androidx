@@ -32,6 +32,13 @@ val TextDemos = DemoCategory(
             )
         ),
         DemoCategory(
+            "Animation",
+            listOf(
+                ComposableDemo("color = { animatedColor.value }") { TextColorAnimation() },
+                ComposableDemo("GraphicsLayer (skew, scale, etc)") { TextAnimationDemo() },
+            )
+        ),
+        DemoCategory(
             "Text Layout",
             listOf(
                 ComposableDemo("Static text") { TextDemo() },
@@ -67,7 +74,6 @@ val TextDemos = DemoCategory(
                 ComposableDemo("Layout Reuse") { TextReuseLayoutDemo() },
                 ComposableDemo("Multi paragraph") { MultiParagraphDemo() },
                 ComposableDemo("Interactive text") { InteractiveTextDemo() },
-                ComposableDemo("Text Animation") { TextAnimationDemo() },
             )
         ),
         DemoCategory(
