@@ -23,8 +23,8 @@ dependencies {
     api("androidx.fragment:fragment:1.5.4")
     api(project(":appcompat:appcompat-resources"))
     api("androidx.drawerlayout:drawerlayout:1.0.0")
-    implementation(projectOrArtifact(":lifecycle:lifecycle-runtime"))
-    implementation("androidx.lifecycle:lifecycle-viewmodel:2.5.1")
+    implementation("androidx.lifecycle:lifecycle-runtime:2.6.1")
+    implementation("androidx.lifecycle:lifecycle-viewmodel:2.6.1")
     implementation("androidx.profileinstaller:profileinstaller:1.3.0")
     implementation("androidx.resourceinspection:resourceinspection-annotation:1.0.1")
     api("androidx.savedstate:savedstate:1.2.1")
@@ -44,8 +44,8 @@ dependencies {
     androidTestImplementation(libs.espressoCore, excludes.espresso)
     androidTestImplementation(libs.mockitoCore, excludes.bytebuddy) // DexMaker has it's own MockMaker
     androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy) // DexMaker has it's own MockMaker
-    androidTestImplementation(projectOrArtifact(":lifecycle:lifecycle-viewmodel"))
-    androidTestImplementation("androidx.lifecycle:lifecycle-runtime-testing:2.5.1", {
+    androidTestImplementation("androidx.lifecycle:lifecycle-viewmodel:2.6.1")
+    androidTestImplementation("androidx.lifecycle:lifecycle-runtime-testing:2.6.1", {
         // Needed to ensure that the same version of lifecycle-runtime-ktx
         // is pulled into main and androidTest configurations. Otherwise,
         // potentially leads to confusing errors about resolution
