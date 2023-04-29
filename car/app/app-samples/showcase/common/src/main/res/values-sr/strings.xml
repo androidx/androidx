@@ -243,7 +243,7 @@
     <string name="sign_in_template_not_supported_text" msgid="7184733753948837646">"Хост не подржава шаблон за пријављивање"</string>
     <string name="sign_in_template_not_supported_title" msgid="4892883228898541764">"Некомпатибилан хост"</string>
     <string name="email_hint" msgid="7205549445477319606">"Имејл"</string>
-    <string name="sign_in_title" msgid="4551967308262681703">"Пријавите се"</string>
+    <string name="sign_in_title" msgid="4551967308262681703">"Пријави ме"</string>
     <string name="sign_in_instructions" msgid="9044850228284294762">"Унесите акредитиве"</string>
     <string name="invalid_email_error_msg" msgid="5261362663718987167">"Корисничко име мора да буде важећа имејл адреса"</string>
     <string name="invalid_length_error_msg" msgid="8238905276326976425">"Најмањи број знакова у корисничком имену је %s"</string>
