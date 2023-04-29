@@ -45,6 +45,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.ExperimentalTextApi
@@ -82,7 +84,11 @@ fun TextColorAnimation() {
         initialValue = Color.Black,
         targetValue = Color.Gray,
         animationSpec = InfiniteRepeatableSpec(
-            tween(5_000, 50, CubicBezierEasing(0.2f, 0.0f, 0.5f, 0.6f)),
+            tween(
+                5_000,
+                50,
+                CubicBezierEasing(0.2f, 0.0f, 0.5f, 0.6f)
+            ),
             repeatMode = RepeatMode.Reverse
         ),
         label = "slow gray"
@@ -106,6 +112,38 @@ fun TextColorAnimation() {
                 modifier = Modifier.padding(top = 16.dp)
             )
         }
+    }
+}
+
+@Composable
+fun TextGradientAnimation() {
+    val anim = rememberInfiniteTransition("gradient")
+    val offset = anim.animateFloat(
+        initialValue = 0.0f,
+        targetValue = 0.8f,
+        animationSpec = InfiniteRepeatableSpec(
+            animation = tween(
+                durationMillis = 4000,
+                delayMillis = 500,
+                easing = CubicBezierEasing(0.2f, 0.0f, 0.5f, 1.0f)
+            ),
+            repeatMode = RepeatMode.Reverse),
+        label = "offset"
+    )
+
+    Box(contentAlignment = Alignment.Center) {
+        BasicText(
+            "Search Light",
+            style = TextStyle.Default.copy(fontSize = 45.sp, textAlign = TextAlign.Center),
+            brush = {
+                Brush.radialGradient(
+                    offset.value + 0.2f to Color.LightGray, /* grow and sharpen */
+                    offset.value + 0.8f to Color.Black,
+                    center = Offset(600f * offset.value, 100f)
+                )
+            },
+            alpha = { 1.0f }
+        )
     }
 }
 

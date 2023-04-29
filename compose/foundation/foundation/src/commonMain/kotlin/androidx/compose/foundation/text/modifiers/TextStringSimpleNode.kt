@@ -21,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorLambda
 import androidx.compose.ui.graphics.Shadow
@@ -54,6 +55,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.FloatLambda
 import kotlin.math.roundToInt
 
 /**
@@ -71,7 +73,9 @@ internal class TextStringSimpleNode(
     private var softWrap: Boolean = true,
     private var maxLines: Int = Int.MAX_VALUE,
     private var minLines: Int = DefaultMinLines,
-    private var overrideColor: ColorLambda? = null
+    private var overrideColor: ColorLambda? = null,
+    private var overrideBrush: (() -> Brush)? = null,
+    private var overrideAlpha: FloatLambda? = null
 ) : Modifier.Node(), LayoutModifierNode, DrawModifierNode, SemanticsModifierNode {
     private var baselineCache: Map<AlignmentLine, Int>? = null
 
@@ -96,11 +100,24 @@ internal class TextStringSimpleNode(
         return layoutCache.also { it.density = density }
     }
 
-    fun updateDraw(color: ColorLambda?, style: TextStyle): Boolean {
+    fun updateDraw(
+        color: ColorLambda?,
+        brush: (() -> Brush)?,
+        alpha: FloatLambda?,
+        style: TextStyle
+    ): Boolean {
         var changed = false
         if (color != this.overrideColor) {
             changed = true
         }
+        if (brush !== this.overrideBrush) {
+            changed = true
+        }
+        if (brush != null && alpha != this.overrideAlpha) {
+            changed = true
+        }
+        overrideBrush = brush
+        overrideAlpha = alpha
         overrideColor = color
         changed = changed || !style.hasSameDrawAffectingAttributes(this.style)
         return changed
@@ -305,13 +322,20 @@ internal class TextStringSimpleNode(
                 val textDecoration = style.textDecoration ?: TextDecoration.None
                 val shadow = style.shadow ?: Shadow.None
                 val drawStyle = style.drawStyle ?: Fill
-                val brush = style.brush
+                val brush = overrideBrush?.invoke() ?: style.brush
                 if (brush != null) {
-                    val alpha = style.alpha
+                    val localAlpha = overrideAlpha
+                    @Suppress("IfThenToElvis") // boxing
+                    val localAlphaResolved = if (localAlpha != null) {
+                        localAlpha.invoke()
+                    } else {
+                        Float.NaN
+                    }
+                    val alpha = if (!localAlphaResolved.isNaN()) localAlphaResolved else style.alpha
                     localParagraph.paint(
-                        canvas = canvas,
-                        brush = brush,
                         alpha = alpha,
+                        brush = brush,
+                        canvas = canvas,
                         shadow = shadow,
                         drawStyle = drawStyle,
                         textDecoration = textDecoration

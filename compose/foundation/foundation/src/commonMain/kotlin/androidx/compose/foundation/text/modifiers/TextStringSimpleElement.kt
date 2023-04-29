@@ -17,6 +17,7 @@
 package androidx.compose.foundation.text.modifiers
 
 import androidx.compose.foundation.text.DefaultMinLines
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.ColorLambda
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.platform.InspectorInfo
@@ -24,6 +25,7 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.FloatLambda
 
 /**
  * Modifier element for any Text with [AnnotatedString] or [onTextLayout] parameters
@@ -38,7 +40,9 @@ internal class TextStringSimpleElement(
     private val softWrap: Boolean = true,
     private val maxLines: Int = Int.MAX_VALUE,
     private val minLines: Int = DefaultMinLines,
-    private val color: ColorLambda? = null
+    private val color: ColorLambda? = null,
+    private val brush: (() -> Brush)? = null,
+    private val alpha: FloatLambda? = null,
 ) : ModifierNodeElement<TextStringSimpleNode>() {
 
     override fun create(): TextStringSimpleNode = TextStringSimpleNode(
@@ -49,13 +53,17 @@ internal class TextStringSimpleElement(
         softWrap,
         maxLines,
         minLines,
-        color
+        color,
+        brush,
+        alpha
     )
 
     override fun update(node: TextStringSimpleNode) {
         node.doInvalidations(
             drawChanged = node.updateDraw(
                 color,
+                brush,
+                alpha,
                 style
             ),
             textChanged = node.updateText(
@@ -79,6 +87,8 @@ internal class TextStringSimpleElement(
 
         // these three are most likely to actually change
         if (color != other.color) return false
+        if (brush != other.brush) return false
+        if (alpha != other.alpha) return false
         if (text != other.text) return false /* expensive to check, do after color */
         if (style != other.style) return false
 
@@ -101,6 +111,8 @@ internal class TextStringSimpleElement(
         result = 31 * result + maxLines
         result = 31 * result + minLines
         result = 31 * result + (color?.hashCode() ?: 0)
+        result = 31 * result + (brush?.hashCode() ?: 0)
+        result = 31 * result + (alpha?.hashCode() ?: 0)
         return result
     }
 
