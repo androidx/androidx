@@ -19,7 +19,6 @@ package androidx.compose.foundation.text.modifiers
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorLambda
-import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.createFontFamilyResolver
@@ -66,7 +65,31 @@ abstract class NodeInvalidationTestParent {
         assertThat(drawChanged).isTrue()
     }
 
-    @OptIn(ExperimentalTextApi::class)
+    @Test
+    fun brushChanged_usingLambda_doesInvalidateDraw() {
+        val params = generateParams()
+        val redFactory = { Brush.linearGradient(listOf(Color.Red)) }
+        val blueFactory = { Brush.linearGradient(listOf(Color.Blue)) }
+        val alpha = { 1.0f }
+        val drawParams = DrawParams(params.style, null, redFactory, alpha)
+        val subject = createSubject(params, drawParams)
+        val drawChanged = subject.updateDrawArgs(drawParams.copy(brush = blueFactory))
+        assertThat(drawChanged).isTrue()
+    }
+
+    @Test
+    fun brushChanged_usingStyle_doesInvalidateDraw() {
+        val params = generateParams()
+        val drawParams = DrawParams(params.style, null, null, null)
+        val subject = createSubject(params, drawParams)
+        val drawChanged = subject.updateDrawArgs(
+            drawParams = drawParams.copy(
+                style = drawParams.style.copy(brush = Brush.linearGradient(listOf(Color.Blue)))
+            )
+        )
+        assertThat(drawChanged).isTrue()
+    }
+
     @Test
     fun brushChange_doesNotInvalidateLayout() {
         val params = generateParams()
@@ -173,7 +196,7 @@ abstract class NodeInvalidationTestParent {
     data class DrawParams(
         val style: TextStyle,
         val color: ColorLambda? = null,
-        val brush: Brush? = null,
-        val alpha: Float = Float.NaN
+        val brush: (() -> Brush)? = null,
+        val alpha: (() -> Float)? = null
     )
 }

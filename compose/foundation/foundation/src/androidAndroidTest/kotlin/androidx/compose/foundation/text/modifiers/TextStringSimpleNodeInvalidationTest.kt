@@ -19,7 +19,12 @@ package androidx.compose.foundation.text.modifiers
 class TextStringSimpleNodeInvalidationTest : NodeInvalidationTestParent() {
     override fun Any.updateDrawArgs(drawParams: DrawParams): Boolean {
         this as TextStringSimpleNode
-        return this.updateDraw(drawParams.color, drawParams.style)
+        return this.updateDraw(
+            drawParams.color,
+            drawParams.brush,
+            drawParams.alpha,
+            drawParams.style
+        )
     }
 
     override fun Any.updateAll(params: Params): Pair<Boolean, Boolean> {
@@ -42,7 +47,7 @@ class TextStringSimpleNodeInvalidationTest : NodeInvalidationTestParent() {
             params.overflow,
             params.softWrap,
             params.maxLines,
-            params.minLines
+            params.minLines,
         )
     }
 
@@ -55,7 +60,9 @@ class TextStringSimpleNodeInvalidationTest : NodeInvalidationTestParent() {
             params.softWrap,
             params.maxLines,
             params.minLines,
-            drawParams.color
+            drawParams.color,
+            drawParams.brush,
+            drawParams.alpha
         )
     }
 }
