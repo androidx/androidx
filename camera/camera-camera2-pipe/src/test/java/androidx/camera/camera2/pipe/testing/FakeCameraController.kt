@@ -28,6 +28,7 @@ internal class FakeCameraController : CameraController {
     var surfaceMap: Map<StreamId, Surface>? = null
     override val cameraId: CameraId
         get() = CameraId.fromCamera2Id("0")
+    override var isForeground = true
 
     override fun start() {
         started = true
