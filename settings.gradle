@@ -1,6 +1,6 @@
-import groovy.transform.Field
 import androidx.build.gradle.gcpbuildcache.GcpBuildCache
 import androidx.build.gradle.gcpbuildcache.GcpBuildCacheServiceFactory
+import groovy.transform.Field
 
 import java.util.regex.Matcher
 import java.util.regex.Pattern
@@ -918,6 +918,7 @@ includeProject(":room:room-compiler", [BuildType.MAIN, BuildType.COMPOSE])
 includeProject(":room:room-compiler-processing", [BuildType.MAIN, BuildType.COMPOSE, BuildType.FLAN])
 includeProject(":room:room-compiler-processing-testing", [BuildType.MAIN, BuildType.COMPOSE, BuildType.FLAN])
 includeProject(":room:room-guava", [BuildType.MAIN])
+includeProject(":room:room-gradle-plugin", [BuildType.MAIN])
 includeProject(":room:room-ktx", [BuildType.MAIN, BuildType.COMPOSE])
 includeProject(":room:room-migration", [BuildType.MAIN, BuildType.COMPOSE])
 includeProject(":room:room-paging", [BuildType.MAIN, BuildType.COMPOSE])
