@@ -159,6 +159,11 @@ class KspTypeNamesGoldenTest {
                 class MyGenericIn<in T>
                 class MyGenericOut<out T>
                 class MyGenericMultipleParameters<T1: MyGeneric<*>, T2: MyGeneric<T1>>
+                interface MyInterface
+                typealias MyInterfaceAlias = MyInterface
+                typealias MyGenericAlias = MyGenericIn<MyGenericOut<MyGenericOut<MyType>>>
+                typealias JSW = JvmSuppressWildcards
+                typealias JW = JvmWildcard
                 typealias MyLambdaTypeAlias = (@JvmWildcard MyType) -> @JvmWildcard MyType
                 enum class MyEnum {
                     VAL1,
@@ -341,6 +346,14 @@ class KspTypeNamesGoldenTest {
                     sealedListChild: List<GrandParentSealed.Parent2.Child1>,
                     jvmWildcard: List<@JvmWildcard String>,
                     suppressJvmWildcard: List<@JvmSuppressWildcards Number>,
+                    suppressJvmWildcardsGeneric1: @JvmSuppressWildcards List<MyGenericOut<MyGenericIn<MyGeneric<MyType>>>>,
+                    suppressJvmWildcardsGeneric2: List<@JvmSuppressWildcards MyGenericOut<MyGenericIn<MyGeneric<MyType>>>>,
+                    suppressJvmWildcardsGeneric3: List<MyGenericOut<@JvmSuppressWildcards MyGenericIn<MyGeneric<MyType>>>>,
+                    suppressJvmWildcardsGeneric4: List<MyGenericOut<MyGenericIn<@JvmSuppressWildcards MyGeneric<MyType>>>>,
+                    interfaceAlias: List<MyInterfaceAlias>,
+                    genericAlias: List<MyGenericAlias>,
+                    jvmWildcardTypeAlias: List<@JW String>,
+                    suppressJvmWildcardTypeAlias: List<@JSW Number>,
                 ) {
                     var propWithFinalType: String = ""
                     var propWithOpenType: Number = 3
@@ -353,6 +366,16 @@ class KspTypeNamesGoldenTest {
                     var propSealedListChild: List<GrandParentSealed.Parent2.Child1> = TODO()
                     @JvmSuppressWildcards
                     var propWithOpenTypeButSuppressAnnotation: Number = 3
+                    var genericVar: List<MyGenericIn<MyGenericOut<MyGenericOut<MyType>>>> = TODO()
+                    @JvmSuppressWildcards var suppressJvmWildcardsGenericVar1: List<MyGenericIn<MyGenericOut<MyGenericOut<MyType>>>> = TODO()
+                    var suppressJvmWildcardsGenericVar2: @JvmSuppressWildcards List<MyGenericIn<MyGenericOut<MyGenericOut<MyType>>>> = TODO()
+                    var suppressJvmWildcardsGenericVar3: List<@JvmSuppressWildcards MyGenericIn<MyGenericOut<MyGenericOut<MyType>>>> = TODO()
+                    var suppressJvmWildcardsGenericVar4: List<MyGenericIn<@JvmSuppressWildcards MyGenericOut<MyGenericOut<MyType>>>> = TODO()
+                    var suppressJvmWildcardsGenericVar5: List<MyGenericIn<MyGenericOut<@JvmSuppressWildcards MyGenericOut<MyType>>>> = TODO()
+                    var interfaceAlias: List<MyInterfaceAlias> = TODO()
+                    var genericAlias: List<MyGenericAlias> = TODO()
+                    var jvmWildcardTypeAlias: List<@JW String> = TODO()
+                    var suppressJvmWildcardTypeAlias: List<@JSW Number> = TODO()
                     fun list(list: List<*>): List<*> { TODO() }
                     fun listTypeArg(list: List<R>): List<R> { TODO() }
                     fun listTypeArgNumber(list: List<Number>): List<Number> { TODO() }
@@ -393,6 +416,43 @@ class KspTypeNamesGoldenTest {
                     fun suspendExplicitJvmSuppressWildcard_OnType2(
                         list: @JvmSuppressWildcards List<Number>
                     ): @JvmSuppressWildcards List<Number> { TODO() }
+                    fun interfaceAlias(
+                        param: List<MyInterfaceAlias>
+                    ): List<MyInterfaceAlias> = TODO()
+                    fun explicitJvmSuppressWildcardsOnAlias(
+                        param: List<@JvmSuppressWildcards MyInterfaceAlias>,
+                    ): List<@JvmSuppressWildcards MyInterfaceAlias> = TODO()
+                    fun genericAlias(param: List<MyGenericAlias>): List<MyGenericAlias> = TODO()
+                    fun explicitJvmSuppressWildcardsOnGenericAlias(
+                        param: List<@JvmSuppressWildcards MyGenericAlias>,
+                    ): List<@JvmSuppressWildcards MyGenericAlias> = TODO()
+                    fun explicitOutOnInvariant_onType1_WithExplicitJvmSuppressWildcardAlias(
+                        list: @JSW MyGeneric<out MyGeneric<MyType>>
+                    ): @JSW MyGeneric<out MyGeneric<MyType>> { TODO() }
+                    fun explicitOutOnInvariant_onType2_WithExplicitJvmSuppressWildcardAlias(
+                        list: @JSW MyGeneric<MyGeneric<out MyType>>
+                    ): @JSW MyGeneric<MyGeneric<out MyType>> { TODO() }
+                    fun explicitOutOnVariant_onType1(
+                        list: List<out List<Number>>
+                    ): List<out List<Number>> { TODO() }
+                    fun explicitOutOnVariant_onType2(
+                        list: List<List<out Number>>
+                    ): List<List<out Number>> { TODO() }
+                    fun explicitOutOnVariant_onType1_WithExplicitJvmSuppressWildcardAlias(
+                        list: @JSW List<out List<Number>>
+                    ): @JSW List<out List<Number>> { TODO() }
+                    fun explicitOutOnVariant_onType2_WithExplicitJvmSuppressWildcardAlias(
+                        list: @JSW List<List<out Number>>
+                    ): @JSW List<List<out Number>> { TODO() }
+                    fun explicitJvmWildcardTypeAlias(
+                        list: List<@JW String>
+                    ): List<@JW String> { TODO() }
+                    fun explicitJvmSuppressWildcardTypeAlias_OnType(
+                        list: List<@JSW Number>
+                    ): List<@JSW Number> { TODO() }
+                    fun explicitJvmSuppressWildcardTypeAlias_OnType2(
+                        list: @JSW List<Number>
+                    ): @JSW List<Number> { TODO() }
                 }
                 """.trimIndent()
             ), listOf(className)

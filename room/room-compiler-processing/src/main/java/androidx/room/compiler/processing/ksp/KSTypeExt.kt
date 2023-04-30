@@ -22,10 +22,10 @@ import com.google.devtools.ksp.symbol.KSAnnotation
 import com.google.devtools.ksp.symbol.KSDeclaration
 import com.google.devtools.ksp.symbol.KSNode
 import com.google.devtools.ksp.symbol.KSType
+import com.google.devtools.ksp.symbol.KSTypeAlias
 import com.google.devtools.ksp.symbol.KSTypeArgument
 import com.google.devtools.ksp.symbol.KSTypeParameter
 import com.google.devtools.ksp.symbol.KSTypeReference
-import com.google.devtools.ksp.symbol.Modifier
 
 /**
  * Root package comes as <root> instead of "" so we work around it here.
@@ -47,10 +47,12 @@ internal fun KSTypeArgument.requireType(): KSType {
 }
 
 internal fun KSTypeReference.isTypeParameterReference(): Boolean {
-    return this.resolve().declaration is KSTypeParameter
+    return this.resolve().isTypeParameter()
 }
 
-fun KSType.isInline() = declaration.modifiers.contains(Modifier.INLINE)
+internal fun KSType.isTypeParameter(): Boolean {
+    return declaration is KSTypeParameter
+}
 
 internal fun KSType.withNullability(nullability: XNullability) = when (nullability) {
     XNullability.NULLABLE -> makeNullable()
@@ -59,14 +61,15 @@ internal fun KSType.withNullability(nullability: XNullability) = when (nullabili
 }
 
 private fun KSAnnotated.hasAnnotation(qName: String) =
-    annotations.any { it.hasQualifiedName(qName) }
+    annotations.any { it.hasQualifiedNameOrAlias(qName) }
 
-private fun KSAnnotation.hasQualifiedName(qName: String): Boolean {
-    return annotationType.resolve().hasQualifiedName(qName)
+private fun KSAnnotation.hasQualifiedNameOrAlias(qName: String): Boolean {
+    return annotationType.resolve().hasQualifiedNameOrAlias(qName)
 }
 
-private fun KSType.hasQualifiedName(qName: String): Boolean {
-    return declaration.qualifiedName?.asString() == qName
+private fun KSType.hasQualifiedNameOrAlias(qName: String): Boolean {
+    return declaration.qualifiedName?.asString() == qName ||
+        (declaration as? KSTypeAlias)?.type?.resolve()?.hasQualifiedNameOrAlias(qName) ?: false
 }
 
 internal fun KSAnnotated.hasJvmWildcardAnnotation() =
@@ -75,20 +78,55 @@ internal fun KSAnnotated.hasJvmWildcardAnnotation() =
 internal fun KSAnnotated.hasSuppressJvmWildcardAnnotation() =
     hasAnnotation(JvmSuppressWildcards::class.java.canonicalName!!)
 
-private fun KSType.hasAnnotation(qName: String) = annotations.any { it.hasQualifiedName(qName) }
-
-internal fun KSType.hasJvmWildcardAnnotation() =
-    hasAnnotation(JvmWildcard::class.java.canonicalName!!)
+// TODO(bcorso): There's a bug in KSP where, after using KSType#asMemberOf() or KSType#replace(),
+//  the annotations are removed from the resulting type. However, it turns out that the annotation
+//  information is still available in the underlying KotlinType, so we use reflection to get them.
+//  See https://github.com/google/ksp/issues/1376.
+private fun KSType.hasAnnotation(qName: String): Boolean {
+    fun String.toFqName(): Any {
+        return Class.forName("org.jetbrains.kotlin.name.FqName")
+            .getConstructor(String::class.java)
+            .newInstance(this)
+    }
+    fun hasAnnotationViaReflection(qName: String): Boolean {
+        val ksType = if (
+            // Note: Technically, we could just make KSTypeWrapper internal and cast to get the
+            // delegate, but since we need to use reflection anyway, just get it via reflection.
+            this.javaClass.canonicalName == "androidx.room.compiler.processing.ksp.KSTypeWrapper") {
+            this.javaClass.methods.find { it.name == "getDelegate" }?.invoke(this)
+        } else {
+            this
+        }
+        val kotlinType =
+            ksType?.javaClass?.methods?.find { it.name == "getKotlinType" }?.invoke(ksType)
+        val kotlinAnnotations =
+            kotlinType?.javaClass
+                ?.methods
+                ?.find { it.name == "getAnnotations" }
+                ?.invoke(kotlinType)
+        return kotlinAnnotations?.javaClass
+            ?.methods
+            ?.find { it.name == "hasAnnotation" }
+            ?.invoke(kotlinAnnotations, qName.toFqName()) == true
+    }
+    return if (annotations.toList().isEmpty()) {
+        // If there are no annotations but KSType#toString() shows annotations, check the underlying
+        // KotlinType for annotations using reflection.
+        toString().startsWith("[") && hasAnnotationViaReflection(qName)
+    } else {
+        annotations.any { it.annotationType.resolve().hasQualifiedNameOrAlias(qName) }
+    }
+}
 
 internal fun KSType.hasSuppressJvmWildcardAnnotation() =
     hasAnnotation(JvmSuppressWildcards::class.java.canonicalName!!)
 
  internal fun KSNode.hasSuppressWildcardsAnnotationInHierarchy(): Boolean {
-     (this as? KSAnnotated)?.let {
-         if (hasSuppressJvmWildcardAnnotation()) {
-             return true
-         }
-     }
-     val parent = parent ?: return false
-     return parent.hasSuppressWildcardsAnnotationInHierarchy()
- }
+    (this as? KSAnnotated)?.let {
+        if (hasSuppressJvmWildcardAnnotation()) {
+            return true
+        }
+    }
+    val parent = parent ?: return false
+    return parent.hasSuppressWildcardsAnnotationInHierarchy()
+}
