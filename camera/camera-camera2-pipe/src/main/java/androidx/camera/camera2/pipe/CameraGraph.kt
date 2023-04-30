@@ -45,6 +45,13 @@ interface CameraGraph : AutoCloseable {
     val graphState: StateFlow<GraphState>
 
     /**
+     * This is a hint an app can give to a camera graph to indicate whether the camera is being used
+     * in a foreground setting, for example whether the user could see the app itself. This would
+     * inform the underlying implementation to open cameras more actively (e.g., longer timeout).
+     */
+    var isForeground: Boolean
+
+    /**
      * This will cause the [CameraGraph] to start opening the [CameraDevice] and configuring a
      * [CameraCaptureSession]. While the CameraGraph is alive it will attempt to keep the camera
      * open, active, and in a configured running state.

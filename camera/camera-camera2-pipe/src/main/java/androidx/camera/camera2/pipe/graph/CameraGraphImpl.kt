@@ -104,6 +104,14 @@ constructor(
     override val graphState: StateFlow<GraphState>
         get() = graphProcessor.graphState
 
+    private var _isForeground = false
+    override var isForeground: Boolean
+        get() = _isForeground
+        set(value) {
+            _isForeground = value
+            cameraController.isForeground = value
+        }
+
     override fun start() {
         Debug.traceStart { "$this#start" }
         Log.info { "Starting $this" }
