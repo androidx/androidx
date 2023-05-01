@@ -93,6 +93,15 @@ if ! areNativeLibsNewEnoughForKonan; then
   fi
 fi
 
+function checkForLeftoverKotlinSessions() {
+  KOTLIN_SESSIONS_DIR=$OUT_DIR/gradle-project-cache/kotlin/sessions
+  NUM_KOTLIN_SESSIONS="$(ls $KOTLIN_SESSIONS_DIR 2>/dev/null | wc -l)"
+  if [ "$NUM_KOTLIN_SESSIONS" -gt 0 ]; then
+    echo "Found $NUM_KOTLIN_SESSIONS leftover kotlin sessions in $KOTLIN_SESSIONS_DIR"
+  fi
+}
+checkForLeftoverKotlinSessions
+
 # run the build
 if run ./gradlew --ci "$@"; then
   echo build passed
