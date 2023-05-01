@@ -122,8 +122,16 @@ object Shell {
             val result = ShellImpl.executeCommandUnsafe("ls -l $path")
             if (result.isBlank()) "" else result.split(Regex("\\s+"))[3]
         }
-        check(sum.isNotBlank()) {
-            "Checksum for $path was blank"
+        if (sum.isBlank()) {
+            if (!ShellImpl.isSessionRooted) {
+                val lsOutput = ShellImpl.executeCommandUnsafe("ls -l $path")
+                throw IllegalStateException(
+                    "Checksum for $path was blank. Adb session is not rooted, if root owns file, " +
+                        "you may need to \"adb root\" and delete the file: $lsOutput"
+                )
+            } else {
+                throw IllegalStateException("Checksum for $path was blank.")
+            }
         }
         return sum
     }
@@ -690,7 +698,8 @@ class ShellScript internal constructor(
          * Usage args: ```path/to/shellWrapper.sh <scriptFile> <stderrFile> [inputFile]```
          */
         private val scriptWrapperPath = Shell.createRunnableExecutable(
-            "shellWrapper.sh",
+            // use separate paths to prevent access errors after `adb unroot`
+            if (ShellImpl.isSessionRooted) "shellWrapper_root.sh" else "shellWrapper.sh",
             """
                 ### shell script which passes in stdin as needed, and captures stderr in a file
                 # $1 == script content (not executable)

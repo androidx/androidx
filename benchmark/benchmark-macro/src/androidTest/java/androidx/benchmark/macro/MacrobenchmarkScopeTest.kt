@@ -225,14 +225,16 @@ class MacrobenchmarkScopeTest {
 
     private fun validateShaderCache(empty: Boolean, packageName: String) {
         val path = MacrobenchmarkScope.getShaderCachePath(packageName)
+
         println("validating shader path $path")
         val fileCount = Shell.executeScriptCaptureStdout("find $path -type f | wc -l")
             .trim()
             .toInt()
         if (empty) {
-            assertEquals(0, fileCount)
+            val files = Shell.executeScriptCaptureStdout("find $path -type f")
+            assertEquals(0, fileCount, "Expected 0 files in $path, saw $fileCount (files = $files)")
         } else {
-            assertNotEquals(0, fileCount)
+            assertNotEquals(0, fileCount, "Expected >0 files in $path, saw $fileCount")
         }
     }
 
@@ -277,6 +279,11 @@ class MacrobenchmarkScopeTest {
     @Test
     fun dropShaderCachePublicApi() = validateDropShaderCacheWithRoot {
         dropShaderCache()
+    }
+
+    @Test
+    fun dropShaderCacheRoot() = validateDropShaderCacheWithRoot {
+        assertTrue(dropShaderCacheRoot())
     }
 
     @Test
