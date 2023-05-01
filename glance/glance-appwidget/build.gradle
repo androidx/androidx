@@ -73,7 +73,6 @@ dependencies {
 
     androidTestImplementation(project(":test:screenshot:screenshot"))
     androidTestImplementation("androidx.test.uiautomator:uiautomator:2.2.0")
-    androidTestImplementation("androidx.room:room-runtime:2.4.3")
     androidTestImplementation('androidx.core:core-ktx:1.7.0')
     androidTestImplementation("androidx.work:work-testing:2.7.1")
     androidTestImplementation(libs.espressoCore)
