@@ -52,6 +52,11 @@ import kotlinx.coroutines.withContext
  * This instance can be used for Lazy foundations such as [LazyListScope.items] to display data
  * received from the [Flow] of [PagingData].
  *
+ * Previewing [LazyPagingItems] is supported on a list of mock data. See sample for how to preview
+ * mock data.
+ *
+ * @sample androidx.paging.compose.samples.PagingPreview
+ *
  * @param T the type of value used by [PagingData].
  */
 public class LazyPagingItems<T : Any> internal constructor(

@@ -32,6 +32,7 @@ dependencies {
     api("androidx.compose.runtime:runtime:1.2.1")
 
     androidTestImplementation(projectOrArtifact(":compose:ui:ui-test-junit4"))
+    androidTestImplementation projectOrArtifact(":compose:ui:ui-tooling")
     androidTestImplementation(project(":compose:test-utils"))
     androidTestImplementation(projectOrArtifact(":internal-testutils-paging"))
     androidTestImplementation(libs.testRunner)
