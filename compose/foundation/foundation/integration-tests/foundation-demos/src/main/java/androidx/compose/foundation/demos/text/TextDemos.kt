@@ -34,8 +34,7 @@ val TextDemos = DemoCategory(
         DemoCategory(
             "Animation",
             listOf(
-                ComposableDemo("color = { animated.value }") { TextColorAnimation() },
-                ComposableDemo("gradient = { animated.value } ") { TextGradientAnimation() },
+                ComposableDemo("color = { animatedColor.value }") { TextColorAnimation() },
                 ComposableDemo("GraphicsLayer (skew, scale, etc)") { TextAnimationDemo() },
             )
         ),
