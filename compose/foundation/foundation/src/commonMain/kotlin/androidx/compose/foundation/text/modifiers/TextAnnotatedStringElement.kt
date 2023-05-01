@@ -18,7 +18,7 @@ package androidx.compose.foundation.text.modifiers
 
 import androidx.compose.foundation.text.DefaultMinLines
 import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.graphics.ColorLambda
+import androidx.compose.ui.graphics.ColorProducer
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.text.AnnotatedString
@@ -45,7 +45,7 @@ internal class TextAnnotatedStringElement(
     private val placeholders: List<AnnotatedString.Range<Placeholder>>? = null,
     private val onPlaceholderLayout: ((List<Rect?>) -> Unit)? = null,
     private val selectionController: SelectionController? = null,
-    private val color: ColorLambda? = null
+    private val color: ColorProducer? = null
 ) : ModifierNodeElement<TextAnnotatedStringNode>() {
 
     override fun create(): TextAnnotatedStringNode = TextAnnotatedStringNode(

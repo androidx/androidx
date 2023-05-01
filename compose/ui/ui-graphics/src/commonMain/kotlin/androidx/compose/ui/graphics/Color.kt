@@ -662,9 +662,9 @@ inline fun Color.takeOrElse(block: () -> Color): Color = if (isSpecified) this e
  *
  * Can be used as:
  *
- * fun nonBoxedArgs(color: ColorLambda?)
+ * fun nonBoxedArgs(color: ColorProducer?)
  */
-fun interface ColorLambda {
+fun interface ColorProducer {
     /**
      * Return the color
      */

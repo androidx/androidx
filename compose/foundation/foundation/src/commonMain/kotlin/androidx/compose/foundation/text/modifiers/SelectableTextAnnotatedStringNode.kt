@@ -18,7 +18,7 @@ package androidx.compose.foundation.text.modifiers
 
 import androidx.compose.foundation.text.DefaultMinLines
 import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.graphics.ColorLambda
+import androidx.compose.ui.graphics.ColorProducer
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.layout.IntrinsicMeasurable
 import androidx.compose.ui.layout.IntrinsicMeasureScope
@@ -58,7 +58,7 @@ internal class SelectableTextAnnotatedStringNode(
     placeholders: List<AnnotatedString.Range<Placeholder>>? = null,
     onPlaceholderLayout: ((List<Rect?>) -> Unit)? = null,
     private val selectionController: SelectionController? = null,
-    overrideColor: ColorLambda? = null
+    overrideColor: ColorProducer? = null
 ) : DelegatingNode(), LayoutModifierNode, DrawModifierNode, GlobalPositionAwareModifierNode,
     SemanticsModifierNode {
 
@@ -131,7 +131,7 @@ internal class SelectableTextAnnotatedStringNode(
         onTextLayout: ((TextLayoutResult) -> Unit)?,
         onPlaceholderLayout: ((List<Rect?>) -> Unit)?,
         selectionController: SelectionController?,
-        color: ColorLambda?
+        color: ColorProducer?
     ) {
         delegate.doInvalidations(
             drawChanged = delegate.updateDraw(color, style),

@@ -22,7 +22,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorLambda
+import androidx.compose.ui.graphics.ColorProducer
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.graphics.drawscope.Fill
@@ -72,7 +72,7 @@ internal class TextAnnotatedStringNode(
     private var placeholders: List<AnnotatedString.Range<Placeholder>>? = null,
     private var onPlaceholderLayout: ((List<Rect?>) -> Unit)? = null,
     private var selectionController: SelectionController? = null,
-    private var overrideColor: ColorLambda? = null
+    private var overrideColor: ColorProducer? = null
 ) : Modifier.Node(), LayoutModifierNode, DrawModifierNode, SemanticsModifierNode {
     private var baselineCache: Map<AlignmentLine, Int>? = null
 
@@ -101,7 +101,7 @@ internal class TextAnnotatedStringNode(
     /**
      * Element has draw parameters to update
      */
-    fun updateDraw(color: ColorLambda?, style: TextStyle): Boolean {
+    fun updateDraw(color: ColorProducer?, style: TextStyle): Boolean {
         var changed = false
         if (color != this.overrideColor) {
             changed = true
