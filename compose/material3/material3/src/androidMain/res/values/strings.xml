@@ -18,10 +18,10 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android" xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <!-- Spoken description of a dialog -->
     <string name="dialog">"Dialog"</string>
-    <!-- Spoken description of expanded state of an expandable item -->
-    <string name="expanded">Expanded</string>
-    <!-- Spoken description of collapsed state of an expandable item -->
-    <string name="collapsed">Collapsed</string>
+    <!-- Spoken description of expanded state of a dropdown menu -->
+    <string name="m3c_dropdown_menu_expanded">Expanded</string>
+    <!-- Spoken description of collapsed state of a dropdown menu -->
+    <string name="m3c_dropdown_menu_collapsed">Collapsed</string>
     <!-- Spoken description of a snackbar dismiss action -->
     <string name="snackbar_dismiss">Dismiss</string>
     <!-- Spoken description of a search bar -->
