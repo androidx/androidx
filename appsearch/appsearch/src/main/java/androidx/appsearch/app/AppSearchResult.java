@@ -99,7 +99,7 @@ public final class AppSearchResult<ValueType> {
     /**
      * The requested operation is denied for the caller. This error is logged and returned for
      * denylist rejections.
-     * @exportToFramework:hide
+     * <!--@exportToFramework:hide-->
      */
     // TODO(b/279047435): unhide this the next time we can make API changes
     public static final int RESULT_DENIED = 9;
