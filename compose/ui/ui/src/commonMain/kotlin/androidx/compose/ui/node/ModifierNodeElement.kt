@@ -89,12 +89,16 @@ abstract class ModifierNodeElement<N : Modifier.Node> : Modifier.Element, Inspec
         tryPopulateReflectively(this@ModifierNodeElement)
     }
 
-    // Require hashCode() to be implemented. Using a data class is sufficient. Singletons and
-    // modifiers with no parameters may implement this function by returning an arbitrary constant.
+    /**
+     * Require hashCode() to be implemented. Using a data class is sufficient. Singletons and
+     * modifiers with no parameters may implement this function by returning an arbitrary constant.
+     */
     abstract override fun hashCode(): Int
 
-    // Require equals() to be implemented. Using a data class is sufficient. Singletons may
-    // implement this function with referential equality (`this === other`). Modifiers with no
-    // inputs may implement this function by checking the type of the other object.
+    /**
+     * Require equals() to be implemented. Using a data class is sufficient. Singletons may
+     * implement this function with referential equality (`this === other`). Modifiers with no
+     * inputs may implement this function by checking the type of the other object.
+     */
     abstract override fun equals(other: Any?): Boolean
 }
