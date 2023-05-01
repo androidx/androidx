@@ -15,6 +15,11 @@ package androidx.compose.ui.graphics {
     method public static androidx.compose.ui.graphics.ColorFilter asComposeColorFilter(android.graphics.ColorFilter);
   }
 
+  public final class AndroidColorSpace_androidKt {
+    method @RequiresApi(android.os.Build.VERSION_CODES.O) public static androidx.compose.ui.graphics.colorspace.ColorSpace toComposeColorSpace(android.graphics.ColorSpace);
+    method @RequiresApi(android.os.Build.VERSION_CODES.O) public static android.graphics.ColorSpace toFrameworkColorSpace(androidx.compose.ui.graphics.colorspace.ColorSpace);
+  }
+
   public final class AndroidImageBitmap_androidKt {
     method public static android.graphics.Bitmap asAndroidBitmap(androidx.compose.ui.graphics.ImageBitmap);
     method public static androidx.compose.ui.graphics.ImageBitmap asImageBitmap(android.graphics.Bitmap);
