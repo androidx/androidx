@@ -151,6 +151,32 @@ class BaselineProfileConsumerPluginTest(agpVersion: String?) {
     }
 
     @Test
+    fun testGenerateTaskWithNoFlavorsForApplicationAndNoStartupProfile() {
+        projectSetup.consumer.setup(
+            androidPlugin = ANDROID_APPLICATION_PLUGIN
+        )
+        projectSetup.producer.setupWithoutFlavors(
+            releaseProfileLines = listOf(
+                Fixtures.CLASS_1_METHOD_1,
+                Fixtures.CLASS_1,
+            ),
+            releaseStartupProfileLines = listOf()
+        )
+
+        gradleRunner
+            .withArguments("generateBaselineProfile", "--stacktrace")
+            .build()
+
+        assertThat(readBaselineProfileFileContent("release"))
+            .containsExactly(
+                Fixtures.CLASS_1,
+                Fixtures.CLASS_1_METHOD_1,
+            )
+
+        assertThat(startupProfileFile("release").exists()).isFalse()
+    }
+
+    @Test
     fun testGenerateTaskWithFlavorsAndDefaultMerge() {
         projectSetup.consumer.setup(
             androidPlugin = ANDROID_APPLICATION_PLUGIN,
