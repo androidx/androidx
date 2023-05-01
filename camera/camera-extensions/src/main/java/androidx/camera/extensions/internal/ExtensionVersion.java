@@ -22,6 +22,8 @@ import androidx.annotation.RequiresApi;
 import androidx.camera.core.Logger;
 import androidx.camera.extensions.impl.ExtensionVersionImpl;
 
+import org.jetbrains.annotations.TestOnly;
+
 /**
  * Provides interfaces to check the extension version.
  */
@@ -30,6 +32,15 @@ public abstract class ExtensionVersion {
     private static final String TAG = "ExtenderVersion";
 
     private static volatile ExtensionVersion sExtensionVersion;
+
+    /**
+     * For testing only. Inject a fake {@link ExtensionVersion}. Set it to {@code null} to unset
+     * it.
+     */
+    @TestOnly
+    public static void injectInstance(@Nullable ExtensionVersion extensionVersion) {
+        sExtensionVersion = extensionVersion;
+    }
 
     private static ExtensionVersion getInstance() {
         if (sExtensionVersion != null) {

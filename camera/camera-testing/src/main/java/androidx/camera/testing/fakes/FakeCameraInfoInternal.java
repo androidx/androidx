@@ -92,6 +92,9 @@ public final class FakeCameraInfoInternal implements CameraInfoInternal {
     private boolean mIsPrivateReprocessingSupported = false;
     private float mIntrinsicZoomRatio = 1.0F;
 
+    private boolean mIsFocusMeteringSupported = false;
+
+    private ExposureState mExposureState = new FakeExposureState();
     @NonNull
     private final List<Quirk> mCameraQuirks = new ArrayList<>();
 
@@ -115,6 +118,37 @@ public final class FakeCameraInfoInternal implements CameraInfoInternal {
         mSensorRotation = sensorRotation;
         mLensFacing = lensFacing;
         mZoomLiveData = new MutableLiveData<>(ImmutableZoomState.create(1.0f, 4.0f, 1.0f, 0.0f));
+    }
+
+    /**
+     * Sets the zoom parameter.
+     */
+    public void setZoom(float zoomRatio, float minZoomRatio, float maxZoomRatio, float linearZoom) {
+        mZoomLiveData.postValue(ImmutableZoomState.create(
+                zoomRatio, maxZoomRatio, minZoomRatio, linearZoom
+        ));
+    }
+
+    /**
+     * Sets the exposure compensation parameters.
+     */
+    public void setExposureState(int index, @NonNull Range<Integer> range,
+            @NonNull Rational step, boolean isSupported) {
+        mExposureState = new FakeExposureState(index, range, step, isSupported);
+    }
+
+    /**
+     * Sets the torch state.
+     */
+    public void setTorch(int torchState) {
+        mTorchState.postValue(torchState);
+    }
+
+    /**
+     * Sets the return value for {@link #isFocusMeteringSupported(FocusMeteringAction)}.
+     */
+    public void setIsFocusMeteringSupported(boolean supported) {
+        mIsFocusMeteringSupported = supported;
     }
 
     @Override
@@ -169,7 +203,7 @@ public final class FakeCameraInfoInternal implements CameraInfoInternal {
     @NonNull
     @Override
     public ExposureState getExposureState() {
-        return new FakeExposureState();
+        return mExposureState;
     }
 
     @NonNull
@@ -246,7 +280,7 @@ public final class FakeCameraInfoInternal implements CameraInfoInternal {
 
     @Override
     public boolean isFocusMeteringSupported(@NonNull FocusMeteringAction action) {
-        return false;
+        return mIsFocusMeteringSupported;
     }
 
     @Override
@@ -317,26 +351,41 @@ public final class FakeCameraInfoInternal implements CameraInfoInternal {
 
     @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     static final class FakeExposureState implements ExposureState {
+        private int mIndex = 0;
+        private Range<Integer> mRange = new Range<>(0, 0);
+        private Rational mStep = Rational.ZERO;
+        private boolean mIsSupported = true;
+
+        FakeExposureState() {
+        }
+        FakeExposureState(int index, Range<Integer> range,
+                Rational step, boolean isSupported) {
+            mIndex = index;
+            mRange = range;
+            mStep = step;
+            mIsSupported = isSupported;
+        }
+
         @Override
         public int getExposureCompensationIndex() {
-            return 0;
+            return mIndex;
         }
 
         @NonNull
         @Override
         public Range<Integer> getExposureCompensationRange() {
-            return Range.create(0, 0);
+            return mRange;
         }
 
         @NonNull
         @Override
         public Rational getExposureCompensationStep() {
-            return Rational.ZERO;
+            return mStep;
         }
 
         @Override
         public boolean isExposureCompensationSupported() {
-            return true;
+            return mIsSupported;
         }
     }
 }
