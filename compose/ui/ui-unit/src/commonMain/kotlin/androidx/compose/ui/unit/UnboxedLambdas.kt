@@ -19,9 +19,7 @@ package androidx.compose.ui.unit
 /**
  * Alternative to `() -> Float` that's useful for avoiding boxing.
  *
- * Can be used as:
- *
- * fun nonBoxedArgs(a: FloatLambda?)
+ * @sample androidx.compose.ui.unit.samples.FloatLambdaSample
  */
 fun interface FloatLambda {
     fun invoke(): Float
@@ -30,9 +28,7 @@ fun interface FloatLambda {
 /**
  * Alternative to `() -> Double` that's useful for avoiding boxing.
  *
- * Can be used as:
- *
- * fun nonBoxedArgs(color: DoubleLambda?)
+ * @sample androidx.compose.ui.unit.samples.DoubleLambdaSample
  */
 fun interface DoubleLambda {
     fun invoke(): Double
@@ -41,9 +37,7 @@ fun interface DoubleLambda {
 /**
  * Alternative to `() -> Int` that's useful for avoiding boxing.
  *
- * Can be used as:
- *
- * fun nonBoxedArgs(a: IntLambda?)
+ * @sample androidx.compose.ui.unit.samples.IntLambdaSample
  */
 fun interface IntLambda {
     fun invoke(): Int
@@ -52,9 +46,7 @@ fun interface IntLambda {
 /**
  * Alternative to `() -> Long` that's useful for avoiding boxing.
  *
- * Can be used as:
- *
- * fun nonBoxedArgs(a: LongLambda?)
+ * @sample androidx.compose.ui.unit.samples.LongLambdaSample
  */
 fun interface LongLambda {
     fun invoke(): Long
@@ -63,9 +55,7 @@ fun interface LongLambda {
 /**
  * Alternative to `() -> Short` that's useful for avoiding boxing.
  *
- * Can be used as:
- *
- * fun nonBoxedArgs(a: ShortLambda?)
+ * @sample androidx.compose.ui.unit.samples.ShortLambdaSample
  */
 fun interface ShortLambda {
     @Suppress("NoByteOrShort")
