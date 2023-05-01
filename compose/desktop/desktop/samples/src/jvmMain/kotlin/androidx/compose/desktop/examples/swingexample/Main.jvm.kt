@@ -47,13 +47,11 @@ import androidx.compose.ui.window.ApplicationScope
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.launchApplication
 import androidx.compose.ui.window.rememberWindowState
-import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.GlobalScope
 import java.awt.BorderLayout
 import java.awt.Color as awtColor
 import java.awt.Component
-import java.awt.GridLayout
 import java.awt.Dimension
+import java.awt.GridLayout
 import java.awt.event.ActionEvent
 import java.awt.event.ActionListener
 import javax.swing.JButton
@@ -61,6 +59,8 @@ import javax.swing.JFrame
 import javax.swing.JPanel
 import javax.swing.SwingUtilities
 import javax.swing.WindowConstants
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.GlobalScope
 
 val northClicks = mutableStateOf(0)
 val westClicks = mutableStateOf(0)
