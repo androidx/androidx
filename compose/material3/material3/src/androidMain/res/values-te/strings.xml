@@ -18,8 +18,6 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="dialog" msgid="4057925834421392736">"డైలాగ్"</string>
-    <string name="expanded" msgid="5974471714631304645">"విస్తరించబడింది"</string>
-    <string name="collapsed" msgid="5389587048670450460">"కుదించబడింది"</string>
     <string name="snackbar_dismiss" msgid="3962933905051144957">"విస్మరించండి"</string>
     <string name="search_bar_search" msgid="6420018528474762666">"సెర్చ్ చేయండి"</string>
     <string name="suggestions_available" msgid="7189888345201419934">"సూచనలు దిగువున ఉన్నాయి"</string>
