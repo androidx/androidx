@@ -2302,6 +2302,10 @@ package androidx.core.util {
     method public void accept(T!);
   }
 
+  @java.lang.FunctionalInterface public interface Function<T, R> {
+    method public R! apply(T!);
+  }
+
   public class ObjectsCompat {
     method public static boolean equals(Object?, Object?);
     method public static int hash(java.lang.Object!...);
