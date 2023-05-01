@@ -48,6 +48,8 @@ import androidx.compose.ui.unit.dp
 import androidx.core.graphics.plus
 import androidx.graphics.shapes.CornerRounding
 import androidx.graphics.shapes.RoundedPolygon
+import androidx.graphics.shapes.circle
+import androidx.graphics.shapes.rectangle
 import androidx.graphics.shapes.star
 import kotlin.math.cos
 import kotlin.math.max
@@ -105,7 +107,7 @@ class ShapeParameters(
     )
 
     enum class ShapeId {
-        Star, Polygon, Triangle, Blob, CornerSE
+        Star, Polygon, Triangle, Blob, CornerSE, Circle, Rectangle
     }
 
     private fun radialToCartesian(
@@ -230,6 +232,40 @@ class ShapeParameters(
                         "smooth = ${this.smooth.value}f, " +
                         rotationAsString() +
                         "shapeId = ShapeParameters.ShapeId.CornerSE)"
+                )
+            },
+            usesSides = false,
+            usesInnerRatio = false,
+            usesInnerParameters = false
+        ),
+        ShapeItem(
+            "Circle", shapegen = {
+                RoundedPolygon.circle(this.sides.value.roundToInt())
+            },
+            debugDump = {
+                debugLog(
+                    "ShapeParameters(roundness = ${this.roundness.value}f, " +
+                        "smooth = ${this.smooth.value}f, " +
+                        rotationAsString() +
+                        "shapeId = ShapeParameters.ShapeId.Circle)"
+                )
+            },
+            usesSides = true,
+            usesInnerRatio = false,
+            usesInnerParameters = false
+        ),
+        ShapeItem(
+            "Rectangle", shapegen = {
+                RoundedPolygon.rectangle(width = 4f, height = 2f,
+                    rounding = CornerRounding(this.roundness.value, this.smooth.value),
+                )
+            },
+            debugDump = {
+                debugLog(
+                    "ShapeParameters(roundness = ${this.roundness.value}f, " +
+                        "smooth = ${this.smooth.value}f, " +
+                        rotationAsString() +
+                        "shapeId = ShapeParameters.ShapeId.Rectangle)"
                 )
             },
             usesSides = false,

@@ -20,6 +20,7 @@ import android.graphics.PointF
 import androidx.core.graphics.plus
 import androidx.core.graphics.times
 import androidx.test.filters.SmallTest
+import org.junit.Assert
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
@@ -31,6 +32,10 @@ class RoundedPolygonTest {
 
     @Test
     fun numVertsConstructorTest() {
+        Assert.assertThrows(IllegalArgumentException::class.java) {
+            RoundedPolygon(2)
+        }
+
         val square = RoundedPolygon(4)
         var min = PointF(-1f, -1f)
         var max = PointF(1f, 1f)
@@ -58,6 +63,11 @@ class RoundedPolygonTest {
         val p1 = PointF(0f, 1f)
         val p2 = PointF(-1f, 0f)
         val p3 = PointF(0f, -1f)
+
+        Assert.assertThrows(IllegalArgumentException::class.java) {
+            RoundedPolygon(listOf(p0, p1))
+        }
+
         val manualSquare = RoundedPolygon(listOf(p0, p1, p2, p3))
         var min = PointF(-1f, -1f)
         var max = PointF(1f, 1f)

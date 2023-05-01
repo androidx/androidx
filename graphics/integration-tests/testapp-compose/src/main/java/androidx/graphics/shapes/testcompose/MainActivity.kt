@@ -175,9 +175,9 @@ fun MainScreen() {
             // LINE 1
             // Circle
             ShapeParameters(
-                sides = 4,
+                sides = 8,
                 roundness = 1f,
-                shapeId = ShapeParameters.ShapeId.Polygon
+                shapeId = ShapeParameters.ShapeId.Circle
             ),
             //
             ShapeParameters(
@@ -230,7 +230,7 @@ fun MainScreen() {
                 rotation = 45f,
                 shapeId = ShapeParameters.ShapeId.Blob
             ),
-            // Scalop
+            // Scallop
             ShapeParameters(
                 sides = 12,
                 innerRadius = .928f,
@@ -250,11 +250,10 @@ fun MainScreen() {
             ShapeParameters(roundness = .4f, shapeId = ShapeParameters.ShapeId.CornerSE),
 
             // Non - material shapes:
-            // Square
+            // Rectangle
             ShapeParameters(
                 sides = 4,
-                rotation = 45f,
-                shapeId = ShapeParameters.ShapeId.Polygon
+                shapeId = ShapeParameters.ShapeId.Rectangle
             ),
 
             // Pentagon
@@ -272,12 +271,13 @@ fun MainScreen() {
                 shapeId = ShapeParameters.ShapeId.Star
             ),
 
-            // 8-Sided Star
+            // Round Rect
             ShapeParameters(
-                sides = 8,
-                innerRadius = .6f,
-                shapeId = ShapeParameters.ShapeId.Star
-            )
+                sides = 4,
+                roundness = .5f,
+                smooth = 1f,
+                shapeId = ShapeParameters.ShapeId.Rectangle
+            ),
         )
     }
     editing?.let {
