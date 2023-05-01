@@ -18,7 +18,6 @@ package androidx.compose.foundation.text.modifiers
 
 import androidx.compose.foundation.text.DefaultMinLines
 import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.ColorLambda
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.platform.InspectorInfo
@@ -28,7 +27,6 @@ import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.FloatLambda
 
 /**
  * Modifier element for any Text with [AnnotatedString] or [onTextLayout] parameters
@@ -47,9 +45,7 @@ internal class TextAnnotatedStringElement(
     private val placeholders: List<AnnotatedString.Range<Placeholder>>? = null,
     private val onPlaceholderLayout: ((List<Rect?>) -> Unit)? = null,
     private val selectionController: SelectionController? = null,
-    private val color: ColorLambda? = null,
-    private val brush: (() -> Brush)? = null,
-    private val alpha: FloatLambda? = null,
+    private val color: ColorLambda? = null
 ) : ModifierNodeElement<TextAnnotatedStringNode>() {
 
     override fun create(): TextAnnotatedStringNode = TextAnnotatedStringNode(
@@ -64,14 +60,12 @@ internal class TextAnnotatedStringElement(
         placeholders,
         onPlaceholderLayout,
         selectionController,
-        color,
-        brush,
-        alpha
+        color
     )
 
     override fun update(node: TextAnnotatedStringNode) {
         node.doInvalidations(
-            drawChanged = node.updateDraw(color, brush, alpha, style),
+            drawChanged = node.updateDraw(color, style),
             textChanged = node.updateText(
                 text = text
             ),
@@ -99,8 +93,6 @@ internal class TextAnnotatedStringElement(
 
         // these three are most likely to actually change
         if (color != other.color) return false
-        if (brush != other.brush) return false
-        if (alpha != other.alpha) return false
         if (text != other.text) return false /* expensive to check, do it after color */
         if (style != other.style) return false
         if (placeholders != other.placeholders) return false
@@ -133,8 +125,6 @@ internal class TextAnnotatedStringElement(
         result = 31 * result + (onPlaceholderLayout?.hashCode() ?: 0)
         result = 31 * result + (selectionController?.hashCode() ?: 0)
         result = 31 * result + (color?.hashCode() ?: 0)
-        result = 31 * result + (brush?.hashCode() ?: 0)
-        result = 31 * result + (alpha?.hashCode() ?: 0)
         return result
     }
 
