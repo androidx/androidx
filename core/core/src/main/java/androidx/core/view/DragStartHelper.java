@@ -169,7 +169,12 @@ public class DragStartHelper {
      * @return true if the callback consumed the long click, false otherwise.
      */
     public boolean onLongClick(@NonNull View v) {
-        return mListener.onDragStart(v, this);
+        if (mDragging) {
+            // Ignore long click once the drag operation is in progress.
+            return true;
+        }
+        mDragging = mListener.onDragStart(v, this);
+        return mDragging;
     }
 
     /**
