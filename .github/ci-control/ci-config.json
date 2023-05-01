@@ -7,7 +7,6 @@
     ],
     "compose" : {
         "include" : [
-            "compose-runtime"
         ],
         "default": false
     },
