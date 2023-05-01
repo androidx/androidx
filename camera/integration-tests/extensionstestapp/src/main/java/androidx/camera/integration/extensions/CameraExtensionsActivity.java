@@ -65,10 +65,12 @@ import androidx.camera.core.CameraControl;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.FocusMeteringAction;
+import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCaptureException;
 import androidx.camera.core.MeteringPoint;
 import androidx.camera.core.Preview;
+import androidx.camera.core.UseCaseGroup;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.extensions.ExtensionMode;
 import androidx.camera.extensions.ExtensionsManager;
@@ -271,7 +273,23 @@ public class CameraExtensionsActivity extends AppCompatActivity
                 mCurrentCameraSelector, mCurrentExtensionMode);
 
         mCameraProvider.unbindAll();
-        mCamera = mCameraProvider.bindToLifecycle(this, cameraSelector, mImageCapture, mPreview);
+
+        UseCaseGroup.Builder useCaseGroupBuilder =
+                new UseCaseGroup.Builder()
+                        .addUseCase(mPreview)
+                        .addUseCase(mImageCapture);
+
+        if (mExtensionsManager.isImageAnalysisSupported(cameraSelector,
+                mCurrentExtensionMode)) {
+            ImageAnalysis imageAnalysis = new ImageAnalysis.Builder().build();
+            imageAnalysis.setAnalyzer(CameraXExecutors.ioExecutor(),  img -> {
+                img.close();
+            });
+            useCaseGroupBuilder.addUseCase(imageAnalysis);
+        }
+
+        mCamera = mCameraProvider.bindToLifecycle(this, cameraSelector,
+                useCaseGroupBuilder.build());
 
         // Update the UI and save location for ImageCapture
         Button toggleButton = findViewById(R.id.PhotoToggle);

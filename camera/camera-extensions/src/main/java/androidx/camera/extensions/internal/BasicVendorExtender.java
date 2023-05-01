@@ -35,6 +35,7 @@ import androidx.camera.camera2.interop.Camera2CameraInfo;
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.Logger;
+import androidx.camera.core.impl.ImageFormatConstants;
 import androidx.camera.core.impl.SessionProcessor;
 import androidx.camera.extensions.ExtensionMode;
 import androidx.camera.extensions.impl.AutoImageCaptureExtenderImpl;
@@ -63,8 +64,7 @@ import java.util.Map;
 /**
  * Basic vendor interface implementation
  */
-@RequiresApi(23) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-// replaceImageFormatIfMissing accesses ImageFormat#PRIVATE which is public since API level 23.
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class BasicVendorExtender implements VendorExtender {
     private static final String TAG = "BasicVendorExtender";
     private final ExtensionDisabledValidator mExtensionDisabledValidator =
@@ -208,7 +208,7 @@ public class BasicVendorExtender implements VendorExtender {
                 == PreviewExtenderImpl.ProcessorType.PROCESSOR_TYPE_IMAGE_PROCESSOR) {
             return ImageFormat.YUV_420_888;
         } else {
-            return ImageFormat.PRIVATE;
+            return ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE /* PRIVATE */;
         }
     }
 
@@ -227,8 +227,10 @@ public class BasicVendorExtender implements VendorExtender {
                     // PreviewExtenderImpl.getSupportedResolutions() returns the supported size
                     // for input surface. We need to ensure output surface format is supported.
                     return replaceImageFormatIfMissing(result,
-                            ImageFormat.YUV_420_888 /* formatToBeReplaced */,
-                            ImageFormat.PRIVATE /* newFormat */);
+                            /* formatToBeReplaced */
+                            ImageFormat.YUV_420_888,
+                            /* newFormat */
+                            ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE);
                 }
             } catch (NoSuchMethodError e) {
             }
@@ -241,7 +243,8 @@ public class BasicVendorExtender implements VendorExtender {
         // able to output to the output surface, therefore we fetch the sizes from the
         // input image format for the output format.
         int inputImageFormat = getPreviewInputImageFormat();
-        return Arrays.asList(new Pair<>(ImageFormat.PRIVATE, getOutputSizes(inputImageFormat)));
+        return Arrays.asList(new Pair<>(ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE,
+                getOutputSizes(inputImageFormat)));
     }
 
 
