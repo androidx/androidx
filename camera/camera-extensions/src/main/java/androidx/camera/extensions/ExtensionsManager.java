@@ -24,7 +24,6 @@ import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
-import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.CameraProvider;
 import androidx.camera.core.CameraSelector;
@@ -456,7 +455,6 @@ public final class ExtensionsManager {
      * otherwise. If the device doesn't support this extension mode on this camera, it will also
      * return false.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public boolean isImageAnalysisSupported(@NonNull CameraSelector cameraSelector,
             @ExtensionMode.Mode int mode) {
         if (mode == ExtensionMode.NONE) {
