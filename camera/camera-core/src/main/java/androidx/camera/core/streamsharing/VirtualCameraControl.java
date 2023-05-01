@@ -20,18 +20,14 @@ import static androidx.core.util.Preconditions.checkArgument;
 import static java.util.Collections.singletonList;
 import static java.util.Objects.requireNonNull;
 
-import android.graphics.Rect;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
-import androidx.camera.core.FocusMeteringAction;
-import androidx.camera.core.FocusMeteringResult;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.impl.CameraControlInternal;
 import androidx.camera.core.impl.CaptureConfig;
-import androidx.camera.core.impl.Config;
-import androidx.camera.core.impl.SessionConfig;
+import androidx.camera.core.impl.ForwardingCameraControl;
 import androidx.camera.core.impl.utils.futures.Futures;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -42,79 +38,16 @@ import java.util.List;
  * A {@link CameraControlInternal} that is used to control the virtual camera.
  */
 @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-public class VirtualCameraControl implements CameraControlInternal {
+public class VirtualCameraControl extends ForwardingCameraControl {
 
     private static final int DEFAULT_JPEG_QUALITY = 100;
 
-    private final CameraControlInternal mParent;
     private final StreamSharing.Control mStreamSharingControl;
 
     VirtualCameraControl(@NonNull CameraControlInternal parent,
             @NonNull StreamSharing.Control streamSharingControl) {
-        mParent = parent;
+        super(parent);
         mStreamSharingControl = streamSharingControl;
-    }
-
-    @NonNull
-    @Override
-    public ListenableFuture<Void> enableTorch(boolean torch) {
-        return mParent.enableTorch(torch);
-    }
-
-    @NonNull
-    @Override
-    public ListenableFuture<FocusMeteringResult> startFocusAndMetering(
-            @NonNull FocusMeteringAction action) {
-        return mParent.startFocusAndMetering(action);
-    }
-
-    @NonNull
-    @Override
-    public ListenableFuture<Void> cancelFocusAndMetering() {
-        return mParent.cancelFocusAndMetering();
-    }
-
-    @NonNull
-    @Override
-    public ListenableFuture<Void> setZoomRatio(float ratio) {
-        return mParent.setZoomRatio(ratio);
-    }
-
-    @NonNull
-    @Override
-    public ListenableFuture<Void> setLinearZoom(float linearZoom) {
-        return mParent.setLinearZoom(linearZoom);
-    }
-
-    @NonNull
-    @Override
-    public ListenableFuture<Integer> setExposureCompensationIndex(int value) {
-        return mParent.setExposureCompensationIndex(value);
-    }
-
-    @Override
-    public int getFlashMode() {
-        return mParent.getFlashMode();
-    }
-
-    @Override
-    public void setFlashMode(int flashMode) {
-        mParent.setFlashMode(flashMode);
-    }
-
-    @Override
-    public void addZslConfig(@NonNull SessionConfig.Builder sessionConfigBuilder) {
-        mParent.addZslConfig(sessionConfigBuilder);
-    }
-
-    @Override
-    public void setZslDisabledByUserCaseConfig(boolean disabled) {
-        mParent.setZslDisabledByUserCaseConfig(disabled);
-    }
-
-    @Override
-    public boolean isZslDisabledByByUserCaseConfig() {
-        return mParent.isZslDisabledByByUserCaseConfig();
     }
 
     @NonNull
@@ -131,33 +64,5 @@ public class VirtualCameraControl implements CameraControlInternal {
     private int getJpegQuality(@NonNull CaptureConfig captureConfig) {
         return requireNonNull(captureConfig.getImplementationOptions().retrieveOption(
                 CaptureConfig.OPTION_JPEG_QUALITY, DEFAULT_JPEG_QUALITY));
-    }
-
-    @NonNull
-    @Override
-    public SessionConfig getSessionConfig() {
-        return mParent.getSessionConfig();
-    }
-
-    @NonNull
-    @Override
-    public Rect getSensorRect() {
-        return mParent.getSensorRect();
-    }
-
-    @Override
-    public void addInteropConfig(@NonNull Config config) {
-        mParent.addInteropConfig(config);
-    }
-
-    @Override
-    public void clearInteropConfig() {
-        mParent.clearInteropConfig();
-    }
-
-    @NonNull
-    @Override
-    public Config getInteropConfig() {
-        return mParent.getInteropConfig();
     }
 }

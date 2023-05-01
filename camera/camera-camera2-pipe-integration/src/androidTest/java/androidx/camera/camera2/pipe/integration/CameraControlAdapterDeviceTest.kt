@@ -61,6 +61,8 @@ import androidx.camera.camera2.pipe.integration.interop.Camera2CameraInfo
 import androidx.camera.camera2.pipe.integration.interop.CaptureRequestOptions
 import androidx.camera.camera2.pipe.integration.interop.ExperimentalCamera2Interop
 import androidx.camera.camera2.pipe.testing.VerifyResultListener
+import androidx.camera.camera2.pipe.testing.toCameraControlAdapter
+import androidx.camera.camera2.pipe.testing.toCameraInfoAdapter
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraControl
 import androidx.camera.core.CameraSelector
@@ -70,7 +72,6 @@ import androidx.camera.core.ImageCapture
 import androidx.camera.core.Preview
 import androidx.camera.core.SurfaceOrientedMeteringPointFactory
 import androidx.camera.core.UseCase
-import androidx.camera.core.impl.CameraInfoInternal
 import androidx.camera.core.impl.DeferrableSurface
 import androidx.camera.core.impl.Quirks
 import androidx.camera.core.impl.SessionConfig
@@ -147,7 +148,7 @@ class CameraControlAdapterDeviceTest {
             CameraSelector.LENS_FACING_BACK
         ).build()
         camera = CameraUtil.createCameraUseCaseAdapter(context, cameraSelector)
-        cameraControl = camera.cameraControl as CameraControlAdapter
+        cameraControl = camera.cameraControl.toCameraControlAdapter()
         comboListener = cameraControl.camera2cameraControl.requestListener
 
         characteristics = CameraUtil.getCameraCharacteristics(
@@ -473,7 +474,7 @@ class CameraControlAdapterDeviceTest {
     }
 
     private fun Camera.getMaxSupportedZoomRatio(): Float {
-        return cameraInfo.zoomState.value!!.maxZoomRatio
+        return cameraInfo.toCameraInfoAdapter().zoomState.value!!.maxZoomRatio
     }
 
     private suspend fun verifyRequestOptions() {
@@ -506,7 +507,7 @@ class CameraControlAdapterDeviceTest {
             cameraSelector,
             *useCases,
         )
-        cameraControl = camera.cameraControl as CameraControlAdapter
+        cameraControl = camera.cameraControl.toCameraControlAdapter()
     }
 
     private fun createFakeRecordingUseCase(): FakeUseCase {
@@ -618,7 +619,7 @@ class CameraControlAdapterDeviceTest {
     }
 
     private fun Camera.getCameraQuirks(): Quirks {
-        return (cameraInfo as? CameraInfoInternal)?.cameraQuirks!!
+        return cameraInfo.toCameraInfoAdapter().cameraQuirks
     }
 
     private fun CameraCharacteristics.isAfModeSupported(

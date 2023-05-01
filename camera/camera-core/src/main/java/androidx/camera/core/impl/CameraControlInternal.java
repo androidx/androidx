@@ -39,9 +39,13 @@ import java.util.List;
 /**
  * The CameraControlInternal Interface.
  *
+ *
  * <p>CameraControlInternal is used for global camera operations like zoom, focus, flash and
- * triggering
- * AF/AE.
+ * triggering AF/AE as well as some internal operations.
+ *
+ * <p>{@link #getImplementation()} returns a {@link CameraControlInternal} instance
+ * that contains the actual implementation and can be cast to an implementation specific class.
+ * If the instance itself is the implementation instance, then it should return <code>this</code>.
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public interface CameraControlInternal extends CameraControl {
@@ -135,6 +139,16 @@ public interface CameraControlInternal extends CameraControl {
      */
     @NonNull
     Config getInteropConfig();
+
+    /**
+     * Gets the underlying implementation instance which could be cast into an implementation
+     * specific class for further use in implementation module. Returns <code>this</code> if this
+     * instance is the implementation instance.
+     */
+    @NonNull
+    default CameraControlInternal getImplementation() {
+        return this;
+    }
 
     CameraControlInternal DEFAULT_EMPTY_INSTANCE = new CameraControlInternal() {
         @FlashMode

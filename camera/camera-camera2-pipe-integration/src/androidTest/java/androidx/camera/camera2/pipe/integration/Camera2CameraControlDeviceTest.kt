@@ -48,11 +48,12 @@ import androidx.camera.camera2.pipe.integration.interop.Camera2Interop
 import androidx.camera.camera2.pipe.integration.interop.CaptureRequestOptions
 import androidx.camera.camera2.pipe.integration.interop.ExperimentalCamera2Interop
 import androidx.camera.camera2.pipe.testing.VerifyResultListener
+import androidx.camera.camera2.pipe.testing.toCameraControlAdapter
+import androidx.camera.camera2.pipe.testing.toCameraInfoAdapter
 import androidx.camera.core.CameraControl
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.UseCase
-import androidx.camera.core.impl.CameraInfoInternal
 import androidx.camera.core.internal.CameraUseCaseAdapter
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CameraXUtil
@@ -105,7 +106,7 @@ class Camera2CameraControlDeviceTest {
             CameraSelector.LENS_FACING_BACK
         ).build()
         camera = CameraUtil.createCameraUseCaseAdapter(context, cameraSelector)
-        cameraControl = camera.cameraControl as CameraControlAdapter
+        cameraControl = camera.cameraControl.toCameraControlAdapter()
         camera2CameraControl = cameraControl.camera2cameraControl
         comboListener = camera2CameraControl.requestListener
     }
@@ -438,7 +439,7 @@ class Camera2CameraControlDeviceTest {
                 Context.CAMERA_SERVICE
             ) as CameraManager
         val characteristics = cameraManager.getCameraCharacteristics(
-            (camera.cameraInfo as CameraInfoInternal).cameraId
+            camera.cameraInfo.toCameraInfoAdapter().cameraId
         )
 
         val maxDigitalZoom = characteristics.get(

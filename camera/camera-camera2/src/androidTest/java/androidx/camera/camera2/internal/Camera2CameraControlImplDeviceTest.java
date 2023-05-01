@@ -59,6 +59,7 @@ import androidx.camera.camera2.impl.Camera2ImplConfig;
 import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
 import androidx.camera.camera2.internal.compat.quirk.CameraQuirks;
 import androidx.camera.camera2.internal.compat.workaround.AutoFlashAEModeDisabler;
+import androidx.camera.camera2.internal.util.TestUtil;
 import androidx.camera.core.CameraControl;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraXConfig;
@@ -431,7 +432,7 @@ public final class Camera2CameraControlImplDeviceTest {
                 imageCapture);
 
         Camera2CameraControlImpl camera2CameraControlImpl =
-                (Camera2CameraControlImpl) mCamera.getCameraControl();
+                TestUtil.getCamera2CameraControlImpl(mCamera.getCameraControl());
 
         CameraCaptureCallback captureCallback = mock(CameraCaptureCallback.class);
         CaptureConfig.Builder captureConfigBuilder = new CaptureConfig.Builder();
@@ -458,7 +459,7 @@ public final class Camera2CameraControlImplDeviceTest {
                 ApplicationProvider.getApplicationContext(), CameraSelector.DEFAULT_BACK_CAMERA,
                 imageAnalysis);
 
-        return (Camera2CameraControlImpl) mCamera.getCameraControl();
+        return TestUtil.getCamera2CameraControlImpl(mCamera.getCameraControl());
     }
 
     private <T> void assertArraySize(T[] array, int expectedSize) {

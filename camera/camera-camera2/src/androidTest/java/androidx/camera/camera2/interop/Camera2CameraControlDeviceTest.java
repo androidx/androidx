@@ -39,9 +39,9 @@ import android.hardware.camera2.params.MeteringRectangle;
 import androidx.annotation.OptIn;
 import androidx.camera.camera2.Camera2Config;
 import androidx.camera.camera2.internal.Camera2CameraControlImpl;
+import androidx.camera.camera2.internal.util.TestUtil;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ImageAnalysis;
-import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.internal.CameraUseCaseAdapter;
 import androidx.camera.testing.CameraUtil;
@@ -94,7 +94,8 @@ public final class Camera2CameraControlDeviceTest {
         mCameraSelector = new CameraSelector.Builder().requireLensFacing(
                 CameraSelector.LENS_FACING_BACK).build();
         mCamera = CameraUtil.createCameraUseCaseAdapter(mContext, mCameraSelector);
-        mCamera2CameraControlImpl = (Camera2CameraControlImpl) mCamera.getCameraControl();
+        mCamera2CameraControlImpl =
+                TestUtil.getCamera2CameraControlImpl(mCamera.getCameraControl());
         mCamera2CameraControl = mCamera2CameraControlImpl.getCamera2CameraControl();
         mMockCaptureCallback = mock(CameraCaptureSession.CaptureCallback.class);
     }
@@ -267,7 +268,7 @@ public final class Camera2CameraControlDeviceTest {
 
     private Rect getZoom2XCropRegion() throws Exception {
         AtomicReference<String> cameraIdRef = new AtomicReference<>();
-        String cameraId = ((CameraInfoInternal) mCamera.getCameraInfo()).getCameraId();
+        String cameraId = TestUtil.getCamera2CameraInfoImpl(mCamera.getCameraInfo()).getCameraId();
         cameraIdRef.set(cameraId);
 
         CameraManager cameraManager =

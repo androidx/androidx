@@ -26,6 +26,7 @@ import androidx.camera.camera2.pipe.integration.adapter.CameraControlAdapter
 import androidx.camera.camera2.pipe.integration.impl.ComboRequestListener
 import androidx.camera.camera2.pipe.integration.interop.ExperimentalCamera2Interop
 import androidx.camera.camera2.pipe.testing.VerifyResultListener
+import androidx.camera.camera2.pipe.testing.toCameraControlAdapter
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.FocusMeteringAction
 import androidx.camera.core.ImageCapture
@@ -115,7 +116,7 @@ class TapToFocusDeviceTest {
             imageCapture
         )
 
-        cameraControl = camera.cameraControl as CameraControlAdapter
+        cameraControl = camera.cameraControl.toCameraControlAdapter()
 
         @OptIn(ExperimentalCamera2Interop::class)
         comboListener = cameraControl.camera2cameraControl.requestListener

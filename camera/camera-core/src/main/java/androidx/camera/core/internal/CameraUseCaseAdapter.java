@@ -59,6 +59,10 @@ import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.CameraMode;
 import androidx.camera.core.impl.Config;
+import androidx.camera.core.impl.RestrictedCameraControl;
+import androidx.camera.core.impl.RestrictedCameraControl.CameraOperation;
+import androidx.camera.core.impl.RestrictedCameraInfo;
+import androidx.camera.core.impl.SessionProcessor;
 import androidx.camera.core.impl.StreamSpec;
 import androidx.camera.core.impl.SurfaceConfig;
 import androidx.camera.core.impl.UseCaseConfig;
@@ -143,6 +147,12 @@ public final class CameraUseCaseAdapter implements Camera {
     @Nullable
     private StreamSharing mStreamSharing;
 
+    @NonNull
+    private final RestrictedCameraControl mRestrictedCameraControl;
+    @NonNull
+    private final RestrictedCameraInfo mRestrictedCameraInfo;
+
+
     /**
      * Create a new {@link CameraUseCaseAdapter} instance.
      *
@@ -167,6 +177,12 @@ public final class CameraUseCaseAdapter implements Camera {
         mCameraCoordinator = cameraCoordinator;
         mCameraDeviceSurfaceManager = cameraDeviceSurfaceManager;
         mUseCaseConfigFactory = useCaseConfigFactory;
+        // TODO(b/279996499): bind the same restricted CameraControl and CameraInfo to use cases.
+        mRestrictedCameraControl =
+                new RestrictedCameraControl(mCameraInternal.getCameraControlInternal());
+        mRestrictedCameraInfo =
+                new RestrictedCameraInfo(mCameraInternal.getCameraInfoInternal(),
+                        mRestrictedCameraControl);
     }
 
     /**
@@ -603,14 +619,14 @@ public final class CameraUseCaseAdapter implements Camera {
             Map<UseCaseConfig<?>, List<Size>> configToSupportedSizesMap = new HashMap<>();
             Rect sensorRect;
             try {
-                sensorRect = ((CameraControlInternal) getCameraControl()).getSensorRect();
+                sensorRect = mCameraInternal.getCameraControlInternal().getSensorRect();
             } catch (NullPointerException e) {
                 // TODO(b/274531208): Remove the unnecessary SENSOR_INFO_ACTIVE_ARRAY_SIZE NPE
                 //  check related code only which is used for robolectric tests
                 sensorRect = null;
             }
             SupportedOutputSizesSorter supportedOutputSizesSorter = new SupportedOutputSizesSorter(
-                    (CameraInfoInternal) getCameraInfo(),
+                    cameraInfoInternal,
                     sensorRect != null ? rectToSize(sensorRect) : null);
             for (UseCase useCase : newUseCases) {
                 ConfigPair configPair = configPairMap.get(useCase);
@@ -809,13 +825,13 @@ public final class CameraUseCaseAdapter implements Camera {
     @NonNull
     @Override
     public CameraControl getCameraControl() {
-        return mCameraInternal.getCameraControlInternal();
+        return mRestrictedCameraControl;
     }
 
     @NonNull
     @Override
     public CameraInfo getCameraInfo() {
-        return mCameraInternal.getCameraInfoInternal();
+        return mRestrictedCameraInfo;
     }
 
     @NonNull
@@ -846,6 +862,14 @@ public final class CameraUseCaseAdapter implements Camera {
             }
 
             mCameraConfig = cameraConfig;
+            SessionProcessor sessionProcessor = mCameraConfig.getSessionProcessor(null);
+            if (sessionProcessor != null) {
+                @CameraOperation Set<Integer> supportedOps =
+                        sessionProcessor.getSupportedCameraOperations();
+                mRestrictedCameraControl.enableRestrictedOperations(true, supportedOps);
+            } else {
+                mRestrictedCameraControl.enableRestrictedOperations(false, null);
+            }
 
             //Configure the CameraInternal as well so that it can get SessionProcessor.
             mCameraInternal.setExtendedConfig(mCameraConfig);

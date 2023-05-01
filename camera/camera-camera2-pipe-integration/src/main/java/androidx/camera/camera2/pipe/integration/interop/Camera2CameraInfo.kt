@@ -23,6 +23,7 @@ import androidx.camera.camera2.pipe.integration.adapter.CameraInfoAdapter
 import androidx.camera.camera2.pipe.integration.compat.workaround.getSafely
 import androidx.camera.camera2.pipe.integration.impl.CameraProperties
 import androidx.camera.core.CameraInfo
+import androidx.camera.core.impl.CameraInfoInternal
 import androidx.core.util.Preconditions
 
 /**
@@ -88,11 +89,12 @@ class Camera2CameraInfo private constructor(
          */
         @JvmStatic
         fun from(@Suppress("UNUSED_PARAMETER") cameraInfo: CameraInfo): Camera2CameraInfo {
+            var cameraInfoImpl = (cameraInfo as CameraInfoInternal).implementation
             Preconditions.checkArgument(
-                cameraInfo is CameraInfoAdapter,
+                cameraInfoImpl is CameraInfoAdapter,
                 "CameraInfo doesn't contain Camera2 implementation."
             )
-            return (cameraInfo as CameraInfoAdapter).camera2CameraInfo
+            return (cameraInfoImpl as CameraInfoAdapter).camera2CameraInfo
         }
 
         /**
