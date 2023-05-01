@@ -147,11 +147,6 @@ val DONT_TRY_RERUNNING_TASKS = setOf(
     "partiallyDejetifyArchive",
     "stripArchiveForPartialDejetification",
     "createArchive",
-
-    // b/275795136
-    ":room:integration-tests:room-testapp-kotlin:kspWithKspGenJavaDebugAndroidTestKotlin",
-    // b/275795136
-    ":room:integration-tests:room-testapp-kotlin:kspWithKspGenKotlinDebugAndroidTestKotlin"
 )
 
 val DONT_TRY_RERUNNING_TASK_TYPES = setOf(
