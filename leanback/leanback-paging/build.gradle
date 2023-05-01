@@ -36,7 +36,7 @@ dependencies {
     }
     androidTestImplementation(libs.kotlinTest)
     androidTestImplementation(libs.kotlinCoroutinesTest)
-    androidTestImplementation("androidx.arch.core:core-testing:2.1.0")
+    androidTestImplementation("androidx.arch.core:core-testing:2.2.0")
     androidTestImplementation("androidx.lifecycle:lifecycle-runtime-testing:2.3.1")
 }
 

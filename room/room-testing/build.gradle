@@ -37,7 +37,7 @@ dependencies {
     api(project(":sqlite:sqlite-framework"))
     api(project(":room:room-migration"))
     api(libs.junit)
-    implementation("androidx.arch.core:core-runtime:2.0.1")
+    implementation("androidx.arch.core:core-runtime:2.2.0")
     androidTestImplementation(libs.truth)
     androidTestImplementation(libs.kotlinStdlib)
     androidTestImplementation(libs.testExtJunit)
