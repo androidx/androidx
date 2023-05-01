@@ -16,6 +16,8 @@
 
 package androidx.tracing;
 
+import static androidx.tracing.Trace.MAX_TRACE_LABEL_LENGTH;
+
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -73,6 +75,21 @@ public final class TraceTest {
         dumpTrace();
 
         assertTraceContains("tracing_mark_write:\\ B\\|.*\\|beginAndEndSection");
+        assertTraceContains("tracing_mark_write:\\ E");
+    }
+
+    @Test
+    public void beginAndEndTraceSectionLongLabel() throws IOException {
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < 20; i++) {
+            builder.append("longLabel");
+        }
+        startTrace();
+        Trace.beginSection(builder.toString());
+        Trace.endSection();
+        dumpTrace();
+        assertTraceContains(
+                "tracing_mark_write:\\ B\\|.*\\|" + builder.substring(0, MAX_TRACE_LABEL_LENGTH));
         assertTraceContains("tracing_mark_write:\\ E");
     }
 
@@ -160,7 +177,6 @@ public final class TraceTest {
 
     private void assertTraceContains(@NonNull String contentRegex) {
         String traceString = new String(mByteArrayOutputStream.toByteArray(), UTF_8);
-
         Pattern pattern = Pattern.compile(contentRegex);
         Matcher matcher = pattern.matcher(traceString);
 
