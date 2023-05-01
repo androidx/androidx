@@ -70,10 +70,6 @@ package androidx.compose.ui.unit {
     method @androidx.compose.runtime.Stable public static androidx.compose.ui.unit.Density Density(float density, optional float fontScale);
   }
 
-  public fun interface DoubleLambda {
-    method public double invoke();
-  }
-
   @androidx.compose.runtime.Immutable @kotlin.jvm.JvmInline public final value class Dp implements java.lang.Comparable<androidx.compose.ui.unit.Dp> {
     ctor public Dp(float value);
     method @androidx.compose.runtime.Stable public operator int compareTo(float other);
@@ -199,14 +195,6 @@ package androidx.compose.ui.unit {
   }
 
   @kotlin.RequiresOptIn(message="This API is experimental and is likely to change in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalUnitApi {
-  }
-
-  public fun interface FloatLambda {
-    method public float invoke();
-  }
-
-  public fun interface IntLambda {
-    method public int invoke();
   }
 
   @androidx.compose.runtime.Immutable @kotlin.jvm.JvmInline public final value class IntOffset {
@@ -341,14 +329,6 @@ package androidx.compose.ui.unit {
     method public static androidx.compose.ui.unit.LayoutDirection[] values();
     enum_constant public static final androidx.compose.ui.unit.LayoutDirection Ltr;
     enum_constant public static final androidx.compose.ui.unit.LayoutDirection Rtl;
-  }
-
-  public fun interface LongLambda {
-    method public long invoke();
-  }
-
-  public fun interface ShortLambda {
-    method public short invoke();
   }
 
   @androidx.compose.runtime.Immutable @kotlin.jvm.JvmInline public final value class TextUnit {

@@ -29,7 +29,6 @@ import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.text.AnnotatedString
@@ -52,7 +51,7 @@ class BasicTextPaparazziTest {
     @Test
     fun colorChangingState_changesColor() {
         paparazzi.snapshot {
-            val color = remember { mutableStateOf(Color.Red) }
+            var color = remember { mutableStateOf(Color.Red) }
             BasicText(
                 "ABCD",
                 color = { color.value }
@@ -66,33 +65,13 @@ class BasicTextPaparazziTest {
     @Test
     fun colorChangingState_changesColor_annotatedString() {
         paparazzi.snapshot {
-            val color = remember { mutableStateOf(Color.Red) }
+            var color = remember { mutableStateOf(Color.Red) }
             BasicText(
                 AnnotatedString("ABCD"),
                 color = { color.value }
             )
             SideEffect {
                 color.value = Color.Yellow
-            }
-        }
-    }
-
-    @Test
-    fun brushState_changesBrush() {
-        paparazzi.snapshot {
-            val brush = remember { mutableStateOf(Brush.linearGradient(listOf(Color.Gray))) }
-            Column {
-                BasicText(
-                    AnnotatedString("Annotated"),
-                    brush = { brush.value }
-                )
-                BasicText(
-                    "String",
-                    brush = { brush.value }
-                )
-            }
-            SideEffect {
-                brush.value = Brush.sweepGradient(listOf(Color.Gray, Color.Green, Color.Gray))
             }
         }
     }
