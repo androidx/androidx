@@ -21,6 +21,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.requiredSize
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -29,6 +31,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.hasAnyDescendant
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.isPopup
@@ -125,6 +129,42 @@ class MenuTest {
             assertThat(node.size.height)
                 .isEqualTo(DropdownMenuVerticalPadding.roundToPx() * 2 + 200)
         }
+    }
+
+    @Test
+    fun menu_scrolledContent() {
+        rule.setContent {
+            with(LocalDensity.current) {
+                Box(
+                    Modifier
+                        .requiredSize(20.toDp())
+                        .background(color = Color.Blue)
+                ) {
+                    val scrollState = rememberScrollState()
+                    DropdownMenu(
+                        expanded = true,
+                        onDismissRequest = {},
+                        scrollState = scrollState
+                    ) {
+                        repeat(100) {
+                            Box(
+                                Modifier
+                                    .testTag("MenuContent ${it + 1}")
+                                    .size(70.toDp())
+                            )
+                        }
+                    }
+                    LaunchedEffect(Unit) {
+                        scrollState.scrollTo(scrollState.maxValue)
+                    }
+                }
+            }
+        }
+
+        rule.waitForIdle()
+
+        rule.onNodeWithTag("MenuContent 1").assertIsNotDisplayed()
+        rule.onNodeWithTag("MenuContent 100").assertIsDisplayed()
     }
 
     @Test
