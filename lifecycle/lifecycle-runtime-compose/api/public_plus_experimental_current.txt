@@ -10,10 +10,20 @@ package androidx.lifecycle.compose {
 
   public final class LifecycleEffectKt {
     method @androidx.compose.runtime.Composable public static void LifecycleEventEffect(androidx.lifecycle.Lifecycle.Event event, optional androidx.lifecycle.LifecycleOwner lifecycleOwner, kotlin.jvm.functions.Function0<kotlin.Unit> onEvent);
+    method @androidx.compose.runtime.Composable public static void LifecycleStartEffect(optional androidx.lifecycle.LifecycleOwner lifecycleOwner, kotlin.jvm.functions.Function1<? super androidx.lifecycle.compose.LifecycleStartStopEffectScope,? extends androidx.lifecycle.compose.LifecycleStopEffectResult> effects);
   }
 
   public final class LifecycleExtKt {
     method @androidx.compose.runtime.Composable public static androidx.compose.runtime.State<androidx.lifecycle.Lifecycle.State> currentStateAsState(androidx.lifecycle.Lifecycle);
+  }
+
+  public final class LifecycleStartStopEffectScope {
+    ctor public LifecycleStartStopEffectScope();
+    method public inline androidx.lifecycle.compose.LifecycleStopEffectResult onStop(kotlin.jvm.functions.Function0<kotlin.Unit> onStopEffect);
+  }
+
+  public interface LifecycleStopEffectResult {
+    method public void runStopEffect();
   }
 
 }
