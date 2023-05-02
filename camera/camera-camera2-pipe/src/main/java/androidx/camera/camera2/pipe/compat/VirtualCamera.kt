@@ -322,17 +322,19 @@ internal class AndroidCameraState(
 
         // This checks to see if close() has been invoked, or one of the close methods have been
         // invoked. If so, call close() on the cameraDevice outside of the synchronized block.
-        var closeCamera = false
-        synchronized(lock) {
-            if (pendingClose != null) {
-                closeCamera = true
-            } else {
+        val currentCloseInfo = synchronized(lock) {
+            if (pendingClose == null) {
                 opening = true
             }
+            pendingClose
         }
         interopDeviceStateCallback?.onOpened(cameraDevice)
-        if (closeCamera) {
-            camera2DeviceCloser.closeCamera(cameraDevice = cameraDevice, androidCameraState = this)
+        if (currentCloseInfo != null) {
+            camera2DeviceCloser.closeCamera(
+                cameraDevice = cameraDevice,
+                closeUnderError = currentCloseInfo.errorCode != null,
+                androidCameraState = this
+            )
             return
         }
 
@@ -357,7 +359,11 @@ internal class AndroidCameraState(
             }
         if (closeInfo != null) {
             _state.value = CameraStateClosing(closeInfo.errorCode)
-            camera2DeviceCloser.closeCamera(cameraDevice = cameraDevice, androidCameraState = this)
+            camera2DeviceCloser.closeCamera(
+                cameraDevice = cameraDevice,
+                closeUnderError = closeInfo.errorCode != null,
+                androidCameraState = this
+            )
             _state.value = computeClosedState(closeInfo)
         }
         Debug.traceStop()
@@ -463,6 +469,7 @@ internal class AndroidCameraState(
             camera2DeviceCloser.closeCamera(
                 cameraDeviceWrapper,
                 cameraDevice,
+                closeUnderError = closeInfo.errorCode != null,
                 androidCameraState = this,
             )
             _state.value = computeClosedState(closeInfo)
