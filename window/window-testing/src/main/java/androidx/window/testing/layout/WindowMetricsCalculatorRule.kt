@@ -17,7 +17,6 @@
 package androidx.window.testing.layout
 
 import android.app.Activity
-import androidx.window.core.ExperimentalWindowApi
 import androidx.window.layout.WindowMetricsCalculator
 import org.junit.rules.TestRule
 import org.junit.runner.Description
@@ -32,8 +31,7 @@ import org.junit.runners.model.Statement
  * the Espresso Test framework with an actual [Activity] and use the actual
  * [WindowMetricsCalculator].
  */
-@ExperimentalWindowApi
-class StubWindowMetricsCalculatorRule : TestRule {
+class WindowMetricsCalculatorRule : TestRule {
 
     override fun apply(base: Statement, description: Description): Statement {
         return object : Statement() {
