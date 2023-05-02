@@ -35,6 +35,7 @@ internal interface Camera2DeviceCloser {
     fun closeCamera(
         cameraDeviceWrapper: CameraDeviceWrapper? = null,
         cameraDevice: CameraDevice? = null,
+        closeUnderError: Boolean = false,
         androidCameraState: AndroidCameraState,
     )
 }
@@ -48,6 +49,7 @@ internal class Camera2DeviceCloserImpl @Inject constructor(
     override fun closeCamera(
         cameraDeviceWrapper: CameraDeviceWrapper?,
         cameraDevice: CameraDevice?,
+        closeUnderError: Boolean,
         androidCameraState: AndroidCameraState,
     ) {
         Log.debug { "Closing $cameraDeviceWrapper and/or $cameraDevice" }
@@ -59,22 +61,23 @@ internal class Camera2DeviceCloserImpl @Inject constructor(
                         "but the accompanied camera device has camera ID ${it.id}"
                 }
             }
-            closeCameraDevice(unwrappedCameraDevice, androidCameraState)
+            closeCameraDevice(unwrappedCameraDevice, closeUnderError, androidCameraState)
             cameraDeviceWrapper.onDeviceClosed()
 
             // We only need to close the device once (don't want to create another capture session).
             // Return here.
             return
         }
-        cameraDevice?.let { closeCameraDevice(it, androidCameraState) }
+        cameraDevice?.let { closeCameraDevice(it, closeUnderError, androidCameraState) }
     }
 
     private fun closeCameraDevice(
         cameraDevice: CameraDevice,
+        closeUnderError: Boolean,
         androidCameraState: AndroidCameraState,
     ) {
         val cameraId = CameraId.fromCamera2Id(cameraDevice.id)
-        if (camera2Quirks.shouldCreateCaptureSessionBeforeClosing(cameraId)) {
+        if (camera2Quirks.shouldCreateCaptureSessionBeforeClosing(cameraId) && !closeUnderError) {
             Debug.trace("Camera2DeviceCloserImpl#createCaptureSession") {
                 Log.debug { "Creating an empty capture session before closing camera $cameraId" }
                 createCaptureSession(cameraDevice)
