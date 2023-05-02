@@ -41,7 +41,7 @@ dependencies {
     api(project(":room:room-common"))
     api(project(":sqlite:sqlite-framework"))
     api(project(":sqlite:sqlite"))
-    implementation("androidx.arch.core:core-runtime:2.0.1")
+    implementation("androidx.arch.core:core-runtime:2.2.0")
     compileOnly("androidx.collection:collection:1.2.0")
     compileOnly("androidx.paging:paging-common:2.0.0")
     compileOnly("androidx.lifecycle:lifecycle-livedata-core:2.0.0")
@@ -49,7 +49,7 @@ dependencies {
     compileOnly libs.kotlinStdlib // Due to :annotation-experimental
     lintChecks(project(":room:room-runtime-lint"))
 
-    testImplementation("androidx.arch.core:core-testing:2.0.1")
+    testImplementation("androidx.arch.core:core-testing:2.2.0")
     testImplementation(libs.junit)
     testImplementation(libs.mockitoCore4)
     testImplementation(libs.mockitoKotlin4)
@@ -68,7 +68,7 @@ dependencies {
     androidTestImplementation(libs.mockitoCore, excludes.bytebuddy) // DexMaker has it"s own MockMaker
     androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy) // DexMaker has it"s own MockMaker
     androidTestImplementation(project(":internal-testutils-truth")) // for assertThrows
-    androidTestImplementation("androidx.arch.core:core-testing:2.0.1")
+    androidTestImplementation("androidx.arch.core:core-testing:2.2.0")
 
 }
 

@@ -35,7 +35,7 @@ dependencies {
     api(libs.playFeatureDelivery)
 
     testImplementation(project(":navigation:navigation-testing"))
-    testImplementation("androidx.arch.core:core-testing:2.1.0")
+    testImplementation("androidx.arch.core:core-testing:2.2.0")
     testImplementation(libs.testCore)
     testImplementation(libs.testExtJunit)
     testImplementation(libs.testRunner)

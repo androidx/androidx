@@ -27,14 +27,14 @@ dependencies {
     api(project(":room:room-runtime"))
     api(libs.rxjava2)
 
-    implementation("androidx.arch.core:core-runtime:2.0.1")
+    implementation("androidx.arch.core:core-runtime:2.2.0")
     implementation(libs.kotlinStdlib)
 
     testImplementation(libs.truth)
     testImplementation(libs.kotlinTest)
     testImplementation(libs.mockitoCore4)
     testImplementation(libs.mockitoKotlin4)
-    testImplementation("androidx.arch.core:core-testing:2.0.1")
+    testImplementation("androidx.arch.core:core-testing:2.2.0")
     testImplementation("androidx.lifecycle:lifecycle-livedata:2.0.0") // for mocking invalidation tracker
 }
 

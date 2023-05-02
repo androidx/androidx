@@ -25,7 +25,7 @@ plugins {
 
 dependencies {
     api(project(":paging:paging-common"))
-    api("androidx.arch.core:core-runtime:2.1.0")
+    api("androidx.arch.core:core-runtime:2.2.0")
     api(libs.rxjava3)
     implementation(libs.kotlinStdlib)
     implementation(libs.kotlinCoroutinesRx3)
@@ -41,7 +41,7 @@ dependencies {
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)
-    androidTestImplementation("androidx.arch.core:core-testing:2.1.0")
+    androidTestImplementation("androidx.arch.core:core-testing:2.2.0")
 }
 
 androidx {

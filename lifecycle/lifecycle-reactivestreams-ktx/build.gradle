@@ -33,7 +33,7 @@ dependencies {
   testImplementation(libs.truth)
   testImplementation(libs.kotlinCoroutinesTest)
   testImplementation(project(":lifecycle:lifecycle-runtime-testing"))
-  testImplementation("androidx.arch.core:core-testing:2.1.0")
+  testImplementation("androidx.arch.core:core-testing:2.2.0")
 }
 
 androidx {
