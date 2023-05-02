@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-import androidx.build.KmpPlatformsKt
+import androidx.build.AndroidXComposePlugin
 import androidx.build.LibraryType
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
@@ -23,95 +24,87 @@ plugins {
     id("com.android.library")
 }
 
-def desktopEnabled = KmpPlatformsKt.enableDesktop(project)
+AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project)
 
-androidXMultiplatform {
-    android()
-    if (desktopEnabled) desktop()
+dependencies {
 
-    sourceSets {
-        commonMain {
-            dependencies {
-                implementation(libs.kotlinStdlibCommon)
-                implementation(libs.kotlinCoroutinesCore)
-            }
-        }
+    if(!AndroidXComposePlugin.isMultiplatformEnabled(project)) {
+        /*
+         * When updating dependencies, make sure to make the an an analogous update in the
+         * corresponding block below
+         */
 
-        commonTest {
-            dependencies {
-                implementation kotlin("test")
-                implementation(libs.kotlinCoroutinesTest)
-            }
-        }
+        api(libs.kotlinCoroutinesAndroid)
 
-        jvmMain {
-            dependencies {
-                implementation(libs.kotlinStdlib)
-                api(libs.kotlinCoroutinesCore)
-            }
-        }
+        implementation("androidx.annotation:annotation:1.1.0")
+        implementation(libs.kotlinStdlib)
 
+        testImplementation(libs.kotlinTestJunit)
+        testImplementation(libs.junit)
+        testImplementation(libs.robolectric)
+        testImplementation(libs.kotlinCoroutinesTest)
 
-        androidMain {
-            dependsOn(jvmMain)
-            dependencies {
-                api(libs.kotlinCoroutinesAndroid)
-                api("androidx.annotation:annotation:1.1.0")
-            }
-        }
+        androidTestImplementation(libs.kotlinTestJunit)
+        androidTestImplementation(libs.testExtJunit)
+        androidTestImplementation(libs.testRules)
+        androidTestImplementation(libs.testRunner)
+        androidTestImplementation(libs.junit)
+        androidTestImplementation(libs.truth)
 
-        if (desktopEnabled) {
-            desktopMain {
-                dependsOn(jvmMain)
-            }
-        }
+        lintChecks(projectOrArtifact(":compose:runtime:runtime-lint"))
+        lintPublish(projectOrArtifact(":compose:runtime:runtime-lint"))
 
-        jvmTest {
-            dependsOn(commonTest)
-            dependencies {
-            }
-        }
-
-        nonEmulatorCommonTest {
-            dependsOn(commonTest)
-            dependencies {
-            }
-        }
-
-        nonEmulatorJvmTest {
-            dependsOn(nonEmulatorCommonTest)
-            dependencies {
-            }
-        }
-
-        androidAndroidTest {
-            dependsOn(jvmTest)
-            dependencies {
-                implementation(libs.testExtJunit)
-                implementation(libs.testRules)
-                implementation(libs.testRunner)
-                implementation(libs.truth)
-            }
-        }
-
-        androidTest {
-            dependsOn(jvmTest)
-            dependsOn(nonEmulatorJvmTest)
-        }
-
-        if (desktopEnabled) {
-            desktopTest {
-                dependsOn(jvmTest)
-                dependsOn(nonEmulatorJvmTest)
-            }
-        }
+        samples(projectOrArtifact(":compose:runtime:runtime:runtime-samples"))
     }
 }
 
-dependencies {
-    lintChecks(projectOrArtifact(":compose:runtime:runtime-lint"))
-    lintPublish(projectOrArtifact(":compose:runtime:runtime-lint"))
-    samples(projectOrArtifact(":compose:runtime:runtime:runtime-samples"))
+if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
+    androidXComposeMultiplatform {
+        android()
+        desktop()
+    }
+
+    kotlin {
+
+        /*
+         * When updating dependencies, make sure to make the an an analogous update in the
+         * corresponding block above
+         */
+        sourceSets {
+            commonMain.dependencies {
+                implementation(libs.kotlinStdlibCommon)
+                implementation(libs.kotlinCoroutinesCore)
+            }
+            jvmMain.dependencies {
+                implementation(libs.kotlinStdlib)
+                api(libs.kotlinCoroutinesCore)
+            }
+            androidMain {
+                dependencies {
+                    api(libs.kotlinCoroutinesAndroid)
+                    api("androidx.annotation:annotation:1.1.0")
+                }
+            }
+
+            commonTest.dependencies {
+                implementation kotlin("test")
+                implementation(libs.kotlinCoroutinesTest)
+            }
+
+            androidAndroidTest {
+                dependsOn(jvmTest)
+                dependencies {
+                    implementation(libs.testExtJunit)
+                    implementation(libs.testRules)
+                    implementation(libs.testRunner)
+                    implementation(libs.truth)
+                }
+            }
+        }
+    }
+    dependencies {
+        samples(projectOrArtifact(":compose:runtime:runtime:runtime-samples"))
+    }
 }
 
 android {
