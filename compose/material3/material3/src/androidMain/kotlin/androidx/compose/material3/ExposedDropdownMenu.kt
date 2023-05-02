@@ -20,6 +20,7 @@ import android.graphics.Rect
 import android.view.View
 import android.view.ViewTreeObserver
 import androidx.compose.animation.core.MutableTransitionState
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.waitForUpOrCancellation
@@ -28,6 +29,7 @@ import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.selection.LocalTextSelectionColors
 import androidx.compose.foundation.text.selection.TextSelectionColors
 import androidx.compose.material.icons.Icons
@@ -239,6 +241,7 @@ interface ExposedDropdownMenuBoxScope {
      * @param onDismissRequest called when the user requests to dismiss the menu, such as by
      * tapping outside the menu's bounds
      * @param modifier the [Modifier] to be applied to this menu
+     * @param scrollState a [ScrollState] to used by the menu's content for items vertical scrolling
      * @param content the content of the menu
      */
     @Composable
@@ -246,6 +249,7 @@ interface ExposedDropdownMenuBoxScope {
         expanded: Boolean,
         onDismissRequest: () -> Unit,
         modifier: Modifier = Modifier,
+        scrollState: ScrollState = rememberScrollState(),
         content: @Composable ColumnScope.() -> Unit
     ) {
         // TODO(b/202810604): use DropdownMenu when PopupProperties constructor is stable
@@ -277,6 +281,7 @@ interface ExposedDropdownMenuBoxScope {
                 DropdownMenuContent(
                     expandedStates = expandedStates,
                     transformOriginState = transformOriginState,
+                    scrollState = scrollState,
                     modifier = modifier.exposedDropdownSize(),
                     content = content
                 )
