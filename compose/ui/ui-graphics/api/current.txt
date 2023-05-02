@@ -382,10 +382,6 @@ package androidx.compose.ui.graphics {
     method @androidx.compose.runtime.Stable public static int toArgb(long);
   }
 
-  public fun interface ColorLambda {
-    method public long invoke();
-  }
-
   @kotlin.jvm.JvmInline public final value class ColorMatrix {
     ctor public ColorMatrix(optional float[] values);
     method public void convertRgbToYuv();
@@ -402,6 +398,10 @@ package androidx.compose.ui.graphics {
     method public void setToScale(float redScale, float greenScale, float blueScale, float alphaScale);
     method public operator void timesAssign(float[] colorMatrix);
     property public final float[] values;
+  }
+
+  public fun interface ColorProducer {
+    method public long invoke();
   }
 
   @androidx.compose.runtime.Immutable @kotlin.jvm.JvmInline public final value class FilterQuality {

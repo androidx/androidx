@@ -32,7 +32,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.graphics.ColorLambda
+import androidx.compose.ui.graphics.ColorProducer
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.Measurable
@@ -86,7 +86,7 @@ fun BasicText(
     softWrap: Boolean = true,
     maxLines: Int = Int.MAX_VALUE,
     minLines: Int = 1,
-    color: ColorLambda? = null
+    color: ColorProducer? = null
 ) {
     validateMinMaxLines(
         minLines = minLines,
@@ -175,7 +175,7 @@ fun BasicText(
     maxLines: Int = Int.MAX_VALUE,
     minLines: Int = 1,
     inlineContent: Map<String, InlineTextContent> = mapOf(),
-    color: ColorLambda? = null
+    color: ColorProducer? = null
 ) {
     validateMinMaxLines(
         minLines = minLines,
@@ -397,7 +397,7 @@ private fun Modifier.textModifier(
     placeholders: List<AnnotatedString.Range<Placeholder>>?,
     onPlaceholderLayout: ((List<Rect?>) -> Unit)?,
     selectionController: SelectionController?,
-    color: ColorLambda?
+    color: ColorProducer?
 ): Modifier {
     if (selectionController == null) {
         val staticTextModifier = TextAnnotatedStringElement(
