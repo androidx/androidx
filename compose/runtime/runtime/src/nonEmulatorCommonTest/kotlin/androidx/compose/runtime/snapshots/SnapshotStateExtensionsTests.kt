@@ -20,7 +20,10 @@ import androidx.compose.runtime.asDoubleState
 import androidx.compose.runtime.asFloatState
 import androidx.compose.runtime.asIntState
 import androidx.compose.runtime.asLongState
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableDoubleStateOf
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableLongStateOf
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.test.assertEquals
@@ -44,7 +47,7 @@ class SnapshotStateExtensionsTests {
     @OptIn(ExperimentalCoroutinesApi::class)
     fun stateAsIntStateDispatchesSnapshotUpdates() = runTest {
         val snapshotObservationJob = Job()
-        val state = mutableStateOf(512)
+        val state = mutableIntStateOf(512)
         val intState = state.asIntState()
         val intSnapshotHistory = getSnapshotHistory(snapshotObservationJob) { intState.intValue }
         advanceGlobalSnapshotAndSettle()
@@ -82,7 +85,7 @@ class SnapshotStateExtensionsTests {
     @OptIn(ExperimentalCoroutinesApi::class)
     fun stateAsLongStateDispatchesSnapshotUpdates() = runTest {
         val snapshotObservationJob = Job()
-        val state = mutableStateOf(1000L)
+        val state = mutableLongStateOf(1000L)
         val longState = state.asLongState()
         val longSnapshotHistory = getSnapshotHistory(snapshotObservationJob) { longState.longValue }
         advanceGlobalSnapshotAndSettle()
@@ -120,7 +123,7 @@ class SnapshotStateExtensionsTests {
     @OptIn(ExperimentalCoroutinesApi::class)
     fun stateAsFloatStateDispatchesSnapshotUpdates() = runTest {
         val snapshotObservationJob = Job()
-        val state = mutableStateOf(0.0f)
+        val state = mutableFloatStateOf(0.0f)
         val floatState = state.asFloatState()
         val floatSnapshotHistory = getSnapshotHistory(snapshotObservationJob) {
             floatState.floatValue
@@ -160,7 +163,7 @@ class SnapshotStateExtensionsTests {
     @OptIn(ExperimentalCoroutinesApi::class)
     fun stateAsDoubleStateDispatchesSnapshotUpdates() = runTest {
         val snapshotObservationJob = Job()
-        val state = mutableStateOf(1.0)
+        val state = mutableDoubleStateOf(1.0)
         val doubleState = state.asDoubleState()
         val doubleSnapshotHistory = getSnapshotHistory(snapshotObservationJob) {
             doubleState.doubleValue

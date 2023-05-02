@@ -433,7 +433,7 @@ package androidx.compose.runtime {
 
   public final class PrimitiveSnapshotStateKt {
     method public static inline operator float getValue(androidx.compose.runtime.FloatState, Object? thisObj, kotlin.reflect.KProperty<?> property);
-    method public static androidx.compose.runtime.MutableFloatState mutableStateOf(float value);
+    method public static androidx.compose.runtime.MutableFloatState mutableFloatStateOf(float value);
     method public static inline operator void setValue(androidx.compose.runtime.MutableFloatState, Object? thisObj, kotlin.reflect.KProperty<?> property, float value);
   }
 
@@ -532,19 +532,19 @@ package androidx.compose.runtime {
 
   public final class SnapshotDoubleStateKt {
     method public static inline operator double getValue(androidx.compose.runtime.DoubleState, Object? thisObj, kotlin.reflect.KProperty<?> property);
-    method public static androidx.compose.runtime.MutableDoubleState mutableStateOf(double value);
+    method public static androidx.compose.runtime.MutableDoubleState mutableDoubleStateOf(double value);
     method public static inline operator void setValue(androidx.compose.runtime.MutableDoubleState, Object? thisObj, kotlin.reflect.KProperty<?> property, double value);
   }
 
   public final class SnapshotIntStateKt {
     method public static inline operator int getValue(androidx.compose.runtime.IntState, Object? thisObj, kotlin.reflect.KProperty<?> property);
-    method public static androidx.compose.runtime.MutableIntState mutableStateOf(int value);
+    method public static androidx.compose.runtime.MutableIntState mutableIntStateOf(int value);
     method public static inline operator void setValue(androidx.compose.runtime.MutableIntState, Object? thisObj, kotlin.reflect.KProperty<?> property, int value);
   }
 
   public final class SnapshotLongStateKt {
     method public static inline operator long getValue(androidx.compose.runtime.LongState, Object? thisObj, kotlin.reflect.KProperty<?> property);
-    method public static androidx.compose.runtime.MutableLongState mutableStateOf(long value);
+    method public static androidx.compose.runtime.MutableLongState mutableLongStateOf(long value);
     method public static inline operator void setValue(androidx.compose.runtime.MutableLongState, Object? thisObj, kotlin.reflect.KProperty<?> property, long value);
   }
 

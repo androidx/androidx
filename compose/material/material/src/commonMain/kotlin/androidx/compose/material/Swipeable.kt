@@ -34,6 +34,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.Saver
@@ -110,12 +111,12 @@ open class SwipeableState<T>(
     val overflow: State<Float> get() = overflowState
 
     // Use `Float.NaN` as a placeholder while the state is uninitialised.
-    private val offsetState = mutableStateOf(0f)
-    private val overflowState = mutableStateOf(0f)
+    private val offsetState = mutableFloatStateOf(0f)
+    private val overflowState = mutableFloatStateOf(0f)
 
     // the source of truth for the "real"(non ui) position
     // basically position in bounds + overflow
-    private val absoluteOffset = mutableStateOf(0f)
+    private val absoluteOffset = mutableFloatStateOf(0f)
 
     // current animation target, if animating, otherwise null
     private val animationTarget = mutableStateOf<Float?>(null)

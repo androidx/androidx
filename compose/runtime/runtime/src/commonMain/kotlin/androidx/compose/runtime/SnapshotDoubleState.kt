@@ -41,8 +41,12 @@ import kotlin.reflect.KProperty
  *
  * @see DoubleState
  * @see MutableDoubleState
+ * @see mutableStateOf
+ * @see mutableIntStateOf
+ * @see mutableLongStateOf
+ * @see mutableFloatStateOf
  */
-fun mutableStateOf(
+fun mutableDoubleStateOf(
     value: Double
 ): MutableDoubleState = createSnapshotMutableDoubleState(value)
 
@@ -51,7 +55,7 @@ fun mutableStateOf(
  * function cause the current [RecomposeScope] to subscribe to changes of that value.
  *
  * @see MutableDoubleState
- * @see mutableStateOf
+ * @see mutableDoubleStateOf
  */
 @Stable
 @JvmDefaultWithCompatibility
@@ -80,7 +84,7 @@ inline operator fun DoubleState.getValue(
  * scheduled.
  *
  * @see [DoubleState]
- * @see [mutableStateOf]
+ * @see [mutableDoubleStateOf]
  */
 @Stable
 @JvmDefaultWithCompatibility
@@ -116,7 +120,7 @@ internal expect fun createSnapshotMutableDoubleState(
  *
  * @param value the wrapped value
  *
- * @see [mutableStateOf]
+ * @see [mutableDoubleStateOf]
  */
 internal open class SnapshotMutableDoubleStateImpl(
     value: Double
