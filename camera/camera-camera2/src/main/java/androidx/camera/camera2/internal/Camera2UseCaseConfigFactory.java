@@ -78,6 +78,7 @@ public final class Camera2UseCaseConfigFactory implements UseCaseConfigFactory {
                 sessionBuilder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
                 break;
             case VIDEO_CAPTURE:
+            case STREAM_SHARING:
                 sessionBuilder.setTemplateType(CameraDevice.TEMPLATE_RECORD);
                 break;
         }
@@ -101,6 +102,7 @@ public final class Camera2UseCaseConfigFactory implements UseCaseConfigFactory {
                 captureBuilder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
                 break;
             case VIDEO_CAPTURE:
+            case STREAM_SHARING:
                 captureBuilder.setTemplateType(CameraDevice.TEMPLATE_RECORD);
                 break;
         }
@@ -125,7 +127,7 @@ public final class Camera2UseCaseConfigFactory implements UseCaseConfigFactory {
         int targetRotation = mDisplayInfoManager.getMaxSizeDisplay().getRotation();
         mutableConfig.insertOption(OPTION_TARGET_ROTATION, targetRotation);
 
-        if (captureType == CaptureType.VIDEO_CAPTURE) {
+        if (captureType == CaptureType.VIDEO_CAPTURE || captureType == CaptureType.STREAM_SHARING) {
             mutableConfig.insertOption(OPTION_ZSL_DISABLED, true);
         }
 

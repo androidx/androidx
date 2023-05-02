@@ -301,7 +301,7 @@ class StreamSharingTest {
         val config = streamSharing.getDefaultConfig(true, useCaseConfigFactory)!!
 
         assertThat(useCaseConfigFactory.lastRequestedCaptureType)
-            .isEqualTo(UseCaseConfigFactory.CaptureType.VIDEO_CAPTURE)
+            .isEqualTo(UseCaseConfigFactory.CaptureType.STREAM_SHARING)
         assertThat(
             config.retrieveOption(
                 OPTION_TARGET_CLASS,

@@ -2127,6 +2127,8 @@ class SupportedSurfaceCombinationTest {
             ImageFormat.PRIVATE,
             PREVIEW_SIZE,
             SDR,
+            listOf(CaptureType.PREVIEW),
+            useCase.currentConfig,
             /*targetFrameRate=*/null
         )
         val attachedAnalysis = AttachedSurfaceInfo.create(
@@ -2137,6 +2139,8 @@ class SupportedSurfaceCombinationTest {
             ImageFormat.YUV_420_888,
             RECORD_SIZE,
             SDR,
+            listOf(CaptureType.IMAGE_ANALYSIS),
+            useCase.currentConfig,
             /*targetFrameRate=*/null
         )
 
@@ -2172,6 +2176,8 @@ class SupportedSurfaceCombinationTest {
             ImageFormat.PRIVATE,
             PREVIEW_SIZE,
             DynamicRange(FORMAT_HDR10, BIT_DEPTH_10_BIT),
+            listOf(CaptureType.PREVIEW),
+            useCase.currentConfig,
             /*targetFrameRate=*/null
         )
         val attachedPriv2 = AttachedSurfaceInfo.create(
@@ -2182,6 +2188,8 @@ class SupportedSurfaceCombinationTest {
             ImageFormat.YUV_420_888,
             RECORD_SIZE,
             DynamicRange(FORMAT_HDR10_PLUS, BIT_DEPTH_10_BIT),
+            listOf(CaptureType.VIDEO_CAPTURE),
+            useCase.currentConfig,
             /*targetFrameRate=*/null
         )
 
@@ -2226,6 +2234,8 @@ class SupportedSurfaceCombinationTest {
             ImageFormat.PRIVATE,
             PREVIEW_SIZE,
             SDR,
+            listOf(CaptureType.PREVIEW),
+            useCase.currentConfig,
             /*targetFrameRate=*/null
         )
         val attachedPriv2 = AttachedSurfaceInfo.create(
@@ -2236,6 +2246,8 @@ class SupportedSurfaceCombinationTest {
             ImageFormat.YUV_420_888,
             RECORD_SIZE,
             SDR,
+            listOf(CaptureType.IMAGE_ANALYSIS),
+            useCase.currentConfig,
             /*targetFrameRate=*/null
         )
 
@@ -2465,6 +2477,8 @@ class SupportedSurfaceCombinationTest {
             ImageFormat.JPEG,
             Size(1280, 720),
             SDR,
+            listOf(CaptureType.PREVIEW),
+            useCase.currentConfig,
             Range(40, 50)
         )
         getSuggestedSpecsAndVerify(
@@ -2492,6 +2506,8 @@ class SupportedSurfaceCombinationTest {
             ImageFormat.JPEG,
             Size(1280, 720),
             SDR,
+            listOf(CaptureType.PREVIEW),
+            useCase.currentConfig,
             Range(40, 50)
         )
         getSuggestedSpecsAndVerify(
@@ -2519,6 +2535,8 @@ class SupportedSurfaceCombinationTest {
             ImageFormat.JPEG,
             Size(1280, 720),
             SDR,
+            listOf(CaptureType.PREVIEW),
+            useCase.currentConfig,
             Range(40, 50)
         )
         getSuggestedSpecsAndVerify(
