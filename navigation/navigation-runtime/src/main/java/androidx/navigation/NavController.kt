@@ -1772,6 +1772,10 @@ public open class NavController(
         navOptions: NavOptions?,
         navigatorExtras: Navigator.Extras?
     ) {
+        requireNotNull(_graph) {
+            "Cannot navigate to $request. Navigation graph has not been set for " +
+                "NavController $this."
+        }
         val deepLinkMatch = _graph!!.matchDeepLink(request)
         if (deepLinkMatch != null) {
             val destination = deepLinkMatch.destination
