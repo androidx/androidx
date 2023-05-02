@@ -987,6 +987,7 @@ package androidx.compose.material3 {
   @androidx.compose.runtime.Stable public final class SliderDefaults {
     method @androidx.compose.runtime.Composable public void Thumb(androidx.compose.foundation.interaction.MutableInteractionSource interactionSource, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.material3.SliderColors colors, optional boolean enabled, optional long thumbSize);
     method @androidx.compose.runtime.Composable public void Track(androidx.compose.material3.SliderPositions sliderPositions, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.material3.SliderColors colors, optional boolean enabled);
+    method @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Composable public void Track(androidx.compose.material3.SliderState sliderState, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.material3.SliderColors colors, optional boolean enabled);
     method @androidx.compose.runtime.Composable public androidx.compose.material3.SliderColors colors(optional long thumbColor, optional long activeTrackColor, optional long activeTickColor, optional long inactiveTrackColor, optional long inactiveTickColor, optional long disabledThumbColor, optional long disabledActiveTrackColor, optional long disabledActiveTickColor, optional long disabledInactiveTrackColor, optional long disabledInactiveTickColor);
     field public static final androidx.compose.material3.SliderDefaults INSTANCE;
   }
@@ -995,7 +996,8 @@ package androidx.compose.material3 {
     method @androidx.compose.runtime.Composable public static void RangeSlider(kotlin.ranges.ClosedFloatingPointRange<java.lang.Float> value, kotlin.jvm.functions.Function1<? super kotlin.ranges.ClosedFloatingPointRange<java.lang.Float>,kotlin.Unit> onValueChange, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional kotlin.ranges.ClosedFloatingPointRange<java.lang.Float> valueRange, optional int steps, optional kotlin.jvm.functions.Function0<kotlin.Unit>? onValueChangeFinished, optional androidx.compose.material3.SliderColors colors);
     method @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Composable public static void RangeSlider(kotlin.ranges.ClosedFloatingPointRange<java.lang.Float> value, kotlin.jvm.functions.Function1<? super kotlin.ranges.ClosedFloatingPointRange<java.lang.Float>,kotlin.Unit> onValueChange, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional kotlin.ranges.ClosedFloatingPointRange<java.lang.Float> valueRange, optional kotlin.jvm.functions.Function0<kotlin.Unit>? onValueChangeFinished, optional androidx.compose.material3.SliderColors colors, optional androidx.compose.foundation.interaction.MutableInteractionSource startInteractionSource, optional androidx.compose.foundation.interaction.MutableInteractionSource endInteractionSource, optional kotlin.jvm.functions.Function1<? super androidx.compose.material3.SliderPositions,kotlin.Unit> startThumb, optional kotlin.jvm.functions.Function1<? super androidx.compose.material3.SliderPositions,kotlin.Unit> endThumb, optional kotlin.jvm.functions.Function1<? super androidx.compose.material3.SliderPositions,kotlin.Unit> track, optional int steps);
     method @androidx.compose.runtime.Composable public static void Slider(float value, kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit> onValueChange, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional kotlin.ranges.ClosedFloatingPointRange<java.lang.Float> valueRange, optional int steps, optional kotlin.jvm.functions.Function0<kotlin.Unit>? onValueChangeFinished, optional androidx.compose.material3.SliderColors colors, optional androidx.compose.foundation.interaction.MutableInteractionSource interactionSource);
-    method @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Composable public static void Slider(float value, kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit> onValueChange, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional kotlin.ranges.ClosedFloatingPointRange<java.lang.Float> valueRange, optional kotlin.jvm.functions.Function0<kotlin.Unit>? onValueChangeFinished, optional androidx.compose.material3.SliderColors colors, optional androidx.compose.foundation.interaction.MutableInteractionSource interactionSource, optional kotlin.jvm.functions.Function1<? super androidx.compose.material3.SliderPositions,kotlin.Unit> thumb, optional kotlin.jvm.functions.Function1<? super androidx.compose.material3.SliderPositions,kotlin.Unit> track, optional int steps);
+    method @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Composable public static void Slider(float value, kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit> onValueChange, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional kotlin.jvm.functions.Function0<kotlin.Unit>? onValueChangeFinished, optional androidx.compose.material3.SliderColors colors, optional androidx.compose.foundation.interaction.MutableInteractionSource interactionSource, optional int steps, optional kotlin.jvm.functions.Function1<? super androidx.compose.material3.SliderState,kotlin.Unit> thumb, optional kotlin.jvm.functions.Function1<? super androidx.compose.material3.SliderState,kotlin.Unit> track, optional kotlin.ranges.ClosedFloatingPointRange<java.lang.Float> valueRange);
+    method @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Composable public static void Slider(androidx.compose.material3.SliderState state, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional androidx.compose.material3.SliderColors colors, optional androidx.compose.foundation.interaction.MutableInteractionSource interactionSource, optional kotlin.jvm.functions.Function1<? super androidx.compose.material3.SliderState,kotlin.Unit> thumb, optional kotlin.jvm.functions.Function1<? super androidx.compose.material3.SliderState,kotlin.Unit> track);
   }
 
   @androidx.compose.runtime.Stable public final class SliderPositions {
@@ -1004,6 +1006,20 @@ package androidx.compose.material3 {
     method public float[] getTickFractions();
     property public final kotlin.ranges.ClosedFloatingPointRange<java.lang.Float> activeRange;
     property public final float[] tickFractions;
+  }
+
+  @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Stable public final class SliderState {
+    ctor public SliderState(optional float initialValue, optional kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit>? initialOnValueChange, optional int steps, optional kotlin.ranges.ClosedFloatingPointRange<java.lang.Float> valueRange, optional kotlin.jvm.functions.Function0<kotlin.Unit>? onValueChangeFinished);
+    method public kotlin.jvm.functions.Function0<kotlin.Unit>? getOnValueChangeFinished();
+    method public int getSteps();
+    method public float getValue();
+    method public kotlin.ranges.ClosedFloatingPointRange<java.lang.Float> getValueRange();
+    method public void setOnValueChangeFinished(kotlin.jvm.functions.Function0<kotlin.Unit>?);
+    method public void setValue(float);
+    property public final kotlin.jvm.functions.Function0<kotlin.Unit>? onValueChangeFinished;
+    property public final int steps;
+    property public final float value;
+    property public final kotlin.ranges.ClosedFloatingPointRange<java.lang.Float> valueRange;
   }
 
   @androidx.compose.runtime.Stable public interface SnackbarData {
