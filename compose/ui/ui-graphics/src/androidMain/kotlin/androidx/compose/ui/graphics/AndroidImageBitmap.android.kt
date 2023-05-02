@@ -201,7 +201,7 @@ internal object Api26Bitmap {
             height,
             bitmapConfig.toBitmapConfig(),
             hasAlpha,
-            colorSpace.toFrameworkColorSpace()
+            colorSpace.toAndroidColorSpace()
         )
     }
 

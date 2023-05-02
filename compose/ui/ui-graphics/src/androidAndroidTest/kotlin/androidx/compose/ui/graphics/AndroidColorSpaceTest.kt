@@ -212,6 +212,34 @@ class AndroidColorSpaceTest {
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
+    fun testUnknownColorSpaceNoTransform() {
+        val name = "MyCustomColorSpace"
+        val whitePoint = floatArrayOf(1.0f, 2.0f, 3.0f)
+        val primaries = floatArrayOf(1f, 2f, 3f, 4f, 5f, 6f)
+        colorSpaceTestHelper(
+            androidx.compose.ui.graphics.colorspace.Rgb(
+                name = name,
+                primaries = primaries,
+                WhitePoint(1.0f, 2.0f, 3.0f),
+                { 1.0 },
+                { 2.0 },
+                2f,
+                4f,
+            ),
+            ColorSpace.Rgb(
+                name,
+                primaries,
+                whitePoint,
+                { _ -> 1.0 },
+                { _ -> 2.0 },
+                2f,
+                4f,
+            )
+        )
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
     fun testUnknownColorspace2WhitePointValues() {
         val name = "MyCustomColorSpace"
         val whitePoint = floatArrayOf(1.0f, 2.0f)
@@ -251,7 +279,11 @@ class AndroidColorSpaceTest {
                 composeColorSpace: androidx.compose.ui.graphics.colorspace.ColorSpace,
                 frameworkColorSpace: ColorSpace
             ) {
-                Assert.assertEquals(composeColorSpace, frameworkColorSpace.toComposeColorSpace())
+                val convertedColorSpace = frameworkColorSpace.toComposeColorSpace()
+                Assert.assertEquals(composeColorSpace, convertedColorSpace)
+
+                val frameworkConvertedColorSpace = convertedColorSpace.toAndroidColorSpace()
+                Assert.assertEquals(frameworkColorSpace, frameworkConvertedColorSpace)
             }
         }
     }
