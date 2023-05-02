@@ -311,6 +311,29 @@ class InterfaceParserTest {
     }
 
     @Test
+    fun callbackInheritance_fails() {
+        val source = Source.kotlin(
+            "com/mysdk/MySdk.kt", """
+                    package com.mysdk
+                    import androidx.privacysandbox.tools.PrivacySandboxService
+                    import androidx.privacysandbox.tools.PrivacySandboxCallback
+
+                    interface FooInterface {}
+
+                    @PrivacySandboxService
+                    interface MySdk {}
+
+                    @PrivacySandboxCallback
+                    interface MyCallback : FooInterface {}
+            """
+        )
+        checkSourceFails(source).containsExactlyErrors(
+            "Error in com.mysdk.MyCallback: annotated interface inherits prohibited types (" +
+                "FooInterface)."
+        )
+    }
+
+    @Test
     fun methodWithImplementation_fails() {
         checkSourceFails(serviceMethod("suspend fun foo(): Int = 1")).containsExactlyErrors(
             "Error in com.mysdk.MySdk.foo: method cannot have default implementation."

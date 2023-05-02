@@ -31,4 +31,4 @@ import androidx.annotation.RestrictTo
 @Retention(AnnotationRetention.BINARY)
 @Target(AnnotationTarget.CLASS)
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-annotation class GeneratedPublicApi
+public annotation class GeneratedPublicApi
