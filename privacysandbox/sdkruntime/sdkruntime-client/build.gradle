@@ -30,6 +30,7 @@ dependencies {
     api project(path: ':privacysandbox:sdkruntime:sdkruntime-core')
 
     implementation("androidx.core:core:1.8.0")
+    implementation("androidx.activity:activity:1.7.0")
 
     testImplementation(libs.junit)
     testImplementation(libs.truth)
