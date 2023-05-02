@@ -265,7 +265,13 @@ public final class DynamicBuilders {
      * @since 1.2
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    @IntDef({LOGICAL_OP_TYPE_UNDEFINED, LOGICAL_OP_TYPE_AND, LOGICAL_OP_TYPE_OR})
+    @IntDef({
+        LOGICAL_OP_TYPE_UNDEFINED,
+        LOGICAL_OP_TYPE_AND,
+        LOGICAL_OP_TYPE_OR,
+        LOGICAL_OP_TYPE_EQUAL,
+        LOGICAL_OP_TYPE_NOT_EQUAL
+    })
     @Retention(RetentionPolicy.SOURCE)
     @interface LogicalOpType {}
 
@@ -289,6 +295,20 @@ public final class DynamicBuilders {
      * @since 1.2
      */
     static final int LOGICAL_OP_TYPE_OR = 2;
+
+    /**
+     * Equal check.
+     *
+     * @since 1.2
+     */
+    static final int LOGICAL_OP_TYPE_EQUAL = 3;
+
+    /**
+     * Not Equal check.
+     *
+     * @since 1.2
+     */
+    static final int LOGICAL_OP_TYPE_NOT_EQUAL = 4;
 
     /**
      * The duration part to retrieve using {@link GetDurationPartOp}.
@@ -2334,8 +2354,8 @@ public final class DynamicBuilders {
 
                 /**
                  * Sets minimum number of integer digits for the formatter. Defaults to one if not
-                 * specified. If minIntegerDigits is zero and the -1 < input < 1, the Integer
-                 * part will not appear.
+                 * specified. If minIntegerDigits is zero and the -1 < input < 1, the Integer part
+                 * will not appear.
                  */
                 @NonNull
                 public Builder setMinIntegerDigits(@IntRange(from = 0) int minIntegerDigits) {
@@ -2642,7 +2662,6 @@ public final class DynamicBuilders {
         static StateStringSource fromProto(@NonNull DynamicProto.StateStringSource proto) {
             return fromProto(proto, null);
         }
-
 
         @NonNull
         DynamicProto.StateStringSource toProto() {
@@ -4780,8 +4799,8 @@ public final class DynamicBuilders {
 
                 /**
                  * Sets minimum number of integer digits for the formatter. Defaults to one if not
-                 * specified. If minIntegerDigits is zero and the -1 < input < 1, the Integer
-                 * part will not appear.
+                 * specified. If minIntegerDigits is zero and the -1 < input < 1, the Integer part
+                 * will not appear.
                  */
                 @NonNull
                 public Builder setMinIntegerDigits(@IntRange(from = 0) int minIntegerDigits) {
@@ -5607,6 +5626,32 @@ public final class DynamicBuilders {
                     .build();
         }
 
+        /**
+         * Returns a {@link DynamicBool} that is true if the value of this {@link DynamicBool} and
+         * {@code other} are equal, otherwise it's false.
+         */
+        @NonNull
+        default DynamicBool eq(@NonNull DynamicBool other) {
+            return new LogicalBoolOp.Builder()
+                    .setInputLhs(this)
+                    .setInputRhs(other)
+                    .setOperationType(DynamicBuilders.LOGICAL_OP_TYPE_EQUAL)
+                    .build();
+        }
+
+        /**
+         * Returns a {@link DynamicBool} that is true if the value of this {@link DynamicBool} and
+         * {@code other} are not equal, otherwise it's false.
+         */
+        @NonNull
+        default DynamicBool ne(@NonNull DynamicBool other) {
+            return new LogicalBoolOp.Builder()
+                    .setInputLhs(this)
+                    .setInputRhs(other)
+                    .setOperationType(DynamicBuilders.LOGICAL_OP_TYPE_NOT_EQUAL)
+                    .build();
+        }
+
         /** Get the fingerprint for this object or null if unknown. */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Nullable
@@ -5621,7 +5666,6 @@ public final class DynamicBuilders {
             DynamicBool build();
         }
     }
-
 
     /** Creates a new wrapper instance from the proto. */
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -6365,7 +6409,6 @@ public final class DynamicBuilders {
             DynamicColor build();
         }
     }
-
 
     /** Creates a new wrapper instance from the proto. */
     @RestrictTo(Scope.LIBRARY_GROUP)
