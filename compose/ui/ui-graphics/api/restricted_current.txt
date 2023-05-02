@@ -46,8 +46,8 @@ package androidx.compose.ui.graphics {
   }
 
   public final class AndroidColorSpace_androidKt {
+    method @RequiresApi(android.os.Build.VERSION_CODES.O) public static android.graphics.ColorSpace toAndroidColorSpace(androidx.compose.ui.graphics.colorspace.ColorSpace);
     method @RequiresApi(android.os.Build.VERSION_CODES.O) public static androidx.compose.ui.graphics.colorspace.ColorSpace toComposeColorSpace(android.graphics.ColorSpace);
-    method @RequiresApi(android.os.Build.VERSION_CODES.O) public static android.graphics.ColorSpace toFrameworkColorSpace(androidx.compose.ui.graphics.colorspace.ColorSpace);
   }
 
   public final class AndroidImageBitmap_androidKt {
