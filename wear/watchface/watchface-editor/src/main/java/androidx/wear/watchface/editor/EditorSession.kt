@@ -57,6 +57,7 @@ import androidx.wear.watchface.complications.data.EmptyComplicationData
 import androidx.wear.watchface.complications.toApiComplicationDataSourceInfo
 import androidx.wear.watchface.control.data.HeadlessWatchFaceInstanceParams
 import androidx.wear.watchface.data.IdAndComplicationDataWireFormat
+import androidx.wear.watchface.editor.EditorSession.Companion.createHeadlessEditorSession
 import androidx.wear.watchface.editor.data.EditorStateWireFormat
 import androidx.wear.watchface.sanitizeWatchFaceId
 import androidx.wear.watchface.style.UserStyle
@@ -288,62 +289,57 @@ public interface EditorSession : AutoCloseable {
             complicationDataSourceInfoRetrieverProvider: ComplicationDataSourceInfoRetrieverProvider
         ): EditorSession =
             TraceEvent("EditorSession.createOnWatchEditorSessionAsyncImpl").use {
-                try {
-                    val editorRequest =
-                        editIntent
-                            .getParcelableExtra<ComponentName>(Constants.EXTRA_WATCH_FACE_COMPONENT)
-                            ?.let { EditorRequest(it, "", null) }
-                            ?: EditorRequest.createFromIntent(editIntent)
-                    Log.d(
-                        TAG,
-                        "createOnWatchEditorSession ${editorRequest.watchFaceComponentName} " +
-                            "${editorRequest.watchFaceId}"
+                val editorRequest =
+                    editIntent
+                        .getParcelableExtra<ComponentName>(Constants.EXTRA_WATCH_FACE_COMPONENT)
+                        ?.let { EditorRequest(it, "", null) }
+                        ?: EditorRequest.createFromIntent(editIntent)
+                Log.d(
+                    TAG,
+                    "createOnWatchEditorSession ${editorRequest.watchFaceComponentName} " +
+                        "${editorRequest.watchFaceId}"
+                )
+                // We need to respect the lifecycle and register the ActivityResultListener now.
+                val session =
+                    OnWatchFaceEditorSessionImpl(
+                        activity,
+                        editorRequest.watchFaceComponentName,
+                        editorRequest.watchFaceId,
+                        editorRequest.initialUserStyle,
+                        complicationDataSourceInfoRetrieverProvider,
+                        activity.lifecycleScope,
+                        editorRequest.previewScreenshotParams
                     )
-                    // We need to respect the lifecycle and register the ActivityResultListener now.
-                    val session =
-                        OnWatchFaceEditorSessionImpl(
-                            activity,
-                            editorRequest.watchFaceComponentName,
-                            editorRequest.watchFaceId,
-                            editorRequest.initialUserStyle,
-                            complicationDataSourceInfoRetrieverProvider,
-                            activity.lifecycleScope,
-                            editorRequest.previewScreenshotParams
-                        )
-                    // But full initialization has to be deferred because
-                    // [WatchFace.getOrCreateEditorDelegate] is async.
-                    // Resolve only after init has been completed.
-                    withContext(activity.lifecycleScope.coroutineContext) {
-                        withTimeout(EDITING_SESSION_TIMEOUT.toMillis()) {
-                            session.setEditorDelegate(
-                                // Either create a delegate for a new headless client or await an
-                                // interactive one.
-                                if (editorRequest.headlessDeviceConfig != null) {
-                                    WatchFace.createHeadlessSessionDelegate(
+                // But full initialization has to be deferred because
+                // [WatchFace.getOrCreateEditorDelegate] is async.
+                // Resolve only after init has been completed.
+                withContext(activity.lifecycleScope.coroutineContext) {
+                    withTimeout(EDITING_SESSION_TIMEOUT.toMillis()) {
+                        session.setEditorDelegate(
+                            // Either create a delegate for a new headless client or await an
+                            // interactive one.
+                            if (editorRequest.headlessDeviceConfig != null) {
+                                WatchFace.createHeadlessSessionDelegate(
+                                    editorRequest.watchFaceComponentName,
+                                    HeadlessWatchFaceInstanceParams(
                                         editorRequest.watchFaceComponentName,
-                                        HeadlessWatchFaceInstanceParams(
-                                            editorRequest.watchFaceComponentName,
-                                            editorRequest.headlessDeviceConfig.asWireDeviceConfig(),
-                                            activity.resources.displayMetrics.widthPixels,
-                                            activity.resources.displayMetrics.heightPixels,
-                                            editorRequest.watchFaceId.id
-                                        ),
-                                        activity
+                                        editorRequest.headlessDeviceConfig.asWireDeviceConfig(),
+                                        activity.resources.displayMetrics.widthPixels,
+                                        activity.resources.displayMetrics.heightPixels,
+                                        editorRequest.watchFaceId.id
+                                    ),
+                                    activity
+                                )
+                            } else {
+                                WatchFace.getOrCreateEditorDelegate(
+                                        editorRequest.watchFaceComponentName
                                     )
-                                } else {
-                                    WatchFace.getOrCreateEditorDelegate(
-                                            editorRequest.watchFaceComponentName
-                                        )
-                                        .await()
-                                }
-                            )
-                            // Resolve only after init has been completed.
-                            session
-                        }
+                                    .await()
+                            }
+                        )
+                        // Resolve only after init has been completed.
+                        session
                     }
-                } catch (e: Exception) {
-                    Log.e(TAG, "createOnWatchEditorSessionImpl failed", e)
-                    throw e
                 }
             }
 
@@ -684,9 +680,6 @@ internal constructor(
                         ?.mapValues { it.value.await() ?: EmptyComplicationData() }
                         ?: emptyMap()
                 deferredComplicationPreviewDataAvailable.complete(Unit)
-            } catch (e: Exception) {
-                Log.w(TAG, "fetchComplicationsData failed", e)
-                throw e
             } finally {
                 complicationDataSourceInfoRetriever.close()
             }
