@@ -44,6 +44,8 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.withTimeoutOrNull
 
 class FakeUseCaseCameraComponentBuilder : UseCaseCameraComponent.Builder {
+    var buildInvocationCount = 0
+
     private val cameraQuirks = CameraQuirks(
         FakeCameraMetadata(),
         StreamConfigurationMapCompat(null, OutputSizesCorrector(FakeCameraMetadata(), null))
@@ -57,6 +59,7 @@ class FakeUseCaseCameraComponentBuilder : UseCaseCameraComponent.Builder {
     }
 
     override fun build(): UseCaseCameraComponent {
+        buildInvocationCount++
         return FakeUseCaseCameraComponent(config.provideUseCaseList())
     }
 }

@@ -127,9 +127,7 @@ class UseCaseManager @Inject constructor(
         }
 
         if (attachedUseCases.addAll(useCases)) {
-            if (shouldAddRepeatingUseCase(getRunningUseCases())) {
-                addRepeatingUseCase()
-            } else {
+            if (!addOrRemoveRepeatingUseCase(getRunningUseCases())) {
                 refreshAttachedUseCases(attachedUseCases)
             }
         }
@@ -167,8 +165,7 @@ class UseCaseManager @Inject constructor(
         // TODO: We might only want to tear down when the number of attached use cases goes to
         //  zero. If a single UseCase is removed, we could deactivate it?
         if (attachedUseCases.removeAll(useCases)) {
-            if (shouldRemoveRepeatingUseCase(getRunningUseCases())) {
-                removeRepeatingUseCase()
+            if (addOrRemoveRepeatingUseCase(getRunningUseCases())) {
                 return
             }
             refreshAttachedUseCases(attachedUseCases)
@@ -287,6 +284,25 @@ class UseCaseManager @Inject constructor(
     @GuardedBy("lock")
     private fun getRunningUseCases(): Set<UseCase> {
         return attachedUseCases.intersect(activeUseCases)
+    }
+
+    /**
+     * Adds or removes repeating use case if needed.
+     *
+     * @param runningUseCases the set of currently running use cases
+     * @return true if repeating use cases is added or removed, false otherwise
+     */
+    @GuardedBy("lock")
+    private fun addOrRemoveRepeatingUseCase(runningUseCases: Set<UseCase>): Boolean {
+        if (shouldAddRepeatingUseCase(runningUseCases)) {
+            addRepeatingUseCase()
+            return true
+        }
+        if (shouldRemoveRepeatingUseCase(runningUseCases)) {
+            removeRepeatingUseCase()
+            return true
+        }
+        return false
     }
 
     @GuardedBy("lock")
