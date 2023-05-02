@@ -166,9 +166,10 @@ public class MySdkStubDelegate internal constructor(
     transactionCallback.onCancellable(cancellationSignal)
   }
 
-  public override fun acceptUiInterfaceParam(input: IMyUiInterface): Unit {
+  public override fun acceptUiInterfaceParam(input: IMyUiInterfaceCoreLibInfoAndBinderWrapper):
+      Unit {
     coroutineScope.launch {
-      delegate.acceptUiInterfaceParam((input as MyUiInterfaceStubDelegate).delegate)
+      delegate.acceptUiInterfaceParam((input.binder as MyUiInterfaceStubDelegate).delegate)
     }
   }
 }
