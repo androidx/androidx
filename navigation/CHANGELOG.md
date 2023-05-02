@@ -14,9 +14,15 @@
 # Behavior Change
 # External Contributions
 
-# Unreleased
+## Unreleased
+
+### Bug Fixes
+
+- Updated the error message and exception type when navigating on a NavController with no
+  navigation graph set.
 
 ### Dependency Updates
 
-* Changed dependency of Activity library from version 1.6.1 to version 1.7.1.
+- Changed dependency of Activity library from version 1.6.1 to version 1.7.1.
+
 
