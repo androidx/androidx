@@ -7,7 +7,6 @@ import kotlin.Int
 import kotlin.Long
 import kotlin.String
 import kotlin.Suppress
-import kotlin.Unit
 import kotlin.collections.List
 import kotlin.jvm.JvmStatic
 
@@ -53,7 +52,7 @@ public class MyDao_Impl(
         }
     }
 
-    public override fun insertEntity(id: Long): Unit {
+    public override fun insertEntity(id: Long) {
         __db.assertNotSuspendingTransaction()
         val _stmt: SupportSQLiteStatement = __preparedStmtOfInsertEntity.acquire()
         var _argIndex: Int = 1
@@ -90,7 +89,7 @@ public class MyDao_Impl(
         }
     }
 
-    public override fun updateEntity(text: String): Unit {
+    public override fun updateEntity(text: String) {
         __db.assertNotSuspendingTransaction()
         val _stmt: SupportSQLiteStatement = __preparedStmtOfUpdateEntity.acquire()
         var _argIndex: Int = 1
@@ -129,7 +128,7 @@ public class MyDao_Impl(
         }
     }
 
-    public override fun deleteEntity(): Unit {
+    public override fun deleteEntity() {
         __db.assertNotSuspendingTransaction()
         val _stmt: SupportSQLiteStatement = __preparedStmtOfDeleteEntity.acquire()
         try {

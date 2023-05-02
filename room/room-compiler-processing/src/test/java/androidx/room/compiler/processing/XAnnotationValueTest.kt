@@ -1161,8 +1161,8 @@ class XAnnotationValueTest(
                 """.trimIndent()
             ) as Source.KotlinSource
         ) { invocation ->
-            val myEnumJTypeName = JClassName.get("", "test.MyEnum")
-            val myEnumKTypeName = KClassName("", "test.MyEnum")
+            val myEnumJTypeName = JClassName.get("test", "MyEnum")
+            val myEnumKTypeName = KClassName("test", "MyEnum")
 
             fun checkSingleValue(annotationValue: XAnnotationValue, expectedValue: String) {
                 assertThat(annotationValue.valueType.asTypeName().java)
@@ -1517,8 +1517,8 @@ class XAnnotationValueTest(
                 """.trimIndent()
             ) as Source.KotlinSource
         ) { invocation ->
-            val aJTypeName = JClassName.get("", "test.A")
-            val aKTypeName = KClassName("", "test.A")
+            val aJTypeName = JClassName.get("test", "A")
+            val aKTypeName = KClassName("test", "A")
 
             fun checkSingleValue(annotationValue: XAnnotationValue, expectedValue: String) {
                 assertThat(annotationValue.valueType.asTypeName().java)

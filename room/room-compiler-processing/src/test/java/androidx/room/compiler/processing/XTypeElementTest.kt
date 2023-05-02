@@ -27,7 +27,6 @@ import androidx.room.compiler.processing.util.XTestInvocation
 import androidx.room.compiler.processing.util.asKClassName
 import androidx.room.compiler.processing.util.asMutableKClassName
 import androidx.room.compiler.processing.util.compileFiles
-import androidx.room.compiler.processing.util.createXTypeVariableName
 import androidx.room.compiler.processing.util.getAllFieldNames
 import androidx.room.compiler.processing.util.getDeclaredField
 import androidx.room.compiler.processing.util.getField
@@ -539,7 +538,7 @@ class XTypeElementTest(
             }
 
             baseClass.getField("genericProp").let { field ->
-                assertThat(field.type.asTypeName()).isEqualTo(createXTypeVariableName("T"))
+                assertThat(field.type.asTypeName()).isEqualTo(XTypeName.getTypeVariableName("T"))
             }
 
             subClass.getField("genericProp").let { field ->
@@ -1910,26 +1909,26 @@ class XTypeElementTest(
                     method = method,
                     name = "method",
                     enclosingElement = abstractClass,
-                    returnType = createXTypeVariableName("T2"),
+                    returnType = XTypeName.getTypeVariableName("T2"),
                     parameterTypes = arrayOf(
-                        createXTypeVariableName("T1"),
-                        createXTypeVariableName("T2")
+                        XTypeName.getTypeVariableName("T1"),
+                        XTypeName.getTypeVariableName("T2")
                     )
                 )
                 checkMethodType(
                     methodType = method.executableType,
-                    returnType = createXTypeVariableName("T2"),
+                    returnType = XTypeName.getTypeVariableName("T2"),
                     parameterTypes = arrayOf(
-                        createXTypeVariableName("T1"),
-                        createXTypeVariableName("T2")
+                        XTypeName.getTypeVariableName("T1"),
+                        XTypeName.getTypeVariableName("T2")
                     )
                 )
                 checkMethodType(
                     methodType = method.asMemberOf(abstractClass.type),
-                    returnType = createXTypeVariableName("T2"),
+                    returnType = XTypeName.getTypeVariableName("T2"),
                     parameterTypes = arrayOf(
-                        createXTypeVariableName("T1"),
-                        createXTypeVariableName("T2")
+                        XTypeName.getTypeVariableName("T1"),
+                        XTypeName.getTypeVariableName("T2")
                     )
                 )
                 checkMethodType(
@@ -1982,26 +1981,26 @@ class XTypeElementTest(
                 method = abstractClassMethod,
                 name = "method",
                 enclosingElement = abstractClass,
-                returnType = createXTypeVariableName("T2"),
+                returnType = XTypeName.getTypeVariableName("T2"),
                 parameterTypes = arrayOf(
-                    createXTypeVariableName("T1"),
-                    createXTypeVariableName("T2")
+                    XTypeName.getTypeVariableName("T1"),
+                    XTypeName.getTypeVariableName("T2")
                 )
             )
             checkMethodType(
                 methodType = abstractClassMethod.executableType,
-                returnType = createXTypeVariableName("T2"),
+                returnType = XTypeName.getTypeVariableName("T2"),
                 parameterTypes = arrayOf(
-                    createXTypeVariableName("T1"),
-                    createXTypeVariableName("T2")
+                    XTypeName.getTypeVariableName("T1"),
+                    XTypeName.getTypeVariableName("T2")
                 )
             )
             checkMethodType(
                 methodType = abstractClassMethod.asMemberOf(abstractClass.type),
-                returnType = createXTypeVariableName("T2"),
+                returnType = XTypeName.getTypeVariableName("T2"),
                 parameterTypes = arrayOf(
-                    createXTypeVariableName("T1"),
-                    createXTypeVariableName("T2"),
+                    XTypeName.getTypeVariableName("T1"),
+                    XTypeName.getTypeVariableName("T2"),
                 )
             )
             checkMethodType(
@@ -2089,7 +2088,7 @@ class XTypeElementTest(
             checkConstructorParameters(
                 typeElement = abstractClass,
                 expectedParameters = arrayOf(
-                    createXTypeVariableName("T")
+                    XTypeName.getTypeVariableName("T")
                 )
             )
             checkConstructorParameters(

@@ -5,7 +5,6 @@ import com.mysdk.IUnitTransactionCallback
 import com.mysdk.PrivacySandboxThrowableParcelConverter.toThrowableParcel
 import com.mysdk.TransportCancellationCallback
 import kotlin.Int
-import kotlin.Unit
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -16,14 +15,14 @@ public class MyOtherPackageInterfaceStubDelegate internal constructor(
 ) : IMyOtherPackageInterface.Stub() {
   private val coroutineScope: CoroutineScope = CoroutineScope(Dispatchers.Main)
 
-  public override fun doStuff(x: Int): Unit {
+  public override fun doStuff(x: Int) {
     coroutineScope.launch {
       delegate.doStuff(x)
     }
   }
 
   public override fun useDataClass(x: ParcelableMyOtherPackageDataClass,
-      transactionCallback: IUnitTransactionCallback): Unit {
+      transactionCallback: IUnitTransactionCallback) {
     val job = coroutineScope.launch {
       try {
         delegate.useDataClass(MyOtherPackageDataClassConverter(context).fromParcelable(x))

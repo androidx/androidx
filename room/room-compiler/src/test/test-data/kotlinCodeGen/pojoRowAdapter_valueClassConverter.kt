@@ -15,7 +15,6 @@ import kotlin.Int
 import kotlin.Long
 import kotlin.String
 import kotlin.Suppress
-import kotlin.Unit
 import kotlin.collections.List
 import kotlin.jvm.JvmStatic
 
@@ -33,7 +32,7 @@ public class MyDao_Impl(
             public override fun createQuery(): String =
                 "INSERT OR ABORT INTO `MyEntity` (`pk`,`uuidData`,`nullableUuidData`,`nullableLongData`,`doubleNullableLongData`,`genericData`) VALUES (?,?,?,?,?,?)"
 
-            public override fun bind(statement: SupportSQLiteStatement, entity: MyEntity): Unit {
+            public override fun bind(statement: SupportSQLiteStatement, entity: MyEntity) {
                 val _data: Long = checkNotNull(entity.pk.data) {
                     "Cannot bind nullable value of inline class to a NOT NULL column." }
                 statement.bindLong(1, _data)
@@ -64,7 +63,7 @@ public class MyDao_Impl(
         }
     }
 
-    public override fun addEntity(item: MyEntity): Unit {
+    public override fun addEntity(item: MyEntity) {
         __db.assertNotSuspendingTransaction()
         __db.beginTransaction()
         try {

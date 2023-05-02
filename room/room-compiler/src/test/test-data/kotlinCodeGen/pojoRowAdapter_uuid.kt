@@ -14,7 +14,6 @@ import javax.`annotation`.processing.Generated
 import kotlin.Int
 import kotlin.String
 import kotlin.Suppress
-import kotlin.Unit
 import kotlin.collections.List
 import kotlin.jvm.JvmStatic
 
@@ -32,7 +31,7 @@ public class MyDao_Impl(
             public override fun createQuery(): String =
                 "INSERT OR ABORT INTO `MyEntity` (`pk`,`uuid`,`nullableUuid`) VALUES (?,?,?)"
 
-            public override fun bind(statement: SupportSQLiteStatement, entity: MyEntity): Unit {
+            public override fun bind(statement: SupportSQLiteStatement, entity: MyEntity) {
                 statement.bindLong(1, entity.pk.toLong())
                 statement.bindBlob(2, convertUUIDToByte(entity.uuid))
                 val _tmpNullableUuid: UUID? = entity.nullableUuid
@@ -45,7 +44,7 @@ public class MyDao_Impl(
         }
     }
 
-    public override fun addEntity(item: MyEntity): Unit {
+    public override fun addEntity(item: MyEntity) {
         __db.assertNotSuspendingTransaction()
         __db.beginTransaction()
         try {

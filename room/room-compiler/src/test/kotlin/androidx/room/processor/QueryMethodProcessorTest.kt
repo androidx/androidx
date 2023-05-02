@@ -335,7 +335,7 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
                 """
         ) { parsedQuery, invocation ->
             val expected = MUTABLE_LIST.parametrizedBy(
-                XClassName.get("", "T")
+                XTypeName.getTypeVariableName("T", listOf(XTypeName.ANY_OBJECT))
             )
             assertThat(parsedQuery.returnType.asTypeName(), `is`(expected))
             invocation.assertCompilationResult {

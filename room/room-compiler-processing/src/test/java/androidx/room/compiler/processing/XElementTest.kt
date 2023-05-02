@@ -30,7 +30,6 @@ import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
 import androidx.room.compiler.processing.util.asJClassName
 import androidx.room.compiler.processing.util.compileFiles
-import androidx.room.compiler.processing.util.createXTypeVariableName
 import androidx.room.compiler.processing.util.getField
 import androidx.room.compiler.processing.util.getMethodByJvmName
 import androidx.room.compiler.processing.util.getParameter
@@ -244,24 +243,24 @@ class XElementTest {
 
             validateMethodElement(
                 element = it.processingEnv.requireTypeElement("foo.bar.Base"),
-                tTypeName = createXTypeVariableName("T"),
-                rTypeName = createXTypeVariableName("R")
+                tTypeName = XTypeName.getTypeVariableName("T", listOf(XTypeName.ANY_OBJECT)),
+                rTypeName = XTypeName.getTypeVariableName("R", listOf(XTypeName.ANY_OBJECT))
             )
             validateMethodElement(
                 element = it.processingEnv.requireTypeElement("foo.bar.Child"),
-                tTypeName = createXTypeVariableName("T"),
-                rTypeName = createXTypeVariableName("R")
+                tTypeName = XTypeName.getTypeVariableName("T", listOf(XTypeName.ANY_OBJECT)),
+                rTypeName = XTypeName.getTypeVariableName("R", listOf(XTypeName.ANY_OBJECT))
             )
 
             validateMethodTypeAsMemberOf(
                 element = it.processingEnv.requireTypeElement("foo.bar.Base"),
-                tTypeName = createXTypeVariableName("T"),
-                rTypeName = createXTypeVariableName("R")
+                tTypeName = XTypeName.getTypeVariableName("T", listOf(XTypeName.ANY_OBJECT)),
+                rTypeName = XTypeName.getTypeVariableName("R", listOf(XTypeName.ANY_OBJECT))
             )
             validateMethodTypeAsMemberOf(
                 element = it.processingEnv.requireTypeElement("foo.bar.Child"),
                 tTypeName = String::class.asClassName(),
-                rTypeName = createXTypeVariableName("R")
+                rTypeName = XTypeName.getTypeVariableName("R", listOf(XTypeName.ANY_OBJECT))
             )
         }
     }

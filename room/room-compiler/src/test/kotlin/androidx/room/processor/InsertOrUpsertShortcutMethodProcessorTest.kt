@@ -400,7 +400,7 @@ abstract class InsertOrUpsertShortcutMethodProcessorTest <out T : InsertOrUpsert
             val param = insertionUpsertion.parameters.first()
             assertThat(param.type.asTypeName())
                 .isEqualTo(
-                    XClassName.get("foo.bar", "MyClass.MyList").parametrizedBy(
+                    XClassName.get("foo.bar", "MyClass", "MyList").parametrizedBy(
                         CommonTypeNames.STRING, USER_TYPE_NAME
                     )
                 )

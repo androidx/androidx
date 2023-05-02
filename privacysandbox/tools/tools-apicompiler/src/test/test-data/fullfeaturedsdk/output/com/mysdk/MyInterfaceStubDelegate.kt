@@ -1,10 +1,8 @@
 package com.mysdk
 
 import android.content.Context
-import com.mysdk.PrivacySandboxThrowableParcelConverter
 import com.mysdk.PrivacySandboxThrowableParcelConverter.toThrowableParcel
 import kotlin.Int
-import kotlin.Unit
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -16,7 +14,7 @@ public class MyInterfaceStubDelegate internal constructor(
   private val coroutineScope: CoroutineScope = CoroutineScope(Dispatchers.Main)
 
   public override fun doSomething(request: ParcelableRequest,
-      transactionCallback: IResponseTransactionCallback): Unit {
+      transactionCallback: IResponseTransactionCallback) {
     val job = coroutineScope.launch {
       try {
         val result = delegate.doSomething(RequestConverter(context).fromParcelable(request))
@@ -31,7 +29,7 @@ public class MyInterfaceStubDelegate internal constructor(
   }
 
   public override fun getMyInterface(input: IMyInterface,
-      transactionCallback: IMyInterfaceTransactionCallback): Unit {
+      transactionCallback: IMyInterfaceTransactionCallback) {
     val job = coroutineScope.launch {
       try {
         val result = delegate.getMyInterface((input as MyInterfaceStubDelegate).delegate)
@@ -46,7 +44,7 @@ public class MyInterfaceStubDelegate internal constructor(
   }
 
   public override fun getMySecondInterface(input: IMySecondInterface,
-      transactionCallback: IMySecondInterfaceTransactionCallback): Unit {
+      transactionCallback: IMySecondInterfaceTransactionCallback) {
     val job = coroutineScope.launch {
       try {
         val result = delegate.getMySecondInterface((input as
@@ -61,7 +59,7 @@ public class MyInterfaceStubDelegate internal constructor(
     transactionCallback.onCancellable(cancellationSignal)
   }
 
-  public override fun doMoreStuff(x: Int): Unit {
+  public override fun doMoreStuff(x: Int) {
     coroutineScope.launch {
       delegate.doMoreStuff(x)
     }

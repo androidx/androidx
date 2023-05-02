@@ -212,7 +212,7 @@ class PojoProcessorTest {
             assertThat(parent.field.name, `is`("myPoint"))
             assertThat(
                 parent.pojo.typeName,
-                `is`(XClassName.get("foo.bar.MyPojo", "Point"))
+                `is`(XClassName.get("foo.bar", "MyPojo", "Point"))
             )
         }
     }

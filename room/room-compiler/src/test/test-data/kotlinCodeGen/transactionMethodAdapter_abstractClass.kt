@@ -4,7 +4,6 @@ import java.lang.Class
 import javax.`annotation`.processing.Generated
 import kotlin.Long
 import kotlin.Suppress
-import kotlin.Unit
 import kotlin.collections.List
 import kotlin.jvm.JvmStatic
 
@@ -18,7 +17,7 @@ public class MyDao_Impl(
         this.__db = __db
     }
 
-    public override fun baseConcrete(): Unit {
+    public override fun baseConcrete() {
         __db.beginTransaction()
         try {
             super@MyDao_Impl.baseConcrete()
@@ -28,13 +27,13 @@ public class MyDao_Impl(
         }
     }
 
-    public override suspend fun baseSuspendConcrete(): Unit {
+    public override suspend fun baseSuspendConcrete() {
         __db.withTransaction {
             super@MyDao_Impl.baseSuspendConcrete()
         }
     }
 
-    public override fun concrete(): Unit {
+    public override fun concrete() {
         __db.beginTransaction()
         try {
             super@MyDao_Impl.concrete()
@@ -44,7 +43,7 @@ public class MyDao_Impl(
         }
     }
 
-    internal override fun concreteInternal(): Unit {
+    internal override fun concreteInternal() {
         __db.beginTransaction()
         try {
             super@MyDao_Impl.concreteInternal()
@@ -54,13 +53,13 @@ public class MyDao_Impl(
         }
     }
 
-    public override suspend fun suspendConcrete(): Unit {
+    public override suspend fun suspendConcrete() {
         __db.withTransaction {
             super@MyDao_Impl.suspendConcrete()
         }
     }
 
-    public override fun concreteWithVararg(vararg arr: Long): Unit {
+    public override fun concreteWithVararg(vararg arr: Long) {
         __db.beginTransaction()
         try {
             super@MyDao_Impl.concreteWithVararg(*arr)
@@ -70,7 +69,7 @@ public class MyDao_Impl(
         }
     }
 
-    public override suspend fun suspendConcreteWithVararg(vararg arr: Long): Unit {
+    public override suspend fun suspendConcreteWithVararg(vararg arr: Long) {
         __db.withTransaction {
             super@MyDao_Impl.suspendConcreteWithVararg(*arr)
         }
