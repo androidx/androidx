@@ -170,6 +170,13 @@ class CredentialProviderBeginSignInController(private val context: Context) :
                     callback.onError(e)
                 }
             }
+        } catch (t: Throwable) {
+            val e = GetCredentialUnknownException(t.message)
+            cancelOrCallbackExceptionOrResult(cancellationSignal) {
+                executor.execute {
+                    callback.onError(e)
+                }
+            }
         }
     }
 
@@ -188,13 +195,9 @@ class CredentialProviderBeginSignInController(private val context: Context) :
         } else if (response.googleIdToken != null) {
             cred = createGoogleIdCredential(response)
         } else if (response.publicKeyCredential != null) {
-            try {
-                cred = PublicKeyCredential(
-                    PublicKeyCredentialControllerUtility.toAssertPasskeyResponse(response)
-                )
-            } catch (t: Throwable) {
-                throw GetCredentialUnknownException(t.message)
-            }
+            cred = PublicKeyCredential(
+                PublicKeyCredentialControllerUtility.toAssertPasskeyResponse(response)
+            )
         } else {
             Log.w(TAG, "Credential returned but no google Id or password or passkey found")
         }
