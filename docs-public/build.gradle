@@ -272,7 +272,6 @@ dependencies {
     docs("androidx.print:print:1.1.0-beta01")
     docs("androidx.privacysandbox.ads:ads-adservices:1.0.0-beta03")
     docs("androidx.privacysandbox.ads:ads-adservices-java:1.0.0-beta03")
-    docs("androidx.privacysandbox.plugins:plugins-privacysandbox-library:1.0.0-alpha01")
     docs("androidx.privacysandbox.sdkruntime:sdkruntime-client:1.0.0-alpha03")
     docs("androidx.privacysandbox.sdkruntime:sdkruntime-core:1.0.0-alpha03")
     docs("androidx.privacysandbox.tools:tools:1.0.0-alpha03")
