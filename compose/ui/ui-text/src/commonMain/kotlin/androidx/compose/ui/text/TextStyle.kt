@@ -515,7 +515,8 @@ class TextStyle internal constructor(
     /**
      * Fast merge non-default values and parameters.
      *
-     * This is the same algorithm as [merge] but does not require allocating a [TextStyle] to call.
+     * This is the same algorithm as [merge] but does not require allocating it's parameter and may
+     * return this instead of allocating a result when all values are default.
      *
      * This is a similar algorithm to [copy] but when either this or a parameter are set to a
      * default value, the other value will take precedent.
@@ -535,7 +536,7 @@ class TextStyle internal constructor(
      * Example 3:
      * - this.color = [Color.Red]
      * - [color] = [Color.Blue]
-     * - result => [Color.Blue]]
+     * - result => [Color.Blue]
      *
      * You should _always_ use this method over the [merge]([TextStyle]) overload when you do not
      * already have a TextStyle allocated. You should chose this over [copy] when building a theming
