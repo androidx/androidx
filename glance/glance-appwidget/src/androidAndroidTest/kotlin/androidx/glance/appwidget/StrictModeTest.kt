@@ -63,8 +63,10 @@ class StrictModeTest {
             StrictMode.VmPolicy.Builder()
                 .detectAll()
                 .penaltyListener(executor) {
+                    Log.e("StrictModeTest", "Logging violation:")
+                    Log.e("StrictModeTest", "$it")
+                    Log.e("StrictModeTest", "Stack trace: ${it.stackTrace}", it.cause)
                     fail("Received violation: $it")
-                    Log.e("WIDGET", "$it")
                 }.build()
         )
     }
