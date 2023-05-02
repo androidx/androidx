@@ -28,6 +28,7 @@ import androidx.graphics.shapes.CornerRounding
 import androidx.graphics.shapes.CornerRounding.Companion.Unrounded
 import androidx.graphics.shapes.RoundedPolygon
 import androidx.graphics.shapes.circle
+import androidx.graphics.shapes.rectangle
 import androidx.graphics.shapes.star
 
 class ShapeActivity : Activity() {
@@ -70,8 +71,8 @@ class ShapeActivity : Activity() {
         shapes.add(RoundedPolygon.circle())
         //        "Squirrel" to DefaultShapes.fgSquircle(0.9f),
         shapes.add(RoundedPolygon(4))
-        //        "Squircle" to DefaultShapes.fgSquircle(0.7f),
-        shapes.add(RoundedPolygon(4))
+        //        Square, using rectangle function
+        shapes.add(RoundedPolygon.rectangle(width = 2f, height = 2f))
         //        "Scallop" to DefaultShapes.Scallop,
         shapes.add(MaterialShapes.scallop())
         //        "Clover" to DefaultShapes.Clover,
@@ -79,8 +80,8 @@ class ShapeActivity : Activity() {
 
         //        "Alice" to DefaultShapes.Alice,
         shapes.add(MaterialShapes.alice())
-        //        "Veronica" to DefaultShapes.Alice.rotate(TwoPI / 2),
-        shapes.add(RoundedPolygon(4))
+        //        Rectangle
+        shapes.add(RoundedPolygon.rectangle(width = 4f, height = 2f))
         //        "Wiggle-Star" to DefaultShapes.WiggleStar,
         shapes.add(MaterialShapes.wiggleStar())
         //        "Wovel" to DefaultShapes.Wovel,
@@ -92,12 +93,16 @@ class ShapeActivity : Activity() {
         shapes.add(blobR2)
         //        "More" to DefaultShapes.More,
         shapes.add(MaterialShapes.more())
-        //        "Less" to DefaultShapes.More.rotate(TwoPI / 2),
-        shapes.add(RoundedPolygon(4))
-        //        "CornerNE" to DefaultShapes.CornerSE.rotate(-TwoPI / 4),
-        shapes.add(RoundedPolygon(4))
-        //        "CornerNW" to DefaultShapes.CornerSE.rotate(TwoPI / 2),
-        shapes.add(RoundedPolygon(4))
+        //        Round Rect
+        shapes.add(RoundedPolygon.rectangle(width = 4f, height = 2f,
+            rounding = CornerRounding(1f)
+        ))
+        //        Round Rect (smoothed)
+        shapes.add(RoundedPolygon.rectangle(width = 4f, height = 2f,
+            rounding = CornerRounding(1f, .5f)))
+        //        Round Rect (smoothed more)
+        shapes.add(RoundedPolygon.rectangle(width = 4f, height = 2f,
+            rounding = CornerRounding(1f, 1f)))
 
         //        "CornerSW" to DefaultShapes.CornerSE.rotate(TwoPI / 4),
         shapes.add(RoundedPolygon(4))

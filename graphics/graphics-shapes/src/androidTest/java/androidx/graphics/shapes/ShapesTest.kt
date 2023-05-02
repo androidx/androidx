@@ -21,6 +21,7 @@ import androidx.core.graphics.minus
 import androidx.test.filters.SmallTest
 import kotlin.AssertionError
 import kotlin.math.sqrt
+import org.junit.Assert
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertThrows
 import org.junit.Test
@@ -90,8 +91,18 @@ class ShapesTest {
 
     @Test
     fun circleTest() {
+        Assert.assertThrows(IllegalArgumentException::class.java) {
+            RoundedPolygon.circle(2)
+        }
+
         val circle = RoundedPolygon.circle()
         assertCircleShape(circle.toCubicShape())
+
+        val simpleCircle = RoundedPolygon.circle(3)
+        assertCircleShape(simpleCircle.toCubicShape())
+
+        val complexCircle = RoundedPolygon.circle(20)
+        assertCircleShape(complexCircle.toCubicShape())
 
         val bigCircle = RoundedPolygon.circle(radius = 3f)
         assertCircleShape(bigCircle.toCubicShape(), radius = 3f)

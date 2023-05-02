@@ -22,6 +22,7 @@ import android.graphics.Paint
 import android.graphics.Path
 import android.graphics.PointF
 import android.graphics.RectF
+import androidx.annotation.IntRange
 import androidx.core.graphics.div
 import androidx.core.graphics.minus
 import androidx.core.graphics.plus
@@ -80,8 +81,8 @@ class RoundedPolygon {
      * Constructs a RoundedPolygon object from a given list of vertices, with optional
      * corner-rounding parameters for all corners or per-corner.
      *
-     * A RoundedPolygon without any rounding parameters is equivalent to a [RoundedPolygon] constructed
-     * with the same [vertices] and [center].
+     * A RoundedPolygon without any rounding parameters is equivalent to a [RoundedPolygon]
+     * constructed with the same [vertices] and [center].
      *
      * @param vertices The list of vertices in this polygon. This should be an ordered list
      * (with the outline of the shape going from each vertex to the next in order of this
@@ -99,6 +100,7 @@ class RoundedPolygon {
      *
      * @throws IllegalArgumentException If [perVertexRounding] is not null, it must be
      * the same size as the [vertices] list.
+     * @throws IllegalArgumentException [vertices] must have a size of at least three.
      */
     constructor(
         vertices: List<PointF>,
@@ -113,7 +115,11 @@ class RoundedPolygon {
     /**
      * This constructor takes the number of vertices in the resulting polygon. These vertices are
      * positioned on a virtual circle around a given center with each vertex positioned [radius]
-     * distance from that center, equally spaced (with equal angles between them).
+     * distance from that center, equally spaced (with equal angles between them). If no radius
+     * is supplied, the shape will be created with a default radius of 1, resulting in a shape
+     * whose vertices lie on a unit circle, with width/height of 2. That default polygon will
+     * probably need to be rescaled using [transform] into the appropriate size for the UI in
+     * which it will be drawn.
      *
      * The [rounding] and [perVertexRounding] parameters are optional. If not supplied, the result
      * will be a regular polygon with straight edges and unrounded corners.
@@ -135,9 +141,10 @@ class RoundedPolygon {
      *
      * @throws IllegalArgumentException If [perVertexRounding] is not null, it must have
      * [numVertices] elements.
+     * @throws IllegalArgumentException [numVertices] must be at least 3.
      */
     constructor(
-        numVertices: Int,
+        @IntRange(from = 3) numVertices: Int,
         radius: Float = 1f,
         center: PointF = PointF(0f, 0f),
         rounding: CornerRounding = CornerRounding.Unrounded,
@@ -189,6 +196,9 @@ class RoundedPolygon {
         rounding: CornerRounding = CornerRounding.Unrounded,
         perVertexRounding: List<CornerRounding>? = null
     ) {
+        if (vertices.size < 3) {
+            throw IllegalArgumentException("Polygons must have at least 3 vertices")
+        }
         if (perVertexRounding != null && perVertexRounding.size != vertices.size) {
             throw IllegalArgumentException("perVertexRounding list should be either null or " +
                     "the same size as the vertices list")
@@ -273,7 +283,22 @@ class RoundedPolygon {
         cubicShape.updateCubics(cubics)
     }
 
-    // Transforms as usual, plus the polygon's center
+    /**
+     * Transforms (scales, rotates, and translates) the polygon by the given matrix.
+     * Note that this operation alters the points in the polygon directly; the original
+     * points are not retained, nor is the matrix itself. Thus calling this function
+     * twice with the same matrix will composite the effect. For example, a matrix which
+     * scales by 2 will scale the polygon by 2. Calling transform twice with that matrix
+     * will have the effect os scaling the shape size by 4.
+     *
+     * Note that [RoundedPolygon] objects created with default radius and center values will
+     * probably need to be scaled and repositioned using [transform] to be displayed correctly
+     * in the UI. Polygons are created by default on the unit circle around a center
+     * of (0, 0), so the resulting geometry has a bounding box width and height of 2x2; It should
+     * be resized to fit where it will be displayed appropriately.
+     *
+     * @param matrix The matrix used to transform the polygon
+     */
     fun transform(matrix: Matrix) {
         cubicShape.transform(matrix)
         val point = scratchTransformPoint

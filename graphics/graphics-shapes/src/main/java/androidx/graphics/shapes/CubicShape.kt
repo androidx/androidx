@@ -81,7 +81,7 @@ class CubicShape internal constructor() {
     /**
      * Transforms (scales, rotates, and translates) the shape by the given matrix.
      * Note that this operation alters the points in the shape directly; the original
-     * points are not retained, nor is the matrix itself. This calling this function
+     * points are not retained, nor is the matrix itself. Thus calling this function
      * twice with the same matrix will composite the effect. For example, a matrix which
      * scales by 2 will scale the shape by 2. Calling transform twice with that matrix
      * will have the effect os scaling the shape size by 4.

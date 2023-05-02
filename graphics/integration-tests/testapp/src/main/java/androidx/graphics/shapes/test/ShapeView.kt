@@ -41,6 +41,7 @@ class ShapeView(context: Context, var shape: RoundedPolygon) : View(context) {
         val scaleFactor = min(scaleX, scaleY)
         return scaleFactor
     }
+
     private fun calculateMatrix(bounds: RectF): Matrix {
         val scale = calculateScale(bounds)
         val scaledLeft = scale * bounds.left
