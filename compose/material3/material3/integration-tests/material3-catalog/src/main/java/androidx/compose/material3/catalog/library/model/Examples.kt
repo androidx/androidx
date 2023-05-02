@@ -81,6 +81,7 @@ import androidx.compose.material3.samples.LargeFloatingActionButtonSample
 import androidx.compose.material3.samples.LeadingIconTabs
 import androidx.compose.material3.samples.LinearProgressIndicatorSample
 import androidx.compose.material3.samples.MenuSample
+import androidx.compose.material3.samples.MenuWithScrollStateSample
 import androidx.compose.material3.samples.ModalBottomSheetSample
 import androidx.compose.material3.samples.ModalNavigationDrawerSample
 import androidx.compose.material3.samples.NavigationBarItemWithBadge
@@ -616,6 +617,13 @@ val MenusExamples = listOf(
         sourceUrl = MenusExampleSourceUrl
     ) {
         MenuSample()
+    },
+    Example(
+        name = ::MenuWithScrollStateSample.name,
+        description = MenusExampleDescription,
+        sourceUrl = MenusExampleSourceUrl
+    ) {
+        MenuWithScrollStateSample()
     },
     Example(
         name = ::ExposedDropdownMenuSample.name,
