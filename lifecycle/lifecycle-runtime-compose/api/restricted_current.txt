@@ -8,6 +8,10 @@ package androidx.lifecycle.compose {
     method @androidx.compose.runtime.Composable public static <T> androidx.compose.runtime.State<T> collectAsStateWithLifecycle(kotlinx.coroutines.flow.Flow<? extends T>, T initialValue, androidx.lifecycle.Lifecycle lifecycle, optional androidx.lifecycle.Lifecycle.State minActiveState, optional kotlin.coroutines.CoroutineContext context);
   }
 
+  public final class LifecycleEffectKt {
+    method @androidx.compose.runtime.Composable public static void LifecycleEventEffect(androidx.lifecycle.Lifecycle.Event event, optional androidx.lifecycle.LifecycleOwner lifecycleOwner, kotlin.jvm.functions.Function0<kotlin.Unit> onEvent);
+  }
+
   public final class LifecycleExtKt {
     method @androidx.compose.runtime.Composable public static androidx.compose.runtime.State<androidx.lifecycle.Lifecycle.State> currentStateAsState(androidx.lifecycle.Lifecycle);
   }
