@@ -165,7 +165,7 @@ class PublicKeyCredentialControllerUtility {
             if (clientExtensionResults != null) {
                 try {
                     val uvmEntries = clientExtensionResults.uvmEntries
-                    val uvmEntriesList = uvmEntries.uvmEntryList
+                    val uvmEntriesList = uvmEntries?.uvmEntryList
                     if (uvmEntriesList != null) {
                         val uvmEntriesJSON = JSONArray()
                         for (entry in uvmEntriesList) {
@@ -239,27 +239,14 @@ class PublicKeyCredentialControllerUtility {
 
         /**
          * Converts from the Credential Manager public key credential option to the Play Auth
-         * Module passkey option.
+         * Module passkey json option.
          *
-         * @throws JSONException If rpId or challenge either do not
-         * exist or are empty in the initial request json
          */
-        fun convertToPlayAuthPasskeyRequest(request: GetPublicKeyCredentialOption):
-            BeginSignInRequest.PasskeysRequestOptions {
-            // TODO(b/262924507) : Make sure this is in compliance with w3 as impl continues
-            // TODO(b/262924507) : Improve codebase readability as done here
-            //  (readable error capture + docs/etc)
-            val json = JSONObject(request.requestJson)
-            val rpId = json.optString("rpId", "")
-            if (rpId.isEmpty()) {
-                throw JSONException("GetPublicKeyCredentialOption - rpId not specified in the " +
-                    "request or is unexpectedly empty")
-            }
-            val challenge = getChallenge(json)
-            return BeginSignInRequest.PasskeysRequestOptions.Builder()
+        fun convertToPlayAuthPasskeyJsonRequest(option: GetPublicKeyCredentialOption):
+            BeginSignInRequest.PasskeyJsonRequestOptions {
+            return BeginSignInRequest.PasskeyJsonRequestOptions.Builder()
                 .setSupported(true)
-                .setRpId(rpId)
-                .setChallenge(challenge)
+                .setRequestJson(option.requestJson)
                 .build()
         }
 

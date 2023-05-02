@@ -224,11 +224,11 @@ okio = { module = "com.squareup.okio:okio", version = "3.1.0" }
 opentest4j = { module = "org.opentest4j:opentest4j", version = "1.2.0" }
 playFeatureDelivery = { module = "com.google.android.play:feature-delivery", version = "2.0.1" }
 playCore = { module = "com.google.android.play:core", version = "1.10.3" }
-playServicesAuth = {module = "com.google.android.gms:play-services-auth", version = "20.4.0"}
+playServicesAuth = {module = "com.google.android.gms:play-services-auth", version = "20.5.0"}
 playServicesBase = { module = "com.google.android.gms:play-services-base", version = "17.0.0" }
 playServicesBasement = { module = "com.google.android.gms:play-services-basement", version = "17.0.0" }
 playServicesDevicePerformance = { module = "com.google.android.gms:play-services-deviceperformance", version = "16.0.0" }
-playServicesFido = {module = "com.google.android.gms:play-services-fido", version = "19.0.0"}
+playServicesFido = {module = "com.google.android.gms:play-services-fido", version = "20.0.1"}
 playServicesWearable = { module = "com.google.android.gms:play-services-wearable", version = "17.1.0" }
 paparazzi = { module = "app.cash.paparazzi:paparazzi", version.ref = "paparazzi" }
 paparazziNativeJvm = { module = "app.cash.paparazzi:layoutlib-native-jdk11", version.ref = "paparazziNative" }
