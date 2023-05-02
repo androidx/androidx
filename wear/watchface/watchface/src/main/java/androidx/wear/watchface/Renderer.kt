@@ -175,7 +175,7 @@ constructor(
 ) {
     /** The [SurfaceHolder] that [renderInternal] will draw into. */
     public var surfaceHolder: SurfaceHolder = surfaceHolder
-       protected set
+        protected set
 
     @OptIn(WatchFaceExperimental::class) private var pendingWatchFaceColors: WatchFaceColors? = null
     private var pendingWatchFaceColorsSet = false
@@ -379,7 +379,7 @@ constructor(
      * @param zonedDateTime The [ZonedDateTime] to use when rendering the watch face
      * @param renderParameters The [RenderParameters] to use when rendering the watch face
      * @param screenShotSurfaceHolder The [SurfaceHolder] containing the [Surface] to render into.
-     * This is assumed to have the same dimensions as the screen.
+     *   This is assumed to have the same dimensions as the screen.
      */
     @Suppress("HiddenAbstractMethod")
     @UiThread
@@ -1448,13 +1448,14 @@ constructor(
 
             runBlocking {
                 glContextLock.withLock {
-                    val tempEglSurface = EGL14.eglCreateWindowSurface(
-                        eglDisplay,
-                        eglConfig,
-                        surfaceHolder.surface,
-                        eglSurfaceAttribList,
-                        0
-                    )
+                    val tempEglSurface =
+                        EGL14.eglCreateWindowSurface(
+                            eglDisplay,
+                            eglConfig,
+                            surfaceHolder.surface,
+                            eglSurfaceAttribList,
+                            0
+                        )
 
                     if (
                         !EGL14.eglMakeCurrent(

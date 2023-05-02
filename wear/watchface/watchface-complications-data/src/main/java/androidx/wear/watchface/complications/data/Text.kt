@@ -516,6 +516,7 @@ private class DelegatingComplicationText(private val delegate: WireComplicationT
     override fun isPlaceholder(): Boolean = delegate.isPlaceholder()
 
     override fun isAlwaysEmpty() = delegate.isAlwaysEmpty
+
     override fun getTimeDependentText(): TimeDependentText = delegate.timeDependentText
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) override fun toWireComplicationText() = delegate

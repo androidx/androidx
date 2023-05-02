@@ -48,12 +48,15 @@ class ImmediateDataSourceService : ComplicationDataSourceService() {
                             ComplicationText.EMPTY
                         )
                         .build()
-                ComplicationType.MONOCHROMATIC_IMAGE -> MonochromaticImageComplicationData.Builder(
-                    MonochromaticImage.Builder(
-                        Icon.createWithResource(this, R.drawable.heart)
-                    ).build(),
-                    ComplicationText.EMPTY
-                ).build()
+                ComplicationType.MONOCHROMATIC_IMAGE ->
+                    MonochromaticImageComplicationData.Builder(
+                            MonochromaticImage.Builder(
+                                    Icon.createWithResource(this, R.drawable.heart)
+                                )
+                                .build(),
+                            ComplicationText.EMPTY
+                        )
+                        .build()
                 else -> null
             }
         )
@@ -67,12 +70,13 @@ class ImmediateDataSourceService : ComplicationDataSourceService() {
             ComplicationType.LONG_TEXT ->
                 LongTextComplicationData.Builder(plainText("hello 123"), ComplicationText.EMPTY)
                     .build()
-            ComplicationType.MONOCHROMATIC_IMAGE -> MonochromaticImageComplicationData.Builder(
-                MonochromaticImage.Builder(
-                    Icon.createWithResource(this, R.drawable.heart)
-                ).build(),
-                ComplicationText.EMPTY
-            ).build()
+            ComplicationType.MONOCHROMATIC_IMAGE ->
+                MonochromaticImageComplicationData.Builder(
+                        MonochromaticImage.Builder(Icon.createWithResource(this, R.drawable.heart))
+                            .build(),
+                        ComplicationText.EMPTY
+                    )
+                    .build()
             else -> null
         }
 }
