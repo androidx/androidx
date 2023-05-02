@@ -26,7 +26,6 @@ import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.annotation.UiContext
 import androidx.core.view.WindowInsetsCompat
-import androidx.window.core.ExperimentalWindowApi
 
 /**
  * An interface to calculate the [WindowMetrics] for an [Activity] or a [UiContext].
@@ -131,14 +130,12 @@ interface WindowMetricsCalculator {
             return decorator(WindowMetricsCalculatorCompat)
         }
 
-        @ExperimentalWindowApi
         @JvmStatic
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         fun overrideDecorator(overridingDecorator: WindowMetricsCalculatorDecorator) {
             decorator = overridingDecorator::decorate
         }
 
-        @ExperimentalWindowApi
         @JvmStatic
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         fun reset() {
@@ -159,7 +156,6 @@ interface WindowMetricsCalculator {
     }
 }
 
-@ExperimentalWindowApi
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 interface WindowMetricsCalculatorDecorator {
 

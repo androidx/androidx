@@ -20,6 +20,11 @@ package androidx.window.testing.layout {
     method public static androidx.window.layout.FoldingFeature createFoldingFeature(android.app.Activity activity, optional int center, optional int size);
     method public static androidx.window.layout.FoldingFeature createFoldingFeature(android.app.Activity activity, optional int center);
     method public static androidx.window.layout.FoldingFeature createFoldingFeature(android.app.Activity activity);
+    method public static androidx.window.layout.FoldingFeature createFoldingFeature(android.graphics.Rect windowBounds, optional int center, optional int size, optional androidx.window.layout.FoldingFeature.State state, optional androidx.window.layout.FoldingFeature.Orientation orientation);
+    method public static androidx.window.layout.FoldingFeature createFoldingFeature(android.graphics.Rect windowBounds, optional int center, optional int size, optional androidx.window.layout.FoldingFeature.State state);
+    method public static androidx.window.layout.FoldingFeature createFoldingFeature(android.graphics.Rect windowBounds, optional int center, optional int size);
+    method public static androidx.window.layout.FoldingFeature createFoldingFeature(android.graphics.Rect windowBounds, optional int center);
+    method public static androidx.window.layout.FoldingFeature createFoldingFeature(android.graphics.Rect windowBounds);
   }
 
   public final class WindowLayoutInfoPublisherRule implements org.junit.rules.TestRule {
@@ -31,6 +36,11 @@ package androidx.window.testing.layout {
   public final class WindowLayoutInfoTesting {
     method public static androidx.window.layout.WindowLayoutInfo createWindowLayoutInfo(optional java.util.List<? extends androidx.window.layout.DisplayFeature> displayFeatures);
     method public static androidx.window.layout.WindowLayoutInfo createWindowLayoutInfo();
+  }
+
+  public final class WindowMetricsCalculatorRule implements org.junit.rules.TestRule {
+    ctor public WindowMetricsCalculatorRule();
+    method public org.junit.runners.model.Statement apply(org.junit.runners.model.Statement base, org.junit.runner.Description description);
   }
 
 }

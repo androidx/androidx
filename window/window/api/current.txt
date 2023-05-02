@@ -406,6 +406,7 @@ package androidx.window.layout {
 
   public interface WindowInfoTracker {
     method public default static androidx.window.layout.WindowInfoTracker getOrCreate(android.content.Context context);
+    method public default kotlinx.coroutines.flow.Flow<androidx.window.layout.WindowLayoutInfo> windowLayoutInfo(@UiContext android.content.Context context);
     method public kotlinx.coroutines.flow.Flow<androidx.window.layout.WindowLayoutInfo> windowLayoutInfo(android.app.Activity activity);
     field public static final androidx.window.layout.WindowInfoTracker.Companion Companion;
   }

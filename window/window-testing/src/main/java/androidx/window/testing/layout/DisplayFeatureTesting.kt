@@ -19,7 +19,6 @@ package androidx.window.testing.layout
 
 import android.app.Activity
 import android.graphics.Rect
-import androidx.window.core.ExperimentalWindowApi
 import androidx.window.layout.FoldingFeature
 import androidx.window.layout.FoldingFeature.OcclusionType.Companion.FULL
 import androidx.window.layout.FoldingFeature.OcclusionType.Companion.NONE
@@ -96,7 +95,6 @@ fun FoldingFeature(
  */
 @JvmOverloads
 @JvmName("createFoldingFeature")
-@ExperimentalWindowApi
 fun FoldingFeature(
     windowBounds: Rect,
     center: Int = -1,

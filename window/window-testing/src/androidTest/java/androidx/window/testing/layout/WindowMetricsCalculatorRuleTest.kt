@@ -23,7 +23,6 @@ import android.view.WindowManager
 import androidx.annotation.RequiresApi
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.rules.ActivityScenarioRule
-import androidx.window.core.ExperimentalWindowApi
 import androidx.window.layout.WindowMetricsCalculator
 import androidx.window.testing.TestActivity
 import org.junit.Assert.assertEquals
@@ -35,19 +34,18 @@ import org.junit.runner.Description
 import org.junit.runners.model.Statement
 
 /**
- * A test class for [StubWindowMetricsCalculatorRule] that tests using
+ * A test class for [WindowMetricsCalculatorRule] that tests using
  * [StubWindowMetricsCalculator] instead of the actual implementation.
  */
-@OptIn(ExperimentalWindowApi::class)
-class StubWindowMetricsCalculatorRuleTest {
+class WindowMetricsCalculatorRuleTest {
     private val activityRule = ActivityScenarioRule(TestActivity::class.java)
-    private val stubWindowMetricsCalculatorRule = StubWindowMetricsCalculatorRule()
+    private val mWindowMetricsCalculatorRule = WindowMetricsCalculatorRule()
 
     @get:Rule
     val testRule: TestRule
 
     init {
-        testRule = RuleChain.outerRule(stubWindowMetricsCalculatorRule).around(activityRule)
+        testRule = RuleChain.outerRule(mWindowMetricsCalculatorRule).around(activityRule)
     }
 
     @Test
@@ -166,7 +164,7 @@ class StubWindowMetricsCalculatorRuleTest {
             WindowMetricsCalculator.reset()
             val expected = WindowMetricsCalculator.getOrCreate()
             try {
-                StubWindowMetricsCalculatorRule().apply(
+                WindowMetricsCalculatorRule().apply(
                     object : Statement() {
                         override fun evaluate() {
                             throw TestException
