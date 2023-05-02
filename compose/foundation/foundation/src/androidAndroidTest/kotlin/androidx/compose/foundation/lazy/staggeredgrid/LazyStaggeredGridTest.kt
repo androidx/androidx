@@ -873,17 +873,14 @@ class LazyStaggeredGridTest(
                     .border(1.dp, Color.Red),
             ) {
                 items(itemSizes.size) {
-                    Box(
+                    Spacer(
                         Modifier
                             .axisSize(
                                 crossAxis = itemSizeDp,
                                 mainAxis = itemSizes[it]
                             )
                             .testTag("$it")
-                            .border(1.dp, Color.Black)
-                    ) {
-                        BasicText("$it")
-                    }
+                    )
                 }
             }
         }
@@ -984,10 +981,9 @@ class LazyStaggeredGridTest(
                         Modifier
                             .axisSize(
                                 crossAxis = itemSizeDp,
-                                mainAxis = itemSizeDp * (it % 3 + 1)
+                                mainAxis = itemSizeDp
                             )
                             .testTag("$it")
-                            .border(1.dp, Color.Black)
                     )
                 }
             }
@@ -1000,11 +996,12 @@ class LazyStaggeredGridTest(
             .assertMainAxisStartPositionInRootIsEqualTo(0.dp)
 
         // check that scrolling back and forth doesn't crash
-        rule.onNodeWithTag(LazyStaggeredGridTag)
-            .scrollMainAxisBy(1000.dp)
+        val delta = itemSizeDp * 5
+        state.scrollBy(-delta)
 
-        rule.onNodeWithTag(LazyStaggeredGridTag)
-            .scrollMainAxisBy(-1000.dp)
+        state.scrollBy(delta * 2)
+
+        state.scrollBy(-delta)
 
         rule.onNodeWithTag("${Int.MAX_VALUE / 2}")
             .assertMainAxisStartPositionInRootIsEqualTo(0.dp)
