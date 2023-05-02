@@ -17,6 +17,7 @@
 package androidx.window.embedding
 
 import android.app.Activity
+import androidx.annotation.VisibleForTesting
 import androidx.window.core.ConsumerAdapter
 import androidx.window.core.ExtensionsUtil
 import androidx.window.extensions.WindowExtensions
@@ -26,9 +27,8 @@ import androidx.window.extensions.embedding.ActivityEmbeddingComponent
 import androidx.window.reflection.ReflectionUtils.doesReturn
 import androidx.window.reflection.ReflectionUtils.isPublic
 import androidx.window.reflection.ReflectionUtils.validateReflection
+import androidx.window.SafeWindowExtensionsProvider
 import androidx.window.reflection.WindowExtensionsConstants.ACTIVITY_EMBEDDING_COMPONENT_CLASS
-import androidx.window.reflection.WindowExtensionsConstants.WINDOW_EXTENSIONS_CLASS
-import androidx.window.reflection.WindowExtensionsConstants.WINDOW_EXTENSIONS_PROVIDER_CLASS
 
 /**
  * Reflection Guard for [ActivityEmbeddingComponent].
@@ -40,6 +40,8 @@ internal class SafeActivityEmbeddingComponentProvider(
     private val consumerAdapter: ConsumerAdapter,
     private val windowExtensions: WindowExtensions
 ) {
+    private val safeWindowExtensionsProvider = SafeWindowExtensionsProvider(loader)
+
     val activityEmbeddingComponent: ActivityEmbeddingComponent?
         get() {
             return if (canUseActivityEmbeddingComponent()) {
@@ -54,7 +56,7 @@ internal class SafeActivityEmbeddingComponentProvider(
         }
 
     private fun canUseActivityEmbeddingComponent(): Boolean {
-        if (!isWindowExtensionsValid() || !isActivityEmbeddingComponentValid()) {
+        if (!isActivityEmbeddingComponentAccessible()) {
             return false
         }
         // TODO(b/267573854) : update logic to fallback to lower version
@@ -67,6 +69,11 @@ internal class SafeActivityEmbeddingComponentProvider(
         }
     }
 
+    @VisibleForTesting
+    internal fun isActivityEmbeddingComponentAccessible(): Boolean =
+        safeWindowExtensionsProvider.isWindowExtensionsValid() &&
+            isActivityEmbeddingComponentValid()
+
     /**
      * [WindowExtensions.VENDOR_API_LEVEL_1] includes the following methods:
      *  - [ActivityEmbeddingComponent.setEmbeddingRules]
@@ -78,7 +85,8 @@ internal class SafeActivityEmbeddingComponentProvider(
      *  - [androidx.window.extensions.embedding.SplitPlaceholderRule]
      *  - [androidx.window.extensions.embedding.SplitInfo]
      */
-    private fun hasValidVendorApiLevel1(): Boolean {
+    @VisibleForTesting
+    internal fun hasValidVendorApiLevel1(): Boolean {
         return isMethodSetEmbeddingRulesValid() &&
             isMethodIsActivityEmbeddedValid() &&
             isMethodSetSplitInfoCallbackJavaConsumerValid()
@@ -93,7 +101,8 @@ internal class SafeActivityEmbeddingComponentProvider(
      * and following classes: TODO(b/268583307) : add guard function for those classes
      *  - [androidx.window.extensions.embedding.SplitAttributes]
      */
-    private fun hasValidVendorApiLevel2(): Boolean {
+    @VisibleForTesting
+    internal fun hasValidVendorApiLevel2(): Boolean {
         return hasValidVendorApiLevel1() &&
             isMethodSetSplitInfoCallbackWindowConsumerValid() &&
             isMethodClearSplitInfoCallbackValid() &&
@@ -166,20 +175,9 @@ internal class SafeActivityEmbeddingComponentProvider(
         }
     }
 
-    private fun isWindowExtensionsValid(): Boolean {
-        return validateReflection("WindowExtensionsProvider#getWindowExtensions is not valid") {
-            val providerClass = windowExtensionsProviderClass
-            val getWindowExtensionsMethod = providerClass.getDeclaredMethod("getWindowExtensions")
-            val windowExtensionsClass = windowExtensionsClass
-            getWindowExtensionsMethod.isPublic && getWindowExtensionsMethod.doesReturn(
-                windowExtensionsClass
-            )
-        }
-    }
-
     private fun isActivityEmbeddingComponentValid(): Boolean {
         return validateReflection("WindowExtensions#getActivityEmbeddingComponent is not valid") {
-            val extensionsClass = windowExtensionsClass
+            val extensionsClass = safeWindowExtensionsProvider.windowExtensionsClass
             val getActivityEmbeddingComponentMethod =
                 extensionsClass.getMethod("getActivityEmbeddingComponent")
             val activityEmbeddingComponentClass = activityEmbeddingComponentClass
@@ -187,16 +185,6 @@ internal class SafeActivityEmbeddingComponentProvider(
                 getActivityEmbeddingComponentMethod.doesReturn(activityEmbeddingComponentClass)
         }
     }
-
-    private val windowExtensionsProviderClass: Class<*>
-        get() {
-            return loader.loadClass(WINDOW_EXTENSIONS_PROVIDER_CLASS)
-        }
-
-    private val windowExtensionsClass: Class<*>
-        get() {
-            return loader.loadClass(WINDOW_EXTENSIONS_CLASS)
-        }
 
     private val activityEmbeddingComponentClass: Class<*>
         get() {
