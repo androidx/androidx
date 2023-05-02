@@ -26,6 +26,7 @@ import static org.junit.Assert.assertTrue;
 
 import android.graphics.Point;
 import android.graphics.Rect;
+import android.view.Display;
 import android.view.ViewConfiguration;
 import android.view.accessibility.AccessibilityEvent;
 
@@ -338,6 +339,14 @@ public class UiObject2Test extends BaseTest {
 
         assertNull(hintNotSetObj.getHint());
         assertEquals("sample_hint", hintSetObj.getHint());
+    }
+
+    @Test
+    public void testGetDisplayId() {
+        launchTestActivity(MainActivity.class);
+
+        UiObject2 button = mDevice.findObject(By.res(TEST_APP, "button"));
+        assertEquals(Display.DEFAULT_DISPLAY, button.getDisplayId());
     }
 
     @Test
