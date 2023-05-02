@@ -47,11 +47,15 @@ dependencies {
 androidx {
     name = "Slice builders KTX"
     publish = Publish.SNAPSHOT_ONLY // Library is deprecated pending removal.
-    disableDeviceTests = true // Pending removal, don't run tests.
     runApiTasks = new RunApiTasks.Yes() // Pending removal, but keep API files for now.
     mavenVersion = LibraryVersions.SLICE_BUILDERS_KTX
     inceptionYear = "2018"
     description = "A set of Kotlin extension methods built on top of slice-builders APIs."
     failOnDeprecationWarnings = false
     legacyDisableKotlinStrictApiMode = true
+
+    deviceTests {
+        // Pending removal, don't run tests.
+        enabled = false
+    }
 }

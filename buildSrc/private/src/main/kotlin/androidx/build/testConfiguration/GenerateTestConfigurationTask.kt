@@ -19,10 +19,13 @@ package androidx.build.testConfiguration
 import androidx.build.dependencyTracker.ProjectSubset
 import com.android.build.api.variant.BuiltArtifactsLoader
 import java.io.File
+import javax.inject.Inject
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
+import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.RegularFileProperty
+import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
@@ -42,12 +45,18 @@ import org.gradle.work.DisableCachingByDefault
  * This config gets ingested by Tradefed.
  */
 @DisableCachingByDefault(because = "Doesn't benefit from caching")
-abstract class GenerateTestConfigurationTask : DefaultTask() {
+abstract class GenerateTestConfigurationTask @Inject constructor(
+    private val objects: ObjectFactory
+) : DefaultTask() {
 
     @get:InputFiles
     @get:Optional
     @get:PathSensitive(PathSensitivity.RELATIVE)
     abstract val appFolder: DirectoryProperty
+
+    @get:InputFiles
+    @get:PathSensitive(PathSensitivity.RELATIVE)
+    abstract val appFileCollection: ConfigurableFileCollection
 
     @get:Internal
     abstract val appLoader: Property<BuiltArtifactsLoader>
@@ -129,7 +138,20 @@ abstract class GenerateTestConfigurationTask : DefaultTask() {
         val configBuilder = ConfigBuilder()
         configBuilder.configName = outputFile.asFile.get().name
         if (appLoader.isPresent) {
-            val appApk = appLoader.get().load(appFolder.get())
+
+            // Decides where to load the app apk from, depending on whether appFolder or
+            // appFileCollection has been set.
+            val appDir = if (appFolder.isPresent && appFileCollection.files.isEmpty()) {
+                appFolder.get()
+            } else if (!appFolder.isPresent && appFileCollection.files.size == 1) {
+                objects.directoryProperty().also { it.set(appFileCollection.files.first()) }.get()
+            } else {
+                throw IllegalStateException("""
+                    App apk not specified or both appFileCollection and appFolder specified.
+                """.trimIndent())
+            }
+
+            val appApk = appLoader.get().load(appDir)
                 ?: throw RuntimeException("Cannot load required APK for task: $name")
             // We don't need to check hasBenchmarkPlugin because benchmarks shouldn't have test apps
             val appApkBuiltArtifact = appApk.elements.single()

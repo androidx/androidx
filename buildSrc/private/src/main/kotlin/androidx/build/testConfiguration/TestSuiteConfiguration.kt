@@ -35,27 +35,31 @@ import com.android.build.api.artifact.SingleArtifact
 import com.android.build.api.variant.AndroidComponentsExtension
 import com.android.build.api.variant.ApplicationAndroidComponentsExtension
 import com.android.build.api.variant.HasAndroidTest
+import com.android.build.api.variant.LibraryAndroidComponentsExtension
+import com.android.build.api.variant.TestAndroidComponentsExtension
+import com.android.build.api.variant.Variant
 import com.android.build.gradle.BaseExtension
 import java.io.File
 import org.gradle.api.Project
-import org.gradle.api.UnknownTaskException
+import com.android.build.gradle.TestExtension
+import com.android.build.gradle.internal.attributes.VariantAttr
+import com.android.build.gradle.internal.publishing.AndroidArtifacts
+import com.android.build.gradle.internal.publishing.AndroidArtifacts.ArtifactType
+import org.gradle.api.attributes.Usage
 import org.gradle.api.tasks.TaskProvider
 import org.gradle.kotlin.dsl.getByType
+import org.gradle.kotlin.dsl.named
 
 /**
  * Creates and configures the test config generation task for a project. Configuration includes
  * populating the task with relevant data from the first 4 params, and setting whether the task
  * is enabled.
- *
- * @param overrideProject Allows the config task for one project to get registered to an
- * alternative project. Default is for the project to register the new config task to itself
  */
 fun Project.createTestConfigurationGenerationTask(
     variantName: String,
     artifacts: Artifacts,
     minSdk: Int,
     testRunner: String,
-    overrideProject: Project = this
 ) {
     val xmlName = "${path.asFilenamePrefix()}$variantName.xml"
     val jsonName = "_${path.asFilenamePrefix()}$variantName.json"
@@ -68,7 +72,7 @@ fun Project.createTestConfigurationGenerationTask(
             )
         )
     }
-    val generateTestConfigurationTask = overrideProject.tasks.register(
+    val generateTestConfigurationTask = tasks.register(
         "${AndroidXImplPlugin.GENERATE_TEST_CONFIGURATION_TASK}$variantName",
         GenerateTestConfigurationTask::class.java
     ) { task ->
@@ -114,7 +118,7 @@ fun Project.createTestConfigurationGenerationTask(
     afterEvaluate {
         val androidXExtension = extensions.getByType<AndroidXExtension>()
         generateTestConfigurationTask.configure {
-            it.enabled = hasAndroidTestSourceCode() && !androidXExtension.disableDeviceTests
+            it.enabled = androidXExtension.deviceTests.enabled && hasAndroidTestSourceCode()
         }
     }
     this.rootProject.tasks.findByName(ZIP_TEST_CONFIGS_WITH_APKS_TASK)!!
@@ -128,76 +132,143 @@ fun Project.createTestConfigurationGenerationTask(
  * there is a test app in addition to the instrumentation app, and the only thing it configures is
  * the location of the testapp.
  */
-fun Project.addAppApkToTestConfigGeneration() {
-    if (isMacrobenchmarkTarget()) {
-        extensions.getByType<ApplicationAndroidComponentsExtension>().apply {
-            onVariants(selector().withBuildType("release")) { appVariant ->
-                getOrCreateMacrobenchmarkConfigTask().configure { configTask ->
-                    configTask.appFolder.set(appVariant.artifacts.get(SingleArtifact.APK))
-                    configTask.appLoader.set(appVariant.artifacts.getBuiltArtifactsLoader())
-                    configTask.outputAppApk.set(
-                        File(
-                            getTestConfigDirectory(),
-                            "${path.asFilenamePrefix()}-${appVariant.name}.apk"
-                        )
-                    )
-                    configTask.constrainedOutputAppApk.set(
-                        File(
-                            getConstrainedTestConfigDirectory(),
-                            "${path.asFilenamePrefix()}-${appVariant.name}.apk"
-                        )
-                    )
-                }
-                if (path == ":benchmark:integration-tests:macrobenchmark-target") {
-                    // Ugly workaround for b/188699825 where we hardcode that
-                    // :benchmark:integration-tests:macrobenchmark-target needs to be installed
-                    // for :benchmark:benchmark-macro tests to work.
-                    project(MACRO_PROJECT).tasks.withType(
-                        GenerateTestConfigurationTask::class.java
-                    ).named(
-                        "${AndroidXImplPlugin.GENERATE_TEST_CONFIGURATION_TASK}debugAndroidTest"
-                    ).configure { configTask ->
-                        configTask.appFolder.set(appVariant.artifacts.get(SingleArtifact.APK))
-                        configTask.appLoader.set(appVariant.artifacts.getBuiltArtifactsLoader())
-                        configTask.outputAppApk.set(
-                            File(
-                                getTestConfigDirectory(),
-                                "${MACRO_PROJECT.asFilenamePrefix()}-${appVariant.name}.apk"
-                            )
-                        )
-                        configTask.constrainedOutputAppApk.set(
-                            File(
-                                getConstrainedTestConfigDirectory(),
-                                "${MACRO_PROJECT.asFilenamePrefix()}-${appVariant.name}.apk"
-                            )
-                        )
-                    }
-                }
-            }
+fun Project.addAppApkToTestConfigGeneration(androidXExtension: AndroidXExtension) {
+
+    fun outputAppApkFile(
+        variant: Variant,
+        appProjectPath: String,
+        instrumentationProjectPath: String?
+    ): File {
+        var filename = appProjectPath.asFilenamePrefix()
+        if (instrumentationProjectPath != null) {
+            filename += "_for_${instrumentationProjectPath.asFilenamePrefix()}"
         }
-        return
+        filename += "-${variant.name}.apk"
+        return File(getTestConfigDirectory(), filename)
+    }
+    fun constrainedOutputAppApkFile(
+        variant: Variant,
+        path: String,
+        instrumentationPath: String?
+    ): File {
+        var filename = path.asFilenamePrefix()
+        if (instrumentationPath != null) {
+            filename += "-for-${instrumentationPath.asFilenamePrefix()}"
+        }
+        filename += "-${variant.name}.apk"
+        return File(getConstrainedTestConfigDirectory(), filename)
     }
 
-    extensions.getByType<ApplicationAndroidComponentsExtension>().apply {
-        onVariants(selector().withBuildType("debug")) { appVariant ->
+    // For application modules, the instrumentation apk is generated in the module itself
+    extensions.findByType(ApplicationAndroidComponentsExtension::class.java)?.apply {
+        onVariants(selector().withBuildType("debug")) { variant ->
             tasks.named(
-                AndroidXImplPlugin.GENERATE_TEST_CONFIGURATION_TASK +
-                    "${appVariant.name}AndroidTest"
-            ) { configTask ->
-                configTask as GenerateTestConfigurationTask
-                configTask.appFolder.set(appVariant.artifacts.get(SingleArtifact.APK))
-                configTask.appLoader.set(appVariant.artifacts.getBuiltArtifactsLoader())
-                configTask.outputAppApk.set(
-                    File(
-                        getTestConfigDirectory(),
-                        "${path.asFilenamePrefix()}-${appVariant.name}.apk"
-                    )
+                "${AndroidXImplPlugin.GENERATE_TEST_CONFIGURATION_TASK}${variant.name}AndroidTest",
+                GenerateTestConfigurationTask::class.java
+            ) { task ->
+                task.appFolder.set(variant.artifacts.get(SingleArtifact.APK))
+                task.appLoader.set(variant.artifacts.getBuiltArtifactsLoader())
+
+                // The target project is the same being evaluated
+                task.outputAppApk.set(outputAppApkFile(variant, path, null))
+                task.constrainedOutputAppApk.set(constrainedOutputAppApkFile(variant, path, null))
+            }
+        }
+    }
+
+    // For tests modules, the instrumentation apk is pulled from the <variant>TestedApks
+    // configuration. Note that also the associated test configuration task name is different
+    // from the application one.
+    extensions.findByType(TestAndroidComponentsExtension::class.java)?.apply {
+        onVariants(selector().all()) { variant ->
+            tasks.named(
+                "${AndroidXImplPlugin.GENERATE_TEST_CONFIGURATION_TASK}${variant.name}",
+                GenerateTestConfigurationTask::class.java
+            ) { task ->
+                task.appLoader.set(
+                    variant.artifacts.getBuiltArtifactsLoader()
                 )
-                configTask.constrainedOutputAppApk.set(
-                    File(
-                        getConstrainedTestConfigDirectory(),
-                        "${path.asFilenamePrefix()}-${appVariant.name}.apk"
-                    )
+
+                // The target app path is defined in the targetProjectPath field in the android
+                // extension of the test module
+                val targetProjectPath = project
+                    .extensions
+                    .getByType(TestExtension::class.java)
+                    .targetProjectPath
+                    ?: throw IllegalStateException("""
+                        Module `$path` does not have a targetProjectPath defined.
+                    """.trimIndent())
+                task.outputAppApk.set(
+                    outputAppApkFile(variant, targetProjectPath, path)
+                )
+                task.constrainedOutputAppApk.set(
+                    constrainedOutputAppApkFile(variant, targetProjectPath, path)
+                )
+
+                task.appFileCollection.from(
+                    configurations
+                        .named("${variant.name}TestedApks")
+                        .get()
+                        .incoming
+                        .artifactView {
+                            it.attributes { container ->
+                                container.attribute(
+                                    AndroidArtifacts.ARTIFACT_TYPE,
+                                    ArtifactType.APK.type
+                                )
+                            }
+                        }
+                        .files
+                )
+            }
+        }
+    }
+
+    // For library modules we only look at the build type debug. The target app project can be
+    // specified through the androidX extension, through: targetAppProjectForInstrumentationTest
+    // and targetAppProjectVariantForInstrumentationTest.
+    extensions.findByType(LibraryAndroidComponentsExtension::class.java)?.apply {
+        onVariants(selector().withBuildType("debug")) { variant ->
+
+            val targetAppProject =
+                androidXExtension.deviceTests.targetAppProject ?: return@onVariants
+            val targetAppProjectVariant =
+                androidXExtension.deviceTests.targetAppVariant
+
+            // Recreate the same configuration existing for test modules to pull the artifact
+            // from the application module specified in the deviceTests extension.
+            val configuration = configurations.create("${variant.name}TestedApks") { config ->
+                config.isCanBeResolved = true
+                config.isCanBeConsumed = false
+                config.attributes {
+                    it.attribute(VariantAttr.ATTRIBUTE, objects.named(targetAppProjectVariant))
+                    it.attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage.JAVA_RUNTIME))
+                }
+                config
+                    .dependencies
+                    .add(project.dependencyFactory.create(targetAppProject))
+            }
+
+            tasks.named(
+                "${AndroidXImplPlugin.GENERATE_TEST_CONFIGURATION_TASK}${variant.name}AndroidTest",
+                GenerateTestConfigurationTask::class.java
+            ) { task ->
+                task.appLoader.set(variant.artifacts.getBuiltArtifactsLoader())
+
+                // The target app path is defined in the androidx extension
+                task.outputAppApk.set(
+                    outputAppApkFile(variant, targetAppProject.path, path)
+                )
+                task.constrainedOutputAppApk.set(
+                    constrainedOutputAppApkFile(variant, targetAppProject.path, path)
+                )
+
+                task.appFileCollection.from(
+                    configuration.incoming.artifactView { view ->
+                        view.attributes {
+                            it.attribute(AndroidArtifacts.ARTIFACT_TYPE, ArtifactType.APK.type)
+                        }
+                    }.files
                 )
             }
         }
@@ -329,94 +400,7 @@ fun Project.createOrUpdateMediaTestConfigurationGenerationTask(
     }
 }
 
-private fun Project.getOrCreateMacrobenchmarkConfigTask():
-    TaskProvider<GenerateTestConfigurationTask> {
-    val parentProject = this.parent!!
-    return try {
-        parentProject.tasks.withType(GenerateTestConfigurationTask::class.java)
-            .named(AndroidXImplPlugin.GENERATE_TEST_CONFIGURATION_TASK)
-    } catch (e: UnknownTaskException) {
-        parentProject.tasks.register(
-            AndroidXImplPlugin.GENERATE_TEST_CONFIGURATION_TASK,
-            GenerateTestConfigurationTask::class.java
-        )
-    }
-}
-
-private fun Project.configureMacrobenchmarkConfigTask(
-    variantName: String,
-    artifacts: Artifacts,
-    minSdk: Int,
-    testRunner: String
-) {
-    val configTask = getOrCreateMacrobenchmarkConfigTask()
-    configTask.configure { task ->
-        val androidXExtension = extensions.getByType<AndroidXExtension>()
-        val fileNamePrefix = path.asFilenamePrefix()
-        task.testFolder.set(artifacts.get(SingleArtifact.APK))
-        task.testLoader.set(artifacts.getBuiltArtifactsLoader())
-        task.outputTestApk.set(
-            File(getTestConfigDirectory(), "${path.asFilenamePrefix()}-$variantName.apk")
-        )
-        task.constrainedOutputTestApk.set(
-            File(
-                getConstrainedTestConfigDirectory(),
-                "${path.asFilenamePrefix()}-$variantName.apk"
-            )
-        )
-        task.additionalApkKeys.set(androidXExtension.additionalDeviceTestApkKeys)
-        task.additionalTags.set(androidXExtension.additionalDeviceTestTags)
-        task.outputXml.fileValue(
-            File(getTestConfigDirectory(), "$fileNamePrefix$variantName.xml")
-        )
-        task.outputJson.fileValue(
-            File(getTestConfigDirectory(), "_$fileNamePrefix$variantName.json")
-        )
-        task.constrainedOutputXml.fileValue(
-            File(
-                getTestConfigDirectory(),
-                "${path.asFilenamePrefix()}$variantName.xml"
-            )
-        )
-        task.minSdk.set(minSdk)
-        task.hasBenchmarkPlugin.set(hasBenchmarkPlugin())
-        task.testRunner.set(testRunner)
-        task.testProjectPath.set(path)
-        task.presubmit.set(isPresubmitBuild())
-        val detector = AffectedModuleDetector.getInstance(project)
-        task.affectedModuleDetectorSubset.set(
-            project.provider {
-                detector.getSubset(task)
-            }
-        )
-
-        AffectedModuleDetector.configureTaskGuard(task)
-    }
-    // Disable xml generation for projects that have no test sources
-    afterEvaluate {
-        val androidXExtension = extensions.getByType<AndroidXExtension>()
-        configTask.configure {
-            it.enabled = hasAndroidTestSourceCode() && !androidXExtension.disableDeviceTests
-        }
-    }
-    rootProject.tasks.findByName(ZIP_TEST_CONFIGS_WITH_APKS_TASK)!!
-        .dependsOn(configTask)
-    rootProject.tasks.findByName(ZIP_CONSTRAINED_TEST_CONFIGS_WITH_APKS_TASK)!!
-        .dependsOn(configTask)
-}
-
-/**
- * Tells whether this project is the macrobenchmark-target project
- */
-fun Project.isMacrobenchmarkTarget(): Boolean {
-    return path.endsWith("macrobenchmark-target")
-}
-
 fun Project.configureTestConfigGeneration(baseExtension: BaseExtension) {
-    if (isMacrobenchmarkTarget()) {
-        // macrobenchmark target projects use special setup. See addAppApkToTestConfigGeneration
-        return
-    }
     extensions.getByType(AndroidComponentsExtension::class.java).apply {
         onVariants { variant ->
             var name: String? = null
@@ -453,14 +437,6 @@ fun Project.configureTestConfigGeneration(baseExtension: BaseExtension) {
                         isMedia2 = false
                     )
                 }
-                path.endsWith("macrobenchmark") -> {
-                    configureMacrobenchmarkConfigTask(
-                        name,
-                        artifacts,
-                        baseExtension.defaultConfig.minSdk!!,
-                        baseExtension.defaultConfig.testInstrumentationRunner!!
-                    )
-                }
                 else -> {
                     createTestConfigurationGenerationTask(
                         name,
@@ -473,5 +449,3 @@ fun Project.configureTestConfigGeneration(baseExtension: BaseExtension) {
         }
     }
 }
-
-private const val MACRO_PROJECT = ":benchmark:benchmark-macro"
