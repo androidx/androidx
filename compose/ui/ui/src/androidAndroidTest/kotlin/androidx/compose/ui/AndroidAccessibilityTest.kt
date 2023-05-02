@@ -79,6 +79,7 @@ import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Face
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.rememberDrawerState
 import androidx.compose.material.rememberScaffoldState
@@ -141,6 +142,7 @@ import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.assertValueEquals
 import androidx.compose.ui.test.isEnabled
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -1259,6 +1261,119 @@ class AndroidAccessibilityTest {
 
         assertEquals(topAppTraverseBefore, contentNode.id)
         assertThat(contentTraverseBefore).isLessThan(bottomAppBarNode.id)
+    }
+
+    @Test
+    fun testSortedAccessibilityNodeInfo_clearSemantics() {
+        val content1 = "Face 1"
+        val content2 = "Face 2"
+        val content3 = "Face 3"
+        val contentText = "Content"
+        container.setContent {
+            Scaffold(
+                topBar = {
+                    Row(
+                        horizontalArrangement = Arrangement.SpaceEvenly
+                    ) {
+                        IconButton(onClick = { }) {
+                            Icon(Icons.Default.Face, contentDescription = content1)
+                        }
+                        IconButton(
+                            onClick = { },
+                            modifier = Modifier.clearAndSetSemantics { }
+                        ) {
+                            Icon(Icons.Default.Face, contentDescription = content2)
+                        }
+                        IconButton(onClick = { }) {
+                            Icon(Icons.Default.Face, contentDescription = content3)
+                        }
+                    }
+                },
+                content = { padding -> Text(contentText, modifier = Modifier.padding(padding)) }
+            )
+        }
+        val faceNode1 = rule.onNodeWithContentDescription(content1).fetchSemanticsNode()
+        val faceNode3 = rule.onNodeWithContentDescription(content3).fetchSemanticsNode()
+        val contentNode = rule.onNodeWithText(contentText).fetchSemanticsNode()
+
+        val ANI1 = provider.createAccessibilityNodeInfo(faceNode1.id)
+        val ANI3 = provider.createAccessibilityNodeInfo(faceNode3.id)
+
+        val traverseBefore1 = ANI1?.extras?.getInt(EXTRA_DATA_TEST_TRAVERSALBEFORE_VAL)
+        val traverseBefore3 = ANI3?.extras?.getInt(EXTRA_DATA_TEST_TRAVERSALBEFORE_VAL)
+
+        // On screen we have three faces in a top app bar, and then a content node:
+        //
+        //     Face1       Face2      Face3
+        //               Content
+        //
+
+        // Since `clearAndSetSemantics` is set on Face2, it should not generate any semantics node.
+        rule.onNodeWithTag(content2).assertDoesNotExist()
+
+        // The traversal order for the elements on screen should then be Face1 -> Face3 -> content.
+        assertEquals(traverseBefore1, faceNode3.id)
+        assertEquals(traverseBefore3, contentNode.id)
+    }
+
+    @Test
+    fun testSortedAccessibilityNodeInfo_zOcclusion() {
+        val parentBox1Tag = "ParentForOverlappedChildren"
+        val childOneTag = "OverlappedChildOne"
+        val childTwoTag = "OverlappedChildTwo"
+        val childThreeTag = "ChildThree"
+
+        container.setContent {
+            Column {
+                Box(Modifier.testTag(parentBox1Tag)) {
+                    with(LocalDensity.current) {
+                        BasicText(
+                            "Child One",
+                            Modifier
+                                // A child with larger [zIndex] will be drawn on top of all the
+                                // children with smaller [zIndex]. So child 1 covers child 2.
+                                .zIndex(1f)
+                                .testTag(childOneTag)
+                                .requiredSize(50.toDp())
+                        )
+                        BasicText(
+                            "Child Two",
+                            Modifier
+                                .testTag(childTwoTag)
+                                .requiredSize(50.toDp())
+                        )
+                    }
+                }
+                Box {
+                    BasicText(
+                        "Child Three",
+                        Modifier
+                            .testTag(childThreeTag)
+                    )
+                }
+            }
+        }
+
+        val parentBox1Node = rule.onNodeWithTag(parentBox1Tag).fetchSemanticsNode()
+        val childOneNode = rule.onNodeWithTag(
+            childOneTag, useUnmergedTree = true).fetchSemanticsNode()
+        val childTwoNode = rule.onNodeWithTag(
+            childTwoTag, useUnmergedTree = true).fetchSemanticsNode()
+        val childThreeNode = rule.onNodeWithTag(
+            childThreeTag, useUnmergedTree = true).fetchSemanticsNode()
+
+        val ANI1 = provider.createAccessibilityNodeInfo(childOneNode.id)
+        val traverseBefore1 = ANI1?.extras?.getInt(EXTRA_DATA_TEST_TRAVERSALBEFORE_VAL)
+
+        // Since child 2 is completely covered, it should not generate any ANI. The first box
+        // parent should only have one child (child 1).
+        assertEquals(
+            1, provider.createAccessibilityNodeInfo(parentBox1Node.id)!!.childCount)
+        assertNull(provider.createAccessibilityNodeInfo(childTwoNode.id))
+
+        // The traversal order for the elements on screen should then be child 1 -> child 3,
+        // completely skipping over child 2.
+        assertEquals(traverseBefore1, childThreeNode.id)
     }
 
     @Composable

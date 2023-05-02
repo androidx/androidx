@@ -694,9 +694,9 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
 
         fun depthFirstSearch(currNode: SemanticsNode) {
             // We only want to add children that are either traversalGroups or are
-            // screen reader focusable.
-            if (currNode.isTraversalGroup == true ||
-                isScreenReaderFocusable(currNode)) {
+            // screen reader focusable. The child must also be in the current pruned semantics tree.
+            if ((currNode.isTraversalGroup == true || isScreenReaderFocusable(currNode)) &&
+                currNode.id in currentSemanticsNodes.keys) {
                 geometryList.add(currNode)
             }
             if (currNode.isTraversalGroup == true) {
