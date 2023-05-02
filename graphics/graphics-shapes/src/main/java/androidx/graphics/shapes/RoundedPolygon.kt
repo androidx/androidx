@@ -228,13 +228,12 @@ class RoundedPolygon {
                 sideSize / expectedRoundCut to 0f
             } else if (expectedCut > sideSize) {
                 // We can do full rounding, but not full smoothing.
-                1f to (sideSize - expectedRoundCut) / expectedCut
+                1f to (sideSize - expectedRoundCut) / (expectedCut - expectedRoundCut)
             } else {
                 // There is enough room for rounding & smoothing.
-                0f to 1f
+                1f to 1f
             }
         }
-
         // Create and store list of beziers for each [potentially] rounded corner
         for (i in 0 until n) {
             // allowedCuts[0] is for the side from the previous corner to this one,
@@ -242,7 +241,7 @@ class RoundedPolygon {
             val allowedCuts = (0..1).map { delta ->
                 val (roundCutRatio, cutRatio) = cutAdjusts[(i + n - 1 + delta) % n]
                 roundedCorners[i].expectedRoundCut * roundCutRatio +
-                    roundedCorners[i].expectedCut * cutRatio
+                    (roundedCorners[i].expectedCut - roundedCorners[i].expectedRoundCut) * cutRatio
             }
             corners.add(
                 roundedCorners[i].getCubics(
