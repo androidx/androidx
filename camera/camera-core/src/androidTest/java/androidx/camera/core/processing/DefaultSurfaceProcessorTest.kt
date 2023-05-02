@@ -21,10 +21,8 @@ import android.graphics.ImageFormat
 import android.graphics.Rect
 import android.graphics.SurfaceTexture
 import android.hardware.camera2.CameraDevice.TEMPLATE_PREVIEW
-import android.os.Build
 import android.util.Size
 import android.view.Surface
-import androidx.annotation.RequiresApi
 import androidx.camera.core.CameraEffect
 import androidx.camera.core.ImageProxy
 import androidx.camera.core.ImageReaderProxys
@@ -137,7 +135,6 @@ class DefaultSurfaceProcessorTest {
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.M)
     @Test
     fun snapshotAndRelease_futureReceivesException(): Unit = runBlocking {
         // Arrange: create DefaultSurfaceProcessor and setup input/output Surface.
@@ -159,7 +156,7 @@ class DefaultSurfaceProcessorTest {
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.M)
+    @SdkSuppress(minSdkVersion = 23)
     @Test
     fun snapshot_JpegWrittenToSurface(): Unit = runBlocking {
         // Arrange: create DefaultSurfaceProcessor and setup input/output Surface.
