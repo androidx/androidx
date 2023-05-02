@@ -14,9 +14,6 @@
  * limitations under the License.
  */
 
-
-import androidx.build.AndroidXComposePlugin
-import androidx.build.KmpPlatformsKt
 import androidx.build.LibraryType
 import androidx.build.RunApiTasks
 import androidx.build.BuildOnServerKt
@@ -29,55 +26,41 @@ plugins {
     id("kotlin-multiplatform")
 }
 
-def desktopEnabled = KmpPlatformsKt.enableDesktop(project)
-
 dependencies {
 }
 
 kotlin {
-    if (desktopEnabled) {
-        jvm() {
-            withJava()
-        }
+    jvm() {
+        withJava()
     }
 
-    if (desktopEnabled) {
-        sourceSets {
-            commonMain.dependencies {
-                implementation(libs.kotlinStdlibCommon)
-                implementation(project(":compose:ui:ui-util"))
-                api(project(":compose:foundation:foundation"))
-                api(project(":compose:material:material"))
-                api(project(":compose:runtime:runtime"))
-                api(project(":compose:ui:ui"))
-                api(project(":compose:ui:ui-tooling-preview"))
-            }
-
-            jvmMain.dependencies {
-                implementation(libs.kotlinStdlib)
-                implementation(libs.kotlinStdlibJdk8)
-                implementation(libs.kotlinCoroutinesCore)
-            }
-
-            jvmTest {
-                resources.srcDirs += new File(SupportConfigKt.getExternalProjectPath(project), "noto-fonts/other/")
-                resources.srcDirs += "src/jvmTest/res"
-                dependencies {
-                    implementation(libs.kotlinCoroutinesTest)
-                    implementation(libs.skikoCurrentOs)
-                    implementation(project(":compose:ui:ui-test-junit4"))
-                    implementation(libs.junit)
-                    implementation(libs.truth)
-                }
-            }
+    sourceSets {
+        commonMain.dependencies {
+            implementation(libs.kotlinStdlibCommon)
+            implementation(project(":compose:ui:ui-util"))
+            api(project(":compose:foundation:foundation"))
+            api(project(":compose:material:material"))
+            api(project(":compose:runtime:runtime"))
+            api(project(":compose:ui:ui"))
+            api(project(":compose:ui:ui-tooling-preview"))
         }
-    }
-}
 
-if (!desktopEnabled) {
-    kotlin {
-        jvm("disabled") {
-            withJava()
+        jvmMain.dependencies {
+            implementation(libs.kotlinStdlib)
+            implementation(libs.kotlinStdlibJdk8)
+            implementation(libs.kotlinCoroutinesCore)
+        }
+
+        jvmTest {
+            resources.srcDirs += new File(SupportConfigKt.getExternalProjectPath(project), "noto-fonts/other/")
+            resources.srcDirs += "src/jvmTest/res"
+            dependencies {
+                implementation(libs.kotlinCoroutinesTest)
+                implementation(libs.skikoCurrentOs)
+                implementation(project(":compose:ui:ui-test-junit4"))
+                implementation(libs.junit)
+                implementation(libs.truth)
+            }
         }
     }
 }
@@ -91,10 +74,8 @@ File getGoldenPath(Project project) {
     }
 }
 
-if (desktopEnabled) {
-    tasks.findByName("jvmTest").configure {
-        systemProperties["GOLDEN_PATH"] = getGoldenPath(project).toString()
-    }
+tasks.findByName("jvmTest").configure {
+    systemProperties["GOLDEN_PATH"] = getGoldenPath(project).toString()
 }
 
 androidx {
@@ -146,6 +127,4 @@ afterEvaluate {
     }
 }
 
-if (desktopEnabled) {
-    BuildOnServerKt.addToBuildOnServer(project, "${project.path}:jvmJar")
-}
+BuildOnServerKt.addToBuildOnServer(project, "${project.path}:jvmJar")

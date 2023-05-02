@@ -86,17 +86,6 @@ open class AndroidXMultiplatformExtension(val project: Project) {
         } else { null }
     }
 
-    @JvmOverloads
-    fun desktop(
-        block: Action<KotlinJvmTarget>? = null
-    ): KotlinJvmTarget? {
-        return if (project.enableJvm()) {
-            kotlinExtension.jvm("desktop") {
-                block?.execute(this)
-            }
-        } else { null }
-    }
-
     /**
      * Configures all mac targets supported by AndroidX.
      */
