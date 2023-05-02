@@ -98,7 +98,6 @@ import org.junit.Assume.assumeFalse
 import org.junit.Assume.assumeNotNull
 import org.junit.Assume.assumeTrue
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
@@ -1577,8 +1576,13 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
     }
 
     @Test
-    @Ignore("b/280379397")
     fun unbindVideoCaptureWithoutStartingRecorder_imageCapturingShouldSuccess() = runBlocking {
+        assumeTrue("b/280379397", implName != Camera2Config::class.simpleName)
+        assumeTrue(
+            "b/280560222: takePicture request is discarded if UseCaseCamera is recreated",
+            implName != CameraPipeConfig::class.simpleName
+        )
+
         // Arrange.
         val imageCapture = ImageCapture.Builder().build()
         val videoStreamReceived = CompletableDeferred<Boolean>()
