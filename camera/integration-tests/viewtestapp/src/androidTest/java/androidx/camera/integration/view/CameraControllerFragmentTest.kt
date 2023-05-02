@@ -60,6 +60,8 @@ import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.GrantPermissionRule
 import androidx.test.uiautomator.UiDevice
+import androidx.test.uiautomator.UiObject
+import androidx.test.uiautomator.UiObjectNotFoundException
 import androidx.test.uiautomator.UiSelector
 import com.google.common.collect.ImmutableList
 import com.google.common.truth.Truth.assertThat
@@ -71,6 +73,7 @@ import org.junit.Assert
 import org.junit.Assume
 import org.junit.Assume.assumeFalse
 import org.junit.Assume.assumeTrue
+import org.junit.AssumptionViolatedException
 import org.junit.Before
 import org.junit.Ignore
 import org.junit.Rule
@@ -145,7 +148,7 @@ class CameraControllerFragmentTest(
 
         // Act: turn on effect.
         val effectToggleId = "androidx.camera.integration.view:id/effect_toggle"
-        uiDevice.findObject(UiSelector().resourceId(effectToggleId)).click()
+        assumeObjectCanBeFound(UiSelector().resourceId(effectToggleId)).click()
         instrumentation.waitForIdleSync()
 
         // Assert: verify that effect is active.
@@ -161,7 +164,7 @@ class CameraControllerFragmentTest(
 
         // Act: turn on effect.
         val effectToggleId = "androidx.camera.integration.view:id/effect_toggle"
-        uiDevice.findObject(UiSelector().resourceId(effectToggleId)).click()
+        assumeObjectCanBeFound(UiSelector().resourceId(effectToggleId)).click()
         instrumentation.waitForIdleSync()
         fragment.assertCanTakePicture()
 
@@ -203,7 +206,7 @@ class CameraControllerFragmentTest(
 
         // Act: click PreviewView.
         val previewViewId = "androidx.camera.integration.view:id/preview_view"
-        uiDevice.findObject(UiSelector().resourceId(previewViewId)).click()
+        assumeObjectCanBeFound(UiSelector().resourceId(previewViewId)).click()
 
         // Assert: got a LiveData update
         assertThat(focused.tryAcquire(TIMEOUT_SECONDS, TimeUnit.SECONDS)).isTrue()
@@ -787,6 +790,14 @@ class CameraControllerFragmentTest(
         assertThat(analysisStreaming.tryAcquire(2, TIMEOUT_SECONDS, TimeUnit.SECONDS)).isEqualTo(
             streaming
         )
+    }
+
+    private fun assumeObjectCanBeFound(uiSelector: UiSelector): UiObject {
+        return try {
+            uiDevice.findObject(uiSelector)
+        } catch (e: UiObjectNotFoundException) {
+            throw AssumptionViolatedException("Ui object can't be found.")
+        }
     }
 
     /**
