@@ -22,6 +22,8 @@ import androidx.credentials.CreatePublicKeyCredentialRequest
 import androidx.credentials.GetPublicKeyCredentialOption
 import androidx.credentials.exceptions.CreateCredentialCancellationException
 import androidx.credentials.exceptions.CreateCredentialException
+import androidx.credentials.exceptions.GetCredentialCancellationException
+import androidx.credentials.exceptions.GetCredentialException
 import androidx.credentials.exceptions.domerrors.AbortError
 import androidx.credentials.exceptions.domerrors.ConstraintError
 import androidx.credentials.exceptions.domerrors.DataError
@@ -35,6 +37,7 @@ import androidx.credentials.exceptions.domerrors.SecurityError
 import androidx.credentials.exceptions.domerrors.TimeoutError
 import androidx.credentials.exceptions.domerrors.UnknownError
 import androidx.credentials.exceptions.publickeycredential.CreatePublicKeyCredentialDomException
+import androidx.credentials.exceptions.publickeycredential.GetPublicKeyCredentialDomException
 import com.google.android.gms.auth.api.identity.BeginSignInRequest
 import com.google.android.gms.auth.api.identity.SignInCredential
 import com.google.android.gms.fido.common.Transport
@@ -185,39 +188,53 @@ class PublicKeyCredentialControllerUtility {
         fun toAssertPasskeyResponse(cred: SignInCredential): String {
             val json = JSONObject()
             val publicKeyCred = cred.publicKeyCredential
-            val authenticatorResponse = publicKeyCred?.response!!
 
-            if (authenticatorResponse is AuthenticatorAssertionResponse) {
-                val responseJson = JSONObject()
-                responseJson.put(
-                    "clientDataJSON",
-                    b64Encode(authenticatorResponse.clientDataJSON)
-                )
-                responseJson.put(
-                    "authenticatorData",
-                    b64Encode(authenticatorResponse.authenticatorData)
-                )
-                responseJson.put(
-                    "signature",
-                    b64Encode(authenticatorResponse.signature)
-                )
-                authenticatorResponse.userHandle?.let {
-                    responseJson.put(
-                        "userHandle", b64Encode(authenticatorResponse.userHandle!!)
-                    )
+            when (val authenticatorResponse = publicKeyCred?.response!!) {
+                is AuthenticatorErrorResponse -> {
+                    throw beginSignInPublicKeyCredentialResponseContainsError(
+                        authenticatorResponse)
                 }
-                // TODO(b/262924507) : attestation object missing in fido impl
-                json.put("response", responseJson)
-            } else {
+                is AuthenticatorAssertionResponse -> {
+                    beginSignInAssertionResponse(authenticatorResponse, json, publicKeyCred)
+                }
+                else -> {
                 Log.e(
                     TAG,
                     "AuthenticatorResponse expected assertion response but " +
                         "got: ${authenticatorResponse.javaClass.name}")
+                }
             }
+            return json.toString()
+        }
+
+        private fun beginSignInAssertionResponse(
+            authenticatorResponse: AuthenticatorAssertionResponse,
+            json: JSONObject,
+            publicKeyCred: PublicKeyCredential
+        ) {
+            val responseJson = JSONObject()
+            responseJson.put(
+                "clientDataJSON",
+                b64Encode(authenticatorResponse.clientDataJSON)
+            )
+            responseJson.put(
+                "authenticatorData",
+                b64Encode(authenticatorResponse.authenticatorData)
+            )
+            responseJson.put(
+                "signature",
+                b64Encode(authenticatorResponse.signature)
+            )
+            authenticatorResponse.userHandle?.let {
+                responseJson.put(
+                    "userHandle", b64Encode(authenticatorResponse.userHandle!!)
+                )
+            }
+            // TODO(b/262924507) : attestation object missing in fido impl
+            json.put("response", responseJson)
             json.put("id", publicKeyCred.id)
             json.put("rawId", b64Encode(publicKeyCred.rawId))
             json.put("type", publicKeyCred.type)
-            return json.toString()
         }
 
         /**
@@ -290,6 +307,34 @@ class PublicKeyCredentialControllerUtility {
                 return exception
             }
             return null
+        }
+
+        // Helper method for the begin sign in flow to identify an authenticator error response
+        private fun beginSignInPublicKeyCredentialResponseContainsError(
+            authenticatorResponse: AuthenticatorErrorResponse
+        ): GetCredentialException {
+            val code = authenticatorResponse.errorCode
+            var exceptionError = orderedErrorCodeToExceptions[code]
+            var msg = authenticatorResponse.errorMessage
+            val exception: GetCredentialException
+            if (exceptionError == null) {
+                exception = GetPublicKeyCredentialDomException(
+                    UnknownError(), "unknown fido gms exception - $msg"
+                )
+            } else {
+                // This fix is quite fragile because it relies on that the fido module
+                // does not change its error message, but is the only viable solution
+                // because there's no other differentiator.
+                if (code == ErrorCode.CONSTRAINT_ERR &&
+                    msg?.contains("Unable to get sync account") == true
+                ) {
+                    exception = GetCredentialCancellationException(
+                        "Passkey retrieval was cancelled by the user.")
+                } else {
+                    exception = GetPublicKeyCredentialDomException(exceptionError, msg)
+                }
+            }
+            return exception
         }
 
         internal fun parseOptionalExtensions(
