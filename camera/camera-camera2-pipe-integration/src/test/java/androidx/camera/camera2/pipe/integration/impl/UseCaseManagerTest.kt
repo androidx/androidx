@@ -186,6 +186,28 @@ class UseCaseManagerTest {
     }
 
     @Test
+    fun onlyOneUseCaseCameraBuilt_whenAllUseCasesButImageCaptureDisabled() {
+        // Arrange
+        val useCaseCameraBuilder = FakeUseCaseCameraComponentBuilder()
+        val useCaseManager = createUseCaseManager(
+            useCaseCameraComponentBuilder = useCaseCameraBuilder
+        )
+
+        val preview = createPreview()
+        val imageCapture = createImageCapture()
+        useCaseManager.attach(listOf(preview, imageCapture))
+        useCaseManager.activate(preview)
+        useCaseManager.activate(imageCapture)
+        useCaseCameraBuilder.buildInvocationCount = 0
+
+        // Act
+        useCaseManager.deactivate(preview)
+
+        // Assert
+        assertThat(useCaseCameraBuilder.buildInvocationCount).isEqualTo(1)
+    }
+
+    @Test
     fun meteringRepeatingDisabled_whenAllUseCasesDisabled() {
         // Arrange
         val useCaseManager = createUseCaseManager()
@@ -199,6 +221,26 @@ class UseCaseManagerTest {
         // Assert
         val enabledUseCases = useCaseManager.camera?.runningUseCases
         assertThat(enabledUseCases).isEmpty()
+    }
+
+    @Test
+    fun onlyOneUseCaseCameraBuilt_whenAllUseCasesDisabled() {
+        // Arrange
+        val useCaseCameraBuilder = FakeUseCaseCameraComponentBuilder()
+        val useCaseManager = createUseCaseManager(
+            useCaseCameraComponentBuilder = useCaseCameraBuilder
+        )
+
+        val imageCapture = createImageCapture()
+        useCaseManager.attach(listOf(imageCapture))
+        useCaseManager.activate(imageCapture)
+        useCaseCameraBuilder.buildInvocationCount = 0
+
+        // Act
+        useCaseManager.deactivate(imageCapture)
+
+        // Assert
+        assertThat(useCaseCameraBuilder.buildInvocationCount).isEqualTo(1)
     }
 
     @Test
@@ -268,9 +310,11 @@ class UseCaseManagerTest {
     @Suppress("UNCHECKED_CAST", "PLATFORM_CLASS_MAPPED_TO_KOTLIN")
     private fun createUseCaseManager(
         controls: Set<UseCaseCameraControl> = emptySet(),
+        useCaseCameraComponentBuilder: FakeUseCaseCameraComponentBuilder =
+            FakeUseCaseCameraComponentBuilder(),
     ) = UseCaseManager(
         cameraConfig = CameraConfig(CameraId("0")),
-        builder = FakeUseCaseCameraComponentBuilder(),
+        builder = useCaseCameraComponentBuilder,
         controls = controls as java.util.Set<UseCaseCameraControl>,
         cameraProperties = FakeCameraProperties(),
         camera2CameraControl = Camera2CameraControl.create(
