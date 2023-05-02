@@ -415,7 +415,7 @@ internal class BackwardsCompatNode(element: Modifier.Element) :
         focusEventModifier.onFocusEvent(focusState)
     }
 
-    override fun modifyFocusProperties(focusProperties: FocusProperties) {
+    override fun applyFocusProperties(focusProperties: FocusProperties) {
         val focusOrderModifier = element
         check(focusOrderModifier is FocusOrderModifier)
         focusProperties.apply(FocusOrderModifierToProperties(focusOrderModifier))

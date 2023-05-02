@@ -80,13 +80,13 @@ class FocusTargetNode : ObserverModifierNode, ModifierLocalModifierNode, Modifie
 
     /**
      * Visits parent [FocusPropertiesModifierNode]s and runs
-     * [FocusPropertiesModifierNode.modifyFocusProperties] on each parent.
+     * [FocusPropertiesModifierNode.applyFocusProperties] on each parent.
      * This effectively collects an aggregated focus state.
      */
     internal fun fetchFocusProperties(): FocusProperties {
         val properties = FocusPropertiesImpl()
         visitSelfAndAncestors(Nodes.FocusProperties, untilType = Nodes.FocusTarget) {
-            it.modifyFocusProperties(properties)
+            it.applyFocusProperties(properties)
         }
         return properties
     }

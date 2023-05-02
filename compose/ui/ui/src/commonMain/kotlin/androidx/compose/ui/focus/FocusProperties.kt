@@ -200,7 +200,7 @@ private class FocusPropertiesNode(
     var focusPropertiesScope: FocusProperties.() -> Unit,
 ) : FocusPropertiesModifierNode, Modifier.Node() {
 
-    override fun modifyFocusProperties(focusProperties: FocusProperties) {
+    override fun applyFocusProperties(focusProperties: FocusProperties) {
         focusProperties.apply(focusPropertiesScope)
     }
 }

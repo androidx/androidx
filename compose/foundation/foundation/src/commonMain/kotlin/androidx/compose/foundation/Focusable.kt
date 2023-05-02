@@ -153,7 +153,7 @@ private class FocusableInNonTouchMode : Modifier.Node(), CompositionLocalConsume
     private val inputModeManager: InputModeManager
         get() = currentValueOf(LocalInputModeManager)
 
-    override fun modifyFocusProperties(focusProperties: FocusProperties) {
+    override fun applyFocusProperties(focusProperties: FocusProperties) {
         focusProperties.apply {
             canFocus = inputModeManager.inputMode != InputMode.Touch
         }
