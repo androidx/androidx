@@ -20,6 +20,8 @@ import android.os.Build
 import android.util.Range
 import android.util.Size
 import androidx.camera.core.DynamicRange
+import androidx.camera.core.impl.UseCaseConfigFactory.CaptureType
+import androidx.camera.testing.fakes.FakeUseCaseConfig
 import com.google.common.truth.Truth
 import org.junit.Before
 import org.junit.Test
@@ -40,11 +42,23 @@ class AttachedSurfaceInfoTest {
     private val imageFormat = ImageFormat.JPEG
     private val size = Size(1920, 1080)
     private val dynamicRange = DynamicRange.SDR
+    private val captureTypes = listOf(CaptureType.PREVIEW)
+    private val inputFormat = ImageFormat.PRIVATE
     private val targetFramerate = Range(10, 20)
+    private val config = FakeUseCaseConfig.Builder(
+        CaptureType.PREVIEW,
+        inputFormat
+    ).useCaseConfig.config
+
     @Before
     fun setup() {
         attachedSurfaceInfo = AttachedSurfaceInfo.create(
-            surfaceConfig, imageFormat, size, dynamicRange,
+            surfaceConfig,
+            imageFormat,
+            size,
+            dynamicRange,
+            captureTypes,
+            config,
             targetFramerate
         )
     }
@@ -74,6 +88,28 @@ class AttachedSurfaceInfoTest {
     }
 
     @Test
+    fun canGetCaptureTypes() {
+        Truth.assertThat(attachedSurfaceInfo!!.captureTypes.size).isEqualTo(captureTypes.size)
+        for ((index, value) in captureTypes.withIndex()) {
+            Truth.assertThat(attachedSurfaceInfo!!.captureTypes[index]).isEqualTo(value)
+        }
+    }
+
+    @Test
+    fun canGetImplementationOption() {
+        Truth.assertThat(
+            attachedSurfaceInfo!!.implementationOptions!!
+                .containsOption(ImageInputConfig.OPTION_INPUT_FORMAT)
+        )
+            .isTrue()
+        Truth.assertThat(
+            attachedSurfaceInfo!!.implementationOptions!!
+                .retrieveOption(ImageInputConfig.OPTION_INPUT_FORMAT)
+        )
+            .isEqualTo(inputFormat)
+    }
+
+    @Test
     fun canGetTargetFrameRate() {
         Truth.assertThat(attachedSurfaceInfo!!.targetFrameRate).isEqualTo(targetFramerate)
     }
@@ -85,6 +121,8 @@ class AttachedSurfaceInfoTest {
             imageFormat,
             size,
             dynamicRange,
+            listOf(CaptureType.PREVIEW),
+            config,
             null
         )
         Truth.assertThat(attachedSurfaceInfo2.targetFrameRate).isNull()
