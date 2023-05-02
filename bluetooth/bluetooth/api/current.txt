@@ -44,5 +44,32 @@ package androidx.bluetooth {
     method @RequiresPermission("android.permission.BLUETOOTH_ADVERTISE") public kotlinx.coroutines.flow.Flow<java.lang.Integer> advertise(androidx.bluetooth.AdvertiseParams advertiseParams);
   }
 
+  public final class ScanFilter {
+    ctor public ScanFilter(optional androidx.bluetooth.BluetoothAddress? deviceAddress, optional int manufacturerId, optional byte[]? manufacturerData, optional byte[]? manufacturerDataMask, optional java.util.UUID? serviceDataUuid, optional byte[]? serviceData, optional byte[]? serviceDataMask, optional java.util.UUID? serviceUuid, optional java.util.UUID? serviceUuidMask);
+    method public androidx.bluetooth.BluetoothAddress? getDeviceAddress();
+    method public byte[]? getManufacturerData();
+    method public byte[]? getManufacturerDataMask();
+    method public int getManufacturerId();
+    method public byte[]? getServiceData();
+    method public byte[]? getServiceDataMask();
+    method public java.util.UUID? getServiceDataUuid();
+    method public java.util.UUID? getServiceUuid();
+    method public java.util.UUID? getServiceUuidMask();
+    property public final androidx.bluetooth.BluetoothAddress? deviceAddress;
+    property public final byte[]? manufacturerData;
+    property public final byte[]? manufacturerDataMask;
+    property public final int manufacturerId;
+    property public final byte[]? serviceData;
+    property public final byte[]? serviceDataMask;
+    property public final java.util.UUID? serviceDataUuid;
+    property public final java.util.UUID? serviceUuid;
+    property public final java.util.UUID? serviceUuidMask;
+    field public static final androidx.bluetooth.ScanFilter.Companion Companion;
+    field public static final int MANUFACTURER_FILTER_NONE = -1; // 0xffffffff
+  }
+
+  public static final class ScanFilter.Companion {
+  }
+
 }
 
