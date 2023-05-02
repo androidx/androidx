@@ -20,51 +20,31 @@
         android:name="androidx.navigation.testapp.MainFragment"
         android:label="@string/first">
         <argument android:name="myarg" android:defaultValue="one" />
-        <action android:id="@+id/next" app:destination="@+id/second_fragment"
-            app:enterAnim="@anim/nav_default_enter_anim"
-            app:exitAnim="@anim/nav_default_exit_anim"
-            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
-            app:popExitAnim="@anim/nav_default_pop_exit_anim"/>
+        <action android:id="@+id/next" app:destination="@+id/second_fragment"/>
     </fragment>
     <fragment android:id="@+id/second_fragment"
         android:name="androidx.navigation.testapp.MainFragment"
         android:label="@string/second">
         <argument android:name="myarg" android:defaultValue="two" />
-        <action android:id="@+id/next" app:destination="@+id/third_fragment"
-            app:enterAnim="@anim/nav_default_enter_anim"
-            app:exitAnim="@anim/nav_default_exit_anim"
-            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
-            app:popExitAnim="@anim/nav_default_pop_exit_anim"/>
+        <action android:id="@+id/next" app:destination="@+id/third_fragment"/>
     </fragment>
     <fragment android:id="@+id/third_fragment"
         android:name="androidx.navigation.testapp.MainFragment"
         android:label="@string/third">
         <argument android:name="myarg" android:defaultValue="three" />
-        <action android:id="@+id/next" app:destination="@+id/fourth_fragment"
-            app:enterAnim="@anim/nav_default_enter_anim"
-            app:exitAnim="@anim/nav_default_exit_anim"
-            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
-            app:popExitAnim="@anim/nav_default_pop_exit_anim"/>
+        <action android:id="@+id/next" app:destination="@+id/fourth_fragment"/>
     </fragment>
     <fragment android:id="@+id/fourth_fragment"
         android:name="androidx.navigation.testapp.MainFragment"
         android:label="@string/fourth">
         <argument android:name="myarg" android:defaultValue="four" />
-        <action android:id="@+id/next" app:destination="@+id/fifth_fragment"
-            app:enterAnim="@anim/nav_default_enter_anim"
-            app:exitAnim="@anim/nav_default_exit_anim"
-            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
-            app:popExitAnim="@anim/nav_default_pop_exit_anim"/>
+        <action android:id="@+id/next" app:destination="@+id/fifth_fragment"/>
     </fragment>
     <fragment android:id="@+id/fifth_fragment"
         android:name="androidx.navigation.testapp.MainFragment"
         android:label="@string/fifth">
         <argument android:name="myarg" android:defaultValue="five" />
-        <action android:id="@+id/next" app:destination="@+id/first_fragment"
-            app:enterAnim="@anim/nav_default_enter_anim"
-            app:exitAnim="@anim/nav_default_exit_anim"
-            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
-            app:popExitAnim="@anim/nav_default_pop_exit_anim"/>
+        <action android:id="@+id/next" app:destination="@+id/first_fragment"/>
     </fragment>
     <dialog
         android:id="@+id/learn_more"
