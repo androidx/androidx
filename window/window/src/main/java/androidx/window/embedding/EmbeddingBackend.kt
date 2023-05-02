@@ -70,14 +70,12 @@ interface EmbeddingBackend {
             return decorator(ExtensionEmbeddingBackend.getInstance(context))
         }
 
-        @ExperimentalWindowApi
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @JvmStatic
         fun overrideDecorator(overridingDecorator: EmbeddingBackendDecorator) {
             decorator = overridingDecorator::decorate
         }
 
-        @ExperimentalWindowApi
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @JvmStatic
         fun reset() {
@@ -86,7 +84,6 @@ interface EmbeddingBackend {
     }
 }
 
-@ExperimentalWindowApi
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 interface EmbeddingBackendDecorator {
 

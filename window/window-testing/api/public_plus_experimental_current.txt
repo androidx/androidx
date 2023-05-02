@@ -1,8 +1,8 @@
 // Signature format: 4.0
 package androidx.window.testing.embedding {
 
-  @androidx.window.core.ExperimentalWindowApi public final class ActivityEmbeddingTestRule implements org.junit.rules.TestRule {
-    ctor public ActivityEmbeddingTestRule();
+  public final class ActivityEmbeddingRule implements org.junit.rules.TestRule {
+    ctor public ActivityEmbeddingRule();
     method public org.junit.runners.model.Statement apply(org.junit.runners.model.Statement base, org.junit.runner.Description description);
     method public void overrideIsActivityEmbedded(android.app.Activity activity, boolean isActivityEmbedded);
     method public void overrideSplitInfo(android.app.Activity activity, java.util.List<androidx.window.embedding.SplitInfo> splitInfoList);
@@ -10,25 +10,25 @@ package androidx.window.testing.embedding {
   }
 
   public final class TestActivityStack {
-    method @androidx.window.core.ExperimentalWindowApi public static androidx.window.embedding.ActivityStack createTestActivityStack(optional java.util.List<? extends android.app.Activity> activitiesInProcess, optional boolean isEmpty);
-    method @androidx.window.core.ExperimentalWindowApi public static androidx.window.embedding.ActivityStack createTestActivityStack(optional java.util.List<? extends android.app.Activity> activitiesInProcess);
-    method @androidx.window.core.ExperimentalWindowApi public static androidx.window.embedding.ActivityStack createTestActivityStack();
+    method public static androidx.window.embedding.ActivityStack createTestActivityStack(optional java.util.List<? extends android.app.Activity> activitiesInProcess, optional boolean isEmpty);
+    method public static androidx.window.embedding.ActivityStack createTestActivityStack(optional java.util.List<? extends android.app.Activity> activitiesInProcess);
+    method public static androidx.window.embedding.ActivityStack createTestActivityStack();
   }
 
   public final class TestSplitAttributesCalculatorParams {
-    method @androidx.window.core.ExperimentalWindowApi public static androidx.window.embedding.SplitAttributesCalculatorParams createTestSplitAttributesCalculatorParams(androidx.window.layout.WindowMetrics parentWindowMetrics, optional android.content.res.Configuration parentConfiguration, optional androidx.window.layout.WindowLayoutInfo parentWindowLayoutInfo, optional androidx.window.embedding.SplitAttributes defaultSplitAttributes, optional boolean areDefaultConstraintsSatisfied, optional String? splitRuleTag);
-    method @androidx.window.core.ExperimentalWindowApi public static androidx.window.embedding.SplitAttributesCalculatorParams createTestSplitAttributesCalculatorParams(androidx.window.layout.WindowMetrics parentWindowMetrics, optional android.content.res.Configuration parentConfiguration, optional androidx.window.layout.WindowLayoutInfo parentWindowLayoutInfo, optional androidx.window.embedding.SplitAttributes defaultSplitAttributes, optional boolean areDefaultConstraintsSatisfied);
-    method @androidx.window.core.ExperimentalWindowApi public static androidx.window.embedding.SplitAttributesCalculatorParams createTestSplitAttributesCalculatorParams(androidx.window.layout.WindowMetrics parentWindowMetrics, optional android.content.res.Configuration parentConfiguration, optional androidx.window.layout.WindowLayoutInfo parentWindowLayoutInfo, optional androidx.window.embedding.SplitAttributes defaultSplitAttributes);
-    method @androidx.window.core.ExperimentalWindowApi public static androidx.window.embedding.SplitAttributesCalculatorParams createTestSplitAttributesCalculatorParams(androidx.window.layout.WindowMetrics parentWindowMetrics, optional android.content.res.Configuration parentConfiguration, optional androidx.window.layout.WindowLayoutInfo parentWindowLayoutInfo);
-    method @androidx.window.core.ExperimentalWindowApi public static androidx.window.embedding.SplitAttributesCalculatorParams createTestSplitAttributesCalculatorParams(androidx.window.layout.WindowMetrics parentWindowMetrics, optional android.content.res.Configuration parentConfiguration);
-    method @androidx.window.core.ExperimentalWindowApi public static androidx.window.embedding.SplitAttributesCalculatorParams createTestSplitAttributesCalculatorParams(androidx.window.layout.WindowMetrics parentWindowMetrics);
+    method public static androidx.window.embedding.SplitAttributesCalculatorParams createTestSplitAttributesCalculatorParams(androidx.window.layout.WindowMetrics parentWindowMetrics, optional android.content.res.Configuration parentConfiguration, optional androidx.window.layout.WindowLayoutInfo parentWindowLayoutInfo, optional androidx.window.embedding.SplitAttributes defaultSplitAttributes, optional boolean areDefaultConstraintsSatisfied, optional String? splitRuleTag);
+    method public static androidx.window.embedding.SplitAttributesCalculatorParams createTestSplitAttributesCalculatorParams(androidx.window.layout.WindowMetrics parentWindowMetrics, optional android.content.res.Configuration parentConfiguration, optional androidx.window.layout.WindowLayoutInfo parentWindowLayoutInfo, optional androidx.window.embedding.SplitAttributes defaultSplitAttributes, optional boolean areDefaultConstraintsSatisfied);
+    method public static androidx.window.embedding.SplitAttributesCalculatorParams createTestSplitAttributesCalculatorParams(androidx.window.layout.WindowMetrics parentWindowMetrics, optional android.content.res.Configuration parentConfiguration, optional androidx.window.layout.WindowLayoutInfo parentWindowLayoutInfo, optional androidx.window.embedding.SplitAttributes defaultSplitAttributes);
+    method public static androidx.window.embedding.SplitAttributesCalculatorParams createTestSplitAttributesCalculatorParams(androidx.window.layout.WindowMetrics parentWindowMetrics, optional android.content.res.Configuration parentConfiguration, optional androidx.window.layout.WindowLayoutInfo parentWindowLayoutInfo);
+    method public static androidx.window.embedding.SplitAttributesCalculatorParams createTestSplitAttributesCalculatorParams(androidx.window.layout.WindowMetrics parentWindowMetrics, optional android.content.res.Configuration parentConfiguration);
+    method public static androidx.window.embedding.SplitAttributesCalculatorParams createTestSplitAttributesCalculatorParams(androidx.window.layout.WindowMetrics parentWindowMetrics);
   }
 
   public final class TestSplitInfo {
-    method @androidx.window.core.ExperimentalWindowApi public static androidx.window.embedding.SplitInfo createTestSplitInfo(optional androidx.window.embedding.ActivityStack primaryActivityStack, optional androidx.window.embedding.ActivityStack secondActivityStack, optional androidx.window.embedding.SplitAttributes splitAttributes);
-    method @androidx.window.core.ExperimentalWindowApi public static androidx.window.embedding.SplitInfo createTestSplitInfo(optional androidx.window.embedding.ActivityStack primaryActivityStack, optional androidx.window.embedding.ActivityStack secondActivityStack);
-    method @androidx.window.core.ExperimentalWindowApi public static androidx.window.embedding.SplitInfo createTestSplitInfo(optional androidx.window.embedding.ActivityStack primaryActivityStack);
-    method @androidx.window.core.ExperimentalWindowApi public static androidx.window.embedding.SplitInfo createTestSplitInfo();
+    method public static androidx.window.embedding.SplitInfo createTestSplitInfo(optional androidx.window.embedding.ActivityStack primaryActivityStack, optional androidx.window.embedding.ActivityStack secondActivityStack, optional androidx.window.embedding.SplitAttributes splitAttributes);
+    method public static androidx.window.embedding.SplitInfo createTestSplitInfo(optional androidx.window.embedding.ActivityStack primaryActivityStack, optional androidx.window.embedding.ActivityStack secondActivityStack);
+    method public static androidx.window.embedding.SplitInfo createTestSplitInfo(optional androidx.window.embedding.ActivityStack primaryActivityStack);
+    method public static androidx.window.embedding.SplitInfo createTestSplitInfo();
   }
 
 }
