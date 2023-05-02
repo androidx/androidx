@@ -17,7 +17,6 @@
 package androidx.camera.video;
 
 import static androidx.camera.core.CameraEffect.VIDEO_CAPTURE;
-import static androidx.camera.core.DynamicRange.SDR;
 import static androidx.camera.core.impl.ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE;
 import static androidx.camera.core.impl.ImageInputConfig.OPTION_INPUT_DYNAMIC_RANGE;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_CUSTOM_ORDERED_RESOLUTIONS;
@@ -91,6 +90,7 @@ import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.Config;
 import androidx.camera.core.impl.ConfigProvider;
 import androidx.camera.core.impl.DeferrableSurface;
+import androidx.camera.core.impl.ImageInputConfig;
 import androidx.camera.core.impl.ImageOutputConfig;
 import androidx.camera.core.impl.ImageOutputConfig.RotationValue;
 import androidx.camera.core.impl.MutableConfig;
@@ -421,6 +421,31 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
                     + " is not in custom ordered resolutions " + customOrderedResolutions);
         }
         return suggestedStreamSpec;
+    }
+
+    /**
+     * Returns the dynamic range.
+     *
+     * <p>The dynamic range is set by {@link VideoCapture.Builder#setDynamicRange(DynamicRange)}.
+     * If the dynamic range set is not a fully defined dynamic range, such as
+     * {@link DynamicRange#HDR_UNSPECIFIED_10_BIT}, then it will be returned just as provided,
+     * and will not be returned as a fully defined dynamic range.
+     *
+     * <p>If the dynamic range was not provided to
+     * {@link VideoCapture.Builder#setDynamicRange(DynamicRange)}, this will return the default of
+     * {@link DynamicRange#SDR}
+     *
+     * @return the dynamic range set for this {@code VideoCapture} use case.
+     */
+    // Internal implementation note: this method should not be used to retrieve the dynamic range
+    // that will be sent to the VideoOutput. That should always be retrieved from the StreamSpec
+    // since that will be the final DynamicRange chosen by the camera based on other use case
+    // combinations.
+    @RestrictTo(Scope.LIBRARY)
+    @NonNull
+    public DynamicRange getDynamicRange() {
+        return getCurrentConfig().hasDynamicRange() ? getCurrentConfig().getDynamicRange() :
+                Defaults.DEFAULT_DYNAMIC_RANGE;
     }
 
     /**
@@ -770,10 +795,17 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
 
         static final Range<Integer> DEFAULT_FPS_RANGE = new Range<>(30, 30);
 
+        /**
+         * Explicitly setting the default dynamic range to SDR (rather than UNSPECIFIED) means
+         * VideoCapture won't inherit dynamic ranges from other use cases.
+         */
+        static final DynamicRange DEFAULT_DYNAMIC_RANGE = DynamicRange.SDR;
+
         static {
             Builder<?> builder = new Builder<>(DEFAULT_VIDEO_OUTPUT)
                     .setSurfaceOccupancyPriority(DEFAULT_SURFACE_OCCUPANCY_PRIORITY)
-                    .setVideoEncoderInfoFinder(DEFAULT_VIDEO_ENCODER_INFO_FINDER);
+                    .setVideoEncoderInfoFinder(DEFAULT_VIDEO_ENCODER_INFO_FINDER)
+                    .setDynamicRange(DEFAULT_DYNAMIC_RANGE);
 
             DEFAULT_CONFIG = builder.getUseCaseConfig();
         }
@@ -1209,12 +1241,12 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         Preconditions.checkArgument(mediaSpec != null,
                 "Unable to update target resolution by null MediaSpec.");
 
-        DynamicRange dynamicRange = Preconditions.checkNotNull(
-                builder.getMutableConfig().retrieveOption(OPTION_INPUT_DYNAMIC_RANGE, SDR));
+        DynamicRange requestedDynamicRange = getDynamicRange();
         VideoCapabilities videoCapabilities = getVideoCapabilities(cameraInfo);
 
         // Get supported qualities.
-        List<Quality> supportedQualities = videoCapabilities.getSupportedQualities(dynamicRange);
+        List<Quality> supportedQualities = videoCapabilities.getSupportedQualities(
+                requestedDynamicRange);
         if (supportedQualities.isEmpty()) {
             // When the device does not have any supported quality, even the most flexible
             // QualitySelector such as QualitySelector.from(Quality.HIGHEST), still cannot
@@ -1238,7 +1270,8 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
 
         // Get corresponded resolutions for the target aspect ratio.
         int aspectRatio = videoSpec.getAspectRatio();
-        Map<Quality, Size> sizeMap = getQualityToResolutionMap(videoCapabilities, dynamicRange);
+        Map<Quality, Size> sizeMap = getQualityToResolutionMap(videoCapabilities,
+                requestedDynamicRange);
         QualityRatioToResolutionsTable qualityRatioTable = new QualityRatioToResolutionsTable(
                 cameraInfo.getSupportedResolutions(getImageFormat()), sizeMap);
         List<Size> customOrderedResolutions = new ArrayList<>();
@@ -1325,7 +1358,8 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
     @SuppressWarnings("ObjectToString")
     public static final class Builder<T extends VideoOutput> implements
             UseCaseConfig.Builder<VideoCapture<T>, VideoCaptureConfig<T>, Builder<T>>,
-            ImageOutputConfig.Builder<Builder<T>>, ThreadConfig.Builder<Builder<T>> {
+            ImageOutputConfig.Builder<Builder<T>>, ImageInputConfig.Builder<Builder<T>>,
+            ThreadConfig.Builder<Builder<T>> {
         private final MutableOptionsBundle mMutableConfig;
 
         /** Creates a new Builder object. */
@@ -1587,6 +1621,41 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         @NonNull
         public Builder<T> setResolutionSelector(@NonNull ResolutionSelector resolutionSelector) {
             getMutableConfig().insertOption(OPTION_RESOLUTION_SELECTOR, resolutionSelector);
+            return this;
+        }
+
+        // Implementations of ImageInputConfig.Builder default methods
+
+        /**
+         * Sets the {@link DynamicRange}.
+         *
+         * <p>The dynamic range specifies how the range of colors, highlights and shadows that
+         * are captured by the video producer are displayed on a display. Some dynamic ranges will
+         * allow the video to make full use of the extended range of brightness of a display when
+         * the video is played back.
+         *
+         * <p>The supported dynamic ranges for video capture depend on the capabilities of the
+         * camera and the {@link VideoOutput}. The supported dynamic ranges can normally be
+         * queried through the specific video output. For example, the available dynamic
+         * ranges for the {@link Recorder} video output can be queried through
+         * the {@link androidx.camera.video.VideoCapabilities} returned by
+         * {@link Recorder#getVideoCapabilities(CameraInfo)} via
+         * {@link androidx.camera.video.VideoCapabilities#getSupportedDynamicRanges()}.
+         *
+         * <p>It is possible to choose a high dynamic range (HDR) with unspecified encoding by
+         * providing {@link DynamicRange#HDR_UNSPECIFIED_10_BIT}.
+         *
+         * <p>If the dynamic range is not provided, the returned video capture use case will use
+         * a default of {@link DynamicRange#SDR}.
+         *
+         * @return The current Builder.
+         * @see DynamicRange
+         */
+        @RestrictTo(Scope.LIBRARY)
+        @NonNull
+        @Override
+        public Builder<T> setDynamicRange(@NonNull DynamicRange dynamicRange) {
+            getMutableConfig().insertOption(OPTION_INPUT_DYNAMIC_RANGE, dynamicRange);
             return this;
         }
 
