@@ -21,7 +21,6 @@ import android.app.Activity
 import android.os.Binder
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
-import androidx.window.core.ExperimentalWindowApi
 import androidx.window.embedding.ActivityStack
 
 /**
@@ -38,7 +37,6 @@ import androidx.window.embedding.ActivityStack
  * @return An [ActivityStack] instance for testing
  */
 @Suppress("FunctionName")
-@ExperimentalWindowApi
 @JvmName("createTestActivityStack")
 @JvmOverloads
 fun TestActivityStack(

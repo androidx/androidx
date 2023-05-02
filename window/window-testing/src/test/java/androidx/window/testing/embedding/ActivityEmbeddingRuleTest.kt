@@ -19,7 +19,6 @@ package androidx.window.testing.embedding
 import android.app.Activity
 import android.app.Application
 import android.content.Intent
-import androidx.window.core.ExperimentalWindowApi
 import androidx.window.embedding.ActivityEmbeddingController
 import androidx.window.embedding.ActivityRule
 import androidx.window.embedding.EmbeddingBackend
@@ -51,12 +50,12 @@ import org.junit.runners.model.Statement
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
 
-/** Test for [ActivityEmbeddingTestRule]. */
-@OptIn(ExperimentalWindowApi::class, ExperimentalCoroutinesApi::class)
-class ActivityEmbeddingTestRuleTest {
+/** Test for [ActivityEmbeddingRule]. */
+@OptIn(ExperimentalCoroutinesApi::class)
+class ActivityEmbeddingRuleTest {
 
     @get:Rule
-    val testRule: ActivityEmbeddingTestRule = ActivityEmbeddingTestRule()
+    val testRule: ActivityEmbeddingRule = ActivityEmbeddingRule()
 
     private val mockActivity: Activity = mock()
     private val testScope = TestScope()
@@ -246,7 +245,7 @@ class ActivityEmbeddingTestRuleTest {
     fun testRuleResetsOnException() {
         EmbeddingBackend.reset()
         try {
-            ActivityEmbeddingTestRule().apply(
+            ActivityEmbeddingRule().apply(
                 object : Statement() {
                     override fun evaluate() {
                         throw TestException
