@@ -18,8 +18,9 @@
 
 package androidx.camera.camera2.pipe.compat
 
-import android.hardware.camera2.CameraCaptureSession
+import android.hardware.camera2.CameraCaptureSession.StateCallback
 import android.hardware.camera2.CameraDevice
+import android.hardware.camera2.CameraExtensionSession
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.TotalCaptureResult
 import android.hardware.camera2.params.InputConfiguration
@@ -105,6 +106,10 @@ internal interface CameraDeviceWrapper : UnsafeWrapper {
     @RequiresApi(Build.VERSION_CODES.P)
     fun createCaptureSession(config: SessionConfigData): Boolean
 
+    /** @see CameraDevice.createExtensionSession */
+    @RequiresApi(Build.VERSION_CODES.S)
+    fun createExtensionSession(config: SessionConfigData): Boolean
+
     /** Invoked when the [CameraDevice] has been closed */
     fun onDeviceClosed()
 }
@@ -126,9 +131,10 @@ internal class AndroidCameraDevice(
     private val cameraDevice: CameraDevice,
     override val cameraId: CameraId,
     private val cameraErrorListener: CameraErrorListener,
-    private val interopSessionStateCallback: CameraCaptureSession.StateCallback? = null
+    private val interopSessionStateCallback: StateCallback? = null,
+    private val interopExtensionSessionStateCallback: CameraExtensionSession.StateCallback? = null,
 ) : CameraDeviceWrapper {
-    private val _lastStateCallback = atomic<CameraCaptureSessionWrapper.StateCallback?>(null)
+    private val _lastStateCallback = atomic<OnSessionFinalized?>(null)
 
     override fun createCaptureSession(
         outputs: List<Surface>,
@@ -153,6 +159,35 @@ internal class AndroidCameraDevice(
             handler
         )
     } != null
+
+    @RequiresApi(Build.VERSION_CODES.S)
+    override fun createExtensionSession(config: SessionConfigData): Boolean =
+        catchAndReportCameraExceptions(cameraId, cameraErrorListener) {
+            checkNotNull(config.extensionStateCallback) {
+                "extensionStateCallback must be set to create Extension session"
+            }
+            checkNotNull(config.extensionMode) {
+                "extensionMode must be set to create Extension session"
+            }
+            val stateCallback = config.extensionStateCallback
+            val previousStateCallback = _lastStateCallback.getAndSet(stateCallback)
+            val sessionConfig =
+                Api31Compat.newExtensionSessionConfiguration(
+                    config.extensionMode,
+                    config.outputConfigurations.map {
+                        it.unwrapAs(OutputConfiguration::class)
+                    },
+                    config.executor,
+                    AndroidExtensionSessionStateCallback(
+                        this,
+                        stateCallback,
+                        previousStateCallback,
+                        cameraErrorListener,
+                        interopExtensionSessionStateCallback
+                    ),
+                )
+            Api31Compat.createExtensionCaptureSession(cameraDevice, sessionConfig)
+        } != null
 
     @RequiresApi(23)
     override fun createReprocessableCaptureSession(
@@ -448,6 +483,17 @@ internal class VirtualAndroidCameraDevice(
                 stateCallback,
                 handler
             )
+        }
+    }
+
+    @RequiresApi(31)
+    override fun createExtensionSession(config: SessionConfigData) = synchronized(lock) {
+        if (disconnected) {
+            Log.warn { "createExtensionSession failed: Virtual device disconnected" }
+            config.extensionStateCallback!!.onSessionFinalized()
+            false
+        } else {
+            androidCameraDevice.createExtensionSession(config)
         }
     }
 
