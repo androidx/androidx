@@ -58,4 +58,5 @@ interface IProxyInputConnection {
   android.view.inputmethod.ExtractedText getExtractedText(in android.view.inputmethod.ExtractedTextRequest request, int flags) = 22;
   void closeConnection() = 23;
   android.view.inputmethod.EditorInfo getEditorInfo() = 24;
+  androidx.car.app.serialization.Bundleable getSurroundingText(int beforeLength, int afterLength, int flags) = 25;
 }
