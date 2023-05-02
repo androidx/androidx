@@ -26,6 +26,7 @@ import static androidx.core.util.Preconditions.checkState;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.os.Build;
@@ -126,6 +127,17 @@ public class TestImageUtil {
         canvas.drawRect(centerX, centerY, width, height, createPaint(Color.YELLOW));
         canvas.drawRect(0, centerY, centerX, height, createPaint(Color.BLUE));
         return bitmap;
+    }
+
+    /**
+     * Rotates the bitmap clockwise by the given degrees.
+     */
+    @NonNull
+    public static Bitmap rotateBitmap(@NonNull Bitmap bitmap, int rotationDegrees) {
+        Matrix matrix = new Matrix();
+        matrix.postRotate(rotationDegrees);
+        return Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix,
+                true);
     }
 
     /**

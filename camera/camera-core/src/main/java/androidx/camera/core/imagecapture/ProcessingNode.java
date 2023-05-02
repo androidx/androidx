@@ -233,15 +233,9 @@ public class ProcessingNode implements Node<ProcessingNode.In, Void> {
         @NonNull
         abstract ImageProxy getImageProxy();
 
-        /**
-         * Whether the pipeline is connected to a virtual camera.
-         */
-        abstract boolean isVirtualCamera();
-
         static InputPacket of(@NonNull ProcessingRequest processingRequest,
-                @NonNull ImageProxy imageProxy, boolean isVirtualCamera) {
-            return new AutoValue_ProcessingNode_InputPacket(processingRequest, imageProxy,
-                    isVirtualCamera);
+                @NonNull ImageProxy imageProxy) {
+            return new AutoValue_ProcessingNode_InputPacket(processingRequest, imageProxy);
         }
     }
 

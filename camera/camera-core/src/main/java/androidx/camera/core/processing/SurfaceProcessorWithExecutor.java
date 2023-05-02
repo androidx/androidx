@@ -22,6 +22,7 @@ import static java.util.Objects.requireNonNull;
 
 import android.os.Build;
 
+import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
@@ -100,7 +101,9 @@ public class SurfaceProcessorWithExecutor implements SurfaceProcessorInternal {
 
     @NonNull
     @Override
-    public ListenableFuture<Void> snapshot(int jpegQuality) {
+    public ListenableFuture<Void> snapshot(
+            @IntRange(from = 0, to = 100) int jpegQuality,
+            @IntRange(from = 0, to = 359) int rotationDegrees) {
         return immediateFailedFuture(
                 new Exception("Snapshot not supported by external SurfaceProcessor"));
     }

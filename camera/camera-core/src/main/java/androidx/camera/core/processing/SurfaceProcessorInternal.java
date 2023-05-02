@@ -52,7 +52,9 @@ public interface SurfaceProcessorInternal extends SurfaceProcessor {
      * Takes a snapshot of the next available frame and write it to JPEG outputs.
      */
     @NonNull
-    default ListenableFuture<Void> snapshot(@IntRange(from = 0, to = 100) int jpegQuality) {
+    default ListenableFuture<Void> snapshot(
+            @IntRange(from = 0, to = 100) int jpegQuality,
+            @IntRange(from = 0, to = 359) int rotationDegrees) {
         return Futures.immediateFuture(null);
     }
 }

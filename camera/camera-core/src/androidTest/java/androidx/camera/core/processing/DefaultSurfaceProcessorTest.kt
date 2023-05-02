@@ -38,6 +38,7 @@ import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.HandlerUtil
 import androidx.camera.testing.TestImageUtil.createBitmap
 import androidx.camera.testing.TestImageUtil.getAverageDiff
+import androidx.camera.testing.TestImageUtil.rotateBitmap
 import androidx.camera.testing.fakes.FakeCamera
 import androidx.concurrent.futures.await
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -144,7 +145,7 @@ class DefaultSurfaceProcessorTest {
         createSurfaceProcessor()
 
         // Act: take a snapshot and then release the processor.
-        val snapshotFuture = surfaceProcessor.snapshot(JPEG_QUALITY)
+        val snapshotFuture = surfaceProcessor.snapshot(JPEG_QUALITY, 0)
         surfaceProcessor.release()
 
         // Assert: the snapshot future should receive an exception.
@@ -175,9 +176,10 @@ class DefaultSurfaceProcessorTest {
             format = ImageFormat.JPEG
         )
         surfaceProcessor.onOutputSurface(surfaceOutput)
+        val rotationDegrees = 90
 
-        // Act: take a snapshot and draw a Bitmap to the input Surface
-        surfaceProcessor.snapshot(JPEG_QUALITY)
+        // Act: draw a Bitmap to the input Surface and take a snapshot with 90 degrees rotation.
+        surfaceProcessor.snapshot(JPEG_QUALITY, rotationDegrees)
         val inputImage = createBitmap(WIDTH, HEIGHT)
         val inputSurface = surfaceRequest.deferrableSurface.surface.get()
         val canvas = inputSurface.lockHardwareCanvas()
@@ -190,7 +192,8 @@ class DefaultSurfaceProcessorTest {
         val bytes = ByteArray(byteBuffer.remaining())
         byteBuffer.get(bytes)
         val outputImage = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
-        assertThat(getAverageDiff(outputImage, inputImage)).isEqualTo(0)
+        val expectedImage = rotateBitmap(inputImage, rotationDegrees)
+        assertThat(getAverageDiff(outputImage, expectedImage)).isEqualTo(0)
 
         // Cleanup.
         surfaceRequest.deferrableSurface.close()

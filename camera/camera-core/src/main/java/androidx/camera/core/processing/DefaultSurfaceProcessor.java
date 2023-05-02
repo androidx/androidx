@@ -18,6 +18,7 @@ package androidx.camera.core.processing;
 
 import static androidx.camera.core.ImageProcessingUtil.writeJpegBytesToSurface;
 import static androidx.camera.core.impl.ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE;
+import static androidx.camera.core.impl.utils.TransformUtils.rotateSize;
 import static androidx.core.util.Preconditions.checkState;
 
 import static java.util.Objects.requireNonNull;
@@ -28,7 +29,6 @@ import android.graphics.SurfaceTexture;
 import android.opengl.Matrix;
 import android.os.Handler;
 import android.os.HandlerThread;
-import android.util.Pair;
 import android.util.Size;
 import android.view.Surface;
 
@@ -42,17 +42,21 @@ import androidx.camera.core.Logger;
 import androidx.camera.core.SurfaceOutput;
 import androidx.camera.core.SurfaceProcessor;
 import androidx.camera.core.SurfaceRequest;
+import androidx.camera.core.impl.utils.MatrixExt;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.util.Supplier;
 
+import com.google.auto.value.AutoValue;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import kotlin.Triple;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -90,8 +94,7 @@ public class DefaultSurfaceProcessor implements SurfaceProcessorInternal,
     // Only access this on GL thread.
     private boolean mIsReleased = false;
     // Only access this on GL thread.
-    private final List<Pair<CallbackToFutureAdapter.Completer<Void>, Integer>> mPendingSnapshots =
-            new ArrayList<>();
+    private final List<PendingSnapshot> mPendingSnapshots = new ArrayList<>();
 
     /** Constructs {@link DefaultSurfaceProcessor} with default shaders. */
     DefaultSurfaceProcessor() {
@@ -180,13 +183,15 @@ public class DefaultSurfaceProcessor implements SurfaceProcessorInternal,
         });
     }
 
-    @NonNull
     @Override
-    public ListenableFuture<Void> snapshot(@IntRange(from = 0, to = 100) int jpegQuality) {
+    @NonNull
+    public ListenableFuture<Void> snapshot(
+            @IntRange(from = 0, to = 100) int jpegQuality,
+            @IntRange(from = 0, to = 359) int rotationDegrees) {
         return Futures.nonCancellationPropagating(CallbackToFutureAdapter.getFuture(
                 completer -> {
-                    Pair<CallbackToFutureAdapter.Completer<Void>, Integer> pendingSnapshot =
-                            new Pair<>(completer, jpegQuality);
+                    PendingSnapshot pendingSnapshot = PendingSnapshot.of(jpegQuality,
+                            rotationDegrees, completer);
                     executeSafely(
                             () -> mPendingSnapshots.add(pendingSnapshot),
                             () -> completer.setException(new Exception(
@@ -240,6 +245,7 @@ public class DefaultSurfaceProcessor implements SurfaceProcessorInternal,
      *
      * @param jpegOutput The <Surface, Surface size, transform matrix> tuple for drawing.
      */
+    @WorkerThread
     private void takeSnapshotAndDrawJpeg(@Nullable Triple<Surface, Size, float[]> jpegOutput) {
         if (mPendingSnapshots.isEmpty()) {
             // No pending snapshot requests, do nothing.
@@ -252,48 +258,72 @@ public class DefaultSurfaceProcessor implements SurfaceProcessorInternal,
             return;
         }
 
-        // Get snapshot Bitmap.
-        Bitmap bitmap = getBitmap(jpegOutput.getSecond(), jpegOutput.getThird());
-
         // Write to JPEG surface, once for each snapshot request.
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        byte[] jpegBytes = null;
-        int jpegQuality = -1;
-        for (Pair<CallbackToFutureAdapter.Completer<Void>, Integer> pendingSnapshot :
-                mPendingSnapshots) {
-            if (jpegQuality != pendingSnapshot.second) {
-                // If the quality is different, re-encode the bitmap.
-                outputStream.reset();
-                bitmap.compress(Bitmap.CompressFormat.JPEG, pendingSnapshot.second, outputStream);
-                jpegBytes = outputStream.toByteArray();
-                jpegQuality = pendingSnapshot.second;
+        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+            byte[] jpegBytes = null;
+            int jpegQuality = -1;
+            int rotationDegrees = -1;
+            Bitmap bitmap = null;
+            Iterator<PendingSnapshot> iterator = mPendingSnapshots.iterator();
+            while (iterator.hasNext()) {
+                PendingSnapshot pendingSnapshot = iterator.next();
+                // Take a new snapshot if the rotation is different.
+                if (rotationDegrees != pendingSnapshot.getRotationDegrees() || bitmap == null) {
+                    rotationDegrees = pendingSnapshot.getRotationDegrees();
+                    // Recycle the previous bitmap to free up memory.
+                    if (bitmap != null) {
+                        bitmap.recycle();
+                    }
+                    bitmap = getBitmap(jpegOutput.getSecond(), jpegOutput.getThird(),
+                            rotationDegrees);
+                    // Clear JPEG quality to force re-encoding.
+                    jpegQuality = -1;
+                }
+                // Re-encode the bitmap if the quality is different.
+                if (jpegQuality != pendingSnapshot.getJpegQuality()) {
+                    outputStream.reset();
+                    jpegQuality = pendingSnapshot.getJpegQuality();
+                    bitmap.compress(Bitmap.CompressFormat.JPEG, jpegQuality, outputStream);
+                    jpegBytes = outputStream.toByteArray();
+                }
+                writeJpegBytesToSurface(jpegOutput.getFirst(), requireNonNull(jpegBytes));
+                pendingSnapshot.getCompleter().set(null);
+                iterator.remove();
             }
-            writeJpegBytesToSurface(jpegOutput.getFirst(), requireNonNull(jpegBytes));
-            pendingSnapshot.first.set(null);
+        } catch (IOException e) {
+            failAllPendingSnapshots(e);
         }
-        mPendingSnapshots.clear();
     }
 
     private void failAllPendingSnapshots(@NonNull Throwable throwable) {
-        for (Pair<CallbackToFutureAdapter.Completer<Void>, Integer> pendingSnapshot :
-                mPendingSnapshots) {
-            pendingSnapshot.first.setException(throwable);
+        for (PendingSnapshot pendingSnapshot : mPendingSnapshots) {
+            pendingSnapshot.getCompleter().setException(throwable);
         }
         mPendingSnapshots.clear();
     }
 
     @NonNull
-    private Bitmap getBitmap(@NonNull Size size, @NonNull float[] textureTransform) {
+    private Bitmap getBitmap(@NonNull Size size,
+            @NonNull float[] textureTransform,
+            int rotationDegrees) {
         // Flip the snapshot. This is for reverting the GL transform added in SurfaceOutputImpl.
         float[] snapshotTransform = new float[16];
         // TODO(b/278109696): move GL flipping to MatrixExt.
         Matrix.setIdentityM(snapshotTransform, 0);
         Matrix.translateM(snapshotTransform, 0, 0f, 1f, 0f);
         Matrix.scaleM(snapshotTransform, 0, 1f, -1f, 1f);
+
+        // Rotate the output if requested.
+        MatrixExt.preRotate(snapshotTransform, rotationDegrees, 0.5f, 0.5f);
+
+        // Apply the texture transform.
         Matrix.multiplyMM(snapshotTransform, 0, snapshotTransform, 0, textureTransform, 0);
+
+        // Update the size based on the rotation degrees.
+        size = rotateSize(size, rotationDegrees);
+
         // Take a snapshot Bitmap and compress it to JPEG.
         return mGlRenderer.snapshot(size, snapshotTransform);
-
     }
 
     @WorkerThread
@@ -303,9 +333,8 @@ public class DefaultSurfaceProcessor implements SurfaceProcessorInternal,
             for (SurfaceOutput surfaceOutput : mOutputSurfaces.keySet()) {
                 surfaceOutput.close();
             }
-            for (Pair<CallbackToFutureAdapter.Completer<Void>, Integer> pendingSnapshot :
-                    mPendingSnapshots) {
-                pendingSnapshot.first.setException(
+            for (PendingSnapshot pendingSnapshot : mPendingSnapshots) {
+                pendingSnapshot.getCompleter().setException(
                         new Exception("Failed to snapshot: DefaultSurfaceProcessor is released."));
             }
             mOutputSurfaces.clear();
@@ -358,6 +387,31 @@ public class DefaultSurfaceProcessor implements SurfaceProcessorInternal,
         } catch (RejectedExecutionException e) {
             Logger.w(TAG, "Unable to executor runnable", e);
             onFailure.run();
+        }
+    }
+
+    /**
+     * A pending snapshot request to be executed on the next frame available.
+     */
+    @AutoValue
+    abstract static class PendingSnapshot {
+
+        @IntRange(from = 0, to = 100)
+        abstract int getJpegQuality();
+
+        @IntRange(from = 0, to = 359)
+        abstract int getRotationDegrees();
+
+        @NonNull
+        abstract CallbackToFutureAdapter.Completer<Void> getCompleter();
+
+        @NonNull
+        static AutoValue_DefaultSurfaceProcessor_PendingSnapshot of(
+                @IntRange(from = 0, to = 100) int jpegQuality,
+                @IntRange(from = 0, to = 359) int rotationDegrees,
+                @NonNull CallbackToFutureAdapter.Completer<Void> completer) {
+            return new AutoValue_DefaultSurfaceProcessor_PendingSnapshot(
+                    jpegQuality, rotationDegrees, completer);
         }
     }
 

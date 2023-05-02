@@ -30,6 +30,7 @@ import android.graphics.Rect;
 import android.os.Build;
 import android.util.Size;
 
+import androidx.annotation.IntRange;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -102,10 +103,11 @@ public class StreamSharing extends UseCase {
             @NonNull UseCaseConfigFactory useCaseConfigFactory) {
         super(DEFAULT_CONFIG);
         mVirtualCamera = new VirtualCamera(parentCamera, children, useCaseConfigFactory,
-                jpegQuality -> {
+                (jpegQuality, rotationDegrees) -> {
                     SurfaceProcessorNode sharingNode = mSharingNode;
                     if (sharingNode != null) {
-                        return sharingNode.getSurfaceProcessor().snapshot(jpegQuality);
+                        return sharingNode.getSurfaceProcessor().snapshot(
+                                jpegQuality, rotationDegrees);
                     } else {
                         return Futures.immediateFailedFuture(new Exception(
                                 "Failed to take picture: pipeline is not ready."));
@@ -312,7 +314,9 @@ public class StreamSharing extends UseCase {
          * Takes a snapshot of the current stream and write it to the children with JPEG Surface.
          */
         @NonNull
-        ListenableFuture<Void> jpegSnapshot(int jpegQuality);
+        ListenableFuture<Void> jpegSnapshot(
+                @IntRange(from = 0, to = 100) int jpegQuality,
+                @IntRange(from = 0, to = 359) int rotationDegrees);
     }
 
     @VisibleForTesting
