@@ -21,6 +21,7 @@ import androidx.appactions.interaction.capabilities.core.Capability
 import androidx.appactions.interaction.capabilities.core.HostProperties
 import androidx.appactions.interaction.capabilities.core.impl.CapabilitySession
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpec
+import androidx.appactions.interaction.capabilities.core.properties.Property
 import androidx.appactions.interaction.proto.AppActionsContext.AppAction
 import androidx.appactions.interaction.proto.TaskInfo
 import java.util.function.Supplier
@@ -34,7 +35,6 @@ import java.util.function.Supplier
  * @param sessionUpdaterSupplier a Supplier of SessionUpdaterT instances
  */
 internal class TaskCapabilityImpl<
-    PropertyT,
     ArgumentsT,
     OutputT,
     ExecutionSessionT : BaseExecutionSession<ArgumentsT, OutputT>,
@@ -43,8 +43,8 @@ internal class TaskCapabilityImpl<
     >
 constructor(
     id: String,
-    private val actionSpec: ActionSpec<PropertyT, ArgumentsT, OutputT>,
-    private val property: PropertyT,
+    private val actionSpec: ActionSpec<ArgumentsT, OutputT>,
+    private val property: Map<String, Property<*>>,
     private val sessionFactory: (hostProperties: HostProperties?) -> ExecutionSessionT?,
     private val sessionBridge: SessionBridge<ExecutionSessionT, ConfirmationT>,
     private val sessionUpdaterSupplier: Supplier<SessionUpdaterT>

@@ -39,7 +39,7 @@ internal class TaskCapabilitySession<
     ConfirmationT,
 >(
     override val sessionId: String,
-    actionSpec: ActionSpec<*, ArgumentsT, OutputT>,
+    actionSpec: ActionSpec<ArgumentsT, OutputT>,
     appAction: AppAction,
     taskHandler: TaskHandler<ConfirmationT>,
     externalSession: BaseExecutionSession<ArgumentsT, OutputT>,

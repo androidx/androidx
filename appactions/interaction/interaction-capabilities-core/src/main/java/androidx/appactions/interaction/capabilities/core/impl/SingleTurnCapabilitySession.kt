@@ -42,7 +42,7 @@ internal class SingleTurnCapabilitySession<
     OutputT,
     >(
     override val sessionId: String,
-    private val actionSpec: ActionSpec<*, ArgumentsT, OutputT>,
+    private val actionSpec: ActionSpec<ArgumentsT, OutputT>,
     private val executionCallback: ExecutionCallback<ArgumentsT, OutputT>,
     private val mutex: Mutex,
     private val scope: CoroutineScope = CoroutineScope(Dispatchers.Default),

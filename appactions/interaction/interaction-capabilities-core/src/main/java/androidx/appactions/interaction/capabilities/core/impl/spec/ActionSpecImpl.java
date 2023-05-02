@@ -21,6 +21,7 @@ import static androidx.appactions.interaction.capabilities.core.impl.utils.Immut
 import androidx.annotation.NonNull;
 import androidx.appactions.interaction.capabilities.core.impl.BuilderOf;
 import androidx.appactions.interaction.capabilities.core.impl.exceptions.StructConversionException;
+import androidx.appactions.interaction.capabilities.core.properties.Property;
 import androidx.appactions.interaction.proto.AppActionsContext.AppAction;
 import androidx.appactions.interaction.proto.FulfillmentResponse.StructuredOutput;
 import androidx.appactions.interaction.proto.ParamValue;
@@ -33,18 +34,18 @@ import java.util.function.Supplier;
 
 /** The implementation of {@code ActionSpec} interface. */
 final class ActionSpecImpl<
-                PropertyT, ArgumentsT, ArgumentsBuilderT extends BuilderOf<ArgumentsT>, OutputT>
-        implements ActionSpec<PropertyT, ArgumentsT, OutputT> {
+        ArgumentsT, ArgumentsBuilderT extends BuilderOf<ArgumentsT>, OutputT>
+        implements ActionSpec<ArgumentsT, OutputT> {
 
     private final String mCapabilityName;
     private final Supplier<ArgumentsBuilderT> mArgumentBuilderSupplier;
-    private final List<ParamBinding<PropertyT, ArgumentsT, ArgumentsBuilderT>> mParamBindingList;
+    private final List<ParamBinding<ArgumentsT, ArgumentsBuilderT>> mParamBindingList;
     private final Map<String, Function<OutputT, List<ParamValue>>> mOutputBindings;
 
     ActionSpecImpl(
             String capabilityName,
             Supplier<ArgumentsBuilderT> argumentBuilderSupplier,
-            List<ParamBinding<PropertyT, ArgumentsT, ArgumentsBuilderT>> paramBindingList,
+            List<ParamBinding<ArgumentsT, ArgumentsBuilderT>> paramBindingList,
             Map<String, Function<OutputT, List<ParamValue>>> outputBindings) {
         this.mCapabilityName = capabilityName;
         this.mArgumentBuilderSupplier = argumentBuilderSupplier;
@@ -54,7 +55,7 @@ final class ActionSpecImpl<
 
     @NonNull
     @Override
-    public AppAction convertPropertyToProto(PropertyT property) {
+    public AppAction convertPropertyToProto(@NonNull Map<String, Property<?>> property) {
         return AppAction.newBuilder()
                 .setName(mCapabilityName)
                 .addAllParams(
@@ -71,7 +72,7 @@ final class ActionSpecImpl<
     public ArgumentsT buildArguments(@NonNull Map<String, List<ParamValue>> args)
             throws StructConversionException {
         ArgumentsBuilderT argumentBuilder = mArgumentBuilderSupplier.get();
-        for (ParamBinding<PropertyT, ArgumentsT, ArgumentsBuilderT> binding : mParamBindingList) {
+        for (ParamBinding<ArgumentsT, ArgumentsBuilderT> binding : mParamBindingList) {
             List<ParamValue> paramValues = args.get(binding.name());
             if (paramValues == null) {
                 continue;

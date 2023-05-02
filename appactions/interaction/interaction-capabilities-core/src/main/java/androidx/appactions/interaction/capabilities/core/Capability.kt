@@ -20,9 +20,10 @@ import androidx.annotation.RestrictTo
 import androidx.appactions.interaction.capabilities.core.impl.CapabilitySession
 import androidx.appactions.interaction.capabilities.core.impl.SingleTurnCapabilityImpl
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpec
+import androidx.appactions.interaction.capabilities.core.impl.task.EmptyTaskUpdater
 import androidx.appactions.interaction.capabilities.core.impl.task.SessionBridge
 import androidx.appactions.interaction.capabilities.core.impl.task.TaskCapabilityImpl
-import androidx.appactions.interaction.capabilities.core.impl.task.EmptyTaskUpdater
+import androidx.appactions.interaction.capabilities.core.properties.Property
 import androidx.appactions.interaction.proto.AppActionsContext.AppAction
 
 /**
@@ -61,27 +62,25 @@ abstract class Capability internal constructor(
         BuilderT :
         Builder<
             BuilderT,
-            PropertyT,
             ArgumentsT,
             OutputT,
             ConfirmationT,
             ExecutionSessionT
             >,
-        PropertyT,
         ArgumentsT,
         OutputT,
         ConfirmationT,
         ExecutionSessionT : BaseExecutionSession<ArgumentsT, OutputT>
         > private constructor() {
         private var id: String? = null
-        private var property: PropertyT? = null
+        private var property: Map<String, Property<*>>? = null
         private var executionCallback: ExecutionCallback<ArgumentsT, OutputT>? = null
         private var sessionFactory:
-                    (hostProperties: HostProperties?) -> ExecutionSessionT? = { _ -> null }
-        private var actionSpec: ActionSpec<PropertyT, ArgumentsT, OutputT>? = null
+                (hostProperties: HostProperties?) -> ExecutionSessionT? = { _ -> null }
+        private var actionSpec: ActionSpec<ArgumentsT, OutputT>? = null
 
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        constructor(actionSpec: ActionSpec<PropertyT, ArgumentsT, OutputT>) : this() {
+        constructor(actionSpec: ActionSpec<ArgumentsT, OutputT>) : this() {
             this.actionSpec = actionSpec
         }
 
@@ -111,7 +110,7 @@ abstract class Capability internal constructor(
          * Sets the Property instance for this capability.
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        fun setProperty(property: PropertyT) = asBuilder().apply {
+        fun setProperty(property: Map<String, Property<*>>) = asBuilder().apply {
             this.property = property
         }
 

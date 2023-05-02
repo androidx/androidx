@@ -19,31 +19,30 @@ package androidx.appactions.interaction.capabilities.core.impl.spec;
 import androidx.annotation.NonNull;
 import androidx.appactions.interaction.capabilities.core.impl.BuilderOf;
 import androidx.appactions.interaction.capabilities.core.impl.exceptions.StructConversionException;
+import androidx.appactions.interaction.capabilities.core.properties.Property;
 import androidx.appactions.interaction.proto.AppActionsContext.IntentParameter;
 import androidx.appactions.interaction.proto.ParamValue;
 
 import com.google.auto.value.AutoValue;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 
 /**
  * A binding between a parameter and its Property converter / Argument setter.
- *
- * @param <PropertyT>
- * @param <ArgumentsT>
- * @param <ArgumentsBuilderT>
  */
 @AutoValue
 public abstract class ParamBinding<
-        PropertyT, ArgumentsT, ArgumentsBuilderT extends BuilderOf<ArgumentsT>> {
+        ArgumentsT, ArgumentsBuilderT extends BuilderOf<ArgumentsT>> {
 
-    static <PropertyT, ArgumentsT, ArgumentsBuilderT extends BuilderOf<ArgumentsT>>
-            ParamBinding<PropertyT, ArgumentsT, ArgumentsBuilderT> create(
-                    String name,
-                    Function<? super PropertyT, Optional<IntentParameter>> paramGetter,
-                    ArgumentSetter<ArgumentsBuilderT> argumentSetter) {
+    static <ArgumentsT, ArgumentsBuilderT extends BuilderOf<ArgumentsT>>
+    ParamBinding<ArgumentsT, ArgumentsBuilderT> create(
+            String name,
+            Function<Map<String, Property<?>>,
+                    Optional<IntentParameter>> paramGetter,
+            ArgumentSetter<ArgumentsBuilderT> argumentSetter) {
         return new AutoValue_ParamBinding<>(name, paramGetter, argumentSetter);
     }
 
@@ -52,11 +51,13 @@ public abstract class ParamBinding<
     public abstract String name();
 
     /**
-     * Converts a {@code PropertyT} to an {@code IntentParameter} proto. The resulting proto is the
+     * Converts a {@code Property Map} to an {@code IntentParameter} proto. The resulting proto is
+     * the
      * format which we send the current params to Assistant (via. app actions context).
      */
     @NonNull
-    public abstract Function<? super PropertyT, Optional<IntentParameter>> paramGetter();
+    public abstract Function<Map<String, Property<?>>,
+            Optional<IntentParameter>> paramGetter();
 
     /**
      * Populates the {@code ArgumentsBuilderT} for this param with the {@code ParamValue} sent from
