@@ -52,12 +52,15 @@ internal data class SessionConfigData(
     val executor: Executor,
     val stateCallback: CameraCaptureSessionWrapper.StateCallback,
     val sessionTemplateId: Int,
-    val sessionParameters: Map<*, Any?>
+    val sessionParameters: Map<*, Any?>,
+    val extensionMode: Int? = null,
+    val extensionStateCallback: CameraExtensionSessionWrapper.StateCallback? = null
 ) {
     companion object {
         /* NOTE: These must keep in sync with their SessionConfiguration values. */
         const val SESSION_TYPE_REGULAR = 0
         const val SESSION_TYPE_HIGH_SPEED = 1
+        const val SESSION_TYPE_EXTENSION = 2
     }
 }
 
