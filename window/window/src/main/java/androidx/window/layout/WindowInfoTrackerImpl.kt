@@ -65,8 +65,4 @@ internal class WindowInfoTrackerImpl(
             }
         }
     }
-
-    internal companion object {
-        private const val BUFFER_CAPACITY = 10
-    }
 }

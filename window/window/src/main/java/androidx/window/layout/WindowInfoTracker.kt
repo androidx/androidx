@@ -24,7 +24,6 @@ import androidx.annotation.RestrictTo
 import androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP
 import androidx.annotation.UiContext
 import androidx.window.core.ConsumerAdapter
-import androidx.window.core.ExperimentalWindowApi
 import androidx.window.layout.adapter.WindowBackend
 import androidx.window.layout.adapter.extensions.ExtensionWindowLayoutInfoBackend
 import androidx.window.layout.adapter.sidecar.SidecarWindowBackend
@@ -62,9 +61,9 @@ interface WindowInfoTracker {
      * @throws NotImplementedError when [Context] is not an [UiContext] or this method has no
      * supporting implementation.
      */
-    @ExperimentalWindowApi
     fun windowLayoutInfo(@UiContext context: Context): Flow<WindowLayoutInfo> {
-        val windowLayoutInfoFlow: Flow<WindowLayoutInfo>? = windowLayoutInfo((context as Activity))
+        val windowLayoutInfoFlow: Flow<WindowLayoutInfo>? = (context as? Activity)
+            ?.let { activity -> windowLayoutInfo(activity) }
         return windowLayoutInfoFlow
             ?: throw NotImplementedError(
                 message = "Must override windowLayoutInfo(context) and provide an implementation.")
