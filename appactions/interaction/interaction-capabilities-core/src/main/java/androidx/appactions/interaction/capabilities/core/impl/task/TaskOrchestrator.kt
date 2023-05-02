@@ -177,13 +177,13 @@ internal class TaskOrchestrator<ArgumentsT, OutputT, ConfirmationT>(
         val callback = assistantUpdateRequest.callbackInternal
         val fulfillmentResult: FulfillmentResult
         if (argumentsWrapper.requestMetadata == null) {
-            fulfillmentResult = FulfillmentResult(ErrorStatusInternal.INVALID_REQUEST_TYPE)
+            fulfillmentResult = FulfillmentResult(ErrorStatusInternal.INVALID_REQUEST)
         } else {
             fulfillmentResult = when (argumentsWrapper.requestMetadata.requestType()) {
                 FulfillmentRequest.Fulfillment.Type.UNRECOGNIZED,
                 FulfillmentRequest.Fulfillment.Type.UNKNOWN_TYPE,
                 ->
-                    FulfillmentResult(ErrorStatusInternal.INVALID_REQUEST_TYPE)
+                    FulfillmentResult(ErrorStatusInternal.INVALID_REQUEST)
 
                 FulfillmentRequest.Fulfillment.Type.SYNC -> handleSync(argumentsWrapper)
                 FulfillmentRequest.Fulfillment.Type.CONFIRM -> handleConfirm()

@@ -14,17 +14,10 @@
  * limitations under the License.
  */
 
-package androidx.appactions.interaction.capabilities.core.impl.exceptions;
-
-import androidx.annotation.Nullable;
+package androidx.appactions.interaction.capabilities.core.impl.exceptions
 
 /** Represents exceptions that happen during object conversion to/from Struct proto. */
-public class StructConversionException extends Exception {
-    public StructConversionException(@Nullable String message) {
-        super(message);
-    }
-
-    public StructConversionException(@Nullable String message, @Nullable Throwable cause) {
-        super(message, cause);
-    }
+class StructConversionException : InvalidRequestException {
+    constructor(message: String?) : super(message)
+    constructor(message: String?, cause: Throwable?) : super(message, cause)
 }
