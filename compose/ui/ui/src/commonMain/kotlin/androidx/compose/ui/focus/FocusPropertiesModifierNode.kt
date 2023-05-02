@@ -30,9 +30,9 @@ interface FocusPropertiesModifierNode : DelegatableNode {
      * [FocusPropertiesModifierNode]s, properties set by a parent higher up in the hierarchy
      * overwrite properties set by those that are lower in the hierarchy.
      */
-    fun modifyFocusProperties(focusProperties: FocusProperties)
+    fun applyFocusProperties(focusProperties: FocusProperties)
 }
 
-internal fun FocusPropertiesModifierNode.invalidateFocusProperties() {
+fun FocusPropertiesModifierNode.invalidateFocusProperties() {
     requireOwner().focusOwner.scheduleInvalidation(this)
 }

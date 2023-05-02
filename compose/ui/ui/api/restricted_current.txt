@@ -384,7 +384,11 @@ package androidx.compose.ui.focus {
   }
 
   public interface FocusPropertiesModifierNode extends androidx.compose.ui.node.DelegatableNode {
-    method public void modifyFocusProperties(androidx.compose.ui.focus.FocusProperties focusProperties);
+    method public void applyFocusProperties(androidx.compose.ui.focus.FocusProperties focusProperties);
+  }
+
+  public final class FocusPropertiesModifierNodeKt {
+    method public static void invalidateFocusProperties(androidx.compose.ui.focus.FocusPropertiesModifierNode);
   }
 
   @androidx.compose.runtime.Stable public final class FocusRequester {
