@@ -16,6 +16,8 @@
 
 package androidx.camera.integration.core;
 
+import static androidx.camera.core.impl.utils.TransformUtils.within360;
+
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.SurfaceTexture;
@@ -503,7 +505,7 @@ final class OpenGLRenderer {
         if (mHasCameraTransform) {
             // If the Surface is connected to the camera, there is surface rotation encoded in
             // the SurfaceTexture.
-            return (mTextureRotationDegrees + mSurfaceRotationDegrees) % 360;
+            return within360((180 - mTextureRotationDegrees) + mSurfaceRotationDegrees);
         } else {
             // When the Surface is connected to an internal OpenGl renderer, the texture rotation
             // is always 0. Use the rotation provided by SurfaceRequest instead.
@@ -553,7 +555,7 @@ final class OpenGLRenderer {
     private void updateModelTransform() {
         // Remove the rotation to the device 'natural' orientation so our world space will be in
         // sensor coordinates.
-        Matrix.setRotateM(mTempMatrix, 0, mTextureRotationDegrees, 0.0f, 0.0f, 1.0f);
+        Matrix.setRotateM(mTempMatrix, 0, -(180 - mTextureRotationDegrees), 0.0f, 0.0f, 1.0f);
 
         Matrix.setIdentityM(mTempMatrix, 16);
         // Translate to the upper left corner of the quad so we are in buffer space
