@@ -71,6 +71,8 @@ import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.SurfaceTextureProvider
 import androidx.camera.testing.fakes.FakeLifecycleOwner
 import androidx.camera.testing.fakes.FakeSessionProcessor
+import androidx.camera.video.Recorder
+import androidx.camera.video.VideoCapture
 import androidx.core.content.ContextCompat
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
@@ -96,6 +98,7 @@ import org.junit.Assume.assumeFalse
 import org.junit.Assume.assumeNotNull
 import org.junit.Assume.assumeTrue
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
@@ -1566,6 +1569,48 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
         withContext(Dispatchers.Main) {
             // Test the reproduce step in b/235119898
             cameraProvider.unbind(preview)
+            imageCapture.takePicture(mainExecutor, callback)
+        }
+
+        // Assert.
+        callback.awaitCapturesAndAssert(capturedImagesCount = 1)
+    }
+
+    @Test
+    @Ignore("b/280379397")
+    fun unbindVideoCaptureWithoutStartingRecorder_imageCapturingShouldSuccess() = runBlocking {
+        // Arrange.
+        val imageCapture = ImageCapture.Builder().build()
+        val videoStreamReceived = CompletableDeferred<Boolean>()
+        val videoCapture = VideoCapture.Builder<Recorder>(Recorder.Builder().build()).also {
+            CameraPipeUtil.setCameraCaptureSessionCallback(
+                implName,
+                it,
+                object : CaptureCallback() {
+                    override fun onCaptureCompleted(
+                        session: CameraCaptureSession,
+                        request: CaptureRequest,
+                        result: TotalCaptureResult
+                    ) {
+                        videoStreamReceived.complete(true)
+                    }
+                })
+        }.build()
+
+        withContext(Dispatchers.Main) {
+            cameraProvider.bindToLifecycle(
+                fakeLifecycleOwner, BACK_SELECTOR, imageCapture, videoCapture
+            )
+        }
+
+        assertWithMessage("VideoCapture doesn't start").that(
+            videoStreamReceived.awaitWithTimeoutOrNull()
+        ).isTrue()
+
+        // Act.
+        val callback = FakeImageCaptureCallback(capturesCount = 1)
+        withContext(Dispatchers.Main) {
+            cameraProvider.unbind(videoCapture)
             imageCapture.takePicture(mainExecutor, callback)
         }
 
