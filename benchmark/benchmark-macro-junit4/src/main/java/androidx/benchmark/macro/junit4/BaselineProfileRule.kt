@@ -125,7 +125,7 @@ class BaselineProfileRule : TestRule {
         iterations: Int = 3,
         outputFilePrefix: String? = null,
         includeInStartupProfile: Boolean = false,
-        filterPredicate: ((String) -> Boolean)? = null,
+        filterPredicate: ((String) -> Boolean) = { true },
         profileBlock: MacrobenchmarkScope.() -> Unit
     ) {
         collectBaselineProfile(
@@ -170,7 +170,7 @@ class BaselineProfileRule : TestRule {
         outputFilePrefix: String? = null,
         includeInStartupProfile: Boolean = false,
         strictStability: Boolean = false,
-        filterPredicate: ((String) -> Boolean)? = null,
+        filterPredicate: ((String) -> Boolean) = { true },
         profileBlock: MacrobenchmarkScope.() -> Unit
     ) {
         collectStableBaselineProfile(
