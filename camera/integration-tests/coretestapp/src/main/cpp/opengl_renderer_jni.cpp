@@ -434,7 +434,7 @@ Java_androidx_camera_integration_core_OpenGLRenderer_getTexName(
 JNIEXPORT jboolean JNICALL
 Java_androidx_camera_integration_core_OpenGLRenderer_renderTexture(
         JNIEnv *env, jclass clazz, jlong context, jlong timestampNs,
-        jfloatArray jmvpTransformArray, jboolean mvpDirty,jfloatArray jtexTransformArray) {
+        jfloatArray jmvpTransformArray, jboolean mvpDirty, jfloatArray jtexTransformArray) {
     auto *nativeContext = reinterpret_cast<NativeContext *>(context);
 
     // We use two triangles drawn with GL_TRIANGLE_STRIP to create the surface which will be
@@ -452,16 +452,16 @@ Java_androidx_camera_integration_core_OpenGLRenderer_renderTexture(
     //                          +---------------+
     //                       (-1,1)           (1,1)
     constexpr GLfloat vertices[] = {
-            -1.0f,  1.0f, // Lower-left
-             1.0f,  1.0f, // Lower-right
+            -1.0f, 1.0f, // Lower-left
+            1.0f, 1.0f, // Lower-right
             -1.0f, -1.0f, // Upper-left (notice order here. We're drawing triangles, not a quad.)
-             1.0f, -1.0f  // Upper-right
+            1.0f, -1.0f  // Upper-right
     };
     constexpr GLfloat texCoords[] = {
-            0.0f, 1.0f, // Upper-left
-            1.0f, 1.0f, // Upper-right
             0.0f, 0.0f, // Lower-left
             1.0f, 0.0f, // Lower-right
+            0.0f, 1.0f, // Upper-left (order must match the vertices)
+            1.0f, 1.0f,  // Upper-right
     };
 
     GLint vertexComponents = 2;
