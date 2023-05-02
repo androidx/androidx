@@ -80,8 +80,7 @@ fun Card(
         onClick = onClick,
         modifier = modifier,
         shape = shape.toClickableSurfaceShape(),
-        color = colors.toClickableSurfaceContainerColor(),
-        contentColor = colors.toClickableSurfaceContentColor(),
+        colors = colors.toClickableSurfaceColors(),
         scale = scale.toClickableSurfaceScale(),
         border = border.toClickableSurfaceBorder(),
         glow = glow.toClickableSurfaceGlow(),
@@ -526,21 +525,16 @@ private const val SubtitleAlpha = 0.6f
 private const val DescriptionAlpha = 0.8f
 
 @OptIn(ExperimentalTvMaterial3Api::class)
-private fun CardColors.toClickableSurfaceContainerColor() =
-    ClickableSurfaceColor(
-        color = containerColor,
-        focusedColor = focusedContainerColor,
-        pressedColor = pressedContainerColor,
-        disabledColor = containerColor
-    )
-
-@OptIn(ExperimentalTvMaterial3Api::class)
-private fun CardColors.toClickableSurfaceContentColor() =
-    ClickableSurfaceColor(
-        color = contentColor,
-        focusedColor = focusedContentColor,
-        pressedColor = pressedContentColor,
-        disabledColor = contentColor
+private fun CardColors.toClickableSurfaceColors() =
+    ClickableSurfaceColors(
+        containerColor = containerColor,
+        contentColor = contentColor,
+        focusedContainerColor = focusedContainerColor,
+        focusedContentColor = focusedContentColor,
+        pressedContainerColor = pressedContainerColor,
+        pressedContentColor = pressedContentColor,
+        disabledContainerColor = containerColor,
+        disabledContentColor = contentColor
     )
 
 @OptIn(ExperimentalTvMaterial3Api::class)

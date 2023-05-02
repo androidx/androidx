@@ -36,15 +36,21 @@ object NonInteractiveSurfaceDefaults {
     val shape: Shape @ReadOnlyComposable @Composable get() = MaterialTheme.shapes.medium
 
     /**
-     * Represents the default container color used by a non-interactive [Surface]
+     * Creates a [NonInteractiveSurfaceColors] that represents the default container & content
+     * colors used by a non-interactive [Surface].
+     *
+     * @param containerColor the container color of this Surface
+     * @param contentColor the content color of this Surface
      */
-    val color: Color @ReadOnlyComposable @Composable get() = MaterialTheme.colorScheme.surface
-
-    /**
-     * Represents the default content color used by a non-interactive [Surface]
-     */
-    val contentColor: Color @ReadOnlyComposable @Composable get() =
-        MaterialTheme.colorScheme.onSurface
+    @ReadOnlyComposable
+    @Composable
+    fun colors(
+        containerColor: Color = MaterialTheme.colorScheme.surface,
+        contentColor: Color = contentColorFor(containerColor)
+    ) = NonInteractiveSurfaceColors(
+        containerColor = containerColor,
+        contentColor = contentColor
+    )
 
     /**
      * Represents the default border used by a non-interactive [Surface]
@@ -104,66 +110,68 @@ object ClickableSurfaceDefaults {
         focusedDisabledShape = focusedDisabledShape
     )
 
-    internal fun color(
+    internal fun containerColor(
         enabled: Boolean,
         focused: Boolean,
         pressed: Boolean,
-        color: ClickableSurfaceColor
+        colors: ClickableSurfaceColors
     ): Color {
         return when {
-            pressed && enabled -> color.pressedColor
-            focused && enabled -> color.focusedColor
-            enabled -> color.color
-            else -> color.disabledColor
+            pressed && enabled -> colors.pressedContainerColor
+            focused && enabled -> colors.focusedContainerColor
+            enabled -> colors.containerColor
+            else -> colors.disabledContainerColor
+        }
+    }
+
+    internal fun contentColor(
+        enabled: Boolean,
+        focused: Boolean,
+        pressed: Boolean,
+        colors: ClickableSurfaceColors
+    ): Color {
+        return when {
+            pressed && enabled -> colors.pressedContentColor
+            focused && enabled -> colors.focusedContentColor
+            enabled -> colors.contentColor
+            else -> colors.disabledContentColor
         }
     }
 
     /**
-     * Creates a [ClickableSurfaceColor] that represents the default container colors used in a
-     * Surface.
+     * Creates a [ClickableSurfaceColors] that represents the default container & content colors
+     * used in a Surface.
      *
-     * @param color the container color of this Surface when enabled
-     * @param focusedColor the container color of this Surface when enabled and focused
-     * @param pressedColor the container color of this Surface when enabled and pressed
-     * @param disabledColor the container color of this Surface when not enabled
+     * @param containerColor the container color of this Surface when enabled
+     * @param contentColor the content color of this Surface when enabled
+     * @param focusedContainerColor the container color of this Surface when enabled and focused
+     * @param focusedContentColor the content color of this Surface when enabled and focused
+     * @param pressedContainerColor the container color of this Surface when enabled and pressed
+     * @param pressedContentColor the content color of this Surface when enabled and pressed
+     * @param disabledContainerColor the container color of this Surface when not enabled
+     * @param disabledContentColor the content color of this Surface when not enabled
      */
     @ReadOnlyComposable
     @Composable
-    fun color(
-        color: Color = MaterialTheme.colorScheme.surface,
-        focusedColor: Color = MaterialTheme.colorScheme.inverseSurface,
-        pressedColor: Color = MaterialTheme.colorScheme.inverseSurface,
-        disabledColor: Color = MaterialTheme.colorScheme.surfaceVariant.copy(
-            alpha = DisabledBackgroundAlpha
-        )
-    ) = ClickableSurfaceColor(
-        color = color,
-        focusedColor = focusedColor,
-        pressedColor = pressedColor,
-        disabledColor = disabledColor
-    )
-
-    /**
-     * Creates a [ClickableSurfaceColor] that represents the default content colors used in a
-     * Surface.
-     *
-     * @param color the content color of this Surface when enabled
-     * @param focusedColor the content color of this Surface when enabled and focused
-     * @param pressedColor the content color of this Surface when enabled and pressed
-     * @param disabledColor the content color of this Surface when not enabled
-     */
-    @ReadOnlyComposable
-    @Composable
-    fun contentColor(
-        color: Color = MaterialTheme.colorScheme.onSurface,
-        focusedColor: Color = MaterialTheme.colorScheme.inverseOnSurface,
-        pressedColor: Color = MaterialTheme.colorScheme.inverseOnSurface,
-        disabledColor: Color = MaterialTheme.colorScheme.onSurface
-    ) = ClickableSurfaceColor(
-        color = color,
-        focusedColor = focusedColor,
-        pressedColor = pressedColor,
-        disabledColor = disabledColor
+    fun colors(
+        containerColor: Color = MaterialTheme.colorScheme.surface,
+        contentColor: Color = contentColorFor(containerColor),
+        focusedContainerColor: Color = MaterialTheme.colorScheme.inverseSurface,
+        focusedContentColor: Color = contentColorFor(focusedContainerColor),
+        pressedContainerColor: Color = focusedContainerColor,
+        pressedContentColor: Color = contentColorFor(pressedContainerColor),
+        disabledContainerColor: Color = MaterialTheme.colorScheme.surfaceVariant
+            .copy(alpha = DisabledContainerAlpha),
+        disabledContentColor: Color = MaterialTheme.colorScheme.onSurface
+    ) = ClickableSurfaceColors(
+        containerColor = containerColor,
+        contentColor = contentColor,
+        focusedContainerColor = focusedContainerColor,
+        focusedContentColor = focusedContentColor,
+        pressedContainerColor = pressedContainerColor,
+        pressedContentColor = pressedContentColor,
+        disabledContainerColor = disabledContainerColor,
+        disabledContentColor = disabledContentColor
     )
 
     internal fun scale(
@@ -342,69 +350,71 @@ object ToggleableSurfaceDefaults {
     )
 
     /**
-     * Creates a [ToggleableSurfaceColor] that represents the default container colors used in a
-     * toggleable Surface.
+     * Creates a [ToggleableSurfaceColors] that represents the default container & content colors
+     * used in a toggleable Surface.
      *
-     * @param color the color used when the Surface is enabled, and has no other [Interaction]s.
-     * @param focusedColor the color used when the Surface is enabled and focused.
-     * @param pressedColor the color used when the Surface is enabled and pressed.
-     * @param selectedColor the color used when the Surface is enabled and selected.
-     * @param disabledColor the color used when the Surface is not enabled.
-     * @param focusedSelectedColor the color used when the Surface is enabled, focused and selected.
-     * @param pressedSelectedColor the color used when the Surface is enabled, pressed and selected.
+     * @param containerColor the container color used when the Surface is enabled, and has no other
+     * [Interaction]s.
+     * @param contentColor the content color used when the Surface is enabled, and has no other
+     * [Interaction]s.
+     * @param focusedContainerColor the container color used when the Surface is enabled and
+     * focused.
+     * @param focusedContentColor the content color used when the Surface is enabled and
+     * focused.
+     * @param pressedContainerColor the container color used when the Surface is enabled and
+     * pressed.
+     * @param pressedContentColor the content color used when the Surface is enabled and
+     * pressed.
+     * @param selectedContainerColor the container color used when the Surface is enabled and
+     * selected.
+     * @param selectedContentColor the content color used when the Surface is enabled and
+     * selected.
+     * @param disabledContainerColor the container color used when the Surface is not enabled.
+     * @param disabledContentColor the content color used when the Surface is not enabled.
+     * @param focusedSelectedContainerColor the container color used when the Surface is enabled,
+     * focused and selected.
+     * @param focusedSelectedContentColor the content color used when the Surface is enabled,
+     * focused and selected.
+     * @param pressedSelectedContainerColor the container color used when the Surface is enabled,
+     * pressed and selected.
+     * @param pressedSelectedContentColor the content color used when the Surface is enabled,
+     * pressed and selected.
      */
     @ReadOnlyComposable
     @Composable
-    fun color(
-        color: Color = MaterialTheme.colorScheme.surface,
-        focusedColor: Color = MaterialTheme.colorScheme.inverseSurface,
-        pressedColor: Color = MaterialTheme.colorScheme.inverseSurface,
-        selectedColor: Color = MaterialTheme.colorScheme.inverseSurface.copy(alpha = 0.5f),
-        disabledColor: Color = MaterialTheme.colorScheme.surfaceVariant.copy(
-            alpha = DisabledBackgroundAlpha
-        ),
-        focusedSelectedColor: Color = MaterialTheme.colorScheme.inverseSurface.copy(alpha = 0.5f),
-        pressedSelectedColor: Color = MaterialTheme.colorScheme.inverseSurface.copy(alpha = 0.5f)
-    ) = ToggleableSurfaceColor(
-        color = color,
-        focusedColor = focusedColor,
-        pressedColor = pressedColor,
-        selectedColor = selectedColor,
-        disabledColor = disabledColor,
-        focusedSelectedColor = focusedSelectedColor,
-        pressedSelectedColor = pressedSelectedColor
-    )
-
-    /**
-     * Creates a [ToggleableSurfaceColor] that represents the default content colors used in a
-     * toggleable Surface.
-     *
-     * @param color the color used when the Surface is enabled, and has no other [Interaction]s.
-     * @param focusedColor the color used when the Surface is enabled and focused.
-     * @param pressedColor the color used when the Surface is enabled and pressed.
-     * @param selectedColor the color used when the Surface is enabled and selected.
-     * @param disabledColor the color used when the Surface is not enabled.
-     * @param focusedSelectedColor the color used when the Surface is enabled, focused and selected.
-     * @param pressedSelectedColor the color used when the Surface is enabled, pressed and selected.
-     */
-    @ReadOnlyComposable
-    @Composable
-    fun contentColor(
-        color: Color = MaterialTheme.colorScheme.onSurface,
-        focusedColor: Color = MaterialTheme.colorScheme.inverseOnSurface,
-        pressedColor: Color = MaterialTheme.colorScheme.inverseOnSurface,
-        selectedColor: Color = MaterialTheme.colorScheme.inverseOnSurface,
-        disabledColor: Color = MaterialTheme.colorScheme.onSurface,
-        focusedSelectedColor: Color = MaterialTheme.colorScheme.inverseOnSurface,
-        pressedSelectedColor: Color = MaterialTheme.colorScheme.inverseOnSurface
-    ) = ToggleableSurfaceColor(
-        color = color,
-        focusedColor = focusedColor,
-        pressedColor = pressedColor,
-        selectedColor = selectedColor,
-        disabledColor = disabledColor,
-        focusedSelectedColor = focusedSelectedColor,
-        pressedSelectedColor = pressedSelectedColor
+    fun colors(
+        containerColor: Color = MaterialTheme.colorScheme.surface,
+        contentColor: Color = contentColorFor(containerColor),
+        focusedContainerColor: Color = MaterialTheme.colorScheme.inverseSurface,
+        focusedContentColor: Color = contentColorFor(focusedContainerColor),
+        pressedContainerColor: Color = focusedContainerColor,
+        pressedContentColor: Color = contentColorFor(pressedContainerColor),
+        selectedContainerColor: Color = MaterialTheme.colorScheme.inverseSurface
+            .copy(alpha = SelectedContainerAlpha),
+        selectedContentColor: Color = MaterialTheme.colorScheme.inverseOnSurface,
+        disabledContainerColor: Color = MaterialTheme.colorScheme.surfaceVariant
+            .copy(alpha = DisabledContainerAlpha),
+        disabledContentColor: Color = MaterialTheme.colorScheme.onSurface,
+        focusedSelectedContainerColor: Color = MaterialTheme.colorScheme.inverseSurface
+            .copy(alpha = SelectedContainerAlpha),
+        focusedSelectedContentColor: Color = MaterialTheme.colorScheme.inverseOnSurface,
+        pressedSelectedContainerColor: Color = focusedSelectedContainerColor,
+        pressedSelectedContentColor: Color = focusedSelectedContentColor
+    ) = ToggleableSurfaceColors(
+        containerColor = containerColor,
+        contentColor = contentColor,
+        focusedContainerColor = focusedContainerColor,
+        focusedContentColor = focusedContentColor,
+        pressedContainerColor = pressedContainerColor,
+        pressedContentColor = pressedContentColor,
+        selectedContainerColor = selectedContainerColor,
+        selectedContentColor = selectedContentColor,
+        disabledContainerColor = disabledContainerColor,
+        disabledContentColor = disabledContentColor,
+        focusedSelectedContainerColor = focusedSelectedContainerColor,
+        focusedSelectedContentColor = focusedSelectedContentColor,
+        pressedSelectedContainerColor = pressedSelectedContainerColor,
+        pressedSelectedContentColor = pressedSelectedContentColor
     )
 
     /**
@@ -546,21 +556,39 @@ object ToggleableSurfaceDefaults {
         }
     }
 
-    internal fun color(
+    internal fun containerColor(
         enabled: Boolean,
         focused: Boolean,
         pressed: Boolean,
         selected: Boolean,
-        color: ToggleableSurfaceColor
+        colors: ToggleableSurfaceColors
     ): Color {
         return when {
-            enabled && selected && pressed -> color.pressedSelectedColor
-            enabled && selected && focused -> color.focusedSelectedColor
-            enabled && selected -> color.selectedColor
-            enabled && pressed -> color.pressedColor
-            enabled && focused -> color.focusedColor
-            enabled -> color.color
-            else -> color.disabledColor
+            enabled && selected && pressed -> colors.pressedSelectedContainerColor
+            enabled && selected && focused -> colors.focusedSelectedContainerColor
+            enabled && selected -> colors.selectedContainerColor
+            enabled && pressed -> colors.pressedContainerColor
+            enabled && focused -> colors.focusedContainerColor
+            enabled -> colors.containerColor
+            else -> colors.disabledContainerColor
+        }
+    }
+
+    internal fun contentColor(
+        enabled: Boolean,
+        focused: Boolean,
+        pressed: Boolean,
+        selected: Boolean,
+        colors: ToggleableSurfaceColors
+    ): Color {
+        return when {
+            enabled && selected && pressed -> colors.pressedSelectedContentColor
+            enabled && selected && focused -> colors.focusedSelectedContentColor
+            enabled && selected -> colors.selectedContentColor
+            enabled && pressed -> colors.pressedContentColor
+            enabled && focused -> colors.focusedContentColor
+            enabled -> colors.contentColor
+            else -> colors.disabledContentColor
         }
     }
 
@@ -625,4 +653,5 @@ object ToggleableSurfaceDefaults {
     }
 }
 
-private const val DisabledBackgroundAlpha = 0.4f
+private const val DisabledContainerAlpha = 0.4f
+private const val SelectedContainerAlpha = 0.5f
