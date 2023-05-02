@@ -22,14 +22,20 @@ import org.jetbrains.annotations.NonNls;
  * Android IDL Language.
  */
 public class AidlLanguage extends Language {
+  private static final Object INSTANCE_LOCK = new Object();
+
   public static final Language INSTANCE = getOrCreate();
 
   private static Language getOrCreate() {
-    Language lang = Language.findLanguageByID(ID);
-    if (lang != null) {
-      return lang;
+    // The Language class is not thread-safe, so this is a best-effort to avoid a race condition
+    // during our own access across multiple lint worker threads.
+    synchronized (INSTANCE_LOCK) {
+      Language lang = Language.findLanguageByID(ID);
+      if (lang != null) {
+        return lang;
+      }
+      return new AidlLanguage();
     }
-    return new AidlLanguage();
   }
 
   @NonNls private static final String ID = "AIDL";
