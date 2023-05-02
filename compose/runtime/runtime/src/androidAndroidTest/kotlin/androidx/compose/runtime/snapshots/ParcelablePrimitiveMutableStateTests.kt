@@ -18,14 +18,17 @@ package androidx.compose.runtime.snapshots
 
 import android.os.Parcel
 import android.os.Parcelable
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableDoubleStateOf
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableLongStateOf
 import kotlin.test.assertEquals
 import org.junit.Test
 
 class ParcelablePrimitiveMutableStateTests {
     @Test
     fun saveAndRestoreMutableIntState() {
-        val state = mutableStateOf(0)
+        val state = mutableIntStateOf(0)
         state.intValue = 1
 
         val restored = recreateViaParcel(state)
@@ -34,7 +37,7 @@ class ParcelablePrimitiveMutableStateTests {
 
     @Test
     fun saveAndRestoreMutableLongState() {
-        val state = mutableStateOf(0L)
+        val state = mutableLongStateOf(0L)
         state.longValue = 1
 
         val restored = recreateViaParcel(state)
@@ -43,7 +46,7 @@ class ParcelablePrimitiveMutableStateTests {
 
     @Test
     fun saveAndRestoreMutableFloatState() {
-        val state = mutableStateOf(0f)
+        val state = mutableFloatStateOf(0f)
         state.floatValue = 1.5f
 
         val restored = recreateViaParcel(state)
@@ -52,7 +55,7 @@ class ParcelablePrimitiveMutableStateTests {
 
     @Test
     fun saveAndRestoreMutableDoubleState() {
-        val state = mutableStateOf(0.0)
+        val state = mutableDoubleStateOf(0.0)
         state.doubleValue = 1.5
 
         val restored = recreateViaParcel(state)

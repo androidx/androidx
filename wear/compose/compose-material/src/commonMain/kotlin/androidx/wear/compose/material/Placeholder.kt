@@ -24,6 +24,7 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
@@ -253,7 +254,7 @@ public class PlaceholderState internal constructor(
      * The frame time in milliseconds in the calling context of frame dispatch. Used to coordinate
      * the placeholder state and effects. Usually provided by [withInfiniteAnimationFrameMillis].
      */
-    internal val frameMillis = mutableStateOf(0L)
+    internal val frameMillis = mutableLongStateOf(0L)
 
     private var startOfWipeOffAnimation = 0L
 

@@ -19,7 +19,7 @@ package androidx.tv.foundation.lazy.list
 import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.runtime.IntState
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.LayoutModifier
 import androidx.compose.ui.layout.Measurable
@@ -36,8 +36,8 @@ import kotlin.math.roundToInt
 
 internal class TvLazyListItemScopeImpl : TvLazyListItemScope {
 
-    private val maxWidthState = mutableStateOf(Int.MAX_VALUE)
-    private val maxHeightState = mutableStateOf(Int.MAX_VALUE)
+    private val maxWidthState = mutableIntStateOf(Int.MAX_VALUE)
+    private val maxHeightState = mutableIntStateOf(Int.MAX_VALUE)
     fun setMaxSize(width: Int, height: Int) {
         maxWidthState.intValue = width
         maxHeightState.intValue = height

@@ -41,8 +41,12 @@ import kotlin.reflect.KProperty
  *
  * @see LongState
  * @see MutableLongState
+ * @see mutableStateOf
+ * @see mutableIntStateOf
+ * @see mutableFloatStateOf
+ * @see mutableDoubleStateOf
  */
-fun mutableStateOf(
+fun mutableLongStateOf(
     value: Long
 ): MutableLongState = createSnapshotMutableLongState(value)
 
@@ -51,7 +55,7 @@ fun mutableStateOf(
  * function cause the current [RecomposeScope] to subscribe to changes of that value.
  *
  * @see MutableLongState
- * @see mutableStateOf
+ * @see mutableDoubleStateOf
  */
 @Stable
 @JvmDefaultWithCompatibility
@@ -77,7 +81,7 @@ inline operator fun LongState.getValue(thisObj: Any?, property: KProperty<*>): L
  * scheduled.
  *
  * @see [LongState]
- * @see [mutableStateOf]
+ * @see [mutableDoubleStateOf]
  */
 @Stable
 @JvmDefaultWithCompatibility
@@ -113,7 +117,7 @@ internal expect fun createSnapshotMutableLongState(
  *
  * @param value the wrapped value
  *
- * @see [mutableStateOf]
+ * @see [mutableDoubleStateOf]
  */
 internal open class SnapshotMutableLongStateImpl(
     value: Long

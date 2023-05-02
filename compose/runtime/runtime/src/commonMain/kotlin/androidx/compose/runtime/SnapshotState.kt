@@ -49,6 +49,10 @@ import kotlin.reflect.KProperty
  * @see State
  * @see MutableState
  * @see SnapshotMutationPolicy
+ * @see mutableIntStateOf
+ * @see mutableLongStateOf
+ * @see mutableFloatStateOf
+ * @see mutableDoubleStateOf
  */
 fun <T> mutableStateOf(
     value: T,

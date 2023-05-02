@@ -32,6 +32,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -124,7 +125,7 @@ class ScrollState(initial: Int) : ScrollableState {
 
     internal val internalInteractionSource: MutableInteractionSource = MutableInteractionSource()
 
-    private var _maxValueState = mutableStateOf(Int.MAX_VALUE)
+    private var _maxValueState = mutableIntStateOf(Int.MAX_VALUE)
 
     /**
      * We receive scroll events in floats but represent the scroll position in ints so we have to
