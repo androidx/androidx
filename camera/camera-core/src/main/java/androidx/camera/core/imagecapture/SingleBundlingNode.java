@@ -43,12 +43,10 @@ class SingleBundlingNode implements BundlingNode {
 
     ProcessingRequest mPendingRequest;
     private ProcessingNode.In mOutputEdge;
-    private boolean mIsVirtualCamera;
 
     @NonNull
     @Override
     public ProcessingNode.In transform(@NonNull CaptureNode.Out captureNodeOut) {
-        mIsVirtualCamera = captureNodeOut.isVirtualCamera();
         // Listen to input edges.
         captureNodeOut.getImageEdge().setListener(this::matchImageWithRequest);
         captureNodeOut.getRequestEdge().setListener(this::trackIncomingRequest);
@@ -97,8 +95,7 @@ class SingleBundlingNode implements BundlingNode {
                         mPendingRequest.getTagBundleKey()));
         checkState(stageId == mPendingRequest.getStageIds().get(0));
 
-        mOutputEdge.getEdge().accept(
-                ProcessingNode.InputPacket.of(mPendingRequest, imageProxy, mIsVirtualCamera));
+        mOutputEdge.getEdge().accept(ProcessingNode.InputPacket.of(mPendingRequest, imageProxy));
         mPendingRequest = null;
     }
 }

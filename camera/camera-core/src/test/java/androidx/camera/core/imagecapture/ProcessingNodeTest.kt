@@ -81,7 +81,7 @@ class ProcessingNodeTest {
         // Act: process the request.
         val jpegBytes = createJpegBytes(WIDTH, HEIGHT)
         val image = createJpegFakeImageProxy(jpegBytes)
-        processingNodeIn.edge.accept(ProcessingNode.InputPacket.of(request, image, false))
+        processingNodeIn.edge.accept(ProcessingNode.InputPacket.of(request, image))
         shadowOf(getMainLooper()).idle()
 
         // Assert: the image is not saved.
@@ -94,7 +94,7 @@ class ProcessingNodeTest {
         val takePictureCallback = FakeTakePictureCallback()
         val image = FakeImageProxy(FakeImageInfo())
         val processingRequest = createProcessingRequest(takePictureCallback)
-        val input = ProcessingNode.InputPacket.of(processingRequest, image, false)
+        val input = ProcessingNode.InputPacket.of(processingRequest, image)
 
         // Act: send input to the edge and wait for callback
         processingNodeIn.edge.accept(input)

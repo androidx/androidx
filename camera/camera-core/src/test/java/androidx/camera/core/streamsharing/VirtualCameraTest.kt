@@ -97,7 +97,7 @@ class VirtualCameraTest {
     fun setUp() {
         virtualCamera = VirtualCamera(
             parentCamera, setOf(child1, child2), useCaseConfigFactory
-        ) {
+        ) { _, _ ->
             snapshotTriggered = true
             Futures.immediateFuture(null)
         }
@@ -255,7 +255,7 @@ class VirtualCameraTest {
         val imageCapture = ImageCapture.Builder().build()
         virtualCamera = VirtualCamera(
             parentCamera, setOf(preview, child2, imageCapture), useCaseConfigFactory
-        ) {
+        ) { _, _ ->
             Futures.immediateFuture(null)
         }
 

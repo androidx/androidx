@@ -19,6 +19,7 @@ package androidx.camera.core.streamsharing
 import android.os.Build
 import android.os.Looper.getMainLooper
 import android.util.Size
+import android.view.Surface
 import androidx.camera.core.CameraEffect
 import androidx.camera.core.CameraEffect.IMAGE_CAPTURE
 import androidx.camera.core.CameraEffect.PREVIEW
@@ -102,8 +103,10 @@ class StreamSharingTest {
     @Test
     fun childTakingPicture_getJpegQuality() {
         // Arrange: set up StreamSharing with min latency ImageCapture as child
-        val imageCapture =
-            ImageCapture.Builder().setCaptureMode(CAPTURE_MODE_MINIMIZE_LATENCY).build()
+        val imageCapture = ImageCapture.Builder()
+            .setTargetRotation(Surface.ROTATION_90)
+            .setCaptureMode(CAPTURE_MODE_MINIMIZE_LATENCY)
+            .build()
         streamSharing = StreamSharing(camera, setOf(child1, imageCapture), useCaseConfigFactory)
         streamSharing.bindToCamera(camera, null, defaultConfig)
         streamSharing.onSuggestedStreamSpecUpdated(StreamSpec.builder(size).build())
@@ -116,6 +119,7 @@ class StreamSharingTest {
 
         // Assert: the jpeg quality of min latency capture is 95.
         assertThat(sharingProcessor.jpegQuality).isEqualTo(95)
+        assertThat(sharingProcessor.rotationDegrees).isEqualTo(270)
     }
 
     @Test

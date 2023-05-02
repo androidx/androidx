@@ -17,7 +17,6 @@
 package androidx.camera.core.imagecapture
 
 import android.graphics.ImageFormat
-import android.graphics.Matrix
 import android.graphics.Rect
 import android.hardware.camera2.CameraDevice
 import android.os.Build
@@ -52,11 +51,9 @@ import androidx.camera.core.impl.ImageInputConfig
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor
 import androidx.camera.core.impl.utils.futures.Futures
 import androidx.camera.core.internal.IoConfig.OPTION_IO_EXECUTOR
-import androidx.camera.core.processing.Packet
 import androidx.camera.testing.TestImageUtil.createJpegBytes
 import androidx.camera.testing.TestImageUtil.createJpegFakeImageProxy
 import androidx.camera.testing.TestImageUtil.createYuvFakeImageProxy
-import androidx.camera.testing.fakes.FakeCameraCaptureResult
 import androidx.camera.testing.fakes.FakeImageInfo
 import androidx.camera.testing.fakes.FakeImageReaderProxy
 import androidx.camera.testing.fakes.GrayscaleImageEffect
@@ -158,37 +155,6 @@ class ImagePipelineTest {
                 false
             ).processingNode.mImageProcessor
         ).isNotNull()
-    }
-
-    @Test
-    fun createPipelineWithVirtualCamera_plumbedToProcessingInput2PacketOperation() {
-        // Arrange: create a pipeline with a virtual camera.
-        val pipeline = ImagePipeline(
-            imageCaptureConfig,
-            SIZE,
-            GrayscaleImageEffect(),
-            true
-        )
-        // Listen to the input to packet operation.
-        var isVirtualCamera = false
-        pipeline.processingNode.injectProcessingInput2Packet {
-            isVirtualCamera = it.isVirtualCamera
-            return@injectProcessingInput2Packet Packet.of(
-                it.imageProxy,
-                null,
-                it.imageProxy.cropRect,
-                it.imageProxy.format,
-                Matrix(),
-                FakeCameraCaptureResult()
-            )
-        }
-
-        // Act: send in-memory request.
-        sendInMemoryRequest(pipeline)
-
-        // Assert: the input packet is marked as from a virtual camera.
-        assertThat(isVirtualCamera).isTrue()
-        pipeline.close()
     }
 
     @Test
