@@ -1,6 +1,7 @@
 package com.mysdk
 
 import android.content.Context
+import androidx.privacysandbox.ui.provider.toCoreLibInfo
 
 public class RequestConverter(
     public val context: Context,
@@ -12,7 +13,9 @@ public class RequestConverter(
                         InnerValueConverter(context).fromParcelable(it) }.toList(),
                 maybeValue = parcelable.maybeValue?.let { notNullValue ->
                         InnerValueConverter(context).fromParcelable(notNullValue) },
-                myInterface = (parcelable.myInterface as MyInterfaceStubDelegate).delegate)
+                myInterface = (parcelable.myInterface as MyInterfaceStubDelegate).delegate,
+                myUiInterface = (parcelable.myUiInterface.binder as
+                        MyUiInterfaceStubDelegate).delegate)
         return annotatedValue
     }
 
@@ -24,6 +27,9 @@ public class RequestConverter(
         parcelable.maybeValue = annotatedValue.maybeValue?.let { notNullValue ->
                 InnerValueConverter(context).toParcelable(notNullValue) }
         parcelable.myInterface = MyInterfaceStubDelegate(annotatedValue.myInterface, context)
+        parcelable.myUiInterface =
+                IMyUiInterfaceCoreLibInfoAndBinderWrapperConverter.toParcelable(annotatedValue.myUiInterface.toCoreLibInfo(context),
+                MyUiInterfaceStubDelegate(annotatedValue.myUiInterface, context))
         return parcelable
     }
 }

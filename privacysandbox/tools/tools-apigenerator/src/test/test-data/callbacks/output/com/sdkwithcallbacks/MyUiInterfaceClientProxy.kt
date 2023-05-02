@@ -1,4 +1,4 @@
-package com.sdk
+package com.sdkwithcallbacks
 
 import android.content.Context
 import android.os.Bundle
@@ -7,15 +7,15 @@ import androidx.privacysandbox.ui.core.SandboxedUiAdapter
 import androidx.privacysandbox.ui.core.SandboxedUiAdapter.SessionClient
 import java.util.concurrent.Executor
 
-public class MySecondInterfaceClientProxy(
-    public val remote: IMySecondInterface,
+public class MyUiInterfaceClientProxy(
+    public val remote: IMyUiInterface,
     public val coreLibInfo: Bundle,
-) : MySecondInterface {
+) : MyUiInterface {
     public val sandboxedUiAdapter: SandboxedUiAdapter =
             SandboxedUiAdapterFactory.createFromCoreLibInfo(coreLibInfo)
 
-    public override fun doStuff(): Unit {
-        remote.doStuff()
+    public override fun doUiStuff(): Unit {
+        remote.doUiStuff()
     }
 
     public override fun openSession(

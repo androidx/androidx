@@ -169,18 +169,7 @@ class AidlGenerator private constructor(
                 addParameter("cancellationSignal", cancellationSignalType())
             }
             addMethod("onSuccess") {
-                val interfaceType = api.interfaceMap[type]
-                if (interfaceType != null && interfaceType.inheritsSandboxedUiAdapter) {
-                    // Bypass getAidlTypeDeclaration, since we want to specify the UI wrapper
-                    // parcelable rather than the interface.
-                    addParameter(
-                        "result",
-                        AidlTypeSpec(
-                            interfaceType.uiAdapterAidlWrapper(),
-                            kind = AidlTypeKind.PARCELABLE
-                        )
-                    )
-                } else if (type != Types.unit) {
+                if (type != Types.unit) {
                     addParameter(Parameter("result", type))
                 }
             }
@@ -269,7 +258,12 @@ class AidlGenerator private constructor(
         val type = wrapWithListIfNeeded(rawType)
         api.valueMap[type]?.let { return it.aidlType() }
         api.callbackMap[type]?.let { return it.aidlType() }
-        api.interfaceMap[type]?.let { return it.aidlType() }
+        api.interfaceMap[type]?.let {
+            if (it.inheritsSandboxedUiAdapter) {
+                return AidlTypeSpec(it.uiAdapterAidlWrapper(), kind = AidlTypeKind.PARCELABLE)
+            }
+            return it.aidlType()
+        }
         return when (type.qualifiedName) {
             Boolean::class.qualifiedName -> primitive("boolean")
             Int::class.qualifiedName -> primitive("int")
