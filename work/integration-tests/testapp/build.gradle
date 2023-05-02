@@ -61,7 +61,7 @@ dependencies {
     implementation(project(":work:work-multiprocess"))
     implementation(project(":work:work-gcm"))
     implementation("androidx.concurrent:concurrent-futures-ktx:1.1.0")
-    implementation("androidx.arch.core:core-runtime:2.1.0")
+    implementation("androidx.arch.core:core-runtime:2.2.0")
     implementation("androidx.recyclerview:recyclerview:1.1.0")
     implementation(libs.material)
 }

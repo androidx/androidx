@@ -45,7 +45,7 @@ dependencies {
 
     api(libs.kotlinStdlib)
     testImplementation(project(":navigation:navigation-testing"))
-    testImplementation("androidx.arch.core:core-testing:2.1.0")
+    testImplementation("androidx.arch.core:core-testing:2.2.0")
     testImplementation(libs.junit)
     testImplementation(libs.mockitoCore4)
     testImplementation(libs.truth)
