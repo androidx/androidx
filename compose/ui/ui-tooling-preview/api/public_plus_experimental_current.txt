@@ -4,8 +4,8 @@ package androidx.compose.ui.tooling.preview {
   public final class Devices {
     field public static final String AUTOMOTIVE_1024p = "id:automotive_1024p_landscape";
     field public static final String DEFAULT = "";
-    field public static final String DESKTOP = "spec:shape=Normal,width=1920,height=1080,unit=dp,dpi=160";
-    field public static final String FOLDABLE = "spec:shape=Normal,width=673,height=841,unit=dp,dpi=420";
+    field public static final String DESKTOP = "spec:id=reference_desktop,shape=Normal,width=1920,height=1080,unit=dp,dpi=160";
+    field public static final String FOLDABLE = "spec:id=reference_foldable,shape=Normal,width=673,height=841,unit=dp,dpi=420";
     field public static final androidx.compose.ui.tooling.preview.Devices INSTANCE;
     field public static final String NEXUS_10 = "name:Nexus 10";
     field public static final String NEXUS_5 = "id:Nexus 5";
@@ -27,7 +27,7 @@ package androidx.compose.ui.tooling.preview {
     field public static final String PIXEL_4_XL = "id:pixel_4_xl";
     field public static final String PIXEL_C = "id:pixel_c";
     field public static final String PIXEL_XL = "id:pixel_xl";
-    field public static final String TABLET = "spec:shape=Normal,width=1280,height=800,unit=dp,dpi=240";
+    field public static final String TABLET = "spec:id=reference_tablet,shape=Normal,width=1280,height=800,unit=dp,dpi=240";
     field public static final String TV_1080p = "spec:shape=Normal,width=1920,height=1080,unit=dp,dpi=420";
     field public static final String TV_720p = "spec:shape=Normal,width=1280,height=720,unit=dp,dpi=420";
     field public static final String WEAR_OS_LARGE_ROUND = "id:wearos_large_round";
