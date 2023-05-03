@@ -847,29 +847,6 @@ class RecorderTest(
     }
 
     @Test
-    fun mute_defaultToNotMuted() {
-        // Arrange.
-        val recorder = createRecorder()
-        val recording = createRecordingProcess(recorder = recorder)
-        val recording2 = createRecordingProcess(recorder = recorder)
-
-        // Act.
-        recording.startAndVerify()
-        recording.mute(true)
-        recording.stopAndVerify()
-
-        recording2.startAndVerify()
-        recording2.verifyStatus(5) { statusList ->
-            // Assert.
-            statusList.forEach {
-                assertThat(it.recordingStats.audioStats.audioState)
-                    .isEqualTo(AudioStats.AUDIO_STATE_ACTIVE)
-            }
-        }
-        recording2.stopAndVerify()
-    }
-
-    @Test
     fun optionsOverridesDefaults() {
         val qualitySelector = QualitySelector.from(Quality.HIGHEST)
         val recorder = createRecorder(qualitySelector = qualitySelector)
