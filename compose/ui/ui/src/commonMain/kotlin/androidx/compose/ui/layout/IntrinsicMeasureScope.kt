@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.layout
 
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 
@@ -28,4 +29,17 @@ interface IntrinsicMeasureScope : Density {
      * to measure their children.
      */
     val layoutDirection: LayoutDirection
+
+    /**
+     * This indicates whether the ongoing measurement is for lookahead pass.
+     * [IntrinsicMeasureScope] implementations, especially [MeasureScope] implementations should
+     * override this flag to reflect whether the measurement is intended for lookahead pass.
+     *
+     * @sample androidx.compose.ui.samples.animateContentSizeAfterLookaheadPass
+     */
+    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
+    @get:ExperimentalComposeUiApi
+    @ExperimentalComposeUiApi
+    val isLookingAhead: Boolean
+        get() = false
 }

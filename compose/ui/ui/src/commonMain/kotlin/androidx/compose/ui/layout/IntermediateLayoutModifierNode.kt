@@ -317,6 +317,10 @@ internal class IntermediateLayoutModifierNode(
             }
         }
 
+        // Intermediate layout pass is post-lookahead. Therefore return false here.
+        override val isLookingAhead: Boolean
+            get() = false
+
         override val layoutDirection: LayoutDirection
             get() = coordinator!!.layoutDirection
         override val density: Float

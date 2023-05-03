@@ -2060,6 +2060,8 @@ package androidx.compose.ui.layout {
 
   public interface IntrinsicMeasureScope extends androidx.compose.ui.unit.Density {
     method public androidx.compose.ui.unit.LayoutDirection getLayoutDirection();
+    method @androidx.compose.ui.ExperimentalComposeUiApi public default boolean isLookingAhead();
+    property @androidx.compose.ui.ExperimentalComposeUiApi public default boolean isLookingAhead;
     property public abstract androidx.compose.ui.unit.LayoutDirection layoutDirection;
   }
 
