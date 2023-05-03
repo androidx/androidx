@@ -64,6 +64,7 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
+import android.util.Range;
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
@@ -232,8 +233,6 @@ public final class CaptureSessionTest {
     @Before
     public void setup() throws CameraAccessException, InterruptedException,
             AssumptionViolatedException, TimeoutException, ExecutionException {
-        mTestParameters0 = new CaptureSessionTestParameters("mTestParameters0");
-        mTestParameters1 = new CaptureSessionTestParameters("mTestParameters1");
         mHandler = new Handler(sHandlerThread.getLooper());
 
         mExecutor = CameraXExecutors.newHandlerExecutor(mHandler);
@@ -254,6 +253,10 @@ public final class CaptureSessionTest {
         } catch (CameraAccessExceptionCompat e) {
             throw new AssumptionViolatedException("Could not retrieve camera characteristics", e);
         }
+        mTestParameters0 = new CaptureSessionTestParameters("mTestParameters0",
+                mCameraCharacteristics);
+        mTestParameters1 = new CaptureSessionTestParameters("mTestParameters1",
+                mCameraCharacteristics);
 
         mDynamicRangesCompat =
                 DynamicRangesCompat.fromCameraCharacteristics(mCameraCharacteristics);
@@ -684,8 +687,9 @@ public final class CaptureSessionTest {
         // From CameraEventCallbacks option
         assertThat(captureResult.getRequest().get(CaptureRequest.CONTROL_AF_MODE)).isEqualTo(
                 CaptureRequest.CONTROL_AF_MODE_MACRO);
-        assertThat(captureResult.getRequest().get(CaptureRequest.FLASH_MODE)).isEqualTo(
-                CaptureRequest.FLASH_MODE_TORCH);
+        assertThat(captureResult.getRequest().get(
+                CaptureRequest.CONTROL_AE_EXPOSURE_COMPENSATION)).isEqualTo(
+                mTestParameters0.mEvRange.getLower());
 
         // From SessionConfig option
         assertThat(captureResult.getRequest().get(CaptureRequest.CONTROL_AE_MODE)).isEqualTo(
@@ -856,8 +860,9 @@ public final class CaptureSessionTest {
                 CaptureRequest.CONTROL_AF_MODE_OFF);
 
         // From CameraEventCallbacks option
-        assertThat(captureResult.getRequest().get(CaptureRequest.FLASH_MODE)).isEqualTo(
-                CaptureRequest.FLASH_MODE_TORCH);
+        assertThat(captureResult.getRequest().get(
+                CaptureRequest.CONTROL_AE_EXPOSURE_COMPENSATION)).isEqualTo(
+                mTestParameters0.mEvRange.getLower());
 
         // From SessionConfig option
         assertThat(captureResult.getRequest().get(CaptureRequest.CONTROL_AE_MODE)).isEqualTo(
@@ -1032,7 +1037,8 @@ public final class CaptureSessionTest {
         assertThat(result1).isInstanceOf(Camera2CameraCaptureResult.class);
         CaptureResult captureResult1 = ((Camera2CameraCaptureResult) result1).getCaptureResult();
         assertThat(captureResult1.getRequest().get(
-                CaptureRequest.CONTROL_AE_EXPOSURE_COMPENSATION)).isEqualTo(0);
+                CaptureRequest.CONTROL_SCENE_MODE)).isEqualTo(
+                mTestParameters0.mTestCameraEventCallback.mAvailableSceneMode);
         // The onDisableSession should not been invoked.
         verify(mTestParameters0.mTestCameraEventCallback.mDisableCallback,
                 never()).onCaptureCompleted(any(CameraCaptureResult.class));
@@ -1051,7 +1057,8 @@ public final class CaptureSessionTest {
         assertThat(result2).isInstanceOf(Camera2CameraCaptureResult.class);
         CaptureResult captureResult2 = ((Camera2CameraCaptureResult) result2).getCaptureResult();
         assertThat(captureResult2.getRequest().get(
-                CaptureRequest.CONTROL_AE_EXPOSURE_COMPENSATION)).isEqualTo(0);
+                CaptureRequest.CONTROL_SCENE_MODE)).isEqualTo(
+                mTestParameters0.mTestCameraEventCallback.mAvailableSceneMode);
         // The onEnableSession should not been invoked in close().
         verify(mTestParameters0.mTestCameraEventCallback.mEnableCallback,
                 never()).onCaptureCompleted(any(CameraCaptureResult.class));
@@ -1673,31 +1680,47 @@ public final class CaptureSessionTest {
      */
     private static class TestCameraEventCallback extends CameraEventCallback {
 
+        TestCameraEventCallback(CameraCharacteristicsCompat characteristics) {
+            if (characteristics != null) {
+                int[] availableSceneModes =
+                        characteristics.get(CameraCharacteristics.CONTROL_AVAILABLE_SCENE_MODES);
+                if (availableSceneModes != null && availableSceneModes.length > 0) {
+                    mAvailableSceneMode = availableSceneModes[0];
+                } else {
+                    mAvailableSceneMode = CameraCharacteristics.CONTROL_SCENE_MODE_DISABLED;
+                }
+            } else {
+                mAvailableSceneMode = CameraCharacteristics.CONTROL_SCENE_MODE_DISABLED;
+            }
+        }
+
         private final CameraCaptureCallback mEnableCallback = Mockito.mock(
                 CameraCaptureCallback.class);
         private final CameraCaptureCallback mDisableCallback = Mockito.mock(
                 CameraCaptureCallback.class);
 
+        private final int mAvailableSceneMode;
+
         @Override
         public CaptureConfig onInitSession() {
-            return getCaptureConfig(CaptureRequest.CONTROL_AE_EXPOSURE_COMPENSATION, 0, null);
+            return getCaptureConfig(CaptureRequest.CONTROL_SCENE_MODE, mAvailableSceneMode, null);
         }
 
         @Override
         public CaptureConfig onEnableSession() {
-            return getCaptureConfig(CaptureRequest.CONTROL_AE_EXPOSURE_COMPENSATION, 0,
+            return getCaptureConfig(CaptureRequest.CONTROL_SCENE_MODE, mAvailableSceneMode,
                     mEnableCallback);
         }
 
         @Override
         public CaptureConfig onRepeating() {
-            return getCaptureConfig(CaptureRequest.CONTROL_AE_EXPOSURE_COMPENSATION, 0, null);
+            return getCaptureConfig(CaptureRequest.CONTROL_SCENE_MODE, mAvailableSceneMode, null);
         }
 
         @Override
         public CaptureConfig onDisableSession() {
-            return getCaptureConfig(CaptureRequest.CONTROL_AE_EXPOSURE_COMPENSATION,
-                    0, mDisableCallback);
+            return getCaptureConfig(CaptureRequest.CONTROL_SCENE_MODE, mAvailableSceneMode,
+                    mDisableCallback);
         }
     }
 
@@ -1795,8 +1818,7 @@ public final class CaptureSessionTest {
         private final SessionConfig mSessionConfig;
         private final CaptureConfig mCaptureConfig;
 
-        private final TestCameraEventCallback mTestCameraEventCallback =
-                new TestCameraEventCallback();
+        private final TestCameraEventCallback mTestCameraEventCallback;
         private final CameraEventCallback mMockCameraEventCallback = Mockito.mock(
                 CameraEventCallback.class);
 
@@ -1810,6 +1832,7 @@ public final class CaptureSessionTest {
                 Mockito.mock(CameraCaptureSession.CaptureCallback.class);
 
         private final DeferrableSurface mDeferrableSurface;
+        private final Range<Integer> mEvRange;
         /**
          * A composite capture callback that dispatches callbacks to both mock and real callbacks.
          * The mock callback is used to verify the callback result. The real callback is used to
@@ -1825,7 +1848,7 @@ public final class CaptureSessionTest {
                             }
                         });
 
-        CaptureSessionTestParameters(String name) {
+        CaptureSessionTestParameters(String name, CameraCharacteristicsCompat characteristics) {
             mHandlerThread = new HandlerThread(name);
             mHandlerThread.start();
             mHandler = HandlerCompat.createAsync(mHandlerThread.getLooper());
@@ -1843,6 +1866,7 @@ public final class CaptureSessionTest {
             builder.addRepeatingCameraCaptureCallback(
                     CaptureCallbackContainer.create(mCamera2CaptureCallback));
 
+            mTestCameraEventCallback = new TestCameraEventCallback(characteristics);
             MutableOptionsBundle testCallbackConfig = MutableOptionsBundle.create();
             testCallbackConfig.insertOption(Camera2ImplConfig.CAMERA_EVENT_CALLBACK_OPTION,
                     new CameraEventCallbacks(mTestCameraEventCallback));
@@ -1856,14 +1880,18 @@ public final class CaptureSessionTest {
 
             // Set capture request options
             // ==================================================================================
-            // Priority | Component        | AF_MODE       | FLASH_MODE         | AE_MODE
+            // Priority | Component        | AF_MODE       | EV MODE            | AE_MODE
             // ----------------------------------------------------------------------------------
             // P1 | CaptureConfig          | AF_MODE_OFF  |                     |
             // ----------------------------------------------------------------------------------
-            // P2 | CameraEventCallbacks   | AF_MODE_MACRO | FLASH_MODE_TORCH   |
+            // P2 | CameraEventCallbacks   | AF_MODE_MACRO | Min EV             |
             // ----------------------------------------------------------------------------------
-            // P3 | SessionConfig          | AF_MODE_AUTO  | FLASH_MODE_SINGLE  | AE_MODE_ON
+            // P3 | SessionConfig          | AF_MODE_AUTO  | Max EV             | AE_MODE_ON
             // ==================================================================================
+
+            mEvRange = characteristics != null
+                    ? characteristics.get(CameraCharacteristics.CONTROL_AE_COMPENSATION_RANGE)
+                    : new Range<>(0, 0);
 
             Camera2ImplConfig.Builder camera2ConfigBuilder = new Camera2ImplConfig.Builder();
 
@@ -1878,8 +1906,8 @@ public final class CaptureSessionTest {
                                             CaptureRequest.CONTROL_AF_MODE,
                                             CaptureRequest.CONTROL_AF_MODE_MACRO)
                                     .setCaptureRequestOption(
-                                            CaptureRequest.FLASH_MODE,
-                                            CaptureRequest.FLASH_MODE_TORCH)
+                                            CaptureRequest.CONTROL_AE_EXPOSURE_COMPENSATION,
+                                            mEvRange.getLower())
                                     .build());
                     return builder.build();
                 }
@@ -1893,7 +1921,7 @@ public final class CaptureSessionTest {
                     .setCaptureRequestOption(
                             CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_AUTO)
                     .setCaptureRequestOption(
-                            CaptureRequest.FLASH_MODE, CaptureRequest.FLASH_MODE_SINGLE)
+                            CaptureRequest.CONTROL_AE_EXPOSURE_COMPENSATION, mEvRange.getUpper())
                     .setCaptureRequestOption(
                             CaptureRequest.CONTROL_AE_MODE, CaptureRequest.CONTROL_AE_MODE_ON);
 
