@@ -31,6 +31,7 @@ import static androidx.camera.core.DynamicRange.FORMAT_HDR10_PLUS;
 import static androidx.camera.core.DynamicRange.FORMAT_HDR_UNSPECIFIED;
 import static androidx.camera.core.DynamicRange.FORMAT_HLG;
 import static androidx.camera.core.DynamicRange.FORMAT_SDR;
+import static androidx.camera.core.DynamicRange.FORMAT_UNSPECIFIED;
 import static androidx.camera.core.impl.EncoderProfilesProxy.VideoProfileProxy.BIT_DEPTH_10;
 import static androidx.camera.core.impl.EncoderProfilesProxy.VideoProfileProxy.BIT_DEPTH_8;
 
@@ -65,6 +66,8 @@ public class DynamicRangeUtil {
                 new HashSet<>(asList(BIT_DEPTH_8, BIT_DEPTH_10)));
 
         // DynamicRange format to VideoProfile HDR format.
+        DR_TO_VP_FORMAT_MAP.put(FORMAT_UNSPECIFIED, new HashSet<>(asList(HDR_NONE, HDR_HLG,
+                HDR_HDR10, HDR_HDR10PLUS, HDR_DOLBY_VISION)));
         DR_TO_VP_FORMAT_MAP.put(FORMAT_SDR, new HashSet<>(singletonList(HDR_NONE)));
         DR_TO_VP_FORMAT_MAP.put(FORMAT_HDR_UNSPECIFIED,
                 new HashSet<>(asList(HDR_HLG, HDR_HDR10, HDR_HDR10PLUS, HDR_DOLBY_VISION)));
