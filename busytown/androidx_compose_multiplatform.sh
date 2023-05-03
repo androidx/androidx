@@ -9,10 +9,15 @@ export ANDROIDX_PROJECTS=COMPOSE
 
 
 # b/235340662 don't verify dependency versions because we cannot pin to multiplatform deps
-./androidx.sh \
-  -Pandroidx.compose.multiplatformEnabled=true \
-  compileDebugAndroidTestSources \
-  compileDebugSources \
-  desktopTestClasses \
-  -x verifyDependencyVersions  \
-  -Pandroidx.enableAffectedModuleDetection=false "$@"
+impl/build.sh buildOnServer createAllArchives checkExternalLicenses listTaskOutputs \
+      -Pandroidx.compose.multiplatformEnabled=true \
+      -Pandroidx.enableComposeCompilerMetrics=true \
+      -Pandroidx.enableComposeCompilerReports=true \
+      -Pandroidx.constraints=true \
+      --no-daemon \
+      --profile \
+      compileDebugAndroidTestSources \
+      compileDebugSources \
+      desktopTestClasses \
+      -x verifyDependencyVersions \
+      -Pandroidx.enableAffectedModuleDetection=false "$@"

@@ -219,6 +219,7 @@ private class PathPropertyValues : PropertyValues<List<PathNode>>() {
         ) { atEnd ->
             if (atEnd) overallDuration.toFloat() else 0f
         }
+        @Suppress("UnrememberedMutableState") // b/279909531
         return derivedStateOf { interpolate(timeState.value) }
     }
 
