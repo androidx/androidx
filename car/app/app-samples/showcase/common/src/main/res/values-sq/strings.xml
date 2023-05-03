@@ -119,7 +119,7 @@
     <string name="loading_demo_row_title" msgid="8933049915126088142">"Ngarkimi përfundoi!"</string>
     <string name="pop_to_root" msgid="2078277386355064198">"Hidhu te rrënja"</string>
     <string name="pop_to_marker" msgid="5007078308762725207">"Hidhu te shënuesi i demonstrimeve të ndryshme"</string>
-    <string name="push_stack" msgid="2433062141810168976">"Shty më tej te stiva"</string>
+    <string name="push_stack" msgid="2433062141810168976">"Shtyj më tej te stiva"</string>
     <string name="pop_to_prefix" msgid="4288884615669751608">"Hidhu te"</string>
     <string name="pop_to_title" msgid="3924696281273379455">"Hidhu te demonstrimi"</string>
     <string name="package_not_found_error_msg" msgid="7525619456883627939">"Paketa nuk u gjet."</string>
