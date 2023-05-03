@@ -53,6 +53,7 @@ import androidx.graphics.shapes.rectangle
 import androidx.graphics.shapes.star
 import kotlin.math.cos
 import kotlin.math.max
+import kotlin.math.min
 import kotlin.math.roundToInt
 import kotlin.math.sin
 
@@ -199,7 +200,7 @@ class ShapeParameters(
                         PointF(sx, sy),
                         PointF(-sx, sy),
                     ),
-                    rounding = CornerRounding(this.roundness.value, this.smooth.value),
+                    rounding = CornerRounding(min(sx, sy), this.smooth.value),
                     center = PointZero
                 )
             },
