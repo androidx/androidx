@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,12 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.fragment.testapp.kittenfragmenttransitions
 
-import androidx.fragment.app.FragmentActivity
-import androidx.fragment.testapp.R
+package androidx.fragment.testapp
 
-/**
- * Main activity that holds our fragments
- */
-class KittenTransitionMainActivity : FragmentActivity(R.layout.kitten_activity_main)
+import android.os.Bundle
+import android.view.View
+import androidx.fragment.app.Fragment
+import androidx.fragment.testapp.basicAnimators.BasicFragmentAnimatorFragment
+
+class AnimatorTestsFragment : Fragment(R.layout.animation_fragment) {
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        addButton("Basic Fragment Animators", BasicFragmentAnimatorFragment())
+    }
+}

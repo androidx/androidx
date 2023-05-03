@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,28 +20,29 @@ import android.os.Bundle
 import android.view.Gravity
 import android.widget.Button
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.commit
 import androidx.fragment.testapp.R
 import androidx.transition.Fade
 import androidx.transition.Slide
 
-class DoubleTransitionBugActivity : FragmentActivity(R.layout.double_transition_bug_activity_main) {
+class DoubleTransitionBugFragment : Fragment(R.layout.double_transition_bug_activity_main) {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         if (savedInstanceState == null) {
-            supportFragmentManager.commit {
+            childFragmentManager.commit {
                 add(R.id.content, Fragment(R.layout.double_transition_bug_fragment_second))
             }
         }
 
-        findViewById<Button>(R.id.important_button).setOnClickListener { switchFragment() }
+        requireActivity().findViewById<Button>(R.id.important_button).setOnClickListener {
+            switchFragment()
+        }
     }
 
     private fun switchFragment() {
-        val currentFragment = supportFragmentManager.findFragmentById(R.id.content)
+        val currentFragment = childFragmentManager.findFragmentById(R.id.content)
 
         currentFragment!!.exitTransition = Fade()
 
@@ -51,7 +52,7 @@ class DoubleTransitionBugActivity : FragmentActivity(R.layout.double_transition_
         val first = Fragment(R.layout.double_transition_bug_fragment_first)
         first.enterTransition = Fade().setDuration(5000)
 
-        supportFragmentManager.beginTransaction()
+        childFragmentManager.beginTransaction()
             .setReorderingAllowed(true)
             .add(R.id.content, first)
             .add(R.id.content, second)
