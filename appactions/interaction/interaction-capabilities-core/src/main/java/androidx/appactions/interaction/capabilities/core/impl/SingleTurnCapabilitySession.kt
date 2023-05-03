@@ -20,10 +20,10 @@ import androidx.annotation.RestrictTo
 import androidx.appactions.interaction.capabilities.core.ExecutionCallback
 import androidx.appactions.interaction.capabilities.core.ExecutionResult
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpec
+import androidx.appactions.interaction.capabilities.core.impl.utils.CapabilityLogger
+import androidx.appactions.interaction.capabilities.core.impl.utils.LoggerInternal
 import androidx.appactions.interaction.capabilities.core.impl.utils.invokeExternalSuspendBlock
-import androidx.appactions.interaction.capabilities.core.impl.utils.isCausedBy
-import androidx.appactions.interaction.capabilities.core.impl.utils.toErrorStatusInternal
-import androidx.appactions.interaction.capabilities.core.impl.exceptions.InvalidRequestException
+import androidx.appactions.interaction.capabilities.core.impl.utils.handleExceptionFromRequestProcessing
 import androidx.appactions.interaction.proto.AppActionsContext.AppDialogState
 import androidx.appactions.interaction.proto.FulfillmentResponse
 import androidx.appactions.interaction.proto.ParamValue
@@ -84,11 +84,12 @@ internal class SingleTurnCapabilitySession<
                 }
                 callback.onSuccess(convertToFulfillmentResponse(output))
             } catch (t: Throwable) {
-                callback.onError(t.toErrorStatusInternal())
-                // if the exception is caused by a bad request, do not crash the app
-                if (!t.isCausedBy(InvalidRequestException::class)) {
-                    throw t
-                }
+                LoggerInternal.log(
+                    CapabilityLogger.LogLevel.ERROR,
+                    LOG_TAG,
+                    "single-turn capability execution failed."
+                )
+                handleExceptionFromRequestProcessing(t, callback::onError)
             } finally {
                 UiHandleRegistry.unregisterUiHandle(uiHandle)
                 mutex.unlock(owner = this@SingleTurnCapabilitySession)
@@ -108,5 +109,9 @@ internal class SingleTurnCapabilitySession<
             )
         }
         return fulfillmentResponseBuilder.build()
+    }
+
+    companion object {
+        private const val LOG_TAG = "SingleTurnCapability"
     }
 }
