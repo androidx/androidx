@@ -123,6 +123,11 @@ package androidx.core.app {
     method public static void onActivityCreate(android.app.Activity);
   }
 
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class AppLocalesStorageHelper {
+    method public static void persistLocales(android.content.Context, String);
+    method public static String readLocales(android.content.Context);
+  }
+
   public final class AppOpsManagerCompat {
     method public static int checkOrNoteProxyOp(android.content.Context, int, String, String);
     method public static int noteOp(android.content.Context, String, int, String);
@@ -210,6 +215,7 @@ package androidx.core.app {
   }
 
   public final class LocaleManagerCompat {
+    method @AnyThread public static androidx.core.os.LocaleListCompat getApplicationLocales(android.content.Context);
     method @AnyThread public static androidx.core.os.LocaleListCompat getSystemLocales(android.content.Context);
   }
 
@@ -1194,6 +1200,7 @@ package androidx.core.content {
     method public static java.io.File getCodeCacheDir(android.content.Context);
     method @ColorInt public static int getColor(android.content.Context, @ColorRes int);
     method public static android.content.res.ColorStateList? getColorStateList(android.content.Context, @ColorRes int);
+    method public static android.content.Context getContextForLanguage(android.content.Context);
     method public static java.io.File? getDataDir(android.content.Context);
     method public static android.view.Display getDisplay(@DisplayContext android.content.Context);
     method public static android.graphics.drawable.Drawable? getDrawable(android.content.Context, @DrawableRes int);
@@ -1202,6 +1209,7 @@ package androidx.core.content {
     method public static java.util.concurrent.Executor getMainExecutor(android.content.Context);
     method public static java.io.File? getNoBackupFilesDir(android.content.Context);
     method public static java.io.File![] getObbDirs(android.content.Context);
+    method public static String getString(android.content.Context, int);
     method public static <T> T? getSystemService(android.content.Context, Class<T!>);
     method public static String? getSystemServiceName(android.content.Context, Class<?>);
     method public static boolean isDeviceProtectedStorage(android.content.Context);
@@ -2217,6 +2225,7 @@ package androidx.core.os {
 
   public final class ConfigurationCompat {
     method public static androidx.core.os.LocaleListCompat getLocales(android.content.res.Configuration);
+    method public static void setLocales(android.content.res.Configuration, androidx.core.os.LocaleListCompat);
   }
 
   public final class EnvironmentCompat {

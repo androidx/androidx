@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,20 +14,16 @@
  * limitations under the License.
  */
 
-package androidx.appcompat.app;
+package androidx.core.app;
 
-import static android.content.pm.PackageManager.COMPONENT_ENABLED_STATE_ENABLED;
-import static android.content.pm.PackageManager.DONT_KILL_APP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
-import static androidx.appcompat.app.AppCompatDelegate.getApplicationLocales;
-
-import android.content.ComponentName;
 import android.content.Context;
-import android.os.Build;
 import android.util.Log;
 import android.util.Xml;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -37,20 +33,17 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.ArrayDeque;
-import java.util.Queue;
-import java.util.concurrent.Executor;
 
 /**
  * Helper class to manage storage of locales in app's persistent files.
  */
-class AppLocalesStorageHelper {
+@RestrictTo(LIBRARY_GROUP_PREFIX)
+public class AppLocalesStorageHelper {
     static final String APPLICATION_LOCALES_RECORD_FILE =
             "androidx.appcompat.app.AppCompatDelegate.application_locales_record_file";
     static final String LOCALE_RECORD_ATTRIBUTE_TAG = "application_locales";
     static final String LOCALE_RECORD_FILE_TAG = "locales";
-    static final String APP_LOCALES_META_DATA_HOLDER_SERVICE_NAME = "androidx.appcompat.app"
-            + ".AppLocalesMetadataHolderService";
+
     static final String TAG = "AppLocalesStorageHelper";
     static final boolean DEBUG = false;
 
@@ -60,7 +53,7 @@ class AppLocalesStorageHelper {
      * Returns app locales after reading from storage, fetched using the application context.
      */
     @NonNull
-    static String readLocales(@NonNull Context context) {
+    public static String readLocales(@NonNull Context context) {
         String appLocales = "";
 
         FileInputStream fis;
@@ -121,7 +114,7 @@ class AppLocalesStorageHelper {
     /**
      * Stores the provided locales in internal app file, using the application context.
      */
-    static void persistLocales(@NonNull Context context, @NonNull String locales) {
+    public static void persistLocales(@NonNull Context context, @NonNull String locales) {
         if (locales.equals("")) {
             context.deleteFile(APPLICATION_LOCALES_RECORD_FILE);
             return;
@@ -156,104 +149,6 @@ class AppLocalesStorageHelper {
                     fos.close();
                 } catch (IOException e) {
                     /* ignore */
-                }
-            }
-        }
-    }
-
-    /**
-     * Syncs app-specific locales from androidX to framework. This is used to maintain a smooth
-     * transition for a device that updates from pre-T API versions to T.
-     *
-     * <p><b>NOTE:</b> This should only be called when auto-storage is opted-in. This method
-     * uses the meta-data service provided during the opt-in and hence if the service is not found
-     * this method will throw an error.</p>
-     */
-    static void syncLocalesToFramework(Context context) {
-        if (Build.VERSION.SDK_INT >= 33) {
-            ComponentName app_locales_component = new ComponentName(
-                    context, APP_LOCALES_META_DATA_HOLDER_SERVICE_NAME);
-
-            if (context.getPackageManager().getComponentEnabledSetting(app_locales_component)
-                    != COMPONENT_ENABLED_STATE_ENABLED) {
-                // ComponentEnabledSetting for the app component app_locales_component is used as a
-                // marker to represent that the locales has been synced from AndroidX to framework
-                // If this marker is found in ENABLED state then we do not need to sync again.
-                if (getApplicationLocales().isEmpty()) {
-                    // We check if some locales are applied by the framework or not (this is done to
-                    // ensure that we don't overwrite newer locales set by the framework). If no
-                    // app-locales are found then we need to sync the app-specific locales from
-                    // androidX to framework.
-
-                    String appLocales = readLocales(context);
-                    // if locales are present in storage, call the setApplicationLocales() API. As
-                    // the API version is >= 33, this call will be directed to the framework API and
-                    // the locales will be persisted there.
-                    Object localeManager = context.getSystemService(Context.LOCALE_SERVICE);
-                    if (localeManager != null) {
-                        AppCompatDelegate.Api33Impl.localeManagerSetApplicationLocales(
-                                localeManager,
-                                AppCompatDelegate.Api24Impl.localeListForLanguageTags(appLocales));
-                    }
-                }
-                // setting ComponentEnabledSetting for app component using
-                // AppLocalesMetadataHolderService (used only for locales, thus minimizing
-                // the chances of conflicts). Setting it as ENABLED marks the success of app-locales
-                // sync from AndroidX to framework.
-                // Flag DONT_KILL_APP indicates that you don't want to kill the app containing the
-                // component.
-                context.getPackageManager().setComponentEnabledSetting(app_locales_component,
-                        COMPONENT_ENABLED_STATE_ENABLED, /* flags= */ DONT_KILL_APP);
-            }
-        }
-    }
-
-    /**
-     * Implementation of {@link java.util.concurrent.Executor} that executes each runnable on a
-     * new thread.
-     */
-    static class ThreadPerTaskExecutor implements Executor {
-        @Override
-        public void execute(Runnable r) {
-            new Thread(r).start();
-        }
-    }
-
-    /**
-     * Implementation of {@link java.util.concurrent.Executor} that executes runnables serially
-     * by synchronizing the {@link Executor#execute(Runnable)} method and maintaining a tasks
-     * queue.
-     */
-    static class SerialExecutor implements Executor {
-        private final Object mLock = new Object();
-        final Queue<Runnable> mTasks = new ArrayDeque<>();
-        final Executor mExecutor;
-        Runnable mActive;
-
-        SerialExecutor(Executor executor) {
-            this.mExecutor = executor;
-        }
-
-        @Override
-        public void execute(final Runnable r) {
-            synchronized (mLock) {
-                mTasks.add(() -> {
-                    try {
-                        r.run();
-                    } finally {
-                        scheduleNext();
-                    }
-                });
-                if (mActive == null) {
-                    scheduleNext();
-                }
-            }
-        }
-
-        protected void scheduleNext() {
-            synchronized (mLock) {
-                if ((mActive = mTasks.poll()) != null) {
-                    mExecutor.execute(mActive);
                 }
             }
         }
