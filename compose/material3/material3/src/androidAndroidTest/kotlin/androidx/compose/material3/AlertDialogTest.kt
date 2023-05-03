@@ -418,6 +418,44 @@ class AlertDialogTest {
     }
 
     @Test
+    fun alertDialog_positioningActionsWithLongText() {
+        rule.setMaterialContent(lightColorScheme()) {
+            AlertDialog(
+                onDismissRequest = {},
+                title = { Text(text = "Title") },
+                text = { Text("Text") },
+                confirmButton = {
+                    TextButton(
+                        onClick = { /* doSomething() */ },
+                        Modifier
+                            .testTag(ConfirmButtonTestTag)
+                            .semantics(mergeDescendants = true) {}
+                    ) {
+                        Text("Confirm with a long text")
+                    }
+                },
+                dismissButton = {
+                    TextButton(
+                        onClick = { /* doSomething() */ },
+                        Modifier
+                            .testTag(DismissButtonTestTag)
+                            .semantics(mergeDescendants = true) {}
+                    ) {
+                        Text("Dismiss with a long text")
+                    }
+                }
+            )
+        }
+
+        val confirmBtBounds = rule.onNodeWithTag(ConfirmButtonTestTag).getUnclippedBoundsInRoot()
+        val dismissBtBounds = rule.onNodeWithTag(DismissButtonTestTag).getUnclippedBoundsInRoot()
+
+        assert(dismissBtBounds.top > confirmBtBounds.bottom) {
+            "dismiss action should appear below the confirm action"
+        }
+    }
+
+    @Test
     fun alertDialog_positioningWithLazyColumnText() {
         rule.setMaterialContent(lightColorScheme()) {
             AlertDialog(
