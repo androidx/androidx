@@ -36,6 +36,7 @@ import java.awt.event.MouseMotionAdapter
  * WindowDraggableArea is a component that allows you to drag the window using the mouse.
  *
  * @param modifier The modifier to be applied to the layout.
+ * @param content The content lambda.
  */
 @Composable
 fun WindowScope.WindowDraggableArea(
