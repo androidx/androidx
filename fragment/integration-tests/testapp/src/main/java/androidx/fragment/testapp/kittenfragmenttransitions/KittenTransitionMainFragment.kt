@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,9 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package androidx.fragment.testapp
+package androidx.fragment.testapp.kittenfragmenttransitions
 
 import androidx.fragment.app.Fragment
+import androidx.fragment.testapp.R
 
-class AnimationTestsFragment : Fragment(R.layout.animation_fragment)
+/**
+ * Main activity that holds our fragments
+ */
+class KittenTransitionMainFragment : Fragment(R.layout.kitten_activity_main)
