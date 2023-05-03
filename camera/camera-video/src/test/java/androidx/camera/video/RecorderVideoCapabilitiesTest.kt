@@ -21,9 +21,16 @@ import android.os.Build
 import android.util.Size
 import androidx.camera.core.DynamicRange
 import androidx.camera.core.DynamicRange.BIT_DEPTH_10_BIT
+import androidx.camera.core.DynamicRange.BIT_DEPTH_8_BIT
+import androidx.camera.core.DynamicRange.BIT_DEPTH_UNSPECIFIED
+import androidx.camera.core.DynamicRange.FORMAT_DOLBY_VISION
+import androidx.camera.core.DynamicRange.FORMAT_HDR10
+import androidx.camera.core.DynamicRange.FORMAT_HDR_UNSPECIFIED
 import androidx.camera.core.DynamicRange.FORMAT_HLG
+import androidx.camera.core.DynamicRange.FORMAT_UNSPECIFIED
 import androidx.camera.core.DynamicRange.HDR_UNSPECIFIED_10_BIT
 import androidx.camera.core.DynamicRange.SDR
+import androidx.camera.core.DynamicRange.UNSPECIFIED
 import androidx.camera.core.impl.EncoderProfilesProxy.VideoProfileProxy
 import androidx.camera.testing.EncoderProfilesUtil.PROFILES_2160P
 import androidx.camera.testing.EncoderProfilesUtil.PROFILES_720P
@@ -48,6 +55,11 @@ import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
 
 private val HLG10 = DynamicRange(FORMAT_HLG, BIT_DEPTH_10_BIT)
+private val HDR10 = DynamicRange(FORMAT_HDR10, BIT_DEPTH_10_BIT)
+private val UNSPECIFIED_8_BIT = DynamicRange(FORMAT_UNSPECIFIED, BIT_DEPTH_8_BIT)
+private val UNSPECIFIED_10_BIT = DynamicRange(FORMAT_UNSPECIFIED, BIT_DEPTH_10_BIT)
+private val HDR_UNSPECIFIED = DynamicRange(FORMAT_HDR_UNSPECIFIED, BIT_DEPTH_UNSPECIFIED)
+private val DOLBY_VISION_UNSPECIFIED = DynamicRange(FORMAT_DOLBY_VISION, BIT_DEPTH_UNSPECIFIED)
 
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
@@ -80,6 +92,55 @@ class RecorderVideoCapabilitiesTest {
     }
 
     @Test
+    fun hasSupportedQualities_sdr() {
+        assertThat(videoCapabilities.getSupportedQualities(SDR)).containsExactly(HD, UHD)
+    }
+
+    @Test
+    fun hasSupportedQualities_hlg10() {
+        assertThat(videoCapabilities.getSupportedQualities(HLG10)).containsExactly(HD, UHD)
+    }
+
+    @Test
+    fun hasSupportedQualities_hdr10() {
+        assertThat(videoCapabilities.getSupportedQualities(HDR10)).isEmpty()
+    }
+
+    @Test
+    fun hasSupportedQualities_unspecified() {
+        assertThat(videoCapabilities.getSupportedQualities(UNSPECIFIED)).containsExactly(HD, UHD)
+    }
+
+    @Test
+    fun hasSupportedQualities_hdrUnspecified() {
+        assertThat(videoCapabilities.getSupportedQualities(HDR_UNSPECIFIED))
+            .containsExactly(HD, UHD)
+    }
+
+    @Test
+    fun hasSupportedQualities_hdrUnspecified10Bit() {
+        assertThat(videoCapabilities.getSupportedQualities(HDR_UNSPECIFIED_10_BIT))
+            .containsExactly(HD, UHD)
+    }
+
+    @Test
+    fun hasSupportedQualities_unspecified8Bit() {
+        assertThat(videoCapabilities.getSupportedQualities(UNSPECIFIED_8_BIT))
+            .containsExactly(HD, UHD)
+    }
+
+    @Test
+    fun hasSupportedQualities_unspecified10Bit() {
+        assertThat(videoCapabilities.getSupportedQualities(UNSPECIFIED_10_BIT))
+            .containsExactly(HD, UHD)
+    }
+
+    @Test
+    fun hasSupportedQualities_dolbyVisionUnspecified() {
+        assertThat(videoCapabilities.getSupportedQualities(DOLBY_VISION_UNSPECIFIED)).isEmpty()
+    }
+
+    @Test
     fun isQualitySupported_sdr() {
         assertThat(videoCapabilities.isQualitySupported(HIGHEST, SDR)).isTrue()
         assertThat(videoCapabilities.isQualitySupported(LOWEST, SDR)).isTrue()
@@ -87,6 +148,16 @@ class RecorderVideoCapabilitiesTest {
         assertThat(videoCapabilities.isQualitySupported(FHD, SDR)).isFalse()
         assertThat(videoCapabilities.isQualitySupported(HD, SDR)).isTrue()
         assertThat(videoCapabilities.isQualitySupported(SD, SDR)).isFalse()
+    }
+
+    @Test
+    fun isQualitySupported_unspecified() {
+        assertThat(videoCapabilities.isQualitySupported(HIGHEST, UNSPECIFIED)).isTrue()
+        assertThat(videoCapabilities.isQualitySupported(LOWEST, UNSPECIFIED)).isTrue()
+        assertThat(videoCapabilities.isQualitySupported(UHD, UNSPECIFIED)).isTrue()
+        assertThat(videoCapabilities.isQualitySupported(FHD, UNSPECIFIED)).isFalse()
+        assertThat(videoCapabilities.isQualitySupported(HD, UNSPECIFIED)).isTrue()
+        assertThat(videoCapabilities.isQualitySupported(SD, UNSPECIFIED)).isFalse()
     }
 
     @Test
@@ -100,7 +171,7 @@ class RecorderVideoCapabilitiesTest {
     }
 
     @Test
-    fun isQualitySupported_hdrUnspecifiedWithBackupProfile() {
+    fun isQualitySupported_hdrUnspecified10BitWithBackupProfile() {
         assertThat(videoCapabilities.isQualitySupported(HIGHEST, HDR_UNSPECIFIED_10_BIT)).isTrue()
         assertThat(videoCapabilities.isQualitySupported(LOWEST, HDR_UNSPECIFIED_10_BIT)).isTrue()
         assertThat(videoCapabilities.isQualitySupported(UHD, HDR_UNSPECIFIED_10_BIT)).isTrue()
