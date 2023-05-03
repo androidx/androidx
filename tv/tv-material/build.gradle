@@ -27,19 +27,10 @@ plugins {
 dependencies {
     api(libs.kotlinStdlib)
 
-    def composeVersion = '1.4.0-rc01'
-
-    api("androidx.annotation:annotation:1.5.0")
-    api("androidx.compose.runtime:runtime:$composeVersion")
+    def composeVersion = '1.4.2'
 
     api(project(":compose:animation:animation"))
-    api("androidx.compose.ui:ui:$composeVersion")
-    api("androidx.compose.foundation:foundation:$composeVersion")
-    api("androidx.compose.foundation:foundation-layout:$composeVersion")
     api("androidx.compose.material:material-icons-core:$composeVersion")
-    api("androidx.compose.ui:ui-graphics:$composeVersion")
-    api(project(":compose:ui:ui-text"))
-    api("androidx.compose.ui:ui-util:$composeVersion")
     api(project(":tv:tv-foundation"))
 
     implementation(libs.kotlinStdlibCommon)
