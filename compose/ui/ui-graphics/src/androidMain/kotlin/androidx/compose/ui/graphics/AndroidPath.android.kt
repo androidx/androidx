@@ -190,6 +190,11 @@ inline fun Path.asAndroidPath(): android.graphics.Path =
         internalPath.transform(mMatrix)
     }
 
+    override fun transform(matrix: Matrix) {
+        mMatrix.setFrom(matrix)
+        internalPath.transform(mMatrix)
+    }
+
     override fun getBounds(): Rect {
         internalPath.computeBounds(rectF, true)
         return Rect(

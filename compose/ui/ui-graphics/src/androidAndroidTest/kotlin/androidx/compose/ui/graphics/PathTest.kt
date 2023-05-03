@@ -97,6 +97,37 @@ class PathTest {
         assertEquals(0, androidPath.resetCount)
     }
 
+    @Test
+    fun testPathTransform() {
+        val width = 100
+        val height = 100
+        val image = ImageBitmap(width, height)
+        val canvas = Canvas(image)
+
+        val path = Path().apply {
+            addRect(Rect(0f, 0f, 50f, 50f))
+            transform(
+                Matrix().apply { translate(50f, 50f) }
+            )
+        }
+
+        val paint = Paint().apply { color = Color.Black }
+        canvas.drawRect(0f, 0f, width.toFloat(), height.toFloat(), paint)
+        paint.color = Color.Red
+        canvas.drawPath(path, paint)
+
+        image.toPixelMap().apply {
+            assertEquals(Color.Black, this[width / 2 - 3, height / 2 - 3])
+            assertEquals(Color.Black, this[width / 2, height / 2 - 3])
+            assertEquals(Color.Black, this[width / 2 - 3, height / 2])
+
+            assertEquals(Color.Red, this[width / 2 + 2, height / 2 + 2])
+            assertEquals(Color.Red, this[width - 2, height / 2 + 2])
+            assertEquals(Color.Red, this[width - 2, height - 2])
+            assertEquals(Color.Red, this[width / 2 + 2, height - 2])
+        }
+    }
+
     class TestAndroidPath : android.graphics.Path() {
 
         var resetCount = 0

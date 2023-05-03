@@ -172,6 +172,10 @@ internal class SkiaBackedPath(
         internalPath.transform(Matrix33.makeTranslate(offset.x, offset.y))
     }
 
+    override fun transform(matrix: Matrix) {
+        internalPath.transform(Matrix33.makeTranslate(0f, 0f).apply { setFrom(matrix) })
+    }
+
     override fun getBounds(): Rect {
         val bounds = internalPath.bounds
         return Rect(
@@ -209,4 +213,63 @@ internal class SkiaBackedPath(
     override val isConvex: Boolean get() = internalPath.isConvex
 
     override val isEmpty: Boolean get() = internalPath.isEmpty
+
+    fun Matrix33.setFrom(matrix: Matrix) {
+        require(
+            matrix[0, 2] == 0f &&
+                matrix[1, 2] == 0f &&
+                matrix[2, 2] == 1f &&
+                matrix[3, 2] == 0f &&
+                matrix[2, 0] == 0f &&
+                matrix[2, 1] == 0f &&
+                matrix[2, 3] == 0f
+        ) {
+            "Matrix33 does not support arbitrary transforms"
+        }
+
+        // We'll reuse the array used in Matrix to avoid allocation by temporarily
+        // setting it to the 3x3 matrix used by android.graphics.Matrix
+        // Store the values of the 4 x 4 matrix into temporary variables
+        // to be reset after the 3 x 3 matrix is configured
+        val scaleX = matrix.values[Matrix.ScaleX] // 0
+        val skewY = matrix.values[Matrix.SkewY] // 1
+        val v2 = matrix.values[2] // 2
+        val persp0 = matrix.values[Matrix.Perspective0] // 3
+        val skewX = matrix.values[Matrix.SkewX] // 4
+        val scaleY = matrix.values[Matrix.ScaleY] // 5
+        val v6 = matrix.values[6] // 6
+        val persp1 = matrix.values[Matrix.Perspective1] // 7
+        val v8 = matrix.values[8] // 8
+
+        val translateX = matrix.values[Matrix.TranslateX]
+        val translateY = matrix.values[Matrix.TranslateY]
+        val persp2 = matrix.values[Matrix.Perspective2]
+
+        val v = matrix.values
+
+        v[0] = scaleX // MSCALE_X = 0
+        v[1] = skewX // MSKEW_X = 1
+        v[2] = translateX // MTRANS_X = 2
+        v[3] = skewY // MSKEW_Y = 3
+        v[4] = scaleY // MSCALE_Y = 4
+        v[5] = translateY // MTRANS_Y
+        v[6] = persp0 // MPERSP_0 = 6
+        v[7] = persp1 // MPERSP_1 = 7
+        v[8] = persp2 // MPERSP_2 = 8
+
+        for (i in 0..8) {
+            mat[i] = v[i]
+        }
+
+        // Reset the values back after the android.graphics.Matrix is configured
+        v[Matrix.ScaleX] = scaleX // 0
+        v[Matrix.SkewY] = skewY // 1
+        v[2] = v2 // 2
+        v[Matrix.Perspective0] = persp0 // 3
+        v[Matrix.SkewX] = skewX // 4
+        v[Matrix.ScaleY] = scaleY // 5
+        v[6] = v6 // 6
+        v[Matrix.Perspective1] = persp1 // 7
+        v[8] = v8 // 8
+    }
 }
