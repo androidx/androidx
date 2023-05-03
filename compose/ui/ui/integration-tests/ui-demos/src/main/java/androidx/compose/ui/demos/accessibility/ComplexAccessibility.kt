@@ -21,7 +21,9 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.BottomAppBar
@@ -29,12 +31,14 @@ import androidx.compose.material.DrawerValue
 import androidx.compose.material.FabPosition
 import androidx.compose.material.FloatingActionButton
 import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Face
 import androidx.compose.material.rememberDrawerState
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
@@ -42,6 +46,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.isTraversalGroup
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.traversalIndex
@@ -349,4 +354,48 @@ fun NestedAndPeerTraversalIndexDemo() {
             Text(text = "text 0\n")
         }
     }
+}
+
+@Preview
+@Composable
+fun IconsInScaffoldWithListDemo() {
+    Scaffold(
+        topBar = {
+            Row(
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
+                IconButton(onClick = { }) {
+                    Icon(Icons.Default.Face, contentDescription = "Face 1")
+                }
+                // Setting `clearAndSetSemantics` below means that Face 2 will not be sorted nor
+                // will be read by TalkBack. The final traversal order should go from Face 1 to
+                // Face 3 to the LazyColumn content.
+                IconButton(
+                    onClick = { },
+                    modifier = Modifier.clearAndSetSemantics { }
+                ) {
+                    Icon(Icons.Default.Face, contentDescription = "Face 2")
+                }
+                IconButton(onClick = { }) {
+                    Icon(Icons.Default.Face, contentDescription = "Face 3")
+                }
+            }
+        },
+        content = { innerPadding ->
+            LazyColumn(
+                contentPadding = innerPadding,
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                val list = (0..75).map { it.toString() }
+                items(count = list.size) {
+                    Text(
+                        text = list[it],
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp)
+                    )
+                }
+            }
+        }
+    )
 }
