@@ -31,7 +31,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mockito.mock
-/* ktlint-disable no-unused-imports */ // https://github.com/pinterest/ktlint/issues/937
 import org.mockito.Mockito.`when` as mockWhen
 
 /* ktlint-enable unused-imports */
