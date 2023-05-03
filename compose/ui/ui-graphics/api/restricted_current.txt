@@ -1679,5 +1679,9 @@ package androidx.compose.ui.graphics.vector {
     method public androidx.compose.ui.graphics.Path toPath(optional androidx.compose.ui.graphics.Path target);
   }
 
+  public final class PathParserKt {
+    method public static androidx.compose.ui.graphics.Path toPath(java.util.List<? extends androidx.compose.ui.graphics.vector.PathNode>, optional androidx.compose.ui.graphics.Path target);
+  }
+
 }
 
