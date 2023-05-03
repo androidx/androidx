@@ -115,6 +115,9 @@ class CameraControllerFragmentTest(
 
     @Before
     fun setup() {
+        assumeFalse("See b/152082918, Wembley Api30 has a libjpeg issue which causes" +
+            " the test failure.",
+            Build.MODEL.equals("wembley", ignoreCase = true) && Build.VERSION.SDK_INT <= 30)
         // Clear the device UI and check if there is no dialog or lock screen on the top of the
         // window before start the test.
         CoreAppTestUtil.prepareDeviceUI(instrumentation)
