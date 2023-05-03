@@ -17,57 +17,112 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="m3c_dialog" msgid="4057925834421392736">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‏‎‏‏‏‎‎‎‎‏‎‏‎‎‎‎‏‎‏‎‎‏‏‎‎‎‎‎‏‎‏‏‏‏‏‎‏‏‎‏‏‎‎‏‎‎‎‏‎‏‎‏‎‏‎‏‎‏‏‎‎‎‎‎‎Dialog‎‏‎‎‏‎"</string>
-    <string name="m3c_snackbar_dismiss" msgid="3962933905051144957">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‏‎‏‏‎‏‏‎‏‏‏‏‏‏‏‏‎‎‏‎‏‎‏‏‎‏‏‎‎‎‏‏‏‏‎‏‏‏‏‎‏‏‏‎‏‏‎‎‏‏‎‏‎‎‏‎‏‏‏‏‏‏‎‏‎Dismiss‎‏‎‎‏‎"</string>
-    <string name="m3c_search_bar_search" msgid="6420018528474762666">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‏‏‏‎‏‏‎‎‏‎‎‎‏‏‎‎‎‎‏‏‏‏‏‎‎‏‏‎‏‎‏‏‎‎‏‎‎‎‎‎‏‎‎‏‎‏‎‏‎‎‎‎‎‏‏‎‏‏‎‏‎‏‎‏‎‎Search‎‏‎‎‏‎"</string>
-    <string name="m3c_suggestions_available" msgid="7189888345201419934">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‏‏‏‏‎‎‎‏‏‏‏‎‎‎‏‏‏‏‎‎‏‏‏‎‏‎‏‎‏‏‎‏‏‎‎‏‏‎‏‏‎‎‏‏‏‎‎‏‏‏‎‏‎‎‏‏‎‏‎‎‏‏‏‏‎‎Suggestions below‎‏‎‎‏‎"</string>
-    <string name="m3c_date_picker_title" msgid="9208721003668059792">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‎‎‏‎‏‏‏‏‏‏‎‎‏‎‏‏‏‏‎‏‏‎‏‎‎‎‎‎‏‏‎‏‎‏‎‎‎‎‎‎‏‏‎‏‏‎‏‎‎‏‎‎‎‎‎Select date‎‏‎‎‏‎"</string>
-    <string name="m3c_date_picker_headline" msgid="2846784065735639969">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‏‎‏‎‎‏‏‏‏‎‎‎‎‎‎‏‏‏‎‎‏‏‏‏‎‎‎‎‎‏‏‎‎‏‎‏‏‏‏‎‎‏‏‎‏‎‏‎‎‏‎‎‎‎‏‏‏‎‏‎‎‎‎‏‎Selected date‎‏‎‎‏‎"</string>
-    <string name="m3c_date_picker_switch_to_year_selection" msgid="3412370019845183965">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‏‎‏‎‏‏‏‏‎‏‎‏‏‎‏‏‎‎‏‎‏‏‎‎‎‏‏‏‎‏‎‎‎‎‎‏‏‎‏‏‎‎‎‏‎‎‎‎‏‎‎‏‏‎‎‏‏‏‎‏‏‏‎‏‎Switch to selecting a year‎‏‎‎‏‎"</string>
-    <string name="m3c_date_picker_switch_to_day_selection" msgid="145089358343568971">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‎‏‎‏‎‎‎‎‎‎‎‏‏‎‏‏‏‎‏‏‎‎‎‎‎‎‎‎‎‏‎‏‏‎‎‎‎‏‏‎‎‎‎‎‏‏‏‏‏‏‏‏‎‎‏‎‎‏‎‏‏‎Swipe to select a year, or tap to switch back to selecting a day‎‏‎‎‏‎"</string>
-    <string name="m3c_date_picker_switch_to_next_month" msgid="8313783187901412102">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‏‏‏‏‏‎‎‏‏‎‏‏‎‎‎‎‎‎‏‏‏‏‏‎‏‏‏‎‎‎‎‏‎‏‏‎‏‎‏‏‎‎‏‏‏‏‎‏‎‎‏‏‏‎‎‏‏‎‎‎‎‎‏‏‎‎Change to next month‎‏‎‎‏‎"</string>
-    <string name="m3c_date_picker_switch_to_previous_month" msgid="7596294429748914881">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‏‏‏‏‎‏‎‎‏‎‏‏‎‏‎‏‏‎‏‏‏‎‏‎‏‏‎‎‎‏‎‎‏‎‏‏‏‎‏‏‎‎‏‏‏‎‏‏‎‎‏‏‎‏‎‏‎‏‏‎‎‎‎‎‏‎Change to previous month‎‏‎‎‏‎"</string>
-    <string name="m3c_date_picker_navigate_to_year_description" msgid="5152441868029453612">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‏‏‏‎‎‎‏‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‏‏‎‏‎‎‏‎‏‎‎‏‎‎‎‎‏‎‏‏‎‏‏‏‏‏‎‏‏‏‎‎‏‎‏‎‎‏‎‏‏‎‎‎Navigate to year %1$s‎‏‎‎‏‎"</string>
-    <string name="m3c_date_picker_headline_description" msgid="4627306862713137085">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‏‏‏‎‎‎‎‎‎‎‎‏‏‎‏‏‏‎‏‏‏‏‏‏‏‎‎‎‏‎‎‏‏‎‎‏‏‏‎‏‎‏‎‏‏‏‏‏‎‎‏‏‎‎‏‏‏‏‎‏‏‏‏‎‏‎Current selection: %1$s‎‏‎‎‏‎"</string>
-    <string name="m3c_date_picker_no_selection_description" msgid="5724377114289981899">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‏‏‏‎‎‏‏‏‏‎‏‏‏‎‎‎‏‎‎‎‏‎‎‏‎‏‎‏‎‏‎‎‎‎‎‎‎‏‎‎‏‏‎‏‎‎‎‎‏‎‏‎‎‏‎‎‏‏‏‎‎‏‎‏‏‎None‎‏‎‎‏‎"</string>
-    <string name="m3c_date_picker_today_description" msgid="4775802721403526937">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‏‏‏‎‎‎‎‏‎‎‏‎‎‎‏‏‏‎‎‎‎‏‏‏‏‎‏‎‎‎‏‎‏‏‎‎‏‎‏‏‎‏‎‎‏‏‎‎‏‏‏‎‏‏‏‏‏‎‎‎‏‏‎‎‏‎Today‎‏‎‎‏‎"</string>
-    <string name="m3c_date_picker_year_picker_pane_title" msgid="8140324713311804736">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‏‏‏‏‏‎‎‎‎‏‏‏‏‏‎‎‎‎‎‏‏‏‏‏‎‎‎‏‏‎‎‏‎‏‎‎‎‏‏‎‏‎‏‎‎‏‎‎‎‏‎‎‏‏‏‎‏‎‏‎‎‎‎‎‎‎Year picker visible‎‏‎‎‏‎"</string>
-    <string name="m3c_date_input_title" msgid="3010396677286327048">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‏‎‏‎‏‎‎‏‏‏‎‎‎‏‏‏‎‎‎‏‎‎‏‏‏‏‎‏‎‏‎‎‎‎‎‎‎‏‏‎‏‎‏‎‏‎‏‎‏‏‏‏‎‎‏‏‎‎‎‎‏‎‎‎‎Select date‎‏‎‎‏‎"</string>
-    <string name="m3c_date_input_headline" msgid="3499643850558715142">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‏‎‏‏‎‎‎‎‏‎‎‏‎‎‎‏‎‎‏‏‏‎‏‏‏‎‎‎‏‎‏‎‎‏‎‎‏‎‎‎‏‏‏‎‏‏‏‎‏‎‏‏‎‏‎‏‎‎‎‎‎‏‏‎‎Entered date‎‏‎‎‏‎"</string>
-    <string name="m3c_date_input_label" msgid="5194825853981987218">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‏‏‏‎‎‏‎‎‎‎‎‎‏‎‏‏‏‏‎‏‏‏‎‏‎‏‎‎‏‎‏‏‏‎‏‎‎‎‎‎‎‏‎‎‏‏‏‎‎‏‎‎‏‎‎‎‏‏‎‎‏‎‎‏‎‎Date‎‏‎‎‏‎"</string>
-    <string name="m3c_date_input_headline_description" msgid="8562356184193964298">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‏‏‏‏‏‎‏‏‎‏‏‎‏‎‎‏‏‏‎‎‏‏‎‎‏‏‎‎‏‎‏‎‏‏‎‎‎‏‏‏‏‎‏‎‎‎‎‎‎‎‎‎‏‏‎‎‏‎‎‎‎‏‎‏‎‎Entered date: %1$s‎‏‎‎‏‎"</string>
-    <string name="m3c_date_input_no_input_description" msgid="5722931102250207748">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‏‏‏‎‎‏‏‏‏‎‏‏‎‏‎‏‏‏‏‏‎‏‏‏‏‏‎‎‎‎‏‎‎‎‎‎‏‏‏‏‏‏‎‏‎‏‎‎‎‏‎‎‎‏‎‏‎‎‎‎‎‎‏‎‎‎None‎‏‎‎‏‎"</string>
-    <string name="m3c_date_input_invalid_not_allowed" msgid="6114792992433444995">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‏‏‏‎‏‎‏‎‎‏‏‎‏‏‏‎‎‎‎‎‏‏‎‏‏‏‏‎‏‎‏‎‎‎‎‏‏‏‏‎‏‎‎‎‎‏‎‏‏‎‎‎‏‏‎‎‎‏‎‎‎‎‎‏‏‎Date not allowed: %1$s‎‏‎‎‏‎"</string>
-    <string name="m3c_date_input_invalid_for_pattern" msgid="5281836720766682161">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‏‏‏‎‎‏‎‎‏‎‏‎‎‏‏‎‎‏‏‎‏‏‎‏‎‏‎‎‎‎‎‏‏‎‏‎‏‏‏‏‎‏‏‏‎‏‎‎‏‏‎‎‎‎‏‎‎‎‎‏‏‎‎‎‏‎Date does not match expected pattern: %1$s‎‏‎‎‏‎"</string>
-    <string name="m3c_date_input_invalid_year_range" msgid="8434112129235255568">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‏‏‏‏‏‎‏‎‏‎‎‎‎‏‎‏‏‏‏‏‏‏‏‎‎‎‏‎‎‏‎‏‏‏‎‏‏‎‎‏‎‏‏‏‎‎‎‎‏‏‎‎‎‎‎‎‏‎‎‎‏‎‎‎‎‎Date out of expected year range %1$s - %2$s‎‏‎‎‏‎"</string>
-    <string name="m3c_date_picker_switch_to_calendar_mode" msgid="9029369254443419167">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‏‏‏‏‏‏‏‎‏‎‏‎‎‏‏‏‎‏‏‎‎‎‎‏‏‎‏‏‏‏‏‏‏‎‏‎‎‏‏‎‎‏‏‏‎‏‏‏‏‎‎‎‎‎‏‏‎‎‎‎‏‏‏‏‏‎Switch to calendar input mode‎‏‎‎‏‎"</string>
-    <string name="m3c_date_picker_switch_to_input_mode" msgid="1496750567914156598">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‎‏‏‎‏‎‎‏‏‎‎‎‏‎‏‏‎‎‎‎‏‏‎‏‎‏‏‎‏‏‎‎‎‎‏‏‏‎‏‏‏‏‎‎‎‏‏‎‎‏‏‎‎‏‎‎‎‏‏‎‏‏‎‎Switch to text input mode‎‏‎‎‏‎"</string>
-    <string name="m3c_date_picker_scroll_to_later_years" msgid="3226341140390493774">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‏‎‏‎‏‏‎‎‏‏‎‎‎‏‏‎‎‏‎‎‎‏‎‎‎‎‏‎‏‏‎‎‎‏‎‏‏‏‎‏‎‎‏‏‎‏‎‎‎‎‏‏‏‏‏‎‎‏‎‎‏‏‏‎‎Scroll to show later years‎‏‎‎‏‎"</string>
-    <string name="m3c_date_picker_scroll_to_earlier_years" msgid="8911933542023210271">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‏‏‏‏‏‏‎‏‏‏‎‏‎‏‏‎‏‏‎‎‎‏‏‎‎‎‏‎‏‎‏‏‎‏‏‎‎‏‎‏‎‎‎‏‎‏‏‏‎‏‎‏‎‎‏‎‏‎‎‎‏‏‏‏‏‎Scroll to show earlier years‎‏‎‎‏‎"</string>
-    <string name="m3c_date_range_picker_title" msgid="690080476639943577">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‎‎‏‎‎‏‏‎‎‏‎‎‏‏‏‎‏‎‏‎‎‎‏‎‎‎‏‎‎‏‏‎‎‎‏‏‎‎‏‎‎‎‏‏‏‎‎‏‎‏‏‎‏‏‏‎‎‏‏‎‎‏‎Select dates‎‏‎‎‏‎"</string>
-    <string name="m3c_date_range_picker_start_headline" msgid="5759491386723090559">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‏‏‏‎‎‏‏‏‏‏‏‏‎‏‏‎‏‏‏‎‏‎‎‏‎‏‏‏‎‎‏‏‎‏‎‏‏‎‎‎‎‏‎‎‎‏‏‎‏‎‏‎‎‎‎‎‎‎‏‏‏‏‏‏‏‎Start date‎‏‎‎‏‎"</string>
-    <string name="m3c_date_range_picker_end_headline" msgid="4766270708882012148">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‏‏‏‎‎‎‎‏‎‎‎‏‎‎‏‎‏‎‎‏‏‎‎‎‏‏‏‏‏‎‏‎‎‏‏‏‏‏‎‏‎‎‏‎‎‎‎‏‎‏‏‏‏‎‏‏‏‏‏‏‏‎‏‎‎‎End date‎‏‎‎‏‎"</string>
-    <string name="m3c_date_range_picker_scroll_to_next_month" msgid="51495506931835470">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‎‎‎‏‎‏‏‎‏‏‎‏‏‏‏‎‎‏‎‏‏‏‎‎‏‎‎‎‎‎‎‎‏‏‎‎‎‏‏‎‎‏‏‎‏‏‎‎‎‏‎‎‏‎‎‏‏‏‎‎Scroll to show the next month‎‏‎‎‏‎"</string>
-    <string name="m3c_date_range_picker_scroll_to_previous_month" msgid="4371570854614540700">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‏‎‏‏‏‏‎‎‏‎‏‎‏‎‏‎‏‏‏‏‎‎‎‎‏‎‎‎‎‏‏‏‏‏‎‏‏‎‏‏‏‏‎‎‎‎‎‎‎‎‏‎‎‎‎‏‏‎‎‏‏‏‎‎‎Scroll to show the previous month‎‏‎‎‏‎"</string>
-    <string name="m3c_date_range_picker_day_in_range" msgid="9048690781645835833">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‏‏‏‏‏‏‏‎‏‏‎‎‏‎‎‏‏‎‏‏‎‏‎‎‎‎‏‎‏‎‎‏‎‏‏‏‎‏‎‏‎‎‏‎‏‏‎‏‎‎‎‎‎‏‏‏‎‎‎‏‏‏‎‎‏‎In range‎‏‎‎‏‎"</string>
-    <string name="m3c_date_range_input_title" msgid="2366412111888449406">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‏‎‏‎‎‎‎‎‏‏‎‏‎‏‏‏‎‎‏‎‏‏‏‏‎‏‎‎‎‏‏‏‎‎‏‎‏‎‎‏‎‏‎‎‏‎‏‎‏‏‏‏‏‏‏‏‎‏‏‏‏‏‏‎‎Enter dates‎‏‎‎‏‎"</string>
-    <string name="m3c_date_range_input_invalid_range_input" msgid="1891592555781755601">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‎‏‏‏‎‏‎‎‏‎‎‎‎‎‎‎‏‎‎‏‎‎‏‎‏‏‎‏‎‎‎‎‏‎‎‏‎‏‏‎‎‏‎‎‏‎‏‎‎‎‏‎‎‏‎‏‏‎‏‎‎‎‏‎Invalid date range input‎‏‎‎‏‎"</string>
-    <string name="m3c_bottom_sheet_drag_handle_description" msgid="7772321844937772780">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‏‏‏‏‎‏‎‏‏‏‏‎‏‏‏‎‎‏‏‎‏‎‏‎‏‏‎‎‎‏‎‎‏‏‏‎‏‎‏‏‏‏‎‎‎‎‏‏‎‎‏‎‎‏‏‏‎‏‏‏‎‏‏‎‎‎Drag handle‎‏‎‎‏‎"</string>
-    <string name="m3c_bottom_sheet_collapse_description" msgid="6128938260108474660">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‏‏‏‎‏‎‏‎‏‎‎‎‎‏‏‏‎‎‏‎‏‏‏‎‎‏‏‏‎‎‎‎‎‎‎‎‎‎‏‎‎‎‎‎‏‎‎‎‎‏‏‏‏‏‎‎‏‎‎‏‎‎‏‎‎‎Collapse bottom sheet‎‏‎‎‏‎"</string>
-    <string name="m3c_bottom_sheet_dismiss_description" msgid="1918297411568599192">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‎‏‏‏‎‏‎‏‎‎‏‏‏‏‏‎‎‏‎‏‎‎‏‎‏‎‏‎‏‎‏‎‎‎‎‏‏‏‎‎‎‎‏‏‎‎‏‎‎‎‎‎‎‎‎‏‎‎‏‏‎‎‎‎Dismiss bottom sheet‎‏‎‎‏‎"</string>
-    <string name="m3c_bottom_sheet_expand_description" msgid="4324434199045499117">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‏‎‏‏‏‏‎‎‎‎‎‎‎‎‏‏‎‏‏‏‏‎‎‏‏‏‏‏‏‏‏‎‎‎‎‎‎‎‎‎‏‎‏‎‏‎‎‎‎‏‏‎‏‎‎‎‏‏‏‎‏‏‎‏‎Expand bottom sheet‎‏‎‎‏‎"</string>
-    <string name="m3c_tooltip_pane_description" msgid="8191239805703103845">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‏‏‏‏‏‎‎‎‏‏‎‏‎‏‏‎‏‎‎‏‎‎‎‎‏‎‎‏‏‎‏‎‎‎‏‎‎‏‎‎‎‏‏‏‏‏‎‎‏‎‎‏‎‎‏‎‏‎‏‏‎‎‏‎‏‎Tooltip‎‏‎‎‏‎"</string>
-    <string name="m3c_tooltip_long_press_label" msgid="2732804537909054941">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‏‎‏‎‎‏‎‏‏‏‏‎‏‏‎‎‏‏‎‏‏‏‏‏‎‎‏‏‏‏‏‏‏‎‎‎‏‎‏‎‏‎‏‎‎‏‎‏‎‎‎‎‏‏‎‏‏‏‎‏‏‏‎‏‎Show tooltip‎‏‎‎‏‎"</string>
-    <string name="m3c_time_picker_pm" msgid="2232702812657998674">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‎‏‏‏‏‏‎‏‏‏‏‏‏‎‎‎‎‏‎‎‏‏‏‎‏‏‎‎‎‎‎‏‏‏‏‎‏‎‏‎‏‏‏‏‏‏‎‏‏‎‏‏‎‏‏‎‏‎‏‎‎‏‎‎PM‎‏‎‎‏‎"</string>
-    <string name="m3c_time_picker_am" msgid="5096144640014509074">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‏‏‏‎‎‎‏‏‎‏‎‏‏‏‎‎‏‎‎‏‎‎‏‎‎‏‎‎‎‏‏‎‎‏‎‏‏‎‎‎‎‎‎‎‏‎‎‏‏‎‏‏‎‎‏‎‎‎‎‎‏‎‎‏‎‎AM‎‏‎‎‏‎"</string>
-    <string name="m3c_time_picker_period_toggle_description" msgid="7352665290700284516">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‏‏‏‏‎‎‏‏‎‎‎‎‎‏‎‎‏‏‏‏‎‏‎‏‎‎‎‏‎‎‎‎‎‎‎‏‏‎‏‎‎‏‎‎‎‏‎‎‎‏‏‏‎‎‎‏‎‎‏‏‎‎‏‎‎‎Select AM or PM‎‏‎‎‏‎"</string>
-    <string name="m3c_time_picker_hour_selection" msgid="6081676287789101196">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‏‏‏‎‏‎‏‎‎‎‏‏‎‎‏‏‎‎‏‏‏‎‏‎‎‎‏‎‏‏‏‎‎‏‎‎‏‎‏‎‎‏‎‎‏‎‏‎‏‏‏‏‏‎‎‎‎‏‎‎‎‏‏‎‎‎Select hour‎‏‎‎‏‎"</string>
-    <string name="m3c_time_picker_minute_selection" msgid="8494777394375441602">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‏‏‏‏‏‎‏‎‏‏‏‏‎‎‎‏‏‏‎‎‎‎‎‏‏‎‎‎‎‏‎‎‎‎‏‏‎‏‏‎‏‏‏‎‎‎‏‎‎‎‎‏‏‏‏‎‎‏‏‎‎‎‎‏‎‎Select minutes‎‏‎‎‏‎"</string>
-    <string name="m3c_time_picker_hour_suffix" msgid="6952032626122080528">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‏‏‏‏‎‎‎‎‎‎‏‏‏‏‎‏‎‏‎‎‏‎‏‎‎‏‏‎‏‎‏‏‏‎‎‎‎‏‎‏‎‏‏‏‎‏‏‏‎‏‏‎‎‎‎‎‏‎‎‎‏‎‎‎‎‎%1$d o\'clock‎‏‎‎‏‎"</string>
-    <string name="m3c_time_picker_hour_24h_suffix" msgid="4149641012513526783">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‏‎‏‏‏‎‎‏‏‎‎‏‎‏‏‎‎‏‏‏‏‏‎‎‏‎‎‎‎‎‏‏‏‏‏‎‎‎‎‎‎‏‎‎‎‎‏‎‏‏‎‏‎‎‏‏‏‏‏‏‏‏‏‏‎%1$d hours‎‏‎‎‏‎"</string>
-    <string name="m3c_time_picker_minute_suffix" msgid="3206486707779478173">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‏‎‏‎‏‏‎‎‎‏‏‏‏‏‏‏‏‎‏‏‏‎‏‎‏‎‏‎‏‏‎‎‎‎‎‎‏‎‏‎‎‎‏‏‎‏‎‏‎‎‏‎‎‎‏‎‏‎‎‏‏‏‎‏‎%1$d minutes‎‏‎‎‏‎"</string>
-    <string name="m3c_time_picker_minute" msgid="6116528647594005945">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‏‏‏‎‏‎‏‎‎‏‏‏‎‎‎‏‎‎‏‎‎‎‏‏‎‎‏‏‎‎‏‎‏‏‏‏‏‎‎‏‎‎‏‎‏‎‏‏‏‎‏‎‏‎‏‎‏‏‎‏‏‏‎‎‏‎Minute‎‏‎‎‏‎"</string>
-    <string name="m3c_time_picker_hour" msgid="7241191970823415723">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‏‏‏‏‎‎‏‎‎‎‏‏‏‏‏‎‏‏‏‏‎‎‎‎‏‏‎‏‏‏‎‏‏‎‏‏‎‎‎‏‏‎‏‎‏‎‏‏‏‎‎‏‎‎‏‏‏‏‎‏‎‏‎‏‏‎Hour‎‏‎‎‏‎"</string>
-    <string name="m3c_time_picker_minute_text_field" msgid="994099543833979061">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‎‎‏‏‎‏‏‏‎‎‏‎‏‏‏‏‎‎‎‎‎‎‎‏‎‎‎‏‎‎‏‎‏‎‎‏‎‏‏‎‎‏‏‎‏‎‎‎‏‎‏‎‎‎‏‎‏‏‎‏‎‏‎for minutes‎‏‎‎‏‎"</string>
-    <string name="m3c_time_picker_hour_text_field" msgid="5298761125390275834">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‏‏‏‎‎‏‎‎‏‏‎‎‎‏‎‎‎‏‏‏‏‏‎‏‏‎‎‏‎‏‎‏‏‎‏‏‎‎‏‎‎‏‎‎‎‏‎‎‏‎‏‎‏‎‏‎‎‏‏‏‏‏‎‏‎‎for hour‎‏‎‎‏‎"</string>
+    <!-- no translation found for m3c_dialog (7617233117134790350) -->
+    <skip />
+    <string name="m3c_dropdown_menu_expanded" msgid="2360841780724299882">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‏‎‏‎‎‎‎‎‏‏‎‎‎‎‏‏‎‏‏‎‎‏‎‏‎‎‎‏‎‏‏‏‎‏‎‏‏‏‏‎‏‏‏‏‏‎‎‎‏‏‏‏‏‎‎‎‎‏‏‎‏‎‏‎‎Expanded‎‏‎‎‏‎"</string>
+    <string name="m3c_dropdown_menu_collapsed" msgid="3177828188723359358">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‏‎‏‎‏‏‎‎‎‎‎‏‏‎‎‏‏‏‏‎‏‎‎‏‏‏‏‎‎‏‏‎‏‎‎‏‏‎‏‎‎‎‎‏‎‏‎‎‎‎‏‎‏‏‏‎‎‏‏‏‏‏‏‎‎Collapsed‎‏‎‎‏‎"</string>
+    <!-- no translation found for m3c_snackbar_dismiss (6152755701819882931) -->
+    <skip />
+    <!-- no translation found for m3c_search_bar_search (6152806324422087846) -->
+    <skip />
+    <!-- no translation found for m3c_suggestions_available (7655536806087401899) -->
+    <skip />
+    <!-- no translation found for m3c_date_picker_title (7430790972741451689) -->
+    <skip />
+    <!-- no translation found for m3c_date_picker_headline (7605002211875882969) -->
+    <skip />
+    <!-- no translation found for m3c_date_picker_switch_to_year_selection (791651718641787594) -->
+    <skip />
+    <!-- no translation found for m3c_date_picker_switch_to_day_selection (395627960681594326) -->
+    <skip />
+    <!-- no translation found for m3c_date_picker_switch_to_next_month (7142101321095356500) -->
+    <skip />
+    <!-- no translation found for m3c_date_picker_switch_to_previous_month (228438865139394590) -->
+    <skip />
+    <!-- no translation found for m3c_date_picker_navigate_to_year_description (8436650776581492840) -->
+    <skip />
+    <!-- no translation found for m3c_date_picker_headline_description (3664277305226978227) -->
+    <skip />
+    <!-- no translation found for m3c_date_picker_no_selection_description (5811000998184572395) -->
+    <skip />
+    <!-- no translation found for m3c_date_picker_today_description (3199387177749801575) -->
+    <skip />
+    <!-- no translation found for m3c_date_picker_year_picker_pane_title (2068382232816991922) -->
+    <skip />
+    <!-- no translation found for m3c_date_input_title (7306227249789210568) -->
+    <skip />
+    <!-- no translation found for m3c_date_input_headline (8166741421776570875) -->
+    <skip />
+    <!-- no translation found for m3c_date_input_label (2895559812010326913) -->
+    <skip />
+    <!-- no translation found for m3c_date_input_headline_description (229313757840775812) -->
+    <skip />
+    <!-- no translation found for m3c_date_input_no_input_description (1237013946323089826) -->
+    <skip />
+    <!-- no translation found for m3c_date_input_invalid_not_allowed (2521768508935305279) -->
+    <skip />
+    <!-- no translation found for m3c_date_input_invalid_for_pattern (6116910750161463197) -->
+    <skip />
+    <!-- no translation found for m3c_date_input_invalid_year_range (7052898923934555305) -->
+    <skip />
+    <!-- no translation found for m3c_date_picker_switch_to_calendar_mode (1804346892470238807) -->
+    <skip />
+    <!-- no translation found for m3c_date_picker_switch_to_input_mode (2219746470065162704) -->
+    <skip />
+    <!-- no translation found for m3c_date_picker_scroll_to_later_years (5727367015496556177) -->
+    <skip />
+    <!-- no translation found for m3c_date_picker_scroll_to_earlier_years (7813882352367152251) -->
+    <skip />
+    <!-- no translation found for m3c_date_range_picker_title (3134165431120340385) -->
+    <skip />
+    <!-- no translation found for m3c_date_range_picker_start_headline (4665981448952749820) -->
+    <skip />
+    <!-- no translation found for m3c_date_range_picker_end_headline (4947636797751277713) -->
+    <skip />
+    <!-- no translation found for m3c_date_range_picker_scroll_to_next_month (602077859540990149) -->
+    <skip />
+    <!-- no translation found for m3c_date_range_picker_scroll_to_previous_month (4592174524846109496) -->
+    <skip />
+    <!-- no translation found for m3c_date_range_picker_day_in_range (2138321128465719402) -->
+    <skip />
+    <!-- no translation found for m3c_date_range_input_title (3148384720560189467) -->
+    <skip />
+    <!-- no translation found for m3c_date_range_input_invalid_range_input (3190049423327661366) -->
+    <skip />
+    <!-- no translation found for m3c_bottom_sheet_drag_handle_description (8403354765404029791) -->
+    <skip />
+    <!-- no translation found for m3c_bottom_sheet_collapse_description (2988463736136100848) -->
+    <skip />
+    <!-- no translation found for m3c_bottom_sheet_dismiss_description (1555567894577437024) -->
+    <skip />
+    <!-- no translation found for m3c_bottom_sheet_expand_description (6670819569745899763) -->
+    <skip />
+    <!-- no translation found for m3c_tooltip_pane_description (5460405025248574620) -->
+    <skip />
+    <!-- no translation found for m3c_tooltip_long_press_label (1805687647081129904) -->
+    <skip />
+    <!-- no translation found for m3c_time_picker_pm (6616362054113087709) -->
+    <skip />
+    <!-- no translation found for m3c_time_picker_am (2786685010796619560) -->
+    <skip />
+    <!-- no translation found for m3c_time_picker_period_toggle_description (5865171949528594571) -->
+    <skip />
+    <!-- no translation found for m3c_time_picker_hour_selection (8876759303332837035) -->
+    <skip />
+    <!-- no translation found for m3c_time_picker_minute_selection (4699133535056739733) -->
+    <skip />
+    <!-- no translation found for m3c_time_picker_hour_suffix (3458167507790628988) -->
+    <skip />
+    <!-- no translation found for m3c_time_picker_hour_24h_suffix (9179527532316922345) -->
+    <skip />
+    <!-- no translation found for m3c_time_picker_minute_suffix (5064177921781937179) -->
+    <skip />
+    <!-- no translation found for m3c_time_picker_minute (4313071914266462005) -->
+    <skip />
+    <!-- no translation found for m3c_time_picker_hour (2349193472625211372) -->
+    <skip />
+    <!-- no translation found for m3c_time_picker_minute_text_field (7661234488295443182) -->
+    <skip />
+    <!-- no translation found for m3c_time_picker_hour_text_field (6973808109666874069) -->
+    <skip />
 </resources>
