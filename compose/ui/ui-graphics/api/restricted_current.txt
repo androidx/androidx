@@ -669,6 +669,7 @@ package androidx.compose.ui.graphics {
     method public void reset();
     method public default void rewind();
     method public void setFillType(int);
+    method public default void transform(float[] matrix);
     method public void translate(long offset);
     property public abstract int fillType;
     property public abstract boolean isConvex;

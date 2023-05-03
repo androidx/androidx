@@ -233,6 +233,13 @@ expect fun Path(): Path
     fun translate(offset: Offset)
 
     /**
+     * Transform the points in this path by the provided matrix
+     */
+    fun transform(matrix: Matrix) {
+        // NO-OP to ensure runtime + compile time compatibility
+    }
+
+    /**
      * Compute the bounds of the control points of the path, and write the
      * answer into bounds. If the path contains 0 or 1 points, the bounds is
      * set to (0,0,0,0)
