@@ -28,6 +28,8 @@ import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
 import kotlin.math.roundToInt
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
@@ -195,6 +197,53 @@ class ShaderTest {
             Size.Unspecified,
             Brush.radialGradient(listOf(Color.Red, Color.Blue)).intrinsicSize
         )
+    }
+
+    @Test
+    fun testInvalidWidthBrush() {
+        // Verify that attempts to create a RadialGradient with a width of 0 do not throw
+        // IllegalArgumentExceptions for an invalid radius
+        val brush = Brush.radialGradient(listOf(Color.Red, Color.Blue))
+        val paint = Paint()
+        brush.applyTo(Size(0f, 10f), paint, 1.0f)
+    }
+
+    @Test
+    fun testInvalidHeightBrush() {
+        val brush = Brush.radialGradient(listOf(Color.Red, Color.Blue))
+        val paint = Paint()
+        // Verify that attempts to create a RadialGradient with a height of 0 do not throw
+        // IllegalArgumentExceptions for an invalid radius
+        brush.applyTo(Size(10f, 0f), paint, 1.0f)
+    }
+
+    @Test
+    fun testValidToInvalidWidthBrush() {
+        // Verify that attempts to create a RadialGradient with a non-zero width/height that
+        // is later attempted to be recreated with a zero width remove the shader from the Paint
+        val brush = Brush.radialGradient(listOf(Color.Red, Color.Blue))
+        val paint = Paint()
+        brush.applyTo(Size(10f, 10f), paint, 1.0f)
+
+        assertNotNull(paint.shader)
+
+        brush.applyTo(Size(0f, 10f), paint, 1.0f)
+        assertNull(paint.shader)
+    }
+
+    @Test
+    fun testValidToInvalidHeightBrush() {
+        // Verify that attempts to create a RadialGradient with a non-zero width/height that
+        // is later attempted to be recreated with a zero height remove the shader from the Paint
+        val brush = Brush.radialGradient(listOf(Color.Red, Color.Blue))
+        val paint = Paint()
+
+        brush.applyTo(Size(10f, 10f), paint, 1.0f)
+
+        assertNotNull(paint.shader)
+
+        brush.applyTo(Size(10f, 0f), paint, 1.0f)
+        assertNull(paint.shader)
     }
 
     private fun ImageBitmap.drawInto(

@@ -645,8 +645,14 @@ abstract class ShaderBrush() : Brush() {
     final override fun applyTo(size: Size, p: Paint, alpha: Float) {
         var shader = internalShader
         if (shader == null || createdSize != size) {
-            shader = createShader(size).also { internalShader = it }
-            createdSize = size
+            if (size.isEmpty()) {
+                shader = null
+                internalShader = null
+                createdSize = Size.Unspecified
+            } else {
+                shader = createShader(size).also { internalShader = it }
+                createdSize = size
+            }
         }
         if (p.color != Color.Black) p.color = Color.Black
         if (p.shader != shader) p.shader = shader
