@@ -610,6 +610,23 @@ class NavControllerTest {
 
     @UiThreadTest
     @Test
+    fun testNavigateNullGraph() {
+        val navController = createNavController()
+        val deepLinkRequest = NavDeepLinkRequest.Builder.fromUri(
+            Uri.parse("android-app://androidx.navigation.test/destination")
+        ).build()
+
+        val expected = assertFailsWith<IllegalArgumentException> {
+            navController.navigate(deepLinkRequest)
+        }
+        assertThat(expected.message).isEqualTo(
+            "Cannot navigate to $deepLinkRequest. Navigation graph has not " +
+                "been set for NavController $navController."
+        )
+    }
+
+    @UiThreadTest
+    @Test
     fun testInvalidNavigateViaDeepLink() {
         val navController = createNavController()
         navController.setGraph(R.navigation.nav_simple)
