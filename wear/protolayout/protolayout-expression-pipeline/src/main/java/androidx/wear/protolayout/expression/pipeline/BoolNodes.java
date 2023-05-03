@@ -35,8 +35,7 @@ class BoolNodes {
         private final DynamicTypeValueReceiverWithPreUpdate<Boolean> mDownstream;
 
         FixedBoolNode(
-                FixedBool protoNode,
-                DynamicTypeValueReceiverWithPreUpdate<Boolean> downstream) {
+                FixedBool protoNode, DynamicTypeValueReceiverWithPreUpdate<Boolean> downstream) {
             mValue = protoNode.getValue();
             mDownstream = downstream;
         }
@@ -171,6 +170,10 @@ class BoolNodes {
                                 return a && b;
                             case LOGICAL_OP_TYPE_OR:
                                 return a || b;
+                            case LOGICAL_OP_TYPE_EQUAL:
+                                return a.equals(b);
+                            case LOGICAL_OP_TYPE_NOT_EQUAL:
+                                return !a.equals(b);
                             default:
                                 Log.e(TAG, "Unknown operation type in LogicalBoolOp");
                                 return false;
