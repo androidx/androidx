@@ -907,6 +907,20 @@ internal constructor(
         displayPolicy = displayPolicy,
         fallback = fallback,
     ) {
+
+    init {
+        require(min <= max) { "min must be lower than or equal to max" }
+        require(value == PLACEHOLDER || value in min..max) { "value must be between min and max" }
+        require(max != Float.MAX_VALUE) { "Float.MAX_VALUE is reserved and can't be used for max" }
+        require(monochromaticImage != null || smallImage != null || text != null || title != null) {
+            "At least one of monochromaticImage, smallImage, text or title must be set"
+        }
+        if (valueType == TYPE_PERCENTAGE) {
+            require(min == 0f)
+            require(max == 100f)
+        }
+    }
+
     /**
      * The [DynamicFloat] optionally set by the data source. If present the system will dynamically
      * evaluate this and store the result in [value]. Watch faces can typically ignore this field.
@@ -988,16 +1002,6 @@ internal constructor(
 
         @RangedValueType private var valueType: Int = TYPE_UNDEFINED
 
-        init {
-            require(min <= max) { "min must be lower than or equal to max" }
-            require(value == PLACEHOLDER || value in min..max) {
-                "value must be between min and max"
-            }
-            require(max != Float.MAX_VALUE) {
-                "Float.MAX_VALUE is reserved and can't be used for max"
-            }
-        }
-
         /** Sets optional pending intent to be invoked when the complication is tapped. */
         public fun setTapAction(tapAction: PendingIntent?): Builder = apply {
             this.tapAction = tapAction
@@ -1043,17 +1047,8 @@ internal constructor(
         }
 
         /** Builds the [RangedValueComplicationData]. */
-        public override fun build(): RangedValueComplicationData {
-            require(
-                monochromaticImage != null || smallImage != null || text != null || title != null
-            ) {
-                "At least one of monochromaticImage, smallImage, text or title must be set"
-            }
-            if (valueType == TYPE_PERCENTAGE) {
-                require(min == 0f)
-                require(max == 100f)
-            }
-            return RangedValueComplicationData(
+        public override fun build() =
+            RangedValueComplicationData(
                 value,
                 valueExpression,
                 min,
@@ -1073,7 +1068,6 @@ internal constructor(
                 displayPolicy,
                 fallback,
             )
-        }
     }
 
     override fun fillWireComplicationDataBuilder(builder: WireComplicationDataBuilder) {
@@ -1273,6 +1267,16 @@ internal constructor(
         displayPolicy = displayPolicy,
         fallback = fallback,
     ) {
+
+    init {
+        require(targetValue != Float.MAX_VALUE) {
+            "Float.MAX_VALUE is reserved and can't be used for target"
+        }
+        require(monochromaticImage != null || smallImage != null || text != null || title != null) {
+            "At least one of monochromaticImage, smallImage, text or title must be set"
+        }
+    }
+
     /**
      * The [DynamicFloat] optionally set by the data source. If present the system will dynamically
      * evaluate this and store the result in [value]. Watch faces can typically ignore this field.
@@ -1345,12 +1349,6 @@ internal constructor(
         private var text: ComplicationText? = null
         private var colorRamp: ColorRamp? = null
 
-        init {
-            require(targetValue != Float.MAX_VALUE) {
-                "Float.MAX_VALUE is reserved and can't be used for target"
-            }
-        }
-
         /** Sets optional pending intent to be invoked when the complication is tapped. */
         public fun setTapAction(tapAction: PendingIntent?): Builder = apply {
             this.tapAction = tapAction
@@ -1387,13 +1385,8 @@ internal constructor(
         }
 
         /** Builds the [GoalProgressComplicationData]. */
-        public override fun build(): GoalProgressComplicationData {
-            require(
-                monochromaticImage != null || smallImage != null || text != null || title != null
-            ) {
-                "At least one of monochromaticImage, smallImage, text or title must be set"
-            }
-            return GoalProgressComplicationData(
+        public override fun build() =
+            GoalProgressComplicationData(
                 value,
                 valueExpression,
                 targetValue,
@@ -1411,7 +1404,6 @@ internal constructor(
                 displayPolicy,
                 fallback = fallback,
             )
-        }
     }
 
     override fun fillWireComplicationDataBuilder(builder: WireComplicationDataBuilder) {
@@ -1585,6 +1577,12 @@ internal constructor(
         displayPolicy = displayPolicy,
         fallback = fallback,
     ) {
+
+    init {
+        require(monochromaticImage != null || smallImage != null || text != null || title != null) {
+            "At least one of monochromaticImage, smallImage, text or title must be set"
+        }
+    }
     /**
      * Describes a single value within a [WeightedElementsComplicationData].
      *
@@ -1710,13 +1708,8 @@ internal constructor(
         public fun setText(text: ComplicationText?): Builder = apply { this.text = text }
 
         /** Builds the [GoalProgressComplicationData]. */
-        public override fun build(): WeightedElementsComplicationData {
-            require(
-                monochromaticImage != null || smallImage != null || text != null || title != null
-            ) {
-                "At least one of monochromaticImage, smallImage, text or title must be set"
-            }
-            return WeightedElementsComplicationData(
+        public override fun build() =
+            WeightedElementsComplicationData(
                 elements,
                 elementBackgroundColor,
                 monochromaticImage,
@@ -1732,7 +1725,6 @@ internal constructor(
                 displayPolicy,
                 fallback,
             )
-        }
     }
 
     override fun fillWireComplicationDataBuilder(builder: WireComplicationDataBuilder) {
