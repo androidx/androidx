@@ -156,7 +156,10 @@ class PathParser {
  * created [Path].
  */
 fun List<PathNode>.toPath(target: Path = Path()): Path {
-    target.reset()
+    // Rewind unsets the filltype so reset it here
+    val fillType = target.fillType
+    target.rewind()
+    target.fillType = fillType
 
     var currentX = 0.0f
     var currentY = 0.0f
