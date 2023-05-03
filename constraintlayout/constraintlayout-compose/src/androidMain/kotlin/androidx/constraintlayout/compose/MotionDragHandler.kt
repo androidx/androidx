@@ -24,6 +24,7 @@ import androidx.compose.ui.composed
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.util.VelocityTracker
+import androidx.compose.ui.input.pointer.util.addPointerInputChange
 import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.unit.Velocity
 import kotlinx.coroutines.channels.Channel
@@ -104,7 +105,7 @@ internal fun Modifier.motionPointerInput(
                 )
             }
         ) { change, dragAmount ->
-            velocityTracker.addPosition(change.uptimeMillis, change.position)
+            velocityTracker.addPointerInputChange(change)
             // As dragging is done, pass the dragAmount to update the MotionLayout progress.
             dragChannel.trySend(MotionDragState.onDrag(dragAmount))
         }

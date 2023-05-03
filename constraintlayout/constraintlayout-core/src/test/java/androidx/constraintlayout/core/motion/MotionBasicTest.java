@@ -16,6 +16,7 @@
 package androidx.constraintlayout.core.motion;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import androidx.constraintlayout.core.motion.utils.CurveFit;
 import androidx.constraintlayout.core.motion.utils.Easing;
@@ -214,6 +215,7 @@ public class MotionBasicTest {
             float pos = breakLogic.getInterpolation(time);
             ret[i] = pos;
         }
+        assertTrue(breakLogic.isStopped());
         return ret;
     }
 
