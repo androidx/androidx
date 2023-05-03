@@ -18,7 +18,6 @@
 package androidx.window.testing.embedding
 
 import android.app.Activity
-import androidx.window.core.ExperimentalWindowApi
 import androidx.window.embedding.ActivityStack
 
 /**
@@ -35,7 +34,6 @@ import androidx.window.embedding.ActivityStack
  * @return An [ActivityStack] instance for testing
  */
 @Suppress("FunctionName")
-@ExperimentalWindowApi
 @JvmName("createTestActivityStack")
 @JvmOverloads
 fun TestActivityStack(
