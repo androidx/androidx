@@ -1835,7 +1835,6 @@ public class EditorSessionTest {
         EditorService.globalEditorService.unregisterObserver(observerId)
     }
 
-    @SdkSuppress(maxSdkVersion = 32) // b/275361339
     @Test
     @Suppress("Deprecation") // userStyleSettings
     public fun commit_headless() {
@@ -1887,7 +1886,6 @@ public class EditorSessionTest {
         EditorService.globalEditorService.unregisterObserver(observerId)
     }
 
-    @SdkSuppress(maxSdkVersion = 32) // b/275361339
     @SuppressLint("NewApi")
     @Suppress("Deprecation") // userStyleSettings
     @Test
