@@ -29,7 +29,7 @@ dependencies {
     api("androidx.collection:collection:1.1.0")
     api("androidx.viewpager:viewpager:1.0.0")
     api("androidx.loader:loader:1.0.0")
-    api("androidx.activity:activity:1.5.1")
+    api("androidx.activity:activity:1.7.1")
     api("androidx.lifecycle:lifecycle-runtime:2.6.1")
     api("androidx.lifecycle:lifecycle-livedata-core:2.6.1")
     api("androidx.lifecycle:lifecycle-viewmodel:2.6.1")
