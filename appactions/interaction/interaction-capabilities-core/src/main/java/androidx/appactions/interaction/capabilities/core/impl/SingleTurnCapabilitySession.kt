@@ -21,6 +21,9 @@ import androidx.appactions.interaction.capabilities.core.ExecutionCallback
 import androidx.appactions.interaction.capabilities.core.ExecutionResult
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpec
 import androidx.appactions.interaction.capabilities.core.impl.utils.invokeExternalSuspendBlock
+import androidx.appactions.interaction.capabilities.core.impl.utils.isCausedBy
+import androidx.appactions.interaction.capabilities.core.impl.utils.toErrorStatusInternal
+import androidx.appactions.interaction.capabilities.core.impl.exceptions.InvalidRequestException
 import androidx.appactions.interaction.proto.AppActionsContext.AppDialogState
 import androidx.appactions.interaction.proto.FulfillmentResponse
 import androidx.appactions.interaction.proto.ParamValue
@@ -81,8 +84,11 @@ internal class SingleTurnCapabilitySession<
                 }
                 callback.onSuccess(convertToFulfillmentResponse(output))
             } catch (t: Throwable) {
-                // TODO(b/276354491) add fine-grained error handling
-                callback.onError(ErrorStatusInternal.CANCELLED)
+                callback.onError(t.toErrorStatusInternal())
+                // if the exception is caused by a bad request, do not crash the app
+                if (!t.isCausedBy(InvalidRequestException::class)) {
+                    throw t
+                }
             } finally {
                 UiHandleRegistry.unregisterUiHandle(uiHandle)
                 mutex.unlock(owner = this@SingleTurnCapabilitySession)
