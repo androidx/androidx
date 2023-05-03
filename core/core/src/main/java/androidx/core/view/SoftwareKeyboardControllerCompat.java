@@ -207,24 +207,23 @@ public final class SoftwareKeyboardControllerCompat {
                 insetsController = mView.getWindowInsetsController();
             }
             if (insetsController != null) {
-                if (SDK_INT <= 33) {
-                    final AtomicBoolean isImeInsetsControllable = new AtomicBoolean(false);
-                    final WindowInsetsController.OnControllableInsetsChangedListener listener =
-                            (windowInsetsController, typeMask) -> isImeInsetsControllable.set(
-                                    (typeMask & WindowInsetsCompat.Type.IME) != 0);
-                    // Register the OnControllableInsetsChangedListener would synchronously
-                    // callback current controllable insets. Adding the listener here to check if
-                    // ime inset is controllable.
-                    insetsController.addOnControllableInsetsChangedListener(listener);
-                    if (!isImeInsetsControllable.get()) {
-                        final InputMethodManager imm = (InputMethodManager) mView.getContext()
-                                .getSystemService(Context.INPUT_METHOD_SERVICE);
-                        // This is a backport when the app is in multi-windowing mode, it cannot
-                        // control the ime insets. Use the InputMethodManager instead.
-                        imm.hideSoftInputFromWindow(mView.getWindowToken(), 0);
-                    }
-                    insetsController.removeOnControllableInsetsChangedListener(listener);
+                final AtomicBoolean isImeInsetsControllable = new AtomicBoolean(false);
+                final WindowInsetsController.OnControllableInsetsChangedListener listener =
+                        (windowInsetsController, typeMask) -> isImeInsetsControllable.set(
+                                (typeMask & WindowInsetsCompat.Type.IME) != 0);
+                // Register the OnControllableInsetsChangedListener would synchronously
+                // callback current controllable insets. Adding the listener here to check if
+                // ime inset is controllable.
+                insetsController.addOnControllableInsetsChangedListener(listener);
+                if (!isImeInsetsControllable.get()) {
+                    final InputMethodManager imm = (InputMethodManager) mView.getContext()
+                            .getSystemService(Context.INPUT_METHOD_SERVICE);
+                    // This is a backport when the app is in multi-windowing mode, it cannot
+                    // control the ime insets. Use the InputMethodManager instead.
+                    // TODO(b/280532442): Fix this in the platform side.
+                    imm.hideSoftInputFromWindow(mView.getWindowToken(), 0);
                 }
+                insetsController.removeOnControllableInsetsChangedListener(listener);
                 insetsController.hide(WindowInsets.Type.ime());
             } else {
                 // Couldn't find an insets controller, fallback to old implementation
