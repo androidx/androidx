@@ -122,12 +122,8 @@ fun ExposedDropdownMenuBox(
                     onGloballyPositioned {
                         width = it.size.width
                         coordinates.value = it
-                        updateHeight(
-                            view.rootView,
-                            coordinates.value,
-                            verticalMarginInPx
-                        ) { newHeight ->
-                            menuHeight = newHeight
+                        updateHeight(view.rootView, coordinates.value, verticalMarginInPx) {
+                            newHeight -> menuHeight = newHeight
                         }
                     }.expandable(
                         expanded = expanded,
@@ -1044,18 +1040,18 @@ private fun Modifier.expandable(
 
 private fun updateHeight(
     view: View,
-    coordinates: LayoutCoordinates?,
+    anchorCoordinates: LayoutCoordinates?,
     verticalMarginInPx: Int,
     onHeightUpdate: (Int) -> Unit
 ) {
-    coordinates ?: return
+    anchorCoordinates ?: return
     val visibleWindowBounds = Rect().let {
         view.getWindowVisibleDisplayFrame(it)
         it
     }
-    val heightAbove = coordinates.boundsInWindow().top - visibleWindowBounds.top
-    val heightBelow =
-        visibleWindowBounds.bottom - visibleWindowBounds.top - coordinates.boundsInWindow().bottom
+    val heightAbove = anchorCoordinates.boundsInWindow().top - visibleWindowBounds.top
+    val heightBelow = visibleWindowBounds.bottom - visibleWindowBounds.top -
+        anchorCoordinates.boundsInWindow().bottom
     onHeightUpdate(max(heightAbove, heightBelow).toInt() - verticalMarginInPx)
 }
 
