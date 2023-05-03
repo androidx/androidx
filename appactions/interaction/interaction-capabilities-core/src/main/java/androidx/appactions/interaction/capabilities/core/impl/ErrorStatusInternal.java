@@ -23,13 +23,15 @@ import androidx.annotation.RestrictTo;
 public enum ErrorStatusInternal {
     CANCELLED(0),
     TIMEOUT(1),
-    INVALID_REQUEST_TYPE(2),
+    INVALID_REQUEST(2),
     UNCHANGED_DISAMBIG_STATE(3),
     INVALID_RESOLVER(4),
     STRUCT_CONVERSION_FAILURE(5),
+    // TODO(b/276354491): remove SYNC / CONFIRM / TOUCH_EVENT failure codes
     SYNC_REQUEST_FAILURE(6),
     CONFIRMATION_REQUEST_FAILURE(7),
-    TOUCH_EVENT_REQUEST_FAILURE(8);
+    TOUCH_EVENT_REQUEST_FAILURE(8),
+    EXTERNAL_EXCEPTION(9);
 
     private final int mCode;
 

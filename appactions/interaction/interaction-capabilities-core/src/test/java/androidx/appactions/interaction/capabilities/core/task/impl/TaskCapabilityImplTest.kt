@@ -346,7 +346,7 @@ class TaskCapabilityImplTest {
         val callback = FakeCallbackInternal()
         session.execute(buildRequestArgs(UNKNOWN_TYPE), callback)
         assertThat(callback.receiveResponse().errorStatus)
-            .isEqualTo(ErrorStatusInternal.INVALID_REQUEST_TYPE)
+            .isEqualTo(ErrorStatusInternal.INVALID_REQUEST)
     }
 
     @Test

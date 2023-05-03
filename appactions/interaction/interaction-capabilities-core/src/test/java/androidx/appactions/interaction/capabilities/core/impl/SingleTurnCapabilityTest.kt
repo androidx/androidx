@@ -181,7 +181,7 @@ class SingleTurnCapabilityTest {
     }
 
     @Test
-    fun oneShotCapability_failure() {
+    fun oneShotCapability_exceptionInExecutionCallback() {
         val executionCallback =
             ExecutionCallback<Arguments, Output> { throw IllegalStateException("") }
         val capability =
@@ -212,7 +212,7 @@ class SingleTurnCapabilityTest {
 
         val response = callbackInternal.receiveResponse()
         assertThat(response.errorStatus).isNotNull()
-        assertThat(response.errorStatus).isEqualTo(ErrorStatusInternal.CANCELLED)
+        assertThat(response.errorStatus).isEqualTo(ErrorStatusInternal.EXTERNAL_EXCEPTION)
     }
 
     @Test
