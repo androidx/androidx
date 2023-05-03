@@ -149,4 +149,39 @@ class LifecycleEffectTest {
                 .isEqualTo(1)
         }
     }
+
+    @Test
+    fun lifecycleResumeEffectTest() {
+        var resumeCount = 0
+        var pauseCount = 0
+
+        composeTestRule.waitForIdle()
+        composeTestRule.setContent {
+            CompositionLocalProvider(LocalLifecycleOwner provides lifecycleOwner) {
+                LifecycleResumeEffect {
+                    resumeCount++
+
+                    onPause {
+                        pauseCount++
+                    }
+                }
+            }
+        }
+
+        composeTestRule.runOnIdle {
+            assertWithMessage("Lifecycle should not be resumed (or paused)")
+                .that(resumeCount)
+                .isEqualTo(0)
+
+            lifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_RESUME)
+            assertWithMessage("Lifecycle should have been resumed")
+                .that(resumeCount)
+                .isEqualTo(1)
+
+            lifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_PAUSE)
+            assertWithMessage("Lifecycle should have been paused")
+                .that(pauseCount)
+                .isEqualTo(1)
+        }
+    }
 }
