@@ -987,6 +987,8 @@ class GLRendererTest {
                     width.toFloat(),
                     height.toFloat()
                 )
+                // See: b/236394768 Workaround for ANGLE issue where FBOs with HardwareBuffer
+                GLES20.glFinish()
                 supportsFence = eglManager.supportsNativeAndroidFence()
                 quadRenderer.release()
                 surface.release()
@@ -1125,6 +1127,8 @@ class GLRendererTest {
                     width.toFloat(),
                     height.toFloat()
                 )
+                // See: b/236394768 Workaround for ANGLE issue where FBOs with HardwareBuffer
+                GLES20.glFinish()
                 supportsFence = eglManager.supportsNativeAndroidFence()
                 quadRenderer.release()
                 deleteTexture(texId)
