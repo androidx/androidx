@@ -1125,7 +1125,7 @@ package androidx.wear.protolayout {
     field public static final int IMAGE_FORMAT_UNDEFINED = 0; // 0x0
   }
 
-  public static final class ResourceBuilders.AndroidAnimatedImageResourceByResId {
+  @androidx.wear.protolayout.expression.ProtoLayoutExperimental public static final class ResourceBuilders.AndroidAnimatedImageResourceByResId {
     method public int getAnimatedImageFormat();
     method @DrawableRes public int getResourceId();
     method public androidx.wear.protolayout.TriggerBuilders.Trigger? getStartTrigger();
@@ -1149,7 +1149,7 @@ package androidx.wear.protolayout {
     method public androidx.wear.protolayout.ResourceBuilders.AndroidImageResourceByResId.Builder setResourceId(@DrawableRes int);
   }
 
-  public static final class ResourceBuilders.AndroidSeekableAnimatedImageResourceByResId {
+  @androidx.wear.protolayout.expression.ProtoLayoutExperimental public static final class ResourceBuilders.AndroidSeekableAnimatedImageResourceByResId {
     method public int getAnimatedImageFormat();
     method public androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat? getProgress();
     method @DrawableRes public int getResourceId();
@@ -1164,18 +1164,18 @@ package androidx.wear.protolayout {
   }
 
   public static final class ResourceBuilders.ImageResource {
-    method public androidx.wear.protolayout.ResourceBuilders.AndroidAnimatedImageResourceByResId? getAndroidAnimatedResourceByResId();
+    method @androidx.wear.protolayout.expression.ProtoLayoutExperimental public androidx.wear.protolayout.ResourceBuilders.AndroidAnimatedImageResourceByResId? getAndroidAnimatedResourceByResId();
     method public androidx.wear.protolayout.ResourceBuilders.AndroidImageResourceByResId? getAndroidResourceByResId();
-    method public androidx.wear.protolayout.ResourceBuilders.AndroidSeekableAnimatedImageResourceByResId? getAndroidSeekableAnimatedResourceByResId();
+    method @androidx.wear.protolayout.expression.ProtoLayoutExperimental public androidx.wear.protolayout.ResourceBuilders.AndroidSeekableAnimatedImageResourceByResId? getAndroidSeekableAnimatedResourceByResId();
     method public androidx.wear.protolayout.ResourceBuilders.InlineImageResource? getInlineResource();
   }
 
   public static final class ResourceBuilders.ImageResource.Builder {
     ctor public ResourceBuilders.ImageResource.Builder();
     method public androidx.wear.protolayout.ResourceBuilders.ImageResource build();
-    method public androidx.wear.protolayout.ResourceBuilders.ImageResource.Builder setAndroidAnimatedResourceByResId(androidx.wear.protolayout.ResourceBuilders.AndroidAnimatedImageResourceByResId);
+    method @androidx.wear.protolayout.expression.ProtoLayoutExperimental public androidx.wear.protolayout.ResourceBuilders.ImageResource.Builder setAndroidAnimatedResourceByResId(androidx.wear.protolayout.ResourceBuilders.AndroidAnimatedImageResourceByResId);
     method public androidx.wear.protolayout.ResourceBuilders.ImageResource.Builder setAndroidResourceByResId(androidx.wear.protolayout.ResourceBuilders.AndroidImageResourceByResId);
-    method public androidx.wear.protolayout.ResourceBuilders.ImageResource.Builder setAndroidSeekableAnimatedResourceByResId(androidx.wear.protolayout.ResourceBuilders.AndroidSeekableAnimatedImageResourceByResId);
+    method @androidx.wear.protolayout.expression.ProtoLayoutExperimental public androidx.wear.protolayout.ResourceBuilders.ImageResource.Builder setAndroidSeekableAnimatedResourceByResId(androidx.wear.protolayout.ResourceBuilders.AndroidSeekableAnimatedImageResourceByResId);
     method public androidx.wear.protolayout.ResourceBuilders.ImageResource.Builder setInlineResource(androidx.wear.protolayout.ResourceBuilders.InlineImageResource);
   }
 
