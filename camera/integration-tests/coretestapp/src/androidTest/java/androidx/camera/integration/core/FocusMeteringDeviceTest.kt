@@ -44,7 +44,6 @@ import com.google.common.util.concurrent.ListenableFuture
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import org.hamcrest.CoreMatchers.equalTo
@@ -139,11 +138,6 @@ class FocusMeteringDeviceTest(
             withContext(Dispatchers.Main) {
                 cameraProvider.shutdown()[10, TimeUnit.SECONDS]
             }
-        }
-
-        if (selectorName == "front" && implName == CameraPipeConfig::class.simpleName) {
-            // TODO(b/264332446): Replace this delay with some API like closeAll() once available
-            delay(5000)
         }
     }
 
@@ -381,8 +375,8 @@ class FocusMeteringDeviceTest(
             )
             cameraCharacteristics?.run {
                 (if (flags.hasFlag(FLAG_AF)) (get(CONTROL_MAX_REGIONS_AF)!! > 0) else false) ||
-                (if (flags.hasFlag(FLAG_AE)) (get(CONTROL_MAX_REGIONS_AE)!! > 0) else false) ||
-                (if (flags.hasFlag(FLAG_AWB)) (get(CONTROL_MAX_REGIONS_AWB)!! > 0) else false)
+                    (if (flags.hasFlag(FLAG_AE)) (get(CONTROL_MAX_REGIONS_AE)!! > 0) else false) ||
+                    (if (flags.hasFlag(FLAG_AWB)) (get(CONTROL_MAX_REGIONS_AWB)!! > 0) else false)
             } ?: false
         } catch (e: Exception) {
             false
