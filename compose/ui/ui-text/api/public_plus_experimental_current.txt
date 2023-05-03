@@ -522,7 +522,7 @@ package androidx.compose.ui.text {
   public final class TextRangeKt {
     method public static long TextRange(int start, int end);
     method public static long TextRange(int index);
-    method public static long constrain(long, int minimumValue, int maximumValue);
+    method public static long coerceIn(long, int minimumValue, int maximumValue);
     method public static String substring(CharSequence, long range);
   }
 
