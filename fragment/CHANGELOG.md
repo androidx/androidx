@@ -6,6 +6,17 @@
 # `Removed`: for now removed feature
 # `Fixed`: for any bug fixes
 # `Security`: in case of vulnerabilities
+#
+# Possible headings:
+# API Changes
+# Bug Fixes
+# Dependency Updates
+# Behavior Change
+# External Contributions
 
 # Unreleased
+
+### Dependency Updates
+
+* Changed dependency of Activity library from version 1.5.1 to version 1.7.1.
 
