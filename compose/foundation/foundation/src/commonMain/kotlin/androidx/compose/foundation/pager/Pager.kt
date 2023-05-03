@@ -70,8 +70,9 @@ import kotlinx.coroutines.launch
  * @see androidx.compose.foundation.gestures.snapping.SnapLayoutInfoProvider for the implementation
  * of a [SnapLayoutInfoProvider] that uses [androidx.compose.foundation.lazy.LazyListState].
  *
- * Please refer to the sample to learn how to use this API.
+ * Please refer to the samples to learn how to use this API.
  * @sample androidx.compose.foundation.samples.SimpleHorizontalPagerSample
+ * @sample androidx.compose.foundation.samples.HorizontalPagerWithScrollableContent
  *
  * @param state The state to control this pager
  * @param modifier A modifier instance to be applied to this Pager outer layout
