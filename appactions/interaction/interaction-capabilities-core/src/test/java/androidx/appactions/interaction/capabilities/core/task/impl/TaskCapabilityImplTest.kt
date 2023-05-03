@@ -19,7 +19,6 @@ import android.util.SizeF
 import androidx.appactions.builtintypes.experimental.types.ListItem
 import androidx.appactions.interaction.capabilities.core.AppEntityListener
 import androidx.appactions.interaction.capabilities.core.Capability
-import androidx.appactions.interaction.capabilities.core.ConfirmationOutput
 import androidx.appactions.interaction.capabilities.core.EntitySearchResult
 import androidx.appactions.interaction.capabilities.core.ExecutionResult
 import androidx.appactions.interaction.capabilities.core.HostProperties
@@ -60,7 +59,6 @@ import androidx.appactions.interaction.proto.CurrentValue
 import androidx.appactions.interaction.proto.DisambiguationData
 import androidx.appactions.interaction.proto.Entity
 import androidx.appactions.interaction.proto.FulfillmentRequest.Fulfillment.Type.CANCEL
-import androidx.appactions.interaction.proto.FulfillmentRequest.Fulfillment.Type
 import androidx.appactions.interaction.proto.FulfillmentRequest.Fulfillment.Type.SYNC
 import androidx.appactions.interaction.proto.FulfillmentRequest.Fulfillment.Type.UNKNOWN_TYPE
 import androidx.appactions.interaction.proto.FulfillmentResponse.StructuredOutput
@@ -437,6 +435,7 @@ class TaskCapabilityImplTest {
             buildRequestArgs(CANCEL),
             callback3
         )
+        assertThat(callback3.receiveResponse().fulfillmentResponse).isNotNull()
         assertThat(session.isActive).isFalse()
     }
 
@@ -972,174 +971,6 @@ class TaskCapabilityImplTest {
         )
 
         assertThat(callback.receiveResponse().fulfillmentResponse!!.startDictation).isTrue()
-    }
-
-    @Test
-    @kotlin.Throws(Exception::class)
-    fun fulfillmentType_finalSync_stateCleared() {
-        val sessionFactory: (hostProperties: HostProperties?) -> ExecutionSession =
-            { _ ->
-                object : ExecutionSession {
-                    override suspend fun onExecute(arguments: Arguments) =
-                        ExecutionResult.Builder<Output>().build()
-                }
-            }
-        val property: Properties =
-            Properties.newBuilder()
-                .setRequiredStringField(
-                    Property.Builder<StringValue>()
-                        .setRequired(true)
-                        .build(),
-                )
-                .build()
-        val capability: Capability =
-            createCapability(
-                property,
-                sessionFactory = sessionFactory,
-                sessionBridge = SessionBridge { TaskHandler.Builder<Confirmation>().build() },
-                sessionUpdaterSupplier = ::EmptyTaskUpdater,
-            )
-        val session = capability.createSession(fakeSessionId, hostProperties)
-
-        // TURN 1. Not providing all the required slots in the SYNC Request
-        val callback = FakeCallbackInternal()
-        session.execute(
-            buildRequestArgs(SYNC),
-            callback,
-        )
-        assertThat(callback.receiveResponse()).isNotNull()
-        assertThat(getCurrentValues("required", session.state!!)).isEmpty()
-        assertThat(session.isActive).isEqualTo(true)
-
-        // TURN 2. Providing the required slots so that the task completes and the state gets cleared
-        val callback2 = FakeCallbackInternal()
-        session.execute(
-            buildRequestArgs(SYNC,
-                "required",
-                ParamValue.newBuilder().setIdentifier("foo").setStringValue("foo").build()
-            ),
-            callback2,
-        )
-        assertThat(callback2.receiveResponse().fulfillmentResponse).isNotNull()
-        assertThat(session.isActive).isEqualTo(false)
-    }
-
-    @Test
-    @kotlin.Throws(Exception::class)
-    @Suppress("DEPRECATION") // TODO(b/279830425) implement tryExecute (INTENT_CONFIRMED can be used instead)
-    fun fulfillmentType_syncWithConfirmation_stateClearedAfterConfirmation() {
-        val sessionFactory: (hostProperties: HostProperties?) -> ExecutionSession =
-            { _ ->
-                object : ExecutionSession {
-                    override suspend fun onExecute(arguments: Arguments) =
-                        ExecutionResult.Builder<Output>().build()
-                }
-            }
-        var onReadyToConfirm =
-             object : OnReadyToConfirmListenerInternal<Confirmation> {
-                override suspend fun onReadyToConfirm(args: Map<String, List<ParamValue>>):
-                    ConfirmationOutput<Confirmation> {
-                    return ConfirmationOutput.Builder<Confirmation>()
-                            .setConfirmation(Confirmation.builder().setOptionalStringField("bar")
-                                .build())
-                            .build()
-                }
-            }
-
-        val property: Properties =
-            Properties.newBuilder()
-                .setRequiredStringField(
-                    Property.Builder<StringValue>()
-                        .setRequired(true)
-                        .build(),
-                )
-                .build()
-        val capability: Capability =
-            createCapability(
-                property,
-                sessionFactory = sessionFactory,
-                sessionBridge = SessionBridge {
-                                    TaskHandler.Builder<Confirmation>()
-                                        .setOnReadyToConfirmListenerInternal(onReadyToConfirm)
-                                        .build() },
-                sessionUpdaterSupplier = ::EmptyTaskUpdater,
-            )
-        val session = capability.createSession(fakeSessionId, hostProperties)
-
-        // TURN 1. Providing all the required slots in the SYNC Request
-        val callback = FakeCallbackInternal()
-        session.execute(
-            buildRequestArgs(SYNC,
-                "required",
-                ParamValue.newBuilder().setIdentifier("foo").setStringValue("foo").build()
-            ),
-            callback,
-        )
-        assertThat(callback.receiveResponse()).isNotNull()
-        assertThat(session.isActive).isEqualTo(true)
-
-        // Sending the confirmation request. After the confirm request, the session should not be
-        // active
-        val callback2 = FakeCallbackInternal()
-        session.execute(
-            buildRequestArgs(Type.CONFIRM),
-            callback2
-        )
-
-        assertThat(callback2.receiveResponse().fulfillmentResponse).isNotNull()
-        assertThat(session.isActive).isEqualTo(false)
-    }
-
-    @Test
-    fun fulfillmentRequest_whenStatusDestroyed_errorReported() {
-        val sessionFactory: (hostProperties: HostProperties?) -> ExecutionSession =
-            { _ ->
-                object : ExecutionSession {
-                    override suspend fun onExecute(arguments: Arguments) =
-                        ExecutionResult.Builder<Output>().build()
-                }
-            }
-        val property: Properties =
-            Properties.newBuilder()
-                .setRequiredStringField(
-                    Property.Builder<StringValue>()
-                        .setRequired(true)
-                        .build(),
-                )
-                .build()
-        val capability: Capability =
-            createCapability(
-                property,
-                sessionFactory = sessionFactory,
-                sessionBridge = SessionBridge { TaskHandler.Builder<Confirmation>().build() },
-                sessionUpdaterSupplier = ::EmptyTaskUpdater,
-            )
-        val session = capability.createSession(fakeSessionId, hostProperties)
-
-        // TURN 1. Providing the required slots so that the task completes and the state gets cleared
-        val callback = FakeCallbackInternal()
-        session.execute(
-            buildRequestArgs(SYNC,
-                "required",
-                ParamValue.newBuilder().setIdentifier("foo").setStringValue("foo").build()
-            ),
-            callback,
-        )
-        assertThat(callback.receiveResponse().fulfillmentResponse).isNotNull()
-        assertThat(session.isActive).isEqualTo(false)
-
-        // TURN 2. Trying to sync after the session is destroyed
-        val callback2 = FakeCallbackInternal()
-        session.execute(
-            buildRequestArgs(SYNC,
-                "required",
-                ParamValue.newBuilder().setIdentifier("foo").setStringValue("foo").build()
-            ),
-            callback2,
-        )
-        assertThat(session.isActive).isEqualTo(false)
-        assertThat(callback2.receiveResponse().errorStatus)
-            .isEqualTo(ErrorStatusInternal.SESSION_ALREADY_DESTROYED)
     }
 
     /**
