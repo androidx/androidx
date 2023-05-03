@@ -179,10 +179,7 @@ public class SystemDataSources private constructor() {
         public const val DATA_SOURCE_DAY_AND_DATE: Int = 16
     }
 
-    /**
-     * System complication data source id as defined in [SystemDataSources].
-     *
-     */
+    /** System complication data source id as defined in [SystemDataSources]. */
     @IntDef(
         NO_DATA_SOURCE,
         DATA_SOURCE_WATCH_BATTERY,

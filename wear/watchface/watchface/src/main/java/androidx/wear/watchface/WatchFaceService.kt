@@ -429,17 +429,13 @@ public abstract class WatchFaceService : WallpaperService() {
             }
     }
 
-    /**
-     * The context used to resolve resources. Unlocks future work.
-     *
-     */
+    /** The context used to resolve resources. Unlocks future work. */
     protected open val resourcesContext: Context
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) get() = this
 
     /**
      * Returns the id of the XmlSchemaAndComplicationSlotsDefinition XML resource or 0 if it can't
      * be found.
-     *
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @Suppress("DEPRECATION")
@@ -618,7 +614,6 @@ public abstract class WatchFaceService : WallpaperService() {
     /**
      * Override to force the watchface to be regarded as being visible. This must not be used in
      * production code or significant battery life regressions may occur.
-     *
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) open fun forceIsVisibleForTesting() = false
 
@@ -653,10 +648,7 @@ public abstract class WatchFaceService : WallpaperService() {
 
     internal var backgroundThread: HandlerThread? = null
 
-    /**
-     * Interface for getting the current system time.
-     *
-     */
+    /** Interface for getting the current system time. */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public interface SystemTimeProvider {
         /** Returns the current system time in milliseconds. */
@@ -719,6 +711,7 @@ public abstract class WatchFaceService : WallpaperService() {
     /** [Choreographer] isn't supposed to be mocked, so we use a thin wrapper. */
     internal interface ChoreographerWrapper {
         fun postFrameCallback(callback: Choreographer.FrameCallback)
+
         fun removeFrameCallback(callback: Choreographer.FrameCallback)
     }
 
@@ -744,10 +737,7 @@ public abstract class WatchFaceService : WallpaperService() {
 
     internal open fun cancelCoroutineScopesInOnDestroy() = true
 
-    /**
-     * This is open for use by tests, it allows them to inject a custom [SurfaceHolder].
-     *
-     */
+    /** This is open for use by tests, it allows them to inject a custom [SurfaceHolder]. */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public open fun getWallpaperSurfaceHolderOverride(): SurfaceHolder? = null
 
@@ -1402,10 +1392,11 @@ public abstract class WatchFaceService : WallpaperService() {
                     // probably will connect at a later time. In the latter case we should
                     // register a parameterless engine to allow the subsequent connection to
                     // succeed.
-                    pendingWallpaperInstance = InteractiveInstanceManager
-                        .setParameterlessEngineOrTakePendingWallpaperInteractiveWatchFaceInstance(
-                            this
-                        )
+                    pendingWallpaperInstance =
+                        InteractiveInstanceManager
+                            .setParameterlessEngineOrTakePendingWallpaperInteractiveWatchFaceInstance( // ktlint-disable max-line-length
+                                this
+                            )
                 }
 
                 // If there's a pending WallpaperInteractiveWatchFaceInstance then create it.
@@ -1460,7 +1451,7 @@ public abstract class WatchFaceService : WallpaperService() {
         @SuppressWarnings("NewApi")
         internal fun attachToParameterlessEngine(
             pendingWallpaperInstance:
-            InteractiveInstanceManager.PendingWallpaperInteractiveWatchFaceInstance
+                InteractiveInstanceManager.PendingWallpaperInteractiveWatchFaceInstance
         ) {
             uiThreadCoroutineScope.launch {
                 try {
@@ -2241,12 +2232,7 @@ public abstract class WatchFaceService : WallpaperService() {
             watchState: WatchState
         ) {
             val broadcastsObserver =
-                BroadcastsObserver(
-                    watchState,
-                    this,
-                    deferredWatchFaceImpl,
-                    uiThreadCoroutineScope
-                )
+                BroadcastsObserver(watchState, this, deferredWatchFaceImpl, uiThreadCoroutineScope)
 
             // There's no point creating BroadcastsReceiver or listening for Accessibility state
             // changes if this is a headless instance.
@@ -2881,7 +2867,6 @@ internal fun <R> CoroutineScope.runBlockingWithTracing(
 /**
  * If the instance ID for [MutableWatchState.watchFaceInstanceId] begin with this prefix, then the
  * system sends consistent IDs for interactive, headless and editor sessions.
- *
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 const val SYSTEM_SUPPORTS_CONSISTENT_IDS_PREFIX = "wfId-"
@@ -2889,14 +2874,12 @@ const val SYSTEM_SUPPORTS_CONSISTENT_IDS_PREFIX = "wfId-"
 /**
  * Instance ID to use when either there's no system id or it doesn't start with
  * [SYSTEM_SUPPORTS_CONSISTENT_IDS_PREFIX].
- *
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) const val DEFAULT_INSTANCE_ID = "defaultInstance"
 
 /**
  * This is needed to make the instance id consistent between Interactive, Headless and EditorSession
  * for old versions of the system.
- *
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 fun sanitizeWatchFaceId(instanceId: String?) =

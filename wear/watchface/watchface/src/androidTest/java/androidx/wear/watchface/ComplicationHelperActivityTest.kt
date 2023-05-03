@@ -29,14 +29,14 @@ import androidx.wear.watchface.complications.data.ComplicationType.LONG_TEXT
 import androidx.wear.watchface.complications.data.ComplicationType.MONOCHROMATIC_IMAGE
 import androidx.wear.watchface.complications.data.ComplicationType.SHORT_TEXT
 import com.google.common.truth.Truth.assertThat
-import org.mockito.kotlin.doReturn
-import org.mockito.kotlin.mock
-import org.mockito.kotlin.never
-import org.mockito.kotlin.verify
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.never
+import org.mockito.kotlin.verify
 
 const val TIME_OUT_MILLIS = 500L
 

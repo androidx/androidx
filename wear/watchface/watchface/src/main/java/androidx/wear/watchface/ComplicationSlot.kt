@@ -633,8 +633,7 @@ internal constructor(
             supportedTypes: List<ComplicationType>,
             defaultDataSourcePolicy: DefaultComplicationDataSourcePolicy,
             bounds: ComplicationSlotBounds,
-            @Suppress("HiddenTypeParameter")
-            boundingArc: BoundingArc,
+            @Suppress("HiddenTypeParameter") boundingArc: BoundingArc,
             complicationTapFilter: ComplicationTapFilter =
                 object : ComplicationTapFilter {
                     override fun hitTest(
@@ -808,25 +807,28 @@ internal constructor(
 
         /** Constructs the [ComplicationSlot]. */
         public fun build(): ComplicationSlot {
-            require(defaultDataSourcePolicy.primaryDataSourceDefaultType == null ||
-                defaultDataSourcePolicy.primaryDataSourceDefaultType in supportedTypes
+            require(
+                defaultDataSourcePolicy.primaryDataSourceDefaultType == null ||
+                    defaultDataSourcePolicy.primaryDataSourceDefaultType in supportedTypes
             ) {
                 "defaultDataSourcePolicy.primaryDataSourceDefaultType " +
                     "${defaultDataSourcePolicy.primaryDataSourceDefaultType} must be in the" +
                     " supportedTypes list: $supportedTypes"
             }
 
-            require(defaultDataSourcePolicy.secondaryDataSourceDefaultType == null ||
-                defaultDataSourcePolicy.secondaryDataSourceDefaultType in supportedTypes
+            require(
+                defaultDataSourcePolicy.secondaryDataSourceDefaultType == null ||
+                    defaultDataSourcePolicy.secondaryDataSourceDefaultType in supportedTypes
             ) {
                 "defaultDataSourcePolicy.secondaryDataSourceDefaultType " +
                     "${defaultDataSourcePolicy.secondaryDataSourceDefaultType} must be in the" +
                     " supportedTypes list: $supportedTypes"
             }
 
-            require(defaultDataSourcePolicy.systemDataSourceFallbackDefaultType ==
-                ComplicationType.NOT_CONFIGURED ||
-                defaultDataSourcePolicy.systemDataSourceFallbackDefaultType in supportedTypes
+            require(
+                defaultDataSourcePolicy.systemDataSourceFallbackDefaultType ==
+                    ComplicationType.NOT_CONFIGURED ||
+                    defaultDataSourcePolicy.systemDataSourceFallbackDefaultType in supportedTypes
             ) {
                 "defaultDataSourcePolicy.systemDataSourceFallbackDefaultType " +
                     "${defaultDataSourcePolicy.systemDataSourceFallbackDefaultType} must be in " +
