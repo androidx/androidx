@@ -29,7 +29,7 @@ public class TriggerBuildersTest {
 
     @Test
     public void onLoadTrigger() {
-        TriggerBuilders.OnLoadTrigger onLoadTrigger = TriggerBuilders.createOnLoadTrigger();
+        TriggerBuilders.Trigger onLoadTrigger = TriggerBuilders.createOnLoadTrigger();
 
         assertThat(onLoadTrigger.toTriggerProto().hasOnLoadTrigger()).isTrue();
     }
@@ -39,12 +39,12 @@ public class TriggerBuildersTest {
     public void onConditionTrigger() {
         DynamicBuilders.DynamicBool condition = DynamicBuilders.DynamicBool.fromState("state");
 
-        TriggerBuilders.OnConditionMetTrigger onConditionMetTrigger =
+        TriggerBuilders.Trigger onConditionMetTrigger =
                 TriggerBuilders.createOnConditionMetTrigger(
                 condition);
 
         assertThat(
-                onConditionMetTrigger.toTriggerProto().getOnConditionMetTrigger().getTrigger())
+                onConditionMetTrigger.toTriggerProto().getOnConditionMetTrigger().getCondition())
                 .isEqualTo(condition.toDynamicBoolProto());
     }
 }

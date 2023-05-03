@@ -1041,7 +1041,7 @@ public class ProtoLayoutDynamicDataPipelineTest {
     private static Trigger conditionTrigger(DynamicBool dynamicBool) {
         return Trigger.newBuilder()
                 .setOnConditionMetTrigger(
-                        OnConditionMetTrigger.newBuilder().setTrigger(dynamicBool).build())
+                        OnConditionMetTrigger.newBuilder().setCondition(dynamicBool).build())
                 .build();
     }
 

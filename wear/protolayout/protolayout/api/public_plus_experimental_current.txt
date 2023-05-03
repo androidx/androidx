@@ -1261,26 +1261,8 @@ package androidx.wear.protolayout {
   }
 
   public final class TriggerBuilders {
-    method public static androidx.wear.protolayout.TriggerBuilders.OnConditionMetTrigger createOnConditionMetTrigger(androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool);
-    method public static androidx.wear.protolayout.TriggerBuilders.OnLoadTrigger createOnLoadTrigger();
-  }
-
-  public static final class TriggerBuilders.OnConditionMetTrigger implements androidx.wear.protolayout.TriggerBuilders.Trigger {
-    method public androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool? getTrigger();
-  }
-
-  public static final class TriggerBuilders.OnConditionMetTrigger.Builder {
-    ctor public TriggerBuilders.OnConditionMetTrigger.Builder();
-    method public androidx.wear.protolayout.TriggerBuilders.OnConditionMetTrigger build();
-    method public androidx.wear.protolayout.TriggerBuilders.OnConditionMetTrigger.Builder setTrigger(androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool);
-  }
-
-  public static final class TriggerBuilders.OnLoadTrigger implements androidx.wear.protolayout.TriggerBuilders.Trigger {
-  }
-
-  public static final class TriggerBuilders.OnLoadTrigger.Builder {
-    ctor public TriggerBuilders.OnLoadTrigger.Builder();
-    method public androidx.wear.protolayout.TriggerBuilders.OnLoadTrigger build();
+    method public static androidx.wear.protolayout.TriggerBuilders.Trigger createOnConditionMetTrigger(androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool);
+    method public static androidx.wear.protolayout.TriggerBuilders.Trigger createOnLoadTrigger();
   }
 
   public static interface TriggerBuilders.Trigger {
