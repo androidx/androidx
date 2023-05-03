@@ -19,6 +19,7 @@ package androidx.compose.ui.graphics.vector
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.RoundRect
+import androidx.compose.ui.graphics.Matrix
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathFillType
 import androidx.compose.ui.graphics.PathOperation
@@ -184,6 +185,10 @@ class PathParserTest {
         }
 
         override fun translate(offset: Offset) {
+            // NO-OP
+        }
+
+        override fun transform(matrix: Matrix) {
             // NO-OP
         }
 
