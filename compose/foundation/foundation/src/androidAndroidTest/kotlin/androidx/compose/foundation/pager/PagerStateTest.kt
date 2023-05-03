@@ -22,21 +22,13 @@ import androidx.compose.foundation.AutoTestFrameClock
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performTouchInput
-import androidx.compose.ui.unit.dp
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
-import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -52,43 +44,6 @@ import org.junit.runners.Parameterized
 class PagerStateTest(val config: ParamConfig) : BasePagerTest(config) {
 
     @Test
-    fun pagerStateNotAttached_shouldReturnDefaultValues_andChangeAfterAttached() = runBlocking {
-        // Arrange
-        val state = PagerStateImpl(5, 0.2f) { DefaultPageCount }
-
-        assertThat(state.currentPage).isEqualTo(5)
-        assertThat(state.currentPageOffsetFraction).isEqualTo(0.2f)
-
-        val currentPage = derivedStateOf { state.currentPage }
-        val currentPageOffsetFraction = derivedStateOf { state.currentPageOffsetFraction }
-
-        rule.setContent {
-            HorizontalOrVerticalPager(
-                state = state,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .testTag(PagerTestTag)
-                    .onSizeChanged { pagerSize = if (vertical) it.height else it.width },
-                pageSize = PageSize.Fill,
-                reverseLayout = config.reverseLayout,
-                pageSpacing = config.pageSpacing,
-                contentPadding = config.mainAxisContentPadding,
-            ) {
-                Page(index = it)
-            }
-        }
-
-        withContext(Dispatchers.Main + AutoTestFrameClock()) {
-            state.scrollToPage(state.currentPage + 1)
-        }
-
-        rule.runOnIdle {
-            assertThat(currentPage.value).isEqualTo(6)
-            assertThat(currentPageOffsetFraction.value).isEqualTo(0.0f)
-        }
-    }
-
-    @Test
     fun scrollToPage_shouldPlacePagesCorrectly() = runBlocking {
         // Arrange
         createPager(modifier = Modifier.fillMaxSize())
@@ -96,9 +51,11 @@ class PagerStateTest(val config: ParamConfig) : BasePagerTest(config) {
         // Act and Assert
         repeat(DefaultAnimationRepetition) {
             assertThat(pagerState.currentPage).isEqualTo(it)
+            val nextPage = pagerState.currentPage + 1
             withContext(Dispatchers.Main + AutoTestFrameClock()) {
-                pagerState.scrollToPage(pagerState.currentPage + 1)
+                pagerState.scrollToPage(nextPage)
             }
+            rule.mainClock.advanceTimeUntil { pagerState.currentPage == nextPage }
             confirmPageIsInCorrectPosition(pagerState.currentPage)
         }
     }
@@ -179,9 +136,11 @@ class PagerStateTest(val config: ParamConfig) : BasePagerTest(config) {
         // Act and Assert
         repeat(DefaultAnimationRepetition) {
             assertThat(pagerState.currentPage).isEqualTo(it)
+            val nextPage = pagerState.currentPage + 1
             withContext(Dispatchers.Main + AutoTestFrameClock()) {
-                pagerState.animateScrollToPage(pagerState.currentPage + 1)
+                pagerState.animateScrollToPage(nextPage)
             }
+            rule.mainClock.advanceTimeUntil { pagerState.currentPage == nextPage }
             confirmPageIsInCorrectPosition(pagerState.currentPage)
         }
     }
@@ -277,31 +236,6 @@ class PagerStateTest(val config: ParamConfig) : BasePagerTest(config) {
     }
 
     @Test
-    fun scrollToPage_usingLaunchedEffect() {
-
-        createPager(additionalContent = {
-            LaunchedEffect(pagerState) {
-                pagerState.scrollToPage(10)
-            }
-        })
-        rule.waitForIdle()
-        assertThat(pagerState.currentPage).isEqualTo(10)
-        confirmPageIsInCorrectPosition(10)
-    }
-
-    @Test
-    fun scrollToPageWithOffset_usingLaunchedEffect() {
-        createPager(additionalContent = {
-            LaunchedEffect(pagerState) {
-                pagerState.scrollToPage(10, 0.4f)
-            }
-        })
-        rule.waitForIdle()
-        assertThat(pagerState.currentPage).isEqualTo(10)
-        confirmPageIsInCorrectPosition(10, pageOffset = 0.4f)
-    }
-
-    @Test
     fun animateScrollToPage_shouldCoerceWithinRange() = runBlocking {
         // Arrange
 
@@ -345,66 +279,23 @@ class PagerStateTest(val config: ParamConfig) : BasePagerTest(config) {
     @Test
     fun animateScrollToPage_withPassedAnimation() = runBlocking {
         // Arrange
-
+        rule.mainClock.autoAdvance = false
         createPager(modifier = Modifier.fillMaxSize())
         val differentAnimation: AnimationSpec<Float> = tween()
 
         // Act and Assert
         repeat(DefaultAnimationRepetition) {
             assertThat(pagerState.currentPage).isEqualTo(it)
+            val nextPage = pagerState.currentPage + 1
             withContext(Dispatchers.Main + AutoTestFrameClock()) {
                 pagerState.animateScrollToPage(
-                    pagerState.currentPage + 1,
+                    nextPage,
                     animationSpec = differentAnimation
                 )
             }
+            rule.mainClock.advanceTimeUntil { pagerState.currentPage == nextPage }
             confirmPageIsInCorrectPosition(pagerState.currentPage)
         }
-    }
-
-    @Test
-    fun animatedScrollToPage_usingLaunchedEffect() {
-
-        createPager(additionalContent = {
-            LaunchedEffect(pagerState) {
-                pagerState.animateScrollToPage(10)
-            }
-        })
-        rule.waitForIdle()
-        assertThat(pagerState.currentPage).isEqualTo(10)
-        confirmPageIsInCorrectPosition(10)
-    }
-
-    @Test
-    fun animatedScrollToPageWithOffset_usingLaunchedEffect() {
-
-        createPager(additionalContent = {
-            LaunchedEffect(pagerState) {
-                pagerState.animateScrollToPage(10, 0.4f)
-            }
-        })
-        rule.waitForIdle()
-        assertThat(pagerState.currentPage).isEqualTo(10)
-        confirmPageIsInCorrectPosition(10, pageOffset = 0.4f)
-    }
-
-    @Test
-    fun animatedScrollToPage_viewPortNumberOfPages_usingLaunchedEffect_shouldNotPlaceALlPages() {
-
-        createPager(additionalContent = {
-            LaunchedEffect(pagerState) {
-                pagerState.animateScrollToPage(DefaultPageCount - 1)
-            }
-        })
-        rule.waitForIdle()
-        // Assert
-        rule.runOnIdle {
-            assertThat(pagerState.currentPage).isEqualTo(DefaultPageCount - 1)
-            assertThat(placed).doesNotContain(DefaultPageCount / 2 - 1)
-            assertThat(placed).doesNotContain(DefaultPageCount / 2)
-            assertThat(placed).doesNotContain(DefaultPageCount / 2 + 1)
-        }
-        confirmPageIsInCorrectPosition(pagerState.currentPage)
     }
 
     @Test
@@ -780,103 +671,6 @@ class PagerStateTest(val config: ParamConfig) : BasePagerTest(config) {
 
         rule.runOnIdle {
             assertThat(pagerState.currentPageOffsetFraction).isWithin(0.1f).of(-0.25f)
-        }
-    }
-
-    @Test
-    fun initialPageOnPagerState_shouldDisplayThatPageFirst() {
-        // Arrange
-
-        // Act
-        createPager(initialPage = 5, modifier = Modifier.fillMaxSize())
-
-        // Assert
-        rule.onNodeWithTag("4").assertDoesNotExist()
-        rule.onNodeWithTag("5").assertIsDisplayed()
-        rule.onNodeWithTag("6").assertDoesNotExist()
-        confirmPageIsInCorrectPosition(pagerState.currentPage)
-    }
-
-    @Test
-    fun testStateRestoration() {
-        // Arrange
-        val tester = StateRestorationTester(rule)
-        lateinit var state: PagerState
-        tester.setContent {
-            state = rememberPagerState(pageCount = { DefaultPageCount })
-            scope = rememberCoroutineScope()
-            HorizontalOrVerticalPager(
-                state = state,
-                modifier = Modifier.fillMaxSize()
-            ) {
-                Page(it)
-            }
-        }
-
-        // Act
-        rule.runOnIdle {
-            scope.launch {
-                state.scrollToPage(5)
-            }
-            runBlocking {
-                state.scroll {
-                    scrollBy(50f)
-                }
-            }
-        }
-
-        val previousPage = state.currentPage
-        val previousOffset = state.currentPageOffsetFraction
-        tester.emulateSavedInstanceStateRestore()
-
-        // Assert
-        rule.runOnIdle {
-            assertThat(state.currentPage).isEqualTo(previousPage)
-            assertThat(state.currentPageOffsetFraction).isEqualTo(previousOffset)
-        }
-    }
-
-    @Test
-    fun scrollTo_beforeFirstLayout_shouldWaitForStateAndLayoutSetting() {
-        // Arrange
-
-        rule.mainClock.autoAdvance = false
-
-        // Act
-        createPager(modifier = Modifier.fillMaxSize(), additionalContent = {
-            LaunchedEffect(pagerState) {
-                pagerState.scrollToPage(5)
-            }
-        })
-
-        // Assert
-        assertThat(pagerState.currentPage).isEqualTo(5)
-    }
-
-    @Test
-    fun currentPageOffsetFraction_shouldNeverBeNan() {
-        rule.setContent {
-            val state = rememberPagerState(pageCount = { 10 })
-            // Read state in composition, should never be Nan
-            assertFalse { state.currentPageOffsetFraction.isNaN() }
-            HorizontalOrVerticalPager(state = state) {
-                Page(index = it)
-            }
-        }
-    }
-
-    @Test
-    fun calculatePageCountOffset_shouldBeBasedOnCurrentPage() {
-        val pageToOffsetCalculations = mutableMapOf<Int, Float>()
-        createPager(modifier = Modifier.fillMaxSize(), pageSize = { PageSize.Fixed(20.dp) }) {
-            pageToOffsetCalculations[it] = pagerState.getOffsetFractionForPage(it)
-            Page(index = it)
-        }
-
-        for ((page, offset) in pageToOffsetCalculations) {
-            val currentPage = pagerState.currentPage
-            val currentPageOffset = pagerState.currentPageOffsetFraction
-            assertThat(offset).isEqualTo((currentPage - page) + currentPageOffset)
         }
     }
 

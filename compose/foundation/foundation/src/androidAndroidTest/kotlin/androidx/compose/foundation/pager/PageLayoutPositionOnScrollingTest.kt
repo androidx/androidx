@@ -24,6 +24,7 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performTouchInput
 import androidx.test.filters.LargeTest
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
@@ -35,6 +36,11 @@ class PageLayoutPositionOnScrollingTest(
     val config: ParamConfig
 ) : BasePagerTest(config) {
 
+    @Before
+    fun setUp() {
+        rule.mainClock.autoAdvance = false
+    }
+
     @Test
     fun swipeForwardAndBackward_verifyPagesAreLaidOutCorrectly() {
         // Arrange
@@ -45,13 +51,14 @@ class PageLayoutPositionOnScrollingTest(
         repeat(DefaultAnimationRepetition) {
             rule.onNodeWithTag(it.toString()).assertIsDisplayed()
             confirmPageIsInCorrectPosition(it)
-            rule.onNodeWithTag(it.toString()).performTouchInput {
-                swipeWithVelocityAcrossMainAxis(
-                    with(rule.density) { 1.5f * MinFlingVelocityDp.toPx() },
-                    delta
-                )
+            runAndWaitForPageSettling {
+                rule.onNodeWithTag(it.toString()).performTouchInput {
+                    swipeWithVelocityAcrossMainAxis(
+                        with(rule.density) { 1.5f * MinFlingVelocityDp.toPx() },
+                        delta
+                    )
+                }
             }
-            rule.waitForIdle()
         }
 
         // Act - backward
@@ -59,13 +66,14 @@ class PageLayoutPositionOnScrollingTest(
             val countDown = DefaultAnimationRepetition - it
             rule.onNodeWithTag(countDown.toString()).assertIsDisplayed()
             confirmPageIsInCorrectPosition(countDown)
-            rule.onNodeWithTag(countDown.toString()).performTouchInput {
-                swipeWithVelocityAcrossMainAxis(
-                    with(rule.density) { 1.5f * MinFlingVelocityDp.toPx() },
-                    delta * -1f
-                )
+            runAndWaitForPageSettling {
+                rule.onNodeWithTag(countDown.toString()).performTouchInput {
+                    swipeWithVelocityAcrossMainAxis(
+                        with(rule.density) { 1.5f * MinFlingVelocityDp.toPx() },
+                        delta * -1f
+                    )
+                }
             }
-            rule.waitForIdle()
         }
     }
 
