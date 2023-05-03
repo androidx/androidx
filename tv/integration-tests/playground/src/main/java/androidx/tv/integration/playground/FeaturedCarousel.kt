@@ -16,6 +16,13 @@
 
 package androidx.tv.integration.playground
 
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.focusable
@@ -88,7 +95,7 @@ fun FeaturedCarouselContent() {
     }
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
+@OptIn(ExperimentalTvMaterial3Api::class, ExperimentalAnimationApi::class)
 @Composable
 internal fun FeaturedCarousel(modifier: Modifier = Modifier) {
     val backgrounds = listOf(
@@ -117,33 +124,31 @@ internal fun FeaturedCarousel(modifier: Modifier = Modifier) {
                     .align(Alignment.BottomEnd)
                     .padding(16.dp),
             )
-        }
+        },
+        contentTransformStartToEnd =
+            fadeIn(tween(1000)).togetherWith(fadeOut(tween(1000))),
+        contentTransformEndToStart =
+            fadeIn(tween(1000)).togetherWith(fadeOut(tween(1000)))
     ) { itemIndex ->
-        CarouselItem(
-            modifier = Modifier.semantics {
-                contentDescription = "Featured Content"
-            },
-            background = {
-                Box(
-                    modifier = Modifier
-                        .background(backgrounds[itemIndex])
-                        .fillMaxSize()
-                )
-            },
+        Box(
+            modifier = Modifier
+                .background(backgrounds[itemIndex])
+                .fillMaxSize()
+                .semantics { contentDescription = "Featured Content" }
         ) {
-            Box(
+            Column(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .padding(20.dp),
-                contentAlignment = Alignment.BottomStart
+                    .padding(start = 50.dp, top = 100.dp)
+                    .animateEnterExit(
+                        enter = slideInVertically(animationSpec = tween(1000)),
+                        exit = slideOutHorizontally(animationSpec = tween(1000))
+                    )
             ) {
-                Column {
-                    Text(text = "This is sample text content.", color = Color.Yellow)
-                    Text(text = "Sample description.", color = Color.Yellow)
-                    Row {
-                        OverlayButton(text = "Play")
-                        OverlayButton(text = "Add to Watchlist")
-                    }
+                Text(text = "This is sample text content.", color = Color.Yellow)
+                Text(text = "Sample description of slide ${itemIndex + 1}.", color = Color.Yellow)
+                Row {
+                    OverlayButton(text = "Play")
+                    OverlayButton(text = "Add to Watchlist")
                 }
             }
         }

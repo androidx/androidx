@@ -17,6 +17,7 @@
 package androidx.tv.material3
 
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedContentScope
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.ContentTransform
 import androidx.compose.animation.ExperimentalAnimationApi
@@ -113,7 +114,7 @@ fun Carousel(
                 .padding(16.dp),
         )
     },
-    content: @Composable CarouselScope.(index: Int) -> Unit
+    content: @Composable AnimatedContentScope.(index: Int) -> Unit
 ) {
     CarouselStateUpdater(carouselState, itemCount)
     var focusState: FocusState? by remember { mutableStateOf(null) }
@@ -176,8 +177,7 @@ fun Carousel(
             // IndexOutOfBoundsException. Guarding against this by checking against itemCount
             // before invoking.
             if (itemCount > 0) {
-                CarouselScope(carouselState = carouselState)
-                    .content(if (activeItemIndex < itemCount) activeItemIndex else 0)
+                content(if (activeItemIndex < itemCount) activeItemIndex else 0)
             }
         }
         this.carouselIndicator()

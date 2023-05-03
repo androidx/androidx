@@ -18,8 +18,10 @@ package androidx.tv.material3
 
 import android.os.SystemClock
 import android.view.KeyEvent
-import androidx.compose.animation.ContentTransform
+import androidx.compose.animation.AnimatedContentScope
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.focusable
@@ -75,7 +77,7 @@ import org.junit.Test
 private const val delayBetweenItems = 2500L
 private const val animationTime = 900L
 
-@OptIn(ExperimentalTvMaterial3Api::class)
+@OptIn(ExperimentalTvMaterial3Api::class, ExperimentalAnimationApi::class)
 class CarouselTest {
     @get:Rule
     val rule = createComposeRule()
@@ -433,7 +435,13 @@ class CarouselTest {
                         autoScrollDurationMillis = delayBetweenItems
                     ) {
                         SampleCarouselItem(index = it) {
-                            Box {
+                            Box(
+                                modifier = Modifier
+                                    .animateEnterExit(
+                                        enter = slideInHorizontally(),
+                                        exit = slideOutHorizontally()
+                                    )
+                            ) {
                                 Column(modifier = Modifier.align(Alignment.BottomStart)) {
                                     BasicText(text = "carousel-frame")
                                     Row {
@@ -829,7 +837,7 @@ private fun SampleCarousel(
     carouselState: CarouselState = remember { CarouselState() },
     itemCount: Int = 3,
     timeToDisplayItemMillis: Long = delayBetweenItems,
-    content: @Composable CarouselScope.(index: Int) -> Unit
+    content: @Composable AnimatedContentScope.(index: Int) -> Unit
 ) {
     Carousel(
         modifier = Modifier
@@ -856,24 +864,16 @@ private fun SampleCarousel(
 
 @OptIn(ExperimentalTvMaterial3Api::class, ExperimentalAnimationApi::class)
 @Composable
-private fun CarouselScope.SampleCarouselItem(
+private fun AnimatedContentScope.SampleCarouselItem(
     index: Int,
     modifier: Modifier = Modifier,
-    contentTransformStartToEnd: ContentTransform =
-        CarouselItemDefaults.contentTransformStartToEnd,
-    content: (@Composable () -> Unit) = { SampleButton("Play $index") },
+    content: (@Composable AnimatedContentScope.() -> Unit) = { SampleButton("Play $index") },
 ) {
-    CarouselItem(
-        modifier = modifier,
-        contentTransformStartToEnd = contentTransformStartToEnd,
-        background = {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color.Red)
-                    .border(2.dp, Color.Blue)
-            )
-        }
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .background(Color.Red)
+            .border(2.dp, Color.Blue)
     ) {
         content()
     }
