@@ -31,7 +31,7 @@ class XMessagerTest {
         runProcessorTest(
             sources = listOf(
                 Source.java(
-                    "Foo.java",
+                    "Foo",
                     """
                     class Foo {}
                     """.trimIndent()
@@ -56,7 +56,7 @@ class XMessagerTest {
         runProcessorTest(
             sources = listOf(
                 Source.java(
-                    "Foo.java",
+                    "Foo",
                     """
                     class Foo {}
                     """.trimIndent()
@@ -80,7 +80,7 @@ class XMessagerTest {
         runProcessorTest(
             sources = listOf(
                 Source.java(
-                    "Foo.java",
+                    "Foo",
                     """
                     class Foo {}
                     """.trimIndent()
@@ -104,7 +104,7 @@ class XMessagerTest {
         runProcessorTest(
             sources = listOf(
                 Source.java(
-                    "Foo.java",
+                    "Foo",
                     """
                     class Foo {}
                     """.trimIndent()

@@ -185,7 +185,7 @@ class DiagnosticsTest internal constructor(
     @Test
     fun cleanKotlinCompilationHasNoWarnings() {
         val kotlinSource = Source.kotlin(
-            "Subject",
+            "Subject.kt",
             """
             package foo.bar
             class Subject {
