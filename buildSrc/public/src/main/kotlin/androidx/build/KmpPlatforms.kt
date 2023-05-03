@@ -31,10 +31,11 @@ enum class KmpPlatform {
     // https://blog.jetbrains.com/kotlin/2021/10/important-ua-parser-js-exploit-and-kotlin-js/
     JS,
     MAC,
-    LINUX;
+    LINUX,
+    DESKTOP;
     companion object {
         val native = listOf(MAC, LINUX)
-        val enabledByDefault = listOf(JVM)
+        val enabledByDefault = listOf(JVM, DESKTOP)
         private const val JVM_PLATFORM = "jvm"
         private const val JS_PLATFORM = "js"
         private const val MAC_ARM_64 = "macosarm64"
@@ -43,6 +44,7 @@ enum class KmpPlatform {
         private const val IOS_SIMULATOR_ARM_64 = "iossimulatorarm64"
         private const val IOS_X_64 = "iosx64"
         private const val IOS_ARM_64 = "iosarm64"
+        private const val DESKTOP_PLATFORM = "desktop"
         val macPlatforms = listOf(MAC_ARM_64, MAC_OSX_64)
         val linuxPlatforms = listOf(LINUX_64)
         val iosPlatforms = listOf(IOS_SIMULATOR_ARM_64, IOS_ARM_64, IOS_X_64)
@@ -88,4 +90,5 @@ fun Project.enableMac(): Boolean =
 fun Project.enableLinux(): Boolean =
     enabledKmpPlatforms().contains(KmpPlatform.LINUX) || Multiplatform.isKotlinNativeEnabled(this)
 fun Project.enableJvm(): Boolean = enabledKmpPlatforms().contains(KmpPlatform.JVM)
+fun Project.enableDesktop(): Boolean = enabledKmpPlatforms().contains(KmpPlatform.DESKTOP)
 fun Project.enableNative(): Boolean = enableMac() && enableLinux()

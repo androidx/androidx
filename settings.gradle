@@ -195,7 +195,8 @@ enum BuildType {
     WEAR,
     GLANCE,
     TOOLS,
-    KMP,
+    KMP, // All projects built as Kotlin Multi Platform (compose, datastore, collections, etc).
+    INFRAROGUE, // Projects built by playground team, mostly non-compose kmp.
     CAMERA,
     NATIVE,
     WINDOW,
@@ -254,6 +255,9 @@ private Set<BuildType> createRequestedFilter() {
                 break
             case "KMP":
                 filter.add(BuildType.KMP)
+                break
+            case "INFRAROGUE":
+                filter.add(BuildType.INFRAROGUE)
                 break
             case "CAMERA":
                 filter.add(BuildType.CAMERA)
@@ -449,10 +453,10 @@ includeProject(":asynclayoutinflater:asynclayoutinflater-appcompat", [BuildType.
 includeProject(":autofill:autofill", [BuildType.MAIN])
 includeProject(":benchmark:benchmark-benchmark", "benchmark/benchmark", [BuildType.MAIN, BuildType.COMPOSE])
 includeProject(":benchmark:benchmark-common")
-includeProject(":benchmark:benchmark-darwin", [BuildType.KMP])
-includeProject(":benchmark:benchmark-darwin-core", [BuildType.KMP])
-includeProject(":benchmark:benchmark-darwin-samples", [BuildType.KMP])
-includeProject(":benchmark:benchmark-darwin-gradle-plugin", [BuildType.KMP])
+includeProject(":benchmark:benchmark-darwin", [BuildType.INFRAROGUE, BuildType.KMP])
+includeProject(":benchmark:benchmark-darwin-core", [BuildType.INFRAROGUE, BuildType.KMP])
+includeProject(":benchmark:benchmark-darwin-samples", [BuildType.INFRAROGUE, BuildType.KMP])
+includeProject(":benchmark:benchmark-darwin-gradle-plugin", [BuildType.INFRAROGUE, BuildType.KMP])
 includeProject(":benchmark:benchmark-gradle-plugin", "benchmark/gradle-plugin", [BuildType.MAIN])
 includeProject(":benchmark:benchmark-baseline-profile-gradle-plugin", "benchmark/baseline-profile-gradle-plugin",[BuildType.MAIN])
 includeProject(":benchmark:benchmark-junit4")
@@ -521,11 +525,11 @@ includeProject(":car:app:app-samples:showcase-common", "car/app/app-samples/show
 includeProject(":car:app:app-samples:showcase-mobile", "car/app/app-samples/showcase/mobile", [BuildType.MAIN])
 includeProject(":car:app:app-testing", [BuildType.MAIN])
 includeProject(":cardview:cardview", [BuildType.MAIN])
-includeProject(":collection:collection", [BuildType.MAIN, BuildType.KMP])
-includeProject(":collection:collection-benchmark", [BuildType.MAIN, BuildType.KMP])
-includeProject(":collection:collection-benchmark-kmp", [BuildType.MAIN, BuildType.KMP])
-includeProject(":collection:collection-ktx", [BuildType.MAIN, BuildType.KMP])
-includeProject(":collection:integration-tests:testapp", [BuildType.MAIN, BuildType.KMP])
+includeProject(":collection:collection", [BuildType.MAIN, BuildType.INFRAROGUE, BuildType.KMP])
+includeProject(":collection:collection-benchmark", [BuildType.MAIN, BuildType.INFRAROGUE, BuildType.KMP])
+includeProject(":collection:collection-benchmark-kmp", [BuildType.MAIN, BuildType.INFRAROGUE, BuildType.KMP])
+includeProject(":collection:collection-ktx", [BuildType.MAIN, BuildType.INFRAROGUE, BuildType.KMP])
+includeProject(":collection:integration-tests:testapp", [BuildType.MAIN, BuildType.INFRAROGUE, BuildType.KMP])
 includeProject(":compose:animation", [BuildType.COMPOSE])
 includeProject(":compose:animation:animation", [BuildType.COMPOSE])
 includeProject(":compose:animation:animation-lint", [BuildType.COMPOSE])
@@ -549,9 +553,9 @@ includeProject(":compose:compiler:compiler-daemon", [BuildType.COMPOSE])
 includeProject(":compose:compiler:compiler-daemon:integration-tests", [BuildType.COMPOSE])
 
 if (isMultiplatformEnabled()) {
-    includeProject(":compose:desktop", [BuildType.COMPOSE])
-    includeProject(":compose:desktop:desktop", [BuildType.COMPOSE])
-    includeProject(":compose:desktop:desktop:desktop-samples", "compose/desktop/desktop/samples", [BuildType.COMPOSE])
+    includeProject(":compose:desktop", [BuildType.COMPOSE, BuildType.KMP])
+    includeProject(":compose:desktop:desktop", [BuildType.COMPOSE, BuildType.KMP])
+    includeProject(":compose:desktop:desktop:desktop-samples", "compose/desktop/desktop/samples", [BuildType.COMPOSE, BuildType.KMP])
 }
 includeProject(":compose:foundation", [BuildType.COMPOSE])
 includeProject(":compose:foundation:foundation", [BuildType.COMPOSE])
@@ -601,7 +605,7 @@ includeProject(":compose:material3:material3:integration-tests:material3-catalog
 includeProject(":compose:material:material:material-samples", "compose/material/material/samples", [BuildType.COMPOSE])
 includeProject(":compose:material3:material3:material3-samples", "compose/material3/material3/samples", [BuildType.COMPOSE])
 includeProject(":compose:runtime", [BuildType.COMPOSE])
-includeProject(":compose:runtime:runtime", [BuildType.COMPOSE])
+includeProject(":compose:runtime:runtime", [BuildType.COMPOSE, BuildType.KMP])
 includeProject(":compose:runtime:runtime-lint", [BuildType.COMPOSE])
 includeProject(":compose:runtime:runtime-livedata", [BuildType.COMPOSE])
 includeProject(":compose:runtime:runtime-livedata:runtime-livedata-samples", "compose/runtime/runtime-livedata/samples", [BuildType.COMPOSE])
@@ -687,20 +691,20 @@ includeProject(":credentials:credentials-provider", [BuildType.MAIN])
 includeProject(":cursoradapter:cursoradapter", [BuildType.MAIN])
 includeProject(":customview:customview", [BuildType.MAIN])
 includeProject(":customview:customview-poolingcontainer", [BuildType.MAIN, BuildType.COMPOSE])
-includeProject(":datastore:datastore", [BuildType.MAIN, BuildType.KMP])
-includeProject(":datastore:datastore-benchmark", [BuildType.MAIN, BuildType.KMP])
-includeProject(":datastore:datastore-core", [BuildType.MAIN, BuildType.KMP])
-includeProject(":datastore:datastore-core-okio", [BuildType.MAIN, BuildType.KMP])
+includeProject(":datastore:datastore", [BuildType.MAIN, BuildType.INFRAROGUE, BuildType.KMP])
+includeProject(":datastore:datastore-benchmark", [BuildType.MAIN, BuildType.INFRAROGUE, BuildType.KMP])
+includeProject(":datastore:datastore-core", [BuildType.MAIN, BuildType.INFRAROGUE, BuildType.KMP])
+includeProject(":datastore:datastore-core-okio", [BuildType.MAIN, BuildType.INFRAROGUE, BuildType.KMP])
 includeProject(":datastore:datastore-compose-samples", [BuildType.COMPOSE])
-includeProject(":datastore:datastore-preferences", [BuildType.MAIN, BuildType.KMP])
-includeProject(":datastore:datastore-preferences-core", [BuildType.MAIN, BuildType.KMP])
-includeProject(":datastore:datastore-preferences-proto", [BuildType.MAIN, BuildType.KMP])
-includeProject(":datastore:datastore-preferences-rxjava2", [BuildType.MAIN, BuildType.KMP])
-includeProject(":datastore:datastore-preferences-rxjava3", [BuildType.MAIN, BuildType.KMP])
-includeProject(":datastore:datastore-proto", [BuildType.MAIN, BuildType.KMP])
-includeProject(":datastore:datastore-rxjava2", [BuildType.MAIN, BuildType.KMP])
-includeProject(":datastore:datastore-rxjava3", [BuildType.MAIN, BuildType.KMP])
-includeProject(":datastore:datastore-sampleapp", [BuildType.MAIN, BuildType.KMP])
+includeProject(":datastore:datastore-preferences", [BuildType.MAIN, BuildType.INFRAROGUE, BuildType.KMP])
+includeProject(":datastore:datastore-preferences-core", [BuildType.MAIN, BuildType.INFRAROGUE, BuildType.KMP])
+includeProject(":datastore:datastore-preferences-proto", [BuildType.MAIN, BuildType.INFRAROGUE, BuildType.KMP])
+includeProject(":datastore:datastore-preferences-rxjava2", [BuildType.MAIN, BuildType.INFRAROGUE, BuildType.KMP])
+includeProject(":datastore:datastore-preferences-rxjava3", [BuildType.MAIN, BuildType.INFRAROGUE, BuildType.KMP])
+includeProject(":datastore:datastore-proto", [BuildType.MAIN, BuildType.INFRAROGUE, BuildType.KMP])
+includeProject(":datastore:datastore-rxjava2", [BuildType.MAIN, BuildType.INFRAROGUE, BuildType.KMP])
+includeProject(":datastore:datastore-rxjava3", [BuildType.MAIN, BuildType.INFRAROGUE, BuildType.KMP])
+includeProject(":datastore:datastore-sampleapp", [BuildType.MAIN, BuildType.INFRAROGUE, BuildType.KMP])
 includeProject(":documentfile:documentfile", [BuildType.MAIN])
 includeProject(":draganddrop:draganddrop", [BuildType.MAIN])
 includeProject(":draganddrop:integration-tests:sampleapp", [BuildType.MAIN])
@@ -1119,14 +1123,14 @@ includeProject(":support-wear-demos", new File(samplesRoot, "SupportWearDemos"),
 /////////////////////////////
 
 includeProject(":internal-testutils-common", "testutils/testutils-common", [BuildType.MAIN, BuildType.COMPOSE, BuildType.FLAN])
-includeProject(":internal-testutils-datastore", "testutils/testutils-datastore", [BuildType.MAIN, BuildType.KMP])
-includeProject(":internal-testutils-runtime", "testutils/testutils-runtime", [BuildType.MAIN, BuildType.FLAN, BuildType.COMPOSE, BuildType.MEDIA])
+includeProject(":internal-testutils-datastore", "testutils/testutils-datastore", [BuildType.MAIN, BuildType.INFRAROGUE, BuildType.KMP])
+includeProject(":internal-testutils-runtime", "testutils/testutils-runtime", [BuildType.MAIN, BuildType.FLAN, BuildType.COMPOSE, BuildType.MEDIA, BuildType.WEAR])
 includeProject(":internal-testutils-appcompat", "testutils/testutils-appcompat", [BuildType.MAIN])
 includeProject(":internal-testutils-espresso", "testutils/testutils-espresso", [BuildType.MAIN, BuildType.COMPOSE])
 includeProject(":internal-testutils-fonts", "testutils/testutils-fonts", [BuildType.MAIN, BuildType.GLANCE, BuildType.MEDIA, BuildType.FLAN, BuildType.COMPOSE])
 includeProject(":internal-testutils-truth", "testutils/testutils-truth")
 includeProject(":internal-testutils-ktx", "testutils/testutils-ktx")
-includeProject(":internal-testutils-kmp", "testutils/testutils-kmp", [BuildType.MAIN, BuildType.KMP, BuildType.COMPOSE])
+includeProject(":internal-testutils-kmp", "testutils/testutils-kmp", [BuildType.MAIN, BuildType.INFRAROGUE, BuildType.KMP, BuildType.COMPOSE])
 includeProject(":internal-testutils-macrobenchmark", "testutils/testutils-macrobenchmark", [BuildType.MAIN, BuildType.COMPOSE])
 includeProject(":internal-testutils-navigation", "testutils/testutils-navigation", [BuildType.MAIN, BuildType.COMPOSE, BuildType.FLAN])
 includeProject(":internal-testutils-paging", "testutils/testutils-paging", [BuildType.MAIN, BuildType.COMPOSE])
@@ -1180,7 +1184,7 @@ if (isAllProjects()) {
     includeProject(":docs-public")
 }
 
-includeProject(":docs-kmp", [BuildType.KMP])
+includeProject(":docs-kmp", [BuildType.KMP, BuildType.INFRAROGUE])
 // placeholder test project that has a test for each size to ensure that at least one test is run
 // for each size and test runner is happy when there is nothing to test.
 includeProject(":placeholder-tests")
