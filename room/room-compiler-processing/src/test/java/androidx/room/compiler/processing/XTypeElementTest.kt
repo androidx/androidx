@@ -426,7 +426,7 @@ class XTypeElementTest(
             """.trimIndent()
         )
         val javaSrc = Source.java(
-            "Bar.java",
+            "Bar",
             """
             class JavaClass {}
             interface JavaInterface {}
@@ -728,7 +728,7 @@ class XTypeElementTest(
         runTest(
             listOf(
                 Source.java(
-                    "JavaSubject.java",
+                    "JavaSubject",
                     """
                     class JavaSubject {
                         int myField;
@@ -752,7 +752,7 @@ class XTypeElementTest(
                 )
             ),
         ) { invocation ->
-            listOf("JavaSubject", "KotlinSubject",).map {
+            listOf("JavaSubject", "KotlinSubject").map {
                 invocation.processingEnv.requireTypeElement(it)
             }.forEach { subject ->
                 val methods = subject.getDeclaredMethods()
@@ -2072,6 +2072,272 @@ class XTypeElementTest(
                     "method(Ljava/lang/Object;)Ljava/lang/String;",
                     "method(Ltest/Bar;)Ltest/Baz;",
                 )
+        }
+    }
+
+    @Test
+    fun javaFieldDescriptors() {
+        runTest(
+            sources = listOf(
+                Source.java(
+                    "TestClassA",
+                    """
+                    import java.util.List;
+                    class TestClassA<T> {
+                        int field1;
+                        String field2;
+                        T field3;
+                        List<String> field4;
+                    }
+                    """.trimIndent()
+                )
+            )
+        ) { invocation ->
+            val foo = invocation.processingEnv.requireTypeElement("TestClassA")
+            assertThat(foo.getDeclaredFields().map { it.jvmDescriptor }.toList())
+                .containsExactly(
+                    "field1:I",
+                    "field2:Ljava/lang/String;",
+                    "field3:Ljava/lang/Object;",
+                    "field4:Ljava/util/List;"
+                )
+        }
+    }
+
+    @Test
+    fun javaMethodDescriptorsPrimitives() {
+        runTest(
+            sources = listOf(
+                Source.java(
+                    "TestClassB",
+                    """
+                    class TestClassB<T> {
+                        void method1(boolean yesOrNo, int number) {}
+
+                        byte method2(char letter) {
+                          return 0;
+                        }
+
+                        void method3(double realNumber1, float realNummber2) {}
+
+                        void method4(long bigNumber, short littlerNumber) {}
+                    }
+                    """.trimIndent()
+                )
+            )
+        ) { invocation ->
+            val foo = invocation.processingEnv.requireTypeElement("TestClassB")
+            assertThat(foo.getDeclaredMethods().map { it.jvmDescriptor }.toList())
+                .containsExactly(
+                    "method1(ZI)V", "method2(C)B", "method3(DF)V", "method4(JS)V"
+                )
+        }
+    }
+
+    @Test
+    fun javaMethodDescriptorsJavaTypes() {
+        runTest(
+            sources = listOf(
+                Source.java(
+                    "TestClassC",
+                    """
+                    import java.util.*;
+                    class TestClassC<T> {
+                        void method1(Object something) {}
+
+                        Object method2() {
+                          return null;
+                        }
+
+                        List<String> method3(ArrayList<Integer> list) {
+                          return null;
+                        }
+
+                        Map<String, Object> method4() {
+                          return null;
+                        }
+                    }
+                    """.trimIndent()
+                )
+            )
+        ) { invocation ->
+            val foo = invocation.processingEnv.requireTypeElement("TestClassC")
+            assertThat(foo.getDeclaredMethods().map { it.jvmDescriptor }.toList())
+                .containsExactly(
+                    "method1(Ljava/lang/Object;)V",
+                    "method2()Ljava/lang/Object;",
+                    "method3(Ljava/util/ArrayList;)Ljava/util/List;",
+                    "method4()Ljava/util/Map;"
+                )
+        }
+    }
+
+    @Test
+    fun javaMethodDescriptorsTestTypes() {
+        runTest(
+            sources = listOf(
+                Source.java(
+                    "TestClassD",
+                    """
+                    class TestDataClass {}
+                    class TestClassD<T> {
+                        void method1(TestDataClass data) {}
+
+                        TestDataClass method2() {
+                          return null;
+                        }
+                    }
+                    """.trimIndent()
+                )
+            )
+        ) { invocation ->
+            val foo = invocation.processingEnv.requireTypeElement("TestClassD")
+            assertThat(foo.getDeclaredMethods().map { it.jvmDescriptor }.toList())
+                .containsExactly(
+                    "method1(LTestDataClass;)V",
+                    "method2()LTestDataClass;"
+                )
+        }
+    }
+
+    @Test
+    fun javaMethodDescriptorsArrays() {
+        runTest(
+            sources = listOf(
+                Source.java(
+                    "TestClassE",
+                    """
+                    class TestDataClass {}
+                    class TestClassE<T> {
+                        void method1(TestDataClass[] data) {}
+
+                        TestDataClass[] method2() {
+                          return null;
+                        }
+
+                        void method3(int[] array) {}
+
+                        void method4(int... array) {}
+                    }
+                    """.trimIndent()
+                )
+            )
+        ) { invocation ->
+            val foo = invocation.processingEnv.requireTypeElement("TestClassE")
+            assertThat(foo.getDeclaredMethods().map { it.jvmDescriptor }.toList())
+                .containsExactly(
+                    "method1([LTestDataClass;)V",
+                    "method2()[LTestDataClass;",
+                    "method3([I)V",
+                    "method4([I)V"
+                )
+        }
+    }
+
+    @Test
+    fun javaMethodDescriptorsInnerTestType() {
+        runTest(
+            // KSP can't see nested types if the filename does not match the name of the
+            // enclosing class.
+            sources = listOf(
+                Source.java(
+                    "TestDataClass",
+                    """
+                    public class TestDataClass {
+                        class MemberInnerData {}
+
+                        static class StaticInnerData {}
+
+                        enum EnumData {
+                          VALUE1,
+                          VALUE2
+                        }
+                    }
+                    """.trimIndent()
+                ),
+                Source.java(
+                    "TestClassF",
+                    """
+                    class TestClassF<T> {
+                        void method1(TestDataClass.MemberInnerData data) {}
+
+                        void method2(TestDataClass.StaticInnerData data) {}
+
+                        void method3(TestDataClass.EnumData enumData) {}
+
+                        TestDataClass.StaticInnerData method4() {
+                          return null;
+                        }
+                    }
+                    """.trimIndent()
+                )
+            )
+        ) { invocation ->
+            val foo = invocation.processingEnv.requireTypeElement("TestClassF")
+            assertThat(foo.getDeclaredMethods().map { it.jvmDescriptor }.toList())
+                .containsExactly(
+                    "method1(LTestDataClass\$MemberInnerData;)V",
+                    "method2(LTestDataClass\$StaticInnerData;)V",
+                    "method3(LTestDataClass\$EnumData;)V",
+                    "method4()LTestDataClass\$StaticInnerData;"
+                )
+        }
+    }
+
+    @Test
+    fun methodDescriptorsErasure() {
+        runTest(
+            sources = listOf(
+                Source.java(
+                    "TestClassG",
+                    """
+                    import java.util.*;
+                    class TestClassG<T> {
+                        void method1(T something) {}
+                        T method2() {
+                          return null;
+                        }
+                        List<? extends String> method3() {
+                          return null;
+                        }
+                        Map<T, String> method4() {
+                          return null;
+                        }
+                        ArrayList<Map<T, String>> method5() {
+                          return null;
+                        }
+                        static <I, O extends I> O method6(I input) {
+                          return null;
+                        }
+                        static <I, O extends String> O method7(I input) {
+                          return null;
+                        }
+                        static <P extends Collection<String> & Comparable<String>> P method8() {
+                          return null;
+                        }
+                        static <P extends String & List<Character>> P method9() {
+                          return null;
+                        }
+                    }
+                    """.trimIndent()
+                )
+            )
+        ) { invocation ->
+            val foo = invocation.processingEnv.requireTypeElement("TestClassG")
+            if (!invocation.isKsp) {
+                assertThat(foo.getDeclaredMethods().map { it.jvmDescriptor }.toList())
+                    .containsExactly(
+                        "method1(Ljava/lang/Object;)V",
+                        "method2()Ljava/lang/Object;",
+                        "method3()Ljava/util/List;",
+                        "method4()Ljava/util/Map;",
+                        "method5()Ljava/util/ArrayList;",
+                        "method6(Ljava/lang/Object;)Ljava/lang/Object;",
+                        "method7(Ljava/lang/Object;)Ljava/lang/String;",
+                        "method8()Ljava/util/Collection;",
+                        "method9()Ljava/lang/String;"
+                    )
+            }
         }
     }
 

@@ -598,7 +598,7 @@ class XAnnotationTest(
             """.trimIndent()
         )
         val javaSrc = Source.java(
-            "JavaClass.java",
+            "JavaClass",
             """
             import androidx.room.compiler.processing.testcode.JavaAnnotationWithDefaults;
             @JavaAnnotationWithDefaults
@@ -681,7 +681,7 @@ class XAnnotationTest(
     fun javaPrimitiveArray() {
         // TODO: expand this test for other primitive types: 179081610
         val javaSrc = Source.java(
-            "JavaSubject.java",
+            "JavaSubject",
             """
             import androidx.room.compiler.processing.testcode.*;
             class JavaSubject {
@@ -720,7 +720,7 @@ class XAnnotationTest(
     @Test
     fun javaEnum() {
         val javaSrc = Source.java(
-            "JavaSubject.java",
+            "JavaSubject",
             """
             import androidx.room.compiler.processing.testcode.*;
             class JavaSubject {
@@ -759,7 +759,7 @@ class XAnnotationTest(
     @Test
     fun javaEnumArray() {
         val javaSrc = Source.java(
-            "JavaSubject.java",
+            "JavaSubject",
             """
             import androidx.room.compiler.processing.testcode.*;
             class JavaSubject {
@@ -1151,7 +1151,7 @@ class XAnnotationTest(
             """.trimIndent()
         )
         val javaSource = Source.java(
-            "foo.bar.Subject.java",
+            "foo.bar.Subject",
             """
             package foo.bar;
             import java.lang.annotation.ElementType;
@@ -1232,7 +1232,7 @@ class XAnnotationTest(
             """.trimIndent()
         )
         val javaSource = Source.java(
-            "foo.bar.Subject.java",
+            "foo.bar.Subject",
             """
             package foo.bar;
             import java.lang.annotation.ElementType;

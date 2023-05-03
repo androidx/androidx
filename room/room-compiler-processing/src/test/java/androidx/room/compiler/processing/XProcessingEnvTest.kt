@@ -223,7 +223,7 @@ class XProcessingEnvTest {
     @Test
     fun errorLogFailsCompilation() {
         val src = Source.java(
-            "Foo.java",
+            "Foo",
             """
             class Foo {}
             """.trimIndent()

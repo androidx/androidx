@@ -79,6 +79,9 @@ sealed class Source {
             @Language("java")
             code: String
         ): Source {
+            require(!qName.endsWith(".java")) {
+                "Please exclude extension `.java` for Java sources."
+            }
             return JavaSource(
                 qName,
                 code
@@ -90,6 +93,9 @@ sealed class Source {
             @Language("kotlin")
             code: String
         ): Source {
+            require(filePath.endsWith(".kt")) {
+                "Please include extension `.kt` for Kotlin sources."
+            }
             return KotlinSource(
                 filePath,
                 code
