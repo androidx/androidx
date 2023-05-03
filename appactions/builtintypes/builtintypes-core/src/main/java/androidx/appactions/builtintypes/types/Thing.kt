@@ -13,12 +13,8 @@
 // limitations under the License.
 package androidx.appactions.builtintypes.types
 
-import androidx.appactions.builtintypes.properties.Description
 import androidx.appactions.builtintypes.properties.DisambiguatingDescription
 import androidx.appactions.builtintypes.properties.Name
-import androidx.appactions.builtintypes.properties.Temporal
-import java.time.LocalDateTime
-import java.time.ZonedDateTime
 import java.util.Objects
 import kotlin.Any
 import kotlin.Boolean
@@ -31,7 +27,6 @@ import kotlin.collections.joinToString
 import kotlin.collections.map
 import kotlin.collections.mutableMapOf
 import kotlin.collections.plusAssign
-import kotlin.jvm.JvmField
 import kotlin.jvm.JvmStatic
 
 /**
@@ -43,9 +38,6 @@ import kotlin.jvm.JvmStatic
  * using [Companion.Builder] or see [GenericThing] if you need to extend this type.
  */
 public interface Thing {
-  /** A description of the item. */
-  public val description: Description?
-
   /**
    * A sub property of description. A short description of the item used to disambiguate from other,
    * similar items. Information from other properties (in particular, name) may be necessary for the
@@ -61,12 +53,6 @@ public interface Thing {
 
   /** The name of the item. */
   public val name: Name?
-
-  /**
-   * Can be used in cases where more specific properties (e.g. temporalCoverage, dateCreated,
-   * dateModified, datePublished) are not known to be appropriate.
-   */
-  public val temporal: Temporal?
 
   /** Converts this [Thing] to its builder with all the properties copied over. */
   public fun toBuilder(): Builder<*>
@@ -87,19 +73,9 @@ public interface Thing {
     /** Returns a built [Thing]. */
     public fun build(): Thing
 
-    /** Sets the `description` to [String]. */
-    public fun setDescription(text: String): Self = setDescription(Description(text))
-
-    /** Sets the `description`. */
-    public fun setDescription(description: Description?): Self
-
     /** Sets the `disambiguatingDescription` to [String]. */
     public fun setDisambiguatingDescription(text: String): Self =
       setDisambiguatingDescription(DisambiguatingDescription(text))
-
-    /** Sets the `disambiguatingDescription` to a canonical [DisambiguatingDescriptionValue]. */
-    public fun setDisambiguatingDescription(canonicalValue: DisambiguatingDescriptionValue): Self =
-      setDisambiguatingDescription(DisambiguatingDescription(canonicalValue))
 
     /** Sets the `disambiguatingDescription`. */
     public fun setDisambiguatingDescription(
@@ -114,87 +90,6 @@ public interface Thing {
 
     /** Sets the `name`. */
     public fun setName(name: Name?): Self
-
-    /** Sets the `temporal` to [LocalDateTime]. */
-    public fun setTemporal(localDateTime: LocalDateTime): Self =
-      setTemporal(Temporal(localDateTime))
-
-    /** Sets the `temporal` to [ZonedDateTime]. */
-    public fun setTemporal(zonedDateTime: ZonedDateTime): Self =
-      setTemporal(Temporal(zonedDateTime))
-
-    /** Sets the `temporal` to [String]. */
-    public fun setTemporal(text: String): Self = setTemporal(Temporal(text))
-
-    /** Sets the `temporal`. */
-    public fun setTemporal(temporal: Temporal?): Self
-  }
-
-  /**
-   * A canonical value that may be assigned to [DisambiguatingDescription] properties in the context
-   * of [Thing].
-   *
-   * Represents an open enum. See [Companion] for the different possible variants. More variants may
-   * be added over time.
-   */
-  public class DisambiguatingDescriptionValue
-  private constructor(
-    public override val textValue: String,
-  ) : DisambiguatingDescription.CanonicalValue() {
-    public override fun toString(): String = """Thing.DisambiguatingDescriptionValue($textValue)"""
-
-    public companion object {
-      @JvmField
-      public val ALBUM: DisambiguatingDescriptionValue = DisambiguatingDescriptionValue("Album")
-
-      @JvmField
-      public val AUDIOBOOK: DisambiguatingDescriptionValue =
-        DisambiguatingDescriptionValue("Audiobook")
-
-      @JvmField
-      public val EPISODE: DisambiguatingDescriptionValue = DisambiguatingDescriptionValue("Episode")
-
-      @JvmField
-      public val MOVIE: DisambiguatingDescriptionValue = DisambiguatingDescriptionValue("Movie")
-
-      @JvmField
-      public val MUSIC: DisambiguatingDescriptionValue = DisambiguatingDescriptionValue("Music")
-
-      @JvmField
-      public val OTHER: DisambiguatingDescriptionValue = DisambiguatingDescriptionValue("Other")
-
-      @JvmField
-      public val PHOTOGRAPH: DisambiguatingDescriptionValue =
-        DisambiguatingDescriptionValue("Photograph")
-
-      @JvmField
-      public val PODCAST: DisambiguatingDescriptionValue = DisambiguatingDescriptionValue("Podcast")
-
-      @JvmField
-      public val SONG: DisambiguatingDescriptionValue = DisambiguatingDescriptionValue("Song")
-
-      @JvmField
-      public val SOUNDTRACK: DisambiguatingDescriptionValue =
-        DisambiguatingDescriptionValue("Soundtrack")
-
-      @JvmField
-      public val TELEVISION_CHANNEL: DisambiguatingDescriptionValue =
-        DisambiguatingDescriptionValue("Television channel")
-
-      @JvmField
-      public val TELEVISION_SHOW: DisambiguatingDescriptionValue =
-        DisambiguatingDescriptionValue("Television show")
-
-      @JvmField
-      public val TRAILER: DisambiguatingDescriptionValue = DisambiguatingDescriptionValue("Trailer")
-
-      @JvmField
-      public val VIDEO: DisambiguatingDescriptionValue = DisambiguatingDescriptionValue("Video")
-
-      @JvmField
-      public val VIDEO_GAME: DisambiguatingDescriptionValue =
-        DisambiguatingDescriptionValue("Video game")
-    }
   }
 }
 
@@ -237,11 +132,9 @@ public interface Thing {
 public abstract class GenericThing<
   Self : GenericThing<Self, Builder>, Builder : GenericThing.Builder<Builder, Self>>
 internal constructor(
-  public final override val description: Description?,
   public final override val disambiguatingDescription: DisambiguatingDescription?,
   public final override val identifier: String?,
   public final override val name: Name?,
-  public final override val temporal: Temporal?,
 ) : Thing {
   /**
    * Human readable name for the concrete [Self] class.
@@ -260,53 +153,33 @@ internal constructor(
   /** A copy-constructor that copies over properties from another [Thing] instance. */
   public constructor(
     thing: Thing
-  ) : this(
-    thing.description,
-    thing.disambiguatingDescription,
-    thing.identifier,
-    thing.name,
-    thing.temporal
-  )
+  ) : this(thing.disambiguatingDescription, thing.identifier, thing.name)
 
   /** Returns a concrete [Builder] with the additional, non-[Thing] properties copied over. */
   protected abstract fun toBuilderWithAdditionalPropertiesOnly(): Builder
 
   public final override fun toBuilder(): Builder =
     toBuilderWithAdditionalPropertiesOnly()
-      .setDescription(description)
       .setDisambiguatingDescription(disambiguatingDescription)
       .setIdentifier(identifier)
       .setName(name)
-      .setTemporal(temporal)
 
   public final override fun equals(other: Any?): Boolean {
     if (this === other) return true
     if (other == null || this::class.java != other::class.java) return false
     other as Self
-    if (description != other.description) return false
     if (disambiguatingDescription != other.disambiguatingDescription) return false
     if (identifier != other.identifier) return false
     if (name != other.name) return false
-    if (temporal != other.temporal) return false
     if (additionalProperties != other.additionalProperties) return false
     return true
   }
 
   public final override fun hashCode(): Int =
-    Objects.hash(
-      description,
-      disambiguatingDescription,
-      identifier,
-      name,
-      temporal,
-      additionalProperties
-    )
+    Objects.hash(disambiguatingDescription, identifier, name, additionalProperties)
 
   public final override fun toString(): String {
     val attributes = mutableMapOf<String, String>()
-    if (description != null) {
-      attributes["description"] = description.toString(includeWrapperName = false)
-    }
     if (disambiguatingDescription != null) {
       attributes["disambiguatingDescription"] =
         disambiguatingDescription.toString(includeWrapperName = false)
@@ -316,9 +189,6 @@ internal constructor(
     }
     if (name != null) {
       attributes["name"] = name.toString(includeWrapperName = false)
-    }
-    if (temporal != null) {
-      attributes["temporal"] = temporal.toString(includeWrapperName = false)
     }
     attributes += additionalProperties.map { (k, v) -> k to v.toString() }
     val commaSeparated = attributes.entries.joinToString(separator = ", ") { (k, v) -> """$k=$v""" }
@@ -393,15 +263,11 @@ internal constructor(
      */
     @get:Suppress("GetterOnBuilder") protected abstract val additionalProperties: Map<String, Any?>
 
-    private var description: Description? = null
-
     private var disambiguatingDescription: DisambiguatingDescription? = null
 
     private var identifier: String? = null
 
     private var name: Name? = null
-
-    private var temporal: Temporal? = null
 
     /**
      * Builds a concrete [Built] instance, given a built [Thing].
@@ -414,12 +280,7 @@ internal constructor(
     @Suppress("BuilderSetStyle") protected abstract fun buildFromThing(thing: Thing): Built
 
     public final override fun build(): Built =
-      buildFromThing(ThingImpl(description, disambiguatingDescription, identifier, name, temporal))
-
-    public final override fun setDescription(description: Description?): Self {
-      this.description = description
-      return this as Self
-    }
+      buildFromThing(ThingImpl(disambiguatingDescription, identifier, name))
 
     public final override fun setDisambiguatingDescription(
       disambiguatingDescription: DisambiguatingDescription?
@@ -438,42 +299,25 @@ internal constructor(
       return this as Self
     }
 
-    public final override fun setTemporal(temporal: Temporal?): Self {
-      this.temporal = temporal
-      return this as Self
-    }
-
     @Suppress("BuilderSetStyle")
     public final override fun equals(other: Any?): Boolean {
       if (this === other) return true
       if (other == null || this::class.java != other::class.java) return false
       other as Self
-      if (description != other.description) return false
       if (disambiguatingDescription != other.disambiguatingDescription) return false
       if (identifier != other.identifier) return false
       if (name != other.name) return false
-      if (temporal != other.temporal) return false
       if (additionalProperties != other.additionalProperties) return false
       return true
     }
 
     @Suppress("BuilderSetStyle")
     public final override fun hashCode(): Int =
-      Objects.hash(
-        description,
-        disambiguatingDescription,
-        identifier,
-        name,
-        temporal,
-        additionalProperties
-      )
+      Objects.hash(disambiguatingDescription, identifier, name, additionalProperties)
 
     @Suppress("BuilderSetStyle")
     public final override fun toString(): String {
       val attributes = mutableMapOf<String, String>()
-      if (description != null) {
-        attributes["description"] = description!!.toString(includeWrapperName = false)
-      }
       if (disambiguatingDescription != null) {
         attributes["disambiguatingDescription"] =
           disambiguatingDescription!!.toString(includeWrapperName = false)
@@ -483,9 +327,6 @@ internal constructor(
       }
       if (name != null) {
         attributes["name"] = name!!.toString(includeWrapperName = false)
-      }
-      if (temporal != null) {
-        attributes["temporal"] = temporal!!.toString(includeWrapperName = false)
       }
       attributes += additionalProperties.map { (k, v) -> k to v.toString() }
       val commaSeparated =
@@ -503,12 +344,10 @@ internal class ThingImpl : GenericThing<ThingImpl, ThingImpl.Builder> {
     get() = emptyMap()
 
   public constructor(
-    description: Description?,
     disambiguatingDescription: DisambiguatingDescription?,
     identifier: String?,
     name: Name?,
-    temporal: Temporal?,
-  ) : super(description, disambiguatingDescription, identifier, name, temporal)
+  ) : super(disambiguatingDescription, identifier, name)
 
   public constructor(thing: Thing) : super(thing)
 

@@ -28,7 +28,6 @@ import kotlin.jvm.JvmName
  *
  * Holds one of:
  * * Text i.e. [String]
- * * [Name.CanonicalValue]
  *
  * May hold more types over time.
  */
@@ -36,8 +35,6 @@ public class Name
 internal constructor(
   /** The [String] variant, or null if constructed using a different variant. */
   @get:JvmName("asText") public val asText: String? = null,
-  /** The [CanonicalValue] variant, or null if constructed using a different variant. */
-  @get:JvmName("asCanonicalValue") public val asCanonicalValue: CanonicalValue? = null,
   /**
    * The AppSearch document's identifier.
    *
@@ -49,24 +46,6 @@ internal constructor(
   /** Constructor for the [String] variant. */
   public constructor(text: String) : this(asText = text)
 
-  /** Constructor for the [CanonicalValue] variant. */
-  public constructor(canonicalValue: CanonicalValue) : this(asCanonicalValue = canonicalValue)
-
-  /**
-   * Maps each of the possible underlying variants to some [R].
-   *
-   * A visitor can be provided to handle the possible variants. A catch-all default case must be
-   * provided in case a new type is added in a future release of this library.
-   *
-   * @sample [androidx.appactions.builtintypes.samples.properties.nameMapWhenUsage]
-   */
-  public fun <R> mapWhen(mapper: Mapper<R>): R =
-    when {
-      asText != null -> mapper.text(asText)
-      asCanonicalValue != null -> mapper.canonicalValue(asCanonicalValue)
-      else -> error("No variant present in Name")
-    }
-
   public override fun toString(): String = toString(includeWrapperName = true)
 
   internal fun toString(includeWrapperName: Boolean): String =
@@ -77,12 +56,6 @@ internal constructor(
         } else {
           asText
         }
-      asCanonicalValue != null ->
-        if (includeWrapperName) {
-          """Name($asCanonicalValue)"""
-        } else {
-          asCanonicalValue.toString()
-        }
       else -> error("No variant present in Name")
     }
 
@@ -90,25 +63,8 @@ internal constructor(
     if (this === other) return true
     if (other !is Name) return false
     if (asText != other.asText) return false
-    if (asCanonicalValue != other.asCanonicalValue) return false
     return true
   }
 
-  public override fun hashCode(): Int = Objects.hash(asText, asCanonicalValue)
-
-  /** Maps each of the possible variants of [Name] to some [R]. */
-  public interface Mapper<R> {
-    /** Returns some [R] when the [Name] holds some [String] instance. */
-    public fun text(instance: String): R = orElse()
-
-    /** Returns some [R] when the [Name] holds some [CanonicalValue] instance. */
-    public fun canonicalValue(instance: CanonicalValue): R = orElse()
-
-    /** The catch-all handler that is invoked when a particular variant isn't explicitly handled. */
-    public fun orElse(): R
-  }
-
-  public abstract class CanonicalValue internal constructor() {
-    public abstract val textValue: String
-  }
+  public override fun hashCode(): Int = Objects.hash(asText)
 }
