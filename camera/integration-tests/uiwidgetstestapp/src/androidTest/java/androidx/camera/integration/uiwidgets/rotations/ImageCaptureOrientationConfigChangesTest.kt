@@ -76,6 +76,10 @@ class ImageCaptureOrientationConfigChangesTest(
                 "redmi note 8"
             ).contains(Build.MODEL.lowercase(Locale.US)) && rotation == Surface.ROTATION_180
         )
+        Assume.assumeFalse("See b/152082918, Wembley Api30 has a libjpeg issue which causes" +
+            " the test failure.",
+            Build.MODEL.equals("wembley", ignoreCase = true) && Build.VERSION.SDK_INT <= 30)
+
         setUp(lensFacing)
     }
 

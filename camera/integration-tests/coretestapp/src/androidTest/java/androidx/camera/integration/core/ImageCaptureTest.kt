@@ -150,6 +150,9 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
 
     @Before
     fun setUp(): Unit = runBlocking {
+        assumeFalse("See b/152082918, Wembley Api30 has a libjpeg issue which causes" +
+            " the test failure.",
+            Build.MODEL.equals("wembley", ignoreCase = true) && Build.VERSION.SDK_INT <= 30)
         assumeTrue(CameraUtil.hasCameraWithLensFacing(BACK_LENS_FACING))
         createDefaultPictureFolderIfNotExist()
         ProcessCameraProvider.configureInstance(cameraXConfig)
