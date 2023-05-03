@@ -145,11 +145,7 @@ internal class VectorComponent : VNode() {
     }
 
     fun DrawScope.draw(alpha: Float, colorFilter: ColorFilter?) {
-        val targetColorFilter = if (colorFilter != null) {
-            colorFilter
-        } else {
-            intrinsicColorFilter
-        }
+        val targetColorFilter = colorFilter ?: intrinsicColorFilter
         // If the content of the vector has changed, or we are drawing a different size
         // update the cached image to ensure we are scaling the vector appropriately
         if (isDirty || previousDrawSize != size) {
@@ -293,12 +289,9 @@ internal class PathComponent : VNode() {
 
     private val pathMeasure: PathMeasure by lazy(LazyThreadSafetyMode.NONE) { PathMeasure() }
 
-    private val parser = PathParser()
-
     private fun updatePath() {
-        parser.clear()
-        path.reset()
-        parser.addPathNodes(pathData).toPath(path)
+        // The call below resets the path
+        pathData.toPath(path)
         updateRenderPath()
     }
 
@@ -366,7 +359,6 @@ internal class GroupComponent : VNode() {
     private var isClipPathDirty = true
 
     private var clipPath: Path? = null
-    private var parser: PathParser? = null
 
     override var invalidateListener: (() -> Unit)? = null
         set(value) {
@@ -378,23 +370,14 @@ internal class GroupComponent : VNode() {
 
     private fun updateClipPath() {
         if (willClipPath) {
-            var targetParser = parser
-            if (targetParser == null) {
-                targetParser = PathParser()
-                parser = targetParser
-            } else {
-                targetParser.clear()
-            }
-
             var targetClip = clipPath
             if (targetClip == null) {
                 targetClip = Path()
                 clipPath = targetClip
-            } else {
-                targetClip.reset()
             }
 
-            targetParser.addPathNodes(clipPathData).toPath(targetClip)
+            // toPath() will reset the path we send
+            clipPathData.toPath(targetClip)
         }
     }
 
