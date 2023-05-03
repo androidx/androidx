@@ -432,7 +432,7 @@ package androidx.compose.ui.graphics {
   }
 
   public fun interface ColorProducer {
-    method public long invoke();
+    method public long produce();
   }
 
   public final class DegreesKt {
