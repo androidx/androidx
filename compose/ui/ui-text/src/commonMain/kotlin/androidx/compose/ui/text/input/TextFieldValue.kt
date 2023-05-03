@@ -22,7 +22,7 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.AnnotatedStringSaver
 import androidx.compose.ui.text.Saver
 import androidx.compose.ui.text.TextRange
-import androidx.compose.ui.text.constrain
+import androidx.compose.ui.text.coerceIn
 import androidx.compose.ui.text.restore
 import androidx.compose.ui.text.save
 import kotlin.math.max
@@ -85,7 +85,7 @@ class TextFieldValue constructor(
      * The selection range. If the selection is collapsed, it represents cursor
      * location. When selection range is out of bounds, it is constrained with the text length.
      */
-    val selection: TextRange = selection.constrain(0, text.length)
+    val selection: TextRange = selection.coerceIn(0, text.length)
 
     /**
      * Composition range created by  IME. If null, there is no composition range.
@@ -99,7 +99,7 @@ class TextFieldValue constructor(
      * composition by setting the value to null. Applying a composition will accept the changes
      * that were still being composed by IME.
      */
-    val composition: TextRange? = composition?.constrain(0, text.length)
+    val composition: TextRange? = composition?.coerceIn(0, text.length)
 
     /**
      * Returns a copy of the TextFieldValue.
