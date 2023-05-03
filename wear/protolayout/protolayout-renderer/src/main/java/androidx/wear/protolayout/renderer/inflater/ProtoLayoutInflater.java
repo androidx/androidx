@@ -2446,7 +2446,7 @@ public final class ProtoLayoutInflater {
                         pipelineMaker
                                 .get()
                                 .addResolvedAnimatedImageWithBoolTrigger(
-                                        avd, trigger, posId, conditionTrigger.getTrigger());
+                                        avd, trigger, posId, conditionTrigger.getCondition());
                     } else {
                         // Use default trigger if it's not set.
                         if (trigger == null
