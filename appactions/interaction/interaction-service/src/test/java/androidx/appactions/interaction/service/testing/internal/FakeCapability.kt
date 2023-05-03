@@ -16,26 +16,25 @@
 
 package androidx.appactions.interaction.service.testing.internal
 
-import androidx.appactions.interaction.capabilities.core.Capability
 import androidx.appactions.interaction.capabilities.core.BaseExecutionSession
-import androidx.appactions.interaction.capabilities.core.HostProperties
+import androidx.appactions.interaction.capabilities.core.Capability
 import androidx.appactions.interaction.capabilities.core.ValueListener
 import androidx.appactions.interaction.capabilities.core.impl.BuilderOf
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
-import androidx.appactions.interaction.capabilities.core.properties.StringValue
-import androidx.appactions.interaction.capabilities.core.properties.Property
 import androidx.appactions.interaction.capabilities.core.impl.task.SessionBridge
 import androidx.appactions.interaction.capabilities.core.impl.task.TaskHandler
+import androidx.appactions.interaction.capabilities.core.properties.Property
+import androidx.appactions.interaction.capabilities.core.properties.StringValue
 import java.util.Optional
 
 private const val CAPABILITY_NAME = "actions.intent.FAKE_CAPABILITY"
+@Suppress("UNCHECKED_CAST")
 private val ACTION_SPEC = ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
-    .setDescriptor(FakeCapability.Properties::class.java)
     .setArguments(FakeCapability.Arguments::class.java, FakeCapability.Arguments::Builder)
     .setOutput(FakeCapability.Output::class.java).bindOptionalParameter(
         "fieldOne",
-        { property -> Optional.ofNullable(property.fieldOne) },
+        { property -> Optional.ofNullable(property["fieldOne"] as Property<StringValue>) },
         FakeCapability.Arguments.Builder::setFieldOne,
         TypeConverters.STRING_PARAM_VALUE_CONVERTER,
         TypeConverters.STRING_VALUE_ENTITY_CONVERTER,
@@ -69,7 +68,6 @@ class FakeCapability private constructor() {
 
     class CapabilityBuilder : Capability.Builder<
         CapabilityBuilder,
-        Properties,
         Arguments,
         Output,
         Confirmation,
@@ -94,12 +92,14 @@ class FakeCapability private constructor() {
             this.fieldOne = fieldOne
         }
 
-        public override fun setExecutionSessionFactory(
-            sessionFactory: (hostProperties: HostProperties?) -> ExecutionSession,
-        ) = super.setExecutionSessionFactory(sessionFactory)
-
         override fun build(): Capability {
-            super.setProperty(Properties(fieldOne))
+            super.setProperty(
+                mutableMapOf(
+                    "fieldOne" to (
+                        fieldOne ?: Property.Builder<StringValue>().build()
+                        )
+                )
+            )
             return super.build()
         }
     }

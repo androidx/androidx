@@ -22,6 +22,7 @@ import androidx.appactions.interaction.capabilities.core.Capability
 import androidx.appactions.interaction.capabilities.core.EntitySearchResult
 import androidx.appactions.interaction.capabilities.core.ExecutionResult
 import androidx.appactions.interaction.capabilities.core.HostProperties
+import androidx.appactions.interaction.capabilities.core.SearchAction
 import androidx.appactions.interaction.capabilities.core.SessionConfig
 import androidx.appactions.interaction.capabilities.core.ValidationResult
 import androidx.appactions.interaction.capabilities.core.ValueListener
@@ -33,10 +34,11 @@ import androidx.appactions.interaction.capabilities.core.impl.converters.ParamVa
 import androidx.appactions.interaction.capabilities.core.impl.converters.SearchActionConverter
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters.LIST_ITEM_TYPE_SPEC
+import androidx.appactions.interaction.capabilities.core.impl.converters.TypeSpec
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpec
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
-import androidx.appactions.interaction.capabilities.core.properties.StringValue
 import androidx.appactions.interaction.capabilities.core.properties.Property
+import androidx.appactions.interaction.capabilities.core.properties.StringValue
 import androidx.appactions.interaction.capabilities.core.testing.spec.Arguments
 import androidx.appactions.interaction.capabilities.core.testing.spec.CapabilityStructFill
 import androidx.appactions.interaction.capabilities.core.testing.spec.CapabilityTwoStrings
@@ -44,9 +46,6 @@ import androidx.appactions.interaction.capabilities.core.testing.spec.Confirmati
 import androidx.appactions.interaction.capabilities.core.testing.spec.ExecutionSession
 import androidx.appactions.interaction.capabilities.core.testing.spec.Output
 import androidx.appactions.interaction.capabilities.core.testing.spec.TestEnum
-import androidx.appactions.interaction.capabilities.core.testing.spec.Properties
-import androidx.appactions.interaction.capabilities.core.SearchAction
-import androidx.appactions.interaction.capabilities.core.impl.converters.TypeSpec
 import androidx.appactions.interaction.capabilities.testing.internal.ArgumentUtils.buildRequestArgs
 import androidx.appactions.interaction.capabilities.testing.internal.ArgumentUtils.buildSearchActionParamValue
 import androidx.appactions.interaction.capabilities.testing.internal.FakeCallbackInternal
@@ -69,16 +68,18 @@ import androidx.concurrent.futures.CallbackToFutureAdapter
 import androidx.concurrent.futures.CallbackToFutureAdapter.Completer
 import com.google.common.truth.Truth.assertThat
 import com.google.common.util.concurrent.ListenableFuture
+import java.util.Optional
+import java.util.concurrent.atomic.AtomicInteger
+import java.util.concurrent.atomic.AtomicReference
+import java.util.function.Supplier
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import java.util.concurrent.atomic.AtomicInteger
-import java.util.concurrent.atomic.AtomicReference
-import java.util.function.Supplier
 
 @RunWith(JUnit4::class)
+@Suppress("UNCHECKED_CAST")
 class TaskCapabilityImplTest {
     private val capability: Capability =
         createCapability<EmptyTaskUpdater>(
@@ -122,13 +123,13 @@ class TaskCapabilityImplTest {
     fun appAction_computedProperty() {
         val mutableEntityList = mutableListOf<StringValue>()
         val capability = createCapability<EmptyTaskUpdater>(
-            Properties.newBuilder()
-                .setRequiredStringField(
-                    Property.Builder<StringValue>()
-                        .setPossibleValueSupplier(mutableEntityList::toList)
-                        .build()
-                )
-                .build(),
+            mutableMapOf(
+                "required" to Property
+                    .Builder<StringValue>()
+                    .setPossibleValueSupplier(
+                        mutableEntityList::toList
+                    ).build()
+            ),
             sessionFactory =
             {
                 object : ExecutionSession {
@@ -351,21 +352,16 @@ class TaskCapabilityImplTest {
 
     @Test
     fun slotFilling_isActive_smokeTest() {
-        val property: CapabilityTwoStrings.Properties =
-            CapabilityTwoStrings.Properties.newBuilder()
-                .setStringSlotA(
-                    Property.Builder<StringValue>()
-                        .setRequired(true)
-                        .build()
-                )
-                .setStringSlotB(
-                    Property.Builder<StringValue>()
-                        .setRequired(true)
-                        .build()
-                )
-                .build()
+        val property = mapOf(
+            "stringSlotA" to Property.Builder<StringValue>()
+                .setRequired(true)
+                .build(),
+            "stringSlotB" to Property.Builder<StringValue>()
+                .setRequired(true)
+                .build(),
+        )
         val sessionFactory:
-            (hostProperties: HostProperties?) -> CapabilityTwoStrings.ExecutionSession =
+                (hostProperties: HostProperties?) -> CapabilityTwoStrings.ExecutionSession =
             { _ ->
                 object : CapabilityTwoStrings.ExecutionSession {
                     override suspend fun onExecute(
@@ -443,25 +439,16 @@ class TaskCapabilityImplTest {
     @kotlin.Throws(Exception::class)
     fun slotFilling_optionalButRejectedParam_onFinishNotInvoked() {
         val onExecuteInvocationCount = AtomicInteger(0)
-        val property: CapabilityTwoStrings.Properties =
-            CapabilityTwoStrings.Properties.newBuilder()
-                .setStringSlotA(
-                    Property.Builder<
-                        StringValue
-                        >()
-                        .setRequired(true)
-                        .build()
-                )
-                .setStringSlotB(
-                    Property.Builder<
-                        StringValue
-                        >()
-                        .setRequired(false)
-                        .build()
-                )
-                .build()
+        val property = mapOf(
+            "stringSlotA" to Property.Builder<StringValue>()
+                .setRequired(true)
+                .build(),
+            "stringSlotB" to Property.Builder<StringValue>()
+                .setRequired(false)
+                .build(),
+        )
         val sessionFactory:
-            (hostProperties: HostProperties?) -> CapabilityTwoStrings.ExecutionSession =
+                (hostProperties: HostProperties?) -> CapabilityTwoStrings.ExecutionSession =
             { _ ->
                 object : CapabilityTwoStrings.ExecutionSession {
                     override suspend fun onExecute(
@@ -535,22 +522,16 @@ class TaskCapabilityImplTest {
     @Test
     @kotlin.Throws(Exception::class)
     fun slotFilling_assistantRemovedParam_clearInSdkState() {
-        val property: Properties =
-            Properties.newBuilder()
-                .setRequiredStringField(
-                    Property.Builder<
-                        StringValue
-                        >()
-                        .setRequired(true)
-                        .build()
-                )
-                .setEnumField(
-                    Property.Builder<TestEnum>()
-                        .setPossibleValues(TestEnum.VALUE_1, TestEnum.VALUE_2)
-                        .setRequired(true)
-                        .build()
-                )
-                .build()
+        val property = mapOf(
+            "required" to
+                Property.Builder<StringValue>()
+                    .setRequired(true)
+                    .build(),
+            "optionalEnum" to Property.Builder<TestEnum>()
+                .setPossibleValues(TestEnum.VALUE_1, TestEnum.VALUE_2)
+                .setRequired(true)
+                .build(),
+        )
         val capability: Capability =
             createCapability(
                 property,
@@ -736,11 +717,16 @@ class TaskCapabilityImplTest {
     @kotlin.Throws(Exception::class)
     @Suppress("DEPRECATION") // TODO(b/269638788) migrate session state to AppDialogState message
     fun identifierOnly_refillsStruct() = runBlocking<Unit> {
-        val property: CapabilityStructFill.Properties =
-            CapabilityStructFill.Properties.newBuilder()
-                .setListItem(Property.Builder<ListItem>().setRequired(true).build())
-                .setAnyString(Property.Builder<StringValue>().setRequired(true).build())
-                .build()
+        val property = mapOf(
+            "listItem" to Property.Builder<
+                ListItem,
+                >()
+                .setRequired(true)
+                .build(),
+            "anyString" to Property.Builder<StringValue>()
+                .setRequired(true)
+                .build(),
+        )
         val item1: ListItem = ListItem.Builder().setName("red apple").setIdentifier("item1").build()
         val item2: ListItem =
             ListItem.Builder().setName("green apple").setIdentifier("item2").build()
@@ -749,7 +735,7 @@ class TaskCapabilityImplTest {
         val onExecuteStringDeferred = CompletableDeferred<String>()
 
         val sessionFactory:
-            (hostProperties: HostProperties?) -> CapabilityStructFill.ExecutionSession =
+                (hostProperties: HostProperties?) -> CapabilityStructFill.ExecutionSession =
             { _ ->
                 object : CapabilityStructFill.ExecutionSession {
                     override suspend fun onExecute(
@@ -788,7 +774,7 @@ class TaskCapabilityImplTest {
                 TaskHandler.Builder<Void>()
                     .registerAppEntityTaskParam(
                         "listItem",
-                        session.getListItemListener(),
+                        session.listItemListener,
                         ParamValueConverter.of(LIST_ITEM_TYPE_SPEC),
                         EntityConverter.of(LIST_ITEM_TYPE_SPEC)::convert,
                         getTrivialSearchActionConverter()
@@ -938,10 +924,10 @@ class TaskCapabilityImplTest {
         assertThat(
             callback.receiveResponse()
                 .fulfillmentResponse!!
-                .getExecutionOutput()
-                .getOutputValuesList()
+                .executionOutput
+                .outputValuesList
         )
-            .containsExactlyElementsIn(expectedOutput.getOutputValuesList())
+            .containsExactlyElementsIn(expectedOutput.outputValuesList)
     }
 
     @Test
@@ -980,7 +966,6 @@ class TaskCapabilityImplTest {
     class CapabilityBuilder :
         Capability.Builder<
             CapabilityBuilder,
-            Properties,
             Arguments,
             Output,
             Confirmation,
@@ -994,10 +979,6 @@ class TaskCapabilityImplTest {
         override val sessionBridge: SessionBridge<ExecutionSession, Confirmation> = SessionBridge {
             TaskHandler.Builder<Confirmation>().build()
         }
-
-        public override fun setExecutionSessionFactory(
-            sessionFactory: (hostProperties: HostProperties?) -> ExecutionSession,
-        ): CapabilityBuilder = super.setExecutionSessionFactory(sessionFactory)
     }
 
     companion object {
@@ -1054,37 +1035,55 @@ class TaskCapabilityImplTest {
                     return ParamValue.newBuilder().build()
                 }
             }
-        private val ACTION_SPEC: ActionSpec<Properties, Arguments, Output> =
+        private val ACTION_SPEC: ActionSpec<Arguments, Output> =
             ActionSpecBuilder.ofCapabilityNamed(
                 CAPABILITY_NAME
             )
-                .setDescriptor(Properties::class.java)
                 .setArguments(Arguments::class.java, Arguments::newBuilder)
                 .setOutput(Output::class.java)
                 .bindParameter(
                     "required",
-                    Properties::requiredStringField,
+                    { properties ->
+                        properties["required"]
+                            as
+                            Property<StringValue>?
+                    },
                     Arguments.Builder::setRequiredStringField,
                     TypeConverters.STRING_PARAM_VALUE_CONVERTER,
                     TypeConverters.STRING_VALUE_ENTITY_CONVERTER
                 )
                 .bindOptionalParameter(
                     "optional",
-                    Properties::optionalStringField,
+                    { properties ->
+                        properties["optional"]
+                            ?.let { it as Property<StringValue> }
+                            ?.let { Optional.of(it) }
+                            ?: Optional.ofNullable(null)
+                    },
                     Arguments.Builder::setOptionalStringField,
                     TypeConverters.STRING_PARAM_VALUE_CONVERTER,
                     TypeConverters.STRING_VALUE_ENTITY_CONVERTER
                 )
                 .bindOptionalParameter(
                     "optionalEnum",
-                    Properties::enumField,
+                    { properties ->
+                        properties["optionalEnum"]
+                            ?.let { it as Property<TestEnum> }
+                            ?.let { Optional.of(it) }
+                            ?: Optional.ofNullable(null)
+                    },
                     Arguments.Builder::setEnumField,
                     ENUM_CONVERTER,
                     { Entity.newBuilder().setIdentifier(it.toString()).build() }
                 )
                 .bindRepeatedParameter(
                     "repeated",
-                    Properties::repeatedStringField,
+                    { properties ->
+                        properties["repeated"]
+                            ?.let { it as Property<StringValue> }
+                            ?.let { Optional.of(it) }
+                            ?: Optional.ofNullable(null)
+                    },
                     Arguments.Builder::setRepeatedStringField,
                     TypeConverters.STRING_PARAM_VALUE_CONVERTER,
                     TypeConverters.STRING_VALUE_ENTITY_CONVERTER
@@ -1101,26 +1100,23 @@ class TaskCapabilityImplTest {
                 )
                 .build()
 
-        private val SINGLE_REQUIRED_FIELD_PROPERTY: Properties =
-            Properties.newBuilder()
-                .setRequiredStringField(
-                    Property.Builder<StringValue>()
-                        .setRequired(true)
-                        .build()
-                )
+        private val SINGLE_REQUIRED_FIELD_PROPERTY = mapOf(
+            "required" to Property.Builder<StringValue>()
+                .setRequired(true)
                 .build()
+        )
 
         private fun getCurrentValues(
             argName: String,
             appDialogState: AppDialogState
         ): List<CurrentValue> {
             return appDialogState
-                .getParamsList()
+                .paramsList
                 .stream()
-                .filter { dialogParam -> dialogParam.getName().equals(argName) }
+                .filter { dialogParam -> dialogParam.name.equals(argName) }
                 .findFirst()
                 .orElse(DialogParameter.getDefaultInstance())
-                .getCurrentValueList()
+                .currentValueList
         }
 
         /**
@@ -1128,12 +1124,11 @@ class TaskCapabilityImplTest {
          * etc., defined under ../../testing/spec
          */
         private fun <SessionUpdaterT : AbstractTaskUpdater> createCapability(
-            property: Properties,
+            property: Map<String, Property<*>>,
             sessionFactory: (hostProperties: HostProperties?) -> ExecutionSession,
             sessionBridge: SessionBridge<ExecutionSession, Confirmation>,
             sessionUpdaterSupplier: Supplier<SessionUpdaterT>
         ): TaskCapabilityImpl<
-            Properties,
             Arguments,
             Output,
             ExecutionSession,

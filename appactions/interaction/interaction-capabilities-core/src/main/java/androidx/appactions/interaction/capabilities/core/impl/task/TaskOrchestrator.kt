@@ -58,7 +58,7 @@ import kotlinx.coroutines.isActive
  */
 internal class TaskOrchestrator<ArgumentsT, OutputT, ConfirmationT>(
     private val sessionId: String,
-    private val actionSpec: ActionSpec<*, ArgumentsT, OutputT>,
+    private val actionSpec: ActionSpec<ArgumentsT, OutputT>,
     private val appAction: AppActionsContext.AppAction,
     private val taskHandler: TaskHandler<ConfirmationT>,
     private val externalSession: BaseExecutionSession<ArgumentsT, OutputT>,
