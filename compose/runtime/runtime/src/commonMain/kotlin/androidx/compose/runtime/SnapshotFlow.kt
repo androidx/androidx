@@ -19,17 +19,16 @@
 package androidx.compose.runtime
 
 import androidx.compose.runtime.snapshots.Snapshot
+import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.EmptyCoroutineContext
+import kotlin.jvm.JvmMultifileClass
+import kotlin.jvm.JvmName
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.withContext
-import kotlin.coroutines.CoroutineContext
-import kotlin.coroutines.EmptyCoroutineContext
-// Explicit imports for these needed in common source sets.
-import kotlin.jvm.JvmName
-import kotlin.jvm.JvmMultifileClass
 
 /**
  * Collects values from this [StateFlow] and represents its latest value via [State].

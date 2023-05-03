@@ -27,9 +27,8 @@ import androidx.compose.runtime.snapshots.current
 import androidx.compose.runtime.snapshots.newWritableRecord
 import androidx.compose.runtime.snapshots.sync
 import androidx.compose.runtime.snapshots.withCurrent
-// Explicit imports for these needed in common source sets.
-import kotlin.jvm.JvmName
 import kotlin.jvm.JvmMultifileClass
+import kotlin.jvm.JvmName
 import kotlin.math.min
 
 /**
