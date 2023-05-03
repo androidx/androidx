@@ -33,6 +33,7 @@ import android.graphics.Bitmap;
 import android.graphics.ImageFormat;
 import android.graphics.Matrix;
 import android.graphics.Rect;
+import android.os.Build;
 import android.provider.MediaStore;
 import android.util.Rational;
 import android.util.Size;
@@ -99,6 +100,9 @@ public class ImageCaptureTest {
 
     @Before
     public void setup() {
+        assumeFalse("See b/152082918, Wembley Api30 has a libjpeg issue which causes"
+                        + " the test failure.",
+                Build.MODEL.equalsIgnoreCase("wembley") && Build.VERSION.SDK_INT <= 30);
         FakeCamera fakeCamera = new FakeCamera("fakeCameraId");
 
         FakeCameraDeviceSurfaceManager fakeCameraDeviceSurfaceManager =
