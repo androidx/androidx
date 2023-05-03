@@ -88,10 +88,10 @@ public object DisconnectReasons {
 }
 
 /**
- * Intended for use by watch face editors, a RemoteWatchFaceViewHost allows the watch face to send
- * a [SurfaceControlViewHost.SurfacePackage] to the client, which the client can attach to a
- * [SurfaceView] with [SurfaceView.setChildSurfacePackage]. The client can request an updated
- * screen shot by calling [renderWatchFace].
+ * Intended for use by watch face editors, a RemoteWatchFaceViewHost allows the watch face to send a
+ * [SurfaceControlViewHost.SurfacePackage] to the client, which the client can attach to a
+ * [SurfaceView] with [SurfaceView.setChildSurfacePackage]. The client can request an updated screen
+ * shot by calling [renderWatchFace].
  */
 public interface RemoteWatchFaceViewHost : AutoCloseable {
     /**
@@ -161,8 +161,7 @@ public interface InteractiveWatchFaceClient : AutoCloseable {
 
     /** Whether or not the watch face supports [RemoteWatchFaceViewHost]. */
     public val isRemoteWatchFaceViewHostSupported: Boolean
-        @get:JvmName("isRemoteWatchFaceViewHostSupported")
-        get() = false
+        @get:JvmName("isRemoteWatchFaceViewHostSupported") get() = false
 
     /**
      * Constructs a [RemoteWatchFaceViewHost] whose [RemoteWatchFaceViewHost.surfacePackage] can be
@@ -180,7 +179,7 @@ public interface InteractiveWatchFaceClient : AutoCloseable {
      * @param width The width of the view in pixels
      * @param height The height of the view in pixels
      * @return The [RemoteWatchFaceViewHost] or null if the client has already been closed or if the
-     * watch face is not compatible.
+     *   watch face is not compatible.
      */
     @Throws(RemoteException::class)
     @RequiresApi(Build.VERSION_CODES.R)
@@ -217,9 +216,7 @@ public interface InteractiveWatchFaceClient : AutoCloseable {
     /**
      * Renames this instance to [newInstanceId] (must be unique, usually this would be different
      * from the old ID but that's not a requirement). Sets the current [UserStyle] represented as a
-     * [UserStyleData> and clears any complication data. Setting the new UserStyle may have a side
-     * effect of enabling or disabling complicationSlots, which will be visible via
-     * [ComplicationSlotState.isEnabled].
+     * [UserStyleData> and clears any complication data. Setting the new UserStyle may have a side effect of enabling or disabling complicationSlots, which will be visible via [ComplicationSlotState.isEnabled].
      */
     @Throws(RemoteException::class)
     public fun updateWatchFaceInstance(newInstanceId: String, userStyle: UserStyleData)

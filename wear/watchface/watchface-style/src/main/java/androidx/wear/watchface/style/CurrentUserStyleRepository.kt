@@ -716,10 +716,7 @@ public class CurrentUserStyleRepository(public val schema: UserStyleSchema) {
      */
     public val userStyle: StateFlow<UserStyle> by CurrentUserStyleRepository::mutableUserStyle
 
-    /**
-     * The UserStyle options must be from the supplied [UserStyleSchema].
-     *
-     */
+    /** The UserStyle options must be from the supplied [UserStyleSchema]. */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun updateUserStyle(newUserStyle: UserStyle) {
         validateUserStyle(newUserStyle)

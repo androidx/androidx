@@ -15,13 +15,13 @@
  */
 package androidx.wear.watchface.complications.datasource
 
-import android.support.wearable.complications.ComplicationData as WireComplicationData
 import android.content.Intent
 import android.content.res.Resources
 import android.os.Bundle
 import android.os.Handler
 import android.os.HandlerThread
 import android.os.RemoteException
+import android.support.wearable.complications.ComplicationData as WireComplicationData
 import android.support.wearable.complications.IComplicationManager
 import android.support.wearable.complications.IComplicationProvider
 import android.util.Log

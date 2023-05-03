@@ -175,6 +175,7 @@ public class MutableWatchState() {
         set(@Px value) {
             field = value
         }
+
     public var isHeadless: Boolean = false
 
     public fun asWatchState(): WatchState =

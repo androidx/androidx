@@ -16,10 +16,10 @@
 
 package androidx.wear.watchface.complications.data
 
-import android.support.wearable.complications.ComplicationData as WireComplicationData
-import android.support.wearable.complications.ComplicationText as WireComplicationText
 import android.icu.util.ULocale
+import android.support.wearable.complications.ComplicationData as WireComplicationData
 import android.support.wearable.complications.ComplicationData
+import android.support.wearable.complications.ComplicationText as WireComplicationText
 import androidx.annotation.MainThread
 import androidx.annotation.RestrictTo
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat

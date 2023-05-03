@@ -435,6 +435,7 @@ class ComplicationData : Parcelable, Serializable {
 
         companion object {
             private const val VERSION_NUMBER = 20
+
             internal fun putIfNotNull(fields: Bundle, field: String, value: Parcelable?) {
                 if (value != null) {
                     fields.putParcelable(field, value)

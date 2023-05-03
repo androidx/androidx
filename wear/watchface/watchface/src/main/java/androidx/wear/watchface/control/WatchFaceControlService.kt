@@ -49,10 +49,7 @@ import java.io.PrintWriter
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.MainScope
 
-/**
- * A service for creating and controlling watch face instances.
- *
- */
+/** A service for creating and controlling watch face instances. */
 @RequiresApi(27)
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public open class WatchFaceControlService : Service() {
