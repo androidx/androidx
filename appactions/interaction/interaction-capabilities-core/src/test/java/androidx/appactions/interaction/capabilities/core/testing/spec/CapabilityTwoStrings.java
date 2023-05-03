@@ -29,22 +29,29 @@ import com.google.auto.value.AutoValue;
 
 import java.util.Optional;
 
+@SuppressWarnings("unchecked")
 public final class CapabilityTwoStrings {
-
     private static final String CAPABILITY_NAME = "actions.intent.TEST";
-    public static final ActionSpec<Properties, Arguments, Void> ACTION_SPEC =
+    public static final ActionSpec<Arguments, Void> ACTION_SPEC =
             ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
-                    .setDescriptor(Properties.class)
                     .setArguments(Arguments.class, Arguments::newBuilder)
                     .bindOptionalParameter(
                             "stringSlotA",
-                            Properties::stringSlotA,
+                            properties -> {
+                                return Optional.ofNullable(
+                                        (Property<StringValue>) properties.get("stringSlotA")
+                                );
+                            },
                             Arguments.Builder::setStringSlotA,
                             TypeConverters.STRING_PARAM_VALUE_CONVERTER,
                             TypeConverters.STRING_VALUE_ENTITY_CONVERTER)
                     .bindOptionalParameter(
                             "stringSlotB",
-                            Properties::stringSlotB,
+                            properties -> {
+                                return Optional.ofNullable(
+                                        (Property<StringValue>) properties.get("stringSlotB")
+                                );
+                            },
                             Arguments.Builder::setStringSlotB,
                             TypeConverters.STRING_PARAM_VALUE_CONVERTER,
                             TypeConverters.STRING_VALUE_ENTITY_CONVERTER)

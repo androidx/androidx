@@ -16,8 +16,8 @@
 
 package androidx.appactions.interaction.capabilities.fitness.fitness
 
-import androidx.appactions.interaction.capabilities.core.Capability
 import androidx.appactions.interaction.capabilities.core.BaseExecutionSession
+import androidx.appactions.interaction.capabilities.core.Capability
 import androidx.appactions.interaction.capabilities.core.CapabilityFactory
 import androidx.appactions.interaction.capabilities.core.impl.BuilderOf
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
@@ -30,24 +30,34 @@ import java.util.Optional
 private const val CAPABILITY_NAME = "actions.intent.START_EXERCISE"
 
 // TODO(b/273602015): Update to use Name property from builtintype library.
+@Suppress("UNCHECKED_CAST")
 private val ACTION_SPEC =
     ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
-        .setDescriptor(GetExerciseObservation.Properties::class.java)
         .setArguments(
             GetExerciseObservation.Arguments::class.java,
             GetExerciseObservation.Arguments::Builder
         )
         .setOutput(GetExerciseObservation.Output::class.java)
         .bindOptionalParameter(
-            "healthObservation.startTime",
-            { property -> Optional.ofNullable(property.startTime) },
+            "exerciseObservation.startTime",
+            { properties ->
+                Optional.ofNullable(
+                    properties[GetExerciseObservation.PropertyMapStrings.START_TIME.key]
+                        as Property<LocalTime>
+                )
+            },
             GetExerciseObservation.Arguments.Builder::setStartTime,
             TypeConverters.LOCAL_TIME_PARAM_VALUE_CONVERTER,
             TypeConverters.LOCAL_TIME_ENTITY_CONVERTER
         )
         .bindOptionalParameter(
-            "healthObservation.endTime",
-            { property -> Optional.ofNullable(property.endTime) },
+            "exerciseObservation.endTime",
+            { properties ->
+                Optional.ofNullable(
+                    properties[GetExerciseObservation.PropertyMapStrings.END_TIME.key]
+                        as Property<LocalTime>
+                )
+            },
             GetExerciseObservation.Arguments.Builder::setEndTime,
             TypeConverters.LOCAL_TIME_PARAM_VALUE_CONVERTER,
             TypeConverters.LOCAL_TIME_ENTITY_CONVERTER
@@ -56,64 +66,26 @@ private val ACTION_SPEC =
 
 @CapabilityFactory(name = CAPABILITY_NAME)
 class GetExerciseObservation private constructor() {
-    class CapabilityBuilder :
-        Capability.Builder<
-            CapabilityBuilder, Properties, Arguments, Output, Confirmation, ExecutionSession
-            >(ACTION_SPEC) {
-        private var propertyBuilder: Properties.Builder = Properties.Builder()
-        fun setStartTimeProperty(startTime: Property<LocalTime>): CapabilityBuilder = apply {
-            propertyBuilder.setEndTime(startTime)
-        }
-
-        fun setEndTimeProperty(endTime: Property<LocalTime>): CapabilityBuilder = apply {
-            propertyBuilder.setEndTime(endTime)
-        }
-
-        override fun build(): Capability {
-            // TODO(b/268369632): Clean this up after Property is removed
-            super.setProperty(propertyBuilder.build())
-            return super.build()
-        }
+    internal enum class PropertyMapStrings(val key: String) {
+        START_TIME("exerciseObservation.startTime"),
+        END_TIME("exerciseObservation.endTime"),
     }
 
-    // TODO(b/268369632): Remove Property from public capability APIs.
-    class Properties internal constructor(
-        val startTime: Property<LocalTime>?,
-        val endTime: Property<LocalTime>?
-    ) {
-        override fun toString(): String {
-            return "Property(startTime=$startTime, endTime=$endTime)"
-        }
+    class CapabilityBuilder :
+        Capability.Builder<
+            CapabilityBuilder, Arguments, Output, Confirmation, ExecutionSession
+            >(ACTION_SPEC) {
+        private var properties = mutableMapOf<String, Property<*>>()
 
-        override fun equals(other: Any?): Boolean {
-            if (this === other) return true
-            if (javaClass !== other?.javaClass) return false
+        fun setStartTime(startTime: Property<LocalTime>): CapabilityBuilder =
+            apply { properties[PropertyMapStrings.START_TIME.key] = startTime }
 
-            other as Properties
+        fun setEndTime(endTime: Property<LocalTime>): CapabilityBuilder =
+            apply { properties[PropertyMapStrings.END_TIME.key] = endTime }
 
-            if (startTime != other.startTime) return false
-            if (endTime != other.endTime) return false
-
-            return true
-        }
-
-        override fun hashCode(): Int {
-            var result = startTime.hashCode()
-            result += 31 * endTime.hashCode()
-            return result
-        }
-
-        class Builder {
-            private var startTime: Property<LocalTime>? = null
-            private var endTime: Property<LocalTime>? = null
-
-            fun setStartTime(startTime: Property<LocalTime>): Builder =
-                apply { this.startTime = startTime }
-
-            fun setEndTime(endTime: Property<LocalTime>): Builder =
-                apply { this.endTime = endTime }
-
-            fun build(): Properties = Properties(startTime, endTime)
+        override fun build(): Capability {
+            super.setProperty(properties)
+            return super.build()
         }
     }
 

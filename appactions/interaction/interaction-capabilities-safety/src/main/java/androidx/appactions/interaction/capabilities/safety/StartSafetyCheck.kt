@@ -21,8 +21,8 @@ import androidx.appactions.builtintypes.experimental.types.GenericErrorStatus
 import androidx.appactions.builtintypes.experimental.types.NoInternetConnection
 import androidx.appactions.builtintypes.experimental.types.SafetyCheck
 import androidx.appactions.builtintypes.experimental.types.SuccessStatus
-import androidx.appactions.interaction.capabilities.core.Capability
 import androidx.appactions.interaction.capabilities.core.BaseExecutionSession
+import androidx.appactions.interaction.capabilities.core.Capability
 import androidx.appactions.interaction.capabilities.core.impl.BuilderOf
 import androidx.appactions.interaction.capabilities.core.impl.converters.ParamValueConverter
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
@@ -42,21 +42,31 @@ import java.util.Optional
 /** StartSafetyCheck.kt in interaction-capabilities-safety */
 private const val CAPABILITY_NAME = "actions.intent.START_SAFETY_CHECK"
 
+@Suppress("UNCHECKED_CAST")
 private val ACTION_SPEC =
     ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
-        .setDescriptor(StartSafetyCheck.Properties::class.java)
         .setArguments(StartSafetyCheck.Arguments::class.java, StartSafetyCheck.Arguments::Builder)
         .setOutput(StartSafetyCheck.Output::class.java)
         .bindOptionalParameter(
             "safetyCheck.duration",
-            { property -> Optional.ofNullable(property.duration) },
+            { properties ->
+                Optional.ofNullable(
+                    properties[StartSafetyCheck.PropertyMapStrings.DURATION.key]
+                        as Property<Duration>
+                )
+            },
             StartSafetyCheck.Arguments.Builder::setDuration,
             TypeConverters.DURATION_PARAM_VALUE_CONVERTER,
             TypeConverters.DURATION_ENTITY_CONVERTER
         )
         .bindOptionalParameter(
             "safetyCheck.checkInTime",
-            { property -> Optional.ofNullable(property.checkInTime) },
+            { property ->
+                Optional.ofNullable(
+                    property[StartSafetyCheck.PropertyMapStrings.CHECK_IN_TIME.key]
+                        as Property<ZonedDateTime>
+                )
+            },
             StartSafetyCheck.Arguments.Builder::setCheckInTime,
             TypeConverters.ZONED_DATETIME_PARAM_VALUE_CONVERTER,
             TypeConverters.ZONED_DATETIME_ENTITY_CONVERTER
@@ -75,57 +85,27 @@ private val ACTION_SPEC =
 
 // TODO(b/267806701): Add capability factory annotation once the testing library is fully migrated.
 class StartSafetyCheck private constructor() {
+    internal enum class PropertyMapStrings(val key: String) {
+        DURATION("safetycheck.duration"),
+        CHECK_IN_TIME("safetycheck.checkInTime"),
+    }
+
     // TODO(b/267805819): Update to include the SessionFactory once Session API is ready.
     class CapabilityBuilder :
         Capability.Builder<
-            CapabilityBuilder, Properties, Arguments, Output, Confirmation, ExecutionSession
+            CapabilityBuilder, Arguments, Output, Confirmation, ExecutionSession
             >(ACTION_SPEC) {
+        private var properties = mutableMapOf<String, Property<*>>()
+
+        fun setDuration(duration: Property<Duration>): CapabilityBuilder =
+            apply { properties[PropertyMapStrings.DURATION.key] = duration }
+
+        fun setCheckInTime(checkInTime: Property<ZonedDateTime>): CapabilityBuilder =
+            apply { properties[PropertyMapStrings.CHECK_IN_TIME.key] = checkInTime }
+
         override fun build(): Capability {
-            // TODO(b/268369632): No-op remove empty property builder after Property od removed
-            super.setProperty(Properties.Builder().build())
+            super.setProperty(properties)
             return super.build()
-        }
-    }
-
-    // TODO(b/268369632): Remove Property from public capability APIs.
-    class Properties internal constructor(
-        val duration: Property<Duration>?,
-        val checkInTime: Property<ZonedDateTime>?
-    ) {
-        override fun toString(): String {
-            return "Property(duration=$duration, checkInTime=$checkInTime)"
-        }
-
-        override fun equals(other: Any?): Boolean {
-            if (this === other) return true
-            if (javaClass != other?.javaClass) return false
-
-            other as Properties
-
-            if (duration != other.duration) return false
-            if (checkInTime != other.checkInTime) return false
-
-            return true
-        }
-
-        override fun hashCode(): Int {
-            var result = duration.hashCode()
-            result = 31 * result + checkInTime.hashCode()
-            return result
-        }
-
-        class Builder {
-            private var duration: Property<Duration>? = null
-
-            private var checkInTime: Property<ZonedDateTime>? = null
-
-            fun setDuration(duration: Property<Duration>): Builder =
-                apply { this.duration = duration }
-
-            fun setCheckInTime(checkInTime: Property<ZonedDateTime>): Builder =
-                apply { this.checkInTime = checkInTime }
-
-            fun build(): Properties = Properties(duration, checkInTime)
         }
     }
 

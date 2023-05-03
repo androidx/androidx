@@ -18,8 +18,8 @@ package androidx.appactions.interaction.capabilities.productivity
 
 import androidx.appactions.builtintypes.experimental.types.GenericErrorStatus
 import androidx.appactions.builtintypes.experimental.types.SuccessStatus
-import androidx.appactions.interaction.capabilities.core.Capability
 import androidx.appactions.interaction.capabilities.core.BaseExecutionSession
+import androidx.appactions.interaction.capabilities.core.Capability
 import androidx.appactions.interaction.capabilities.core.impl.BuilderOf
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
@@ -32,14 +32,19 @@ import java.util.Optional
 /** StopTimer.kt in interaction-capabilities-productivity */
 private const val CAPABILITY_NAME = "actions.intent.STOP_TIMER"
 
+@Suppress("UNCHECKED_CAST")
 private val ACTION_SPEC =
     ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
-        .setDescriptor(StopTimer.Properties::class.java)
         .setArguments(StopTimer.Arguments::class.java, StopTimer.Arguments::Builder)
         .setOutput(StopTimer.Output::class.java)
         .bindRepeatedParameter(
             "timer",
-            { property -> Optional.ofNullable(property.timerList) },
+            { properties ->
+                Optional.ofNullable(
+                    properties[StopTimer.PropertyMapStrings.TIMER_LIST.key]
+                        as Property<TimerValue>
+                )
+            },
             StopTimer.Arguments.Builder::setTimerList,
             TimerValue.PARAM_VALUE_CONVERTER,
             TimerValue.ENTITY_CONVERTER
@@ -53,46 +58,26 @@ private val ACTION_SPEC =
 
 // TODO(b/267806701): Add capability factory annotation once the testing library is fully migrated.
 class StopTimer private constructor() {
+    internal enum class PropertyMapStrings(val key: String) {
+        TIMER_LIST("timer.timerList"),
+    }
 
     class CapabilityBuilder :
         Capability.Builder<
-            CapabilityBuilder, Properties, Arguments, Output, Confirmation, ExecutionSession
+            CapabilityBuilder,
+            Arguments,
+            Output,
+            Confirmation,
+            ExecutionSession
             >(ACTION_SPEC) {
+        private var properties = mutableMapOf<String, Property<*>>()
+
+        fun setTimerList(timerList: Property<TimerValue>): CapabilityBuilder =
+            apply { properties[PropertyMapStrings.TIMER_LIST.key] = timerList }
+
         override fun build(): Capability {
-            super.setProperty(Properties.Builder().build())
+            super.setProperty(properties)
             return super.build()
-        }
-    }
-
-    // TODO(b/268369632): Remove Property from public capability APIs.
-    class Properties internal constructor(val timerList: Property<TimerValue>?) {
-        override fun toString(): String {
-            return "Property(timerList=$timerList}"
-        }
-
-        override fun equals(other: Any?): Boolean {
-            if (this === other) return true
-            if (javaClass != other?.javaClass) return false
-
-            other as Properties
-
-            if (timerList != other.timerList) return false
-
-            return true
-        }
-
-        override fun hashCode(): Int {
-            return timerList.hashCode()
-        }
-
-        class Builder {
-            private var timerList: Property<TimerValue>? = null
-
-            fun setTimerList(timerList: Property<TimerValue>): Builder = apply {
-                this.timerList = timerList
-            }
-
-            fun build(): Properties = Properties(timerList)
         }
     }
 

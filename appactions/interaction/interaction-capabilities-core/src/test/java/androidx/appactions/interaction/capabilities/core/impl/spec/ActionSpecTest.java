@@ -38,32 +38,46 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
-@RunWith(JUnit4.class)
-public final class ActionSpecTest {
 
-    private static final ActionSpec<Properties, Arguments, Output> ACTION_SPEC =
+@RunWith(JUnit4.class)
+@SuppressWarnings("unchecked")
+public final class ActionSpecTest {
+    private static final ActionSpec<Arguments, Output> ACTION_SPEC =
             ActionSpecBuilder.ofCapabilityNamed("actions.intent.TEST")
-                    .setDescriptor(Properties.class)
                     .setArguments(Arguments.class, Arguments::newBuilder)
                     .setOutput(Output.class)
                     .bindParameter(
                             "requiredString",
-                            Properties::requiredStringField,
+                            properties ->
+                            {
+                                return (Property<StringValue>) (properties.get(
+                                        "requiredString"));
+                            },
                             Arguments.Builder::setRequiredStringField,
                             TypeConverters.STRING_PARAM_VALUE_CONVERTER,
                             TypeConverters.STRING_VALUE_ENTITY_CONVERTER)
                     .bindOptionalParameter(
                             "optionalString",
-                            Properties::optionalStringField,
+                            properties ->
+                            {
+                                return Optional.ofNullable((Property<StringValue>) (properties.get(
+                                        "optionalString")));
+                            },
                             Arguments.Builder::setOptionalStringField,
                             TypeConverters.STRING_PARAM_VALUE_CONVERTER,
                             TypeConverters.STRING_VALUE_ENTITY_CONVERTER)
                     .bindRepeatedParameter(
                             "repeatedString",
-                            Properties::repeatedStringField,
+                            properties ->
+                            {
+                                return Optional.ofNullable((Property<StringValue>) (properties.get(
+                                        "repeatedString")));
+                            },
                             Arguments.Builder::setRepeatedStringField,
                             TypeConverters.STRING_PARAM_VALUE_CONVERTER,
                             TypeConverters.STRING_VALUE_ENTITY_CONVERTER)
@@ -96,49 +110,61 @@ public final class ActionSpecTest {
                             .setName(theString)
                             .build();
 
-    private static final ActionSpec<GenericEntityProperty, GenericEntityArguments, Output>
+    private static final ActionSpec<GenericEntityArguments, Output>
             GENERIC_TYPES_ACTION_SPEC =
-                    ActionSpecBuilder.ofCapabilityNamed("actions.intent.TEST")
-                            .setDescriptor(GenericEntityProperty.class)
-                            .setArguments(GenericEntityArguments.class,
-                                    GenericEntityArguments::newBuilder)
-                            .setOutput(Output.class)
-                            .bindParameter(
-                                    "requiredEntity",
-                                    GenericEntityProperty::singularField,
-                                    GenericEntityArguments.Builder::setSingularField,
-                                    STRING_PARAM_VALUE_CONVERTER,
-                                    STRING_ENTITY_CONVERTER)
-                            .bindOptionalParameter("optionalEntity",
-                                    GenericEntityProperty::optionalField,
-                                    GenericEntityArguments.Builder::setOptionalField,
-                                    STRING_PARAM_VALUE_CONVERTER,
-                                    STRING_ENTITY_CONVERTER)
-                            .bindRepeatedParameter("repeatedEntities",
-                                    GenericEntityProperty::repeatedField,
-                                    GenericEntityArguments.Builder::setRepeatedField,
-                                    STRING_PARAM_VALUE_CONVERTER,
-                                    STRING_ENTITY_CONVERTER)
-                            .build();
+            ActionSpecBuilder.ofCapabilityNamed("actions.intent.TEST")
+                    .setArguments(GenericEntityArguments.class,
+                            GenericEntityArguments::newBuilder)
+                    .setOutput(Output.class)
+                    .bindParameter(
+                            "requiredEntity",
+                            properties ->
+                            {
+                                return (Property<String>) (properties.get(
+                                        "requiredEntity"));
+                            },
+                            GenericEntityArguments.Builder::setSingularField,
+                            STRING_PARAM_VALUE_CONVERTER,
+                            STRING_ENTITY_CONVERTER)
+                    .bindOptionalParameter("optionalEntity",
+                            properties ->
+                            {
+                                return Optional.of((Property<String>) (properties.get(
+                                        "optionalEntity")));
+                            },
+                            GenericEntityArguments.Builder::setOptionalField,
+                            STRING_PARAM_VALUE_CONVERTER,
+                            STRING_ENTITY_CONVERTER)
+                    .bindRepeatedParameter("repeatedEntities",
+                            properties ->
+                            {
+                                return Optional.of((Property<String>) (properties.get(
+                                        "repeatedEntities")));
+                            },
+                            GenericEntityArguments.Builder::setRepeatedField,
+                            STRING_PARAM_VALUE_CONVERTER,
+                            STRING_ENTITY_CONVERTER)
+                    .build();
 
     @Test
     public void getAppAction_genericParameters() {
-        GenericEntityProperty property =
-                GenericEntityProperty.create(
-                        new Property.Builder<String>()
-                                .setRequired(true)
-                                .setPossibleValues("one")
-                                .build(),
-                        Optional.of(
-                                new Property.Builder<String>()
-                                        .setRequired(true)
-                                        .setPossibleValues("two")
-                                        .build()),
-                        Optional.of(
-                                new Property.Builder<String>()
-                                        .setRequired(true)
-                                        .setPossibleValues("three")
-                                        .build()));
+        Map<String, Property<?>> property = new HashMap<>();
+        property.put("requiredEntity",
+                new Property.Builder<String>()
+                        .setRequired(true)
+                        .setPossibleValues("one")
+                        .build());
+        property.put("optionalEntity",
+                new Property.Builder<String>()
+                        .setRequired(true)
+                        .setPossibleValues("two")
+                        .build()
+        );
+        property.put("repeatedEntities",
+                new Property.Builder<String>()
+                        .setRequired(true)
+                        .setPossibleValues("three")
+                        .build());
 
         assertThat(GENERIC_TYPES_ACTION_SPEC.convertPropertyToProto(property))
                 .isEqualTo(
@@ -176,12 +202,12 @@ public final class ActionSpecTest {
 
     @Test
     public void getAppAction_onlyRequiredProperty() {
-        Properties property =
-                Properties.create(
-                        new Property.Builder<StringValue>()
-                                .setPossibleValues(StringValue.of("Donald"))
-                                .setValueMatchRequired(true)
-                                .build());
+        Map<String, Property<?>> property = new HashMap<>();
+        property.put("requiredString",
+                new Property.Builder<StringValue>()
+                        .setPossibleValues(StringValue.of("Donald"))
+                        .setValueMatchRequired(true)
+                        .build());
 
         assertThat(ACTION_SPEC.convertPropertyToProto(property))
                 .isEqualTo(
@@ -201,21 +227,16 @@ public final class ActionSpecTest {
 
     @Test
     public void getAppAction_allProperties() {
-        Properties property =
-                Properties.create(
-                        Optional.of(
-                                new Property.Builder<TestEnum>()
-                                        .setPossibleValues(TestEnum.VALUE_1)
-                                        .setRequired(true)
-                                        .build()),
-                        new Property.Builder<StringValue>().build(),
-                        Optional.of(
-                                new Property.Builder<StringValue>()
-                                        .setPossibleValues(StringValue.of("value1"))
-                                        .setValueMatchRequired(true)
-                                        .setRequired(true)
-                                        .build()),
-                        Optional.of(Property.prohibited()));
+        Map<String, Property<?>> property = new HashMap<>();
+        property.put("requiredString",
+                new Property.Builder<StringValue>().build());
+        property.put("optionalString",
+                new Property.Builder<StringValue>()
+                        .setPossibleValues(StringValue.of("value1"))
+                        .setValueMatchRequired(true)
+                        .setRequired(true)
+                        .build());
+        property.put("repeatedString", Property.prohibited());
 
         assertThat(ACTION_SPEC.convertPropertyToProto(property))
                 .isEqualTo(

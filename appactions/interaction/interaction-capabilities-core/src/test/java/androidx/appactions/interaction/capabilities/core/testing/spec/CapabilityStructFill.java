@@ -36,22 +36,30 @@ import com.google.auto.value.AutoValue;
 import java.util.Optional;
 
 /** Used to test the filling behavior of structured entities (e.g. ListItem) */
+@SuppressWarnings("unchecked")
 public final class CapabilityStructFill {
 
     private static final String CAPABILITY_NAME = "actions.intent.TEST";
-    public static final ActionSpec<Properties, Arguments, Void> ACTION_SPEC =
+    public static final ActionSpec<Arguments, Void> ACTION_SPEC =
             ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
-                    .setDescriptor(Properties.class)
                     .setArguments(Arguments.class, Arguments::newBuilder)
                     .bindOptionalParameter(
                             "listItem",
-                            Properties::listItem,
+                            properties ->
+                            {
+                                return Optional.ofNullable((Property<ListItem>) (properties.get(
+                                        "listItem")));
+                            },
                             Arguments.Builder::setListItem,
                             ParamValueConverter.Companion.of(LIST_ITEM_TYPE_SPEC),
                             EntityConverter.Companion.of(LIST_ITEM_TYPE_SPEC)::convert)
                     .bindOptionalParameter(
                             "string",
-                            Properties::anyString,
+                            properties ->
+                            {
+                                return Optional.ofNullable((Property<StringValue>) (properties.get(
+                                        "anyString")));
+                            },
                             Arguments.Builder::setAnyString,
                             TypeConverters.STRING_PARAM_VALUE_CONVERTER,
                             TypeConverters.STRING_VALUE_ENTITY_CONVERTER)

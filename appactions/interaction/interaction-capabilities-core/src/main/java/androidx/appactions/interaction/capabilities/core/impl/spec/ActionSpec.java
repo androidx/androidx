@@ -18,6 +18,7 @@ package androidx.appactions.interaction.capabilities.core.impl.spec;
 
 import androidx.annotation.NonNull;
 import androidx.appactions.interaction.capabilities.core.impl.exceptions.StructConversionException;
+import androidx.appactions.interaction.capabilities.core.properties.Property;
 import androidx.appactions.interaction.proto.AppActionsContext.AppAction;
 import androidx.appactions.interaction.proto.FulfillmentResponse.StructuredOutput;
 import androidx.appactions.interaction.proto.ParamValue;
@@ -28,15 +29,15 @@ import java.util.Map;
 /**
  * A specification for an action, describing it from the app's point of view.
  *
- * @param <PropertyT> typed description of action's characteristics.
  * @param <ArgumentsT> typed representation of action's arguments.
- * @param <OutputT>   typed action's execution output.
+ * @param <OutputT>    typed action's execution output.
  */
-public interface ActionSpec<PropertyT, ArgumentsT, OutputT> {
+public interface ActionSpec<ArgumentsT, OutputT> {
 
     /** Converts the property to the {@code AppAction} proto. */
     @NonNull
-    AppAction convertPropertyToProto(PropertyT property);
+    AppAction convertPropertyToProto(@NonNull Map<String,
+            Property<?>> property);
 
     /** Builds this action's arguments from an ArgumentsWrapper instance. */
     @NonNull

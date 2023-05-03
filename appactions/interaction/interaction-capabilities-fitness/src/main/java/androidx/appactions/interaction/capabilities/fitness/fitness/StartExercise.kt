@@ -16,14 +16,14 @@
 
 package androidx.appactions.interaction.capabilities.fitness.fitness
 
-import androidx.appactions.interaction.capabilities.core.Capability
 import androidx.appactions.interaction.capabilities.core.BaseExecutionSession
+import androidx.appactions.interaction.capabilities.core.Capability
 import androidx.appactions.interaction.capabilities.core.CapabilityFactory
 import androidx.appactions.interaction.capabilities.core.impl.BuilderOf
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
-import androidx.appactions.interaction.capabilities.core.properties.StringValue
 import androidx.appactions.interaction.capabilities.core.properties.Property
+import androidx.appactions.interaction.capabilities.core.properties.StringValue
 import java.time.Duration
 import java.util.Optional
 
@@ -31,21 +31,31 @@ import java.util.Optional
 private const val CAPABILITY_NAME = "actions.intent.START_EXERCISE"
 
 // TODO(b/273602015): Update to use Name property from builtintype library.
+@Suppress("UNCHECKED_CAST")
 private val ACTION_SPEC =
     ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
-        .setDescriptor(StartExercise.Properties::class.java)
         .setArguments(StartExercise.Arguments::class.java, StartExercise.Arguments::Builder)
         .setOutput(StartExercise.Output::class.java)
         .bindOptionalParameter(
             "exercise.duration",
-            { property -> Optional.ofNullable(property.duration) },
+            { properties ->
+                Optional.ofNullable(
+                    properties[StartExercise.PropertyMapStrings.DURATION.key]
+                        as Property<Duration>
+                )
+            },
             StartExercise.Arguments.Builder::setDuration,
             TypeConverters.DURATION_PARAM_VALUE_CONVERTER,
             TypeConverters.DURATION_ENTITY_CONVERTER
         )
         .bindOptionalParameter(
             "exercise.name",
-            { property -> Optional.ofNullable(property.name) },
+            { properties ->
+                Optional.ofNullable(
+                    properties[StartExercise.PropertyMapStrings.NAME.key]
+                        as Property<StringValue>
+                )
+            },
             StartExercise.Arguments.Builder::setName,
             TypeConverters.STRING_PARAM_VALUE_CONVERTER,
             TypeConverters.STRING_VALUE_ENTITY_CONVERTER
@@ -54,65 +64,30 @@ private val ACTION_SPEC =
 
 @CapabilityFactory(name = CAPABILITY_NAME)
 class StartExercise private constructor() {
-    class CapabilityBuilder :
-        Capability.Builder<
-            CapabilityBuilder, Properties, Arguments, Output, Confirmation, ExecutionSession
-            >(ACTION_SPEC) {
-        fun setDurationProperty(duration: Property<Duration>): CapabilityBuilder =
-            apply {
-                Properties.Builder().setDuration(duration).build()
-            }
-
-        fun setNameProperty(name: Property<StringValue>): CapabilityBuilder =
-            apply {
-                Properties.Builder().setName(name).build()
-            }
-
-        override fun build(): Capability {
-            // TODO(b/268369632): No-op remove empty property builder after Property od removed
-            super.setProperty(Properties.Builder().build())
-            return super.build()
-        }
+    internal enum class PropertyMapStrings(val key: String) {
+        NAME("exercise.name"),
+        DURATION("exercise.duration"),
     }
 
-    // TODO(b/268369632): Remove Property from public capability APIs.
-    class Properties internal constructor(
-        val duration: Property<Duration>?,
-        val name: Property<StringValue>?
-    ) {
-        override fun toString(): String {
-            return "Property(duration=$duration, name=$name)"
-        }
+    class CapabilityBuilder :
+        Capability.Builder<
+            CapabilityBuilder,
+            Arguments,
+            Output,
+            Confirmation,
+            ExecutionSession
+            >(ACTION_SPEC) {
+        private var properties = mutableMapOf<String, Property<*>>()
 
-        override fun equals(other: Any?): Boolean {
-            if (this === other) return true
-            if (javaClass !== other?.javaClass) return false
+        fun setName(name: Property<StringValue>): CapabilityBuilder =
+            apply { properties[PropertyMapStrings.NAME.key] = name }
 
-            other as Properties
+        fun setDuration(duration: Property<Duration>): CapabilityBuilder =
+            apply { properties[PropertyMapStrings.DURATION.key] = duration }
 
-            if (duration != other.duration) return false
-            if (name != other.name) return false
-
-            return true
-        }
-
-        override fun hashCode(): Int {
-            var result = duration.hashCode()
-            result += 31 * name.hashCode()
-            return result
-        }
-
-        class Builder {
-            private var duration: Property<Duration>? = null
-            private var name: Property<StringValue>? = null
-
-            fun setDuration(duration: Property<Duration>): Builder =
-                apply { this.duration = duration }
-
-            fun setName(name: Property<StringValue>): Builder =
-                apply { this.name = name }
-
-            fun build(): Properties = Properties(duration, name)
+        override fun build(): Capability {
+            super.setProperty(properties)
+            return super.build()
         }
     }
 
