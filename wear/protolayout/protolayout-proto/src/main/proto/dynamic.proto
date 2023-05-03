@@ -446,6 +446,12 @@ enum LogicalOpType {
 
   // Logical OR.
   LOGICAL_OP_TYPE_OR = 2;
+
+  // Equal check
+  LOGICAL_OP_TYPE_EQUAL = 3;
+
+  // Not Equal check.
+  LOGICAL_OP_TYPE_NOT_EQUAL = 4;
 }
 
 // A logical boolean operator, implementing "boolean result = LHS <op> RHS",

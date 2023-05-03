@@ -97,8 +97,10 @@ package androidx.wear.protolayout.expression {
   public static interface DynamicBuilders.DynamicBool extends androidx.wear.protolayout.expression.DynamicBuilders.DynamicType {
     method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool and(androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool);
     method public static androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool constant(boolean);
+    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool eq(androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool);
     method public static androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool fromByteArray(byte[]);
     method public static androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool fromState(String);
+    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool ne(androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool);
     method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool negate();
     method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool or(androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool);
     method public default byte[] toDynamicBoolByteArray();
