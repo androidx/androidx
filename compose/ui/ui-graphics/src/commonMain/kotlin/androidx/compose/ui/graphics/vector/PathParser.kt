@@ -139,7 +139,7 @@ class PathParser {
         return this
     }
 
-    fun toNodes(): List<PathNode> = nodes
+    fun toNodes() = nodes
 
     fun toPath(target: Path = Path()) = nodes.toPath(target)
 
@@ -156,7 +156,7 @@ class PathParser {
  * created [Path].
  */
 fun List<PathNode>.toPath(target: Path = Path()): Path {
-    // Rewind unsets the filltype so reset it here
+    // Rewind unsets the fill type so reset it here
     val fillType = target.fillType
     target.rewind()
     target.fillType = fillType
