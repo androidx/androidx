@@ -30,7 +30,6 @@ import androidx.window.core.VerificationMode
 import androidx.window.extensions.area.ExtensionWindowAreaStatus
 import androidx.window.extensions.area.WindowAreaComponent
 import androidx.window.extensions.area.WindowAreaComponent.SESSION_STATE_ACTIVE
-import androidx.window.extensions.area.WindowAreaComponent.SESSION_STATE_CONTENT_INVISIBLE
 import androidx.window.extensions.area.WindowAreaComponent.SESSION_STATE_CONTENT_VISIBLE
 import androidx.window.extensions.area.WindowAreaComponent.SESSION_STATE_INACTIVE
 import androidx.window.extensions.area.WindowAreaComponent.WindowAreaSessionState
@@ -316,22 +315,34 @@ internal class WindowAreaControllerImpl(
         private val windowAreaPresentationSessionCallback: WindowAreaPresentationSessionCallback,
         private val windowAreaComponent: WindowAreaComponent
     ) : Consumer<@WindowAreaSessionState Int> {
+
+        private var lastReportedSessionStatus: @WindowAreaSessionState Int = SESSION_STATE_INACTIVE
         override fun accept(t: @WindowAreaSessionState Int) {
+            val previousStatus: @WindowAreaSessionState Int = lastReportedSessionStatus
+            lastReportedSessionStatus = t
+
             executor.execute {
                 when (t) {
-                    // Presentation should never be null if the session is active
-                    SESSION_STATE_ACTIVE -> windowAreaPresentationSessionCallback.onSessionStarted(
-                        RearDisplayPresentationSessionPresenterImpl(
-                            windowAreaComponent,
-                            windowAreaComponent.rearDisplayPresentation!!
-                        )
-                    )
+                    SESSION_STATE_ACTIVE -> {
+                        // If the last status was visible, then ACTIVE infers the content is no
+                        // longer visible.
+                        if (previousStatus == SESSION_STATE_CONTENT_VISIBLE) {
+                            windowAreaPresentationSessionCallback.onContainerVisibilityChanged(
+                                false /* isVisible */
+                            )
+                        } else {
+                            // Presentation should never be null if the session is active
+                            windowAreaPresentationSessionCallback.onSessionStarted(
+                                RearDisplayPresentationSessionPresenterImpl(
+                                    windowAreaComponent,
+                                    windowAreaComponent.rearDisplayPresentation!!
+                                )
+                            )
+                        }
+                    }
 
                     SESSION_STATE_CONTENT_VISIBLE ->
                         windowAreaPresentationSessionCallback.onContainerVisibilityChanged(true)
-
-                    SESSION_STATE_CONTENT_INVISIBLE ->
-                        windowAreaPresentationSessionCallback.onContainerVisibilityChanged(false)
 
                     SESSION_STATE_INACTIVE ->
                         windowAreaPresentationSessionCallback.onSessionEnded(null)

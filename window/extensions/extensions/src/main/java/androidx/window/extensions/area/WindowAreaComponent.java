@@ -102,10 +102,10 @@ public interface WindowAreaComponent {
     int SESSION_STATE_INACTIVE = 0;
 
     /**
-     * Session state constant to represent that there is an
-     * active session currently in progress. Used by the library to
-     * know when to return the session object to the developer when the
-     * session is created and active.
+     * Session state constant to represent that there is currently an active session. The library
+     * uses this state to know when a session is created and active. Note that this state is
+     * different from SESSION_STATE_CONTENT_VISIBLE, because the presentation content in this state
+     * is not visible.
      */
     int SESSION_STATE_ACTIVE = 1;
 
@@ -116,13 +116,6 @@ public interface WindowAreaComponent {
      */
     int SESSION_STATE_CONTENT_VISIBLE = 2;
 
-    /**
-     * Session state constant to represent that there is an
-     * active presentation session currently in progress, but the content provided by the
-     * application is no longer visible.
-     */
-    int SESSION_STATE_CONTENT_INVISIBLE = 3;
-
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Retention(RetentionPolicy.SOURCE)
@@ -130,8 +123,7 @@ public interface WindowAreaComponent {
     @IntDef({
             SESSION_STATE_ACTIVE,
             SESSION_STATE_INACTIVE,
-            SESSION_STATE_CONTENT_VISIBLE,
-            SESSION_STATE_CONTENT_INVISIBLE
+            SESSION_STATE_CONTENT_VISIBLE
     })
     @interface WindowAreaSessionState {}
 
