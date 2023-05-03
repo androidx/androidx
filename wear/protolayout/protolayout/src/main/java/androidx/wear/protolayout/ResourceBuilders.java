@@ -25,11 +25,13 @@ import androidx.annotation.DrawableRes;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.wear.protolayout.TriggerBuilders.Trigger;
 import androidx.wear.protolayout.expression.DynamicBuilders;
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat;
+import androidx.wear.protolayout.expression.ProtoLayoutExperimental;
 import androidx.wear.protolayout.proto.ResourceProto;
 import androidx.wear.protolayout.protobuf.ByteString;
 
@@ -333,6 +335,7 @@ public final class ResourceBuilders {
      *
      * @since 1.2
      */
+    @ProtoLayoutExperimental
     public static final class AndroidAnimatedImageResourceByResId {
         private final ResourceProto.AndroidAnimatedImageResourceByResId mImpl;
 
@@ -463,6 +466,7 @@ public final class ResourceBuilders {
      *
      * @since 1.2
      */
+    @ProtoLayoutExperimental
     public static final class AndroidSeekableAnimatedImageResourceByResId {
         private final ResourceProto.AndroidSeekableAnimatedImageResourceByResId mImpl;
 
@@ -649,6 +653,7 @@ public final class ResourceBuilders {
          * @since 1.2
          */
         @Nullable
+        @ProtoLayoutExperimental
         public AndroidAnimatedImageResourceByResId getAndroidAnimatedResourceByResId() {
             if (mImpl.hasAndroidAnimatedResourceByResId()) {
                 return AndroidAnimatedImageResourceByResId.fromProto(
@@ -665,6 +670,7 @@ public final class ResourceBuilders {
          * @since 1.2
          */
         @Nullable
+        @ProtoLayoutExperimental
         public AndroidSeekableAnimatedImageResourceByResId
                 getAndroidSeekableAnimatedResourceByResId() {
             if (mImpl.hasAndroidSeekableAnimatedResourceByResId()) {
@@ -696,6 +702,7 @@ public final class ResourceBuilders {
 
         @Override
         @NonNull
+        @OptIn(markerClass = ProtoLayoutExperimental.class)
         public String toString() {
             return "ImageResource{"
                     + "androidResourceByResId="
@@ -746,6 +753,7 @@ public final class ResourceBuilders {
              * @since 1.2
              */
             @NonNull
+            @ProtoLayoutExperimental
             public Builder setAndroidAnimatedResourceByResId(
                     @NonNull AndroidAnimatedImageResourceByResId androidAnimatedResourceByResId) {
                 mImpl.setAndroidAnimatedResourceByResId(androidAnimatedResourceByResId.toProto());
@@ -759,6 +767,7 @@ public final class ResourceBuilders {
              * @since 1.2
              */
             @NonNull
+            @ProtoLayoutExperimental
             public Builder setAndroidSeekableAnimatedResourceByResId(
                     @NonNull
                             AndroidSeekableAnimatedImageResourceByResId
