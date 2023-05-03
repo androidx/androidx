@@ -296,7 +296,11 @@ internal class PathComponent : VNode() {
     }
 
     private fun updateRenderPath() {
-        renderPath.reset()
+        // Rewind unsets the filltype so reset it here
+        val fillType = renderPath.fillType
+        renderPath.rewind()
+        renderPath.fillType = fillType
+
         if (trimPathStart == DefaultTrimPathStart && trimPathEnd == DefaultTrimPathEnd) {
             renderPath.addPath(path)
         } else {
