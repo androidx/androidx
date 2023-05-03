@@ -25,7 +25,14 @@ plugins {
 dependencies {
     api(libs.kotlinStdlib)
     api("androidx.annotation:annotation:1.1.0")
+
+    // For BundleCompat#putBinder.
+    // TODO(b/280561849): Use stable version when available.
+    implementation("androidx.core:core:1.12.0-alpha03")
+    implementation("androidx.lifecycle:lifecycle-common:2.2.0")
+    implementation project(path: ':privacysandbox:sdkruntime:sdkruntime-client')
     implementation project(path: ':privacysandbox:ui:ui-core')
+
     androidTestImplementation(project(":internal-testutils-runtime"))
     androidTestImplementation(libs.junit)
     androidTestImplementation(libs.kotlinStdlib)
@@ -34,11 +41,18 @@ dependencies {
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.truth)
+    androidTestImplementation(libs.espressoIntents)
+    androidTestImplementation(libs.espressoCore)
+    androidTestImplementation(libs.mockitoCore)
+    androidTestImplementation(libs.multidex)
     androidTestImplementation project(path: ':appcompat:appcompat')
 }
 
 android {
     namespace "androidx.privacysandbox.ui.client"
+    defaultConfig {
+        multiDexEnabled true
+    }
 }
 
 androidx {

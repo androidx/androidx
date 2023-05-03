@@ -1,9 +1,18 @@
 // Signature format: 4.0
 package androidx.privacysandbox.ui.client {
 
+  public interface LocalSdkActivityLauncher<T extends android.app.Activity & androidx.lifecycle.LifecycleOwner> extends androidx.privacysandbox.ui.core.SdkActivityLauncher {
+    method public void dispose();
+  }
+
   @RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU) public final class SandboxedUiAdapterFactory {
     method public androidx.privacysandbox.ui.core.SandboxedUiAdapter createFromCoreLibInfo(android.os.Bundle coreLibInfo);
     field public static final androidx.privacysandbox.ui.client.SandboxedUiAdapterFactory INSTANCE;
+  }
+
+  public final class SdkActivityLaunchers {
+    method public static <T extends android.app.Activity & androidx.lifecycle.LifecycleOwner> androidx.privacysandbox.ui.client.LocalSdkActivityLauncher<T> createSdkActivityLauncher(T, kotlin.jvm.functions.Function0<java.lang.Boolean> allowLaunch);
+    method public static android.os.Bundle toLauncherInfo(androidx.privacysandbox.ui.core.SdkActivityLauncher);
   }
 
 }
