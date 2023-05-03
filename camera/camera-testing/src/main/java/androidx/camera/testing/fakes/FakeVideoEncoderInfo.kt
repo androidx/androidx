@@ -22,41 +22,41 @@ import androidx.camera.video.internal.encoder.VideoEncoderInfo
 
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class FakeVideoEncoderInfo(
-    var _supportedWidths: Range<Int> = Range.create(0, Integer.MAX_VALUE),
-    var _supportedHeights: Range<Int> = Range.create(0, Integer.MAX_VALUE),
-    var _widthAlignment: Int = 2,
-    var _heightAlignment: Int = 2,
-    var _supportedBitrateRange: Range<Int> = Range(1, Int.MAX_VALUE)
+    @JvmField var supportedWidths: Range<Int> = Range.create(0, Integer.MAX_VALUE),
+    @JvmField var supportedHeights: Range<Int> = Range.create(0, Integer.MAX_VALUE),
+    @JvmField var widthAlignment: Int = 2,
+    @JvmField var heightAlignment: Int = 2,
+    @JvmField var supportedBitrateRange: Range<Int> = Range(1, Int.MAX_VALUE)
 ) : FakeEncoderInfo(), VideoEncoderInfo {
     override fun isSizeSupported(width: Int, height: Int) =
-        _supportedWidths.contains(width) && _supportedHeights.contains(height) &&
-            width.mod(_widthAlignment) == 0 && height.mod(_heightAlignment) == 0
+        supportedWidths.contains(width) && supportedHeights.contains(height) &&
+            width.mod(widthAlignment) == 0 && height.mod(heightAlignment) == 0
 
     override fun getSupportedWidths(): Range<Int> {
-        return _supportedWidths
+        return supportedWidths
     }
 
     override fun getSupportedHeights(): Range<Int> {
-        return _supportedHeights
+        return supportedHeights
     }
 
     override fun getSupportedWidthsFor(height: Int): Range<Int> {
-        return _supportedWidths
+        return supportedWidths
     }
 
     override fun getSupportedHeightsFor(width: Int): Range<Int> {
-        return _supportedHeights
+        return supportedHeights
     }
 
     override fun getWidthAlignment(): Int {
-        return _widthAlignment
+        return widthAlignment
     }
 
     override fun getHeightAlignment(): Int {
-        return _heightAlignment
+        return heightAlignment
     }
 
     override fun getSupportedBitrateRange(): Range<Int> {
-        return _supportedBitrateRange
+        return supportedBitrateRange
     }
 }

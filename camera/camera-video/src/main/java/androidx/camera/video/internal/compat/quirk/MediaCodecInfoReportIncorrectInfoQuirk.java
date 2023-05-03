@@ -24,6 +24,7 @@ import android.media.MediaCodecInfo;
 import android.media.MediaCodecList;
 import android.media.MediaFormat;
 import android.os.Build;
+import android.util.Size;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -31,8 +32,10 @@ import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.Quirk;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 /**
  * <p>QuirkSummary
@@ -124,6 +127,18 @@ public class MediaCodecInfoReportIncorrectInfoQuirk implements Quirk {
             return formatResolver.isAvc() && formatResolver.isSize(1920, 1080);
         }
         return false;
+    }
+
+    /**
+     * Returns the extra supported sizes for the problematic devices if any, otherwise returns an
+     * empty set.
+     */
+    @NonNull
+    public static Set<Size> getExtraSupportedSizes() {
+        if (isFHDProblematicDevice()) {
+            return Collections.singleton(new Size(1920, 1080));
+        }
+        return Collections.emptySet();
     }
 
     private static boolean isFHDProblematicDevice() {

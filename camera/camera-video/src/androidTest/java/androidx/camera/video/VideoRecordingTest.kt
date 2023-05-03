@@ -316,7 +316,7 @@ class VideoRecordingTest(
             completeVideoRecording(videoCapture, file)
 
             // Verify.
-            verifyVideoResolution(getExpectedResolution(videoCapture), file)
+            verifyVideoResolution(getExpectedResolution(videoCapture, targetResolution), file)
 
             // Cleanup.
             instrumentation.runOnMainSync {
@@ -410,7 +410,10 @@ class VideoRecordingTest(
         completeVideoRecording(videoCapture, file)
 
         // Verify.
-        verifyVideoResolution(getExpectedResolution(videoCapture), file)
+        verifyVideoResolution(
+            getExpectedResolution(videoCapture, rectToSize(videoCapture.cropRect!!)),
+            file
+        )
 
         // Cleanup.
         file.delete()
@@ -1024,11 +1027,10 @@ class VideoRecordingTest(
         }
     }
 
-    private fun getExpectedResolution(videoCapture: VideoCapture<Recorder>): Size =
-        rotateSize(
-            rectToSize(videoCapture.cropRect!!),
-            getExpectedRotation(videoCapture).contentRotation
-        )
+    private fun getExpectedResolution(
+        videoCapture: VideoCapture<Recorder>,
+        resolution: Size
+    ): Size = rotateSize(resolution, getExpectedRotation(videoCapture).contentRotation)
 
     private fun getExpectedAspectRatio(videoCapture: VideoCapture<Recorder>): Rational? {
         val needRotate by lazy { is90or270(getExpectedRotation(videoCapture).contentRotation) }

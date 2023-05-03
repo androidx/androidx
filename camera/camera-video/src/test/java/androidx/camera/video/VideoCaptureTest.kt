@@ -1347,10 +1347,10 @@ class VideoCaptureTest {
         supportedHeights: Range<Int> = Range.create(1, Integer.MAX_VALUE),
     ): VideoEncoderInfo {
         return FakeVideoEncoderInfo(
-            _widthAlignment = widthAlignment,
-            _heightAlignment = heightAlignment,
-            _supportedWidths = supportedWidths,
-            _supportedHeights = supportedHeights,
+            widthAlignment = widthAlignment,
+            heightAlignment = heightAlignment,
+            supportedWidths = supportedWidths,
+            supportedHeights = supportedHeights,
         )
     }
 

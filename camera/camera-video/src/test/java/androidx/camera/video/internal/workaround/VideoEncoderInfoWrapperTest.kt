@@ -43,7 +43,7 @@ object VideoEncoderInfoWrapperTest {
     private val SUPPORTED_WIDTHS = Range.create(WIDTH_ALIGNMENT, 640)
     private val SUPPORTED_HEIGHTS = Range.create(HEIGHT_ALIGNMENT, 480)
     private val VALID_SIZE = Size(320, 240)
-    private val INVALID_SIZE = Size(1920, 1080)
+    private val SIZE_SHOULD_BE_VALID = Size(1920, 1080)
 
     private const val WIDTH_4KDCI = 4096
     private const val HEIGHT_4KDCI = 2160
@@ -52,10 +52,10 @@ object VideoEncoderInfoWrapperTest {
 
     private val baseVideoEncoderInfo by lazy {
         FakeVideoEncoderInfo(
-            _supportedWidths = SUPPORTED_WIDTHS,
-            _supportedHeights = SUPPORTED_HEIGHTS,
-            _widthAlignment = WIDTH_ALIGNMENT,
-            _heightAlignment = HEIGHT_ALIGNMENT,
+            supportedWidths = SUPPORTED_WIDTHS,
+            supportedHeights = SUPPORTED_HEIGHTS,
+            widthAlignment = WIDTH_ALIGNMENT,
+            heightAlignment = HEIGHT_ALIGNMENT,
         )
     }
 
@@ -86,7 +86,7 @@ object VideoEncoderInfoWrapperTest {
                 arrayOf(
                     NONE_QUIRK_BRAND,
                     NONE_QUIRK_MODEL,
-                    INVALID_SIZE,
+                    SIZE_SHOULD_BE_VALID,
                     true,
                 ),
                 arrayOf(
@@ -125,41 +125,37 @@ object VideoEncoderInfoWrapperTest {
     @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
     class WrappingMethodTest {
 
-        private lateinit var videoEncoderInfo: VideoEncoderInfo
-
-        @Before
-        fun setup() {
-            // Set an invalid size to enable wrapping
-            videoEncoderInfo = VideoEncoderInfoWrapper.from(baseVideoEncoderInfo, INVALID_SIZE)
-            assertThat(videoEncoderInfo is VideoEncoderInfoWrapper).isTrue()
-        }
-
         @Test
         fun willNotWrapAWrapper() {
-            val videoEncoderInfo2 = VideoEncoderInfoWrapper.from(videoEncoderInfo, INVALID_SIZE)
+            val videoEncoderInfo = createFakeVideoEncoderInfoWrapper()
+            val videoEncoderInfo2 = createFakeVideoEncoderInfoWrapper(videoEncoderInfo)
             assertThat(videoEncoderInfo2).isSameInstanceAs(videoEncoderInfo)
         }
 
         @Test
         fun getSupportedWidths() {
+            val videoEncoderInfo = createFakeVideoEncoderInfoWrapper()
             assertThat(videoEncoderInfo.supportedWidths).isEqualTo(OVERRIDDEN_SUPPORTED_WIDTHS)
             assertThat(videoEncoderInfo.supportedHeights).isEqualTo(OVERRIDDEN_SUPPORTED_HEIGHTS)
         }
 
         @Test
         fun getSupportedHeight() {
+            val videoEncoderInfo = createFakeVideoEncoderInfoWrapper()
             assertThat(videoEncoderInfo.supportedWidths).isEqualTo(OVERRIDDEN_SUPPORTED_WIDTHS)
             assertThat(videoEncoderInfo.supportedHeights).isEqualTo(OVERRIDDEN_SUPPORTED_HEIGHTS)
         }
 
         @Test
         fun getSupportedHeightsFor() {
+            val videoEncoderInfo = createFakeVideoEncoderInfoWrapper()
             assertThat(videoEncoderInfo.getSupportedHeightsFor(640))
                 .isEqualTo(OVERRIDDEN_SUPPORTED_HEIGHTS)
         }
 
         @Test
         fun getSupportedHeightFor_invalidWidth() {
+            val videoEncoderInfo = createFakeVideoEncoderInfoWrapper()
             assertThrows(IllegalArgumentException::class.java) {
                 // Too large
                 assertThat(videoEncoderInfo.getSupportedHeightsFor(5000))
@@ -172,12 +168,14 @@ object VideoEncoderInfoWrapperTest {
 
         @Test
         fun getSupportedWidthsFor() {
+            val videoEncoderInfo = createFakeVideoEncoderInfoWrapper()
             assertThat(videoEncoderInfo.getSupportedWidthsFor(480))
                 .isEqualTo(OVERRIDDEN_SUPPORTED_WIDTHS)
         }
 
         @Test
         fun getSupportedWidthFor_invalidHeight() {
+            val videoEncoderInfo = createFakeVideoEncoderInfoWrapper()
             assertThrows(IllegalArgumentException::class.java) {
                 // Too large
                 assertThat(videoEncoderInfo.getSupportedWidthsFor(5000))
@@ -190,15 +188,62 @@ object VideoEncoderInfoWrapperTest {
 
         @Test
         fun isSizeSupported() {
+            val videoEncoderInfo = createFakeVideoEncoderInfoWrapper()
             assertThat(videoEncoderInfo.isSizeSupported(640, 480)).isTrue()
         }
 
         @Test
         fun isSizeSupported_invalidSize() {
+            val videoEncoderInfo = createFakeVideoEncoderInfoWrapper()
             // Too large
             assertThat(videoEncoderInfo.isSizeSupported(5000, 5000)).isFalse()
             // Non alignment
             assertThat(videoEncoderInfo.isSizeSupported(333, 333)).isFalse()
         }
+
+        @Test
+        fun isSizeSupported_validSizeIsSupported() {
+            val videoEncoderInfo = createFakeVideoEncoderInfoWrapper(
+                createFakeVideoEncoderInfo(
+                    supportedWidths = Range(16, 640),
+                    supportedHeights = Range(16, 480),
+                    widthAlignment = 16,
+                    heightAlignment = 16,
+                ), validSizeToCheck = Size(1920, 1080) // 1080 not align to 16
+            )
+            assertThat(videoEncoderInfo.isSizeSupported(1920, 1080)).isTrue()
+        }
+
+        @Test
+        fun isSizeSupported_supportFhdForFhdProblematicDevices() {
+            ReflectionHelpers.setStaticField(Build::class.java, "MODEL", "sm-a032f")
+
+            val videoEncoderInfo = createFakeVideoEncoderInfoWrapper(
+                createFakeVideoEncoderInfo(
+                    supportedWidths = Range(16, 640),
+                    supportedHeights = Range(16, 480),
+                    widthAlignment = 16,
+                    heightAlignment = 16,
+                ), null
+            )
+            assertThat(videoEncoderInfo.isSizeSupported(1920, 1080)).isTrue()
+        }
+
+        private fun createFakeVideoEncoderInfoWrapper(
+            videoEncoderInfo: VideoEncoderInfo = createFakeVideoEncoderInfo(),
+            validSizeToCheck: Size? = SIZE_SHOULD_BE_VALID,
+        ) = VideoEncoderInfoWrapper.from(videoEncoderInfo, validSizeToCheck)
+
+        private fun createFakeVideoEncoderInfo(
+            supportedWidths: Range<Int> = SUPPORTED_WIDTHS,
+            supportedHeights: Range<Int> = SUPPORTED_HEIGHTS,
+            widthAlignment: Int = WIDTH_ALIGNMENT,
+            heightAlignment: Int = HEIGHT_ALIGNMENT,
+        ) = FakeVideoEncoderInfo(
+            supportedWidths = supportedWidths,
+            supportedHeights = supportedHeights,
+            widthAlignment = widthAlignment,
+            heightAlignment = heightAlignment,
+        )
     }
 }
