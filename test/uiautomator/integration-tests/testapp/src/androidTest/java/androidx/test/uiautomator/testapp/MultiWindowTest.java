@@ -17,11 +17,9 @@
 package androidx.test.uiautomator.testapp;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import android.graphics.Rect;
-import android.os.SystemClock;
 
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
@@ -38,9 +36,7 @@ import org.junit.Test;
 @LargeTest
 public class MultiWindowTest extends BaseTest {
 
-    private static final long LONG_TIMEOUT_MS = 30_000;
     private static final long SHORT_TIMEOUT_MS = 5_000;
-    private static final long TRANSITION_DELAY_MS = 5_000;
 
     private static final BySelector STATUS_BAR = By.res("com.android.systemui", "status_bar");
 
@@ -66,39 +62,41 @@ public class MultiWindowTest extends BaseTest {
         }
     }
 
-    @Ignore // b/264940470
     @Test
     @SdkSuppress(minSdkVersion = 24)
     public void testMultiWindow_pictureInPicture() {
         BySelector defaultMode = By.res(TEST_APP, "pip_mode").text("Default Mode");
         BySelector pipMode = By.res(TEST_APP, "pip_mode").text("PiP Mode");
 
-        // Create window in PiP mode and verify its location (bounds correctly calculated).
+        // Launch app in default mode.
         launchTestActivity(PictureInPictureTestActivity.class);
-        assertTrue(mDevice.hasObject(defaultMode));
+        assertTrue(mDevice.wait(Until.hasObject(defaultMode), TIMEOUT_MS));
+
+        // Create window in PiP mode and verify its location (bounds correctly calculated).
         mDevice.pressHome();
-        SystemClock.sleep(TRANSITION_DELAY_MS); // Wait for the PiP window to settle.
+        assertTrue(mDevice.wait(Until.hasObject(pipMode), TIMEOUT_MS));
+        UiObject2 pipWindow = mDevice.findObject(pipMode);
         int width = mDevice.getDisplayWidth();
         int height = mDevice.getDisplayHeight();
         Rect bottomHalf = new Rect(0, height / 2, width, height);
-        UiObject2 pipWindow = mDevice.wait(Until.findObject(pipMode), LONG_TIMEOUT_MS);
-        assertNotNull("Timed out waiting for PiP window", pipWindow);
         assertTrue(bottomHalf.contains(pipWindow.getVisibleBounds()));
     }
 
-    @Ignore // b/262909049, b/281290766
     @Test
     @SdkSuppress(minSdkVersion = 32)
     public void testMultiWindow_splitScreen() {
-        // Launch two split-screen activities with different IDs.
-        launchTestActivity(SplitScreenTestActivity.class);
-        SystemClock.sleep(TRANSITION_DELAY_MS); // Wait for the windows to settle.
+        BySelector firstWindowSelector = By.res(TEST_APP, "window_id").text("first");
+        BySelector secondWindowSelector = By.res(TEST_APP, "window_id").text("second");
 
-        // Both split screen windows are present and searchable.
-        UiObject2 firstWindow = mDevice.findObject(By.res(TEST_APP, "window_id").text("first"));
-        assertNotNull(firstWindow);
-        UiObject2 secondWindow = mDevice.findObject(By.res(TEST_APP, "window_id").text("second"));
-        assertNotNull(secondWindow);
+        // Launch app with the first window.
+        launchTestActivity(SplitScreenTestActivity.class);
+        assertTrue(mDevice.wait(Until.hasObject(firstWindowSelector), TIMEOUT_MS));
+        UiObject2 firstWindow = mDevice.findObject(firstWindowSelector);
+
+        // Launch the second window.
+        firstWindow.longClick();
+        assertTrue(mDevice.wait(Until.hasObject(secondWindowSelector), TIMEOUT_MS));
+        UiObject2 secondWindow = mDevice.findObject(secondWindowSelector);
 
         // Operations (clicks) and coordinates are valid in both split screen windows.
         int width = mDevice.getDisplayWidth();
