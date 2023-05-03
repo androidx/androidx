@@ -44,7 +44,7 @@ class XExecutableTypeTest {
                     """.trimIndent()
                 ),
                 Source.java(
-                    "JavaClass.java",
+                    "JavaClass",
                     """
                     abstract class JavaClass<T> {
                         JavaClass(T t) {}
