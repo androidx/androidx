@@ -26,8 +26,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.TileMode
 import androidx.compose.ui.unit.dp
 
 @Sampled
@@ -57,4 +59,108 @@ fun GradientBrushSample() {
         val sweep = Brush.sweepGradient(listOf(Color.Cyan, Color.Magenta))
         Box(modifier = Modifier.size(120.dp).background(sweep))
     }
+}
+
+@Sampled
+fun LinearGradientColorStopSample() {
+    Brush.linearGradient(
+        0.0f to Color.Red,
+        0.3f to Color.Green,
+        1.0f to Color.Blue,
+        start = Offset(0.0f, 50.0f),
+        end = Offset(0.0f, 100.0f)
+    )
+}
+
+@Sampled
+fun LinearGradientSample() {
+    Brush.linearGradient(
+        listOf(Color.Red, Color.Green, Color.Blue),
+        start = Offset(0.0f, 50.0f),
+        end = Offset(0.0f, 100.0f)
+    )
+}
+
+@Sampled
+fun HorizontalGradientSample() {
+    Brush.horizontalGradient(
+        listOf(Color.Red, Color.Green, Color.Blue),
+        startX = 10.0f,
+        endX = 20.0f
+    )
+}
+
+@Sampled
+fun HorizontalGradientColorStopSample() {
+    Brush.horizontalGradient(
+        0.0f to Color.Red,
+        0.3f to Color.Green,
+        1.0f to Color.Blue,
+        startX = 0.0f,
+        endX = 100.0f
+    )
+}
+
+@Sampled
+fun VerticalGradientColorStopSample() {
+    Brush.verticalGradient(
+        0.1f to Color.Red,
+        0.3f to Color.Green,
+        0.5f to Color.Blue,
+        startY = 0.0f,
+        endY = 100.0f
+    )
+}
+
+@Sampled
+fun VerticalGradientSample() {
+    Brush.verticalGradient(
+        listOf(Color.Red, Color.Green, Color.Blue),
+        startY = 0.0f,
+        endY = 100.0f
+    )
+}
+
+@Sampled
+fun RadialBrushColorStopSample() {
+    val side1 = 100
+    val side2 = 200
+    Brush.radialGradient(
+        0.0f to Color.Red,
+        0.3f to Color.Green,
+        1.0f to Color.Blue,
+        center = Offset(side1 / 2.0f, side2 / 2.0f),
+        radius = side1 / 2.0f,
+        tileMode = TileMode.Repeated
+    )
+}
+
+@Sampled
+fun RadialBrushSample() {
+    val side1 = 100
+    val side2 = 200
+    Brush.radialGradient(
+        listOf(Color.Red, Color.Green, Color.Blue),
+        center = Offset(side1 / 2.0f, side2 / 2.0f),
+        radius = side1 / 2.0f,
+        tileMode = TileMode.Repeated
+    )
+}
+
+@Sampled
+fun SweepGradientColorStopSample() {
+    Brush.sweepGradient(
+        0.0f to Color.Red,
+        0.3f to Color.Green,
+        1.0f to Color.Blue,
+        center = Offset(0.0f, 100.0f)
+    )
+}
+
+@Sampled
+fun SweepGradientSample() {
+    Brush.sweepGradient(
+        listOf(Color.Red, Color.Green, Color.Blue),
+        center = Offset(10.0f, 20.0f)
+    )
 }

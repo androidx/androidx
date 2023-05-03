@@ -57,7 +57,8 @@ sealed class Brush {
          * )
          * ```
          *
-         * @see androidx.compose.ui.graphics.samples.GradientBrushSample
+         * @sample androidx.compose.ui.graphics.samples.LinearGradientColorStopSample
+         * @sample androidx.compose.ui.graphics.samples.GradientBrushSample
          *
          * @param colorStops Colors and their offset in the gradient area
          * @param start Starting position of the linear gradient. This can be set to
@@ -88,11 +89,12 @@ sealed class Brush {
          * ```
          *  Brush.linearGradient(
          *      listOf(Color.Red, Color.Green, Color.Blue),
-         *      start = Offset(0.0f, 50.0f)
+         *      start = Offset(0.0f, 50.0f),
          *      end = Offset(0.0f, 100.0f)
          * )
          * ```
          *
+         * @sample androidx.compose.ui.graphics.samples.LinearGradientSample
          * @sample androidx.compose.ui.graphics.samples.GradientBrushSample
          *
          * @param colors Colors to be rendered as part of the gradient
@@ -129,6 +131,7 @@ sealed class Brush {
          * )
          * ```
          *
+         * @sample androidx.compose.ui.graphics.samples.HorizontalGradientSample
          * @sample androidx.compose.ui.graphics.samples.GradientBrushSample
          *
          * @param colors colors Colors to be rendered as part of the gradient
@@ -163,6 +166,7 @@ sealed class Brush {
          * )
          * ```
          *
+         * @sample androidx.compose.ui.graphics.samples.HorizontalGradientColorStopSample
          * @sample androidx.compose.ui.graphics.samples.GradientBrushSample
          *
          * @param colorStops Colors and offsets to determine how the colors are dispersed throughout
@@ -197,9 +201,9 @@ sealed class Brush {
          *      startY = 0.0f,
          *      endY = 100.0f
          * )
-         *
          * ```
          *
+         * @sample androidx.compose.ui.graphics.samples.VerticalGradientSample
          * @sample androidx.compose.ui.graphics.samples.GradientBrushSample
          *
          * @param colors colors Colors to be rendered as part of the gradient
@@ -234,6 +238,7 @@ sealed class Brush {
          * )
          * ```
          *
+         * @sample androidx.compose.ui.graphics.samples.VerticalGradientColorStopSample
          * @sample androidx.compose.ui.graphics.samples.GradientBrushSample
          *
          * @param colorStops Colors and offsets to determine how the colors are dispersed throughout
@@ -273,6 +278,7 @@ sealed class Brush {
          * )
          * ```
          *
+         * @sample androidx.compose.ui.graphics.samples.RadialBrushColorStopSample
          * @sample androidx.compose.ui.graphics.samples.GradientBrushSample
          *
          * @param colorStops Colors and offsets to determine how the colors are dispersed throughout
@@ -305,13 +311,13 @@ sealed class Brush {
          * ```
          * Brush.radialGradient(
          *      listOf(Color.Red, Color.Green, Color.Blue),
-         *      centerX = side1 / 2.0f,
-         *      centerY = side2 / 2.0f,
+         *      center = Offset(side1 / 2.0f, side2 / 2.0f),
          *      radius = side1 / 2.0f,
          *      tileMode = TileMode.Repeated
          * )
          * ```
          *
+         * @sample androidx.compose.ui.graphics.samples.RadialBrushSample
          * @sample androidx.compose.ui.graphics.samples.GradientBrushSample
          *
          * @param colors Colors to be rendered as part of the gradient
@@ -353,6 +359,7 @@ sealed class Brush {
          * )
          * ```
          *
+         * @sample androidx.compose.ui.graphics.samples.SweepGradientColorStopSample
          * @sample androidx.compose.ui.graphics.samples.GradientBrushSample
          *
          * @param colorStops Colors and offsets to determine how the colors are dispersed throughout
@@ -384,6 +391,7 @@ sealed class Brush {
          * )
          * ```
          *
+         * @sample androidx.compose.ui.graphics.samples.SweepGradientSample
          * @sample androidx.compose.ui.graphics.samples.GradientBrushSample
          *
          * @param colors List of colors to fill the sweep gradient
