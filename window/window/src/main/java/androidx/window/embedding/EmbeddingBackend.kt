@@ -22,7 +22,6 @@ import android.content.Context
 import android.os.IBinder
 import androidx.annotation.RestrictTo
 import androidx.core.util.Consumer
-import androidx.window.core.ExperimentalWindowApi
 import java.util.concurrent.Executor
 
 /**
@@ -85,14 +84,12 @@ interface EmbeddingBackend {
             return decorator(ExtensionEmbeddingBackend.getInstance(context))
         }
 
-        @ExperimentalWindowApi
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @JvmStatic
         fun overrideDecorator(overridingDecorator: EmbeddingBackendDecorator) {
             decorator = overridingDecorator::decorate
         }
 
-        @ExperimentalWindowApi
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @JvmStatic
         fun reset() {
@@ -101,7 +98,6 @@ interface EmbeddingBackend {
     }
 }
 
-@ExperimentalWindowApi
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 interface EmbeddingBackendDecorator {
 

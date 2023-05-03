@@ -17,7 +17,6 @@
 package androidx.window.testing.embedding
 
 import android.app.Activity
-import androidx.window.core.ExperimentalWindowApi
 import androidx.window.embedding.ActivityEmbeddingController
 import androidx.window.embedding.EmbeddingBackend
 import androidx.window.embedding.RuleController
@@ -33,8 +32,7 @@ import org.junit.runners.model.Statement
  * [RuleController] with a more simple one that will support testing independent of the current
  * platform.
  */
-@ExperimentalWindowApi
-class ActivityEmbeddingTestRule : TestRule {
+class ActivityEmbeddingRule : TestRule {
 
     private val stubEmbeddingBackend = StubEmbeddingBackend()
     private val decorator = StubEmbeddingBackendDecorator(stubEmbeddingBackend)

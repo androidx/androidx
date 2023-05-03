@@ -18,7 +18,6 @@
 package androidx.window.testing.embedding
 
 import android.os.Binder
-import androidx.window.core.ExperimentalWindowApi
 import androidx.window.embedding.ActivityStack
 import androidx.window.embedding.SplitAttributes
 import androidx.window.embedding.SplitInfo
@@ -38,7 +37,6 @@ import androidx.window.embedding.SplitInfo
  * @return A [SplitInfo] instance for testing
  */
 @Suppress("FunctionName")
-@ExperimentalWindowApi
 @JvmName("createTestSplitInfo")
 @JvmOverloads
 fun TestSplitInfo(
