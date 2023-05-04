@@ -65,8 +65,11 @@ import androidx.compose.ui.composed
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Matrix
+import androidx.compose.ui.node.LayoutModifierNode
 import androidx.compose.ui.node.LayoutNode
+import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.platform.AndroidOwnerExtraAssertionsRule
+import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.unit.Constraints
@@ -83,6 +86,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import java.lang.Integer.max
 import junit.framework.TestCase.assertEquals
+import junit.framework.TestCase.assertFalse
 import junit.framework.TestCase.assertTrue
 import kotlin.math.roundToInt
 import kotlin.random.Random
@@ -1928,6 +1932,218 @@ class LookaheadScopeTest {
         }
     }
 
+    @OptIn(ExperimentalComposeUiApi::class)
+    @Test
+    fun testIsLookingAhead() {
+        var iterations by mutableStateOf(0)
+        val size = mutableMapOf<Boolean, IntSize>()
+        rule.setContent {
+            Box(Modifier.fillMaxSize()) {
+                LookaheadScope {
+                    // Fill max size will cause the remeasure requests to go down the
+                    // forceMeasureSubtree code path.
+                    CompositionLocalProvider(LocalDensity provides Density(1f)) {
+                        Column(Modifier.fillMaxSize()) {
+                            // This box will get a remeasure request when `iterations` changes.
+                            // Subsequently this Box's size change will trigger a measurement pass
+                            // from Column.
+                            Box(
+                                Modifier
+                                    .layout { measurable, constraints ->
+                                        measurable
+                                            .measure(constraints)
+                                            .run {
+                                                size[isLookingAhead] = IntSize(width, height)
+                                                layout(width, height) {
+                                                    place(0, 0)
+                                                }
+                                            }
+                                    }
+                                    .intermediateLayout { measurable, _ ->
+                                        // Force a state-read (similar to animation but more
+                                        // reliable)
+                                        measurable
+                                            .measure(Constraints.fixed(200 + 100 * iterations, 200))
+                                            .run {
+                                                layout(width, height) {
+                                                    place(0, 0)
+                                                }
+                                            }
+                                    }) {
+                                Box(Modifier.size(100.dp))
+                            }
+                        }
+                        SubcomposeLayout(
+                            Modifier
+                                .fillMaxSize()
+                                .requiredSize(200.dp),
+                            intermediateMeasurePolicy = { constraints ->
+                                assertFalse(isLookingAhead)
+                                measurablesForSlot(Unit)[0].measure(constraints)
+                                layout(0, 0) {}
+                            }
+                        ) { constraints ->
+                            assertTrue(isLookingAhead)
+                            val placeable = subcompose(Unit) {
+                                Box(Modifier.requiredSize(400.dp, 600.dp))
+                            }[0].measure(constraints)
+                            layout(500, 300) {
+                                placeable.place(0, 0)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        repeat(4) {
+            rule.runOnIdle {
+                assertEquals(IntSize(100, 100), size[true])
+                assertEquals(IntSize(200 + 100 * it, 200), size[false])
+                iterations++
+            }
+        }
+    }
+
+    class TestLayoutModifierNode(
+        var lookaheadIntrinsicResult: MutableMap<String, Int>,
+        var intrinsicResult: MutableMap<String, Int>
+    ) : LayoutModifierNode, Modifier.Node() {
+        override fun MeasureScope.measure(
+            measurable: Measurable,
+            constraints: Constraints
+        ): MeasureResult {
+            return measurable.measure(constraints).run {
+                layout(width, height) {
+                    place(0, 0)
+                }
+            }
+        }
+
+        override fun IntrinsicMeasureScope.maxIntrinsicHeight(
+            measurable: IntrinsicMeasurable,
+            width: Int
+        ): Int = measurable.maxIntrinsicHeight(width).also {
+            if (isLookingAhead) {
+                lookaheadIntrinsicResult["maxHeight"] = it
+            } else {
+                intrinsicResult["maxHeight"] = it
+            }
+        }
+
+        override fun IntrinsicMeasureScope.minIntrinsicHeight(
+            measurable: IntrinsicMeasurable,
+            width: Int
+        ): Int = measurable.minIntrinsicHeight(width).also {
+            if (isLookingAhead) {
+                lookaheadIntrinsicResult["minHeight"] = it
+            } else {
+                intrinsicResult["minHeight"] = it
+            }
+        }
+
+        override fun IntrinsicMeasureScope.maxIntrinsicWidth(
+            measurable: IntrinsicMeasurable,
+            height: Int
+        ): Int = measurable.maxIntrinsicWidth(height).also {
+            if (isLookingAhead) {
+                lookaheadIntrinsicResult["maxWidth"] = it
+            } else {
+                intrinsicResult["maxWidth"] = it
+            }
+        }
+
+        override fun IntrinsicMeasureScope.minIntrinsicWidth(
+            measurable: IntrinsicMeasurable,
+            height: Int
+        ): Int = measurable.minIntrinsicWidth(height).also {
+            if (isLookingAhead) {
+                lookaheadIntrinsicResult["minWidth"] = it
+            } else {
+                intrinsicResult["minWidth"] = it
+            }
+        }
+    }
+
+    data class TestElement(
+        val lookaheadIntrinsicResult: MutableMap<String, Int>,
+        val intrinsicResult: MutableMap<String, Int>
+    ) : ModifierNodeElement<TestLayoutModifierNode>() {
+        override fun create(): TestLayoutModifierNode =
+            TestLayoutModifierNode(lookaheadIntrinsicResult, intrinsicResult)
+
+        override fun update(node: TestLayoutModifierNode) {
+            node.lookaheadIntrinsicResult = lookaheadIntrinsicResult
+            node.intrinsicResult = intrinsicResult
+        }
+
+        override fun InspectorInfo.inspectableProperties() {
+            name = "TestElement"
+            properties["lookaheadIntrinsicResult"] = lookaheadIntrinsicResult
+            properties["intrinsicResult"] = intrinsicResult
+        }
+    }
+
+    @Test
+    fun testIsLookingAheadWithIntrinsics() {
+        val lookaheadIntrinsicsResult = mutableMapOf<String, Int>()
+        val intrinsicsResult = mutableMapOf<String, Int>()
+        val modifierList = listOf(
+            Modifier.width(IntrinsicSize.Max),
+            Modifier.width(IntrinsicSize.Min),
+            Modifier.height(IntrinsicSize.Max),
+            Modifier.height(IntrinsicSize.Min),
+        )
+        var iteration by mutableStateOf(0)
+        rule.setContent {
+            LookaheadScope {
+                CompositionLocalProvider(LocalDensity provides Density(1f)) {
+                    Row(Modifier.width(IntrinsicSize.Max)) {
+                        Box(
+                            Modifier
+                                .fillMaxSize()
+                                .then(modifierList[iteration])
+                                .then(
+                                    TestElement(
+                                        lookaheadIntrinsicsResult, intrinsicsResult
+                                    )
+                                )
+                                .layout { measurable, constraints ->
+                                    measurable
+                                        .measure(constraints)
+                                        .run {
+                                            if (isLookingAhead) {
+                                                layout(200, 250) {
+                                                    place(0, 0)
+                                                }
+                                            } else {
+                                                layout(100, 150) {
+                                                    place(0, 0)
+                                                }
+                                            }
+                                        }
+                                }) {
+                            Box(Modifier.size(10.dp))
+                        }
+                    }
+                }
+            }
+        }
+        repeat(3) {
+            rule.waitForIdle()
+            iteration++
+        }
+        rule.runOnIdle {
+            assertEquals(250, lookaheadIntrinsicsResult["maxHeight"])
+            assertEquals(250, lookaheadIntrinsicsResult["minHeight"])
+            assertEquals(200, lookaheadIntrinsicsResult["maxWidth"])
+            assertEquals(200, lookaheadIntrinsicsResult["minWidth"])
+            assertEquals(150, intrinsicsResult["maxHeight"])
+            assertEquals(150, intrinsicsResult["minHeight"])
+            assertEquals(100, intrinsicsResult["maxWidth"])
+            assertEquals(100, intrinsicsResult["minWidth"])
+        }
+    }
+
     @Test
     fun forceMeasureSubtreeWhileLookaheadMeasureRequestedFromSubtree() {
         var iterations by mutableStateOf(0)
@@ -1960,13 +2176,17 @@ class LookaheadScopeTest {
                                     if (iterations % 2 == 0)
                                         Modifier.size(100.dp)
                                     else
-                                        Modifier.intermediateLayout { measurable, constraints ->
-                                            measurable.measure(constraints).run {
-                                                layout(width, height) {
-                                                    place(5, 5)
-                                                }
+                                        Modifier
+                                            .intermediateLayout { measurable, constraints ->
+                                                measurable
+                                                    .measure(constraints)
+                                                    .run {
+                                                        layout(width, height) {
+                                                            place(5, 5)
+                                                        }
+                                                    }
                                             }
-                                        }.padding(5.dp)
+                                            .padding(5.dp)
                                 )
                             }
                         }
@@ -2099,6 +2319,7 @@ class LookaheadScopeTest {
         with(scope) {
             this@composed
                 .intermediateLayout { measurable, constraints ->
+                    assertFalse(isLookingAhead)
                     lookaheadSize = this.lookaheadSize
                     measureWithLambdas(
                         prePlacement = {

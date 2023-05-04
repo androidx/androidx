@@ -1000,6 +1000,9 @@ internal class LayoutNodeSubcompositionsState(
         override var layoutDirection: LayoutDirection = LayoutDirection.Rtl
         override var density: Float = 0f
         override var fontScale: Float = 0f
+        override val isLookingAhead: Boolean
+            get() = root.layoutState == LayoutState.LookaheadLayingOut ||
+                root.layoutState == LayoutState.LookaheadMeasuring
 
         override fun subcompose(slotId: Any?, content: @Composable () -> Unit) =
             this@LayoutNodeSubcompositionsState.subcompose(slotId, content)
