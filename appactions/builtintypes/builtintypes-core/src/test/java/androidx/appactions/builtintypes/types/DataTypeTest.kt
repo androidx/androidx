@@ -18,6 +18,7 @@ package androidx.appactions.builtintypes.types
 
 import androidx.appactions.builtintypes.properties.Name
 import com.google.common.truth.Truth.assertThat
+import java.time.LocalDateTime
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -51,6 +52,48 @@ class DataTypeTest {
     assertThat(copy)
       .isEqualTo(
         Thing.Builder().setName("John Wick 2").setDisambiguatingDescription("Movie").build()
+      )
+  }
+
+  @Test
+  fun testPolymorphicCopying() {
+    val thing1: Thing =
+      Alarm.Builder()
+        .setName("Wake up!")
+        .setAlarmSchedule(
+          Schedule.Builder()
+            .setStartDate(
+              LocalDateTime.of(
+                /* year= */ 2023,
+                /* month= */ 5,
+                /* dayOfMonth= */ 3,
+                /* hour= */ 8,
+                /* minute=*/ 30
+              )
+            )
+            .build()
+        )
+        .build()
+    val thing2 = thing1.toBuilder().setName("Go to bed!").build()
+    assertThat(thing2).isInstanceOf(Alarm::class.java)
+    assertThat(thing2)
+      .isEqualTo(
+        Alarm.Builder()
+          .setName("Go to bed!")
+          .setAlarmSchedule(
+            Schedule.Builder()
+              .setStartDate(
+                LocalDateTime.of(
+                  /* year= */ 2023,
+                  /* month= */ 5,
+                  /* dayOfMonth= */ 3,
+                  /* hour= */ 8,
+                  /* minute=*/ 30
+                )
+              )
+              .build()
+          )
+          .build()
       )
   }
 }

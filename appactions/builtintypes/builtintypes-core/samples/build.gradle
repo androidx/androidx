@@ -31,6 +31,9 @@ dependencies {
 
 android {
     namespace "androidx.appactions.builtintypes.core.samples"
+    defaultConfig {
+        minSdkVersion 26
+    }
 }
 
 androidx {
