@@ -27,41 +27,9 @@ import androidx.appactions.interaction.capabilities.core.properties.StringValue
 import java.time.Duration
 import java.util.Optional
 
-/** StartExercise.kt in interaction-capabilities-fitness */
 private const val CAPABILITY_NAME = "actions.intent.START_EXERCISE"
 
-// TODO(b/273602015): Update to use Name property from builtintype library.
-@Suppress("UNCHECKED_CAST")
-private val ACTION_SPEC =
-    ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
-        .setArguments(StartExercise.Arguments::class.java, StartExercise.Arguments::Builder)
-        .setOutput(StartExercise.Output::class.java)
-        .bindOptionalParameter(
-            "exercise.duration",
-            { properties ->
-                Optional.ofNullable(
-                    properties[StartExercise.PropertyMapStrings.DURATION.key]
-                        as Property<Duration>
-                )
-            },
-            StartExercise.Arguments.Builder::setDuration,
-            TypeConverters.DURATION_PARAM_VALUE_CONVERTER,
-            TypeConverters.DURATION_ENTITY_CONVERTER
-        )
-        .bindOptionalParameter(
-            "exercise.name",
-            { properties ->
-                Optional.ofNullable(
-                    properties[StartExercise.PropertyMapStrings.NAME.key]
-                        as Property<StringValue>
-                )
-            },
-            StartExercise.Arguments.Builder::setName,
-            TypeConverters.STRING_PARAM_VALUE_CONVERTER,
-            TypeConverters.STRING_VALUE_ENTITY_CONVERTER
-        )
-        .build()
-
+/** A capability corresponding to actions.intent.START_EXERCISE */
 @CapabilityFactory(name = CAPABILITY_NAME)
 class StartExercise private constructor() {
     internal enum class PropertyMapStrings(val key: String) {
@@ -136,4 +104,38 @@ class StartExercise private constructor() {
     class Confirmation internal constructor()
 
     sealed interface ExecutionSession : BaseExecutionSession<Arguments, Output>
+
+    companion object {
+        // TODO(b/273602015): Update to use Name property from builtintype library.
+        @Suppress("UNCHECKED_CAST")
+        private val ACTION_SPEC =
+            ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
+                .setArguments(StartExercise.Arguments::class.java, StartExercise.Arguments::Builder)
+                .setOutput(StartExercise.Output::class.java)
+                .bindOptionalParameter(
+                    "exercise.duration",
+                    { properties ->
+                        Optional.ofNullable(
+                            properties[StartExercise.PropertyMapStrings.DURATION.key]
+                                as Property<Duration>
+                        )
+                    },
+                    StartExercise.Arguments.Builder::setDuration,
+                    TypeConverters.DURATION_PARAM_VALUE_CONVERTER,
+                    TypeConverters.DURATION_ENTITY_CONVERTER
+                )
+                .bindOptionalParameter(
+                    "exercise.name",
+                    { properties ->
+                        Optional.ofNullable(
+                            properties[StartExercise.PropertyMapStrings.NAME.key]
+                                as Property<StringValue>
+                        )
+                    },
+                    StartExercise.Arguments.Builder::setName,
+                    TypeConverters.STRING_PARAM_VALUE_CONVERTER,
+                    TypeConverters.STRING_VALUE_ENTITY_CONVERTER
+                )
+                .build()
+    }
 }

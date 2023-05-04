@@ -26,44 +26,9 @@ import androidx.appactions.interaction.capabilities.core.properties.Property
 import java.time.LocalTime
 import java.util.Optional
 
-/** GetExerciseObservation.kt in interaction-capabilities-fitness */
-private const val CAPABILITY_NAME = "actions.intent.START_EXERCISE"
+private const val CAPABILITY_NAME = "actions.intent.GET_EXERCISE_OBSERVATION"
 
-// TODO(b/273602015): Update to use Name property from builtintype library.
-@Suppress("UNCHECKED_CAST")
-private val ACTION_SPEC =
-    ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
-        .setArguments(
-            GetExerciseObservation.Arguments::class.java,
-            GetExerciseObservation.Arguments::Builder
-        )
-        .setOutput(GetExerciseObservation.Output::class.java)
-        .bindOptionalParameter(
-            "exerciseObservation.startTime",
-            { properties ->
-                Optional.ofNullable(
-                    properties[GetExerciseObservation.PropertyMapStrings.START_TIME.key]
-                        as Property<LocalTime>
-                )
-            },
-            GetExerciseObservation.Arguments.Builder::setStartTime,
-            TypeConverters.LOCAL_TIME_PARAM_VALUE_CONVERTER,
-            TypeConverters.LOCAL_TIME_ENTITY_CONVERTER
-        )
-        .bindOptionalParameter(
-            "exerciseObservation.endTime",
-            { properties ->
-                Optional.ofNullable(
-                    properties[GetExerciseObservation.PropertyMapStrings.END_TIME.key]
-                        as Property<LocalTime>
-                )
-            },
-            GetExerciseObservation.Arguments.Builder::setEndTime,
-            TypeConverters.LOCAL_TIME_PARAM_VALUE_CONVERTER,
-            TypeConverters.LOCAL_TIME_ENTITY_CONVERTER
-        )
-        .build()
-
+/** A capability corresponding to actions.intent.GET_EXERCISE_OBSERVATION */
 @CapabilityFactory(name = CAPABILITY_NAME)
 class GetExerciseObservation private constructor() {
     internal enum class PropertyMapStrings(val key: String) {
@@ -134,4 +99,41 @@ class GetExerciseObservation private constructor() {
     class Confirmation internal constructor()
 
     sealed interface ExecutionSession : BaseExecutionSession<Arguments, Output>
+
+    companion object {
+        // TODO(b/273602015): Update to use Name property from builtintype library.
+        @Suppress("UNCHECKED_CAST")
+        private val ACTION_SPEC =
+            ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
+                .setArguments(
+                    Arguments::class.java,
+                    Arguments::Builder
+                )
+                .setOutput(Output::class.java)
+                .bindOptionalParameter(
+                    "exerciseObservation.startTime",
+                    { properties ->
+                        Optional.ofNullable(
+                            properties[PropertyMapStrings.START_TIME.key]
+                                as Property<LocalTime>
+                        )
+                    },
+                    Arguments.Builder::setStartTime,
+                    TypeConverters.LOCAL_TIME_PARAM_VALUE_CONVERTER,
+                    TypeConverters.LOCAL_TIME_ENTITY_CONVERTER
+                )
+                .bindOptionalParameter(
+                    "exerciseObservation.endTime",
+                    { properties ->
+                        Optional.ofNullable(
+                            properties[PropertyMapStrings.END_TIME.key]
+                                as Property<LocalTime>
+                        )
+                    },
+                    Arguments.Builder::setEndTime,
+                    TypeConverters.LOCAL_TIME_PARAM_VALUE_CONVERTER,
+                    TypeConverters.LOCAL_TIME_ENTITY_CONVERTER
+                )
+                .build()
+    }
 }

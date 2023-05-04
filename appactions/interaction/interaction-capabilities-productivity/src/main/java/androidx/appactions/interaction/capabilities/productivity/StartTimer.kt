@@ -20,6 +20,7 @@ import androidx.appactions.builtintypes.experimental.types.GenericErrorStatus
 import androidx.appactions.builtintypes.experimental.types.SuccessStatus
 import androidx.appactions.interaction.capabilities.core.BaseExecutionSession
 import androidx.appactions.interaction.capabilities.core.Capability
+import androidx.appactions.interaction.capabilities.core.CapabilityFactory
 import androidx.appactions.interaction.capabilities.core.HostProperties
 import androidx.appactions.interaction.capabilities.core.ValueListener
 import androidx.appactions.interaction.capabilities.core.impl.BuilderOf
@@ -35,78 +36,10 @@ import androidx.appactions.interaction.protobuf.Value
 import java.time.Duration
 import java.util.Optional
 
-/** StartTimer.kt in interaction-capabilities-productivity */
 private const val CAPABILITY_NAME = "actions.intent.START_TIMER"
 
-@Suppress("UNCHECKED_CAST")
-private val ACTION_SPEC =
-    ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
-        .setArguments(StartTimer.Arguments::class.java, StartTimer.Arguments::Builder)
-        .setOutput(StartTimer.Output::class.java)
-        .bindOptionalParameter(
-            "timer.identifier",
-            { properties ->
-                Optional.ofNullable(
-                    properties[StartTimer.PropertyMapStrings.IDENTIFIER.key]
-                        as Property<StringValue>
-                )
-            },
-            StartTimer.Arguments.Builder::setIdentifier,
-            TypeConverters.STRING_PARAM_VALUE_CONVERTER,
-            TypeConverters.STRING_VALUE_ENTITY_CONVERTER,
-        )
-        .bindOptionalParameter(
-            "timer.name",
-            { properties ->
-                Optional.ofNullable(
-                    properties[StartTimer.PropertyMapStrings.NAME.key]
-                        as Property<StringValue>
-                )
-            },
-            StartTimer.Arguments.Builder::setName,
-            TypeConverters.STRING_PARAM_VALUE_CONVERTER,
-            TypeConverters.STRING_VALUE_ENTITY_CONVERTER,
-        )
-        .bindOptionalParameter(
-            "timer.duration",
-            { properties ->
-                Optional.ofNullable(
-                    properties[StartTimer.PropertyMapStrings.DURATION.key]
-                        as Property<Duration>
-                )
-            },
-            StartTimer.Arguments.Builder::setDuration,
-            TypeConverters.DURATION_PARAM_VALUE_CONVERTER,
-            TypeConverters.DURATION_ENTITY_CONVERTER,
-        )
-        .bindOptionalOutput(
-            "executionStatus",
-            { output -> Optional.ofNullable(output.executionStatus) },
-            StartTimer.ExecutionStatus::toParamValue,
-        )
-        .build()
-
-private val SESSION_BRIDGE = SessionBridge<StartTimer.ExecutionSession, StartTimer.Confirmation> {
-        session ->
-    val taskHandlerBuilder = TaskHandler.Builder<StartTimer.Confirmation>()
-    session.nameListener?.let {
-        taskHandlerBuilder.registerValueTaskParam(
-            "timer.name",
-            it,
-            TypeConverters.STRING_PARAM_VALUE_CONVERTER,
-        )
-    }
-    session.durationListener?.let {
-        taskHandlerBuilder.registerValueTaskParam(
-            "timer.duration",
-            it,
-            TypeConverters.DURATION_PARAM_VALUE_CONVERTER,
-        )
-    }
-    taskHandlerBuilder.build()
-}
-
-// TODO(b/267806701): Add capability factory annotation once the testing library is fully migrated.
+/** A capability corresponding to actions.intent.START_TIMER */
+@CapabilityFactory(name = CAPABILITY_NAME)
 class StartTimer private constructor() {
     internal enum class PropertyMapStrings(val key: String) {
         TIMER_LIST("timer.timerList"),
@@ -265,4 +198,74 @@ class StartTimer private constructor() {
     }
 
     class Confirmation internal constructor()
+
+    companion object {
+        @Suppress("UNCHECKED_CAST")
+        private val ACTION_SPEC =
+            ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
+                .setArguments(Arguments::class.java, Arguments::Builder)
+                .setOutput(Output::class.java)
+                .bindOptionalParameter(
+                    "timer.identifier",
+                    { properties ->
+                        Optional.ofNullable(
+                            properties[PropertyMapStrings.IDENTIFIER.key]
+                                as Property<StringValue>
+                        )
+                    },
+                    Arguments.Builder::setIdentifier,
+                    TypeConverters.STRING_PARAM_VALUE_CONVERTER,
+                    TypeConverters.STRING_VALUE_ENTITY_CONVERTER,
+                )
+                .bindOptionalParameter(
+                    "timer.name",
+                    { properties ->
+                        Optional.ofNullable(
+                            properties[PropertyMapStrings.NAME.key]
+                                as Property<StringValue>
+                        )
+                    },
+                    Arguments.Builder::setName,
+                    TypeConverters.STRING_PARAM_VALUE_CONVERTER,
+                    TypeConverters.STRING_VALUE_ENTITY_CONVERTER,
+                )
+                .bindOptionalParameter(
+                    "timer.duration",
+                    { properties ->
+                        Optional.ofNullable(
+                            properties[PropertyMapStrings.DURATION.key]
+                                as Property<Duration>
+                        )
+                    },
+                    Arguments.Builder::setDuration,
+                    TypeConverters.DURATION_PARAM_VALUE_CONVERTER,
+                    TypeConverters.DURATION_ENTITY_CONVERTER,
+                )
+                .bindOptionalOutput(
+                    "executionStatus",
+                    { output -> Optional.ofNullable(output.executionStatus) },
+                    ExecutionStatus::toParamValue,
+                )
+                .build()
+
+        private val SESSION_BRIDGE = SessionBridge<ExecutionSession, Confirmation> {
+                session ->
+            val taskHandlerBuilder = TaskHandler.Builder<Confirmation>()
+            session.nameListener?.let {
+                taskHandlerBuilder.registerValueTaskParam(
+                    "timer.name",
+                    it,
+                    TypeConverters.STRING_PARAM_VALUE_CONVERTER,
+                )
+            }
+            session.durationListener?.let {
+                taskHandlerBuilder.registerValueTaskParam(
+                    "timer.duration",
+                    it,
+                    TypeConverters.DURATION_PARAM_VALUE_CONVERTER,
+                )
+            }
+            taskHandlerBuilder.build()
+        }
     }
+}
