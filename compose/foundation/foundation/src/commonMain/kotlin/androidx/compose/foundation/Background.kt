@@ -89,7 +89,7 @@ fun Modifier.background(
 )
 
 private class BackgroundElement(
-    private val color: Color? = null,
+    private val color: Color = Color.Unspecified,
     private val brush: Brush? = null,
     private val alpha: Float,
     private val shape: Shape,
@@ -116,7 +116,7 @@ private class BackgroundElement(
     }
 
     override fun hashCode(): Int {
-        var result = color?.hashCode() ?: 0
+        var result = color.hashCode()
         result = 31 * result + (brush?.hashCode() ?: 0)
         result = 31 * result + alpha.hashCode()
         result = 31 * result + shape.hashCode()
@@ -133,7 +133,7 @@ private class BackgroundElement(
 }
 
 private class BackgroundNode(
-    var color: Color?,
+    var color: Color,
     var brush: Brush?,
     var alpha: Float,
     var shape: Shape,
@@ -155,7 +155,7 @@ private class BackgroundNode(
     }
 
     private fun ContentDrawScope.drawRect() {
-        color?.let { drawRect(color = it) }
+        if (color != Color.Unspecified) drawRect(color = color)
         brush?.let { drawRect(brush = it, alpha = alpha) }
     }
 
@@ -166,7 +166,7 @@ private class BackgroundNode(
             } else {
                 shape.createOutline(size, layoutDirection, this)
             }
-        color?.let { drawOutline(outline, color = it) }
+        if (color != Color.Unspecified) drawOutline(outline, color = color)
         brush?.let { drawOutline(outline, brush = it, alpha = alpha) }
         lastOutline = outline
         lastSize = size

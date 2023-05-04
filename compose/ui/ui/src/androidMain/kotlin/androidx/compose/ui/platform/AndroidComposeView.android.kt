@@ -911,13 +911,20 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
         }
     }
 
-    private fun convertMeasureSpec(measureSpec: Int): Pair<Int, Int> {
+    @Suppress("NOTHING_TO_INLINE")
+    private inline operator fun ULong.component1() = (this shr 32).toInt()
+    @Suppress("NOTHING_TO_INLINE")
+    private inline operator fun ULong.component2() = (this and 0xFFFFFFFFUL).toInt()
+
+    private fun pack(a: Int, b: Int) = (a.toULong() shl 32 or b.toULong())
+
+    private fun convertMeasureSpec(measureSpec: Int): ULong {
         val mode = MeasureSpec.getMode(measureSpec)
         val size = MeasureSpec.getSize(measureSpec)
         return when (mode) {
-            MeasureSpec.EXACTLY -> size to size
-            MeasureSpec.UNSPECIFIED -> 0 to Constraints.Infinity
-            MeasureSpec.AT_MOST -> 0 to size
+            MeasureSpec.EXACTLY -> pack(size, size)
+            MeasureSpec.UNSPECIFIED -> pack(0, Constraints.Infinity)
+            MeasureSpec.AT_MOST -> pack(0, size)
             else -> throw IllegalStateException()
         }
     }

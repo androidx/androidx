@@ -376,12 +376,21 @@ internal class Node(val modifierNode: Modifier.Node) : NodeParent() {
 
         @OptIn(ExperimentalComposeUiApi::class)
         for ((key, change) in changes) {
-            // Filter for changes that are associated with pointer ids that are relevant to this
-            // node
-            if (key in pointerIds) {
+            val keyValue = key.value
+
+            // Using for (key in pointerIds) causes key to be boxed and create allocations
+            var keyInPointerIds = false
+            for (i in 0..pointerIds.lastIndex) {
+                if (pointerIds[i].value == keyValue) {
+                    keyInPointerIds = true
+                    break
+                }
+            }
+
+            if (keyInPointerIds) {
                 // And translate their position relative to the parent coordinates, to give us a
                 // change local to the PointerInputFilter's coordinates
-                val historical = mutableListOf<HistoricalChange>()
+                val historical = ArrayList<HistoricalChange>(change.historical.size)
                 change.historical.fastForEach {
                     historical.add(
                         HistoricalChange(
