@@ -43,7 +43,7 @@ import androidx.compose.ui.node.invalidateDraw
 import androidx.compose.ui.node.invalidateLayer
 import androidx.compose.ui.node.invalidateMeasurement
 import androidx.compose.ui.node.invalidateSemantics
-import androidx.compose.ui.semantics.SemanticsConfiguration
+import androidx.compose.ui.semantics.SemanticsPropertyReceiver
 import androidx.compose.ui.semantics.getTextLayoutResult
 import androidx.compose.ui.semantics.text
 import androidx.compose.ui.text.AnnotatedString
@@ -207,7 +207,6 @@ internal class TextAnnotatedStringNode(
         callbacksChanged: Boolean
     ) {
         if (textChanged) {
-            _semanticsConfiguration = null
             invalidateSemantics()
         }
 
@@ -230,11 +229,9 @@ internal class TextAnnotatedStringNode(
         }
     }
 
-    private var _semanticsConfiguration: SemanticsConfiguration? = null
-
     private var semanticsTextLayoutResult: ((MutableList<TextLayoutResult>) -> Boolean)? = null
 
-    private fun generateSemantics(text: AnnotatedString): SemanticsConfiguration {
+    override fun SemanticsPropertyReceiver.applySemantics() {
         var localSemanticsTextLayoutResult = semanticsTextLayoutResult
         if (localSemanticsTextLayoutResult == null) {
             localSemanticsTextLayoutResult = { textLayoutResult ->
@@ -245,23 +242,9 @@ internal class TextAnnotatedStringNode(
             }
             semanticsTextLayoutResult = localSemanticsTextLayoutResult
         }
-        return SemanticsConfiguration().also {
-            it.isMergingSemanticsOfDescendants = false
-            it.isClearingSemantics = false
-            it.text = text
-            it.getTextLayoutResult(action = localSemanticsTextLayoutResult)
-        }
+        text = this@TextAnnotatedStringNode.text
+        getTextLayoutResult(action = localSemanticsTextLayoutResult)
     }
-
-    override val semanticsConfiguration: SemanticsConfiguration
-        get() {
-            var localSemantics = _semanticsConfiguration
-            if (localSemantics == null) {
-                localSemantics = generateSemantics(text)
-                _semanticsConfiguration = localSemantics
-            }
-            return localSemantics
-        }
 
     fun measureNonExtension(
         measureScope: MeasureScope,

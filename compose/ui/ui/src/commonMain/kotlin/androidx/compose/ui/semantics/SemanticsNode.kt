@@ -402,7 +402,9 @@ class SemanticsNode internal constructor(
         }
         val fakeNode = SemanticsNode(
             outerSemanticsNode = object : SemanticsModifierNode, Modifier.Node() {
-                override val semanticsConfiguration = configuration
+                override fun SemanticsPropertyReceiver.applySemantics() {
+                    properties()
+                }
             },
             mergingEnabled = false,
             layoutNode = LayoutNode(
@@ -427,25 +429,9 @@ class SemanticsNode internal constructor(
     }
 }
 
-internal val LayoutNode.collapsedSemantics: SemanticsConfiguration?
-    get() {
-        var result: SemanticsConfiguration? = null
-        nodes.tailToHead(Nodes.Semantics) {
-            val current = result
-            if (current == null || it.semanticsConfiguration.isClearingSemantics) {
-                result = it.semanticsConfiguration
-            } else {
-                result = it.semanticsConfiguration.copy().also {
-                    it.collapsePeer(current)
-                }
-            }
-        }
-        return result
-    }
-
 internal val LayoutNode.outerMergingSemantics: SemanticsModifierNode?
     get() = nodes.firstFromHead(Nodes.Semantics) {
-        it.semanticsConfiguration.isMergingSemanticsOfDescendants
+        it.shouldMergeDescendantSemantics
     }
 
 /**

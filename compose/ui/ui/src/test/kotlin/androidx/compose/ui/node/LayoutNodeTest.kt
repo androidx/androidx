@@ -61,6 +61,7 @@ import androidx.compose.ui.platform.WindowInfo
 import androidx.compose.ui.platform.invertTo
 import androidx.compose.ui.semantics.SemanticsConfiguration
 import androidx.compose.ui.semantics.SemanticsModifier
+import androidx.compose.ui.semantics.SemanticsPropertyReceiver
 import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
@@ -1382,12 +1383,11 @@ class LayoutNodeTest {
 
     @Test
     fun hitTestSemantics_pointerInMinimumTouchTarget_closestHit() {
-        val semanticsConfiguration = SemanticsConfiguration()
         val semanticsNode1 = object : SemanticsModifierNode, Modifier.Node() {
-            override val semanticsConfiguration: SemanticsConfiguration = semanticsConfiguration
+            override fun SemanticsPropertyReceiver.applySemantics() { }
         }
         val semanticsNode2 = object : SemanticsModifierNode, Modifier.Node() {
-            override val semanticsConfiguration: SemanticsConfiguration = semanticsConfiguration
+            override fun SemanticsPropertyReceiver.applySemantics() { }
         }
         data class TestSemanticsElement(
             private val node: Modifier.Node

@@ -30,9 +30,7 @@ import androidx.compose.ui.node.DelegatingNode
 import androidx.compose.ui.node.DrawModifierNode
 import androidx.compose.ui.node.GlobalPositionAwareModifierNode
 import androidx.compose.ui.node.LayoutModifierNode
-import androidx.compose.ui.node.SemanticsModifierNode
 import androidx.compose.ui.node.invalidateMeasurement
-import androidx.compose.ui.semantics.SemanticsConfiguration
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.Placeholder
 import androidx.compose.ui.text.TextLayoutResult
@@ -59,8 +57,7 @@ internal class SelectableTextAnnotatedStringNode(
     onPlaceholderLayout: ((List<Rect?>) -> Unit)? = null,
     private val selectionController: SelectionController? = null,
     overrideColor: ColorProducer? = null
-) : DelegatingNode(), LayoutModifierNode, DrawModifierNode, GlobalPositionAwareModifierNode,
-    SemanticsModifierNode {
+) : DelegatingNode(), LayoutModifierNode, DrawModifierNode, GlobalPositionAwareModifierNode {
 
     private val delegate = delegate(
         TextAnnotatedStringNode(
@@ -95,9 +92,6 @@ internal class SelectableTextAnnotatedStringNode(
         measurable: Measurable,
         constraints: Constraints
     ): MeasureResult = delegate.measureNonExtension(this, measurable, constraints)
-
-    override val semanticsConfiguration: SemanticsConfiguration
-        get() = delegate.semanticsConfiguration
 
     override fun IntrinsicMeasureScope.minIntrinsicWidth(
         measurable: IntrinsicMeasurable,
