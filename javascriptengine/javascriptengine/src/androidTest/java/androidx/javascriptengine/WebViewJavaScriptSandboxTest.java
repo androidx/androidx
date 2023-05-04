@@ -17,9 +17,12 @@
 package androidx.javascriptengine;
 
 import android.content.Context;
+import android.content.pm.PackageInfo;
+import android.webkit.WebView;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
+import androidx.core.content.pm.PackageInfoCompat;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
@@ -51,6 +54,18 @@ public class WebViewJavaScriptSandboxTest {
     @Before
     public void setUp() throws Throwable {
         Assume.assumeTrue(JavaScriptSandbox.isSupported());
+    }
+
+    // Get the current WebView provider version. In a versionCode of AAAABBBCD, AAAA is the build
+    // number and BBB is the patch number. C and D may usually be ignored.
+    //
+    // Strongly prefer using feature flags over version checks if possible.
+    public long getWebViewVersion() {
+        PackageInfo systemWebViewPackage = WebView.getCurrentWebViewPackage();
+        if (systemWebViewPackage == null) {
+            Assert.fail("No current WebView provider");
+        }
+        return PackageInfoCompat.getLongVersionCode(systemWebViewPackage);
     }
 
     @Test
@@ -571,6 +586,14 @@ public class WebViewJavaScriptSandboxTest {
     @Test
     @LargeTest
     public void testHeapSizeEnforced() throws Throwable {
+        // WebView versions < 110.0.5438.0 do not contain OOM crashes to a single isolate and
+        // instead crash the whole sandbox process. This change is not tracked in a feature flag.
+        // Versions < 110.0.5438.0 are not considered to be broken, but their behavior is not
+        // of interest for this test.
+        // See Chromium change: https://chromium-review.googlesource.com/c/chromium/src/+/4047785
+        Assume.assumeTrue("WebView version does not support per-isolate OOM handling",
+                getWebViewVersion() >= 5438_000_00L);
+
         final long maxHeapSize = REASONABLE_HEAP_SIZE;
         // We need to beat the v8 optimizer to ensure it really allocates the required memory. Note
         // that we're allocating an array of elements - not bytes. Filling will ensure that the
@@ -587,6 +610,7 @@ public class WebViewJavaScriptSandboxTest {
         try (JavaScriptSandbox jsSandbox = jsSandboxFuture1.get(5, TimeUnit.SECONDS)) {
             Assume.assumeTrue(jsSandbox.isFeatureSupported(
                     JavaScriptSandbox.JS_FEATURE_ISOLATE_MAX_HEAP_SIZE));
+
             Assume.assumeTrue(
                     jsSandbox.isFeatureSupported(JavaScriptSandbox.JS_FEATURE_PROMISE_RETURN));
             IsolateStartupParameters isolateStartupParameters = new IsolateStartupParameters();
@@ -657,6 +681,14 @@ public class WebViewJavaScriptSandboxTest {
     @Test
     @LargeTest
     public void testIsolateCreationAfterCrash() throws Throwable {
+        // WebView versions < 110.0.5438.0 do not contain OOM crashes to a single isolate and
+        // instead crash the whole sandbox process. This change is not tracked in a feature flag.
+        // Versions < 110.0.5438.0 are not considered to be broken, but their behavior is not
+        // of interest for this test.
+        // See Chromium change: https://chromium-review.googlesource.com/c/chromium/src/+/4047785
+        Assume.assumeTrue("WebView version does not support per-isolate OOM handling",
+                getWebViewVersion() >= 5438_000_00L);
+
         final long maxHeapSize = REASONABLE_HEAP_SIZE;
         // We need to beat the v8 optimizer to ensure it really allocates the required memory. Note
         // that we're allocating an array of elements - not bytes. Filling will ensure that the
