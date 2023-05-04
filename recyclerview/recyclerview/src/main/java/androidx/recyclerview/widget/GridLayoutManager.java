@@ -312,8 +312,8 @@ public class GridLayoutManager extends LinearLayoutManager {
                                     startingAdapterPosition);
                     break;
                 case View.FOCUS_UP:
-                    scrollTargetPosition = findScrollTargetPositionAbove(startingRow,
-                            startingColumn, startingAdapterPosition);
+                    scrollTargetPosition = findScrollTargetPositionAbove(row, column,
+                            startingAdapterPosition);
                     break;
                 case View.FOCUS_DOWN:
                     scrollTargetPosition = findScrollTargetPositionBelow(startingRow,
@@ -515,9 +515,40 @@ public class GridLayoutManager extends LinearLayoutManager {
                 return INVALID_POSITION;
             }
 
-            if (currentRow < startingRow && currentColumn == startingColumn) {
-                scrollTargetPosition = i;
-                break;
+            if (mOrientation == VERTICAL) {
+                /*
+                 * The scroll target may span multiple columns. For example, in this grid...
+                 * 1   2   3
+                 * 4   4   5
+                 * 6   7
+                 * ... moving from 7 to 4 interprets as staying in second column, and moving from
+                 * 6 to 4 interprets as staying in the first column.
+                 */
+                if (currentRow < startingRow && getColumnIndices(i).contains(startingColumn)) {
+                    scrollTargetPosition = i;
+                    mRowWithAccessibilityFocus = currentRow;
+                    // Note: mColumnWithAccessibilityFocus not updated since the scroll target is on
+                    // the same column.
+                    break;
+                }
+            } else { // HORIZONTAL
+                /*
+                 * The scroll target may span multiple rows. In this grid...
+                 * 1   4
+                 * 2   5
+                 * 2
+                 * 3
+                 * ... 2 spans two rows and moving up from 3 to 2 interprets moving to the third
+                 * row.
+                 */
+                if (currentRow < startingRow && currentColumn == startingColumn) {
+                    Set<Integer> rowIndices = getRowIndices(i);
+                    scrollTargetPosition = i;
+                    mRowWithAccessibilityFocus = Collections.max(rowIndices);
+                    // Note: mColumnWithAccessibilityFocus not updated since the scroll target is on
+                    // the same column.
+                    break;
+                }
             }
         }
         return scrollTargetPosition;
