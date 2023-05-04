@@ -162,13 +162,23 @@ public final class JavaScriptIsolate implements AutoCloseable {
         @Override
         public void reportResult(String result) {
             Objects.requireNonNull(result);
-            handleEvaluationResult(mCompleter, result);
+            final long identityToken = Binder.clearCallingIdentity();
+            try {
+                handleEvaluationResult(mCompleter, result);
+            } finally {
+                Binder.restoreCallingIdentity(identityToken);
+            }
         }
 
         @Override
         public void reportError(@ExecutionErrorTypes int type, String error) {
             Objects.requireNonNull(error);
-            handleEvaluationError(mCompleter, type, error);
+            final long identityToken = Binder.clearCallingIdentity();
+            try {
+                handleEvaluationError(mCompleter, type, error);
+            } finally {
+                Binder.restoreCallingIdentity(identityToken);
+            }
         }
     }
 
