@@ -20,6 +20,7 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingSource
 import androidx.paging.PagingSource.LoadParams
+import androidx.paging.PagingSourceFactory
 import androidx.paging.PagingState
 import androidx.paging.cachedIn
 import androidx.paging.insertSeparators
@@ -2355,9 +2356,9 @@ class PagerFlowSnapshotTest(
 }
 
 private class WrappedPagingSourceFactory(
-    private val factory: () -> PagingSource<Int, Int>,
+    private val factory: PagingSourceFactory<Int, Int>,
     private val loadDelay: Long,
-) : () -> PagingSource<Int, Int> {
+) : PagingSourceFactory<Int, Int> {
     override fun invoke(): PagingSource<Int, Int> = TestPagingSource(factory(), loadDelay)
 }
 

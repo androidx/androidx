@@ -19,6 +19,7 @@ package androidx.paging.testing
 import androidx.paging.InvalidatingPagingSourceFactory
 import androidx.paging.PagingSource
 import androidx.paging.Pager
+import androidx.paging.PagingSourceFactory
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
@@ -41,7 +42,7 @@ import kotlinx.coroutines.launch
  */
 public fun <Value : Any> Flow<@JvmSuppressWildcards List<Value>>.asPagingSourceFactory(
     coroutineScope: CoroutineScope
-): () -> PagingSource<Int, Value> {
+): PagingSourceFactory<Int, Value> {
 
     var data: List<Value>? = null
 

@@ -26,7 +26,7 @@ package androidx.paging.testing {
   }
 
   public final class StaticListPagingSourceFactoryKt {
-    method public static <Value> kotlin.jvm.functions.Function0<androidx.paging.PagingSource<java.lang.Integer,Value>> asPagingSourceFactory(kotlinx.coroutines.flow.Flow<java.util.List<Value>>, kotlinx.coroutines.CoroutineScope coroutineScope);
+    method public static <Value> androidx.paging.PagingSourceFactory<java.lang.Integer,Value> asPagingSourceFactory(kotlinx.coroutines.flow.Flow<java.util.List<Value>>, kotlinx.coroutines.CoroutineScope coroutineScope);
   }
 
   public final class TestPager<Key, Value> {
