@@ -401,7 +401,7 @@ package androidx.compose.ui.graphics {
   }
 
   public fun interface ColorProducer {
-    method public long invoke();
+    method public long produce();
   }
 
   @androidx.compose.runtime.Immutable @kotlin.jvm.JvmInline public final value class FilterQuality {

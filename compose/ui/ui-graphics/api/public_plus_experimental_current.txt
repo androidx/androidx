@@ -401,7 +401,7 @@ package androidx.compose.ui.graphics {
   }
 
   public fun interface ColorProducer {
-    method public long invoke();
+    method public long produce();
   }
 
   @kotlin.RequiresOptIn(message="This API is experimental and is likely to change in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalGraphicsApi {
