@@ -60,7 +60,7 @@ class CallsManager constructor(context: Context) {
     private var mPhoneAccount: PhoneAccount? = null
     private val mTelecomManager: TelecomManager =
         mContext.getSystemService(Context.TELECOM_SERVICE) as TelecomManager
-    private val mConnectionService: JetpackConnectionService = JetpackConnectionService()
+    internal val mConnectionService: JetpackConnectionService = JetpackConnectionService()
 
     // A single declared constant for a direct [Executor], since the coroutines primitives we invoke
     // from the associated callbacks will perform their own dispatch as needed.

@@ -31,6 +31,7 @@ dependencies {
     implementation(libs.kotlinCoroutinesCore)
     implementation(libs.kotlinCoroutinesGuava)
     // Test dependencies
+    androidTestImplementation(project(":internal-testutils-common"))
     androidTestImplementation(libs.kotlinStdlib)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
