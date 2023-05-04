@@ -26,7 +26,7 @@ dependencies {
     api(libs.kotlinStdlib)
 
     implementation('androidx.appcompat:appcompat:1.6.1')
-    implementation('androidx.core:core:1.5.0-beta01')
+    implementation(project(':core:core'))
 
     androidTestImplementation("androidx.annotation:annotation:1.4.0")
     androidTestImplementation("androidx.core:core-ktx:1.8.0")
