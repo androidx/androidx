@@ -66,6 +66,7 @@ import static android.content.Context.WALLPAPER_SERVICE;
 import static android.content.Context.WIFI_P2P_SERVICE;
 import static android.content.Context.WIFI_SERVICE;
 import static android.content.Context.WINDOW_SERVICE;
+import static android.view.WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -138,6 +139,7 @@ import android.telecom.TelecomManager;
 import android.telephony.SubscriptionManager;
 import android.telephony.TelephonyManager;
 import android.util.DisplayMetrics;
+import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.WindowManager;
 import android.view.accessibility.AccessibilityManager;
@@ -147,8 +149,10 @@ import android.view.textservice.TextServicesManager;
 
 import androidx.annotation.OptIn;
 import androidx.core.app.NotificationManagerCompat;
+import androidx.core.hardware.display.DisplayManagerCompat;
 import androidx.core.os.BuildCompat;
 import androidx.core.test.R;
+import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
@@ -604,6 +608,60 @@ public class ContextCompatTest extends BaseInstrumentationTestCase<ThemedYellowA
                             ? PackageManager.PERMISSION_GRANTED : PackageManager.PERMISSION_DENIED,
                     ContextCompat.checkSelfPermission(mContext,
                             Manifest.permission.POST_NOTIFICATIONS));
+        }
+    }
+
+    @Test
+    public void testGetDisplayFromActivity() {
+        final Display actualDisplay = ContextCompat.getDisplay(mContext);
+        if (Build.VERSION.SDK_INT >= 30) {
+            assertEquals(mContext.getDisplay(), actualDisplay);
+        } else {
+            final WindowManager windowManager =
+                    (WindowManager) mContext.getSystemService(WINDOW_SERVICE);
+            assertEquals(actualDisplay, windowManager.getDefaultDisplay());
+        }
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 17)
+    public void testGetDisplayFromDisplayContext() {
+        final DisplayManagerCompat displayManagerCompat = DisplayManagerCompat
+                .getInstance(mContext);
+        final Display defaultDisplay =  displayManagerCompat.getDisplay(Display.DEFAULT_DISPLAY);
+        final Context displayContext = mContext.createDisplayContext(defaultDisplay);
+
+        assertEquals(ContextCompat.getDisplay(displayContext), defaultDisplay);
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 30)
+    public void testGetDisplayFromWindowContext() {
+        final Context windowContext = mContext.createWindowContext(TYPE_APPLICATION_OVERLAY, null);
+
+        assertEquals(ContextCompat.getDisplay(windowContext), windowContext.getDisplay());
+    }
+
+    @Test
+    public void testGetDisplayFromApplication() {
+        final Context applicationContext = ApplicationProvider.getApplicationContext();
+        final Context spyContext = spy(applicationContext);
+        final Display actualDisplay = ContextCompat.getDisplay(spyContext);
+
+        if (Build.VERSION.SDK_INT >= 30) {
+            verify(spyContext).getSystemService(eq(DisplayManager.class));
+
+            final Display defaultDisplay = DisplayManagerCompat.getInstance(spyContext)
+                    .getDisplay(Display.DEFAULT_DISPLAY);
+            assertEquals(defaultDisplay, actualDisplay);
+        } else {
+            final WindowManager windowManager =
+                    (WindowManager) spyContext.getSystemService(WINDOW_SERVICE);
+            // Don't verify if the returned display is the same instance because Application is
+            // not a DisplayContext and the framework always create a fallback Display for
+            // the Context that not associated with a Display.
+            assertEquals(windowManager.getDefaultDisplay().getDisplayId(),
+                    actualDisplay.getDisplayId());
         }
     }
 }
