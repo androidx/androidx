@@ -528,6 +528,7 @@ fun rememberModalBottomSheetState(
  * @param sheetContent The content of the bottom sheet.
  * @param modifier Optional [Modifier] for the entire component.
  * @param sheetState The state of the bottom sheet.
+ * @param sheetGesturesEnabled Whether the bottom sheet can be interacted with by gestures.
  * @param sheetShape The shape of the bottom sheet.
  * @param sheetElevation The elevation of the bottom sheet.
  * @param sheetBackgroundColor The background color of the bottom sheet.
@@ -547,6 +548,7 @@ fun ModalBottomSheetLayout(
     modifier: Modifier = Modifier,
     sheetState: ModalBottomSheetState =
         rememberModalBottomSheetState(Hidden),
+    sheetGesturesEnabled: Boolean = true,
     sheetShape: Shape = MaterialTheme.shapes.large,
     sheetElevation: Dp = ModalBottomSheetDefaults.Elevation,
     sheetBackgroundColor: Color = MaterialTheme.colors.surface,
@@ -585,13 +587,17 @@ fun ModalBottomSheetLayout(
                 .align(Alignment.TopCenter) // We offset from the top so we'll center from there
                 .widthIn(max = MaxModalBottomSheetWidth)
                 .fillMaxWidth()
-                .nestedScroll(
-                    remember(sheetState.anchoredDraggableState, orientation) {
-                        ConsumeSwipeWithinBottomSheetBoundsNestedScrollConnection(
-                            state = sheetState.anchoredDraggableState,
-                            orientation = orientation
+                .then(
+                    if (sheetGesturesEnabled) {
+                        Modifier.nestedScroll(
+                            remember(sheetState.anchoredDraggableState, orientation) {
+                                ConsumeSwipeWithinBottomSheetBoundsNestedScrollConnection(
+                                    state = sheetState.anchoredDraggableState,
+                                    orientation = orientation
+                                )
+                            }
                         )
-                    }
+                    } else Modifier
                 )
                 .offset {
                     IntOffset(
@@ -604,7 +610,8 @@ fun ModalBottomSheetLayout(
                 .anchoredDraggable(
                     state = sheetState.anchoredDraggableState,
                     orientation = orientation,
-                    enabled = sheetState.anchoredDraggableState.currentValue != Hidden,
+                    enabled = sheetGesturesEnabled &&
+                        sheetState.anchoredDraggableState.currentValue != Hidden,
                 )
                 .onSizeChanged { sheetSize ->
                     val anchors = buildMap {
@@ -619,37 +626,45 @@ fun ModalBottomSheetLayout(
                     }
                     sheetState.anchoredDraggableState.updateAnchors(anchors, anchorChangeCallback)
                 }
-                .semantics {
-                    if (sheetState.isVisible) {
-                        dismiss {
-                            if (sheetState.anchoredDraggableState.confirmValueChange(Hidden)) {
-                                scope.launch { sheetState.hide() }
-                            }
-                            true
-                        }
-                        if (sheetState.anchoredDraggableState.currentValue == HalfExpanded) {
-                            expand {
-                                if (sheetState.anchoredDraggableState.confirmValueChange(
-                                        Expanded
-                                    )
-                                ) {
-                                    scope.launch { sheetState.expand() }
+                .then(
+                    if (sheetGesturesEnabled) {
+                        Modifier.semantics {
+                            if (sheetState.isVisible) {
+                                dismiss {
+                                    if (
+                                        sheetState.anchoredDraggableState.confirmValueChange(Hidden)
+                                    ) {
+                                        scope.launch { sheetState.hide() }
+                                    }
+                                    true
                                 }
-                                true
-                            }
-                        } else if (sheetState.hasHalfExpandedState) {
-                            collapse {
-                                if (sheetState.anchoredDraggableState.confirmValueChange(
-                                        HalfExpanded
-                                    )
+                                if (sheetState.anchoredDraggableState.currentValue
+                                    == HalfExpanded
                                 ) {
-                                    scope.launch { sheetState.halfExpand() }
+                                    expand {
+                                        if (sheetState.anchoredDraggableState.confirmValueChange(
+                                                Expanded
+                                            )
+                                        ) {
+                                            scope.launch { sheetState.expand() }
+                                        }
+                                        true
+                                    }
+                                } else if (sheetState.hasHalfExpandedState) {
+                                    collapse {
+                                        if (sheetState.anchoredDraggableState.confirmValueChange(
+                                                HalfExpanded
+                                            )
+                                        ) {
+                                            scope.launch { sheetState.halfExpand() }
+                                        }
+                                        true
+                                    }
                                 }
-                                true
                             }
                         }
-                    }
-                },
+                    } else Modifier
+                ),
             shape = sheetShape,
             elevation = sheetElevation,
             color = sheetBackgroundColor,
