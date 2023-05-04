@@ -58,6 +58,7 @@ package androidx.wear.protolayout.expression.pipeline {
     method public static androidx.wear.protolayout.expression.pipeline.StateStore create(java.util.Map<java.lang.String!,androidx.wear.protolayout.expression.StateEntryBuilders.StateEntryValue!>);
     method @UiThread public void setStateEntryValues(java.util.Map<java.lang.String!,androidx.wear.protolayout.expression.StateEntryBuilders.StateEntryValue!>);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @UiThread public void setStateEntryValuesProto(java.util.Map<java.lang.String!,androidx.wear.protolayout.expression.proto.StateEntryProto.StateEntryValue!>);
+    field public static final int MAX_STATE_ENTRY_COUNT = 100; // 0x64
   }
 
   public interface TimeGateway {
