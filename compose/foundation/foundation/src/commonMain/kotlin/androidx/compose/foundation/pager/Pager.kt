@@ -181,7 +181,8 @@ fun HorizontalPager(
  */
 @Deprecated(
     "Please use the overload without pageCount. pageCount should be provided " +
-        "through PagerState.", ReplaceWith(
+        "through PagerState.",
+    ReplaceWith(
         """HorizontalPager(
             modifier = modifier,
             state = state,
@@ -202,8 +203,9 @@ fun HorizontalPager(
             "androidx.compose.foundation.layout.PaddingValues",
             "androidx.compose.foundation.pager.PageSize",
             "androidx.compose.foundation.pager.PagerDefaults"
-        )
-    )
+        ),
+    ),
+    level = DeprecationLevel.ERROR
 )
 @Composable
 @ExperimentalFoundationApi
@@ -387,7 +389,8 @@ fun VerticalPager(
             "androidx.compose.foundation.pager.PageSize",
             "androidx.compose.foundation.pager.PagerDefaults"
         )
-    )
+    ),
+    level = DeprecationLevel.ERROR
 )
 @Composable
 @ExperimentalFoundationApi
