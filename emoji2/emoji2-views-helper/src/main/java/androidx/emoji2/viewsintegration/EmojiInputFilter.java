@@ -15,6 +15,9 @@
  */
 package androidx.emoji2.viewsintegration;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
+
+import android.os.Handler;
 import android.text.InputFilter;
 import android.text.Selection;
 import android.text.Spannable;
@@ -39,7 +42,7 @@ import java.lang.ref.WeakReference;
  * effects.
  *
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
+@RestrictTo(LIBRARY)
 @RequiresApi(19)
 final class EmojiInputFilter implements android.text.InputFilter {
     private final TextView mTextView;
@@ -88,15 +91,17 @@ final class EmojiInputFilter implements android.text.InputFilter {
         }
     }
 
-    private InitCallback getInitCallback() {
+    @RestrictTo(LIBRARY)
+    InitCallback getInitCallback() {
         if (mInitCallback == null) {
             mInitCallback = new InitCallbackImpl(mTextView, this);
         }
         return mInitCallback;
     }
 
+    @RestrictTo(LIBRARY)
     @RequiresApi(19)
-    private static class InitCallbackImpl extends InitCallback {
+    static class InitCallbackImpl extends InitCallback implements Runnable  {
         private final Reference<TextView> mViewRef;
         private final Reference<EmojiInputFilter> mEmojiInputFilterReference;
 
@@ -109,6 +114,19 @@ final class EmojiInputFilter implements android.text.InputFilter {
         @Override
         public void onInitialized() {
             super.onInitialized();
+            final TextView textView = mViewRef.get();
+            if (textView == null) {
+                return;
+            }
+            // we need to move to the actual thread this view is using as main
+            Handler handler = textView.getHandler();
+            if (handler != null) {
+                handler.post(this);
+            }
+        }
+
+        @Override
+        public void run() {
             @Nullable final TextView textView = mViewRef.get();
             @Nullable final InputFilter myInputFilter = mEmojiInputFilterReference.get();
             if (!isInputFilterCurrentlyRegisteredOnTextView(textView, myInputFilter)) return;
