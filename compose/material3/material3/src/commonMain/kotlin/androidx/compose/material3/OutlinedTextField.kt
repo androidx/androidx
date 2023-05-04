@@ -715,14 +715,6 @@ private class OutlinedTextFieldMeasurePolicy(
                 topPadding + bottomPadding
         )
 
-        // measure supporting text
-        val supportingConstraints = relaxedConstraints.offset(
-            vertical = -occupiedSpaceVertically
-        ).copy(minHeight = 0)
-        val supportingPlaceable =
-            measurables.find { it.layoutId == SupportingId }?.measure(supportingConstraints)
-        val supportingHeight = heightOrZero(supportingPlaceable)
-
         val width =
             calculateWidth(
                 leadingPlaceableWidth = widthOrZero(leadingPlaceable),
@@ -737,6 +729,15 @@ private class OutlinedTextFieldMeasurePolicy(
                 density = density,
                 paddingValues = paddingValues,
             )
+
+        // measure supporting text
+        val supportingConstraints = relaxedConstraints.offset(
+            vertical = -occupiedSpaceVertically
+        ).copy(minHeight = 0, maxWidth = width)
+        val supportingPlaceable =
+            measurables.find { it.layoutId == SupportingId }?.measure(supportingConstraints)
+        val supportingHeight = heightOrZero(supportingPlaceable)
+
         val totalHeight =
             calculateHeight(
                 leadingPlaceableHeight = heightOrZero(leadingPlaceable),
