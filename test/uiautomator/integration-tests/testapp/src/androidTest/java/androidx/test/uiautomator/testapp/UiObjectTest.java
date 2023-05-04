@@ -24,12 +24,10 @@ import static org.junit.Assert.assertTrue;
 import android.graphics.Point;
 import android.graphics.Rect;
 
-import androidx.test.filters.FlakyTest;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.uiautomator.UiObject;
 import androidx.test.uiautomator.UiSelector;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class UiObjectTest extends BaseTest {
@@ -119,7 +117,6 @@ public class UiObjectTest extends BaseTest {
         assertTrue(expectedDragDest.waitForExists(TIMEOUT_MS));
     }
 
-    @Ignore // b/266617747
     @Test
     public void testSwipeUp() throws Exception {
         launchTestActivity(SwipeTestActivity.class);
@@ -141,7 +138,6 @@ public class UiObjectTest extends BaseTest {
         assertTrue(expectedSwipeRegion.waitForExists(TIMEOUT_MS));
     }
 
-    @Ignore // b/266617747
     @Test
     public void testSwipeDown() throws Exception {
         launchTestActivity(SwipeTestActivity.class);
@@ -161,7 +157,6 @@ public class UiObjectTest extends BaseTest {
         assertTrue(expectedSwipeRegion.waitForExists(TIMEOUT_MS));
     }
 
-    @FlakyTest(bugId = 242761733)
     @Test
     public void testSwipeLeft() throws Exception {
         launchTestActivity(SwipeTestActivity.class);
@@ -181,7 +176,6 @@ public class UiObjectTest extends BaseTest {
         assertTrue(expectedSwipeRegion.waitForExists(TIMEOUT_MS));
     }
 
-    @Ignore // b/266617747
     @Test
     public void testSwipeRight() throws Exception {
         launchTestActivity(SwipeTestActivity.class);
