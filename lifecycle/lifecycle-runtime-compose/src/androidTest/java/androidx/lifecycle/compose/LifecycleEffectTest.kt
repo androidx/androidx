@@ -110,4 +110,78 @@ class LifecycleEffectTest {
                 .isEqualTo(1)
         }
     }
+
+    @Test
+    fun lifecycleStartEffectTest() {
+        lifecycleOwner = TestLifecycleOwner(
+            Lifecycle.State.INITIALIZED,
+            dispatcher
+        )
+        var startCount = 0
+        var stopCount = 0
+
+        composeTestRule.waitForIdle()
+        composeTestRule.setContent {
+            CompositionLocalProvider(LocalLifecycleOwner provides lifecycleOwner) {
+                LifecycleStartEffect {
+                    startCount++
+
+                    onStop {
+                        stopCount++
+                    }
+                }
+            }
+        }
+
+        composeTestRule.runOnIdle {
+            assertWithMessage("Lifecycle should not be started (or stopped)")
+                .that(startCount)
+                .isEqualTo(0)
+
+            lifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_START)
+            assertWithMessage("Lifecycle should have been started")
+                .that(startCount)
+                .isEqualTo(1)
+
+            lifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_STOP)
+            assertWithMessage("Lifecycle should have been stopped")
+                .that(stopCount)
+                .isEqualTo(1)
+        }
+    }
+
+    @Test
+    fun lifecycleResumeEffectTest() {
+        var resumeCount = 0
+        var pauseCount = 0
+
+        composeTestRule.waitForIdle()
+        composeTestRule.setContent {
+            CompositionLocalProvider(LocalLifecycleOwner provides lifecycleOwner) {
+                LifecycleResumeEffect {
+                    resumeCount++
+
+                    onPause {
+                        pauseCount++
+                    }
+                }
+            }
+        }
+
+        composeTestRule.runOnIdle {
+            assertWithMessage("Lifecycle should not be resumed (or paused)")
+                .that(resumeCount)
+                .isEqualTo(0)
+
+            lifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_RESUME)
+            assertWithMessage("Lifecycle should have been resumed")
+                .that(resumeCount)
+                .isEqualTo(1)
+
+            lifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_PAUSE)
+            assertWithMessage("Lifecycle should have been paused")
+                .that(pauseCount)
+                .isEqualTo(1)
+        }
+    }
 }
