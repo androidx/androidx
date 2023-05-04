@@ -16,6 +16,11 @@
 
 package androidx.wear.protolayout.expression.pipeline;
 
+import android.os.Handler;
+import android.os.Looper;
+
+import androidx.annotation.UiThread;
+
 import java.util.List;
 
 /**
@@ -76,6 +81,15 @@ class BoundDynamicTypeImpl implements BoundDynamicType {
 
     @Override
     public void close() {
+        if (Looper.getMainLooper().isCurrentThread()) {
+            closeInternal();
+        } else {
+            new Handler(Looper.getMainLooper()).post(this::closeInternal);
+        }
+    }
+
+    @UiThread
+    private void closeInternal() {
         mNodes.stream()
                 .filter(n -> n instanceof DynamicDataSourceNode)
                 .forEach(n -> ((DynamicDataSourceNode<?>) n).destroy());
