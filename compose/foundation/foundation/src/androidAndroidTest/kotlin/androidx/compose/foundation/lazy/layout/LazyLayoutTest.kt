@@ -94,7 +94,10 @@ class LazyLayoutTest {
     @Test
     fun measureAndPlaceTwoItems() {
         val itemProvider = itemProvider({ 2 }) { index ->
-            Box(Modifier.fillMaxSize().testTag("$index"))
+            Box(
+                Modifier
+                    .fillMaxSize()
+                    .testTag("$index"))
         }
         rule.setContent {
             LazyLayout(itemProvider) {
@@ -118,8 +121,14 @@ class LazyLayoutTest {
     @Test
     fun measureAndPlaceMultipleLayoutsInOneItem() {
         val itemProvider = itemProvider({ 1 }) { index ->
-            Box(Modifier.fillMaxSize().testTag("${index}x0"))
-            Box(Modifier.fillMaxSize().testTag("${index}x1"))
+            Box(
+                Modifier
+                    .fillMaxSize()
+                    .testTag("${index}x0"))
+            Box(
+                Modifier
+                    .fillMaxSize()
+                    .testTag("${index}x1"))
         }
 
         rule.setContent {
@@ -143,7 +152,10 @@ class LazyLayoutTest {
     @Test
     fun updatingitemProvider() {
         var itemProvider by mutableStateOf(itemProvider({ 1 }) { index ->
-            Box(Modifier.fillMaxSize().testTag("$index"))
+            Box(
+                Modifier
+                    .fillMaxSize()
+                    .testTag("$index"))
         })
 
         rule.setContent {
@@ -166,7 +178,10 @@ class LazyLayoutTest {
 
         rule.runOnIdle {
             itemProvider = itemProvider({ 2 }) { index ->
-                Box(Modifier.fillMaxSize().testTag("$index"))
+                Box(
+                    Modifier
+                        .fillMaxSize()
+                        .testTag("$index"))
             }
         }
 
@@ -178,7 +193,10 @@ class LazyLayoutTest {
     fun stateBaseditemProvider() {
         var itemCount by mutableStateOf(1)
         val itemProvider = itemProvider({ itemCount }) { index ->
-            Box(Modifier.fillMaxSize().testTag("$index"))
+            Box(
+                Modifier
+                    .fillMaxSize()
+                    .testTag("$index"))
         }
 
         rule.setContent {
@@ -228,7 +246,11 @@ class LazyLayoutTest {
             }
         }
         val itemProvider = itemProvider({ 1 }) { index ->
-            Box(Modifier.fillMaxSize().testTag("$index").then(modifier))
+            Box(
+                Modifier
+                    .fillMaxSize()
+                    .testTag("$index")
+                    .then(modifier))
         }
         var needToCompose by mutableStateOf(false)
         val prefetchState = LazyLayoutPrefetchState()
@@ -335,13 +357,15 @@ class LazyLayoutTest {
     fun nodeIsReusedWithoutExtraRemeasure() {
         var indexToCompose by mutableStateOf<Int?>(0)
         var remeasuresCount = 0
-        val modifier = Modifier.layout { measurable, constraints ->
-            val placeable = measurable.measure(constraints)
-            remeasuresCount++
-            layout(placeable.width, placeable.height) {
-                placeable.place(0, 0)
+        val modifier = Modifier
+            .layout { measurable, constraints ->
+                val placeable = measurable.measure(constraints)
+                remeasuresCount++
+                layout(placeable.width, placeable.height) {
+                    placeable.place(0, 0)
+                }
             }
-        }.fillMaxSize()
+            .fillMaxSize()
         val itemProvider = itemProvider({ 2 }) {
             Box(modifier)
         }
@@ -368,6 +392,52 @@ class LazyLayoutTest {
         rule.runOnIdle {
             // node with index 0 should be now reused for index 1
             indexToCompose = 1
+        }
+
+        rule.runOnIdle {
+            assertThat(remeasuresCount).isEqualTo(1)
+        }
+    }
+
+    @Test
+    fun nodeIsReusedWhenRemovedFirst() {
+        var itemCount by mutableStateOf(1)
+        var remeasuresCount = 0
+        val modifier = Modifier
+            .layout { measurable, constraints ->
+                val placeable = measurable.measure(constraints)
+                remeasuresCount++
+                layout(placeable.width, placeable.height) {
+                    placeable.place(0, 0)
+                }
+            }
+            .fillMaxSize()
+        val itemProvider = itemProvider({ itemCount }) {
+            Box(modifier)
+        }
+
+        rule.setContent {
+            LazyLayout(itemProvider) { constraints ->
+                val node = if (itemCount == 1) {
+                    measure(0, constraints).first()
+                } else {
+                    null
+                }
+                layout(10, 10) {
+                    node?.place(0, 0)
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            assertThat(remeasuresCount).isEqualTo(1)
+            // node will be kept for reuse
+            itemCount = 0
+        }
+
+        rule.runOnIdle {
+            // node should be now reused
+            itemCount = 1
         }
 
         rule.runOnIdle {
