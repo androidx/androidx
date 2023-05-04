@@ -17,6 +17,8 @@
 package androidx.wear.watchface.complications.data
 
 import android.support.wearable.complications.ComplicationData as WireComplicationData
+import android.support.wearable.complications.ComplicationData.Companion.TYPE_NO_DATA
+import android.support.wearable.complications.ComplicationData.Companion.TYPE_SHORT_TEXT
 import android.support.wearable.complications.ComplicationText as WireComplicationText
 import android.util.Log
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat
@@ -58,10 +60,7 @@ class ComplicationDataExpressionEvaluatorTest {
 
     @Test
     fun evaluate_noExpression_returnsUnevaluated() = runBlocking {
-        val data =
-            WireComplicationData.Builder(WireComplicationData.TYPE_NO_DATA)
-                .setRangedValue(10f)
-                .build()
+        val data = WireComplicationData.Builder(TYPE_NO_DATA).setRangedValue(10f).build()
 
         val evaluator = ComplicationDataExpressionEvaluator()
 
@@ -81,7 +80,7 @@ class ComplicationDataExpressionEvaluatorTest {
     ) {
         SET_IMMEDIATELY_WHEN_ALL_DATA_AVAILABLE(
             expressed =
-                WireComplicationData.Builder(WireComplicationData.TYPE_NO_DATA)
+                WireComplicationData.Builder(TYPE_NO_DATA)
                     .setRangedValueExpression(DynamicFloat.constant(1f))
                     .setLongText(WireComplicationText(DynamicString.constant("Long Text")))
                     .setLongTitle(WireComplicationText(DynamicString.constant("Long Title")))
@@ -90,23 +89,29 @@ class ComplicationDataExpressionEvaluatorTest {
                     .setContentDescription(
                         WireComplicationText(DynamicString.constant("Description"))
                     )
-                    .build(),
+                    .setPlaceholder(constantData("Placeholder"))
+                    .setListEntryCollection(listOf(constantData("List")))
+                    .build()
+                    .also { it.setTimelineEntryCollection(listOf(constantData("Timeline"))) },
             states = listOf(),
             evaluated =
                 listOf(
-                    WireComplicationData.Builder(WireComplicationData.TYPE_NO_DATA)
+                    WireComplicationData.Builder(TYPE_NO_DATA)
                         .setRangedValue(1f)
                         .setLongText(WireComplicationText("Long Text"))
                         .setLongTitle(WireComplicationText("Long Title"))
                         .setShortText(WireComplicationText("Short Text"))
                         .setShortTitle(WireComplicationText("Short Title"))
                         .setContentDescription(WireComplicationText("Description"))
+                        .setPlaceholder(evaluatedData("Placeholder"))
+                        .setListEntryCollection(listOf(evaluatedData("List")))
                         .build()
+                        .also { it.setTimelineEntryCollection(listOf(evaluatedData("Timeline"))) },
                 ),
         ),
         SET_ONLY_AFTER_ALL_FIELDS_EVALUATED(
             expressed =
-                WireComplicationData.Builder(WireComplicationData.TYPE_NO_DATA)
+                WireComplicationData.Builder(TYPE_NO_DATA)
                     .setRangedValueExpression(DynamicFloat.fromState("ranged_value"))
                     .setLongText(WireComplicationText(DynamicString.fromState("long_text")))
                     .setLongTitle(WireComplicationText(DynamicString.fromState("long_title")))
@@ -115,7 +120,10 @@ class ComplicationDataExpressionEvaluatorTest {
                     .setContentDescription(
                         WireComplicationText(DynamicString.fromState("description"))
                     )
-                    .build(),
+                    .setPlaceholder(stateData("placeholder"))
+                    .setListEntryCollection(listOf(stateData("list")))
+                    .build()
+                    .also { it.setTimelineEntryCollection(listOf(stateData("timeline"))) },
             states =
                 aggregate(
                     // Each map piles on top of the previous ones.
@@ -124,25 +132,38 @@ class ComplicationDataExpressionEvaluatorTest {
                     mapOf("long_title" to StateEntryValue.fromString("Long Title")),
                     mapOf("short_text" to StateEntryValue.fromString("Short Text")),
                     mapOf("short_title" to StateEntryValue.fromString("Short Title")),
-                    // Only the last one will trigger an evaluated data.
                     mapOf("description" to StateEntryValue.fromString("Description")),
+                    mapOf("placeholder" to StateEntryValue.fromString("Placeholder")),
+                    mapOf("list" to StateEntryValue.fromString("List")),
+                    mapOf("timeline" to StateEntryValue.fromString("Timeline")),
+                    // Only the last one will trigger an evaluated data.
                 ),
             evaluated =
                 listOf(
-                    INVALID_DATA, // Before state is available.
-                    WireComplicationData.Builder(WireComplicationData.TYPE_NO_DATA)
+                    // Before any state is available.
+                    INVALID_DATA,
+                    // INVALID_DATA with placeholder, after it's available (and others aren't).
+                    WireComplicationData.Builder(INVALID_DATA)
+                        .setPlaceholder(evaluatedData("Placeholder"))
+                        .build(),
+                    // Evaluated data with after everything is available.
+                    WireComplicationData.Builder(TYPE_NO_DATA)
                         .setRangedValue(1f)
                         .setLongText(WireComplicationText("Long Text"))
                         .setLongTitle(WireComplicationText("Long Title"))
                         .setShortText(WireComplicationText("Short Text"))
                         .setShortTitle(WireComplicationText("Short Title"))
                         .setContentDescription(WireComplicationText("Description"))
+                        // Not trimmed for TYPE_NO_DATA.
+                        .setPlaceholder(evaluatedData("Placeholder"))
+                        .setListEntryCollection(listOf(evaluatedData("List")))
                         .build()
+                        .also { it.setTimelineEntryCollection(listOf(evaluatedData("Timeline"))) },
                 ),
         ),
         SET_TO_EVALUATED_IF_ALL_FIELDS_VALID(
             expressed =
-                WireComplicationData.Builder(WireComplicationData.TYPE_SHORT_TEXT)
+                WireComplicationData.Builder(TYPE_SHORT_TEXT)
                     .setShortTitle(WireComplicationText(DynamicString.fromState("valid")))
                     .setShortText(WireComplicationText(DynamicString.fromState("valid")))
                     .build(),
@@ -153,7 +174,7 @@ class ComplicationDataExpressionEvaluatorTest {
             evaluated =
                 listOf(
                     INVALID_DATA, // Before state is available.
-                    WireComplicationData.Builder(WireComplicationData.TYPE_SHORT_TEXT)
+                    WireComplicationData.Builder(TYPE_SHORT_TEXT)
                         .setShortTitle(WireComplicationText("Valid"))
                         .setShortText(WireComplicationText("Valid"))
                         .build(),
@@ -161,7 +182,7 @@ class ComplicationDataExpressionEvaluatorTest {
         ),
         SET_TO_NO_DATA_IF_FIRST_STATE_IS_INVALID(
             expressed =
-                WireComplicationData.Builder(WireComplicationData.TYPE_SHORT_TEXT)
+                WireComplicationData.Builder(TYPE_SHORT_TEXT)
                     .setShortTitle(WireComplicationText(DynamicString.fromState("valid")))
                     .setShortText(WireComplicationText(DynamicString.fromState("invalid")))
                     .build(),
@@ -177,7 +198,7 @@ class ComplicationDataExpressionEvaluatorTest {
         ),
         SET_TO_NO_DATA_IF_LAST_STATE_IS_INVALID(
             expressed =
-                WireComplicationData.Builder(WireComplicationData.TYPE_SHORT_TEXT)
+                WireComplicationData.Builder(TYPE_SHORT_TEXT)
                     .setShortTitle(WireComplicationText(DynamicString.fromState("valid")))
                     .setShortText(WireComplicationText(DynamicString.fromState("invalid")))
                     .build(),
@@ -192,12 +213,42 @@ class ComplicationDataExpressionEvaluatorTest {
             evaluated =
                 listOf(
                     INVALID_DATA, // Before state is available.
-                    WireComplicationData.Builder(WireComplicationData.TYPE_SHORT_TEXT)
+                    WireComplicationData.Builder(TYPE_SHORT_TEXT)
                         .setShortTitle(WireComplicationText("Valid"))
                         .setShortText(WireComplicationText("Valid"))
                         .build(),
                     INVALID_DATA, // After it was invalidated.
                 ),
+        ),
+        SET_TO_EVALUATED_WITHOUT_PLACEHOLDER_IF_NOT_NO_DATA(
+            expressed =
+                WireComplicationData.Builder(TYPE_SHORT_TEXT)
+                    .setShortText(WireComplicationText("Text"))
+                    .setPlaceholder(evaluatedData("Placeholder"))
+                    .build(),
+            states = listOf(),
+            evaluated =
+                listOf(
+                    // No placeholder.
+                    WireComplicationData.Builder(TYPE_SHORT_TEXT)
+                        .setShortText(WireComplicationText("Text"))
+                        .build(),
+                )
+        ),
+        SET_TO_EVALUATED_WITHOUT_PLACEHOLDER_EVEN_IF_PLACEHOLDER_INVALID_IF_NOT_NO_DATA(
+            expressed =
+            WireComplicationData.Builder(TYPE_SHORT_TEXT)
+                .setShortText(WireComplicationText("Text"))
+                .setPlaceholder(stateData("placeholder"))
+                .build(),
+            states = listOf(), // placeholder state not set.
+            evaluated =
+            listOf(
+                // No placeholder.
+                WireComplicationData.Builder(TYPE_SHORT_TEXT)
+                    .setShortText(WireComplicationText("Text"))
+                    .build(),
+            )
         ),
     }
 
@@ -231,7 +282,7 @@ class ComplicationDataExpressionEvaluatorTest {
     @Test
     fun evaluate_cancelled_cleansUp() = runBlocking {
         val expressed =
-            WireComplicationData.Builder(WireComplicationData.TYPE_NO_DATA)
+            WireComplicationData.Builder(TYPE_NO_DATA)
                 .setRangedValueExpression(
                     // Uses TimeGateway, which needs cleaning up.
                     DynamicInstant.withSecondsPrecision(Instant.EPOCH)
@@ -262,19 +313,22 @@ class ComplicationDataExpressionEvaluatorTest {
     @Test
     fun evaluate_keepExpression_doesNotTrimUnevaluatedExpression() = runBlocking {
         val expressed =
-            WireComplicationData.Builder(WireComplicationData.TYPE_NO_DATA)
+            WireComplicationData.Builder(TYPE_NO_DATA)
                 .setRangedValueExpression(DynamicFloat.constant(1f))
                 .setLongText(WireComplicationText(DynamicString.constant("Long Text")))
                 .setLongTitle(WireComplicationText(DynamicString.constant("Long Title")))
                 .setShortText(WireComplicationText(DynamicString.constant("Short Text")))
                 .setShortTitle(WireComplicationText(DynamicString.constant("Short Title")))
                 .setContentDescription(WireComplicationText(DynamicString.constant("Description")))
+                .setPlaceholder(constantData("Placeholder"))
+                .setListEntryCollection(listOf(constantData("List")))
                 .build()
+                .also { it.setTimelineEntryCollection(listOf(constantData("Timeline"))) }
         val evaluator = ComplicationDataExpressionEvaluator(keepExpression = true)
 
         assertThat(evaluator.evaluate(expressed).firstOrNull())
             .isEqualTo(
-                WireComplicationData.Builder(WireComplicationData.TYPE_NO_DATA)
+                WireComplicationData.Builder(TYPE_NO_DATA)
                     .setRangedValue(1f)
                     .setRangedValueExpression(DynamicFloat.constant(1f))
                     .setLongText(
@@ -292,6 +346,29 @@ class ComplicationDataExpressionEvaluatorTest {
                     .setContentDescription(
                         WireComplicationText("Description", DynamicString.constant("Description"))
                     )
+                    .setPlaceholder(evaluatedWithConstantData("Placeholder"))
+                    .setListEntryCollection(listOf(evaluatedWithConstantData("List")))
+                    .build()
+                    .also {
+                        it.setTimelineEntryCollection(listOf(evaluatedWithConstantData("Timeline")))
+                    },
+            )
+    }
+
+    @Test
+    fun evaluate_keepExpressionNotNoData_doesNotTrimPlaceholder() = runBlocking {
+        val expressed =
+            WireComplicationData.Builder(TYPE_SHORT_TEXT)
+                .setShortText(WireComplicationText("Text"))
+                .setPlaceholder(evaluatedData("Placeholder"))
+                .build()
+        val evaluator = ComplicationDataExpressionEvaluator(keepExpression = true)
+
+        assertThat(evaluator.evaluate(expressed).firstOrNull())
+            .isEqualTo(
+                WireComplicationData.Builder(TYPE_SHORT_TEXT)
+                    .setShortText(WireComplicationText("Text"))
+                    .setPlaceholder(evaluatedData("Placeholder"))
                     .build()
             )
     }
@@ -300,5 +377,25 @@ class ComplicationDataExpressionEvaluatorTest {
         /** Converts `[{a: A}, {b: B}, {c: C}]` to `[{a: A}, {a: A, b: B}, {a: A, b: B, c: C}]`. */
         fun <K, V> aggregate(vararg maps: Map<K, V>): List<Map<K, V>> =
             maps.fold(listOf()) { acc, map -> acc + ((acc.lastOrNull() ?: mapOf()) + map) }
+
+        fun constantData(value: String) =
+            WireComplicationData.Builder(TYPE_NO_DATA)
+                .setLongText(WireComplicationText(DynamicString.constant(value)))
+                .build()
+
+        fun stateData(value: String) =
+            WireComplicationData.Builder(TYPE_NO_DATA)
+                .setLongText(WireComplicationText(DynamicString.fromState(value)))
+                .build()
+
+        fun evaluatedData(value: String) =
+            WireComplicationData.Builder(TYPE_NO_DATA)
+                .setLongText(WireComplicationText(value))
+                .build()
+
+        fun evaluatedWithConstantData(value: String) =
+            WireComplicationData.Builder(TYPE_NO_DATA)
+                .setLongText(WireComplicationText(value, DynamicString.constant(value)))
+                .build()
     }
 }
