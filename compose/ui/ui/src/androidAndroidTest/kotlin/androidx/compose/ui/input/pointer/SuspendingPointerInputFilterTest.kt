@@ -24,10 +24,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.node.DelegatingNode
-import androidx.compose.ui.node.ModifierNodeElement
-import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.ValueElement
-import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.platform.isDebugInspectorInfoEnabled
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.elementFor
@@ -273,7 +270,7 @@ class SuspendingPointerInputFilterTest {
                 )
             }
 
-            // Triggers cancel event
+            // Manually cancels the current pointer input event.
             suspendingPointerInputModifierNode.onCancelPointerInput()
         }
 
@@ -305,15 +302,16 @@ class SuspendingPointerInputFilterTest {
         var currentEventAtEnd: PointerEvent? = null
         val results = Channel<PointerEvent>(Channel.UNLIMITED)
 
-        // Used to manually trigger a PointerEvent(s) created from our PointerInputChange(s).
+        // Used to manually trigger/test PointerEvents and other functionality.
         val suspendingPointerInputModifierNode = SuspendingPointerInputModifierNode {
             awaitPointerEventScope {
                 try {
                     // NOTE: This will never trigger 3 times. There are only two events
-                    // triggered followed by a onCancelPointerInput() call which doesn't trigger
-                    // an event because the previous event has down (press) set to false, so we
-                    // will always get an exception thrown with the last repeat's timeout
-                    // (we expect this).
+                    // triggered (a down [press] event followed by an event with down [press] set to
+                    // false). The resetPointerInputHandler() is called after that, but it won't
+                    // trigger a cancel event if the previous event has the down [press] set to
+                    // false. In this case, it does, so there are only ever two events, so the
+                    // withTimeout() will trigger the timeout (expected).
                     repeat(3) {
                         withTimeout(200) {
                             results.trySend(awaitPointerEvent())
@@ -334,7 +332,6 @@ class SuspendingPointerInputFilterTest {
                 )
             )
         }
-
         val bounds = IntSize(50, 50)
         val emitter1 = PointerInputChangeEmitter(0)
         val emitter2 = PointerInputChangeEmitter(1)
@@ -378,9 +375,9 @@ class SuspendingPointerInputFilterTest {
                 )
             }
 
-            // Manually triggers cancel event.
-            // Note: This will not trigger an event in the customPointerInput block because the
-            // previous events don't have any pressed pointers.
+            // Manually cancels the current pointer input event.
+            // Note: This will not trigger an event in the customPointerInput block because of the
+            // reasons listed above (previous event has down (press) set to false).
             suspendingPointerInputModifierNode.onCancelPointerInput()
         }
 
@@ -411,35 +408,48 @@ class SuspendingPointerInputFilterTest {
 
     @Test
     @MediumTest
-    fun testCancelledHandlerBlock() {
+    fun testCancelPointerInput() {
+        val firstEventCheckpointInfo =
+            Pair(3, "First pointer event triggered to create Job.")
+        val cancelEventCheckpointInfo =
+            Pair(5, "Cancel pointer event triggered (shouldn't cancel Job).")
+        val invalidEventCheckpointNumber =
+            Pair(-1, "Should never execute.")
+
         val counter = TestCounter()
 
-        // Used to manually trigger a PointerEvent(s) created from our PointerInputChange(s).
+        // Used to manually trigger/test PointerEvents and other functionality.
         val suspendingPointerInputModifierNode = SuspendingPointerInputModifierNode {
             try {
                 awaitPointerEventScope {
                     try {
-                        counter.expect(3, "about to call awaitPointerEvent")
+                        counter.expect(2, "Before awaitPointerEvent() call.")
 
-                        // With only one event triggered, this will stay stuck in the repeat
-                        // block until the Job is cancelled via
-                        // SuspendPointerInputModifierNode.resetHandling()
-                        repeat(2) {
+                        // With only two events triggered (press and cancel), this will stay stuck
+                        // in the repeat block until it is torn down, that is, until the
+                        // test is over.
+                        repeat(3) { repeatCount ->
                             awaitPointerEvent()
-                            counter.expect(
-                                4,
-                                "One and only pointer event triggered to create Job."
-                            )
+                            val checkpointInfo = when (repeatCount) {
+                                0 -> { firstEventCheckpointInfo }
+                                1 -> { cancelEventCheckpointInfo }
+                                else -> {
+                                    fail("Should never be three events.")
+                                    invalidEventCheckpointNumber
+                                }
+                            }
+                            counter.expect(checkpointInfo.first, checkpointInfo.second)
                         }
-
-                        fail("awaitPointerEvent returned; should have thrown for cancel")
+                        fail("awaitPointerEvent() run 3+ times in repeat() block, should only " +
+                            "have run twice (one event, one cancel).")
                     } finally {
-                        counter.expect(6, "inner finally block running")
+                        counter.expect(7, "Inner finally block runs after " +
+                            "teardown.")
                     }
                 }
             } finally {
-                counter.expect(7, "outer finally block running; inner " +
-                    "finally should have run")
+                counter.expect(8, "Outer finally block runs; inner finally " +
+                    "block should have already run.")
             }
         }
 
@@ -457,16 +467,13 @@ class SuspendingPointerInputFilterTest {
         val singleEventBounds = IntSize(20, 20)
 
         rule.runOnIdle {
+            // Because the pointer input handler is triggered lazily in
+            // SuspendPointerInputModifierNode, it will not be triggered until the first event
+            // comes in, so this will be the first counter checkpoint.
             counter.expect(
                 1,
-                "Job to handle pointer input not created yet; awaitPointerEvent should " +
-                    "be suspended"
-            )
-
-            counter.expect(
-                2,
-                "Trigger pointer input event to create Job for handing handle pointer" +
-                    " input (done lazily in SuspendPointerInputModifierNode)."
+                "Trigger pointer input handler through first pointer input event " +
+                    "(handler triggered lazily)."
             )
 
             suspendingPointerInputModifierNode.onPointerEvent(
@@ -475,12 +482,96 @@ class SuspendingPointerInputFilterTest {
                 singleEventBounds
             )
 
-            counter.expect(5, "before cancelling handler; awaitPointerEvent " +
+            counter.expect(4, "Before onCancelPointerInput() handler; awaitPointerEvent " +
                 "should be suspended")
 
-            // Cancels Job that manages pointer input events in SuspendPointerInputModifierNode.
+            // Manually cancels the current pointer input event.
+            suspendingPointerInputModifierNode.onCancelPointerInput()
+            counter.expect(6, "After onCancelPointerInput(), end of test, " +
+                " start teardown.")
+        }
+    }
+
+    @Test
+    @MediumTest
+    fun testResetHandlerBlock() {
+        val counter = TestCounter()
+
+        // Used to manually trigger/test PointerEvents and other functionality.
+        val suspendingPointerInputModifierNode = SuspendingPointerInputModifierNode {
+            try {
+                awaitPointerEventScope {
+                    try {
+                        counter.expect(2, "Before awaitPointerEvent() call.")
+
+                        // With only one event triggered (press) to kick start the handler, this
+                        // will stay stuck in the repeat block until it is torn down, that is,
+                        // until the test is over.
+                        repeat(2) { repeatCount ->
+                            awaitPointerEvent()
+                            when (repeatCount) {
+                                0 -> {
+                                    counter.expect(
+                                        3,
+                                        "First/only pointer event triggered."
+                                    )
+                                }
+                                else -> {
+                                    fail("Should never be two or more events.")
+                                    counter.expect(-1, "Should never execute.")
+                                }
+                            }
+                        }
+                        fail("awaitPointerEvent repeated twice; should have only happened once " +
+                            "and stayed suspended in repeat() waiting for a second event (that " +
+                            "should never arrive).")
+                    } finally {
+                        fail("inner finally shouldn't call during teardown since coroutine job " +
+                            "was cancelled with resetPointerInputHandler().")
+                    }
+                }
+            } finally {
+                counter.expect(5, "outer finally block runs after " +
+                    "resetPointerInputHandler().")
+            }
+        }
+
+        rule.setContent {
+            Box(
+                modifier = elementFor(
+                    key1 = Unit,
+                    instance = suspendingPointerInputModifierNode as Modifier.Node
+                )
+            )
+        }
+
+        val emitter = PointerInputChangeEmitter()
+        val singleEvent = emitter.nextChange(Offset(5f, 5f))
+        val singleEventBounds = IntSize(20, 20)
+
+        rule.runOnIdle {
+            // Because the pointer input handler is triggered lazily in
+            // SuspendPointerInputModifierNode, it will not be triggered until the first event
+            // comes in, so this will be the first counter checkpoint.
+            counter.expect(
+                1,
+                "Trigger pointer input handler through first pointer input event " +
+                    "(handler triggered lazily)."
+            )
+
+            suspendingPointerInputModifierNode.onPointerEvent(
+                singleEvent.toPointerEvent(),
+                PointerEventPass.Main,
+                singleEventBounds
+            )
+
+            counter.expect(4, "before resetPointerInputHandler(), handler should" +
+                "be suspended waiting for a second event (that never comes).")
+
+            // Cancels the pointer input handler in SuspendPointerInputModifierNode (and thus the
+            // Coroutine Job associated with it).
             suspendingPointerInputModifierNode.resetPointerInputHandler()
-            counter.expect(8, "after cancelling; finally blocks should have run")
+            counter.expect(6, "after resetPointerInputHandler(), end of test.")
         }
     }
 
@@ -772,74 +863,5 @@ class SuspendingPointerInputFilterTest {
             down(Offset.Zero)
         }
         assertThat(events).hasSize(2)
-    }
-}
-
-private fun PointerInputChange.toPointerEvent() = PointerEvent(listOf(this))
-
-private val PointerEvent.firstChange get() = changes.first()
-
-private class PointerInputChangeEmitter(id: Int = 0) {
-    val pointerId = PointerId(id.toLong())
-    var previousTime = 0L
-    var previousPosition = Offset.Zero
-    var previousPressed = false
-
-    fun nextChange(
-        position: Offset = Offset.Zero,
-        down: Boolean = true,
-        time: Long = 0
-    ): PointerInputChange {
-        return PointerInputChange(
-            id = pointerId,
-            time,
-            position,
-            down,
-            previousTime,
-            previousPosition,
-            previousPressed,
-            isInitiallyConsumed = false
-        ).also {
-            previousTime = time
-            previousPosition = position
-            previousPressed = down
-        }
-    }
-}
-
-private class TestCounter {
-    private var count = 0
-
-    fun expect(checkpoint: Int, message: String = "(no message)") {
-        val expected = count + 1
-        if (checkpoint != expected) {
-            fail("out of order event $checkpoint, expected $expected, $message")
-        }
-        count = expected
-    }
-}
-
-private fun elementFor(
-    key1: Any? = null,
-    instance: Modifier.Node
-) = object : ModifierNodeElement<Modifier.Node>() {
-    override fun InspectorInfo.inspectableProperties() {
-        debugInspectorInfo {
-            name = "pointerInput"
-            properties["key1"] = key1
-            properties["instance"] = instance
-        }
-    }
-
-    override fun create() = instance
-    override fun update(node: Modifier.Node) {}
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is SuspendPointerInputElement) return false
-        if (key1 != other.key1) return false
-        return true
-    }
-    override fun hashCode(): Int {
-        return key1?.hashCode() ?: 0
     }
 }
