@@ -23,9 +23,10 @@ import androidx.compose.foundation.gestures.ScrollScope
 import androidx.compose.foundation.gestures.ScrollableState
 import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.lazy.layout.AwaitFirstLayoutModifier
 import androidx.compose.foundation.lazy.layout.LazyLayoutBeyondBoundsInfo
-import androidx.compose.foundation.lazy.layout.LazyLayoutPrefetchState
 import androidx.compose.foundation.lazy.layout.LazyLayoutPinnedItemList
+import androidx.compose.foundation.lazy.layout.LazyLayoutPrefetchState
 import androidx.compose.foundation.lazy.layout.animateScrollToItem
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
@@ -35,16 +36,11 @@ import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.layout.LayoutCoordinates
-import androidx.compose.ui.layout.OnGloballyPositionedModifier
 import androidx.compose.ui.layout.Remeasurement
 import androidx.compose.ui.layout.RemeasurementModifier
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
-import kotlin.coroutines.Continuation
-import kotlin.coroutines.resume
-import kotlin.coroutines.suspendCoroutine
 import kotlin.math.abs
 
 /**
@@ -436,25 +432,4 @@ private object EmptyLazyListLayoutInfo : LazyListLayoutInfo {
     override val beforeContentPadding = 0
     override val afterContentPadding = 0
     override val mainAxisItemSpacing = 0
-}
-
-internal class AwaitFirstLayoutModifier : OnGloballyPositionedModifier {
-    private var wasPositioned = false
-    private var continuation: Continuation<Unit>? = null
-
-    suspend fun waitForFirstLayout() {
-        if (!wasPositioned) {
-            val oldContinuation = continuation
-            suspendCoroutine<Unit> { continuation = it }
-            oldContinuation?.resume(Unit)
-        }
-    }
-
-    override fun onGloballyPositioned(coordinates: LayoutCoordinates) {
-        if (!wasPositioned) {
-            wasPositioned = true
-            continuation?.resume(Unit)
-            continuation = null
-        }
-    }
 }

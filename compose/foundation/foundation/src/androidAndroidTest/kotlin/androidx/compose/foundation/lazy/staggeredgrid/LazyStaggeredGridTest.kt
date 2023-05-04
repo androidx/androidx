@@ -22,10 +22,12 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.list.setContentWithTestViewConfiguration
 import androidx.compose.foundation.text.BasicText
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -1933,5 +1935,61 @@ class LazyStaggeredGridTest(
             .assertAxisBounds(DpOffset(0.dp, itemSizeDp * 2), DpSize(itemSizeDp, itemSizeDp))
         rule.onNodeWithTag("1")
             .assertAxisBounds(DpOffset(itemSizeDp, itemSizeDp * 2), DpSize(itemSizeDp, itemSizeDp))
+    }
+
+    @Test
+    fun scrollDuringMeasure() {
+        rule.setContent {
+            BoxWithConstraints {
+                val state = rememberLazyStaggeredGridState()
+                LazyStaggeredGrid(
+                    lanes = 1,
+                    state = state,
+                    modifier = Modifier.axisSize(
+                        crossAxis = itemSizeDp * 2,
+                        mainAxis = itemSizeDp * 5
+                    ),
+                ) {
+                    items(20) {
+                        Spacer(
+                            modifier = Modifier.mainAxisSize(itemSizeDp).testTag(it.toString())
+                        )
+                    }
+                }
+                LaunchedEffect(state) {
+                    state.scrollToItem(10)
+                }
+            }
+        }
+
+        rule.onNodeWithTag("10")
+            .assertStartPositionInRootIsEqualTo(0.dp)
+    }
+
+    @Test
+    fun scrollInLaunchedEffect() {
+        rule.setContent {
+            val state = rememberLazyStaggeredGridState()
+            LazyStaggeredGrid(
+                lanes = 1,
+                state = state,
+                modifier = Modifier.axisSize(
+                    crossAxis = itemSizeDp * 2,
+                    mainAxis = itemSizeDp * 5
+                ),
+            ) {
+                items(20) {
+                    Spacer(
+                        modifier = Modifier.mainAxisSize(itemSizeDp).testTag(it.toString())
+                    )
+                }
+            }
+            LaunchedEffect(state) {
+                state.scrollToItem(10)
+            }
+        }
+
+        rule.onNodeWithTag("10")
+            .assertStartPositionInRootIsEqualTo(0.dp)
     }
 }

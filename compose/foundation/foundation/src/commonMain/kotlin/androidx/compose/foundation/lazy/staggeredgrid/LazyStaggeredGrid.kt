@@ -81,6 +81,7 @@ internal fun LazyStaggeredGrid(
     LazyLayout(
         modifier = modifier
             .then(state.remeasurementModifier)
+            .then(state.awaitLayoutModifier)
             .lazyLayoutSemantics(
                 itemProvider = itemProvider,
                 state = semanticState,
