@@ -19,7 +19,7 @@ package androidx.compose.foundation.lazy.staggeredgrid
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.lazy.layout.LazyLayoutItemProvider
 import androidx.compose.foundation.lazy.layout.LazyLayoutKeyIndexMap
-import androidx.compose.foundation.lazy.layout.PinnableItem
+import androidx.compose.foundation.lazy.layout.LazyLayoutPinnableItem
 import androidx.compose.foundation.lazy.layout.NearestRangeKeyIndexMapState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
@@ -73,10 +73,10 @@ private class LazyStaggeredGridItemProviderImpl(
     override fun getContentType(index: Int): Any? = staggeredGridContent.getContentType(index)
 
     @Composable
-    override fun Item(index: Int) {
-        staggeredGridContent.PinnableItem(index, state.pinnedItems) { localIndex ->
-            with(LazyStaggeredGridItemScopeImpl) {
-                item(localIndex)
+    override fun Item(index: Int, key: Any) {
+        LazyLayoutPinnableItem(key, index, state.pinnedItems) {
+            staggeredGridContent.withInterval(index) { localIndex, content ->
+                content.item(LazyStaggeredGridItemScopeImpl, localIndex)
             }
         }
     }

@@ -19,7 +19,7 @@ package androidx.compose.foundation.lazy.grid
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.lazy.layout.LazyLayoutItemProvider
 import androidx.compose.foundation.lazy.layout.LazyLayoutKeyIndexMap
-import androidx.compose.foundation.lazy.layout.PinnableItem
+import androidx.compose.foundation.lazy.layout.LazyLayoutPinnableItem
 import androidx.compose.foundation.lazy.layout.NearestRangeKeyIndexMapState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
@@ -72,10 +72,10 @@ private class LazyGridItemProviderImpl(
     override fun getContentType(index: Int): Any? = gridContent.getContentType(index)
 
     @Composable
-    override fun Item(index: Int) {
-        gridContent.PinnableItem(index, state.pinnedItems) { localIndex ->
-            with(LazyGridItemScopeImpl) {
-                item(localIndex)
+    override fun Item(index: Int, key: Any) {
+        LazyLayoutPinnableItem(key, index, state.pinnedItems) {
+            gridContent.withInterval(index) { localIndex, content ->
+                content.item(LazyGridItemScopeImpl, localIndex)
             }
         }
     }

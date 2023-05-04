@@ -32,9 +32,9 @@ import androidx.compose.foundation.lazy.layout.LazyLayout
 import androidx.compose.foundation.lazy.layout.LazyLayoutIntervalContent
 import androidx.compose.foundation.lazy.layout.LazyLayoutItemProvider
 import androidx.compose.foundation.lazy.layout.LazyLayoutKeyIndexMap
+import androidx.compose.foundation.lazy.layout.LazyLayoutPinnableItem
 import androidx.compose.foundation.lazy.layout.MutableIntervalList
 import androidx.compose.foundation.lazy.layout.NearestRangeKeyIndexMapState
-import androidx.compose.foundation.lazy.layout.PinnableItem
 import androidx.compose.foundation.lazy.layout.lazyLayoutSemantics
 import androidx.compose.foundation.overscroll
 import androidx.compose.runtime.Composable
@@ -199,9 +199,11 @@ internal class PagerLazyLayoutItemProvider(
         get() = pagerContent.itemCount
 
     @Composable
-    override fun Item(index: Int) {
-        pagerContent.PinnableItem(index, state.pinnedPages) { localIndex ->
-            item(pagerScopeImpl, localIndex)
+    override fun Item(index: Int, key: Any) {
+        LazyLayoutPinnableItem(key, index, state.pinnedPages) {
+            pagerContent.withInterval(index) { localIndex, content ->
+                content.item(pagerScopeImpl, localIndex)
+            }
         }
     }
 
