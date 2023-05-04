@@ -131,7 +131,7 @@ class AndroidUiDispatcher private constructor(
      * A [MonotonicFrameClock] associated with this [AndroidUiDispatcher]'s [choreographer]
      * that may be used to await [Choreographer] frame dispatch.
      */
-    val frameClock: MonotonicFrameClock = AndroidUiFrameClock(choreographer)
+    val frameClock: MonotonicFrameClock = AndroidUiFrameClock(choreographer, this)
 
     override fun dispatch(context: CoroutineContext, block: Runnable) {
         synchronized(lock) {
