@@ -38,6 +38,7 @@ import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_TARGET_RESOLUT
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_TARGET_ROTATION;
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_USE_CASE_EVENT_CALLBACK;
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_USE_SOFTWARE_JPEG_ENCODER;
+import static androidx.camera.core.impl.ImageInputConfig.OPTION_INPUT_DYNAMIC_RANGE;
 import static androidx.camera.core.impl.ImageInputConfig.OPTION_INPUT_FORMAT;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_CUSTOM_ORDERED_RESOLUTIONS;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_RESOLUTION_SELECTOR;
@@ -100,6 +101,7 @@ import androidx.camera.core.impl.Config;
 import androidx.camera.core.impl.ConfigProvider;
 import androidx.camera.core.impl.DeferrableSurface;
 import androidx.camera.core.impl.ImageCaptureConfig;
+import androidx.camera.core.impl.ImageInputConfig;
 import androidx.camera.core.impl.ImageOutputConfig;
 import androidx.camera.core.impl.ImageOutputConfig.RotationValue;
 import androidx.camera.core.impl.ImageReaderProxy;
@@ -145,6 +147,7 @@ import java.util.Deque;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CancellationException;
@@ -2020,13 +2023,17 @@ public final class ImageCapture extends UseCase {
                         ResolutionStrategy.HIGHEST_AVAILABLE_STRATEGY).build();
 
         private static final ImageCaptureConfig DEFAULT_CONFIG;
+        // ImageCapture does not yet support HDR so we must default to SDR. This ensures it won't
+        // choose an HDR format when other use cases have selected HDR.
+        private static final DynamicRange DEFAULT_DYNAMIC_RANGE = DynamicRange.SDR;
 
         static {
             Builder builder = new Builder()
                     .setSurfaceOccupancyPriority(DEFAULT_SURFACE_OCCUPANCY_PRIORITY)
                     .setTargetAspectRatio(DEFAULT_ASPECT_RATIO)
                     .setResolutionSelector(DEFAULT_RESOLUTION_SELECTOR)
-                    .setCaptureType(UseCaseConfigFactory.CaptureType.IMAGE_CAPTURE);
+                    .setCaptureType(UseCaseConfigFactory.CaptureType.IMAGE_CAPTURE)
+                    .setDynamicRange(DEFAULT_DYNAMIC_RANGE);
 
             DEFAULT_CONFIG = builder.getUseCaseConfig();
         }
@@ -2512,7 +2519,8 @@ public final class ImageCapture extends UseCase {
     public static final class Builder implements
             UseCaseConfig.Builder<ImageCapture, ImageCaptureConfig, Builder>,
             ImageOutputConfig.Builder<Builder>,
-            IoConfig.Builder<Builder> {
+            IoConfig.Builder<Builder>,
+            ImageInputConfig.Builder<Builder> {
 
         private final MutableOptionsBundle mMutableConfig;
 
@@ -3088,6 +3096,27 @@ public final class ImageCapture extends UseCase {
         @Override
         public Builder setCaptureType(@NonNull UseCaseConfigFactory.CaptureType captureType) {
             getMutableConfig().insertOption(OPTION_CAPTURE_TYPE, captureType);
+            return this;
+        }
+
+        // Implementations of ImageInputConfig.Builder default methods
+
+        /**
+         * Sets the {@link DynamicRange}.
+         *
+         * <p>This is currently only exposed to internally set the dynamic range to SDR.
+         * @return The current Builder.
+         * @see DynamicRange
+         */
+        @RestrictTo(Scope.LIBRARY)
+        @NonNull
+        @Override
+        public Builder setDynamicRange(@NonNull DynamicRange dynamicRange) {
+            // TODO(b/280893255): ImageCapture currently does not support HDR.
+            if (!Objects.equals(DynamicRange.SDR, dynamicRange)) {
+                throw new UnsupportedOperationException("ImageCapture currently only supports SDR");
+            }
+            getMutableConfig().insertOption(OPTION_INPUT_DYNAMIC_RANGE, dynamicRange);
             return this;
         }
     }

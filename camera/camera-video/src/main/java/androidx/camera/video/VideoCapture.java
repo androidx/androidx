@@ -463,11 +463,13 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
                 + "specification should be already updated and shouldn't be null.");
         Preconditions.checkState(mSurfaceRequest == null, "The surface request should be null "
                 + "when VideoCapture is attached.");
+        StreamSpec attachedStreamSpec = Preconditions.checkNotNull(getAttachedStreamSpec());
         mStreamInfo = fetchObservableValue(getOutput().getStreamInfo(),
                 StreamInfo.STREAM_INFO_ANY_INACTIVE);
         mSessionConfigBuilder = createPipeline(getCameraId(),
-                (VideoCaptureConfig<T>) getCurrentConfig(), getAttachedStreamSpec());
-        applyStreamInfoToSessionConfigBuilder(mSessionConfigBuilder, mStreamInfo);
+                (VideoCaptureConfig<T>) getCurrentConfig(), attachedStreamSpec);
+        applyStreamInfoAndStreamSpecToSessionConfigBuilder(mSessionConfigBuilder, mStreamInfo,
+                attachedStreamSpec);
         updateSessionConfig(mSessionConfigBuilder.build());
         // VideoCapture has to be active to apply SessionConfig's template type.
         notifyActive();
@@ -762,7 +764,8 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         if (isCurrentCamera(cameraId)) {
             // Only reset the pipeline when the bound camera is the same.
             mSessionConfigBuilder = createPipeline(cameraId, config, streamSpec);
-            applyStreamInfoToSessionConfigBuilder(mSessionConfigBuilder, mStreamInfo);
+            applyStreamInfoAndStreamSpecToSessionConfigBuilder(mSessionConfigBuilder, mStreamInfo,
+                    streamSpec);
             updateSessionConfig(mSessionConfigBuilder.build());
             notifyReset();
         }
@@ -861,6 +864,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
             // Doing resetPipeline() includes notifyReset/notifyUpdated(). Doing NotifyReset()
             // includes notifyUpdated(). So we just take actions on higher order item for
             // optimization.
+            StreamSpec attachedStreamSpec = Preconditions.checkNotNull(getAttachedStreamSpec());
             if (!StreamInfo.NON_SURFACE_STREAM_ID.contains(currentStreamInfo.getId())
                     && !StreamInfo.NON_SURFACE_STREAM_ID.contains(streamInfo.getId())
                     && currentStreamInfo.getId() != streamInfo.getId()) {
@@ -874,11 +878,15 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
                     && streamInfo.getId() != STREAM_ID_ERROR)) {
                 // If id switch to STREAM_ID_ERROR, it means VideoOutput is failed to setup video
                 // stream. The surface should be removed from camera. Vice versa.
-                applyStreamInfoToSessionConfigBuilder(mSessionConfigBuilder, streamInfo);
+                applyStreamInfoAndStreamSpecToSessionConfigBuilder(mSessionConfigBuilder,
+                        streamInfo,
+                        attachedStreamSpec);
                 updateSessionConfig(mSessionConfigBuilder.build());
                 notifyReset();
             } else if (currentStreamInfo.getStreamState() != streamInfo.getStreamState()) {
-                applyStreamInfoToSessionConfigBuilder(mSessionConfigBuilder, streamInfo);
+                applyStreamInfoAndStreamSpecToSessionConfigBuilder(mSessionConfigBuilder,
+                        streamInfo,
+                        attachedStreamSpec);
                 updateSessionConfig(mSessionConfigBuilder.build());
                 notifyUpdated();
             }
@@ -892,8 +900,9 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
 
     @MainThread
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    void applyStreamInfoToSessionConfigBuilder(@NonNull SessionConfig.Builder sessionConfigBuilder,
-            @NonNull StreamInfo streamInfo) {
+    void applyStreamInfoAndStreamSpecToSessionConfigBuilder(
+            @NonNull SessionConfig.Builder sessionConfigBuilder,
+            @NonNull StreamInfo streamInfo, @NonNull StreamSpec streamSpec) {
         final boolean isStreamError = streamInfo.getId() == StreamInfo.STREAM_ID_ERROR;
         final boolean isStreamActive = streamInfo.getStreamState() == StreamState.ACTIVE;
         if (isStreamError && isStreamActive) {
@@ -902,11 +911,12 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         }
 
         sessionConfigBuilder.clearSurfaces();
+        DynamicRange dynamicRange = streamSpec.getDynamicRange();
         if (!isStreamError) {
             if (isStreamActive) {
-                sessionConfigBuilder.addSurface(mDeferrableSurface);
+                sessionConfigBuilder.addSurface(mDeferrableSurface, dynamicRange);
             } else {
-                sessionConfigBuilder.addNonRepeatingSurface(mDeferrableSurface);
+                sessionConfigBuilder.addNonRepeatingSurface(mDeferrableSurface, dynamicRange);
             }
         } // Don't attach surface when stream is invalid.
 

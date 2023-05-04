@@ -22,6 +22,7 @@ import static androidx.camera.core.impl.ImageAnalysisConfig.OPTION_IMAGE_READER_
 import static androidx.camera.core.impl.ImageAnalysisConfig.OPTION_ONE_PIXEL_SHIFT_ENABLED;
 import static androidx.camera.core.impl.ImageAnalysisConfig.OPTION_OUTPUT_IMAGE_FORMAT;
 import static androidx.camera.core.impl.ImageAnalysisConfig.OPTION_OUTPUT_IMAGE_ROTATION_ENABLED;
+import static androidx.camera.core.impl.ImageInputConfig.OPTION_INPUT_DYNAMIC_RANGE;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_CUSTOM_ORDERED_RESOLUTIONS;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_DEFAULT_RESOLUTION;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_MAX_RESOLUTION;
@@ -70,6 +71,7 @@ import androidx.camera.core.impl.Config;
 import androidx.camera.core.impl.ConfigProvider;
 import androidx.camera.core.impl.DeferrableSurface;
 import androidx.camera.core.impl.ImageAnalysisConfig;
+import androidx.camera.core.impl.ImageInputConfig;
 import androidx.camera.core.impl.ImageOutputConfig;
 import androidx.camera.core.impl.ImageOutputConfig.RotationValue;
 import androidx.camera.core.impl.ImmediateSurface;
@@ -95,6 +97,7 @@ import androidx.lifecycle.LifecycleOwner;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.Executor;
 
@@ -387,8 +390,7 @@ public final class ImageAnalysis extends UseCase {
 
         sessionConfigBuilder.setExpectedFrameRateRange(streamSpec.getExpectedFrameRateRange());
 
-        sessionConfigBuilder.addSurface(mDeferrableSurface);
-
+        sessionConfigBuilder.addSurface(mDeferrableSurface, streamSpec.getDynamicRange());
 
         sessionConfigBuilder.addErrorListener((sessionConfig, error) -> {
             clearPipeline();
@@ -1009,6 +1011,15 @@ public final class ImageAnalysis extends UseCase {
         private static final int DEFAULT_SURFACE_OCCUPANCY_PRIORITY = 1;
         private static final int DEFAULT_ASPECT_RATIO = AspectRatio.RATIO_4_3;
 
+        /**
+         * Explicitly setting the default dynamic range to SDR (rather than UNSPECIFIED) means
+         * ImageAnalysis won't inherit dynamic ranges from other use cases.
+         */
+        // TODO(b/258099919): ImageAnalysis currently can't support HDR, so we don't expose the
+        //  dynamic range setter and require SDR. We may want to get rid of this default once we
+        //  can support tone-mapping from HDR -> SDR
+        private static final DynamicRange DEFAULT_DYNAMIC_RANGE = DynamicRange.SDR;
+
         private static final ResolutionSelector DEFAULT_RESOLUTION_SELECTOR =
                 new ResolutionSelector.Builder().setAspectRatioStrategy(
                         AspectRatioStrategy.RATIO_4_3_FALLBACK_AUTO_STRATEGY).setResolutionStrategy(
@@ -1024,7 +1035,8 @@ public final class ImageAnalysis extends UseCase {
                     .setSurfaceOccupancyPriority(DEFAULT_SURFACE_OCCUPANCY_PRIORITY)
                     .setTargetAspectRatio(DEFAULT_ASPECT_RATIO)
                     .setResolutionSelector(DEFAULT_RESOLUTION_SELECTOR)
-                    .setCaptureType(UseCaseConfigFactory.CaptureType.IMAGE_ANALYSIS);
+                    .setCaptureType(UseCaseConfigFactory.CaptureType.IMAGE_ANALYSIS)
+                    .setDynamicRange(DEFAULT_DYNAMIC_RANGE);
 
             DEFAULT_CONFIG = builder.getUseCaseConfig();
         }
@@ -1041,7 +1053,8 @@ public final class ImageAnalysis extends UseCase {
     public static final class Builder
             implements ImageOutputConfig.Builder<Builder>,
             ThreadConfig.Builder<Builder>,
-            UseCaseConfig.Builder<ImageAnalysis, ImageAnalysisConfig, Builder> {
+            UseCaseConfig.Builder<ImageAnalysis, ImageAnalysisConfig, Builder>,
+            ImageInputConfig.Builder<Builder> {
 
         private final MutableOptionsBundle mMutableConfig;
 
@@ -1608,6 +1621,30 @@ public final class ImageAnalysis extends UseCase {
         @Override
         public Builder setCaptureType(@NonNull UseCaseConfigFactory.CaptureType captureType) {
             getMutableConfig().insertOption(OPTION_CAPTURE_TYPE, captureType);
+            return this;
+        }
+
+        // Implementations of ImageInputConfig.Builder default methods
+
+        /**
+         * Sets the {@link DynamicRange}.
+         *
+         * <p>This is currently only exposed to internally set the dynamic range to SDR.
+         * @return The current Builder.
+         * @see DynamicRange
+         */
+        @RestrictTo(Scope.LIBRARY)
+        @NonNull
+        @Override
+        public Builder setDynamicRange(@NonNull DynamicRange dynamicRange) {
+            // TODO(b/258099919): ImageAnalysis currently can't support HDR, so we require SDR.
+            //  It's possible to support other DynamicRanges through tone-mapping or by exposing
+            //  other ImageReader formats, such as YCBCR_P010.
+            if (!Objects.equals(DynamicRange.SDR, dynamicRange)) {
+                throw new UnsupportedOperationException(
+                        "ImageAnalysis currently only supports SDR");
+            }
+            getMutableConfig().insertOption(OPTION_INPUT_DYNAMIC_RANGE, dynamicRange);
             return this;
         }
     }
