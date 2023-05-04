@@ -38,7 +38,8 @@ internal class DiagnosticsWorker(context: Context, parameters: WorkerParameters)
         val workNameDao = database.workNameDao()
         val workTagDao = database.workTagDao()
         val systemIdInfoDao = database.systemIdInfoDao()
-        val startAt = System.currentTimeMillis() - TimeUnit.DAYS.toMillis(1)
+        val startAt =
+            workManager.configuration.clock.currentTimeMillis() - TimeUnit.DAYS.toMillis(1)
         val completed = workSpecDao.getRecentlyCompletedWork(startAt)
         val running = workSpecDao.getRunningWork()
         val enqueued = workSpecDao.getAllEligibleWorkSpecsForScheduling(
