@@ -39,47 +39,7 @@ import java.util.Optional
 
 private const val CAPABILITY_NAME: String = "actions.intent.CREATE_MESSAGE"
 
-@Suppress("UNCHECKED_CAST")
-private val ACTION_SPEC =
-    ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
-        .setArguments(CreateMessage.Arguments::class.java, CreateMessage.Arguments::Builder)
-        .setOutput(CreateMessage.Output::class.java)
-        .bindRepeatedParameter(
-            "message.recipient",
-            { properties ->
-                Optional.ofNullable(
-                    properties[CreateMessage.PropertyMapStrings.RECIPIENT.key]
-                        as Property<Recipient>
-                )
-            },
-            CreateMessage.Arguments.Builder::setRecipientList,
-            RecipientValue.PARAM_VALUE_CONVERTER,
-            EntityConverter.of(RECIPIENT_TYPE_SPEC)
-        )
-        .bindOptionalParameter(
-            "message.text",
-            { properties ->
-                Optional.ofNullable(
-                    properties[CreateMessage.PropertyMapStrings.MESSAGE_TEXT.key]
-                        as Property<StringValue>
-                )
-            },
-            CreateMessage.Arguments.Builder::setMessageText,
-            TypeConverters.STRING_PARAM_VALUE_CONVERTER,
-            TypeConverters.STRING_VALUE_ENTITY_CONVERTER
-        )
-        .bindOptionalOutput(
-            "message",
-            { output -> Optional.ofNullable(output.message) },
-            ParamValueConverter.of(MESSAGE_TYPE_SPEC)::toParamValue
-        )
-        .bindOptionalOutput(
-            "executionStatus",
-            { output -> Optional.ofNullable(output.executionStatus) },
-            CreateMessage.ExecutionStatus::toParamValue
-        )
-        .build()
-
+/** A capability corresponding to actions.intent.CREATE_MESSAGE */
 @CapabilityFactory(name = CAPABILITY_NAME)
 class CreateMessage private constructor() {
     internal enum class PropertyMapStrings(val key: String) {
@@ -218,4 +178,47 @@ class CreateMessage private constructor() {
     class Confirmation internal constructor()
 
     sealed interface ExecutionSession : BaseExecutionSession<Arguments, Output>
+
+    companion object {
+        @Suppress("UNCHECKED_CAST")
+        private val ACTION_SPEC =
+            ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
+                .setArguments(Arguments::class.java, Arguments::Builder)
+                .setOutput(Output::class.java)
+                .bindRepeatedParameter(
+                    "message.recipient",
+                    { properties ->
+                        Optional.ofNullable(
+                            properties[PropertyMapStrings.RECIPIENT.key]
+                                as Property<Recipient>
+                        )
+                    },
+                    Arguments.Builder::setRecipientList,
+                    RecipientValue.PARAM_VALUE_CONVERTER,
+                    EntityConverter.of(RECIPIENT_TYPE_SPEC)
+                )
+                .bindOptionalParameter(
+                    "message.text",
+                    { properties ->
+                        Optional.ofNullable(
+                            properties[PropertyMapStrings.MESSAGE_TEXT.key]
+                                as Property<StringValue>
+                        )
+                    },
+                    Arguments.Builder::setMessageText,
+                    TypeConverters.STRING_PARAM_VALUE_CONVERTER,
+                    TypeConverters.STRING_VALUE_ENTITY_CONVERTER
+                )
+                .bindOptionalOutput(
+                    "message",
+                    { output -> Optional.ofNullable(output.message) },
+                    ParamValueConverter.of(MESSAGE_TYPE_SPEC)::toParamValue
+                )
+                .bindOptionalOutput(
+                    "executionStatus",
+                    { output -> Optional.ofNullable(output.executionStatus) },
+                    ExecutionStatus::toParamValue
+                )
+                .build()
+    }
 }

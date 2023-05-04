@@ -20,6 +20,7 @@ import androidx.appactions.builtintypes.experimental.types.GenericErrorStatus
 import androidx.appactions.builtintypes.experimental.types.SuccessStatus
 import androidx.appactions.interaction.capabilities.core.BaseExecutionSession
 import androidx.appactions.interaction.capabilities.core.Capability
+import androidx.appactions.interaction.capabilities.core.CapabilityFactory
 import androidx.appactions.interaction.capabilities.core.impl.BuilderOf
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
@@ -29,34 +30,10 @@ import androidx.appactions.interaction.protobuf.Struct
 import androidx.appactions.interaction.protobuf.Value
 import java.util.Optional
 
-/** PauseTimer.kt in interaction-capabilities-productivity */
 private const val CAPABILITY_NAME = "actions.intent.PAUSE_TIMER"
 
-@Suppress("UNCHECKED_CAST")
-private val ACTION_SPEC =
-    ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
-        .setArguments(PauseTimer.Arguments::class.java, PauseTimer.Arguments::Builder)
-        .setOutput(PauseTimer.Output::class.java)
-        .bindRepeatedParameter(
-            "timer",
-            { properties ->
-                Optional.ofNullable(
-                    properties[PauseTimer.PropertyMapStrings.TIMER_LIST.key]
-                        as Property<TimerValue>
-                )
-            },
-            PauseTimer.Arguments.Builder::setTimerList,
-            TimerValue.PARAM_VALUE_CONVERTER,
-            TimerValue.ENTITY_CONVERTER
-        )
-        .bindOptionalOutput(
-            "executionStatus",
-            { output -> Optional.ofNullable(output.executionStatus) },
-            PauseTimer.ExecutionStatus::toParamValue,
-        )
-        .build()
-
-// TODO(b/267806701): Add capability factory annotation once the testing library is fully migrated.
+/** A capability corresponding to actions.intent.PAUSE_TIMER */
+@CapabilityFactory(name = CAPABILITY_NAME)
 class PauseTimer private constructor() {
     internal enum class PropertyMapStrings(val key: String) {
         TIMER_LIST("timer.timerList"),
@@ -178,4 +155,30 @@ class PauseTimer private constructor() {
     class Confirmation internal constructor()
 
     sealed interface ExecutionSession : BaseExecutionSession<Arguments, Output>
+
+    companion object {
+        @Suppress("UNCHECKED_CAST")
+        private val ACTION_SPEC =
+            ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
+                .setArguments(Arguments::class.java, Arguments::Builder)
+                .setOutput(Output::class.java)
+                .bindRepeatedParameter(
+                    "timer",
+                    { properties ->
+                        Optional.ofNullable(
+                            properties[PropertyMapStrings.TIMER_LIST.key]
+                                as Property<TimerValue>
+                        )
+                    },
+                    Arguments.Builder::setTimerList,
+                    TimerValue.PARAM_VALUE_CONVERTER,
+                    TimerValue.ENTITY_CONVERTER
+                )
+                .bindOptionalOutput(
+                    "executionStatus",
+                    { output -> Optional.ofNullable(output.executionStatus) },
+                    ExecutionStatus::toParamValue,
+                )
+                .build()
+    }
 }

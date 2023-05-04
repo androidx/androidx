@@ -26,29 +26,9 @@ import androidx.appactions.interaction.capabilities.core.properties.Property
 import androidx.appactions.interaction.capabilities.core.properties.StringValue
 import java.util.Optional
 
-/** PauseExercise.kt in interaction-capabilities-fitness */
 private const val CAPABILITY_NAME = "actions.intent.PAUSE_EXERCISE"
 
-// TODO(b/273602015): Update to use Name property from builtintype library.
-@Suppress("UNCHECKED_CAST")
-private val ACTION_SPEC =
-    ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
-        .setArguments(PauseExercise.Arguments::class.java, PauseExercise.Arguments::Builder)
-        .setOutput(PauseExercise.Output::class.java)
-        .bindOptionalParameter(
-            "exercise.name",
-            { properties ->
-                Optional.ofNullable(
-                    properties[PauseExercise.PropertyMapStrings.NAME.key]
-                        as Property<StringValue>
-                )
-            },
-            PauseExercise.Arguments.Builder::setName,
-            TypeConverters.STRING_PARAM_VALUE_CONVERTER,
-            TypeConverters.STRING_VALUE_ENTITY_CONVERTER
-        )
-        .build()
-
+/** A capability corresponding to actions.intent.PAUSE_EXERCISE */
 @CapabilityFactory(name = CAPABILITY_NAME)
 class PauseExercise private constructor() {
     internal enum class PropertyMapStrings(val key: String) {
@@ -110,4 +90,26 @@ class PauseExercise private constructor() {
     class Confirmation internal constructor()
 
     sealed interface ExecutionSession : BaseExecutionSession<Arguments, Output>
+
+    companion object {
+        // TODO(b/273602015): Update to use Name property from builtintype library.
+        @Suppress("UNCHECKED_CAST")
+        private val ACTION_SPEC =
+            ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
+                .setArguments(Arguments::class.java, Arguments::Builder)
+                .setOutput(Output::class.java)
+                .bindOptionalParameter(
+                    "exercise.name",
+                    { properties ->
+                        Optional.ofNullable(
+                            properties[PropertyMapStrings.NAME.key]
+                                as Property<StringValue>
+                        )
+                    },
+                    Arguments.Builder::setName,
+                    TypeConverters.STRING_PARAM_VALUE_CONVERTER,
+                    TypeConverters.STRING_VALUE_ENTITY_CONVERTER
+                )
+                .build()
+    }
 }

@@ -38,47 +38,7 @@ import java.util.Optional
 
 private const val CAPABILITY_NAME: String = "actions.intent.CREATE_CALL"
 
-@Suppress("UNCHECKED_CAST")
-private val ACTION_SPEC =
-    ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
-        .setArguments(CreateCall.Arguments::class.java, CreateCall.Arguments::Builder)
-        .setOutput(CreateCall.Output::class.java)
-        .bindOptionalParameter(
-            "call.callFormat",
-            { properties ->
-                Optional.ofNullable(
-                    properties[CreateCall.PropertyMapStrings.CALL_FORMAT.key]
-                        as Property<Call.CanonicalValue.CallFormat>
-                )
-            },
-            CreateCall.Arguments.Builder::setCallFormat,
-            TypeConverters.CALL_FORMAT_PARAM_VALUE_CONVERTER,
-            TypeConverters.CALL_FORMAT_ENTITY_CONVERTER
-        )
-        .bindRepeatedParameter(
-            "call.participant",
-            { properties ->
-                Optional.ofNullable(
-                    properties[CreateCall.PropertyMapStrings.PARTICIPANT.key]
-                        as Property<Participant>
-                )
-            },
-            CreateCall.Arguments.Builder::setParticipantList,
-            ParticipantValue.PARAM_VALUE_CONVERTER,
-            EntityConverter.of(PARTICIPANT_TYPE_SPEC)
-        )
-        .bindOptionalOutput(
-            "call",
-            { output -> Optional.ofNullable(output.call) },
-            ParamValueConverter.of(CALL_TYPE_SPEC)::toParamValue
-        )
-        .bindOptionalOutput(
-            "executionStatus",
-            { output -> Optional.ofNullable(output.executionStatus) },
-            CreateCall.ExecutionStatus::toParamValue
-        )
-        .build()
-
+/** A capability corresponding to actions.intent.CREATE_CALL */
 @CapabilityFactory(name = CAPABILITY_NAME)
 class CreateCall private constructor() {
     internal enum class PropertyMapStrings(val key: String) {
@@ -216,4 +176,47 @@ class CreateCall private constructor() {
     class Confirmation internal constructor()
 
     sealed interface ExecutionSession : BaseExecutionSession<Arguments, Output>
+
+    companion object {
+        @Suppress("UNCHECKED_CAST")
+        private val ACTION_SPEC =
+            ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
+                .setArguments(Arguments::class.java, Arguments::Builder)
+                .setOutput(Output::class.java)
+                .bindOptionalParameter(
+                    "call.callFormat",
+                    { properties ->
+                        Optional.ofNullable(
+                            properties[PropertyMapStrings.CALL_FORMAT.key]
+                                as Property<Call.CanonicalValue.CallFormat>
+                        )
+                    },
+                    Arguments.Builder::setCallFormat,
+                    TypeConverters.CALL_FORMAT_PARAM_VALUE_CONVERTER,
+                    TypeConverters.CALL_FORMAT_ENTITY_CONVERTER
+                )
+                .bindRepeatedParameter(
+                    "call.participant",
+                    { properties ->
+                        Optional.ofNullable(
+                            properties[PropertyMapStrings.PARTICIPANT.key]
+                                as Property<Participant>
+                        )
+                    },
+                    Arguments.Builder::setParticipantList,
+                    ParticipantValue.PARAM_VALUE_CONVERTER,
+                    EntityConverter.of(PARTICIPANT_TYPE_SPEC)
+                )
+                .bindOptionalOutput(
+                    "call",
+                    { output -> Optional.ofNullable(output.call) },
+                    ParamValueConverter.of(CALL_TYPE_SPEC)::toParamValue
+                )
+                .bindOptionalOutput(
+                    "executionStatus",
+                    { output -> Optional.ofNullable(output.executionStatus) },
+                    ExecutionStatus::toParamValue
+                )
+                .build()
+    }
 }
