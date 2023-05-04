@@ -44,19 +44,32 @@ abstract class AidlDefinitionDetector : Detector(), OtherFileScanner {
     override fun getApplicableFiles() = Scope.OTHER_SCOPE
 
     override fun beforeCheckEachProject(context: Context) {
-        LanguageParserDefinitions.INSTANCE.apply {
+        // Neither LanguageParserDefinitions nor CoreFileTypeRegistry are thread-safe, so this is a
+        // best-effort to avoid a race condition during our own access across multiple lint worker
+        // threads.
+        synchronized(intellijCoreLock) {
+            val aidlFileType = AidlFileType.INSTANCE
+
             // When we run from CLI, the IntelliJ parser (which does not support lexing AIDL) will
             // already be set. Only the first parser will be used, so we need to remove that parser
             // before we add our own.
-            allForLanguage(AidlFileType.INSTANCE.language).forEach { parser ->
-                removeExplicitExtension(AidlFileType.INSTANCE.language, parser)
+            val languageParserDefinitions = LanguageParserDefinitions.INSTANCE
+            languageParserDefinitions.apply {
+                allForLanguage(aidlFileType.language).forEach { parser ->
+                    removeExplicitExtension(aidlFileType.language, parser)
+                }
+                addExplicitExtension(aidlFileType.language, AidlParserDefinition())
             }
-            addExplicitExtension(AidlFileType.INSTANCE.language, AidlParserDefinition())
+
+            // Register our parser for the AIDL file type. Files may be registered more than once to
+            // overwrite the associated extension, but only the first call to `registerFileType`
+            // will associate the file with the name returned by `FileType.getName()`.
+            val coreFileTypeRegistry = CoreFileTypeRegistry.getInstance() as CoreFileTypeRegistry
+            coreFileTypeRegistry.registerFileType(
+                aidlFileType,
+                aidlFileType.defaultExtension
+            )
         }
-        (CoreFileTypeRegistry.getInstance() as CoreFileTypeRegistry).registerFileType(
-            AidlFileType.INSTANCE,
-            AidlFileType.INSTANCE.defaultExtension
-        )
     }
 
     override fun run(context: Context) {
@@ -126,3 +139,9 @@ fun AidlDeclaration.getLocation() = Location.create(
     textRange.startOffset,
     textRange.endOffset
 )
+
+/**
+ * Lock object used to synchronize access to IntelliJ registries which are not thread-safe,
+ * including [LanguageParserDefinitions] and [CoreFileTypeRegistry].
+ */
+private val intellijCoreLock = Any()
