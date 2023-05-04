@@ -126,7 +126,7 @@ inline fun FlowColumn(
  */
 @LayoutScopeMarker
 @Immutable
-@JvmDefaultWithCompatibility
+@ExperimentalLayoutApi
 interface FlowRowScope : RowScope
 
 /**
@@ -134,11 +134,13 @@ interface FlowRowScope : RowScope
  */
 @LayoutScopeMarker
 @Immutable
-@JvmDefaultWithCompatibility
+@ExperimentalLayoutApi
 interface FlowColumnScope : ColumnScope
 
+@OptIn(ExperimentalLayoutApi::class)
 internal object FlowRowScopeInstance : RowScope by RowScopeInstance, FlowRowScope
 
+@OptIn(ExperimentalLayoutApi::class)
 internal object FlowColumnScopeInstance : ColumnScope by ColumnScopeInstance, FlowColumnScope
 
 private fun getVerticalArrangement(verticalArrangement: Arrangement.Vertical):
