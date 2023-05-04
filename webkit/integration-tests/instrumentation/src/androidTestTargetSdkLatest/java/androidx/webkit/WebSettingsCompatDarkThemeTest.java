@@ -30,18 +30,16 @@ import androidx.test.filters.SdkSuppress;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-
+/**
+ * Instrumentation tests for dark mode on targetSdk >= 33.
+ */
 @MediumTest
 @RunWith(AndroidJUnit4.class)
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
 public class WebSettingsCompatDarkThemeTest extends
         WebSettingsCompatDarkModeTestBase<WebViewDarkThemeTestActivity> {
     public WebSettingsCompatDarkThemeTest() {
-        // targetSdkVersion to T, it is min version the algorithmic darkening works.
-        // VERSION_CODES.TIRAMISU can't be compiled, follows the pattern in
-        // core/core/src/main/java/androidx/core/os/BuildCompat.java,
-        // uses 33 instead of VERSION_CODES.TIRAMISU
-        super(WebViewDarkThemeTestActivity.class, 33);
+        super(WebViewDarkThemeTestActivity.class);
     }
 
     /**

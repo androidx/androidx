@@ -18,7 +18,6 @@ package androidx.webkit;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.Build;
@@ -44,7 +43,7 @@ import java.util.Map;
  * Base class for dark mode related test.
  */
 @RequiresApi(Build.VERSION_CODES.KITKAT)
-public class WebSettingsCompatDarkModeTestBase<T extends Activity> {
+public class WebSettingsCompatDarkModeTestBase<T extends WebViewTestActivity> {
 
     // The size of WebViews to use in the app.
     private static final int WEBVIEW_SIZE = 128;
@@ -76,17 +75,18 @@ public class WebSettingsCompatDarkModeTestBase<T extends Activity> {
     // representation.
     @SuppressWarnings("deprecation")
     @Rule
-    public final TargetSdkActivityTestRule<T> mActivityRule;
+    public final androidx.test.rule.ActivityTestRule<T> mActivityRule;
 
-    public WebSettingsCompatDarkModeTestBase(@NonNull Class<T> activityClass, int targetSdk) {
-        mActivityRule = new TargetSdkActivityTestRule<T>(activityClass,
-                targetSdk);
+    /** @noinspection deprecation*/
+    @SuppressWarnings("deprecation")
+    public WebSettingsCompatDarkModeTestBase(@NonNull Class<T> activityClass) {
+        mActivityRule = new androidx.test.rule.ActivityTestRule<>(activityClass);
     }
 
     @Before
     public void setUp() {
         mWebViewOnUiThread = new WebViewOnUiThread(
-                ((WebViewTestActivity) mActivityRule.getActivity()).getWebView());
+                mActivityRule.getActivity().getWebView());
         mWebViewOnUiThread.getSettings().setJavaScriptEnabled(true);
     }
 
