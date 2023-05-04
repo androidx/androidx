@@ -50,7 +50,7 @@ internal constructor(
             mutableTaskParamMap[paramName] =
                 TaskParamBinding(
                     paramName,
-                    GROUND_IF_NO_IDENTIFIER,
+                    GROUND_NEVER,
                     GenericResolverInternal.fromInventoryListener(listener),
                     converter,
                     null,
@@ -66,7 +66,7 @@ internal constructor(
             mutableTaskParamMap[paramName] =
                 TaskParamBinding(
                     paramName,
-                    GROUND_IF_NO_IDENTIFIER,
+                    GROUND_NEVER,
                     GenericResolverInternal.fromInventoryListListener(listener),
                     converter,
                     null,
