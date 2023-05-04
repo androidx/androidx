@@ -68,7 +68,6 @@ internal class TaskOrchestrator<ArgumentsT, OutputT, ConfirmationT>(
     internal enum class Status {
         UNINITIATED,
         IN_PROGRESS,
-        COMPLETED,
         DESTROYED,
     }
     /**
@@ -147,7 +146,14 @@ internal class TaskOrchestrator<ArgumentsT, OutputT, ConfirmationT>(
             inProgress = true
         }
         try {
-            if (updateRequest.assistantRequest != null) {
+            if (status == Status.DESTROYED) {
+                if (updateRequest.assistantRequest != null) {
+                    FulfillmentResult(ErrorStatusInternal.SESSION_ALREADY_DESTROYED)
+                        .applyToCallback(updateRequest.assistantRequest.callbackInternal)
+                } else if (updateRequest.touchEventRequest != null && touchEventCallback != null) {
+                    touchEventCallback!!.onError(ErrorStatusInternal.SESSION_ALREADY_DESTROYED)
+                }
+            } else if (updateRequest.assistantRequest != null) {
                 processAssistantUpdateRequest(updateRequest.assistantRequest)
             } else if (updateRequest.touchEventRequest != null) {
                 processTouchEventUpdateRequest(updateRequest.touchEventRequest)
@@ -187,12 +193,12 @@ internal class TaskOrchestrator<ArgumentsT, OutputT, ConfirmationT>(
 
                 FulfillmentRequest.Fulfillment.Type.SYNC -> handleSync(argumentsWrapper)
                 FulfillmentRequest.Fulfillment.Type.CONFIRM -> handleConfirm()
-                FulfillmentRequest.Fulfillment.Type.CANCEL,
-                FulfillmentRequest.Fulfillment.Type.TERMINATE,
+                FulfillmentRequest.Fulfillment.Type.CANCEL
                 -> {
                     terminate()
                     FulfillmentResult(FulfillmentResponse.getDefaultInstance())
                 }
+                else -> FulfillmentResult(ErrorStatusInternal.INVALID_REQUEST)
             }
         }
         fulfillmentResult.applyToCallback(callback)
@@ -254,7 +260,6 @@ internal class TaskOrchestrator<ArgumentsT, OutputT, ConfirmationT>(
         }
     }
 
-    // TODO: add cleanup logic if any
     internal fun terminate() {
         externalSession.onDestroy()
         status = Status.DESTROYED
@@ -471,7 +476,7 @@ internal class TaskOrchestrator<ArgumentsT, OutputT, ConfirmationT>(
         val result = invokeExternalSuspendBlock("onExecute") {
             externalSession.onExecute(actionSpec.buildArguments(finalArguments))
         }
-        status = Status.COMPLETED
+        terminate()
         val fulfillmentResponse =
             FulfillmentResponse.newBuilder().setStartDictation(result.shouldStartDictation)
         convertToExecutionOutput(result)?.let { fulfillmentResponse.executionOutput = it }
