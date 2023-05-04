@@ -19,7 +19,6 @@ package androidx.compose.ui.graphics.vector
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.geometry.Size.Companion.Unspecified
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
@@ -49,12 +48,6 @@ const val DefaultTranslationY = 0.0f
 
 val EmptyPath = emptyList<PathNode>()
 
-inline fun PathData(block: PathBuilder.() -> Unit): List<PathNode> =
-    with(PathBuilder()) {
-        block()
-        getNodes()
-    }
-
 const val DefaultPathName = ""
 const val DefaultStrokeLineWidth = 0.0f
 const val DefaultStrokeLineMiter = 4.0f
@@ -68,15 +61,18 @@ val DefaultTintBlendMode = BlendMode.SrcIn
 val DefaultTintColor = Color.Transparent
 val DefaultFillType = PathFillType.NonZero
 
-fun addPathNodes(pathStr: String?): List<PathNode> =
-    if (pathStr == null) {
-        EmptyPath
-    } else {
-        PathParser().parsePathString(pathStr).toNodes()
-    }
+inline fun PathData(block: PathBuilder.() -> Unit) = with(PathBuilder()) {
+    block()
+    getNodes()
+}
+
+fun addPathNodes(pathStr: String?) = if (pathStr == null) {
+    EmptyPath
+} else {
+    PathParser().parsePathString(pathStr).toNodes()
+}
 
 sealed class VNode {
-
     /**
      * Callback invoked whenever the node in the vector tree is modified in a way that would
      * change the output of the Vector
@@ -91,7 +87,6 @@ sealed class VNode {
 }
 
 internal class VectorComponent : VNode() {
-
     val root = GroupComponent().apply {
         pivotX = 0.0f
         pivotY = 0.0f
@@ -111,7 +106,7 @@ internal class VectorComponent : VNode() {
         invalidateCallback.invoke()
     }
 
-    private var isDirty: Boolean = true
+    private var isDirty = true
 
     private val cacheDrawScope = DrawCache()
 
@@ -119,7 +114,7 @@ internal class VectorComponent : VNode() {
 
     internal var intrinsicColorFilter: ColorFilter? by mutableStateOf(null)
 
-    var viewportWidth: Float = 0f
+    var viewportWidth = 0f
         set(value) {
             if (field != value) {
                 field = value
@@ -127,7 +122,7 @@ internal class VectorComponent : VNode() {
             }
         }
 
-    var viewportHeight: Float = 0f
+    var viewportHeight = 0f
         set(value) {
             if (field != value) {
                 field = value
@@ -135,7 +130,7 @@ internal class VectorComponent : VNode() {
             }
         }
 
-    private var previousDrawSize: Size = Unspecified
+    private var previousDrawSize = Unspecified
 
     /**
      * Cached lambda used to avoid allocating the lambda on each draw invocation
@@ -178,8 +173,7 @@ internal class VectorComponent : VNode() {
 }
 
 internal class PathComponent : VNode() {
-
-    var name: String = DefaultPathName
+    var name = DefaultPathName
         set(value) {
             field = value
             invalidate()
@@ -191,33 +185,33 @@ internal class PathComponent : VNode() {
             invalidate()
         }
 
-    var fillAlpha: Float = 1.0f
+    var fillAlpha = 1.0f
         set(value) {
             field = value
             invalidate()
         }
 
-    var pathData: List<PathNode> = EmptyPath
+    var pathData = EmptyPath
         set(value) {
             field = value
             isPathDirty = true
             invalidate()
         }
 
-    var pathFillType: PathFillType = DefaultFillType
+    var pathFillType = DefaultFillType
         set(value) {
             field = value
             renderPath.fillType = value
             invalidate()
         }
 
-    var strokeAlpha: Float = 1.0f
+    var strokeAlpha = 1.0f
         set(value) {
             field = value
             invalidate()
         }
 
-    var strokeLineWidth: Float = DefaultStrokeLineWidth
+    var strokeLineWidth = DefaultStrokeLineWidth
         set(value) {
             field = value
             invalidate()
@@ -229,28 +223,28 @@ internal class PathComponent : VNode() {
             invalidate()
         }
 
-    var strokeLineCap: StrokeCap = DefaultStrokeLineCap
+    var strokeLineCap = DefaultStrokeLineCap
         set(value) {
             field = value
             isStrokeDirty = true
             invalidate()
         }
 
-    var strokeLineJoin: StrokeJoin = DefaultStrokeLineJoin
+    var strokeLineJoin = DefaultStrokeLineJoin
         set(value) {
             field = value
             isStrokeDirty = true
             invalidate()
         }
 
-    var strokeLineMiter: Float = DefaultStrokeLineMiter
+    var strokeLineMiter = DefaultStrokeLineMiter
         set(value) {
             field = value
             isStrokeDirty = true
             invalidate()
         }
 
-    var trimPathStart: Float = DefaultTrimPathStart
+    var trimPathStart = DefaultTrimPathStart
         set(value) {
             if (field != value) {
                 field = value
@@ -259,7 +253,7 @@ internal class PathComponent : VNode() {
             }
         }
 
-    var trimPathEnd: Float = DefaultTrimPathEnd
+    var trimPathEnd = DefaultTrimPathEnd
         set(value) {
             if (field != value) {
                 field = value
@@ -268,7 +262,7 @@ internal class PathComponent : VNode() {
             }
         }
 
-    var trimPathOffset: Float = DefaultTrimPathOffset
+    var trimPathOffset = DefaultTrimPathOffset
         set(value) {
             if (field != value) {
                 field = value
@@ -279,13 +273,12 @@ internal class PathComponent : VNode() {
 
     private var isPathDirty = true
     private var isStrokeDirty = true
-    private var isTrimPathDirty = true
+    private var isTrimPathDirty = false
 
     private var strokeStyle: Stroke? = null
 
     private val path = Path()
-
-    private val renderPath = Path()
+    private var renderPath = path
 
     private val pathMeasure: PathMeasure by lazy(LazyThreadSafetyMode.NONE) { PathMeasure() }
 
@@ -296,14 +289,18 @@ internal class PathComponent : VNode() {
     }
 
     private fun updateRenderPath() {
-        // Rewind unsets the filltype so reset it here
-        val fillType = renderPath.fillType
-        renderPath.rewind()
-        renderPath.fillType = fillType
-
         if (trimPathStart == DefaultTrimPathStart && trimPathEnd == DefaultTrimPathEnd) {
-            renderPath.addPath(path)
+            renderPath = path
         } else {
+            if (renderPath == path) {
+                renderPath = Path()
+            } else {
+                // Rewind unsets the fill type so reset it here
+                val fillType = renderPath.fillType
+                renderPath.rewind()
+                renderPath.fillType = fillType
+            }
+
             pathMeasure.setPath(path, false)
             val length = pathMeasure.length
             val start = ((trimPathStart + trimPathOffset) % 1f) * length
@@ -339,18 +336,15 @@ internal class PathComponent : VNode() {
         }
     }
 
-    override fun toString(): String {
-        return path.toString()
-    }
+    override fun toString() = path.toString()
 }
 
 internal class GroupComponent : VNode() {
-
     private var groupMatrix: Matrix? = null
 
     private val children = mutableListOf<VNode>()
 
-    var clipPathData: List<PathNode> = EmptyPath
+    var clipPathData = EmptyPath
         set(value) {
             field = value
             isClipPathDirty = true
@@ -387,60 +381,63 @@ internal class GroupComponent : VNode() {
 
     // If the name changes we should re-draw as individual nodes could
     // be modified based off of this name parameter.
-    var name: String = DefaultGroupName
+    var name = DefaultGroupName
         set(value) {
             field = value
             invalidate()
         }
 
-    var rotation: Float = DefaultRotation
+    var rotation = DefaultRotation
         set(value) {
             field = value
             isMatrixDirty = true
             invalidate()
         }
 
-    var pivotX: Float = DefaultPivotX
+    var pivotX = DefaultPivotX
         set(value) {
             field = value
             isMatrixDirty = true
             invalidate()
         }
 
-    var pivotY: Float = DefaultPivotY
+    var pivotY = DefaultPivotY
         set(value) {
             field = value
             isMatrixDirty = true
             invalidate()
         }
 
-    var scaleX: Float = DefaultScaleX
+    var scaleX = DefaultScaleX
         set(value) {
             field = value
             isMatrixDirty = true
             invalidate()
         }
 
-    var scaleY: Float = DefaultScaleY
+    var scaleY = DefaultScaleY
         set(value) {
             field = value
             isMatrixDirty = true
             invalidate()
         }
 
-    var translationX: Float = DefaultTranslationX
+    var translationX = DefaultTranslationX
         set(value) {
             field = value
             isMatrixDirty = true
             invalidate()
         }
 
-    var translationY: Float = DefaultTranslationY
+    var translationY = DefaultTranslationY
         set(value) {
             field = value
             isMatrixDirty = true
             invalidate()
         }
+
+    val numChildren: Int
+        get() = children.size
 
     private var isMatrixDirty = true
 
@@ -527,9 +524,6 @@ internal class GroupComponent : VNode() {
             }
         }
     }
-
-    val numChildren: Int
-        get() = children.size
 
     override fun toString(): String {
         val sb = StringBuilder().append("VGroup: ").append(name)
