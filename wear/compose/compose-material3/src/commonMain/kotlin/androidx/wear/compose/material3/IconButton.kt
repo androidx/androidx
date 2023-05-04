@@ -423,7 +423,7 @@ object IconButtonDefaults {
  * [OutlinedIconButton].
  */
 @Immutable
-class IconButtonColors internal constructor(
+class IconButtonColors constructor(
     private val containerColor: Color,
     private val contentColor: Color,
     private val disabledContainerColor: Color,
