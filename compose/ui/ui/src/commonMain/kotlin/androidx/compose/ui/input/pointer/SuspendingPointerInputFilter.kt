@@ -497,7 +497,7 @@ internal class SuspendingPointerInputModifierNodeImpl(
     override fun resetPointerInputHandler() {
         val localJob = pointerInputJob
         if (localJob != null) {
-            localJob.cancel(CancellationException())
+            localJob.cancel()
             pointerInputJob = null
         }
     }
