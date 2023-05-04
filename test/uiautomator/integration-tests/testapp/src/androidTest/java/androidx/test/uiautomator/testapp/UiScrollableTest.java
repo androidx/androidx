@@ -273,7 +273,6 @@ public class UiScrollableTest extends BaseTest {
         assertUiObjectNotFound(noNode::flingBackward);
     }
 
-    @Ignore // b/266965027
     @Test
     public void testScrollBackward_vertical() throws Exception {
         launchTestActivity(SwipeTestActivity.class);
@@ -285,7 +284,6 @@ public class UiScrollableTest extends BaseTest {
         assertEquals("swipe_down", scrollRegion.getText());
     }
 
-    @Ignore // b/266965027
     @Test
     public void testScrollBackward_horizontal() throws Exception {
         launchTestActivity(SwipeTestActivity.class);
