@@ -37,7 +37,9 @@ internal class TestCommons {
         val RANGING_PARAMETERS = RangingParameters(
             RangingParameters.CONFIG_UNICAST_DS_TWR,
             sessionId = 0,
+            subSessionId = 0,
             sessionKeyInfo = null,
+            subSessionKeyInfo = null,
             complexChannel = null,
             listOf(UWB_DEVICE),
             RangingParameters.RANGING_UPDATE_RATE_AUTOMATIC
