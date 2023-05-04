@@ -180,6 +180,10 @@ class BasicExtenderSessionProcessorTest(
                 cameraProvider.shutdown()[10, TimeUnit.SECONDS]
             }
         }
+
+        if (::basicExtenderSessionProcessor.isInitialized) {
+            basicExtenderSessionProcessor.deInitSession()
+        }
     }
 
     @Test
