@@ -250,8 +250,8 @@ public class DynamicTypeEvaluator {
 
         /**
          * Gets the quota manager used for limiting the total number of dynamic types in the
-         * pipeline, or {@code null} if there are no restriction on the number of dynamic types.
-         * If present, the quota manager is used to prevent unreasonably expensive expressions.
+         * pipeline, or {@code null} if there are no restriction on the number of dynamic types. If
+         * present, the quota manager is used to prevent unreasonably expensive expressions.
          */
         @Nullable
         public QuotaManager getDynamicTypesQuotaManager() {
@@ -303,8 +303,8 @@ public class DynamicTypeEvaluator {
         MainThreadExecutor uiExecutor = new MainThreadExecutor(uiHandler);
         TimeGateway timeGateway = config.getTimeGateway();
         if (timeGateway == null) {
-                timeGateway = new TimeGatewayImpl(uiHandler);
-                ((TimeGatewayImpl) timeGateway).enableUpdates();
+            timeGateway = new TimeGatewayImpl(uiHandler);
+            ((TimeGatewayImpl) timeGateway).enableUpdates();
         }
         this.mTimeDataSource = new EpochTimePlatformDataSource(uiExecutor, timeGateway);
         if (config.getSensorGateway() != null) {
@@ -331,7 +331,7 @@ public class DynamicTypeEvaluator {
         if (!mDynamicTypesQuotaManager.tryAcquireQuota(boundDynamicType.getDynamicNodeCount())) {
             throw new EvaluationException(
                     "Dynamic type expression limit reached. Try making the dynamic type expression"
-                        + " shorter or reduce the number of dynamic type expressions.");
+                            + " shorter or reduce the number of dynamic type expressions.");
         }
         return boundDynamicType;
     }

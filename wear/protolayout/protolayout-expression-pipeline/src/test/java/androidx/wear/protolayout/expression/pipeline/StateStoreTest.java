@@ -16,6 +16,7 @@
 
 package androidx.wear.protolayout.expression.pipeline;
 
+import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -38,6 +39,9 @@ import org.junit.runner.RunWith;
 import org.mockito.InOrder;
 import org.mockito.Mockito;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @RunWith(AndroidJUnit4.class)
 public class StateStoreTest {
     @Rule public Expect mExpect = Expect.create();
@@ -48,6 +52,8 @@ public class StateStoreTest {
                             "foo", buildStateEntry("bar"),
                             "baz", buildStateEntry("foobar")));
 
+    public StateStoreTest() {}
+
     @Test
     public void setBuilderApi() {
         mStateStoreUnderTest.setStateEntryValues(
@@ -55,6 +61,25 @@ public class StateStoreTest {
 
         mExpect.that(mStateStoreUnderTest.getStateEntryValuesProto("foo"))
                 .isEqualTo(buildStateEntry("baz"));
+    }
+
+    @Test
+    public void initState_largeNumberOfEntries_throws() {
+        Map<String, StateEntryBuilders.StateEntryValue> state = new HashMap<>();
+        for (int i = 0; i < StateStore.MAX_STATE_ENTRY_COUNT + 10; i++) {
+            state.put(Integer.toString(i), StateEntryBuilders.StateEntryValue.fromString("baz"));
+        }
+        assertThrows(IllegalStateException.class, () -> StateStore.create(state));
+    }
+
+    @Test
+    public void newState_largeNumberOfEntries_throws() {
+        Map<String, StateEntryBuilders.StateEntryValue> state = new HashMap<>();
+        for (int i = 0; i < StateStore.MAX_STATE_ENTRY_COUNT + 10; i++) {
+            state.put(Integer.toString(i), StateEntryBuilders.StateEntryValue.fromString("baz"));
+        }
+        assertThrows(
+                IllegalStateException.class, () -> mStateStoreUnderTest.setStateEntryValues(state));
     }
 
     @Test
@@ -88,8 +113,7 @@ public class StateStoreTest {
 
     @Test
     public void setStateFiresListeners() {
-        DynamicTypeValueReceiverWithPreUpdate<StateEntryValue> cb =
-                buildStateUpdateCallbackMock();
+        DynamicTypeValueReceiverWithPreUpdate<StateEntryValue> cb = buildStateUpdateCallbackMock();
         mStateStoreUnderTest.registerCallback("foo", cb);
 
         mStateStoreUnderTest.setStateEntryValuesProto(
@@ -101,8 +125,7 @@ public class StateStoreTest {
 
     @Test
     public void setStateFiresOnPreStateUpdateFirst() {
-        DynamicTypeValueReceiverWithPreUpdate<StateEntryValue> cb =
-                buildStateUpdateCallbackMock();
+        DynamicTypeValueReceiverWithPreUpdate<StateEntryValue> cb = buildStateUpdateCallbackMock();
 
         InOrder inOrder = Mockito.inOrder(cb);
 
@@ -166,8 +189,7 @@ public class StateStoreTest {
     @SuppressWarnings("unchecked")
     @Test
     public void canUnregisterListeners() {
-        DynamicTypeValueReceiverWithPreUpdate<StateEntryValue> cb =
-                buildStateUpdateCallbackMock();
+        DynamicTypeValueReceiverWithPreUpdate<StateEntryValue> cb = buildStateUpdateCallbackMock();
         mStateStoreUnderTest.registerCallback("foo", cb);
 
         mStateStoreUnderTest.setStateEntryValuesProto(
@@ -183,8 +205,7 @@ public class StateStoreTest {
     }
 
     @SuppressWarnings("unchecked")
-    private DynamicTypeValueReceiverWithPreUpdate<StateEntryValue>
-            buildStateUpdateCallbackMock() {
+    private DynamicTypeValueReceiverWithPreUpdate<StateEntryValue> buildStateUpdateCallbackMock() {
         // This needs an unchecked cast because of the generic; this method just centralizes the
         // warning suppression.
         return mock(DynamicTypeValueReceiverWithPreUpdate.class);

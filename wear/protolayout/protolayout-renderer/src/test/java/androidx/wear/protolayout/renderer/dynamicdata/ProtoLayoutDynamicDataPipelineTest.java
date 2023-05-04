@@ -168,7 +168,8 @@ public class ProtoLayoutDynamicDataPipelineTest {
     }
 
     @Test
-    public void buildPipeline_dpProp_animatable_animationsDisabled_hasStaticValue_assignsEndVal() {
+    public void
+            buildPipeline_dpProp_animatable_animationsDisabled_hasStaticValue_assignsEndValue() {
         List<Float> results = new ArrayList<>();
         float endValue = 10.0f;
         DynamicFloat dynamicFloat = animatableFixedFloat(5.0f, endValue);
@@ -183,7 +184,7 @@ public class ProtoLayoutDynamicDataPipelineTest {
 
     @Test
     public void
-            buildPipeline_degreesProp_animatable_animationsDisabled_hasStaticValue_assignsEndVal() {
+            buildPipeline_degreesProp_animatable_animationsDisabled_hasStaticValue_assignsEndValue() {
         List<Float> results = new ArrayList<>();
         float endValue = 10.0f;
         DynamicFloat dynamicFloat = animatableFixedFloat(5.0f, endValue);
@@ -217,7 +218,7 @@ public class ProtoLayoutDynamicDataPipelineTest {
 
     @Test
     public void
-            buildPipeline_colorProp_animatable_animationsDisabled_noStaticValueSet_assignsEndVal() {
+            buildPipeline_colorProp_animatable_animationsDisabled_noStaticValueSet_assignsEndValue() {
         List<Integer> results = new ArrayList<>();
         DynamicColor dynamicColor = animatableFixedColor(0, 1);
         ColorProp colorProp = ColorProp.newBuilder().setDynamicValue(dynamicColor).build();
@@ -1719,8 +1720,7 @@ public class ProtoLayoutDynamicDataPipelineTest {
                                                         Repeatable.newBuilder()
                                                                 .setRepeatMode(
                                                                         RepeatMode
-                                                                                .REPEAT_MODE_REVERSE
-                                                                )
+                                                                                .REPEAT_MODE_REVERSE)
                                                                 .setIterations(iterations)
                                                                 .setForwardRepeatOverride(
                                                                         alternateParameters)
@@ -1813,13 +1813,12 @@ public class ProtoLayoutDynamicDataPipelineTest {
         ProtoLayoutDynamicDataPipeline pipeline =
                 enableAnimations
                         ? new ProtoLayoutDynamicDataPipeline(
-                        /* sensorGateway= */ null,
+                                /* sensorGateway= */ null,
                                 mStateStore,
                                 new FixedQuotaManagerImpl(MAX_VALUE),
                                 new FixedQuotaManagerImpl(MAX_VALUE))
                         : new ProtoLayoutDynamicDataPipeline(
-                                /* sensorGateway= */ null,
-                                mStateStore);
+                                /* sensorGateway= */ null, mStateStore);
         shadowOf(getMainLooper()).idle();
 
         pipeline.setFullyVisible(true);
@@ -1842,7 +1841,7 @@ public class ProtoLayoutDynamicDataPipelineTest {
         AddToListCallback<Float> receiver =
                 new AddToListCallback<>(results, /* invalidList= */ null);
         ProtoLayoutDynamicDataPipeline pipeline =
-                new ProtoLayoutDynamicDataPipeline(  /* sensorGateway= */ null, mStateStore);
+                new ProtoLayoutDynamicDataPipeline(/* sensorGateway= */ null, mStateStore);
         shadowOf(getMainLooper()).idle();
 
         pipeline.setFullyVisible(true);
@@ -1860,7 +1859,7 @@ public class ProtoLayoutDynamicDataPipelineTest {
         AddToListCallback<Integer> receiver =
                 new AddToListCallback<>(results, /* invalidList= */ null);
         ProtoLayoutDynamicDataPipeline pipeline =
-                new ProtoLayoutDynamicDataPipeline(  /* sensorGateway= */ null, mStateStore);
+                new ProtoLayoutDynamicDataPipeline(/* sensorGateway= */ null, mStateStore);
         shadowOf(getMainLooper()).idle();
 
         pipeline.setFullyVisible(true);
@@ -1878,7 +1877,7 @@ public class ProtoLayoutDynamicDataPipelineTest {
         AddToListCallback<Float> receiver =
                 new AddToListCallback<>(results, /* invalidList= */ null);
         ProtoLayoutDynamicDataPipeline pipeline =
-                new ProtoLayoutDynamicDataPipeline(  /* sensorGateway= */ null, mStateStore);
+                new ProtoLayoutDynamicDataPipeline(/* sensorGateway= */ null, mStateStore);
         shadowOf(getMainLooper()).idle();
 
         pipeline.setFullyVisible(true);
@@ -1896,7 +1895,7 @@ public class ProtoLayoutDynamicDataPipelineTest {
         AddToListCallback<Float> receiver =
                 new AddToListCallback<>(results, /* invalidList= */ null);
         ProtoLayoutDynamicDataPipeline pipeline =
-                new ProtoLayoutDynamicDataPipeline(  /* sensorGateway= */ null, mStateStore);
+                new ProtoLayoutDynamicDataPipeline(/* sensorGateway= */ null, mStateStore);
         shadowOf(getMainLooper()).idle();
 
         pipeline.setFullyVisible(true);
@@ -1914,7 +1913,7 @@ public class ProtoLayoutDynamicDataPipelineTest {
         AddToListCallback<Integer> receiver =
                 new AddToListCallback<>(results, /* invalidList= */ null);
         ProtoLayoutDynamicDataPipeline pipeline =
-                new ProtoLayoutDynamicDataPipeline(  /* sensorGateway= */ null, mStateStore);
+                new ProtoLayoutDynamicDataPipeline(/* sensorGateway= */ null, mStateStore);
         shadowOf(getMainLooper()).idle();
 
         pipeline.setFullyVisible(true);

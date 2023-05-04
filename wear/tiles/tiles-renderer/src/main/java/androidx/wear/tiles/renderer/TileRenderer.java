@@ -202,15 +202,18 @@ public final class TileRenderer {
     public View inflate(@NonNull ViewGroup parent) {
         String errorMessage =
                 "This method only works with the deprecated constructors that accept Layout and"
-                    + " Resources.";
+                        + " Resources.";
         try {
             // Waiting for the result from future for backwards compatibility.
             return inflateLayout(
-                    checkNotNull(mLayout, errorMessage),
-                    checkNotNull(mResources, errorMessage),
-                    parent).get(10, TimeUnit.SECONDS);
-        } catch (ExecutionException | InterruptedException | CancellationException |
-                 TimeoutException e) {
+                            checkNotNull(mLayout, errorMessage),
+                            checkNotNull(mResources, errorMessage),
+                            parent)
+                    .get(10, TimeUnit.SECONDS);
+        } catch (ExecutionException
+                | InterruptedException
+                | CancellationException
+                | TimeoutException e) {
             // Wrap checked exceptions to avoid changing the method signature.
             throw new RuntimeException("Rendering tile has not successfully finished.", e);
         }
@@ -219,13 +222,12 @@ public final class TileRenderer {
     /**
      * Inflates a Tile into {@code parent}.
      *
-     * @param layout    The portion of the Tile to render.
+     * @param layout The portion of the Tile to render.
      * @param resources The resources for the Tile.
-     * @param parent    The view to attach the tile into.
+     * @param parent The view to attach the tile into.
      * @return The future with the first child that was inflated. This may be null if the Layout is
-     * empty or the top-level LayoutElement has no inner set, or the top-level LayoutElement
-     * contains an
-     * unsupported inner type.
+     *     empty or the top-level LayoutElement has no inner set, or the top-level LayoutElement
+     *     contains an unsupported inner type.
      */
     @NonNull
     public ListenableFuture<View> inflateAsync(
@@ -241,7 +243,6 @@ public final class TileRenderer {
             @NonNull ResourceProto.Resources resources,
             @NonNull ViewGroup parent) {
         ListenableFuture<Void> result = mInstance.renderAndAttach(layout, resources, parent);
-            return FluentFuture.from(result)
-                    .transform(ignored -> parent.getChildAt(0), mUiExecutor);
+        return FluentFuture.from(result).transform(ignored -> parent.getChildAt(0), mUiExecutor);
     }
 }

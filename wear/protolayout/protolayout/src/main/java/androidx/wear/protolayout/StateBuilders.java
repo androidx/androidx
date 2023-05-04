@@ -149,9 +149,17 @@ public final class StateBuilders {
         return this;
       }
 
+      private static final int MAX_STATE_SIZE = 30;
+
       /** Builds an instance from accumulated values. */
       @NonNull
       public State build() {
+        if (mImpl.getIdToValueMap().size() > MAX_STATE_SIZE) {
+          throw new IllegalStateException(
+                  String.format(
+                          "State size is too large: %d. Maximum " + "allowed state size is %d.",
+                          mImpl.getIdToValueMap().size(), MAX_STATE_SIZE));
+        }
         return new State(mImpl.build(), mFingerprint);
       }
     }
