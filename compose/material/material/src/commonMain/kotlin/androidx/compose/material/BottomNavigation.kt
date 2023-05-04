@@ -27,8 +27,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.material.ripple.rememberRipple
@@ -41,7 +41,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.lerp
-import androidx.compose.ui.layout.LastBaseline
+import androidx.compose.ui.layout.FirstBaseline
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.MeasureScope
@@ -337,20 +337,19 @@ private fun MeasureScope.placeLabelAndIcon(
 ): MeasureResult {
     val height = constraints.maxHeight
 
-    // TODO: consider multiple lines of text here, not really supported by spec but we should
-    // have a better strategy than overlapping the icon and label
-    val baseline = labelPlaceable[LastBaseline]
-
+    val firstBaseline = labelPlaceable[FirstBaseline]
     val baselineOffset = CombinedItemTextBaseline.roundToPx()
+    val netBaselineAdjustment = baselineOffset - firstBaseline
 
-    // Label should be [baselineOffset] from the bottom
-    val labelY = height - baseline - baselineOffset
+    val contentHeight = iconPlaceable.height + labelPlaceable.height + netBaselineAdjustment
+    val contentVerticalPadding = ((height - contentHeight) / 2).coerceAtLeast(0)
 
     val unselectedIconY = (height - iconPlaceable.height) / 2
+    // Icon should be [contentVerticalPadding] from the top
+    val selectedIconY = contentVerticalPadding
 
-    // Icon should be [baselineOffset] from the text baseline, which is itself
-    // [baselineOffset] from the bottom
-    val selectedIconY = height - (baselineOffset * 2) - iconPlaceable.height
+    // Label's first baseline should be [baselineOffset] below the icon
+    val labelY = selectedIconY + iconPlaceable.height + netBaselineAdjustment
 
     val containerWidth = max(labelPlaceable.width, iconPlaceable.width)
 
