@@ -1348,7 +1348,7 @@ AndroidParagraphTest {
         val paragraph = simpleParagraph(
             text = "",
             style = TextStyle(brush = brush),
-            width = 0.0f
+            width = 1.0f
         )
 
         assertThat(paragraph.textPaint.shader).isNotNull()
