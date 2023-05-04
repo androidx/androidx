@@ -36,6 +36,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollDispatcher
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.testTag
@@ -56,11 +60,13 @@ import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeDown
 import androidx.compose.ui.test.swipeUp
+import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.coerceAtMost
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -875,6 +881,7 @@ class ModalBottomSheetTest {
                         }
                     }
                 },
+                sheetGesturesEnabled = true,
                 content = { Box(Modifier.fillMaxSize()) }
             )
         }
@@ -924,6 +931,53 @@ class ModalBottomSheetTest {
         assertThat(scrollState.value).isEqualTo(0)
         assertThat(sheetState.currentValue).isEqualTo(ModalBottomSheetValue.Hidden)
     }
+
+    @Test
+    fun modalBottomSheet_gesturesDisabled_doesNotParticipateInNestedScroll() =
+        runBlocking(AutoTestFrameClock()) {
+            lateinit var sheetState: ModalBottomSheetState
+            val sheetContentTag = "sheetContent"
+            val scrollConnection = object : NestedScrollConnection {}
+            val scrollDispatcher = NestedScrollDispatcher()
+            val sheetHeight = 300.dp
+            val sheetHeightPx = with(rule.density) { sheetHeight.toPx() }
+
+            rule.setContent {
+                sheetState = rememberModalBottomSheetState(
+                    initialValue = ModalBottomSheetValue.Expanded,
+                )
+                ModalBottomSheetLayout(
+                    sheetState = sheetState,
+                    sheetContent = {
+                        Box(
+                            Modifier
+                                .fillMaxWidth()
+                                .requiredHeight(sheetHeight)
+                                .nestedScroll(scrollConnection, scrollDispatcher)
+                                .testTag(sheetContentTag),
+                        )
+                    },
+                    sheetGesturesEnabled = false,
+                    content = { Box(Modifier.fillMaxSize()) },
+                )
+            }
+
+            assertThat(sheetState.currentValue).isEqualTo(ModalBottomSheetValue.Expanded)
+
+            val offsetBeforeScroll = sheetState.requireOffset()
+            scrollDispatcher.dispatchPreScroll(
+                Offset(x = 0f, y = -sheetHeightPx),
+                NestedScrollSource.Drag,
+            )
+            rule.waitForIdle()
+            assertWithMessage("Offset after scroll is equal to offset before scroll")
+                .that(sheetState.requireOffset()).isEqualTo(offsetBeforeScroll)
+
+            val highFlingVelocity = Velocity(x = 0f, y = with(rule.density) { 500.dp.toPx() })
+            scrollDispatcher.dispatchPreFling(highFlingVelocity)
+            rule.waitForIdle()
+            assertThat(sheetState.currentValue).isEqualTo(ModalBottomSheetValue.Expanded)
+        }
 
     @Test
     fun modalBottomSheet_anchorsChange_retainsCurrentValue() {
