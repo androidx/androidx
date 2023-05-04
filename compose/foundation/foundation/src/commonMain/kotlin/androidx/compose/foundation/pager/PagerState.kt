@@ -103,7 +103,7 @@ fun rememberPagerState(
             ){
                 // provide pageCount
             }"""
-    )
+    ), level = DeprecationLevel.ERROR
 )
 @ExperimentalFoundationApi
 @Composable
