@@ -21,6 +21,8 @@ import android.content.ContextWrapper
 import android.os.Binder
 import android.os.Build
 import android.os.Bundle
+import androidx.privacysandbox.sdkruntime.client.activity.SdkActivity
+import androidx.privacysandbox.sdkruntime.client.loader.CatchingSdkActivityHandler
 import androidx.privacysandbox.sdkruntime.client.loader.asTestSdk
 import androidx.privacysandbox.sdkruntime.client.loader.extractSdkProviderFieldValue
 import androidx.privacysandbox.sdkruntime.core.AdServicesInfo
@@ -28,10 +30,12 @@ import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException
 import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException.Companion.LOAD_SDK_INTERNAL_ERROR
 import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException.Companion.LOAD_SDK_SDK_DEFINED_ERROR
 import androidx.privacysandbox.sdkruntime.core.SandboxedSdkInfo
+import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
+import androidx.testutils.withActivity
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.runBlocking
 import org.junit.After
@@ -298,6 +302,30 @@ class SdkSandboxManagerCompatTest {
         managerCompat.startSdkSandboxActivity(fromActivitySpy, Binder())
 
         verify(context, Mockito.never()).getSystemService(any())
+    }
+
+    @Test
+    fun startSdkSandboxActivity_startLocalSdkActivity() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val managerCompat = SdkSandboxManagerCompat.from(context)
+
+        val localSdk = runBlocking {
+            managerCompat.loadSdk("androidx.privacysandbox.sdkruntime.test.v3", Bundle())
+        }
+
+        val handler = CatchingSdkActivityHandler()
+
+        val testSdk = localSdk.asTestSdk()
+        val token = testSdk.registerSdkSandboxActivityHandler(handler)
+
+        with(ActivityScenario.launch(EmptyActivity::class.java)) {
+            withActivity {
+                managerCompat.startSdkSandboxActivity(this, token)
+            }
+        }
+
+        val activityHolder = handler.waitForActivity()
+        assertThat(activityHolder.getActivity()).isInstanceOf(SdkActivity::class.java)
     }
 
     @Test

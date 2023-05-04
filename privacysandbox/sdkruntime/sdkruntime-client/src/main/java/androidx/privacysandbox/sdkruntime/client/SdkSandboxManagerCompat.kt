@@ -30,6 +30,7 @@ import androidx.annotation.RequiresExtension
 import androidx.annotation.OptIn
 import androidx.core.os.BuildCompat
 import androidx.core.os.asOutcomeReceiver
+import androidx.privacysandbox.sdkruntime.client.activity.LocalSdkActivityStarter
 import androidx.privacysandbox.sdkruntime.client.config.LocalSdkConfigsHolder
 import androidx.privacysandbox.sdkruntime.client.controller.LocalController
 import androidx.privacysandbox.sdkruntime.client.controller.LocallyLoadedSdks
@@ -221,6 +222,9 @@ class SdkSandboxManagerCompat private constructor(
      * @see SdkSandboxManager.startSdkSandboxActivity
      */
     fun startSdkSandboxActivity(fromActivity: Activity, sdkActivityToken: IBinder) {
+        if (LocalSdkActivityStarter.tryStart(fromActivity, sdkActivityToken)) {
+            return
+        }
         platformApi.startSdkSandboxActivity(fromActivity, sdkActivityToken)
     }
 
@@ -307,8 +311,9 @@ class SdkSandboxManagerCompat private constructor(
         }
 
         override fun startSdkSandboxActivity(fromActivity: Activity, sdkActivityToken: IBinder) {
-            throw UnsupportedOperationException("This API is only supported for devices run on " +
-                "Android U+")
+            throw UnsupportedOperationException(
+                "This API is only supported for devices run on Android U+"
+            )
         }
 
         private suspend fun loadSdkInternal(

@@ -29,6 +29,7 @@ import androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat
 import androidx.privacysandbox.sdkruntime.core.SandboxedSdkProviderCompat
 import androidx.privacysandbox.sdkruntime.core.activity.SdkSandboxActivityHandlerCompat
 import androidx.privacysandbox.sdkruntime.core.Versions
+import androidx.privacysandbox.sdkruntime.core.controller.impl.LocalImpl
 import androidx.privacysandbox.sdkruntime.core.controller.impl.NoOpImpl
 import androidx.privacysandbox.sdkruntime.core.controller.impl.PlatformImpl
 import androidx.privacysandbox.sdkruntime.core.controller.impl.PlatformUDCImpl
@@ -117,11 +118,11 @@ class SdkSandboxControllerCompat internal constructor(
          */
         @JvmStatic
         fun from(context: Context): SdkSandboxControllerCompat {
-            val loadedLocally = Versions.CLIENT_VERSION != null
-            if (loadedLocally) {
+            val clientVersion = Versions.CLIENT_VERSION
+            if (clientVersion != null) {
                 val implFromClient = localImpl
                 if (implFromClient != null) {
-                    return SdkSandboxControllerCompat(implFromClient)
+                    return SdkSandboxControllerCompat(LocalImpl(implFromClient, clientVersion))
                 }
                 return SdkSandboxControllerCompat(NoOpImpl())
             }
