@@ -22,7 +22,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -35,9 +37,11 @@ import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsFocused
+import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
@@ -334,6 +338,47 @@ class ExposedDropdownMenuTest {
         rule.waitForIdle()
 
         // Should not have crashed.
+    }
+
+    @Test
+    fun withScrolledContent() {
+        rule.setMaterialContent {
+            Box(Modifier.fillMaxSize()) {
+                ExposedDropdownMenuBox(
+                    modifier = Modifier.align(Alignment.Center),
+                    expanded = true,
+                    onExpandedChange = { }
+                ) {
+                    val scrollState = rememberScrollState()
+                    TextField(
+                        value = "",
+                        onValueChange = { },
+                        label = { Text("Label") },
+                    )
+                    ExposedDropdownMenu(
+                        expanded = true,
+                        onDismissRequest = { },
+                        scrollState = scrollState
+                    ) {
+                        repeat(100) {
+                            Box(
+                                Modifier
+                                    .testTag("MenuContent ${it + 1}")
+                                    .size(with(LocalDensity.current) { 70.toDp() })
+                            )
+                        }
+                    }
+                    LaunchedEffect(Unit) {
+                        scrollState.scrollTo(scrollState.maxValue)
+                    }
+                }
+            }
+        }
+
+        rule.waitForIdle()
+
+        rule.onNodeWithTag("MenuContent 1").assertIsNotDisplayed()
+        rule.onNodeWithTag("MenuContent 100").assertIsDisplayed()
     }
 
     @Composable

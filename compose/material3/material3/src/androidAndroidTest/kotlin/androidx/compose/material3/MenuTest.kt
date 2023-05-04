@@ -146,7 +146,6 @@ class MenuTest {
         }
     }
 
-    @OptIn(ExperimentalMaterial3Api::class)
     @Test
     fun menu_scrolledContent() {
         rule.setContent {

@@ -75,7 +75,6 @@ import androidx.compose.ui.window.PopupProperties
  * @param content the content of this dropdown menu, typically a [DropdownMenuItem]
  */
 @OptIn(ExperimentalMaterial3Api::class)
-@Suppress("ModifierParameter")
 @Deprecated(
     level = DeprecationLevel.HIDDEN,
     replaceWith = ReplaceWith(
@@ -147,7 +146,6 @@ fun DropdownMenu(
  * @param properties [PopupProperties] for further customization of this popup's behavior
  * @param content the content of this dropdown menu, typically a [DropdownMenuItem]
  */
-@Suppress("ModifierParameter")
 @Composable
 fun DropdownMenu(
     expanded: Boolean,
