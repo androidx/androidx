@@ -846,6 +846,73 @@ class VideoRecordingTest(
         file2.delete()
     }
 
+    @Test
+    fun mute_defaultToNotMuted() {
+        assumeTrue("Audio stream is not available", audioStreamAvailable)
+
+        // Arrange.
+        val recorder = Recorder.Builder().build()
+        val videoCaptureLocal = VideoCapture.withOutput(recorder)
+        instrumentation.runOnMainSync {
+            cameraProvider.bindToLifecycle(
+                lifecycleOwner,
+                cameraSelector,
+                preview,
+                videoCaptureLocal
+            )
+        }
+        val file1 = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
+
+        recorder.prepareRecording(context, FileOutputOptions.Builder(file1).build())
+            .withAudioEnabled()
+            .start(CameraXExecutors.directExecutor(), mockVideoRecordEventConsumer).use {
+                mockVideoRecordEventConsumer.verifyRecordingStartSuccessfully()
+                // Keep the first recording muted.
+                it.mute(true)
+            }
+
+        mockVideoRecordEventConsumer.verifyAcceptCall(
+            VideoRecordEvent.Finalize::class.java,
+            false,
+            GENERAL_TIMEOUT
+        )
+        file1.delete()
+
+        mockVideoRecordEventConsumer.clearAcceptCalls()
+
+        val file2 = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
+
+        // Act.
+        recorder.prepareRecording(context, FileOutputOptions.Builder(file2).build())
+            .withAudioEnabled()
+            .start(CameraXExecutors.directExecutor(), mockVideoRecordEventConsumer).use {
+                mockVideoRecordEventConsumer.verifyRecordingStartSuccessfully()
+                val captor = ArgumentCaptorCameraX<VideoRecordEvent> { argument ->
+                    VideoRecordEvent::class.java.isInstance(
+                        argument
+                    )
+                }
+                mockVideoRecordEventConsumer.verifyAcceptCall(
+                    VideoRecordEvent::class.java,
+                    false,
+                    CallTimesAtLeast(1),
+                    captor
+                )
+                assertThat(captor.value).isInstanceOf(VideoRecordEvent.Status::class.java)
+                val status = captor.value as VideoRecordEvent.Status
+                // Assert: The second recording should not be muted.
+                assertThat(status.recordingStats.audioStats.audioState)
+                    .isEqualTo(AudioStats.AUDIO_STATE_ACTIVE)
+            }
+
+        mockVideoRecordEventConsumer.verifyAcceptCall(
+            VideoRecordEvent.Finalize::class.java,
+            false,
+            GENERAL_TIMEOUT
+        )
+        file2.delete()
+    }
+
     private fun performRecording(
         videoCapture: VideoCapture<Recorder>,
         file: File,
