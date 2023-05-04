@@ -126,7 +126,7 @@ public class SystemJobSchedulerTest extends WorkManagerTest {
                         workDatabase,
                         configuration,
                         mJobScheduler,
-                        new SystemJobInfoConverter(context)));
+                        new SystemJobInfoConverter(context, configuration.getClock())));
 
         doNothing().when(mSystemJobScheduler).scheduleInternal(any(WorkSpec.class), anyInt());
     }

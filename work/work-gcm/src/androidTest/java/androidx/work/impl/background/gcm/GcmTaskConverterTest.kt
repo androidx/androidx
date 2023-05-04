@@ -23,6 +23,7 @@ import androidx.work.Constraints
 import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.SystemClock
 import androidx.work.impl.WorkManagerImpl
 import androidx.work.impl.background.gcm.GcmTaskConverter.EXECUTION_WINDOW_SIZE_IN_SECONDS
 import com.google.android.gms.gcm.Task
@@ -45,7 +46,7 @@ class GcmTaskConverterTest {
 
     @Before
     fun setUp() {
-        mTaskConverter = spy(GcmTaskConverter())
+        mTaskConverter = spy(GcmTaskConverter(SystemClock()))
     }
 
     @Test

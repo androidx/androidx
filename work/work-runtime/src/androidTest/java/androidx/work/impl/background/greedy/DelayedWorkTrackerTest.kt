@@ -20,6 +20,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.work.OneTimeWorkRequest
 import androidx.work.RunnableScheduler
+import androidx.work.SystemClock
 import androidx.work.worker.TestWorker
 import org.junit.Before
 import org.junit.Test
@@ -40,7 +41,7 @@ class DelayedWorkTrackerTest {
     fun setUp() {
         mScheduler = mock(GreedyScheduler::class.java)
         mRunnableScheduler = mock(RunnableScheduler::class.java)
-        mDelayedWorkTracker = DelayedWorkTracker(mScheduler, mRunnableScheduler)
+        mDelayedWorkTracker = DelayedWorkTracker(mScheduler, mRunnableScheduler, SystemClock())
     }
 
     @Test
