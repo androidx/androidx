@@ -743,7 +743,8 @@ private fun <T : Modifier.Node> ModifierNodeElement<T>.updateUnsafe(
 private fun Modifier.fillVector(
     result: MutableVector<Modifier.Element>
 ): MutableVector<Modifier.Element> {
-    val stack = MutableVector<Modifier>(result.size).also { it.add(this) }
+    val capacity = result.size.coerceAtLeast(16)
+    val stack = MutableVector<Modifier>(capacity).also { it.add(this) }
     while (stack.isNotEmpty()) {
         when (val next = stack.removeAt(stack.size - 1)) {
             is CombinedModifier -> {
