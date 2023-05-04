@@ -182,6 +182,10 @@ class DesktopComposeUiTest(
         }
     }
 
+    /**
+     * @param matcher
+     * @param useUnmergedTree
+     */
     override fun onNode(
         matcher: SemanticsMatcher,
         useUnmergedTree: Boolean
@@ -189,6 +193,10 @@ class DesktopComposeUiTest(
         return SemanticsNodeInteraction(testContext, useUnmergedTree, matcher)
     }
 
+    /**
+     * @param matcher
+     * @param useUnmergedTree
+     */
     override fun onAllNodes(
         matcher: SemanticsMatcher,
         useUnmergedTree: Boolean

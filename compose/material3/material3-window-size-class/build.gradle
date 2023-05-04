@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
+import androidx.build.KmpPlatformsKt
 import androidx.build.AndroidXComposePlugin
+import androidx.build.KmpPlatformsKt
 import androidx.build.LibraryType
-import androidx.build.Publish
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
@@ -25,69 +25,73 @@ plugins {
     id("AndroidXComposePlugin")
 }
 
-AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project)
+def desktopEnabled = KmpPlatformsKt.enableDesktop(project)
 
-dependencies {
+androidXMultiplatform {
+    android()
+    if (desktopEnabled) desktop()
 
-    if(!AndroidXComposePlugin.isMultiplatformEnabled(project)) {
-        /*
-         * When updating dependencies, make sure to make the an an analogous update in the
-         * corresponding block below
-         */
-        implementation(libs.kotlinStdlibCommon)
-        api("androidx.compose.runtime:runtime:1.2.1")
-        api("androidx.compose.ui:ui:1.2.1")
-        api("androidx.compose.ui:ui-unit:1.2.1")
-        implementation("androidx.window:window:1.0.0")
-
-        testImplementation(libs.kotlinTest)
-        testImplementation(libs.truth)
-
-        androidTestImplementation(project(":compose:test-utils"))
-        androidTestImplementation(project(":compose:foundation:foundation"))
-        androidTestImplementation(libs.testRules)
-        androidTestImplementation(libs.testRunner)
-        androidTestImplementation(libs.junit)
-        androidTestImplementation(libs.truth)
-
-        samples(project(":compose:material3:material3-window-size-class:material3-window-size-class-samples"))
-    }
-}
-
-if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
-    kotlin {
-        android()
-        jvm("desktop")
-
-        /*
-         * When updating dependencies, make sure to make the an an analogous update in the
-         * corresponding block above
-         */
-        sourceSets {
-            commonMain.dependencies {
+    sourceSets {
+        commonMain {
+            dependencies {
                 implementation(libs.kotlinStdlibCommon)
                 api(project(":compose:runtime:runtime"))
                 api(project(":compose:ui:ui"))
                 api(project(":compose:ui:ui-unit"))
             }
+        }
 
-            jvmMain.dependencies {
+        commonTest {
+            dependencies {
+
+            }
+        }
+
+        jvmMain {
+            dependsOn(commonMain)
+            dependencies {
                 implementation(libs.kotlinStdlib)
             }
+        }
 
-            androidMain.dependencies {
+        if (desktopEnabled) {
+            skikoMain {
+                dependsOn(commonMain)
+                dependencies {
+                    // Because dependencies are pinned in the android/common code.
+                    api(project(":compose:runtime:runtime"))
+                    api(project(":compose:ui:ui"))
+                    api(project(":compose:ui:ui-unit"))
+                }
+            }
+        }
+
+        androidMain {
+            dependsOn(jvmMain)
+            dependencies {
                 implementation("androidx.window:window:1.0.0")
             }
+        }
 
-            androidMain.dependsOn(jvmMain)
-            desktopMain.dependsOn(jvmMain)
+        if (desktopEnabled) {
+            desktopMain {
+                dependsOn(skikoMain)
+                dependsOn(jvmMain)
+                dependencies {
 
-            androidTest.dependencies {
-                implementation(libs.kotlinTest)
-                implementation(libs.truth)
+                }
             }
+        }
 
-            androidAndroidTest.dependencies {
+        jvmTest {
+            dependsOn(commonTest)
+            dependencies {
+            }
+        }
+
+        androidAndroidTest {
+            dependsOn(jvmTest)
+            dependencies {
                 implementation(project(":compose:test-utils"))
                 implementation(project(":compose:foundation:foundation"))
                 implementation(libs.testRules)
@@ -96,9 +100,24 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
                 implementation(libs.truth)
             }
         }
-    }
-    dependencies {
-        samples(project(":compose:material3:material3-window-size-class:material3-window-size-class-samples"))
+
+        androidTest {
+            dependsOn(jvmTest)
+            dependencies {
+                implementation(libs.kotlinTest)
+                implementation(libs.truth)
+            }
+        }
+
+        if (desktopEnabled) {
+            desktopTest {
+                dependsOn(jvmTest)
+                dependsOn(desktopMain)
+                dependencies {
+
+                }
+            }
+        }
     }
 }
 
