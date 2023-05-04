@@ -38,7 +38,6 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.constrain
 import androidx.compose.ui.unit.constrainHeight
 import androidx.compose.ui.unit.constrainWidth
-import androidx.compose.ui.unit.dp
 import kotlin.math.roundToInt
 
 /**
@@ -768,12 +767,12 @@ private class SizeNode(
     private val Density.targetConstraints: Constraints
         get() {
             val maxWidth = if (maxWidth != Dp.Unspecified) {
-                maxWidth.coerceAtLeast(0.dp).roundToPx()
+                maxWidth.roundToPx().coerceAtLeast(0)
             } else {
                 Constraints.Infinity
             }
             val maxHeight = if (maxHeight != Dp.Unspecified) {
-                maxHeight.coerceAtLeast(0.dp).roundToPx()
+                maxHeight.roundToPx().coerceAtLeast(0)
             } else {
                 Constraints.Infinity
             }

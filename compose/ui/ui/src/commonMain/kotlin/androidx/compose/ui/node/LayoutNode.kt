@@ -66,6 +66,8 @@ import androidx.compose.ui.viewinterop.InteropViewFactoryHolder
  */
 private const val DebugChanges = false
 
+private val DefaultDensity = Density(1f)
+
 /**
  * An element in the layout hierarchy, built with compose UI.
  */
@@ -627,7 +629,7 @@ internal class LayoutNode(
     /**
      * The screen density to be used by this layout.
      */
-    override var density: Density = Density(1f)
+    override var density: Density = DefaultDensity
         set(value) {
             if (field != value) {
                 field = value
