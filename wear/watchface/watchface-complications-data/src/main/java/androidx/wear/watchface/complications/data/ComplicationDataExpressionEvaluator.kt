@@ -18,7 +18,7 @@ package androidx.wear.watchface.complications.data
 
 import android.icu.util.ULocale
 import android.support.wearable.complications.ComplicationData as WireComplicationData
-import android.support.wearable.complications.ComplicationData
+import android.support.wearable.complications.ComplicationData.Companion.TYPE_NO_DATA
 import android.support.wearable.complications.ComplicationText as WireComplicationText
 import androidx.annotation.MainThread
 import androidx.annotation.RestrictTo
@@ -41,17 +41,19 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
+import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.updateAndGet
 import kotlinx.coroutines.invoke
 import kotlinx.coroutines.launch
 
 /**
  * Evaluates a [WireComplicationData] with
  * [androidx.wear.protolayout.expression.DynamicBuilders.DynamicType] within its fields.
- *
- * Due to [WireComplicationData]'s shallow copy strategy the input is modified in-place.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class ComplicationDataExpressionEvaluator(
@@ -65,27 +67,101 @@ class ComplicationDataExpressionEvaluator(
      *
      * The expression is evaluated _separately_ on each flow collection.
      */
-    fun evaluate(unevaluatedData: WireComplicationData) =
-        flow<WireComplicationData> {
-            val state: MutableStateFlow<State> = unevaluatedData.buildState()
-            state.value.use {
-                val evaluatedData: Flow<WireComplicationData> =
-                    state
-                        .mapNotNull {
-                            when {
-                                // Emitting INVALID_DATA if there's an invalid receiver.
-                                it.invalidReceivers.isNotEmpty() -> INVALID_DATA
-                                // Emitting the data if all pending receivers are done and all
-                                // pre-updates are satisfied.
-                                it.pendingReceivers.isEmpty() -> it.data
-                                // Skipping states that are not ready for be emitted.
-                                else -> null
-                            }
-                        }
-                        .distinctUntilChanged()
-                emitAll(evaluatedData)
+    fun evaluate(unevaluatedData: WireComplicationData): Flow<WireComplicationData> =
+        evaluateTopLevelFields(unevaluatedData)
+            // Combining with fields that are made of WireComplicationData.
+            .combineWithDataList(unevaluatedData.timelineEntries) { entries ->
+                // Timeline entries are set on the built WireComplicationData.
+                WireComplicationData.Builder(
+                    this@combineWithDataList.build().apply { setTimelineEntryCollection(entries) }
+                )
             }
+            .combineWithDataList(unevaluatedData.listEntries) { setListEntryCollection(it) }
+            // Must be last, as it overwrites INVALID_DATA.
+            .combineWithEvaluatedPlaceholder(unevaluatedData.placeholder)
+            .distinctUntilChanged()
+
+    /** Evaluates "local" fields, excluding fields of type WireComplicationData. */
+    private fun evaluateTopLevelFields(
+        unevaluatedData: WireComplicationData
+    ): Flow<WireComplicationData> = flow {
+        val state: MutableStateFlow<State> = unevaluatedData.buildState()
+        state.value.use {
+            val evaluatedData: Flow<WireComplicationData> =
+                state.mapNotNull {
+                    when {
+                        // Emitting INVALID_DATA if there's an invalid receiver.
+                        it.invalidReceivers.isNotEmpty() -> INVALID_DATA
+                        // Emitting the data if all pending receivers are done and all
+                        // pre-updates are satisfied.
+                        it.pendingReceivers.isEmpty() -> it.data
+                        // Skipping states that are not ready for be emitted.
+                        else -> null
+                    }
+                }
+            emitAll(evaluatedData)
         }
+    }
+
+    /**
+     * Combines the receiver with the evaluated version of the provided list.
+     *
+     * If the receiver [Flow] emits [INVALID_DATA] or the input list is null or empty, this does not
+     * mutate the flow and does not wait for the entries to finish evaluating.
+     *
+     * If even one [WireComplicationData] within the provided list is evaluated to [INVALID_DATA],
+     * the output [Flow] becomes [INVALID_DATA] (the receiver [Flow] is ignored).
+     */
+    private fun Flow<WireComplicationData>.combineWithDataList(
+        unevaluatedEntries: List<WireComplicationData>?,
+        setter:
+            WireComplicationData.Builder.(
+                List<WireComplicationData>
+            ) -> WireComplicationData.Builder,
+    ): Flow<WireComplicationData> {
+        if (unevaluatedEntries.isNullOrEmpty()) return this
+        val evaluatedEntriesFlow: Flow<List<WireComplicationData>> =
+            combine(unevaluatedEntries.map { evaluate(it) })
+
+        return this.combine(evaluatedEntriesFlow).map {
+            (data: WireComplicationData, evaluatedEntries: List<WireComplicationData>?) ->
+            // Not mutating if invalid.
+            if (data === INVALID_DATA) return@map data
+            // An entry is invalid, emitting invalid.
+            if (evaluatedEntries.any { it === INVALID_DATA }) return@map INVALID_DATA
+            // All is well, mutating the input.
+            return@map WireComplicationData.Builder(data).setter(evaluatedEntries).build()
+        }
+    }
+
+    /**
+     * Same as [combineWithDataList], but sets the evaluated placeholder ONLY when the receiver
+     * [Flow] emits [TYPE_NO_DATA], or [keepExpression] is true, otherwise clears it and does not
+     * wait for the placeholder to finish evaluating.
+     *
+     * If the placeholder is not required (per the above paragraph), this doesn't wait for it.
+     */
+    private fun Flow<WireComplicationData>.combineWithEvaluatedPlaceholder(
+        unevaluatedPlaceholder: WireComplicationData?
+    ): Flow<WireComplicationData> {
+        if (unevaluatedPlaceholder == null) return this
+        val evaluatedPlaceholderFlow: Flow<WireComplicationData> = evaluate(unevaluatedPlaceholder)
+
+        return this.combine(evaluatedPlaceholderFlow).map {
+            (data: WireComplicationData, evaluatedPlaceholder: WireComplicationData?) ->
+            if (!keepExpression && data.type != TYPE_NO_DATA) {
+                // Clearing the placeholder when data is not TYPE_NO_DATA (it was meant as an
+                // expression fallback).
+                return@map WireComplicationData.Builder(data).setPlaceholder(null).build()
+            }
+            // Placeholder required but invalid, emitting invalid.
+            if (evaluatedPlaceholder === INVALID_DATA) return@map INVALID_DATA
+            // All is well, mutating the input.
+            return@map WireComplicationData.Builder(data)
+                .setPlaceholder(evaluatedPlaceholder)
+                .build()
+        }
+    }
 
     private suspend fun WireComplicationData.buildState() =
         MutableStateFlow(State(this)).apply {
@@ -177,7 +253,7 @@ class ComplicationDataExpressionEvaluator(
      * [ComplicationEvaluationResultReceiver] that are evaluating it.
      */
     private inner class State(
-        val data: ComplicationData,
+        val data: WireComplicationData,
         val pendingReceivers: Set<ComplicationEvaluationResultReceiver<out Any>> = setOf(),
         val invalidReceivers: Set<ComplicationEvaluationResultReceiver<out Any>> = setOf(),
         val completeReceivers: Set<ComplicationEvaluationResultReceiver<out Any>> = setOf(),
@@ -317,3 +393,35 @@ internal fun CoroutineContext.asExecutor() = Executor { runnable ->
         runnable.run()
     }
 }
+
+/** Replacement of [kotlinx.coroutines.flow.combine], which doesn't seem to work. */
+internal fun <T> combine(flows: List<Flow<T>>): Flow<List<T>> = flow {
+    data class ValueExists(val value: T?, val exists: Boolean)
+    val latest = MutableStateFlow(List(flows.size) { ValueExists(null, false) })
+    @Suppress("UNCHECKED_CAST") // Flow<List<T?>> -> Flow<List<T>> safe after filtering exists.
+    emitAll(
+        flows
+            .mapIndexed { i, flow -> flow.map { i to it } } // List<Flow<Int, T>> (indexed flows)
+            .merge() // Flow<Int, T>
+            .map { (i, value) ->
+                // Updating latest and returning the current latest.
+                latest.updateAndGet {
+                    val newLatest = it.toMutableList()
+                    newLatest[i] = ValueExists(value, true)
+                    newLatest
+                }
+            } // Flow<List<ValueExists>>
+            // Filtering emissions until we have all values.
+            .filter { values -> values.all { it.exists } }
+            // Flow<List<T>> + defensive copy.
+            .map { values -> values.map { it.value } } as Flow<List<T>>
+    )
+}
+
+/**
+ * Another replacement of [kotlinx.coroutines.flow.combine] which is similar to
+ * `combine(List<Flow<T>>)` but allows different types for each flow.
+ */
+@Suppress("UNCHECKED_CAST")
+internal fun <T1, T2> Flow<T1>.combine(other: Flow<T2>): Flow<Pair<T1, T2>> =
+    combine(listOf(this as Flow<*>, other as Flow<*>)).map { (a, b) -> (a as T1) to (b as T2) }
