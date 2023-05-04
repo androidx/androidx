@@ -16,6 +16,7 @@
 
 package androidx.wear.compose.navigation
 
+import android.util.Log
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
@@ -171,9 +172,23 @@ public fun SwipeDismissableNavHost(
     // no WearNavigator.Destinations were added to the navigation backstack (be sure to build
     // the NavGraph using androidx.wear.compose.navigation.composable) or because the last entry
     // was popped prior to navigating (instead, use navigate with popUpTo).
-    val current = if (backStack.isNotEmpty()) backStack.last() else throw IllegalArgumentException(
-        "The WearNavigator backstack is empty, there is no navigation destination to display."
-    )
+    // If the activity is using FLAG_ACTIVITY_NEW_TASK then it also needs to set
+    // FLAG_ACTIVITY_CLEAR_TASK, otherwise the activity will be created twice,
+    // the first of these with an empty backstack.
+    val current = backStack.lastOrNull()
+
+    if (current == null) {
+        val warningText =
+            "Current backstack entry is empty. Please ensure: \n" +
+                "1. The current WearNavigator navigation backstack is not empty (e.g. by using " +
+                "androidx.wear.compose.navigation.composable to build your nav graph). \n" +
+                "2. The last entry is not popped prior to navigation " +
+                "(instead, use navigate with popUpTo). \n" +
+                "3. If the activity uses FLAG_ACTIVITY_NEW_TASK you should also set " +
+                "FLAG_ACTIVITY_CLEAR_TASK to maintain the backstack consistency."
+
+        Log.w(TAG, warningText)
+    }
 
     val swipeState = state.swipeToDismissBoxState
     LaunchedEffect(swipeState.currentValue) {
@@ -200,7 +215,7 @@ public fun SwipeDismissableNavHost(
         modifier = Modifier,
         hasBackground = previous != null,
         backgroundKey = previous?.id ?: SwipeToDismissKeys.Background,
-        contentKey = current.id,
+        contentKey = current?.id ?: SwipeToDismissKeys.Content,
         content = { isBackground ->
             BoxedStackEntryContent(if (isBackground) previous else current, stateHolder, modifier)
         }
@@ -279,3 +294,5 @@ private fun BoxedStackEntryContent(
         }
     }
 }
+
+private const val TAG = "SwipeDismissableNavHost"
