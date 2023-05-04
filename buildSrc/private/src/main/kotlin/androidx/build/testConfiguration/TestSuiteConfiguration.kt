@@ -30,20 +30,16 @@ import androidx.build.getTestConfigDirectory
 import androidx.build.hasAndroidTestSourceCode
 import androidx.build.hasBenchmarkPlugin
 import androidx.build.isPresubmitBuild
-import androidx.build.renameApkForTesting
 import com.android.build.api.artifact.Artifacts
 import com.android.build.api.artifact.SingleArtifact
 import com.android.build.api.variant.AndroidComponentsExtension
 import com.android.build.api.variant.ApplicationAndroidComponentsExtension
 import com.android.build.api.variant.HasAndroidTest
 import com.android.build.gradle.BaseExtension
-import com.android.build.gradle.tasks.PackageAndroidArtifact
 import java.io.File
 import org.gradle.api.Project
 import org.gradle.api.UnknownTaskException
-import org.gradle.api.file.DuplicatesStrategy
 import org.gradle.api.tasks.TaskProvider
-import org.gradle.api.tasks.bundling.Zip
 import org.gradle.kotlin.dsl.getByType
 
 /**
@@ -62,7 +58,7 @@ fun Project.createTestConfigurationGenerationTask(
     overrideProject: Project = this
 ) {
     val xmlName = "${path.asFilenamePrefix()}$variantName.xml"
-    val jsonName = "${path.asFilenamePrefix()}$variantName.json"
+    val jsonName = "_${path.asFilenamePrefix()}$variantName.json"
     rootProject.tasks.named("createModuleInfo").configure {
         it as ModuleInfoGenerator
         it.testModules.add(
@@ -80,6 +76,15 @@ fun Project.createTestConfigurationGenerationTask(
 
         task.testFolder.set(artifacts.get(SingleArtifact.APK))
         task.testLoader.set(artifacts.getBuiltArtifactsLoader())
+        task.outputTestApk.set(
+            File(getTestConfigDirectory(), "${path.asFilenamePrefix()}-$variantName.apk")
+        )
+        task.constrainedOutputTestApk.set(
+            File(
+                getConstrainedTestConfigDirectory(),
+                "${path.asFilenamePrefix()}-$variantName.apk"
+            )
+        )
         task.additionalApkKeys.set(androidXExtension.additionalDeviceTestApkKeys)
         task.additionalTags.set(androidXExtension.additionalDeviceTestTags)
         task.outputXml.fileValue(File(getTestConfigDirectory(), xmlName))
@@ -130,20 +135,42 @@ fun Project.addAppApkToTestConfigGeneration() {
                 getOrCreateMacrobenchmarkConfigTask().configure { configTask ->
                     configTask.appFolder.set(appVariant.artifacts.get(SingleArtifact.APK))
                     configTask.appLoader.set(appVariant.artifacts.getBuiltArtifactsLoader())
-                    configTask.appProjectPath.set(path)
+                    configTask.outputAppApk.set(
+                        File(
+                            getTestConfigDirectory(),
+                            "${path.asFilenamePrefix()}-${appVariant.name}.apk"
+                        )
+                    )
+                    configTask.constrainedOutputAppApk.set(
+                        File(
+                            getConstrainedTestConfigDirectory(),
+                            "${path.asFilenamePrefix()}-${appVariant.name}.apk"
+                        )
+                    )
                 }
                 if (path == ":benchmark:integration-tests:macrobenchmark-target") {
                     // Ugly workaround for b/188699825 where we hardcode that
                     // :benchmark:integration-tests:macrobenchmark-target needs to be installed
                     // for :benchmark:benchmark-macro tests to work.
-                    project(":benchmark:benchmark-macro").tasks.withType(
+                    project(MACRO_PROJECT).tasks.withType(
                         GenerateTestConfigurationTask::class.java
                     ).named(
                         "${AndroidXImplPlugin.GENERATE_TEST_CONFIGURATION_TASK}debugAndroidTest"
                     ).configure { configTask ->
                         configTask.appFolder.set(appVariant.artifacts.get(SingleArtifact.APK))
                         configTask.appLoader.set(appVariant.artifacts.getBuiltArtifactsLoader())
-                        configTask.appProjectPath.set(path)
+                        configTask.outputAppApk.set(
+                            File(
+                                getTestConfigDirectory(),
+                                "${MACRO_PROJECT.asFilenamePrefix()}-${appVariant.name}.apk"
+                            )
+                        )
+                        configTask.constrainedOutputAppApk.set(
+                            File(
+                                getConstrainedTestConfigDirectory(),
+                                "${MACRO_PROJECT.asFilenamePrefix()}-${appVariant.name}.apk"
+                            )
+                        )
                     }
                 }
             }
@@ -160,39 +187,20 @@ fun Project.addAppApkToTestConfigGeneration() {
                 configTask as GenerateTestConfigurationTask
                 configTask.appFolder.set(appVariant.artifacts.get(SingleArtifact.APK))
                 configTask.appLoader.set(appVariant.artifacts.getBuiltArtifactsLoader())
-                configTask.appProjectPath.set(path)
+                configTask.outputAppApk.set(
+                    File(
+                        getTestConfigDirectory(),
+                        "${path.asFilenamePrefix()}-${appVariant.name}.apk"
+                    )
+                )
+                configTask.constrainedOutputAppApk.set(
+                    File(
+                        getConstrainedTestConfigDirectory(),
+                        "${path.asFilenamePrefix()}-${appVariant.name}.apk"
+                    )
+                )
             }
         }
-    }
-}
-
-/**
- * Configures the test zip task to include the project's apk
- */
-fun addToTestZips(project: Project, packageTask: PackageAndroidArtifact) {
-    project.rootProject.tasks.named(ZIP_TEST_CONFIGS_WITH_APKS_TASK) { task ->
-        task as Zip
-        val projectPath = project.path
-        task.from(packageTask.outputDirectory) {
-            it.include("*.apk")
-            it.duplicatesStrategy = DuplicatesStrategy.FAIL
-            it.rename { fileName ->
-                fileName.renameApkForTesting(projectPath)
-            }
-        }
-        task.dependsOn(packageTask)
-    }
-    project.rootProject.tasks.named(ZIP_CONSTRAINED_TEST_CONFIGS_WITH_APKS_TASK) { task ->
-        task as Zip
-        val projectPath = project.path
-        task.from(packageTask.outputDirectory) {
-            it.include("*.apk")
-            it.duplicatesStrategy = DuplicatesStrategy.FAIL
-            it.rename { fileName ->
-                fileName.renameApkForTesting(projectPath)
-            }
-        }
-        task.dependsOn(packageTask)
     }
 }
 
@@ -253,58 +261,66 @@ fun Project.createOrUpdateMediaTestConfigurationGenerationTask(
             if (this.name.contains("previous")) {
                 it.clientPreviousFolder.set(artifacts.get(SingleArtifact.APK))
                 it.clientPreviousLoader.set(artifacts.getBuiltArtifactsLoader())
-                it.clientPreviousPath.set(this.path)
             } else {
                 it.clientToTFolder.set(artifacts.get(SingleArtifact.APK))
                 it.clientToTLoader.set(artifacts.getBuiltArtifactsLoader())
-                it.clientToTPath.set(this.path)
             }
         } else {
             if (this.name.contains("previous")) {
                 it.servicePreviousFolder.set(artifacts.get(SingleArtifact.APK))
                 it.servicePreviousLoader.set(artifacts.getBuiltArtifactsLoader())
-                it.servicePreviousPath.set(this.path)
             } else {
                 it.serviceToTFolder.set(artifacts.get(SingleArtifact.APK))
                 it.serviceToTLoader.set(artifacts.getBuiltArtifactsLoader())
-                it.serviceToTPath.set(this.path)
             }
         }
         it.jsonClientPreviousServiceToTClientTests.fileValue(
             File(
                 this.getTestConfigDirectory(),
-                "${mediaPrefix}ClientPreviousServiceToTClientTests$variantName.json"
+                "_${mediaPrefix}ClientPreviousServiceToTClientTests$variantName.json"
             )
         )
         it.jsonClientPreviousServiceToTServiceTests.fileValue(
             File(
                 this.getTestConfigDirectory(),
-                "${mediaPrefix}ClientPreviousServiceToTServiceTests$variantName.json"
+                "_${mediaPrefix}ClientPreviousServiceToTServiceTests$variantName.json"
             )
         )
         it.jsonClientToTServicePreviousClientTests.fileValue(
             File(
                 this.getTestConfigDirectory(),
-                "${mediaPrefix}ClientToTServicePreviousClientTests$variantName.json"
+                "_${mediaPrefix}ClientToTServicePreviousClientTests$variantName.json"
             )
         )
         it.jsonClientToTServicePreviousServiceTests.fileValue(
             File(
                 this.getTestConfigDirectory(),
-                "${mediaPrefix}ClientToTServicePreviousServiceTests$variantName.json"
+                "_${mediaPrefix}ClientToTServicePreviousServiceTests$variantName.json"
             )
         )
         it.jsonClientToTServiceToTClientTests.fileValue(
             File(
                 this.getTestConfigDirectory(),
-                "${mediaPrefix}ClientToTServiceToTClientTests$variantName.json"
+                "_${mediaPrefix}ClientToTServiceToTClientTests$variantName.json"
             )
         )
         it.jsonClientToTServiceToTServiceTests.fileValue(
             File(
                 this.getTestConfigDirectory(),
-                "${mediaPrefix}ClientToTServiceToTServiceTests$variantName.json"
+                "_${mediaPrefix}ClientToTServiceToTServiceTests$variantName.json"
             )
+        )
+        it.totClientApk.fileValue(
+            File(getTestConfigDirectory(), "${mediaPrefix}ClientToT$variantName.apk")
+        )
+        it.previousClientApk.fileValue(
+            File(getTestConfigDirectory(), "${mediaPrefix}ClientPrevious$variantName.apk")
+        )
+        it.totServiceApk.fileValue(
+            File(getTestConfigDirectory(), "${mediaPrefix}ServiceToT$variantName.apk")
+        )
+        it.previousServiceApk.fileValue(
+            File(getTestConfigDirectory(), "${mediaPrefix}ServicePrevious$variantName.apk")
         )
         it.minSdk.set(minSdk)
         it.testRunner.set(testRunner)
@@ -339,13 +355,22 @@ private fun Project.configureMacrobenchmarkConfigTask(
         val fileNamePrefix = path.asFilenamePrefix()
         task.testFolder.set(artifacts.get(SingleArtifact.APK))
         task.testLoader.set(artifacts.getBuiltArtifactsLoader())
+        task.outputTestApk.set(
+            File(getTestConfigDirectory(), "${path.asFilenamePrefix()}-$variantName.apk")
+        )
+        task.constrainedOutputTestApk.set(
+            File(
+                getConstrainedTestConfigDirectory(),
+                "${path.asFilenamePrefix()}-$variantName.apk"
+            )
+        )
         task.additionalApkKeys.set(androidXExtension.additionalDeviceTestApkKeys)
         task.additionalTags.set(androidXExtension.additionalDeviceTestTags)
         task.outputXml.fileValue(
             File(getTestConfigDirectory(), "$fileNamePrefix$variantName.xml")
         )
         task.outputJson.fileValue(
-            File(getTestConfigDirectory(), "$fileNamePrefix$variantName.json")
+            File(getTestConfigDirectory(), "_$fileNamePrefix$variantName.json")
         )
         task.constrainedOutputXml.fileValue(
             File(
@@ -448,3 +473,5 @@ fun Project.configureTestConfigGeneration(baseExtension: BaseExtension) {
         }
     }
 }
+
+private const val MACRO_PROJECT = ":benchmark:benchmark-macro"

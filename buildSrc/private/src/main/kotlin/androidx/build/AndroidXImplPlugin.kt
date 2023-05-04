@@ -29,7 +29,6 @@ import androidx.build.checkapi.KmpApiTaskConfig
 import androidx.build.checkapi.LibraryApiTaskConfig
 import androidx.build.checkapi.configureProjectForApiTasks
 import androidx.build.dependencies.KOTLIN_VERSION
-import androidx.build.dependencyTracker.AffectedModuleDetector
 import androidx.build.docs.AndroidXKmpDocsImplPlugin
 import androidx.build.gradle.isRoot
 import androidx.build.license.configureExternalDependencyLicenseCheck
@@ -37,7 +36,6 @@ import androidx.build.resources.configurePublicResourcesStub
 import androidx.build.sbom.validateAllArchiveInputsRecognized
 import androidx.build.studio.StudioTask
 import androidx.build.testConfiguration.addAppApkToTestConfigGeneration
-import androidx.build.testConfiguration.addToTestZips
 import androidx.build.testConfiguration.configureTestConfigGeneration
 import com.android.build.api.artifact.SingleArtifact
 import com.android.build.api.dsl.ManagedVirtualDevice
@@ -54,7 +52,6 @@ import com.android.build.gradle.LibraryPlugin
 import com.android.build.gradle.TestExtension
 import com.android.build.gradle.TestPlugin
 import com.android.build.gradle.TestedExtension
-import com.android.build.gradle.internal.tasks.ListingFileRedirectTask
 import java.io.File
 import java.time.Duration
 import java.util.Locale
@@ -702,42 +699,11 @@ class AndroidXImplPlugin @Inject constructor(val componentFactory: SoftwareCompo
         project.configureTestConfigGeneration(this)
         project.configureFtlRunner()
 
-        val buildTestApksTask = project.rootProject.tasks.named(BUILD_TEST_APKS_TASK)
-        when (this) {
-            is TestedExtension -> testVariants
-            // app module defines variants for test module
-            is TestExtension -> applicationVariants
-            else -> throw IllegalStateException("Unsupported plugin type")
-        }.all { variant ->
-            buildTestApksTask.configure {
-                it.dependsOn(variant.assembleProvider)
-            }
-            variant.configureApkZipping(project)
-        }
-
         // AGP warns if we use project.buildDir (or subdirs) for CMake's generated
         // build files (ninja build files, CMakeCache.txt, etc.). Use a staging directory that
         // lives alongside the project's buildDir.
         externalNativeBuild.cmake.buildStagingDirectory =
             File(project.buildDir, "../nativeBuildStaging")
-    }
-
-    /**
-     * Configures the ZIP_TEST_CONFIGS_WITH_APKS_TASK to include the test apk if applicable
-     */
-    @Suppress("DEPRECATION") // ApkVariant
-    private fun com.android.build.gradle.api.ApkVariant.configureApkZipping(
-        project: Project
-    ) {
-        packageApplicationProvider.get().let { packageTask ->
-            AffectedModuleDetector.configureTaskGuard(packageTask)
-            addToTestZips(project, packageTask)
-        }
-        // This task needs to be guarded by AffectedModuleDetector due to guarding test
-        // APK building above. It can only be removed if we stop using AMD for test APKs.
-        project.tasks.withType(ListingFileRedirectTask::class.java).forEach {
-            AffectedModuleDetector.configureTaskGuard(it)
-        }
     }
 
     private fun LibraryExtension.configureAndroidLibraryOptions(
@@ -850,17 +816,6 @@ class AndroidXImplPlugin @Inject constructor(val componentFactory: SoftwareCompo
 
         project.addAppApkToTestConfigGeneration()
         project.addAppApkToFtlRunner()
-
-        val buildTestApksTask = project.rootProject.tasks.named(BUILD_TEST_APKS_TASK)
-        applicationVariants.all { variant ->
-            // Using getName() instead of name due to b/150427408
-            if (variant.buildType.name == "debug") {
-                buildTestApksTask.configure {
-                    it.dependsOn(variant.assembleProvider)
-                }
-            }
-            variant.configureApkZipping(project)
-        }
     }
 
     private fun Project.configureDependencyVerification(
@@ -1001,7 +956,6 @@ class AndroidXImplPlugin @Inject constructor(val componentFactory: SoftwareCompo
     }
 
     companion object {
-        const val BUILD_TEST_APKS_TASK = "buildTestApks"
         const val CREATE_LIBRARY_BUILD_INFO_FILES_TASK = "createLibraryBuildInfoFiles"
         const val GENERATE_TEST_CONFIGURATION_TASK = "GenerateTestConfiguration"
         const val ZIP_TEST_CONFIGS_WITH_APKS_TASK = "zipTestConfigsWithApks"
@@ -1095,14 +1049,6 @@ private fun Project.configureJavaCompilationWarnings(androidXExtension: AndroidX
             }
         }
     }
-}
-
-/**
- * Guarantees unique names for the APKs, and modifies some of the suffixes. The APK name is used
- * to determine what gets run by our test runner
- */
-fun String.renameApkForTesting(projectPath: String): String {
-    return "${projectPath.asFilenamePrefix()}_$this"
 }
 
 fun Project.hasBenchmarkPlugin(): Boolean {

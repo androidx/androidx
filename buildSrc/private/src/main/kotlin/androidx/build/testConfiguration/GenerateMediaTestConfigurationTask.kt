@@ -17,8 +17,6 @@
 package androidx.build.testConfiguration
 
 import androidx.build.dependencyTracker.ProjectSubset
-import androidx.build.renameApkForTesting
-import com.android.build.api.variant.BuiltArtifact
 import com.android.build.api.variant.BuiltArtifacts
 import com.android.build.api.variant.BuiltArtifactsLoader
 import java.io.File
@@ -79,18 +77,6 @@ abstract class GenerateMediaTestConfigurationTask : DefaultTask() {
     abstract val affectedModuleDetectorSubset: Property<ProjectSubset>
 
     @get:Input
-    abstract val clientToTPath: Property<String>
-
-    @get:Input
-    abstract val clientPreviousPath: Property<String>
-
-    @get:Input
-    abstract val serviceToTPath: Property<String>
-
-    @get:Input
-    abstract val servicePreviousPath: Property<String>
-
-    @get:Input
     abstract val minSdk: Property<Int>
 
     @get:Input
@@ -117,39 +103,60 @@ abstract class GenerateMediaTestConfigurationTask : DefaultTask() {
     @get:OutputFile
     abstract val jsonClientToTServiceToTServiceTests: RegularFileProperty
 
+    @get:OutputFile
+    abstract val previousClientApk: RegularFileProperty
+
+    @get:OutputFile
+    abstract val totClientApk: RegularFileProperty
+
+    @get:OutputFile
+    abstract val previousServiceApk: RegularFileProperty
+
+    @get:OutputFile
+    abstract val totServiceApk: RegularFileProperty
+
     @TaskAction
     fun generateAndroidTestZip() {
-        val clientToTApk = resolveApk(clientToTFolder, clientToTLoader)
-        val clientPreviousApk = resolveApk(clientPreviousFolder, clientPreviousLoader)
-        val serviceToTApk = resolveApk(serviceToTFolder, serviceToTLoader)
-        val servicePreviousApk = resolveApk(
-            servicePreviousFolder, servicePreviousLoader
+        val clientToTApk = totClientApk.get().asFile
+        val clientToTSha256 = copyApkAndGetSha256(clientToTFolder, clientToTLoader, clientToTApk)
+        val clientPreviousApk = previousClientApk.get().asFile
+        val clientPreviousSha256 = copyApkAndGetSha256(
+            clientPreviousFolder, clientPreviousLoader, clientPreviousApk
         )
+        val serviceToTApk = totServiceApk.get().asFile
+        val serviceToTSha256 = copyApkAndGetSha256(
+            serviceToTFolder, serviceToTLoader, serviceToTApk
+        )
+        val servicePreviousApk = previousServiceApk.get().asFile
+        val servicePreviousSha256 = copyApkAndGetSha256(
+            servicePreviousFolder, servicePreviousLoader, servicePreviousApk
+        )
+
         writeConfigFileContent(
-            clientApk = clientToTApk,
-            serviceApk = serviceToTApk,
-            clientPath = clientToTPath.get(),
-            servicePath = serviceToTPath.get(),
+            clientApkName = clientToTApk.name,
+            serviceApkName = serviceToTApk.name,
+            clientApkSha256 = clientToTSha256,
+            serviceApkSha256 = serviceToTSha256,
             jsonClientOutputFile = jsonClientToTServiceToTClientTests,
             jsonServiceOutputFile = jsonClientToTServiceToTServiceTests,
             isClientPrevious = false,
             isServicePrevious = false
         )
         writeConfigFileContent(
-            clientApk = clientToTApk,
-            serviceApk = servicePreviousApk,
-            clientPath = clientToTPath.get(),
-            servicePath = servicePreviousPath.get(),
+            clientApkName = clientToTApk.name,
+            serviceApkName = servicePreviousApk.name,
+            clientApkSha256 = clientToTSha256,
+            serviceApkSha256 = servicePreviousSha256,
             jsonClientOutputFile = jsonClientToTServicePreviousClientTests,
             jsonServiceOutputFile = jsonClientToTServicePreviousServiceTests,
             isClientPrevious = false,
             isServicePrevious = true
         )
         writeConfigFileContent(
-            clientApk = clientPreviousApk,
-            serviceApk = serviceToTApk,
-            clientPath = clientPreviousPath.get(),
-            servicePath = serviceToTPath.get(),
+            clientApkName = clientPreviousApk.name,
+            serviceApkName = serviceToTApk.name,
+            clientApkSha256 = clientPreviousSha256,
+            serviceApkSha256 = serviceToTSha256,
             jsonClientOutputFile = jsonClientPreviousServiceToTClientTests,
             jsonServiceOutputFile = jsonClientPreviousServiceToTServiceTests,
             isClientPrevious = true,
@@ -165,26 +172,27 @@ abstract class GenerateMediaTestConfigurationTask : DefaultTask() {
             ?: throw RuntimeException("Cannot load required APK for task: $name")
     }
 
-    private fun BuiltArtifact.resolveName(path: String): String {
-        return outputFile.substringAfterLast("/").renameApkForTesting(path)
+    private fun copyApkAndGetSha256(
+        apkFolder: DirectoryProperty,
+        apkLoader: Property<BuiltArtifactsLoader>,
+        destination: File
+    ): String {
+        val artifacts = apkLoader.get().load(apkFolder.get())
+            ?: throw RuntimeException("Cannot load required APK for task: $name")
+        File(artifacts.elements.single().outputFile).copyTo(destination, overwrite = true)
+        return sha256(destination)
     }
 
     private fun writeConfigFileContent(
-        clientApk: BuiltArtifacts,
-        serviceApk: BuiltArtifacts,
-        clientPath: String,
-        servicePath: String,
+        clientApkName: String,
+        serviceApkName: String,
+        clientApkSha256: String,
+        serviceApkSha256: String,
         jsonClientOutputFile: RegularFileProperty,
         jsonServiceOutputFile: RegularFileProperty,
         isClientPrevious: Boolean,
         isServicePrevious: Boolean,
     ) {
-        val clientBuiltArtifact = clientApk.elements.single()
-        val serviceBuiltArtifact = serviceApk.elements.single()
-        val clientApkName = clientBuiltArtifact.resolveName(clientPath)
-        val clientApkSha256 = sha256(File(clientBuiltArtifact.outputFile))
-        val serviceApkName = serviceBuiltArtifact.resolveName(servicePath)
-        val serviceApkSha256 = sha256(File(serviceBuiltArtifact.outputFile))
         createOrFail(jsonClientOutputFile).writeText(
             buildMediaJson(
                 configName = jsonClientOutputFile.asFile.get().name,
