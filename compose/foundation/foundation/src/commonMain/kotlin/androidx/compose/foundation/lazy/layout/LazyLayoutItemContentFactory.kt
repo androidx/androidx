@@ -19,6 +19,7 @@ package androidx.compose.foundation.lazy.layout
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.ReusableContentHost
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -95,13 +96,11 @@ internal class LazyLayoutItemContentFactory(
             val index = itemProvider.findIndexByKey(key, lastKnownIndex).also {
                 lastKnownIndex = it
             }
-
-            if (index < itemProvider.itemCount) {
-                val key = itemProvider.getKey(index)
-                if (key == this.key) {
-                    StableSaveProvider(StableValue(saveableStateHolder), StableValue(key)) {
-                        itemProvider.Item(index)
-                    }
+            val indexIsUpToDate =
+                index < itemProvider.itemCount && itemProvider.getKey(index) == key
+            ReusableContentHost(active = indexIsUpToDate) {
+                StableSaveProvider(StableValue(saveableStateHolder), StableValue(key)) {
+                    itemProvider.Item(index)
                 }
             }
             DisposableEffect(key) {
