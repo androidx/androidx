@@ -161,6 +161,7 @@ class AndroidXComposeImplPlugin : Plugin<Project> {
                     error.add("ModifierNodeInspectableProperties")
                     error.add("ModifierParameter")
                     error.add("MutableCollectionMutableState")
+                    error.add("OpaqueUnitKey")
                     error.add("UnnecessaryComposedModifier")
                     error.add("FrequentlyChangedStateReadInComposition")
                     error.add("ReturnFromAwaitPointerEventScope")
