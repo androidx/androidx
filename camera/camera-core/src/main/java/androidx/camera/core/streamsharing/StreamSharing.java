@@ -29,6 +29,7 @@ import static java.util.Objects.requireNonNull;
 
 import android.graphics.Rect;
 import android.os.Build;
+import android.util.Log;
 import android.util.Size;
 
 import androidx.annotation.IntRange;
@@ -61,6 +62,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -69,8 +71,9 @@ import java.util.Set;
  */
 @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 public class StreamSharing extends UseCase {
+    private static final String TAG = "StreamSharing";
     @NonNull
-    private static final StreamSharingConfig DEFAULT_CONFIG;
+    private final StreamSharingConfig mDefaultConfig;
 
     @NonNull
     private final VirtualCamera mVirtualCamera;
@@ -90,14 +93,24 @@ public class StreamSharing extends UseCase {
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     SessionConfig.Builder mSessionConfigBuilder;
 
-    static {
+    private static StreamSharingConfig getDefaultConfig(Set<UseCase> children) {
         MutableConfig mutableConfig = new StreamSharingBuilder().getMutableConfig();
         mutableConfig.insertOption(OPTION_INPUT_FORMAT,
                 ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE);
         mutableConfig.insertOption(OPTION_CAPTURE_TYPE,
                 UseCaseConfigFactory.CaptureType.STREAM_SHARING);
-        DEFAULT_CONFIG = new StreamSharingConfig(OptionsBundle.from(mutableConfig));
+        List<UseCaseConfigFactory.CaptureType> captureTypes = new ArrayList<>();
+        for (UseCase child : children) {
+            if (child.getCurrentConfig().containsOption(OPTION_CAPTURE_TYPE)) {
+                captureTypes.add(child.getCurrentConfig().getCaptureType());
+            } else {
+                Log.e(TAG, "A child does not have capture type.");
+            }
+        }
+        mutableConfig.insertOption(StreamSharingConfig.OPTION_CAPTURE_TYPES, captureTypes);
+        return new StreamSharingConfig(OptionsBundle.from(mutableConfig));
     }
+
 
     /**
      * Constructs a {@link StreamSharing} with a parent {@link CameraInternal}, children
@@ -107,7 +120,8 @@ public class StreamSharing extends UseCase {
     public StreamSharing(@NonNull CameraInternal parentCamera,
             @NonNull Set<UseCase> children,
             @NonNull UseCaseConfigFactory useCaseConfigFactory) {
-        super(DEFAULT_CONFIG);
+        super(getDefaultConfig(children));
+        mDefaultConfig = getDefaultConfig(children);
         mVirtualCamera = new VirtualCamera(parentCamera, children, useCaseConfigFactory,
                 (jpegQuality, rotationDegrees) -> {
                     SurfaceProcessorNode sharingNode = mSharingNode;
@@ -127,11 +141,11 @@ public class StreamSharing extends UseCase {
             @NonNull UseCaseConfigFactory factory) {
         // The shared stream optimizes for VideoCapture.
         Config captureConfig = factory.getConfig(
-                DEFAULT_CONFIG.getCaptureType(),
+                mDefaultConfig.getCaptureType(),
                 ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY);
 
         if (applyDefaultConfig) {
-            captureConfig = Config.mergeConfigs(captureConfig, DEFAULT_CONFIG.getConfig());
+            captureConfig = Config.mergeConfigs(captureConfig, mDefaultConfig.getConfig());
         }
         return captureConfig == null ? null :
                 getUseCaseConfigBuilder(captureConfig).getUseCaseConfig();
