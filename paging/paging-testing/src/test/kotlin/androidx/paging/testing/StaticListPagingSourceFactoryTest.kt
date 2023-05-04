@@ -17,8 +17,8 @@
 package androidx.paging.testing
 
 import androidx.paging.PagingConfig
-import androidx.paging.PagingSource
 import androidx.paging.PagingSource.LoadResult.Page
+import androidx.paging.PagingSourceFactory
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.cancel
@@ -47,7 +47,7 @@ class StaticListPagingSourceFactoryTest {
 
     @Test
     fun emptyFlow() {
-        val factory: () -> PagingSource<Int, Int> =
+        val factory: PagingSourceFactory<Int, Int> =
             flowOf<List<Int>>().asPagingSourceFactory(testScope)
         val pagingSource = factory()
         val pager = TestPager(pagingSource, CONFIG)
@@ -64,7 +64,7 @@ class StaticListPagingSourceFactoryTest {
             List(20) { it }
         )
 
-        val factory: () -> PagingSource<Int, Int> =
+        val factory: PagingSourceFactory<Int, Int> =
             flow.asPagingSourceFactory(testScope)
         val pagingSource = factory()
         val pager = TestPager(pagingSource, CONFIG)
@@ -85,7 +85,7 @@ class StaticListPagingSourceFactoryTest {
             emit(List(15) { it + 30 }) // second gen
         }
 
-        val factory: () -> PagingSource<Int, Int> =
+        val factory: PagingSourceFactory<Int, Int> =
             flow.asPagingSourceFactory(testScope)
 
         advanceTimeBy(1000)
@@ -117,7 +117,7 @@ class StaticListPagingSourceFactoryTest {
         val mutableFlow = MutableSharedFlow<List<Int>>()
         val collectionScope = this.backgroundScope
 
-        val factory: () -> PagingSource<Int, Int> =
+        val factory: PagingSourceFactory<Int, Int> =
             mutableFlow.asPagingSourceFactory(collectionScope)
 
         mutableFlow.emit(List(10) { it })
@@ -146,10 +146,10 @@ class StaticListPagingSourceFactoryTest {
     fun multipleFactories_fromSameFlow() = testScope.runTest {
         val mutableFlow = MutableSharedFlow<List<Int>>()
 
-        val factory1: () -> PagingSource<Int, Int> =
+        val factory1: PagingSourceFactory<Int, Int> =
             mutableFlow.asPagingSourceFactory(testScope.backgroundScope)
 
-        val factory2: () -> PagingSource<Int, Int> =
+        val factory2: PagingSourceFactory<Int, Int> =
             mutableFlow.asPagingSourceFactory(testScope.backgroundScope)
 
         mutableFlow.emit(List(10) { it })
