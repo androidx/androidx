@@ -30,13 +30,19 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import android.content.Context;
+import android.os.Handler;
+import android.os.HandlerThread;
 import android.text.Spannable;
 import android.text.SpannableString;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import androidx.emoji.text.EmojiCompat;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
+import androidx.test.filters.SdkSuppress;
+import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -125,5 +131,32 @@ public class EmojiInputFilterTest {
         assertNotNull(result);
         verify(mEmojiCompat, times(0)).process(any(Spannable.class), anyInt(), anyInt());
         verify(mEmojiCompat, times(1)).registerInitCallback(any(EmojiCompat.InitCallback.class));
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 19)
+    public void initCallback_doesntCrashWhenNotAttached() {
+        Context context = InstrumentationRegistry.getInstrumentation().getContext();
+        EditText editText = new EditText(context);
+        EmojiInputFilter subject = new EmojiInputFilter(editText);
+        subject.getInitCallback().onInitialized();
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 29)
+    public void initCallback_sendsToNonMainHandler_beforeSetText() {
+        // this is just testing that onInitialized dispatches to editText.getHandler before setText
+        EditText mockEditText = mock(EditText.class);
+        HandlerThread thread = new HandlerThread("random thread");
+        thread.start();
+        Handler handler = new Handler(thread.getLooper());
+        thread.quitSafely();
+        when(mockEditText.getHandler()).thenReturn(handler);
+        EmojiInputFilter subject = new EmojiInputFilter(mockEditText);
+        EmojiInputFilter.InitCallbackImpl initCallback =
+                (EmojiInputFilter.InitCallbackImpl) subject.getInitCallback();
+        initCallback.onInitialized();
+
+        handler.hasCallbacks(initCallback);
     }
 }
