@@ -45,6 +45,11 @@ object Names {
         val MutableStateMapOf = Name(PackageName, "mutableStateMapOf")
         val ProduceState = Name(PackageName, "produceState")
         val Remember = Name(PackageName, "remember")
+        val DisposableEffect = Name(PackageName, "DisposableEffect")
+        val RememberSaveable = Name(PackageName, "rememberSaveable")
+        val LaunchedEffect = Name(PackageName, "LaunchedEffect")
+        val ReusableContent = Name(PackageName, "ReusableContent")
+        val Key = Name(PackageName, "key")
     }
     object Ui {
         val PackageName = Package("androidx.compose.ui")
