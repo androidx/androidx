@@ -25,7 +25,7 @@ object SupportConfig {
     const val DEFAULT_MIN_SDK_VERSION = 14
     const val INSTRUMENTATION_RUNNER = "androidx.test.runner.AndroidJUnitRunner"
     private const val INTERNAL_BUILD_TOOLS_VERSION = "34.0.0-rc3"
-    private const val PUBLIC_BUILD_TOOLS_VERSION = "33.0.1"
+    private const val PUBLIC_BUILD_TOOLS_VERSION = "34.0.0-rc3"
     const val NDK_VERSION = "23.1.7779620"
 
     /**
