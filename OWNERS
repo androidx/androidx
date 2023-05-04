@@ -27,6 +27,7 @@ per-file *settings.gradle = set noparent
 per-file *settings.gradle = alanv@google.com, aurimas@google.com
 per-file *libraryversions.toml = jnichol@google.com
 per-file *libraryversions.toml = diegovela@google.com, akulian@google.com, kchyn@google.com
+per-file *docs-public/build.gradle = juanrdz@google.com
 
 # Copybara can self-approve CLs within synced docs.
 per-file docs/** = copybara-worker-blackhole@google.com
