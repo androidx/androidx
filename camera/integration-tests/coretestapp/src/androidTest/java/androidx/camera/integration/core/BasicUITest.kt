@@ -19,6 +19,7 @@ package androidx.camera.integration.core
 import android.Manifest
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import androidx.camera.camera2.Camera2Config
 import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.lifecycle.ProcessCameraProvider
@@ -38,7 +39,7 @@ import androidx.testutils.withActivity
 import java.util.concurrent.TimeUnit
 import leakcanary.DetectLeaksAfterTestSuccess
 import org.junit.After
-import org.junit.Assume
+import org.junit.Assume.assumeFalse
 import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Rule
@@ -94,7 +95,12 @@ class BasicUITest(
 
     @Before
     fun setUp() {
-        Assume.assumeTrue(CameraUtil.deviceHasCamera())
+        assumeTrue(CameraUtil.deviceHasCamera())
+        assumeFalse(
+            "See b/152082918, Wembley Api30 has a libjpeg issue which causes" +
+                " the test failure.",
+            Build.MODEL.equals("wembley", ignoreCase = true) && Build.VERSION.SDK_INT <= 30
+        )
         CoreAppTestUtil.assumeCompatibleDevice()
         // Use the natural orientation throughout these tests to ensure the activity isn't
         // recreated unexpectedly. This will also freeze the sensors until
