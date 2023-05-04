@@ -115,7 +115,12 @@ constructor(
 
                 val cameraMetadata =
                     Camera2CameraMetadata(
-                        cameraId, redacted, characteristics, this, emptyMap(), cacheBlocklist
+                        cameraId,
+                        redacted,
+                        characteristics,
+                        this,
+                        emptyMap(),
+                        cacheBlocklist
                     )
 
                 Log.info {
