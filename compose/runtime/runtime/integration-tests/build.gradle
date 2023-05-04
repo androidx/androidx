@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 
-
-import androidx.build.AndroidXComposePlugin
+import androidx.build.KmpPlatformsKt
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
@@ -24,69 +23,63 @@ plugins {
     id("AndroidXComposePlugin")
 }
 
-AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project)
+def desktopEnabled = KmpPlatformsKt.enableDesktop(project)
 
-dependencies {
+androidXMultiplatform {
+    android()
+    if (desktopEnabled) desktop()
 
-    if(!AndroidXComposePlugin.isMultiplatformEnabled(project)) {
-        androidTestImplementation(projectOrArtifact(":compose:ui:ui"))
-        androidTestImplementation(projectOrArtifact(":compose:material:material"))
-        androidTestImplementation(projectOrArtifact(":compose:ui:ui-test-junit4"))
-        androidTestImplementation(project(":compose:runtime:runtime"))
-        androidTestImplementation(projectOrArtifact(":compose:test-utils"))
-        androidTestImplementation(projectOrArtifact(":activity:activity-compose"))
-
-        androidTestImplementation(libs.junit)
-        androidTestImplementation(libs.kotlinTestJunit)
-        androidTestImplementation(libs.testExtJunit)
-        androidTestImplementation(libs.testCore)
-        androidTestImplementation(libs.testRunner)
-        androidTestImplementation(libs.testRules)
-        androidTestImplementation(libs.kotlinStdlib)
-        androidTestImplementation(libs.kotlinReflect)
-        androidTestImplementation(libs.truth)
-    }
-}
-
-android {
-    namespace "androidx.compose.runtime.integrationtests"
-}
-
-if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
-    androidXComposeMultiplatform {
-        android()
-        desktop()
-    }
-
-    kotlin {
-        /*
-         * When updating dependencies, make sure to make the an an analogous update in the
-         * corresponding block above
-         */
-        sourceSets {
-            commonMain.dependencies {
+    sourceSets {
+        commonMain {
+            dependencies {
                 implementation(libs.kotlinStdlibCommon)
                 implementation(libs.kotlinCoroutinesCore)
                 implementation(projectOrArtifact(":compose:ui:ui"))
             }
-            jvmMain.dependencies {
+        }
+
+        commonTest {
+            dependencies {
+                implementation(kotlin("test-junit"))
+            }
+        }
+
+        jvmMain {
+            dependsOn(commonMain)
+            dependencies {
                 implementation(libs.kotlinStdlib)
                 api(libs.kotlinCoroutinesCore)
             }
-            androidMain.dependencies {
+        }
+
+
+        androidMain {
+            dependsOn(jvmMain)
+            dependencies {
                 api(libs.kotlinCoroutinesAndroid)
                 api("androidx.annotation:annotation:1.1.0")
 
                 implementation("androidx.core:core-ktx:1.1.0")
             }
-            desktopMain.dependencies {
-                api(libs.kotlinCoroutinesSwing)
-            }
+        }
 
-            commonTest.dependencies {
-                implementation(kotlin("test-junit"))
+        if (desktopEnabled) {
+            desktopMain {
+                dependsOn(jvmMain)
+                dependencies {
+                    api(libs.kotlinCoroutinesSwing)
+                }
             }
-            androidAndroidTest.dependencies {
+        }
+
+        jvmTest {
+            dependencies {
+            }
+        }
+
+        androidAndroidTest {
+            dependsOn(jvmTest)
+            dependencies {
                 implementation(projectOrArtifact(":compose:ui:ui"))
                 implementation(projectOrArtifact(":compose:material:material"))
                 implementation(projectOrArtifact(":compose:ui:ui-test-junit4"))
@@ -98,7 +91,21 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
                 implementation(libs.truth)
             }
         }
+
+        androidTest {
+            dependsOn(jvmTest)
+        }
+
+        if (desktopEnabled) {
+            desktopTest {
+                dependsOn(jvmTest)
+            }
+        }
     }
+}
+
+android {
+    namespace "androidx.compose.runtime.integrationtests"
 }
 
 tasks.withType(KotlinCompile).configureEach {

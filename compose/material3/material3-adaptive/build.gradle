@@ -17,7 +17,7 @@
 import androidx.build.AndroidXComposePlugin
 import androidx.build.LibraryType
 import androidx.build.Publish
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import androidx.build.KmpPlatformsKt
 
 plugins {
     id("AndroidXPlugin")
@@ -25,48 +25,60 @@ plugins {
     id("AndroidXComposePlugin")
 }
 
-AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project)
+def desktopEnabled = KmpPlatformsKt.enableDesktop(project)
 
-dependencies {
+androidXMultiplatform {
+    android()
+    if (desktopEnabled) desktop()
 
-
-    if(!AndroidXComposePlugin.isMultiplatformEnabled(project)) {
-        /*
-         * When updating dependencies, make sure to make the analogous update in the
-         * corresponding block below
-         */
-        implementation(libs.kotlinStdlibCommon)
-
-        api("androidx.annotation:annotation:1.1.0")
-
-        api(project(":compose:foundation:foundation"))
-    }
-}
-
-if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
-    androidXComposeMultiplatform {
-        android()
-        desktop()
-    }
-
-    kotlin {
-        /*
-         * When updating dependencies, make sure to make the analogous update in the
-         * corresponding block above
-         */
-        sourceSets {
-            commonMain.dependencies {
+    sourceSets {
+        commonMain {
+            dependencies {
                 implementation(libs.kotlinStdlibCommon)
                 api(project(":compose:foundation:foundation"))
             }
+        }
 
-            androidMain.dependencies {
-                api("androidx.annotation:annotation:1.1.0")
+        commonTest {
+            dependencies {
             }
+        }
 
-            desktopMain.dependencies {
+        jvmMain {
+            dependsOn(commonMain)
+            dependencies {
                 implementation(libs.kotlinStdlib)
             }
+        }
+
+        androidMain {
+            dependsOn(jvmMain)
+            dependencies {
+                api("androidx.annotation:annotation:1.1.0")
+            }
+        }
+
+        if (desktopEnabled) {
+            desktopMain {
+                dependsOn(jvmMain)
+                dependencies {
+                }
+            }
+        }
+
+        jvmTest {
+            dependencies {
+            }
+        }
+
+        if (desktopEnabled) {
+            desktopTest {
+                dependsOn(jvmTest)
+            }
+        }
+
+        androidTest {
+            dependsOn(jvmTest)
         }
     }
 }

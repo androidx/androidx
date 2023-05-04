@@ -232,6 +232,9 @@ fun DropdownMenuItem(
  * @param expanded Whether the menu is currently open and visible to the user
  * @param onDismissRequest Called when the user requests to dismiss the menu, such as by
  * tapping outside the menu's bounds
+ * @param focusable Sets the ability for the menu to capture focus
+ * @param modifier The modifier for this layout.
+ * @param content The content lambda.
  */
 @Deprecated(
     level = DeprecationLevel.HIDDEN,
