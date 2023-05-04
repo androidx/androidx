@@ -44,7 +44,7 @@ internal class LazyListMeasuredItemProvider @ExperimentalFoundationApi construct
      * correct constraints and wrapped into [LazyListMeasuredItem].
      */
     fun getAndMeasure(index: DataIndex): LazyListMeasuredItem {
-        val key = itemProvider.getKey(index.value)
+        val key = keyIndexMap.getKey(index.value) ?: itemProvider.getKey(index.value)
         val contentType = itemProvider.getContentType(index.value)
         val placeables = measureScope.measure(index.value, childConstraints)
         return measuredItemFactory.createItem(index, key, contentType, placeables)
@@ -54,7 +54,7 @@ internal class LazyListMeasuredItemProvider @ExperimentalFoundationApi construct
      * Contains the mapping between the key and the index. It could contain not all the items of
      * the list as an optimization.
      **/
-    val keyToIndexMap: LazyLayoutKeyIndexMap get() = itemProvider.keyToIndexMap
+    val keyIndexMap: LazyLayoutKeyIndexMap = itemProvider.keyIndexMap
 }
 
 // This interface allows to avoid autoboxing on index param

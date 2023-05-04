@@ -30,7 +30,7 @@ import androidx.compose.runtime.rememberUpdatedState
 
 @ExperimentalFoundationApi
 internal interface LazyListItemProvider : LazyLayoutItemProvider {
-    val keyToIndexMap: LazyLayoutKeyIndexMap
+    val keyIndexMap: LazyLayoutKeyIndexMap
     /** The list of indexes of the sticky header items */
     val headerIndexes: List<Int>
     /** The scope used by the item content lambdas */
@@ -74,20 +74,20 @@ private class LazyListItemProviderImpl constructor(
         }
     }
 
-    override fun getKey(index: Int): Any = listContent.getKey(index)
+    override fun getKey(index: Int): Any = keyIndexMap.getKey(index) ?: listContent.getKey(index)
 
     override fun getContentType(index: Int): Any? = listContent.getContentType(index)
 
     override val headerIndexes: List<Int> get() = listContent.headerIndexes
 
-    override val keyToIndexMap by NearestRangeKeyIndexMapState(
+    override val keyIndexMap by NearestRangeKeyIndexMapState(
         firstVisibleItemIndex = { state.firstVisibleItemIndex },
         slidingWindowSize = { NearestItemsSlidingWindowSize },
         extraItemCount = { NearestItemsExtraItemCount },
         content = { listContent }
     )
 
-    override fun getIndex(key: Any): Int = keyToIndexMap[key]
+    override fun getIndex(key: Any): Int = keyIndexMap.getIndex(key)
 }
 
 /**

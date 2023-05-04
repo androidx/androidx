@@ -1013,7 +1013,7 @@ internal class LazyStaggeredGridMeasureProvider(
     }
 
     fun getAndMeasure(index: Int, span: SpanRange): LazyStaggeredGridMeasuredItem {
-        val key = itemProvider.getKey(index)
+        val key = keyIndexMap.getKey(index) ?: itemProvider.getKey(index)
         val contentType = itemProvider.getContentType(index)
         val placeables = measureScope.measure(index, childConstraints(span.start, span.size))
         return measuredItemFactory.createItem(
@@ -1026,7 +1026,7 @@ internal class LazyStaggeredGridMeasureProvider(
         )
     }
 
-    val keyToIndexMap: LazyLayoutKeyIndexMap get() = itemProvider.keyToIndexMap
+    val keyIndexMap: LazyLayoutKeyIndexMap = itemProvider.keyIndexMap
 }
 
 // This interface allows to avoid autoboxing on index param

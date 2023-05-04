@@ -93,12 +93,14 @@ internal class LazyLayoutItemContentFactory(
 
         private fun createContentLambda() = @Composable {
             val itemProvider = itemProvider()
-            val index = itemProvider.findIndexByKey(key, lastKnownIndex).also {
-                lastKnownIndex = it
+
+            var index = lastKnownIndex
+            if (index >= itemProvider.itemCount || itemProvider.getKey(index) != key) {
+                index = itemProvider.getIndex(key)
+                if (index != -1) lastKnownIndex = index
             }
-            val indexIsUpToDate =
-                index < itemProvider.itemCount && itemProvider.getKey(index) == key
-            ReusableContentHost(active = indexIsUpToDate) {
+
+            ReusableContentHost(active = index != -1) {
                 SkippableItem(
                     itemProvider,
                     StableValue(saveableStateHolder),

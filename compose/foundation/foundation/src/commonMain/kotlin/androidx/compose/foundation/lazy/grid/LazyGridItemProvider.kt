@@ -30,7 +30,7 @@ import androidx.compose.runtime.rememberUpdatedState
 
 @ExperimentalFoundationApi
 internal interface LazyGridItemProvider : LazyLayoutItemProvider {
-    val keyToIndexMap: LazyLayoutKeyIndexMap
+    val keyIndexMap: LazyLayoutKeyIndexMap
     val spanLayoutProvider: LazyGridSpanLayoutProvider
 }
 
@@ -58,7 +58,7 @@ private class LazyGridItemProviderImpl(
         LazyGridIntervalContent(latestContent())
     }
 
-    override val keyToIndexMap: LazyLayoutKeyIndexMap by NearestRangeKeyIndexMapState(
+    override val keyIndexMap: LazyLayoutKeyIndexMap by NearestRangeKeyIndexMapState(
         firstVisibleItemIndex = { state.firstVisibleItemIndex },
         slidingWindowSize = { NearestItemsSlidingWindowSize },
         extraItemCount = { NearestItemsExtraItemCount },
@@ -67,7 +67,7 @@ private class LazyGridItemProviderImpl(
 
     override val itemCount: Int get() = gridContent.itemCount
 
-    override fun getKey(index: Int): Any = gridContent.getKey(index)
+    override fun getKey(index: Int): Any = keyIndexMap.getKey(index) ?: gridContent.getKey(index)
 
     override fun getContentType(index: Int): Any? = gridContent.getContentType(index)
 
@@ -83,7 +83,7 @@ private class LazyGridItemProviderImpl(
     override val spanLayoutProvider: LazyGridSpanLayoutProvider
         get() = gridContent.spanLayoutProvider
 
-    override fun getIndex(key: Any): Int = keyToIndexMap[key]
+    override fun getIndex(key: Any): Int = keyIndexMap.getIndex(key)
 }
 
 /**

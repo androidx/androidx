@@ -207,9 +207,9 @@ internal class PagerLazyLayoutItemProvider(
         }
     }
 
-    override fun getKey(index: Int): Any = pagerContent.getKey(index)
+    override fun getKey(index: Int): Any = keyToIndexMap.getKey(index) ?: pagerContent.getKey(index)
 
-    override fun getIndex(key: Any): Int = keyToIndexMap[key]
+    override fun getIndex(key: Any): Int = keyToIndexMap.getIndex(key)
 }
 
 @OptIn(ExperimentalFoundationApi::class)
