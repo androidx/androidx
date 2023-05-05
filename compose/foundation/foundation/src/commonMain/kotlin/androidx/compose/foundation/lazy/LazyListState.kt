@@ -103,7 +103,7 @@ class LazyListState constructor(
      * derived state in order to only have recompositions when the derived value changes:
      * @sample androidx.compose.foundation.samples.UsingListScrollPositionInCompositionSample
      */
-    val firstVisibleItemIndex: Int get() = scrollPosition.index.value
+    val firstVisibleItemIndex: Int get() = scrollPosition.index
 
     /**
      * The scroll offset of the first visible item. Scrolling forward is positive - i.e., the
@@ -245,7 +245,7 @@ class LazyListState constructor(
     }
 
     internal fun snapToItemIndexInternal(index: Int, scrollOffset: Int) {
-        scrollPosition.requestPosition(DataIndex(index), scrollOffset)
+        scrollPosition.requestPosition(index, scrollOffset)
         // placement animation is not needed because we snap into a new position.
         placementAnimator.reset()
         remeasurement?.forceRemeasure()

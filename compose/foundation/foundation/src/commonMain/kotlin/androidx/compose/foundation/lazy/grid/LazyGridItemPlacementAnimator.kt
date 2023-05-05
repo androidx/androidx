@@ -167,7 +167,7 @@ internal class LazyGridItemPlacementAnimator {
                 keyToItemInfoMap.remove(key)
             } else {
                 val item = itemProvider.getAndMeasure(
-                    ItemIndex(newIndex),
+                    newIndex,
                     constraints = if (isVertical) {
                         Constraints.fixedWidth(itemInfo.crossAxisSize)
                     } else {
@@ -199,7 +199,7 @@ internal class LazyGridItemPlacementAnimator {
         previousLineMainAxisSize = 0
         movingAwayToStartBound.sortByDescending { keyIndexMap.getIndex(it.key) }
         movingAwayToStartBound.fastForEach { item ->
-            val line = spanLayoutProvider.getLineIndexOfItem(item.index.value).value
+            val line = spanLayoutProvider.getLineIndexOfItem(item.index)
             if (line != -1 && line == previousLine) {
                 previousLineMainAxisSize = maxOf(previousLineMainAxisSize, item.mainAxisSize)
             } else {
@@ -227,7 +227,7 @@ internal class LazyGridItemPlacementAnimator {
         previousLineMainAxisSize = 0
         movingAwayToEndBound.sortBy { keyIndexMap.getIndex(it.key) }
         movingAwayToEndBound.fastForEach { item ->
-            val line = spanLayoutProvider.getLineIndexOfItem(item.index.value).value
+            val line = spanLayoutProvider.getLineIndexOfItem(item.index)
             if (line != -1 && line == previousLine) {
                 previousLineMainAxisSize = maxOf(previousLineMainAxisSize, item.mainAxisSize)
             } else {

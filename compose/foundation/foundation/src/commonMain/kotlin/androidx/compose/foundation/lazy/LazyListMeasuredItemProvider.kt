@@ -43,10 +43,10 @@ internal class LazyListMeasuredItemProvider @ExperimentalFoundationApi construct
      * Used to subcompose items of lazy lists. Composed placeables will be measured with the
      * correct constraints and wrapped into [LazyListMeasuredItem].
      */
-    fun getAndMeasure(index: DataIndex): LazyListMeasuredItem {
-        val key = keyIndexMap.getKey(index.value) ?: itemProvider.getKey(index.value)
-        val contentType = itemProvider.getContentType(index.value)
-        val placeables = measureScope.measure(index.value, childConstraints)
+    fun getAndMeasure(index: Int): LazyListMeasuredItem {
+        val key = keyIndexMap.getKey(index) ?: itemProvider.getKey(index)
+        val contentType = itemProvider.getContentType(index)
+        val placeables = measureScope.measure(index, childConstraints)
         return measuredItemFactory.createItem(index, key, contentType, placeables)
     }
 
@@ -60,7 +60,7 @@ internal class LazyListMeasuredItemProvider @ExperimentalFoundationApi construct
 // This interface allows to avoid autoboxing on index param
 internal fun interface MeasuredItemFactory {
     fun createItem(
-        index: DataIndex,
+        index: Int,
         key: Any,
         contentType: Any?,
         placeables: List<Placeable>

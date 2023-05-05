@@ -286,26 +286,24 @@ private fun rememberLazyGridMeasurePolicy(
                 spans = spans,
                 slots = resolvedSlots,
                 isVertical = isVertical,
-                slotsPerLine = slotsPerLine,
-                layoutDirection = layoutDirection,
                 mainAxisSpacing = mainAxisSpacing,
             )
         }
         state.prefetchInfoRetriever = { line ->
-            val lineConfiguration = spanLayoutProvider.getLineConfiguration(line.value)
-            var index = ItemIndex(lineConfiguration.firstItemIndex)
+            val lineConfiguration = spanLayoutProvider.getLineConfiguration(line)
+            var index = lineConfiguration.firstItemIndex
             var slot = 0
             val result = ArrayList<Pair<Int, Constraints>>(lineConfiguration.spans.size)
             lineConfiguration.spans.fastForEach {
                 val span = it.currentLineSpan
-                result.add(index.value to measuredLineProvider.childConstraints(slot, span))
+                result.add(index to measuredLineProvider.childConstraints(slot, span))
                 ++index
                 slot += span
             }
             result
         }
 
-        val firstVisibleLineIndex: LineIndex
+        val firstVisibleLineIndex: Int
         val firstVisibleLineScrollOffset: Int
 
         Snapshot.withoutReadObservation {
