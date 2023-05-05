@@ -17,7 +17,6 @@ package androidx.appactions.interaction.capabilities.core.impl.task
 
 import androidx.appactions.interaction.capabilities.core.ConfirmationOutput
 import androidx.appactions.interaction.capabilities.core.impl.exceptions.StructConversionException
-import androidx.appactions.interaction.capabilities.core.impl.task.exceptions.MissingRequiredArgException
 import androidx.appactions.interaction.proto.ParamValue
 
 /**
@@ -27,7 +26,7 @@ import androidx.appactions.interaction.proto.ParamValue
  */
 interface OnReadyToConfirmListenerInternal<ConfirmationT> {
     /** onReadyToConfirm callback for a task capability. */
-    @Throws(StructConversionException::class, MissingRequiredArgException::class)
+    @Throws(StructConversionException::class)
     suspend fun onReadyToConfirm(
         args: Map<String, List<ParamValue>>
     ): ConfirmationOutput<ConfirmationT>
