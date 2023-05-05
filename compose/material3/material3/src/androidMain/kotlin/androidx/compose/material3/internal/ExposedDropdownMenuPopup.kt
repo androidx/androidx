@@ -32,7 +32,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionContext
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.SideEffect
-import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -85,7 +84,6 @@ internal fun ExposedDropdownMenuPopup(
 ) {
     val view = LocalView.current
     val density = LocalDensity.current
-    val testTag = LocalPopupTestTag.current
     val layoutDirection = LocalLayoutDirection.current
     val parentComposition = rememberCompositionContext()
     val currentContent by rememberUpdatedState(content)
@@ -93,10 +91,9 @@ internal fun ExposedDropdownMenuPopup(
     val popupLayout = remember {
         PopupLayout(
             onDismissRequest = onDismissRequest,
-            testTag = testTag,
             composeView = view,
+            positionProvider = popupPositionProvider,
             density = density,
-            initialPositionProvider = popupPositionProvider,
             popupId = popupId
         ).apply {
             setContent(parentComposition) {
@@ -121,7 +118,6 @@ internal fun ExposedDropdownMenuPopup(
         popupLayout.show()
         popupLayout.updateParameters(
             onDismissRequest = onDismissRequest,
-            testTag = testTag,
             layoutDirection = layoutDirection
         )
         onDispose {
@@ -134,15 +130,8 @@ internal fun ExposedDropdownMenuPopup(
     SideEffect {
         popupLayout.updateParameters(
             onDismissRequest = onDismissRequest,
-            testTag = testTag,
             layoutDirection = layoutDirection
         )
-    }
-
-    DisposableEffect(popupPositionProvider) {
-        popupLayout.positionProvider = popupPositionProvider
-        popupLayout.updatePosition()
-        onDispose {}
     }
 
     // TODO(soboleva): Look at module arrangement so that Box can be
@@ -166,11 +155,6 @@ internal fun ExposedDropdownMenuPopup(
         layout(0, 0) {}
     }
 }
-
-// TODO(b/139861182): This is a hack to work around Popups not using Semantics for test tags
-//  We should either remove it, or come up with an abstracted general solution that isn't specific
-//  to Popup
-internal val LocalPopupTestTag = compositionLocalOf { "DEFAULT_TEST_TAG" }
 
 // TODO(soboleva): Look at module dependencies so that we can get code reuse between
 // Popup's SimpleStack and Box.
@@ -214,20 +198,17 @@ private inline fun SimpleStack(modifier: Modifier, noinline content: @Composable
 @SuppressLint("ViewConstructor")
 private class PopupLayout(
     private var onDismissRequest: (() -> Unit)?,
-    var testTag: String,
     private val composeView: View,
+    private val positionProvider: PopupPositionProvider,
     density: Density,
-    initialPositionProvider: PopupPositionProvider,
     popupId: UUID
 ) : AbstractComposeView(composeView.context),
     ViewRootForInspector,
     ViewTreeObserver.OnGlobalLayoutListener {
+
     private val windowManager =
         composeView.context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
     private val params = createLayoutParams()
-
-    /** The logic of positioning the popup relative to its parent. */
-    var positionProvider = initialPositionProvider
 
     // Position params
     var parentLayoutDirection: LayoutDirection = LayoutDirection.Ltr
@@ -246,15 +227,6 @@ private class PopupLayout(
     private val tmpWindowVisibleFrame = Rect()
 
     override val subCompositionView: AbstractComposeView get() = this
-
-    // Specific to exposed dropdown menus.
-    private val dismissOnOutsideClick = { offset: Offset?, bounds: IntRect ->
-        if (offset == null) false
-        else {
-            offset.x < bounds.left || offset.x > bounds.right ||
-                offset.y < bounds.top || offset.y > bounds.bottom
-        }
-    }
 
     init {
         id = android.R.id.content
@@ -304,9 +276,7 @@ private class PopupLayout(
         content()
     }
 
-    /**
-     * Taken from PopupWindow
-     */
+    // Taken from PopupWindow. Calls [onDismissRequest] when back button is pressed.
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {
         if (event.keyCode == KeyEvent.KEYCODE_BACK) {
             if (keyDispatcherState == null) {
@@ -329,11 +299,9 @@ private class PopupLayout(
 
     fun updateParameters(
         onDismissRequest: (() -> Unit)?,
-        testTag: String,
         layoutDirection: LayoutDirection
     ) {
         this.onDismissRequest = onDismissRequest
-        this.testTag = testTag
         superSetLayoutDirection(layoutDirection)
     }
 
@@ -383,28 +351,18 @@ private class PopupLayout(
         // matter whether we return true or false as some upper layer decides on whether the
         // event is propagated to other windows or not. So for focusable the event is consumed but
         // for not focusable it is propagated to other windows.
-        if (
-            (
-                (event.action == MotionEvent.ACTION_DOWN) &&
-                    (
-                        (event.x < 0) ||
-                            (event.x >= width) ||
-                            (event.y < 0) ||
-                            (event.y >= height)
-                        )
-                ) ||
-            event.action == MotionEvent.ACTION_OUTSIDE
+        if (event.action == MotionEvent.ACTION_OUTSIDE ||
+            (event.action == MotionEvent.ACTION_DOWN &&
+                (event.x < 0 || event.x >= width || event.y < 0 || event.y >= height))
         ) {
             val parentBounds = parentBounds
             val shouldDismiss = parentBounds == null || dismissOnOutsideClick(
-                if (event.x != 0f || event.y != 0f) {
-                    Offset(
-                        params.x + event.x,
-                        params.y + event.y
-                    )
-                } else null,
+                // Keep menu open if ACTION_OUTSIDE event is reported as raw coordinates of (0, 0).
+                // This means it belongs to another owner, e.g., the soft keyboard or other window.
+                if (event.rawX != 0f && event.rawY != 0f) Offset(event.rawX, event.rawY) else null,
                 parentBounds
             )
+
             if (shouldDismiss) {
                 onDismissRequest?.invoke()
                 return true
@@ -426,6 +384,15 @@ private class PopupLayout(
         }
         super.setLayoutDirection(direction)
     }
+
+    // Specific to exposed dropdown menus.
+    private fun dismissOnOutsideClick(offset: Offset?, bounds: IntRect): Boolean =
+        if (offset == null) {
+            false
+        } else {
+            offset.x < bounds.left || offset.x > bounds.right ||
+                offset.y < bounds.top || offset.y > bounds.bottom
+        }
 
     /**
      * Initialize the LayoutParams specific to [android.widget.PopupWindow].
