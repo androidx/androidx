@@ -280,7 +280,7 @@ class TextActionsTest {
                 setText { true }
                 requestFocus { true }
                 insertTextAtCursor { true }
-                performImeAction { false }
+                performImeAction(ImeAction.Done) { false }
             })
         }
 
@@ -314,7 +314,7 @@ class TextActionsTest {
         rule.setContent {
             BoundaryNode(testTag = "node", Modifier.semantics {
                 setText { true }
-                performImeAction { true }
+                performImeAction(ImeAction.Done) { true }
             })
         }
 

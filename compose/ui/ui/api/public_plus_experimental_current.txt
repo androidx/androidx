@@ -3315,7 +3315,7 @@ package androidx.compose.ui.semantics {
     method public static androidx.compose.ui.text.AnnotatedString getEditableText(androidx.compose.ui.semantics.SemanticsPropertyReceiver);
     method public static boolean getFocused(androidx.compose.ui.semantics.SemanticsPropertyReceiver);
     method public static androidx.compose.ui.semantics.ScrollAxisRange getHorizontalScrollAxisRange(androidx.compose.ui.semantics.SemanticsPropertyReceiver);
-    method public static int getImeAction(androidx.compose.ui.semantics.SemanticsPropertyReceiver);
+    method @Deprecated public static int getImeAction(androidx.compose.ui.semantics.SemanticsPropertyReceiver);
     method public static int getLiveRegion(androidx.compose.ui.semantics.SemanticsPropertyReceiver);
     method public static String getPaneTitle(androidx.compose.ui.semantics.SemanticsPropertyReceiver);
     method public static androidx.compose.ui.semantics.ProgressBarRangeInfo getProgressBarRangeInfo(androidx.compose.ui.semantics.SemanticsPropertyReceiver);
@@ -3343,7 +3343,7 @@ package androidx.compose.ui.semantics {
     method public static void pageUp(androidx.compose.ui.semantics.SemanticsPropertyReceiver, optional String? label, kotlin.jvm.functions.Function0<java.lang.Boolean>? action);
     method public static void password(androidx.compose.ui.semantics.SemanticsPropertyReceiver);
     method public static void pasteText(androidx.compose.ui.semantics.SemanticsPropertyReceiver, optional String? label, kotlin.jvm.functions.Function0<java.lang.Boolean>? action);
-    method public static void performImeAction(androidx.compose.ui.semantics.SemanticsPropertyReceiver, optional String? label, kotlin.jvm.functions.Function0<java.lang.Boolean>? action);
+    method public static void performImeAction(androidx.compose.ui.semantics.SemanticsPropertyReceiver, int imeAction, optional String? label, kotlin.jvm.functions.Function0<java.lang.Boolean>? action);
     method public static void popup(androidx.compose.ui.semantics.SemanticsPropertyReceiver);
     method public static void requestFocus(androidx.compose.ui.semantics.SemanticsPropertyReceiver, optional String? label, kotlin.jvm.functions.Function0<java.lang.Boolean>? action);
     method public static void scrollBy(androidx.compose.ui.semantics.SemanticsPropertyReceiver, optional String? label, kotlin.jvm.functions.Function2<? super java.lang.Float,? super java.lang.Float,java.lang.Boolean>? action);
@@ -3357,7 +3357,7 @@ package androidx.compose.ui.semantics {
     method public static void setEditableText(androidx.compose.ui.semantics.SemanticsPropertyReceiver, androidx.compose.ui.text.AnnotatedString);
     method public static void setFocused(androidx.compose.ui.semantics.SemanticsPropertyReceiver, boolean);
     method public static void setHorizontalScrollAxisRange(androidx.compose.ui.semantics.SemanticsPropertyReceiver, androidx.compose.ui.semantics.ScrollAxisRange);
-    method public static void setImeAction(androidx.compose.ui.semantics.SemanticsPropertyReceiver, int);
+    method @Deprecated public static void setImeAction(androidx.compose.ui.semantics.SemanticsPropertyReceiver, int);
     method public static void setLiveRegion(androidx.compose.ui.semantics.SemanticsPropertyReceiver, int);
     method public static void setPaneTitle(androidx.compose.ui.semantics.SemanticsPropertyReceiver, String);
     method public static void setProgress(androidx.compose.ui.semantics.SemanticsPropertyReceiver, optional String? label, kotlin.jvm.functions.Function1<? super java.lang.Float,java.lang.Boolean>? action);

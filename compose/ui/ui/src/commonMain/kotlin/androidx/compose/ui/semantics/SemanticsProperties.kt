@@ -211,7 +211,7 @@ object SemanticsProperties {
     val TextSelectionRange = SemanticsPropertyKey<TextRange>("TextSelectionRange")
 
     /**
-     *  @see SemanticsPropertyReceiver.imeAction
+     * @see SemanticsPropertyReceiver.performImeAction
      */
     val ImeAction = SemanticsPropertyKey<ImeAction>("ImeAction")
 
@@ -929,6 +929,9 @@ var SemanticsPropertyReceiver.textSelectionRange by SemanticsProperties.TextSele
  * A node that specifies an action should also specify a callback to perform the action via
  * [performImeAction].
  */
+@Deprecated("Pass the ImeAction to performImeAction instead.")
+@get:Deprecated("Pass the ImeAction to performImeAction instead.")
+@set:Deprecated("Pass the ImeAction to performImeAction instead.")
 var SemanticsPropertyReceiver.imeAction by SemanticsProperties.ImeAction
 
 /**
@@ -1108,20 +1111,24 @@ fun SemanticsPropertyReceiver.insertTextAtCursor(
 }
 
 /**
- * Action to invoke the IME action handler configured on the node.
+ * Action to invoke the IME action handler configured on the node, as well as specify the type of
+ * IME action provided by the node.
  *
  * Expected to be used on editable text fields.
  *
- * A node that specifies an action callback should also report what IME action it will perform via
- * the [imeAction] property.
- *
+ * @param imeAction The IME action provided by the node.
  * @param label Optional label for this action.
  * @param action Action to be performed when [SemanticsActions.PerformImeAction] is called.
+ *
+ * @see SemanticsProperties.ImeAction
+ * @see SemanticsActions.PerformImeAction
  */
 fun SemanticsPropertyReceiver.performImeAction(
+    imeAction: ImeAction,
     label: String? = null,
     action: (() -> Boolean)?
 ) {
+    this[SemanticsProperties.ImeAction] = imeAction
     this[SemanticsActions.PerformImeAction] = AccessibilityAction(label, action)
 }
 
