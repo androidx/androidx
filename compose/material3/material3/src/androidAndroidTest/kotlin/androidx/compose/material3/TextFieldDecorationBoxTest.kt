@@ -30,6 +30,8 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.testutils.assertPixels
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
@@ -605,6 +607,7 @@ class TextFieldDecorationBoxTest {
     ) {
         var size: IntSize? = null
         var position: Offset? = null
+        val focusRequester = FocusRequester()
         rule.setMaterialContent(lightColorScheme()) {
             CompositionLocalProvider(
                 LocalLayoutDirection provides layoutDirection,
@@ -616,6 +619,7 @@ class TextFieldDecorationBoxTest {
                     BasicTextField(
                         value = value,
                         onValueChange = {},
+                        modifier = Modifier.focusRequester(focusRequester),
                         singleLine = singleLine,
                         interactionSource = interactionSource
                     ) {
@@ -654,6 +658,10 @@ class TextFieldDecorationBoxTest {
                     }
                 }
             }
+        }
+
+        rule.runOnUiThread {
+            focusRequester.requestFocus()
         }
 
         rule.runOnIdle {
