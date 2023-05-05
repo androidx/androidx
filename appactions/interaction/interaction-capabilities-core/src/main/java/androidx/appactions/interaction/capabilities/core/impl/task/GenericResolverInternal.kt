@@ -94,20 +94,16 @@ private constructor(
         paramValues: List<ParamValue>,
         converter: ParamValueConverter<ValueTypeT>
     ): ValidationResult {
-        val singularConverter = SlotTypeConverter.ofSingular(converter)
-        val repeatedConverter = SlotTypeConverter.ofRepeated(converter)
+        val singularValue = SlotTypeConverter.ofSingular(converter).convert(paramValues)
+        val repeatedValues = SlotTypeConverter.ofRepeated(converter).convert(paramValues)
         return invokeExternalSuspendBlock("onReceived") {
             when {
-                value != null -> value.onReceived(singularConverter.convert(paramValues))
-                valueList != null -> valueList.onReceived(repeatedConverter.convert(paramValues))
-                appEntity != null ->
-                    appEntity.onReceived(singularConverter.convert(paramValues))
-                appEntityList != null ->
-                    appEntityList.onReceived(repeatedConverter.convert(paramValues))
-                inventory != null ->
-                    inventory.onReceived(singularConverter.convert(paramValues))
-                inventoryList != null ->
-                    inventoryList.onReceived(repeatedConverter.convert(paramValues))
+                value != null -> value.onReceived(singularValue)
+                valueList != null -> valueList.onReceived(repeatedValues)
+                appEntity != null -> appEntity.onReceived(singularValue)
+                appEntityList != null -> appEntityList.onReceived(repeatedValues)
+                inventory != null -> inventory.onReceived(singularValue)
+                inventoryList != null -> inventoryList.onReceived(repeatedValues)
                 else -> throw IllegalStateException("unreachable")
             }
         }

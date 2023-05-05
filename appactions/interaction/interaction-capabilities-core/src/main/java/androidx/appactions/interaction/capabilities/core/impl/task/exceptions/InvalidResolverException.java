@@ -20,8 +20,8 @@ import androidx.annotation.NonNull;
 
 /**
  * Represents an internal issue with Resolvers, such as an "app-driven" method being invoked on a
- * "assistant-driven" resolver.
- */
+* "assistant-driven" resolver.
+*/
 public final class InvalidResolverException extends Exception {
 
     public InvalidResolverException(@NonNull String message) {

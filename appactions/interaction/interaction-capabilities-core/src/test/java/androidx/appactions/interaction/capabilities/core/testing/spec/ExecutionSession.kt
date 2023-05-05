@@ -23,7 +23,7 @@ import androidx.appactions.interaction.capabilities.core.impl.concurrent.Futures
 
 interface ExecutionSession : BaseExecutionSession<Arguments, Output> {
 
-    fun getRequiredStringListener(): AppEntityListener<String>? = null
+    val requiredStringListener: AppEntityListener<String>? get() = null
 
     companion object {
         @JvmStatic
