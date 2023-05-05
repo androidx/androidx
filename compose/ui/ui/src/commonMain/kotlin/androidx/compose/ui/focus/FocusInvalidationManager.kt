@@ -45,15 +45,12 @@ internal class FocusInvalidationManager(
     }
 
     private fun <T> MutableSet<T>.scheduleInvalidation(node: T) {
-        // We don't schedule a node if it is already scheduled during this composition.
-        if (contains(node)) return
-
-        add(node)
-
-        // If this is the first node scheduled for invalidation,
-        // we set up a listener that runs after onApplyChanges.
-        if (focusTargetNodes.size + focusEventNodes.size + focusPropertiesNodes.size == 1) {
-            onRequestApplyChangesListener.invoke(invalidateNodes)
+        if (add(node)) {
+            // If this is the first node scheduled for invalidation,
+            // we set up a listener that runs after onApplyChanges.
+            if (focusTargetNodes.size + focusEventNodes.size + focusPropertiesNodes.size == 1) {
+                onRequestApplyChangesListener.invoke(invalidateNodes)
+            }
         }
     }
 
