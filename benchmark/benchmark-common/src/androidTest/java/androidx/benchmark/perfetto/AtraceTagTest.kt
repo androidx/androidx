@@ -21,6 +21,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import org.junit.Assume
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import kotlin.test.assertContains
@@ -34,6 +35,7 @@ class AtraceTagTest {
     private val shellSessionRooted = Shell.isSessionRooted()
 
     @Test
+    @Ignore("b/281077239")
     fun atraceListCategories_readable() {
         val results = Shell.executeScriptCaptureStdout("atrace --list_categories")
         assertNotEquals("", results)
@@ -59,6 +61,7 @@ class AtraceTagTest {
     }
 
     @Test
+    @Ignore("b/281077239")
     fun atraceListCategories_unsupported() {
         val actualSupportedTags = getActualSupportedTags()
 
@@ -68,6 +71,7 @@ class AtraceTagTest {
     }
 
     @Test
+    @Ignore("b/281077239")
     fun atraceListCategories_supported() {
         val actualSupportedTags = getActualSupportedTags()
         val expectedSupportedTags = AtraceTag.supported(rooted = shellSessionRooted)

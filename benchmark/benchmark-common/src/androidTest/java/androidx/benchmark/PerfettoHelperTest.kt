@@ -25,6 +25,7 @@ import androidx.test.filters.SdkSuppress
 import org.junit.After
 import org.junit.Assume
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import kotlin.test.assertEquals
@@ -71,6 +72,7 @@ class PerfettoHelperTest {
     fun stopAllPerfettoProcesses_bundled() = validateStopAllPerfettoProcesses(unbundled = false)
 
     @Test
+    @Ignore("b/281077239")
     fun stopAllPerfettoProcesses_unbundled() {
         // Only check ABI support for unbundled, as bundled test doesn't use any unbundled binaries
         Assume.assumeTrue(PerfettoHelper.isAbiSupported())

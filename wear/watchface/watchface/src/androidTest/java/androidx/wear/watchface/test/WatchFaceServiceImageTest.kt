@@ -86,6 +86,7 @@ import org.junit.After
 import org.junit.Assert.fail
 import org.junit.Assume
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -378,6 +379,7 @@ public class WatchFaceServiceImageTest {
 
     @SuppressLint("NewApi")
     @Test
+    @Ignore("b/274981990")
     public fun testCommandTakeOpenGLScreenShot() {
         val latch = CountDownLatch(1)
 

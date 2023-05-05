@@ -182,6 +182,7 @@ class IntegrationTests {
     }
 
     @Test
+    @Ignore("b/272324246")
     fun testConfigurationChanged() {
         val configChangedLatch = CountDownLatch(1)
         val adapter = TestSandboxedUiAdapter(

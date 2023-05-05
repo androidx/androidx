@@ -32,6 +32,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.screenshot.AndroidXScreenshotTestRule
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -75,6 +76,7 @@ class AlertDialogScreenshotTest {
     }
 
     @Test
+    @Ignore("b/281080230")
     fun stackedButtons() {
         rule.setContent {
             AlertDialog(

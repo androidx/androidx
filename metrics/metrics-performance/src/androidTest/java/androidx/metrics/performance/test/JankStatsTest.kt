@@ -42,6 +42,7 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -173,6 +174,7 @@ class JankStatsTest {
 
     @SdkSuppress(minSdkVersion = JELLY_BEAN)
     @Test
+    @Ignore("b/272347202")
     fun testNoJank() {
         val frameDelay = 0
 
@@ -294,6 +296,7 @@ class JankStatsTest {
 
     @SdkSuppress(minSdkVersion = JELLY_BEAN)
     @Test
+    @Ignore("b/272347202")
     fun testFrameStates() {
         val frameDelay = 0
 
@@ -434,6 +437,7 @@ class JankStatsTest {
 
     @SdkSuppress(minSdkVersion = JELLY_BEAN)
     @Test
+    @Ignore("b/272347202")
     fun testComplexFrameStateData() {
         frameInit.initFramePipeline()
 

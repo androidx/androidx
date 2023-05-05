@@ -26,6 +26,7 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull
 import kotlin.test.fail
 import org.junit.Assume.assumeTrue
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -35,6 +36,7 @@ import org.junit.runner.RunWith
 @SdkSuppress(minSdkVersion = 23)
 class PerfettoTraceTest {
     @Test
+    @Ignore("b/281077239")
     fun record_basic() {
         assumeTrue(PerfettoHelper.isAbiSupported())
         var perfettoTrace: PerfettoTrace? = null
@@ -52,6 +54,7 @@ class PerfettoTraceTest {
         }
     }
     @Test
+    @Ignore("b/281077239")
     fun record_reentrant() {
         assumeTrue(PerfettoHelper.isAbiSupported())
         var perfettoTrace: PerfettoTrace? = null

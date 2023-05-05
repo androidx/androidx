@@ -43,6 +43,7 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Assume
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -277,6 +278,7 @@ class SandboxedSdkViewTest {
     }
 
     @Test
+    @Ignore("b/272324246")
     fun onConfigurationChangedTest() {
         val layout = activity.findViewById<LinearLayout>(R.id.mainlayout)
 

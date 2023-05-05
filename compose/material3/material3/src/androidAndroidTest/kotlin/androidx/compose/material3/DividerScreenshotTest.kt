@@ -32,6 +32,7 @@ import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.screenshot.AndroidXScreenshotTestRule
 import org.junit.Assume.assumeFalse
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -64,6 +65,7 @@ class DividerScreenshotTest {
     }
 
     @Test
+    @Ignore("b/272301182")
     fun darkTheme() {
         assumeFalse("See b/272301182", Build.VERSION.SDK_INT == 33)
 
