@@ -700,15 +700,6 @@ private class TextFieldMeasurePolicy(
             max(heightOrZero(textFieldPlaceable), heightOrZero(placeholderPlaceable)) +
                 effectiveTopOffset + bottomPaddingValue
         )
-
-        // measure supporting text
-        val supportingConstraints = looseConstraints.offset(
-            vertical = -occupiedSpaceVertically
-        ).copy(minHeight = 0)
-        val supportingPlaceable =
-            measurables.find { it.layoutId == SupportingId }?.measure(supportingConstraints)
-        val supportingHeight = heightOrZero(supportingPlaceable)
-
         val width = calculateWidth(
             leadingWidth = widthOrZero(leadingPlaceable),
             trailingWidth = widthOrZero(trailingPlaceable),
@@ -719,6 +710,15 @@ private class TextFieldMeasurePolicy(
             placeholderWidth = widthOrZero(placeholderPlaceable),
             constraints = constraints,
         )
+
+        // measure supporting text
+        val supportingConstraints = looseConstraints.offset(
+            vertical = -occupiedSpaceVertically
+        ).copy(minHeight = 0, maxWidth = width)
+        val supportingPlaceable =
+            measurables.find { it.layoutId == SupportingId }?.measure(supportingConstraints)
+        val supportingHeight = heightOrZero(supportingPlaceable)
+
         val totalHeight = calculateHeight(
             textFieldHeight = textFieldPlaceable.height,
             labelHeight = heightOrZero(labelPlaceable),
