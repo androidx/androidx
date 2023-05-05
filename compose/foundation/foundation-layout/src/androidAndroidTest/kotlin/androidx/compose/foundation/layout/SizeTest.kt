@@ -53,7 +53,6 @@ import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -1838,7 +1837,6 @@ class SizeTest : LayoutTest() {
     }
 
     @Test
-    @Ignore("b/280662278")
     fun testModifiers_doNotCauseUnnecessaryRemeasure() {
         var first by mutableStateOf(true)
         var totalMeasures = 0

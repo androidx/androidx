@@ -34,7 +34,6 @@ import org.junit.After
 import org.junit.Assert.assertTrue
 import org.junit.Assume.assumeTrue
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -59,7 +58,6 @@ class AndroidxTracingTraceTest {
 
     @LargeTest
     @Test
-    @Ignore("b/281077239")
     fun captureAndValidateTrace() {
         assumeTrue(isAbiSupported())
 
