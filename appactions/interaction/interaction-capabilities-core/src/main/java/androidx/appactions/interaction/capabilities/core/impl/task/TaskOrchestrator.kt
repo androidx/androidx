@@ -33,6 +33,7 @@ import androidx.appactions.interaction.capabilities.core.impl.task.exceptions.Mi
 import androidx.appactions.interaction.capabilities.core.impl.task.exceptions.MissingSearchActionConverterException
 import androidx.appactions.interaction.capabilities.core.impl.utils.CapabilityLogger
 import androidx.appactions.interaction.capabilities.core.impl.utils.LoggerInternal
+import androidx.appactions.interaction.capabilities.core.impl.utils.handleExceptionFromRequestProcessing
 import androidx.appactions.interaction.capabilities.core.impl.utils.invokeExternalBlock
 import androidx.appactions.interaction.capabilities.core.impl.utils.invokeExternalSuspendBlock
 import androidx.appactions.interaction.proto.AppActionsContext
@@ -181,27 +182,27 @@ internal class TaskOrchestrator<ArgumentsT, OutputT, ConfirmationT>(
     ) = withUiHandleRegistered {
         val argumentsWrapper = assistantUpdateRequest.argumentsWrapper
         val callback = assistantUpdateRequest.callbackInternal
-        val fulfillmentResult: FulfillmentResult
-        if (argumentsWrapper.requestMetadata == null) {
-            fulfillmentResult = FulfillmentResult(ErrorStatusInternal.INVALID_REQUEST)
-        } else {
-            fulfillmentResult = when (argumentsWrapper.requestMetadata.requestType()) {
-                FulfillmentRequest.Fulfillment.Type.UNRECOGNIZED,
-                FulfillmentRequest.Fulfillment.Type.UNKNOWN_TYPE,
-                ->
-                    FulfillmentResult(ErrorStatusInternal.INVALID_REQUEST)
-
+        try {
+            val fulfillmentResult: FulfillmentResult = when (
+                argumentsWrapper.requestMetadata?.requestType()
+            ) {
                 FulfillmentRequest.Fulfillment.Type.SYNC -> handleSync(argumentsWrapper)
                 FulfillmentRequest.Fulfillment.Type.CONFIRM -> handleConfirm()
-                FulfillmentRequest.Fulfillment.Type.CANCEL
-                -> {
+                FulfillmentRequest.Fulfillment.Type.CANCEL -> {
                     terminate()
                     FulfillmentResult(FulfillmentResponse.getDefaultInstance())
                 }
                 else -> FulfillmentResult(ErrorStatusInternal.INVALID_REQUEST)
             }
+            fulfillmentResult.applyToCallback(callback)
+        } catch (t: Throwable) {
+            LoggerInternal.log(
+                CapabilityLogger.LogLevel.ERROR,
+                LOG_TAG,
+                "Assistant request processing failed",
+            )
+            handleExceptionFromRequestProcessing(t, callback::onError)
         }
-        fulfillmentResult.applyToCallback(callback)
     }
 
     private suspend fun processTouchEventUpdateRequest(
@@ -248,14 +249,15 @@ internal class TaskOrchestrator<ArgumentsT, OutputT, ConfirmationT>(
             }
         } catch (t: Throwable) {
             LoggerInternal.log(CapabilityLogger.LogLevel.ERROR, LOG_TAG, "Manual input fail")
-            if (touchEventCallback != null) {
-                touchEventCallback!!.onError(ErrorStatusInternal.TOUCH_EVENT_REQUEST_FAILURE)
-            } else {
+            if (touchEventCallback == null) {
                 LoggerInternal.log(
                     CapabilityLogger.LogLevel.ERROR,
                     LOG_TAG,
                     "Manual input null callback",
                 )
+            }
+            handleExceptionFromRequestProcessing(t) {
+                touchEventCallback?.onError(it)
             }
         }
     }
@@ -288,8 +290,9 @@ internal class TaskOrchestrator<ArgumentsT, OutputT, ConfirmationT>(
 
     private fun maybeInitializeTask() {
         if (status === Status.UNINITIATED) {
+            val sessionConfig = SessionConfig()
             invokeExternalBlock("onCreate") {
-                externalSession.onCreate(SessionConfig())
+                externalSession.onCreate(sessionConfig)
             }
         }
         status = Status.IN_PROGRESS
@@ -302,18 +305,12 @@ internal class TaskOrchestrator<ArgumentsT, OutputT, ConfirmationT>(
      * turn, so the logic should include onEnter, arg validation, and onExit.
      */
     private suspend fun handleSync(argumentsWrapper: ArgumentsWrapper): FulfillmentResult {
-        return try {
-            maybeInitializeTask()
-            clearMissingArgs(argumentsWrapper)
-            processFulfillmentValues(argumentsWrapper.paramValues)
-            val fulfillmentResponse = maybeConfirmOrExecute()
-            LoggerInternal.log(CapabilityLogger.LogLevel.INFO, LOG_TAG, "Task sync success")
-            FulfillmentResult(fulfillmentResponse)
-        } catch (t: Throwable) {
-            // TODO(b/276354491) implement fine-grained exception handling
-            LoggerInternal.log(CapabilityLogger.LogLevel.ERROR, LOG_TAG, "Task sync fail", t)
-            FulfillmentResult(ErrorStatusInternal.SYNC_REQUEST_FAILURE)
-        }
+        maybeInitializeTask()
+        clearMissingArgs(argumentsWrapper)
+        processFulfillmentValues(argumentsWrapper.paramValues)
+        val fulfillmentResponse = maybeConfirmOrExecute()
+        LoggerInternal.log(CapabilityLogger.LogLevel.INFO, LOG_TAG, "Task sync success")
+        return FulfillmentResult(fulfillmentResponse)
     }
 
     /**
@@ -322,15 +319,9 @@ internal class TaskOrchestrator<ArgumentsT, OutputT, ConfirmationT>(
      */
     private suspend fun handleConfirm(): FulfillmentResult {
         val finalArguments = getCurrentAcceptedArguments()
-        return try {
-            val fulfillmentResponse = getFulfillmentResponseForExecution(finalArguments)
-            LoggerInternal.log(CapabilityLogger.LogLevel.INFO, LOG_TAG, "Task confirm success")
-            FulfillmentResult(fulfillmentResponse)
-        } catch (t: Throwable) {
-            // TODO(b/276354491) implement fine-grained exception handling
-            LoggerInternal.log(CapabilityLogger.LogLevel.ERROR, LOG_TAG, "Task confirm fail")
-            FulfillmentResult(ErrorStatusInternal.CONFIRMATION_REQUEST_FAILURE)
-        }
+        val fulfillmentResponse = getFulfillmentResponseForExecution(finalArguments)
+        LoggerInternal.log(CapabilityLogger.LogLevel.INFO, LOG_TAG, "Task confirm success")
+        return FulfillmentResult(fulfillmentResponse)
     }
 
     private fun clearMissingArgs(assistantArgs: ArgumentsWrapper) {
@@ -462,6 +453,7 @@ internal class TaskOrchestrator<ArgumentsT, OutputT, ConfirmationT>(
         finalArguments: Map<String, List<ParamValue>>,
     ): FulfillmentResponse {
         val result = invokeExternalSuspendBlock("onReadyToConfirm") {
+            // TODO(b/280692953) split onReadyToConfirmListener to external & internal blocks
             taskHandler.onReadyToConfirmListener!!.onReadyToConfirm(finalArguments)
         }
         val fulfillmentResponse = FulfillmentResponse.newBuilder()
@@ -473,8 +465,9 @@ internal class TaskOrchestrator<ArgumentsT, OutputT, ConfirmationT>(
     private suspend fun getFulfillmentResponseForExecution(
         finalArguments: Map<String, List<ParamValue>>,
     ): FulfillmentResponse {
+        val arguments = actionSpec.buildArguments(finalArguments)
         val result = invokeExternalSuspendBlock("onExecute") {
-            externalSession.onExecute(actionSpec.buildArguments(finalArguments))
+            externalSession.onExecute(arguments)
         }
         terminate()
         val fulfillmentResponse =

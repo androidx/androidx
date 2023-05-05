@@ -593,7 +593,7 @@ class TaskCapabilityImplTest {
                         override suspend fun onExecute(arguments: Arguments) =
                             ExecutionResult.Builder<Output>().build()
 
-                        override fun getRequiredStringListener() =
+                        override val requiredStringListener =
                             object : AppEntityListener<String> {
                                 override fun lookupAndRenderAsync(
                                     searchAction: SearchAction<String>
@@ -617,8 +617,8 @@ class TaskCapabilityImplTest {
                 sessionBridge =
                 SessionBridge<ExecutionSession, Confirmation> { session ->
                     val builder = TaskHandler.Builder<Confirmation>()
-                    session.getRequiredStringListener()
-                        ?.let { listener: AppEntityListener<String> ->
+                    session.requiredStringListener?.let {
+                        listener: AppEntityListener<String> ->
                             builder.registerAppEntityTaskParam(
                                 "required",
                                 listener,
@@ -1112,6 +1112,98 @@ class TaskCapabilityImplTest {
             .isEqualTo(ErrorStatusInternal.SESSION_ALREADY_DESTROYED)
     }
 
+    fun structConversionException_shouldReportStructConversionFailure() {
+        val sessionFactory: (hostProperties: HostProperties?) -> ExecutionSession =
+            { _ ->
+                object : ExecutionSession {
+                    override val requiredStringListener = object : AppEntityListener<String> {
+                        override fun lookupAndRenderAsync(
+                            searchAction: SearchAction<String>
+                        ): ListenableFuture<EntitySearchResult<String>> {
+                            return Futures.immediateFuture(
+                                EntitySearchResult.Builder<String>().build()
+                            )
+                        }
+
+                        override fun onReceivedAsync(
+                            value: String
+                        ): ListenableFuture<ValidationResult> {
+                            return Futures.immediateFuture(ValidationResult.newAccepted())
+                        }
+                    }
+                    override suspend fun onExecute(arguments: Arguments) =
+                        ExecutionResult.Builder<Output>()
+                            .setShouldStartDictation(true)
+                            .build()
+                }
+            }
+        val capability = CapabilityBuilder()
+            .setId("fakeId")
+            .setExecutionSessionFactory(sessionFactory)
+            .build()
+        val session = capability.createSession(fakeSessionId, hostProperties)
+        val callback = FakeCallbackInternal()
+
+        session.execute(
+            buildRequestArgs(
+                SYNC,
+                "required",
+                // this ParamValue can't be parsed as String, and causes StructConversionException
+                ParamValue.newBuilder().setIdentifier("foo").setBoolValue(false).build()
+            ),
+            callback
+        )
+
+        assertThat(
+            callback.receiveResponse().errorStatus
+        ).isEqualTo(ErrorStatusInternal.STRUCT_CONVERSION_FAILURE)
+    }
+
+    @Test
+    fun slotListenerException_shouldReportExternalException() {
+        val sessionFactory: (hostProperties: HostProperties?) -> ExecutionSession =
+            { _ ->
+                object : ExecutionSession {
+                    override val requiredStringListener = object : AppEntityListener<String> {
+                        override fun lookupAndRenderAsync(
+                            searchAction: SearchAction<String>
+                        ): ListenableFuture<EntitySearchResult<String>> {
+                            throw IllegalStateException("error in lookupAndRender")
+                        }
+
+                        override fun onReceivedAsync(
+                            value: String
+                        ): ListenableFuture<ValidationResult> {
+                            throw IllegalStateException("error in onReceivedAsync")
+                        }
+                    }
+                    override suspend fun onExecute(arguments: Arguments) =
+                        ExecutionResult.Builder<Output>()
+                            .setShouldStartDictation(true)
+                            .build()
+                }
+            }
+        val capability = CapabilityBuilder()
+            .setId("fakeId")
+            .setExecutionSessionFactory(sessionFactory)
+            .build()
+        val session = capability.createSession(fakeSessionId, hostProperties)
+        val callback = FakeCallbackInternal()
+
+        session.execute(
+            buildRequestArgs(
+                SYNC, /* args...= */
+                "required",
+                ParamValue.newBuilder().setIdentifier("foo").setStringValue("foo").build()
+            ),
+            callback
+        )
+
+        assertThat(
+            callback.receiveResponse().errorStatus
+        ).isEqualTo(ErrorStatusInternal.EXTERNAL_EXCEPTION)
+    }
+
     /**
      * an implementation of Capability.Builder using Argument. Output, etc. defined under
      * testing/spec
@@ -1130,7 +1222,19 @@ class TaskCapabilityImplTest {
         }
 
         override val sessionBridge: SessionBridge<ExecutionSession, Confirmation> = SessionBridge {
-            TaskHandler.Builder<Confirmation>().build()
+            session ->
+            val builder = TaskHandler.Builder<Confirmation>()
+            session.requiredStringListener?.let {
+                listener: AppEntityListener<String> ->
+                    builder.registerAppEntityTaskParam(
+                        "required",
+                        listener,
+                        TypeConverters.STRING_PARAM_VALUE_CONVERTER,
+                        EntityConverter.of(TypeSpec.STRING_TYPE_SPEC),
+                        getTrivialSearchActionConverter()
+                    )
+                }
+            builder.build()
         }
     }
 

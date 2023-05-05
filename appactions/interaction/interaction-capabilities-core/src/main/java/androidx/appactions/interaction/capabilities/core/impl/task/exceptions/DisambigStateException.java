@@ -17,13 +17,14 @@
 package androidx.appactions.interaction.capabilities.core.impl.task.exceptions;
 
 import androidx.annotation.NonNull;
+import androidx.appactions.interaction.capabilities.core.impl.exceptions.InvalidRequestException;
 
 /**
  * Represents an internal issue with the state sync between the SDK and Assistant. One example is
  * when the SDK places an argument in dismabig state, but then Assistant sends the same argument
  * data again without any grounding.
  */
-public final class DisambigStateException extends Exception {
+public final class DisambigStateException extends InvalidRequestException {
 
     public DisambigStateException(@NonNull String message) {
         super(message);
