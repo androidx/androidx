@@ -55,6 +55,7 @@ import org.junit.runners.model.Statement
  *         startActivityAndWait()
  *     }
  * }
+ * ```
  *
  * Note that you can filter captured rules, for example, if you're generating rules for a library,
  * and don't want to record profiles from outside that library:
