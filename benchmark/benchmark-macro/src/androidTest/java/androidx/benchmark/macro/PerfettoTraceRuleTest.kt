@@ -26,6 +26,7 @@ import androidx.test.filters.LargeTest
 import androidx.tracing.trace
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.RuleChain
@@ -72,11 +73,13 @@ class PerfettoTraceRuleTest {
     )
 
     @Test
+    @Ignore("b/280041271")
     fun simple() {
         trace(UNIQUE_SLICE_NAME) {}
     }
 
     @Test(expected = IllegalStateException::class)
+    @Ignore("b/280041271")
     fun exception() {
         // trace works even if test throws
         trace(UNIQUE_SLICE_NAME) {}

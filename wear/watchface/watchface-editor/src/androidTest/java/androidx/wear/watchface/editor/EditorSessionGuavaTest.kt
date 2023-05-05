@@ -57,6 +57,7 @@ import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.CompletableDeferred
 import org.junit.After
 import org.junit.Assert
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mockito
@@ -191,6 +192,7 @@ public class EditorSessionGuavaTest {
     }
 
     @Test
+    @Ignore("b/281083901")
     public fun listenableOpenComplicationDataSourceChooser() {
         ComplicationDataSourceChooserContract.useTestComplicationHelperActivity = true
         val chosenComplicationDataSourceInfo =

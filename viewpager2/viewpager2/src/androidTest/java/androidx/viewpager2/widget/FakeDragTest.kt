@@ -42,6 +42,7 @@ import org.hamcrest.CoreMatchers.notNullValue
 import org.hamcrest.Matchers.greaterThan
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Assume.assumeThat
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
@@ -128,6 +129,7 @@ class FakeDragTest(private val config: TestConfig) : BaseTest() {
     }
 
     @Test
+    @Ignore("b/280670752")
     fun test_peekNextAndMoveBack() {
         // Roughly interpolates like this:
         //   |

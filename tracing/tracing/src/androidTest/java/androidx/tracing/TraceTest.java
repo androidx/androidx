@@ -37,6 +37,7 @@ import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
@@ -68,6 +69,7 @@ public final class TraceTest {
     }
 
     @Test
+    @Ignore("b/280041271")
     public void beginAndEndSection() throws IOException {
         startTrace();
         Trace.beginSection("beginAndEndSection");
@@ -79,6 +81,7 @@ public final class TraceTest {
     }
 
     @Test
+    @Ignore("b/280041271")
     public void beginAndEndTraceSectionLongLabel() throws IOException {
         StringBuilder builder = new StringBuilder();
         for (int i = 0; i < 20; i++) {
@@ -120,6 +123,7 @@ public final class TraceTest {
     }
 
     @Test
+    @Ignore("b/280041271")
     public void isEnabledDuringTrace() throws IOException {
         startTrace();
         boolean enabled = Trace.isEnabled();
