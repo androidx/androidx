@@ -1079,6 +1079,7 @@ includeProject(":window:window-demos:demo-second-app", [BuildType.MAIN, BuildTyp
 includeProject(":window:window-testing", [BuildType.MAIN, BuildType.COMPOSE, BuildType.FLAN, BuildType.WINDOW])
 includeProject(":work:integration-tests:testapp", [BuildType.MAIN])
 includeProject(":work:work-benchmark", [BuildType.MAIN])
+includeProject(":work:work-datatransfer", [BuildType.MAIN])
 includeProject(":work:work-gcm", [BuildType.MAIN])
 includeProject(":work:work-inspection", [BuildType.MAIN])
 includeProject(":work:work-multiprocess", [BuildType.MAIN])
