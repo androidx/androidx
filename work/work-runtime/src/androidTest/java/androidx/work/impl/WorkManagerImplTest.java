@@ -1308,7 +1308,7 @@ public class WorkManagerImplTest {
 
     @Test
     @SmallTest
-    public void testGetWorkInfoById_earliestPossibleRunTime_notEnqueued()
+    public void testGetWorkInfoById_nextScheduleTime_notEnqueued()
             throws ExecutionException, InterruptedException {
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class).build();
         work.getWorkSpec().state = RUNNING;
@@ -1318,12 +1318,12 @@ public class WorkManagerImplTest {
         WorkInfo info = mWorkManagerImpl.getWorkInfoById(work.getId()).get();
 
         assertThat(info.getState(), equalTo(RUNNING));
-        assertThat(info.getEarliestPossibleRuntimeMillis(), equalTo(Long.MAX_VALUE));
+        assertThat(info.getNextScheduleTimeMillis(), equalTo(Long.MAX_VALUE));
     }
 
     @Test
     @SmallTest
-    public void testGetWorkInfoById_earliestPossibleRunTime_enqueued()
+    public void testGetWorkInfoById_nextScheduleTime_enqueued()
             throws ExecutionException, InterruptedException {
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class).build();
         work.getWorkSpec().lastEnqueueTime = 1000L;
@@ -1332,14 +1332,14 @@ public class WorkManagerImplTest {
         WorkInfo info = mWorkManagerImpl.getWorkInfoById(work.getId()).get();
 
         assertThat(info.getState(), equalTo(ENQUEUED));
-        assertThat(info.getEarliestPossibleRuntimeMillis(),
+        assertThat(info.getNextScheduleTimeMillis(),
                 equalTo(1000L));
     }
 
     @Test
     @SmallTest
     @SdkSuppress(minSdkVersion = 26)
-    public void testGetWorkInfoById_earliestPossibleRunTime_onetime_initialDelay()
+    public void testGetWorkInfoById_nextScheduleTime_onetime_initialDelay()
             throws ExecutionException, InterruptedException {
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class).setInitialDelay(
                 Duration.ofMillis(2000)).build();
@@ -1349,14 +1349,14 @@ public class WorkManagerImplTest {
         WorkInfo info = mWorkManagerImpl.getWorkInfoById(work.getId()).get();
 
         assertThat(info.getState(), equalTo(ENQUEUED));
-        assertThat(info.getEarliestPossibleRuntimeMillis(),
+        assertThat(info.getNextScheduleTimeMillis(),
                 equalTo(3000L));
     }
 
     @Test
     @SmallTest
     @SdkSuppress(minSdkVersion = 26)
-    public void testGetWorkInfoById_earliestPossibleRunTime_periodic_period()
+    public void testGetWorkInfoById_nextScheduleTime_periodic_period()
             throws ExecutionException, InterruptedException {
         Duration period = Duration.ofMinutes(15);
         Duration initialDelay = Duration.ofMillis(2000);
@@ -1374,7 +1374,7 @@ public class WorkManagerImplTest {
         WorkInfo info = mWorkManagerImpl.getWorkInfoById(work0.getId()).get();
 
         assertThat(info.getState(), equalTo(ENQUEUED));
-        assertThat(info.getEarliestPossibleRuntimeMillis(),
+        assertThat(info.getNextScheduleTimeMillis(),
                 equalTo(lastEnqueueTime.plus(period).toMillis()));
         assertThat(info.getInitialDelayMillis(), equalTo(initialDelay.toMillis()));
     }
