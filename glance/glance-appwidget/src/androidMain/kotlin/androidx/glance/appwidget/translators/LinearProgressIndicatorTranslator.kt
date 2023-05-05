@@ -26,10 +26,13 @@ import androidx.core.widget.RemoteViewsCompat.setProgressBarProgressTintList
 import androidx.core.widget.RemoteViewsCompat.setProgressBarProgressBackgroundTintList
 import androidx.compose.ui.graphics.toArgb
 import android.content.res.ColorStateList
+import android.util.Log
 import androidx.glance.unit.FixedColorProvider
 import androidx.glance.unit.ResourceColorProvider
 
 import androidx.glance.appwidget.EmittableLinearProgressIndicator
+import androidx.glance.appwidget.GlanceAppWidgetTag
+import androidx.glance.color.DayNightColorProvider
 
 internal fun RemoteViews.translateEmittableLinearProgressIndicator(
     translationContext: TranslationContext,
@@ -54,6 +57,15 @@ internal fun RemoteViews.translateEmittableLinearProgressIndicator(
             resId = indicatorColor.resId
           )
         }
+        is DayNightColorProvider -> {
+            setProgressBarProgressTintList(
+                viewId = viewDef.mainViewId,
+                notNightTint = ColorStateList.valueOf(indicatorColor.day.toArgb()),
+                nightTint = ColorStateList.valueOf(indicatorColor.night.toArgb())
+            )
+        }
+        else ->
+            Log.w(GlanceAppWidgetTag, "Unexpected progress indicator color: $indicatorColor")
       }
 
       when (val backgroundColor = element.backgroundColor) {
@@ -69,6 +81,16 @@ internal fun RemoteViews.translateEmittableLinearProgressIndicator(
             resId = backgroundColor.resId
           )
         }
+        is DayNightColorProvider -> {
+          setProgressBarProgressBackgroundTintList(
+            viewId = viewDef.mainViewId,
+            notNightTint = ColorStateList.valueOf(backgroundColor.day.toArgb()),
+            nightTint = ColorStateList.valueOf(backgroundColor.night.toArgb())
+          )
+        }
+        else ->
+            Log.w(GlanceAppWidgetTag,
+                "Unexpected progress indicator background color: $backgroundColor")
       }
     }
     applyModifiers(translationContext, this, element.modifier, viewDef)
