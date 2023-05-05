@@ -73,7 +73,7 @@ internal class TextStringSimpleNode(
     private var minLines: Int = DefaultMinLines,
     private var overrideColor: ColorProducer? = null
 ) : Modifier.Node(), LayoutModifierNode, DrawModifierNode, SemanticsModifierNode {
-    private var baselineCache: Map<AlignmentLine, Int>? = null
+    private var baselineCache: MutableMap<AlignmentLine, Int>? = null
 
     private var _layoutCache: ParagraphLayoutCache? = null
     private val layoutCache: ParagraphLayoutCache
@@ -224,10 +224,13 @@ internal class TextStringSimpleNode(
 
         if (didChangeLayout) {
             invalidateLayer()
-            baselineCache = mapOf(
-                FirstBaseline to paragraph.firstBaseline.roundToInt(),
-                LastBaseline to paragraph.lastBaseline.roundToInt()
-            )
+            var cache = baselineCache
+            if (cache == null) {
+                cache = LinkedHashMap(2)
+            }
+            cache[FirstBaseline] = paragraph.firstBaseline.roundToInt()
+            cache[LastBaseline] = paragraph.lastBaseline.roundToInt()
+            baselineCache = cache
         }
 
         // then allow children to measure _inside_ our final box, with the above placeholders
