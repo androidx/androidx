@@ -18,7 +18,7 @@ package androidx.tv.foundation.lazy.grid
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.lazy.layout.LazyLayoutItemProvider
-import androidx.compose.foundation.lazy.layout.PinnableItem
+import androidx.compose.foundation.lazy.layout.LazyLayoutPinnableItem
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -66,10 +66,10 @@ private class LazyGridItemProviderImpl(
     override fun getContentType(index: Int): Any? = gridContent.getContentType(index)
 
     @Composable
-    override fun Item(index: Int) {
-        gridContent.PinnableItem(index, state.pinnedItems) { localIndex ->
-            with(TvLazyGridItemScopeImpl) {
-                item(localIndex)
+    override fun Item(index: Int, key: Any) {
+        LazyLayoutPinnableItem(key, index, state.pinnedItems) {
+            gridContent.withInterval(index) { localIndex, content ->
+                content.item(TvLazyGridItemScopeImpl, localIndex)
             }
         }
     }

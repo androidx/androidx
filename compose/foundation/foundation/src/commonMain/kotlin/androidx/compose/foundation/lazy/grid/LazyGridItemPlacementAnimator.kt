@@ -34,7 +34,7 @@ internal class LazyGridItemPlacementAnimator {
     private val keyToItemInfoMap = mutableMapOf<Any, ItemInfo>()
 
     // snapshot of the key to index map used for the last measuring.
-    private var keyToIndexMap: LazyLayoutKeyIndexMap = LazyLayoutKeyIndexMap.Empty
+    private var keyIndexMap: LazyLayoutKeyIndexMap = LazyLayoutKeyIndexMap.Empty
 
     // keeps the index of the first visible item index.
     private var firstVisibleIndex = 0
@@ -68,8 +68,8 @@ internal class LazyGridItemPlacementAnimator {
 
         val previousFirstVisibleIndex = firstVisibleIndex
         firstVisibleIndex = positionedItems.firstOrNull()?.index ?: 0
-        val previousKeyToIndexMap = keyToIndexMap
-        keyToIndexMap = itemProvider.keyToIndexMap
+        val previousKeyToIndexMap = keyIndexMap
+        keyIndexMap = itemProvider.keyIndexMap
 
         val mainAxisLayoutSize = if (isVertical) layoutHeight else layoutWidth
 
@@ -92,7 +92,7 @@ internal class LazyGridItemPlacementAnimator {
                 if (itemInfo == null) {
                     keyToItemInfoMap[item.key] =
                         ItemInfo(item.getCrossAxisSize(), item.getCrossAxisOffset())
-                    val previousIndex = previousKeyToIndexMap[item.key]
+                    val previousIndex = previousKeyToIndexMap.getIndex(item.key)
                     if (previousIndex != -1 && item.index != previousIndex) {
                         if (previousIndex < previousFirstVisibleIndex) {
                             // the larger index will be in the start of the list
@@ -125,7 +125,7 @@ internal class LazyGridItemPlacementAnimator {
         var accumulatedOffset = 0
         var previousLine = -1
         var previousLineMainAxisSize = 0
-        movingInFromStartBound.sortByDescending { previousKeyToIndexMap[it.key] }
+        movingInFromStartBound.sortByDescending { previousKeyToIndexMap.getIndex(it.key) }
         movingInFromStartBound.fastForEach { item ->
             val line = if (isVertical) item.row else item.column
             if (line != -1 && line == previousLine) {
@@ -142,7 +142,7 @@ internal class LazyGridItemPlacementAnimator {
         accumulatedOffset = 0
         previousLine = -1
         previousLineMainAxisSize = 0
-        movingInFromEndBound.sortBy { previousKeyToIndexMap[it.key] }
+        movingInFromEndBound.sortBy { previousKeyToIndexMap.getIndex(it.key) }
         movingInFromEndBound.fastForEach { item ->
             val line = if (isVertical) item.row else item.column
             if (line != -1 && line == previousLine) {
@@ -161,7 +161,7 @@ internal class LazyGridItemPlacementAnimator {
             // found an item which was in our map previously but is not a part of the
             // positionedItems now
             val itemInfo = keyToItemInfoMap.getValue(key)
-            val newIndex = keyToIndexMap[key]
+            val newIndex = keyIndexMap.getIndex(key)
 
             if (newIndex == -1) {
                 keyToItemInfoMap.remove(key)
@@ -182,7 +182,7 @@ internal class LazyGridItemPlacementAnimator {
                         return@repeat
                     }
                 }
-                if ((!inProgress && newIndex == previousKeyToIndexMap[key])) {
+                if ((!inProgress && newIndex == previousKeyToIndexMap.getIndex(key))) {
                     keyToItemInfoMap.remove(key)
                 } else {
                     if (newIndex < firstVisibleIndex) {
@@ -197,7 +197,7 @@ internal class LazyGridItemPlacementAnimator {
         accumulatedOffset = 0
         previousLine = -1
         previousLineMainAxisSize = 0
-        movingAwayToStartBound.sortByDescending { keyToIndexMap[it.key] }
+        movingAwayToStartBound.sortByDescending { keyIndexMap.getIndex(it.key) }
         movingAwayToStartBound.fastForEach { item ->
             val line = spanLayoutProvider.getLineIndexOfItem(item.index.value).value
             if (line != -1 && line == previousLine) {
@@ -225,7 +225,7 @@ internal class LazyGridItemPlacementAnimator {
         accumulatedOffset = 0
         previousLine = -1
         previousLineMainAxisSize = 0
-        movingAwayToEndBound.sortBy { keyToIndexMap[it.key] }
+        movingAwayToEndBound.sortBy { keyIndexMap.getIndex(it.key) }
         movingAwayToEndBound.fastForEach { item ->
             val line = spanLayoutProvider.getLineIndexOfItem(item.index.value).value
             if (line != -1 && line == previousLine) {
@@ -264,7 +264,7 @@ internal class LazyGridItemPlacementAnimator {
      */
     fun reset() {
         keyToItemInfoMap.clear()
-        keyToIndexMap = LazyLayoutKeyIndexMap.Empty
+        keyIndexMap = LazyLayoutKeyIndexMap.Empty
         firstVisibleIndex = -1
     }
 

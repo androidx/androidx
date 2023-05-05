@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.compose.foundation.lazy.grid
+package androidx.compose.foundation.lazy.staggeredgrid
 
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -57,7 +57,7 @@ class LazyCustomKeysTest {
         val list = listOf(MyClass(0), MyClass(1), MyClass(2))
 
         rule.setContent {
-            LazyVerticalGrid(GridCells.Fixed(columns)) {
+            LazyVerticalStaggeredGrid(StaggeredGridCells.Fixed(columns)) {
                 items(list, key = { it.id }) {
                     Item("${it.id}")
                 }
@@ -72,7 +72,7 @@ class LazyCustomKeysTest {
         var list by mutableStateOf(listOf(MyClass(0), MyClass(1), MyClass(2)))
 
         rule.setContent {
-            LazyVerticalGrid(GridCells.Fixed(columns)) {
+            LazyVerticalStaggeredGrid(StaggeredGridCells.Fixed(columns)) {
                 items(list, key = { it.id }) {
                     Item(remember { "${it.id}" })
                 }
@@ -139,7 +139,7 @@ class LazyCustomKeysTest {
         var counter = 0
 
         rule.setContent {
-            LazyVerticalGrid(GridCells.Fixed(columns)) {
+            LazyVerticalStaggeredGrid(StaggeredGridCells.Fixed(columns)) {
                 items(list, key = { it.id }) {
                     Item(remember { counter++ }.toString())
                 }
@@ -159,7 +159,7 @@ class LazyCustomKeysTest {
         var counter = 0
 
         rule.setContent {
-            LazyVerticalGrid(GridCells.Fixed(columns)) {
+            LazyVerticalStaggeredGrid(StaggeredGridCells.Fixed(columns)) {
                 items(list, key = { it.id }) {
                     Item(remember { counter++ }.toString())
                 }
@@ -179,7 +179,7 @@ class LazyCustomKeysTest {
         var counter = 0
 
         rule.setContent {
-            LazyVerticalGrid(GridCells.Fixed(columns)) {
+            LazyVerticalStaggeredGrid(StaggeredGridCells.Fixed(columns)) {
                 items(list, key = { it.id }) {
                     Item(remember { counter++ }.toString())
                 }
@@ -216,7 +216,7 @@ class LazyCustomKeysTest {
 
             val list = state.value
 
-            LazyVerticalGrid(GridCells.Fixed(columns), Modifier.fillMaxSize()) {
+            LazyVerticalStaggeredGrid(StaggeredGridCells.Fixed(columns), Modifier.fillMaxSize()) {
                 items(list, key = { it }) {
                     Item(it.toString())
                 }
@@ -237,7 +237,7 @@ class LazyCustomKeysTest {
         val list = mutableStateListOf(MyClass(0), MyClass(1), MyClass(2))
 
         rule.setContent {
-            LazyVerticalGrid(GridCells.Fixed(columns)) {
+            LazyVerticalStaggeredGrid(StaggeredGridCells.Fixed(columns)) {
                 items(list, key = { it.id }) {
                     Item(remember { "${it.id}" })
                 }
@@ -254,11 +254,11 @@ class LazyCustomKeysTest {
     @Test
     fun keysInLazyListItemInfoAreCorrect() {
         val list = listOf(MyClass(0), MyClass(1), MyClass(2))
-        lateinit var state: LazyGridState
+        lateinit var state: LazyStaggeredGridState
 
         rule.setContent {
-            state = rememberLazyGridState()
-            LazyVerticalGrid(GridCells.Fixed(columns), state = state) {
+            state = rememberLazyStaggeredGridState()
+            LazyVerticalStaggeredGrid(StaggeredGridCells.Fixed(columns), state = state) {
                 items(list, key = { it.id }) {
                     Item(remember { "${it.id}" })
                 }
@@ -275,11 +275,11 @@ class LazyCustomKeysTest {
     @Test
     fun keysInLazyListItemInfoAreCorrectAfterReordering() {
         var list by mutableStateOf(listOf(MyClass(0), MyClass(1), MyClass(2)))
-        lateinit var state: LazyGridState
+        lateinit var state: LazyStaggeredGridState
 
         rule.setContent {
-            state = rememberLazyGridState()
-            LazyVerticalGrid(columns = GridCells.Fixed(columns), state = state) {
+            state = rememberLazyStaggeredGridState()
+            LazyVerticalStaggeredGrid(columns = StaggeredGridCells.Fixed(columns), state = state) {
                 items(list, key = { it.id }) {
                     Item(remember { "${it.id}" })
                 }
@@ -300,11 +300,15 @@ class LazyCustomKeysTest {
     @Test
     fun addingItemsBeforeWithoutKeysIsMaintainingTheIndex() {
         var list by mutableStateOf((10..15).toList())
-        lateinit var state: LazyGridState
+        lateinit var state: LazyStaggeredGridState
 
         rule.setContent {
-            state = rememberLazyGridState()
-            LazyVerticalGrid(GridCells.Fixed(columns), Modifier.size(itemSize * 2.5f), state) {
+            state = rememberLazyStaggeredGridState()
+            LazyVerticalStaggeredGrid(
+                StaggeredGridCells.Fixed(columns),
+                Modifier.size(itemSize * 2.5f),
+                state
+            ) {
                 items(list) {
                     Item(remember { "$it" })
                 }
@@ -323,11 +327,15 @@ class LazyCustomKeysTest {
     @Test
     fun addingItemsBeforeKeepingThisItemFirst() {
         var list by mutableStateOf((10..15).toList())
-        lateinit var state: LazyGridState
+        lateinit var state: LazyStaggeredGridState
 
         rule.setContent {
-            state = rememberLazyGridState()
-            LazyVerticalGrid(GridCells.Fixed(columns), Modifier.size(itemSize * 2.5f), state) {
+            state = rememberLazyStaggeredGridState()
+            LazyVerticalStaggeredGrid(
+                StaggeredGridCells.Fixed(columns),
+                Modifier.size(itemSize * 2.5f),
+                state
+            ) {
                 items(list, key = { it }) {
                     Item(remember { "$it" })
                 }
@@ -349,11 +357,15 @@ class LazyCustomKeysTest {
     @Test
     fun addingItemsRightAfterKeepingThisItemFirst() {
         var list by mutableStateOf((0..5).toList() + (10..15).toList())
-        lateinit var state: LazyGridState
+        lateinit var state: LazyStaggeredGridState
 
         rule.setContent {
-            state = rememberLazyGridState(5)
-            LazyVerticalGrid(GridCells.Fixed(columns), Modifier.size(itemSize * 2.5f), state) {
+            state = rememberLazyStaggeredGridState(5)
+            LazyVerticalStaggeredGrid(
+                StaggeredGridCells.Fixed(1),
+                Modifier.size(itemSize * 2.5f),
+                state
+            ) {
                 items(list, key = { it }) {
                     Item(remember { "$it" })
                 }
@@ -365,21 +377,25 @@ class LazyCustomKeysTest {
         }
 
         rule.runOnIdle {
-            assertThat(state.firstVisibleItemIndex).isEqualTo(4)
+            assertThat(state.firstVisibleItemIndex).isEqualTo(5)
             assertThat(
                 state.visibleKeys
-            ).isEqualTo(listOf(4, 5, 6, 7, 8, 9))
+            ).isEqualTo(listOf(5, 6, 7))
         }
     }
 
     @Test
     fun addingItemsBeforeWhileCurrentItemIsNotInTheBeginning() {
         var list by mutableStateOf((10..30).toList())
-        lateinit var state: LazyGridState
+        lateinit var state: LazyStaggeredGridState
 
         rule.setContent {
-            state = rememberLazyGridState(10) // key 20 is the first item
-            LazyVerticalGrid(GridCells.Fixed(columns), Modifier.size(itemSize * 2.5f), state) {
+            state = rememberLazyStaggeredGridState(10) // key 20 is the first item
+            LazyVerticalStaggeredGrid(
+                StaggeredGridCells.Fixed(columns),
+                Modifier.size(itemSize * 2.5f),
+                state
+            ) {
                 items(list, key = { it }) {
                     Item(remember { "$it" })
                 }
@@ -401,11 +417,15 @@ class LazyCustomKeysTest {
     @Test
     fun removingTheCurrentItemMaintainsTheIndex() {
         var list by mutableStateOf((0..20).toList())
-        lateinit var state: LazyGridState
+        lateinit var state: LazyStaggeredGridState
 
         rule.setContent {
-            state = rememberLazyGridState(8)
-            LazyVerticalGrid(GridCells.Fixed(columns), Modifier.size(itemSize * 2.5f), state) {
+            state = rememberLazyStaggeredGridState(8)
+            LazyVerticalStaggeredGrid(
+                StaggeredGridCells.Fixed(columns),
+                Modifier.size(itemSize * 2.5f),
+                state
+            ) {
                 items(list, key = { it }) {
                     Item(remember { "$it" })
                 }
@@ -427,7 +447,7 @@ class LazyCustomKeysTest {
         var keyCalls = 0
 
         rule.setContent {
-            LazyVerticalGrid(GridCells.Fixed(1)) {
+            LazyVerticalStaggeredGrid(StaggeredGridCells.Fixed(1)) {
                 items(1, key = {
                     keyCalls++
                     0
@@ -442,11 +462,11 @@ class LazyCustomKeysTest {
         }
     }
 
-    private fun testReordering(content: LazyGridScope.(List<MyClass>) -> Unit) {
+    private fun testReordering(content: LazyStaggeredGridScope.(List<MyClass>) -> Unit) {
         var list by mutableStateOf(listOf(MyClass(0), MyClass(1), MyClass(2)))
 
         rule.setContent {
-            LazyVerticalGrid(GridCells.Fixed(columns)) {
+            LazyVerticalStaggeredGrid(StaggeredGridCells.Fixed(columns)) {
                 content(list)
             }
         }
@@ -476,11 +496,13 @@ class LazyCustomKeysTest {
     @Composable
     private fun Item(tag: String) {
         Spacer(
-            Modifier.testTag(tag).size(itemSize)
+            Modifier
+                .testTag(tag)
+                .size(itemSize)
         )
     }
 
     private class MyClass(val id: Int)
 }
 
-val LazyGridState.visibleKeys: List<Any> get() = layoutInfo.visibleItemsInfo.map { it.key }
+val LazyStaggeredGridState.visibleKeys: List<Any> get() = layoutInfo.visibleItemsInfo.map { it.key }

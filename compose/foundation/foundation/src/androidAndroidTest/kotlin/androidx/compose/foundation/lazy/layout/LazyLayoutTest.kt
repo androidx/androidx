@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -467,13 +468,47 @@ class LazyLayoutTest {
         }
     }
 
+    @Test
+    fun skippingItemBlockWhenKeyIsObservableButDidntChange() {
+        val stateList = mutableStateListOf(0)
+        var itemCalls = 0
+        val itemProvider = object : LazyLayoutItemProvider {
+            @Composable
+            override fun Item(index: Int, key: Any) {
+                assertThat(index).isEqualTo(0)
+                assertThat(key).isEqualTo(index)
+                itemCalls++
+            }
+
+            override val itemCount: Int get() = stateList.size
+
+            override fun getKey(index: Int) = stateList[index]
+        }
+        rule.setContent {
+            LazyLayout(itemProvider) { constraint ->
+                measure(0, constraint)
+                layout(100, 100) {}
+            }
+        }
+
+        rule.runOnIdle {
+            assertThat(itemCalls).isEqualTo(1)
+
+            stateList += 1
+        }
+
+        rule.runOnIdle {
+            assertThat(itemCalls).isEqualTo(1)
+        }
+    }
+
     private fun itemProvider(
         itemCount: () -> Int,
         itemContent: @Composable (Int) -> Unit
     ): LazyLayoutItemProvider {
         return object : LazyLayoutItemProvider {
             @Composable
-            override fun Item(index: Int) {
+            override fun Item(index: Int, key: Any) {
                 itemContent(index)
             }
 

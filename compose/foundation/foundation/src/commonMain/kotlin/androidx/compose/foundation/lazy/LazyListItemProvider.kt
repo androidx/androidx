@@ -19,7 +19,7 @@ package androidx.compose.foundation.lazy
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.lazy.layout.LazyLayoutItemProvider
 import androidx.compose.foundation.lazy.layout.LazyLayoutKeyIndexMap
-import androidx.compose.foundation.lazy.layout.PinnableItem
+import androidx.compose.foundation.lazy.layout.LazyLayoutPinnableItem
 import androidx.compose.foundation.lazy.layout.NearestRangeKeyIndexMapState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
@@ -30,7 +30,7 @@ import androidx.compose.runtime.rememberUpdatedState
 
 @ExperimentalFoundationApi
 internal interface LazyListItemProvider : LazyLayoutItemProvider {
-    val keyToIndexMap: LazyLayoutKeyIndexMap
+    val keyIndexMap: LazyLayoutKeyIndexMap
     /** The list of indexes of the sticky header items */
     val headerIndexes: List<Int>
     /** The scope used by the item content lambdas */
@@ -66,26 +66,28 @@ private class LazyListItemProviderImpl constructor(
     override val itemCount: Int get() = listContent.itemCount
 
     @Composable
-    override fun Item(index: Int) {
-        listContent.PinnableItem(index, state.pinnedItems) { localIndex ->
-            with(itemScope) { item(localIndex) }
+    override fun Item(index: Int, key: Any) {
+        LazyLayoutPinnableItem(key, index, state.pinnedItems) {
+            listContent.withInterval(index) { localIndex, content ->
+                content.item(itemScope, localIndex)
+            }
         }
     }
 
-    override fun getKey(index: Int): Any = listContent.getKey(index)
+    override fun getKey(index: Int): Any = keyIndexMap.getKey(index) ?: listContent.getKey(index)
 
     override fun getContentType(index: Int): Any? = listContent.getContentType(index)
 
     override val headerIndexes: List<Int> get() = listContent.headerIndexes
 
-    override val keyToIndexMap by NearestRangeKeyIndexMapState(
+    override val keyIndexMap by NearestRangeKeyIndexMapState(
         firstVisibleItemIndex = { state.firstVisibleItemIndex },
         slidingWindowSize = { NearestItemsSlidingWindowSize },
         extraItemCount = { NearestItemsExtraItemCount },
         content = { listContent }
     )
 
-    override fun getIndex(key: Any): Int = keyToIndexMap[key]
+    override fun getIndex(key: Any): Int = keyIndexMap.getIndex(key)
 }
 
 /**
