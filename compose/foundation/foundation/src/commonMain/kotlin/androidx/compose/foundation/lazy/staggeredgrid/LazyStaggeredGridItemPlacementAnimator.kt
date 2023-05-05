@@ -34,7 +34,7 @@ internal class LazyStaggeredGridItemPlacementAnimator {
     private val keyToItemInfoMap = mutableMapOf<Any, ItemInfo>()
 
     // snapshot of the key to index map used for the last measuring.
-    private var keyToIndexMap: LazyLayoutKeyIndexMap = LazyLayoutKeyIndexMap
+    private var keyIndexMap: LazyLayoutKeyIndexMap = LazyLayoutKeyIndexMap
 
     // keeps the index of the first visible item index.
     private var firstVisibleIndex = 0
@@ -68,8 +68,8 @@ internal class LazyStaggeredGridItemPlacementAnimator {
 
         val previousFirstVisibleIndex = firstVisibleIndex
         firstVisibleIndex = positionedItems.firstOrNull()?.index ?: 0
-        val previousKeyToIndexMap = keyToIndexMap
-        keyToIndexMap = itemProvider.keyToIndexMap
+        val previousKeyToIndexMap = keyIndexMap
+        keyIndexMap = itemProvider.keyIndexMap
 
         val mainAxisLayoutSize = if (isVertical) layoutHeight else layoutWidth
 
@@ -92,7 +92,7 @@ internal class LazyStaggeredGridItemPlacementAnimator {
                 if (itemInfo == null) {
                     keyToItemInfoMap[item.key] =
                         ItemInfo(item.lane, item.span, item.crossAxisOffset)
-                    val previousIndex = previousKeyToIndexMap[item.key]
+                    val previousIndex = previousKeyToIndexMap.getIndex(item.key)
                     if (previousIndex != -1 && item.index != previousIndex) {
                         if (previousIndex < previousFirstVisibleIndex) {
                             // the larger index will be in the start of the list
@@ -125,7 +125,7 @@ internal class LazyStaggeredGridItemPlacementAnimator {
 
         val accumulatedOffsetPerLane = IntArray(laneCount) { 0 }
         if (movingInFromStartBound.isNotEmpty()) {
-            movingInFromStartBound.sortByDescending { previousKeyToIndexMap[it.key] }
+            movingInFromStartBound.sortByDescending { previousKeyToIndexMap.getIndex(it.key) }
             movingInFromStartBound.fastForEach { item ->
                 accumulatedOffsetPerLane[item.lane] += item.mainAxisSize
                 val mainAxisOffset = 0 - accumulatedOffsetPerLane[item.lane]
@@ -135,7 +135,7 @@ internal class LazyStaggeredGridItemPlacementAnimator {
             accumulatedOffsetPerLane.fill(0)
         }
         if (movingInFromEndBound.isNotEmpty()) {
-            movingInFromEndBound.sortBy { previousKeyToIndexMap[it.key] }
+            movingInFromEndBound.sortBy { previousKeyToIndexMap.getIndex(it.key) }
             movingInFromEndBound.fastForEach { item ->
                 val mainAxisOffset = mainAxisLayoutSize + accumulatedOffsetPerLane[item.lane]
                 accumulatedOffsetPerLane[item.lane] += item.mainAxisSize
@@ -149,7 +149,7 @@ internal class LazyStaggeredGridItemPlacementAnimator {
             // found an item which was in our map previously but is not a part of the
             // positionedItems now
             val itemInfo = keyToItemInfoMap.getValue(key)
-            val newIndex = keyToIndexMap[key]
+            val newIndex = keyIndexMap.getIndex(key)
 
             if (newIndex == -1) {
                 keyToItemInfoMap.remove(key)
@@ -166,7 +166,7 @@ internal class LazyStaggeredGridItemPlacementAnimator {
                         return@repeat
                     }
                 }
-                if ((!inProgress && newIndex == previousKeyToIndexMap[key])) {
+                if ((!inProgress && newIndex == previousKeyToIndexMap.getIndex(key))) {
                     keyToItemInfoMap.remove(key)
                 } else {
                     if (newIndex < firstVisibleIndex) {
@@ -179,7 +179,7 @@ internal class LazyStaggeredGridItemPlacementAnimator {
         }
 
         if (movingAwayToStartBound.isNotEmpty()) {
-            movingAwayToStartBound.sortByDescending { keyToIndexMap[it.key] }
+            movingAwayToStartBound.sortByDescending { keyIndexMap.getIndex(it.key) }
             movingAwayToStartBound.fastForEach { item ->
                 accumulatedOffsetPerLane[item.lane] += item.mainAxisSize
                 val mainAxisOffset = 0 - accumulatedOffsetPerLane[item.lane]
@@ -193,7 +193,7 @@ internal class LazyStaggeredGridItemPlacementAnimator {
             accumulatedOffsetPerLane.fill(0)
         }
         if (movingAwayToEndBound.isNotEmpty()) {
-            movingAwayToEndBound.sortBy { keyToIndexMap[it.key] }
+            movingAwayToEndBound.sortBy { keyIndexMap.getIndex(it.key) }
             movingAwayToEndBound.fastForEach { item ->
                 val mainAxisOffset = mainAxisLayoutSize + accumulatedOffsetPerLane[item.lane]
                 accumulatedOffsetPerLane[item.lane] += item.mainAxisSize
@@ -219,7 +219,7 @@ internal class LazyStaggeredGridItemPlacementAnimator {
      */
     fun reset() {
         keyToItemInfoMap.clear()
-        keyToIndexMap = LazyLayoutKeyIndexMap
+        keyIndexMap = LazyLayoutKeyIndexMap
         firstVisibleIndex = -1
     }
 

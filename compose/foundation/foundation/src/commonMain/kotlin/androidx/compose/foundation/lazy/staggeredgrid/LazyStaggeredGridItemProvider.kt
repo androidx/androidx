@@ -19,7 +19,7 @@ package androidx.compose.foundation.lazy.staggeredgrid
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.lazy.layout.LazyLayoutItemProvider
 import androidx.compose.foundation.lazy.layout.LazyLayoutKeyIndexMap
-import androidx.compose.foundation.lazy.layout.PinnableItem
+import androidx.compose.foundation.lazy.layout.LazyLayoutPinnableItem
 import androidx.compose.foundation.lazy.layout.NearestRangeKeyIndexMapState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
@@ -31,7 +31,7 @@ import androidx.compose.runtime.rememberUpdatedState
 @OptIn(ExperimentalFoundationApi::class)
 internal interface LazyStaggeredGridItemProvider : LazyLayoutItemProvider {
     val spanProvider: LazyStaggeredGridSpanProvider
-    val keyToIndexMap: LazyLayoutKeyIndexMap
+    val keyIndexMap: LazyLayoutKeyIndexMap
 }
 
 @Composable
@@ -57,7 +57,7 @@ private class LazyStaggeredGridItemProviderImpl(
         LazyStaggeredGridIntervalContent(latestContent())
     }
 
-    override val keyToIndexMap: LazyLayoutKeyIndexMap by NearestRangeKeyIndexMapState(
+    override val keyIndexMap: LazyLayoutKeyIndexMap by NearestRangeKeyIndexMapState(
         firstVisibleItemIndex = { state.firstVisibleItemIndex },
         slidingWindowSize = { 90 },
         extraItemCount = { 200 },
@@ -66,17 +66,18 @@ private class LazyStaggeredGridItemProviderImpl(
 
     override val itemCount: Int get() = staggeredGridContent.itemCount
 
-    override fun getKey(index: Int): Any = staggeredGridContent.getKey(index)
+    override fun getKey(index: Int): Any =
+        keyIndexMap.getKey(index) ?: staggeredGridContent.getKey(index)
 
-    override fun getIndex(key: Any): Int = keyToIndexMap[key]
+    override fun getIndex(key: Any): Int = keyIndexMap.getIndex(key)
 
     override fun getContentType(index: Int): Any? = staggeredGridContent.getContentType(index)
 
     @Composable
-    override fun Item(index: Int) {
-        staggeredGridContent.PinnableItem(index, state.pinnedItems) { localIndex ->
-            with(LazyStaggeredGridItemScopeImpl) {
-                item(localIndex)
+    override fun Item(index: Int, key: Any) {
+        LazyLayoutPinnableItem(key, index, state.pinnedItems) {
+            staggeredGridContent.withInterval(index) { localIndex, content ->
+                content.item(LazyStaggeredGridItemScopeImpl, localIndex)
             }
         }
     }

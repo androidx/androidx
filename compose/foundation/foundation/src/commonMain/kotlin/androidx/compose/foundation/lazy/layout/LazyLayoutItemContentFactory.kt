@@ -93,15 +93,20 @@ internal class LazyLayoutItemContentFactory(
 
         private fun createContentLambda() = @Composable {
             val itemProvider = itemProvider()
-            val index = itemProvider.findIndexByKey(key, lastKnownIndex).also {
-                lastKnownIndex = it
+
+            var index = lastKnownIndex
+            if (index >= itemProvider.itemCount || itemProvider.getKey(index) != key) {
+                index = itemProvider.getIndex(key)
+                if (index != -1) lastKnownIndex = index
             }
-            val indexIsUpToDate =
-                index < itemProvider.itemCount && itemProvider.getKey(index) == key
-            ReusableContentHost(active = indexIsUpToDate) {
-                StableSaveProvider(StableValue(saveableStateHolder), StableValue(key)) {
-                    itemProvider.Item(index)
-                }
+
+            ReusableContentHost(active = index != -1) {
+                SkippableItem(
+                    itemProvider,
+                    StableValue(saveableStateHolder),
+                    index,
+                    StableValue(key)
+                )
             }
             DisposableEffect(key) {
                 onDispose {
@@ -118,14 +123,18 @@ internal class LazyLayoutItemContentFactory(
 private value class StableValue<T>(val value: T)
 
 /**
- * Hack around skippable functions to force restart for unstable saveable state holder that uses
- * [Any] as key.
+ * Hack around skippable functions to force skip SaveableStateProvider and Item block when
+ * nothing changed. It allows us to skip heavy-weight composition local providers.
  */
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
-private fun StableSaveProvider(
+private fun SkippableItem(
+    itemProvider: LazyLayoutItemProvider,
     saveableStateHolder: StableValue<SaveableStateHolder>,
-    key: StableValue<Any>,
-    content: @Composable () -> Unit
+    index: Int,
+    key: StableValue<Any>
 ) {
-    saveableStateHolder.value.SaveableStateProvider(key.value, content)
+    saveableStateHolder.value.SaveableStateProvider(key.value) {
+        itemProvider.Item(index, key.value)
+    }
 }

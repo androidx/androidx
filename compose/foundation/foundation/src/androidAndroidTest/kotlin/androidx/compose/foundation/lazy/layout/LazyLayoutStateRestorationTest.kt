@@ -305,7 +305,7 @@ class LazyLayoutStateRestorationTest {
                     override val itemCount: Int = itemCount()
 
                     @Composable
-                    override fun Item(index: Int) {
+                    override fun Item(index: Int, key: Any) {
                         content(index)
                     }
 

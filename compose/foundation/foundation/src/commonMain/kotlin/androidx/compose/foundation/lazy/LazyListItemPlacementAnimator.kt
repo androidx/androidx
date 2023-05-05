@@ -33,7 +33,7 @@ internal class LazyListItemPlacementAnimator {
     private val activeKeys = mutableSetOf<Any>()
 
     // snapshot of the key to index map used for the last measuring.
-    private var keyToIndexMap: LazyLayoutKeyIndexMap = LazyLayoutKeyIndexMap.Empty
+    private var keyIndexMap: LazyLayoutKeyIndexMap = LazyLayoutKeyIndexMap.Empty
 
     // keeps the index of the first visible item index.
     private var firstVisibleIndex = 0
@@ -66,8 +66,8 @@ internal class LazyListItemPlacementAnimator {
 
         val previousFirstVisibleIndex = firstVisibleIndex
         firstVisibleIndex = positionedItems.firstOrNull()?.index ?: 0
-        val previousKeyToIndexMap = keyToIndexMap
-        keyToIndexMap = itemProvider.keyToIndexMap
+        val previousKeyToIndexMap = keyIndexMap
+        keyIndexMap = itemProvider.keyIndexMap
 
         val mainAxisLayoutSize = if (isVertical) layoutHeight else layoutWidth
 
@@ -87,7 +87,7 @@ internal class LazyListItemPlacementAnimator {
             if (item.hasAnimations) {
                 if (!activeKeys.contains(item.key)) {
                     activeKeys += item.key
-                    val previousIndex = previousKeyToIndexMap[item.key]
+                    val previousIndex = previousKeyToIndexMap.getIndex(item.key)
                     if (previousIndex != -1 && item.index != previousIndex) {
                         if (previousIndex < previousFirstVisibleIndex) {
                             // the larger index will be in the start of the list
@@ -116,7 +116,7 @@ internal class LazyListItemPlacementAnimator {
         }
 
         var accumulatedOffset = 0
-        movingInFromStartBound.sortByDescending { previousKeyToIndexMap[it.key] }
+        movingInFromStartBound.sortByDescending { previousKeyToIndexMap.getIndex(it.key) }
         movingInFromStartBound.fastForEach { item ->
             accumulatedOffset += item.size
             val mainAxisOffset = 0 - accumulatedOffset
@@ -124,7 +124,7 @@ internal class LazyListItemPlacementAnimator {
             startAnimationsIfNeeded(item)
         }
         accumulatedOffset = 0
-        movingInFromEndBound.sortBy { previousKeyToIndexMap[it.key] }
+        movingInFromEndBound.sortBy { previousKeyToIndexMap.getIndex(it.key) }
         movingInFromEndBound.fastForEach { item ->
             val mainAxisOffset = mainAxisLayoutSize + accumulatedOffset
             accumulatedOffset += item.size
@@ -135,7 +135,7 @@ internal class LazyListItemPlacementAnimator {
         movingAwayKeys.forEach { key ->
             // found an item which was in our map previously but is not a part of the
             // positionedItems now
-            val newIndex = keyToIndexMap[key]
+            val newIndex = keyIndexMap.getIndex(key)
 
             if (newIndex == -1) {
                 activeKeys.remove(key)
@@ -149,7 +149,7 @@ internal class LazyListItemPlacementAnimator {
                         return@repeat
                     }
                 }
-                if ((!inProgress && newIndex == previousKeyToIndexMap[key])) {
+                if ((!inProgress && newIndex == previousKeyToIndexMap.getIndex(key))) {
                     activeKeys.remove(key)
                 } else {
                     if (newIndex < firstVisibleIndex) {
@@ -162,7 +162,7 @@ internal class LazyListItemPlacementAnimator {
         }
 
         accumulatedOffset = 0
-        movingAwayToStartBound.sortByDescending { keyToIndexMap[it.key] }
+        movingAwayToStartBound.sortByDescending { keyIndexMap.getIndex(it.key) }
         movingAwayToStartBound.fastForEach { item ->
             accumulatedOffset += item.size
             val mainAxisOffset = 0 - accumulatedOffset
@@ -172,7 +172,7 @@ internal class LazyListItemPlacementAnimator {
             startAnimationsIfNeeded(positionedItem)
         }
         accumulatedOffset = 0
-        movingAwayToEndBound.sortBy { keyToIndexMap[it.key] }
+        movingAwayToEndBound.sortBy { keyIndexMap.getIndex(it.key) }
         movingAwayToEndBound.fastForEach { item ->
             val mainAxisOffset = mainAxisLayoutSize + accumulatedOffset
             accumulatedOffset += item.size
@@ -195,7 +195,7 @@ internal class LazyListItemPlacementAnimator {
      */
     fun reset() {
         activeKeys.clear()
-        keyToIndexMap = LazyLayoutKeyIndexMap.Empty
+        keyIndexMap = LazyLayoutKeyIndexMap.Empty
         firstVisibleIndex = -1
     }
 
