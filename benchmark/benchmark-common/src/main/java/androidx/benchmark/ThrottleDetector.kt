@@ -64,7 +64,7 @@ internal object ThrottleDetector {
             initNs == 0.0 && // first time
             !CpuInfo.locked && // CPU locked (presumably to stable values), should be no throttling
             !IsolationActivity.sustainedPerformanceModeInUse && // trust sustained perf
-            !Errors.isEmulator // don't bother with emulators, will always be unpredictable
+            !DeviceInfo.isEmulator // don't bother with emulators, will always be unpredictable
         ) {
             initNs = measureWorkNs()
         }
