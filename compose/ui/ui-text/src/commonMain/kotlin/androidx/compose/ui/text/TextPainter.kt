@@ -138,7 +138,7 @@ object TextPainter {
  * ([TextOverflow.Clip]) or becomes no-op.
  * @param blendMode Blending algorithm to be applied to the text
  *
- * @see TextMeasurer
+ * @sample androidx.compose.ui.text.samples.DrawTextAnnotatedStringSample
  */
 fun DrawScope.drawText(
     textMeasurer: TextMeasurer,
@@ -205,7 +205,8 @@ fun DrawScope.drawText(
  * ([TextOverflow.Clip]) or becomes no-op.
  * @param blendMode Blending algorithm to be applied to the text
  *
- * @see TextMeasurer
+ * @sample androidx.compose.ui.text.samples.DrawTextSample
+ * @sample androidx.compose.ui.text.samples.DrawTextStyledSample
  */
 fun DrawScope.drawText(
     textMeasurer: TextMeasurer,
@@ -256,7 +257,8 @@ fun DrawScope.drawText(
  * @param drawStyle Whether or not the text is stroked or filled in.
  * @param blendMode Blending algorithm to be applied to the text
  *
- * @sample androidx.compose.ui.text.samples.DrawTextLayoutResultSample
+ * @sample androidx.compose.ui.text.samples.DrawTextMeasureInLayoutSample
+ * @sample androidx.compose.ui.text.samples.DrawTextDrawWithCacheSample
  */
 fun DrawScope.drawText(
     textLayoutResult: TextLayoutResult,
@@ -317,8 +319,6 @@ fun DrawScope.drawText(
  * @param textDecoration The decorations to paint on the text (e.g., an underline).
  * @param drawStyle Whether or not the text is stroked or filled in.
  * @param blendMode Blending algorithm to be applied to the text
- *
- * @sample androidx.compose.ui.text.samples.DrawTextLayoutResultSample
  */
 fun DrawScope.drawText(
     textLayoutResult: TextLayoutResult,
