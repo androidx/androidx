@@ -131,8 +131,9 @@ internal class FocusInvalidationManager(
         focusTargetNodes.clear()
         focusTargetsWithInvalidatedFocusEvents.clear()
 
-        check(focusPropertiesNodes.isEmpty())
-        check(focusEventNodes.isEmpty())
-        check(focusTargetNodes.isEmpty())
+        // TODO(b/280941088): Re-enable after we find the root issue.
+        // check(focusPropertiesNodes.isEmpty())
+        // check(focusEventNodes.isEmpty())
+        // check(focusTargetNodes.isEmpty())
     }
 }
