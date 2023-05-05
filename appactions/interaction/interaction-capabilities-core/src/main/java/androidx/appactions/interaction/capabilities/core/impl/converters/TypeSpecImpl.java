@@ -74,9 +74,9 @@ final class TypeSpecImpl<T, BuilderT> implements TypeSpec<T> {
     public Value toValue(@NonNull T obj) {
         Struct.Builder structBuilder = Struct.newBuilder();
         for (FieldBinding<T, BuilderT> binding : mBindings) {
-            binding.valueGetter()
+            binding.getValueGetter()
                     .apply(obj)
-                    .ifPresent(value -> structBuilder.putFields(binding.name(), value));
+                    .ifPresent(value -> structBuilder.putFields(binding.getName(), value));
         }
         return Value.newBuilder().setStructValue(structBuilder).build();
     }
@@ -101,8 +101,8 @@ final class TypeSpecImpl<T, BuilderT> implements TypeSpec<T> {
         BuilderT builder = mBuilderSupplier.get();
         Map<String, Value> fieldsMap = struct.getFieldsMap();
         for (FieldBinding<T, BuilderT> binding : mBindings) {
-            Optional<Value> fieldValue = Optional.ofNullable(fieldsMap.get(binding.name()));
-            binding.valueSetter().accept(builder, fieldValue);
+            Optional<Value> fieldValue = Optional.ofNullable(fieldsMap.get(binding.getName()));
+            binding.getValueSetter().accept(builder, fieldValue);
         }
         return mBuilderFinalizer.apply(builder);
     }
