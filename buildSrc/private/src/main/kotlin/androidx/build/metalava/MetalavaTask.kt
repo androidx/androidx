@@ -61,7 +61,11 @@ abstract class MetalavaTask @Inject constructor(
     @get:Input
     abstract val k2UastEnabled: Property<Boolean>
 
+    @get:Input
+    abstract val optedInToSuppressCompatibilityMigration: Property<Boolean>
+
     fun runWithArgs(args: List<String>) {
-        runMetalavaWithArgs(metalavaClasspath, args, k2UastEnabled.get(), workerExecutor)
+        runMetalavaWithArgs(metalavaClasspath, args, k2UastEnabled.get(), workerExecutor,
+            optedInToSuppressCompatibilityMigration.get())
     }
 }
