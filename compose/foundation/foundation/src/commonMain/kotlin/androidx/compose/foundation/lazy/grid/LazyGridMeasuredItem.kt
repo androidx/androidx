@@ -28,7 +28,7 @@ import androidx.compose.ui.util.fastForEach
  * if the user emit multiple layout nodes in the item callback.
  */
 internal class LazyGridMeasuredItem(
-    val index: ItemIndex,
+    val index: Int,
     val key: Any,
     private val isVertical: Boolean,
     /**
@@ -101,7 +101,7 @@ internal class LazyGridMeasuredItem(
             } else {
                 IntOffset(mainAxisOffset, crossAxisOffset)
             },
-            index = index.value,
+            index = index,
             key = key,
             row = row,
             column = column,

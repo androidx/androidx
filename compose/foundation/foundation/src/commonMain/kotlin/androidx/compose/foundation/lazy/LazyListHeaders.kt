@@ -70,7 +70,7 @@ internal fun findOrComposeLazyListHeader(
         return null
     }
 
-    val measuredHeaderItem = itemProvider.getAndMeasure(DataIndex(currentHeaderListPosition))
+    val measuredHeaderItem = itemProvider.getAndMeasure(currentHeaderListPosition)
 
     var headerOffset = if (currentHeaderOffset != Int.MIN_VALUE) {
         maxOf(-beforeContentPadding, currentHeaderOffset)

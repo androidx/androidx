@@ -19,7 +19,7 @@ package androidx.compose.foundation.lazy
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.lazy.layout.findIndexByKey
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.Snapshot
 
@@ -31,9 +31,9 @@ internal class LazyListScrollPosition(
     initialIndex: Int = 0,
     initialScrollOffset: Int = 0
 ) {
-    var index by mutableStateOf(DataIndex(initialIndex))
+    var index by mutableIntStateOf(initialIndex)
 
-    var scrollOffset by mutableStateOf(initialScrollOffset)
+    var scrollOffset by mutableIntStateOf(initialScrollOffset)
         private set
 
     private var hadFirstNotEmptyLayout = false
@@ -56,7 +56,7 @@ internal class LazyListScrollPosition(
 
             Snapshot.withoutReadObservation {
                 update(
-                    DataIndex(measureResult.firstVisibleItem?.index ?: 0),
+                    measureResult.firstVisibleItem?.index ?: 0,
                     scrollOffset
                 )
             }
@@ -74,7 +74,7 @@ internal class LazyListScrollPosition(
      * c) there will be not enough items to fill the viewport after the requested index, so we
      * would have to compose few elements before the asked index, changing the first visible item.
      */
-    fun requestPosition(index: DataIndex, scrollOffset: Int) {
+    fun requestPosition(index: Int, scrollOffset: Int) {
         update(index, scrollOffset)
         // clear the stored key as we have a direct request to scroll to [index] position and the
         // next [checkIfFirstVisibleItemWasMoved] shouldn't override this.
@@ -91,14 +91,14 @@ internal class LazyListScrollPosition(
     fun updateScrollPositionIfTheFirstItemWasMoved(itemProvider: LazyListItemProvider) {
         Snapshot.withoutReadObservation {
             update(
-                DataIndex(itemProvider.findIndexByKey(lastKnownFirstItemKey, index.value)),
+                itemProvider.findIndexByKey(lastKnownFirstItemKey, index),
                 scrollOffset
             )
         }
     }
 
-    private fun update(index: DataIndex, scrollOffset: Int) {
-        require(index.value >= 0f) { "Index should be non-negative (${index.value})" }
+    private fun update(index: Int, scrollOffset: Int) {
+        require(index >= 0f) { "Index should be non-negative ($index)" }
         if (index != this.index) {
             this.index = index
         }
