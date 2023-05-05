@@ -17,19 +17,25 @@
 package androidx.room.compiler.processing.ksp
 
 import androidx.room.compiler.processing.XElement
+import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.isConstructor
 import androidx.room.compiler.processing.isField
 import androidx.room.compiler.processing.isMethod
+import androidx.room.compiler.processing.isTypeElement
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
+import androidx.room.compiler.processing.util.compileFiles
 import androidx.room.compiler.processing.util.runProcessorTest
 import com.google.common.truth.Truth.assertThat
+import com.squareup.javapoet.ClassName
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
+import org.junit.runners.Parameterized
 
-@RunWith(JUnit4::class)
-class KspJvmDescriptorUtilsTest {
+@RunWith(Parameterized::class)
+class KspJvmDescriptorUtilsTest(
+    private val isPreCompiled: Boolean
+) {
     private val describeAnnotation =
         Source.java(
             "androidx.room.test.Describe",
@@ -487,15 +493,55 @@ class KspJvmDescriptorUtilsTest {
         )
     }
 
-    private fun runTest(vararg sources: Source, handler: (XTestInvocation) -> Unit) {
-        runProcessorTest(
-            sources = sources.toList() + describeAnnotation,
-            handler = handler
-        )
+    private fun runTest(
+        vararg sources: Source,
+        handler: (XTestInvocation) -> Unit
+    ) {
+        if (isPreCompiled) {
+            val compiled = compileFiles(listOf(*sources) + describeAnnotation)
+            val hasKotlinSources = sources.any {
+                it is Source.KotlinSource
+            }
+            val kotlinSources = if (hasKotlinSources) {
+                listOf(
+                    Source.kotlin("placeholder.kt", "class PlaceholderKotlin")
+                )
+            } else {
+                emptyList()
+            }
+            val newSources = kotlinSources + Source.java(
+                "PlaceholderJava",
+                "public class " +
+                    "PlaceholderJava {}"
+            )
+            runProcessorTest(
+                sources = newSources,
+                handler = handler,
+                classpath = compiled
+            )
+        } else {
+            runProcessorTest(
+                sources = listOf(*sources) + describeAnnotation,
+                handler = handler
+            )
+        }
     }
 
     private fun XTestInvocation.annotatedElements(): Set<XElement> {
-        return roundEnv.getElementsAnnotatedWith("androidx.room.test.Describe")
+        // RoundEnv.getElementsAnnotatedWith() only processes current round and could not see
+        // precompiled classes.
+        val typeElements = processingEnv.getTypeElementsFromPackage("androidx.room.test")
+        return typeElements
+            .flatMap {
+                it.getElementsAnnotatedWith(ClassName.get(
+                "androidx.room.test", "Describe"))
+            }.toSet()
+    }
+
+    private fun XTypeElement.getElementsAnnotatedWith(annotation: ClassName): Set<XElement> {
+        return (getEnclosedElements().filter { !it.isTypeElement() } + this)
+            .filter { it.hasAnnotation(annotation) }
+            .toSet() + getEnclosedTypeElements().flatMap { it.getElementsAnnotatedWith(annotation) }
     }
 
     private fun descriptor(element: XElement): String {
@@ -504,6 +550,14 @@ class KspJvmDescriptorUtilsTest {
             element.isMethod() -> element.jvmDescriptor
             element.isConstructor() -> element.jvmDescriptor
             else -> error("Unsupported element to describe.")
+        }
+    }
+
+    companion object {
+        @JvmStatic
+        @Parameterized.Parameters(name = "isPreCompiled_{0}")
+        fun params(): List<Array<Any>> {
+            return listOf(arrayOf(false), arrayOf(true))
         }
     }
 }
