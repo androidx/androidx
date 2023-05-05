@@ -247,7 +247,7 @@ internal class LayoutHelper(val layout: Layout) {
 
         // Use line visible end for creating bidi object since invisible whitespaces should not be
         // considered for location retrieval.
-        val lineVisibleEnd = lineEndToVisibleEnd(lineEnd)
+        val lineVisibleEnd = lineEndToVisibleEnd(lineEnd, lineStart)
         val paragraphStart = getParagraphStart(paraNo)
         val bidiStart = lineStart - paragraphStart
         val bidiEnd = lineVisibleEnd - paragraphStart
@@ -314,7 +314,7 @@ internal class LayoutHelper(val layout: Layout) {
             // out of bounds for the runs in this Bidi. We are adjusting the requested offset
             // to the visible end of line.
             val lineEndAdjustedOffset = if (offset > lineVisibleEnd) {
-                lineEndToVisibleEnd(offset)
+                lineEndToVisibleEnd(offset, lineStart)
             } else {
                 offset
             }
@@ -349,6 +349,14 @@ internal class LayoutHelper(val layout: Layout) {
         }
     }
 
+    /**
+     * Return the text offset after the last visible character on the specified line. For example
+     * whitespaces are not counted as visible characters.
+     */
+    fun getLineVisibleEnd(lineIndex: Int): Int {
+        return lineEndToVisibleEnd(layout.getLineEnd(lineIndex), layout.getLineStart(lineIndex))
+    }
+
     private fun getDownstreamHorizontal(offset: Int, primary: Boolean): Float {
         val lineNo = layout.getLineForOffset(offset)
         val lineEnd = layout.getLineEnd(lineNo)
@@ -370,10 +378,13 @@ internal class LayoutHelper(val layout: Layout) {
 
     private data class BidiRun(val start: Int, val end: Int, val isRtl: Boolean)
 
-    // Convert line end offset to the offset that is the last visible character.
-    private fun lineEndToVisibleEnd(lineEnd: Int): Int {
+    /**
+     * Convert line end offset to the offset that is the last visible character. Last visible
+     * character on this line cannot be before line start.
+     */
+    private fun lineEndToVisibleEnd(lineEnd: Int, lineStart: Int): Int {
         var visibleEnd = lineEnd
-        while (visibleEnd > 0) {
+        while (visibleEnd > lineStart) {
             if (isLineEndSpace(layout.text[visibleEnd - 1 /* visibleEnd is exclusive */])) {
                 visibleEnd--
             } else {
@@ -385,6 +396,7 @@ internal class LayoutHelper(val layout: Layout) {
 
     // The spaces that will not be rendered if they are placed at the line end. In most case, it is
     // whitespace or line feed character, hence checking linearly should be enough.
+    @Suppress("ConvertTwoComparisonsToRangeCheck")
     fun isLineEndSpace(c: Char) = c == ' ' || c == '\n' || c == '\u1680' ||
-        (c in '\u2000'..'\u200A' && c != '\u2007') || c == '\u205F' || c == '\u3000'
+        (c >= '\u2000' && c <= '\u200A' && c != '\u2007') || c == '\u205F' || c == '\u3000'
 }
