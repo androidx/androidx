@@ -147,24 +147,6 @@ wire {
     prune 'perfetto.protos.UnsymbolizedFrames'
 }
 
-// https://github.com/square/wire/issues/1947
-// Remove when we upgrade to fixed wire library
-afterEvaluate {
-    tasks.named("compileDebugKotlin").configure {
-        it.dependsOn("generateDebugProtos")
-    }
-    tasks.named("compileReleaseKotlin").configure {
-        it.dependsOn("generateReleaseProtos")
-    }
-}
-
-androidx {
-    deviceTests {
-        targetAppProject = project(":benchmark:integration-tests:macrobenchmark-target")
-        targetAppVariant = "release"
-    }
-}
-
 // Define a task dependency so the app is installed before we run macro benchmarks.
 afterEvaluate {
     // `:benchmark:integration-tests:macrobenchmark-target:installRelease` is not in the compose
@@ -174,5 +156,12 @@ afterEvaluate {
     if (installTask != null) {
         tasks.getByPath(":benchmark:benchmark-macro:connectedDebugAndroidTest")
                 .dependsOn(installTask)
+    }
+}
+
+androidx {
+    deviceTests {
+        targetAppProject = project(":benchmark:integration-tests:macrobenchmark-target")
+        targetAppVariant = "release"
     }
 }
