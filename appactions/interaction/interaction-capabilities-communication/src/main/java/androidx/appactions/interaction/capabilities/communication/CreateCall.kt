@@ -209,12 +209,12 @@ class CreateCall private constructor() {
                 )
                 .bindOptionalOutput(
                     "call",
-                    { output -> Optional.ofNullable(output.call) },
+                    Output::call,
                     ParamValueConverter.of(CALL_TYPE_SPEC)::toParamValue
                 )
                 .bindOptionalOutput(
                     "executionStatus",
-                    { output -> Optional.ofNullable(output.executionStatus) },
+                    Output::executionStatus,
                     ExecutionStatus::toParamValue
                 )
                 .build()

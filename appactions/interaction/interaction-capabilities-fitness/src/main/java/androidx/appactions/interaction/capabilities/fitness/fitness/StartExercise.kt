@@ -110,17 +110,17 @@ class StartExercise private constructor() {
         @Suppress("UNCHECKED_CAST")
         private val ACTION_SPEC =
             ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
-                .setArguments(StartExercise.Arguments::class.java, StartExercise.Arguments::Builder)
-                .setOutput(StartExercise.Output::class.java)
+                .setArguments(Arguments::class.java, Arguments::Builder)
+                .setOutput(Output::class.java)
                 .bindOptionalParameter(
                     "exercise.duration",
                     { properties ->
                         Optional.ofNullable(
-                            properties[StartExercise.PropertyMapStrings.DURATION.key]
+                            properties[PropertyMapStrings.DURATION.key]
                                 as Property<Duration>
                         )
                     },
-                    StartExercise.Arguments.Builder::setDuration,
+                    Arguments.Builder::setDuration,
                     TypeConverters.DURATION_PARAM_VALUE_CONVERTER,
                     TypeConverters.DURATION_ENTITY_CONVERTER
                 )
@@ -128,11 +128,11 @@ class StartExercise private constructor() {
                     "exercise.name",
                     { properties ->
                         Optional.ofNullable(
-                            properties[StartExercise.PropertyMapStrings.NAME.key]
+                            properties[PropertyMapStrings.NAME.key]
                                 as Property<StringValue>
                         )
                     },
-                    StartExercise.Arguments.Builder::setName,
+                    Arguments.Builder::setName,
                     TypeConverters.STRING_PARAM_VALUE_CONVERTER,
                     TypeConverters.STRING_VALUE_ENTITY_CONVERTER
                 )

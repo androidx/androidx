@@ -211,12 +211,12 @@ class CreateMessage private constructor() {
                 )
                 .bindOptionalOutput(
                     "message",
-                    { output -> Optional.ofNullable(output.message) },
+                    Output::message,
                     ParamValueConverter.of(MESSAGE_TYPE_SPEC)::toParamValue
                 )
                 .bindOptionalOutput(
                     "executionStatus",
-                    { output -> Optional.ofNullable(output.executionStatus) },
+                    Output::executionStatus,
                     ExecutionStatus::toParamValue
                 )
                 .build()
