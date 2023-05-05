@@ -645,7 +645,10 @@ fun TouchInjectionScope.swipeWithVelocity(
     }
 
     val pathFinder = VelocityPathFinder(start, end, endVelocity, durationMillis)
-    swipe(pathFinder.generateFunction(), durationMillis)
+    val swipeFunction: (Long) -> Offset = {
+        pathFinder.calculateOffsetForTime(it)
+    }
+    swipe(swipeFunction, durationMillis)
 }
 
 /**

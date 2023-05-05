@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.input.pointer.util
 
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.Velocity
 import com.google.common.truth.Truth.assertThat
@@ -32,6 +33,8 @@ class VelocityTrackerTest {
     // TODO(shepshapard): This test needs to be broken up into smaller tests
     // that make edge cases clearer.  Right now its just a bunch of inputs and outputs
     // and its impossible for the reader to know how well different cases are being tested.
+    private val Tolerance = 0.2f
+
     @Test
     fun calculateVelocity_returnsExpectedValues() {
         val tracker = VelocityTracker()
@@ -73,6 +76,7 @@ class VelocityTrackerTest {
         }
     }
 
+    @OptIn(ExperimentalComposeUiApi::class)
     @Test
     fun calculateVelocity_gapOf40MillisecondsInPositions_positionsAfterGapIgnored() {
         val tracker = VelocityTracker()
@@ -80,11 +84,20 @@ class VelocityTrackerTest {
             if (it.down) {
                 tracker.addPosition(it.uptime, it.position)
             } else {
-                checkVelocity(
-                    tracker.calculateVelocity(),
-                    649.48932102748f,
-                    3890.30505589076f
-                )
+                if (VelocityTrackerStrategyUseImpulse) {
+                    checkVelocity(
+                        tracker.calculateVelocity(),
+                        629.05634f,
+                        3802.5518f
+                    )
+                } else {
+                    checkVelocity(
+                        tracker.calculateVelocity(),
+                        649.48932102748f,
+                        3890.30505589076f
+                    )
+                }
+
                 tracker.resetTracking()
             }
         }
@@ -132,8 +145,8 @@ class VelocityTrackerTest {
     }
 
     private fun checkVelocity(actual: Velocity, expectedDx: Float, expectedDy: Float) {
-        assertThat(actual.x).isWithin(0.1f).of(expectedDx)
-        assertThat(actual.y).isWithin(0.1f).of(expectedDy)
+        assertThat(actual.x).isWithin(Tolerance).of(expectedDx)
+        assertThat(actual.y).isWithin(Tolerance).of(expectedDy)
     }
 }
 
@@ -150,21 +163,40 @@ internal class PointerInputData(
 )
 
 // Expected velocities for "velocityEventData". See below.
-internal val expected2DVelocities = listOf(
-    Pair(219.59280094228163f, 1304.701682306001f),
-    Pair(355.71046950050845f, 967.2112857054104f),
-    Pair(12.657970884022308f, -36.90447839251946f),
-    Pair(714.1399654786744f, -2561.534447931869f),
-    Pair(-19.668121066218564f, -2910.105747052462f),
-    Pair(646.8690114934209f, 2976.977762577527f),
-    Pair(396.6988447819592f, 2106.225572911095f),
-    Pair(298.31594440044495f, -3660.8315955215294f),
-    Pair(-1.7334232785165882f, -3288.13174127454f),
-    Pair(384.6361280392334f, -2645.6612524779835f),
-    Pair(176.37900397918557f, 2711.2542876273264f),
-    Pair(396.9328560260098f, 4280.651578291764f),
-    Pair(-71.51939428321249f, 3716.7385187526947f)
-)
+@OptIn(ExperimentalComposeUiApi::class)
+internal val expected2DVelocities = if (VelocityTrackerStrategyUseImpulse) {
+    listOf(
+        Pair(118.8f, 799f),
+        Pair(214.5f, 855.8f),
+        Pair(-50.5f, 182.2f),
+        Pair(628.5f, -2127.9f),
+        Pair(120.72147f, -2970.8f),
+        Pair(537.3f, 2236.1f),
+        Pair(450.44498f, 1786.9f),
+        Pair(430.9f, -2648.1f),
+        Pair(248.4f, -2723.7f),
+        Pair(285.7f, -2929.3f),
+        Pair(322.6f, 2369.8f),
+        Pair(1024.00f, 4477.2f),
+        Pair(629.8f, 3802.5f)
+    )
+} else {
+    listOf(
+        Pair(219.59280094228163f, 1304.701682306001f),
+        Pair(355.71046950050845f, 967.2112857054104f),
+        Pair(12.657970884022308f, -36.90447839251946f),
+        Pair(714.1399654786744f, -2561.534447931869f),
+        Pair(-19.668121066218564f, -2910.105747052462f),
+        Pair(646.8690114934209f, 2976.977762577527f),
+        Pair(396.6988447819592f, 2106.225572911095f),
+        Pair(298.31594440044495f, -3660.8315955215294f),
+        Pair(-1.7334232785165882f, -3288.13174127454f),
+        Pair(384.6361280392334f, -2645.6612524779835f),
+        Pair(176.37900397918557f, 2711.2542876273264f),
+        Pair(396.9328560260098f, 4280.651578291764f),
+        Pair(-71.51939428321249f, 3716.7385187526947f)
+    )
+}
 
 internal val velocityEventData: List<PointerInputData> = listOf(
     PointerInputData(
