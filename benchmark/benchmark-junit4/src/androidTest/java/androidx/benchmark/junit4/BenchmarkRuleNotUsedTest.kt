@@ -18,7 +18,6 @@ package androidx.benchmark.junit4
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -36,7 +35,6 @@ public class BenchmarkRuleNotUsedTest {
      * Now, this test passes to enable other tests to be written without using the BenchmarkRule.
      */
     @Test
-    @Ignore("b/281077239")
     public fun testWithoutMeasurement() {
     }
 }

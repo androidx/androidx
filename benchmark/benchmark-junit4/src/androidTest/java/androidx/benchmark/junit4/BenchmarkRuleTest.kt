@@ -19,7 +19,6 @@ package androidx.benchmark.junit4
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import org.junit.Assert
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -32,7 +31,6 @@ public class BenchmarkRuleTest {
     public val benchmarkRule: BenchmarkRule = BenchmarkRule(enableReport = false)
 
     @Test
-    @Ignore("b/280041271")
     public fun runWithTimingDisabled() {
         benchmarkRule.measureRepeated {
             runWithTimingDisabled {
