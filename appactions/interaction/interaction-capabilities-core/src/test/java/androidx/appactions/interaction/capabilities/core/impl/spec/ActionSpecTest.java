@@ -83,11 +83,11 @@ public final class ActionSpecTest {
                             TypeConverters.STRING_VALUE_ENTITY_CONVERTER)
                     .bindOptionalOutput(
                             "optionalStringOutput",
-                            Output::optionalStringField,
+                            output -> Optional.ofNullable(output.getOptionalStringField()),
                             TypeConverters.STRING_PARAM_VALUE_CONVERTER::toParamValue)
                     .bindRepeatedOutput(
                             "repeatedStringOutput",
-                            Output::repeatedStringField,
+                            Output::getRepeatedStringField,
                             TypeConverters.STRING_PARAM_VALUE_CONVERTER::toParamValue)
                     .build();
     private static final ParamValueConverter<String> STRING_PARAM_VALUE_CONVERTER =
@@ -264,7 +264,7 @@ public final class ActionSpecTest {
     @Test
     public void convertOutputToProto_string() {
         Output output =
-                Output.builder()
+                new Output.Builder()
                         .setOptionalStringField("test2")
                         .setRepeatedStringField(List.of("test3", "test4"))
                         .build();
@@ -301,7 +301,8 @@ public final class ActionSpecTest {
 
     @Test
     public void convertOutputToProto_emptyOutput() {
-        Output output = Output.builder().setRepeatedStringField(List.of("test3", "test4")).build();
+        Output output =
+                new Output.Builder().setRepeatedStringField(List.of("test3", "test4")).build();
         // No optionalStringOutput since it is not in the output above.
         StructuredOutput expectedExecutionOutput =
                 StructuredOutput.newBuilder()

@@ -123,7 +123,7 @@ class SingleTurnCapabilityTest {
             ExecutionCallback<Arguments, Output> {
                 ExecutionResult.Builder<Output>()
                     .setOutput(
-                        Output.builder().setOptionalStringField("stringOutput").build()
+                        Output.Builder().setOptionalStringField("stringOutput").build()
                     )
                     .build()
             }
@@ -305,7 +305,7 @@ class SingleTurnCapabilityTest {
 
         // verify ExecutionCallback receives 1st request.
         assertThat(argumentChannel.receive()).isEqualTo(
-            Arguments.newBuilder().setOptionalStringField("string value 1").build()
+            Arguments.Builder().setOptionalStringField("string value 1").build()
         )
         // verify the 2nd request cannot be received due to mutex.
         assertThat(withTimeoutOrNull(BLOCKING_TIMEOUT) { argumentChannel.receive() }).isNull()
@@ -317,7 +317,7 @@ class SingleTurnCapabilityTest {
         )
 
         assertThat(argumentChannel.receive()).isEqualTo(
-            Arguments.newBuilder().setOptionalStringField("string value 2").build()
+            Arguments.Builder().setOptionalStringField("string value 2").build()
         )
         executionResultChannel.send(ExecutionResult.Builder<Output>().build())
         assertThat(callbackInternal2.receiveResponse().fulfillmentResponse).isEqualTo(
@@ -330,7 +330,7 @@ class SingleTurnCapabilityTest {
             ActionSpecBuilder.ofCapabilityNamed(
                 "actions.intent.TEST"
             )
-                .setArguments(Arguments::class.java, Arguments::newBuilder)
+                .setArguments(Arguments::class.java, Arguments::Builder)
                 .setOutput(Output::class.java)
                 .bindParameter(
                     "requiredString",
@@ -353,7 +353,7 @@ class SingleTurnCapabilityTest {
                 )
                 .bindOptionalOutput(
                     "optionalStringOutput",
-                    Output::optionalStringField,
+                    { output -> Optional.ofNullable(output.optionalStringField) },
                     TypeConverters.STRING_PARAM_VALUE_CONVERTER::toParamValue
                 )
                 .build()
