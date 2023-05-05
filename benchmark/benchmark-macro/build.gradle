@@ -150,10 +150,10 @@ wire {
 // https://github.com/square/wire/issues/1947
 // Remove when we upgrade to fixed wire library
 afterEvaluate {
-    tasks.named("compileReleaseKotlin").configure {
+    tasks.named("compileDebugKotlin").configure {
         it.dependsOn("generateDebugProtos")
     }
-    tasks.named("compileDebugKotlin").configure {
+    tasks.named("compileReleaseKotlin").configure {
         it.dependsOn("generateReleaseProtos")
     }
 }
