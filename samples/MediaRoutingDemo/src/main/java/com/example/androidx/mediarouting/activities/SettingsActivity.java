@@ -33,6 +33,7 @@ import android.widget.Switch;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.AppCompatButton;
 import androidx.mediarouter.media.MediaRouter;
 import androidx.mediarouter.media.MediaRouterParams;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -40,6 +41,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.androidx.mediarouting.R;
 import com.example.androidx.mediarouting.RoutesManager;
+import com.example.androidx.mediarouting.activities.systemrouting.SystemRoutingActivity;
 import com.example.androidx.mediarouting.services.SampleDynamicGroupMediaRouteProviderService;
 import com.example.androidx.mediarouting.ui.RoutesAdapter;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -132,6 +134,7 @@ public final class SettingsActivity extends AppCompatActivity {
         setUpTransferToLocalSwitch();
         setUpDialogTypeDropDownList();
         setUpNewRouteButton();
+        setupSystemRoutesButton();
     }
 
     private void setUpDynamicGroupsEnabledSwitch() {
@@ -194,6 +197,11 @@ public final class SettingsActivity extends AppCompatActivity {
                     AddEditRouteActivity.launchActivity(
                             /* context= */ SettingsActivity.this, /* routeId= */ null);
                 });
+    }
+
+    private void setupSystemRoutesButton() {
+        AppCompatButton showSystemRoutesButton = findViewById(R.id.open_system_routes);
+        showSystemRoutesButton.setOnClickListener(v -> SystemRoutingActivity.launch(this));
     }
 
     private class ProviderServiceConnection implements ServiceConnection {
