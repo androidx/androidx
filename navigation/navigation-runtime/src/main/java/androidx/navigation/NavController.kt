@@ -1605,7 +1605,7 @@ public open class NavController(
      * @param navOptions special options for this navigation operation
      * @param navigatorExtras extras to pass to the Navigator
      *
-     * @throws IllegalStateException if there is no current navigation node
+     * @throws IllegalStateException if navigation graph has not been set for this NavController
      * @throws IllegalArgumentException if the desired destination cannot be found from the
      *                                  current destination
      */
@@ -1622,7 +1622,10 @@ public open class NavController(
                 _graph
             else
                 backQueue.last().destination
-            ) ?: throw IllegalStateException("no current navigation node")
+            ) ?: throw IllegalStateException(
+                "No current destination found. Ensure a navigation graph has been set for " +
+                    "NavController $this."
+            )
 
         @IdRes
         var destId = resId
