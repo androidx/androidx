@@ -25,10 +25,13 @@ import androidx.glance.appwidget.insertView
 import androidx.core.widget.RemoteViewsCompat.setProgressBarIndeterminateTintList
 import androidx.compose.ui.graphics.toArgb
 import android.content.res.ColorStateList
+import android.util.Log
 import androidx.glance.unit.FixedColorProvider
 import androidx.glance.unit.ResourceColorProvider
 
 import androidx.glance.appwidget.EmittableCircularProgressIndicator
+import androidx.glance.appwidget.GlanceAppWidgetTag
+import androidx.glance.color.DayNightColorProvider
 
 internal fun RemoteViews.translateEmittableCircularProgressIndicator(
     translationContext: TranslationContext,
@@ -49,9 +52,18 @@ internal fun RemoteViews.translateEmittableCircularProgressIndicator(
         is ResourceColorProvider -> {
           setProgressBarIndeterminateTintList(
             viewId = viewDef.mainViewId,
-            tint = ColorStateList.valueOf(indicatorColor.resId)
+            resId = indicatorColor.resId
           )
         }
+        is DayNightColorProvider -> {
+          setProgressBarIndeterminateTintList(
+              viewId = viewDef.mainViewId,
+              notNightTint = ColorStateList.valueOf(indicatorColor.day.toArgb()),
+              nightTint = ColorStateList.valueOf(indicatorColor.night.toArgb())
+          )
+        }
+        else ->
+            Log.w(GlanceAppWidgetTag, "Unexpected progress indicator color: $indicatorColor")
       }
     }
     applyModifiers(translationContext, this, element.modifier, viewDef)
