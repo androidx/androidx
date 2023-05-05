@@ -29,7 +29,6 @@ import androidx.appactions.interaction.capabilities.core.impl.exceptions.StructC
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpec
 import androidx.appactions.interaction.capabilities.core.impl.task.exceptions.InvalidResolverException
 import androidx.appactions.interaction.capabilities.core.impl.task.exceptions.MissingEntityConverterException
-import androidx.appactions.interaction.capabilities.core.impl.task.exceptions.MissingRequiredArgException
 import androidx.appactions.interaction.capabilities.core.impl.task.exceptions.MissingSearchActionConverterException
 import androidx.appactions.interaction.capabilities.core.impl.utils.CapabilityLogger
 import androidx.appactions.interaction.capabilities.core.impl.utils.LoggerInternal
@@ -272,7 +271,7 @@ internal class TaskOrchestrator<ArgumentsT, OutputT, ConfirmationT>(
      *
      * Otherwise, the future contains a FulfillmentResponse containing BIC or BIO data.
      */
-    @Throws(StructConversionException::class, MissingRequiredArgException::class)
+    @Throws(StructConversionException::class)
     private suspend fun maybeConfirmOrExecute(): FulfillmentResponse {
         val finalArguments = getCurrentAcceptedArguments()
         if (
@@ -342,7 +341,6 @@ internal class TaskOrchestrator<ArgumentsT, OutputT, ConfirmationT>(
      * validation) are executed asynchronously.
      */
     @Throws(
-        MissingEntityConverterException::class,
         MissingSearchActionConverterException::class,
         StructConversionException::class,
         InvalidResolverException::class,
@@ -448,7 +446,7 @@ internal class TaskOrchestrator<ArgumentsT, OutputT, ConfirmationT>(
             }
         }
 
-    @Throws(StructConversionException::class, MissingRequiredArgException::class)
+    @Throws(StructConversionException::class)
     private suspend fun getFulfillmentResponseForConfirmation(
         finalArguments: Map<String, List<ParamValue>>,
     ): FulfillmentResponse {
