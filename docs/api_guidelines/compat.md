@@ -56,7 +56,13 @@ private object Api29Impl {
 ```
 
 When developing against pre-release SDKs where the `SDK_INT` has not been
-finalized, SDK checks **must** use `BuildCompat.isAtLeastX()` methods.
+finalized, SDK checks **must** use `BuildCompat.isAtLeastX()` methods and
+**must** use a tip-of-tree `project` dependency to ensure that the
+implementation of `BuildCompat` stays up-to-date when the SDK is finalized.
+
+**Do not** assume that the next SDK release's `SDK_INT` will be N+1. The value
+is not finalized until SDK finalization happens, at which point the `isAtLeast`
+check will be updated. **Never** write your own check for a pre-release SDK.
 
 ```java {.good}
 @NonNull
@@ -65,6 +71,12 @@ public static List<Window> getAllWindows() {
     return ApiRImpl.getAllWindows();
   }
   return Collections.emptyList();
+}
+```
+
+```kotlin {.good}
+dependencies {
+  api(project(":core:core"))
 }
 ```
 
