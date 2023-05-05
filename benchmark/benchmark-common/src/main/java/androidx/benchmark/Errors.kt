@@ -64,15 +64,6 @@ internal object Errors {
         return ret
     }
 
-    val isEmulator = Build.FINGERPRINT.startsWith("generic") ||
-        Build.FINGERPRINT.startsWith("unknown") ||
-        Build.MODEL.contains("google_sdk") ||
-        Build.MODEL.contains("Emulator") ||
-        Build.MODEL.contains("Android SDK built for") ||
-        Build.MANUFACTURER.contains("Genymotion") ||
-        Build.BRAND.startsWith("generic") && Build.DEVICE.startsWith("generic") ||
-        "google_sdk" == Build.PRODUCT
-
     private val isDeviceRooted =
         arrayOf(
             "/system/app/Superuser.apk",
@@ -110,7 +101,7 @@ internal object Errors {
                 |    real user's experience (or even regress release performance).
             """.trimMarginWrapNewlines()
         }
-        if (isEmulator) {
+        if (DeviceInfo.isEmulator) {
             warningPrefix += "EMULATOR_"
             warningString += """
                 |WARNING: Running on Emulator
