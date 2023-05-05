@@ -694,10 +694,10 @@ public final class SessionConfig {
         public SessionConfig build() {
             return new SessionConfig(
                     new ArrayList<>(mOutputConfigs),
-                    mDeviceStateCallbacks,
-                    mSessionStateCallbacks,
-                    mSingleCameraCaptureCallbacks,
-                    mErrorListeners,
+                    new ArrayList<>(mDeviceStateCallbacks),
+                    new ArrayList<>(mSessionStateCallbacks),
+                    new ArrayList<>(mSingleCameraCaptureCallbacks),
+                    new ArrayList<>(mErrorListeners),
                     mCaptureConfigBuilder.build(),
                     mInputConfiguration);
         }
@@ -847,10 +847,10 @@ public final class SessionConfig {
 
             return new SessionConfig(
                     outputConfigs,
-                    mDeviceStateCallbacks,
-                    mSessionStateCallbacks,
-                    mSingleCameraCaptureCallbacks,
-                    mErrorListeners,
+                    new ArrayList<>(mDeviceStateCallbacks),
+                    new ArrayList<>(mSessionStateCallbacks),
+                    new ArrayList<>(mSingleCameraCaptureCallbacks),
+                    new ArrayList<>(mErrorListeners),
                     mCaptureConfigBuilder.build(),
                     mInputConfiguration);
         }
