@@ -68,7 +68,7 @@ public class CallStats {
             CALL_TYPE_GET_NAMESPACES,
             CALL_TYPE_GET_NEXT_PAGE,
             CALL_TYPE_INVALIDATE_NEXT_PAGE_TOKEN,
-            CALL_TYPE_WRITE_QUERY_RESULTS_TO_FILE,
+            CALL_TYPE_WRITE_SEARCH_RESULTS_TO_FILE,
             CALL_TYPE_PUT_DOCUMENTS_FROM_FILE,
             CALL_TYPE_SEARCH_SUGGESTION,
             CALL_TYPE_REPORT_SYSTEM_USAGE,
@@ -104,7 +104,7 @@ public class CallStats {
     public static final int CALL_TYPE_GET_NAMESPACES = 19;
     public static final int CALL_TYPE_GET_NEXT_PAGE = 20;
     public static final int CALL_TYPE_INVALIDATE_NEXT_PAGE_TOKEN = 21;
-    public static final int CALL_TYPE_WRITE_QUERY_RESULTS_TO_FILE = 22;
+    public static final int CALL_TYPE_WRITE_SEARCH_RESULTS_TO_FILE = 22;
     public static final int CALL_TYPE_PUT_DOCUMENTS_FROM_FILE = 23;
     public static final int CALL_TYPE_SEARCH_SUGGESTION = 24;
     public static final int CALL_TYPE_REPORT_SYSTEM_USAGE = 25;
@@ -120,10 +120,10 @@ public class CallStats {
     private static final String CALL_TYPE_STRING_PUT_DOCUMENTS = "localPutDocuments";
     private static final String CALL_TYPE_STRING_GET_DOCUMENTS = "localGetDocuments";
     private static final String CALL_TYPE_STRING_REMOVE_DOCUMENTS_BY_ID = "localRemoveByDocumentId";
-    private static final String CALL_TYPE_STRING_SEARCH = "localQuery";
-    private static final String CALL_TYPE_STRING_FLUSH = "persistToDisk";
-    private static final String CALL_TYPE_STRING_GLOBAL_SEARCH = "globalQuery";
-    private static final String CALL_TYPE_STRING_REMOVE_DOCUMENTS_BY_SEARCH = "localRemoveByQuery";
+    private static final String CALL_TYPE_STRING_SEARCH = "localSearch";
+    private static final String CALL_TYPE_STRING_FLUSH = "flush";
+    private static final String CALL_TYPE_STRING_GLOBAL_SEARCH = "globalSearch";
+    private static final String CALL_TYPE_STRING_REMOVE_DOCUMENTS_BY_SEARCH = "localRemoveBySearch";
     private static final String CALL_TYPE_STRING_GLOBAL_GET_DOCUMENT_BY_ID = "globalGetDocuments";
     private static final String CALL_TYPE_STRING_GLOBAL_GET_SCHEMA = "globalGetSchema";
     private static final String CALL_TYPE_STRING_GET_SCHEMA = "localGetSchema";
@@ -131,8 +131,8 @@ public class CallStats {
     private static final String CALL_TYPE_STRING_GET_NEXT_PAGE = "localGetNextPage";
     private static final String CALL_TYPE_STRING_INVALIDATE_NEXT_PAGE_TOKEN =
             "invalidateNextPageToken";
-    private static final String CALL_TYPE_STRING_WRITE_QUERY_RESULTS_TO_FILE =
-            "localWriteQueryResultsToFile";
+    private static final String CALL_TYPE_STRING_WRITE_SEARCH_RESULTS_TO_FILE =
+            "localWriteSearchResultsToFile";
     private static final String CALL_TYPE_STRING_PUT_DOCUMENTS_FROM_FILE =
             "localPutDocumentsFromFile";
     private static final String CALL_TYPE_STRING_SEARCH_SUGGESTION = "localSearchSuggestion";
@@ -392,8 +392,8 @@ public class CallStats {
                 return CALL_TYPE_GET_NEXT_PAGE;
             case CALL_TYPE_STRING_INVALIDATE_NEXT_PAGE_TOKEN:
                 return CALL_TYPE_INVALIDATE_NEXT_PAGE_TOKEN;
-            case CALL_TYPE_STRING_WRITE_QUERY_RESULTS_TO_FILE:
-                return CALL_TYPE_WRITE_QUERY_RESULTS_TO_FILE;
+            case CALL_TYPE_STRING_WRITE_SEARCH_RESULTS_TO_FILE:
+                return CALL_TYPE_WRITE_SEARCH_RESULTS_TO_FILE;
             case CALL_TYPE_STRING_PUT_DOCUMENTS_FROM_FILE:
                 return CALL_TYPE_PUT_DOCUMENTS_FROM_FILE;
             case CALL_TYPE_STRING_SEARCH_SUGGESTION:
@@ -437,7 +437,7 @@ public class CallStats {
                 CALL_TYPE_GET_NAMESPACES,
                 CALL_TYPE_GET_NEXT_PAGE,
                 CALL_TYPE_INVALIDATE_NEXT_PAGE_TOKEN,
-                CALL_TYPE_WRITE_QUERY_RESULTS_TO_FILE,
+                CALL_TYPE_WRITE_SEARCH_RESULTS_TO_FILE,
                 CALL_TYPE_PUT_DOCUMENTS_FROM_FILE,
                 CALL_TYPE_SEARCH_SUGGESTION,
                 CALL_TYPE_REPORT_SYSTEM_USAGE,
