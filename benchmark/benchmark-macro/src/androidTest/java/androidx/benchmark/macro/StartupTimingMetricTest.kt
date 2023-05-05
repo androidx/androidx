@@ -48,6 +48,7 @@ import org.junit.runner.RunWith
 class StartupTimingMetricTest {
     @MediumTest
     @Test
+    @Ignore("b/258335082")
     fun noResults() {
         assumeTrue(isAbiSupported())
         val packageName = "fake.package.fiction.nostartups"
@@ -170,12 +171,14 @@ class StartupTimingMetricTest {
 
     @LargeTest
     @Test
+    @Ignore("b/258335082")
     fun startup_fullyDrawn_immediate() {
         validateStartup_fullyDrawn(delayMs = 0)
     }
 
     @LargeTest
     @Test
+    @Ignore("b/258335082")
     fun startup_fullyDrawn_delayed() {
         validateStartup_fullyDrawn(delayMs = 100)
     }

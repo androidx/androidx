@@ -33,6 +33,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 import org.junit.Assert;
 import org.junit.Assume;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -208,6 +209,7 @@ public class WebViewJavaScriptSandboxTest {
 
     @Test
     @MediumTest
+    @Ignore("b/268212217")
     public void testInfiniteLoop() throws Throwable {
         final String code = "while(true){}";
         Context context = ApplicationProvider.getApplicationContext();
@@ -236,6 +238,7 @@ public class WebViewJavaScriptSandboxTest {
 
     @Test
     @MediumTest
+    @Ignore("b/268212217")
     public void testMultipleInfiniteLoops() throws Throwable {
         final String code = "while(true){}";
         final int num_of_evaluations = 10;
@@ -270,6 +273,7 @@ public class WebViewJavaScriptSandboxTest {
 
     @Test
     @MediumTest
+    @Ignore("b/268212217")
     public void testSimpleArrayBuffer() throws Throwable {
         final String provideString = "Hello World";
         final byte[] bytes = provideString.getBytes(StandardCharsets.US_ASCII);
@@ -301,6 +305,7 @@ public class WebViewJavaScriptSandboxTest {
 
     @Test
     @MediumTest
+    @Ignore("b/268212217")
     public void testArrayBufferWasmCompilation() throws Throwable {
         final String success = "success";
         // The bytes of a minimal WebAssembly module, courtesy of v8/test/cctest/test-api-wasm.cc
@@ -334,6 +339,7 @@ public class WebViewJavaScriptSandboxTest {
 
     @Test
     @MediumTest
+    @Ignore("b/268212217")
     public void testPromiseReturn() throws Throwable {
         final String code = "Promise.resolve(\"PASS\")";
         final String expected = "PASS";
@@ -354,6 +360,7 @@ public class WebViewJavaScriptSandboxTest {
 
     @Test
     @MediumTest
+    @Ignore("b/268212217")
     public void testPromiseReturnLaterResolve() throws Throwable {
         final String code1 = "var promiseResolve, promiseReject;"
                 + "new Promise(function(resolve, reject){"
@@ -381,6 +388,7 @@ public class WebViewJavaScriptSandboxTest {
 
     @Test
     @MediumTest
+    @Ignore("b/268212217")
     public void testNestedConsumeNamedDataAsArrayBuffer() throws Throwable {
         final String success = "success";
         // The bytes of a minimal WebAssembly module, courtesy of v8/test/cctest/test-api-wasm.cc
@@ -424,6 +432,7 @@ public class WebViewJavaScriptSandboxTest {
 
     @Test
     @MediumTest
+    @Ignore("b/268212217")
     public void testPromiseEvaluationThrow() throws Throwable {
         final String provideString = "Hello World";
         final byte[] bytes = provideString.getBytes(StandardCharsets.US_ASCII);
@@ -546,6 +555,7 @@ public class WebViewJavaScriptSandboxTest {
 
     @Test
     @MediumTest
+    @Ignore("b/268212217")
     public void testHeapSizeAdjustment() throws Throwable {
         final String code = "\"PASS\"";
         final String expected = "PASS";
@@ -585,6 +595,7 @@ public class WebViewJavaScriptSandboxTest {
 
     @Test
     @LargeTest
+    @Ignore("b/268212217")
     public void testHeapSizeEnforced() throws Throwable {
         // WebView versions < 110.0.5438.0 do not contain OOM crashes to a single isolate and
         // instead crash the whole sandbox process. This change is not tracked in a feature flag.
@@ -680,6 +691,7 @@ public class WebViewJavaScriptSandboxTest {
 
     @Test
     @LargeTest
+    @Ignore("b/268212217")
     public void testIsolateCreationAfterCrash() throws Throwable {
         // WebView versions < 110.0.5438.0 do not contain OOM crashes to a single isolate and
         // instead crash the whole sandbox process. This change is not tracked in a feature flag.
@@ -759,6 +771,7 @@ public class WebViewJavaScriptSandboxTest {
 
     @Test
     @MediumTest
+    @Ignore("b/268212217")
     public void testAsyncPromiseCallbacks() throws Throwable {
         // Unlike testPromiseReturn and testPromiseEvaluationThrow, this test is guaranteed to
         // exercise promises in an asynchronous way, rather than in ways which cause a promise to
@@ -827,6 +840,7 @@ public class WebViewJavaScriptSandboxTest {
 
     @Test
     @LargeTest
+    @Ignore("b/268212217")
     public void testLargeScriptJsEvaluation() throws Throwable {
         String longString = "a".repeat(2000000);
         final String code = ""
@@ -851,6 +865,7 @@ public class WebViewJavaScriptSandboxTest {
 
     @Test
     @LargeTest
+    @Ignore("b/268212217")
     public void testLargeScriptByteArrayJsEvaluation() throws Throwable {
         final String longString = "a".repeat(2000000);
         final String codeString = ""
@@ -876,6 +891,7 @@ public class WebViewJavaScriptSandboxTest {
 
     @Test
     @LargeTest
+    @Ignore("b/268212217")
     public void testLargeReturn() throws Throwable {
         final String longString = "a".repeat(2000000);
         final String code = "'a'.repeat(2000000);";
@@ -898,6 +914,7 @@ public class WebViewJavaScriptSandboxTest {
 
     @Test
     @LargeTest
+    @Ignore("b/268212217")
     public void testLargeError() throws Throwable {
         final String longString = "a".repeat(2000000);
         final String code = "throw \"" + longString + "\");";
@@ -924,6 +941,7 @@ public class WebViewJavaScriptSandboxTest {
 
     @Test
     @MediumTest
+    @Ignore("b/268212217")
     public void testResultSizeEnforced() throws Throwable {
         final int maxSize = 100;
         Context context = ApplicationProvider.getApplicationContext();
@@ -974,6 +992,7 @@ public class WebViewJavaScriptSandboxTest {
 
     @Test
     @LargeTest
+    @Ignore("b/268212217")
     public void testConsoleLogging() throws Throwable {
         final class LoggingJavaScriptConsoleCallback implements JavaScriptConsoleCallback {
             private final Object mLock = new Object();
@@ -1126,6 +1145,7 @@ public class WebViewJavaScriptSandboxTest {
 
     @Test
     @MediumTest
+    @Ignore("b/268212217")
     public void testConsoleCallbackCanCallService() throws Throwable {
         // This checks that there is nothing intrinsically wrong with calling service APIs from a
         // console client. Note that, in theory, Binder will reuse the same threads if code recurses

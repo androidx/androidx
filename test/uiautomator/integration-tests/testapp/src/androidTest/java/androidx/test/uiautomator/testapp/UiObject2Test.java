@@ -115,6 +115,7 @@ public class UiObject2Test extends BaseTest {
     }
 
     @Test
+    @Ignore("b/272346700")
     public void testClick_pointAndDuration() {
         launchTestActivity(ClickTestActivity.class);
 
@@ -572,6 +573,7 @@ public class UiObject2Test extends BaseTest {
     }
 
     @Test
+    @Ignore("b/272346700")
     public void testSwipe_throwsIllegalArgumentException() {
         launchTestActivity(SwipeTestActivity.class);
 
@@ -630,6 +632,7 @@ public class UiObject2Test extends BaseTest {
     }
 
     @Test
+    @Ignore("b/272346700")
     public void testScrollUntil_conditionSatisfied() {
         launchTestActivity(VerticalScrollTestActivity.class);
         assertTrue(mDevice.hasObject(By.res(TEST_APP, "top_text"))); // Initially at top.

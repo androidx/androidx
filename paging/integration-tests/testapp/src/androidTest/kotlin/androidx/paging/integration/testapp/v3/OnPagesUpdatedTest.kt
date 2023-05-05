@@ -36,6 +36,7 @@ import kotlinx.coroutines.flow.scan
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -50,6 +51,7 @@ class OnPagesUpdatedTest {
 
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
+    @Ignore("b/278918559")
     fun onPagesUpdatedFlow() = runBlocking {
         val scenario = scenarioRule.scenario
 

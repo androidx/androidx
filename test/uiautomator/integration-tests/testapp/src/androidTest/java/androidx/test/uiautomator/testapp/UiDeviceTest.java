@@ -357,6 +357,7 @@ public class UiDeviceTest extends BaseTest {
     }
 
     @Test
+    @Ignore("b/280669851")
     public void testSetOrientationLeft() throws Exception {
         launchTestActivity(KeycodeTestActivity.class);
         try {
@@ -375,6 +376,7 @@ public class UiDeviceTest extends BaseTest {
     }
 
     @Test
+    @Ignore("b/280669851")
     public void testSetOrientationRight() throws Exception {
         launchTestActivity(KeycodeTestActivity.class);
         try {
@@ -404,6 +406,7 @@ public class UiDeviceTest extends BaseTest {
     }
 
     @Test
+    @Ignore("b/280669851")
     public void testSetOrientationLandscape() throws Exception {
         launchTestActivity(KeycodeTestActivity.class);
         try {

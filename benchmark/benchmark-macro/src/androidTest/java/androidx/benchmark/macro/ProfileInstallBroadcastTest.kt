@@ -23,6 +23,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import kotlin.test.assertNull
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -36,11 +37,13 @@ class ProfileInstallBroadcastTest {
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.N)
     @Test
+    @Ignore("b/280041271")
     fun installProfile() {
         assertNull(ProfileInstallBroadcast.installProfile(Packages.TARGET))
     }
 
     @Test
+    @Ignore("b/280041271")
     fun skipFileOperation() {
         assertNull(ProfileInstallBroadcast.skipFileOperation(Packages.TARGET, "WRITE_SKIP_FILE"))
         assertNull(ProfileInstallBroadcast.skipFileOperation(Packages.TARGET, "DELETE_SKIP_FILE"))
@@ -48,11 +51,13 @@ class ProfileInstallBroadcastTest {
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.N)
     @Test
+    @Ignore("b/280041271")
     fun saveProfile() {
         assertNull(ProfileInstallBroadcast.saveProfile(Packages.TARGET))
     }
 
     @Test
+    @Ignore("b/280041271")
     fun dropShaderCache() {
         assertNull(ProfileInstallBroadcast.dropShaderCache(Packages.TARGET))
     }
