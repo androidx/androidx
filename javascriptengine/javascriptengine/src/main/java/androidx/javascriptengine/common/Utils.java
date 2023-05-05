@@ -32,13 +32,16 @@ import java.nio.charset.StandardCharsets;
 import java.util.concurrent.ExecutorService;
 
 /**
- * Utility methods for use in both service and client side of JavaScriptEngine
+ * Utility methods for use in both service and client side of JavaScriptEngine.
  */
 public class Utils {
     private static final String TAG = "JavaScriptEngineUtils";
 
+    private Utils() {
+        throw new AssertionError();
+    }
     /**
-     * Utility method to write a byte array into a stream
+     * Utility method to write a byte array into a stream.
      */
     public static void writeByteArrayToStream(@NonNull byte[] inputBytes,
             @NonNull OutputStream outputStream) {
@@ -53,7 +56,7 @@ public class Utils {
     }
 
     /**
-     * Close ignoring exception
+     * Close, ignoring exception.
      */
     public static void closeQuietly(@Nullable Closeable closeable) {
         if (closeable == null) return;
@@ -76,14 +79,12 @@ public class Utils {
         OutputStream outputStream =
                 new ParcelFileDescriptor.AutoCloseOutputStream(writeSide);
         executorService.execute(
-                () -> {
-                    Utils.writeByteArrayToStream(inputBytes, outputStream);
-                });
+                () -> Utils.writeByteArrayToStream(inputBytes, outputStream));
         return new AssetFileDescriptor(readSide, 0, inputBytes.length);
     }
 
     /**
-     * Checks if the given AssetFileDescriptor passes certain conditions
+     * Checks if the given AssetFileDescriptor passes certain conditions.
      */
     public static void checkAssetFileDescriptor(@NonNull AssetFileDescriptor afd,
             int maxLength) {
@@ -97,13 +98,13 @@ public class Utils {
         }
         if (afd.getLength() > maxLength) {
             throw new IllegalArgumentException(
-                    "AssetFileDescriptor.getLength() should be <= " + Integer.toString(maxLength));
+                    "AssetFileDescriptor.getLength() should be <= " + maxLength);
         }
     }
 
     /**
-     * Read a given number of bytes from a given stream into a byte array
-     *
+     * Read a given number of bytes from a given stream into a byte array.
+     * <p>
      * This allows us to use
      * <a href=https://developer.android.com/reference/java/io/InputStream#readNBytes(byte[],%20int,%20int)">
      * this </a>
@@ -136,7 +137,7 @@ public class Utils {
 
     /**
      * Returns the index of right-most UTF-8 starting byte.
-     *
+     * <p>
      * The input must be valid (or truncated) UTF-8 encoded bytes.
      * Returns -1 if there is no starting byte.
      */
