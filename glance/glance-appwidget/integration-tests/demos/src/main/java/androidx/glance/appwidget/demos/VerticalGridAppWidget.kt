@@ -25,6 +25,7 @@ import androidx.glance.Button
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
 import androidx.glance.LocalContext
+import androidx.glance.LocalSize
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
 import androidx.glance.appwidget.action.actionStartActivity
@@ -66,12 +67,16 @@ class VerticalGridAppWidget : GlanceAppWidget() {
 
 @Composable
 fun SampleGrid(cells: GridCells, modifier: GlanceModifier = GlanceModifier.fillMaxSize()) {
+    val localSize = LocalSize.current
     LazyVerticalGrid(
         modifier = modifier,
         gridCells = cells
     ) {
         item {
             Text("LazyVerticalGrid")
+        }
+        item {
+            Text("${localSize.width}x${localSize.height}")
         }
         items(count = 20, itemId = { it * 2L }) { index ->
             Text("Item $index")
