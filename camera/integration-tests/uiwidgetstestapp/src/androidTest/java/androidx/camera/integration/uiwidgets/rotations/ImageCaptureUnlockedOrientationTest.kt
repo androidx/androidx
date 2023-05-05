@@ -17,16 +17,15 @@
 package androidx.camera.integration.uiwidgets.rotations
 
 import android.app.Instrumentation
-import android.os.Build
 import androidx.camera.core.CameraSelector
 import androidx.camera.integration.uiwidgets.rotations.CameraActivity.Companion.IMAGE_CAPTURE_MODE_FILE
 import androidx.camera.integration.uiwidgets.rotations.CameraActivity.Companion.IMAGE_CAPTURE_MODE_IN_MEMORY
 import androidx.camera.integration.uiwidgets.rotations.CameraActivity.Companion.IMAGE_CAPTURE_MODE_MEDIA_STORE
 import androidx.camera.integration.uiwidgets.rotations.CameraActivity.Companion.IMAGE_CAPTURE_MODE_OUTPUT_STREAM
+import androidx.camera.testing.CoreAppTestUtil
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
 import org.junit.After
-import org.junit.Assume.assumeFalse
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -89,9 +88,7 @@ class ImageCaptureUnlockedOrientationTest(
 
     @Before
     fun before() {
-        assumeFalse("See b/152082918, Wembley Api30 has a libjpeg issue which causes" +
-            " the test failure.",
-            Build.MODEL.equals("wembley", ignoreCase = true) && Build.VERSION.SDK_INT <= 30)
+        CoreAppTestUtil.assumeCompatibleDevice()
         setUp(lensFacing)
     }
 
