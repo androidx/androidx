@@ -19,20 +19,22 @@ package androidx.appactions.interaction.capabilities.core.impl.spec;
 import static com.google.common.truth.Truth.assertThat;
 
 import androidx.annotation.NonNull;
-import androidx.appactions.interaction.capabilities.core.impl.BuilderOf;
 import androidx.appactions.interaction.capabilities.core.impl.converters.EntityConverter;
 import androidx.appactions.interaction.capabilities.core.impl.converters.ParamValueConverter;
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters;
 import androidx.appactions.interaction.capabilities.core.properties.Property;
 import androidx.appactions.interaction.capabilities.core.properties.StringValue;
+import androidx.appactions.interaction.capabilities.core.testing.spec.Arguments;
+import androidx.appactions.interaction.capabilities.core.testing.spec.GenericEntityArguments;
 import androidx.appactions.interaction.capabilities.core.testing.spec.Output;
+import androidx.appactions.interaction.capabilities.core.testing.spec.TestEntity;
 import androidx.appactions.interaction.proto.AppActionsContext.AppAction;
 import androidx.appactions.interaction.proto.AppActionsContext.IntentParameter;
 import androidx.appactions.interaction.proto.FulfillmentResponse.StructuredOutput;
 import androidx.appactions.interaction.proto.FulfillmentResponse.StructuredOutput.OutputValue;
 import androidx.appactions.interaction.proto.ParamValue;
-
-import com.google.auto.value.AutoValue;
+import androidx.appactions.interaction.protobuf.Struct;
+import androidx.appactions.interaction.protobuf.Value;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -49,7 +51,7 @@ import java.util.Optional;
 public final class ActionSpecTest {
     private static final ActionSpec<Arguments, Output> ACTION_SPEC =
             ActionSpecBuilder.ofCapabilityNamed("actions.intent.TEST")
-                    .setArguments(Arguments.class, Arguments::newBuilder)
+                    .setArguments(Arguments.class, Arguments.Builder::new)
                     .setOutput(Output.class)
                     .bindParameter(
                             "requiredString",
@@ -90,80 +92,93 @@ public final class ActionSpecTest {
                             Output::getRepeatedStringField,
                             TypeConverters.STRING_PARAM_VALUE_CONVERTER::toParamValue)
                     .build();
-    private static final ParamValueConverter<String> STRING_PARAM_VALUE_CONVERTER =
-            new ParamValueConverter<String>() {
+    private static final ParamValueConverter<TestEntity> TEST_ENTITY_PARAM_VALUE_CONVERTER =
+            new ParamValueConverter<TestEntity>() {
                 @NonNull
                 @Override
-                public ParamValue toParamValue(String type) {
-                    return ParamValue.newBuilder().setStringValue(type).build();
+                public ParamValue toParamValue(TestEntity type) {
+                    return ParamValue.newBuilder()
+                            .setStructValue(
+                                    Struct.newBuilder()
+                                            .putFields(
+                                                    "name",
+                                                    Value.newBuilder()
+                                                            .setStringValue(type.getName())
+                                                            .build())
+                                            .build())
+                            .build();
                 }
 
                 @Override
-                public String fromParamValue(@NonNull ParamValue paramValue) {
-                    return "test";
+                public TestEntity fromParamValue(@NonNull ParamValue paramValue) {
+                    String name =
+                            paramValue.getStructValue().getFieldsOrThrow("name").getStringValue();
+                    return new TestEntity.Builder().setName(name).build();
                 }
             };
-    private static final EntityConverter<String> STRING_ENTITY_CONVERTER =
-            (theString) ->
+    private static final EntityConverter<TestEntity> TEST_ENTITY_CONVERTER =
+            (testEntity) ->
                     androidx.appactions.interaction.proto.Entity.newBuilder()
-                            .setIdentifier(theString)
-                            .setName(theString)
+                            .setIdentifier(testEntity.getId())
+                            .setName(testEntity.getName())
                             .build();
 
-    private static final ActionSpec<GenericEntityArguments, Output>
-            GENERIC_TYPES_ACTION_SPEC =
+    private static final ActionSpec<GenericEntityArguments, Output> GENERIC_TYPES_ACTION_SPEC =
             ActionSpecBuilder.ofCapabilityNamed("actions.intent.TEST")
-                    .setArguments(GenericEntityArguments.class,
-                            GenericEntityArguments::newBuilder)
+                    .setArguments(GenericEntityArguments.class, GenericEntityArguments.Builder::new)
                     .setOutput(Output.class)
                     .bindParameter(
                             "requiredEntity",
-                            properties ->
-                            {
-                                return (Property<String>) (properties.get(
-                                        "requiredEntity"));
+                            properties -> {
+                                return (Property<TestEntity>) (properties.get("requiredEntity"));
                             },
                             GenericEntityArguments.Builder::setSingularField,
-                            STRING_PARAM_VALUE_CONVERTER,
-                            STRING_ENTITY_CONVERTER)
-                    .bindOptionalParameter("optionalEntity",
-                            properties ->
-                            {
-                                return Optional.of((Property<String>) (properties.get(
-                                        "optionalEntity")));
+                            TEST_ENTITY_PARAM_VALUE_CONVERTER,
+                            TEST_ENTITY_CONVERTER)
+                    .bindOptionalParameter(
+                            "optionalEntity",
+                            properties -> {
+                                return Optional.of(
+                                        (Property<TestEntity>) (properties.get("optionalEntity")));
                             },
                             GenericEntityArguments.Builder::setOptionalField,
-                            STRING_PARAM_VALUE_CONVERTER,
-                            STRING_ENTITY_CONVERTER)
-                    .bindRepeatedParameter("repeatedEntities",
-                            properties ->
-                            {
-                                return Optional.of((Property<String>) (properties.get(
-                                        "repeatedEntities")));
+                            TEST_ENTITY_PARAM_VALUE_CONVERTER,
+                            TEST_ENTITY_CONVERTER)
+                    .bindRepeatedParameter(
+                            "repeatedEntities",
+                            properties -> {
+                                return Optional.of(
+                                        (Property<TestEntity>)
+                                                (properties.get("repeatedEntities")));
                             },
                             GenericEntityArguments.Builder::setRepeatedField,
-                            STRING_PARAM_VALUE_CONVERTER,
-                            STRING_ENTITY_CONVERTER)
+                            TEST_ENTITY_PARAM_VALUE_CONVERTER,
+                            TEST_ENTITY_CONVERTER)
                     .build();
 
     @Test
     public void getAppAction_genericParameters() {
         Map<String, Property<?>> property = new HashMap<>();
-        property.put("requiredEntity",
-                new Property.Builder<String>()
+        property.put(
+                "requiredEntity",
+                new Property.Builder<TestEntity>()
                         .setRequired(true)
-                        .setPossibleValues("one")
+                        .setPossibleValues(
+                                new TestEntity.Builder().setId("one").setName("one").build())
                         .build());
-        property.put("optionalEntity",
-                new Property.Builder<String>()
+        property.put(
+                "optionalEntity",
+                new Property.Builder<TestEntity>()
                         .setRequired(true)
-                        .setPossibleValues("two")
-                        .build()
-        );
-        property.put("repeatedEntities",
-                new Property.Builder<String>()
+                        .setPossibleValues(
+                                new TestEntity.Builder().setId("two").setName("two").build())
+                        .build());
+        property.put(
+                "repeatedEntities",
+                new Property.Builder<TestEntity>()
                         .setRequired(true)
-                        .setPossibleValues("three")
+                        .setPossibleValues(
+                                new TestEntity.Builder().setId("three").setName("three").build())
                         .build());
 
         assertThat(GENERIC_TYPES_ACTION_SPEC.convertPropertyToProto(property))
@@ -324,117 +339,5 @@ public final class ActionSpecTest {
 
         assertThat(executionOutput.getOutputValuesList())
                 .containsExactlyElementsIn(expectedExecutionOutput.getOutputValuesList());
-    }
-
-    enum TestEnum {
-        VALUE_1,
-        VALUE_2,
-    }
-
-    @AutoValue
-    abstract static class Arguments {
-
-        static Builder newBuilder() {
-            return new AutoValue_ActionSpecTest_Arguments.Builder();
-        }
-
-        abstract String requiredStringField();
-
-        abstract String optionalStringField();
-
-        abstract List<String> repeatedStringField();
-
-        @AutoValue.Builder
-        abstract static class Builder implements BuilderOf<Arguments> {
-
-            abstract Builder setRequiredStringField(String value);
-
-            abstract Builder setOptionalStringField(String value);
-
-            abstract Builder setRepeatedStringField(List<String> repeated);
-
-            @NonNull
-            @Override
-            public abstract Arguments build();
-        }
-    }
-
-    @AutoValue
-    abstract static class Properties {
-
-        static Properties create(
-                Optional<Property<TestEnum>> optionalEnumField,
-                Property<StringValue> requiredStringField,
-                Optional<Property<StringValue>> optionalStringField,
-                Optional<Property<StringValue>> repeatedStringField) {
-            return new AutoValue_ActionSpecTest_Properties(
-                    optionalEnumField,
-                    requiredStringField,
-                    optionalStringField,
-                    repeatedStringField);
-        }
-
-        static Properties create(
-                Property<StringValue> requiredStringField) {
-            return create(
-                    Optional.empty(),
-                    requiredStringField,
-                    Optional.empty(),
-                    Optional.empty());
-        }
-
-        abstract Optional<Property<TestEnum>> optionalEnumField();
-
-        abstract Property<StringValue> requiredStringField();
-
-        abstract Optional<Property<StringValue>> optionalStringField();
-
-        abstract Optional<Property<StringValue>> repeatedStringField();
-    }
-
-    @AutoValue
-    abstract static class GenericEntityArguments {
-
-        static Builder newBuilder() {
-            return new AutoValue_ActionSpecTest_GenericEntityArguments.Builder();
-        }
-
-        abstract String singularField();
-
-        abstract String optionalField();
-
-        abstract List<String> repeatedField();
-
-        @AutoValue.Builder
-        abstract static class Builder implements BuilderOf<GenericEntityArguments> {
-
-            abstract Builder setSingularField(String value);
-
-            abstract Builder setOptionalField(String value);
-
-            abstract Builder setRepeatedField(List<String> value);
-
-            @NonNull
-            @Override
-            public abstract GenericEntityArguments build();
-        }
-    }
-
-    @AutoValue
-    abstract static class GenericEntityProperty {
-
-        static GenericEntityProperty create(
-                Property<String> singularField,
-                Optional<Property<String>> optionalField,
-                Optional<Property<String>> repeatedField) {
-            return new AutoValue_ActionSpecTest_GenericEntityProperty(
-                    singularField, optionalField, repeatedField);
-        }
-
-        abstract Property<String> singularField();
-
-        abstract Optional<Property<String>> optionalField();
-
-        abstract Optional<Property<String>> repeatedField();
     }
 }
