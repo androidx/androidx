@@ -60,7 +60,7 @@ final class ActionSpecImpl<
                 .setName(mCapabilityName)
                 .addAllParams(
                         mParamBindingList.stream()
-                                .map(binding -> binding.paramGetter().apply(property))
+                                .map(binding -> binding.getParamGetter().apply(property))
                                 .filter(Optional::isPresent)
                                 .map(Optional::get)
                                 .collect(toImmutableList()))
@@ -73,19 +73,19 @@ final class ActionSpecImpl<
             throws StructConversionException {
         ArgumentsBuilderT argumentBuilder = mArgumentBuilderSupplier.get();
         for (ParamBinding<ArgumentsT, ArgumentsBuilderT> binding : mParamBindingList) {
-            List<ParamValue> paramValues = args.get(binding.name());
+            List<ParamValue> paramValues = args.get(binding.getName());
             if (paramValues == null) {
                 continue;
             }
             try {
-                binding.argumentSetter().setArguments(argumentBuilder, paramValues);
+                binding.getArgumentSetter().setArguments(argumentBuilder, paramValues);
             } catch (StructConversionException e) {
                 // Wrap the exception with a more meaningful error message.
                 throw new StructConversionException(
                         String.format(
                                 "Failed to parse parameter '%s' from assistant because of "
                                         + "failure: %s",
-                                binding.name(), e.getMessage()));
+                                binding.getName(), e.getMessage()));
             }
         }
         return argumentBuilder.build();

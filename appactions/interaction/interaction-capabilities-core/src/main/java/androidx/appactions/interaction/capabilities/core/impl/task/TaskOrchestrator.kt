@@ -183,7 +183,7 @@ internal class TaskOrchestrator<ArgumentsT, OutputT, ConfirmationT>(
         val callback = assistantUpdateRequest.callbackInternal
         try {
             val fulfillmentResult: FulfillmentResult = when (
-                argumentsWrapper.requestMetadata?.requestType()
+                argumentsWrapper.requestMetadata?.requestType
             ) {
                 FulfillmentRequest.Fulfillment.Type.SYNC -> handleSync(argumentsWrapper)
                 FulfillmentRequest.Fulfillment.Type.CONFIRM -> handleConfirm()
