@@ -316,8 +316,8 @@ public class GridLayoutManager extends LinearLayoutManager {
                             startingAdapterPosition);
                     break;
                 case View.FOCUS_DOWN:
-                    scrollTargetPosition = findScrollTargetPositionBelow(startingRow,
-                            startingColumn, startingAdapterPosition);
+                    scrollTargetPosition = findScrollTargetPositionBelow(row, column,
+                            startingAdapterPosition);
                     break;
                 default:
                     return false;
@@ -570,9 +570,36 @@ public class GridLayoutManager extends LinearLayoutManager {
                 return INVALID_POSITION;
             }
 
-            if (currentRow > startingRow && currentColumn == startingColumn) {
-                scrollTargetPosition = i;
-                break;
+            if (mOrientation == VERTICAL) {
+                /*
+                 * The scroll target may span multiple columns. For example, in this grid...
+                 * 1   2   3
+                 * 4   4   5
+                 * 6   7
+                 * ... moving from 2 to 4 interprets as staying in second column, and moving from
+                 * 1 to 4 interprets as staying in the first column.
+                 */
+                if ((currentRow > startingRow) && (currentColumn == startingColumn
+                        || getColumnIndices(i).contains(startingColumn))) {
+                    scrollTargetPosition = i;
+                    mRowWithAccessibilityFocus = currentRow;
+                    break;
+                }
+            } else { // HORIZONTAL
+                /*
+                 * The scroll target may span multiple rows. In this grid...
+                 * 1   4
+                 * 2   5
+                 * 2
+                 * 3
+                 * ... 2 spans two rows and moving down from 1 to 2 interprets moving to the second
+                 * row.
+                 */
+                if (currentRow > startingRow && currentColumn == startingColumn) {
+                    scrollTargetPosition = i;
+                    mRowWithAccessibilityFocus = getRowIndex(i);
+                    break;
+                }
             }
         }
         return scrollTargetPosition;

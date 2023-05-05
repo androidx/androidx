@@ -66,7 +66,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -1688,23 +1687,57 @@ public class GridLayoutManagerTest extends BaseGridLayoutManagerTest {
 
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-    public void performActionScrollInDirection_focusDown_vertical_withAvailableTarget()
+    public void performActionScrollInDirection_focusDown_vertical_scrollTargetOnTheSameColumn()
             throws Throwable {
 
         // TODO(b/267511848): suppress to LOLLIPOP once U constants are finalized and available in
         //  earlier android version.
 
-        final UiAutomation uiAutomation = setUpGridLayoutManagerAccessibilityTest(5, VERTICAL);
-       /*
+        final UiAutomation uiAutomation = setUpGridLayoutManagerAccessibilityTest(4, VERTICAL);
+        /*
         This generates the following grid:
         1   2   3
-        4   5
+        4
         */
-        runScrollInDirectionOnMultipleItemsAndSucceed(uiAutomation, View.FOCUS_DOWN,
-                new HashMap<Integer, String>() {{
-                    put(0, "Item (4)");
-                    put(1, "Item (5)");
-                }});
+        setAccessibilityFocus(uiAutomation, mGlm.getChildAt(0));
+        runScrollInDirectionAndSucceed(uiAutomation, View.FOCUS_DOWN, "Item (4)", Pair.create(1,
+                0));
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    public void performActionScrollInDirection_focusDown_vertical_traversingThroughASpan()
+            throws Throwable {
+
+        // TODO(b/267511848): suppress to LOLLIPOP once U constants are finalized and available in
+        //  earlier android versions.
+
+        final UiAutomation uiAutomation = setUpAndReturnUiAutomation();
+        mRecyclerView = setupBasic(new Config(3, 8));
+        mGlm.setOrientation(VERTICAL);
+        mGlm.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
+            @Override
+            public int getSpanSize(int position) {
+                if (position == 3) {
+                    return 2;
+                }
+                return 1;
+            }
+        });
+        waitForFirstLayout(mRecyclerView);
+        /*
+        This generates the following grid:
+        1   2   3
+        4   4   5
+        6   7   8
+        */
+        setAccessibilityFocus(uiAutomation, mGlm.getChildAt(1));
+        runScrollInDirectionAndSucceed(uiAutomation, View.FOCUS_DOWN, "Item (4)" ,
+                Pair.create(1, 1));
+
+        setAccessibilityFocus(uiAutomation, mGlm.getChildAt(3));
+        runScrollInDirectionAndSucceed(uiAutomation, View.FOCUS_DOWN, "Item (7)" ,
+                Pair.create(2, 1));
     }
 
     @Test
@@ -1714,35 +1747,72 @@ public class GridLayoutManagerTest extends BaseGridLayoutManagerTest {
         // TODO(b/267511848): suppress to LOLLIPOP once U constants are finalized and available in
         //  earlier android version.
 
-        final UiAutomation uiAutomation = setUpGridLayoutManagerAccessibilityTest(5, VERTICAL);
+        final UiAutomation uiAutomation = setUpGridLayoutManagerAccessibilityTest(4, VERTICAL);
         /*
         This generates the following grid:
         1   2   3
-        4   5
+        4
         */
-        runScrollInDirectionOnMultipleItemsAndFail(uiAutomation, View.FOCUS_DOWN,
-                Arrays.asList(2, 3, 4));
+        setAccessibilityFocus(uiAutomation, mGlm.getChildAt(1));
+        runScrollInDirectionAndFail(View.FOCUS_DOWN, Pair.create(0, 1));
+
+        setAccessibilityFocus(uiAutomation, mGlm.getChildAt(3));
+        runScrollInDirectionAndFail(View.FOCUS_DOWN, Pair.create(1, 0));
     }
 
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-    public void performActionScrollInDirection_focusDown_horizontal_withAvailableTarget()
+    public void performActionScrollInDirection_focusDown_horizontal_scrollTargetOnTheSameColumn()
             throws Throwable {
         // TODO(b/267511848): suppress to LOLLIPOP once U constants are finalized and available in
         //  earlier android versions.
 
-        final UiAutomation uiAutomation = setUpGridLayoutManagerAccessibilityTest(4, HORIZONTAL);
+        final UiAutomation uiAutomation = setUpGridLayoutManagerAccessibilityTest(5, HORIZONTAL);
         /*
         This generates the following grid:
         1   4
-        2
+        2   5
         3
         */
-        runScrollInDirectionOnMultipleItemsAndSucceed(uiAutomation, View.FOCUS_DOWN,
-                new HashMap<Integer, String>() {{
-                    put(0, "Item (2)");
-                    put(1, "Item (3)");
-                }});
+        setAccessibilityFocus(uiAutomation, mGlm.getChildAt(1));
+        runScrollInDirectionAndSucceed(uiAutomation, View.FOCUS_DOWN, "Item (3)" ,
+                Pair.create(2, 0));
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    public void performActionScrollInDirection_focusDown_horizontal_traversingThroughASpan()
+            throws Throwable {
+        // TODO(b/267511848): suppress to LOLLIPOP once U constants are finalized and available in
+        //  earlier android versions.
+
+        final UiAutomation uiAutomation = setUpAndReturnUiAutomation();
+        mRecyclerView = setupBasic(new Config(4, 9));
+        mGlm.setOrientation(HORIZONTAL);
+        mGlm.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
+            @Override
+            public int getSpanSize(int position) {
+                if (position == 5) {
+                    return 2;
+                }
+                return 1;
+            }
+        });
+        waitForFirstLayout(mRecyclerView);
+        /*
+        This generates the following grid:
+        1   5   8
+        2   6   9
+        3   6
+        4   7
+        */
+        setAccessibilityFocus(uiAutomation, mGlm.getChildAt(4));
+        runScrollInDirectionAndSucceed(uiAutomation, View.FOCUS_DOWN, "Item (6)" ,
+                Pair.create(1, 1));
+
+        setAccessibilityFocus(uiAutomation, mGlm.getChildAt(5));
+        runScrollInDirectionAndSucceed(uiAutomation, View.FOCUS_DOWN, "Item (7)" ,
+                Pair.create(3, 1));
     }
 
     @Test
@@ -1752,37 +1822,15 @@ public class GridLayoutManagerTest extends BaseGridLayoutManagerTest {
         // TODO(b/267511848): suppress to LOLLIPOP once U constants are finalized and available in
         //  earlier android versions.
 
-        final UiAutomation uiAutomation = setUpGridLayoutManagerAccessibilityTest(4, HORIZONTAL);
+        final UiAutomation uiAutomation = setUpGridLayoutManagerAccessibilityTest(5, HORIZONTAL);
         /*
         This generates the following grid:
         1   4
-        2
+        2   5
         3
         */
-        runScrollInDirectionOnMultipleItemsAndFail(uiAutomation, View.FOCUS_DOWN,
-                Arrays.asList(2, 3));
-    }
-
-    /**
-     * Batch version of {@code runScrollInDirectionAndSucceed}. Sets accessibility focus on each
-     * grid child whose index is a key in {@code startingIndexToScrollTargetTextMap} and then runs
-     * {@code runScrollInDirectionAndSucceed} in the specified {@code direction}.
-     *
-     * @param uiAutomation  UiAutomation instance.
-     * @param direction The direction of the scroll.
-     * @param startingIndexToScrollTargetTextMap Map where each key is the index of a grid
-     *                                              child and the corresponding value is the text
-     *                                              of the view targeted by the scroll.
-     * @throws TimeoutException Exception thrown when an action times out.
-     */
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-    private void runScrollInDirectionOnMultipleItemsAndSucceed(UiAutomation uiAutomation,
-            int direction, Map<Integer, String> startingIndexToScrollTargetTextMap)
-            throws TimeoutException {
-        for (Map.Entry<Integer, String> entry : startingIndexToScrollTargetTextMap.entrySet()) {
-            setAccessibilityFocus(uiAutomation, mGlm.getChildAt(entry.getKey()));
-            runScrollInDirectionAndSucceed(uiAutomation, direction, entry.getValue());
-        }
+        setAccessibilityFocus(uiAutomation, mGlm.getChildAt(2));
+        runScrollInDirectionAndFail(View.FOCUS_DOWN, Pair.create(2, 0));
     }
 
     /**
@@ -1837,25 +1885,6 @@ public class GridLayoutManagerTest extends BaseGridLayoutManagerTest {
         runScrollInDirectionAndSucceed(uiAutomation, direction, scrollTargetText);
         assertThat(mGlm.mRowWithAccessibilityFocus).isEqualTo(rowColumn.first);
         assertThat(mGlm.mColumnWithAccessibilityFocus).isEqualTo(rowColumn.second);
-    }
-
-    /**
-     * Batch version of {@code runScrollInDirectionAndFail}. Sets accessibility focus on each
-     * grid child whose index is a key in {@code startingIndexToScrollTargetTextMap} and then runs
-     * {@code runScrollInDirectionAndFail}.
-     *
-     * @param uiAutomation  UiAutomation instance.
-     * @param direction The direction of the scroll.
-     * @param startingIndices List where each item is the index of a grid child.
-     * @throws TimeoutException Exception thrown when an action times out.
-     */
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-    private void runScrollInDirectionOnMultipleItemsAndFail(UiAutomation uiAutomation,
-            int direction, List<Integer> startingIndices) throws TimeoutException {
-        for (Integer index: startingIndices) {
-            setAccessibilityFocus(uiAutomation, mGlm.getChildAt(index));
-            runScrollInDirectionAndFail(direction);
-        }
     }
 
     /**
