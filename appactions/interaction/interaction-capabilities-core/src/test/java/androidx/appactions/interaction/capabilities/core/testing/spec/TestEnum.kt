@@ -14,27 +14,13 @@
  * limitations under the License.
  */
 
-package androidx.appactions.interaction.capabilities.core.testing.spec;
+package androidx.appactions.interaction.capabilities.core.testing.spec
 
-import com.google.auto.value.AutoValue;
+enum class TestEnum(private val mStringValue: String) {
+    VALUE_1("VALUE_1"),
+    VALUE_2("VALUE_2");
 
-import java.util.Optional;
-
-/** Testing implementation of a capability Confirmation. */
-@AutoValue
-public abstract class Confirmation {
-
-    public static Builder builder() {
-        return new AutoValue_Confirmation.Builder();
-    }
-
-    public abstract Optional<String> optionalStringField();
-
-    @AutoValue.Builder
-    public abstract static class Builder {
-
-        public abstract Builder setOptionalStringField(String value);
-
-        public abstract Confirmation build();
+    override fun toString(): String {
+        return mStringValue
     }
 }
