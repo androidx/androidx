@@ -19,7 +19,6 @@ package androidx.appactions.interaction.capabilities.core.impl.converters;
 import static androidx.appactions.interaction.capabilities.core.impl.utils.ImmutableCollectors.toImmutableList;
 
 import androidx.appactions.builtintypes.experimental.types.Thing;
-import androidx.appactions.interaction.capabilities.core.impl.BuilderOf;
 import androidx.appactions.interaction.capabilities.core.impl.exceptions.StructConversionException;
 import androidx.appactions.interaction.protobuf.ListValue;
 import androidx.appactions.interaction.protobuf.Struct;
@@ -90,11 +89,6 @@ final class TypeSpecBuilder<T, BuilderT> {
             throw new StructConversionException(
                     String.format("%s does not exist in Struct", key), e);
         }
-    }
-
-    static <T, BuilderT extends BuilderOf<T>> TypeSpecBuilder<T, BuilderT> newBuilder(
-            String typeName, Supplier<BuilderT> builderSupplier) {
-        return new TypeSpecBuilder<>(typeName, builderSupplier, BuilderT::build);
     }
 
     static <T, BuilderT> TypeSpecBuilder<T, BuilderT> newBuilder(

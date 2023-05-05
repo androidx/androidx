@@ -742,14 +742,12 @@ class TaskCapabilityImplTest {
                     override suspend fun onExecute(
                         arguments: CapabilityStructFill.Arguments
                     ): ExecutionResult<Void> {
-                        val listItem: ListItem = arguments.listItem().orElse(null)
-                        val string: String = arguments.anyString().orElse(null)
-                        onExecuteListItemDeferred.complete(listItem)
-                        onExecuteStringDeferred.complete(string)
+                        arguments.listItem?.let { onExecuteListItemDeferred.complete(it) }
+                        arguments.anyString?.let { onExecuteStringDeferred.complete(it) }
                         return ExecutionResult.Builder<Void>().build()
                     }
 
-                    override fun getListItemListener() =
+                    override val listItemListener =
                         object : AppEntityListener<ListItem> {
                             override fun onReceivedAsync(
                                 value: ListItem
@@ -878,7 +876,7 @@ class TaskCapabilityImplTest {
                     override suspend fun onExecute(arguments: Arguments) =
                         ExecutionResult.Builder<Output>()
                             .setOutput(
-                                Output.builder()
+                                Output.Builder()
                                     .setOptionalStringField("bar")
                                     .setRepeatedStringField(
                                         listOf("bar1", "bar2")
@@ -1021,7 +1019,7 @@ class TaskCapabilityImplTest {
                 override suspend fun onReadyToConfirm(args: Map<String, List<ParamValue>>):
                     ConfirmationOutput<Confirmation> {
                     return ConfirmationOutput.Builder<Confirmation>()
-                            .setConfirmation(Confirmation.builder().setOptionalStringField("bar")
+                            .setConfirmation(Confirmation.Builder().setOptionalStringField("bar")
                                 .build())
                             .build()
                 }
@@ -1192,7 +1190,7 @@ class TaskCapabilityImplTest {
             ActionSpecBuilder.ofCapabilityNamed(
                 CAPABILITY_NAME
             )
-                .setArguments(Arguments::class.java, Arguments::newBuilder)
+                .setArguments(Arguments::class.java, Arguments::Builder)
                 .setOutput(Output::class.java)
                 .bindParameter(
                     "required",
@@ -1243,7 +1241,7 @@ class TaskCapabilityImplTest {
                 )
                 .bindOptionalOutput(
                     "optionalStringOutput",
-                    Output::optionalStringField,
+                    { output -> Optional.ofNullable(output.optionalStringField) },
                     TypeConverters.STRING_PARAM_VALUE_CONVERTER::toParamValue
                 )
                 .bindRepeatedOutput(
