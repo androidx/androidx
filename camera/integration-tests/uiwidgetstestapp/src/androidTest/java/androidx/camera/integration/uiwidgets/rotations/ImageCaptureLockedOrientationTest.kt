@@ -16,11 +16,10 @@
 
 package androidx.camera.integration.uiwidgets.rotations
 
-import android.os.Build
+import androidx.camera.testing.CoreAppTestUtil
 import androidx.test.core.app.ActivityScenario
 import androidx.test.filters.LargeTest
 import org.junit.After
-import org.junit.Assume
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -56,11 +55,7 @@ class ImageCaptureLockedOrientationTest(
 
     @Before
     fun before() {
-        Assume.assumeFalse(
-            "See b/152082918, Wembley Api30 has a libjpeg issue which causes" +
-                " the test failure.",
-            Build.MODEL.equals("wembley", ignoreCase = true) && Build.VERSION.SDK_INT <= 30
-        )
+        CoreAppTestUtil.assumeCompatibleDevice()
         setUp(lensFacing)
     }
 
