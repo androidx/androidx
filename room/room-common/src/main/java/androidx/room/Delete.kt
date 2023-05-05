@@ -34,7 +34,7 @@ import kotlin.reflect.KClass
  *     public fun deleteSongs(vararg songs: Song)
  *
  *     @Delete
- *     public fun deleteAlbumAndSongs(val album: Album, val songs: List<Song>)
+ *     public fun deleteAlbumAndSongs(album: Album, songs: List<Song>)
  * }
  * ```
  *
