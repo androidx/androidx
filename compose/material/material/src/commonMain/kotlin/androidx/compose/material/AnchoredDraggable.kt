@@ -168,37 +168,37 @@ internal class AnchoredDraggableState<T>(
     val targetValue: T by derivedStateOf {
         animationTarget ?: run {
             val currentOffset = offset
-            if (currentOffset != null) {
+            if (!currentOffset.isNaN()) {
                 computeTarget(currentOffset, currentValue, velocity = 0f)
             } else currentValue
         }
     }
 
     /**
-     * The current offset, or null if it has not been initialized yet.
+     * The current offset, or [Float.NaN] if it has not been initialized yet.
      *
-     * The offset will be initialized during the first measurement phase of the node that the
-     * [anchoredDraggable] modifier is attached to. These are the phases:
-     * Composition { -> Effects } -> Layout { Measurement -> Placement } -> Drawing
-     * During the first composition, the offset will be null. In subsequent compositions, the offset
-     * will be derived from the anchors of the previous pass.
-     * Always prefer accessing the offset from a LaunchedEffect as it will be scheduled to be
-     * executed the next frame, after layout.
+     * The offset will be initialized when the anchors are first set through [updateAnchors].
      *
-     * To guarantee stricter semantics, consider using [requireOffset].
+     * Strongly consider using [requireOffset] which will throw if the offset is read before it is
+     * initialized. This helps catch issues early in your workflow.
      */
-    @get:Suppress("AutoBoxing")
-    var offset: Float? by mutableStateOf(null)
+    // Todo: Use primitive state when b/281205384 is fixed
+    var offset: Float by mutableStateOf(Float.NaN)
         private set
 
     /**
      * Require the current offset.
      *
+     * @see offset
+     *
      * @throws IllegalStateException If the offset has not been initialized yet
      */
-    fun requireOffset(): Float = checkNotNull(offset) {
-        "The offset was read before being initialized. Did you access the offset in a phase " +
-            "before layout, like effects or composition?"
+    fun requireOffset(): Float {
+        check(!offset.isNaN()) {
+            "The offset was read before being initialized. Did you access the offset in a phase " +
+                "before layout, like effects or composition?"
+        }
+        return offset
     }
 
     /**
@@ -412,12 +412,12 @@ internal class AnchoredDraggableState<T>(
                 }
             } finally {
                 if (targetValue != null) animationTarget = null
-                val endState = offset?.let { endOffset ->
+                val endState =
                     anchors
                         .entries
-                        .firstOrNull { (_, anchorOffset) -> abs(anchorOffset - endOffset) < 0.5f }
+                        .firstOrNull { (_, anchorOffset) -> abs(anchorOffset - offset) < 0.5f }
                         ?.key
-                }
+
                 if (endState != null && confirmValueChange.invoke(endState)) {
                     currentValue = endState
                 }
@@ -428,7 +428,7 @@ internal class AnchoredDraggableState<T>(
     }
 
     internal fun newOffsetForDelta(delta: Float) =
-        ((offset ?: 0f) + delta).coerceIn(minOffset, maxOffset)
+        ((if (offset.isNaN()) 0f else offset) + delta).coerceIn(minOffset, maxOffset)
 
     /**
      * Drag by the [delta], coerce it in the bounds and dispatch it to the [AnchoredDraggableState].
@@ -437,7 +437,7 @@ internal class AnchoredDraggableState<T>(
      */
     fun dispatchRawDelta(delta: Float): Float {
         val newOffset = newOffsetForDelta(delta)
-        val oldOffset = offset ?: 0f
+        val oldOffset = if (offset.isNaN()) 0f else offset
         offset = newOffset
         return newOffset - oldOffset
     }
@@ -550,7 +550,7 @@ internal suspend fun <T> AnchoredDraggableState<T>.animateTo(
     anchoredDrag(targetValue = targetValue) { anchors ->
         val targetOffset = anchors[targetValue]
         if (targetOffset != null) {
-            var prev = offset ?: 0f
+            var prev = if (offset.isNaN()) 0f else offset
             animate(prev, targetOffset, velocity, animationSpec) { value, velocity ->
                 // Our onDrag coerces the value within the bounds, but an animation may
                 // overshoot, for example a spring animation or an overshooting interpolator

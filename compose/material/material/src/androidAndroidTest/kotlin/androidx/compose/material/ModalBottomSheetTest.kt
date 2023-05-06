@@ -1320,7 +1320,7 @@ class ModalBottomSheetTest {
             ModalBottomSheetState(ModalBottomSheetValue.HalfExpanded, density = rule.density)
 
         assertThat(sheetState.anchoredDraggableState.anchors).isEmpty()
-        assertThat(sheetState.anchoredDraggableState.offset).isNull()
+        assertThat(sheetState.anchoredDraggableState.offset).isNaN()
 
         stateRestorationTester.emulateSavedInstanceStateRestore()
         rule.waitForIdle()
