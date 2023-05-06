@@ -104,7 +104,7 @@ class LazyGridState constructor(
      * derived state in order to only have recompositions when the derived value changes:
      * @sample androidx.compose.foundation.samples.UsingGridScrollPositionInCompositionSample
      */
-    val firstVisibleItemIndex: Int get() = scrollPosition.index.value
+    val firstVisibleItemIndex: Int get() = scrollPosition.index
 
     /**
      * The scroll offset of the first visible item. Scrolling forward is positive - i.e., the
@@ -221,7 +221,7 @@ class LazyGridState constructor(
     /**
      * Finds items on a line and their measurement constraints. Used for prefetching.
      */
-    internal var prefetchInfoRetriever: (line: LineIndex) -> List<Pair<Int, Constraints>> by
+    internal var prefetchInfoRetriever: (line: Int) -> List<Pair<Int, Constraints>> by
         mutableStateOf({ emptyList() })
 
     internal val placementAnimator = LazyGridItemPlacementAnimator()
@@ -255,7 +255,7 @@ class LazyGridState constructor(
     }
 
     internal fun snapToItemIndexInternal(index: Int, scrollOffset: Int) {
-        scrollPosition.requestPosition(ItemIndex(index), scrollOffset)
+        scrollPosition.requestPosition(index, scrollOffset)
         // placement animation is not needed because we snap into a new position.
         placementAnimator.reset()
         remeasurement?.forceRemeasure()
@@ -359,7 +359,7 @@ class LazyGridState constructor(
                 this.wasScrollingForward = scrollingForward
                 this.lineToPrefetch = lineToPrefetch
                 currentLinePrefetchHandles.clear()
-                prefetchInfoRetriever(LineIndex(lineToPrefetch)).fastForEach {
+                prefetchInfoRetriever(lineToPrefetch).fastForEach {
                     currentLinePrefetchHandles.add(
                         prefetchState.schedulePrefetch(it.first, it.second)
                     )
@@ -414,7 +414,7 @@ class LazyGridState constructor(
         layoutInfoState.value = result
 
         canScrollForward = result.canScrollForward
-        canScrollBackward = (result.firstVisibleLine?.index?.value ?: 0) != 0 ||
+        canScrollBackward = (result.firstVisibleLine?.index ?: 0) != 0 ||
             result.firstVisibleLineScrollOffset != 0
 
         numMeasurePasses++

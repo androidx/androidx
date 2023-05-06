@@ -262,9 +262,9 @@ private fun rememberLazyListMeasurePolicy(
         ) { index, key, contentType, placeables ->
             // we add spaceBetweenItems as an extra spacing for all items apart from the last one so
             // the lazy list measuring logic will take it into account.
-            val spacing = if (index.value == itemsCount - 1) 0 else spaceBetweenItems
+            val spacing = if (index == itemsCount - 1) 0 else spaceBetweenItems
             LazyListMeasuredItem(
-                index = index.value,
+                index = index,
                 placeables = placeables,
                 isVertical = isVertical,
                 horizontalAlignment = horizontalAlignment,
@@ -281,10 +281,10 @@ private fun rememberLazyListMeasurePolicy(
         }
         state.premeasureConstraints = measuredItemProvider.childConstraints
 
-        val firstVisibleItemIndex: DataIndex
+        val firstVisibleItemIndex: Int
         val firstVisibleScrollOffset: Int
         Snapshot.withoutReadObservation {
-            firstVisibleItemIndex = DataIndex(state.firstVisibleItemIndex)
+            firstVisibleItemIndex = state.firstVisibleItemIndex
             firstVisibleScrollOffset = state.firstVisibleItemScrollOffset
         }
 

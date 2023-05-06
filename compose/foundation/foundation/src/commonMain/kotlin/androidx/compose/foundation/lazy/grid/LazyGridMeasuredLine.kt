@@ -17,7 +17,6 @@
 package androidx.compose.foundation.lazy.grid
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.ui.unit.LayoutDirection
 
 /**
  * Represents one measured line of the lazy list. Each item on the line can in fact consist of
@@ -25,13 +24,11 @@ import androidx.compose.ui.unit.LayoutDirection
  */
 @OptIn(ExperimentalFoundationApi::class)
 internal class LazyGridMeasuredLine constructor(
-    val index: LineIndex,
+    val index: Int,
     val items: Array<LazyGridMeasuredItem>,
     private val slots: LazyGridSlots,
     private val spans: List<GridItemSpan>,
     private val isVertical: Boolean,
-    private val slotsPerLine: Int,
-    private val layoutDirection: LayoutDirection,
     /**
      * Spacing to be added after [mainAxisSize], in the main axis direction.
      */
@@ -80,8 +77,8 @@ internal class LazyGridMeasuredLine constructor(
                 crossAxisOffset = slots.positions[startSlot],
                 layoutWidth = layoutWidth,
                 layoutHeight = layoutHeight,
-                row = if (isVertical) index.value else startSlot,
-                column = if (isVertical) startSlot else index.value
+                row = if (isVertical) index else startSlot,
+                column = if (isVertical) startSlot else index
             ).also {
                 usedSpan += span
             }

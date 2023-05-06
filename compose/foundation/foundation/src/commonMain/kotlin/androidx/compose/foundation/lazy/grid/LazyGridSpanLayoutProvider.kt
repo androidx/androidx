@@ -167,13 +167,13 @@ internal class LazyGridSpanLayoutProvider(private val gridContent: LazyGridInter
     /**
      * Calculate the line of index [itemIndex].
      */
-    fun getLineIndexOfItem(itemIndex: Int): LineIndex {
+    fun getLineIndexOfItem(itemIndex: Int): Int {
         if (totalSize <= 0) {
-            return LineIndex(0)
+            return 0
         }
         require(itemIndex < totalSize)
         if (!gridContent.hasCustomSpans) {
-            return LineIndex(itemIndex / slotsPerLine)
+            return itemIndex / slotsPerLine
         }
 
         val lowerBoundBucket = buckets.binarySearch { it.firstItemIndex - itemIndex }.let {
@@ -207,7 +207,7 @@ internal class LazyGridSpanLayoutProvider(private val gridContent: LazyGridInter
             ++currentLine
         }
 
-        return LineIndex(currentLine)
+        return currentLine
     }
 
     fun spanOf(itemIndex: Int, maxSpan: Int): Int =

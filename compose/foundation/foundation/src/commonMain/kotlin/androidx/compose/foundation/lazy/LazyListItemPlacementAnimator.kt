@@ -140,7 +140,7 @@ internal class LazyListItemPlacementAnimator {
             if (newIndex == -1) {
                 activeKeys.remove(key)
             } else {
-                val item = itemProvider.getAndMeasure(DataIndex(newIndex))
+                val item = itemProvider.getAndMeasure(newIndex)
                 // check if we have any active placement animation on the item
                 var inProgress = false
                 repeat(item.placeablesCount) {
