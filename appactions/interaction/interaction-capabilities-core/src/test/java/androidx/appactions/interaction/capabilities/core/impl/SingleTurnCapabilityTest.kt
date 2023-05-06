@@ -327,14 +327,12 @@ class SingleTurnCapabilityTest {
 
     companion object {
         val ACTION_SPEC: ActionSpec<Arguments, Output> =
-            ActionSpecBuilder.ofCapabilityNamed(
-                "actions.intent.TEST"
-            )
+            ActionSpecBuilder.ofCapabilityNamed("actions.intent.TEST")
                 .setArguments(Arguments::class.java, Arguments::Builder)
                 .setOutput(Output::class.java)
                 .bindParameter(
                     "requiredString",
-                    { properties -> properties["requiredEntity"] as Property<StringValue>? },
+                    { properties -> properties["requiredEntity"] as Property<StringValue> },
                     Arguments.Builder::setRequiredStringField,
                     TypeConverters.STRING_PARAM_VALUE_CONVERTER,
                     TypeConverters.STRING_VALUE_ENTITY_CONVERTER
@@ -353,7 +351,7 @@ class SingleTurnCapabilityTest {
                 )
                 .bindOptionalOutput(
                     "optionalStringOutput",
-                    { output -> Optional.ofNullable(output.optionalStringField) },
+                    Output::optionalStringField,
                     TypeConverters.STRING_PARAM_VALUE_CONVERTER::toParamValue
                 )
                 .build()

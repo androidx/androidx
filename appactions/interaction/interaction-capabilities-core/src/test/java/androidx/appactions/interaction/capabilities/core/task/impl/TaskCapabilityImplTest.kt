@@ -201,7 +201,8 @@ class TaskCapabilityImplTest {
             createCapability(
                 SINGLE_REQUIRED_FIELD_PROPERTY,
                 sessionFactory =
-                { _ -> object : ExecutionSession {
+                { _ ->
+                    object : ExecutionSession {
                         override fun onCreate(sessionConfig: SessionConfig) {
                             onCreateInvocationCount.incrementAndGet()
                         }
@@ -210,7 +211,8 @@ class TaskCapabilityImplTest {
                             Futures.immediateFuture(
                                 ExecutionResult.Builder<Output>().build()
                             )
-                    } },
+                    }
+                },
                 sessionBridge = SessionBridge { TaskHandler.Builder<Confirmation>().build() },
                 sessionUpdaterSupplier = ::EmptyTaskUpdater
             )
@@ -360,20 +362,23 @@ class TaskCapabilityImplTest {
                 .build(),
             "stringSlotB" to Property.Builder<StringValue>()
                 .setRequired(true)
-                .build(),
+                .build()
         )
         val sessionFactory:
-                (hostProperties: HostProperties?) -> CapabilityTwoStrings.ExecutionSession =
+            (hostProperties: HostProperties?) -> CapabilityTwoStrings.ExecutionSession =
             { _ ->
                 object : CapabilityTwoStrings.ExecutionSession {
                     override suspend fun onExecute(
                         arguments: CapabilityTwoStrings.Arguments
-                    ): ExecutionResult<Void> = ExecutionResult.Builder<Void>().build()
+                    ): ExecutionResult<CapabilityTwoStrings.Output> =
+                        ExecutionResult.Builder<CapabilityTwoStrings.Output>().build()
                 }
             }
         val sessionBridge =
-            SessionBridge<CapabilityTwoStrings.ExecutionSession, Void> {
-                TaskHandler.Builder<Void>()
+            SessionBridge<
+                CapabilityTwoStrings.ExecutionSession,
+                CapabilityTwoStrings.Confirmation> {
+                TaskHandler.Builder<CapabilityTwoStrings.Confirmation>()
                     .registerValueTaskParam(
                         "stringSlotA",
                         AUTO_ACCEPT_STRING_VALUE,
@@ -446,23 +451,25 @@ class TaskCapabilityImplTest {
                 .build(),
             "stringSlotB" to Property.Builder<StringValue>()
                 .setRequired(false)
-                .build(),
+                .build()
         )
         val sessionFactory:
-                (hostProperties: HostProperties?) -> CapabilityTwoStrings.ExecutionSession =
+            (hostProperties: HostProperties?) -> CapabilityTwoStrings.ExecutionSession =
             { _ ->
                 object : CapabilityTwoStrings.ExecutionSession {
                     override suspend fun onExecute(
                         arguments: CapabilityTwoStrings.Arguments
-                    ): ExecutionResult<Void> {
+                    ): ExecutionResult<CapabilityTwoStrings.Output> {
                         onExecuteInvocationCount.incrementAndGet()
-                        return ExecutionResult.Builder<Void>().build()
+                        return ExecutionResult.Builder<CapabilityTwoStrings.Output>().build()
                     }
                 }
             }
         val sessionBridge =
-            SessionBridge<CapabilityTwoStrings.ExecutionSession, Void> {
-                TaskHandler.Builder<Void>()
+            SessionBridge<
+                CapabilityTwoStrings.ExecutionSession,
+                CapabilityTwoStrings.Confirmation> {
+                TaskHandler.Builder<CapabilityTwoStrings.Confirmation>()
                     .registerValueTaskParam(
                         "stringSlotA",
                         AUTO_ACCEPT_STRING_VALUE,
@@ -531,7 +538,7 @@ class TaskCapabilityImplTest {
             "optionalEnum" to Property.Builder<TestEnum>()
                 .setPossibleValues(TestEnum.VALUE_1, TestEnum.VALUE_2)
                 .setRequired(true)
-                .build(),
+                .build()
         )
         val capability: Capability =
             createCapability(
@@ -618,15 +625,15 @@ class TaskCapabilityImplTest {
                 SessionBridge<ExecutionSession, Confirmation> { session ->
                     val builder = TaskHandler.Builder<Confirmation>()
                     session.requiredStringListener?.let {
-                        listener: AppEntityListener<String> ->
-                            builder.registerAppEntityTaskParam(
-                                "required",
-                                listener,
-                                TypeConverters.STRING_PARAM_VALUE_CONVERTER,
-                                EntityConverter.of(TypeSpec.STRING_TYPE_SPEC),
-                                getTrivialSearchActionConverter()
-                            )
-                        }
+                            listener: AppEntityListener<String> ->
+                        builder.registerAppEntityTaskParam(
+                            "required",
+                            listener,
+                            TypeConverters.STRING_PARAM_VALUE_CONVERTER,
+                            EntityConverter.of(TypeSpec.STRING_TYPE_SPEC),
+                            getTrivialSearchActionConverter()
+                        )
+                    }
                     builder.build()
                 },
                 sessionUpdaterSupplier = ::EmptyTaskUpdater
@@ -720,13 +727,13 @@ class TaskCapabilityImplTest {
     fun identifierOnly_refillsStruct() = runBlocking<Unit> {
         val property = mapOf(
             "listItem" to Property.Builder<
-                ListItem,
+                ListItem
                 >()
                 .setRequired(true)
                 .build(),
             "anyString" to Property.Builder<StringValue>()
                 .setRequired(true)
-                .build(),
+                .build()
         )
         val item1: ListItem = ListItem.Builder().setName("red apple").setIdentifier("item1").build()
         val item2: ListItem =
@@ -736,15 +743,15 @@ class TaskCapabilityImplTest {
         val onExecuteStringDeferred = CompletableDeferred<String>()
 
         val sessionFactory:
-                (hostProperties: HostProperties?) -> CapabilityStructFill.ExecutionSession =
+            (hostProperties: HostProperties?) -> CapabilityStructFill.ExecutionSession =
             { _ ->
                 object : CapabilityStructFill.ExecutionSession {
                     override suspend fun onExecute(
                         arguments: CapabilityStructFill.Arguments
-                    ): ExecutionResult<Void> {
+                    ): ExecutionResult<CapabilityStructFill.Output> {
                         arguments.listItem?.let { onExecuteListItemDeferred.complete(it) }
                         arguments.anyString?.let { onExecuteStringDeferred.complete(it) }
-                        return ExecutionResult.Builder<Void>().build()
+                        return ExecutionResult.Builder<CapabilityStructFill.Output>().build()
                     }
 
                     override val listItemListener =
@@ -769,8 +776,10 @@ class TaskCapabilityImplTest {
                 }
             }
         val sessionBridge =
-            SessionBridge<CapabilityStructFill.ExecutionSession, Void> { session ->
-                TaskHandler.Builder<Void>()
+            SessionBridge<
+                CapabilityStructFill.ExecutionSession,
+                CapabilityStructFill.Confirmation> { session ->
+                TaskHandler.Builder<CapabilityStructFill.Confirmation>()
                     .registerAppEntityTaskParam(
                         "listItem",
                         session.listItemListener,
@@ -976,7 +985,7 @@ class TaskCapabilityImplTest {
                 property,
                 sessionFactory = sessionFactory,
                 sessionBridge = SessionBridge { TaskHandler.Builder<Confirmation>().build() },
-                sessionUpdaterSupplier = ::EmptyTaskUpdater,
+                sessionUpdaterSupplier = ::EmptyTaskUpdater
             )
         val session = capability.createSession(fakeSessionId, hostProperties)
 
@@ -984,7 +993,7 @@ class TaskCapabilityImplTest {
         val callback = FakeCallbackInternal()
         session.execute(
             buildRequestArgs(SYNC),
-            callback,
+            callback
         )
         assertThat(callback.receiveResponse()).isNotNull()
         assertThat(getCurrentValues("required", session.state!!)).isEmpty()
@@ -993,11 +1002,12 @@ class TaskCapabilityImplTest {
         // TURN 2. Providing the required slots so that the task completes and the state gets cleared
         val callback2 = FakeCallbackInternal()
         session.execute(
-            buildRequestArgs(SYNC,
+            buildRequestArgs(
+                SYNC,
                 "required",
                 ParamValue.newBuilder().setIdentifier("foo").setStringValue("foo").build()
             ),
-            callback2,
+            callback2
         )
         assertThat(callback2.receiveResponse().fulfillmentResponse).isNotNull()
         assertThat(session.isActive).isEqualTo(false)
@@ -1015,13 +1025,15 @@ class TaskCapabilityImplTest {
                 }
             }
         var onReadyToConfirm =
-             object : OnReadyToConfirmListenerInternal<Confirmation> {
+            object : OnReadyToConfirmListenerInternal<Confirmation> {
                 override suspend fun onReadyToConfirm(args: Map<String, List<ParamValue>>):
                     ConfirmationOutput<Confirmation> {
                     return ConfirmationOutput.Builder<Confirmation>()
-                            .setConfirmation(Confirmation.Builder().setOptionalStringField("bar")
-                                .build())
-                            .build()
+                        .setConfirmation(
+                            Confirmation.Builder().setOptionalStringField("bar")
+                                .build()
+                        )
+                        .build()
                 }
             }
         val property = mapOf(
@@ -1032,21 +1044,23 @@ class TaskCapabilityImplTest {
                 property,
                 sessionFactory = sessionFactory,
                 sessionBridge = SessionBridge {
-                                    TaskHandler.Builder<Confirmation>()
-                                        .setOnReadyToConfirmListenerInternal(onReadyToConfirm)
-                                        .build() },
-                sessionUpdaterSupplier = ::EmptyTaskUpdater,
+                    TaskHandler.Builder<Confirmation>()
+                        .setOnReadyToConfirmListenerInternal(onReadyToConfirm)
+                        .build()
+                },
+                sessionUpdaterSupplier = ::EmptyTaskUpdater
             )
         val session = capability.createSession(fakeSessionId, hostProperties)
 
         // TURN 1. Providing all the required slots in the SYNC Request
         val callback = FakeCallbackInternal()
         session.execute(
-            buildRequestArgs(SYNC,
+            buildRequestArgs(
+                SYNC,
                 "required",
                 ParamValue.newBuilder().setIdentifier("foo").setStringValue("foo").build()
             ),
-            callback,
+            callback
         )
         assertThat(callback.receiveResponse()).isNotNull()
         assertThat(session.isActive).isEqualTo(true)
@@ -1080,18 +1094,19 @@ class TaskCapabilityImplTest {
                 property,
                 sessionFactory = sessionFactory,
                 sessionBridge = SessionBridge { TaskHandler.Builder<Confirmation>().build() },
-                sessionUpdaterSupplier = ::EmptyTaskUpdater,
+                sessionUpdaterSupplier = ::EmptyTaskUpdater
             )
         val session = capability.createSession(fakeSessionId, hostProperties)
 
         // TURN 1. Providing the required slots so that the task completes and the state gets cleared
         val callback = FakeCallbackInternal()
         session.execute(
-            buildRequestArgs(SYNC,
+            buildRequestArgs(
+                SYNC,
                 "required",
                 ParamValue.newBuilder().setIdentifier("foo").setStringValue("foo").build()
             ),
-            callback,
+            callback
         )
         assertThat(callback.receiveResponse().fulfillmentResponse).isNotNull()
         assertThat(session.isActive).isEqualTo(false)
@@ -1099,11 +1114,12 @@ class TaskCapabilityImplTest {
         // TURN 2. Trying to sync after the session is destroyed
         val callback2 = FakeCallbackInternal()
         session.execute(
-            buildRequestArgs(SYNC,
+            buildRequestArgs(
+                SYNC,
                 "required",
                 ParamValue.newBuilder().setIdentifier("foo").setStringValue("foo").build()
             ),
-            callback2,
+            callback2
         )
         assertThat(session.isActive).isEqualTo(false)
         assertThat(callback2.receiveResponse().errorStatus)
@@ -1220,18 +1236,18 @@ class TaskCapabilityImplTest {
         }
 
         override val sessionBridge: SessionBridge<ExecutionSession, Confirmation> = SessionBridge {
-            session ->
+                session ->
             val builder = TaskHandler.Builder<Confirmation>()
             session.requiredStringListener?.let {
-                listener: AppEntityListener<String> ->
-                    builder.registerAppEntityTaskParam(
-                        "required",
-                        listener,
-                        TypeConverters.STRING_PARAM_VALUE_CONVERTER,
-                        EntityConverter.of(TypeSpec.STRING_TYPE_SPEC),
-                        getTrivialSearchActionConverter()
-                    )
-                }
+                    listener: AppEntityListener<String> ->
+                builder.registerAppEntityTaskParam(
+                    "required",
+                    listener,
+                    TypeConverters.STRING_PARAM_VALUE_CONVERTER,
+                    EntityConverter.of(TypeSpec.STRING_TYPE_SPEC),
+                    getTrivialSearchActionConverter()
+                )
+            }
             builder.build()
         }
     }
@@ -1299,9 +1315,7 @@ class TaskCapabilityImplTest {
                 .bindParameter(
                     "required",
                     { properties ->
-                        properties["required"]
-                            as
-                            Property<StringValue>?
+                        properties["required"] as Property<StringValue>
                     },
                     Arguments.Builder::setRequiredStringField,
                     TypeConverters.STRING_PARAM_VALUE_CONVERTER,
@@ -1345,7 +1359,7 @@ class TaskCapabilityImplTest {
                 )
                 .bindOptionalOutput(
                     "optionalStringOutput",
-                    { output -> Optional.ofNullable(output.optionalStringField) },
+                    Output::optionalStringField,
                     TypeConverters.STRING_PARAM_VALUE_CONVERTER::toParamValue
                 )
                 .bindRepeatedOutput(
