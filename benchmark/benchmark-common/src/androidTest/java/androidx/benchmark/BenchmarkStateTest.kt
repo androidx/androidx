@@ -190,7 +190,7 @@ class BenchmarkStateTest {
         assumeTrue(
             CpuInfo.locked ||
                 IsolationActivity.sustainedPerformanceModeInUse ||
-                Errors.isEmulator
+                DeviceInfo.isEmulator
         )
         iterationCheck(checkingForThermalThrottling = false)
     }
