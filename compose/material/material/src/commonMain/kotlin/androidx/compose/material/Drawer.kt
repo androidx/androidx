@@ -221,15 +221,14 @@ class DrawerState(
         get() = anchoredDraggableState.targetValue
 
     /**
-     * The current position (in pixels) of the drawer sheet, or null before the offset is
+     * The current position (in pixels) of the drawer sheet, or [Float.NaN] before the offset is
      * initialized.
      * @see [AnchoredDraggableState.offset] for more information.
      */
     @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-    @get:Suppress("AutoBoxing")
     @ExperimentalMaterialApi
     @get:ExperimentalMaterialApi
-    val offset: Float?
+    val offset: Float
         get() = anchoredDraggableState.offset
 
     internal fun requireOffset(): Float = anchoredDraggableState.requireOffset()
@@ -313,11 +312,10 @@ class BottomDrawerState @Deprecated(
         get() = anchoredDraggableState.targetValue
 
     /**
-     * The current offset, or null if it has not been initialized yet.
+     * The current offset, or [Float.NaN] if it has not been initialized yet.
      **/
     @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-    @get:Suppress("AutoBoxing")
-    val offset: Float?
+    val offset: Float
         get() = anchoredDraggableState.offset
 
     internal fun requireOffset(): Float = anchoredDraggableState.requireOffset()
