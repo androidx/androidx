@@ -15,7 +15,6 @@
  */
 
 package androidx.appsearch.app;
-import static androidx.appsearch.app.AppSearchResult.RESULT_INVALID_ARGUMENT;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
@@ -540,13 +539,13 @@ public final class SearchSuggestionSpec {
 
         /** Constructs a new {@link SearchSpec} from the contents of this builder. */
         @NonNull
-        public SearchSuggestionSpec build() throws AppSearchException {
+        public SearchSuggestionSpec build() {
             Bundle bundle = new Bundle();
             if (!mSchemas.isEmpty()) {
                 Set<String> schemaFilter = new ArraySet<>(mSchemas);
                 for (String schema : mTypePropertyFilters.keySet()) {
                     if (!schemaFilter.contains(schema)) {
-                        throw new AppSearchException(RESULT_INVALID_ARGUMENT,
+                        throw new IllegalStateException(
                                 "The schema: " + schema + " exists in the property filter but "
                                         + "doesn't exist in the schema filter.");
                     }
@@ -556,7 +555,7 @@ public final class SearchSuggestionSpec {
                 Set<String> namespaceFilter = new ArraySet<>(mNamespaces);
                 for (String namespace : mDocumentIds.keySet()) {
                     if (!namespaceFilter.contains(namespace)) {
-                        throw new AppSearchException(RESULT_INVALID_ARGUMENT,
+                        throw new IllegalStateException(
                                 "The namespace: " + namespace + " exists in the document id "
                                         + "filter but doesn't exist in the namespace filter.");
                     }
