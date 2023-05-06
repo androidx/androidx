@@ -36,7 +36,6 @@ import java.time.Duration;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
-import java.util.Optional;
 
 @RunWith(JUnit4.class)
 public final class TypeSpecImplTest {
@@ -49,7 +48,7 @@ public final class TypeSpecImplTest {
         TypeSpec<TestEntity> entityTypeSpec =
                 TypeSpecBuilder.newBuilder(
                                 "TestEntity", TestEntity.Builder::new, TestEntity.Builder::build)
-                        .bindIdentifier(testEntity -> Optional.ofNullable(testEntity.getId()))
+                        .bindIdentifier(TestEntity::getId)
                         .build();
         assertThat(
                         entityTypeSpec.getIdentifier(
@@ -65,7 +64,7 @@ public final class TypeSpecImplTest {
                                 "TestEntity", TestEntity.Builder::new, TestEntity.Builder::build)
                         .bindEnumField(
                                 "enum",
-                                (testEntity) -> Optional.ofNullable(testEntity.getEnum()),
+                                TestEntity::getEnum,
                                 TestEntity.Builder::setEnum,
                                 TestEnum.class)
                         .build();
@@ -92,7 +91,7 @@ public final class TypeSpecImplTest {
                                 "TestEntity", TestEntity.Builder::new, TestEntity.Builder::build)
                         .bindEnumField(
                                 "enum",
-                                (testEntity) -> Optional.ofNullable(testEntity.getEnum()),
+                                TestEntity::getEnum,
                                 TestEntity.Builder::setEnum,
                                 TestEnum.class)
                         .build();
@@ -118,7 +117,7 @@ public final class TypeSpecImplTest {
                                 "TestEntity", TestEntity.Builder::new, TestEntity.Builder::build)
                         .bindDurationField(
                                 "duration",
-                                (testEntity) -> Optional.ofNullable(testEntity.getDuration()),
+                                TestEntity::getDuration,
                                 TestEntity.Builder::setDuration)
                         .build();
         TestEntity entity = new TestEntity.Builder().setDuration(Duration.ofMinutes(5)).build();
@@ -144,7 +143,7 @@ public final class TypeSpecImplTest {
                                 "TestEntity", TestEntity.Builder::new, TestEntity.Builder::build)
                         .bindZonedDateTimeField(
                                 "date",
-                                (testEntity) -> Optional.ofNullable(testEntity.getZonedDateTime()),
+                                TestEntity::getZonedDateTime,
                                 TestEntity.Builder::setZonedDateTime)
                         .build();
         TestEntity entity =
@@ -175,7 +174,7 @@ public final class TypeSpecImplTest {
                                 "TestEntity", TestEntity.Builder::new, TestEntity.Builder::build)
                         .bindZonedDateTimeField(
                                 "date",
-                                (testEntity) -> Optional.ofNullable(testEntity.getZonedDateTime()),
+                                TestEntity::getZonedDateTime,
                                 TestEntity.Builder::setZonedDateTime)
                         .build();
         TestEntity entity =
@@ -212,7 +211,7 @@ public final class TypeSpecImplTest {
                                 "TestEntity", TestEntity.Builder::new, TestEntity.Builder::build)
                         .bindZonedDateTimeField(
                                 "date",
-                                (testEntity) -> Optional.ofNullable(testEntity.getZonedDateTime()),
+                                TestEntity::getZonedDateTime,
                                 TestEntity.Builder::setZonedDateTime)
                         .build();
         Value malformedValue =
@@ -237,7 +236,7 @@ public final class TypeSpecImplTest {
                                 "TestEntity", TestEntity.Builder::new, TestEntity.Builder::build)
                         .bindSpecField(
                                 "entity",
-                                (testEntity) -> Optional.ofNullable(testEntity.getEntity()),
+                                TestEntity::getEntity,
                                 TestEntity.Builder::setEntity,
                                 TypeSpecBuilder.newBuilder(
                                                 "TestEntity",
@@ -245,8 +244,7 @@ public final class TypeSpecImplTest {
                                                 TestEntity.Builder::build)
                                         .bindStringField(
                                                 "name",
-                                                (testEntity) ->
-                                                        Optional.ofNullable(testEntity.getName()),
+                                                TestEntity::getName,
                                                 TestEntity.Builder::setName)
                                         .build())
                         .build();
@@ -292,7 +290,7 @@ public final class TypeSpecImplTest {
                                 "TestEntity", TestEntity.Builder::new, TestEntity.Builder::build)
                         .bindSpecField(
                                 "entity",
-                                (testEntity) -> Optional.ofNullable(testEntity.getEntity()),
+                                TestEntity::getEntity,
                                 TestEntity.Builder::setEntity,
                                 TypeSpecBuilder.newBuilder(
                                                 "TestEntity",
@@ -300,8 +298,7 @@ public final class TypeSpecImplTest {
                                                 TestEntity.Builder::build)
                                         .bindStringField(
                                                 "name",
-                                                (testEntity) ->
-                                                        Optional.ofNullable(testEntity.getName()),
+                                                TestEntity::getName,
                                                 TestEntity.Builder::setName)
                                         .build())
                         .build();
