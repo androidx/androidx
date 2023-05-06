@@ -258,12 +258,12 @@ class StartSafetyCheck private constructor() {
                 )
                 .bindOptionalOutput(
                     "safetyCheck",
-                    { output -> Optional.ofNullable(output.safetyCheck) },
+                    Output::safetyCheck,
                     ParamValueConverter.of(SAFETY_CHECK_TYPE_SPEC)::toParamValue
                 )
                 .bindOptionalOutput(
                     "executionStatus",
-                    { output -> Optional.ofNullable(output.executionStatus) },
+                    Output::executionStatus,
                     ExecutionStatus::toParamValue
                 )
                 .build()

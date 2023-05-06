@@ -50,7 +50,7 @@ import java.util.Optional;
 @SuppressWarnings("unchecked")
 public final class ActionSpecTest {
     private static final ActionSpec<Arguments, Output> ACTION_SPEC =
-            ActionSpecBuilder.ofCapabilityNamed("actions.intent.TEST")
+            ActionSpecBuilder.Companion.ofCapabilityNamed("actions.intent.TEST")
                     .setArguments(Arguments.class, Arguments.Builder::new)
                     .setOutput(Output.class)
                     .bindParameter(
@@ -85,7 +85,7 @@ public final class ActionSpecTest {
                             TypeConverters.STRING_VALUE_ENTITY_CONVERTER)
                     .bindOptionalOutput(
                             "optionalStringOutput",
-                            output -> Optional.ofNullable(output.getOptionalStringField()),
+                            Output::getOptionalStringField,
                             TypeConverters.STRING_PARAM_VALUE_CONVERTER::toParamValue)
                     .bindRepeatedOutput(
                             "repeatedStringOutput",
@@ -124,7 +124,7 @@ public final class ActionSpecTest {
                             .build();
 
     private static final ActionSpec<GenericEntityArguments, Output> GENERIC_TYPES_ACTION_SPEC =
-            ActionSpecBuilder.ofCapabilityNamed("actions.intent.TEST")
+            ActionSpecBuilder.Companion.ofCapabilityNamed("actions.intent.TEST")
                     .setArguments(GenericEntityArguments.class, GenericEntityArguments.Builder::new)
                     .setOutput(Output.class)
                     .bindParameter(

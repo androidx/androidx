@@ -32,7 +32,6 @@ import androidx.appactions.interaction.capabilities.safety.executionstatus.Safet
 import androidx.appactions.interaction.proto.ParamValue
 import androidx.appactions.interaction.protobuf.Struct
 import androidx.appactions.interaction.protobuf.Value
-import java.util.Optional
 
 private const val CAPABILITY_NAME = "actions.intent.STOP_SAFETY_CHECK"
 
@@ -162,7 +161,7 @@ class StopSafetyCheck private constructor() {
                 .setOutput(Output::class.java)
                 .bindOptionalOutput(
                     "executionStatus",
-                    { output -> Optional.ofNullable(output.executionStatus) },
+                    Output::executionStatus,
                     ExecutionStatus::toParamValue
                 )
                 .build()

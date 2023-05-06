@@ -70,12 +70,17 @@ class CapabilityTwoStrings {
         }
     }
 
-    interface ExecutionSession : BaseExecutionSession<Arguments, Void>
+    class Output internal constructor()
+
+    class Confirmation internal constructor()
+
+    interface ExecutionSession : BaseExecutionSession<Arguments, Output>
 
     companion object {
         @Suppress("UNCHECKED_CAST")
         val ACTION_SPEC = ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
             .setArguments(Arguments::class.java, Arguments::Builder)
+            .setOutput(Output::class.java)
             .bindOptionalParameter(
                 "stringSlotA",
                 { properties ->

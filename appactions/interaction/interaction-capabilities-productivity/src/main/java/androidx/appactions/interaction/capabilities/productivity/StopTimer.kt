@@ -173,7 +173,7 @@ class StopTimer private constructor() {
                 )
                 .bindOptionalOutput(
                     "executionStatus",
-                    { output -> Optional.ofNullable(output.executionStatus) },
+                    Output::executionStatus,
                     ExecutionStatus::toParamValue
                 )
                 .build()
