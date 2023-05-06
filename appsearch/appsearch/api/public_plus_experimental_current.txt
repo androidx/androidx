@@ -555,7 +555,7 @@ package androidx.appsearch.app {
     method @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.VERBATIM_SEARCH) public androidx.appsearch.app.SearchSpec.Builder setVerbatimSearchEnabled(boolean);
   }
 
-  public class SearchSuggestionResult {
+  public final class SearchSuggestionResult {
     method public String getSuggestedResult();
   }
 
@@ -565,7 +565,7 @@ package androidx.appsearch.app {
     method public androidx.appsearch.app.SearchSuggestionResult.Builder setSuggestedResult(String);
   }
 
-  public class SearchSuggestionSpec {
+  public final class SearchSuggestionSpec {
     method public java.util.Map<java.lang.String!,java.util.List<java.lang.String!>!> getFilterDocumentIds();
     method public java.util.List<java.lang.String!> getFilterNamespaces();
     method public java.util.List<java.lang.String!> getFilterSchemas();
