@@ -143,6 +143,7 @@ private class BackgroundNode(
     private var lastSize: Size? = null
     private var lastLayoutDirection: LayoutDirection? = null
     private var lastOutline: Outline? = null
+    private var lastShape: Shape? = null
 
     override fun ContentDrawScope.draw() {
         if (shape === RectangleShape) {
@@ -161,7 +162,7 @@ private class BackgroundNode(
 
     private fun ContentDrawScope.drawOutline() {
         val outline =
-            if (size == lastSize && layoutDirection == lastLayoutDirection) {
+            if (size == lastSize && layoutDirection == lastLayoutDirection && lastShape == shape) {
                 lastOutline!!
             } else {
                 shape.createOutline(size, layoutDirection, this)
@@ -171,5 +172,6 @@ private class BackgroundNode(
         lastOutline = outline
         lastSize = size
         lastLayoutDirection = layoutDirection
+        lastShape = shape
     }
 }
