@@ -19,7 +19,6 @@ package androidx.appsearch.app;
 import android.annotation.SuppressLint;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -234,10 +233,8 @@ public interface AppSearchSession extends Closeable {
      *         in {@link #search}.
      *
      * @see #search(String, SearchSpec)
-     * <!--@exportToFramework:ifJetpack()-->@hide<!--@exportToFramework:else()-->
      */
     @NonNull
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     ListenableFuture<List<SearchSuggestionResult>> searchSuggestionAsync(
             @NonNull String suggestionQueryExpression,
             @NonNull SearchSuggestionSpec searchSuggestionSpec);

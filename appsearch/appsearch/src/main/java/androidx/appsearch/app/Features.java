@@ -146,7 +146,6 @@ public interface Features {
     /**
      * Feature for {@link #isFeatureSupported(String)}. This feature covers
      * {@link AppSearchSession#searchSuggestionAsync}.
-     * @hide
      */
     String SEARCH_SUGGESTION = "SEARCH_SUGGESTION";
 
