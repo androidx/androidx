@@ -31,6 +31,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -183,6 +184,7 @@ internal class AnchoredDraggableState<T>(
      * initialized. This helps catch issues early in your workflow.
      */
     // Todo: Use primitive state when b/281205384 is fixed
+    @Suppress("AutoboxingStateCreation")
     var offset: Float by mutableStateOf(Float.NaN)
         private set
 
@@ -228,7 +230,7 @@ internal class AnchoredDraggableState<T>(
      * You can use this value to provide smooth reconciliation behavior when re-targeting an
      * animation.
      */
-    var lastVelocity: Float by mutableStateOf(0f)
+    var lastVelocity: Float by mutableFloatStateOf(0f)
         private set
 
     /**

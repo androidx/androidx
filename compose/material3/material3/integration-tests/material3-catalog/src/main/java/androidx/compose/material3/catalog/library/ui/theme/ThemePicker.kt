@@ -46,7 +46,7 @@ import androidx.compose.material3.catalog.library.model.Theme
 import androidx.compose.material3.catalog.library.model.ThemeMode
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -242,7 +242,7 @@ fun ThemePicker(
                     )
                 }
 
-                var fontScale by remember { mutableStateOf(theme.fontScale) }
+                var fontScale by remember { mutableFloatStateOf(theme.fontScale) }
                 FontScaleItem(
                     modifier = Modifier
                         .fillMaxWidth()

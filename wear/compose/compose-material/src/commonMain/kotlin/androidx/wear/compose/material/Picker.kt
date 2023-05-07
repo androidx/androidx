@@ -38,6 +38,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -486,7 +487,7 @@ public class PickerState constructor(
         verifyNumberOfOptions(initialNumberOfOptions)
     }
 
-    private var _numberOfOptions by mutableStateOf(initialNumberOfOptions)
+    private var _numberOfOptions by mutableIntStateOf(initialNumberOfOptions)
 
     var numberOfOptions
         get() = _numberOfOptions

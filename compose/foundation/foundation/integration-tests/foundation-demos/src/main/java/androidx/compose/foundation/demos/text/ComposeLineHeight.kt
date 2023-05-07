@@ -36,6 +36,7 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -70,8 +71,8 @@ fun TextLineHeightDemo() {
         Modifier.verticalScroll(rememberScrollState())
             .background(TextMetricColors.Default.background)
     ) {
-        var lineHeightSp = remember { mutableStateOf(60f) }
-        var lineHeightEm = remember { mutableStateOf(1f) }
+        var lineHeightSp = remember { mutableFloatStateOf(60f) }
+        var lineHeightEm = remember { mutableFloatStateOf(1f) }
         var lineHeightEnabled = remember { mutableStateOf(false) }
         val lineHeightStyleEnabled = remember { mutableStateOf(false) }
         var lineHeightAlignment = remember {
@@ -97,8 +98,8 @@ fun TextLineHeightDemo() {
             Spacer(Modifier.padding(16.dp))
             TextWithLineHeight(
                 lineHeightEnabled.value,
-                lineHeightSp.value,
-                lineHeightEm.value,
+                lineHeightSp.floatValue,
+                lineHeightEm.floatValue,
                 if (lineHeightStyleEnabled.value) {
                     LineHeightStyle(
                         alignment = lineHeightAlignment.value,
@@ -336,7 +337,7 @@ private fun SnappingSlider(
     snap: Boolean = true,
     enabled: Boolean = true
 ) {
-    var lastValue by remember(value) { mutableStateOf(value) }
+    var lastValue by remember(value) { mutableFloatStateOf(value) }
     val increment = valueRange.endInclusive / (steps + 1).toFloat()
     val snapValue = round(value / increment / 2f) * increment
 

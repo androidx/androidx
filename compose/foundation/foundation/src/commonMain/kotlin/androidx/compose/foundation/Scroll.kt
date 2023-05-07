@@ -33,7 +33,6 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.Saver
@@ -96,7 +95,7 @@ class ScrollState(initial: Int) : ScrollableState {
     /**
      * current scroll position value in pixels
      */
-    var value: Int by mutableStateOf(initial)
+    var value: Int by mutableIntStateOf(initial)
         private set
 
     /**
@@ -114,7 +113,7 @@ class ScrollState(initial: Int) : ScrollableState {
     /**
      * Size of the viewport on the scrollable axis, or 0 if still unknown.
      */
-    internal var viewportSize: Int by mutableStateOf(0)
+    internal var viewportSize: Int by mutableIntStateOf(0)
 
     /**
      * [InteractionSource] that will be used to dispatch drag events when this

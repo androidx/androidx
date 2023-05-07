@@ -36,6 +36,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -64,8 +65,8 @@ fun SpringBackScrollingDemo() {
             fontSize = 20.sp
         )
 
-        var scrollPosition by remember { mutableStateOf(0f) }
-        val itemWidth = remember { mutableStateOf(0f) }
+        var scrollPosition by remember { mutableFloatStateOf(0f) }
+        var itemWidth by remember { mutableFloatStateOf(0f) }
         val mutatorMutex = remember { MutatorMutex() }
         var animation by remember { mutableStateOf(AnimationState(scrollPosition)) }
 
@@ -96,7 +97,7 @@ fun SpringBackScrollingDemo() {
                             val springBackTarget: Float = calculateSpringBackTarget(
                                 target,
                                 latestVelocityX,
-                                itemWidth.value
+                                itemWidth
                             )
 
                             animation.animateDecay(exponentialDecay()) {
@@ -129,7 +130,7 @@ fun SpringBackScrollingDemo() {
             }
         }
         Canvas(gesture.fillMaxWidth().height(400.dp)) {
-            itemWidth.value = size.width / 2f
+            itemWidth = size.width / 2f
             if (DEBUG) {
                 println(
                     "Anim, Spring back scrolling, redrawing with new" +

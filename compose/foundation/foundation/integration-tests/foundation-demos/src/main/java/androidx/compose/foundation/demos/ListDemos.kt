@@ -80,6 +80,7 @@ import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
@@ -158,8 +159,8 @@ private fun LazyColumnDemo() {
 @Preview
 @Composable
 private fun ListAddRemoveItemsDemo() {
-    var numItems by remember { mutableStateOf(0) }
-    var offset by remember { mutableStateOf(0) }
+    var numItems by remember { mutableIntStateOf(0) }
+    var offset by remember { mutableIntStateOf(0) }
     Column {
         Row {
             val buttonModifier = Modifier.padding(8.dp)
@@ -406,8 +407,8 @@ private fun LazyRowScope() {
 
 @Composable
 private fun LazyListArrangements() {
-    var count by remember { mutableStateOf(3) }
-    var arrangement by remember { mutableStateOf(6) }
+    var count by remember { mutableIntStateOf(3) }
+    var arrangement by remember { mutableIntStateOf(6) }
     Column {
         Row {
             Button(onClick = { count-- }) {
@@ -480,7 +481,7 @@ private fun ReverseLayoutAndRtlDemo() {
     Column {
         val scrollState = rememberScrollState()
         val lazyState = rememberLazyListState()
-        var count by remember { mutableStateOf(10) }
+        var count by remember { mutableIntStateOf(10) }
         var reverse by remember { mutableStateOf(false) }
         var rtl by remember { mutableStateOf(false) }
         var column by remember { mutableStateOf(true) }
@@ -634,7 +635,7 @@ private fun NestedLazyDemo() {
                 .background(Color.LightGray),
             contentAlignment = Alignment.Center
         ) {
-            var state by rememberSaveable { mutableStateOf(0) }
+            var state by rememberSaveable { mutableIntStateOf(0) }
             Button(onClick = { state++ }) {
                 Text("Index=$index State=$state")
             }
@@ -660,7 +661,7 @@ private fun LazyGridDemo() {
         GridCells.Fixed(3),
         GridCells.Adaptive(minSize = 60.dp)
     )
-    var currentMode by remember { mutableStateOf(0) }
+    var currentMode by remember { mutableIntStateOf(0) }
     Column {
         Button(
             modifier = Modifier.wrapContentSize(),
@@ -709,10 +710,10 @@ private fun LazyGridWithSpacingDemo() {
             }
         }
     )
-    var currentMode by remember { mutableStateOf(0) }
-    var horizontalSpacing by remember { mutableStateOf(8) }
+    var currentMode by remember { mutableIntStateOf(0) }
+    var horizontalSpacing by remember { mutableIntStateOf(8) }
     var horizontalSpacingExpanded by remember { mutableStateOf(false) }
-    var verticalSpacing by remember { mutableStateOf(8) }
+    var verticalSpacing by remember { mutableIntStateOf(8) }
     var verticalSpacingExpanded by remember { mutableStateOf(false) }
     Column {
         Row {
@@ -860,7 +861,7 @@ private fun ReorderWithCustomKeys() {
         }
         LazyColumn {
             item {
-                var counter by rememberSaveable { mutableStateOf(0) }
+                var counter by rememberSaveable { mutableIntStateOf(0) }
                 Button(onClick = { counter++ }) {
                     Text("Header has $counter")
                 }
@@ -869,7 +870,7 @@ private fun ReorderWithCustomKeys() {
                 items = names,
                 key = { it }
             ) {
-                var counter by rememberSaveable { mutableStateOf(0) }
+                var counter by rememberSaveable { mutableIntStateOf(0) }
                 Button(onClick = { counter++ }, modifier = Modifier.animateItemPlacement()) {
                     Text("$it has $counter")
                 }
@@ -962,7 +963,7 @@ private fun LazyStaggeredGridDemo() {
         mutableStateOf(List(100) { it })
     }
 
-    var count by remember { mutableStateOf(10) }
+    var count by remember { mutableIntStateOf(10) }
     var reverseLayout by remember { mutableStateOf(false) }
     var rtl by remember { mutableStateOf(false) }
 

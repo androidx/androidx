@@ -29,11 +29,13 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
@@ -70,10 +72,10 @@ fun ScrollableBox(
 
     val interactionSource = remember { MutableInteractionSource() }
     val color = if (interactionSource.collectIsDraggedAsState().value) activeColor else idleColor
-    val offsetPx = remember { mutableStateOf(0f) }
+    var offsetPx by remember { mutableFloatStateOf(0f) }
 
     val offsetDp = with(LocalDensity.current) {
-        offsetPx.value.toDp()
+        offsetPx.toDp()
     }
     val (offsetX, offsetY) = when (orientation) {
         Orientation.Horizontal -> offsetDp to Dp.Hairline
@@ -88,7 +90,7 @@ fun ScrollableBox(
                 interactionSource = interactionSource,
                 orientation = orientation,
                 state = rememberScrollableState { scrollDistance ->
-                    offsetPx.value += scrollDistance
+                    offsetPx += scrollDistance
                     scrollDistance
                 }
             )

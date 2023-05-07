@@ -194,7 +194,7 @@ open class SwipeableState<T>(
 
     internal var thresholds: (Float, Float) -> Float by mutableStateOf({ _, _ -> 0f })
 
-    internal var velocityThreshold by mutableStateOf(0f)
+    internal var velocityThreshold by mutableFloatStateOf(0f)
 
     internal var resistance: ResistanceConfig? by mutableStateOf(null)
 

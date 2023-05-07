@@ -32,6 +32,7 @@ import androidx.compose.foundation.MarqueeAnimationMode.Companion.WhileFocused
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
@@ -201,8 +202,8 @@ private class MarqueeModifierNode(
     DrawModifierNode,
     FocusEventModifierNode {
 
-    private var contentWidth by mutableStateOf(0)
-    private var containerWidth by mutableStateOf(0)
+    private var contentWidth by mutableIntStateOf(0)
+    private var containerWidth by mutableIntStateOf(0)
     private var hasFocus by mutableStateOf(false)
     var spacing: MarqueeSpacing by mutableStateOf(spacing)
     var animationMode: MarqueeAnimationMode by mutableStateOf(animationMode)

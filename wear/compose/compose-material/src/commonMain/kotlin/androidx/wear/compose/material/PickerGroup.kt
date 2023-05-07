@@ -25,7 +25,7 @@ import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -199,7 +199,7 @@ public class PickerGroupState constructor(
     /**
      * The current selected [Picker] index.
      */
-    var selectedIndex by mutableStateOf(initiallySelectedIndex)
+    var selectedIndex by mutableIntStateOf(initiallySelectedIndex)
 
     public companion object {
         val Saver = listSaver<PickerGroupState, Any?>(

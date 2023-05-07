@@ -30,6 +30,7 @@ import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -66,7 +67,7 @@ fun ImmersiveList(
     listAlignment: Alignment = Alignment.BottomEnd,
     list: @Composable ImmersiveListScope.() -> Unit,
 ) {
-    var currentItemIndex by remember { mutableStateOf(0) }
+    var currentItemIndex by remember { mutableIntStateOf(0) }
     var listHasFocus by remember { mutableStateOf(false) }
 
     Box(modifier.bringIntoViewIfChildrenAreFocused()) {

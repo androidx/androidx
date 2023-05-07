@@ -34,6 +34,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.DrawModifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.graphics.drawscope.clipRect
@@ -80,28 +83,28 @@ fun HorizontalScrollersInVerticalScrollersDemo() {
 @Composable
 private fun Scrollable(orientation: Orientation, content: @Composable () -> Unit) {
     val maxOffset = 0f
-    val offset = remember { mutableStateOf(maxOffset) }
-    val minOffset = remember { mutableStateOf(0f) }
+    var offset by remember { mutableFloatStateOf(maxOffset) }
+    var minOffset by remember { mutableFloatStateOf(0f) }
 
     Layout(
         content = content,
         modifier = Modifier.scrollable(
             orientation = orientation,
             state = rememberScrollableState { scrollDistance ->
-                val resultingOffset = offset.value + scrollDistance
+                val resultingOffset = offset + scrollDistance
                 val toConsume =
                     when {
                         resultingOffset > maxOffset -> {
-                            maxOffset - offset.value
+                            maxOffset - offset
                         }
-                        resultingOffset < minOffset.value -> {
-                            minOffset.value - offset.value
+                        resultingOffset < minOffset -> {
+                            minOffset - offset
                         }
                         else -> {
                             scrollDistance
                         }
                     }
-                offset.value = offset.value + toConsume
+                offset = offset + toConsume
                 toConsume
             }
         )
@@ -123,7 +126,7 @@ private fun Scrollable(orientation: Orientation, content: @Composable () -> Unit
                     )
                 }
 
-            minOffset.value =
+            minOffset =
                 when (orientation) {
                     Orientation.Horizontal -> constraints.maxWidth.toFloat() - placeable.width
                     Orientation.Vertical -> constraints.maxHeight.toFloat() - placeable.height
@@ -143,8 +146,8 @@ private fun Scrollable(orientation: Orientation, content: @Composable () -> Unit
 
             layout(width, height) {
                 when (orientation) {
-                    Orientation.Horizontal -> placeable.placeRelative(offset.value.roundToInt(), 0)
-                    Orientation.Vertical -> placeable.placeRelative(0, offset.value.roundToInt())
+                    Orientation.Horizontal -> placeable.placeRelative(offset.roundToInt(), 0)
+                    Orientation.Vertical -> placeable.placeRelative(0, offset.roundToInt())
                 }
             }
         }

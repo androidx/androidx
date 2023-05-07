@@ -41,6 +41,7 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -196,7 +197,7 @@ class ContentTransform(
      * to 0f. Content with higher zIndex will be drawn over lower `zIndex`ed content. Among
      * content with the same index, the target content will be placed on top.
      */
-    var targetContentZIndex by mutableStateOf(targetContentZIndex)
+    var targetContentZIndex by mutableFloatStateOf(targetContentZIndex)
 
     /**
      * [sizeTransform] manages the expanding and shrinking of the container if there is any size

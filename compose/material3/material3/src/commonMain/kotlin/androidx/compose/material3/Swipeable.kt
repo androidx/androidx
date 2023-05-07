@@ -29,11 +29,12 @@ import androidx.compose.material3.SwipeableDefaults.VelocityThreshold
 import androidx.compose.material3.SwipeableDefaults.resistanceConfig
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.FloatState
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
-import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.Saver
@@ -103,20 +104,20 @@ internal open class SwipeableState<T>(
      * You should use this state to offset your content accordingly. The recommended way is to
      * use `Modifier.offsetPx`. This includes the resistance by default, if resistance is enabled.
      */
-    val offset: State<Float> get() = offsetState
+    val offset: FloatState get() = offsetState
 
     /**
      * The amount by which the [swipeable] has been swiped past its bounds.
      */
-    val overflow: State<Float> get() = overflowState
+    val overflow: FloatState get() = overflowState
 
     // Use `Float.NaN` as a placeholder while the state is uninitialised.
-    private val offsetState = mutableStateOf(0f)
-    private val overflowState = mutableStateOf(0f)
+    private val offsetState = mutableFloatStateOf(0f)
+    private val overflowState = mutableFloatStateOf(0f)
 
     // the source of truth for the "real"(non ui) position
     // basically position in bounds + overflow
-    private val absoluteOffset = mutableStateOf(0f)
+    private val absoluteOffset = mutableFloatStateOf(0f)
 
     // current animation target, if animating, otherwise null
     private val animationTarget = mutableStateOf<Float?>(null)
@@ -138,8 +139,8 @@ internal open class SwipeableState<T>(
             requireNotNull(initialOffset) {
                 "The initial value must have an associated anchor."
             }
-            offsetState.value = initialOffset
-            absoluteOffset.value = initialOffset
+            offsetState.floatValue = initialOffset
+            absoluteOffset.floatValue = initialOffset
         }
     }
 
@@ -174,10 +175,10 @@ internal open class SwipeableState<T>(
                 newState ?: newAnchors.keys.minByOrNull { abs(it - animationTargetValue) }!!
             } else {
                 // we're not animating, proceed by finding the new anchors for an old value
-                val actualOldValue = oldAnchors[offset.value]
+                val actualOldValue = oldAnchors[offset.floatValue]
                 val value = if (actualOldValue == currentValue) currentValue else actualOldValue
                 newAnchors.getOffset(value) ?: newAnchors
-                    .keys.minByOrNull { abs(it - offset.value) }!!
+                    .keys.minByOrNull { abs(it - offset.floatValue) }!!
             }
             try {
                 animateInternalToOffset(targetOffset, animationSpec)
@@ -194,18 +195,18 @@ internal open class SwipeableState<T>(
 
     internal var thresholds: (Float, Float) -> Float by mutableStateOf({ _, _ -> 0f })
 
-    internal var velocityThreshold by mutableStateOf(0f)
+    internal var velocityThreshold by mutableFloatStateOf(0f)
 
     internal var resistance: ResistanceConfig? by mutableStateOf(null)
 
     internal val draggableState = DraggableState {
-        val newAbsolute = absoluteOffset.value + it
+        val newAbsolute = absoluteOffset.floatValue + it
         val clamped = newAbsolute.coerceIn(minBound, maxBound)
         val overflow = newAbsolute - clamped
         val resistanceDelta = resistance?.computeResistance(overflow) ?: 0f
-        offsetState.value = clamped + resistanceDelta
-        overflowState.value = overflow
-        absoluteOffset.value = newAbsolute
+        offsetState.floatValue = clamped + resistanceDelta
+        overflowState.floatValue = overflow
+        absoluteOffset.floatValue = newAbsolute
     }
 
     private suspend fun snapInternalToOffset(target: Float) {
@@ -216,7 +217,7 @@ internal open class SwipeableState<T>(
 
     private suspend fun animateInternalToOffset(target: Float, spec: AnimationSpec<Float>) {
         draggableState.drag {
-            var prevValue = absoluteOffset.value
+            var prevValue = absoluteOffset.floatValue
             animationTarget.value = target
             isAnimationRunning = true
             try {
@@ -261,7 +262,7 @@ internal open class SwipeableState<T>(
     @ExperimentalMaterial3Api
     internal val progress: SwipeProgress<T>
         get() {
-            val bounds = findBounds(offset.value, anchors.keys)
+            val bounds = findBounds(offset.floatValue, anchors.keys)
             val from: T
             val to: T
             val fraction: Float
@@ -285,7 +286,7 @@ internal open class SwipeableState<T>(
                         }
                     from = anchors.getValue(a)
                     to = anchors.getValue(b)
-                    fraction = (offset.value - a) / (b - a)
+                    fraction = (offset.floatValue - a) / (b - a)
                 }
             }
             return SwipeProgress(from, to, fraction)
@@ -299,7 +300,7 @@ internal open class SwipeableState<T>(
      */
     @ExperimentalMaterial3Api
     internal val direction: Float
-        get() = anchors.getOffset(currentValue)?.let { sign(offset.value - it) } ?: 0f
+        get() = anchors.getOffset(currentValue)?.let { sign(offset.floatValue - it) } ?: 0f
 
     /**
      * Set the state without any animation and suspend until it's set
@@ -334,7 +335,7 @@ internal open class SwipeableState<T>(
                 }
                 animateInternalToOffset(targetOffset, anim)
             } finally {
-                val endOffset = absoluteOffset.value
+                val endOffset = absoluteOffset.floatValue
                 val endValue = anchors
                     // fighting rounding error once again, anchor should be as close as 0.5 pixels
                     .filterKeys { anchorOffset -> abs(anchorOffset - endOffset) < 0.5f }
@@ -392,9 +393,9 @@ internal open class SwipeableState<T>(
      * @return the amount of [delta] consumed
      */
     internal fun performDrag(delta: Float): Float {
-        val potentiallyConsumed = absoluteOffset.value + delta
+        val potentiallyConsumed = absoluteOffset.floatValue + delta
         val clamped = potentiallyConsumed.coerceIn(minBound, maxBound)
-        val deltaToConsume = clamped - absoluteOffset.value
+        val deltaToConsume = clamped - absoluteOffset.floatValue
         if (abs(deltaToConsume) > 0) {
             draggableState.dispatchRawDelta(deltaToConsume)
         }
@@ -865,7 +866,7 @@ internal val <T> SwipeableState<T>.PreUpPostDownNestedScrollConnection: NestedSc
 
         override suspend fun onPreFling(available: Velocity): Velocity {
             val toFling = Offset(available.x, available.y).toFloat()
-            return if (toFling < 0 && offset.value > minBound) {
+            return if (toFling < 0 && offset.floatValue > minBound) {
                 performFling(velocity = toFling)
                 // since we go to the anchor with tween settling, consume all for the best UX
                 available

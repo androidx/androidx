@@ -39,6 +39,7 @@ import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.movableContentWithReceiverOf
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
@@ -172,7 +173,7 @@ fun CraneDemo() {
 class ProgressProviderImpl<T>(initialState: T) : ProgressProvider<T> {
     override var initialState: T by mutableStateOf(initialState)
     override var targetState: T by mutableStateOf(initialState)
-    override var progress: Float by mutableStateOf(0f)
+    override var progress: Float by mutableFloatStateOf(0f)
 }
 
 interface ProgressProvider<T> {

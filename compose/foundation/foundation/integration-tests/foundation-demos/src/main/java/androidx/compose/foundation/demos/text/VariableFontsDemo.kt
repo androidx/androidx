@@ -37,6 +37,7 @@ import androidx.compose.material.Slider
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -65,7 +66,7 @@ fun VariableFontsDemo() {
         Text("Variable fonts are only supported on API 26+")
      }
 
-    val (weight, setWeight) = remember { mutableStateOf(1000f) }
+    val (weight, setWeight) = remember { mutableFloatStateOf(1000f) }
     val (italic, setItalic) = remember { mutableStateOf(false) }
     LazyColumn {
         this.stickyHeader {

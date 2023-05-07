@@ -30,6 +30,7 @@ import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -79,7 +80,7 @@ private fun RecyclingAndroidViewLazyColumn(
     checkedItems: Set<Int>,
     onChangeCheck: (Int, Boolean) -> Unit
 ) {
-    var allocationCounter by remember { mutableStateOf(0) }
+    var allocationCounter by remember { mutableIntStateOf(0) }
     val resetViews = remember { mutableSetOf<View>() }
 
     LazyColumn {

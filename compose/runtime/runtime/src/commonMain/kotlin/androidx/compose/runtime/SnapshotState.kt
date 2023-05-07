@@ -22,6 +22,7 @@ import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.runtime.snapshots.SnapshotMutableState
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.snapshots.SnapshotStateMap
+import androidx.compose.runtime.snapshots.StateFactoryMarker
 import androidx.compose.runtime.snapshots.StateObject
 import androidx.compose.runtime.snapshots.StateRecord
 import androidx.compose.runtime.snapshots.overwritable
@@ -53,6 +54,7 @@ import kotlin.reflect.KProperty
  * @see mutableFloatStateOf
  * @see mutableDoubleStateOf
  */
+@StateFactoryMarker
 fun <T> mutableStateOf(
     value: T,
     policy: SnapshotMutationPolicy<T> = structuralEqualityPolicy()
@@ -223,6 +225,7 @@ internal open class SnapshotMutableStateImpl<T>(
  * @see MutableList
  * @see Snapshot.takeSnapshot
  */
+@StateFactoryMarker
 fun <T> mutableStateListOf() = SnapshotStateList<T>()
 
 /**
@@ -233,6 +236,7 @@ fun <T> mutableStateListOf() = SnapshotStateList<T>()
  * @see MutableList
  * @see Snapshot.takeSnapshot
  */
+@StateFactoryMarker
 fun <T> mutableStateListOf(vararg elements: T) =
     SnapshotStateList<T>().also { it.addAll(elements.toList()) }
 
@@ -252,6 +256,7 @@ fun <T> Collection<T>.toMutableStateList() = SnapshotStateList<T>().also { it.ad
  * @see MutableMap
  * @see Snapshot.takeSnapshot
  */
+@StateFactoryMarker
 fun <K, V> mutableStateMapOf() = SnapshotStateMap<K, V>()
 
 /**
@@ -262,6 +267,7 @@ fun <K, V> mutableStateMapOf() = SnapshotStateMap<K, V>()
  * @see MutableMap
  * @see Snapshot.takeSnapshot
  */
+@StateFactoryMarker
 fun <K, V> mutableStateMapOf(vararg pairs: Pair<K, V>) =
     SnapshotStateMap<K, V>().apply { putAll(pairs.toMap()) }
 

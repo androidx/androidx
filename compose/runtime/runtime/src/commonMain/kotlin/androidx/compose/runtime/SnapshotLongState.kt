@@ -22,6 +22,7 @@ import androidx.compose.runtime.internal.JvmDefaultWithCompatibility
 import androidx.compose.runtime.snapshots.AutoboxingStateValueProperty
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.runtime.snapshots.SnapshotMutableState
+import androidx.compose.runtime.snapshots.StateFactoryMarker
 import androidx.compose.runtime.snapshots.StateObject
 import androidx.compose.runtime.snapshots.StateRecord
 import androidx.compose.runtime.snapshots.overwritable
@@ -46,6 +47,7 @@ import kotlin.reflect.KProperty
  * @see mutableFloatStateOf
  * @see mutableDoubleStateOf
  */
+@StateFactoryMarker
 fun mutableLongStateOf(
     value: Long
 ): MutableLongState = createSnapshotMutableLongState(value)

@@ -22,7 +22,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.ReusableContentHost
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.saveable.SaveableStateHolder
 import androidx.compose.runtime.setValue
 
@@ -84,7 +84,7 @@ internal class LazyLayoutItemContentFactory(
         val key: Any,
         val type: Any?
     ) {
-        var lastKnownIndex by mutableStateOf(initialIndex)
+        var lastKnownIndex by mutableIntStateOf(initialIndex)
             private set
 
         private var _content: (@Composable () -> Unit)? = null
