@@ -41,6 +41,7 @@ import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.neverEqualPolicy
 import androidx.compose.runtime.remember
@@ -290,7 +291,7 @@ inline fun ConstraintLayout(
             content = { content() })
     } else {
         val needsUpdate = remember {
-            mutableStateOf(0L)
+            mutableLongStateOf(0L)
         }
 
         val contentTracker = remember { mutableStateOf(Unit, neverEqualPolicy()) }

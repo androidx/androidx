@@ -38,7 +38,7 @@ import androidx.compose.material.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -79,7 +79,7 @@ fun LookaheadWithTabRowDemo() {
 
 @Composable
 fun FancyTabs() {
-    var state by remember { mutableStateOf(0) }
+    var state by remember { mutableIntStateOf(0) }
     val titles = listOf("TAB 1", "TAB 2", "TAB 3")
     Column {
         TabRow(
@@ -124,7 +124,7 @@ fun FancyTab(title: String, onClick: () -> Unit, selected: Boolean) {
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun ScrollingTextTabs() {
-    var state by remember { mutableStateOf(0) }
+    var state by remember { mutableIntStateOf(0) }
     val titles = listOf(
         "Tab 1",
         "Tab 2",
@@ -159,7 +159,7 @@ fun ScrollingTextTabs() {
 
 @Composable
 fun ScrollingFancyIndicatorContainerTabs() {
-    var state by remember { mutableStateOf(0) }
+    var state by remember { mutableIntStateOf(0) }
     val titles = listOf(
         "Tab 1",
         "Tab 2",

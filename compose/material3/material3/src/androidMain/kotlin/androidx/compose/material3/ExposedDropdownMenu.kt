@@ -41,6 +41,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -108,8 +109,8 @@ fun ExposedDropdownMenuBox(
 ) {
     val density = LocalDensity.current
     val view = LocalView.current
-    var width by remember { mutableStateOf(0) }
-    var menuHeight by remember { mutableStateOf(0) }
+    var width by remember { mutableIntStateOf(0) }
+    var menuHeight by remember { mutableIntStateOf(0) }
     val verticalMarginInPx = with(density) { MenuVerticalMargin.roundToPx() }
     val coordinates = remember { Ref<LayoutCoordinates>() }
 

@@ -28,7 +28,7 @@ import androidx.compose.runtime.MonotonicFrameClock
 import androidx.compose.runtime.PausableMonotonicFrameClock
 import androidx.compose.runtime.Recomposer
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.InternalComposeUiApi
@@ -437,5 +437,5 @@ fun View.createLifecycleAwareWindowRecomposer(
 }
 
 private class MotionDurationScaleImpl : MotionDurationScale {
-    override var scaleFactor by mutableStateOf(1f)
+    override var scaleFactor by mutableFloatStateOf(1f)
 }

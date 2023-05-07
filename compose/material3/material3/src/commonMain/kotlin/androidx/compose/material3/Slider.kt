@@ -55,6 +55,8 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -680,9 +682,9 @@ private fun RangeSliderImpl(
         stepsToTickFractions(steps)
     }
 
-    var startThumbWidth by remember { mutableStateOf(ThumbWidth.value) }
-    var endThumbWidth by remember { mutableStateOf(ThumbWidth.value) }
-    var totalWidth by remember { mutableStateOf(0) }
+    var startThumbWidth by remember { mutableFloatStateOf(ThumbWidth.value) }
+    var endThumbWidth by remember { mutableFloatStateOf(ThumbWidth.value) }
+    var totalWidth by remember { mutableIntStateOf(0) }
 
     val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
 
@@ -695,8 +697,8 @@ private fun RangeSliderImpl(
         scale(valueRange.start, valueRange.endInclusive, userValue, minPx, maxPx)
 
     var obtainedMeasurements = remember { mutableStateOf(false) }
-    val rawOffsetStart = remember { mutableStateOf(0f) }
-    val rawOffsetEnd = remember { mutableStateOf(0f) }
+    val rawOffsetStart = remember { mutableFloatStateOf(0f) }
+    val rawOffsetEnd = remember { mutableFloatStateOf(0f) }
 
     val gestureEndAction = rememberUpdatedState<(Boolean) -> Unit> {
         onValueChangeFinished?.invoke()
@@ -706,17 +708,17 @@ private fun RangeSliderImpl(
         val maxPx = max(totalWidth - endThumbWidth / 2, 0f)
         val minPx = min(startThumbWidth / 2, maxPx)
         val offsetRange = if (isStart) {
-            rawOffsetStart.value = (rawOffsetStart.value + offset)
-            rawOffsetEnd.value = scaleToOffset(minPx, maxPx, value.endInclusive)
-            val offsetEnd = rawOffsetEnd.value
-            var offsetStart = rawOffsetStart.value.coerceIn(minPx, offsetEnd)
+            rawOffsetStart.floatValue = (rawOffsetStart.floatValue + offset)
+            rawOffsetEnd.floatValue = scaleToOffset(minPx, maxPx, value.endInclusive)
+            val offsetEnd = rawOffsetEnd.floatValue
+            var offsetStart = rawOffsetStart.floatValue.coerceIn(minPx, offsetEnd)
             offsetStart = snapValueToTick(offsetStart, tickFractions, minPx, maxPx)
             offsetStart..offsetEnd
         } else {
-            rawOffsetEnd.value = (rawOffsetEnd.value + offset)
-            rawOffsetStart.value = scaleToOffset(minPx, maxPx, value.start)
-            val offsetStart = rawOffsetStart.value
-            var offsetEnd = rawOffsetEnd.value.coerceIn(offsetStart, maxPx)
+            rawOffsetEnd.floatValue = (rawOffsetEnd.floatValue + offset)
+            rawOffsetStart.floatValue = scaleToOffset(minPx, maxPx, value.start)
+            val offsetStart = rawOffsetStart.floatValue
+            var offsetEnd = rawOffsetEnd.floatValue.coerceIn(offsetStart, maxPx)
             offsetEnd = snapValueToTick(offsetEnd, tickFractions, minPx, maxPx)
             offsetStart..offsetEnd
         }
@@ -847,12 +849,12 @@ private fun RangeSliderImpl(
         if (!obtainedMeasurements.value) {
             val finalizedMaxPx = max(totalWidth - endThumbWidth / 2, 0f)
             val finalizedMinPx = min(startThumbWidth / 2, finalizedMaxPx)
-            rawOffsetStart.value = scaleToOffset(
+            rawOffsetStart.floatValue = scaleToOffset(
                 finalizedMinPx,
                 finalizedMaxPx,
                 value.start
             )
-            rawOffsetEnd.value = scaleToOffset(
+            rawOffsetEnd.floatValue = scaleToOffset(
                 finalizedMinPx,
                 finalizedMaxPx,
                 value.endInclusive
@@ -1679,7 +1681,7 @@ class SliderState(
     val valueRange: ClosedFloatingPointRange<Float> = 0f..1f,
     var onValueChangeFinished: (() -> Unit)? = null
 ) {
-    private var valueState by mutableStateOf(initialValue)
+    private var valueState by mutableFloatStateOf(initialValue)
 
     /**
      * [Float] that indicates the current value that the thumb
@@ -1709,11 +1711,11 @@ class SliderState(
 
     internal val tickFractions = stepsToTickFractions(steps)
 
-    private var thumbWidth by mutableStateOf(ThumbWidth.value)
-    internal var totalWidth by mutableStateOf(0)
+    private var thumbWidth by mutableFloatStateOf(ThumbWidth.value)
+    internal var totalWidth by mutableIntStateOf(0)
 
-    internal var rawOffset by mutableStateOf(scaleToOffset(0f, 0f, value))
-    internal var pressOffset by mutableStateOf(0f)
+    internal var rawOffset by mutableFloatStateOf(scaleToOffset(0f, 0f, value))
+    internal var pressOffset by mutableFloatStateOf(0f)
 
     internal var isRtl = false
 

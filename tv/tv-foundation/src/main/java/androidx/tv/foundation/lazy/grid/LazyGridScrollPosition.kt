@@ -18,6 +18,7 @@ package androidx.tv.foundation.lazy.grid
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.Snapshot
@@ -35,7 +36,7 @@ internal class LazyGridScrollPosition(
     var index by mutableStateOf(ItemIndex(initialIndex))
         private set
 
-    var scrollOffset by mutableStateOf(initialScrollOffset)
+    var scrollOffset by mutableIntStateOf(initialScrollOffset)
         private set
 
     private var hadFirstNotEmptyLayout = false

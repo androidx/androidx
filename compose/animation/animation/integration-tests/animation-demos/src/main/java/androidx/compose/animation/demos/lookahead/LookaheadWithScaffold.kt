@@ -59,7 +59,7 @@ import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -98,7 +98,7 @@ fun LookaheadWithScaffold() {
                     if (hasPadding) Modifier.padding(bottom = 300.dp) else Modifier
                 )
         ) {
-            var state by remember { mutableStateOf(0) }
+            var state by remember { mutableIntStateOf(0) }
             val titles = listOf(
                 "SimpleScaffold", "W/Cutout", "SimpleSnackbar", "CustomSnackbar", "Backdrop"
             )
@@ -256,7 +256,7 @@ fun ScaffoldWithSimpleSnackbar() {
     Scaffold(
         scaffoldState = scaffoldState,
         floatingActionButton = {
-            var clickCount by remember { mutableStateOf(0) }
+            var clickCount by remember { mutableIntStateOf(0) }
             ExtendedFloatingActionButton(
                 text = { Text("Show snackbar") },
                 onClick = {
@@ -296,7 +296,7 @@ fun ScaffoldWithCustomSnackbar() {
             }
         },
         floatingActionButton = {
-            var clickCount by remember { mutableStateOf(0) }
+            var clickCount by remember { mutableIntStateOf(0) }
             ExtendedFloatingActionButton(
                 text = { Text("Show snackbar") },
                 onClick = {
@@ -323,7 +323,7 @@ fun ScaffoldWithCustomSnackbar() {
 @OptIn(ExperimentalMaterialApi::class)
 fun BackdropScaffoldSample() {
     val scope = rememberCoroutineScope()
-    val selection = remember { mutableStateOf(1) }
+    var selection by remember { mutableIntStateOf(1) }
     val scaffoldState = rememberBackdropScaffoldState(BackdropValue.Concealed)
     LaunchedEffect(scaffoldState) {
         scaffoldState.reveal()
@@ -345,7 +345,7 @@ fun BackdropScaffoldSample() {
                     }
                 },
                 actions = {
-                    var clickCount by remember { mutableStateOf(0) }
+                    var clickCount by remember { mutableIntStateOf(0) }
                     IconButton(
                         onClick = {
                             // show snackbar as a suspend function
@@ -364,10 +364,10 @@ fun BackdropScaffoldSample() {
         },
         backLayerContent = {
             LazyColumn {
-                items(if (selection.value >= 3) 3 else 5) {
+                items(if (selection >= 3) 3 else 5) {
                     ListItem(
                         Modifier.clickable {
-                            selection.value = it
+                            selection = it
                             scope.launch { scaffoldState.conceal() }
                         },
                         text = { Text("Select $it") }
@@ -376,7 +376,7 @@ fun BackdropScaffoldSample() {
             }
         },
         frontLayerContent = {
-            Text("Selection: ${selection.value}")
+            Text("Selection: $selection")
             LazyColumn {
                 items(50) {
                     ListItem(

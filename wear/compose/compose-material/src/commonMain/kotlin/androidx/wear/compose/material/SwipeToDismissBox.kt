@@ -32,6 +32,7 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -108,7 +109,7 @@ public fun SwipeToDismissBox(
 ) {
     // Will be updated in onSizeChanged, initialise to any value other than zero
     // so that it is different to the other anchor used for the swipe gesture.
-    var maxWidth by remember { mutableStateOf(1f) }
+    var maxWidth by remember { mutableFloatStateOf(1f) }
     Box(
         modifier = modifier
             .fillMaxSize()

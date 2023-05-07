@@ -36,7 +36,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -71,7 +71,7 @@ val AllComposeConstraintLayoutDemos: List<ComposeDemo> =
 @Preview
 @Composable
 fun ComposeConstraintLayoutDemos() {
-    var displayedDemoIndex by remember { mutableStateOf(-1) }
+    var displayedDemoIndex by remember { mutableIntStateOf(-1) }
     val maxIndex = AllComposeConstraintLayoutDemos.size - 1
     Column {
         Column {

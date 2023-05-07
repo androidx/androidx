@@ -34,7 +34,7 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -57,7 +57,7 @@ import kotlin.math.roundToInt
 @Composable
 fun SwipeToDismissDemo() {
     Column {
-        var index by remember { mutableStateOf(0) }
+        var index by remember { mutableIntStateOf(0) }
         Box(Modifier.requiredHeight(300.dp).fillMaxWidth()) {
             Box(
                 Modifier.swipeToDismiss(index).align(Alignment.BottomCenter).requiredSize(150.dp)
@@ -82,7 +82,7 @@ fun SwipeToDismissDemo() {
 
 private fun Modifier.swipeToDismiss(index: Int): Modifier = composed {
     val animatedOffset = remember { Animatable(0f) }
-    val height = remember { mutableStateOf(0) }
+    val height = remember { mutableIntStateOf(0) }
     LaunchedEffect(index) {
         animatedOffset.snapTo(0f)
     }
