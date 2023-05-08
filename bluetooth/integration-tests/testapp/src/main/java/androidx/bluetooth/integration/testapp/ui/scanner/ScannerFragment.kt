@@ -16,10 +16,6 @@
 
 package androidx.bluetooth.integration.testapp.ui.scanner
 
-// TODO(ofy) Migrate from androidx.bluetooth.integration.testapp.experimental.BluetoothLe to
-// androidx.bluetooth.BluetoothDevice once in place
-// TODO(ofy) Migrate from androidx.bluetooth.integration.testapp.experimental.BluetoothLe to
-// androidx.bluetooth.BluetoothLe once scan API is in place
 import android.bluetooth.le.ScanResult
 import android.bluetooth.le.ScanSettings
 import android.os.Bundle
@@ -32,6 +28,7 @@ import android.widget.TextView
 import androidx.bluetooth.integration.testapp.R
 import androidx.bluetooth.integration.testapp.databinding.FragmentScannerBinding
 import android.annotation.SuppressLint
+// TODO(ofy) Migrate to androidx.bluetooth.BluetoothLe once scan API is in place
 import androidx.bluetooth.integration.testapp.experimental.BluetoothLe
 import androidx.bluetooth.integration.testapp.ui.common.getColor
 import androidx.core.view.isVisible
@@ -138,8 +135,6 @@ class ScannerFragment : Fragment() {
             DividerItemDecoration(context, LinearLayoutManager.VERTICAL)
         )
 
-        initData()
-
         binding.buttonScan.setOnClickListener {
             if (scanJob?.isActive == true) {
                 isScanning = false
@@ -148,6 +143,8 @@ class ScannerFragment : Fragment() {
             }
         }
 
+        initData()
+
         return binding.root
     }
 
@@ -155,8 +152,6 @@ class ScannerFragment : Fragment() {
         super.onDestroyView()
         _binding = null
         isScanning = false
-        scanJob?.cancel()
-        scanJob = null
     }
 
     private fun initData() {
@@ -197,7 +192,7 @@ class ScannerFragment : Fragment() {
             binding.tabLayout.getTabAt(index)
         }
 
-        // To prevent TabSelectedListener being triggered when a tab is promatically selected.
+        // To prevent TabSelectedListener being triggered when a tab is programmatically selected.
         binding.tabLayout.removeOnTabSelectedListener(onTabSelectedListener)
         binding.tabLayout.selectTab(deviceTab)
         binding.tabLayout.addOnTabSelectedListener(onTabSelectedListener)
@@ -217,7 +212,9 @@ class ScannerFragment : Fragment() {
 
         val customView = newTab.customView
         customView?.findViewById<TextView>(R.id.text_view_address)?.text = deviceAddress
-        customView?.findViewById<TextView>(R.id.text_view_name)?.text = deviceName
+        val textViewName = customView?.findViewById<TextView>(R.id.text_view_name)
+        textViewName?.text = deviceName
+        textViewName?.isVisible = deviceName.isNullOrEmpty().not()
 
         binding.tabLayout.addTab(newTab)
         return newTab

@@ -21,7 +21,7 @@ import androidx.lifecycle.ViewModel
 
 class HomeViewModel : ViewModel() {
 
-    companion object {
+    private companion object {
         private const val TAG = "HomeViewModel"
     }
 
