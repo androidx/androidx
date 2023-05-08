@@ -67,7 +67,7 @@ android {
 }
 
 androidx {
-    name = "androidx.tv:tv-foundation"
+    name = "TV Foundation"
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2022"
     description = "This library makes it easier for developers" +

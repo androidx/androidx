@@ -33,7 +33,7 @@ dependencies {
 }
 
 androidx {
-    name = "Android Fragment-Testing Lint Checks"
+    name = "Fragment-Testing Lint Checks"
     type = LibraryType.LINT
     inceptionYear = "2019"
     description = "Lint Checks for the Fragment Testing module"

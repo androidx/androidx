@@ -39,7 +39,7 @@ dependencies {
 }
 
 androidx {
-    name = "Android Lifecycle Runtime Testing"
+    name = "Lifecycle Runtime Testing"
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2019"
     description = "Testing utilities for 'lifecycle' artifact"

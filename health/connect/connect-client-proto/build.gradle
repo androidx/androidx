@@ -78,7 +78,7 @@ def jarjarConf = configurations.register("export")
 artifacts.add(jarjarConf.name, preferencesProtoJarJarTask.flatMap { it.archiveFile })
 
 androidx {
-    name = "AndroidX Health Connect Client Proto"
+    name = "Health Connect Client Proto"
     publish = Publish.NONE
     inceptionYear = "2022"
     description = "Proto files for health-connect-client"

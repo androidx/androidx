@@ -43,7 +43,7 @@ tasks.withType(KotlinCompile).configureEach {
 }
 
 androidx {
-    name = "androidx.appactions.builtintypes:builtintypes-core"
+    name = "AppActions Builtin Types Core"
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2023"
     description = "This library exposes a core set of data types based on schema.org definitions."

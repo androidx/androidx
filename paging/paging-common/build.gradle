@@ -51,7 +51,7 @@ dependencies {
 }
 
 androidx {
-    name = "Android Paging-Common"
+    name = "Paging-Common"
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2017"
     description = "Android Paging-Common"

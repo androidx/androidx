@@ -79,7 +79,7 @@ protobuf {
 }
 
 androidx {
-    name = "AndroidX Health Services Client Library"
+    name = "Health Services Client"
     type = LibraryType.PUBLISHED_LIBRARY
     mavenVersion = LibraryVersions.HEALTH_SERVICES_CLIENT
     inceptionYear = "2021"

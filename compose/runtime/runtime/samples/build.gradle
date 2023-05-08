@@ -36,7 +36,7 @@ dependencies {
 }
 
 androidx {
-    name = "AndroidX Compose Runtime Samples"
+    name = "Compose Runtime Samples"
     type = LibraryType.SAMPLES
     inceptionYear = "2019"
     description = "Contains the sample code for the Compose runtime"

@@ -41,7 +41,7 @@ dependencies {
 }
 
 androidx {
-    name = "Android Room Kotlin Extensions"
+    name = "Room Kotlin Extensions"
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2019"
     description = "Android Room Kotlin Extensions"

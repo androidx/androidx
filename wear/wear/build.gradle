@@ -62,7 +62,7 @@ android {
 }
 
 androidx {
-    name = "Android Wear Support UI"
+    name = "Android Wear"
     publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.WEAR
     inceptionYear = "2016"

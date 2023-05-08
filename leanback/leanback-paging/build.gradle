@@ -52,7 +52,7 @@ android {
 }
 
 androidx {
-    name = "AndroidX Leanback Paging"
+    name = "Leanback Paging"
     publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.LEANBACK_PAGING
     inceptionYear = "2020"

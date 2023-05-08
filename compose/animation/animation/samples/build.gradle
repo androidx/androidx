@@ -37,7 +37,7 @@ dependencies {
 }
 
 androidx {
-    name = "AndroidX Compose UI Animation Library Samples"
+    name = "Compose UI Animation Samples"
     type = LibraryType.SAMPLES
     inceptionYear = "2019"
     description = "Contains the sample code for the Androidx Compose UI Animation Library"

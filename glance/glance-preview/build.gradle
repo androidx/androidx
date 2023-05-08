@@ -24,7 +24,7 @@ android {
 }
 
 androidx {
-    name = "Android Glance Preview"
+    name = "Glance Preview"
     type = LibraryType.PUBLISHED_LIBRARY
     mavenVersion = LibraryVersions.GLANCE_PREVIEW
     inceptionYear = "2022"

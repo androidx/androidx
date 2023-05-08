@@ -34,7 +34,7 @@ dependencies {
 }
 
 androidx {
-    name = "AndroidX Inspection"
+    name = "Inspection"
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2019"
     description = "Experimental AndroidX Inspection Project"

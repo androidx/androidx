@@ -26,7 +26,7 @@ dependencies {
 }
 
 androidx {
-    name = "Android Resource Inspection - Annotations"
+    name = "Resource Inspection - Annotations"
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2021"
     description = "Annotation processors for Android resource and layout inspection"

@@ -43,7 +43,7 @@ dependencies {
 }
 
 androidx {
-    name = "Android Lifecycle Reactivestreams"
+    name = "Lifecycle Reactivestreams"
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2017"
     description = "Android Lifecycle Reactivestreams"

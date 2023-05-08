@@ -109,7 +109,7 @@ androidXMultiplatform {
 }
 
 androidx {
-    name = "Compose Tooling API"
+    name = "Compose UI Preview Tooling"
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2021"
     description = "Compose tooling library API. This library provides the API required to declare" +

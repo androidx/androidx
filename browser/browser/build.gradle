@@ -51,8 +51,8 @@ dependencies {
 }
 
 androidx {
-    name = "Android Support Custom Tabs"
+    name = "Browser"
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2015"
-    description = "Android Support Custom Tabs"
+    description = "Provides support for embedding Custom Tabs in an app."
 }

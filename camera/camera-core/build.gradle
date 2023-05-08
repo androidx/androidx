@@ -111,7 +111,7 @@ android {
 }
 
 androidx {
-    name = "Jetpack Camera Core Library"
+    name = "Camera Core"
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2019"
     description = "Core components for the Jetpack Camera Library, a library providing a " +

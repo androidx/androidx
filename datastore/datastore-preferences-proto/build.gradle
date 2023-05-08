@@ -73,7 +73,7 @@ def jarjarConf = configurations.register("export")
 artifacts.add(jarjarConf.name, preferencesProtoJarJarTask.flatMap { it.archiveFile })
 
 androidx {
-    name = "Android Preferences DataStore Proto"
+    name = "Preferences DataStore Proto"
     publish = Publish.NONE
     inceptionYear = "2020"
     description = "Jarjar the generated proto and proto-lite dependency for use by " +

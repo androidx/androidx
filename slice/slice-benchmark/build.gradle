@@ -40,7 +40,7 @@ dependencies {
 }
 
 androidx {
-    name = "Slices Benchmarks"
+    name = "Slice Benchmarks"
     publish = Publish.NONE // Library is deprecated pending removal.
     mavenVersion = LibraryVersions.SLICE_BENCHMARK
     inceptionYear = "2018"

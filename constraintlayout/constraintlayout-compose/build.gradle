@@ -99,7 +99,7 @@ dependencies {
 }
 
 androidx {
-    name = "Android ConstraintLayout Compose Library"
+    name = "ConstraintLayout Compose"
     type = LibraryType.PUBLISHED_LIBRARY
     mavenVersion = LibraryVersions.CONSTRAINTLAYOUT_COMPOSE
     inceptionYear = "2022"

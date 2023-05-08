@@ -37,7 +37,7 @@ dependencies {
 }
 
 androidx {
-    name = "Android Lifecycle LiveData Core"
+    name = "Lifecycle LiveData Core"
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2017"
     description = "Android Lifecycle LiveData Core"

@@ -91,7 +91,7 @@ android {
 }
 
 androidx {
-    name = "Jetpack Camera Testing Library"
+    name = "Camera Testing"
     publish = Publish.SNAPSHOT_AND_RELEASE
     runApiTasks = new RunApiTasks.No("Internal testing library without any release plan yet.")
     inceptionYear = "2019"
