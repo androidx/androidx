@@ -18,9 +18,13 @@ package androidx.appactions.interaction.capabilities.core.impl.converters;
 
 import androidx.annotation.NonNull;
 import androidx.appactions.builtintypes.experimental.properties.Attendee;
+import androidx.appactions.builtintypes.experimental.properties.EndDate;
 import androidx.appactions.builtintypes.experimental.properties.ItemListElement;
+import androidx.appactions.builtintypes.experimental.properties.Name;
 import androidx.appactions.builtintypes.experimental.properties.Participant;
 import androidx.appactions.builtintypes.experimental.properties.Recipient;
+import androidx.appactions.builtintypes.experimental.properties.StartDate;
+import androidx.appactions.builtintypes.experimental.properties.Text;
 import androidx.appactions.builtintypes.experimental.types.Alarm;
 import androidx.appactions.builtintypes.experimental.types.CalendarEvent;
 import androidx.appactions.builtintypes.experimental.types.Call;
@@ -73,20 +77,17 @@ public final class TypeConverters {
                     .build();
 
     public static final TypeSpec<Person> PERSON_TYPE_SPEC =
-            TypeSpecBuilder.newBuilderForThing(
-                            "Person",
-                            Person::Builder,
-                            Person.Builder::build)
-                    .bindStringField("email",
-                            person -> Optional.ofNullable(person.getEmail()),
-                            Person.Builder::setEmail)
+            TypeSpecBuilder.newBuilderForThing("Person", Person::Builder, Person.Builder::build)
+                    .bindStringField("email", Person::getEmail, Person.Builder::setEmail)
                     .bindStringField(
-                            "telephone",
-                            person -> Optional.ofNullable(person.getTelephone()),
-                            Person.Builder::setTelephone)
-                    .bindStringField("name",
-                            person -> Optional.ofNullable(person.getName())
-                                    .flatMap(name -> Optional.ofNullable(name.asText())),
+                            "telephone", Person::getTelephone, Person.Builder::setTelephone)
+                    .bindStringField(
+                            "name",
+                            person ->
+                                    Optional.ofNullable(person)
+                                            .map(Person::getName)
+                                            .map(Name::asText)
+                                            .orElse(null),
                             Person.Builder::setName)
                     .build();
     public static final TypeSpec<Alarm> ALARM_TYPE_SPEC =
@@ -109,13 +110,19 @@ public final class TypeConverters {
                             CalendarEvent.Builder::build)
                     .bindZonedDateTimeField(
                             "startDate",
-                            calendarEvent -> Optional.ofNullable(
-                                    calendarEvent.getStartDate().asZonedDateTime()),
+                            calendarEvent ->
+                                    Optional.ofNullable(calendarEvent)
+                                            .map(CalendarEvent::getStartDate)
+                                            .map(StartDate::asZonedDateTime)
+                                            .orElse(null),
                             CalendarEvent.Builder::setStartDate)
                     .bindZonedDateTimeField(
                             "endDate",
-                            calendarEvent -> Optional.ofNullable(
-                                    calendarEvent.getEndDate().asZonedDateTime()),
+                            calendarEvent ->
+                                    Optional.ofNullable(calendarEvent)
+                                            .map(CalendarEvent::getEndDate)
+                                            .map(EndDate::asZonedDateTime)
+                                            .orElse(null),
                             CalendarEvent.Builder::setEndDate)
                     .bindRepeatedSpecField(
                             "attendee",
@@ -130,11 +137,11 @@ public final class TypeConverters {
                             SafetyCheck.Builder::build)
                     .bindDurationField(
                             "duration",
-                            safetyCheck -> Optional.ofNullable(safetyCheck.getDuration()),
+                            SafetyCheck::getDuration,
                             SafetyCheck.Builder::setDuration)
                     .bindZonedDateTimeField(
                             "checkInTime",
-                            safetyCheck -> Optional.ofNullable(safetyCheck.getCheckInTime()),
+                            SafetyCheck::getCheckInTime,
                             SafetyCheck.Builder::setCheckInTime)
                     .build();
     public static final TypeSpec<Recipient> RECIPIENT_TYPE_SPEC =
@@ -152,11 +159,8 @@ public final class TypeConverters {
                             PERSON_TYPE_SPEC)
                     .build();
     public static final TypeSpec<Message> MESSAGE_TYPE_SPEC =
-            TypeSpecBuilder.newBuilderForThing(
-                            "Message",
-                            Message::Builder,
-                            Message.Builder::build)
-                    .bindIdentifier(message -> Optional.ofNullable(message.getIdentifier()))
+            TypeSpecBuilder.newBuilderForThing("Message", Message::Builder, Message.Builder::build)
+                    .bindIdentifier(Message::getIdentifier)
                     .bindRepeatedSpecField(
                             "recipient",
                             Message::getRecipientList,
@@ -164,7 +168,11 @@ public final class TypeConverters {
                             RECIPIENT_TYPE_SPEC)
                     .bindStringField(
                             "text",
-                            message -> Optional.of(message.getText().asText()),
+                            message ->
+                                    Optional.ofNullable(message)
+                                            .map(Message::getText)
+                                            .map(Text::asText)
+                                            .orElse(null),
                             Message.Builder::setText)
                     .build();
     public static final TypeSpec<Call> CALL_TYPE_SPEC =
@@ -172,7 +180,7 @@ public final class TypeConverters {
                             "Call",
                             Call::Builder,
                             Call.Builder::build)
-                    .bindIdentifier(call -> Optional.ofNullable(call.getIdentifier()))
+                    .bindIdentifier(Call::getIdentifier)
                     .bindRepeatedSpecField(
                             "participant",
                             Call::getParticipantList,
@@ -368,11 +376,11 @@ public final class TypeConverters {
                         SearchAction.Builder<T>::build)
                 .bindStringField(
                         "query",
-                        (searchAction) -> Optional.ofNullable(searchAction.getQuery()),
+                        SearchAction::getQuery,
                         SearchAction.Builder<T>::setQuery)
                 .bindSpecField(
                         "filter",
-                        (searchAction) -> Optional.ofNullable(searchAction.getFilter()),
+                        SearchAction::getFilter,
                         SearchAction.Builder<T>::setFilter,
                         nestedTypeSpec)
                 .build();

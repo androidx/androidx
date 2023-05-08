@@ -25,13 +25,12 @@ import androidx.appactions.interaction.protobuf.Struct;
 import androidx.appactions.interaction.protobuf.Value;
 
 import java.time.Duration;
-import java.time.OffsetDateTime;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
+import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -42,7 +41,7 @@ final class TypeSpecBuilder<T, BuilderT> {
     private final Supplier<BuilderT> mBuilderSupplier;
     private final Function<BuilderT, T> mBuilderFinalizer;
     private CheckedInterfaces.Consumer<Struct> mStructValidator;
-    private Function<T, Optional<String>> mIdentifierGetter = (unused) -> Optional.empty();
+    private Function<T, String> mIdentifierGetter = (unused) -> null;
 
     private TypeSpecBuilder(
             String typeName,
@@ -50,7 +49,7 @@ final class TypeSpecBuilder<T, BuilderT> {
             Function<BuilderT, T> builderFinalizer) {
         this.mBuilderSupplier = builderSupplier;
         this.mBuilderFinalizer = builderFinalizer;
-        this.bindStringField("@type", (unused) -> Optional.of(typeName), (builder, val) -> {})
+        this.bindStringField("@type", (unused) -> typeName, (builder, val) -> {})
                 .setStructValidator(
                         struct -> {
                             if (!getFieldFromStruct(struct, "@type")
@@ -109,16 +108,16 @@ final class TypeSpecBuilder<T, BuilderT> {
                     Supplier<BuilderT> builderSupplier,
                     Function<BuilderT, T> builderFinalizer) {
         return new TypeSpecBuilder<>(typeName, builderSupplier, builderFinalizer)
-                .bindIdentifier(thing -> Optional.ofNullable(thing.getIdentifier()))
-                .bindStringField(
-                        "identifier",
-                        thing -> Optional.ofNullable(thing.getIdentifier()),
-                        BuilderT::setIdentifier)
+                .bindIdentifier(Thing::getIdentifier)
+                .bindStringField("identifier", Thing::getIdentifier, BuilderT::setIdentifier)
                 .bindStringField(
                         "name",
-                        thing ->
-                                Optional.ofNullable(thing.getName())
-                                        .flatMap(name -> Optional.ofNullable(name.asText())),
+                        thing -> {
+                            if (thing.getName() == null) {
+                                return null;
+                            }
+                            return thing.getName().asText();
+                        },
                         BuilderT::setName);
     }
 
@@ -128,15 +127,15 @@ final class TypeSpecBuilder<T, BuilderT> {
         return this;
     }
 
-    TypeSpecBuilder<T, BuilderT> bindIdentifier(Function<T, Optional<String>> identifierGetter) {
+    TypeSpecBuilder<T, BuilderT> bindIdentifier(Function<T, String> identifierGetter) {
         this.mIdentifierGetter = identifierGetter;
         return this;
     }
 
     private TypeSpecBuilder<T, BuilderT> bindFieldInternal(
             String name,
-            Function<T, Optional<Value>> valueGetter,
-            CheckedInterfaces.BiConsumer<BuilderT, Optional<Value>> valueSetter) {
+            Function<T, Value> valueGetter,
+            CheckedInterfaces.BiConsumer<BuilderT, Value> valueSetter) {
         mBindings.add(FieldBinding.create(name, valueGetter, valueSetter));
         return this;
     }
@@ -145,30 +144,28 @@ final class TypeSpecBuilder<T, BuilderT> {
             String name,
             Function<T, List<V>> valueGetter,
             BiConsumer<BuilderT, List<V>> valueSetter,
-            Function<V, Optional<Value>> toValue,
+            Function<V, Value> toValue,
             CheckedInterfaces.Function<Value, V> fromValue) {
         return bindFieldInternal(
                 name,
                 /** valueGetter= */
                 object -> {
-                    if (valueGetter.apply(object).isEmpty()) {
-                        return Optional.empty();
+                    List<V> valueList = valueGetter.apply(object);
+                    if (valueList == null) {
+                        return null;
                     }
-                    return Optional.of(
-                            getListValue(
-                                    valueGetter.apply(object).stream()
-                                            .map(toValue)
-                                            .filter(Optional::isPresent)
-                                            .map(Optional::get)
-                                            .collect(toImmutableList())));
+                    return getListValue(
+                            valueList.stream()
+                                    .map(toValue)
+                                    .filter(Objects::nonNull)
+                                    .collect(toImmutableList()));
                 },
                 /** valueSetter= */
                 (builder, repeatedValue) -> {
-                    List<Value> values =
-                            repeatedValue
-                                    .map(Value::getListValue)
-                                    .map(ListValue::getValuesList)
-                                    .orElseGet(Collections::emptyList);
+                    if (repeatedValue.getListValue() == null) {
+                        return;
+                    }
+                    List<Value> values = repeatedValue.getListValue().getValuesList();
                     List<V> convertedValues = new ArrayList<>();
                     for (Value value : values) {
                         convertedValues.add(fromValue.apply(value));
@@ -180,15 +177,22 @@ final class TypeSpecBuilder<T, BuilderT> {
     /** binds a String field to read from / write to Struct */
     TypeSpecBuilder<T, BuilderT> bindStringField(
             String name,
-            Function<T, Optional<String>> stringGetter,
+            Function<T, String> stringGetter,
             BiConsumer<BuilderT, String> stringSetter) {
         return bindFieldInternal(
                 name,
-                (object) -> stringGetter.apply(object).map(TypeSpecBuilder::getStringValue),
-                (builder, value) ->
-                        value.map(Value::getStringValue)
-                                .ifPresent(
-                                        stringValue -> stringSetter.accept(builder, stringValue)));
+                (object) -> {
+                    String value = stringGetter.apply(object);
+                    if (value == null) {
+                        return null;
+                    }
+                    return TypeSpecBuilder.getStringValue(value);
+                },
+                (builder, value) -> {
+                    if (value.hasStringValue()) {
+                        stringSetter.accept(builder, value.getStringValue());
+                    }
+                });
     }
 
     /**
@@ -197,19 +201,21 @@ final class TypeSpecBuilder<T, BuilderT> {
      */
     <E extends Enum<E>> TypeSpecBuilder<T, BuilderT> bindEnumField(
             String name,
-            Function<T, Optional<E>> valueGetter,
+            Function<T, E> valueGetter,
             BiConsumer<BuilderT, E> valueSetter,
             Class<E> enumClass) {
         return bindFieldInternal(
                 name,
-                (object) ->
-                        valueGetter
-                                .apply(object)
-                                .map(Enum::toString)
-                                .map(TypeSpecBuilder::getStringValue),
+                (object) -> {
+                    E enumVal = valueGetter.apply(object);
+                    if (enumVal == null) {
+                        return null;
+                    }
+                    return TypeSpecBuilder.getStringValue(enumVal.toString());
+                },
                 (builder, value) -> {
-                    if (value.isPresent()) {
-                        String stringValue = value.get().getStringValue();
+                    if (value.hasStringValue()) {
+                        String stringValue = value.getStringValue();
                         E[] enumValues = enumClass.getEnumConstants();
                         if (enumValues != null) {
                             for (E enumValue : enumValues) {
@@ -231,24 +237,24 @@ final class TypeSpecBuilder<T, BuilderT> {
      */
     TypeSpecBuilder<T, BuilderT> bindDurationField(
             String name,
-            Function<T, Optional<Duration>> valueGetter,
+            Function<T, Duration> valueGetter,
             BiConsumer<BuilderT, Duration> valueSetter) {
         return bindFieldInternal(
                 name,
-                (object) ->
-                        valueGetter
-                                .apply(object)
-                                .map(Duration::toString)
-                                .map(TypeSpecBuilder::getStringValue),
+                (object) -> {
+                    Duration duration = valueGetter.apply(object);
+                    if (duration == null) {
+                        return null;
+                    }
+                    return TypeSpecBuilder.getStringValue(duration.toString());
+                },
                 (builder, value) -> {
-                    if (value.isPresent()) {
-                        try {
-                            valueSetter.accept(
-                                    builder, Duration.parse(value.get().getStringValue()));
-                        } catch (DateTimeParseException e) {
-                            throw new StructConversionException(
-                                    "Failed to parse ISO 8601 string to Duration", e);
-                        }
+                    try {
+                        valueSetter.accept(
+                                builder, Duration.parse(value.getStringValue()));
+                    } catch (DateTimeParseException e) {
+                        throw new StructConversionException(
+                                "Failed to parse ISO 8601 string to Duration", e);
                     }
                 });
     }
@@ -259,21 +265,23 @@ final class TypeSpecBuilder<T, BuilderT> {
      */
     TypeSpecBuilder<T, BuilderT> bindZonedDateTimeField(
             String name,
-            Function<T, Optional<ZonedDateTime>> valueGetter,
+            Function<T, ZonedDateTime> valueGetter,
             BiConsumer<BuilderT, ZonedDateTime> valueSetter) {
         return bindFieldInternal(
                 name,
-                (object) ->
-                        valueGetter
-                                .apply(object)
-                                .map(ZonedDateTime::toOffsetDateTime)
-                                .map(OffsetDateTime::toString)
-                                .map(TypeSpecBuilder::getStringValue),
+                (object) -> {
+                    ZonedDateTime zonedDateTime = valueGetter.apply(object);
+                    if (zonedDateTime == null) {
+                        return null;
+                    }
+                    return TypeSpecBuilder.getStringValue(
+                            zonedDateTime.toOffsetDateTime().toString());
+                },
                 (builder, value) -> {
-                    if (value.isPresent()) {
+                    if (value.hasStringValue()) {
                         try {
                             valueSetter.accept(
-                                    builder, ZonedDateTime.parse(value.get().getStringValue()));
+                                    builder, ZonedDateTime.parse(value.getStringValue()));
                         } catch (DateTimeParseException e) {
                             throw new StructConversionException(
                                     "Failed to parse ISO 8601 string to ZonedDateTime", e);
@@ -285,23 +293,20 @@ final class TypeSpecBuilder<T, BuilderT> {
     /** Binds a spec field to read from / write to Struct. */
     <V> TypeSpecBuilder<T, BuilderT> bindSpecField(
             String name,
-            Function<T, Optional<V>> valueGetter,
+            Function<T, V> valueGetter,
             BiConsumer<BuilderT, V> valueSetter,
             TypeSpec<V> spec) {
         return bindFieldInternal(
                 name,
-                (object) ->
-                        valueGetter
-                                .apply(object)
-                                .map(Function.identity()) // Static analyzer incorrectly
-                                // throws error stating that the
-                                // input to toStruct is nullable. This is a workaround to avoid
-                                // the error from the analyzer.
-                                .map(spec::toValue),
-                (builder, value) -> {
-                    if (value.isPresent()) {
-                        valueSetter.accept(builder, spec.fromValue(value.get()));
+                (object) -> {
+                    V value = valueGetter.apply(object);
+                    if (value == null) {
+                        return null;
                     }
+                    return spec.toValue(value);
+                },
+                (builder, value) -> {
+                    valueSetter.accept(builder, spec.fromValue(value));
                 });
     }
 
@@ -315,16 +320,16 @@ final class TypeSpecBuilder<T, BuilderT> {
                 name,
                 valueGetter,
                 valueSetter,
-                (element) -> Optional.ofNullable(element).map(spec::toValue),
+                spec::toValue,
                 (value) -> spec.fromValue(value));
     }
 
     TypeSpec<T> build() {
-        return new TypeSpecImpl<T, BuilderT>(
+        return new TypeSpecImpl<>(
                 mIdentifierGetter,
                 mBindings,
                 mBuilderSupplier,
                 mBuilderFinalizer,
-                Optional.ofNullable(mStructValidator));
+                mStructValidator);
     }
 }
