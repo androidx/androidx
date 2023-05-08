@@ -58,4 +58,14 @@
     <string name="ime_button_switch_default">Switch default IME</string>
     <string name="install_samples_2">Install window-demos:demo-second-app to launch activities from a different UID.</string>
     <string name="toast_split_not_support">Please enable PROPERTY_ACTIVITY_EMBEDDING_SPLITS_ENABLED and ensure device supports splits.</string>
+    <string name="latest_configuration_title">Latest Configuration</string>
+    <string name="display_listener_title">DisplayListener#onDisplayChanged</string>
+    <string name="activity_configuration_title">Activity#onConfigurationChanged</string>
+    <string name="display_feature_title">WindowInfoTracker</string>
+    <string name="timestamp_title">Timestamp:</string>
+    <string name="display_rotation_title">Display Rotation:</string>
+    <string name="display_bounds_title">Display Bounds:</string>
+    <string name="prev_display_rotation_title">Previous Display Rotation:</string>
+    <string name="prev_display_bounds_title">Previous Display Bounds:</string>
+    <string name="window_state_placeholder">N/A</string>
 </resources>
