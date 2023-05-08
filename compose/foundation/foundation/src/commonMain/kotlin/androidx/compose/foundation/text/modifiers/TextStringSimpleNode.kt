@@ -303,7 +303,7 @@ internal class TextStringSimpleNode(
                         textDecoration = textDecoration
                     )
                 } else {
-                    val overrideColorVal = overrideColor?.produce() ?: Color.Unspecified
+                    val overrideColorVal = overrideColor?.invoke() ?: Color.Unspecified
                     val color = if (overrideColorVal.isSpecified) {
                         overrideColorVal
                     } else if (style.color.isSpecified) {
