@@ -81,7 +81,7 @@ gradlePlugin {
 }
 
 androidx {
-    name = "Android Room Gradle Plugin"
+    name = "Room Gradle Plugin"
     type = LibraryType.GRADLE_PLUGIN
     inceptionYear = "2023"
     description = "Android Room Gradle Plugin"

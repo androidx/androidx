@@ -60,7 +60,7 @@ dependencies {
 }
 
 androidx {
-    name = "Android Dynamic Feature Navigation Runtime"
+    name = "Dynamic Feature Navigation Runtime"
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2019"
     description = "Android Dynamic Feature Navigation Runtime"

@@ -40,7 +40,7 @@ dependencies {
 }
 
 androidx {
-    name = "AndroidX Bluetooth"
+    name = "Bluetooth"
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2022"
     description = "AndroidX Bluetooth Library"

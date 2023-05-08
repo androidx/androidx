@@ -32,7 +32,7 @@ dependencies {
 }
 
 androidx {
-    name = "Android WorkManager RxJava3 Support"
+    name = "WorkManager RxJava3"
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2020"
     description = "Android WorkManager RxJava3 interoperatibility library"

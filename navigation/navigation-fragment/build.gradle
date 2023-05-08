@@ -43,7 +43,7 @@ dependencies {
 }
 
 androidx {
-    name = "Android Navigation Fragment"
+    name = "Navigation Fragment"
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2017"
     description = "Android Navigation-Fragment"

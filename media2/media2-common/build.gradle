@@ -62,7 +62,7 @@ android {
 }
 
 androidx {
-    name = "AndroidX media2 common library"
+    name = "Media2 Common"
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2018"
     description = "Media2 Common"

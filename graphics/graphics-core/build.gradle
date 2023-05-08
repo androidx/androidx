@@ -62,7 +62,7 @@ android {
 }
 
 androidx {
-    name = "Android Graphics Core"
+    name = "Graphics Core"
     type = LibraryType.PUBLISHED_LIBRARY
     mavenVersion = LibraryVersions.GRAPHICS_CORE
     inceptionYear = "2021"

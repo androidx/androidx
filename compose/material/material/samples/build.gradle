@@ -40,7 +40,7 @@ dependencies {
 }
 
 androidx {
-    name = "AndroidX Compose Material Components Samples"
+    name = "Compose Material Components Samples"
     type = LibraryType.SAMPLES
     inceptionYear = "2019"
     description = "Contains the sample code for the AndroidX Compose Material components."

@@ -34,7 +34,7 @@ dependencies {
 }
 
 androidx {
-    name = "AndroidX Paging Compose Samples"
+    name = "Paging Compose Samples"
     type = LibraryType.SAMPLES
     mavenVersion = LibraryVersions.PAGING_COMPOSE
     inceptionYear = "2020"

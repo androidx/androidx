@@ -39,7 +39,7 @@ dependencies {
 }
 
 androidx {
-    name = "AndroidX Compose Material3 Components Demos"
+    name = "Compose Material3 Components Demos"
     publish = Publish.NONE
     inceptionYear = "2022"
     description = "Contains the demo code for the AndroidX Compose Material 3 components."

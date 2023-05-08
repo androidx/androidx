@@ -46,7 +46,7 @@ dependencies {
 }
 
 androidx {
-    name = "Android Benchmark - JUnit4"
+    name = "Benchmark - JUnit4"
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2019"
     description = "Android Benchmark - JUnit4"

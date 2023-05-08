@@ -45,7 +45,7 @@ dependencies {
 }
 
 androidx {
-    name = "Android Paging-RxJava3"
+    name = "Paging-RxJava3"
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2020"
     description = "Android Paging-RxJava3"

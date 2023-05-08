@@ -59,7 +59,7 @@ android {
 }
 
 androidx {
-    name = "Android MediaRouter Support Library"
+    name = "MediaRouter"
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2013"
     description = "Android MediaRouter Support Library"

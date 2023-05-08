@@ -33,9 +33,9 @@ android {
 }
 
 androidx {
-    name = "androidx.camera:camera-viewfinder-core"
+    name = "Camera ViewFinder Core"
     type = LibraryType.PUBLISHED_LIBRARY
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2023"
-    description = "core dependencies for viewfinder"
+    description = "Core dependencies for ViewFinder"
 }

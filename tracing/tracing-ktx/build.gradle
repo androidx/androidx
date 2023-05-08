@@ -34,7 +34,7 @@ dependencies {
 }
 
 androidx {
-    name = "Android Tracing Runtime Kotlin Extensions"
+    name = "Tracing Kotlin Extensions"
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2020"
     description = "Android Tracing"

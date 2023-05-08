@@ -32,7 +32,7 @@ dependencies {
 }
 
 androidx {
-    name = "Android WorkManager Data Transfer Implementation"
+    name = "WorkManager Data Transfer"
     publish = Publish.SNAPSHOT_ONLY
     inceptionYear = "2023"
     description = "Android WorkManager Data Transfer library"

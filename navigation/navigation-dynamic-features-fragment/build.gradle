@@ -64,7 +64,7 @@ android {
 }
 
 androidx {
-    name = "Android Dynamic Feature Navigation Fragment"
+    name = "Dynamic Feature Navigation Fragment"
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2019"
     description = "Android Dynamic Feature Navigation Fragment"

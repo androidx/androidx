@@ -38,7 +38,7 @@ dependencies {
 }
 
 androidx {
-    name = "Slice test code"
+    name = "Slice Test Extensions"
     type = LibraryType.INTERNAL_TEST_LIBRARY
     publish = Publish.NONE // Library is deprecated pending removal.
     disableDeviceTests = true

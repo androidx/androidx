@@ -46,7 +46,7 @@ dependencies {
 }
 
 androidx {
-    name = "Android Emoji2 Compat"
+    name = "Emoji2 Bundled"
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2017"
     description = "Library bundled with assets to enable emoji compatibility in Kitkat and newer " +

@@ -26,7 +26,7 @@ dependencies {
 }
 
 androidx {
-    name = "AppSearch Google Play Services Storage"
+    name = "AppSearch Play Services Storage"
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2023"
     description =

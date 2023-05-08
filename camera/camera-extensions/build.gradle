@@ -81,7 +81,7 @@ android {
 }
 
 androidx {
-    name = "Jetpack Camera Library OEM Extensions"
+    name = "Camera Extensions"
     publish = Publish.SNAPSHOT_AND_RELEASE
 
     inceptionYear = "2019"

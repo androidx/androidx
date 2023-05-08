@@ -44,7 +44,7 @@ gradlePlugin {
 }
 
 androidx {
-    name = "AndroidX Benchmarks - Darwin Gradle Plugin"
+    name = "Benchmarks - Darwin Gradle Plugin"
     publish = Publish.SNAPSHOT_ONLY
     type = LibraryType.GRADLE_PLUGIN
     inceptionYear = "2022"
