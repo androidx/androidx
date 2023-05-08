@@ -21,9 +21,6 @@ import org.mockito.kotlin.capture
 import org.mockito.kotlin.mock
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
-import org.junit.Assert.fail
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -31,7 +28,10 @@ import org.mockito.ArgumentCaptor
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.verifyNoMoreInteractions
 import kotlin.random.Random
+import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import kotlin.test.assertTrue
+import kotlin.test.fail
 
 @Suppress("DEPRECATION")
 @RunWith(JUnit4::class)
