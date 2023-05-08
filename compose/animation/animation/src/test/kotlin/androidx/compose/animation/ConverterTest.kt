@@ -63,47 +63,45 @@ class ConverterTest {
             0f
         )
 
-        // all channels should clamp:
+        // all channels are clamped before conversion, the result of 3/3/3 in OkLab should be
+        // 1,0,0 in sRGB
+        val maxOkLab = Color(1.0f, 0.5f, 0.5f, 1.0f, ColorSpaces.Oklab).convert(ColorSpaces.Srgb)
         assertEquals(
-            1f,
+            maxOkLab.red,
             converter.convertFromVector(AnimationVector4D(1.0f, 3f, 3f, 3f)).red,
             0f
         )
         assertEquals(
-            1f,
+            maxOkLab.green,
             converter.convertFromVector(AnimationVector4D(1.0f, 3f, 3f, 3f)).green,
             0f
         )
         assertEquals(
-            1f,
+            maxOkLab.blue,
             converter.convertFromVector(AnimationVector4D(1.0f, 3f, 3f, 3f)).blue,
             0f
         )
 
-        // All channel below 0.0f clamps to 0.0f and the result is black
+        // all channels are clamped before conversion, the result of -3/-3/-3 in OkLab should be
+        // 0,0,1 in sRGB
+        val minOkLab = Color(0.0f, -0.5f, -0.5f, 1.0f, ColorSpaces.Oklab).convert(ColorSpaces.Srgb)
         assertEquals(
-            0f,
+            minOkLab.red,
             converter.convertFromVector(AnimationVector4D(1.0f, -3f, -3f, -3f))
                 .red,
             0f
         )
         assertEquals(
-            0f,
+            minOkLab.green,
             converter.convertFromVector(AnimationVector4D(1.0f, -3f, -3f, -3f))
                 .green,
             0f
         )
         assertEquals(
-            0f,
+            minOkLab.blue,
             converter.convertFromVector(AnimationVector4D(1.0f, -3f, -3f, -3f))
                 .blue,
             0f
-        )
-
-        // Green channel above 1.0f clamps to 1.0f and the result is green
-        assertEquals(
-            converter.convertFromVector(AnimationVector4D(1.0f, 0.0f, 1.1f, 0f)),
-            Color.Green
         )
     }
 

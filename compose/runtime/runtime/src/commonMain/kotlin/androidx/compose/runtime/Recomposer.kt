@@ -612,7 +612,12 @@ class Recomposer(
 
                         // Perform apply changes
                         try {
+                            // We could do toComplete += toApply but doing it like below
+                            // avoids unncessary allocations since toApply is a mutable list
                             toComplete += toApply
+                            toApply.fastForEach { composition ->
+                                toComplete.add(composition)
+                            }
                             toApply.fastForEach { composition ->
                                 composition.applyChanges()
                             }
