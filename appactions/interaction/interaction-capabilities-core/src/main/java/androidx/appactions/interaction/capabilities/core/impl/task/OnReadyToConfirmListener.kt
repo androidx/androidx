@@ -15,19 +15,15 @@
  */
 package androidx.appactions.interaction.capabilities.core.impl.task
 
+import androidx.annotation.RestrictTo
 import androidx.appactions.interaction.capabilities.core.ConfirmationOutput
-import androidx.appactions.interaction.capabilities.core.impl.exceptions.StructConversionException
-import androidx.appactions.interaction.proto.ParamValue
 
 /**
- * Generic onReadyToConfirm listener for a task capability. This is the entry point to specific
- * onReadyToConfirm listeners. For example, Search/Update sub-BIIs factories may invoke specific
- * onReadyToConfirm listeners for that BII.
+ * Generic onReadyToConfirm listener for a task capability.
+ * This should wrap only the external Session#onReadyToConfirm and nothing else.
  */
-interface OnReadyToConfirmListenerInternal<ConfirmationT> {
-    /** onReadyToConfirm callback for a task capability. */
-    @Throws(StructConversionException::class)
-    suspend fun onReadyToConfirm(
-        args: Map<String, List<ParamValue>>
-    ): ConfirmationOutput<ConfirmationT>
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+interface OnReadyToConfirmListener<ArgumentsT, ConfirmationT> {
+    /** onReadyToConfirm callback for a task session. */
+    suspend fun onReadyToConfirm(arguments: ArgumentsT): ConfirmationOutput<ConfirmationT>
 }

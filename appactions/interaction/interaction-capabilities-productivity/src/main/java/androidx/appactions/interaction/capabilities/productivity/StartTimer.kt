@@ -57,7 +57,11 @@ class StartTimer private constructor() {
             >(ACTION_SPEC) {
         private var properties = mutableMapOf<String, Property<*>>()
 
-        override val sessionBridge: SessionBridge<ExecutionSession, Confirmation> = SESSION_BRIDGE
+        override val sessionBridge: SessionBridge<
+            ExecutionSession,
+            Arguments,
+            Confirmation
+        > = SESSION_BRIDGE
 
         override fun setExecutionSessionFactory(
             sessionFactory: (hostProperties: HostProperties?) -> ExecutionSession
@@ -238,9 +242,9 @@ class StartTimer private constructor() {
                 )
                 .build()
 
-        private val SESSION_BRIDGE = SessionBridge<ExecutionSession, Confirmation> {
+        private val SESSION_BRIDGE = SessionBridge<ExecutionSession, Arguments, Confirmation> {
                 session ->
-            val taskHandlerBuilder = TaskHandler.Builder<Confirmation>()
+            val taskHandlerBuilder = TaskHandler.Builder<Arguments, Confirmation>()
             session.nameListener?.let {
                 taskHandlerBuilder.registerValueTaskParam(
                     "timer.name",
