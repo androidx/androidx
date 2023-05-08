@@ -138,6 +138,7 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.util.fastLastOrNull
 import androidx.compose.ui.util.trace
 import androidx.compose.ui.viewinterop.AndroidViewHolder
 import androidx.core.view.AccessibilityDelegateCompat
@@ -1375,7 +1376,7 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
             // methods use semantics data, and because semantics coordinates are local to
             // this view, the pointer _position_, not _positionOnScreen_, is the offset that
             // needs to be cached.
-            pointerInputEvent.pointers.lastOrNull { it.down }?.position?.let {
+            pointerInputEvent.pointers.fastLastOrNull { it.down }?.position?.let {
                 lastDownPointerPosition = it
             }
 
