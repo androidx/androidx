@@ -69,23 +69,19 @@ internal abstract class KspType(
      * The [XTypeName] represents those differences as [JTypeName] and [KTypeName], respectively.
      */
     private val xTypeName: XTypeName by lazy {
-        val jvmWildcardType = if (scope == null) {
-            this
-        } else {
-            env.resolveWildcards(ksType, scope).let {
-                if (it == ksType) {
-                    this
-                } else {
-                    env.wrap(
-                        ksType = it,
-                        allowPrimitives = this is KspPrimitiveType
-                    ).copyWithScope(scope)
-                }
+        val jvmWildcardType = env.resolveWildcards(ksType, scope).let {
+            if (it == ksType) {
+                this
+            } else {
+                env.wrap(
+                    ksType = it,
+                    allowPrimitives = this is KspPrimitiveType
+                )
             }
         }
         XTypeName(
             jvmWildcardType.resolveJTypeName(),
-            jvmWildcardType.resolveKTypeName(),
+            resolveKTypeName(),
             nullability
         )
     }
@@ -141,15 +137,12 @@ internal abstract class KspType(
                 if (argDeclaration is KSTypeParameter) {
                     // If this is a type parameter, replace it with the resolved type argument.
                     resolvedTypeArguments[argDeclaration.name.asString()] ?: argument
-                } else if (
-                    argument.type != null && argument.type?.resolve()?.arguments?.isEmpty() == false
-                ) {
+                } else if (argument.type?.resolve()?.arguments?.isEmpty() == false) {
                     // If this is a type with arguments, the arguments may contain a type parameter,
                     // e.g. Foo<T>, so try to resolve the type and then convert to a type argument.
                     env.resolver.getTypeArgument(
-                        env.resolver.createKSTypeReferenceFromKSType(
-                            resolveTypeArguments(argument.type!!.resolve(), resolvedTypeArguments)
-                        ),
+                        resolveTypeArguments(argument.type!!.resolve(), resolvedTypeArguments)
+                            .createTypeReference(),
                         variance = Variance.INVARIANT
                     )
                 } else {

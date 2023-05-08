@@ -295,7 +295,7 @@ internal class KspProcessingEnv(
     /**
      * Resolves the wildcards for the given ksType. See [KSTypeVarianceResolver] for details.
      */
-    internal fun resolveWildcards(ksType: KSType, scope: KSTypeVarianceResolverScope) =
+    internal fun resolveWildcards(ksType: KSType, scope: KSTypeVarianceResolverScope?) =
         ksTypeVarianceResolver.applyTypeVariance(ksType, scope)
 
     internal fun clearCache() {

@@ -21,6 +21,7 @@ import androidx.room.compiler.processing.XType
 import com.google.devtools.ksp.symbol.KSTypeArgument
 import com.google.devtools.ksp.symbol.KSTypeParameter
 import com.google.devtools.ksp.symbol.KSTypeReference
+import com.google.devtools.ksp.symbol.Variance
 import com.squareup.kotlinpoet.javapoet.JTypeName
 import com.squareup.kotlinpoet.javapoet.KTypeName
 
@@ -47,7 +48,8 @@ internal class KspTypeArgumentType(
             ksType = ksType,
             allowPrimitives = false
         )
-        if (this.ksType.declaration is KSTypeParameter && this == extendBound) {
+        if (typeArg.variance == Variance.STAR ||
+            (this.ksType.declaration is KSTypeParameter && this == extendBound)) {
             null
         } else {
             extendBound
