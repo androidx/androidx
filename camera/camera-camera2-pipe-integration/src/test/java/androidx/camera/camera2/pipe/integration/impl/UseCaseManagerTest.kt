@@ -312,25 +312,29 @@ class UseCaseManagerTest {
         controls: Set<UseCaseCameraControl> = emptySet(),
         useCaseCameraComponentBuilder: FakeUseCaseCameraComponentBuilder =
             FakeUseCaseCameraComponentBuilder(),
-    ) = UseCaseManager(
-        cameraConfig = CameraConfig(CameraId("0")),
-        builder = useCaseCameraComponentBuilder,
-        controls = controls as java.util.Set<UseCaseCameraControl>,
-        cameraProperties = FakeCameraProperties(),
-        camera2CameraControl = Camera2CameraControl.create(
-            FakeCamera2CameraControlCompat(),
-            useCaseThreads,
-            ComboRequestListener()
-        ),
-        cameraStateAdapter = CameraStateAdapter(),
-        cameraGraphFlags = CameraGraph.Flags(),
-        cameraQuirks = CameraQuirks(
-            FakeCameraMetadata(),
-            StreamConfigurationMapCompat(null, OutputSizesCorrector(FakeCameraMetadata(), null))
-        ),
-        displayInfoManager = DisplayInfoManager(ApplicationProvider.getApplicationContext()),
-    ).also {
-        useCaseManagerList.add(it)
+    ): UseCaseManager {
+        val fakeCamera = FakeCamera()
+        return UseCaseManager(
+            cameraConfig = CameraConfig(CameraId("0")),
+            builder = useCaseCameraComponentBuilder,
+            controls = controls as java.util.Set<UseCaseCameraControl>,
+            cameraProperties = FakeCameraProperties(),
+            camera2CameraControl = Camera2CameraControl.create(
+                FakeCamera2CameraControlCompat(),
+                useCaseThreads,
+                ComboRequestListener()
+            ),
+            cameraStateAdapter = CameraStateAdapter(),
+            cameraGraphFlags = CameraGraph.Flags(),
+            cameraInternal = { fakeCamera },
+            cameraQuirks = CameraQuirks(
+                FakeCameraMetadata(),
+                StreamConfigurationMapCompat(null, OutputSizesCorrector(FakeCameraMetadata(), null))
+            ),
+            displayInfoManager = DisplayInfoManager(ApplicationProvider.getApplicationContext()),
+        ).also {
+            useCaseManagerList.add(it)
+        }
     }
 
     private fun createImageCapture(): ImageCapture =
