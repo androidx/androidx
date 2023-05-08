@@ -2,6 +2,8 @@ package androidx.metrics.performance.test
 
 import android.content.Context
 import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Paint
 import android.os.Build
 import android.util.AttributeSet
 import android.view.View
@@ -15,6 +17,11 @@ class DelayedView(context: Context?, attrs: AttributeSet?) :
     var repetitions: Int = 0
     var maxReps: Int = 0
     var perFrameStateData: List<JankStatsTest.FrameStateInputData> = listOf()
+    val textPaint = Paint()
+
+    init {
+       textPaint.textSize = 50f
+    }
 
     @RequiresApi(Build.VERSION_CODES.JELLY_BEAN)
     override fun onDraw(canvas: Canvas) {
@@ -29,8 +36,10 @@ class DelayedView(context: Context?, attrs: AttributeSet?) :
             (((Math.random() * 127) + 128).toInt() shl 16) or
             (((Math.random() * 127) + 128).toInt() shl 8) or
             ((Math.random() * 127) + 128).toInt()
+        textPaint.setColor(Color.BLACK)
 
         canvas.drawColor(randomColor)
+        canvas.drawText("Frame ${repetitions - 1}", 200f, 200f, textPaint)
         if (perFrameStateData.isNotEmpty()) {
             val metricsState = PerformanceMetricsState.getHolderForHierarchy(this).state!!
             val stateData = perFrameStateData[repetitions - 1]
