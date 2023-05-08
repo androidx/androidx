@@ -368,7 +368,8 @@ public final class Preview extends UseCase {
         // SurfaceProcessorNode and CaptureProcessor cases, since no surface provider also means no
         // output target for these two cases.
         if (mSurfaceProvider != null) {
-            sessionConfigBuilder.addSurface(mSessionDeferrableSurface);
+            sessionConfigBuilder.addSurface(mSessionDeferrableSurface,
+                    streamSpec.getDynamicRange());
         }
 
         sessionConfigBuilder.addErrorListener((sessionConfig, error) -> {
