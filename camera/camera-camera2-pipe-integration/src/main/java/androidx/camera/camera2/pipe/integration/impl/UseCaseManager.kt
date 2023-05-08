@@ -31,9 +31,11 @@ import androidx.camera.camera2.pipe.integration.config.UseCaseCameraConfig
 import androidx.camera.camera2.pipe.integration.interop.Camera2CameraControl
 import androidx.camera.camera2.pipe.integration.interop.ExperimentalCamera2Interop
 import androidx.camera.core.UseCase
+import androidx.camera.core.impl.CameraInternal
 import androidx.camera.core.impl.DeferrableSurface
 import androidx.camera.core.impl.SessionConfig.ValidatingBuilder
 import javax.inject.Inject
+import javax.inject.Provider
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.joinAll
 
@@ -75,6 +77,7 @@ class UseCaseManager @Inject constructor(
     private val cameraStateAdapter: CameraStateAdapter,
     private val cameraQuirks: CameraQuirks,
     private val cameraGraphFlags: CameraGraph.Flags,
+    private val cameraInternal: Provider<CameraInternal>,
     cameraProperties: CameraProperties,
     displayInfoManager: DisplayInfoManager,
 ) {
@@ -318,6 +321,7 @@ class UseCaseManager @Inject constructor(
 
     @GuardedBy("lock")
     private fun addRepeatingUseCase() {
+        meteringRepeating.bindToCamera(cameraInternal.get(), null, null)
         meteringRepeating.setupSession()
         attach(listOf(meteringRepeating))
         activate(meteringRepeating)
@@ -338,7 +342,7 @@ class UseCaseManager @Inject constructor(
     private fun removeRepeatingUseCase() {
         deactivate(meteringRepeating)
         detach(listOf(meteringRepeating))
-        meteringRepeating.onUnbind()
+        meteringRepeating.unbindFromCamera(cameraInternal.get())
     }
 
     private fun Collection<UseCase>.onlyVideoCapture(): Boolean {
