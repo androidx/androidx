@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.samples.BorderSample
 import androidx.compose.foundation.samples.BorderSampleWithBrush
 import androidx.compose.foundation.samples.BorderSampleWithDataClass
+import androidx.compose.foundation.samples.BorderSampleWithDynamicData
 import androidx.compose.foundation.samples.DrawBackgroundColor
 import androidx.compose.foundation.samples.DrawBackgroundShapedBrush
 import androidx.compose.runtime.Composable
@@ -41,6 +42,8 @@ fun DrawModifiersDemo() {
             BorderSampleWithBrush()
             Spacer(Modifier.height(30.dp))
             BorderSampleWithDataClass()
+            Spacer(Modifier.height(30.dp))
+            BorderSampleWithDynamicData()
         }
         Column(Modifier.weight(1f).padding(10.dp)) {
             DrawBackgroundColor()
