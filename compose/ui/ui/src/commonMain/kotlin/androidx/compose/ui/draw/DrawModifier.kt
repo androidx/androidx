@@ -23,6 +23,7 @@ import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.internal.JvmDefaultWithCompatibility
 import androidx.compose.ui.node.DrawModifierNode
+import androidx.compose.ui.node.CacheDrawModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.Nodes
 import androidx.compose.ui.node.ObserverModifierNode
@@ -139,12 +140,12 @@ fun Modifier.drawWithCache(
 
 private data class DrawWithCacheElement(
     val onBuildDrawCache: CacheDrawScope.() -> DrawResult
-) : ModifierNodeElement<CacheDrawNode>() {
-    override fun create(): CacheDrawNode {
-        return CacheDrawNode(CacheDrawScope(), onBuildDrawCache)
+) : ModifierNodeElement<CacheDrawModifierNodeImpl>() {
+    override fun create(): CacheDrawModifierNodeImpl {
+        return CacheDrawModifierNodeImpl(CacheDrawScope(), onBuildDrawCache)
     }
 
-    override fun update(node: CacheDrawNode) {
+    override fun update(node: CacheDrawModifierNodeImpl) {
         node.block = onBuildDrawCache
     }
 
@@ -154,10 +155,16 @@ private data class DrawWithCacheElement(
     }
 }
 
-private class CacheDrawNode(
+fun CacheDrawModifierNode(
+    onBuildDrawCache: CacheDrawScope.() -> DrawResult
+): CacheDrawModifierNode {
+    return CacheDrawModifierNodeImpl(CacheDrawScope(), onBuildDrawCache)
+}
+
+private class CacheDrawModifierNodeImpl(
     private val cacheDrawScope: CacheDrawScope,
     block: CacheDrawScope.() -> DrawResult
-) : Modifier.Node(), DrawModifierNode, ObserverModifierNode, BuildDrawCacheParams {
+) : Modifier.Node(), CacheDrawModifierNode, ObserverModifierNode, BuildDrawCacheParams {
 
     private var isCacheValid = false
     var block: CacheDrawScope.() -> DrawResult = block
@@ -182,7 +189,7 @@ private class CacheDrawNode(
         invalidateDrawCache()
     }
 
-    private fun invalidateDrawCache() {
+    override fun invalidateDrawCache() {
         isCacheValid = false
         cacheDrawScope.drawResult = null
         invalidateDraw()
