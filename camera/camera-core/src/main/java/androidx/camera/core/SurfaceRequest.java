@@ -333,8 +333,9 @@ public final class SurfaceRequest {
      * care should be taken to ensure the provided surface can support the requested dynamic
      * range. For example, if the returned dynamic range has {@link DynamicRange#getBitDepth()}
      * equal to {@link DynamicRange#BIT_DEPTH_10_BIT}, then the surface provided to
-     * {@link #provideSurface(Surface, Executor, Consumer)} should use a format that can support
-     * ten bits of dynamic range, such as {@link android.graphics.ImageFormat#PRIVATE} or
+     * {@link #provideSurface(Surface, Executor, Consumer)} should use an
+     * {@link android.graphics.ImageFormat} that can support ten bits of dynamic range, such as
+     * {@link android.graphics.ImageFormat#PRIVATE} or
      * {@link android.graphics.ImageFormat#YCBCR_P010}.
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

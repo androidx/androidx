@@ -41,7 +41,7 @@ public interface VideoCapabilities {
      * Gets all dynamic ranges supported by both the camera and video output.
      *
      * <p>Only {@link DynamicRange}s with specified values both in {@link DynamicRange.BitDepth}
-     * and {@link DynamicRange.DynamicRangeFormat} will be present in the returned set.
+     * and {@link DynamicRange.DynamicRangeEncoding} will be present in the returned set.
      * {@link DynamicRange}s such as {@link DynamicRange#HDR_UNSPECIFIED_10_BIT} will not be
      * included, but they can be used in other methods, such as checking for quality support with
      * {@link #isQualitySupported(Quality, DynamicRange)}.

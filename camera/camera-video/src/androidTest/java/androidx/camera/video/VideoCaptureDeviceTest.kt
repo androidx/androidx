@@ -28,7 +28,7 @@ import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraXConfig
 import androidx.camera.core.DynamicRange
 import androidx.camera.core.DynamicRange.BIT_DEPTH_10_BIT
-import androidx.camera.core.DynamicRange.FORMAT_HLG
+import androidx.camera.core.DynamicRange.ENCODING_HLG
 import androidx.camera.core.DynamicRange.HDR_UNSPECIFIED_10_BIT
 import androidx.camera.core.Preview
 import androidx.camera.core.SurfaceRequest
@@ -117,7 +117,7 @@ class VideoCaptureDeviceTest(
             arrayOf(CameraPipeConfig::class.simpleName, CameraPipeConfig.defaultConfig())
         )
 
-        private val DYNAMIC_RANGE_HLG10 = DynamicRange(FORMAT_HLG, BIT_DEPTH_10_BIT)
+        private val DYNAMIC_RANGE_HLG10 = DynamicRange(ENCODING_HLG, BIT_DEPTH_10_BIT)
     }
 
     private val context: Context = ApplicationProvider.getApplicationContext()

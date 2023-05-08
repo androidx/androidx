@@ -33,10 +33,10 @@ import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat
 import androidx.camera.core.DynamicRange
 import androidx.camera.core.DynamicRange.BIT_DEPTH_10_BIT
 import androidx.camera.core.DynamicRange.BIT_DEPTH_8_BIT
-import androidx.camera.core.DynamicRange.FORMAT_DOLBY_VISION
-import androidx.camera.core.DynamicRange.FORMAT_HDR10
-import androidx.camera.core.DynamicRange.FORMAT_HDR10_PLUS
-import androidx.camera.core.DynamicRange.FORMAT_HLG
+import androidx.camera.core.DynamicRange.ENCODING_DOLBY_VISION
+import androidx.camera.core.DynamicRange.ENCODING_HDR10
+import androidx.camera.core.DynamicRange.ENCODING_HDR10_PLUS
+import androidx.camera.core.DynamicRange.ENCODING_HLG
 import androidx.camera.core.DynamicRange.SDR
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.assertThrows
@@ -54,11 +54,11 @@ import org.robolectric.shadows.ShadowCameraCharacteristics
 class DynamicRangesCompatTest {
 
     companion object {
-        val DYNAMIC_RANGE_HLG10 = DynamicRange(FORMAT_HLG, BIT_DEPTH_10_BIT)
-        val DYNAMIC_RANGE_HDR10 = DynamicRange(FORMAT_HDR10, BIT_DEPTH_10_BIT)
-        val DYNAMIC_RANGE_HDR10_PLUS = DynamicRange(FORMAT_HDR10_PLUS, BIT_DEPTH_10_BIT)
-        val DYNAMIC_RANGE_DOLBY_VISION_10B = DynamicRange(FORMAT_DOLBY_VISION, BIT_DEPTH_10_BIT)
-        val DYNAMIC_RANGE_DOLBY_VISION_8B = DynamicRange(FORMAT_DOLBY_VISION, BIT_DEPTH_8_BIT)
+        val DYNAMIC_RANGE_HLG10 = DynamicRange(ENCODING_HLG, BIT_DEPTH_10_BIT)
+        val DYNAMIC_RANGE_HDR10 = DynamicRange(ENCODING_HDR10, BIT_DEPTH_10_BIT)
+        val DYNAMIC_RANGE_HDR10_PLUS = DynamicRange(ENCODING_HDR10_PLUS, BIT_DEPTH_10_BIT)
+        val DYNAMIC_RANGE_DOLBY_VISION_10B = DynamicRange(ENCODING_DOLBY_VISION, BIT_DEPTH_10_BIT)
+        val DYNAMIC_RANGE_DOLBY_VISION_8B = DynamicRange(ENCODING_DOLBY_VISION, BIT_DEPTH_8_BIT)
     }
 
     @Config(minSdk = Build.VERSION_CODES.TIRAMISU)

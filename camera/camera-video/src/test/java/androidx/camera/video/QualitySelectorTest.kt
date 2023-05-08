@@ -23,7 +23,7 @@ import android.media.CamcorderProfile.QUALITY_LOW
 import android.os.Build
 import androidx.camera.core.DynamicRange
 import androidx.camera.core.DynamicRange.BIT_DEPTH_10_BIT
-import androidx.camera.core.DynamicRange.FORMAT_HLG
+import androidx.camera.core.DynamicRange.ENCODING_HLG
 import androidx.camera.core.DynamicRange.SDR
 import androidx.camera.testing.EncoderProfilesUtil.PROFILES_2160P
 import androidx.camera.testing.EncoderProfilesUtil.PROFILES_720P
@@ -40,7 +40,7 @@ import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
 
 private const val CAMERA_ID_0 = "0"
-private val HLG10 = DynamicRange(FORMAT_HLG, BIT_DEPTH_10_BIT)
+private val HLG10 = DynamicRange(ENCODING_HLG, BIT_DEPTH_10_BIT)
 
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument

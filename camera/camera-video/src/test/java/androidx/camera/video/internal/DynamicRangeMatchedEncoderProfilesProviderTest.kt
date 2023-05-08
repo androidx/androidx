@@ -25,10 +25,10 @@ import android.media.EncoderProfiles.VideoProfile.HDR_NONE
 import android.os.Build
 import androidx.camera.core.DynamicRange
 import androidx.camera.core.DynamicRange.BIT_DEPTH_10_BIT
-import androidx.camera.core.DynamicRange.FORMAT_DOLBY_VISION
-import androidx.camera.core.DynamicRange.FORMAT_HDR10
-import androidx.camera.core.DynamicRange.FORMAT_HDR10_PLUS
-import androidx.camera.core.DynamicRange.FORMAT_HLG
+import androidx.camera.core.DynamicRange.ENCODING_DOLBY_VISION
+import androidx.camera.core.DynamicRange.ENCODING_HDR10
+import androidx.camera.core.DynamicRange.ENCODING_HDR10_PLUS
+import androidx.camera.core.DynamicRange.ENCODING_HLG
 import androidx.camera.core.DynamicRange.HDR_UNSPECIFIED_10_BIT
 import androidx.camera.core.DynamicRange.SDR
 import androidx.camera.core.impl.EncoderProfilesProvider
@@ -168,10 +168,10 @@ class DynamicRangeMatchedEncoderProfilesProviderTest {
     }
 
     companion object {
-        private val HLG = DynamicRange(FORMAT_HLG, BIT_DEPTH_10_BIT)
-        private val HDR10 = DynamicRange(FORMAT_HDR10, BIT_DEPTH_10_BIT)
-        private val HDR10_PLUS = DynamicRange(FORMAT_HDR10_PLUS, BIT_DEPTH_10_BIT)
-        private val DOLBY_VISION = DynamicRange(FORMAT_DOLBY_VISION, BIT_DEPTH_10_BIT)
+        private val HLG = DynamicRange(ENCODING_HLG, BIT_DEPTH_10_BIT)
+        private val HDR10 = DynamicRange(ENCODING_HDR10, BIT_DEPTH_10_BIT)
+        private val HDR10_PLUS = DynamicRange(ENCODING_HDR10_PLUS, BIT_DEPTH_10_BIT)
+        private val DOLBY_VISION = DynamicRange(ENCODING_DOLBY_VISION, BIT_DEPTH_10_BIT)
         private val VIDEO_PROFILES_1080P_SDR =
             createFakeVideoProfileProxy(RESOLUTION_1080P.width, RESOLUTION_1080P.height)
         private val VIDEO_PROFILES_1080P_HLG =

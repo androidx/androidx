@@ -60,26 +60,26 @@ public final class DynamicRangeConversions {
 
         // HLG
         PROFILE_TO_DR_MAP.put(HLG10,
-                new DynamicRange(DynamicRange.FORMAT_HLG, DynamicRange.BIT_DEPTH_10_BIT));
+                new DynamicRange(DynamicRange.ENCODING_HLG, DynamicRange.BIT_DEPTH_10_BIT));
         DR_TO_PROFILE_MAP.put(PROFILE_TO_DR_MAP.get(HLG10), Collections.singletonList(HLG10));
 
         // HDR10
-        DynamicRange hdr10 = new DynamicRange(DynamicRange.FORMAT_HDR10,
+        DynamicRange hdr10 = new DynamicRange(DynamicRange.ENCODING_HDR10,
                 DynamicRange.BIT_DEPTH_10_BIT);
         PROFILE_TO_DR_MAP.put(HDR10, hdr10);
         DR_TO_PROFILE_MAP.put(hdr10, Collections.singletonList(HDR10));
 
         // HDR10+
-        DynamicRange hdr10Plus = new DynamicRange(DynamicRange.FORMAT_HDR10_PLUS,
+        DynamicRange hdr10Plus = new DynamicRange(DynamicRange.ENCODING_HDR10_PLUS,
                 DynamicRange.BIT_DEPTH_10_BIT);
         PROFILE_TO_DR_MAP.put(HDR10_PLUS, hdr10Plus);
         DR_TO_PROFILE_MAP.put(hdr10Plus, Collections.singletonList(HDR10_PLUS));
 
         // Dolby Vision 10-bit
-        DynamicRange dolbyVision10Bit = new DynamicRange(DynamicRange.FORMAT_DOLBY_VISION,
+        DynamicRange dolbyVision10Bit = new DynamicRange(DynamicRange.ENCODING_DOLBY_VISION,
                 DynamicRange.BIT_DEPTH_10_BIT);
         // A list of the Camera2 10-bit dolby vision profiles ordered by priority. Any API that
-        // takes a DynamicRange with dolby vision format will attempt to convert to these
+        // takes a DynamicRange with dolby vision encoding will attempt to convert to these
         // profiles in order, using the first one that is supported. We will need to add a
         // mechanism for choosing between these
         List<Long> dolbyVision10BitProfilesOrdered = Arrays.asList(DOLBY_VISION_10B_HDR_OEM,
@@ -90,7 +90,7 @@ public final class DynamicRangeConversions {
         DR_TO_PROFILE_MAP.put(dolbyVision10Bit, dolbyVision10BitProfilesOrdered);
 
         // Dolby vision 8-bit
-        DynamicRange dolbyVision8Bit = new DynamicRange(DynamicRange.FORMAT_DOLBY_VISION,
+        DynamicRange dolbyVision8Bit = new DynamicRange(DynamicRange.ENCODING_DOLBY_VISION,
                 DynamicRange.BIT_DEPTH_8_BIT);
         List<Long> dolbyVision8BitProfilesOrdered = Arrays.asList(DOLBY_VISION_8B_HDR_OEM,
                 DOLBY_VISION_8B_HDR_OEM_PO, DOLBY_VISION_8B_HDR_REF, DOLBY_VISION_8B_HDR_REF_PO);
@@ -117,8 +117,8 @@ public final class DynamicRangeConversions {
      * returned. The order in which profiles are checked for support is internally defined.
      *
      * <p>This will only return profiles for fully defined dynamic ranges. For instance, if the
-     * format returned by {@link DynamicRange#getFormat()} is
-     * {@link DynamicRange#FORMAT_HDR_UNSPECIFIED}, this will return {@code null}.
+     * format returned by {@link DynamicRange#getEncoding()} is
+     * {@link DynamicRange#ENCODING_HDR_UNSPECIFIED}, this will return {@code null}.
      */
     @DoNotInline
     @Nullable

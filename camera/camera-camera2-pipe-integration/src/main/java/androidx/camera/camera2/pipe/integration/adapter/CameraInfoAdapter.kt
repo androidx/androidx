@@ -45,10 +45,10 @@ import androidx.camera.core.CameraState
 import androidx.camera.core.DynamicRange
 import androidx.camera.core.DynamicRange.BIT_DEPTH_10_BIT
 import androidx.camera.core.DynamicRange.BIT_DEPTH_8_BIT
-import androidx.camera.core.DynamicRange.FORMAT_DOLBY_VISION
-import androidx.camera.core.DynamicRange.FORMAT_HDR10
-import androidx.camera.core.DynamicRange.FORMAT_HDR10_PLUS
-import androidx.camera.core.DynamicRange.FORMAT_HLG
+import androidx.camera.core.DynamicRange.ENCODING_DOLBY_VISION
+import androidx.camera.core.DynamicRange.ENCODING_HDR10
+import androidx.camera.core.DynamicRange.ENCODING_HDR10_PLUS
+import androidx.camera.core.DynamicRange.ENCODING_HLG
 import androidx.camera.core.ExposureState
 import androidx.camera.core.FocusMeteringAction
 import androidx.camera.core.ZoomState
@@ -212,11 +212,11 @@ class CameraInfoAdapter @Inject constructor(
     }
 
     companion object {
-        private val DR_HLG10 = DynamicRange(FORMAT_HLG, BIT_DEPTH_10_BIT)
-        private val DR_HDR10 = DynamicRange(FORMAT_HDR10, BIT_DEPTH_10_BIT)
-        private val DR_HDR10_PLUS = DynamicRange(FORMAT_HDR10_PLUS, BIT_DEPTH_10_BIT)
-        private val DR_DOLBY_VISION_10_BIT = DynamicRange(FORMAT_DOLBY_VISION, BIT_DEPTH_10_BIT)
-        private val DR_DOLBY_VISION_8_BIT = DynamicRange(FORMAT_DOLBY_VISION, BIT_DEPTH_8_BIT)
+        private val DR_HLG10 = DynamicRange(ENCODING_HLG, BIT_DEPTH_10_BIT)
+        private val DR_HDR10 = DynamicRange(ENCODING_HDR10, BIT_DEPTH_10_BIT)
+        private val DR_HDR10_PLUS = DynamicRange(ENCODING_HDR10_PLUS, BIT_DEPTH_10_BIT)
+        private val DR_DOLBY_VISION_10_BIT = DynamicRange(ENCODING_DOLBY_VISION, BIT_DEPTH_10_BIT)
+        private val DR_DOLBY_VISION_8_BIT = DynamicRange(ENCODING_DOLBY_VISION, BIT_DEPTH_8_BIT)
         private val PROFILE_TO_DR_MAP: Map<Long, DynamicRange> = mapOf(
             DynamicRangeProfiles.STANDARD to DynamicRange.SDR,
             DynamicRangeProfiles.HLG10 to DR_HLG10,
