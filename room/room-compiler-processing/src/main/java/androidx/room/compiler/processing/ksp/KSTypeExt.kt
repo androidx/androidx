@@ -89,16 +89,7 @@ private fun KSType.hasAnnotation(qName: String): Boolean {
             .newInstance(this)
     }
     fun hasAnnotationViaReflection(qName: String): Boolean {
-        val ksType = if (
-            // Note: Technically, we could just make KSTypeWrapper internal and cast to get the
-            // delegate, but since we need to use reflection anyway, just get it via reflection.
-            this.javaClass.canonicalName == "androidx.room.compiler.processing.ksp.KSTypeWrapper") {
-            this.javaClass.methods.find { it.name == "getDelegate" }?.invoke(this)
-        } else {
-            this
-        }
-        val kotlinType =
-            ksType?.javaClass?.methods?.find { it.name == "getKotlinType" }?.invoke(ksType)
+        val kotlinType = javaClass.methods.find { it.name == "getKotlinType" }?.invoke(this)
         val kotlinAnnotations =
             kotlinType?.javaClass
                 ?.methods
