@@ -28,7 +28,6 @@ import androidx.appactions.interaction.capabilities.core.properties.Property
 import androidx.appactions.interaction.proto.ParamValue
 import androidx.appactions.interaction.protobuf.Struct
 import androidx.appactions.interaction.protobuf.Value
-import java.util.Optional
 
 private const val CAPABILITY_NAME = "actions.intent.RESET_TIMER"
 
@@ -36,7 +35,7 @@ private const val CAPABILITY_NAME = "actions.intent.RESET_TIMER"
 @CapabilityFactory(name = CAPABILITY_NAME)
 class ResetTimer private constructor() {
     internal enum class PropertyMapStrings(val key: String) {
-        TIMER_LIST("timer.timerList"),
+        TIMER_LIST("timer.timerList")
     }
 
     class CapabilityBuilder :
@@ -82,7 +81,7 @@ class ResetTimer private constructor() {
             private var timerList: List<TimerValue>? = null
 
             fun setTimerList(
-                timerList: List<TimerValue>,
+                timerList: List<TimerValue>
             ): Builder = apply { this.timerList = timerList }
 
             override fun build(): Arguments = Arguments(timerList)
@@ -143,7 +142,7 @@ class ResetTimer private constructor() {
             val value: Value = Value.newBuilder().setStringValue(status).build()
             return ParamValue.newBuilder()
                 .setStructValue(
-                    Struct.newBuilder().putFields(TypeConverters.FIELD_NAME_TYPE, value).build(),
+                    Struct.newBuilder().putFields(TypeConverters.FIELD_NAME_TYPE, value).build()
                 )
                 .build()
         }
@@ -162,16 +161,13 @@ class ResetTimer private constructor() {
                 .bindRepeatedParameter(
                     "timer",
                     { properties ->
-                        Optional.ofNullable(
-                            properties[PropertyMapStrings.TIMER_LIST.key]
-                                as Property<TimerValue>
-                        )
+                        properties[PropertyMapStrings.TIMER_LIST.key] as? Property<TimerValue>
                     },
                     Arguments.Builder::setTimerList,
                     TimerValue.PARAM_VALUE_CONVERTER,
                     TimerValue.ENTITY_CONVERTER
                 )
-                .bindOptionalOutput(
+                .bindOutput(
                     "executionStatus",
                     Output::executionStatus,
                     ExecutionStatus::toParamValue

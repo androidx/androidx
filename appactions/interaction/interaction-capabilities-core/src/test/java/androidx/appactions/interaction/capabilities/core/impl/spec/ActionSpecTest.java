@@ -43,7 +43,6 @@ import org.junit.runners.JUnit4;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 
 @RunWith(JUnit4.class)
@@ -57,18 +56,18 @@ public final class ActionSpecTest {
                             "requiredString",
                             properties ->
                             {
-                                return (Property<StringValue>) (properties.get(
-                                        "requiredString"));
+                                Property<?> property = properties.get("requiredString");
+                                return (property == null) ? null : (Property<StringValue>) property;
                             },
                             Arguments.Builder::setRequiredStringField,
                             TypeConverters.STRING_PARAM_VALUE_CONVERTER,
                             TypeConverters.STRING_VALUE_ENTITY_CONVERTER)
-                    .bindOptionalParameter(
+                    .bindParameter(
                             "optionalString",
                             properties ->
                             {
-                                return Optional.ofNullable((Property<StringValue>) (properties.get(
-                                        "optionalString")));
+                                Property<?> property = properties.get("optionalString");
+                                return (property == null) ? null : (Property<StringValue>) property;
                             },
                             Arguments.Builder::setOptionalStringField,
                             TypeConverters.STRING_PARAM_VALUE_CONVERTER,
@@ -77,13 +76,13 @@ public final class ActionSpecTest {
                             "repeatedString",
                             properties ->
                             {
-                                return Optional.ofNullable((Property<StringValue>) (properties.get(
-                                        "repeatedString")));
+                                Property<?> property = properties.get("repeatedString");
+                                return (property == null) ? null : (Property<StringValue>) property;
                             },
                             Arguments.Builder::setRepeatedStringField,
                             TypeConverters.STRING_PARAM_VALUE_CONVERTER,
                             TypeConverters.STRING_VALUE_ENTITY_CONVERTER)
-                    .bindOptionalOutput(
+                    .bindOutput(
                             "optionalStringOutput",
                             Output::getOptionalStringField,
                             TypeConverters.STRING_PARAM_VALUE_CONVERTER::toParamValue)
@@ -130,16 +129,17 @@ public final class ActionSpecTest {
                     .bindParameter(
                             "requiredEntity",
                             properties -> {
-                                return (Property<TestEntity>) (properties.get("requiredEntity"));
+                                Property<?> property = properties.get("requiredEntity");
+                                return (property == null) ? null : (Property<TestEntity>) property;
                             },
                             GenericEntityArguments.Builder::setSingularField,
                             TEST_ENTITY_PARAM_VALUE_CONVERTER,
                             TEST_ENTITY_CONVERTER)
-                    .bindOptionalParameter(
+                    .bindParameter(
                             "optionalEntity",
                             properties -> {
-                                return Optional.of(
-                                        (Property<TestEntity>) (properties.get("optionalEntity")));
+                                Property<?> property = properties.get("optionalEntity");
+                                return (property == null) ? null : (Property<TestEntity>) property;
                             },
                             GenericEntityArguments.Builder::setOptionalField,
                             TEST_ENTITY_PARAM_VALUE_CONVERTER,
@@ -147,9 +147,8 @@ public final class ActionSpecTest {
                     .bindRepeatedParameter(
                             "repeatedEntities",
                             properties -> {
-                                return Optional.of(
-                                        (Property<TestEntity>)
-                                                (properties.get("repeatedEntities")));
+                                Property<?> property = properties.get("repeatedEntities");
+                                return (property == null) ? null : (Property<TestEntity>) property;
                             },
                             GenericEntityArguments.Builder::setRepeatedField,
                             TEST_ENTITY_PARAM_VALUE_CONVERTER,

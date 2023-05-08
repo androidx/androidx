@@ -34,7 +34,6 @@ import androidx.appactions.interaction.capabilities.core.properties.Property
 import androidx.appactions.interaction.proto.ParamValue
 import androidx.appactions.interaction.protobuf.Struct
 import androidx.appactions.interaction.protobuf.Value
-import java.util.Optional
 
 private const val CAPABILITY_NAME: String = "actions.intent.CREATE_CALL"
 
@@ -43,7 +42,7 @@ private const val CAPABILITY_NAME: String = "actions.intent.CREATE_CALL"
 class CreateCall private constructor() {
     internal enum class PropertyMapStrings(val key: String) {
         CALL_FORMAT("call.callFormat"),
-        PARTICIPANT("call.participant"),
+        PARTICIPANT("call.participant")
     }
 
     class CapabilityBuilder :
@@ -67,7 +66,7 @@ class CreateCall private constructor() {
     class Arguments
     internal constructor(
         val callFormat: Call.CanonicalValue.CallFormat?,
-        val participantList: List<ParticipantValue>,
+        val participantList: List<ParticipantValue>
     ) {
         override fun toString(): String {
             return "Arguments(callFormat=$callFormat, participantList=$participantList)"
@@ -183,13 +182,11 @@ class CreateCall private constructor() {
             ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
                 .setArguments(Arguments::class.java, Arguments::Builder)
                 .setOutput(Output::class.java)
-                .bindOptionalParameter(
+                .bindParameter(
                     "call.callFormat",
                     { properties ->
-                        Optional.ofNullable(
-                            properties[PropertyMapStrings.CALL_FORMAT.key]
-                                as Property<Call.CanonicalValue.CallFormat>
-                        )
+                        properties[PropertyMapStrings.CALL_FORMAT.key]
+                            as? Property<Call.CanonicalValue.CallFormat>
                     },
                     Arguments.Builder::setCallFormat,
                     TypeConverters.CALL_FORMAT_PARAM_VALUE_CONVERTER,
@@ -198,21 +195,18 @@ class CreateCall private constructor() {
                 .bindRepeatedParameter(
                     "call.participant",
                     { properties ->
-                        Optional.ofNullable(
-                            properties[PropertyMapStrings.PARTICIPANT.key]
-                                as Property<Participant>
-                        )
+                        properties[PropertyMapStrings.PARTICIPANT.key] as? Property<Participant>
                     },
                     Arguments.Builder::setParticipantList,
                     ParticipantValue.PARAM_VALUE_CONVERTER,
                     EntityConverter.of(PARTICIPANT_TYPE_SPEC)
                 )
-                .bindOptionalOutput(
+                .bindOutput(
                     "call",
                     Output::call,
                     ParamValueConverter.of(CALL_TYPE_SPEC)::toParamValue
                 )
-                .bindOptionalOutput(
+                .bindOutput(
                     "executionStatus",
                     Output::executionStatus,
                     ExecutionStatus::toParamValue

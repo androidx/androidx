@@ -159,7 +159,7 @@ class StopSafetyCheck private constructor() {
             ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
                 .setArguments(Arguments::class.java, Arguments::Builder)
                 .setOutput(Output::class.java)
-                .bindOptionalOutput(
+                .bindOutput(
                     "executionStatus",
                     Output::executionStatus,
                     ExecutionStatus::toParamValue

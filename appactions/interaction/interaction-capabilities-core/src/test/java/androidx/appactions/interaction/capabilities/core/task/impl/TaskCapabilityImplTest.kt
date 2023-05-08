@@ -70,7 +70,6 @@ import androidx.concurrent.futures.CallbackToFutureAdapter
 import androidx.concurrent.futures.CallbackToFutureAdapter.Completer
 import com.google.common.truth.Truth.assertThat
 import com.google.common.util.concurrent.ListenableFuture
-import java.util.Optional
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicReference
 import java.util.function.Supplier
@@ -1321,25 +1320,19 @@ class TaskCapabilityImplTest {
                     TypeConverters.STRING_PARAM_VALUE_CONVERTER,
                     TypeConverters.STRING_VALUE_ENTITY_CONVERTER
                 )
-                .bindOptionalParameter(
+                .bindParameter(
                     "optional",
                     { properties ->
-                        properties["optional"]
-                            ?.let { it as Property<StringValue> }
-                            ?.let { Optional.of(it) }
-                            ?: Optional.ofNullable(null)
+                        properties["optional"] as? Property<StringValue>
                     },
                     Arguments.Builder::setOptionalStringField,
                     TypeConverters.STRING_PARAM_VALUE_CONVERTER,
                     TypeConverters.STRING_VALUE_ENTITY_CONVERTER
                 )
-                .bindOptionalParameter(
+                .bindParameter(
                     "optionalEnum",
                     { properties ->
-                        properties["optionalEnum"]
-                            ?.let { it as Property<TestEnum> }
-                            ?.let { Optional.of(it) }
-                            ?: Optional.ofNullable(null)
+                        properties["optionalEnum"] as? Property<TestEnum>
                     },
                     Arguments.Builder::setEnumField,
                     ENUM_CONVERTER,
@@ -1348,16 +1341,13 @@ class TaskCapabilityImplTest {
                 .bindRepeatedParameter(
                     "repeated",
                     { properties ->
-                        properties["repeated"]
-                            ?.let { it as Property<StringValue> }
-                            ?.let { Optional.of(it) }
-                            ?: Optional.ofNullable(null)
+                        properties["repeated"] as? Property<StringValue>
                     },
                     Arguments.Builder::setRepeatedStringField,
                     TypeConverters.STRING_PARAM_VALUE_CONVERTER,
                     TypeConverters.STRING_VALUE_ENTITY_CONVERTER
                 )
-                .bindOptionalOutput(
+                .bindOutput(
                     "optionalStringOutput",
                     Output::optionalStringField,
                     TypeConverters.STRING_PARAM_VALUE_CONVERTER::toParamValue

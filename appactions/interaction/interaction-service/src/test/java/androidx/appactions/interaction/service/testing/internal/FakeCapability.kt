@@ -26,19 +26,8 @@ import androidx.appactions.interaction.capabilities.core.impl.task.SessionBridge
 import androidx.appactions.interaction.capabilities.core.impl.task.TaskHandler
 import androidx.appactions.interaction.capabilities.core.properties.Property
 import androidx.appactions.interaction.capabilities.core.properties.StringValue
-import java.util.Optional
 
 private const val CAPABILITY_NAME = "actions.intent.FAKE_CAPABILITY"
-@Suppress("UNCHECKED_CAST")
-private val ACTION_SPEC = ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
-    .setArguments(FakeCapability.Arguments::class.java, FakeCapability.Arguments::Builder)
-    .setOutput(FakeCapability.Output::class.java).bindOptionalParameter(
-        "fieldOne",
-        { property -> Optional.ofNullable(property["fieldOne"] as Property<StringValue>) },
-        FakeCapability.Arguments.Builder::setFieldOne,
-        TypeConverters.STRING_PARAM_VALUE_CONVERTER,
-        TypeConverters.STRING_VALUE_ENTITY_CONVERTER,
-    ).build()
 
 class FakeCapability private constructor() {
     class Properties(
@@ -102,5 +91,20 @@ class FakeCapability private constructor() {
             )
             return super.build()
         }
+    }
+
+    companion object {
+        @Suppress("UNCHECKED_CAST")
+        private val ACTION_SPEC = ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
+            .setArguments(Arguments::class.java, Arguments::Builder)
+            .setOutput(Output::class.java)
+            .bindParameter(
+                "fieldOne",
+                { properties -> properties["fieldOne"] as? Property<StringValue> },
+                Arguments.Builder::setFieldOne,
+                TypeConverters.STRING_PARAM_VALUE_CONVERTER,
+                TypeConverters.STRING_VALUE_ENTITY_CONVERTER,
+            )
+            .build()
     }
 }

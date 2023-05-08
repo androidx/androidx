@@ -42,7 +42,6 @@ import androidx.appactions.interaction.proto.FulfillmentResponse.StructuredOutpu
 import androidx.appactions.interaction.proto.ParamValue
 import androidx.appactions.interaction.proto.TaskInfo
 import com.google.common.truth.Truth.assertThat
-import java.util.Optional
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeoutOrNull
@@ -337,19 +336,16 @@ class SingleTurnCapabilityTest {
                     TypeConverters.STRING_PARAM_VALUE_CONVERTER,
                     TypeConverters.STRING_VALUE_ENTITY_CONVERTER
                 )
-                .bindOptionalParameter(
+                .bindParameter(
                     "optionalString",
                     { properties ->
-                        properties["optionalString"]
-                            ?.let { it as Property<StringValue> }
-                            ?.let { Optional.of(it) }
-                            ?: Optional.ofNullable(null)
+                        properties["optionalString"] as? Property<StringValue>
                     },
                     Arguments.Builder::setOptionalStringField,
                     TypeConverters.STRING_PARAM_VALUE_CONVERTER,
                     TypeConverters.STRING_VALUE_ENTITY_CONVERTER
                 )
-                .bindOptionalOutput(
+                .bindOutput(
                     "optionalStringOutput",
                     Output::optionalStringField,
                     TypeConverters.STRING_PARAM_VALUE_CONVERTER::toParamValue

@@ -41,9 +41,8 @@ internal class ActionSpecImpl<ArgumentsT, ArgumentsBuilderT : BuilderOf<Argument
             .setName(capabilityName)
             .addAllParams(
                 paramBindingList.stream()
-                    .map { binding -> binding.paramGetter.apply(property) }
-                    .filter { optional -> optional.isPresent }
-                    .map { optional -> optional.get() }
+                    .map { binding -> binding.propertyConverter.apply(property) }
+                    .filter { intentParam -> intentParam != null }
                     .collect(ImmutableCollectors.toImmutableList())
             )
             .build()
