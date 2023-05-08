@@ -668,5 +668,5 @@ fun interface ColorProducer {
     /**
      * Return the color
      */
-    fun produce(): Color
+    operator fun invoke(): Color
 }
