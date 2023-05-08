@@ -26,7 +26,6 @@ import androidx.appactions.interaction.capabilities.core.impl.utils.ImmutableCol
 import androidx.appactions.interaction.capabilities.core.properties.Property
 import androidx.appactions.interaction.proto.AppActionsContext
 import androidx.appactions.interaction.proto.ParamValue
-import java.util.Optional
 import java.util.function.BiConsumer
 import java.util.function.Function
 import java.util.function.Supplier
@@ -70,8 +69,7 @@ private constructor(
      */
     private fun bindParameterInternal(
         paramName: String,
-        paramGetter: Function<Map<String, Property<*>>,
-            Optional<AppActionsContext.IntentParameter>>,
+        paramGetter: Function<Map<String, Property<*>>, AppActionsContext.IntentParameter?>,
         argumentSetter: ArgumentSetter<ArgumentsBuilderT>
     ): ActionSpecBuilder<ArgumentsT, ArgumentsBuilderT, OutputT> {
         paramBindingList.add(create(paramName, paramGetter, argumentSetter))
@@ -81,8 +79,8 @@ private constructor(
     /**
      * Binds the parameter name, getter, and setter for a [Property].
      *
-     *
-     * This parameter is required for any capability built from the generated [ActionSpec].
+     * If the Property getter returns a null value, this parameter will not exist in the parameter
+     * definition of the capability.
      *
      * @param paramName the name of this action' parameter.
      * @param propertyGetter a getter of the Property from the property, which must be able to
@@ -94,43 +92,7 @@ private constructor(
      */
     fun <T, PossibleValueT> bindParameter(
         paramName: String,
-        propertyGetter: Function<Map<String, Property<*>>, Property<PossibleValueT>>,
-        paramConsumer: BiConsumer<in ArgumentsBuilderT, T>,
-        paramValueConverter: ParamValueConverter<T>,
-        entityConverter: EntityConverter<PossibleValueT>
-    ): ActionSpecBuilder<ArgumentsT, ArgumentsBuilderT, OutputT> {
-        return bindOptionalParameter(
-            paramName,
-            { propertyMap ->
-                Optional.of(propertyGetter.apply(propertyMap))
-            },
-            paramConsumer,
-            paramValueConverter,
-            entityConverter
-        )
-    }
-
-    /**
-     * Binds the parameter name, getter, and setter for a [Property].
-     *
-     *
-     * This parameter is optional for any capability built from the generated [ActionSpec].
-     * If the Property Optional is not set, this parameter will not exist in the parameter
-     * definition of the capability.
-     *
-     * @param paramName the name of this action' parameter.
-     * @param optionalPropertyGetter an optional getter of the Property from the property,
-     * which may be able to fetch a non-null `Property` from `PropertyT`,
-     * or get [Optional.empty].
-     * @param paramConsumer a setter to set the string value in the argument builder.
-     * @param paramValueConverter converter FROM assistant ParamValue proto
-     * @param entityConverter converter TO assistant Entity proto
-     * @return the builder itself.
-     */
-    fun <T, PossibleValueT> bindOptionalParameter(
-        paramName: String,
-        optionalPropertyGetter: Function<Map<String, Property<*>>,
-            Optional<Property<PossibleValueT>>>,
+        propertyGetter: Function<Map<String, Property<*>>, Property<PossibleValueT>?>,
         paramConsumer: BiConsumer<in ArgumentsBuilderT, T>,
         paramValueConverter: ParamValueConverter<T>,
         entityConverter: EntityConverter<PossibleValueT>
@@ -138,35 +100,31 @@ private constructor(
         return bindParameterInternal(
             paramName,
             { propertyMap ->
-                optionalPropertyGetter
-                    .apply(propertyMap)
-                    .map { property ->
-                        buildIntentParameter(paramName, property, entityConverter)
-                    }
+                propertyGetter.apply(propertyMap)?.let {
+                    buildIntentParameter(paramName, it, entityConverter)
+                }
+            },
+            { argBuilder: ArgumentsBuilderT, paramList: List<ParamValue> ->
+                if (paramList.isNotEmpty()) {
+                    paramConsumer.accept(
+                        argBuilder,
+                        SlotTypeConverter.ofSingular(paramValueConverter).convert(paramList)
+                    )
+                }
             }
-        ) { argBuilder: ArgumentsBuilderT, paramList: List<ParamValue?> ->
-            if (paramList.isNotEmpty()) {
-                paramConsumer.accept(
-                    argBuilder,
-                    SlotTypeConverter.ofSingular(paramValueConverter).convert(paramList)
-                )
-            }
-        }
+        )
     }
 
     /**
-     * This is similar to [ActionSpecBuilder.bindOptionalParameter] but for setting a list of
+     * This is similar to [ActionSpecBuilder.bindParameter] but for setting a list of
      * entities instead.
      *
-     *
-     * This parameter is optional for any capability built from the generated [ActionSpec].
-     * If the Property Optional is not set, this parameter will not exist in the parameter
+     * If the Property getter returns a null value, this parameter will not exist in the parameter
      * definition of the capability.
      */
     fun <T, PossibleValueT> bindRepeatedParameter(
         paramName: String,
-        optionalPropertyGetter: Function<Map<String, Property<*>>,
-            Optional<Property<PossibleValueT>>>,
+        propertyGetter: Function<Map<String, Property<*>>, Property<PossibleValueT>?>,
         paramConsumer: BiConsumer<in ArgumentsBuilderT, List<T>>,
         paramValueConverter: ParamValueConverter<T>,
         entityConverter: EntityConverter<PossibleValueT>
@@ -174,18 +132,17 @@ private constructor(
         return bindParameterInternal(
             paramName,
             { propertyMap ->
-                optionalPropertyGetter
-                    .apply(propertyMap)
-                    .map { property ->
-                        buildIntentParameter(paramName, property, entityConverter)
-                    }
+                propertyGetter.apply(propertyMap)?.let {
+                    buildIntentParameter(paramName, it, entityConverter)
+                }
+            },
+            { argBuilder: ArgumentsBuilderT, paramList: List<ParamValue?>? ->
+                paramConsumer.accept(
+                    argBuilder,
+                    SlotTypeConverter.ofRepeated(paramValueConverter).convert(paramList!!)
+                )
             }
-        ) { argBuilder: ArgumentsBuilderT, paramList: List<ParamValue?>? ->
-            paramConsumer.accept(
-                argBuilder,
-                SlotTypeConverter.ofRepeated(paramValueConverter).convert(paramList!!)
-            )
-        }
+        )
     }
 
     /**
@@ -195,7 +152,7 @@ private constructor(
      * @param outputFieldGetter a getter of the output from the `OutputT` instance.
      * @param converter    a converter from an output object to a ParamValue.
      */
-    fun <T> bindOptionalOutput(
+    fun <T> bindOutput(
         name: String,
         outputFieldGetter: Function<OutputT, T?>,
         converter: Function<T, ParamValue>

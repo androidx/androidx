@@ -162,7 +162,7 @@ class StartEmergencySharing private constructor() {
                     Arguments::Builder
                 )
                 .setOutput(Output::class.java)
-                .bindOptionalOutput(
+                .bindOutput(
                     "executionStatus",
                     Output::executionStatus,
                     ExecutionStatus::toParamValue,

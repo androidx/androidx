@@ -25,7 +25,6 @@ import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBui
 import androidx.appactions.interaction.capabilities.core.properties.Property
 import androidx.appactions.interaction.capabilities.core.properties.StringValue
 import java.time.Duration
-import java.util.Optional
 
 private const val CAPABILITY_NAME = "actions.intent.START_EXERCISE"
 
@@ -34,7 +33,7 @@ private const val CAPABILITY_NAME = "actions.intent.START_EXERCISE"
 class StartExercise private constructor() {
     internal enum class PropertyMapStrings(val key: String) {
         NAME("exercise.name"),
-        DURATION("exercise.duration"),
+        DURATION("exercise.duration")
     }
 
     class CapabilityBuilder :
@@ -112,25 +111,19 @@ class StartExercise private constructor() {
             ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
                 .setArguments(Arguments::class.java, Arguments::Builder)
                 .setOutput(Output::class.java)
-                .bindOptionalParameter(
+                .bindParameter(
                     "exercise.duration",
                     { properties ->
-                        Optional.ofNullable(
-                            properties[PropertyMapStrings.DURATION.key]
-                                as Property<Duration>
-                        )
+                        properties[PropertyMapStrings.DURATION.key] as? Property<Duration>
                     },
                     Arguments.Builder::setDuration,
                     TypeConverters.DURATION_PARAM_VALUE_CONVERTER,
                     TypeConverters.DURATION_ENTITY_CONVERTER
                 )
-                .bindOptionalParameter(
+                .bindParameter(
                     "exercise.name",
                     { properties ->
-                        Optional.ofNullable(
-                            properties[PropertyMapStrings.NAME.key]
-                                as Property<StringValue>
-                        )
+                        properties[PropertyMapStrings.NAME.key] as? Property<StringValue>
                     },
                     Arguments.Builder::setName,
                     TypeConverters.STRING_PARAM_VALUE_CONVERTER,
