@@ -174,6 +174,10 @@ class ExtraSupportedSurfaceCombinationsContainerDeviceTest(val cameraId: String)
         val callback = FakeImageCaptureCallback()
         imageCapture.takePicture(CameraXExecutors.directExecutor(), callback)
         callback.awaitCapturesAndAssert()
+
+        withContext(Dispatchers.Main) {
+            cameraUseCaseAdapter.removeUseCases(cameraUseCaseAdapter.useCases)
+        }
     }
 
     @SdkSuppress(minSdkVersion = 28)
@@ -229,6 +233,10 @@ class ExtraSupportedSurfaceCombinationsContainerDeviceTest(val cameraId: String)
         val callback = FakeImageCaptureCallback()
         imageCapture.takePicture(CameraXExecutors.directExecutor(), callback)
         callback.awaitCapturesAndAssert()
+
+        withContext(Dispatchers.Main) {
+            cameraUseCaseAdapter.removeUseCases(cameraUseCaseAdapter.useCases)
+        }
     }
 
     private fun enableSessionProcessor(
