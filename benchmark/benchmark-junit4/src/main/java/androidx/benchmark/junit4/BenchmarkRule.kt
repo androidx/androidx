@@ -23,6 +23,7 @@ import androidx.benchmark.Arguments
 import androidx.benchmark.BenchmarkState
 import androidx.benchmark.UserspaceTracing
 import androidx.benchmark.perfetto.PerfettoCaptureWrapper
+import androidx.benchmark.perfetto.PerfettoConfig
 import androidx.benchmark.perfetto.UiState
 import androidx.benchmark.perfetto.appendUiState
 import androidx.test.platform.app.InstrumentationRegistry
@@ -212,7 +213,7 @@ public class BenchmarkRule internal constructor(
 
             val tracePath = PerfettoCaptureWrapper().record(
                 fileLabel = uniqueName,
-                appTagPackages = packages,
+                config = PerfettoConfig.Benchmark(packages),
                 userspaceTracingPackage = null
             ) {
                 UserspaceTracing.commitToTrace() // clear buffer
