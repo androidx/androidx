@@ -72,6 +72,15 @@ androidx {
     description = "Android Benchmark - Common"
 }
 
+tasks.withType(KotlinCompile).configureEach {
+    kotlinOptions {
+        // Enable using experimental APIs from within same version group
+        freeCompilerArgs += [
+                "-opt-in=androidx.benchmark.perfetto.ExperimentalPerfettoCaptureApi"
+        ]
+    }
+}
+
 // https://github.com/square/wire/issues/1947
 // Remove when we upgrade to fixed wire library
 afterEvaluate {

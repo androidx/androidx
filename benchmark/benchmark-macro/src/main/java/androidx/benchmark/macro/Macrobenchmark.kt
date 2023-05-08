@@ -33,6 +33,7 @@ import androidx.benchmark.UserspaceTracing
 import androidx.benchmark.checkAndGetSuppressionState
 import androidx.benchmark.conditionalError
 import androidx.benchmark.perfetto.PerfettoCaptureWrapper
+import androidx.benchmark.perfetto.PerfettoConfig
 import androidx.benchmark.perfetto.PerfettoTrace
 import androidx.benchmark.perfetto.PerfettoTraceProcessor
 import androidx.benchmark.perfetto.UiState
@@ -214,22 +215,23 @@ private fun macrobenchmark(
                 val iterString = iteration.toString().padStart(3, '0')
                 val tracePath = perfettoCollector.record(
                     fileLabel = "${uniqueName}_iter$iterString",
-
-                    /**
-                     * Prior to API 24, every package name was joined into a single setprop which
-                     * can overflow, and disable *ALL* app level tracing.
-                     *
-                     * For safety here, we only trace the macrobench package on newer platforms,
-                     * and use reflection in the macrobench test process to trace important
-                     * sections
-                     *
-                     * @see androidx.benchmark.macro.perfetto.ForceTracing
-                     */
-                    appTagPackages = if (Build.VERSION.SDK_INT >= 24) {
-                        listOf(packageName, macrobenchPackageName)
-                    } else {
-                        listOf(packageName)
-                    },
+                    config = PerfettoConfig.Benchmark(
+                        /**
+                         * Prior to API 24, every package name was joined into a single setprop
+                         * which can overflow, and disable *ALL* app level tracing.
+                         *
+                         * For safety here, we only trace the macrobench package on newer platforms,
+                         * and use reflection in the macrobench test process to trace important
+                         * sections
+                         *
+                         * @see androidx.benchmark.macro.perfetto.ForceTracing
+                         */
+                        appTagPackages = if (Build.VERSION.SDK_INT >= 24) {
+                            listOf(packageName, macrobenchPackageName)
+                        } else {
+                            listOf(packageName)
+                        },
+                    ),
                     userspaceTracingPackage = userspaceTracingPackage
                 ) {
                     try {
