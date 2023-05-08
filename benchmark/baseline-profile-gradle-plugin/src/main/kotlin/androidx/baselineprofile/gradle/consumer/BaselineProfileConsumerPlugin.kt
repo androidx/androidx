@@ -20,6 +20,7 @@ import androidx.baselineprofile.gradle.configuration.ConfigurationManager
 import androidx.baselineprofile.gradle.consumer.task.MainGenerateBaselineProfileTask
 import androidx.baselineprofile.gradle.consumer.task.MergeBaselineProfileTask
 import androidx.baselineprofile.gradle.consumer.task.PrintConfigurationForVariantTask
+import androidx.baselineprofile.gradle.consumer.task.PrintMapPropertiesForVariantTask
 import androidx.baselineprofile.gradle.consumer.task.maybeCreateGenerateTask
 import androidx.baselineprofile.gradle.utils.AgpFeature
 import androidx.baselineprofile.gradle.utils.AgpPlugin
@@ -169,10 +170,19 @@ private class BaselineProfileConsumerAgpPlugin(private val project: Project) : A
             variant = variant,
             variantConfig = variantConfiguration
         )
+        PrintMapPropertiesForVariantTask.registerForVariant(
+            project = project,
+            variant = variant
+        )
 
         // Sets the r8 rewrite baseline profile for the non debuggable variant.
-        if (variantConfiguration.enableR8BaselineProfileRewrite) {
-            r8Utils.enableR8RulesRewriteForVariant(variant)
+        variantConfiguration.baselineProfileRulesRewrite?.let {
+            r8Utils.setRulesRewriteForVariantEnabled(variant, it)
+        }
+
+        // Sets the r8 startup dex optimization profile for the non debuggable variant.
+        variantConfiguration.dexLayoutOptimization?.let {
+            r8Utils.setDexLayoutOptimizationEnabled(variant, it)
         }
 
         // Check if this variant has any direct dependency
