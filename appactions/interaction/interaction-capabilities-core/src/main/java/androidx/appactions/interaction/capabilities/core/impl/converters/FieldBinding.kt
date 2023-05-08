@@ -17,20 +17,19 @@
 package androidx.appactions.interaction.capabilities.core.impl.converters
 
 import androidx.appactions.interaction.protobuf.Value
-import java.util.Optional
 import java.util.function.Function
 
 internal data class FieldBinding<T, BuilderT> constructor(
     val name: String,
-    val valueGetter: Function<T, Optional<Value>>,
-    val valueSetter: CheckedInterfaces.BiConsumer<BuilderT, Optional<Value>>
+    val valueGetter: Function<T, Value?>,
+    val valueSetter: CheckedInterfaces.BiConsumer<BuilderT, Value>
 ) {
     companion object {
         @JvmStatic
         fun <T, BuilderT> create(
             name: String,
-            valueGetter: Function<T, Optional<Value>>,
-            valueSetter: CheckedInterfaces.BiConsumer<BuilderT, Optional<Value>>
+            valueGetter: Function<T, Value?>,
+            valueSetter: CheckedInterfaces.BiConsumer<BuilderT, Value>
         ): FieldBinding<T, BuilderT> {
             return FieldBinding(name, valueGetter, valueSetter)
         }
