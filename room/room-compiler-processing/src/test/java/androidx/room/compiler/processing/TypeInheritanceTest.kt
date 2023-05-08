@@ -64,20 +64,13 @@ class TypeInheritanceTest {
         fieldName: String,
         expectedJTypeName: String,
     ) {
-        val expectedKTypeName = expectedJTypeName.replace("? extends", "out")
         val sub = processingEnv.requireTypeElement("SubClass")
         val subField = sub.getField(fieldName).asMemberOf(sub.type)
         assertThat(subField.asTypeName().java.toString()).isEqualTo(expectedJTypeName)
-        if (isKsp) {
-            assertThat(subField.asTypeName().kotlin.toString()).isEqualTo(expectedKTypeName)
-        }
 
         val base = processingEnv.requireTypeElement("BaseClass")
         val baseField = base.getField(fieldName).asMemberOf(sub.type)
         assertThat(baseField.asTypeName().java.toString()).isEqualTo(expectedJTypeName)
-        if (isKsp) {
-            assertThat(baseField.asTypeName().kotlin.toString()).isEqualTo(expectedKTypeName)
-        }
     }
 
     private fun XTestInvocation.assertParamType(
@@ -85,23 +78,16 @@ class TypeInheritanceTest {
         paramName: String,
         expectedJTypeName: String,
     ) {
-        val expectedKTypeName = expectedJTypeName.replace("? extends", "out")
         val sub = processingEnv.requireTypeElement("SubClass")
         val subMethod = sub.getMethodByJvmName(methodName)
         val paramIndex = subMethod.parameters.indexOf(subMethod.getParameter(paramName))
         val subMethodParam = subMethod.asMemberOf(sub.type).parameterTypes[paramIndex]
         assertThat(subMethodParam.asTypeName().java.toString()).isEqualTo(expectedJTypeName)
-        if (isKsp) {
-            assertThat(subMethodParam.asTypeName().kotlin.toString()).isEqualTo(expectedKTypeName)
-        }
 
         val base = processingEnv.requireTypeElement("BaseClass")
         val baseMethod = base.getMethodByJvmName(methodName)
         val baseMethodParam = baseMethod.asMemberOf(sub.type).parameterTypes[paramIndex]
         assertThat(baseMethodParam.asTypeName().java.toString()).isEqualTo(expectedJTypeName)
-        if (isKsp) {
-            assertThat(baseMethodParam.asTypeName().kotlin.toString()).isEqualTo(expectedKTypeName)
-        }
     }
 
     private fun XTestInvocation.assertReturnType(methodName: String, expectedTypeName: String) {

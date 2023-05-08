@@ -16,6 +16,7 @@
 
 package androidx.room.compiler.processing.ksp
 
+import androidx.room.compiler.processing.rawTypeName
 import com.google.devtools.ksp.KspExperimental
 import com.google.devtools.ksp.isOpen
 import com.google.devtools.ksp.processing.Resolver
@@ -27,6 +28,7 @@ import com.google.devtools.ksp.symbol.KSTypeArgument
 import com.google.devtools.ksp.symbol.KSTypeParameter
 import com.google.devtools.ksp.symbol.Modifier
 import com.google.devtools.ksp.symbol.Variance
+import com.squareup.kotlinpoet.javapoet.JClassName
 
 /**
  * When kotlin generates java code, it has some interesting rules on how variance is handled.
@@ -50,11 +52,11 @@ internal class KSTypeVarianceResolver(private val resolver: Resolver) {
      * @param scope The [KSTypeVarianceResolverScope] associated with the given type.
      */
     @OptIn(KspExperimental::class)
-    fun applyTypeVariance(type: KSType, scope: KSTypeVarianceResolverScope): KSType {
+    fun applyTypeVariance(type: KSType, scope: KSTypeVarianceResolverScope?): KSType {
         if (type.isError ||
             type.arguments.isEmpty() ||
             resolver.isJavaRawType(type) ||
-            !scope.needsWildcardResolution) {
+            scope?.needsWildcardResolution == false) {
             // There's nothing to resolve in this case, so just return the original type.
             return type
         }
@@ -66,7 +68,7 @@ internal class KSTypeVarianceResolver(private val resolver: Resolver) {
             .resolveWildcards(scope)
             // Next, apply any additional variance changes based on the @JvmSuppressWildcards or
             // @JvmWildcard annotations on the resolved type.
-            .applyJvmWildcardAnnotations()
+            .applyJvmWildcardAnnotations(scope)
             // Finally, unwrap any delegate types. (Note: as part of resolving wildcards, we wrap
             // types/type arguments in delegates to avoid loosing annotation information. However,
             // those delegates may cause issues later if KSP tries to cast the type/argument to a
@@ -75,8 +77,10 @@ internal class KSTypeVarianceResolver(private val resolver: Resolver) {
     }
 
     private fun KSTypeWrapper.resolveWildcards(
-        scope: KSTypeVarianceResolverScope
-    ) = if (hasTypeVariables(scope.declarationType())) {
+        scope: KSTypeVarianceResolverScope?
+    ) = if (scope == null) {
+        this
+    } else if (hasTypeVariables(scope.declarationType())) {
         // If the associated declared type contains type variables that were resolved, e.g.
         // using "asMemberOf", then it has special rules about how to resolve the types.
         getJavaWildcardWithTypeVariables(
@@ -243,19 +247,24 @@ internal class KSTypeVarianceResolver(private val resolver: Resolver) {
         return replace(resolvedType, resolvedVariance)
     }
 
-    private fun KSTypeWrapper.applyJvmWildcardAnnotations() =
-        replace(arguments.map { it.applyJvmWildcardAnnotations() })
+    private fun KSTypeWrapper.applyJvmWildcardAnnotations(
+        scope: KSTypeVarianceResolverScope?
+    ) =
+        replace(arguments.map { it.applyJvmWildcardAnnotations(scope) })
 
-    private fun KSTypeArgumentWrapper.applyJvmWildcardAnnotations(): KSTypeArgumentWrapper {
+    private fun KSTypeArgumentWrapper.applyJvmWildcardAnnotations(
+        scope: KSTypeVarianceResolverScope?
+    ): KSTypeArgumentWrapper {
         val type = type ?: return this
-        val resolvedType = type.applyJvmWildcardAnnotations()
+        val resolvedType = type.applyJvmWildcardAnnotations(scope)
         val resolvedVariance = when {
             typeParam.variance == Variance.INVARIANT && variance != Variance.INVARIANT -> variance
             hasJvmWildcardAnnotation() -> typeParam.variance
-            // We only need to check the first type in the stack for @JvmSuppressWildcards.
-            // Any other @JvmSuppressWildcards usages will be placed on the type arguments
-            // rather than the types, so no need to check the rest of the types.
-            typeStack.first().hasSuppressJvmWildcardAnnotation() ||
+            scope?.hasSuppressWildcards == true ||
+                // We only need to check the first type in the stack for @JvmSuppressWildcards.
+                // Any other @JvmSuppressWildcards usages will be placed on the type arguments
+                // rather than the types, so no need to check the rest of the types.
+                typeStack.first().hasSuppressJvmWildcardAnnotation() ||
                 this.hasSuppressWildcardsAnnotationInHierarchy() ||
                 typeArgStack.any { it.hasSuppressJvmWildcardAnnotation() } ||
                 typeParam.hasSuppressWildcardsAnnotationInHierarchy() -> Variance.INVARIANT
@@ -275,7 +284,8 @@ internal class KSTypeVarianceResolver(private val resolver: Resolver) {
 private class KSTypeWrapper constructor(
     private val resolver: Resolver,
     private val originalType: KSType,
-    private val newType: KSType = originalType.replaceTypeAliases(),
+    private val newType: KSType =
+        originalType.replaceTypeAliases().replaceSuspendFunctionTypes(resolver),
     newTypeArguments: List<KSTypeArgumentWrapper>? = null,
     private val typeStack: List<KSTypeWrapper> = emptyList(),
     private val typeArgStack: List<KSTypeArgumentWrapper> = emptyList(),
@@ -324,6 +334,27 @@ private class KSTypeWrapper constructor(
 
     private companion object {
         fun KSType.replaceTypeAliases() = (declaration as? KSTypeAlias)?.type?.resolve() ?: this
+
+        fun KSType.replaceSuspendFunctionTypes(resolver: Resolver) = if (!isSuspendFunctionType) {
+            this
+        } else {
+            // Find the JVM FunctionN type that will replace the suspend function and use that.
+            val functionN = resolver.requireType(
+                (declaration.asJTypeName(resolver).rawTypeName() as JClassName).canonicalName()
+            )
+            functionN.replace(
+                buildList {
+                    addAll(arguments.dropLast(1))
+                    val continuationArgs = arguments.takeLast(1)
+                    val continuationTypeRef = resolver.requireType("kotlin.coroutines.Continuation")
+                        .replace(continuationArgs)
+                        .createTypeReference()
+                    val objTypeRef = resolver.requireType("java.lang.Object").createTypeReference()
+                    add(resolver.getTypeArgument(continuationTypeRef, Variance.INVARIANT))
+                    add(resolver.getTypeArgument(objTypeRef, Variance.INVARIANT))
+                }
+            )
+        }
     }
 }
 

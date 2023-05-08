@@ -91,17 +91,13 @@ class KSTypeVarianceResolverWithTypeParametersTest(
                 """.trimIndent()
             )
             val kaptSignaturesMap = buildMap(sourcesMap.size) {
-                runKaptTest(sources) {
-                    sourcesMap.keys.forEach { key ->
-                        put(key, IntRange(0, 5).flatMap { i -> collectSignatures(it, key, i) })
-                    }
+                runKaptTest(sources) { invocation ->
+                    sourcesMap.keys.forEach { key -> put(key, invocation.collectSignatures(key)) }
                 }
             }
             val kspSignaturesMap = buildMap(sourcesMap.size) {
-                runKspTest(sources) {
-                    sourcesMap.keys.forEach { key ->
-                        put(key, IntRange(0, 5).flatMap { i -> collectSignatures(it, key, i) })
-                    }
+                runKspTest(sources) { invocation ->
+                    sourcesMap.keys.forEach { key -> put(key, invocation.collectSignatures(key)) }
                 }
             }
             CompilationResults(kaptSignaturesMap, kspSignaturesMap)
@@ -123,48 +119,47 @@ class KSTypeVarianceResolverWithTypeParametersTest(
             )
         }
 
-        private fun collectSignatures(
-            invocation: XTestInvocation,
-            key: String,
-            configuration: Int,
-        ): List<String> {
-            val subName = "Sub$key$configuration"
-            val baseName = "Base$key$configuration"
-            val sub = invocation.processingEnv.requireTypeElement(subName)
-            val subMethod = sub.getDeclaredMethodByJvmName("subMethod")
-            val subSuperclassType = sub.superClass!!
-            val subMethodParamType = subMethod.parameters.single().type
-            val subMethodReturnType = subMethod.returnType
-            val base = invocation.processingEnv.requireTypeElement(baseName)
-            // Note: For each method/field we test its signature when resolved asMemberOf from a
-            // subtype, super class, param type, and return type, as we may get different signatures
-            // depending on the scope of the type used with asMemberOf.
+        private fun XTestInvocation.collectSignatures(key: String): List<String> {
             return buildList {
-                base.getDeclaredMethods().forEach { method ->
-                    fun XMethodType.signature(): String {
-                        val returnType = returnType.typeName
-                        val parameters = parameterTypes.map { it.typeName }
-                        return "${method.name} : $returnType : $parameters"
+                IntRange(0, 5).forEach { configuration ->
+                    val subName = "Sub$key$configuration"
+                    val baseName = "Base$key$configuration"
+                    val sub = processingEnv.requireTypeElement(subName)
+                    val subMethod = sub.getDeclaredMethodByJvmName("subMethod")
+                    val subSuperclassType = sub.superClass!!
+                    val subMethodParamType = subMethod.parameters.single().type
+                    val subMethodReturnType = subMethod.returnType
+                    val base = processingEnv.requireTypeElement(baseName)
+                    // Note: For each method/field we test its signature when resolved asMemberOf from a
+                    // subtype, super class, param type, and return type, as we may get different signatures
+                    // depending on the scope of the type used with asMemberOf.
+                    base.getDeclaredMethods().forEach { method ->
+                        fun XMethodType.signature(): String {
+                            val returnType = returnType.typeName
+                            val parameters = parameterTypes.map { it.typeName }
+                            return "${method.name} : $returnType : $parameters"
+                        }
+
+                        val fromSubType = method.asMemberOf(sub.type)
+                        val fromSuperClassType = method.asMemberOf(subSuperclassType)
+                        val fromParamType = method.asMemberOf(subMethodParamType)
+                        val fromReturnType = method.asMemberOf(subMethodReturnType)
+                        add("$configuration-fromSub-${fromSubType.signature()}")
+                        add("$configuration-fromSuperClass-${fromSuperClassType.signature()}")
+                        add("$configuration-fromParam-${fromParamType.signature()}")
+                        add("$configuration-fromReturnType-${fromReturnType.signature()}")
                     }
-                    val fromSubType = method.asMemberOf(sub.type)
-                    val fromSuperClassType = method.asMemberOf(subSuperclassType)
-                    val fromParamType = method.asMemberOf(subMethodParamType)
-                    val fromReturnType = method.asMemberOf(subMethodReturnType)
-                    add("$configuration-fromSub-${fromSubType.signature()}")
-                    add("$configuration-fromSuperClass-${fromSuperClassType.signature()}")
-                    add("$configuration-fromParam-${fromParamType.signature()}")
-                    add("$configuration-fromReturnType-${fromReturnType.signature()}")
-                }
-                base.getDeclaredFields().forEach { field ->
-                    fun XType.signature() = "${field.name} : $typeName"
-                    val fromSubType = field.asMemberOf(sub.type)
-                    val fromSuperClassType = field.asMemberOf(subSuperclassType)
-                    val fromParamType = field.asMemberOf(subMethodParamType)
-                    val fromReturnType = field.asMemberOf(subMethodReturnType)
-                    add("$configuration-fromSub-${fromSubType.signature()}")
-                    add("$configuration-fromSuperClass-${fromSuperClassType.signature()}")
-                    add("$configuration-fromParam-${fromParamType.signature()}")
-                    add("$configuration-fromReturnType-${fromReturnType.signature()}")
+                    base.getDeclaredFields().forEach { field ->
+                        fun XType.signature() = "${field.name} : $typeName"
+                        val fromSubType = field.asMemberOf(sub.type)
+                        val fromSuperClassType = field.asMemberOf(subSuperclassType)
+                        val fromParamType = field.asMemberOf(subMethodParamType)
+                        val fromReturnType = field.asMemberOf(subMethodReturnType)
+                        add("$configuration-fromSub-${fromSubType.signature()}")
+                        add("$configuration-fromSuperClass-${fromSuperClassType.signature()}")
+                        add("$configuration-fromParam-${fromParamType.signature()}")
+                        add("$configuration-fromReturnType-${fromReturnType.signature()}")
+                    }
                 }
             }
         }

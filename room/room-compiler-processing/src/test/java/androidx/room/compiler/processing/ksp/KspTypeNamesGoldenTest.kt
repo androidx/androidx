@@ -162,6 +162,20 @@ class KspTypeNamesGoldenTest {
                 interface MyInterface
                 typealias MyInterfaceAlias = MyInterface
                 typealias MyGenericAlias = MyGenericIn<MyGenericOut<MyGenericOut<MyType>>>
+                typealias MyLambdaAlias1 = (List<MyGenericIn<MyGenericOut<MyGenericOut<MyType>>>>) -> List<MyGenericIn<MyGenericOut<MyGenericOut<MyType>>>>
+                typealias MyLambdaAlias2 = @JSW (List<MyGenericIn<MyGenericOut<MyGenericOut<MyType>>>>) -> List<MyGenericIn<MyGenericOut<MyGenericOut<MyType>>>>
+                typealias MyLambdaAlias3 = (@JSW List<MyGenericIn<MyGenericOut<MyGenericOut<MyType>>>>) -> @JSW List<MyGenericIn<MyGenericOut<MyGenericOut<MyType>>>>
+                typealias MyLambdaAlias4 = (List<@JSW MyGenericIn<MyGenericOut<MyGenericOut<MyType>>>>) -> List<@JSW MyGenericIn<MyGenericOut<MyGenericOut<MyType>>>>
+                typealias MyLambdaAlias5 = (List<MyGenericIn<@JSW MyGenericOut<MyGenericOut<MyType>>>>) -> List<MyGenericIn<@JSW MyGenericOut<MyGenericOut<MyType>>>>
+                typealias MyLambdaAlias6 = (List<MyGenericIn<MyGenericOut<@JSW MyGenericOut<MyType>>>>) -> List<MyGenericIn<MyGenericOut<@JSW MyGenericOut<MyType>>>>
+                typealias MyLambdaAlias7 = (List<MyGenericIn<MyGenericOut<MyGenericOut<@JSW MyType>>>>) -> List<MyGenericIn<MyGenericOut<MyGenericOut<@JSW MyType>>>>
+                typealias MySuspendLambdaAlias1 = suspend (List<MyGenericIn<MyGenericOut<MyGenericOut<MyType>>>>) -> List<MyGenericIn<MyGenericOut<MyGenericOut<MyType>>>>
+                typealias MySuspendLambdaAlias2 = @JSW suspend (List<MyGenericIn<MyGenericOut<MyGenericOut<MyType>>>>) -> List<MyGenericIn<MyGenericOut<MyGenericOut<MyType>>>>
+                typealias MySuspendLambdaAlias3 = suspend (@JSW List<MyGenericIn<MyGenericOut<MyGenericOut<MyType>>>>) -> @JSW List<MyGenericIn<MyGenericOut<MyGenericOut<MyType>>>>
+                typealias MySuspendLambdaAlias4 = suspend (List<@JSW MyGenericIn<MyGenericOut<MyGenericOut<MyType>>>>) -> List<@JSW MyGenericIn<MyGenericOut<MyGenericOut<MyType>>>>
+                typealias MySuspendLambdaAlias5 = suspend (List<MyGenericIn<@JSW MyGenericOut<MyGenericOut<MyType>>>>) -> List<MyGenericIn<@JSW MyGenericOut<MyGenericOut<MyType>>>>
+                typealias MySuspendLambdaAlias6 = suspend (List<MyGenericIn<MyGenericOut<@JSW MyGenericOut<MyType>>>>) -> List<MyGenericIn<MyGenericOut<@JSW MyGenericOut<MyType>>>>
+                typealias MySuspendLambdaAlias7 = suspend (List<MyGenericIn<MyGenericOut<MyGenericOut<@JSW MyType>>>>) -> List<MyGenericIn<MyGenericOut<MyGenericOut<@JSW MyType>>>>
                 typealias JSW = JvmSuppressWildcards
                 typealias JW = JvmWildcard
                 typealias MyLambdaTypeAlias = (@JvmWildcard MyType) -> @JvmWildcard MyType
@@ -453,6 +467,34 @@ class KspTypeNamesGoldenTest {
                     fun explicitJvmSuppressWildcardTypeAlias_OnType2(
                         list: @JSW List<Number>
                     ): @JSW List<Number> { TODO() }
+                    fun lambda1(param: MyLambdaAlias1): MyLambdaAlias1 = TODO()
+                    fun lambda2(param: MyLambdaAlias2): MyLambdaAlias2 = TODO()
+                    fun lambda3(param: MyLambdaAlias3): MyLambdaAlias3 = TODO()
+                    fun lambda4(param: MyLambdaAlias4): MyLambdaAlias4 = TODO()
+                    fun lambda5(param: MyLambdaAlias5): MyLambdaAlias5 = TODO()
+                    fun lambda6(param: MyLambdaAlias6): MyLambdaAlias6 = TODO()
+                    fun lambda7(param: MyLambdaAlias7): MyLambdaAlias7 = TODO()
+                    @JSW fun lambda1WithJSW(param: MyLambdaAlias1): MyLambdaAlias1 = TODO()
+                    @JSW fun lambda2WithJSW(param: MyLambdaAlias2): MyLambdaAlias2 = TODO()
+                    @JSW fun lambda3WithJSW(param: MyLambdaAlias3): MyLambdaAlias3 = TODO()
+                    @JSW fun lambda4WithJSW(param: MyLambdaAlias4): MyLambdaAlias4 = TODO()
+                    @JSW fun lambda5WithJSW(param: MyLambdaAlias5): MyLambdaAlias5 = TODO()
+                    @JSW fun lambda6WithJSW(param: MyLambdaAlias6): MyLambdaAlias6 = TODO()
+                    @JSW fun lambda7WithJSW(param: MyLambdaAlias7): MyLambdaAlias7 = TODO()
+                    fun suspendLambda1(param: MySuspendLambdaAlias1): MySuspendLambdaAlias1 = TODO()
+                    fun suspendLambda2(param: MySuspendLambdaAlias2): MySuspendLambdaAlias2 = TODO()
+                    fun suspendLambda3(param: MySuspendLambdaAlias3): MySuspendLambdaAlias3 = TODO()
+                    fun suspendLambda4(param: MySuspendLambdaAlias4): MySuspendLambdaAlias4 = TODO()
+                    fun suspendLambda5(param: MySuspendLambdaAlias5): MySuspendLambdaAlias5 = TODO()
+                    fun suspendLambda6(param: MySuspendLambdaAlias6): MySuspendLambdaAlias6 = TODO()
+                    fun suspendLambda7(param: MySuspendLambdaAlias7): MySuspendLambdaAlias7 = TODO()
+                    @JSW fun suspendLambda1WithJSW(param: MySuspendLambdaAlias1): MySuspendLambdaAlias1 = TODO()
+                    @JSW fun suspendLambda2WithJSW(param: MySuspendLambdaAlias2): MySuspendLambdaAlias2 = TODO()
+                    @JSW fun suspendLambda3WithJSW(param: MySuspendLambdaAlias3): MySuspendLambdaAlias3 = TODO()
+                    @JSW fun suspendLambda4WithJSW(param: MySuspendLambdaAlias4): MySuspendLambdaAlias4 = TODO()
+                    @JSW fun suspendLambda5WithJSW(param: MySuspendLambdaAlias5): MySuspendLambdaAlias5 = TODO()
+                    @JSW fun suspendLambda6WithJSW(param: MySuspendLambdaAlias6): MySuspendLambdaAlias6 = TODO()
+                    @JSW fun suspendLambda7WithJSW(param: MySuspendLambdaAlias7): MySuspendLambdaAlias7 = TODO()
                 }
                 """.trimIndent()
             ), listOf(className)

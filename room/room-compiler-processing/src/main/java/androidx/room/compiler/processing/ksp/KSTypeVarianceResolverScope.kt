@@ -36,15 +36,18 @@ internal sealed class KSTypeVarianceResolverScope(
      * parameter is in kotlin or the containing class, which inherited the method, is in kotlin.
      */
     val needsWildcardResolution: Boolean by lazy {
-        fun nodeForSuppressionCheck(): KSAnnotated? = when (this) {
+        annotated.isInKotlinCode() || container?.isInKotlinCode() == true
+    }
+
+    val hasSuppressWildcards: Boolean by lazy {
+        val nodeForSuppressionCheck = when (this) {
             // For property setter and getter methods skip to the enclosing class to check for
             // suppression annotations to match KAPT.
             is PropertySetterParameterType,
             is PropertyGetterMethodReturnType -> annotated.parent?.parent as? KSAnnotated
             else -> annotated
         }
-        (annotated.isInKotlinCode() || container?.isInKotlinCode() == true) &&
-            nodeForSuppressionCheck()?.hasSuppressWildcardsAnnotationInHierarchy() != true
+        nodeForSuppressionCheck?.hasSuppressWildcardsAnnotationInHierarchy() == true
     }
 
     private fun KSAnnotated.isInKotlinCode(): Boolean {
@@ -67,7 +70,7 @@ internal sealed class KSTypeVarianceResolverScope(
     abstract fun isValOrReturnType(): Boolean
 
     /** Returns the scope of the `asMemberOf` container type. */
-    fun asMemberOfScopeOrSelf(): KSTypeVarianceResolverScope? {
+    fun asMemberOfScopeOrSelf(): KSTypeVarianceResolverScope {
         return asMemberOf?.scope ?: this
     }
 
