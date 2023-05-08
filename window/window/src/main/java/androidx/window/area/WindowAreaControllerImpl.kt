@@ -24,6 +24,7 @@ import androidx.annotation.RequiresApi
 import androidx.window.area.WindowAreaCapability.Status.Companion.WINDOW_AREA_STATUS_ACTIVE
 import androidx.window.area.WindowAreaCapability.Status.Companion.WINDOW_AREA_STATUS_AVAILABLE
 import androidx.window.area.WindowAreaCapability.Status.Companion.WINDOW_AREA_STATUS_UNSUPPORTED
+import androidx.window.area.utils.DeviceUtils
 import androidx.window.core.BuildConfig
 import androidx.window.core.VerificationMode
 import androidx.window.extensions.area.ExtensionWindowAreaStatus
@@ -102,10 +103,17 @@ internal class WindowAreaControllerImpl(
             WindowMetricsCalculator.fromDisplayMetrics(
                 displayMetrics = windowAreaComponent.rearDisplayMetrics
             )
-        } else { // TODO(b/281135171): Update with the device-specific metrics
-            WindowMetricsCalculator.fromDisplayMetrics(
-                displayMetrics = null
-            )
+        } else {
+            val displayMetrics = DeviceUtils.getRearDisplayMetrics(Build.MANUFACTURER, Build.MODEL)
+            if (displayMetrics != null) {
+                WindowMetricsCalculator.fromDisplayMetrics(
+                    displayMetrics = displayMetrics
+                )
+            } else {
+                throw IllegalArgumentException(
+                    "DeviceUtils rear display metrics entry should not be null"
+                )
+            }
         }
 
         currentRearDisplayModeStatus = WindowAreaAdapter.translate(status)
@@ -169,8 +177,7 @@ internal class WindowAreaControllerImpl(
             }
             val capability = WindowAreaCapability(operation, status)
             rearDisplayAreaInfo.capabilityMap[operation] = capability
-            rearDisplayAreaInfo.metrics =
-                determineUpdatedWindowMetrics(rearDisplayAreaInfo, metrics)
+            rearDisplayAreaInfo.metrics = metrics
             currentWindowAreaInfoMap[REAR_DISPLAY_BINDER_DESCRIPTOR] = rearDisplayAreaInfo
         }
     }
@@ -186,23 +193,6 @@ internal class WindowAreaControllerImpl(
             }
         }
         return true
-    }
-
-    /**
-     * Returns the updated [WindowMetrics] that should be added to the [windowAreaInfo] provided.
-     *
-     * If the updated [newMetrics] is not empty, then we return that value. If it is empty, then
-     * the previous metrics value on the [windowAreaInfo] object is returned.
-     */
-    private fun determineUpdatedWindowMetrics(
-        windowAreaInfo: WindowAreaInfo,
-        newMetrics: WindowMetrics
-    ): WindowMetrics {
-        return if (newMetrics != WindowMetricsCalculator.fromDisplayMetrics(null)) {
-            newMetrics
-        } else {
-            windowAreaInfo.metrics
-        }
     }
 
     override fun transferActivityToWindowArea(

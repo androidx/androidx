@@ -156,18 +156,11 @@ interface WindowMetricsCalculator {
                 WindowInsetsCompat.toWindowInsetsCompat(windowMetrics.windowInsets)
             )
 
-        internal fun fromDisplayMetrics(displayMetrics: DisplayMetrics?): WindowMetrics {
-            return if (displayMetrics == null) {
-                WindowMetrics(
-                    Bounds(0, 0, 0, 0),
-                    WindowInsetsCompat.Builder().build()
-                )
-            } else {
-                WindowMetrics(
+        internal fun fromDisplayMetrics(displayMetrics: DisplayMetrics): WindowMetrics {
+            return WindowMetrics(
                     Bounds(0, 0, displayMetrics.widthPixels, displayMetrics.heightPixels),
                     WindowInsetsCompat.Builder().build()
                 )
-            }
         }
     }
 }
