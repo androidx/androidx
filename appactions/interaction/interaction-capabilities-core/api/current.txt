@@ -14,7 +14,6 @@ package androidx.appactions.interaction.capabilities.core {
   }
 
   public abstract static class Capability.Builder<BuilderT extends androidx.appactions.interaction.capabilities.core.Capability.Builder<BuilderT, ArgumentsT, OutputT, ConfirmationT, ExecutionSessionT>, ArgumentsT, OutputT, ConfirmationT, ExecutionSessionT extends androidx.appactions.interaction.capabilities.core.BaseExecutionSession<ArgumentsT, OutputT>> {
-    method public final BuilderT asBuilder();
     method public androidx.appactions.interaction.capabilities.core.Capability build();
     method public final BuilderT setExecutionCallback(androidx.appactions.interaction.capabilities.core.ExecutionCallback<ArgumentsT,OutputT> executionCallback);
     method public final BuilderT setExecutionCallback(androidx.appactions.interaction.capabilities.core.ExecutionCallbackAsync<ArgumentsT,OutputT> executionCallbackAsync);
