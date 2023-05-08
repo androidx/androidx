@@ -322,7 +322,6 @@
             <trusting group="io.grpc"/>
          </trusted-key>
          <trusted-key id="b252e5789636134a311e4463971b04f56669b805" group="com.google.jsilver"/>
-         <trusted-key id="b2f967b67dadc1f07172dbdade453e55dc86fc9b" group="co.touchlab"/>
          <trusted-key id="b41089a2da79b0fa5810252872385ff0af338d52" group="org.threeten"/>
          <trusted-key id="b46dc71e03feeb7f89d1f2491f7a8f87b9d8f501" group="org.jetbrains.trove4j"/>
          <trusted-key id="b47034c19c9b1f3dc3702f8d476634a4694e716a" group="com.googlecode.java-diff-utils"/>

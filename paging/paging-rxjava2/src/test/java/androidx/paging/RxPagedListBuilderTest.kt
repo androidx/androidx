@@ -38,7 +38,6 @@ import kotlinx.coroutines.asExecutor
 import kotlinx.coroutines.withContext
 
 @Suppress("DEPRECATION")
-@OptIn(ExperimentalStdlibApi::class)
 @RunWith(JUnit4::class)
 class RxPagedListBuilderTest {
     private data class LoadStateEvent(

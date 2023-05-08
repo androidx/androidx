@@ -47,7 +47,7 @@ import kotlinx.coroutines.test.advanceUntilIdle
 @RunWith(AndroidJUnit4::class)
 @SmallTest
 @Suppress("DEPRECATION")
-@OptIn(ExperimentalCoroutinesApi::class, ExperimentalStdlibApi::class)
+@OptIn(ExperimentalCoroutinesApi::class)
 class LivePagedListTest {
     @JvmField
     @Rule

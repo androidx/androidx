@@ -36,7 +36,6 @@ androidXMultiplatform {
                 api(libs.kotlinStdlib)
                 api(libs.kotlinCoroutinesCore)
                 api(libs.kotlinCoroutinesTest)
-                api(libs.statelyIsoCollections)
             }
         }
         jvmMain {

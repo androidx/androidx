@@ -16,7 +16,6 @@
 
 package androidx.testutils
 
-import co.touchlab.stately.collections.IsoArrayDeque
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Runnable
 import kotlin.coroutines.CoroutineContext
@@ -24,9 +23,8 @@ import kotlin.coroutines.CoroutineContext
 /**
  * [CoroutineDispatcher] which keeps track of all its queued jobs.
  */
-@OptIn(ExperimentalStdlibApi::class)
 class TestDispatcher : CoroutineDispatcher() {
-    val queue = IsoArrayDeque<Runnable>()
+    val queue = ArrayDeque<Runnable>()
 
     override fun dispatch(context: CoroutineContext, block: Runnable) {
         queue.add(block)

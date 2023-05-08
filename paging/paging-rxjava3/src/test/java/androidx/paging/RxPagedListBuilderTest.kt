@@ -40,7 +40,6 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.asExecutor
 import kotlinx.coroutines.withContext
 
-@OptIn(ExperimentalStdlibApi::class)
 @RunWith(JUnit4::class)
 class RxPagedListBuilderTest {
     private data class LoadStateEvent(

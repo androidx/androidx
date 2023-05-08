@@ -42,7 +42,6 @@ import org.junit.runners.Parameterized
 import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 
-@OptIn(ExperimentalStdlibApi::class)
 @RunWith(Parameterized::class)
 class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
     private val mainThread = TestDispatcher()

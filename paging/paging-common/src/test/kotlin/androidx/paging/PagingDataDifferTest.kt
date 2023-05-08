@@ -60,7 +60,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
-@OptIn(ExperimentalCoroutinesApi::class, ExperimentalPagingApi::class, ExperimentalStdlibApi::class)
+@OptIn(ExperimentalCoroutinesApi::class, ExperimentalPagingApi::class)
 @RunWith(Parameterized::class)
 class PagingDataDifferTest(
     /**
