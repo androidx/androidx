@@ -185,15 +185,11 @@ class JankStatsTest {
         jankStats.jankHeuristicMultiplier = 0f
         runDelayTest(frameDelay, NUM_FRAMES, latchedListener)
         // FrameMetrics sometimes drops a frame, so the total number of
-        // jankData items might be less than NUM_FRAMES
+        // jankData items might be less than NUM_FRAMES. Check against actual
+        // number of frames received instead.
         assertEquals(
-            "jank frames != NUMFRAMES",
-            NUM_FRAMES, latchedListener.numJankFrames
-        )
-        assertTrue(
-            "With heuristicMultiplier 0, should be at least ${NUM_FRAMES - 1} " +
-                "frames with jank data, not ${latchedListener.numJankFrames}",
-            latchedListener.numJankFrames >= (NUM_FRAMES - 1)
+            "numJankFrames != numFrames",
+            latchedListener.numFrames, latchedListener.numJankFrames
         )
     }
 
@@ -275,12 +271,12 @@ class JankStatsTest {
         frameInit.initFramePipeline()
 
         runDelayTest(frameDelay, NUM_FRAMES, latchedListener)
+
         // FrameMetrics sometimes drops a frame, so the total number of
         // jankData items might be less than NUM_FRAMES
-        assertTrue(
-            "There should be at least ${NUM_FRAMES - 1} frames with jank data, " +
-                "not ${latchedListener.jankData.size}",
-            latchedListener.jankData.size >= (NUM_FRAMES - 1)
+        assertEquals("There should be ${latchedListener.numFrames} frames " +
+                "with jank data, not ${latchedListener.jankData.size}",
+            latchedListener.numFrames, latchedListener.jankData.size
         )
         latchedListener.reset()
 
@@ -307,8 +303,8 @@ class JankStatsTest {
         metricsState.putSingleFrameState(state2.key, state2.value)
         runDelayTest(frameDelay, NUM_FRAMES, latchedListener)
         assertEquals(
-            "frameDelay 100: There should be $NUM_FRAMES frames with jank data", NUM_FRAMES,
-            latchedListener.jankData.size
+            "frameDelay 100: There should be ${latchedListener.numFrames} frames with" +
+                "jank data", latchedListener.numFrames, latchedListener.jankData.size
         )
         var item0: FrameData = latchedListener.jankData[0]
         assertEquals("There should be 3 states at frame 0", 3,
@@ -323,7 +319,7 @@ class JankStatsTest {
         assertThat(state2, Matchers.isIn(item0.states))
 
         // Now test the rest of the frames, which should not include singleFrameState state2
-        for (i in 1 until NUM_FRAMES) {
+        for (i in 1 until latchedListener.numFrames) {
             val item = latchedListener.jankData[i]
             assertEquals("There should be 2 states at frame $i", 2,
                 item.states.size)
@@ -503,18 +499,46 @@ class JankStatsTest {
         runDelayTest(frameDelay = 0, numFrames = perFrameStateData.size,
             latchedListener, perFrameStateData)
 
-        assertEquals("There should be ${expectedResults.size} frames of data",
-            expectedResults.size, latchedListener.jankData.size)
-        for (i in 0 until expectedResults.size) {
-            val testResultStates = latchedListener.jankData[i].states
-            val expectedResult = expectedResults[i]
-            assertEquals("There should be ${expectedResult.size} states",
-                expectedResult.size, testResultStates.size)
-            for (state in testResultStates) {
-                assertEquals("State value not correct",
-                    state.value, expectedResult.get(state.key))
+        // There might be one or two dropped frames, check that we have nearly the number
+        // expected
+        assertTrue("There should be at least ${expectedResults.size - 2} frames of data",
+            (latchedListener.jankData.size > expectedResults.size - 2))
+
+        /*
+        Ideally, we would check each frame's result states against the expected results.
+        But the system sometimes drops frames, causing the jankData to be a subset of
+        the expectedResults set from above. This is fine, for testing purposes, but that
+        means we should check the current result against the expected result of this and
+        the next frame, to account for these skips. when this happens, we increment the
+        expected index since all results will be offset by that skip.
+         */
+        var expectedIndex = 0
+        var resultIndex = 0
+        while (expectedIndex < expectedResults.size) {
+            val testResultStates = latchedListener.jankData[resultIndex].states
+            // Test against this and next expected result, in case system skipped a frame
+            var matched = checkFrameStates(expectedResults[expectedIndex], testResultStates)
+            if (!matched) {
+                expectedIndex++
+                matched = checkFrameStates(expectedResults[expectedIndex], testResultStates)
+            }
+            assertTrue("States do not match at frame $expectedIndex", matched)
+            expectedIndex++
+            resultIndex++
+        }
+    }
+
+    private fun checkFrameStates(
+        expectedResult: Map<String, String>,
+        testResultStates: List<StateInfo>
+    ): Boolean {
+        if (expectedResult.size != testResultStates.size) return false
+        for (state in testResultStates) {
+            if (state.value != expectedResult.get(state.key)) {
+               return false
             }
         }
+        return true
     }
 
     private fun runDelayTest(
