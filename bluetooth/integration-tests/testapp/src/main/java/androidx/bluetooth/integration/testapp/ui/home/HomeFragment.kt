@@ -66,11 +66,7 @@ class HomeFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        Log.d(
-            TAG, "onCreateView() called with: inflater = $inflater, " +
-                "container = $container, savedInstanceState = $savedInstanceState"
-        )
-        mHomeViewModel = ViewModelProvider(this).get(HomeViewModel::class.java)
+        mHomeViewModel = ViewModelProvider(this)[HomeViewModel::class.java]
 
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
         return binding.root
