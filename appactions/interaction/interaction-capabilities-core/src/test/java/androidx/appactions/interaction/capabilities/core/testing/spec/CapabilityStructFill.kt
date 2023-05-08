@@ -26,7 +26,6 @@ import androidx.appactions.interaction.capabilities.core.impl.converters.TypeCon
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
 import androidx.appactions.interaction.capabilities.core.properties.Property
 import androidx.appactions.interaction.capabilities.core.properties.StringValue
-import java.util.Optional
 
 private const val CAPABILITY_NAME = "actions.intent.TEST"
 
@@ -35,7 +34,7 @@ class CapabilityStructFill {
 
     class Arguments internal constructor(
         val listItem: ListItem?,
-        val anyString: String?,
+        val anyString: String?
     ) {
         override fun toString(): String {
             return "Arguments(listItem=$listItem, " +
@@ -86,19 +85,19 @@ class CapabilityStructFill {
         val ACTION_SPEC = ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
             .setArguments(Arguments::class.java, Arguments::Builder)
             .setOutput(Output::class.java)
-            .bindOptionalParameter(
+            .bindParameter(
                 "listItem",
                 { properties ->
-                    Optional.ofNullable(properties["listItem"] as Property<ListItem>)
+                    properties["listItem"] as? Property<ListItem>
                 },
                 Arguments.Builder::setListItem,
                 ParamValueConverter.of(TypeConverters.LIST_ITEM_TYPE_SPEC),
                 EntityConverter.of(TypeConverters.LIST_ITEM_TYPE_SPEC)::convert
             )
-            .bindOptionalParameter(
+            .bindParameter(
                 "string",
                 { properties ->
-                    Optional.ofNullable(properties["anyString"] as Property<StringValue>)
+                    properties["anyString"] as? Property<StringValue>
                 },
                 Arguments.Builder::setAnyString,
                 TypeConverters.STRING_PARAM_VALUE_CONVERTER,

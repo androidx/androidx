@@ -24,7 +24,6 @@ import androidx.appactions.interaction.capabilities.core.impl.converters.TypeCon
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
 import androidx.appactions.interaction.capabilities.core.properties.Property
 import androidx.appactions.interaction.capabilities.core.properties.StringValue
-import java.util.Optional
 
 private const val CAPABILITY_NAME = "actions.intent.PAUSE_EXERCISE"
 
@@ -32,7 +31,7 @@ private const val CAPABILITY_NAME = "actions.intent.PAUSE_EXERCISE"
 @CapabilityFactory(name = CAPABILITY_NAME)
 class PauseExercise private constructor() {
     internal enum class PropertyMapStrings(val key: String) {
-        NAME("exercise.name"),
+        NAME("exercise.name")
     }
 
     class CapabilityBuilder :
@@ -98,13 +97,10 @@ class PauseExercise private constructor() {
             ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
                 .setArguments(Arguments::class.java, Arguments::Builder)
                 .setOutput(Output::class.java)
-                .bindOptionalParameter(
+                .bindParameter(
                     "exercise.name",
                     { properties ->
-                        Optional.ofNullable(
-                            properties[PropertyMapStrings.NAME.key]
-                                as Property<StringValue>
-                        )
+                        properties[PropertyMapStrings.NAME.key] as? Property<StringValue>
                     },
                     Arguments.Builder::setName,
                     TypeConverters.STRING_PARAM_VALUE_CONVERTER,

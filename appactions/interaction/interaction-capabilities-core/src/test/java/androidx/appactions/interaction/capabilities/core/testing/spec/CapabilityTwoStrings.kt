@@ -23,7 +23,6 @@ import androidx.appactions.interaction.capabilities.core.impl.converters.TypeCon
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
 import androidx.appactions.interaction.capabilities.core.properties.Property
 import androidx.appactions.interaction.capabilities.core.properties.StringValue
-import java.util.Optional
 
 private const val CAPABILITY_NAME = "actions.intent.TEST"
 
@@ -32,7 +31,7 @@ class CapabilityTwoStrings {
 
     class Arguments internal constructor(
         val stringSlotA: String?,
-        val stringSlotB: String?,
+        val stringSlotB: String?
     ) {
         override fun toString(): String {
             return "Arguments(stringSlotA=$stringSlotA, " +
@@ -81,18 +80,20 @@ class CapabilityTwoStrings {
         val ACTION_SPEC = ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
             .setArguments(Arguments::class.java, Arguments::Builder)
             .setOutput(Output::class.java)
-            .bindOptionalParameter(
+            .bindParameter(
                 "stringSlotA",
                 { properties ->
-                    Optional.ofNullable(properties["stringSlotA"] as Property<StringValue>) },
+                    properties["stringSlotA"] as? Property<StringValue>
+                },
                 Arguments.Builder::setStringSlotA,
                 TypeConverters.STRING_PARAM_VALUE_CONVERTER,
                 TypeConverters.STRING_VALUE_ENTITY_CONVERTER
             )
-            .bindOptionalParameter(
+            .bindParameter(
                 "stringSlotB",
                 { properties ->
-                    Optional.ofNullable(properties["stringSlotB"] as Property<StringValue>) },
+                    properties["stringSlotB"] as? Property<StringValue>
+                },
                 Arguments.Builder::setStringSlotB,
                 TypeConverters.STRING_PARAM_VALUE_CONVERTER,
                 TypeConverters.STRING_VALUE_ENTITY_CONVERTER

@@ -24,7 +24,6 @@ import androidx.appactions.interaction.capabilities.core.impl.converters.TypeCon
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
 import androidx.appactions.interaction.capabilities.core.properties.Property
 import java.time.LocalTime
-import java.util.Optional
 
 private const val CAPABILITY_NAME = "actions.intent.GET_EXERCISE_OBSERVATION"
 
@@ -33,7 +32,7 @@ private const val CAPABILITY_NAME = "actions.intent.GET_EXERCISE_OBSERVATION"
 class GetExerciseObservation private constructor() {
     internal enum class PropertyMapStrings(val key: String) {
         START_TIME("exerciseObservation.startTime"),
-        END_TIME("exerciseObservation.endTime"),
+        END_TIME("exerciseObservation.endTime")
     }
 
     class CapabilityBuilder :
@@ -110,25 +109,19 @@ class GetExerciseObservation private constructor() {
                     Arguments::Builder
                 )
                 .setOutput(Output::class.java)
-                .bindOptionalParameter(
+                .bindParameter(
                     "exerciseObservation.startTime",
                     { properties ->
-                        Optional.ofNullable(
-                            properties[PropertyMapStrings.START_TIME.key]
-                                as Property<LocalTime>
-                        )
+                        properties[PropertyMapStrings.START_TIME.key] as? Property<LocalTime>
                     },
                     Arguments.Builder::setStartTime,
                     TypeConverters.LOCAL_TIME_PARAM_VALUE_CONVERTER,
                     TypeConverters.LOCAL_TIME_ENTITY_CONVERTER
                 )
-                .bindOptionalParameter(
+                .bindParameter(
                     "exerciseObservation.endTime",
                     { properties ->
-                        Optional.ofNullable(
-                            properties[PropertyMapStrings.END_TIME.key]
-                                as Property<LocalTime>
-                        )
+                        properties[PropertyMapStrings.END_TIME.key] as? Property<LocalTime>
                     },
                     Arguments.Builder::setEndTime,
                     TypeConverters.LOCAL_TIME_PARAM_VALUE_CONVERTER,

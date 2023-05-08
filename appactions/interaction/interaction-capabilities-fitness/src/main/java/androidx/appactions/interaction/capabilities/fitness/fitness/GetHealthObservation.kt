@@ -24,7 +24,6 @@ import androidx.appactions.interaction.capabilities.core.impl.converters.TypeCon
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
 import androidx.appactions.interaction.capabilities.core.properties.Property
 import java.time.LocalTime
-import java.util.Optional
 
 private const val CAPABILITY_NAME = "actions.intent.GET_HEALTH_OBSERVATION"
 
@@ -34,7 +33,7 @@ class GetHealthObservation private constructor() {
 
     internal enum class PropertyMapStrings(val key: String) {
         START_TIME("healthObservation.startTime"),
-        END_TIME("healthObservation.endTime"),
+        END_TIME("healthObservation.endTime")
     }
 
     class CapabilityBuilder :
@@ -115,25 +114,19 @@ class GetHealthObservation private constructor() {
                     Arguments::Builder
                 )
                 .setOutput(Output::class.java)
-                .bindOptionalParameter(
+                .bindParameter(
                     "healthObservation.startTime",
                     { properties ->
-                        Optional.ofNullable(
-                            properties[PropertyMapStrings.START_TIME.key]
-                                as Property<LocalTime>
-                        )
+                        properties[PropertyMapStrings.START_TIME.key] as? Property<LocalTime>
                     },
                     Arguments.Builder::setStartTime,
                     TypeConverters.LOCAL_TIME_PARAM_VALUE_CONVERTER,
                     TypeConverters.LOCAL_TIME_ENTITY_CONVERTER
                 )
-                .bindOptionalParameter(
+                .bindParameter(
                     "healthObservation.endTime",
                     { properties ->
-                        Optional.ofNullable(
-                            properties[PropertyMapStrings.END_TIME.key]
-                                as Property<LocalTime>
-                        )
+                        properties[PropertyMapStrings.END_TIME.key] as? Property<LocalTime>
                     },
                     Arguments.Builder::setEndTime,
                     TypeConverters.LOCAL_TIME_PARAM_VALUE_CONVERTER,

@@ -34,7 +34,6 @@ import androidx.appactions.interaction.proto.ParamValue
 import androidx.appactions.interaction.protobuf.Struct
 import androidx.appactions.interaction.protobuf.Value
 import java.time.Duration
-import java.util.Optional
 
 private const val CAPABILITY_NAME = "actions.intent.START_TIMER"
 
@@ -45,7 +44,7 @@ class StartTimer private constructor() {
         TIMER_LIST("timer.timerList"),
         IDENTIFIER("timer.identifier"),
         NAME("timer.name"),
-        DURATION("timer.duration"),
+        DURATION("timer.duration")
     }
 
     class CapabilityBuilder :
@@ -61,7 +60,7 @@ class StartTimer private constructor() {
         override val sessionBridge: SessionBridge<ExecutionSession, Confirmation> = SESSION_BRIDGE
 
         override fun setExecutionSessionFactory(
-            sessionFactory: (hostProperties: HostProperties?) -> ExecutionSession,
+            sessionFactory: (hostProperties: HostProperties?) -> ExecutionSession
         ): CapabilityBuilder = super.setExecutionSessionFactory(sessionFactory)
 
         fun setTimerList(timerList: Property<TimerValue>): CapabilityBuilder = apply {
@@ -96,7 +95,7 @@ class StartTimer private constructor() {
     class Arguments internal constructor(
         val identifier: String?,
         val name: String?,
-        val duration: Duration?,
+        val duration: Duration?
     ) {
         override fun toString(): String {
             return "Arguments(identifier=$identifier,name=$name,duration=$duration)"
@@ -191,7 +190,7 @@ class StartTimer private constructor() {
             val value: Value = Value.newBuilder().setStringValue(status).build()
             return ParamValue.newBuilder()
                 .setStructValue(
-                    Struct.newBuilder().putFields(TypeConverters.FIELD_NAME_TYPE, value).build(),
+                    Struct.newBuilder().putFields(TypeConverters.FIELD_NAME_TYPE, value).build()
                 )
                 .build()
         }
@@ -205,46 +204,37 @@ class StartTimer private constructor() {
             ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
                 .setArguments(Arguments::class.java, Arguments::Builder)
                 .setOutput(Output::class.java)
-                .bindOptionalParameter(
+                .bindParameter(
                     "timer.identifier",
                     { properties ->
-                        Optional.ofNullable(
-                            properties[PropertyMapStrings.IDENTIFIER.key]
-                                as Property<StringValue>
-                        )
+                        properties[PropertyMapStrings.IDENTIFIER.key] as? Property<StringValue>
                     },
                     Arguments.Builder::setIdentifier,
                     TypeConverters.STRING_PARAM_VALUE_CONVERTER,
-                    TypeConverters.STRING_VALUE_ENTITY_CONVERTER,
+                    TypeConverters.STRING_VALUE_ENTITY_CONVERTER
                 )
-                .bindOptionalParameter(
+                .bindParameter(
                     "timer.name",
                     { properties ->
-                        Optional.ofNullable(
-                            properties[PropertyMapStrings.NAME.key]
-                                as Property<StringValue>
-                        )
+                        properties[PropertyMapStrings.NAME.key] as? Property<StringValue>
                     },
                     Arguments.Builder::setName,
                     TypeConverters.STRING_PARAM_VALUE_CONVERTER,
-                    TypeConverters.STRING_VALUE_ENTITY_CONVERTER,
+                    TypeConverters.STRING_VALUE_ENTITY_CONVERTER
                 )
-                .bindOptionalParameter(
+                .bindParameter(
                     "timer.duration",
                     { properties ->
-                        Optional.ofNullable(
-                            properties[PropertyMapStrings.DURATION.key]
-                                as Property<Duration>
-                        )
+                        properties[PropertyMapStrings.DURATION.key] as? Property<Duration>
                     },
                     Arguments.Builder::setDuration,
                     TypeConverters.DURATION_PARAM_VALUE_CONVERTER,
-                    TypeConverters.DURATION_ENTITY_CONVERTER,
+                    TypeConverters.DURATION_ENTITY_CONVERTER
                 )
-                .bindOptionalOutput(
+                .bindOutput(
                     "executionStatus",
                     Output::executionStatus,
-                    ExecutionStatus::toParamValue,
+                    ExecutionStatus::toParamValue
                 )
                 .build()
 
@@ -255,14 +245,14 @@ class StartTimer private constructor() {
                 taskHandlerBuilder.registerValueTaskParam(
                     "timer.name",
                     it,
-                    TypeConverters.STRING_PARAM_VALUE_CONVERTER,
+                    TypeConverters.STRING_PARAM_VALUE_CONVERTER
                 )
             }
             session.durationListener?.let {
                 taskHandlerBuilder.registerValueTaskParam(
                     "timer.duration",
                     it,
-                    TypeConverters.DURATION_PARAM_VALUE_CONVERTER,
+                    TypeConverters.DURATION_PARAM_VALUE_CONVERTER
                 )
             }
             taskHandlerBuilder.build()

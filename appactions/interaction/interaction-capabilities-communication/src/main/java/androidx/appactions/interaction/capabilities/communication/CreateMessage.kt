@@ -35,7 +35,6 @@ import androidx.appactions.interaction.capabilities.core.properties.StringValue
 import androidx.appactions.interaction.proto.ParamValue
 import androidx.appactions.interaction.protobuf.Struct
 import androidx.appactions.interaction.protobuf.Value
-import java.util.Optional
 
 private const val CAPABILITY_NAME: String = "actions.intent.CREATE_MESSAGE"
 
@@ -44,7 +43,7 @@ private const val CAPABILITY_NAME: String = "actions.intent.CREATE_MESSAGE"
 class CreateMessage private constructor() {
     internal enum class PropertyMapStrings(val key: String) {
         MESSAGE_TEXT("message.text"),
-        RECIPIENT("message.recipient"),
+        RECIPIENT("message.recipient")
     }
 
     class CapabilityBuilder :
@@ -188,33 +187,27 @@ class CreateMessage private constructor() {
                 .bindRepeatedParameter(
                     "message.recipient",
                     { properties ->
-                        Optional.ofNullable(
-                            properties[PropertyMapStrings.RECIPIENT.key]
-                                as Property<Recipient>
-                        )
+                        properties[PropertyMapStrings.RECIPIENT.key] as? Property<Recipient>
                     },
                     Arguments.Builder::setRecipientList,
                     RecipientValue.PARAM_VALUE_CONVERTER,
                     EntityConverter.of(RECIPIENT_TYPE_SPEC)
                 )
-                .bindOptionalParameter(
+                .bindParameter(
                     "message.text",
                     { properties ->
-                        Optional.ofNullable(
-                            properties[PropertyMapStrings.MESSAGE_TEXT.key]
-                                as Property<StringValue>
-                        )
+                        properties[PropertyMapStrings.MESSAGE_TEXT.key] as? Property<StringValue>
                     },
                     Arguments.Builder::setMessageText,
                     TypeConverters.STRING_PARAM_VALUE_CONVERTER,
                     TypeConverters.STRING_VALUE_ENTITY_CONVERTER
                 )
-                .bindOptionalOutput(
+                .bindOutput(
                     "message",
                     Output::message,
                     ParamValueConverter.of(MESSAGE_TYPE_SPEC)::toParamValue
                 )
-                .bindOptionalOutput(
+                .bindOutput(
                     "executionStatus",
                     Output::executionStatus,
                     ExecutionStatus::toParamValue
