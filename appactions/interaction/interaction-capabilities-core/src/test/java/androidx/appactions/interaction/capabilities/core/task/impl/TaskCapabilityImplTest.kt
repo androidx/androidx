@@ -1126,6 +1126,7 @@ class TaskCapabilityImplTest {
             .isEqualTo(ErrorStatusInternal.SESSION_ALREADY_DESTROYED)
     }
 
+    @Test
     fun structConversionException_shouldReportStructConversionFailure() {
         val sessionFactory: (hostProperties: HostProperties?) -> ExecutionSession =
             { _ ->
