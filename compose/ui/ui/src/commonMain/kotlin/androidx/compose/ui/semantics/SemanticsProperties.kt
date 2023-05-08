@@ -1116,7 +1116,7 @@ fun SemanticsPropertyReceiver.insertTextAtCursor(
  *
  * Expected to be used on editable text fields.
  *
- * @param imeAction The IME action provided by the node.
+ * @param imeActionType The IME type, such as [ImeAction.Next] or [ImeAction.Search]
  * @param label Optional label for this action.
  * @param action Action to be performed when [SemanticsActions.PerformImeAction] is called.
  *
@@ -1124,11 +1124,11 @@ fun SemanticsPropertyReceiver.insertTextAtCursor(
  * @see SemanticsActions.PerformImeAction
  */
 fun SemanticsPropertyReceiver.performImeAction(
-    imeAction: ImeAction,
+    imeActionType: ImeAction,
     label: String? = null,
     action: (() -> Boolean)?
 ) {
-    this[SemanticsProperties.ImeAction] = imeAction
+    this[SemanticsProperties.ImeAction] = imeActionType
     this[SemanticsActions.PerformImeAction] = AccessibilityAction(label, action)
 }
 

@@ -195,7 +195,7 @@ class PlatformTextInputEditTextIntegrationTest {
                     }
                     return@setSelection false
                 }
-                performImeAction(ImeAction.Default) {
+                performImeAction(ImeAction.Go) {
                     editText.onEditorAction(ExpectedActionCode)
                     true
                 }
