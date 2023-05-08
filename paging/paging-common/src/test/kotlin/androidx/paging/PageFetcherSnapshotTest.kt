@@ -16,6 +16,7 @@
 
 package androidx.paging
 
+import androidx.kruth.assertThat
 import androidx.paging.ContiguousPagedListTest.Companion.EXCEPTION
 import androidx.paging.LoadState.Error
 import androidx.paging.LoadState.Loading
@@ -28,7 +29,6 @@ import androidx.paging.PagingSource.LoadResult
 import androidx.paging.PagingSource.LoadResult.Page
 import androidx.paging.RemoteMediatorMock.LoadEvent
 import androidx.paging.TestPagingSource.Companion.LOAD_ERROR
-import com.google.common.truth.Truth.assertThat
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith

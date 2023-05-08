@@ -41,11 +41,11 @@ dependencies {
     testImplementation(libs.mockitoCore4)
     testImplementation(libs.mockitoKotlin4)
     testImplementation(project(":internal-testutils-common"))
+    testImplementation(project(":internal-testutils-kmp"))
     testImplementation(project(":internal-testutils-ktx"))
     testImplementation(project(":internal-testutils-paging"))
     testImplementation(libs.kotlinTest)
     testImplementation(libs.kotlinCoroutinesTest)
-    testImplementation(libs.truth)
 
     samples(project(":paging:paging-samples"))
 }

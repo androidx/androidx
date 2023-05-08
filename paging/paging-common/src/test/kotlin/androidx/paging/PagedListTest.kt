@@ -16,11 +16,11 @@
 
 package androidx.paging
 
+import androidx.kruth.assertThat
 import androidx.paging.ContiguousPagedListTest.Companion.EXCEPTION
 import androidx.paging.LoadType.REFRESH
 import androidx.testutils.TestDispatcher
 import androidx.testutils.TestExecutor
-import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.Executor
 import kotlin.concurrent.thread
 import kotlin.coroutines.EmptyCoroutineContext
