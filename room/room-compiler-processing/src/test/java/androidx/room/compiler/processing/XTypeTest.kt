@@ -933,7 +933,7 @@ class XTypeTest {
                 assertThat(actual["starList"]?.kotlin.toString())
                     .isEqualTo("kotlin.collections.List<*>")
                 assertThat(actual["rList"]?.kotlin.toString())
-                    .isEqualTo("kotlin.collections.List<out R>")
+                    .isEqualTo("kotlin.collections.List<R>")
             }
         }
     }
@@ -1635,6 +1635,58 @@ class XTypeTest {
                 // for now: https://github.com/google/ksp/issues/1296
                 checkKotlin(it)
             }
+        )
+    }
+
+    @Test
+    fun selfReferenceTypesDoesNotInfinitelyRecurse() {
+        fun runTest(src: Source) {
+            runProcessorTest(
+                sources = listOf(src),
+            ) { invocation ->
+                val fooTypeElement = invocation.processingEnv.requireTypeElement("test.Usage")
+                val fooType = fooTypeElement.getDeclaredField("foo").type
+
+                assertThat(fooType.asTypeName().java)
+                    .isEqualTo(
+                        JParameterizedTypeName.get(
+                            JClassName.get("test", "Foo"),
+                            JWildcardTypeName.subtypeOf(JClassName.OBJECT)
+                        )
+                    )
+
+                val typeParam = fooType.typeArguments.single()
+                assertThat(typeParam.asTypeName().java)
+                    .isEqualTo(JWildcardTypeName.subtypeOf(JClassName.OBJECT))
+
+                assertThat(typeParam.extendsBound()).isNull()
+            }
+        }
+        runTest(
+            Source.java(
+                "test.Usage",
+                """
+                package test;
+                public final class Usage {
+                  private final Foo<?> foo = null;
+                  private final Foo<? extends Foo<?>> fooExtendsFoo = null;
+                }
+                abstract class Foo<T extends Foo<T>> {}
+                """.trimIndent()
+            ),
+        )
+        runTest(
+            Source.kotlin(
+                "test.Foo.kt",
+                """
+            package test
+            class Usage {
+                val foo: Foo<*> = TODO()
+                val fooExtendsFoo: Foo<out Foo<*>> = TODO()
+            }
+            abstract class Foo<T: Foo<T>>
+            """.trimIndent()
+            )
         )
     }
 }
