@@ -16,6 +16,7 @@
 
 package androidx.appactions.interaction.capabilities.core
 
+import android.annotation.SuppressLint
 import androidx.annotation.RestrictTo
 import androidx.appactions.interaction.capabilities.core.impl.CapabilitySession
 import androidx.appactions.interaction.capabilities.core.impl.SingleTurnCapabilityImpl
@@ -58,6 +59,7 @@ abstract class Capability internal constructor(
     /**
      * An abstract Builder class for Capability.
      */
+    @SuppressLint("StaticFinalBuilder")
     abstract class Builder<
         BuilderT :
         Builder<
@@ -76,7 +78,7 @@ abstract class Capability internal constructor(
         private var property: Map<String, Property<*>>? = null
         private var executionCallback: ExecutionCallback<ArgumentsT, OutputT>? = null
         private var sessionFactory:
-                (hostProperties: HostProperties?) -> ExecutionSessionT? = { _ -> null }
+            (hostProperties: HostProperties?) -> ExecutionSessionT? = { _ -> null }
         private var actionSpec: ActionSpec<ArgumentsT, OutputT>? = null
 
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -94,7 +96,7 @@ abstract class Capability internal constructor(
         protected open val sessionBridge: SessionBridge<ExecutionSessionT, ConfirmationT>? = null
 
         @Suppress("UNCHECKED_CAST")
-        fun asBuilder(): BuilderT {
+        private fun asBuilder(): BuilderT {
             return this as BuilderT
         }
 
@@ -123,6 +125,7 @@ abstract class Capability internal constructor(
          * This method accepts a coroutine-based ExecutionCallback instance. There is also an
          * overload which accepts the ExecutionCallbackAsync instead.
          */
+        @SuppressLint("MissingGetterMatchingBuilder")
         fun setExecutionCallback(executionCallback: ExecutionCallback<ArgumentsT, OutputT>) =
             asBuilder().apply {
                 this.executionCallback = executionCallback
@@ -137,6 +140,7 @@ abstract class Capability internal constructor(
          * This method accepts the ExecutionCallbackAsync interface which returns a
          * [ListenableFuture].
          */
+        @SuppressLint("MissingGetterMatchingBuilder")
         fun setExecutionCallback(
             executionCallbackAsync: ExecutionCallbackAsync<ArgumentsT, OutputT>
         ) = asBuilder().apply {
@@ -144,12 +148,13 @@ abstract class Capability internal constructor(
         }
 
         /**
-         * Sets the lambda used to create [ExecutionSession] instances for this
+         * Sets the lambda used to create [ExecutionSessionT] instances for this
          * capability.
          *
          * [setExecutionSessionFactory] and [setExecutionCallback] are mutually exclusive, so
          * calling one will nullify the other.
          */
+        @SuppressLint("MissingGetterMatchingBuilder")
         open fun setExecutionSessionFactory(
             sessionFactory: (hostProperties: HostProperties?) -> ExecutionSessionT
         ): BuilderT = asBuilder().apply {
@@ -168,15 +173,11 @@ abstract class Capability internal constructor(
                     executionCallback!!
                 )
             } else {
-                val checkedSessionFactory = requireNotNull(sessionFactory) {
-                    "either setExecutionCallback or setExecutionSessionFactory" +
-                        " must be called before build"
-                }
                 return TaskCapabilityImpl(
                     checkedId,
                     actionSpec!!,
                     checkedProperty,
-                    checkedSessionFactory,
+                    sessionFactory,
                     sessionBridge!!,
                     ::EmptyTaskUpdater
                 )
