@@ -320,7 +320,7 @@ public class SurfaceEdge {
                     }
                     SurfaceOutputImpl surfaceOutputImpl = new SurfaceOutputImpl(surface,
                             getTargets(), format, mStreamSpec.getResolution(), inputSize, cropRect,
-                            rotationDegrees, mirroring, cameraInternal);
+                            rotationDegrees, mirroring, cameraInternal, mSensorToBufferTransform);
                     surfaceOutputImpl.getCloseFuture().addListener(
                             settableSurface::decrementUseCount,
                             directExecutor());
