@@ -35,6 +35,8 @@ import androidx.build.license.configureExternalDependencyLicenseCheck
 import androidx.build.resources.configurePublicResourcesStub
 import androidx.build.sbom.validateAllArchiveInputsRecognized
 import androidx.build.studio.StudioTask
+import androidx.build.testConfiguration.ModuleInfoGenerator
+import androidx.build.testConfiguration.TestModule
 import androidx.build.testConfiguration.addAppApkToTestConfigGeneration
 import androidx.build.testConfiguration.configureTestConfigGeneration
 import com.android.build.api.artifact.SingleArtifact
@@ -227,7 +229,19 @@ class AndroidXImplPlugin @Inject constructor(val componentFactory: SoftwareCompo
         task.inputs.property("ignoreFailures", ignoreFailures)
 
         val xmlReportDestDir = project.getHostTestResultDirectory()
-        val archiveName = "${project.path}:${task.name}.zip"
+        val testName = "${project.path}:${task.name}"
+        project.rootProject.tasks.named("createModuleInfo").configure {
+            it as ModuleInfoGenerator
+            it.testModules.add(
+                TestModule(
+                    name = testName,
+                    path = listOf(
+                        project.projectDir.toRelativeString(project.getSupportRootFolder())
+                    )
+                )
+            )
+        }
+        val archiveName = "$testName.zip"
         if (project.isDisplayTestOutput()) {
             // Enable tracing to see results in command line
             task.testLogging.apply {
