@@ -1145,16 +1145,20 @@ package androidx.compose.material3 {
   }
 
   @androidx.compose.runtime.Immutable public final class TabPosition {
+    method public float getContentWidth();
     method public float getLeft();
     method public float getRight();
     method public float getWidth();
+    property public final float contentWidth;
     property public final float left;
     property public final float right;
     property public final float width;
   }
 
   public final class TabRowDefaults {
-    method @androidx.compose.runtime.Composable public void Indicator(optional androidx.compose.ui.Modifier modifier, optional float height, optional long color);
+    method @Deprecated @androidx.compose.runtime.Composable public void Indicator(optional androidx.compose.ui.Modifier modifier, optional float height, optional long color);
+    method @androidx.compose.runtime.Composable public void PrimaryIndicator(optional androidx.compose.ui.Modifier modifier, optional float width, optional float height, optional long color, optional androidx.compose.ui.graphics.Shape shape);
+    method @androidx.compose.runtime.Composable public void SecondaryIndicator(optional androidx.compose.ui.Modifier modifier, optional float height, optional long color);
     method @androidx.compose.runtime.Composable public long getContainerColor();
     method @androidx.compose.runtime.Composable public long getContentColor();
     method public androidx.compose.ui.Modifier tabIndicatorOffset(androidx.compose.ui.Modifier, androidx.compose.material3.TabPosition currentTabPosition);

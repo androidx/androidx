@@ -24,9 +24,11 @@ import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
@@ -43,6 +45,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.unit.Constraints
@@ -52,8 +56,9 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
-// TODO: Provide M3 tab row asset and docs when available.
 /**
+ * <a href="https://m3.material.io/components/tabs/overview" class="external" target="_blank">Material Design tabs</a>
+ *
  * Material Design fixed tabs.
  *
  * Fixed tabs display all tabs in a set simultaneously. They are best for switching between related
@@ -113,7 +118,7 @@ import kotlinx.coroutines.launch
  * matching content color for [containerColor], or to the current [LocalContentColor] if
  * [containerColor] is not a color from the theme.
  * @param indicator the indicator that represents which tab is currently selected. By default this
- * will be a [TabRowDefaults.Indicator], using a [TabRowDefaults.tabIndicatorOffset] modifier to
+ * will be a [TabRowDefaults.SecondaryIndicator], using a [TabRowDefaults.tabIndicatorOffset] modifier to
  * animate its position. Note that this indicator will be forced to fill up the entire tab row, so
  * you should use [TabRowDefaults.tabIndicatorOffset] or similar to animate the actual drawn
  * indicator inside this space, and provide an offset from the start.
@@ -130,7 +135,7 @@ fun TabRow(
     contentColor: Color = TabRowDefaults.contentColor,
     indicator: @Composable (tabPositions: List<TabPosition>) -> Unit = @Composable { tabPositions ->
         if (selectedTabIndex < tabPositions.size) {
-            TabRowDefaults.Indicator(
+            TabRowDefaults.SecondaryIndicator(
                 Modifier.tabIndicatorOffset(tabPositions[selectedTabIndex])
             )
         }
@@ -138,6 +143,18 @@ fun TabRow(
     divider: @Composable () -> Unit = @Composable {
         Divider()
     },
+    tabs: @Composable () -> Unit
+) {
+    TabRowImpl(modifier, containerColor, contentColor, indicator, divider, tabs)
+}
+
+@Composable
+private fun TabRowImpl(
+    modifier: Modifier,
+    containerColor: Color,
+    contentColor: Color,
+    indicator: @Composable (tabPositions: List<TabPosition>) -> Unit,
+    divider: @Composable () -> Unit,
     tabs: @Composable () -> Unit
 ) {
     Surface(
@@ -169,7 +186,10 @@ fun TabRow(
             }
 
             val tabPositions = List(tabCount) { index ->
-                TabPosition(tabWidth.toDp() * index, tabWidth.toDp())
+                var contentWidth =
+                    minOf(tabMeasurables[index].maxIntrinsicWidth(tabRowHeight), tabWidth).toDp()
+                contentWidth -= HorizontalTextPadding * 2
+                TabPosition(tabWidth.toDp() * index, tabWidth.toDp(), contentWidth)
             }
 
             layout(tabRowWidth, tabRowHeight) {
@@ -192,8 +212,9 @@ fun TabRow(
     }
 }
 
-// TODO: Provide M3 tab row asset and docs when available.
 /**
+ * <a href="https://m3.material.io/components/tabs/overview" class="external" target="_blank">Material Design tabs</a>
+ *
  * Material Design scrollable tabs.
  *
  * When a set of tabs cannot fit on screen, use scrollable tabs. Scrollable tabs can use longer text
@@ -215,7 +236,7 @@ fun TabRow(
  * and the tabs inside the row. This padding helps inform the user that this tab row can be
  * scrolled, unlike a [TabRow].
  * @param indicator the indicator that represents which tab is currently selected. By default this
- * will be a [TabRowDefaults.Indicator], using a [TabRowDefaults.tabIndicatorOffset] modifier to
+ * will be a [TabRowDefaults.SecondaryIndicator], using a [TabRowDefaults.tabIndicatorOffset] modifier to
  * animate its position. Note that this indicator will be forced to fill up the entire tab row, so
  * you should use [TabRowDefaults.tabIndicatorOffset] or similar to animate the actual drawn
  * indicator inside this space, and provide an offset from the start.
@@ -232,7 +253,7 @@ fun ScrollableTabRow(
     contentColor: Color = TabRowDefaults.contentColor,
     edgePadding: Dp = ScrollableTabRowPadding,
     indicator: @Composable (tabPositions: List<TabPosition>) -> Unit = @Composable { tabPositions ->
-        TabRowDefaults.Indicator(
+        TabRowDefaults.SecondaryIndicator(
             Modifier.tabIndicatorOffset(tabPositions[selectedTabIndex])
         )
     },
@@ -276,8 +297,20 @@ fun ScrollableTabRow(
                 minHeight = layoutHeight,
                 maxHeight = layoutHeight,
             )
-            val tabPlaceables = tabMeasurables
-                .map { it.measure(tabConstraints) }
+
+            val tabPlaceables = mutableListOf<Placeable>()
+            val tabContentWidths = mutableListOf<Dp>()
+            tabMeasurables.forEach {
+                val placeable = it.measure(tabConstraints)
+                var contentWidth =
+                    minOf(
+                        it.maxIntrinsicWidth(placeable.height),
+                        placeable.width
+                    ).toDp()
+                contentWidth -= HorizontalTextPadding * 2
+                tabPlaceables.add(placeable)
+                tabContentWidths.add(contentWidth)
+            }
 
             val layoutWidth = tabPlaceables.fold(initial = padding * 2) { curr, measurable ->
                 curr + measurable.width
@@ -288,10 +321,16 @@ fun ScrollableTabRow(
                 // Place the tabs
                 val tabPositions = mutableListOf<TabPosition>()
                 var left = padding
-                tabPlaceables.forEach {
-                    it.placeRelative(left, 0)
-                    tabPositions.add(TabPosition(left = left.toDp(), width = it.width.toDp()))
-                    left += it.width
+                tabPlaceables.forEachIndexed { index, placeable ->
+                    placeable.placeRelative(left, 0)
+                    tabPositions.add(
+                        TabPosition(
+                            left = left.toDp(),
+                            width = placeable.width.toDp(),
+                            contentWidth = tabContentWidths[index]
+                        )
+                    )
+                    left += placeable.width
                 }
 
                 // The divider is measured with its own height, and width equal to the total width
@@ -333,9 +372,11 @@ fun ScrollableTabRow(
  * @property left the left edge's x position from the start of the [TabRow]
  * @property right the right edge's x position from the start of the [TabRow]
  * @property width the width of this tab
+ * @property contentWidth the content width of this tab
  */
 @Immutable
-class TabPosition internal constructor(val left: Dp, val width: Dp) {
+class TabPosition internal constructor(val left: Dp, val width: Dp, val contentWidth: Dp) {
+
     val right: Dp get() = left + width
 
     override fun equals(other: Any?): Boolean {
@@ -344,6 +385,7 @@ class TabPosition internal constructor(val left: Dp, val width: Dp) {
 
         if (left != other.left) return false
         if (width != other.width) return false
+        if (contentWidth != other.contentWidth) return false
 
         return true
     }
@@ -351,11 +393,12 @@ class TabPosition internal constructor(val left: Dp, val width: Dp) {
     override fun hashCode(): Int {
         var result = left.hashCode()
         result = 31 * result + width.hashCode()
+        result = 31 * result + contentWidth.hashCode()
         return result
     }
 
     override fun toString(): String {
-        return "TabPosition(left=$left, right=$right, width=$width)"
+        return "TabPosition(left=$left, right=$right, width=$width, contentWidth=$contentWidth)"
     }
 }
 
@@ -364,12 +407,14 @@ class TabPosition internal constructor(val left: Dp, val width: Dp) {
  */
 object TabRowDefaults {
     /** Default container color of a tab row. */
-    val containerColor: Color @Composable get() =
-        PrimaryNavigationTabTokens.ContainerColor.toColor()
+    val containerColor: Color
+        @Composable get() =
+            PrimaryNavigationTabTokens.ContainerColor.toColor()
 
     /** Default content color of a tab row. */
-    val contentColor: Color @Composable get() =
-        PrimaryNavigationTabTokens.ActiveLabelTextColor.toColor()
+    val contentColor: Color
+        @Composable get() =
+            PrimaryNavigationTabTokens.ActiveLabelTextColor.toColor()
 
     /**
      * Default indicator, which will be positioned at the bottom of the [TabRow], on top of the
@@ -380,7 +425,61 @@ object TabRowDefaults {
      * @param color color of the indicator
      */
     @Composable
+    @Deprecated(
+        message = "Use SecondaryIndicator instead.",
+        replaceWith = ReplaceWith(
+            "SecondaryIndicator(modifier, height, color)"
+        )
+    )
     fun Indicator(
+        modifier: Modifier = Modifier,
+        height: Dp = PrimaryNavigationTabTokens.ActiveIndicatorHeight,
+        color: Color =
+            MaterialTheme.colorScheme.fromToken(PrimaryNavigationTabTokens.ActiveIndicatorColor)
+    ) {
+        Box(
+            modifier
+                .fillMaxWidth()
+                .height(height)
+                .background(color = color)
+        )
+    }
+
+    /**
+     * Primary indicator, which will be positioned at the bottom of the [TabRow], on top of the
+     * divider.
+     *
+     * @param modifier modifier for the indicator's layout
+     * @param width width of the indicator
+     * @param height height of the indicator
+     * @param color color of the indicator
+     * @param shape shape of the indicator
+     */
+    @Composable
+    fun PrimaryIndicator(
+        modifier: Modifier = Modifier,
+        width: Dp = 0.dp,
+        height: Dp = PrimaryNavigationTabTokens.ActiveIndicatorHeight,
+        color: Color = PrimaryNavigationTabTokens.ActiveIndicatorColor.toColor(),
+        shape: Shape = PrimaryNavigationTabTokens.ActiveIndicatorShape
+    ) {
+        Spacer(
+            modifier
+                .requiredSize(width, height)
+                .background(color = color, shape = shape)
+        )
+    }
+
+    /**
+     * Secondary indicator, which will be positioned at the bottom of the [TabRow], on top of the
+     * divider.
+     *
+     * @param modifier modifier for the indicator's layout
+     * @param height height of the indicator
+     * @param color color of the indicator
+     */
+    @Composable
+    fun SecondaryIndicator(
         modifier: Modifier = Modifier,
         height: Dp = PrimaryNavigationTabTokens.ActiveIndicatorHeight,
         color: Color =
