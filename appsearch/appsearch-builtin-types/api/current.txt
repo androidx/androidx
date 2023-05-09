@@ -26,8 +26,8 @@ package androidx.appsearch.builtintypes {
   }
 
   public static final class Alarm.Builder {
-    ctor public Alarm.Builder(String, String);
     ctor public Alarm.Builder(androidx.appsearch.builtintypes.Alarm);
+    ctor public Alarm.Builder(String, String);
     method public androidx.appsearch.builtintypes.Alarm.Builder addAlternateName(String);
     method public androidx.appsearch.builtintypes.Alarm build();
     method public androidx.appsearch.builtintypes.Alarm.Builder clearAlternateNames();
@@ -63,8 +63,8 @@ package androidx.appsearch.builtintypes {
   }
 
   public static final class AlarmInstance.Builder {
-    ctor public AlarmInstance.Builder(String, String, String);
     ctor public AlarmInstance.Builder(androidx.appsearch.builtintypes.AlarmInstance);
+    ctor public AlarmInstance.Builder(String, String, String);
     method public androidx.appsearch.builtintypes.AlarmInstance.Builder addAlternateName(String);
     method public androidx.appsearch.builtintypes.AlarmInstance build();
     method public androidx.appsearch.builtintypes.AlarmInstance.Builder clearAlternateNames();
@@ -87,8 +87,8 @@ package androidx.appsearch.builtintypes {
   }
 
   public static final class ContactPoint.Builder {
-    ctor public ContactPoint.Builder(String, String, String);
     ctor public ContactPoint.Builder(androidx.appsearch.builtintypes.ContactPoint);
+    ctor public ContactPoint.Builder(String, String, String);
     method public androidx.appsearch.builtintypes.ContactPoint.Builder addAlternateName(String);
     method public androidx.appsearch.builtintypes.ContactPoint build();
     method public androidx.appsearch.builtintypes.ContactPoint.Builder clearAlternateNames();
@@ -111,11 +111,11 @@ package androidx.appsearch.builtintypes {
   }
 
   public static final class ImageObject.Builder {
-    ctor public ImageObject.Builder(String, String);
     ctor public ImageObject.Builder(androidx.appsearch.builtintypes.ImageObject);
+    ctor public ImageObject.Builder(String, String);
     method public androidx.appsearch.builtintypes.ImageObject.Builder addAlternateName(String);
-    method public androidx.appsearch.builtintypes.ImageObject.Builder addKeyword(String);
     method public androidx.appsearch.builtintypes.ImageObject.Builder addKeyword(androidx.appsearch.builtintypes.properties.Keyword);
+    method public androidx.appsearch.builtintypes.ImageObject.Builder addKeyword(String);
     method public androidx.appsearch.builtintypes.ImageObject.Builder addKeywords(Iterable<androidx.appsearch.builtintypes.properties.Keyword!>);
     method public androidx.appsearch.builtintypes.ImageObject build();
     method public androidx.appsearch.builtintypes.ImageObject.Builder clearAlternateNames();
@@ -156,8 +156,8 @@ package androidx.appsearch.builtintypes {
   }
 
   public static final class Person.Builder {
-    ctor public Person.Builder(String, String, String);
     ctor public Person.Builder(androidx.appsearch.builtintypes.Person);
+    ctor public Person.Builder(String, String, String);
     method public androidx.appsearch.builtintypes.Person.Builder addAlternateName(String);
     method public androidx.appsearch.builtintypes.Person build();
     method public androidx.appsearch.builtintypes.Person.Builder clearAlternateNames();
@@ -198,14 +198,14 @@ package androidx.appsearch.builtintypes {
   }
 
   public static final class Stopwatch.Builder {
-    ctor public Stopwatch.Builder(String, String);
     ctor public Stopwatch.Builder(androidx.appsearch.builtintypes.Stopwatch);
+    ctor public Stopwatch.Builder(String, String);
     method public androidx.appsearch.builtintypes.Stopwatch.Builder addAlternateName(String);
     method public androidx.appsearch.builtintypes.Stopwatch build();
     method public androidx.appsearch.builtintypes.Stopwatch.Builder clearAlternateNames();
     method public androidx.appsearch.builtintypes.Stopwatch.Builder setAccumulatedDurationMillis(long);
-    method public androidx.appsearch.builtintypes.Stopwatch.Builder setBaseTimeMillis(long, long, int);
     method @RequiresApi(api=android.os.Build.VERSION_CODES.JELLY_BEAN_MR1) public androidx.appsearch.builtintypes.Stopwatch.Builder setBaseTimeMillis(android.content.Context, long, long);
+    method public androidx.appsearch.builtintypes.Stopwatch.Builder setBaseTimeMillis(long, long, int);
     method public androidx.appsearch.builtintypes.Stopwatch.Builder setCreationTimestampMillis(long);
     method public androidx.appsearch.builtintypes.Stopwatch.Builder setDescription(String?);
     method public androidx.appsearch.builtintypes.Stopwatch.Builder setDocumentScore(int);
@@ -224,8 +224,8 @@ package androidx.appsearch.builtintypes {
   }
 
   public static final class StopwatchLap.Builder {
-    ctor public StopwatchLap.Builder(String, String);
     ctor public StopwatchLap.Builder(androidx.appsearch.builtintypes.StopwatchLap);
+    ctor public StopwatchLap.Builder(String, String);
     method public androidx.appsearch.builtintypes.StopwatchLap.Builder addAlternateName(String);
     method public androidx.appsearch.builtintypes.StopwatchLap build();
     method public androidx.appsearch.builtintypes.StopwatchLap.Builder clearAlternateNames();
@@ -255,8 +255,8 @@ package androidx.appsearch.builtintypes {
   }
 
   public static final class Thing.Builder {
-    ctor public Thing.Builder(String, String);
     ctor public Thing.Builder(androidx.appsearch.builtintypes.Thing);
+    ctor public Thing.Builder(String, String);
     method public androidx.appsearch.builtintypes.Thing.Builder addAlternateName(String);
     method public androidx.appsearch.builtintypes.Thing build();
     method public androidx.appsearch.builtintypes.Thing.Builder clearAlternateNames();
@@ -292,13 +292,13 @@ package androidx.appsearch.builtintypes {
   }
 
   public static final class Timer.Builder {
-    ctor public Timer.Builder(String, String);
     ctor public Timer.Builder(androidx.appsearch.builtintypes.Timer);
+    ctor public Timer.Builder(String, String);
     method public androidx.appsearch.builtintypes.Timer.Builder addAlternateName(String);
     method public androidx.appsearch.builtintypes.Timer build();
     method public androidx.appsearch.builtintypes.Timer.Builder clearAlternateNames();
-    method public androidx.appsearch.builtintypes.Timer.Builder setBaseTimeMillis(long, long, int);
     method @RequiresApi(api=android.os.Build.VERSION_CODES.JELLY_BEAN_MR1) public androidx.appsearch.builtintypes.Timer.Builder setBaseTimeMillis(android.content.Context, long, long);
+    method public androidx.appsearch.builtintypes.Timer.Builder setBaseTimeMillis(long, long, int);
     method public androidx.appsearch.builtintypes.Timer.Builder setCreationTimestampMillis(long);
     method public androidx.appsearch.builtintypes.Timer.Builder setDescription(String?);
     method public androidx.appsearch.builtintypes.Timer.Builder setDocumentScore(int);

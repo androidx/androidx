@@ -354,16 +354,16 @@ package androidx.appsearch.app {
   }
 
   public class PropertyPath implements java.lang.Iterable<androidx.appsearch.app.PropertyPath.PathSegment> {
-    ctor public PropertyPath(java.util.List<androidx.appsearch.app.PropertyPath.PathSegment!>);
     ctor public PropertyPath(String);
+    ctor public PropertyPath(java.util.List<androidx.appsearch.app.PropertyPath.PathSegment!>);
     method public androidx.appsearch.app.PropertyPath.PathSegment get(int);
     method public java.util.Iterator<androidx.appsearch.app.PropertyPath.PathSegment!> iterator();
     method public int size();
   }
 
   public static class PropertyPath.PathSegment {
-    method public static androidx.appsearch.app.PropertyPath.PathSegment create(String, int);
     method public static androidx.appsearch.app.PropertyPath.PathSegment create(String);
+    method public static androidx.appsearch.app.PropertyPath.PathSegment create(String, int);
     method public int getPropertyIndex();
     method public String getPropertyName();
     field public static final int NON_REPEATED_CARDINALITY = -1; // 0xffffffff
@@ -514,8 +514,8 @@ package androidx.appsearch.app {
 
   public static final class SearchSpec.Builder {
     ctor public SearchSpec.Builder();
-    method public androidx.appsearch.app.SearchSpec.Builder addFilterDocumentClasses(java.util.Collection<? extends java.lang.Class<?>>) throws androidx.appsearch.exceptions.AppSearchException;
     method public androidx.appsearch.app.SearchSpec.Builder addFilterDocumentClasses(Class<?>!...) throws androidx.appsearch.exceptions.AppSearchException;
+    method public androidx.appsearch.app.SearchSpec.Builder addFilterDocumentClasses(java.util.Collection<? extends java.lang.Class<?>>) throws androidx.appsearch.exceptions.AppSearchException;
     method public androidx.appsearch.app.SearchSpec.Builder addFilterNamespaces(java.lang.String!...);
     method public androidx.appsearch.app.SearchSpec.Builder addFilterNamespaces(java.util.Collection<java.lang.String!>);
     method public androidx.appsearch.app.SearchSpec.Builder addFilterPackageNames(java.lang.String!...);

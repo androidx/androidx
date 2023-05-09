@@ -37,8 +37,8 @@ package androidx.wear.ambient {
   }
 
   public final class AmbientLifecycleObserverKt {
-    method public static androidx.wear.ambient.AmbientLifecycleObserver AmbientLifecycleObserver(android.app.Activity activity, java.util.concurrent.Executor callbackExecutor, androidx.wear.ambient.AmbientLifecycleObserver.AmbientLifecycleCallback callbacks);
     method public static androidx.wear.ambient.AmbientLifecycleObserver AmbientLifecycleObserver(android.app.Activity activity, androidx.wear.ambient.AmbientLifecycleObserver.AmbientLifecycleCallback callbacks);
+    method public static androidx.wear.ambient.AmbientLifecycleObserver AmbientLifecycleObserver(android.app.Activity activity, java.util.concurrent.Executor callbackExecutor, androidx.wear.ambient.AmbientLifecycleObserver.AmbientLifecycleCallback callbacks);
   }
 
   @Deprecated public final class AmbientMode extends android.app.Fragment {
@@ -169,8 +169,8 @@ package androidx.wear.widget {
 
   public static class ArcLayout.LayoutParams extends android.view.ViewGroup.MarginLayoutParams {
     ctor public ArcLayout.LayoutParams(android.content.Context, android.util.AttributeSet?);
-    ctor public ArcLayout.LayoutParams(int, int);
     ctor public ArcLayout.LayoutParams(android.view.ViewGroup.LayoutParams);
+    ctor public ArcLayout.LayoutParams(int, int);
     method @androidx.wear.widget.ArcLayout.LayoutParams.VerticalAlignment public int getVerticalAlignment();
     method public float getWeight();
     method public boolean isRotated();
@@ -202,13 +202,13 @@ package androidx.wear.widget {
 
   public static class BoxInsetLayout.LayoutParams extends android.widget.FrameLayout.LayoutParams {
     ctor public BoxInsetLayout.LayoutParams(android.content.Context, android.util.AttributeSet?);
-    ctor public BoxInsetLayout.LayoutParams(int, int);
-    ctor public BoxInsetLayout.LayoutParams(int, int, int);
-    ctor public BoxInsetLayout.LayoutParams(int, int, int, int);
     ctor public BoxInsetLayout.LayoutParams(android.view.ViewGroup.LayoutParams);
     ctor public BoxInsetLayout.LayoutParams(android.view.ViewGroup.MarginLayoutParams);
     ctor public BoxInsetLayout.LayoutParams(android.widget.FrameLayout.LayoutParams);
     ctor public BoxInsetLayout.LayoutParams(androidx.wear.widget.BoxInsetLayout.LayoutParams);
+    ctor public BoxInsetLayout.LayoutParams(int, int);
+    ctor public BoxInsetLayout.LayoutParams(int, int, int);
+    ctor public BoxInsetLayout.LayoutParams(int, int, int, int);
     field public static final int BOX_ALL = 15; // 0xf
     field public static final int BOX_BOTTOM = 8; // 0x8
     field public static final int BOX_LEFT = 1; // 0x1
@@ -251,8 +251,8 @@ package androidx.wear.widget {
     method @MainThread @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @VisibleForTesting public void hide();
     method public androidx.wear.widget.ConfirmationOverlay setDuration(int);
     method @Deprecated public androidx.wear.widget.ConfirmationOverlay setFinishedAnimationListener(androidx.wear.widget.ConfirmationOverlay.OnAnimationFinishedListener?);
-    method @Deprecated public androidx.wear.widget.ConfirmationOverlay setMessage(String);
     method public androidx.wear.widget.ConfirmationOverlay setMessage(CharSequence);
+    method @Deprecated public androidx.wear.widget.ConfirmationOverlay setMessage(String);
     method public androidx.wear.widget.ConfirmationOverlay setOnAnimationFinishedListener(androidx.wear.widget.ConfirmationOverlay.OnAnimationFinishedListener?);
     method public androidx.wear.widget.ConfirmationOverlay setType(@androidx.wear.widget.ConfirmationOverlay.OverlayType int);
     method @MainThread public void showAbove(android.view.View);
@@ -303,8 +303,8 @@ package androidx.wear.widget {
     method public void setText(String?);
     method public void setTextColor(@ColorInt int);
     method public void setTextSize(float);
-    method public void setTypeface(android.graphics.Typeface?, int);
     method public void setTypeface(android.graphics.Typeface?);
+    method public void setTypeface(android.graphics.Typeface?, int);
   }
 
   public class CurvingLayoutCallback extends androidx.wear.widget.WearableLinearLayoutManager.LayoutCallback {
@@ -374,8 +374,8 @@ package androidx.wear.widget {
   }
 
   public class WearableLinearLayoutManager extends androidx.recyclerview.widget.LinearLayoutManager {
-    ctor public WearableLinearLayoutManager(android.content.Context!, androidx.wear.widget.WearableLinearLayoutManager.LayoutCallback!);
     ctor public WearableLinearLayoutManager(android.content.Context!);
+    ctor public WearableLinearLayoutManager(android.content.Context!, androidx.wear.widget.WearableLinearLayoutManager.LayoutCallback!);
     method public androidx.wear.widget.WearableLinearLayoutManager.LayoutCallback? getLayoutCallback();
     method public void setLayoutCallback(androidx.wear.widget.WearableLinearLayoutManager.LayoutCallback?);
   }

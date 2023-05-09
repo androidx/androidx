@@ -60,8 +60,8 @@ package androidx.slice {
   }
 
   @RequiresApi(19) public abstract class SliceViewManager {
-    method public abstract androidx.slice.Slice? bindSlice(android.net.Uri);
     method public abstract androidx.slice.Slice? bindSlice(android.content.Intent);
+    method public abstract androidx.slice.Slice? bindSlice(android.net.Uri);
     method public static androidx.slice.SliceViewManager getInstance(android.content.Context);
     method @WorkerThread public abstract java.util.Collection<android.net.Uri!> getSliceDescendants(android.net.Uri);
     method public abstract android.net.Uri? mapIntentToUri(android.content.Intent);

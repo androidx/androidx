@@ -77,8 +77,8 @@ package androidx.glance.wear.tiles.action {
   }
 
   public final class RunCallbackActionKt {
-    method public static <T extends androidx.glance.wear.tiles.action.ActionCallback> androidx.glance.action.Action actionRunCallback(Class<T> callbackClass);
     method public static inline <reified T extends androidx.glance.wear.tiles.action.ActionCallback> androidx.glance.action.Action actionRunCallback();
+    method public static <T extends androidx.glance.wear.tiles.action.ActionCallback> androidx.glance.action.Action actionRunCallback(Class<T> callbackClass);
   }
 
 }

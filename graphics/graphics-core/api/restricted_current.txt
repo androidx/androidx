@@ -15,8 +15,8 @@ package androidx.graphics.lowlatency {
     method public void cancel();
     method public void commit();
     method public boolean isValid();
-    method public void release(boolean cancelPending, optional kotlin.jvm.functions.Function0<kotlin.Unit>? onReleaseComplete);
     method public void release(boolean cancelPending);
+    method public void release(boolean cancelPending, optional kotlin.jvm.functions.Function0<kotlin.Unit>? onReleaseComplete);
     method public void renderFrontBufferedLayer(T param);
     method public void renderMultiBufferedLayer(java.util.Collection<? extends T> params);
   }
@@ -37,15 +37,15 @@ package androidx.graphics.lowlatency {
   }
 
   @RequiresApi(android.os.Build.VERSION_CODES.Q) public final class GLFrontBufferedRenderer<T> {
-    ctor public GLFrontBufferedRenderer(android.view.SurfaceView surfaceView, androidx.graphics.lowlatency.GLFrontBufferedRenderer.Callback<T> callback, optional androidx.graphics.opengl.GLRenderer? glRenderer);
     ctor public GLFrontBufferedRenderer(android.view.SurfaceView surfaceView, androidx.graphics.lowlatency.GLFrontBufferedRenderer.Callback<T> callback);
+    ctor public GLFrontBufferedRenderer(android.view.SurfaceView surfaceView, androidx.graphics.lowlatency.GLFrontBufferedRenderer.Callback<T> callback, optional androidx.graphics.opengl.GLRenderer? glRenderer);
     method public void cancel();
     method public void clear();
     method public void commit();
     method public void execute(Runnable runnable);
     method public boolean isValid();
-    method public void release(boolean cancelPending, optional kotlin.jvm.functions.Function0<kotlin.Unit>? onReleaseComplete);
     method public void release(boolean cancelPending);
+    method public void release(boolean cancelPending, optional kotlin.jvm.functions.Function0<kotlin.Unit>? onReleaseComplete);
     method public void renderFrontBufferedLayer(T param);
     method public void renderMultiBufferedLayer(java.util.Collection<? extends T> params);
   }
@@ -89,19 +89,19 @@ package androidx.graphics.opengl {
     method public androidx.graphics.opengl.GLRenderer.RenderTarget attach(android.view.SurfaceView surfaceView, androidx.graphics.opengl.GLRenderer.RenderCallback renderer);
     method public androidx.graphics.opengl.GLRenderer.RenderTarget attach(android.view.TextureView textureView, androidx.graphics.opengl.GLRenderer.RenderCallback renderer);
     method public androidx.graphics.opengl.GLRenderer.RenderTarget createRenderTarget(int width, int height, androidx.graphics.opengl.GLRenderer.RenderCallback renderer);
-    method public void detach(androidx.graphics.opengl.GLRenderer.RenderTarget target, boolean cancelPending, optional @WorkerThread kotlin.jvm.functions.Function1<? super androidx.graphics.opengl.GLRenderer.RenderTarget,kotlin.Unit>? onDetachComplete);
     method public void detach(androidx.graphics.opengl.GLRenderer.RenderTarget target, boolean cancelPending);
+    method public void detach(androidx.graphics.opengl.GLRenderer.RenderTarget target, boolean cancelPending, optional @WorkerThread kotlin.jvm.functions.Function1<? super androidx.graphics.opengl.GLRenderer.RenderTarget,kotlin.Unit>? onDetachComplete);
     method public void execute(Runnable runnable);
     method public boolean isRunning();
     method public void registerEGLContextCallback(androidx.graphics.opengl.GLRenderer.EGLContextCallback callback);
-    method public void requestRender(androidx.graphics.opengl.GLRenderer.RenderTarget target, optional kotlin.jvm.functions.Function1<? super androidx.graphics.opengl.GLRenderer.RenderTarget,kotlin.Unit>? onRenderComplete);
     method public void requestRender(androidx.graphics.opengl.GLRenderer.RenderTarget target);
-    method public void resize(androidx.graphics.opengl.GLRenderer.RenderTarget target, int width, int height, optional kotlin.jvm.functions.Function1<? super androidx.graphics.opengl.GLRenderer.RenderTarget,kotlin.Unit>? onResizeComplete);
+    method public void requestRender(androidx.graphics.opengl.GLRenderer.RenderTarget target, optional kotlin.jvm.functions.Function1<? super androidx.graphics.opengl.GLRenderer.RenderTarget,kotlin.Unit>? onRenderComplete);
     method public void resize(androidx.graphics.opengl.GLRenderer.RenderTarget target, int width, int height);
-    method public void start(optional String name);
+    method public void resize(androidx.graphics.opengl.GLRenderer.RenderTarget target, int width, int height, optional kotlin.jvm.functions.Function1<? super androidx.graphics.opengl.GLRenderer.RenderTarget,kotlin.Unit>? onResizeComplete);
     method public void start();
-    method public void stop(boolean cancelPending, optional kotlin.jvm.functions.Function1<? super androidx.graphics.opengl.GLRenderer,kotlin.Unit>? onStop);
+    method public void start(optional String name);
     method public void stop(boolean cancelPending);
+    method public void stop(boolean cancelPending, optional kotlin.jvm.functions.Function1<? super androidx.graphics.opengl.GLRenderer,kotlin.Unit>? onStop);
     method public void unregisterEGLContextCallback(androidx.graphics.opengl.GLRenderer.EGLContextCallback callback);
     field public static final androidx.graphics.opengl.GLRenderer.Companion Companion;
   }
@@ -120,13 +120,13 @@ package androidx.graphics.opengl {
   }
 
   public static final class GLRenderer.RenderTarget {
-    method public void detach(boolean cancelPending, optional kotlin.jvm.functions.Function1<? super androidx.graphics.opengl.GLRenderer.RenderTarget,kotlin.Unit>? onDetachComplete);
     method public void detach(boolean cancelPending);
+    method public void detach(boolean cancelPending, optional kotlin.jvm.functions.Function1<? super androidx.graphics.opengl.GLRenderer.RenderTarget,kotlin.Unit>? onDetachComplete);
     method public boolean isAttached();
-    method public void requestRender(optional @WorkerThread kotlin.jvm.functions.Function1<? super androidx.graphics.opengl.GLRenderer.RenderTarget,kotlin.Unit>? onRenderComplete);
     method public void requestRender();
-    method public void resize(int width, int height, optional @WorkerThread kotlin.jvm.functions.Function1<? super androidx.graphics.opengl.GLRenderer.RenderTarget,kotlin.Unit>? onResizeComplete);
+    method public void requestRender(optional @WorkerThread kotlin.jvm.functions.Function1<? super androidx.graphics.opengl.GLRenderer.RenderTarget,kotlin.Unit>? onRenderComplete);
     method public void resize(int width, int height);
+    method public void resize(int width, int height, optional @WorkerThread kotlin.jvm.functions.Function1<? super androidx.graphics.opengl.GLRenderer.RenderTarget,kotlin.Unit>? onResizeComplete);
   }
 
   public interface SyncStrategy {
@@ -190,8 +190,8 @@ package androidx.graphics.opengl.egl {
     method public void initialize();
     method public boolean isExtensionSupported(String extensionName);
     method public android.opengl.EGLConfig? loadConfig(androidx.graphics.opengl.egl.EGLConfigAttributes configAttributes);
-    method public boolean makeCurrent(android.opengl.EGLSurface drawSurface, optional android.opengl.EGLSurface readSurface);
     method public boolean makeCurrent(android.opengl.EGLSurface drawSurface);
+    method public boolean makeCurrent(android.opengl.EGLSurface drawSurface, optional android.opengl.EGLSurface readSurface);
     method public void release();
     method public void swapAndFlushBuffers();
     property public final android.opengl.EGLSurface currentDrawSurface;
@@ -289,12 +289,12 @@ package androidx.graphics.surface {
     method public void close();
     method public void commit();
     method @RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU) public void commitTransactionOnDraw(android.view.AttachedSurfaceControl attachedSurfaceControl);
-    method public androidx.graphics.surface.SurfaceControlCompat.Transaction reparent(androidx.graphics.surface.SurfaceControlCompat surfaceControl, androidx.graphics.surface.SurfaceControlCompat? newParent);
     method @RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU) public androidx.graphics.surface.SurfaceControlCompat.Transaction reparent(androidx.graphics.surface.SurfaceControlCompat surfaceControl, android.view.AttachedSurfaceControl attachedSurfaceControl);
+    method public androidx.graphics.surface.SurfaceControlCompat.Transaction reparent(androidx.graphics.surface.SurfaceControlCompat surfaceControl, androidx.graphics.surface.SurfaceControlCompat? newParent);
     method public androidx.graphics.surface.SurfaceControlCompat.Transaction setAlpha(androidx.graphics.surface.SurfaceControlCompat surfaceControl, float alpha);
-    method public androidx.graphics.surface.SurfaceControlCompat.Transaction setBuffer(androidx.graphics.surface.SurfaceControlCompat surfaceControl, android.hardware.HardwareBuffer? buffer, optional androidx.hardware.SyncFenceCompat? fence, optional kotlin.jvm.functions.Function0<kotlin.Unit>? releaseCallback);
-    method public androidx.graphics.surface.SurfaceControlCompat.Transaction setBuffer(androidx.graphics.surface.SurfaceControlCompat surfaceControl, android.hardware.HardwareBuffer? buffer, optional androidx.hardware.SyncFenceCompat? fence);
     method public androidx.graphics.surface.SurfaceControlCompat.Transaction setBuffer(androidx.graphics.surface.SurfaceControlCompat surfaceControl, android.hardware.HardwareBuffer? buffer);
+    method public androidx.graphics.surface.SurfaceControlCompat.Transaction setBuffer(androidx.graphics.surface.SurfaceControlCompat surfaceControl, android.hardware.HardwareBuffer? buffer, optional androidx.hardware.SyncFenceCompat? fence);
+    method public androidx.graphics.surface.SurfaceControlCompat.Transaction setBuffer(androidx.graphics.surface.SurfaceControlCompat surfaceControl, android.hardware.HardwareBuffer? buffer, optional androidx.hardware.SyncFenceCompat? fence, optional kotlin.jvm.functions.Function0<kotlin.Unit>? releaseCallback);
     method public androidx.graphics.surface.SurfaceControlCompat.Transaction setBufferTransform(androidx.graphics.surface.SurfaceControlCompat surfaceControl, int transformation);
     method public androidx.graphics.surface.SurfaceControlCompat.Transaction setCrop(androidx.graphics.surface.SurfaceControlCompat surfaceControl, android.graphics.Rect? crop);
     method public androidx.graphics.surface.SurfaceControlCompat.Transaction setDamageRegion(androidx.graphics.surface.SurfaceControlCompat surfaceControl, android.graphics.Region? region);
