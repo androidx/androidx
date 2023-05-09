@@ -497,7 +497,7 @@ internal class SuspendingPointerInputModifierNodeImpl(
     override fun resetPointerInputHandler() {
         val localJob = pointerInputJob
         if (localJob != null) {
-            localJob.cancel()
+            localJob.cancel(PointerInputResetException())
             pointerInputJob = null
         }
     }
@@ -727,7 +727,7 @@ internal class SuspendingPointerInputModifierNodeImpl(
             try {
                 return block()
             } finally {
-                job.cancel()
+                job.cancel(CancelTimeoutCancellationException)
             }
         }
     }
@@ -739,4 +739,36 @@ internal class SuspendingPointerInputModifierNodeImpl(
  */
 class PointerEventTimeoutCancellationException(
     time: Long
-) : CancellationException("Timed out waiting for $time ms")
+) : CancellationException("Timed out waiting for $time ms") {
+    override fun fillInStackTrace(): Throwable {
+        // Avoid null.clone() on Android <= 6.0 when accessing stackTrace
+        stackTrace = emptyArray()
+        return this
+    }
+}
+
+/**
+ * Used in place of the standard Job cancellation pathway to avoid reflective
+ * javaClass.simpleName lookups to build the exception message and stack trace collection.
+ * Remove if these are changed in kotlinx.coroutines.
+ */
+private class PointerInputResetException : CancellationException("Pointer input was reset") {
+    override fun fillInStackTrace(): Throwable {
+        // Avoid null.clone() on Android <= 6.0 when accessing stackTrace
+        stackTrace = emptyArray()
+        return this
+    }
+}
+
+/**
+ * Also used in place of standard Job cancellation pathway; since we control this code path
+ * we shouldn't need to worry about other code calling addSuppressed on this exception
+ * so a singleton instance is used
+ */
+private object CancelTimeoutCancellationException : CancellationException() {
+    override fun fillInStackTrace(): Throwable {
+        // Avoid null.clone() on Android <= 6.0 when accessing stackTrace
+        stackTrace = emptyArray()
+        return this
+    }
+}
