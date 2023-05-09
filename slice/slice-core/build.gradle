@@ -39,12 +39,16 @@ dependencies {
 androidx {
     name = "Slice Core"
     publish = Publish.SNAPSHOT_ONLY // Library is deprecated pending removal.
-    disableDeviceTests = true // Pending removal, don't run tests.
     runApiTasks = new RunApiTasks.Yes() // Pending removal, but keep API files for now.
     mavenVersion = LibraryVersions.SLICE
     inceptionYear = "2017"
     description = "The slices core library provides utilities for the slices view and provider libraries"
     failOnDeprecationWarnings = false
+
+    deviceTests {
+        // Pending removal, don't run tests.
+        enabled = false
+    }
 }
 
 android {

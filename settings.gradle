@@ -473,7 +473,6 @@ includeProject(":benchmark:integration-tests:baselineprofile-library-app-target"
 includeProject(":benchmark:integration-tests:dry-run-benchmark", [BuildType.MAIN])
 includeProject(":benchmark:integration-tests:macrobenchmark", [BuildType.MAIN])
 includeProject(":benchmark:integration-tests:macrobenchmark-target", [BuildType.MAIN])
-includeProject(":benchmark:integration-tests:test-module-sample", [BuildType.MAIN])
 includeProject(":benchmark:integration-tests:startup-benchmark", [BuildType.MAIN])
 includeProject(":biometric:biometric", [BuildType.MAIN])
 includeProject(":biometric:biometric-ktx", [BuildType.MAIN])

@@ -16,31 +16,37 @@
 
 plugins {
     id("AndroidXPlugin")
-    id("com.android.library")
+    id("com.android.test")
     id("kotlin-android")
 }
 
 android {
+    defaultConfig {
+        minSdkVersion 23
+    }
     namespace "androidx.glance.appwidget.macrobenchmark"
+    targetProjectPath = ":glance:glance-appwidget:integration-tests:macrobenchmark-target"
+    experimentalProperties["android.experimental.self-instrumenting"] = true
 }
 
-android.defaultConfig {
-    minSdkVersion 23
-}
+// Create a release build type and make sure it's the only one enabled.
+// This is needed because we benchmark the release build type only.
+android.buildTypes { release {} }
+androidComponents { beforeVariants(selector().all()) { enabled = buildType == 'release' } }
 
 dependencies {
     implementation 'androidx.compose.ui:ui-unit:1.2.1'
-    androidTestImplementation(project(':benchmark:benchmark-macro'))
-    androidTestImplementation(project(':benchmark:benchmark-common'))
-    androidTestImplementation(project(':benchmark:benchmark-macro-junit4'))
-    androidTestImplementation('androidx.core:core-ktx:1.7.0')
-    androidTestImplementation(project(":glance:glance"))
-    androidTestImplementation(project(":glance:glance-appwidget"))
-    androidTestImplementation(project(":internal-testutils-macrobenchmark"))
-    androidTestImplementation(libs.kotlinTest)
-    androidTestImplementation(libs.testRules)
-    androidTestImplementation(libs.testExtJunit)
-    androidTestImplementation(libs.testCore)
-    androidTestImplementation(libs.testRunner)
-    androidTestImplementation(libs.testUiautomator)
+    implementation(project(':benchmark:benchmark-macro'))
+    implementation(project(':benchmark:benchmark-common'))
+    implementation(project(':benchmark:benchmark-macro-junit4'))
+    implementation('androidx.core:core-ktx:1.7.0')
+    implementation(project(":glance:glance"))
+    implementation(project(":glance:glance-appwidget"))
+    implementation(project(":internal-testutils-macrobenchmark"))
+    implementation(libs.kotlinTest)
+    implementation(libs.testRules)
+    implementation(libs.testExtJunit)
+    implementation(libs.testCore)
+    implementation(libs.testRunner)
+    implementation(libs.testUiautomator)
 }

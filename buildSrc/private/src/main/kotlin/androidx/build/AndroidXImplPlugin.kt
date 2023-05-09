@@ -323,7 +323,7 @@ class AndroidXImplPlugin @Inject constructor(val componentFactory: SoftwareCompo
     private fun configureWithAppPlugin(project: Project, androidXExtension: AndroidXExtension) {
         project.extensions.getByType<AppExtension>().apply {
             configureAndroidBaseOptions(project, androidXExtension)
-            configureAndroidApplicationOptions(project)
+            configureAndroidApplicationOptions(project, androidXExtension)
         }
 
         project.extensions.getByType<ApplicationAndroidComponentsExtension>().apply {
@@ -347,6 +347,7 @@ class AndroidXImplPlugin @Inject constructor(val componentFactory: SoftwareCompo
     ) {
         project.extensions.getByType<TestExtension>().apply {
             configureAndroidBaseOptions(project, androidXExtension)
+            project.addAppApkToTestConfigGeneration(androidXExtension)
         }
 
         project.configureJavaCompilationWarnings(androidXExtension)
@@ -410,6 +411,7 @@ class AndroidXImplPlugin @Inject constructor(val componentFactory: SoftwareCompo
     ) {
         val libraryExtension = project.extensions.getByType<LibraryExtension>().apply {
             configureAndroidBaseOptions(project, androidXExtension)
+            project.addAppApkToTestConfigGeneration(androidXExtension)
             configureAndroidLibraryOptions(project, androidXExtension)
 
             // Make sure the main Kotlin source set doesn't contain anything under src/main/kotlin.
@@ -809,13 +811,16 @@ class AndroidXImplPlugin @Inject constructor(val componentFactory: SoftwareCompo
         }
     }
 
-    private fun AppExtension.configureAndroidApplicationOptions(project: Project) {
+    private fun AppExtension.configureAndroidApplicationOptions(
+        project: Project,
+        androidXExtension: AndroidXExtension
+    ) {
         defaultConfig.apply {
             versionCode = 1
             versionName = "1.0"
         }
 
-        project.addAppApkToTestConfigGeneration()
+        project.addAppApkToTestConfigGeneration(androidXExtension)
         project.addAppApkToFtlRunner()
     }
 
