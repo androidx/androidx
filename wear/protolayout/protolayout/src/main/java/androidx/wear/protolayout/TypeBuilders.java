@@ -25,6 +25,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.wear.protolayout.expression.DynamicBuilders;
+import androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat;
 import androidx.wear.protolayout.expression.Fingerprint;
 import androidx.wear.protolayout.proto.AlignmentProto;
 import androidx.wear.protolayout.proto.TypesProto;
@@ -165,7 +166,7 @@ public final class TypeBuilders {
             /**
              * Creates an instance of {@link Builder}.
              *
-             * @deprecated use {@link Builder(String)}
+             * @deprecated use {@link #Builder(String)}
              */
             @Deprecated
             public Builder() {}
@@ -344,6 +345,20 @@ public final class TypeBuilders {
             return mImpl.getValue();
         }
 
+        /**
+         * Gets the dynamic value.
+         *
+         * @since 1.2
+         */
+        @Nullable
+        public DynamicFloat getDynamicValue() {
+            if (mImpl.hasDynamicValue()) {
+                return DynamicBuilders.dynamicFloatFromProto(mImpl.getDynamicValue());
+            } else {
+                return null;
+            }
+        }
+
         /** Get the fingerprint for this object, or null if unknown. */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Nullable
@@ -366,10 +381,27 @@ public final class TypeBuilders {
             private final TypesProto.FloatProp.Builder mImpl = TypesProto.FloatProp.newBuilder();
             private final Fingerprint mFingerprint = new Fingerprint(-641088370);
 
+            /**
+             * Creates an instance of {@link Builder}.
+             *
+             * @deprecated use {@link #Builder(float)}
+             */
+            @Deprecated
             public Builder() {}
 
             /**
-             * Sets the value.
+             * Creates an instance of {@link Builder}.
+             *
+             * @param staticValue the static value.
+             */
+            public Builder(float staticValue) {
+                setValue(staticValue);
+            }
+
+            /**
+             * Sets the static value. If a dynamic value is also set and the renderer supports
+             * dynamic values for the corresponding field, this static value will be ignored.
+             * If the static value is not specified, Zero will be used instead. 
              *
              * @since 1.0
              */
@@ -380,9 +412,37 @@ public final class TypeBuilders {
                 return this;
             }
 
-            /** Builds an instance from accumulated values. */
+            /**
+             * Sets the dynamic value. Note that when setting this value, the static value is still
+             * required to be set (with either {@link #Builder(float)} or {@link #setValue(float)})
+             * to support older renderers that only read the static value. If {@code dynamicValue
+             * } has an invalid result, the provided static value will be used
+             * instead.
+             *
+             * @since 1.2
+             */
+            @NonNull
+            public Builder setDynamicValue(@NonNull DynamicFloat dynamicValue) {
+                mImpl.setDynamicValue(dynamicValue.toDynamicFloatProto());
+                mFingerprint.recordPropertyUpdate(
+                        2, checkNotNull(dynamicValue.getFingerprint()).aggregateValueAsInt());
+                return this;
+            }
+
+            /**
+             * Builds an instance from accumulated values.
+             *
+             * @throws IllegalStateException if a dynamic value is set using
+             *                               {@link #setDynamicValue(DynamicFloat)} but neither
+             *                               {@link #Builder(float)} nor
+             *                               {@link #setValue(float)} is used to provide a static
+             *                               value.
+             */
             @NonNull
             public FloatProp build() {
+                if(mImpl.hasDynamicValue() && !mImpl.hasValue()){
+                    throw new IllegalStateException("Static value is missing.");
+                }
                 return new FloatProp(mImpl.build(), mFingerprint);
             }
         }
