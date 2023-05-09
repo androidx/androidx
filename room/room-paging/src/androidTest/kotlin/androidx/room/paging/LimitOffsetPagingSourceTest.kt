@@ -573,7 +573,7 @@ class LimitOffsetPagingSourceTest {
         val refreshKey = 85 - (15 / 2)
 
         val pagingSource2 = LimitOffsetPagingSourceImpl(database)
-        val pager2 = TestPager(pagingSource2, CONFIG)
+        val pager2 = TestPager(CONFIG, pagingSource2)
         val result = pager2.refresh(initialKey = refreshKey) as LoadResult.Page
 
         // database should only have 40 items left. Refresh key is invalid at this point
@@ -616,7 +616,7 @@ class LimitOffsetPagingSourceTest {
         dao.deleteTestItems(0, 29)
 
         val pagingSource2 = LimitOffsetPagingSourceImpl(database)
-        val pager2 = TestPager(pagingSource2, CONFIG)
+        val pager2 = TestPager(CONFIG, pagingSource2)
         // assume user was viewing first few items with anchorPosition = 0 and refresh key
         // clips to 0
         val result = pager2.refresh(initialKey = 0) as LoadResult.Page
@@ -648,7 +648,7 @@ class LimitOffsetPagingSourceTest {
         dao.deleteTestItems(0, 94)
 
         val pagingSource2 = LimitOffsetPagingSourceImpl(database)
-        val pager2 = TestPager(pagingSource2, CONFIG)
+        val pager2 = TestPager(CONFIG, pagingSource2)
         // assume user was viewing first few items with anchorPosition = 0 and refresh key
         // clips to 0
         val result = pager2.refresh(initialKey = 0) as LoadResult.Page
@@ -682,7 +682,7 @@ class LimitOffsetPagingSourceTest {
         ) -> Unit
     ) {
         runBlocking {
-            block(TestPager(pagingSource, config), pagingSource)
+            block(TestPager(config, pagingSource), pagingSource)
         }
     }
 }
@@ -736,7 +736,7 @@ class LimitOffsetPagingSourceTestWithFilteringExecutor {
     @Test
     fun invalid_append() = runTest {
         val pagingSource = LimitOffsetPagingSourceImpl(db)
-        val pager = TestPager(pagingSource, CONFIG)
+        val pager = TestPager(CONFIG, pagingSource)
         dao.addAllItems(ITEMS_LIST)
 
         val result = pager.refresh() as LoadResult.Page
@@ -769,7 +769,7 @@ class LimitOffsetPagingSourceTestWithFilteringExecutor {
     @Test
     fun invalid_prepend() = runTest {
         val pagingSource = LimitOffsetPagingSourceImpl(db)
-        val pager = TestPager(pagingSource, CONFIG)
+        val pager = TestPager(CONFIG, pagingSource)
         dao.addAllItems(ITEMS_LIST)
 
         val result = pager.refresh(initialKey = 20) as LoadResult.Page

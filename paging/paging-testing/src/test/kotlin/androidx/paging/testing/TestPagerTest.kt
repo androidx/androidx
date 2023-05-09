@@ -39,7 +39,7 @@ class TestPagerTest {
     @Test
     fun refresh_nullKey() {
         val source = TestPagingSource()
-        val pager = TestPager(source, CONFIG)
+        val pager = TestPager(CONFIG, source)
 
         runTest {
             val result = pager.refresh(null) as LoadResult.Page
@@ -51,7 +51,7 @@ class TestPagerTest {
     @Test
     fun refresh_withInitialKey() {
         val source = TestPagingSource()
-        val pager = TestPager(source, CONFIG)
+        val pager = TestPager(CONFIG, source)
 
         runTest {
             val result = pager.refresh(50) as LoadResult.Page
@@ -63,7 +63,7 @@ class TestPagerTest {
     @Test
     fun refresh_returnError() {
         val source = TestPagingSource()
-        val pager = TestPager(source, CONFIG)
+        val pager = TestPager(CONFIG, source)
 
         runTest {
             source.errorNextLoad = true
@@ -78,7 +78,7 @@ class TestPagerTest {
     @Test
     fun refresh_returnInvalid() {
         val source = TestPagingSource()
-        val pager = TestPager(source, CONFIG)
+        val pager = TestPager(CONFIG, source)
 
         runTest {
             source.nextLoadResult = LoadResult.Invalid()
@@ -93,7 +93,7 @@ class TestPagerTest {
     @Test
     fun refresh_invalidPagingSource() {
         val source = TestPagingSource()
-        val pager = TestPager(source, CONFIG)
+        val pager = TestPager(CONFIG, source)
 
         runTest {
             source.invalidate()
@@ -108,7 +108,7 @@ class TestPagerTest {
     @Test
     fun refresh_getLastLoadedPage() {
         val source = TestPagingSource()
-        val pager = TestPager(source, CONFIG)
+        val pager = TestPager(CONFIG, source)
 
         runTest {
             val page: LoadResult.Page<Int, Int>? = pager.run {
@@ -123,7 +123,7 @@ class TestPagerTest {
     @Test
     fun getLastLoadedPage_afterInvalidPagingSource() {
         val source = TestPagingSource()
-        val pager = TestPager(source, CONFIG)
+        val pager = TestPager(CONFIG, source)
 
         runTest {
             val page = pager.run {
@@ -141,7 +141,7 @@ class TestPagerTest {
     @Test
     fun refresh_getPages() {
         val source = TestPagingSource()
-        val pager = TestPager(source, CONFIG)
+        val pager = TestPager(CONFIG, source)
 
         runTest {
             val pages = pager.run {
@@ -160,7 +160,7 @@ class TestPagerTest {
     @Test
     fun getPages_multiplePages() = runTest {
         val source = TestPagingSource()
-        val pager = TestPager(source, CONFIG)
+        val pager = TestPager(CONFIG, source)
 
         pager.run {
             refresh(20)
@@ -179,7 +179,7 @@ class TestPagerTest {
     @Test
     fun getPages_fromEmptyList() = runTest {
         val source = TestPagingSource()
-        val pager = TestPager(source, CONFIG)
+        val pager = TestPager(CONFIG, source)
         val pages = pager.getPages()
         assertThat(pages).isEmpty()
     }
@@ -187,7 +187,7 @@ class TestPagerTest {
     @Test
     fun getPages_afterInvalidPagingSource() {
         val source = TestPagingSource()
-        val pager = TestPager(source, CONFIG)
+        val pager = TestPager(CONFIG, source)
 
         runTest {
             val pages = pager.run {
@@ -209,7 +209,7 @@ class TestPagerTest {
     @Test
     fun getPages_multiThread() = runTest {
         val source = TestPagingSource()
-        val pager = TestPager(source, CONFIG)
+        val pager = TestPager(CONFIG, source)
 
         var pages: List<LoadResult.Page<Int, Int>>? = null
         val job = launch {
@@ -250,7 +250,7 @@ class TestPagerTest {
     @Test
     fun multipleRefresh_onSinglePager_throws() {
         val source = TestPagingSource()
-        val pager = TestPager(source, CONFIG)
+        val pager = TestPager(CONFIG, source)
 
         runTest {
             pager.run {
@@ -269,7 +269,7 @@ class TestPagerTest {
     @Test
     fun multipleRefresh_onMultiplePagers() = runTest {
         val source1 = TestPagingSource()
-        val pager1 = TestPager(source1, CONFIG)
+        val pager1 = TestPager(CONFIG, source1)
 
         // first gen
         val result1 = pager1.run {
@@ -280,7 +280,7 @@ class TestPagerTest {
 
         // second gen
         val source2 = TestPagingSource()
-        val pager2 = TestPager(source2, CONFIG)
+        val pager2 = TestPager(CONFIG, source2)
 
         val result2 = pager2.run {
             refresh()
@@ -292,7 +292,7 @@ class TestPagerTest {
     @Test
     fun simpleAppend() = runTest {
         val source = TestPagingSource()
-        val pager = TestPager(source, CONFIG)
+        val pager = TestPager(CONFIG, source)
 
         val result = pager.run {
             refresh(null)
@@ -311,7 +311,7 @@ class TestPagerTest {
     @Test
     fun simplePrepend() = runTest {
         val source = TestPagingSource()
-        val pager = TestPager(source, CONFIG)
+        val pager = TestPager(CONFIG, source)
 
         val result = pager.run {
             refresh(30)
@@ -333,7 +333,7 @@ class TestPagerTest {
     @Test
     fun append_beforeRefresh_throws() = runTest {
         val source = TestPagingSource()
-        val pager = TestPager(source, CONFIG)
+        val pager = TestPager(CONFIG, source)
         assertFailsWith<IllegalStateException> {
             pager.append()
         }
@@ -342,7 +342,7 @@ class TestPagerTest {
     @Test
     fun prepend_beforeRefresh_throws() = runTest {
         val source = TestPagingSource()
-        val pager = TestPager(source, CONFIG)
+        val pager = TestPager(CONFIG, source)
         assertFailsWith<IllegalStateException> {
             pager.prepend()
         }
@@ -351,7 +351,7 @@ class TestPagerTest {
     @Test
     fun append_invalidPagingSource() = runTest {
         val source = TestPagingSource()
-        val pager = TestPager(source, CONFIG)
+        val pager = TestPager(CONFIG, source)
 
         val result = pager.run {
             refresh()
@@ -367,7 +367,7 @@ class TestPagerTest {
     @Test
     fun prepend_invalidPagingSource() = runTest {
         val source = TestPagingSource()
-        val pager = TestPager(source, CONFIG)
+        val pager = TestPager(CONFIG, source)
 
         val result = pager.run {
             refresh(initialKey = 20)
@@ -383,7 +383,7 @@ class TestPagerTest {
     @Test
     fun consecutive_append() = runTest {
         val source = TestPagingSource()
-        val pager = TestPager(source, CONFIG)
+        val pager = TestPager(CONFIG, source)
 
         pager.run {
             refresh(20)
@@ -403,7 +403,7 @@ class TestPagerTest {
     @Test
     fun consecutive_prepend() = runTest {
         val source = TestPagingSource()
-        val pager = TestPager(source, CONFIG)
+        val pager = TestPager(CONFIG, source)
 
         pager.run {
             refresh(20)
@@ -427,7 +427,7 @@ class TestPagerTest {
     @Test
     fun append_then_prepend() = runTest {
         val source = TestPagingSource()
-        val pager = TestPager(source, CONFIG)
+        val pager = TestPager(CONFIG, source)
 
         pager.run {
             refresh(20)
@@ -450,7 +450,7 @@ class TestPagerTest {
     @Test
     fun prepend_then_append() = runTest {
         val source = TestPagingSource()
-        val pager = TestPager(source, CONFIG)
+        val pager = TestPager(CONFIG, source)
 
         pager.run {
             refresh(20)
@@ -473,7 +473,7 @@ class TestPagerTest {
     @Test
     fun multiThread_loads() = runTest {
         val source = TestPagingSource()
-        val pager = TestPager(source, CONFIG)
+        val pager = TestPager(CONFIG, source)
         // load operations upon completion add an int to the list.
         // after all loads complete, we assert the order that the ints were added.
         val loadOrder = mutableListOf<Int>()
@@ -511,7 +511,7 @@ class TestPagerTest {
     @Test
     fun multiThread_operations() = runTest {
         val source = TestPagingSource()
-        val pager = TestPager(source, CONFIG)
+        val pager = TestPager(CONFIG, source)
         // operations upon completion add an int to the list.
         // after all operations complete, we assert the order that the ints were added.
         val loadOrder = mutableListOf<Int>()
@@ -559,7 +559,7 @@ class TestPagerTest {
     @Test
     fun getPagingStateWithAnchorPosition_placeHoldersEnabled() = runTest {
         val source = TestPagingSource()
-        val pager = TestPager(source, CONFIG)
+        val pager = TestPager(CONFIG, source)
 
         val state = pager.run {
             refresh(20)
@@ -583,7 +583,7 @@ class TestPagerTest {
             )
         )
         val source2 = TestPagingSource()
-        val pager2 = TestPager(source, CONFIG)
+        val pager2 = TestPager(CONFIG, source)
         val page = pager2.run {
             refresh(source2.getRefreshKey(state))
         }
@@ -598,7 +598,7 @@ class TestPagerTest {
             initialLoadSize = 5,
             enablePlaceholders = false
         )
-        val pager = TestPager(source, config)
+        val pager = TestPager(config, source)
 
         val state = pager.run {
             refresh(20)
@@ -621,7 +621,7 @@ class TestPagerTest {
             )
         )
         val source2 = TestPagingSource()
-        val pager2 = TestPager(source, CONFIG)
+        val pager2 = TestPager(CONFIG, source)
         val page = pager2.run {
             refresh(source2.getRefreshKey(state))
         }
@@ -634,7 +634,7 @@ class TestPagerTest {
     @Test
     fun getPagingStateWithAnchorPosition_indexOutOfBoundsWithPlaceholders() = runTest {
         val source = TestPagingSource()
-        val pager = TestPager(source, CONFIG)
+        val pager = TestPager(CONFIG, source)
 
         val msg = assertFailsWith<IllegalStateException> {
             pager.run {
@@ -661,12 +661,12 @@ class TestPagerTest {
     fun getPagingStateWithAnchorPosition_indexOutOfBoundsWithoutPlaceholders() = runTest {
         val source = TestPagingSource()
         val pager = TestPager(
-            source,
             PagingConfig(
                 pageSize = 3,
                 initialLoadSize = 5,
                 enablePlaceholders = false
-            )
+            ),
+            source
         )
 
         val msg = assertFailsWith<IllegalStateException> {
@@ -694,7 +694,7 @@ class TestPagerTest {
     @Test
     fun getPagingStateWithAnchorLookup_placeHoldersEnabled() = runTest {
         val source = TestPagingSource()
-        val pager = TestPager(source, CONFIG)
+        val pager = TestPager(CONFIG, source)
 
         val state = pager.run {
             refresh(20)
@@ -718,7 +718,7 @@ class TestPagerTest {
         )
         // use state to getRefreshKey
         val source2 = TestPagingSource()
-        val pager2 = TestPager(source, CONFIG)
+        val pager2 = TestPager(CONFIG, source)
         val page = pager2.run {
             refresh(source2.getRefreshKey(state))
         }
@@ -733,7 +733,7 @@ class TestPagerTest {
             initialLoadSize = 5,
             enablePlaceholders = false
         )
-        val pager = TestPager(source, config)
+        val pager = TestPager(config, source)
 
         val state = pager.run {
             refresh(20)
@@ -757,7 +757,7 @@ class TestPagerTest {
         )
         // use state to getRefreshKey
         val source2 = TestPagingSource()
-        val pager2 = TestPager(source, CONFIG)
+        val pager2 = TestPager(CONFIG, source)
         val page = pager2.run {
             refresh(source2.getRefreshKey(state))
         }
@@ -775,7 +775,7 @@ class TestPagerTest {
             initialLoadSize = 5,
             enablePlaceholders = false
         )
-        val pager = TestPager(source, config)
+        val pager = TestPager(config, source)
 
         val msg = assertFailsWith<IllegalArgumentException> {
             pager.run {
@@ -801,7 +801,7 @@ class TestPagerTest {
             enablePlaceholders = false,
             maxSize = 10
         )
-        val pager = TestPager(source, config)
+        val pager = TestPager(config, source)
         pager.run {
             refresh(20)
             prepend()
@@ -833,7 +833,7 @@ class TestPagerTest {
             enablePlaceholders = false,
             maxSize = 10
         )
-        val pager = TestPager(source, config)
+        val pager = TestPager(config, source)
         pager.run {
             refresh(20)
             append()
@@ -864,7 +864,7 @@ class TestPagerTest {
             enablePlaceholders = false,
             maxSize = 10
         )
-        val pager = TestPager(source, config)
+        val pager = TestPager(config, source)
         pager.run {
             refresh(20)
             append()
@@ -896,7 +896,7 @@ class TestPagerTest {
             maxSize = 5,
             prefetchDistance = 2
         )
-        val pager = TestPager(source, config)
+        val pager = TestPager(config, source)
         pager.refresh(20)
         assertThat(pager.getPages()).containsExactlyElementsIn(
             listOf(
@@ -931,7 +931,7 @@ class TestPagerTest {
             maxSize = 3,
             prefetchDistance = 1
         )
-        val pager = TestPager(source, config)
+        val pager = TestPager(config, source)
         val result = pager.refresh() as LoadResult.Page
         assertThat(result.data).containsExactlyElementsIn(
             listOf(0, 1, 2, 3, 4)
