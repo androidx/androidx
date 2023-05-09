@@ -57,6 +57,10 @@ internal class FocusInvalidationManager(
     private val invalidateNodes: () -> Unit = {
         // Process all the invalidated FocusProperties nodes.
         focusPropertiesNodes.forEach {
+            // We don't need to invalidate a focus properties node if it was scheduled for
+            // invalidation earlier in the composition but was then removed.
+            if (!it.node.isAttached) return@forEach
+
             it.visitSelfAndChildren(Nodes.FocusTarget) { focusTarget ->
                 focusTargetNodes.add(focusTarget)
             }
@@ -128,9 +132,8 @@ internal class FocusInvalidationManager(
         focusTargetNodes.clear()
         focusTargetsWithInvalidatedFocusEvents.clear()
 
-        // TODO(b/280941088): Re-enable after we find the root issue.
-        // check(focusPropertiesNodes.isEmpty())
-        // check(focusEventNodes.isEmpty())
-        // check(focusTargetNodes.isEmpty())
+         check(focusPropertiesNodes.isEmpty()) { "Unprocessed FocusProperties nodes" }
+         check(focusEventNodes.isEmpty()) { "Unprocessed FocusEvent nodes" }
+         check(focusTargetNodes.isEmpty()) { "Unprocessed FocusTarget nodes" }
     }
 }
