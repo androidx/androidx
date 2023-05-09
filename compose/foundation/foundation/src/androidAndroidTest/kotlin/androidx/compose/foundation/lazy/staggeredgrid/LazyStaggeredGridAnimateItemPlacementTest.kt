@@ -18,6 +18,8 @@ package androidx.compose.foundation.lazy.staggeredgrid
 
 import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.VisibilityThreshold
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.scrollBy
@@ -27,6 +29,8 @@ import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.requiredHeightIn
 import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.requiredWidthIn
+import androidx.compose.foundation.lazy.list.getValueAtFrame
+import androidx.compose.foundation.lazy.list.getVelocityAtFrame
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -1992,6 +1996,70 @@ class LazyStaggeredGridAnimateItemPlacementTest(private val config: Config) {
         }
     }
 
+    @Test
+    fun interruptedSizeChange() {
+        var item0Size by mutableStateOf(itemSizeDp)
+        val animSpec = spring(visibilityThreshold = IntOffset.VisibilityThreshold)
+        rule.setContent {
+            LazyStaggeredGrid(cells = 1) {
+                items(2, key = { it }) {
+                    Item(it, if (it == 0) item0Size else itemSizeDp, animSpec = animSpec)
+                }
+            }
+        }
+
+        rule.runOnUiThread {
+            item0Size = itemSize2Dp
+        }
+
+        rule.waitForIdle()
+        rule.mainClock.advanceTimeByFrame()
+        onAnimationFrame(duration = FrameDuration) { fraction ->
+            if (fraction == 0f) {
+                assertPositions(
+                    0 to AxisOffset(0f, 0f),
+                    1 to AxisOffset(0f, itemSize)
+                )
+            } else {
+                assertThat(fraction).isEqualTo(1f)
+                val valueAfterOneFrame =
+                    animSpec.getValueAtFrame(1, from = itemSize, to = itemSize2)
+                assertPositions(
+                    0 to AxisOffset(0f, 0f),
+                    1 to AxisOffset(0f, valueAfterOneFrame)
+                )
+            }
+        }
+
+        rule.runOnUiThread {
+            item0Size = 0.dp
+        }
+
+        rule.waitForIdle()
+        val startValue = animSpec.getValueAtFrame(2, from = itemSize, to = itemSize2)
+        val startVelocity = animSpec.getVelocityAtFrame(2, from = itemSize, to = itemSize2)
+        onAnimationFrame(duration = FrameDuration) { fraction ->
+            if (fraction == 0f) {
+                assertPositions(
+                    0 to AxisOffset(0f, 0f),
+                    1 to AxisOffset(0f, startValue)
+                )
+            } else {
+                assertThat(fraction).isEqualTo(1f)
+                val valueAfterThreeFrames = animSpec.getValueAtFrame(
+                    1,
+                    from = startValue,
+                    to = 0f,
+                    initialVelocity = startVelocity
+                )
+                assertPositions(
+                    0 to AxisOffset(0f, 0f),
+                    1 to AxisOffset(0f, valueAfterThreeFrames)
+                )
+            }
+        }
+    }
+
     private fun AxisOffset(crossAxis: Float, mainAxis: Float) =
         if (isVertical) Offset(crossAxis, mainAxis) else Offset(mainAxis, crossAxis)
 
@@ -2075,9 +2143,11 @@ class LazyStaggeredGridAnimateItemPlacementTest(private val config: Config) {
         for (i in 0..duration step FrameDuration) {
             val fraction = i / duration.toFloat()
             onFrame(fraction)
-            rule.mainClock.advanceTimeBy(FrameDuration)
-            expectedTime += FrameDuration
-            assertThat(expectedTime).isEqualTo(rule.mainClock.currentTime)
+            if (i < duration) {
+                rule.mainClock.advanceTimeBy(FrameDuration)
+                expectedTime += FrameDuration
+                assertThat(expectedTime).isEqualTo(rule.mainClock.currentTime)
+            }
         }
     }
 

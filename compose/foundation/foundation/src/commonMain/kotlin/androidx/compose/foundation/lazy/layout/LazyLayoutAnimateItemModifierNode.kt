@@ -92,10 +92,17 @@ internal class LazyLayoutAnimateItemModifierNode(
                 } else {
                     placementAnimationSpec
                 }
-                val startVelocity = placementDeltaAnimation.velocity
-                placementDeltaAnimation.snapTo(totalDelta)
-                placementDeltaAnimation.animateTo(IntOffset.Zero, spec, startVelocity) {
-                    placementDelta = value
+                if (!placementDeltaAnimation.isRunning) {
+                    // if not running we can snap to the initial value and animate to zero
+                    placementDeltaAnimation.snapTo(totalDelta)
+                }
+                // if animation is not currently running the target will be zero, otherwise
+                // we have to continue the animation from the current value, but keep the needed
+                // total delta for the new animation.
+                val animationTarget = placementDeltaAnimation.value - totalDelta
+                placementDeltaAnimation.animateTo(animationTarget, spec) {
+                    // placementDelta is calculated as if we always animate to target equal to zero
+                    placementDelta = value - animationTarget
                 }
 
                 isAnimationInProgress = false
