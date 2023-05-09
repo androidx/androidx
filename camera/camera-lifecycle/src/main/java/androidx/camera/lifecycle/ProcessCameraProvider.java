@@ -285,8 +285,10 @@ public final class ProcessCameraProvider implements LifecycleCameraProvider {
     @VisibleForTesting
     @NonNull
     public ListenableFuture<Void> shutdown() {
-        runOnMainSync(this::unbindAll);
-        mLifecycleCameraRepository.clear();
+        runOnMainSync(() -> {
+            unbindAll();
+            mLifecycleCameraRepository.clear();
+        });
 
         ListenableFuture<Void> shutdownFuture = mCameraX != null ? mCameraX.shutdown() :
                 Futures.immediateFuture(null);
