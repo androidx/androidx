@@ -22,6 +22,7 @@ import static org.junit.Assert.assertTrue;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.test.core.app.ApplicationProvider;
@@ -34,8 +35,13 @@ import androidx.test.uiautomator.UiObjectNotFoundException;
 import androidx.test.uiautomator.Until;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.function.ThrowingRunnable;
+import org.junit.rules.TestWatcher;
+import org.junit.runner.Description;
 import org.junit.runner.RunWith;
+
+import java.io.ByteArrayOutputStream;
 
 @RunWith(AndroidJUnit4.class)
 public abstract class BaseTest {
@@ -44,6 +50,20 @@ public abstract class BaseTest {
     protected static final String TEST_APP = "androidx.test.uiautomator.testapp";
     protected static final int DEFAULT_FLAGS =
             Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK;
+
+    // Dumps the UI hierarchy to logcat on failure.
+    @Rule
+    public TestWatcher mDumpHierarchyWatcher = new TestWatcher() {
+        @Override
+        protected void failed(Throwable t, Description description) {
+            try (ByteArrayOutputStream stream = new ByteArrayOutputStream()) {
+                mDevice.dumpWindowHierarchy(stream);
+                Log.w(description.getTestClass().getSimpleName(), stream.toString());
+            } catch (Exception e) {
+                Log.e(description.getTestClass().getSimpleName(), "Failed to dump hierarchy", e);
+            }
+        }
+    };
 
     protected UiDevice mDevice;
 
