@@ -427,7 +427,7 @@ public class GenericDocument {
                     // paths we return the bare document Bundle in this particular case.
                     Parcelable[] bundles = (Parcelable[]) currentElementValue;
                     if (index < bundles.length) {
-                        extractedValue = (Bundle) bundles[index];
+                        extractedValue = bundles[index];
                     }
                 } else {
                     throw new IllegalStateException("Unsupported value type: "
@@ -1181,6 +1181,7 @@ public class GenericDocument {
          * <p>Any non-negative integer can be used a score. By default, scores are set to 0.
          *
          * @param score any non-negative {@code int} representing the document's score.
+         * @throws IllegalArgumentException if the score is negative.
          */
         @CanIgnoreReturnValue
         @NonNull
@@ -1225,6 +1226,7 @@ public class GenericDocument {
          * called.
          *
          * @param ttlMillis a non-negative duration in milliseconds.
+         * @throws IllegalArgumentException if ttlMillis is negative.
          */
         @CanIgnoreReturnValue
         @NonNull

@@ -77,7 +77,7 @@ import java.util.Set;
  *         This deletes all documents that are incompatible with the new schema. The new schema is
  *         then saved and persisted to disk.
  *     <li>Add a {@link Migrator} for each incompatible type and make no deletion. The migrator
- *         will migrate documents from it's old schema version to the new version. Migrated types
+ *         will migrate documents from its old schema version to the new version. Migrated types
  *         will be set into both {@link SetSchemaResponse#getIncompatibleTypes()} and
  *         {@link SetSchemaResponse#getMigratedTypes()}. See the migration section below.
  * </ul>
@@ -598,7 +598,7 @@ public final class SetSchemaRequest {
          * {@link Migrator#onUpgrade} or {@link Migrator#onDowngrade} must exist in this
          * {@link SetSchemaRequest}.
          *
-         * @param migrators  A {@link Map} of migrators that translate a document from it's current
+         * @param migrators  A {@link Map} of migrators that translate a document from its current
          *                   version to the final version set via {@link #setVersion}. The key of
          *                   the map is the schema type that the {@link Migrator} value applies to.
          *
