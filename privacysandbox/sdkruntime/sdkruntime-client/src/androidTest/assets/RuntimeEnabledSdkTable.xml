@@ -24,6 +24,10 @@
         <package-name>androidx.privacysandbox.sdkruntime.test.v2</package-name>
     </runtime-enabled-sdk>
     <runtime-enabled-sdk>
+        <compat-config-path>RuntimeEnabledSdks/V3/CompatSdkConfig.xml</compat-config-path>
+        <package-name>androidx.privacysandbox.sdkruntime.test.v3</package-name>
+    </runtime-enabled-sdk>
+    <runtime-enabled-sdk>
         <compat-config-path>RuntimeEnabledSdks/InvalidEntryPointSdkConfig.xml</compat-config-path>
         <package-name>androidx.privacysandbox.sdkruntime.test.invalidEntryPoint</package-name>
     </runtime-enabled-sdk>

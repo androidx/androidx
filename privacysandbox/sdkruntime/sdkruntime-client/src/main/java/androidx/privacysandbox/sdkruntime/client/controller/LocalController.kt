@@ -17,6 +17,7 @@
 package androidx.privacysandbox.sdkruntime.client.controller
 
 import android.os.IBinder
+import androidx.privacysandbox.sdkruntime.client.activity.LocalSdkActivityHandlerRegistry
 import androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat
 import androidx.privacysandbox.sdkruntime.core.activity.SdkSandboxActivityHandlerCompat
 import androidx.privacysandbox.sdkruntime.core.controller.SdkSandboxControllerCompat
@@ -35,12 +36,12 @@ internal class LocalController(
     override fun registerSdkSandboxActivityHandler(
         handlerCompat: SdkSandboxActivityHandlerCompat
     ): IBinder {
-        throw UnsupportedOperationException("Not supported")
+        return LocalSdkActivityHandlerRegistry.register(handlerCompat)
     }
 
     override fun unregisterSdkSandboxActivityHandler(
         handlerCompat: SdkSandboxActivityHandlerCompat
     ) {
-        throw UnsupportedOperationException("Not supported")
+        LocalSdkActivityHandlerRegistry.unregister(handlerCompat)
     }
 }

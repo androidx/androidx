@@ -26,8 +26,8 @@ dependencies {
     api(libs.kotlinStdlib)
     api("androidx.annotation:annotation:1.6.0")
 
-    implementation("androidx.core:core:1.8.0")
-    implementation("androidx.activity:activity:1.7.0")
+    implementation("androidx.core:core:1.12.0-alpha03")
+    implementation(projectOrArtifact(":activity:activity"))
 
     // TODO(b/249982004): cleanup dependencies
     androidTestImplementation(libs.testCore)

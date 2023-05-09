@@ -16,12 +16,16 @@
 
 package androidx.privacysandbox.sdkruntime.client.loader
 
+import android.app.Activity
 import android.content.Context
 import android.os.Bundle
 import android.os.IBinder
 import androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat
 import androidx.privacysandbox.sdkruntime.core.Versions
 import androidx.privacysandbox.sdkruntime.core.SandboxedSdkProviderCompat
+import androidx.privacysandbox.sdkruntime.core.activity.SdkSandboxActivityHandlerCompat
+import java.lang.reflect.Proxy
+import java.util.concurrent.CountDownLatch
 import kotlin.reflect.cast
 
 /**
@@ -72,6 +76,8 @@ internal fun LocalSdkProvider.extractSdkProviderClassloader(): ClassLoader =
  * Underlying TestSDK should implement and delegate to
  * [androidx.privacysandbox.sdkruntime.core.controller.SdkSandboxControllerCompat]:
  *  1) getSandboxedSdks() : List<SandboxedSdkCompat>
+ *  2) registerSdkSandboxActivityHandler(SdkSandboxActivityHandlerCompat) : IBinder
+ *  3) unregisterSdkSandboxActivityHandler(SdkSandboxActivityHandlerCompat)
  */
 internal class TestSdkWrapper(
     private val sdk: Any
@@ -81,6 +87,54 @@ internal class TestSdkWrapper(
             methodName = "getSandboxedSdks"
         ) as List<*>
         return sdks.map { SandboxedSdkWrapper(it!!) }
+    }
+
+    fun registerSdkSandboxActivityHandler(handler: CatchingSdkActivityHandler): IBinder {
+        val classLoader = sdk.javaClass.classLoader!!
+        val activityHandlerClass = Class.forName(
+            SdkSandboxActivityHandlerCompat::class.java.name,
+            false,
+            classLoader
+        )
+
+        val proxy = Proxy.newProxyInstance(
+            classLoader,
+            arrayOf(activityHandlerClass)
+        ) { proxy, method, args ->
+            when (method.name) {
+                "hashCode" -> hashCode()
+                "equals" -> proxy === args[0]
+                "onActivityCreated" -> handler.setResult(args[0])
+                else -> {
+                    throw UnsupportedOperationException(
+                        "Unexpected method call object:$proxy, method: $method, args: $args"
+                    )
+                }
+            }
+        }
+
+        val registerMethod = sdk.javaClass
+            .getMethod("registerSdkSandboxActivityHandler", activityHandlerClass)
+
+        val token = registerMethod.invoke(sdk, proxy) as IBinder
+        handler.proxy = proxy
+
+        return token
+    }
+
+    fun unregisterSdkSandboxActivityHandler(handler: CatchingSdkActivityHandler) {
+        val classLoader = sdk.javaClass.classLoader!!
+        val activityHandlerClass = Class.forName(
+            SdkSandboxActivityHandlerCompat::class.java.name,
+            false,
+            classLoader
+        )
+
+        val unregisterMethod = sdk.javaClass
+            .getMethod("unregisterSdkSandboxActivityHandler", activityHandlerClass)
+
+        unregisterMethod.invoke(sdk, handler.proxy)
+        handler.proxy = null
     }
 }
 
@@ -120,6 +174,39 @@ internal class SandboxedSdkWrapper(
         return sdk.callMethod(
             methodName = "getSdkInfo"
         )
+    }
+}
+
+/**
+ * ActivityHandler to use with [TestSdkWrapper.registerSdkSandboxActivityHandler].
+ * Store received ActivityHolder.
+ */
+internal class CatchingSdkActivityHandler {
+    var proxy: Any? = null
+    var result: ActivityHolderWrapper? = null
+    val async = CountDownLatch(1)
+
+    fun waitForActivity(): ActivityHolderWrapper {
+        async.await()
+        return result!!
+    }
+}
+
+private fun CatchingSdkActivityHandler.setResult(activityHolder: Any) {
+    result = ActivityHolderWrapper(activityHolder)
+    async.countDown()
+}
+
+/**
+ * Reflection wrapper for [androidx.privacysandbox.sdkruntime.core.activity.ActivityHolder]
+ */
+internal class ActivityHolderWrapper(
+    private val activityHolder: Any
+) {
+    fun getActivity(): Activity {
+        return activityHolder.callMethod(
+            methodName = "getActivity"
+        ) as Activity
     }
 }
 

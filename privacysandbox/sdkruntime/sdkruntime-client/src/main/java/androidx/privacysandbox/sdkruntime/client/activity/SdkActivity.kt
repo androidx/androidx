@@ -16,9 +16,53 @@
 
 package androidx.privacysandbox.sdkruntime.client.activity
 
+import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
+import androidx.privacysandbox.sdkruntime.client.SdkSandboxManagerCompat
+import androidx.privacysandbox.sdkruntime.core.controller.SdkSandboxControllerCompat
 
 /**
  * Activity to start for SDKs running locally.
+ * Not for App / SDK Usage.
+ *
+ * SDK should use [SdkSandboxControllerCompat.registerSdkSandboxActivityHandler] for handler
+ * registration.
+ *
+ * App should use [SdkSandboxManagerCompat.startSdkSandboxActivity] for starting activity.
  */
-class SdkActivity : ComponentActivity()
+class SdkActivity : ComponentActivity() {
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        notifySdkOnActivityCreation()
+    }
+
+    private fun notifySdkOnActivityCreation() {
+        val token = LocalSdkActivityStarter.getTokenFromSdkActivityStartIntent(intent)
+        if (token == null) {
+            Log.e(
+                LOG_TAG,
+                "Token is missing in starting SdkActivity intent params"
+            )
+            finish()
+            return
+        }
+
+        try {
+            val activityHolder = ComponentActivityHolder(this)
+            LocalSdkActivityHandlerRegistry.notifyOnActivityCreation(token, activityHolder)
+        } catch (e: Exception) {
+            Log.e(
+                LOG_TAG,
+                "Failed to start the SdkActivity and going to finish it: ",
+                e
+            )
+            finish()
+        }
+    }
+
+    private companion object {
+        private const val LOG_TAG = "SdkActivity"
+    }
+}
