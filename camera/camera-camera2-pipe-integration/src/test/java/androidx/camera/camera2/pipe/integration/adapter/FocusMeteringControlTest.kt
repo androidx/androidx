@@ -34,9 +34,7 @@ import androidx.camera.camera2.pipe.Result3A
 import androidx.camera.camera2.pipe.integration.compat.StreamConfigurationMapCompat
 import androidx.camera.camera2.pipe.integration.compat.ZoomCompat
 import androidx.camera.camera2.pipe.integration.compat.quirk.CameraQuirks
-import androidx.camera.camera2.pipe.integration.compat.workaround.AeFpsRange
 import androidx.camera.camera2.pipe.integration.compat.workaround.MeteringRegionCorrection
-import androidx.camera.camera2.pipe.integration.compat.workaround.NoOpAutoFlashAEModeDisabler
 import androidx.camera.camera2.pipe.integration.compat.workaround.NoOpMeteringRegionCorrection
 import androidx.camera.camera2.pipe.integration.compat.workaround.OutputSizesCorrector
 import androidx.camera.camera2.pipe.integration.impl.CameraProperties
@@ -46,6 +44,7 @@ import androidx.camera.camera2.pipe.integration.impl.UseCaseCamera
 import androidx.camera.camera2.pipe.integration.impl.UseCaseCameraRequestControl
 import androidx.camera.camera2.pipe.integration.impl.UseCaseThreads
 import androidx.camera.camera2.pipe.integration.testing.FakeCameraProperties
+import androidx.camera.camera2.pipe.integration.testing.FakeState3AControlCreator
 import androidx.camera.camera2.pipe.integration.testing.FakeUseCaseCameraRequestControl
 import androidx.camera.camera2.pipe.integration.testing.FakeZoomCompat
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
@@ -1582,22 +1581,8 @@ class FocusMeteringControlTest {
         cameraId: String = CAMERA_ID_0,
         properties: CameraProperties = cameraPropertiesMap[cameraId]!!,
         useCaseCamera: UseCaseCamera = fakeUseCaseCamera,
-    ) = State3AControl(
+    ) = FakeState3AControlCreator.createState3AControl(
         properties,
-        NoOpAutoFlashAEModeDisabler,
-        AeFpsRange(
-            CameraQuirks(
-                FakeCameraMetadata(),
-                StreamConfigurationMapCompat(
-                    StreamConfigurationMapBuilder.newBuilder().build(),
-                    OutputSizesCorrector(
-                        FakeCameraMetadata(),
-                        StreamConfigurationMapBuilder.newBuilder().build()
-                    )
-                )
-            )
-        )
-    ).apply {
-        this.useCaseCamera = useCaseCamera
-    }
+        useCaseCamera
+    )
 }

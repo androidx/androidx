@@ -1579,11 +1579,6 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
 
     @Test
     fun unbindVideoCaptureWithoutStartingRecorder_imageCapturingShouldSuccess() = runBlocking {
-        assumeTrue(
-            "b/280560222: takePicture request is discarded if UseCaseCamera is recreated",
-            implName != CameraPipeConfig::class.simpleName
-        )
-
         // Arrange.
         val imageCapture = ImageCapture.Builder().build()
         val videoStreamReceived = CompletableDeferred<Boolean>()

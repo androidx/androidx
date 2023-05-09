@@ -40,13 +40,15 @@ import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CaptureFailure
 import android.hardware.camera2.CaptureResult
 import androidx.annotation.RequiresApi
+import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.FrameInfo
 import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.Lock3ABehavior
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.RequestMetadata
 import androidx.camera.camera2.pipe.Result3A
-import androidx.camera.camera2.pipe.core.Log
+import androidx.camera.camera2.pipe.core.Log.debug
+import androidx.camera.camera2.pipe.core.Log.info
 import androidx.camera.camera2.pipe.integration.compat.workaround.UseTorchAsFlash
 import androidx.camera.camera2.pipe.integration.compat.workaround.isFlashAvailable
 import androidx.camera.camera2.pipe.integration.compat.workaround.shouldStopRepeatingBeforeCapture
@@ -65,6 +67,7 @@ import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.TorchState
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.joinAll
@@ -230,7 +233,7 @@ class CapturePipelineImpl @Inject constructor(
     }.await()
 
     private fun submitRequestInternal(requests: List<Request>): List<Deferred<Void?>> {
-        val deferredList = mutableListOf<Deferred<Void?>>()
+        val deferredList = mutableListOf<CompletableDeferred<Void?>>()
         val requestsToSubmit = requests.map { request ->
             request.copy(listeners = request.listeners.toMutableList().also { newRequestListeners ->
                 deferredList.add(CompletableDeferred<Void?>().also { completeSignal ->
@@ -273,7 +276,29 @@ class CapturePipelineImpl @Inject constructor(
         }
 
         threads.sequentialScope.launch {
-            graph.acquireSession().use {
+            // graph.acquireSession may fail if camera has entered closing stage
+            var cameraGraphSession: CameraGraph.Session? = null
+            try {
+                cameraGraphSession = graph.acquireSession()
+            } catch (_: CancellationException) {
+                info {
+                    "CapturePipeline#submitRequestInternal:" +
+                    " CameraGraph.Session could not be acquired, requests may need re-submission"
+                }
+
+                // completing the requests exceptionally so that they are retried with next camera
+                deferredList.forEach {
+                    it.completeExceptionally(
+                        ImageCaptureException(
+                            ERROR_CAMERA_CLOSED,
+                            "Capture request is cancelled because camera is closed",
+                            null
+                        )
+                    )
+                }
+            }
+
+            cameraGraphSession?.use {
                 val requiresStopRepeating = requestsToSubmit.shouldStopRepeatingBeforeCapture()
                 if (requiresStopRepeating) {
                     it.stopRepeating()
@@ -367,7 +392,7 @@ class ResultListener(
             currentTimestampNs - timestampOfFirstUpdateNs > timeLimitNs
         ) {
             completeSignal.complete(null)
-            Log.debug {
+            debug {
                 "Wait for capture result timeout, current: $currentTimestampNs " +
                     "first: $timestampOfFirstUpdateNs"
             }
