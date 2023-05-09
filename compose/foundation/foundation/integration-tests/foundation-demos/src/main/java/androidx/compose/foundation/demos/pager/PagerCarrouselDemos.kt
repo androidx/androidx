@@ -18,6 +18,7 @@ package androidx.compose.foundation.demos.pager
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -129,6 +130,7 @@ private fun HorizontalCustomPageSizeWithCustomMaxScrollDemo() {
 @Composable
 private fun CarrouselItem(index: Int, fillOrientation: Orientation) {
     val fillAxisModifier = if (fillOrientation == Orientation.Vertical) Modifier
+        .focusable()
         .fillMaxWidth()
         .height(256.dp) else Modifier
         .fillMaxHeight()
