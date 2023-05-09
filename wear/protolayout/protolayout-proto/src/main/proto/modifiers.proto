@@ -183,6 +183,9 @@ message Modifiers {
   //
   // Defaults to false (i.e. not hidden).
   BoolProp hidden = 8;
+
+  // The optional identifier for the layout element.
+  string id = 9;
 }
 
 // The content transition of an element. Any update to the element or its
