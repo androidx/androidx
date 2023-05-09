@@ -103,8 +103,8 @@ package androidx.compose.ui.tooling.preview.datasource {
   }
 
   public final class LoremIpsum implements androidx.compose.ui.tooling.preview.PreviewParameterProvider<java.lang.String> {
-    ctor public LoremIpsum(int words);
     ctor public LoremIpsum();
+    ctor public LoremIpsum(int words);
     method public kotlin.sequences.Sequence<java.lang.String> getValues();
     property public kotlin.sequences.Sequence<java.lang.String> values;
   }

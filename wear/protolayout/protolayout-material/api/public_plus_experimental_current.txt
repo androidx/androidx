@@ -17,11 +17,11 @@ package androidx.wear.protolayout.material {
     ctor public Button.Builder(android.content.Context, androidx.wear.protolayout.ModifiersBuilders.Clickable);
     method public androidx.wear.protolayout.material.Button build();
     method public androidx.wear.protolayout.material.Button.Builder setButtonColors(androidx.wear.protolayout.material.ButtonColors);
-    method public androidx.wear.protolayout.material.Button.Builder setContentDescription(CharSequence);
     method public androidx.wear.protolayout.material.Button.Builder setContentDescription(androidx.wear.protolayout.TypeBuilders.StringProp);
+    method public androidx.wear.protolayout.material.Button.Builder setContentDescription(CharSequence);
     method public androidx.wear.protolayout.material.Button.Builder setCustomContent(androidx.wear.protolayout.LayoutElementBuilders.LayoutElement);
-    method public androidx.wear.protolayout.material.Button.Builder setIconContent(String, androidx.wear.protolayout.DimensionBuilders.DpProp);
     method public androidx.wear.protolayout.material.Button.Builder setIconContent(String);
+    method public androidx.wear.protolayout.material.Button.Builder setIconContent(String, androidx.wear.protolayout.DimensionBuilders.DpProp);
     method public androidx.wear.protolayout.material.Button.Builder setImageContent(String);
     method public androidx.wear.protolayout.material.Button.Builder setSize(androidx.wear.protolayout.DimensionBuilders.DpProp);
     method public androidx.wear.protolayout.material.Button.Builder setSize(@Dimension(unit=androidx.annotation.Dimension.DP) float);
@@ -30,8 +30,8 @@ package androidx.wear.protolayout.material {
   }
 
   public class ButtonColors {
-    ctor public ButtonColors(@ColorInt int, @ColorInt int);
     ctor public ButtonColors(androidx.wear.protolayout.ColorBuilders.ColorProp, androidx.wear.protolayout.ColorBuilders.ColorProp);
+    ctor public ButtonColors(@ColorInt int, @ColorInt int);
     method public androidx.wear.protolayout.ColorBuilders.ColorProp getBackgroundColor();
     method public androidx.wear.protolayout.ColorBuilders.ColorProp getContentColor();
     method public static androidx.wear.protolayout.material.ButtonColors primaryButtonColors(androidx.wear.protolayout.material.Colors);
@@ -66,8 +66,8 @@ package androidx.wear.protolayout.material {
     ctor public Chip.Builder(android.content.Context, androidx.wear.protolayout.ModifiersBuilders.Clickable, androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters);
     method public androidx.wear.protolayout.material.Chip build();
     method public androidx.wear.protolayout.material.Chip.Builder setChipColors(androidx.wear.protolayout.material.ChipColors);
-    method public androidx.wear.protolayout.material.Chip.Builder setContentDescription(CharSequence);
     method public androidx.wear.protolayout.material.Chip.Builder setContentDescription(androidx.wear.protolayout.TypeBuilders.StringProp);
+    method public androidx.wear.protolayout.material.Chip.Builder setContentDescription(CharSequence);
     method public androidx.wear.protolayout.material.Chip.Builder setCustomContent(androidx.wear.protolayout.LayoutElementBuilders.LayoutElement);
     method public androidx.wear.protolayout.material.Chip.Builder setHorizontalAlignment(int);
     method public androidx.wear.protolayout.material.Chip.Builder setIconContent(String);
@@ -78,10 +78,10 @@ package androidx.wear.protolayout.material {
   }
 
   public class ChipColors {
-    ctor public ChipColors(@ColorInt int, @ColorInt int, @ColorInt int, @ColorInt int);
-    ctor public ChipColors(@ColorInt int, @ColorInt int);
-    ctor public ChipColors(androidx.wear.protolayout.ColorBuilders.ColorProp, androidx.wear.protolayout.ColorBuilders.ColorProp, androidx.wear.protolayout.ColorBuilders.ColorProp, androidx.wear.protolayout.ColorBuilders.ColorProp);
     ctor public ChipColors(androidx.wear.protolayout.ColorBuilders.ColorProp, androidx.wear.protolayout.ColorBuilders.ColorProp);
+    ctor public ChipColors(androidx.wear.protolayout.ColorBuilders.ColorProp, androidx.wear.protolayout.ColorBuilders.ColorProp, androidx.wear.protolayout.ColorBuilders.ColorProp, androidx.wear.protolayout.ColorBuilders.ColorProp);
+    ctor public ChipColors(@ColorInt int, @ColorInt int);
+    ctor public ChipColors(@ColorInt int, @ColorInt int, @ColorInt int, @ColorInt int);
     method public androidx.wear.protolayout.ColorBuilders.ColorProp getBackgroundColor();
     method public androidx.wear.protolayout.ColorBuilders.ColorProp getContentColor();
     method public androidx.wear.protolayout.ColorBuilders.ColorProp getIconColor();
@@ -113,8 +113,8 @@ package androidx.wear.protolayout.material {
     ctor public CircularProgressIndicator.Builder();
     method public androidx.wear.protolayout.material.CircularProgressIndicator build();
     method public androidx.wear.protolayout.material.CircularProgressIndicator.Builder setCircularProgressIndicatorColors(androidx.wear.protolayout.material.ProgressIndicatorColors);
-    method public androidx.wear.protolayout.material.CircularProgressIndicator.Builder setContentDescription(CharSequence);
     method public androidx.wear.protolayout.material.CircularProgressIndicator.Builder setContentDescription(androidx.wear.protolayout.TypeBuilders.StringProp);
+    method public androidx.wear.protolayout.material.CircularProgressIndicator.Builder setContentDescription(CharSequence);
     method public androidx.wear.protolayout.material.CircularProgressIndicator.Builder setEndAngle(float);
     method public androidx.wear.protolayout.material.CircularProgressIndicator.Builder setProgress(@FloatRange(from=0, to=1) float);
     method public androidx.wear.protolayout.material.CircularProgressIndicator.Builder setStartAngle(float);

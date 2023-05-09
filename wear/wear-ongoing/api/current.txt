@@ -15,9 +15,9 @@ package androidx.wear.ongoing {
     method public long getTimestamp();
     method public String? getTitle();
     method public android.app.PendingIntent getTouchIntent();
-    method public static androidx.wear.ongoing.OngoingActivity? recoverOngoingActivity(android.content.Context, java.util.function.Predicate<androidx.wear.ongoing.OngoingActivity!>);
     method public static androidx.wear.ongoing.OngoingActivity? recoverOngoingActivity(android.content.Context);
     method public static androidx.wear.ongoing.OngoingActivity? recoverOngoingActivity(android.content.Context, int);
+    method public static androidx.wear.ongoing.OngoingActivity? recoverOngoingActivity(android.content.Context, java.util.function.Predicate<androidx.wear.ongoing.OngoingActivity!>);
     method @RequiresPermission(android.Manifest.permission.POST_NOTIFICATIONS) public void update(android.content.Context, androidx.wear.ongoing.Status);
   }
 
@@ -65,9 +65,9 @@ package androidx.wear.ongoing {
   }
 
   public static final class Status.StopwatchPart extends androidx.wear.ongoing.Status.TimerOrStopwatchPart {
-    ctor public Status.StopwatchPart(long, long, long);
-    ctor public Status.StopwatchPart(long, long);
     ctor public Status.StopwatchPart(long);
+    ctor public Status.StopwatchPart(long, long);
+    ctor public Status.StopwatchPart(long, long, long);
   }
 
   public static final class Status.TextPart extends androidx.wear.ongoing.Status.Part {
@@ -88,9 +88,9 @@ package androidx.wear.ongoing {
   }
 
   public static final class Status.TimerPart extends androidx.wear.ongoing.Status.TimerOrStopwatchPart {
-    ctor public Status.TimerPart(long, long, long);
-    ctor public Status.TimerPart(long, long);
     ctor public Status.TimerPart(long);
+    ctor public Status.TimerPart(long, long);
+    ctor public Status.TimerPart(long, long, long);
   }
 
   public interface TimeDependentText {

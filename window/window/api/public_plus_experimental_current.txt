@@ -120,8 +120,8 @@ package androidx.window.embedding {
 
   public final class ActivityEmbeddingOptions {
     method @androidx.window.core.ExperimentalWindowApi public static boolean isSetLaunchingActivityStackSupported(android.app.ActivityOptions);
-    method @androidx.window.core.ExperimentalWindowApi public static android.app.ActivityOptions setLaunchingActivityStack(android.app.ActivityOptions, android.content.Context context, androidx.window.embedding.ActivityStack activityStack);
     method @androidx.window.core.ExperimentalWindowApi public static android.app.ActivityOptions setLaunchingActivityStack(android.app.ActivityOptions, android.app.Activity activity);
+    method @androidx.window.core.ExperimentalWindowApi public static android.app.ActivityOptions setLaunchingActivityStack(android.app.ActivityOptions, android.content.Context context, androidx.window.embedding.ActivityStack activityStack);
   }
 
   public final class ActivityFilter {
@@ -430,8 +430,8 @@ package androidx.window.layout {
 
   public interface WindowInfoTracker {
     method public default static androidx.window.layout.WindowInfoTracker getOrCreate(android.content.Context context);
-    method public default kotlinx.coroutines.flow.Flow<androidx.window.layout.WindowLayoutInfo> windowLayoutInfo(@UiContext android.content.Context context);
     method public kotlinx.coroutines.flow.Flow<androidx.window.layout.WindowLayoutInfo> windowLayoutInfo(android.app.Activity activity);
+    method public default kotlinx.coroutines.flow.Flow<androidx.window.layout.WindowLayoutInfo> windowLayoutInfo(@UiContext android.content.Context context);
     field public static final androidx.window.layout.WindowInfoTracker.Companion Companion;
   }
 

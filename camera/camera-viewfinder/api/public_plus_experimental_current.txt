@@ -42,8 +42,8 @@ package androidx.camera.viewfinder {
 
   public static final class ViewfinderSurfaceRequest.Builder {
     ctor public ViewfinderSurfaceRequest.Builder(android.util.Size);
-    ctor public ViewfinderSurfaceRequest.Builder(androidx.camera.viewfinder.ViewfinderSurfaceRequest.Builder);
     ctor public ViewfinderSurfaceRequest.Builder(androidx.camera.viewfinder.ViewfinderSurfaceRequest);
+    ctor public ViewfinderSurfaceRequest.Builder(androidx.camera.viewfinder.ViewfinderSurfaceRequest.Builder);
     method public androidx.camera.viewfinder.ViewfinderSurfaceRequest build();
     method public androidx.camera.viewfinder.ViewfinderSurfaceRequest.Builder setImplementationMode(androidx.camera.viewfinder.CameraViewfinder.ImplementationMode?);
     method public androidx.camera.viewfinder.ViewfinderSurfaceRequest.Builder setLensFacing(int);

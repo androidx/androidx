@@ -8,9 +8,9 @@ package androidx.graphics.path {
     method public android.graphics.Path getPath();
     method public float getTolerance();
     method public boolean hasNext();
-    method public androidx.graphics.path.PathSegment.Type next(float[] points, optional int offset);
-    method public androidx.graphics.path.PathSegment.Type next(float[] points);
     method public androidx.graphics.path.PathSegment next();
+    method public androidx.graphics.path.PathSegment.Type next(float[] points);
+    method public androidx.graphics.path.PathSegment.Type next(float[] points, optional int offset);
     method public androidx.graphics.path.PathSegment.Type peek();
     property public final androidx.graphics.path.PathIterator.ConicEvaluation conicEvaluation;
     property public final android.graphics.Path path;

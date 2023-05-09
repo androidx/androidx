@@ -40,8 +40,8 @@ package androidx.slice {
   }
 
   public abstract class SliceProvider extends android.content.ContentProvider {
-    ctor public SliceProvider(java.lang.String!...);
     ctor public SliceProvider();
+    ctor public SliceProvider(java.lang.String!...);
     method public final int bulkInsert(android.net.Uri, android.content.ContentValues![]);
     method @RequiresApi(19) public final android.net.Uri? canonicalize(android.net.Uri);
     method public final int delete(android.net.Uri, String?, String![]?);
@@ -56,8 +56,8 @@ package androidx.slice {
     method @RequiresApi(19) public android.net.Uri onMapIntentToUri(android.content.Intent);
     method @RequiresApi(19) public void onSlicePinned(android.net.Uri);
     method @RequiresApi(19) public void onSliceUnpinned(android.net.Uri);
-    method public final android.database.Cursor? query(android.net.Uri, String![]?, String?, String![]?, String?);
     method @RequiresApi(28) public final android.database.Cursor? query(android.net.Uri, String![]?, android.os.Bundle?, android.os.CancellationSignal?);
+    method public final android.database.Cursor? query(android.net.Uri, String![]?, String?, String![]?, String?);
     method @RequiresApi(16) public final android.database.Cursor? query(android.net.Uri, String![]?, String?, String![]?, String?, android.os.CancellationSignal?);
     method public final int update(android.net.Uri, android.content.ContentValues?, String?, String![]?);
   }

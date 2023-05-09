@@ -45,8 +45,8 @@ package androidx.privacysandbox.ui.client.view {
   }
 
   @RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU) public final class SandboxedSdkView extends android.view.ViewGroup {
-    ctor public SandboxedSdkView(android.content.Context context, optional android.util.AttributeSet? attrs);
     ctor public SandboxedSdkView(android.content.Context context);
+    ctor public SandboxedSdkView(android.content.Context context, optional android.util.AttributeSet? attrs);
     method public void addStateChangedListener(androidx.privacysandbox.ui.client.view.SandboxedSdkUiSessionStateChangedListener stateChangedListener);
     method public void removeStateChangedListener(androidx.privacysandbox.ui.client.view.SandboxedSdkUiSessionStateChangedListener stateChangedListener);
     method public void setAdapter(androidx.privacysandbox.ui.core.SandboxedUiAdapter sandboxedUiAdapter);

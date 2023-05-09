@@ -16,8 +16,8 @@ package androidx.datastore.rxjava3 {
   }
 
   public final class RxDataStoreBuilder<T> {
-    ctor public RxDataStoreBuilder(java.util.concurrent.Callable<java.io.File> produceFile, androidx.datastore.core.Serializer<T> serializer);
     ctor public RxDataStoreBuilder(android.content.Context context, String fileName, androidx.datastore.core.Serializer<T> serializer);
+    ctor public RxDataStoreBuilder(java.util.concurrent.Callable<java.io.File> produceFile, androidx.datastore.core.Serializer<T> serializer);
     method public androidx.datastore.rxjava3.RxDataStoreBuilder<T> addDataMigration(androidx.datastore.core.DataMigration<T> dataMigration);
     method public androidx.datastore.rxjava3.RxDataStoreBuilder<T> addRxDataMigration(androidx.datastore.rxjava3.RxDataMigration<T> rxDataMigration);
     method public androidx.datastore.rxjava3.RxDataStore<T> build();
