@@ -35,7 +35,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onPlaced
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.Role
@@ -238,8 +237,7 @@ private fun WideButtonImpl(
         scale = scale.toClickableSurfaceScale(),
         glow = glow.toClickableSurfaceGlow(),
         shape = shape.toClickableSurfaceShape(),
-        color = wideButtonContainerColor(),
-        contentColor = contentColor.toClickableSurfaceContentColor(),
+        colors = contentColor.toClickableSurfaceColors(),
         tonalElevation = tonalElevation,
         border = border.toClickableSurfaceBorder(),
         interactionSource = interactionSource
@@ -273,12 +271,3 @@ private fun WideButtonImpl(
         }
     }
 }
-
-@OptIn(ExperimentalTvMaterial3Api::class)
-@Composable
-private fun wideButtonContainerColor() = ClickableSurfaceDefaults.color(
-    color = Color.Transparent,
-    focusedColor = Color.Transparent,
-    pressedColor = Color.Transparent,
-    disabledColor = Color.Transparent,
-)
