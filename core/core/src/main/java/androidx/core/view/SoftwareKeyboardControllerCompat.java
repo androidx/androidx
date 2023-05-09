@@ -215,7 +215,7 @@ public final class SoftwareKeyboardControllerCompat {
                 // callback current controllable insets. Adding the listener here to check if
                 // ime inset is controllable.
                 insetsController.addOnControllableInsetsChangedListener(listener);
-                if (!isImeInsetsControllable.get()) {
+                if (!isImeInsetsControllable.get() && mView != null) {
                     final InputMethodManager imm = (InputMethodManager) mView.getContext()
                             .getSystemService(Context.INPUT_METHOD_SERVICE);
                     // This is a backport when the app is in multi-windowing mode, it cannot

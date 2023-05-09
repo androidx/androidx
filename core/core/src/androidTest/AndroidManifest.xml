@@ -137,6 +137,10 @@
             android:exported="true" />
 
         <activity
+            android:name="androidx.core.view.inputmethod.ImeSecondarySplitViewCompatTestActivity"
+            android:exported="true" />
+
+        <activity
             android:name="androidx.core.view.inputmethod.ImeSecondarySplitTestActivity"
             android:exported="true" />
 
