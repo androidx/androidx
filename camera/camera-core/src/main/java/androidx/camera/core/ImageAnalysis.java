@@ -220,6 +220,9 @@ public final class ImageAnalysis extends UseCase {
     // [UseCase attached dynamic] - Can change but is only available when the UseCase is attached.
     ////////////////////////////////////////////////////////////////////////////////////////////
 
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    SessionConfig.Builder mSessionConfigBuilder;
+
     @Nullable
     private DeferrableSurface mDeferrableSurface;
 
@@ -373,6 +376,9 @@ public final class ImageAnalysis extends UseCase {
 
         SessionConfig.Builder sessionConfigBuilder = SessionConfig.Builder.createFrom(config,
                 streamSpec.getResolution());
+        if (streamSpec.getImplementationOptions() != null) {
+            sessionConfigBuilder.addImplementationOptions(streamSpec.getImplementationOptions());
+        }
 
         if (mDeferrableSurface != null) {
             mDeferrableSurface.close();
@@ -816,11 +822,23 @@ public final class ImageAnalysis extends UseCase {
     protected StreamSpec onSuggestedStreamSpecUpdated(@NonNull StreamSpec suggestedStreamSpec) {
         final ImageAnalysisConfig config = (ImageAnalysisConfig) getCurrentConfig();
 
-        SessionConfig.Builder sessionConfigBuilder = createPipeline(getCameraId(), config,
+        mSessionConfigBuilder = createPipeline(getCameraId(), config,
                 suggestedStreamSpec);
-        updateSessionConfig(sessionConfigBuilder.build());
+        updateSessionConfig(mSessionConfigBuilder.build());
 
         return suggestedStreamSpec;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @NonNull
+    @Override
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    protected StreamSpec onSuggestedStreamSpecImplementationOptionsUpdated(@NonNull Config config) {
+        mSessionConfigBuilder.addImplementationOptions(config);
+        updateSessionConfig(mSessionConfigBuilder.build());
+        return getAttachedStreamSpec().toBuilder().setImplementationOptions(config).build();
     }
 
     /**

@@ -180,6 +180,9 @@ public final class Preview extends UseCase {
     // [UseCase attached dynamic] - Can change but is only available when the UseCase is attached.
     ////////////////////////////////////////////////////////////////////////////////////////////
 
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    SessionConfig.Builder mSessionConfigBuilder;
+
     // TODO(b/259308680): remove mSessionDeferrableSurface and rely on mCameraEdge to get the
     //  DeferrableSurface
     private DeferrableSurface mSessionDeferrableSurface;
@@ -244,6 +247,9 @@ public final class Preview extends UseCase {
         mSessionDeferrableSurface = surfaceRequest.getDeferrableSurface();
         addCameraSurfaceAndErrorListener(sessionConfigBuilder, cameraId, config, streamSpec);
         sessionConfigBuilder.setExpectedFrameRateRange(streamSpec.getExpectedFrameRateRange());
+        if (streamSpec.getImplementationOptions() != null) {
+            sessionConfigBuilder.addImplementationOptions(streamSpec.getImplementationOptions());
+        }
         return sessionConfigBuilder;
     }
 
@@ -298,6 +304,9 @@ public final class Preview extends UseCase {
         // Send the camera Surface to the camera2.
         SessionConfig.Builder sessionConfigBuilder = SessionConfig.Builder.createFrom(config,
                 streamSpec.getResolution());
+        if (streamSpec.getImplementationOptions() != null) {
+            sessionConfigBuilder.addImplementationOptions(streamSpec.getImplementationOptions());
+        }
         addCameraSurfaceAndErrorListener(sessionConfigBuilder, cameraId, config, streamSpec);
         return sessionConfigBuilder;
     }
@@ -517,7 +526,8 @@ public final class Preview extends UseCase {
 
     private void updateConfigAndOutput(@NonNull String cameraId, @NonNull PreviewConfig config,
             @NonNull StreamSpec streamSpec) {
-        updateSessionConfig(createPipeline(cameraId, config, streamSpec).build());
+        mSessionConfigBuilder = createPipeline(cameraId, config, streamSpec);
+        updateSessionConfig(mSessionConfigBuilder.build());
     }
 
     /**
@@ -643,6 +653,19 @@ public final class Preview extends UseCase {
 
     /**
      * {@inheritDoc}
+     */
+    @NonNull
+    @Override
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    protected StreamSpec onSuggestedStreamSpecImplementationOptionsUpdated(@NonNull Config config) {
+        mSessionConfigBuilder.addImplementationOptions(config);
+        updateSessionConfig(mSessionConfigBuilder.build());
+        return getAttachedStreamSpec().toBuilder().setImplementationOptions(config).build();
+    }
+
+    /**
+     * {@inheritDoc}
+     *
      */
     @Override
     @RestrictTo(Scope.LIBRARY)

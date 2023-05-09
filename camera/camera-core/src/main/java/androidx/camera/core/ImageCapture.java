@@ -385,6 +385,10 @@ public final class ImageCapture extends UseCase {
             getCameraControl().addZslConfig(sessionConfigBuilder);
         }
 
+        if (streamSpec.getImplementationOptions() != null) {
+            sessionConfigBuilder.addImplementationOptions(streamSpec.getImplementationOptions());
+        }
+
         // Setup the ImageReader to do processing
         Size resolution = streamSpec.getResolution();
         if (config.getImageReaderProxyProvider() != null) {
@@ -1613,6 +1617,18 @@ public final class ImageCapture extends UseCase {
     }
 
     /**
+     * {@inheritDoc}
+     */
+    @NonNull
+    @Override
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    protected StreamSpec onSuggestedStreamSpecImplementationOptionsUpdated(@NonNull Config config) {
+        mSessionConfigBuilder.addImplementationOptions(config);
+        updateSessionConfig(mSessionConfigBuilder.build());
+        return getAttachedStreamSpec().toBuilder().setImplementationOptions(config).build();
+    }
+
+    /**
      * Initiates a set of captures that will be used to create the output of
      * {@link #takePicture(OutputFileOptions, Executor, OnImageSavedCallback)} and its variants.
      *
@@ -1735,6 +1751,9 @@ public final class ImageCapture extends UseCase {
                 mImagePipeline.createSessionConfigBuilder(streamSpec.getResolution());
         if (Build.VERSION.SDK_INT >= 23 && getCaptureMode() == CAPTURE_MODE_ZERO_SHUTTER_LAG) {
             getCameraControl().addZslConfig(sessionConfigBuilder);
+        }
+        if (streamSpec.getImplementationOptions() != null) {
+            sessionConfigBuilder.addImplementationOptions(streamSpec.getImplementationOptions());
         }
         sessionConfigBuilder.addErrorListener((sessionConfig, error) -> {
             // TODO(b/143915543): Ensure this never gets called by a camera that is not attached

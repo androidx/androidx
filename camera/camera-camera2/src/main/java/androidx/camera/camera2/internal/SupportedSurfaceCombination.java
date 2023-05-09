@@ -33,6 +33,7 @@ import android.hardware.camera2.params.StreamConfigurationMap;
 import android.media.CamcorderProfile;
 import android.media.MediaRecorder;
 import android.os.Build;
+import android.util.Pair;
 import android.util.Range;
 import android.util.Rational;
 import android.util.Size;
@@ -490,8 +491,10 @@ final class SupportedSurfaceCombination {
      * @param attachedSurfaces                  the existing surfaces.
      * @param newUseCaseConfigsSupportedSizeMap newly added UseCaseConfig to supported output
      *                                          sizes map.
-     * @return the suggested stream specifications, which is a mapping from UseCaseConfig to the
-     * suggested stream specification.
+     * @return the suggested stream specifications, which is a pair of mappings. The first
+     * mapping is from UseCaseConfig to the suggested stream specification representing new
+     * UseCases. The second mapping is from attachedSurfaceInfo to the suggested stream
+     * specifications representing existing UseCases.
      * @throws IllegalArgumentException if the suggested solution for newUseCaseConfigs cannot be
      *                                  found. This may be due to no available output size, no
      *                                  available surface combination, unsupported combinations
@@ -499,7 +502,8 @@ final class SupportedSurfaceCombination {
      *                                  unsupported combination of camera features.
      */
     @NonNull
-    Map<UseCaseConfig<?>, StreamSpec> getSuggestedStreamSpecifications(
+    Pair<Map<UseCaseConfig<?>, StreamSpec>, Map<AttachedSurfaceInfo, StreamSpec>>
+            getSuggestedStreamSpecifications(
             @CameraMode.Mode int cameraMode,
             @NonNull List<AttachedSurfaceInfo> attachedSurfaces,
             @NonNull Map<UseCaseConfig<?>, List<Size>> newUseCaseConfigsSupportedSizeMap) {
@@ -683,7 +687,7 @@ final class SupportedSurfaceCombination {
                             + " Existing surfaces: " + attachedSurfaces
                             + " New configs: " + newUseCaseConfigs);
         }
-        return suggestedStreamSpecMap;
+        return new Pair<>(suggestedStreamSpecMap, new HashMap<>());
     }
 
     /**

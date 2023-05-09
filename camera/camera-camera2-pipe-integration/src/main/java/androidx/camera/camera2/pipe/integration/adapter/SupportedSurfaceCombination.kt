@@ -29,6 +29,7 @@ import android.media.CamcorderProfile
 import android.media.MediaRecorder
 import android.os.Build
 import android.util.Rational
+import android.util.Pair
 import android.util.Size
 import android.view.Display
 import androidx.annotation.RequiresApi
@@ -197,7 +198,7 @@ class SupportedSurfaceCombination(
         cameraMode: Int,
         existingSurfaces: List<AttachedSurfaceInfo>,
         newUseCaseConfigsSupportedSizeMap: Map<UseCaseConfig<*>, List<Size>>
-    ): Map<UseCaseConfig<*>, StreamSpec> {
+    ): Pair<Map<UseCaseConfig<*>, StreamSpec>, Map<AttachedSurfaceInfo, StreamSpec>> {
         refreshPreviewSize()
         val surfaceConfigs: MutableList<SurfaceConfig> = ArrayList()
         for (scc in existingSurfaces) {
@@ -293,7 +294,7 @@ class SupportedSurfaceCombination(
                     " New configs: " + newUseCaseConfigs
             )
         }
-        return suggestedStreamSpecMap
+        return Pair.create(suggestedStreamSpecMap, mapOf<AttachedSurfaceInfo, StreamSpec>())
     }
 
     /**
