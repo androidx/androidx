@@ -28,6 +28,7 @@ import androidx.wear.protolayout.DimensionBuilders.DpProp;
 import androidx.wear.protolayout.ModifiersBuilders.ElementMetadata;
 import androidx.wear.protolayout.ModifiersBuilders.Modifiers;
 import androidx.wear.protolayout.TypeBuilders.StringProp;
+import androidx.wear.protolayout.TypeBuilders.FloatProp;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -139,5 +140,13 @@ public class Helper {
     @NonNull
     public static StringProp staticString(@NonNull String value) {
         return new StringProp.Builder(value).build();
+    }
+
+    /**
+     * Returns a {@link FloatProp} for the given float value.
+     */
+    @NonNull
+    public static FloatProp staticFloat(float staticValue) {
+        return new FloatProp.Builder(staticValue).build();
     }
 }
