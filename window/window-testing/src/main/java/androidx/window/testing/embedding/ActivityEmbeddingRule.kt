@@ -31,6 +31,9 @@ import org.junit.runners.model.Statement
  * A [TestRule] that will stub out the behavior of [ActivityEmbeddingController] and
  * [RuleController] with a more simple one that will support testing independent of the current
  * platform.
+ *
+ * By default [ActivityEmbeddingRule] has values as if the developer has not opted in to the
+ * ActivityEmbedding feature. There are no set rules, and each [Activity] is not embedded.
  */
 class ActivityEmbeddingRule : TestRule {
 
