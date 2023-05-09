@@ -21,6 +21,7 @@ import androidx.annotation.FloatRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.annotation.Size;
 import androidx.core.graphics.ColorUtils;
 
 /**
@@ -182,7 +183,7 @@ public class CamColor {
      *      Chroma, Tone).
      */
     public static void getM3HCTfromColor(@ColorInt int color,
-            @NonNull float[] outM3HCT) {
+            @NonNull @Size(3) float[] outM3HCT) {
         fromColorInViewingConditions(color, ViewingConditions.DEFAULT, null, outM3HCT);
         outM3HCT[2] = CamUtils.lStarFromInt(color);
     }
@@ -192,8 +193,8 @@ public class CamColor {
      * ViewingConditions in which the color was viewed. Prefer Cam.fromColor.
      */
     static void fromColorInViewingConditions(@ColorInt int color,
-            @NonNull ViewingConditions viewingConditions, @Nullable float[] outCamColor,
-            @NonNull float[] outM3HCT) {
+            @NonNull ViewingConditions viewingConditions, @Nullable @Size(7) float[] outCamColor,
+            @NonNull @Size(3) float[] outM3HCT) {
         // Transform ARGB int to XYZ, reusing outM3HCT array to avoid a new allocation.
         CamUtils.xyzFromInt(color, outM3HCT);
         float[] xyz = outM3HCT;
