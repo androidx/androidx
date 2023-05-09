@@ -47,6 +47,8 @@ import androidx.tv.material3.tokens.RadioButtonTokens
  *
  * ![Radio button image](https://developer.android.com/images/reference/androidx/compose/material3/radio-button.png)
  *
+ * @sample androidx.tv.samples.RadioButtonSample
+ *
  * @param selected whether this radio button is selected or not
  * @param onClick called when this radio button is clicked. If `null`, then this radio button will
  * not be interactable, unless something else handles its input events and updates its state.
@@ -72,7 +74,8 @@ fun RadioButton(
 ) {
     val dotRadius = animateDpAsState(
         targetValue = if (selected) RadioButtonDotSize / 2 else 0.dp,
-        animationSpec = tween(durationMillis = RadioAnimationDuration)
+        animationSpec = tween(durationMillis = RadioAnimationDuration),
+        label = "radioButton_dotRadius"
     )
     val radioColor = colors.radioColor(enabled, selected)
     val selectableModifier =

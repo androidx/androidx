@@ -40,6 +40,8 @@ import androidx.compose.ui.graphics.Color
  * It provides a vertical layout with an image card slot at the top. And below that, there are
  * slots for the title, subtitle and description.
  *
+ * @sample androidx.tv.samples.StandardCardLayoutSample
+ *
  * @param imageCard defines the [Composable] to be used for the image card. See
  * [CardLayoutDefaults.ImageCard] to create an image card. The `interactionSource` param provided
  * in the lambda function should be forwarded and used with the image card composable.
@@ -100,6 +102,8 @@ fun StandardCardLayout(
  *
  * It provides a horizontal layout with an image card slot at the start, followed by the title,
  * subtitle and description at the end.
+ *
+ * @sample androidx.tv.samples.WideCardLayoutSample
  *
  * @param imageCard defines the [Composable] to be used for the image card. See
  * [CardLayoutDefaults.ImageCard] to create an image card. The `interactionSource` param provided

@@ -64,6 +64,8 @@ import kotlin.math.max
  *
  * @see [TriStateCheckbox] if you require support for an indeterminate state.
  *
+ * @sample androidx.tv.samples.CheckboxSample
+ *
  * @param checked whether this checkbox is checked or unchecked
  * @param onCheckedChange called when this checkbox is clicked. If `null`, then this checkbox will
  * not be interactable, unless something else handles its input events and updates its state.
