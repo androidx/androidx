@@ -47,11 +47,25 @@ public final class StateBuilders {
     private final StateProto.State mImpl;
     @Nullable private final Fingerprint mFingerprint;
 
+    private static final int MAX_STATE_ENTRY_COUNT = 30;
+
     State(StateProto.State impl, @Nullable Fingerprint fingerprint) {
       this.mImpl = impl;
       this.mFingerprint = fingerprint;
     }
 
+
+    /**
+     * Returns the maximum number for state entries that can be added to the {@link State} using
+     * {@link Builder#addIdToValueMapping(String, StateEntryValue)}.
+     *
+     * <p>The ProtoLayout state model is not designed to handle large volumes of layout provided
+     * state. So we limit the number of state entries to keep the on-the-wire size and state
+     * store update times manageable.
+     */
+    static public int getMaxStateEntryCount(){
+      return MAX_STATE_ENTRY_COUNT;
+    }
     /**
      * Gets the ID of the clickable that was last clicked.
      *
@@ -155,16 +169,16 @@ public final class StateBuilders {
         return this;
       }
 
-      private static final int MAX_STATE_SIZE = 30;
+
 
       /** Builds an instance from accumulated values. */
       @NonNull
       public State build() {
-        if (mImpl.getIdToValueMap().size() > MAX_STATE_SIZE) {
+        if (mImpl.getIdToValueMap().size() > getMaxStateEntryCount()) {
           throw new IllegalStateException(
                   String.format(
                           "State size is too large: %d. Maximum " + "allowed state size is %d.",
-                          mImpl.getIdToValueMap().size(), MAX_STATE_SIZE));
+                          mImpl.getIdToValueMap().size(), getMaxStateEntryCount()));
         }
         return new State(mImpl.build(), mFingerprint);
       }

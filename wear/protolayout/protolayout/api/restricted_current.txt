@@ -995,6 +995,7 @@ package androidx.wear.protolayout {
   public static final class StateBuilders.State {
     method public java.util.Map<java.lang.String!,androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue!> getIdToValueMapping();
     method public String getLastClickableId();
+    method public static int getMaxStateEntryCount();
   }
 
   public static final class StateBuilders.State.Builder {
