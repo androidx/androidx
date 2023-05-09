@@ -47,6 +47,9 @@ import androidx.tv.material3.tokens.Elevation
 /**
  * Material Design wide button for TV.
  *
+ * Samples:
+ * @sample androidx.tv.samples.WideButtonSample
+ *
  * @param onClick called when this button is clicked
  * @param modifier the [Modifier] to be applied to this button
  * @param enabled controls the enabled state of this button. When `false`, this component will not
@@ -109,6 +112,11 @@ fun WideButton(
 
 /**
  * Material Design wide button for TV.
+ *
+ * Samples:
+ * @sample androidx.tv.samples.WideButtonWithIcon
+ * @sample androidx.tv.samples.WideButtonWithSubtitle
+ * @sample androidx.tv.samples.WideButtonWithIconAndSubtitle
  *
  * @param onClick called when this button is clicked
  * @param title the title content of the button, typically a [Text]

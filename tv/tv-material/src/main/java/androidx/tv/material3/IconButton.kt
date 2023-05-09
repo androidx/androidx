@@ -42,6 +42,8 @@ import androidx.compose.ui.semantics.semantics
  *
  * The default text style for internal [Text] components will be set to [Typography.labelLarge].
  *
+ * @sample androidx.tv.samples.IconButtonSample
+ *
  * @param onClick called when this button is clicked
  * @param modifier the [Modifier] to be applied to this button
  * @param enabled controls the enabled state of this button. When `false`, this component will not
@@ -105,6 +107,8 @@ fun IconButton(
  * guidelines.
  *
  * The default text style for internal [Text] components will be set to [Typography.labelLarge].
+ *
+ * @sample androidx.tv.samples.OutlinedIconButtonSample
  *
  * @param onClick called when this button is clicked
  * @param modifier the [Modifier] to be applied to this button

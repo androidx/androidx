@@ -46,6 +46,8 @@ import androidx.compose.ui.unit.dp
  *
  * This Card handles click events, calling its [onClick] lambda.
  *
+ * @sample androidx.tv.samples.CardSample
+ *
  * @param onClick called when this card is clicked
  * @param modifier the [Modifier] to be applied to this card
  * @param shape [CardShape] defines the shape of this card's container in different interaction
@@ -98,6 +100,8 @@ fun Card(
  * slot at the top, followed by the title, subtitle, and description slots.
  *
  * This Card handles click events, calling its [onClick] lambda.
+ *
+ * @sample androidx.tv.samples.ClassicCardSample
  *
  * @param onClick called when this card is clicked
  * @param image defines the [Composable] image to be displayed on top of the Card.
@@ -174,6 +178,8 @@ fun ClassicCard(
  * placed over it.
  *
  * This Card handles click events, calling its [onClick] lambda.
+ *
+ * @sample androidx.tv.samples.CompactCardSample
  *
  * @param onClick called when this card is clicked
  * @param image defines the [Composable] image to be displayed on top of the Card.
@@ -255,6 +261,8 @@ fun CompactCard(
  * image slot at the start, followed by the title, subtitle, and description slots at the end.
  *
  * This Card handles click events, calling its [onClick] lambda.
+ *
+ * @sample androidx.tv.samples.WideClassicCardSample
  *
  * @param onClick called when this card is clicked
  * @param image defines the [Composable] image to be displayed on top of the Card.
