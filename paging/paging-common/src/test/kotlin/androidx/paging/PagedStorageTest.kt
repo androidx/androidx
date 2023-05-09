@@ -17,16 +17,16 @@
 package androidx.paging
 
 import androidx.paging.PagingSource.LoadResult.Page
-import org.junit.Assert.assertArrayEquals
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.verifyNoMoreInteractions
+import kotlin.test.assertContentEquals
+import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 import kotlin.test.assertNotNull
 
 @RunWith(JUnit4::class)
@@ -41,7 +41,7 @@ class PagedStorageTest {
     fun construct() {
         val storage = PagedStorage(2, pageOf("a", "b"), 2)
 
-        assertArrayEquals(arrayOf(null, null, "a", "b", null, null), storage.toArray())
+        assertContentEquals(arrayOf(null, null, "a", "b", null, null), storage.toArray())
         assertEquals(6, storage.size)
     }
 
@@ -52,7 +52,7 @@ class PagedStorageTest {
         val storage = PagedStorage(2, pageOf("a", "b"), 2)
         storage.appendPage(pageOf("c", "d"), callback)
 
-        assertArrayEquals(arrayOf(null, null, "a", "b", "c", "d"), storage.toArray())
+        assertContentEquals(arrayOf(null, null, "a", "b", "c", "d"), storage.toArray())
         verify(callback).onPageAppended(4, 2, 0)
         verifyNoMoreInteractions(callback)
     }
@@ -64,7 +64,7 @@ class PagedStorageTest {
         val storage = PagedStorage(2, pageOf("a", "b"), 0)
         storage.appendPage(pageOf("c", "d"), callback)
 
-        assertArrayEquals(arrayOf(null, null, "a", "b", "c", "d"), storage.toArray())
+        assertContentEquals(arrayOf(null, null, "a", "b", "c", "d"), storage.toArray())
         verify(callback).onPageAppended(4, 0, 2)
         verifyNoMoreInteractions(callback)
     }
@@ -78,14 +78,14 @@ class PagedStorageTest {
         // change 2 nulls into c, d
         storage.appendPage(pageOf("c", "d"), callback)
 
-        assertArrayEquals(arrayOf(null, null, "a", "b", "c", "d"), storage.toArray())
+        assertContentEquals(arrayOf(null, null, "a", "b", "c", "d"), storage.toArray())
         verify(callback).onPageAppended(4, 2, 0)
         verifyNoMoreInteractions(callback)
 
         // append e, f
         storage.appendPage(pageOf("e", "f"), callback)
 
-        assertArrayEquals(arrayOf(null, null, "a", "b", "c", "d", "e", "f"), storage.toArray())
+        assertContentEquals(arrayOf(null, null, "a", "b", "c", "d", "e", "f"), storage.toArray())
         verify(callback).onPageAppended(6, 0, 2)
         verifyNoMoreInteractions(callback)
     }
@@ -97,7 +97,7 @@ class PagedStorageTest {
         val storage = PagedStorage(2, pageOf("c", "d"), 2)
         storage.prependPage(pageOf("a", "b"), callback)
 
-        assertArrayEquals(arrayOf("a", "b", "c", "d", null, null), storage.toArray())
+        assertContentEquals(arrayOf("a", "b", "c", "d", null, null), storage.toArray())
         verify(callback).onPagePrepended(0, 2, 0)
         verifyNoMoreInteractions(callback)
     }
@@ -109,7 +109,7 @@ class PagedStorageTest {
         val storage = PagedStorage(0, pageOf("c", "d"), 2)
         storage.prependPage(pageOf("a", "b"), callback)
 
-        assertArrayEquals(arrayOf("a", "b", "c", "d", null, null), storage.toArray())
+        assertContentEquals(arrayOf("a", "b", "c", "d", null, null), storage.toArray())
         verify(callback).onPagePrepended(0, 0, 2)
         verifyNoMoreInteractions(callback)
     }
@@ -123,14 +123,14 @@ class PagedStorageTest {
         // change 2 nulls into c, d
         storage.prependPage(pageOf("c", "d"), callback)
 
-        assertArrayEquals(arrayOf("c", "d", "e", "f", null, null), storage.toArray())
+        assertContentEquals(arrayOf("c", "d", "e", "f", null, null), storage.toArray())
         verify(callback).onPagePrepended(0, 2, 0)
         verifyNoMoreInteractions(callback)
 
         // prepend a, b
         storage.prependPage(pageOf("a", "b"), callback)
 
-        assertArrayEquals(arrayOf("a", "b", "c", "d", "e", "f", null, null), storage.toArray())
+        assertContentEquals(arrayOf("a", "b", "c", "d", "e", "f", null, null), storage.toArray())
         verify(callback).onPagePrepended(0, 0, 2)
         verifyNoMoreInteractions(callback)
     }
@@ -141,7 +141,7 @@ class PagedStorageTest {
         val storage = PagedStorage(1, pageOf("a"), 6)
         storage.appendPage(pageOf("b", "c"), callback)
         storage.appendPage(pageOf("d", "e", "f"), callback)
-        assertArrayEquals(arrayOf(null, "a", "b", "c", "d", "e", "f", null), storage.toArray())
+        assertContentEquals(arrayOf(null, "a", "b", "c", "d", "e", "f", null), storage.toArray())
     }
 
     @Test
