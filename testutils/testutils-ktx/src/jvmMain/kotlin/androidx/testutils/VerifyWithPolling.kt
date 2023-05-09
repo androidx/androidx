@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 The Android Open Source Project
+ * Copyright 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,24 @@
 
 package androidx.testutils
 
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlin.coroutines.CoroutineContext
+import java.lang.SuppressWarnings
+import org.junit.Assert
 
-object DirectDispatcher : CoroutineDispatcher() {
-    override fun dispatch(context: CoroutineContext, block: Runnable) {
-        block.run()
+@SuppressWarnings("BanThreadSleep")
+fun verifyWithPolling(
+    message: String,
+    periodMs: Long,
+    timeoutMs: Long,
+    tryBlock: () -> Boolean
+): Long {
+    var totalDurationMs = 0L
+    while (!tryBlock()) {
+        Thread.sleep(periodMs)
+
+        totalDurationMs += periodMs
+        if (totalDurationMs > timeoutMs) {
+            Assert.fail(message)
+        }
     }
+    return totalDurationMs
 }

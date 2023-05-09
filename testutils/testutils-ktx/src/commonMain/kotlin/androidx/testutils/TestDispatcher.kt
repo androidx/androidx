@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 The Android Open Source Project
+ * Copyright 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,22 +16,24 @@
 
 package androidx.testutils
 
-import org.junit.Assert
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Runnable
+import kotlin.coroutines.CoroutineContext
 
-fun verifyWithPolling(
-    message: String,
-    periodMs: Long,
-    timeoutMs: Long,
-    tryBlock: () -> Boolean
-): Long {
-    var totalDurationMs = 0L
-    while (!tryBlock()) {
-        Thread.sleep(periodMs)
+/**
+ * [CoroutineDispatcher] which keeps track of all its queued jobs.
+ */
+class TestDispatcher : CoroutineDispatcher() {
+    val queue = ArrayDeque<Runnable>()
 
-        totalDurationMs += periodMs
-        if (totalDurationMs > timeoutMs) {
-            Assert.fail(message)
+    override fun dispatch(context: CoroutineContext, block: Runnable) {
+        queue.add(block)
+    }
+
+    fun executeAll() {
+        while (queue.isNotEmpty()) {
+            val runnable = queue.removeFirst()
+            runnable.run()
         }
     }
-    return totalDurationMs
 }
