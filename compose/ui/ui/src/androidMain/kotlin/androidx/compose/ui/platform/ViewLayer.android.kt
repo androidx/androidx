@@ -286,7 +286,6 @@ internal class ViewLayer(
     }
 
     override fun dispatchDraw(canvas: android.graphics.Canvas) {
-        isInvalidated = false
         canvasHolder.drawInto(canvas) {
             var didClip = false
             val clipPath = manualClipPath
@@ -300,6 +299,7 @@ internal class ViewLayer(
                 restore()
             }
         }
+        isInvalidated = false
     }
 
     override fun invalidate() {
@@ -335,8 +335,8 @@ internal class ViewLayer(
 
     override fun updateDisplayList() {
         if (isInvalidated && !shouldUseDispatchDraw) {
-            isInvalidated = false
             updateDisplayList(this)
+            isInvalidated = false
         }
     }
 
