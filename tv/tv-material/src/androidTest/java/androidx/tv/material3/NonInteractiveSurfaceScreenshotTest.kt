@@ -96,7 +96,10 @@ class NonInteractiveSurfaceScreenshotTest(private val scheme: ColorSchemeWrapper
     fun nonInteractiveSurface_containerColor() {
         rule.setMaterialContent(scheme.colorScheme) {
             Box(containerModifier.testTag(wrapperTestTag)) {
-                Surface(surfaceModifier(), color = Color.Green) {}
+                Surface(
+                    surfaceModifier(),
+                    colors = NonInteractiveSurfaceDefaults.colors(containerColor = Color.Green)
+                ) {}
             }
         }
         assertAgainstGolden("non_interactive_surface_${scheme.name}_containerColor")
@@ -106,7 +109,10 @@ class NonInteractiveSurfaceScreenshotTest(private val scheme: ColorSchemeWrapper
     fun nonInteractiveSurface_contentColor() {
         rule.setMaterialContent(scheme.colorScheme) {
             Box(containerModifier.testTag(wrapperTestTag)) {
-                Surface(surfaceModifier(), contentColor = Color.Red) {}
+                Surface(
+                    surfaceModifier(),
+                    colors = NonInteractiveSurfaceDefaults.colors(contentColor = Color.Red)
+                ) {}
             }
         }
         assertAgainstGolden("non_interactive_surface_${scheme.name}_contentColor")

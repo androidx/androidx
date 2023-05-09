@@ -190,8 +190,7 @@ private fun ButtonImpl(
         scale = scale.toClickableSurfaceScale(),
         glow = glow.toClickableSurfaceGlow(),
         shape = shape.toClickableSurfaceShape(),
-        color = colors.toClickableSurfaceContainerColor(),
-        contentColor = colors.toClickableSurfaceContentColor(),
+        colors = colors.toClickableSurfaceColors(),
         tonalElevation = tonalElevation,
         border = border.toClickableSurfaceBorder(),
         interactionSource = interactionSource

@@ -65,8 +65,8 @@ import kotlinx.coroutines.launch
  * @param tonalElevation When [color] is [ColorScheme.surface], a higher the elevation will result
  * in a darker color in light theme and lighter color in dark theme.
  * @param shape Defines the surface's shape.
- * @param color Color to be used on background of the Surface
- * @param contentColor The preferred content color provided by this Surface to its children.
+ * @param colors Defines the background & content color to be used in this Surface.
+ * See [NonInteractiveSurfaceDefaults.colors].
  * @param border Defines a border around the Surface.
  * @param glow Diffused shadow to be shown behind the Surface.
  * @param content defines the [Composable] content inside the surface
@@ -78,8 +78,7 @@ fun Surface(
     modifier: Modifier = Modifier,
     tonalElevation: Dp = 0.dp,
     shape: Shape = NonInteractiveSurfaceDefaults.shape,
-    color: Color = NonInteractiveSurfaceDefaults.color,
-    contentColor: Color = NonInteractiveSurfaceDefaults.contentColor,
+    colors: NonInteractiveSurfaceColors = NonInteractiveSurfaceDefaults.colors(),
     border: Border = NonInteractiveSurfaceDefaults.border,
     glow: Glow = NonInteractiveSurfaceDefaults.glow,
     content: @Composable (BoxScope.() -> Unit)
@@ -90,8 +89,8 @@ fun Surface(
         enabled = true,
         tonalElevation = tonalElevation,
         shape = shape,
-        color = color,
-        contentColor = contentColor,
+        color = colors.containerColor,
+        contentColor = colors.contentColor,
         scale = 1.0f,
         border = border,
         glow = glow,
@@ -114,8 +113,8 @@ fun Surface(
  * @param tonalElevation When [color] is [ColorScheme.surface], a higher the elevation will result
  * in a darker color in light theme and lighter color in dark theme.
  * @param shape Defines the surface's shape.
- * @param color Color to be used on background of the Surface
- * @param contentColor The preferred content color provided by this Surface to its children.
+ * @param colors Defines the background & content colors to be used in this surface for different
+ * interaction states. See [ClickableSurfaceDefaults.colors].
  * @param scale Defines size of the Surface relative to its original size.
  * @param border Defines a border around the Surface.
  * @param glow Diffused shadow to be shown behind the Surface.
@@ -133,8 +132,7 @@ fun Surface(
     enabled: Boolean = true,
     tonalElevation: Dp = 0.dp,
     shape: ClickableSurfaceShape = ClickableSurfaceDefaults.shape(),
-    color: ClickableSurfaceColor = ClickableSurfaceDefaults.color(),
-    contentColor: ClickableSurfaceColor = ClickableSurfaceDefaults.contentColor(),
+    colors: ClickableSurfaceColors = ClickableSurfaceDefaults.colors(),
     scale: ClickableSurfaceScale = ClickableSurfaceDefaults.scale(),
     border: ClickableSurfaceBorder = ClickableSurfaceDefaults.border(),
     glow: ClickableSurfaceGlow = ClickableSurfaceDefaults.glow(),
@@ -158,17 +156,17 @@ fun Surface(
             pressed = pressed,
             shape = shape
         ),
-        color = ClickableSurfaceDefaults.color(
+        color = ClickableSurfaceDefaults.containerColor(
             enabled = enabled,
             focused = focused,
             pressed = pressed,
-            color = color
+            colors = colors
         ),
-        contentColor = ClickableSurfaceDefaults.color(
+        contentColor = ClickableSurfaceDefaults.contentColor(
             enabled = enabled,
             focused = focused,
             pressed = pressed,
-            color = contentColor
+            colors = colors
         ),
         scale = ClickableSurfaceDefaults.scale(
             enabled = enabled,
@@ -215,8 +213,8 @@ fun Surface(
  * @param tonalElevation When [color] is [ColorScheme.surface], a higher the elevation will result
  * in a darker color in light theme and lighter color in dark theme.
  * @param shape Defines the surface's shape.
- * @param color Color to be used on background of the Surface
- * @param contentColor The preferred content color provided by this Surface to its children.
+ * @param colors  Defines the background & content colors to be used in this surface for different
+ * interaction states. See [ToggleableSurfaceDefaults.colors].
  * @param scale Defines size of the Surface relative to its original size.
  * @param border Defines a border around the Surface.
  * @param glow Diffused shadow to be shown behind the Surface.
@@ -235,8 +233,7 @@ fun Surface(
     enabled: Boolean = true,
     tonalElevation: Dp = Elevation.Level0,
     shape: ToggleableSurfaceShape = ToggleableSurfaceDefaults.shape(),
-    color: ToggleableSurfaceColor = ToggleableSurfaceDefaults.color(),
-    contentColor: ToggleableSurfaceColor = ToggleableSurfaceDefaults.contentColor(),
+    colors: ToggleableSurfaceColors = ToggleableSurfaceDefaults.colors(),
     scale: ToggleableSurfaceScale = ToggleableSurfaceDefaults.scale(),
     border: ToggleableSurfaceBorder = ToggleableSurfaceDefaults.border(),
     glow: ToggleableSurfaceGlow = ToggleableSurfaceDefaults.glow(),
@@ -263,19 +260,19 @@ fun Surface(
             selected = checked,
             shape = shape
         ),
-        color = ToggleableSurfaceDefaults.color(
+        color = ToggleableSurfaceDefaults.containerColor(
             enabled = enabled,
             focused = focused,
             pressed = pressed,
             selected = checked,
-            color = color
+            colors = colors
         ),
-        contentColor = ToggleableSurfaceDefaults.color(
+        contentColor = ToggleableSurfaceDefaults.contentColor(
             enabled = enabled,
             focused = focused,
             pressed = pressed,
             selected = checked,
-            color = contentColor
+            colors = colors
         ),
         scale = ToggleableSurfaceDefaults.scale(
             enabled = enabled,
