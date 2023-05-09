@@ -41,12 +41,12 @@ import kotlinx.coroutines.sync.withLock
  * multi-generational Paging behavior, you must create a new [TestPager] by supplying a
  * new instance of [PagingSource].
  *
- * @param pagingSource the [PagingSource] to load data from.
  * @param config the [PagingConfig] to configure this TestPager's loading behavior.
+ * @param pagingSource the [PagingSource] to load data from.
  */
 public class TestPager<Key : Any, Value : Any>(
-    private val pagingSource: PagingSource<Key, Value>,
     private val config: PagingConfig,
+    private val pagingSource: PagingSource<Key, Value>,
 ) {
     private val hasRefreshed = AtomicBoolean(false)
 

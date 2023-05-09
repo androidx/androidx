@@ -50,7 +50,7 @@ class StaticListPagingSourceFactoryTest {
         val factory: PagingSourceFactory<Int, Int> =
             flowOf<List<Int>>().asPagingSourceFactory(testScope)
         val pagingSource = factory()
-        val pager = TestPager(pagingSource, CONFIG)
+        val pager = TestPager(CONFIG, pagingSource)
 
         runTest {
             val result = pager.refresh() as Page
@@ -67,7 +67,7 @@ class StaticListPagingSourceFactoryTest {
         val factory: PagingSourceFactory<Int, Int> =
             flow.asPagingSourceFactory(testScope)
         val pagingSource = factory()
-        val pager = TestPager(pagingSource, CONFIG)
+        val pager = TestPager(CONFIG, pagingSource)
 
         runTest {
             val result = pager.refresh() as Page
@@ -92,7 +92,7 @@ class StaticListPagingSourceFactoryTest {
 
         // first gen
         val pagingSource1 = factory()
-        val pager1 = TestPager(pagingSource1, CONFIG)
+        val pager1 = TestPager(CONFIG, pagingSource1)
         val result1 = pager1.refresh() as Page
         assertThat(result1.data).containsExactlyElementsIn(
             listOf(0, 1, 2, 3, 4)
@@ -105,7 +105,7 @@ class StaticListPagingSourceFactoryTest {
 
         // second gen
         val pagingSource2 = factory()
-        val pager2 = TestPager(pagingSource2, CONFIG)
+        val pager2 = TestPager(CONFIG, pagingSource2)
         val result2 = pager2.refresh() as Page
         assertThat(result2.data).containsExactlyElementsIn(
             listOf(30, 31, 32, 33, 34)
@@ -125,7 +125,7 @@ class StaticListPagingSourceFactoryTest {
         advanceUntilIdle()
 
         val pagingSource = factory()
-        val pager = TestPager(pagingSource, CONFIG)
+        val pager = TestPager(CONFIG, pagingSource)
         val result = pager.refresh() as Page
         assertThat(result.data).containsExactlyElementsIn(
             listOf(0, 1, 2, 3, 4)
@@ -158,7 +158,7 @@ class StaticListPagingSourceFactoryTest {
 
         // factory 1 first gen
         val pagingSource = factory1()
-        val pager = TestPager(pagingSource, CONFIG)
+        val pager = TestPager(CONFIG, pagingSource)
         val result = pager.refresh() as Page
         assertThat(result.data).containsExactlyElementsIn(
             listOf(0, 1, 2, 3, 4)
@@ -166,7 +166,7 @@ class StaticListPagingSourceFactoryTest {
 
         // factory 2 first gen
         val pagingSource2 = factory2()
-        val pager2 = TestPager(pagingSource2, CONFIG)
+        val pager2 = TestPager(CONFIG, pagingSource2)
         val result2 = pager2.refresh() as Page
         assertThat(result2.data).containsExactlyElementsIn(
             listOf(0, 1, 2, 3, 4)
@@ -182,7 +182,7 @@ class StaticListPagingSourceFactoryTest {
 
         // factory 1 second gen
         val pagingSource3 = factory1()
-        val pager3 = TestPager(pagingSource3, CONFIG)
+        val pager3 = TestPager(CONFIG, pagingSource3)
         val result3 = pager3.refresh() as Page
         assertThat(result3.data).containsExactlyElementsIn(
             listOf(30, 31, 32, 33, 34)
@@ -190,7 +190,7 @@ class StaticListPagingSourceFactoryTest {
 
         // factory 2 second gen
         val pagingSource4 = factory2()
-        val pager4 = TestPager(pagingSource4, CONFIG)
+        val pager4 = TestPager(CONFIG, pagingSource4)
         val result4 = pager4.refresh() as Page
         assertThat(result4.data).containsExactlyElementsIn(
             listOf(30, 31, 32, 33, 34)
@@ -203,14 +203,14 @@ class StaticListPagingSourceFactoryTest {
         val factory = data.asPagingSourceFactory()
 
         val pagingSource1 = factory()
-        val pager1 = TestPager(pagingSource1, CONFIG)
+        val pager1 = TestPager(CONFIG, pagingSource1)
         val refresh1 = pager1.refresh() as Page
         assertThat(refresh1.data).containsExactlyElementsIn(
             listOf(0, 1, 2, 3, 4)
         )
 
         val pagingSource2 = factory()
-        val pager2 = TestPager(pagingSource2, CONFIG)
+        val pager2 = TestPager(CONFIG, pagingSource2)
         val refresh2 = pager2.refresh() as Page
         assertThat(refresh2.data).containsExactlyElementsIn(
             listOf(0, 1, 2, 3, 4)
@@ -223,12 +223,12 @@ class StaticListPagingSourceFactoryTest {
         val factory = data.asPagingSourceFactory()
 
         val pagingSource1 = factory()
-        val pager1 = TestPager(pagingSource1, CONFIG)
+        val pager1 = TestPager(CONFIG, pagingSource1)
         val refresh1 = pager1.refresh() as Page
         assertThat(refresh1.data).isEmpty()
 
         val pagingSource2 = factory()
-        val pager2 = TestPager(pagingSource2, CONFIG)
+        val pager2 = TestPager(CONFIG, pagingSource2)
         val refresh2 = pager2.refresh() as Page
         assertThat(refresh2.data).isEmpty()
     }
@@ -238,7 +238,7 @@ class StaticListPagingSourceFactoryTest {
         val data = List(20) { it }
         val factory = data.asPagingSourceFactory()
         val pagingSource1 = factory()
-        val pager1 = TestPager(pagingSource1, CONFIG)
+        val pager1 = TestPager(CONFIG, pagingSource1)
 
         pager1.refresh() as Page
         pager1.append()
@@ -257,7 +257,7 @@ class StaticListPagingSourceFactoryTest {
         val data = List(20) { it }
         val factory = data.asPagingSourceFactory()
         val pagingSource1 = factory()
-        val pager1 = TestPager(pagingSource1, CONFIG)
+        val pager1 = TestPager(CONFIG, pagingSource1)
 
         pager1.refresh(initialKey = 10) as Page
         pager1.prepend()

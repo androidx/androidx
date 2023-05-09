@@ -31,7 +31,7 @@ package androidx.paging.testing {
   }
 
   public final class TestPager<Key, Value> {
-    ctor public TestPager(androidx.paging.PagingSource<Key,Value> pagingSource, androidx.paging.PagingConfig config);
+    ctor public TestPager(androidx.paging.PagingConfig config, androidx.paging.PagingSource<Key,Value> pagingSource);
     method public suspend Object? append(kotlin.coroutines.Continuation<androidx.paging.PagingSource.LoadResult<Key,Value>>);
     method public suspend Object? getLastLoadedPage(kotlin.coroutines.Continuation<androidx.paging.PagingSource.LoadResult.Page<Key,Value>>);
     method public suspend Object? getPages(kotlin.coroutines.Continuation<java.util.List<androidx.paging.PagingSource.LoadResult.Page<Key,Value>>>);
