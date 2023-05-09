@@ -53,7 +53,7 @@ tasks.withType(Test).configureEach {
 }
 
 androidx {
-    name = "Android Lifecycles Compiler"
+    name = "Lifecycles Compiler"
     type = LibraryType.ANNOTATION_PROCESSOR
     inceptionYear = "2017"
     description = "Android Lifecycles annotation processor"

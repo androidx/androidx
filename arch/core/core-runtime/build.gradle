@@ -27,7 +27,7 @@ dependencies {
 }
 
 androidx {
-    name = "Android Arch-Runtime"
+    name = "Arch-Runtime"
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2017"
     description = "Android Arch-Runtime"

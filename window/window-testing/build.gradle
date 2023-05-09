@@ -55,7 +55,7 @@ dependencies {
 }
 
 androidx {
-    name = "WindowManager Test Library"
+    name = "WindowManager Testing Extensions"
     type = LibraryType.PUBLISHED_TEST_LIBRARY
     inceptionYear = "2021"
     description = "WindowManager Test Library"

@@ -43,7 +43,7 @@ dependencies {
 }
 
 androidx {
-    name = "Fragment Test Extensions"
+    name = "Fragment Testing Extensions"
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2018"
     description = "Extensions for testing 'fragment' artifact"

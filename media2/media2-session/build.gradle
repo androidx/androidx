@@ -56,7 +56,7 @@ android {
 }
 
 androidx {
-    name = "AndroidX media2 session library"
+    name = "Media2 Session"
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2018"
     description = "Media2 Session"

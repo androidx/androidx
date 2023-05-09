@@ -57,7 +57,7 @@ android {
 }
 
 androidx {
-    name = "androidx.emoji2:emoji2-emojipicker"
+    name = "Emoji2 Emoji Picker"
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2022"
     description = "This library provides the latest emoji support and emoji picker UI to input " +

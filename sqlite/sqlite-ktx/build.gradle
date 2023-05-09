@@ -31,7 +31,7 @@ dependencies {
 }
 
 androidx {
-    name = "Android DB KTX"
+    name = "SQLite Kotlin Extensions"
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2018"
     description = "Kotlin extensions for DB"

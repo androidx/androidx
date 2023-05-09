@@ -46,7 +46,7 @@ dependencies {
 }
 
 androidx {
-    name = "AndroidX Library Screenshot Test"
+    name = "Screenshot Test"
     type = LibraryType.INTERNAL_TEST_LIBRARY
 }
 

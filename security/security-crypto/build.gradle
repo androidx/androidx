@@ -46,7 +46,7 @@ android {
 }
 
 androidx {
-    name = "AndroidX Security"
+    name = "Security"
     publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.SECURITY
     inceptionYear = "2019"

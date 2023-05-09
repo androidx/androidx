@@ -45,7 +45,7 @@ dependencies {
 }
 
 androidx {
-    name = "Slice builders KTX"
+    name = "Slice Builders Kotlin Extensions"
     publish = Publish.SNAPSHOT_ONLY // Library is deprecated pending removal.
     disableDeviceTests = true // Pending removal, don't run tests.
     runApiTasks = new RunApiTasks.Yes() // Pending removal, but keep API files for now.

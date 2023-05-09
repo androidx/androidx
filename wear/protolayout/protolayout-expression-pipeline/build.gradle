@@ -50,7 +50,7 @@ android {
 }
 
 androidx {
-    name = "ProtoLayout Dynamic Expression Evaluation Pipeline"
+    name = "ProtoLayout Expression Pipeline"
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2022"
     description = "Evaluate dynamic expressions."

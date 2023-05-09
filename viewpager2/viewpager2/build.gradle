@@ -52,7 +52,7 @@ dependencies {
 }
 
 androidx {
-    name = "AndroidX Widget ViewPager2"
+    name = "ViewPager2"
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2017"
     description = "AndroidX Widget ViewPager2"

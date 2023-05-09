@@ -37,7 +37,7 @@ dependencies {
 }
 
 androidx {
-    name = "Common utilities for slices"
+    name = "Slice Core"
     publish = Publish.SNAPSHOT_ONLY // Library is deprecated pending removal.
     disableDeviceTests = true // Pending removal, don't run tests.
     runApiTasks = new RunApiTasks.Yes() // Pending removal, but keep API files for now.

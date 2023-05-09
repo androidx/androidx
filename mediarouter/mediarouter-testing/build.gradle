@@ -27,7 +27,7 @@ dependencies {
 }
 
 androidx {
-    name = "AndroidX MediaRouter Testing"
+    name = "MediaRouter Testing"
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2021"
     description = "Test utilities for AndroidX MediaRouter"

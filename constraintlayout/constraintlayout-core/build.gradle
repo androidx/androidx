@@ -28,7 +28,7 @@ dependencies {
 }
 
 androidx {
-    name = "Android ConstraintLayout Core Library"
+    name = "ConstraintLayout Core"
     type = LibraryType.PUBLISHED_LIBRARY
     mavenVersion = LibraryVersions.CONSTRAINTLAYOUT_CORE
     inceptionYear = "2022"

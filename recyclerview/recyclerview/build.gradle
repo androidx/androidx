@@ -58,7 +58,7 @@ android {
 }
 
 androidx {
-    name = "Android Support RecyclerView"
+    name = "RecyclerView"
     publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.RECYCLERVIEW
     inceptionYear = "2014"

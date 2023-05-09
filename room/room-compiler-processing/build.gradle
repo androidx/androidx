@@ -60,7 +60,7 @@ tasks.withType(Test).configureEach {
 }
 
 androidx {
-    name = "AndroidX Room XProcessor"
+    name = "Room XProcessor"
     type = LibraryType.ANNOTATION_PROCESSOR_UTILS
     inceptionYear = "2020"
     description = "Processing Environment Abstraction for AndroidX Room"

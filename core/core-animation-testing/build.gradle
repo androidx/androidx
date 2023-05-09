@@ -29,7 +29,7 @@ dependencies {
 }
 
 androidx {
-    name = "Android Support Animator Testing"
+    name = "Animation Testing"
     publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.CORE_ANIMATION_TESTING
     inceptionYear = "2018"

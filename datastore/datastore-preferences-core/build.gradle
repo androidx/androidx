@@ -119,7 +119,7 @@ dependencies {
 }
 
 androidx {
-    name = "Android Preferences DataStore Core"
+    name = "Preferences DataStore Core"
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2020"
     description = "Android Preferences DataStore without the Android Dependencies"

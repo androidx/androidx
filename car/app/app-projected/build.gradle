@@ -60,7 +60,7 @@ android {
 }
 
 androidx {
-    name = "Android for Cars App Library Projected Extension"
+    name = "Android for Cars App Projected Extension"
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2021"
     description = "Android Auto Projected specific funationaltiy to build navigation, parking, and charging apps for cars"
