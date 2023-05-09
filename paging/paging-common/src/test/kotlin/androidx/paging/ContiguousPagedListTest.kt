@@ -34,9 +34,9 @@ import org.mockito.kotlin.reset
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoMoreInteractions
 import kotlinx.coroutines.runBlocking
-import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
+import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertSame

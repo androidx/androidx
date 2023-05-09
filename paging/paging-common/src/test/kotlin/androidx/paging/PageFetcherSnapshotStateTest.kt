@@ -27,9 +27,9 @@ import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
-import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import kotlin.test.Test
 import kotlin.test.assertEquals
 
 @OptIn(ExperimentalCoroutinesApi::class)

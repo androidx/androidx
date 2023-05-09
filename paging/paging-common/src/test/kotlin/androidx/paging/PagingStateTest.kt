@@ -17,9 +17,9 @@
 package androidx.paging
 
 import androidx.paging.PagingSource.LoadResult.Page
-import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
