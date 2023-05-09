@@ -1628,9 +1628,11 @@ package androidx.compose.ui.input.nestedscroll {
     method public int getDrag();
     method public int getFling();
     method @Deprecated @androidx.compose.ui.ExperimentalComposeUiApi public int getRelocate();
+    method public int getWheel();
     property public final int Drag;
     property public final int Fling;
     property @Deprecated @androidx.compose.ui.ExperimentalComposeUiApi public final int Relocate;
+    property public final int Wheel;
   }
 
 }
