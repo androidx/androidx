@@ -1572,7 +1572,7 @@ class SupportedSurfaceCombinationTest {
             CameraMode.DEFAULT,
             attachedSurfaceInfoList,
             useCaseConfigToOutputSizesMap
-        )
+        ).first
 
         useCasesExpectedResultMap.keys.forEach {
             val resultSize = suggestedStreamSpecs[useCaseConfigMap[it]]!!.resolution

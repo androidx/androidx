@@ -36,6 +36,7 @@ import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.UseCase;
@@ -85,6 +86,9 @@ public class StreamSharing extends UseCase {
     // The input edge of the sharing node.
     @Nullable
     private SurfaceEdge mSharingInputEdge;
+
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    SessionConfig.Builder mSessionConfigBuilder;
 
     static {
         MutableConfig mutableConfig = new StreamSharingBuilder().getMutableConfig();
@@ -154,6 +158,18 @@ public class StreamSharing extends UseCase {
                 getCameraId(), getCurrentConfig(), streamSpec));
         notifyActive();
         return streamSpec;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @NonNull
+    @Override
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    protected StreamSpec onSuggestedStreamSpecImplementationOptionsUpdated(@NonNull Config config) {
+        mSessionConfigBuilder.addImplementationOptions(config);
+        updateSessionConfig(mSessionConfigBuilder.build());
+        return getAttachedStreamSpec().toBuilder().setImplementationOptions(config).build();
     }
 
     @Override
@@ -239,7 +255,11 @@ public class StreamSharing extends UseCase {
                 streamSpec.getResolution());
         builder.addSurface(mCameraEdge.getDeferrableSurface());
         builder.addRepeatingCameraCaptureCallback(mVirtualCamera.getParentMetadataCallback());
+        if (streamSpec.getImplementationOptions() != null) {
+            builder.addImplementationOptions(streamSpec.getImplementationOptions());
+        }
         addCameraErrorListener(builder, cameraId, config, streamSpec);
+        mSessionConfigBuilder = builder;
         return builder.build();
     }
 

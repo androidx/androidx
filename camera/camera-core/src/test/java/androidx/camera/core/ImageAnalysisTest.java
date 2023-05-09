@@ -38,6 +38,7 @@ import androidx.annotation.Nullable;
 import androidx.camera.core.impl.CameraFactory;
 import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.ImageAnalysisConfig;
+import androidx.camera.core.impl.MutableOptionsBundle;
 import androidx.camera.core.impl.TagBundle;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.internal.CameraUseCaseAdapter;
@@ -91,6 +92,8 @@ public class ImageAnalysisTest {
     private static final long TIMESTAMP_1 = 1;
     private static final long TIMESTAMP_2 = 2;
     private static final long TIMESTAMP_3 = 3;
+    public static final androidx.camera.core.impl.Config.Option<Integer> TEST_OPTION =
+            androidx.camera.core.impl.Config.Option.create("test.testOption", int.class);
 
     private Handler mCallbackHandler;
     private Handler mBackgroundHandler;
@@ -436,6 +439,20 @@ public class ImageAnalysisTest {
         // If image leakage happens, 4 unclosed image will never be closed. It means the analyzer
         // won't be able to receive images anymore.
         assertCanReceiveAnalysisImage(mImageAnalysis);
+    }
+
+    @Test
+    public void sessionConfigHasStreamSpecImplementationOptions_whenUpdateStreamSpecImplOptions()
+            throws CameraUseCaseAdapter.CameraException {
+        setUpImageAnalysisWithStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST);
+        int newImplementationOptionValue = 6;
+        MutableOptionsBundle streamSpecOptions = MutableOptionsBundle.create();
+        streamSpecOptions.insertOption(TEST_OPTION, newImplementationOptionValue);
+        mImageAnalysis.updateSuggestedStreamSpecImplementationOptions(streamSpecOptions);
+        assertThat(
+                mImageAnalysis.getSessionConfig().getImplementationOptions().retrieveOption(
+                        TEST_OPTION
+                )).isEqualTo(newImplementationOptionValue);
     }
 
     @SuppressWarnings("deprecation") // test for legacy resolution API
