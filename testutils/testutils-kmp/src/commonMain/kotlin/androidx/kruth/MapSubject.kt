@@ -25,7 +25,7 @@ class MapSubject<K, V>(actual: Map<K, V>?) : Subject<Map<K, V>>(actual) {
         requireNonNull(actual) { "Expected to be empty, but was null" }
 
         if (actual.isNotEmpty()) {
-            fail("Expected to be empty")
+            fail("Expected to be empty, but was $actual")
         }
     }
 }
