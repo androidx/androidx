@@ -46,7 +46,7 @@ constructor(
     private val actionSpec: ActionSpec<ArgumentsT, OutputT>,
     private val property: Map<String, Property<*>>,
     private val sessionFactory: (hostProperties: HostProperties?) -> ExecutionSessionT?,
-    private val sessionBridge: SessionBridge<ExecutionSessionT, ConfirmationT>,
+    private val sessionBridge: SessionBridge<ExecutionSessionT, ArgumentsT, ConfirmationT>,
     private val sessionUpdaterSupplier: Supplier<SessionUpdaterT>
 ) : Capability(id) {
 

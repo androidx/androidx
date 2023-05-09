@@ -62,9 +62,9 @@ class FakeCapability private constructor() {
         Confirmation,
         ExecutionSession,
         >(ACTION_SPEC) {
-        override val sessionBridge = SessionBridge<ExecutionSession, Confirmation> {
+        override val sessionBridge = SessionBridge<ExecutionSession, Arguments, Confirmation> {
                 session ->
-            val builder = TaskHandler.Builder<Confirmation>()
+            val builder = TaskHandler.Builder<Arguments, Confirmation>()
             session.fieldOneListener?.let {
                 builder.registerValueTaskParam(
                     "fieldOne",

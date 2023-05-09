@@ -92,7 +92,7 @@ class TaskCapabilityImplTest {
                         Futures.immediateFuture(ExecutionResult.Builder<Output>().build())
                 }
             },
-            sessionBridge = { TaskHandler.Builder<Confirmation>().build() },
+            sessionBridge = { TaskHandler.Builder<Arguments, Confirmation>().build() },
             sessionUpdaterSupplier = ::EmptyTaskUpdater
         )
     private val hostProperties: HostProperties =
@@ -138,7 +138,7 @@ class TaskCapabilityImplTest {
                         Futures.immediateFuture(ExecutionResult.Builder<Output>().build())
                 }
             },
-            sessionBridge = { TaskHandler.Builder<Confirmation>().build() },
+            sessionBridge = { TaskHandler.Builder<Arguments, Confirmation>().build() },
             sessionUpdaterSupplier = ::EmptyTaskUpdater
         )
         mutableEntityList.add(StringValue.of("entity1"))
@@ -185,7 +185,7 @@ class TaskCapabilityImplTest {
             createCapability(
                 SINGLE_REQUIRED_FIELD_PROPERTY,
                 { externalSession },
-                { TaskHandler.Builder<Confirmation>().build() },
+                { TaskHandler.Builder<Arguments, Confirmation>().build() },
                 ::EmptyTaskUpdater
             )
         val session = capability.createSession(fakeSessionId, hostProperties)
@@ -212,7 +212,9 @@ class TaskCapabilityImplTest {
                             )
                     }
                 },
-                sessionBridge = SessionBridge { TaskHandler.Builder<Confirmation>().build() },
+                sessionBridge = SessionBridge {
+                    TaskHandler.Builder<Arguments, Confirmation>().build()
+                },
                 sessionUpdaterSupplier = ::EmptyTaskUpdater
             )
         val session = capability.createSession(fakeSessionId, hostProperties)
@@ -289,7 +291,9 @@ class TaskCapabilityImplTest {
         val capability: Capability = createCapability(
             SINGLE_REQUIRED_FIELD_PROPERTY,
             sessionFactory = { _ -> externalSession },
-            sessionBridge = SessionBridge { TaskHandler.Builder<Confirmation>().build() },
+            sessionBridge = SessionBridge {
+                TaskHandler.Builder<Arguments, Confirmation>().build()
+            },
             sessionUpdaterSupplier = ::RequiredTaskUpdater
         )
         val session = capability.createSession("mySessionId", hostProperties)
@@ -327,7 +331,9 @@ class TaskCapabilityImplTest {
                             )
                     }
                 },
-                sessionBridge = SessionBridge { TaskHandler.Builder<Confirmation>().build() },
+                sessionBridge = SessionBridge {
+                    TaskHandler.Builder<Arguments, Confirmation>().build()
+                },
                 sessionUpdaterSupplier = ::RequiredTaskUpdater
             )
         val session = capability.createSession(fakeSessionId, hostProperties)
@@ -376,8 +382,12 @@ class TaskCapabilityImplTest {
         val sessionBridge =
             SessionBridge<
                 CapabilityTwoStrings.ExecutionSession,
+                CapabilityTwoStrings.Arguments,
                 CapabilityTwoStrings.Confirmation> {
-                TaskHandler.Builder<CapabilityTwoStrings.Confirmation>()
+                TaskHandler.Builder<
+                    CapabilityTwoStrings.Arguments,
+                    CapabilityTwoStrings.Confirmation
+                >()
                     .registerValueTaskParam(
                         "stringSlotA",
                         AUTO_ACCEPT_STRING_VALUE,
@@ -467,8 +477,12 @@ class TaskCapabilityImplTest {
         val sessionBridge =
             SessionBridge<
                 CapabilityTwoStrings.ExecutionSession,
+                CapabilityTwoStrings.Arguments,
                 CapabilityTwoStrings.Confirmation> {
-                TaskHandler.Builder<CapabilityTwoStrings.Confirmation>()
+                TaskHandler.Builder<
+                    CapabilityTwoStrings.Arguments,
+                    CapabilityTwoStrings.Confirmation
+                >()
                     .registerValueTaskParam(
                         "stringSlotA",
                         AUTO_ACCEPT_STRING_VALUE,
@@ -543,7 +557,9 @@ class TaskCapabilityImplTest {
             createCapability(
                 property,
                 sessionFactory = { _ -> ExecutionSession.DEFAULT },
-                sessionBridge = SessionBridge { TaskHandler.Builder<Confirmation>().build() },
+                sessionBridge = SessionBridge {
+                    TaskHandler.Builder<Arguments, Confirmation>().build()
+                },
                 sessionUpdaterSupplier = ::EmptyTaskUpdater
             )
         val session = capability.createSession(fakeSessionId, hostProperties)
@@ -621,8 +637,8 @@ class TaskCapabilityImplTest {
                     }
                 },
                 sessionBridge =
-                SessionBridge<ExecutionSession, Confirmation> { session ->
-                    val builder = TaskHandler.Builder<Confirmation>()
+                SessionBridge<ExecutionSession, Arguments, Confirmation> { session ->
+                    val builder = TaskHandler.Builder<Arguments, Confirmation>()
                     session.requiredStringListener?.let {
                             listener: AppEntityListener<String> ->
                         builder.registerAppEntityTaskParam(
@@ -777,8 +793,12 @@ class TaskCapabilityImplTest {
         val sessionBridge =
             SessionBridge<
                 CapabilityStructFill.ExecutionSession,
+                CapabilityStructFill.Arguments,
                 CapabilityStructFill.Confirmation> { session ->
-                TaskHandler.Builder<CapabilityStructFill.Confirmation>()
+                TaskHandler.Builder<
+                    CapabilityStructFill.Arguments,
+                    CapabilityStructFill.Confirmation
+                >()
                     .registerAppEntityTaskParam(
                         "listItem",
                         session.listItemListener,
@@ -983,7 +1003,9 @@ class TaskCapabilityImplTest {
             createCapability(
                 property,
                 sessionFactory = sessionFactory,
-                sessionBridge = SessionBridge { TaskHandler.Builder<Confirmation>().build() },
+                sessionBridge = SessionBridge {
+                    TaskHandler.Builder<Arguments, Confirmation>().build()
+                },
                 sessionUpdaterSupplier = ::EmptyTaskUpdater
             )
         val session = capability.createSession(fakeSessionId, hostProperties)
@@ -1024,8 +1046,8 @@ class TaskCapabilityImplTest {
                 }
             }
         var onReadyToConfirm =
-            object : OnReadyToConfirmListenerInternal<Confirmation> {
-                override suspend fun onReadyToConfirm(args: Map<String, List<ParamValue>>):
+            object : OnReadyToConfirmListener<Arguments, Confirmation> {
+                override suspend fun onReadyToConfirm(arguments: Arguments):
                     ConfirmationOutput<Confirmation> {
                     return ConfirmationOutput.Builder<Confirmation>()
                         .setConfirmation(
@@ -1043,8 +1065,8 @@ class TaskCapabilityImplTest {
                 property,
                 sessionFactory = sessionFactory,
                 sessionBridge = SessionBridge {
-                    TaskHandler.Builder<Confirmation>()
-                        .setOnReadyToConfirmListenerInternal(onReadyToConfirm)
+                    TaskHandler.Builder<Arguments, Confirmation>()
+                        .setOnReadyToConfirmListener(onReadyToConfirm)
                         .build()
                 },
                 sessionUpdaterSupplier = ::EmptyTaskUpdater
@@ -1092,7 +1114,9 @@ class TaskCapabilityImplTest {
             createCapability(
                 property,
                 sessionFactory = sessionFactory,
-                sessionBridge = SessionBridge { TaskHandler.Builder<Confirmation>().build() },
+                sessionBridge = SessionBridge {
+                    TaskHandler.Builder<Arguments, Confirmation>().build()
+                },
                 sessionUpdaterSupplier = ::EmptyTaskUpdater
             )
         val session = capability.createSession(fakeSessionId, hostProperties)
@@ -1235,9 +1259,13 @@ class TaskCapabilityImplTest {
             setProperty(SINGLE_REQUIRED_FIELD_PROPERTY)
         }
 
-        override val sessionBridge: SessionBridge<ExecutionSession, Confirmation> = SessionBridge {
+        override val sessionBridge: SessionBridge<
+            ExecutionSession,
+            Arguments,
+            Confirmation
+        > = SessionBridge {
                 session ->
-            val builder = TaskHandler.Builder<Confirmation>()
+            val builder = TaskHandler.Builder<Arguments, Confirmation>()
             session.requiredStringListener?.let {
                     listener: AppEntityListener<String> ->
                 builder.registerAppEntityTaskParam(
@@ -1386,7 +1414,7 @@ class TaskCapabilityImplTest {
         private fun <SessionUpdaterT : AbstractTaskUpdater> createCapability(
             property: Map<String, Property<*>>,
             sessionFactory: (hostProperties: HostProperties?) -> ExecutionSession,
-            sessionBridge: SessionBridge<ExecutionSession, Confirmation>,
+            sessionBridge: SessionBridge<ExecutionSession, Arguments, Confirmation>,
             sessionUpdaterSupplier: Supplier<SessionUpdaterT>
         ): TaskCapabilityImpl<
             Arguments,
