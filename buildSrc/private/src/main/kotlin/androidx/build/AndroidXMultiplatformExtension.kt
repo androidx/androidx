@@ -90,7 +90,7 @@ open class AndroidXMultiplatformExtension(val project: Project) {
     fun desktop(
         block: Action<KotlinJvmTarget>? = null
     ): KotlinJvmTarget? {
-        return if (project.enableJvm()) {
+        return if (project.enableDesktop()) {
             kotlinExtension.jvm("desktop") {
                 block?.execute(this)
             }
