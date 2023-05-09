@@ -55,7 +55,7 @@ internal inline fun DelegatableNode.visitAncestors(
     // TODO(lmr): we might want to add some safety wheels to prevent this from being called
     //  while one of the chains is being diffed / updated. Although that might only be
     //  necessary for visiting subtree.
-    check(node.isAttached)
+    check(node.isAttached) { "visitAncestors called on an unattached node" }
     var node: Modifier.Node? = if (includeSelf) node else node.parent
     var layout: LayoutNode? = requireLayoutNode()
     while (layout != null) {
@@ -75,7 +75,7 @@ internal inline fun DelegatableNode.visitAncestors(
 
 @Suppress("unused")
 internal fun DelegatableNode.nearestAncestor(mask: Int): Modifier.Node? {
-    check(node.isAttached)
+    check(node.isAttached) { "nearestAncestor called on an unattached node" }
     var node: Modifier.Node? = node.parent
     var layout: LayoutNode? = requireLayoutNode()
     while (layout != null) {
@@ -97,7 +97,7 @@ internal fun DelegatableNode.nearestAncestor(mask: Int): Modifier.Node? {
 internal inline fun DelegatableNode.visitSubtree(mask: Int, block: (Modifier.Node) -> Unit) {
     // TODO(lmr): we might want to add some safety wheels to prevent this from being called
     //  while one of the chains is being diffed / updated.
-    check(node.isAttached)
+    check(node.isAttached) { "visitSubtree called on an unattached node" }
     var node: Modifier.Node? = node.child
     var layout: LayoutNode? = requireLayoutNode()
     // we use this bespoke data structure here specifically for traversing children. In the
@@ -130,7 +130,7 @@ private fun MutableVector<Modifier.Node>.addLayoutNodeChildren(node: Modifier.No
 }
 
 internal inline fun DelegatableNode.visitChildren(mask: Int, block: (Modifier.Node) -> Unit) {
-    check(node.isAttached)
+    check(node.isAttached) { "visitChildren called on an unattached node" }
     val branches = mutableVectorOf<Modifier.Node>()
     val child = node.child
     if (child == null)
@@ -160,7 +160,7 @@ internal inline fun DelegatableNode.visitChildren(mask: Int, block: (Modifier.No
  * traversing below it
  */
 internal inline fun DelegatableNode.visitSubtreeIf(mask: Int, block: (Modifier.Node) -> Boolean) {
-    check(node.isAttached)
+    check(node.isAttached) { "visitSubtreeIf called on an unattached node" }
     val branches = mutableVectorOf<Modifier.Node>()
     val child = node.child
     if (child == null)
@@ -187,7 +187,7 @@ internal inline fun DelegatableNode.visitLocalDescendants(
     mask: Int,
     block: (Modifier.Node) -> Unit
 ) {
-    check(node.isAttached)
+    check(node.isAttached) { "visitLocalDescendants called on an unattached node" }
     val self = node
     if (self.aggregateChildKindSet and mask == 0) return
     var next = self.child
@@ -203,7 +203,7 @@ internal inline fun DelegatableNode.visitLocalAncestors(
     mask: Int,
     block: (Modifier.Node) -> Unit
 ) {
-    check(node.isAttached)
+    check(node.isAttached) { "visitLocalAncestors called on an unattached node" }
     var next = node.parent
     while (next != null) {
         if (next.kindSet and mask != 0) {
