@@ -39,6 +39,7 @@ public class GrammaticalInfectionActivity extends Activity {
 
     @Override
     public void onConfigurationChanged(@NonNull Configuration config) {
+        super.onConfigurationChanged(config);
         mCountDownLatch.countDown();
     }
 
