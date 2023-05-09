@@ -60,7 +60,7 @@ internal class TaskOrchestrator<ArgumentsT, OutputT, ConfirmationT>(
     private val sessionId: String,
     private val actionSpec: ActionSpec<ArgumentsT, OutputT>,
     private val appAction: AppActionsContext.AppAction,
-    private val taskHandler: TaskHandler<ConfirmationT>,
+    private val taskHandler: TaskHandler<ArgumentsT, ConfirmationT>,
     private val externalSession: BaseExecutionSession<ArgumentsT, OutputT>,
     private val scope: CoroutineScope,
 ) {
@@ -450,9 +450,12 @@ internal class TaskOrchestrator<ArgumentsT, OutputT, ConfirmationT>(
     private suspend fun getFulfillmentResponseForConfirmation(
         finalArguments: Map<String, List<ParamValue>>,
     ): FulfillmentResponse {
+        val arguments = actionSpec.buildArguments(finalArguments)
+        requireNotNull(taskHandler.onReadyToConfirmListener) {
+            "caller must ensure TaskHandler.onReadyToConfirmListener is not null"
+        }
         val result = invokeExternalSuspendBlock("onReadyToConfirm") {
-            // TODO(b/280692953) split onReadyToConfirmListener to external & internal blocks
-            taskHandler.onReadyToConfirmListener!!.onReadyToConfirm(finalArguments)
+            taskHandler.onReadyToConfirmListener.onReadyToConfirm(arguments)
         }
         val fulfillmentResponse = FulfillmentResponse.newBuilder()
         convertToConfirmationOutput(result)?.let { fulfillmentResponse.confirmationData = it }

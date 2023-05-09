@@ -41,7 +41,7 @@ internal class TaskCapabilitySession<
     override val sessionId: String,
     actionSpec: ActionSpec<ArgumentsT, OutputT>,
     appAction: AppAction,
-    taskHandler: TaskHandler<ConfirmationT>,
+    taskHandler: TaskHandler<ArgumentsT, ConfirmationT>,
     externalSession: BaseExecutionSession<ArgumentsT, OutputT>,
     private val scope: CoroutineScope = CoroutineScope(Dispatchers.Default),
 ) : CapabilitySession, TaskUpdateHandler {

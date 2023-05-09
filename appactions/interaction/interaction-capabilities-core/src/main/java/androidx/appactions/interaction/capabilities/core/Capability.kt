@@ -93,7 +93,11 @@ abstract class Capability internal constructor(
          * @suppress
          */
         @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        protected open val sessionBridge: SessionBridge<ExecutionSessionT, ConfirmationT>? = null
+        protected open val sessionBridge: SessionBridge<
+            ExecutionSessionT,
+            ArgumentsT,
+            ConfirmationT
+        >? = null
 
         @Suppress("UNCHECKED_CAST")
         private fun asBuilder(): BuilderT {
