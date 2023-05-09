@@ -27,7 +27,6 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.StandardTestDispatcher
-import org.junit.Assert
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -35,6 +34,7 @@ import java.util.concurrent.Executors
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
+import kotlin.test.fail
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -93,21 +93,21 @@ class LegacyPagingSourceTest {
                 params: LoadInitialParams<Int>,
                 callback: LoadInitialCallback<String>
             ) {
-                Assert.fail("loadInitial not expected")
+                fail("loadInitial not expected")
             }
 
             override fun loadAfter(
                 params: LoadParams<Int>,
                 callback: LoadCallback<String>
             ) {
-                Assert.fail("loadAfter not expected")
+                fail("loadAfter not expected")
             }
 
             override fun loadBefore(
                 params: LoadParams<Int>,
                 callback: LoadCallback<String>
             ) {
-                Assert.fail("loadBefore not expected")
+                fail("loadBefore not expected")
             }
 
             override fun getKey(item: String) = item.hashCode()
@@ -141,21 +141,21 @@ class LegacyPagingSourceTest {
                 params: LoadInitialParams<Int>,
                 callback: LoadInitialCallback<Int, String>
             ) {
-                Assert.fail("loadInitial not expected")
+                fail("loadInitial not expected")
             }
 
             override fun loadBefore(
                 params: LoadParams<Int>,
                 callback: LoadCallback<Int, String>
             ) {
-                Assert.fail("loadBefore not expected")
+                fail("loadBefore not expected")
             }
 
             override fun loadAfter(
                 params: LoadParams<Int>,
                 callback: LoadCallback<Int, String>
             ) {
-                Assert.fail("loadAfter not expected")
+                fail("loadAfter not expected")
             }
         }
         val pagingSource = LegacyPagingSource(
@@ -391,14 +391,14 @@ class LegacyPagingSourceTest {
                 callback: LoadInitialCallback<String>
             ) {
                 if (!expectInitialLoad) {
-                    Assert.fail("loadInitial not expected")
+                    fail("loadInitial not expected")
                 } else {
                     callback.onResult(listOf(), 0)
                 }
             }
 
             override fun loadRange(params: LoadRangeParams, callback: LoadRangeCallback<String>) {
-                Assert.fail("loadRange not expected")
+                fail("loadRange not expected")
             }
         }
 
