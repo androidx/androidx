@@ -50,16 +50,6 @@ internal abstract class AgpPlugin(
     private val maxAgpVersion: AndroidPluginVersion,
 ) {
 
-    companion object {
-        private val gradleSyncProps by lazy {
-            listOf(
-                "android.injected.build.model.v2",
-                "android.injected.build.model.only",
-                "android.injected.build.model.only.advanced",
-            )
-        }
-    }
-
     protected val logger: Logger
         get() = project.logger
 
@@ -175,9 +165,7 @@ internal abstract class AgpPlugin(
         }
     }
 
-    protected fun isGradleSyncRunning() = gradleSyncProps.any {
-        it in project.properties && project.properties[it].toString().toBoolean()
-    }
+    protected fun isGradleSyncRunning() = project.isGradleSyncRunning()
 
     protected fun afterVariants(block: () -> (Unit)) = afterVariantBlocks.add(block)
 
@@ -275,6 +263,18 @@ internal abstract class AgpPlugin(
         project
             .extensions
             .findByType(com.android.build.gradle.TestExtension::class.java)
+}
+
+private val gradleSyncProps by lazy {
+    listOf(
+        "android.injected.build.model.v2",
+        "android.injected.build.model.only",
+        "android.injected.build.model.only.advanced",
+    )
+}
+
+internal fun Project.isGradleSyncRunning() = gradleSyncProps.any {
+    it in project.properties && project.properties[it].toString().toBoolean()
 }
 
 /**

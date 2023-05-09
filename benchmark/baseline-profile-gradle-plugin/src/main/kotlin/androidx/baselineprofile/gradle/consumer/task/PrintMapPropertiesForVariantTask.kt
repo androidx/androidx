@@ -16,12 +16,11 @@
 
 package androidx.baselineprofile.gradle.consumer.task
 
-import androidx.baselineprofile.gradle.consumer.PerVariantConsumerExtensionManager
 import androidx.baselineprofile.gradle.utils.maybeRegister
 import com.android.build.api.variant.Variant
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
-import org.gradle.api.provider.Property
+import org.gradle.api.provider.MapProperty
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
 import org.gradle.work.DisableCachingByDefault
@@ -31,39 +30,29 @@ import org.gradle.work.DisableCachingByDefault
  * in the task list. It prints internal properties to facilitate assertions in integration tests.
  */
 @DisableCachingByDefault(because = "Not worth caching. Used only for tests.")
-abstract class PrintConfigurationForVariantTask : DefaultTask() {
+abstract class PrintMapPropertiesForVariantTask : DefaultTask() {
 
     companion object {
 
-        private const val TASK_NAME_PREFIX = "printBaselineProfileExtensionForVariant"
+        private const val TASK_NAME_PREFIX = "printExperimentalPropertiesForVariant"
 
         internal fun registerForVariant(
             project: Project,
             variant: Variant,
-            variantConfig: PerVariantConsumerExtensionManager.VariantConfigurationProxy
         ) {
             project
                 .tasks
-                .maybeRegister<PrintConfigurationForVariantTask>(TASK_NAME_PREFIX, variant.name) {
-                    it.text.set(
-                        """
-                    mergeIntoMain=`${variantConfig.mergeIntoMain}`
-                    baselineProfileOutputDir=`${variantConfig.baselineProfileOutputDir}`
-                    baselineProfileRulesRewrite=`${variantConfig.baselineProfileRulesRewrite}`
-                    dexLayoutOptimization=`${variantConfig.dexLayoutOptimization}`
-                    saveInSrc=`${variantConfig.saveInSrc}`
-                    automaticGenerationDuringBuild=`${variantConfig.automaticGenerationDuringBuild}`
-                    """.trimIndent()
-                    )
+                .maybeRegister<PrintMapPropertiesForVariantTask>(TASK_NAME_PREFIX, variant.name) {
+                    it.properties.set(variant.experimentalProperties)
                 }
         }
     }
 
     @get: Input
-    abstract val text: Property<String>
+    abstract val properties: MapProperty<String, Any>
 
     @TaskAction
     fun exec() {
-        logger.warn(text.get())
+        properties.get().forEach { logger.warn("${it.key}=${it.value}") }
     }
 }
