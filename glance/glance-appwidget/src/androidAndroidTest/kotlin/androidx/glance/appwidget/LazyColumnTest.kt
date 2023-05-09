@@ -27,6 +27,9 @@ import android.widget.ListView
 import android.widget.TextView
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.glance.Button
@@ -332,6 +335,48 @@ class LazyColumnTest {
     }
 
     @Test
+    fun adapter_emptyList() {
+        TestGlanceAppWidget.uiDefinition = {
+            LazyColumn { }
+        }
+
+        mHostRule.startHost()
+
+        mHostRule.waitForListView { list ->
+            assertThat(list.childCount).isEqualTo(0)
+            assertThat(list.adapter.count).isEqualTo(0)
+            assertThat(list.adapter.viewTypeCount).isAtLeast(1)
+            assertThat(list.adapter.hasStableIds()).isFalse()
+        }
+    }
+
+    @Test
+    fun adapter_itemContentChangesOnClick_appliedCorrectly() {
+        TestGlanceAppWidget.uiDefinition = {
+            var count by remember { mutableStateOf(1) }
+            LazyColumn {
+                item {
+                    Text(
+                        text = "Row item 0, count $count",
+                        modifier = GlanceModifier.clickable {
+                            count++
+                        })
+                }
+            }
+        }
+
+        mHostRule.startHost()
+
+        mHostRule.waitForListViewChildren { list ->
+            val row = list.getUnboxedListItem<FrameLayout>(0)
+            val rowItem0 = row.notGoneChildren.first()
+            rowItem0.performClick()
+        }
+
+        mHostRule.waitForListViewChildWithText(text = "Row item 0, count 1") {}
+    }
+
+    @Test
     @SdkSuppress(minSdkVersion = 31)
     fun clickable_addsClickHandlers() {
         TestGlanceAppWidget.uiDefinition = {
@@ -503,6 +548,23 @@ class LazyColumnTest {
     }
 }
 
+/**
+ * Wait until the ListView is loaded and has an adapter (irrespective of whether it has children or
+ * not). Use waitForListViewChildren if the list is expected to have children.
+ */
+internal fun AppWidgetHostRule.waitForListView(action: (list: ListView) -> Unit = {}) {
+    onHostView { }
+
+    runAndObserveUntilDraw(condition = "ListView did not load in time") {
+        mHostView.let { host ->
+            val list = host.findChildByType<ListView>()
+            host.childCount > 0 && list != null && list.adapter != null
+        }
+    }
+
+    onUnboxedHostView(action)
+}
+
 internal fun AppWidgetHostRule.waitForListViewChildren(action: (list: ListView) -> Unit = {}) {
     onHostView { }
 
@@ -510,6 +572,22 @@ internal fun AppWidgetHostRule.waitForListViewChildren(action: (list: ListView) 
         mHostView.let { host ->
             val list = host.findChildByType<ListView>()
             host.childCount > 0 && list?.areItemsFullyLoaded() ?: false
+        }
+    }
+
+    onUnboxedHostView(action)
+}
+
+internal fun AppWidgetHostRule.waitForListViewChildWithText(
+    text: String,
+    action: (list: ListView) -> Unit = {}
+) {
+    onHostView { }
+
+    runAndObserveUntilDraw(condition = "List child with text '$text' not load in time") {
+        mHostView.let { host ->
+            val list = host.findChildByType<ListView>()
+            host.childCount > 0 && list?.isItemLoaded(text) ?: false
         }
     }
 
