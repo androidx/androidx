@@ -67,7 +67,10 @@ public open class FragmentNavigator(
     /**
      * List of entries that were popped by direct calls to popBackStack (i.e. from NavController)
      */
-    private val entriesToPop = mutableSetOf<String>()
+    internal val entriesToPop: Set<String>
+        get() = (state.transitionsInProgress.value - state.backStack.value.toSet())
+            .map { it.id }
+            .toSet()
 
     /**
      * Get the back stack from the [state].
@@ -81,7 +84,6 @@ public open class FragmentNavigator(
                 entry.id == fragment.tag
             }
             if (entry != null) {
-                entriesToPop.remove(entry.id)
                 if (!state.backStack.value.contains(entry)) {
                     state.markTransitionComplete(entry)
                 }
@@ -99,7 +101,6 @@ public open class FragmentNavigator(
             // Once the lifecycle reaches DESTROYED, if the entry is not in the back stack, we can
             // mark the transition complete
             if (event == Lifecycle.Event.ON_DESTROY) {
-                entriesToPop.remove(entry.id)
                 if (!state.backStack.value.contains(entry)) {
                     state.markTransitionComplete(entry)
                 }
@@ -150,16 +151,10 @@ public open class FragmentNavigator(
                     // we need to make sure we still return the entries to their proper final state.
                     attachClearViewModel(fragment, entry, state)
                     if (pop) {
-                        // The entry has already been removed from the back stack so just remove it
-                        // from the list
-                        if (!state.backStack.value.contains(entry)) {
-                            // remove it so we don't falsely identify a direct call to popBackStack
-                            entriesToPop.remove(entry.id)
-                        }
                         // This is the case of system back where we will need to make the call to
                         // popBackStack. Otherwise, popBackStack was called directly and this should
                         // end up being a no-op.
-                        else if (entriesToPop.isEmpty() && fragment.isRemoving) {
+                        if (entriesToPop.isEmpty() && fragment.isRemoving) {
                             state.popWithTransition(entry, false)
                         }
                     }
@@ -248,10 +243,6 @@ public open class FragmentNavigator(
                 popUpTo.id,
                 FragmentManager.POP_BACK_STACK_INCLUSIVE
             )
-        }
-        // Add all of the entries that are going to be popped to our set of entries to pop
-        poppedList.forEach {
-            entriesToPop.add(it.id)
         }
         state.popWithTransition(popUpTo, savedState)
     }
