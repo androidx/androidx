@@ -76,7 +76,7 @@ public class UiDevice implements Searchable {
     // Use a short timeout after HOME or BACK key presses, as no events might be generated if
     // already on the home page or if there is nothing to go back to.
     private static final long KEY_PRESS_EVENT_TIMEOUT = 1_000; // ms
-    private static final long ROTATION_TIMEOUT = 1_000; // ms
+    private static final long ROTATION_TIMEOUT = 2_000; // ms
 
     // Singleton instance.
     private static UiDevice sInstance;
