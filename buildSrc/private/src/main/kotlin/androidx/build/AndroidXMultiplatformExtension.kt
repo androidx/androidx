@@ -165,7 +165,7 @@ open class AndroidXMultiplatformExtension(val project: Project) {
     fun android(block: Action<KotlinAndroidTarget>? = null): KotlinAndroidTarget? {
         requestedPlatforms.add(PlatformIdentifier.ANDROID)
         return if (project.enableJvm()) {
-            kotlinExtension.android { block?.execute(this) }
+            kotlinExtension.androidTarget { block?.execute(this) }
         } else {
             null
         }
