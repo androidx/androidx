@@ -22,6 +22,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlin.coroutines.EmptyCoroutineContext
+import kotlinx.coroutines.CancellationException
 
 /**
  * Schedule [effect] to run when the current composition completes successfully and applies
@@ -284,17 +285,18 @@ internal class LaunchedEffectImpl(
     private var job: Job? = null
 
     override fun onRemembered() {
+        // This should never happen but is left here for safety
         job?.cancel("Old job was still running!")
         job = scope.launch(block = task)
     }
 
     override fun onForgotten() {
-        job?.cancel()
+        job?.cancel(LeftCompositionCancellationException())
         job = null
     }
 
     override fun onAbandoned() {
-        job?.cancel()
+        job?.cancel(LeftCompositionCancellationException())
         job = null
     }
 }
@@ -384,6 +386,12 @@ fun LaunchedEffect(
     remember(key1, key2, key3) { LaunchedEffectImpl(applyContext, block) }
 }
 
+private class LeftCompositionCancellationException : CancellationException(
+    "The coroutine scope left the composition"
+) {
+    override fun fillInStackTrace(): Throwable = this
+}
+
 /**
  * When [LaunchedEffect] enters the composition it will launch [block] into the composition's
  * [CoroutineContext]. The coroutine will be [cancelled][Job.cancel] and **re-launched** when
@@ -416,11 +424,11 @@ internal class CompositionScopedCoroutineScopeCanceller(
     }
 
     override fun onForgotten() {
-        coroutineScope.cancel()
+        coroutineScope.cancel(LeftCompositionCancellationException())
     }
 
     override fun onAbandoned() {
-        coroutineScope.cancel()
+        coroutineScope.cancel(LeftCompositionCancellationException())
     }
 }
 
