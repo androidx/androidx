@@ -23,6 +23,7 @@ import androidx.appactions.interaction.capabilities.core.impl.exceptions.StructC
 import androidx.appactions.interaction.capabilities.core.impl.task.exceptions.DisambigStateException
 import androidx.appactions.interaction.capabilities.core.impl.task.exceptions.InvalidResolverException
 import kotlin.reflect.KClass
+import kotlinx.coroutines.withTimeout
 
 private const val LOG_TAG = "CallbackUtils"
 
@@ -39,14 +40,18 @@ internal fun <T> invokeExternalBlock(description: String, block: () -> T): T {
 /** invoke an externally implemented suspend method, wrapping any exceptions with
  * ExternalException.
  */
+
+private const val TIMEOUT_MILLIS = 3000L
 internal suspend fun <T> invokeExternalSuspendBlock(
     description: String,
     block: suspend () -> T
 ): T {
-    try {
-        return block()
-    } catch (t: Throwable) {
-        throw ExternalException("exception occurred during '$description'", t)
+    return withTimeout(TIMEOUT_MILLIS) {
+        try {
+            block()
+        } catch (t: Throwable) {
+            throw ExternalException("exception occurred during '$description'", t)
+        }
     }
 }
 
