@@ -17,23 +17,11 @@
 package androidx.testutils
 
 import kotlinx.coroutines.CoroutineDispatcher
-import java.util.concurrent.ConcurrentLinkedQueue
+import kotlinx.coroutines.Runnable
 import kotlin.coroutines.CoroutineContext
 
-/**
- * [CoroutineDispatcher] which keeps track of all its queued jobs.
- */
-class TestDispatcher : CoroutineDispatcher() {
-    val queue = ConcurrentLinkedQueue<Runnable>()
-
+object DirectDispatcher : CoroutineDispatcher() {
     override fun dispatch(context: CoroutineContext, block: Runnable) {
-        queue.add(block)
-    }
-
-    fun executeAll() {
-        do {
-            val runnable = queue.poll()
-            runnable?.run()
-        } while (runnable != null)
+        block.run()
     }
 }
