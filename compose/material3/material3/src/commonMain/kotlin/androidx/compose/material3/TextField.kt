@@ -676,13 +676,18 @@ private class TextFieldMeasurePolicy(
         val labelPlaceable =
             measurables.find { it.layoutId == LabelId }?.measure(labelConstraints)
 
+        // supporting text must be measured after other elements, but we
+        // reserve space for it using its intrinsic height as a heuristic
+        val supportingMeasurable = measurables.find { it.layoutId == SupportingId }
+        val supportingIntrinsicHeight =
+            supportingMeasurable?.minIntrinsicHeight(constraints.minWidth) ?: 0
+
         // measure input field
         val effectiveTopOffset = topPaddingValue + heightOrZero(labelPlaceable)
-        val verticalConstraintOffset = -effectiveTopOffset - bottomPaddingValue
         val textFieldConstraints = constraints
             .copy(minHeight = 0)
             .offset(
-                vertical = verticalConstraintOffset,
+                vertical = -effectiveTopOffset - bottomPaddingValue - supportingIntrinsicHeight,
                 horizontal = -occupiedSpaceHorizontally
             )
         val textFieldPlaceable = measurables
@@ -715,8 +720,7 @@ private class TextFieldMeasurePolicy(
         val supportingConstraints = looseConstraints.offset(
             vertical = -occupiedSpaceVertically
         ).copy(minHeight = 0, maxWidth = width)
-        val supportingPlaceable =
-            measurables.find { it.layoutId == SupportingId }?.measure(supportingConstraints)
+        val supportingPlaceable = supportingMeasurable?.measure(supportingConstraints)
         val supportingHeight = heightOrZero(supportingPlaceable)
 
         val totalHeight = calculateHeight(
