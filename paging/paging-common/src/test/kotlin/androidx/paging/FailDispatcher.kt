@@ -18,8 +18,8 @@ package androidx.paging
 
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Runnable
-import org.junit.Assert.fail
 import kotlin.coroutines.CoroutineContext
+import kotlin.test.fail
 
 class FailDispatcher(
     val string: String = "Executor expected to be unused"
