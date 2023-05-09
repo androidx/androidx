@@ -29,6 +29,7 @@ import androidx.paging.PagingSource.LoadResult.Page
 import androidx.paging.RemoteMediatorMock.LoadEvent
 import androidx.paging.TestPagingSource.Companion.LOAD_ERROR
 import com.google.common.truth.Truth.assertThat
+import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
@@ -66,7 +67,6 @@ import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.yield
-import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
