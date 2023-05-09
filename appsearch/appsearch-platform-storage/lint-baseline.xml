@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.1.0-alpha07" type="baseline" client="gradle" dependencies="false" name="AGP (8.0.0-beta03)" variant="all" version="8.1.0-alpha07">
+<issues format="6" by="lint 8.1.0-beta01" type="baseline" client="gradle" dependencies="false" name="AGP (8.1.0-beta01)" variant="all" version="8.1.0-beta01">
 
     <issue
         id="WrongConstant"
-        message="Must be one of: AppSearchResult.RESULT_OK, AppSearchResult.RESULT_UNKNOWN_ERROR, AppSearchResult.RESULT_INTERNAL_ERROR, AppSearchResult.RESULT_INVALID_ARGUMENT, AppSearchResult.RESULT_IO_ERROR, AppSearchResult.RESULT_OUT_OF_SPACE, AppSearchResult.RESULT_NOT_FOUND, AppSearchResult.RESULT_INVALID_SCHEMA, AppSearchResult.RESULT_SECURITY_ERROR"
+        message="Must be one of: AppSearchResult.RESULT_OK, AppSearchResult.RESULT_UNKNOWN_ERROR, AppSearchResult.RESULT_INTERNAL_ERROR, AppSearchResult.RESULT_INVALID_ARGUMENT, AppSearchResult.RESULT_IO_ERROR, AppSearchResult.RESULT_OUT_OF_SPACE, AppSearchResult.RESULT_NOT_FOUND, AppSearchResult.RESULT_INVALID_SCHEMA, AppSearchResult.RESULT_SECURITY_ERROR, AppSearchResult.RESULT_DENIED, but could be AppSearchResult.RESULT_OK, AppSearchResult.RESULT_UNKNOWN_ERROR, AppSearchResult.RESULT_INTERNAL_ERROR, AppSearchResult.RESULT_INVALID_ARGUMENT, AppSearchResult.RESULT_IO_ERROR, AppSearchResult.RESULT_OUT_OF_SPACE, AppSearchResult.RESULT_NOT_FOUND, AppSearchResult.RESULT_INVALID_SCHEMA, AppSearchResult.RESULT_SECURITY_ERROR"
         errorLine1="                            platformResult.getResultCode(), platformResult.getErrorMessage()));"
         errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -12,7 +12,7 @@
 
     <issue
         id="WrongConstant"
-        message="Must be one of: AppSearchResult.RESULT_OK, AppSearchResult.RESULT_UNKNOWN_ERROR, AppSearchResult.RESULT_INTERNAL_ERROR, AppSearchResult.RESULT_INVALID_ARGUMENT, AppSearchResult.RESULT_IO_ERROR, AppSearchResult.RESULT_OUT_OF_SPACE, AppSearchResult.RESULT_NOT_FOUND, AppSearchResult.RESULT_INVALID_SCHEMA, AppSearchResult.RESULT_SECURITY_ERROR"
+        message="Must be one of: AppSearchResult.RESULT_OK, AppSearchResult.RESULT_UNKNOWN_ERROR, AppSearchResult.RESULT_INTERNAL_ERROR, AppSearchResult.RESULT_INVALID_ARGUMENT, AppSearchResult.RESULT_IO_ERROR, AppSearchResult.RESULT_OUT_OF_SPACE, AppSearchResult.RESULT_NOT_FOUND, AppSearchResult.RESULT_INVALID_SCHEMA, AppSearchResult.RESULT_SECURITY_ERROR, AppSearchResult.RESULT_DENIED, but could be AppSearchResult.RESULT_OK, AppSearchResult.RESULT_UNKNOWN_ERROR, AppSearchResult.RESULT_INTERNAL_ERROR, AppSearchResult.RESULT_INVALID_ARGUMENT, AppSearchResult.RESULT_IO_ERROR, AppSearchResult.RESULT_OUT_OF_SPACE, AppSearchResult.RESULT_NOT_FOUND, AppSearchResult.RESULT_INVALID_SCHEMA, AppSearchResult.RESULT_SECURITY_ERROR"
         errorLine1="                                            namespaceResult.getResultCode(),"
         errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -170,6 +170,105 @@
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appsearch/platformstorage/converter/SetSchemaRequestToPlatformConverter.java"/>
+    </issue>
+
+    <issue
+        id="PrereleaseSdkCoreDependency"
+        message="Prelease SDK check isAtLeastU cannot be called as this project has a versioned dependency on androidx.core:core"
+        errorLine1="                return BuildCompat.isAtLeastU();"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appsearch/platformstorage/FeaturesImpl.java"/>
+    </issue>
+
+    <issue
+        id="PrereleaseSdkCoreDependency"
+        message="Prelease SDK check isAtLeastU cannot be called as this project has a versioned dependency on androidx.core:core"
+        errorLine1="                if (!BuildCompat.isAtLeastU()) {"
+        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appsearch/platformstorage/converter/SchemaToPlatformConverter.java"/>
+    </issue>
+
+    <issue
+        id="PrereleaseSdkCoreDependency"
+        message="Prelease SDK check isAtLeastU cannot be called as this project has a versioned dependency on androidx.core:core"
+        errorLine1="                if (!BuildCompat.isAtLeastU()) {"
+        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appsearch/platformstorage/converter/SchemaToPlatformConverter.java"/>
+    </issue>
+
+    <issue
+        id="PrereleaseSdkCoreDependency"
+        message="Prelease SDK check isAtLeastU cannot be called as this project has a versioned dependency on androidx.core:core"
+        errorLine1="            if (BuildCompat.isAtLeastU()) {"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appsearch/platformstorage/converter/SchemaToPlatformConverter.java"/>
+    </issue>
+
+    <issue
+        id="PrereleaseSdkCoreDependency"
+        message="Prelease SDK check isAtLeastU cannot be called as this project has a versioned dependency on androidx.core:core"
+        errorLine1="            if (BuildCompat.isAtLeastU()) {"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appsearch/platformstorage/converter/SchemaToPlatformConverter.java"/>
+    </issue>
+
+    <issue
+        id="PrereleaseSdkCoreDependency"
+        message="Prelease SDK check isAtLeastU cannot be called as this project has a versioned dependency on androidx.core:core"
+        errorLine1="        if (BuildCompat.isAtLeastU()) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appsearch/platformstorage/converter/SearchResultToPlatformConverter.java"/>
+    </issue>
+
+    <issue
+        id="PrereleaseSdkCoreDependency"
+        message="Prelease SDK check isAtLeastU cannot be called as this project has a versioned dependency on androidx.core:core"
+        errorLine1="        if (!BuildCompat.isAtLeastU() &amp;&amp; mSearchSpec.getJoinSpec() != null) {"
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appsearch/platformstorage/SearchResultsImpl.java"/>
+    </issue>
+
+    <issue
+        id="PrereleaseSdkCoreDependency"
+        message="Prelease SDK check isAtLeastU cannot be called as this project has a versioned dependency on androidx.core:core"
+        errorLine1="            if (!BuildCompat.isAtLeastU()) {"
+        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appsearch/platformstorage/converter/SearchSpecToPlatformConverter.java"/>
+    </issue>
+
+    <issue
+        id="PrereleaseSdkCoreDependency"
+        message="Prelease SDK check isAtLeastU cannot be called as this project has a versioned dependency on androidx.core:core"
+        errorLine1="            if (!BuildCompat.isAtLeastU()) {"
+        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appsearch/platformstorage/converter/SearchSpecToPlatformConverter.java"/>
+    </issue>
+
+    <issue
+        id="PrereleaseSdkCoreDependency"
+        message="Prelease SDK check isAtLeastU cannot be called as this project has a versioned dependency on androidx.core:core"
+        errorLine1="                if (!BuildCompat.isAtLeastU()) {"
+        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appsearch/platformstorage/converter/SearchSpecToPlatformConverter.java"/>
+    </issue>
+
+    <issue
+        id="PrereleaseSdkCoreDependency"
+        message="Prelease SDK check isAtLeastU cannot be called as this project has a versioned dependency on androidx.core:core"
+        errorLine1="            if (!BuildCompat.isAtLeastU()) {"
+        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appsearch/platformstorage/converter/SearchSpecToPlatformConverter.java"/>
     </issue>
 
 </issues>
