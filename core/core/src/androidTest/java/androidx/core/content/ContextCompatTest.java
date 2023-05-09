@@ -608,7 +608,7 @@ public class ContextCompatTest extends BaseInstrumentationTestCase<ThemedYellowA
 
     @Test
     public void testGetDisplayFromActivity() {
-        final Display actualDisplay = ContextCompat.getDisplay(mContext);
+        final Display actualDisplay = ContextCompat.getDisplayOrDefault(mContext);
         if (Build.VERSION.SDK_INT >= 30) {
             assertEquals(mContext.getDisplay(), actualDisplay);
         } else {
@@ -626,7 +626,7 @@ public class ContextCompatTest extends BaseInstrumentationTestCase<ThemedYellowA
         final Display defaultDisplay =  displayManagerCompat.getDisplay(Display.DEFAULT_DISPLAY);
         final Context displayContext = mContext.createDisplayContext(defaultDisplay);
 
-        assertEquals(ContextCompat.getDisplay(displayContext), defaultDisplay);
+        assertEquals(ContextCompat.getDisplayOrDefault(displayContext), defaultDisplay);
     }
 
     @Test
@@ -634,14 +634,14 @@ public class ContextCompatTest extends BaseInstrumentationTestCase<ThemedYellowA
     public void testGetDisplayFromWindowContext() {
         final Context windowContext = mContext.createWindowContext(TYPE_APPLICATION_OVERLAY, null);
 
-        assertEquals(ContextCompat.getDisplay(windowContext), windowContext.getDisplay());
+        assertEquals(ContextCompat.getDisplayOrDefault(windowContext), windowContext.getDisplay());
     }
 
     @Test
     public void testGetDisplayFromApplication() {
         final Context applicationContext = ApplicationProvider.getApplicationContext();
         final Context spyContext = spy(applicationContext);
-        final Display actualDisplay = ContextCompat.getDisplay(spyContext);
+        final Display actualDisplay = ContextCompat.getDisplayOrDefault(spyContext);
 
         if (Build.VERSION.SDK_INT >= 30) {
             verify(spyContext).getSystemService(eq(DisplayManager.class));

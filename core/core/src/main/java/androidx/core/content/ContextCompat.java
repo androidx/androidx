@@ -756,7 +756,9 @@ public class ContextCompat {
     }
 
     /**
-     * Get the display this context is associated with.
+     * Get the display this context is associated with or the
+     * {@link Display#DEFAULT_DISPLAY default display} as the fallback if the context is not
+     * associated with any {@link Display}.
      * <p>
      * Applications must use this method with {@link Activity} or a context associated with a
      * {@link Display} via {@link Context#createDisplayContext(Display)} or
@@ -764,12 +766,13 @@ public class ContextCompat {
      * instance is not reliable. </p>
      *
      * @param context Context to obtain the associated display
-     * @return The display associated with the Context.
+     * @return The display associated with the Context or the default display if the context
+     * doesn't associated with any display.
      */
     @NonNull
-    public static Display getDisplay(@NonNull @DisplayContext Context context) {
+    public static Display getDisplayOrDefault(@NonNull @DisplayContext Context context) {
         if (Build.VERSION.SDK_INT >= 30) {
-            return Api30Impl.getDisplayNoCrash(context);
+            return Api30Impl.getDisplayOrDefault(context);
         } else {
             final WindowManager windowManager =
                     (WindowManager) context.getSystemService(WINDOW_SERVICE);
@@ -1140,7 +1143,7 @@ public class ContextCompat {
         }
 
         @DoNotInline
-        static Display getDisplayNoCrash(Context obj) {
+        static Display getDisplayOrDefault(Context obj) {
             try {
                 return obj.getDisplay();
             } catch (UnsupportedOperationException e) {
