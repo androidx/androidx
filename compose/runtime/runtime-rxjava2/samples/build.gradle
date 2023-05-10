@@ -34,7 +34,7 @@ dependencies {
 }
 
 androidx {
-    name = "AndroidX Compose RxJava 2 Integration Samples"
+    name = "Compose RxJava 2 Integration Samples"
     type = LibraryType.SAMPLES
     inceptionYear = "2019"
     description = "Contains the sample code for the Androidx Compose RxJava 2 Integration System"

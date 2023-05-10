@@ -57,7 +57,7 @@ android {
 }
 
 androidx {
-    name = "androidx.tv:tv-material"
+    name = "TV Material"
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2022"
     description = "build TV applications using controls that adhere to Material Design Language."

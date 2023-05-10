@@ -77,7 +77,7 @@ androidXMultiplatform {
 
 
 androidx {
-    name = "Android Preferences DataStore"
+    name = "Preferences DataStore"
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2020"
     description = "Android Preferences DataStore"

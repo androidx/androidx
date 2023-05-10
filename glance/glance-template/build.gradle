@@ -73,7 +73,7 @@ android {
 }
 
 androidx {
-    name = "Glance Templates Library"
+    name = "Glance Templates"
     type = LibraryType.PUBLISHED_LIBRARY
     mavenVersion = LibraryVersions.GLANCE_TEMPLATE
     inceptionYear = "2021"

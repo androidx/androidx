@@ -54,7 +54,7 @@ android {
 }
 
 androidx {
-    name = "Android ConstraintLayout Library"
+    name = "ConstraintLayout"
     type = LibraryType.PUBLISHED_LIBRARY
     mavenVersion = LibraryVersions.CONSTRAINTLAYOUT
     inceptionYear = "2022"

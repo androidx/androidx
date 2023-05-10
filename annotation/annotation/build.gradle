@@ -66,10 +66,10 @@ artifacts {
 }
 
 androidx {
-    name = "Android Support Library Annotations"
+    name = "Annotation"
     type = LibraryType.PUBLISHED_LIBRARY
     mavenVersion = LibraryVersions.ANNOTATION
     mavenMultiplatformVersion = LibraryVersions.ANNOTATION_KMP
     inceptionYear = "2013"
-    description = "The Support Library is a static library that you can add to your Android application in order to use APIs that are either not available for older platform versions or utility APIs that aren't a part of the framework APIs."
+    description = "Provides source annotations for tooling and readability."
 }

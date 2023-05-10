@@ -586,6 +586,7 @@ class AndroidXImplPlugin @Inject constructor(val componentFactory: SoftwareCompo
                 extension.type == LibraryType.UNSET
             if (mavenGroup != null && isProbablyPublished && extension.shouldPublish()) {
                 validateProjectStructure(mavenGroup.group)
+                validateProjectMavenName(extension.name.get(), mavenGroup.group)
             }
         }
     }
@@ -1133,46 +1134,6 @@ internal fun Project.hasAndroidTestSourceCode(): Boolean {
     }
 
     return false
-}
-
-private const val GROUP_PREFIX = "androidx."
-
-/**
- * Validates the project structure against Jetpack guidelines.
- */
-fun Project.validateProjectStructure(groupId: String) {
-    if (!project.isValidateProjectStructureEnabled()) {
-        return
-    }
-
-    val shortGroupId = if (groupId.startsWith(GROUP_PREFIX)) {
-        groupId.substring(GROUP_PREFIX.length)
-    } else {
-        groupId
-    }
-
-    // Fully-qualified Gradle project name should match the Maven coordinate.
-    val expectName = ":${shortGroupId.replace(".",":")}:${project.name}"
-    val actualName = project.path
-    if (expectName != actualName) {
-        throw GradleException(
-            "Invalid project structure! Expected $expectName as project name, found $actualName"
-        )
-    }
-
-    // Project directory should match the Maven coordinate.
-    val expectDir = shortGroupId.replace(".", File.separator) +
-        "${File.separator}${project.name}"
-    // Canonical projectDir is needed because sometimes, at least in tests, on OSX, supportRoot
-    // starts with /var, and projectDir starts with /private/var (which are the same thing)
-    val canonicalProjectDir = project.projectDir.canonicalFile
-    val actualDir =
-        canonicalProjectDir.toRelativeString(project.getSupportRootFolder().canonicalFile)
-    if (expectDir != actualDir) {
-        throw GradleException(
-            "Invalid project structure! Expected $expectDir as project directory, found $actualDir"
-        )
-    }
 }
 
 fun Project.validateMultiplatformPluginHasNotBeenApplied() {

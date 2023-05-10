@@ -98,7 +98,7 @@ if (desktopEnabled) {
 }
 
 androidx {
-    name = "Jetpack Compose desktop implementation"
+    name = "Compose Desktop"
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2020"
     legacyDisableKotlinStrictApiMode = true

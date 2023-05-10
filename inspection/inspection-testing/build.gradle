@@ -37,7 +37,7 @@ dependencies {
 }
 
 androidx {
-    name = "AndroidX Inspection Testing"
+    name = "Inspection Testing"
     type = LibraryType.INTERNAL_TEST_LIBRARY
     publish = Publish.NONE
     inceptionYear = "2019"

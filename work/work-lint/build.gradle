@@ -32,7 +32,7 @@ dependencies {
 }
 
 androidx {
-    name = "Android WorkManager Runtime Lint Checks"
+    name = "WorkManager Runtime Lint Checks"
     type = LibraryType.LINT
     inceptionYear = "2019"
     description = "Android WorkManager Runtime Lint Checks"

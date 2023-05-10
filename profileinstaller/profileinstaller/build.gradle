@@ -32,7 +32,7 @@ dependencies {
 }
 
 androidx {
-    name = "androidx.profileinstaller:profileinstaller"
+    name = "Profile Installer"
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2021"
     description = "Allows libraries to prepopulate ahead of time compilation traces to be read by" +

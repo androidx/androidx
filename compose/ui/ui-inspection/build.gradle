@@ -62,7 +62,7 @@ dependencies {
 }
 
 androidx {
-    name = "Android Compose Layout Inspector"
+    name = "Compose Layout Inspector"
     type = LibraryType.IDE_PLUGIN
     inceptionYear = "2021"
     description = "Compose layout inspector. Exposes information to our tools for better IDE support."

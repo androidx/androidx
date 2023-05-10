@@ -38,7 +38,7 @@ dependencies {
 }
 
 androidx {
-    name = "Android Navigation Testing"
+    name = "Navigation Testing"
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2017"
     description = "Android Navigation-Testing"

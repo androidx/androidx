@@ -52,7 +52,7 @@ gradlePlugin {
 }
 
 androidx {
-    name = "Android Inspection Gradle Plugin"
+    name = "Inspection Gradle Plugin"
     type = LibraryType.GRADLE_PLUGIN
     publish = Publish.NONE
     inceptionYear = "2019"

@@ -41,7 +41,7 @@ dependencies {
 }
 
 androidx {
-    name = "Slice views"
+    name = "Slice Views"
     publish = Publish.SNAPSHOT_ONLY // Library is deprecated pending removal.
     runApiTasks = new RunApiTasks.Yes() // Pending removal, but keep API files for now.
     mavenVersion = LibraryVersions.SLICE

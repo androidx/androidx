@@ -45,7 +45,7 @@ dependencies {
 }
 
 androidx {
-    name = "AndroidX Wear Watchface Guava"
+    name = "Android Wear Watchface Guava Integration"
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2021"
     description = "Guava wrappers for the Androidx Wear Watchface library"

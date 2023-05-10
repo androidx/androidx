@@ -44,7 +44,7 @@ android {
 }
 
 androidx {
-    name = "Android UIAutomator"
+    name = "UIAutomator"
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2012"
     description = "UI testing framework suitable for cross-app functional UI testing"

@@ -51,7 +51,7 @@ android {
 }
 
 androidx {
-    name = "Android Glance Wear Tiles Preview"
+    name = "Glance Wear Tiles Preview"
     type = LibraryType.PUBLISHED_LIBRARY
     mavenVersion = LibraryVersions.GLANCE_WEAR_TILES
     inceptionYear = "2022"

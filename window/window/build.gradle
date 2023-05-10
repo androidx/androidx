@@ -85,7 +85,7 @@ dependencies {
 }
 
 androidx {
-    name = "Jetpack WindowManager Library"
+    name = "WindowManager"
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2020"
     description = "WindowManager Jetpack library. Currently only provides additional " +
