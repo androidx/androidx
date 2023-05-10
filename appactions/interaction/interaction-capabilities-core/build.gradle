@@ -24,6 +24,7 @@ plugins {
 
 dependencies {
     api(project(path: ":appactions:interaction:interaction-proto", configuration: "shadowJar"))
+    api(project(":appactions:builtintypes:builtintypes-core"))
 
     api(libs.autoValueAnnotations)
     implementation(libs.guavaListenableFuture)
