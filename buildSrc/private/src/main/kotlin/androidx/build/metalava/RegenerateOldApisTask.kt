@@ -29,6 +29,7 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.Project
 import org.gradle.api.file.FileCollection
 import org.gradle.api.internal.artifacts.ivyservice.DefaultLenientConfiguration
+import org.gradle.api.provider.Property
 import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
@@ -43,6 +44,9 @@ abstract class RegenerateOldApisTask @Inject constructor(
 
     @Input
     var generateRestrictToLibraryGroupAPIs = true
+
+    @get:Input
+    abstract val optedInToSuppressCompatibilityMigration: Property<Boolean>
 
     @TaskAction
     fun exec() {
@@ -60,7 +64,8 @@ abstract class RegenerateOldApisTask @Inject constructor(
             // If two artifacts correspond to the same API file, don't regenerate the
             // same api file again
             if (apiFileVersion != prevApiFileVersion) {
-                regenerate(project.rootProject, groupId, artifactId, artifactVersion)
+                regenerate(project.rootProject, groupId, artifactId, artifactVersion,
+                    optedInToSuppressCompatibilityMigration.get())
                 prevApiFileVersion = apiFileVersion
             }
         }
@@ -80,7 +85,8 @@ abstract class RegenerateOldApisTask @Inject constructor(
         runnerProject: Project,
         groupId: String,
         artifactId: String,
-        version: Version
+        version: Version,
+        isOptedInToSuppressCompatibilityMigration: Boolean,
     ) {
         val mavenId = "$groupId:$artifactId:$version"
         val inputs: JavaCompileInputs?
@@ -96,7 +102,8 @@ abstract class RegenerateOldApisTask @Inject constructor(
             project.logger.lifecycle("Regenerating $mavenId")
             generateApi(
                 project.getMetalavaClasspath(), inputs, outputApiLocation, ApiLintMode.Skip,
-                generateRestrictToLibraryGroupAPIs, false, workerExecutor
+                generateRestrictToLibraryGroupAPIs, false, workerExecutor,
+                isOptedInToSuppressCompatibilityMigration
             )
         }
     }
