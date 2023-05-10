@@ -123,7 +123,7 @@
     <string name="pop_to_prefix" msgid="4288884615669751608">"Кыска убакытка токтотуу"</string>
     <string name="pop_to_title" msgid="3924696281273379455">"Кыска убакытка токтотуу демосу"</string>
     <string name="package_not_found_error_msg" msgid="7525619456883627939">"Топтом табылган жок."</string>
-    <string name="permissions_granted_msg" msgid="2348556088141992714">"Бардык уруксаттар берилди. Уруксаттарга мүмкүнчүлүктү Жөндөөлөрдөн жабыңыз."</string>
+    <string name="permissions_granted_msg" msgid="2348556088141992714">"Бардык уруксаттар берилди. Уруксаттарга мүмкүнчүлүктү Параметрлерден жабыңыз."</string>
     <string name="needs_access_msg_prefix" msgid="2204136858798832382">"Колдонмого төмөнкү уруксаттар керек:\n"</string>
     <string name="phone_screen_permission_msg" msgid="3599815596923367256">"Телефондун экранындагы Уруксат берүү"</string>
     <string name="enable_location_permission_on_device_msg" msgid="472752487966156897">"Түзмөктө Жайгашкан жер уруксаттарын иштетүү"</string>
