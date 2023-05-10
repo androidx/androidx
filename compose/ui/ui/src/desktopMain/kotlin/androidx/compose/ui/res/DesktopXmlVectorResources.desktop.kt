@@ -19,8 +19,8 @@ package androidx.compose.ui.res
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vector.parseVectorRoot
 import androidx.compose.ui.unit.Density
-import org.xml.sax.InputSource
 import javax.xml.parsers.DocumentBuilderFactory
+import org.xml.sax.InputSource
 
 /**
  * Synchronously load an xml vector image from some [inputSource].

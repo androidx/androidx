@@ -17,10 +17,10 @@
 package androidx.compose.foundation.layout
 
 import android.graphics.Rect as AndroidRect
-import android.view.WindowInsets as AndroidWindowInsets
 import android.os.Build
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowInsets as AndroidWindowInsets
 import androidx.activity.ComponentActivity
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider

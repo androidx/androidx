@@ -19,6 +19,9 @@ package androidx.paging
 import androidx.annotation.IntRange
 import androidx.annotation.MainThread
 import androidx.annotation.RestrictTo
+import java.lang.ref.WeakReference
+import java.util.AbstractList
+import java.util.concurrent.Executor
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
@@ -27,9 +30,6 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import java.lang.ref.WeakReference
-import java.util.AbstractList
-import java.util.concurrent.Executor
 
 /**
  * Lazy loading list that pages in immutable content from a [PagingSource].

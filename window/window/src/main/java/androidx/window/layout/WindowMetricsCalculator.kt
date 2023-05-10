@@ -16,13 +16,13 @@
 
 package androidx.window.layout
 
-import android.view.WindowMetrics as AndroidWindowMetrics
 import android.app.Activity
 import android.content.Context
 import android.inputmethodservice.InputMethodService
 import android.os.Build
 import android.util.DisplayMetrics
 import android.view.Display
+import android.view.WindowMetrics as AndroidWindowMetrics
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.annotation.UiContext

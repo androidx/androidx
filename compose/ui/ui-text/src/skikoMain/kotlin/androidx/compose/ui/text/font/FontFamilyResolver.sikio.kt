@@ -16,8 +16,8 @@
 
 package androidx.compose.ui.text.font
 
-import androidx.compose.ui.text.platform.FontCache
 import androidx.compose.ui.text.ExperimentalTextApi
+import androidx.compose.ui.text.platform.FontCache
 import kotlin.coroutines.CoroutineContext
 
 /**

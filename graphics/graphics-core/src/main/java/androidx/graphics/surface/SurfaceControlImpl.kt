@@ -25,9 +25,9 @@ import android.view.Surface
 import android.view.SurfaceControl
 import android.view.SurfaceView
 import androidx.annotation.RequiresApi
+import androidx.graphics.surface.SurfaceControlCompat.TransactionCommittedListener
 import androidx.hardware.SyncFenceCompat
 import androidx.hardware.SyncFenceImpl
-import androidx.graphics.surface.SurfaceControlCompat.TransactionCommittedListener
 import java.util.concurrent.Executor
 
 /**

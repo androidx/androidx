@@ -17,6 +17,7 @@
 package androidx.build.resources
 
 import androidx.build.checkapi.ApiLocation
+import java.io.File
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.file.RegularFileProperty
@@ -28,7 +29,6 @@ import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
-import java.io.File
 
 /**
  * Generates a resource API file for consumption by other API tasks.

@@ -21,8 +21,8 @@ import android.content.Intent
 import android.os.Bundle
 import android.service.credentials.CallingAppInfo
 import androidx.credentials.CreatePublicKeyCredentialRequest
-import androidx.credentials.CreatePublicKeyCredentialRequest.Companion.BUNDLE_KEY_REQUEST_JSON
 import androidx.credentials.CreatePublicKeyCredentialRequest.Companion.BUNDLE_KEY_CLIENT_DATA_HASH
+import androidx.credentials.CreatePublicKeyCredentialRequest.Companion.BUNDLE_KEY_REQUEST_JSON
 import androidx.credentials.PublicKeyCredential
 import androidx.credentials.internal.FrameworkClassParsingException
 

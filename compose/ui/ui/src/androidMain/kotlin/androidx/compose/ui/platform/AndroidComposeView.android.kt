@@ -16,7 +16,6 @@
 
 package androidx.compose.ui.platform
 
-import android.view.KeyEvent as AndroidKeyEvent
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.res.Configuration
@@ -26,6 +25,7 @@ import android.os.Looper
 import android.os.SystemClock
 import android.util.Log
 import android.util.SparseArray
+import android.view.KeyEvent as AndroidKeyEvent
 import android.view.MotionEvent
 import android.view.MotionEvent.ACTION_CANCEL
 import android.view.MotionEvent.ACTION_DOWN

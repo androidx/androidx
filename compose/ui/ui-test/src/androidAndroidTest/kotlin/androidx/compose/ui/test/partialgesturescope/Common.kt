@@ -19,8 +19,8 @@
 
 package androidx.compose.ui.test.partialgesturescope
 
-import androidx.compose.ui.test.junit4.ComposeTestRule
 import androidx.compose.ui.test.GestureScope
+import androidx.compose.ui.test.junit4.ComposeTestRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performGesture
 import androidx.compose.ui.test.util.ClickableTestBox.defaultTag

@@ -29,12 +29,12 @@ import androidx.glance.appwidget.GlanceAppWidgetReceiver
 import androidx.glance.appwidget.action.ActionCallback
 import androidx.glance.appwidget.action.actionRunCallback
 import androidx.glance.appwidget.state.updateAppWidgetState
-import androidx.glance.template.GlanceTemplateAppWidget
-import androidx.glance.template.SingleEntityTemplate
 import androidx.glance.currentState
 import androidx.glance.template.ActionBlock
+import androidx.glance.template.GlanceTemplateAppWidget
 import androidx.glance.template.HeaderBlock
 import androidx.glance.template.ImageBlock
+import androidx.glance.template.SingleEntityTemplate
 import androidx.glance.template.SingleEntityTemplateData
 import androidx.glance.template.TemplateImageWithDescription
 import androidx.glance.template.TemplateText

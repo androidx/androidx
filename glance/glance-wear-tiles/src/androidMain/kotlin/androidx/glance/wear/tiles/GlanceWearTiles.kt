@@ -16,11 +16,13 @@
 
 package androidx.glance.wear.tiles
 
-import androidx.glance.LocalState
 import android.content.Context
 import android.util.Log
 import androidx.compose.runtime.BroadcastFrameClock
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Composition
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.Recomposer
 import androidx.compose.ui.unit.DpSize
 import androidx.glance.Applier
 import androidx.glance.GlanceId
@@ -28,17 +30,15 @@ import androidx.glance.GlanceModifier
 import androidx.glance.LocalContext
 import androidx.glance.LocalGlanceId
 import androidx.glance.LocalSize
+import androidx.glance.LocalState
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.EmittableBox
 import androidx.glance.layout.fillMaxSize
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import androidx.compose.runtime.Composition
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.Recomposer
-import kotlinx.coroutines.CancellationException
 
 /**
  * Object containing the result from composition of [GlanceWearTiles].

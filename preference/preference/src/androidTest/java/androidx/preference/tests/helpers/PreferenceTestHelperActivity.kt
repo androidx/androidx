@@ -17,7 +17,6 @@
 package androidx.preference.tests.helpers
 
 import android.os.Bundle
-
 import androidx.annotation.LayoutRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.preference.PreferenceFragmentCompat

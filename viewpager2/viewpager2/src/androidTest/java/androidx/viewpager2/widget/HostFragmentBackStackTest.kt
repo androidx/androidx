@@ -36,11 +36,11 @@ import androidx.viewpager2.test.R
 import androidx.viewpager2.widget.ViewPager2.ORIENTATION_HORIZONTAL
 import androidx.viewpager2.widget.swipe.FragmentAdapter
 import androidx.viewpager2.widget.swipe.PageFragment
+import java.util.concurrent.TimeUnit.SECONDS
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.util.concurrent.TimeUnit.SECONDS
 
 /**
  * Regression test for an issue when recreating a [ViewPager2]'s host [Fragment]'s [View] causes

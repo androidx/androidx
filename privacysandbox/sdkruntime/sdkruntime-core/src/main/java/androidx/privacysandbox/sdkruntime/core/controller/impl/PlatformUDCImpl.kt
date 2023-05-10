@@ -27,10 +27,10 @@ import android.os.ext.SdkExtensions
 import androidx.activity.OnBackPressedDispatcher
 import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresExtension
-import androidx.privacysandbox.sdkruntime.core.activity.ActivityHolder
-import androidx.privacysandbox.sdkruntime.core.activity.SdkSandboxActivityHandlerCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleRegistry
+import androidx.privacysandbox.sdkruntime.core.activity.ActivityHolder
+import androidx.privacysandbox.sdkruntime.core.activity.SdkSandboxActivityHandlerCompat
 
 /**
  * Implementation that delegates to platform [SdkSandboxController] for Android U.

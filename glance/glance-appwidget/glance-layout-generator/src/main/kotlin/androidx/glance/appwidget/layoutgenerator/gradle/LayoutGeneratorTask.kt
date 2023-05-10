@@ -21,6 +21,7 @@ import androidx.glance.appwidget.layoutgenerator.LayoutGenerator
 import androidx.glance.appwidget.layoutgenerator.cleanResources
 import androidx.glance.appwidget.layoutgenerator.generateRegistry
 import com.android.build.gradle.LibraryExtension
+import java.io.File
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
 import org.gradle.api.file.DirectoryProperty
@@ -30,7 +31,6 @@ import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
-import java.io.File
 
 /**
  * Task generating the layouts from a set of Layout templates.

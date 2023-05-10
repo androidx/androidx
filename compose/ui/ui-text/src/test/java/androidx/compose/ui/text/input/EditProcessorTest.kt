@@ -19,6 +19,10 @@ package androidx.compose.ui.text.input
 import androidx.compose.ui.text.InternalTextApi
 import androidx.compose.ui.text.TextRange
 import com.google.common.truth.Truth.assertThat
+import kotlin.test.assertFailsWith
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
 import org.mockito.kotlin.any
 import org.mockito.kotlin.argumentCaptor
 import org.mockito.kotlin.eq
@@ -27,10 +31,6 @@ import org.mockito.kotlin.never
 import org.mockito.kotlin.reset
 import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
-import kotlin.test.assertFailsWith
-import org.junit.Test
-import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
 
 @OptIn(InternalTextApi::class)
 @RunWith(JUnit4::class)

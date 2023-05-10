@@ -16,8 +16,8 @@
 
 package androidx.kruth
 
-import kotlin.test.assertFailsWith
 import kotlin.reflect.KClass
+import kotlin.test.assertFailsWith
 
 // Commonized extensions on top of Truth. These are kept separate for book-keeping in case we end up
 // promoting Kruth.

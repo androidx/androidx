@@ -25,9 +25,9 @@ import android.os.Bundle
 import android.os.IBinder
 import android.os.ext.SdkExtensions.AD_SERVICES
 import androidx.annotation.DoNotInline
+import androidx.annotation.OptIn
 import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresExtension
-import androidx.annotation.OptIn
 import androidx.core.os.BuildCompat
 import androidx.core.os.asOutcomeReceiver
 import androidx.privacysandbox.sdkruntime.client.activity.LocalSdkActivityStarter

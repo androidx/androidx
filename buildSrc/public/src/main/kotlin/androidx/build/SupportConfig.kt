@@ -17,9 +17,9 @@
 package androidx.build
 
 import androidx.build.SupportConfig.COMPILE_SDK_VERSION
+import java.io.File
 import org.gradle.api.Project
 import org.gradle.api.file.FileCollection
-import java.io.File
 
 object SupportConfig {
     const val DEFAULT_MIN_SDK_VERSION = 14

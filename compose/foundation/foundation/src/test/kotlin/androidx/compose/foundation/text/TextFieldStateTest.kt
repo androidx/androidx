@@ -18,10 +18,10 @@ package androidx.compose.foundation.text
 
 import androidx.compose.runtime.snapshots.Snapshot
 import com.google.common.truth.Truth
-import org.mockito.kotlin.mock
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import org.mockito.kotlin.mock
 
 @RunWith(JUnit4::class)
 internal class TextFieldStateTest {

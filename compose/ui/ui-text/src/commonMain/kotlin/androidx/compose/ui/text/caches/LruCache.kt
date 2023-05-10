@@ -18,7 +18,6 @@ package androidx.compose.ui.text.caches
 
 import androidx.compose.ui.text.platform.createSynchronizedObject
 import androidx.compose.ui.text.platform.synchronized
-
 import kotlin.jvm.JvmName
 
 /**

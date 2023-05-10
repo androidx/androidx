@@ -30,10 +30,10 @@ import androidx.work.WorkRequest
 import androidx.work.multiprocess.parcelable.ParcelConverters
 import androidx.work.multiprocess.parcelable.ParcelableWorkRequest
 import androidx.work.multiprocess.parcelable.ParcelableWorkRequests
+import java.util.concurrent.TimeUnit
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.util.concurrent.TimeUnit
 
 @RunWith(AndroidJUnit4::class)
 public class ParcelableWorkRequestConvertersTest {

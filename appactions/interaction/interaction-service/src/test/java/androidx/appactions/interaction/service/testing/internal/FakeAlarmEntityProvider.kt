@@ -17,10 +17,10 @@
 package androidx.appactions.interaction.service.testing.internal
 
 import androidx.appactions.builtintypes.experimental.types.Alarm
-import androidx.appactions.interaction.capabilities.core.entity.EntityProvider
+import androidx.appactions.interaction.capabilities.core.entity.EntityLookupCandidate
 import androidx.appactions.interaction.capabilities.core.entity.EntityLookupRequest
 import androidx.appactions.interaction.capabilities.core.entity.EntityLookupResponse
-import androidx.appactions.interaction.capabilities.core.entity.EntityLookupCandidate
+import androidx.appactions.interaction.capabilities.core.entity.EntityProvider
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
 
 class FakeAlarmEntityProvider(

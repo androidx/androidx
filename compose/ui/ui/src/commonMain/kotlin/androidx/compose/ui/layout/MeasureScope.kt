@@ -16,8 +16,8 @@
 
 package androidx.compose.ui.layout
 
-import androidx.compose.ui.node.LookaheadCapablePlaceable
 import androidx.compose.ui.internal.JvmDefaultWithCompatibility
+import androidx.compose.ui.node.LookaheadCapablePlaceable
 
 /**
  * The receiver scope of a layout's measure lambda. The return value of the

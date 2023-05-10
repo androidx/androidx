@@ -16,11 +16,11 @@
 
 package androidx.compose.runtime
 
-import kotlinx.coroutines.runBlocking
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertSame
+import kotlinx.coroutines.runBlocking
 
 class MonotonicFrameClockTest {
     @ExperimentalComposeApi

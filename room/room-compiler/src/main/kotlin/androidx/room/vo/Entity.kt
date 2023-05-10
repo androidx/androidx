@@ -17,8 +17,8 @@
 package androidx.room.vo
 
 import androidx.room.compiler.processing.XType
-import androidx.room.migration.bundle.EntityBundle
 import androidx.room.compiler.processing.XTypeElement
+import androidx.room.migration.bundle.EntityBundle
 import androidx.room.migration.bundle.TABLE_NAME_PLACEHOLDER
 
 /**

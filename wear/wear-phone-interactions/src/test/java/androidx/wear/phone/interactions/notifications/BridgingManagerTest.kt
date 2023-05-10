@@ -20,12 +20,12 @@ import android.content.Context
 import android.content.pm.PackageManager
 import androidx.wear.phone.interactions.WearPhoneInteractionsTestRunner
 import com.google.common.truth.Truth.assertThat
+import java.util.Arrays
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.Mockito.`when`
 import org.mockito.Mockito.mock
+import org.mockito.Mockito.`when`
 import org.robolectric.annotation.internal.DoNotInstrument
-import java.util.Arrays
 
 /** Unit tests for [BridgingManager].  */
 @RunWith(WearPhoneInteractionsTestRunner::class)

@@ -35,13 +35,13 @@ import android.view.WindowManager
 import android.widget.FrameLayout
 import android.widget.RemoteViews
 import androidx.annotation.RequiresApi
-import androidx.glance.appwidget.test.R
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
-import org.junit.Assert.fail
+import androidx.glance.appwidget.test.R
 import java.util.Locale
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import org.junit.Assert.fail
 
 private const val TAG = "AppWidgetHostTestActivity"
 

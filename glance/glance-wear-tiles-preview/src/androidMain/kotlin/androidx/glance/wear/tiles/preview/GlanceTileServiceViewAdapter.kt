@@ -27,8 +27,8 @@ import androidx.glance.wear.tiles.ExperimentalGlanceWearTilesApi
 import androidx.glance.wear.tiles.compose
 import androidx.glance.wear.tiles.preview.ComposableInvoker.invokeComposable
 import androidx.wear.tiles.TileBuilders
-import kotlinx.coroutines.runBlocking
 import androidx.wear.tiles.renderer.TileRenderer
+import kotlinx.coroutines.runBlocking
 
 private const val TOOLS_NS_URI = "http://schemas.android.com/tools"
 

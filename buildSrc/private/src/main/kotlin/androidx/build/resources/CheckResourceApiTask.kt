@@ -17,6 +17,7 @@
 package androidx.build.resources
 
 import androidx.build.checkapi.ApiLocation
+import java.io.File
 import org.gradle.api.DefaultTask
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
@@ -24,10 +25,9 @@ import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.Internal
-import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
-import java.io.File
+import org.gradle.api.tasks.TaskAction
 
 /**
  * Task for detecting changes in the public Android resource surface, e.g. `public.xml`.

@@ -16,7 +16,6 @@
 
 package androidx.room.compiler.processing.util
 
-import com.squareup.kotlinpoet.TypeSpec as KTypeSpec
 import androidx.room.compiler.processing.ExperimentalProcessingApi
 import androidx.room.compiler.processing.XElement
 import androidx.room.compiler.processing.compat.XConverters.toXProcessing
@@ -26,6 +25,7 @@ import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeSpec
 import com.squareup.kotlinpoet.BOOLEAN
 import com.squareup.kotlinpoet.FileSpec
+import com.squareup.kotlinpoet.TypeSpec as KTypeSpec
 import java.io.File
 import org.junit.AssumptionViolatedException
 import org.junit.Test

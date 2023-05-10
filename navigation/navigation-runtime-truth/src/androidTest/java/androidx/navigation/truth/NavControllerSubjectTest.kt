@@ -18,8 +18,8 @@ package androidx.navigation.truth
 
 import androidx.navigation.NavController
 import androidx.navigation.plusAssign
-import androidx.navigation.truth.test.R
 import androidx.navigation.truth.NavControllerSubject.Companion.assertThat
+import androidx.navigation.truth.test.R
 import androidx.test.annotation.UiThreadTest
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.SmallTest

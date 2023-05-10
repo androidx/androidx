@@ -18,8 +18,8 @@ package androidx.compose.foundation.samples
 
 import android.util.Log
 import androidx.annotation.Sampled
-import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf

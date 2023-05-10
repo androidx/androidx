@@ -18,10 +18,10 @@ package androidx.benchmark.integration.macrobenchmark
 
 import android.content.Intent
 import androidx.benchmark.macro.BatteryCharge
-import androidx.benchmark.macro.PowerCategory
-import androidx.benchmark.macro.PowerCategoryDisplayLevel
 import androidx.benchmark.macro.CompilationMode
 import androidx.benchmark.macro.ExperimentalMetricApi
+import androidx.benchmark.macro.PowerCategory
+import androidx.benchmark.macro.PowerCategoryDisplayLevel
 import androidx.benchmark.macro.PowerMetric
 import androidx.benchmark.macro.PowerRail
 import androidx.benchmark.macro.StartupMode

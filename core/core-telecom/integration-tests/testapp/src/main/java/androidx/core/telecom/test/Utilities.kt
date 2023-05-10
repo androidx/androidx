@@ -19,9 +19,9 @@ package androidx.core.telecom.test
 import android.net.Uri
 import androidx.annotation.RequiresApi
 import androidx.core.telecom.CallAttributesCompat
+import androidx.core.telecom.CallAttributesCompat.Companion.CALL_TYPE_VIDEO_CALL
 import androidx.core.telecom.CallAttributesCompat.Companion.DIRECTION_INCOMING
 import androidx.core.telecom.CallAttributesCompat.Companion.DIRECTION_OUTGOING
-import androidx.core.telecom.CallAttributesCompat.Companion.CALL_TYPE_VIDEO_CALL
 
 @RequiresApi(34)
 class Utilities {

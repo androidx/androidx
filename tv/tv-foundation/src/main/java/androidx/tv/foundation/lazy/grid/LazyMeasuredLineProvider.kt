@@ -17,8 +17,8 @@
 package androidx.tv.foundation.lazy.grid
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.tv.foundation.lazy.layout.LazyLayoutKeyIndexMap
 import androidx.compose.ui.unit.Constraints
+import androidx.tv.foundation.lazy.layout.LazyLayoutKeyIndexMap
 
 /**
  * Abstracts away subcomposition and span calculation from the measuring logic of entire lines.

@@ -18,12 +18,12 @@ package androidx.credentials.provider.utils
 
 import android.annotation.SuppressLint
 import android.os.Bundle
-import androidx.credentials.provider.BeginGetCredentialOption
-import androidx.credentials.provider.BeginGetCredentialRequest
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.credentials.provider.Action
 import androidx.credentials.provider.AuthenticationAction
+import androidx.credentials.provider.BeginGetCredentialOption
+import androidx.credentials.provider.BeginGetCredentialRequest
 import androidx.credentials.provider.BeginGetCredentialResponse
 import androidx.credentials.provider.CredentialEntry
 import androidx.credentials.provider.RemoteEntry

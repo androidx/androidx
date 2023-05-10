@@ -17,8 +17,8 @@
 package androidx.glance.appwidget.demos
 
 import android.content.Context
-import android.os.Build
 import android.content.Intent
+import android.os.Build
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
 import androidx.glance.Button

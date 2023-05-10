@@ -19,10 +19,10 @@ package androidx.paging
 import androidx.paging.LoadState.Loading
 import androidx.paging.LoadState.NotLoading
 import androidx.paging.PagingSource.LoadParams
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import java.util.concurrent.atomic.AtomicBoolean
 
 internal class LegacyPageFetcher<K : Any, V : Any>(
     private val pagedListScope: CoroutineScope,

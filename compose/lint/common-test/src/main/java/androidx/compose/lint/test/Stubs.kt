@@ -21,8 +21,8 @@ package androidx.compose.lint.test
 import com.android.tools.lint.checks.infrastructure.LintDetectorTest.kotlin
 import com.android.tools.lint.checks.infrastructure.TestFile
 import com.android.tools.lint.checks.infrastructure.TestFiles.bytecode
-import org.intellij.lang.annotations.Language
 import java.util.Locale
+import org.intellij.lang.annotations.Language
 
 /**
  * Common Compose-related bytecode lint stubs used for testing

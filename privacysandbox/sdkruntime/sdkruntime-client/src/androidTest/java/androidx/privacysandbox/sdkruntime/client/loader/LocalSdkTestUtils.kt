@@ -21,8 +21,8 @@ import android.content.Context
 import android.os.Bundle
 import android.os.IBinder
 import androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat
-import androidx.privacysandbox.sdkruntime.core.Versions
 import androidx.privacysandbox.sdkruntime.core.SandboxedSdkProviderCompat
+import androidx.privacysandbox.sdkruntime.core.Versions
 import androidx.privacysandbox.sdkruntime.core.activity.SdkSandboxActivityHandlerCompat
 import java.lang.reflect.Proxy
 import java.util.concurrent.CountDownLatch

@@ -19,12 +19,12 @@ package androidx.build.checkapi
 import androidx.build.Version
 import androidx.build.checkapi.ApiLocation.Companion.isResourceApiFilename
 import androidx.build.version
-import org.gradle.api.GradleException
-import org.gradle.api.Project
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.io.path.name
+import org.gradle.api.GradleException
+import org.gradle.api.Project
 
 enum class ApiType {
     CLASSAPI,

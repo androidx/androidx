@@ -25,9 +25,9 @@ import androidx.paging.NullPaddedList
 import androidx.paging.Pager
 import androidx.paging.PagingData
 import androidx.paging.PagingDataDiffer
-import androidx.paging.testing.ErrorRecovery.THROW
 import androidx.paging.testing.ErrorRecovery.RETRY
 import androidx.paging.testing.ErrorRecovery.RETURN_CURRENT_SNAPSHOT
+import androidx.paging.testing.ErrorRecovery.THROW
 import androidx.paging.testing.LoaderCallback.CallbackType.ON_CHANGED
 import androidx.paging.testing.LoaderCallback.CallbackType.ON_INSERTED
 import androidx.paging.testing.LoaderCallback.CallbackType.ON_REMOVED

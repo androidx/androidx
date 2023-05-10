@@ -16,7 +16,6 @@
 
 package androidx.window.embedding
 
-import androidx.window.extensions.embedding.SplitInfo as OEMSplitInfo
 import android.app.Activity
 import android.app.ActivityOptions
 import android.content.Context
@@ -33,6 +32,7 @@ import androidx.window.extensions.WindowExtensions.VENDOR_API_LEVEL_3
 import androidx.window.extensions.WindowExtensionsProvider
 import androidx.window.extensions.core.util.function.Consumer
 import androidx.window.extensions.embedding.ActivityEmbeddingComponent
+import androidx.window.extensions.embedding.SplitInfo as OEMSplitInfo
 import java.lang.reflect.Proxy
 
 /**

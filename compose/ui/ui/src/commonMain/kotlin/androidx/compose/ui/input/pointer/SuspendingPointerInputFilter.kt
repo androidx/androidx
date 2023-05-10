@@ -20,6 +20,11 @@ import androidx.compose.runtime.collection.mutableVectorOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.fastMapNotNull
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.internal.JvmDefaultWithCompatibility
+import androidx.compose.ui.node.ModifierNodeElement
+import androidx.compose.ui.node.PointerInputModifierNode
+import androidx.compose.ui.node.requireLayoutNode
+import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.ViewConfiguration
 import androidx.compose.ui.platform.synchronized
@@ -37,16 +42,11 @@ import kotlin.coroutines.resumeWithException
 import kotlin.math.max
 import kotlinx.coroutines.CancellableContinuation
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
-import androidx.compose.ui.internal.JvmDefaultWithCompatibility
-import androidx.compose.ui.node.ModifierNodeElement
-import androidx.compose.ui.node.PointerInputModifierNode
-import androidx.compose.ui.node.requireLayoutNode
-import androidx.compose.ui.platform.InspectorInfo
-import kotlinx.coroutines.CoroutineStart
-import kotlinx.coroutines.Job
 
 /**
  * Receiver scope for awaiting pointer events in a call to

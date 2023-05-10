@@ -16,8 +16,8 @@
 
 package androidx.compose.ui.platform
 
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.dp
 
 class DefaultViewConfiguration(private val density: Density) : ViewConfiguration {
     override val longPressTimeoutMillis: Long

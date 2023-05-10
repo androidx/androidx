@@ -31,8 +31,8 @@ import androidx.compose.ui.input.focus.FocusAwareEventPropagationTest.NodeType.I
 import androidx.compose.ui.input.focus.FocusAwareEventPropagationTest.NodeType.KeyInput
 import androidx.compose.ui.input.focus.FocusAwareEventPropagationTest.NodeType.RotaryInput
 import androidx.compose.ui.input.key.KeyEvent
-import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.onInterceptKeyBeforeSoftKeyboard
+import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.onPreInterceptKeyBeforeSoftKeyboard
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.rotary.RotaryScrollEvent

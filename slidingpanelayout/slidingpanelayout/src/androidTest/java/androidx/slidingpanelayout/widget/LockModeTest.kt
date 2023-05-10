@@ -17,9 +17,9 @@
 package androidx.slidingpanelayout.widget
 
 import androidx.slidingpanelayout.test.R
+import androidx.slidingpanelayout.widget.SlidingPaneLayout.LOCK_MODE_LOCKED
 import androidx.slidingpanelayout.widget.SlidingPaneLayout.LOCK_MODE_LOCKED_CLOSED
 import androidx.slidingpanelayout.widget.SlidingPaneLayout.LOCK_MODE_LOCKED_OPEN
-import androidx.slidingpanelayout.widget.SlidingPaneLayout.LOCK_MODE_LOCKED
 import androidx.slidingpanelayout.widget.SlidingPaneLayout.LOCK_MODE_UNLOCKED
 import androidx.slidingpanelayout.widget.helpers.TestActivity
 import androidx.slidingpanelayout.widget.helpers.addWaitForCloseLatch
@@ -39,10 +39,10 @@ import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.testutils.withActivity
 import com.google.common.truth.Truth.assertThat
+import java.util.concurrent.TimeUnit
 import org.junit.After
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.util.concurrent.TimeUnit
 
 /**
  * Tests [SlidingPaneLayout.setLockMode] and [SlidingPaneLayout.getLockMode]

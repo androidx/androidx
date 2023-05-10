@@ -17,9 +17,9 @@
 package androidx.compose.ui.platform
 
 import android.view.Choreographer
-import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.ContinuationInterceptor
 import kotlin.coroutines.coroutineContext
+import kotlinx.coroutines.suspendCancellableCoroutine
 
 class AndroidUiFrameClock internal constructor(
     val choreographer: Choreographer,

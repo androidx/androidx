@@ -22,14 +22,14 @@ import androidx.compose.runtime.ControlledComposition
 import androidx.compose.runtime.InternalComposeApi
 import androidx.compose.runtime.Recomposer
 import androidx.compose.runtime.snapshots.Snapshot
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.TestCoroutineScheduler
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withContext
-import kotlin.test.assertFalse
-import kotlin.test.assertTrue
-import kotlinx.coroutines.test.TestCoroutineScheduler
 
 @OptIn(InternalComposeApi::class, ExperimentalCoroutinesApi::class)
 fun compositionTest(block: suspend CompositionTestScope.() -> Unit) = runTest {

@@ -29,8 +29,8 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material.ProgressIndicatorDefaults.BaseRotationAngle
-import androidx.wear.compose.material.ProgressIndicatorDefaults.CircularEasing
 import androidx.wear.compose.material.ProgressIndicatorDefaults.ButtonCircularIndicatorDiameter
+import androidx.wear.compose.material.ProgressIndicatorDefaults.CircularEasing
 import androidx.wear.compose.material.ProgressIndicatorDefaults.HeadAndTailAnimationDuration
 import androidx.wear.compose.material.ProgressIndicatorDefaults.HeadAndTailDelayDuration
 import androidx.wear.compose.material.ProgressIndicatorDefaults.IndeterminateCircularIndicatorDiameter

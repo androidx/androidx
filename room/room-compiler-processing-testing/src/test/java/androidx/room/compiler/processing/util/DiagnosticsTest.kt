@@ -18,10 +18,10 @@ package androidx.room.compiler.processing.util
 
 import androidx.room.compiler.processing.ExperimentalProcessingApi
 import com.google.common.truth.Truth.assertThat
+import javax.tools.Diagnostic
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
-import javax.tools.Diagnostic
 
 @RunWith(Parameterized::class)
 @OptIn(ExperimentalProcessingApi::class)

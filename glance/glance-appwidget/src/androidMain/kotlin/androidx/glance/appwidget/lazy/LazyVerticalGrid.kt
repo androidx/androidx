@@ -15,17 +15,17 @@
  */
 
 package androidx.glance.appwidget.lazy
-import androidx.compose.runtime.Composable
-import androidx.glance.GlanceModifier
-import androidx.glance.GlanceNode
-import androidx.glance.layout.Alignment
-import androidx.glance.EmittableWithChildren
-import androidx.glance.layout.fillMaxWidth
-import androidx.glance.layout.wrapContentHeight
 import androidx.annotation.RequiresApi
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.key
 import androidx.compose.ui.unit.Dp
 import androidx.glance.Emittable
+import androidx.glance.EmittableWithChildren
+import androidx.glance.GlanceModifier
+import androidx.glance.GlanceNode
+import androidx.glance.layout.Alignment
+import androidx.glance.layout.fillMaxWidth
+import androidx.glance.layout.wrapContentHeight
 
 /**
  * The DSL implementation of a lazy grid layout. It composes only visible rows of the grid.

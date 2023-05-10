@@ -19,25 +19,25 @@ package androidx.core.i18n
 import android.annotation.SuppressLint
 import android.os.Build
 import android.util.Log
+import androidx.core.i18n.DateTimeFormatterSkeletonOptions as SkeletonOptions
 import androidx.core.os.BuildCompat
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
-import org.junit.After
-import org.junit.Assert.assertEquals
-import org.junit.Before
-import org.junit.BeforeClass
-import org.junit.Test
-import org.junit.runner.RunWith
 import java.util.Calendar
 import java.util.Date
 import java.util.GregorianCalendar
 import java.util.Locale
 import java.util.TimeZone
 import kotlin.test.assertFailsWith
-import androidx.core.i18n.DateTimeFormatterSkeletonOptions as SkeletonOptions
+import org.junit.After
+import org.junit.Assert.assertEquals
+import org.junit.Before
+import org.junit.BeforeClass
+import org.junit.Test
+import org.junit.runner.RunWith
 
 /** Must execute on an Android device. */
 @RunWith(AndroidJUnit4::class)

@@ -16,10 +16,10 @@
 
 package androidx.health.services.client.data
 
-import androidx.health.services.client.proto.DataProto
-import androidx.health.services.client.proto.DataProto.DataPointAccuracy.LocationAccuracy as LocationAccuracyProto
 import android.util.Log
 import androidx.annotation.FloatRange
+import androidx.health.services.client.proto.DataProto
+import androidx.health.services.client.proto.DataProto.DataPointAccuracy.LocationAccuracy as LocationAccuracyProto
 
 /** Accuracy for a [DataType.LOCATION] data point. */
 @Suppress("ParcelCreator")

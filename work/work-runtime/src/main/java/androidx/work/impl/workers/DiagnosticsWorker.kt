@@ -22,11 +22,11 @@ import androidx.work.Worker
 import androidx.work.WorkerParameters
 import androidx.work.impl.Scheduler
 import androidx.work.impl.WorkManagerImpl
-import androidx.work.impl.model.generationalId
 import androidx.work.impl.model.SystemIdInfoDao
 import androidx.work.impl.model.WorkNameDao
 import androidx.work.impl.model.WorkSpec
 import androidx.work.impl.model.WorkTagDao
+import androidx.work.impl.model.generationalId
 import java.util.concurrent.TimeUnit
 
 internal class DiagnosticsWorker(context: Context, parameters: WorkerParameters) :

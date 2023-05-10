@@ -27,16 +27,16 @@ import androidx.work.SystemClock
 import androidx.work.impl.WorkManagerImpl
 import androidx.work.impl.background.gcm.GcmTaskConverter.EXECUTION_WINDOW_SIZE_IN_SECONDS
 import com.google.android.gms.gcm.Task
+import java.util.concurrent.TimeUnit
+import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.greaterThan
 import org.hamcrest.Matchers.lessThanOrEqualTo
 import org.junit.Assert.assertEquals
-import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.Mockito.`when`
 import org.mockito.Mockito.spy
-import java.util.concurrent.TimeUnit
+import org.mockito.Mockito.`when`
 
 @RunWith(AndroidJUnit4::class)
 @SmallTest

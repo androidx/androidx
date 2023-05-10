@@ -25,15 +25,18 @@ import android.view.View
 import android.view.Window
 import android.view.WindowManager
 import androidx.window.TestWindow
-import androidx.window.layout.adapter.sidecar.ExtensionInterfaceCompat.ExtensionCallbackInterface
 import androidx.window.layout.TestFoldingFeatureUtil.invalidFoldBounds
 import androidx.window.layout.TestFoldingFeatureUtil.validFoldBound
 import androidx.window.layout.WindowLayoutInfo
+import androidx.window.layout.adapter.sidecar.ExtensionInterfaceCompat.ExtensionCallbackInterface
 import androidx.window.sidecar.SidecarDeviceState
 import androidx.window.sidecar.SidecarDisplayFeature
 import androidx.window.sidecar.SidecarInterface
 import androidx.window.sidecar.SidecarInterface.SidecarCallback
 import androidx.window.sidecar.SidecarWindowLayoutInfo
+import org.junit.Assert.assertEquals
+import org.junit.Before
+import org.junit.Test
 import org.mockito.kotlin.any
 import org.mockito.kotlin.doAnswer
 import org.mockito.kotlin.doReturn
@@ -42,9 +45,6 @@ import org.mockito.kotlin.spy
 import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
-import org.junit.Assert.assertEquals
-import org.junit.Before
-import org.junit.Test
 
 /**
  * Unit tests for [SidecarCompat] that run on the JVM.

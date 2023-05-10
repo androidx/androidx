@@ -25,20 +25,20 @@ import androidx.paging.LoadType.REFRESH
 import androidx.paging.rxjava3.RxPagedListBuilder
 import androidx.testutils.DirectDispatcher
 import androidx.testutils.TestDispatcher
+import com.google.common.truth.Truth.assertThat
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.observers.TestObserver
 import io.reactivex.rxjava3.schedulers.Schedulers
 import io.reactivex.rxjava3.schedulers.TestScheduler
+import kotlin.test.assertTrue
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.asExecutor
+import kotlinx.coroutines.withContext
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import kotlin.test.assertTrue
-import com.google.common.truth.Truth.assertThat
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.asExecutor
-import kotlinx.coroutines.withContext
 
 @RunWith(JUnit4::class)
 class RxPagedListBuilderTest {

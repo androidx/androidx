@@ -18,6 +18,7 @@
 
 package androidx.compose.animation.core
 
+import androidx.compose.animation.core.internal.JvmDefaultWithCompatibility
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -26,6 +27,7 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -37,10 +39,8 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
-import kotlin.math.max
-import androidx.compose.animation.core.internal.JvmDefaultWithCompatibility
-import androidx.compose.runtime.mutableLongStateOf
 import kotlin.jvm.JvmName
+import kotlin.math.max
 
 /**
  * This sets up a [Transition], and updates it with the target provided by [targetState]. When

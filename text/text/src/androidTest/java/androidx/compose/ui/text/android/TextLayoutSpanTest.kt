@@ -29,12 +29,12 @@ import androidx.test.filters.MediumTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.testutils.fonts.R
 import com.google.common.truth.Truth.assertThat
-import org.mockito.kotlin.any
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mockito.doAnswer
 import org.mockito.Mockito.spy
+import org.mockito.kotlin.any
 import org.mockito.stubbing.Answer
 
 @OptIn(InternalPlatformTextApi::class)

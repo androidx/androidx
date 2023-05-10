@@ -17,10 +17,10 @@
 package androidx.room.compiler.processing.ksp
 
 import androidx.room.compiler.processing.XFieldElement
+import androidx.room.compiler.processing.ksp.KspFieldElementTest.TestModifier.FINAL
 import androidx.room.compiler.processing.ksp.KspFieldElementTest.TestModifier.PRIVATE
 import androidx.room.compiler.processing.ksp.KspFieldElementTest.TestModifier.PROTECTED
 import androidx.room.compiler.processing.ksp.KspFieldElementTest.TestModifier.PUBLIC
-import androidx.room.compiler.processing.ksp.KspFieldElementTest.TestModifier.FINAL
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
 import androidx.room.compiler.processing.util.className

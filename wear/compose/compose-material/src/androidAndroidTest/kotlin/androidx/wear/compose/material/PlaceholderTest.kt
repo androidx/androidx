@@ -34,10 +34,10 @@ import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.Dp
-import org.junit.Rule
-import org.junit.Test
 import com.google.common.truth.Truth.assertThat
 import kotlin.math.max
+import org.junit.Rule
+import org.junit.Test
 
 class PlaceholderTest {
     @get:Rule

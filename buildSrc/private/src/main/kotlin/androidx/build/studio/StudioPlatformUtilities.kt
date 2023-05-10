@@ -16,9 +16,9 @@
 
 package androidx.build.studio
 
-import org.gradle.process.ExecSpec
 import java.io.File
 import java.util.Locale
+import org.gradle.process.ExecSpec
 
 /**
  * Utility class containing helper functions and values that change between Linux and OSX

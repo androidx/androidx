@@ -20,6 +20,7 @@ import androidx.paging.CombineSource.INITIAL
 import androidx.paging.CombineSource.OTHER
 import androidx.paging.CombineSource.RECEIVER
 import com.google.common.truth.Truth.assertThat
+import kotlin.random.Random
 import kotlin.test.Test
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
@@ -39,7 +40,6 @@ import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.yield
-import kotlin.random.Random
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class FlowExtTest {

@@ -21,8 +21,8 @@ import android.os.Build.VERSION_CODES
 import android.telecom.PhoneAccount.CAPABILITY_SELF_MANAGED
 import android.telecom.PhoneAccount.CAPABILITY_SUPPORTS_TRANSACTIONAL_OPERATIONS
 import androidx.annotation.RequiresApi
-import androidx.core.telecom.internal.utils.Utils
 import androidx.core.telecom.internal.utils.BuildVersionAdapter
+import androidx.core.telecom.internal.utils.Utils
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress

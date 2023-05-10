@@ -19,8 +19,8 @@ package androidx.credentials.playservices
 import android.content.Context
 import android.os.CancellationSignal
 import android.util.Log
-import androidx.credentials.ClearCredentialStateRequest
 import androidx.annotation.VisibleForTesting
+import androidx.credentials.ClearCredentialStateRequest
 import androidx.credentials.CreateCredentialRequest
 import androidx.credentials.CreateCredentialResponse
 import androidx.credentials.CreatePasswordRequest

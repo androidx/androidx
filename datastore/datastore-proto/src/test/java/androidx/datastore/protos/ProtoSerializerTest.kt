@@ -17,16 +17,16 @@
 package androidx.datastore.protos
 
 import androidx.datastore.core.CorruptionException
-import org.junit.Test
-import androidx.testing.TestMessageProto.FooProto
 import androidx.testing.TestMessageProto.ExtendableProto
 import androidx.testing.TestMessageProto.ExtensionProto
+import androidx.testing.TestMessageProto.FooProto
 import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
 import com.google.protobuf.ExtensionRegistryLite
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.junit.Rule
+import org.junit.Test
 import org.junit.rules.TemporaryFolder
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4

@@ -20,13 +20,13 @@ import androidx.datastore.FileTestIO
 import androidx.datastore.JavaIOFile
 import androidx.kruth.assertThat
 import androidx.kruth.assertThrows
+import java.io.IOException
+import java.io.InputStream
+import java.io.OutputStream
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.ObsoleteCoroutinesApi
-import java.io.IOException
-import java.io.InputStream
-import java.io.OutputStream
 import kotlinx.coroutines.flow.first
 import org.junit.Test
 

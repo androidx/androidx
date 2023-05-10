@@ -18,6 +18,7 @@ package androidx.build.testConfiguration
 
 import androidx.build.getDistributionDirectory
 import com.google.gson.GsonBuilder
+import java.io.File
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
 import org.gradle.api.file.RegularFileProperty
@@ -27,7 +28,6 @@ import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.bundling.Zip
-import java.io.File
 
 @CacheableTask
 abstract class ModuleInfoGenerator : DefaultTask() {

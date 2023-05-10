@@ -31,11 +31,11 @@ import androidx.work.WorkInfo
 import androidx.work.WorkQuery
 import androidx.work.await
 import androidx.work.multiprocess.RemoteWorkManager
+import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
-import java.util.concurrent.TimeUnit
 
 class RemoteService : LifecycleService() {
 
