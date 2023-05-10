@@ -31,6 +31,7 @@ import androidx.compose.foundation.gestures.ScrollScope
 import androidx.compose.foundation.gestures.snapping.MinFlingVelocityDp
 import androidx.compose.foundation.gestures.snapping.SnapFlingBehavior
 import androidx.compose.foundation.gestures.snapping.SnapLayoutInfoProvider
+import androidx.compose.foundation.gestures.snapping.calculateDistanceToDesiredSnapPosition
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
@@ -673,13 +674,13 @@ private fun SnapLayoutInfoProvider(
 
             layoutInfo.visiblePagesInfo.fastForEach { page ->
                 val offset = calculateDistanceToDesiredSnapPosition(
-                    axisViewPortSize = layoutInfo.mainAxisViewportSize,
+                    mainAxisViewPortSize = layoutInfo.mainAxisViewportSize,
                     beforeContentPadding = layoutInfo.beforeContentPadding,
                     afterContentPadding = layoutInfo.afterContentPadding,
-                    pageSize = layoutInfo.pageSize,
-                    pageOffset = page.offset,
-                    pageIndex = page.index,
-                    positionInLayout = SnapAlignmentStartToStart
+                    itemSize = layoutInfo.pageSize,
+                    itemOffset = page.offset,
+                    itemIndex = page.index,
+                    snapPositionInLayout = SnapAlignmentStartToStart
                 )
 
                 // Find page that is closest to the snap position, but before it
