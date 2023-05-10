@@ -41,4 +41,12 @@
     <string name="mr_dialog_groupable_header" msgid="4307018456678388936">"Dodajte uređaj"</string>
     <string name="mr_dialog_transferable_header" msgid="6068257520605505468">"Puštajte u grupi"</string>
     <string name="mr_cast_dialog_title_view_placeholder" msgid="2175930138959078155">"Nema dostupnih informacija"</string>
+    <!-- no translation found for mr_chooser_zero_routes_found_title (5213435473397442608) -->
+    <skip />
+    <!-- no translation found for mr_chooser_zero_routes_description (5123320430013505927) -->
+    <skip />
+    <!-- no translation found for mr_chooser_wifi_warning_description (337903053432238985) -->
+    <skip />
+    <!-- no translation found for mr_chooser_done_button_label (7897288652928484627) -->
+    <skip />
 </resources>
