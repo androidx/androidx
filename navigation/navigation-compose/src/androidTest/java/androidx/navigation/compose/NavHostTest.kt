@@ -827,7 +827,7 @@ class NavHostTest {
     }
 
     @Test
-    fun testNavHostCrossFade() {
+    fun testNavHostAnimations() {
         lateinit var navController: NavHostController
 
         composeTestRule.mainClock.autoAdvance = false
@@ -860,7 +860,7 @@ class NavHostTest {
         assertThat(navController.currentBackStackEntry?.lifecycle?.currentState)
             .isEqualTo(Lifecycle.State.STARTED)
 
-        // advance half way between the crossfade
+        // advance half way between animations
         composeTestRule.mainClock.advanceTimeBy(DefaultDurationMillis.toLong() / 2)
 
         assertThat(firstEntry?.lifecycle?.currentState)
@@ -900,7 +900,7 @@ class NavHostTest {
         assertThat(secondEntry?.lifecycle?.currentState)
             .isEqualTo(Lifecycle.State.CREATED)
 
-        // advance half way between the crossfade
+        // advance half way between animations
         composeTestRule.mainClock.advanceTimeBy(DefaultDurationMillis.toLong() / 2)
 
         assertThat(navController.currentBackStackEntry?.lifecycle?.currentState)
@@ -922,7 +922,7 @@ class NavHostTest {
     }
 
     @Test
-    fun testNavHostCrossFadeDeeplink() {
+    fun testNavHostDeeplink() {
         lateinit var navController: NavHostController
 
         composeTestRule.mainClock.autoAdvance = false
@@ -961,7 +961,7 @@ class NavHostTest {
     }
 
     @Test
-    fun testStateSavedByCrossFade() {
+    fun testStateSaved() {
         lateinit var navController: NavHostController
         lateinit var text: MutableState<String>
 
@@ -1106,6 +1106,25 @@ class NavHostTest {
         composeTestRule.waitForIdle()
 
         assertThat(model.wasCleared).isTrue()
+    }
+
+    @Test
+    fun testNestedNavHostNullLambda() {
+        lateinit var navController: NavHostController
+
+        composeTestRule.setContent {
+            navController = rememberNavController()
+            NavHost(navController, startDestination = first) {
+                composable(first) { BasicText(first) }
+                navigation(second, "subGraph", enterTransition = { null }) {
+                    composable(second) { BasicText(second) }
+                }
+            }
+        }
+
+        composeTestRule.runOnIdle {
+            navController.navigate(second)
+        }
     }
 
     @Test

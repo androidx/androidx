@@ -85,7 +85,8 @@ public class ComposeNavigator : Navigator<Destination>() {
     @NavDestination.ClassType(Composable::class)
     public class Destination(
         navigator: ComposeNavigator,
-        internal val content: @Composable AnimatedContentScope.(NavBackStackEntry) -> Unit
+        internal val content:
+            @Composable AnimatedContentScope.(@JvmSuppressWildcards NavBackStackEntry) -> Unit
     ) : NavDestination(navigator) {
 
         @Deprecated(
@@ -94,7 +95,7 @@ public class ComposeNavigator : Navigator<Destination>() {
         )
         constructor(
             navigator: ComposeNavigator,
-            content: @Composable (NavBackStackEntry) -> Unit
+            content: @Composable (NavBackStackEntry) -> @JvmSuppressWildcards Unit
         ) : this(navigator, content = { entry -> content(entry) })
     }
 
