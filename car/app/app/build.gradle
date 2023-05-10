@@ -145,6 +145,7 @@ class ProtocolApiTask extends DefaultTask {
                 standardArgs,
                 false,
                 workerExecutor,
+                false,
         )
     }
 }
