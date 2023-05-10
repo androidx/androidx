@@ -74,4 +74,10 @@ public abstract class DynamicDataKey<T extends DynamicBuilders.DynamicType> {
     public int hashCode() {
         return Objects.hash(mKey,mNamespace);
     }
+
+    @NonNull
+    @Override
+    public String toString() {
+        return String.format("namespace = %s, key = %s", mNamespace, mKey);
+    }
 }
