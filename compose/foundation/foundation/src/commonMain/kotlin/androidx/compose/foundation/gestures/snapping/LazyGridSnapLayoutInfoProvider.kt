@@ -78,7 +78,15 @@ fun SnapLayoutInfoProvider(
 
         layoutInfo.visibleItemsInfo.fastForEach { item ->
             val distance =
-                calculateDistanceToDesiredSnapPosition(layoutInfo, item, positionInLayout)
+                calculateDistanceToDesiredSnapPosition(
+                    mainAxisViewPortSize = layoutInfo.singleAxisViewportSize,
+                    beforeContentPadding = layoutInfo.beforeContentPadding,
+                    afterContentPadding = layoutInfo.afterContentPadding,
+                    itemSize = item.sizeOnMainAxis(orientation = layoutInfo.orientation),
+                    itemOffset = item.offsetOnMainAxis(orientation = layoutInfo.orientation),
+                    itemIndex = item.index,
+                    snapPositionInLayout = positionInLayout
+                )
 
             // Find item that is closest to the center
             if (distance <= 0 && distance > distanceFromItemBeforeTarget) {
@@ -112,32 +120,14 @@ fun SnapLayoutInfoProvider(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
-internal fun Density.calculateDistanceToDesiredSnapPosition(
-    layoutInfo: LazyGridLayoutInfo,
-    item: LazyGridItemInfo,
-    positionInLayout: SnapPositionInLayout = SnapPositionInLayout.CenterToCenter
-): Float {
-
-    val containerSize =
-        with(layoutInfo) { singleAxisViewportSize - beforeContentPadding - afterContentPadding }
-
-    val desiredDistance = with(positionInLayout) {
-        position(containerSize, item.sizeOnMainAxis(layoutInfo.orientation), item.index)
-    }
-
-    val itemCurrentPosition = item.offsetOnMainAxis(layoutInfo.orientation)
-    return itemCurrentPosition - desiredDistance.toFloat()
-}
-
-private val LazyGridLayoutInfo.singleAxisViewportSize: Int
+internal val LazyGridLayoutInfo.singleAxisViewportSize: Int
     get() = if (orientation == Orientation.Vertical) {
         viewportSize.height
     } else {
         viewportSize.width
     }
 
-private fun LazyGridItemInfo.sizeOnMainAxis(orientation: Orientation): Int {
+internal fun LazyGridItemInfo.sizeOnMainAxis(orientation: Orientation): Int {
     return if (orientation == Orientation.Vertical) {
         size.height
     } else {
@@ -145,7 +135,7 @@ private fun LazyGridItemInfo.sizeOnMainAxis(orientation: Orientation): Int {
     }
 }
 
-private fun LazyGridItemInfo.offsetOnMainAxis(orientation: Orientation): Int {
+internal fun LazyGridItemInfo.offsetOnMainAxis(orientation: Orientation): Int {
     return if (orientation == Orientation.Vertical) {
         offset.y
     } else {
