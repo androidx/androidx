@@ -93,19 +93,42 @@ object ArgumentUtils {
 
     /**
      * Convenience method to build ArgumentsWrapper based on plain java types. Input args should be
-     * even in length, where each String argName is followed by any type of argVal.
+     * even in length, where each String argName is followed by any type of argVal. This method
+     * will use SLOTS_COMPLETE as the default value for the SyncStatus
      */
     fun buildRequestArgs(
         type: Fulfillment.Type,
         vararg args: Any,
     ): ArgumentsWrapper {
-        val builder = Fulfillment.newBuilder()
+        return buildRequestArgs(type, Fulfillment.SyncStatus.SLOTS_COMPLETE, *args)
+    }
+
+    /**
+     * Convenience method to build ArgumentsWrapper based on plain java types and
+     * also sets the SyncStatus. Input args should be even in length, where each String
+     * argName is followed by any type of argVal.
+     */
+    fun buildRequestArgs(
+        type: Fulfillment.Type,
+        syncStatus: Fulfillment.SyncStatus,
+        vararg args: Any,
+    ): ArgumentsWrapper {
+        val builder = Fulfillment.newBuilder().addAllParams(buildFulfillmentParams(*args))
         if (type != Fulfillment.Type.UNRECOGNIZED) {
             builder.type = type
+            if (type == Fulfillment.Type.SYNC &&
+                syncStatus != Fulfillment.SyncStatus.UNRECOGNIZED) {
+                builder.syncStatus = syncStatus
+            }
         }
+        return ArgumentsWrapper.create(builder.build())
+    }
+
+    private fun buildFulfillmentParams(vararg args: Any): List<FulfillmentParam> {
         if (args.isEmpty()) {
-            return ArgumentsWrapper.create(builder.build())
+            return emptyList()
         }
+        val fulfillmentParams = mutableListOf<FulfillmentParam>()
         require(args.size % 2 == 0) { "Must call function with even number of args" }
         val argsMap: MutableMap<String, MutableList<ParamValue>> = LinkedHashMap()
         var argNamePos = 0
@@ -128,13 +151,13 @@ object ArgumentUtils {
         for ((key, valueList) in argsMap.entries) {
             val paramBuilder = FulfillmentParam.newBuilder().setName(key)
             for (value in valueList) {
-                builder.addParams(
+                fulfillmentParams.add(
                     paramBuilder.addFulfillmentValues(
                         FulfillmentValue.newBuilder().setValue(value).build()
-                    )
+                    ).build()
                 )
             }
         }
-        return ArgumentsWrapper.create(builder.build())
+        return fulfillmentParams.toList()
     }
 }
