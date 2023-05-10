@@ -28,16 +28,19 @@
         <profileable android:shell="true"/>
 
         <!--
-        Activities need to be exported so the macrobenchmark can discover them
-        under the new package visibility changes for Android 11.
+        Activities need to be exported so the macrobenchmark can discover them.
+
+        Feel free to add the launcher intent filter to enable easier profiling,
+        just be sure to add a consistent label.
          -->
         <activity
             android:name=".TrivialStartupActivity"
+            android:label="C Trivial"
             android:exported="true">
-            <!--            <intent-filter>-->
-            <!--                <action android:name="android.intent.action.MAIN" />-->
-            <!--                <category android:name="android.intent.category.LAUNCHER" />-->
-            <!--            </intent-filter>-->
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
             <intent-filter>
                 <action android:name="androidx.compose.integration.macrobenchmark.target.TRIVIAL_STARTUP_ACTIVITY" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -54,10 +57,6 @@
         <activity
             android:name=".IoSettingsActivity"
             android:exported="true">
-            <!--            <intent-filter>-->
-            <!--                <action android:name="android.intent.action.MAIN" />-->
-            <!--                <category android:name="android.intent.category.LAUNCHER" />-->
-            <!--            </intent-filter>-->
             <intent-filter>
                 <action android:name="androidx.compose.integration.macrobenchmark.target.IO_SETTINGS_ACTIVITY" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -65,7 +64,12 @@
         </activity>
         <activity
             android:name=".LazyColumnActivity"
+            android:label="C LazyColumn"
             android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
             <intent-filter>
                 <action android:name="androidx.compose.integration.macrobenchmark.target.LAZY_COLUMN_ACTIVITY" />
                 <category android:name="android.intent.category.DEFAULT" />
