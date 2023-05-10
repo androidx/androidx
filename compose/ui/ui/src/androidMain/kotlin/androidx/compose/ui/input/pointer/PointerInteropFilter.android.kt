@@ -335,7 +335,10 @@ internal class PointerInteropFilter : PointerInputModifier {
  *
  * Developers should use [pointerInput] to handle pointer input processing within Compose.
  * [motionEventSpy] is only useful as part of Android View interoperability.
+ *
+ * If you need to handle and consume [MotionEvent]s, use [pointerInteropFilter].
  */
+@ExperimentalComposeUiApi
 fun Modifier.motionEventSpy(watcher: (motionEvent: MotionEvent) -> Unit): Modifier =
     this.pointerInput(watcher) {
         interceptOutOfBoundsChildEvents = true
