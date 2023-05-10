@@ -83,6 +83,7 @@ import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.error
+import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
@@ -91,6 +92,7 @@ import androidx.compose.ui.test.assertWidthIsEqualTo
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.click
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onChildren
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -1235,19 +1237,32 @@ class TextFieldTest {
     @Test
     fun testErrorSemantics_messageOverridable() {
         val errorMessage = "Special symbols not allowed"
+        lateinit var defaultErrorMessage: String
         rule.setMaterialContent {
-            var isError = remember { mutableStateOf(true) }
+            val isError = remember { mutableStateOf(true) }
             TextField(
                 value = "test",
                 onValueChange = {},
-                modifier = Modifier.semantics { if (isError.value) error(errorMessage) },
+                modifier = Modifier
+                    .testTag(TextfieldTag)
+                    .semantics { if (isError.value) error(errorMessage) },
                 isError = isError.value
             )
+            defaultErrorMessage = getString(DefaultErrorMessage)
         }
 
-        rule.onNodeWithText("test")
+        rule.onNodeWithTag(TextfieldTag)
             .assert(SemanticsMatcher.keyIsDefined(SemanticsProperties.Error))
             .assert(SemanticsMatcher.expectValue(SemanticsProperties.Error, errorMessage))
+
+        // Check that default error message is overwritten and not lingering in a child node
+        rule.onNodeWithTag(TextfieldTag, useUnmergedTree = true)
+            .onChildren()
+            .fetchSemanticsNodes()
+            .forEach { node ->
+                assertThat(node.config.getOrNull(SemanticsProperties.Error))
+                    .isNotEqualTo(defaultErrorMessage)
+            }
     }
 
     @Test

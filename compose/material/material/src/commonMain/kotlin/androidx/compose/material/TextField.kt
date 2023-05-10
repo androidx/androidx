@@ -191,6 +191,7 @@ fun TextField(
         modifier = modifier
             .background(colors.backgroundColor(enabled).value, shape)
             .indicatorLine(enabled, isError, interactionSource, colors)
+            .defaultErrorSemantics(isError, getString(Strings.DefaultErrorMessage))
             .defaultMinSize(
                 minWidth = TextFieldDefaults.MinWidth,
                 minHeight = TextFieldDefaults.MinHeight
@@ -379,6 +380,7 @@ fun TextField(
         modifier = modifier
             .background(colors.backgroundColor(enabled).value, shape)
             .indicatorLine(enabled, isError, interactionSource, colors)
+            .defaultErrorSemantics(isError, getString(Strings.DefaultErrorMessage))
             .defaultMinSize(
                 minWidth = TextFieldDefaults.MinWidth,
                 minHeight = TextFieldDefaults.MinHeight
