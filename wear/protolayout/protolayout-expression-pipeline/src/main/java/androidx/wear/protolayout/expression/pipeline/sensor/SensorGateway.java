@@ -16,57 +16,22 @@
 
 package androidx.wear.protolayout.expression.pipeline.sensor;
 
-import android.Manifest;
-import android.os.Build.VERSION_CODES;
-
 import androidx.annotation.AnyThread;
-import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
-import androidx.annotation.RequiresPermission;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.annotation.UiThread;
+import androidx.wear.protolayout.expression.DynamicBuilders;
+import androidx.wear.protolayout.expression.PlatformDataKey;
+import androidx.wear.protolayout.expression.PlatformHealthSources;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
 import java.util.concurrent.Executor;
 
 /**
  * Gateway for proto layout expression library to be able to access sensor data, e.g. health data.
  */
+@RestrictTo(Scope.LIBRARY_GROUP_PREFIX)
 public interface SensorGateway {
-
-    /** Sensor data types that can be subscribed to from {@link SensorGateway}. */
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    @Retention(RetentionPolicy.SOURCE)
-    @RequiresApi(VERSION_CODES.Q)
-    @IntDef({
-        SENSOR_DATA_TYPE_INVALID,
-        SENSOR_DATA_TYPE_HEART_RATE,
-        SENSOR_DATA_TYPE_DAILY_STEP_COUNT
-    })
-    public @interface SensorDataType {};
-
-    /** Invalid data type. Used to return error states. */
-    int SENSOR_DATA_TYPE_INVALID = -1;
-
-    /**
-     * The user's current heart rate. This is an instantaneous reading from the last time it was
-     * sampled. Note that this means that apps which subscribe to passive heart rate data may not
-     * receive exact heart rate data; it will be batched to a given period.
-     */
-    @RequiresPermission(Manifest.permission.BODY_SENSORS)
-    int SENSOR_DATA_TYPE_HEART_RATE = 0;
-
-    /**
-     * The user's current daily step count. Note that this data type will reset to zero at midnight.
-     * each day, and any subscriptions to this data type will log the number of steps the user has
-     * done since 12:00AM local time.
-     */
-    @RequiresApi(VERSION_CODES.Q)
-    @RequiresPermission(Manifest.permission.ACTIVITY_RECOGNITION)
-    int SENSOR_DATA_TYPE_DAILY_STEP_COUNT = 1;
 
     /**
      * Consumer for sensor data.
@@ -147,15 +112,15 @@ public interface SensorGateway {
      * type.
      *
      * <p>Note that the callback will be executed on the single background thread (implementation
-     * dependent). To specify the execution thread, use {@link #registerSensorGatewayConsumer(int,
-     * Executor, Consumer)}.
+     * dependent). To specify the execution thread, use {@link #registerSensorGatewayConsumer(
+     * PlatformDataKey, Executor, Consumer)}.
      *
      * @throws SecurityException if the provider does not have permission to provide requested data
      *     type.
      */
     @UiThread
     void registerSensorGatewayConsumer(
-            @SensorDataType int requestedDataType, @NonNull Consumer consumer);
+            @NonNull PlatformDataKey<?> key, @NonNull Consumer consumer);
 
     /**
      * Register for updates for the given data type. This may cause {@link Consumer} to immediately
@@ -172,12 +137,12 @@ public interface SensorGateway {
      */
     @UiThread
     void registerSensorGatewayConsumer(
-            @SensorDataType int requestedDataType,
+            @NonNull PlatformDataKey<?> key,
             @NonNull /* @CallbackExecutor */ Executor executor,
             @NonNull Consumer consumer);
 
     /** Unregister for updates for the given data type. */
     @UiThread
     void unregisterSensorGatewayConsumer(
-            @SensorDataType int requestedDataType, @NonNull Consumer consumer);
+            @NonNull PlatformDataKey<?> key, @NonNull Consumer consumer);
 }

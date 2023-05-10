@@ -56,7 +56,7 @@ import androidx.wear.protolayout.expression.pipeline.Int32Nodes.DynamicAnimatedI
 import androidx.wear.protolayout.expression.pipeline.Int32Nodes.FixedInt32Node;
 import androidx.wear.protolayout.expression.pipeline.Int32Nodes.FloatToInt32Node;
 import androidx.wear.protolayout.expression.pipeline.Int32Nodes.GetDurationPartOpNode;
-import androidx.wear.protolayout.expression.pipeline.Int32Nodes.PlatformInt32SourceNode;
+import androidx.wear.protolayout.expression.pipeline.Int32Nodes.LegacyPlatformInt32SourceNode;
 import androidx.wear.protolayout.expression.pipeline.Int32Nodes.StateInt32SourceNode;
 import androidx.wear.protolayout.expression.pipeline.StringNodes.FixedStringNode;
 import androidx.wear.protolayout.expression.pipeline.StringNodes.FloatFormatNode;
@@ -138,14 +138,12 @@ public class DynamicTypeEvaluator {
     @NonNull private final QuotaManager mAnimationQuotaManager;
     @NonNull private final QuotaManager mDynamicTypesQuotaManager;
     @NonNull private final EpochTimePlatformDataSource mTimeDataSource;
-    @Nullable private final SensorGatewayPlatformDataSource mSensorGatewayDataSource;
 
     /** Configuration for creating {@link DynamicTypeEvaluator}. */
     public static final class Config {
         @Nullable private final StateStore mStateStore;
         @Nullable private final QuotaManager mAnimationQuotaManager;
         @Nullable private final TimeGateway mTimeGateway;
-        @Nullable private final SensorGateway mSensorGateway;
         @Nullable private final QuotaManager mDynamicTypesQuotaManager;
         @NonNull private final Map<PlatformDataKey<?>, PlatformDataProvider>
                 mSourceKeyToDataProviders = new ArrayMap<>();
@@ -155,13 +153,11 @@ public class DynamicTypeEvaluator {
                 @Nullable QuotaManager animationQuotaManager,
                 @Nullable QuotaManager dynamicTypesQuotaManager,
                 @Nullable TimeGateway timeGateway,
-                @Nullable SensorGateway sensorGateway,
                 @NonNull Map<PlatformDataKey<?>, PlatformDataProvider>
                         sourceKeyToDataProviders) {
             this.mStateStore = stateStore;
             this.mAnimationQuotaManager = animationQuotaManager;
             this.mTimeGateway = timeGateway;
-            this.mSensorGateway = sensorGateway;
             this.mDynamicTypesQuotaManager = dynamicTypesQuotaManager;
             this.mSourceKeyToDataProviders.putAll(sourceKeyToDataProviders);
         }
@@ -172,7 +168,6 @@ public class DynamicTypeEvaluator {
             @Nullable private QuotaManager mAnimationQuotaManager = null;
             @Nullable private QuotaManager mDynamicTypesQuotaManager;
             @Nullable private TimeGateway mTimeGateway = null;
-            @Nullable private SensorGateway mSensorGateway = null;
             @NonNull private final Map<PlatformDataKey<?>, PlatformDataProvider>
                     mSourceKeyToDataProviders = new ArrayMap<>();
 
@@ -227,18 +222,6 @@ public class DynamicTypeEvaluator {
             }
 
             /**
-             * Sets the gateway used for sensor data.
-             *
-             * <p>If not set, sensor data will not be available (sensor bindings will trigger {@link
-             * DynamicTypeValueReceiver#onInvalidated()}).
-             */
-            @NonNull
-            public Builder setSensorGateway(@NonNull SensorGateway value) {
-                mSensorGateway = value;
-                return this;
-            }
-
-            /**
              * Add a platform data provider and specify the keys it can provide dynamic data for.
              *
              * <p> The provider must support at least one key. If the provider supports multiple
@@ -277,7 +260,6 @@ public class DynamicTypeEvaluator {
                         mAnimationQuotaManager,
                         mDynamicTypesQuotaManager,
                         mTimeGateway,
-                        mSensorGateway,
                         mSourceKeyToDataProviders);
             }
         }
@@ -310,15 +292,6 @@ public class DynamicTypeEvaluator {
         @Nullable
         public QuotaManager getAnimationQuotaManager() {
             return mAnimationQuotaManager;
-        }
-
-        /**
-         * Gets the gateway used for sensor data, or {@code null} if sensor data is unavailable
-         * (sensor bindings will trigger {@link DynamicTypeValueReceiver#onInvalidated()}).
-         */
-        @Nullable
-        public SensorGateway getSensorGateway() {
-            return mSensorGateway;
         }
 
         /**
@@ -360,12 +333,6 @@ public class DynamicTypeEvaluator {
             ((TimeGatewayImpl) timeGateway).enableUpdates();
         }
         this.mTimeDataSource = new EpochTimePlatformDataSource(uiExecutor, timeGateway);
-        if (config.getSensorGateway() != null) {
-            this.mSensorGatewayDataSource =
-                    new SensorGatewayPlatformDataSource(uiExecutor, config.getSensorGateway());
-        } else {
-            this.mSensorGatewayDataSource = null;
-        }
 
         this.mStateStore.putAllPlatformProviders(config.getPlatformDataProviders());
     }
@@ -648,13 +615,13 @@ public class DynamicTypeEvaluator {
             case FIXED:
                 node = new FixedInt32Node(int32Source.getFixed(), consumer);
                 break;
-            case PLATFORM_SOURCE:
-                node =
-                        new PlatformInt32SourceNode(
-                                int32Source.getPlatformSource(),
-                                mSensorGatewayDataSource,
-                                consumer);
+            case PLATFORM_SOURCE: {
+                node = new LegacyPlatformInt32SourceNode(
+                        mStateStore,
+                        int32Source.getPlatformSource(),
+                        consumer);
                 break;
+            }
             case ARITHMETIC_OPERATION:
                 {
                     ArithmeticInt32Node arithmeticNode =
