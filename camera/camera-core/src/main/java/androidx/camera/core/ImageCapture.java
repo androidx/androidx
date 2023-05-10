@@ -949,7 +949,6 @@ public final class ImageCapture extends UseCase {
      * @return {@code true} if software JPEG will be used after applying constraints.
      */
     boolean enforceSoftwareJpegConstraints(@NonNull MutableConfig mutableConfig) {
-        // Software encoder currently only supports API 26+.
         if (Boolean.TRUE.equals(
                 mutableConfig.retrieveOption(OPTION_USE_SOFTWARE_JPEG_ENCODER, false))) {
             boolean supported = true;
