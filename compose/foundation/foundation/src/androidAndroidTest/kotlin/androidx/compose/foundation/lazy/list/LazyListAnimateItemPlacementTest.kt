@@ -18,6 +18,10 @@ package androidx.compose.foundation.lazy.list
 
 import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.SpringSpec
+import androidx.compose.animation.core.VectorConverter
+import androidx.compose.animation.core.VisibilityThreshold
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.scrollBy
@@ -65,6 +69,7 @@ import androidx.compose.ui.unit.round
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
+import java.util.concurrent.TimeUnit
 import kotlin.math.roundToInt
 import kotlinx.coroutines.runBlocking
 import org.junit.Assume.assumeTrue
@@ -1703,6 +1708,58 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
         }
     }
 
+    @Test
+    fun interruptedSizeChange() {
+        var item0Size by mutableStateOf(itemSizeDp)
+        val animSpec = spring(visibilityThreshold = IntOffset.VisibilityThreshold)
+        rule.setContent {
+            LazyList {
+                items(2, key = { it }) {
+                    Item(it, if (it == 0) item0Size else itemSizeDp, animSpec = animSpec)
+                }
+            }
+        }
+
+        rule.runOnUiThread {
+            item0Size = itemSize2Dp
+        }
+
+        rule.waitForIdle()
+        rule.mainClock.advanceTimeByFrame()
+        onAnimationFrame(duration = FrameDuration) { fraction ->
+            if (fraction == 0f) {
+                assertPositions(0 to 0f, 1 to itemSize)
+            } else {
+                assertThat(fraction).isEqualTo(1f)
+                val valueAfterOneFrame =
+                    animSpec.getValueAtFrame(1, from = itemSize, to = itemSize2)
+                assertPositions(0 to 0f, 1 to valueAfterOneFrame, fraction = fraction)
+            }
+        }
+
+        rule.runOnUiThread {
+            item0Size = 0.dp
+        }
+
+        rule.waitForIdle()
+        val startValue = animSpec.getValueAtFrame(2, from = itemSize, to = itemSize2)
+        val startVelocity = animSpec.getVelocityAtFrame(2, from = itemSize, to = itemSize2)
+        onAnimationFrame(duration = FrameDuration) { fraction ->
+            if (fraction == 0f) {
+                assertPositions(0 to 0f, 1 to startValue)
+            } else {
+                assertThat(fraction).isEqualTo(1f)
+                val valueAfterThreeFrames = animSpec.getValueAtFrame(
+                    1,
+                    from = startValue,
+                    to = 0f,
+                    initialVelocity = startVelocity
+                )
+                assertPositions(0 to 0f, 1 to valueAfterThreeFrames)
+            }
+        }
+    }
+
     private fun assertPositions(
         vararg expected: Pair<Any, Float>,
         crossAxis: List<Pair<Any, Float>>? = null,
@@ -1777,9 +1834,11 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
         for (i in 0..duration step FrameDuration) {
             val fraction = i / duration.toFloat()
             onFrame(fraction)
-            rule.mainClock.advanceTimeBy(FrameDuration)
-            expectedTime += FrameDuration
-            assertThat(expectedTime).isEqualTo(rule.mainClock.currentTime)
+            if (i < duration) {
+                rule.mainClock.advanceTimeBy(FrameDuration)
+                expectedTime += FrameDuration
+                assertThat(expectedTime).isEqualTo(rule.mainClock.currentTime)
+            }
         }
     }
 
@@ -1922,4 +1981,52 @@ private enum class CrossAxisAlignment {
     Start,
     End,
     Center
+}
+
+internal fun SpringSpec<IntOffset>.getValueAtFrame(
+    frameCount: Int,
+    from: Float,
+    to: Float,
+    initialVelocity: IntOffset = IntOffset.Zero
+): Float {
+    val frameInNanos = TimeUnit.MILLISECONDS.toNanos(FrameDuration)
+    val vectorized = vectorize(converter = IntOffset.VectorConverter)
+    return IntOffset.VectorConverter.convertFromVector(
+        vectorized.getValueFromNanos(
+            playTimeNanos = frameInNanos * frameCount,
+            initialValue = IntOffset.VectorConverter.convertToVector(
+                IntOffset(0, from.toInt())
+            ),
+            targetValue = IntOffset.VectorConverter.convertToVector(
+                IntOffset(0, to.toInt())
+            ),
+            initialVelocity = IntOffset.VectorConverter.convertToVector(
+                initialVelocity
+            )
+        )
+    ).y.toFloat()
+}
+
+internal fun SpringSpec<IntOffset>.getVelocityAtFrame(
+    frameCount: Int,
+    from: Float,
+    to: Float,
+    initialVelocity: IntOffset = IntOffset.Zero
+): IntOffset {
+    val frameInNanos = TimeUnit.MILLISECONDS.toNanos(FrameDuration)
+    val vectorized = vectorize(converter = IntOffset.VectorConverter)
+    return IntOffset.VectorConverter.convertFromVector(
+        vectorized.getVelocityFromNanos(
+            playTimeNanos = frameInNanos * frameCount,
+            initialValue = IntOffset.VectorConverter.convertToVector(
+                IntOffset(0, from.toInt())
+            ),
+            targetValue = IntOffset.VectorConverter.convertToVector(
+                IntOffset(0, to.toInt())
+            ),
+            initialVelocity = IntOffset.VectorConverter.convertToVector(
+                initialVelocity
+            )
+        )
+    )
 }
