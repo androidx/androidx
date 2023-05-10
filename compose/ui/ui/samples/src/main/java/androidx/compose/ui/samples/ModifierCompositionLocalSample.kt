@@ -27,7 +27,9 @@ import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
 import androidx.compose.ui.node.DrawModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
+import androidx.compose.ui.node.ObserverModifierNode
 import androidx.compose.ui.node.currentValueOf
+import androidx.compose.ui.node.observeReads
 import androidx.compose.ui.platform.InspectorInfo
 
 @Sampled
@@ -54,5 +56,27 @@ fun CompositionLocalConsumingModifierSample() {
     fun Modifier.backgroundColor() = this then backgroundColorElement
     Box(Modifier.backgroundColor()) {
         Text("Hello, world!")
+    }
+}
+
+@Sampled
+@Composable
+fun CompositionLocalConsumingModifierObserverNodeSample() {
+    val LocalValue = compositionLocalOf { "abc123" }
+    class ValueObserverModifierNode : Modifier.Node(),
+        CompositionLocalConsumerModifierNode, ObserverModifierNode {
+        private var observedValue: String? = null
+        override fun onAttach() {
+            onObservedReadsChanged()
+        }
+        override fun onDetach() {
+            observedValue = null
+        }
+        override fun onObservedReadsChanged() {
+            observeReads {
+                observedValue = currentValueOf(LocalValue)
+                // Do something with the new value
+            }
+        }
     }
 }
