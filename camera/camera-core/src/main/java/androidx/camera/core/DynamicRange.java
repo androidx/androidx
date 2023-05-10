@@ -24,7 +24,28 @@ import androidx.annotation.RestrictTo;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
-/** A representation of the dynamic range of an image. */
+/**
+ * A representation of the dynamic range of an image.
+ *
+ * <p>The dynamic range specifies an encoding for how pixels will be displayed on screen along
+ * with the number of bits used to encode each pixel. In general, the encoding represents a set
+ * of operations applied to each pixel to expand the range of light and dark pixels on a
+ * specific screen. The bit depth represents the discrete number of steps those pixels can assume
+ * between the lightest and darkest pixels.
+ *
+ * <p>A category of dynamic ranges called high-dynamic range (HDR) are able to encode brighter
+ * highlights, darker shadows, and richer color. This class contains constants for specific HDR
+ * dynamic ranges, such as {@link DynamicRange#HLG_10_BIT}, but also unspecified HDR dynamic
+ * ranges, such as {@link DynamicRange#HDR_UNSPECIFIED_10_BIT}. When used with a camera API, such
+ * as {@link androidx.camera.video.VideoCapture.Builder#setDynamicRange(DynamicRange)}, these
+ * unspecified dynamic ranges will use device defaults as the HDR encoding.
+ *
+ * <p>The legacy behavior of most devices is to capture in standard dynamic range (SDR), which is
+ * represented by {@link DynamicRange#SDR}. This will be the default dynamic range encoding for
+ * most APIs taking dynamic range unless otherwise specified.
+ *
+ * @see androidx.camera.video.VideoCapture.Builder#setDynamicRange(DynamicRange)
+ */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class DynamicRange {
@@ -76,17 +97,34 @@ public final class DynamicRange {
     public @interface BitDepth {
     }
 
+    //------------------------------------------------------------------------------//
+    //                         Pre-defined DynamicRanges                            //
+    //------------------------------------------------------------------------------//
     /**
-     * A dynamic range with unspecified encoding and bit depth
+     * A dynamic range with unspecified encoding and bit depth.
      *
      * <p>The dynamic range is unspecified and may defer to device defaults when used to select a
      * dynamic range.
+     *
+     * <p>This dynamic range is composed of:
+     * <pre>
+     *   Encoding: ENCODING_UNSPECIFIED
+     *   Bit Depth: BIT_DEPTH_UNSPECIFIED
+     * </pre>
      */
     @NonNull
     public static final DynamicRange UNSPECIFIED = new DynamicRange(ENCODING_UNSPECIFIED,
             BIT_DEPTH_UNSPECIFIED);
 
-    /** A dynamic range representing 8-bit standard dynamic range (SDR). */
+    /**
+     * A dynamic range representing 8-bit standard dynamic range (SDR).
+     *
+     * <p>This dynamic range is composed of:
+     * <pre>
+     *   Encoding: ENCODING_SDR
+     *   Bit Depth: BIT_DEPTH_8_BIT
+     * </pre>
+     */
     @NonNull
     public static final DynamicRange SDR = new DynamicRange(ENCODING_SDR, BIT_DEPTH_8_BIT);
 
@@ -96,10 +134,81 @@ public final class DynamicRange {
      * <p>The HDR encoding is unspecified, and may defer to device defaults
      * when used to select a dynamic range. In this case, the dynamic range will be limited to
      * 10-bit high dynamic ranges.
+     *
+     * <p>This dynamic range is composed of:
+     * <pre>
+     *   Encoding: ENCODING_HDR_UNSPECIFIED
+     *   Bit Depth: BIT_DEPTH_10_BIT
+     * </pre>
      */
     @NonNull
     public static final DynamicRange HDR_UNSPECIFIED_10_BIT =
             new DynamicRange(ENCODING_HDR_UNSPECIFIED, BIT_DEPTH_10_BIT);
+
+    /**
+     * A 10-bit high-dynamic range with HLG encoding.
+     *
+     * <p>This dynamic range is composed of:
+     * <pre>
+     *   Encoding: ENCODING_HLG
+     *   Bit Depth: BIT_DEPTH_10_BIT
+     * </pre>
+     */
+    @NonNull
+    public static final DynamicRange HLG_10_BIT = new DynamicRange(ENCODING_HLG, BIT_DEPTH_10_BIT);
+
+    /**
+     * A 10-bit high-dynamic range with HDR10 encoding.
+     *
+     * <p>This dynamic range is composed of:
+     * <pre>
+     *   Encoding: ENCODING_HDR10
+     *   Bit Depth: BIT_DEPTH_10_BIT
+     * </pre>
+     */
+    @NonNull
+    public static final DynamicRange HDR10_10_BIT = new DynamicRange(ENCODING_HDR10,
+            BIT_DEPTH_10_BIT);
+
+    /**
+     * A 10-bit high-dynamic range with HDR10+ encoding.
+     *
+     * <p>This dynamic range is composed of:
+     * <pre>
+     *   Encoding: ENCODING_HDR10_PLUS
+     *   Bit Depth: BIT_DEPTH_10_BIT
+     * </pre>
+     */
+    @NonNull
+    public static final DynamicRange HDR10_PLUS_10_BIT = new DynamicRange(ENCODING_HDR10_PLUS,
+            BIT_DEPTH_10_BIT);
+
+    /**
+     * A 10-bit high-dynamic range with Dolby Vision encoding.
+     *
+     * <p>This dynamic range is composed of:
+     * <pre>
+     *   Encoding: ENCODING_DOLBY_VISION
+     *   Bit Depth: BIT_DEPTH_10_BIT
+     * </pre>
+     */
+    @NonNull
+    public static final DynamicRange DOLBY_VISION_10_BIT = new DynamicRange(ENCODING_DOLBY_VISION,
+            BIT_DEPTH_10_BIT);
+
+    /**
+     * An 8-bit high-dynamic range with Dolby Vision encoding.
+     *
+     * <p>This dynamic range is composed of:
+     * <pre>
+     *   Encoding: ENCODING_DOLBY_VISION
+     *   Bit Depth: BIT_DEPTH_8_BIT
+     * </pre>
+     */
+    @NonNull
+    public static final DynamicRange DOLBY_VISION_8_BIT = new DynamicRange(ENCODING_DOLBY_VISION,
+            BIT_DEPTH_8_BIT);
+    //------------------------------------------------------------------------------//
 
     private final @DynamicRangeEncoding int mEncoding;
     private final @BitDepth int mBitDepth;
@@ -110,7 +219,7 @@ public final class DynamicRange {
      * <p>This constructor is left public for testing purposes. It does not do any verification that
      * the provided arguments are a valid combination of encoding and bit depth.
      *
-     * @param encoding   The dynamic range encoding.
+     * @param encoding The dynamic range encoding.
      * @param bitDepth The bit depth.
      */
     public DynamicRange(

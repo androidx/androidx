@@ -43,12 +43,12 @@ import androidx.camera.camera2.pipe.integration.interop.ExperimentalCamera2Inter
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraState
 import androidx.camera.core.DynamicRange
-import androidx.camera.core.DynamicRange.BIT_DEPTH_10_BIT
-import androidx.camera.core.DynamicRange.BIT_DEPTH_8_BIT
-import androidx.camera.core.DynamicRange.ENCODING_DOLBY_VISION
-import androidx.camera.core.DynamicRange.ENCODING_HDR10
-import androidx.camera.core.DynamicRange.ENCODING_HDR10_PLUS
-import androidx.camera.core.DynamicRange.ENCODING_HLG
+import androidx.camera.core.DynamicRange.DOLBY_VISION_10_BIT
+import androidx.camera.core.DynamicRange.DOLBY_VISION_8_BIT
+import androidx.camera.core.DynamicRange.HDR10_10_BIT
+import androidx.camera.core.DynamicRange.HDR10_PLUS_10_BIT
+import androidx.camera.core.DynamicRange.HLG_10_BIT
+import androidx.camera.core.DynamicRange.SDR
 import androidx.camera.core.ExposureState
 import androidx.camera.core.FocusMeteringAction
 import androidx.camera.core.ZoomState
@@ -198,7 +198,7 @@ class CameraInfoAdapter @Inject constructor(
                 return profileSetToDynamicRangeSet(availableProfiles.supportedProfiles)
             }
         }
-        return setOf(DynamicRange.SDR)
+        return setOf(SDR)
     }
 
     private fun profileSetToDynamicRangeSet(profileSet: Set<Long>): Set<DynamicRange> {
@@ -212,24 +212,19 @@ class CameraInfoAdapter @Inject constructor(
     }
 
     companion object {
-        private val DR_HLG10 = DynamicRange(ENCODING_HLG, BIT_DEPTH_10_BIT)
-        private val DR_HDR10 = DynamicRange(ENCODING_HDR10, BIT_DEPTH_10_BIT)
-        private val DR_HDR10_PLUS = DynamicRange(ENCODING_HDR10_PLUS, BIT_DEPTH_10_BIT)
-        private val DR_DOLBY_VISION_10_BIT = DynamicRange(ENCODING_DOLBY_VISION, BIT_DEPTH_10_BIT)
-        private val DR_DOLBY_VISION_8_BIT = DynamicRange(ENCODING_DOLBY_VISION, BIT_DEPTH_8_BIT)
         private val PROFILE_TO_DR_MAP: Map<Long, DynamicRange> = mapOf(
-            DynamicRangeProfiles.STANDARD to DynamicRange.SDR,
-            DynamicRangeProfiles.HLG10 to DR_HLG10,
-            DynamicRangeProfiles.HDR10 to DR_HDR10,
-            DynamicRangeProfiles.HDR10_PLUS to DR_HDR10_PLUS,
-            DynamicRangeProfiles.DOLBY_VISION_10B_HDR_OEM to DR_DOLBY_VISION_10_BIT,
-            DynamicRangeProfiles.DOLBY_VISION_10B_HDR_OEM_PO to DR_DOLBY_VISION_10_BIT,
-            DynamicRangeProfiles.DOLBY_VISION_10B_HDR_REF to DR_DOLBY_VISION_10_BIT,
-            DynamicRangeProfiles.DOLBY_VISION_10B_HDR_REF_PO to DR_DOLBY_VISION_10_BIT,
-            DynamicRangeProfiles.DOLBY_VISION_8B_HDR_OEM to DR_DOLBY_VISION_8_BIT,
-            DynamicRangeProfiles.DOLBY_VISION_8B_HDR_OEM_PO to DR_DOLBY_VISION_8_BIT,
-            DynamicRangeProfiles.DOLBY_VISION_8B_HDR_REF to DR_DOLBY_VISION_8_BIT,
-            DynamicRangeProfiles.DOLBY_VISION_8B_HDR_REF_PO to DR_DOLBY_VISION_8_BIT,
+            DynamicRangeProfiles.STANDARD to SDR,
+            DynamicRangeProfiles.HLG10 to HLG_10_BIT,
+            DynamicRangeProfiles.HDR10 to HDR10_10_BIT,
+            DynamicRangeProfiles.HDR10_PLUS to HDR10_PLUS_10_BIT,
+            DynamicRangeProfiles.DOLBY_VISION_10B_HDR_OEM to DOLBY_VISION_10_BIT,
+            DynamicRangeProfiles.DOLBY_VISION_10B_HDR_OEM_PO to DOLBY_VISION_10_BIT,
+            DynamicRangeProfiles.DOLBY_VISION_10B_HDR_REF to DOLBY_VISION_10_BIT,
+            DynamicRangeProfiles.DOLBY_VISION_10B_HDR_REF_PO to DOLBY_VISION_10_BIT,
+            DynamicRangeProfiles.DOLBY_VISION_8B_HDR_OEM to DOLBY_VISION_8_BIT,
+            DynamicRangeProfiles.DOLBY_VISION_8B_HDR_OEM_PO to DOLBY_VISION_8_BIT,
+            DynamicRangeProfiles.DOLBY_VISION_8B_HDR_REF to DOLBY_VISION_8_BIT,
+            DynamicRangeProfiles.DOLBY_VISION_8B_HDR_REF_PO to DOLBY_VISION_8_BIT,
         )
     }
 }

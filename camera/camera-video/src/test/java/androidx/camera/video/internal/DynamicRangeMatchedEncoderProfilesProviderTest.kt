@@ -23,13 +23,11 @@ import android.media.EncoderProfiles.VideoProfile.HDR_HDR10PLUS
 import android.media.EncoderProfiles.VideoProfile.HDR_HLG
 import android.media.EncoderProfiles.VideoProfile.HDR_NONE
 import android.os.Build
-import androidx.camera.core.DynamicRange
-import androidx.camera.core.DynamicRange.BIT_DEPTH_10_BIT
-import androidx.camera.core.DynamicRange.ENCODING_DOLBY_VISION
-import androidx.camera.core.DynamicRange.ENCODING_HDR10
-import androidx.camera.core.DynamicRange.ENCODING_HDR10_PLUS
-import androidx.camera.core.DynamicRange.ENCODING_HLG
+import androidx.camera.core.DynamicRange.DOLBY_VISION_10_BIT
+import androidx.camera.core.DynamicRange.HDR10_10_BIT
+import androidx.camera.core.DynamicRange.HDR10_PLUS_10_BIT
 import androidx.camera.core.DynamicRange.HDR_UNSPECIFIED_10_BIT
+import androidx.camera.core.DynamicRange.HLG_10_BIT
 import androidx.camera.core.DynamicRange.SDR
 import androidx.camera.core.impl.EncoderProfilesProvider
 import androidx.camera.core.impl.EncoderProfilesProxy
@@ -62,11 +60,12 @@ class DynamicRangeMatchedEncoderProfilesProviderTest {
     fun hasNoProfile_canNotGetProfiles() {
         val emptyProvider = createFakeEncoderProfilesProvider()
         val sdrProvider = DynamicRangeMatchedEncoderProfilesProvider(emptyProvider, SDR)
-        val hlgProvider = DynamicRangeMatchedEncoderProfilesProvider(emptyProvider, HLG)
-        val hdr10Provider = DynamicRangeMatchedEncoderProfilesProvider(emptyProvider, HDR10)
+        val hlgProvider = DynamicRangeMatchedEncoderProfilesProvider(emptyProvider, HLG_10_BIT)
+        val hdr10Provider = DynamicRangeMatchedEncoderProfilesProvider(emptyProvider, HDR10_10_BIT)
         val hdr10PlusProvider =
-            DynamicRangeMatchedEncoderProfilesProvider(emptyProvider, HDR10_PLUS)
-        val dolbyProvider = DynamicRangeMatchedEncoderProfilesProvider(emptyProvider, DOLBY_VISION)
+            DynamicRangeMatchedEncoderProfilesProvider(emptyProvider, HDR10_PLUS_10_BIT)
+        val dolbyProvider =
+            DynamicRangeMatchedEncoderProfilesProvider(emptyProvider, DOLBY_VISION_10_BIT)
         val hdrUnspecifiedProvider =
             DynamicRangeMatchedEncoderProfilesProvider(emptyProvider, HDR_UNSPECIFIED_10_BIT)
 
@@ -97,7 +96,7 @@ class DynamicRangeMatchedEncoderProfilesProviderTest {
 
     @Test
     fun hlg_onlyContainsHlgProfile() {
-        val provider = DynamicRangeMatchedEncoderProfilesProvider(defaultProvider, HLG)
+        val provider = DynamicRangeMatchedEncoderProfilesProvider(defaultProvider, HLG_10_BIT)
 
         assertThat(provider.hasProfile(QUALITY_1080P)).isTrue()
         val videoProfiles = provider.getAll(QUALITY_1080P)!!.videoProfiles
@@ -108,7 +107,7 @@ class DynamicRangeMatchedEncoderProfilesProviderTest {
 
     @Test
     fun hdr10_onlyContainsHdr10Profile() {
-        val provider = DynamicRangeMatchedEncoderProfilesProvider(defaultProvider, HDR10)
+        val provider = DynamicRangeMatchedEncoderProfilesProvider(defaultProvider, HDR10_10_BIT)
 
         assertThat(provider.hasProfile(QUALITY_1080P)).isTrue()
         val videoProfiles = provider.getAll(QUALITY_1080P)!!.videoProfiles
@@ -119,7 +118,8 @@ class DynamicRangeMatchedEncoderProfilesProviderTest {
 
     @Test
     fun hdr10Plus_onlyContainsHdr10PlusProfile() {
-        val provider = DynamicRangeMatchedEncoderProfilesProvider(defaultProvider, HDR10_PLUS)
+        val provider =
+            DynamicRangeMatchedEncoderProfilesProvider(defaultProvider, HDR10_PLUS_10_BIT)
 
         assertThat(provider.hasProfile(QUALITY_1080P)).isTrue()
         val videoProfiles = provider.getAll(QUALITY_1080P)!!.videoProfiles
@@ -130,7 +130,8 @@ class DynamicRangeMatchedEncoderProfilesProviderTest {
 
     @Test
     fun dolbyVision_onlyContainsDolbyVisionProfile() {
-        val provider = DynamicRangeMatchedEncoderProfilesProvider(defaultProvider, DOLBY_VISION)
+        val provider =
+            DynamicRangeMatchedEncoderProfilesProvider(defaultProvider, DOLBY_VISION_10_BIT)
 
         assertThat(provider.hasProfile(QUALITY_1080P)).isTrue()
         val videoProfiles = provider.getAll(QUALITY_1080P)!!.videoProfiles
@@ -168,10 +169,6 @@ class DynamicRangeMatchedEncoderProfilesProviderTest {
     }
 
     companion object {
-        private val HLG = DynamicRange(ENCODING_HLG, BIT_DEPTH_10_BIT)
-        private val HDR10 = DynamicRange(ENCODING_HDR10, BIT_DEPTH_10_BIT)
-        private val HDR10_PLUS = DynamicRange(ENCODING_HDR10_PLUS, BIT_DEPTH_10_BIT)
-        private val DOLBY_VISION = DynamicRange(ENCODING_DOLBY_VISION, BIT_DEPTH_10_BIT)
         private val VIDEO_PROFILES_1080P_SDR =
             createFakeVideoProfileProxy(RESOLUTION_1080P.width, RESOLUTION_1080P.height)
         private val VIDEO_PROFILES_1080P_HLG =
