@@ -81,7 +81,6 @@ import androidx.compose.ui.semantics.cutText
 import androidx.compose.ui.semantics.disabled
 import androidx.compose.ui.semantics.editableText
 import androidx.compose.ui.semantics.getTextLayoutResult
-import androidx.compose.ui.semantics.imeAction
 import androidx.compose.ui.semantics.insertTextAtCursor
 import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.onLongClick
@@ -410,7 +409,6 @@ internal fun CoreTextField(
     val isPassword = visualTransformation is PasswordVisualTransformation
     val semanticsModifier = Modifier.semantics(true) {
         // focused semantics are handled by Modifier.focusable()
-        this.imeAction = imeOptions.imeAction
         this.editableText = transformedText.text
         this.textSelectionRange = value.selection
         if (!enabled) this.disabled()
@@ -503,7 +501,7 @@ internal fun CoreTextField(
                 false
             }
         }
-        performImeAction {
+        performImeAction(imeOptions.imeAction) {
             // This will perform the appropriate default action if no handler has been specified, so
             // as far as the platform is concerned, we always handle the action and never want to
             // defer to the default _platform_ implementation.
