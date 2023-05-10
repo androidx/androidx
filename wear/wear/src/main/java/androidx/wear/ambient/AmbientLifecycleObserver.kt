@@ -47,6 +47,12 @@ import java.util.concurrent.Executor
  * }
  * ```
  *
+ * If the observer is registered while the device is in ambient mode, the registered callback
+ * will immediately receive a call to
+ * [AmbientLifecycleObserver.AmbientLifecycleCallback.onEnterAmbient]. If the device is in active
+ * mode, the callbacks will be registered, and `onEnterAmbient` will be called when the device next
+ * enters ambient mode.
+ *
  * @param activity The activity that this observer is being attached to.
  * @param callbackExecutor The executor to run the provided callbacks on.
  * @param callbacks An instance of [AmbientLifecycleObserver.AmbientLifecycleCallback], used to
