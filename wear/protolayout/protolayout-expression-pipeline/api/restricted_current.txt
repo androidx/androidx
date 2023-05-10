@@ -24,6 +24,7 @@ package androidx.wear.protolayout.expression.pipeline {
   public static final class DynamicTypeEvaluator.Config {
     method public androidx.wear.protolayout.expression.pipeline.QuotaManager? getAnimationQuotaManager();
     method public androidx.wear.protolayout.expression.pipeline.QuotaManager? getDynamicTypesQuotaManager();
+    method public java.util.Map<androidx.wear.protolayout.expression.PlatformDataKey<?>!,androidx.wear.protolayout.expression.pipeline.PlatformDataProvider!> getPlatformDataProviders();
     method public androidx.wear.protolayout.expression.pipeline.sensor.SensorGateway? getSensorGateway();
     method public androidx.wear.protolayout.expression.pipeline.StateStore? getStateStore();
     method public androidx.wear.protolayout.expression.pipeline.TimeGateway? getTimeGateway();
@@ -31,6 +32,7 @@ package androidx.wear.protolayout.expression.pipeline {
 
   public static final class DynamicTypeEvaluator.Config.Builder {
     ctor public DynamicTypeEvaluator.Config.Builder();
+    method public androidx.wear.protolayout.expression.pipeline.DynamicTypeEvaluator.Config.Builder addPlatformDataProvider(androidx.wear.protolayout.expression.pipeline.PlatformDataProvider, java.util.Set<androidx.wear.protolayout.expression.PlatformDataKey<?>!>);
     method public androidx.wear.protolayout.expression.pipeline.DynamicTypeEvaluator.Config build();
     method public androidx.wear.protolayout.expression.pipeline.DynamicTypeEvaluator.Config.Builder setAnimationQuotaManager(androidx.wear.protolayout.expression.pipeline.QuotaManager);
     method public androidx.wear.protolayout.expression.pipeline.DynamicTypeEvaluator.Config.Builder setDynamicTypesQuotaManager(androidx.wear.protolayout.expression.pipeline.QuotaManager);
@@ -46,6 +48,16 @@ package androidx.wear.protolayout.expression.pipeline {
   public interface DynamicTypeValueReceiver<T> {
     method public void onData(T);
     method public void onInvalidated();
+  }
+
+  public interface PlatformDataProvider {
+    method public void registerForData(java.util.concurrent.Executor, androidx.wear.protolayout.expression.pipeline.PlatformDataReceiver);
+    method public void unregisterForData();
+  }
+
+  public interface PlatformDataReceiver {
+    method public void onData(java.util.Map<androidx.wear.protolayout.expression.PlatformDataKey<?>!,androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue!>);
+    method public void onInvalidated(java.util.Set<androidx.wear.protolayout.expression.PlatformDataKey<?>!>);
   }
 
   public interface QuotaManager {

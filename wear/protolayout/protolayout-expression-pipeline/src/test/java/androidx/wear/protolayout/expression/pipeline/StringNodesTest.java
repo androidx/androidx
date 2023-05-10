@@ -226,6 +226,7 @@ public class StringNodesTest {
 
         results.clear();
         node.destroy();
+
         oss.setAppStateEntryValuesProto(
                 ImmutableMap.of(
                         KEY_FOO,
