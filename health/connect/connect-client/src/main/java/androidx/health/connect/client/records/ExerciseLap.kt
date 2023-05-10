@@ -16,21 +16,19 @@
 
 package androidx.health.connect.client.records
 
-import androidx.annotation.RestrictTo
 import androidx.health.connect.client.units.Length
 import java.time.Instant
 
 /**
  * Captures the time of a lap within an exercise session.
  *
- * <p>Each lap contains the start and end time and optional [Length] of the lap (e.g. pool
- * length while swimming or a track lap while running). There may or may not be direct correlation
- * with [ExerciseSegment] start and end times, e.g. [ExerciseSessionRecord] of type
- * running without any segments can be divided into laps of different lengths.
+ * <p>Each lap contains the start and end time and optional [Length] of the lap (e.g. pool length
+ * while swimming or a track lap while running). There may or may not be direct correlation with
+ * [ExerciseSegment] start and end times, e.g. [ExerciseSessionRecord] of type running without any
+ * segments can be divided into laps of different lengths.
  *
  * @see ExerciseSessionRecord
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class ExerciseLap(
     public val startTime: Instant,
     public val endTime: Instant,
