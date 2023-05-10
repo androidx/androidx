@@ -38,14 +38,14 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import androidx.viewpager2.widget.ViewPager2.ORIENTATION_HORIZONTAL
 import androidx.viewpager2.widget.WindowInsetsApplier
+import java.lang.reflect.Field
 import org.hamcrest.CoreMatchers.equalTo
-import org.junit.Assert.assertNotNull
 import org.hamcrest.MatcherAssert.assertThat
+import org.junit.Assert.assertNotNull
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
-import java.lang.reflect.Field
 
 @LargeTest
 @SdkSuppress(minSdkVersion = 30) // TODO(b/273945673): fix test on API 21..30

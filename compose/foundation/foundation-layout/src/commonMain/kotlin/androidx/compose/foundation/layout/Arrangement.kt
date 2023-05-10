@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.layout
 
+import androidx.compose.foundation.layout.internal.JvmDefaultWithCompatibility
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.Alignment
@@ -25,7 +26,6 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import kotlin.math.min
 import kotlin.math.roundToInt
-import androidx.compose.foundation.layout.internal.JvmDefaultWithCompatibility
 
 /**
  * Used to specify the arrangement of the layout's children in layouts like [Row] or [Column] in

@@ -17,15 +17,15 @@
 package androidx.privacysandbox.tools.apipackager
 
 import androidx.privacysandbox.tools.apipackager.AnnotationInspector.hasPrivacySandboxAnnotation
+import androidx.privacysandbox.tools.core.Metadata
 import java.nio.file.Path
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 import kotlin.io.path.exists
-import kotlin.io.path.isDirectory
-import kotlin.io.path.notExists
-import androidx.privacysandbox.tools.core.Metadata
 import kotlin.io.path.extension
 import kotlin.io.path.inputStream
+import kotlin.io.path.isDirectory
+import kotlin.io.path.notExists
 
 class PrivacySandboxApiPackager {
 

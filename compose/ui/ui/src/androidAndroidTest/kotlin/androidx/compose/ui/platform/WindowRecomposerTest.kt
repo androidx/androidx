@@ -43,6 +43,8 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.MediumTest
+import java.lang.ref.WeakReference
+import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
@@ -62,8 +64,6 @@ import org.junit.Assert.assertSame
 import org.junit.Assert.fail
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.lang.ref.WeakReference
-import kotlin.coroutines.CoroutineContext
 
 @RunWith(AndroidJUnit4::class)
 class WindowRecomposerTest {

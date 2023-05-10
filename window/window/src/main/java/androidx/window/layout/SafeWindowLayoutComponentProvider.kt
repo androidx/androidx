@@ -20,6 +20,7 @@ import android.app.Activity
 import android.content.Context
 import android.graphics.Rect
 import androidx.annotation.VisibleForTesting
+import androidx.window.SafeWindowExtensionsProvider
 import androidx.window.core.ConsumerAdapter
 import androidx.window.core.ExtensionsUtil
 import androidx.window.extensions.WindowExtensions
@@ -29,7 +30,6 @@ import androidx.window.extensions.layout.WindowLayoutComponent
 import androidx.window.reflection.ReflectionUtils.doesReturn
 import androidx.window.reflection.ReflectionUtils.isPublic
 import androidx.window.reflection.ReflectionUtils.validateReflection
-import androidx.window.SafeWindowExtensionsProvider
 import androidx.window.reflection.WindowExtensionsConstants.FOLDING_FEATURE_CLASS
 import androidx.window.reflection.WindowExtensionsConstants.JAVA_CONSUMER
 import androidx.window.reflection.WindowExtensionsConstants.WINDOW_CONSUMER

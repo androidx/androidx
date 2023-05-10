@@ -16,13 +16,13 @@
 
 package androidx.compose.runtime
 
+import kotlin.test.Test
+import kotlin.test.assertTrue
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withTimeout
-import kotlin.test.Test
-import kotlin.test.assertTrue
 
 @ExperimentalCoroutinesApi
 class LatchTest {

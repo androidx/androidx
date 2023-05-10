@@ -20,12 +20,12 @@ import android.view.View
 import androidx.benchmark.junit4.BenchmarkRule
 import androidx.benchmark.junit4.measureRepeated
 import androidx.compose.testutils.ComposeTestCase
-import androidx.compose.ui.graphics.Canvas
 import androidx.compose.testutils.ToggleableTestCase
 import androidx.compose.testutils.assertNoPendingChanges
 import androidx.compose.testutils.benchmark.android.AndroidTestCase
 import androidx.compose.testutils.doFramesUntilNoChangesPending
 import androidx.compose.testutils.recomposeAssertHadChanges
+import androidx.compose.ui.graphics.Canvas
 
 /**
  * Measures measure and layout performance of the given test case by toggling measure constraints.

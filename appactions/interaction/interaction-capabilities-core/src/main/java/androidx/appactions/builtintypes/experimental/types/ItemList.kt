@@ -16,8 +16,8 @@
 
 package androidx.appactions.builtintypes.experimental.types
 
-import androidx.appactions.builtintypes.experimental.properties.Name
 import androidx.appactions.builtintypes.experimental.properties.ItemListElement
+import androidx.appactions.builtintypes.experimental.properties.Name
 
 interface ItemList : Thing {
     val itemListElements: List<ItemListElement>

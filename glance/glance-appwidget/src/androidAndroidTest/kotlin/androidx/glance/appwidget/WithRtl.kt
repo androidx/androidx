@@ -16,12 +16,12 @@
 
 package androidx.glance.appwidget
 
-import org.junit.rules.TestRule
-import org.junit.runner.Description
-import org.junit.runners.model.Statement
 import java.lang.reflect.AnnotatedElement
 import java.lang.reflect.Method
 import java.util.Locale
+import org.junit.rules.TestRule
+import org.junit.runner.Description
+import org.junit.runners.model.Statement
 
 /**
  * Annotation for specifying a per-test or per-method override of the default locale. Multiple

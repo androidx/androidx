@@ -16,8 +16,8 @@
 
 package androidx.compose.foundation.text
 
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.foundation.layout.requiredWidth
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity

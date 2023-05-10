@@ -17,10 +17,10 @@
 package androidx.appactions.builtintypes.experimental.types
 
 // TODO(b/271634410): Update Attendee references
+import androidx.appactions.builtintypes.experimental.properties.Attendee
 import androidx.appactions.builtintypes.experimental.properties.EndDate
 import androidx.appactions.builtintypes.experimental.properties.Name
 import androidx.appactions.builtintypes.experimental.properties.StartDate
-import androidx.appactions.builtintypes.experimental.properties.Attendee
 import java.time.LocalDate
 import java.time.ZonedDateTime
 

@@ -20,9 +20,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-
 import androidx.annotation.ColorRes
-
 import androidx.viewpager2.integration.testapp.R
 
 /** Inflates and populates a [View] representing a [Card]  */

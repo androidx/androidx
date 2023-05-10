@@ -21,8 +21,8 @@ import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.benchmark.Shell
 import java.io.File
-import perfetto.protos.DataSourceConfig
 import perfetto.protos.AndroidPowerConfig
+import perfetto.protos.DataSourceConfig
 import perfetto.protos.FtraceConfig
 import perfetto.protos.MeminfoCounters
 import perfetto.protos.ProcessStatsConfig

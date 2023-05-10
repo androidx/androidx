@@ -16,8 +16,6 @@
 
 package androidx.window.embedding
 
-import java.util.function.Consumer as JavaConsumer
-import androidx.window.extensions.embedding.SplitInfo as OEMSplitInfo
 import android.app.Activity
 import androidx.window.core.ConsumerAdapter
 import androidx.window.core.ExtensionsUtil
@@ -25,6 +23,8 @@ import androidx.window.core.PredicateAdapter
 import androidx.window.extensions.WindowExtensions.VENDOR_API_LEVEL_2
 import androidx.window.extensions.core.util.function.Consumer
 import androidx.window.extensions.embedding.ActivityEmbeddingComponent
+import androidx.window.extensions.embedding.SplitInfo as OEMSplitInfo
+import java.util.function.Consumer as JavaConsumer
 import org.junit.Test
 import org.mockito.kotlin.any
 import org.mockito.kotlin.mock

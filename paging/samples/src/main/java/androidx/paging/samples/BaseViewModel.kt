@@ -22,9 +22,9 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingSource
 import androidx.paging.cachedIn
+import androidx.paging.liveData
 import androidx.paging.rxjava2.cachedIn
 import androidx.paging.rxjava2.flowable
-import androidx.paging.liveData
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 /**

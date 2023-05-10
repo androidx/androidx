@@ -17,8 +17,8 @@
 package androidx.compose.ui.graphics.colorspace
 
 import androidx.compose.ui.util.packInts
-import kotlin.test.assertEquals
 import kotlin.test.Test
+import kotlin.test.assertEquals
 
 class ColorModelTest {
 

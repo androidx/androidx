@@ -35,13 +35,13 @@ import androidx.navigation.safe.args.generator.ObjectArrayType
 import androidx.navigation.safe.args.generator.ObjectType
 import androidx.navigation.safe.args.generator.ReferenceArrayType
 import androidx.navigation.safe.args.generator.ReferenceType
+import androidx.navigation.safe.args.generator.ReferenceValue
 import androidx.navigation.safe.args.generator.StringArrayType
 import androidx.navigation.safe.args.generator.StringType
-import androidx.navigation.safe.args.generator.models.Argument
-import androidx.navigation.safe.args.generator.ReferenceValue
 import androidx.navigation.safe.args.generator.StringValue
 import androidx.navigation.safe.args.generator.WritableValue
 import androidx.navigation.safe.args.generator.ext.toClassNameParts
+import androidx.navigation.safe.args.generator.models.Argument
 import androidx.navigation.safe.args.generator.models.ResReference
 import com.squareup.javapoet.ArrayTypeName
 import com.squareup.javapoet.ClassName

@@ -23,12 +23,12 @@ import android.os.Bundle
 import android.util.TypedValue
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.splashscreen.R as SR
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.splashscreen.SplashScreenViewProvider
+import androidx.test.platform.app.InstrumentationRegistry.getInstrumentation
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.atomic.AtomicBoolean
-import androidx.core.splashscreen.R as SR
-import androidx.test.platform.app.InstrumentationRegistry.getInstrumentation
 
 /**
  * If true, sets an [androidx.core.splashscreen.SplashScreen.OnExitAnimationListener] on the

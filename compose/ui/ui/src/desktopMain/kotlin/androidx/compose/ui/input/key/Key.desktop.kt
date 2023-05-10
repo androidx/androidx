@@ -17,12 +17,12 @@
 package androidx.compose.ui.input.key
 
 import androidx.compose.ui.input.key.Key.Companion.Number
+import androidx.compose.ui.util.unpackInt1
 import java.awt.event.KeyEvent
 import java.awt.event.KeyEvent.KEY_LOCATION_LEFT
 import java.awt.event.KeyEvent.KEY_LOCATION_NUMPAD
 import java.awt.event.KeyEvent.KEY_LOCATION_RIGHT
 import java.awt.event.KeyEvent.KEY_LOCATION_STANDARD
-import androidx.compose.ui.util.unpackInt1
 
 // TODO(demin): implement most of key codes
 

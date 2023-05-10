@@ -24,14 +24,14 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.density
 import com.google.common.truth.Truth.assertThat
+import java.awt.Dimension
+import java.awt.GraphicsEnvironment
+import javax.swing.JFrame
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.swing.Swing
 import org.junit.Assume
 import org.junit.Test
-import java.awt.Dimension
-import java.awt.GraphicsEnvironment
-import javax.swing.JFrame
 
 class ComposePanelTest {
     @Test

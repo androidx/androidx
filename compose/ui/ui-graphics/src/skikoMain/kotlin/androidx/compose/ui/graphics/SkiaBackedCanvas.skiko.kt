@@ -22,16 +22,16 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.util.fastForEach
+import org.jetbrains.skia.ClipMode as SkClipMode
 import org.jetbrains.skia.CubicResampler
 import org.jetbrains.skia.FilterMipmap
 import org.jetbrains.skia.FilterMode
 import org.jetbrains.skia.Image
 import org.jetbrains.skia.Matrix44
 import org.jetbrains.skia.MipmapMode
-import org.jetbrains.skia.SamplingMode
-import org.jetbrains.skia.ClipMode as SkClipMode
 import org.jetbrains.skia.RRect as SkRRect
 import org.jetbrains.skia.Rect as SkRect
+import org.jetbrains.skia.SamplingMode
 import org.jetbrains.skia.impl.use
 
 actual typealias NativeCanvas = org.jetbrains.skia.Canvas

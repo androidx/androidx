@@ -16,8 +16,8 @@
 
 package androidx.room.compiler.processing.util
 
-import org.junit.AssumptionViolatedException
 import java.util.Properties
+import org.junit.AssumptionViolatedException
 
 /**
  * Provides the information about compilation test capabilities.

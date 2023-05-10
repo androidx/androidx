@@ -28,15 +28,15 @@ import androidx.test.screenshot.matchers.MSSIMMatcher
 import androidx.test.screenshot.matchers.PixelPerfectMatcher
 import androidx.test.screenshot.proto.ScreenshotResultProto
 import androidx.test.screenshot.proto.ScreenshotResultProto.ScreenshotResult.Status
+import java.io.File
+import java.io.FileNotFoundException
+import java.io.FileOutputStream
+import java.io.IOException
 import org.junit.Assume
 import org.junit.rules.TestRule
 import org.junit.rules.TestWatcher
 import org.junit.runner.Description
 import org.junit.runners.model.Statement
-import java.io.File
-import java.io.FileNotFoundException
-import java.io.FileOutputStream
-import java.io.IOException
 
 /**
  * Config for [ScreenshotTestRule].

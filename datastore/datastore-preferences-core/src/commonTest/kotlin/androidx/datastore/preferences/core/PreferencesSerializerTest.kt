@@ -19,11 +19,11 @@ package androidx.datastore.preferences.core
 import androidx.datastore.OkioPath
 import androidx.datastore.OkioTestIO
 import androidx.datastore.core.okio.OkioSerializer
-import kotlinx.coroutines.test.runTest
-import kotlin.test.assertEquals
 import kotlin.test.BeforeTest
 import kotlin.test.Test
+import kotlin.test.assertEquals
 import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.runTest
 import okio.FileSystem
 
 @OptIn(

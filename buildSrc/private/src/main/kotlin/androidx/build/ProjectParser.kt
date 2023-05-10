@@ -16,12 +16,11 @@
 
 package androidx.build
 
+import java.io.File
 import java.util.concurrent.ConcurrentHashMap
 import org.gradle.api.Project
 import org.gradle.api.services.BuildService
 import org.gradle.api.services.BuildServiceParameters
-
-import java.io.File
 
 abstract class ProjectParser : BuildService<BuildServiceParameters.None> {
     @Transient

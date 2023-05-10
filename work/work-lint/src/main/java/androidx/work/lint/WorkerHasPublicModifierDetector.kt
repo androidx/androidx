@@ -30,9 +30,9 @@ import com.android.tools.lint.detector.api.Severity
 import com.android.tools.lint.detector.api.SourceCodeScanner
 import com.intellij.lang.jvm.JvmModifier
 import com.intellij.psi.PsiMethod
+import java.util.EnumSet
 import org.jetbrains.uast.UCallExpression
 import org.jetbrains.uast.UClass
-import java.util.EnumSet
 
 class WorkerHasPublicModifierDetector : Detector(), SourceCodeScanner {
     companion object {

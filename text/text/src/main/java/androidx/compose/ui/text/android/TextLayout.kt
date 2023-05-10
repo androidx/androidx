@@ -38,8 +38,6 @@ import androidx.compose.ui.text.android.LayoutCompat.ALIGN_NORMAL
 import androidx.compose.ui.text.android.LayoutCompat.ALIGN_OPPOSITE
 import androidx.compose.ui.text.android.LayoutCompat.ALIGN_RIGHT
 import androidx.compose.ui.text.android.LayoutCompat.BreakStrategy
-import androidx.compose.ui.text.android.LayoutCompat.LineBreakStyle
-import androidx.compose.ui.text.android.LayoutCompat.LineBreakWordStyle
 import androidx.compose.ui.text.android.LayoutCompat.DEFAULT_ALIGNMENT
 import androidx.compose.ui.text.android.LayoutCompat.DEFAULT_BREAK_STRATEGY
 import androidx.compose.ui.text.android.LayoutCompat.DEFAULT_HYPHENATION_FREQUENCY
@@ -52,6 +50,8 @@ import androidx.compose.ui.text.android.LayoutCompat.DEFAULT_LINE_BREAK_WORD_STY
 import androidx.compose.ui.text.android.LayoutCompat.DEFAULT_TEXT_DIRECTION
 import androidx.compose.ui.text.android.LayoutCompat.HyphenationFrequency
 import androidx.compose.ui.text.android.LayoutCompat.JustificationMode
+import androidx.compose.ui.text.android.LayoutCompat.LineBreakStyle
+import androidx.compose.ui.text.android.LayoutCompat.LineBreakWordStyle
 import androidx.compose.ui.text.android.LayoutCompat.TEXT_DIRECTION_ANY_RTL_LTR
 import androidx.compose.ui.text.android.LayoutCompat.TEXT_DIRECTION_FIRST_STRONG_LTR
 import androidx.compose.ui.text.android.LayoutCompat.TEXT_DIRECTION_FIRST_STRONG_RTL

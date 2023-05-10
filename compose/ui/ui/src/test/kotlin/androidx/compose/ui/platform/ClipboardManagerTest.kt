@@ -17,8 +17,8 @@
 package androidx.compose.ui.platform
 
 import androidx.compose.ui.text.AnnotatedString
-import org.junit.Test
 import com.google.common.truth.Truth.assertThat
+import org.junit.Test
 
 class ClipboardManagerTest {
 

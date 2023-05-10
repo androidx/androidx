@@ -27,10 +27,10 @@ import androidx.compose.ui.graphics.colorspace.ColorSpaces
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import junit.framework.TestCase.assertEquals
+import kotlin.random.Random
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import kotlin.random.Random
 
 @RunWith(JUnit4::class)
 class ConverterTest {

@@ -16,13 +16,10 @@
 
 package androidx.credentials
 
-import com.google.common.truth.Truth.assertThat
-
-import org.junit.Assert.assertThrows
-
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
-
+import com.google.common.truth.Truth.assertThat
+import org.junit.Assert.assertThrows
 import org.junit.Test
 import org.junit.runner.RunWith
 

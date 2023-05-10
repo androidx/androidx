@@ -18,7 +18,6 @@ package androidx.room
 
 import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.sqlite.db.SupportSQLiteOpenHelper
-
 import java.util.concurrent.Executor
 
 internal class QueryInterceptorOpenHelper(

@@ -17,10 +17,10 @@
 package androidx.appactions.interaction.capabilities.communication
 
 import androidx.appactions.builtintypes.experimental.properties.Recipient
+import androidx.appactions.interaction.capabilities.core.SearchAction
 import androidx.appactions.interaction.capabilities.core.impl.converters.ParamValueConverter
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
 import androidx.appactions.interaction.capabilities.core.impl.converters.UnionTypeSpec
-import androidx.appactions.interaction.capabilities.core.SearchAction
 
 class RecipientValue private constructor(
     val asRecipient: Recipient?,

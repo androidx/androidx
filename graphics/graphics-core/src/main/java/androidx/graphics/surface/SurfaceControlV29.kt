@@ -26,9 +26,9 @@ import android.view.SurfaceView
 import androidx.annotation.RequiresApi
 import androidx.graphics.lowlatency.BufferTransformHintResolver.Companion.UNKNOWN_TRANSFORM
 import androidx.graphics.lowlatency.FrontBufferUtils
-import androidx.hardware.SyncFenceImpl
 import androidx.graphics.surface.SurfaceControlCompat.Companion.BUFFER_TRANSFORM_ROTATE_270
 import androidx.graphics.surface.SurfaceControlCompat.Companion.BUFFER_TRANSFORM_ROTATE_90
+import androidx.hardware.SyncFenceImpl
 import androidx.hardware.SyncFenceV19
 import java.util.concurrent.Executor
 

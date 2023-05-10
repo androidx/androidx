@@ -16,8 +16,8 @@
 
 package androidx.compose.ui.input.key
 
-import androidx.compose.ui.ExperimentalComposeUiApi
 import android.view.KeyEvent.KEYCODE_A as KeyCodeA
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat

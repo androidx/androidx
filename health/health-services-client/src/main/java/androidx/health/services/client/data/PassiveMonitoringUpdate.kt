@@ -16,8 +16,8 @@
 
 package androidx.health.services.client.data
 
-import androidx.health.services.client.proto.DataProto.PassiveMonitoringUpdate as PassiveMonitoringUpdateProto
 import androidx.health.services.client.proto.DataProto
+import androidx.health.services.client.proto.DataProto.PassiveMonitoringUpdate as PassiveMonitoringUpdateProto
 
 /**
  * Represents an update from Passive tracking.

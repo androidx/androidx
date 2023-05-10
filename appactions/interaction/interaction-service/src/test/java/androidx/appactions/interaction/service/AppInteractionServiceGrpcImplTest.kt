@@ -17,8 +17,8 @@
 package androidx.appactions.interaction.service
 
 import androidx.appactions.interaction.capabilities.core.Capability
-import androidx.appactions.interaction.capabilities.core.impl.CapabilitySession
 import androidx.appactions.interaction.capabilities.core.impl.CallbackInternal
+import androidx.appactions.interaction.capabilities.core.impl.CapabilitySession
 import androidx.appactions.interaction.proto.AppActionsContext.AppAction
 import androidx.appactions.interaction.proto.AppActionsContext.AppDialogState
 import androidx.appactions.interaction.proto.FulfillmentRequest
@@ -30,24 +30,15 @@ import androidx.appactions.interaction.service.AppInteractionServiceGrpcImpl.Com
 import androidx.appactions.interaction.service.AppInteractionServiceGrpcImpl.Companion.ERROR_NO_FULFILLMENT_REQUEST
 import androidx.appactions.interaction.service.AppInteractionServiceGrpcImpl.Companion.ERROR_NO_SESSION
 import androidx.appactions.interaction.service.AppInteractionServiceGrpcImpl.Companion.ERROR_SESSION_ENDED
-import androidx.appactions.interaction.service.testing.internal.FakeAppInteractionService
 import androidx.appactions.interaction.service.proto.AppInteractionServiceGrpc
 import androidx.appactions.interaction.service.proto.AppInteractionServiceGrpc.AppInteractionServiceStub
 import androidx.appactions.interaction.service.proto.AppInteractionServiceProto.Request
 import androidx.appactions.interaction.service.proto.AppInteractionServiceProto.StartSessionRequest
 import androidx.appactions.interaction.service.proto.AppInteractionServiceProto.StartSessionResponse
+import androidx.appactions.interaction.service.testing.internal.FakeAppInteractionService
 import androidx.concurrent.futures.await
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
-import org.mockito.kotlin.any
-import org.mockito.kotlin.argumentCaptor
-import org.mockito.kotlin.doAnswer
-import org.mockito.kotlin.mock
-import org.mockito.kotlin.never
-import org.mockito.kotlin.times
-import org.mockito.kotlin.verify
-import org.mockito.kotlin.whenever
-import org.robolectric.Robolectric
 import io.grpc.BindableService
 import io.grpc.ManagedChannel
 import io.grpc.Server
@@ -67,6 +58,15 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.kotlin.any
+import org.mockito.kotlin.argumentCaptor
+import org.mockito.kotlin.doAnswer
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.never
+import org.mockito.kotlin.times
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.whenever
+import org.robolectric.Robolectric
 
 // TODO(b/271929200) Implement tests for the 2 UI related RPCs
 @RunWith(AndroidJUnit4::class)

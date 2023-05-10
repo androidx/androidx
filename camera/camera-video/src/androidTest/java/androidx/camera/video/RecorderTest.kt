@@ -16,7 +16,6 @@
 
 package androidx.camera.video
 
-import androidx.camera.testing.mocks.helpers.ArgumentCaptor as ArgumentCaptorCameraX
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.AppOpsManager
@@ -56,6 +55,7 @@ import androidx.camera.testing.LabTestRule
 import androidx.camera.testing.SurfaceTextureProvider
 import androidx.camera.testing.asFlow
 import androidx.camera.testing.mocks.MockConsumer
+import androidx.camera.testing.mocks.helpers.ArgumentCaptor as ArgumentCaptorCameraX
 import androidx.camera.testing.mocks.helpers.CallTimes
 import androidx.camera.testing.mocks.helpers.CallTimesAtLeast
 import androidx.camera.video.VideoOutput.SourceState.ACTIVE_NON_STREAMING

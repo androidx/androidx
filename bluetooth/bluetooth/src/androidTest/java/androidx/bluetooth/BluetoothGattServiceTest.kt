@@ -16,8 +16,8 @@
 
 package androidx.bluetooth
 
-import android.bluetooth.BluetoothGattService as FwkBluetoothGattService
 import android.bluetooth.BluetoothGattCharacteristic as FwkBluetoothGattCharacteristic
+import android.bluetooth.BluetoothGattService as FwkBluetoothGattService
 import android.bluetooth.BluetoothGattService.SERVICE_TYPE_PRIMARY
 import java.util.UUID
 import org.junit.Assert.assertEquals

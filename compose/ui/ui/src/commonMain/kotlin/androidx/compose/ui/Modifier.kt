@@ -20,9 +20,9 @@ import androidx.compose.runtime.Stable
 import androidx.compose.ui.internal.JvmDefaultWithCompatibility
 import androidx.compose.ui.node.DelegatableNode
 import androidx.compose.ui.node.DrawModifierNode
-import androidx.compose.ui.node.ObserverNodeOwnerScope
 import androidx.compose.ui.node.NodeCoordinator
 import androidx.compose.ui.node.NodeKind
+import androidx.compose.ui.node.ObserverNodeOwnerScope
 import androidx.compose.ui.node.invalidateDraw
 import androidx.compose.ui.node.requireOwner
 import kotlinx.coroutines.CoroutineScope

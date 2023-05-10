@@ -16,9 +16,9 @@
 
 package androidx.testutils
 
+import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Runnable
-import kotlin.coroutines.CoroutineContext
 
 /**
  * [CoroutineDispatcher] which keeps track of all its queued jobs.

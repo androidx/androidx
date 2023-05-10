@@ -17,7 +17,6 @@
 package androidx.room
 
 import androidx.sqlite.db.SupportSQLiteStatement
-
 import java.util.concurrent.Executor
 
 /**

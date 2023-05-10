@@ -23,12 +23,12 @@ import android.util.Log
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.tracing.trace
-import kotlin.concurrent.thread
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.OutOfQuotaPolicy
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import java.util.concurrent.CountDownLatch
+import kotlin.concurrent.thread
 
 class BackgroundWorkActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

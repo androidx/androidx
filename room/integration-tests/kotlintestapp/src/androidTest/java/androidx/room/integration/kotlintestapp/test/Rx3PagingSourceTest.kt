@@ -16,10 +16,10 @@
 
 package androidx.room.integration.kotlintestapp.test
 
+import androidx.kruth.assertThat
 import androidx.paging.Pager
 import androidx.paging.PagingState
 import androidx.paging.rxjava3.RxPagingSource
-import androidx.kruth.assertThat
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.integration.kotlintestapp.testutil.ItemStore

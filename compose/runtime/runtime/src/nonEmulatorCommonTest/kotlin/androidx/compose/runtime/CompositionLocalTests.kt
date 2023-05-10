@@ -26,12 +26,12 @@ import androidx.compose.runtime.mock.expectChanges
 import androidx.compose.runtime.mock.expectNoChanges
 import androidx.compose.runtime.mock.revalidate
 import androidx.compose.runtime.mock.validate
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.launch
-import kotlin.test.assertEquals
 import kotlin.test.Test
+import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.launch
 
 // Create a normal (dynamic) CompositionLocal with a string value
 val LocalSomeTextComposition = compositionLocalOf { "Default" }

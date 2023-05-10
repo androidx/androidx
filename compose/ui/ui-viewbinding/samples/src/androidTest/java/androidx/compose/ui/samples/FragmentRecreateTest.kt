@@ -20,10 +20,10 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.activity.compose.setContent
+import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.viewbinding.samples.R
 import androidx.compose.ui.viewbinding.samples.databinding.TestFragmentLayoutBinding
 import androidx.compose.ui.viewinterop.AndroidViewBinding
-import androidx.compose.ui.platform.ComposeView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentContainerView

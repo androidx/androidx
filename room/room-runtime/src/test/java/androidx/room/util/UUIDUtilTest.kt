@@ -17,12 +17,12 @@
 package androidx.room.util
 
 import com.google.common.truth.Truth.assertThat
-import org.junit.Test
-import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
 import java.nio.ByteBuffer
 import java.util.UUID
 import kotlin.random.Random
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
 class UUIDUtilTest {

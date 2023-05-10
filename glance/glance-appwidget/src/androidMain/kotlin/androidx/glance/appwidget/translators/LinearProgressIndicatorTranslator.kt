@@ -16,23 +16,22 @@
 
 package androidx.glance.appwidget.translators
 
+import android.content.res.ColorStateList
 import android.os.Build
+import android.util.Log
 import android.widget.RemoteViews
+import androidx.compose.ui.graphics.toArgb
+import androidx.core.widget.RemoteViewsCompat.setProgressBarProgressBackgroundTintList
+import androidx.core.widget.RemoteViewsCompat.setProgressBarProgressTintList
+import androidx.glance.appwidget.EmittableLinearProgressIndicator
+import androidx.glance.appwidget.GlanceAppWidgetTag
 import androidx.glance.appwidget.LayoutType
 import androidx.glance.appwidget.TranslationContext
 import androidx.glance.appwidget.applyModifiers
 import androidx.glance.appwidget.insertView
-import androidx.core.widget.RemoteViewsCompat.setProgressBarProgressTintList
-import androidx.core.widget.RemoteViewsCompat.setProgressBarProgressBackgroundTintList
-import androidx.compose.ui.graphics.toArgb
-import android.content.res.ColorStateList
-import android.util.Log
+import androidx.glance.color.DayNightColorProvider
 import androidx.glance.unit.FixedColorProvider
 import androidx.glance.unit.ResourceColorProvider
-
-import androidx.glance.appwidget.EmittableLinearProgressIndicator
-import androidx.glance.appwidget.GlanceAppWidgetTag
-import androidx.glance.color.DayNightColorProvider
 
 internal fun RemoteViews.translateEmittableLinearProgressIndicator(
     translationContext: TranslationContext,

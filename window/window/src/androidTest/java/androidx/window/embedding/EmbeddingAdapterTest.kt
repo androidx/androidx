@@ -16,9 +16,6 @@
 
 package androidx.window.embedding
 
-import androidx.window.extensions.embedding.ActivityStack as OEMActivityStack
-import androidx.window.extensions.embedding.SplitAttributes as OEMSplitAttributes
-import androidx.window.extensions.embedding.SplitInfo as OEMSplitInfo
 import android.app.Activity
 import androidx.window.WindowTestUtils
 import androidx.window.core.ExtensionsUtil
@@ -26,13 +23,16 @@ import androidx.window.core.PredicateAdapter
 import androidx.window.embedding.SplitAttributes.SplitType
 import androidx.window.embedding.SplitAttributes.SplitType.Companion.SPLIT_TYPE_HINGE
 import androidx.window.extensions.WindowExtensions
+import androidx.window.extensions.embedding.ActivityStack as OEMActivityStack
+import androidx.window.extensions.embedding.SplitAttributes as OEMSplitAttributes
 import androidx.window.extensions.embedding.SplitAttributes.LayoutDirection.TOP_TO_BOTTOM
 import androidx.window.extensions.embedding.SplitAttributes.SplitType.RatioSplitType
-import org.mockito.kotlin.mock
-import org.mockito.kotlin.whenever
+import androidx.window.extensions.embedding.SplitInfo as OEMSplitInfo
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.whenever
 
 /** Tests for [EmbeddingAdapter] */
 class EmbeddingAdapterTest {

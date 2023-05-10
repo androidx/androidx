@@ -17,15 +17,14 @@
 package androidx.build
 
 import com.google.common.io.Files
+import java.io.File
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.OutputFile
-import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
+import org.gradle.api.tasks.TaskAction
 import org.gradle.work.DisableCachingByDefault
-
-import java.io.File
 
 @DisableCachingByDefault(because = "Doesn't benefit from cache")
 open class SingleFileCopy : DefaultTask() {

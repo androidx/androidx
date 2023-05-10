@@ -22,9 +22,6 @@ import android.view.View
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.constraintlayout.compose.integration.macrobenchmark.target.newmessage.NewMotionMessagePreview
-import androidx.constraintlayout.compose.integration.macrobenchmark.target.newmessage.NewMotionMessagePreviewWithDsl
-import androidx.constraintlayout.compose.integration.macrobenchmark.target.toolbar.MotionCollapseToolbarPreview
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.runtime.Recomposer
@@ -33,6 +30,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.constraintlayout.compose.integration.macrobenchmark.target.graphs.DynamicGraphsPreview
+import androidx.constraintlayout.compose.integration.macrobenchmark.target.newmessage.NewMotionMessagePreview
+import androidx.constraintlayout.compose.integration.macrobenchmark.target.newmessage.NewMotionMessagePreviewWithDsl
+import androidx.constraintlayout.compose.integration.macrobenchmark.target.toolbar.MotionCollapseToolbarPreview
 
 class MotionLayoutActivity : ComponentActivity() {
 

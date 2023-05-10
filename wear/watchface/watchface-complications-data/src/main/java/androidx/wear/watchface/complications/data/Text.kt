@@ -22,8 +22,8 @@ import android.support.wearable.complications.ComplicationData as WireComplicati
 import android.support.wearable.complications.ComplicationText as WireComplicationText
 import android.support.wearable.complications.ComplicationText.TimeDifferenceBuilder as WireComplicationTextTimeDifferenceBuilder
 import android.support.wearable.complications.ComplicationText.TimeFormatBuilder as WireComplicationTextTimeFormatBuilder
-import android.support.wearable.complications.TimeDependentText as WireTimeDependentText
 import android.support.wearable.complications.TimeDependentText
+import android.support.wearable.complications.TimeDependentText as WireTimeDependentText
 import android.support.wearable.complications.TimeDifferenceText
 import android.text.style.ForegroundColorSpan
 import android.text.style.LocaleSpan

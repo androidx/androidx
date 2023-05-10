@@ -20,10 +20,10 @@ import android.os.Looper
 import android.view.Choreographer
 import androidx.compose.runtime.MonotonicFrameClock
 import androidx.core.os.HandlerCompat
+import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
-import kotlin.coroutines.CoroutineContext
 
 /**
  * A [CoroutineDispatcher] that will perform dispatch during a [handler] callback or

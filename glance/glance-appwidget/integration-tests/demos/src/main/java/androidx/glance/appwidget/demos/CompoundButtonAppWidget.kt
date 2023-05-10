@@ -37,8 +37,8 @@ import androidx.glance.appwidget.Switch
 import androidx.glance.appwidget.SwitchDefaults
 import androidx.glance.appwidget.appWidgetBackground
 import androidx.glance.appwidget.cornerRadius
-import androidx.glance.appwidget.selectableGroup
 import androidx.glance.appwidget.provideContent
+import androidx.glance.appwidget.selectableGroup
 import androidx.glance.background
 import androidx.glance.color.ColorProvider
 import androidx.glance.layout.Alignment

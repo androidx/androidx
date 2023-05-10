@@ -16,13 +16,13 @@
 
 package androidx.compose.ui.platform
 
+import kotlin.coroutines.CoroutineContext
+import kotlin.jvm.Volatile
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.Runnable
 import kotlinx.coroutines.launch
-import kotlin.coroutines.CoroutineContext
-import kotlin.jvm.Volatile
 
 /**
  * Dispatcher with the ability to immediately perform (flush) all pending tasks.

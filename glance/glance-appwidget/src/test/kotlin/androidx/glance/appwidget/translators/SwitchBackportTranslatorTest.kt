@@ -24,13 +24,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.glance.GlanceModifier
 import androidx.glance.appwidget.ImageViewSubject.Companion.assertThat
 import androidx.glance.appwidget.Switch
+import androidx.glance.appwidget.SwitchDefaults
 import androidx.glance.appwidget.action.ActionCallback
 import androidx.glance.appwidget.action.actionRunCallback
 import androidx.glance.appwidget.applyRemoteViews
 import androidx.glance.appwidget.configurationContext
 import androidx.glance.appwidget.findView
 import androidx.glance.appwidget.runAndTranslate
-import androidx.glance.appwidget.SwitchDefaults
 import androidx.glance.color.ColorProvider
 import androidx.glance.semantics.contentDescription
 import androidx.glance.semantics.semantics

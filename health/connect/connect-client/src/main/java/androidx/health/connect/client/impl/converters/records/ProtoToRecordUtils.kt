@@ -18,12 +18,12 @@
 package androidx.health.connect.client.impl.converters.records
 
 import androidx.annotation.RestrictTo
-import androidx.health.connect.client.records.SleepSessionRecord
-import androidx.health.connect.client.records.SleepSessionRecord.Companion.STAGE_TYPE_STRING_TO_INT_MAP
 import androidx.health.connect.client.records.ExerciseLap
 import androidx.health.connect.client.records.ExerciseRoute
 import androidx.health.connect.client.records.ExerciseSegment
 import androidx.health.connect.client.records.ExerciseSegment.Companion.EXERCISE_SEGMENT_TYPE_UNKNOWN
+import androidx.health.connect.client.records.SleepSessionRecord
+import androidx.health.connect.client.records.SleepSessionRecord.Companion.STAGE_TYPE_STRING_TO_INT_MAP
 import androidx.health.connect.client.records.metadata.DataOrigin
 import androidx.health.connect.client.records.metadata.Device
 import androidx.health.connect.client.records.metadata.Metadata

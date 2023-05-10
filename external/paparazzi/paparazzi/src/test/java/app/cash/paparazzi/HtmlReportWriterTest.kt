@@ -15,10 +15,6 @@
  */
 package app.cash.paparazzi
 
-import org.assertj.core.api.Assertions.assertThat
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TemporaryFolder
 import java.awt.image.BufferedImage
 import java.io.File
 import java.nio.file.Files
@@ -27,6 +23,10 @@ import java.nio.file.attribute.BasicFileAttributes
 import java.nio.file.attribute.FileTime
 import java.time.Instant
 import java.util.Date
+import org.assertj.core.api.Assertions.assertThat
+import org.junit.Rule
+import org.junit.Test
+import org.junit.rules.TemporaryFolder
 
 class HtmlReportWriterTest {
   @get:Rule

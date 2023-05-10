@@ -33,12 +33,12 @@ import androidx.compose.ui.demos.focus.FocusInDialogDemo
 import androidx.compose.ui.demos.focus.FocusInPopupDemo
 import androidx.compose.ui.demos.focus.FocusManagerMoveFocusDemo
 import androidx.compose.ui.demos.focus.FocusableDemo
+import androidx.compose.ui.demos.focus.LazyListChildFocusDemos
+import androidx.compose.ui.demos.focus.NestedLazyListFocusSearchDemo
 import androidx.compose.ui.demos.focus.OneDimensionalFocusSearchDemo
 import androidx.compose.ui.demos.focus.ReuseFocusRequesterDemo
 import androidx.compose.ui.demos.focus.ScrollableLazyRowFocusDemo
 import androidx.compose.ui.demos.focus.ScrollableRowFocusDemo
-import androidx.compose.ui.demos.focus.LazyListChildFocusDemos
-import androidx.compose.ui.demos.focus.NestedLazyListFocusSearchDemo
 import androidx.compose.ui.demos.focus.TwoDimensionalFocusSearchDemo
 import androidx.compose.ui.demos.gestures.ButtonMetaStateDemo
 import androidx.compose.ui.demos.gestures.DetectTapGesturesDemo

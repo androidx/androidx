@@ -30,10 +30,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.sizeIn
+import androidx.compose.material.AnchoredDraggableState.AnchorChangedCallback
 import androidx.compose.material.BottomDrawerValue.Closed
 import androidx.compose.material.BottomDrawerValue.Expanded
 import androidx.compose.material.BottomDrawerValue.Open
-import androidx.compose.material.AnchoredDraggableState.AnchorChangedCallback
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.Stable

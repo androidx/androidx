@@ -27,14 +27,14 @@ import androidx.test.filters.FlakyTest
 import androidx.test.filters.MediumTest
 import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
+import java.io.IOException
+import java.util.concurrent.TimeUnit
 import org.junit.After
 import org.junit.Before
 import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.io.IOException
-import java.util.concurrent.TimeUnit
 
 @RunWith(AndroidJUnit4::class)
 @MediumTest

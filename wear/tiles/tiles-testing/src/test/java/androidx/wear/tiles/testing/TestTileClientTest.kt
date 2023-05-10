@@ -18,12 +18,12 @@ package androidx.wear.tiles.testing
 
 import android.os.Looper
 import androidx.concurrent.futures.ResolvableFuture
+import androidx.wear.protolayout.ResourceBuilders
 import androidx.wear.tiles.EventBuilders
 import androidx.wear.tiles.RequestBuilders
 import androidx.wear.tiles.TileBuilders
 import androidx.wear.tiles.TileProvider
 import androidx.wear.tiles.TileService
-import androidx.wear.protolayout.ResourceBuilders
 import com.google.common.truth.Truth.assertThat
 import com.google.common.util.concurrent.ListenableFuture
 import org.junit.Before

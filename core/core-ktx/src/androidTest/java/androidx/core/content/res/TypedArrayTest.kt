@@ -18,9 +18,9 @@ package androidx.core.content.res
 
 import android.graphics.Color
 import androidx.core.getAttributeSet
+import androidx.core.ktx.test.R
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.SdkSuppress
-import androidx.core.ktx.test.R
 import androidx.test.filters.SmallTest
 import androidx.testutils.assertThrows
 import org.junit.Assert.assertEquals

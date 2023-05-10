@@ -16,9 +16,9 @@
 
 package androidx.build.gitclient
 
-import org.gradle.api.logging.Logger
 import java.io.File
 import java.util.concurrent.TimeUnit
+import org.gradle.api.logging.Logger
 
 /**
  * A simple git client that uses system process commands to communicate with the git setup in the

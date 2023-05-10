@@ -26,19 +26,19 @@ import androidx.compose.animation.core.FastOutLinearInEasing
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.LinearOutSlowInEasing
-import androidx.compose.animation.graphics.vector.compat.AndroidVectorResources
 import androidx.compose.animation.graphics.vector.Animator
+import androidx.compose.animation.graphics.vector.compat.AndroidVectorResources
 import androidx.compose.animation.graphics.vector.compat.TagObjectAnimator
 import androidx.compose.animation.graphics.vector.compat.TagSet
-import androidx.compose.animation.graphics.vector.compat.seekToStartTag
 import androidx.compose.animation.graphics.vector.compat.parseAnimatorSet
 import androidx.compose.animation.graphics.vector.compat.parseInterpolator
 import androidx.compose.animation.graphics.vector.compat.parseObjectAnimator
-import org.xmlpull.v1.XmlPullParserException
+import androidx.compose.animation.graphics.vector.compat.seekToStartTag
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.pow
 import kotlin.math.sin
+import org.xmlpull.v1.XmlPullParserException
 
 /**
  * Synchronously loads an [Animator] resource.

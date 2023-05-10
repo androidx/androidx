@@ -51,8 +51,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.isActive
 import java.util.Calendar
+import kotlinx.coroutines.isActive
 
 private class Time(hours: State<Int>, minutes: State<Int>, seconds: State<Int>) {
     val hours by hours
