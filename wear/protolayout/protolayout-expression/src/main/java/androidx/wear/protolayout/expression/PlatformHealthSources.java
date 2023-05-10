@@ -20,38 +20,57 @@ import static androidx.wear.protolayout.expression.DynamicBuilders.PLATFORM_INT3
 import static androidx.wear.protolayout.expression.DynamicBuilders.PLATFORM_INT32_SOURCE_TYPE_DAILY_STEP_COUNT;
 
 import android.Manifest;
-import android.os.Build.VERSION_CODES;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RequiresPermission;
+import androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat;
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32;
 import androidx.wear.protolayout.expression.DynamicBuilders.PlatformInt32Source;
 
 /** Utility class provides utils to access health data. */
-@ProtoLayoutExperimental
 public class PlatformHealthSources {
     private PlatformHealthSources() {
     }
 
-    /** Creates a {@link DynamicInt32} which receives the current heat rate from the sensor. */
-    @RequiresPermission(Manifest.permission.BODY_SENSORS)
-    @ProtoLayoutExperimental
+    /**
+     * The data source key for heart rate bpm data from default platform health sources.
+     */
     @NonNull
-    public static DynamicInt32 heartRateBpm() {
+    @RequiresPermission(Manifest.permission.BODY_SENSORS)
+    public static final PlatformDataKey<DynamicFloat> HEART_RATE_BPM =
+            new PlatformDataKey<>("HeartRate");
+
+    /**
+     * The data source key for daily step count data from default platform health sources.
+     */
+    @NonNull
+    @RequiresPermission(Manifest.permission.ACTIVITY_RECOGNITION)
+    public static final PlatformDataKey<DynamicInt32> DAILY_STEPS =
+            new PlatformDataKey<>("Daily Steps");
+
+    /**
+     * Creates a {@link DynamicInt32} which receives the current heat rate from the sensor.
+     *
+     * <p> This method provides backward compatibility and is preferred over using {@code
+     * HEART_RATE_BPM} directly.
+     */
+    @RequiresPermission(Manifest.permission.BODY_SENSORS)
+    @NonNull
+    public static DynamicFloat heartRateBpm() {
         return new PlatformInt32Source.Builder()
                 .setSourceType(PLATFORM_INT32_SOURCE_TYPE_CURRENT_HEART_RATE)
-                .build();
+                .build().asFloat();
     }
 
     /**
      * Creates a {@link DynamicInt32} which receives the current daily steps from the sensor.
      * This is the total step count over a day, where the previous day ends and a new day begins at
      * 12:00 AM local time.
+     *
+     * <p> This method provides backward compatibility and is preferred over using {@code
+     * DAILY_STEPS} directly.
      */
-    @RequiresApi(VERSION_CODES.Q)
     @RequiresPermission(Manifest.permission.ACTIVITY_RECOGNITION)
-    @ProtoLayoutExperimental
     @NonNull
     public static DynamicInt32 dailySteps() {
         return new PlatformInt32Source.Builder()

@@ -301,6 +301,13 @@ package androidx.wear.protolayout.expression {
     ctor public PlatformDataKey(String, String);
   }
 
+  public class PlatformHealthSources {
+    method @RequiresPermission(android.Manifest.permission.ACTIVITY_RECOGNITION) public static androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32 dailySteps();
+    method @RequiresPermission(android.Manifest.permission.BODY_SENSORS) public static androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat heartRateBpm();
+    field @RequiresPermission(android.Manifest.permission.ACTIVITY_RECOGNITION) public static final androidx.wear.protolayout.expression.PlatformDataKey<androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32!> DAILY_STEPS;
+    field @RequiresPermission(android.Manifest.permission.BODY_SENSORS) public static final androidx.wear.protolayout.expression.PlatformDataKey<androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat!> HEART_RATE_BPM;
+  }
+
   public final class VersionBuilders {
   }
 

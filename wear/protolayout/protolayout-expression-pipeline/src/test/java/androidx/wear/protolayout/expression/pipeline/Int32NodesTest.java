@@ -26,14 +26,17 @@ import static java.lang.Integer.MAX_VALUE;
 import android.os.Looper;
 
 import androidx.annotation.NonNull;
+import androidx.collection.ArrayMap;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.wear.protolayout.expression.AppDataKey;
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32;
+import androidx.wear.protolayout.expression.PlatformDataKey;
+import androidx.wear.protolayout.expression.PlatformHealthSources;
 import androidx.wear.protolayout.expression.pipeline.Int32Nodes.AnimatableFixedInt32Node;
 import androidx.wear.protolayout.expression.pipeline.Int32Nodes.DynamicAnimatedInt32Node;
 import androidx.wear.protolayout.expression.pipeline.Int32Nodes.FixedInt32Node;
 import androidx.wear.protolayout.expression.pipeline.Int32Nodes.GetDurationPartOpNode;
-import androidx.wear.protolayout.expression.pipeline.Int32Nodes.PlatformInt32SourceNode;
+import androidx.wear.protolayout.expression.pipeline.Int32Nodes.LegacyPlatformInt32SourceNode;
 import androidx.wear.protolayout.expression.pipeline.Int32Nodes.StateInt32SourceNode;
 import androidx.wear.protolayout.expression.pipeline.sensor.SensorGateway;
 import androidx.wear.protolayout.expression.proto.AnimationParameterProto.AnimationSpec;
@@ -58,14 +61,17 @@ import org.mockito.junit.MockitoRule;
 
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Executor;
 
 @RunWith(AndroidJUnit4.class)
 public class Int32NodesTest {
-    @Rule public final MockitoRule mockito = MockitoJUnit.rule();
+    @Rule
+    public final MockitoRule mockito = MockitoJUnit.rule();
 
-    @Mock private DynamicTypeValueReceiverWithPreUpdate<Integer> mMockValueReceiver;
+    @Mock
+    private DynamicTypeValueReceiverWithPreUpdate<Integer> mMockValueReceiver;
 
     private static final AppDataKey<DynamicInt32> KEY_FOO = new AppDataKey<>("foo");
 
@@ -89,36 +95,36 @@ public class Int32NodesTest {
         Duration duration = Duration.ofSeconds(123456);
 
         assertThat(
-                        createGetDurationPartOpNodeAndGetPart(
-                                duration, DurationPartType.DURATION_PART_TYPE_DAYS))
+                createGetDurationPartOpNodeAndGetPart(
+                        duration, DurationPartType.DURATION_PART_TYPE_DAYS))
                 .isEqualTo(1);
         assertThat(
-                        createGetDurationPartOpNodeAndGetPart(
-                                duration, DurationPartType.DURATION_PART_TYPE_HOURS))
+                createGetDurationPartOpNodeAndGetPart(
+                        duration, DurationPartType.DURATION_PART_TYPE_HOURS))
                 .isEqualTo(10);
         assertThat(
-                        createGetDurationPartOpNodeAndGetPart(
-                                duration, DurationPartType.DURATION_PART_TYPE_MINUTES))
+                createGetDurationPartOpNodeAndGetPart(
+                        duration, DurationPartType.DURATION_PART_TYPE_MINUTES))
                 .isEqualTo(17);
         assertThat(
-                        createGetDurationPartOpNodeAndGetPart(
-                                duration, DurationPartType.DURATION_PART_TYPE_SECONDS))
+                createGetDurationPartOpNodeAndGetPart(
+                        duration, DurationPartType.DURATION_PART_TYPE_SECONDS))
                 .isEqualTo(36);
         assertThat(
-                        createGetDurationPartOpNodeAndGetPart(
-                                duration, DurationPartType.DURATION_PART_TYPE_TOTAL_DAYS))
+                createGetDurationPartOpNodeAndGetPart(
+                        duration, DurationPartType.DURATION_PART_TYPE_TOTAL_DAYS))
                 .isEqualTo(1);
         assertThat(
-                        createGetDurationPartOpNodeAndGetPart(
-                                duration, DurationPartType.DURATION_PART_TYPE_TOTAL_HOURS))
+                createGetDurationPartOpNodeAndGetPart(
+                        duration, DurationPartType.DURATION_PART_TYPE_TOTAL_HOURS))
                 .isEqualTo(34);
         assertThat(
-                        createGetDurationPartOpNodeAndGetPart(
-                                duration, DurationPartType.DURATION_PART_TYPE_TOTAL_MINUTES))
+                createGetDurationPartOpNodeAndGetPart(
+                        duration, DurationPartType.DURATION_PART_TYPE_TOTAL_MINUTES))
                 .isEqualTo(2057);
         assertThat(
-                        createGetDurationPartOpNodeAndGetPart(
-                                duration, DurationPartType.DURATION_PART_TYPE_TOTAL_SECONDS))
+                createGetDurationPartOpNodeAndGetPart(
+                        duration, DurationPartType.DURATION_PART_TYPE_TOTAL_SECONDS))
                 .isEqualTo(123456);
     }
 
@@ -129,36 +135,36 @@ public class Int32NodesTest {
         Duration duration = Duration.ofSeconds(-123456);
 
         assertThat(
-                        createGetDurationPartOpNodeAndGetPart(
-                                duration, DurationPartType.DURATION_PART_TYPE_DAYS))
+                createGetDurationPartOpNodeAndGetPart(
+                        duration, DurationPartType.DURATION_PART_TYPE_DAYS))
                 .isEqualTo(1);
         assertThat(
-                        createGetDurationPartOpNodeAndGetPart(
-                                duration, DurationPartType.DURATION_PART_TYPE_HOURS))
+                createGetDurationPartOpNodeAndGetPart(
+                        duration, DurationPartType.DURATION_PART_TYPE_HOURS))
                 .isEqualTo(10);
         assertThat(
-                        createGetDurationPartOpNodeAndGetPart(
-                                duration, DurationPartType.DURATION_PART_TYPE_MINUTES))
+                createGetDurationPartOpNodeAndGetPart(
+                        duration, DurationPartType.DURATION_PART_TYPE_MINUTES))
                 .isEqualTo(17);
         assertThat(
-                        createGetDurationPartOpNodeAndGetPart(
-                                duration, DurationPartType.DURATION_PART_TYPE_SECONDS))
+                createGetDurationPartOpNodeAndGetPart(
+                        duration, DurationPartType.DURATION_PART_TYPE_SECONDS))
                 .isEqualTo(36);
         assertThat(
-                        createGetDurationPartOpNodeAndGetPart(
-                                duration, DurationPartType.DURATION_PART_TYPE_TOTAL_DAYS))
+                createGetDurationPartOpNodeAndGetPart(
+                        duration, DurationPartType.DURATION_PART_TYPE_TOTAL_DAYS))
                 .isEqualTo(-1);
         assertThat(
-                        createGetDurationPartOpNodeAndGetPart(
-                                duration, DurationPartType.DURATION_PART_TYPE_TOTAL_HOURS))
+                createGetDurationPartOpNodeAndGetPart(
+                        duration, DurationPartType.DURATION_PART_TYPE_TOTAL_HOURS))
                 .isEqualTo(-34);
         assertThat(
-                        createGetDurationPartOpNodeAndGetPart(
-                                duration, DurationPartType.DURATION_PART_TYPE_TOTAL_MINUTES))
+                createGetDurationPartOpNodeAndGetPart(
+                        duration, DurationPartType.DURATION_PART_TYPE_TOTAL_MINUTES))
                 .isEqualTo(-2057);
         assertThat(
-                        createGetDurationPartOpNodeAndGetPart(
-                                duration, DurationPartType.DURATION_PART_TYPE_TOTAL_SECONDS))
+                createGetDurationPartOpNodeAndGetPart(
+                        duration, DurationPartType.DURATION_PART_TYPE_TOTAL_SECONDS))
                 .isEqualTo(-123456);
     }
 
@@ -359,16 +365,22 @@ public class Int32NodesTest {
     @Test
     public void platformInt32Source_propagatesInvalidatedSignal() {
         FakeSensorGateway fakeSensorGateway = new FakeSensorGateway();
+        StateStore stateStore = new StateStore(new ArrayMap<>());
+        stateStore.putAllPlatformProviders(
+                Collections.singletonMap(
+                        PlatformHealthSources.HEART_RATE_BPM,
+                        new SensorGatewaySingleDataProvider(
+                                fakeSensorGateway, PlatformHealthSources.HEART_RATE_BPM)));
         PlatformInt32Source platformSource =
                 PlatformInt32Source.newBuilder()
                         .setSourceType(
                                 PlatformInt32SourceType
                                         .PLATFORM_INT32_SOURCE_TYPE_CURRENT_HEART_RATE)
                         .build();
-        PlatformInt32SourceNode platformSourceNode =
-                new PlatformInt32SourceNode(
+        LegacyPlatformInt32SourceNode platformSourceNode =
+                new LegacyPlatformInt32SourceNode(
+                        stateStore,
                         platformSource,
-                        new SensorGatewayPlatformDataSource(Runnable::run, fakeSensorGateway),
                         mMockValueReceiver);
 
         platformSourceNode.preInit();
@@ -385,28 +397,30 @@ public class Int32NodesTest {
         final List<Consumer> registeredConsumers = new ArrayList<>();
 
         @Override
-        public void enableUpdates() {}
+        public void enableUpdates() {
+        }
 
         @Override
-        public void disableUpdates() {}
+        public void disableUpdates() {
+        }
 
         @Override
         public void registerSensorGatewayConsumer(
-                @SensorDataType int requestedDataType, @NonNull Consumer consumer) {
+                @NonNull PlatformDataKey<?> key, @NonNull Consumer consumer) {
             registeredConsumers.add(consumer);
         }
 
         @Override
         public void registerSensorGatewayConsumer(
-                @SensorDataType int requestedDataType,
+                @NonNull PlatformDataKey<?> key,
                 @NonNull Executor executor,
                 @NonNull Consumer consumer) {
-            registerSensorGatewayConsumer(requestedDataType, consumer);
+            registerSensorGatewayConsumer(key, consumer);
         }
 
         @Override
         public void unregisterSensorGatewayConsumer(
-                @SensorDataType int requestedDataType, @NonNull Consumer consumer) {
+                @NonNull PlatformDataKey<?> key, @NonNull Consumer consumer) {
             registeredConsumers.remove(consumer);
         }
     }
