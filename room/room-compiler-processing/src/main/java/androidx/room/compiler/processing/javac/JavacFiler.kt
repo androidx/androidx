@@ -60,8 +60,13 @@ internal class JavacFiler(
             originatingElements.filterIsInstance<JavacElement>().map { it.element }.toTypedArray()
         return when (extension) {
             "java" -> {
+                val name = if (packageName.isEmpty()) {
+                    fileNameWithoutExtension
+                } else {
+                    "$packageName.$fileNameWithoutExtension"
+                }
                 delegate.createSourceFile(
-                    "$packageName.$fileNameWithoutExtension",
+                    name,
                     *javaOriginatingElements
                 ).openOutputStream()
             }

@@ -93,6 +93,38 @@ class GeneratedCodeMatchTest internal constructor(
     }
 
     @Test
+    fun successfulGeneratedJavaCodeMatchWithWriteSourceNoPackage() {
+        val file = JavaFile.builder(
+            "",
+            TypeSpec.classBuilder("Baz").build()
+        ).build()
+        runTest { invocation ->
+            if (invocation.processingEnv.findTypeElement("Baz") == null) {
+                val originatingElements: List<XElement> =
+                    file.typeSpec.originatingElements.map {
+                        it.toXProcessing(invocation.processingEnv)
+                    }
+                invocation.processingEnv.filer.writeSource(
+                    file.packageName,
+                    file.typeSpec.name,
+                    "java",
+                    originatingElements
+                ).bufferedWriter().use {
+                    it.write(file.toString())
+                }
+            }
+            invocation.assertCompilationResult {
+                generatedSource(
+                    Source.java(
+                        "Baz",
+                        file.toString()
+                    )
+                )
+            }
+        }
+    }
+
+    @Test
     fun missingGeneratedCode() {
         val result = runCatching {
             runTest { invocation ->
@@ -180,6 +212,38 @@ class GeneratedCodeMatchTest internal constructor(
             invocation.assertCompilationResult {
                 generatedSource(
                     Source.kotlin(combine("foo", "bar", "Baz.kt"), file.toString())
+                )
+            }
+        }
+    }
+
+    @Test
+    fun successfulGeneratedKotlinCodeMatchWithWriteSourceNoPackage() {
+        // java environment will not generate kotlin files
+        runTest.assumeCanCompileKotlin()
+
+        val type = KTypeSpec.classBuilder("Baz").build()
+        val file = FileSpec.builder("", "Baz")
+            .addType(type)
+            .build()
+        runTest { invocation ->
+            if (invocation.processingEnv.findTypeElement("Baz") == null) {
+                val originatingElements: List<XElement> =
+                    type.originatingElements.map {
+                        it.toXProcessing(invocation.processingEnv)
+                    }
+                invocation.processingEnv.filer.writeSource(
+                    file.packageName,
+                    file.name,
+                    "kt",
+                    originatingElements
+                ).bufferedWriter().use {
+                    it.write(file.toString())
+                }
+            }
+            invocation.assertCompilationResult {
+                generatedSource(
+                    Source.kotlin("Baz.kt", file.toString())
                 )
             }
         }
