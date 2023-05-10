@@ -124,7 +124,6 @@ class ByMatcher {
 
         // Don't bother searching the subtree if it is not visible
         if (!node.isVisibleToUser()) {
-            Log.v(TAG, String.format("Skipping invisible child: %s", node));
             return ret;
         }
 
