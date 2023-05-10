@@ -36,6 +36,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.navigation.NavBackStackEntry
@@ -234,7 +235,11 @@ public fun NavHost(
         }
     }.collectAsState(emptyList())
 
-    val backStackEntry = visibleEntries.lastOrNull()
+    val backStackEntry: NavBackStackEntry? = if (LocalInspectionMode.current) {
+        composeNavigator.backStack.value.lastOrNull()
+    } else {
+        visibleEntries.lastOrNull()
+    }
 
     if (backStackEntry != null) {
         val finalEnter: AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition = {
@@ -288,9 +293,13 @@ public fun NavHost(
             // animating. In these cases the currentEntry will be null, and in those cases,
             // AnimatedContent will just skip attempting to transition the old entry.
             // See https://issuetracker.google.com/238686802
-            val currentEntry = visibleEntries.lastOrNull { entry ->
-                it == entry
-            }
+            val currentEntry = if (LocalInspectionMode.current) {
+                // show startDestination if inspecting (preview)
+                composeNavigator.backStack.value
+            } else {
+                visibleEntries
+            }.lastOrNull { entry -> it == entry }
+
             // while in the scope of the composable, we provide the navBackStackEntry as the
             // ViewModelStoreOwner and LifecycleOwner
             currentEntry?.LocalOwnersProvider(saveableStateHolder) {
