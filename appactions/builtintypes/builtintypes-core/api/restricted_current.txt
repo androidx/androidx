@@ -2,8 +2,8 @@
 package androidx.appactions.builtintypes.properties {
 
   public final class ByDay {
-    ctor public ByDay(String text);
     ctor public ByDay(androidx.appactions.builtintypes.types.DayOfWeek dayOfWeek);
+    ctor public ByDay(String text);
     method public androidx.appactions.builtintypes.types.DayOfWeek? getAsDayOfWeek();
     method public String? getAsText();
     method public <R> R mapWhen(androidx.appactions.builtintypes.properties.ByDay.Mapper<R> mapper);
@@ -18,8 +18,8 @@ package androidx.appactions.builtintypes.properties {
   }
 
   public final class DisambiguatingDescription {
-    ctor public DisambiguatingDescription(String text);
     ctor public DisambiguatingDescription(androidx.appactions.builtintypes.properties.DisambiguatingDescription.CanonicalValue canonicalValue);
+    ctor public DisambiguatingDescription(String text);
     method public androidx.appactions.builtintypes.properties.DisambiguatingDescription.CanonicalValue? getAsCanonicalValue();
     method public String? getAsText();
     method public <R> R mapWhen(androidx.appactions.builtintypes.properties.DisambiguatingDescription.Mapper<R> mapper);
@@ -59,8 +59,8 @@ package androidx.appactions.builtintypes.properties {
   }
 
   public final class EndTime {
-    ctor public EndTime(java.time.LocalTime time);
     ctor public EndTime(java.time.LocalDateTime localDateTime);
+    ctor public EndTime(java.time.LocalTime time);
     ctor public EndTime(java.time.ZonedDateTime zonedDateTime);
     method public java.time.LocalDateTime? getAsLocalDateTime();
     method public java.time.LocalTime? getAsTime();
@@ -105,8 +105,8 @@ package androidx.appactions.builtintypes.properties {
   }
 
   public final class RepeatFrequency {
-    ctor public RepeatFrequency(java.time.Duration duration);
     ctor public RepeatFrequency(String text);
+    ctor public RepeatFrequency(java.time.Duration duration);
     method public java.time.Duration? getAsDuration();
     method public String? getAsText();
     method public <R> R mapWhen(androidx.appactions.builtintypes.properties.RepeatFrequency.Mapper<R> mapper);
@@ -141,8 +141,8 @@ package androidx.appactions.builtintypes.properties {
   }
 
   public final class StartTime {
-    ctor public StartTime(java.time.LocalTime time);
     ctor public StartTime(java.time.LocalDateTime localDateTime);
+    ctor public StartTime(java.time.LocalTime time);
     ctor public StartTime(java.time.ZonedDateTime zonedDateTime);
     method public java.time.LocalDateTime? getAsLocalDateTime();
     method public java.time.LocalTime? getAsTime();
@@ -288,6 +288,44 @@ package androidx.appactions.builtintypes.types {
     method protected abstract String getSelfTypeName();
     method public final int hashCode();
     method public final Self setDisambiguatingDescription(androidx.appactions.builtintypes.properties.DisambiguatingDescription? disambiguatingDescription);
+    method public final Self setIdentifier(String? text);
+    method public final Self setName(androidx.appactions.builtintypes.properties.Name? name);
+    method public final String toString();
+    property protected abstract java.util.Map<java.lang.String,java.lang.Object> additionalProperties;
+    property protected abstract String selfTypeName;
+  }
+
+  public abstract class GenericPerson<Self extends androidx.appactions.builtintypes.types.GenericPerson<Self, Builder>, Builder extends androidx.appactions.builtintypes.types.GenericPerson.Builder<Builder, Self>> implements androidx.appactions.builtintypes.types.Person {
+    ctor public GenericPerson(androidx.appactions.builtintypes.types.Person person);
+    method public final boolean equals(Object? other);
+    method protected abstract java.util.Map<java.lang.String,java.lang.Object> getAdditionalProperties();
+    method public final androidx.appactions.builtintypes.properties.DisambiguatingDescription? getDisambiguatingDescription();
+    method public final String? getEmail();
+    method public final String? getIdentifier();
+    method public final androidx.appactions.builtintypes.properties.Name? getName();
+    method protected abstract String getSelfTypeName();
+    method public final int hashCode();
+    method public final Builder toBuilder();
+    method protected abstract Builder toBuilderWithAdditionalPropertiesOnly();
+    method public final String toString();
+    property protected abstract java.util.Map<java.lang.String,java.lang.Object> additionalProperties;
+    property public final androidx.appactions.builtintypes.properties.DisambiguatingDescription? disambiguatingDescription;
+    property public final String? email;
+    property public final String? identifier;
+    property public final androidx.appactions.builtintypes.properties.Name? name;
+    property protected abstract String selfTypeName;
+  }
+
+  public abstract static class GenericPerson.Builder<Self extends androidx.appactions.builtintypes.types.GenericPerson.Builder<Self, Built>, Built extends androidx.appactions.builtintypes.types.GenericPerson<Built, Self>> implements androidx.appactions.builtintypes.types.Person.Builder<Self> {
+    ctor public GenericPerson.Builder();
+    method public final Built build();
+    method protected abstract Built buildFromPerson(androidx.appactions.builtintypes.types.Person person);
+    method public final boolean equals(Object? other);
+    method protected abstract java.util.Map<java.lang.String,java.lang.Object> getAdditionalProperties();
+    method protected abstract String getSelfTypeName();
+    method public final int hashCode();
+    method public final Self setDisambiguatingDescription(androidx.appactions.builtintypes.properties.DisambiguatingDescription? disambiguatingDescription);
+    method public final Self setEmail(String? text);
     method public final Self setIdentifier(String? text);
     method public final Self setName(androidx.appactions.builtintypes.properties.Name? name);
     method public final String toString();
@@ -461,6 +499,23 @@ package androidx.appactions.builtintypes.types {
     method public androidx.appactions.builtintypes.types.Intangible.Builder<?> Builder();
   }
 
+  public interface Person extends androidx.appactions.builtintypes.types.Thing {
+    method public default static androidx.appactions.builtintypes.types.Person.Builder<?> Builder();
+    method public String? getEmail();
+    method public androidx.appactions.builtintypes.types.Person.Builder<?> toBuilder();
+    property public abstract String? email;
+    field public static final androidx.appactions.builtintypes.types.Person.Companion Companion;
+  }
+
+  public static interface Person.Builder<Self extends androidx.appactions.builtintypes.types.Person.Builder<Self>> extends androidx.appactions.builtintypes.types.Thing.Builder<Self> {
+    method public androidx.appactions.builtintypes.types.Person build();
+    method public Self setEmail(String? text);
+  }
+
+  public static final class Person.Companion {
+    method public androidx.appactions.builtintypes.types.Person.Builder<?> Builder();
+  }
+
   public interface Schedule extends androidx.appactions.builtintypes.types.Intangible {
     method public default static androidx.appactions.builtintypes.types.Schedule.Builder<?> Builder();
     method public java.util.List<androidx.appactions.builtintypes.properties.ByDay> getByDays();
@@ -492,9 +547,9 @@ package androidx.appactions.builtintypes.types {
   }
 
   public static interface Schedule.Builder<Self extends androidx.appactions.builtintypes.types.Schedule.Builder<Self>> extends androidx.appactions.builtintypes.types.Intangible.Builder<Self> {
-    method public default Self addByDay(String text);
-    method public default Self addByDay(androidx.appactions.builtintypes.types.DayOfWeek dayOfWeek);
     method public Self addByDay(androidx.appactions.builtintypes.properties.ByDay byDay);
+    method public default Self addByDay(androidx.appactions.builtintypes.types.DayOfWeek dayOfWeek);
+    method public default Self addByDay(String text);
     method public Self addByDays(Iterable<androidx.appactions.builtintypes.properties.ByDay> values);
     method public Self addByMonth(long integer);
     method public Self addByMonthDay(long integer);
@@ -507,31 +562,31 @@ package androidx.appactions.builtintypes.types {
     method public Self clearByMonthDays();
     method public Self clearByMonthWeeks();
     method public Self clearByMonths();
+    method public Self setEndDate(androidx.appactions.builtintypes.properties.EndDate? endDate);
     method public default Self setEndDate(java.time.LocalDate date);
     method public default Self setEndDate(java.time.LocalDateTime localDateTime);
     method public default Self setEndDate(java.time.ZonedDateTime zonedDateTime);
-    method public Self setEndDate(androidx.appactions.builtintypes.properties.EndDate? endDate);
-    method public default Self setEndTime(java.time.LocalTime time);
-    method public default Self setEndTime(java.time.LocalDateTime localDateTime);
-    method public default Self setEndTime(java.time.ZonedDateTime zonedDateTime);
     method public Self setEndTime(androidx.appactions.builtintypes.properties.EndTime? endTime);
+    method public default Self setEndTime(java.time.LocalDateTime localDateTime);
+    method public default Self setEndTime(java.time.LocalTime time);
+    method public default Self setEndTime(java.time.ZonedDateTime zonedDateTime);
+    method public Self setExceptDate(androidx.appactions.builtintypes.properties.ExceptDate? exceptDate);
     method public default Self setExceptDate(java.time.LocalDate date);
     method public default Self setExceptDate(java.time.LocalDateTime localDateTime);
     method public default Self setExceptDate(java.time.ZonedDateTime zonedDateTime);
-    method public Self setExceptDate(androidx.appactions.builtintypes.properties.ExceptDate? exceptDate);
     method public Self setRepeatCount(Long? integer);
-    method public default Self setRepeatFrequency(java.time.Duration duration);
-    method public default Self setRepeatFrequency(String text);
     method public Self setRepeatFrequency(androidx.appactions.builtintypes.properties.RepeatFrequency? repeatFrequency);
+    method public default Self setRepeatFrequency(String text);
+    method public default Self setRepeatFrequency(java.time.Duration duration);
     method public Self setScheduleTimezone(String? text);
+    method public Self setStartDate(androidx.appactions.builtintypes.properties.StartDate? startDate);
     method public default Self setStartDate(java.time.LocalDate date);
     method public default Self setStartDate(java.time.LocalDateTime localDateTime);
     method public default Self setStartDate(java.time.ZonedDateTime zonedDateTime);
-    method public Self setStartDate(androidx.appactions.builtintypes.properties.StartDate? startDate);
-    method public default Self setStartTime(java.time.LocalTime time);
-    method public default Self setStartTime(java.time.LocalDateTime localDateTime);
-    method public default Self setStartTime(java.time.ZonedDateTime zonedDateTime);
     method public Self setStartTime(androidx.appactions.builtintypes.properties.StartTime? startTime);
+    method public default Self setStartTime(java.time.LocalDateTime localDateTime);
+    method public default Self setStartTime(java.time.LocalTime time);
+    method public default Self setStartTime(java.time.ZonedDateTime zonedDateTime);
   }
 
   public static final class Schedule.Companion {
@@ -552,11 +607,11 @@ package androidx.appactions.builtintypes.types {
 
   public static interface Thing.Builder<Self extends androidx.appactions.builtintypes.types.Thing.Builder<Self>> {
     method public androidx.appactions.builtintypes.types.Thing build();
-    method public default Self setDisambiguatingDescription(String text);
     method public Self setDisambiguatingDescription(androidx.appactions.builtintypes.properties.DisambiguatingDescription? disambiguatingDescription);
+    method public default Self setDisambiguatingDescription(String text);
     method public Self setIdentifier(String? text);
-    method public default Self setName(String text);
     method public Self setName(androidx.appactions.builtintypes.properties.Name? name);
+    method public default Self setName(String text);
   }
 
   public static final class Thing.Companion {
