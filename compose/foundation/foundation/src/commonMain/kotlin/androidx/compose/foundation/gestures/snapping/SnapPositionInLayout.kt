@@ -40,3 +40,22 @@ fun interface SnapPositionInLayout {
             SnapPositionInLayout { layoutSize, itemSize, _ -> layoutSize / 2 - itemSize / 2 }
     }
 }
+
+@OptIn(ExperimentalFoundationApi::class)
+internal fun Density.calculateDistanceToDesiredSnapPosition(
+    mainAxisViewPortSize: Int,
+    beforeContentPadding: Int,
+    afterContentPadding: Int,
+    itemSize: Int,
+    itemOffset: Int,
+    itemIndex: Int,
+    snapPositionInLayout: SnapPositionInLayout
+): Float {
+    val containerSize = mainAxisViewPortSize - beforeContentPadding - afterContentPadding
+
+    val desiredDistance = with(snapPositionInLayout) {
+        position(containerSize, itemSize, itemIndex)
+    }.toFloat()
+
+    return itemOffset - desiredDistance
+}

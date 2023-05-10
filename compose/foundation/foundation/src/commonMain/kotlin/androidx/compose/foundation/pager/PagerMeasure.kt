@@ -19,7 +19,7 @@ package androidx.compose.foundation.pager
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.fastFilter
 import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.snapping.SnapPositionInLayout
+import androidx.compose.foundation.gestures.snapping.calculateDistanceToDesiredSnapPosition
 import androidx.compose.foundation.layout.Arrangement.Absolute.spacedBy
 import androidx.compose.foundation.lazy.layout.LazyLayoutMeasureScope
 import androidx.compose.ui.Alignment
@@ -350,6 +350,7 @@ internal fun LazyLayoutMeasureScope.measurePager(
                 else
                     currentMainAxisOffset
             )
+
         val layoutHeight = constraints
             .constrainHeight(
                 if (orientation == Orientation.Vertical)
@@ -382,13 +383,13 @@ internal fun LazyLayoutMeasureScope.measurePager(
         val closestPageToSnapPosition = visiblePagesInfo.fastMaxBy {
             -abs(
                 calculateDistanceToDesiredSnapPosition(
-                    viewPortSize,
-                    beforeContentPadding,
-                    afterContentPadding,
-                    pageAvailableSize,
-                    it.offset,
-                    it.index,
-                    SnapAlignmentStartToStart
+                    mainAxisViewPortSize = viewPortSize,
+                    beforeContentPadding = beforeContentPadding,
+                    afterContentPadding = afterContentPadding,
+                    itemSize = pageAvailableSize,
+                    itemOffset = it.offset,
+                    itemIndex = it.index,
+                    snapPositionInLayout = SnapAlignmentStartToStart
                 )
             )
         }
@@ -415,25 +416,6 @@ internal fun LazyLayoutMeasureScope.measurePager(
             canScrollForward = index < pageCount || currentMainAxisOffset > maxOffset
         )
     }
-}
-
-@OptIn(ExperimentalFoundationApi::class)
-internal fun Density.calculateDistanceToDesiredSnapPosition(
-    axisViewPortSize: Int,
-    beforeContentPadding: Int,
-    afterContentPadding: Int,
-    pageSize: Int,
-    pageOffset: Int,
-    pageIndex: Int,
-    positionInLayout: SnapPositionInLayout
-): Float {
-    val containerSize = axisViewPortSize - beforeContentPadding - afterContentPadding
-
-    val desiredDistance = with(positionInLayout) {
-        position(containerSize, pageSize, pageIndex)
-    }.toFloat()
-
-    return pageOffset - desiredDistance
 }
 
 private fun createPagesAfterList(

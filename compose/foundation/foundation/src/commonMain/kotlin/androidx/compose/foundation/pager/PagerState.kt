@@ -26,6 +26,7 @@ import androidx.compose.foundation.gestures.ScrollScope
 import androidx.compose.foundation.gestures.ScrollableState
 import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.gestures.snapping.SnapPositionInLayout
+import androidx.compose.foundation.gestures.snapping.calculateDistanceToDesiredSnapPosition
 import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.lazy.layout.AwaitFirstLayoutModifier
@@ -260,13 +261,13 @@ abstract class PagerState(
     private val distanceToSnapPosition: Float
         get() = layoutInfo.closestPageToSnapPosition?.let {
             density.calculateDistanceToDesiredSnapPosition(
-                layoutInfo.mainAxisViewportSize,
-                layoutInfo.beforeContentPadding,
-                layoutInfo.afterContentPadding,
-                layoutInfo.pageSize,
-                it.offset,
-                it.index,
-                SnapAlignmentStartToStart
+                mainAxisViewPortSize = layoutInfo.mainAxisViewportSize,
+                beforeContentPadding = layoutInfo.beforeContentPadding,
+                afterContentPadding = layoutInfo.afterContentPadding,
+                itemSize = layoutInfo.pageSize,
+                itemOffset = it.offset,
+                itemIndex = it.index,
+                snapPositionInLayout = SnapAlignmentStartToStart
             )
         } ?: 0f
 
