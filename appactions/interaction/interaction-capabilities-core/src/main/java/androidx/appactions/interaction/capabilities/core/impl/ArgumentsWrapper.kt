@@ -54,7 +54,7 @@ internal constructor(
             ) {
                 null
             } else {
-                RequestMetadata(fulfillment.type)
+                RequestMetadata(fulfillment.type, fulfillment.syncStatus)
             }
         }
 

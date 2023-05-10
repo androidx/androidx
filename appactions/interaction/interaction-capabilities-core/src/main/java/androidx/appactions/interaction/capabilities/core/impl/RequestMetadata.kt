@@ -21,12 +21,14 @@ import androidx.appactions.interaction.proto.FulfillmentRequest.Fulfillment
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 data class RequestMetadata internal constructor(
-    val requestType: Fulfillment.Type
+    val requestType: Fulfillment.Type,
+    val syncStatus: Fulfillment.SyncStatus
 ) {
     companion object {
         @JvmStatic
-        fun create(requestType: Fulfillment.Type): RequestMetadata {
-            return RequestMetadata(requestType)
+        fun create(requestType: Fulfillment.Type, syncStatus: Fulfillment.SyncStatus):
+            RequestMetadata {
+            return RequestMetadata(requestType, syncStatus)
         }
     }
 }
