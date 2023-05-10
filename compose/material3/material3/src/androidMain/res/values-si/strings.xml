@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  Copyright 2022 The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+   -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="m3c_dialog" msgid="7617233117134790350">"සංවාදය"</string>
+    <string name="m3c_dropdown_menu_expanded" msgid="2360841780724299882">"දිග හරින ලදි"</string>
+    <string name="m3c_dropdown_menu_collapsed" msgid="3177828188723359358">"හකුළන ලදි"</string>
+    <string name="m3c_snackbar_dismiss" msgid="6152755701819882931">"අස් කරන්න"</string>
+    <string name="m3c_search_bar_search" msgid="6152806324422087846">"සෙවීම"</string>
+    <string name="m3c_suggestions_available" msgid="7655536806087401899">"පහත යෝජනා"</string>
+    <string name="m3c_date_picker_title" msgid="7430790972741451689">"දිනය තෝරන්න"</string>
+    <string name="m3c_date_picker_headline" msgid="7605002211875882969">"තෝරා ගත් දිනය"</string>
+    <string name="m3c_date_picker_switch_to_year_selection" msgid="791651718641787594">"වසරක් තේරීමට මාරු වන්න"</string>
+    <string name="m3c_date_picker_switch_to_day_selection" msgid="395627960681594326">"වසරක් තේරීමට ස්වයිප් කරන්න, නැතහොත් දිනක් තේරීමට ආපසු මාරු වීමට තට්ටු කරන්න"</string>
+    <string name="m3c_date_picker_switch_to_next_month" msgid="7142101321095356500">"ඊළඟ මාසයට වෙනස් කරන්න"</string>
+    <string name="m3c_date_picker_switch_to_previous_month" msgid="228438865139394590">"පෙර මාසයට වෙනස් කරන්න"</string>
+    <string name="m3c_date_picker_navigate_to_year_description" msgid="8436650776581492840">"%1$s වසර වෙත සංචලන කරන්න"</string>
+    <string name="m3c_date_picker_headline_description" msgid="3664277305226978227">"වත්මන් තේරීම: %1$s"</string>
+    <string name="m3c_date_picker_no_selection_description" msgid="5811000998184572395">"කිසිවක් නැත"</string>
+    <string name="m3c_date_picker_today_description" msgid="3199387177749801575">"අද"</string>
+    <string name="m3c_date_picker_year_picker_pane_title" msgid="2068382232816991922">"වසර තෝරකය දෘශ්‍යමානයි"</string>
+    <string name="m3c_date_input_title" msgid="7306227249789210568">"දිනය තෝරන්න"</string>
+    <string name="m3c_date_input_headline" msgid="8166741421776570875">"ඇතුළත් කළ දිනය"</string>
+    <string name="m3c_date_input_label" msgid="2895559812010326913">"දිනය"</string>
+    <string name="m3c_date_input_headline_description" msgid="229313757840775812">"ඇතුළත් කළ දිනය: %1$s"</string>
+    <string name="m3c_date_input_no_input_description" msgid="1237013946323089826">"කිසිවක් නැත"</string>
+    <string name="m3c_date_input_invalid_not_allowed" msgid="2521768508935305279">"දිනයට ඉඩ දෙනු නොලැබේ: %1$s"</string>
+    <string name="m3c_date_input_invalid_for_pattern" msgid="6116910750161463197">"දිනය අපේක්ෂිත රටාවට නොගැළපෙයි: %1$s"</string>
+    <string name="m3c_date_input_invalid_year_range" msgid="7052898923934555305">"දිනය %1$s - %2$s අපේක්ෂිත වසර පරාසයෙන් පිටත වේ"</string>
+    <string name="m3c_date_picker_switch_to_calendar_mode" msgid="1804346892470238807">"දිනදර්ශන ආදාන ප්‍රකාරයට මාරු වන්න"</string>
+    <string name="m3c_date_picker_switch_to_input_mode" msgid="2219746470065162704">"පාඨ ආදාන ප්‍රකාරයට මාරු වන්න"</string>
+    <string name="m3c_date_picker_scroll_to_later_years" msgid="5727367015496556177">"පසු වසර පෙන්වීමට අනුචලන කරන්න"</string>
+    <string name="m3c_date_picker_scroll_to_earlier_years" msgid="7813882352367152251">"පෙර වසර පෙන්වීමට අනුචලන කරන්න"</string>
+    <string name="m3c_date_range_picker_title" msgid="3134165431120340385">"දින තෝරන්න"</string>
+    <string name="m3c_date_range_picker_start_headline" msgid="4665981448952749820">"ආරම්භක දිනය"</string>
+    <string name="m3c_date_range_picker_end_headline" msgid="4947636797751277713">"අවසාන දිනය"</string>
+    <string name="m3c_date_range_picker_scroll_to_next_month" msgid="602077859540990149">"ඊළඟ මාසය පෙන්වීමට අනුචලන කරන්න"</string>
+    <string name="m3c_date_range_picker_scroll_to_previous_month" msgid="4592174524846109496">"පෙර මාසය පෙන්වීමට අනුචලන කරන්න"</string>
+    <string name="m3c_date_range_picker_day_in_range" msgid="2138321128465719402">"පරාසය තුළ"</string>
+    <string name="m3c_date_range_input_title" msgid="3148384720560189467">"දින ඇතුළු කරන්න"</string>
+    <string name="m3c_date_range_input_invalid_range_input" msgid="3190049423327661366">"අවලංගු දින පරාස ආදානය"</string>
+    <string name="m3c_bottom_sheet_drag_handle_description" msgid="8403354765404029791">"ඇදීම් හැඬලය"</string>
+    <string name="m3c_bottom_sheet_collapse_description" msgid="2988463736136100848">"පහළම පත්‍රය හකුළන්න"</string>
+    <string name="m3c_bottom_sheet_dismiss_description" msgid="1555567894577437024">"පහළම පත්‍රය අස් කරන්න"</string>
+    <string name="m3c_bottom_sheet_expand_description" msgid="6670819569745899763">"පහළම පත්‍රය දිග හරින්න"</string>
+    <string name="m3c_tooltip_pane_description" msgid="5460405025248574620">"මෙවලම් ඉඟිය"</string>
+    <string name="m3c_tooltip_long_press_label" msgid="1805687647081129904">"මෙවලම් ඉඟිය පෙන්වන්න"</string>
+    <string name="m3c_time_picker_pm" msgid="6616362054113087709">"ප.ව."</string>
+    <string name="m3c_time_picker_am" msgid="2786685010796619560">"පෙ.ව."</string>
+    <string name="m3c_time_picker_period_toggle_description" msgid="5865171949528594571">"පෙ.ව. හෝ ප.ව. තෝරන්න"</string>
+    <string name="m3c_time_picker_hour_selection" msgid="8876759303332837035">"පැය තෝරන්න"</string>
+    <string name="m3c_time_picker_minute_selection" msgid="4699133535056739733">"මිනිත්තු ගණන තෝරන්න"</string>
+    <string name="m3c_time_picker_hour_suffix" msgid="3458167507790628988">"%1$dට"</string>
+    <string name="m3c_time_picker_hour_24h_suffix" msgid="9179527532316922345">"පැය %1$d"</string>
+    <string name="m3c_time_picker_minute_suffix" msgid="5064177921781937179">"මිනිත්තු %1$d"</string>
+    <string name="m3c_time_picker_minute" msgid="4313071914266462005">"විනාඩි"</string>
+    <string name="m3c_time_picker_hour" msgid="2349193472625211372">"පැය"</string>
+    <string name="m3c_time_picker_minute_text_field" msgid="7661234488295443182">"මිනිත්තු ගණනක් සඳහා"</string>
+    <string name="m3c_time_picker_hour_text_field" msgid="6973808109666874069">"පැයක් සඳහා"</string>
+</resources>
