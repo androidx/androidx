@@ -45,8 +45,7 @@ object CompilationTestHelper {
     ): TestCompilationResult {
         val tempDir = Files.createTempDirectory("compile").toFile().also { it.deleteOnExit() }
         // TODO(b/281638337): Remove library stubs once SdkActivityLauncher is upstreamed
-        val fullSources = sources +
-            if (includeLibraryStubs) syntheticUiLibraryStubs else emptyList()
+        val fullSources = sources + if (includeLibraryStubs) libraryStubs else emptyList()
         return compile(
             tempDir,
             TestCompilationArguments(

@@ -1,8 +1,8 @@
 package com.sdk
 
-import androidx.privacysandbox.ui.client.toLauncherInfo
 import androidx.privacysandbox.ui.core.SdkActivityLauncher
 import com.sdk.PrivacySandboxThrowableParcelConverter.fromThrowableParcel
+import com.sdk.SdkActivityLauncherConverter.toBinder
 import kotlin.coroutines.resumeWithException
 import kotlinx.coroutines.suspendCancellableCoroutine
 
@@ -45,6 +45,6 @@ public class MyInterfaceClientProxy(
     }
 
     public override fun doSomethingWithSdkActivityLauncher(launcher: SdkActivityLauncher): Unit {
-        remote.doSomethingWithSdkActivityLauncher(launcher.toLauncherInfo())
+        remote.doSomethingWithSdkActivityLauncher(toBinder(launcher))
     }
 }
