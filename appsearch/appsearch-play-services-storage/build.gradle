@@ -23,6 +23,18 @@ plugins {
 
 dependencies {
     implementation project(":appsearch:appsearch")
+    implementation project(":core:core")
+    implementation("androidx.concurrent:concurrent-futures:1.0.0")
+    implementation('androidx.collection:collection:1.2.0')
+    implementation("com.google.android.gms:play-services-appsearch:16.0.0", {
+        exclude group: "androidx.fragment", module: "fragment"
+        exclude group: "androidx.core", module: "core"
+    })
+
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testRules)
+    androidTestImplementation(libs.truth)
+    androidTestImplementation(libs.junit)
 }
 
 androidx {
