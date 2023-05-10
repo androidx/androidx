@@ -24,6 +24,7 @@ import androidx.paging.PagingSource.LoadResult
 import androidx.testutils.MainDispatcherRule
 import com.google.common.truth.Truth.assertThat
 import kotlin.coroutines.ContinuationInterceptor
+import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
@@ -56,7 +57,6 @@ import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withContext
 import org.junit.Rule
-import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
