@@ -16,7 +16,6 @@
 
 package androidx.room.compiler.processing.ksp
 
-import androidx.room.compiler.processing.rawTypeName
 import com.google.devtools.ksp.KspExperimental
 import com.google.devtools.ksp.isOpen
 import com.google.devtools.ksp.processing.Resolver
@@ -28,7 +27,6 @@ import com.google.devtools.ksp.symbol.KSTypeArgument
 import com.google.devtools.ksp.symbol.KSTypeParameter
 import com.google.devtools.ksp.symbol.Modifier
 import com.google.devtools.ksp.symbol.Variance
-import com.squareup.kotlinpoet.javapoet.JClassName
 
 /**
  * When kotlin generates java code, it has some interesting rules on how variance is handled.
@@ -53,10 +51,7 @@ internal class KSTypeVarianceResolver(private val resolver: Resolver) {
      */
     @OptIn(KspExperimental::class)
     fun applyTypeVariance(type: KSType, scope: KSTypeVarianceResolverScope?): KSType {
-        if (type.isError ||
-            type.arguments.isEmpty() ||
-            resolver.isJavaRawType(type) ||
-            scope?.needsWildcardResolution == false) {
+        if (type.isError || scope?.needsWildcardResolution == false) {
             // There's nothing to resolve in this case, so just return the original type.
             return type
         }
@@ -64,6 +59,10 @@ internal class KSTypeVarianceResolver(private val resolver: Resolver) {
         // First wrap types/arguments in our own wrappers so that we can keep track of the original
         // type, which is needed to get annotations.
         return KSTypeWrapper(resolver, type)
+            // Next, replace all type aliases with their resolved types
+            .replaceTypeAliases()
+            // Next, replace all suspend functions with their JVM types.
+            .replaceSuspendFunctionTypes()
             // Next, resolve wildcards based on the scope of the type
             .resolveWildcards(scope)
             // Next, apply any additional variance changes based on the @JvmSuppressWildcards or
@@ -74,6 +73,73 @@ internal class KSTypeVarianceResolver(private val resolver: Resolver) {
             // those delegates may cause issues later if KSP tries to cast the type/argument to a
             // particular implementation, so we unwrap them here.
             .unwrap()
+    }
+
+    private fun KSTypeWrapper.replaceTypeAliases(): KSTypeWrapper {
+        return if (declaration is KSTypeAlias) {
+            // Note: KSP only gives us access to the type alias through the declaration. This means
+            // that any type arguments on the type alias won't be resolved.
+            // For example, if we have a type alias,  MyAlias<T> = Foo<Bar<T>>, and a property,
+            // MyAlias<Baz>, then calling KSTypeAlias#type on the property will give Foo<Bar<T>>
+            // rather than Foo<Bar<Baz>>.
+            val typeParamNameToTypeArgs = declaration.typeParameters.indices.associate { i ->
+                declaration.typeParameters[i].name.asString() to arguments[i]
+            }
+            replaceType(declaration.type.resolve()).replaceTypeArgs(typeParamNameToTypeArgs)
+        } else {
+            this
+        }.let {
+            it.replace(it.arguments.map { typeArg -> typeArg.replaceTypeAliases() })
+        }
+    }
+
+    private fun KSTypeArgumentWrapper.replaceTypeAliases(): KSTypeArgumentWrapper {
+        val type = type ?: return this
+        return replace(type.replaceTypeAliases(), variance)
+    }
+
+    private fun KSTypeWrapper.replaceTypeArgs(
+        typeArgsMap: Map<String, KSTypeArgumentWrapper>
+    ): KSTypeWrapper = replace(arguments.map { it.replaceTypeArgs(typeArgsMap) })
+
+    private fun KSTypeArgumentWrapper.replaceTypeArgs(
+        typeArgsMap: Map<String, KSTypeArgumentWrapper>
+    ): KSTypeArgumentWrapper {
+        val type = type ?: return this
+        if (type.isTypeParameter()) {
+            val name = (type.declaration as KSTypeParameter).name.asString()
+            if (typeArgsMap.containsKey(name)) {
+                return replace(typeArgsMap[name]?.type!!, variance)
+            }
+        }
+        return replace(type.replaceTypeArgs(typeArgsMap), variance)
+    }
+
+    private fun KSTypeWrapper.replaceSuspendFunctionTypes(): KSTypeWrapper {
+        return if (!newType.isSuspendFunctionType) {
+            this
+        } else {
+            val newKSType = newType.replaceSuspendFunctionTypes(resolver)
+            val newType = KSTypeWrapper(resolver, newKSType)
+            replaceType(newKSType).replace(
+                buildList {
+                    addAll(arguments.dropLast(1))
+                    val originalArg = arguments.last()
+                    val continuationArg = newType.arguments[newType.arguments.lastIndex - 1]
+                    add(
+                        continuationArg.replace(
+                            continuationArg.type!!.replace(
+                                continuationArg.type!!.arguments.map {
+                                    it.replace(originalArg.type!!, originalArg.variance)
+                                }
+                            ),
+                            continuationArg.variance
+                        )
+                    )
+                    add(newType.arguments.last())
+                }
+            )
+        }
     }
 
     private fun KSTypeWrapper.resolveWildcards(
@@ -249,8 +315,7 @@ internal class KSTypeVarianceResolver(private val resolver: Resolver) {
 
     private fun KSTypeWrapper.applyJvmWildcardAnnotations(
         scope: KSTypeVarianceResolverScope?
-    ) =
-        replace(arguments.map { it.applyJvmWildcardAnnotations(scope) })
+    ) = replace(arguments.map { it.applyJvmWildcardAnnotations(scope) })
 
     private fun KSTypeArgumentWrapper.applyJvmWildcardAnnotations(
         scope: KSTypeVarianceResolverScope?
@@ -282,23 +347,26 @@ internal class KSTypeVarianceResolver(private val resolver: Resolver) {
  * [IllegalStateException] since KSP tries to cast to its own implementation of [KSTypeArgument].
  */
 private class KSTypeWrapper constructor(
-    private val resolver: Resolver,
-    private val originalType: KSType,
-    private val newType: KSType =
-        originalType.replaceTypeAliases().replaceSuspendFunctionTypes(resolver),
-    newTypeArguments: List<KSTypeArgumentWrapper>? = null,
-    private val typeStack: List<KSTypeWrapper> = emptyList(),
-    private val typeArgStack: List<KSTypeArgumentWrapper> = emptyList(),
-    private val typeParamStack: List<KSTypeParameter> = emptyList(),
+    val resolver: Resolver,
+    val originalType: KSType,
+    val newType: KSType = originalType,
+    val newTypeArguments: List<KSTypeArgumentWrapper>? = null,
+    val typeStack: List<KSTypeWrapper> = emptyList(),
+    val typeArgStack: List<KSTypeArgumentWrapper> = emptyList(),
+    val typeParamStack: List<KSTypeParameter> = emptyList(),
 ) {
-    val declaration = originalType.declaration
+    val declaration = newType.declaration
 
     val arguments: List<KSTypeArgumentWrapper> by lazy {
-        newTypeArguments ?: newType.arguments.indices.map { i ->
+        val arguments = newTypeArguments ?: newType.arguments.indices.map { i ->
             KSTypeArgumentWrapper(
                 originalTypeArg = newType.arguments[i],
                 typeParam = newType.declaration.typeParameters[i],
                 resolver = resolver,
+            )
+        }
+        arguments.map { newTypeArg ->
+            newTypeArg.copy(
                 typeStack = typeStack + this,
                 typeArgStack = typeArgStack,
                 typeParamStack = typeParamStack,
@@ -306,11 +374,23 @@ private class KSTypeWrapper constructor(
         }
     }
 
-    fun replace(newTypeArguments: List<KSTypeArgumentWrapper>) = KSTypeWrapper(
+    fun replaceType(newType: KSType): KSTypeWrapper = copy(newType = newType)
+
+    fun replace(newTypeArguments: List<KSTypeArgumentWrapper>) =
+        copy(newTypeArguments = newTypeArguments)
+
+    fun copy(
+        originalType: KSType = this.originalType,
+        newType: KSType = this.newType,
+        newTypeArguments: List<KSTypeArgumentWrapper>? = this.newTypeArguments,
+        typeStack: List<KSTypeWrapper> = this.typeStack,
+        typeArgStack: List<KSTypeArgumentWrapper> = this.typeArgStack,
+        typeParamStack: List<KSTypeParameter> = this.typeParamStack,
+    ) = KSTypeWrapper(
+        resolver = resolver,
         originalType = originalType,
         newType = newType,
         newTypeArguments = newTypeArguments,
-        resolver = resolver,
         typeStack = typeStack,
         typeArgStack = typeArgStack,
         typeParamStack = typeParamStack,
@@ -328,32 +408,7 @@ private class KSTypeWrapper constructor(
         }
         append(newType.declaration.simpleName.asString())
         if (arguments.isNotEmpty()) {
-            append("$arguments")
-        }
-    }
-
-    private companion object {
-        fun KSType.replaceTypeAliases() = (declaration as? KSTypeAlias)?.type?.resolve() ?: this
-
-        fun KSType.replaceSuspendFunctionTypes(resolver: Resolver) = if (!isSuspendFunctionType) {
-            this
-        } else {
-            // Find the JVM FunctionN type that will replace the suspend function and use that.
-            val functionN = resolver.requireType(
-                (declaration.asJTypeName(resolver).rawTypeName() as JClassName).canonicalName()
-            )
-            functionN.replace(
-                buildList {
-                    addAll(arguments.dropLast(1))
-                    val continuationArgs = arguments.takeLast(1)
-                    val continuationTypeRef = resolver.requireType("kotlin.coroutines.Continuation")
-                        .replace(continuationArgs)
-                        .createTypeReference()
-                    val objTypeRef = resolver.requireType("java.lang.Object").createTypeReference()
-                    add(resolver.getTypeArgument(continuationTypeRef, Variance.INVARIANT))
-                    add(resolver.getTypeArgument(objTypeRef, Variance.INVARIANT))
-                }
-            )
+            append("<${arguments.joinToString(", ")}>")
         }
     }
 }
@@ -368,36 +423,47 @@ private class KSTypeWrapper constructor(
  * type argument.
  */
 private class KSTypeArgumentWrapper constructor(
-    private val originalTypeArg: KSTypeArgument,
-    private val newType: KSTypeWrapper? = null,
-    private val resolver: Resolver,
+    val originalTypeArg: KSTypeArgument,
+    val newType: KSTypeWrapper? = null,
+    val resolver: Resolver,
     val typeParam: KSTypeParameter,
     val variance: Variance = originalTypeArg.variance,
-    val typeStack: List<KSTypeWrapper>,
-    val typeArgStack: List<KSTypeArgumentWrapper>,
-    val typeParamStack: List<KSTypeParameter>,
+    val typeStack: List<KSTypeWrapper> = emptyList(),
+    val typeArgStack: List<KSTypeArgumentWrapper> = emptyList(),
+    val typeParamStack: List<KSTypeParameter> = emptyList(),
 ) {
     val type: KSTypeWrapper? by lazy {
         if (variance == Variance.STAR || originalTypeArg.type == null) {
             // Return null for star projections, otherwise we'll end up in an infinite loop.
-            null
-        } else {
-            newType ?: KSTypeWrapper(
-                originalType = originalTypeArg.type!!.resolve(),
-                resolver = resolver,
-                typeStack = typeStack,
-                typeArgStack = typeArgStack + this,
-                typeParamStack = typeParamStack + typeParam,
-            )
+            return@lazy null
         }
+        val type = newType ?: KSTypeWrapper(resolver, originalTypeArg.type!!.resolve())
+        type.copy(
+            typeStack = typeStack,
+            typeArgStack = typeArgStack + this,
+            typeParamStack = typeParamStack + typeParam,
+        )
     }
 
-    fun replace(newType: KSTypeWrapper, newVariance: Variance) = KSTypeArgumentWrapper(
-        originalTypeArg = originalTypeArg,
-        typeParam = typeParam,
+    fun replace(newType: KSTypeWrapper, newVariance: Variance) = copy(
         newType = newType,
         variance = newVariance,
+    )
+
+    fun copy(
+        originalTypeArg: KSTypeArgument = this.originalTypeArg,
+        newType: KSTypeWrapper? = this.newType,
+        typeParam: KSTypeParameter = this.typeParam,
+        variance: Variance = this.variance,
+        typeStack: List<KSTypeWrapper> = this.typeStack,
+        typeArgStack: List<KSTypeArgumentWrapper> = this.typeArgStack,
+        typeParamStack: List<KSTypeParameter> = this.typeParamStack,
+    ) = KSTypeArgumentWrapper(
         resolver = resolver,
+        originalTypeArg = originalTypeArg,
+        newType = newType,
+        variance = variance,
+        typeParam = typeParam,
         typeStack = typeStack,
         typeArgStack = typeArgStack,
         typeParamStack = typeParamStack,

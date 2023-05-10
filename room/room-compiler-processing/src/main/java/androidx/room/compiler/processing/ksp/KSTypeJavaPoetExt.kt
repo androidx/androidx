@@ -168,7 +168,9 @@ private fun KSType.asJTypeName(
     resolver: Resolver,
     typeArgumentTypeLookup: JTypeArgumentTypeLookup
 ): JTypeName {
-    return if (this.arguments.isNotEmpty() && !resolver.isJavaRawType(this)) {
+    return if (declaration is KSTypeAlias) {
+        replaceTypeAliases(resolver).asJTypeName(resolver, typeArgumentTypeLookup)
+    } else if (this.arguments.isNotEmpty() && !resolver.isJavaRawType(this)) {
         val args: Array<JTypeName> = this.arguments
             .map { typeArg -> typeArg.asJTypeName(resolver, typeArgumentTypeLookup) }
             .map { it.tryBox() }
