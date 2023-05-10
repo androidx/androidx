@@ -673,9 +673,13 @@ private fun SnapLayoutInfoProvider(
 
             layoutInfo.visiblePagesInfo.fastForEach { page ->
                 val offset = calculateDistanceToDesiredSnapPosition(
-                    layoutInfo,
-                    page,
-                    SnapAlignmentStartToStart
+                    axisViewPortSize = layoutInfo.mainAxisViewportSize,
+                    beforeContentPadding = layoutInfo.beforeContentPadding,
+                    afterContentPadding = layoutInfo.afterContentPadding,
+                    pageSize = layoutInfo.pageSize,
+                    pageOffset = page.offset,
+                    pageIndex = page.index,
+                    positionInLayout = SnapAlignmentStartToStart
                 )
 
                 // Find page that is closest to the snap position, but before it
@@ -869,26 +873,6 @@ internal fun Modifier.pagerSemantics(state: PagerState, isVertical: Boolean): Mo
         }
     })
 }
-
-@OptIn(ExperimentalFoundationApi::class)
-internal fun Density.calculateDistanceToDesiredSnapPosition(
-    layoutInfo: PagerLayoutInfo,
-    page: PageInfo,
-    positionInLayout: Density.(layoutSize: Float, itemSize: Float) -> Float
-): Float {
-    val containerSize =
-        with(layoutInfo) { mainAxisViewportSize - beforeContentPadding - afterContentPadding }
-
-    val desiredDistance =
-        positionInLayout(containerSize.toFloat(), layoutInfo.pageSize.toFloat())
-
-    val itemCurrentPosition = page.offset
-    return itemCurrentPosition - desiredDistance
-}
-
-@OptIn(ExperimentalFoundationApi::class)
-private val PagerLayoutInfo.mainAxisViewportSize: Int
-    get() = if (orientation == Orientation.Vertical) viewportSize.height else viewportSize.width
 
 private const val LowVelocityAnimationDefaultDuration = 500
 
