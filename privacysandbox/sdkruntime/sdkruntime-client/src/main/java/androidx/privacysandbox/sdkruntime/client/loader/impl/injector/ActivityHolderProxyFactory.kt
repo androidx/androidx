@@ -33,7 +33,7 @@ internal class ActivityHolderProxyFactory private constructor(
 
     private val onBackPressedDispatcherConstructor: Constructor<out Any>,
 
-    private val lifecycleRegistryConstructor: Constructor<out Any>,
+    private val lifecycleRegistryProxyFactory: LifecycleRegistryProxyFactory,
 ) {
 
     fun createProxyFor(activityHolder: ActivityHolder): Any {
@@ -50,7 +50,10 @@ internal class ActivityHolderProxyFactory private constructor(
             handler
         )
 
-        val lifecycleProxy = setupLifecycleProxy(activityHolderProxy)
+        val lifecycleProxy = lifecycleRegistryProxyFactory.setupLifecycleProxy(
+            activityHolderProxy,
+            activityHolder.lifecycle
+        )
         handler.lifecycleProxy = lifecycleProxy
 
         return activityHolderProxy
@@ -59,13 +62,6 @@ internal class ActivityHolderProxyFactory private constructor(
     private fun setupOnBackInvokedDispatcherProxy(): Any {
         // TODO (b/280783465) Proxy back events from original dispatcher to proxy
         return onBackPressedDispatcherConstructor.newInstance()
-    }
-
-    private fun setupLifecycleProxy(
-        activityHolderProxy: Any
-    ): Any {
-        // TODO (b/280783461) Proxy lifecycle events from original lifecycle to proxy
-        return lifecycleRegistryConstructor.newInstance(activityHolderProxy)
     }
 
     private class ActivityHolderHandler(
@@ -104,30 +100,17 @@ internal class ActivityHolderProxyFactory private constructor(
                 /* initialize = */ false,
                 classLoader
             )
-            val lifecycleOwnerClass = Class.forName(
-                "androidx.lifecycle.LifecycleOwner",
-                /* initialize = */ false,
-                classLoader
-            )
-            val lifecycleRegistryClass = Class.forName(
-                "androidx.lifecycle.LifecycleRegistry",
-                /* initialize = */ false,
-                classLoader
-            )
 
             val onBackPressedDispatcherConstructor =
                 onBackPressedDispatcherClass.getConstructor()
 
-            val lifecycleRegistryConstructor =
-                lifecycleRegistryClass.getConstructor(
-                    /* parameter1 */ lifecycleOwnerClass
-                )
+            val lifecycleRegistryProxyFactory = LifecycleRegistryProxyFactory.createFor(classLoader)
 
             return ActivityHolderProxyFactory(
                 sdkClassLoader = classLoader,
                 activityHolderClass = activityHolderClass,
                 onBackPressedDispatcherConstructor = onBackPressedDispatcherConstructor,
-                lifecycleRegistryConstructor = lifecycleRegistryConstructor,
+                lifecycleRegistryProxyFactory = lifecycleRegistryProxyFactory
             )
         }
     }

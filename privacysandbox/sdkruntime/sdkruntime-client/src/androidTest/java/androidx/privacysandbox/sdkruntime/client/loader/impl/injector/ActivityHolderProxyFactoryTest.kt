@@ -16,8 +16,9 @@
 
 package androidx.privacysandbox.sdkruntime.client.loader.impl.injector
 
+import androidx.lifecycle.Lifecycle
 import androidx.privacysandbox.sdkruntime.client.EmptyActivity
-import androidx.privacysandbox.sdkruntime.client.activity.ComponentActivityHolder
+import androidx.privacysandbox.sdkruntime.client.TestActivityHolder
 import androidx.privacysandbox.sdkruntime.core.activity.ActivityHolder
 import androidx.test.core.app.ActivityScenario
 import androidx.testutils.withActivity
@@ -38,7 +39,7 @@ class ActivityHolderProxyFactoryTest {
     fun createProxyFor_RetrievesActivityFromOriginalActivityHolder() {
         with(ActivityScenario.launch(EmptyActivity::class.java)) {
             withActivity {
-                val activityHolder = ComponentActivityHolder(this)
+                val activityHolder = TestActivityHolder(this)
                 val proxy = factory.createProxyFor(activityHolder) as ActivityHolder
                 assertThat(proxy.getActivity()).isSameInstanceAs(activityHolder.getActivity())
             }
@@ -50,7 +51,7 @@ class ActivityHolderProxyFactoryTest {
     fun createProxyFor_CreatesProxyWithValidEqualsAndHashCode() {
         with(ActivityScenario.launch(EmptyActivity::class.java)) {
             withActivity {
-                val activityHolder = ComponentActivityHolder(this)
+                val activityHolder = TestActivityHolder(this)
                 val proxy = factory.createProxyFor(activityHolder)
                 assertThat(proxy.equals(proxy)).isTrue()
                 assertThat(proxy.hashCode()).isEqualTo(proxy.hashCode())
@@ -63,7 +64,7 @@ class ActivityHolderProxyFactoryTest {
     fun getOnBackPressedDispatcher_DoesntThrow() {
         with(ActivityScenario.launch(EmptyActivity::class.java)) {
             withActivity {
-                val activityHolder = ComponentActivityHolder(this)
+                val activityHolder = TestActivityHolder(this)
                 val proxy = factory.createProxyFor(activityHolder) as ActivityHolder
                 proxy.getOnBackPressedDispatcher()
             }
@@ -71,12 +72,15 @@ class ActivityHolderProxyFactoryTest {
     }
 
     @Test
-    fun getLifecycle_DoesntThrow() {
+    fun getLifecycle_ProxyLifecycleEventsFromSourceActivityHolder() {
         with(ActivityScenario.launch(EmptyActivity::class.java)) {
             withActivity {
-                val activityHolder = ComponentActivityHolder(this)
-                val proxy = factory.createProxyFor(activityHolder) as ActivityHolder
-                proxy.lifecycle
+                val sourceActivityHolder = TestActivityHolder(this)
+                val proxy = factory.createProxyFor(sourceActivityHolder) as ActivityHolder
+                for (event in Lifecycle.Event.values().filter { it != Lifecycle.Event.ON_ANY }) {
+                    sourceActivityHolder.lifecycleRegistry.handleLifecycleEvent(event)
+                    assertThat(proxy.lifecycle.currentState).isEqualTo(event.targetState)
+                }
             }
         }
     }
