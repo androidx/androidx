@@ -22,6 +22,7 @@ import static com.google.common.truth.Truth.assertThat;
 import android.graphics.Color;
 
 import androidx.wear.protolayout.expression.DynamicBuilders;
+import androidx.wear.protolayout.expression.AppDataKey;
 import androidx.wear.protolayout.proto.ModifiersProto;
 
 import org.junit.Test;
@@ -33,7 +34,9 @@ public class ModifiersBuildersTest {
     private static final String STATE_KEY = "state-key";
     private static final ColorBuilders.ColorProp COLOR =
             new ColorBuilders.ColorProp.Builder(Color.RED)
-                    .setDynamicValue(DynamicBuilders.DynamicColor.fromState(STATE_KEY))
+                    .setDynamicValue(
+                            DynamicBuilders.DynamicColor.from(
+                                    new AppDataKey<>(STATE_KEY)))
                     .build();
 
     @Test

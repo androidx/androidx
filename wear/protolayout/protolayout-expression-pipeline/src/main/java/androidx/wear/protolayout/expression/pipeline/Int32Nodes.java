@@ -23,6 +23,7 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
+import androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32;
 import androidx.wear.protolayout.expression.proto.AnimationParameterProto.AnimationSpec;
 import androidx.wear.protolayout.expression.proto.DynamicProto.AnimatableFixedInt32;
 import androidx.wear.protolayout.expression.proto.DynamicProto.ArithmeticInt32Op;
@@ -175,7 +176,8 @@ class Int32Nodes {
                 DynamicTypeValueReceiverWithPreUpdate<Integer> downstream) {
             super(
                     stateStore,
-                    protoNode.getSourceKey(),
+                    StateSourceNode.<DynamicInt32>createKey(
+                            protoNode.getSourceNamespace(), protoNode.getSourceKey()),
                     se -> se.getInt32Val().getValue(),
                     downstream);
         }

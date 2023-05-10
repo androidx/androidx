@@ -22,9 +22,11 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.wear.protolayout.DeviceParametersBuilders;
 import androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters;
 import androidx.wear.protolayout.StateBuilders.State;
-import androidx.wear.protolayout.expression.StateEntryBuilders.StateEntryValue;
+import androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32;
+import androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue;
+import androidx.wear.protolayout.expression.AppDataKey;
 import androidx.wear.protolayout.expression.proto.FixedProto;
-import androidx.wear.protolayout.expression.proto.StateEntryProto;
+import androidx.wear.protolayout.expression.proto.DynamicDataProto;
 import androidx.wear.protolayout.proto.DeviceParametersProto;
 import androidx.wear.protolayout.proto.StateProto;
 import androidx.wear.tiles.RequestBuilders.ResourcesRequest;
@@ -45,8 +47,9 @@ public final class RequestBuildersTest {
                 new TileRequest.Builder()
                         .setCurrentState(
                                 new State.Builder()
-                                        .addIdToValueMapping(
-                                                "entry_id", StateEntryValue.fromInt(13))
+                                        .addKeyToValueMapping(
+                                                new AppDataKey<DynamicInt32>("entry_id"),
+                                                DynamicDataValue.fromInt(13))
                                         .build())
                         .setDeviceConfiguration(
                                 new DeviceParameters.Builder()
@@ -132,7 +135,7 @@ public final class RequestBuildersTest {
                         StateProto.State.newBuilder()
                                 .putIdToValue(
                                         "entry_id",
-                                        StateEntryProto.StateEntryValue.newBuilder()
+                                        DynamicDataProto.DynamicDataValue.newBuilder()
                                                 .setInt32Val(
                                                         FixedProto.FixedInt32.newBuilder()
                                                                 .setValue(13))

@@ -36,7 +36,7 @@ import androidx.wear.protolayout.expression.FixedValueBuilders.FixedFloat;
 import androidx.wear.protolayout.expression.FixedValueBuilders.FixedInstant;
 import androidx.wear.protolayout.expression.FixedValueBuilders.FixedInt32;
 import androidx.wear.protolayout.expression.FixedValueBuilders.FixedString;
-import androidx.wear.protolayout.expression.StateEntryBuilders.StateEntryValue;
+import androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue;
 import androidx.wear.protolayout.expression.proto.DynamicProto;
 import androidx.wear.protolayout.protobuf.ExtensionRegistryLite;
 import androidx.wear.protolayout.protobuf.InvalidProtocolBufferException;
@@ -677,6 +677,16 @@ public final class DynamicBuilders {
             return mImpl.getSourceKey();
         }
 
+        /**
+         * Gets the namespace for the state key.
+         *
+         * @since 1.2
+         */
+        @NonNull
+        public String getSourceNamespace() {
+            return mImpl.getSourceNamespace();
+        }
+
         @Override
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Nullable
@@ -712,7 +722,12 @@ public final class DynamicBuilders {
         @Override
         @NonNull
         public String toString() {
-            return "StateInt32Source{" + "sourceKey=" + getSourceKey() + "}";
+            return "StateInt32Source{"
+                    + "sourceKey="
+                    + getSourceKey()
+                    + ", sourceNamespace="
+                    + getSourceNamespace()
+                    + "}";
         }
 
         /** Builder for {@link StateInt32Source}. */
@@ -732,6 +747,18 @@ public final class DynamicBuilders {
             public Builder setSourceKey(@NonNull String sourceKey) {
                 mImpl.setSourceKey(sourceKey);
                 mFingerprint.recordPropertyUpdate(1, sourceKey.hashCode());
+                return this;
+            }
+
+            /**
+             * Sets the name space for the state key.
+             *
+             * @since 1.2
+             */
+            @NonNull
+            public Builder setSourceNamespace(@NonNull String sourceNamespace) {
+                mImpl.setSourceNamespace(sourceNamespace);
+                mFingerprint.recordPropertyUpdate(2, sourceNamespace.hashCode());
                 return this;
             }
 
@@ -1507,12 +1534,14 @@ public final class DynamicBuilders {
         /**
          * Creates a {@link DynamicInt32} that is bound to the value of an item of the State.
          *
-         * @param stateKey The key to a {@link StateEntryValue} with an int value from the
-         *     provider's state.
+         * @param dynamicDataKey The source key to a {@link DynamicDataValue} with an int value.
          */
         @NonNull
-        static DynamicInt32 fromState(@NonNull String stateKey) {
-            return new StateInt32Source.Builder().setSourceKey(stateKey).build();
+        static DynamicInt32 from(@NonNull DynamicDataKey<DynamicInt32> dynamicDataKey) {
+            return new StateInt32Source.Builder()
+                    .setSourceKey(dynamicDataKey.getKey())
+                    .setSourceNamespace(dynamicDataKey.getNamespace())
+                    .build();
         }
 
         /**
@@ -1548,12 +1577,13 @@ public final class DynamicBuilders {
          * time the state value changes, this {@link DynamicInt32} will animate from its current
          * value to the new value (from the state).
          *
-         * @param stateKey The key to a {@link StateEntryValue} with an int value from the
-         *     provider's state.
+         * @param dynamicDataKey The source key to a {@link DynamicDataValue} with an int value.
          */
         @NonNull
-        static DynamicInt32 animate(@NonNull String stateKey) {
-            return new AnimatableDynamicInt32.Builder().setInput(fromState(stateKey)).build();
+        static DynamicInt32 animate(@NonNull DynamicDataKey<DynamicInt32> dynamicDataKey) {
+            return new AnimatableDynamicInt32.Builder()
+                    .setInput(from(dynamicDataKey))
+                    .build();
         }
 
         /**
@@ -1561,15 +1591,15 @@ public final class DynamicBuilders {
          * time the state value changes, this {@link DynamicInt32} will animate from its current
          * value to the new value (from the state).
          *
-         * @param stateKey The key to a {@link StateEntryValue} with an int value from the
-         *     provider's state.
+         * @param dynamicDataKey The source key to a {@link DynamicDataValue} with an int value
          * @param animationSpec The animation parameters.
          */
         @NonNull
         static DynamicInt32 animate(
-                @NonNull String stateKey, @NonNull AnimationSpec animationSpec) {
+                @NonNull DynamicDataKey<DynamicInt32> dynamicDataKey,
+                @NonNull AnimationSpec animationSpec) {
             return new AnimatableDynamicInt32.Builder()
-                    .setInput(fromState(stateKey))
+                    .setInput(from(dynamicDataKey))
                     .setAnimationSpec(animationSpec)
                     .build();
         }
@@ -2643,6 +2673,17 @@ public final class DynamicBuilders {
             return mImpl.getSourceKey();
         }
 
+        /**
+         * Gets the namespace for the state key.
+         *
+         * @since 1.2
+         */
+        @NonNull
+        public String getSourceNamespace() {
+            return mImpl.getSourceNamespace();
+        }
+
+
         @Override
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Nullable
@@ -2678,7 +2719,11 @@ public final class DynamicBuilders {
         @Override
         @NonNull
         public String toString() {
-            return "StateStringSource{" + "sourceKey=" + getSourceKey() + "}";
+            return "StateStringSource{"+ "sourceKey="
+                    + getSourceKey()
+                    + ", sourceNamespace="
+                    + getSourceNamespace()
+                    + "}";
         }
 
         /** Builder for {@link StateStringSource}. */
@@ -2698,6 +2743,18 @@ public final class DynamicBuilders {
             public Builder setSourceKey(@NonNull String sourceKey) {
                 mImpl.setSourceKey(sourceKey);
                 mFingerprint.recordPropertyUpdate(1, sourceKey.hashCode());
+                return this;
+            }
+
+            /**
+             * Sets the name space for the state key.
+             *
+             * @since 1.2
+             */
+            @NonNull
+            public Builder setSourceNamespace(@NonNull String sourceNamespace) {
+                mImpl.setSourceNamespace(sourceNamespace);
+                mFingerprint.recordPropertyUpdate(2, sourceNamespace.hashCode());
                 return this;
             }
 
@@ -3258,12 +3315,14 @@ public final class DynamicBuilders {
          * Creates a {@link DynamicString} that is bound to the value of an item of the State. The
          * resulted {@link DynamicString} is subject to being truncated if it's too long.
          *
-         * @param stateKey The key to a {@link StateEntryValue} with a string value from the
-         *     provider's state.
+         * @param dynamicDataKey The source key to a {@link DynamicDataValue} with a string value.
          */
         @NonNull
-        static DynamicString fromState(@NonNull String stateKey) {
-            return new StateStringSource.Builder().setSourceKey(stateKey).build();
+        static DynamicString from(@NonNull DynamicDataKey<DynamicString> dynamicDataKey) {
+            return new StateStringSource.Builder()
+                    .setSourceKey(dynamicDataKey.getKey())
+                    .setSourceNamespace(dynamicDataKey.getNamespace())
+                    .build();
         }
 
         /**
@@ -3520,6 +3579,17 @@ public final class DynamicBuilders {
             return mImpl.getSourceKey();
         }
 
+        /**
+         * Gets the namespace for the state key.
+         *
+         * @since 1.2
+         */
+        @NonNull
+        public String getSourceNamespace() {
+            return mImpl.getSourceNamespace();
+        }
+
+
         @Override
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Nullable
@@ -3555,7 +3625,11 @@ public final class DynamicBuilders {
         @Override
         @NonNull
         public String toString() {
-            return "StateFloatSource{" + "sourceKey=" + getSourceKey() + "}";
+            return "StateFloatSource{"+ "sourceKey="
+                    + getSourceKey()
+                    + ", sourceNamespace="
+                    + getSourceNamespace()
+                    + "}";
         }
 
         /** Builder for {@link StateFloatSource}. */
@@ -3575,6 +3649,18 @@ public final class DynamicBuilders {
             public Builder setSourceKey(@NonNull String sourceKey) {
                 mImpl.setSourceKey(sourceKey);
                 mFingerprint.recordPropertyUpdate(1, sourceKey.hashCode());
+                return this;
+            }
+
+            /**
+             * Sets the name space for the state key.
+             *
+             * @since 1.2
+             */
+            @NonNull
+            public Builder setSourceNamespace(@NonNull String sourceNamespace) {
+                mImpl.setSourceNamespace(sourceNamespace);
+                mFingerprint.recordPropertyUpdate(2, sourceNamespace.hashCode());
                 return this;
             }
 
@@ -4029,12 +4115,14 @@ public final class DynamicBuilders {
         /**
          * Creates a {@link DynamicFloat} that is bound to the value of an item of the State.
          *
-         * @param stateKey The key to a {@link StateEntryValue} with a float value from the
-         *     provider's state.
+         * @param dynamicDataKey The data source to a {@link DynamicDataValue} with a float value.
          */
         @NonNull
-        static DynamicFloat fromState(@NonNull String stateKey) {
-            return new StateFloatSource.Builder().setSourceKey(stateKey).build();
+        static DynamicFloat from(@NonNull DynamicDataKey<DynamicFloat> dynamicDataKey) {
+            return new StateFloatSource.Builder()
+                    .setSourceKey(dynamicDataKey.getKey())
+                    .setSourceNamespace(dynamicDataKey.getNamespace())
+                    .build();
         }
 
         /**
@@ -4071,12 +4159,13 @@ public final class DynamicBuilders {
          * time the state value changes, this {@link DynamicFloat} will animate from its current
          * value to the new value (from the state).
          *
-         * @param stateKey The key to a {@link StateEntryValue} with a float value from the
-         *     providers state.
+         * @param dynamicDataKey The data source to a {@link DynamicDataValue} with a float value.
          */
         @NonNull
-        static DynamicFloat animate(@NonNull String stateKey) {
-            return new AnimatableDynamicFloat.Builder().setInput(fromState(stateKey)).build();
+        static DynamicFloat animate(@NonNull DynamicDataKey<DynamicFloat> dynamicDataKey) {
+            return new AnimatableDynamicFloat.Builder()
+                    .setInput(from(dynamicDataKey))
+                    .build();
         }
 
         /**
@@ -4084,15 +4173,15 @@ public final class DynamicBuilders {
          * time the state value changes, this {@link DynamicFloat} will animate from its current
          * value to the new value (from the state).
          *
-         * @param stateKey The key to a {@link StateEntryValue} with a float value from the
-         *     providers state.
+         * @param dynamicDataKey The source key to a {@link DynamicDataValue} with a float value.
          * @param animationSpec The animation parameters.
          */
         @NonNull
         static DynamicFloat animate(
-                @NonNull String stateKey, @NonNull AnimationSpec animationSpec) {
+                @NonNull DynamicDataKey<DynamicFloat> dynamicDataKey,
+                @NonNull AnimationSpec animationSpec) {
             return new AnimatableDynamicFloat.Builder()
-                    .setInput(fromState(stateKey))
+                    .setInput(from(dynamicDataKey))
                     .setAnimationSpec(animationSpec)
                     .build();
         }
@@ -4935,6 +5024,17 @@ public final class DynamicBuilders {
             return mImpl.getSourceKey();
         }
 
+        /**
+         * Gets the namespace for the state key.
+         *
+         * @since 1.2
+         */
+        @NonNull
+        public String getSourceNamespace() {
+            return mImpl.getSourceNamespace();
+        }
+
+
         @Override
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Nullable
@@ -4970,7 +5070,12 @@ public final class DynamicBuilders {
         @Override
         @NonNull
         public String toString() {
-            return "StateBoolSource{" + "sourceKey=" + getSourceKey() + "}";
+            return "StateBoolSource{"
+                    + "sourceKey="
+                    + getSourceKey()
+                    + ", sourceNamespace="
+                    + getSourceNamespace()
+                    + "}";
         }
 
         /** Builder for {@link StateBoolSource}. */
@@ -4991,6 +5096,18 @@ public final class DynamicBuilders {
             public Builder setSourceKey(@NonNull String sourceKey) {
                 mImpl.setSourceKey(sourceKey);
                 mFingerprint.recordPropertyUpdate(1, sourceKey.hashCode());
+                return this;
+            }
+
+            /**
+             * Sets the name space for the state key.
+             *
+             * @since 1.2
+             */
+            @NonNull
+            public Builder setSourceNamespace(@NonNull String sourceNamespace) {
+                mImpl.setSourceNamespace(sourceNamespace);
+                mFingerprint.recordPropertyUpdate(2, sourceNamespace.hashCode());
                 return this;
             }
 
@@ -5579,12 +5696,14 @@ public final class DynamicBuilders {
         /**
          * Creates a {@link DynamicBool} that is bound to the value of an item of the State.
          *
-         * @param stateKey The key to a {@link StateEntryValue} with a boolean value from the
-         *     provider's state.
+         * @param dynamicDataKey The key to a {@link DynamicDataValue} with a boolean value.
          */
         @NonNull
-        static DynamicBool fromState(@NonNull String stateKey) {
-            return new StateBoolSource.Builder().setSourceKey(stateKey).build();
+        static DynamicBool from(@NonNull DynamicDataKey<DynamicBool> dynamicDataKey) {
+            return new StateBoolSource.Builder()
+                    .setSourceKey(dynamicDataKey.getKey())
+                    .setSourceNamespace(dynamicDataKey.getNamespace())
+                    .build();
         }
 
         /**
@@ -5727,6 +5846,16 @@ public final class DynamicBuilders {
             return mImpl.getSourceKey();
         }
 
+        /**
+         * Gets the namespace for the state key.
+         *
+         * @since 1.2
+         */
+        @NonNull
+        public String getSourceNamespace() {
+            return mImpl.getSourceNamespace();
+        }
+
         @Override
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Nullable
@@ -5762,7 +5891,12 @@ public final class DynamicBuilders {
         @Override
         @NonNull
         public String toString() {
-            return "StateColorSource{" + "sourceKey=" + getSourceKey() + "}";
+            return "StateColorSource{"
+                    + "sourceKey="
+                    + getSourceKey()
+                    + ", sourceNamespace="
+                    + getSourceNamespace()
+                    + "}";
         }
 
         /** Builder for {@link StateColorSource}. */
@@ -5782,6 +5916,18 @@ public final class DynamicBuilders {
             public Builder setSourceKey(@NonNull String sourceKey) {
                 mImpl.setSourceKey(sourceKey);
                 mFingerprint.recordPropertyUpdate(1, sourceKey.hashCode());
+                return this;
+            }
+
+            /**
+             * Sets the name space for the state key.
+             *
+             * @since 1.2
+             */
+            @NonNull
+            public Builder setSourceNamespace(@NonNull String sourceNamespace) {
+                mImpl.setSourceNamespace(sourceNamespace);
+                mFingerprint.recordPropertyUpdate(2, sourceNamespace.hashCode());
                 return this;
             }
 
@@ -6283,12 +6429,14 @@ public final class DynamicBuilders {
         /**
          * Creates a {@link DynamicColor} that is bound to the value of an item of the State.
          *
-         * @param stateKey The key to a {@link StateEntryValue} with a color value from the
-         *     provider's state.
+         * @param dynamicDataKey The source key to a {@link DynamicDataValue} with a color value.
          */
         @NonNull
-        static DynamicColor fromState(@NonNull String stateKey) {
-            return new StateColorSource.Builder().setSourceKey(stateKey).build();
+        static DynamicColor from(@NonNull DynamicDataKey<DynamicColor> dynamicDataKey) {
+            return new StateColorSource.Builder()
+                    .setSourceKey(dynamicDataKey.getKey())
+                    .setSourceNamespace(dynamicDataKey.getNamespace())
+                    .build();
         }
 
         /**
@@ -6326,12 +6474,13 @@ public final class DynamicBuilders {
          * time the state value changes, this {@link DynamicColor} will animate from its current
          * value to the new value (from the state).
          *
-         * @param stateKey The key to a {@link StateEntryValue} with a color value from the
-         *     provider's state.
+         * @param dynamicDataKey The source key to a {@link DynamicDataValue} with a color value.
          */
         @NonNull
-        static DynamicColor animate(@NonNull String stateKey) {
-            return new AnimatableDynamicColor.Builder().setInput(fromState(stateKey)).build();
+        static DynamicColor animate(@NonNull DynamicDataKey<DynamicColor> dynamicDataKey) {
+            return new AnimatableDynamicColor.Builder()
+                    .setInput(from(dynamicDataKey))
+                    .build();
         }
 
         /**
@@ -6339,15 +6488,15 @@ public final class DynamicBuilders {
          * time the state value changes, this {@link DynamicColor} will animate from its current
          * value to the new value (from the state).
          *
-         * @param stateKey The key to a {@link StateEntryValue} with a color value from the
-         *     provider's state.
+         * @param dynamicDataKey The source key to a {@link DynamicDataValue} with a color value.
          * @param animationSpec The animation parameters.
          */
         @NonNull
         static DynamicColor animate(
-                @NonNull String stateKey, @NonNull AnimationSpec animationSpec) {
+                @NonNull DynamicDataKey<DynamicColor> dynamicDataKey,
+                @NonNull AnimationSpec animationSpec) {
             return new AnimatableDynamicColor.Builder()
-                    .setInput(fromState(stateKey))
+                    .setInput(from(dynamicDataKey))
                     .setAnimationSpec(animationSpec)
                     .build();
         }

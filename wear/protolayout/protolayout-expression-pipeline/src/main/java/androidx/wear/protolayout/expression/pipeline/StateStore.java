@@ -26,8 +26,10 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.UiThread;
 import androidx.collection.ArrayMap;
 import androidx.collection.ArraySet;
-import androidx.wear.protolayout.expression.StateEntryBuilders;
-import androidx.wear.protolayout.expression.proto.StateEntryProto.StateEntryValue;
+import androidx.wear.protolayout.expression.AppDataKey;
+import androidx.wear.protolayout.expression.DynamicDataBuilders;
+import androidx.wear.protolayout.expression.DynamicDataKey;
+import androidx.wear.protolayout.expression.proto.DynamicDataProto.DynamicDataValue;
 
 import java.util.Collections;
 import java.util.Map;
@@ -52,10 +54,12 @@ public class StateStore {
      */
     @SuppressLint("MinMaxConstant")
     public static final int MAX_STATE_ENTRY_COUNT = 100;
-    @NonNull private final Map<String, StateEntryValue> mCurrentState = new ArrayMap<>();
+    @NonNull private final Map<AppDataKey<?>, DynamicDataValue> mCurrentState
+            = new ArrayMap<>();
 
-    @NonNull
-    private final Map<String, Set<DynamicTypeValueReceiverWithPreUpdate<StateEntryValue>>>
+    @NonNull private final
+    Map<DynamicDataKey<?>,
+            Set<DynamicTypeValueReceiverWithPreUpdate<DynamicDataValue>>>
             mRegisteredCallbacks = new ArrayMap<>();
 
     /**
@@ -66,12 +70,14 @@ public class StateStore {
      */
     @NonNull
     public static StateStore create(
-            @NonNull Map<String, StateEntryBuilders.StateEntryValue> initialState) {
+            @NonNull Map<AppDataKey<?>, DynamicDataBuilders.DynamicDataValue>
+                    initialState) {
         return new StateStore(toProto(initialState));
     }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-    public StateStore(@NonNull Map<String, StateEntryValue> initialState) {
+    public StateStore(
+            @NonNull Map<AppDataKey<?>, DynamicDataValue> initialState) {
         if (initialState.size() > MAX_STATE_ENTRY_COUNT) {
             throw stateTooLargeException(initialState.size());
         }
@@ -88,9 +94,10 @@ public class StateStore {
      * will stay in place.
      */
     @UiThread
-    public void setStateEntryValues(
-            @NonNull Map<String, StateEntryBuilders.StateEntryValue> newState) {
-        setStateEntryValuesProto(toProto(newState));
+    public void setAppStateEntryValues(
+            @NonNull Map<AppDataKey<?>,
+                    DynamicDataBuilders.DynamicDataValue> newState) {
+        setAppStateEntryValuesProto(toProto(newState));
     }
 
     /**
@@ -104,19 +111,21 @@ public class StateStore {
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     @UiThread
-    public void setStateEntryValuesProto(@NonNull Map<String, StateEntryValue> newState) {
+    public void setAppStateEntryValuesProto(
+            @NonNull Map<AppDataKey<?>, DynamicDataValue> newState) {
         if (newState.size() > MAX_STATE_ENTRY_COUNT) {
             throw stateTooLargeException(newState.size());
         }
 
         // Figure out which nodes have actually changed.
-        Set<String> removedKeys = getRemovedKeys(newState);
-        Map<String, StateEntryValue> changedEntries = getChangedEntries(newState);
+        Set<AppDataKey<?>> removedKeys = getRemovedKeys(newState);
+        Map<AppDataKey<?>, DynamicDataValue> changedEntries =
+                getChangedEntries(newState);
 
         Stream.concat(removedKeys.stream(), changedEntries.keySet().stream())
                 .forEach(
                         key -> {
-                            for (DynamicTypeValueReceiverWithPreUpdate<StateEntryValue> callback :
+                            for (DynamicTypeValueReceiverWithPreUpdate<DynamicDataValue> callback :
                                     mRegisteredCallbacks.getOrDefault(
                                             key, Collections.emptySet())) {
                                 callback.onPreUpdate();
@@ -126,46 +135,51 @@ public class StateStore {
         mCurrentState.clear();
         mCurrentState.putAll(newState);
 
-        for (String key : removedKeys) {
-            for (DynamicTypeValueReceiverWithPreUpdate<StateEntryValue> callback :
+        for (AppDataKey<?> key : removedKeys) {
+            for (DynamicTypeValueReceiverWithPreUpdate<DynamicDataValue> callback :
                     mRegisteredCallbacks.getOrDefault(key, Collections.emptySet())) {
                 callback.onInvalidated();
             }
         }
-        for (Entry<String, StateEntryValue> entry : changedEntries.entrySet()) {
-            for (DynamicTypeValueReceiverWithPreUpdate<StateEntryValue> callback :
+        for (Entry<AppDataKey<?>, DynamicDataValue> entry
+                : changedEntries.entrySet()) {
+            for (DynamicTypeValueReceiverWithPreUpdate<DynamicDataValue> callback :
                     mRegisteredCallbacks.getOrDefault(entry.getKey(), Collections.emptySet())) {
                 callback.onData(entry.getValue());
             }
         }
     }
 
-    /** Gets state with the given key. */
+    /** Gets state with the given {@code key}. */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @UiThread
     @Nullable
-    public StateEntryValue getStateEntryValuesProto(@NonNull String key) {
-        return mCurrentState.get(key);
+    public DynamicDataValue getDynamicDataValuesProto(@NonNull DynamicDataKey<?> key) {
+        if (key instanceof AppDataKey<?>) {
+            return mCurrentState.get(key);
+        }
+        return null;
     }
 
     /**
-     * Registers the given callback for updates to the state for the given key.
+     * Registers the given callback for updates to the state for the given {@code key}.
      *
      * <p>Note that the callback will be executed on the UI thread.
      */
     @UiThread
     void registerCallback(
-            @NonNull String key,
-            @NonNull DynamicTypeValueReceiverWithPreUpdate<StateEntryValue> callback) {
+            @NonNull DynamicDataKey<?> key,
+            @NonNull DynamicTypeValueReceiverWithPreUpdate<DynamicDataValue> callback) {
         mRegisteredCallbacks.computeIfAbsent(key, k -> new ArraySet<>()).add(callback);
     }
 
-    /** Unregisters from receiving the updates. */
+    /** Unregisters the callback for the given {@code key} from receiving the updates. */
     @UiThread
     void unregisterCallback(
-            @NonNull String key,
-            @NonNull DynamicTypeValueReceiverWithPreUpdate<StateEntryValue> callback) {
-        Set<DynamicTypeValueReceiverWithPreUpdate<StateEntryValue>> callbackSet =
+            @NonNull DynamicDataKey<?> key,
+            @NonNull DynamicTypeValueReceiverWithPreUpdate<DynamicDataValue> callback) {
+
+        Set<DynamicTypeValueReceiverWithPreUpdate<DynamicDataValue>> callbackSet =
                 mRegisteredCallbacks.get(key);
         if (callbackSet != null) {
             callbackSet.remove(callback);
@@ -173,25 +187,27 @@ public class StateStore {
     }
 
     @NonNull
-    private static Map<String, StateEntryValue> toProto(
-            @NonNull Map<String, StateEntryBuilders.StateEntryValue> value) {
+    private static Map<AppDataKey<?>, DynamicDataValue> toProto(
+            @NonNull Map<AppDataKey<?>, DynamicDataBuilders.DynamicDataValue> value) {
         return value.entrySet().stream()
-                .collect(toMap(Entry::getKey, entry -> entry.getValue().toStateEntryValueProto()));
+                .collect(toMap(Entry::getKey, entry -> entry.getValue().toDynamicDataValueProto()));
     }
 
     @NonNull
-    private Set<String> getRemovedKeys(@NonNull Map<String, StateEntryValue> newState) {
-        Set<String> result = new ArraySet<>(mCurrentState.keySet());
+    private Set<AppDataKey<?>> getRemovedKeys(
+            @NonNull Map<AppDataKey<?>, DynamicDataValue> newState) {
+        Set<AppDataKey<?>> result = new ArraySet<>(mCurrentState.keySet());
         result.removeAll(newState.keySet());
         return result;
     }
 
     @NonNull
-    private Map<String, StateEntryValue> getChangedEntries(
-            @NonNull Map<String, StateEntryValue> newState) {
-        Map<String, StateEntryValue> result = new ArrayMap<>();
-        for (Entry<String, StateEntryValue> newEntry : newState.entrySet()) {
-            StateEntryValue currentEntry = mCurrentState.get(newEntry.getKey());
+    private Map<AppDataKey<?>, DynamicDataValue> getChangedEntries(
+            @NonNull Map<AppDataKey<?>, DynamicDataValue> newState) {
+        Map<AppDataKey<?>, DynamicDataValue> result = new ArrayMap<>();
+        for (Entry<AppDataKey<?>, DynamicDataValue> newEntry
+                : newState.entrySet()) {
+            DynamicDataValue currentEntry = mCurrentState.get(newEntry.getKey());
             if (currentEntry == null || !currentEntry.equals(newEntry.getValue())) {
                 result.put(newEntry.getKey(), newEntry.getValue());
             }

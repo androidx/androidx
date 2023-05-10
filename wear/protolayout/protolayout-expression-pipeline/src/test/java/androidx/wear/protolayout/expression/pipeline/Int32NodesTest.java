@@ -27,6 +27,8 @@ import android.os.Looper;
 
 import androidx.annotation.NonNull;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.wear.protolayout.expression.AppDataKey;
+import androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32;
 import androidx.wear.protolayout.expression.pipeline.Int32Nodes.AnimatableFixedInt32Node;
 import androidx.wear.protolayout.expression.pipeline.Int32Nodes.DynamicAnimatedInt32Node;
 import androidx.wear.protolayout.expression.pipeline.Int32Nodes.FixedInt32Node;
@@ -42,7 +44,7 @@ import androidx.wear.protolayout.expression.proto.DynamicProto.PlatformInt32Sour
 import androidx.wear.protolayout.expression.proto.DynamicProto.PlatformInt32SourceType;
 import androidx.wear.protolayout.expression.proto.DynamicProto.StateInt32Source;
 import androidx.wear.protolayout.expression.proto.FixedProto.FixedInt32;
-import androidx.wear.protolayout.expression.proto.StateEntryProto.StateEntryValue;
+import androidx.wear.protolayout.expression.proto.DynamicDataProto.DynamicDataValue;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
@@ -64,6 +66,8 @@ public class Int32NodesTest {
     @Rule public final MockitoRule mockito = MockitoJUnit.rule();
 
     @Mock private DynamicTypeValueReceiverWithPreUpdate<Integer> mMockValueReceiver;
+
+    private static final AppDataKey<DynamicInt32> KEY_FOO = new AppDataKey<>("foo");
 
     @Test
     public void testFixedInt32Node() {
@@ -174,8 +178,8 @@ public class Int32NodesTest {
         StateStore oss =
                 new StateStore(
                         ImmutableMap.of(
-                                "foo",
-                                StateEntryValue.newBuilder()
+                                KEY_FOO,
+                                DynamicDataValue.newBuilder()
                                         .setInt32Val(FixedInt32.newBuilder().setValue(65))
                                         .build()));
 
@@ -195,8 +199,8 @@ public class Int32NodesTest {
         StateStore oss =
                 new StateStore(
                         ImmutableMap.of(
-                                "foo",
-                                StateEntryValue.newBuilder()
+                                KEY_FOO,
+                                DynamicDataValue.newBuilder()
                                         .setInt32Val(FixedInt32.newBuilder().setValue(65))
                                         .build()));
 
@@ -209,10 +213,10 @@ public class Int32NodesTest {
 
         results.clear();
 
-        oss.setStateEntryValuesProto(
+        oss.setAppStateEntryValuesProto(
                 ImmutableMap.of(
-                        "foo",
-                        StateEntryValue.newBuilder()
+                        KEY_FOO,
+                        DynamicDataValue.newBuilder()
                                 .setInt32Val(FixedInt32.newBuilder().setValue(12))
                                 .build()));
 
@@ -302,8 +306,8 @@ public class Int32NodesTest {
         StateStore oss =
                 new StateStore(
                         ImmutableMap.of(
-                                "foo",
-                                StateEntryValue.newBuilder()
+                                KEY_FOO,
+                                DynamicDataValue.newBuilder()
                                         .setInt32Val(
                                                 FixedInt32.newBuilder().setValue(value1).build())
                                         .build()));
@@ -323,10 +327,10 @@ public class Int32NodesTest {
         stateNode.init();
 
         results.clear();
-        oss.setStateEntryValuesProto(
+        oss.setAppStateEntryValuesProto(
                 ImmutableMap.of(
-                        "foo",
-                        StateEntryValue.newBuilder()
+                        KEY_FOO,
+                        DynamicDataValue.newBuilder()
                                 .setInt32Val(FixedInt32.newBuilder().setValue(value2))
                                 .build()));
         shadowOf(Looper.getMainLooper()).idle();
@@ -337,10 +341,10 @@ public class Int32NodesTest {
 
         int32Node.setVisibility(true);
         results.clear();
-        oss.setStateEntryValuesProto(
+        oss.setAppStateEntryValuesProto(
                 ImmutableMap.of(
-                        "foo",
-                        StateEntryValue.newBuilder()
+                        KEY_FOO,
+                        DynamicDataValue.newBuilder()
                                 .setInt32Val(FixedInt32.newBuilder().setValue(value3))
                                 .build()));
         shadowOf(Looper.getMainLooper()).idle();

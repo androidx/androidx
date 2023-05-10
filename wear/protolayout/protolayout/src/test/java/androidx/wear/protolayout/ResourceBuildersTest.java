@@ -21,6 +21,7 @@ import static androidx.wear.protolayout.ResourceBuilders.ANIMATED_IMAGE_FORMAT_A
 import static com.google.common.truth.Truth.assertThat;
 
 import androidx.wear.protolayout.expression.DynamicBuilders;
+import androidx.wear.protolayout.expression.AppDataKey;
 import androidx.wear.protolayout.proto.ResourceProto;
 
 import org.junit.Test;
@@ -55,7 +56,9 @@ public class ResourceBuildersTest {
                 new ResourceBuilders.AndroidSeekableAnimatedImageResourceByResId.Builder()
                         .setResourceId(RESOURCE_ID)
                         .setAnimatedImageFormat(FORMAT)
-                        .setProgress(DynamicBuilders.DynamicFloat.fromState(stateKey))
+                        .setProgress(
+                                DynamicBuilders.DynamicFloat.from(
+                                        new AppDataKey<>(stateKey)))
                         .build();
 
         ResourceProto.AndroidSeekableAnimatedImageResourceByResId avdProto = avd.toProto();

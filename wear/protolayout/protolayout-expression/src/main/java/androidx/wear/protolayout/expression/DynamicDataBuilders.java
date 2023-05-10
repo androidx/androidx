@@ -16,7 +16,6 @@
 
 package androidx.wear.protolayout.expression;
 
-import android.annotation.SuppressLint;
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -27,53 +26,53 @@ import androidx.wear.protolayout.expression.FixedValueBuilders.FixedColor;
 import androidx.wear.protolayout.expression.FixedValueBuilders.FixedFloat;
 import androidx.wear.protolayout.expression.FixedValueBuilders.FixedInt32;
 import androidx.wear.protolayout.expression.FixedValueBuilders.FixedString;
-import androidx.wear.protolayout.expression.proto.StateEntryProto;
+import androidx.wear.protolayout.expression.proto.DynamicDataProto;
 
-/** Builders for state entries of a provider. */
-public final class StateEntryBuilders {
-  private StateEntryBuilders() {}
+/** Builders for dynamic data value of a provider. */
+public final class DynamicDataBuilders {
+  private DynamicDataBuilders() {}
 
   /**
-   * Interface defining a state entry value.
+   * Interface defining a dynamic data value.
    *
    * @since 1.2
    */
-  public interface StateEntryValue {
+  public interface DynamicDataValue {
     /**
      * Get the protocol buffer representation of this object.
      *
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
-    StateEntryProto.StateEntryValue toStateEntryValueProto();
+    DynamicDataProto.DynamicDataValue toDynamicDataValueProto();
 
-    /** Creates a boolean {@link StateEntryValue}. */
+    /** Creates a boolean {@link DynamicDataValue}. */
     @NonNull
-    static StateEntryValue fromBool(boolean constant) {
+    static DynamicDataValue fromBool(boolean constant) {
       return new FixedBool.Builder().setValue(constant).build();
     }
 
-    /** Creates a int {@link StateEntryValue}. */
+    /** Creates a int {@link DynamicDataValue}. */
     @NonNull
-    static StateEntryValue fromInt(int constant) {
+    static DynamicDataValue fromInt(int constant) {
       return new FixedInt32.Builder().setValue(constant).build();
     }
 
-    /** Creates a float {@link StateEntryValue}. */
+    /** Creates a float {@link DynamicDataValue}. */
     @NonNull
-    static StateEntryValue fromFloat(float constant) {
+    static DynamicDataValue fromFloat(float constant) {
       return new FixedFloat.Builder().setValue(constant).build();
     }
 
-    /** Creates a color {@link StateEntryValue}. */
+    /** Creates a color {@link DynamicDataValue}. */
     @NonNull
-    static StateEntryValue fromColor(@ColorInt int constant) {
+    static DynamicDataValue fromColor(@ColorInt int constant) {
       return new FixedColor.Builder().setArgb(constant).build();
     }
 
-    /** Creates a string {@link StateEntryValue}. */
+    /** Creates a string {@link DynamicDataValue}. */
     @NonNull
-    static StateEntryValue fromString(@NonNull String constant) {
+    static DynamicDataValue fromString(@NonNull String constant) {
       return new FixedString.Builder().setValue(constant).build();
     }
 
@@ -85,7 +84,7 @@ public final class StateEntryBuilders {
     @Nullable
     Fingerprint getFingerprint();
 
-    /** Builder to create {@link StateEntryValue} objects.
+    /** Builder to create {@link DynamicDataValue} objects.
      *
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -93,7 +92,7 @@ public final class StateEntryBuilders {
 
       /** Builds an instance with values accumulated in this Builder. */
       @NonNull
-      StateEntryValue build();
+      DynamicDataValue build();
     }
   }
 
@@ -104,8 +103,8 @@ public final class StateEntryBuilders {
    */
   @RestrictTo(Scope.LIBRARY_GROUP)
   @NonNull
-  public static StateEntryValue stateEntryValueFromProto(
-      @NonNull StateEntryProto.StateEntryValue proto) {
+  public static DynamicDataValue dynamicDataValueFromProto(
+      @NonNull DynamicDataProto.DynamicDataValue proto) {
     if (proto.hasStringVal()) {
       return FixedString.fromProto(proto.getStringVal());
     }
@@ -121,6 +120,6 @@ public final class StateEntryBuilders {
     if (proto.hasColorVal()) {
       return FixedColor.fromProto(proto.getColorVal());
     }
-    throw new IllegalStateException("Proto was not a recognised instance of StateEntryValue");
+    throw new IllegalStateException("Proto was not a recognised instance of DynamicDataValue");
   }
 }

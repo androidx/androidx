@@ -21,6 +21,7 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
 
 import androidx.wear.protolayout.expression.DynamicBuilders;
+import androidx.wear.protolayout.expression.AppDataKey;
 import androidx.wear.protolayout.proto.DimensionProto;
 import androidx.wear.protolayout.proto.LayoutElementProto;
 import androidx.wear.protolayout.proto.TypesProto;
@@ -34,7 +35,9 @@ public class LayoutElementBuildersTest {
     private static final String STATE_KEY = "state-key";
     private static final DimensionBuilders.DegreesProp DEGREES_PROP =
             new DimensionBuilders.DegreesProp.Builder(10)
-                    .setDynamicValue(DynamicBuilders.DynamicFloat.fromState(STATE_KEY))
+                    .setDynamicValue(
+                            DynamicBuilders.DynamicFloat.from(
+                                    new AppDataKey<>(STATE_KEY)))
                     .build();
     private static final DimensionBuilders.AngularLayoutConstraint DEGREES_PROP_CONSTRAINT =
             new DimensionBuilders.AngularLayoutConstraint.Builder(20)
@@ -42,7 +45,9 @@ public class LayoutElementBuildersTest {
                     .build();
     private static final DimensionBuilders.DpProp DP_PROP =
             new DimensionBuilders.DpProp.Builder(10)
-                    .setDynamicValue(DynamicBuilders.DynamicFloat.fromState(STATE_KEY))
+                    .setDynamicValue(
+                            DynamicBuilders.DynamicFloat.from(
+                                    new AppDataKey<>(STATE_KEY)))
                     .build();
     private static final DimensionBuilders.HorizontalLayoutConstraint HORIZONTAL_LAYOUT_CONSTRAINT =
             new DimensionBuilders.HorizontalLayoutConstraint.Builder(20)
@@ -54,7 +59,9 @@ public class LayoutElementBuildersTest {
                     .build();
     private static final TypeBuilders.StringProp STRING_PROP =
             new TypeBuilders.StringProp.Builder("string")
-                    .setDynamicValue(DynamicBuilders.DynamicString.fromState(STATE_KEY))
+                    .setDynamicValue(
+                            DynamicBuilders.DynamicString.from(
+                                    new AppDataKey<>(STATE_KEY)))
                     .build();
     private static final TypeBuilders.StringLayoutConstraint STRING_LAYOUT_CONSTRAINT =
             new TypeBuilders.StringLayoutConstraint.Builder("pattern")

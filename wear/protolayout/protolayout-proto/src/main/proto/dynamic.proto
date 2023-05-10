@@ -75,6 +75,9 @@ message ArithmeticInt32Op {
 message StateInt32Source {
   // The key in the state to bind to.
   string source_key = 1;
+
+  // The namespace for the state key.
+  string source_namespace = 2;
 }
 
 // A conditional operator which yields an integer depending on the boolean
@@ -214,6 +217,9 @@ message Int32FormatOp {
 message StateStringSource {
   // The key in the state to bind to.
   string source_key = 1;
+
+  // The namespace for the state key.
+  string source_namespace = 2;
 }
 
 // A conditional operator which yields an string depending on the boolean
@@ -299,6 +305,9 @@ message ArithmeticFloatOp {
 message StateFloatSource {
   // The key in the state to bind to.
   string source_key = 1;
+
+  // The namespace for the state key.
+  string source_namespace = 2;
 }
 
 // An operation to convert a Int32 value in the dynamic data pipeline to a Float
@@ -373,6 +382,9 @@ message DynamicFloat {
 message StateBoolSource {
   // The key in the state to bind to.
   string source_key = 1;
+
+  // The namespace for the state key.
+  string source_namespace = 2;
 }
 
 // The type of comparison used in ComparisonInt32Op and ComparisonFloatOp.
@@ -483,6 +495,9 @@ message DynamicBool {
 message StateColorSource {
   // The key in the state to bind to.
   string source_key = 1;
+
+  // The namespace for the state key.
+  string source_namespace = 2;
 }
 
 // A static interpolation node, between two fixed color values.
