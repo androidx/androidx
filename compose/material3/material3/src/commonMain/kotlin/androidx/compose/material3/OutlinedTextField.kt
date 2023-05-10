@@ -688,17 +688,20 @@ private class OutlinedTextFieldMeasurePolicy(
             onLabelMeasured(Size(it.width.toFloat(), it.height.toFloat()))
         }
 
+        // supporting text must be measured after other elements, but we
+        // reserve space for it using its intrinsic height as a heuristic
+        val supportingMeasurable = measurables.find { it.layoutId == SupportingId }
+        val supportingIntrinsicHeight =
+            supportingMeasurable?.minIntrinsicHeight(constraints.minWidth) ?: 0
+
         // measure text field
-        // On top, we offset either by default padding or by label's half height if its too big.
-        // On bottom, we offset to make room for supporting text.
-        // minHeight must not be set to 0 due to how foundation TextField treats zero minHeight.
         val topPadding = max(
             heightOrZero(labelPlaceable) / 2,
             paddingValues.calculateTopPadding().roundToPx()
         )
         val textConstraints = constraints.offset(
             horizontal = -occupiedSpaceHorizontally,
-            vertical = -bottomPadding - topPadding
+            vertical = -bottomPadding - topPadding - supportingIntrinsicHeight
         ).copy(minHeight = 0)
         val textFieldPlaceable =
             measurables.first { it.layoutId == TextFieldId }.measure(textConstraints)
@@ -733,8 +736,7 @@ private class OutlinedTextFieldMeasurePolicy(
         val supportingConstraints = relaxedConstraints.offset(
             vertical = -occupiedSpaceVertically
         ).copy(minHeight = 0, maxWidth = width)
-        val supportingPlaceable =
-            measurables.find { it.layoutId == SupportingId }?.measure(supportingConstraints)
+        val supportingPlaceable = supportingMeasurable?.measure(supportingConstraints)
         val supportingHeight = heightOrZero(supportingPlaceable)
 
         val totalHeight =
