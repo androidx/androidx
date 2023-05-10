@@ -19,9 +19,11 @@ package androidx.baselineprofile.gradle.producer
 import androidx.baselineprofile.gradle.utils.BaselineProfileProjectSetupRule
 import androidx.baselineprofile.gradle.utils.TEST_AGP_VERSION_8_0_0
 import androidx.baselineprofile.gradle.utils.TEST_AGP_VERSION_8_1_0
+import androidx.baselineprofile.gradle.utils.TEST_AGP_VERSION_8_2_0
 import androidx.baselineprofile.gradle.utils.TEST_AGP_VERSION_ALL
 import androidx.baselineprofile.gradle.utils.VariantProfile
 import androidx.baselineprofile.gradle.utils.build
+import androidx.baselineprofile.gradle.utils.buildAndAssertThatOutput
 import androidx.baselineprofile.gradle.utils.buildAndFailAndAssertThatOutput
 import androidx.baselineprofile.gradle.utils.require
 import com.google.common.truth.Truth.assertThat
@@ -93,6 +95,60 @@ class BaselineProfileProducerPluginTestWithAgp81 {
             )
             assertThat(notFound).isEmpty()
         }
+    }
+}
+
+@RunWith(JUnit4::class)
+class BaselineProfileProducerPluginTestWithAgp82 {
+
+    @get:Rule
+    val projectSetup = BaselineProfileProjectSetupRule(
+        forceAgpVersion = TEST_AGP_VERSION_8_2_0
+    )
+
+    private val emptyReleaseVariantProfile = VariantProfile(
+        flavor = null,
+        buildType = "release",
+        profileFileLines = mapOf()
+    )
+
+    @Test
+    fun verifyInstrumentationRunnerArgumentsAreSet() {
+        projectSetup.appTarget.setup()
+        projectSetup.producer.setup(
+            variantProfiles = listOf(emptyReleaseVariantProfile),
+            targetProject = projectSetup.appTarget,
+            additionalGradleCodeBlock = """
+            abstract class PrintArgsTask extends DefaultTask {
+                @Input abstract MapProperty<String, String> getProperties()
+                @TaskAction void exec() {
+                    for (Map.Entry<String, String> e : getProperties().get().entrySet()) {
+                        println(e.key + "=" + e.value)
+                    }
+                }
+            }
+            androidComponents {
+                onVariants(selector()) { variant ->
+                    tasks.register(variant.name + "Arguments", PrintArgsTask) { t ->
+                        t.properties.set(variant.instrumentationRunnerArguments)
+                    }
+                }
+            }
+            """.trimIndent()
+        )
+
+        projectSetup
+            .producer
+            .gradleRunner
+            .buildAndAssertThatOutput("benchmarkReleaseArguments") {
+                contains("androidx.benchmark.enabledRules=macrobenchmark")
+            }
+        projectSetup
+            .producer
+            .gradleRunner
+            .buildAndAssertThatOutput("nonMinifiedReleaseArguments") {
+                contains("androidx.benchmark.enabledRules=baselineprofile")
+            }
     }
 }
 
