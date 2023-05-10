@@ -22,6 +22,7 @@ import android.os.Bundle
 import android.telecom.PhoneAccount
 import android.telecom.PhoneAccountHandle
 import android.telecom.TelecomManager
+import android.util.Log
 import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.core.telecom.CallAttributesCompat
@@ -30,6 +31,8 @@ import androidx.core.telecom.CallsManager
 
 internal class Utils {
     companion object {
+        private val TAG = Utils.Companion::class.java.simpleName
+
         private val defaultBuildAdapter =
             object : BuildVersionAdapter {
                 /**
@@ -38,10 +41,14 @@ internal class Utils {
                  * android.telecom.CallEventCallback but are not limited to only those classes.
                  */
                 override fun hasPlatformV2Apis(): Boolean {
+                    Log.i(TAG, "hasPlatformV2Apis: " +
+                        "versionSdkInt=[${VERSION.SDK_INT}]")
                     return VERSION.SDK_INT >= 34 || VERSION.CODENAME == "UpsideDownCake"
                 }
 
                 override fun hasInvalidBuildVersion(): Boolean {
+                    Log.i(TAG, "hasInvalidBuildVersion: " +
+                        "versionSdkInt=[${VERSION.SDK_INT}]")
                     return VERSION.SDK_INT < VERSION_CODES.O
                 }
             }
