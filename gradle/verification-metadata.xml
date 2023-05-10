@@ -5,7 +5,7 @@
       <verify-metadata>true</verify-metadata>
       <verify-signatures>true</verify-signatures>
       <key-servers enabled="false">
-          <key-server uri="https://keyserver.ubuntu.com"/>
+         <key-server uri="https://keyserver.ubuntu.com"/>
       </key-servers>
       <trusted-artifacts>
          <trust group="ch.qos.logback" name="logback-classic" version="1.2.11" reason="b/234161459"/>
@@ -231,6 +231,7 @@
             <trusting group="org.jvnet.staxex"/>
             <trusting group="^com[.]sun($|([.].*))" regex="true"/>
          </trusted-key>
+         <trusted-key id="713da88be50911535fe716f5208b0ab1d63011c7" group="org.apache.tomcat" name="annotations-api" version="6.0.53"/>
          <trusted-key id="720746177725a89207a7075bfd5dea07fcb690a8" group="org.codehaus.mojo"/>
          <trusted-key id="73976c9c39c1479b84e2641a5a68a2249128e2c6" group="com.google.crypto.tink" name="tink-android" version="1.8.0"/>
          <trusted-key id="748f15b2cf9ba8f024155e6ed7c92b70fa1c814d" group="org.apache.logging.log4j"/>
