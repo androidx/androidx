@@ -16,6 +16,7 @@
 
 package androidx.privacysandbox.tools.core.generator
 
+import androidx.privacysandbox.tools.core.generator.SpecNames.bundleClass
 import androidx.privacysandbox.tools.core.generator.SpecNames.contextPropertyName
 import androidx.privacysandbox.tools.core.model.AnnotatedInterface
 import androidx.privacysandbox.tools.core.model.AnnotatedValue
@@ -25,6 +26,7 @@ import androidx.privacysandbox.tools.core.model.Types
 import androidx.privacysandbox.tools.core.model.Types.asNonNull
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.CodeBlock
+import com.squareup.kotlinpoet.MemberName
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.TypeName
 
@@ -78,6 +80,13 @@ abstract class BinderCodeConverter(private val api: ParsedApi) {
                     CodeBlock.of("")
                 else
                     CodeBlock.of(".map { %L }", convertToModelCodeBlock)
+            )
+        }
+        if (type.qualifiedName == Types.sdkActivityLauncher.qualifiedName) {
+            return CodeBlock.of(
+                "%T.fromLauncherInfo(%L)",
+                ClassName("androidx.privacysandbox.ui.provider", "SdkActivityLauncherFactory"),
+                expression
             )
         }
         if (type == Types.short) {
@@ -138,6 +147,13 @@ abstract class BinderCodeConverter(private val api: ParsedApi) {
                 else
                     CodeBlock.of(".map { %L }", convertToBinderCodeBlock),
                 toBinderList(type.typeParameters[0])
+            )
+        }
+        if (type.qualifiedName == Types.sdkActivityLauncher.qualifiedName) {
+            return CodeBlock.of(
+                "%L.%M()",
+                expression,
+                MemberName("androidx.privacysandbox.ui.client", "toLauncherInfo"),
             )
         }
         if (type == Types.short) {
@@ -215,6 +231,8 @@ abstract class BinderCodeConverter(private val api: ParsedApi) {
         }
         if (type.qualifiedName == List::class.qualifiedName)
             return convertToBinderListType(type.typeParameters[0])
+        if (type.qualifiedName == Types.sdkActivityLauncher.qualifiedName)
+            return bundleClass
         return type.poetTypeName()
     }
 

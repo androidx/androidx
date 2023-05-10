@@ -5,6 +5,7 @@ import androidx.privacysandbox.tools.PrivacySandboxInterface
 import androidx.privacysandbox.tools.PrivacySandboxService
 import androidx.privacysandbox.tools.PrivacySandboxValue
 import androidx.privacysandbox.ui.core.SandboxedUiAdapter
+import androidx.privacysandbox.ui.core.SdkActivityLauncher
 
 @PrivacySandboxService
 interface MySdk {
@@ -31,6 +32,8 @@ interface MySdk {
     suspend fun returnUiInterface(): MyUiInterface
 
     fun acceptUiInterfaceParam(input: MyUiInterface)
+
+    fun acceptSdkActivityLauncherParam(activityLauncher: SdkActivityLauncher)
 }
 
 @PrivacySandboxInterface
