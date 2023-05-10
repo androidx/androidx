@@ -67,7 +67,7 @@ public final class DynamicFloatTest {
 
     @Test
     public void stateEntryValueFloat() {
-        DynamicFloat stateFloat = DynamicFloat.fromState(STATE_KEY);
+        DynamicFloat stateFloat = DynamicFloat.from(new AppDataKey<>(STATE_KEY));
 
         assertThat(stateFloat.toDynamicFloatProto().getStateSource().getSourceKey())
                 .isEqualTo(STATE_KEY);
@@ -75,8 +75,8 @@ public final class DynamicFloatTest {
 
     @Test
     public void stateToString() {
-        assertThat(DynamicFloat.fromState("key").toString())
-                .isEqualTo("StateFloatSource{sourceKey=key}");
+        assertThat(DynamicFloat.from(new AppDataKey<>("key")).toString())
+                .isEqualTo("StateFloatSource{sourceKey=key, sourceNamespace=}");
     }
 
     @Test
@@ -198,10 +198,10 @@ public final class DynamicFloatTest {
 
     @Test
     public void stateAnimatedFloat() {
-        DynamicFloat stateFloat = DynamicFloat.fromState(STATE_KEY);
-
-        DynamicFloat animatedFloat = DynamicFloat.animate(STATE_KEY);
-        DynamicFloat animatedFloatWithSpec = DynamicFloat.animate(STATE_KEY, SPEC);
+        AppDataKey<DynamicFloat> source = new AppDataKey<>(STATE_KEY);
+        DynamicFloat stateFloat = DynamicFloat.from(source);
+        DynamicFloat animatedFloat = DynamicFloat.animate(source);
+        DynamicFloat animatedFloatWithSpec = DynamicFloat.animate(source, SPEC);
 
         assertThat(animatedFloat.toDynamicFloatProto().getAnimatableDynamic().hasAnimationSpec())
                 .isFalse();
@@ -221,7 +221,7 @@ public final class DynamicFloatTest {
     public void stateAnimatedToString() {
         assertThat(
                         DynamicFloat.animate(
-                                        /* stateKey= */ "key",
+                                        new AppDataKey<>("key"),
                                         new AnimationSpec.Builder()
                                                 .setAnimationParameters(
                                                         new AnimationParameters.Builder()
@@ -230,7 +230,8 @@ public final class DynamicFloatTest {
                                                 .build())
                                 .toString())
                 .isEqualTo(
-                        "AnimatableDynamicFloat{input=StateFloatSource{sourceKey=key},"
+                        "AnimatableDynamicFloat{"
+                                + "input=StateFloatSource{sourceKey=key, sourceNamespace=},"
                                 + " animationSpec=AnimationSpec{animationParameters"
                                 + "=AnimationParameters{durationMillis=0,"
                                 + " easing=null, delayMillis=1}, repeatable=null}}");

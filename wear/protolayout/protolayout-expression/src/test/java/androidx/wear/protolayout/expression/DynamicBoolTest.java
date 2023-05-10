@@ -51,7 +51,7 @@ public final class DynamicBoolTest {
 
     @Test
     public void stateEntryValueBool() {
-        DynamicBool stateBool = DynamicBool.fromState(STATE_KEY);
+        DynamicBool stateBool = DynamicBool.from(new AppDataKey<>(STATE_KEY));
 
         assertThat(stateBool.toDynamicBoolProto().getStateSource().getSourceKey())
                 .isEqualTo(STATE_KEY);
@@ -59,8 +59,8 @@ public final class DynamicBoolTest {
 
     @Test
     public void stateToString() {
-        assertThat(DynamicBool.fromState("key").toString())
-                .isEqualTo("StateBoolSource{sourceKey=key}");
+        assertThat(DynamicBool.from(new AppDataKey<>("key")).toString())
+                .isEqualTo("StateBoolSource{sourceKey=key, sourceNamespace=}");
     }
 
     @Test

@@ -23,6 +23,8 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import android.icu.util.ULocale;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.wear.protolayout.expression.AppDataKey;
+import androidx.wear.protolayout.expression.DynamicBuilders.DynamicString;
 import androidx.wear.protolayout.expression.pipeline.StringNodes.FixedStringNode;
 import androidx.wear.protolayout.expression.pipeline.StringNodes.Int32FormatNode;
 import androidx.wear.protolayout.expression.pipeline.StringNodes.StateStringNode;
@@ -30,7 +32,7 @@ import androidx.wear.protolayout.expression.pipeline.StringNodes.StringConcatOpN
 import androidx.wear.protolayout.expression.proto.DynamicProto.Int32FormatOp;
 import androidx.wear.protolayout.expression.proto.DynamicProto.StateStringSource;
 import androidx.wear.protolayout.expression.proto.FixedProto.FixedString;
-import androidx.wear.protolayout.expression.proto.StateEntryProto.StateEntryValue;
+import androidx.wear.protolayout.expression.proto.DynamicDataProto.DynamicDataValue;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -43,6 +45,7 @@ import java.util.Random;
 
 @RunWith(AndroidJUnit4.class)
 public class StringNodesTest {
+    private static final AppDataKey<DynamicString> KEY_FOO = new AppDataKey<>("foo");
     @Test
     public void fixedStringNodeTest() {
         List<String> results = new ArrayList<>();
@@ -106,8 +109,8 @@ public class StringNodesTest {
         StateStore oss =
                 new StateStore(
                         ImmutableMap.of(
-                                "foo",
-                                StateEntryValue.newBuilder()
+                                KEY_FOO,
+                                DynamicDataValue.newBuilder()
                                         .setStringVal(FixedString.newBuilder().setValue("bar"))
                                         .build()));
 
@@ -129,8 +132,8 @@ public class StringNodesTest {
         StateStore oss =
                 new StateStore(
                         ImmutableMap.of(
-                                "foo",
-                                StateEntryValue.newBuilder()
+                                KEY_FOO,
+                                DynamicDataValue.newBuilder()
                                         .setStringVal(
                                                 FixedString.newBuilder().setValue(string500chars))
                                         .build()));
@@ -152,8 +155,8 @@ public class StringNodesTest {
         StateStore oss =
                 new StateStore(
                         ImmutableMap.of(
-                                "foo",
-                                StateEntryValue.newBuilder()
+                                KEY_FOO,
+                                DynamicDataValue.newBuilder()
                                         .setStringVal(FixedString.newBuilder().setValue("bar"))
                                         .build()));
 
@@ -166,10 +169,10 @@ public class StringNodesTest {
 
         results.clear();
 
-        oss.setStateEntryValuesProto(
+        oss.setAppStateEntryValuesProto(
                 ImmutableMap.of(
-                        "foo",
-                        StateEntryValue.newBuilder()
+                        KEY_FOO,
+                        DynamicDataValue.newBuilder()
                                 .setStringVal(FixedString.newBuilder().setValue("baz"))
                                 .build()));
 
@@ -208,8 +211,8 @@ public class StringNodesTest {
         StateStore oss =
                 new StateStore(
                         ImmutableMap.of(
-                                "foo",
-                                StateEntryValue.newBuilder()
+                                KEY_FOO,
+                                DynamicDataValue.newBuilder()
                                         .setStringVal(FixedString.newBuilder().setValue("bar"))
                                         .build()));
 
@@ -223,10 +226,10 @@ public class StringNodesTest {
 
         results.clear();
         node.destroy();
-        oss.setStateEntryValuesProto(
+        oss.setAppStateEntryValuesProto(
                 ImmutableMap.of(
-                        "foo",
-                        StateEntryValue.newBuilder()
+                        KEY_FOO,
+                        DynamicDataValue.newBuilder()
                                 .setStringVal(FixedString.newBuilder().setValue("baz"))
                                 .build()));
         assertThat(results).isEmpty();

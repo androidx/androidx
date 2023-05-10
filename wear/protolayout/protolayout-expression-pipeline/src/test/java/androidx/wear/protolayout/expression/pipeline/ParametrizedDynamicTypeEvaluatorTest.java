@@ -38,11 +38,12 @@ import androidx.wear.protolayout.expression.DynamicBuilders.DynamicInstant;
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32;
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32.IntFormatter;
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicString;
+import androidx.wear.protolayout.expression.AppDataKey;
 import androidx.wear.protolayout.expression.proto.FixedProto.FixedBool;
 import androidx.wear.protolayout.expression.proto.FixedProto.FixedFloat;
 import androidx.wear.protolayout.expression.proto.FixedProto.FixedInt32;
 import androidx.wear.protolayout.expression.proto.FixedProto.FixedString;
-import androidx.wear.protolayout.expression.proto.StateEntryProto.StateEntryValue;
+import androidx.wear.protolayout.expression.proto.DynamicDataProto.DynamicDataValue;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -63,36 +64,38 @@ import java.util.function.BiConsumer;
 public class ParametrizedDynamicTypeEvaluatorTest {
     @ParameterizedRobolectricTestRunner.Parameters(name = "{0}")
     public static ImmutableList<Object[]> params() {
+        AppDataKey<DynamicInt32> int32Source = new AppDataKey<>("state_int_15");
         ParametrizedDynamicTypeEvaluatorTest.TestCase<?>[] testCases = {
             test(constant("hello"), "hello"),
-            test(DynamicString.fromState("state_hello_world"), "hello_world"),
+            test(DynamicString.from(new AppDataKey<>("state_hello_world")), "hello_world"),
             test(DynamicInt32.constant(5).format(), "5"),
             test(DynamicInt32.constant(10), 10),
-            test(DynamicInt32.fromState("state_int_15"), 15),
-            test(DynamicInt32.fromState("state_int_15").plus(DynamicInt32.constant(2)), 17),
-            test(DynamicInt32.fromState("state_int_15").minus(DynamicInt32.constant(5)), 10),
-            test(DynamicInt32.fromState("state_int_15").times(DynamicInt32.constant(2)), 30),
-            test(DynamicInt32.fromState("state_int_15").div(DynamicInt32.constant(3)), 5),
-            test(DynamicInt32.fromState("state_int_15").rem(DynamicInt32.constant(2)), 1),
-            test(DynamicInt32.fromState("state_int_15").plus(2), 17),
-            test(DynamicInt32.fromState("state_int_15").minus(5), 10),
-            test(DynamicInt32.fromState("state_int_15").times(2), 30),
-            test(DynamicInt32.fromState("state_int_15").div(3), 5),
-            test(DynamicInt32.fromState("state_int_15").rem(2), 1),
-            test(DynamicInt32.fromState("state_int_15").plus(2.5f), 17.5f),
-            test(DynamicInt32.fromState("state_int_15").minus(5.5f), 9.5f),
-            test(DynamicInt32.fromState("state_int_15").times(2.5f), 37.5f),
-            test(DynamicInt32.fromState("state_int_15").div(2.0f), 7.5f),
-            test(DynamicInt32.fromState("state_int_15").rem(4.5f), 1.5f),
-            test(DynamicInt32.fromState("state_int_15").plus(DynamicFloat.constant(2.5f)), 17.5f),
-            test(DynamicInt32.fromState("state_int_15").minus(DynamicFloat.constant(5.5f)), 9.5f),
-            test(DynamicInt32.fromState("state_int_15").times(DynamicFloat.constant(2.5f)), 37.5f),
-            test(DynamicInt32.fromState("state_int_15").div(DynamicFloat.constant(2.0f)), 7.5f),
-            test(DynamicInt32.fromState("state_int_15").rem(DynamicFloat.constant(4.5f)), 1.5f),
+            test(DynamicInt32.from(int32Source), 15),
+            test(DynamicInt32.from(int32Source).plus(DynamicInt32.constant(2)), 17),
+            test(DynamicInt32.from(int32Source).minus(DynamicInt32.constant(5)), 10),
+            test(DynamicInt32.from(int32Source).times(DynamicInt32.constant(2)), 30),
+            test(DynamicInt32.from(int32Source).div(DynamicInt32.constant(3)), 5),
+            test(DynamicInt32.from(int32Source).rem(DynamicInt32.constant(2)), 1),
+            test(DynamicInt32.from(int32Source).plus(2), 17),
+            test(DynamicInt32.from(int32Source).minus(5), 10),
+            test(DynamicInt32.from(int32Source).times(2), 30),
+            test(DynamicInt32.from(int32Source).div(3), 5),
+            test(DynamicInt32.from(int32Source).rem(2), 1),
+            test(DynamicInt32.from(int32Source).plus(2.5f), 17.5f),
+            test(DynamicInt32.from(int32Source).minus(5.5f), 9.5f),
+            test(DynamicInt32.from(int32Source).times(2.5f), 37.5f),
+            test(DynamicInt32.from(int32Source).div(2.0f), 7.5f),
+            test(DynamicInt32.from(int32Source).rem(4.5f), 1.5f),
+            test(DynamicInt32.from(int32Source).plus(DynamicFloat.constant(2.5f)), 17.5f),
+            test(DynamicInt32.from(int32Source).minus(DynamicFloat.constant(5.5f)), 9.5f),
+            test(DynamicInt32.from(int32Source).times(DynamicFloat.constant(2.5f)), 37.5f),
+            test(DynamicInt32.from(int32Source).div(DynamicFloat.constant(2.0f)), 7.5f),
+            test(DynamicInt32.from(int32Source).rem(DynamicFloat.constant(4.5f)), 1.5f),
             test(DynamicFloat.constant(5.0f), 5.0f),
             testForInvalidValue(DynamicFloat.constant(Float.NaN)),
             testForInvalidValue(DynamicFloat.constant(Float.NaN).plus(5.0f)),
-            test(DynamicFloat.fromState("state_float_1.5"), 1.5f),
+            test(DynamicFloat.from(
+                    new AppDataKey<>("state_float_1.5")), 1.5f),
             test(DynamicFloat.constant(1234.567f).asInt(), 1234),
             test(DynamicFloat.constant(0.967f).asInt(), 0),
             test(DynamicFloat.constant(-1234.967f).asInt(), -1235),
@@ -146,9 +149,11 @@ public class ParametrizedDynamicTypeEvaluatorTest {
             test(DynamicBool.constant(true).or(DynamicBool.constant(false)), true),
             test(DynamicBool.constant(false).or(DynamicBool.constant(true)), true),
             test(DynamicBool.constant(false).or(DynamicBool.constant(false)), false),
-            test(DynamicBool.fromState("state_bool_true"), true),
+            test(DynamicBool.from(
+                    new AppDataKey<>("state_bool_true")), true),
             test(DynamicBool.constant(false), false),
-            test(DynamicBool.fromState("state_bool_false"), false),
+            test(DynamicBool.from(
+                    new AppDataKey<>("state_bool_false")), false),
             test(DynamicInt32.constant(5).eq(DynamicInt32.constant(5)), true),
             test(DynamicInt32.constant(5).eq(DynamicInt32.constant(6)), false),
             test(DynamicInt32.constant(5).ne(DynamicInt32.constant(5)), false),
@@ -204,7 +209,8 @@ public class ParametrizedDynamicTypeEvaluatorTest {
                             .elseUse(constant("World")),
                     "World"),
             test(
-                    DynamicString.fromState("state_hello_world")
+                    DynamicString.from(
+                            new AppDataKey<>("state_hello_world"))
                             .concat(DynamicString.constant("_test")),
                     "hello_world_test"),
             test(
@@ -504,26 +510,26 @@ public class ParametrizedDynamicTypeEvaluatorTest {
         return DynamicDuration.withSecondsPrecision(Duration.ofSeconds(seconds));
     }
 
-    private static ImmutableMap<String, StateEntryValue> generateExampleState() {
+    private static ImmutableMap<AppDataKey<?>, DynamicDataValue> generateExampleState() {
         return ImmutableMap.of(
-                "state_hello_world",
-                StateEntryValue.newBuilder()
+                new AppDataKey<DynamicString>("state_hello_world"),
+                DynamicDataValue.newBuilder()
                         .setStringVal(FixedString.newBuilder().setValue("hello_world"))
                         .build(),
-                "state_int_15",
-                StateEntryValue.newBuilder()
+                new AppDataKey<DynamicInt32>("state_int_15"),
+                DynamicDataValue.newBuilder()
                         .setInt32Val(FixedInt32.newBuilder().setValue(15))
                         .build(),
-                "state_float_1.5",
-                StateEntryValue.newBuilder()
+                new AppDataKey<DynamicFloat>("state_float_1.5"),
+                DynamicDataValue.newBuilder()
                         .setFloatVal(FixedFloat.newBuilder().setValue(1.5f))
                         .build(),
-                "state_bool_true",
-                StateEntryValue.newBuilder()
+                new AppDataKey<DynamicBool>("state_bool_true"),
+                DynamicDataValue.newBuilder()
                         .setBoolVal(FixedBool.newBuilder().setValue(true))
                         .build(),
-                "state_bool_false",
-                StateEntryValue.newBuilder()
+                new AppDataKey<DynamicBool>("state_bool_false"),
+                DynamicDataValue.newBuilder()
                         .setBoolVal(FixedBool.newBuilder().setValue(false))
                         .build());
     }

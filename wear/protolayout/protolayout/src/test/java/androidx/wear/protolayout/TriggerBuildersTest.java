@@ -19,6 +19,7 @@ package androidx.wear.protolayout;
 import static com.google.common.truth.Truth.assertThat;
 
 import androidx.wear.protolayout.expression.DynamicBuilders;
+import androidx.wear.protolayout.expression.AppDataKey;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -37,7 +38,8 @@ public class TriggerBuildersTest {
 
     @Test
     public void onConditionTrigger() {
-        DynamicBuilders.DynamicBool condition = DynamicBuilders.DynamicBool.fromState("state");
+        DynamicBuilders.DynamicBool condition =
+                DynamicBuilders.DynamicBool.from(new AppDataKey<>("state"));
 
         TriggerBuilders.Trigger onConditionMetTrigger =
                 TriggerBuilders.createOnConditionMetTrigger(

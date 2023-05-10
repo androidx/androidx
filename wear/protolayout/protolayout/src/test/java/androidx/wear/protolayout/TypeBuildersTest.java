@@ -21,6 +21,7 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
 
 import androidx.wear.protolayout.expression.DynamicBuilders;
+import androidx.wear.protolayout.expression.AppDataKey;
 import androidx.wear.protolayout.proto.TypesProto;
 
 import org.junit.Test;
@@ -29,13 +30,17 @@ public class TypeBuildersTest {
     private static final String STATE_KEY = "state-key";
     private static final TypeBuilders.StringProp STRING_PROP =
             new TypeBuilders.StringProp.Builder("string")
-                    .setDynamicValue(DynamicBuilders.DynamicString.fromState(STATE_KEY))
+                    .setDynamicValue(
+                            DynamicBuilders.DynamicString.from(
+                                    new AppDataKey<>(STATE_KEY)))
                     .build();
 
     @SuppressWarnings("deprecation")
     private static final TypeBuilders.StringProp.Builder STRING_PROP_BUILDER_WITHOUT_STATIC_VALUE =
             new TypeBuilders.StringProp.Builder()
-                    .setDynamicValue(DynamicBuilders.DynamicString.fromState(STATE_KEY));
+                    .setDynamicValue(
+                            DynamicBuilders.DynamicString.from(
+                                    new AppDataKey<>(STATE_KEY)));
 
     @Test
     public void stringPropSupportsDynamicString() {
