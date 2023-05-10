@@ -15,11 +15,6 @@
  */
 package androidx.wear.compose.material
 
-import androidx.wear.compose.foundation.lazy.ScalingLazyColumn as ScalingLazyColumn
-import androidx.wear.compose.foundation.lazy.ScalingParams as ScalingParams
-import androidx.wear.compose.foundation.lazy.ScalingLazyColumnDefaults as ScalingLazyColumnDefaults
-import androidx.wear.compose.foundation.lazy.AutoCenteringParams as AutoCenteringParams
-import androidx.wear.compose.foundation.lazy.ScalingLazyListState as ScalingLazyListState
 import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.DecayAnimationSpec
 import androidx.compose.animation.core.Easing
@@ -64,6 +59,11 @@ import androidx.compose.ui.semantics.scrollToIndex
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.wear.compose.foundation.lazy.AutoCenteringParams as AutoCenteringParams
+import androidx.wear.compose.foundation.lazy.ScalingLazyColumn as ScalingLazyColumn
+import androidx.wear.compose.foundation.lazy.ScalingLazyColumnDefaults as ScalingLazyColumnDefaults
+import androidx.wear.compose.foundation.lazy.ScalingLazyListState as ScalingLazyListState
+import androidx.wear.compose.foundation.lazy.ScalingParams as ScalingParams
 import kotlinx.coroutines.launch
 
 /**

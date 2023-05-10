@@ -33,12 +33,12 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import com.google.common.truth.Truth.assertThat
-import org.mockito.kotlin.mock
-import org.mockito.kotlin.whenever
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.whenever
 
 @RunWith(JUnit4::class)
 class TextLayoutHelperTest {

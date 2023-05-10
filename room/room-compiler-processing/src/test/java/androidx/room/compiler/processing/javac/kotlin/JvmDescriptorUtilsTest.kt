@@ -24,9 +24,6 @@ import com.google.testing.compile.JavaSourcesSubjectFactory
 import com.squareup.javapoet.ArrayTypeName
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.TypeName
-import org.junit.Test
-import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
 import javax.annotation.processing.AbstractProcessor
 import javax.annotation.processing.RoundEnvironment
 import javax.lang.model.element.ElementKind.CONSTRUCTOR
@@ -34,6 +31,9 @@ import javax.lang.model.element.ElementKind.FIELD
 import javax.lang.model.element.ElementKind.METHOD
 import javax.lang.model.element.TypeElement
 import javax.tools.JavaFileObject
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
 class JvmDescriptorUtilsTest {

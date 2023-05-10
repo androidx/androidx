@@ -27,11 +27,11 @@ import com.android.tools.lint.detector.api.Scope
 import com.android.tools.lint.detector.api.Severity
 import com.android.tools.lint.detector.api.SourceCodeScanner
 import com.intellij.psi.PsiMethod
+import java.util.EnumSet
+import java.util.concurrent.TimeUnit
 import org.jetbrains.kotlin.name.ClassId
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.uast.UCallExpression
-import java.util.EnumSet
-import java.util.concurrent.TimeUnit
 
 /**
  * Ensures a valid interval duration for a `PeriodicWorkRequest`.

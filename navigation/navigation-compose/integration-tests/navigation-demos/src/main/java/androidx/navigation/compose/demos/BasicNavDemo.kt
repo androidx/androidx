@@ -16,8 +16,8 @@
 
 package androidx.navigation.compose.demos
 
-import androidx.navigation.compose.samples.BasicNav
 import androidx.compose.runtime.Composable
+import androidx.navigation.compose.samples.BasicNav
 
 @Composable
 fun BasicNavDemo() {

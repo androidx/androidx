@@ -21,11 +21,11 @@ import android.view.View
 import androidx.recyclerview.widget.RecyclerView.HORIZONTAL
 import androidx.recyclerview.widget.RecyclerView.VERTICAL
 import androidx.test.filters.MediumTest
+import java.util.ArrayList
 import org.junit.Assert
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
-import java.util.ArrayList
 
 // Number of items that fit in RecyclerView's viewport
 private const val n = 4

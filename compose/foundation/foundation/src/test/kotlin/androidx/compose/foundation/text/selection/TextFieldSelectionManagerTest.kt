@@ -16,8 +16,8 @@
 
 package androidx.compose.foundation.text.selection
 
-import androidx.compose.foundation.text.InternalFoundationTextApi
 import androidx.compose.foundation.text.HandleState
+import androidx.compose.foundation.text.InternalFoundationTextApi
 import androidx.compose.foundation.text.TextFieldState
 import androidx.compose.foundation.text.TextLayoutResultProxy
 import androidx.compose.ui.focus.FocusRequester
@@ -45,6 +45,11 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.util.packInts
 import com.google.common.truth.Truth.assertThat
+import org.junit.Before
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
+import org.mockito.invocation.InvocationOnMock
 import org.mockito.kotlin.any
 import org.mockito.kotlin.anyOrNull
 import org.mockito.kotlin.isNull
@@ -53,11 +58,6 @@ import org.mockito.kotlin.spy
 import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
-import org.junit.Before
-import org.junit.Test
-import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
-import org.mockito.invocation.InvocationOnMock
 import org.mockito.stubbing.Answer
 
 @RunWith(JUnit4::class)

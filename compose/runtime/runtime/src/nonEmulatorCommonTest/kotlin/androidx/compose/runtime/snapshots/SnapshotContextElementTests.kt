@@ -19,12 +19,12 @@ package androidx.compose.runtime.snapshots
 import androidx.compose.runtime.ExperimentalComposeApi
 import kotlin.test.Test
 import kotlin.test.assertSame
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
-import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.withContext
 
 @OptIn(ExperimentalComposeApi::class, ExperimentalCoroutinesApi::class)
 class SnapshotContextElementTests {

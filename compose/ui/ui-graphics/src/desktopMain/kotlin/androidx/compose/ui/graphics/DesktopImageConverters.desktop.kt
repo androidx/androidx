@@ -25,9 +25,6 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
-import org.jetbrains.skia.Bitmap
-import org.jetbrains.skia.ColorAlphaType
-import org.jetbrains.skia.ImageInfo
 import java.awt.Graphics
 import java.awt.Image
 import java.awt.Point
@@ -42,6 +39,9 @@ import java.awt.image.MultiResolutionImage
 import java.awt.image.Raster
 import java.awt.image.SinglePixelPackedSampleModel
 import kotlin.math.roundToInt
+import org.jetbrains.skia.Bitmap
+import org.jetbrains.skia.ColorAlphaType
+import org.jetbrains.skia.ImageInfo
 
 /**
  * Convert AWT [BufferedImage] to Compose [Painter], so it would be possible to pass it to Compose

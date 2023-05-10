@@ -31,8 +31,8 @@ import androidx.health.services.client.data.ExerciseConfig
 import androidx.health.services.client.data.ExerciseLapSummary
 import androidx.health.services.client.data.ExerciseType
 import androidx.health.services.client.data.ExerciseUpdate
-import androidx.health.services.client.data.WarmUpConfig
 import androidx.health.services.client.data.GolfExerciseTypeConfig
+import androidx.health.services.client.data.WarmUpConfig
 import androidx.health.services.client.impl.event.ExerciseUpdateListenerEvent
 import androidx.health.services.client.impl.internal.IExerciseInfoCallback
 import androidx.health.services.client.impl.internal.IStatusCallback

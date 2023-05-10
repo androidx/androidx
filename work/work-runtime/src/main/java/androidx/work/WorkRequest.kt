@@ -20,8 +20,8 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
-import androidx.work.impl.utils.toMillisCompat
 import androidx.work.impl.model.WorkSpec
+import androidx.work.impl.utils.toMillisCompat
 import java.time.Duration
 import java.util.UUID
 import java.util.concurrent.TimeUnit

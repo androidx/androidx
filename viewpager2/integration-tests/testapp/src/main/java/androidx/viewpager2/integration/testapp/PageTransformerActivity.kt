@@ -19,8 +19,8 @@ package androidx.viewpager2.integration.testapp
 import android.os.Bundle
 import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.integration.testapp.cards.CardViewAdapter
-import androidx.viewpager2.widget.ViewPager2
 import androidx.viewpager2.widget.MarginPageTransformer
+import androidx.viewpager2.widget.ViewPager2
 
 /**
  * Shows examples of [ViewPager2.PageTransformer], e.g. [MarginPageTransformer].

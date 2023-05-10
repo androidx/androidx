@@ -17,8 +17,8 @@
 package androidx.compose.ui.res.vector
 
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathFillType
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.StrokeCap
@@ -36,9 +36,9 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.addPathNodes
 import androidx.compose.ui.res.vector.BuildContext.Group
 import androidx.compose.ui.unit.Density
+import java.util.LinkedList
 import org.w3c.dom.Element
 import org.w3c.dom.Node
-import java.util.LinkedList
 
 //  Parsing logic is the same as in Android implementation
 //  (compose/ui/ui/src/androidMain/kotlin/androidx/compose/ui/graphics/vector/compat/XmlVectorParser.kt)

@@ -18,9 +18,9 @@ package androidx.room
 
 import androidx.kruth.assertThat
 import com.google.common.reflect.ClassPath
-import org.junit.Test
 import java.lang.annotation.Retention
 import java.lang.annotation.RetentionPolicy
+import org.junit.Test
 
 /** Test to make sure annotations have the correct retention policy. */
 class AnnotationRetentionPolicyTest {

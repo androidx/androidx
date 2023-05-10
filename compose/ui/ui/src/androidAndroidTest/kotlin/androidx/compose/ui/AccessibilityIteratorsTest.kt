@@ -42,11 +42,11 @@ import androidx.compose.ui.unit.sp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth
+import java.util.Locale
+import kotlin.math.abs
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.util.Locale
-import kotlin.math.abs
 
 @LargeTest
 @RunWith(AndroidJUnit4::class)

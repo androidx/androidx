@@ -65,14 +65,14 @@ import androidx.compose.ui.unit.round
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
+import kotlin.math.roundToInt
 import kotlinx.coroutines.runBlocking
 import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import org.junit.runners.Parameterized
-import kotlin.math.roundToInt
 import org.junit.runner.RunWith
+import org.junit.runners.Parameterized
 
 @LargeTest
 @RunWith(Parameterized::class)

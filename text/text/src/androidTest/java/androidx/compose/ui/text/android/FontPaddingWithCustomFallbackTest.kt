@@ -12,12 +12,12 @@ import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.testutils.fonts.R
 import com.google.common.truth.Truth.assertThat
+import org.junit.Test
+import org.junit.runner.RunWith
 import org.mockito.kotlin.any
 import org.mockito.kotlin.spy
 import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
-import org.junit.Test
-import org.junit.runner.RunWith
 
 @OptIn(InternalPlatformTextApi::class)
 @RunWith(AndroidJUnit4::class)

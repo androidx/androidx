@@ -28,9 +28,9 @@ import androidx.paging.samples.shared.RemoteKey
 import androidx.paging.samples.shared.RoomDb
 import androidx.paging.samples.shared.User
 import androidx.room.withTransaction
-import retrofit2.HttpException
 import java.io.IOException
 import java.util.concurrent.TimeUnit
+import retrofit2.HttpException
 
 private interface ItemDao {
     fun withTransaction(block: () -> Any)

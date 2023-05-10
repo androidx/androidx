@@ -17,12 +17,12 @@
 package androidx.build
 
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+import java.io.File
 import org.gradle.api.Project
+import org.gradle.api.Task
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.tasks.TaskProvider
 import org.gradle.jvm.tasks.Jar
-import java.io.File
-import org.gradle.api.Task
 import org.gradle.kotlin.dsl.findByType
 import org.gradle.kotlin.dsl.get
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension

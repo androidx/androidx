@@ -18,6 +18,7 @@ package androidx.window.embedding
 
 import android.app.Activity
 import androidx.annotation.VisibleForTesting
+import androidx.window.SafeWindowExtensionsProvider
 import androidx.window.core.ConsumerAdapter
 import androidx.window.core.ExtensionsUtil
 import androidx.window.extensions.WindowExtensions
@@ -27,7 +28,6 @@ import androidx.window.extensions.embedding.ActivityEmbeddingComponent
 import androidx.window.reflection.ReflectionUtils.doesReturn
 import androidx.window.reflection.ReflectionUtils.isPublic
 import androidx.window.reflection.ReflectionUtils.validateReflection
-import androidx.window.SafeWindowExtensionsProvider
 import androidx.window.reflection.WindowExtensionsConstants.ACTIVITY_EMBEDDING_COMPONENT_CLASS
 
 /**

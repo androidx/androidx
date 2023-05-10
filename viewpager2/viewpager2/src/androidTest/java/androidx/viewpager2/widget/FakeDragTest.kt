@@ -35,17 +35,11 @@ import androidx.viewpager2.widget.FakeDragTest.Event.OnPageSelectedEvent
 import androidx.viewpager2.widget.FakeDragTest.TestConfig
 import androidx.viewpager2.widget.ViewPager2.ORIENTATION_HORIZONTAL
 import androidx.viewpager2.widget.ViewPager2.ORIENTATION_VERTICAL
+import androidx.viewpager2.widget.ViewPager2.SCROLL_STATE_DRAGGING as DRAGGING
+import androidx.viewpager2.widget.ViewPager2.SCROLL_STATE_IDLE as IDLE
+import androidx.viewpager2.widget.ViewPager2.SCROLL_STATE_SETTLING as SETTLING
 import androidx.viewpager2.widget.swipe.PageSwiperFakeDrag
 import androidx.viewpager2.widget.swipe.PageSwiperManual
-import org.hamcrest.CoreMatchers.equalTo
-import org.hamcrest.CoreMatchers.notNullValue
-import org.hamcrest.Matchers.greaterThan
-import org.hamcrest.MatcherAssert.assertThat
-import org.junit.Assume.assumeThat
-import org.junit.Ignore
-import org.junit.Test
-import org.junit.runner.RunWith
-import org.junit.runners.Parameterized
 import java.lang.reflect.Field
 import java.lang.reflect.Method
 import java.util.concurrent.CountDownLatch
@@ -54,9 +48,15 @@ import java.util.concurrent.TimeUnit.MILLISECONDS
 import java.util.concurrent.TimeUnit.SECONDS
 import kotlin.math.min
 import kotlin.math.roundToInt
-import androidx.viewpager2.widget.ViewPager2.SCROLL_STATE_DRAGGING as DRAGGING
-import androidx.viewpager2.widget.ViewPager2.SCROLL_STATE_IDLE as IDLE
-import androidx.viewpager2.widget.ViewPager2.SCROLL_STATE_SETTLING as SETTLING
+import org.hamcrest.CoreMatchers.equalTo
+import org.hamcrest.CoreMatchers.notNullValue
+import org.hamcrest.MatcherAssert.assertThat
+import org.hamcrest.Matchers.greaterThan
+import org.junit.Assume.assumeThat
+import org.junit.Ignore
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.Parameterized
 
 @RunWith(Parameterized::class)
 @LargeTest

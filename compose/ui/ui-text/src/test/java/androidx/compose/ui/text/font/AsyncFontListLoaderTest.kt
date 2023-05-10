@@ -18,6 +18,9 @@ package androidx.compose.ui.text.font
 
 import androidx.compose.ui.text.ExperimentalTextApi
 import com.google.common.truth.Truth.assertThat
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
+import kotlin.coroutines.coroutineContext
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.runBlocking
@@ -25,9 +28,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import org.mockito.Mockito.mock
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
-import kotlin.coroutines.coroutineContext
 
 @ExperimentalTextApi
 @RunWith(JUnit4::class)

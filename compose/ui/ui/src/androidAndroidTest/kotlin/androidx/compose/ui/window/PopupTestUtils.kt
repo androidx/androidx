@@ -34,11 +34,11 @@ import androidx.compose.ui.unit.constrain
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.Root
 import androidx.test.espresso.assertion.ViewAssertions
+import kotlin.math.max
 import org.hamcrest.CoreMatchers
 import org.hamcrest.Description
 import org.hamcrest.Matcher
 import org.hamcrest.TypeSafeMatcher
-import kotlin.math.max
 
 // TODO(b/139861182): Remove all of this and provide helpers on rule
 internal fun ComposeTestRule.popupMatches(popupTestTag: String, viewMatcher: Matcher<in View>) {

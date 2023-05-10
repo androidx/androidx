@@ -18,6 +18,7 @@ package androidx.compose.ui.graphics
 
 import android.graphics.PorterDuff
 import android.os.Build
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import org.junit.Assert.assertEquals
@@ -25,7 +26,6 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
-import androidx.test.ext.junit.runners.AndroidJUnit4
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)

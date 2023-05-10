@@ -18,8 +18,8 @@ package androidx.paging.testing
 
 import androidx.paging.InvalidatingPagingSourceFactory
 import androidx.paging.LoadType.REFRESH
-import androidx.paging.PagingSource
 import androidx.paging.Pager
+import androidx.paging.PagingSource
 import androidx.paging.PagingSourceFactory
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow

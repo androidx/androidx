@@ -17,8 +17,8 @@
 package androidx.wear.compose.integration.demos
 
 import androidx.wear.compose.foundation.samples.CurvedAndNormalText
-import androidx.wear.compose.foundation.samples.CurvedBottomLayout
 import androidx.wear.compose.foundation.samples.CurvedBackground
+import androidx.wear.compose.foundation.samples.CurvedBottomLayout
 import androidx.wear.compose.foundation.samples.CurvedFixedSize
 import androidx.wear.compose.foundation.samples.CurvedFontWeight
 import androidx.wear.compose.foundation.samples.CurvedFonts

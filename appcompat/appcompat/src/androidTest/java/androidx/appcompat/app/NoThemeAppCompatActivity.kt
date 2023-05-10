@@ -17,7 +17,6 @@
 package androidx.appcompat.app
 
 import android.os.Bundle
-
 import androidx.appcompat.test.R
 
 class NoThemeAppCompatActivity : AppCompatActivity() {

@@ -32,8 +32,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.wear.compose.material.CompactChip
 import androidx.wear.compose.material.CircularProgressIndicator
+import androidx.wear.compose.material.CompactChip
 import androidx.wear.compose.material.ProgressIndicatorDefaults
 import androidx.wear.compose.material.Text
 

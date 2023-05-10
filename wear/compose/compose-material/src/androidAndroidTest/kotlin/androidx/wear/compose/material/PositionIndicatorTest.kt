@@ -16,13 +16,6 @@
 
 package androidx.wear.compose.material
 
-import androidx.wear.compose.foundation.lazy.ScalingLazyListLayoutInfo as ScalingLazyListLayoutInfo
-import androidx.wear.compose.foundation.lazy.ScalingLazyListState as ScalingLazyListState
-import androidx.wear.compose.foundation.lazy.rememberScalingLazyListState as rememberScalingLazyListState
-import androidx.wear.compose.foundation.lazy.ScalingLazyColumn as ScalingLazyColumn
-import androidx.wear.compose.foundation.lazy.ScalingLazyColumnDefaults as ScalingLazyColumnDefaults
-import androidx.wear.compose.foundation.lazy.AutoCenteringParams as AutoCenteringParams
-import androidx.wear.compose.foundation.lazy.ScalingLazyListScope as ScalingLazyListScope
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
@@ -55,6 +48,13 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import androidx.wear.compose.foundation.lazy.AutoCenteringParams as AutoCenteringParams
+import androidx.wear.compose.foundation.lazy.ScalingLazyColumn as ScalingLazyColumn
+import androidx.wear.compose.foundation.lazy.ScalingLazyColumnDefaults as ScalingLazyColumnDefaults
+import androidx.wear.compose.foundation.lazy.ScalingLazyListLayoutInfo as ScalingLazyListLayoutInfo
+import androidx.wear.compose.foundation.lazy.ScalingLazyListScope as ScalingLazyListScope
+import androidx.wear.compose.foundation.lazy.ScalingLazyListState as ScalingLazyListState
+import androidx.wear.compose.foundation.lazy.rememberScalingLazyListState as rememberScalingLazyListState
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.runBlocking
 import org.junit.Before

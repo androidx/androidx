@@ -23,7 +23,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
-
 import androidx.bluetooth.integration.testapp.R
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.DiffUtil

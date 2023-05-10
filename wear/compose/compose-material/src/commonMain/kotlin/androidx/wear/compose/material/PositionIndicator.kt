@@ -16,10 +16,6 @@
 
 package androidx.wear.compose.material
 
-import androidx.wear.compose.foundation.lazy.ScalingLazyListState as ScalingLazyListState
-import androidx.wear.compose.foundation.lazy.ScalingLazyColumn as ScalingLazyColumn
-import androidx.wear.compose.foundation.lazy.ScalingLazyListItemInfo as ScalingLazyListItemInfo
-import androidx.wear.compose.foundation.lazy.ScalingLazyListAnchorType as ScalingLazyListAnchorType
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.AnimationVector
@@ -74,6 +70,10 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.wear.compose.foundation.lazy.ScalingLazyColumn as ScalingLazyColumn
+import androidx.wear.compose.foundation.lazy.ScalingLazyListAnchorType as ScalingLazyListAnchorType
+import androidx.wear.compose.foundation.lazy.ScalingLazyListItemInfo as ScalingLazyListItemInfo
+import androidx.wear.compose.foundation.lazy.ScalingLazyListState as ScalingLazyListState
 import kotlin.math.PI
 import kotlin.math.asin
 import kotlin.math.max

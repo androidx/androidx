@@ -17,18 +17,16 @@
 package androidx.tv.foundation.lazy.grid
 
 import androidx.compose.foundation.focusable
+import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.ScrollableState
 import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.ui.input.key.NativeKeyEvent
-import androidx.tv.foundation.lazy.list.TestTouchSlop
-import androidx.tv.foundation.lazy.list.setContentWithTestViewConfiguration
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
@@ -36,6 +34,8 @@ import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import androidx.tv.foundation.lazy.list.TestTouchSlop
+import androidx.tv.foundation.lazy.list.setContentWithTestViewConfiguration
 import com.google.common.truth.Truth
 import kotlinx.coroutines.runBlocking
 import org.junit.Rule

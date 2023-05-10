@@ -16,11 +16,11 @@
 
 package androidx.wear.tiles.tooling
 
-import androidx.wear.tiles.tooling.test.R
 import android.app.Activity
 import android.os.Bundle
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.wear.tiles.tooling.test.R
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Before

@@ -24,19 +24,19 @@ import androidx.annotation.RequiresApi
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.window.TestActivity
 import androidx.window.TestConsumer
+import androidx.window.WindowTestUtils.Companion.assumeAtLeastVendorApiLevel
 import androidx.window.core.ExperimentalWindowApi
 import androidx.window.extensions.area.WindowAreaComponent
 import androidx.window.extensions.core.util.function.Consumer
-import androidx.window.WindowTestUtils.Companion.assumeAtLeastVendorApiLevel
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.launch
-import org.junit.Rule
-import org.junit.Test
 import kotlin.test.assertFailsWith
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
+import org.junit.Rule
+import org.junit.Test
 
 @OptIn(ExperimentalCoroutinesApi::class, ExperimentalWindowApi::class)
 class WindowAreaControllerImplTest {

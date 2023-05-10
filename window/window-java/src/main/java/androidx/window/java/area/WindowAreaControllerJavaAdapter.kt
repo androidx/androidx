@@ -18,18 +18,18 @@ package androidx.window.java.area
 
 import android.app.Activity
 import androidx.core.util.Consumer
+import androidx.window.area.WindowAreaController
 import androidx.window.area.WindowAreaSessionCallback
 import androidx.window.area.WindowAreaStatus
-import androidx.window.area.WindowAreaController
 import androidx.window.core.ExperimentalWindowApi
+import java.util.concurrent.Executor
+import java.util.concurrent.locks.ReentrantLock
+import kotlin.concurrent.withLock
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
-import java.util.concurrent.Executor
-import java.util.concurrent.locks.ReentrantLock
-import kotlin.concurrent.withLock
 
 /**
  * An adapted interface for [WindowAreaController] that provides the information and

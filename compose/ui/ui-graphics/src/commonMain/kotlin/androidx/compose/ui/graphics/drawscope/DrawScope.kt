@@ -16,8 +16,8 @@
 
 package androidx.compose.ui.graphics.drawscope
 
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.geometry.center
 import androidx.compose.ui.graphics.BlendMode
@@ -35,12 +35,12 @@ import androidx.compose.ui.graphics.PointMode
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.degrees
+import androidx.compose.ui.graphics.internal.JvmDefaultWithCompatibility
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.center
-import androidx.compose.ui.graphics.internal.JvmDefaultWithCompatibility
 
 /**
  * Simultaneously translate the [DrawScope] coordinate space by [left] and [top] as well as modify

@@ -17,9 +17,9 @@
 package androidx.room.compiler.processing.util
 
 import com.google.testing.compile.JavaFileObjects
-import org.intellij.lang.annotations.Language
 import java.io.File
 import javax.tools.JavaFileObject
+import org.intellij.lang.annotations.Language
 
 /**
  * Common abstraction for test sources in kotlin and java

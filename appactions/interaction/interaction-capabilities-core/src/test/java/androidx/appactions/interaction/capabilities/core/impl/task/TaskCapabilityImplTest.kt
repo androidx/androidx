@@ -58,8 +58,8 @@ import androidx.appactions.interaction.proto.AppActionsContext.IntentParameter
 import androidx.appactions.interaction.proto.CurrentValue
 import androidx.appactions.interaction.proto.DisambiguationData
 import androidx.appactions.interaction.proto.Entity
-import androidx.appactions.interaction.proto.FulfillmentRequest.Fulfillment.Type.CANCEL
 import androidx.appactions.interaction.proto.FulfillmentRequest.Fulfillment.Type
+import androidx.appactions.interaction.proto.FulfillmentRequest.Fulfillment.Type.CANCEL
 import androidx.appactions.interaction.proto.FulfillmentRequest.Fulfillment.Type.SYNC
 import androidx.appactions.interaction.proto.FulfillmentRequest.Fulfillment.Type.UNKNOWN_TYPE
 import androidx.appactions.interaction.proto.FulfillmentResponse.StructuredOutput

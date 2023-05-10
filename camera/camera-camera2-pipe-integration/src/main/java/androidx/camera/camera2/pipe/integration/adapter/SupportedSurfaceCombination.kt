@@ -28,8 +28,8 @@ import android.hardware.display.DisplayManager
 import android.media.CamcorderProfile
 import android.media.MediaRecorder
 import android.os.Build
-import android.util.Rational
 import android.util.Pair
+import android.util.Rational
 import android.util.Size
 import android.view.Display
 import androidx.annotation.RequiresApi

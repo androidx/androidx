@@ -18,15 +18,15 @@ package androidx.lifecycle
 
 import androidx.testutils.gradle.ProjectSetupRule
 import com.google.common.truth.Truth.assertThat
+import java.io.File
+import java.nio.file.Files
+import java.nio.file.Path
 import org.gradle.testkit.runner.GradleRunner
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import java.io.File
-import java.nio.file.Files
-import java.nio.file.Path
 
 @RunWith(JUnit4::class)
 class IncrementalAnnotationProcessingTest {

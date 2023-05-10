@@ -27,12 +27,12 @@ import androidx.datastore.rxjava2.RxDataMigration
 import androidx.datastore.rxjava2.RxDataStore
 import io.reactivex.Scheduler
 import io.reactivex.schedulers.Schedulers
+import java.io.File
+import java.util.concurrent.Callable
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.rx2.asCoroutineDispatcher
 import kotlinx.coroutines.rx2.await
-import java.io.File
-import java.util.concurrent.Callable
 
 /**
  * Builder for a Preferences RxDataStore that works on a single process.

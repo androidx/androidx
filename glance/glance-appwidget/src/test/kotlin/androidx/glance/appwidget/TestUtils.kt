@@ -42,13 +42,13 @@ import androidx.glance.GlanceId
 import androidx.glance.session.GlobalSnapshotManager
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.currentCoroutineContext
-import kotlinx.coroutines.launch
 import java.util.Locale
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.test.assertIs
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 
 internal suspend fun runTestingComposition(
     content: @Composable @GlanceComposable () -> Unit,

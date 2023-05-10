@@ -39,12 +39,12 @@ import com.android.build.api.variant.LibraryAndroidComponentsExtension
 import com.android.build.api.variant.TestAndroidComponentsExtension
 import com.android.build.api.variant.Variant
 import com.android.build.gradle.BaseExtension
-import java.io.File
-import org.gradle.api.Project
 import com.android.build.gradle.TestExtension
 import com.android.build.gradle.internal.attributes.VariantAttr
 import com.android.build.gradle.internal.publishing.AndroidArtifacts
 import com.android.build.gradle.internal.publishing.AndroidArtifacts.ArtifactType
+import java.io.File
+import org.gradle.api.Project
 import org.gradle.api.attributes.Usage
 import org.gradle.api.tasks.TaskProvider
 import org.gradle.kotlin.dsl.getByType

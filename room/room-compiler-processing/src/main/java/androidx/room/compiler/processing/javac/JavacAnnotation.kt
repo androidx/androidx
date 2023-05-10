@@ -18,9 +18,9 @@ package androidx.room.compiler.processing.javac
 
 import androidx.room.compiler.processing.InternalXAnnotation
 import androidx.room.compiler.processing.XAnnotationBox
+import androidx.room.compiler.processing.XAnnotationValue
 import androidx.room.compiler.processing.XNullability
 import androidx.room.compiler.processing.XType
-import androidx.room.compiler.processing.XAnnotationValue
 import androidx.room.compiler.processing.compat.XConverters.toXProcessing
 import com.google.auto.common.AnnotationMirrors
 import com.google.auto.common.MoreTypes

@@ -17,9 +17,9 @@
 package androidx.compose.foundation.text.selection
 
 import androidx.compose.foundation.AtomicLong
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.layout.LayoutCoordinates
 

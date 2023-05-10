@@ -33,6 +33,7 @@ import com.android.tools.lint.detector.api.Scope
 import com.android.tools.lint.detector.api.Severity
 import com.android.tools.lint.detector.api.SourceCodeScanner
 import com.intellij.psi.impl.compiled.ClsMethodImpl
+import java.util.EnumSet
 import kotlinx.metadata.KmClassifier
 import org.jetbrains.kotlin.psi.KtNamedFunction
 import org.jetbrains.uast.UCallExpression
@@ -40,7 +41,6 @@ import org.jetbrains.uast.UMethod
 import org.jetbrains.uast.UTypeReferenceExpression
 import org.jetbrains.uast.resolveToUElement
 import org.jetbrains.uast.toUElement
-import java.util.EnumSet
 
 /**
  * [Detector] that checks calls to Flow operator functions (such as map) to make sure they don't

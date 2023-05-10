@@ -15,13 +15,13 @@
  */
 package androidx.wear.compose.material
 
+import androidx.compose.foundation.text.selection.TextSelectionColors
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.takeOrElse
-import androidx.compose.foundation.text.selection.TextSelectionColors
 import kotlin.math.max
 import kotlin.math.min
 

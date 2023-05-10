@@ -19,7 +19,6 @@
 package sample.experimental
 
 import androidx.annotation.experimental.UseExperimental
-
 import sample.experimental.foo.Bar
 import sample.experimental.foo.ExperimentalPackage
 

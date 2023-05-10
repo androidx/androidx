@@ -25,8 +25,8 @@ import androidx.compose.material.catalog.library.util.SampleSourceUrl
 import androidx.compose.material.samples.AlertDialogSample
 import androidx.compose.material.samples.BackdropScaffoldSample
 import androidx.compose.material.samples.BottomDrawerSample
-import androidx.compose.material.samples.BottomNavigationSample
 import androidx.compose.material.samples.BottomNavigationItemWithBadge
+import androidx.compose.material.samples.BottomNavigationSample
 import androidx.compose.material.samples.BottomNavigationWithOnlySelectedLabelsSample
 import androidx.compose.material.samples.BottomSheetScaffoldSample
 import androidx.compose.material.samples.ButtonSample

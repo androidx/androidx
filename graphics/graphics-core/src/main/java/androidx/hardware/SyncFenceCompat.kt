@@ -22,8 +22,8 @@ import android.opengl.GLES20
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.graphics.lowlatency.FrontBufferUtils
-import androidx.opengl.EGLExt
 import androidx.graphics.surface.SurfaceControlCompat
+import androidx.opengl.EGLExt
 import androidx.opengl.EGLSyncKHR
 
 /**

@@ -20,13 +20,13 @@ import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.ImeAction.Companion.Default
-import androidx.compose.ui.text.input.ImeAction.Companion.None
+import androidx.compose.ui.text.input.ImeAction.Companion.Done
 import androidx.compose.ui.text.input.ImeAction.Companion.Go
+import androidx.compose.ui.text.input.ImeAction.Companion.Next
+import androidx.compose.ui.text.input.ImeAction.Companion.None
+import androidx.compose.ui.text.input.ImeAction.Companion.Previous
 import androidx.compose.ui.text.input.ImeAction.Companion.Search
 import androidx.compose.ui.text.input.ImeAction.Companion.Send
-import androidx.compose.ui.text.input.ImeAction.Companion.Previous
-import androidx.compose.ui.text.input.ImeAction.Companion.Next
-import androidx.compose.ui.text.input.ImeAction.Companion.Done
 import androidx.compose.ui.text.input.TextInputSession
 
 /**

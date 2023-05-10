@@ -16,9 +16,9 @@
 
 package androidx.benchmark.integration.macrobenchmark
 
-import android.os.Bundle
 import android.content.Intent
 import android.graphics.Color
+import android.os.Bundle
 import androidx.benchmark.macro.BatteryCharge
 import androidx.benchmark.macro.CompilationMode
 import androidx.benchmark.macro.ExperimentalMetricApi

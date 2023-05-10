@@ -44,13 +44,13 @@ import androidx.compose.ui.test.util.isAlmostEqualTo
 import androidx.compose.ui.test.util.verify
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
+import kotlin.math.max
+import kotlin.math.roundToInt
+import kotlin.math.roundToLong
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
-import kotlin.math.max
-import kotlin.math.roundToInt
-import kotlin.math.roundToLong
 
 /**
  * Tests [TouchInjectionScope.longClick] with arguments. Verifies that the click is in the middle

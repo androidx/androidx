@@ -17,12 +17,12 @@
 package androidx.compose.runtime
 
 import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.EmptyCoroutineContext
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
-import kotlin.coroutines.EmptyCoroutineContext
-import kotlinx.coroutines.CancellationException
 
 /**
  * Schedule [effect] to run when the current composition completes successfully and applies

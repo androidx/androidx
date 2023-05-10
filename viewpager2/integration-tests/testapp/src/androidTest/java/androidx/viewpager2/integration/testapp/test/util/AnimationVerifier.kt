@@ -21,10 +21,10 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.test.espresso.matcher.ViewMatchers.assertThat
 import androidx.viewpager2.widget.ViewPager2
-import org.hamcrest.CoreMatchers.equalTo
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import kotlin.math.abs
+import org.hamcrest.CoreMatchers.equalTo
 
 /**
  * Verifies if animation happened in the given [ViewPager2]. It listens to

@@ -16,8 +16,6 @@
 
 package androidx.window.layout.adapter.extensions
 
-import androidx.window.extensions.core.util.function.Consumer as OEMConsumer
-import androidx.window.extensions.layout.WindowLayoutInfo as OEMWindowLayoutInfo
 import android.app.Activity
 import android.content.Context
 import androidx.annotation.GuardedBy
@@ -27,7 +25,9 @@ import androidx.core.util.Consumer
 import androidx.window.core.ConsumerAdapter
 import androidx.window.core.ExtensionsUtil
 import androidx.window.extensions.WindowExtensions
+import androidx.window.extensions.core.util.function.Consumer as OEMConsumer
 import androidx.window.extensions.layout.WindowLayoutComponent
+import androidx.window.extensions.layout.WindowLayoutInfo as OEMWindowLayoutInfo
 import androidx.window.layout.WindowLayoutInfo
 import androidx.window.layout.adapter.WindowBackend
 import androidx.window.layout.adapter.extensions.ExtensionsWindowLayoutInfoAdapter.translate

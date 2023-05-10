@@ -18,8 +18,8 @@
 package androidx.appactions.interaction.service
 
 import androidx.annotation.GuardedBy
-import androidx.appactions.interaction.capabilities.core.ExecutionCallback
 import androidx.appactions.interaction.capabilities.core.BaseExecutionSession
+import androidx.appactions.interaction.capabilities.core.ExecutionCallback
 import androidx.appactions.interaction.capabilities.core.impl.UiHandleRegistry
 import androidx.appactions.interaction.service.UiSessions.removeUiCache
 import javax.annotation.concurrent.ThreadSafe

@@ -34,14 +34,14 @@ import androidx.glance.appwidget.GlanceAppWidgetReceiver
 import androidx.glance.appwidget.action.ActionCallback
 import androidx.glance.appwidget.action.actionRunCallback
 import androidx.glance.appwidget.state.updateAppWidgetState
-import androidx.glance.template.GlanceTemplateAppWidget
-import androidx.glance.template.ListTemplate
 import androidx.glance.currentState
 import androidx.glance.template.ActionBlock
+import androidx.glance.template.GlanceTemplateAppWidget
 import androidx.glance.template.HeaderBlock
 import androidx.glance.template.ImageBlock
 import androidx.glance.template.ImageSize
 import androidx.glance.template.ListStyle
+import androidx.glance.template.ListTemplate
 import androidx.glance.template.ListTemplateData
 import androidx.glance.template.ListTemplateItem
 import androidx.glance.template.TemplateImageButton

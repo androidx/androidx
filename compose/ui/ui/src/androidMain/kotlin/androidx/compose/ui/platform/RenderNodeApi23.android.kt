@@ -18,9 +18,9 @@ package androidx.compose.ui.platform
 
 import android.graphics.Color
 import android.graphics.Outline
-import android.view.RenderNode
-import android.view.DisplayListCanvas
 import android.os.Build
+import android.view.DisplayListCanvas
+import android.view.RenderNode
 import android.view.View
 import androidx.annotation.RequiresApi
 import androidx.compose.ui.graphics.Canvas

@@ -18,13 +18,13 @@ package androidx.compose.ui.graphics
 
 import androidx.compose.ui.graphics.colorspace.ColorSpace
 import androidx.compose.ui.graphics.colorspace.ColorSpaces
+import kotlin.math.abs
 import org.jetbrains.skia.Bitmap
 import org.jetbrains.skia.ColorAlphaType
 import org.jetbrains.skia.ColorInfo
 import org.jetbrains.skia.ColorType
 import org.jetbrains.skia.Image
 import org.jetbrains.skia.ImageInfo
-import kotlin.math.abs
 
 /**
  * Create an [ImageBitmap] from the given [Bitmap]. Note this does

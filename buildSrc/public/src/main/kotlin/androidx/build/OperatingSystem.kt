@@ -16,8 +16,8 @@
 
 package androidx.build
 
-import org.gradle.api.GradleException
 import java.util.Locale
+import org.gradle.api.GradleException
 
 enum class OperatingSystem {
     LINUX,

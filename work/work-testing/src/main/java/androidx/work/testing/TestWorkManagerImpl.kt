@@ -17,7 +17,6 @@
 package androidx.work.testing
 
 import android.content.Context
-
 import androidx.work.Configuration
 import androidx.work.impl.Processor
 import androidx.work.impl.Scheduler

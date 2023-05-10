@@ -37,8 +37,8 @@ import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.isUnspecified
-import kotlinx.coroutines.CoroutineScope
 import kotlin.math.roundToInt
+import kotlinx.coroutines.CoroutineScope
 
 /**
  * Android specific Ripple implementation that uses a [RippleDrawable] under the hood, which allows

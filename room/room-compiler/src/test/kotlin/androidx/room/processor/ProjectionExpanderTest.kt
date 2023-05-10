@@ -25,8 +25,8 @@ import androidx.room.parser.SqlParser
 import androidx.room.parser.expansion.ProjectionExpander
 import androidx.room.testing.context
 import createVerifierFromEntitiesAndViews
-import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.CoreMatchers.equalTo
+import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith

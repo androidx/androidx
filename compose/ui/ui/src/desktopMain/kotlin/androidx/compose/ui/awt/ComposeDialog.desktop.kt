@@ -19,13 +19,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.window.DialogWindowScope
-import org.jetbrains.skiko.GraphicsApi
 import java.awt.Component
 import java.awt.Window
 import java.awt.event.MouseListener
 import java.awt.event.MouseMotionListener
 import java.awt.event.MouseWheelListener
 import javax.swing.JDialog
+import org.jetbrains.skiko.GraphicsApi
 
 /**
  * ComposeDialog is a dialog for building UI using Compose for Desktop.

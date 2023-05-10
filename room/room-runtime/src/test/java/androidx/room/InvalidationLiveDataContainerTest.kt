@@ -17,6 +17,7 @@
 package androidx.room
 
 import androidx.lifecycle.LiveData
+import java.util.concurrent.Callable
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Before
@@ -24,7 +25,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import org.mockito.Mockito
-import java.util.concurrent.Callable
 
 @RunWith(JUnit4::class)
 class InvalidationLiveDataContainerTest {

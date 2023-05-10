@@ -16,10 +16,6 @@
 
 package androidx.window.layout.adapter.extensions
 
-import androidx.window.extensions.core.util.function.Consumer as OEMConsumer
-import androidx.window.extensions.layout.FoldingFeature as OEMFoldingFeature
-import androidx.window.extensions.layout.WindowLayoutInfo as OEMWindowLayoutInfo
-import java.util.function.Consumer as JavaConsumer
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
@@ -37,19 +33,16 @@ import androidx.window.WindowTestUtils.Companion.assumeBeforeVendorApiLevel
 import androidx.window.core.ConsumerAdapter
 import androidx.window.core.ExtensionsUtil
 import androidx.window.extensions.WindowExtensions
+import androidx.window.extensions.core.util.function.Consumer as OEMConsumer
+import androidx.window.extensions.layout.FoldingFeature as OEMFoldingFeature
 import androidx.window.extensions.layout.FoldingFeature.STATE_FLAT
 import androidx.window.extensions.layout.FoldingFeature.TYPE_HINGE
 import androidx.window.extensions.layout.WindowLayoutComponent
+import androidx.window.extensions.layout.WindowLayoutInfo as OEMWindowLayoutInfo
 import androidx.window.layout.WindowLayoutInfo
 import androidx.window.layout.WindowMetricsCalculatorCompat
 import androidx.window.layout.adapter.extensions.ExtensionsWindowLayoutInfoAdapter.translate
-import org.mockito.kotlin.any
-import org.mockito.kotlin.argumentCaptor
-import org.mockito.kotlin.eq
-import org.mockito.kotlin.mock
-import org.mockito.kotlin.times
-import org.mockito.kotlin.verify
-import org.mockito.kotlin.whenever
+import java.util.function.Consumer as JavaConsumer
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -58,6 +51,13 @@ import org.junit.Before
 import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
+import org.mockito.kotlin.any
+import org.mockito.kotlin.argumentCaptor
+import org.mockito.kotlin.eq
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.times
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.whenever
 
 class ExtensionWindowLayoutInfoBackendTest {
 

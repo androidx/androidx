@@ -62,20 +62,20 @@ import androidx.viewpager2.widget.swipe.SelfChecking
 import androidx.viewpager2.widget.swipe.TestActivity
 import androidx.viewpager2.widget.swipe.ViewAdapter
 import androidx.viewpager2.widget.swipe.WaitForInjectMotionEventsAction.Companion.waitForInjectMotionEvents
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
+import kotlin.math.abs
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.Matcher
+import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.allOf
 import org.hamcrest.Matchers.greaterThanOrEqualTo
 import org.hamcrest.Matchers.lessThan
 import org.hamcrest.Matchers.lessThanOrEqualTo
 import org.junit.After
-import org.hamcrest.MatcherAssert.assertThat
+import org.junit.Assert.fail
 import org.junit.Before
 import org.junit.Rule
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
-import kotlin.math.abs
-import org.junit.Assert.fail
 
 open class BaseTest {
     companion object {

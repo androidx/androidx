@@ -19,10 +19,10 @@ package androidx.room.compiler.processing
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.runProcessorTest
 import com.google.common.truth.Truth.assertThat
+import javax.tools.Diagnostic
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import javax.tools.Diagnostic
 
 @RunWith(JUnit4::class)
 class XMessagerTest {

@@ -17,10 +17,8 @@ package androidx.compose.ui.benchmark.input.pointer
 
 import androidx.compose.testutils.benchmark.ComposeBenchmarkRule
 import androidx.compose.ui.input.pointer.util.VelocityTracker1D
-
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
-
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith

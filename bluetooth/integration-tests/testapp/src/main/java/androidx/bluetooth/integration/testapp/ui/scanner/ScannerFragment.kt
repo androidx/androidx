@@ -16,6 +16,9 @@
 
 package androidx.bluetooth.integration.testapp.ui.scanner
 
+// TODO(ofy) Migrate from androidx.bluetooth.integration.testapp.experimental.BluetoothLe
+// to androidx.bluetooth.BluetoothLe once scan API is in place
+import android.annotation.SuppressLint
 import android.bluetooth.le.ScanResult
 import android.bluetooth.le.ScanSettings
 import android.os.Bundle
@@ -24,11 +27,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-
 import androidx.bluetooth.integration.testapp.R
 import androidx.bluetooth.integration.testapp.databinding.FragmentScannerBinding
-import android.annotation.SuppressLint
-// TODO(ofy) Migrate to androidx.bluetooth.BluetoothLe once scan API is in place
 import androidx.bluetooth.integration.testapp.experimental.BluetoothLe
 import androidx.bluetooth.integration.testapp.ui.common.getColor
 import androidx.core.view.isVisible
@@ -36,15 +36,13 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
-
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayout.Tab
-
+import java.lang.Exception
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-import java.lang.Exception
 
 class ScannerFragment : Fragment() {
 

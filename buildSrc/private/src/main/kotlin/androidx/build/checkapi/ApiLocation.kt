@@ -16,12 +16,11 @@
 
 package androidx.build.checkapi
 
-import java.io.File
-
 import androidx.build.Version
 import androidx.build.version
-import org.gradle.api.Project
+import java.io.File
 import java.io.Serializable
+import org.gradle.api.Project
 
 /**
  * Contains information about the files used to record a library's API surfaces. This class may

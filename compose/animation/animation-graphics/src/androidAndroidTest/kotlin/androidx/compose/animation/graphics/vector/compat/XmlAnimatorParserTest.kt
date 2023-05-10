@@ -18,7 +18,10 @@ package androidx.compose.animation.graphics.vector.compat
 
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
-import androidx.compose.ui.graphics.Color
+import androidx.compose.animation.graphics.res.AccelerateEasing
+import androidx.compose.animation.graphics.res.DecelerateEasing
+import androidx.compose.animation.graphics.res.loadAnimatorResource
+import androidx.compose.animation.graphics.test.R
 import androidx.compose.animation.graphics.vector.AnimatorSet
 import androidx.compose.animation.graphics.vector.ObjectAnimator
 import androidx.compose.animation.graphics.vector.Ordering
@@ -27,11 +30,8 @@ import androidx.compose.animation.graphics.vector.PropertyValuesHolderColor
 import androidx.compose.animation.graphics.vector.PropertyValuesHolderFloat
 import androidx.compose.animation.graphics.vector.PropertyValuesHolderInt
 import androidx.compose.animation.graphics.vector.PropertyValuesHolderPath
-import androidx.compose.animation.graphics.res.AccelerateEasing
-import androidx.compose.animation.graphics.res.DecelerateEasing
-import androidx.compose.animation.graphics.res.loadAnimatorResource
-import androidx.compose.animation.graphics.test.R
 import androidx.compose.animation.graphics.vector.RepeatCountInfinite
+import androidx.compose.ui.graphics.Color
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry

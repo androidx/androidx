@@ -19,14 +19,14 @@ package androidx.compose.ui.graphics
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
-import androidx.test.filters.SmallTest
-import org.junit.Assert.assertEquals
-import org.junit.Test
-import org.junit.runner.RunWith
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.SmallTest
 import kotlin.math.PI
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
+import org.junit.Test
+import org.junit.runner.RunWith
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)

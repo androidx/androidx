@@ -25,10 +25,10 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.SaveableStateHolder
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.lifecycle.Lifecycle
@@ -40,13 +40,13 @@ import androidx.navigation.NavGraph
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.Navigator
-import androidx.navigation.createGraph
 import androidx.navigation.compose.LocalOwnersProvider
+import androidx.navigation.createGraph
 import androidx.navigation.get
-import androidx.wear.compose.material.SwipeToDismissValue
 import androidx.wear.compose.material.SwipeToDismissBox
 import androidx.wear.compose.material.SwipeToDismissBoxState
 import androidx.wear.compose.material.SwipeToDismissKeys
+import androidx.wear.compose.material.SwipeToDismissValue
 import androidx.wear.compose.material.edgeSwipeToDismiss
 import androidx.wear.compose.material.rememberSwipeToDismissBoxState
 

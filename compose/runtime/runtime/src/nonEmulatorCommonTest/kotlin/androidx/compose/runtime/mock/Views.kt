@@ -18,9 +18,9 @@ package androidx.compose.runtime.mock
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ComposeNode
-import androidx.compose.runtime.ReusableComposeNode
-import androidx.compose.runtime.NonRestartableComposable
 import androidx.compose.runtime.ComposeNodeLifecycleCallback
+import androidx.compose.runtime.NonRestartableComposable
+import androidx.compose.runtime.ReusableComposeNode
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.rememberUpdatedState

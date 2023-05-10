@@ -21,8 +21,8 @@ import androidx.build.addToCheckTask
 import androidx.build.checkapi.getRequiredCompatibilityApiLocation
 import androidx.build.uptodatedness.cacheEvenIfNoOutputs
 import com.android.build.gradle.LibraryExtension
-import org.gradle.api.Project
 import java.io.File
+import org.gradle.api.Project
 
 /**
  * Adds native API generation / updating / checking tasks to a project.
