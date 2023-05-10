@@ -250,6 +250,12 @@ internal typealias PlatformSleepSessionRecord = android.health.connect.datatypes
 internal typealias PlatformSleepSessionRecordBuilder =
     android.health.connect.datatypes.SleepSessionRecord.Builder
 
+internal typealias PlatformSleepSessionStage =
+    android.health.connect.datatypes.SleepSessionRecord.Stage
+
+internal typealias PlatformSleepStageType =
+    android.health.connect.datatypes.SleepSessionRecord.StageType
+
 internal typealias PlatformSpeedRecord = android.health.connect.datatypes.SpeedRecord
 
 internal typealias PlatformSpeedRecordBuilder = android.health.connect.datatypes.SpeedRecord.Builder

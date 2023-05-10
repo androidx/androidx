@@ -479,7 +479,8 @@ private fun PlatformSleepSessionRecord.toSdkSleepSessionRecord() =
         endZoneOffset = endZoneOffset,
         metadata = metadata.toSdkMetadata(),
         title = title?.toString(),
-        notes = notes?.toString()
+        notes = notes?.toString(),
+        stages = stages.map { it.toSdkSleepSessionStage() },
     )
 
 private fun PlatformSpeedRecord.toSdkSpeedRecord() =
@@ -885,8 +886,12 @@ private fun SleepSessionRecord.toPlatformSleepSessionRecord() =
             endZoneOffset?.let { setEndZoneOffset(it) }
             notes?.let { setNotes(it) }
             title?.let { setTitle(it) }
+            setStages(stages.map { it.toPlatformSleepSessionStage() })
         }
         .build()
+
+private fun SleepSessionRecord.Stage.toPlatformSleepSessionStage() =
+    PlatformSleepSessionStage(startTime, endTime, stage.toPlatformSleepStageType())
 
 private fun SpeedRecord.toPlatformSpeedRecord() =
     PlatformSpeedRecordBuilder(
@@ -977,3 +982,6 @@ private fun PlatformSpeedSample.toSdkSpeedSample() = SpeedRecord.Sample(time, sp
 
 private fun PlatformStepsCadenceSample.toSdkStepsCadenceSample() =
     StepsCadenceRecord.Sample(time, rate)
+
+private fun PlatformSleepSessionStage.toSdkSleepSessionStage() =
+    SleepSessionRecord.Stage(startTime, endTime, type.toSdkSleepStageType())

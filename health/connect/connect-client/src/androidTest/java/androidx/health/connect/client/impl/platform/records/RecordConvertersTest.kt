@@ -683,12 +683,28 @@ class RecordConvertersTest {
                     metadata = METADATA,
                     title = "Night night",
                     notes = "Many dreams",
+                    stages =
+                        listOf(
+                            SleepSessionRecord.Stage(
+                                START_TIME,
+                                START_TIME.plusMillis(40),
+                                SleepSessionRecord.STAGE_TYPE_DEEP
+                            )
+                        )
                 )
                 .toPlatformRecord() as PlatformSleepSessionRecord
 
         assertPlatformRecord(platformSleepSession) {
             assertThat(title).isEqualTo("Night night")
             assertThat(notes).isEqualTo("Many dreams")
+            assertThat(stages)
+                .containsExactly(
+                    PlatformSleepSessionStage(
+                        START_TIME,
+                        START_TIME.plusMillis(40),
+                        PlatformSleepStageType.STAGE_TYPE_SLEEPING_DEEP
+                    )
+                )
         }
     }
 
@@ -1339,12 +1355,39 @@ class RecordConvertersTest {
                 .setNotes("Afternoon reset")
                 .setStartZoneOffset(START_ZONE_OFFSET)
                 .setEndZoneOffset(END_ZONE_OFFSET)
+                .setStages(
+                    listOf(
+                        PlatformSleepSessionStage(
+                            START_TIME,
+                            START_TIME.plusMillis(1),
+                            PlatformSleepStageType.STAGE_TYPE_AWAKE
+                        ),
+                        PlatformSleepSessionStage(
+                            END_TIME.minusMillis(1),
+                            END_TIME,
+                            PlatformSleepStageType.STAGE_TYPE_SLEEPING
+                        )
+                    )
+                )
                 .build()
                 .toSdkRecord() as SleepSessionRecord
 
         assertSdkRecord(sdkSleepSession) {
             assertThat(title).isEqualTo("nap")
             assertThat(notes).isEqualTo("Afternoon reset")
+            assertThat(stages)
+                .containsExactly(
+                    SleepSessionRecord.Stage(
+                        START_TIME,
+                        START_TIME.plusMillis(1),
+                        SleepSessionRecord.STAGE_TYPE_AWAKE
+                    ),
+                    SleepSessionRecord.Stage(
+                        END_TIME.minusMillis(1),
+                        END_TIME,
+                        SleepSessionRecord.STAGE_TYPE_SLEEPING
+                    )
+                )
         }
     }
 
