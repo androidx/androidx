@@ -18,11 +18,11 @@ if ! impl/check_translations.sh; then
   EXIT_VALUE=1
 else
   # Run Gradle
+  # If/when we enable desktop, enable VerifyDependencyVersionsTask.kt/shouldVerifyConfiguration
   if ! impl/build.sh buildOnServer createAllArchives checkExternalLicenses listTaskOutputs \
       -Pandroidx.enableComposeCompilerMetrics=true \
       -Pandroidx.enableComposeCompilerReports=true \
       -Pandroidx.constraints=true \
-      # If/when we enable desktop, enable VerifyDependencyVersionsTask.kt/shouldVerifyConfiguration
       -Pandroidx.enabled.kmp.target.platforms=-desktop \
       --no-daemon \
       --profile "$@"; then
