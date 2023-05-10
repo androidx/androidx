@@ -16,8 +16,7 @@
 
 package androidx.bluetooth.integration.testapp.ui.scanner
 
-// TODO(ofy) Migrate from androidx.bluetooth.integration.testapp.experimental.BluetoothLe
-// to androidx.bluetooth.BluetoothLe once scan API is in place
+// TODO(ofy) Migrate to androidx.bluetooth.BluetoothLe once scan API is in place
 import android.annotation.SuppressLint
 import android.bluetooth.le.ScanResult
 import android.bluetooth.le.ScanSettings
@@ -84,8 +83,8 @@ class ScannerFragment : Fragment() {
     private var showingScanResults: Boolean = false
         set(value) {
             field = value
-            _binding?.relativeLayoutScanResults?.isVisible = value
-            _binding?.linearLayoutDevice?.isVisible = !value
+            _binding?.layoutScanResults?.isVisible = value
+            _binding?.layoutDevice?.isVisible = !value
         }
 
     private val onTabSelectedListener = object : TabLayout.OnTabSelectedListener {

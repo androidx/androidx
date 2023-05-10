@@ -54,6 +54,11 @@
     <string name="cancel">Cancel</string>
     <string name="clear_data">Clear Data</string>
 
+    <!-- GATT Server -->
+    <string name="gatt_server">Gatt Server</string>
+    <string name="open_gatt_server">Open Gatt Server</string>
+    <string name="stop_gatt_server">Stop Gatt Server</string>
+
     <string name="scan_using_androidx_bluetooth">Scan using AndroidX Bluetooth APIs</string>
     <string name="scan_start_message">Scan started. Results are in Logcat</string>
 

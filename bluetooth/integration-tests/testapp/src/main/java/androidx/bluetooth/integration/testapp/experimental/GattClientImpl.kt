@@ -43,7 +43,8 @@ import kotlinx.coroutines.job
 import kotlinx.coroutines.launch
 
 internal class GattClientImpl {
-    companion object {
+
+    private companion object {
         private const val TAG = "GattClientImpl"
         private const val GATT_MAX_MTU = 517
         private val CCCD_UID = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb")
@@ -91,6 +92,11 @@ internal class GattClientImpl {
 
         val callback = object : BluetoothGattCallback() {
             override fun onConnectionStateChange(gatt: BluetoothGatt?, status: Int, newState: Int) {
+                Log.d(
+                    TAG,
+                    "onConnectionStateChange() called with: gatt = $gatt, status = $status, " +
+                        "newState = $newState"
+                )
                 if (newState == BluetoothGatt.STATE_CONNECTED) {
                     gatt?.requestMtu(GATT_MAX_MTU)
                 } else {
@@ -101,6 +107,7 @@ internal class GattClientImpl {
             }
 
             override fun onMtuChanged(gatt: BluetoothGatt?, mtu: Int, status: Int) {
+                Log.d(TAG, "onMtuChanged() called with: gatt = $gatt, mtu = $mtu, status = $status")
                 if (status == GATT_SUCCESS) {
                     gatt?.discoverServices()
                 } else {
