@@ -20,8 +20,9 @@ import android.os.Binder
 import android.os.Bundle
 import android.os.IBinder
 import android.view.View
+import androidx.lifecycle.Lifecycle
 import androidx.privacysandbox.sdkruntime.client.EmptyActivity
-import androidx.privacysandbox.sdkruntime.client.activity.ComponentActivityHolder
+import androidx.privacysandbox.sdkruntime.client.TestActivityHolder
 import androidx.privacysandbox.sdkruntime.client.config.LocalSdkConfig
 import androidx.privacysandbox.sdkruntime.client.loader.impl.SandboxedSdkContextCompat
 import androidx.privacysandbox.sdkruntime.client.loader.storage.TestLocalSdkStorage
@@ -145,12 +146,40 @@ internal class LocalSdkProviderTest(
 
         with(ActivityScenario.launch(EmptyActivity::class.java)) {
             withActivity {
-                val activityHolder = ComponentActivityHolder(this)
+                val activityHolder = TestActivityHolder(this)
                 localHandler.onActivityCreated(activityHolder)
 
                 val receivedActivityHolder = catchingHandler.result!!
                 val receivedActivity = receivedActivityHolder.getActivity()
                 assertThat(receivedActivity).isSameInstanceAs(activityHolder.getActivity())
+            }
+        }
+    }
+
+    @Test
+    fun sdkSandboxActivityHandler_ReceivesLifecycleEventsFromOriginalActivityHolder() {
+        assumeTrue(
+            "Requires Versions.API_VERSION >= 3",
+            sdkVersion >= 3
+        )
+
+        val catchingHandler = CatchingSdkActivityHandler()
+
+        val testSdk = loadedSdk.loadTestSdk()
+        val token = testSdk.registerSdkSandboxActivityHandler(catchingHandler)
+        val localHandler = controller.sdkActivityHandlers[token]!!
+
+        with(ActivityScenario.launch(EmptyActivity::class.java)) {
+            withActivity {
+                val activityHolder = TestActivityHolder(this)
+                localHandler.onActivityCreated(activityHolder)
+                val receivedActivityHolder = catchingHandler.result!!
+
+                for (event in Lifecycle.Event.values().filter { it != Lifecycle.Event.ON_ANY }) {
+                    activityHolder.lifecycleRegistry.handleLifecycleEvent(event)
+                    assertThat(receivedActivityHolder.getLifeCycleCurrentState())
+                        .isEqualTo(event.targetState)
+                }
             }
         }
     }

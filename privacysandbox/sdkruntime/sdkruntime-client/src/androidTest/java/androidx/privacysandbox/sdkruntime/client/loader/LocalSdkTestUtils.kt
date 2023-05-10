@@ -20,6 +20,7 @@ import android.app.Activity
 import android.content.Context
 import android.os.Bundle
 import android.os.IBinder
+import androidx.lifecycle.Lifecycle
 import androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat
 import androidx.privacysandbox.sdkruntime.core.SandboxedSdkProviderCompat
 import androidx.privacysandbox.sdkruntime.core.Versions
@@ -207,6 +208,19 @@ internal class ActivityHolderWrapper(
         return activityHolder.callMethod(
             methodName = "getActivity"
         ) as Activity
+    }
+
+    fun getLifeCycleCurrentState(): Lifecycle.State {
+        val lifecycle = activityHolder.callMethod(
+            methodName = "getLifecycle"
+        )
+        val currentState = lifecycle!!.callMethod(
+            methodName = "getCurrentState"
+        )
+        val currentStateString = currentState!!.callMethod(
+            methodName = "name"
+        ) as String
+        return Lifecycle.State.valueOf(currentStateString)
     }
 }
 

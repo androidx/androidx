@@ -43,6 +43,11 @@ class LocalSdkActivityStarterTest {
 
         val activityHolder = handler.waitForActivity()
         assertThat(activityHolder.getActivity()).isInstanceOf(SdkActivity::class.java)
+
+        val sdkActivity = activityHolder.getActivity() as SdkActivity
+        assertThat(activityHolder.lifecycle).isSameInstanceAs(sdkActivity.lifecycle)
+        assertThat(activityHolder.getOnBackPressedDispatcher())
+            .isSameInstanceAs(sdkActivity.onBackPressedDispatcher)
     }
 
     @Test
