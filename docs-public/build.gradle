@@ -327,7 +327,7 @@ dependencies {
     docs("androidx.test.espresso:espresso-accessibility:3.6.0-alpha01")
     docs("androidx.test.espresso:espresso-contrib:3.6.0-alpha01")
     docs("androidx.test.espresso:espresso-core:3.6.0-alpha01")
-    docs("androidx.test.espresso:espresso-device:1.0.0-alpha04")
+    docs("androidx.test.espresso:espresso-device:1.0.0-alpha05")
     docs("androidx.test.espresso:espresso-idling-resource:3.6.0-alpha01")
     docs("androidx.test.espresso:espresso-intents:3.6.0-alpha01")
     docs("androidx.test.espresso:espresso-remote:3.6.0-alpha01")
