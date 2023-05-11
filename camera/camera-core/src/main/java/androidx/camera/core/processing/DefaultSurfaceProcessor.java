@@ -306,12 +306,11 @@ public class DefaultSurfaceProcessor implements SurfaceProcessorInternal,
     private Bitmap getBitmap(@NonNull Size size,
             @NonNull float[] textureTransform,
             int rotationDegrees) {
-        // Flip the snapshot. This is for reverting the GL transform added in SurfaceOutputImpl.
         float[] snapshotTransform = new float[16];
-        // TODO(b/278109696): move GL flipping to MatrixExt.
         Matrix.setIdentityM(snapshotTransform, 0);
-        Matrix.translateM(snapshotTransform, 0, 0f, 1f, 0f);
-        Matrix.scaleM(snapshotTransform, 0, 1f, -1f, 1f);
+
+        // Flip the snapshot. This is for reverting the GL transform added in SurfaceOutputImpl.
+        MatrixExt.preVerticalFlip(snapshotTransform, 0.5f);
 
         // Rotate the output if requested.
         MatrixExt.preRotate(snapshotTransform, rotationDegrees, 0.5f, 0.5f);
