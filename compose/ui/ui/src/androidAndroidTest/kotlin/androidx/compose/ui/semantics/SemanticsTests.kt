@@ -26,9 +26,12 @@ import androidx.compose.foundation.text.BasicText
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ReusableContent
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
@@ -65,6 +68,7 @@ import com.google.common.truth.Truth.assertThat
 import kotlin.math.max
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
@@ -952,6 +956,25 @@ class SemanticsTests {
             .onNodeWithTag(TestTag)
             .assertContentDescriptionEquals("hello world")
             .assertTestPropertyEquals("bar")
+    }
+
+    @Test
+    fun testRegenerateSemanticsId() {
+        var reuseKey by mutableStateOf(0)
+        rule.setContent {
+            ReusableContent(reuseKey) {
+                Box(
+                    Modifier.testTag(TestTag)
+                )
+            }
+        }
+        val oldId = rule.onNodeWithTag(TestTag).fetchSemanticsNode().id
+        rule.runOnIdle {
+            reuseKey = 1
+        }
+        val newId = rule.onNodeWithTag(TestTag).fetchSemanticsNode().id
+
+        assertNotEquals(oldId, newId)
     }
 }
 
