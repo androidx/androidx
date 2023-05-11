@@ -41,7 +41,6 @@ import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert.assertThrows
 import org.junit.Assume.assumeTrue
-import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mockito
@@ -289,8 +288,9 @@ class SdkSandboxManagerCompatTest {
         verify(context, Mockito.never()).getSystemService(any())
     }
 
-    @Ignore("b/277764220")
     @Test
+    // TODO(b/249982507) DexmakerMockitoInline requires P+. Rewrite to support P-
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
     fun startSdkSandboxActivity_whenSandboxNotAvailable_dontDelegateToSandbox() {
         // TODO(b/262577044) Replace with @SdkSuppress after supporting maxExtensionVersion
         assumeTrue("Requires Sandbox API not available", isSandboxApiNotAvailable())
