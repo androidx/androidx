@@ -780,8 +780,17 @@ internal class TextFieldState(
      */
     var minHeightForSingleLineField by mutableStateOf(0.dp)
 
-    /** The last layout coordinates for the Text's layout, used by selection */
-    var layoutCoordinates: LayoutCoordinates? = null
+    /**
+     * The last layout coordinates for the inner text field LayoutNode, used by selection and
+     * notifyFocusedRect. Since this layoutCoordinates only used for relative position calculation,
+     * we are guarding ourselves from using it when it's not attached.
+     */
+    private var _layoutCoordinates: LayoutCoordinates? = null
+    var layoutCoordinates: LayoutCoordinates?
+        get() = _layoutCoordinates?.takeIf { it.isAttached }
+        set(value) {
+            _layoutCoordinates = value
+        }
 
     /**
      * You should be using proxy type [TextLayoutResultProxy] if you need to translate touch
