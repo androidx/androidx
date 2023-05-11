@@ -273,12 +273,14 @@ public final class JavaScriptIsolate implements AutoCloseable {
      * transaction limit but are bound by
      * {@link IsolateStartupParameters#setMaxEvaluationReturnSizeBytes(int)} with a default size
      * of {@link IsolateStartupParameters#DEFAULT_MAX_EVALUATION_RETURN_SIZE_BYTES}.
-     *
-     * @param code JavaScript code that is evaluated, it should return a JavaScript String or a
-     *             Promise of a String in case {@link JavaScriptSandbox#JS_FEATURE_PROMISE_RETURN}
-     *             is supported
+     * <p>
+     * Do not use this method to transfer raw binary data. Scripts or results containing unpaired
+     * surrogate code units are not supported.
+     * @param code JavaScript code to evaluate. The script should return a JavaScript String or,
+     *             alternatively, a Promise that will resolve to a String if
+     *             {@link JavaScriptSandbox#JS_FEATURE_PROMISE_RETURN} is supported.
      * @return Future that evaluates to the result String of the evaluation or exceptions (see
-     * {@link JavaScriptException} and subclasses) if there is an error
+     * {@link JavaScriptException} and subclasses) if there is an error.
      */
     @SuppressWarnings("NullAway")
     @NonNull
@@ -330,10 +332,9 @@ public final class JavaScriptIsolate implements AutoCloseable {
      * This overload is provided for clients to pass in a UTF-8 encoded {@code byte[]} directly
      * instead of having to convert it into a {@code String} to use
      * {@link #evaluateJavaScriptAsync(String)}.
-     *
-     * @param code UTF-8 encoded JavaScript code that is evaluated, it should return a JavaScript
-     *             String or a Promise of a String in case
-     *             {@link JavaScriptSandbox#JS_FEATURE_PROMISE_RETURN} is supported
+     * @param code UTF-8 encoded JavaScript code to evaluate. The script should return a
+     *             JavaScript String or, alternatively, a Promise that will resolve to a String if
+     *             {@link JavaScriptSandbox#JS_FEATURE_PROMISE_RETURN} is supported.
      * @return Future that evaluates to the result String of the evaluation or exceptions (see
      * {@link JavaScriptException} and subclasses) if there is an error
      */
