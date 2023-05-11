@@ -127,7 +127,7 @@ abstract class Capability internal constructor(
          * calling one will nullify the other.
          *
          * This method accepts a coroutine-based ExecutionCallback instance. There is also an
-         * overload which accepts the ExecutionCallbackAsync instead.
+         * overload which accepts the [ExecutionCallbackAsync] instead.
          */
         @SuppressLint("MissingGetterMatchingBuilder")
         fun setExecutionCallback(executionCallback: ExecutionCallback<ArgumentsT, OutputT>) =
@@ -136,13 +136,13 @@ abstract class Capability internal constructor(
             }
 
         /**
-         * Sets the ExecutionCallbackAsync for this capability.
+         * Sets the [ExecutionCallbackAsync] for this capability.
          *
-         * setExecutionSessionFactory and setExecutionCallback are mutually exclusive, so calling
-         * one will nullify the other.
+         * [setExecutionSessionFactory] and [setExecutionCallback] are mutually exclusive, so
+         * calling one will nullify the other.
          *
-         * This method accepts the ExecutionCallbackAsync interface which returns a
-         * [ListenableFuture].
+         * This method accepts the [ExecutionCallbackAsync] interface, which is the Future version
+         * of [ExecutionCallback]
          */
         @SuppressLint("MissingGetterMatchingBuilder")
         fun setExecutionCallback(

@@ -373,15 +373,15 @@ public final class TypeConverters {
         return TypeSpecBuilder.newBuilder(
                         "SearchAction",
                         SearchAction.Builder<T>::new,
-                        SearchAction.Builder<T>::build)
+                        SearchAction.Builder::build)
                 .bindStringField(
                         "query",
                         SearchAction::getQuery,
-                        SearchAction.Builder<T>::setQuery)
+                        SearchAction.Builder::setQuery)
                 .bindSpecField(
                         "filter",
                         SearchAction::getFilter,
-                        SearchAction.Builder<T>::setFilter,
+                        SearchAction.Builder::setFilter,
                         nestedTypeSpec)
                 .build();
     }

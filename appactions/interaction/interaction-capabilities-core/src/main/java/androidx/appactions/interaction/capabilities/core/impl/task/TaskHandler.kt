@@ -35,7 +35,7 @@ internal constructor(
     internal val confirmationDataBindings: Map<String, (ConfirmationT) -> List<ParamValue>>,
     internal val onReadyToConfirmListener: OnReadyToConfirmListener<ArgumentsT, ConfirmationT>?,
 ) {
-    class Builder<ArgumentsT, ConfirmationT>() {
+    class Builder<ArgumentsT, ConfirmationT> {
         private val mutableTaskParamMap = mutableMapOf<String, TaskParamBinding<*>>()
         private val confirmationDataBindings =
             mutableMapOf<String, (ConfirmationT) -> List<ParamValue>>()

@@ -88,7 +88,7 @@ private fun Throwable.toErrorStatusInternal(): ErrorStatusInternal {
 }
 
 /**
- * Handles an exception encountered during request proessing (one-shot or multi-turn).
+ * Handles an exception encountered during request processing (one-shot or multi-turn).
  * Includes reporting an ErrorStatusInternal to some callback based on the exception.
  */
 internal fun handleExceptionFromRequestProcessing(

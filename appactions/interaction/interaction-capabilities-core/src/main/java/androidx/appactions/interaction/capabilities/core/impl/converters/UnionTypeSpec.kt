@@ -25,9 +25,9 @@ class UnionTypeSpec<T : Any> internal constructor(
     private val bindings: List<MemberBinding<T, *>>,
 ) : TypeSpec<T> {
     internal class MemberBinding<T, M>(
-        val memberGetter: (T) -> M?,
-        val ctor: (M) -> T,
-        val typeSpec: TypeSpec<M>,
+        private val memberGetter: (T) -> M?,
+        private val ctor: (M) -> T,
+        private val typeSpec: TypeSpec<M>,
     ) {
         @Throws(StructConversionException::class)
         fun tryDeserialize(value: Value): T {
@@ -48,7 +48,7 @@ class UnionTypeSpec<T : Any> internal constructor(
     }
 
     private fun getApplicableBinding(obj: T): MemberBinding<T, *> {
-        var applicableBindings = bindings.filter { it.isMemberSet(obj) }
+        val applicableBindings = bindings.filter { it.isMemberSet(obj) }
         return when (applicableBindings.size) {
             0 -> throw IllegalStateException("$obj is invalid, all union members are null.")
             1 -> applicableBindings[0]
@@ -95,6 +95,6 @@ class UnionTypeSpec<T : Any> internal constructor(
             )
         }
 
-        fun build() = UnionTypeSpec<T>(bindings.toList())
+        fun build() = UnionTypeSpec(bindings.toList())
     }
 }

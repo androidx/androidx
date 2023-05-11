@@ -122,7 +122,7 @@ public final class Futures {
             }
 
             @Override
-            public void onFailure(Throwable failure) {
+            public void onFailure(@NonNull Throwable failure) {
                 completer.setException(failure);
             }
         };
