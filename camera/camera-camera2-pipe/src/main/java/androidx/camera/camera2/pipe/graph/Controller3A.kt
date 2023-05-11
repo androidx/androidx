@@ -145,6 +145,10 @@ internal class Controller3A(
         afRegions: List<MeteringRectangle>? = null,
         awbRegions: List<MeteringRectangle>? = null
     ): Deferred<Result3A> {
+        // If the GraphProcessor does not have a repeating request, we should fail immediately.
+        if (!graphProcessor.hasRepeatingRequest()) {
+            return CompletableDeferred(result3ASubmitFailed)
+        }
         // Add the listener to a global pool of 3A listeners to monitor the state change to the
         // desired one.
         val listener = createListenerFor3AParams(aeMode, afMode, awbMode, flashMode)
@@ -174,6 +178,10 @@ internal class Controller3A(
         afRegions: List<MeteringRectangle>? = null,
         awbRegions: List<MeteringRectangle>? = null
     ): Deferred<Result3A> {
+        // If the GraphProcessor does not have a repeating request, we should fail immediately.
+        if (!graphProcessor.hasRepeatingRequest()) {
+            return CompletableDeferred(result3ASubmitFailed)
+        }
         // Add the listener to a global pool of 3A listeners to monitor the state change to the
         // desired one.
         val listener = createListenerFor3AParams(aeMode, afMode, awbMode)
@@ -235,6 +243,10 @@ internal class Controller3A(
         }
         if (aeLockBehavior == null && afLockBehaviorSanitized == null && awbLockBehavior == null) {
             return CompletableDeferred(Result3A(Status.OK, /* frameMetadata= */ null))
+        }
+        // If the GraphProcessor does not have a repeating request, we should fail immediately.
+        if (!graphProcessor.hasRepeatingRequest()) {
+            return CompletableDeferred(result3ASubmitFailed)
         }
         // Update the 3A state of camera graph with the given metering regions. If metering regions
         // are given as null then they are ignored and the current metering regions continue to be
@@ -329,6 +341,10 @@ internal class Controller3A(
         if (!(ae == true || afSanitized == true || awb == true)) {
             return CompletableDeferred(Result3A(Status.OK, /* frameMetadata= */ null))
         }
+        // If the GraphProcessor does not have a repeating request, we should fail immediately.
+        if (!graphProcessor.hasRepeatingRequest()) {
+            return CompletableDeferred(result3ASubmitFailed)
+        }
         // If we explicitly need to unlock af first before proceeding to lock it, we need to send
         // a single request with TRIGGER = TRIGGER_CANCEL so that af can start a fresh scan.
         if (afSanitized == true) {
@@ -361,6 +377,10 @@ internal class Controller3A(
         frameLimit: Int = DEFAULT_FRAME_LIMIT,
         timeLimitNs: Long = DEFAULT_TIME_LIMIT_NS
     ): Deferred<Result3A> {
+        // If the GraphProcessor does not have a repeating request, we should fail immediately.
+        if (!graphProcessor.hasRepeatingRequest()) {
+            return CompletableDeferred(result3ASubmitFailed)
+        }
         val listener =
             Result3AStateListenerImpl(
                 mapOf<CaptureResult.Key<*>, List<Any>>(
@@ -387,6 +407,10 @@ internal class Controller3A(
     }
 
     suspend fun unlock3APostCapture(): Deferred<Result3A> {
+        // If the GraphProcessor does not have a repeating request, we should fail immediately.
+        if (!graphProcessor.hasRepeatingRequest()) {
+            return CompletableDeferred(result3ASubmitFailed)
+        }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             return unlock3APostCaptureAndroidMAndAbove()
         }
@@ -472,6 +496,10 @@ internal class Controller3A(
         val desiredAeMode =
             if (currAeMode == AeMode.ON || currAeMode == AeMode.OFF) null else AeMode.ON
         return update3A(aeMode = desiredAeMode, flashMode = flashMode)
+    }
+
+    internal fun onStopRepeating() {
+        graphListener3A.onStopRepeating()
     }
 
     private suspend fun lock3ANow(

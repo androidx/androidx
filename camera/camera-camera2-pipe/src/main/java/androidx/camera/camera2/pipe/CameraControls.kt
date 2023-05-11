@@ -139,10 +139,14 @@ data class Result3A(val status: Status, val frameMetadata: FrameMetadata? = null
      * enforced frame or time limit was reached, submitting the desired request to camera failed
      * etc.
      */
-    enum class Status {
-        OK,
-        FRAME_LIMIT_REACHED,
-        TIME_LIMIT_REACHED,
-        SUBMIT_FAILED
+    @JvmInline
+    value class Status private constructor(val value: Int) {
+        companion object {
+            val OK = Status(0)
+            val FRAME_LIMIT_REACHED = Status(1)
+            val TIME_LIMIT_REACHED = Status(2)
+            val SUBMIT_CANCELLED = Status(3)
+            val SUBMIT_FAILED = Status(4)
+        }
     }
 }
