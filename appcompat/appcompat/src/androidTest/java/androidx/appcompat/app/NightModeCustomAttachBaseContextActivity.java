@@ -27,7 +27,7 @@ import java.util.Locale;
  * This is the recommended approach to customizing Activity configuration.
  */
 public class NightModeCustomAttachBaseContextActivity extends NightModeActivity {
-    public static final float CUSTOM_FONT_SCALE = 4.24f;
+    public static final float CUSTOM_FONT_SCALE = 4.21f;
     public static final Locale CUSTOM_LOCALE = Locale.CANADA_FRENCH;
 
     @Override

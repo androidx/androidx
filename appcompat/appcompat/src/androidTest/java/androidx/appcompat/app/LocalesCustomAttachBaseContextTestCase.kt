@@ -18,7 +18,7 @@ package androidx.appcompat.app
 
 import android.content.res.Configuration
 import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES
-import androidx.appcompat.app.NightModeCustomAttachBaseContextActivity.CUSTOM_FONT_SCALE
+import androidx.appcompat.app.LocalesCustomAttachBaseContextActivity.CUSTOM_FONT_SCALE
 import androidx.appcompat.testutils.LocalesActivityTestRule
 import androidx.appcompat.testutils.LocalesUtils.CUSTOM_LOCALE_LIST
 import androidx.appcompat.testutils.LocalesUtils.setLocalesAndWaitForRecreate
