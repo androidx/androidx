@@ -333,7 +333,8 @@ private fun SurfaceImpl(
         LocalAbsoluteTonalElevation provides absoluteElevation
     ) {
         val zIndex by animateFloatAsState(
-            targetValue = if (focused) FocusedZIndex else NonFocusedZIndex
+            targetValue = if (focused) FocusedZIndex else NonFocusedZIndex,
+            label = "zIndex"
         )
 
         val backgroundColorByState = surfaceColorAtElevation(
@@ -414,12 +415,14 @@ private fun Modifier.tvClickable(
     enabled: Boolean,
     onClick: (() -> Unit)?,
     interactionSource: MutableInteractionSource
-) = this
-    .handleDPadEnter(
-        enabled = enabled,
-        interactionSource = interactionSource,
-        onClick = onClick
-    )
+) = handleDPadEnter(
+    enabled = enabled,
+    interactionSource = interactionSource,
+    onClick = onClick
+)
+    // We are not using "clickable" modifier here because if we set "enabled" to false
+    // then the Surface won't be focusable as well. But, in TV use case, a disabled surface
+    // should be focusable
     .focusable(interactionSource = interactionSource)
     .semantics(mergeDescendants = true) {
         onClick {
@@ -447,11 +450,14 @@ private fun Modifier.tvToggleable(
     onCheckedChange: (Boolean) -> Unit,
     interactionSource: MutableInteractionSource,
 ) = handleDPadEnter(
-        enabled = enabled,
-        interactionSource = interactionSource,
-        checked = checked,
-        onCheckedChanged = onCheckedChange
-    )
+    enabled = enabled,
+    interactionSource = interactionSource,
+    checked = checked,
+    onCheckedChanged = onCheckedChange
+)
+    // We are not using "toggleable" modifier here because if we set "enabled" to false
+    // then the Surface won't be focusable as well. But, in TV use case, a disabled surface
+    // should be focusable
     .focusable(enabled = enabled, interactionSource = interactionSource)
     .semantics(mergeDescendants = true) {
         onClick {
@@ -492,35 +498,33 @@ private fun Modifier.handleDPadEnter(
     val coroutineScope = rememberCoroutineScope()
     val pressInteraction = remember { PressInteraction.Press(Offset.Zero) }
     var isPressed by remember { mutableStateOf(false) }
-    this.then(
-        onKeyEvent { keyEvent ->
-            if (AcceptableKeys.any { keyEvent.nativeKeyEvent.keyCode == it } && enabled) {
-                when (keyEvent.nativeKeyEvent.action) {
-                    NativeKeyEvent.ACTION_DOWN -> {
-                        if (!isPressed) {
-                            isPressed = true
-                            coroutineScope.launch {
-                                interactionSource.emit(pressInteraction)
-                            }
-                        }
-                    }
-
-                    NativeKeyEvent.ACTION_UP -> {
-                        if (isPressed) {
-                            isPressed = false
-                            coroutineScope.launch {
-                                interactionSource.emit(PressInteraction.Release(pressInteraction))
-                            }
-                            onClick?.invoke()
-                            onCheckedChanged?.invoke(!checked)
+    onKeyEvent { keyEvent ->
+        if (AcceptableKeys.any { keyEvent.nativeKeyEvent.keyCode == it } && enabled) {
+            when (keyEvent.nativeKeyEvent.action) {
+                NativeKeyEvent.ACTION_DOWN -> {
+                    if (!isPressed) {
+                        isPressed = true
+                        coroutineScope.launch {
+                            interactionSource.emit(pressInteraction)
                         }
                     }
                 }
-                return@onKeyEvent KeyEventPropagation.StopPropagation
+
+                NativeKeyEvent.ACTION_UP -> {
+                    if (isPressed) {
+                        isPressed = false
+                        coroutineScope.launch {
+                            interactionSource.emit(PressInteraction.Release(pressInteraction))
+                        }
+                        onClick?.invoke()
+                        onCheckedChanged?.invoke(!checked)
+                    }
+                }
             }
-            KeyEventPropagation.ContinuePropagation
+            return@onKeyEvent KeyEventPropagation.StopPropagation
         }
-    )
+        KeyEventPropagation.ContinuePropagation
+    }
 }
 
 @Composable
