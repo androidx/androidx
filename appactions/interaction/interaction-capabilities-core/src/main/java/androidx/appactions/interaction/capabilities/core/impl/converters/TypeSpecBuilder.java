@@ -305,9 +305,7 @@ final class TypeSpecBuilder<T, BuilderT> {
                     }
                     return spec.toValue(value);
                 },
-                (builder, value) -> {
-                    valueSetter.accept(builder, spec.fromValue(value));
-                });
+                (builder, value) -> valueSetter.accept(builder, spec.fromValue(value)));
     }
 
     /** binds a repeated spec field to read from / write to Struct. */
@@ -321,7 +319,7 @@ final class TypeSpecBuilder<T, BuilderT> {
                 valueGetter,
                 valueSetter,
                 spec::toValue,
-                (value) -> spec.fromValue(value));
+                spec::fromValue);
     }
 
     TypeSpec<T> build() {

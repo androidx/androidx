@@ -21,7 +21,7 @@ import androidx.appactions.interaction.capabilities.core.impl.exceptions.Invalid
 
 /**
  * Represents an internal issue with the state sync between the SDK and Assistant. One example is
- * when the SDK places an argument in dismabig state, but then Assistant sends the same argument
+ * when the SDK places an argument in disambig state, but then Assistant sends the same argument
  * data again without any grounding.
  */
 public final class DisambigStateException extends InvalidRequestException {

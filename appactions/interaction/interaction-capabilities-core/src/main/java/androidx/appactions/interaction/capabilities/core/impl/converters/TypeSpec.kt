@@ -47,7 +47,7 @@ interface TypeSpec<T> {
             ): Value = Value.newBuilder().setStringValue(obj).build()
 
             override fun fromValue(value: Value): String = when {
-                value.hasStringValue() -> value.getStringValue()
+                value.hasStringValue() -> value.stringValue
                 else -> throw StructConversionException("STRING_TYPE_SPEC cannot convert $value")
             }
         }
@@ -61,7 +61,7 @@ interface TypeSpec<T> {
             ): Value = Value.newBuilder().setBoolValue(obj).build()
 
             override fun fromValue(value: Value): Boolean = when {
-                value.hasBoolValue() -> value.getBoolValue()
+                value.hasBoolValue() -> value.boolValue
                 else -> throw StructConversionException("BOOL_TYPE_SPEC cannot convert $value")
             }
         }
@@ -75,7 +75,7 @@ interface TypeSpec<T> {
             ): Value = Value.newBuilder().setNumberValue(obj).build()
 
             override fun fromValue(value: Value): Double = when {
-                value.hasNumberValue() -> value.getNumberValue()
+                value.hasNumberValue() -> value.numberValue
                 else -> throw StructConversionException("NUMBER_TYPE_SPEC cannot convert $value")
             }
         }
@@ -89,7 +89,7 @@ interface TypeSpec<T> {
             ): Value = Value.newBuilder().setNumberValue(obj.toDouble()).build()
 
             override fun fromValue(value: Value): Int = when {
-                value.hasNumberValue() -> value.getNumberValue().toInt()
+                value.hasNumberValue() -> value.numberValue.toInt()
                 else -> throw StructConversionException("INTEGER_TYPE_SPEC cannot convert $value")
             }
         }
