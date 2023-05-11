@@ -25,7 +25,7 @@ import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.camera2.pipe.integration.adapter.EncoderProfilesProviderAdapter
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraXConfig
-import androidx.camera.core.DynamicRange
+import androidx.camera.core.DynamicRange.HLG_10_BIT
 import androidx.camera.core.DynamicRange.SDR
 import androidx.camera.core.impl.CameraInfoInternal
 import androidx.camera.core.impl.EncoderProfilesProvider
@@ -71,8 +71,6 @@ class BackupHdrProfileEncoderProfilesProviderTest(
     val labTest: LabTestRule = LabTestRule()
 
     companion object {
-        private val HLG10 = DynamicRange(DynamicRange.ENCODING_HLG, DynamicRange.BIT_DEPTH_10_BIT)
-
         @JvmStatic
         private val qualities = arrayOf(
             CamcorderProfile.QUALITY_LOW,
@@ -169,7 +167,7 @@ class BackupHdrProfileEncoderProfilesProviderTest(
     @Test
     fun providerWithDefaultValidator_provideHdrBackupProfile_whenBaseSdrProfileIsValid() {
         // Pre-arrange.
-        assumeTrue(cameraInfo.supportedDynamicRanges.containsAll(setOf(SDR, HLG10)))
+        assumeTrue(cameraInfo.supportedDynamicRanges.containsAll(setOf(SDR, HLG_10_BIT)))
 
         // Arrange.
         assumeTrue(baseProvider.hasProfile(quality))

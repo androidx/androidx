@@ -52,12 +52,10 @@ import androidx.camera.core.DynamicRange.BIT_DEPTH_10_BIT
 import androidx.camera.core.DynamicRange.BIT_DEPTH_8_BIT
 import androidx.camera.core.DynamicRange.BIT_DEPTH_UNSPECIFIED
 import androidx.camera.core.DynamicRange.ENCODING_DOLBY_VISION
-import androidx.camera.core.DynamicRange.ENCODING_HDR10
-import androidx.camera.core.DynamicRange.ENCODING_HDR10_PLUS
 import androidx.camera.core.DynamicRange.ENCODING_HDR_UNSPECIFIED
-import androidx.camera.core.DynamicRange.ENCODING_HLG
 import androidx.camera.core.DynamicRange.ENCODING_SDR
 import androidx.camera.core.DynamicRange.ENCODING_UNSPECIFIED
+import androidx.camera.core.DynamicRange.HLG_10_BIT
 import androidx.camera.core.DynamicRange.SDR
 import androidx.camera.core.UseCase
 import androidx.camera.core.impl.AttachedSurfaceInfo
@@ -1729,7 +1727,7 @@ class SupportedSurfaceCombinationTest {
             useCase to MAXIMUM_SIZE
         )
         val useCaseExpectedDynamicRangeMap = mapOf(
-            useCase to DynamicRange(ENCODING_HLG, BIT_DEPTH_10_BIT)
+            useCase to HLG_10_BIT
         )
 
         getSuggestedSpecsAndVerify(
@@ -1751,7 +1749,7 @@ class SupportedSurfaceCombinationTest {
             useCase to MAXIMUM_SIZE
         )
         val useCaseExpectedDynamicRangeMap = mapOf(
-            useCase to DynamicRange(ENCODING_HDR10, BIT_DEPTH_10_BIT)
+            useCase to DynamicRange.HDR10_10_BIT
         )
 
         getSuggestedSpecsAndVerify(
@@ -1774,7 +1772,7 @@ class SupportedSurfaceCombinationTest {
             useCase to MAXIMUM_SIZE
         )
         val useCaseExpectedDynamicRangeMap = mapOf(
-            useCase to DynamicRange(ENCODING_DOLBY_VISION, BIT_DEPTH_8_BIT)
+            useCase to DynamicRange.DOLBY_VISION_8_BIT
         )
 
         getSuggestedSpecsAndVerify(
@@ -1795,7 +1793,7 @@ class SupportedSurfaceCombinationTest {
             useCase to MAXIMUM_SIZE
         )
         val useCaseExpectedDynamicRangeMap = mapOf(
-            useCase to DynamicRange(ENCODING_DOLBY_VISION, BIT_DEPTH_8_BIT)
+            useCase to DynamicRange.DOLBY_VISION_8_BIT
         )
 
         getSuggestedSpecsAndVerify(
@@ -1816,7 +1814,7 @@ class SupportedSurfaceCombinationTest {
             useCase to MAXIMUM_SIZE
         )
         val useCaseExpectedDynamicRangeMap = mapOf(
-            useCase to DynamicRange(ENCODING_DOLBY_VISION, BIT_DEPTH_10_BIT)
+            useCase to DynamicRange.DOLBY_VISION_10_BIT
         )
 
         getSuggestedSpecsAndVerify(
@@ -1838,7 +1836,7 @@ class SupportedSurfaceCombinationTest {
             useCase to MAXIMUM_SIZE
         )
         val useCaseExpectedDynamicRangeMap = mapOf(
-            useCase to DynamicRange(ENCODING_DOLBY_VISION, BIT_DEPTH_8_BIT)
+            useCase to DynamicRange.DOLBY_VISION_8_BIT
         )
 
         getSuggestedSpecsAndVerify(
@@ -1859,7 +1857,7 @@ class SupportedSurfaceCombinationTest {
             useCase to MAXIMUM_SIZE
         )
         val useCaseExpectedDynamicRangeMap = mapOf(
-            useCase to DynamicRange(ENCODING_DOLBY_VISION, BIT_DEPTH_10_BIT)
+            useCase to DynamicRange.DOLBY_VISION_10_BIT
         )
 
         getSuggestedSpecsAndVerify(
@@ -1876,7 +1874,7 @@ class SupportedSurfaceCombinationTest {
     fun dynamicRangeResolver_returnsDolbyVision8_withUndefinedBitDepth_andFullyDefinedHlg10() {
         val videoUseCase = createUseCase(
             CaptureType.VIDEO_CAPTURE,
-            dynamicRange = DynamicRange(ENCODING_HLG, BIT_DEPTH_10_BIT)
+            dynamicRange = HLG_10_BIT
         )
         val previewUseCase = createUseCase(
             CaptureType.PREVIEW,
@@ -1887,8 +1885,8 @@ class SupportedSurfaceCombinationTest {
             previewUseCase to PREVIEW_SIZE
         )
         val useCaseExpectedDynamicRangeMap = mapOf(
-            videoUseCase to DynamicRange(ENCODING_HLG, BIT_DEPTH_10_BIT),
-            previewUseCase to DynamicRange(ENCODING_DOLBY_VISION, BIT_DEPTH_8_BIT)
+            videoUseCase to HLG_10_BIT,
+            previewUseCase to DynamicRange.DOLBY_VISION_8_BIT
         )
 
         getSuggestedSpecsAndVerify(
@@ -1905,12 +1903,12 @@ class SupportedSurfaceCombinationTest {
         // VideoCapture partially defined dynamic range
         val videoUseCase = createUseCase(
             CaptureType.VIDEO_CAPTURE,
-            dynamicRange = DynamicRange(ENCODING_HDR_UNSPECIFIED, BIT_DEPTH_10_BIT)
+            dynamicRange = DynamicRange.HDR_UNSPECIFIED_10_BIT
         )
         // Preview fully defined dynamic range
         val previewUseCase = createUseCase(
             CaptureType.PREVIEW,
-            dynamicRange = DynamicRange(ENCODING_DOLBY_VISION, BIT_DEPTH_8_BIT),
+            dynamicRange = DynamicRange.DOLBY_VISION_8_BIT,
 
             )
         val useCaseExpectedSizeMap = mutableMapOf(
@@ -1918,8 +1916,8 @@ class SupportedSurfaceCombinationTest {
             previewUseCase to PREVIEW_SIZE
         )
         val useCaseExpectedDynamicRangeMap = mapOf(
-            videoUseCase to DynamicRange(ENCODING_DOLBY_VISION, BIT_DEPTH_10_BIT),
-            previewUseCase to DynamicRange(ENCODING_DOLBY_VISION, BIT_DEPTH_8_BIT)
+            videoUseCase to DynamicRange.DOLBY_VISION_10_BIT,
+            previewUseCase to DynamicRange.DOLBY_VISION_8_BIT
         )
 
         getSuggestedSpecsAndVerify(
@@ -1946,8 +1944,8 @@ class SupportedSurfaceCombinationTest {
             previewUseCase to PREVIEW_SIZE
         )
         val useCaseExpectedDynamicRangeMap = mapOf(
-            previewUseCase to DynamicRange(ENCODING_HLG, BIT_DEPTH_10_BIT),
-            videoUseCase to DynamicRange(ENCODING_HLG, BIT_DEPTH_10_BIT)
+            previewUseCase to HLG_10_BIT,
+            videoUseCase to HLG_10_BIT
         )
 
         getSuggestedSpecsAndVerify(
@@ -2023,7 +2021,7 @@ class SupportedSurfaceCombinationTest {
         // VideoCapture has 10-bit HDR range with constraint for 8-bit non-SDR range
         val videoUseCase = createUseCase(
             CaptureType.VIDEO_CAPTURE,
-            dynamicRange = DynamicRange(ENCODING_DOLBY_VISION, BIT_DEPTH_10_BIT)
+            dynamicRange = DynamicRange.DOLBY_VISION_10_BIT
         )
         // Preview unspecified encoding but 8-bit bit depth
         val previewUseCase = createUseCase(
@@ -2037,8 +2035,8 @@ class SupportedSurfaceCombinationTest {
         )
 
         val useCaseExpectedDynamicRangeMap = mapOf(
-            videoUseCase to DynamicRange(ENCODING_DOLBY_VISION, BIT_DEPTH_10_BIT),
-            previewUseCase to DynamicRange(ENCODING_DOLBY_VISION, BIT_DEPTH_8_BIT)
+            videoUseCase to DynamicRange.DOLBY_VISION_10_BIT,
+            previewUseCase to DynamicRange.DOLBY_VISION_8_BIT
         )
 
         getSuggestedSpecsAndVerify(
@@ -2078,12 +2076,12 @@ class SupportedSurfaceCombinationTest {
         // VideoCapture fully resolved Dolby Vision 8-bit
         val videoUseCase = createUseCase(
             CaptureType.VIDEO_CAPTURE,
-            dynamicRange = DynamicRange(ENCODING_DOLBY_VISION, BIT_DEPTH_8_BIT)
+            dynamicRange = DynamicRange.DOLBY_VISION_8_BIT
         )
         // Preview unspecified encoding / 8-bit
         val previewUseCase = createUseCase(
             CaptureType.PREVIEW,
-            dynamicRange = DynamicRange(ENCODING_UNSPECIFIED, BIT_DEPTH_UNSPECIFIED)
+            dynamicRange = DynamicRange.UNSPECIFIED
         )
 
         // Since there are no 10-bit dynamic ranges, the 10-bit resolution table isn't used.
@@ -2095,8 +2093,8 @@ class SupportedSurfaceCombinationTest {
         )
 
         val useCaseExpectedDynamicRangeMap = mapOf(
-            videoUseCase to DynamicRange(ENCODING_DOLBY_VISION, BIT_DEPTH_8_BIT),
-            previewUseCase to DynamicRange(ENCODING_DOLBY_VISION, BIT_DEPTH_8_BIT)
+            videoUseCase to DynamicRange.DOLBY_VISION_8_BIT,
+            previewUseCase to DynamicRange.DOLBY_VISION_8_BIT
         )
 
         getSuggestedSpecsAndVerify(
@@ -2112,7 +2110,7 @@ class SupportedSurfaceCombinationTest {
         // JPEG use case can't be attached with an existing PRIV + YUV in the 10-bit tables
         val useCase = createUseCase(
             CaptureType.IMAGE_CAPTURE,
-            dynamicRange = DynamicRange(ENCODING_HLG, BIT_DEPTH_10_BIT)
+            dynamicRange = HLG_10_BIT
         )
         val useCaseExpectedSizeMap = mapOf(
             // Size would be valid for LIMITED table
@@ -2161,7 +2159,7 @@ class SupportedSurfaceCombinationTest {
     fun dynamicRangeConstraints_causeAutoResolutionToThrow() {
         val useCase = createUseCase(
             CaptureType.IMAGE_CAPTURE,
-            dynamicRange = DynamicRange(ENCODING_HLG, BIT_DEPTH_10_BIT)
+            dynamicRange = HLG_10_BIT
         )
         val useCaseExpectedSizeMap = mapOf(
             // Size would be valid for 10-bit table within constraints
@@ -2175,7 +2173,7 @@ class SupportedSurfaceCombinationTest {
             ),
             ImageFormat.PRIVATE,
             PREVIEW_SIZE,
-            DynamicRange(ENCODING_HDR10, BIT_DEPTH_10_BIT),
+            DynamicRange.HDR10_10_BIT,
             listOf(CaptureType.PREVIEW),
             useCase.currentConfig,
             /*targetFrameRate=*/null
@@ -2187,7 +2185,7 @@ class SupportedSurfaceCombinationTest {
             ),
             ImageFormat.YUV_420_888,
             RECORD_SIZE,
-            DynamicRange(ENCODING_HDR10_PLUS, BIT_DEPTH_10_BIT),
+            DynamicRange.HDR10_PLUS_10_BIT,
             listOf(CaptureType.VIDEO_CAPTURE),
             useCase.currentConfig,
             /*targetFrameRate=*/null
@@ -2219,7 +2217,7 @@ class SupportedSurfaceCombinationTest {
         // JPEG use case can be attached with an existing PRIV + PRIV in the 10-bit tables
         val useCase = createUseCase(
             CaptureType.IMAGE_CAPTURE,
-            dynamicRange = DynamicRange(ENCODING_HLG, BIT_DEPTH_10_BIT)
+            dynamicRange = HLG_10_BIT
         )
         val useCaseExpectedSizeMap = mapOf(
             // Size is valid for 10-bit table within constraints
@@ -2265,7 +2263,7 @@ class SupportedSurfaceCombinationTest {
         // VideoCapture HLG dynamic range
         val videoUseCase = createUseCase(
             CaptureType.VIDEO_CAPTURE,
-            dynamicRange = DynamicRange(ENCODING_HLG, BIT_DEPTH_10_BIT)
+            dynamicRange = HLG_10_BIT
         )
         // Preview SDR dynamic range
         val previewUseCase = createUseCase(
@@ -2294,7 +2292,7 @@ class SupportedSurfaceCombinationTest {
         // VideoCapture HLG dynamic range
         val videoUseCase = createUseCase(
             CaptureType.VIDEO_CAPTURE,
-            dynamicRange = DynamicRange(ENCODING_HLG, BIT_DEPTH_10_BIT)
+            dynamicRange = HLG_10_BIT
         )
         // Preview SDR dynamic range
         val previewUseCase = createUseCase(
@@ -2321,12 +2319,12 @@ class SupportedSurfaceCombinationTest {
         // VideoCapture HDR10 dynamic range
         val videoUseCase = createUseCase(
             CaptureType.VIDEO_CAPTURE,
-            dynamicRange = DynamicRange(ENCODING_HDR10, BIT_DEPTH_10_BIT)
+            dynamicRange = DynamicRange.HDR10_10_BIT
         )
         // Preview HDR10_PLUS dynamic range
         val previewUseCase = createUseCase(
             CaptureType.PREVIEW,
-            dynamicRange = DynamicRange(ENCODING_HDR10_PLUS, BIT_DEPTH_10_BIT)
+            dynamicRange = DynamicRange.HDR10_PLUS_10_BIT
         )
 
         val useCaseExpectedSizeMap = mutableMapOf(

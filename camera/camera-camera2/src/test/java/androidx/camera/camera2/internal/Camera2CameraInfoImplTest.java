@@ -18,6 +18,7 @@ package androidx.camera.camera2.internal;
 
 import static android.hardware.camera2.CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES;
 
+import static androidx.camera.core.DynamicRange.HLG_10_BIT;
 import static androidx.camera.core.DynamicRange.SDR;
 
 import static com.google.common.truth.Truth.assertThat;
@@ -143,9 +144,6 @@ public class Camera2CameraInfoImplTest {
             new Range<>(12, 30),
             new Range<>(30, 30),
     };
-    private static final DynamicRange HLG10 = new DynamicRange(DynamicRange.ENCODING_HLG,
-            DynamicRange.BIT_DEPTH_10_BIT);
-
     private CameraCharacteristicsCompat mCameraCharacteristics0;
     private CameraManagerCompat mCameraManagerCompat;
     private ZoomControl mMockZoomControl;
@@ -701,7 +699,7 @@ public class Camera2CameraInfoImplTest {
                 CAMERA0_ID, mCameraManagerCompat);
 
         Set<DynamicRange> supportedDynamicRanges = cameraInfo.getSupportedDynamicRanges();
-        assertThat(supportedDynamicRanges).containsExactly(SDR, HLG10);
+        assertThat(supportedDynamicRanges).containsExactly(SDR, HLG_10_BIT);
     }
 
     @Config(maxSdk = 32)

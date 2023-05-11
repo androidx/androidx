@@ -56,8 +56,6 @@ import java.util.Set;
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 final class DynamicRangeResolver {
     private static final String TAG = "DynamicRangeResolver";
-    private static final DynamicRange DYNAMIC_RANGE_HLG10 =
-            new DynamicRange(DynamicRange.ENCODING_HLG, DynamicRange.BIT_DEPTH_10_BIT);
     private final CameraCharacteristicsCompat mCharacteristics;
     private final DynamicRangesCompat mDynamicRangesInfo;
     private final boolean mIs10BitSupported;
@@ -296,7 +294,7 @@ final class DynamicRangeResolver {
             }
             // Attempt to fall back to HLG since it is a mandated required 10-bit
             // dynamic range.
-            hdrDefaultRanges.add(DYNAMIC_RANGE_HLG10);
+            hdrDefaultRanges.add(DynamicRange.HLG_10_BIT);
             resolvedDynamicRange = findSupportedHdrMatch(requestedDynamicRange,
                     hdrDefaultRanges, combinedConstraints);
             if (resolvedDynamicRange != null) {

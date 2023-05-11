@@ -28,8 +28,8 @@ import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraXConfig
 import androidx.camera.core.DynamicRange
 import androidx.camera.core.DynamicRange.BIT_DEPTH_10_BIT
-import androidx.camera.core.DynamicRange.ENCODING_HLG
 import androidx.camera.core.DynamicRange.HDR_UNSPECIFIED_10_BIT
+import androidx.camera.core.DynamicRange.HLG_10_BIT
 import androidx.camera.core.Preview
 import androidx.camera.core.SurfaceRequest
 import androidx.camera.core.impl.CameraInfoInternal
@@ -116,8 +116,6 @@ class VideoCaptureDeviceTest(
             arrayOf(Camera2Config::class.simpleName, Camera2Config.defaultConfig()),
             arrayOf(CameraPipeConfig::class.simpleName, CameraPipeConfig.defaultConfig())
         )
-
-        private val DYNAMIC_RANGE_HLG10 = DynamicRange(ENCODING_HLG, BIT_DEPTH_10_BIT)
     }
 
     private val context: Context = ApplicationProvider.getApplicationContext()
@@ -395,13 +393,13 @@ class VideoCaptureDeviceTest(
     fun dynamicRangeHlg_selectsHlg(): Unit = runBlocking {
         assumeTrue(
             "Device does not support HLG10",
-            cameraInfo.supportedDynamicRanges.contains(DYNAMIC_RANGE_HLG10)
+            cameraInfo.supportedDynamicRanges.contains(HLG_10_BIT)
         )
 
         testDynamicRangeSelection(
-            requestedDynamicRange = DYNAMIC_RANGE_HLG10
+            requestedDynamicRange = HLG_10_BIT
         ) { selectedDynamicRange ->
-            assertThat(selectedDynamicRange).isEqualTo(DYNAMIC_RANGE_HLG10)
+            assertThat(selectedDynamicRange).isEqualTo(HLG_10_BIT)
         }
     }
     @SdkSuppress(minSdkVersion = 33) // HLG10 only supported on API 33+
@@ -412,13 +410,13 @@ class VideoCaptureDeviceTest(
         assumeTrue(implName != CameraPipeConfig::class.simpleName)
         assumeTrue(
             "Device does not support HLG10",
-            cameraInfo.supportedDynamicRanges.contains(DYNAMIC_RANGE_HLG10)
+            cameraInfo.supportedDynamicRanges.contains(HLG_10_BIT)
         )
 
         // Arrange.
         val videoOutput = createTestVideoOutput()
         val videoCapture = VideoCapture.Builder(videoOutput)
-            .setDynamicRange(DYNAMIC_RANGE_HLG10)
+            .setDynamicRange(HLG_10_BIT)
             .build()
 
         // Act.
@@ -430,7 +428,7 @@ class VideoCaptureDeviceTest(
         // Wait for surface request to ensure session config was attached
         videoOutput.nextSurfaceRequest(5, TimeUnit.SECONDS)
         val outputConfig = videoCapture.sessionConfig.outputConfigs.first()
-        assertThat(outputConfig.dynamicRange).isEqualTo(DYNAMIC_RANGE_HLG10)
+        assertThat(outputConfig.dynamicRange).isEqualTo(HLG_10_BIT)
     }
 
     @SdkSuppress(minSdkVersion = 33) // 10-bit HDR only supported on API 33+
@@ -459,13 +457,13 @@ class VideoCaptureDeviceTest(
         assumeTrue(implName != CameraPipeConfig::class.simpleName)
         assumeTrue(
             "Device does not support HLG10",
-            cameraInfo.supportedDynamicRanges.contains(DYNAMIC_RANGE_HLG10)
+            cameraInfo.supportedDynamicRanges.contains(HLG_10_BIT)
         )
 
         // Arrange.
         val videoOutput = createTestVideoOutput()
         val videoCapture = VideoCapture.Builder(videoOutput)
-            .setDynamicRange(DYNAMIC_RANGE_HLG10)
+            .setDynamicRange(HLG_10_BIT)
             .build()
         // Preview will derive dynamic range from VideoCapture since it uses
         // DynamicRange.UNSPECIFIED by default.
@@ -487,8 +485,8 @@ class VideoCaptureDeviceTest(
              deferredSurfaceRequest.await()
         } ?: fail("Timed out waiting for Preview SurfaceRequest. Waited $timeout.")
         val previewOutputConfig = preview.sessionConfig.outputConfigs.first()
-        assertThat(previewSurfaceRequest.dynamicRange).isEqualTo(DYNAMIC_RANGE_HLG10)
-        assertThat(previewOutputConfig.dynamicRange).isEqualTo(DYNAMIC_RANGE_HLG10)
+        assertThat(previewSurfaceRequest.dynamicRange).isEqualTo(HLG_10_BIT)
+        assertThat(previewOutputConfig.dynamicRange).isEqualTo(HLG_10_BIT)
     }
 
     private suspend fun testDynamicRangeSelection(

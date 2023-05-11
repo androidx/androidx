@@ -26,6 +26,8 @@ import static android.hardware.DataSpace.TRANSFER_SRGB;
 import static android.hardware.DataSpace.TRANSFER_UNSPECIFIED;
 import static android.os.Build.VERSION.SDK_INT;
 
+import static androidx.camera.core.DynamicRange.HLG_10_BIT;
+
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 
@@ -152,8 +154,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 @SdkSuppress(minSdkVersion = 21)
 @RequiresApi(21)
 public final class CaptureSessionTest {
-    private static final DynamicRange DYNAMIC_RANGE_HLG10 =
-            new DynamicRange(DynamicRange.ENCODING_HLG, DynamicRange.BIT_DEPTH_10_BIT);
 
     // Enumerate possible SDR transfer functions. This may need to be updated if more transfer
     // functions are added to the DataSpace class.
@@ -385,7 +385,7 @@ public final class CaptureSessionTest {
     public void openCaptureSessionWithHlgDynamicRange()
             throws ExecutionException, InterruptedException, TimeoutException {
         openCaptureSessionAndVerifyDynamicRangeApplied(
-                DYNAMIC_RANGE_HLG10,
+                HLG_10_BIT,
                 Collections.singleton(STANDARD_BT2020),
                 Collections.singleton(TRANSFER_HLG));
     }
