@@ -97,7 +97,9 @@ import androidx.core.view.accessibility.AccessibilityNodeInfoCompat
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat
 import androidx.core.view.accessibility.AccessibilityNodeProviderCompat
 import androidx.core.view.contentcapture.ContentCaptureSessionCompat
+import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
 import kotlin.math.abs
 import kotlin.math.ceil
 import kotlin.math.floor
@@ -190,7 +192,8 @@ private fun LayoutNode.findClosestParentNode(selector: (LayoutNode) -> Boolean):
 
 @OptIn(InternalTextApi::class)
 internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidComposeView) :
-    AccessibilityDelegateCompat() {
+    AccessibilityDelegateCompat(),
+    DefaultLifecycleObserver {
     companion object {
         /** Virtual node identifier value for invalid nodes. */
         const val InvalidId = Integer.MIN_VALUE
@@ -449,6 +452,14 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
                 contentCaptureSession = null
             }
         })
+    }
+
+    override fun onStart(owner: LifecycleOwner) {
+        initContentCaptureSemanticsStructureChangeEvents(onStart = true)
+    }
+
+    override fun onStop(owner: LifecycleOwner) {
+        initContentCaptureSemanticsStructureChangeEvents(onStart = false)
     }
 
     /**
@@ -2787,7 +2798,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
             structure.setClassName(it)
         }
 
-        with(boundsInWindow) {
+        with(boundsInParent) {
             structure.setDimens(
                 left.toInt(), top.toInt(), 0, 0, width.toInt(), height.toInt()
             )
@@ -2842,9 +2853,22 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         }
     }
 
-    private fun notifySubtreeAppeared(node: SemanticsNode) {
+    private fun updateContentCaptureBuffersOnAppeared(node: SemanticsNode) {
+        if (!isEnabledForContentCapture) {
+            return
+        }
         bufferContentCaptureViewAppeared(node.id, node.toViewStructure())
-        node.replacedChildren.fastForEach { child -> notifySubtreeAppeared(child) }
+        node.replacedChildren.fastForEach { child -> updateContentCaptureBuffersOnAppeared(child) }
+    }
+
+    private fun updateContentCaptureBuffersOnDisappeared(node: SemanticsNode) {
+        if (!isEnabledForContentCapture) {
+            return
+        }
+        bufferContentCaptureViewDisappeared(node.id)
+        node.replacedChildren.fastForEach {
+                child -> updateContentCaptureBuffersOnDisappeared(child)
+        }
     }
 
     private fun sendAccessibilitySemanticsStructureChangeEvents(
@@ -2880,6 +2904,19 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         }
     }
 
+    internal fun initContentCaptureSemanticsStructureChangeEvents(onStart: Boolean) {
+        if (!isEnabledForContentCapture) {
+            return
+        }
+
+        if (onStart) {
+            updateContentCaptureBuffersOnAppeared(view.semanticsOwner.unmergedRootSemanticsNode)
+        } else {
+            updateContentCaptureBuffersOnDisappeared(view.semanticsOwner.unmergedRootSemanticsNode)
+        }
+        notifyContentCaptureChanges()
+    }
+
     @VisibleForTesting
     internal fun sendContentCaptureSemanticsStructureChangeEvents(
         newNode: SemanticsNode,
@@ -2889,7 +2926,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         newNode.replacedChildren.fastForEach { child ->
             if (currentSemanticsNodes.contains(child.id) &&
                 !oldNode.children.contains(child.id)) {
-                notifySubtreeAppeared(child)
+                updateContentCaptureBuffersOnAppeared(child)
             }
         }
         // Notify content capture disappear
