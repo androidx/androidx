@@ -16,6 +16,18 @@
 
 ## Unreleased
 
+### New Features
+
+- NavHost and NavController now supports navigating in compose with Animations.
+
+### Bug Fixes
+
+- Fixed an issue with Navigation in Fragments where navigating
+with popUpTo and popping a fragment off the back stack without
+recreating its view would cause system back to stop working.
+
+## Version 2.6.0-rc01
+
 ### Bug Fixes
 
 - Updated the error message and exception type when navigating on a NavController with no
