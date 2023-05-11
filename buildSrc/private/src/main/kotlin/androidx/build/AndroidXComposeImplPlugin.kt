@@ -148,26 +148,7 @@ class AndroidXComposeImplPlugin : Plugin<Project> {
                     // Lint tries to apply this rule to modules that do not have this lint check, so
                     // we disable that check too
                     disable.add("UnknownIssueId")
-                    error.add("ComposableNaming")
-                    error.add("ComposableLambdaParameterNaming")
-                    error.add("ComposableLambdaParameterPosition")
-                    error.add("CompositionLocalNaming")
-                    error.add("ComposableModifierFactory")
-                    error.add("AutoboxingStateCreation")
-                    error.add("AutoboxingStateValueProperty")
-                    error.add("InvalidColorHexValue")
-                    error.add("MissingColorAlphaChannel")
-                    error.add("ModifierFactoryReturnType")
-                    error.add("ModifierFactoryExtensionFunction")
-                    error.add("ModifierNodeInspectableProperties")
-                    error.add("ModifierParameter")
-                    error.add("MutableCollectionMutableState")
-                    error.add("OpaqueUnitKey")
-                    error.add("UnnecessaryComposedModifier")
-                    error.add("FrequentlyChangedStateReadInComposition")
-                    error.add("ReturnFromAwaitPointerEventScope")
-                    error.add("UseOfNonLambdaOffsetOverload")
-                    error.add("MultipleAwaitPointerEventScopes")
+                    error.addAll(ComposeLintWarningIdsToTreatAsErrors)
 
                     // Paths we want to enable ListIterator checks for - for higher level
                     // libraries it won't have a noticeable performance impact, and we don't want
