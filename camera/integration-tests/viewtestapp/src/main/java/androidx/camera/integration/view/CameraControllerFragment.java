@@ -56,7 +56,6 @@ import android.widget.ToggleButton;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.OptIn;
 import androidx.annotation.RequiresPermission;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.CameraSelector;
@@ -76,7 +75,6 @@ import androidx.camera.view.LifecycleCameraController;
 import androidx.camera.view.PreviewView;
 import androidx.camera.view.RotationProvider;
 import androidx.camera.view.video.AudioConfig;
-import androidx.camera.view.video.ExperimentalVideo;
 import androidx.core.util.Consumer;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.LiveData;
@@ -187,7 +185,6 @@ public class CameraControllerFragment extends Fragment {
     @RequiresPermission(Manifest.permission.RECORD_AUDIO)
     @NonNull
     @Override
-    @OptIn(markerClass = ExperimentalVideo.class)
     public View onCreateView(
             @NonNull LayoutInflater inflater,
             @Nullable ViewGroup container,
@@ -446,7 +443,6 @@ public class CameraControllerFragment extends Fragment {
     /**
      * Updates UI text based on the state of {@link #mCameraController}.
      */
-    @OptIn(markerClass = ExperimentalVideo.class)
     private void updateUiText() {
         mFlashMode.setText(getFlashModeTextResId());
         final Integer lensFacing = mCameraController.getCameraSelector().getLensFacing();
@@ -503,7 +499,6 @@ public class CameraControllerFragment extends Fragment {
         }
     }
 
-    @OptIn(markerClass = ExperimentalVideo.class)
     private void onUseCaseToggled(CompoundButton compoundButton, boolean value) {
         if (mCaptureEnabledToggle == null || mAnalysisEnabledToggle == null
                 || mVideoEnabledToggle == null) {
@@ -645,7 +640,6 @@ public class CameraControllerFragment extends Fragment {
     @RequiresPermission(Manifest.permission.RECORD_AUDIO)
     @VisibleForTesting
     @MainThread
-    @OptIn(markerClass = ExperimentalVideo.class)
     void startRecording(Consumer<VideoRecordEvent> listener) {
         MediaStoreOutputOptions outputOptions = getNewVideoOutputMediaStoreOptions();
         AudioConfig audioConfig = AudioConfig.create(true);
@@ -655,7 +649,6 @@ public class CameraControllerFragment extends Fragment {
 
     @VisibleForTesting
     @MainThread
-    @OptIn(markerClass = ExperimentalVideo.class)
     void stopRecording() {
         if (mActiveRecording != null) {
             mActiveRecording.stop();
