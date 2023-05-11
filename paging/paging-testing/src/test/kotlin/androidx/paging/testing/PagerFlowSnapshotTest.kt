@@ -26,7 +26,6 @@ import androidx.paging.cachedIn
 import androidx.paging.insertSeparators
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertFailsWith
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -37,8 +36,6 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
-import kotlinx.coroutines.test.setMain
-import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
@@ -67,11 +64,6 @@ class PagerFlowSnapshotTest(
         data.asPagingSourceFactory(),
         loadDelay
     )
-
-    @Before
-    fun init() {
-        Dispatchers.setMain(UnconfinedTestDispatcher())
-    }
 
     @Test
     fun initialRefresh() {
