@@ -15,17 +15,14 @@
  */
 
 import androidx.build.LibraryType
-import androidx.build.AndroidXComposePlugin
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("AndroidXComposePlugin")
+    id("org.jetbrains.kotlin.android")
 }
-
-// Disable multi-platform.
-AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project, /* isMultiplatformEnabled= */ false)
 
 dependencies {
     api(project(":compose:foundation:foundation"))
