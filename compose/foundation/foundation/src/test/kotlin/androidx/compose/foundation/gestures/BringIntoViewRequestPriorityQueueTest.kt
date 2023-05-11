@@ -16,7 +16,7 @@
 
 package androidx.compose.foundation.gestures
 
-import androidx.compose.foundation.gestures.ContentInViewModifier.Request
+import androidx.compose.foundation.gestures.ContentInViewNode.Request
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
