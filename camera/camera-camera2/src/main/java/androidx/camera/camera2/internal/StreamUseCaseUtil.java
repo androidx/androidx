@@ -212,6 +212,32 @@ public final class StreamUseCaseUtil {
     }
 
     /**
+     * Return true if the given camera characteristics support stream use case
+     */
+    @OptIn(markerClass = ExperimentalCamera2Interop.class)
+    public static boolean isStreamUseCaseSupported(
+            @NonNull CameraCharacteristicsCompat characteristicsCompat) {
+        if (Build.VERSION.SDK_INT < 33) {
+            return false;
+        }
+        long[] availableStreamUseCases = characteristicsCompat.get(
+                CameraCharacteristics.SCALER_AVAILABLE_STREAM_USE_CASES);
+        if (availableStreamUseCases == null || availableStreamUseCases.length == 0) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Return true if the given feature settings is appropriate for stream use case usage.
+     */
+    public static boolean shouldUseStreamUseCase(@NonNull
+            SupportedSurfaceCombination.FeatureSettings featureSettings) {
+        return featureSettings.getCameraMode() == CameraMode.DEFAULT
+                && featureSettings.getRequiredMaxBitDepth() == DynamicRange.BIT_DEPTH_8_BIT;
+    }
+
+    /**
      * Populate the {@link STREAM_USE_CASE_STREAM_SPEC_OPTION} option in StreamSpecs for both
      * existing UseCases and new UseCases to be attached. This option will be written into the
      * session configurations of the UseCases. When creating a new capture session during
@@ -219,30 +245,20 @@ public final class StreamUseCaseUtil {
      * {@link android.hardware.camera2.params.OutputConfiguration#setStreamUseCase(long)}
      *
      * @param characteristicsCompat        the camera characteristics of the device
-     * @param featureSettings              the feature settings of this capture
      * @param attachedSurfaces             surface info of the already attached use cases
      * @param suggestedStreamSpecMap       the UseCaseConfig-to-StreamSpec map for new use cases
      * @param attachedSurfaceStreamSpecMap the SurfaceInfo-to-StreamSpec map for attached use cases
      *                                     whose StreamSpecs needs to be updated
+     * @return true if StreamSpec options are populated. False if not.
      */
     @OptIn(markerClass = ExperimentalCamera2Interop.class)
-    public static void populateStreamUseCaseStreamSpecOption(
+    public static boolean populateStreamUseCaseStreamSpecOptionWithInteropOverride(
             @NonNull CameraCharacteristicsCompat characteristicsCompat,
-            @NonNull SupportedSurfaceCombination.FeatureSettings featureSettings,
             @NonNull List<AttachedSurfaceInfo> attachedSurfaces,
             @NonNull Map<UseCaseConfig<?>, StreamSpec> suggestedStreamSpecMap,
             @NonNull Map<AttachedSurfaceInfo, StreamSpec> attachedSurfaceStreamSpecMap) {
         if (Build.VERSION.SDK_INT < 33) {
-            return;
-        }
-        long[] availableStreamUseCases = characteristicsCompat.get(
-                CameraCharacteristics.SCALER_AVAILABLE_STREAM_USE_CASES);
-        if (availableStreamUseCases == null || availableStreamUseCases.length == 0) {
-            return;
-        }
-        if (featureSettings.getCameraMode() != CameraMode.DEFAULT
-                || featureSettings.getRequiredMaxBitDepth() != DynamicRange.BIT_DEPTH_8_BIT) {
-            return;
+            return false;
         }
         List<UseCaseConfig<?>> newUseCaseConfigs = new ArrayList<>(suggestedStreamSpecMap.keySet());
         // All AttachedSurfaceInfo should have implementation options
@@ -254,10 +270,9 @@ public final class StreamUseCaseUtil {
             Preconditions.checkNotNull(Preconditions.checkNotNull(
                     suggestedStreamSpecMap.get(useCaseConfig)).getImplementationOptions());
         }
-        if (containsZslUseCase(attachedSurfaces, newUseCaseConfigs)) {
-            return;
-        }
         Set<Long> availableStreamUseCaseSet = new HashSet<>();
+        long[] availableStreamUseCases = characteristicsCompat.get(
+                CameraCharacteristics.SCALER_AVAILABLE_STREAM_USE_CASES);
         for (Long availableStreamUseCase : availableStreamUseCases) {
             availableStreamUseCaseSet.add(availableStreamUseCase);
         }
@@ -297,7 +312,9 @@ public final class StreamUseCaseUtil {
                     suggestedStreamSpecMap.put(newUseCaseConfig, newStreamSpec);
                 }
             }
+            return true;
         }
+        return false;
     }
 
     /**
@@ -324,9 +341,9 @@ public final class StreamUseCaseUtil {
     /**
      * Return true if any one of the existing or new UseCases is ZSL.
      */
-    private static boolean containsZslUseCase(
-            List<AttachedSurfaceInfo> attachedSurfaces,
-            List<UseCaseConfig<?>> newUseCaseConfigs) {
+    public static boolean containsZslUseCase(
+            @NonNull List<AttachedSurfaceInfo> attachedSurfaces,
+            @NonNull List<UseCaseConfig<?>> newUseCaseConfigs) {
         for (AttachedSurfaceInfo attachedSurfaceInfo : attachedSurfaces) {
             List<UseCaseConfigFactory.CaptureType> captureTypes =
                     attachedSurfaceInfo.getCaptureTypes();
