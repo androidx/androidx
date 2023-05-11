@@ -41,7 +41,6 @@ public class CustomTabsFeatures {
      * This feature covers {@link EngagementSignalsCallback},
      * {@link CustomTabsSession#isEngagementSignalsApiAvailable},
      * {@link CustomTabsSession#setEngagementSignalsCallback} and
-     * {@link CustomTabsSession#getGreatestScrollPercentage}.
      */
     public static final String ENGAGEMENT_SIGNALS = "ENGAGEMENT_SIGNALS";
 }

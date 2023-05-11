@@ -16,7 +16,6 @@
 
 package androidx.browser.customtabs;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
@@ -79,12 +78,5 @@ public class CustomTabsSessionTest {
         }, callback, Bundle.EMPTY));
         verify(mService.getMock()).setEngagementSignalsCallback(any(ICustomTabsCallback.class),
                 any(IBinder.class), any(Bundle.class));
-    }
-
-    @Test
-    public void testGetGreatestScrollPercentage() throws RemoteException {
-        when(mService.getMock().getGreatestScrollPercentage(any(ICustomTabsCallback.class),
-                any(Bundle.class))).thenReturn(75);
-        assertEquals(75, mSession.getGreatestScrollPercentage(Bundle.EMPTY));
     }
 }
