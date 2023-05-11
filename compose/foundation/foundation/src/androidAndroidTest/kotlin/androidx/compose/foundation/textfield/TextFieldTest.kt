@@ -1441,6 +1441,43 @@ class TextFieldTest {
             assertThat(dividerSize!!.height).isEqualTo(size!!.height)
         }
     }
+
+    @Test
+    fun decorationBox_togglingInnerTextField() {
+        var value by mutableStateOf("")
+        val decorationTag = "decorationTag"
+        rule.setContent {
+            Column {
+                BasicTextField(
+                    value = value,
+                    onValueChange = { value = it },
+                    modifier = Modifier.fillMaxWidth().testTag(Tag),
+                    decorationBox = {
+                        // the core text field is at the very bottom
+                        if (value.isEmpty()) {
+                            BasicText("test", modifier = Modifier.testTag(decorationTag))
+                        } else {
+                            it()
+                        }
+                    }
+                )
+            }
+        }
+
+        rule.onNodeWithTag(decorationTag, true).assertExists()
+
+        rule.onNode(hasSetTextAction()).performTextInput("hello")
+
+        rule.onNodeWithTag(decorationTag, true).assertDoesNotExist()
+
+        rule.onNode(hasSetTextAction()).performTextClearance()
+
+        rule.onNodeWithTag(decorationTag, true).assertExists()
+
+        rule.onNode(hasSetTextAction()).performTextInput("hello2")
+
+        rule.onNodeWithTag(decorationTag, true).assertDoesNotExist()
+    }
 }
 
 private fun SemanticsNodeInteraction.assertEditableTextEquals(
