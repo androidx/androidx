@@ -7,8 +7,6 @@ Using AndroidX remote build cache
 ZipFile closed
 # > Task :room:integration-tests:room-testapp:runErrorProne
 java\.util\.zip\.ZipException\: ZipFile closed
-# > Task :compose:internal-lint-checks:lint
-Classpath entry points to a non\-existent location\: \$OUT_DIR\/ui\/compose\/internal\-lint\-checks\/build\/classes\/kotlin\/main
 # > Task :compose:animation:animation-core:testDebugUnitTest
 androidx\.compose\.animation\.core\.AnimationClockTest \> testSubscriptionDuringFrameCallback FAILED
 kotlin\.UninitializedPropertyAccessException at AnimationClockTest\.kt\:[0-9]+
