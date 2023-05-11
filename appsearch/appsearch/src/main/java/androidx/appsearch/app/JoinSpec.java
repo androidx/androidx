@@ -181,8 +181,8 @@ public final class JoinSpec {
     }
 
     /**
-     * Returns the max amount of {@link SearchResult} objects that will be joined to the parent
-     * document, with a default of 10 SearchResults.
+     * Returns the max amount of {@link SearchResult} objects to return with the parent document,
+     * with a default of 10 SearchResults.
      */
     public int getMaxJoinedResultCount() {
         return mBundle.getInt(MAX_JOINED_RESULT_COUNT);
@@ -280,8 +280,13 @@ public final class JoinSpec {
         }
 
         /**
-         * Sets the max amount of {@link SearchResults} to join to the parent document, with a
+         * Sets the max amount of {@link SearchResults} to return with the parent document, with a
          * default of 10 SearchResults.
+         *
+         * <p>This does NOT limit the number of results that are joined with the parent
+         * document for scoring. This means that, when set, only a maximum of
+         * {@code maxJoinedResultCount} results will be returned with each parent document, but
+         * all results that are joined with a parent will factor into the score.
          */
         @CanIgnoreReturnValue
         @NonNull
