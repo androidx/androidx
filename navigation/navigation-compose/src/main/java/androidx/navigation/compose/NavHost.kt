@@ -16,22 +16,32 @@
 
 package androidx.navigation.compose
 
+import android.annotation.SuppressLint
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
-import androidx.compose.animation.Crossfade
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.ContentTransform
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.updateTransition
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
-import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavDestination
+import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
@@ -57,6 +67,10 @@ import kotlinx.coroutines.flow.map
  * @param route the route for the graph
  * @param builder the builder used to construct the graph
  */
+@Deprecated(
+    message = "Deprecated in favor of NavHost that supports AnimatedContent",
+    level = DeprecationLevel.HIDDEN
+)
 @Composable
 public fun NavHost(
     navController: NavHostController,
@@ -80,6 +94,57 @@ public fun NavHost(
  * Once this is called, any Composable within the given [NavGraphBuilder] can be navigated to from
  * the provided [navController].
  *
+ * The builder passed into this method is [remember]ed. This means that for this NavHost, the
+ * contents of the builder cannot be changed.
+ *
+ * @param navController the navController for this host
+ * @param startDestination the route for the start destination
+ * @param modifier The modifier to be applied to the layout.
+ * @param contentAlignment The [Alignment] of the [AnimatedContent]
+ * @param route the route for the graph
+ * @param enterTransition callback to define enter transitions for destination in this host
+ * @param exitTransition callback to define exit transitions for destination in this host
+ * @param popEnterTransition callback to define popEnter transitions for destination in this host
+ * @param popExitTransition callback to define popExit transitions for destination in this host
+ * @param builder the builder used to construct the graph
+ */
+@Composable
+public fun NavHost(
+    navController: NavHostController,
+    startDestination: String,
+    modifier: Modifier = Modifier,
+    contentAlignment: Alignment = Alignment.Center,
+    route: String? = null,
+    enterTransition: (AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition) =
+        { fadeIn(animationSpec = tween(700)) },
+    exitTransition: (AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition) =
+        { fadeOut(animationSpec = tween(700)) },
+    popEnterTransition: (AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition) =
+        enterTransition,
+    popExitTransition: (AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition) =
+        exitTransition,
+    builder: NavGraphBuilder.() -> Unit
+) {
+    NavHost(
+        navController,
+        remember(route, startDestination, builder) {
+            navController.createGraph(startDestination, route, builder)
+        },
+        modifier,
+        contentAlignment,
+        enterTransition,
+        exitTransition,
+        popEnterTransition,
+        popExitTransition
+    )
+}
+
+/**
+ * Provides in place in the Compose hierarchy for self contained navigation to occur.
+ *
+ * Once this is called, any Composable within the given [NavGraphBuilder] can be navigated to from
+ * the provided [navController].
+ *
  * The graph passed into this method is [remember]ed. This means that for this NavHost, the graph
  * cannot be changed.
  *
@@ -87,12 +152,49 @@ public fun NavHost(
  * @param graph the graph for this host
  * @param modifier The modifier to be applied to the layout.
  */
+@Deprecated(
+    message = "Deprecated in favor of NavHost that supports AnimatedContent",
+    level = DeprecationLevel.HIDDEN
+)
 @Composable
 public fun NavHost(
     navController: NavHostController,
     graph: NavGraph,
     modifier: Modifier = Modifier
+) = NavHost(navController, graph, modifier)
+
+/**
+ * Provides in place in the Compose hierarchy for self contained navigation to occur.
+ *
+ * Once this is called, any Composable within the given [NavGraphBuilder] can be navigated to from
+ * the provided [navController].
+ *
+ * @param navController the navController for this host
+ * @param graph the graph for this host
+ * @param modifier The modifier to be applied to the layout.
+ * @param contentAlignment The [Alignment] of the [AnimatedContent]
+ * @param enterTransition callback to define enter transitions for destination in this host
+ * @param exitTransition callback to define exit transitions for destination in this host
+ * @param popEnterTransition callback to define popEnter transitions for destination in this host
+ * @param popExitTransition callback to define popExit transitions for destination in this host
+ */
+@SuppressLint("StateFlowValueCalledInComposition")
+@Composable
+public fun NavHost(
+    navController: NavHostController,
+    graph: NavGraph,
+    modifier: Modifier = Modifier,
+    contentAlignment: Alignment = Alignment.Center,
+    enterTransition: (AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition) =
+        { fadeIn(animationSpec = tween(700)) },
+    exitTransition: (AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition) =
+        { fadeOut(animationSpec = tween(700)) },
+    popEnterTransition: (AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition) =
+        enterTransition,
+    popExitTransition: (AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition) =
+        exitTransition,
 ) {
+
     val lifecycleOwner = LocalLifecycleOwner.current
     val viewModelStoreOwner = checkNotNull(LocalViewModelStoreOwner.current) {
         "NavHost requires a ViewModelStoreOwner to be provided via LocalViewModelStoreOwner"
@@ -127,8 +229,8 @@ public fun NavHost(
     ) as? ComposeNavigator ?: return
     val visibleEntries by remember(navController.visibleEntries) {
         navController.visibleEntries.map {
-            it.filter {
-                    entry -> entry.destination.navigatorName == ComposeNavigator.NAME
+            it.filter { entry ->
+                entry.destination.navigatorName == ComposeNavigator.NAME
             }
         }
     }.collectAsState(emptyList())
@@ -139,38 +241,75 @@ public fun NavHost(
         visibleEntries.lastOrNull()
     }
 
-    var initialCrossfade by remember { mutableStateOf(true) }
     if (backStackEntry != null) {
-        // while in the scope of the composable, we provide the navBackStackEntry as the
-        // ViewModelStoreOwner and LifecycleOwner
-        Crossfade(backStackEntry.id, modifier) {
-            val lastEntry = if (LocalInspectionMode.current) {
+        val finalEnter: AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition = {
+            val targetDestination = targetState.destination as ComposeNavigator.Destination
+
+            if (composeNavigator.isPop.value) {
+                targetDestination.hierarchy.firstNotNullOfOrNull { destination ->
+                    popEnterTransitions[destination.route]?.invoke(this)
+                } ?: popEnterTransition.invoke(this)
+            } else {
+                targetDestination.hierarchy.firstNotNullOfOrNull { destination ->
+                    enterTransitions[destination.route]?.invoke(this)
+                } ?: enterTransition.invoke(this)
+            }
+        }
+
+        val finalExit: AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition = {
+            val initialDestination = initialState.destination as ComposeNavigator.Destination
+
+            if (composeNavigator.isPop.value) {
+                initialDestination.hierarchy.firstNotNullOfOrNull { destination ->
+                    popExitTransitions[destination.route]?.invoke(this)
+                } ?: popExitTransition.invoke(this)
+            } else {
+                initialDestination.hierarchy.firstNotNullOfOrNull { destination ->
+                    exitTransitions[destination.route]?.invoke(this)
+                } ?: exitTransition.invoke(this)
+            }
+        }
+
+        val transition = updateTransition(backStackEntry, label = "entry")
+        transition.AnimatedContent(
+            modifier,
+            transitionSpec = {
+                val zIndex = composeNavigator.backStack.value.size.toFloat()
+                // If the initialState of the AnimatedContent is not in visibleEntries, we are in
+                // a case where visible has cleared the old state for some reason, so instead of
+                // attempting to animate away from the initialState, we skip the animation.
+                if (initialState in visibleEntries) {
+                    ContentTransform(finalEnter(this), finalExit(this), zIndex)
+                } else {
+                    EnterTransition.None togetherWith ExitTransition.None
+                }
+            },
+            contentAlignment,
+            contentKey = { it.id }
+        ) {
+            // In some specific cases, such as clearing your back stack by changing your
+            // start destination, AnimatedContent can contain an entry that is no longer
+            // part of visible entries since it was cleared from the back stack and is not
+            // animating. In these cases the currentEntry will be null, and in those cases,
+            // AnimatedContent will just skip attempting to transition the old entry.
+            // See https://issuetracker.google.com/238686802
+            val currentEntry = if (LocalInspectionMode.current) {
                 // show startDestination if inspecting (preview)
                 composeNavigator.backStack.value
             } else {
                 visibleEntries
-            }.lastOrNull { entry ->
-                it == entry.id
-            }
-            // We are disposing on a Unit as we only want to dispose when the CrossFade completes
-            DisposableEffect(Unit) {
-                if (initialCrossfade) {
-                    // There's no animation for the initial crossfade,
-                    // so we can instantly mark the transition as complete
-                    visibleEntries.forEach { entry ->
-                        composeNavigator.onTransitionComplete(entry)
-                    }
-                    initialCrossfade = false
-                }
-                onDispose {
-                    visibleEntries.forEach { entry ->
-                        composeNavigator.onTransitionComplete(entry)
-                    }
-                }
-            }
+            }.lastOrNull { entry -> it == entry }
 
-            lastEntry?.LocalOwnersProvider(saveableStateHolder) {
-                (lastEntry.destination as ComposeNavigator.Destination).content(lastEntry)
+            // while in the scope of the composable, we provide the navBackStackEntry as the
+            // ViewModelStoreOwner and LifecycleOwner
+            currentEntry?.LocalOwnersProvider(saveableStateHolder) {
+                (currentEntry.destination as ComposeNavigator.Destination)
+                    .content(this, currentEntry)
+            }
+        }
+        if (transition.currentState == transition.targetState) {
+            visibleEntries.forEach { entry ->
+                composeNavigator.onTransitionComplete(entry)
             }
         }
     }
@@ -182,3 +321,19 @@ public fun NavHost(
     // Show any dialog destinations
     DialogHost(dialogNavigator)
 }
+
+internal val enterTransitions =
+    mutableMapOf<String?,
+        (AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition?)?>()
+
+internal val exitTransitions =
+    mutableMapOf<String?,
+        (AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition?)?>()
+
+internal val popEnterTransitions =
+    mutableMapOf<String?,
+        (AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition?)?>()
+
+internal val popExitTransitions =
+    mutableMapOf<String?,
+        (AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition?)?>()
