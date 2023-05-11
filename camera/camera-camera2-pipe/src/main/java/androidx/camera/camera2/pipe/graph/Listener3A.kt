@@ -68,6 +68,12 @@ internal class Listener3A @Inject constructor() : Request.Listener {
         listeners.remove(listener)
     }
 
+    internal fun onStopRepeating() {
+        for (listener in listeners) {
+            listener.onRequestSequenceStopped()
+        }
+    }
+
     private fun updateListeners(requestNumber: RequestNumber, metadata: FrameMetadata) {
         for (listener in listeners) {
             if (listener.update(requestNumber, metadata)) {

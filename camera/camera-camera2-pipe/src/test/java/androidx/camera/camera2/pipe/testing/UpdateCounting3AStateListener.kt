@@ -35,4 +35,6 @@ internal class UpdateCounting3AStateListener(private val listener: Result3AState
         updateCount++
         return listener.update(requestNumber, frameMetadata)
     }
+
+    override fun onRequestSequenceStopped() {}
 }

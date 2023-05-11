@@ -66,6 +66,7 @@ internal class CameraGraphSessionImpl(
     override fun stopRepeating() {
         check(!closed.value) { "Cannot call stopRepeating on $this after close." }
         graphProcessor.stopRepeating()
+        controller3A.onStopRepeating()
     }
 
     override fun close() {

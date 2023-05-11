@@ -63,6 +63,8 @@ internal class FakeGraphProcessor(
         repeatingRequest = null
     }
 
+    override fun hasRepeatingRequest() = repeatingRequest != null
+
     override fun submit(request: Request) {
         submit(listOf(request))
     }
@@ -75,6 +77,8 @@ internal class FakeGraphProcessor(
         if (closed) {
             return false
         }
+        if (repeatingRequest == null) return false
+
         val currProcessor = processor
         val currRepeatingRequest = repeatingRequest
         val requiredParameters = mutableMapOf<Any, Any?>()

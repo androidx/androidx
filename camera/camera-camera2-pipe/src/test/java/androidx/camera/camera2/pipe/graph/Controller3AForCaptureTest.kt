@@ -26,6 +26,7 @@ import androidx.camera.camera2.pipe.RequestNumber
 import androidx.camera.camera2.pipe.Result3A
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
 import androidx.camera.camera2.pipe.testing.FakeFrameMetadata
+import androidx.camera.camera2.pipe.testing.FakeGraphProcessor
 import androidx.camera.camera2.pipe.testing.FakeRequestMetadata
 import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
 import com.google.common.truth.Truth.assertThat
@@ -53,6 +54,20 @@ class Controller3AForCaptureTest {
     @After
     fun teardown() {
         graphTestContext.close()
+    }
+
+    @Test
+    fun testLock3AForCaptureFailsImmediatelyWithoutRepeatingRequest() = runTest {
+        val graphProcessor2 = FakeGraphProcessor()
+        val controller3A =
+            Controller3A(
+                graphProcessor2,
+                FakeCameraMetadata(),
+                graphProcessor2.graphState3A,
+                listener3A
+            )
+        val result = controller3A.lock3AForCapture()
+        assertThat(result.await().status).isEqualTo(Result3A.Status.SUBMIT_FAILED)
     }
 
     @Test
