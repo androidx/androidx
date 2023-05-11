@@ -16,6 +16,7 @@
 
 package androidx.compose.animation.demos
 
+import androidx.compose.animation.core.samples.SeekingAnimationSample
 import androidx.compose.animation.demos.fancy.AnimatedClockDemo
 import androidx.compose.animation.demos.fancy.AnimatedDotsDemo
 import androidx.compose.animation.demos.fancy.ChatScreen
@@ -80,6 +81,7 @@ val AnimationDemos = DemoCategory(
             listOf(
                 ComposableDemo("Double tap to like") { DoubleTapToLikeDemo() },
                 ComposableDemo("Gesture based animation") { GestureBasedAnimationDemo() },
+                ComposableDemo("Seeking animation") { SeekingAnimationSample() },
                 ComposableDemo("Infinite transition") { InfiniteTransitionDemo() },
                 ComposableDemo("Multi-dimensional prop") { MultiDimensionalAnimationDemo() },
                 ComposableDemo("Repeating rotation") { RepeatedRotationDemo() },
