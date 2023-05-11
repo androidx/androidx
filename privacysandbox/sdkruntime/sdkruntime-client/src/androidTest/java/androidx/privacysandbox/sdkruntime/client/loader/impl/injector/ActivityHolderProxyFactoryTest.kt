@@ -16,6 +16,7 @@
 
 package androidx.privacysandbox.sdkruntime.client.loader.impl.injector
 
+import androidx.activity.OnBackPressedCallback
 import androidx.lifecycle.Lifecycle
 import androidx.privacysandbox.sdkruntime.client.EmptyActivity
 import androidx.privacysandbox.sdkruntime.client.TestActivityHolder
@@ -61,12 +62,51 @@ class ActivityHolderProxyFactoryTest {
     }
 
     @Test
-    fun getOnBackPressedDispatcher_DoesntThrow() {
+    fun getOnBackPressedDispatcher_ProxyBackPressedFromSourceDispatcher() {
         with(ActivityScenario.launch(EmptyActivity::class.java)) {
             withActivity {
                 val activityHolder = TestActivityHolder(this)
                 val proxy = factory.createProxyFor(activityHolder) as ActivityHolder
-                proxy.getOnBackPressedDispatcher()
+                val callback = CountingOnBackPressedCallback()
+
+                val sourceDispatcher = activityHolder.getOnBackPressedDispatcher()
+                val proxyDispatcher = proxy.getOnBackPressedDispatcher()
+
+                proxyDispatcher.addCallback(callback)
+                sourceDispatcher.onBackPressed()
+                assertThat(callback.count).isEqualTo(1)
+
+                callback.remove()
+                sourceDispatcher.onBackPressed()
+                assertThat(callback.count).isEqualTo(1)
+            }
+        }
+    }
+
+    @Test
+    fun getOnBackPressedDispatcher_EnableSourceCallbackOnlyWhenEnabledCallbackAddedToProxy() {
+        with(ActivityScenario.launch(EmptyActivity::class.java)) {
+            withActivity {
+                val activityHolder = TestActivityHolder(this)
+                val proxy = factory.createProxyFor(activityHolder) as ActivityHolder
+                val callback = CountingOnBackPressedCallback()
+
+                val sourceDispatcher = activityHolder.getOnBackPressedDispatcher()
+                val proxyDispatcher = proxy.getOnBackPressedDispatcher()
+
+                assertThat(sourceDispatcher.hasEnabledCallbacks()).isFalse()
+
+                proxyDispatcher.addCallback(callback)
+                assertThat(sourceDispatcher.hasEnabledCallbacks()).isTrue()
+
+                callback.isEnabled = false
+                assertThat(sourceDispatcher.hasEnabledCallbacks()).isFalse()
+
+                callback.isEnabled = true
+                assertThat(sourceDispatcher.hasEnabledCallbacks()).isTrue()
+
+                callback.remove()
+                assertThat(sourceDispatcher.hasEnabledCallbacks()).isFalse()
             }
         }
     }
@@ -82,6 +122,14 @@ class ActivityHolderProxyFactoryTest {
                     assertThat(proxy.lifecycle.currentState).isEqualTo(event.targetState)
                 }
             }
+        }
+    }
+
+    private class CountingOnBackPressedCallback : OnBackPressedCallback(true) {
+        var count = 0
+
+        override fun handleOnBackPressed() {
+            count++
         }
     }
 }
