@@ -349,10 +349,23 @@ internal class LayoutHelper(val layout: Layout) {
         }
     }
 
-    private fun getDownstreamHorizontal(offset: Int, primary: Boolean) = if (primary) {
-        layout.getPrimaryHorizontal(offset)
-    } else {
-        layout.getSecondaryHorizontal(offset)
+    private fun getDownstreamHorizontal(offset: Int, primary: Boolean): Float {
+        val lineNo = layout.getLineForOffset(offset)
+        val lineEnd = layout.getLineEnd(lineNo)
+
+        // [android.text.Layout#getHorizontal] has a bug that causes a crash if requested offset
+        // is in an ellipsized region and comes after a line feed character. We coerce at most to
+        // lineEnd of the line this offset belongs to. getLineEnd respects line feed characters.
+        // Any ellipsized character should already return the visible end value, which they do until
+        // a line feed character. We can safely assume rest of the characters can also return the
+        // same result as the reported line end.
+        val targetOffset = offset.coerceAtMost(lineEnd)
+
+        return if (primary) {
+            layout.getPrimaryHorizontal(targetOffset)
+        } else {
+            layout.getSecondaryHorizontal(targetOffset)
+        }
     }
 
     private data class BidiRun(val start: Int, val end: Int, val isRtl: Boolean)
