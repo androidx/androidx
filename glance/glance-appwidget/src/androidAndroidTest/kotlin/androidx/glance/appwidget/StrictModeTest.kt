@@ -36,6 +36,7 @@ import androidx.glance.text.Text
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth
+import java.util.Arrays
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
@@ -65,7 +66,9 @@ class StrictModeTest {
                 .penaltyListener(executor) {
                     Log.e("StrictModeTest", "Logging violation:")
                     Log.e("StrictModeTest", "$it")
-                    Log.e("StrictModeTest", "Stack trace: ${it.stackTrace}", it.cause)
+                    Log.e("StrictModeTest", "Stack trace: ${Arrays.toString(it.stackTrace)}",
+                        it.cause)
+                    Log.e("StrictModeTest", "${it.cause}", it.cause)
                     fail("Received violation: $it")
                 }.build()
         )
