@@ -83,20 +83,20 @@ internal fun complexQuadraticFormula(
     b: Double,
     c: Double
 ): Pair<ComplexDouble, ComplexDouble> {
-    val firstRoot = (-b + complexSqrt(b * b - 4.0 * a * c)) / (2.0 * a)
-    val secondRoot = (-b - complexSqrt(b * b - 4.0 * a * c)) / (2.0 * a)
+    val partialRoot = b * b - 4.0 * a * c
+    val divisor = 1.0 / (2.0 * a)
+    val firstRoot = (-b + complexSqrt(partialRoot)) * divisor
+    val secondRoot = (-b - complexSqrt(partialRoot)) * divisor
     return firstRoot to secondRoot
 }
 
 /**
  * Returns the square root of [num] which may be imaginary.
  */
-internal fun complexSqrt(num: Double): ComplexDouble {
-    return if (num < 0.0) {
-        ComplexDouble(0.0, sqrt(abs(num)))
-    } else {
-        ComplexDouble(sqrt(num), 0.0)
-    }
+internal fun complexSqrt(num: Double): ComplexDouble = if (num < 0.0) {
+    ComplexDouble(0.0, sqrt(abs(num)))
+} else {
+    ComplexDouble(sqrt(num), 0.0)
 }
 
 internal inline operator fun Double.plus(other: ComplexDouble): ComplexDouble {
