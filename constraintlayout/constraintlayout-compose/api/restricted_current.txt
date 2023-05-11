@@ -998,18 +998,18 @@ package androidx.constraintlayout.compose {
 
   public final class TransitionScope {
     method public androidx.constraintlayout.compose.ConstrainedLayoutReference createRefFor(Object id);
+    method public float getMaxStaggerDelay();
     method public androidx.constraintlayout.compose.Arc getMotionArc();
     method public androidx.constraintlayout.compose.OnSwipe? getOnSwipe();
-    method public float getStaggered();
     method public void keyAttributes(androidx.constraintlayout.compose.ConstrainedLayoutReference![] targets, kotlin.jvm.functions.Function1<? super androidx.constraintlayout.compose.KeyAttributesScope,kotlin.Unit> keyAttributesContent);
     method public void keyCycles(androidx.constraintlayout.compose.ConstrainedLayoutReference![] targets, kotlin.jvm.functions.Function1<? super androidx.constraintlayout.compose.KeyCyclesScope,kotlin.Unit> keyCyclesContent);
     method public void keyPositions(androidx.constraintlayout.compose.ConstrainedLayoutReference![] targets, kotlin.jvm.functions.Function1<? super androidx.constraintlayout.compose.KeyPositionsScope,kotlin.Unit> keyPositionsContent);
+    method public void setMaxStaggerDelay(float);
     method public void setMotionArc(androidx.constraintlayout.compose.Arc);
     method public void setOnSwipe(androidx.constraintlayout.compose.OnSwipe?);
-    method public void setStaggered(float);
+    property public final float maxStaggerDelay;
     property public final androidx.constraintlayout.compose.Arc motionArc;
     property public final androidx.constraintlayout.compose.OnSwipe? onSwipe;
-    property public final float staggered;
   }
 
   public final class TransitionScopeKt {

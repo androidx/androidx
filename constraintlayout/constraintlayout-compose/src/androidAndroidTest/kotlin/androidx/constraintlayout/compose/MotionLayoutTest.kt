@@ -537,7 +537,7 @@ internal class MotionLayoutTest {
                                     }
                                 }
                             ) {
-                                staggered = staggeredValue.value
+                                maxStaggerDelay = staggeredValue.value
                             }
                         }
                     }
