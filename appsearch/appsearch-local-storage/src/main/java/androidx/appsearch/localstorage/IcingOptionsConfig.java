@@ -92,4 +92,14 @@ public interface IcingOptionsConfig {
      * <p>NO_COMPRESSION = 0, BEST_SPEED = 1, BEST_COMPRESSION = 9
      */
     int getCompressionLevel();
+
+    /**
+     * Whether to allow circular references between schema types for the schema definition.
+     *
+     * <p>Even when set to true, circular references are still not allowed in the following cases:
+     *   1. All edges of a cycle have index_nested_properties=true
+     *   2. One of the types in the cycle has a joinable property, or depends on a type with a
+     *   joinable property.
+     */
+    boolean getAllowCircularSchemaDefinitions();
 }

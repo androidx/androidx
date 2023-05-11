@@ -4568,7 +4568,10 @@ public abstract class AppSearchSessionCtsTestBase {
         assertThat(sr.get(0).getGenericDocument().getId()).isEqualTo("id1");
         assertThat(sr.get(0).getJoinedResults()).hasSize(1);
         assertThat(sr.get(0).getJoinedResults().get(0).getGenericDocument()).isEqualTo(viewAction1);
-        assertThat(sr.get(0).getRankingSignal()).isEqualTo(1.0);
+        // SearchSpec.Builder#setMaxJoinedResultCount only limits the number of child documents
+        // returned. It does not affect the number of child documents that are scored. So the score
+        // (the COUNT of the number of children) is 2, even though only one child is returned.
+        assertThat(sr.get(0).getRankingSignal()).isEqualTo(2.0);
 
         assertThat(sr.get(1).getGenericDocument().getId()).isEqualTo("id2");
         assertThat(sr.get(1).getRankingSignal()).isEqualTo(0.0);

@@ -29,14 +29,21 @@ import android.os.Build;
 import androidx.annotation.NonNull;
 import androidx.appsearch.app.AppSearchBatchResult;
 import androidx.appsearch.app.AppSearchSchema;
+import androidx.appsearch.app.AppSearchSchema.PropertyConfig;
+import androidx.appsearch.app.AppSearchSchema.StringPropertyConfig;
 import androidx.appsearch.app.AppSearchSession;
 import androidx.appsearch.app.Features;
 import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.app.GetByDocumentIdRequest;
+import androidx.appsearch.app.JoinSpec;
 import androidx.appsearch.app.PutDocumentsRequest;
+import androidx.appsearch.app.SearchResult;
+import androidx.appsearch.app.SearchResults;
+import androidx.appsearch.app.SearchSpec;
 import androidx.appsearch.app.SetSchemaRequest;
 import androidx.appsearch.platformstorage.PlatformStorage;
 import androidx.appsearch.testutil.AppSearchEmail;
+import androidx.appsearch.util.DocumentIdUtil;
 import androidx.core.os.BuildCompat;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.SdkSuppress;
@@ -160,5 +167,106 @@ public class AppSearchSessionPlatformCtsTest extends AppSearchSessionCtsTestBase
         // b/229770338 was fixed in Android T, this test will fail on S_V2 devices and below.
         assumeTrue(BuildCompat.isAtLeastT());
         super.testEmojiSnippet();
+    }
+
+    // TODO(b/256022027) Remove this overridden test once the change to setMaxJoinedResultCount
+    // is synced over into framework.
+    @Override
+    @Test
+    public void testSimpleJoin() throws Exception {
+        Context context = ApplicationProvider.getApplicationContext();
+        AppSearchSession db = PlatformStorage.createSearchSessionAsync(
+                new PlatformStorage.SearchContext.Builder(context, DB_NAME_1).build()).get();
+        assumeTrue(db.getFeatures().isFeatureSupported(Features.JOIN_SPEC_AND_QUALIFIED_ID));
+
+        // A full example of how join might be used
+        AppSearchSchema actionSchema = new AppSearchSchema.Builder("ViewAction")
+                .addProperty(new StringPropertyConfig.Builder("entityId")
+                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setIndexingType(StringPropertyConfig.INDEXING_TYPE_EXACT_TERMS)
+                        .setJoinableValueType(StringPropertyConfig
+                                .JOINABLE_VALUE_TYPE_QUALIFIED_ID)
+                        .setTokenizerType(StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                        .build()
+                ).addProperty(new StringPropertyConfig.Builder("note")
+                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setIndexingType(StringPropertyConfig.INDEXING_TYPE_EXACT_TERMS)
+                        .setTokenizerType(StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                        .build()
+                ).build();
+
+        // Schema registration
+        db.setSchemaAsync(
+                new SetSchemaRequest.Builder().addSchemas(AppSearchEmail.SCHEMA, actionSchema)
+                        .build()).get();
+
+        // Index a document
+        // While inEmail2 has a higher document score, we will rank based on the number of joined
+        // documents. inEmail1 will have 1 joined document while inEmail2 will have 0 joined
+        // documents.
+        AppSearchEmail inEmail =
+                new AppSearchEmail.Builder("namespace", "id1")
+                        .setFrom("from@example.com")
+                        .setTo("to1@example.com", "to2@example.com")
+                        .setSubject("testPut example")
+                        .setBody("This is the body of the testPut email")
+                        .setScore(1)
+                        .build();
+
+        AppSearchEmail inEmail2 =
+                new AppSearchEmail.Builder("namespace", "id2")
+                        .setFrom("from@example.com")
+                        .setTo("to1@example.com", "to2@example.com")
+                        .setSubject("testPut example")
+                        .setBody("This is the body of the testPut email")
+                        .setScore(10)
+                        .build();
+
+        String qualifiedId = DocumentIdUtil.createQualifiedId(context.getPackageName(), DB_NAME_1,
+                "namespace", "id1");
+        GenericDocument viewAction1 = new GenericDocument.Builder<>("NS", "id3", "ViewAction")
+                .setScore(1)
+                .setPropertyString("entityId", qualifiedId)
+                .setPropertyString("note", "Viewed email on Monday").build();
+        GenericDocument viewAction2 = new GenericDocument.Builder<>("NS", "id4", "ViewAction")
+                .setScore(2)
+                .setPropertyString("entityId", qualifiedId)
+                .setPropertyString("note", "Viewed email on Tuesday").build();
+        checkIsBatchResultSuccess(db.putAsync(
+                new PutDocumentsRequest.Builder().addGenericDocuments(inEmail, inEmail2,
+                                viewAction1, viewAction2)
+                        .build()));
+
+        SearchSpec nestedSearchSpec =
+                new SearchSpec.Builder()
+                        .setRankingStrategy(SearchSpec.RANKING_STRATEGY_DOCUMENT_SCORE)
+                        .setOrder(SearchSpec.ORDER_ASCENDING)
+                        .build();
+
+        JoinSpec js = new JoinSpec.Builder("entityId")
+                .setNestedSearch("", nestedSearchSpec)
+                .setAggregationScoringStrategy(JoinSpec.AGGREGATION_SCORING_RESULT_COUNT)
+                .setMaxJoinedResultCount(1)
+                .build();
+
+        SearchResults searchResults = db.search("body email", new SearchSpec.Builder()
+                .setRankingStrategy(SearchSpec.RANKING_STRATEGY_JOIN_AGGREGATE_SCORE)
+                .setJoinSpec(js)
+                .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                .build());
+
+        List<SearchResult> sr = searchResults.getNextPageAsync().get();
+
+        // Both email docs are returned, but id1 comes first due to the join
+        assertThat(sr).hasSize(2);
+
+        assertThat(sr.get(0).getGenericDocument().getId()).isEqualTo("id1");
+        assertThat(sr.get(0).getJoinedResults()).hasSize(1);
+        assertThat(sr.get(0).getJoinedResults().get(0).getGenericDocument()).isEqualTo(viewAction1);
+        assertThat(sr.get(0).getRankingSignal()).isEqualTo(1.0);
+
+        assertThat(sr.get(1).getGenericDocument().getId()).isEqualTo("id2");
+        assertThat(sr.get(1).getRankingSignal()).isEqualTo(0.0);
+        assertThat(sr.get(1).getJoinedResults()).isEmpty();
     }
 }
