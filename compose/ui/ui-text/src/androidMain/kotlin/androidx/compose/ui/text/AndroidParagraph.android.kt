@@ -310,6 +310,9 @@ internal class AndroidParagraph(
      * the top, bottom, left and right of a character.
      */
     override fun getBoundingBox(offset: Int): Rect {
+        require(offset in charSequence.indices) {
+            "offset($offset) is out of bounds [0,${charSequence.length})"
+        }
         val rectF = layout.getBoundingBox(offset)
         return with(rectF) { Rect(left = left, top = top, right = right, bottom = bottom) }
     }
@@ -348,11 +351,9 @@ internal class AndroidParagraph(
     }
 
     override fun getPathForRange(start: Int, end: Int): Path {
-        if (start !in 0..end || end > charSequence.length) {
-            throw AssertionError(
-                "Start($start) or End($end) is out of Range(0..${charSequence.length})," +
-                    " or start > end!"
-            )
+        require(start in 0..end && end <= charSequence.length) {
+            "start($start) or end($end) is out of range [0..${charSequence.length}]," +
+                " or start > end!"
         }
         val path = android.graphics.Path()
         layout.getSelectionPath(start, end, path)
@@ -360,8 +361,8 @@ internal class AndroidParagraph(
     }
 
     override fun getCursorRect(offset: Int): Rect {
-        if (offset !in 0..charSequence.length) {
-            throw AssertionError("offset($offset) is out of bounds (0,${charSequence.length}")
+        require(offset in 0..charSequence.length) {
+            "offset($offset) is out of bounds [0,${charSequence.length}]"
         }
         val horizontal = layout.getPrimaryHorizontal(offset)
         val line = layout.getLineForOffset(offset)
