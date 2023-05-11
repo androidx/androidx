@@ -146,6 +146,10 @@ class WindowAreaComponentValidatorTest {
         override fun endRearDisplaySession() {
             throw NotImplementedError("Not implemented")
         }
+
+        override fun getRearDisplayMetrics(): DisplayMetrics {
+            throw NotImplementedError("Not implemented")
+        }
     }
 
     private class WindowAreaComponentApiV2Implementation : WindowAreaComponentApi2Requirements {
@@ -207,6 +211,10 @@ class WindowAreaComponentValidatorTest {
         }
 
         override fun getRearDisplayPresentation(): ExtensionWindowAreaPresentation? {
+            throw NotImplementedError("Not implemented")
+        }
+
+        override fun getRearDisplayMetrics(): DisplayMetrics {
             throw NotImplementedError("Not implemented")
         }
     }

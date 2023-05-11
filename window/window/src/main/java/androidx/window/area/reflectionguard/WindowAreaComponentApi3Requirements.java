@@ -17,6 +17,7 @@
 package androidx.window.area.reflectionguard;
 
 import android.app.Activity;
+import android.util.DisplayMetrics;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -55,4 +56,8 @@ public interface WindowAreaComponentApi3Requirements extends WindowAreaComponent
     /** @see WindowAreaComponent#getRearDisplayPresentation */
     @Nullable
     ExtensionWindowAreaPresentation getRearDisplayPresentation();
+
+    /** @see WindowAreaComponent#getRearDisplayMetrics() */
+    @NonNull
+    DisplayMetrics getRearDisplayMetrics();
 }
