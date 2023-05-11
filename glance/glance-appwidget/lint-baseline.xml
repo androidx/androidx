@@ -7,7 +7,7 @@
         errorLine1="        Thread.sleep(5000)"
         errorLine2="               ~~~~~">
         <location
-            file="src/androidAndroidTest/kotlin/androidx/glance/appwidget/AppWidgetHostRule.kt"/>
+            file="src/androidTest/kotlin/androidx/glance/appwidget/AppWidgetHostRule.kt"/>
     </issue>
 
     <issue
@@ -16,7 +16,7 @@
         errorLine1="                        Thread.sleep(500)"
         errorLine2="                               ~~~~~">
         <location
-            file="src/androidAndroidTest/kotlin/androidx/glance/appwidget/AppWidgetHostRule.kt"/>
+            file="src/androidTest/kotlin/androidx/glance/appwidget/AppWidgetHostRule.kt"/>
     </issue>
 
     <issue
@@ -25,7 +25,7 @@
         errorLine1="            Thread.sleep(sleepMs)"
         errorLine2="                   ~~~~~">
         <location
-            file="src/androidAndroidTest/kotlin/androidx/glance/appwidget/CoroutineBroadcastReceiverTest.kt"/>
+            file="src/androidTest/kotlin/androidx/glance/appwidget/CoroutineBroadcastReceiverTest.kt"/>
     </issue>
 
     <issue
@@ -34,7 +34,7 @@
         errorLine1="            Thread.sleep(interval)"
         errorLine2="                   ~~~~~">
         <location
-            file="src/androidAndroidTest/kotlin/androidx/glance/appwidget/GlanceAppWidgetReceiverTest.kt"/>
+            file="src/androidTest/kotlin/androidx/glance/appwidget/GlanceAppWidgetReceiverTest.kt"/>
     </issue>
 
 </issues>
