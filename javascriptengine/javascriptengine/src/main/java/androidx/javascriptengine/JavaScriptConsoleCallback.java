@@ -114,7 +114,7 @@ public interface JavaScriptConsoleCallback {
                 default:
                     return "?";
             }
-        };
+        }
 
         /**
          * Return the log level.
@@ -165,17 +165,8 @@ public interface JavaScriptConsoleCallback {
         @NonNull
         @Override
         public String toString() {
-            return new StringBuilder()
-                    .append(getLevelInitial())
-                    .append(" ")
-                    .append(mSource)
-                    .append(":")
-                    .append(mLine)
-                    .append(":")
-                    .append(mColumn)
-                    .append(": ")
-                    .append(mMessage)
-                    .toString();
+            return getLevelInitial() + " " + mSource + ":" + mLine + ":" + mColumn + ": "
+                    + mMessage;
         }
     }
 
@@ -193,4 +184,4 @@ public interface JavaScriptConsoleCallback {
      * The default implementation does nothing.
      */
     default void onConsoleClear() {}
-};
+}
