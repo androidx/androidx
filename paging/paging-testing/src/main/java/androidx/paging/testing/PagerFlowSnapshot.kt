@@ -84,7 +84,7 @@ public suspend fun <Value : Any> Flow<PagingData<Value>>.asSnapshot(
     }
 
     // PagingDataDiffer automatically switches to Dispatchers.Main to call presentNewList
-    val differ = object : PagingDataDiffer<Value>(callback) {
+    val differ = object : PagingDataDiffer<Value>(callback, coroutineScope.coroutineContext) {
         override suspend fun presentNewList(
             previousList: NullPaddedList<Value>,
             newList: NullPaddedList<Value>,
