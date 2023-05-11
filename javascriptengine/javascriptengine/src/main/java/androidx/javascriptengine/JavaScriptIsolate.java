@@ -334,7 +334,8 @@ public final class JavaScriptIsolate implements AutoCloseable {
      * {@link #evaluateJavaScriptAsync(String)}.
      * @param code UTF-8 encoded JavaScript code to evaluate. The script should return a
      *             JavaScript String or, alternatively, a Promise that will resolve to a String if
-     *             {@link JavaScriptSandbox#JS_FEATURE_PROMISE_RETURN} is supported.
+     *             {@link JavaScriptSandbox#JS_FEATURE_PROMISE_RETURN} is supported. The byte
+     *             array must not be modified until the evaluation has completed.
      * @return Future that evaluates to the result String of the evaluation or exceptions (see
      * {@link JavaScriptException} and subclasses) if there is an error
      */
