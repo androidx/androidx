@@ -16,21 +16,17 @@
 
 package androidx.core.telecom
 
-import android.content.Context
-import android.net.Uri
 import android.os.Build.VERSION_CODES
 import android.telecom.Connection
 import android.telecom.ConnectionRequest
 import androidx.annotation.RequiresApi
+import androidx.core.telecom.TestUtils.Companion.TEST_CALL_ATTRIB_NAME
+import androidx.core.telecom.TestUtils.Companion.TEST_CALL_ATTRIB_NUMBER
 import androidx.core.telecom.internal.CallChannels
 import androidx.core.telecom.internal.JetpackConnectionService
-import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
-import androidx.testutils.TestExecutor
-import kotlin.coroutines.CoroutineContext
-import kotlinx.coroutines.asCoroutineDispatcher
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
@@ -40,22 +36,13 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 @RequiresApi(VERSION_CODES.O)
 @SdkSuppress(minSdkVersion = VERSION_CODES.O /* api=26 */)
-class JetpackConnectionServiceTest {
-
-    private val mContext: Context = ApplicationProvider.getApplicationContext()
-    private val mCallsManager = CallsManager(mContext)
-    private val mConnectionService = mCallsManager.mConnectionService
-    private val mHandle = mCallsManager.getPhoneAccountHandleForPackage()
-    private val workerExecutor = TestExecutor()
-    private val workerContext: CoroutineContext = workerExecutor.asCoroutineDispatcher()
+class JetpackConnectionServiceTest : BaseTelecomTest() {
     private val callChannels = CallChannels()
-    private val TEST_CALL_ATTRIB_NAME = "Elon Musk"
-    private val TEST_CALL_ATTRIB_NUMBER = Uri.parse("tel:6506959001")
 
     @After
     fun onDestroy() {
+        super.onDestroyBase()
         callChannels.closeAllChannels()
-        JetpackConnectionService.mPendingConnectionRequests.clear()
     }
 
     /**
@@ -66,7 +53,10 @@ class JetpackConnectionServiceTest {
     @Test
     fun testConnectionServicePropertiesAreSet_outgoingCall() {
         // create the CallAttributes
-        val attributes = createCallAttributes(CallAttributesCompat.DIRECTION_OUTGOING)
+        val attributes = TestUtils.createCallAttributes(
+            CallAttributesCompat.DIRECTION_OUTGOING,
+            mPackagePhoneAccountHandle
+        )
         // simulate the connection being created
         val connection = mConnectionService.createSelfManagedConnection(
             createConnectionRequest(attributes),
@@ -85,7 +75,10 @@ class JetpackConnectionServiceTest {
     @Test
     fun testConnectionServicePropertiesAreSet_incomingCall() {
         // create the CallAttributes
-        val attributes = createCallAttributes(CallAttributesCompat.DIRECTION_INCOMING)
+        val attributes = TestUtils.createCallAttributes(
+            CallAttributesCompat.DIRECTION_INCOMING,
+            mPackagePhoneAccountHandle
+        )
         // simulate the connection being created
         val connection = mConnectionService.createSelfManagedConnection(
             createConnectionRequest(attributes),
@@ -117,39 +110,15 @@ class JetpackConnectionServiceTest {
         assertEquals(0, JetpackConnectionService.mPendingConnectionRequests.size)
     }
 
-    private fun createCallAttributes(
-        callDirection: Int,
-        callType: Int? = CallAttributesCompat.CALL_TYPE_AUDIO_CALL
-    ): CallAttributesCompat {
-
-        val attributes: CallAttributesCompat = if (callType != null) {
-            CallAttributesCompat(
-                TEST_CALL_ATTRIB_NAME,
-                TEST_CALL_ATTRIB_NUMBER,
-                callDirection, callType
-            )
-        } else {
-            CallAttributesCompat(
-                TEST_CALL_ATTRIB_NAME,
-                TEST_CALL_ATTRIB_NUMBER,
-                callDirection
-            )
-        }
-
-        attributes.mHandle = mCallsManager.getPhoneAccountHandleForPackage()
-
-        return attributes
-    }
-
     private fun createConnectionRequest(callAttributesCompat: CallAttributesCompat):
         ConnectionRequest {
         // wrap in PendingRequest
         val pr = JetpackConnectionService.PendingConnectionRequest(
-            callAttributesCompat, callChannels, workerContext, null
+            callAttributesCompat, callChannels, mWorkerContext, null
         )
         // add to the list of pendingRequests
         JetpackConnectionService.mPendingConnectionRequests.add(pr)
         // create a ConnectionRequest
-        return ConnectionRequest(mHandle, TEST_CALL_ATTRIB_NUMBER, null)
+        return ConnectionRequest(mPackagePhoneAccountHandle, TEST_CALL_ATTRIB_NUMBER, null)
     }
 }

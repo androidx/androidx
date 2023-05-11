@@ -16,14 +16,11 @@
 
 package androidx.core.telecom
 
-import android.content.Context
 import android.os.Build.VERSION_CODES
 import android.telecom.PhoneAccount.CAPABILITY_SELF_MANAGED
 import android.telecom.PhoneAccount.CAPABILITY_SUPPORTS_TRANSACTIONAL_OPERATIONS
 import androidx.annotation.RequiresApi
-import androidx.core.telecom.internal.utils.BuildVersionAdapter
 import androidx.core.telecom.internal.utils.Utils
-import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
@@ -36,63 +33,43 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 @RequiresApi(VERSION_CODES.O)
 @SdkSuppress(minSdkVersion = VERSION_CODES.O /* api=26 */)
-class CallsManagerTest {
+class CallsManagerTest : BaseTelecomTest() {
     private val mTestClassName = "androidx.core.telecom.test"
-    private val mContext: Context = ApplicationProvider.getApplicationContext()
-    private val mCallsManager = CallsManager(mContext)
-
-    private val mV2Build = object : BuildVersionAdapter {
-        override fun hasPlatformV2Apis(): Boolean {
-            return true
-        }
-
-        override fun hasInvalidBuildVersion(): Boolean {
-            return false
-        }
-    }
-
-    private val mBackwardsCompatBuild = object : BuildVersionAdapter {
-        override fun hasPlatformV2Apis(): Boolean {
-            return false
-        }
-
-        override fun hasInvalidBuildVersion(): Boolean {
-            return false
-        }
-    }
-
-    private val mInvalidBuild = object : BuildVersionAdapter {
-        override fun hasPlatformV2Apis(): Boolean {
-            return false
-        }
-
-        override fun hasInvalidBuildVersion(): Boolean {
-            return true
-        }
-    }
 
     @SmallTest
     @Test
     fun testGetPhoneAccountWithUBuild() {
-        Utils.setUtils(mV2Build)
-        val account = mCallsManager.getPhoneAccountHandleForPackage()
-        assertEquals(mTestClassName, account.componentName.className)
+        try {
+            Utils.setUtils(TestUtils.mV2Build)
+            val account = mCallsManager.getPhoneAccountHandleForPackage()
+            assertEquals(mTestClassName, account.componentName.className)
+        } finally {
+            Utils.resetUtils()
+        }
     }
 
     @SmallTest
     @Test
     fun testGetPhoneAccountWithUBuildWithTminusBuild() {
-        Utils.setUtils(mBackwardsCompatBuild)
-        val account = mCallsManager.getPhoneAccountHandleForPackage()
-        assertEquals(CallsManager.CONNECTION_SERVICE_CLASS, account.componentName.className)
+        try {
+            Utils.setUtils(TestUtils.mBackwardsCompatBuild)
+            val account = mCallsManager.getPhoneAccountHandleForPackage()
+            assertEquals(CallsManager.CONNECTION_SERVICE_CLASS, account.componentName.className)
+        } finally {
+            Utils.resetUtils()
+        }
     }
 
     @SmallTest
     @Test
     fun testGetPhoneAccountWithInvalidBuild() {
-        Utils.setUtils(mInvalidBuild)
-        assertThrows(UnsupportedOperationException::class.java) {
-            mCallsManager.getPhoneAccountHandleForPackage()
+        try {
+            Utils.setUtils(TestUtils.mInvalidBuild)
+            assertThrows(UnsupportedOperationException::class.java) {
+                mCallsManager.getPhoneAccountHandleForPackage()
+            }
+        } finally {
+            Utils.resetUtils()
         }
     }
 
