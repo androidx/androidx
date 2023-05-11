@@ -29,8 +29,8 @@ import androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicString
 import androidx.wear.watchface.complications.data.ComplicationData
 import androidx.wear.watchface.complications.data.ComplicationText
-import androidx.wear.watchface.complications.data.ComplicationTextExpression
 import androidx.wear.watchface.complications.data.ComplicationType
+import androidx.wear.watchface.complications.data.DynamicComplicationText
 import androidx.wear.watchface.complications.data.LongTextComplicationData
 import androidx.wear.watchface.complications.data.PlainComplicationText
 import androidx.wear.watchface.complications.data.RangedValueComplicationData
@@ -283,10 +283,11 @@ class ComplicationDataSourceServiceTest {
             .isEqualTo("hello preview")
     }
 
-    enum class DataWithExpressionScenario(val data: ComplicationData) {
+    enum class DataWithDynamicValueScenario(val data: ComplicationData) {
         RANGED_VALUE(
             RangedValueComplicationData.Builder(
-                    valueExpression = DynamicFloat.constant(1f),
+                    dynamicValue = DynamicFloat.constant(1f),
+                    fallbackValue = 0f,
                     min = 0f,
                     max = 10f,
                     contentDescription = ComplicationText.EMPTY
@@ -296,7 +297,7 @@ class ComplicationDataSourceServiceTest {
         ),
         LONG_TEXT(
             LongTextComplicationData.Builder(
-                    text = ComplicationTextExpression(DynamicString.constant("Long Text")),
+                    text = DynamicComplicationText(DynamicString.constant("Long Text"), "fallback"),
                     contentDescription = ComplicationText.EMPTY
                 )
                 .build()
@@ -306,12 +307,13 @@ class ComplicationDataSourceServiceTest {
                     text = ComplicationText.EMPTY,
                     contentDescription = ComplicationText.EMPTY
                 )
-                .setTitle(ComplicationTextExpression(DynamicString.constant("Long Title")))
+                .setTitle(DynamicComplicationText(DynamicString.constant("Long Title"), "fallback"))
                 .build()
         ),
         SHORT_TEXT(
             ShortTextComplicationData.Builder(
-                    text = ComplicationTextExpression(DynamicString.constant("Short Text")),
+                    text =
+                        DynamicComplicationText(DynamicString.constant("Short Text"), "fallback"),
                     contentDescription = ComplicationText.EMPTY
                 )
                 .build()
@@ -321,22 +323,24 @@ class ComplicationDataSourceServiceTest {
                     text = ComplicationText.EMPTY,
                     contentDescription = ComplicationText.EMPTY
                 )
-                .setTitle(ComplicationTextExpression(DynamicString.constant("Short Title")))
+                .setTitle(
+                    DynamicComplicationText(DynamicString.constant("Short Title"), "fallback")
+                )
                 .build()
         ),
         CONTENT_DESCRIPTION(
             LongTextComplicationData.Builder(
                     text = ComplicationText.EMPTY,
                     contentDescription =
-                        ComplicationTextExpression(DynamicString.constant("Long Text")),
+                        DynamicComplicationText(DynamicString.constant("Long Text"), "fallback"),
                 )
                 .build()
         ),
     }
 
     @Test
-    fun testGetComplicationPreviewData_withExpression_fails() {
-        for (scenario in DataWithExpressionScenario.values()) {
+    fun testGetComplicationPreviewData_withDynamicValue_fails() {
+        for (scenario in DataWithDynamicValueScenario.values()) {
             mService.previewData = scenario.data
 
             val exception =
@@ -350,7 +354,7 @@ class ComplicationDataSourceServiceTest {
                 .withMessage(scenario.name)
                 .that(exception)
                 .hasMessageThat()
-                .isEqualTo("Preview data must not have expressions.")
+                .isEqualTo("Preview data must not have dynamic values.")
         }
     }
 

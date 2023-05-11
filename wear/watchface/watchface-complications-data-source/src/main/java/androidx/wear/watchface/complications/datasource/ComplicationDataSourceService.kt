@@ -611,8 +611,8 @@ public abstract class ComplicationDataSourceService : Service() {
                 require(complicationData.validTimeRange == TimeRange.ALWAYS) {
                     "Preview data should have time range set to ALWAYS."
                 }
-                require(!complicationData.asWireComplicationData().hasExpression()) {
-                    "Preview data must not have expressions."
+                require(!complicationData.asWireComplicationData().hasDynamicValues()) {
+                    "Preview data must not have dynamic values."
                 }
             }
             return complicationData?.asWireComplicationData()
