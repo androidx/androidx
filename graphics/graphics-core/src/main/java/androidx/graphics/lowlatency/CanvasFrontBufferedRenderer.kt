@@ -17,7 +17,9 @@
 package androidx.graphics.lowlatency
 
 import android.annotation.SuppressLint
+import android.graphics.BlendMode
 import android.graphics.Canvas
+import android.graphics.Color
 import android.graphics.RenderNode
 import android.hardware.HardwareBuffer
 import android.os.Build
@@ -105,6 +107,12 @@ class CanvasFrontBufferedRenderer<T>(
     private var mIsReleased = false
 
     /**
+     * Flag to determine if a request to clear the front buffer content is pending. This should
+     * only be accessed on the GLThread
+     */
+    private var mPendingClear = true
+
+    /**
      * Runnable executed on the GLThread to update [FrontBufferSyncStrategy.isVisible] as well
      * as hide the SurfaceControl associated with the front buffered layer
      */
@@ -155,6 +163,10 @@ class CanvasFrontBufferedRenderer<T>(
                 object : SingleBufferedCanvasRenderer.RenderCallbacks<T> {
 
                     override fun render(canvas: Canvas, width: Int, height: Int, param: T) {
+                        if (mPendingClear) {
+                            canvas.drawColor(Color.BLACK, BlendMode.CLEAR)
+                            mPendingClear = false
+                        }
                         callback.onDrawFrontBufferedLayer(canvas, width, height, param)
                     }
 
@@ -330,6 +342,9 @@ class CanvasFrontBufferedRenderer<T>(
             mPersistedCanvasRenderer?.isVisible = false
             val transaction = SurfaceControlCompat.Transaction()
                 .setVisibility(frontBufferSurfaceControl, false)
+                // Set a null buffer here so that the original front buffer's release callback
+                // gets invoked and we can clear the content of the front buffer
+                .setBuffer(frontBufferSurfaceControl, null)
                 .setVisibility(parentSurfaceControl, true)
                 .setBuffer(parentSurfaceControl, buffer) {
                     buffer.close()
@@ -385,9 +400,12 @@ class CanvasFrontBufferedRenderer<T>(
             val width = surfaceView.width
             val height = surfaceView.height
             mExecutor.execute {
+                mPendingClear = true
                 mMultiBufferNode?.record { canvas ->
                     canvas.save()
                     canvas.setMatrix(mParentLayerTransform)
+                    // clear previous renderings to the multi buffered content
+                    canvas.drawColor(Color.BLACK, BlendMode.CLEAR)
                     callback.onDrawMultiBufferedLayer(canvas, width, height, params)
                     canvas.restore()
                 }
