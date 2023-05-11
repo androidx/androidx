@@ -325,12 +325,15 @@ internal class TextLayout constructor(
         topPadding = max(verticalPaddings.topPadding, lineHeightPaddings.topPadding)
         bottomPadding = max(verticalPaddings.bottomPadding, lineHeightPaddings.bottomPadding)
 
-        lastLineFontMetrics = getLastLineMetrics(textPaint, frameworkTextDir, lineHeightSpans)
-        lastLineExtra = if (lastLineFontMetrics != null) {
-            lastLineFontMetrics.bottom - getLineHeight(lastLine).toInt()
+        val fontMetrics = getLastLineMetrics(textPaint, frameworkTextDir, lineHeightSpans)
+        lastLineExtra = if (fontMetrics != null) {
+            fontMetrics.bottom - getLineHeight(lastLine).toInt()
         } else {
             0
         }
+        // Set lastLineFontMetrics after calling getLineHeight() above, as the metrics
+        // are different when lastLineFontMetrics is null
+        lastLineFontMetrics = fontMetrics
 
         leftPadding = layout.getEllipsizedLeftPadding(lastLine)
         rightPadding = layout.getEllipsizedRightPadding(lastLine)
