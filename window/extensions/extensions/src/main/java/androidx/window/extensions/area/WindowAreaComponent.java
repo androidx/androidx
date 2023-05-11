@@ -340,11 +340,10 @@ public interface WindowAreaComponent {
      * there is no rear facing display available on the device, returns an empty
      * {@link android.util.DisplayMetrics} object.
      *
-     * TODO(b/273807238): Investigate how we can provide a listener to get runtime
-     *  changes in rear display metrics to better support other form-factors in the future.
-     *
      * Since {@link WindowExtensions#VENDOR_API_LEVEL_3}
      */
+    // TODO(b/273807238): Investigate how we can provide a listener to get runtime changes in
+    //  rear display metrics to better support other form-factors in the future.
     @NonNull
     default DisplayMetrics getRearDisplayMetrics() {
         throw new UnsupportedOperationException("This method must not be called unless there is a"
