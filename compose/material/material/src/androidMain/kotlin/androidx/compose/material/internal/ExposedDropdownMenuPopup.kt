@@ -382,26 +382,15 @@ private class PopupLayout(
         // matter whether we return true or false as some upper layer decides on whether the
         // event is propagated to other windows or not. So for focusable the event is consumed but
         // for not focusable it is propagated to other windows.
-        if (
-            (
-                (event.action == MotionEvent.ACTION_DOWN) &&
-                    (
-                        (event.x < 0) ||
-                            (event.x >= width) ||
-                            (event.y < 0) ||
-                            (event.y >= height)
-                        )
-                ) ||
+        if ((event.action == MotionEvent.ACTION_DOWN &&
+                (event.x < 0 || event.x >= width || event.y < 0 || event.y >= height)) ||
             event.action == MotionEvent.ACTION_OUTSIDE
         ) {
             val parentBounds = parentBounds
             val shouldDismiss = parentBounds == null || dismissOnOutsideClick(
-                if (event.x != 0f || event.y != 0f) {
-                    Offset(
-                        params.x + event.x,
-                        params.y + event.y
-                    )
-                } else null,
+                // Keep menu open if ACTION_OUTSIDE event is reported as raw coordinates of (0, 0).
+                // This means it belongs to another owner, e.g., the soft keyboard or other window.
+                if (event.rawX != 0f && event.rawY != 0f) Offset(event.rawX, event.rawY) else null,
                 parentBounds
             )
             if (shouldDismiss) {
