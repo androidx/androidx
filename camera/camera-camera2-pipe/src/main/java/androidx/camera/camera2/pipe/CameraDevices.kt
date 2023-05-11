@@ -26,17 +26,34 @@ import kotlinx.coroutines.flow.flow
 /** Methods for querying, iterating, and selecting the Cameras that are available on the device. */
 interface CameraDevices {
     /**
-     * Read the list of currently openable CameraIds from the provided CameraBackend, suspending if
-     * needed. By default this will load the list of openable CameraIds from the default backend.
+     * Read the list of currently openable [CameraId]s from the provided CameraBackend, suspending
+     * if needed. By default this will load the list of openable [CameraId]s from the default
+     * backend.
      */
     suspend fun getCameraIds(cameraBackendId: CameraBackendId? = null): List<CameraId>?
 
     /**
-     * Read the list of currently openable CameraIds from the provided CameraBackend, blocking the
-     * thread if needed. By default this will load the list of openable CameraIds from the default
+     * Read the list of currently openable [CameraId]s from the provided CameraBackend, blocking the
+     * thread if needed. By default this will load the list of openable [CameraId]s from the default
      * backend.
      */
     fun awaitCameraIds(cameraBackendId: CameraBackendId? = null): List<CameraId>?
+
+    /**
+     * Read the set of [CameraId] sets that can be operated concurrently from the provided
+     * CameraBackend, suspending if needed. By default this will load the set of [CameraId] sets
+     * from the default backend.
+     */
+    suspend fun getConcurrentCameraIds(
+        cameraBackendId: CameraBackendId? = null
+    ): Set<Set<CameraId>>?
+
+    /**
+     * Read the set of [CameraId] sets that can be operated concurrently from the provided
+     * CameraBackend, blocking the thread if needed. By default this will load the set of [CameraId]
+     * sets from the default backend.
+     */
+    fun awaitConcurrentCameraIds(cameraBackendId: CameraBackendId? = null): Set<Set<CameraId>>?
 
     /**
      * Read metadata for a specific camera id, suspending if needed. By default, this method will
