@@ -93,7 +93,7 @@ public class DynamicRangeMatchedEncoderProfilesProvider implements EncoderProfil
 
         List<VideoProfileProxy> validVideoProfiles = new ArrayList<>();
         for (VideoProfileProxy videoProfile : encoderProfiles.getVideoProfiles()) {
-            if (isBitDepthMatched(videoProfile, dynamicRange) && isHdrFormatMatched(videoProfile,
+            if (isBitDepthMatched(videoProfile, dynamicRange) && isHdrEncodingMatched(videoProfile,
                     dynamicRange)) {
                 validVideoProfiles.add(videoProfile);
             }
@@ -114,10 +114,11 @@ public class DynamicRangeMatchedEncoderProfilesProvider implements EncoderProfil
         return matchedBitDepths != null && matchedBitDepths.contains(videoProfile.getBitDepth());
     }
 
-    private static boolean isHdrFormatMatched(@NonNull VideoProfileProxy videoProfile,
+    private static boolean isHdrEncodingMatched(@NonNull VideoProfileProxy videoProfile,
             @NonNull DynamicRange dynamicRange) {
-        Set<Integer> matchedHdrFormats = DR_TO_VP_FORMAT_MAP.get(dynamicRange.getFormat());
+        Set<Integer> matchedHdrEncodings = DR_TO_VP_FORMAT_MAP.get(dynamicRange.getEncoding());
 
-        return matchedHdrFormats != null && matchedHdrFormats.contains(videoProfile.getHdrFormat());
+        return matchedHdrEncodings != null
+                && matchedHdrEncodings.contains(videoProfile.getHdrFormat());
     }
 }

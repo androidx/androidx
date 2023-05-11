@@ -23,11 +23,11 @@ import androidx.camera.core.DynamicRange
 import androidx.camera.core.DynamicRange.BIT_DEPTH_10_BIT
 import androidx.camera.core.DynamicRange.BIT_DEPTH_8_BIT
 import androidx.camera.core.DynamicRange.BIT_DEPTH_UNSPECIFIED
-import androidx.camera.core.DynamicRange.FORMAT_DOLBY_VISION
-import androidx.camera.core.DynamicRange.FORMAT_HDR10
-import androidx.camera.core.DynamicRange.FORMAT_HDR_UNSPECIFIED
-import androidx.camera.core.DynamicRange.FORMAT_HLG
-import androidx.camera.core.DynamicRange.FORMAT_UNSPECIFIED
+import androidx.camera.core.DynamicRange.ENCODING_DOLBY_VISION
+import androidx.camera.core.DynamicRange.ENCODING_HDR10
+import androidx.camera.core.DynamicRange.ENCODING_HDR_UNSPECIFIED
+import androidx.camera.core.DynamicRange.ENCODING_HLG
+import androidx.camera.core.DynamicRange.ENCODING_UNSPECIFIED
 import androidx.camera.core.DynamicRange.HDR_UNSPECIFIED_10_BIT
 import androidx.camera.core.DynamicRange.SDR
 import androidx.camera.core.DynamicRange.UNSPECIFIED
@@ -54,12 +54,12 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
 
-private val HLG10 = DynamicRange(FORMAT_HLG, BIT_DEPTH_10_BIT)
-private val HDR10 = DynamicRange(FORMAT_HDR10, BIT_DEPTH_10_BIT)
-private val UNSPECIFIED_8_BIT = DynamicRange(FORMAT_UNSPECIFIED, BIT_DEPTH_8_BIT)
-private val UNSPECIFIED_10_BIT = DynamicRange(FORMAT_UNSPECIFIED, BIT_DEPTH_10_BIT)
-private val HDR_UNSPECIFIED = DynamicRange(FORMAT_HDR_UNSPECIFIED, BIT_DEPTH_UNSPECIFIED)
-private val DOLBY_VISION_UNSPECIFIED = DynamicRange(FORMAT_DOLBY_VISION, BIT_DEPTH_UNSPECIFIED)
+private val HLG10 = DynamicRange(ENCODING_HLG, BIT_DEPTH_10_BIT)
+private val HDR10 = DynamicRange(ENCODING_HDR10, BIT_DEPTH_10_BIT)
+private val UNSPECIFIED_8_BIT = DynamicRange(ENCODING_UNSPECIFIED, BIT_DEPTH_8_BIT)
+private val UNSPECIFIED_10_BIT = DynamicRange(ENCODING_UNSPECIFIED, BIT_DEPTH_10_BIT)
+private val HDR_UNSPECIFIED = DynamicRange(ENCODING_HDR_UNSPECIFIED, BIT_DEPTH_UNSPECIFIED)
+private val DOLBY_VISION_UNSPECIFIED = DynamicRange(ENCODING_DOLBY_VISION, BIT_DEPTH_UNSPECIFIED)
 
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument

@@ -32,16 +32,16 @@ class DynamicRangeTest {
     @Test
     fun canCreateUnspecifiedDynamicRange() {
         val dynamicRange = DynamicRange(
-            DynamicRange.FORMAT_HDR_UNSPECIFIED,
+            DynamicRange.ENCODING_HDR_UNSPECIFIED,
             DynamicRange.BIT_DEPTH_UNSPECIFIED
         )
-        assertThat(dynamicRange.format).isEqualTo(DynamicRange.FORMAT_HDR_UNSPECIFIED)
+        assertThat(dynamicRange.encoding).isEqualTo(DynamicRange.ENCODING_HDR_UNSPECIFIED)
         assertThat(dynamicRange.bitDepth).isEqualTo(DynamicRange.BIT_DEPTH_UNSPECIFIED)
     }
 
     @Test
     fun sdrDynamicRange_is8Bit() {
-        assertThat(DynamicRange.SDR.format).isEqualTo(DynamicRange.FORMAT_SDR)
+        assertThat(DynamicRange.SDR.encoding).isEqualTo(DynamicRange.ENCODING_SDR)
         assertThat(DynamicRange.SDR.bitDepth).isEqualTo(DynamicRange.BIT_DEPTH_8_BIT)
     }
 }
