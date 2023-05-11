@@ -110,7 +110,7 @@ internal fun ForEachSize(
                 .ifEmpty { listOf(smallestSize, smallestSize) }
         }
     }
-    sizes.map { size ->
+    sizes.distinct().map { size ->
         SizeBox(size, sizeMode, content)
     }
 }
