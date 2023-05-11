@@ -20,7 +20,7 @@ import androidx.annotation.NonNull;
 
 /**
  * Indicates that a JavaScriptIsolate's evaluation failed due to it returning a oversized result.
- *
+ * <p>
  * This exception is thrown when exceeding the size limit configured for the isolate via
  * {@link IsolateStartupParameters}, or the default limit.
  * <p>

@@ -28,6 +28,8 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.MediumTest;
 
+// Used for avoiding Java 11+ API java.lang.String.repeat
+import com.google.common.base.Strings;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import org.junit.Assert;
@@ -53,7 +55,7 @@ public class WebViewJavaScriptSandboxTest {
     private static final long REASONABLE_HEAP_SIZE = 100 * 1024 * 1024;
 
     @Before
-    public void setUp() throws Throwable {
+    public void setUp() {
         Assume.assumeTrue(JavaScriptSandbox.isSupported());
     }
 
@@ -250,7 +252,7 @@ public class WebViewJavaScriptSandboxTest {
             Assume.assumeTrue(
                     jsSandbox.isFeatureSupported(JavaScriptSandbox.JS_FEATURE_ISOLATE_TERMINATION));
 
-            Vector<ListenableFuture<String>> resultFutures = new Vector<ListenableFuture<String>>();
+            Vector<ListenableFuture<String>> resultFutures = new Vector<>();
             try (JavaScriptIsolate jsIsolate = jsSandbox.createIsolate()) {
                 for (int i = 0; i < num_of_evaluations; i++) {
                     ListenableFuture<String> resultFuture = jsIsolate.evaluateJavaScriptAsync(code);
@@ -379,7 +381,7 @@ public class WebViewJavaScriptSandboxTest {
                     jsSandbox.isFeatureSupported(JavaScriptSandbox.JS_FEATURE_PROMISE_RETURN));
 
             ListenableFuture<String> resultFuture1 = jsIsolate.evaluateJavaScriptAsync(code1);
-            ListenableFuture<String> resultFuture2 = jsIsolate.evaluateJavaScriptAsync(code2);
+            jsIsolate.evaluateJavaScriptAsync(code2);
             String result = resultFuture1.get(5, TimeUnit.SECONDS);
 
             Assert.assertEquals(expected, result);
@@ -422,7 +424,6 @@ public class WebViewJavaScriptSandboxTest {
             jsIsolate.provideNamedData("id-3", bytes);
             jsIsolate.provideNamedData("id-4", bytes);
             jsIsolate.provideNamedData("id-5", bytes);
-            Thread.sleep(1000);
             ListenableFuture<String> resultFuture1 = jsIsolate.evaluateJavaScriptAsync(code);
             String result = resultFuture1.get(5, TimeUnit.SECONDS);
 
@@ -434,8 +435,6 @@ public class WebViewJavaScriptSandboxTest {
     @MediumTest
     @Ignore("b/268212217")
     public void testPromiseEvaluationThrow() throws Throwable {
-        final String provideString = "Hello World";
-        final byte[] bytes = provideString.getBytes(StandardCharsets.US_ASCII);
         final String code = ""
                 + "android.consumeNamedDataAsArrayBuffer(\"id-1\").catch((error) => {"
                 + " throw new WebAssembly.LinkError('RandomLinkError');"
@@ -500,8 +499,7 @@ public class WebViewJavaScriptSandboxTest {
             // thrown instead.
             jsIsolate.close();
             try {
-                ListenableFuture<String> postCloseResultFuture =
-                        jsIsolate.evaluateJavaScriptAsync(code);
+                jsIsolate.evaluateJavaScriptAsync(code);
                 Assert.fail("Should have thrown.");
             } catch (IllegalStateException e) {
                 // Expected
@@ -516,11 +514,11 @@ public class WebViewJavaScriptSandboxTest {
         final String contains = "already bound";
         ListenableFuture<JavaScriptSandbox> jsSandboxFuture1 =
                 JavaScriptSandbox.createConnectedInstanceAsync(context);
-        try (JavaScriptSandbox jsSandbox1 = jsSandboxFuture1.get(5, TimeUnit.SECONDS)) {
+        try (JavaScriptSandbox ignored1 = jsSandboxFuture1.get(5, TimeUnit.SECONDS)) {
             ListenableFuture<JavaScriptSandbox> jsSandboxFuture2 =
                     JavaScriptSandbox.createConnectedInstanceAsync(context);
             try {
-                try (JavaScriptSandbox jsSandbox2 = jsSandboxFuture2.get(5, TimeUnit.SECONDS)) {
+                try (JavaScriptSandbox ignored2 = jsSandboxFuture2.get(5, TimeUnit.SECONDS)) {
                     Assert.fail("Should have thrown.");
                 }
             } catch (ExecutionException e) {
@@ -826,7 +824,7 @@ public class WebViewJavaScriptSandboxTest {
 
                 // Check reject
                 try {
-                    String badPromiseResult = badPromiseFuture.get(5, TimeUnit.SECONDS);
+                    badPromiseFuture.get(5, TimeUnit.SECONDS);
                     Assert.fail("Should have thrown");
                 } catch (ExecutionException e) {
                     if (!(e.getCause() instanceof EvaluationFailedException)) {
@@ -842,7 +840,7 @@ public class WebViewJavaScriptSandboxTest {
     @LargeTest
     @Ignore("b/268212217")
     public void testLargeScriptJsEvaluation() throws Throwable {
-        String longString = "a".repeat(2000000);
+        String longString = Strings.repeat("a", 2000000);
         final String code = ""
                 + "let " + longString + " = 0;"
                 + "\"PASS\"";
@@ -867,7 +865,7 @@ public class WebViewJavaScriptSandboxTest {
     @LargeTest
     @Ignore("b/268212217")
     public void testLargeScriptByteArrayJsEvaluation() throws Throwable {
-        final String longString = "a".repeat(2000000);
+        final String longString = Strings.repeat("a", 2000000);
         final String codeString = ""
                 + "let " + longString + " = 0;"
                 + "\"PASS\"";
@@ -893,9 +891,8 @@ public class WebViewJavaScriptSandboxTest {
     @LargeTest
     @Ignore("b/268212217")
     public void testLargeReturn() throws Throwable {
-        final String longString = "a".repeat(2000000);
         final String code = "'a'.repeat(2000000);";
-        final String expected = longString;
+        final String expected = Strings.repeat("a", 2000000);
         Context context = ApplicationProvider.getApplicationContext();
 
         ListenableFuture<JavaScriptSandbox> jsSandboxFuture =
@@ -916,7 +913,7 @@ public class WebViewJavaScriptSandboxTest {
     @LargeTest
     @Ignore("b/268212217")
     public void testLargeError() throws Throwable {
-        final String longString = "a".repeat(2000000);
+        final String longString = Strings.repeat("a", 2000000);
         final String code = "throw \"" + longString + "\");";
         Context context = ApplicationProvider.getApplicationContext();
 
@@ -931,8 +928,7 @@ public class WebViewJavaScriptSandboxTest {
                     resultFuture.get(5, TimeUnit.SECONDS);
                     Assert.fail("Should have thrown.");
                 } catch (ExecutionException e) {
-                    Assert.assertTrue(e.getCause().getClass().equals(
-                            EvaluationFailedException.class));
+                    Assert.assertEquals(e.getCause().getClass(), EvaluationFailedException.class);
                     Assert.assertTrue(e.getCause().getMessage().contains(longString));
                 }
             }
@@ -971,7 +967,7 @@ public class WebViewJavaScriptSandboxTest {
                 // Running code that returns `maxSize` number of bytes should not throw.
                 final String maxSizeCode = ""
                         + "'a'.repeat(" + maxSize + ");";
-                final String maxSizeExpected = "a".repeat(maxSize);
+                final String maxSizeExpected = Strings.repeat("a", maxSize);
                 ListenableFuture<String> maxSizeResultFuture =
                         jsIsolate.evaluateJavaScriptAsync(maxSizeCode);
                 String maxSizeResult = maxSizeResultFuture.get(5, TimeUnit.SECONDS);
@@ -980,7 +976,7 @@ public class WebViewJavaScriptSandboxTest {
                 // Running code that returns less than `maxSize` number of bytes should not throw.
                 final String lessThanMaxSizeCode = ""
                         + "'a'.repeat(" + (maxSize - 1) + ");";
-                final String lessThanMaxSizeExpected = "a".repeat(maxSize - 1);
+                final String lessThanMaxSizeExpected = Strings.repeat("a", maxSize - 1);
                 ListenableFuture<String> lessThanMaxSizeResultFuture =
                         jsIsolate.evaluateJavaScriptAsync(lessThanMaxSizeCode);
                 String lessThanMaxSizeResult = lessThanMaxSizeResultFuture.get(5,
@@ -1012,7 +1008,7 @@ public class WebViewJavaScriptSandboxTest {
             public void onConsoleMessage(
                     @NonNull JavaScriptConsoleCallback.ConsoleMessage message) {
                 synchronized (mLock) {
-                    mMessages.append(message.toString()).append("\n");
+                    mMessages.append(message).append("\n");
                 }
                 latch.countDown();
             }

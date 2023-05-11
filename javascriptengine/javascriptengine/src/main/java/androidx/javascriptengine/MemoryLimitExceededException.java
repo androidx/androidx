@@ -27,7 +27,7 @@ import androidx.annotation.NonNull;
  * its configured heap limit.
  * <p>
  * The isolate may not continue to be used after this exception has been thrown, and other pending
- * evalutions for the isolate will fail. The isolate may continue to hold onto resources (even if
+ * evaluations for the isolate will fail. The isolate may continue to hold onto resources (even if
  * explicitly closed) until the sandbox has been shutdown. Therefore, it is recommended that the
  * sandbox be restarted at the earliest opportunity in order to reclaim these resources.
  * <p>

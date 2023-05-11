@@ -71,13 +71,13 @@ public final class JavaScriptIsolate implements AutoCloseable {
      */
     @Nullable
     private IJsSandboxIsolate mJsIsolateStub;
-    private CloseGuardHelper mGuard = CloseGuardHelper.create();
+    private final CloseGuardHelper mGuard = CloseGuardHelper.create();
     final JavaScriptSandbox mJsSandbox;
 
     @Nullable
     @GuardedBy("mSetLock")
     private HashSet<CallbackToFutureAdapter.Completer<String>> mPendingCompleterSet =
-            new HashSet<CallbackToFutureAdapter.Completer<String>>();
+            new HashSet<>();
     /**
      * If mSandboxClosed is true, new evaluations will throw this exception asynchronously.
      * <p>
@@ -85,13 +85,13 @@ public final class JavaScriptIsolate implements AutoCloseable {
      */
     @Nullable
     private Exception mExceptionForNewEvaluations;
-    private AtomicBoolean mSandboxClosed = new AtomicBoolean(false);
-    IsolateStartupParameters mStartupParameters;
+    private final AtomicBoolean mSandboxClosed = new AtomicBoolean(false);
+    final IsolateStartupParameters mStartupParameters;
 
     private class IJsSandboxIsolateSyncCallbackStubWrapper extends
             IJsSandboxIsolateSyncCallback.Stub {
         @NonNull
-        private CallbackToFutureAdapter.Completer<String> mCompleter;
+        private final CallbackToFutureAdapter.Completer<String> mCompleter;
 
         IJsSandboxIsolateSyncCallbackStubWrapper(
                 @NonNull CallbackToFutureAdapter.Completer<String> completer) {
@@ -152,7 +152,7 @@ public final class JavaScriptIsolate implements AutoCloseable {
 
     private class IJsSandboxIsolateCallbackStubWrapper extends IJsSandboxIsolateCallback.Stub {
         @NonNull
-        private CallbackToFutureAdapter.Completer<String> mCompleter;
+        private final CallbackToFutureAdapter.Completer<String> mCompleter;
 
         IJsSandboxIsolateCallbackStubWrapper(
                 @NonNull CallbackToFutureAdapter.Completer<String> completer) {
@@ -223,7 +223,7 @@ public final class JavaScriptIsolate implements AutoCloseable {
         public void consoleClear(int contextGroupId) {
             final long identity = Binder.clearCallingIdentity();
             try {
-                mExecutor.execute(() -> mCallback.onConsoleClear());
+                mExecutor.execute(mCallback::onConsoleClear);
             } catch (RejectedExecutionException e) {
                 Log.e(TAG, "Console clear dropped", e);
             } finally {
@@ -256,8 +256,8 @@ public final class JavaScriptIsolate implements AutoCloseable {
      *   <li><strong>If the JS expression returns another data type</strong>, then Java Future
      * resolves to empty Java String.</li>
      * </ul>
-     * The environment uses a single JS global object for all the calls to {@link
-     * #evaluateJavaScriptAsync(String)} and {@link #provideNamedData(String, byte[])} methods.
+     * The environment uses a single JS global object for all the calls to
+     * evaluateJavaScriptAsync(String) and {@link #provideNamedData(String, byte[])} methods.
      * These calls are queued up and are run one at a time in sequence, using the single JS
      * environment for the isolate. The global variables set by one evaluation are visible for
      * later evaluations. This is similar to adding multiple {@code <script>} tags in HTML. The
@@ -302,6 +302,7 @@ public final class JavaScriptIsolate implements AutoCloseable {
             IJsSandboxIsolateCallbackStubWrapper callbackStub;
             synchronized (mSetLock) {
                 if (mPendingCompleterSet == null) {
+                    assert mExceptionForNewEvaluations != null;
                     completer.setException(mExceptionForNewEvaluations);
                     return futureDebugMessage;
                 }
@@ -354,6 +355,7 @@ public final class JavaScriptIsolate implements AutoCloseable {
             IJsSandboxIsolateSyncCallbackStubWrapper callbackStub;
             synchronized (mSetLock) {
                 if (mPendingCompleterSet == null) {
+                    assert mExceptionForNewEvaluations != null;
                     completer.setException(mExceptionForNewEvaluations);
                     return futureDebugMessage;
                 }
@@ -361,19 +363,18 @@ public final class JavaScriptIsolate implements AutoCloseable {
             }
             callbackStub = new IJsSandboxIsolateSyncCallbackStubWrapper(completer);
             try {
-                AssetFileDescriptor codeAfd = Utils.writeBytesIntoPipeAsync(code,
-                        mJsSandbox.mThreadPoolTaskExecutor);
-                try {
+                // We pass the codeAfd to the separate sandbox process but we still need to
+                // close it on our end to avoid file descriptor leaks.
+                try (AssetFileDescriptor codeAfd = Utils.writeBytesIntoPipeAsync(code,
+                        mJsSandbox.mThreadPoolTaskExecutor)) {
                     mJsIsolateStub.evaluateJavascriptWithFd(codeAfd, callbackStub);
-                } finally {
-                    // We pass the codeAfd to the separate sandbox process but we still need to
-                    // close it on our end to avoid file descriptor leaks.
-                    codeAfd.close();
                 }
             } catch (RemoteException | IOException e) {
                 completer.setException(new RuntimeException(e));
                 synchronized (mSetLock) {
-                    mPendingCompleterSet.remove(completer);
+                    if (mPendingCompleterSet != null) {
+                        mPendingCompleterSet.remove(completer);
+                    }
                 }
             }
             // Debug string.
@@ -445,7 +446,7 @@ public final class JavaScriptIsolate implements AutoCloseable {
      * </pre>
      * <p>
      * The environment uses a single JS global object for all the calls to {@link
-     * #evaluateJavaScriptAsync(String)} and {@link #provideNamedData(String, byte[])} methods.
+     * #evaluateJavaScriptAsync(String)} and provideNamedData(String, byte[]) methods.
      * <p>
      * This method should only be called if
      * {@link JavaScriptSandbox#isFeatureSupported(String)}
@@ -468,14 +469,11 @@ public final class JavaScriptIsolate implements AutoCloseable {
             throw new IllegalStateException("Calling provideNamedData() after closing the Isolate");
         }
         try {
-            AssetFileDescriptor codeAfd = Utils.writeBytesIntoPipeAsync(inputBytes,
-                    mJsSandbox.mThreadPoolTaskExecutor);
-            try {
+            // We pass the codeAfd to the separate sandbox process but we still need to close
+            // it on our end to avoid file descriptor leaks.
+            try (AssetFileDescriptor codeAfd = Utils.writeBytesIntoPipeAsync(inputBytes,
+                    mJsSandbox.mThreadPoolTaskExecutor)) {
                 return mJsIsolateStub.provideNamedData(name, codeAfd);
-            } finally {
-                // We pass the codeAfd to the separate sandbox process but we still need to close
-                // it on our end to avoid file descriptor leaks.
-                codeAfd.close();
             }
         } catch (RemoteException e) {
             Log.e(TAG, "RemoteException was thrown during provideNamedData()", e);
@@ -550,9 +548,7 @@ public final class JavaScriptIsolate implements AutoCloseable {
     @SuppressWarnings("GenericException") // super.finalize() throws Throwable
     protected void finalize() throws Throwable {
         try {
-            if (mGuard != null) {
-                mGuard.warnIfOpen();
-            }
+            mGuard.warnIfOpen();
             if (mJsIsolateStub != null) {
                 close();
             }
@@ -605,9 +601,8 @@ public final class JavaScriptIsolate implements AutoCloseable {
     /**
      * Set a JavaScriptConsoleCallback to process console messages from the isolate.
      * <p>
-     * This is the same as calling {@link #setConsoleCallback(Executor, JavaScriptConsoleCallback}
-     * using the main executor ({@link Context.getMainExecutor()}) of the context used to create the
-     * {@link JavaScriptSandbox} object.
+     * This is the same as calling {@link #setConsoleCallback(Executor, JavaScriptConsoleCallback)}
+     * using the main executor of the context used to create the {@link JavaScriptSandbox} object.
      * @param callback Callback implementing console logging behaviour.
      */
     @RequiresFeature(name = JavaScriptSandbox.JS_FEATURE_CONSOLE_MESSAGING,
