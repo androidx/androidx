@@ -143,7 +143,7 @@ public class Camera2CameraInfoImplTest {
             new Range<>(12, 30),
             new Range<>(30, 30),
     };
-    private static final DynamicRange HLG10 = new DynamicRange(DynamicRange.FORMAT_HLG,
+    private static final DynamicRange HLG10 = new DynamicRange(DynamicRange.ENCODING_HLG,
             DynamicRange.BIT_DEPTH_10_BIT);
 
     private CameraCharacteristicsCompat mCameraCharacteristics0;

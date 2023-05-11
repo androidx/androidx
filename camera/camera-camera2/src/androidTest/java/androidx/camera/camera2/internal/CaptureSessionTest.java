@@ -153,7 +153,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 @RequiresApi(21)
 public final class CaptureSessionTest {
     private static final DynamicRange DYNAMIC_RANGE_HLG10 =
-            new DynamicRange(DynamicRange.FORMAT_HLG, DynamicRange.BIT_DEPTH_10_BIT);
+            new DynamicRange(DynamicRange.ENCODING_HLG, DynamicRange.BIT_DEPTH_10_BIT);
 
     // Enumerate possible SDR transfer functions. This may need to be updated if more transfer
     // functions are added to the DataSpace class.

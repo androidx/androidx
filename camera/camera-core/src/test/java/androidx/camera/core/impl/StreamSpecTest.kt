@@ -50,7 +50,7 @@ class StreamSpecTest {
 
     @Test
     fun canRetrieveDynamicRange() {
-        val dynamicRange = DynamicRange(DynamicRange.FORMAT_HLG, DynamicRange.BIT_DEPTH_10_BIT)
+        val dynamicRange = DynamicRange(DynamicRange.ENCODING_HLG, DynamicRange.BIT_DEPTH_10_BIT)
         val streamSpec = StreamSpec.builder(TEST_RESOLUTION).setDynamicRange(dynamicRange).build()
 
         assertThat(streamSpec.dynamicRange).isEqualTo(dynamicRange)

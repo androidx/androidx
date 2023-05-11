@@ -46,7 +46,7 @@ import androidx.camera.core.CameraSelector.LENS_FACING_FRONT
 import androidx.camera.core.CameraXConfig
 import androidx.camera.core.DynamicRange
 import androidx.camera.core.DynamicRange.BIT_DEPTH_10_BIT
-import androidx.camera.core.DynamicRange.FORMAT_HLG
+import androidx.camera.core.DynamicRange.ENCODING_HLG
 import androidx.camera.core.MirrorMode.MIRROR_MODE_OFF
 import androidx.camera.core.MirrorMode.MIRROR_MODE_ON
 import androidx.camera.core.MirrorMode.MIRROR_MODE_ON_FRONT_ONLY
@@ -1046,7 +1046,7 @@ class VideoCaptureTest {
         // propagated to the SurfaceRequest. It should come from the StreamSpec.
         testSurfaceRequestContainsExpected(
             requestedDynamicRange = DynamicRange.HDR_UNSPECIFIED_10_BIT,
-            expectedDynamicRange = DynamicRange(FORMAT_HLG, BIT_DEPTH_10_BIT)
+            expectedDynamicRange = DynamicRange(ENCODING_HLG, BIT_DEPTH_10_BIT)
         )
     }
 

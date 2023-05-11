@@ -71,7 +71,7 @@ class BackupHdrProfileEncoderProfilesProviderTest(
     val labTest: LabTestRule = LabTestRule()
 
     companion object {
-        private val HLG10 = DynamicRange(DynamicRange.FORMAT_HLG, DynamicRange.BIT_DEPTH_10_BIT)
+        private val HLG10 = DynamicRange(DynamicRange.ENCODING_HLG, DynamicRange.BIT_DEPTH_10_BIT)
 
         @JvmStatic
         private val qualities = arrayOf(
