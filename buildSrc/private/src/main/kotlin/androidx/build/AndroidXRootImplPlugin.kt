@@ -69,6 +69,8 @@ abstract class AndroidXRootImplPlugin : Plugin<Project> {
         configureKtlintCheckFile()
         tasks.register(CheckExternalDependencyLicensesTask.TASK_NAME)
 
+        maybeRegisterFilterableTask()
+
         // If we're running inside Studio, validate the Android Gradle Plugin version.
         val expectedAgpVersion = System.getenv("EXPECTED_AGP_VERSION")
         if (properties.containsKey("android.injected.invoked.from.ide")) {
