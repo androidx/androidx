@@ -238,9 +238,9 @@ internal class AppInteractionServiceGrpcImpl(
         Futures.addCallback(
             executeFulfillmentRequest(currentSession, selectedFulfillment),
             object : FutureCallback<FulfillmentResponse> {
-                override fun onSuccess(fulfillmentResponse: FulfillmentResponse) {
+                override fun onSuccess(result: FulfillmentResponse) {
                     val responseBuilder =
-                        convertFulfillmentResponse(fulfillmentResponse, capability)
+                        convertFulfillmentResponse(result, capability)
                             .toBuilder()
                     val uiCache = UiSessions.getUiCacheOrNull(sessionId)
                     if (uiCache != null && uiCache.hasUnreadUiResponse) {

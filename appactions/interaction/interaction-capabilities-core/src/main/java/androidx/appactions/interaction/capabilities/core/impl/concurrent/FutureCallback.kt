@@ -13,20 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package androidx.appactions.interaction.capabilities.core.impl.concurrent;
-
-import androidx.annotation.NonNull;
+package androidx.appactions.interaction.capabilities.core.impl.concurrent
 
 /**
  * A FutureCallback that can be attached to a ListenableFuture with Futures#addCallback.
- *
- * @param <V>
  */
-public interface FutureCallback<V> {
-    /** Called with the ListenableFuture's result if it completes successfully. */
-    void onSuccess(V result);
+interface FutureCallback<V> {
+    /** Called with the ListenableFuture's result if it completes successfully.  */
+    fun onSuccess(result: V)
 
-    /** Called with the ListenableFuture's exception if it fails. */
-    void onFailure(@NonNull Throwable t);
+    /** Called with the ListenableFuture's exception if it fails.  */
+    fun onFailure(t: Throwable)
 }

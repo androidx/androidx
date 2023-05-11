@@ -173,7 +173,7 @@ class FuturesTest {
         Futures.addCallback(
             transformedFuture,
             object : FutureCallback<Int> {
-                override fun onSuccess(value: Int) {}
+                override fun onSuccess(result: Int) {}
 
                 override fun onFailure(t: Throwable) {
                     errorDeferred.complete(t)
@@ -203,7 +203,7 @@ class FuturesTest {
         Futures.addCallback(
             transformedFuture,
             object : FutureCallback<Int> {
-                override fun onSuccess(value: Int) {}
+                override fun onSuccess(result: Int) {}
 
                 override fun onFailure(t: Throwable) {
                     errorDeferred.complete(t)
