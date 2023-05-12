@@ -144,7 +144,7 @@ public final class DynamicBoolTest {
     }
 
     @Test
-    public void validProto() {
+    public void fromByteArray_validProto() {
         DynamicBool from = DynamicBool.constant(true);
         DynamicBool to = DynamicBool.fromByteArray(from.toDynamicBoolByteArray());
 
@@ -152,8 +152,56 @@ public final class DynamicBoolTest {
     }
 
     @Test
-    public void invalidProto() {
+    public void fromByteArray_invalidProto() {
         assertThrows(
                 IllegalArgumentException.class, () -> DynamicBool.fromByteArray(new byte[] {1}));
+    }
+
+    @Test
+    public void fromByteArray_existingByteArray() {
+        DynamicBool from = DynamicBool.constant(true);
+        byte[] buffer = new byte[100];
+        int written = from.toDynamicBoolByteArray(buffer, 10, 50);
+
+        DynamicBool to = DynamicBool.fromByteArray(buffer, 10, written);
+
+        assertThat(to.toDynamicBoolProto().getFixed().getValue()).isTrue();
+    }
+
+    @Test
+    public void fromByteArray_existingByteArrayTooSmall() {
+        DynamicBool from = DynamicBool.constant(true);
+        byte[] buffer = new byte[100];
+        int written = from.toDynamicBoolByteArray(buffer);
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> DynamicBool.fromByteArray(buffer, 0, written - 1));
+    }
+
+    @Test
+    public void fromByteArray_existingByteArrayTooLarge() {
+        DynamicBool from = DynamicBool.constant(true);
+        byte[] buffer = new byte[100];
+        int written = from.toDynamicBoolByteArray(buffer);
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> DynamicBool.fromByteArray(buffer, 0, written + 1));
+    }
+
+    @Test
+    public void toByteArray_existingByteArrayTooSmall() {
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> DynamicBool.constant(true).toDynamicBoolByteArray(new byte[1]));
+    }
+
+    @Test
+    public void toByteArray_existingByteArraySameSize() {
+        DynamicBool from = DynamicBool.constant(true);
+
+        assertThat(from.toDynamicBoolByteArray(new byte[100]))
+                .isEqualTo(from.toDynamicBoolByteArray().length);
     }
 }
