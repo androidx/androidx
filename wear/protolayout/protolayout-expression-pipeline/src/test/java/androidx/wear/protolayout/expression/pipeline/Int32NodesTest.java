@@ -25,12 +25,10 @@ import static java.lang.Integer.MAX_VALUE;
 
 import android.os.Looper;
 
-import androidx.annotation.NonNull;
 import androidx.collection.ArrayMap;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.wear.protolayout.expression.AppDataKey;
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32;
-import androidx.wear.protolayout.expression.PlatformDataKey;
 import androidx.wear.protolayout.expression.PlatformHealthSources;
 import androidx.wear.protolayout.expression.pipeline.Int32Nodes.AnimatableFixedInt32Node;
 import androidx.wear.protolayout.expression.pipeline.Int32Nodes.DynamicAnimatedInt32Node;
@@ -38,7 +36,6 @@ import androidx.wear.protolayout.expression.pipeline.Int32Nodes.FixedInt32Node;
 import androidx.wear.protolayout.expression.pipeline.Int32Nodes.GetDurationPartOpNode;
 import androidx.wear.protolayout.expression.pipeline.Int32Nodes.LegacyPlatformInt32SourceNode;
 import androidx.wear.protolayout.expression.pipeline.Int32Nodes.StateInt32SourceNode;
-import androidx.wear.protolayout.expression.pipeline.sensor.SensorGateway;
 import androidx.wear.protolayout.expression.proto.AnimationParameterProto.AnimationSpec;
 import androidx.wear.protolayout.expression.proto.DynamicProto.AnimatableFixedInt32;
 import androidx.wear.protolayout.expression.proto.DynamicProto.DurationPartType;
@@ -230,6 +227,40 @@ public class Int32NodesTest {
     }
 
     @Test
+    public void stateInt32Source_canSubscribeToDailyStepsUpdates() {
+        FakeSensorGateway fakeSensorGateway = new FakeSensorGateway();
+        StateStore stateStore = new StateStore(new ArrayMap<>());
+        stateStore.putAllPlatformProviders(
+                Collections.singletonMap(
+                        PlatformHealthSources.DAILY_STEPS,
+                        new SensorGatewaySingleDataProvider(
+                                fakeSensorGateway, PlatformHealthSources.DAILY_STEPS)));
+        StateInt32Source dailyStepsSource =
+                StateInt32Source.newBuilder()
+                        .setSourceKey(PlatformHealthSources.DAILY_STEPS.getKey())
+                        .setSourceNamespace(PlatformHealthSources.DAILY_STEPS.getNamespace())
+                        .build();
+        List<Integer> results = new ArrayList<>();
+        StateInt32SourceNode dailyStepsSourceNode =
+                new StateInt32SourceNode(
+                        stateStore,
+                        dailyStepsSource,
+                        new AddToListCallback<>(results));
+
+        dailyStepsSourceNode.preInit();
+        dailyStepsSourceNode.init();
+        assertThat(fakeSensorGateway.registeredConsumers).hasSize(1);
+
+        fakeSensorGateway.registeredConsumers.get(0).onData(70);
+        assertThat(results).hasSize(1);
+        assertThat(results).containsExactly(70);
+
+        fakeSensorGateway.registeredConsumers.get(0).onData(80);
+        assertThat(results).hasSize(2);
+        assertThat(results).containsExactly(70, 80);
+    }
+
+    @Test
     public void animatableFixedInt32_animates() {
         int startValue = 3;
         int endValue = 33;
@@ -363,6 +394,76 @@ public class Int32NodesTest {
     }
 
     @Test
+    public void platformInt32Source_canSubscribeToHeartRateUpdates() {
+        FakeSensorGateway fakeSensorGateway = new FakeSensorGateway();
+        StateStore stateStore = new StateStore(new ArrayMap<>());
+        stateStore.putAllPlatformProviders(
+                Collections.singletonMap(
+                        PlatformHealthSources.HEART_RATE_BPM,
+                        new SensorGatewaySingleDataProvider(
+                                fakeSensorGateway, PlatformHealthSources.HEART_RATE_BPM)));
+        PlatformInt32Source platformSource =
+                PlatformInt32Source.newBuilder()
+                        .setSourceType(
+                                PlatformInt32SourceType
+                                        .PLATFORM_INT32_SOURCE_TYPE_CURRENT_HEART_RATE)
+                        .build();
+        List<Integer> results = new ArrayList<>();
+        LegacyPlatformInt32SourceNode platformSourceNode =
+                new LegacyPlatformInt32SourceNode(
+                        stateStore,
+                        platformSource,
+                        new AddToListCallback<>(results));
+
+        platformSourceNode.preInit();
+        platformSourceNode.init();
+        assertThat(fakeSensorGateway.registeredConsumers).hasSize(1);
+
+        fakeSensorGateway.registeredConsumers.get(0).onData(70);
+        assertThat(results).hasSize(1);
+        assertThat(results).containsExactly(70);
+
+        fakeSensorGateway.registeredConsumers.get(0).onData(80);
+        assertThat(results).hasSize(2);
+        assertThat(results).containsExactly(70, 80);
+    }
+
+    @Test
+    public void platformInt32Source_canSubscribeToDailyStepsUpdates() {
+        FakeSensorGateway fakeSensorGateway = new FakeSensorGateway();
+        StateStore stateStore = new StateStore(new ArrayMap<>());
+        stateStore.putAllPlatformProviders(
+                Collections.singletonMap(
+                        PlatformHealthSources.DAILY_STEPS,
+                        new SensorGatewaySingleDataProvider(
+                                fakeSensorGateway, PlatformHealthSources.DAILY_STEPS)));
+        PlatformInt32Source platformSource =
+                PlatformInt32Source.newBuilder()
+                        .setSourceType(
+                                PlatformInt32SourceType
+                                        .PLATFORM_INT32_SOURCE_TYPE_DAILY_STEP_COUNT)
+                        .build();
+        List<Integer> results = new ArrayList<>();
+        LegacyPlatformInt32SourceNode platformSourceNode =
+                new LegacyPlatformInt32SourceNode(
+                        stateStore,
+                        platformSource,
+                        new AddToListCallback<>(results));
+
+        platformSourceNode.preInit();
+        platformSourceNode.init();
+        assertThat(fakeSensorGateway.registeredConsumers).hasSize(1);
+
+        fakeSensorGateway.registeredConsumers.get(0).onData(70.0);
+        assertThat(results).hasSize(1);
+        assertThat(results).containsExactly(70);
+
+        fakeSensorGateway.registeredConsumers.get(0).onData(80.0);
+        assertThat(results).hasSize(2);
+        assertThat(results).containsExactly(70, 80);
+    }
+
+    @Test
     public void platformInt32Source_propagatesInvalidatedSignal() {
         FakeSensorGateway fakeSensorGateway = new FakeSensorGateway();
         StateStore stateStore = new StateStore(new ArrayMap<>());
@@ -391,37 +492,5 @@ public class Int32NodesTest {
 
         fakeSensorGateway.registeredConsumers.get(0).onInvalidated();
         verify(mMockValueReceiver).onInvalidated();
-    }
-
-    private static class FakeSensorGateway implements SensorGateway {
-        final List<Consumer> registeredConsumers = new ArrayList<>();
-
-        @Override
-        public void enableUpdates() {
-        }
-
-        @Override
-        public void disableUpdates() {
-        }
-
-        @Override
-        public void registerSensorGatewayConsumer(
-                @NonNull PlatformDataKey<?> key, @NonNull Consumer consumer) {
-            registeredConsumers.add(consumer);
-        }
-
-        @Override
-        public void registerSensorGatewayConsumer(
-                @NonNull PlatformDataKey<?> key,
-                @NonNull Executor executor,
-                @NonNull Consumer consumer) {
-            registerSensorGatewayConsumer(key, consumer);
-        }
-
-        @Override
-        public void unregisterSensorGatewayConsumer(
-                @NonNull PlatformDataKey<?> key, @NonNull Consumer consumer) {
-            registeredConsumers.remove(consumer);
-        }
     }
 }

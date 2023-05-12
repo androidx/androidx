@@ -26,8 +26,8 @@ import androidx.annotation.UiThread;
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32;
 import androidx.wear.protolayout.expression.DynamicDataKey;
 import androidx.wear.protolayout.expression.PlatformHealthSources;
-import androidx.wear.protolayout.expression.pipeline.sensor.SensorGateway;
 import androidx.wear.protolayout.expression.proto.AnimationParameterProto.AnimationSpec;
+import androidx.wear.protolayout.expression.proto.DynamicDataProto.DynamicDataValue;
 import androidx.wear.protolayout.expression.proto.DynamicProto.AnimatableFixedInt32;
 import androidx.wear.protolayout.expression.proto.DynamicProto.ArithmeticInt32Op;
 import androidx.wear.protolayout.expression.proto.DynamicProto.DurationPartType;
@@ -39,6 +39,7 @@ import androidx.wear.protolayout.expression.proto.DynamicProto.StateInt32Source;
 import androidx.wear.protolayout.expression.proto.FixedProto.FixedInt32;
 
 import java.time.Duration;
+import java.util.function.Function;
 
 /** Dynamic data nodes which yield integers. */
 class Int32Nodes {
@@ -83,7 +84,7 @@ class Int32Nodes {
             super(
                     stateStore,
                     getDataKey(protoNode.getSourceType()),
-                    se -> se.getInt32Val().getValue(),
+                    getStateExtractor(protoNode.getSourceType()),
                     downstream);
         }
 
@@ -95,6 +96,21 @@ class Int32Nodes {
 
             if (type == PlatformInt32SourceType.PLATFORM_INT32_SOURCE_TYPE_DAILY_STEP_COUNT) {
                 return PlatformHealthSources.DAILY_STEPS;
+            }
+
+            throw new IllegalArgumentException(
+                    "Unknown DynamicInt32 platform source type: " + type);
+        }
+
+        @NonNull
+        private static Function<DynamicDataValue, Integer> getStateExtractor(
+                PlatformInt32SourceType type) {
+            if (type == PlatformInt32SourceType.PLATFORM_INT32_SOURCE_TYPE_CURRENT_HEART_RATE) {
+                return se -> (int) se.getFloatVal().getValue();
+            }
+
+            if (type == PlatformInt32SourceType.PLATFORM_INT32_SOURCE_TYPE_DAILY_STEP_COUNT) {
+                return se -> se.getInt32Val().getValue();
             }
 
             throw new IllegalArgumentException(

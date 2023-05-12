@@ -24,9 +24,11 @@ import static java.lang.Integer.MAX_VALUE;
 
 import android.os.Looper;
 
+import androidx.collection.ArrayMap;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat;
 import androidx.wear.protolayout.expression.AppDataKey;
+import androidx.wear.protolayout.expression.PlatformHealthSources;
 import androidx.wear.protolayout.expression.pipeline.FloatNodes.AnimatableFixedFloatNode;
 import androidx.wear.protolayout.expression.pipeline.FloatNodes.ArithmeticFloatNode;
 import androidx.wear.protolayout.expression.pipeline.FloatNodes.DynamicAnimatedFloatNode;
@@ -51,6 +53,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @RunWith(AndroidJUnit4.class)
@@ -124,6 +127,40 @@ public class FloatNodeTest {
                                 .build()));
 
         assertThat(results).containsExactly(oldValue, newValue).inOrder();
+    }
+
+    @Test
+    public void stateFloatSource_canSubscribeToHeartRateUpdates() {
+        FakeSensorGateway fakeSensorGateway = new FakeSensorGateway();
+        StateStore stateStore = new StateStore(new ArrayMap<>());
+        stateStore.putAllPlatformProviders(
+                Collections.singletonMap(
+                        PlatformHealthSources.HEART_RATE_BPM,
+                        new SensorGatewaySingleDataProvider(
+                                fakeSensorGateway, PlatformHealthSources.HEART_RATE_BPM)));
+        StateFloatSource dailyStepsSource =
+                StateFloatSource.newBuilder()
+                        .setSourceKey(PlatformHealthSources.HEART_RATE_BPM.getKey())
+                        .setSourceNamespace(PlatformHealthSources.HEART_RATE_BPM.getNamespace())
+                        .build();
+        List<Float> results = new ArrayList<>();
+        StateFloatSourceNode dailyStepsSourceNode =
+                new StateFloatSourceNode(
+                        stateStore,
+                        dailyStepsSource,
+                        new AddToListCallback<>(results));
+
+        dailyStepsSourceNode.preInit();
+        dailyStepsSourceNode.init();
+        assertThat(fakeSensorGateway.registeredConsumers).hasSize(1);
+
+        fakeSensorGateway.registeredConsumers.get(0).onData(70.0);
+        assertThat(results).hasSize(1);
+        assertThat(results).containsExactly(70.0f);
+
+        fakeSensorGateway.registeredConsumers.get(0).onData(80.0);
+        assertThat(results).hasSize(2);
+        assertThat(results).containsExactly(70.0f, 80.0f);
     }
 
     @Test
