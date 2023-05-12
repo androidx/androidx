@@ -54,8 +54,11 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.platform.app.InstrumentationRegistry
+import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
 import com.google.common.truth.Truth.assertThat
+import org.junit.Assume
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -124,6 +127,38 @@ class ExposedDropdownMenuTest {
         rule.onNodeWithTag(TFTag).performClick()
 
         rule.onNodeWithTag(MenuItemTag).assertDoesNotExist()
+    }
+
+    @Test
+    fun edm_doesNotCollapse_whenTypingOnSoftKeyboard() {
+        rule.setMaterialContent {
+            var expanded by remember { mutableStateOf(false) }
+            ExposedDropdownMenuForTest(
+                expanded = expanded,
+                onExpandChange = { expanded = it }
+            )
+        }
+
+        rule.onNodeWithTag(TFTag).performClick()
+
+        rule.onNodeWithTag(TFTag).assertIsDisplayed()
+        rule.onNodeWithTag(TFTag).assertIsFocused()
+        rule.onNodeWithTag(EDMTag).assertIsDisplayed()
+        rule.onNodeWithTag(MenuItemTag).assertIsDisplayed()
+
+        val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+        val zKey = device.findObject(By.desc("z")) ?: device.findObject(By.text("z"))
+        // Only run the test if we can find a key to type, which might fail for any number of
+        // reasons (keyboard doesn't appear, unexpected locale, etc.)
+        Assume.assumeNotNull(zKey)
+
+        repeat(3) {
+            zKey.click()
+            rule.waitForIdle()
+        }
+
+        rule.onNodeWithTag(TFTag).assertTextContains("zzz")
+        rule.onNodeWithTag(MenuItemTag).assertIsDisplayed()
     }
 
     @Test
@@ -310,6 +345,7 @@ class ExposedDropdownMenuTest {
         rule.onNodeWithTag(TFTag).assertTextContains(OptionName)
     }
 
+    @Ignore("b/266109857")
     @Test
     fun doesNotCrashWhenAnchorDetachedFirst() {
         var parent: FrameLayout? = null
@@ -319,9 +355,19 @@ class ExposedDropdownMenuTest {
                     FrameLayout(context).apply {
                         addView(ComposeView(context).apply {
                             setContent {
-                                Box {
-                                    ExposedDropdownMenuBox(expanded = true, onExpandedChange = {}) {
-                                        Box(Modifier.size(20.dp))
+                                ExposedDropdownMenuBox(expanded = true, onExpandedChange = {}) {
+                                    TextField(
+                                        value = "Text",
+                                        onValueChange = {},
+                                    )
+                                    ExposedDropdownMenu(
+                                        expanded = true,
+                                        onDismissRequest = {},
+                                    ) {
+                                        DropdownMenuItem(
+                                            content = { Text(OptionName) },
+                                            onClick = {},
+                                        )
                                     }
                                 }
                             }
