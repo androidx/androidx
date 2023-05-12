@@ -180,6 +180,7 @@ fun OutlinedTextField(
             } else {
                 modifier
             }
+                .defaultErrorSemantics(isError, getString(Strings.DefaultErrorMessage))
                 .defaultMinSize(
                     minWidth = OutlinedTextFieldDefaults.MinWidth,
                     minHeight = OutlinedTextFieldDefaults.MinHeight
@@ -339,6 +340,7 @@ fun OutlinedTextField(
             } else {
                 modifier
             }
+                .defaultErrorSemantics(isError, getString(Strings.DefaultErrorMessage))
                 .defaultMinSize(
                     minWidth = OutlinedTextFieldDefaults.MinWidth,
                     minHeight = OutlinedTextFieldDefaults.MinHeight
