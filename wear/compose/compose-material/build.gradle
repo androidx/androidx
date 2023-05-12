@@ -15,8 +15,6 @@
  */
 
 import androidx.build.LibraryType
-import androidx.build.AndroidXComposePlugin
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
