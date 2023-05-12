@@ -1,0 +1,43 @@
+// Signature format: 4.0
+package androidx.emoji2.emojipicker {
+
+  public final class EmojiPickerView extends android.widget.FrameLayout {
+    ctor public EmojiPickerView(android.content.Context context, optional android.util.AttributeSet? attrs, optional int defStyleAttr);
+    ctor public EmojiPickerView(android.content.Context context, optional android.util.AttributeSet? attrs);
+    ctor public EmojiPickerView(android.content.Context context);
+    method public int getEmojiGridColumns();
+    method public float getEmojiGridRows();
+    method public void setEmojiGridColumns(int);
+    method public void setEmojiGridRows(float);
+    method public void setOnEmojiPickedListener(androidx.core.util.Consumer<androidx.emoji2.emojipicker.EmojiViewItem>? onEmojiPickedListener);
+    method public void setRecentEmojiProvider(androidx.emoji2.emojipicker.RecentEmojiProvider recentEmojiProvider);
+    property public final int emojiGridColumns;
+    property public final float emojiGridRows;
+  }
+
+  public final class EmojiViewItem {
+    ctor public EmojiViewItem(String emoji, java.util.List<java.lang.String> variants);
+    method public String getEmoji();
+    method public java.util.List<java.lang.String> getVariants();
+    property public final String emoji;
+    property public final java.util.List<java.lang.String> variants;
+  }
+
+  public interface RecentEmojiAsyncProvider {
+    method public com.google.common.util.concurrent.ListenableFuture<java.util.List<java.lang.String>> getRecentEmojiListAsync();
+    method public void recordSelection(String emoji);
+  }
+
+  public interface RecentEmojiProvider {
+    method public suspend Object? getRecentEmojiList(kotlin.coroutines.Continuation<? super java.util.List<? extends java.lang.String>>);
+    method public void recordSelection(String emoji);
+  }
+
+  public final class RecentEmojiProviderAdapter implements androidx.emoji2.emojipicker.RecentEmojiProvider {
+    ctor public RecentEmojiProviderAdapter(androidx.emoji2.emojipicker.RecentEmojiAsyncProvider recentEmojiAsyncProvider);
+    method public suspend Object? getRecentEmojiList(kotlin.coroutines.Continuation<? super java.util.List<? extends java.lang.String>>);
+    method public void recordSelection(String emoji);
+  }
+
+}
+
