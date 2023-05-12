@@ -23,6 +23,7 @@ import static org.junit.Assert.assertTrue;
 import android.widget.Button;
 import android.widget.TextView;
 
+import androidx.test.filters.SdkSuppress;
 import androidx.test.uiautomator.By;
 import androidx.test.uiautomator.BySelector;
 import androidx.test.uiautomator.UiObject2;
@@ -185,6 +186,47 @@ public class BySelectorTest extends BaseTest {
 
         assertTrue(mDevice.hasObject(By.res(TEST_APP, "text_family").textEndsWith("text.")));
         assertFalse(mDevice.hasObject(By.res(TEST_APP, "text_family").textEndsWith("not.")));
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 26)
+    public void testHint() {
+        launchTestActivity(HintTestActivity.class);
+
+        // Single string as the exact content of the hint.
+        assertTrue(mDevice.hasObject(By.hint("sample_hint")));
+        assertFalse(mDevice.hasObject(By.hint("hint")));
+
+        // Pattern of the hint.
+        assertTrue(mDevice.hasObject(By.hint(Pattern.compile(".*hint.*", Pattern.DOTALL))));
+        assertFalse(mDevice.hasObject(By.hint(Pattern.compile(".*not_hint.*", Pattern.DOTALL))));
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 26)
+    public void testHintContains() {
+        launchTestActivity(HintTestActivity.class);
+
+        assertTrue(mDevice.hasObject(By.hintContains("hint")));
+        assertFalse(mDevice.hasObject(By.hintContains("not_hint")));
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 26)
+    public void testHintStartsWith() {
+        launchTestActivity(HintTestActivity.class);
+
+        assertTrue(mDevice.hasObject(By.hintStartsWith("sample")));
+        assertFalse(mDevice.hasObject(By.hintStartsWith("not_sample")));
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 26)
+    public void testHintEndsWith() {
+        launchTestActivity(HintTestActivity.class);
+
+        assertTrue(mDevice.hasObject(By.hintEndsWith("hint")));
+        assertFalse(mDevice.hasObject(By.hintEndsWith("hint_not")));
     }
 
     @Test
