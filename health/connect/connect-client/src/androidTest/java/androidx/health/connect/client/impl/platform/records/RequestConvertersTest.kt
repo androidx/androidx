@@ -69,6 +69,29 @@ class RequestConvertersTest {
 
         with(sdkRequest.toPlatformRequest(SystemDefaultTimeSource)) {
             assertThat(recordType).isAssignableTo(PlatformStepsRecord::class.java)
+            assertThat(isAscending).isTrue() // Default Order
+            assertThat(dataOrigins)
+                .containsExactly(
+                    PlatformDataOrigin.Builder().setPackageName("package1").build(),
+                    PlatformDataOrigin.Builder().setPackageName("package2").build()
+                )
+        }
+    }
+
+    @Test
+    fun readRecordsRequest_fromSdkToPlatform_ascendingOrderIgnoredWhenPageTokenIsSet() {
+        val sdkRequest =
+            ReadRecordsRequest(
+                StepsRecord::class,
+                TimeRangeFilter.between(Instant.ofEpochMilli(123L), Instant.ofEpochMilli(456L)),
+                setOf(DataOrigin("package1"), DataOrigin("package2")),
+                ascendingOrder = false,
+                pageToken = "123"
+            )
+
+        with(sdkRequest.toPlatformRequest(SystemDefaultTimeSource)) {
+            assertThat(recordType).isAssignableTo(PlatformStepsRecord::class.java)
+            assertThat(pageToken).isEqualTo(123)
             assertThat(dataOrigins)
                 .containsExactly(
                     PlatformDataOrigin.Builder().setPackageName("package1").build(),
