@@ -105,7 +105,7 @@ class OnPagesUpdatedTest {
         try {
             while (true) {
                 processNextPageUpdateCh.trySend(Unit)
-                onPagesUpdatedEventsCh.receiveWithTimeoutMillis(10_000)
+                onPagesUpdatedEventsCh.receiveWithTimeoutMillis(1000)
                 pageUpdates++
             }
         } catch (e: TimeoutCancellationException) {
