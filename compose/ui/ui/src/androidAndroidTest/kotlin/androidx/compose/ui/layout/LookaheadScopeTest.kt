@@ -196,7 +196,7 @@ class LookaheadScopeTest {
                         Box(Modifier.fillMaxSize())
                     }[0].measure(constraints)
                     val size = placeable.run { IntSize(width, height) }
-                    if (this is SubcomposeIntermediateMeasureScope) {
+                    if (!isLookingAhead) {
                         actualSize = size
                     } else {
                         actualTargetSize = size
@@ -589,28 +589,10 @@ class LookaheadScopeTest {
 
     @Test
     fun defaultMeasurePolicyInSubcomposeLayout() {
-        var actualLookaheadSize by mutableStateOf(IntSize.Zero)
         var defaultIntermediateMeasureSize by mutableStateOf(IntSize.Zero)
         rule.setContent {
             CompositionLocalProvider(LocalDensity provides Density(1f)) {
                 LookaheadScope {
-                    SubcomposeLayout(
-                        Modifier
-                            .fillMaxSize()
-                            .requiredSize(200.dp),
-                        intermediateMeasurePolicy = { constraints ->
-                            measurablesForSlot(Unit)[0].measure(constraints)
-                            actualLookaheadSize = this.lookaheadSize
-                            layout(0, 0) {}
-                        }
-                    ) { constraints ->
-                        val placeable = subcompose(Unit) {
-                            Box(Modifier.requiredSize(400.dp, 600.dp))
-                        }[0].measure(constraints)
-                        layout(500, 300) {
-                            placeable.place(0, 0)
-                        }
-                    }
                     SubcomposeLayout(
                         Modifier
                             .size(150.dp)
@@ -636,7 +618,6 @@ class LookaheadScopeTest {
             }
         }
         rule.runOnIdle {
-            assertEquals(IntSize(500, 300), actualLookaheadSize)
             assertEquals(IntSize(500, 300), defaultIntermediateMeasureSize)
         }
     }
@@ -1719,12 +1700,18 @@ class LookaheadScopeTest {
             mutableStateListOf<Int>().apply { addAll(expectedPlacementOrder1) }
 
         var iteration by mutableStateOf(0)
+        var lookaheadConstraints by mutableStateOf<Constraints?>(null)
         // Expect the default placement to be the same as lookahead
         rule.setContent {
             LookaheadScope {
-                SubcomposeLayout(
-                    intermediateMeasurePolicy = { lookaheadMeasurePolicy(lookaheadConstraints) }
-                ) { constraints ->
+                SubcomposeLayout { incomingConstraints ->
+                    val constraints = if (isLookingAhead) {
+                        lookaheadConstraints = incomingConstraints
+                        incomingConstraints
+                    } else {
+                        lookaheadConstraints!!
+                    }
+
                     val placeables = mutableListOf<Placeable>()
                     repeat(3) { id ->
                         subcompose(id) {
@@ -1975,20 +1962,32 @@ class LookaheadScopeTest {
                         }
                         SubcomposeLayout(
                             Modifier
-                                .fillMaxSize()
-                                .requiredSize(200.dp),
-                            intermediateMeasurePolicy = { constraints ->
-                                assertFalse(isLookingAhead)
-                                measurablesForSlot(Unit)[0].measure(constraints)
-                                layout(0, 0) {}
-                            }
+                                .layout { measurable, constraints ->
+                                    measurable.measure(constraints).run {
+                                        if (isLookingAhead) {
+                                            assertEquals(500, width)
+                                            assertEquals(300, height)
+                                        } else {
+                                            assertEquals(100, width)
+                                            assertEquals(120, height)
+                                        }
+                                        layout(width, height) {
+                                            place(0, 0)
+                                        }
+                                    }
+                                }
                         ) { constraints ->
-                            assertTrue(isLookingAhead)
                             val placeable = subcompose(Unit) {
                                 Box(Modifier.requiredSize(400.dp, 600.dp))
                             }[0].measure(constraints)
-                            layout(500, 300) {
-                                placeable.place(0, 0)
+                            if (isLookingAhead) {
+                                layout(500, 300) {
+                                    placeable.place(0, 0)
+                                }
+                            } else {
+                                layout(100, 120) {
+                                    placeable.place(0, 0)
+                                }
                             }
                         }
                     }
