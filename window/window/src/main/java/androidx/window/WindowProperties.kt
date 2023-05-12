@@ -152,4 +152,34 @@ object WindowProperties {
      */
     const val PROPERTY_COMPAT_ALLOW_MIN_ASPECT_RATIO_OVERRIDE =
         "android.window.PROPERTY_COMPAT_ALLOW_MIN_ASPECT_RATIO_OVERRIDE"
+
+    /**
+     * Application level
+     * [PackageManager][android.content.pm.PackageManager.Property] tag
+     * for an app to inform the system that the app should be opted-out from the
+     * compatibility overrides that change the resizability of the app.
+     *
+     * When these compat overrides are enabled they force the packages they are applied to to be
+     * resizable / unresizable. If the app is forced to be resizable this won't change whether
+     * the app can be put into multi-windowing mode, but allow the app to resize without going into
+     * size-compat mode when the window container resizes, such as display size change or screen
+     * rotation.
+     *
+     * Setting this property to `false` informs the system that the app must be
+     * opted-out from the compatibility treatment even if the device manufacturer has opted the app
+     * into the treatment.
+     *
+     * Not setting this property at all, or setting this property to `true` has no effect.
+     *
+     * **Syntax:**
+     * ```
+     * <application>
+     *   <property
+     *     android:name="android.window.PROPERTY_COMPAT_ALLOW_RESIZEABLE_ACTIVITY_OVERRIDES"
+     *     android:value="false" />
+     * </application>
+     * ```
+     */
+    const val PROPERTY_COMPAT_ALLOW_RESIZEABLE_ACTIVITY_OVERRIDES =
+        "android.window.PROPERTY_COMPAT_ALLOW_RESIZEABLE_ACTIVITY_OVERRIDES"
 }
