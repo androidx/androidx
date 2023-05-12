@@ -30,6 +30,7 @@ import androidx.health.connect.client.records.MealType
 import androidx.health.connect.client.records.MenstruationFlowRecord
 import androidx.health.connect.client.records.OvulationTestRecord
 import androidx.health.connect.client.records.SexualActivityRecord
+import androidx.health.connect.client.records.SleepSessionRecord
 import androidx.health.connect.client.records.Vo2MaxRecord
 
 internal val SDK_TO_PLATFORM_CERVICAL_MUCUS_APPEARANCE: Map<Int, Int> =
@@ -339,6 +340,20 @@ internal val SDK_TO_PLATFORM_BLOOD_GLUCOSE_RELATION_TO_MEAL: Map<Int, Int> =
 internal val PLATFORM_TO_SDK_BLOOD_GLUCOSE_RELATION_TO_MEAL =
     SDK_TO_PLATFORM_BLOOD_GLUCOSE_RELATION_TO_MEAL.reversed()
 
+internal val SDK_TO_PLATFORM_SLEEP_STAGE_TYPE: Map<Int, Int> =
+    mapOf(
+        SleepSessionRecord.STAGE_TYPE_AWAKE to PlatformSleepStageType.STAGE_TYPE_AWAKE,
+        SleepSessionRecord.STAGE_TYPE_SLEEPING to PlatformSleepStageType.STAGE_TYPE_SLEEPING,
+        SleepSessionRecord.STAGE_TYPE_OUT_OF_BED to
+            PlatformSleepStageType.STAGE_TYPE_AWAKE_OUT_OF_BED,
+        SleepSessionRecord.STAGE_TYPE_LIGHT to PlatformSleepStageType.STAGE_TYPE_SLEEPING_LIGHT,
+        SleepSessionRecord.STAGE_TYPE_DEEP to PlatformSleepStageType.STAGE_TYPE_SLEEPING_DEEP,
+        SleepSessionRecord.STAGE_TYPE_REM to PlatformSleepStageType.STAGE_TYPE_SLEEPING_REM,
+        SleepSessionRecord.STAGE_TYPE_AWAKE_IN_BED to PlatformSleepStageType.STAGE_TYPE_AWAKE_IN_BED
+    )
+
+internal val PLATFORM_TO_SDK_SLEEP_STAGE_TYPE = SDK_TO_PLATFORM_SLEEP_STAGE_TYPE.reversed()
+
 internal fun Int.toPlatformCervicalMucusAppearance(): Int {
     return SDK_TO_PLATFORM_CERVICAL_MUCUS_APPEARANCE[this]
         ?: PlatformCervicalMucusAppearance.APPEARANCE_UNKNOWN
@@ -402,6 +417,10 @@ internal fun Int.toPlatformBloodGlucoseRelationToMeal(): Int {
         ?: PlatformBloodGlucoseRelationToMeal.RELATION_TO_MEAL_UNKNOWN
 }
 
+internal fun Int.toPlatformSleepStageType(): Int {
+    return SDK_TO_PLATFORM_SLEEP_STAGE_TYPE[this] ?: PlatformSleepStageType.STAGE_TYPE_UNKNOWN
+}
+
 internal fun Int.toSdkBloodPressureBodyPosition(): Int {
     return PLATFORM_TO_SDK_BLOOD_PRESSURE_BODY_POSITION[this]
         ?: BloodPressureRecord.BODY_POSITION_UNKNOWN
@@ -459,6 +478,10 @@ internal fun Int.toSdkBodyTemperatureMeasurementLocation(): Int {
 
 internal fun Int.toSdkCervicalMucusAppearance(): Int {
     return PLATFORM_TO_SDK_CERVICAL_MUCUS_APPEARANCE[this] ?: CervicalMucusRecord.APPEARANCE_UNKNOWN
+}
+
+internal fun Int.toSdkSleepStageType(): Int {
+    return PLATFORM_TO_SDK_SLEEP_STAGE_TYPE[this] ?: SleepSessionRecord.STAGE_TYPE_UNKNOWN
 }
 
 private fun Map<Int, Int>.reversed(): Map<Int, Int> {
