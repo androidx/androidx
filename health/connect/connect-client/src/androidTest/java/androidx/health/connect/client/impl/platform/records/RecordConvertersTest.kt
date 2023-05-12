@@ -1146,13 +1146,13 @@ class RecordConvertersTest {
     @Test
     fun heartRateVariabilityRmssdRecord_convertToSdk() {
         val sdkHeartRateVariabilityRmssd =
-            PlatformHeartRateVariabilityRmssdRecordBuilder(PLATFORM_METADATA, TIME, 0.6)
+            PlatformHeartRateVariabilityRmssdRecordBuilder(PLATFORM_METADATA, TIME, 1.6)
                 .setZoneOffset(ZONE_OFFSET)
                 .build()
                 .toSdkRecord() as HeartRateVariabilityRmssdRecord
 
         assertSdkRecord(sdkHeartRateVariabilityRmssd) {
-            assertThat(heartRateVariabilityMillis).isEqualTo(0.6)
+            assertThat(heartRateVariabilityMillis).isEqualTo(1.6)
         }
     }
 
