@@ -1,0 +1,280 @@
+// Signature format: 4.0
+package androidx.core.i18n {
+
+  public final class DateTimeFormatter {
+    ctor public DateTimeFormatter(android.content.Context context, androidx.core.i18n.DateTimeFormatterSkeletonOptions options, optional java.util.Locale locale);
+    ctor public DateTimeFormatter(android.content.Context context, androidx.core.i18n.DateTimeFormatterSkeletonOptions options);
+    ctor public DateTimeFormatter(androidx.core.i18n.DateTimeFormatterJdkStyleOptions options, optional java.util.Locale locale);
+    ctor public DateTimeFormatter(androidx.core.i18n.DateTimeFormatterJdkStyleOptions options);
+    method public String format(long milliseconds);
+    method public String format(java.util.Date date);
+    method public String format(java.util.Calendar calendar);
+  }
+
+  public final class DateTimeFormatterCommonOptions {
+    ctor public DateTimeFormatterCommonOptions();
+    field public static final androidx.core.i18n.DateTimeFormatterSkeletonOptions ABBR_MONTH_DAY;
+    field public static final androidx.core.i18n.DateTimeFormatterSkeletonOptions ABBR_MONTH_WEEKDAY_DAY;
+    field public static final androidx.core.i18n.DateTimeFormatterCommonOptions.Companion Companion;
+    field public static final androidx.core.i18n.DateTimeFormatterSkeletonOptions HOUR24_MINUTE;
+    field public static final androidx.core.i18n.DateTimeFormatterSkeletonOptions HOUR24_MINUTE_SECOND;
+    field public static final androidx.core.i18n.DateTimeFormatterSkeletonOptions HOUR_MINUTE;
+    field public static final androidx.core.i18n.DateTimeFormatterSkeletonOptions HOUR_MINUTE_SECOND;
+    field public static final androidx.core.i18n.DateTimeFormatterSkeletonOptions MINUTE_SECOND;
+    field public static final androidx.core.i18n.DateTimeFormatterSkeletonOptions MONTH_DAY;
+    field public static final androidx.core.i18n.DateTimeFormatterSkeletonOptions MONTH_WEEKDAY_DAY;
+    field public static final androidx.core.i18n.DateTimeFormatterSkeletonOptions NUM_MONTH_DAY;
+    field public static final androidx.core.i18n.DateTimeFormatterSkeletonOptions NUM_MONTH_WEEKDAY_DAY;
+    field public static final androidx.core.i18n.DateTimeFormatterSkeletonOptions YEAR_ABBR_MONTH;
+    field public static final androidx.core.i18n.DateTimeFormatterSkeletonOptions YEAR_ABBR_MONTH_DAY;
+    field public static final androidx.core.i18n.DateTimeFormatterSkeletonOptions YEAR_ABBR_MONTH_WEEKDAY_DAY;
+    field public static final androidx.core.i18n.DateTimeFormatterSkeletonOptions YEAR_MONTH;
+    field public static final androidx.core.i18n.DateTimeFormatterSkeletonOptions YEAR_MONTH_DAY;
+    field public static final androidx.core.i18n.DateTimeFormatterSkeletonOptions YEAR_MONTH_WEEKDAY_DAY;
+    field public static final androidx.core.i18n.DateTimeFormatterSkeletonOptions YEAR_NUM_MONTH;
+    field public static final androidx.core.i18n.DateTimeFormatterSkeletonOptions YEAR_NUM_MONTH_DAY;
+    field public static final androidx.core.i18n.DateTimeFormatterSkeletonOptions YEAR_NUM_MONTH_WEEKDAY_DAY;
+  }
+
+  public static final class DateTimeFormatterCommonOptions.Companion {
+  }
+
+  public final class DateTimeFormatterJdkStyleOptions {
+    method public static androidx.core.i18n.DateTimeFormatterJdkStyleOptions createDateInstance(int style);
+    method public static androidx.core.i18n.DateTimeFormatterJdkStyleOptions createDateTimeInstance(int dateStyle, int timeStyle);
+    method public static androidx.core.i18n.DateTimeFormatterJdkStyleOptions createTimeInstance(int style);
+    method public int getDateStyle();
+    method public int getTimeStyle();
+    property public final int dateStyle;
+    property public final int timeStyle;
+    field public static final androidx.core.i18n.DateTimeFormatterJdkStyleOptions.Companion Companion;
+  }
+
+  public static final class DateTimeFormatterJdkStyleOptions.Companion {
+    method public androidx.core.i18n.DateTimeFormatterJdkStyleOptions createDateInstance(int style);
+    method public androidx.core.i18n.DateTimeFormatterJdkStyleOptions createDateTimeInstance(int dateStyle, int timeStyle);
+    method public androidx.core.i18n.DateTimeFormatterJdkStyleOptions createTimeInstance(int style);
+  }
+
+  public final class DateTimeFormatterSkeletonOptions {
+    method public static androidx.core.i18n.DateTimeFormatterSkeletonOptions fromString(String value);
+    method public androidx.core.i18n.DateTimeFormatterSkeletonOptions.Day getDay();
+    method public androidx.core.i18n.DateTimeFormatterSkeletonOptions.Era getEra();
+    method public androidx.core.i18n.DateTimeFormatterSkeletonOptions.FractionalSecond getFractionalSecond();
+    method public androidx.core.i18n.DateTimeFormatterSkeletonOptions.Hour getHour();
+    method public androidx.core.i18n.DateTimeFormatterSkeletonOptions.Minute getMinute();
+    method public androidx.core.i18n.DateTimeFormatterSkeletonOptions.Month getMonth();
+    method public androidx.core.i18n.DateTimeFormatterSkeletonOptions.Period getPeriod();
+    method public androidx.core.i18n.DateTimeFormatterSkeletonOptions.Second getSecond();
+    method public androidx.core.i18n.DateTimeFormatterSkeletonOptions.Timezone getTimezone();
+    method public androidx.core.i18n.DateTimeFormatterSkeletonOptions.WeekDay getWeekDay();
+    method public androidx.core.i18n.DateTimeFormatterSkeletonOptions.Year getYear();
+    field public static final androidx.core.i18n.DateTimeFormatterSkeletonOptions.Companion Companion;
+  }
+
+  public static final class DateTimeFormatterSkeletonOptions.Builder {
+    ctor public DateTimeFormatterSkeletonOptions.Builder(optional androidx.core.i18n.DateTimeFormatterSkeletonOptions.Era era, optional androidx.core.i18n.DateTimeFormatterSkeletonOptions.Year year, optional androidx.core.i18n.DateTimeFormatterSkeletonOptions.Month month, optional androidx.core.i18n.DateTimeFormatterSkeletonOptions.Day day, optional androidx.core.i18n.DateTimeFormatterSkeletonOptions.WeekDay weekDay, optional androidx.core.i18n.DateTimeFormatterSkeletonOptions.Period period, optional androidx.core.i18n.DateTimeFormatterSkeletonOptions.Hour hour, optional androidx.core.i18n.DateTimeFormatterSkeletonOptions.Minute minute, optional androidx.core.i18n.DateTimeFormatterSkeletonOptions.Second second, optional androidx.core.i18n.DateTimeFormatterSkeletonOptions.FractionalSecond fractionalSecond, optional androidx.core.i18n.DateTimeFormatterSkeletonOptions.Timezone timezone);
+    method public androidx.core.i18n.DateTimeFormatterSkeletonOptions build();
+    method public androidx.core.i18n.DateTimeFormatterSkeletonOptions.Builder setDay(androidx.core.i18n.DateTimeFormatterSkeletonOptions.Day day);
+    method public androidx.core.i18n.DateTimeFormatterSkeletonOptions.Builder setEra(androidx.core.i18n.DateTimeFormatterSkeletonOptions.Era era);
+    method public androidx.core.i18n.DateTimeFormatterSkeletonOptions.Builder setFractionalSecond(androidx.core.i18n.DateTimeFormatterSkeletonOptions.FractionalSecond fractionalSecond);
+    method public androidx.core.i18n.DateTimeFormatterSkeletonOptions.Builder setHour(androidx.core.i18n.DateTimeFormatterSkeletonOptions.Hour hour);
+    method public androidx.core.i18n.DateTimeFormatterSkeletonOptions.Builder setMinute(androidx.core.i18n.DateTimeFormatterSkeletonOptions.Minute minute);
+    method public androidx.core.i18n.DateTimeFormatterSkeletonOptions.Builder setMonth(androidx.core.i18n.DateTimeFormatterSkeletonOptions.Month month);
+    method public androidx.core.i18n.DateTimeFormatterSkeletonOptions.Builder setPeriod(androidx.core.i18n.DateTimeFormatterSkeletonOptions.Period period);
+    method public androidx.core.i18n.DateTimeFormatterSkeletonOptions.Builder setSecond(androidx.core.i18n.DateTimeFormatterSkeletonOptions.Second second);
+    method public androidx.core.i18n.DateTimeFormatterSkeletonOptions.Builder setTimezone(androidx.core.i18n.DateTimeFormatterSkeletonOptions.Timezone timezone);
+    method public androidx.core.i18n.DateTimeFormatterSkeletonOptions.Builder setWeekDay(androidx.core.i18n.DateTimeFormatterSkeletonOptions.WeekDay weekDay);
+    method public androidx.core.i18n.DateTimeFormatterSkeletonOptions.Builder setYear(androidx.core.i18n.DateTimeFormatterSkeletonOptions.Year year);
+  }
+
+  public static final class DateTimeFormatterSkeletonOptions.Companion {
+    method public androidx.core.i18n.DateTimeFormatterSkeletonOptions fromString(String value);
+  }
+
+  public static final class DateTimeFormatterSkeletonOptions.Day {
+    method public static androidx.core.i18n.DateTimeFormatterSkeletonOptions.Day fromString(String value);
+    method public String getValue();
+    property public final String value;
+    field public static final androidx.core.i18n.DateTimeFormatterSkeletonOptions.Day.Companion Companion;
+    field public static final androidx.core.i18n.DateTimeFormatterSkeletonOptions.Day NONE;
+    field public static final androidx.core.i18n.DateTimeFormatterSkeletonOptions.Day NUMERIC;
+    field public static final androidx.core.i18n.DateTimeFormatterSkeletonOptions.Day TWO_DIGITS;
+  }
+
+  public static final class DateTimeFormatterSkeletonOptions.Day.Companion {
+    method public androidx.core.i18n.DateTimeFormatterSkeletonOptions.Day fromString(String value);
+  }
+
+  public static final class DateTimeFormatterSkeletonOptions.Era {
+    method public static androidx.core.i18n.DateTimeFormatterSkeletonOptions.Era fromString(String value);
+    method public String getValue();
+    property public final String value;
+    field public static final androidx.core.i18n.DateTimeFormatterSkeletonOptions.Era ABBREVIATED;
+    field public static final androidx.core.i18n.DateTimeFormatterSkeletonOptions.Era.Companion Companion;
+    field public static final androidx.core.i18n.DateTimeFormatterSkeletonOptions.Era NARROW;
+    field public static final androidx.core.i18n.DateTimeFormatterSkeletonOptions.Era NONE;
+    field public static final androidx.core.i18n.DateTimeFormatterSkeletonOptions.Era WIDE;
+  }
+
+  public static final class DateTimeFormatterSkeletonOptions.Era.Companion {
+    method public androidx.core.i18n.DateTimeFormatterSkeletonOptions.Era fromString(String value);
+  }
+
+  public static final class DateTimeFormatterSkeletonOptions.FractionalSecond {
+    method public static androidx.core.i18n.DateTimeFormatterSkeletonOptions.FractionalSecond fromString(String value);
+    method public String getValue();
+    property public final String value;
+    field public static final androidx.core.i18n.DateTimeFormatterSkeletonOptions.FractionalSecond.Companion Companion;
+    field public static final androidx.core.i18n.DateTimeFormatterSkeletonOptions.FractionalSecond NONE;
+    field public static final androidx.core.i18n.DateTimeFormatterSkeletonOptions.FractionalSecond NUMERIC_1_DIGIT;
+    field public static final androidx.core.i18n.DateTimeFormatterSkeletonOptions.FractionalSecond NUMERIC_2_DIGITS;
+    field public static final androidx.core.i18n.DateTimeFormatterSkeletonOptions.FractionalSecond NUMERIC_3_DIGITS;
+  }
+
+  public static final class DateTimeFormatterSkeletonOptions.FractionalSecond.Companion {
+    method public androidx.core.i18n.DateTimeFormatterSkeletonOptions.FractionalSecond fromString(String value);
+  }
+
+  public static final class DateTimeFormatterSkeletonOptions.Hour {
+    method public static androidx.core.i18n.DateTimeFormatterSkeletonOptions.Hour fromString(String value);
+    method public String getValue();
+    property public final String value;
+    field public static final androidx.core.i18n.DateTimeFormatterSkeletonOptions.Hour.Companion Companion;
+    field public static final androidx.core.i18n.DateTimeFormatterSkeletonOptions.Hour FORCE_12H_NUMERIC;
+    field public static final androidx.core.i18n.DateTimeFormatterSkeletonOptions.Hour FORCE_12H_TWO_DIGITS;
+    field public static final androidx.core.i18n.DateTimeFormatterSkeletonOptions.Hour FORCE_24H_NUMERIC;
+    field public static final androidx.core.i18n.DateTimeFormatterSkeletonOptions.Hour FORCE_24H_TWO_DIGITS;
+    field public static final androidx.core.i18n.DateTimeFormatterSkeletonOptions.Hour NONE;
+    field public static final androidx.core.i18n.DateTimeFormatterSkeletonOptions.Hour NUMERIC;
+    field public static final androidx.core.i18n.DateTimeFormatterSkeletonOptions.Hour TWO_DIGITS;
+  }
+
+  public static final class DateTimeFormatterSkeletonOptions.Hour.Companion {
+    method public androidx.core.i18n.DateTimeFormatterSkeletonOptions.Hour fromString(String value);
+  }
+
+  public static final class DateTimeFormatterSkeletonOptions.Minute {
+    method public static androidx.core.i18n.DateTimeFormatterSkeletonOptions.Minute fromString(String value);
+    method public String getValue();
+    property public final String value;
+    field public static final androidx.core.i18n.DateTimeFormatterSkeletonOptions.Minute.Companion Companion;
+    field public static final androidx.core.i18n.DateTimeFormatterSkeletonOptions.Minute NONE;
+    field public static final androidx.core.i18n.DateTimeFormatterSkeletonOptions.Minute NUMERIC;
+    field public static final androidx.core.i18n.DateTimeFormatterSkeletonOptions.Minute TWO_DIGITS;
+  }
+
+  public static final class DateTimeFormatterSkeletonOptions.Minute.Companion {
+    method public androidx.core.i18n.DateTimeFormatterSkeletonOptions.Minute fromString(String value);
+  }
+
+  public static final class DateTimeFormatterSkeletonOptions.Month {
+    method public static androidx.core.i18n.DateTimeFormatterSkeletonOptions.Month fromString(String value);
+    method public String getValue();
+    property public final String value;
+    field public static final androidx.core.i18n.DateTimeFormatterSkeletonOptions.Month ABBREVIATED;
+    field public static final androidx.core.i18n.DateTimeFormatterSkeletonOptions.Month.Companion Companion;
+    field public static final androidx.core.i18n.DateTimeFormatterSkeletonOptions.Month NARROW;
+    field public static final androidx.core.i18n.DateTimeFormatterSkeletonOptions.Month NONE;
+    field public static final androidx.core.i18n.DateTimeFormatterSkeletonOptions.Month NUMERIC;
+    field public static final androidx.core.i18n.DateTimeFormatterSkeletonOptions.Month TWO_DIGITS;
+    field public static final androidx.core.i18n.DateTimeFormatterSkeletonOptions.Month WIDE;
+  }
+
+  public static final class DateTimeFormatterSkeletonOptions.Month.Companion {
+    method public androidx.core.i18n.DateTimeFormatterSkeletonOptions.Month fromString(String value);
+  }
+
+  public static final class DateTimeFormatterSkeletonOptions.Period {
+    method public static androidx.core.i18n.DateTimeFormatterSkeletonOptions.Period fromString(String value);
+    method public String getValue();
+    property public final String value;
+    field public static final androidx.core.i18n.DateTimeFormatterSkeletonOptions.Period ABBREVIATED;
+    field public static final androidx.core.i18n.DateTimeFormatterSkeletonOptions.Period.Companion Companion;
+    field public static final androidx.core.i18n.DateTimeFormatterSkeletonOptions.Period FLEXIBLE;
+    field public static final androidx.core.i18n.DateTimeFormatterSkeletonOptions.Period NARROW;
+    field public static final androidx.core.i18n.DateTimeFormatterSkeletonOptions.Period NONE;
+    field public static final androidx.core.i18n.DateTimeFormatterSkeletonOptions.Period WIDE;
+  }
+
+  public static final class DateTimeFormatterSkeletonOptions.Period.Companion {
+    method public androidx.core.i18n.DateTimeFormatterSkeletonOptions.Period fromString(String value);
+  }
+
+  public static final class DateTimeFormatterSkeletonOptions.Second {
+    method public static androidx.core.i18n.DateTimeFormatterSkeletonOptions.Second fromString(String value);
+    method public String getValue();
+    property public final String value;
+    field public static final androidx.core.i18n.DateTimeFormatterSkeletonOptions.Second.Companion Companion;
+    field public static final androidx.core.i18n.DateTimeFormatterSkeletonOptions.Second NONE;
+    field public static final androidx.core.i18n.DateTimeFormatterSkeletonOptions.Second NUMERIC;
+    field public static final androidx.core.i18n.DateTimeFormatterSkeletonOptions.Second TWO_DIGITS;
+  }
+
+  public static final class DateTimeFormatterSkeletonOptions.Second.Companion {
+    method public androidx.core.i18n.DateTimeFormatterSkeletonOptions.Second fromString(String value);
+  }
+
+  public static final class DateTimeFormatterSkeletonOptions.Timezone {
+    method public static androidx.core.i18n.DateTimeFormatterSkeletonOptions.Timezone fromString(String value);
+    method public String getValue();
+    property public final String value;
+    field public static final androidx.core.i18n.DateTimeFormatterSkeletonOptions.Timezone.Companion Companion;
+    field public static final androidx.core.i18n.DateTimeFormatterSkeletonOptions.Timezone LONG;
+    field public static final androidx.core.i18n.DateTimeFormatterSkeletonOptions.Timezone LONG_GENERIC;
+    field public static final androidx.core.i18n.DateTimeFormatterSkeletonOptions.Timezone LONG_OFFSET;
+    field public static final androidx.core.i18n.DateTimeFormatterSkeletonOptions.Timezone NONE;
+    field public static final androidx.core.i18n.DateTimeFormatterSkeletonOptions.Timezone SHORT;
+    field public static final androidx.core.i18n.DateTimeFormatterSkeletonOptions.Timezone SHORT_GENERIC;
+    field public static final androidx.core.i18n.DateTimeFormatterSkeletonOptions.Timezone SHORT_OFFSET;
+  }
+
+  public static final class DateTimeFormatterSkeletonOptions.Timezone.Companion {
+    method public androidx.core.i18n.DateTimeFormatterSkeletonOptions.Timezone fromString(String value);
+  }
+
+  public static final class DateTimeFormatterSkeletonOptions.WeekDay {
+    method public static androidx.core.i18n.DateTimeFormatterSkeletonOptions.WeekDay fromString(String value);
+    method public String getValue();
+    property public final String value;
+    field public static final androidx.core.i18n.DateTimeFormatterSkeletonOptions.WeekDay ABBREVIATED;
+    field public static final androidx.core.i18n.DateTimeFormatterSkeletonOptions.WeekDay.Companion Companion;
+    field public static final androidx.core.i18n.DateTimeFormatterSkeletonOptions.WeekDay NARROW;
+    field public static final androidx.core.i18n.DateTimeFormatterSkeletonOptions.WeekDay NONE;
+    field public static final androidx.core.i18n.DateTimeFormatterSkeletonOptions.WeekDay SHORT;
+    field public static final androidx.core.i18n.DateTimeFormatterSkeletonOptions.WeekDay WIDE;
+  }
+
+  public static final class DateTimeFormatterSkeletonOptions.WeekDay.Companion {
+    method public androidx.core.i18n.DateTimeFormatterSkeletonOptions.WeekDay fromString(String value);
+  }
+
+  public static final class DateTimeFormatterSkeletonOptions.Year {
+    method public static androidx.core.i18n.DateTimeFormatterSkeletonOptions.Year fromString(String value);
+    method public String getValue();
+    property public final String value;
+    field public static final androidx.core.i18n.DateTimeFormatterSkeletonOptions.Year.Companion Companion;
+    field public static final androidx.core.i18n.DateTimeFormatterSkeletonOptions.Year NONE;
+    field public static final androidx.core.i18n.DateTimeFormatterSkeletonOptions.Year NUMERIC;
+    field public static final androidx.core.i18n.DateTimeFormatterSkeletonOptions.Year TWO_DIGITS;
+  }
+
+  public static final class DateTimeFormatterSkeletonOptions.Year.Companion {
+    method public androidx.core.i18n.DateTimeFormatterSkeletonOptions.Year fromString(String value);
+  }
+
+  public final class MessageFormat {
+    method public static String format(android.content.Context context, optional java.util.Locale locale, String msg, java.util.Map<java.lang.String,?> namedArguments);
+    method public static String format(android.content.Context context, String msg, java.util.Map<java.lang.String,?> namedArguments);
+    method public static String format(android.content.Context context, int id, java.util.Map<java.lang.String,?> namedArguments);
+    field public static final androidx.core.i18n.MessageFormat.Companion Companion;
+  }
+
+  public static final class MessageFormat.Companion {
+    method public String format(android.content.Context context, optional java.util.Locale locale, String msg, java.util.Map<java.lang.String,?> namedArguments);
+    method public String format(android.content.Context context, String msg, java.util.Map<java.lang.String,?> namedArguments);
+    method public String format(android.content.Context context, int id, java.util.Map<java.lang.String,?> namedArguments);
+  }
+
+}
+
