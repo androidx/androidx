@@ -332,12 +332,10 @@ object IconButtonDefaults {
     fun iconButtonColors(
         containerColor: Color = Color.Transparent,
         contentColor: Color = MaterialTheme.colorScheme.onBackground,
-        disabledContainerColor: Color = MaterialTheme.colorScheme.onSurface.copy(
-            alpha = DisabledBorderAndContainerAlpha
+        disabledContainerColor: Color = MaterialTheme.colorScheme.onSurface.toDisabledColor(
+            disabledAlpha = DisabledBorderAndContainerAlpha
         ),
-        disabledContentColor: Color = MaterialTheme.colorScheme.onSurface.copy(
-            alpha = ContentAlpha.disabled
-        )
+        disabledContentColor: Color = MaterialTheme.colorScheme.onSurface.toDisabledColor()
     ): IconButtonColors = IconButtonColors(
         containerColor = containerColor,
         contentColor = contentColor,
@@ -359,8 +357,8 @@ object IconButtonDefaults {
     fun outlinedIconButtonBorder(
         enabled: Boolean,
         borderColor: Color = MaterialTheme.colorScheme.outline,
-        disabledBorderColor: Color = MaterialTheme.colorScheme.onSurface.copy(
-            alpha = DisabledBorderAndContainerAlpha
+        disabledBorderColor: Color = MaterialTheme.colorScheme.onSurface.toDisabledColor(
+            disabledAlpha = DisabledBorderAndContainerAlpha
         ),
         borderWidth: Dp = 1.dp
     ): BorderStroke {
