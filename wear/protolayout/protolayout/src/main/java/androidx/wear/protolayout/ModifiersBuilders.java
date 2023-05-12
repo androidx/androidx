@@ -725,10 +725,15 @@ public final class ModifiersBuilders {
              * Sets the padding on the end of the content, depending on the layout direction, in DP
              * and the value of "rtl_aware".
              *
+             * <p>Note that this field only supports static values.
+             *
              * @since 1.0
              */
             @NonNull
             public Builder setEnd(@NonNull DpProp end) {
+                if (end.getDynamicValue() != null) {
+                    throw new IllegalArgumentException("setEnd doesn't support dynamic values.");
+                }
                 mImpl.setEnd(end.toProto());
                 mFingerprint.recordPropertyUpdate(
                         1, checkNotNull(end.getFingerprint()).aggregateValueAsInt());
@@ -739,10 +744,15 @@ public final class ModifiersBuilders {
              * Sets the padding on the start of the content, depending on the layout direction, in
              * DP and the value of "rtl_aware".
              *
+             * <p>Note that this field only supports static values.
+             *
              * @since 1.0
              */
             @NonNull
             public Builder setStart(@NonNull DpProp start) {
+                if (start.getDynamicValue() != null) {
+                    throw new IllegalArgumentException("setStart doesn't support dynamic values.");
+                }
                 mImpl.setStart(start.toProto());
                 mFingerprint.recordPropertyUpdate(
                         2, checkNotNull(start.getFingerprint()).aggregateValueAsInt());
@@ -752,10 +762,15 @@ public final class ModifiersBuilders {
             /**
              * Sets the padding at the top, in DP.
              *
+             * <p>Note that this field only supports static values.
+             *
              * @since 1.0
              */
             @NonNull
             public Builder setTop(@NonNull DpProp top) {
+                if (top.getDynamicValue() != null) {
+                    throw new IllegalArgumentException("setTop doesn't support dynamic values.");
+                }
                 mImpl.setTop(top.toProto());
                 mFingerprint.recordPropertyUpdate(
                         3, checkNotNull(top.getFingerprint()).aggregateValueAsInt());
@@ -765,10 +780,15 @@ public final class ModifiersBuilders {
             /**
              * Sets the padding at the bottom, in DP.
              *
+             * <p>Note that this field only supports static values.
+             *
              * @since 1.0
              */
             @NonNull
             public Builder setBottom(@NonNull DpProp bottom) {
+                if (bottom.getDynamicValue() != null) {
+                    throw new IllegalArgumentException("setBottom doesn't support dynamic values.");
+                }
                 mImpl.setBottom(bottom.toProto());
                 mFingerprint.recordPropertyUpdate(
                         4, checkNotNull(bottom.getFingerprint()).aggregateValueAsInt());
@@ -780,6 +800,8 @@ public final class ModifiersBuilders {
              * start/end will follow the layout direction (i.e. start will refer to the right hand
              * side of the container if the device is using an RTL locale). If false, start/end will
              * always map to left/right, accordingly.
+             *
+             * <p>Note that this field only supports static values.
              *
              * @since 1.0
              */
@@ -903,10 +925,15 @@ public final class ModifiersBuilders {
             /**
              * Sets the width of the border, in DP.
              *
+             * <p>Note that this field only supports static values.
+             *
              * @since 1.0
              */
             @NonNull
             public Builder setWidth(@NonNull DpProp width) {
+                if (width.getDynamicValue() != null) {
+                    throw new IllegalArgumentException("setWidth doesn't support dynamic values.");
+                }
                 mImpl.setWidth(width.toProto());
                 mFingerprint.recordPropertyUpdate(
                         1, checkNotNull(width.getFingerprint()).aggregateValueAsInt());
@@ -1002,10 +1029,15 @@ public final class ModifiersBuilders {
             /**
              * Sets the radius of the corner in DP.
              *
+             * <p>Note that this field only supports static values.
+             *
              * @since 1.0
              */
             @NonNull
             public Builder setRadius(@NonNull DpProp radius) {
+                if (radius.getDynamicValue() != null) {
+                    throw new IllegalArgumentException("setRadius doesn't support dynamic values.");
+                }
                 mImpl.setRadius(radius.toProto());
                 mFingerprint.recordPropertyUpdate(
                         1, checkNotNull(radius.getFingerprint()).aggregateValueAsInt());

@@ -1661,9 +1661,17 @@ public final class LayoutElementBuilders {
             /**
              * Sets the resource_id of the image to render. This must exist in the supplied resource
              * bundle.
+             *
+             * <p>Note that this field only supports static values.
+             *
+             * @since 1.0
              */
             @NonNull
             public Builder setResourceId(@NonNull StringProp resourceId) {
+                if (resourceId.getDynamicValue() != null) {
+                    throw new IllegalArgumentException(
+                            "setResourceId doesn't support dynamic values.");
+                }
                 mImpl.setResourceId(resourceId.toProto());
                 mFingerprint.recordPropertyUpdate(
                         1, checkNotNull(resourceId.getFingerprint()).aggregateValueAsInt());
@@ -2493,9 +2501,17 @@ public final class LayoutElementBuilders {
             /**
              * Sets the resource_id of the image to render. This must exist in the supplied resource
              * bundle.
+             *
+             * <p>Note that this field only supports static values.
+             *
+             * @since 1.0
              */
             @NonNull
             public Builder setResourceId(@NonNull StringProp resourceId) {
+                if (resourceId.getDynamicValue() != null) {
+                    throw new IllegalArgumentException(
+                            "setResourceId doesn't support dynamic values.");
+                }
                 mImpl.setResourceId(resourceId.toProto());
                 mFingerprint.recordPropertyUpdate(
                         1, checkNotNull(resourceId.getFingerprint()).aggregateValueAsInt());
@@ -2511,18 +2527,36 @@ public final class LayoutElementBuilders {
                 return this;
             }
 
-            /** Sets the width of this image. If not defined, the image will not be rendered. */
+            /**
+             * Sets the width of this image. If not defined, the image will not be rendered.
+             *
+             * <p>Note that this field only supports static values.
+             *
+             * @since 1.0
+             */
             @NonNull
             public Builder setWidth(@NonNull DpProp width) {
+                if (width.getDynamicValue() != null) {
+                    throw new IllegalArgumentException("setWidth doesn't support dynamic values.");
+                }
                 mImpl.setWidth(width.toProto());
                 mFingerprint.recordPropertyUpdate(
                         2, checkNotNull(width.getFingerprint()).aggregateValueAsInt());
                 return this;
             }
 
-            /** Sets the height of this image. If not defined, the image will not be rendered. */
+            /**
+             * Sets the height of this image. If not defined, the image will not be rendered.
+             *
+             * <p>Note that this field only supports static values.
+             *
+             * @since 1.0
+             */
             @NonNull
             public Builder setHeight(@NonNull DpProp height) {
+                if (height.getDynamicValue() != null) {
+                    throw new IllegalArgumentException("setHeight doesn't support dynamic values.");
+                }
                 mImpl.setHeight(height.toProto());
                 mFingerprint.recordPropertyUpdate(
                         3, checkNotNull(height.getFingerprint()).aggregateValueAsInt());
@@ -3639,8 +3673,7 @@ public final class LayoutElementBuilders {
             @NonNull
             public Builder setText(@NonNull StringProp text) {
                 if (text.getDynamicValue() != null) {
-                    throw new IllegalArgumentException(
-                            "ArcText.Builder.setText doesn't support dynamic values.");
+                    throw new IllegalArgumentException("setText doesn't support dynamic values.");
                 }
                 mImpl.setText(text.toProto());
                 mFingerprint.recordPropertyUpdate(
@@ -3849,9 +3882,19 @@ public final class LayoutElementBuilders {
                 return this;
             }
 
-            /** Sets the thickness of this line. If not defined, defaults to 0. */
+            /**
+             * Sets the thickness of this line. If not defined, defaults to 0.
+             *
+             * <p>Note that this field only supports static values.
+             *
+             * @since 1.0
+             */
             @NonNull
             public Builder setThickness(@NonNull DpProp thickness) {
+                if (thickness.getDynamicValue() != null) {
+                    throw new IllegalArgumentException(
+                            "setThickness doesn't support dynamic values.");
+                }
                 mImpl.setThickness(thickness.toProto());
                 mFingerprint.recordPropertyUpdate(
                         2, checkNotNull(thickness.getFingerprint()).aggregateValueAsInt());
@@ -4087,18 +4130,37 @@ public final class LayoutElementBuilders {
 
             public Builder() {}
 
-            /** Sets the length of this spacer, in degrees. If not defined, defaults to 0. */
+            /**
+             * Sets the length of this spacer, in degrees. If not defined, defaults to 0.
+             *
+             * <p>Note that this field only supports static values.
+             *
+             * @since 1.0
+             */
             @NonNull
             public Builder setLength(@NonNull DegreesProp length) {
+                if (length.getDynamicValue() != null) {
+                    throw new IllegalArgumentException("setLength doesn't support dynamic values.");
+                }
                 mImpl.setLength(length.toProto());
                 mFingerprint.recordPropertyUpdate(
                         1, checkNotNull(length.getFingerprint()).aggregateValueAsInt());
                 return this;
             }
 
-            /** Sets the thickness of this spacer, in DP. If not defined, defaults to 0. */
+            /**
+             * Sets the thickness of this spacer, in DP. If not defined, defaults to 0.
+             *
+             * <p>Note that this field only supports static values.
+             *
+             * @since 1.0
+             */
             @NonNull
             public Builder setThickness(@NonNull DpProp thickness) {
+                if (thickness.getDynamicValue() != null) {
+                    throw new IllegalArgumentException(
+                            "setThickness doesn't support dynamic values.");
+                }
                 mImpl.setThickness(thickness.toProto());
                 mFingerprint.recordPropertyUpdate(
                         2, checkNotNull(thickness.getFingerprint()).aggregateValueAsInt());
