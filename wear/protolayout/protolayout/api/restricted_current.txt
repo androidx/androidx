@@ -109,25 +109,6 @@ package androidx.wear.protolayout {
     method public androidx.wear.protolayout.ActionBuilders.LoadAction.Builder setRequestState(androidx.wear.protolayout.StateBuilders.State);
   }
 
-  public static interface ActionBuilders.LocalAction {
-  }
-
-  public static interface ActionBuilders.LocalAction.Builder {
-    method public androidx.wear.protolayout.ActionBuilders.LocalAction build();
-  }
-
-  public static final class ActionBuilders.SetStateAction implements androidx.wear.protolayout.ActionBuilders.LocalAction {
-    method public androidx.wear.protolayout.expression.AppDataKey<?> getTargetKey();
-    method public androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue? getValue();
-  }
-
-  public static final class ActionBuilders.SetStateAction.Builder implements androidx.wear.protolayout.ActionBuilders.LocalAction.Builder {
-    ctor public ActionBuilders.SetStateAction.Builder();
-    method public androidx.wear.protolayout.ActionBuilders.SetStateAction build();
-    method public androidx.wear.protolayout.ActionBuilders.SetStateAction.Builder setTargetKey(androidx.wear.protolayout.expression.AppDataKey<?>);
-    method public androidx.wear.protolayout.ActionBuilders.SetStateAction.Builder setValue(androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue);
-  }
-
   public final class ColorBuilders {
     method public static androidx.wear.protolayout.ColorBuilders.ColorProp argb(@ColorInt int);
   }
