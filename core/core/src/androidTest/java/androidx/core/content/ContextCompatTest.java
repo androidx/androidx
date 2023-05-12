@@ -147,18 +147,23 @@ import android.view.inputmethod.InputMethodManager;
 import android.view.textservice.TextServicesManager;
 
 import androidx.annotation.OptIn;
+import androidx.core.app.AppLocalesStorageHelper;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.core.hardware.display.DisplayManagerCompat;
 import androidx.core.os.BuildCompat;
+import androidx.core.os.ConfigurationCompat;
+import androidx.core.os.LocaleListCompat;
 import androidx.core.test.R;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Locale;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @LargeTest
@@ -180,6 +185,11 @@ public class ContextCompatTest extends BaseInstrumentationTestCase<ThemedYellowA
     public void setup() {
         mContext = mActivityTestRule.getActivity();
         mPermission = mContext.getPackageName() + ".DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION";
+    }
+
+    @After
+    public void tearDown() {
+        setAppLocales(mContext, "");
     }
 
     @Test
@@ -658,5 +668,22 @@ public class ContextCompatTest extends BaseInstrumentationTestCase<ThemedYellowA
             assertEquals(windowManager.getDefaultDisplay().getDisplayId(),
                     actualDisplay.getDisplayId());
         }
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 17, maxSdkVersion = 32)
+    public void testGetContextForLanguage17() {
+        setAppLocales(mContext, LocaleListCompat.create(Locale.JAPAN).toLanguageTags());
+
+        // verify the context that respects the per-app locales
+        Context newContext = ContextCompat.getContextForLanguage(mContext);
+        LocaleListCompat locales = ConfigurationCompat.getLocales(
+                newContext.getResources().getConfiguration());
+        assertEquals(1, locales.size());
+        assertEquals(Locale.JAPAN, locales.get(0));
+    }
+
+    private void setAppLocales(Context context, String locales) {
+        AppLocalesStorageHelper.persistLocales(context, locales);
     }
 }
