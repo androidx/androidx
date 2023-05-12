@@ -605,7 +605,7 @@ class TaskCapabilityImplTest {
 
     @Test
     @kotlin.Throws(Exception::class)
-    @Suppress("DEPRECATION") // TODO(b/269638788) migrate session state to AppDialogState message
+    @Suppress("DEPRECATION")
     fun disambig_singleParam_disambigEntitiesInContext() {
         val capability: Capability =
             createCapability(
@@ -738,7 +738,7 @@ class TaskCapabilityImplTest {
      */
     @Test
     @kotlin.Throws(Exception::class)
-    @Suppress("DEPRECATION") // TODO(b/269638788) migrate session state to AppDialogState message
+    @Suppress("DEPRECATION")
     fun identifierOnly_refillsStruct() = runBlocking<Unit> {
         val property = mapOf(
             "listItem" to Property.Builder<
