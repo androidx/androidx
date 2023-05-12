@@ -83,11 +83,7 @@ abstract class BinderCodeConverter(private val api: ParsedApi) {
             )
         }
         if (type.qualifiedName == Types.sdkActivityLauncher.qualifiedName) {
-            return CodeBlock.of(
-                "%T.fromLauncherInfo(%L)",
-                ClassName("androidx.privacysandbox.ui.provider", "SdkActivityLauncherFactory"),
-                expression
-            )
+            return CodeBlock.of("SdkActivityLauncherAndBinderWrapper(%L)", expression)
         }
         if (type == Types.short) {
             return CodeBlock.of("%L.toShort()", expression)
