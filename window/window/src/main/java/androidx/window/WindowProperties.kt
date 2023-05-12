@@ -122,4 +122,34 @@ object WindowProperties {
     // TODO(b/274924641): Make property public
     const val PROPERTY_COMPAT_ALLOW_IGNORING_ORIENTATION_REQUEST_WHEN_LOOP_DETECTED =
         "android.window.PROPERTY_COMPAT_ALLOW_IGNORING_ORIENTATION_REQUEST_WHEN_LOOP_DETECTED"
+
+    /**
+     * Application level
+     * [PackageManager][android.content.pm.PackageManager.Property] tag
+     * for an app to inform the system that the app should be opted-out from the compatibility
+     * override that changes the min aspect ratio.
+     *
+     * When this compat override is enabled the min aspect ratio given in the app's manifest can
+     * be overridden by the device manufacturer using their discretion to improve display
+     * compatibility unless the app's manifest value is higher. This treatment will also apply if
+     * no min aspect ratio value is provided in the manifest. These treatments can apply only in
+     * specific cases (e.g. device is in portrait) or each time the app is displayed on screen.
+     *
+     * Setting this property to `false` informs the system that the app must be
+     * opted-out from the compatibility treatment even if the device manufacturer has opted the app
+     * into the treatment.
+     *
+     * Not setting this property at all, or setting this property to `true` has no effect.
+     *
+     * **Syntax:**
+     * ```
+     * <application>
+     *   <property
+     *     android:name="android.window.PROPERTY_COMPAT_ALLOW_MIN_ASPECT_RATIO_OVERRIDE"
+     *     android:value="false" />
+     * </application>
+     * ```
+     */
+    const val PROPERTY_COMPAT_ALLOW_MIN_ASPECT_RATIO_OVERRIDE =
+        "android.window.PROPERTY_COMPAT_ALLOW_MIN_ASPECT_RATIO_OVERRIDE"
 }
