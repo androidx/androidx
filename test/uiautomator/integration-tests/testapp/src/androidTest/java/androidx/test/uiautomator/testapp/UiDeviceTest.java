@@ -36,7 +36,6 @@ import androidx.test.uiautomator.UiDevice;
 import androidx.test.uiautomator.UiObject2;
 import androidx.test.uiautomator.Until;
 
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -59,6 +58,7 @@ import javax.xml.xpath.XPathFactory;
 public class UiDeviceTest extends BaseTest {
 
     private static final long TIMEOUT_MS = 5_000;
+    private static final long LONG_TIMEOUT_MS = 30_000;
     private static final String PACKAGE_NAME = "androidx.test.uiautomator.testapp";
     // Defined in 'AndroidManifest.xml'.
     private static final String APP_NAME = "UiAutomator Test App";
@@ -243,15 +243,15 @@ public class UiDeviceTest extends BaseTest {
         assertEquals("keycode Z pressed with meta shift left on", textView.getText());
     }
 
-    @Ignore // b/266617096
     @Test
     public void testPressRecentApps() throws Exception {
         launchTestActivity(MainActivity.class);
 
-        // Test app appears in the "Recent Apps" screen after pressing button.
-        assertFalse(mDevice.wait(Until.hasObject(By.desc(APP_NAME)), TIMEOUT_MS));
+        // Test app appears in the "Recent Apps" screen after pressing button (may need to wait
+        // for a tooltip that shows up the first time the screen is opened).
+        assertFalse(mDevice.hasObject(By.desc(APP_NAME)));
         mDevice.pressRecentApps();
-        assertTrue(mDevice.wait(Until.hasObject(By.desc(APP_NAME)), TIMEOUT_MS));
+        assertTrue(mDevice.wait(Until.hasObject(By.desc(APP_NAME)), LONG_TIMEOUT_MS));
     }
 
     @Test
@@ -354,7 +354,6 @@ public class UiDeviceTest extends BaseTest {
     }
 
     @Test
-    @Ignore("b/280669851")
     public void testSetOrientationLeft() throws Exception {
         launchTestActivity(KeycodeTestActivity.class);
         try {
@@ -373,7 +372,6 @@ public class UiDeviceTest extends BaseTest {
     }
 
     @Test
-    @Ignore("b/280669851")
     public void testSetOrientationRight() throws Exception {
         launchTestActivity(KeycodeTestActivity.class);
         try {
@@ -403,7 +401,6 @@ public class UiDeviceTest extends BaseTest {
     }
 
     @Test
-    @Ignore("b/280669851")
     public void testSetOrientationLandscape() throws Exception {
         launchTestActivity(KeycodeTestActivity.class);
         try {
