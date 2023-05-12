@@ -35,12 +35,12 @@ class MapSubjectTest {
 
     @Test
     fun containsKey() {
-        assertThat(mapOf("kurt" to "kluever")).containsKey("kurt");
+        assertThat(mapOf("kurt" to "kluever")).containsKey("kurt")
     }
 
     @Test
     fun containsKeyFailure() {
-        val actual = mapOf("kurt" to "kluever");
+        val actual = mapOf("kurt" to "kluever")
         assertFailsWith<AssertionError> {
             assertThat(actual).containsKey("greg")
         }
