@@ -31,12 +31,10 @@ import java.nio.FloatBuffer;
 
 /**
  * GL program and supporting functions for textured 2D shapes.
- *
+ * <p>
  * (Contains mostly code borrowed from Grafika)
- *
- * @hide
  */
-public class Texture2dProgram {
+class Texture2dProgram {
     private static final String TAG = "Texture2dProgram";
     private static final boolean DEBUG = false;
 

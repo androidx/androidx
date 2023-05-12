@@ -35,10 +35,8 @@ import java.util.Objects;
  * The constructor takes a Surface obtained from MediaCodec.createInputSurface(), and uses that
  * to create an EGL window surface. Calls to eglSwapBuffers() cause a frame of data to be sent
  * to the video encoder.
- *
- * @hide
  */
-public class EglWindowSurface {
+class EglWindowSurface {
     private static final String TAG = "EglWindowSurface";
 
     private EGLDisplay mEGLDisplay = EGL14.EGL_NO_DISPLAY;
