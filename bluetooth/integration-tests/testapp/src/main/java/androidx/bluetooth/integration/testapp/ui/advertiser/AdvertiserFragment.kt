@@ -17,7 +17,11 @@
 package androidx.bluetooth.integration.testapp.ui.advertiser
 
 // TODO(ofy) Migrate to androidx.bluetooth.BluetoothLe once Gatt Server API is in place
+import android.Manifest
 import android.annotation.SuppressLint
+import android.bluetooth.BluetoothManager
+import android.content.Context
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -34,6 +38,7 @@ import androidx.bluetooth.integration.testapp.experimental.BluetoothLe as Blueto
 import androidx.bluetooth.integration.testapp.ui.common.getColor
 import androidx.bluetooth.integration.testapp.ui.common.setViewEditText
 import androidx.bluetooth.integration.testapp.ui.common.toast
+import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -79,7 +84,6 @@ class AdvertiserFragment : Fragment() {
                 advertiseJob?.cancel()
                 advertiseJob = null
             }
-            _binding?.textInputEditTextDisplayName?.isEnabled = !value
             _binding?.checkBoxIncludeDeviceName?.isEnabled = !value
             _binding?.checkBoxConnectable?.isEnabled = !value
             _binding?.checkBoxDiscoverable?.isEnabled = !value
@@ -200,6 +204,17 @@ class AdvertiserFragment : Fragment() {
     }
 
     private fun initData() {
+        if (ContextCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.BLUETOOTH_CONNECT
+            )
+            == PackageManager.PERMISSION_GRANTED
+        ) {
+            binding.textInputEditTextDisplayName.setText(
+                (requireContext().getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager)
+                    .adapter.name
+            )
+        }
         binding.checkBoxIncludeDeviceName.isChecked = advertiserViewModel.includeDeviceName
         binding.checkBoxConnectable.isChecked = advertiserViewModel.connectable
         binding.checkBoxDiscoverable.isChecked = advertiserViewModel.discoverable
