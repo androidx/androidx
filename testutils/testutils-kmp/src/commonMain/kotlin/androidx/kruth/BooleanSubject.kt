@@ -21,7 +21,10 @@ import kotlin.test.assertTrue
 /**
  * Propositions for boolean subjects.
  */
-class BooleanSubject(actual: Boolean?) : Subject<Boolean>(actual) {
+class BooleanSubject(
+    actual: Boolean?,
+    messageToPrepend: String? = null,
+) : Subject<Boolean>(actual, messageToPrepend) {
 
     /**
      * Fails if the subject is false or `null`.

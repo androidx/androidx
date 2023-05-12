@@ -16,14 +16,15 @@
 
 package androidx.kruth
 
-import kotlin.test.fail
-
 /**
  * Propositions for [Comparable] typed subjects.
  *
  * @param T the type of the object being tested by this [ComparableSubject]
  */
-open class ComparableSubject<T : Comparable<T>> constructor(actual: T?) : Subject<T>(actual) {
+open class ComparableSubject<T : Comparable<T>> constructor(
+    actual: T?,
+    messageToPrepend: String? = null,
+) : Subject<T>(actual, messageToPrepend) {
 
     /**
      * Checks that the subject is less than [other].

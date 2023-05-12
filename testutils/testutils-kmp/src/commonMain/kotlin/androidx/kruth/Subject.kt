@@ -20,7 +20,6 @@ import kotlin.test.assertFalse
 import kotlin.test.assertIs
 import kotlin.test.assertIsNot
 import kotlin.test.assertTrue
-import kotlin.test.fail
 
 // As opposed to Truth, which limits visibility on `actual` and the generic type, we purposely make
 // them visible in Kruth to allow for an easier time extending in Kotlin.
@@ -32,7 +31,7 @@ import kotlin.test.fail
  *
  * To create a [Subject] instance, most users will call an [assertThat] method.
  */
-open class Subject<out T>(val actual: T?) {
+open class Subject<out T>(val actual: T?, private val messageToPrepend: String? = null) {
 
     /**
      *  Fails if the subject is not null.
@@ -131,6 +130,17 @@ open class Subject<out T>(val actual: T?) {
     /** Fails if the subject is equal to any of the given elements.  */
     open fun isNoneOf(first: Any?, second: Any?, vararg rest: Any?) {
         isNotIn(listOf(first, second, *rest))
+    }
+
+    fun fail(message: String) {
+        kotlin.test.fail(
+            buildString {
+                if (messageToPrepend != null) {
+                    appendLine(messageToPrepend)
+                }
+                append(message)
+            }
+        )
     }
 }
 

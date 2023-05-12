@@ -17,7 +17,6 @@
 package androidx.kruth
 
 import kotlin.test.assertEquals
-import kotlin.test.fail
 
 /**
  * Propositions for [Iterable] subjects.
@@ -31,7 +30,10 @@ import kotlin.test.fail
  * - Assertions may also require that the elements in the given [Iterable] implement
  * [Any.hashCode] correctly.
  */
-open class IterableSubject<T>(actual: Iterable<T>?) : Subject<Iterable<T>>(actual) {
+open class IterableSubject<T>(
+    actual: Iterable<T>?,
+    messageToPrepend: String? = null,
+) : Subject<Iterable<T>>(actual, messageToPrepend) {
 
     override fun isEqualTo(expected: Any?) {
         // method contract requires testing iterables for equality
@@ -204,7 +206,7 @@ open class IterableSubject<T>(actual: Iterable<T>?) : Subject<Iterable<T>>(actua
             return NoopOrdered
         }
 
-        return FailingOrdered {
+        return FailingOrdered(this) {
             buildString {
                 append("Required elements were all found, but order was wrong.")
                 append("Expected order: $expected.")
@@ -328,7 +330,7 @@ open class IterableSubject<T>(actual: Iterable<T>?) : Subject<Iterable<T>>(actua
                      * so return an object that will fail the test if the user calls inOrder().
                      */
 
-                    return FailingOrdered {
+                    return FailingOrdered(this) {
                         """
                              Contents match. Expected the order to also match, but was not.
                              Expected: $required.

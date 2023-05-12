@@ -19,7 +19,10 @@ package androidx.kruth
 /**
  * Propositions for [Throwable] subjects.
  */
-class ThrowableSubject<T : Throwable>(actual: T?) : Subject<T>(actual) {
+class ThrowableSubject<T : Throwable>(
+    actual: T?,
+    messageToPrepend: String? = null,
+) : Subject<T>(actual, messageToPrepend) {
 
     /**
      * Returns a [StringSubject] to make assertions about the throwable's message.

@@ -18,12 +18,14 @@ package androidx.kruth
 
 import kotlin.test.assertContains
 import kotlin.test.assertNotNull
-import kotlin.test.fail
 
 /**
  * Propositions for string subjects.
  */
-class StringSubject(actual: String?) : ComparableSubject<String>(actual) {
+class StringSubject(
+    actual: String?,
+    messageToPrepend: String? = null,
+) : ComparableSubject<String>(actual, messageToPrepend) {
 
     /**
      * Fails if the string does not contain the given sequence.

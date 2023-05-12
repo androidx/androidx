@@ -20,6 +20,9 @@ package androidx.kruth
 // ordering of which Subject type to prioritize from the general `assertThat` factory method. See:
 // https://github.com/google/truth/blob/master/core/src/main/java/com/google/common/truth/Truth.java
 
+fun assertWithMessage(messageToPrepend: String): StandardSubjectBuilder =
+    StandardSubjectBuilder(messageToPrepend)
+
 fun <T : Comparable<T>> assertThat(actual: T?): ComparableSubject<T> {
     return ComparableSubject(actual)
 }

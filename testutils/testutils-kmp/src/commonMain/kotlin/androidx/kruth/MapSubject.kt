@@ -16,9 +16,10 @@
 
 package androidx.kruth
 
-import kotlin.test.fail
-
-class MapSubject<K, V>(actual: Map<K, V>?) : Subject<Map<K, V>>(actual) {
+class MapSubject<K, V>(
+    actual: Map<K, V>?,
+    messageToPrepend: String? = null,
+) : Subject<Map<K, V>>(actual, messageToPrepend) {
 
     /** Fails if the map is not empty. */
     fun isEmpty() {
