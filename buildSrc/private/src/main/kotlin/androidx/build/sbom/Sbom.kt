@@ -37,7 +37,11 @@ fun Project.shouldSbomIncludeConfigurationName(configurationName: String): Boole
     return when (configurationName) {
         BundleInsideHelper.CONFIGURATION_NAME -> true
         "shadowed" -> true
-        "compileClasspath" -> appliesShadowPlugin()
+        // compileClasspath is included by the Shadow plugin by default but projects that
+        // declare a "shadowed" configuration exclude the "compileClasspath" configuration from
+        // the shadowJar task
+        "compileClasspath" ->
+            appliesShadowPlugin() && project.configurations.findByName("shadowed") == null
         EXPORT_INSPECTOR_DEPENDENCIES -> true
         IMPORT_INSPECTOR_DEPENDENCIES -> true
         else -> false
