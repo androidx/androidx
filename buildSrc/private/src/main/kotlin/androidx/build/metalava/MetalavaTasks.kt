@@ -17,7 +17,7 @@
 package androidx.build.metalava
 
 import androidx.build.AndroidXExtension
-import androidx.build.ProjectLayoutType.Companion.isPlayground
+import androidx.build.addFilterableTasks
 import androidx.build.addToBuildOnServer
 import androidx.build.addToCheckTask
 import androidx.build.checkapi.ApiBaselinesLocation
@@ -26,6 +26,7 @@ import androidx.build.checkapi.getRequiredCompatibilityApiLocation
 import androidx.build.getSuppressCompatibilityOptInPathPrefixes
 import androidx.build.getSuppressCompatibilityOptOutPathPrefixes
 import androidx.build.java.JavaCompileInputs
+import androidx.build.relativePathForFiltering
 import androidx.build.uptodatedness.cacheEvenIfNoOutputs
 import com.android.build.gradle.tasks.ProcessLibraryManifest
 import org.gradle.api.Project
@@ -113,7 +114,7 @@ object MetalavaTasks {
             }
         }
 
-        project.tasks.register(
+        val updateApiLintBaseline = project.tasks.register(
             "updateApiLintBaseline",
             UpdateApiLintBaselineTask::class.java
         ) { task ->
@@ -189,7 +190,7 @@ object MetalavaTasks {
         // Make sure it always runs *after* the updateApi task.
         ignoreApiChanges?.configure { it.mustRunAfter(updateApi) }
 
-        project.tasks.register("regenerateApis") { task ->
+        val regenerateApis = project.tasks.register("regenerateApis") { task ->
             task.group = "API"
             task.description = "Regenerates current and historic API .txt files using the " +
                 "corresponding prebuilt and the latest Metalava, then updates API ignore files"
@@ -200,6 +201,14 @@ object MetalavaTasks {
 
         project.addToCheckTask(checkApi)
         project.addToBuildOnServer(checkApi)
+        project.addFilterableTasks(
+            ignoreApiChanges,
+            updateApiLintBaseline,
+            checkApi,
+            regenerateOldApis,
+            updateApi,
+            regenerateApis,
+        )
     }
 
     private fun applyInputs(inputs: JavaCompileInputs, task: MetalavaTask) {
@@ -214,11 +223,7 @@ object MetalavaTasks {
  * Returns whether the project has been opted-in to the Suppress Compatibility migration.
  */
 internal fun Project.isOptedInToSuppressCompatibilityMigration(): Boolean {
-    val dir = if (isPlayground(project)) {
-        "${rootProject.projectDir.name}/"
-    } else {
-        ""
-    } + "${projectDir.relativeTo(rootDir)}/"
+    val dir = relativePathForFiltering()
     return getSuppressCompatibilityOptOutPathPrefixes().none { pathPrefix ->
         dir.startsWith(pathPrefix)
     } && getSuppressCompatibilityOptInPathPrefixes().any { pathPrefix ->
