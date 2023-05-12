@@ -45,6 +45,8 @@ object Types {
     val any = Type("kotlin", simpleName = "Any")
     val sandboxedUiAdapter =
         Type(packageName = "androidx.privacysandbox.ui.core", simpleName = "SandboxedUiAdapter")
+    val sdkActivityLauncher =
+        Type(packageName = "androidx.privacysandbox.ui.core", simpleName = "SdkActivityLauncher")
 
     fun list(elementType: Type) = Type(
         packageName = "kotlin.collections",
@@ -57,6 +59,7 @@ object Types {
             return this
         return copy(isNullable = true)
     }
+
     fun Type.asNonNull(): Type {
         if (isNullable)
             return copy(isNullable = false)

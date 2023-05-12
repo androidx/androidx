@@ -208,7 +208,7 @@ class PrivacySandboxApiPackagerTest {
 
     /** Compiles the given source file and returns a classpath with the results. */
     private fun compileAndReturnUnzippedPackagedClasspath(source: Source): File {
-        val result = compileAll(listOf(source))
+        val result = compileAll(listOf(source), includeLibraryStubs = false)
         assertThat(result).succeeds()
         assertThat(result.outputClasspath).hasSize(1)
 
@@ -221,7 +221,7 @@ class PrivacySandboxApiPackagerTest {
             generateSequence { input.nextEntry }
                 .forEach {
                     val file: File = outputDir.resolve(it.name)
-                    file.parentFile.mkdirs()
+                    file.parentFile?.mkdirs()
                     file.createNewFile()
                     input.copyTo(file.outputStream())
                 }
