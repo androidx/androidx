@@ -19,13 +19,16 @@ package androidx.appactions.interaction.service
 import androidx.appactions.interaction.capabilities.core.Capability
 import androidx.appactions.interaction.capabilities.core.impl.CallbackInternal
 import androidx.appactions.interaction.capabilities.core.impl.CapabilitySession
+import androidx.appactions.interaction.proto.AppActionsContext
 import androidx.appactions.interaction.proto.AppActionsContext.AppAction
 import androidx.appactions.interaction.proto.AppActionsContext.AppDialogState
+import androidx.appactions.interaction.proto.CurrentValue
 import androidx.appactions.interaction.proto.FulfillmentRequest
 import androidx.appactions.interaction.proto.FulfillmentRequest.Fulfillment
 import androidx.appactions.interaction.proto.FulfillmentResponse
 import androidx.appactions.interaction.proto.FulfillmentResponse.StructuredOutput
 import androidx.appactions.interaction.proto.FulfillmentResponse.StructuredOutput.OutputValue
+import androidx.appactions.interaction.proto.ParamValue
 import androidx.appactions.interaction.service.AppInteractionServiceGrpcImpl.Companion.ERROR_NO_ACTION_CAPABILITY
 import androidx.appactions.interaction.service.AppInteractionServiceGrpcImpl.Companion.ERROR_NO_FULFILLMENT_REQUEST
 import androidx.appactions.interaction.service.AppInteractionServiceGrpcImpl.Companion.ERROR_NO_SESSION
@@ -98,6 +101,16 @@ class AppInteractionServiceGrpcImplTest {
                     .addOutputValues(OutputValue.newBuilder().setName("bio_arg1")),
             )
             .build()
+    private val testAppDialogState = AppDialogState.newBuilder().setFulfillmentIdentifier("id")
+        .addParams(
+            AppActionsContext.DialogParameter.newBuilder()
+                .setName("Sample dialog")
+                .addCurrentValue(
+                    CurrentValue.newBuilder().setValue(
+                        ParamValue.newBuilder().setStringValue("Sample Test").build()
+                    )
+                )
+        ).build()
     private lateinit var capability1: Capability
     private lateinit var appInteractionService: FakeAppInteractionService
 
@@ -212,6 +225,8 @@ class AppInteractionServiceGrpcImplTest {
         val response = responseFuture.await()
         assertThat(response).isNotNull()
         assertThat(response.fulfillmentResponse).isEqualTo(testFulfillmentResponse)
+
+        assertThat(response.appActionsContext.dialogStatesList).containsExactly(testAppDialogState)
         server.shutdownNow()
     }
 
@@ -396,7 +411,7 @@ class AppInteractionServiceGrpcImplTest {
             (invocation.arguments[1] as CallbackInternal).onSuccess(testFulfillmentResponse)
         }
         whenever(mockSession.sessionId).thenReturn(sessionId)
-        whenever(mockSession.state).thenReturn(AppDialogState.getDefaultInstance())
+        whenever(mockSession.state).thenReturn(testAppDialogState)
         whenever(mockSession.isActive).thenReturn(true)
         whenever(mockSession.uiHandle).thenReturn(Any())
         return mockSession
