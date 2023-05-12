@@ -1,0 +1,569 @@
+// Signature format: 4.0
+package androidx.glance {
+
+  public final class BackgroundKt {
+    method public static androidx.glance.GlanceModifier background(androidx.glance.GlanceModifier, long color);
+    method public static androidx.glance.GlanceModifier background(androidx.glance.GlanceModifier, @ColorRes int color);
+    method public static androidx.glance.GlanceModifier background(androidx.glance.GlanceModifier, androidx.glance.unit.ColorProvider colorProvider);
+    method public static androidx.glance.GlanceModifier background(androidx.glance.GlanceModifier, androidx.glance.ImageProvider imageProvider, optional int contentScale);
+  }
+
+  public final class ButtonColors {
+    method public androidx.glance.unit.ColorProvider getBackgroundColor();
+    method public androidx.glance.unit.ColorProvider getContentColor();
+    property public final androidx.glance.unit.ColorProvider backgroundColor;
+    property public final androidx.glance.unit.ColorProvider contentColor;
+  }
+
+  public final class ButtonDefaults {
+    method @androidx.compose.runtime.Composable public androidx.glance.ButtonColors buttonColors(optional androidx.glance.unit.ColorProvider backgroundColor, optional androidx.glance.unit.ColorProvider contentColor);
+    field public static final androidx.glance.ButtonDefaults INSTANCE;
+  }
+
+  public final class ButtonKt {
+    method @androidx.compose.runtime.Composable public static void Button(String text, androidx.glance.action.Action onClick, optional androidx.glance.GlanceModifier modifier, optional boolean enabled, optional androidx.glance.text.TextStyle? style, optional androidx.glance.ButtonColors colors, optional int maxLines);
+    method @androidx.compose.runtime.Composable public static void Button(String text, kotlin.jvm.functions.Function0<kotlin.Unit> onClick, optional androidx.glance.GlanceModifier modifier, optional boolean enabled, optional androidx.glance.text.TextStyle? style, optional androidx.glance.ButtonColors colors, optional int maxLines);
+  }
+
+  public final class ColorFilter {
+    field public static final androidx.glance.ColorFilter.Companion Companion;
+  }
+
+  public static final class ColorFilter.Companion {
+    method public androidx.glance.ColorFilter tint(androidx.glance.unit.ColorProvider colorProvider);
+  }
+
+  public final class CombinedGlanceModifier implements androidx.glance.GlanceModifier {
+    ctor public CombinedGlanceModifier(androidx.glance.GlanceModifier outer, androidx.glance.GlanceModifier inner);
+    method public boolean all(kotlin.jvm.functions.Function1<? super androidx.glance.GlanceModifier.Element,java.lang.Boolean> predicate);
+    method public boolean any(kotlin.jvm.functions.Function1<? super androidx.glance.GlanceModifier.Element,java.lang.Boolean> predicate);
+    method public <R> R foldIn(R initial, kotlin.jvm.functions.Function2<? super R,? super androidx.glance.GlanceModifier.Element,? extends R> operation);
+    method public <R> R foldOut(R initial, kotlin.jvm.functions.Function2<? super androidx.glance.GlanceModifier.Element,? super R,? extends R> operation);
+  }
+
+  public final class CompositionLocalsKt {
+    method @androidx.compose.runtime.Composable public static inline <reified T> T currentState();
+    method @androidx.compose.runtime.Composable public static inline <reified T> T? currentState(androidx.datastore.preferences.core.Preferences.Key<T> key);
+    method public static androidx.compose.runtime.ProvidableCompositionLocal<android.content.Context> getLocalContext();
+    method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.glance.GlanceId> getLocalGlanceId();
+    method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.unit.DpSize> getLocalSize();
+    method public static androidx.compose.runtime.ProvidableCompositionLocal<java.lang.Object> getLocalState();
+    property public static final androidx.compose.runtime.ProvidableCompositionLocal<android.content.Context> LocalContext;
+    property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.glance.GlanceId> LocalGlanceId;
+    property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.unit.DpSize> LocalSize;
+    property public static final androidx.compose.runtime.ProvidableCompositionLocal<java.lang.Object> LocalState;
+  }
+
+  @androidx.compose.runtime.ComposableTargetMarker(description="Glance Composable") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.FILE, kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.PROPERTY_GETTER, kotlin.annotation.AnnotationTarget.TYPE, kotlin.annotation.AnnotationTarget.TYPE_PARAMETER}) public @interface GlanceComposable {
+  }
+
+  public interface GlanceId {
+  }
+
+  @androidx.compose.runtime.Stable @kotlin.jvm.JvmDefaultWithCompatibility public interface GlanceModifier {
+    method public boolean all(kotlin.jvm.functions.Function1<? super androidx.glance.GlanceModifier.Element,java.lang.Boolean> predicate);
+    method public boolean any(kotlin.jvm.functions.Function1<? super androidx.glance.GlanceModifier.Element,java.lang.Boolean> predicate);
+    method public <R> R foldIn(R initial, kotlin.jvm.functions.Function2<? super R,? super androidx.glance.GlanceModifier.Element,? extends R> operation);
+    method public <R> R foldOut(R initial, kotlin.jvm.functions.Function2<? super androidx.glance.GlanceModifier.Element,? super R,? extends R> operation);
+    method public default infix androidx.glance.GlanceModifier then(androidx.glance.GlanceModifier other);
+    field public static final androidx.glance.GlanceModifier.Companion Companion;
+  }
+
+  public static final class GlanceModifier.Companion implements androidx.glance.GlanceModifier {
+    method public boolean all(kotlin.jvm.functions.Function1<? super androidx.glance.GlanceModifier.Element,java.lang.Boolean> predicate);
+    method public boolean any(kotlin.jvm.functions.Function1<? super androidx.glance.GlanceModifier.Element,java.lang.Boolean> predicate);
+    method public <R> R foldIn(R initial, kotlin.jvm.functions.Function2<? super R,? super androidx.glance.GlanceModifier.Element,? extends R> operation);
+    method public <R> R foldOut(R initial, kotlin.jvm.functions.Function2<? super androidx.glance.GlanceModifier.Element,? super R,? extends R> operation);
+  }
+
+  @kotlin.jvm.JvmDefaultWithCompatibility public static interface GlanceModifier.Element extends androidx.glance.GlanceModifier {
+    method public default boolean all(kotlin.jvm.functions.Function1<? super androidx.glance.GlanceModifier.Element,java.lang.Boolean> predicate);
+    method public default boolean any(kotlin.jvm.functions.Function1<? super androidx.glance.GlanceModifier.Element,java.lang.Boolean> predicate);
+    method public default <R> R foldIn(R initial, kotlin.jvm.functions.Function2<? super R,? super androidx.glance.GlanceModifier.Element,? extends R> operation);
+    method public default <R> R foldOut(R initial, kotlin.jvm.functions.Function2<? super androidx.glance.GlanceModifier.Element,? super R,? extends R> operation);
+  }
+
+  public final class GlanceTheme {
+    method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable @androidx.glance.GlanceComposable public androidx.glance.color.ColorProviders getColors();
+    property @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable @androidx.glance.GlanceComposable public final androidx.glance.color.ColorProviders colors;
+    field public static final androidx.glance.GlanceTheme INSTANCE;
+  }
+
+  public final class GlanceThemeKt {
+    method @androidx.compose.runtime.Composable public static void GlanceTheme(optional androidx.glance.color.ColorProviders colors, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+  }
+
+  public final class ImageKt {
+    method @androidx.compose.runtime.Composable public static void Image(androidx.glance.ImageProvider provider, String? contentDescription, optional androidx.glance.GlanceModifier modifier, optional int contentScale, optional androidx.glance.ColorFilter? colorFilter);
+    method public static androidx.glance.ImageProvider ImageProvider(@DrawableRes int resId);
+    method public static androidx.glance.ImageProvider ImageProvider(android.graphics.Bitmap bitmap);
+    method @RequiresApi(android.os.Build.VERSION_CODES.M) public static androidx.glance.ImageProvider ImageProvider(android.graphics.drawable.Icon icon);
+  }
+
+  public interface ImageProvider {
+  }
+
+  public enum Visibility {
+    method public static androidx.glance.Visibility valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
+    method public static androidx.glance.Visibility[] values();
+    enum_constant public static final androidx.glance.Visibility Gone;
+    enum_constant public static final androidx.glance.Visibility Invisible;
+    enum_constant public static final androidx.glance.Visibility Visible;
+  }
+
+  public final class VisibilityKt {
+    method public static androidx.glance.GlanceModifier visibility(androidx.glance.GlanceModifier, androidx.glance.Visibility visibility);
+  }
+
+}
+
+package androidx.glance.action {
+
+  public interface Action {
+  }
+
+  public final class ActionKt {
+    method public static androidx.glance.GlanceModifier clickable(androidx.glance.GlanceModifier, androidx.glance.action.Action onClick);
+    method @androidx.compose.runtime.Composable public static androidx.glance.GlanceModifier clickable(androidx.glance.GlanceModifier, kotlin.jvm.functions.Function0<kotlin.Unit> block);
+  }
+
+  public abstract class ActionParameters {
+    method public abstract java.util.Map<androidx.glance.action.ActionParameters.Key<?>,java.lang.Object> asMap();
+    method public abstract operator <T> boolean contains(androidx.glance.action.ActionParameters.Key<T> key);
+    method public abstract operator <T> T? get(androidx.glance.action.ActionParameters.Key<T> key);
+    method public abstract <T> T getOrDefault(androidx.glance.action.ActionParameters.Key<T> key, T defaultValue);
+    method public abstract boolean isEmpty();
+  }
+
+  public static final class ActionParameters.Key<T> {
+    ctor public ActionParameters.Key(String name);
+    method public String getName();
+    method public infix androidx.glance.action.ActionParameters.Pair<T> to(T value);
+    property public final String name;
+  }
+
+  public static final class ActionParameters.Pair<T> {
+  }
+
+  public final class ActionParametersKt {
+    method public static androidx.glance.action.ActionParameters actionParametersOf(androidx.glance.action.ActionParameters.Pair<?>... pairs);
+    method public static androidx.glance.action.MutableActionParameters mutableActionParametersOf(androidx.glance.action.ActionParameters.Pair<?>... pairs);
+    method public static androidx.glance.action.MutableActionParameters toMutableParameters(androidx.glance.action.ActionParameters);
+    method public static androidx.glance.action.ActionParameters toParameters(androidx.glance.action.ActionParameters);
+    method public static <T> androidx.glance.action.ActionParameters.Key<T> toParametersKey(androidx.datastore.preferences.core.Preferences.Key<T>);
+  }
+
+  public final class LambdaActionKt {
+    method @androidx.compose.runtime.Composable public static androidx.glance.action.Action action(optional String? key, kotlin.jvm.functions.Function0<kotlin.Unit> block);
+  }
+
+  public final class MutableActionParameters extends androidx.glance.action.ActionParameters {
+    method public java.util.Map<androidx.glance.action.ActionParameters.Key<?>,java.lang.Object> asMap();
+    method public void clear();
+    method public operator <T> boolean contains(androidx.glance.action.ActionParameters.Key<T> key);
+    method public operator <T> T? get(androidx.glance.action.ActionParameters.Key<T> key);
+    method public <T> T getOrDefault(androidx.glance.action.ActionParameters.Key<T> key, T defaultValue);
+    method public boolean isEmpty();
+    method public <T> T? remove(androidx.glance.action.ActionParameters.Key<T> key);
+    method public operator <T> T? set(androidx.glance.action.ActionParameters.Key<T> key, T? value);
+  }
+
+  public final class StartActivityActionKt {
+    method public static androidx.glance.action.Action actionStartActivity(android.content.ComponentName componentName, optional androidx.glance.action.ActionParameters parameters);
+    method public static <T extends android.app.Activity> androidx.glance.action.Action actionStartActivity(Class<T> activity, optional androidx.glance.action.ActionParameters parameters);
+    method public static inline <reified T extends android.app.Activity> androidx.glance.action.Action actionStartActivity(optional androidx.glance.action.ActionParameters parameters);
+  }
+
+}
+
+package androidx.glance.color {
+
+  public abstract sealed class ColorProviders {
+    method public final androidx.glance.unit.ColorProvider getBackground();
+    method public final androidx.glance.unit.ColorProvider getError();
+    method public final androidx.glance.unit.ColorProvider getErrorContainer();
+    method public final androidx.glance.unit.ColorProvider getInverseOnSurface();
+    method public final androidx.glance.unit.ColorProvider getInversePrimary();
+    method public final androidx.glance.unit.ColorProvider getInverseSurface();
+    method public final androidx.glance.unit.ColorProvider getOnBackground();
+    method public final androidx.glance.unit.ColorProvider getOnError();
+    method public final androidx.glance.unit.ColorProvider getOnErrorContainer();
+    method public final androidx.glance.unit.ColorProvider getOnPrimary();
+    method public final androidx.glance.unit.ColorProvider getOnPrimaryContainer();
+    method public final androidx.glance.unit.ColorProvider getOnSecondary();
+    method public final androidx.glance.unit.ColorProvider getOnSecondaryContainer();
+    method public final androidx.glance.unit.ColorProvider getOnSurface();
+    method public final androidx.glance.unit.ColorProvider getOnSurfaceVariant();
+    method public final androidx.glance.unit.ColorProvider getOnTertiary();
+    method public final androidx.glance.unit.ColorProvider getOnTertiaryContainer();
+    method public final androidx.glance.unit.ColorProvider getOutline();
+    method public final androidx.glance.unit.ColorProvider getPrimary();
+    method public final androidx.glance.unit.ColorProvider getPrimaryContainer();
+    method public final androidx.glance.unit.ColorProvider getSecondary();
+    method public final androidx.glance.unit.ColorProvider getSecondaryContainer();
+    method public final androidx.glance.unit.ColorProvider getSurface();
+    method public final androidx.glance.unit.ColorProvider getSurfaceVariant();
+    method public final androidx.glance.unit.ColorProvider getTertiary();
+    method public final androidx.glance.unit.ColorProvider getTertiaryContainer();
+    property public final androidx.glance.unit.ColorProvider background;
+    property public final androidx.glance.unit.ColorProvider error;
+    property public final androidx.glance.unit.ColorProvider errorContainer;
+    property public final androidx.glance.unit.ColorProvider inverseOnSurface;
+    property public final androidx.glance.unit.ColorProvider inversePrimary;
+    property public final androidx.glance.unit.ColorProvider inverseSurface;
+    property public final androidx.glance.unit.ColorProvider onBackground;
+    property public final androidx.glance.unit.ColorProvider onError;
+    property public final androidx.glance.unit.ColorProvider onErrorContainer;
+    property public final androidx.glance.unit.ColorProvider onPrimary;
+    property public final androidx.glance.unit.ColorProvider onPrimaryContainer;
+    property public final androidx.glance.unit.ColorProvider onSecondary;
+    property public final androidx.glance.unit.ColorProvider onSecondaryContainer;
+    property public final androidx.glance.unit.ColorProvider onSurface;
+    property public final androidx.glance.unit.ColorProvider onSurfaceVariant;
+    property public final androidx.glance.unit.ColorProvider onTertiary;
+    property public final androidx.glance.unit.ColorProvider onTertiaryContainer;
+    property public final androidx.glance.unit.ColorProvider outline;
+    property public final androidx.glance.unit.ColorProvider primary;
+    property public final androidx.glance.unit.ColorProvider primaryContainer;
+    property public final androidx.glance.unit.ColorProvider secondary;
+    property public final androidx.glance.unit.ColorProvider secondaryContainer;
+    property public final androidx.glance.unit.ColorProvider surface;
+    property public final androidx.glance.unit.ColorProvider surfaceVariant;
+    property public final androidx.glance.unit.ColorProvider tertiary;
+    property public final androidx.glance.unit.ColorProvider tertiaryContainer;
+  }
+
+  public final class ColorProvidersKt {
+    method public static androidx.glance.color.ColorProviders colorProviders(androidx.glance.unit.ColorProvider primary, androidx.glance.unit.ColorProvider onPrimary, androidx.glance.unit.ColorProvider primaryContainer, androidx.glance.unit.ColorProvider onPrimaryContainer, androidx.glance.unit.ColorProvider secondary, androidx.glance.unit.ColorProvider onSecondary, androidx.glance.unit.ColorProvider secondaryContainer, androidx.glance.unit.ColorProvider onSecondaryContainer, androidx.glance.unit.ColorProvider tertiary, androidx.glance.unit.ColorProvider onTertiary, androidx.glance.unit.ColorProvider tertiaryContainer, androidx.glance.unit.ColorProvider onTertiaryContainer, androidx.glance.unit.ColorProvider error, androidx.glance.unit.ColorProvider errorContainer, androidx.glance.unit.ColorProvider onError, androidx.glance.unit.ColorProvider onErrorContainer, androidx.glance.unit.ColorProvider background, androidx.glance.unit.ColorProvider onBackground, androidx.glance.unit.ColorProvider surface, androidx.glance.unit.ColorProvider onSurface, androidx.glance.unit.ColorProvider surfaceVariant, androidx.glance.unit.ColorProvider onSurfaceVariant, androidx.glance.unit.ColorProvider outline, androidx.glance.unit.ColorProvider inverseOnSurface, androidx.glance.unit.ColorProvider inverseSurface, androidx.glance.unit.ColorProvider inversePrimary);
+  }
+
+  public final class DayNightColorProvidersKt {
+    method public static androidx.glance.unit.ColorProvider ColorProvider(long day, long night);
+  }
+
+}
+
+package androidx.glance.layout {
+
+  public final class Alignment {
+    ctor public Alignment(int horizontal, int vertical);
+    method public int getHorizontal();
+    method public int getVertical();
+    property public final int horizontal;
+    property public final int vertical;
+    field public static final androidx.glance.layout.Alignment.Companion Companion;
+  }
+
+  public static final class Alignment.Companion {
+    method public int getBottom();
+    method public androidx.glance.layout.Alignment getBottomCenter();
+    method public androidx.glance.layout.Alignment getBottomEnd();
+    method public androidx.glance.layout.Alignment getBottomStart();
+    method public androidx.glance.layout.Alignment getCenter();
+    method public androidx.glance.layout.Alignment getCenterEnd();
+    method public int getCenterHorizontally();
+    method public androidx.glance.layout.Alignment getCenterStart();
+    method public int getCenterVertically();
+    method public int getEnd();
+    method public int getStart();
+    method public int getTop();
+    method public androidx.glance.layout.Alignment getTopCenter();
+    method public androidx.glance.layout.Alignment getTopEnd();
+    method public androidx.glance.layout.Alignment getTopStart();
+    property public final int Bottom;
+    property public final androidx.glance.layout.Alignment BottomCenter;
+    property public final androidx.glance.layout.Alignment BottomEnd;
+    property public final androidx.glance.layout.Alignment BottomStart;
+    property public final androidx.glance.layout.Alignment Center;
+    property public final androidx.glance.layout.Alignment CenterEnd;
+    property public final int CenterHorizontally;
+    property public final androidx.glance.layout.Alignment CenterStart;
+    property public final int CenterVertically;
+    property public final int End;
+    property public final int Start;
+    property public final int Top;
+    property public final androidx.glance.layout.Alignment TopCenter;
+    property public final androidx.glance.layout.Alignment TopEnd;
+    property public final androidx.glance.layout.Alignment TopStart;
+  }
+
+  @kotlin.jvm.JvmInline public static final value class Alignment.Horizontal {
+    field public static final androidx.glance.layout.Alignment.Horizontal.Companion Companion;
+  }
+
+  public static final class Alignment.Horizontal.Companion {
+    method public int getCenterHorizontally();
+    method public int getEnd();
+    method public int getStart();
+    property public final int CenterHorizontally;
+    property public final int End;
+    property public final int Start;
+  }
+
+  @kotlin.jvm.JvmInline public static final value class Alignment.Vertical {
+    field public static final androidx.glance.layout.Alignment.Vertical.Companion Companion;
+  }
+
+  public static final class Alignment.Vertical.Companion {
+    method public int getBottom();
+    method public int getCenterVertically();
+    method public int getTop();
+    property public final int Bottom;
+    property public final int CenterVertically;
+    property public final int Top;
+  }
+
+  public final class BoxKt {
+    method @androidx.compose.runtime.Composable public static void Box(optional androidx.glance.GlanceModifier modifier, optional androidx.glance.layout.Alignment contentAlignment, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+  }
+
+  public final class ColumnKt {
+    method @androidx.compose.runtime.Composable public static void Column(optional androidx.glance.GlanceModifier modifier, optional int verticalAlignment, optional int horizontalAlignment, kotlin.jvm.functions.Function1<? super androidx.glance.layout.ColumnScope,kotlin.Unit> content);
+  }
+
+  public interface ColumnScope {
+    method public androidx.glance.GlanceModifier defaultWeight(androidx.glance.GlanceModifier);
+  }
+
+  @kotlin.jvm.JvmInline public final value class ContentScale {
+    ctor public ContentScale(int value);
+    field public static final androidx.glance.layout.ContentScale.Companion Companion;
+  }
+
+  public static final class ContentScale.Companion {
+    method public int getCrop();
+    method public int getFillBounds();
+    method public int getFit();
+    property public final int Crop;
+    property public final int FillBounds;
+    property public final int Fit;
+  }
+
+  public final class PaddingKt {
+    method public static androidx.glance.GlanceModifier absolutePadding(androidx.glance.GlanceModifier, optional float left, optional float top, optional float right, optional float bottom);
+    method public static androidx.glance.GlanceModifier absolutePadding(androidx.glance.GlanceModifier, optional @DimenRes int left, optional @DimenRes int top, optional @DimenRes int right, optional @DimenRes int bottom);
+    method public static androidx.glance.GlanceModifier padding(androidx.glance.GlanceModifier, optional float start, optional float top, optional float end, optional float bottom);
+    method public static androidx.glance.GlanceModifier padding(androidx.glance.GlanceModifier, optional @DimenRes int start, optional @DimenRes int top, optional @DimenRes int end, optional @DimenRes int bottom);
+    method public static androidx.glance.GlanceModifier padding(androidx.glance.GlanceModifier, optional float horizontal, optional float vertical);
+    method public static androidx.glance.GlanceModifier padding(androidx.glance.GlanceModifier, optional @DimenRes int horizontal, optional @DimenRes int vertical);
+    method public static androidx.glance.GlanceModifier padding(androidx.glance.GlanceModifier, float all);
+    method public static androidx.glance.GlanceModifier padding(androidx.glance.GlanceModifier, @DimenRes int all);
+  }
+
+  public final class RowKt {
+    method @androidx.compose.runtime.Composable public static void Row(optional androidx.glance.GlanceModifier modifier, optional int horizontalAlignment, optional int verticalAlignment, kotlin.jvm.functions.Function1<? super androidx.glance.layout.RowScope,kotlin.Unit> content);
+  }
+
+  public interface RowScope {
+    method public androidx.glance.GlanceModifier defaultWeight(androidx.glance.GlanceModifier);
+  }
+
+  public final class SizeModifiersKt {
+    method public static androidx.glance.GlanceModifier fillMaxHeight(androidx.glance.GlanceModifier);
+    method public static androidx.glance.GlanceModifier fillMaxSize(androidx.glance.GlanceModifier);
+    method public static androidx.glance.GlanceModifier fillMaxWidth(androidx.glance.GlanceModifier);
+    method public static androidx.glance.GlanceModifier height(androidx.glance.GlanceModifier, float height);
+    method public static androidx.glance.GlanceModifier height(androidx.glance.GlanceModifier, @DimenRes int height);
+    method public static androidx.glance.GlanceModifier size(androidx.glance.GlanceModifier, float size);
+    method public static androidx.glance.GlanceModifier size(androidx.glance.GlanceModifier, @DimenRes int size);
+    method public static androidx.glance.GlanceModifier size(androidx.glance.GlanceModifier, float width, float height);
+    method public static androidx.glance.GlanceModifier size(androidx.glance.GlanceModifier, @DimenRes int width, @DimenRes int height);
+    method public static androidx.glance.GlanceModifier width(androidx.glance.GlanceModifier, float width);
+    method public static androidx.glance.GlanceModifier width(androidx.glance.GlanceModifier, @DimenRes int width);
+    method public static androidx.glance.GlanceModifier wrapContentHeight(androidx.glance.GlanceModifier);
+    method public static androidx.glance.GlanceModifier wrapContentSize(androidx.glance.GlanceModifier);
+    method public static androidx.glance.GlanceModifier wrapContentWidth(androidx.glance.GlanceModifier);
+  }
+
+  public final class SpacerKt {
+    method @androidx.compose.runtime.Composable public static void Spacer(optional androidx.glance.GlanceModifier modifier);
+  }
+
+}
+
+package androidx.glance.semantics {
+
+  public final class SemanticsConfiguration implements androidx.glance.semantics.SemanticsPropertyReceiver {
+    ctor public SemanticsConfiguration();
+    method public operator <T> T get(androidx.glance.semantics.SemanticsPropertyKey<T> key);
+    method public <T> T? getOrElseNullable(androidx.glance.semantics.SemanticsPropertyKey<T> key, kotlin.jvm.functions.Function0<? extends T> defaultValue);
+    method public <T> T? getOrNull(androidx.glance.semantics.SemanticsPropertyKey<T> key);
+    method public <T> void set(androidx.glance.semantics.SemanticsPropertyKey<T> key, T value);
+  }
+
+  public final class SemanticsModifierKt {
+    method public static androidx.glance.GlanceModifier semantics(androidx.glance.GlanceModifier, kotlin.jvm.functions.Function1<? super androidx.glance.semantics.SemanticsPropertyReceiver,kotlin.Unit> properties);
+  }
+
+  public final class SemanticsProperties {
+    method public androidx.glance.semantics.SemanticsPropertyKey<java.util.List<java.lang.String>> getContentDescription();
+    property public final androidx.glance.semantics.SemanticsPropertyKey<java.util.List<java.lang.String>> ContentDescription;
+    field public static final androidx.glance.semantics.SemanticsProperties INSTANCE;
+  }
+
+  public final class SemanticsPropertiesKt {
+    method public static String getContentDescription(androidx.glance.semantics.SemanticsPropertyReceiver);
+    method public static void setContentDescription(androidx.glance.semantics.SemanticsPropertyReceiver, String);
+  }
+
+  public final class SemanticsPropertyKey<T> {
+    ctor public SemanticsPropertyKey(String name, optional kotlin.jvm.functions.Function2<? super T,? super T,? extends T> mergePolicy);
+    method public String getName();
+    method public T? merge(T? parentValue, T childValue);
+    property public final String name;
+  }
+
+  public interface SemanticsPropertyReceiver {
+    method public operator <T> void set(androidx.glance.semantics.SemanticsPropertyKey<T> key, T value);
+  }
+
+}
+
+package androidx.glance.session {
+
+  public final class SessionManagerKt {
+  }
+
+}
+
+package androidx.glance.state {
+
+  public interface GlanceStateDefinition<T> {
+    method public suspend Object? getDataStore(android.content.Context context, String fileKey, kotlin.coroutines.Continuation<? super androidx.datastore.core.DataStore<T>>);
+    method public java.io.File getLocation(android.content.Context context, String fileKey);
+  }
+
+  public final class PreferencesGlanceStateDefinition implements androidx.glance.state.GlanceStateDefinition<androidx.datastore.preferences.core.Preferences> {
+    method public suspend Object? getDataStore(android.content.Context context, String fileKey, kotlin.coroutines.Continuation<? super androidx.datastore.core.DataStore<androidx.datastore.preferences.core.Preferences>>);
+    method public java.io.File getLocation(android.content.Context context, String fileKey);
+    field public static final androidx.glance.state.PreferencesGlanceStateDefinition INSTANCE;
+  }
+
+}
+
+package androidx.glance.text {
+
+  public final class FontFamily {
+    ctor public FontFamily(String family);
+    method public String getFamily();
+    property public final String family;
+    field public static final androidx.glance.text.FontFamily.Companion Companion;
+  }
+
+  public static final class FontFamily.Companion {
+    method public androidx.glance.text.FontFamily getCursive();
+    method public androidx.glance.text.FontFamily getMonospace();
+    method public androidx.glance.text.FontFamily getSansSerif();
+    method public androidx.glance.text.FontFamily getSerif();
+    property public final androidx.glance.text.FontFamily Cursive;
+    property public final androidx.glance.text.FontFamily Monospace;
+    property public final androidx.glance.text.FontFamily SansSerif;
+    property public final androidx.glance.text.FontFamily Serif;
+  }
+
+  @kotlin.jvm.JvmInline public final value class FontStyle {
+    field public static final androidx.glance.text.FontStyle.Companion Companion;
+  }
+
+  public static final class FontStyle.Companion {
+    method public int getItalic();
+    method public int getNormal();
+    method public java.util.List<androidx.glance.text.FontStyle> values();
+    property public final int Italic;
+    property public final int Normal;
+  }
+
+  @kotlin.jvm.JvmInline public final value class FontWeight {
+    method public int getValue();
+    property public final int value;
+    field public static final androidx.glance.text.FontWeight.Companion Companion;
+  }
+
+  public static final class FontWeight.Companion {
+    method public int getBold();
+    method public int getMedium();
+    method public int getNormal();
+    property public final int Bold;
+    property public final int Medium;
+    property public final int Normal;
+  }
+
+  @kotlin.jvm.JvmInline public final value class TextAlign {
+    field public static final androidx.glance.text.TextAlign.Companion Companion;
+  }
+
+  public static final class TextAlign.Companion {
+    method public int getCenter();
+    method public int getEnd();
+    method public int getLeft();
+    method public int getRight();
+    method public int getStart();
+    method public java.util.List<androidx.glance.text.TextAlign> values();
+    property public final int Center;
+    property public final int End;
+    property public final int Left;
+    property public final int Right;
+    property public final int Start;
+  }
+
+  @kotlin.jvm.JvmInline public final value class TextDecoration {
+    method @androidx.compose.runtime.Stable public operator boolean contains(int other);
+    method @androidx.compose.runtime.Stable public operator int plus(int decoration);
+    field public static final androidx.glance.text.TextDecoration.Companion Companion;
+  }
+
+  public static final class TextDecoration.Companion {
+    method public int combine(java.util.List<androidx.glance.text.TextDecoration> decorations);
+    method public int getLineThrough();
+    method public int getNone();
+    method public int getUnderline();
+    property public final int LineThrough;
+    property public final int None;
+    property public final int Underline;
+  }
+
+  public final class TextDefaults {
+    method public androidx.glance.unit.ColorProvider getDefaultTextColor();
+    method public androidx.glance.text.TextStyle getDefaultTextStyle();
+    property public final androidx.glance.unit.ColorProvider defaultTextColor;
+    property public final androidx.glance.text.TextStyle defaultTextStyle;
+    field public static final androidx.glance.text.TextDefaults INSTANCE;
+  }
+
+  public final class TextKt {
+    method @androidx.compose.runtime.Composable public static void Text(String text, optional androidx.glance.GlanceModifier modifier, optional androidx.glance.text.TextStyle style, optional int maxLines);
+  }
+
+  @androidx.compose.runtime.Immutable public final class TextStyle {
+    ctor public TextStyle(optional androidx.glance.unit.ColorProvider color, optional androidx.compose.ui.unit.TextUnit? fontSize, optional androidx.glance.text.FontWeight? fontWeight, optional androidx.glance.text.FontStyle? fontStyle, optional androidx.glance.text.TextAlign? textAlign, optional androidx.glance.text.TextDecoration? textDecoration, optional androidx.glance.text.FontFamily? fontFamily);
+    method public androidx.glance.text.TextStyle copy(optional androidx.glance.unit.ColorProvider color, optional androidx.compose.ui.unit.TextUnit? fontSize, optional androidx.glance.text.FontWeight? fontWeight, optional androidx.glance.text.FontStyle? fontStyle, optional androidx.glance.text.TextAlign? textAlign, optional androidx.glance.text.TextDecoration? textDecoration, optional androidx.glance.text.FontFamily? fontFamily);
+    method public androidx.glance.unit.ColorProvider getColor();
+    method public androidx.glance.text.FontFamily? getFontFamily();
+    method public androidx.compose.ui.unit.TextUnit? getFontSize();
+    method public androidx.glance.text.FontStyle? getFontStyle();
+    method public androidx.glance.text.FontWeight? getFontWeight();
+    method public androidx.glance.text.TextAlign? getTextAlign();
+    method public androidx.glance.text.TextDecoration? getTextDecoration();
+    property public final androidx.glance.unit.ColorProvider color;
+    property public final androidx.glance.text.FontFamily? fontFamily;
+    property public final androidx.compose.ui.unit.TextUnit? fontSize;
+    property public final androidx.glance.text.FontStyle? fontStyle;
+    property public final androidx.glance.text.FontWeight? fontWeight;
+    property public final androidx.glance.text.TextAlign? textAlign;
+    property public final androidx.glance.text.TextDecoration? textDecoration;
+  }
+
+}
+
+package androidx.glance.unit {
+
+  public interface ColorProvider {
+    method public long getColor(android.content.Context context);
+  }
+
+  public final class ColorProviderKt {
+    method public static androidx.glance.unit.ColorProvider ColorProvider(long color);
+  }
+
+}
+
