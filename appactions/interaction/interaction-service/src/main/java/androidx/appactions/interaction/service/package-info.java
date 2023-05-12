@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-/** @hide */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 package androidx.appactions.interaction.service;
 

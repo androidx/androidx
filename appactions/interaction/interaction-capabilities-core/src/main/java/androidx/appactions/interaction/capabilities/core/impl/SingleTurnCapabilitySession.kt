@@ -36,8 +36,6 @@ import kotlinx.coroutines.sync.Mutex
 
 /**
  * CapabilitySession implementation for executing single-turn fulfillment requests.
- *
- * @suppress
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 internal class SingleTurnCapabilitySession<

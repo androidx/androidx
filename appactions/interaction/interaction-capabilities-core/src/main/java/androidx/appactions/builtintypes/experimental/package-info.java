@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-/** @hide */
+// TODO(b/271000058): Delete experimental builtintypes package.
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-package androidx.appactions.builtintypes;
+package androidx.appactions.builtintypes.experimental;
 
 import androidx.annotation.RestrictTo;

@@ -21,8 +21,6 @@ import com.google.common.util.concurrent.ListenableFuture
 
 /**
  * Handles entity rendering.
- *
- * @suppress
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 interface InventoryListenerBase {
@@ -51,16 +49,12 @@ interface InventoryListenerBase {
 
 /**
  * Similar to ValueListener, but also need to handle entity rendering.
- *
- * @suppress
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 interface InventoryListener<T> : ValueListener<T>, InventoryListenerBase
 
 /**
  * Similar to ValueListener, but also need to handle entity rendering.
- *
- * @suppress
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 interface InventoryListListener<T> : ValueListener<List<T>>, InventoryListenerBase

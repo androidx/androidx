@@ -22,10 +22,8 @@ import androidx.appactions.interaction.service.proto.AppInteractionServiceProto
 
 /**
  * Holder for TileLayout response.
- *
- * @suppress
  */
-@Suppress("deprecation") // for backward compatibility
+@Suppress("deprecation", "UnsafeOptInUsageError") // for backward compatibility
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 data class TileLayoutInternal(
     val layout: androidx.wear.tiles.LayoutElementBuilders.Layout,
