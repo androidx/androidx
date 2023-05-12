@@ -147,7 +147,9 @@ class ModelValidator private constructor(val api: ParsedApi) {
     }
 
     private fun isValidInterfaceParameterType(type: Type) =
-        isValue(type) || isInterface(type) || isPrimitive(type) || isList(type) || isCallback(type)
+        isValue(type) || isInterface(type) || isPrimitive(type) || isList(type) ||
+            isCallback(type) || isBundledType(type)
+
     private fun isValidInterfaceReturnType(type: Type) =
         isValue(type) || isInterface(type) || isPrimitive(type) || isList(type)
     private fun isValidValuePropertyType(type: Type) =
@@ -171,6 +173,8 @@ class ModelValidator private constructor(val api: ParsedApi) {
         }
         return false
     }
+
+    private fun isBundledType(type: Type) = type == Types.sdkActivityLauncher
 }
 
 data class ValidationResult(val errors: List<String>) {

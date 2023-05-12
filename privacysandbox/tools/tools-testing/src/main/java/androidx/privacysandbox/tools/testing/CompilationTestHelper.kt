@@ -40,13 +40,17 @@ object CompilationTestHelper {
         sources: List<Source>,
         extraClasspath: List<File> = emptyList(),
         symbolProcessorProviders: List<SymbolProcessorProvider> = emptyList(),
-        processorOptions: Map<String, String> = emptyMap()
+        processorOptions: Map<String, String> = emptyMap(),
+        includeLibraryStubs: Boolean = true,
     ): TestCompilationResult {
         val tempDir = Files.createTempDirectory("compile").toFile().also { it.deleteOnExit() }
+        // TODO(b/281638337): Remove library stubs once SdkActivityLauncher is upstreamed
+        val fullSources = sources +
+            if (includeLibraryStubs) syntheticUiLibraryStubs else emptyList()
         return compile(
             tempDir,
             TestCompilationArguments(
-                sources = sources,
+                sources = fullSources,
                 classpath = extraClasspath,
                 symbolProcessorProviders = symbolProcessorProviders,
                 processorOptions = processorOptions,

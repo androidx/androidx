@@ -1,6 +1,8 @@
 package com.mysdk
 
 import android.content.Context
+import android.os.Bundle
+import androidx.privacysandbox.ui.provider.SdkActivityLauncherFactory
 import androidx.privacysandbox.ui.provider.toCoreLibInfo
 import com.mysdk.PrivacySandboxThrowableParcelConverter
 import com.mysdk.PrivacySandboxThrowableParcelConverter.toThrowableParcel
@@ -170,6 +172,12 @@ public class MySdkStubDelegate internal constructor(
       Unit {
     coroutineScope.launch {
       delegate.acceptUiInterfaceParam((input.binder as MyUiInterfaceStubDelegate).delegate)
+    }
+  }
+
+  public override fun acceptSdkActivityLauncherParam(activityLauncher: Bundle): Unit {
+    coroutineScope.launch {
+      delegate.acceptSdkActivityLauncherParam(SdkActivityLauncherFactory.fromLauncherInfo(activityLauncher))
     }
   }
 }
