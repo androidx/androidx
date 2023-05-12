@@ -20,6 +20,7 @@ import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.CaptureResult
 import android.os.Build
 import androidx.camera.camera2.pipe.AeMode
+import androidx.camera.camera2.pipe.FlashMode
 import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.RequestNumber
 import androidx.camera.camera2.pipe.Result3A
@@ -66,6 +67,7 @@ internal class Controller3ASetTorchTest {
             )
         val result = controller3A.setTorch(TorchState.ON)
         assertThat(result.await().status).isEqualTo(Result3A.Status.SUBMIT_FAILED)
+        assertThat(graphProcessor2.graphState3A.flashMode).isEqualTo(FlashMode.TORCH)
     }
 
     @Test
