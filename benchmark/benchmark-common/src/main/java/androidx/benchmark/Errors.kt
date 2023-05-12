@@ -22,13 +22,15 @@ import android.content.pm.ApplicationInfo
 import android.os.BatteryManager
 import android.os.Build
 import android.util.Log
+import androidx.annotation.RestrictTo
 import androidx.test.platform.app.InstrumentationRegistry
 import java.io.File
 
 /**
  * Lazy-initialized test-suite global state for errors around measurement inaccuracy.
  */
-internal object Errors {
+@RestrictTo(RestrictTo.Scope.LIBRARY)
+object Errors {
     /**
      * Same as trimMargins, but add newlines on either side.
      */
