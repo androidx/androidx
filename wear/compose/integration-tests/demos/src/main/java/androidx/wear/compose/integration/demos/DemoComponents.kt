@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,6 @@
 
 package androidx.wear.compose.integration.demos
 
-import android.app.Activity
-import androidx.activity.ComponentActivity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -43,53 +41,7 @@ import androidx.wear.compose.material.ButtonDefaults
 import androidx.wear.compose.material.Icon
 import androidx.wear.compose.material.LocalContentAlpha
 import androidx.wear.compose.material.MaterialTheme
-import androidx.wear.compose.material.SwipeToDismissBoxState
 import androidx.wear.compose.material.Text
-import kotlin.reflect.KClass
-
-/**
- * Generic demo with a [title] that will be displayed in the list of demos.
- */
-sealed class Demo(val title: String, val description: String? = null) {
-    override fun toString() = title
-}
-
-/**
- * Demo that launches an [Activity] when selected.
- *
- * This should only be used for demos that need to customize the activity, the large majority of
- * demos should just use [ComposableDemo] instead.
- *
- * @property activityClass the KClass (Foo::class) of the activity that will be launched when
- * this demo is selected.
- */
-class ActivityDemo<T : ComponentActivity>(title: String, val activityClass: KClass<T>) : Demo(title)
-
-/**
- * A category of [Demo]s, that will display a list of [demos] when selected.
- */
-class DemoCategory(
-    title: String,
-    val demos: List<Demo>
-) : Demo(title)
-
-/**
- * Parameters which are used by [Demo] screens.
- */
-class DemoParameters(
-    val navigateBack: () -> Unit,
-    val swipeToDismissBoxState: SwipeToDismissBoxState
-)
-
-/**
- * Demo that displays [Composable] [content] when selected,
- * with a method to navigate back to the parent.
- */
-class ComposableDemo(
-    title: String,
-    description: String? = null,
-    val content: @Composable (params: DemoParameters) -> Unit,
-) : Demo(title, description)
 
 /**
  * A simple [Icon] with default size
