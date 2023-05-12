@@ -18,9 +18,8 @@ package androidx.work.multiprocess;
 
 /**
  * RPC Callbacks for {@link IWorkManagerImpl}.
- *
- * @hide
  */
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 oneway interface IWorkManagerImplCallback {
     void onSuccess(in byte[] response);
     void onFailure(String error);

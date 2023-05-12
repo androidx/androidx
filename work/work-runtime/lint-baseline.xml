@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.0.0-beta03" type="baseline" client="gradle" dependencies="false" name="AGP (8.0.0-beta03)" variant="all" version="8.0.0-beta03">
+<issues format="6" by="lint 8.1.0-beta02" type="baseline" client="gradle" dependencies="false" name="AGP (8.1.0-beta02)" variant="all" version="8.1.0-beta02">
 
     <issue
         id="BanSynchronizedMethods"
@@ -260,33 +260,6 @@
         errorLine2="               ~~~~~">
         <location
             file="src/androidTest/java/androidx/work/impl/WorkerWrapperTest.java"/>
-    </issue>
-
-    <issue
-        id="RequireUnstableAidlAnnotation"
-        message="Unstable AIDL files must be annotated with @RequiresOptIn marker"
-        errorLine1="oneway interface IListenableWorkerImpl {"
-        errorLine2="^">
-        <location
-            file="src/main/aidl/androidx/work/multiprocess/IListenableWorkerImpl.aidl"/>
-    </issue>
-
-    <issue
-        id="RequireUnstableAidlAnnotation"
-        message="Unstable AIDL files must be annotated with @RequiresOptIn marker"
-        errorLine1="oneway interface IWorkManagerImpl {"
-        errorLine2="^">
-        <location
-            file="src/main/aidl/androidx/work/multiprocess/IWorkManagerImpl.aidl"/>
-    </issue>
-
-    <issue
-        id="RequireUnstableAidlAnnotation"
-        message="Unstable AIDL files must be annotated with @RequiresOptIn marker"
-        errorLine1="oneway interface IWorkManagerImplCallback {"
-        errorLine2="^">
-        <location
-            file="src/main/aidl/androidx/work/multiprocess/IWorkManagerImplCallback.aidl"/>
     </issue>
 
     <issue
