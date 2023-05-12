@@ -32,4 +32,57 @@ class MapSubjectTest {
             assertThat(mapOf(1 to 5)).isEmpty()
         }
     }
+
+    @Test
+    fun containsKey() {
+        assertThat(mapOf("kurt" to "kluever")).containsKey("kurt")
+    }
+
+    @Test
+    fun containsKeyFailure() {
+        val actual = mapOf("kurt" to "kluever")
+        assertFailsWith<AssertionError> {
+            assertThat(actual).containsKey("greg")
+        }
+    }
+
+    @Test
+    fun containsKeyNullFailure() {
+        assertFailsWith<AssertionError> {
+            assertThat(mapOf("kurt" to "kluever")).containsKey(null)
+        }
+    }
+
+    @Test
+    fun containsKey_failsWithSameToString() {
+        assertFailsWith<AssertionError> {
+            assertThat(mapOf(1L to "value1", 2L to "value2", "1" to "value3")).containsKey(1)
+        }
+    }
+
+    @Test
+    fun containsKey_failsWithNullStringAndNull() {
+        assertFailsWith<AssertionError> {
+            assertThat(mapOf("null" to "value1")).containsKey(null)
+        }
+    }
+
+    @Test
+    fun containsNullKey() {
+        assertThat(mapOf(null to "null")).containsKey(null)
+    }
+
+    @Test
+    fun failMapContainsKey() {
+        assertFailsWith<AssertionError> {
+            assertThat(mapOf("a" to "A")).containsKey("b")
+        }
+    }
+
+    @Test
+    fun failMapContainsKeyWithNull() {
+        assertFailsWith<AssertionError> {
+            assertThat(mapOf("a" to "A")).containsKey(null)
+        }
+    }
 }

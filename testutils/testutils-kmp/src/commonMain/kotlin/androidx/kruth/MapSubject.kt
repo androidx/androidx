@@ -28,4 +28,13 @@ class MapSubject<K, V>(actual: Map<K, V>?) : Subject<Map<K, V>>(actual) {
             fail("Expected to be empty, but was $actual")
         }
     }
+
+    /** Fails if the map does not contain the given key. */
+    fun containsKey(key: Any?) {
+        requireNonNull(actual) { "Expected to contain $key, but was null" }
+
+        if (!actual.containsKey(key)) {
+            fail("Expected to contain $key, but was ${actual.keys}")
+        }
+    }
 }
