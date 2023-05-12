@@ -172,6 +172,7 @@ fun OutlinedTextField(
             modifier
         }
             .background(colors.backgroundColor(enabled).value, shape)
+            .defaultErrorSemantics(isError, getString(Strings.DefaultErrorMessage))
             .defaultMinSize(
                 minWidth = TextFieldDefaults.MinWidth,
                 minHeight = TextFieldDefaults.MinHeight
@@ -373,6 +374,7 @@ fun OutlinedTextField(
             modifier
         }
             .background(colors.backgroundColor(enabled).value, shape)
+            .defaultErrorSemantics(isError, getString(Strings.DefaultErrorMessage))
             .defaultMinSize(
                 minWidth = TextFieldDefaults.MinWidth,
                 minHeight = TextFieldDefaults.MinHeight

@@ -198,6 +198,7 @@ fun TextField(
         BasicTextField(
             value = value,
             modifier = modifier
+                .defaultErrorSemantics(isError, getString(Strings.DefaultErrorMessage))
                 .defaultMinSize(
                     minWidth = TextFieldDefaults.MinWidth,
                     minHeight = TextFieldDefaults.MinHeight
@@ -343,6 +344,7 @@ fun TextField(
         BasicTextField(
             value = value,
             modifier = modifier
+                .defaultErrorSemantics(isError, getString(Strings.DefaultErrorMessage))
                 .defaultMinSize(
                     minWidth = TextFieldDefaults.MinWidth,
                     minHeight = TextFieldDefaults.MinHeight
