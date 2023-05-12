@@ -33,6 +33,7 @@ import androidx.health.connect.client.aggregate.AggregationResult
 import androidx.health.connect.client.aggregate.AggregationResultGroupedByDuration
 import androidx.health.connect.client.aggregate.AggregationResultGroupedByPeriod
 import androidx.health.connect.client.units.Energy
+import androidx.health.connect.client.units.Mass
 import java.time.ZoneOffset
 
 fun AggregateRecordsResponse<Any>.toSdkResponse(metrics: Set<AggregateMetric<Any>>) =
@@ -101,8 +102,11 @@ internal fun getDoubleMetricValues(
                 in LENGTH_AGGREGATION_METRIC_TYPE_MAP -> {
                     this[key.metricKey] = (value as PlatformLength).inMeters
                 }
-                in MASS_AGGREGATION_METRIC_TYPE_MAP -> {
+                in GRAMS_AGGREGATION_METRIC_TYPE_MAP -> {
                     this[key.metricKey] = (value as PlatformMass).inGrams
+                }
+                in KILOGRAMS_AGGREGATION_METRIC_TYPE_MAP -> {
+                    this[key.metricKey] = Mass.grams((value as PlatformMass).inGrams).inKilograms
                 }
                 in POWER_AGGREGATION_METRIC_TYPE_MAP -> {
                     this[key.metricKey] = (value as PlatformPower).inWatts

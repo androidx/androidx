@@ -119,7 +119,7 @@ internal val LONG_AGGREGATION_METRIC_TYPE_MAP:
             PlatformWheelchairPushesRecord.WHEEL_CHAIR_PUSHES_COUNT_TOTAL,
     )
 
-internal val MASS_AGGREGATION_METRIC_TYPE_MAP:
+internal val GRAMS_AGGREGATION_METRIC_TYPE_MAP:
     Map<AggregateMetric<Mass>, PlatformAggregateMetric<PlatformMass>> =
     mapOf(
         NutritionRecord.BIOTIN_TOTAL to PlatformNutritionRecord.BIOTIN_TOTAL,
@@ -163,7 +163,12 @@ internal val MASS_AGGREGATION_METRIC_TYPE_MAP:
         NutritionRecord.VITAMIN_D_TOTAL to PlatformNutritionRecord.VITAMIN_D_TOTAL,
         NutritionRecord.VITAMIN_E_TOTAL to PlatformNutritionRecord.VITAMIN_E_TOTAL,
         NutritionRecord.VITAMIN_K_TOTAL to PlatformNutritionRecord.VITAMIN_K_TOTAL,
-        NutritionRecord.ZINC_TOTAL to PlatformNutritionRecord.ZINC_TOTAL,
+        NutritionRecord.ZINC_TOTAL to PlatformNutritionRecord.ZINC_TOTAL
+    )
+
+internal val KILOGRAMS_AGGREGATION_METRIC_TYPE_MAP:
+    Map<AggregateMetric<Mass>, PlatformAggregateMetric<PlatformMass>> =
+    mapOf(
         WeightRecord.WEIGHT_AVG to PlatformWeightRecord.WEIGHT_AVG,
         WeightRecord.WEIGHT_MIN to PlatformWeightRecord.WEIGHT_MIN,
         WeightRecord.WEIGHT_MAX to PlatformWeightRecord.WEIGHT_MAX,

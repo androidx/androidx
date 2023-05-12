@@ -28,6 +28,7 @@ import androidx.health.connect.client.permission.HealthPermission.Companion.PERM
 import androidx.health.connect.client.records.HeartRateRecord
 import androidx.health.connect.client.records.NutritionRecord
 import androidx.health.connect.client.records.StepsRecord
+import androidx.health.connect.client.records.WeightRecord
 import androidx.health.connect.client.records.WheelchairPushesRecord
 import androidx.health.connect.client.records.metadata.Metadata
 import androidx.health.connect.client.request.AggregateGroupByDurationRequest
@@ -359,7 +360,12 @@ class HealthConnectClientUpsideDownImplTest {
                     endTime = Instant.ofEpochMilli(5678L),
                     endZoneOffset = ZoneOffset.UTC,
                     energy = Energy.kilocalories(200.0)
-                )
+                ),
+                WeightRecord(
+                    time = Instant.ofEpochMilli(1234L),
+                    zoneOffset = ZoneOffset.UTC,
+                    weight = Mass.kilograms(100.0)
+                ),
             )
         )
 
@@ -372,6 +378,7 @@ class HealthConnectClientUpsideDownImplTest {
                         HeartRateRecord.BPM_MAX,
                         NutritionRecord.ENERGY_TOTAL,
                         NutritionRecord.CAFFEINE_TOTAL,
+                        WeightRecord.WEIGHT_MAX,
                         WheelchairPushesRecord.COUNT_TOTAL,
                     ),
                     TimeRangeFilter.none()
@@ -384,6 +391,7 @@ class HealthConnectClientUpsideDownImplTest {
             assertThat(this[HeartRateRecord.BPM_MAX]).isEqualTo(120L)
             assertThat(this[NutritionRecord.ENERGY_TOTAL]).isEqualTo(Energy.kilocalories(200.0))
             assertThat(this[NutritionRecord.CAFFEINE_TOTAL]).isEqualTo(Mass.grams(0.0))
+            assertThat(this[WeightRecord.WEIGHT_MAX]).isEqualTo(Mass.kilograms(100.0))
 
             assertThat(contains(WheelchairPushesRecord.COUNT_TOTAL)).isFalse()
         }

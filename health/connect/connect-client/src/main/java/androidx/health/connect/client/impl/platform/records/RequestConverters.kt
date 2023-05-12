@@ -127,11 +127,12 @@ fun AggregateGroupByPeriodRequest.toPlatformRequest(
 fun AggregateMetric<Any>.toAggregationType(): AggregationType<Any> {
     return DOUBLE_AGGREGATION_METRIC_TYPE_MAP[this] as AggregationType<Any>?
         ?: DURATION_AGGREGATION_METRIC_TYPE_MAP[this] as AggregationType<Any>?
-        ?: ENERGY_AGGREGATION_METRIC_TYPE_MAP[this] as AggregationType<Any>?
-        ?: LENGTH_AGGREGATION_METRIC_TYPE_MAP[this] as AggregationType<Any>?
-        ?: LONG_AGGREGATION_METRIC_TYPE_MAP[this] as AggregationType<Any>?
-        ?: MASS_AGGREGATION_METRIC_TYPE_MAP[this] as AggregationType<Any>?
-        ?: POWER_AGGREGATION_METRIC_TYPE_MAP[this] as AggregationType<Any>?
-        ?: VOLUME_AGGREGATION_METRIC_TYPE_MAP[this] as AggregationType<Any>?
-        ?: throw IllegalArgumentException("Unsupported aggregation type $metricKey")
+            ?: ENERGY_AGGREGATION_METRIC_TYPE_MAP[this] as AggregationType<Any>?
+            ?: LENGTH_AGGREGATION_METRIC_TYPE_MAP[this] as AggregationType<Any>?
+            ?: LONG_AGGREGATION_METRIC_TYPE_MAP[this] as AggregationType<Any>?
+            ?: GRAMS_AGGREGATION_METRIC_TYPE_MAP[this] as AggregationType<Any>?
+            ?: KILOGRAMS_AGGREGATION_METRIC_TYPE_MAP[this] as AggregationType<Any>?
+            ?: POWER_AGGREGATION_METRIC_TYPE_MAP[this] as AggregationType<Any>?
+            ?: VOLUME_AGGREGATION_METRIC_TYPE_MAP[this] as AggregationType<Any>?
+            ?: throw IllegalArgumentException("Unsupported aggregation type $metricKey")
 }
