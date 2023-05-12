@@ -97,6 +97,18 @@
                 android:visibility="gone"
                 app:indicatorSize="24dp" />
 
+            <View
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
+
+            <Button
+                android:id="@+id/button_reconnect"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/reconnect"
+                android:visibility="gone" />
+
         </LinearLayout>
 
         <View
