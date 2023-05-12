@@ -72,7 +72,7 @@ internal class VirtualCameraStateTest {
     fun virtualCameraStateCanBeDisconnected() = runTest {
         // This test asserts that the virtual camera starts in an unopened state and is changed to
         // "Closed" when disconnect is invoked on the VirtualCamera.
-        val virtualCamera = VirtualCameraState(cameraId, graphListener)
+        val virtualCamera = VirtualCameraState(cameraId, graphListener, this)
         assertThat(virtualCamera.value).isInstanceOf(CameraStateUnopened::class.java)
 
         virtualCamera.disconnect()
@@ -96,7 +96,7 @@ internal class VirtualCameraStateTest {
         // This test asserts that when a virtual camera is connected to a flow of CameraState
         // changes that it receives those changes and can be subsequently disconnected, which stops
         // additional events from being passed to the virtual camera instance.
-        val virtualCamera = VirtualCameraState(cameraId, graphListener)
+        val virtualCamera = VirtualCameraState(cameraId, graphListener, this)
         val cameraState =
             flowOf(
                 CameraStateOpen(
@@ -131,7 +131,7 @@ internal class VirtualCameraStateTest {
     fun virtualCameraStateRespondsToClose() = runTest {
         // This tests that a listener attached to the virtualCamera.state property will receive all
         // of the events, starting from CameraStateUnopened.
-        val virtualCamera = VirtualCameraState(cameraId, graphListener)
+        val virtualCamera = VirtualCameraState(cameraId, graphListener, this)
         val androidCameraDevice = AndroidCameraDevice(
             testCamera.metadata,
             testCamera.cameraDevice,
@@ -181,7 +181,7 @@ internal class VirtualCameraStateTest {
 
     @Test
     fun virtualAndroidCameraDeviceRejectsCallsWhenVirtualCameraStateIsDisconnected() = runTest {
-        val virtualCamera = VirtualCameraState(cameraId, graphListener)
+        val virtualCamera = VirtualCameraState(cameraId, graphListener, this)
         val cameraState =
             flowOf(
                 CameraStateOpen(
@@ -218,7 +218,7 @@ internal class VirtualCameraStateTest {
 
     @Test
     fun virtualAndroidCameraDeviceFinalizesSessionWhenVirtualCameraStateIsDisconnected() = runTest {
-        val virtualCamera = VirtualCameraState(cameraId, graphListener)
+        val virtualCamera = VirtualCameraState(cameraId, graphListener, this)
         val cameraState =
             flowOf(
                 CameraStateOpen(

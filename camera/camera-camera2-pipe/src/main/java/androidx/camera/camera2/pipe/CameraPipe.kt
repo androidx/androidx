@@ -69,6 +69,41 @@ class CameraPipe(config: Config) {
             .cameraGraph()
     }
 
+    /**
+     * This creates a list of [CameraGraph]s that can be used to interact with multiple cameras on
+     * the device concurrently. Device-specific constraints may apply, such as the set of cameras
+     * that can be operated concurrently, or the combination of sizes we're allowed to configure.
+     */
+    fun createCameraGraphs(concurrentConfigs: List<CameraGraph.Config>): List<CameraGraph> {
+        check(concurrentConfigs.isNotEmpty())
+        if (concurrentConfigs.size == 1) {
+            return listOf(create(concurrentConfigs.first()))
+        }
+        check(concurrentConfigs.all {
+            it.cameraBackendId == concurrentConfigs.first().cameraBackendId
+        }) {
+            "All concurrent CameraGraph configs should have the same camera backend ID!"
+        }
+        val allCameraIds = concurrentConfigs.map { it.camera }
+        check(allCameraIds.size == allCameraIds.toSet().size) {
+            "All camera IDs specified should be distinct!"
+        }
+        val configs = concurrentConfigs.map { config ->
+            config.copy(
+                flags = config.flags.copy(allowMultipleActiveCameras = true),
+            ).apply {
+                sharedCameraIds = allCameraIds.filter { it != config.camera }
+            }
+        }
+        return configs.map {
+            component
+                .cameraGraphComponentBuilder()
+                .cameraGraphConfigModule(CameraGraphConfigModule(it))
+                .build()
+                .cameraGraph()
+        }
+    }
+
     /** This provides access to information about the available cameras on the device. */
     fun cameras(): CameraDevices {
         return component.cameras()

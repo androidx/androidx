@@ -42,6 +42,7 @@ internal sealed class CameraRequest
 internal data class RequestOpen(
     val virtualCamera: VirtualCameraState,
     val share: Boolean = false,
+    val sharedCameraIds: List<CameraId> = emptyList(),
     val graphListener: GraphListener,
     val isForegroundObserver: (Unit) -> Boolean,
 ) : CameraRequest()
@@ -78,11 +79,20 @@ constructor(
     internal fun open(
         cameraId: CameraId,
         share: Boolean = false,
+        sharedCameraIds: List<CameraId> = emptyList(),
         graphListener: GraphListener,
         isForegroundObserver: (Unit) -> Boolean,
     ): VirtualCamera {
-        val result = VirtualCameraState(cameraId, graphListener)
-        offerChecked(RequestOpen(result, share, graphListener, isForegroundObserver))
+        val result = VirtualCameraState(cameraId, graphListener, threads.globalScope)
+        offerChecked(
+            RequestOpen(
+                result,
+                share,
+                sharedCameraIds,
+                graphListener,
+                isForegroundObserver
+            )
+        )
         return result
     }
 
