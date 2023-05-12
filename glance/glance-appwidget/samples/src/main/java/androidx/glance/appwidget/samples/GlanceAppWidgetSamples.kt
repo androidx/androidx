@@ -24,13 +24,17 @@ import androidx.glance.appwidget.provideContent
 import androidx.glance.text.Text
 
 @Sampled
-suspend fun GlanceAppWidget.provideGlanceSample(
-    @Suppress("UNUSED_PARAMETER") context: Context,
-    @Suppress("UNUSED_PARAMETER") id: GlanceId,
-) {
-    // Load data needed to render the AppWidget.
-    provideContent {
-        // create your AppWidget here
-        Text("Hello World")
+fun provideGlanceSample() {
+    class MyWidget : GlanceAppWidget() {
+        override suspend fun provideGlance(context: Context, id: GlanceId) {
+            // Load data needed to render the AppWidget here. Prefer doing heavy work before
+            // provideContent, as the provideGlance function will timeout shortly after
+            // provideContent is called.
+
+            provideContent {
+                // Declare your @Composable layout here.
+                Text("Hello World")
+            }
+        }
     }
 }
