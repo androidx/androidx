@@ -2,9 +2,9 @@
 package androidx.browser.browseractions {
 
   @Deprecated public class BrowserActionItem {
-    ctor @Deprecated public BrowserActionItem(String, android.app.PendingIntent, @DrawableRes int);
-    ctor @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public BrowserActionItem(String, android.app.PendingIntent, android.net.Uri);
     ctor @Deprecated public BrowserActionItem(String, android.app.PendingIntent);
+    ctor @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public BrowserActionItem(String, android.app.PendingIntent, android.net.Uri);
+    ctor @Deprecated public BrowserActionItem(String, android.app.PendingIntent, @DrawableRes int);
     method @Deprecated public android.app.PendingIntent getAction();
     method @Deprecated public int getIconId();
     method @Deprecated public String getTitle();
@@ -54,8 +54,8 @@ package androidx.browser.browseractions {
   @Deprecated public static final class BrowserActionsIntent.Builder {
     ctor @Deprecated public BrowserActionsIntent.Builder(android.content.Context, android.net.Uri);
     method @Deprecated public androidx.browser.browseractions.BrowserActionsIntent build();
-    method @Deprecated public androidx.browser.browseractions.BrowserActionsIntent.Builder setCustomItems(java.util.ArrayList<androidx.browser.browseractions.BrowserActionItem!>);
     method @Deprecated public androidx.browser.browseractions.BrowserActionsIntent.Builder setCustomItems(androidx.browser.browseractions.BrowserActionItem!...);
+    method @Deprecated public androidx.browser.browseractions.BrowserActionsIntent.Builder setCustomItems(java.util.ArrayList<androidx.browser.browseractions.BrowserActionItem!>);
     method @Deprecated public androidx.browser.browseractions.BrowserActionsIntent.Builder setOnItemSelectedAction(android.app.PendingIntent);
     method @Deprecated public androidx.browser.browseractions.BrowserActionsIntent.Builder setUrlType(@androidx.browser.browseractions.BrowserActionsIntent.BrowserActionsUrlType int);
   }
@@ -177,8 +177,8 @@ package androidx.browser.customtabs {
     method @Deprecated public androidx.browser.customtabs.CustomTabsIntent.Builder addToolbarItem(int, android.graphics.Bitmap, String, android.app.PendingIntent) throws java.lang.IllegalStateException;
     method public androidx.browser.customtabs.CustomTabsIntent build();
     method @Deprecated public androidx.browser.customtabs.CustomTabsIntent.Builder enableUrlBarHiding();
-    method public androidx.browser.customtabs.CustomTabsIntent.Builder setActionButton(android.graphics.Bitmap, String, android.app.PendingIntent, boolean);
     method public androidx.browser.customtabs.CustomTabsIntent.Builder setActionButton(android.graphics.Bitmap, String, android.app.PendingIntent);
+    method public androidx.browser.customtabs.CustomTabsIntent.Builder setActionButton(android.graphics.Bitmap, String, android.app.PendingIntent, boolean);
     method public androidx.browser.customtabs.CustomTabsIntent.Builder setCloseButtonIcon(android.graphics.Bitmap);
     method public androidx.browser.customtabs.CustomTabsIntent.Builder setCloseButtonPosition(int);
     method public androidx.browser.customtabs.CustomTabsIntent.Builder setColorScheme(int);
@@ -186,8 +186,8 @@ package androidx.browser.customtabs {
     method public androidx.browser.customtabs.CustomTabsIntent.Builder setDefaultColorSchemeParams(androidx.browser.customtabs.CustomTabColorSchemeParams);
     method @Deprecated public androidx.browser.customtabs.CustomTabsIntent.Builder setDefaultShareMenuItemEnabled(boolean);
     method public androidx.browser.customtabs.CustomTabsIntent.Builder setExitAnimations(android.content.Context, @AnimRes int, @AnimRes int);
-    method public androidx.browser.customtabs.CustomTabsIntent.Builder setInitialActivityHeightPx(@Dimension(unit=androidx.annotation.Dimension.PX) int, int);
     method public androidx.browser.customtabs.CustomTabsIntent.Builder setInitialActivityHeightPx(@Dimension(unit=androidx.annotation.Dimension.PX) int);
+    method public androidx.browser.customtabs.CustomTabsIntent.Builder setInitialActivityHeightPx(@Dimension(unit=androidx.annotation.Dimension.PX) int, int);
     method public androidx.browser.customtabs.CustomTabsIntent.Builder setInstantAppsEnabled(boolean);
     method @Deprecated public androidx.browser.customtabs.CustomTabsIntent.Builder setNavigationBarColor(@ColorInt int);
     method @Deprecated public androidx.browser.customtabs.CustomTabsIntent.Builder setNavigationBarDividerColor(@ColorInt int);

@@ -178,8 +178,8 @@ package androidx.wear.protolayout {
   public final class DimensionBuilders {
     method public static androidx.wear.protolayout.DimensionBuilders.DegreesProp degrees(float);
     method public static androidx.wear.protolayout.DimensionBuilders.DpProp dp(@Dimension(unit=androidx.annotation.Dimension.DP) float);
-    method public static androidx.wear.protolayout.DimensionBuilders.EmProp em(int);
     method public static androidx.wear.protolayout.DimensionBuilders.EmProp em(float);
+    method public static androidx.wear.protolayout.DimensionBuilders.EmProp em(int);
     method public static androidx.wear.protolayout.DimensionBuilders.ExpandedDimensionProp expand();
     method public static androidx.wear.protolayout.DimensionBuilders.SpProp sp(@Dimension(unit=androidx.annotation.Dimension.SP) float);
     method public static androidx.wear.protolayout.DimensionBuilders.WrappedDimensionProp wrap();
@@ -916,8 +916,8 @@ package androidx.wear.protolayout {
   public static final class ModifiersBuilders.Semantics.Builder {
     ctor public ModifiersBuilders.Semantics.Builder();
     method public androidx.wear.protolayout.ModifiersBuilders.Semantics build();
-    method public androidx.wear.protolayout.ModifiersBuilders.Semantics.Builder setContentDescription(String);
     method public androidx.wear.protolayout.ModifiersBuilders.Semantics.Builder setContentDescription(androidx.wear.protolayout.TypeBuilders.StringProp);
+    method public androidx.wear.protolayout.ModifiersBuilders.Semantics.Builder setContentDescription(String);
     method public androidx.wear.protolayout.ModifiersBuilders.Semantics.Builder setRole(int);
     method public androidx.wear.protolayout.ModifiersBuilders.Semantics.Builder setStateDescription(androidx.wear.protolayout.TypeBuilders.StringProp);
   }

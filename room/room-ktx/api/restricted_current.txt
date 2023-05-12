@@ -3,15 +3,15 @@ package androidx.room {
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class CoroutinesRoom {
     method public static <R> kotlinx.coroutines.flow.Flow<R> createFlow(androidx.room.RoomDatabase db, boolean inTransaction, String![] tableNames, java.util.concurrent.Callable<R> callable);
-    method public static suspend <R> Object? execute(androidx.room.RoomDatabase db, boolean inTransaction, java.util.concurrent.Callable<R> callable, kotlin.coroutines.Continuation<? super R>);
     method public static suspend <R> Object? execute(androidx.room.RoomDatabase db, boolean inTransaction, android.os.CancellationSignal? cancellationSignal, java.util.concurrent.Callable<R> callable, kotlin.coroutines.Continuation<? super R>);
+    method public static suspend <R> Object? execute(androidx.room.RoomDatabase db, boolean inTransaction, java.util.concurrent.Callable<R> callable, kotlin.coroutines.Continuation<? super R>);
     field public static final androidx.room.CoroutinesRoom.Companion Companion;
   }
 
   public static final class CoroutinesRoom.Companion {
     method public <R> kotlinx.coroutines.flow.Flow<R> createFlow(androidx.room.RoomDatabase db, boolean inTransaction, String![] tableNames, java.util.concurrent.Callable<R> callable);
-    method public suspend <R> Object? execute(androidx.room.RoomDatabase db, boolean inTransaction, java.util.concurrent.Callable<R> callable, kotlin.coroutines.Continuation<? super R>);
     method public suspend <R> Object? execute(androidx.room.RoomDatabase db, boolean inTransaction, android.os.CancellationSignal? cancellationSignal, java.util.concurrent.Callable<R> callable, kotlin.coroutines.Continuation<? super R>);
+    method public suspend <R> Object? execute(androidx.room.RoomDatabase db, boolean inTransaction, java.util.concurrent.Callable<R> callable, kotlin.coroutines.Continuation<? super R>);
   }
 
   public final class RoomDatabaseKt {

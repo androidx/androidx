@@ -2,8 +2,8 @@
 package androidx.appactions.builtintypes.properties {
 
   public final class Description {
-    ctor public Description(String text);
     ctor public Description(androidx.appactions.builtintypes.properties.Description.CanonicalValue canonicalValue);
+    ctor public Description(String text);
     method public androidx.appactions.builtintypes.properties.Description.CanonicalValue? getAsCanonicalValue();
     method public String? getAsText();
     method public <R> R mapWhen(androidx.appactions.builtintypes.properties.Description.Mapper<R> mapper);
@@ -23,8 +23,8 @@ package androidx.appactions.builtintypes.properties {
   }
 
   public final class DisambiguatingDescription {
-    ctor public DisambiguatingDescription(String text);
     ctor public DisambiguatingDescription(androidx.appactions.builtintypes.properties.DisambiguatingDescription.CanonicalValue canonicalValue);
+    ctor public DisambiguatingDescription(String text);
     method public androidx.appactions.builtintypes.properties.DisambiguatingDescription.CanonicalValue? getAsCanonicalValue();
     method public String? getAsText();
     method public <R> R mapWhen(androidx.appactions.builtintypes.properties.DisambiguatingDescription.Mapper<R> mapper);
@@ -44,8 +44,8 @@ package androidx.appactions.builtintypes.properties {
   }
 
   public final class Name {
-    ctor public Name(String text);
     ctor public Name(androidx.appactions.builtintypes.properties.Name.CanonicalValue canonicalValue);
+    ctor public Name(String text);
     method public androidx.appactions.builtintypes.properties.Name.CanonicalValue? getAsCanonicalValue();
     method public String? getAsText();
     method public <R> R mapWhen(androidx.appactions.builtintypes.properties.Name.Mapper<R> mapper);
@@ -65,10 +65,10 @@ package androidx.appactions.builtintypes.properties {
   }
 
   public final class Temporal {
+    ctor public Temporal(androidx.appactions.builtintypes.properties.Temporal.CanonicalValue canonicalValue);
+    ctor public Temporal(String text);
     ctor public Temporal(java.time.LocalDateTime localDateTime);
     ctor public Temporal(java.time.ZonedDateTime zonedDateTime);
-    ctor public Temporal(String text);
-    ctor public Temporal(androidx.appactions.builtintypes.properties.Temporal.CanonicalValue canonicalValue);
     method public androidx.appactions.builtintypes.properties.Temporal.CanonicalValue? getAsCanonicalValue();
     method public java.time.LocalDateTime? getAsLocalDateTime();
     method public String? getAsText();
@@ -156,18 +156,18 @@ package androidx.appactions.builtintypes.types {
 
   public static interface Thing.Builder<Self extends androidx.appactions.builtintypes.types.Thing.Builder<Self>> {
     method public androidx.appactions.builtintypes.types.Thing build();
-    method public default Self setDescription(String text);
     method public Self setDescription(androidx.appactions.builtintypes.properties.Description? description);
-    method public default Self setDisambiguatingDescription(String text);
-    method public default Self setDisambiguatingDescription(androidx.appactions.builtintypes.types.Thing.DisambiguatingDescriptionValue canonicalValue);
+    method public default Self setDescription(String text);
     method public Self setDisambiguatingDescription(androidx.appactions.builtintypes.properties.DisambiguatingDescription? disambiguatingDescription);
+    method public default Self setDisambiguatingDescription(androidx.appactions.builtintypes.types.Thing.DisambiguatingDescriptionValue canonicalValue);
+    method public default Self setDisambiguatingDescription(String text);
     method public Self setIdentifier(String? text);
-    method public default Self setName(String text);
     method public Self setName(androidx.appactions.builtintypes.properties.Name? name);
+    method public default Self setName(String text);
+    method public Self setTemporal(androidx.appactions.builtintypes.properties.Temporal? temporal);
+    method public default Self setTemporal(String text);
     method public default Self setTemporal(java.time.LocalDateTime localDateTime);
     method public default Self setTemporal(java.time.ZonedDateTime zonedDateTime);
-    method public default Self setTemporal(String text);
-    method public Self setTemporal(androidx.appactions.builtintypes.properties.Temporal? temporal);
   }
 
   public static final class Thing.Companion {

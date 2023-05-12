@@ -9,8 +9,8 @@ package androidx.room.migration.bundle {
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class DatabaseBundle implements androidx.room.migration.bundle.SchemaEquality<androidx.room.migration.bundle.DatabaseBundle> {
-    ctor public DatabaseBundle(int version, String identityHash, java.util.List<? extends androidx.room.migration.bundle.EntityBundle> entities, java.util.List<? extends androidx.room.migration.bundle.DatabaseViewBundle> views, java.util.List<java.lang.String> setupQueries);
     ctor @Deprecated public DatabaseBundle();
+    ctor public DatabaseBundle(int version, String identityHash, java.util.List<? extends androidx.room.migration.bundle.EntityBundle> entities, java.util.List<? extends androidx.room.migration.bundle.DatabaseViewBundle> views, java.util.List<java.lang.String> setupQueries);
     method public java.util.List<java.lang.String> buildCreateQueries();
     method public java.util.List<androidx.room.migration.bundle.EntityBundle> getEntities();
     method public java.util.Map<java.lang.String,androidx.room.migration.bundle.EntityBundle> getEntitiesByTableName();
@@ -73,8 +73,8 @@ package androidx.room.migration.bundle {
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class FieldBundle implements androidx.room.migration.bundle.SchemaEquality<androidx.room.migration.bundle.FieldBundle> {
-    ctor public FieldBundle(@com.google.gson.annotations.SerializedName("fieldPath") String fieldPath, @com.google.gson.annotations.SerializedName("columnName") String columnName, @com.google.gson.annotations.SerializedName("affinity") String affinity, @com.google.gson.annotations.SerializedName("notNull") boolean isNonNull, @com.google.gson.annotations.SerializedName("defaultValue") String? defaultValue);
     ctor @Deprecated public FieldBundle(String fieldPath, String columnName, String affinity, boolean nonNull);
+    ctor public FieldBundle(@com.google.gson.annotations.SerializedName("fieldPath") String fieldPath, @com.google.gson.annotations.SerializedName("columnName") String columnName, @com.google.gson.annotations.SerializedName("affinity") String affinity, @com.google.gson.annotations.SerializedName("notNull") boolean isNonNull, @com.google.gson.annotations.SerializedName("defaultValue") String? defaultValue);
     method public String getAffinity();
     method public String getColumnName();
     method public String? getDefaultValue();
@@ -135,12 +135,12 @@ package androidx.room.migration.bundle {
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class IndexBundle implements androidx.room.migration.bundle.SchemaEquality<androidx.room.migration.bundle.IndexBundle> {
-    ctor public IndexBundle(@com.google.gson.annotations.SerializedName("name") String name, @com.google.gson.annotations.SerializedName("unique") boolean isUnique, @com.google.gson.annotations.SerializedName("columnNames") java.util.List<java.lang.String>? columnNames, @com.google.gson.annotations.SerializedName("orders") java.util.List<java.lang.String>? orders, @com.google.gson.annotations.SerializedName("createSql") String createSql);
     ctor @Deprecated public IndexBundle(String name, boolean unique, java.util.List<java.lang.String> columnNames, String createSql);
+    ctor public IndexBundle(@com.google.gson.annotations.SerializedName("name") String name, @com.google.gson.annotations.SerializedName("unique") boolean isUnique, @com.google.gson.annotations.SerializedName("columnNames") java.util.List<java.lang.String>? columnNames, @com.google.gson.annotations.SerializedName("orders") java.util.List<java.lang.String>? orders, @com.google.gson.annotations.SerializedName("createSql") String createSql);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public String create(String tableName);
     method public java.util.List<java.lang.String>? getColumnNames();
-    method public String getCreateSql(String tableName);
     method public String getCreateSql();
+    method public String getCreateSql(String tableName);
     method public String getName();
     method public java.util.List<java.lang.String>? getOrders();
     method public boolean isSchemaEqual(androidx.room.migration.bundle.IndexBundle other);

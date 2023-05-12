@@ -104,8 +104,8 @@ package androidx.camera.video {
     method public androidx.camera.video.QualitySelector getQualitySelector();
     method public int getTargetVideoEncodingBitRate();
     method public void onSurfaceRequested(androidx.camera.core.SurfaceRequest);
-    method public androidx.camera.video.PendingRecording prepareRecording(android.content.Context, androidx.camera.video.FileOutputOptions);
     method @RequiresApi(26) public androidx.camera.video.PendingRecording prepareRecording(android.content.Context, androidx.camera.video.FileDescriptorOutputOptions);
+    method public androidx.camera.video.PendingRecording prepareRecording(android.content.Context, androidx.camera.video.FileOutputOptions);
     method public androidx.camera.video.PendingRecording prepareRecording(android.content.Context, androidx.camera.video.MediaStoreOutputOptions);
     field public static final androidx.camera.video.QualitySelector DEFAULT_QUALITY_SELECTOR;
   }

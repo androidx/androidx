@@ -23,8 +23,8 @@ package androidx.heifwriter {
   }
 
   public static final class AvifWriter.Builder {
-    ctor public AvifWriter.Builder(String, @IntRange(from=1) int, @IntRange(from=1) int, int);
     ctor public AvifWriter.Builder(java.io.FileDescriptor, @IntRange(from=1) int, @IntRange(from=1) int, int);
+    ctor public AvifWriter.Builder(String, @IntRange(from=1) int, @IntRange(from=1) int, int);
     method public androidx.heifwriter.AvifWriter build() throws java.io.IOException;
     method public androidx.heifwriter.AvifWriter.Builder setGridEnabled(boolean);
     method public androidx.heifwriter.AvifWriter.Builder setHandler(android.os.Handler?);
@@ -57,8 +57,8 @@ package androidx.heifwriter {
   }
 
   public static final class HeifWriter.Builder {
-    ctor public HeifWriter.Builder(String, @IntRange(from=1) int, @IntRange(from=1) int, int);
     ctor public HeifWriter.Builder(java.io.FileDescriptor, @IntRange(from=1) int, @IntRange(from=1) int, int);
+    ctor public HeifWriter.Builder(String, @IntRange(from=1) int, @IntRange(from=1) int, int);
     method public androidx.heifwriter.HeifWriter build() throws java.io.IOException;
     method public androidx.heifwriter.HeifWriter.Builder setGridEnabled(boolean);
     method public androidx.heifwriter.HeifWriter.Builder setHandler(android.os.Handler?);
