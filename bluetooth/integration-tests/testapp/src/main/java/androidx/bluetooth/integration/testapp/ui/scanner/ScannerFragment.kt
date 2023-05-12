@@ -141,6 +141,10 @@ class ScannerFragment : Fragment() {
             }
         }
 
+        binding.buttonReconnect.setOnClickListener {
+            connectTo(scannerViewModel.deviceConnection(binding.tabLayout.selectedTabPosition))
+        }
+
         initData()
 
         return binding.root
@@ -251,6 +255,7 @@ class ScannerFragment : Fragment() {
     @SuppressLint("NotifyDataSetChanged")
     private fun updateDeviceUI(deviceConnection: DeviceConnection) {
         binding.progressIndicatorDeviceConnection.isVisible = false
+        binding.buttonReconnect.isVisible = false
 
         when (deviceConnection.status) {
             Status.NOT_CONNECTED -> {
@@ -269,6 +274,7 @@ class ScannerFragment : Fragment() {
             Status.CONNECTION_FAILED -> {
                 binding.textViewDeviceConnectionStatus.text = getString(R.string.connection_failed)
                 binding.textViewDeviceConnectionStatus.setTextColor(getColor(R.color.red_500))
+                binding.buttonReconnect.isVisible = true
             }
         }
         deviceServicesAdapter?.services = deviceConnection.services
