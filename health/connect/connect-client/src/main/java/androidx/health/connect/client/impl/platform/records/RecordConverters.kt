@@ -787,8 +787,12 @@ private fun NutritionRecord.toPlatformNutritionRecord() =
             startZoneOffset?.let { setStartZoneOffset(it) }
             endZoneOffset?.let { setEndZoneOffset(it) }
             biotin?.let { setBiotin(it.toPlatformMass()) }
-            calcium?.let { setCalcium(it.toPlatformMass()) }
             caffeine?.let { setCaffeine(it.toPlatformMass()) }
+            calcium?.let { setCalcium(it.toPlatformMass()) }
+            chloride?.let { setChloride(it.toPlatformMass()) }
+            cholesterol?.let { setCholesterol(it.toPlatformMass()) }
+            chromium?.let { setChromium(it.toPlatformMass()) }
+            copper?.let { setCopper(it.toPlatformMass()) }
             dietaryFiber?.let { setDietaryFiber(it.toPlatformMass()) }
             energy?.let { setEnergy(it.toPlatformEnergy()) }
             energyFromFat?.let { setEnergyFromFat(it.toPlatformEnergy()) }
@@ -798,6 +802,8 @@ private fun NutritionRecord.toPlatformNutritionRecord() =
             iron?.let { setIron(it.toPlatformMass()) }
             magnesium?.let { setMagnesium(it.toPlatformMass()) }
             manganese?.let { setManganese(it.toPlatformMass()) }
+            molybdenum?.let { setMolybdenum(it.toPlatformMass()) }
+            monounsaturatedFat?.let { setMonounsaturatedFat(it.toPlatformMass()) }
             name?.let { setMealName(it) }
             niacin?.let { setNiacin(it.toPlatformMass()) }
             pantothenicAcid?.let { setPantothenicAcid(it.toPlatformMass()) }

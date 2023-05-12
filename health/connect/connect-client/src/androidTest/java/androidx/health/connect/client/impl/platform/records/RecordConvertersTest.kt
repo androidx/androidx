@@ -443,6 +443,7 @@ class RecordConvertersTest {
                 )
         }
     }
+
     @Test
     fun heartRateVariabilityRmssdRecord_convertToPlatform() {
         val platformHeartRateVariabilityRmssd =
@@ -562,14 +563,28 @@ class RecordConvertersTest {
                 endTime = END_TIME,
                 endZoneOffset = END_ZONE_OFFSET,
                 metadata = METADATA,
+                calcium = Mass.grams(15.0),
                 caffeine = Mass.grams(20.0),
+                chloride = Mass.grams(25.0),
+                cholesterol = Mass.grams(30.0),
+                chromium = Mass.grams(35.0),
+                copper = Mass.grams(40.0),
+                molybdenum = Mass.grams(45.0),
+                monounsaturatedFat = Mass.grams(50.0),
                 energy = Energy.calories(300.0)
             )
 
         val platformNutrition = nutrition.toPlatformRecord() as PlatformNutritionRecord
 
         assertPlatformRecord(platformNutrition) {
+            assertThat(calcium!!.inGrams).isWithin(tolerance).of(15.0)
             assertThat(caffeine!!.inGrams).isWithin(tolerance).of(20.0)
+            assertThat(chloride!!.inGrams).isWithin(tolerance).of(25.0)
+            assertThat(cholesterol!!.inGrams).isWithin(tolerance).of(30.0)
+            assertThat(chromium!!.inGrams).isWithin(tolerance).of(35.0)
+            assertThat(copper!!.inGrams).isWithin(tolerance).of(40.0)
+            assertThat(molybdenum!!.inGrams).isWithin(tolerance).of(45.0)
+            assertThat(monounsaturatedFat!!.inGrams).isWithin(tolerance).of(50.0)
             assertThat(energy!!.inCalories).isWithin(tolerance).of(300.0)
         }
     }
