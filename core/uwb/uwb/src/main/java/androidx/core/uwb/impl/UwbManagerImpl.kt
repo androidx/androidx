@@ -83,6 +83,10 @@ internal class UwbManagerImpl(private val context: Context) : UwbManager {
         Log.i(TAG, "Creating Gms Client session scope")
         val uwbClient = if (isController)
             Nearby.getUwbControllerClient(context) else Nearby.getUwbControleeClient(context)
+        if (!uwbClient.isAvailable().await()) {
+            Log.e(TAG, "Uwb availability : false")
+            throw RuntimeException("Cannot start a ranging session when UWB is unavailable")
+        }
         try {
             val nearbyLocalAddress = uwbClient.localAddress.await()
             val nearbyRangingCapabilities = uwbClient.rangingCapabilities.await()
