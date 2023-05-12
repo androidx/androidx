@@ -140,7 +140,7 @@ public final class DynamicColorTest {
   }
 
   @Test
-  public void validProto() {
+  public void fromByteArray_validProto() {
     DynamicColor from = DynamicColor.constant(CONSTANT_VALUE);
     DynamicColor to = DynamicColor.fromByteArray(from.toDynamicColorByteArray());
 
@@ -148,7 +148,55 @@ public final class DynamicColorTest {
   }
 
   @Test
-  public void invalidProto() {
+  public void fromByteArray_invalidProto() {
     assertThrows(IllegalArgumentException.class, () -> DynamicColor.fromByteArray(new byte[] {1}));
+  }
+
+  @Test
+  public void fromByteArray_existingByteArray() {
+    DynamicColor from = DynamicColor.constant(CONSTANT_VALUE);
+    byte[] buffer = new byte[100];
+    int written = from.toDynamicColorByteArray(buffer, 10, 50);
+
+    DynamicColor to = DynamicColor.fromByteArray(buffer, 10, written);
+
+    assertThat(to.toDynamicColorProto().getFixed().getArgb()).isEqualTo(CONSTANT_VALUE);
+  }
+
+  @Test
+  public void fromByteArray_existingByteArrayTooSmall() {
+    DynamicColor from = DynamicColor.constant(CONSTANT_VALUE);
+    byte[] buffer = new byte[100];
+    int written = from.toDynamicColorByteArray(buffer);
+
+    assertThrows(
+            IllegalArgumentException.class,
+            () -> DynamicColor.fromByteArray(buffer, 0, written - 1));
+  }
+
+  @Test
+  public void fromByteArray_existingByteArrayTooLarge() {
+    DynamicColor from = DynamicColor.constant(CONSTANT_VALUE);
+    byte[] buffer = new byte[100];
+    int written = from.toDynamicColorByteArray(buffer);
+
+    assertThrows(
+            IllegalArgumentException.class,
+            () -> DynamicColor.fromByteArray(buffer, 0, written + 1));
+  }
+
+  @Test
+  public void toByteArray_existingByteArrayTooSmall() {
+    assertThrows(
+            IllegalArgumentException.class,
+            () -> DynamicColor.constant(CONSTANT_VALUE).toDynamicColorByteArray(new byte[1]));
+  }
+
+  @Test
+  public void toByteArray_existingByteArraySameSize() {
+    DynamicColor from = DynamicColor.constant(CONSTANT_VALUE);
+
+    assertThat(from.toDynamicColorByteArray(new byte[100]))
+            .isEqualTo(from.toDynamicColorByteArray().length);
   }
 }
