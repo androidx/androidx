@@ -96,7 +96,12 @@ class PerfettoCaptureSweepTest(
 
         verifyTraceEnable(false)
 
-        perfettoCapture.start(PerfettoConfig.Benchmark(listOf(Packages.TEST)))
+        perfettoCapture.start(
+            PerfettoConfig.Benchmark(
+                appTagPackages = listOf(Packages.TEST),
+                useStackSamplingConfig = false
+            )
+        )
 
         if (!Trace.isEnabled()) {
             // Should be available immediately, but let's wait a while to see if it works slowly.

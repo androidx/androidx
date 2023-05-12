@@ -26,6 +26,7 @@ import androidx.benchmark.Arguments
 import androidx.benchmark.BenchmarkResult
 import androidx.benchmark.ConfigurationError
 import androidx.benchmark.DeviceInfo
+import androidx.benchmark.Errors
 import androidx.benchmark.InstrumentationResults
 import androidx.benchmark.ResultWriter
 import androidx.benchmark.Shell
@@ -42,6 +43,7 @@ import androidx.benchmark.userspaceTrace
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.tracing.trace
 import java.io.File
+import java.lang.StringBuilder
 
 /**
  * Get package ApplicationInfo, throw if not found
@@ -168,8 +170,7 @@ private fun macrobenchmark(
     }
 
     val suppressionState = checkErrors(packageName)
-    var warningMessage = suppressionState?.warningMessage ?: ""
-
+    var warningMessage = buildWarningMessage(suppressionState)
     // skip benchmark if not supported by vm settings
     compilationMode.assumeSupportedWithVmSettings()
 
@@ -231,6 +232,7 @@ private fun macrobenchmark(
                         } else {
                             listOf(packageName)
                         },
+                        useStackSamplingConfig = true
                     ),
                     userspaceTracingPackage = userspaceTracingPackage
                 ) {
@@ -413,4 +415,16 @@ fun macrobenchmarkWithStartupMode(
         launchWithClearTask = startupMode == StartupMode.COLD || startupMode == StartupMode.WARM,
         measureBlock = measureBlock
     )
+}
+
+private fun buildWarningMessage(suppressionState: ConfigurationError.SuppressionState?): String {
+    val warnings = Errors.acquireWarningStringForLogging()
+    val builder = StringBuilder()
+    if (suppressionState != null) {
+        builder.append(suppressionState)
+    }
+    if (warnings != null) {
+        builder.append("\n").append(warnings)
+    }
+    return builder.toString()
 }

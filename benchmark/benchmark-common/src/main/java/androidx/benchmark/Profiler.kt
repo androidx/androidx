@@ -23,6 +23,7 @@ import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
 import androidx.benchmark.BenchmarkState.Companion.TAG
 import androidx.benchmark.Outputs.dateToFileName
+import androidx.benchmark.perfetto.StackSamplingConfig
 import androidx.benchmark.simpleperf.ProfileSession
 import androidx.benchmark.simpleperf.RecordOptions
 
@@ -47,6 +48,7 @@ internal sealed class Profiler {
 
     abstract fun start(traceUniqueName: String): ResultFile?
     abstract fun stop()
+    internal open fun config(packageNames: List<String>): StackSamplingConfig? = null
 
     /**
      * Measure exactly one loop (one repeat, one iteration).
@@ -259,6 +261,12 @@ internal object StackSamplingSimpleperf : Profiler() {
         session = null
         securityPerfHarden.resetIfOverridden()
     }
+
+    override fun config(packageNames: List<String>) = StackSamplingConfig(
+        packageNames = packageNames,
+        frequency = Arguments.profilerSampleFrequency.toLong(),
+        duration = Arguments.profilerSampleDurationSeconds,
+    )
 
     override val requiresLibraryOutputDir: Boolean = false
 }

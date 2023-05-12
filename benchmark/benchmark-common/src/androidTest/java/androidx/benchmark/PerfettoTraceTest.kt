@@ -141,7 +141,8 @@ class PerfettoTraceTest {
             perfettoConfig(
                 atraceApps = listOf(
                     InstrumentationRegistry.getInstrumentation().targetContext.packageName
-                )
+                ),
+                stackSamplingConfig = null
             ).validateAndEncode()
         )
     )

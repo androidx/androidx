@@ -37,7 +37,7 @@ class PerfettoConfigTest {
     @Test
     fun ftraceBasics() {
         val atraceApps = listOf(Packages.TEST)
-        val ftraceDataSource = perfettoConfig(atraceApps)
+        val ftraceDataSource = perfettoConfig(atraceApps = atraceApps, stackSamplingConfig = null)
             .data_sources
             .first { it.config?.name == "linux.ftrace" }
 
@@ -57,7 +57,10 @@ class PerfettoConfigTest {
     @Test
     fun validateAndEncode() {
         // default config shouldn't throw
-        perfettoConfig(listOf(Packages.TEST)).validateAndEncode()
+        perfettoConfig(
+            atraceApps = listOf(Packages.TEST),
+            stackSamplingConfig = null
+        ).validateAndEncode()
     }
 
     @SdkSuppress(minSdkVersion = 21)
@@ -124,7 +127,7 @@ class PerfettoConfigTest {
     @Test
     fun validateAndEncode_invalidLength() {
         val invalidConfig = perfettoConfig(
-            listOf(
+            atraceApps = listOf(
                 "0123456789",
                 "0123456789",
                 "0123456789",
@@ -134,7 +137,8 @@ class PerfettoConfigTest {
                 "0123456789",
                 "0123456789",
                 "0123456789",
-            )
+            ),
+            stackSamplingConfig = null
         )
         val exception = assertFailsWith<IllegalStateException> {
             invalidConfig.validateAndEncode()
