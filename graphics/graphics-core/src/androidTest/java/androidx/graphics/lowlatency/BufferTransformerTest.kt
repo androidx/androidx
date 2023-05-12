@@ -52,6 +52,7 @@ internal class BufferTransformerTest {
         val expected = createMatrix()
         assertEquals(transform.transform.size, SIZE)
         assertIsEqual(transform.transform, expected)
+        assertEquals(BUFFER_TRANSFORM_IDENTITY, transform.computedTransform)
     }
 
     @Test
@@ -69,6 +70,7 @@ internal class BufferTransformerTest {
             }
         )
         assertIsEqual(transform.transform, expected)
+        assertEquals(BUFFER_TRANSFORM_ROTATE_90, transform.computedTransform)
     }
 
     @Test
@@ -86,6 +88,7 @@ internal class BufferTransformerTest {
             }
         )
         assertIsEqual(transform.transform, expected)
+        assertEquals(BUFFER_TRANSFORM_ROTATE_180, transform.computedTransform)
     }
 
     @Test
@@ -103,6 +106,7 @@ internal class BufferTransformerTest {
             }
         )
         assertIsEqual(transform.transform, expected)
+        assertEquals(BUFFER_TRANSFORM_ROTATE_270, transform.computedTransform)
     }
 
     @Test
@@ -115,6 +119,7 @@ internal class BufferTransformerTest {
         val expected = createMatrix()
         assertEquals(transform.transform.size, SIZE)
         assertIsEqual(transform.transform, expected)
+        assertEquals(BufferTransformHintResolver.UNKNOWN_TRANSFORM, transform.computedTransform)
     }
 
     private inline fun createMatrix(block: FloatArray.() -> Unit = {}): FloatArray =
