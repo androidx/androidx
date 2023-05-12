@@ -213,7 +213,10 @@ public class BenchmarkRule internal constructor(
 
             val tracePath = PerfettoCaptureWrapper().record(
                 fileLabel = uniqueName,
-                config = PerfettoConfig.Benchmark(packages),
+                config = PerfettoConfig.Benchmark(
+                    appTagPackages = packages,
+                    useStackSamplingConfig = false
+                ),
                 userspaceTracingPackage = null
             ) {
                 UserspaceTracing.commitToTrace() // clear buffer

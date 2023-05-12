@@ -302,7 +302,7 @@ internal fun measureStartup(
             } else {
                 listOf(packageName)
             },
-
+            useStackSamplingConfig = false
         ),
         userspaceTracingPackage = packageName,
         block = measureBlock
