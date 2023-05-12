@@ -47,11 +47,14 @@ fun ReadRecordsRequest<out Record>.toPlatformRequest(
 ): ReadRecordsRequestUsingFilters<out PlatformRecord> {
     return ReadRecordsRequestUsingFilters.Builder(recordType.toPlatformRecordClass())
         .setTimeRangeFilter(timeRangeFilter.toPlatformTimeRangeFilter(timeSource))
-        .setAscending(ascendingOrder)
         .setPageSize(pageSize)
         .apply {
             dataOriginFilter.forEach { addDataOrigins(it.toPlatformDataOrigin()) }
-            pageToken?.let { setPageToken(pageToken.toLong()) }
+            pageToken?.let { setPageToken(it.toLong()) }
+            // Platform doesn't allow setting both pageToken and ascendingOrder together.
+            if (pageToken == null) {
+                setAscending(ascendingOrder)
+            }
         }
         .build()
 }
