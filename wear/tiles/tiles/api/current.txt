@@ -150,8 +150,8 @@ package androidx.wear.tiles {
   @Deprecated public final class DimensionBuilders {
     method @Deprecated public static androidx.wear.tiles.DimensionBuilders.DegreesProp degrees(float);
     method @Deprecated public static androidx.wear.tiles.DimensionBuilders.DpProp dp(@Dimension(unit=androidx.annotation.Dimension.DP) float);
-    method @Deprecated public static androidx.wear.tiles.DimensionBuilders.EmProp em(int);
     method @Deprecated public static androidx.wear.tiles.DimensionBuilders.EmProp em(float);
+    method @Deprecated public static androidx.wear.tiles.DimensionBuilders.EmProp em(int);
     method @Deprecated public static androidx.wear.tiles.DimensionBuilders.ExpandedDimensionProp expand();
     method @Deprecated public static androidx.wear.tiles.DimensionBuilders.SpProp sp(@Dimension(unit=androidx.annotation.Dimension.SP) float);
     method @Deprecated public static androidx.wear.tiles.DimensionBuilders.WrappedDimensionProp wrap();

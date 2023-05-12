@@ -14,8 +14,8 @@ package android.support.v4.media {
     method public boolean isConnected();
     method public void search(String, android.os.Bundle!, android.support.v4.media.MediaBrowserCompat.SearchCallback);
     method public void sendCustomAction(String, android.os.Bundle!, android.support.v4.media.MediaBrowserCompat.CustomActionCallback?);
-    method public void subscribe(String, android.support.v4.media.MediaBrowserCompat.SubscriptionCallback);
     method public void subscribe(String, android.os.Bundle, android.support.v4.media.MediaBrowserCompat.SubscriptionCallback);
+    method public void subscribe(String, android.support.v4.media.MediaBrowserCompat.SubscriptionCallback);
     method public void unsubscribe(String);
     method public void unsubscribe(String, android.support.v4.media.MediaBrowserCompat.SubscriptionCallback);
     field public static final String CUSTOM_ACTION_DOWNLOAD = "android.support.v4.media.action.DOWNLOAD";
@@ -219,8 +219,8 @@ package android.support.v4.media.session {
     method public boolean dispatchMediaButtonEvent(android.view.KeyEvent!);
     method public android.os.Bundle! getExtras();
     method public long getFlags();
-    method public static android.support.v4.media.session.MediaControllerCompat! getMediaController(android.app.Activity);
     method public Object! getMediaController();
+    method public static android.support.v4.media.session.MediaControllerCompat! getMediaController(android.app.Activity);
     method public android.support.v4.media.MediaMetadataCompat! getMetadata();
     method public String! getPackageName();
     method public android.support.v4.media.session.MediaControllerCompat.PlaybackInfo! getPlaybackInfo();
@@ -419,8 +419,8 @@ package android.support.v4.media.session {
   }
 
   public class ParcelableVolumeInfo implements android.os.Parcelable {
-    ctor public ParcelableVolumeInfo(int, int, int, int, int);
     ctor public ParcelableVolumeInfo(android.os.Parcel!);
+    ctor public ParcelableVolumeInfo(int, int, int, int, int);
     method public int describeContents();
     method public void writeToParcel(android.os.Parcel!, int);
     field public static final android.os.Parcelable.Creator<android.support.v4.media.session.ParcelableVolumeInfo!>! CREATOR;
@@ -515,14 +515,14 @@ package android.support.v4.media.session {
   public static final class PlaybackStateCompat.Builder {
     ctor public PlaybackStateCompat.Builder();
     ctor public PlaybackStateCompat.Builder(android.support.v4.media.session.PlaybackStateCompat!);
-    method public android.support.v4.media.session.PlaybackStateCompat.Builder! addCustomAction(String!, String!, int);
     method public android.support.v4.media.session.PlaybackStateCompat.Builder! addCustomAction(android.support.v4.media.session.PlaybackStateCompat.CustomAction!);
+    method public android.support.v4.media.session.PlaybackStateCompat.Builder! addCustomAction(String!, String!, int);
     method public android.support.v4.media.session.PlaybackStateCompat! build();
     method public android.support.v4.media.session.PlaybackStateCompat.Builder! setActions(@android.support.v4.media.session.PlaybackStateCompat.Actions long);
     method public android.support.v4.media.session.PlaybackStateCompat.Builder! setActiveQueueItemId(long);
     method public android.support.v4.media.session.PlaybackStateCompat.Builder! setBufferedPosition(long);
-    method @Deprecated public android.support.v4.media.session.PlaybackStateCompat.Builder! setErrorMessage(CharSequence!);
     method public android.support.v4.media.session.PlaybackStateCompat.Builder! setErrorMessage(int, CharSequence!);
+    method @Deprecated public android.support.v4.media.session.PlaybackStateCompat.Builder! setErrorMessage(CharSequence!);
     method public android.support.v4.media.session.PlaybackStateCompat.Builder! setExtras(android.os.Bundle!);
     method public android.support.v4.media.session.PlaybackStateCompat.Builder! setState(@android.support.v4.media.session.PlaybackStateCompat.State int, long, float);
     method public android.support.v4.media.session.PlaybackStateCompat.Builder! setState(@android.support.v4.media.session.PlaybackStateCompat.State int, long, float, long);
@@ -611,8 +611,8 @@ package androidx.media {
   }
 
   public static final class AudioFocusRequestCompat.Builder {
-    ctor public AudioFocusRequestCompat.Builder(int);
     ctor public AudioFocusRequestCompat.Builder(androidx.media.AudioFocusRequestCompat);
+    ctor public AudioFocusRequestCompat.Builder(int);
     method public androidx.media.AudioFocusRequestCompat! build();
     method public androidx.media.AudioFocusRequestCompat.Builder setAudioAttributes(androidx.media.AudioAttributesCompat);
     method public androidx.media.AudioFocusRequestCompat.Builder setFocusGain(int);
@@ -640,9 +640,9 @@ package androidx.media {
     method public final android.os.Bundle! getBrowserRootHints();
     method public final androidx.media.MediaSessionManager.RemoteUserInfo getCurrentBrowserInfo();
     method public android.support.v4.media.session.MediaSessionCompat.Token? getSessionToken();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void notifyChildrenChanged(androidx.media.MediaSessionManager.RemoteUserInfo, String, android.os.Bundle);
     method public void notifyChildrenChanged(String);
     method public void notifyChildrenChanged(String, android.os.Bundle);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void notifyChildrenChanged(androidx.media.MediaSessionManager.RemoteUserInfo, String, android.os.Bundle);
     method public android.os.IBinder! onBind(android.content.Intent!);
     method public void onCustomAction(String, android.os.Bundle!, androidx.media.MediaBrowserServiceCompat.Result<android.os.Bundle!>);
     method public abstract androidx.media.MediaBrowserServiceCompat.BrowserRoot? onGetRoot(String, int, android.os.Bundle?);
@@ -738,8 +738,8 @@ package androidx.media.session {
 
   public class MediaButtonReceiver extends android.content.BroadcastReceiver {
     ctor public MediaButtonReceiver();
-    method public static android.app.PendingIntent! buildMediaButtonPendingIntent(android.content.Context!, long);
     method public static android.app.PendingIntent! buildMediaButtonPendingIntent(android.content.Context!, android.content.ComponentName!, long);
+    method public static android.app.PendingIntent! buildMediaButtonPendingIntent(android.content.Context!, long);
     method public static android.view.KeyEvent! handleIntent(android.support.v4.media.session.MediaSessionCompat!, android.content.Intent!);
     method @RequiresApi(31) protected void onForegroundServiceStartNotAllowedException(android.content.Intent, android.app.ForegroundServiceStartNotAllowedException);
     method public void onReceive(android.content.Context!, android.content.Intent!);

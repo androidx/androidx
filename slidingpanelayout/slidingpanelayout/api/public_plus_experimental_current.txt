@@ -42,11 +42,11 @@ package androidx.slidingpanelayout.widget {
 
   public static class SlidingPaneLayout.LayoutParams extends android.view.ViewGroup.MarginLayoutParams {
     ctor public SlidingPaneLayout.LayoutParams();
-    ctor public SlidingPaneLayout.LayoutParams(int, int);
+    ctor public SlidingPaneLayout.LayoutParams(android.content.Context, android.util.AttributeSet?);
     ctor public SlidingPaneLayout.LayoutParams(android.view.ViewGroup.LayoutParams);
     ctor public SlidingPaneLayout.LayoutParams(android.view.ViewGroup.MarginLayoutParams);
     ctor public SlidingPaneLayout.LayoutParams(androidx.slidingpanelayout.widget.SlidingPaneLayout.LayoutParams);
-    ctor public SlidingPaneLayout.LayoutParams(android.content.Context, android.util.AttributeSet?);
+    ctor public SlidingPaneLayout.LayoutParams(int, int);
     field public float weight;
   }
 
