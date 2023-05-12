@@ -226,6 +226,12 @@ fun generateApi(
 
     if (isOptedInToSuppressCompatibilityMigration) {
         generateApiConfigs += GenerateApiMode.PublicApi to apiLintMode
+
+        // This is a bit of a hack, but the easiest way to clear out legacy experimental files is
+        // to delete them here. Once the migration is over, we can remove all of the references.
+        if (apiLocation.experimentalApiFile.exists()) {
+            apiLocation.experimentalApiFile.delete()
+        }
     } else {
         // API lint runs on the experimental pass, which also includes public API. This means API
         // lint can safely be skipped on the public pass.

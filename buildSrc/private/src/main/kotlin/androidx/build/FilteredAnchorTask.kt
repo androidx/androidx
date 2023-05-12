@@ -62,8 +62,8 @@ abstract class FilteredAnchorTask : DefaultTask() {
  */
 internal fun Project.addFilterableTasks(vararg taskProviders: TaskProvider<*>?) {
     if (hasProperty(PROP_PATH_PREFIX) && hasProperty(PROP_TASK_NAME)) {
-        val pathPrefix = properties[PROP_PATH_PREFIX] as String
-        if (relativePathForFiltering().startsWith(pathPrefix)) {
+        val pathPrefixes = (properties[PROP_PATH_PREFIX] as String).split(",")
+        if (pathPrefixes.any { pathPrefix -> relativePathForFiltering().startsWith(pathPrefix) }) {
             val taskName = properties[PROP_TASK_NAME] as String
             taskProviders.find { taskProvider ->
                 taskName == taskProvider?.name
