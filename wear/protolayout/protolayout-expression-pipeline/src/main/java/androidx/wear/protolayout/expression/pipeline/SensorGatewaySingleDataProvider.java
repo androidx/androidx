@@ -22,11 +22,13 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue;
 import androidx.wear.protolayout.expression.PlatformDataKey;
+import androidx.wear.protolayout.expression.PlatformHealthSources;
 import androidx.wear.protolayout.expression.pipeline.sensor.SensorGateway;
 
 import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.Executor;
+import java.util.function.Function;
 
 /** This provider provides sensor data as state value. */
 @RestrictTo(Scope.LIBRARY_GROUP_PREFIX)
@@ -35,12 +37,20 @@ public class SensorGatewaySingleDataProvider implements PlatformDataProvider {
     @NonNull final PlatformDataKey<?> mSupportedKey;
     @Nullable private SensorGateway.Consumer mSensorGatewayConsumer = null;
 
+    @NonNull Function<Double, DynamicDataValue> mConvertFunc;
+
     public SensorGatewaySingleDataProvider(
             @NonNull SensorGateway sensorGateway,
             @NonNull PlatformDataKey<?> supportedKey
     ) {
         this.mSensorGateway = sensorGateway;
         this.mSupportedKey = supportedKey;
+
+        if (mSupportedKey.equals(PlatformHealthSources.HEART_RATE_BPM)) {
+            mConvertFunc = value -> DynamicDataValue.fromFloat(value.floatValue());
+        } else { // mSupportedKey.equals(PlatformHealthSources.DAILY_STEPS)
+            mConvertFunc = value -> DynamicDataValue.fromInt(value.intValue());
+        }
     }
 
     @Override
@@ -52,7 +62,7 @@ public class SensorGatewaySingleDataProvider implements PlatformDataProvider {
                     @Override
                     public void onData(double value) {
                         executor.execute(() -> callback.onData(
-                                Map.of(mSupportedKey, DynamicDataValue.fromFloat((float) value)))
+                                Map.of(mSupportedKey, mConvertFunc.apply(value)))
                         );
                     }
 

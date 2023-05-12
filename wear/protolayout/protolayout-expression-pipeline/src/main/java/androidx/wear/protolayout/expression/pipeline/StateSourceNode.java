@@ -29,6 +29,7 @@ import java.util.function.Function;
 class StateSourceNode<T>
         implements DynamicDataSourceNode<T>,
         DynamicTypeValueReceiverWithPreUpdate<DynamicDataValue> {
+    @NonNull private static final String RESERVED_NAMESPACE = "protolayout";
     private final StateStore mStateStore;
     private final DynamicDataKey<?> mKey;
     private final Function<DynamicDataValue, T> mStateExtractor;
@@ -92,6 +93,11 @@ class StateSourceNode<T>
         if (namespace.isEmpty()) {
             return new AppDataKey<T>(key);
         }
+
+        if (RESERVED_NAMESPACE.equalsIgnoreCase(namespace)) {
+            return new PlatformDataKey<T>(key);
+        }
+
         return new PlatformDataKey<T>(namespace, key);
     }
 }
