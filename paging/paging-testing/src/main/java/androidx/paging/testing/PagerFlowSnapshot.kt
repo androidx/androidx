@@ -31,8 +31,8 @@ import androidx.paging.testing.ErrorRecovery.THROW
 import androidx.paging.testing.LoaderCallback.CallbackType.ON_CHANGED
 import androidx.paging.testing.LoaderCallback.CallbackType.ON_INSERTED
 import androidx.paging.testing.LoaderCallback.CallbackType.ON_REMOVED
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.debounce
@@ -40,14 +40,10 @@ import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 /**
  * Runs the [SnapshotLoader] load operations that are passed in and returns a List of data
  * that would be presented to the UI after all load operations are complete.
- *
- * @param coroutineScope The [CoroutineScope] to collect from this Flow<PagingData> and contains
- * the [CoroutineScope.coroutineContext] to load data from.
  *
  * @param onError The error recovery strategy when PagingSource returns LoadResult.Error. A lambda
  * that returns an [ErrorRecovery] value. The default strategy is [ErrorRecovery.THROW].
@@ -55,10 +51,9 @@ import kotlinx.coroutines.withContext
  * @param loadOperations The block containing [SnapshotLoader] load operations.
  */
 public suspend fun <Value : Any> Flow<PagingData<Value>>.asSnapshot(
-    coroutineScope: CoroutineScope,
     onError: LoadErrorHandler = LoadErrorHandler { THROW },
     loadOperations: suspend SnapshotLoader<Value>.() -> @JvmSuppressWildcards Unit = { }
-): @JvmSuppressWildcards List<Value> {
+): @JvmSuppressWildcards List<Value> = coroutineScope {
 
     lateinit var loader: SnapshotLoader<Value>
 
@@ -83,8 +78,8 @@ public suspend fun <Value : Any> Flow<PagingData<Value>>.asSnapshot(
         }
     }
 
-    // PagingDataDiffer automatically switches to Dispatchers.Main to call presentNewList
-    val differ = object : PagingDataDiffer<Value>(callback, coroutineScope.coroutineContext) {
+    // PagingDataDiffer will collect from coroutineContext instead of main dispatcher
+    val differ = object : PagingDataDiffer<Value>(callback, coroutineContext) {
         override suspend fun presentNewList(
             previousList: NullPaddedList<Value>,
             newList: NullPaddedList<Value>,
@@ -118,7 +113,7 @@ public suspend fun <Value : Any> Flow<PagingData<Value>>.asSnapshot(
      *
      * The collection job is cancelled automatically after [loadOperations] completes.
       */
-    val collectPagingData = coroutineScope.launch {
+    val collectPagingData = launch {
         this@asSnapshot.collectLatest {
             incrementGeneration(loader)
             differ.collectFrom(it)
@@ -131,24 +126,20 @@ public suspend fun <Value : Any> Flow<PagingData<Value>>.asSnapshot(
      * Awaits for initial refresh to complete before invoking [loadOperations]. Automatically
      * cancels the collection on this [Pager.flow] after [loadOperations] completes and Paging
      * is idle.
-     *
-     * Returns a List of loaded data.
      */
-    return withContext(coroutineScope.coroutineContext) {
-        try {
-            differ.awaitNotLoading(onError)
-            loader.loadOperations()
-            differ.awaitNotLoading(onError)
-        } catch (stub: ReturnSnapshotStub) {
-            // we just want to stub and return snapshot early
-        } catch (throwable: Throwable) {
-            throw throwable
-        } finally {
-            collectPagingData.cancelAndJoin()
-        }
-
-        differ.snapshot().items
+    try {
+        differ.awaitNotLoading(onError)
+        loader.loadOperations()
+        differ.awaitNotLoading(onError)
+    } catch (stub: ReturnSnapshotStub) {
+        // we just want to stub and return snapshot early
+    } catch (throwable: Throwable) {
+        throw throwable
+    } finally {
+        collectPagingData.cancelAndJoin()
     }
+
+    differ.snapshot().items
 }
 
 /**
