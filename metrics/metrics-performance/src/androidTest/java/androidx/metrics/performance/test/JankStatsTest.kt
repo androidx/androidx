@@ -18,6 +18,7 @@ package androidx.metrics.performance.test
 import android.os.Build
 import android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1
 import android.os.Build.VERSION_CODES.JELLY_BEAN
+import android.util.Log
 import android.view.Choreographer
 import androidx.annotation.RequiresApi
 import androidx.metrics.performance.FrameData
@@ -295,6 +296,8 @@ class JankStatsTest {
 
         frameInit.initFramePipeline()
 
+        resetFrameStateData()
+
         val state0 = StateInfo("Testing State 0", "sampleStateA")
         val state1 = StateInfo("Testing State 1", "sampleStateB")
         val state2 = StateInfo("Testing State 2", "sampleStateC")
@@ -332,6 +335,7 @@ class JankStatsTest {
         }
 
         // reset and clear states
+        resetFrameStateData()
         latchedListener.reset()
         metricsState.removeState(state0.key)
         metricsState.removeState(state1.key)
@@ -339,7 +343,7 @@ class JankStatsTest {
         runDelayTest(frameDelay, 1, latchedListener)
         item0 = latchedListener.jankData[0]
         assertEquals(
-            "States should be empty after being cleared",
+            "States should be empty after being cleared, but got ${item0.states}",
             0,
             item0.states.size
         )
@@ -350,15 +354,16 @@ class JankStatsTest {
         metricsState.putState(state4.first, state4.second)
         runDelayTest(frameDelay, 1, latchedListener)
         item0 = latchedListener.jankData[0]
-        assertEquals(2, item0.states.size)
+        assertEquals("states: ${item0.states}", 2, item0.states.size)
         latchedListener.reset()
 
         // Test removal of state3 and replacement of state4
+        resetFrameStateData()
         metricsState.removeState(state3.first)
         metricsState.putState(state4.first, "sampleStateF")
         runDelayTest(frameDelay, 1, latchedListener)
         item0 = latchedListener.jankData[0]
-        assertEquals(1, item0.states.size)
+        assertEquals("states: ${item0.states}", 1, item0.states.size)
         assertEquals(state4.first, item0.states[0].key)
         assertEquals("sampleStateF", item0.states[0].value)
         latchedListener.reset()
@@ -496,6 +501,7 @@ class JankStatsTest {
             mapOf("stateNameA" to "1"),
         )
 
+        resetFrameStateData()
         runDelayTest(frameDelay = 0, numFrames = perFrameStateData.size,
             latchedListener, perFrameStateData)
 
@@ -514,7 +520,8 @@ class JankStatsTest {
          */
         var expectedIndex = 0
         var resultIndex = 0
-        while (expectedIndex < expectedResults.size) {
+        while (expectedIndex < expectedResults.size &&
+            resultIndex < latchedListener.jankData.size) {
             val testResultStates = latchedListener.jankData[resultIndex].states
             // Test against this and next expected result, in case system skipped a frame
             var matched = checkFrameStates(expectedResults[expectedIndex], testResultStates)
@@ -522,7 +529,8 @@ class JankStatsTest {
                 expectedIndex++
                 matched = checkFrameStates(expectedResults[expectedIndex], testResultStates)
             }
-            assertTrue("States do not match at frame $expectedIndex", matched)
+            assertTrue("Expected states do not match $testResultStates at frame " +
+                "$expectedIndex", matched)
             expectedIndex++
             resultIndex++
         }
@@ -539,6 +547,38 @@ class JankStatsTest {
             }
         }
         return true
+    }
+
+    /**
+     * We need to ensure that state data only gets set when the system is ready to send frameData
+     * for future frames. It is possible for some of the initial frames to have start times that
+     * pre-date the current time, which is when we might be setting/removing state.
+     *
+     * To ensure that the right thing happens, call this function prior to setting any frame state.
+     * It will run frames through the system until the frameData start timeis after the
+     * current time when this function is called.
+     */
+    private fun resetFrameStateData() {
+        val currentNanos = System.nanoTime()
+        // failsafe - limit the iterations, don't want to loop forever
+        var numAttempts = 0
+        try {
+            while (numAttempts < 100) {
+                runDelayTest(0, 1, latchedListener)
+                if (latchedListener.jankData.size > 0) {
+                    if (latchedListener.jankData[0].frameStartNanos > currentNanos) {
+                        return
+                    }
+                }
+                Log.d("JankStatsTest", "resetFrameStateData attempt $numAttempts:" +
+                    "frame start < currentTime: " +
+                    "${latchedListener.jankData[0].frameStartNanos}, $currentNanos")
+                latchedListener.reset()
+                numAttempts++
+            }
+        } finally {
+            latchedListener.reset()
+        }
     }
 
     private fun runDelayTest(
