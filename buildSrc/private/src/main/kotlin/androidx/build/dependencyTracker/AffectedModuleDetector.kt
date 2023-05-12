@@ -278,7 +278,7 @@ abstract class AffectedModuleDetectorLoader :
                 logger.info("using base commit override $baseCommitOverride")
             }
             val gitClient = GitClient.create(
-                rootProjectDir = parameters.rootDir,
+                projectDir = parameters.rootDir,
                 logger = logger.toLogger(),
                 changeInfoPath = parameters.changeInfoPath.get(),
                 manifestPath = parameters.manifestPath.get()

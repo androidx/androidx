@@ -204,12 +204,7 @@ internal abstract class DokkaCombinedDocsTask @Inject constructor(
                 it.additionalDocumentation.set(
                     project.files("homepage.md")
                 )
-                val gitClient = GitClient.create(
-                    project.getSupportRootFolder(),
-                    project.logger,
-                    GitClient.getChangeInfoPath(project).get(),
-                    GitClient.getManifestPath(project).get()
-                )
+                val gitClient = GitClient.forProject(project)
                 it.replacementUrl.set(
                     DokkaUtils.createCsAndroidUrl(
                         gitClient.getHeadSha(project.getSupportRootFolder())
