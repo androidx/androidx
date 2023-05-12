@@ -363,7 +363,7 @@ class ExposedDropdownMenuTest {
                                     TextField(
                                         value = "Text",
                                         onValueChange = {},
-                                        modifier = Modifier.menuAnchor().size(20.dp),
+                                        modifier = Modifier.menuAnchor(),
                                     )
                                     ExposedDropdownMenu(
                                         expanded = true,
