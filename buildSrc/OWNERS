@@ -6,3 +6,4 @@ alanv@google.com
 
 per-file *AndroidXPlaygroundRootPlugin.kt = dustinlam@google.com, rahulrav@google.com, yboyar@google.com
 per-file *LintConfiguration.kt = juliamcclellan@google.com, tiem@google.com
+per-file *AndroidXComposeLintIssues.kt = anbailey@google.com, lelandr@google.com
