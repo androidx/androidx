@@ -454,3 +454,11 @@ internal fun ColorScheme.updateColorSchemeFrom(other: ColorScheme) {
 }
 
 internal val LocalColors = staticCompositionLocalOf<ColorScheme> { ColorScheme() }
+
+/**
+ * Convert given color to disabled color.
+ * @param disabledAlpha Alpha used to represent disabled colors.
+ */
+@Composable
+internal fun Color.toDisabledColor(disabledAlpha: Float = ContentAlpha.disabled) =
+    this.copy(alpha = this.alpha * disabledAlpha)
