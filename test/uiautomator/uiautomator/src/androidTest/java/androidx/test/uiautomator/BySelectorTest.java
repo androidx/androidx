@@ -19,6 +19,7 @@ package androidx.test.uiautomator;
 import static org.junit.Assert.assertThrows;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 
 import org.junit.Test;
@@ -96,6 +97,22 @@ public class BySelectorTest {
     @Test(expected = IllegalStateException.class)
     public void testText_alreadyDefined() {
         By.text("first").textStartsWith("second");
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 26)
+    public void testHint_nullValue() {
+        assertThrows(NullPointerException.class, () -> By.hint((String) null));
+        assertThrows(NullPointerException.class, () -> By.hintContains(null));
+        assertThrows(NullPointerException.class, () -> By.hintStartsWith(null));
+        assertThrows(NullPointerException.class, () -> By.hintEndsWith(null));
+        assertThrows(NullPointerException.class, () -> By.hint((Pattern) null));
+    }
+
+    @Test(expected = IllegalStateException.class)
+    @SdkSuppress(minSdkVersion = 26)
+    public void testHint_alreadyDefined() {
+        By.hint("first").hintStartsWith("second");
     }
 
     @Test(expected = IllegalStateException.class)
