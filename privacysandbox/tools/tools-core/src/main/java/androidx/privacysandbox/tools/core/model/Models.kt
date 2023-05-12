@@ -30,6 +30,26 @@ fun ParsedApi.hasSuspendFunctions(): Boolean {
         .any(Method::isSuspend)
 }
 
+fun ParsedApi.containsSdkActivityLauncher(): Boolean {
+    return values.any { it.containsSdkActivityLauncher() } ||
+        interfaces.any { it.containsSdkActivityLauncher() } ||
+        callbacks.any { it.containsSdkActivityLauncher() } ||
+        services.any { it.containsSdkActivityLauncher() }
+}
+
+private fun AnnotatedInterface.containsSdkActivityLauncher(): Boolean {
+    val isInReturns = methods
+        .any { it.returnType.qualifiedName == Types.sdkActivityLauncher.qualifiedName }
+    val isInParams = methods
+        .flatMap { it.parameters }
+        .any { it.type.qualifiedName == Types.sdkActivityLauncher.qualifiedName }
+
+    return isInReturns || isInParams
+}
+
+private fun AnnotatedValue.containsSdkActivityLauncher(): Boolean =
+    properties.any { it.type.qualifiedName == Types.sdkActivityLauncher.qualifiedName }
+
 object Types {
     val unit = Type(packageName = "kotlin", simpleName = "Unit")
     val boolean = Type(packageName = "kotlin", simpleName = "Boolean")
