@@ -48,7 +48,7 @@ class StopTimer private constructor() {
             >(ACTION_SPEC) {
         private var properties = mutableMapOf<String, Property<*>>()
 
-        fun setTimerList(timerList: Property<TimerValue>): CapabilityBuilder =
+        fun setTimerListProperty(timerList: Property<TimerValue>): CapabilityBuilder =
             apply { properties[PropertyMapStrings.TIMER_LIST.key] = timerList }
 
         override fun build(): Capability {
