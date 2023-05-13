@@ -38,7 +38,6 @@ private const val CAPABILITY_NAME = "actions.intent.START_EMERGENCY_SHARING"
 /** A capability corresponding to actions.intent.START_EMERGENCY_SHARING */
 @CapabilityFactory(name = CAPABILITY_NAME)
 class StartEmergencySharing private constructor() {
-    // TODO(b/267805819): Update to include the SessionFactory once Session API is ready.
     class CapabilityBuilder :
         Capability.Builder<
             CapabilityBuilder, Arguments, Output, Confirmation, ExecutionSession,

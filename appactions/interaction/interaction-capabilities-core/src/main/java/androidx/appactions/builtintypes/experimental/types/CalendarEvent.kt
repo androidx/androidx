@@ -16,7 +16,6 @@
 
 package androidx.appactions.builtintypes.experimental.types
 
-// TODO(b/271634410): Update Attendee references
 import androidx.appactions.builtintypes.experimental.properties.Attendee
 import androidx.appactions.builtintypes.experimental.properties.EndDate
 import androidx.appactions.builtintypes.experimental.properties.Name

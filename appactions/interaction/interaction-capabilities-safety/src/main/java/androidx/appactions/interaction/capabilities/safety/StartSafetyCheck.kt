@@ -49,7 +49,6 @@ class StartSafetyCheck private constructor() {
         CHECK_IN_TIME("safetycheck.checkInTime")
     }
 
-    // TODO(b/267805819): Update to include the SessionFactory once Session API is ready.
     class CapabilityBuilder :
         Capability.Builder<
             CapabilityBuilder, Arguments, Output, Confirmation, ExecutionSession

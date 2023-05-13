@@ -45,10 +45,8 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.kotlin.times
 import org.robolectric.Robolectric
 
-// TODO(b/271929200) Implement tests for the 2 UI related RPCs
 @RunWith(AndroidJUnit4::class)
 class AppInteractionServiceEntityProviderTest {
     val testServerName = "testServer"
