@@ -86,6 +86,7 @@ private fun createSchedulers(
         Schedulers.createBestAvailableBackgroundScheduler(context, workDatabase, configuration),
         GreedyScheduler(
             context, configuration, trackers, processor,
-            WorkLauncherImpl(processor, workTaskExecutor)
+            WorkLauncherImpl(processor, workTaskExecutor),
+            workTaskExecutor
         ),
     )

@@ -25,11 +25,20 @@ import androidx.work.impl.utils.taskexecutor.InstantWorkTaskExecutor
 import androidx.work.impl.utils.taskexecutor.TaskExecutor
 
 class TestConstraintTracker(
-    override val initialState: Boolean = false,
+    initialState: Boolean = false,
     context: Context = ApplicationProvider.getApplicationContext(),
     taskExecutor: TaskExecutor = InstantWorkTaskExecutor(),
 ) : ConstraintTracker<Boolean>(context, taskExecutor) {
     var isTracking = false
+
+    // some awkwardness because "this.state = ..." is overridden
+    // with `initialState` when first listener is added.
+    // so we have a separate state that we return from `initialState` too.
+    var constraintState: Boolean = initialState
+        set(value) {
+            state = value
+            field = value
+        }
 
     override fun startTracking() {
         isTracking = true
@@ -38,6 +47,9 @@ class TestConstraintTracker(
     override fun stopTracking() {
         isTracking = false
     }
+
+    override val initialState: Boolean
+        get() = constraintState
 }
 
 class TestConstraintController(
