@@ -257,7 +257,8 @@ constructor(
                 CameraGraph.OperatingMode.NORMAL -> SessionConfigData.SESSION_TYPE_REGULAR
                 CameraGraph.OperatingMode.HIGH_SPEED -> SessionConfigData.SESSION_TYPE_HIGH_SPEED
                 else -> throw IllegalArgumentException(
-                    "Unsupported session mode: ${graphConfig.sessionMode}")
+                    "Unsupported session mode: ${graphConfig.sessionMode}"
+                )
             }
 
         val outputs = buildOutputConfigurations(
@@ -417,7 +418,8 @@ constructor(
             when (graphConfig.sessionMode) {
                 CameraGraph.OperatingMode.EXTENSION -> SessionConfigData.SESSION_TYPE_EXTENSION
                 else -> throw IllegalArgumentException(
-                    "Unsupported session mode: ${graphConfig.sessionMode}")
+                    "Unsupported session mode: ${graphConfig.sessionMode} for Extension CameraGraph"
+                )
             }
 
         val outputs = buildOutputConfigurations(
@@ -434,7 +436,18 @@ constructor(
 
         check(graphConfig.input == null) { "Reprocessing is not supported for Extensions" }
 
-        // TODO(b/276971147): get extensionMode from metadata and create extensionCaptureCallback
+        val extensionMode = checkNotNull(
+            graphConfig.sessionParameters
+                [CameraPipeKeys.camera2ExtensionMode] as? Int
+        ) {
+            "The CameraPipeKeys.camera2ExtensionMode must be set in the sessionParameters of the " +
+                "CameraGraph.Config when creating an Extension CameraGraph."
+        }
+
+        // TODO: b/275575818 - check camera supports extension mode from metadata
+
+        val extensionSessionState = ExtensionSessionState(captureSessionState)
+
         val sessionConfig =
             SessionConfigData(
                 operatingMode,
@@ -443,7 +456,9 @@ constructor(
                 threads.camera2Executor,
                 captureSessionState,
                 graphConfig.sessionTemplate.value,
-                graphConfig.sessionParameters
+                graphConfig.sessionParameters,
+                extensionMode,
+                extensionSessionState
             )
 
         if (!cameraDevice.createExtensionSession(sessionConfig)) {
