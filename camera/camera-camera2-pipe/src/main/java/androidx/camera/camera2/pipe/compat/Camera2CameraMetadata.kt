@@ -48,6 +48,7 @@ constructor(
     @GuardedBy("values")
     private val values = ArrayMap<CameraCharacteristics.Key<*>, Any?>()
 
+    // TODO: b/275575818 - this here may need a switch statement on the key
     @Suppress("UNCHECKED_CAST")
     override fun <T> get(key: Metadata.Key<T>): T? = metadata[key] as T?
 
