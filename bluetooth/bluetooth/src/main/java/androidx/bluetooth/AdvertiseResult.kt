@@ -17,14 +17,14 @@
 package androidx.bluetooth
 
 import androidx.annotation.IntDef
+import androidx.annotation.RestrictTo
 import kotlin.annotation.Retention
 
 /**
  * An advertise result indicates the result of a request to start advertising, whether success
  * or failure.
- *
- * @hide
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Retention(AnnotationRetention.SOURCE)
 @IntDef(
     AdvertiseResult.ADVERTISE_STARTED,
