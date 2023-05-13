@@ -183,7 +183,7 @@ public class WorkManagerImplTest {
                         mContext,
                         mWorkManagerImpl.getConfiguration(),
                         mWorkManagerImpl.getTrackers(),
-                        mWorkManagerImpl.getProcessor(), workLauncher));
+                        mWorkManagerImpl.getProcessor(), workLauncher, workTaskExecutor));
         // Don't return any scheduler. We don't need to actually execute work for most of our tests.
         when(mWorkManagerImpl.getSchedulers()).thenReturn(Collections.<Scheduler>emptyList());
         WorkManagerImpl.setDelegate(mWorkManagerImpl);
@@ -1929,13 +1929,9 @@ public class WorkManagerImplTest {
         WorkLauncherImpl launcher = new WorkLauncherImpl(processor, workTaskExecutor);
 
         Trackers trackers = mWorkManagerImpl.getTrackers();
-        Scheduler scheduler =
-                new GreedyScheduler(
-                        mContext,
-                        mWorkManagerImpl.getConfiguration(),
-                        trackers,
-                        processor, launcher);
-        mWorkManagerImpl = createWorkManager(mContext, mConfiguration, workTaskExecutor,
+        Scheduler scheduler = new GreedyScheduler(mContext, mWorkManagerImpl.getConfiguration(),
+                        trackers, processor, launcher, workTaskExecutor);
+        mWorkManagerImpl =  createWorkManager(mContext, mConfiguration, workTaskExecutor,
                 mDatabase, trackers, processor, schedulers(scheduler));
 
         WorkManagerImpl.setDelegate(mWorkManagerImpl);

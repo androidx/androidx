@@ -54,7 +54,8 @@ class SchedulersTest {
     val processor = Processor(context, configuration, taskExecutor, db)
     val launcher = WorkLauncherImpl(processor, taskExecutor)
     val trackers = Trackers(context, taskExecutor)
-    val greedyScheduler = GreedyScheduler(context, configuration, trackers, processor, launcher)
+    val greedyScheduler = GreedyScheduler(context, configuration, trackers, processor,
+        launcher, taskExecutor)
 
     @Test
     fun runDependency() {
@@ -77,7 +78,7 @@ class SchedulersTest {
             processor: Processor ->
             listOf(
                 GreedyScheduler(context, configuration, trackers, processor,
-                    WorkLauncherImpl(processor, taskExecutor)),
+                    WorkLauncherImpl(processor, taskExecutor), taskExecutor),
                 trackingScheduler
             )
         }

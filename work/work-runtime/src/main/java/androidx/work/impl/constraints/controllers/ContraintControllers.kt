@@ -21,10 +21,41 @@ import androidx.work.Logger
 import androidx.work.NetworkType
 import androidx.work.NetworkType.TEMPORARILY_UNMETERED
 import androidx.work.NetworkType.UNMETERED
+import androidx.work.impl.constraints.ConstraintListener
+import androidx.work.impl.constraints.ConstraintsState
+import androidx.work.impl.constraints.ConstraintsState.ConstraintsMet
+import androidx.work.impl.constraints.ConstraintsState.ConstraintsNotMet
 import androidx.work.impl.constraints.NetworkState
 import androidx.work.impl.constraints.trackers.BatteryNotLowTracker
 import androidx.work.impl.constraints.trackers.ConstraintTracker
 import androidx.work.impl.model.WorkSpec
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
+
+abstract class ConstraintController<T>(
+    private val tracker: ConstraintTracker<T>
+) {
+    abstract fun hasConstraint(workSpec: WorkSpec): Boolean
+    abstract fun isConstrained(value: T): Boolean
+
+    fun track(): Flow<ConstraintsState> = callbackFlow {
+        val listener = object : ConstraintListener<T> {
+            override fun onConstraintChanged(newValue: T) {
+                val value = if (isConstrained(newValue)) ConstraintsNotMet else ConstraintsMet
+                channel.trySend(value)
+            }
+        }
+        tracker.addListener(listener)
+        awaitClose {
+            tracker.removeListener(listener)
+        }
+    }
+
+    fun isConstrained(workSpec: WorkSpec): Boolean {
+        return hasConstraint(workSpec) && isConstrained(tracker.initialState)
+    }
+}
 
 /**
  * A [ConstraintController] for battery charging events.

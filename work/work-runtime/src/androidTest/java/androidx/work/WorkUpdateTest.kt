@@ -32,6 +32,7 @@ import androidx.work.impl.WorkDatabase
 import androidx.work.impl.WorkLauncherImpl
 import androidx.work.impl.WorkManagerImpl
 import androidx.work.impl.background.greedy.GreedyScheduler
+import androidx.work.impl.constraints.ConstraintsState.ConstraintsMet
 import androidx.work.impl.constraints.trackers.Trackers
 import androidx.work.impl.testutils.TestConstraintTracker
 import androidx.work.impl.testutils.TrackingWorkerFactory
@@ -69,7 +70,8 @@ class WorkUpdateTest {
 
     val processor = Processor(context, configuration, taskExecutor, db)
     val launcher = WorkLauncherImpl(processor, taskExecutor)
-    val greedyScheduler = GreedyScheduler(context, configuration, trackers, processor, launcher)
+    val greedyScheduler = GreedyScheduler(context, configuration, trackers, processor, launcher,
+        taskExecutor)
     val workManager = WorkManagerImpl(
         context, configuration, taskExecutor, db, listOf(greedyScheduler), processor, trackers
     )
@@ -176,7 +178,7 @@ class WorkUpdateTest {
             serialExecutorBlocker.await()
         }
         // will add startWork task to the serialTaskExecutor queue
-        greedyScheduler.onAllConstraintsMet(listOf(request.workSpec))
+        greedyScheduler.onConstraintsStateChanged(request.workSpec, ConstraintsMet)
         val updatedRequest = OneTimeWorkRequest.Builder(TestWorker::class.java)
             .setConstraints(Constraints(requiresCharging = true))
             .setId(request.id)
@@ -220,7 +222,7 @@ class WorkUpdateTest {
             .setConstraints(Constraints(requiresCharging = true))
             .build()
         workManager.enqueue(request).result.get()
-        fakeChargingTracker.state = true
+        fakeChargingTracker.constraintState = true
         val runningLatch = CountDownLatch(1)
         lateinit var runningObserver: Observer<WorkInfo>
         val liveData = workManager.getWorkInfoByIdLiveData(request.id)

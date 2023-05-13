@@ -31,22 +31,13 @@ import androidx.work.impl.constraints.trackers.Trackers
 import androidx.work.impl.testutils.TestConstraintTracker
 import androidx.work.impl.testutils.TrackingWorkerFactory
 import androidx.work.impl.utils.taskexecutor.WorkManagerTaskExecutor
+import androidx.work.testutils.launchTester
 import androidx.work.worker.LatchWorker
 import androidx.work.worker.TestWorker
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.TimeoutCancellationException
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.job
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withTimeout
 import org.junit.Test
 
 @SmallTest
@@ -72,7 +63,7 @@ class WorkInfoFlowsTest {
         context, configuration, taskExecutor, db, schedulers, processor, trackers
     )
     val greedyScheduler = GreedyScheduler(context, configuration, trackers,
-        processor, WorkLauncherImpl(processor, taskExecutor))
+        processor, WorkLauncherImpl(processor, taskExecutor), taskExecutor)
 
     init {
         schedulers.add(greedyScheduler)
@@ -93,8 +84,7 @@ class WorkInfoFlowsTest {
         workManager.enqueue(unrelatedRequest)
         workManager.enqueue(request)
         assertThat(tester.awaitNext().state).isEqualTo(WorkInfo.State.ENQUEUED)
-        fakeChargingTracker.state = true
-
+        fakeChargingTracker.constraintState = true
         assertThat(tester.awaitNext().state).isEqualTo(WorkInfo.State.RUNNING)
         val worker = workerFactory.awaitWorker(request.id) as LatchWorker
         worker.mLatch.countDown()
@@ -167,37 +157,5 @@ class WorkInfoFlowsTest {
         val secondList = tester.awaitNext()
         assertThat(secondList.size).isEqualTo(2)
         assertThat(secondList.map { it.id }).containsExactly(request1.id, request2.id)
-    }
-}
-
-private fun <T> CoroutineScope.launchTester(flow: Flow<T>): FlowTester<T> {
-    val tester = FlowTester(flow)
-    // we don't block parent from completing and simply stop collecting once parent is done
-    val forked = Job()
-    coroutineContext.job.invokeOnCompletion { forked.cancel() }
-    launch(Job()) { tester.launch(this) }
-    return tester
-}
-
-private class FlowTester<T>(private val flow: Flow<T>) {
-    private val channel = Channel<T>(10)
-
-    suspend fun awaitNext(): T {
-        val result = try {
-            withTimeout(3000L) { channel.receive() }
-        } catch (e: TimeoutCancellationException) {
-            throw AssertionError("Didn't receive event")
-        }
-        val next = channel.tryReceive()
-        if (next.isSuccess || next.isClosed)
-            throw AssertionError(
-                "Two events received instead of one;\n" +
-                    "first: $result;\nsecond: ${next.getOrNull()}"
-            )
-        return result
-    }
-
-    fun launch(scope: CoroutineScope) {
-        flow.onEach { channel.send(it) }.launchIn(scope)
     }
 }
