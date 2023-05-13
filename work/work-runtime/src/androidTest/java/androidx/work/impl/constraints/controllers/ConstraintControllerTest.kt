@@ -82,10 +82,7 @@ class ConstraintControllerTest {
         InstantWorkTaskExecutor()
     ) {
         var tracking = false
-
-        override var initialState = false
-            private set
-
+        var deviceIdle = false
         override fun startTracking() {
             tracking = true
         }
@@ -95,13 +92,15 @@ class ConstraintControllerTest {
         }
 
         fun setDeviceActive() {
-            initialState = false
+            deviceIdle = false
             state = false
         }
 
         fun setDeviceIdle() {
-            initialState = true
+            deviceIdle = true
             state = true
         }
+
+        override fun readSystemState() = deviceIdle
     }
 }
