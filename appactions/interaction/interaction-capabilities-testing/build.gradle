@@ -33,7 +33,6 @@ dependencies {
 
 android {
     defaultConfig {
-        // TODO(b/266649259): lower minSdk version to 19.
         minSdkVersion 26
     }
     namespace "androidx.appactions.interaction.capabilities.testing.internal"

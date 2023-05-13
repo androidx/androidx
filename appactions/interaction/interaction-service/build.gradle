@@ -73,8 +73,6 @@ dependencies {
 android {
     namespace "androidx.appactions.interaction.service"
     defaultConfig {
-        // TODO(b/266649259): Temporary bump to 33 to support capabilities-core. Lower back to 25 to
-        // support wear:tiles
         minSdkVersion 26
     }
     defaultConfig {

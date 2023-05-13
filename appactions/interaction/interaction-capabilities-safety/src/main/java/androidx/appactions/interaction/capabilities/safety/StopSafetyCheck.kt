@@ -38,7 +38,6 @@ private const val CAPABILITY_NAME = "actions.intent.STOP_SAFETY_CHECK"
 /** A capability corresponding to actions.intent.STOP_SAFETY_CHECK */
 @CapabilityFactory(name = CAPABILITY_NAME)
 class StopSafetyCheck private constructor() {
-    // TODO(b/267805819): Update to include the SessionFactory once Session API is ready.
     class CapabilityBuilder :
         Capability.Builder<
             CapabilityBuilder, Arguments, Output, Confirmation, ExecutionSession
