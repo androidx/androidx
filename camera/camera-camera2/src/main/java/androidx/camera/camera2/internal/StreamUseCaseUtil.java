@@ -33,7 +33,6 @@ import androidx.camera.core.DynamicRange;
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.Preview;
-import androidx.camera.core.UseCase;
 import androidx.camera.core.impl.AttachedSurfaceInfo;
 import androidx.camera.core.impl.CameraMode;
 import androidx.camera.core.impl.Config;
@@ -42,6 +41,7 @@ import androidx.camera.core.impl.ImageCaptureConfig;
 import androidx.camera.core.impl.MutableOptionsBundle;
 import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.StreamSpec;
+import androidx.camera.core.impl.SurfaceConfig;
 import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.UseCaseConfigFactory;
 import androidx.camera.core.streamsharing.StreamSharing;
@@ -64,11 +64,41 @@ public final class StreamUseCaseUtil {
     public static final Config.Option<Long> STREAM_USE_CASE_STREAM_SPEC_OPTION =
             Config.Option.create("camera2.streamSpec.streamUseCase", long.class);
 
-    private StreamUseCaseUtil() {
-
-    }
+    private static final Map<Long, Set<UseCaseConfigFactory.CaptureType>>
+            sStreamUseCaseToEligibleCaptureTypesMap = new HashMap<>();
 
     private static Map<Class<?>, Long> sUseCaseToStreamUseCaseMapping;
+
+    static {
+        if (Build.VERSION.SDK_INT >= 33) {
+            Set<UseCaseConfigFactory.CaptureType> captureTypes = new HashSet<>();
+            captureTypes.add(UseCaseConfigFactory.CaptureType.PREVIEW);
+            sStreamUseCaseToEligibleCaptureTypesMap.put(
+                    Long.valueOf(
+                            CameraMetadata.SCALER_AVAILABLE_STREAM_USE_CASES_PREVIEW_VIDEO_STILL),
+                    captureTypes);
+            captureTypes = new HashSet<>();
+            captureTypes.add(UseCaseConfigFactory.CaptureType.PREVIEW);
+            captureTypes.add(UseCaseConfigFactory.CaptureType.IMAGE_ANALYSIS);
+            sStreamUseCaseToEligibleCaptureTypesMap.put(
+                    Long.valueOf(CameraMetadata.SCALER_AVAILABLE_STREAM_USE_CASES_PREVIEW),
+                    captureTypes);
+            captureTypes = new HashSet<>();
+            captureTypes.add(UseCaseConfigFactory.CaptureType.IMAGE_CAPTURE);
+            sStreamUseCaseToEligibleCaptureTypesMap.put(
+                    Long.valueOf(CameraMetadata.SCALER_AVAILABLE_STREAM_USE_CASES_STILL_CAPTURE),
+                    captureTypes);
+            captureTypes = new HashSet<>();
+            captureTypes.add(UseCaseConfigFactory.CaptureType.VIDEO_CAPTURE);
+            sStreamUseCaseToEligibleCaptureTypesMap.put(
+                    Long.valueOf(CameraMetadata.SCALER_AVAILABLE_STREAM_USE_CASES_VIDEO_RECORD),
+                    captureTypes);
+            // TODO(b/200306659): 280335572 Handle StreamSharing
+        }
+    }
+
+    private StreamUseCaseUtil() {
+    }
 
     /**
      * Populates the mapping between surfaces of a capture session and the Stream Use Case of their
@@ -231,8 +261,8 @@ public final class StreamUseCaseUtil {
     /**
      * Return true if the given feature settings is appropriate for stream use case usage.
      */
-    public static boolean shouldUseStreamUseCase(@NonNull
-            SupportedSurfaceCombination.FeatureSettings featureSettings) {
+    public static boolean shouldUseStreamUseCase(
+            @NonNull SupportedSurfaceCombination.FeatureSettings featureSettings) {
         return featureSettings.getCameraMode() == CameraMode.DEFAULT
                 && featureSettings.getRequiredMaxBitDepth() == DynamicRange.BIT_DEPTH_8_BIT;
     }
@@ -270,9 +300,12 @@ public final class StreamUseCaseUtil {
             Preconditions.checkNotNull(Preconditions.checkNotNull(
                     suggestedStreamSpecMap.get(useCaseConfig)).getImplementationOptions());
         }
-        Set<Long> availableStreamUseCaseSet = new HashSet<>();
         long[] availableStreamUseCases = characteristicsCompat.get(
                 CameraCharacteristics.SCALER_AVAILABLE_STREAM_USE_CASES);
+        if (availableStreamUseCases == null || availableStreamUseCases.length == 0) {
+            return false;
+        }
+        Set<Long> availableStreamUseCaseSet = new HashSet<>();
         for (Long availableStreamUseCase : availableStreamUseCases) {
             availableStreamUseCaseSet.add(availableStreamUseCase);
         }
@@ -286,16 +319,8 @@ public final class StreamUseCaseUtil {
                                 oldImplementationOptions.retrieveOption(
                                         Camera2ImplConfig.STREAM_USE_CASE_OPTION));
                 if (newImplementationOptions != null) {
-                    StreamSpec.Builder newStreamSpecBuilder =
-                            StreamSpec.builder(attachedSurfaceInfo.getSize())
-                                    .setDynamicRange(attachedSurfaceInfo.getDynamicRange())
-                                    .setImplementationOptions(newImplementationOptions);
-                    if (attachedSurfaceInfo.getTargetFrameRate() != null) {
-                        newStreamSpecBuilder.setExpectedFrameRateRange(
-                                attachedSurfaceInfo.getTargetFrameRate());
-                    }
                     attachedSurfaceStreamSpecMap.put(attachedSurfaceInfo,
-                            newStreamSpecBuilder.build());
+                            attachedSurfaceInfo.toStreamSpec(newImplementationOptions));
                 }
             }
             for (UseCaseConfig<?> newUseCaseConfig : newUseCaseConfigs) {
@@ -315,6 +340,147 @@ public final class StreamUseCaseUtil {
             return true;
         }
         return false;
+    }
+
+    /**
+     * Return true if  the stream use cases in the given surface configurations are available for
+     * the device.
+     */
+    public static boolean areStreamUseCasesAvailableForSurfaceConfigs(
+            @NonNull CameraCharacteristicsCompat characteristicsCompat,
+            @NonNull List<SurfaceConfig> surfaceConfigs) {
+        if (Build.VERSION.SDK_INT < 33) {
+            return false;
+        }
+        long[] availableStreamUseCases = characteristicsCompat.get(
+                CameraCharacteristics.SCALER_AVAILABLE_STREAM_USE_CASES);
+        if (availableStreamUseCases == null || availableStreamUseCases.length == 0) {
+            return false;
+        }
+        Set<Long> availableStreamUseCaseSet = new HashSet<>();
+        for (Long availableStreamUseCase : availableStreamUseCases) {
+            availableStreamUseCaseSet.add(availableStreamUseCase);
+        }
+        for (SurfaceConfig surfaceConfig : surfaceConfigs) {
+            if (!availableStreamUseCaseSet.contains(surfaceConfig.getStreamUseCase())) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Return true if the given capture type and stream use case are a eligible pair.
+     */
+    private static boolean isEligibleCaptureType(UseCaseConfigFactory.CaptureType captureType,
+            long streamUseCase) {
+        if (Build.VERSION.SDK_INT < 33) {
+            return false;
+        }
+        return sStreamUseCaseToEligibleCaptureTypesMap.containsKey(streamUseCase)
+                && sStreamUseCaseToEligibleCaptureTypesMap.get(streamUseCase).contains(
+                captureType);
+    }
+
+    /**
+     * Return true if the stream use cases contained in surfaceConfigsWithStreamUseCases all have
+     * eligible capture type pairing with the use cases that these surfaceConfigs are constructed
+     * from.
+     *
+     * @param surfaceConfigIndexAttachedSurfaceInfoMap mapping between an surfaceConfig's index
+     *                                                 in the list and the attachedSurfaceInfo it
+     *                                                 is constructed from
+     * @param surfaceConfigIndexUseCaseConfigMap       mapping between an surfaceConfig's index
+     *      *                                          in the list and the useCaseConfig it is
+     *                                                 constructed from
+     * @param surfaceConfigsWithStreamUseCase          the supported surfaceConfigs that contains
+     *                                                 accurate streamUseCases
+     */
+    public static boolean areCaptureTypesEligible(
+            @NonNull Map<Integer, AttachedSurfaceInfo> surfaceConfigIndexAttachedSurfaceInfoMap,
+            @NonNull Map<Integer, UseCaseConfig<?>> surfaceConfigIndexUseCaseConfigMap,
+            @NonNull List<SurfaceConfig> surfaceConfigsWithStreamUseCase) {
+        for (int i = 0; i < surfaceConfigsWithStreamUseCase.size(); i++) {
+            // Verify that the use case has the eligible capture type the given stream use case.
+            long streamUseCase = surfaceConfigsWithStreamUseCase.get(i).getStreamUseCase();
+            if (surfaceConfigIndexAttachedSurfaceInfoMap.containsKey(i)) {
+                AttachedSurfaceInfo attachedSurfaceInfo =
+                        surfaceConfigIndexAttachedSurfaceInfoMap.get(i);
+                if (!isEligibleCaptureType(attachedSurfaceInfo.getCaptureTypes().size() == 1
+                        ? attachedSurfaceInfo.getCaptureTypes().get(0) :
+                        UseCaseConfigFactory.CaptureType.STREAM_SHARING, streamUseCase)) {
+                    return false;
+                }
+            } else if (surfaceConfigIndexUseCaseConfigMap.containsKey(i)) {
+                UseCaseConfig<?> newUseCaseConfig =
+                        surfaceConfigIndexUseCaseConfigMap.get(i);
+                if (!isEligibleCaptureType(newUseCaseConfig.getCaptureType(), streamUseCase)) {
+                    return false;
+                }
+            } else {
+                throw new AssertionError("SurfaceConfig does not map to any use case");
+            }
+        }
+        return true;
+    }
+
+    /**
+     * @param suggestedStreamSpecMap                   mapping between useCaseConfig and its
+     *                                                 streamSpecs
+     * @param attachedSurfaceStreamSpecMap             mapping between attachedSurfaceInfo and its
+     *                                                 streamSpecs that contains streamUseCases.
+     *                                                 All streamSpecs in this map has
+     *                                                 streamUseCases
+     * @param surfaceConfigIndexAttachedSurfaceInfoMap mapping between an surfaceConfig's index
+     *                                                 in the list and the
+     *                                                 attachedSurfaceInfo it
+     *                                                 is constructed from
+     *@param surfaceConfigIndexUseCaseConfigMap        mapping between an surfaceConfig's
+     *                                                 index in the list and the useCaseConfig
+     *                                                 it is constructed from
+     * @param surfaceConfigsWithStreamUseCase          the supported surfaceConfigs that contains
+     *                                                 accurate streamUseCases
+     */
+    public static void populateStreamUseCaseStreamSpecOptionWithSupportedSurfaceConfigs(
+            @NonNull Map<UseCaseConfig<?>, StreamSpec> suggestedStreamSpecMap,
+            @NonNull Map<AttachedSurfaceInfo, StreamSpec> attachedSurfaceStreamSpecMap,
+            @NonNull Map<Integer, AttachedSurfaceInfo> surfaceConfigIndexAttachedSurfaceInfoMap,
+            @NonNull Map<Integer, UseCaseConfig<?>> surfaceConfigIndexUseCaseConfigMap,
+            @NonNull List<SurfaceConfig> surfaceConfigsWithStreamUseCase) {
+        // Populate StreamSpecs with stream use cases.
+        for (int i = 0; i < surfaceConfigsWithStreamUseCase.size(); i++) {
+            long streamUseCase = surfaceConfigsWithStreamUseCase.get(i).getStreamUseCase();
+            if (surfaceConfigIndexAttachedSurfaceInfoMap.containsKey(i)) {
+                AttachedSurfaceInfo attachedSurfaceInfo =
+                        surfaceConfigIndexAttachedSurfaceInfoMap.get(i);
+                Config oldImplementationOptions = attachedSurfaceInfo.getImplementationOptions();
+                Config newImplementationOptions =
+                        getUpdatedImplementationOptionsWithUseCaseStreamSpecOption(
+                                oldImplementationOptions, streamUseCase);
+                if (newImplementationOptions != null) {
+                    attachedSurfaceStreamSpecMap.put(attachedSurfaceInfo,
+                            attachedSurfaceInfo.toStreamSpec(newImplementationOptions));
+                }
+            } else if (surfaceConfigIndexUseCaseConfigMap.containsKey(i)) {
+                UseCaseConfig<?> newUseCaseConfig =
+                        surfaceConfigIndexUseCaseConfigMap.get(i);
+                StreamSpec oldStreamSpec = suggestedStreamSpecMap.get(newUseCaseConfig);
+                Config oldImplementationOptions = oldStreamSpec.getImplementationOptions();
+                Config newImplementationOptions =
+                        getUpdatedImplementationOptionsWithUseCaseStreamSpecOption(
+                                oldImplementationOptions, streamUseCase);
+                if (newImplementationOptions != null) {
+                    StreamSpec newStreamSpec =
+                            oldStreamSpec.toBuilder().setImplementationOptions(
+                                    newImplementationOptions).build();
+                    suggestedStreamSpecMap.put(newUseCaseConfig, newStreamSpec);
+                }
+
+            } else {
+                throw new AssertionError("SurfaceConfig does not map to any use case");
+            }
+        }
+
     }
 
     /**
