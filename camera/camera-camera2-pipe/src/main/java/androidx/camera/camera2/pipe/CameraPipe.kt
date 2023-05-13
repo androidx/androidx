@@ -89,9 +89,7 @@ class CameraPipe(config: Config) {
             "All camera IDs specified should be distinct!"
         }
         val configs = concurrentConfigs.map { config ->
-            config.copy(
-                flags = config.flags.copy(allowMultipleActiveCameras = true),
-            ).apply {
+            config.apply {
                 sharedCameraIds = allCameraIds.filter { it != config.camera }
             }
         }

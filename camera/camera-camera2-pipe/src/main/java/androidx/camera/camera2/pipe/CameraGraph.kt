@@ -148,7 +148,6 @@ interface CameraGraph : AutoCloseable {
     data class Flags(
         val configureBlankSessionOnStop: Boolean = false,
         val abortCapturesOnStop: Boolean = false,
-        val allowMultipleActiveCameras: Boolean = false,
 
         /**
          * A quirk that waits for the last repeating capture request to start before stopping the
