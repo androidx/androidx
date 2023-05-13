@@ -82,7 +82,7 @@ package androidx.compose.animation {
   public final class CrossfadeKt {
     method @androidx.compose.animation.ExperimentalAnimationApi @androidx.compose.runtime.Composable public static <T> void Crossfade(androidx.compose.animation.core.Transition<T>, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.animation.core.FiniteAnimationSpec<java.lang.Float> animationSpec, optional kotlin.jvm.functions.Function1<? super T,?> contentKey, kotlin.jvm.functions.Function1<? super T,kotlin.Unit> content);
     method @androidx.compose.runtime.Composable public static <T> void Crossfade(T targetState, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.animation.core.FiniteAnimationSpec<java.lang.Float> animationSpec, optional String label, kotlin.jvm.functions.Function1<? super T,kotlin.Unit> content);
-    method @Deprecated @androidx.compose.runtime.Composable public static <T> void Crossfade(T targetState, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.animation.core.FiniteAnimationSpec<java.lang.Float> animationSpec, kotlin.jvm.functions.Function1<? super T,? extends kotlin.Unit> content);
+    method @Deprecated @androidx.compose.runtime.Composable public static <T> void Crossfade(T targetState, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.animation.core.FiniteAnimationSpec<java.lang.Float> animationSpec, kotlin.jvm.functions.Function1<? super T,kotlin.Unit> content);
   }
 
   @androidx.compose.animation.ExperimentalAnimationApi public enum EnterExitState {
@@ -138,7 +138,7 @@ package androidx.compose.animation {
   public final class SingleValueAnimationKt {
     method public static androidx.compose.animation.core.Animatable<androidx.compose.ui.graphics.Color,androidx.compose.animation.core.AnimationVector4D> Animatable(long initialValue);
     method @androidx.compose.runtime.Composable public static androidx.compose.runtime.State<androidx.compose.ui.graphics.Color> animateColorAsState(long targetValue, optional androidx.compose.animation.core.AnimationSpec<androidx.compose.ui.graphics.Color> animationSpec, optional String label, optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.Color,kotlin.Unit>? finishedListener);
-    method @Deprecated @androidx.compose.runtime.Composable public static androidx.compose.runtime.State<? extends androidx.compose.ui.graphics.Color> animateColorAsState(long targetValue, optional androidx.compose.animation.core.AnimationSpec<androidx.compose.ui.graphics.Color> animationSpec, optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.Color,? extends kotlin.Unit>? finishedListener);
+    method @Deprecated @androidx.compose.runtime.Composable public static androidx.compose.runtime.State<androidx.compose.ui.graphics.Color> animateColorAsState(long targetValue, optional androidx.compose.animation.core.AnimationSpec<androidx.compose.ui.graphics.Color> animationSpec, optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.Color,kotlin.Unit>? finishedListener);
   }
 
   public interface SizeTransform {
@@ -167,7 +167,7 @@ package androidx.compose.animation {
   }
 
   public final class TransitionKt {
-    method @Deprecated @androidx.compose.runtime.Composable public static androidx.compose.runtime.State<? extends androidx.compose.ui.graphics.Color> animateColor(androidx.compose.animation.core.InfiniteTransition, long initialValue, long targetValue, androidx.compose.animation.core.InfiniteRepeatableSpec<androidx.compose.ui.graphics.Color> animationSpec);
+    method @Deprecated @androidx.compose.runtime.Composable public static androidx.compose.runtime.State<androidx.compose.ui.graphics.Color> animateColor(androidx.compose.animation.core.InfiniteTransition, long initialValue, long targetValue, androidx.compose.animation.core.InfiniteRepeatableSpec<androidx.compose.ui.graphics.Color> animationSpec);
     method @androidx.compose.runtime.Composable public static androidx.compose.runtime.State<androidx.compose.ui.graphics.Color> animateColor(androidx.compose.animation.core.InfiniteTransition, long initialValue, long targetValue, androidx.compose.animation.core.InfiniteRepeatableSpec<androidx.compose.ui.graphics.Color> animationSpec, optional String label);
     method @androidx.compose.runtime.Composable public static inline <S> androidx.compose.runtime.State<androidx.compose.ui.graphics.Color> animateColor(androidx.compose.animation.core.Transition<S>, optional kotlin.jvm.functions.Function1<? super androidx.compose.animation.core.Transition.Segment<S>,? extends androidx.compose.animation.core.FiniteAnimationSpec<androidx.compose.ui.graphics.Color>> transitionSpec, optional String label, kotlin.jvm.functions.Function1<? super S,androidx.compose.ui.graphics.Color> targetValueByState);
   }
