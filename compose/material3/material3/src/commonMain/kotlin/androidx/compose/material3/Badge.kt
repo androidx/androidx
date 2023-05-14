@@ -27,6 +27,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.tokens.BadgeTokens
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -34,8 +38,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.FirstBaseline
 import androidx.compose.ui.layout.LastBaseline
 import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.layout.boundsInWindow
 import androidx.compose.ui.layout.layoutId
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.unit.dp
+import kotlin.math.roundToInt
 
 /**
  * Material Design badge box.
@@ -64,6 +71,13 @@ fun BadgedBox(
     modifier: Modifier = Modifier,
     content: @Composable BoxScope.() -> Unit,
 ) {
+    var layoutAbsoluteLeft by remember { mutableFloatStateOf(0f) }
+    var layoutAbsoluteTop by remember { mutableFloatStateOf(0f) }
+    // We use Float.POSITIVE_INFINITY and Float.NEGATIVE_INFINITY to represent the case
+    // when there isn't a great grand parent layout.
+    var greatGrandParentAbsoluteRight by remember { mutableFloatStateOf(Float.POSITIVE_INFINITY) }
+    var greatGrandParentAbsoluteTop by remember { mutableFloatStateOf(Float.NEGATIVE_INFINITY) }
+
     Layout(
         {
             Box(
@@ -77,6 +91,16 @@ fun BadgedBox(
             )
         },
         modifier = modifier
+            .onGloballyPositioned { coordinates ->
+                layoutAbsoluteLeft = coordinates.boundsInWindow().left
+                layoutAbsoluteTop = coordinates.boundsInWindow().top
+                val layoutGreatGrandParent =
+                    coordinates.parentLayoutCoordinates?.parentLayoutCoordinates?.parentCoordinates
+                layoutGreatGrandParent?.let {
+                    greatGrandParentAbsoluteRight = it.boundsInWindow().right
+                    greatGrandParentAbsoluteTop = it.boundsInWindow().top
+                }
+            }
     ) { measurables, constraints ->
 
         val badgePlaceable = measurables.first { it.layoutId == "badge" }.measure(
@@ -111,8 +135,25 @@ fun BadgedBox(
                 if (hasContent) BadgeWithContentVerticalOffset else BadgeOffset
 
             anchorPlaceable.placeRelative(0, 0)
-            val badgeX = anchorPlaceable.width + badgeHorizontalOffset.roundToPx()
-            val badgeY = -badgePlaceable.height / 2 + badgeVerticalOffset.roundToPx()
+
+            // Desired Badge placement
+            var badgeX = anchorPlaceable.width + badgeHorizontalOffset.roundToPx()
+            var badgeY = -badgePlaceable.height / 2 + badgeVerticalOffset.roundToPx()
+            // Badge correction logic if the badge will be cut off by the grandparent bounds.
+            val badgeAbsoluteTop = layoutAbsoluteTop + badgeY
+            val badgeAbsoluteRight = layoutAbsoluteLeft + badgeX + badgePlaceable.width.toFloat()
+            val badgeGreatGrandParentHorizontalDiff =
+                greatGrandParentAbsoluteRight - badgeAbsoluteRight
+            val badgeGreatGrandParentVerticalDiff =
+                badgeAbsoluteTop - greatGrandParentAbsoluteTop
+            // Adjust badgeX and badgeY if the desired placement would cause it to clip.
+            if (badgeGreatGrandParentHorizontalDiff < 0) {
+                badgeX += badgeGreatGrandParentHorizontalDiff.roundToInt()
+            }
+            if (badgeGreatGrandParentVerticalDiff < 0) {
+                badgeY -= badgeGreatGrandParentVerticalDiff.roundToInt()
+            }
+
             badgePlaceable.placeRelative(badgeX, badgeY)
         }
     }
