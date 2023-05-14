@@ -111,6 +111,7 @@ final class VideoEncoderSession {
         switch (mVideoEncoderState) {
             case NOT_INITIALIZED:
                 mVideoEncoderState = VideoEncoderState.INITIALIZING;
+
                 mSurfaceRequest = surfaceRequest;
                 Logger.d(TAG, "Create VideoEncoderSession: " + this);
                 mReleasedFuture = CallbackToFutureAdapter.getFuture(closeCompleter -> {
@@ -333,6 +334,7 @@ final class VideoEncoderSession {
                                 closeInternal();
                                 break;
                             }
+
                             mActiveSurface = surface;
                             Logger.d(TAG, "provide surface: " + surface);
                             surfaceRequest.provideSurface(surface, mSequentialExecutor,

@@ -975,6 +975,110 @@ class VideoRecordingTest(
         }
     }
 
+    @Test
+    fun canContinueRecordingAfterRebind() {
+        val videoCapture = VideoCapture.withOutput(Recorder.Builder().build())
+
+        instrumentation.runOnMainSync {
+            cameraProvider.bindToLifecycle(lifecycleOwner, cameraSelector, preview, videoCapture)
+        }
+
+        val file = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
+        val recording =
+            videoCapture.output.prepareRecording(context, FileOutputOptions.Builder(file).build())
+                .withAudioEnabled()
+                .asPersistentRecording()
+                .start(CameraXExecutors.directExecutor(), mockVideoRecordEventConsumer)
+
+        mockVideoRecordEventConsumer.verifyRecordingStartSuccessfully()
+
+        mockVideoRecordEventConsumer.clearAcceptCalls()
+
+        instrumentation.runOnMainSync {
+            cameraProvider.unbindAll()
+            cameraProvider.bindToLifecycle(lifecycleOwner, cameraSelector, preview, videoCapture)
+        }
+
+        mockVideoRecordEventConsumer.verifyAcceptCall(
+            VideoRecordEvent.Status::class.java,
+            true,
+            STATUS_TIMEOUT,
+            CallTimesAtLeast(5)
+        )
+
+        recording.stop()
+
+        mockVideoRecordEventConsumer.verifyAcceptCall(
+            VideoRecordEvent.Finalize::class.java,
+            true,
+            GENERAL_TIMEOUT
+        )
+
+        verifyRecordingResult(file, true)
+
+        file.delete()
+    }
+
+    @Test
+    fun canContinueRecordingPausedAfterRebind() {
+        val videoCapture = VideoCapture.withOutput(Recorder.Builder().build())
+
+        instrumentation.runOnMainSync {
+            cameraProvider.bindToLifecycle(lifecycleOwner, cameraSelector, preview, videoCapture)
+        }
+
+        val file = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
+        val recording =
+            videoCapture.output.prepareRecording(context, FileOutputOptions.Builder(file).build())
+                .withAudioEnabled()
+                .asPersistentRecording()
+                .start(CameraXExecutors.directExecutor(), mockVideoRecordEventConsumer)
+
+        mockVideoRecordEventConsumer.verifyRecordingStartSuccessfully()
+
+        recording.pause()
+
+        mockVideoRecordEventConsumer.verifyAcceptCall(
+            VideoRecordEvent.Pause::class.java,
+            true,
+            GENERAL_TIMEOUT
+        )
+
+        mockVideoRecordEventConsumer.clearAcceptCalls()
+
+        instrumentation.runOnMainSync {
+            cameraProvider.unbindAll()
+            cameraProvider.bindToLifecycle(lifecycleOwner, cameraSelector, preview, videoCapture)
+        }
+
+        recording.resume()
+
+        mockVideoRecordEventConsumer.verifyAcceptCall(
+            VideoRecordEvent.Resume::class.java,
+            true,
+            GENERAL_TIMEOUT
+        )
+
+        mockVideoRecordEventConsumer.verifyAcceptCall(
+            VideoRecordEvent.Status::class.java,
+            true,
+            STATUS_TIMEOUT,
+            CallTimesAtLeast(5)
+        )
+
+        recording.stop()
+
+        mockVideoRecordEventConsumer.verifyAcceptCall(
+            VideoRecordEvent.Finalize::class.java,
+            true,
+            GENERAL_TIMEOUT
+        )
+
+        verifyRecordingResult(file, true)
+
+        file.delete()
+    }
+
     private fun startVideoRecording(videoCapture: VideoCapture<Recorder>, file: File):
         Recording {
         val recording = videoCapture.output
