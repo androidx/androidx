@@ -262,6 +262,7 @@ public class CameraXActivity extends AppCompatActivity {
     View mViewFinder;
     private List<UseCase> mUseCases;
     ExecutorService mImageCaptureExecutorService;
+    private Recorder mRecorder;
     Camera mCamera;
 
     private CameraSelector mLaunchingCameraIdSelector = null;
@@ -571,6 +572,9 @@ public class CameraXActivity extends AppCompatActivity {
 
                     resetVideoSavedIdlingResource();
 
+                    if (isPersistentRecordingEnabled()) {
+                        pendingRecording.asPersistentRecording();
+                    }
                     mActiveRecording = pendingRecording
                             .withAudioEnabled()
                             .start(ContextCompat.getMainExecutor(CameraXActivity.this),
@@ -1197,7 +1201,8 @@ public class CameraXActivity extends AppCompatActivity {
                 findViewById(R.id.Video),
                 findViewById(R.id.video_pause),
                 findViewById(R.id.video_stats),
-                findViewById(R.id.video_quality)
+                findViewById(R.id.video_quality),
+                findViewById(R.id.video_persistent)
         );
 
         setUpButtonEvents();
@@ -1384,9 +1389,8 @@ public class CameraXActivity extends AppCompatActivity {
             mCamera.getCameraInfo().getZoomState().removeObservers(this);
         }
 
-        // Stop video recording if exists.
-        if (mRecordUi.getState() == RecordUi.State.RECORDING
-                || mRecordUi.getState() == RecordUi.State.PAUSED) {
+        // Stop in-progress video recording if it's not a persistent recording.
+        if (hasRunningRecording() && !isPersistentRecordingEnabled()) {
             mActiveRecording.stop();
             mActiveRecording = null;
             mRecordUi.setState(RecordUi.State.STOPPING);
@@ -1437,6 +1441,15 @@ public class CameraXActivity extends AppCompatActivity {
             }
         }
         updateButtonsUi();
+    }
+
+    private boolean hasRunningRecording() {
+        RecordUi.State recordState = mRecordUi.getState();
+        return recordState == RecordUi.State.RECORDING || recordState == RecordUi.State.PAUSED;
+    }
+
+    private boolean isPersistentRecordingEnabled() {
+        return mRecordUi.getButtonPersistent().isChecked();
     }
 
     /**
@@ -1519,11 +1532,17 @@ public class CameraXActivity extends AppCompatActivity {
         }
 
         if (mVideoToggle.isChecked()) {
-            Recorder.Builder builder = new Recorder.Builder();
-            if (mVideoQuality != QUALITY_AUTO) {
-                builder.setQualitySelector(QualitySelector.from(mVideoQuality));
+            // Recreate the Recorder except there's a running persistent recording, existing
+            // Recorder. We may later consider reuse the Recorder everytime if the quality didn't
+            // change.
+            if (mRecorder == null || !(hasRunningRecording() && isPersistentRecordingEnabled())) {
+                Recorder.Builder builder = new Recorder.Builder();
+                if (mVideoQuality != QUALITY_AUTO) {
+                    builder.setQualitySelector(QualitySelector.from(mVideoQuality));
+                }
+                mRecorder = builder.build();
             }
-            VideoCapture<Recorder> videoCapture = new VideoCapture.Builder<>(builder.build())
+            VideoCapture<Recorder> videoCapture = new VideoCapture.Builder<>(mRecorder)
                     .setMirrorMode(MIRROR_MODE_ON_FRONT_ONLY)
                     .build();
             useCases.add(videoCapture);
@@ -1851,15 +1870,18 @@ public class CameraXActivity extends AppCompatActivity {
         private final Button mButtonPause;
         private final TextView mTextStats;
         private final Button mButtonQuality;
+        private final ToggleButton mButtonPersistent;
         private boolean mEnabled = false;
         private State mState = State.IDLE;
 
         RecordUi(@NonNull Button buttonRecord, @NonNull Button buttonPause,
-                @NonNull TextView textStats, @NonNull Button buttonQuality) {
+                @NonNull TextView textStats, @NonNull Button buttonQuality,
+                @NonNull ToggleButton buttonPersistent) {
             mButtonRecord = buttonRecord;
             mButtonPause = buttonPause;
             mTextStats = textStats;
             mButtonQuality = buttonQuality;
+            mButtonPersistent = buttonPersistent;
         }
 
         void setEnabled(boolean enabled) {
@@ -1868,6 +1890,7 @@ public class CameraXActivity extends AppCompatActivity {
                 mTextStats.setText("");
                 mTextStats.setVisibility(View.VISIBLE);
                 mButtonQuality.setVisibility(View.VISIBLE);
+                mButtonPersistent.setVisibility(View.VISIBLE);
                 updateUi();
             } else {
                 mButtonRecord.setText("Record");
@@ -1875,6 +1898,7 @@ public class CameraXActivity extends AppCompatActivity {
                 mButtonPause.setVisibility(View.INVISIBLE);
                 mButtonQuality.setVisibility(View.INVISIBLE);
                 mTextStats.setVisibility(View.GONE);
+                mButtonPersistent.setVisibility(View.INVISIBLE);
             }
         }
 
@@ -1892,6 +1916,7 @@ public class CameraXActivity extends AppCompatActivity {
             mButtonRecord.setVisibility(View.GONE);
             mButtonPause.setVisibility(View.GONE);
             mTextStats.setVisibility(View.GONE);
+            mButtonPersistent.setVisibility(View.GONE);
         }
 
         private void updateUi() {
@@ -1904,24 +1929,32 @@ public class CameraXActivity extends AppCompatActivity {
                     mButtonRecord.setEnabled(true);
                     mButtonPause.setText("Pause");
                     mButtonPause.setVisibility(View.INVISIBLE);
+                    mButtonPersistent.setClickable(true);
+                    mButtonQuality.setClickable(true);
                     break;
                 case RECORDING:
                     mButtonRecord.setText("Stop");
                     mButtonRecord.setEnabled(true);
                     mButtonPause.setText("Pause");
                     mButtonPause.setVisibility(View.VISIBLE);
+                    mButtonPersistent.setClickable(false);
+                    mButtonQuality.setClickable(false);
                     break;
                 case STOPPING:
                     mButtonRecord.setText("Saving");
                     mButtonRecord.setEnabled(false);
                     mButtonPause.setText("Pause");
                     mButtonPause.setVisibility(View.INVISIBLE);
+                    mButtonPersistent.setClickable(false);
+                    mButtonQuality.setClickable(true);
                     break;
                 case PAUSED:
                     mButtonRecord.setText("Stop");
                     mButtonRecord.setEnabled(true);
                     mButtonPause.setText("Resume");
                     mButtonPause.setVisibility(View.VISIBLE);
+                    mButtonPersistent.setClickable(false);
+                    mButtonQuality.setClickable(true);
                     break;
             }
         }
@@ -1941,6 +1974,10 @@ public class CameraXActivity extends AppCompatActivity {
         @NonNull
         Button getButtonQuality() {
             return mButtonQuality;
+        }
+
+        ToggleButton getButtonPersistent() {
+            return mButtonPersistent;
         }
     }
 

@@ -129,6 +129,23 @@ limitations under the License.
         app:layout_constraintVertical_bias="1.0" />
 
     <ToggleButton
+        android:id="@+id/video_persistent"
+        android:layout_width="46dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="1dp"
+        android:layout_marginRight="5dp"
+        android:scaleType="fitXY"
+        android:textColor="#EEEEEE"
+        android:textSize="14dp"
+        android:textOn="@string/toggle_video_persistent_on"
+        android:textOff="@string/toggle_video_persistent_off"
+        android:visibility="invisible"
+        android:checked="false"
+        android:background="@drawable/round_toggle_button"
+        app:layout_constraintTop_toBottomOf="@id/video_quality"
+        app:layout_constraintRight_toRightOf="parent" />
+
+    <ToggleButton
         android:id="@+id/VideoToggle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
