@@ -150,13 +150,13 @@ public class ProtoLayoutDynamicDataPipeline {
         if (sensorGateway != null) {
             evaluatorConfigBuilder.addPlatformDataProvider(
                     new SensorGatewaySingleDataProvider(
-                            sensorGateway, PlatformHealthSources.HEART_RATE_BPM),
-                    Collections.singleton(PlatformHealthSources.HEART_RATE_BPM)
+                            sensorGateway, PlatformHealthSources.Keys.HEART_RATE_BPM),
+                    Collections.singleton(PlatformHealthSources.Keys.HEART_RATE_BPM)
             );
             evaluatorConfigBuilder.addPlatformDataProvider(
                     new SensorGatewaySingleDataProvider(
-                            sensorGateway, PlatformHealthSources.DAILY_STEPS),
-                    Collections.singleton(PlatformHealthSources.DAILY_STEPS)
+                            sensorGateway, PlatformHealthSources.Keys.DAILY_STEPS),
+                    Collections.singleton(PlatformHealthSources.Keys.DAILY_STEPS)
             );
         }
         if (enableAnimations) {

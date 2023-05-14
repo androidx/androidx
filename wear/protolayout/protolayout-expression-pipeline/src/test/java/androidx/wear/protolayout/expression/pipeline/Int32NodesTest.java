@@ -37,6 +37,7 @@ import androidx.wear.protolayout.expression.pipeline.Int32Nodes.GetDurationPartO
 import androidx.wear.protolayout.expression.pipeline.Int32Nodes.LegacyPlatformInt32SourceNode;
 import androidx.wear.protolayout.expression.pipeline.Int32Nodes.StateInt32SourceNode;
 import androidx.wear.protolayout.expression.proto.AnimationParameterProto.AnimationSpec;
+import androidx.wear.protolayout.expression.proto.DynamicDataProto.DynamicDataValue;
 import androidx.wear.protolayout.expression.proto.DynamicProto.AnimatableFixedInt32;
 import androidx.wear.protolayout.expression.proto.DynamicProto.DurationPartType;
 import androidx.wear.protolayout.expression.proto.DynamicProto.GetDurationPartOp;
@@ -44,7 +45,6 @@ import androidx.wear.protolayout.expression.proto.DynamicProto.PlatformInt32Sour
 import androidx.wear.protolayout.expression.proto.DynamicProto.PlatformInt32SourceType;
 import androidx.wear.protolayout.expression.proto.DynamicProto.StateInt32Source;
 import androidx.wear.protolayout.expression.proto.FixedProto.FixedInt32;
-import androidx.wear.protolayout.expression.proto.DynamicDataProto.DynamicDataValue;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
@@ -60,7 +60,6 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.Executor;
 
 @RunWith(AndroidJUnit4.class)
 public class Int32NodesTest {
@@ -232,13 +231,13 @@ public class Int32NodesTest {
         StateStore stateStore = new StateStore(new ArrayMap<>());
         stateStore.putAllPlatformProviders(
                 Collections.singletonMap(
-                        PlatformHealthSources.DAILY_STEPS,
+                        PlatformHealthSources.Keys.DAILY_STEPS,
                         new SensorGatewaySingleDataProvider(
-                                fakeSensorGateway, PlatformHealthSources.DAILY_STEPS)));
+                                fakeSensorGateway, PlatformHealthSources.Keys.DAILY_STEPS)));
         StateInt32Source dailyStepsSource =
                 StateInt32Source.newBuilder()
-                        .setSourceKey(PlatformHealthSources.DAILY_STEPS.getKey())
-                        .setSourceNamespace(PlatformHealthSources.DAILY_STEPS.getNamespace())
+                        .setSourceKey(PlatformHealthSources.Keys.DAILY_STEPS.getKey())
+                        .setSourceNamespace(PlatformHealthSources.Keys.DAILY_STEPS.getNamespace())
                         .build();
         List<Integer> results = new ArrayList<>();
         StateInt32SourceNode dailyStepsSourceNode =
@@ -399,9 +398,9 @@ public class Int32NodesTest {
         StateStore stateStore = new StateStore(new ArrayMap<>());
         stateStore.putAllPlatformProviders(
                 Collections.singletonMap(
-                        PlatformHealthSources.HEART_RATE_BPM,
+                        PlatformHealthSources.Keys.HEART_RATE_BPM,
                         new SensorGatewaySingleDataProvider(
-                                fakeSensorGateway, PlatformHealthSources.HEART_RATE_BPM)));
+                                fakeSensorGateway, PlatformHealthSources.Keys.HEART_RATE_BPM)));
         PlatformInt32Source platformSource =
                 PlatformInt32Source.newBuilder()
                         .setSourceType(
@@ -434,9 +433,9 @@ public class Int32NodesTest {
         StateStore stateStore = new StateStore(new ArrayMap<>());
         stateStore.putAllPlatformProviders(
                 Collections.singletonMap(
-                        PlatformHealthSources.DAILY_STEPS,
+                        PlatformHealthSources.Keys.DAILY_STEPS,
                         new SensorGatewaySingleDataProvider(
-                                fakeSensorGateway, PlatformHealthSources.DAILY_STEPS)));
+                                fakeSensorGateway, PlatformHealthSources.Keys.DAILY_STEPS)));
         PlatformInt32Source platformSource =
                 PlatformInt32Source.newBuilder()
                         .setSourceType(
@@ -469,9 +468,9 @@ public class Int32NodesTest {
         StateStore stateStore = new StateStore(new ArrayMap<>());
         stateStore.putAllPlatformProviders(
                 Collections.singletonMap(
-                        PlatformHealthSources.HEART_RATE_BPM,
+                        PlatformHealthSources.Keys.HEART_RATE_BPM,
                         new SensorGatewaySingleDataProvider(
-                                fakeSensorGateway, PlatformHealthSources.HEART_RATE_BPM)));
+                                fakeSensorGateway, PlatformHealthSources.Keys.HEART_RATE_BPM)));
         PlatformInt32Source platformSource =
                 PlatformInt32Source.newBuilder()
                         .setSourceType(
