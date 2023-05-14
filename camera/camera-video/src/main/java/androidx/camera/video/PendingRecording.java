@@ -24,6 +24,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RequiresPermission;
+import androidx.annotation.RestrictTo;
+import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.core.impl.utils.ContextUtil;
 import androidx.core.content.PermissionChecker;
 import androidx.core.util.Consumer;
@@ -56,8 +58,8 @@ public final class PendingRecording {
     private final OutputOptions mOutputOptions;
     private Consumer<VideoRecordEvent> mEventListener;
     private Executor mListenerExecutor;
-
     private boolean mAudioEnabled = false;
+    private boolean mIsPersistent = false;
 
     PendingRecording(@NonNull Context context, @NonNull Recorder recorder,
             @NonNull OutputOptions options) {
@@ -102,6 +104,10 @@ public final class PendingRecording {
         return mAudioEnabled;
     }
 
+    boolean isPersistent() {
+        return mIsPersistent;
+    }
+
     /**
      * Enables audio to be recorded for this recording.
      *
@@ -134,6 +140,21 @@ public final class PendingRecording {
         Preconditions.checkState(mRecorder.isAudioSupported(), "The Recorder this recording is "
                 + "associated to doesn't support audio.");
         mAudioEnabled = true;
+        return this;
+    }
+
+    /**
+     * Configures the recording to be a persistent recording.
+     *
+     * <p>A persistent recording will only be stopped by explicitly calling
+     * {@link Recording#stop()} or {@link Recording#close()} and will ignore events that would
+     * normally cause recording to stop, such as lifecycle events or explicit unbinding of a
+     * {@link VideoCapture} use case that the recording's {@link Recorder} is attached to.
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @NonNull
+    public PendingRecording asPersistentRecording() {
+        mIsPersistent = true;
         return this;
     }
 
