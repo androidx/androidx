@@ -33,4 +33,6 @@
     <string name="toggle_dec_ev">-EV</string>
     <string name="toggle_zoom_in_2x">2X</string>
     <string name="toggle_zoom_reset">1X</string>
+    <string name="toggle_video_persistent_on">Pers. On</string>
+    <string name="toggle_video_persistent_off">Pers. Off</string>
 </resources>
