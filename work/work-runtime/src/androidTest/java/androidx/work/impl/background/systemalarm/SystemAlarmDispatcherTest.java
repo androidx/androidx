@@ -161,8 +161,9 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
         // Requires API 24+ types.
         ConstraintTracker<NetworkState> networkStateTracker =
                 new ConstraintTracker<NetworkState>(mContext, instantTaskExecutor) {
+
                     @Override
-                    public NetworkState getInitialState() {
+                    public NetworkState readSystemState() {
                         return new NetworkState(true, true, true, true);
                     }
 
@@ -384,7 +385,7 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
 
     @Test
     public void testSchedule_withConstraints() throws InterruptedException {
-        mBatteryChargingTracker.setInitialState(true);
+        mBatteryChargingTracker.setSystemState(true);
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class)
                 .setLastEnqueueTime(
                         System.currentTimeMillis() + TimeUnit.HOURS.toMillis(1),
@@ -488,7 +489,7 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
     @LargeTest
     @RepeatRule.Repeat(times = 1)
     public void testDelayMet_withPartiallyMetConstraint() throws InterruptedException {
-        mStorageNotLowTracker.setInitialState(true);
+        mStorageNotLowTracker.setSystemState(true);
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class)
                 .setLastEnqueueTime(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
                 .setConstraints(new Constraints.Builder()
@@ -526,7 +527,7 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
 
     @Test
     public void testConstraintsChanged_withConstraint() throws InterruptedException {
-        mBatteryChargingTracker.setInitialState(true);
+        mBatteryChargingTracker.setSystemState(true);
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class)
                 .setLastEnqueueTime(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
                 .setConstraints(new Constraints.Builder()
@@ -544,7 +545,7 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
 
     @Test
     public void testDelayMet_withMetConstraint() throws InterruptedException {
-        mBatteryChargingTracker.setInitialState(true);
+        mBatteryChargingTracker.setSystemState(true);
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class)
                 .setLastEnqueueTime(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
                 .setConstraints(new Constraints.Builder()
@@ -635,7 +636,7 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
 
     @Test
     public void testConstraintsChanged_withFutureWork() throws InterruptedException {
-        mBatteryChargingTracker.setInitialState(true);
+        mBatteryChargingTracker.setSystemState(true);
         // Use a mocked scheduler in this test.
         Scheduler scheduler = mock(Scheduler.class);
         doCallRealMethod().when(mWorkManager).rescheduleEligibleWork();
@@ -793,20 +794,21 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
     }
 
     private static final class FakeConstraintTracker extends ConstraintTracker<Boolean> {
-        private boolean mInitialState = false;
+        private boolean mSystemState = false;
 
         FakeConstraintTracker(@NonNull Context context,
                 @NonNull TaskExecutor taskExecutor) {
             super(context, taskExecutor);
         }
 
-        private void setInitialState(boolean initialState) {
-            mInitialState = initialState;
+        private void setSystemState(boolean systemState) {
+            mSystemState = systemState;
         }
 
+
         @Override
-        public Boolean getInitialState() {
-            return mInitialState;
+        public Boolean readSystemState() {
+            return mSystemState;
         }
 
         @Override

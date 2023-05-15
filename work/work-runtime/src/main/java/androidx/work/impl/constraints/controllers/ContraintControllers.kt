@@ -53,7 +53,7 @@ abstract class ConstraintController<T>(
     }
 
     fun isConstrained(workSpec: WorkSpec): Boolean {
-        return hasConstraint(workSpec) && isConstrained(tracker.initialState)
+        return hasConstraint(workSpec) && isConstrained(tracker.readSystemState())
     }
 }
 
