@@ -292,10 +292,14 @@ private fun stackSamplingSource(
                 name = "android.heapprofd",
                 heapprofd_config = HeapprofdConfig(
                     shmem_size_bytes = 8388608,
-                    sampling_interval_bytes = 4096,
+                    sampling_interval_bytes = 2048,
                     block_client = true,
                     process_cmdline = config.packageNames,
+                    heaps = listOf(
+                        "com.android.art" // Java Heaps
+                    ),
                     continuous_dump_config = HeapprofdConfig.ContinuousDumpConfig(
+                        dump_phase_ms = 0,
                         dump_interval_ms = 500 // ms
                     )
                 )
