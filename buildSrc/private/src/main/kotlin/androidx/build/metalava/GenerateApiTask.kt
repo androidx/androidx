@@ -62,7 +62,7 @@ abstract class GenerateApiTask @Inject constructor(
     @OutputFiles
     fun getTaskOutputs(): List<File> {
         val prop = apiLocation.get()
-        return listOfNotNull(
+        return listOf(
             prop.publicApiFile,
             prop.removedApiFile,
             prop.experimentalApiFile,
