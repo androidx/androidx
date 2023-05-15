@@ -158,10 +158,15 @@ class KspTypeNamesGoldenTest {
                 class MyGeneric<T>
                 class MyGenericIn<in T>
                 class MyGenericOut<out T>
+                class MyGeneric2Parameters<in T1, out T2>
                 class MyGenericMultipleParameters<T1: MyGeneric<*>, T2: MyGeneric<T1>>
                 interface MyInterface
                 typealias MyInterfaceAlias = MyInterface
                 typealias MyGenericAlias = MyGenericIn<MyGenericOut<MyGenericOut<MyType>>>
+                typealias MyGenericOutAlias<T> = MyGenericOut<T>
+                typealias MyGenericOutAliasWithJSW<T> = MyGenericOut<@JSW T>
+                typealias MyGeneric2ParametersAlias<T1, T2> = MyGeneric2Parameters<MyGenericOut<T1>, MyGeneric<MyGenericOut<T2>>>
+                typealias MyGeneric1ParameterAlias<T> = MyGeneric2Parameters<MyGenericOut<T>, MyGeneric<MyGenericOut<T>>>
                 typealias MyLambdaAlias1 = (List<MyGenericIn<MyGenericOut<MyGenericOut<MyType>>>>) -> List<MyGenericIn<MyGenericOut<MyGenericOut<MyType>>>>
                 typealias MyLambdaAlias2 = @JSW (List<MyGenericIn<MyGenericOut<MyGenericOut<MyType>>>>) -> List<MyGenericIn<MyGenericOut<MyGenericOut<MyType>>>>
                 typealias MyLambdaAlias3 = (@JSW List<MyGenericIn<MyGenericOut<MyGenericOut<MyType>>>>) -> @JSW List<MyGenericIn<MyGenericOut<MyGenericOut<MyType>>>>
@@ -296,6 +301,69 @@ class KspTypeNamesGoldenTest {
                         fun method31(
                             param: MyGenericOut<MyGeneric<out MyGenericOut<MyGeneric<MyType>>>>
                         ): MyGenericOut<MyGeneric<out MyGenericOut<MyGeneric<MyType>>>> = TODO()
+                        fun method32(
+                            param: MyGenericOutAlias<MyInterface>
+                        ): MyGenericOutAlias<MyInterface> = TODO()
+                        fun method33(
+                            param: MyGenericOut<MyGenericOutAlias<MyInterface>>
+                        ): MyGenericOut<MyGenericOutAlias<MyInterface>> = TODO()
+                        fun method34(
+                            param: MyGenericIn<MyGenericOutAlias<MyInterface>>
+                        ): MyGenericIn<MyGenericOutAlias<MyInterface>> = TODO()
+                        fun method35(
+                            param: MyGenericOutAlias<MyGenericOut<MyInterface>>
+                        ): MyGenericOutAlias<MyGenericOut<MyInterface>> = TODO()
+                        fun method36(
+                            param: MyGenericIn<MyGenericOutAlias<MyGenericOut<MyInterface>>>
+                        ): MyGenericIn<MyGenericOutAlias<MyGenericOut<MyInterface>>> = TODO()
+                        fun method37(
+                            param: MyGenericIn<MyGenericOutAlias<MyGenericIn<MyInterface>>>
+                        ): MyGenericIn<MyGenericOutAlias<MyGenericIn<MyInterface>>> = TODO()
+                        fun method38(
+                            param: MyGenericOutAliasWithJSW<MyInterface>
+                        ): MyGenericOutAliasWithJSW<MyInterface> = TODO()
+                        fun method39(
+                            param: MyGenericOut<MyGenericOutAliasWithJSW<MyInterface>>
+                        ): MyGenericOut<MyGenericOutAliasWithJSW<MyInterface>> = TODO()
+                        fun method40(
+                            param: MyGenericIn<MyGenericOutAliasWithJSW<MyInterface>>
+                        ): MyGenericIn<MyGenericOutAliasWithJSW<MyInterface>> = TODO()
+                        fun method41(
+                            param: MyGenericOutAliasWithJSW<MyGenericOut<MyInterface>>
+                        ): MyGenericOutAliasWithJSW<MyGenericOut<MyInterface>> = TODO()
+                        fun method42(
+                            param: MyGenericIn<MyGenericOutAliasWithJSW<MyGenericOut<MyInterface>>>
+                        ): MyGenericIn<MyGenericOutAliasWithJSW<MyGenericOut<MyInterface>>> = TODO()
+                        fun method43(
+                            param: MyGenericIn<MyGenericOutAliasWithJSW<MyGenericIn<MyInterface>>>
+                        ): MyGenericIn<MyGenericOutAliasWithJSW<MyGenericIn<MyInterface>>> = TODO()
+                        fun method44(
+                            param: MyGenericOutAliasWithJSW<MyType>
+                        ): MyGenericOutAliasWithJSW<MyType> = TODO()
+                        fun method45(
+                            param: MyGenericOut<MyGenericOutAliasWithJSW<MyType>>
+                        ): MyGenericOut<MyGenericOutAliasWithJSW<MyType>> = TODO()
+                        fun method46(
+                            param: MyGenericIn<MyGenericOutAliasWithJSW<MyType>>
+                        ): MyGenericIn<MyGenericOutAliasWithJSW<MyType>> = TODO()
+                        fun method47(
+                            param: MyGeneric2ParametersAlias<MyType, MyType>
+                        ): MyGeneric2ParametersAlias<MyType, MyType> = TODO()
+                        fun method48(
+                            param: MyGenericOut<MyGeneric2ParametersAlias<MyType, MyType>>
+                        ): MyGenericOut<MyGeneric2ParametersAlias<MyType, MyType>> = TODO()
+                        fun method49(
+                            param: MyGenericIn<MyGeneric2ParametersAlias<MyType, MyType>>
+                        ): MyGenericIn<MyGeneric2ParametersAlias<MyType, MyType>> = TODO()
+                        fun method50(
+                            param: MyGeneric2ParametersAlias<MyGenericOut<MyType>, MyGenericIn<MyType>>
+                        ): MyGeneric2ParametersAlias<MyGenericOut<MyType>, MyGenericIn<MyType>> = TODO()
+                        fun method51(
+                            param: MyGenericOut<MyGeneric2ParametersAlias<MyGenericOut<MyType>, MyGenericIn<MyType>>>
+                        ): MyGenericOut<MyGeneric2ParametersAlias<MyGenericOut<MyType>, MyGenericIn<MyType>>> = TODO()
+                        fun method52(
+                            param: MyGenericIn<MyGeneric2ParametersAlias<MyGenericOut<MyType>, MyGenericIn<MyType>>>
+                        ): MyGenericIn<MyGeneric2ParametersAlias<MyGenericOut<MyType>, MyGenericIn<MyType>>> = TODO()
                     }
                 """.trimIndent()
             ), listOf("Subject")
