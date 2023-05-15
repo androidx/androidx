@@ -26,9 +26,6 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.TimeZone
 
-/**
- * @hide
- */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 object Outputs {
 

@@ -65,7 +65,6 @@ import java.util.stream.Collectors;
  * NOTE: copied from
  * https://cs.android.com/android/platform/superproject/+/master:system/extras/simpleperf/app_api/
  *
- * @hide
  */
 @SuppressWarnings({"IOStreamConstructor", "CatchMayIgnoreException",
         "IfStatementMissingBreakInLoop", "ResultOfMethodCallIgnored", "StringConcatenationInLoop",
