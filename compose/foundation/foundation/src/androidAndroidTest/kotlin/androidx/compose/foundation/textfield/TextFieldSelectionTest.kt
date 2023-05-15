@@ -23,6 +23,9 @@ import androidx.compose.foundation.text.selection.isSelectionHandle
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.platform.LocalTextToolbar
+import androidx.compose.ui.platform.TextToolbar
+import androidx.compose.ui.platform.TextToolbarStatus
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
@@ -143,6 +146,37 @@ class TextFieldSelectionTest {
     }
 
     @Test
+    fun textField_tapsCursorHandle_showsTextToolbar() {
+        val textFieldValue = mutableStateOf(TextFieldValue("text"))
+        lateinit var textToolbar: TextToolbar
+
+        rule.setContent {
+            textToolbar = LocalTextToolbar.current
+            BasicTextField(
+                value = textFieldValue.value,
+                onValueChange = { textFieldValue.value = it },
+                modifier = Modifier.testTag(testTag)
+            )
+        }
+
+        // selection and cursor are hidden
+        rule.onAllNodes(isPopup()).assertCountEquals(0)
+        assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Hidden)
+
+        // focus textfield, cursor should show at the very beginning of textfield
+        rule.onNodeWithTag(testTag).performTouchInput { click(Offset.Zero) }
+        rule.waitForIdle()
+
+        assertThat(textFieldValue.value.selection.start).isEqualTo(0)
+        assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Hidden)
+
+        rule.onNode(isSelectionHandle(Handle.Cursor))
+            .performTouchInput { click() }
+
+        assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Shown)
+    }
+
+    @Test
     fun textField_dragsCursorHandle() {
         textField_dragsCursorHandle(
             text = "text text text",
@@ -176,7 +210,9 @@ class TextFieldSelectionTest {
     ) {
         val textFieldValue = mutableStateOf(TextFieldValue(text, TextRange(Int.MAX_VALUE)))
         val cursorPositions = mutableListOf<Int>()
+        lateinit var textToolbar: TextToolbar
         rule.setContent {
+            textToolbar = LocalTextToolbar.current
             BasicTextField(
                 value = textFieldValue.value,
                 onValueChange = {
@@ -194,16 +230,19 @@ class TextFieldSelectionTest {
 
         // selection and cursor are hidden
         rule.onAllNodes(isPopup()).assertCountEquals(0)
+        assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Hidden)
 
         // focus textfield, cursor should show at the very beginning of textfield
         rule.onNodeWithTag(testTag).performTouchInput { click(Offset.Zero) }
         rule.waitForIdle()
 
         assertThat(textFieldValue.value.selection.start).isEqualTo(0)
+        assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Hidden)
 
         performHandleDrag(Handle.Cursor, false)
 
         assertThat(cursorPositions).isEqualTo(expectedCursorPositions)
+        assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Hidden)
     }
 
     @Ignore // b/265023621

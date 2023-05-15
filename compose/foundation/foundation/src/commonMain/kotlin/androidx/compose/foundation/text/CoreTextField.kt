@@ -18,6 +18,7 @@ package androidx.compose.foundation.text
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
@@ -113,6 +114,8 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import kotlin.math.max
 import kotlin.math.roundToInt
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
 /**
@@ -1081,7 +1084,16 @@ internal fun TextFieldCursorHandle(manager: TextFieldSelectionManager) {
             handlePosition = position,
             modifier = Modifier
                 .pointerInput(observer) {
-                    detectDownAndDragGesturesWithObserver(observer)
+                    coroutineScope {
+                        // UNDISPATCHED because this runs upon first pointer event and
+                        // without it the event would pass before the handler is ready
+                        launch(start = CoroutineStart.UNDISPATCHED) {
+                            detectDownAndDragGesturesWithObserver(observer)
+                        }
+                        launch(start = CoroutineStart.UNDISPATCHED) {
+                            detectTapGestures { manager.showSelectionToolbar() }
+                        }
+                    }
                 }
                 .semantics {
                     this[SelectionHandleInfoKey] = SelectionHandleInfo(
