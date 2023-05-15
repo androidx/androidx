@@ -82,7 +82,7 @@ internal class LayoutNode(
     // subcompose multiple times into the same LayoutNode and define offsets.
     private val isVirtual: Boolean = false,
     // The unique semantics ID that is used by all semantics modifiers attached to this LayoutNode.
-    override val semanticsId: Int = generateSemanticsId()
+    override var semanticsId: Int = generateSemanticsId()
 ) : ComposeNodeLifecycleCallback,
     Remeasurement,
     OwnerScope,
@@ -1321,6 +1321,7 @@ internal class LayoutNode(
         }
         // resetModifierState detaches all nodes, so we need to re-attach them upon reuse.
         nodes.attach()
+        semanticsId = generateSemanticsId()
     }
 
     override fun onDeactivate() {
