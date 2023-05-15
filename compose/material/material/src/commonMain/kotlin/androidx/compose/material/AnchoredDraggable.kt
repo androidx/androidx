@@ -183,9 +183,7 @@ internal class AnchoredDraggableState<T>(
      * Strongly consider using [requireOffset] which will throw if the offset is read before it is
      * initialized. This helps catch issues early in your workflow.
      */
-    // Todo: Use primitive state when b/281205384 is fixed
-    @Suppress("AutoboxingStateCreation")
-    var offset: Float by mutableStateOf(Float.NaN)
+    var offset: Float by mutableFloatStateOf(Float.NaN)
         private set
 
     /**
