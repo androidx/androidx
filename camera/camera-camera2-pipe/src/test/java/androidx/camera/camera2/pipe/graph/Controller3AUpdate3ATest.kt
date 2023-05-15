@@ -67,6 +67,7 @@ internal class Controller3AUpdate3ATest {
             )
         val result = controller3A.update3A(afMode = AfMode.OFF)
         assertThat(result.await().status).isEqualTo(Result3A.Status.SUBMIT_FAILED)
+        assertThat(graphProcessor2.graphState3A.afMode).isEqualTo(AfMode.OFF)
     }
 
     @Test
