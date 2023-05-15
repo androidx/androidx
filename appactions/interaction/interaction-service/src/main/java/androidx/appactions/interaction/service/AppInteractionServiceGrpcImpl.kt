@@ -240,7 +240,7 @@ internal class AppInteractionServiceGrpcImpl(
             object : FutureCallback<FulfillmentResponse> {
                 override fun onSuccess(result: FulfillmentResponse) {
                     val responseBuilder =
-                        convertFulfillmentResponse(result, capability)
+                        convertFulfillmentResponse(result, capability, currentSession)
                             .toBuilder()
                     val uiCache = UiSessions.getUiCacheOrNull(sessionId)
                     if (uiCache != null && uiCache.hasUnreadUiResponse) {
@@ -554,22 +554,21 @@ internal class AppInteractionServiceGrpcImpl(
     internal fun convertFulfillmentResponse(
         fulfillmentResponse: FulfillmentResponse,
         capability: Capability,
+        currentSession: CapabilitySession
     ): Response {
         val appAction = capability.appAction
         val isDialogSession = appAction.taskInfo.supportsPartialFulfillment
         val version = convertToAppActionsContextVersion(
             LibInfo(appInteractionService.applicationContext).getVersion(),
         )
+        val appActionsContextBuilder = AppActionsContext.newBuilder()
+            .addActions(appAction)
+            .setVersion(version)
+        currentSession.state?.let(appActionsContextBuilder::addDialogStates)
         val responseBuilder: Response.Builder =
-            // TODO(b/269638788): Add DialogState to the Response proto.
             Response.newBuilder()
                 .setFulfillmentResponse(fulfillmentResponse)
-                .setAppActionsContext(
-                    AppActionsContext.newBuilder()
-                        .addActions(appAction)
-                        .setVersion(version)
-                        .build(),
-                )
+                .setAppActionsContext(appActionsContextBuilder.build())
         if (!isDialogSession) {
             responseBuilder.endingStatus = AppInteractionServiceProto.Status.newBuilder()
                 .setStatusCode(Code.COMPLETE)
