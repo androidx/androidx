@@ -32,8 +32,8 @@ class TestConstraintTracker(
     var isTracking = false
 
     // some awkwardness because "this.state = ..." is overridden
-    // with `initialState` when first listener is added.
-    // so we have a separate state that we return from `initialState` too.
+    // with `readSystemState` when first listener is added.
+    // so we have a separate state returns that we return from `readSystemState` too.
     var constraintState: Boolean = initialState
         set(value) {
             state = value
@@ -48,8 +48,7 @@ class TestConstraintTracker(
         isTracking = false
     }
 
-    override val initialState: Boolean
-        get() = constraintState
+    override fun readSystemState() = constraintState
 }
 
 class TestConstraintController(
