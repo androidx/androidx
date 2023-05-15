@@ -38,12 +38,12 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import org.junit.runners.Parameterized
 
+private const val EXPECTED_PROFILE_FOLDER = "generated/baselineProfiles"
+
 @RunWith(Parameterized::class)
 class BaselineProfileConsumerPluginTest(agpVersion: String?) {
 
     companion object {
-        private const val EXPECTED_PROFILE_FOLDER = "generated/baselineProfiles"
-
         @Parameterized.Parameters(name = "agpVersion={0}")
         @JvmStatic
         fun parameters() = TEST_AGP_VERSION_ALL
@@ -208,42 +208,6 @@ class BaselineProfileConsumerPluginTest(agpVersion: String?) {
 
         assertThat(readBaselineProfileFileContent("paidRelease"))
             .containsExactly(
-                Fixtures.CLASS_2,
-                Fixtures.CLASS_2_METHOD_1,
-            )
-    }
-
-    @Test
-    fun testGenerateTaskWithFlavorsAndMergeAll() {
-        projectSetup.consumer.setup(
-            androidPlugin = ANDROID_APPLICATION_PLUGIN,
-            flavors = true,
-            dependencyOnProducerProject = true,
-            baselineProfileBlock = """
-                mergeIntoMain = true
-            """.trimIndent()
-        )
-        projectSetup.producer.setupWithFreeAndPaidFlavors(
-            freeReleaseProfileLines = listOf(Fixtures.CLASS_1_METHOD_1, Fixtures.CLASS_1),
-            paidReleaseProfileLines = listOf(Fixtures.CLASS_2_METHOD_1, Fixtures.CLASS_2)
-        )
-
-        // Asserts that all per-variant, per-flavor and per-build type tasks are being generated.
-        gradleRunner.buildAndAssertThatOutput("tasks") {
-            contains("generateBaselineProfile - ")
-            contains("generateReleaseBaselineProfile - ")
-            doesNotContain("generateFreeReleaseBaselineProfile - ")
-            doesNotContain("generatePaidReleaseBaselineProfile - ")
-        }
-
-        gradleRunner
-            .withArguments("generateBaselineProfile", "--stacktrace")
-            .build()
-
-        assertThat(readBaselineProfileFileContent("main"))
-            .containsExactly(
-                Fixtures.CLASS_1,
-                Fixtures.CLASS_1_METHOD_1,
                 Fixtures.CLASS_2,
                 Fixtures.CLASS_2_METHOD_1,
             )
@@ -621,7 +585,7 @@ class BaselineProfileConsumerPluginTest(agpVersion: String?) {
         )
 
         gradleRunner
-            .withArguments("generateReleaseBaselineProfile", "--stacktrace")
+            .withArguments("generateBaselineProfile", "--stacktrace")
             .buildAndFail()
             .output
             .replace(System.lineSeparator(), " ")
@@ -642,7 +606,7 @@ class BaselineProfileConsumerPluginTest(agpVersion: String?) {
         projectSetup.producer.setupWithoutFlavors(
             releaseProfileLines = listOf()
         )
-        gradleRunner.buildAndAssertThatOutput("generateReleaseBaselineProfile") {
+        gradleRunner.buildAndAssertThatOutput("generateBaselineProfile") {
             contains("No baseline profile rules were generated")
         }
     }
@@ -1139,6 +1103,45 @@ class BaselineProfileConsumerPluginTestWithAgp80 {
             }
         }
     }
+
+    @Test
+    fun testGenerateTaskWithFlavorsAndMergeAll() {
+        projectSetup.consumer.setup(
+            androidPlugin = ANDROID_APPLICATION_PLUGIN,
+            flavors = true,
+            dependencyOnProducerProject = true,
+            baselineProfileBlock = """
+                mergeIntoMain = true
+            """.trimIndent()
+        )
+        projectSetup.producer.setupWithFreeAndPaidFlavors(
+            freeReleaseProfileLines = listOf(Fixtures.CLASS_1_METHOD_1, Fixtures.CLASS_1),
+            paidReleaseProfileLines = listOf(Fixtures.CLASS_2_METHOD_1, Fixtures.CLASS_2)
+        )
+
+        // Asserts that all per-variant, per-flavor and per-build type tasks are being generated.
+        projectSetup.consumer.gradleRunner.buildAndAssertThatOutput("tasks") {
+            contains("generateBaselineProfile - ")
+            contains("generateReleaseBaselineProfile - ")
+            doesNotContain("generateFreeReleaseBaselineProfile - ")
+            doesNotContain("generatePaidReleaseBaselineProfile - ")
+        }
+
+        projectSetup.consumer.gradleRunner
+            .withArguments("generateBaselineProfile", "--stacktrace")
+            .build()
+
+        val lines = File(
+            projectSetup.consumer.rootDir,
+            "src/main/$EXPECTED_PROFILE_FOLDER/baseline-prof.txt"
+        ).readLines()
+        assertThat(lines).containsExactly(
+            Fixtures.CLASS_1,
+            Fixtures.CLASS_1_METHOD_1,
+            Fixtures.CLASS_2,
+            Fixtures.CLASS_2_METHOD_1,
+        )
+    }
 }
 
 @RunWith(JUnit4::class)
@@ -1314,5 +1317,44 @@ class BaselineProfileConsumerPluginTestWithAgp81 {
                 contains("android.experimental.r8.dex-startup-optimization=true")
             }
         }
+    }
+
+    @Test
+    fun testGenerateTaskWithFlavorsAndMergeAll() {
+        projectSetup.consumer.setup(
+            androidPlugin = ANDROID_APPLICATION_PLUGIN,
+            flavors = true,
+            dependencyOnProducerProject = true,
+            baselineProfileBlock = """
+                mergeIntoMain = true
+            """.trimIndent()
+        )
+        projectSetup.producer.setupWithFreeAndPaidFlavors(
+            freeReleaseProfileLines = listOf(Fixtures.CLASS_1_METHOD_1, Fixtures.CLASS_1),
+            paidReleaseProfileLines = listOf(Fixtures.CLASS_2_METHOD_1, Fixtures.CLASS_2)
+        )
+
+        // Asserts that all per-variant, per-flavor and per-build type tasks are being generated.
+        projectSetup.consumer.gradleRunner.buildAndAssertThatOutput("tasks") {
+            contains("generateBaselineProfile - ")
+            doesNotContain("generateReleaseBaselineProfile - ")
+            doesNotContain("generateFreeReleaseBaselineProfile - ")
+            doesNotContain("generatePaidReleaseBaselineProfile - ")
+        }
+
+        projectSetup.consumer.gradleRunner
+            .withArguments("generateBaselineProfile", "--stacktrace")
+            .build()
+
+        val lines = File(
+            projectSetup.consumer.rootDir,
+            "src/main/$EXPECTED_PROFILE_FOLDER/baseline-prof.txt"
+        ).readLines()
+        assertThat(lines).containsExactly(
+            Fixtures.CLASS_1,
+            Fixtures.CLASS_1_METHOD_1,
+            Fixtures.CLASS_2,
+            Fixtures.CLASS_2_METHOD_1,
+        )
     }
 }
