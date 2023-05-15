@@ -139,6 +139,14 @@ internal typealias PlatformExerciseSessionRecordBuilder =
 internal typealias PlatformExerciseSessionType =
     android.health.connect.datatypes.ExerciseSessionType
 
+internal typealias PlatformExerciseRoute = android.health.connect.datatypes.ExerciseRoute
+
+internal typealias PlatformExerciseRouteLocation =
+    android.health.connect.datatypes.ExerciseRoute.Location
+
+internal typealias PlatformExerciseRouteLocationBuilder =
+    android.health.connect.datatypes.ExerciseRoute.Location.Builder
+
 internal typealias PlatformFloorsClimbedRecord =
     android.health.connect.datatypes.FloorsClimbedRecord
 
