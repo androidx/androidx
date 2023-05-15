@@ -265,6 +265,58 @@ internal class DefaultScalingParams(
     }
 }
 
+@Stable
+internal class ReduceMotionScalingParams(
+    private val initial: ScalingParams,
+) : ScalingParams {
+
+    override val edgeScale: Float = 1.0f
+    override val edgeAlpha: Float = 1.0f
+    override val minElementHeight: Float = initial.minElementHeight
+    override val maxElementHeight: Float = initial.maxElementHeight
+    override val minTransitionArea: Float = initial.minTransitionArea
+    override val maxTransitionArea: Float = initial.maxTransitionArea
+    override val scaleInterpolator: Easing = initial.scaleInterpolator
+    override fun resolveViewportVerticalOffset(viewportConstraints: Constraints): Int {
+        return initial.resolveViewportVerticalOffset(viewportConstraints)
+    }
+
+    override fun toString(): String {
+        return "ReduceMotionScalingParams(edgeScale=$edgeScale, edgeAlpha=$edgeAlpha, " +
+            "minElementHeight=$minElementHeight, maxElementHeight=$maxElementHeight, " +
+            "minTransitionArea=$minTransitionArea, maxTransitionArea=$maxTransitionArea)"
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null) return false
+        if (this::class != other::class) return false
+
+        other as ReduceMotionScalingParams
+
+        if (edgeScale != other.edgeScale) return false
+        if (edgeAlpha != other.edgeAlpha) return false
+        if (minElementHeight != other.minElementHeight) return false
+        if (maxElementHeight != other.maxElementHeight) return false
+        if (minTransitionArea != other.minTransitionArea) return false
+        if (maxTransitionArea != other.maxTransitionArea) return false
+        if (scaleInterpolator != other.scaleInterpolator) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = edgeScale.hashCode()
+        result = 31 * result + edgeAlpha.hashCode()
+        result = 31 * result + minElementHeight.hashCode()
+        result = 31 * result + maxElementHeight.hashCode()
+        result = 31 * result + minTransitionArea.hashCode()
+        result = 31 * result + maxTransitionArea.hashCode()
+        result = 31 * result + scaleInterpolator.hashCode()
+        return result
+    }
+}
+
 /**
  * Calculate the scale and alpha to apply for an item based on the start and end position of the
  * component's viewport in pixels and top and bottom position of the item, also in pixels.
