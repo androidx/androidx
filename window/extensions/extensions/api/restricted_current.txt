@@ -92,13 +92,21 @@ package androidx.window.extensions.embedding {
   }
 
   public class SplitAttributes {
+    method public androidx.window.extensions.embedding.SplitAttributes.AnimationBackground getAnimationBackground();
     method public int getLayoutDirection();
     method public androidx.window.extensions.embedding.SplitAttributes.SplitType getSplitType();
+  }
+
+  public abstract static class SplitAttributes.AnimationBackground {
+    method public static androidx.window.extensions.embedding.SplitAttributes.AnimationBackground getColorBackground(@ColorInt int);
+    method @ColorInt public abstract int getColorOrElse(@ColorInt int);
+    method public static androidx.window.extensions.embedding.SplitAttributes.AnimationBackground getDefaultBackground();
   }
 
   public static final class SplitAttributes.Builder {
     ctor public SplitAttributes.Builder();
     method public androidx.window.extensions.embedding.SplitAttributes build();
+    method public androidx.window.extensions.embedding.SplitAttributes.Builder setAnimationBackground(androidx.window.extensions.embedding.SplitAttributes.AnimationBackground);
     method public androidx.window.extensions.embedding.SplitAttributes.Builder setLayoutDirection(int);
     method public androidx.window.extensions.embedding.SplitAttributes.Builder setSplitType(androidx.window.extensions.embedding.SplitAttributes.SplitType);
   }

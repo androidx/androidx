@@ -86,14 +86,13 @@ fun splitWithOrientations() {
             val parentConfiguration = params.parentConfiguration
             val builder = SplitAttributes.Builder()
             return@setSplitAttributesCalculator if (parentConfiguration.screenWidthDp >= 600) {
+                // TODO(b/309530136) Update samples with color attributes.
                 builder
                     .setLayoutDirection(SplitAttributes.LayoutDirection.LOCALE)
-                    // Set the color to use when switching between vertical and horizontal
                     .build()
             } else if (parentConfiguration.screenHeightDp >= 600) {
                 builder
                     .setLayoutDirection(SplitAttributes.LayoutDirection.TOP_TO_BOTTOM)
-                    // Set the color to use when switching between vertical and horizontal
                     .build()
             } else {
                 // Fallback to expand the secondary container

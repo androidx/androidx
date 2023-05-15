@@ -16,7 +16,6 @@
 
 package androidx.window.extensions.embedding;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.window.extensions.embedding.SplitAttributes.LayoutDirection.BOTTOM_TO_TOP;
 import static androidx.window.extensions.embedding.SplitAttributes.LayoutDirection.LEFT_TO_RIGHT;
 import static androidx.window.extensions.embedding.SplitAttributes.LayoutDirection.LOCALE;
@@ -31,12 +30,12 @@ import androidx.annotation.FloatRange;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
 import androidx.window.extensions.RequiresVendorApiLevel;
 import androidx.window.extensions.core.util.function.Function;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.Objects;
 
 /**
  * Attributes that describe how the parent window (typically the activity task
@@ -71,18 +70,120 @@ import java.lang.annotation.RetentionPolicy;
 @RequiresVendorApiLevel(level = 2)
 public class SplitAttributes {
 
+
     /**
-     * The default value for animation background color, which means to use the current theme window
-     * background color.
-     *
-     * Only opaque color is supported, so {@code 0} is used as the default. Any other non-opaque
-     * color will be treated as the default.
-     *
-     * @see Builder#setAnimationBackgroundColor(int)
+     * A class to represent the background used while animating an {@link android.app.Activity} for
+     * embedding features.
      */
-    @ColorInt
-    @RestrictTo(LIBRARY)
-    public static final int DEFAULT_ANIMATION_BACKGROUND_COLOR = 0;
+    @RequiresVendorApiLevel(level = 5)
+    public abstract static class AnimationBackground {
+
+        private AnimationBackground() {
+        }
+
+        /**
+         * Returns the animation background color if it was provided or the fallback value if
+         * it is the default background color from
+         * {@link AnimationBackground#getDefaultBackground()}.
+         * @param fallback the color when this is not a color background.
+         */
+        @ColorInt
+        public abstract int getColorOrElse(@ColorInt int fallback);
+
+        /**
+         * Returns an {@link AnimationBackground} that wraps the given color. Only opaque
+         * background is supported.
+         *
+         * @param color the color to be stored.
+         * @throws IllegalArgumentException if the color is not opaque.
+         */
+        @NonNull
+        public static AnimationBackground getColorBackground(@ColorInt int color) {
+            int alpha = Color.alpha(color);
+            if (alpha != 255) {
+                throw new IllegalArgumentException(
+                        "Color must be fully opaque, current alpha is " + alpha);
+            }
+            return new AnimationColorBackground(color);
+        }
+
+        /**
+         * Returns an {@link AnimationBackground} object representing the default,
+         * with which the system will determine the color to use, such as using the
+         * current theme window background color.
+         */
+        @NonNull
+        public static AnimationBackground getDefaultBackground() {
+            return DefaultAnimationBackgroundColor.sInstance;
+        }
+
+        /**
+         * A container to represent the background color to use for Activity Embedding
+         * animations.
+         */
+        private static class AnimationColorBackground extends AnimationBackground {
+            private final @ColorInt int mColor;
+
+            AnimationColorBackground(@ColorInt int color) {
+                mColor = color;
+            }
+
+            /**
+             * Returns the color as an integer.
+             */
+            @Override
+            @ColorInt
+            public int getColorOrElse(@ColorInt int fallback) {
+                return mColor;
+            }
+
+            @Override
+            public boolean equals(Object o) {
+                if (this == o) return true;
+                if (!(o instanceof AnimationColorBackground)) return false;
+                AnimationColorBackground that = (AnimationColorBackground) o;
+                return mColor == that.mColor;
+            }
+
+            @Override
+            public int hashCode() {
+                return Objects.hash(mColor);
+            }
+
+            @NonNull
+            @Override
+            public String toString() {
+                return AnimationColorBackground.class.getSimpleName() + " { color: " + mColor
+                        + " }";
+            }
+        }
+
+        /**
+         * An {@link AnimationBackground} object representing the default,
+         * with which the system will determine the color to use, such as using the
+         * current theme window background color.
+         */
+        private static class DefaultAnimationBackgroundColor extends AnimationBackground {
+
+            static final DefaultAnimationBackgroundColor sInstance =
+                    new DefaultAnimationBackgroundColor();
+
+            private DefaultAnimationBackgroundColor() {
+            }
+
+            @ColorInt
+            @Override
+            public int getColorOrElse(@ColorInt int fallback) {
+                return fallback;
+            }
+
+            @NonNull
+            @Override
+            public String toString() {
+                return DefaultAnimationBackgroundColor.class.getSimpleName();
+            }
+        }
+    }
 
     /**
      * The type of window split, which defines the proportion of the parent
@@ -156,10 +257,10 @@ public class SplitAttributes {
              * Creates an instance of this {@code RatioSplitType}.
              *
              * @param ratio The proportion of the parent window occupied by the
-             *     primary container of the split. Can be a value in the
-             *     non-inclusive range (0.0, 1.0). Use
-             *     {@link SplitType.ExpandContainersSplitType} to create a split
-             *     type that occupies the entire parent window.
+             *              primary container of the split. Can be a value in the
+             *              non-inclusive range (0.0, 1.0). Use
+             *              {@link SplitType.ExpandContainersSplitType} to create a split
+             *              type that occupies the entire parent window.
              */
             public RatioSplitType(
                     @FloatRange(from = 0.0, to = 1.0, fromInclusive = false, toInclusive = false)
@@ -177,7 +278,7 @@ public class SplitAttributes {
              * activity container of the split.
              *
              * @return The proportion of the split occupied by the primary
-             *     container.
+             * container.
              */
             @FloatRange(from = 0.0, to = 1.0, fromInclusive = false, toInclusive = false)
             public float getRatio() {
@@ -193,7 +294,7 @@ public class SplitAttributes {
              * specified.
              *
              * @return A {@code RatioSplitType} in which the activity containers
-             *     occupy equal portions of the parent window.
+             * occupy equal portions of the parent window.
              */
             @NonNull
             public static RatioSplitType splitEqually() {
@@ -235,9 +336,9 @@ public class SplitAttributes {
              * Creates an instance of this {@code HingeSplitType}.
              *
              * @param fallbackSplitType The split type to use if a split based
-             *     on the device hinge or separating fold cannot be determined.
-             *     Can be a {@link RatioSplitType} or
-             *     {@link ExpandContainersSplitType}.
+             *                          on the device hinge or separating fold cannot be determined.
+             *                          Can be a {@link RatioSplitType} or
+             *                          {@link ExpandContainersSplitType}.
              */
             public HingeSplitType(@NonNull SplitType fallbackSplitType) {
                 super("hinge, fallbackType=" + fallbackSplitType);
@@ -284,15 +385,15 @@ public class SplitAttributes {
          *
          * A possible return value of {@link SplitType#getLayoutDirection()}.
          */
-         //
-         // -------------------------
-         // |           |           |
-         // |  Primary  | Secondary |
-         // |           |           |
-         // -------------------------
-         //
-         // Must match {@link LayoutDirection#LTR} for backwards compatibility
-         // with prior versions of Extensions.
+        //
+        // -------------------------
+        // |           |           |
+        // |  Primary  | Secondary |
+        // |           |           |
+        // -------------------------
+        //
+        // Must match {@link LayoutDirection#LTR} for backwards compatibility
+        // with prior versions of Extensions.
         public static final int LEFT_TO_RIGHT = 0;
 
         /**
@@ -304,14 +405,14 @@ public class SplitAttributes {
          *
          * A possible return value of {@link SplitType#getLayoutDirection()}.
          */
-         // -------------------------
-         // |           |           |
-         // | Secondary |  Primary  |
-         // |           |           |
-         // -------------------------
-         //
-         // Must match {@link LayoutDirection#RTL} for backwards compatibility
-         // with prior versions of Extensions.
+        // -------------------------
+        // |           |           |
+        // | Secondary |  Primary  |
+        // |           |           |
+        // -------------------------
+        //
+        // Must match {@link LayoutDirection#RTL} for backwards compatibility
+        // with prior versions of Extensions.
         public static final int RIGHT_TO_LEFT = 1;
 
         /**
@@ -323,8 +424,8 @@ public class SplitAttributes {
          *
          * A possible return value of {@link SplitType#getLayoutDirection()}.
          */
-         // Must match {@link LayoutDirection#LOCALE} for backwards
-         // compatibility with prior versions of Extensions.
+        // Must match {@link LayoutDirection#LOCALE} for backwards
+        // compatibility with prior versions of Extensions.
         public static final int LOCALE = 3;
 
         /**
@@ -339,15 +440,15 @@ public class SplitAttributes {
          *
          * A possible return value of {@link SplitType#getLayoutDirection()}.
          */
-         // -------------
-         // |           |
-         // |  Primary  |
-         // |           |
-         // -------------
-         // |           |
-         // | Secondary |
-         // |           |
-         // -------------
+        // -------------
+        // |           |
+        // |  Primary  |
+        // |           |
+        // -------------
+        // |           |
+        // | Secondary |
+        // |           |
+        // -------------
         public static final int TOP_TO_BOTTOM = 4;
 
         /**
@@ -362,49 +463,56 @@ public class SplitAttributes {
          *
          * A possible return value of {@link SplitType#getLayoutDirection()}.
          */
-         // -------------
-         // |           |
-         // | Secondary |
-         // |           |
-         // -------------
-         // |           |
-         // |  Primary  |
-         // |           |
-         // -------------
+        // -------------
+        // |           |
+        // | Secondary |
+        // |           |
+        // -------------
+        // |           |
+        // |  Primary  |
+        // |           |
+        // -------------
         public static final int BOTTOM_TO_TOP = 5;
 
-        private LayoutDirection() {}
+        private LayoutDirection() {
+        }
     }
 
     @IntDef({LEFT_TO_RIGHT, RIGHT_TO_LEFT, LOCALE, TOP_TO_BOTTOM, BOTTOM_TO_TOP})
     @Retention(RetentionPolicy.SOURCE)
-    @interface ExtLayoutDirection {}
+    @interface ExtLayoutDirection {
+    }
 
     @ExtLayoutDirection
     private final int mLayoutDirection;
 
+    @NonNull
     private final SplitType mSplitType;
 
-    @ColorInt
-    private final int mAnimationBackgroundColor;
+    @NonNull
+    private final AnimationBackground mAnimationBackground;
 
     /**
      * Creates an instance of this {@code SplitAttributes}.
      *
-     * @param splitType The type of split. See
-     *     {@link SplitAttributes.SplitType}.
-     * @param layoutDirection The layout direction of the split, such as left to
-     *     right or top to bottom. See {@link SplitAttributes.LayoutDirection}.
-     * @param animationBackgroundColor The {@link ColorInt} to use for the
-     *     background color during animation of the split involving this
-     *     {@code SplitAttributes} object if the animation requires a
-     *     background.
+     * @param splitType                The type of split. See
+     *                                 {@link SplitAttributes.SplitType}.
+     * @param layoutDirection          The layout direction of the split, such as left to
+     *                                 right or top to bottom. See
+     *                                 {@link SplitAttributes.LayoutDirection}.
+     * @param animationBackground The {@link AnimationBackground} to use for the during animation
+     *                           of the split involving this {@code SplitAttributes} object if the
+     *                           animation requires a background.
      */
-    SplitAttributes(@NonNull SplitType splitType, @ExtLayoutDirection int layoutDirection,
-            @ColorInt int animationBackgroundColor) {
+    SplitAttributes(
+            @NonNull SplitType splitType,
+            @ExtLayoutDirection int layoutDirection,
+            @NonNull
+            AnimationBackground animationBackground
+    ) {
         mSplitType = splitType;
         mLayoutDirection = layoutDirection;
-        mAnimationBackgroundColor = animationBackgroundColor;
+        mAnimationBackground = animationBackground;
     }
 
     /**
@@ -428,18 +536,13 @@ public class SplitAttributes {
     }
 
     /**
-     * Gets the {@link ColorInt} to use for the background color during the
+     * Returns the {@link AnimationBackground} to use for the background during the
      * animation of the split involving this {@code SplitAttributes} object.
-     *
-     * The default is {@link #DEFAULT_ANIMATION_BACKGROUND_COLOR}, which means
-     * to use the current theme window background color.
-     *
-     * @return The animation background {@code ColorInt}.
      */
-    @ColorInt
-    @RestrictTo(LIBRARY)
-    public int getAnimationBackgroundColor() {
-        return mAnimationBackgroundColor;
+    @NonNull
+    @RequiresVendorApiLevel(level = 5)
+    public AnimationBackground getAnimationBackground() {
+        return mAnimationBackground;
     }
 
     /**
@@ -447,16 +550,17 @@ public class SplitAttributes {
      *
      * - The default split type is an equal split between primary and secondary containers.
      * - The default layout direction is based on locale.
-     * - The default animation background color is to use the current theme window background color.
+     * - The default animation background is to use the current theme window background color.
      */
     public static final class Builder {
         @NonNull
-        private SplitType mSplitType =  new SplitType.RatioSplitType(0.5f);
+        private SplitType mSplitType = new SplitType.RatioSplitType(0.5f);
         @ExtLayoutDirection
         private int mLayoutDirection = LOCALE;
 
-        @ColorInt
-        private int mAnimationBackgroundColor = 0;
+        @NonNull
+        private AnimationBackground mAnimationBackground =
+                AnimationBackground.getDefaultBackground();
 
         /**
          * Sets the split type attribute.
@@ -498,64 +602,49 @@ public class SplitAttributes {
         }
 
         /**
-         * Sets the {@link ColorInt} to use for the background during the
+         * Sets the {@link AnimationBackground} to use for the background during the
          * animation of the split involving this {@code SplitAttributes} object
          * if the animation requires a background.
          *
-         * Only opaque color is supported.
+         * The default value is {@link AnimationBackground#getDefaultBackground()}, which
+         * means to use the current theme window background color.
          *
-         * The default value is {@link #DEFAULT_ANIMATION_BACKGROUND_COLOR}, which
-         * means to use the current theme window background color. Any non-opaque
-         * animation color will be treated as
-         * {@link #DEFAULT_ANIMATION_BACKGROUND_COLOR}.
-         *
-         * @param color A packed color int of the form {@code AARRGGBB} for the
-         *              animation background color.
+         * @param background An {@link AnimationBackground} to be used for the animation of the
+         *                   split.
          * @return This {@code Builder}.
          */
         @NonNull
-        @RestrictTo(LIBRARY)
-        public Builder setAnimationBackgroundColor(@ColorInt int color) {
-            // Any non-opaque color will be treated as the default.
-            mAnimationBackgroundColor = Color.alpha(color) != 255
-                    ? DEFAULT_ANIMATION_BACKGROUND_COLOR
-                    : color;
+        @RequiresVendorApiLevel(level = 5)
+        public Builder setAnimationBackground(@NonNull AnimationBackground background) {
+            mAnimationBackground = background;
             return this;
         }
 
         /**
          * Builds a {@link SplitAttributes} instance with the attributes
          * specified by {@link #setSplitType}, {@link #setLayoutDirection}, and
-         * {@link #setAnimationBackgroundColor}.
+         * {@link #setAnimationBackground}.
          *
          * @return The new {@code SplitAttributes} instance.
          */
         @NonNull
         public SplitAttributes build() {
-            return new SplitAttributes(mSplitType, mLayoutDirection, mAnimationBackgroundColor);
+            return new SplitAttributes(mSplitType, mLayoutDirection, mAnimationBackground);
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof SplitAttributes)) return false;
+        SplitAttributes that = (SplitAttributes) o;
+        return mLayoutDirection == that.mLayoutDirection && mSplitType.equals(that.mSplitType)
+                && mAnimationBackground.equals(that.mAnimationBackground);
     }
 
     @Override
     public int hashCode() {
-        int result = mSplitType.hashCode();
-        result = result * 31 + mLayoutDirection;
-        result = result * 31 + mAnimationBackgroundColor;
-        return result;
-    }
-
-    @Override
-    public boolean equals(Object other) {
-        if (other == this) {
-            return true;
-        }
-        if (!(other instanceof SplitAttributes)) {
-            return false;
-        }
-        final SplitAttributes otherAttributes = (SplitAttributes) other;
-        return mLayoutDirection == otherAttributes.mLayoutDirection
-                && mSplitType.equals(otherAttributes.mSplitType)
-                && mAnimationBackgroundColor == otherAttributes.mAnimationBackgroundColor;
+        return Objects.hash(mLayoutDirection, mSplitType, mAnimationBackground);
     }
 
     @NonNull
@@ -564,13 +653,13 @@ public class SplitAttributes {
         return SplitAttributes.class.getSimpleName() + "{"
                 + "layoutDir=" + layoutDirectionToString()
                 + ", ratio=" + mSplitType
-                + ", animationBgColor=" + Integer.toHexString(mAnimationBackgroundColor)
+                + ", animationBackground=" + mAnimationBackground
                 + "}";
     }
 
     @NonNull
     private String layoutDirectionToString() {
-        switch(mLayoutDirection) {
+        switch (mLayoutDirection) {
             case LEFT_TO_RIGHT:
                 return "LEFT_TO_RIGHT";
             case RIGHT_TO_LEFT:

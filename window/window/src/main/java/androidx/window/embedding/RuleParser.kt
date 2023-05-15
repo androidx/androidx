@@ -174,6 +174,7 @@ internal object RuleParser {
                 ALWAYS.value
             )
             val clearTop = typedArray.getBoolean(R.styleable.SplitPairRule_clearTop, false)
+            typedArray.recycle()
 
             val defaultAttrs = SplitAttributes.Builder()
                 .setSplitType(SplitAttributes.SplitType.buildSplitTypeFromValue(ratio))
@@ -251,6 +252,7 @@ internal object RuleParser {
                 R.styleable.SplitPlaceholderRule_splitLayoutDirection,
                 LOCALE.value
             )
+            typedArray.recycle()
 
             val defaultAttrs = SplitAttributes.Builder()
                 .setSplitType(SplitAttributes.SplitType.buildSplitTypeFromValue(ratio))
