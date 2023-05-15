@@ -26,7 +26,6 @@ import androidx.appactions.interaction.proto.AppActionsContext.AppAction
 import androidx.appactions.interaction.proto.TaskInfo
 import kotlinx.coroutines.sync.Mutex
 
-/** @suppress */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 internal class SingleTurnCapabilityImpl<
     ArgumentsT,

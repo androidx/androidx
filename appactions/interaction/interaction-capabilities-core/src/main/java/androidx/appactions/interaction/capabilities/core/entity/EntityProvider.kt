@@ -72,8 +72,6 @@ constructor(
     /**
      * Internal method to lookup untyped entity, which will be used by service library to handle
      * {@link GroundingRequest}.
-     *
-     * @suppress
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     suspend fun lookupInternal(request: GroundingRequest): GroundingResponse {

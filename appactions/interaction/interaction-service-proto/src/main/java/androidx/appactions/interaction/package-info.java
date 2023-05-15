@@ -16,6 +16,8 @@
 
 /**
  * Internal protos for interaction-service.
- * @hide
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 package androidx.appactions.interaction.service.proto;
+
+import androidx.annotation.RestrictTo;
