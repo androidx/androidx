@@ -20,8 +20,8 @@ import android.os.Bundle;
 
 /**
  * Interface to a TrustedWebActivityService.
- * @hide
  */
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 interface ITrustedWebActivityService {
     Bundle areNotificationsEnabled(in Bundle args) = 5;
     Bundle notifyNotificationWithChannel(in Bundle args) = 1;
