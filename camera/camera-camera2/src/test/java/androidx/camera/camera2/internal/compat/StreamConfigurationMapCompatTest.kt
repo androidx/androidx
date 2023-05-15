@@ -16,12 +16,14 @@
 
 package androidx.camera.camera2.internal.compat
 
+import android.graphics.ImageFormat
 import android.graphics.SurfaceTexture
 import android.os.Build
 import android.util.Size
 import androidx.camera.camera2.internal.compat.workaround.OutputSizesCorrector
 import androidx.camera.core.impl.ImageFormatConstants
 import com.google.common.truth.Truth.assertThat
+import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -78,5 +80,26 @@ class StreamConfigurationMapCompatTest {
         assertThat(
             streamConfigurationMapCompat.getOutputSizes(SurfaceTexture::class.java)!!.toList()
         ).containsExactlyElementsIn(privateFormatOutputSizes)
+    }
+
+    @Test
+    fun getOutputSizesByFormatTwice_whenReturnedArrayIsNull() {
+        assumeTrue(streamConfigurationMapCompat.getOutputSizes(ImageFormat.RGB_565) == null)
+        assertThat(streamConfigurationMapCompat.getOutputSizes(ImageFormat.RGB_565)).isNull()
+    }
+
+    @Test
+    fun getOutputSizesByClassTwice_whenReturnedArrayIsNull() {
+        assumeTrue(streamConfigurationMapCompat.getOutputSizes(ImageFormat::class.java) == null)
+        assertThat(streamConfigurationMapCompat.getOutputSizes(ImageFormat::class.java)).isNull()
+    }
+
+    @Test
+    @Config(minSdk = 23)
+    fun getHighResolutionOutputSizesTwice_whenReturnedArrayIsNull() {
+        assumeTrue(streamConfigurationMapCompat.getHighResolutionOutputSizes(
+            ImageFormat.JPEG) == null)
+        assertThat(streamConfigurationMapCompat.getHighResolutionOutputSizes(ImageFormat.JPEG))
+            .isNull()
     }
 }
