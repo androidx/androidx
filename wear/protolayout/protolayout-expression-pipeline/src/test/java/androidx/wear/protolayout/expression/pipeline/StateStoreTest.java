@@ -87,7 +87,7 @@ public class StateStoreTest {
     @Test
     public void initState_largeNumberOfEntries_throws() {
         Map<AppDataKey<?>, DynamicDataBuilders.DynamicDataValue> state = new HashMap<>();
-        for (int i = 0; i < StateStore.MAX_STATE_ENTRY_COUNT + 10; i++) {
+        for (int i = 0; i < StateStore.getMaxStateEntryCount() + 10; i++) {
             state.put(
                     new AppDataKey<DynamicString>(Integer.toString(i)),
                     DynamicDataBuilders.DynamicDataValue.fromString("baz"));
@@ -98,7 +98,7 @@ public class StateStoreTest {
     @Test
     public void newState_largeNumberOfEntries_throws() {
         Map<AppDataKey<?>, DynamicDataBuilders.DynamicDataValue> state = new HashMap<>();
-        for (int i = 0; i < StateStore.MAX_STATE_ENTRY_COUNT + 10; i++) {
+        for (int i = 0; i < StateStore.getMaxStateEntryCount() + 10; i++) {
             state.put(
                     new AppDataKey<DynamicString>(Integer.toString(i)),
                     DynamicDataBuilders.DynamicDataValue.fromString("baz"));

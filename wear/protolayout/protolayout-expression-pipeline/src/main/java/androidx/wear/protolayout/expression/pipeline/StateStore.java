@@ -49,15 +49,8 @@ import java.util.stream.Stream;
  * must only be used from the UI thread.
  */
 public class StateStore {
-    /**
-     * Maximum number for state entries allowed for this {@link StateStore}.
-     *
-     * <p>The ProtoLayout state model is not designed to handle large volumes of layout provided
-     * state. So we limit the number of state entries to keep the on-the-wire size and state
-     * store update times manageable.
-     */
     @SuppressLint("MinMaxConstant")
-    public static final int MAX_STATE_ENTRY_COUNT = 100;
+    private static final int MAX_STATE_ENTRY_COUNT = 30;
 
     private final Executor mUiExecutor;
     @NonNull private final Map<AppDataKey<?>, DynamicDataValue> mCurrentAppState
@@ -85,7 +78,7 @@ public class StateStore {
      * Creates a {@link StateStore}.
      *
      * @throws IllegalStateException if number of initialState entries is greater than
-     * {@link StateStore#MAX_STATE_ENTRY_COUNT}.
+     * {@link StateStore#getMaxStateEntryCount()}.
      */
     @NonNull
     public static StateStore create(
@@ -97,7 +90,7 @@ public class StateStore {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     public StateStore(
             @NonNull Map<AppDataKey<?>, DynamicDataValue> initialState) {
-        if (initialState.size() > MAX_STATE_ENTRY_COUNT) {
+        if (initialState.size() > getMaxStateEntryCount()) {
             throw stateTooLargeException(initialState.size());
         }
         mCurrentAppState.putAll(initialState);
@@ -115,7 +108,7 @@ public class StateStore {
      * <p>Informs registered listeners of changed values, invalidates removed values.
      *
      * @throws IllegalStateException if number of state entries is greater than
-     * {@link StateStore#MAX_STATE_ENTRY_COUNT}. The state will not update and old state entries
+     * {@link StateStore#getMaxStateEntryCount()}. The state will not update and old state entries
      * will stay in place.
      */
     @UiThread
@@ -130,14 +123,14 @@ public class StateStore {
      * <p>Informs registered listeners of changed values, invalidates removed values.
      *
      * @throws IllegalStateException if number of state entries is larger than
-     * {@link StateStore#MAX_STATE_ENTRY_COUNT}. The state will not update and old state entries
+     * {@link StateStore#getMaxStateEntryCount()}. The state will not update and old state entries
      * will stay in place.
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     @UiThread
     public void setAppStateEntryValuesProto(
             @NonNull Map<AppDataKey<?>, DynamicDataValue> newState) {
-        if (newState.size() > MAX_STATE_ENTRY_COUNT) {
+        if (newState.size() > getMaxStateEntryCount()) {
             throw stateTooLargeException(newState.size());
         }
 
@@ -337,6 +330,17 @@ public class StateStore {
         }
     }
 
+    /**
+     * Returns the maximum number for state entries allowed for this {@link StateStore}.
+     *
+     * <p>The ProtoLayout state model is not designed to handle large volumes of layout provided
+     * state. So we limit the number of state entries to keep the on-the-wire size and state
+     * store update times manageable.
+     */
+    public static int getMaxStateEntryCount(){
+        return MAX_STATE_ENTRY_COUNT;
+    }
+
     @NonNull
     private static Map<AppDataKey<?>, DynamicDataValue> toProto(
             @NonNull Map<AppDataKey<?>, DynamicDataBuilders.DynamicDataValue> value) {
@@ -371,6 +375,6 @@ public class StateStore {
                 String.format(
                         "Too many state entries: %d. The maximum number of allowed state entries "
                                 + "is %d.",
-                        stateSize, MAX_STATE_ENTRY_COUNT));
+                        stateSize, getMaxStateEntryCount()));
     }
 }

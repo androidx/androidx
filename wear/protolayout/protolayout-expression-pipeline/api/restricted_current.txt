@@ -72,9 +72,9 @@ package androidx.wear.protolayout.expression.pipeline {
   public class StateStore {
     ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public StateStore(java.util.Map<androidx.wear.protolayout.expression.AppDataKey<?>!,androidx.wear.protolayout.expression.proto.DynamicDataProto.DynamicDataValue!>);
     method public static androidx.wear.protolayout.expression.pipeline.StateStore create(java.util.Map<androidx.wear.protolayout.expression.AppDataKey<?>!,androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue!>);
+    method public static int getMaxStateEntryCount();
     method @UiThread public void setAppStateEntryValues(java.util.Map<androidx.wear.protolayout.expression.AppDataKey<?>!,androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue!>);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @UiThread public void setAppStateEntryValuesProto(java.util.Map<androidx.wear.protolayout.expression.AppDataKey<?>!,androidx.wear.protolayout.expression.proto.DynamicDataProto.DynamicDataValue!>);
-    field public static final int MAX_STATE_ENTRY_COUNT = 100; // 0x64
   }
 
   public interface TimeGateway {
