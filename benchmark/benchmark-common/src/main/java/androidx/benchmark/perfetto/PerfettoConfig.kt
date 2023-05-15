@@ -265,6 +265,26 @@ private fun stackSamplingSource(
             )
         )
     )
+    sources += TraceConfig.DataSource(
+        config = DataSourceConfig(
+            name = "linux.perf",
+            target_buffer = 1,
+            perf_event_config = PerfEventConfig(
+                timebase = PerfEvents.Timebase(
+                    tracepoint = PerfEvents.Tracepoint(
+                        name = "sched_switch"
+                    ),
+                    period = 1
+                ),
+                callstack_sampling = PerfEventConfig.CallstackSampling(
+                    scope = PerfEventConfig.Scope(
+                        target_cmdline = config.packageNames
+                    )
+                ),
+                kernel_frames = false
+            )
+        )
+    )
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
         // https://perfetto.dev/docs/reference/trace-config-proto#HeapprofdConfig
         sources += TraceConfig.DataSource(
