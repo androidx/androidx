@@ -85,7 +85,8 @@ public class StreamConfigurationMapCompat {
     @Nullable
     public Size[] getOutputSizes(int format) {
         if (mCachedFormatOutputSizes.containsKey(format)) {
-            return mCachedFormatOutputSizes.get(format).clone();
+            Size[] cachedOutputSizes = mCachedFormatOutputSizes.get(format);
+            return cachedOutputSizes == null ? null : mCachedFormatOutputSizes.get(format).clone();
         }
 
         Size[] outputSizes = mImpl.getOutputSizes(format);
@@ -113,7 +114,8 @@ public class StreamConfigurationMapCompat {
     @Nullable
     public <T> Size[] getOutputSizes(@NonNull Class<T> klass) {
         if (mCachedClassOutputSizes.containsKey(klass)) {
-            return mCachedClassOutputSizes.get(klass).clone();
+            Size[] cachedOutputSizes = mCachedClassOutputSizes.get(klass);
+            return cachedOutputSizes == null ? null : mCachedClassOutputSizes.get(klass).clone();
         }
 
         Size[] outputSizes = mImpl.getOutputSizes(klass);
@@ -140,7 +142,9 @@ public class StreamConfigurationMapCompat {
     @Nullable
     public Size[] getHighResolutionOutputSizes(int format) {
         if (mCachedFormatHighResolutionOutputSizes.containsKey(format)) {
-            return mCachedFormatHighResolutionOutputSizes.get(format).clone();
+            Size[] cachedOutputSizes = mCachedFormatHighResolutionOutputSizes.get(format);
+            return cachedOutputSizes == null ? null : mCachedFormatHighResolutionOutputSizes.get(
+                    format).clone();
         }
 
         Size[] outputSizes = mImpl.getHighResolutionOutputSizes(format);
