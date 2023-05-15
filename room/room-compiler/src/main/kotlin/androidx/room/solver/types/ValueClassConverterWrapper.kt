@@ -79,15 +79,28 @@ class ValueClassConverterWrapper(
     ) {
         scope.builder.apply {
             val propertyName = scope.getTmpVar("_$valuePropertyName")
-            addLocalVariable(
-                name = propertyName,
-                typeName = valueTypeColumnAdapter.outTypeName,
-                assignExpr = XCodeBlock.of(
+            val assignmentBlock = if (out.nullability == XNullability.NONNULL) {
+                // TODO(b/249984504): Generate / output a better message.
+                XCodeBlock.of(
                     scope.language,
-                    "%L.%L",
+                    "checkNotNull(%L.%L) { %S }",
+                    valueVarName,
+                    valuePropertyName,
+                    "Cannot bind nullable value of inline class to a NOT NULL column."
+                )
+            } else {
+                XCodeBlock.of(
+                    scope.language,
+                    "%L?.%L",
                     valueVarName,
                     valuePropertyName
                 )
+            }
+            addLocalVariable(
+                name = propertyName,
+                typeName = valueTypeColumnAdapter.outTypeName
+                    .copy(nullable = out.nullability != XNullability.NONNULL),
+                assignExpr = assignmentBlock
             )
 
             if (out.nullability == XNullability.NONNULL) {
