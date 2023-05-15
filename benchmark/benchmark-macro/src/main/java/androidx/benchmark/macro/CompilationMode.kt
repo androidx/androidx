@@ -101,8 +101,8 @@ sealed class CompilationMode {
                         val output = Shell.executeScriptCaptureStdout(
                             "cmd package compile --reset $packageName"
                         )
-                        check(output.trim() == "Success") {
-                            "Unable to recompile $packageName ($output)"
+                        check(output.trim() == "Success" || output.contains("PERFORMED")) {
+                            "Unable to recompile $packageName (out=$output)"
                         }
                     } else {
                         // User builds pre-U. Kick off a full uninstall-reinstall
@@ -154,8 +154,8 @@ sealed class CompilationMode {
                 // correctly installed. (b/231294733)
                 output = Shell.executeScriptCaptureStdout("pm install -t $tempApkPathsString")
 
-                check(output.trim() == "Success") {
-                    "Unable to install $packageName ($output)"
+                check(output.trim() == "Success" || output.contains("PERFORMED")) {
+                    "Unable to install $packageName (out=$output)"
                 }
             } finally {
                 // Cleanup the temporary APK
@@ -433,7 +433,9 @@ sealed class CompilationMode {
             val stdout = Shell.executeScriptCaptureStdout(
                 "cmd package compile -f -m $compileArgument $packageName"
             )
-            check(stdout.trim() == "Success")
+            check(stdout.trim() == "Success" || stdout.contains("PERFORMED")) {
+                "Failed to compile (out=$stdout)"
+            }
         }
     }
 }

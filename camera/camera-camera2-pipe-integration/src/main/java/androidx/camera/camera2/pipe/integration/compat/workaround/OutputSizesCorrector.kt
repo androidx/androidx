@@ -17,19 +17,14 @@
 package androidx.camera.camera2.pipe.integration.compat.workaround
 
 import android.hardware.camera2.params.StreamConfigurationMap
-import android.util.Rational
 import android.util.Size
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraMetadata
-import androidx.camera.camera2.pipe.integration.compat.StreamConfigurationMapCompat
 import androidx.camera.camera2.pipe.integration.compat.quirk.DeviceQuirks
 import androidx.camera.camera2.pipe.integration.compat.quirk.ExcludedSupportedSizesQuirk
 import androidx.camera.camera2.pipe.integration.compat.quirk.ExtraSupportedOutputSizeQuirk
 import androidx.camera.camera2.pipe.integration.config.CameraScope
 import androidx.camera.core.Logger
-import androidx.camera.core.impl.utils.AspectRatioUtil
-import androidx.camera.core.impl.utils.CompareSizesByArea
-import java.util.Collections
 import javax.inject.Inject
 
 /**
@@ -37,8 +32,6 @@ import javax.inject.Inject
  *
  * 1. ExtraSupportedOutputSizeQuirk
  * 2. ExcludedSupportedSizesContainer
- * 3. Nexus4AndroidLTargetAspectRatioQuirk
- * 4. AspectRatioLegacyApi21Quirk
  */
 @CameraScope
 @RequiresApi(21)
@@ -51,9 +44,6 @@ class OutputSizesCorrector @Inject constructor(
         DeviceQuirks[ExcludedSupportedSizesQuirk::class.java]
     private val extraSupportedOutputSizeQuirk: ExtraSupportedOutputSizeQuirk? =
         DeviceQuirks[ExtraSupportedOutputSizeQuirk::class.java]
-    private val targetAspectRatio: TargetAspectRatio = TargetAspectRatio()
-    private val streamConfigurationMapCompat =
-        StreamConfigurationMapCompat(streamConfigurationMap, this)
 
     /**
      * Applies the output sizes related quirks onto the input sizes array.
@@ -65,12 +55,7 @@ class OutputSizesCorrector @Inject constructor(
         if (sizeList.isEmpty()) {
             Logger.w(tag, "Sizes array becomes empty after excluding problematic output sizes.")
         }
-        val resultSizeArray = excludeOutputSizesByTargetAspectRatioWorkaround(sizeList)
-        if (resultSizeArray.isEmpty()) {
-            Logger.w(tag, "Sizes array becomes empty after excluding output sizes by target" +
-                " aspect ratio workaround.")
-        }
-        return resultSizeArray
+        return sizeList.toTypedArray()
     }
 
     /**
@@ -83,12 +68,7 @@ class OutputSizesCorrector @Inject constructor(
         if (sizeList.isEmpty()) {
             Logger.w(tag, "Sizes array becomes empty after excluding problematic output sizes.")
         }
-        val resultSizeArray = excludeOutputSizesByTargetAspectRatioWorkaround(sizeList)
-        if (resultSizeArray.isEmpty()) {
-            Logger.w(tag, "Sizes array becomes empty after excluding output sizes by target" +
-                " aspect ratio workaround.")
-        }
-        return resultSizeArray
+        return sizeList.toTypedArray()
     }
 
     /**
@@ -171,56 +151,5 @@ class OutputSizesCorrector @Inject constructor(
                 sizeList.removeAll(it)
             }
         }
-    }
-
-    /**
-     * Excludes output sizes by TargetAspectRatio.
-     *
-     * @param sizeList the original sizes list
-     */
-    private fun excludeOutputSizesByTargetAspectRatioWorkaround(
-        sizeList: List<Size>
-    ): Array<Size> {
-        if (cameraMetadata == null) {
-            return sizeList.toTypedArray()
-        }
-
-        val targetAspectRatio: Int =
-            targetAspectRatio[
-                cameraMetadata,
-                streamConfigurationMapCompat
-            ]
-
-        var ratio: Rational? = null
-
-        when (targetAspectRatio) {
-            TargetAspectRatio.RATIO_4_3 -> ratio =
-                AspectRatioUtil.ASPECT_RATIO_4_3
-
-            TargetAspectRatio.RATIO_16_9 -> ratio =
-                AspectRatioUtil.ASPECT_RATIO_16_9
-
-            TargetAspectRatio.RATIO_MAX_JPEG -> {
-                val maxJpegSize = Collections.max(sizeList, CompareSizesByArea())
-                ratio = Rational(maxJpegSize.width, maxJpegSize.height)
-            }
-
-            TargetAspectRatio.RATIO_ORIGINAL -> ratio =
-                null
-        }
-
-        if (ratio == null) {
-            return sizeList.toTypedArray()
-        }
-
-        val resultList = mutableListOf<Size>()
-
-        for (size in sizeList) {
-            if (AspectRatioUtil.hasMatchingAspectRatio(size, ratio)) {
-                resultList.add(size)
-            }
-        }
-
-        return resultList.toTypedArray()
     }
 }

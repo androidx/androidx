@@ -76,116 +76,99 @@ import androidx.glance.wear.tiles.curved.SemanticsCurvedModifier
 import androidx.glance.wear.tiles.curved.SweepAngleModifier
 import androidx.glance.wear.tiles.curved.ThicknessModifier
 import androidx.glance.wear.tiles.curved.findModifier
-import androidx.wear.tiles.ActionBuilders
-import androidx.wear.tiles.ColorBuilders.argb
-import androidx.wear.tiles.DimensionBuilders
-import androidx.wear.tiles.DimensionBuilders.degrees
-import androidx.wear.tiles.DimensionBuilders.dp
-import androidx.wear.tiles.DimensionBuilders.expand
-import androidx.wear.tiles.DimensionBuilders.sp
-import androidx.wear.tiles.DimensionBuilders.wrap
-import androidx.wear.tiles.LayoutElementBuilders
-import androidx.wear.tiles.LayoutElementBuilders.ARC_ANCHOR_CENTER
-import androidx.wear.tiles.LayoutElementBuilders.ARC_ANCHOR_END
-import androidx.wear.tiles.LayoutElementBuilders.ARC_ANCHOR_START
-import androidx.wear.tiles.LayoutElementBuilders.ArcAnchorType
-import androidx.wear.tiles.LayoutElementBuilders.FONT_WEIGHT_BOLD
-import androidx.wear.tiles.LayoutElementBuilders.FONT_WEIGHT_MEDIUM
-import androidx.wear.tiles.LayoutElementBuilders.FONT_WEIGHT_NORMAL
-import androidx.wear.tiles.LayoutElementBuilders.HORIZONTAL_ALIGN_CENTER
-import androidx.wear.tiles.LayoutElementBuilders.HORIZONTAL_ALIGN_END
-import androidx.wear.tiles.LayoutElementBuilders.HORIZONTAL_ALIGN_LEFT
-import androidx.wear.tiles.LayoutElementBuilders.HORIZONTAL_ALIGN_RIGHT
-import androidx.wear.tiles.LayoutElementBuilders.HORIZONTAL_ALIGN_START
-import androidx.wear.tiles.LayoutElementBuilders.HorizontalAlignment
-import androidx.wear.tiles.LayoutElementBuilders.TEXT_ALIGN_CENTER
-import androidx.wear.tiles.LayoutElementBuilders.TEXT_ALIGN_END
-import androidx.wear.tiles.LayoutElementBuilders.TEXT_ALIGN_START
-import androidx.wear.tiles.LayoutElementBuilders.TextAlignment
-import androidx.wear.tiles.LayoutElementBuilders.VERTICAL_ALIGN_BOTTOM
-import androidx.wear.tiles.LayoutElementBuilders.VERTICAL_ALIGN_CENTER
-import androidx.wear.tiles.LayoutElementBuilders.VERTICAL_ALIGN_TOP
-import androidx.wear.tiles.LayoutElementBuilders.VerticalAlignment
-import androidx.wear.tiles.ModifiersBuilders
-import androidx.wear.tiles.ResourceBuilders
 import java.io.ByteArrayOutputStream
 import java.util.Arrays
 
 internal const val GlanceWearTileTag = "GlanceWearTile"
 
-@VerticalAlignment
+@Suppress("deprecation") // for backward compatibility
+@androidx.wear.tiles.LayoutElementBuilders.VerticalAlignment
 private fun Alignment.Vertical.toProto(): Int =
     when (this) {
-        Alignment.Vertical.Top -> VERTICAL_ALIGN_TOP
-        Alignment.Vertical.CenterVertically -> VERTICAL_ALIGN_CENTER
-        Alignment.Vertical.Bottom -> VERTICAL_ALIGN_BOTTOM
+        Alignment.Vertical.Top -> androidx.wear.tiles.LayoutElementBuilders.VERTICAL_ALIGN_TOP
+        Alignment.Vertical.CenterVertically ->
+            androidx.wear.tiles.LayoutElementBuilders.VERTICAL_ALIGN_CENTER
+        Alignment.Vertical.Bottom -> androidx.wear.tiles.LayoutElementBuilders.VERTICAL_ALIGN_BOTTOM
         else -> {
-            Log.w(
-                GlanceWearTileTag,
-                "Unknown vertical alignment type $this, align to Top instead"
-            )
-            VERTICAL_ALIGN_TOP
+            Log.w(GlanceWearTileTag, "Unknown vertical alignment type $this, align to Top instead")
+            androidx.wear.tiles.LayoutElementBuilders.VERTICAL_ALIGN_TOP
         }
     }
 
-@HorizontalAlignment
+@Suppress("deprecation") // for backward compatibility
+@androidx.wear.tiles.LayoutElementBuilders.HorizontalAlignment
 private fun Alignment.Horizontal.toProto(): Int =
     when (this) {
-        Alignment.Horizontal.Start -> HORIZONTAL_ALIGN_START
-        Alignment.Horizontal.CenterHorizontally -> HORIZONTAL_ALIGN_CENTER
-        Alignment.Horizontal.End -> HORIZONTAL_ALIGN_END
+        Alignment.Horizontal.Start ->
+            androidx.wear.tiles.LayoutElementBuilders.HORIZONTAL_ALIGN_START
+        Alignment.Horizontal.CenterHorizontally ->
+            androidx.wear.tiles.LayoutElementBuilders.HORIZONTAL_ALIGN_CENTER
+        Alignment.Horizontal.End -> androidx.wear.tiles.LayoutElementBuilders.HORIZONTAL_ALIGN_END
         else -> {
             Log.w(
                 GlanceWearTileTag,
                 "Unknown horizontal alignment type $this, align to Start instead"
             )
-            HORIZONTAL_ALIGN_START
+            androidx.wear.tiles.LayoutElementBuilders.HORIZONTAL_ALIGN_START
         }
     }
 
-private fun PaddingInDp.toProto(): ModifiersBuilders.Padding =
-    ModifiersBuilders.Padding.Builder()
-        .setStart(dp(start.value))
-        .setTop(dp(top.value))
-        .setEnd(dp(end.value))
-        .setBottom((dp(bottom.value)))
+@Suppress("deprecation") // for backward compatibility
+private fun PaddingInDp.toProto(): androidx.wear.tiles.ModifiersBuilders.Padding =
+    androidx.wear.tiles.ModifiersBuilders.Padding.Builder()
+        .setStart(androidx.wear.tiles.DimensionBuilders.dp(start.value))
+        .setTop(androidx.wear.tiles.DimensionBuilders.dp(top.value))
+        .setEnd(androidx.wear.tiles.DimensionBuilders.dp(end.value))
+        .setBottom((androidx.wear.tiles.DimensionBuilders.dp(bottom.value)))
         .setRtlAware(true)
         .build()
 
-private fun BackgroundModifier.toProto(context: Context): ModifiersBuilders.Background? =
+@Suppress("deprecation") // for backward compatibility
+private fun BackgroundModifier.toProto(
+    context: Context
+): androidx.wear.tiles.ModifiersBuilders.Background? =
     this.colorProvider?.let { provider ->
-        ModifiersBuilders.Background.Builder()
-            .setColor(argb(provider.getColorAsArgb(context)))
+        androidx.wear.tiles.ModifiersBuilders.Background.Builder()
+            .setColor(androidx.wear.tiles.ColorBuilders.argb(provider.getColorAsArgb(context)))
             .build()
     }
 
-private fun BorderModifier.toProto(context: Context): ModifiersBuilders.Border =
-    ModifiersBuilders.Border.Builder()
-        .setWidth(dp(this.width.toDp(context.resources).value))
-        .setColor(argb(this.color.getColorAsArgb(context)))
+@Suppress("deprecation") // for backward compatibility
+private fun BorderModifier.toProto(context: Context): androidx.wear.tiles.ModifiersBuilders.Border =
+    androidx.wear.tiles.ModifiersBuilders.Border.Builder()
+        .setWidth(
+            androidx.wear.tiles.DimensionBuilders.dp(this.width.toDp(context.resources).value)
+        )
+        .setColor(androidx.wear.tiles.ColorBuilders.argb(this.color.getColorAsArgb(context)))
         .build()
 
-private fun SemanticsModifier.toProto(): ModifiersBuilders.Semantics? =
+@Suppress("deprecation") // for backward compatibility
+private fun SemanticsModifier.toProto(): androidx.wear.tiles.ModifiersBuilders.Semantics? =
     this.configuration.getOrNull(SemanticsProperties.ContentDescription)?.let {
-        ModifiersBuilders.Semantics.Builder()
+        androidx.wear.tiles.ModifiersBuilders.Semantics.Builder()
             .setContentDescription(it.joinToString())
             .build()
     }
 
-private fun SemanticsCurvedModifier.toProto(): ModifiersBuilders.Semantics? =
+@Suppress("deprecation") // for backward compatibility
+private fun SemanticsCurvedModifier.toProto(): androidx.wear.tiles.ModifiersBuilders.Semantics? =
     this.configuration.getOrNull(SemanticsProperties.ContentDescription)?.let {
-        ModifiersBuilders.Semantics.Builder()
+        androidx.wear.tiles.ModifiersBuilders.Semantics.Builder()
             .setContentDescription(it.joinToString())
             .build()
     }
 
+@Suppress("deprecation") // for backward compatibility
 private fun ColorProvider.getColorAsArgb(context: Context) = getColor(context).toArgb()
 
 // TODO: handle parameters
-private fun StartActivityAction.toProto(context: Context): ActionBuilders.LaunchAction =
-    ActionBuilders.LaunchAction.Builder()
+@Suppress("deprecation") // for backward compatibility
+private fun StartActivityAction.toProto(
+    context: Context
+): androidx.wear.tiles.ActionBuilders.LaunchAction =
+    androidx.wear.tiles.ActionBuilders.LaunchAction.Builder()
         .setAndroidActivity(
-            ActionBuilders.AndroidActivity.Builder()
+            androidx.wear.tiles.ActionBuilders.AndroidActivity.Builder()
                 .setPackageName(
                     when (this) {
                         is StartActivityComponentAction -> componentName.packageName
@@ -204,15 +187,17 @@ private fun StartActivityAction.toProto(context: Context): ActionBuilders.Launch
         )
         .build()
 
-private fun Action.toClickable(context: Context): ModifiersBuilders.Clickable {
-    val builder = ModifiersBuilders.Clickable.Builder()
+@Suppress("deprecation") // for backward compatibility
+private fun Action.toClickable(context: Context): androidx.wear.tiles.ModifiersBuilders.Clickable {
+    val builder = androidx.wear.tiles.ModifiersBuilders.Clickable.Builder()
 
     when (this) {
         is StartActivityAction -> {
             builder.setOnClick(toProto(context))
         }
         is RunCallbackAction -> {
-            builder.setOnClick(ActionBuilders.LoadAction.Builder().build())
+            builder
+                .setOnClick(androidx.wear.tiles.ActionBuilders.LoadAction.Builder().build())
                 .setId(callbackClass.canonicalName!!)
         }
         is LambdaAction -> {
@@ -230,73 +215,84 @@ private fun Action.toClickable(context: Context): ModifiersBuilders.Clickable {
     return builder.build()
 }
 
-private fun ActionModifier.toProto(context: Context): ModifiersBuilders.Clickable =
-    this.action.toClickable(context)
+@Suppress("deprecation") // for backward compatibility
+private fun ActionModifier.toProto(
+    context: Context
+): androidx.wear.tiles.ModifiersBuilders.Clickable = this.action.toClickable(context)
 
-private fun ActionCurvedModifier.toProto(context: Context): ModifiersBuilders.Clickable =
-    this.action.toClickable(context)
+@Suppress("deprecation") // for backward compatibility
+private fun ActionCurvedModifier.toProto(
+    context: Context
+): androidx.wear.tiles.ModifiersBuilders.Clickable = this.action.toClickable(context)
 
-private fun Dimension.toContainerDimension(): DimensionBuilders.ContainerDimension =
+@Suppress("deprecation") // for backward compatibility
+private fun Dimension.toContainerDimension():
+    androidx.wear.tiles.DimensionBuilders.ContainerDimension =
     when (this) {
-        is Dimension.Wrap -> wrap()
-        is Dimension.Expand -> expand()
-        is Dimension.Fill -> expand()
-        is Dimension.Dp -> dp(this.dp.value)
+        is Dimension.Wrap -> androidx.wear.tiles.DimensionBuilders.wrap()
+        is Dimension.Expand -> androidx.wear.tiles.DimensionBuilders.expand()
+        is Dimension.Fill -> androidx.wear.tiles.DimensionBuilders.expand()
+        is Dimension.Dp -> androidx.wear.tiles.DimensionBuilders.dp(this.dp.value)
         else -> throw IllegalArgumentException("The dimension should be fully resolved, not $this.")
     }
 
-@ArcAnchorType
+@Suppress("deprecation") // for backward compatibility
+@androidx.wear.tiles.LayoutElementBuilders.ArcAnchorType
 private fun AnchorType.toProto(): Int =
     when (this) {
-        AnchorType.Start -> ARC_ANCHOR_START
-        AnchorType.Center -> ARC_ANCHOR_CENTER
-        AnchorType.End -> ARC_ANCHOR_END
+        AnchorType.Start -> androidx.wear.tiles.LayoutElementBuilders.ARC_ANCHOR_START
+        AnchorType.Center -> androidx.wear.tiles.LayoutElementBuilders.ARC_ANCHOR_CENTER
+        AnchorType.End -> androidx.wear.tiles.LayoutElementBuilders.ARC_ANCHOR_END
         else -> {
             Log.w(GlanceWearTileTag, "Unknown arc anchor type $this, anchor to center instead")
-            ARC_ANCHOR_CENTER
+            androidx.wear.tiles.LayoutElementBuilders.ARC_ANCHOR_CENTER
         }
     }
 
-@VerticalAlignment
+@Suppress("deprecation") // for backward compatibility
+@androidx.wear.tiles.LayoutElementBuilders.VerticalAlignment
 private fun RadialAlignment.toProto(): Int =
     when (this) {
-        RadialAlignment.Outer -> VERTICAL_ALIGN_TOP
-        RadialAlignment.Center -> VERTICAL_ALIGN_CENTER
-        RadialAlignment.Inner -> VERTICAL_ALIGN_BOTTOM
+        RadialAlignment.Outer -> androidx.wear.tiles.LayoutElementBuilders.VERTICAL_ALIGN_TOP
+        RadialAlignment.Center -> androidx.wear.tiles.LayoutElementBuilders.VERTICAL_ALIGN_CENTER
+        RadialAlignment.Inner -> androidx.wear.tiles.LayoutElementBuilders.VERTICAL_ALIGN_BOTTOM
         else -> {
-            Log.w(
-                GlanceWearTileTag,
-                "Unknown radial alignment $this, align to center instead"
-            )
-            VERTICAL_ALIGN_CENTER
+            Log.w(GlanceWearTileTag, "Unknown radial alignment $this, align to center instead")
+            androidx.wear.tiles.LayoutElementBuilders.VERTICAL_ALIGN_CENTER
         }
     }
 
-@TextAlignment
+@Suppress("deprecation") // for backward compatibility
+@androidx.wear.tiles.LayoutElementBuilders.TextAlignment
 private fun TextAlign.toTextAlignment(isRtl: Boolean): Int =
     when (this) {
-        TextAlign.Center -> TEXT_ALIGN_CENTER
-        TextAlign.End -> TEXT_ALIGN_END
-        TextAlign.Left -> if (isRtl) TEXT_ALIGN_END else TEXT_ALIGN_START
-        TextAlign.Right -> if (isRtl) TEXT_ALIGN_START else TEXT_ALIGN_END
-        TextAlign.Start -> TEXT_ALIGN_START
+        TextAlign.Center -> androidx.wear.tiles.LayoutElementBuilders.TEXT_ALIGN_CENTER
+        TextAlign.End -> androidx.wear.tiles.LayoutElementBuilders.TEXT_ALIGN_END
+        TextAlign.Left ->
+            if (isRtl) androidx.wear.tiles.LayoutElementBuilders.TEXT_ALIGN_END
+            else androidx.wear.tiles.LayoutElementBuilders.TEXT_ALIGN_START
+        TextAlign.Right ->
+            if (isRtl) androidx.wear.tiles.LayoutElementBuilders.TEXT_ALIGN_START
+            else androidx.wear.tiles.LayoutElementBuilders.TEXT_ALIGN_END
+        TextAlign.Start -> androidx.wear.tiles.LayoutElementBuilders.TEXT_ALIGN_START
         else -> {
             Log.w(GlanceWearTileTag, "Unknown text alignment $this, align to Start instead")
-            TEXT_ALIGN_START
+            androidx.wear.tiles.LayoutElementBuilders.TEXT_ALIGN_START
         }
     }
 
-@HorizontalAlignment
+@Suppress("deprecation") // for backward compatibility
+@androidx.wear.tiles.LayoutElementBuilders.HorizontalAlignment
 private fun TextAlign.toHorizontalAlignment(): Int =
     when (this) {
-        TextAlign.Center -> HORIZONTAL_ALIGN_CENTER
-        TextAlign.End -> HORIZONTAL_ALIGN_END
-        TextAlign.Left -> HORIZONTAL_ALIGN_LEFT
-        TextAlign.Right -> HORIZONTAL_ALIGN_RIGHT
-        TextAlign.Start -> HORIZONTAL_ALIGN_START
+        TextAlign.Center -> androidx.wear.tiles.LayoutElementBuilders.HORIZONTAL_ALIGN_CENTER
+        TextAlign.End -> androidx.wear.tiles.LayoutElementBuilders.HORIZONTAL_ALIGN_END
+        TextAlign.Left -> androidx.wear.tiles.LayoutElementBuilders.HORIZONTAL_ALIGN_LEFT
+        TextAlign.Right -> androidx.wear.tiles.LayoutElementBuilders.HORIZONTAL_ALIGN_RIGHT
+        TextAlign.Start -> androidx.wear.tiles.LayoutElementBuilders.HORIZONTAL_ALIGN_START
         else -> {
             Log.w(GlanceWearTileTag, "Unknown text alignment $this, align to Start instead")
-            HORIZONTAL_ALIGN_START
+            androidx.wear.tiles.LayoutElementBuilders.HORIZONTAL_ALIGN_START
         }
     }
 
@@ -320,50 +316,56 @@ private fun GlanceModifier.getHeight(
     default: Dimension = Dimension.Wrap
 ): Dimension = findModifier<HeightModifier>()?.height?.resolve(context) ?: default
 
+@Suppress("deprecation") // for backward compatibility
 private fun translateEmittableBox(
     context: Context,
-    resourceBuilder: ResourceBuilders.Resources.Builder,
+    resourceBuilder: androidx.wear.tiles.ResourceBuilders.Resources.Builder,
     element: EmittableBox
-) = LayoutElementBuilders.Box.Builder()
-    .setVerticalAlignment(element.contentAlignment.vertical.toProto())
-    .setHorizontalAlignment(element.contentAlignment.horizontal.toProto())
-    .setModifiers(translateModifiers(context, element.modifier))
-    .setWidth(element.modifier.getWidth(context).toContainerDimension())
-    .setHeight(element.modifier.getHeight(context).toContainerDimension())
-    .also { box ->
-        element.children.forEach {
-            box.addContent(translateComposition(context, resourceBuilder, it))
+) =
+    androidx.wear.tiles.LayoutElementBuilders.Box.Builder()
+        .setVerticalAlignment(element.contentAlignment.vertical.toProto())
+        .setHorizontalAlignment(element.contentAlignment.horizontal.toProto())
+        .setModifiers(translateModifiers(context, element.modifier))
+        .setWidth(element.modifier.getWidth(context).toContainerDimension())
+        .setHeight(element.modifier.getHeight(context).toContainerDimension())
+        .also { box ->
+            element.children.forEach {
+                box.addContent(translateComposition(context, resourceBuilder, it))
+            }
         }
-    }
-    .build()
+        .build()
 
+@Suppress("deprecation") // for backward compatibility
 private fun translateEmittableRow(
     context: Context,
-    resourceBuilder: ResourceBuilders.Resources.Builder,
+    resourceBuilder: androidx.wear.tiles.ResourceBuilders.Resources.Builder,
     element: EmittableRow
-): LayoutElementBuilders.LayoutElement {
+): androidx.wear.tiles.LayoutElementBuilders.LayoutElement {
     val width = element.modifier.getWidth(context)
     val height = element.modifier.getHeight(context)
 
-    val baseRowBuilder = LayoutElementBuilders.Row.Builder()
-        .setHeight(height.toContainerDimension())
-        .setVerticalAlignment(element.verticalAlignment.toProto())
-        .also { row ->
-            element.children.forEach {
-                row.addContent(translateComposition(context, resourceBuilder, it))
+    val baseRowBuilder =
+        androidx.wear.tiles.LayoutElementBuilders.Row.Builder()
+            .setHeight(height.toContainerDimension())
+            .setVerticalAlignment(element.verticalAlignment.toProto())
+            .also { row ->
+                element.children.forEach {
+                    row.addContent(translateComposition(context, resourceBuilder, it))
+                }
             }
-        }
 
     // Do we need to wrap it in a column to set the horizontal alignment?
-    return if (element.horizontalAlignment != Alignment.Horizontal.Start &&
-        width !is Dimension.Wrap
+    return if (
+        element.horizontalAlignment != Alignment.Horizontal.Start && width !is Dimension.Wrap
     ) {
-        LayoutElementBuilders.Column.Builder()
+        androidx.wear.tiles.LayoutElementBuilders.Column.Builder()
             .setHorizontalAlignment(element.horizontalAlignment.toProto())
             .setModifiers(translateModifiers(context, element.modifier))
             .setWidth(width.toContainerDimension())
             .setHeight(height.toContainerDimension())
-            .addContent(baseRowBuilder.setWidth(wrap()).build())
+            .addContent(
+                baseRowBuilder.setWidth(androidx.wear.tiles.DimensionBuilders.wrap()).build()
+            )
             .build()
     } else {
         baseRowBuilder
@@ -373,33 +375,35 @@ private fun translateEmittableRow(
     }
 }
 
+@Suppress("deprecation") // for backward compatibility
 private fun translateEmittableColumn(
     context: Context,
-    resourceBuilder: ResourceBuilders.Resources.Builder,
+    resourceBuilder: androidx.wear.tiles.ResourceBuilders.Resources.Builder,
     element: EmittableColumn
-): LayoutElementBuilders.LayoutElement {
+): androidx.wear.tiles.LayoutElementBuilders.LayoutElement {
     val width = element.modifier.getWidth(context)
     val height = element.modifier.getHeight(context)
 
-    val baseColumnBuilder = LayoutElementBuilders.Column.Builder()
-        .setWidth(width.toContainerDimension())
-        .setHorizontalAlignment(element.horizontalAlignment.toProto())
-        .also { column ->
-            element.children.forEach {
-                column.addContent(translateComposition(context, resourceBuilder, it))
+    val baseColumnBuilder =
+        androidx.wear.tiles.LayoutElementBuilders.Column.Builder()
+            .setWidth(width.toContainerDimension())
+            .setHorizontalAlignment(element.horizontalAlignment.toProto())
+            .also { column ->
+                element.children.forEach {
+                    column.addContent(translateComposition(context, resourceBuilder, it))
+                }
             }
-        }
 
     // Do we need to wrap it in a row to set the vertical alignment?
-    return if (element.verticalAlignment != Alignment.Vertical.Top &&
-        height !is Dimension.Wrap
-    ) {
-        LayoutElementBuilders.Row.Builder()
+    return if (element.verticalAlignment != Alignment.Vertical.Top && height !is Dimension.Wrap) {
+        androidx.wear.tiles.LayoutElementBuilders.Row.Builder()
             .setVerticalAlignment(element.verticalAlignment.toProto())
             .setModifiers(translateModifiers(context, element.modifier))
             .setWidth(width.toContainerDimension())
             .setHeight(height.toContainerDimension())
-            .addContent(baseColumnBuilder.setHeight(wrap()).build())
+            .addContent(
+                baseColumnBuilder.setHeight(androidx.wear.tiles.DimensionBuilders.wrap()).build()
+            )
             .build()
     } else {
         baseColumnBuilder
@@ -409,65 +413,69 @@ private fun translateEmittableColumn(
     }
 }
 
+@Suppress("deprecation") // for backward compatibility
 private fun translateTextStyle(
     context: Context,
     style: TextStyle,
-): LayoutElementBuilders.FontStyle {
-    val fontStyleBuilder = LayoutElementBuilders.FontStyle.Builder()
+): androidx.wear.tiles.LayoutElementBuilders.FontStyle {
+    val fontStyleBuilder = androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder()
 
-    style.color.let { fontStyleBuilder.setColor(argb(it.getColorAsArgb(context))) }
+    style.color.let {
+        fontStyleBuilder.setColor(
+            androidx.wear.tiles.ColorBuilders.argb(it.getColorAsArgb(context))
+        )
+    }
     // TODO(b/203656358): Can we support Em here too?
     style.fontSize?.let {
         if (!it.isSp) {
             throw IllegalArgumentException("Only Sp is supported for font size")
         }
-        fontStyleBuilder.setSize(sp(it.value))
+        fontStyleBuilder.setSize(androidx.wear.tiles.DimensionBuilders.sp(it.value))
     }
     style.fontStyle?.let { fontStyleBuilder.setItalic(it == FontStyle.Italic) }
     style.fontWeight?.let {
         fontStyleBuilder.setWeight(
             when (it) {
-                FontWeight.Normal -> FONT_WEIGHT_NORMAL
-                FontWeight.Medium -> FONT_WEIGHT_MEDIUM
-                FontWeight.Bold -> FONT_WEIGHT_BOLD
+                FontWeight.Normal -> androidx.wear.tiles.LayoutElementBuilders.FONT_WEIGHT_NORMAL
+                FontWeight.Medium -> androidx.wear.tiles.LayoutElementBuilders.FONT_WEIGHT_MEDIUM
+                FontWeight.Bold -> androidx.wear.tiles.LayoutElementBuilders.FONT_WEIGHT_BOLD
                 else -> {
-                    Log.w(
-                        GlanceWearTileTag,
-                        "Unknown font weight $it, use Normal weight instead"
-                    )
-                    FONT_WEIGHT_NORMAL
+                    Log.w(GlanceWearTileTag, "Unknown font weight $it, use Normal weight instead")
+                    androidx.wear.tiles.LayoutElementBuilders.FONT_WEIGHT_NORMAL
                 }
             }
         )
     }
-    style.textDecoration?.let {
-        fontStyleBuilder.setUnderline(TextDecoration.Underline in it)
-    }
+    style.textDecoration?.let { fontStyleBuilder.setUnderline(TextDecoration.Underline in it) }
 
     return fontStyleBuilder.build()
 }
 
+@Suppress("deprecation") // for backward compatibility
 private fun translateTextStyle(
     context: Context,
     style: CurvedTextStyle,
-): LayoutElementBuilders.FontStyle {
-    val fontStyleBuilder = LayoutElementBuilders.FontStyle.Builder()
+): androidx.wear.tiles.LayoutElementBuilders.FontStyle {
+    val fontStyleBuilder = androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder()
 
-    style.color?.let { fontStyleBuilder.setColor(argb(it.getColorAsArgb(context))) }
-    style.fontSize?.let { fontStyleBuilder.setSize(sp(it.value)) }
+    style.color?.let {
+        fontStyleBuilder.setColor(
+            androidx.wear.tiles.ColorBuilders.argb(it.getColorAsArgb(context))
+        )
+    }
+    style.fontSize?.let {
+        fontStyleBuilder.setSize(androidx.wear.tiles.DimensionBuilders.sp(it.value))
+    }
     style.fontStyle?.let { fontStyleBuilder.setItalic(it == FontStyle.Italic) }
     style.fontWeight?.let {
         fontStyleBuilder.setWeight(
             when (it) {
-                FontWeight.Normal -> FONT_WEIGHT_NORMAL
-                FontWeight.Medium -> FONT_WEIGHT_MEDIUM
-                FontWeight.Bold -> FONT_WEIGHT_BOLD
+                FontWeight.Normal -> androidx.wear.tiles.LayoutElementBuilders.FONT_WEIGHT_NORMAL
+                FontWeight.Medium -> androidx.wear.tiles.LayoutElementBuilders.FONT_WEIGHT_MEDIUM
+                FontWeight.Bold -> androidx.wear.tiles.LayoutElementBuilders.FONT_WEIGHT_BOLD
                 else -> {
-                    Log.w(
-                        GlanceWearTileTag,
-                        "Unknown font weight $it, use Normal weight instead"
-                    )
-                    FONT_WEIGHT_NORMAL
+                    Log.w(GlanceWearTileTag, "Unknown font weight $it, use Normal weight instead")
+                    androidx.wear.tiles.LayoutElementBuilders.FONT_WEIGHT_NORMAL
                 }
             }
         )
@@ -476,17 +484,19 @@ private fun translateTextStyle(
     return fontStyleBuilder.build()
 }
 
+@Suppress("deprecation") // for backward compatibility
 private fun translateEmittableText(
     context: Context,
     element: EmittableText
-): LayoutElementBuilders.LayoutElement {
+): androidx.wear.tiles.LayoutElementBuilders.LayoutElement {
     // Does it have a width or height set? If so, we need to wrap it in a Box.
     val width = element.modifier.getWidth(context)
     val height = element.modifier.getHeight(context)
 
-    val textBuilder = LayoutElementBuilders.Text.Builder()
-        .setText(element.text)
-        .setMaxLines(element.maxLines)
+    val textBuilder =
+        androidx.wear.tiles.LayoutElementBuilders.Text.Builder()
+            .setText(element.text)
+            .setMaxLines(element.maxLines)
 
     element.style?.let { textBuilder.setFontStyle(translateTextStyle(context, it)) }
 
@@ -497,11 +507,12 @@ private fun translateEmittableText(
     }
 
     return if (width !is Dimension.Wrap || height !is Dimension.Wrap) {
-        val boxBuilder = LayoutElementBuilders.Box.Builder()
+        val boxBuilder = androidx.wear.tiles.LayoutElementBuilders.Box.Builder()
         if (textAlign != null) {
             boxBuilder.setHorizontalAlignment(textAlign.toHorizontalAlignment())
         }
-        boxBuilder.setWidth(width.toContainerDimension())
+        boxBuilder
+            .setWidth(width.toContainerDimension())
             .setHeight(height.toContainerDimension())
             .setModifiers(translateModifiers(context, element.modifier))
             .addContent(textBuilder.build())
@@ -511,19 +522,21 @@ private fun translateEmittableText(
     }
 }
 
-private fun Dimension.toImageDimension(): DimensionBuilders.ImageDimension =
+@Suppress("deprecation") // for backward compatibility
+private fun Dimension.toImageDimension(): androidx.wear.tiles.DimensionBuilders.ImageDimension =
     when (this) {
-        is Dimension.Expand -> expand()
-        is Dimension.Fill -> expand()
-        is Dimension.Dp -> dp(this.dp.value)
+        is Dimension.Expand -> androidx.wear.tiles.DimensionBuilders.expand()
+        is Dimension.Fill -> androidx.wear.tiles.DimensionBuilders.expand()
+        is Dimension.Dp -> androidx.wear.tiles.DimensionBuilders.dp(this.dp.value)
         else -> throw IllegalArgumentException("The dimension should be fully resolved, not $this.")
     }
 
+@Suppress("deprecation") // for backward compatibility
 private fun translateEmittableImage(
     context: Context,
-    resourceBuilder: ResourceBuilders.Resources.Builder,
+    resourceBuilder: androidx.wear.tiles.ResourceBuilders.Resources.Builder,
     element: EmittableImage
-): LayoutElementBuilders.LayoutElement {
+): androidx.wear.tiles.LayoutElementBuilders.LayoutElement {
     var mappedResId: String
     when (element.provider) {
         is AndroidResourceImageProvider -> {
@@ -531,80 +544,95 @@ private fun translateEmittableImage(
             mappedResId = "android_$resId"
             resourceBuilder.addIdToImageMapping(
                 mappedResId,
-                ResourceBuilders.ImageResource.Builder().setAndroidResourceByResId(
-                    ResourceBuilders.AndroidImageResourceByResId.Builder()
-                        .setResourceId(resId)
-                        .build()
-                ).build()
+                androidx.wear.tiles.ResourceBuilders.ImageResource.Builder()
+                    .setAndroidResourceByResId(
+                        androidx.wear.tiles.ResourceBuilders.AndroidImageResourceByResId.Builder()
+                            .setResourceId(resId)
+                            .build()
+                    )
+                    .build()
             )
         }
         is BitmapImageProvider -> {
             val bitmap = (element.provider as BitmapImageProvider).bitmap
-            val buffer = ByteArrayOutputStream().apply {
-                bitmap.compress(Bitmap.CompressFormat.PNG, 100, this)
-            }.toByteArray()
+            val buffer =
+                ByteArrayOutputStream()
+                    .apply { bitmap.compress(Bitmap.CompressFormat.PNG, 100, this) }
+                    .toByteArray()
             mappedResId = "android_${Arrays.hashCode(buffer)}"
             resourceBuilder.addIdToImageMapping(
                 mappedResId,
-                ResourceBuilders.ImageResource.Builder().setInlineResource(
-                    ResourceBuilders.InlineImageResource.Builder()
-                        .setWidthPx(bitmap.width)
-                        .setHeightPx(bitmap.height)
-                        .setData(buffer)
-                        .build()
-                ).build()
+                androidx.wear.tiles.ResourceBuilders.ImageResource.Builder()
+                    .setInlineResource(
+                        androidx.wear.tiles.ResourceBuilders.InlineImageResource.Builder()
+                            .setWidthPx(bitmap.width)
+                            .setHeightPx(bitmap.height)
+                            .setData(buffer)
+                            .build()
+                    )
+                    .build()
             )
         }
-        else ->
-            throw IllegalArgumentException("An unsupported ImageProvider type was used")
+        else -> throw IllegalArgumentException("An unsupported ImageProvider type was used")
     }
 
-    val imageBuilder = LayoutElementBuilders.Image.Builder()
-        .setWidth(element.modifier.getWidth(context).toImageDimension())
-        .setHeight(element.modifier.getHeight(context).toImageDimension())
-        .setModifiers(translateModifiers(context, element.modifier))
-        .setResourceId(mappedResId)
-        .setContentScaleMode(
-            when (element.contentScale) {
-                ContentScale.Crop -> LayoutElementBuilders.CONTENT_SCALE_MODE_CROP
-                ContentScale.Fit -> LayoutElementBuilders.CONTENT_SCALE_MODE_FIT
-                ContentScale.FillBounds -> LayoutElementBuilders.CONTENT_SCALE_MODE_FILL_BOUNDS
-                // Defaults to CONTENT_SCALE_MODE_FIT
-                else -> LayoutElementBuilders.CONTENT_SCALE_MODE_FIT
-            }
-        )
+    val imageBuilder =
+        androidx.wear.tiles.LayoutElementBuilders.Image.Builder()
+            .setWidth(element.modifier.getWidth(context).toImageDimension())
+            .setHeight(element.modifier.getHeight(context).toImageDimension())
+            .setModifiers(translateModifiers(context, element.modifier))
+            .setResourceId(mappedResId)
+            .setContentScaleMode(
+                when (element.contentScale) {
+                    ContentScale.Crop ->
+                        androidx.wear.tiles.LayoutElementBuilders.CONTENT_SCALE_MODE_CROP
+                    ContentScale.Fit ->
+                        androidx.wear.tiles.LayoutElementBuilders.CONTENT_SCALE_MODE_FIT
+                    ContentScale.FillBounds ->
+                        androidx.wear.tiles.LayoutElementBuilders.CONTENT_SCALE_MODE_FILL_BOUNDS
+                    // Defaults to CONTENT_SCALE_MODE_FIT
+                    else -> androidx.wear.tiles.LayoutElementBuilders.CONTENT_SCALE_MODE_FIT
+                }
+            )
 
     element.colorFilterParams?.let { colorFilterParams ->
         when (colorFilterParams) {
             is TintColorFilterParams -> {
                 imageBuilder.setColorFilter(
-                    LayoutElementBuilders.ColorFilter.Builder()
-                        .setTint(argb(colorFilterParams.colorProvider.getColorAsArgb(context)))
+                    androidx.wear.tiles.LayoutElementBuilders.ColorFilter.Builder()
+                        .setTint(
+                            androidx.wear.tiles.ColorBuilders.argb(
+                                colorFilterParams.colorProvider.getColorAsArgb(context)
+                            )
+                        )
                         .build()
                 )
             }
-
             else -> throw IllegalArgumentException("An unsupported ColorFilter was used.")
         }
     }
     return imageBuilder.build()
 }
 
+@Suppress("deprecation") // for backward compatibility
 private fun translateEmittableCurvedRow(
     context: Context,
-    resourceBuilder: ResourceBuilders.Resources.Builder,
+    resourceBuilder: androidx.wear.tiles.ResourceBuilders.Resources.Builder,
     element: EmittableCurvedRow
-): LayoutElementBuilders.LayoutElement {
+): androidx.wear.tiles.LayoutElementBuilders.LayoutElement {
     // Does it have a width or height set? If so, we need to wrap it in a Box.
     val width = element.modifier.getWidth(context)
     val height = element.modifier.getHeight(context)
 
     // Note: Wear Tiles uses 0 degrees = 12 o clock, but Glance / Wear Compose use 0 degrees = 3
     // o clock. Tiles supports wraparound etc though, so just add on the 90 degrees here.
-    val arcBuilder = LayoutElementBuilders.Arc.Builder()
-        .setAnchorAngle(degrees(element.anchorDegrees + 90f))
-        .setAnchorType(element.anchorType.toProto())
-        .setVerticalAlign(element.radialAlignment.toProto())
+    val arcBuilder =
+        androidx.wear.tiles.LayoutElementBuilders.Arc.Builder()
+            .setAnchorAngle(
+                androidx.wear.tiles.DimensionBuilders.degrees(element.anchorDegrees + 90f)
+            )
+            .setAnchorType(element.anchorType.toProto())
+            .setVerticalAlign(element.radialAlignment.toProto())
 
     // Add all the children first...
     element.children.forEach { curvedChild ->
@@ -615,7 +643,8 @@ private fun translateEmittableCurvedRow(
                         context,
                         resourceBuilder,
                         it,
-                        curvedChild.rotateContent)
+                        curvedChild.rotateContent
+                    )
                 )
             }
         } else {
@@ -624,154 +653,158 @@ private fun translateEmittableCurvedRow(
     }
 
     return if (width is Dimension.Dp || height is Dimension.Dp) {
-        LayoutElementBuilders.Box.Builder()
+        androidx.wear.tiles.LayoutElementBuilders.Box.Builder()
             .setWidth(width.toContainerDimension())
             .setHeight(height.toContainerDimension())
             .setModifiers(translateModifiers(context, element.modifier))
             .addContent(arcBuilder.build())
             .build()
     } else {
-        arcBuilder
-            .setModifiers(translateModifiers(context, element.modifier))
-            .build()
+        arcBuilder.setModifiers(translateModifiers(context, element.modifier)).build()
     }
 }
 
+@Suppress("deprecation") // for backward compatibility
 private fun translateEmittableCurvedText(
     context: Context,
     element: EmittableCurvedText
-): LayoutElementBuilders.ArcLayoutElement {
+): androidx.wear.tiles.LayoutElementBuilders.ArcLayoutElement {
     // Modifiers are currently ignored for this element; we'll have to add CurvedScope modifiers in
     // future which can be used with ArcModifiers, but we don't have any of those added right now.
-    val arcTextBuilder = LayoutElementBuilders.ArcText.Builder()
-        .setText(element.text)
+    val arcTextBuilder =
+        androidx.wear.tiles.LayoutElementBuilders.ArcText.Builder().setText(element.text)
 
-    element.style?.let {
-        arcTextBuilder.setFontStyle(translateTextStyle(context, it))
-    }
+    element.style?.let { arcTextBuilder.setFontStyle(translateTextStyle(context, it)) }
 
     arcTextBuilder.setModifiers(translateCurvedModifiers(context, element.curvedModifier))
 
     return arcTextBuilder.build()
 }
 
+@Suppress("deprecation") // for backward compatibility
 private fun translateEmittableCurvedLine(
     context: Context,
     element: EmittableCurvedLine
-): LayoutElementBuilders.ArcLayoutElement {
+): androidx.wear.tiles.LayoutElementBuilders.ArcLayoutElement {
     var sweepAngleDegrees =
-        element.curvedModifier.findModifier<SweepAngleModifier>() ?. degrees ?: 0f
-    var thickness = element.curvedModifier.findModifier<ThicknessModifier>() ?. thickness ?: 0.dp
+        element.curvedModifier.findModifier<SweepAngleModifier>() ?.degrees ?: 0f
+    var thickness = element.curvedModifier.findModifier<ThicknessModifier>()?.thickness ?: 0.dp
 
-    return LayoutElementBuilders.ArcLine.Builder()
-        .setLength(degrees(sweepAngleDegrees))
-        .setThickness(dp(thickness.value))
-        .setColor(argb(element.color.getColorAsArgb(context)))
+    return androidx.wear.tiles.LayoutElementBuilders.ArcLine.Builder()
+        .setLength(androidx.wear.tiles.DimensionBuilders.degrees(sweepAngleDegrees))
+        .setThickness(androidx.wear.tiles.DimensionBuilders.dp(thickness.value))
+        .setColor(androidx.wear.tiles.ColorBuilders.argb(element.color.getColorAsArgb(context)))
         .setModifiers(translateCurvedModifiers(context, element.curvedModifier))
         .build()
 }
 
+@Suppress("deprecation") // for backward compatibility
 private fun translateEmittableCurvedSpacer(
     context: Context,
     element: EmittableCurvedSpacer
-): LayoutElementBuilders.ArcLayoutElement {
+): androidx.wear.tiles.LayoutElementBuilders.ArcLayoutElement {
     var sweepAngleDegrees =
-        element.curvedModifier.findModifier<SweepAngleModifier>() ?. degrees ?: 0f
-    var thickness = element.curvedModifier.findModifier<ThicknessModifier>() ?. thickness ?: 0.dp
+    element.curvedModifier.findModifier<SweepAngleModifier>()?.degrees ?: 0f
+    var thickness = element.curvedModifier.findModifier<ThicknessModifier>()?.thickness ?: 0.dp
 
-    return LayoutElementBuilders.ArcSpacer.Builder()
-        .setLength(degrees(sweepAngleDegrees))
-        .setThickness(dp(thickness.value))
+    return androidx.wear.tiles.LayoutElementBuilders.ArcSpacer.Builder()
+        .setLength(androidx.wear.tiles.DimensionBuilders.degrees(sweepAngleDegrees))
+        .setThickness(androidx.wear.tiles.DimensionBuilders.dp(thickness.value))
         .setModifiers(translateCurvedModifiers(context, element.curvedModifier))
         .build()
 }
 
+@Suppress("deprecation") // for backward compatibility
 private fun translateEmittableElementInArc(
     context: Context,
-    resourceBuilder: ResourceBuilders.Resources.Builder,
+    resourceBuilder: androidx.wear.tiles.ResourceBuilders.Resources.Builder,
     element: Emittable,
     rotateContent: Boolean
-): LayoutElementBuilders.ArcLayoutElement = LayoutElementBuilders.ArcAdapter.Builder()
-    .setContent(translateComposition(context, resourceBuilder, element))
-    .setRotateContents(rotateContent)
-    .build()
+): androidx.wear.tiles.LayoutElementBuilders.ArcLayoutElement =
+    androidx.wear.tiles.LayoutElementBuilders.ArcAdapter.Builder()
+        .setContent(translateComposition(context, resourceBuilder, element))
+        .setRotateContents(rotateContent)
+        .build()
 
+@Suppress("deprecation") // for backward compatibility
 private fun translateCurvedModifiers(
     context: Context,
     curvedModifier: GlanceCurvedModifier
-): ModifiersBuilders.ArcModifiers =
-    curvedModifier.foldIn(ModifiersBuilders.ArcModifiers.Builder()) { builder, element ->
-       when (element) {
-           is ActionCurvedModifier -> builder.setClickable(element.toProto(context))
-           is ThicknessModifier -> builder /* Skip for now, handled elsewhere. */
-           is SweepAngleModifier -> builder /* Skip for now, handled elsewhere. */
-           is SemanticsCurvedModifier -> {
-               element.toProto()?.let { builder.setSemantics(it) } ?: builder
-           }
-           else -> throw IllegalArgumentException("Unknown curved modifier type")
-       }
-    }.build()
-
-private fun translateModifiers(
-    context: Context,
-    modifier: GlanceModifier,
-): ModifiersBuilders.Modifiers =
-    modifier.foldIn(ModifiersBuilders.Modifiers.Builder()) { builder, element ->
-        when (element) {
-            is BackgroundModifier -> {
-                element.toProto(context)?.let { builder.setBackground(it) } ?: builder
-            }
-            is WidthModifier -> builder /* Skip for now, handled elsewhere. */
-            is HeightModifier -> builder /* Skip for now, handled elsewhere. */
-            is ActionModifier -> builder.setClickable(element.toProto(context))
-            is PaddingModifier -> builder // Processing that after
-            is VisibilityModifier -> builder // Already processed
-            is BorderModifier -> builder.setBorder(element.toProto(context))
-            is SemanticsModifier -> {
-                element.toProto()?.let { builder.setSemantics(it) } ?: builder
-            }
-            else -> throw IllegalArgumentException("Unknown modifier type")
-        }
-    }
-        .also { builder ->
-            val isRtl = context.resources.configuration.layoutDirection == View.LAYOUT_DIRECTION_RTL
-            modifier.collectPaddingInDp(context.resources)
-                ?.toRelative(isRtl)
-                ?.let {
-                    builder.setPadding(it.toProto())
+): androidx.wear.tiles.ModifiersBuilders.ArcModifiers =
+    curvedModifier
+        .foldIn(androidx.wear.tiles.ModifiersBuilders.ArcModifiers.Builder()) { builder, element ->
+            when (element) {
+                is ActionCurvedModifier -> builder.setClickable(element.toProto(context))
+                is ThicknessModifier -> builder /* Skip for now, handled elsewhere. */
+                is SweepAngleModifier -> builder /* Skip for now, handled elsewhere. */
+                is SemanticsCurvedModifier -> {
+                    element.toProto()?.let { builder.setSemantics(it) } ?: builder
                 }
+                else -> throw IllegalArgumentException("Unknown curved modifier type")
+            }
         }
         .build()
 
+@Suppress("deprecation") // for backward compatibility
+private fun translateModifiers(
+    context: Context,
+    modifier: GlanceModifier,
+): androidx.wear.tiles.ModifiersBuilders.Modifiers =
+    modifier
+        .foldIn(androidx.wear.tiles.ModifiersBuilders.Modifiers.Builder()) { builder, element ->
+            when (element) {
+                is BackgroundModifier -> {
+                    element.toProto(context)?.let { builder.setBackground(it) } ?: builder
+                }
+                is WidthModifier -> builder /* Skip for now, handled elsewhere. */
+                is HeightModifier -> builder /* Skip for now, handled elsewhere. */
+                is ActionModifier -> builder.setClickable(element.toProto(context))
+                is PaddingModifier -> builder // Processing that after
+                is VisibilityModifier -> builder // Already processed
+                is BorderModifier -> builder.setBorder(element.toProto(context))
+                is SemanticsModifier -> {
+                    element.toProto()?.let { builder.setSemantics(it) } ?: builder
+                }
+                else -> throw IllegalArgumentException("Unknown modifier type")
+            }
+        }
+        .also { builder ->
+            val isRtl = context.resources.configuration.layoutDirection == View.LAYOUT_DIRECTION_RTL
+            modifier.collectPaddingInDp(context.resources)?.toRelative(isRtl)?.let {
+                builder.setPadding(it.toProto())
+            }
+        }
+        .build()
+
+@Suppress("deprecation") // for backward compatibility
 private fun translateCurvedCompositionInArc(
     context: Context,
     element: Emittable
-): LayoutElementBuilders.ArcLayoutElement {
+): androidx.wear.tiles.LayoutElementBuilders.ArcLayoutElement {
     return when (element) {
         is EmittableCurvedText -> translateEmittableCurvedText(context, element)
         is EmittableCurvedLine -> translateEmittableCurvedLine(context, element)
         is EmittableCurvedSpacer -> translateEmittableCurvedSpacer(context, element)
-        else -> throw IllegalArgumentException(
-            "Unknown curved Element: $element"
-        )
+        else -> throw IllegalArgumentException("Unknown curved Element: $element")
     }
 }
 
-private fun Dimension.toSpacerDimension(): DimensionBuilders.SpacerDimension =
+@Suppress("deprecation") // for backward compatibility
+private fun Dimension.toSpacerDimension(): androidx.wear.tiles.DimensionBuilders.SpacerDimension =
     when (this) {
-        is Dimension.Dp -> dp(this.dp.value)
-        else -> throw IllegalArgumentException(
-            "The spacer dimension should be with dp value, not $this."
-        )
+        is Dimension.Dp -> androidx.wear.tiles.DimensionBuilders.dp(this.dp.value)
+        else ->
+            throw IllegalArgumentException(
+                "The spacer dimension should be with dp value, not $this."
+            )
     }
 
-private fun translateEmittableSpacer(
-    context: Context,
-    element: EmittableSpacer
-) = LayoutElementBuilders.Spacer.Builder()
-    .setWidth(element.modifier.getWidth(context, Dimension.Dp(0.dp)).toSpacerDimension())
-    .setHeight(element.modifier.getHeight(context, Dimension.Dp(0.dp)).toSpacerDimension())
-    .build()
+@Suppress("deprecation") // for backward compatibility
+private fun translateEmittableSpacer(context: Context, element: EmittableSpacer) =
+    androidx.wear.tiles.LayoutElementBuilders.Spacer.Builder()
+        .setWidth(element.modifier.getWidth(context, Dimension.Dp(0.dp)).toSpacerDimension())
+        .setHeight(element.modifier.getHeight(context, Dimension.Dp(0.dp)).toSpacerDimension())
+        .build()
 
 private fun translateEmittableAndroidLayoutElement(element: EmittableAndroidLayoutElement) =
     element.layoutElement
@@ -782,39 +815,35 @@ private fun translateEmittableAndroidLayoutElement(element: EmittableAndroidLayo
  * @throws IllegalArgumentException If the provided Emittable is not recognised (e.g. it is an
  *   element which this translator doesn't understand).
  */
+@Suppress("deprecation") // for backward compatibility
 internal fun translateComposition(
     context: Context,
-    resourceBuilder: ResourceBuilders.Resources.Builder,
+    resourceBuilder: androidx.wear.tiles.ResourceBuilders.Resources.Builder,
     element: Emittable
-): LayoutElementBuilders.LayoutElement {
+): androidx.wear.tiles.LayoutElementBuilders.LayoutElement {
     return when (element) {
         is EmittableBox -> translateEmittableBox(context, resourceBuilder, element)
         is EmittableRow -> translateEmittableRow(context, resourceBuilder, element)
-        is EmittableColumn ->
-            translateEmittableColumn(context, resourceBuilder, element)
+        is EmittableColumn -> translateEmittableColumn(context, resourceBuilder, element)
         is EmittableText -> translateEmittableText(context, element)
-        is EmittableCurvedRow ->
-            translateEmittableCurvedRow(context, resourceBuilder, element)
+        is EmittableCurvedRow -> translateEmittableCurvedRow(context, resourceBuilder, element)
         is EmittableAndroidLayoutElement -> translateEmittableAndroidLayoutElement(element)
-        is EmittableButton ->
-            translateEmittableText(context, element.toEmittableText())
+        is EmittableButton -> translateEmittableText(context, element.toEmittableText())
         is EmittableSpacer -> translateEmittableSpacer(context, element)
-        is EmittableImage ->
-            translateEmittableImage(context, resourceBuilder, element)
+        is EmittableImage -> translateEmittableImage(context, resourceBuilder, element)
         else -> throw IllegalArgumentException("Unknown element $element")
     }
 }
 
+@Suppress("deprecation") // for backward compatibility
 internal class CompositionResult(
-    val layout: LayoutElementBuilders.LayoutElement,
-    val resources: ResourceBuilders.Resources.Builder
+    val layout: androidx.wear.tiles.LayoutElementBuilders.LayoutElement,
+    val resources: androidx.wear.tiles.ResourceBuilders.Resources.Builder
 )
 
-internal fun translateTopLevelComposition(
-    context: Context,
-    element: Emittable
-): CompositionResult {
-    val resourceBuilder = ResourceBuilders.Resources.Builder()
+@Suppress("deprecation") // for backward compatibility
+internal fun translateTopLevelComposition(context: Context, element: Emittable): CompositionResult {
+    val resourceBuilder = androidx.wear.tiles.ResourceBuilders.Resources.Builder()
     val layout = translateComposition(context, resourceBuilder, element)
     return CompositionResult(layout, resourceBuilder)
 }

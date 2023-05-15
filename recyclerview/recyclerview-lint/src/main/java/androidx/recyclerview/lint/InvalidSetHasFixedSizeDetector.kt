@@ -36,12 +36,12 @@ import com.android.tools.lint.detector.api.SourceCodeScanner
 import com.android.tools.lint.detector.api.XmlContext
 import com.android.tools.lint.detector.api.XmlScanner
 import com.intellij.psi.PsiMethod
+import java.util.EnumSet
 import org.jetbrains.kotlin.psi.psiUtil.parentsWithSelf
 import org.jetbrains.uast.UCallExpression
 import org.jetbrains.uast.toUElement
 import org.jetbrains.uast.visitor.AbstractUastVisitor
 import org.w3c.dom.Element
-import java.util.EnumSet
 
 class InvalidSetHasFixedSizeDetector : Detector(), XmlScanner, SourceCodeScanner {
 

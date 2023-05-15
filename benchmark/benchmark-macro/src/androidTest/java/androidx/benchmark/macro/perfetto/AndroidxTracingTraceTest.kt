@@ -19,6 +19,7 @@ package androidx.benchmark.macro.perfetto
 import androidx.benchmark.macro.FileLinkingRule
 import androidx.benchmark.macro.Packages
 import androidx.benchmark.perfetto.PerfettoCapture
+import androidx.benchmark.perfetto.PerfettoConfig
 import androidx.benchmark.perfetto.PerfettoHelper
 import androidx.benchmark.perfetto.PerfettoHelper.Companion.isAbiSupported
 import androidx.benchmark.perfetto.PerfettoTraceProcessor
@@ -66,7 +67,7 @@ class AndroidxTracingTraceTest {
 
         verifyTraceEnable(false)
 
-        perfettoCapture.start(listOf(Packages.TEST))
+        perfettoCapture.start(PerfettoConfig.Benchmark(listOf(Packages.TEST)))
 
         assertTrue(
             Trace.isEnabled(),

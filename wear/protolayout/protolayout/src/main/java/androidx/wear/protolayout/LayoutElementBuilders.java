@@ -34,6 +34,7 @@ import androidx.wear.protolayout.DimensionBuilders.ContainerDimension;
 import androidx.wear.protolayout.DimensionBuilders.DegreesProp;
 import androidx.wear.protolayout.DimensionBuilders.DpProp;
 import androidx.wear.protolayout.DimensionBuilders.EmProp;
+import androidx.wear.protolayout.DimensionBuilders.ExtensionDimension;
 import androidx.wear.protolayout.DimensionBuilders.HorizontalLayoutConstraint;
 import androidx.wear.protolayout.DimensionBuilders.ImageDimension;
 import androidx.wear.protolayout.DimensionBuilders.SpProp;
@@ -46,6 +47,7 @@ import androidx.wear.protolayout.TypeBuilders.BoolProp;
 import androidx.wear.protolayout.TypeBuilders.Int32Prop;
 import androidx.wear.protolayout.TypeBuilders.StringLayoutConstraint;
 import androidx.wear.protolayout.TypeBuilders.StringProp;
+import androidx.wear.protolayout.expression.ExperimentalProtoLayoutExtensionApi;
 import androidx.wear.protolayout.expression.Fingerprint;
 import androidx.wear.protolayout.expression.ProtoLayoutExperimental;
 import androidx.wear.protolayout.proto.AlignmentProto;
@@ -54,11 +56,13 @@ import androidx.wear.protolayout.proto.FingerprintProto;
 import androidx.wear.protolayout.proto.FingerprintProto.TreeFingerprint;
 import androidx.wear.protolayout.proto.LayoutElementProto;
 import androidx.wear.protolayout.proto.TypesProto;
+import androidx.wear.protolayout.protobuf.ByteString;
 import androidx.wear.protolayout.protobuf.InvalidProtocolBufferException;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -89,8 +93,14 @@ public final class LayoutElementBuilders {
      * can be selected using this field.
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    @IntDef({FONT_VARIANT_UNDEFINED, FONT_VARIANT_TITLE, FONT_VARIANT_BODY})
+    @IntDef({
+            FONT_VARIANT_UNDEFINED,
+            FONT_VARIANT_TITLE,
+            FONT_VARIANT_BODY,
+            FONT_VARIANT_CUSTOM_1
+    })
     @Retention(RetentionPolicy.SOURCE)
+    @OptIn(markerClass = ProtoLayoutExperimental.class)
     public @interface FontVariant {}
 
     /** Font variant is undefined. */
@@ -101,6 +111,13 @@ public final class LayoutElementBuilders {
 
     /** Font variant suited for body text. */
     public static final int FONT_VARIANT_BODY = 2;
+
+    /** Renderer dependent Font variant. If not supported, will behave similar to
+     *  {@link #FONT_VARIANT_UNDEFINED}.
+     */
+    @ProtoLayoutExperimental
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public static final int FONT_VARIANT_CUSTOM_1 = 3;
 
     /**
      * The alignment of a {@link SpanImage} within the line height of the surrounding {@link
@@ -218,6 +235,46 @@ public final class LayoutElementBuilders {
      * drawn as a 50x50 image, stretched vertically.
      */
     public static final int CONTENT_SCALE_MODE_FILL_BOUNDS = 3;
+
+    /**
+     * Styles to use for path endings.
+     *
+     * @since 1.2
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @IntDef({STROKE_CAP_UNDEFINED, STROKE_CAP_BUTT, STROKE_CAP_ROUND, STROKE_CAP_SQUARE})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface StrokeCap {}
+
+    /**
+     * {@code StrokeCap} is undefined.
+     *
+     * @since 1.2
+     */
+    public static final int STROKE_CAP_UNDEFINED = 0;
+
+    /**
+     * Begin and end contours with a flat edge and no extension.
+     *
+     * @since 1.2
+     */
+    public static final int STROKE_CAP_BUTT = 1;
+
+    /**
+     * Begin and end contours with a semi-circle extension. The extension size is proportional to
+     * the thickness of the path.
+     *
+     * @since 1.2
+     */
+    public static final int STROKE_CAP_ROUND = 2;
+
+    /**
+     * Begin and end contours with a half square extension. The extension size is proportional to
+     * the thickness of the path.
+     *
+     * @since 1.2
+     */
+    public static final int STROKE_CAP_SQUARE = 3;
 
     /** An extensible {@code FontWeight} property. */
     public static final class FontWeightProp {
@@ -445,8 +502,9 @@ public final class LayoutElementBuilders {
         }
 
         /**
-         * Gets the text color. If not defined, defaults to white. Intended for testing purposes
-         * only.
+         * Gets the text color. If not defined, defaults to white.
+         *
+         * @since 1.0
          */
         @Nullable
         public ColorProp getColor() {
@@ -585,9 +643,8 @@ public final class LayoutElementBuilders {
             /**
              * Sets the text color. If not defined, defaults to white.
              *
-             * <p>This field is made bindable from version 1.2 and will use the dynamic value (if
-             * set). Older renderers will still consider this field as non-bindable and will use the
-             * static value.
+             * <p>While this field is statically accessible from 1.0, it's only bindable since
+             * version 1.2 and renderers supporting version 1.2 will use the dynamic value (if set).
              *
              * @since 1.0
              */
@@ -914,8 +971,8 @@ public final class LayoutElementBuilders {
             public Builder() {}
 
             /**
-             * Sets whether the {@link Text} excludes padding specified by the font, i.e. extra
-             * top and bottom padding above the normal ascent and descent. The default is false.
+             * Sets whether the {@link Text} excludes padding specified by the font, i.e. extra top
+             * and bottom padding above the normal ascent and descent. The default is false.
              *
              * @since 1.2
              */
@@ -945,7 +1002,11 @@ public final class LayoutElementBuilders {
             this.mFingerprint = fingerprint;
         }
 
-        /** Gets the text to render. Intended for testing purposes only. */
+        /**
+         * Gets the text to render.
+         *
+         * @since 1.0
+         */
         @Nullable
         public StringProp getText() {
             if (mImpl.hasText()) {
@@ -1119,14 +1180,13 @@ public final class LayoutElementBuilders {
             /**
              * Sets the text to render.
              *
-             * <p>This field is made bindable from version 1.2 and will use the dynamic value (if
-             * set). Older renderers will still consider this field as non-bindable and will use the
-             * static value.
+             * <p>While this field is statically accessible from 1.0, it's only bindable since
+             * version 1.2 and renderers supporting version 1.2 will use the dynamic value (if set).
              *
              * <p>When using a dynamic value, make sure to specify the bounding constraints for the
-             * affected layout element through {@link
-             * #setLayoutConstraintsForDynamicText(StringLayoutConstraint)} otherwise {@link
-             * #build()} fails.
+             * affected layout element through {@code
+             * setLayoutConstraintsForDynamicText(StringLayoutConstraint)} otherwise {@code build()}
+             * fails.
              *
              * @since 1.0
              */
@@ -1404,7 +1464,9 @@ public final class LayoutElementBuilders {
          * alpha channel will be blended with the requested color).
          *
          * <p>Note that only Android image resources can be tinted; Inline images will not be
-         * tinted, and this property will have no effect. Intended for testing purposes only.
+         * tinted, and this property will have no effect.
+         *
+         * @since 1.0
          */
         @Nullable
         public ColorProp getTint() {
@@ -1448,9 +1510,10 @@ public final class LayoutElementBuilders {
              * <p>Note that only Android image resources can be tinted; Inline images will not be
              * tinted, and this property will have no effect.
              *
-             * <p>This field is made bindable from version 1.2 and will use the dynamic value (if
-             * set). Older renderers will still consider this field as non-bindable and will use the
-             * static value.
+             * <p>While this field is statically accessible from 1.0, it's only bindable since
+             * version 1.2 and renderers supporting version 1.2 will use the dynamic value (if set).
+             *
+             * @since 1.0
              */
             @NonNull
             public Builder setTint(@NonNull ColorProp tint) {
@@ -1703,6 +1766,8 @@ public final class LayoutElementBuilders {
          * Gets the width of this {@link Spacer}. When this is added as the direct child of an
          * {@link Arc}, this must be specified as an angular dimension, otherwise a linear dimension
          * must be used. If not defined, defaults to 0.
+         *
+         * @since 1.0
          */
         @Nullable
         public SpacerDimension getWidth() {
@@ -1728,7 +1793,11 @@ public final class LayoutElementBuilders {
             }
         }
 
-        /** Gets the height of this spacer. If not defined, defaults to 0. */
+        /**
+         * Gets the height of this spacer. If not defined, defaults to 0.
+         *
+         * @since 1.0
+         */
         @Nullable
         public SpacerDimension getHeight() {
             if (mImpl.hasHeight()) {
@@ -1803,14 +1872,15 @@ public final class LayoutElementBuilders {
              * {@link Arc}, this must be specified as an angular dimension, otherwise a linear
              * dimension must be used. If not defined, defaults to 0.
              *
-             * <p>This field is made bindable from version 1.2 and will use the dynamic value (if
-             * set). Older renderers will still consider this field as non-bindable and will use the
-             * static value.
+             * <p>While this field is statically accessible from 1.0, it's only bindable since
+             * version 1.2 and renderers supporting version 1.2 will use the dynamic value (if set).
              *
              * <p>When using a dynamic value, make sure to specify the bounding constraints for the
-             * affected layout element through {@link
-             * #setLayoutConstraintsForDynamicWidth(HorizontalLayoutConstraint)} otherwise {@link
-             * #build()} fails.
+             * affected layout element through {@code
+             * setLayoutConstraintsForDynamicWidth(HorizontalLayoutConstraint)} otherwise {@code
+             * build()} fails.
+             *
+             * @since 1.0
              */
             @NonNull
             public Builder setWidth(@NonNull SpacerDimension width) {
@@ -1847,14 +1917,13 @@ public final class LayoutElementBuilders {
             /**
              * Sets the height of this spacer. If not defined, defaults to 0.
              *
-             * <p>This field is made bindable from version 1.2 and will use the dynamic value (if
-             * set). Older renderers will still consider this field as non-bindable and will use the
-             * static value.
+             * <p>While this field is statically accessible from 1.0, it's only bindable since
+             * version 1.2 and renderers supporting version 1.2 will use the dynamic value (if set).
              *
              * <p>When using a dynamic value, make sure to specify the bounding constraints for the
-             * affected layout element through {@link
-             * #setLayoutConstraintsForDynamicWidth(HorizontalLayoutConstraint)} otherwise {@link
-             * #build()} fails.
+             * affected layout element through {@code
+             * setLayoutConstraintsForDynamicWidth(HorizontalLayoutConstraint)} otherwise {@code
+             * build()} fails.
              *
              * @since 1.0
              */
@@ -3252,7 +3321,9 @@ public final class LayoutElementBuilders {
          *
          * <p>Values do not have to be clamped to the range 0-360; values less than 0 degrees will
          * sweep anti-clockwise (i.e. -90 degrees is equivalent to 270 degrees), and values >360
-         * will be be placed at X mod 360 degrees. Intended for testing purposes only.
+         * will be be placed at X mod 360 degrees.
+         *
+         * @since 1.0
          */
         @Nullable
         public DegreesProp getAnchorAngle() {
@@ -3368,14 +3439,13 @@ public final class LayoutElementBuilders {
              * will sweep anti-clockwise (i.e. -90 degrees is equivalent to 270 degrees), and values
              * >360 will be be placed at X mod 360 degrees.
              *
-             * <p>This field is made bindable from version 1.2 and will use the dynamic value (if
-             * set). Older renderers will still consider this field as non-bindable and will use the
-             * static value.
+             * <p>While this field is statically accessible from 1.0, it's only bindable since
+             * version 1.2 and renderers supporting version 1.2 will use the dynamic value (if set).
              *
              * <p>When using a dynamic value, make sure to specify the bounding constraints for the
-             * affected layout element through {@link
-             * #setLayoutConstraintsForDynamicAnchorAngle(AngularLayoutConstraint)} otherwise {@link
-             * #build()} fails.
+             * affected layout element through {@code
+             * setLayoutConstraintsForDynamicAnchorAngle(AngularLayoutConstraint)} otherwise {@code
+             * build()} fails.
              *
              * @since 1.0
              */
@@ -3627,8 +3697,9 @@ public final class LayoutElementBuilders {
         }
 
         /**
-         * Gets the length of this line, in degrees. If not defined, defaults to 0. Intended for
-         * testing purposes only.
+         * Gets the length of this line, in degrees. If not defined, defaults to 0.
+         *
+         * @since 1.0
          */
         @Nullable
         public DegreesProp getLength() {
@@ -3667,7 +3738,11 @@ public final class LayoutElementBuilders {
             }
         }
 
-        /** Gets the color of this line. Intended for testing purposes only. */
+        /**
+         * Gets the color of this line.
+         *
+         * @since 1.0
+         */
         @Nullable
         public ColorProp getColor() {
             if (mImpl.hasColor()) {
@@ -3685,6 +3760,20 @@ public final class LayoutElementBuilders {
         public ArcModifiers getModifiers() {
             if (mImpl.hasModifiers()) {
                 return ArcModifiers.fromProto(mImpl.getModifiers());
+            } else {
+                return null;
+            }
+        }
+
+        /**
+         * Gets the line stroke cap. If not defined, defaults to STROKE_CAP_ROUND.
+         *
+         * @since 1.2
+         */
+        @Nullable
+        public StrokeCapProp getStrokeCap() {
+            if (mImpl.hasStrokeCap()) {
+                return StrokeCapProp.fromProto(mImpl.getStrokeCap());
             } else {
                 return null;
             }
@@ -3718,21 +3807,20 @@ public final class LayoutElementBuilders {
         public static final class Builder implements ArcLayoutElement.Builder {
             private final LayoutElementProto.ArcLine.Builder mImpl =
                     LayoutElementProto.ArcLine.newBuilder();
-            private final Fingerprint mFingerprint = new Fingerprint(-1371793535);
+            private final Fingerprint mFingerprint = new Fingerprint(846148011);
 
             public Builder() {}
 
             /**
              * Sets the length of this line, in degrees. If not defined, defaults to 0.
              *
-             * <p>This field is made bindable from version 1.2 and will use the dynamic value (if
-             * set). Older renderers will still consider this field as non-bindable and will use the
-             * static value.
+             * <p>While this field is statically accessible from 1.0, it's only bindable since
+             * version 1.2 and renderers supporting version 1.2 will use the dynamic value (if set).
              *
              * <p>When using a dynamic value, make sure to specify the bounding constraints for the
-             * affected layout element through {@link
-             * #setLayoutConstraintsForDynamicLength(AngularLayoutConstraint)} otherwise {@link
-             * #build()} fails.
+             * affected layout element through {@code
+             * setLayoutConstraintsForDynamicLength(AngularLayoutConstraint)} otherwise {@code
+             * build()} fails.
              *
              * @since 1.0
              */
@@ -3773,9 +3861,8 @@ public final class LayoutElementBuilders {
             /**
              * Sets the color of this line.
              *
-             * <p>This field is made bindable from version 1.2 and will use the dynamic value (if
-             * set). Older renderers will still consider this field as non-bindable and will use the
-             * static value.
+             * <p>While this field is statically accessible from 1.0, it's only bindable since
+             * version 1.2 and renderers supporting version 1.2 will use the dynamic value (if set).
              *
              * @since 1.0
              */
@@ -3798,6 +3885,33 @@ public final class LayoutElementBuilders {
                 return this;
             }
 
+            /**
+             * Sets the line stroke cap. If not defined, defaults to STROKE_CAP_ROUND.
+             *
+             * @since 1.2
+             */
+            @NonNull
+            public Builder setStrokeCap(@NonNull StrokeCapProp strokeCap) {
+                mImpl.setStrokeCap(strokeCap.toProto());
+                mFingerprint.recordPropertyUpdate(
+                        6, checkNotNull(strokeCap.getFingerprint()).aggregateValueAsInt());
+                return this;
+            }
+
+            /**
+             * Sets the line stroke cap. If not defined, defaults to STROKE_CAP_ROUND.
+             *
+             * @since 1.2
+             */
+            @NonNull
+            public Builder setStrokeCap(@StrokeCap int strokeCap) {
+                mImpl.setStrokeCap(
+                        LayoutElementProto.StrokeCapProp.newBuilder()
+                                .setValue(LayoutElementProto.StrokeCap.forNumber(strokeCap)));
+                mFingerprint.recordPropertyUpdate(6, strokeCap);
+                return this;
+            }
+
             @Override
             @NonNull
             public ArcLine build() {
@@ -3808,6 +3922,86 @@ public final class LayoutElementBuilders {
                                     + "layoutConstraintsForDynamicLength to be present.");
                 }
                 return new ArcLine(mImpl.build(), mFingerprint);
+            }
+        }
+    }
+
+    /**
+     * An extensible {@code StrokeCap} property.
+     *
+     * @since 1.2
+     */
+    public static final class StrokeCapProp {
+        private final LayoutElementProto.StrokeCapProp mImpl;
+        @Nullable private final Fingerprint mFingerprint;
+
+        StrokeCapProp(LayoutElementProto.StrokeCapProp impl, @Nullable Fingerprint fingerprint) {
+            this.mImpl = impl;
+            this.mFingerprint = fingerprint;
+        }
+
+        /**
+         * Gets the value.
+         *
+         * @since 1.2
+         */
+        @StrokeCap
+        public int getValue() {
+            return mImpl.getValue().getNumber();
+        }
+
+        /** Get the fingerprint for this object, or null if unknown. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Nullable
+        public Fingerprint getFingerprint() {
+            return mFingerprint;
+        }
+
+        /** Creates a new wrapper instance from the proto. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public static StrokeCapProp fromProto(
+                @NonNull LayoutElementProto.StrokeCapProp proto,
+                @Nullable Fingerprint fingerprint) {
+            return new StrokeCapProp(proto, fingerprint);
+        }
+
+        @NonNull
+        static StrokeCapProp fromProto(@NonNull LayoutElementProto.StrokeCapProp proto) {
+            return fromProto(proto, null);
+        }
+
+        /** Returns the internal proto instance. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public LayoutElementProto.StrokeCapProp toProto() {
+            return mImpl;
+        }
+
+        /** Builder for {@link StrokeCapProp} */
+        public static final class Builder {
+            private final LayoutElementProto.StrokeCapProp.Builder mImpl =
+                    LayoutElementProto.StrokeCapProp.newBuilder();
+            private final Fingerprint mFingerprint = new Fingerprint(-956183418);
+
+            public Builder() {}
+
+            /**
+             * Sets the value.
+             *
+             * @since 1.2
+             */
+            @NonNull
+            public Builder setValue(@StrokeCap int value) {
+                mImpl.setValue(LayoutElementProto.StrokeCap.forNumber(value));
+                mFingerprint.recordPropertyUpdate(1, value);
+                return this;
+            }
+
+            /** Builds an instance from accumulated values. */
+            @NonNull
+            public StrokeCapProp build() {
+                return new StrokeCapProp(mImpl.build(), mFingerprint);
             }
         }
     }
@@ -4048,8 +4242,204 @@ public final class LayoutElementBuilders {
     }
 
     /**
+     * A layout element which can be defined by a renderer extension. The payload in this message
+     * will be passed verbatim to any registered renderer extension in the renderer. It is then
+     * expected that the extension can parse this message, and emit the relevant element.
+     *
+     * <p>If a renderer extension is not installed, this resource will not render any element,
+     * although the specified space will still be occupied. If the payload cannot be parsed by the
+     * renderer extension, then still nothing should be rendered, although this behaviour is defined
+     * by the renderer extension.
+     *
+     * @since 1.2
+     */
+    @ExperimentalProtoLayoutExtensionApi
+    public static final class ExtensionLayoutElement implements LayoutElement {
+        private final LayoutElementProto.ExtensionLayoutElement mImpl;
+        @Nullable private final Fingerprint mFingerprint;
+
+        ExtensionLayoutElement(
+                LayoutElementProto.ExtensionLayoutElement impl, @Nullable Fingerprint fingerprint) {
+            this.mImpl = impl;
+            this.mFingerprint = fingerprint;
+        }
+
+        /**
+         * Gets the content of the renderer extension element. This can be any data; it is expected
+         * that the renderer extension knows how to parse this field.
+         *
+         * @since 1.2
+         */
+        @NonNull
+        public byte[] getPayload() {
+            return mImpl.getPayload().toByteArray();
+        }
+
+        /**
+         * Gets the ID of the renderer extension that should be used for rendering this layout
+         * element.
+         *
+         * @since 1.2
+         */
+        @NonNull
+        public String getExtensionId() {
+            return mImpl.getExtensionId();
+        }
+
+        /**
+         * Gets the width of this element.
+         *
+         * @since 1.2
+         */
+        @Nullable
+        public ExtensionDimension getWidth() {
+            if (mImpl.hasWidth()) {
+                return DimensionBuilders.extensionDimensionFromProto(mImpl.getWidth());
+            } else {
+                return null;
+            }
+        }
+
+        /**
+         * Gets the height of this element.
+         *
+         * @since 1.2
+         */
+        @Nullable
+        public ExtensionDimension getHeight() {
+            if (mImpl.hasHeight()) {
+                return DimensionBuilders.extensionDimensionFromProto(mImpl.getHeight());
+            } else {
+                return null;
+            }
+        }
+
+        @Override
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Nullable
+        public Fingerprint getFingerprint() {
+            return mFingerprint;
+        }
+
+        /** Creates a new wrapper instance from the proto. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public static ExtensionLayoutElement fromProto(
+                @NonNull LayoutElementProto.ExtensionLayoutElement proto,
+                @Nullable Fingerprint fingerprint) {
+            return new ExtensionLayoutElement(proto, fingerprint);
+        }
+
+        @NonNull
+        static ExtensionLayoutElement fromProto(
+                @NonNull LayoutElementProto.ExtensionLayoutElement proto) {
+            return fromProto(proto, null);
+        }
+
+        /** Returns the internal proto instance. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        LayoutElementProto.ExtensionLayoutElement toProto() {
+            return mImpl;
+        }
+
+        @Override
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public LayoutElementProto.LayoutElement toLayoutElementProto() {
+            return LayoutElementProto.LayoutElement.newBuilder()
+                    .setExtension(mImpl)
+                    .build();
+        }
+
+        @Override
+        @NonNull
+        public String toString() {
+            return "ExtensionLayoutElement{"
+                    + "payload="
+                    + Arrays.toString(getPayload())
+                    + ", extensionId="
+                    + getExtensionId()
+                    + ", width="
+                    + getWidth()
+                    + ", height="
+                    + getHeight()
+                    + "}";
+        }
+
+        /** Builder for {@link ExtensionLayoutElement}. */
+        public static final class Builder implements LayoutElement.Builder {
+            private final LayoutElementProto.ExtensionLayoutElement.Builder mImpl =
+                    LayoutElementProto.ExtensionLayoutElement.newBuilder();
+            private final Fingerprint mFingerprint = new Fingerprint(661980356);
+
+            public Builder() {}
+
+            /**
+             * Sets the content of the renderer extension element. This can be any data; it is
+             * expected that the renderer extension knows how to parse this field.
+             *
+             * @since 1.2
+             */
+            @NonNull
+            public Builder setPayload(@NonNull byte[] payload) {
+                mImpl.setPayload(ByteString.copyFrom(payload));
+                mFingerprint.recordPropertyUpdate(1, Arrays.hashCode(payload));
+                return this;
+            }
+
+            /**
+             * Sets the ID of the renderer extension that should be used for rendering this layout
+             * element.
+             *
+             * @since 1.2
+             */
+            @NonNull
+            public Builder setExtensionId(@NonNull String extensionId) {
+                mImpl.setExtensionId(extensionId);
+                mFingerprint.recordPropertyUpdate(2, extensionId.hashCode());
+                return this;
+            }
+
+            /**
+             * Sets the width of this element.
+             *
+             * @since 1.2
+             */
+            @NonNull
+            public Builder setWidth(@NonNull ExtensionDimension width) {
+                mImpl.setWidth(width.toExtensionDimensionProto());
+                mFingerprint.recordPropertyUpdate(
+                        3, checkNotNull(width.getFingerprint()).aggregateValueAsInt());
+                return this;
+            }
+
+            /**
+             * Sets the height of this element.
+             *
+             * @since 1.2
+             */
+            @NonNull
+            public Builder setHeight(@NonNull ExtensionDimension height) {
+                mImpl.setHeight(height.toExtensionDimensionProto());
+                mFingerprint.recordPropertyUpdate(
+                        4, checkNotNull(height.getFingerprint()).aggregateValueAsInt());
+                return this;
+            }
+
+            @Override
+            @NonNull
+            public ExtensionLayoutElement build() {
+                return new ExtensionLayoutElement(mImpl.build(), mFingerprint);
+            }
+        }
+    }
+
+    /**
      * Interface defining the root of all layout elements. This exists to act as a holder for all of
      * the actual layout elements above.
+     *
+     * @since 1.0
      */
     public interface LayoutElement {
         /** Get the protocol buffer representation of this object. */
@@ -4075,6 +4465,7 @@ public final class LayoutElementBuilders {
     /** Creates a new wrapper instance from the proto. */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
+    @OptIn(markerClass = ExperimentalProtoLayoutExtensionApi.class)
     public static LayoutElement layoutElementFromProto(
             @NonNull LayoutElementProto.LayoutElement proto) {
         if (proto.hasColumn()) {
@@ -4100,6 +4491,9 @@ public final class LayoutElementBuilders {
         }
         if (proto.hasSpannable()) {
             return Spannable.fromProto(proto.getSpannable());
+        }
+        if (proto.hasExtension()) {
+            return ExtensionLayoutElement.fromProto(proto.getExtension());
         }
         throw new IllegalStateException("Proto was not a recognised instance of LayoutElement");
     }
@@ -4392,7 +4786,6 @@ public final class LayoutElementBuilders {
      * {@link androidx.wear.protolayout.LayoutElementBuilders.Column}.
      *
      * @since 1.2
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef({

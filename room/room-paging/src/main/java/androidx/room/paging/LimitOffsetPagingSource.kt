@@ -32,8 +32,8 @@ import androidx.room.paging.util.queryDatabase
 import androidx.room.paging.util.queryItemCount
 import androidx.room.withTransaction
 import androidx.sqlite.db.SupportSQLiteQuery
-import kotlinx.coroutines.withContext
 import java.util.concurrent.atomic.AtomicInteger
+import kotlinx.coroutines.withContext
 
 /**
  * An implementation of [PagingSource] to perform a LIMIT OFFSET query

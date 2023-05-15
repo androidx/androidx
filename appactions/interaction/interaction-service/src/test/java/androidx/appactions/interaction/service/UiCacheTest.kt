@@ -41,46 +41,38 @@ class UiCacheTest {
             .setRemoteViews(remoteViews, SizeF(10f, 15f))
             .addRemoteViewsFactory(remoteViewsFactoryId, FakeRemoteViewsFactory())
             .build()
-    private val remoteViewsUiResponseWithChangeId =
-        UiResponse.RemoteViewsUiBuilder()
-            .setRemoteViews(remoteViews, SizeF(10f, 15f))
-            .addRemoteViewsFactory(remoteViewsFactoryId, FakeRemoteViewsFactory())
-            .addViewIdForCollectionUpdate(changeViewId)
-            .build()
 
     private fun assertEmptyCache(uiCache: UiCache) {
-        assertThat(uiCache.cachedRemoteViews).isNull()
-        assertThat(uiCache.cachedRemoteViewsSize).isNull()
-        assertThat(uiCache.cachedChangedViewIds).isEmpty()
-        assertThat(uiCache.onGetViewFactoryInternal(remoteViewsFactoryId)).isNull()
+        assertThat(uiCache.cachedRemoteViewsInternal).isNull()
+        assertThat(uiCache.cachedTileLayoutInternal).isNull()
     }
 
     @Test
     fun unreadUiResponseFlag_lifecycle() {
         val uiCache = UiCache()
-        assertThat(uiCache.hasUnreadUiResponse()).isFalse()
+        assertThat(uiCache.hasUnreadUiResponse).isFalse()
 
         // Test set unread flag.
         uiCache.updateUiInternal(remoteViewsUiResponse)
-        assertThat(uiCache.hasUnreadUiResponse()).isTrue()
+        assertThat(uiCache.hasUnreadUiResponse).isTrue()
 
         // Test reset.
         uiCache.resetUnreadUiResponse()
-        assertThat(uiCache.hasUnreadUiResponse()).isFalse()
-        assertEmptyCache(uiCache)
+        assertThat(uiCache.hasUnreadUiResponse).isFalse()
     }
 
     @Test
-    fun remoteViewsUiResponse_noFactoryNoChangedViews() {
+    fun remoteViewsUiResponse_noFactory() {
         val uiCache = UiCache()
         assertEmptyCache(uiCache)
 
         uiCache.updateUiInternal(remoteViewsUiResponse)
 
-        assertThat(uiCache.cachedRemoteViews).isEqualTo(remoteViews)
-        assertThat(uiCache.cachedRemoteViewsSize).isEqualTo(SizeF(10f, 15f))
-        assertThat(uiCache.cachedChangedViewIds).isEmpty()
-        assertThat(uiCache.onGetViewFactoryInternal(remoteViewsFactoryId)).isNull()
+        assertThat(uiCache.cachedRemoteViewsInternal?.remoteViews).isEqualTo(remoteViews)
+        assertThat(uiCache.cachedRemoteViewsInternal?.size).isEqualTo(SizeF(10f, 15f))
+        assertThat(
+            uiCache.cachedRemoteViewsInternal?.collectionViewFactories?.get(remoteViewsFactoryId)
+        ).isNull()
     }
 
     @Test
@@ -90,20 +82,10 @@ class UiCacheTest {
 
         uiCache.updateUiInternal(remoteViewsUiResponseWithFactory)
 
-        assertThat(uiCache.cachedRemoteViews).isEqualTo(remoteViews)
-        assertThat(uiCache.cachedRemoteViewsSize).isEqualTo(SizeF(10f, 15f))
-        assertThat(uiCache.onGetViewFactoryInternal(remoteViewsFactoryId)).isNotNull()
-    }
-
-    @Test
-    fun remoteViewsUiResponse_withChangeView() {
-        val uiCache = UiCache()
-        assertEmptyCache(uiCache)
-
-        uiCache.updateUiInternal(remoteViewsUiResponseWithChangeId)
-
-        assertThat(uiCache.cachedRemoteViews).isEqualTo(remoteViews)
-        assertThat(uiCache.cachedRemoteViewsSize).isEqualTo(SizeF(10f, 15f))
-        assertThat(uiCache.cachedChangedViewIds).containsExactly(changeViewId)
+        assertThat(uiCache.cachedRemoteViewsInternal?.remoteViews).isEqualTo(remoteViews)
+        assertThat(uiCache.cachedRemoteViewsInternal?.size).isEqualTo(SizeF(10f, 15f))
+        assertThat(
+            uiCache.cachedRemoteViewsInternal?.collectionViewFactories?.get(remoteViewsFactoryId)
+        ).isNotNull()
     }
 }

@@ -79,8 +79,6 @@ private fun Project.getKtlintConfiguration(): ConfigurableFileCollection {
 }
 
 private val DisabledRules = listOf(
-    // does not match IJ default ordering
-    "import-ordering",
     // not useful for our projects
     "final-newline",
     // TODO: reenable when https://github.com/pinterest/ktlint/issues/1221 is resolved

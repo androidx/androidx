@@ -16,9 +16,9 @@
 package androidx.room
 
 import android.app.Service
-import android.os.RemoteCallbackList
 import android.content.Intent
 import android.os.IBinder
+import android.os.RemoteCallbackList
 import android.os.RemoteException
 import android.util.Log
 import androidx.room.Room.LOG_TAG

@@ -41,8 +41,8 @@ repo start $BRANCH_NAME . platform/prebuilts/androidx/external
 # other projects depend on ksp prebuilts so we don't delete them anymore.
 
 # download
-development/importMaven/import_maven_artifacts.py -n com.google.devtools.ksp:symbol-processing-gradle-plugin:$KSP_VERSION
-development/importMaven/import_maven_artifacts.py -n com.google.devtools.ksp:symbol-processing:$KSP_VERSION
+development/importMaven/importMaven.sh com.google.devtools.ksp:symbol-processing-gradle-plugin:$KSP_VERSION
+development/importMaven/importMaven.sh com.google.devtools.ksp:symbol-processing:$KSP_VERSION
 
 # update build version
 sed -i '' "s/ksp = \".*\"/ksp = \"$KSP_VERSION\"/" gradle/libs.versions.toml

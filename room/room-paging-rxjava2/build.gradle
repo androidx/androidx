@@ -37,7 +37,7 @@ dependencies {
     androidTestImplementation(libs.kotlinTestJunit) //
     androidTestImplementation(libs.kotlinCoroutinesTest)
     androidTestImplementation(libs.kotlinCoroutinesRx2)
-    androidTestImplementation("androidx.arch.core:core-testing:2.0.1")
+    androidTestImplementation("androidx.arch.core:core-testing:2.2.0")
     androidTestImplementation(project(":internal-testutils-common"))
     kspAndroidTest(
             project(path: ":room:room-compiler", configuration: "shadowAndImplementation")

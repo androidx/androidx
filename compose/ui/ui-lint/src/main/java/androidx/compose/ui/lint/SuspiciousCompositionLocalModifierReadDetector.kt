@@ -122,10 +122,12 @@ class SuspiciousCompositionLocalModifierReadDetector : Detector(), SourceCodeSca
                 "callbacks are not invoked on every recomposition. If you read a " +
                 "CompositionLocal in onAttach() or onDetach(), you will only get the " +
                 "CompositionLocal's value once at the moment of the read, which may lead to " +
-                "unexpected behaviors. We recommend instead accessing CompositionLocals in the " +
-                "main phase of your Modifier, like measure(), draw(), semanticsConfiguration, " +
-                "onKeyEvent(), etc. Accesses to CompositionLocals in any of these main phase " +
-                "events will be kept informed ",
+                "unexpected behaviors. We recommend instead reading CompositionLocals at " +
+                "time-of-use in callbacks that apply your Modifier's behavior, like measure() " +
+                "for LayoutModifierNode, draw() for DrawModifierNode, and so on. To observe the " +
+                "value of the CompositionLocal manually, extend from the ObserverNode interface " +
+                "and place the read inside an observeReads {} block within the " +
+                "onObservedReadsChanged() callback.",
             Category.CORRECTNESS, 3, Severity.ERROR,
             Implementation(
                 SuspiciousCompositionLocalModifierReadDetector::class.java,

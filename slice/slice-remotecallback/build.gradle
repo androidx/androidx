@@ -39,12 +39,16 @@ dependencies {
 androidx {
     name = "Slice Remote Callback"
     publish = Publish.SNAPSHOT_ONLY // Library is deprecated pending removal.
-    disableDeviceTests = true // Pending removal, don't run tests.
     runApiTasks = new RunApiTasks.Yes() // Pending removal, but keep API files for now.
     mavenVersion = LibraryVersions.SLICE_REMOTECALLBACK
     inceptionYear = "2019"
     description = "A library that handles PendingIntents in slices as remote callbacks"
     failOnDeprecationWarnings = false
+
+    deviceTests {
+        // Pending removal, don't run tests.
+        enabled = false
+    }
 }
 
 android {

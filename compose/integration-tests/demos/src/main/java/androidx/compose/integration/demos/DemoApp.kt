@@ -31,7 +31,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.NewTextRendering1_5
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.integration.demos.common.ActivityDemo
 import androidx.compose.integration.demos.common.ComposableDemo
@@ -52,7 +51,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
@@ -254,7 +252,6 @@ private fun DemoAppBar(
             actions = {
                 AppBarIcons.Filter(onClick = onStartFiltering)
                 AppBarIcons.Settings(onClick = launchSettings)
-                AppBarIcons.NewTextToggler()
             }
         )
     }
@@ -283,24 +280,6 @@ private object AppBarIcons {
     fun Settings(onClick: () -> Unit) {
         IconButton(onClick = onClick) {
             Icon(Icons.Filled.Settings, null)
-        }
-    }
-
-    @Suppress("DEPRECATION")
-    @Composable
-    fun NewTextToggler() {
-        val isNewText = NewTextRendering1_5
-        val onClick = {
-            NewTextRendering1_5 = !NewTextRendering1_5
-        }
-        if (isNewText) {
-            TextButton(onClick = onClick) {
-                Text("New\nText!")
-            }
-        } else {
-            TextButton(onClick = onClick) {
-                Text("Old\nText")
-            }
         }
     }
 }

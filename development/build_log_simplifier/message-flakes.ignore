@@ -151,3 +151,5 @@ Calculating task graph as configuration cache cannot be reused because JVM has c
 Failed to compile with Kotlin daemon: java\.lang\.RuntimeException: Could not connect to Kotlin compile daemon
 Using fallback strategy: Compile without Kotlin daemon
 Try \./gradlew \-\-stop if this issue persists\.
+# b/ 279739438
+w\: Detected multiple Kotlin daemon sessions at kotlin/sessions

@@ -52,9 +52,8 @@ import androidx.wear.protolayout.proto.LayoutElementProto;
 
 /**
  * ProtoLayout component {@link CircularProgressIndicator} that represents circular progress
- * indicator which supports a gap in the circular track between startAngle and endAngle.
- * [Progress Indicator
- * doc] (https://developer.android.com/training/wearables/components/progress-indicator)
+ * indicator which supports a gap in the circular track between startAngle and endAngle. [Progress
+ * Indicator doc] (https://developer.android.com/training/wearables/components/progress-indicator)
  *
  * <p>The CircularProgressIndicator is a colored arc around the edge of the screen with the given
  * start and end angles, which can describe a full or partial circle. Behind it is an arc with
@@ -107,7 +106,7 @@ public class CircularProgressIndicator implements LayoutElement {
     public static final class Builder implements LayoutElement.Builder {
         @NonNull private ProgressIndicatorColors mCircularProgressIndicatorColors = DEFAULT_COLORS;
         @NonNull private DpProp mStrokeWidth = DEFAULT_STROKE_WIDTH;
-        @NonNull private CharSequence mContentDescription = "";
+        @Nullable private StringProp mContentDescription;
         @NonNull private DegreesProp mStartAngle = degrees(DEFAULT_START_ANGLE);
         @NonNull private DegreesProp mEndAngle = degrees(DEFAULT_END_ANGLE);
 
@@ -152,11 +151,25 @@ public class CircularProgressIndicator implements LayoutElement {
         }
 
         /**
-         * Sets the content description of the {@link CircularProgressIndicator} to be used for
-         * accessibility support.
+         * Sets the static content description of the {@link CircularProgressIndicator} to be used
+         * for accessibility support.
          */
         @NonNull
         public Builder setContentDescription(@NonNull CharSequence contentDescription) {
+            this.mContentDescription =
+                    new StringProp.Builder(contentDescription.toString()).build();
+            return this;
+        }
+
+        /**
+         * Sets the content description of the {@link CircularProgressIndicator} to be used for
+         * accessibility support.
+         *
+         * <p>While this field is statically accessible from 1.0, it's only bindable since version
+         * 1.2 and renderers supporting version 1.2 will use the dynamic value (if set).
+         */
+        @NonNull
+        public Builder setContentDescription(@NonNull StringProp contentDescription) {
             this.mContentDescription = contentDescription;
             return this;
         }
@@ -212,11 +225,9 @@ public class CircularProgressIndicator implements LayoutElement {
                                             .setTagData(getTagBytes(METADATA_TAG))
                                             .build());
 
-            if (mContentDescription.length() > 0) {
+            if (mContentDescription != null) {
                 modifiers.setSemantics(
-                        new Semantics.Builder()
-                                .setContentDescription(mContentDescription.toString())
-                                .build());
+                        new Semantics.Builder().setContentDescription(mContentDescription).build());
             }
 
             Arc.Builder element =
@@ -300,16 +311,12 @@ public class CircularProgressIndicator implements LayoutElement {
 
     /** Returns content description of this CircularProgressIndicator. */
     @Nullable
-    public CharSequence getContentDescription() {
+    public StringProp getContentDescription() {
         Semantics semantics = checkNotNull(mElement.getModifiers()).getSemantics();
         if (semantics == null) {
             return null;
         }
-        StringProp contentDescriptionProp = semantics.getContentDescription();
-        if (contentDescriptionProp == null) {
-            return null;
-        }
-        return contentDescriptionProp.getValue();
+        return semantics.getContentDescription();
     }
 
     /**

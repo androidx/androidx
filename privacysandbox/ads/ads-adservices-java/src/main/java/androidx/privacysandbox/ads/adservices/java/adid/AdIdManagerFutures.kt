@@ -16,7 +16,6 @@
 
 package androidx.privacysandbox.ads.adservices.java.adid
 
-import androidx.privacysandbox.ads.adservices.java.internal.asListenableFuture
 import android.adservices.common.AdServicesPermissions
 import android.content.Context
 import android.os.LimitExceededException
@@ -24,6 +23,7 @@ import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresPermission
 import androidx.privacysandbox.ads.adservices.adid.AdId
 import androidx.privacysandbox.ads.adservices.adid.AdIdManager
+import androidx.privacysandbox.ads.adservices.java.internal.asListenableFuture
 import com.google.common.util.concurrent.ListenableFuture
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -50,7 +50,7 @@ abstract class AdIdManagerFutures internal constructor() {
         @DoNotInline
         @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_AD_ID)
         override fun getAdIdAsync(): ListenableFuture<AdId> {
-            return CoroutineScope(Dispatchers.Main).async {
+            return CoroutineScope(Dispatchers.Default).async {
                 mAdIdManager.getAdId()
             }.asListenableFuture()
         }

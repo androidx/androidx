@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.lazy.staggeredgrid
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.unit.IntOffset
@@ -26,7 +25,6 @@ import androidx.compose.ui.unit.IntSize
  * Information about layout state of individual item in lazy staggered grid.
  * @see [LazyStaggeredGridLayoutInfo]
  */
-@ExperimentalFoundationApi
 sealed interface LazyStaggeredGridItemInfo {
     /**
      * Relative offset from the start of the staggered grid.
@@ -54,6 +52,11 @@ sealed interface LazyStaggeredGridItemInfo {
      * their sizes.
      */
     val size: IntSize
+
+    /**
+     * The content type of the item which was passed to the item() or items() function.
+     */
+    val contentType: Any?
 }
 
 /**
@@ -61,7 +64,6 @@ sealed interface LazyStaggeredGridItemInfo {
  * Can be retrieved from [LazyStaggeredGridState.layoutInfo].
  */
 // todo(b/182882362): expose more information about layout state
-@ExperimentalFoundationApi
 sealed interface LazyStaggeredGridLayoutInfo {
     /**
      * Orientation of the staggered grid.
@@ -116,7 +118,6 @@ sealed interface LazyStaggeredGridLayoutInfo {
     val mainAxisItemSpacing: Int
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 internal fun LazyStaggeredGridLayoutInfo.findVisibleItem(
     itemIndex: Int
 ): LazyStaggeredGridItemInfo? {
@@ -132,7 +133,6 @@ internal fun LazyStaggeredGridLayoutInfo.findVisibleItem(
     return visibleItemsInfo.getOrNull(index)
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 internal class LazyStaggeredGridMeasureResult(
     val firstVisibleItemIndices: IntArray,
     val firstVisibleItemScrollOffsets: IntArray,
@@ -154,7 +154,6 @@ internal class LazyStaggeredGridMeasureResult(
         if (isVertical) Orientation.Vertical else Orientation.Horizontal
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 internal object EmptyLazyStaggeredGridLayoutInfo : LazyStaggeredGridLayoutInfo {
     override val visibleItemsInfo: List<LazyStaggeredGridItemInfo> = emptyList()
     override val totalItemsCount: Int = 0

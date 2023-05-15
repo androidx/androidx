@@ -58,7 +58,7 @@ dependencies {
 }
 
 androidx {
-    name = "AndroidX Tracing: Perfetto SDK"
+    name = "Tracing Perfetto"
     publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.TRACING_PERFETTO
     inceptionYear = "2022"

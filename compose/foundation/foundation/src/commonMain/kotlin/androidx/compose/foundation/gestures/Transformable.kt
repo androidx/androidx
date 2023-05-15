@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.gestures
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.MutatePriority
 import androidx.compose.foundation.gestures.TransformEvent.TransformDelta
 import androidx.compose.foundation.gestures.TransformEvent.TransformStarted
@@ -28,6 +29,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.AwaitPointerEventScope
+import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.PointerInputScope
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.positionChanged
@@ -58,13 +60,44 @@ import kotlinx.coroutines.isActive
  * gestures will not be. If `false`, once touch slop is reached, all three gestures are detected.
  * @param enabled whether zooming by gestures is enabled or not
  */
+@OptIn(ExperimentalFoundationApi::class)
 fun Modifier.transformable(
     state: TransformableState,
+    lockRotationOnZoomPan: Boolean = false,
+    enabled: Boolean = true
+) = transformable(state, { true }, lockRotationOnZoomPan, enabled)
+
+/**
+ * Enable transformation gestures of the modified UI element.
+ *
+ * Users should update their state themselves using default [TransformableState] and its
+ * `onTransformation` callback or by implementing [TransformableState] interface manually and
+ * reflect their own state in UI when using this component.
+ *
+ * This overload of transformable modifier provides [canPan] parameter, which allows the caller to
+ * control when the pan can start. making pan gesture to not to start when the scale is 1f makes
+ * transformable modifiers to work well within the scrollable container. See example:
+ * @sample androidx.compose.foundation.samples.TransformableSampleInsideScroll
+ *
+ * @param state [TransformableState] of the transformable. Defines how transformation events will be
+ * interpreted by the user land logic, contains useful information about on-going events and
+ * provides animation capabilities.
+ * @param canPan whether the pan gesture can be performed or not
+ * @param lockRotationOnZoomPan If `true`, rotation is allowed only if touch slop is detected for
+ * rotation before pan or zoom motions. If not, pan and zoom gestures will be detected, but rotation
+ * gestures will not be. If `false`, once touch slop is reached, all three gestures are detected.
+ * @param enabled whether zooming by gestures is enabled or not
+ */
+@ExperimentalFoundationApi
+fun Modifier.transformable(
+    state: TransformableState,
+    canPan: () -> Boolean,
     lockRotationOnZoomPan: Boolean = false,
     enabled: Boolean = true
 ) = composed(
     factory = {
         val updatePanZoomLock = rememberUpdatedState(lockRotationOnZoomPan)
+        val updatedCanPan = rememberUpdatedState(canPan)
         val channel = remember { Channel<TransformEvent>(capacity = Channel.UNLIMITED) }
         if (enabled) {
             LaunchedEffect(state) {
@@ -91,7 +124,7 @@ fun Modifier.transformable(
                 coroutineScope {
                     awaitEachGesture {
                         try {
-                            detectZoom(updatePanZoomLock, channel)
+                            detectZoom(updatePanZoomLock, channel, updatedCanPan)
                         } catch (exception: CancellationException) {
                             if (!isActive) throw exception
                         } finally {
@@ -101,11 +134,12 @@ fun Modifier.transformable(
                 }
             }
         }
-        if (enabled) Modifier.pointerInput(Unit, block) else Modifier
+        if (enabled) Modifier.pointerInput(channel, block) else Modifier
     },
     inspectorInfo = debugInspectorInfo {
         name = "transformable"
         properties["state"] = state
+        properties["canPan"] = canPan
         properties["enabled"] = enabled
         properties["lockRotationOnZoomPan"] = lockRotationOnZoomPan
     }
@@ -123,7 +157,8 @@ private sealed class TransformEvent {
 
 private suspend fun AwaitPointerEventScope.detectZoom(
     panZoomLock: State<Boolean>,
-    channel: Channel<TransformEvent>
+    channel: Channel<TransformEvent>,
+    canPan: State<() -> Boolean>
 ) {
     var rotation = 0f
     var zoom = 1f
@@ -152,7 +187,7 @@ private suspend fun AwaitPointerEventScope.detectZoom(
 
                 if (zoomMotion > touchSlop ||
                     rotationMotion > touchSlop ||
-                    panMotion > touchSlop
+                    (panMotion > touchSlop && canPan.value.invoke())
                 ) {
                     pastTouchSlop = true
                     lockedToPanZoom = panZoomLock.value && rotationMotion < touchSlop
@@ -164,7 +199,7 @@ private suspend fun AwaitPointerEventScope.detectZoom(
                 val effectiveRotation = if (lockedToPanZoom) 0f else rotationChange
                 if (effectiveRotation != 0f ||
                     zoomChange != 1f ||
-                    panChange != Offset.Zero
+                    (panChange != Offset.Zero && canPan.value.invoke())
                 ) {
                     channel.trySend(TransformDelta(zoomChange, panChange, effectiveRotation))
                 }
@@ -174,6 +209,11 @@ private suspend fun AwaitPointerEventScope.detectZoom(
                     }
                 }
             }
+        } else {
+            channel.trySend(TransformStopped)
         }
-    } while (!canceled && event.changes.fastAny { it.pressed })
+        val finalEvent = awaitPointerEvent(pass = PointerEventPass.Final)
+        // someone consumed while we were waiting for touch slop
+        val finallyCanceled = finalEvent.changes.fastAny { it.isConsumed } && !pastTouchSlop
+    } while (!canceled && !finallyCanceled && event.changes.fastAny { it.pressed })
 }

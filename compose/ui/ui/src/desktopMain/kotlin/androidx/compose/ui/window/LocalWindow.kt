@@ -16,10 +16,10 @@
 
 package androidx.compose.ui.window
 
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.ui.awt.ComposeDialog
 import androidx.compose.ui.awt.ComposePanel
 import androidx.compose.ui.awt.ComposeWindow
-import androidx.compose.runtime.compositionLocalOf
 import java.awt.Window
 
 /**

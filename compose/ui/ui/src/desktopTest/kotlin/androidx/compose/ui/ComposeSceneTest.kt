@@ -61,21 +61,21 @@ import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.PointerKeyboardModifiers
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.Layout
-import androidx.compose.ui.test.InternalTestApi
 import androidx.compose.ui.platform.renderingTest
+import androidx.compose.ui.test.InternalTestApi
 import androidx.compose.ui.test.junit4.DesktopScreenshotTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performKeyPress
 import androidx.compose.ui.unit.dp
 import com.google.common.truth.Truth.assertThat
+import java.awt.event.KeyEvent
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertFalse
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
-import java.awt.event.KeyEvent
-import org.junit.Ignore
 
 @OptIn(InternalTestApi::class, ExperimentalComposeUiApi::class)
 class ComposeSceneTest {

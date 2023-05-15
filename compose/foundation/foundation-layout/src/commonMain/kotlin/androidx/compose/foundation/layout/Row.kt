@@ -16,18 +16,16 @@
 
 package androidx.compose.foundation.layout
 
-import androidx.compose.ui.layout.FirstBaseline
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.FirstBaseline
 import androidx.compose.ui.layout.HorizontalAlignmentLine
 import androidx.compose.ui.layout.Layout
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.Measured
-import androidx.compose.ui.platform.debugInspectorInfo
-import androidx.compose.foundation.layout.internal.JvmDefaultWithCompatibility
 
 /**
  * A layout composable that places its children in a horizontal sequence. For a layout composable
@@ -221,38 +219,24 @@ internal object RowScopeInstance : RowScope {
     override fun Modifier.weight(weight: Float, fill: Boolean): Modifier {
         require(weight > 0.0) { "invalid weight $weight; must be greater than zero" }
         return this.then(
-            LayoutWeightImpl(
+            LayoutWeightElement(
                 weight = weight,
-                fill = fill,
-                inspectorInfo = debugInspectorInfo {
-                    name = "weight"
-                    value = weight
-                    properties["weight"] = weight
-                    properties["fill"] = fill
-                }
+                fill = fill
             )
         )
     }
 
     @Stable
     override fun Modifier.align(alignment: Alignment.Vertical) = this.then(
-        VerticalAlignModifier(
-            vertical = alignment,
-            inspectorInfo = debugInspectorInfo {
-                name = "align"
-                value = alignment
-            }
+        VerticalAlignElement(
+            alignment
         )
     )
 
     @Stable
     override fun Modifier.alignBy(alignmentLine: HorizontalAlignmentLine) = this.then(
-        SiblingsAlignedModifier.WithAlignmentLine(
-            alignmentLine = alignmentLine,
-            inspectorInfo = debugInspectorInfo {
-                name = "alignBy"
-                value = alignmentLine
-            }
+        WithAlignmentLineElement(
+            alignmentLine = alignmentLine
         )
     )
 
@@ -260,12 +244,8 @@ internal object RowScopeInstance : RowScope {
     override fun Modifier.alignByBaseline() = alignBy(FirstBaseline)
 
     override fun Modifier.alignBy(alignmentLineBlock: (Measured) -> Int) = this.then(
-        SiblingsAlignedModifier.WithAlignmentLineBlock(
-            block = alignmentLineBlock,
-            inspectorInfo = debugInspectorInfo {
-                name = "alignBy"
-                value = alignmentLineBlock
-            }
+        WithAlignmentLineBlockElement(
+            block = alignmentLineBlock
         )
     )
 }

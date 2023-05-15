@@ -22,10 +22,8 @@ import androidx.room.compiler.processing.XMemberContainer
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.ksp.KspAnnotated.UseSiteFilter.Companion.NO_USE_SITE_OR_METHOD_PARAMETER
 import androidx.room.compiler.processing.ksp.synthetic.KspSyntheticPropertyMethodElement
-import com.google.devtools.ksp.symbol.KSDeclaration
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.KSPropertySetter
-import com.google.devtools.ksp.symbol.KSType
 import com.google.devtools.ksp.symbol.KSValueParameter
 
 internal class KspExecutableParameterElement(
@@ -48,17 +46,8 @@ internal class KspExecutableParameterElement(
     override val hasDefaultValue: Boolean
         get() = parameter.hasDefault
 
-    private fun jvmTypeResolver(container: KSDeclaration?): KspJvmTypeResolutionScope {
-        return KspJvmTypeResolutionScope.MethodParameter(
-            kspExecutableElement = enclosingElement,
-            parameterIndex = parameterIndex,
-            annotated = parameter.type,
-            container = container
-        )
-    }
-
     override val type: KspType by lazy {
-        asMemberOf(enclosingElement.enclosingElement.type?.ksType)
+        createAsMemberOf(closestMemberContainer.type)
     }
 
     override val closestMemberContainer: XMemberContainer by lazy {
@@ -69,23 +58,28 @@ internal class KspExecutableParameterElement(
         get() = "$name in ${enclosingElement.fallbackLocationText}"
 
     override fun asMemberOf(other: XType): KspType {
-        if (closestMemberContainer.type?.isSameType(other) != false) {
-            return type
+        return if (closestMemberContainer.type?.isSameType(other) != false) {
+            type
+        } else {
+            createAsMemberOf(other)
         }
-        check(other is KspType)
-        return asMemberOf(other.ksType)
     }
 
-    private fun asMemberOf(ksType: KSType?): KspType {
+    private fun createAsMemberOf(container: XType?): KspType {
+        check(container is KspType?)
         return env.wrap(
             originatingReference = parameter.type,
             ksType = parameter.typeAsMemberOf(
                 functionDeclaration = enclosingElement.declaration,
-                ksType = ksType
+                ksType = container?.ksType
             )
-        ).withJvmTypeResolver(
-            jvmTypeResolver(
-                container = ksType?.declaration
+        ).copyWithScope(
+            KSTypeVarianceResolverScope.MethodParameter(
+                kspExecutableElement = enclosingElement,
+                parameterIndex = parameterIndex,
+                annotated = parameter.type,
+                container = container?.ksType?.declaration,
+                asMemberOf = container,
             )
         )
     }

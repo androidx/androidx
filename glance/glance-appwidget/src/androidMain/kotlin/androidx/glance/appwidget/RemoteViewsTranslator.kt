@@ -30,6 +30,7 @@ import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.isSpecified
 import androidx.core.widget.RemoteViewsCompat.setLinearLayoutGravity
 import androidx.glance.Emittable
 import androidx.glance.EmittableButton
@@ -114,7 +115,10 @@ internal fun translateComposition(
             val size = (child as EmittableSizeBox).size
             val remoteViewsInfo = createRootView(translationContext, child.modifier, rootViewIndex)
             val rv = remoteViewsInfo.remoteViews.apply {
-                translateChild(translationContext.forRoot(root = remoteViewsInfo), child)
+                translateChild(
+                    translationContext.forRootAndSize(root = remoteViewsInfo, size),
+                    child
+                )
             }
             size.toSizeF() to rv
         }
@@ -146,6 +150,8 @@ private fun combineLandscapeAndPortrait(views: List<RemoteViews>): RemoteViews =
         else -> throw IllegalArgumentException("There must be between 1 and 2 views.")
     }
 
+private const val LAST_INVALID_VIEW_ID = 1
+
 internal data class TranslationContext(
     val context: Context,
     val appWidgetId: Int,
@@ -153,7 +159,7 @@ internal data class TranslationContext(
     val layoutConfiguration: LayoutConfiguration?,
     val itemPosition: Int,
     val isLazyCollectionDescendant: Boolean = false,
-    val lastViewId: AtomicInteger = AtomicInteger(0),
+    val lastViewId: AtomicInteger = AtomicInteger(LAST_INVALID_VIEW_ID),
     val parentContext: InsertedViewInfo = InsertedViewInfo(),
     val isBackgroundSpecified: AtomicBoolean = AtomicBoolean(false),
     val layoutSize: DpSize = DpSize.Zero,
@@ -172,7 +178,15 @@ internal data class TranslationContext(
         forChild(pos = 0, parent = root.view)
             .copy(
                 isBackgroundSpecified = AtomicBoolean(false),
-                lastViewId = AtomicInteger(0),
+                lastViewId = AtomicInteger(LAST_INVALID_VIEW_ID),
+            )
+
+    fun forRootAndSize(root: RemoteViewsInfo, layoutSize: DpSize): TranslationContext =
+        forChild(pos = 0, parent = root.view)
+            .copy(
+                isBackgroundSpecified = AtomicBoolean(false),
+                lastViewId = AtomicInteger(LAST_INVALID_VIEW_ID),
+                layoutSize = layoutSize
             )
 
     fun resetViewId(newViewId: Int = 0) = copy(lastViewId = AtomicInteger(newViewId))
@@ -186,6 +200,14 @@ internal data class TranslationContext(
     fun canUseSelectableGroup() = copy(canUseSelectableGroup = true)
 
     fun forActionTargetId(viewId: Int) = copy(actionTargetId = viewId)
+}
+
+internal fun DpSize.toSizeString(): String {
+    return if (isSpecified) {
+        "${width}x$height"
+    } else {
+        "Unspecified"
+    }
 }
 
 internal fun RemoteViews.translateChild(

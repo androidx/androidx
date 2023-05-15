@@ -55,6 +55,7 @@ import org.junit.runners.model.Statement
  *         startActivityAndWait()
  *     }
  * }
+ * ```
  *
  * Note that you can filter captured rules, for example, if you're generating rules for a library,
  * and don't want to record profiles from outside that library:
@@ -125,7 +126,7 @@ class BaselineProfileRule : TestRule {
         iterations: Int = 3,
         outputFilePrefix: String? = null,
         includeInStartupProfile: Boolean = false,
-        filterPredicate: ((String) -> Boolean)? = null,
+        filterPredicate: ((String) -> Boolean) = { true },
         profileBlock: MacrobenchmarkScope.() -> Unit
     ) {
         collectBaselineProfile(
@@ -170,7 +171,7 @@ class BaselineProfileRule : TestRule {
         outputFilePrefix: String? = null,
         includeInStartupProfile: Boolean = false,
         strictStability: Boolean = false,
-        filterPredicate: ((String) -> Boolean)? = null,
+        filterPredicate: ((String) -> Boolean) = { true },
         profileBlock: MacrobenchmarkScope.() -> Unit
     ) {
         collectStableBaselineProfile(

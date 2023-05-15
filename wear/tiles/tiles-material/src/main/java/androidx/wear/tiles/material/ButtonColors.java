@@ -16,11 +16,8 @@
 
 package androidx.wear.tiles.material;
 
-import static androidx.wear.tiles.ColorBuilders.argb;
-
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
-import androidx.wear.tiles.ColorBuilders.ColorProp;
 
 /**
  * Represents the background and content colors used in a button Tiles component.
@@ -35,8 +32,8 @@ import androidx.wear.tiles.ColorBuilders.ColorProp;
 @Deprecated
 @SuppressWarnings("deprecation")
 public class ButtonColors {
-    @NonNull private final ColorProp mBackgroundColor;
-    @NonNull private final ColorProp mContentColor;
+    @NonNull private final androidx.wear.tiles.ColorBuilders.ColorProp mBackgroundColor;
+    @NonNull private final androidx.wear.tiles.ColorBuilders.ColorProp mContentColor;
 
     /**
      * Constructor for {@link ButtonColors} object.
@@ -47,8 +44,8 @@ public class ButtonColors {
      *     Should be in ARGB format.
      */
     public ButtonColors(@ColorInt int backgroundColor, @ColorInt int contentColor) {
-        mBackgroundColor = argb(backgroundColor);
-        mContentColor = argb(contentColor);
+        mBackgroundColor = androidx.wear.tiles.ColorBuilders.argb(backgroundColor);
+        mContentColor = androidx.wear.tiles.ColorBuilders.argb(contentColor);
     }
 
     /**
@@ -57,7 +54,9 @@ public class ButtonColors {
      * @param backgroundColor The background color to be used for a button.
      * @param contentColor The content color or tint color to be used for a button.
      */
-    public ButtonColors(@NonNull ColorProp backgroundColor, @NonNull ColorProp contentColor) {
+    public ButtonColors(
+            @NonNull androidx.wear.tiles.ColorBuilders.ColorProp backgroundColor,
+            @NonNull androidx.wear.tiles.ColorBuilders.ColorProp contentColor) {
         mBackgroundColor = backgroundColor;
         mContentColor = contentColor;
     }
@@ -82,13 +81,13 @@ public class ButtonColors {
 
     /** The background color to be used on a button Tiles components. */
     @NonNull
-    public ColorProp getBackgroundColor() {
+    public androidx.wear.tiles.ColorBuilders.ColorProp getBackgroundColor() {
         return mBackgroundColor;
     }
 
     /** The content or tint color to be used on a button Tiles components. */
     @NonNull
-    public ColorProp getContentColor() {
+    public androidx.wear.tiles.ColorBuilders.ColorProp getContentColor() {
         return mContentColor;
     }
 }

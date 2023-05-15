@@ -33,7 +33,7 @@ public class ProfileVersion {
     static final byte[] METADATA_V001_N = new byte[]{'0', '0', '1', '\0'};
     static final byte[] METADATA_V002 = new byte[]{'0', '0', '2', '\0'};
     public static final int MIN_SUPPORTED_SDK = Build.VERSION_CODES.N;
-    public static final int MAX_SUPPORTED_SDK = Build.VERSION_CODES.TIRAMISU;
+    public static final int MAX_SUPPORTED_SDK = 34;
 
     static String dexKeySeparator(byte[] version) {
         if (Arrays.equals(version, V001_N)) {

@@ -26,5 +26,5 @@ option java_outer_classname = "PrivacySandboxToolsProtocol";
 // This message is stored in every SDK API descriptor so consumers can tweak code generation
 // according to what's expected by the compiled SDK.
 message ToolMetadata {
-  int32 code_generation_version = 2;
+  int32 code_generation_version = 1;
 }

@@ -16,17 +16,17 @@
 
 package androidx.compose.ui.draw
 
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.internal.JvmDefaultWithCompatibility
+import androidx.compose.ui.node.CacheDrawModifierNode
 import androidx.compose.ui.node.DrawModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.Nodes
-import androidx.compose.ui.node.ObserverNode
+import androidx.compose.ui.node.ObserverModifierNode
 import androidx.compose.ui.node.invalidateDraw
 import androidx.compose.ui.node.observeReads
 import androidx.compose.ui.node.requireCoordinator
@@ -94,14 +94,13 @@ fun Modifier.drawBehind(
     onDraw: DrawScope.() -> Unit
 ) = this then DrawBehindElement(onDraw)
 
-@OptIn(ExperimentalComposeUiApi::class)
 private data class DrawBehindElement(
     val onDraw: DrawScope.() -> Unit
 ) : ModifierNodeElement<DrawBackgroundModifier>() {
     override fun create() = DrawBackgroundModifier(onDraw)
 
-    override fun update(node: DrawBackgroundModifier) = node.apply {
-        onDraw = this@DrawBehindElement.onDraw
+    override fun update(node: DrawBackgroundModifier) {
+        node.onDraw = onDraw
     }
 
     override fun InspectorInfo.inspectableProperties() {
@@ -110,8 +109,7 @@ private data class DrawBehindElement(
     }
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
-private class DrawBackgroundModifier(
+internal class DrawBackgroundModifier(
     var onDraw: DrawScope.() -> Unit
 ) : Modifier.Node(), DrawModifierNode {
 
@@ -136,20 +134,19 @@ private class DrawBackgroundModifier(
  * @sample androidx.compose.ui.samples.DrawWithCacheModifierStateParameterSample
  * @sample androidx.compose.ui.samples.DrawWithCacheContentSample
  */
-@OptIn(ExperimentalComposeUiApi::class)
 fun Modifier.drawWithCache(
     onBuildDrawCache: CacheDrawScope.() -> DrawResult
 ) = this then DrawWithCacheElement(onBuildDrawCache)
 
 private data class DrawWithCacheElement(
     val onBuildDrawCache: CacheDrawScope.() -> DrawResult
-) : ModifierNodeElement<CacheDrawNode>() {
-    override fun create(): CacheDrawNode {
-        return CacheDrawNode(CacheDrawScope(), onBuildDrawCache)
+) : ModifierNodeElement<CacheDrawModifierNodeImpl>() {
+    override fun create(): CacheDrawModifierNodeImpl {
+        return CacheDrawModifierNodeImpl(CacheDrawScope(), onBuildDrawCache)
     }
 
-    override fun update(node: CacheDrawNode) = node.apply {
-        block = onBuildDrawCache
+    override fun update(node: CacheDrawModifierNodeImpl) {
+        node.block = onBuildDrawCache
     }
 
     override fun InspectorInfo.inspectableProperties() {
@@ -158,10 +155,16 @@ private data class DrawWithCacheElement(
     }
 }
 
-private class CacheDrawNode(
+fun CacheDrawModifierNode(
+    onBuildDrawCache: CacheDrawScope.() -> DrawResult
+): CacheDrawModifierNode {
+    return CacheDrawModifierNodeImpl(CacheDrawScope(), onBuildDrawCache)
+}
+
+private class CacheDrawModifierNodeImpl(
     private val cacheDrawScope: CacheDrawScope,
     block: CacheDrawScope.() -> DrawResult
-) : Modifier.Node(), DrawModifierNode, ObserverNode, BuildDrawCacheParams {
+) : Modifier.Node(), CacheDrawModifierNode, ObserverModifierNode, BuildDrawCacheParams {
 
     private var isCacheValid = false
     var block: CacheDrawScope.() -> DrawResult = block
@@ -186,7 +189,7 @@ private class CacheDrawNode(
         invalidateDrawCache()
     }
 
-    private fun invalidateDrawCache() {
+    override fun invalidateDrawCache() {
         isCacheValid = false
         cacheDrawScope.drawResult = null
         invalidateDraw()
@@ -275,14 +278,13 @@ fun Modifier.drawWithContent(
     onDraw: ContentDrawScope.() -> Unit
 ): Modifier = this then DrawWithContentElement(onDraw)
 
-@OptIn(ExperimentalComposeUiApi::class)
 private data class DrawWithContentElement(
     val onDraw: ContentDrawScope.() -> Unit
 ) : ModifierNodeElement<DrawWithContentModifier>() {
     override fun create() = DrawWithContentModifier(onDraw)
 
-    override fun update(node: DrawWithContentModifier) = node.apply {
-        onDraw = this@DrawWithContentElement.onDraw
+    override fun update(node: DrawWithContentModifier) {
+        node.onDraw = onDraw
     }
 
     override fun InspectorInfo.inspectableProperties() {
@@ -291,7 +293,6 @@ private data class DrawWithContentElement(
     }
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 private class DrawWithContentModifier(
     var onDraw: ContentDrawScope.() -> Unit
 ) : Modifier.Node(), DrawModifierNode {

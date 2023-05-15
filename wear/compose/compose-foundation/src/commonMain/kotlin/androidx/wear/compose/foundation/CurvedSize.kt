@@ -64,11 +64,13 @@ public fun CurvedModifier.size(sweepDegrees: Float, thickness: Dp) = sizeIn(
 )
 
 /**
- * Specify the sweep (angular size) for the content.
+ * Specify the sweep (arc length) for the content in Dp. The arc length will be measured
+ * at the center of the item, except for [basicCurvedText], where it will be
+ * measured at the text baseline.
  *
  * @sample androidx.wear.compose.foundation.samples.CurvedFixedSize
  *
- * @param angularWidth Indicates the width (angular size) of the content in DP.
+ * @param angularWidth Indicates the arc length of the content in Dp.
  */
 public fun CurvedModifier.angularSizeDp(angularWidth: Dp) = this.then { child ->
     AngularWidthSizeWrapper(

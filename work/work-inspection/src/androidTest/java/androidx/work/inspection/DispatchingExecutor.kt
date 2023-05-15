@@ -16,12 +16,12 @@
 
 package androidx.work.inspection
 
+import java.util.concurrent.Executor
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import java.util.concurrent.Executor
 
 /**
  * An [Executor] where we can await termination of all commands.

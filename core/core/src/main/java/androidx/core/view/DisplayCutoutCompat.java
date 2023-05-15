@@ -51,7 +51,6 @@ public final class DisplayCutoutCompat {
      * @param boundingRects the bounding rects of the display cutouts as returned by
      *               {@link #getBoundingRects()} ()}.
      */
-    // TODO(b/73953958): @VisibleForTesting(visibility = PRIVATE)
     public DisplayCutoutCompat(@Nullable Rect safeInsets, @Nullable List<Rect> boundingRects) {
         this(SDK_INT >= 28 ? Api28Impl.createDisplayCutout(safeInsets, boundingRects) : null);
     }

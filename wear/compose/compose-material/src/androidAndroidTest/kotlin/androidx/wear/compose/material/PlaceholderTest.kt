@@ -34,10 +34,10 @@ import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.Dp
-import org.junit.Rule
-import org.junit.Test
 import com.google.common.truth.Truth.assertThat
 import kotlin.math.max
+import org.junit.Rule
+import org.junit.Test
 
 class PlaceholderTest {
     @get:Rule
@@ -502,9 +502,9 @@ class PlaceholderTest {
         expectedPlaceholderStage: PlaceholderStage = PlaceholderStage.ShowPlaceholder
     ) {
         val animationLoopStart =
-            (frameMillis.value.div(PLACEHOLDER_SHIMMER_GAP_BETWEEN_ANIMATION_LOOPS_MS) + 1) *
+            (frameMillis.longValue.div(PLACEHOLDER_SHIMMER_GAP_BETWEEN_ANIMATION_LOOPS_MS) + 1) *
                 PLACEHOLDER_SHIMMER_GAP_BETWEEN_ANIMATION_LOOPS_MS
-        frameMillis.value = animationLoopStart
+        frameMillis.longValue = animationLoopStart
         rule.waitForIdle()
         assertThat(placeholderStage).isEqualTo(expectedPlaceholderStage)
     }

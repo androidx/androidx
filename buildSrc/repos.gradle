@@ -65,6 +65,13 @@ def addMavenRepositories(RepositoryHandler handler) {
                url("https://maven.pkg.jetbrains.space/public/p/compose/dev")
         }
         handler.mavenLocal()
+        // TODO(b/280646217): Remove after official release to gmaven.
+        handler.maven {
+            url("https://storage.googleapis.com/r8-releases/raw")
+            content {
+                includeModule("com.android.tools", "r8")
+            }
+        }
     }
     // Ordering appears to be important: b/229733266
     def androidPluginRepoOverride = System.getenv("GRADLE_PLUGIN_REPO")

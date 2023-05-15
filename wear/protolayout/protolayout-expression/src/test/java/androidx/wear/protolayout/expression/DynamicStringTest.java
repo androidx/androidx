@@ -46,7 +46,7 @@ public final class DynamicStringTest {
 
   @Test
   public void stateEntryValueString() {
-    DynamicString stateString = DynamicString.fromState(STATE_KEY);
+    DynamicString stateString = DynamicString.from(new AppDataKey<>(STATE_KEY));
 
     assertThat(stateString.toDynamicStringProto().getStateSource().getSourceKey())
         .isEqualTo(STATE_KEY);
@@ -54,8 +54,8 @@ public final class DynamicStringTest {
 
   @Test
   public void stateToString() {
-    assertThat(DynamicString.fromState("key").toString())
-        .isEqualTo("StateStringSource{sourceKey=key}");
+    assertThat(DynamicString.from(new AppDataKey<>("key")).toString())
+        .isEqualTo("StateStringSource{sourceKey=key, sourceNamespace=}");
   }
 
   @Test

@@ -21,8 +21,8 @@ package androidx.datastore.migrations {
     ctor public SharedPreferencesMigration(android.content.Context context, String sharedPreferencesName, optional java.util.Set<java.lang.String> keysToMigrate, kotlin.jvm.functions.Function3<? super androidx.datastore.migrations.SharedPreferencesView,? super T,? super kotlin.coroutines.Continuation<? super T>,?> migrate);
     ctor public SharedPreferencesMigration(android.content.Context context, String sharedPreferencesName, kotlin.jvm.functions.Function3<? super androidx.datastore.migrations.SharedPreferencesView,? super T,? super kotlin.coroutines.Continuation<? super T>,?> migrate);
     method @kotlin.jvm.Throws(exceptionClasses=IOException::class) public suspend Object? cleanUp(kotlin.coroutines.Continuation<? super kotlin.Unit>) throws java.io.IOException;
-    method public suspend Object? migrate(T? currentData, kotlin.coroutines.Continuation<? super T>);
-    method public suspend Object? shouldMigrate(T? currentData, kotlin.coroutines.Continuation<? super java.lang.Boolean>);
+    method public suspend Object? migrate(T currentData, kotlin.coroutines.Continuation<? super T>);
+    method public suspend Object? shouldMigrate(T currentData, kotlin.coroutines.Continuation<? super java.lang.Boolean>);
   }
 
   public final class SharedPreferencesView {

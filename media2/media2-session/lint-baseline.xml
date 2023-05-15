@@ -38,6 +38,33 @@
     </issue>
 
     <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="oneway interface IMediaController {"
+        errorLine2="^">
+        <location
+            file="src/main/aidl/androidx/media2/session/IMediaController.aidl"/>
+    </issue>
+
+    <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="oneway interface IMediaSession {"
+        errorLine2="^">
+        <location
+            file="src/main/aidl/androidx/media2/session/IMediaSession.aidl"/>
+    </issue>
+
+    <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="oneway interface IMediaSessionService {"
+        errorLine2="^">
+        <location
+            file="src/main/aidl/androidx/media2/session/IMediaSessionService.aidl"/>
+    </issue>
+
+    <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public void setTimeDiff(Long timeDiff) {"

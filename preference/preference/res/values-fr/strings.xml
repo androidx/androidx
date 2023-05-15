@@ -3,7 +3,7 @@
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="v7_preference_on" msgid="89551595707643515">"ACTIVÉ"</string>
     <string name="v7_preference_off" msgid="3140233346420563315">"DÉSACTIVÉ"</string>
-    <string name="expand_button_title" msgid="2427401033573778270">"Paramètres avancés"</string>
+    <string name="expand_button_title" msgid="2427401033573778270">"Avancé"</string>
     <string name="summary_collapsed_preference_list" msgid="9167775378838880170">"<xliff:g id="CURRENT_ITEMS">%1$s</xliff:g>, <xliff:g id="ADDED_ITEMS">%2$s</xliff:g>"</string>
     <string name="copy" msgid="6083905920877235314">"Copier"</string>
     <string name="preference_copied" msgid="6685851473431805375">"\"<xliff:g id="SUMMARY">%1$s</xliff:g>\" copié dans le presse-papier."</string>

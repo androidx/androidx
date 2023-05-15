@@ -421,21 +421,119 @@ package androidx.health.connect.client.records {
   public static final class ElevationGainedRecord.Companion {
   }
 
+  public final class ExerciseLap {
+    ctor public ExerciseLap(java.time.Instant startTime, java.time.Instant endTime, optional androidx.health.connect.client.units.Length? length);
+    method public java.time.Instant getEndTime();
+    method public androidx.health.connect.client.units.Length? getLength();
+    method public java.time.Instant getStartTime();
+    property public final java.time.Instant endTime;
+    property public final androidx.health.connect.client.units.Length? length;
+    property public final java.time.Instant startTime;
+  }
+
+  public final class ExerciseSegment {
+    ctor public ExerciseSegment(java.time.Instant startTime, java.time.Instant endTime, int segmentType, optional int repetitions);
+    method public java.time.Instant getEndTime();
+    method public int getRepetitions();
+    method public int getSegmentType();
+    method public java.time.Instant getStartTime();
+    property public final java.time.Instant endTime;
+    property public final int repetitions;
+    property public final int segmentType;
+    property public final java.time.Instant startTime;
+    field public static final androidx.health.connect.client.records.ExerciseSegment.Companion Companion;
+    field public static final int EXERCISE_SEGMENT_TYPE_ARM_CURL = 1; // 0x1
+    field public static final int EXERCISE_SEGMENT_TYPE_BACK_EXTENSION = 2; // 0x2
+    field public static final int EXERCISE_SEGMENT_TYPE_BALL_SLAM = 3; // 0x3
+    field public static final int EXERCISE_SEGMENT_TYPE_BARBELL_SHOULDER_PRESS = 4; // 0x4
+    field public static final int EXERCISE_SEGMENT_TYPE_BENCH_PRESS = 5; // 0x5
+    field public static final int EXERCISE_SEGMENT_TYPE_BENCH_SIT_UP = 6; // 0x6
+    field public static final int EXERCISE_SEGMENT_TYPE_BIKING = 7; // 0x7
+    field public static final int EXERCISE_SEGMENT_TYPE_BIKING_STATIONARY = 8; // 0x8
+    field public static final int EXERCISE_SEGMENT_TYPE_BURPEE = 9; // 0x9
+    field public static final int EXERCISE_SEGMENT_TYPE_CRUNCH = 10; // 0xa
+    field public static final int EXERCISE_SEGMENT_TYPE_DEADLIFT = 11; // 0xb
+    field public static final int EXERCISE_SEGMENT_TYPE_DOUBLE_ARM_TRICEPS_EXTENSION = 12; // 0xc
+    field public static final int EXERCISE_SEGMENT_TYPE_DUMBBELL_CURL_LEFT_ARM = 13; // 0xd
+    field public static final int EXERCISE_SEGMENT_TYPE_DUMBBELL_CURL_RIGHT_ARM = 14; // 0xe
+    field public static final int EXERCISE_SEGMENT_TYPE_DUMBBELL_FRONT_RAISE = 15; // 0xf
+    field public static final int EXERCISE_SEGMENT_TYPE_DUMBBELL_LATERAL_RAISE = 16; // 0x10
+    field public static final int EXERCISE_SEGMENT_TYPE_DUMBBELL_ROW = 17; // 0x11
+    field public static final int EXERCISE_SEGMENT_TYPE_DUMBBELL_TRICEPS_EXTENSION_LEFT_ARM = 18; // 0x12
+    field public static final int EXERCISE_SEGMENT_TYPE_DUMBBELL_TRICEPS_EXTENSION_RIGHT_ARM = 19; // 0x13
+    field public static final int EXERCISE_SEGMENT_TYPE_DUMBBELL_TRICEPS_EXTENSION_TWO_ARM = 20; // 0x14
+    field public static final int EXERCISE_SEGMENT_TYPE_ELLIPTICAL = 21; // 0x15
+    field public static final int EXERCISE_SEGMENT_TYPE_FORWARD_TWIST = 22; // 0x16
+    field public static final int EXERCISE_SEGMENT_TYPE_FRONT_RAISE = 23; // 0x17
+    field public static final int EXERCISE_SEGMENT_TYPE_HIGH_INTENSITY_INTERVAL_TRAINING = 24; // 0x18
+    field public static final int EXERCISE_SEGMENT_TYPE_HIP_THRUST = 25; // 0x19
+    field public static final int EXERCISE_SEGMENT_TYPE_HULA_HOOP = 26; // 0x1a
+    field public static final int EXERCISE_SEGMENT_TYPE_JUMPING_JACK = 27; // 0x1b
+    field public static final int EXERCISE_SEGMENT_TYPE_JUMP_ROPE = 28; // 0x1c
+    field public static final int EXERCISE_SEGMENT_TYPE_KETTLEBELL_SWING = 29; // 0x1d
+    field public static final int EXERCISE_SEGMENT_TYPE_LATERAL_RAISE = 30; // 0x1e
+    field public static final int EXERCISE_SEGMENT_TYPE_LAT_PULL_DOWN = 31; // 0x1f
+    field public static final int EXERCISE_SEGMENT_TYPE_LEG_CURL = 32; // 0x20
+    field public static final int EXERCISE_SEGMENT_TYPE_LEG_EXTENSION = 33; // 0x21
+    field public static final int EXERCISE_SEGMENT_TYPE_LEG_PRESS = 34; // 0x22
+    field public static final int EXERCISE_SEGMENT_TYPE_LEG_RAISE = 35; // 0x23
+    field public static final int EXERCISE_SEGMENT_TYPE_LUNGE = 36; // 0x24
+    field public static final int EXERCISE_SEGMENT_TYPE_MOUNTAIN_CLIMBER = 37; // 0x25
+    field public static final int EXERCISE_SEGMENT_TYPE_OTHER_WORKOUT = 38; // 0x26
+    field public static final int EXERCISE_SEGMENT_TYPE_PAUSE = 39; // 0x27
+    field public static final int EXERCISE_SEGMENT_TYPE_PILATES = 40; // 0x28
+    field public static final int EXERCISE_SEGMENT_TYPE_PLANK = 41; // 0x29
+    field public static final int EXERCISE_SEGMENT_TYPE_PULL_UP = 42; // 0x2a
+    field public static final int EXERCISE_SEGMENT_TYPE_PUNCH = 43; // 0x2b
+    field public static final int EXERCISE_SEGMENT_TYPE_REST = 44; // 0x2c
+    field public static final int EXERCISE_SEGMENT_TYPE_ROWING_MACHINE = 45; // 0x2d
+    field public static final int EXERCISE_SEGMENT_TYPE_RUNNING = 46; // 0x2e
+    field public static final int EXERCISE_SEGMENT_TYPE_RUNNING_TREADMILL = 47; // 0x2f
+    field public static final int EXERCISE_SEGMENT_TYPE_SHOULDER_PRESS = 48; // 0x30
+    field public static final int EXERCISE_SEGMENT_TYPE_SINGLE_ARM_TRICEPS_EXTENSION = 49; // 0x31
+    field public static final int EXERCISE_SEGMENT_TYPE_SIT_UP = 50; // 0x32
+    field public static final int EXERCISE_SEGMENT_TYPE_SQUAT = 51; // 0x33
+    field public static final int EXERCISE_SEGMENT_TYPE_STAIR_CLIMBING = 52; // 0x34
+    field public static final int EXERCISE_SEGMENT_TYPE_STAIR_CLIMBING_MACHINE = 53; // 0x35
+    field public static final int EXERCISE_SEGMENT_TYPE_STRETCHING = 54; // 0x36
+    field public static final int EXERCISE_SEGMENT_TYPE_SWIMMING_BACKSTROKE = 55; // 0x37
+    field public static final int EXERCISE_SEGMENT_TYPE_SWIMMING_BREASTSTROKE = 56; // 0x38
+    field public static final int EXERCISE_SEGMENT_TYPE_SWIMMING_BUTTERFLY = 57; // 0x39
+    field public static final int EXERCISE_SEGMENT_TYPE_SWIMMING_FREESTYLE = 58; // 0x3a
+    field public static final int EXERCISE_SEGMENT_TYPE_SWIMMING_MIXED = 59; // 0x3b
+    field public static final int EXERCISE_SEGMENT_TYPE_SWIMMING_OPEN_WATER = 60; // 0x3c
+    field public static final int EXERCISE_SEGMENT_TYPE_SWIMMING_OTHER = 61; // 0x3d
+    field public static final int EXERCISE_SEGMENT_TYPE_SWIMMING_POOL = 62; // 0x3e
+    field public static final int EXERCISE_SEGMENT_TYPE_UNKNOWN = 0; // 0x0
+    field public static final int EXERCISE_SEGMENT_TYPE_UPPER_TWIST = 63; // 0x3f
+    field public static final int EXERCISE_SEGMENT_TYPE_WALKING = 64; // 0x40
+    field public static final int EXERCISE_SEGMENT_TYPE_WEIGHTLIFTING = 65; // 0x41
+    field public static final int EXERCISE_SEGMENT_TYPE_WHEELCHAIR = 66; // 0x42
+    field public static final int EXERCISE_SEGMENT_TYPE_YOGA = 67; // 0x43
+  }
+
+  public static final class ExerciseSegment.Companion {
+  }
+
   public final class ExerciseSessionRecord implements androidx.health.connect.client.records.IntervalRecord {
-    ctor public ExerciseSessionRecord(java.time.Instant startTime, java.time.ZoneOffset? startZoneOffset, java.time.Instant endTime, java.time.ZoneOffset? endZoneOffset, int exerciseType, optional String? title, optional String? notes, optional androidx.health.connect.client.records.metadata.Metadata metadata);
+    ctor public ExerciseSessionRecord(java.time.Instant startTime, java.time.ZoneOffset? startZoneOffset, java.time.Instant endTime, java.time.ZoneOffset? endZoneOffset, int exerciseType, optional String? title, optional String? notes, optional androidx.health.connect.client.records.metadata.Metadata metadata, optional java.util.List<androidx.health.connect.client.records.ExerciseSegment> segments, optional java.util.List<androidx.health.connect.client.records.ExerciseLap> laps);
     method public java.time.Instant getEndTime();
     method public java.time.ZoneOffset? getEndZoneOffset();
     method public int getExerciseType();
+    method public java.util.List<androidx.health.connect.client.records.ExerciseLap> getLaps();
     method public androidx.health.connect.client.records.metadata.Metadata getMetadata();
     method public String? getNotes();
+    method public java.util.List<androidx.health.connect.client.records.ExerciseSegment> getSegments();
     method public java.time.Instant getStartTime();
     method public java.time.ZoneOffset? getStartZoneOffset();
     method public String? getTitle();
     property public java.time.Instant endTime;
     property public java.time.ZoneOffset? endZoneOffset;
     property public final int exerciseType;
+    property public final java.util.List<androidx.health.connect.client.records.ExerciseLap> laps;
     property public androidx.health.connect.client.records.metadata.Metadata metadata;
     property public final String? notes;
+    property public final java.util.List<androidx.health.connect.client.records.ExerciseSegment> segments;
     property public java.time.Instant startTime;
     property public java.time.ZoneOffset? startZoneOffset;
     property public final String? title;
@@ -967,11 +1065,12 @@ package androidx.health.connect.client.records {
   }
 
   public final class SleepSessionRecord implements androidx.health.connect.client.records.IntervalRecord {
-    ctor public SleepSessionRecord(java.time.Instant startTime, java.time.ZoneOffset? startZoneOffset, java.time.Instant endTime, java.time.ZoneOffset? endZoneOffset, optional String? title, optional String? notes, optional androidx.health.connect.client.records.metadata.Metadata metadata);
+    ctor public SleepSessionRecord(java.time.Instant startTime, java.time.ZoneOffset? startZoneOffset, java.time.Instant endTime, java.time.ZoneOffset? endZoneOffset, optional String? title, optional String? notes, optional java.util.List<androidx.health.connect.client.records.SleepSessionRecord.Stage> stages, optional androidx.health.connect.client.records.metadata.Metadata metadata);
     method public java.time.Instant getEndTime();
     method public java.time.ZoneOffset? getEndZoneOffset();
     method public androidx.health.connect.client.records.metadata.Metadata getMetadata();
     method public String? getNotes();
+    method public java.util.List<androidx.health.connect.client.records.SleepSessionRecord.Stage> getStages();
     method public java.time.Instant getStartTime();
     method public java.time.ZoneOffset? getStartZoneOffset();
     method public String? getTitle();
@@ -979,32 +1078,14 @@ package androidx.health.connect.client.records {
     property public java.time.ZoneOffset? endZoneOffset;
     property public androidx.health.connect.client.records.metadata.Metadata metadata;
     property public final String? notes;
+    property public final java.util.List<androidx.health.connect.client.records.SleepSessionRecord.Stage> stages;
     property public java.time.Instant startTime;
     property public java.time.ZoneOffset? startZoneOffset;
     property public final String? title;
     field public static final androidx.health.connect.client.records.SleepSessionRecord.Companion Companion;
     field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.time.Duration> SLEEP_DURATION_TOTAL;
-  }
-
-  public static final class SleepSessionRecord.Companion {
-  }
-
-  public final class SleepStageRecord implements androidx.health.connect.client.records.IntervalRecord {
-    ctor public SleepStageRecord(java.time.Instant startTime, java.time.ZoneOffset? startZoneOffset, java.time.Instant endTime, java.time.ZoneOffset? endZoneOffset, int stage, optional androidx.health.connect.client.records.metadata.Metadata metadata);
-    method public java.time.Instant getEndTime();
-    method public java.time.ZoneOffset? getEndZoneOffset();
-    method public androidx.health.connect.client.records.metadata.Metadata getMetadata();
-    method public int getStage();
-    method public java.time.Instant getStartTime();
-    method public java.time.ZoneOffset? getStartZoneOffset();
-    property public java.time.Instant endTime;
-    property public java.time.ZoneOffset? endZoneOffset;
-    property public androidx.health.connect.client.records.metadata.Metadata metadata;
-    property public final int stage;
-    property public java.time.Instant startTime;
-    property public java.time.ZoneOffset? startZoneOffset;
-    field public static final androidx.health.connect.client.records.SleepStageRecord.Companion Companion;
     field public static final int STAGE_TYPE_AWAKE = 1; // 0x1
+    field public static final int STAGE_TYPE_AWAKE_IN_BED = 7; // 0x7
     field public static final int STAGE_TYPE_DEEP = 5; // 0x5
     field public static final int STAGE_TYPE_LIGHT = 4; // 0x4
     field public static final int STAGE_TYPE_OUT_OF_BED = 3; // 0x3
@@ -1013,7 +1094,17 @@ package androidx.health.connect.client.records {
     field public static final int STAGE_TYPE_UNKNOWN = 0; // 0x0
   }
 
-  public static final class SleepStageRecord.Companion {
+  public static final class SleepSessionRecord.Companion {
+  }
+
+  public static final class SleepSessionRecord.Stage {
+    ctor public SleepSessionRecord.Stage(java.time.Instant startTime, java.time.Instant endTime, int stage);
+    method public java.time.Instant getEndTime();
+    method public int getStage();
+    method public java.time.Instant getStartTime();
+    property public final java.time.Instant endTime;
+    property public final int stage;
+    property public final java.time.Instant startTime;
   }
 
   public final class SpeedRecord implements androidx.health.connect.client.records.SeriesRecord<androidx.health.connect.client.records.SpeedRecord.Sample> {
@@ -1218,19 +1309,25 @@ package androidx.health.connect.client.records.metadata {
   }
 
   public final class Metadata {
-    ctor public Metadata(optional String id, optional androidx.health.connect.client.records.metadata.DataOrigin dataOrigin, optional java.time.Instant lastModifiedTime, optional String? clientRecordId, optional long clientRecordVersion, optional androidx.health.connect.client.records.metadata.Device? device);
+    ctor public Metadata(optional String id, optional androidx.health.connect.client.records.metadata.DataOrigin dataOrigin, optional java.time.Instant lastModifiedTime, optional String? clientRecordId, optional long clientRecordVersion, optional androidx.health.connect.client.records.metadata.Device? device, optional int recordingMethod);
     method public String? getClientRecordId();
     method public long getClientRecordVersion();
     method public androidx.health.connect.client.records.metadata.DataOrigin getDataOrigin();
     method public androidx.health.connect.client.records.metadata.Device? getDevice();
     method public String getId();
     method public java.time.Instant getLastModifiedTime();
+    method public int getRecordingMethod();
     property public final String? clientRecordId;
     property public final long clientRecordVersion;
     property public final androidx.health.connect.client.records.metadata.DataOrigin dataOrigin;
     property public final androidx.health.connect.client.records.metadata.Device? device;
     property public final String id;
     property public final java.time.Instant lastModifiedTime;
+    property public final int recordingMethod;
+    field public static final int RECORDING_METHOD_ACTIVELY_RECORDED = 1; // 0x1
+    field public static final int RECORDING_METHOD_AUTOMATICALLY_RECORDED = 2; // 0x2
+    field public static final int RECORDING_METHOD_MANUAL_ENTRY = 3; // 0x3
+    field public static final int RECORDING_METHOD_UNKNOWN = 0; // 0x0
   }
 
 }

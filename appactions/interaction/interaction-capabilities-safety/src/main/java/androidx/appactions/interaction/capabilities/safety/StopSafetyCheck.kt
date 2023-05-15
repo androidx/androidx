@@ -16,52 +16,40 @@
 
 package androidx.appactions.interaction.capabilities.safety
 
-import androidx.appactions.interaction.capabilities.core.Capability
+import androidx.appactions.builtintypes.experimental.types.ActionNotInProgress
+import androidx.appactions.builtintypes.experimental.types.GenericErrorStatus
+import androidx.appactions.builtintypes.experimental.types.NoInternetConnection
+import androidx.appactions.builtintypes.experimental.types.SuccessStatus
 import androidx.appactions.interaction.capabilities.core.BaseExecutionSession
+import androidx.appactions.interaction.capabilities.core.Capability
+import androidx.appactions.interaction.capabilities.core.CapabilityFactory
 import androidx.appactions.interaction.capabilities.core.impl.BuilderOf
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
-import androidx.appactions.interaction.capabilities.core.values.GenericErrorStatus
-import androidx.appactions.interaction.capabilities.core.values.SuccessStatus
-import androidx.appactions.interaction.capabilities.core.values.executionstatus.ActionNotInProgress
-import androidx.appactions.interaction.capabilities.core.values.executionstatus.NoInternetConnection
+import androidx.appactions.interaction.capabilities.core.properties.Property
 import androidx.appactions.interaction.capabilities.safety.executionstatus.SafetyAccountNotLoggedIn
 import androidx.appactions.interaction.capabilities.safety.executionstatus.SafetyFeatureNotOnboarded
 import androidx.appactions.interaction.proto.ParamValue
 import androidx.appactions.interaction.protobuf.Struct
 import androidx.appactions.interaction.protobuf.Value
-import java.util.Optional
 
-/** StopSafetyCheck.kt in interaction-capabilities-safety */
 private const val CAPABILITY_NAME = "actions.intent.STOP_SAFETY_CHECK"
 
-private val ACTION_SPEC =
-    ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
-        .setDescriptor(StopSafetyCheck.Properties::class.java)
-        .setArguments(StopSafetyCheck.Arguments::class.java, StopSafetyCheck.Arguments::Builder)
-        .setOutput(StopSafetyCheck.Output::class.java)
-        .bindOptionalOutput(
-            "executionStatus",
-            { output -> Optional.ofNullable(output.executionStatus) },
-            StopSafetyCheck.ExecutionStatus::toParamValue
-        )
-        .build()
-
-// TODO(b/267806701): Add capability factory annotation once the testing library is fully migrated.
+/** A capability corresponding to actions.intent.STOP_SAFETY_CHECK */
+@CapabilityFactory(name = CAPABILITY_NAME)
 class StopSafetyCheck private constructor() {
     // TODO(b/267805819): Update to include the SessionFactory once Session API is ready.
     class CapabilityBuilder :
         Capability.Builder<
-            CapabilityBuilder, Properties, Arguments, Output, Confirmation, ExecutionSession
+            CapabilityBuilder, Arguments, Output, Confirmation, ExecutionSession
             >(ACTION_SPEC) {
+
+        private var properties = mutableMapOf<String, Property<*>>()
         override fun build(): Capability {
-            super.setProperty(Properties())
+            super.setProperty(properties)
             return super.build()
         }
     }
-
-    // TODO(b/268369632): Remove Property from public capability APIs.
-    class Properties internal constructor()
 
     class Arguments internal constructor() {
         class Builder : BuilderOf<Arguments> {
@@ -165,4 +153,17 @@ class StopSafetyCheck private constructor() {
     class Confirmation internal constructor()
 
     sealed interface ExecutionSession : BaseExecutionSession<Arguments, Output>
+
+    companion object {
+        private val ACTION_SPEC =
+            ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
+                .setArguments(Arguments::class.java, Arguments::Builder)
+                .setOutput(Output::class.java)
+                .bindOutput(
+                    "executionStatus",
+                    Output::executionStatus,
+                    ExecutionStatus::toParamValue
+                )
+                .build()
+    }
 }

@@ -23,9 +23,9 @@ import androidx.paging.ListenableFuturePagingSource
 import androidx.paging.PagingState
 import com.google.common.util.concurrent.FluentFuture
 import com.google.common.util.concurrent.ListenableFuture
-import retrofit2.HttpException
 import java.io.IOException
 import java.util.concurrent.Executor
+import retrofit2.HttpException
 
 data class RemoteResult(
     val items: List<Item>,

@@ -16,7 +16,7 @@ dependencies {
 }
 
 androidx {
-    name = "Android Support ExifInterface"
+    name = "ExifInterface"
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2016"
     description = "Android Support ExifInterface"

@@ -23,6 +23,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -42,8 +44,8 @@ import androidx.wear.compose.material.ToggleChipDefaults
 
 @Composable
 fun InlineSliderDemo() {
-    var valueWithoutSegments by remember { mutableStateOf(5f) }
-    var valueWithSegments by remember { mutableStateOf(2f) }
+    var valueWithoutSegments by remember { mutableFloatStateOf(5f) }
+    var valueWithSegments by remember { mutableFloatStateOf(2f) }
     var enabled by remember { mutableStateOf(true) }
 
     ScalingLazyColumnWithRSB(
@@ -99,8 +101,8 @@ fun InlineSliderDemo() {
 
 @Composable
 fun InlineSliderWithIntegersDemo() {
-    var valueWithoutSegments by remember { mutableStateOf(5) }
-    var valueWithSegments by remember { mutableStateOf(2) }
+    var valueWithoutSegments by remember { mutableIntStateOf(5) }
+    var valueWithSegments by remember { mutableIntStateOf(2) }
 
     ScalingLazyColumnWithRSB(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -140,7 +142,7 @@ fun InlineSliderRTLDemo() {
 
 @Composable
 fun InlineSliderCustomColorsDemo() {
-    var value by remember { mutableStateOf(4.5f) }
+    var value by remember { mutableFloatStateOf(4.5f) }
     Box(
         contentAlignment = Alignment.Center,
         modifier = Modifier.fillMaxSize()
@@ -161,8 +163,8 @@ fun InlineSliderCustomColorsDemo() {
 
 @Composable
 fun InlineSliderSegmented() {
-    var numberOfSegments by remember { mutableStateOf(5f) }
-    var progress by remember { mutableStateOf(10f) }
+    var numberOfSegments by remember { mutableFloatStateOf(5f) }
+    var progress by remember { mutableFloatStateOf(10f) }
 
     ScalingLazyColumnWithRSB(
         horizontalAlignment = Alignment.CenterHorizontally,

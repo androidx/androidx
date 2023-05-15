@@ -17,6 +17,7 @@
 package androidx.camera.core.imagecapture;
 
 import static androidx.camera.core.CaptureBundles.singleDefaultCaptureBundle;
+import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_BUFFER_FORMAT;
 import static androidx.camera.core.impl.utils.Threads.checkMainThread;
 import static androidx.camera.core.impl.utils.TransformUtils.hasCropping;
 
@@ -111,8 +112,12 @@ public class ImagePipeline {
                 cameraEffect != null ? new InternalImageProcessor(cameraEffect) : null);
 
         // Connect nodes
-        mPipelineIn = CaptureNode.In.of(cameraSurfaceSize, mUseCaseConfig.getInputFormat(),
-                isVirtualCamera);
+        mPipelineIn = CaptureNode.In.of(
+                cameraSurfaceSize,
+                mUseCaseConfig.getInputFormat(),
+                getOutputFormat(),
+                isVirtualCamera,
+                mUseCaseConfig.getImageReaderProxyProvider());
         CaptureNode.Out captureOut = mCaptureNode.transform(mPipelineIn);
         ProcessingNode.In processingIn = mBundlingNode.transform(captureOut);
         mProcessingNode.transform(processingIn);
@@ -211,6 +216,16 @@ public class ImagePipeline {
 
     // ===== private methods =====
 
+    private int getOutputFormat() {
+        Integer bufferFormat = mUseCaseConfig.retrieveOption(OPTION_BUFFER_FORMAT, null);
+        // Return the buffer format if it is set.
+        if (bufferFormat != null) {
+            return bufferFormat;
+        }
+        // By default, use JPEG format.
+        return ImageFormat.JPEG;
+    }
+
     @NonNull
     private CaptureBundle createCaptureBundle() {
         return requireNonNull(mUseCaseConfig.getCaptureBundle(singleDefaultCaptureBundle()));
@@ -251,7 +266,7 @@ public class ImagePipeline {
 
             // Only sets the JPEG rotation and quality for JPEG format. Some devices do not
             // handle these configs for non-JPEG images. See b/204375890.
-            if (mPipelineIn.getFormat() == ImageFormat.JPEG) {
+            if (mPipelineIn.getInputFormat() == ImageFormat.JPEG) {
                 if (EXIF_ROTATION_AVAILABILITY.isRotationOptionSupported()) {
                     builder.addImplementationOption(CaptureConfig.OPTION_ROTATION,
                             takePictureRequest.getRotationDegrees());

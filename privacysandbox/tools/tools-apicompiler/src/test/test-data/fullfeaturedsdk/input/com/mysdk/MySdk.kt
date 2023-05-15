@@ -75,7 +75,8 @@ data class Request(
     val query: String,
     val extraValues: List<InnerValue>,
     val maybeValue: InnerValue?,
-    val myInterface: MyInterface
+    val myInterface: MyInterface,
+    val myUiInterface: MyUiInterface,
 )
 
 @PrivacySandboxValue
@@ -85,7 +86,8 @@ data class InnerValue(val numbers: List<Int>, val maybeNumber: Int?)
 data class Response(
     val response: String,
     val mySecondInterface: MySecondInterface,
-    val maybeOtherInterface: MySecondInterface
+    val maybeOtherInterface: MySecondInterface,
+    val myUiInterface: MyUiInterface,
 )
 
 @PrivacySandboxCallback
@@ -95,4 +97,6 @@ interface MyCallback {
     fun onClick(x: Int, y: Int)
 
     fun onCompleteInterface(myInterface: MyInterface)
+
+    fun onCompleteUiInterface(myUiInterface: MyUiInterface)
 }

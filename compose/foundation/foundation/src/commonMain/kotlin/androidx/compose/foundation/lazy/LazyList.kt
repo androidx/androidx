@@ -29,11 +29,11 @@ import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.lazy.layout.LazyLayout
 import androidx.compose.foundation.lazy.layout.LazyLayoutMeasureScope
+import androidx.compose.foundation.lazy.layout.calculateLazyLayoutPinnedIndices
 import androidx.compose.foundation.lazy.layout.lazyLayoutSemantics
 import androidx.compose.foundation.overscroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -78,17 +78,10 @@ internal fun LazyList(
     val itemProvider = rememberLazyListItemProvider(state, content)
 
     val semanticState = rememberLazyListSemanticState(state, isVertical)
-    val beyondBoundsInfo = remember { LazyListBeyondBoundsInfo() }
-    val scope = rememberCoroutineScope()
-    val placementAnimator = remember(state, isVertical) {
-        LazyListItemPlacementAnimator(scope, isVertical)
-    }
-    state.placementAnimator = placementAnimator
 
     val measurePolicy = rememberLazyListMeasurePolicy(
         itemProvider,
         state,
-        beyondBoundsInfo,
         contentPadding,
         reverseLayout,
         isVertical,
@@ -96,8 +89,7 @@ internal fun LazyList(
         horizontalAlignment,
         verticalAlignment,
         horizontalArrangement,
-        verticalArrangement,
-        placementAnimator,
+        verticalArrangement
     )
 
     ScrollPositionUpdater(itemProvider, state)
@@ -116,7 +108,12 @@ internal fun LazyList(
                 reverseScrolling = reverseLayout
             )
             .clipScrollableContainer(orientation)
-            .lazyListBeyondBoundsModifier(state, beyondBoundsInfo, reverseLayout, orientation)
+            .lazyListBeyondBoundsModifier(
+                state,
+                beyondBoundsItemCount,
+                reverseLayout,
+                orientation
+            )
             .overscroll(overscrollEffect)
             .scrollable(
                 orientation = orientation,
@@ -156,8 +153,6 @@ private fun rememberLazyListMeasurePolicy(
     itemProvider: LazyListItemProvider,
     /** The state of the list. */
     state: LazyListState,
-    /** Keeps track of the number of items we measure and place that are beyond visible bounds. */
-    beyondBoundsInfo: LazyListBeyondBoundsInfo,
     /** The inner padding to be added for the whole content(nor for each individual item) */
     contentPadding: PaddingValues,
     /** reverse the direction of scrolling and layout */
@@ -174,19 +169,15 @@ private fun rememberLazyListMeasurePolicy(
     horizontalArrangement: Arrangement.Horizontal? = null,
     /** The vertical arrangement for items. Required when isVertical is true */
     verticalArrangement: Arrangement.Vertical? = null,
-    /** Item placement animator. Should be notified with the measuring result */
-    placementAnimator: LazyListItemPlacementAnimator
 ) = remember<LazyLayoutMeasureScope.(Constraints) -> MeasureResult>(
     state,
-    beyondBoundsInfo,
     contentPadding,
     reverseLayout,
     isVertical,
     horizontalAlignment,
     verticalAlignment,
     horizontalArrangement,
-    verticalArrangement,
-    placementAnimator
+    verticalArrangement
 ) {
     { containerConstraints ->
         checkScrollableContainerConstraints(
@@ -268,12 +259,12 @@ private fun rememberLazyListMeasurePolicy(
             isVertical,
             itemProvider,
             this
-        ) { index, key, placeables ->
+        ) { index, key, contentType, placeables ->
             // we add spaceBetweenItems as an extra spacing for all items apart from the last one so
             // the lazy list measuring logic will take it into account.
-            val spacing = if (index.value == itemsCount - 1) 0 else spaceBetweenItems
+            val spacing = if (index == itemsCount - 1) 0 else spaceBetweenItems
             LazyListMeasuredItem(
-                index = index.value,
+                index = index,
                 placeables = placeables,
                 isVertical = isVertical,
                 horizontalAlignment = horizontalAlignment,
@@ -285,21 +276,25 @@ private fun rememberLazyListMeasurePolicy(
                 spacing = spacing,
                 visualOffset = visualItemOffset,
                 key = key,
-                placementAnimator = placementAnimator
+                contentType = contentType
             )
         }
         state.premeasureConstraints = measuredItemProvider.childConstraints
 
-        val firstVisibleItemIndex: DataIndex
+        val firstVisibleItemIndex: Int
         val firstVisibleScrollOffset: Int
         Snapshot.withoutReadObservation {
-            firstVisibleItemIndex = DataIndex(state.firstVisibleItemIndex)
+            firstVisibleItemIndex = state.firstVisibleItemIndex
             firstVisibleScrollOffset = state.firstVisibleItemScrollOffset
         }
 
+        val pinnedItems = itemProvider.calculateLazyLayoutPinnedIndices(
+            pinnedItemList = state.pinnedItems,
+            beyondBoundsInfo = state.beyondBoundsInfo
+        )
+
         measureLazyList(
             itemsCount = itemsCount,
-            itemProvider = itemProvider,
             measuredItemProvider = measuredItemProvider,
             mainAxisAvailableSize = mainAxisAvailableSize,
             beforeContentPadding = beforeContentPadding,
@@ -315,10 +310,9 @@ private fun rememberLazyListMeasurePolicy(
             horizontalArrangement = horizontalArrangement,
             reverseLayout = reverseLayout,
             density = this,
-            placementAnimator = placementAnimator,
-            beyondBoundsInfo = beyondBoundsInfo,
+            placementAnimator = state.placementAnimator,
             beyondBoundsItemCount = beyondBoundsItemCount,
-            pinnedItems = state.pinnedItems,
+            pinnedItems = pinnedItems,
             layout = { width, height, placement ->
                 layout(
                     containerConstraints.constrainWidth(width + totalHorizontalPadding),

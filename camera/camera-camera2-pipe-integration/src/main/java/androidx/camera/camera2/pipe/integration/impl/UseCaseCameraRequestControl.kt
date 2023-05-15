@@ -34,6 +34,7 @@ import androidx.camera.camera2.pipe.RequestTemplate
 import androidx.camera.camera2.pipe.Result3A
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.TorchState
+import androidx.camera.camera2.pipe.core.Log.debug
 import androidx.camera.camera2.pipe.integration.adapter.CaptureConfigAdapter
 import androidx.camera.camera2.pipe.integration.config.UseCaseCameraScope
 import androidx.camera.camera2.pipe.integration.config.UseCaseGraphConfig
@@ -179,6 +180,7 @@ class UseCaseCameraRequestControlImpl @Inject constructor(
         tags: Map<String, Any>,
         listeners: Set<Request.Listener>
     ): Deferred<Unit> = synchronized(lock) {
+        debug { "[$type] Add request option: $values" }
         infoBundleMap.getOrPut(type) { InfoBundle() }.let {
             it.options.addAllCaptureRequestOptionsWithPriority(values, optionPriority)
             it.tags.putAll(tags)
@@ -195,6 +197,7 @@ class UseCaseCameraRequestControlImpl @Inject constructor(
         template: RequestTemplate?,
         listeners: Set<Request.Listener>
     ): Deferred<Unit> = synchronized(lock) {
+        debug { "[$type] Set config: ${config?.toParameters()}" }
         infoBundleMap[type] = InfoBundle(
             Camera2ImplConfig.Builder().apply {
                 config?.let {

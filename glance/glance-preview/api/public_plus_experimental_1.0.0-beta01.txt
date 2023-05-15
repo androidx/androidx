@@ -1,0 +1,23 @@
+// Signature format: 4.0
+package androidx.glance.preview {
+
+  @kotlin.RequiresOptIn(message="This API is experimental and is likely to change in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalGlancePreviewApi {
+  }
+
+  @androidx.glance.preview.ExperimentalGlancePreviewApi @kotlin.annotation.Repeatable @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.SOURCE) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.ANNOTATION_CLASS, kotlin.annotation.AnnotationTarget.FUNCTION}) public @interface GlancePreview {
+    method public abstract String surface();
+    property public abstract String surface;
+  }
+
+  @androidx.glance.preview.ExperimentalGlancePreviewApi @kotlin.annotation.Repeatable @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.SOURCE) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.ANNOTATION_CLASS, kotlin.annotation.AnnotationTarget.FUNCTION}) public static @interface GlancePreview.Container {
+    method public abstract androidx.glance.preview.GlancePreview[] value();
+  }
+
+  @androidx.glance.preview.ExperimentalGlancePreviewApi public final class Surfaces {
+    field public static final String APP_WIDGET = "AppWidget";
+    field public static final androidx.glance.preview.Surfaces INSTANCE;
+    field public static final String TILE = "Tile";
+  }
+
+}
+

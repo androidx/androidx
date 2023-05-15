@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-import androidx.build.AndroidXComposePlugin
+import androidx.build.KmpPlatformsKt
 import androidx.build.LibraryType
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
@@ -24,85 +23,88 @@ plugins {
     id("AndroidXComposePlugin")
 }
 
-AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project)
+def desktopEnabled = KmpPlatformsKt.enableDesktop(project)
 
-if(!AndroidXComposePlugin.isMultiplatformEnabled(project)) {
-    dependencies {
-        /*
-         * When updating dependencies, make sure to make the an an analogous update in the
-         * corresponding block below
-         */
+androidXMultiplatform {
+    android()
+    if (desktopEnabled) desktop()
 
-        api(project(":compose:ui:ui-geometry"))
-        api("androidx.annotation:annotation:1.1.0")
-
-        implementation(libs.kotlinStdlib)
-        implementation("androidx.compose.runtime:runtime:1.2.1")
-        implementation(project(":compose:ui:ui-util"))
-
-        testImplementation(libs.junit)
-        testImplementation(libs.truth)
-
-        androidTestImplementation(libs.testRules)
-        androidTestImplementation(libs.testRunner)
-        androidTestImplementation(libs.testExtJunit)
-        androidTestImplementation(libs.espressoCore)
-        androidTestImplementation(libs.truth)
-        androidTestImplementation(libs.kotlinTest)
-
-        samples(projectOrArtifact(":compose:ui:ui-unit:ui-unit-samples"))
-    }
-}
-
-if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
-    androidXComposeMultiplatform {
-        android()
-        desktop()
-    }
-
-    kotlin {
-
-        /*
-         * When updating dependencies, make sure to make the an an analogous update in the
-         * corresponding block above
-         */
-        sourceSets {
-            commonMain.dependencies {
+    sourceSets {
+        commonMain {
+            dependencies {
                 implementation(libs.kotlinStdlibCommon)
                 api(project(":compose:ui:ui-geometry"))
 
                 implementation(project(":compose:runtime:runtime"))
                 implementation(project(":compose:ui:ui-util"))
             }
-            jvmMain.dependencies {
-                implementation(libs.kotlinStdlib)
-            }
-            androidMain.dependencies {
-                api("androidx.annotation:annotation:1.1.0")
-            }
+        }
 
-            commonTest.dependencies {
+        commonTest {
+            dependencies {
                 implementation(kotlin("test-junit"))
             }
+        }
 
-            // TODO(b/214407011): These dependencies leak into instrumented tests as well. If you
-            //  need to add Robolectric (which must be kept out of androidAndroidTest), use a top
-            //  level dependencies block instead:
-            //  `dependencies { testImplementation(libs.robolectric) }`
-            androidTest.dependencies {
-                implementation(libs.truth)
+        jvmMain {
+            dependencies {
+                implementation(libs.kotlinStdlib)
             }
-            androidAndroidTest.dependencies {
+        }
+
+
+        androidMain {
+            dependsOn(jvmMain)
+            dependencies {
+                api("androidx.annotation:annotation:1.1.0")
+            }
+        }
+
+        if (desktopEnabled) {
+            desktopMain {
+                dependsOn(jvmMain)
+                dependencies {
+                    implementation(project(":compose:runtime:runtime"))
+                }
+            }
+        }
+
+        jvmTest {
+            dependencies {
+            }
+        }
+
+        androidAndroidTest {
+            dependsOn(jvmTest)
+            dependencies {
                 implementation(libs.testRules)
                 implementation(libs.testRunner)
                 implementation(libs.testExtJunit)
                 implementation(libs.espressoCore)
             }
         }
+
+        // TODO(b/214407011): These dependencies leak into instrumented tests as well. If you
+        //  need to add Robolectric (which must be kept out of androidAndroidTest), use a top
+        //  level dependencies block instead:
+        //  `dependencies { testImplementation(libs.robolectric) }`
+        androidTest {
+            dependsOn(jvmTest)
+            dependencies {
+                implementation(libs.truth)
+            }
+        }
+
+        if (desktopEnabled) {
+            desktopTest {
+                dependsOn(jvmTest)
+            }
+        }
     }
-    dependencies {
-        samples(projectOrArtifact(":compose:ui:ui-unit:ui-unit-samples"))
-    }
+}
+
+dependencies {
+    samples(projectOrArtifact(":compose:ui:ui-unit:ui-unit-samples"))
 }
 
 androidx {

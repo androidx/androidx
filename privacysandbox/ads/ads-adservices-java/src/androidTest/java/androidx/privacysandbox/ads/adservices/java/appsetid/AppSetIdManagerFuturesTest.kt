@@ -17,6 +17,7 @@
 package androidx.privacysandbox.ads.adservices.java.appsetid
 
 import android.content.Context
+import android.os.Looper
 import android.os.OutcomeReceiver
 import android.os.ext.SdkExtensions
 import androidx.annotation.RequiresExtension
@@ -27,6 +28,7 @@ import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import com.google.common.util.concurrent.ListenableFuture
+import kotlin.test.assertNotEquals
 import org.junit.Assert
 import org.junit.Assume
 import org.junit.Before
@@ -102,6 +104,7 @@ class AppSetIdManagerFuturesTest {
                 "1234",
                 android.adservices.appsetid.AppSetId.SCOPE_APP)
             val answer = { args: InvocationOnMock ->
+                assertNotEquals(Looper.getMainLooper(), Looper.myLooper())
                 val receiver = args.getArgument<
                     OutcomeReceiver<android.adservices.appsetid.AppSetId, Exception>>(1)
                 receiver.onResult(appSetId)

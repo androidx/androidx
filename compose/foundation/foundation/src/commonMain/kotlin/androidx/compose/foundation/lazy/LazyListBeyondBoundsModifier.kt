@@ -17,8 +17,8 @@
 package androidx.compose.foundation.lazy
 
 import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.lazy.layout.BeyondBoundsState
 import androidx.compose.foundation.lazy.layout.LazyLayoutBeyondBoundsModifierLocal
+import androidx.compose.foundation.lazy.layout.LazyLayoutBeyondBoundsState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -32,12 +32,15 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 @Composable
 internal fun Modifier.lazyListBeyondBoundsModifier(
     state: LazyListState,
-    beyondBoundsInfo: LazyListBeyondBoundsInfo,
+    beyondBoundsItemCount: Int,
     reverseLayout: Boolean,
     orientation: Orientation
 ): Modifier {
     val layoutDirection = LocalLayoutDirection.current
-    val beyondBoundsState = remember(state) { LazyListBeyondBoundsState(state) }
+    val beyondBoundsState = remember(state, beyondBoundsItemCount) {
+        LazyListBeyondBoundsState(state, beyondBoundsItemCount)
+    }
+    val beyondBoundsInfo = state.beyondBoundsInfo
     return this then remember(
         beyondBoundsState,
         beyondBoundsInfo,
@@ -55,7 +58,11 @@ internal fun Modifier.lazyListBeyondBoundsModifier(
     }
 }
 
-internal class LazyListBeyondBoundsState(val state: LazyListState) : BeyondBoundsState {
+internal class LazyListBeyondBoundsState(
+    val state: LazyListState,
+    val beyondBoundsItemCount: Int
+) : LazyLayoutBeyondBoundsState {
+
     override fun remeasure() {
         state.remeasurement?.forceRemeasure()
     }
@@ -64,8 +71,11 @@ internal class LazyListBeyondBoundsState(val state: LazyListState) : BeyondBound
         get() = state.layoutInfo.totalItemsCount
     override val hasVisibleItems: Boolean
         get() = state.layoutInfo.visibleItemsInfo.isNotEmpty()
-    override val firstVisibleIndex: Int
-        get() = state.firstVisibleItemIndex
-    override val lastVisibleIndex: Int
-        get() = state.layoutInfo.visibleItemsInfo.last().index
+    override val firstPlacedIndex: Int
+        get() = maxOf(0, state.firstVisibleItemIndex - beyondBoundsItemCount)
+    override val lastPlacedIndex: Int
+        get() = minOf(
+            itemCount - 1,
+            state.layoutInfo.visibleItemsInfo.last().index + beyondBoundsItemCount
+        )
 }

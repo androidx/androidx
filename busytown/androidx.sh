@@ -22,6 +22,8 @@ else
       -Pandroidx.enableComposeCompilerMetrics=true \
       -Pandroidx.enableComposeCompilerReports=true \
       -Pandroidx.constraints=true \
+      # If/when we enable desktop, enable VerifyDependencyVersionsTask.kt/shouldVerifyConfiguration
+      -Pandroidx.enabled.kmp.target.platforms=-desktop \
       --no-daemon \
       --profile "$@"; then
     EXIT_VALUE=1

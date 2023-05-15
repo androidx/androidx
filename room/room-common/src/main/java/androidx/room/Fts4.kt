@@ -16,12 +16,11 @@
 
 package androidx.room
 
-import kotlin.reflect.KClass
-
 import androidx.annotation.RequiresApi
-import androidx.room.FtsOptions.TOKENIZER_SIMPLE
 import androidx.room.FtsOptions.MatchInfo
 import androidx.room.FtsOptions.Order
+import androidx.room.FtsOptions.TOKENIZER_SIMPLE
+import kotlin.reflect.KClass
 
 /**
  * Marks an [Entity] annotated class as a FTS4 entity. This class will have a mapping SQLite

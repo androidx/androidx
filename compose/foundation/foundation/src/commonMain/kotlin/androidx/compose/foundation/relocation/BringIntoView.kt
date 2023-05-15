@@ -18,7 +18,7 @@ package androidx.compose.foundation.relocation
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.layout.LayoutCoordinates
-import androidx.compose.ui.modifier.ModifierLocalNode
+import androidx.compose.ui.modifier.ModifierLocalModifierNode
 import androidx.compose.ui.modifier.modifierLocalOf
 import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
 import androidx.compose.ui.node.LayoutAwareModifierNode
@@ -69,7 +69,7 @@ internal fun interface BringIntoViewParent {
  * calling [defaultBringIntoViewParent] to support platform-specific integration.
  */
 internal abstract class BringIntoViewChildNode : Modifier.Node(),
-    ModifierLocalNode, LayoutAwareModifierNode, CompositionLocalConsumerModifierNode {
+    ModifierLocalModifierNode, LayoutAwareModifierNode, CompositionLocalConsumerModifierNode {
     private val defaultParent = defaultBringIntoViewParent()
 
     private val localParent: BringIntoViewParent? get() = ModifierLocalBringIntoViewParent.current

@@ -618,10 +618,12 @@ internal class CompositionImpl(
                 if (nonEmptySlotTable || abandonSet.isNotEmpty()) {
                     val manager = RememberEventDispatcher(abandonSet)
                     if (nonEmptySlotTable) {
+                        applier.onBeginChanges()
                         slotTable.write { writer ->
                             writer.removeCurrentGroup(manager)
                         }
                         applier.clear()
+                        applier.onEndChanges()
                         manager.dispatchRememberObservers()
                     }
                     manager.dispatchAbandons()
@@ -671,35 +673,39 @@ internal class CompositionImpl(
 
     override fun prepareCompose(block: () -> Unit) = composer.prepareCompose(block)
 
-    private fun addPendingInvalidationsLocked(values: Set<Any>, forgetConditionalScopes: Boolean) {
-        var invalidated: HashSet<RecomposeScopeImpl>? = null
-
-        fun invalidate(value: Any) {
-            observations.forEachScopeOf(value) { scope ->
-                if (
-                    !observationsProcessed.remove(value, scope) &&
-                    scope.invalidateForResult(value) != InvalidationResult.IGNORED
-                ) {
-                    if (scope.isConditional && !forgetConditionalScopes) {
-                        conditionallyInvalidatedScopes.add(scope)
-                    } else {
-                        val set = invalidated
-                            ?: HashSet<RecomposeScopeImpl>().also {
-                                invalidated = it
-                            }
-                        set.add(scope)
-                    }
+    private fun HashSet<RecomposeScopeImpl>?.addPendingInvalidationsLocked(
+        value: Any,
+        forgetConditionalScopes: Boolean
+    ): HashSet<RecomposeScopeImpl>? {
+        var set = this
+        observations.forEachScopeOf(value) { scope ->
+            if (
+                !observationsProcessed.remove(value, scope) &&
+                scope.invalidateForResult(value) != InvalidationResult.IGNORED
+            ) {
+                if (scope.isConditional && !forgetConditionalScopes) {
+                    conditionallyInvalidatedScopes.add(scope)
+                } else {
+                    if (set == null) set = HashSet()
+                    set?.add(scope)
                 }
             }
         }
+        return set
+    }
+
+    private fun addPendingInvalidationsLocked(values: Set<Any>, forgetConditionalScopes: Boolean) {
+        var invalidated: HashSet<RecomposeScopeImpl>? = null
 
         values.fastForEach { value ->
             if (value is RecomposeScopeImpl) {
                 value.invalidateForResult(null)
             } else {
-                invalidate(value)
+                invalidated =
+                    invalidated.addPendingInvalidationsLocked(value, forgetConditionalScopes)
                 derivedStates.forEachScopeOf(value) {
-                    invalidate(it)
+                    invalidated =
+                        invalidated.addPendingInvalidationsLocked(it, forgetConditionalScopes)
                 }
             }
         }

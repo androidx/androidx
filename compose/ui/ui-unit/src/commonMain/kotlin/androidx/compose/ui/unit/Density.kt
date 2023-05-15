@@ -21,8 +21,8 @@ import androidx.compose.runtime.Stable
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.geometry.isSpecified
-import kotlin.math.roundToInt
 import androidx.compose.ui.unit.internal.JvmDefaultWithCompatibility
+import kotlin.math.roundToInt
 
 /**
  * A density of the screen. Used for convert [Dp] to pixels.

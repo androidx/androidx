@@ -16,8 +16,6 @@
 
 package androidx.wear.tiles.material;
 
-import static androidx.wear.tiles.DimensionBuilders.wrap;
-import static androidx.wear.tiles.LayoutElementBuilders.HORIZONTAL_ALIGN_CENTER;
 import static androidx.wear.tiles.material.ChipDefaults.COMPACT_HEIGHT;
 import static androidx.wear.tiles.material.ChipDefaults.COMPACT_HEIGHT_TAPPABLE;
 import static androidx.wear.tiles.material.ChipDefaults.COMPACT_HORIZONTAL_PADDING;
@@ -33,13 +31,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.wear.protolayout.proto.LayoutElementProto;
-import androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters;
-import androidx.wear.tiles.LayoutElementBuilders;
-import androidx.wear.tiles.LayoutElementBuilders.Box;
-import androidx.wear.tiles.LayoutElementBuilders.LayoutElement;
-import androidx.wear.tiles.ModifiersBuilders.Clickable;
-import androidx.wear.tiles.ModifiersBuilders.ElementMetadata;
-import androidx.wear.tiles.ModifiersBuilders.Modifiers;
 
 /**
  * Tiles component {@link CompactChip} that represents clickable object with the text.
@@ -76,25 +67,37 @@ import androidx.wear.tiles.ModifiersBuilders.Modifiers;
  */
 @Deprecated
 @SuppressWarnings("deprecation")
-public class CompactChip implements LayoutElement {
-    /** Tool tag for Metadata in Modifiers, so we know that Box is actually a CompactChip. */
+public class CompactChip implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement {
+    /**
+     * Tool tag for Metadata in androidx.wear.tiles.ModifiersBuilders.Modifiers, so we know that
+     * androidx.wear.tiles.LayoutElementBuilders.Box is actually a CompactChip.
+     */
     static final String METADATA_TAG = "CMPCHP";
 
-    @NonNull private final Box mImpl;
+    @NonNull private final androidx.wear.tiles.LayoutElementBuilders.Box mImpl;
     @NonNull private final Chip mElement;
 
-    CompactChip(@NonNull Box element) {
+    CompactChip(@NonNull androidx.wear.tiles.LayoutElementBuilders.Box element) {
         this.mImpl = element;
-        // We know for sure that content of the Box is Chip.
-        this.mElement = new Chip((Box) element.getContents().get(0));
+        // We know for sure that content of the androidx.wear.tiles.LayoutElementBuilders.Box is
+        // Chip.
+        this.mElement =
+                new Chip(
+                        (androidx.wear.tiles.LayoutElementBuilders.Box)
+                                element.getContents().get(0));
     }
 
     /** Builder class for {@link androidx.wear.tiles.material.CompactChip}. */
-    public static final class Builder implements LayoutElement.Builder {
+    public static final class Builder
+            implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement.Builder {
         @NonNull private final Context mContext;
         @NonNull private final String mText;
-        @NonNull private final Clickable mClickable;
-        @NonNull private final DeviceParameters mDeviceParameters;
+        @NonNull private final androidx.wear.tiles.ModifiersBuilders.Clickable mClickable;
+
+        @NonNull
+        private final androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters
+                mDeviceParameters;
+
         @NonNull private ChipColors mChipColors = COMPACT_PRIMARY_COLORS;
 
         /**
@@ -109,8 +112,10 @@ public class CompactChip implements LayoutElement {
         public Builder(
                 @NonNull Context context,
                 @NonNull String text,
-                @NonNull Clickable clickable,
-                @NonNull DeviceParameters deviceParameters) {
+                @NonNull androidx.wear.tiles.ModifiersBuilders.Clickable clickable,
+                @NonNull
+                        androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters
+                                deviceParameters) {
             this.mContext = context;
             this.mText = text;
             this.mClickable = clickable;
@@ -138,8 +143,10 @@ public class CompactChip implements LayoutElement {
                             .setMetadataTag(METADATA_TAG)
                             .setChipColors(mChipColors)
                             .setContentDescription(mText)
-                            .setHorizontalAlignment(HORIZONTAL_ALIGN_CENTER)
-                            .setWidth(wrap())
+                            .setHorizontalAlignment(
+                                    androidx.wear.tiles.LayoutElementBuilders
+                                            .HORIZONTAL_ALIGN_CENTER)
+                            .setWidth(androidx.wear.tiles.DimensionBuilders.wrap())
                             .setHeight(COMPACT_HEIGHT)
                             .setMaxLines(1)
                             .setHorizontalPadding(COMPACT_HORIZONTAL_PADDING)
@@ -147,19 +154,21 @@ public class CompactChip implements LayoutElement {
                             .setPrimaryLabelTypography(Typography.TYPOGRAPHY_CAPTION1)
                             .setIsPrimaryLabelScalable(false);
 
-            Box tappableChip =
-                    new Box.Builder()
+            androidx.wear.tiles.LayoutElementBuilders.Box tappableChip =
+                    new androidx.wear.tiles.LayoutElementBuilders.Box.Builder()
                             .setModifiers(
-                                    new Modifiers.Builder()
+                                    new androidx.wear.tiles.ModifiersBuilders.Modifiers.Builder()
                                             .setClickable(mClickable)
                                             .setMetadata(
-                                                    new ElementMetadata.Builder()
+                                                    new androidx.wear.tiles.ModifiersBuilders
+                                                                    .ElementMetadata.Builder()
                                                             .setTagData(getTagBytes(METADATA_TAG))
                                                             .build())
                                             .build())
-                            .setWidth(wrap())
+                            .setWidth(androidx.wear.tiles.DimensionBuilders.wrap())
                             .setHeight(COMPACT_HEIGHT_TAPPABLE)
-                            .setVerticalAlignment(LayoutElementBuilders.VERTICAL_ALIGN_CENTER)
+                            .setVerticalAlignment(
+                                    androidx.wear.tiles.LayoutElementBuilders.VERTICAL_ALIGN_CENTER)
                             .addContent(chipBuilder.build())
                             .build();
 
@@ -169,7 +178,7 @@ public class CompactChip implements LayoutElement {
 
     /** Returns click event action associated with this Chip. */
     @NonNull
-    public Clickable getClickable() {
+    public androidx.wear.tiles.ModifiersBuilders.Clickable getClickable() {
         return mElement.getClickable();
     }
 
@@ -192,28 +201,34 @@ public class CompactChip implements LayoutElement {
     }
 
     /**
-     * Returns CompactChip object from the given LayoutElement (e.g. one retrieved from a
+     * Returns CompactChip object from the given
+     * androidx.wear.tiles.LayoutElementBuilders.LayoutElement (e.g. one retrieved from a
      * container's content with {@code container.getContents().get(index)}) if that element can be
      * converted to CompactChip. Otherwise, it will return null.
      */
     @Nullable
-    public static CompactChip fromLayoutElement(@NonNull LayoutElement element) {
+    public static CompactChip fromLayoutElement(
+            @NonNull androidx.wear.tiles.LayoutElementBuilders.LayoutElement element) {
         if (element instanceof CompactChip) {
             return (CompactChip) element;
         }
-        if (!(element instanceof Box)) {
+        if (!(element instanceof androidx.wear.tiles.LayoutElementBuilders.Box)) {
             return null;
         }
-        Box boxElement = (Box) element;
+        androidx.wear.tiles.LayoutElementBuilders.Box boxElement =
+                (androidx.wear.tiles.LayoutElementBuilders.Box) element;
         if (!checkTag(boxElement.getModifiers(), METADATA_TAG)) {
             return null;
         }
-        // Now to check that inner content of the Box is CompactChip's Chip.
-        LayoutElement innerElement = boxElement.getContents().get(0);
-        if (!(innerElement instanceof Box)) {
+        // Now to check that inner content of the androidx.wear.tiles.LayoutElementBuilders.Box is
+        // CompactChip's Chip.
+        androidx.wear.tiles.LayoutElementBuilders.LayoutElement innerElement =
+                boxElement.getContents().get(0);
+        if (!(innerElement instanceof androidx.wear.tiles.LayoutElementBuilders.Box)) {
             return null;
         }
-        Box innerBoxElement = (Box) innerElement;
+        androidx.wear.tiles.LayoutElementBuilders.Box innerBoxElement =
+                (androidx.wear.tiles.LayoutElementBuilders.Box) innerElement;
         if (!checkTag(innerBoxElement.getModifiers(), METADATA_TAG)) {
             return null;
         }

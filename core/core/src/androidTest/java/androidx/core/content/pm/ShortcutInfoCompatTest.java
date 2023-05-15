@@ -524,4 +524,15 @@ public class ShortcutInfoCompatTest {
         final ShortcutInfo shortcut = compat.toShortcutInfo();
         assertTrue(shortcut.isExcludedFromSurfaces(ShortcutInfo.SURFACE_LAUNCHER));
     }
+
+    @Test
+    public void testSetCategoriesAndAddCapabilityBinding() {
+        HashSet<String> categories = new HashSet<>();
+        categories.add("a");
+        mBuilder.setActivity(new ComponentName(mContext, TestActivity.class))
+                .setCategories(categories)
+                .addCapabilityBinding("b")
+                .build();
+        assertEquals(1, categories.size());
+    }
 }

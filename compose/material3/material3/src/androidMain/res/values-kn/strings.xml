@@ -17,59 +17,59 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="dialog" msgid="4057925834421392736">"ಡೈಲಾಗ್"</string>
-    <string name="expanded" msgid="5974471714631304645">"ವಿಸ್ತರಿಸಲಾಗಿದೆ"</string>
-    <string name="collapsed" msgid="5389587048670450460">"ಕುಗ್ಗಿಸಲಾಗಿದೆ"</string>
-    <string name="snackbar_dismiss" msgid="3962933905051144957">"ವಜಾಗೊಳಿಸಿ"</string>
-    <string name="search_bar_search" msgid="6420018528474762666">"ಹುಡುಕಿ"</string>
-    <string name="suggestions_available" msgid="7189888345201419934">"ಸಲಹೆಗಳನ್ನು ಕೆಳಗೆ ನೀಡಲಾಗಿದೆ"</string>
-    <string name="date_picker_title" msgid="9208721003668059792">"ದಿನಾಂಕವನ್ನು ಆಯ್ಕೆಮಾಡಿ"</string>
-    <string name="date_picker_headline" msgid="2846784065735639969">"ದಿನಾಂಕವನ್ನು ಆಯ್ಕೆಮಾಡಲಾಗಿದೆ"</string>
-    <string name="date_picker_switch_to_year_selection" msgid="3412370019845183965">"ವರ್ಷವನ್ನು ಆಯ್ಕೆ ಮಾಡಲು ಬದಲಿಸಿ"</string>
-    <string name="date_picker_switch_to_day_selection" msgid="145089358343568971">"ಒಂದು ವರ್ಷವನ್ನು ಆಯ್ಕೆಮಾಡಲು ಸ್ವೈಪ್ ಮಾಡಿ ಅಥವಾ ಒಂದು ದಿನವನ್ನು ಆಯ್ಕೆಮಾಡಲು ಹಿಂತಿರುಗಲು ಟ್ಯಾಪ್ ಮಾಡಿ"</string>
-    <string name="date_picker_switch_to_next_month" msgid="8313783187901412102">"ಮುಂದಿನ ತಿಂಗಳಿಗೆ ಬದಲಿಸಿ"</string>
-    <string name="date_picker_switch_to_previous_month" msgid="7596294429748914881">"ಹಿಂದಿನ ತಿಂಗಳಿಗೆ ಬದಲಿಸಿ"</string>
-    <string name="date_picker_navigate_to_year_description" msgid="5152441868029453612">"%1$s ವರ್ಷಕ್ಕೆ ನ್ಯಾವಿಗೇಟ್ ಮಾಡಿ"</string>
-    <string name="date_picker_headline_description" msgid="4627306862713137085">"ಪ್ರಸ್ತುತ ಆಯ್ಕೆ: %1$s"</string>
-    <string name="date_picker_no_selection_description" msgid="5724377114289981899">"ಯಾವುದೂ ಅಲ್ಲ"</string>
-    <string name="date_picker_today_description" msgid="4775802721403526937">"ಇಂದು"</string>
-    <string name="date_picker_year_picker_pane_title" msgid="8140324713311804736">"ವರ್ಷದ ಪಿಕರ್ ಗೋಚರಿಸುತ್ತದೆ"</string>
-    <string name="date_input_title" msgid="3010396677286327048">"ದಿನಾಂಕವನ್ನು ಆಯ್ಕೆಮಾಡಿ"</string>
-    <string name="date_input_headline" msgid="3499643850558715142">"ನಮೂದಿಸಿದ ದಿನಾಂಕ"</string>
-    <string name="date_input_label" msgid="5194825853981987218">"ದಿನಾಂಕ"</string>
-    <string name="date_input_headline_description" msgid="8562356184193964298">"ನಮೂದಿಸಿದ ದಿನಾಂಕ: %1$s"</string>
-    <string name="date_input_no_input_description" msgid="5722931102250207748">"ಯಾವುದೂ ಅಲ್ಲ"</string>
-    <string name="date_input_invalid_not_allowed" msgid="6114792992433444995">"ದಿನಾಂಕವನ್ನು ಅನುಮತಿಸಲಾಗುವುದಿಲ್ಲ: %1$s"</string>
-    <string name="date_input_invalid_for_pattern" msgid="5281836720766682161">"ನಿರೀಕ್ಷಿಸಿದ ಪ್ಯಾಟರ್ನ್‌ನೊಂದಿಗೆ ದಿನಾಂಕ ಹೊಂದಾಣಿಕೆಯಾಗುತ್ತಿಲ್ಲ: %1$s"</string>
-    <string name="date_input_invalid_year_range" msgid="8434112129235255568">"ದಿನಾಂಕವು ನಿರೀಕ್ಷಿಸಿದ ವರ್ಷದ ವ್ಯಾಪ್ತಿಯನ್ನು ಮೀರಿದೆ %1$s - %2$s"</string>
-    <string name="date_picker_switch_to_calendar_mode" msgid="9029369254443419167">"ಕ್ಯಾಲೆಂಡರ್ ಇನ್‌ಪುಟ್ ಮೋಡ್‌ಗೆ ಬದಲಿಸಿ"</string>
-    <string name="date_picker_switch_to_input_mode" msgid="1496750567914156598">"ಪಠ್ಯ ಇನ್‌ಪುಟ್ ಮೋಡ್‌ಗೆ ಬದಲಿಸಿ"</string>
-    <string name="date_picker_scroll_to_later_years" msgid="3226341140390493774">"ನಂತರದ ವರ್ಷಗಳನ್ನು ತೋರಿಸಲು ಸ್ಕ್ರಾಲ್ ಮಾಡಿ"</string>
-    <string name="date_picker_scroll_to_earlier_years" msgid="8911933542023210271">"ಹಿಂದಿನ ವರ್ಷಗಳನ್ನು ತೋರಿಸಲು ಸ್ಕ್ರಾಲ್‌ ಮಾಡಿ"</string>
-    <string name="date_range_picker_title" msgid="690080476639943577">"ದಿನಾಂಕಗಳನ್ನು ಆಯ್ಕೆಮಾಡಿ"</string>
-    <string name="date_range_picker_start_headline" msgid="5759491386723090559">"ಆರಂಭ ದಿನಾಂಕ"</string>
-    <string name="date_range_picker_end_headline" msgid="4766270708882012148">"ಅಂತಿಮ ದಿನಾಂಕ"</string>
-    <string name="date_range_picker_scroll_to_next_month" msgid="51495506931835470">"ಮುಂದಿನ ತಿಂಗಳನ್ನು ತೋರಿಸಲು ಸ್ಕ್ರಾಲ್ ಮಾಡಿ"</string>
-    <string name="date_range_picker_scroll_to_previous_month" msgid="4371570854614540700">"ಹಿಂದಿನ ತಿಂಗಳನ್ನು ತೋರಿಸಲು ಸ್ಕ್ರಾಲ್‌ ಮಾಡಿ"</string>
-    <string name="date_range_picker_day_in_range" msgid="9048690781645835833">"ವ್ಯಾಪ್ತಿಯಲ್ಲಿದೆ"</string>
-    <string name="date_range_input_title" msgid="2366412111888449406">"ದಿನಾಂಕಗಳನ್ನು ನಮೂದಿಸಿ"</string>
-    <string name="date_range_input_invalid_range_input" msgid="1891592555781755601">"ದಿನಾಂಕ ವ್ಯಾಪ್ತಿಯ ಇನ್‌ಪುಟ್ ಅಮಾನ್ಯವಾಗಿದೆ"</string>
-    <string name="bottom_sheet_drag_handle_description" msgid="7772321844937772780">"ಹ್ಯಾಂಡಲ್ ಡ್ರ್ಯಾಗ್ ಮಾಡಿ"</string>
-    <string name="bottom_sheet_collapse_description" msgid="6128938260108474660">"ಕೆಳಭಾಗದ ಶೀಟ್ ಅನ್ನು ಕುಗ್ಗಿಸಿ"</string>
-    <string name="bottom_sheet_dismiss_description" msgid="1918297411568599192">"ಕೆಳಭಾಗದ ಶೀಟ್ ಅನ್ನು ವಜಾಗೊಳಿಸಿ"</string>
-    <string name="bottom_sheet_expand_description" msgid="4324434199045499117">"ಕೆಳಭಾಗದ ಶೀಟ್ ಅನ್ನು ವಿಸ್ತರಿಸಿ"</string>
-    <string name="tooltip_pane_description" msgid="8191239805703103845">"ಟೂಲ್‌ಟಿಪ್"</string>
-    <string name="tooltip_long_press_label" msgid="2732804537909054941">"ಟೂಲ್‌ಟಿಪ್ ಅನ್ನು ತೋರಿಸಿ"</string>
-    <string name="time_picker_pm" msgid="2232702812657998674">"PM"</string>
-    <string name="time_picker_am" msgid="5096144640014509074">"AM"</string>
-    <string name="time_picker_period_toggle_description" msgid="7352665290700284516">"AM ಅಥವಾ PM ಆಯ್ಕೆಮಾಡಿ"</string>
-    <string name="time_picker_hour_selection" msgid="6081676287789101196">"ಸಮಯವನ್ನು ಆಯ್ಕೆಮಾಡಿ"</string>
-    <string name="time_picker_minute_selection" msgid="8494777394375441602">"ನಿಮಿಷಗಳನ್ನು ಆಯ್ಕೆಮಾಡಿ"</string>
-    <string name="time_picker_hour_suffix" msgid="6952032626122080528">"%1$d ಓ ಕ್ಲಾಕ್"</string>
-    <string name="time_picker_hour_24h_suffix" msgid="4149641012513526783">"%1$d ಗಂಟೆ"</string>
-    <string name="time_picker_minute_suffix" msgid="3206486707779478173">"%1$d ನಿಮಿಷಗಳು"</string>
-    <string name="time_picker_minute" msgid="6116528647594005945">"ನಿಮಿಷ"</string>
-    <string name="time_picker_hour" msgid="7241191970823415723">"ಗಂಟೆ"</string>
-    <string name="time_picker_minute_text_field" msgid="994099543833979061">"ನಿಮಿಷಗಳವರೆಗೆ"</string>
-    <string name="time_picker_hour_text_field" msgid="5298761125390275834">"ಗಂಟೆಯವರೆಗೆ"</string>
+    <string name="m3c_dialog" msgid="7617233117134790350">"ಡೈಲಾಗ್"</string>
+    <string name="m3c_dropdown_menu_expanded" msgid="2360841780724299882">"ವಿಸ್ತರಿಸಲಾಗಿದೆ"</string>
+    <string name="m3c_dropdown_menu_collapsed" msgid="3177828188723359358">"ಕುಗ್ಗಿಸಲಾಗಿದೆ"</string>
+    <string name="m3c_snackbar_dismiss" msgid="6152755701819882931">"ವಜಾಗೊಳಿಸಿ"</string>
+    <string name="m3c_search_bar_search" msgid="6152806324422087846">"ಹುಡುಕಿ"</string>
+    <string name="m3c_suggestions_available" msgid="7655536806087401899">"ಸಲಹೆಗಳನ್ನು ಕೆಳಗೆ ನೀಡಲಾಗಿದೆ"</string>
+    <string name="m3c_date_picker_title" msgid="7430790972741451689">"ದಿನಾಂಕ ಆಯ್ಕೆಮಾಡಿ"</string>
+    <string name="m3c_date_picker_headline" msgid="7605002211875882969">"ಆಯ್ಕೆಮಾಡಲಾದ ದಿನಾಂಕ"</string>
+    <string name="m3c_date_picker_switch_to_year_selection" msgid="791651718641787594">"ವರ್ಷವನ್ನು ಆಯ್ಕೆ ಮಾಡಲು ಬದಲಿಸಿ"</string>
+    <string name="m3c_date_picker_switch_to_day_selection" msgid="395627960681594326">"ವರ್ಷವನ್ನು ಆಯ್ಕೆಮಾಡಲು ಸ್ವೈಪ್ ಮಾಡಿ ಅಥವಾ ದಿನವನ್ನು ಆಯ್ಕೆಮಾಡಲು ಹಿಂತಿರುಗಲು ಟ್ಯಾಪ್ ಮಾಡಿ"</string>
+    <string name="m3c_date_picker_switch_to_next_month" msgid="7142101321095356500">"ಮುಂದಿನ ತಿಂಗಳಿಗೆ ಬದಲಿಸಿ"</string>
+    <string name="m3c_date_picker_switch_to_previous_month" msgid="228438865139394590">"ಹಿಂದಿನ ತಿಂಗಳಿಗೆ ಬದಲಿಸಿ"</string>
+    <string name="m3c_date_picker_navigate_to_year_description" msgid="8436650776581492840">"%1$s ವರ್ಷಕ್ಕೆ ನ್ಯಾವಿಗೇಟ್ ಮಾಡಿ"</string>
+    <string name="m3c_date_picker_headline_description" msgid="3664277305226978227">"ಪ್ರಸ್ತುತ ಆಯ್ಕೆ: %1$s"</string>
+    <string name="m3c_date_picker_no_selection_description" msgid="5811000998184572395">"ಯಾವುದೂ ಅಲ್ಲ"</string>
+    <string name="m3c_date_picker_today_description" msgid="3199387177749801575">"ಇಂದು"</string>
+    <string name="m3c_date_picker_year_picker_pane_title" msgid="2068382232816991922">"ವರ್ಷದ ಪಿಕರ್ ಗೋಚರಿಸುತ್ತದೆ"</string>
+    <string name="m3c_date_input_title" msgid="7306227249789210568">"ದಿನಾಂಕ ಆಯ್ಕೆಮಾಡಿ"</string>
+    <string name="m3c_date_input_headline" msgid="8166741421776570875">"ನಮೂದಿಸಿದ ದಿನಾಂಕ"</string>
+    <string name="m3c_date_input_label" msgid="2895559812010326913">"ದಿನಾಂಕ"</string>
+    <string name="m3c_date_input_headline_description" msgid="229313757840775812">"ನಮೂದಿಸಿದ ದಿನಾಂಕ: %1$s"</string>
+    <string name="m3c_date_input_no_input_description" msgid="1237013946323089826">"ಯಾವುದೂ ಅಲ್ಲ"</string>
+    <string name="m3c_date_input_invalid_not_allowed" msgid="2521768508935305279">"ದಿನಾಂಕವನ್ನು ಅನುಮತಿಸಲಾಗುವುದಿಲ್ಲ: %1$s"</string>
+    <string name="m3c_date_input_invalid_for_pattern" msgid="6116910750161463197">"ನಿರೀಕ್ಷಿಸಿದ ಪ್ಯಾಟರ್ನ್‌ನೊಂದಿಗೆ ದಿನಾಂಕ ಹೊಂದಾಣಿಕೆಯಾಗುತ್ತಿಲ್ಲ: %1$s"</string>
+    <string name="m3c_date_input_invalid_year_range" msgid="7052898923934555305">"ದಿನಾಂಕವು ನಿರೀಕ್ಷಿಸಿದ ವರ್ಷದ ವ್ಯಾಪ್ತಿಯನ್ನು ಮೀರಿದೆ %1$s - %2$s"</string>
+    <string name="m3c_date_picker_switch_to_calendar_mode" msgid="1804346892470238807">"ಕ್ಯಾಲೆಂಡರ್ ಇನ್‌ಪುಟ್ ಮೋಡ್‌ಗೆ ಬದಲಿಸಿ"</string>
+    <string name="m3c_date_picker_switch_to_input_mode" msgid="2219746470065162704">"ಪಠ್ಯ ಇನ್‌ಪುಟ್ ಮೋಡ್‌ಗೆ ಬದಲಿಸಿ"</string>
+    <string name="m3c_date_picker_scroll_to_later_years" msgid="5727367015496556177">"ನಂತರದ ವರ್ಷಗಳನ್ನು ತೋರಿಸಲು ಸ್ಕ್ರಾಲ್ ಮಾಡಿ"</string>
+    <string name="m3c_date_picker_scroll_to_earlier_years" msgid="7813882352367152251">"ಹಿಂದಿನ ವರ್ಷಗಳನ್ನು ತೋರಿಸಲು ಸ್ಕ್ರಾಲ್‌ ಮಾಡಿ"</string>
+    <string name="m3c_date_range_picker_title" msgid="3134165431120340385">"ದಿನಾಂಕಗಳನ್ನು ಆಯ್ಕೆಮಾಡಿ"</string>
+    <string name="m3c_date_range_picker_start_headline" msgid="4665981448952749820">"ಪ್ರಾರಂಭ ದಿನಾಂಕ"</string>
+    <string name="m3c_date_range_picker_end_headline" msgid="4947636797751277713">"ಅಂತಿಮ ದಿನಾಂಕ"</string>
+    <string name="m3c_date_range_picker_scroll_to_next_month" msgid="602077859540990149">"ಮುಂದಿನ ತಿಂಗಳನ್ನು ತೋರಿಸಲು ಸ್ಕ್ರಾಲ್ ಮಾಡಿ"</string>
+    <string name="m3c_date_range_picker_scroll_to_previous_month" msgid="4592174524846109496">"ಹಿಂದಿನ ತಿಂಗಳನ್ನು ತೋರಿಸಲು ಸ್ಕ್ರಾಲ್‌ ಮಾಡಿ"</string>
+    <string name="m3c_date_range_picker_day_in_range" msgid="2138321128465719402">"ವ್ಯಾಪ್ತಿಯಲ್ಲಿದೆ"</string>
+    <string name="m3c_date_range_input_title" msgid="3148384720560189467">"ದಿನಾಂಕಗಳನ್ನು ನಮೂದಿಸಿ"</string>
+    <string name="m3c_date_range_input_invalid_range_input" msgid="3190049423327661366">"ದಿನಾಂಕ ವ್ಯಾಪ್ತಿಯ ಇನ್‌ಪುಟ್ ಅಮಾನ್ಯವಾಗಿದೆ"</string>
+    <string name="m3c_bottom_sheet_drag_handle_description" msgid="8403354765404029791">"ಹ್ಯಾಂಡಲ್ ಡ್ರ್ಯಾಗ್ ಮಾಡಿ"</string>
+    <string name="m3c_bottom_sheet_collapse_description" msgid="2988463736136100848">"ಕೆಳಭಾಗದ ಶೀಟ್ ಅನ್ನು ಕುಗ್ಗಿಸಿ"</string>
+    <string name="m3c_bottom_sheet_dismiss_description" msgid="1555567894577437024">"ಕೆಳಭಾಗದ ಶೀಟ್ ಅನ್ನು ವಜಾಗೊಳಿಸಿ"</string>
+    <string name="m3c_bottom_sheet_expand_description" msgid="6670819569745899763">"ಕೆಳಭಾಗದ ಶೀಟ್ ಅನ್ನು ವಿಸ್ತರಿಸಿ"</string>
+    <string name="m3c_tooltip_pane_description" msgid="5460405025248574620">"ಟೂಲ್‌ಟಿಪ್"</string>
+    <string name="m3c_tooltip_long_press_label" msgid="1805687647081129904">"ಟೂಲ್‌ಟಿಪ್ ಅನ್ನು ತೋರಿಸಿ"</string>
+    <string name="m3c_time_picker_pm" msgid="6616362054113087709">"PM"</string>
+    <string name="m3c_time_picker_am" msgid="2786685010796619560">"AM"</string>
+    <string name="m3c_time_picker_period_toggle_description" msgid="5865171949528594571">"AM ಅಥವಾ PM ಆಯ್ಕೆಮಾಡಿ"</string>
+    <string name="m3c_time_picker_hour_selection" msgid="8876759303332837035">"ಸಮಯವನ್ನು ಆಯ್ಕೆಮಾಡಿ"</string>
+    <string name="m3c_time_picker_minute_selection" msgid="4699133535056739733">"ನಿಮಿಷಗಳನ್ನು ಆಯ್ಕೆಮಾಡಿ"</string>
+    <string name="m3c_time_picker_hour_suffix" msgid="3458167507790628988">"%1$d ಓ ಕ್ಲಾಕ್"</string>
+    <string name="m3c_time_picker_hour_24h_suffix" msgid="9179527532316922345">"%1$d ಗಂಟೆ"</string>
+    <string name="m3c_time_picker_minute_suffix" msgid="5064177921781937179">"%1$d ನಿಮಿಷಗಳು"</string>
+    <string name="m3c_time_picker_minute" msgid="4313071914266462005">"ನಿಮಿಷ"</string>
+    <string name="m3c_time_picker_hour" msgid="2349193472625211372">"ಗಂಟೆ"</string>
+    <string name="m3c_time_picker_minute_text_field" msgid="7661234488295443182">"ನಿಮಿಷಗಳವರೆಗೆ"</string>
+    <string name="m3c_time_picker_hour_text_field" msgid="6973808109666874069">"ಗಂಟೆಯವರೆಗೆ"</string>
 </resources>

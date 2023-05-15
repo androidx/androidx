@@ -129,7 +129,6 @@ public class ComplicationSlotBounds(
          * RectF>, backfilling with empty [RectF]s. This method is necessary because there can be a
          * skew between the version of the library between the watch face and the system which would
          * otherwise be problematic if new complication types have been introduced.
-         *
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         fun createFromPartialMap(

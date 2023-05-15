@@ -384,7 +384,7 @@ package androidx.compose.ui.test {
   }
 
   public static final class SemanticsMatcher.Companion {
-    method public <T> androidx.compose.ui.test.SemanticsMatcher expectValue(androidx.compose.ui.semantics.SemanticsPropertyKey<T> key, T? expectedValue);
+    method public <T> androidx.compose.ui.test.SemanticsMatcher expectValue(androidx.compose.ui.semantics.SemanticsPropertyKey<T> key, T expectedValue);
     method public <T> androidx.compose.ui.test.SemanticsMatcher keyIsDefined(androidx.compose.ui.semantics.SemanticsPropertyKey<T> key);
     method public <T> androidx.compose.ui.test.SemanticsMatcher keyNotDefined(androidx.compose.ui.semantics.SemanticsPropertyKey<T> key);
   }
@@ -437,7 +437,7 @@ package androidx.compose.ui.test {
   @androidx.compose.ui.test.InternalTestApi public interface TestOwner {
     method public androidx.compose.ui.test.MainTestClock getMainClock();
     method public java.util.Set<androidx.compose.ui.node.RootForTest> getRoots(boolean atLeastOneRootExpected);
-    method public <T> T! runOnUiThread(kotlin.jvm.functions.Function0<? extends T> action);
+    method public <T> T runOnUiThread(kotlin.jvm.functions.Function0<? extends T> action);
     property public abstract androidx.compose.ui.test.MainTestClock mainClock;
   }
 

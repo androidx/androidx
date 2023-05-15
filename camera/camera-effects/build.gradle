@@ -32,7 +32,7 @@ android {
     namespace "androidx.camera.effects"
 }
 androidx {
-    name = "Jetpack Camera Effects Library"
+    name = "Camera Effects"
     publish = Publish.NONE
     inceptionYear = "2022"
     runApiTasks = new RunApiTasks.Yes()

@@ -17,59 +17,59 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="dialog" msgid="4057925834421392736">"ডায়ল’গ"</string>
-    <string name="expanded" msgid="5974471714631304645">"বিস্তাৰ কৰা আছে"</string>
-    <string name="collapsed" msgid="5389587048670450460">"সংকোচন কৰা আছে"</string>
-    <string name="snackbar_dismiss" msgid="3962933905051144957">"অগ্ৰাহ্য কৰক"</string>
-    <string name="search_bar_search" msgid="6420018528474762666">"সন্ধান কৰক"</string>
-    <string name="suggestions_available" msgid="7189888345201419934">"তলত পৰামৰ্শ দেখুওৱা হৈছে"</string>
-    <string name="date_picker_title" msgid="9208721003668059792">"তাৰিখ বাছনি কৰক"</string>
-    <string name="date_picker_headline" msgid="2846784065735639969">"বাছনি কৰা তাৰিখ"</string>
-    <string name="date_picker_switch_to_year_selection" msgid="3412370019845183965">"বছৰ বাছনি কৰাৰ ছুইচ"</string>
-    <string name="date_picker_switch_to_day_selection" msgid="145089358343568971">"এটা বছৰ বাছনি কৰিবলৈ ছোৱাইপ কৰক অথবা এটা দিন বাছনি কৰাৰ সুবিধাটোলৈ উভতি যাবলৈ টিপক"</string>
-    <string name="date_picker_switch_to_next_month" msgid="8313783187901412102">"পৰৱৰ্তী মাহলৈ সলনি কৰক"</string>
-    <string name="date_picker_switch_to_previous_month" msgid="7596294429748914881">"পূৰ্বৱৰ্তী মাহলৈ সলনি কৰক"</string>
-    <string name="date_picker_navigate_to_year_description" msgid="5152441868029453612">"বৰ্ষ %1$sলৈ নেভিগে’ট কৰক"</string>
-    <string name="date_picker_headline_description" msgid="4627306862713137085">"বৰ্তমানৰ বাছনি: %1$s"</string>
-    <string name="date_picker_no_selection_description" msgid="5724377114289981899">"একো নাই"</string>
-    <string name="date_picker_today_description" msgid="4775802721403526937">"আজি"</string>
-    <string name="date_picker_year_picker_pane_title" msgid="8140324713311804736">"বছৰ বাছনিকৰ্তা দৃশ্যমান"</string>
-    <string name="date_input_title" msgid="3010396677286327048">"তাৰিখ বাছনি কৰক"</string>
-    <string name="date_input_headline" msgid="3499643850558715142">"দিয়া তাৰিখ"</string>
-    <string name="date_input_label" msgid="5194825853981987218">"তাৰিখ"</string>
-    <string name="date_input_headline_description" msgid="8562356184193964298">"দিয়া তাৰিখ: %1$s"</string>
-    <string name="date_input_no_input_description" msgid="5722931102250207748">"একো নাই"</string>
-    <string name="date_input_invalid_not_allowed" msgid="6114792992433444995">"অনুমোদিত নোহোৱা তাৰিখ: %1$s"</string>
-    <string name="date_input_invalid_for_pattern" msgid="5281836720766682161">"তাৰিখটো এই প্ৰত্যাশিত আৰ্হিটোৰ সৈতে মিলা নাই: %1$s"</string>
-    <string name="date_input_invalid_year_range" msgid="8434112129235255568">"তাৰিখটো প্ৰত্যাশিত বছৰৰ পৰিসৰ %1$s - %2$sৰ বাহিৰৰ"</string>
-    <string name="date_picker_switch_to_calendar_mode" msgid="9029369254443419167">"কেলেণ্ডাৰ ইনপুট ম’ডলৈ সলনি কৰক"</string>
-    <string name="date_picker_switch_to_input_mode" msgid="1496750567914156598">"পাঠ ইনপুট ম’ডলৈ সলনি কৰক"</string>
-    <string name="date_picker_scroll_to_later_years" msgid="3226341140390493774">"পাছৰ বছৰবোৰ দেখুৱাবলৈ স্ক্ৰ’ল কৰক"</string>
-    <string name="date_picker_scroll_to_earlier_years" msgid="8911933542023210271">"আগৰ বছৰবোৰ দেখুৱাবলৈ স্ক্ৰ’ল কৰক"</string>
-    <string name="date_range_picker_title" msgid="690080476639943577">"তাৰিখ বাছনি কৰক"</string>
-    <string name="date_range_picker_start_headline" msgid="5759491386723090559">"আৰম্ভণিৰ তাৰিখ"</string>
-    <string name="date_range_picker_end_headline" msgid="4766270708882012148">"সমাপ্তিৰ তাৰিখ"</string>
-    <string name="date_range_picker_scroll_to_next_month" msgid="51495506931835470">"পৰৱৰ্তী মাহটো দেখুৱাবলৈ স্ক্ৰ’ল কৰক"</string>
-    <string name="date_range_picker_scroll_to_previous_month" msgid="4371570854614540700">"পূৰ্বৱৰ্তী মাহটো দেখুৱাবলৈ স্ক্ৰ’ল কৰক"</string>
-    <string name="date_range_picker_day_in_range" msgid="9048690781645835833">"পৰিসৰৰ ভিতৰত আছে"</string>
-    <string name="date_range_input_title" msgid="2366412111888449406">"তাৰিখ দিয়ক"</string>
-    <string name="date_range_input_invalid_range_input" msgid="1891592555781755601">"অমান্য তাৰিখৰ পৰিসৰৰ ইনপুট"</string>
-    <string name="bottom_sheet_drag_handle_description" msgid="7772321844937772780">"ড্ৰেগ হেণ্ডেল"</string>
-    <string name="bottom_sheet_collapse_description" msgid="6128938260108474660">"তলৰ শ্বীটখন সংকোচন কৰক"</string>
-    <string name="bottom_sheet_dismiss_description" msgid="1918297411568599192">"তলৰ শ্বীটখন অগ্ৰাহ্য কৰক"</string>
-    <string name="bottom_sheet_expand_description" msgid="4324434199045499117">"তলৰ শ্বীটখন বিস্তাৰ কৰক"</string>
-    <string name="tooltip_pane_description" msgid="8191239805703103845">"টুলটিপ"</string>
-    <string name="tooltip_long_press_label" msgid="2732804537909054941">"টুলটিপ দেখুৱাওক"</string>
-    <string name="time_picker_pm" msgid="2232702812657998674">"পৰাহ্ন"</string>
-    <string name="time_picker_am" msgid="5096144640014509074">"পুৱা"</string>
-    <string name="time_picker_period_toggle_description" msgid="7352665290700284516">"পূৰ্বাহ্ন অথবা অপৰাহ্ন বাছনি কৰক"</string>
-    <string name="time_picker_hour_selection" msgid="6081676287789101196">"ঘণ্টা বাছনি কৰক"</string>
-    <string name="time_picker_minute_selection" msgid="8494777394375441602">"মিনিট বাছনি কৰক"</string>
-    <string name="time_picker_hour_suffix" msgid="6952032626122080528">"%1$d বাজিছে"</string>
-    <string name="time_picker_hour_24h_suffix" msgid="4149641012513526783">"%d ঘণ্টা"</string>
-    <string name="time_picker_minute_suffix" msgid="3206486707779478173">"%d মিনিট"</string>
-    <string name="time_picker_minute" msgid="6116528647594005945">"মিনিট"</string>
-    <string name="time_picker_hour" msgid="7241191970823415723">"ঘণ্টা"</string>
-    <string name="time_picker_minute_text_field" msgid="994099543833979061">"মিনিটৰ বাবে"</string>
-    <string name="time_picker_hour_text_field" msgid="5298761125390275834">"ঘণ্টাৰ বাবে"</string>
+    <string name="m3c_dialog" msgid="7617233117134790350">"ডায়ল’গ"</string>
+    <string name="m3c_dropdown_menu_expanded" msgid="2360841780724299882">"বিস্তাৰ কৰা আছে"</string>
+    <string name="m3c_dropdown_menu_collapsed" msgid="3177828188723359358">"সংকোচন কৰা আছে"</string>
+    <string name="m3c_snackbar_dismiss" msgid="6152755701819882931">"অগ্ৰাহ্য কৰক"</string>
+    <string name="m3c_search_bar_search" msgid="6152806324422087846">"সন্ধান কৰক"</string>
+    <string name="m3c_suggestions_available" msgid="7655536806087401899">"তলত পৰামৰ্শ দেখুওৱা হৈছে"</string>
+    <string name="m3c_date_picker_title" msgid="7430790972741451689">"তাৰিখ বাছনি কৰক"</string>
+    <string name="m3c_date_picker_headline" msgid="7605002211875882969">"বাছনি কৰা তাৰিখ"</string>
+    <string name="m3c_date_picker_switch_to_year_selection" msgid="791651718641787594">"বছৰ বাছনি কৰাৰ সুবিধাটোলৈ সলনি কৰক"</string>
+    <string name="m3c_date_picker_switch_to_day_selection" msgid="395627960681594326">"এটা বছৰ বাছনি কৰিবলৈ ছোৱাইপ কৰক অথবা এটা দিন বাছনি কৰাৰ সুবিধাটোলৈ উভতি যাবলৈ টিপক"</string>
+    <string name="m3c_date_picker_switch_to_next_month" msgid="7142101321095356500">"পৰৱৰ্তী মাহলৈ সলনি কৰক"</string>
+    <string name="m3c_date_picker_switch_to_previous_month" msgid="228438865139394590">"পূৰ্বৱৰ্তী মাহলৈ সলনি কৰক"</string>
+    <string name="m3c_date_picker_navigate_to_year_description" msgid="8436650776581492840">"বৰ্ষ %1$sলৈ নেভিগে’ট কৰক"</string>
+    <string name="m3c_date_picker_headline_description" msgid="3664277305226978227">"বৰ্তমানৰ বাছনি: %1$s"</string>
+    <string name="m3c_date_picker_no_selection_description" msgid="5811000998184572395">"নাই"</string>
+    <string name="m3c_date_picker_today_description" msgid="3199387177749801575">"আজি"</string>
+    <string name="m3c_date_picker_year_picker_pane_title" msgid="2068382232816991922">"বছৰ বাছনিকৰ্তা দৃশ্যমান"</string>
+    <string name="m3c_date_input_title" msgid="7306227249789210568">"তাৰিখ বাছনি কৰক"</string>
+    <string name="m3c_date_input_headline" msgid="8166741421776570875">"দিয়া তাৰিখ"</string>
+    <string name="m3c_date_input_label" msgid="2895559812010326913">"তাৰিখ"</string>
+    <string name="m3c_date_input_headline_description" msgid="229313757840775812">"দিয়া তাৰিখ: %1$s"</string>
+    <string name="m3c_date_input_no_input_description" msgid="1237013946323089826">"নাই"</string>
+    <string name="m3c_date_input_invalid_not_allowed" msgid="2521768508935305279">"অনুমোদিত নোহোৱা তাৰিখ: %1$s"</string>
+    <string name="m3c_date_input_invalid_for_pattern" msgid="6116910750161463197">"তাৰিখটো এই প্ৰত্যাশিত আৰ্হিটোৰ সৈতে মিলা নাই: %1$s"</string>
+    <string name="m3c_date_input_invalid_year_range" msgid="7052898923934555305">"তাৰিখটো প্ৰত্যাশিত বছৰৰ পৰিসৰ %1$s - %2$sৰ বাহিৰৰ"</string>
+    <string name="m3c_date_picker_switch_to_calendar_mode" msgid="1804346892470238807">"কেলেণ্ডাৰ ইনপুট ম’ডলৈ সলনি কৰক"</string>
+    <string name="m3c_date_picker_switch_to_input_mode" msgid="2219746470065162704">"পাঠ ইনপুট ম’ডলৈ সলনি কৰক"</string>
+    <string name="m3c_date_picker_scroll_to_later_years" msgid="5727367015496556177">"পাছৰ বছৰবোৰ দেখুৱাবলৈ স্ক্ৰ’ল কৰক"</string>
+    <string name="m3c_date_picker_scroll_to_earlier_years" msgid="7813882352367152251">"আগৰ বছৰবোৰ দেখুৱাবলৈ স্ক্ৰ’ল কৰক"</string>
+    <string name="m3c_date_range_picker_title" msgid="3134165431120340385">"তাৰিখ বাছনি কৰক"</string>
+    <string name="m3c_date_range_picker_start_headline" msgid="4665981448952749820">"আৰম্ভণিৰ তাৰিখ"</string>
+    <string name="m3c_date_range_picker_end_headline" msgid="4947636797751277713">"সমাপ্তিৰ তাৰিখ"</string>
+    <string name="m3c_date_range_picker_scroll_to_next_month" msgid="602077859540990149">"পৰৱৰ্তী মাহটো দেখুৱাবলৈ স্ক্ৰ’ল কৰক"</string>
+    <string name="m3c_date_range_picker_scroll_to_previous_month" msgid="4592174524846109496">"পূৰ্বৱৰ্তী মাহটো দেখুৱাবলৈ স্ক্ৰ’ল কৰক"</string>
+    <string name="m3c_date_range_picker_day_in_range" msgid="2138321128465719402">"পৰিসৰৰ ভিতৰত আছে"</string>
+    <string name="m3c_date_range_input_title" msgid="3148384720560189467">"তাৰিখ দিয়ক"</string>
+    <string name="m3c_date_range_input_invalid_range_input" msgid="3190049423327661366">"অমান্য তাৰিখৰ পৰিসৰৰ ইনপুট"</string>
+    <string name="m3c_bottom_sheet_drag_handle_description" msgid="8403354765404029791">"ড্ৰেগ হেণ্ডেল"</string>
+    <string name="m3c_bottom_sheet_collapse_description" msgid="2988463736136100848">"তলৰ শ্বীটখন সংকোচন কৰক"</string>
+    <string name="m3c_bottom_sheet_dismiss_description" msgid="1555567894577437024">"তলৰ শ্বীটখন অগ্ৰাহ্য কৰক"</string>
+    <string name="m3c_bottom_sheet_expand_description" msgid="6670819569745899763">"তলৰ শ্বীটখন বিস্তাৰ কৰক"</string>
+    <string name="m3c_tooltip_pane_description" msgid="5460405025248574620">"টুলটিপ"</string>
+    <string name="m3c_tooltip_long_press_label" msgid="1805687647081129904">"টুলটিপ দেখুৱাওক"</string>
+    <string name="m3c_time_picker_pm" msgid="6616362054113087709">"PM"</string>
+    <string name="m3c_time_picker_am" msgid="2786685010796619560">"AM"</string>
+    <string name="m3c_time_picker_period_toggle_description" msgid="5865171949528594571">"AM অথবা PM বাছনি কৰক"</string>
+    <string name="m3c_time_picker_hour_selection" msgid="8876759303332837035">"ঘণ্টা বাছনি কৰক"</string>
+    <string name="m3c_time_picker_minute_selection" msgid="4699133535056739733">"মিনিট বাছনি কৰক"</string>
+    <string name="m3c_time_picker_hour_suffix" msgid="3458167507790628988">"%1$d বাজিছে"</string>
+    <string name="m3c_time_picker_hour_24h_suffix" msgid="9179527532316922345">"%1$d ঘণ্টা"</string>
+    <string name="m3c_time_picker_minute_suffix" msgid="5064177921781937179">"%1$d মিনিট"</string>
+    <string name="m3c_time_picker_minute" msgid="4313071914266462005">"মিনিট"</string>
+    <string name="m3c_time_picker_hour" msgid="2349193472625211372">"ঘণ্টা"</string>
+    <string name="m3c_time_picker_minute_text_field" msgid="7661234488295443182">"মিনিটৰ বাবে"</string>
+    <string name="m3c_time_picker_hour_text_field" msgid="6973808109666874069">"ঘণ্টাৰ বাবে"</string>
 </resources>

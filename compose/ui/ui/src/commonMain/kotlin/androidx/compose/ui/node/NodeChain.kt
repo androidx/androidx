@@ -127,7 +127,7 @@ internal class NodeChain(val layoutNode: LayoutNode) {
                         // this is "the same" modifier, but some things have changed so we want to
                         // reuse the node but also update it
                         val beforeUpdate = node
-                        node = updateNodeAndReplaceIfNeeded(prev, next, beforeUpdate)
+                        node = updateNode(prev, next, beforeUpdate)
                         logger?.nodeUpdated(i, i, prev, next, beforeUpdate, node)
                     }
                     ActionReuse -> {
@@ -236,19 +236,20 @@ internal class NodeChain(val layoutNode: LayoutNode) {
         }
     }
 
-    private fun syncCoordinators() {
+    fun syncCoordinators() {
         var coordinator: NodeCoordinator = innerCoordinator
         var node: Modifier.Node? = tail.parent
         while (node != null) {
-            if (node.isKind(Nodes.Layout) && node is LayoutModifierNode) {
+            val layoutmod = node.asLayoutModifierNode()
+            if (layoutmod != null) {
                 val next = if (node.coordinator != null) {
                     val c = node.coordinator as LayoutModifierNodeCoordinator
                     val prevNode = c.layoutModifierNode
-                    c.layoutModifierNode = node
+                    c.layoutModifierNode = layoutmod
                     if (prevNode !== node) c.onLayoutModifierNodeChanged()
                     c
                 } else {
-                    val c = LayoutModifierNodeCoordinator(layoutNode, node)
+                    val c = LayoutModifierNodeCoordinator(layoutNode, layoutmod)
                     node.updateCoordinator(c)
                     c
                 }
@@ -394,7 +395,7 @@ internal class NodeChain(val layoutNode: LayoutNode) {
             val next = after[newIndex]
             if (prev != next) {
                 val beforeUpdate = node
-                node = updateNodeAndReplaceIfNeeded(prev, next, beforeUpdate)
+                node = updateNode(prev, next, beforeUpdate)
                 logger?.nodeUpdated(oldIndex, newIndex, prev, next, beforeUpdate, node)
             } else {
                 logger?.nodeReused(oldIndex, newIndex, prev, next, node)
@@ -540,7 +541,7 @@ internal class NodeChain(val layoutNode: LayoutNode) {
     ): Modifier.Node {
         val node = when (element) {
             is ModifierNodeElement<*> -> element.create().also {
-                it.kindSet = calculateNodeKindSetFrom(it)
+                it.kindSet = calculateNodeKindSetFromIncludingDelegates(it)
             }
             else -> BackwardsCompatNode(element)
         }
@@ -572,37 +573,23 @@ internal class NodeChain(val layoutNode: LayoutNode) {
         return node
     }
 
-    private fun updateNodeAndReplaceIfNeeded(
+    private fun updateNode(
         prev: Modifier.Element,
         next: Modifier.Element,
         node: Modifier.Node
     ): Modifier.Node {
         when {
             prev is ModifierNodeElement<*> && next is ModifierNodeElement<*> -> {
-                val updated = next.updateUnsafe(node)
-                if (updated !== node) {
-                    check(!updated.isAttached)
-                    updated.insertedNodeAwaitingAttachForInvalidation = true
-                    // if a new instance is returned, we want to detach the old one
-                    if (node.isAttached) {
-                        autoInvalidateRemovedNode(node)
-                        node.detach()
-                    }
-                    return replaceNode(node, updated)
+                next.updateUnsafe(node)
+                if (node.isAttached) {
+                    // the modifier element is labeled as "auto invalidate", which means
+                    // that since the node was updated, we need to invalidate everything
+                    // relevant to it.
+                    autoInvalidateUpdatedNode(node)
                 } else {
-                    // the node was updated. we are done.
-                    if (next.autoInvalidate) {
-                        if (updated.isAttached) {
-                            // the modifier element is labeled as "auto invalidate", which means
-                            // that since the node was updated, we need to invalidate everything
-                            // relevant to it.
-                            autoInvalidateUpdatedNode(updated)
-                        } else {
-                            updated.updatedNodeAwaitingAttachForInvalidation = true
-                        }
-                    }
-                    return updated
+                    node.updatedNodeAwaitingAttachForInvalidation = true
                 }
+                return node
             }
             node is BackwardsCompatNode -> {
                 node.element = next
@@ -632,7 +619,7 @@ internal class NodeChain(val layoutNode: LayoutNode) {
 
     internal inline fun <reified T> headToTail(type: NodeKind<T>, block: (T) -> Unit) {
         headToTail(type.mask) {
-            if (it is T) block(it)
+            it.dispatchForKind(type, block)
         }
     }
 
@@ -671,7 +658,7 @@ internal class NodeChain(val layoutNode: LayoutNode) {
 
     internal inline fun <reified T> tailToHead(type: NodeKind<T>, block: (T) -> Unit) {
         tailToHead(type.mask) {
-            if (it is T) block(it)
+            it.dispatchForKind(type, block)
         }
     }
 
@@ -748,15 +735,16 @@ internal fun actionForModifiers(prev: Modifier.Element, next: Modifier.Element):
 
 private fun <T : Modifier.Node> ModifierNodeElement<T>.updateUnsafe(
     node: Modifier.Node
-): Modifier.Node {
+) {
     @Suppress("UNCHECKED_CAST")
-    return update(node as T)
+    update(node as T)
 }
 
 private fun Modifier.fillVector(
     result: MutableVector<Modifier.Element>
 ): MutableVector<Modifier.Element> {
-    val stack = MutableVector<Modifier>(result.size).also { it.add(this) }
+    val capacity = result.size.coerceAtLeast(16)
+    val stack = MutableVector<Modifier>(capacity).also { it.add(this) }
     while (stack.isNotEmpty()) {
         when (val next = stack.removeAt(stack.size - 1)) {
             is CombinedModifier -> {

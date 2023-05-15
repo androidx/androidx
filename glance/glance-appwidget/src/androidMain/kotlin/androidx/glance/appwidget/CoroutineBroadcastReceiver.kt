@@ -18,13 +18,13 @@ package androidx.glance.appwidget
 
 import android.content.BroadcastReceiver
 import android.util.Log
+import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
-import kotlin.coroutines.CoroutineContext
 
 /**
  * Execute the block asynchronously in a scope with the lifetime of the broadcast.

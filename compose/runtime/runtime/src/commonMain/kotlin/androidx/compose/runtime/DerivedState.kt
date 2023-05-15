@@ -21,15 +21,15 @@ package androidx.compose.runtime
 import androidx.compose.runtime.collection.IdentityArrayMap
 import androidx.compose.runtime.collection.MutableVector
 import androidx.compose.runtime.snapshots.Snapshot
+import androidx.compose.runtime.snapshots.StateFactoryMarker
 import androidx.compose.runtime.snapshots.StateObject
 import androidx.compose.runtime.snapshots.StateRecord
 import androidx.compose.runtime.snapshots.current
 import androidx.compose.runtime.snapshots.newWritableRecord
 import androidx.compose.runtime.snapshots.sync
 import androidx.compose.runtime.snapshots.withCurrent
-// Explicit imports for these needed in common source sets.
-import kotlin.jvm.JvmName
 import kotlin.jvm.JvmMultifileClass
+import kotlin.jvm.JvmName
 import kotlin.math.min
 
 /**
@@ -280,6 +280,7 @@ private class DerivedSnapshotState<T>(
  *
  * @param calculation the calculation to create the value this state object represents.
  */
+@StateFactoryMarker
 fun <T> derivedStateOf(
     calculation: () -> T,
 ): State<T> = DerivedSnapshotState(calculation, null)
@@ -297,6 +298,7 @@ fun <T> derivedStateOf(
  * @param policy mutation policy to control when changes to the [calculation] result trigger update.
  * @param calculation the calculation to create the value this state object represents.
  */
+@StateFactoryMarker
 fun <T> derivedStateOf(
     policy: SnapshotMutationPolicy<T>,
     calculation: () -> T,

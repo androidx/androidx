@@ -49,6 +49,7 @@ class CameraControllerSimulator(
 ) : CameraController {
     override val cameraId: CameraId
         get() = graphConfig.camera
+    override var isForeground = false
 
     private val lock = Any()
     private var currentSurfaceMap: Map<StreamId, Surface> = emptyMap()

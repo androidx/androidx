@@ -17,8 +17,8 @@
 package androidx.compose.animation.core
 
 import androidx.compose.animation.core.AnimationConstants.DefaultDurationMillis
-import kotlin.math.min
 import androidx.compose.animation.core.internal.JvmDefaultWithCompatibility
+import kotlin.math.min
 
 /**
  * [VectorizedAnimationSpec]s are stateless vector based animation specifications. They do

@@ -24,7 +24,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
@@ -37,6 +36,9 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.sp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.mockito.ArgumentMatchers.anyInt
 import org.mockito.kotlin.any
 import org.mockito.kotlin.argThat
 import org.mockito.kotlin.eq
@@ -45,9 +47,6 @@ import org.mockito.kotlin.mock
 import org.mockito.kotlin.never
 import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
-import org.junit.Test
-import org.junit.runner.RunWith
-import org.mockito.ArgumentMatchers.anyInt
 
 @RunWith(AndroidJUnit4::class)
 @SmallTest
@@ -505,7 +504,6 @@ class SpannableExtensionsTest {
         }
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun shaderBrush_shouldAdd_shaderBrushSpan_whenApplied() {
         val text = "abcde abcde"
@@ -524,7 +522,6 @@ class SpannableExtensionsTest {
         }
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun shaderBrush_shouldAdd_shaderBrushSpan_whenApplied_withSpecifiedAlpha() {
         val text = "abcde abcde"
@@ -543,7 +540,6 @@ class SpannableExtensionsTest {
         }
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun solidColorBrush_shouldAdd_ForegroundColorSpan_whenApplied() {
         val text = "abcde abcde"
@@ -557,7 +553,6 @@ class SpannableExtensionsTest {
         )
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun whenColorAndShaderBrushSpansCollide_bothShouldApply() {
         val text = "abcde abcde"
@@ -581,7 +576,6 @@ class SpannableExtensionsTest {
         assertThat(spannable).hasSpan(ForegroundColorSpan::class, 0, text.length)
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun whenColorAndSolidColorBrushSpansCollide_bothShouldApply() {
         val text = "abcde abcde"

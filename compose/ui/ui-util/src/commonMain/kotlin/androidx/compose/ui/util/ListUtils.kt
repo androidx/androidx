@@ -203,3 +203,21 @@ inline fun <T, R, C : MutableCollection<in R>> List<T>.fastMapTo(
     }
     return destination
 }
+
+/**
+ * Returns the last element matching the given [predicate], or `null` if no such element was found.
+ *
+ * **Do not use for collections that come from public APIs**, since they may not support random
+ * access in an efficient way, and this method may actually be a lot slower. Only use for
+ * collections that are created by code we control and are known to support random access.
+ */
+@Suppress("BanInlineOptIn")
+@OptIn(ExperimentalContracts::class)
+inline fun <T> List<T>.fastLastOrNull(predicate: (T) -> Boolean): T? {
+    contract { callsInPlace(predicate) }
+    for (index in indices.reversed()) {
+        val item = get(index)
+        if (predicate(item)) return item
+    }
+    return null
+}

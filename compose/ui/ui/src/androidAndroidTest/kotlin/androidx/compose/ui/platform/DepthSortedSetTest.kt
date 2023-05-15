@@ -23,11 +23,11 @@ import androidx.compose.ui.node.Owner
 import androidx.compose.ui.node.add
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
-import org.mockito.kotlin.spy
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.kotlin.spy
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
@@ -163,3 +163,5 @@ class DepthSortedSetTest {
             get() = LayoutNode()
     }
 }
+
+private fun DepthSortedSet() = DepthSortedSet(extraAssertions = true)

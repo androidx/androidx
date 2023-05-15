@@ -16,9 +16,9 @@
 
 package androidx.room.solver.binderprovider
 
-import androidx.room.ext.LifecyclesTypeNames
 import androidx.room.compiler.processing.XRawType
 import androidx.room.compiler.processing.XType
+import androidx.room.ext.LifecyclesTypeNames
 import androidx.room.processor.Context
 import androidx.room.solver.ObservableQueryResultBinderProvider
 import androidx.room.solver.query.result.LiveDataQueryResultBinder

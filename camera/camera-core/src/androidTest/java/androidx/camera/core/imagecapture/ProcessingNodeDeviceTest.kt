@@ -106,7 +106,7 @@ class ProcessingNodeDeviceTest {
     private suspend fun processYuvAndVerifyOutputSize(outputFileOptions: OutputFileOptions?) {
         // Arrange: create node with JPEG input and grayscale effect.
         val node = ProcessingNode(mainThreadExecutor())
-        val nodeIn = ProcessingNode.In.of(ImageFormat.YUV_420_888)
+        val nodeIn = ProcessingNode.In.of(ImageFormat.YUV_420_888, ImageFormat.JPEG)
         val imageIn = createYuvFakeImageProxy(
             CameraCaptureResultImageInfo(CAMERA_CAPTURE_RESULT),
             WIDTH,
@@ -126,7 +126,7 @@ class ProcessingNodeDeviceTest {
             mainThreadExecutor(),
             InternalImageProcessor(GrayscaleImageEffect())
         )
-        val nodeIn = ProcessingNode.In.of(ImageFormat.JPEG)
+        val nodeIn = ProcessingNode.In.of(ImageFormat.JPEG, ImageFormat.JPEG)
         val imageIn = createJpegFakeImageProxy(
             CameraCaptureResultImageInfo(CAMERA_CAPTURE_RESULT),
             createJpegBytes(WIDTH, HEIGHT)
@@ -157,7 +157,7 @@ class ProcessingNodeDeviceTest {
             takePictureCallback,
             Futures.immediateFuture(null)
         )
-        val input = ProcessingNode.InputPacket.of(processingRequest, imageIn, false)
+        val input = ProcessingNode.InputPacket.of(processingRequest, imageIn)
         // Act and return.
         nodeIn.edge.accept(input)
         return if (outputFileOptions == null) {
@@ -175,7 +175,7 @@ class ProcessingNodeDeviceTest {
     ) {
         // Arrange: create a request with no cropping
         val node = ProcessingNode(mainThreadExecutor())
-        val nodeIn = ProcessingNode.In.of(ImageFormat.JPEG)
+        val nodeIn = ProcessingNode.In.of(ImageFormat.JPEG, ImageFormat.JPEG)
         node.transform(nodeIn)
         val takePictureCallback = FakeTakePictureCallback()
 
@@ -193,7 +193,7 @@ class ProcessingNodeDeviceTest {
             CameraCaptureResultImageInfo(CAMERA_CAPTURE_RESULT),
             createJpegBytes(WIDTH, HEIGHT)
         )
-        val input = ProcessingNode.InputPacket.of(processingRequest, imageIn, false)
+        val input = ProcessingNode.InputPacket.of(processingRequest, imageIn)
         // Act and return.
         nodeIn.edge.accept(input)
         val filePath = takePictureCallback.getOnDiskResult().savedUri!!.path!!
@@ -213,7 +213,7 @@ class ProcessingNodeDeviceTest {
     private suspend fun inMemoryInputPacket_callbackInvoked(outputFileOptions: OutputFileOptions?) {
         // Arrange.
         val node = ProcessingNode(mainThreadExecutor())
-        val nodeIn = ProcessingNode.In.of(ImageFormat.JPEG)
+        val nodeIn = ProcessingNode.In.of(ImageFormat.JPEG, ImageFormat.JPEG)
         node.transform(nodeIn)
         val takePictureCallback = FakeTakePictureCallback()
 
@@ -232,7 +232,7 @@ class ProcessingNodeDeviceTest {
             createJpegBytes(WIDTH, HEIGHT)
         )
         // Act.
-        val input = ProcessingNode.InputPacket.of(processingRequest, imageIn, false)
+        val input = ProcessingNode.InputPacket.of(processingRequest, imageIn)
         // Act and return.
         nodeIn.edge.accept(input)
         // Assert: the output image is identical to the input.
@@ -246,7 +246,7 @@ class ProcessingNodeDeviceTest {
     private suspend fun saveJpegOnDisk_verifyOutput(outputFileOptions: OutputFileOptions?) {
         // Arrange: create a on-disk processing request.
         val node = ProcessingNode(mainThreadExecutor())
-        val nodeIn = ProcessingNode.In.of(ImageFormat.JPEG)
+        val nodeIn = ProcessingNode.In.of(ImageFormat.JPEG, ImageFormat.JPEG)
         node.transform(nodeIn)
         val takePictureCallback = FakeTakePictureCallback()
         val jpegBytes = ExifUtil.updateExif(createJpegBytes(640, 480)) {
@@ -266,7 +266,7 @@ class ProcessingNodeDeviceTest {
             takePictureCallback,
             Futures.immediateFuture(null)
         )
-        val input = ProcessingNode.InputPacket.of(processingRequest, imageIn, false)
+        val input = ProcessingNode.InputPacket.of(processingRequest, imageIn)
 
         // Act: send input to the edge and wait for the saved URI
         nodeIn.edge.accept(input)

@@ -17,11 +17,11 @@
 package androidx.paging.testing
 
 import androidx.paging.Pager
+import androidx.paging.PagingSource
 import androidx.paging.PagingSource.LoadParams
 import androidx.paging.PagingSource.LoadParams.Append
 import androidx.paging.PagingSource.LoadParams.Prepend
 import androidx.paging.PagingSource.LoadParams.Refresh
-import androidx.paging.PagingSource
 import androidx.paging.PagingState
 
 /**

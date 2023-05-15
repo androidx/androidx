@@ -20,8 +20,9 @@ package androidx.build.lint
 
 import androidx.build.lint.BanInappropriateExperimentalUsage.Companion.getMavenCoordinatesFromPath
 import androidx.build.lint.BanInappropriateExperimentalUsage.Companion.isAnnotationAlwaysAllowed
+import androidx.build.lint.Stubs.Companion.JetpackOptIn
+import androidx.build.lint.Stubs.Companion.JetpackRequiresOptIn
 import com.android.tools.lint.checks.infrastructure.ProjectDescription
-import com.android.tools.lint.checks.infrastructure.TestFile
 import com.android.tools.lint.checks.infrastructure.TestMode
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -143,7 +144,7 @@ No warnings.
             .type(ProjectDescription.Type.LIBRARY)
             .report(false)
             .files(
-                ANDROIDX_REQUIRES_OPT_IN_KT,
+                JetpackRequiresOptIn,
                 ktSample("sample.annotation.provider.ExperimentalSampleAnnotation"),
                 javaSample("sample.annotation.provider.ExperimentalSampleAnnotationJava"),
                 javaSample("sample.annotation.provider.RequiresOptInSampleAnnotationJava"),
@@ -164,7 +165,7 @@ No warnings.
             .type(ProjectDescription.Type.LIBRARY)
             .dependsOn(provider)
             .files(
-                ANDROIDX_OPT_IN_KT,
+                JetpackOptIn,
                 ktSample("androidx.sample.consumer.OutsideGroupExperimentalAnnotatedClass"),
                 gradle(
                     """
@@ -206,61 +207,5 @@ No warnings.
 
         // TODO: Using TestMode.DEFAULT due to b/188814760; remove testModes once bug is resolved
         check(provider, consumer, testModes = listOf(TestMode.DEFAULT)).expect(expected)
-    }
-
-    companion object {
-        /**
-         * [TestFile] containing OptIn.kt from the AndroidX experimental annotation library.
-         */
-        val ANDROIDX_OPT_IN_KT: TestFile = kotlin(
-            """
-package androidx.annotation
-
-import kotlin.annotation.Retention
-import kotlin.annotation.Target
-import kotlin.reflect.KClass
-
-@Retention(AnnotationRetention.BINARY)
-@Target(
-    AnnotationTarget.CLASS,
-    AnnotationTarget.PROPERTY,
-    AnnotationTarget.LOCAL_VARIABLE,
-    AnnotationTarget.VALUE_PARAMETER,
-    AnnotationTarget.CONSTRUCTOR,
-    AnnotationTarget.FUNCTION,
-    AnnotationTarget.PROPERTY_GETTER,
-    AnnotationTarget.PROPERTY_SETTER,
-    AnnotationTarget.FILE,
-    AnnotationTarget.TYPEALIAS
-)
-public annotation class OptIn(
-    @get:Suppress("ArrayReturn")
-    vararg val markerClass: KClass<out Annotation>
-)
-            """.trimIndent()
-        )
-
-        /**
-         * [TestFile] containing RequiresOptIn.kt from the AndroidX experimental annotation library.
-         */
-        val ANDROIDX_REQUIRES_OPT_IN_KT: TestFile = kotlin(
-            """
-package androidx.annotation
-
-import kotlin.annotation.Retention
-import kotlin.annotation.Target
-
-@Retention(AnnotationRetention.BINARY)
-@Target(AnnotationTarget.ANNOTATION_CLASS)
-public annotation class RequiresOptIn(
-    val level: Level = Level.ERROR
-) {
-    public enum class Level {
-        WARNING,
-        ERROR
-    }
-}
-            """.trimIndent()
-        )
     }
 }

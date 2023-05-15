@@ -22,6 +22,8 @@ import androidx.kruth.assertThat
 import androidx.sqlite.db.SupportSQLiteOpenHelper
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
+import java.util.concurrent.Callable
+import java.util.concurrent.CountDownLatch
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -34,8 +36,6 @@ import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runCurrent
 import org.junit.Assert.fail
 import org.junit.Test
-import java.util.concurrent.Callable
-import java.util.concurrent.CountDownLatch
 
 @SmallTest
 @SdkSuppress(minSdkVersion = 16)

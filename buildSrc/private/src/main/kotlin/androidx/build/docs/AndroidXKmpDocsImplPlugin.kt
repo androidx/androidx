@@ -23,6 +23,7 @@ import javax.inject.Inject
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
+import org.gradle.api.attributes.Category
 import org.gradle.api.attributes.LibraryElements
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.tasks.bundling.Zip
@@ -93,6 +94,10 @@ class AndroidXKmpDocsImplPlugin @Inject constructor(
                 it.attribute(
                     LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE,
                     objectFactory.named(ATTRIBUTE_NAME)
+                )
+                it.attribute(
+                    Category.CATEGORY_ATTRIBUTE,
+                    objectFactory.named(Category.DOCUMENTATION)
                 )
             }
         }

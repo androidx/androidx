@@ -335,7 +335,9 @@ private val EmptyCanvas = android.graphics.Canvas()
      */
     private fun drawLines(points: List<Offset>, paint: Paint, stepBy: Int) {
         if (points.size >= 2) {
-            for (i in 0 until points.size - 1 step stepBy) {
+            val frameworkPaint = paint.asFrameworkPaint()
+            var i = 0
+            while (i < points.size - 1) {
                 val p1 = points[i]
                 val p2 = points[i + 1]
                 internalCanvas.drawLine(
@@ -343,8 +345,9 @@ private val EmptyCanvas = android.graphics.Canvas()
                     p1.y,
                     p2.x,
                     p2.y,
-                    paint.asFrameworkPaint()
+                    frameworkPaint
                 )
+                i += stepBy
             }
         }
     }
@@ -365,10 +368,13 @@ private val EmptyCanvas = android.graphics.Canvas()
 
     private fun drawRawPoints(points: FloatArray, paint: Paint, stepBy: Int) {
         if (points.size % 2 == 0) {
-            for (i in 0 until points.size - 1 step stepBy) {
+            val frameworkPaint = paint.asFrameworkPaint()
+            var i = 0
+            while (i < points.size - 1) {
                 val x = points[i]
                 val y = points[i + 1]
-                internalCanvas.drawPoint(x, y, paint.asFrameworkPaint())
+                internalCanvas.drawPoint(x, y, frameworkPaint)
+                i += stepBy
             }
         }
     }
@@ -390,18 +396,15 @@ private val EmptyCanvas = android.graphics.Canvas()
         // Float array is treated as alternative set of x and y coordinates
         // x1, y1, x2, y2, x3, y3, ... etc.
         if (points.size >= 4 && points.size % 2 == 0) {
-            for (i in 0 until points.size - 3 step stepBy * 2) {
+            val frameworkPaint = paint.asFrameworkPaint()
+            var i = 0
+            while (i < points.size - 3) {
                 val x1 = points[i]
                 val y1 = points[i + 1]
                 val x2 = points[i + 2]
                 val y2 = points[i + 3]
-                internalCanvas.drawLine(
-                    x1,
-                    y1,
-                    x2,
-                    y2,
-                    paint.asFrameworkPaint()
-                )
+                internalCanvas.drawLine(x1, y1, x2, y2, frameworkPaint)
+                i += stepBy * 2
             }
         }
     }

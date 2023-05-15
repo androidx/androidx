@@ -1,6 +1,20 @@
 // Baseline format: 1.0
+InvalidNullConversion: androidx.room.EntityDeletionOrUpdateAdapter#bind(androidx.sqlite.db.SupportSQLiteStatement, T) parameter #1:
+    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter entity in androidx.room.EntityDeletionOrUpdateAdapter.bind(androidx.sqlite.db.SupportSQLiteStatement statement, T entity)
+InvalidNullConversion: androidx.room.EntityDeletionOrUpdateAdapter#handle(T) parameter #0:
+    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter entity in androidx.room.EntityDeletionOrUpdateAdapter.handle(T entity)
 InvalidNullConversion: androidx.room.EntityInsertionAdapter#bind(androidx.sqlite.db.SupportSQLiteStatement, T) parameter #0:
     Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter statement in androidx.room.EntityInsertionAdapter.bind(androidx.sqlite.db.SupportSQLiteStatement statement, T entity)
+InvalidNullConversion: androidx.room.EntityInsertionAdapter#bind(androidx.sqlite.db.SupportSQLiteStatement, T) parameter #1:
+    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter entity in androidx.room.EntityInsertionAdapter.bind(androidx.sqlite.db.SupportSQLiteStatement statement, T entity)
+InvalidNullConversion: androidx.room.EntityInsertionAdapter#insert(T) parameter #0:
+    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter entity in androidx.room.EntityInsertionAdapter.insert(T entity)
+InvalidNullConversion: androidx.room.EntityInsertionAdapter#insertAndReturnId(T) parameter #0:
+    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter entity in androidx.room.EntityInsertionAdapter.insertAndReturnId(T entity)
+InvalidNullConversion: androidx.room.EntityUpsertionAdapter#upsert(T) parameter #0:
+    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter entity in androidx.room.EntityUpsertionAdapter.upsert(T entity)
+InvalidNullConversion: androidx.room.EntityUpsertionAdapter#upsertAndReturnId(T) parameter #0:
+    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter entity in androidx.room.EntityUpsertionAdapter.upsertAndReturnId(T entity)
 
 
 ParameterNameChange: androidx.room.RoomDatabase.JournalMode#valueOf(String) parameter #0:

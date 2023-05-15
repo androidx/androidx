@@ -36,6 +36,7 @@ import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException.Companion.
 import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException.Companion.LOAD_SDK_NOT_FOUND
 import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException.Companion.toLoadCompatSdkException
 import androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat
+import java.lang.ref.WeakReference
 import java.util.WeakHashMap
 import java.util.concurrent.Executor
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -346,7 +347,7 @@ class SdkSandboxManagerCompat private constructor(
 
     companion object {
 
-        private val sInstances = WeakHashMap<Context, SdkSandboxManagerCompat>()
+        private val sInstances = WeakHashMap<Context, WeakReference<SdkSandboxManagerCompat>>()
 
         /**
          *  Creates [SdkSandboxManagerCompat].
@@ -358,7 +359,8 @@ class SdkSandboxManagerCompat private constructor(
         @JvmStatic
         fun from(context: Context): SdkSandboxManagerCompat {
             synchronized(sInstances) {
-                var instance = sInstances[context]
+                val reference = sInstances[context]
+                var instance = reference?.get()
                 if (instance == null) {
                     val configHolder = LocalSdkConfigsHolder.load(context)
                     val localSdks = LocallyLoadedSdks()
@@ -371,7 +373,7 @@ class SdkSandboxManagerCompat private constructor(
                         localSdks,
                         sdkLoader
                     )
-                    sInstances[context] = instance
+                    sInstances[context] = WeakReference(instance)
                 }
                 return instance
             }

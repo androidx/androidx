@@ -4405,38 +4405,3 @@ private fun MotionEvent(
 )
 
 internal typealias PointerEventHandler = (PointerEvent, PointerEventPass, IntSize) -> Unit
-
-private fun PointerEventHandler.invokeOverAllPasses(
-    pointerEvent: PointerEvent,
-    size: IntSize = IntSize(Int.MAX_VALUE, Int.MAX_VALUE)
-) {
-    invokeOverPasses(
-        pointerEvent,
-        listOf(
-            PointerEventPass.Initial,
-            PointerEventPass.Main,
-            PointerEventPass.Final
-        ),
-        size = size
-    )
-}
-
-private fun PointerEventHandler.invokeOverPasses(
-    pointerEvent: PointerEvent,
-    vararg pointerEventPasses: PointerEventPass,
-    size: IntSize = IntSize(Int.MAX_VALUE, Int.MAX_VALUE)
-) {
-    invokeOverPasses(pointerEvent, pointerEventPasses.toList(), size)
-}
-
-private fun PointerEventHandler.invokeOverPasses(
-    pointerEvent: PointerEvent,
-    pointerEventPasses: List<PointerEventPass>,
-    size: IntSize = IntSize(Int.MAX_VALUE, Int.MAX_VALUE)
-) {
-    require(pointerEvent.changes.isNotEmpty())
-    require(pointerEventPasses.isNotEmpty())
-    pointerEventPasses.forEach {
-        this.invoke(pointerEvent, it, size)
-    }
-}

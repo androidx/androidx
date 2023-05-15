@@ -24,13 +24,13 @@ import androidx.camera.camera2.pipe.CameraError.Companion.ERROR_CAMERA_DISABLED
 import androidx.camera.camera2.pipe.CameraError.Companion.ERROR_CAMERA_DISCONNECTED
 import androidx.camera.camera2.pipe.CameraError.Companion.ERROR_CAMERA_IN_USE
 import androidx.camera.camera2.pipe.CameraError.Companion.ERROR_CAMERA_LIMIT_EXCEEDED
+import androidx.camera.camera2.pipe.CameraError.Companion.ERROR_CAMERA_SERVICE
 import androidx.camera.camera2.pipe.CameraError.Companion.ERROR_DO_NOT_DISTURB_ENABLED
 import androidx.camera.camera2.pipe.CameraError.Companion.ERROR_ILLEGAL_ARGUMENT_EXCEPTION
 import androidx.camera.camera2.pipe.CameraError.Companion.ERROR_SECURITY_EXCEPTION
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.core.DurationNs
-import androidx.camera.camera2.pipe.core.TimestampNs
 import androidx.camera.camera2.pipe.core.Timestamps
 import androidx.camera.camera2.pipe.internal.CameraErrorListener
 import androidx.camera.camera2.pipe.testing.FakeCamera2DeviceCloser
@@ -128,75 +128,63 @@ class RetryingCameraStateOpenerTest {
 
     @Test
     fun testShouldRetryReturnsTrueWithinTimeout() {
-        val firstAttemptTimestamp = TimestampNs(0L)
-        fakeTimeSource.currentTimestamp = TimestampNs(1_000_000_000L) // 1 second
-
         assertThat(
             RetryingCameraStateOpener.shouldRetry(
                 ERROR_CAMERA_IN_USE,
                 1,
-                firstAttemptTimestamp,
-                fakeTimeSource,
-                false
+                DurationNs(1_000_000_000L), // 1 second
+                camerasDisabledByDevicePolicy = false,
+                isForeground = false,
             )
-        )
-            .isTrue()
+        ).isTrue()
     }
 
     @Test
     fun testShouldRetryReturnsFalseWhenTimeoutExpires() {
-        val firstAttemptTimestamp = TimestampNs(0L)
-        fakeTimeSource.currentTimestamp = TimestampNs(30_000_000_000L) // 30 seconds
-
         assertThat(
             RetryingCameraStateOpener.shouldRetry(
                 ERROR_CAMERA_IN_USE,
                 1,
-                firstAttemptTimestamp,
-                fakeTimeSource,
-                false
+                DurationNs(30_000_000_000L), // 30 seconds
+                camerasDisabledByDevicePolicy = false,
+                isForeground = false,
             )
-        )
-            .isFalse()
+        ).isFalse()
     }
 
     @Test
     fun testShouldRetryShouldFailUndetermined() {
-        val firstAttemptTimestamp = TimestampNs(0L)
-        fakeTimeSource.currentTimestamp = TimestampNs(1_000_000_000L) // 1 second
-
         assertThat(
             RetryingCameraStateOpener.shouldRetry(
                 CameraError.ERROR_UNDETERMINED,
                 1,
-                firstAttemptTimestamp,
-                fakeTimeSource,
-                false
+                DurationNs(1_000_000_000L), // 1 second
+                camerasDisabledByDevicePolicy = false,
+                isForeground = false,
             )
-        )
-            .isFalse()
+        ).isFalse()
     }
 
     @Test
     fun testShouldRetryCameraInUse() {
-        val firstAttemptTimestamp = TimestampNs(0L)
-        fakeTimeSource.currentTimestamp = TimestampNs(1_000_000_000L) // 1 second
-
         assertThat(
             RetryingCameraStateOpener.shouldRetry(
                 ERROR_CAMERA_IN_USE,
                 1,
-                firstAttemptTimestamp,
-                fakeTimeSource,
-                false
+                DurationNs(1_000_000_000L), // 1 second
+                camerasDisabledByDevicePolicy = false,
+                isForeground = false,
             )
-        )
-            .isTrue()
+        ).isTrue()
 
         // The second retry attempt should fail if SDK version < S, and succeed otherwise.
         val secondRetry =
             RetryingCameraStateOpener.shouldRetry(
-                ERROR_CAMERA_IN_USE, 2, firstAttemptTimestamp, fakeTimeSource, false
+                ERROR_CAMERA_IN_USE,
+                2,
+                DurationNs(1_000_000_001L),
+                camerasDisabledByDevicePolicy = false,
+                isForeground = false,
             )
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
             assertThat(secondRetry).isFalse()
@@ -207,251 +195,343 @@ class RetryingCameraStateOpenerTest {
 
     @Test
     fun testShouldRetryCameraLimitExceeded() {
-        val firstAttemptTimestamp = TimestampNs(0L)
-        fakeTimeSource.currentTimestamp = TimestampNs(1_000_000_000L) // 1 second
-
         assertThat(
             RetryingCameraStateOpener.shouldRetry(
                 ERROR_CAMERA_LIMIT_EXCEEDED,
                 1,
-                firstAttemptTimestamp,
-                fakeTimeSource,
-                false
+                DurationNs(1_000_000_000L), // 1 second
+                camerasDisabledByDevicePolicy = false,
+                isForeground = false,
             )
-        )
-            .isTrue()
+        ).isTrue()
 
         // Second attempt should succeed as well.
         assertThat(
             RetryingCameraStateOpener.shouldRetry(
                 ERROR_CAMERA_LIMIT_EXCEEDED,
                 2,
-                firstAttemptTimestamp,
-                fakeTimeSource,
-                false
+                DurationNs(1_000_000_001L),
+                camerasDisabledByDevicePolicy = false,
+                isForeground = false,
             )
-        )
-            .isTrue()
+        ).isTrue()
     }
 
     @Test
     fun testShouldRetryOnceCameraDisabledWhenDpcCameraDisabled() {
-        val firstAttemptTimestamp = TimestampNs(0L)
-        fakeTimeSource.currentTimestamp = TimestampNs(1_000_000_000L) // 1 second
-
         assertThat(
             RetryingCameraStateOpener.shouldRetry(
                 ERROR_CAMERA_DISABLED,
                 1,
-                firstAttemptTimestamp,
-                fakeTimeSource,
-                camerasDisabledByDevicePolicy = true
+                DurationNs(1_000_000_000L), // 1 second
+                camerasDisabledByDevicePolicy = true,
+                isForeground = false,
             )
-        )
-            .isTrue()
+        ).isTrue()
 
         // Second attempt should fail if camera is disabled.
         assertThat(
             RetryingCameraStateOpener.shouldRetry(
                 ERROR_CAMERA_DISABLED,
                 2,
-                firstAttemptTimestamp,
-                fakeTimeSource,
-                camerasDisabledByDevicePolicy = true
+                DurationNs(1_000_000_001L),
+                camerasDisabledByDevicePolicy = true,
+                isForeground = false,
             )
-        )
-            .isFalse()
+        ).isFalse()
     }
 
     @Test
     fun testShouldRetryRepeatedlyCameraDisabledWhenDpcCameraEnabled() {
-        val firstAttemptTimestamp = TimestampNs(0L)
-        fakeTimeSource.currentTimestamp = TimestampNs(1_000_000_000L) // 1 second
-
         assertThat(
             RetryingCameraStateOpener.shouldRetry(
                 ERROR_CAMERA_DISABLED,
                 1,
-                firstAttemptTimestamp,
-                fakeTimeSource,
-                camerasDisabledByDevicePolicy = false
+                DurationNs(1_000_000_000L), // 1 second
+                camerasDisabledByDevicePolicy = false,
+                isForeground = false,
             )
-        )
-            .isTrue()
+        ).isTrue()
 
         // Second attempt should success if camera is not disabled.
         assertThat(
             RetryingCameraStateOpener.shouldRetry(
                 ERROR_CAMERA_DISABLED,
                 2,
-                firstAttemptTimestamp,
-                fakeTimeSource,
-                camerasDisabledByDevicePolicy = false
+                DurationNs(1_000_000_001L),
+                camerasDisabledByDevicePolicy = false,
+                isForeground = false,
             )
-        )
-            .isTrue()
+        ).isTrue()
     }
 
     @Test
     fun testShouldRetryCameraDevice() {
-        val firstAttemptTimestamp = TimestampNs(0L)
-        fakeTimeSource.currentTimestamp = TimestampNs(1_000_000_000L) // 1 second
-
         assertThat(
             RetryingCameraStateOpener.shouldRetry(
                 CameraError.ERROR_CAMERA_DEVICE,
                 1,
-                firstAttemptTimestamp,
-                fakeTimeSource,
-                false
+                DurationNs(1_000_000_000L), // 1 second
+                camerasDisabledByDevicePolicy = false,
+                isForeground = false,
             )
-        )
-            .isTrue()
+        ).isTrue()
 
         // Second attempt should succeed as well.
         assertThat(
             RetryingCameraStateOpener.shouldRetry(
                 CameraError.ERROR_CAMERA_DEVICE,
                 2,
-                firstAttemptTimestamp,
-                fakeTimeSource,
-                false
+                DurationNs(1_000_000_001L),
+                camerasDisabledByDevicePolicy = false,
+                isForeground = false,
             )
-        )
-            .isTrue()
+        ).isTrue()
     }
 
     @Test
     fun testShouldRetryCameraService() {
-        val firstAttemptTimestamp = TimestampNs(0L)
-        fakeTimeSource.currentTimestamp = TimestampNs(1_000_000_000L) // 1 second
-
         assertThat(
             RetryingCameraStateOpener.shouldRetry(
-                CameraError.ERROR_CAMERA_SERVICE,
+                ERROR_CAMERA_SERVICE,
                 1,
-                firstAttemptTimestamp,
-                fakeTimeSource,
-                false
+                DurationNs(1_000_000_000L), // 1 second
+                camerasDisabledByDevicePolicy = false,
+                isForeground = false,
             )
-        )
-            .isTrue()
+        ).isTrue()
 
         // Second attempt should succeed as well.
         assertThat(
             RetryingCameraStateOpener.shouldRetry(
-                CameraError.ERROR_CAMERA_SERVICE,
+                ERROR_CAMERA_SERVICE,
                 2,
-                firstAttemptTimestamp,
-                fakeTimeSource,
-                false
+                DurationNs(1_000_000_001L),
+                camerasDisabledByDevicePolicy = false,
+                isForeground = false,
             )
-        )
-            .isTrue()
+        ).isTrue()
     }
 
     @Test
     fun testShouldRetryCameraDisconnected() {
-        val firstAttemptTimestamp = TimestampNs(0L)
-        fakeTimeSource.currentTimestamp = TimestampNs(1_000_000_000L) // 1 second
-
         assertThat(
             RetryingCameraStateOpener.shouldRetry(
                 ERROR_CAMERA_DISCONNECTED,
                 1,
-                firstAttemptTimestamp,
-                fakeTimeSource,
-                false
+                DurationNs(1_000_000_000L), // 1 second
+                camerasDisabledByDevicePolicy = false,
+                isForeground = false,
             )
-        )
-            .isTrue()
+        ).isTrue()
 
         // Second attempt should succeed as well.
         assertThat(
             RetryingCameraStateOpener.shouldRetry(
                 ERROR_CAMERA_DISCONNECTED,
                 2,
-                firstAttemptTimestamp,
-                fakeTimeSource,
-                false
+                DurationNs(1_000_000_001L),
+                camerasDisabledByDevicePolicy = false,
+                isForeground = false,
             )
-        )
-            .isTrue()
+        ).isTrue()
     }
 
     @Test
     fun testShouldRetryIllegalArgumentException() {
-        val firstAttemptTimestamp = TimestampNs(0L)
-        fakeTimeSource.currentTimestamp = TimestampNs(1_000_000_000L) // 1 second
-
         assertThat(
             RetryingCameraStateOpener.shouldRetry(
                 ERROR_ILLEGAL_ARGUMENT_EXCEPTION,
                 1,
-                firstAttemptTimestamp,
-                fakeTimeSource,
-                false
+                DurationNs(1_000_000_000L), // 1 second
+                camerasDisabledByDevicePolicy = false,
+                isForeground = false,
             )
-        )
-            .isTrue()
+        ).isTrue()
 
         // Second attempt should succeed as well.
         assertThat(
             RetryingCameraStateOpener.shouldRetry(
                 ERROR_ILLEGAL_ARGUMENT_EXCEPTION,
                 2,
-                firstAttemptTimestamp,
-                fakeTimeSource,
-                false
+                DurationNs(1_000_000_001L),
+                camerasDisabledByDevicePolicy = false,
+                isForeground = false,
             )
-        )
-            .isTrue()
+        ).isTrue()
     }
 
     @Test
     fun testShouldRetrySecurityException() {
-        val firstAttemptTimestamp = TimestampNs(0L)
-        fakeTimeSource.currentTimestamp = TimestampNs(1_000_000_000L) // 1 second
-
         assertThat(
             RetryingCameraStateOpener.shouldRetry(
                 ERROR_SECURITY_EXCEPTION,
                 1,
-                firstAttemptTimestamp,
-                fakeTimeSource,
-                false
+                DurationNs(1_000_000_000L), // 1 second
+                camerasDisabledByDevicePolicy = false,
+                isForeground = false,
             )
-        )
-            .isTrue()
+        ).isTrue()
 
         // Second attempt should fail.
         assertThat(
             RetryingCameraStateOpener.shouldRetry(
                 ERROR_SECURITY_EXCEPTION,
                 2,
-                firstAttemptTimestamp,
-                fakeTimeSource,
-                false
+                DurationNs(1_000_000_001L),
+                camerasDisabledByDevicePolicy = false,
+                isForeground = false,
             )
-        )
-            .isFalse()
+        ).isFalse()
     }
 
     @Test
     fun testShouldNotRetryDoNotDisturbModeEnabled() {
-        val firstAttemptTimestamp = TimestampNs(0L)
-        fakeTimeSource.currentTimestamp = TimestampNs(1_000_000_000L) // 1 second
-
         assertThat(
             RetryingCameraStateOpener.shouldRetry(
                 ERROR_DO_NOT_DISTURB_ENABLED,
                 1,
-                firstAttemptTimestamp,
-                fakeTimeSource,
-                false
+                DurationNs(1_000_000_000L), // 1 second
+                camerasDisabledByDevicePolicy = false,
+                isForeground = false,
             )
+        ).isFalse()
+    }
+
+    @Test
+    fun testShouldRetryCameraInUseOnLongerTimeoutWhenActiveResume() {
+        if (Build.VERSION.SDK_INT !in (Build.VERSION_CODES.Q..Build.VERSION_CODES.S_V2)) {
+            // We won't activate active resume mode when the API level is not in [Q, S_V2].
+            return
+        }
+        assertThat(
+            RetryingCameraStateOpener.shouldRetry(
+                ERROR_CAMERA_IN_USE,
+                1,
+                DurationNs(1_000_000_000L),
+                camerasDisabledByDevicePolicy = false,
+                isForeground = true,
+            )
+        ).isTrue()
+
+        val secondRetry = RetryingCameraStateOpener.shouldRetry(
+            ERROR_CAMERA_IN_USE,
+            2,
+            DurationNs(30_000_000_000L), // 30s
+            camerasDisabledByDevicePolicy = false,
+            isForeground = true,
         )
-            .isFalse()
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) { // Multi-window available
+            assertThat(secondRetry).isFalse()
+        } else {
+            assertThat(secondRetry).isTrue()
+        }
+    }
+
+    @Test
+    fun testShouldRetryCameraLimitExceededOnLongerTimeoutWhenActiveResume() {
+        if (Build.VERSION.SDK_INT !in (Build.VERSION_CODES.Q..Build.VERSION_CODES.S_V2)) {
+            // We won't activate active resume mode when the API level is not in [Q, S_V2].
+            return
+        }
+        assertThat(
+            RetryingCameraStateOpener.shouldRetry(
+                ERROR_CAMERA_LIMIT_EXCEEDED,
+                1,
+                DurationNs(1_000_000_000L),
+                camerasDisabledByDevicePolicy = false,
+                isForeground = true,
+            )
+        ).isTrue()
+
+        assertThat(
+            RetryingCameraStateOpener.shouldRetry(
+                ERROR_CAMERA_LIMIT_EXCEEDED,
+                2,
+                DurationNs(30_000_000_000L), // 30s
+                camerasDisabledByDevicePolicy = false,
+                isForeground = true,
+            )
+        ).isTrue()
+    }
+
+    @Test
+    fun testShouldRetryCameraDisconnectedOnLongerTimeoutWhenActiveResume() {
+        if (Build.VERSION.SDK_INT !in (Build.VERSION_CODES.Q..Build.VERSION_CODES.S_V2)) {
+            // We won't activate active resume mode when the API level is not in [Q, S_V2].
+            return
+        }
+        assertThat(
+            RetryingCameraStateOpener.shouldRetry(
+                ERROR_CAMERA_DISCONNECTED,
+                1,
+                DurationNs(1_000_000_000L),
+                camerasDisabledByDevicePolicy = false,
+                isForeground = true,
+            )
+        ).isTrue()
+
+        assertThat(
+            RetryingCameraStateOpener.shouldRetry(
+                ERROR_CAMERA_DISCONNECTED,
+                2,
+                DurationNs(30_000_000_000L), // 30s
+                camerasDisabledByDevicePolicy = false,
+                isForeground = true,
+            )
+        ).isTrue()
+    }
+
+    @Test
+    fun testShouldActivateActiveResume() {
+        assertThat(
+            RetryingCameraStateOpener.shouldActivateActiveResume(
+                isForeground = false,
+                errorCode = ERROR_CAMERA_IN_USE,
+            )
+        ).isFalse()
+        if (Build.VERSION.SDK_INT in (Build.VERSION_CODES.Q..Build.VERSION_CODES.S_V2)) {
+            // Regardless of what error it is, we should only activate active resume mode when the
+            // API level is [Q, S_V2], where multi-resume is supported and camera access priority
+            // changes aren't properly notified.
+            assertThat(
+                RetryingCameraStateOpener.shouldActivateActiveResume(
+                    isForeground = true,
+                    errorCode = ERROR_CAMERA_SERVICE,
+                )
+            ).isFalse()
+            assertThat(
+                RetryingCameraStateOpener.shouldActivateActiveResume(
+                    isForeground = true,
+                    errorCode = ERROR_CAMERA_IN_USE,
+                )
+            ).isTrue()
+            assertThat(
+                RetryingCameraStateOpener.shouldActivateActiveResume(
+                    isForeground = true,
+                    errorCode = ERROR_CAMERA_LIMIT_EXCEEDED,
+                )
+            ).isTrue()
+            assertThat(
+                RetryingCameraStateOpener.shouldActivateActiveResume(
+                    isForeground = true,
+                    errorCode = ERROR_CAMERA_DISCONNECTED,
+                )
+            ).isTrue()
+        } else {
+            assertThat(
+                RetryingCameraStateOpener.shouldActivateActiveResume(
+                    isForeground = true,
+                    errorCode = ERROR_CAMERA_SERVICE,
+                )
+            ).isFalse()
+            assertThat(
+                RetryingCameraStateOpener.shouldActivateActiveResume(
+                    isForeground = true,
+                    errorCode = ERROR_CAMERA_IN_USE,
+                )
+            ).isFalse()
+        }
     }
 
     @Test

@@ -24,11 +24,9 @@ import androidx.annotation.IdRes
  * or [NavOptions] based on the current [NavDestination].
  *
  * The [NavOptions] associated with a NavAction are used by default when navigating
- * to this action via [NavController.navigate] or
- * [NavController.navigate].
+ * to this action via [NavController.navigate].
  *
- * Actions should be added via [NavDestination.putAction] or
- * [NavDestination.putAction].
+ * Actions should be added via [NavDestination.putAction].
  *
  * @param destinationId the ID of the destination that should be navigated to when this
  * action is used.

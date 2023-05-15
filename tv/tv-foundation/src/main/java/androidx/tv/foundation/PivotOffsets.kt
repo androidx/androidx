@@ -16,36 +16,32 @@
 
 package androidx.tv.foundation
 
+import androidx.annotation.FloatRange
 import androidx.compose.runtime.Immutable
 
 /**
  * Holds the offsets needed for scrolling-with-offset.
  *
- * {@property parentFraction} defines the offset of the starting edge of the child
+ * @property parentFraction defines the offset of the starting edge of the child
  * element from the starting edge of the parent element. This value should be between 0 and 1.
- *
- * {@property childFraction} defines the offset of the starting edge of the child from
+ * @property childFraction defines the offset of the starting edge of the child from
  * the pivot defined by parentFraction. This value should be between 0 and 1.
  */
 @Immutable
 class PivotOffsets constructor(
-    val parentFraction: Float = 0.3f,
-    val childFraction: Float = 0f
+    @FloatRange(
+        from = 0.0,
+        to = 1.0,
+        fromInclusive = true,
+        toInclusive = true
+    ) val parentFraction: Float = 0.3f,
+    @FloatRange(
+        from = 0.0,
+        to = 1.0,
+        fromInclusive = true,
+        toInclusive = true
+    ) val childFraction: Float = 0f,
 ) {
-    init {
-        validateFraction(parentFraction)
-        validateFraction(childFraction)
-    }
-
-    /* Verify that the fraction passed in lies between 0 and 1 */
-    private fun validateFraction(fraction: Float): Float {
-        if (fraction in 0.0..1.0)
-            return fraction
-        else
-            throw IllegalArgumentException(
-                "OffsetFractions should be between 0 and 1. $fraction is not between 0 and 1.")
-    }
-
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is PivotOffsets) return false

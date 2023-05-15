@@ -15,6 +15,8 @@
  */
 package androidx.constraintlayout.core.parser;
 
+import androidx.annotation.NonNull;
+
 import java.util.Arrays;
 import java.util.Objects;
 
@@ -202,6 +204,7 @@ public class CLElement implements Cloneable {
         return result;
     }
 
+    @NonNull
     @Override
     public CLElement clone() {
         try {

@@ -16,10 +16,6 @@
 
 package androidx.wear.tiles.material;
 
-import static androidx.wear.tiles.ColorBuilders.argb;
-import static androidx.wear.tiles.DimensionBuilders.dp;
-import static androidx.wear.tiles.LayoutElementBuilders.HORIZONTAL_ALIGN_CENTER;
-import static androidx.wear.tiles.LayoutElementBuilders.HORIZONTAL_ALIGN_START;
 import static androidx.wear.tiles.material.Utils.areChipColorsEqual;
 
 import static com.google.common.truth.Truth.assertThat;
@@ -33,18 +29,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.wear.tiles.ActionBuilders.LaunchAction;
-import androidx.wear.tiles.ColorBuilders.ColorProp;
-import androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters;
-import androidx.wear.tiles.DimensionBuilders.DpProp;
-import androidx.wear.tiles.LayoutElementBuilders.Box;
-import androidx.wear.tiles.LayoutElementBuilders.Column;
-import androidx.wear.tiles.LayoutElementBuilders.HorizontalAlignment;
-import androidx.wear.tiles.LayoutElementBuilders.LayoutElement;
-import androidx.wear.tiles.LayoutElementBuilders.Row;
-import androidx.wear.tiles.ModifiersBuilders.Clickable;
-import androidx.wear.tiles.ModifiersBuilders.ElementMetadata;
-import androidx.wear.tiles.ModifiersBuilders.Modifiers;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -55,16 +39,21 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 @SuppressWarnings("deprecation")
 public class ChipTest {
     private static final String MAIN_TEXT = "Primary text";
-    private static final Clickable CLICKABLE =
-            new Clickable.Builder()
-                    .setOnClick(new LaunchAction.Builder().build())
+    private static final androidx.wear.tiles.ModifiersBuilders.Clickable CLICKABLE =
+            new androidx.wear.tiles.ModifiersBuilders.Clickable.Builder()
+                    .setOnClick(
+                            new androidx.wear.tiles.ActionBuilders.LaunchAction.Builder().build())
                     .setId("action_id")
                     .build();
-    private static final DeviceParameters DEVICE_PARAMETERS =
-            new DeviceParameters.Builder().setScreenWidthDp(192).setScreenHeightDp(192).build();
+    private static final androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters
+            DEVICE_PARAMETERS =
+                    new androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters.Builder()
+                            .setScreenWidthDp(192)
+                            .setScreenHeightDp(192)
+                            .build();
     private static final Context CONTEXT = ApplicationProvider.getApplicationContext();
-    private static final DpProp EXPECTED_WIDTH =
-            dp(
+    private static final androidx.wear.tiles.DimensionBuilders.DpProp EXPECTED_WIDTH =
+            androidx.wear.tiles.DimensionBuilders.dp(
                     DEVICE_PARAMETERS.getScreenWidthDp()
                             * (100 - 2 * ChipDefaults.DEFAULT_MARGIN_PERCENT)
                             / 100);
@@ -75,12 +64,13 @@ public class ChipTest {
         Chip chip =
                 new Chip.Builder(CONTEXT, CLICKABLE, DEVICE_PARAMETERS)
                         .setPrimaryLabelContent(MAIN_TEXT)
-                        .setHorizontalAlignment(HORIZONTAL_ALIGN_CENTER)
+                        .setHorizontalAlignment(
+                                androidx.wear.tiles.LayoutElementBuilders.HORIZONTAL_ALIGN_CENTER)
                         .setContentDescription(contentDescription)
                         .build();
         assertChip(
                 chip,
-                HORIZONTAL_ALIGN_CENTER,
+                androidx.wear.tiles.LayoutElementBuilders.HORIZONTAL_ALIGN_CENTER,
                 ChipDefaults.PRIMARY_COLORS,
                 contentDescription,
                 Chip.METADATA_TAG_TEXT,
@@ -103,7 +93,7 @@ public class ChipTest {
                         .build();
         assertChip(
                 chip,
-                HORIZONTAL_ALIGN_START,
+                androidx.wear.tiles.LayoutElementBuilders.HORIZONTAL_ALIGN_START,
                 colors,
                 MAIN_TEXT + "\n" + secondaryLabel,
                 Chip.METADATA_TAG_ICON,
@@ -117,12 +107,13 @@ public class ChipTest {
     public void testChipLeftAligned() {
         Chip chip =
                 new Chip.Builder(CONTEXT, CLICKABLE, DEVICE_PARAMETERS)
-                        .setHorizontalAlignment(HORIZONTAL_ALIGN_START)
+                        .setHorizontalAlignment(
+                                androidx.wear.tiles.LayoutElementBuilders.HORIZONTAL_ALIGN_START)
                         .setPrimaryLabelContent(MAIN_TEXT)
                         .build();
         assertChip(
                 chip,
-                HORIZONTAL_ALIGN_START,
+                androidx.wear.tiles.LayoutElementBuilders.HORIZONTAL_ALIGN_START,
                 ChipDefaults.PRIMARY_COLORS,
                 MAIN_TEXT,
                 Chip.METADATA_TAG_TEXT,
@@ -134,10 +125,12 @@ public class ChipTest {
 
     @Test
     public void testChipCustomContent() {
-        ColorProp yellow = argb(Color.YELLOW);
-        ColorProp blue = argb(Color.BLUE);
-        LayoutElement content =
-                new Row.Builder()
+        androidx.wear.tiles.ColorBuilders.ColorProp yellow =
+                androidx.wear.tiles.ColorBuilders.argb(Color.YELLOW);
+        androidx.wear.tiles.ColorBuilders.ColorProp blue =
+                androidx.wear.tiles.ColorBuilders.argb(Color.BLUE);
+        androidx.wear.tiles.LayoutElementBuilders.LayoutElement content =
+                new androidx.wear.tiles.LayoutElementBuilders.Row.Builder()
                         .addContent(
                                 new Text.Builder(CONTEXT, "text1")
                                         .setTypography(Typography.TYPOGRAPHY_TITLE3)
@@ -155,16 +148,17 @@ public class ChipTest {
         Chip chip =
                 new Chip.Builder(CONTEXT, CLICKABLE, DEVICE_PARAMETERS)
                         .setCustomContent(content)
-                        .setHorizontalAlignment(HORIZONTAL_ALIGN_START)
+                        .setHorizontalAlignment(
+                                androidx.wear.tiles.LayoutElementBuilders.HORIZONTAL_ALIGN_START)
                         .setContentDescription(contentDescription)
                         .build();
 
         assertChip(
                 chip,
-                HORIZONTAL_ALIGN_START,
+                androidx.wear.tiles.LayoutElementBuilders.HORIZONTAL_ALIGN_START,
                 new ChipColors(
                         ChipDefaults.PRIMARY_COLORS.getBackgroundColor(),
-                        new ColorProp.Builder().build()),
+                        new androidx.wear.tiles.ColorBuilders.ColorProp.Builder().build()),
                 contentDescription,
                 Chip.METADATA_TAG_CUSTOM_CONTENT,
                 null,
@@ -177,14 +171,15 @@ public class ChipTest {
 
     private void assertChip(
             @NonNull Chip actualChip,
-            @HorizontalAlignment int hAlign,
+            @androidx.wear.tiles.LayoutElementBuilders.HorizontalAlignment int hAlign,
             @NonNull ChipColors colors,
             @Nullable String expectedContDesc,
             @NonNull String expectedMetadata,
             @Nullable String expectedPrimaryText,
             @Nullable String expectedLabel,
             @Nullable String expectedIcon,
-            @Nullable LayoutElement expectedCustomContent) {
+            @Nullable
+                    androidx.wear.tiles.LayoutElementBuilders.LayoutElement expectedCustomContent) {
         assertChipIsEqual(
                 actualChip,
                 hAlign,
@@ -212,26 +207,29 @@ public class ChipTest {
 
     @Test
     public void testWrongElement() {
-        Column box = new Column.Builder().build();
+        androidx.wear.tiles.LayoutElementBuilders.Column box =
+                new androidx.wear.tiles.LayoutElementBuilders.Column.Builder().build();
 
         assertThat(Chip.fromLayoutElement(box)).isNull();
     }
 
     @Test
     public void testWrongBox() {
-        Box box = new Box.Builder().build();
+        androidx.wear.tiles.LayoutElementBuilders.Box box =
+                new androidx.wear.tiles.LayoutElementBuilders.Box.Builder().build();
 
         assertThat(Chip.fromLayoutElement(box)).isNull();
     }
 
     @Test
     public void testWrongTag() {
-        Box box =
-                new Box.Builder()
+        androidx.wear.tiles.LayoutElementBuilders.Box box =
+                new androidx.wear.tiles.LayoutElementBuilders.Box.Builder()
                         .setModifiers(
-                                new Modifiers.Builder()
+                                new androidx.wear.tiles.ModifiersBuilders.Modifiers.Builder()
                                         .setMetadata(
-                                                new ElementMetadata.Builder()
+                                                new androidx.wear.tiles.ModifiersBuilders
+                                                                .ElementMetadata.Builder()
                                                         .setTagData("test".getBytes(UTF_8))
                                                         .build())
                                         .build())
@@ -242,15 +240,19 @@ public class ChipTest {
 
     private void assertFromLayoutElementChipIsEqual(
             @NonNull Chip chip,
-            @HorizontalAlignment int hAlign,
+            @androidx.wear.tiles.LayoutElementBuilders.HorizontalAlignment int hAlign,
             @NonNull ChipColors colors,
             @Nullable String expectedContDesc,
             @NonNull String expectedMetadata,
             @Nullable String expectedPrimaryText,
             @Nullable String expectedLabel,
             @Nullable String expectedIcon,
-            @Nullable LayoutElement expectedCustomContent) {
-        Box box = new Box.Builder().addContent(chip).build();
+            @Nullable
+                    androidx.wear.tiles.LayoutElementBuilders.LayoutElement expectedCustomContent) {
+        androidx.wear.tiles.LayoutElementBuilders.Box box =
+                new androidx.wear.tiles.LayoutElementBuilders.Box.Builder()
+                        .addContent(chip)
+                        .build();
 
         Chip newChip = Chip.fromLayoutElement(box.getContents().get(0));
 
@@ -269,14 +271,15 @@ public class ChipTest {
 
     private void assertChipIsEqual(
             @NonNull Chip actualChip,
-            @HorizontalAlignment int hAlign,
+            @androidx.wear.tiles.LayoutElementBuilders.HorizontalAlignment int hAlign,
             @NonNull ChipColors colors,
             @Nullable String expectedContDesc,
             @NonNull String expectedMetadata,
             @Nullable String expectedPrimaryText,
             @Nullable String expectedLabel,
             @Nullable String expectedIcon,
-            @Nullable LayoutElement expectedCustomContent) {
+            @Nullable
+                    androidx.wear.tiles.LayoutElementBuilders.LayoutElement expectedCustomContent) {
         assertThat(actualChip.getMetadataTag()).isEqualTo(expectedMetadata);
         assertThat(actualChip.getClickable().toProto()).isEqualTo(CLICKABLE.toProto());
         assertThat(actualChip.getWidth().toContainerDimensionProto())

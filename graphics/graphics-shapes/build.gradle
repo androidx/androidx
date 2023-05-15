@@ -37,7 +37,7 @@ android {
 }
 
 androidx {
-    name = "Android Graphics Shapes"
+    name = "Graphics Shapes"
     type = LibraryType.PUBLISHED_LIBRARY
     mavenVersion = LibraryVersions.GRAPHICS_SHAPES
     inceptionYear = "2022"

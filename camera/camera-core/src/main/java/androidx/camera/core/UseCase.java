@@ -26,6 +26,7 @@ import static androidx.camera.core.impl.StreamSpec.FRAME_RATE_RANGE_UNSPECIFIED;
 import static androidx.camera.core.impl.utils.TransformUtils.within360;
 import static androidx.camera.core.processing.TargetUtils.isSuperset;
 import static androidx.core.util.Preconditions.checkArgument;
+import static androidx.core.util.Preconditions.checkArgumentInRange;
 
 import android.annotation.SuppressLint;
 import android.graphics.Matrix;
@@ -33,6 +34,7 @@ import android.graphics.Rect;
 import android.media.ImageReader;
 import android.util.Range;
 import android.util.Size;
+import android.view.OrientationEventListener;
 import android.view.Surface;
 
 import androidx.annotation.CallSuper;
@@ -60,7 +62,6 @@ import androidx.camera.core.internal.utils.UseCaseConfigUtil;
 import androidx.camera.core.resolutionselector.ResolutionSelector;
 import androidx.camera.core.streamsharing.StreamSharing;
 import androidx.core.util.Preconditions;
-import androidx.lifecycle.LifecycleOwner;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -263,8 +264,8 @@ public abstract class UseCase {
         // Forces disable ZSL when high resolution is enabled.
         if (mergedConfig.containsOption(ImageOutputConfig.OPTION_RESOLUTION_SELECTOR)
                 && mergedConfig.retrieveOption(
-                ImageOutputConfig.OPTION_RESOLUTION_SELECTOR).getHighResolutionEnabledFlag()
-                != ResolutionSelector.HIGH_RESOLUTION_FLAG_OFF) {
+                ImageOutputConfig.OPTION_RESOLUTION_SELECTOR).getAllowedResolutionMode()
+                != ResolutionSelector.ALLOWED_RESOLUTIONS_NORMAL) {
             mergedConfig.insertOption(UseCaseConfig.OPTION_ZSL_DISABLED, true);
         }
 
@@ -292,17 +293,64 @@ public abstract class UseCase {
     }
 
     /**
-     * Converts orientation degrees to {@link Surface} rotation.
+     * A utility function that can convert the orientation degrees of
+     * {@link OrientationEventListener} to the nearest {@link Surface} rotation.
+     *
+     * <p>In general, it is best to use an {@link android.view.OrientationEventListener} to set
+     * the UseCase target rotation. This way, the rotation output will indicate which way is down
+     * for a given image or video. This is important since display orientation may be locked by
+     * device default, user setting, or app configuration, and some devices may not transition to a
+     * reverse-portrait display orientation. In these cases, set target rotation dynamically
+     * according to the {@link android.view.OrientationEventListener}, without re-creating the
+     * use case. The sample code is as below:
+     * <pre>{@code
+     * public class CameraXActivity extends AppCompatActivity {
+     *
+     *     private OrientationEventListener mOrientationEventListener;
+     *
+     *     @Override
+     *     protected void onStart() {
+     *         super.onStart();
+     *         if (mOrientationEventListener == null) {
+     *             mOrientationEventListener = new OrientationEventListener(this) {
+     *                 @Override
+     *                 public void onOrientationChanged(int orientation) {
+     *                     if (orientation == OrientationEventListener.ORIENTATION_UNKNOWN) {
+     *                         return;
+     *                     }
+     *                     int rotation = UseCase.snapToSurfaceRotation(orientation);
+     *                     mImageCapture.setTargetRotation(rotation);
+     *                     mImageAnalysis.setTargetRotation(rotation);
+     *                     mVideoCapture.setTargetRotation(rotation);
+     *                 }
+     *             };
+     *         }
+     *         mOrientationEventListener.enable();
+     *     }
+     *
+     *     @Override
+     *     protected void onStop() {
+     *         super.onStop();
+     *         mOrientationEventListener.disable();
+     *     }
+     * }
+     * }</pre>
+     *
+     * @param orientation the orientation degrees in range [0, 359].
+     * @return surface rotation. One of {@link Surface#ROTATION_0}, {@link Surface#ROTATION_90},
+     * {@link Surface#ROTATION_180} and {@link Surface#ROTATION_270}.
+     * @throws IllegalArgumentException if the input orientation degrees is not in range [0, 359].
+     * @see ImageCapture#setTargetRotation(int)
+     * @see ImageAnalysis#setTargetRotation(int)
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     @ImageOutputConfig.RotationValue
-    protected static int orientationDegreesToSurfaceRotation(int degrees) {
-        int degreesWithin360 = within360(degrees);
-        if (degreesWithin360 >= 315 || degreesWithin360 < 45) {
+    public static int snapToSurfaceRotation(@IntRange(from = 0, to = 359) int orientation) {
+        checkArgumentInRange(orientation, 0, 359, "orientation");
+        if (orientation >= 315 || orientation < 45) {
             return Surface.ROTATION_0;
-        } else if (degreesWithin360 >= 225) {
+        } else if (orientation >= 225) {
             return Surface.ROTATION_90;
-        } else if (degreesWithin360 >= 135) {
+        } else if (orientation >= 135) {
             return Surface.ROTATION_180;
         } else {
             return Surface.ROTATION_270;
@@ -653,6 +701,32 @@ public abstract class UseCase {
     }
 
     /**
+     * Update the implementation options of the stream specification for the UseCase.
+     *
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public void updateSuggestedStreamSpecImplementationOptions(@NonNull Config config) {
+        mAttachedStreamSpec = onSuggestedStreamSpecImplementationOptionsUpdated(config);
+    }
+
+    /**
+     * Called when updating the stream specifications' implementation options of existing use cases
+     * via {@code CameraUseCaseAdapter#updateUseCases}.
+     *
+     * @param config The new implementationOptions for the stream specification.
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @NonNull
+    protected StreamSpec onSuggestedStreamSpecImplementationOptionsUpdated(@NonNull Config config) {
+        if (mAttachedStreamSpec == null) {
+            throw new UnsupportedOperationException("Attempt to update the implementation options "
+                    + "for a use case without attached stream specifications.");
+        }
+        return mAttachedStreamSpec.toBuilder().setImplementationOptions(config).build();
+    }
+
+
+    /**
      * Called when CameraControlInternal is attached into the UseCase. UseCase may need to
      * override this method to configure the CameraControlInternal here. Ex. Setting correct flash
      * mode by CameraControlInternal.setFlashMode to enable correct AE mode and flash state.
@@ -891,23 +965,6 @@ public abstract class UseCase {
     }
 
     /**
-     * Returns {@link ResolutionInfo} of the use case.
-     *
-     * <p>The resolution information might change if the use case is unbound and then rebound or
-     * the target rotation setting is changed. The application needs to call
-     * {@code getResolutionInfo()} again to get the latest {@link ResolutionInfo} for the changes.
-     *
-     * @return the resolution information if the use case has been bound by the
-     * {@link androidx.camera.lifecycle.ProcessCameraProvider#bindToLifecycle(LifecycleOwner
-     *, CameraSelector, UseCase...)} API, or null if the use case is not bound yet.
-     */
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    @Nullable
-    public ResolutionInfo getResolutionInfo() {
-        return getResolutionInfoInternal();
-    }
-
-    /**
      * Returns a new {@link ResolutionInfo} according to the latest settings of the use case, or
      * null if the use case is not bound yet.
      *
@@ -933,7 +990,7 @@ public abstract class UseCase {
 
         int rotationDegrees = getRelativeRotation(camera);
 
-        return ResolutionInfo.create(resolution, cropRect, rotationDegrees);
+        return new ResolutionInfo(resolution, cropRect, rotationDegrees);
     }
 
     /**

@@ -33,6 +33,7 @@ import androidx.camera.core.impl.ImageReaderProxy
 import androidx.camera.core.impl.OptionsBundle
 import androidx.camera.core.impl.OutputSurface
 import androidx.camera.core.impl.RequestProcessor
+import androidx.camera.core.impl.RestrictedCameraControl
 import androidx.camera.core.impl.SessionConfig
 import androidx.camera.core.impl.SessionProcessor
 import androidx.camera.core.impl.SessionProcessorSurface
@@ -46,8 +47,8 @@ const val FAKE_CAPTURE_SEQUENCE_ID = 1
 
 @RequiresApi(28) // writing to PRIVATE surface requires API 28+
 class FakeSessionProcessor(
-    val inputFormatPreview: Int?,
-    val inputFormatCapture: Int?
+    val inputFormatPreview: Int? = null,
+    val inputFormatCapture: Int? = null
 ) : SessionProcessor {
     private lateinit var previewProcessorSurface: DeferrableSurface
     private lateinit var captureProcessorSurface: DeferrableSurface
@@ -76,6 +77,9 @@ class FakeSessionProcessor(
 
     private var rotationDegrees = 0
     private var jpegQuality = 100
+
+    @RestrictedCameraControl.CameraOperation
+    var restrictedCameraOperations: Set<Int> = emptySet()
 
     fun releaseSurfaces() {
         intermediaPreviewImageReader?.close()
@@ -213,6 +217,11 @@ class FakeSessionProcessor(
 
     fun getLatestParameters(): Config {
         return latestParameters
+    }
+
+    @RestrictedCameraControl.CameraOperation
+    override fun getSupportedCameraOperations(): Set<Int> {
+        return restrictedCameraOperations
     }
 
     override fun startRepeating(callback: SessionProcessor.CaptureCallback): Int {

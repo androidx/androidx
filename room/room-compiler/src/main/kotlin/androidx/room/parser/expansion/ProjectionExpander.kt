@@ -55,7 +55,7 @@ class ProjectionExpander(
      * projection ('SELECT *') and converting its named binding templates to positional
      * templates (i.e. ':VVV' to '?').
      */
-    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    @VisibleForTesting
     fun interpret(
         query: ParsedQuery,
         pojo: Pojo?

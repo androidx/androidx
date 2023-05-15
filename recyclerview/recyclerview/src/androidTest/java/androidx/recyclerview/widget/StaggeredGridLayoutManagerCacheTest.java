@@ -23,6 +23,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import android.os.Build;
+import androidx.test.filters.FlakyTest;
 
 import androidx.test.filters.MediumTest;
 import androidx.test.filters.SdkSuppress;
@@ -92,6 +93,7 @@ public class StaggeredGridLayoutManagerCacheTest extends BaseStaggeredGridLayout
 
     @MediumTest
     @Test
+    @FlakyTest(bugId = 281085288)
     public void cacheAndPrefetch() throws Throwable {
         final Config config = (Config) mConfig.clone();
         setupByConfig(config);

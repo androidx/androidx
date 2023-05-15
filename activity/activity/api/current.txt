@@ -176,7 +176,7 @@ package androidx.activity.result {
   }
 
   public fun interface ActivityResultCallback<O> {
-    method public void onActivityResult(O? result);
+    method public void onActivityResult(O result);
   }
 
   public interface ActivityResultCaller {
@@ -255,15 +255,15 @@ package androidx.activity.result.contract {
 
   public abstract class ActivityResultContract<I, O> {
     ctor public ActivityResultContract();
-    method public abstract android.content.Intent createIntent(android.content.Context context, I? input);
-    method public androidx.activity.result.contract.ActivityResultContract.SynchronousResult<O>? getSynchronousResult(android.content.Context context, I? input);
-    method public abstract O! parseResult(int resultCode, android.content.Intent? intent);
+    method public abstract android.content.Intent createIntent(android.content.Context context, I input);
+    method public androidx.activity.result.contract.ActivityResultContract.SynchronousResult<O>? getSynchronousResult(android.content.Context context, I input);
+    method public abstract O parseResult(int resultCode, android.content.Intent? intent);
   }
 
   public static final class ActivityResultContract.SynchronousResult<T> {
-    ctor public ActivityResultContract.SynchronousResult(T? value);
-    method public T! getValue();
-    property public final T! value;
+    ctor public ActivityResultContract.SynchronousResult(T value);
+    method public T getValue();
+    property public final T value;
   }
 
   public final class ActivityResultContracts {

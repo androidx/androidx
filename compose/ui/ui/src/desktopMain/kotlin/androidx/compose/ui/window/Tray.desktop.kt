@@ -28,14 +28,14 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.toAwtImage
 import androidx.compose.ui.platform.DesktopPlatform
+import java.awt.PopupMenu
+import java.awt.SystemTray
+import java.awt.TrayIcon
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.receiveAsFlow
-import java.awt.PopupMenu
-import java.awt.SystemTray
-import java.awt.TrayIcon
 
 // In fact, this size doesn't affect anything on Windows/Linux, because they request what they
 // need, and not what we provide. It only affects macOs. This size will be scaled in asAwtImage to

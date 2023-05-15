@@ -16,12 +16,43 @@
 
 package androidx.wear.protolayout.expression.pipeline;
 
+import androidx.annotation.UiThread;
+import androidx.wear.protolayout.expression.proto.FixedProto.FixedDuration;
+
 import java.time.Duration;
 import java.time.Instant;
 
 /** Dynamic data nodes which yield durations. */
 class DurationNodes {
     private DurationNodes() {}
+
+    /** Dynamic duration node that has a fixed value. */
+    static class FixedDurationNode implements DynamicDataSourceNode<Duration> {
+        private final Duration mValue;
+        private final DynamicTypeValueReceiverWithPreUpdate<Duration> mDownstream;
+
+        FixedDurationNode(
+                FixedDuration protoNode,
+                DynamicTypeValueReceiverWithPreUpdate<Duration> downstream) {
+            this.mValue = Duration.ofSeconds(protoNode.getSeconds());
+            this.mDownstream = downstream;
+        }
+
+        @Override
+        @UiThread
+        public void preInit() {
+            mDownstream.onPreUpdate();
+        }
+
+        @Override
+        @UiThread
+        public void init() {
+            mDownstream.onData(mValue);
+        }
+
+        @Override
+        public void destroy() {}
+    }
 
     /** Dynamic duration node that gets the duration between two time instants. */
     static class BetweenInstancesNode

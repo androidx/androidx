@@ -16,12 +16,6 @@
 
 package androidx.wear.tiles.material;
 
-import static androidx.wear.tiles.ColorBuilders.argb;
-import static androidx.wear.tiles.LayoutElementBuilders.FONT_WEIGHT_BOLD;
-import static androidx.wear.tiles.LayoutElementBuilders.FONT_WEIGHT_MEDIUM;
-import static androidx.wear.tiles.LayoutElementBuilders.FONT_WEIGHT_NORMAL;
-import static androidx.wear.tiles.LayoutElementBuilders.TEXT_ALIGN_END;
-import static androidx.wear.tiles.LayoutElementBuilders.TEXT_OVERFLOW_ELLIPSIZE_END;
 import static androidx.wear.tiles.material.Typography.TYPOGRAPHY_BODY1;
 import static androidx.wear.tiles.material.Typography.TYPOGRAPHY_CAPTION2;
 import static androidx.wear.tiles.material.Typography.TYPOGRAPHY_TITLE1;
@@ -39,12 +33,6 @@ import android.graphics.Color;
 
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.wear.tiles.LayoutElementBuilders.Box;
-import androidx.wear.tiles.LayoutElementBuilders.Column;
-import androidx.wear.tiles.LayoutElementBuilders.FontStyle;
-import androidx.wear.tiles.ModifiersBuilders.Background;
-import androidx.wear.tiles.ModifiersBuilders.ElementMetadata;
-import androidx.wear.tiles.ModifiersBuilders.Modifiers;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -84,42 +72,59 @@ public class TextTest {
 
     @Test
     public void testTypography_body1() {
-        FontStyle fontStyle = getFontStyleBuilder(TYPOGRAPHY_BODY1, CONTEXT).build();
-        assertFontStyle(fontStyle, 16, FONT_WEIGHT_NORMAL, 0.01f, 20, TYPOGRAPHY_BODY1);
+        androidx.wear.tiles.LayoutElementBuilders.FontStyle fontStyle =
+                getFontStyleBuilder(TYPOGRAPHY_BODY1, CONTEXT).build();
+        assertFontStyle(
+                fontStyle,
+                16,
+                androidx.wear.tiles.LayoutElementBuilders.FONT_WEIGHT_NORMAL,
+                0.01f,
+                20,
+                TYPOGRAPHY_BODY1);
     }
 
     @Test
     public void testTypography_caption2() {
-        FontStyle fontStyle = getFontStyleBuilder(TYPOGRAPHY_CAPTION2, CONTEXT).build();
-        assertFontStyle(fontStyle, 12, FONT_WEIGHT_MEDIUM, 0.01f, 16, TYPOGRAPHY_CAPTION2);
+        androidx.wear.tiles.LayoutElementBuilders.FontStyle fontStyle =
+                getFontStyleBuilder(TYPOGRAPHY_CAPTION2, CONTEXT).build();
+        assertFontStyle(
+                fontStyle,
+                12,
+                androidx.wear.tiles.LayoutElementBuilders.FONT_WEIGHT_MEDIUM,
+                0.01f,
+                16,
+                TYPOGRAPHY_CAPTION2);
     }
 
     @Test
     public void testWrongElement() {
-        Column box = new Column.Builder().build();
+        androidx.wear.tiles.LayoutElementBuilders.Column box =
+                new androidx.wear.tiles.LayoutElementBuilders.Column.Builder().build();
 
         assertThat(Text.fromLayoutElement(box)).isNull();
     }
 
     @Test
     public void testWrongBox() {
-        Box box = new Box.Builder().build();
+        androidx.wear.tiles.LayoutElementBuilders.Box box =
+                new androidx.wear.tiles.LayoutElementBuilders.Box.Builder().build();
 
         assertThat(Text.fromLayoutElement(box)).isNull();
     }
 
     @Test
     public void testWrongTag() {
-        Box box =
-                new Box.Builder()
-                    .setModifiers(
-                        new Modifiers.Builder()
-                            .setMetadata(
-                                new ElementMetadata.Builder()
-                                    .setTagData("test".getBytes(UTF_8))
-                                    .build())
-                            .build())
-                    .build();
+        androidx.wear.tiles.LayoutElementBuilders.Box box =
+                new androidx.wear.tiles.LayoutElementBuilders.Box.Builder()
+                        .setModifiers(
+                                new androidx.wear.tiles.ModifiersBuilders.Modifiers.Builder()
+                                        .setMetadata(
+                                                new androidx.wear.tiles.ModifiersBuilders
+                                                                .ElementMetadata.Builder()
+                                                        .setTagData("test".getBytes(UTF_8))
+                                                        .build())
+                                        .build())
+                        .build();
 
         assertThat(Text.fromLayoutElement(box)).isNull();
     }
@@ -127,35 +132,45 @@ public class TextTest {
     @Test
     public void testText() {
         String textContent = "Testing text.";
-        Modifiers modifiers =
-                new Modifiers.Builder()
-                        .setBackground(new Background.Builder().setColor(argb(Color.BLUE)).build())
+        androidx.wear.tiles.ModifiersBuilders.Modifiers modifiers =
+                new androidx.wear.tiles.ModifiersBuilders.Modifiers.Builder()
+                        .setBackground(
+                                new androidx.wear.tiles.ModifiersBuilders.Background.Builder()
+                                        .setColor(
+                                                androidx.wear.tiles.ColorBuilders.argb(Color.BLUE))
+                                        .build())
                         .build();
         int color = Color.YELLOW;
         Text text =
                 new Text.Builder(CONTEXT, textContent)
                         .setItalic(true)
-                        .setColor(argb(color))
+                        .setColor(androidx.wear.tiles.ColorBuilders.argb(color))
                         .setTypography(TYPOGRAPHY_TITLE1)
                         .setUnderline(true)
                         .setMaxLines(2)
                         .setModifiers(modifiers)
-                        .setOverflow(TEXT_OVERFLOW_ELLIPSIZE_END)
-                        .setMultilineAlignment(TEXT_ALIGN_END)
-                        .setWeight(FONT_WEIGHT_BOLD)
+                        .setOverflow(
+                                androidx.wear.tiles.LayoutElementBuilders
+                                        .TEXT_OVERFLOW_ELLIPSIZE_END)
+                        .setMultilineAlignment(
+                                androidx.wear.tiles.LayoutElementBuilders.TEXT_ALIGN_END)
+                        .setWeight(androidx.wear.tiles.LayoutElementBuilders.FONT_WEIGHT_BOLD)
                         .build();
 
-        FontStyle expectedFontStyle =
+        androidx.wear.tiles.LayoutElementBuilders.FontStyle expectedFontStyle =
                 getFontStyleBuilder(TYPOGRAPHY_TITLE1, CONTEXT)
                         .setItalic(true)
                         .setUnderline(true)
-                        .setColor(argb(color))
-                        .setWeight(FONT_WEIGHT_BOLD)
+                        .setColor(androidx.wear.tiles.ColorBuilders.argb(color))
+                        .setWeight(androidx.wear.tiles.LayoutElementBuilders.FONT_WEIGHT_BOLD)
                         .build();
 
         assertTextIsEqual(text, textContent, modifiers, color, expectedFontStyle);
 
-        Box box = new Box.Builder().addContent(text).build();
+        androidx.wear.tiles.LayoutElementBuilders.Box box =
+                new androidx.wear.tiles.LayoutElementBuilders.Box.Builder()
+                        .addContent(text)
+                        .build();
         Text newText = Text.fromLayoutElement(box.getContents().get(0));
         assertThat(newText).isNotNull();
         assertTextIsEqual(newText, textContent, modifiers, color, expectedFontStyle);
@@ -166,24 +181,26 @@ public class TextTest {
     private void assertTextIsEqual(
             Text actualText,
             String expectedTextContent,
-            Modifiers expectedModifiers,
+            androidx.wear.tiles.ModifiersBuilders.Modifiers expectedModifiers,
             int expectedColor,
-            FontStyle expectedFontStyle) {
+            androidx.wear.tiles.LayoutElementBuilders.FontStyle expectedFontStyle) {
         assertThat(actualText.getFontStyle().toProto()).isEqualTo(expectedFontStyle.toProto());
         assertThat(actualText.getText()).isEqualTo(expectedTextContent);
         assertThat(actualText.getColor().getArgb()).isEqualTo(expectedColor);
         assertThat(actualText.getMetadataTag()).isEqualTo(Text.METADATA_TAG);
         assertThat(actualText.getModifiers().toProto())
                 .isEqualTo(Text.Builder.addTagToModifiers(expectedModifiers).toProto());
-        assertThat(actualText.getOverflow()).isEqualTo(TEXT_OVERFLOW_ELLIPSIZE_END);
-        assertThat(actualText.getMultilineAlignment()).isEqualTo(TEXT_ALIGN_END);
+        assertThat(actualText.getOverflow())
+                .isEqualTo(androidx.wear.tiles.LayoutElementBuilders.TEXT_OVERFLOW_ELLIPSIZE_END);
+        assertThat(actualText.getMultilineAlignment())
+                .isEqualTo(androidx.wear.tiles.LayoutElementBuilders.TEXT_ALIGN_END);
         assertThat(actualText.getMaxLines()).isEqualTo(2);
         assertThat(actualText.getLineHeight())
                 .isEqualTo(getLineHeightForTypography(TYPOGRAPHY_TITLE1).getValue());
     }
 
     private void assertFontStyle(
-            FontStyle actualFontStyle,
+            androidx.wear.tiles.LayoutElementBuilders.FontStyle actualFontStyle,
             int expectedSize,
             int expectedWeight,
             float expectedLetterSpacing,

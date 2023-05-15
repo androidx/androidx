@@ -16,6 +16,7 @@
 
 package androidx.appactions.interaction.capabilities.core
 
+import androidx.annotation.RestrictTo
 import java.util.Objects
 
 /**
@@ -28,6 +29,7 @@ import java.util.Objects
  * @property possibleValues The possible values for grounding.
  *
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class EntitySearchResult<V> internal constructor(
     val possibleValues: List<V>,
 ) {

@@ -17,11 +17,14 @@
 package androidx.appactions.interaction.capabilities.core
 
 import android.util.SizeF
+import androidx.annotation.RestrictTo
 import java.util.Objects
 
 /**
- * HostProperties contains information about the host that can be used to customize behaviour for
- * different environments.
+ * HostProperties contains information about the connected assistant's environment which can be
+ * used to customize behaviour for the different assistant contexts.
+ *
+ * @property maxHostSizeDp the dimensions of the host area where the app content will be displayed.
  */
 class HostProperties internal constructor(val maxHostSizeDp: SizeF) {
     override fun toString() =
@@ -34,8 +37,9 @@ class HostProperties internal constructor(val maxHostSizeDp: SizeF) {
     override fun hashCode() = Objects.hash(maxHostSizeDp)
 
     /**
-     * Builder class for HostProperties.
+     * Builder class for [HostProperties].
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     class Builder {
         private var maxHostSizeDp: SizeF? = null
 

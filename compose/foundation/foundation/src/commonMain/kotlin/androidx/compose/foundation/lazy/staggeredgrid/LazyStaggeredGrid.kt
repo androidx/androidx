@@ -35,7 +35,7 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
-@ExperimentalFoundationApi
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 internal fun LazyStaggeredGrid(
     /** State controlling the scroll position */
@@ -72,7 +72,7 @@ internal fun LazyStaggeredGrid(
         orientation,
         mainAxisSpacing,
         crossAxisSpacing,
-        slots
+        slots,
     )
     val semanticState = rememberLazyStaggeredGridSemanticState(state, reverseLayout)
 
@@ -81,7 +81,20 @@ internal fun LazyStaggeredGrid(
     LazyLayout(
         modifier = modifier
             .then(state.remeasurementModifier)
+            .then(state.awaitLayoutModifier)
+            .lazyLayoutSemantics(
+                itemProvider = itemProvider,
+                state = semanticState,
+                orientation = orientation,
+                userScrollEnabled = userScrollEnabled,
+                reverseScrolling = reverseLayout
+            )
             .clipScrollableContainer(orientation)
+            .lazyStaggeredGridBeyondBoundsModifier(
+                state = state,
+                reverseLayout = reverseLayout,
+                orientation = orientation
+            )
             .overscroll(overscrollEffect)
             .scrollable(
                 orientation = orientation,
@@ -95,13 +108,6 @@ internal fun LazyStaggeredGrid(
                 state = state,
                 overscrollEffect = overscrollEffect,
                 enabled = userScrollEnabled
-            )
-            .lazyLayoutSemantics(
-                itemProvider = itemProvider,
-                state = semanticState,
-                orientation = orientation,
-                userScrollEnabled = userScrollEnabled,
-                reverseScrolling = reverseLayout
             ),
         prefetchState = state.prefetchState,
         itemProvider = itemProvider,

@@ -20,8 +20,8 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
-import androidx.work.impl.utils.toMillisCompat
 import androidx.work.impl.model.WorkSpec
+import androidx.work.impl.utils.toMillisCompat
 import java.time.Duration
 import java.util.UUID
 import java.util.concurrent.TimeUnit
@@ -224,7 +224,7 @@ abstract class WorkRequest internal constructor(
          * Sets an initial delay for the [WorkRequest].
          *
          * @param duration The length of the delay
-         * @return The current [Builder]         *
+         * @return The current [Builder]
          * @throws IllegalArgumentException if the given initial delay will push the execution time
          * past `Long.MAX_VALUE` and cause an overflow
          */

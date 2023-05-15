@@ -16,8 +16,11 @@
 
 package androidx.appactions.interaction.capabilities.core
 
+import androidx.annotation.RestrictTo
 import java.util.Objects
+
 /** Result from validating a single argument value. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class ValidationResult internal constructor(
     val kind: Kind,
 ) {

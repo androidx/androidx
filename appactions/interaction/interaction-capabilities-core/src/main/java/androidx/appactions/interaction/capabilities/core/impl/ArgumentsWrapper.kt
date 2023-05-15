@@ -54,7 +54,7 @@ internal constructor(
             ) {
                 null
             } else {
-                RequestMetadata.newBuilder().setRequestType(fulfillment.type).build()
+                RequestMetadata(fulfillment.type)
             }
         }
 

@@ -16,9 +16,9 @@
 
 package androidx.navigation.safe.args.generator
 
+import java.io.Reader
 import org.xmlpull.v1.XmlPullParser
 import org.xmlpull.v1.XmlPullParserFactory
-import java.io.Reader
 
 internal class XmlPositionParser(private val name: String, reader: Reader, val logger: NavLogger) {
     private var startLine = 0

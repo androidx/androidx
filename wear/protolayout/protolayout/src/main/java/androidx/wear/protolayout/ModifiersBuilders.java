@@ -449,10 +449,6 @@ public final class ModifiersBuilders {
          * Gets the content description associated with this element. This will be dictated when the
          * element is focused by the screen reader.
          *
-         * <p>This field is made bindable from version 1.2 and will use the dynamic value (if set).
-         * Older renderers will still consider this field as non-bindable and will use the static
-         * value.
-         *
          * @since 1.0
          */
         @Nullable
@@ -577,9 +573,8 @@ public final class ModifiersBuilders {
              * Sets the content description associated with this element. This will be dictated when
              * the element is focused by the screen reader.
              *
-             * <p>This field is made bindable and will use the dynamic value (if set) from version
-             * 1.2 Older renderers will still consider this field as non-bindable and will use the
-             * static value.
+             * <p>While this field is statically accessible from 1.0, it's only bindable since
+             * version 1.2 and renderers supporting version 1.2 will use the dynamic value (if set).
              *
              * @since 1.0
              */
@@ -921,9 +916,8 @@ public final class ModifiersBuilders {
             /**
              * Sets the color of the border.
              *
-             * <p>This field is made bindable and will use the dynamic value (if set) from version
-             * 1.2 Older renderers will still consider this field as non-bindable and will use the
-             * static value.
+             * <p>While this field is statically accessible from 1.0, it's only bindable since
+             * version 1.2 and renderers supporting version 1.2 will use the dynamic value (if set).
              *
              * @since 1.0
              */
@@ -1110,9 +1104,8 @@ public final class ModifiersBuilders {
              * Sets the background color for this element. If not defined, defaults to being
              * transparent.
              *
-             * <p>This field is made bindable and supports dynamic colors from version 1.2 Older
-             * renderers will still consider this field as non-bindable and will use the static
-             * value.
+             * <p>While this field is statically accessible from 1.0, it's only bindable since
+             * version 1.2 and renderers supporting version 1.2 will use the dynamic value (if set).
              *
              * @since 1.0
              */

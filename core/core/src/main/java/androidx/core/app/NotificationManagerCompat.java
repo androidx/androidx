@@ -17,7 +17,6 @@
 package androidx.core.app;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
-import static androidx.annotation.RestrictTo.Scope.TESTS;
 
 import android.Manifest;
 import android.app.AppOpsManager;
@@ -222,9 +221,8 @@ public final class NotificationManagerCompat {
                 Context.NOTIFICATION_SERVICE);
     }
 
-    @RestrictTo(TESTS)
     @VisibleForTesting
-    protected NotificationManagerCompat(@NonNull NotificationManager notificationManager,
+    NotificationManagerCompat(@NonNull NotificationManager notificationManager,
             @NonNull Context context) {
         mContext = context;
         mNotificationManager = notificationManager;

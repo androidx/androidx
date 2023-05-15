@@ -23,7 +23,7 @@ message OnLoadTrigger {}
 // condition is true initially, that will fire the trigger on load.
 message OnConditionMetTrigger {
   // Dynamic boolean used as trigger.
-  androidx.wear.protolayout.expression.proto.DynamicBool trigger = 1;
+  androidx.wear.protolayout.expression.proto.DynamicBool condition = 1;
 }
 
 // The triggers that can be fired.

@@ -29,7 +29,7 @@
     <string name="mcv2_non_music_title_unknown_text" msgid="2032814146738922144">"影片標題不明"</string>
     <string name="mcv2_music_title_unknown_text" msgid="6037645626002038645">"歌名不明"</string>
     <string name="mcv2_music_artist_unknown_text" msgid="5393558204040775454">"歌手不明"</string>
-    <string name="mcv2_playback_error_text" msgid="6061787693725630293">"無法播放您要求的影片"</string>
+    <string name="mcv2_playback_error_text" msgid="6061787693725630293">"無法播放你要求的影片"</string>
     <string name="mcv2_error_dialog_button" msgid="5940167897992933850">"好"</string>
     <string name="mcv2_back_button_desc" msgid="1540894858499118373">"返回"</string>
     <string name="mcv2_overflow_left_button_desc" msgid="2749567167276435888">"返回上一個按鈕清單"</string>

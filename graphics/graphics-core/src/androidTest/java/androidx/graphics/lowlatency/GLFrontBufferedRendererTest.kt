@@ -25,6 +25,7 @@ import android.os.Build
 import android.view.SurfaceHolder
 import android.view.SurfaceView
 import androidx.annotation.RequiresApi
+import androidx.graphics.opengl.GLRenderer
 import androidx.graphics.opengl.egl.EGLManager
 import androidx.graphics.surface.SurfaceControlCompat
 import androidx.graphics.surface.SurfaceControlUtils
@@ -37,9 +38,11 @@ import androidx.test.platform.app.InstrumentationRegistry
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
+import kotlin.IllegalStateException
 import kotlin.math.roundToInt
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
+import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
 import org.junit.Ignore
@@ -750,7 +753,9 @@ class GLFrontBufferedRendererTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.TIRAMISU)
     fun testUsageFlagContainsFrontBufferUsage() {
         val usageFlags = FrontBufferUtils.obtainHardwareBufferUsageFlags()
-        if (UsageFlagsVerificationHelper.isSupported(HardwareBuffer.USAGE_FRONT_BUFFER)) {
+        // See b/280866371
+        if (UsageFlagsVerificationHelper.isSupported(HardwareBuffer.USAGE_FRONT_BUFFER) &&
+            !Build.MODEL.contains("Cuttlefish")) {
             assertNotEquals(0, usageFlags and HardwareBuffer.USAGE_FRONT_BUFFER)
         } else {
             assertEquals(0, usageFlags and HardwareBuffer.USAGE_FRONT_BUFFER)
@@ -1215,6 +1220,247 @@ class GLFrontBufferedRendererTest {
             )
         } finally {
             renderer.blockingRelease(10000)
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
+    @Test
+    fun testReleaseRemovedSurfaceCallbacks() {
+        val callbacks = object : GLFrontBufferedRenderer.Callback<Any> {
+            override fun onDrawFrontBufferedLayer(
+                eglManager: EGLManager,
+                bufferInfo: BufferInfo,
+                transform: FloatArray,
+                param: Any
+            ) {
+                // NO-OP
+            }
+
+            override fun onDrawMultiBufferedLayer(
+                eglManager: EGLManager,
+                bufferInfo: BufferInfo,
+                transform: FloatArray,
+                params: Collection<Any>
+            ) {
+                // NO-OP
+            }
+        }
+        var renderer: GLFrontBufferedRenderer<Any>? = null
+        var surfaceView: FrontBufferedRendererTestActivity.TestSurfaceView? = null
+        val createLatch = CountDownLatch(1)
+        ActivityScenario.launch(FrontBufferedRendererTestActivity::class.java)
+            .moveToState(Lifecycle.State.CREATED)
+            .onActivity {
+                surfaceView = it.getSurfaceView()
+                renderer = GLFrontBufferedRenderer(surfaceView!!, callbacks)
+                createLatch.countDown()
+            }
+
+        assertTrue(createLatch.await(3000, TimeUnit.MILLISECONDS))
+        // Capture surfaceView with local val to avoid Kotlin warnings regarding the surfaceView
+        // parameter changing potentially
+        val resolvedSurfaceView = surfaceView
+        try {
+            if (resolvedSurfaceView != null) {
+                assertEquals(1, resolvedSurfaceView.getCallbackCount())
+                val releaseLatch = CountDownLatch(1)
+                renderer!!.release(true) {
+                    releaseLatch.countDown()
+                }
+                assertTrue(releaseLatch.await(3000, TimeUnit.MILLISECONDS))
+                assertEquals(0, resolvedSurfaceView.getCallbackCount())
+                renderer = null
+            } else {
+                fail("Unable to resolve SurfaceView, was the test Activity created?")
+            }
+        } finally {
+            renderer?.blockingRelease()
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
+    @Test
+    fun testGLFrontBufferedRendererCreationFromUnstartedGLRenderer() {
+        val callbacks = object : GLFrontBufferedRenderer.Callback<Any> {
+            override fun onDrawFrontBufferedLayer(
+                eglManager: EGLManager,
+                bufferInfo: BufferInfo,
+                transform: FloatArray,
+                param: Any
+            ) {
+                // NO-OP
+            }
+
+            override fun onDrawMultiBufferedLayer(
+                eglManager: EGLManager,
+                bufferInfo: BufferInfo,
+                transform: FloatArray,
+                params: Collection<Any>
+            ) {
+                // NO-OP
+            }
+        }
+        ActivityScenario.launch(FrontBufferedRendererTestActivity::class.java)
+            .moveToState(Lifecycle.State.CREATED)
+            .onActivity {
+                assertThrows(IllegalStateException::class.java) {
+                    GLFrontBufferedRenderer(it.getSurfaceView(), callbacks, GLRenderer())
+                }
+            }
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
+    @Test
+    fun testFrontBufferClearAfterRender() {
+        var frontLatch = CountDownLatch(1)
+        val commitLatch = CountDownLatch(1)
+        val executor = Executors.newSingleThreadExecutor()
+        val callbacks = object : GLFrontBufferedRenderer.Callback<Any> {
+
+            private val mOrthoMatrix = FloatArray(16)
+            private val mProjectionMatrix = FloatArray(16)
+
+            // Should only render once
+            private var mShouldRender = true
+
+            override fun onDrawFrontBufferedLayer(
+                eglManager: EGLManager,
+                bufferInfo: BufferInfo,
+                transform: FloatArray,
+                param: Any
+            ) {
+                if (mShouldRender) {
+                    GLES20.glViewport(0, 0, bufferInfo.width, bufferInfo.height)
+                    Matrix.orthoM(
+                        mOrthoMatrix,
+                        0,
+                        0f,
+                        bufferInfo.width.toFloat(),
+                        0f,
+                        bufferInfo.height.toFloat(),
+                        -1f,
+                        1f
+                    )
+                    Matrix.multiplyMM(mProjectionMatrix, 0, mOrthoMatrix, 0, transform, 0)
+                    Rectangle().draw(mProjectionMatrix, Color.RED, 0f, 0f, 100f, 100f)
+                    mShouldRender = false
+                }
+            }
+
+            override fun onDrawMultiBufferedLayer(
+                eglManager: EGLManager,
+                bufferInfo: BufferInfo,
+                transform: FloatArray,
+                params: Collection<Any>
+            ) {
+                GLES20.glViewport(0, 0, bufferInfo.width, bufferInfo.height)
+                Matrix.orthoM(
+                    mOrthoMatrix,
+                    0,
+                    0f,
+                    bufferInfo.width.toFloat(),
+                    0f,
+                    bufferInfo.height.toFloat(),
+                    -1f,
+                    1f
+                )
+                Matrix.multiplyMM(mProjectionMatrix, 0, mOrthoMatrix, 0, transform, 0)
+                Rectangle().draw(mProjectionMatrix, Color.BLUE, 0f, 0f, 100f, 100f)
+            }
+
+            override fun onMultiBufferedLayerRenderComplete(
+                frontBufferedLayerSurfaceControl: SurfaceControlCompat,
+                transaction: SurfaceControlCompat.Transaction
+            ) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    transaction.addTransactionCommittedListener(
+                        executor,
+                        object : SurfaceControlCompat.TransactionCommittedListener {
+                            override fun onTransactionCommitted() {
+                                commitLatch.countDown()
+                            }
+                        })
+                } else {
+                    commitLatch.countDown()
+                }
+            }
+
+            override fun onFrontBufferedLayerRenderComplete(
+                frontBufferedLayerSurfaceControl: SurfaceControlCompat,
+                transaction: SurfaceControlCompat.Transaction
+            ) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    transaction.addTransactionCommittedListener(
+                        executor,
+                        object : SurfaceControlCompat.TransactionCommittedListener {
+                            override fun onTransactionCommitted() {
+                                frontLatch.countDown()
+                            }
+                        })
+                } else {
+                    frontLatch.countDown()
+                }
+            }
+        }
+        var renderer: GLFrontBufferedRenderer<Any>? = null
+        var surfaceView: SurfaceView? = null
+        try {
+            val scenario = ActivityScenario.launch(FrontBufferedRendererTestActivity::class.java)
+                .moveToState(Lifecycle.State.CREATED)
+                .onActivity {
+                    surfaceView = it.getSurfaceView()
+                    renderer = GLFrontBufferedRenderer(surfaceView!!, callbacks)
+                }
+
+            scenario.moveToState(Lifecycle.State.RESUMED).onActivity {
+                renderer?.renderFrontBufferedLayer(Any())
+                assertTrue(frontLatch.await(3000, TimeUnit.MILLISECONDS))
+                renderer?.commit()
+
+                assertTrue(commitLatch.await(3000, TimeUnit.MILLISECONDS))
+                // Contents should be cleared and the front buffer should be visible but transparent
+                frontLatch = CountDownLatch(1)
+                renderer?.renderFrontBufferedLayer(Any())
+            }
+            assertTrue(frontLatch.await(3000, TimeUnit.MILLISECONDS))
+
+            val coords = IntArray(2)
+            val width: Int
+            val height: Int
+            with(surfaceView!!) {
+                getLocationOnScreen(coords)
+                width = this.width
+                height = this.height
+            }
+
+            SurfaceControlUtils.validateOutput { bitmap ->
+                (Math.abs(
+                    Color.red(Color.BLUE) - Color.red(
+                        bitmap.getPixel(
+                            coords[0] + width / 2,
+                            coords[1] + height / 2
+                        )
+                    )
+                ) < 2) &&
+                    (Math.abs(
+                        Color.green(Color.BLUE) - Color.green(
+                            bitmap.getPixel(
+                                coords[0] + width / 2,
+                                coords[1] + height / 2
+                            )
+                        )
+                    ) < 2) &&
+                    (Math.abs(
+                        Color.blue(Color.BLUE) - Color.blue(
+                            bitmap.getPixel(
+                                coords[0] + width / 2,
+                                coords[1] + height / 2
+                            )
+                        )
+                    ) < 2)
+            }
+        } finally {
+            renderer.blockingRelease()
         }
     }
 

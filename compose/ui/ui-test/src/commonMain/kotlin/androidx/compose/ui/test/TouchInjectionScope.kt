@@ -19,12 +19,12 @@ package androidx.compose.ui.test
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.lerp
 import androidx.compose.ui.platform.ViewConfiguration
+import androidx.compose.ui.test.internal.JvmDefaultWithCompatibility
 import androidx.compose.ui.util.lerp
 import kotlin.math.ceil
 import kotlin.math.max
 import kotlin.math.roundToInt
 import kotlin.math.roundToLong
-import androidx.compose.ui.test.internal.JvmDefaultWithCompatibility
 
 /**
  * The receiver scope of the touch input injection lambda from [performTouchInput].

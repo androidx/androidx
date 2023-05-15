@@ -108,7 +108,7 @@ fun TextRange(index: Int): TextRange = TextRange(start = index, end = index)
  * @param minimumValue the minimum value that [TextRange.start] or [TextRange.end] can be.
  * @param maximumValue the exclusive maximum value that [TextRange.start] or [TextRange.end] can be.
  */
-fun TextRange.constrain(minimumValue: Int, maximumValue: Int): TextRange {
+fun TextRange.coerceIn(minimumValue: Int, maximumValue: Int): TextRange {
     val newStart = start.coerceIn(minimumValue, maximumValue)
     val newEnd = end.coerceIn(minimumValue, maximumValue)
     if (newStart != start || newEnd != end) {

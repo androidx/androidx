@@ -34,6 +34,7 @@ import com.intellij.psi.PsiWhiteSpace
 import com.intellij.psi.impl.source.PsiImmediateClassType
 import org.jetbrains.kotlin.asJava.elements.KtLightTypeParameter
 import org.jetbrains.kotlin.psi.KtCallExpression
+import org.jetbrains.kotlin.psi.KtCallableDeclaration
 import org.jetbrains.kotlin.psi.KtNullableType
 import org.jetbrains.kotlin.psi.KtTypeReference
 import org.jetbrains.uast.UAnnotated
@@ -46,6 +47,7 @@ import org.jetbrains.uast.isNullLiteral
 import org.jetbrains.uast.kotlin.KotlinUField
 import org.jetbrains.uast.kotlin.KotlinUSimpleReferenceExpression
 import org.jetbrains.uast.resolveToUElement
+import org.jetbrains.uast.toUElement
 
 /**
  * Lint check for ensuring that [androidx.lifecycle.MutableLiveData] values are never null when
@@ -211,7 +213,7 @@ class NonNullableMutableLiveDataDetector : Detector(), UastScanner {
                     "Cannot set non-nullable LiveData value to `null`",
                     fixes
                 )
-            } else if (argument.isNullable()) {
+            } else if (argument.isNullable(context)) {
                 fixes.add(
                     fix().name("Add non-null asserted (!!) call")
                         .replace().with("!!").range(context.getLocation(argument)).end().build()
@@ -258,10 +260,17 @@ class NonNullableMutableLiveDataDetector : Detector(), UastScanner {
  *
  * @return `true` if instance is nullable, `false` otherwise.
  */
-internal fun UElement.isNullable(): Boolean {
+internal fun UElement.isNullable(context: JavaContext): Boolean {
     if (this is UCallExpression) {
         val psiMethod = resolve() ?: return false
-        return psiMethod.hasAnnotation(NULLABLE_ANNOTATION)
+        val sourceMethod = psiMethod.toUElement()?.sourcePsi
+        if (sourceMethod is KtCallableDeclaration) {
+            // if we have source, check the suspend return type
+            return sourceMethod.typeReference?.typeElement is KtNullableType
+        }
+        // Suspend functions have @Nullable Object return type in JVM
+        val isSuspendMethod = !context.evaluator.isSuspend(psiMethod)
+        return psiMethod.hasAnnotation(NULLABLE_ANNOTATION) && isSuspendMethod
     } else if (this is UReferenceExpression) {
         return (resolveToUElement() as? UAnnotated)?.findAnnotation(NULLABLE_ANNOTATION) != null
     }

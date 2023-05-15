@@ -16,7 +16,6 @@
 
 package androidx.wear.compose.material3
 
-import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.State
@@ -38,14 +37,13 @@ internal fun <T> provideScopeContent(
     }
 }
 
-internal fun provideIcon(
-    iconColor: State<Color>,
-    content: (@Composable BoxScope.() -> Unit)
-): (@Composable BoxScope.() -> Unit) = {
-    val color = iconColor.value
+internal fun <T> provideScopeContent(
+    color: State<Color>,
+    content: (@Composable T.() -> Unit)
+): (@Composable T.() -> Unit) = {
     CompositionLocalProvider(
-        LocalContentColor provides color,
-        LocalContentAlpha provides color.alpha,
+        LocalContentColor provides color.value,
+        LocalContentAlpha provides color.value.alpha,
     ) {
         content()
     }

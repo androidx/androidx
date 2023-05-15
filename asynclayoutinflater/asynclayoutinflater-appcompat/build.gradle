@@ -13,10 +13,11 @@ dependencies {
 }
 
 androidx {
-    name = "AsyncLayoutInflater integration for AppCompat"
+    name = "AsyncLayoutInflater AppCompat"
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2022"
-    description = "A thread-safe LayoutInflater Factory that provides compatibility between AsyncLayoutInflater and AppCompat."
+    description = "A thread-safe LayoutInflater Factory that provides compatibility between " +
+            "AsyncLayoutInflater and AppCompat."
 }
 
 android {

@@ -34,11 +34,11 @@ import androidx.core.view.children
 import androidx.glance.layout.Alignment
 import com.google.common.truth.FailureMetadata
 import com.google.common.truth.Subject
-import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertAbout
-import org.robolectric.Shadows.shadowOf
+import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertIs
 import kotlin.test.assertNotNull
+import org.robolectric.Shadows.shadowOf
 
 internal open class ViewSubject(
     metaData: FailureMetadata,

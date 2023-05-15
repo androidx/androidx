@@ -16,12 +16,12 @@
 
 package androidx.privacysandbox.ads.adservices.java.appsetid
 
-import androidx.privacysandbox.ads.adservices.java.internal.asListenableFuture
 import android.content.Context
 import android.os.LimitExceededException
 import androidx.annotation.DoNotInline
 import androidx.privacysandbox.ads.adservices.appsetid.AppSetId
 import androidx.privacysandbox.ads.adservices.appsetid.AppSetIdManager
+import androidx.privacysandbox.ads.adservices.java.internal.asListenableFuture
 import com.google.common.util.concurrent.ListenableFuture
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -46,7 +46,7 @@ abstract class AppSetIdManagerFutures internal constructor() {
     ) : AppSetIdManagerFutures() {
         @DoNotInline
         override fun getAppSetIdAsync(): ListenableFuture<AppSetId> {
-            return CoroutineScope(Dispatchers.Main).async {
+            return CoroutineScope(Dispatchers.Default).async {
                 mAppSetIdManager.getAppSetId()
             }.asListenableFuture()
         }

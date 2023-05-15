@@ -866,7 +866,7 @@ package androidx.core.app {
     method public static android.app.PendingIntent getActivities(android.content.Context, int, android.content.Intent![], int, boolean);
     method public static android.app.PendingIntent getActivity(android.content.Context, int, android.content.Intent, int, boolean);
     method public static android.app.PendingIntent getActivity(android.content.Context, int, android.content.Intent, int, android.os.Bundle, boolean);
-    method public static android.app.PendingIntent getBroadcast(android.content.Context, int, android.content.Intent, int, boolean);
+    method public static android.app.PendingIntent? getBroadcast(android.content.Context, int, android.content.Intent, int, boolean);
     method @RequiresApi(26) public static android.app.PendingIntent getForegroundService(android.content.Context, int, android.content.Intent, int, boolean);
     method public static android.app.PendingIntent getService(android.content.Context, int, android.content.Intent, int, boolean);
   }
@@ -1078,6 +1078,7 @@ package androidx.core.content {
     method @ColorInt public static int getColor(android.content.Context, @ColorRes int);
     method public static android.content.res.ColorStateList? getColorStateList(android.content.Context, @ColorRes int);
     method public static java.io.File? getDataDir(android.content.Context);
+    method public static android.view.Display getDisplayOrDefault(@DisplayContext android.content.Context);
     method public static android.graphics.drawable.Drawable? getDrawable(android.content.Context, @DrawableRes int);
     method public static java.io.File![] getExternalCacheDirs(android.content.Context);
     method public static java.io.File![] getExternalFilesDirs(android.content.Context, String?);
@@ -2179,6 +2180,14 @@ package androidx.core.text {
 
 }
 
+package androidx.core.text.method {
+
+  public class LinkMovementMethodCompat extends android.text.method.LinkMovementMethod {
+    method public static androidx.core.text.method.LinkMovementMethodCompat getInstance();
+  }
+
+}
+
 package androidx.core.text.util {
 
   public final class LinkifyCompat {
@@ -2396,6 +2405,31 @@ package androidx.core.view {
     field public static final int RELATIVE_HORIZONTAL_GRAVITY_MASK = 8388615; // 0x800007
     field public static final int RELATIVE_LAYOUT_DIRECTION = 8388608; // 0x800000
     field public static final int START = 8388611; // 0x800003
+  }
+
+  public final class HapticFeedbackConstantsCompat {
+    field public static final int CLOCK_TICK = 4; // 0x4
+    field public static final int CONFIRM = 16; // 0x10
+    field public static final int CONTEXT_CLICK = 6; // 0x6
+    field public static final int DRAG_START = 25; // 0x19
+    field public static final int FLAG_IGNORE_VIEW_SETTING = 1; // 0x1
+    field public static final int GESTURE_END = 13; // 0xd
+    field public static final int GESTURE_START = 12; // 0xc
+    field public static final int GESTURE_THRESHOLD_ACTIVATE = 23; // 0x17
+    field public static final int GESTURE_THRESHOLD_DEACTIVATE = 24; // 0x18
+    field public static final int KEYBOARD_PRESS = 3; // 0x3
+    field public static final int KEYBOARD_RELEASE = 7; // 0x7
+    field public static final int KEYBOARD_TAP = 3; // 0x3
+    field public static final int LONG_PRESS = 0; // 0x0
+    field public static final int NO_HAPTICS = -1; // 0xffffffff
+    field public static final int REJECT = 17; // 0x11
+    field public static final int SEGMENT_FREQUENT_TICK = 27; // 0x1b
+    field public static final int SEGMENT_TICK = 26; // 0x1a
+    field public static final int TEXT_HANDLE_MOVE = 9; // 0x9
+    field public static final int TOGGLE_OFF = 22; // 0x16
+    field public static final int TOGGLE_ON = 21; // 0x15
+    field public static final int VIRTUAL_KEY = 1; // 0x1
+    field public static final int VIRTUAL_KEY_RELEASE = 8; // 0x8
   }
 
   public final class InputDeviceCompat {
@@ -2723,6 +2757,12 @@ package androidx.core.view {
     method public int computeVerticalScrollRange();
   }
 
+  public final class SoftwareKeyboardControllerCompat {
+    ctor public SoftwareKeyboardControllerCompat(android.view.View);
+    method public void hide();
+    method public void show();
+  }
+
   public interface TintableBackgroundView {
     method public android.content.res.ColorStateList? getSupportBackgroundTintList();
     method public android.graphics.PorterDuff.Mode? getSupportBackgroundTintMode();
@@ -2839,6 +2879,8 @@ package androidx.core.view {
     method public static void onInitializeAccessibilityNodeInfo(android.view.View, androidx.core.view.accessibility.AccessibilityNodeInfoCompat);
     method @Deprecated public static void onPopulateAccessibilityEvent(android.view.View!, android.view.accessibility.AccessibilityEvent!);
     method public static boolean performAccessibilityAction(android.view.View, int, android.os.Bundle?);
+    method public static boolean performHapticFeedback(android.view.View, int);
+    method public static boolean performHapticFeedback(android.view.View, int, int);
     method public static androidx.core.view.ContentInfoCompat? performReceiveContent(android.view.View, androidx.core.view.ContentInfoCompat);
     method public static void postInvalidateOnAnimation(android.view.View);
     method public static void postInvalidateOnAnimation(android.view.View, int, int, int, int);

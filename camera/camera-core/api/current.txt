@@ -25,8 +25,9 @@ package androidx.camera.core {
   }
 
   @RequiresApi(21) public abstract class CameraEffect {
-    ctor protected CameraEffect(int, java.util.concurrent.Executor, androidx.camera.core.ImageProcessor);
-    ctor protected CameraEffect(int, java.util.concurrent.Executor, androidx.camera.core.SurfaceProcessor);
+    ctor protected CameraEffect(int, java.util.concurrent.Executor, androidx.camera.core.ImageProcessor, androidx.core.util.Consumer<java.lang.Throwable!>);
+    ctor protected CameraEffect(int, java.util.concurrent.Executor, androidx.camera.core.SurfaceProcessor, androidx.core.util.Consumer<java.lang.Throwable!>);
+    method public androidx.core.util.Consumer<java.lang.Throwable!> getErrorListener();
     method public java.util.concurrent.Executor getExecutor();
     method public androidx.camera.core.SurfaceProcessor? getSurfaceProcessor();
     method public int getTargets();
@@ -47,7 +48,7 @@ package androidx.camera.core {
     method public default int getLensFacing();
     method public int getSensorRotationDegrees();
     method public int getSensorRotationDegrees(int);
-    method public default java.util.List<android.util.Range<java.lang.Integer!>!> getSupportedFrameRateRanges();
+    method public default java.util.Set<android.util.Range<java.lang.Integer!>!> getSupportedFrameRateRanges();
     method public androidx.lifecycle.LiveData<java.lang.Integer!> getTorchState();
     method public androidx.lifecycle.LiveData<androidx.camera.core.ZoomState!> getZoomState();
     method public boolean hasFlashUnit();
@@ -213,7 +214,7 @@ package androidx.camera.core {
     method public boolean isOutputImageRotationEnabled();
     method public void setAnalyzer(java.util.concurrent.Executor, androidx.camera.core.ImageAnalysis.Analyzer);
     method public void setTargetRotation(int);
-    method public void setTargetRotationDegrees(int);
+    method @Deprecated public void setTargetRotationDegrees(int);
     field public static final int COORDINATE_SYSTEM_ORIGINAL = 0; // 0x0
     field public static final int OUTPUT_IMAGE_FORMAT_RGBA_8888 = 2; // 0x2
     field public static final int OUTPUT_IMAGE_FORMAT_YUV_420_888 = 1; // 0x1
@@ -253,7 +254,7 @@ package androidx.camera.core {
     method public void setCropAspectRatio(android.util.Rational);
     method public void setFlashMode(int);
     method public void setTargetRotation(int);
-    method public void setTargetRotationDegrees(int);
+    method @Deprecated public void setTargetRotationDegrees(int);
     method public void takePicture(java.util.concurrent.Executor, androidx.camera.core.ImageCapture.OnImageCapturedCallback);
     method public void takePicture(androidx.camera.core.ImageCapture.OutputFileOptions, java.util.concurrent.Executor, androidx.camera.core.ImageCapture.OnImageSavedCallback);
     field public static final int CAPTURE_MODE_MAXIMIZE_QUALITY = 0; // 0x0
@@ -385,6 +386,7 @@ package androidx.camera.core {
   @RequiresApi(21) public final class Preview extends androidx.camera.core.UseCase {
     method public androidx.camera.core.ResolutionInfo? getResolutionInfo();
     method public androidx.camera.core.resolutionselector.ResolutionSelector? getResolutionSelector();
+    method public android.util.Range<java.lang.Integer!> getTargetFrameRate();
     method public int getTargetRotation();
     method @UiThread public void setSurfaceProvider(java.util.concurrent.Executor, androidx.camera.core.Preview.SurfaceProvider?);
     method @UiThread public void setSurfaceProvider(androidx.camera.core.Preview.SurfaceProvider?);
@@ -396,6 +398,7 @@ package androidx.camera.core {
     method public androidx.camera.core.Preview build();
     method public androidx.camera.core.Preview.Builder setResolutionSelector(androidx.camera.core.resolutionselector.ResolutionSelector);
     method @Deprecated public androidx.camera.core.Preview.Builder setTargetAspectRatio(int);
+    method public androidx.camera.core.Preview.Builder setTargetFrameRate(android.util.Range<java.lang.Integer!>);
     method public androidx.camera.core.Preview.Builder setTargetName(String);
     method @Deprecated public androidx.camera.core.Preview.Builder setTargetResolution(android.util.Size);
     method public androidx.camera.core.Preview.Builder setTargetRotation(int);
@@ -409,10 +412,11 @@ package androidx.camera.core {
     ctor public ProcessingException();
   }
 
-  @RequiresApi(21) @com.google.auto.value.AutoValue public abstract class ResolutionInfo {
-    method public abstract android.graphics.Rect getCropRect();
-    method public abstract android.util.Size getResolution();
-    method public abstract int getRotationDegrees();
+  @RequiresApi(21) public class ResolutionInfo {
+    ctor public ResolutionInfo(android.util.Size, android.graphics.Rect, int);
+    method public android.graphics.Rect getCropRect();
+    method public android.util.Size getResolution();
+    method public int getRotationDegrees();
   }
 
   @RequiresApi(21) public class SurfaceOrientedMeteringPointFactory extends androidx.camera.core.MeteringPointFactory {
@@ -474,6 +478,7 @@ package androidx.camera.core {
   }
 
   @RequiresApi(21) public abstract class UseCase {
+    method public static int snapToSurfaceRotation(@IntRange(from=0, to=359) int);
   }
 
   @RequiresApi(21) public final class UseCaseGroup {
@@ -534,19 +539,19 @@ package androidx.camera.core.resolutionselector {
   }
 
   @RequiresApi(21) public final class ResolutionSelector {
+    method public int getAllowedResolutionMode();
     method public androidx.camera.core.resolutionselector.AspectRatioStrategy getAspectRatioStrategy();
-    method public int getHighResolutionEnabledFlag();
     method public androidx.camera.core.resolutionselector.ResolutionFilter? getResolutionFilter();
     method public androidx.camera.core.resolutionselector.ResolutionStrategy? getResolutionStrategy();
-    field public static final int HIGH_RESOLUTION_FLAG_OFF = 0; // 0x0
-    field public static final int HIGH_RESOLUTION_FLAG_ON = 1; // 0x1
+    field public static final int ALLOWED_RESOLUTIONS_NORMAL = 0; // 0x0
+    field public static final int ALLOWED_RESOLUTIONS_SLOW = 1; // 0x1
   }
 
   public static final class ResolutionSelector.Builder {
     ctor public ResolutionSelector.Builder();
     method public androidx.camera.core.resolutionselector.ResolutionSelector build();
+    method public androidx.camera.core.resolutionselector.ResolutionSelector.Builder setAllowedResolutionMode(int);
     method public androidx.camera.core.resolutionselector.ResolutionSelector.Builder setAspectRatioStrategy(androidx.camera.core.resolutionselector.AspectRatioStrategy);
-    method public androidx.camera.core.resolutionselector.ResolutionSelector.Builder setHighResolutionEnabledFlag(int);
     method public androidx.camera.core.resolutionselector.ResolutionSelector.Builder setResolutionFilter(androidx.camera.core.resolutionselector.ResolutionFilter);
     method public androidx.camera.core.resolutionselector.ResolutionSelector.Builder setResolutionStrategy(androidx.camera.core.resolutionselector.ResolutionStrategy);
   }

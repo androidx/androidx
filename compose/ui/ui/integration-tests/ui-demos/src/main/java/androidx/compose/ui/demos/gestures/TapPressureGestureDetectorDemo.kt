@@ -30,6 +30,7 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -68,9 +69,9 @@ fun DetectTapPressureGesturesDemo() {
                 "For some pen supported devices, a finger touch pressure will equal 1.0."
         )
 
-        var gestureOffsetX by remember { mutableStateOf(0f) }
-        var gestureOffsetY by remember { mutableStateOf(0f) }
-        var gesturePressure by remember { mutableStateOf(0f) }
+        var gestureOffsetX by remember { mutableFloatStateOf(0f) }
+        var gestureOffsetY by remember { mutableFloatStateOf(0f) }
+        var gesturePressure by remember { mutableFloatStateOf(0f) }
 
         // Gestures (detectDragGestures) with pressure.
         Box(

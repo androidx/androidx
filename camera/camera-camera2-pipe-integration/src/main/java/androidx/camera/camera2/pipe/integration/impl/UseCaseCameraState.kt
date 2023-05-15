@@ -29,6 +29,7 @@ import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.RequestMetadata
 import androidx.camera.camera2.pipe.RequestTemplate
 import androidx.camera.camera2.pipe.StreamId
+import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.integration.config.UseCaseCameraScope
 import androidx.camera.camera2.pipe.integration.config.UseCaseGraphConfig
 import javax.inject.Inject
@@ -254,7 +255,7 @@ class UseCaseCameraState @Inject constructor(
                     result?.let { result ->
                         updateSignals.add(RequestSignal(submittedRequestCounter.value, result))
                     }
-
+                    Log.debug { "Update RepeatingRequest: $request" }
                     it.startRepeating(request)
                 }
             }

@@ -32,7 +32,7 @@ android {
     namespace "androidx.camera.effects.stillportrait"
 }
 androidx {
-    name = "Jetpack Camera Portrait Still Effect Library"
+    name = "Camera Effects: Still Portrait"
     publish = Publish.SNAPSHOT_ONLY
     inceptionYear = "2022"
     runApiTasks = new RunApiTasks.Yes()

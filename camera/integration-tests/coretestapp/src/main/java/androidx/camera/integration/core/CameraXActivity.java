@@ -93,6 +93,7 @@ import androidx.camera.core.CameraControl;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.DisplayOrientedMeteringPointFactory;
+import androidx.camera.core.DynamicRange;
 import androidx.camera.core.ExperimentalLensFacing;
 import androidx.camera.core.ExposureState;
 import androidx.camera.core.FocusMeteringAction;
@@ -121,6 +122,7 @@ import androidx.camera.video.QualitySelector;
 import androidx.camera.video.Recorder;
 import androidx.camera.video.Recording;
 import androidx.camera.video.RecordingStats;
+import androidx.camera.video.VideoCapabilities;
 import androidx.camera.video.VideoCapture;
 import androidx.camera.video.VideoRecordEvent;
 import androidx.camera.video.internal.compat.quirk.DeviceQuirks;
@@ -289,6 +291,9 @@ public class CameraXActivity extends AppCompatActivity {
     private DisplayManager.DisplayListener mDisplayListener;
     private RecordUi mRecordUi;
     private Quality mVideoQuality;
+    // TODO: Use SDR by now. A UI for selecting different dynamic ranges will be added when the
+    //  related functionality is complete.
+    private final DynamicRange mDynamicRange = DynamicRange.SDR;
 
     SessionMediaUriSet mSessionImagesUriSet = new SessionMediaUriSet();
     SessionMediaUriSet mSessionVideosUriSet = new SessionMediaUriSet();
@@ -621,8 +626,10 @@ public class CameraXActivity extends AppCompatActivity {
             }
 
             // Add device supported qualities
-            List<Quality> supportedQualities =
-                    QualitySelector.getSupportedQualities(mCamera.getCameraInfo());
+            VideoCapabilities videoCapabilities = Recorder.getVideoCapabilities(
+                    mCamera.getCameraInfo());
+            List<Quality> supportedQualities = videoCapabilities.getSupportedQualities(
+                    mDynamicRange);
             // supportedQualities has been sorted by descending order.
             for (int i = 0; i < supportedQualities.size(); i++) {
                 Quality quality = supportedQualities.get(i);
@@ -1134,8 +1141,9 @@ public class CameraXActivity extends AppCompatActivity {
 
         // Check and set specific quality.
         Camera targetCamera = mCameraProvider.bindToLifecycle(this, mCurrentCameraSelector);
-        List<Quality> supportedQualities =
-                QualitySelector.getSupportedQualities(targetCamera.getCameraInfo());
+        VideoCapabilities videoCapabilities = Recorder.getVideoCapabilities(
+                targetCamera.getCameraInfo());
+        List<Quality> supportedQualities = videoCapabilities.getSupportedQualities(mDynamicRange);
         if (supportedQualities.contains(quality)) {
             mVideoQuality = quality;
             mRecordUi.getButtonQuality().setText(getQualityIconName(mVideoQuality));

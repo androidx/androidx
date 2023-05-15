@@ -17,6 +17,7 @@
 package androidx.camera.camera2.internal.compat.params;
 
 import android.annotation.SuppressLint;
+import android.hardware.camera2.params.DynamicRangeProfiles;
 import android.hardware.camera2.params.OutputConfiguration;
 import android.view.Surface;
 
@@ -118,6 +119,16 @@ class OutputConfigurationCompatApi26Impl extends OutputConfigurationCompatApi24I
         return ((OutputConfigurationParamsApi26) mObject).mPhysicalCameraId;
     }
 
+    @Override
+    public long getDynamicRangeProfile() {
+        return ((OutputConfigurationParamsApi26) mObject).mDynamicRangeProfile;
+    }
+
+    @Override
+    public void setDynamicRangeProfile(long profile) {
+        ((OutputConfigurationParamsApi26) mObject).mDynamicRangeProfile = profile;
+    }
+
     /**
      * Remove a surface from this OutputConfiguration.
      */
@@ -177,6 +188,8 @@ class OutputConfigurationCompatApi26Impl extends OutputConfigurationCompatApi24I
         @Nullable
         String mPhysicalCameraId;
 
+        long mDynamicRangeProfile = DynamicRangeProfiles.STANDARD;
+
         OutputConfigurationParamsApi26(@NonNull OutputConfiguration configuration) {
             mOutputConfiguration = configuration;
         }
@@ -190,6 +203,7 @@ class OutputConfigurationCompatApi26Impl extends OutputConfigurationCompatApi24I
             OutputConfigurationParamsApi26 otherOutputConfig = (OutputConfigurationParamsApi26) obj;
 
             return Objects.equals(mOutputConfiguration, otherOutputConfig.mOutputConfiguration)
+                    && mDynamicRangeProfile == otherOutputConfig.mDynamicRangeProfile
                     && Objects.equals(mPhysicalCameraId, otherOutputConfig.mPhysicalCameraId);
 
         }
@@ -203,7 +217,8 @@ class OutputConfigurationCompatApi26Impl extends OutputConfigurationCompatApi24I
             // (h * 31) XOR mPhysicalCameraId.hashCode()
             h = ((h << 5) - h)
                     ^ (mPhysicalCameraId == null ? 0 : mPhysicalCameraId.hashCode());
-
+            // (h * 31) XOR mDynamicRangeProfile
+            h = ((h << 5) - h) ^ Long.hashCode(mDynamicRangeProfile);
             return h;
         }
     }

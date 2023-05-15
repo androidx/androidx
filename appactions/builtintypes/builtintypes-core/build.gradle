@@ -15,6 +15,7 @@
  */
 
 import androidx.build.LibraryType
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
@@ -24,15 +25,25 @@ plugins {
 
 dependencies {
     api(libs.kotlinStdlib)
-    // Add dependencies here
+
+    testImplementation(libs.junit)
+    testImplementation(libs.truth)
+
+    samples(project(":appactions:builtintypes:builtintypes-core:builtintypes-core-samples"))
 }
 
 android {
     namespace "androidx.appactions.builtintypes.core"
 }
 
+tasks.withType(KotlinCompile).configureEach {
+    compilerOptions {
+        freeCompilerArgs.add("-Xjvm-default=all")
+    }
+}
+
 androidx {
-    name = "androidx.appactions.builtintypes:builtintypes-core"
+    name = "AppActions Builtin Types Core"
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2023"
     description = "This library exposes a core set of data types based on schema.org definitions."

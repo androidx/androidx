@@ -20,12 +20,14 @@ import android.hardware.camera2.CameraCharacteristics;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+import androidx.camera.core.Logger;
 
+import java.util.Collections;
 import java.util.Set;
 
 @RequiresApi(28)
 class CameraCharacteristicsApi28Impl extends CameraCharacteristicsBaseImpl{
-
+    private static final String TAG = "CameraCharacteristicsImpl";
     CameraCharacteristicsApi28Impl(@NonNull CameraCharacteristics cameraCharacteristics) {
         super(cameraCharacteristics);
     }
@@ -33,6 +35,14 @@ class CameraCharacteristicsApi28Impl extends CameraCharacteristicsBaseImpl{
     @NonNull
     @Override
     public Set<String> getPhysicalCameraIds() {
-        return mCameraCharacteristics.getPhysicalCameraIds();
+        try {
+            return mCameraCharacteristics.getPhysicalCameraIds();
+        } catch (Exception e) {
+            // getPhysicalCameraIds could cause crash in Robolectric and there is no known
+            // workaround
+            Logger.e(TAG,
+                    "CameraCharacteristics.getPhysicalCameraIds throws an exception.", e);
+            return Collections.emptySet();
+        }
     }
 }

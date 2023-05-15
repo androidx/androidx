@@ -20,15 +20,22 @@ import android.graphics.ImageFormat.JPEG
 import android.graphics.Matrix
 import android.graphics.Rect
 import android.os.Build
+import android.util.Range
 import android.util.Rational
 import android.util.Size
 import android.view.Surface
 import androidx.camera.core.CameraEffect
 import androidx.camera.core.CameraEffect.PREVIEW
 import androidx.camera.core.CameraEffect.VIDEO_CAPTURE
+import androidx.camera.core.FocusMeteringAction
+import androidx.camera.core.FocusMeteringAction.FLAG_AE
+import androidx.camera.core.FocusMeteringAction.FLAG_AF
+import androidx.camera.core.FocusMeteringAction.FLAG_AWB
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.Preview
+import androidx.camera.core.SurfaceOrientedMeteringPointFactory
+import androidx.camera.core.TorchState
 import androidx.camera.core.UseCase
 import androidx.camera.core.ViewPort
 import androidx.camera.core.concurrent.CameraCoordinator
@@ -38,6 +45,8 @@ import androidx.camera.core.impl.Config
 import androidx.camera.core.impl.Identifier
 import androidx.camera.core.impl.MutableOptionsBundle
 import androidx.camera.core.impl.OptionsBundle
+import androidx.camera.core.impl.RestrictedCameraControl
+import androidx.camera.core.impl.SessionProcessor
 import androidx.camera.core.impl.StreamSpec
 import androidx.camera.core.impl.UseCaseConfigFactory
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor
@@ -45,17 +54,23 @@ import androidx.camera.core.internal.CameraUseCaseAdapter.CameraException
 import androidx.camera.core.processing.DefaultSurfaceProcessor
 import androidx.camera.core.streamsharing.StreamSharing
 import androidx.camera.testing.fakes.FakeCamera
+import androidx.camera.testing.fakes.FakeCameraControl
 import androidx.camera.testing.fakes.FakeCameraCoordinator
 import androidx.camera.testing.fakes.FakeCameraDeviceSurfaceManager
+import androidx.camera.testing.fakes.FakeCameraInfoInternal
+import androidx.camera.testing.fakes.FakeSessionProcessor
 import androidx.camera.testing.fakes.FakeSurfaceEffect
 import androidx.camera.testing.fakes.FakeSurfaceProcessorInternal
 import androidx.camera.testing.fakes.FakeUseCase
 import androidx.camera.testing.fakes.FakeUseCaseConfig
 import androidx.camera.testing.fakes.FakeUseCaseConfigFactory
 import androidx.camera.testing.fakes.GrayscaleImageEffect
+import androidx.concurrent.futures.await
+import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
+import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -81,7 +96,6 @@ private const val CAMERA_ID = "0"
     instrumentedPackages = ["androidx.camera.core"]
 )
 class CameraUseCaseAdapterTest {
-
     private lateinit var effects: List<CameraEffect>
     private lateinit var executor: ExecutorService
 
@@ -93,6 +107,8 @@ class CameraUseCaseAdapterTest {
     private lateinit var sharedEffect: FakeSurfaceEffect
     private lateinit var cameraCoordinator: CameraCoordinator
     private lateinit var surfaceProcessorInternal: FakeSurfaceProcessorInternal
+    private lateinit var fakeCameraControl: FakeCameraControl
+    private lateinit var fakeCameraInfo: FakeCameraInfoInternal
     private val fakeCameraSet = LinkedHashSet<CameraInternal>()
     private val imageEffect = GrayscaleImageEffect()
     private val preview = Preview.Builder().build()
@@ -106,7 +122,9 @@ class CameraUseCaseAdapterTest {
     @Before
     fun setUp() {
         fakeCameraDeviceSurfaceManager = FakeCameraDeviceSurfaceManager()
-        fakeCamera = FakeCamera(CAMERA_ID)
+        fakeCameraControl = FakeCameraControl()
+        fakeCameraInfo = FakeCameraInfoInternal()
+        fakeCamera = FakeCamera(CAMERA_ID, fakeCameraControl, fakeCameraInfo)
         cameraCoordinator = FakeCameraCoordinator()
         useCaseConfigFactory = FakeUseCaseConfigFactory()
         fakeCameraSet.add(fakeCamera)
@@ -209,7 +227,7 @@ class CameraUseCaseAdapterTest {
     fun invalidUseCaseComboCantBeFixedByStreamSharing_throwsException() {
         // Arrange: create a camera that only support one JPEG stream.
         fakeCameraDeviceSurfaceManager.setValidSurfaceCombos(setOf(listOf(JPEG)))
-        // Act: add PRIV and JPEG streams.
+        // Act: add PRIVATE and JPEG streams.
         adapter.addUseCases(setOf(preview, image))
     }
 
@@ -909,6 +927,316 @@ class CameraUseCaseAdapterTest {
         assertThat(video.effect).isNull()
     }
 
+    private fun createAdapterWithSupportedCameraOperations(
+        @RestrictedCameraControl.CameraOperation supportedOps: Set<Int>
+    ): CameraUseCaseAdapter {
+        val cameraUseCaseAdapter = CameraUseCaseAdapter(
+            fakeCameraSet,
+            cameraCoordinator,
+            fakeCameraDeviceSurfaceManager,
+            useCaseConfigFactory
+        )
+
+        val fakeSessionProcessor = FakeSessionProcessor()
+        // no camera operations are supported.
+        fakeSessionProcessor.restrictedCameraOperations = supportedOps
+        val cameraConfig: CameraConfig = FakeCameraConfig(fakeSessionProcessor)
+        cameraUseCaseAdapter.setExtendedConfig(cameraConfig)
+        return cameraUseCaseAdapter
+    }
+
+    @Test
+    fun cameraControlFailed_whenNoCameraOperationsSupported(): Unit = runBlocking {
+        // 1. Arrange
+        val cameraUseCaseAdapter =
+            createAdapterWithSupportedCameraOperations(supportedOps = emptySet())
+
+        // 2. Act && Assert
+        assertThrows<IllegalStateException> {
+            cameraUseCaseAdapter.cameraControl.setZoomRatio(1.0f).await()
+        }
+        assertThrows<IllegalStateException> {
+            cameraUseCaseAdapter.cameraControl.setLinearZoom(1.0f).await()
+        }
+        assertThrows<IllegalStateException> {
+            cameraUseCaseAdapter.cameraControl.enableTorch(true).await()
+        }
+        assertThrows<IllegalStateException> {
+            cameraUseCaseAdapter.cameraControl.startFocusAndMetering(
+                getFocusMeteringAction()
+            ).await()
+        }
+        assertThrows<IllegalStateException> {
+            cameraUseCaseAdapter.cameraControl.setExposureCompensationIndex(0).await()
+        }
+    }
+
+    private fun getFocusMeteringAction(
+        meteringMode: Int = FLAG_AF or FLAG_AE or FLAG_AWB
+    ): FocusMeteringAction {
+        val pointFactory = SurfaceOrientedMeteringPointFactory(1f, 1f)
+        return FocusMeteringAction.Builder(
+            pointFactory.createPoint(0.5f, 0.5f), meteringMode)
+            .build()
+    }
+
+    @Test
+    fun zoomEnabled_whenZoomOperationsSupported(): Unit = runBlocking {
+        // 1. Arrange
+        val cameraUseCaseAdapter =
+            createAdapterWithSupportedCameraOperations(
+                supportedOps = setOf(RestrictedCameraControl.ZOOM))
+
+        // 2. Act && Assert
+        cameraUseCaseAdapter.cameraControl.setZoomRatio(2.0f).await()
+        assertThat(fakeCameraControl.zoomRatio).isEqualTo(2.0f)
+        cameraUseCaseAdapter.cameraControl.setLinearZoom(1.0f).await()
+        assertThat(fakeCameraControl.linearZoom).isEqualTo(1.0f)
+    }
+
+    @Test
+    fun torchEnabled_whenTorchOperationSupported(): Unit = runBlocking {
+        // 1. Arrange
+        val cameraUseCaseAdapter =
+            createAdapterWithSupportedCameraOperations(
+                supportedOps = setOf(RestrictedCameraControl.TORCH))
+
+        // 2. Act
+        cameraUseCaseAdapter.cameraControl.enableTorch(true).await()
+
+        // 3. Assert
+        assertThat(fakeCameraControl.torchEnabled).isEqualTo(true)
+    }
+
+    @Test
+    fun focusMetering_afEnabled_whenAfOperationSupported(): Unit = runBlocking {
+        // 1. Arrange
+        val cameraUseCaseAdapter =
+            createAdapterWithSupportedCameraOperations(
+                supportedOps = setOf(
+                    RestrictedCameraControl.AUTO_FOCUS,
+                    RestrictedCameraControl.AF_REGION,
+                    ))
+
+        // 2. Act
+        cameraUseCaseAdapter.cameraControl.startFocusAndMetering(
+            getFocusMeteringAction()
+        ).await()
+
+        // 3. Assert
+        // Only AF point remains, AE/AWB points removed.
+        assertThat(fakeCameraControl.lastSubmittedFocusMeteringAction?.meteringPointsAf?.size)
+            .isEqualTo(1)
+        assertThat(fakeCameraControl.lastSubmittedFocusMeteringAction?.meteringPointsAe)
+            .isEmpty()
+        assertThat(fakeCameraControl.lastSubmittedFocusMeteringAction?.meteringPointsAwb)
+            .isEmpty()
+    }
+
+    @Test
+    fun focusMetering_aeEnabled_whenAeOperationsSupported(): Unit = runBlocking {
+        // 1. Arrange
+        val cameraUseCaseAdapter =
+            createAdapterWithSupportedCameraOperations(
+                supportedOps = setOf(
+                    RestrictedCameraControl.AE_REGION,
+                ))
+
+        // 2. Act
+        cameraUseCaseAdapter.cameraControl.startFocusAndMetering(
+            getFocusMeteringAction()
+        ).await()
+
+        // 3. Assert
+        // Only AE point remains, AF/AWB points removed.
+        assertThat(fakeCameraControl.lastSubmittedFocusMeteringAction?.meteringPointsAe?.size)
+            .isEqualTo(1)
+        assertThat(fakeCameraControl.lastSubmittedFocusMeteringAction?.meteringPointsAf)
+            .isEmpty()
+        assertThat(fakeCameraControl.lastSubmittedFocusMeteringAction?.meteringPointsAwb)
+            .isEmpty()
+    }
+
+    @Test
+    fun focusMetering_awbEnabled_whenAwbOperationsSupported(): Unit = runBlocking {
+        // 1. Arrange
+        val cameraUseCaseAdapter =
+            createAdapterWithSupportedCameraOperations(
+                supportedOps = setOf(
+                    RestrictedCameraControl.AWB_REGION,
+                ))
+
+        // 2. Act
+        cameraUseCaseAdapter.cameraControl.startFocusAndMetering(
+            getFocusMeteringAction()
+        ).await()
+
+        // 3. Assert
+        // Only AWB point remains, AF/AE points removed.
+        assertThat(fakeCameraControl.lastSubmittedFocusMeteringAction?.meteringPointsAwb?.size)
+            .isEqualTo(1)
+        assertThat(fakeCameraControl.lastSubmittedFocusMeteringAction?.meteringPointsAf)
+            .isEmpty()
+        assertThat(fakeCameraControl.lastSubmittedFocusMeteringAction?.meteringPointsAe)
+            .isEmpty()
+    }
+
+    @Test
+    fun focusMetering_disabled_whenNoneIsSupported(): Unit = runBlocking {
+        // 1. Arrange
+        val cameraUseCaseAdapter =
+            createAdapterWithSupportedCameraOperations(
+                supportedOps = setOf(
+                    RestrictedCameraControl.AE_REGION,
+                ))
+
+        // 2. Act && Assert
+        assertThrows<IllegalStateException> {
+            cameraUseCaseAdapter.cameraControl.startFocusAndMetering(
+                getFocusMeteringAction(FLAG_AF or FLAG_AWB)
+            ).await()
+        }
+        assertThat(fakeCameraControl.lastSubmittedFocusMeteringAction).isNull()
+    }
+
+    @Test
+    fun exposureEnabled_whenExposureOperationSupported(): Unit = runBlocking {
+        // 1. Arrange
+        val cameraUseCaseAdapter =
+            createAdapterWithSupportedCameraOperations(
+                supportedOps = setOf(RestrictedCameraControl.EXPOSURE_COMPENSATION))
+
+        // 2. Act
+        cameraUseCaseAdapter.cameraControl.setExposureCompensationIndex(0).await()
+
+        // 3. Assert
+        assertThat(fakeCameraControl.exposureCompensationIndex).isEqualTo(0)
+    }
+
+    @Test
+    fun cameraInfo_returnsDisabledState_AllOpsDisabled(): Unit = runBlocking {
+        // 1. Arrange
+        val cameraUseCaseAdapter =
+            createAdapterWithSupportedCameraOperations(
+                supportedOps = emptySet())
+
+        // 2. Act && Assert
+        // Zoom is disabled
+        val zoomState = cameraUseCaseAdapter.cameraInfo.zoomState.value!!
+        assertThat(zoomState.minZoomRatio).isEqualTo(1f)
+        assertThat(zoomState.maxZoomRatio).isEqualTo(1f)
+        assertThat(zoomState.zoomRatio).isEqualTo(1f)
+        assertThat(zoomState.linearZoom).isEqualTo(0f)
+
+        // Flash is disabled
+        assertThat(cameraUseCaseAdapter.cameraInfo.hasFlashUnit()).isFalse()
+
+        // Torch is disabled.
+        assertThat(cameraUseCaseAdapter.cameraInfo.torchState.value).isEqualTo(TorchState.OFF)
+
+        // FocusMetering is disabled.
+        assertThat(cameraUseCaseAdapter.cameraInfo
+            .isFocusMeteringSupported(getFocusMeteringAction()))
+            .isFalse()
+
+        // ExposureCompensation is disabled.
+        assertThat(cameraUseCaseAdapter.cameraInfo.exposureState.isExposureCompensationSupported)
+            .isFalse()
+        assertThat(cameraUseCaseAdapter.cameraInfo.exposureState.exposureCompensationRange)
+            .isEqualTo(Range(0, 0))
+        assertThat(cameraUseCaseAdapter.cameraInfo.exposureState.exposureCompensationStep)
+            .isEqualTo(Rational.ZERO)
+        assertThat(cameraUseCaseAdapter.cameraInfo.exposureState.exposureCompensationIndex)
+            .isEqualTo(0)
+    }
+
+    @Test
+    fun cameraInfo_zoomEnabled(): Unit = runBlocking {
+        // 1. Arrange
+        val cameraUseCaseAdapter =
+            createAdapterWithSupportedCameraOperations(
+                supportedOps = setOf(RestrictedCameraControl.ZOOM)
+            )
+        fakeCameraInfo.setZoom(10f, 0.6f, 10f, 1f)
+
+        // 2. Act
+        val zoomState = cameraUseCaseAdapter.cameraInfo.zoomState.value!!
+
+        // 3. Assert
+        val fakeZoomState = fakeCameraInfo.zoomState.value!!
+        assertThat(zoomState.zoomRatio).isEqualTo(fakeZoomState.zoomRatio)
+        assertThat(zoomState.minZoomRatio).isEqualTo(fakeZoomState.minZoomRatio)
+        assertThat(zoomState.maxZoomRatio).isEqualTo(fakeZoomState.maxZoomRatio)
+        assertThat(zoomState.linearZoom).isEqualTo(fakeZoomState.linearZoom)
+    }
+
+    @Test
+    fun cameraInfo_torchEnabled(): Unit = runBlocking {
+        // 1. Arrange
+        val cameraUseCaseAdapter =
+            createAdapterWithSupportedCameraOperations(
+                supportedOps = setOf(RestrictedCameraControl.TORCH)
+            )
+        fakeCameraInfo.setTorch(TorchState.ON)
+
+        // 2. Act && Assert
+        assertThat(cameraUseCaseAdapter.cameraInfo.torchState.value)
+            .isEqualTo(fakeCameraInfo.torchState.value)
+    }
+
+    @Test
+    fun cameraInfo_afEnabled(): Unit = runBlocking {
+        // 1. Arrange
+        val cameraUseCaseAdapter =
+            createAdapterWithSupportedCameraOperations(
+                supportedOps = setOf(
+                    RestrictedCameraControl.AUTO_FOCUS,
+                    RestrictedCameraControl.AF_REGION
+                )
+            )
+        fakeCameraInfo.setIsFocusMeteringSupported(true)
+
+        // 2. Act && Assert
+        assertThat(cameraUseCaseAdapter.cameraInfo.isFocusMeteringSupported(
+            getFocusMeteringAction()
+        )).isTrue()
+    }
+
+    @Test
+    fun cameraInfo_exposureExposureEnabled(): Unit = runBlocking {
+        // 1. Arrange
+        val cameraUseCaseAdapter =
+            createAdapterWithSupportedCameraOperations(
+                supportedOps = setOf(
+                    RestrictedCameraControl.EXPOSURE_COMPENSATION,
+                )
+            )
+        fakeCameraInfo.setExposureState(2, Range.create(0, 10), Rational(1, 1), true)
+
+        // 2. Act && Assert
+        assertThat(cameraUseCaseAdapter.cameraInfo.exposureState.exposureCompensationIndex)
+            .isEqualTo(fakeCameraInfo.exposureState.exposureCompensationIndex)
+        assertThat(cameraUseCaseAdapter.cameraInfo.exposureState.exposureCompensationRange)
+            .isEqualTo(fakeCameraInfo.exposureState.exposureCompensationRange)
+        assertThat(cameraUseCaseAdapter.cameraInfo.exposureState.exposureCompensationStep)
+            .isEqualTo(fakeCameraInfo.exposureState.exposureCompensationStep)
+        assertThat(cameraUseCaseAdapter.cameraInfo.exposureState.isExposureCompensationSupported)
+            .isEqualTo(fakeCameraInfo.exposureState.isExposureCompensationSupported)
+    }
+
+    @Test
+    fun cameraInfo_flashEnabled(): Unit = runBlocking {
+        // 1. Arrange
+        val cameraUseCaseAdapter =
+            createAdapterWithSupportedCameraOperations(
+                supportedOps = setOf(RestrictedCameraControl.FLASH)
+            )
+
+        // 2. Act && Assert
+        assertThat(cameraUseCaseAdapter.cameraInfo.hasFlashUnit())
+            .isEqualTo(fakeCameraInfo.hasFlashUnit())
+    }
+
     private fun createCoexistingRequiredRuleCameraConfig(): CameraConfig {
         return object : CameraConfig {
             private val mUseCaseConfigFactory =
@@ -950,7 +1278,9 @@ class CameraUseCaseAdapterTest {
         return false
     }
 
-    private class FakeCameraConfig : CameraConfig {
+    private class FakeCameraConfig(
+        val sessionProcessor: FakeSessionProcessor? = null
+    ) : CameraConfig {
         private val mUseCaseConfigFactory =
             UseCaseConfigFactory { _, _ -> null }
         private val mIdentifier = Identifier.create(Any())
@@ -964,6 +1294,14 @@ class CameraUseCaseAdapterTest {
 
         override fun getConfig(): Config {
             return OptionsBundle.emptyBundle()
+        }
+
+        override fun getSessionProcessor(valueIfMissing: SessionProcessor?): SessionProcessor? {
+            return sessionProcessor ?: valueIfMissing
+        }
+
+        override fun getSessionProcessor(): SessionProcessor {
+            return sessionProcessor!!
         }
     }
 }

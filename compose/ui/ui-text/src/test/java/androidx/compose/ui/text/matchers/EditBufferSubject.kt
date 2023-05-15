@@ -21,8 +21,8 @@ import androidx.compose.ui.text.input.EditingBuffer
 import androidx.compose.ui.text.input.PartialGapBuffer
 import com.google.common.truth.FailureMetadata
 import com.google.common.truth.Subject
-import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertAbout
+import com.google.common.truth.Truth.assertThat
 
 @OptIn(InternalTextApi::class)
 internal fun assertThat(buffer: PartialGapBuffer): EditBufferSubject {

@@ -1,0 +1,224 @@
+// Signature format: 4.0
+package androidx.navigation {
+
+  public final class ActivityKt {
+    method public static androidx.navigation.NavController findNavController(android.app.Activity, @IdRes int viewId);
+  }
+
+  public final class ActivityNavArgsLazyKt {
+    method @MainThread public static inline <reified Args extends androidx.navigation.NavArgs> androidx.navigation.NavArgsLazy<Args> navArgs(android.app.Activity);
+  }
+
+  @androidx.navigation.Navigator.Name("activity") public class ActivityNavigator extends androidx.navigation.Navigator<androidx.navigation.ActivityNavigator.Destination> {
+    ctor public ActivityNavigator(android.content.Context context);
+    method public static final void applyPopAnimationsToPendingTransition(android.app.Activity activity);
+    method public androidx.navigation.ActivityNavigator.Destination createDestination();
+    method public androidx.navigation.NavDestination? navigate(androidx.navigation.ActivityNavigator.Destination destination, android.os.Bundle? args, androidx.navigation.NavOptions? navOptions, androidx.navigation.Navigator.Extras? navigatorExtras);
+    field public static final androidx.navigation.ActivityNavigator.Companion Companion;
+  }
+
+  public static final class ActivityNavigator.Companion {
+    method public void applyPopAnimationsToPendingTransition(android.app.Activity activity);
+  }
+
+  @androidx.navigation.NavDestination.ClassType(Activity::class) public static class ActivityNavigator.Destination extends androidx.navigation.NavDestination {
+    ctor public ActivityNavigator.Destination(androidx.navigation.Navigator<? extends androidx.navigation.ActivityNavigator.Destination> activityNavigator);
+    ctor public ActivityNavigator.Destination(androidx.navigation.NavigatorProvider navigatorProvider);
+    method public final String? getAction();
+    method public final android.content.ComponentName? getComponent();
+    method public final android.net.Uri? getData();
+    method public final String? getDataPattern();
+    method public final android.content.Intent? getIntent();
+    method public final String? getTargetPackage();
+    method public final androidx.navigation.ActivityNavigator.Destination setAction(String? action);
+    method public final androidx.navigation.ActivityNavigator.Destination setComponentName(android.content.ComponentName? name);
+    method public final androidx.navigation.ActivityNavigator.Destination setData(android.net.Uri? data);
+    method public final androidx.navigation.ActivityNavigator.Destination setDataPattern(String? dataPattern);
+    method public final androidx.navigation.ActivityNavigator.Destination setIntent(android.content.Intent? intent);
+    method public final androidx.navigation.ActivityNavigator.Destination setTargetPackage(String? packageName);
+    property public final String? action;
+    property public final android.content.ComponentName? component;
+    property public final android.net.Uri? data;
+    property public final String? dataPattern;
+    property public final android.content.Intent? intent;
+    property public final String? targetPackage;
+  }
+
+  public static final class ActivityNavigator.Extras implements androidx.navigation.Navigator.Extras {
+    method public androidx.core.app.ActivityOptionsCompat? getActivityOptions();
+    method public int getFlags();
+    property public final androidx.core.app.ActivityOptionsCompat? activityOptions;
+    property public final int flags;
+  }
+
+  public static final class ActivityNavigator.Extras.Builder {
+    ctor public ActivityNavigator.Extras.Builder();
+    method public androidx.navigation.ActivityNavigator.Extras.Builder addFlags(int flags);
+    method public androidx.navigation.ActivityNavigator.Extras build();
+    method public androidx.navigation.ActivityNavigator.Extras.Builder setActivityOptions(androidx.core.app.ActivityOptionsCompat activityOptions);
+  }
+
+  @androidx.navigation.NavDestinationDsl public final class ActivityNavigatorDestinationBuilder extends androidx.navigation.NavDestinationBuilder<androidx.navigation.ActivityNavigator.Destination> {
+    ctor @Deprecated public ActivityNavigatorDestinationBuilder(androidx.navigation.ActivityNavigator navigator, @IdRes int id);
+    ctor public ActivityNavigatorDestinationBuilder(androidx.navigation.ActivityNavigator navigator, String route);
+    method public androidx.navigation.ActivityNavigator.Destination build();
+    method public String? getAction();
+    method public kotlin.reflect.KClass<? extends android.app.Activity>? getActivityClass();
+    method public android.net.Uri? getData();
+    method public String? getDataPattern();
+    method public String? getTargetPackage();
+    method public void setAction(String?);
+    method public void setActivityClass(kotlin.reflect.KClass<? extends android.app.Activity>?);
+    method public void setData(android.net.Uri?);
+    method public void setDataPattern(String?);
+    method public void setTargetPackage(String?);
+    property public final String? action;
+    property public final kotlin.reflect.KClass<? extends android.app.Activity>? activityClass;
+    property public final android.net.Uri? data;
+    property public final String? dataPattern;
+    property public final String? targetPackage;
+  }
+
+  public final class ActivityNavigatorDestinationBuilderKt {
+    method @Deprecated public static inline void activity(androidx.navigation.NavGraphBuilder, @IdRes int id, kotlin.jvm.functions.Function1<? super androidx.navigation.ActivityNavigatorDestinationBuilder,kotlin.Unit> builder);
+    method public static inline void activity(androidx.navigation.NavGraphBuilder, String route, kotlin.jvm.functions.Function1<? super androidx.navigation.ActivityNavigatorDestinationBuilder,kotlin.Unit> builder);
+  }
+
+  public final class ActivityNavigatorExtrasKt {
+    method public static androidx.navigation.ActivityNavigator.Extras ActivityNavigatorExtras(optional androidx.core.app.ActivityOptionsCompat? activityOptions, optional int flags);
+  }
+
+  public class NavController {
+    ctor public NavController(android.content.Context context);
+    method public void addOnDestinationChangedListener(androidx.navigation.NavController.OnDestinationChangedListener listener);
+    method @MainThread public final boolean clearBackStack(String route);
+    method @MainThread public final boolean clearBackStack(@IdRes int destinationId);
+    method public androidx.navigation.NavDeepLinkBuilder createDeepLink();
+    method public androidx.navigation.NavBackStackEntry getBackStackEntry(@IdRes int destinationId);
+    method public final androidx.navigation.NavBackStackEntry getBackStackEntry(String route);
+    method public androidx.navigation.NavBackStackEntry? getCurrentBackStackEntry();
+    method public final kotlinx.coroutines.flow.Flow<androidx.navigation.NavBackStackEntry> getCurrentBackStackEntryFlow();
+    method public androidx.navigation.NavDestination? getCurrentDestination();
+    method @MainThread public androidx.navigation.NavGraph getGraph();
+    method public androidx.navigation.NavInflater getNavInflater();
+    method public androidx.navigation.NavigatorProvider getNavigatorProvider();
+    method public androidx.navigation.NavBackStackEntry? getPreviousBackStackEntry();
+    method public androidx.lifecycle.ViewModelStoreOwner getViewModelStoreOwner(@IdRes int navGraphId);
+    method public final kotlinx.coroutines.flow.StateFlow<java.util.List<androidx.navigation.NavBackStackEntry>> getVisibleEntries();
+    method @MainThread public boolean handleDeepLink(android.content.Intent? intent);
+    method @MainThread public void navigate(@IdRes int resId);
+    method @MainThread public void navigate(@IdRes int resId, android.os.Bundle? args);
+    method @MainThread public void navigate(@IdRes int resId, android.os.Bundle? args, androidx.navigation.NavOptions? navOptions);
+    method @MainThread public void navigate(@IdRes int resId, android.os.Bundle? args, androidx.navigation.NavOptions? navOptions, androidx.navigation.Navigator.Extras? navigatorExtras);
+    method @MainThread public void navigate(android.net.Uri deepLink);
+    method @MainThread public void navigate(android.net.Uri deepLink, androidx.navigation.NavOptions? navOptions);
+    method @MainThread public void navigate(android.net.Uri deepLink, androidx.navigation.NavOptions? navOptions, androidx.navigation.Navigator.Extras? navigatorExtras);
+    method @MainThread public void navigate(androidx.navigation.NavDeepLinkRequest request);
+    method @MainThread public void navigate(androidx.navigation.NavDeepLinkRequest request, androidx.navigation.NavOptions? navOptions);
+    method @MainThread public void navigate(androidx.navigation.NavDeepLinkRequest request, androidx.navigation.NavOptions? navOptions, androidx.navigation.Navigator.Extras? navigatorExtras);
+    method @MainThread public void navigate(androidx.navigation.NavDirections directions);
+    method @MainThread public void navigate(androidx.navigation.NavDirections directions, androidx.navigation.NavOptions? navOptions);
+    method @MainThread public void navigate(androidx.navigation.NavDirections directions, androidx.navigation.Navigator.Extras navigatorExtras);
+    method @MainThread public final void navigate(String route, kotlin.jvm.functions.Function1<? super androidx.navigation.NavOptionsBuilder,kotlin.Unit> builder);
+    method @MainThread public final void navigate(String route, optional androidx.navigation.NavOptions? navOptions, optional androidx.navigation.Navigator.Extras? navigatorExtras);
+    method @MainThread public final void navigate(String route, optional androidx.navigation.NavOptions? navOptions);
+    method @MainThread public final void navigate(String route);
+    method @MainThread public boolean navigateUp();
+    method @MainThread public boolean popBackStack();
+    method @MainThread public boolean popBackStack(@IdRes int destinationId, boolean inclusive);
+    method @MainThread public boolean popBackStack(@IdRes int destinationId, boolean inclusive, boolean saveState);
+    method @MainThread public final boolean popBackStack(String route, boolean inclusive, optional boolean saveState);
+    method @MainThread public final boolean popBackStack(String route, boolean inclusive);
+    method public void removeOnDestinationChangedListener(androidx.navigation.NavController.OnDestinationChangedListener listener);
+    method @CallSuper public void restoreState(android.os.Bundle? navState);
+    method @CallSuper public android.os.Bundle? saveState();
+    method @CallSuper @MainThread public void setGraph(androidx.navigation.NavGraph);
+    method @CallSuper @MainThread public void setGraph(@NavigationRes int graphResId);
+    method @CallSuper @MainThread public void setGraph(@NavigationRes int graphResId, android.os.Bundle? startDestinationArgs);
+    method @CallSuper @MainThread public void setGraph(androidx.navigation.NavGraph graph, android.os.Bundle? startDestinationArgs);
+    property public androidx.navigation.NavBackStackEntry? currentBackStackEntry;
+    property public final kotlinx.coroutines.flow.Flow<androidx.navigation.NavBackStackEntry> currentBackStackEntryFlow;
+    property public androidx.navigation.NavDestination? currentDestination;
+    property @MainThread public androidx.navigation.NavGraph graph;
+    property public androidx.navigation.NavInflater navInflater;
+    property public androidx.navigation.NavigatorProvider navigatorProvider;
+    property public androidx.navigation.NavBackStackEntry? previousBackStackEntry;
+    property public final kotlinx.coroutines.flow.StateFlow<java.util.List<androidx.navigation.NavBackStackEntry>> visibleEntries;
+    field public static final androidx.navigation.NavController.Companion Companion;
+    field public static final String KEY_DEEP_LINK_INTENT = "android-support-nav:controller:deepLinkIntent";
+  }
+
+  public static final class NavController.Companion {
+  }
+
+  public static fun interface NavController.OnDestinationChangedListener {
+    method public void onDestinationChanged(androidx.navigation.NavController controller, androidx.navigation.NavDestination destination, android.os.Bundle? arguments);
+  }
+
+  public final class NavControllerKt {
+    method @Deprecated public static inline androidx.navigation.NavGraph createGraph(androidx.navigation.NavController, optional @IdRes int id, @IdRes int startDestination, kotlin.jvm.functions.Function1<? super androidx.navigation.NavGraphBuilder,kotlin.Unit> builder);
+    method public static inline androidx.navigation.NavGraph createGraph(androidx.navigation.NavController, String startDestination, optional String? route, kotlin.jvm.functions.Function1<? super androidx.navigation.NavGraphBuilder,kotlin.Unit> builder);
+  }
+
+  public final class NavDeepLinkBuilder {
+    ctor public NavDeepLinkBuilder(android.content.Context context);
+    method public androidx.navigation.NavDeepLinkBuilder addDestination(@IdRes int destId, optional android.os.Bundle? args);
+    method public androidx.navigation.NavDeepLinkBuilder addDestination(@IdRes int destId);
+    method public androidx.navigation.NavDeepLinkBuilder addDestination(String route, optional android.os.Bundle? args);
+    method public androidx.navigation.NavDeepLinkBuilder addDestination(String route);
+    method public android.app.PendingIntent createPendingIntent();
+    method public androidx.core.app.TaskStackBuilder createTaskStackBuilder();
+    method public androidx.navigation.NavDeepLinkBuilder setArguments(android.os.Bundle? args);
+    method public androidx.navigation.NavDeepLinkBuilder setComponentName(Class<? extends android.app.Activity> activityClass);
+    method public androidx.navigation.NavDeepLinkBuilder setComponentName(android.content.ComponentName componentName);
+    method public androidx.navigation.NavDeepLinkBuilder setDestination(@IdRes int destId, optional android.os.Bundle? args);
+    method public androidx.navigation.NavDeepLinkBuilder setDestination(@IdRes int destId);
+    method public androidx.navigation.NavDeepLinkBuilder setDestination(String destRoute, optional android.os.Bundle? args);
+    method public androidx.navigation.NavDeepLinkBuilder setDestination(String destRoute);
+    method public androidx.navigation.NavDeepLinkBuilder setGraph(@NavigationRes int navGraphId);
+    method public androidx.navigation.NavDeepLinkBuilder setGraph(androidx.navigation.NavGraph navGraph);
+  }
+
+  public interface NavHost {
+    method public androidx.navigation.NavController getNavController();
+    property public abstract androidx.navigation.NavController navController;
+  }
+
+  public class NavHostController extends androidx.navigation.NavController {
+    ctor public NavHostController(android.content.Context context);
+    method public final void enableOnBackPressed(boolean enabled);
+    method public final void setLifecycleOwner(androidx.lifecycle.LifecycleOwner owner);
+    method public final void setOnBackPressedDispatcher(androidx.activity.OnBackPressedDispatcher dispatcher);
+    method public final void setViewModelStore(androidx.lifecycle.ViewModelStore viewModelStore);
+  }
+
+  public final class NavHostKt {
+    method @Deprecated public static inline androidx.navigation.NavGraph createGraph(androidx.navigation.NavHost, optional @IdRes int id, @IdRes int startDestination, kotlin.jvm.functions.Function1<? super androidx.navigation.NavGraphBuilder,kotlin.Unit> builder);
+    method public static inline androidx.navigation.NavGraph createGraph(androidx.navigation.NavHost, String startDestination, optional String? route, kotlin.jvm.functions.Function1<? super androidx.navigation.NavGraphBuilder,kotlin.Unit> builder);
+  }
+
+  public final class NavInflater {
+    ctor public NavInflater(android.content.Context context, androidx.navigation.NavigatorProvider navigatorProvider);
+    method public androidx.navigation.NavGraph inflate(@NavigationRes int graphResId);
+    field public static final androidx.navigation.NavInflater.Companion Companion;
+  }
+
+  public static final class NavInflater.Companion {
+  }
+
+  public final class Navigation {
+    method public static android.view.View.OnClickListener createNavigateOnClickListener(@IdRes int resId, optional android.os.Bundle? args);
+    method public static android.view.View.OnClickListener createNavigateOnClickListener(@IdRes int resId);
+    method public static android.view.View.OnClickListener createNavigateOnClickListener(androidx.navigation.NavDirections directions);
+    method public static androidx.navigation.NavController findNavController(android.app.Activity activity, @IdRes int viewId);
+    method public static androidx.navigation.NavController findNavController(android.view.View view);
+    method public static void setViewNavController(android.view.View view, androidx.navigation.NavController? controller);
+    field public static final androidx.navigation.Navigation INSTANCE;
+  }
+
+  public final class ViewKt {
+    method public static androidx.navigation.NavController findNavController(android.view.View);
+  }
+
+}
+

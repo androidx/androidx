@@ -18,6 +18,8 @@ package androidx.build.libabigail
 
 import androidx.build.OperatingSystem
 import androidx.build.getOperatingSystem
+import java.io.File
+import javax.inject.Inject
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.provider.ListProperty
@@ -33,8 +35,6 @@ import org.gradle.process.ExecOperations
 import org.gradle.workers.WorkAction
 import org.gradle.workers.WorkParameters
 import org.gradle.workers.WorkerExecutor
-import java.io.File
-import javax.inject.Inject
 
 private const val ARCH_PREFIX = "android."
 internal val architectures = listOf("arm64-v8a", "armeabi-v7a", "x86", "x86_64")

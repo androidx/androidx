@@ -187,7 +187,7 @@ public class AppAuthenticator {
     /**
      * Allows injection of the {@code appSignatureVerifier} to be used during tests.
      */
-    @VisibleForTesting(otherwise = VisibleForTesting.NONE)
+    @VisibleForTesting
     void setAppSignatureVerifier(AppSignatureVerifier appSignatureVerifier) {
         mAppSignatureVerifier = appSignatureVerifier;
     }
@@ -196,7 +196,7 @@ public class AppAuthenticator {
      * Allows injection of the {@code appAuthenticatorUtils} to be used during tests.
      * @param appAuthenticatorUtils
      */
-    @VisibleForTesting(otherwise = VisibleForTesting.NONE)
+    @VisibleForTesting
     void setAppAuthenticatorUtils(AppAuthenticatorUtils appAuthenticatorUtils) {
         mAppAuthenticatorUtils = appAuthenticatorUtils;
     }

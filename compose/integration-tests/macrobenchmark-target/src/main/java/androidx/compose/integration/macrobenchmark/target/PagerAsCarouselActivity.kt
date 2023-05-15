@@ -45,7 +45,7 @@ class PagerAsCarouselActivity : ComponentActivity() {
         val itemCount = intent.getIntExtra(ExtraItemCount, 3000)
 
         setContent {
-            val pagerState = rememberPagerState()
+            val pagerState = rememberPagerState { itemCount }
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -57,7 +57,6 @@ class PagerAsCarouselActivity : ComponentActivity() {
                         .semantics { contentDescription = "Carousel" }
                         .background(Color.White),
                     state = pagerState,
-                    pageCount = itemCount,
                     pageSize = PageSize.Fixed(200.dp)
                 ) {
                     PagerItem(it)

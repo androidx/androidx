@@ -24,6 +24,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -50,8 +51,8 @@ internal actual class CurvedTextDelegate {
     private var clockwise: Boolean = true
     private var fontSizePx: Float = 0f
 
-    actual var textWidth by mutableStateOf(0f)
-    actual var textHeight by mutableStateOf(0f)
+    actual var textWidth by mutableFloatStateOf(0f)
+    actual var textHeight by mutableFloatStateOf(0f)
     actual var baseLinePosition = 0f
 
     private var typeFace: State<Typeface?> = mutableStateOf(null)

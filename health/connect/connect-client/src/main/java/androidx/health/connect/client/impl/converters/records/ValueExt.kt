@@ -37,6 +37,9 @@ internal fun stringVal(value: String): DataProto.Value =
 internal fun enumVal(value: String): DataProto.Value =
     DataProto.Value.newBuilder().setEnumVal(value).build()
 
+internal fun boolVal(value: Boolean): DataProto.Value =
+    DataProto.Value.newBuilder().setBooleanVal(value).build()
+
 internal fun enumValFromInt(value: Int, intToStringMap: Map<Int, String>): DataProto.Value? {
     return intToStringMap[value]?.let(::enumVal)
 }

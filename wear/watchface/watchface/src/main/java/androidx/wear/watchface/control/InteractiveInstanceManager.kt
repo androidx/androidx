@@ -73,10 +73,10 @@ internal class InteractiveInstanceManager {
         }
 
         /**
-         * We either return the pendingWallpaperInteractiveWatchFaceInstance if there is one or
-         * set parameterlessEngine. A parameterless engine, is one that's been created without any
-         * start up params. Typically this can only happen if a WSL watchface is upgraded to an
-         * androidx one, so WallpaperManager knows about it but WearServices/WSL does not.
+         * We either return the pendingWallpaperInteractiveWatchFaceInstance if there is one or set
+         * parameterlessEngine. A parameterless engine, is one that's been created without any start
+         * up params. Typically this can only happen if a WSL watchface is upgraded to an androidx
+         * one, so WallpaperManager knows about it but WearServices/WSL does not.
          */
         @SuppressLint("SyntheticAccessor")
         fun setParameterlessEngineOrTakePendingWallpaperInteractiveWatchFaceInstance(

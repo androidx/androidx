@@ -27,6 +27,7 @@ import androidx.baselineprofile.gradle.utils.TEST_AGP_VERSION_ALL
 import androidx.baselineprofile.gradle.utils.VariantProfile
 import androidx.baselineprofile.gradle.utils.build
 import androidx.baselineprofile.gradle.utils.buildAndAssertThatOutput
+import androidx.baselineprofile.gradle.utils.buildAndFailAndAssertThatOutput
 import androidx.baselineprofile.gradle.utils.require
 import androidx.baselineprofile.gradle.utils.requireInOrder
 import com.google.common.truth.Truth.assertThat
@@ -151,6 +152,32 @@ class BaselineProfileConsumerPluginTest(agpVersion: String?) {
     }
 
     @Test
+    fun testGenerateTaskWithNoFlavorsForApplicationAndNoStartupProfile() {
+        projectSetup.consumer.setup(
+            androidPlugin = ANDROID_APPLICATION_PLUGIN
+        )
+        projectSetup.producer.setupWithoutFlavors(
+            releaseProfileLines = listOf(
+                Fixtures.CLASS_1_METHOD_1,
+                Fixtures.CLASS_1,
+            ),
+            releaseStartupProfileLines = listOf()
+        )
+
+        gradleRunner
+            .withArguments("generateBaselineProfile", "--stacktrace")
+            .build()
+
+        assertThat(readBaselineProfileFileContent("release"))
+            .containsExactly(
+                Fixtures.CLASS_1,
+                Fixtures.CLASS_1_METHOD_1,
+            )
+
+        assertThat(startupProfileFile("release").exists()).isFalse()
+    }
+
+    @Test
     fun testGenerateTaskWithFlavorsAndDefaultMerge() {
         projectSetup.consumer.setup(
             androidPlugin = ANDROID_APPLICATION_PLUGIN,
@@ -260,9 +287,6 @@ class BaselineProfileConsumerPluginTest(agpVersion: String?) {
             androidPlugin = ANDROID_APPLICATION_PLUGIN,
             flavors = true,
             dependencyOnProducerProject = true,
-            baselineProfileBlock = """
-                enableR8BaselineProfileRewrite = false
-            """.trimIndent(),
             additionalGradleCodeBlock = """
                 androidComponents {
                     onVariants(selector()) { variant ->
@@ -317,7 +341,7 @@ class BaselineProfileConsumerPluginTest(agpVersion: String?) {
     }
 
     @Test
-    fun testR8RewriteBaselineProfilePropertySet() {
+    fun testExperimentalPropertiesNotSet() {
         projectSetup.producer.setupWithFreeAndPaidFlavors(
             freeReleaseProfileLines = listOf(Fixtures.CLASS_1_METHOD_1, Fixtures.CLASS_1),
             paidReleaseProfileLines = listOf(Fixtures.CLASS_2_METHOD_1, Fixtures.CLASS_2)
@@ -326,31 +350,20 @@ class BaselineProfileConsumerPluginTest(agpVersion: String?) {
             androidPlugin = ANDROID_LIBRARY_PLUGIN,
             dependencyOnProducerProject = true,
             flavors = true,
-            buildTypeAnotherRelease = true,
-            additionalGradleCodeBlock = """
-                androidComponents {
-                    onVariants(selector()) { variant ->
-                        println(variant.name)
-                        tasks.register("print" + variant.name, PrintTask) { t ->
-                            def prop = "android.experimental.art-profile-r8-rewriting"
-                            if (prop in variant.experimentalProperties) {
-                                def value = variant.experimentalProperties[prop].get().toString()
-                                t.text.set( "r8-rw=" + value)
-                            } else {
-                                t.text.set( "r8-rw=false")
-                            }
-                        }
-                    }
-                }
-            """.trimIndent()
+            buildTypeAnotherRelease = true
         )
 
         arrayOf(
-            "printFreeRelease",
-            "printPaidRelease",
-            "printFreeAnotherRelease",
-            "printPaidAnotherRelease",
-        ).forEach { gradleRunner.buildAndAssertThatOutput(it) { contains("r8-rw=false") } }
+            "printExperimentalPropertiesForVariantFreeRelease",
+            "printExperimentalPropertiesForVariantPaidRelease",
+            "printExperimentalPropertiesForVariantFreeAnotherRelease",
+            "printExperimentalPropertiesForVariantPaidAnotherRelease",
+        ).forEach {
+            gradleRunner.buildAndAssertThatOutput(it) {
+                doesNotContain("android.experimental.art-profile-r8-rewriting=")
+                doesNotContain("android.experimental.r8.dex-startup-optimization=")
+            }
+        }
     }
 
     @Test
@@ -646,7 +659,6 @@ class BaselineProfileConsumerPluginTest(agpVersion: String?) {
             baselineProfileBlock = """
 
                 // Global configuration
-                enableR8BaselineProfileRewrite = false
                 saveInSrc = true
                 automaticGenerationDuringBuild = false
                 baselineProfileOutputDir = "generated/baselineProfiles"
@@ -655,14 +667,12 @@ class BaselineProfileConsumerPluginTest(agpVersion: String?) {
                 // Per variant configuration overrides global configuration.
                 variants {
                     free {
-                        enableR8BaselineProfileRewrite = true
                         saveInSrc = false
                         automaticGenerationDuringBuild = true
                         baselineProfileOutputDir = "somefolder"
                         mergeIntoMain = false
                     }
                     paidRelease {
-                        enableR8BaselineProfileRewrite = true
                         saveInSrc = false
                         automaticGenerationDuringBuild = true
                         baselineProfileOutputDir = "someOtherfolder"
@@ -676,7 +686,6 @@ class BaselineProfileConsumerPluginTest(agpVersion: String?) {
         gradleRunner.buildAndAssertThatOutput(
             "printBaselineProfileExtensionForVariantFreeRelease"
         ) {
-            contains("enableR8BaselineProfileRewrite=`true`")
             contains("saveInSrc=`false`")
             contains("automaticGenerationDuringBuild=`true`")
             contains("baselineProfileOutputDir=`somefolder`")
@@ -686,7 +695,6 @@ class BaselineProfileConsumerPluginTest(agpVersion: String?) {
         gradleRunner.buildAndAssertThatOutput(
             "printBaselineProfileExtensionForVariantPaidRelease"
         ) {
-            contains("enableR8BaselineProfileRewrite=`true`")
             contains("saveInSrc=`false`")
             contains("automaticGenerationDuringBuild=`true`")
             contains("baselineProfileOutputDir=`someOtherfolder`")
@@ -706,7 +714,6 @@ class BaselineProfileConsumerPluginTest(agpVersion: String?) {
             baselineProfileBlock = """
 
                 // Global configuration
-                enableR8BaselineProfileRewrite = false
                 saveInSrc = true
                 automaticGenerationDuringBuild = false
                 baselineProfileOutputDir = "generated/baselineProfiles"
@@ -715,14 +722,12 @@ class BaselineProfileConsumerPluginTest(agpVersion: String?) {
                 // Per variant configuration overrides global configuration.
                 variants {
                     release {
-                        enableR8BaselineProfileRewrite = true
                         saveInSrc = false
                         automaticGenerationDuringBuild = true
                         baselineProfileOutputDir = "myReleaseFolder"
                         mergeIntoMain = false
                     }
                     paidRelease {
-                        enableR8BaselineProfileRewrite = true
                         saveInSrc = false
                         automaticGenerationDuringBuild = true
                         baselineProfileOutputDir = "someOtherfolder"
@@ -736,7 +741,6 @@ class BaselineProfileConsumerPluginTest(agpVersion: String?) {
         gradleRunner.buildAndAssertThatOutput(
             "printBaselineProfileExtensionForVariantFreeRelease"
         ) {
-            contains("enableR8BaselineProfileRewrite=`true`")
             contains("saveInSrc=`false`")
             contains("automaticGenerationDuringBuild=`true`")
             contains("baselineProfileOutputDir=`myReleaseFolder`")
@@ -746,7 +750,6 @@ class BaselineProfileConsumerPluginTest(agpVersion: String?) {
         gradleRunner.buildAndAssertThatOutput(
             "printBaselineProfileExtensionForVariantPaidRelease"
         ) {
-            contains("enableR8BaselineProfileRewrite=`true`")
             contains("saveInSrc=`false`")
             contains("automaticGenerationDuringBuild=`true`")
             contains("baselineProfileOutputDir=`someOtherfolder`")
@@ -1082,6 +1085,60 @@ class BaselineProfileConsumerPluginTestWithAgp80 {
             assertThat(notFound).isEmpty()
         }
     }
+
+    @Test
+    fun testRulesRewriteExperimentalPropertiesSet() {
+        projectSetup.producer.setupWithFreeAndPaidFlavors(
+            freeReleaseProfileLines = listOf(Fixtures.CLASS_1_METHOD_1, Fixtures.CLASS_1),
+            paidReleaseProfileLines = listOf(Fixtures.CLASS_2_METHOD_1, Fixtures.CLASS_2)
+        )
+        projectSetup.consumer.setup(
+            androidPlugin = ANDROID_LIBRARY_PLUGIN,
+            dependencyOnProducerProject = true,
+            flavors = true,
+            buildTypeAnotherRelease = true,
+            baselineProfileBlock = """
+                baselineProfileRulesRewrite = true
+            """.trimIndent()
+        )
+        arrayOf(
+            "printExperimentalPropertiesForVariantFreeRelease",
+            "printExperimentalPropertiesForVariantPaidRelease",
+            "printExperimentalPropertiesForVariantFreeAnotherRelease",
+            "printExperimentalPropertiesForVariantPaidAnotherRelease",
+        ).forEach {
+            projectSetup.consumer.gradleRunner.buildAndFailAndAssertThatOutput(it) {
+                contains("Unable to set baseline profile rules rewrite property")
+            }
+        }
+    }
+
+    @Test
+    fun testDexLayoutOptimizationExperimentalPropertiesSet() {
+        projectSetup.producer.setupWithFreeAndPaidFlavors(
+            freeReleaseProfileLines = listOf(Fixtures.CLASS_1_METHOD_1, Fixtures.CLASS_1),
+            paidReleaseProfileLines = listOf(Fixtures.CLASS_2_METHOD_1, Fixtures.CLASS_2)
+        )
+        projectSetup.consumer.setup(
+            androidPlugin = ANDROID_LIBRARY_PLUGIN,
+            dependencyOnProducerProject = true,
+            flavors = true,
+            buildTypeAnotherRelease = true,
+            baselineProfileBlock = """
+                dexLayoutOptimization = true
+            """.trimIndent()
+        )
+        arrayOf(
+            "printExperimentalPropertiesForVariantFreeRelease",
+            "printExperimentalPropertiesForVariantPaidRelease",
+            "printExperimentalPropertiesForVariantFreeAnotherRelease",
+            "printExperimentalPropertiesForVariantPaidAnotherRelease",
+        ).forEach {
+            projectSetup.consumer.gradleRunner.buildAndFailAndAssertThatOutput(it) {
+                contains(" Unable to set dex layout optimization property")
+            }
+        }
+    }
 }
 
 @RunWith(JUnit4::class)
@@ -1226,5 +1283,36 @@ class BaselineProfileConsumerPluginTestWithAgp81 {
 
                 assertThat(notFound).isEmpty()
             }
+    }
+
+    @Test
+    fun testExperimentalPropertiesSet() {
+        projectSetup.producer.setupWithFreeAndPaidFlavors(
+            freeReleaseProfileLines = listOf(Fixtures.CLASS_1_METHOD_1, Fixtures.CLASS_1),
+            paidReleaseProfileLines = listOf(Fixtures.CLASS_2_METHOD_1, Fixtures.CLASS_2)
+        )
+        projectSetup.consumer.setup(
+            androidPlugin = ANDROID_LIBRARY_PLUGIN,
+            dependencyOnProducerProject = true,
+            flavors = true,
+            buildTypeAnotherRelease = true,
+            baselineProfileBlock = """
+                baselineProfileRulesRewrite = true
+                dexLayoutOptimization = true
+            """.trimIndent()
+        )
+
+        arrayOf(
+            "printExperimentalPropertiesForVariantFreeRelease",
+            "printExperimentalPropertiesForVariantPaidRelease",
+            "printExperimentalPropertiesForVariantFreeAnotherRelease",
+            "printExperimentalPropertiesForVariantPaidAnotherRelease",
+        ).forEach {
+            projectSetup.consumer.gradleRunner.buildAndAssertThatOutput(it) {
+                // These properties are ignored in agp 8.0
+                contains("android.experimental.art-profile-r8-rewriting=true")
+                contains("android.experimental.r8.dex-startup-optimization=true")
+            }
+        }
     }
 }

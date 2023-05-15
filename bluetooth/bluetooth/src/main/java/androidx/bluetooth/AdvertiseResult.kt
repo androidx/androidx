@@ -28,7 +28,6 @@ import kotlin.annotation.Retention
 @Retention(AnnotationRetention.SOURCE)
 @IntDef(
     AdvertiseResult.ADVERTISE_STARTED,
-    AdvertiseResult.ADVERTISE_FAILED_ALREADY_STARTED,
     AdvertiseResult.ADVERTISE_FAILED_DATA_TOO_LARGE,
     AdvertiseResult.ADVERTISE_FAILED_FEATURE_UNSUPPORTED,
     AdvertiseResult.ADVERTISE_FAILED_INTERNAL_ERROR,
@@ -39,19 +38,16 @@ public annotation class AdvertiseResult {
         /* Advertise started successfully. */
         public const val ADVERTISE_STARTED: Int = 1
 
-        /* Advertise failed to start because it's already started. */
-        public const val ADVERTISE_FAILED_ALREADY_STARTED: Int = 2
-
         /* Advertise failed to start because the data is too large. */
-        public const val ADVERTISE_FAILED_DATA_TOO_LARGE: Int = 3
+        public const val ADVERTISE_FAILED_DATA_TOO_LARGE: Int = 2
 
         /* Advertise failed to start because the advertise feature is not supported. */
-        public const val ADVERTISE_FAILED_FEATURE_UNSUPPORTED: Int = 4
+        public const val ADVERTISE_FAILED_FEATURE_UNSUPPORTED: Int = 3
 
         /* Advertise failed to start because of an internal error. */
-        public const val ADVERTISE_FAILED_INTERNAL_ERROR: Int = 5
+        public const val ADVERTISE_FAILED_INTERNAL_ERROR: Int = 4
 
         /* Advertise failed to start because of too many advertisers. */
-        public const val ADVERTISE_FAILED_TOO_MANY_ADVERTISERS: Int = 6
+        public const val ADVERTISE_FAILED_TOO_MANY_ADVERTISERS: Int = 5
     }
 }

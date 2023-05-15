@@ -30,9 +30,9 @@ import com.android.tools.lint.detector.api.Scope
 import com.android.tools.lint.detector.api.Severity
 import com.android.tools.lint.detector.api.SourceCodeScanner
 import com.intellij.psi.PsiMethod
+import java.util.EnumSet
 import org.jetbrains.uast.UCallExpression
 import org.jetbrains.uast.kotlin.KotlinULiteralExpression
-import java.util.EnumSet
 
 /**
  * [Detector] that checks hex Color definitions to ensure that they provide values for all four

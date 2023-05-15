@@ -1,4 +1,3 @@
-import com.android.build.api.artifact.SingleArtifact
 import org.gradle.work.DisableCachingByDefault
 
 import static androidx.baselineprofile.gradle.utils.UtilsKt.camelCase
@@ -21,14 +20,23 @@ abstract class AssertEqualsAndCleanUpTask extends DefaultTask {
     @TaskAction
     void exec() {
 
+        File expectedFile = getExpectedFile().get().asFile
         File actualFile = new File(actualFilePath.get())
+
+        if (!expectedFile.exists() && actualFile.exists()) {
+            throw new GradleException("No profile was expected in ${actualFile.absolutePath}.")
+        }
+        if (expectedFile.exists() && !actualFile.exists()) {
+            throw new GradleException("A profile was expected in ${actualFile.absolutePath}.")
+        }
+
         if (!actualFile.exists()) {
             throw new GradleException(
-                    "A baseline profile was expected in ${actualFile.absolutePath}."
+                    "A profile was expected in ${actualFile.absolutePath}."
             )
         }
 
-        def expectedIter = getExpectedFile().get().asFile.text.lines().iterator()
+        def expectedIter = expectedFile.text.lines().iterator()
         def actualIter = actualFile.text.lines().iterator()
 
         def lineCounter = 0
@@ -43,11 +51,9 @@ abstract class AssertEqualsAndCleanUpTask extends DefaultTask {
         }
 
         if (!diff.isEmpty()) {
-            logger.error("Actual generated baseline profile differs from expected one: \n\t"
+            logger.error("Actual generated profile differs from expected one: \n\t"
                     + diff.join("\n\t"))
-            throw new GradleException(
-                    "Actual generated baseline profile differs from expected one."
-            )
+            throw new GradleException("Actual generated profile differs from expected one.")
         }
 
         // This deletes the actual file since it's a test artifact
@@ -59,14 +65,20 @@ abstract class AssertEqualsAndCleanUpTask extends DefaultTask {
 // present and have the same content.
 def testTaskProviders = []
 
-def registerAssertTask(ArrayList<TaskProvider<Task>> testTaskProviders, String variantName) {
+def registerAssertTask(
+        ArrayList<TaskProvider<Task>> testTaskProviders,
+        String variantName,
+        String taskName,
+        String expectedFilename,
+        String filename
+) {
 
     def expectedBaselineProfileSubDir = "generated/baselineProfiles"
 
     def expectedFile = project
             .layout
             .projectDirectory
-            .file("src/$variantName/$expectedBaselineProfileSubDir/expected-baseline-prof.txt")
+            .file("src/$variantName/$expectedBaselineProfileSubDir/${expectedFilename}.txt")
 
     // If there is no expected file then skip testing this variant.
     if (!expectedFile.asFile.exists()) {
@@ -74,14 +86,14 @@ def registerAssertTask(ArrayList<TaskProvider<Task>> testTaskProviders, String v
     }
 
     def taskProvider = project.tasks.register(
-            camelCase("test", variantName, "baselineProfileGeneration"),
+            camelCase("test", variantName, "${taskName}Generation"),
             AssertEqualsAndCleanUpTask
     ) {
         it.expectedFile.set(expectedFile)
         it.actualFilePath.set(project
                 .layout
                 .projectDirectory
-                .file("src/$variantName/$expectedBaselineProfileSubDir/baseline-prof.txt")
+                .file("src/$variantName/$expectedBaselineProfileSubDir/${filename}.txt")
                 .getAsFile()
                 .absolutePath)
 
@@ -95,7 +107,20 @@ def registerAssertTask(ArrayList<TaskProvider<Task>> testTaskProviders, String v
 // An assert task is defined per variant
 androidComponents {
     onVariants(selector().all()) { variant ->
-        registerAssertTask(testTaskProviders, variant.name)
+        registerAssertTask(
+                testTaskProviders,
+                variant.name,
+                "baselineProfile",
+                "expected-baseline-prof",
+                "baseline-prof"
+        )
+        registerAssertTask(
+                testTaskProviders,
+                variant.name,
+                "startupProfile",
+                "expected-startup-prof",
+                "startup-prof"
+        )
     }
 }
 

@@ -16,6 +16,15 @@
 
 package androidx.tv.integration.presentation
 
+import androidx.compose.animation.AnimatedContentScope
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -32,7 +41,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.tv.material3.Carousel
 import androidx.tv.material3.CarouselDefaults
-import androidx.tv.material3.CarouselScope
 import androidx.tv.material3.CarouselState
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Text
@@ -60,7 +68,11 @@ fun FeaturedCarousel(
                     .align(Alignment.BottomEnd)
                     .padding(end = 58.dp, bottom = 16.dp),
             )
-        }
+        },
+        contentTransformEndToStart =
+            fadeIn(tween(1000)).togetherWith(fadeOut(tween(1000))),
+        contentTransformStartToEnd =
+            fadeIn(tween(1000)).togetherWith(fadeOut(tween(1000)))
     ) { itemIndex ->
         val movie = movies[itemIndex]
 
@@ -80,22 +92,23 @@ fun FeaturedCarousel(
     }
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
-private fun CarouselScope.CarouselSlide(
+private fun AnimatedContentScope.CarouselSlide(
     title: String,
     description: String,
     background: @Composable () -> Unit,
     actions: @Composable () -> Unit
 ) {
-    CarouselItem(
-        background = {
-            background()
-        },
-        modifier = Modifier
-    ) {
+    Box {
+        background()
         Column(
-            modifier = Modifier.padding(start = 58.dp, top = 150.dp)
+            modifier = Modifier
+                .padding(start = 58.dp, top = 150.dp)
+                .animateEnterExit(
+                    enter = slideInHorizontally(animationSpec = tween(1000)) { it / 2 },
+                    exit = slideOutHorizontally(animationSpec = tween(1000))
+                )
         ) {
             Text(
                 text = title,

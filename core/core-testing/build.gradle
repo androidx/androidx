@@ -41,9 +41,9 @@ android {
 }
 
 androidx {
-    name = "androidx.core:core-testing"
+    name = "Core Testing"
     type = LibraryType.PUBLISHED_LIBRARY
     mavenVersion = LibraryVersions.CORE
     inceptionYear = "2023"
-    description = "Write tests using core APIs."
+    description = "Provides extensions for tests using Core APIs."
 }

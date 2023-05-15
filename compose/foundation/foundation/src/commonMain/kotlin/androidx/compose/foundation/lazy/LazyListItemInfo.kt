@@ -43,4 +43,9 @@ interface LazyListItemInfo {
      * slot for the item then this size will be calculated as the sum of their sizes.
      */
     val size: Int
+
+    /**
+     * The content type of the item which was passed to the item() or items() function.
+     */
+    val contentType: Any? get() = null
 }

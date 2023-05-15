@@ -16,8 +16,8 @@
 
 package androidx.appactions.interaction.capabilities.core.impl.converters
 
-import androidx.appactions.interaction.capabilities.core.values.Alarm
-import androidx.appactions.interaction.capabilities.core.values.Timer
+import androidx.appactions.builtintypes.experimental.types.Alarm
+import androidx.appactions.builtintypes.experimental.types.Timer
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -48,9 +48,9 @@ private val ALARM_OR_TIMER_TYPE_SPEC = UnionTypeSpec.Builder<AlarmOrTimer>()
 class UnionTypeSpecTest {
   @Test
   fun unionType_identifier() {
-    val alarmUnion = AlarmOrTimer(Alarm.newBuilder().setId("alarmId").build())
-    val timerUnion = AlarmOrTimer(Timer.newBuilder().setId("timerId").build())
-    val timerUnionWithoutId = AlarmOrTimer(Timer.newBuilder().build())
+    val alarmUnion = AlarmOrTimer(Alarm.Builder().setIdentifier("alarmId").build())
+    val timerUnion = AlarmOrTimer(Timer.Builder().setIdentifier("timerId").build())
+    val timerUnionWithoutId = AlarmOrTimer(Timer.Builder().build())
     assertThat(ALARM_OR_TIMER_TYPE_SPEC.getIdentifier(alarmUnion)).isEqualTo("alarmId")
     assertThat(ALARM_OR_TIMER_TYPE_SPEC.getIdentifier(timerUnion)).isEqualTo("timerId")
     assertThat(ALARM_OR_TIMER_TYPE_SPEC.getIdentifier(timerUnionWithoutId)).isNull()

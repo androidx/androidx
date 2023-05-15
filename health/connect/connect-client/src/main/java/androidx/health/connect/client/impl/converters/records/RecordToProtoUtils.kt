@@ -18,8 +18,12 @@
 package androidx.health.connect.client.impl.converters.records
 
 import androidx.annotation.RestrictTo
+import androidx.health.connect.client.records.ExerciseLap
+import androidx.health.connect.client.records.ExerciseRoute
+import androidx.health.connect.client.records.ExerciseSegment
 import androidx.health.connect.client.records.InstantaneousRecord
 import androidx.health.connect.client.records.IntervalRecord
+import androidx.health.connect.client.records.SleepSessionRecord
 import androidx.health.connect.client.records.metadata.Device
 import androidx.health.connect.client.records.metadata.DeviceTypes
 import androidx.health.connect.client.records.metadata.Metadata
@@ -54,25 +58,27 @@ internal fun IntervalRecord.intervalProto(): DataProto.DataPoint.Builder {
 @SuppressWarnings("GoodTime") // Suppress GoodTime for serialize/de-serialize.
 private fun DataProto.DataPoint.Builder.setMetadata(metadata: Metadata) = apply {
     if (metadata.id != Metadata.EMPTY_ID) {
-        setUid(metadata.id)
+        uid = metadata.id
     }
     if (metadata.dataOrigin.packageName.isNotEmpty()) {
-        setDataOrigin(
+        dataOrigin =
             DataProto.DataOrigin.newBuilder()
                 .setApplicationId(metadata.dataOrigin.packageName)
                 .build()
-        )
     }
 
     if (metadata.lastModifiedTime.isAfter(Instant.EPOCH)) {
-        setUpdateTimeMillis(metadata.lastModifiedTime.toEpochMilli())
+        updateTimeMillis = metadata.lastModifiedTime.toEpochMilli()
     }
 
     metadata.clientRecordId?.let { setClientId(it) }
     if (metadata.clientRecordVersion > 0) {
-        metadata.clientRecordVersion.let { setClientVersion(it) }
+        clientVersion = metadata.clientRecordVersion
     }
     metadata.device?.let { setDevice(it.toProto()) }
+    if (metadata.recordingMethod > 0) {
+        recordingMethod = metadata.recordingMethod
+    }
 }
 
 internal fun Device.toProto(): DataProto.Device {
@@ -82,6 +88,47 @@ internal fun Device.toProto(): DataProto.Device {
             obj.manufacturer?.let { setManufacturer(it) }
             obj.model?.let { setModel(it) }
             setType(DEVICE_TYPE_INT_TO_STRING_MAP.getOrDefault(obj.type, DeviceTypes.UNKNOWN))
+        }
+        .build()
+}
+
+internal fun SleepSessionRecord.Stage.toProto(): DataProto.SubTypeDataValue {
+    return DataProto.SubTypeDataValue.newBuilder()
+        .setStartTimeMillis(startTime.toEpochMilli())
+        .setEndTimeMillis(endTime.toEpochMilli())
+        .apply {
+            enumValFromInt(stage, SleepSessionRecord.STAGE_TYPE_INT_TO_STRING_MAP)?.let {
+                putValues("stage", it)
+            }
+        }.build()
+}
+internal fun ExerciseSegment.toProto(): DataProto.SubTypeDataValue {
+    return DataProto.SubTypeDataValue.newBuilder()
+        .setStartTimeMillis(startTime.toEpochMilli())
+        .setEndTimeMillis(endTime.toEpochMilli())
+        .putValues("type", longVal(segmentType.toLong()))
+        .putValues("reps", longVal(repetitions.toLong()))
+        .build()
+}
+
+internal fun ExerciseLap.toProto(): DataProto.SubTypeDataValue {
+    return DataProto.SubTypeDataValue.newBuilder()
+        .setStartTimeMillis(startTime.toEpochMilli())
+        .setEndTimeMillis(endTime.toEpochMilli())
+        .apply { length?.let { putValues("length", doubleVal(it.inMeters)) } }
+        .build()
+}
+
+internal fun ExerciseRoute.Location.toProto(): DataProto.SubTypeDataValue {
+    return DataProto.SubTypeDataValue.newBuilder()
+        .setStartTimeMillis(time.toEpochMilli())
+        .setEndTimeMillis(time.toEpochMilli())
+        .putValues("latitude", doubleVal(latitude))
+        .putValues("longitude", doubleVal(longitude))
+        .apply {
+            horizontalAccuracy?.let { putValues("horizontal_accuracy", doubleVal(it.inMeters)) }
+            verticalAccuracy?.let { putValues("vertical_accuracy", doubleVal(it.inMeters)) }
+            altitude?.let { putValues("altitude", doubleVal(it.inMeters)) }
         }
         .build()
 }

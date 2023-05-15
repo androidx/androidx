@@ -20,10 +20,16 @@ import android.app.Activity
 import android.os.Build
 import android.view.Gravity
 import android.view.View
+import android.view.ViewTreeObserver
 import android.widget.Button
 import android.widget.FrameLayout
 import android.widget.ListView
 import android.widget.TextView
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.glance.Button
@@ -42,6 +48,8 @@ import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertIs
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -51,9 +59,11 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import org.junit.Rule
 import org.junit.Test
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @SdkSuppress(minSdkVersion = 29)
 @MediumTest
 class LazyColumnTest {
@@ -325,6 +335,48 @@ class LazyColumnTest {
     }
 
     @Test
+    fun adapter_emptyList() {
+        TestGlanceAppWidget.uiDefinition = {
+            LazyColumn { }
+        }
+
+        mHostRule.startHost()
+
+        mHostRule.waitForListView { list ->
+            assertThat(list.childCount).isEqualTo(0)
+            assertThat(list.adapter.count).isEqualTo(0)
+            assertThat(list.adapter.viewTypeCount).isAtLeast(1)
+            assertThat(list.adapter.hasStableIds()).isFalse()
+        }
+    }
+
+    @Test
+    fun adapter_itemContentChangesOnClick_appliedCorrectly() {
+        TestGlanceAppWidget.uiDefinition = {
+            var count by remember { mutableStateOf(1) }
+            LazyColumn {
+                item {
+                    Text(
+                        text = "Row item 0, count $count",
+                        modifier = GlanceModifier.clickable {
+                            count++
+                        })
+                }
+            }
+        }
+
+        mHostRule.startHost()
+
+        mHostRule.waitForListViewChildren { list ->
+            val row = list.getUnboxedListItem<FrameLayout>(0)
+            val rowItem0 = row.notGoneChildren.first()
+            rowItem0.performClick()
+        }
+
+        mHostRule.waitForListViewChildWithText(text = "Row item 0, count 1") {}
+    }
+
+    @Test
     @SdkSuppress(minSdkVersion = 31)
     fun clickable_addsClickHandlers() {
         TestGlanceAppWidget.uiDefinition = {
@@ -456,6 +508,61 @@ class LazyColumnTest {
             assertThat(lastClicked).isEqualTo(index)
         }
     }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 29, maxSdkVersion = 31)
+    fun listCanBeUpdated_RemoteViewsService() = runTest {
+        val countFlow = MutableStateFlow(0)
+        TestGlanceAppWidget.uiDefinition = {
+            val count by countFlow.collectAsState()
+            LazyColumn {
+                items(count) { Text("$it") }
+            }
+        }
+
+        mHostRule.startHost()
+        mHostRule.waitForListViewChildCount(countFlow.value)
+        (1..10).forEach { next ->
+            countFlow.emit(next)
+            mHostRule.waitForListViewChildCount(next)
+        }
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 32)
+    fun listCanBeUpdated_RemoteCollectionItems() = runTest {
+        val countFlow = MutableStateFlow(0)
+        TestGlanceAppWidget.uiDefinition = {
+            val count by countFlow.collectAsState()
+            LazyColumn {
+                items(count) { Text("$it") }
+            }
+        }
+
+        mHostRule.startHost()
+        mHostRule.waitForListViewChildCount(countFlow.value)
+        (1..10).forEach { next ->
+            countFlow.emit(next)
+            mHostRule.waitForListViewChildCount(next)
+        }
+    }
+}
+
+/**
+ * Wait until the ListView is loaded and has an adapter (irrespective of whether it has children or
+ * not). Use waitForListViewChildren if the list is expected to have children.
+ */
+internal fun AppWidgetHostRule.waitForListView(action: (list: ListView) -> Unit = {}) {
+    onHostView { }
+
+    runAndObserveUntilDraw(condition = "ListView did not load in time") {
+        mHostView.let { host ->
+            val list = host.findChildByType<ListView>()
+            host.childCount > 0 && list != null && list.adapter != null
+        }
+    }
+
+    onUnboxedHostView(action)
 }
 
 internal fun AppWidgetHostRule.waitForListViewChildren(action: (list: ListView) -> Unit = {}) {
@@ -469,6 +576,48 @@ internal fun AppWidgetHostRule.waitForListViewChildren(action: (list: ListView) 
     }
 
     onUnboxedHostView(action)
+}
+
+internal fun AppWidgetHostRule.waitForListViewChildWithText(
+    text: String,
+    action: (list: ListView) -> Unit = {}
+) {
+    onHostView { }
+
+    runAndObserveUntilDraw(condition = "List child with text '$text' not load in time") {
+        mHostView.let { host ->
+            val list = host.findChildByType<ListView>()
+            host.childCount > 0 && list?.isItemLoaded(text) ?: false
+        }
+    }
+
+    onUnboxedHostView(action)
+}
+
+/**
+ * Wait until the first ListView child under the root AppWidgetHostView has [count] children.
+ *
+ * Suspending version that does not timeout, instead relies on the `runTest` timeout.
+ */
+internal suspend fun AppWidgetHostRule.waitForListViewChildCount(count: Int) {
+    val resume = Channel<Unit>(Channel.CONFLATED)
+    fun test() = mHostView.findChildByType<ListView>()?.childCount == count
+    val onDrawListener = ViewTreeObserver.OnDrawListener {
+        if (test()) resume.trySend(Unit)
+    }
+
+    onHostActivity {
+        // If test is already true, do not wait for the next draw to resume
+        if (test()) resume.trySend(Unit)
+        mHostView.viewTreeObserver.addOnDrawListener(onDrawListener)
+    }
+    try {
+        resume.receive()
+    } finally {
+        onHostActivity {
+            mHostView.viewTreeObserver.removeOnDrawListener(onDrawListener)
+        }
+    }
 }
 
 /**

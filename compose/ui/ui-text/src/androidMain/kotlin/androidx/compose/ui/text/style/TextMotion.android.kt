@@ -17,12 +17,10 @@
 package androidx.compose.ui.text.style
 
 import androidx.compose.runtime.Immutable
-import androidx.compose.ui.text.ExperimentalTextApi
 
 /**
  * Implementation of possible TextMotion configurations on Android.
  */
-@ExperimentalTextApi
 @Immutable
 actual class TextMotion internal constructor(
     internal val linearity: Linearity,

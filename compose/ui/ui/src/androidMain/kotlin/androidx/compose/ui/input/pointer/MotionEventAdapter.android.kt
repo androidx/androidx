@@ -280,7 +280,7 @@ internal class MotionEventAdapter {
             else -> PointerType.Unknown
         }
 
-        val historical = mutableListOf<HistoricalChange>()
+        val historical = ArrayList<HistoricalChange>(motionEvent.historySize)
         with(motionEvent) {
             repeat(historySize) { pos ->
                 val x = getHistoricalX(index, pos)

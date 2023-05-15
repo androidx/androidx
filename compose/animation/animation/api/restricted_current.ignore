@@ -1,3 +1,9 @@
 // Baseline format: 1.0
+InvalidNullConversion: androidx.compose.animation.CrossfadeKt#Crossfade(T, androidx.compose.ui.Modifier, androidx.compose.animation.core.FiniteAnimationSpec<java.lang.Float>, String, kotlin.jvm.functions.Function1<? super T,kotlin.Unit>) parameter #0:
+    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter targetState in androidx.compose.animation.CrossfadeKt.Crossfade(T targetState, androidx.compose.ui.Modifier modifier, androidx.compose.animation.core.FiniteAnimationSpec<java.lang.Float> animationSpec, String label, kotlin.jvm.functions.Function1<? super T,kotlin.Unit> content)
+InvalidNullConversion: androidx.compose.animation.CrossfadeKt#Crossfade(T, androidx.compose.ui.Modifier, androidx.compose.animation.core.FiniteAnimationSpec<java.lang.Float>, kotlin.jvm.functions.Function1<? super T,? extends kotlin.Unit>) parameter #0:
+    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter targetState in androidx.compose.animation.CrossfadeKt.Crossfade(T targetState, androidx.compose.ui.Modifier modifier, androidx.compose.animation.core.FiniteAnimationSpec<java.lang.Float> animationSpec, kotlin.jvm.functions.Function1<? super T,? extends kotlin.Unit> content)
+
+
 RemovedDeprecatedMethod: androidx.compose.animation.SplineBasedFloatDecayAnimationSpec_androidKt#splineBasedDecayDeprecated(androidx.compose.ui.unit.Density):
     Removed deprecated method androidx.compose.animation.SplineBasedFloatDecayAnimationSpec_androidKt.splineBasedDecayDeprecated(androidx.compose.ui.unit.Density)

@@ -32,6 +32,6 @@ class ApiLintVersionsTest {
 
         val registry = ConstraintLayoutComposeIssueRegistry()
         assertThat(registry.api).isEqualTo(CURRENT_API)
-        assertThat(registry.minApi).isEqualTo(10)
+        assertThat(registry.minApi).isEqualTo(CURRENT_API)
     }
 }

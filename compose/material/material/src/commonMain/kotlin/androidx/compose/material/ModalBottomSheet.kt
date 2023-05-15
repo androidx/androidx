@@ -30,11 +30,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.material.AnchoredDraggableState.AnchorChangedCallback
 import androidx.compose.material.ModalBottomSheetState.Companion.Saver
 import androidx.compose.material.ModalBottomSheetValue.Expanded
 import androidx.compose.material.ModalBottomSheetValue.HalfExpanded
 import androidx.compose.material.ModalBottomSheetValue.Hidden
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
@@ -51,6 +53,8 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.collapse
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.dismiss
@@ -65,6 +69,7 @@ import androidx.compose.ui.unit.dp
 import kotlin.math.max
 import kotlin.math.roundToInt
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 /**
@@ -94,6 +99,7 @@ enum class ModalBottomSheetValue {
  *
  * @param initialValue The initial value of the state. <b>Must not be set to
  * [ModalBottomSheetValue.HalfExpanded] if [isSkipHalfExpanded] is set to true.</b>
+ * @param density The density that this state can use to convert values to and from dp.
  * @param animationSpec The default animation that will be used to animate to a new state.
  * @param confirmValueChange Optional callback invoked to confirm or veto a pending state change.
  * @param isSkipHalfExpanded Whether the half expanded state, if the sheet is tall enough, should
@@ -104,6 +110,53 @@ enum class ModalBottomSheetValue {
  * [IllegalArgumentException] will be thrown.
  */
 @ExperimentalMaterialApi
+@Suppress("Deprecation")
+fun ModalBottomSheetState(
+    initialValue: ModalBottomSheetValue,
+    density: Density,
+    animationSpec: AnimationSpec<Float> = SwipeableDefaults.AnimationSpec,
+    confirmValueChange: (ModalBottomSheetValue) -> Boolean = { true },
+    isSkipHalfExpanded: Boolean = false,
+) = ModalBottomSheetState(
+    initialValue = initialValue,
+    animationSpec = animationSpec,
+    isSkipHalfExpanded = isSkipHalfExpanded,
+    confirmStateChange = confirmValueChange
+).also {
+    it.density = density
+}
+
+/**
+ * State of the [ModalBottomSheetLayout] composable.
+ *
+ * @param initialValue The initial value of the state. <b>Must not be set to
+ * [ModalBottomSheetValue.HalfExpanded] if [isSkipHalfExpanded] is set to true.</b>
+ * @param animationSpec The default animation that will be used to animate to a new state.
+ * @param confirmValueChange Optional callback invoked to confirm or veto a pending state change.
+ * @param isSkipHalfExpanded Whether the half expanded state, if the sheet is tall enough, should
+ * be skipped. If true, the sheet will always expand to the [Expanded] state and move to the
+ * [Hidden] state when hiding the sheet, either programmatically or by user interaction.
+ * <b>Must not be set to true if the initialValue is [ModalBottomSheetValue.HalfExpanded].</b>
+ * If supplied with [ModalBottomSheetValue.HalfExpanded] for the initialValue, an
+ * [IllegalArgumentException] will be thrown.
+ */
+@ExperimentalMaterialApi
+@Deprecated(
+    "This constructor is deprecated. Density must be provided by the component. " +
+        "Please use the constructor that provides a [Density].",
+    ReplaceWith(
+        """
+            ModalBottomSheetState(
+                initialValue = initialValue,
+                density =,
+                animationSpec = animationSpec,
+                isSkipHalfExpanded = isSkipHalfExpanded,
+                confirmStateChange = confirmValueChange
+            )
+            """
+
+    )
+)
 @Suppress("Deprecation")
 fun ModalBottomSheetState(
     initialValue: ModalBottomSheetValue,
@@ -135,8 +188,10 @@ fun ModalBottomSheetState(
 class ModalBottomSheetState @Deprecated(
     message = "This constructor is deprecated. confirmStateChange has been renamed to " +
         "confirmValueChange.",
-    replaceWith = ReplaceWith("ModalBottomSheetState(" +
-        "initialValue, animationSpec, confirmStateChange, isSkipHalfExpanded)")
+    replaceWith = ReplaceWith(
+        "ModalBottomSheetState(" +
+            "initialValue, animationSpec, confirmStateChange, isSkipHalfExpanded)"
+    )
 ) constructor(
     initialValue: ModalBottomSheetValue,
     internal val animationSpec: AnimationSpec<Float> = SwipeableDefaults.AnimationSpec,
@@ -144,34 +199,40 @@ class ModalBottomSheetState @Deprecated(
     confirmStateChange: (ModalBottomSheetValue) -> Boolean
 ) {
 
-    internal val swipeableState = SwipeableV2State(
+    internal val anchoredDraggableState = AnchoredDraggableState(
         initialValue = initialValue,
         animationSpec = animationSpec,
         confirmValueChange = confirmStateChange,
-        positionalThreshold = PositionalThreshold,
-        velocityThreshold = VelocityThreshold
+        positionalThreshold = {
+            with(requireDensity()) {
+                ModalBottomSheetPositionalThreshold.toPx()
+            }
+        },
+        velocityThreshold = { with(requireDensity()) { ModalBottomSheetVelocityThreshold.toPx() } }
     )
 
     val currentValue: ModalBottomSheetValue
-        get() = swipeableState.currentValue
+        get() = anchoredDraggableState.currentValue
 
     val targetValue: ModalBottomSheetValue
-        get() = swipeableState.targetValue
+        get() = anchoredDraggableState.targetValue
 
     /**
      * Whether the bottom sheet is visible.
      */
     val isVisible: Boolean
-        get() = swipeableState.currentValue != Hidden
+        get() = anchoredDraggableState.currentValue != Hidden
 
     internal val hasHalfExpandedState: Boolean
-        get() = swipeableState.hasAnchorForValue(HalfExpanded)
+        get() = anchoredDraggableState.hasAnchorForValue(HalfExpanded)
 
     @Deprecated(
         message = "This constructor is deprecated. confirmStateChange has been renamed to " +
             "confirmValueChange.",
-        replaceWith = ReplaceWith("ModalBottomSheetState(" +
-            "initialValue, animationSpec, confirmStateChange, false)")
+        replaceWith = ReplaceWith(
+            "ModalBottomSheetState(" +
+                "initialValue, animationSpec, confirmStateChange, false)"
+        )
     )
     @Suppress("Deprecation")
     constructor(
@@ -224,7 +285,7 @@ class ModalBottomSheetState @Deprecated(
      * @throws [CancellationException] if the animation is interrupted
      */
     internal suspend fun expand() {
-        if (!swipeableState.hasAnchorForValue(Expanded)) {
+        if (!anchoredDraggableState.hasAnchorForValue(Expanded)) {
             return
         }
         animateTo(Expanded)
@@ -240,20 +301,27 @@ class ModalBottomSheetState @Deprecated(
 
     internal suspend fun animateTo(
         target: ModalBottomSheetValue,
-        velocity: Float = swipeableState.lastVelocity
-    ) = swipeableState.animateTo(target, velocity)
+        velocity: Float = anchoredDraggableState.lastVelocity
+    ) = anchoredDraggableState.animateTo(target, velocity)
 
-    internal suspend fun snapTo(target: ModalBottomSheetValue) = swipeableState.snapTo(target)
+    internal suspend fun snapTo(target: ModalBottomSheetValue) =
+        anchoredDraggableState.snapTo(target)
 
     internal fun trySnapTo(target: ModalBottomSheetValue): Boolean {
-        return swipeableState.trySnapTo(target)
+        return anchoredDraggableState.trySnapTo(target)
     }
 
-    internal fun requireOffset() = swipeableState.requireOffset()
+    internal fun requireOffset() = anchoredDraggableState.requireOffset()
 
-    internal val lastVelocity: Float get() = swipeableState.lastVelocity
+    internal val lastVelocity: Float get() = anchoredDraggableState.lastVelocity
 
-    internal val isAnimationRunning: Boolean get() = swipeableState.isAnimationRunning
+    internal val isAnimationRunning: Boolean get() = anchoredDraggableState.isAnimationRunning
+
+    internal var density: Density? = null
+    private fun requireDensity() = requireNotNull(density) {
+        "The density on ModalBottomSheetState ($this) was not set. Did you use " +
+            "ModalBottomSheetState with the ModalBottomSheetLayout composable?"
+    }
 
     companion object {
         /**
@@ -261,6 +329,38 @@ class ModalBottomSheetState @Deprecated(
          * Saves the [currentValue] and recreates a [ModalBottomSheetState] with the saved value as
          * initial value.
          */
+        fun Saver(
+            animationSpec: AnimationSpec<Float>,
+            confirmValueChange: (ModalBottomSheetValue) -> Boolean,
+            skipHalfExpanded: Boolean,
+            density: Density
+        ): Saver<ModalBottomSheetState, *> = Saver(
+            save = { it.currentValue },
+            restore = {
+                ModalBottomSheetState(
+                    initialValue = it,
+                    density = density,
+                    animationSpec = animationSpec,
+                    isSkipHalfExpanded = skipHalfExpanded,
+                    confirmValueChange = confirmValueChange
+                )
+            }
+        )
+
+        /**
+         * The default [Saver] implementation for [ModalBottomSheetState].
+         * Saves the [currentValue] and recreates a [ModalBottomSheetState] with the saved value as
+         * initial value.
+         */
+        @Deprecated(
+            message = "This function is deprecated. Please use the overload where Density is" +
+                " provided.",
+            replaceWith = ReplaceWith(
+                "Saver(animationSpec, confirmValueChange, density, " +
+                    "skipHalfExpanded)"
+            )
+        )
+        @Suppress("Deprecation")
         fun Saver(
             animationSpec: AnimationSpec<Float>,
             confirmValueChange: (ModalBottomSheetValue) -> Boolean,
@@ -285,9 +385,12 @@ class ModalBottomSheetState @Deprecated(
         @Deprecated(
             message = "This function is deprecated. confirmStateChange has been renamed to " +
                 "confirmValueChange.",
-            replaceWith = ReplaceWith("Saver(animationSpec, confirmStateChange, " +
-                "skipHalfExpanded)")
+            replaceWith = ReplaceWith(
+                "Saver(animationSpec, confirmStateChange, " +
+                    "skipHalfExpanded)"
+            )
         )
+        @Suppress("Deprecation")
         fun Saver(
             animationSpec: AnimationSpec<Float>,
             skipHalfExpanded: Boolean,
@@ -321,19 +424,22 @@ fun rememberModalBottomSheetState(
     confirmValueChange: (ModalBottomSheetValue) -> Boolean = { true },
     skipHalfExpanded: Boolean = false,
 ): ModalBottomSheetState {
+    val density = LocalDensity.current
     // Key the rememberSaveable against the initial value. If it changed we don't want to attempt
     // to restore as the restored value could have been saved with a now invalid set of anchors.
     // b/152014032
     return key(initialValue) {
         rememberSaveable(
-            initialValue, animationSpec, skipHalfExpanded, confirmValueChange,
+            initialValue, animationSpec, skipHalfExpanded, confirmValueChange, density,
             saver = Saver(
+                density = density,
                 animationSpec = animationSpec,
                 skipHalfExpanded = skipHalfExpanded,
                 confirmValueChange = confirmValueChange
             )
         ) {
             ModalBottomSheetState(
+                density = density,
                 initialValue = initialValue,
                 animationSpec = animationSpec,
                 isSkipHalfExpanded = skipHalfExpanded,
@@ -359,8 +465,10 @@ fun rememberModalBottomSheetState(
 @Deprecated(
     message = "This function is deprecated. confirmStateChange has been renamed to " +
         "confirmValueChange.",
-    replaceWith = ReplaceWith("rememberModalBottomSheetState(" +
-        "initialValue, animationSpec, confirmStateChange, false)")
+    replaceWith = ReplaceWith(
+        "rememberModalBottomSheetState(" +
+            "initialValue, animationSpec, confirmStateChange, false)"
+    )
 )
 @Composable
 @ExperimentalMaterialApi
@@ -386,8 +494,10 @@ fun rememberModalBottomSheetState(
 @Deprecated(
     message = "This function is deprecated. confirmStateChange has been renamed to " +
         "confirmValueChange.",
-    replaceWith = ReplaceWith("rememberModalBottomSheetState(" +
-        "initialValue, animationSpec, confirmValueChange = confirmStateChange)")
+    replaceWith = ReplaceWith(
+        "rememberModalBottomSheetState(" +
+            "initialValue, animationSpec, confirmValueChange = confirmStateChange)"
+    )
 )
 @Composable
 @ExperimentalMaterialApi
@@ -418,6 +528,7 @@ fun rememberModalBottomSheetState(
  * @param sheetContent The content of the bottom sheet.
  * @param modifier Optional [Modifier] for the entire component.
  * @param sheetState The state of the bottom sheet.
+ * @param sheetGesturesEnabled Whether the bottom sheet can be interacted with by gestures.
  * @param sheetShape The shape of the bottom sheet.
  * @param sheetElevation The elevation of the bottom sheet.
  * @param sheetBackgroundColor The background color of the bottom sheet.
@@ -437,6 +548,7 @@ fun ModalBottomSheetLayout(
     modifier: Modifier = Modifier,
     sheetState: ModalBottomSheetState =
         rememberModalBottomSheetState(Hidden),
+    sheetGesturesEnabled: Boolean = true,
     sheetShape: Shape = MaterialTheme.shapes.large,
     sheetElevation: Dp = ModalBottomSheetDefaults.Elevation,
     sheetBackgroundColor: Color = MaterialTheme.colors.surface,
@@ -444,19 +556,17 @@ fun ModalBottomSheetLayout(
     scrimColor: Color = ModalBottomSheetDefaults.scrimColor,
     content: @Composable () -> Unit
 ) {
+    // b/278692145 Remove this once deprecated methods without density are removed
+    if (sheetState.density == null) {
+        val density = LocalDensity.current
+        SideEffect {
+            sheetState.density = density
+        }
+    }
     val scope = rememberCoroutineScope()
     val orientation = Orientation.Vertical
-    val anchorChangeHandler = remember(sheetState, scope) {
-        ModalBottomSheetAnchorChangeHandler(
-            state = sheetState,
-            animateTo = { target, velocity ->
-                scope.launch { sheetState.animateTo(target, velocity = velocity) }
-            },
-            snapTo = { target ->
-                val didSnapSynchronously = sheetState.trySnapTo(target)
-                if (!didSnapSynchronously) scope.launch { sheetState.snapTo(target) }
-            }
-        )
+    val anchorChangeCallback = remember(sheetState, scope) {
+        ModalBottomSheetAnchorChangeCallback(sheetState, scope)
     }
     BoxWithConstraints(modifier) {
         val fullHeight = constraints.maxHeight.toFloat()
@@ -465,11 +575,11 @@ fun ModalBottomSheetLayout(
             Scrim(
                 color = scrimColor,
                 onDismiss = {
-                    if (sheetState.swipeableState.confirmValueChange(Hidden)) {
+                    if (sheetState.anchoredDraggableState.confirmValueChange(Hidden)) {
                         scope.launch { sheetState.hide() }
                     }
                 },
-                visible = sheetState.swipeableState.targetValue != Hidden
+                visible = sheetState.anchoredDraggableState.targetValue != Hidden
             )
         }
         Surface(
@@ -477,70 +587,84 @@ fun ModalBottomSheetLayout(
                 .align(Alignment.TopCenter) // We offset from the top so we'll center from there
                 .widthIn(max = MaxModalBottomSheetWidth)
                 .fillMaxWidth()
-                .nestedScroll(
-                    remember(sheetState.swipeableState, orientation) {
-                        ConsumeSwipeWithinBottomSheetBoundsNestedScrollConnection(
-                            state = sheetState.swipeableState,
-                            orientation = orientation
+                .then(
+                    if (sheetGesturesEnabled) {
+                        Modifier.nestedScroll(
+                            remember(sheetState.anchoredDraggableState, orientation) {
+                                ConsumeSwipeWithinBottomSheetBoundsNestedScrollConnection(
+                                    state = sheetState.anchoredDraggableState,
+                                    orientation = orientation
+                                )
+                            }
                         )
-                    }
+                    } else Modifier
                 )
                 .offset {
                     IntOffset(
                         0,
-                        sheetState.swipeableState
+                        sheetState.anchoredDraggableState
                             .requireOffset()
                             .roundToInt()
                     )
                 }
-                .swipeableV2(
-                    state = sheetState.swipeableState,
+                .anchoredDraggable(
+                    state = sheetState.anchoredDraggableState,
                     orientation = orientation,
-                    enabled = sheetState.swipeableState.currentValue != Hidden,
+                    enabled = sheetGesturesEnabled &&
+                        sheetState.anchoredDraggableState.currentValue != Hidden,
                 )
-                .swipeAnchors(
-                    state = sheetState.swipeableState,
-                    possibleValues = setOf(Hidden, HalfExpanded, Expanded),
-                    anchorChangeHandler = anchorChangeHandler
-                ) { state, sheetSize ->
-                    when (state) {
-                        Hidden -> fullHeight
-                        HalfExpanded -> when {
-                            sheetSize.height < fullHeight / 2f -> null
-                            sheetState.isSkipHalfExpanded -> null
-                            else -> fullHeight / 2f
+                .onSizeChanged { sheetSize ->
+                    val anchors = buildMap {
+                        put(Hidden, fullHeight)
+                        val halfHeight = fullHeight / 2f
+                        if (!sheetState.isSkipHalfExpanded && sheetSize.height > halfHeight) {
+                            put(HalfExpanded, halfHeight)
                         }
-
-                        Expanded -> if (sheetSize.height != 0) {
-                            max(0f, fullHeight - sheetSize.height)
-                        } else null
+                        if (sheetSize.height != 0) {
+                            put(Expanded, max(0f, fullHeight - sheetSize.height))
+                        }
                     }
+                    sheetState.anchoredDraggableState.updateAnchors(anchors, anchorChangeCallback)
                 }
-                .semantics {
-                    if (sheetState.isVisible) {
-                        dismiss {
-                            if (sheetState.swipeableState.confirmValueChange(Hidden)) {
-                                scope.launch { sheetState.hide() }
-                            }
-                            true
-                        }
-                        if (sheetState.swipeableState.currentValue == HalfExpanded) {
-                            expand {
-                                if (sheetState.swipeableState.confirmValueChange(Expanded)) {
-                                    scope.launch { sheetState.expand() }
+                .then(
+                    if (sheetGesturesEnabled) {
+                        Modifier.semantics {
+                            if (sheetState.isVisible) {
+                                dismiss {
+                                    if (
+                                        sheetState.anchoredDraggableState.confirmValueChange(Hidden)
+                                    ) {
+                                        scope.launch { sheetState.hide() }
+                                    }
+                                    true
                                 }
-                                true
-                            }
-                        } else if (sheetState.hasHalfExpandedState) {
-                            collapse {
-                                if (sheetState.swipeableState.confirmValueChange(HalfExpanded)) {
-                                    scope.launch { sheetState.halfExpand() }
+                                if (sheetState.anchoredDraggableState.currentValue
+                                    == HalfExpanded
+                                ) {
+                                    expand {
+                                        if (sheetState.anchoredDraggableState.confirmValueChange(
+                                                Expanded
+                                            )
+                                        ) {
+                                            scope.launch { sheetState.expand() }
+                                        }
+                                        true
+                                    }
+                                } else if (sheetState.hasHalfExpandedState) {
+                                    collapse {
+                                        if (sheetState.anchoredDraggableState.confirmValueChange(
+                                                HalfExpanded
+                                            )
+                                        ) {
+                                            scope.launch { sheetState.halfExpand() }
+                                        }
+                                        true
+                                    }
                                 }
-                                true
                             }
                         }
-                    }
-                },
+                    } else Modifier
+                ),
             shape = sheetShape,
             elevation = sheetElevation,
             color = sheetBackgroundColor,
@@ -604,7 +728,7 @@ object ModalBottomSheetDefaults {
 
 @OptIn(ExperimentalMaterialApi::class)
 private fun ConsumeSwipeWithinBottomSheetBoundsNestedScrollConnection(
-    state: SwipeableV2State<*>,
+    state: AnchoredDraggableState<*>,
     orientation: Orientation
 ): NestedScrollConnection = object : NestedScrollConnection {
     override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
@@ -658,18 +782,17 @@ private fun ConsumeSwipeWithinBottomSheetBoundsNestedScrollConnection(
 }
 
 @OptIn(ExperimentalMaterialApi::class)
-private fun ModalBottomSheetAnchorChangeHandler(
+private fun ModalBottomSheetAnchorChangeCallback(
     state: ModalBottomSheetState,
-    animateTo: (target: ModalBottomSheetValue, velocity: Float) -> Unit,
-    snapTo: (target: ModalBottomSheetValue) -> Unit,
-) = AnchorChangeHandler<ModalBottomSheetValue> { previousTarget, previousAnchors, newAnchors ->
-    val previousTargetOffset = previousAnchors[previousTarget]
-    val newTarget = when (previousTarget) {
+    scope: CoroutineScope
+) = AnchorChangedCallback<ModalBottomSheetValue> { prevTarget, prevAnchors, newAnchors ->
+    val previousTargetOffset = prevAnchors[prevTarget]
+    val newTarget = when (prevTarget) {
         Hidden -> Hidden
         HalfExpanded, Expanded -> {
             val hasHalfExpandedState = newAnchors.containsKey(HalfExpanded)
             val newTarget = if (hasHalfExpandedState) HalfExpanded
-                else if (newAnchors.containsKey(Expanded)) Expanded else Hidden
+            else if (newAnchors.containsKey(Expanded)) Expanded else Hidden
             newTarget
         }
     }
@@ -677,14 +800,15 @@ private fun ModalBottomSheetAnchorChangeHandler(
     if (newTargetOffset != previousTargetOffset) {
         if (state.isAnimationRunning) {
             // Re-target the animation to the new offset if it changed
-            animateTo(newTarget, state.lastVelocity)
+            scope.launch { state.animateTo(newTarget, velocity = state.lastVelocity) }
         } else {
             // Snap to the new offset value of the target if no animation was running
-            snapTo(newTarget)
+            val didSnapSynchronously = state.trySnapTo(newTarget)
+            if (!didSnapSynchronously) scope.launch { state.snapTo(newTarget) }
         }
     }
 }
 
-private val PositionalThreshold: Density.(Float) -> Float = { 56.dp.toPx() }
-private val VelocityThreshold = 125.dp
+private val ModalBottomSheetPositionalThreshold = 56.dp
+private val ModalBottomSheetVelocityThreshold = 125.dp
 private val MaxModalBottomSheetWidth = 640.dp

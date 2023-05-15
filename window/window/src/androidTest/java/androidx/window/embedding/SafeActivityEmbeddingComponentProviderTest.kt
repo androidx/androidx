@@ -18,9 +18,13 @@ package androidx.window.embedding
 
 import android.util.Log
 import androidx.window.core.ConsumerAdapter
+import androidx.window.core.ExtensionsUtil
 import androidx.window.extensions.WindowExtensions
+import androidx.window.extensions.WindowExtensions.VENDOR_API_LEVEL_1
 import androidx.window.extensions.WindowExtensionsProvider
+import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 /**
@@ -31,14 +35,13 @@ import org.junit.Test
  */
 class SafeActivityEmbeddingComponentProviderTest {
 
+    // TODO(b/267708462) : add a more reliable test
     /**
      * Test that if [WindowExtensionsProvider] is available then
      * use [SafeActivityEmbeddingComponentProvider.activityEmbeddingComponent] to validate.
      * If [WindowExtensions.getActivityEmbeddingComponent] matches contract,
      * return a non-null value.
      * If it doesn't match, it will return a null.
-     *
-     *  TODO(b/267708462) : add a more reliable test
      */
     @Test
     fun activityEmbeddingComponentIsAvailable_ifProviderIsAvailable() {
@@ -50,12 +53,12 @@ class SafeActivityEmbeddingComponentProviderTest {
             Log.d(TAG, "Device doesn't have WindowExtensions available")
             return
         }
-        val safeComponent = SafeActivityEmbeddingComponentProvider(
+        val safeProvider = SafeActivityEmbeddingComponentProvider(
             loader,
             consumerAdapter,
             windowExtensions
         )
-            .activityEmbeddingComponent
+        val safeComponent = safeProvider.activityEmbeddingComponent
         try {
             val actualComponent = windowExtensions.activityEmbeddingComponent
             if (actualComponent == null) {
@@ -63,8 +66,11 @@ class SafeActivityEmbeddingComponentProviderTest {
             } else {
                 // TODO(b/267573854) : verify upon each api level
                 // TODO(b/267708462) : more reliable test for testing actual method matching
-                if (safeComponent == null) {
-                    Log.d(TAG, "ActivityEmbeddingComponent on device doesn't match our constraints")
+                assertNotNull(safeComponent)
+                assertTrue(safeProvider.isActivityEmbeddingComponentAccessible())
+                when (ExtensionsUtil.safeVendorApiLevel) {
+                    VENDOR_API_LEVEL_1 -> assertTrue(safeProvider.hasValidVendorApiLevel1())
+                    else -> assertTrue(safeProvider.hasValidVendorApiLevel2())
                 }
             }
         } catch (e: UnsupportedOperationException) {

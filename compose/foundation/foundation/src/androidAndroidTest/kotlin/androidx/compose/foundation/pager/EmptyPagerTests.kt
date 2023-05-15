@@ -33,10 +33,8 @@ class EmptyPagerTests(val config: ParamConfig) : BasePagerTest(config) {
     @Test
     fun checkNoPagesArePlaced() {
         // Arrange
-        val state = PagerState()
-
         // Act
-        createPager(state = state, modifier = Modifier.fillMaxSize(), pageCount = { 0 })
+        createPager(pageCount = { 0 }, modifier = Modifier.fillMaxSize())
 
         // Assert
         rule.onNodeWithTag("0").assertDoesNotExist()

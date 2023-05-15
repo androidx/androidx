@@ -38,6 +38,7 @@ import androidx.camera.core.impl.CameraMode;
 import androidx.camera.core.impl.StreamSpec;
 import androidx.camera.core.impl.SurfaceConfig;
 import androidx.camera.core.impl.UseCaseConfig;
+import androidx.camera.core.impl.UseCaseConfigFactory;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -105,6 +106,8 @@ public class FakeCameraDeviceSurfaceManagerTest {
                         YUV_420_888,
                         new Size(1, 1),
                         DynamicRange.SDR,
+                        singletonList(UseCaseConfigFactory.CaptureType.IMAGE_ANALYSIS),
+                        preview,
                         new Range<>(30, 30));
         mFakeCameraDeviceSurfaceManager.getSuggestedStreamSpecs(
                 CameraMode.DEFAULT,
@@ -129,12 +132,12 @@ public class FakeCameraDeviceSurfaceManagerTest {
                 mFakeCameraDeviceSurfaceManager.getSuggestedStreamSpecs(
                         CameraMode.DEFAULT,
                         FAKE_CAMERA_ID0,
-                        Collections.emptyList(), createConfigOutputSizesMap(mFakeUseCaseConfig));
+                        emptyList(), createConfigOutputSizesMap(mFakeUseCaseConfig)).first;
         Map<UseCaseConfig<?>, StreamSpec> suggestedStreamSpecCamera1 =
                 mFakeCameraDeviceSurfaceManager.getSuggestedStreamSpecs(
                         CameraMode.DEFAULT,
                         FAKE_CAMERA_ID1,
-                        Collections.emptyList(), createConfigOutputSizesMap(mFakeUseCaseConfig));
+                        emptyList(), createConfigOutputSizesMap(mFakeUseCaseConfig)).first;
 
         assertThat(suggestedStreamSpecsCamera0.get(mFakeUseCaseConfig)).isEqualTo(
                 StreamSpec.builder(new Size(FAKE_WIDTH0, FAKE_HEIGHT0)).build());

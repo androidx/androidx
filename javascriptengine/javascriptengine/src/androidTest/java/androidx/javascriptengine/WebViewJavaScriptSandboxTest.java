@@ -17,8 +17,12 @@
 package androidx.javascriptengine;
 
 import android.content.Context;
+import android.content.pm.PackageInfo;
+import android.webkit.WebView;
 
 import androidx.annotation.GuardedBy;
+import androidx.annotation.NonNull;
+import androidx.core.content.pm.PackageInfoCompat;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
@@ -29,6 +33,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 import org.junit.Assert;
 import org.junit.Assume;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -50,6 +55,18 @@ public class WebViewJavaScriptSandboxTest {
     @Before
     public void setUp() throws Throwable {
         Assume.assumeTrue(JavaScriptSandbox.isSupported());
+    }
+
+    // Get the current WebView provider version. In a versionCode of AAAABBBCD, AAAA is the build
+    // number and BBB is the patch number. C and D may usually be ignored.
+    //
+    // Strongly prefer using feature flags over version checks if possible.
+    public long getWebViewVersion() {
+        PackageInfo systemWebViewPackage = WebView.getCurrentWebViewPackage();
+        if (systemWebViewPackage == null) {
+            Assert.fail("No current WebView provider");
+        }
+        return PackageInfoCompat.getLongVersionCode(systemWebViewPackage);
     }
 
     @Test
@@ -192,6 +209,7 @@ public class WebViewJavaScriptSandboxTest {
 
     @Test
     @MediumTest
+    @Ignore("b/268212217")
     public void testInfiniteLoop() throws Throwable {
         final String code = "while(true){}";
         Context context = ApplicationProvider.getApplicationContext();
@@ -220,6 +238,7 @@ public class WebViewJavaScriptSandboxTest {
 
     @Test
     @MediumTest
+    @Ignore("b/268212217")
     public void testMultipleInfiniteLoops() throws Throwable {
         final String code = "while(true){}";
         final int num_of_evaluations = 10;
@@ -254,6 +273,7 @@ public class WebViewJavaScriptSandboxTest {
 
     @Test
     @MediumTest
+    @Ignore("b/268212217")
     public void testSimpleArrayBuffer() throws Throwable {
         final String provideString = "Hello World";
         final byte[] bytes = provideString.getBytes(StandardCharsets.US_ASCII);
@@ -285,6 +305,7 @@ public class WebViewJavaScriptSandboxTest {
 
     @Test
     @MediumTest
+    @Ignore("b/268212217")
     public void testArrayBufferWasmCompilation() throws Throwable {
         final String success = "success";
         // The bytes of a minimal WebAssembly module, courtesy of v8/test/cctest/test-api-wasm.cc
@@ -318,6 +339,7 @@ public class WebViewJavaScriptSandboxTest {
 
     @Test
     @MediumTest
+    @Ignore("b/268212217")
     public void testPromiseReturn() throws Throwable {
         final String code = "Promise.resolve(\"PASS\")";
         final String expected = "PASS";
@@ -338,6 +360,7 @@ public class WebViewJavaScriptSandboxTest {
 
     @Test
     @MediumTest
+    @Ignore("b/268212217")
     public void testPromiseReturnLaterResolve() throws Throwable {
         final String code1 = "var promiseResolve, promiseReject;"
                 + "new Promise(function(resolve, reject){"
@@ -365,6 +388,7 @@ public class WebViewJavaScriptSandboxTest {
 
     @Test
     @MediumTest
+    @Ignore("b/268212217")
     public void testNestedConsumeNamedDataAsArrayBuffer() throws Throwable {
         final String success = "success";
         // The bytes of a minimal WebAssembly module, courtesy of v8/test/cctest/test-api-wasm.cc
@@ -408,6 +432,7 @@ public class WebViewJavaScriptSandboxTest {
 
     @Test
     @MediumTest
+    @Ignore("b/268212217")
     public void testPromiseEvaluationThrow() throws Throwable {
         final String provideString = "Hello World";
         final byte[] bytes = provideString.getBytes(StandardCharsets.US_ASCII);
@@ -530,6 +555,7 @@ public class WebViewJavaScriptSandboxTest {
 
     @Test
     @MediumTest
+    @Ignore("b/268212217")
     public void testHeapSizeAdjustment() throws Throwable {
         final String code = "\"PASS\"";
         final String expected = "PASS";
@@ -569,7 +595,16 @@ public class WebViewJavaScriptSandboxTest {
 
     @Test
     @LargeTest
+    @Ignore("b/268212217")
     public void testHeapSizeEnforced() throws Throwable {
+        // WebView versions < 110.0.5438.0 do not contain OOM crashes to a single isolate and
+        // instead crash the whole sandbox process. This change is not tracked in a feature flag.
+        // Versions < 110.0.5438.0 are not considered to be broken, but their behavior is not
+        // of interest for this test.
+        // See Chromium change: https://chromium-review.googlesource.com/c/chromium/src/+/4047785
+        Assume.assumeTrue("WebView version does not support per-isolate OOM handling",
+                getWebViewVersion() >= 5438_000_00L);
+
         final long maxHeapSize = REASONABLE_HEAP_SIZE;
         // We need to beat the v8 optimizer to ensure it really allocates the required memory. Note
         // that we're allocating an array of elements - not bytes. Filling will ensure that the
@@ -586,6 +621,7 @@ public class WebViewJavaScriptSandboxTest {
         try (JavaScriptSandbox jsSandbox = jsSandboxFuture1.get(5, TimeUnit.SECONDS)) {
             Assume.assumeTrue(jsSandbox.isFeatureSupported(
                     JavaScriptSandbox.JS_FEATURE_ISOLATE_MAX_HEAP_SIZE));
+
             Assume.assumeTrue(
                     jsSandbox.isFeatureSupported(JavaScriptSandbox.JS_FEATURE_PROMISE_RETURN));
             IsolateStartupParameters isolateStartupParameters = new IsolateStartupParameters();
@@ -655,7 +691,16 @@ public class WebViewJavaScriptSandboxTest {
 
     @Test
     @LargeTest
+    @Ignore("b/268212217")
     public void testIsolateCreationAfterCrash() throws Throwable {
+        // WebView versions < 110.0.5438.0 do not contain OOM crashes to a single isolate and
+        // instead crash the whole sandbox process. This change is not tracked in a feature flag.
+        // Versions < 110.0.5438.0 are not considered to be broken, but their behavior is not
+        // of interest for this test.
+        // See Chromium change: https://chromium-review.googlesource.com/c/chromium/src/+/4047785
+        Assume.assumeTrue("WebView version does not support per-isolate OOM handling",
+                getWebViewVersion() >= 5438_000_00L);
+
         final long maxHeapSize = REASONABLE_HEAP_SIZE;
         // We need to beat the v8 optimizer to ensure it really allocates the required memory. Note
         // that we're allocating an array of elements - not bytes. Filling will ensure that the
@@ -726,6 +771,7 @@ public class WebViewJavaScriptSandboxTest {
 
     @Test
     @MediumTest
+    @Ignore("b/268212217")
     public void testAsyncPromiseCallbacks() throws Throwable {
         // Unlike testPromiseReturn and testPromiseEvaluationThrow, this test is guaranteed to
         // exercise promises in an asynchronous way, rather than in ways which cause a promise to
@@ -794,6 +840,7 @@ public class WebViewJavaScriptSandboxTest {
 
     @Test
     @LargeTest
+    @Ignore("b/268212217")
     public void testLargeScriptJsEvaluation() throws Throwable {
         String longString = "a".repeat(2000000);
         final String code = ""
@@ -818,6 +865,7 @@ public class WebViewJavaScriptSandboxTest {
 
     @Test
     @LargeTest
+    @Ignore("b/268212217")
     public void testLargeScriptByteArrayJsEvaluation() throws Throwable {
         final String longString = "a".repeat(2000000);
         final String codeString = ""
@@ -843,6 +891,7 @@ public class WebViewJavaScriptSandboxTest {
 
     @Test
     @LargeTest
+    @Ignore("b/268212217")
     public void testLargeReturn() throws Throwable {
         final String longString = "a".repeat(2000000);
         final String code = "'a'.repeat(2000000);";
@@ -865,6 +914,7 @@ public class WebViewJavaScriptSandboxTest {
 
     @Test
     @LargeTest
+    @Ignore("b/268212217")
     public void testLargeError() throws Throwable {
         final String longString = "a".repeat(2000000);
         final String code = "throw \"" + longString + "\");";
@@ -891,6 +941,7 @@ public class WebViewJavaScriptSandboxTest {
 
     @Test
     @MediumTest
+    @Ignore("b/268212217")
     public void testResultSizeEnforced() throws Throwable {
         final int maxSize = 100;
         Context context = ApplicationProvider.getApplicationContext();
@@ -941,6 +992,7 @@ public class WebViewJavaScriptSandboxTest {
 
     @Test
     @LargeTest
+    @Ignore("b/268212217")
     public void testConsoleLogging() throws Throwable {
         final class LoggingJavaScriptConsoleCallback implements JavaScriptConsoleCallback {
             private final Object mLock = new Object();
@@ -957,7 +1009,8 @@ public class WebViewJavaScriptSandboxTest {
             }
 
             @Override
-            public void onConsoleMessage(JavaScriptConsoleCallback.ConsoleMessage message) {
+            public void onConsoleMessage(
+                    @NonNull JavaScriptConsoleCallback.ConsoleMessage message) {
                 synchronized (mLock) {
                     mMessages.append(message.toString()).append("\n");
                 }
@@ -1092,6 +1145,7 @@ public class WebViewJavaScriptSandboxTest {
 
     @Test
     @MediumTest
+    @Ignore("b/268212217")
     public void testConsoleCallbackCanCallService() throws Throwable {
         // This checks that there is nothing intrinsically wrong with calling service APIs from a
         // console client. Note that, in theory, Binder will reuse the same threads if code recurses
@@ -1123,7 +1177,7 @@ public class WebViewJavaScriptSandboxTest {
             CountDownLatch latch = new CountDownLatch(1);
             jsIsolate.setConsoleCallback(new JavaScriptConsoleCallback() {
                 @Override
-                public void onConsoleMessage(ConsoleMessage message) {}
+                public void onConsoleMessage(@NonNull ConsoleMessage message) {}
 
                 @Override
                 public void onConsoleClear() {

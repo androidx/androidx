@@ -61,10 +61,9 @@ private class OnGloballyPositionedElement(
         return onGloballyPositioned.hashCode()
     }
 
-    override fun update(node: OnGloballyPositionedNode): OnGloballyPositionedNode =
-        node.also {
-            it.callback = onGloballyPositioned
-        }
+    override fun update(node: OnGloballyPositionedNode) {
+        node.callback = onGloballyPositioned
+    }
 
     override fun InspectorInfo.inspectableProperties() {
         name = "onGloballyPositioned"

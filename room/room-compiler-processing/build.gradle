@@ -20,6 +20,42 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     id("AndroidXPlugin")
     id("kotlin")
+    id("com.github.johnrengelman.shadow")
+}
+
+configurations {
+    // For shadowed / jarjared deps
+    shadowed
+    // shadowed deps are compile only deps
+    compileOnly.extendsFrom(shadowed)
+    // compiler tests don't use shadowed, so include them
+    testCompile.extendsFrom(shadowed)
+    // for downstream tests
+    shadowAndImplementation.extendsFrom(shadow)
+    shadowAndImplementation.extendsFrom(implementation)
+}
+
+shadowJar {
+    archiveClassifier = ""
+    configurations = [project.configurations.shadowed]
+    relocate("kotlinx.metadata", "androidx.room.jarjarred.kotlinx.metadata")
+    mergeServiceFiles() // kotlinx-metadata-jvm has a service descriptor that needs transformation
+}
+
+jar {
+    archiveClassifier = "before-jarjar"
+}
+
+configurations {
+    // replace the standard jar with the one built by 'shadowJar' in both api and runtime variants
+    apiElements.outgoing.artifacts.clear()
+    apiElements.outgoing.artifact(shadowJar) {
+        builtBy shadowJar
+    }
+    runtimeElements.outgoing.artifacts.clear()
+    runtimeElements.outgoing.artifact(shadowJar) {
+        builtBy shadowJar
+    }
 }
 
 dependencies {
@@ -30,8 +66,9 @@ dependencies {
     implementation(libs.guava)
     implementation(libs.autoCommon)
     implementation(libs.autoValueAnnotations)
-
-    implementation(libs.kotlinMetadataJvm)
+    shadowed(libs.kotlinMetadataJvm) {
+        exclude group: "org.jetbrains.kotlin", module: "kotlin-stdlib"
+    }
     implementation(libs.intellijAnnotations)
     implementation(libs.kspApi)
     implementation(libs.kotlinStdlibJdk8) // KSP defines older version as dependency, force update.
@@ -41,6 +78,7 @@ dependencies {
     testImplementation(libs.junit)
     testImplementation(libs.jsr250)
     testImplementation(libs.ksp)
+    testImplementation(libs.kotlinMetadataJvm)
     testImplementation(project(":room:room-compiler-processing-testing"))
     testImplementation(project(":internal-testutils-common"))
 }
@@ -60,7 +98,7 @@ tasks.withType(Test).configureEach {
 }
 
 androidx {
-    name = "AndroidX Room XProcessor"
+    name = "Room XProcessor"
     type = LibraryType.ANNOTATION_PROCESSOR_UTILS
     inceptionYear = "2020"
     description = "Processing Environment Abstraction for AndroidX Room"

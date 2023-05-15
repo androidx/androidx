@@ -1,0 +1,5 @@
+// Baseline format: 1.0
+GetterSetterNames: field WebSourceParams.debugKeyAllowed:
+    Invalid name for boolean property `debugKeyAllowed`. Should start with one of `has`, `can`, `should`, `is`.
+GetterSetterNames: field WebTriggerParams.debugKeyAllowed:
+    Invalid name for boolean property `debugKeyAllowed`. Should start with one of `has`, `can`, `should`, `is`.

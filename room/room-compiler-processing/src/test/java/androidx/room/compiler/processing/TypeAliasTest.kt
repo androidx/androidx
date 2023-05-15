@@ -32,7 +32,6 @@ import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.javapoet.JParameterizedTypeName
 import com.squareup.kotlinpoet.javapoet.JTypeName
 import com.squareup.kotlinpoet.javapoet.JWildcardTypeName
-import com.squareup.kotlinpoet.javapoet.KWildcardTypeName
 import kotlin.coroutines.Continuation
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -94,8 +93,7 @@ class TypeAliasTest {
                     )
                     if (invocation.isKsp) {
                         assertThat(it.asTypeName().kotlin).isEqualTo(
-                            Continuation::class.asKClassName()
-                                .parameterizedBy(KWildcardTypeName.consumerOf(LONG))
+                            Continuation::class.asKClassName().parameterizedBy(LONG)
                         )
                     }
                 }

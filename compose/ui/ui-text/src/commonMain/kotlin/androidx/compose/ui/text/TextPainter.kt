@@ -40,8 +40,6 @@ import androidx.compose.ui.unit.Constraints
 import kotlin.math.ceil
 import kotlin.math.roundToInt
 
-internal val DefaultTextBlendMode = BlendMode.SrcOver
-
 object TextPainter {
 
     // TODO(b/236964276): Deprecate when TextMeasurer and drawText are no longer Experimental
@@ -51,7 +49,6 @@ object TextPainter {
      * @param canvas a canvas to be drawn
      * @param textLayoutResult a result of text layout
      */
-    @OptIn(ExperimentalTextApi::class)
     fun paint(canvas: Canvas, textLayoutResult: TextLayoutResult) {
         val needClipping = textLayoutResult.hasVisualOverflow &&
             textLayoutResult.layoutInput.overflow != TextOverflow.Visible
@@ -141,9 +138,8 @@ object TextPainter {
  * ([TextOverflow.Clip]) or becomes no-op.
  * @param blendMode Blending algorithm to be applied to the text
  *
- * @see TextMeasurer
+ * @sample androidx.compose.ui.text.samples.DrawTextAnnotatedStringSample
  */
-@ExperimentalTextApi
 fun DrawScope.drawText(
     textMeasurer: TextMeasurer,
     text: AnnotatedString,
@@ -209,9 +205,9 @@ fun DrawScope.drawText(
  * ([TextOverflow.Clip]) or becomes no-op.
  * @param blendMode Blending algorithm to be applied to the text
  *
- * @see TextMeasurer
+ * @sample androidx.compose.ui.text.samples.DrawTextSample
+ * @sample androidx.compose.ui.text.samples.DrawTextStyledSample
  */
-@ExperimentalTextApi
 fun DrawScope.drawText(
     textMeasurer: TextMeasurer,
     text: String,
@@ -261,9 +257,9 @@ fun DrawScope.drawText(
  * @param drawStyle Whether or not the text is stroked or filled in.
  * @param blendMode Blending algorithm to be applied to the text
  *
- * @sample androidx.compose.ui.text.samples.DrawTextLayoutResultSample
+ * @sample androidx.compose.ui.text.samples.DrawTextMeasureInLayoutSample
+ * @sample androidx.compose.ui.text.samples.DrawTextDrawWithCacheSample
  */
-@ExperimentalTextApi
 fun DrawScope.drawText(
     textLayoutResult: TextLayoutResult,
     color: Color = Color.Unspecified,
@@ -323,10 +319,7 @@ fun DrawScope.drawText(
  * @param textDecoration The decorations to paint on the text (e.g., an underline).
  * @param drawStyle Whether or not the text is stroked or filled in.
  * @param blendMode Blending algorithm to be applied to the text
- *
- * @sample androidx.compose.ui.text.samples.DrawTextLayoutResultSample
  */
-@ExperimentalTextApi
 fun DrawScope.drawText(
     textLayoutResult: TextLayoutResult,
     brush: Brush,

@@ -16,8 +16,8 @@
 
 package androidx.tv.material3
 
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.Interaction
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.fillMaxSize
@@ -41,6 +41,8 @@ import androidx.compose.ui.semantics.semantics
  * the internal icon is 24 x 24 dp.
  *
  * The default text style for internal [Text] components will be set to [Typography.labelLarge].
+ *
+ * @sample androidx.tv.samples.IconButtonSample
  *
  * @param onClick called when this button is clicked
  * @param modifier the [Modifier] to be applied to this button
@@ -79,8 +81,7 @@ fun IconButton(
         onClick = onClick,
         enabled = enabled,
         shape = shape.toClickableSurfaceShape(),
-        color = colors.toClickableSurfaceContainerColor(),
-        contentColor = colors.toClickableSurfaceContentColor(),
+        colors = colors.toClickableSurfaceColors(),
         scale = scale.toClickableSurfaceScale(),
         border = border.toClickableSurfaceBorder(),
         glow = glow.toClickableSurfaceGlow(),
@@ -106,6 +107,8 @@ fun IconButton(
  * guidelines.
  *
  * The default text style for internal [Text] components will be set to [Typography.labelLarge].
+ *
+ * @sample androidx.tv.samples.OutlinedIconButtonSample
  *
  * @param onClick called when this button is clicked
  * @param modifier the [Modifier] to be applied to this button
@@ -144,8 +147,7 @@ fun OutlinedIconButton(
         onClick = onClick,
         enabled = enabled,
         shape = shape.toClickableSurfaceShape(),
-        color = colors.toClickableSurfaceContainerColor(),
-        contentColor = colors.toClickableSurfaceContentColor(),
+        colors = colors.toClickableSurfaceColors(),
         scale = scale.toClickableSurfaceScale(),
         border = border.toClickableSurfaceBorder(),
         glow = glow.toClickableSurfaceGlow(),

@@ -16,12 +16,12 @@
 
 package androidx.core.uwb.rxjava3.mock
 
-import androidx.core.uwb.UwbManager
-import androidx.core.uwb.UwbAddress
 import androidx.core.uwb.RangingCapabilities
+import androidx.core.uwb.UwbAddress
 import androidx.core.uwb.UwbClientSessionScope
 import androidx.core.uwb.UwbControleeSessionScope
 import androidx.core.uwb.UwbControllerSessionScope
+import androidx.core.uwb.UwbManager
 import com.google.android.gms.nearby.uwb.UwbComplexChannel
 
 /** A default implementation of [UwbManager] used in testing. */
@@ -59,7 +59,10 @@ class TestUwbManager : UwbManager {
                 uwbClient, RangingCapabilities(
                     rangingCapabilities.supportsDistance(),
                     rangingCapabilities.supportsAzimuthalAngle(),
-                    rangingCapabilities.supportsElevationAngle()
+                    rangingCapabilities.supportsElevationAngle(),
+                    rangingCapabilities.getMinRangingInterval(),
+                    rangingCapabilities.getSupportedChannels().toSet(),
+                    rangingCapabilities.getSupportedConfigIds().toSet()
                 ),
                 UwbAddress(localAddress.address),
                 androidx.core.uwb.UwbComplexChannel(
@@ -71,7 +74,10 @@ class TestUwbManager : UwbManager {
                 uwbClient, RangingCapabilities(
                     rangingCapabilities.supportsDistance(),
                     rangingCapabilities.supportsAzimuthalAngle(),
-                    rangingCapabilities.supportsElevationAngle()
+                    rangingCapabilities.supportsElevationAngle(),
+                    rangingCapabilities.getMinRangingInterval(),
+                    rangingCapabilities.getSupportedChannels().toSet(),
+                    rangingCapabilities.getSupportedConfigIds().toSet()
                 ),
                 UwbAddress(localAddress.address)
             )

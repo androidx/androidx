@@ -15,7 +15,7 @@ package androidx.lifecycle {
   }
 
   public interface LiveDataScope<T> {
-    method public suspend Object? emit(T? value, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public suspend Object? emit(T value, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public suspend Object? emitSource(androidx.lifecycle.LiveData<T> source, kotlin.coroutines.Continuation<? super kotlinx.coroutines.DisposableHandle>);
     method public T? getLatestValue();
     property public abstract T? latestValue;

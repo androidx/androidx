@@ -20,13 +20,13 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.window.FrameWindowScope
 import androidx.compose.ui.window.WindowPlacement
-import org.jetbrains.skiko.GraphicsApi
 import java.awt.Component
 import java.awt.GraphicsConfiguration
 import java.awt.event.MouseListener
 import java.awt.event.MouseMotionListener
 import java.awt.event.MouseWheelListener
 import javax.swing.JFrame
+import org.jetbrains.skiko.GraphicsApi
 
 /**
  * ComposeWindow is a window for building UI using Compose for Desktop.

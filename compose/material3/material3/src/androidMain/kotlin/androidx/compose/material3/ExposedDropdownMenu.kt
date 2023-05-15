@@ -20,6 +20,7 @@ import android.graphics.Rect
 import android.view.View
 import android.view.ViewTreeObserver
 import androidx.compose.animation.core.MutableTransitionState
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.waitForUpOrCancellation
@@ -28,6 +29,7 @@ import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.selection.LocalTextSelectionColors
 import androidx.compose.foundation.text.selection.TextSelectionColors
 import androidx.compose.material.icons.Icons
@@ -39,6 +41,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -106,8 +109,8 @@ fun ExposedDropdownMenuBox(
 ) {
     val density = LocalDensity.current
     val view = LocalView.current
-    var width by remember { mutableStateOf(0) }
-    var menuHeight by remember { mutableStateOf(0) }
+    var width by remember { mutableIntStateOf(0) }
+    var menuHeight by remember { mutableIntStateOf(0) }
     val verticalMarginInPx = with(density) { MenuVerticalMargin.roundToPx() }
     val coordinates = remember { Ref<LayoutCoordinates>() }
 
@@ -120,12 +123,8 @@ fun ExposedDropdownMenuBox(
                     onGloballyPositioned {
                         width = it.size.width
                         coordinates.value = it
-                        updateHeight(
-                            view.rootView,
-                            coordinates.value,
-                            verticalMarginInPx
-                        ) { newHeight ->
-                            menuHeight = newHeight
+                        updateHeight(view.rootView, coordinates.value, verticalMarginInPx) {
+                            newHeight -> menuHeight = newHeight
                         }
                     }.expandable(
                         expanded = expanded,
@@ -239,6 +238,7 @@ interface ExposedDropdownMenuBoxScope {
      * @param onDismissRequest called when the user requests to dismiss the menu, such as by
      * tapping outside the menu's bounds
      * @param modifier the [Modifier] to be applied to this menu
+     * @param scrollState a [ScrollState] to used by the menu's content for items vertical scrolling
      * @param content the content of the menu
      */
     @Composable
@@ -246,6 +246,7 @@ interface ExposedDropdownMenuBoxScope {
         expanded: Boolean,
         onDismissRequest: () -> Unit,
         modifier: Modifier = Modifier,
+        scrollState: ScrollState = rememberScrollState(),
         content: @Composable ColumnScope.() -> Unit
     ) {
         // TODO(b/202810604): use DropdownMenu when PopupProperties constructor is stable
@@ -277,6 +278,7 @@ interface ExposedDropdownMenuBoxScope {
                 DropdownMenuContent(
                     expandedStates = expandedStates,
                     transformOriginState = transformOriginState,
+                    scrollState = scrollState,
                     modifier = modifier.exposedDropdownSize(),
                     content = content
                 )
@@ -1039,18 +1041,18 @@ private fun Modifier.expandable(
 
 private fun updateHeight(
     view: View,
-    coordinates: LayoutCoordinates?,
+    anchorCoordinates: LayoutCoordinates?,
     verticalMarginInPx: Int,
     onHeightUpdate: (Int) -> Unit
 ) {
-    coordinates ?: return
+    anchorCoordinates ?: return
     val visibleWindowBounds = Rect().let {
         view.getWindowVisibleDisplayFrame(it)
         it
     }
-    val heightAbove = coordinates.boundsInWindow().top - visibleWindowBounds.top
-    val heightBelow =
-        visibleWindowBounds.bottom - visibleWindowBounds.top - coordinates.boundsInWindow().bottom
+    val heightAbove = anchorCoordinates.boundsInWindow().top - visibleWindowBounds.top
+    val heightBelow = visibleWindowBounds.bottom - visibleWindowBounds.top -
+        anchorCoordinates.boundsInWindow().bottom
     onHeightUpdate(max(heightAbove, heightBelow).toInt() - verticalMarginInPx)
 }
 

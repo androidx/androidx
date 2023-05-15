@@ -29,6 +29,9 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
+import kotlin.coroutines.coroutineContext
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineExceptionHandler
@@ -39,19 +42,16 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.TestCoroutineDispatcher
 import kotlinx.coroutines.test.TestCoroutineScope
+import kotlinx.coroutines.test.advanceTimeBy
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.yield
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
-import kotlin.coroutines.coroutineContext
-import kotlinx.coroutines.test.advanceTimeBy
-import kotlinx.coroutines.test.advanceUntilIdle
-import kotlinx.coroutines.test.runCurrent
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
@@ -102,7 +102,6 @@ class FontListFontFamilyTypefaceAdapterTest {
         fontLoader.cacheKey
     )
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun onResolve_onlyBlockingFonts_doesNotLoad() {
         val expected = Typeface.MONOSPACE
@@ -117,7 +116,6 @@ class FontListFontFamilyTypefaceAdapterTest {
         assertThat(result).isImmutableTypefaceOf(expected)
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun onResolve_blockingAndAsyncFonts_matchesBlocking_doesLoad() {
         val expected = Typeface.MONOSPACE
@@ -365,7 +363,6 @@ class FontListFontFamilyTypefaceAdapterTest {
         )
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun onResolve_optionalAndAsyncFonts_matchesOptional_doesLoad() {
         val expected = Typeface.MONOSPACE
@@ -470,7 +467,6 @@ class FontListFontFamilyTypefaceAdapterTest {
         scope.advanceUntilIdle()
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun onResolve_optionalAndAsyncAndBlockingFonts_matchesOptional_doesNotLoadBlockingAsync() {
         val asyncFont = AsyncFauxFont(typefaceLoader)
@@ -689,7 +685,6 @@ class FontListFontFamilyTypefaceAdapterTest {
         requestAndCompleteOnRealDispatcher()
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun runtimeExceptionOnRealDispatcher_informsExceptionHandler() {
         val exception: CompletableDeferred<Throwable> = CompletableDeferred()

@@ -38,8 +38,6 @@ import androidx.compose.ui.text.android.LayoutCompat.ALIGN_NORMAL
 import androidx.compose.ui.text.android.LayoutCompat.ALIGN_OPPOSITE
 import androidx.compose.ui.text.android.LayoutCompat.ALIGN_RIGHT
 import androidx.compose.ui.text.android.LayoutCompat.BreakStrategy
-import androidx.compose.ui.text.android.LayoutCompat.LineBreakStyle
-import androidx.compose.ui.text.android.LayoutCompat.LineBreakWordStyle
 import androidx.compose.ui.text.android.LayoutCompat.DEFAULT_ALIGNMENT
 import androidx.compose.ui.text.android.LayoutCompat.DEFAULT_BREAK_STRATEGY
 import androidx.compose.ui.text.android.LayoutCompat.DEFAULT_HYPHENATION_FREQUENCY
@@ -52,6 +50,8 @@ import androidx.compose.ui.text.android.LayoutCompat.DEFAULT_LINE_BREAK_WORD_STY
 import androidx.compose.ui.text.android.LayoutCompat.DEFAULT_TEXT_DIRECTION
 import androidx.compose.ui.text.android.LayoutCompat.HyphenationFrequency
 import androidx.compose.ui.text.android.LayoutCompat.JustificationMode
+import androidx.compose.ui.text.android.LayoutCompat.LineBreakStyle
+import androidx.compose.ui.text.android.LayoutCompat.LineBreakWordStyle
 import androidx.compose.ui.text.android.LayoutCompat.TEXT_DIRECTION_ANY_RTL_LTR
 import androidx.compose.ui.text.android.LayoutCompat.TEXT_DIRECTION_FIRST_STRONG_LTR
 import androidx.compose.ui.text.android.LayoutCompat.TEXT_DIRECTION_FIRST_STRONG_RTL
@@ -320,8 +320,8 @@ internal class TextLayout constructor(
 
         lineHeightSpans = getLineHeightSpans()
         val lineHeightPaddings = getLineHeightPaddings(lineHeightSpans)
-        topPadding = max(verticalPaddings.first, lineHeightPaddings.first)
-        bottomPadding = max(verticalPaddings.second, lineHeightPaddings.second)
+        topPadding = max(verticalPaddings.topPadding, lineHeightPaddings.topPadding)
+        bottomPadding = max(verticalPaddings.bottomPadding, lineHeightPaddings.bottomPadding)
 
         val lastLineMetricsPair = getLastLineMetrics(textPaint, frameworkTextDir, lineHeightSpans)
         lastLineFontMetrics = lastLineMetricsPair.first
@@ -872,9 +872,24 @@ internal object TextAlignmentAdapter {
     }
 }
 
+internal fun VerticalPaddings(
+    topPadding: Int,
+    bottomPadding: Int
+) = VerticalPaddings(packInts(topPadding, bottomPadding))
+
+@kotlin.jvm.JvmInline
+internal value class VerticalPaddings internal constructor(internal val packedValue: Long) {
+
+  val topPadding: Int
+      get() = unpackInt1(packedValue)
+
+  val bottomPadding: Int
+      get() = unpackInt2(packedValue)
+}
+
 @OptIn(InternalPlatformTextApi::class)
-private fun TextLayout.getVerticalPaddings(): Pair<Int, Int> {
-    if (includePadding || isFallbackLinespacingApplied()) return Pair(0, 0)
+private fun TextLayout.getVerticalPaddings(): VerticalPaddings {
+    if (includePadding || isFallbackLinespacingApplied()) return ZeroVerticalPadding
 
     val paint = layout.paint
     val text = layout.text
@@ -912,18 +927,18 @@ private fun TextLayout.getVerticalPaddings(): Pair<Int, Int> {
     }
 
     return if (topPadding == 0 && bottomPadding == 0) {
-        EmptyPair
+        ZeroVerticalPadding
     } else {
-        Pair(topPadding, bottomPadding)
+        VerticalPaddings(topPadding, bottomPadding)
     }
 }
 
-private val EmptyPair = Pair(0, 0)
+private val ZeroVerticalPadding = VerticalPaddings(0, 0)
 
 @OptIn(InternalPlatformTextApi::class)
 private fun TextLayout.getLineHeightPaddings(
     lineHeightSpans: Array<LineHeightStyleSpan>
-): Pair<Int, Int> {
+): VerticalPaddings {
     var firstAscentDiff = 0
     var lastDescentDiff = 0
 
@@ -937,9 +952,9 @@ private fun TextLayout.getLineHeightPaddings(
     }
 
     return if (firstAscentDiff == 0 && lastDescentDiff == 0) {
-        EmptyPair
+        ZeroVerticalPadding
     } else {
-        Pair(firstAscentDiff, lastDescentDiff)
+        VerticalPaddings(firstAscentDiff, lastDescentDiff)
     }
 }
 

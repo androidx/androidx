@@ -34,6 +34,7 @@ interface SemanticsNodeInteractionsProvider {
      *
      * For usage patterns and semantics concepts see [SemanticsNodeInteraction]
      *
+     * @param matcher Matcher used for filtering
      * @param useUnmergedTree Find within merged composables like Buttons.
      * @see onAllNodes to work with multiple elements
      */
@@ -50,6 +51,7 @@ interface SemanticsNodeInteractionsProvider {
      *
      * For usage patterns and semantics concepts see [SemanticsNodeInteraction]
      *
+     * @param matcher Matcher used for filtering.
      * @param useUnmergedTree Find within merged composables like Buttons.
      * @see onNode
      */

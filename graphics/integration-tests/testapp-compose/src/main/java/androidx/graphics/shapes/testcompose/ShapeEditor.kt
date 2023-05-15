@@ -48,9 +48,12 @@ import androidx.compose.ui.unit.dp
 import androidx.core.graphics.plus
 import androidx.graphics.shapes.CornerRounding
 import androidx.graphics.shapes.RoundedPolygon
-import androidx.graphics.shapes.Star
+import androidx.graphics.shapes.circle
+import androidx.graphics.shapes.rectangle
+import androidx.graphics.shapes.star
 import kotlin.math.cos
 import kotlin.math.max
+import kotlin.math.min
 import kotlin.math.roundToInt
 import kotlin.math.sin
 
@@ -105,7 +108,7 @@ class ShapeParameters(
     )
 
     enum class ShapeId {
-        Star, Polygon, Triangle, Blob, CornerSE
+        Star, Polygon, Triangle, Blob, CornerSE, Circle, Rectangle
     }
 
     private fun radialToCartesian(
@@ -123,7 +126,7 @@ class ShapeParameters(
     // Primitive shapes we can draw (so far)
     internal val shapes = listOf(
         ShapeItem("Star", shapegen = {
-                Star(
+                RoundedPolygon.star(
                     numVerticesPerRadius = this.sides.value.roundToInt(),
                     innerRadius = this.innerRadius.value,
                     rounding = CornerRounding(this.roundness.value, this.smooth.value),
@@ -197,7 +200,7 @@ class ShapeParameters(
                         PointF(sx, sy),
                         PointF(-sx, sy),
                     ),
-                    rounding = CornerRounding(this.roundness.value, this.smooth.value),
+                    rounding = CornerRounding(min(sx, sy), this.smooth.value),
                     center = PointZero
                 )
             },
@@ -230,6 +233,40 @@ class ShapeParameters(
                         "smooth = ${this.smooth.value}f, " +
                         rotationAsString() +
                         "shapeId = ShapeParameters.ShapeId.CornerSE)"
+                )
+            },
+            usesSides = false,
+            usesInnerRatio = false,
+            usesInnerParameters = false
+        ),
+        ShapeItem(
+            "Circle", shapegen = {
+                RoundedPolygon.circle(this.sides.value.roundToInt())
+            },
+            debugDump = {
+                debugLog(
+                    "ShapeParameters(roundness = ${this.roundness.value}f, " +
+                        "smooth = ${this.smooth.value}f, " +
+                        rotationAsString() +
+                        "shapeId = ShapeParameters.ShapeId.Circle)"
+                )
+            },
+            usesSides = true,
+            usesInnerRatio = false,
+            usesInnerParameters = false
+        ),
+        ShapeItem(
+            "Rectangle", shapegen = {
+                RoundedPolygon.rectangle(width = 4f, height = 2f,
+                    rounding = CornerRounding(this.roundness.value, this.smooth.value),
+                )
+            },
+            debugDump = {
+                debugLog(
+                    "ShapeParameters(roundness = ${this.roundness.value}f, " +
+                        "smooth = ${this.smooth.value}f, " +
+                        rotationAsString() +
+                        "shapeId = ShapeParameters.ShapeId.Rectangle)"
                 )
             },
             usesSides = false,

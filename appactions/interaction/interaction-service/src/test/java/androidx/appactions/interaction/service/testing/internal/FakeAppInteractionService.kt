@@ -16,10 +16,10 @@
 
 package androidx.appactions.interaction.service.testing.internal
 
-import androidx.appactions.interaction.service.AppInteractionService
-import androidx.appactions.interaction.service.AppVerificationInfo
 import androidx.appactions.interaction.capabilities.core.Capability
 import androidx.appactions.interaction.capabilities.core.entity.EntityProvider
+import androidx.appactions.interaction.service.AppInteractionService
+import androidx.appactions.interaction.service.AppVerificationInfo
 import io.grpc.binder.SecurityPolicies
 import io.grpc.binder.SecurityPolicy
 

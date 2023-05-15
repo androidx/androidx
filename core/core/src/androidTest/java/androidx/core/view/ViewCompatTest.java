@@ -15,6 +15,26 @@
  */
 package androidx.core.view;
 
+import static androidx.core.view.HapticFeedbackConstantsCompat.CLOCK_TICK;
+import static androidx.core.view.HapticFeedbackConstantsCompat.CONFIRM;
+import static androidx.core.view.HapticFeedbackConstantsCompat.CONTEXT_CLICK;
+import static androidx.core.view.HapticFeedbackConstantsCompat.DRAG_START;
+import static androidx.core.view.HapticFeedbackConstantsCompat.GESTURE_END;
+import static androidx.core.view.HapticFeedbackConstantsCompat.GESTURE_START;
+import static androidx.core.view.HapticFeedbackConstantsCompat.GESTURE_THRESHOLD_ACTIVATE;
+import static androidx.core.view.HapticFeedbackConstantsCompat.GESTURE_THRESHOLD_DEACTIVATE;
+import static androidx.core.view.HapticFeedbackConstantsCompat.KEYBOARD_RELEASE;
+import static androidx.core.view.HapticFeedbackConstantsCompat.KEYBOARD_TAP;
+import static androidx.core.view.HapticFeedbackConstantsCompat.LONG_PRESS;
+import static androidx.core.view.HapticFeedbackConstantsCompat.NO_HAPTICS;
+import static androidx.core.view.HapticFeedbackConstantsCompat.REJECT;
+import static androidx.core.view.HapticFeedbackConstantsCompat.SEGMENT_FREQUENT_TICK;
+import static androidx.core.view.HapticFeedbackConstantsCompat.SEGMENT_TICK;
+import static androidx.core.view.HapticFeedbackConstantsCompat.TEXT_HANDLE_MOVE;
+import static androidx.core.view.HapticFeedbackConstantsCompat.TOGGLE_OFF;
+import static androidx.core.view.HapticFeedbackConstantsCompat.TOGGLE_ON;
+import static androidx.core.view.HapticFeedbackConstantsCompat.VIRTUAL_KEY;
+import static androidx.core.view.HapticFeedbackConstantsCompat.VIRTUAL_KEY_RELEASE;
 import static androidx.core.view.accessibility.AccessibilityNodeInfoCompat.ACTION_ARGUMENT_PRESS_AND_HOLD_DURATION_MILLIS_INT;
 import static androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat;
 
@@ -33,6 +53,7 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 
 import android.app.Activity;
@@ -399,6 +420,168 @@ public class ViewCompatTest extends BaseInstrumentationTestCase<ViewCompatActivi
                         contentCaptureSession, mView));
         ContentCaptureSessionCompat result = ViewCompat.getContentCaptureSession(mView);
         assertEquals(contentCaptureSession, result.toContentCaptureSession());
+    }
+
+    @Test
+    public void testPerformHapticFeedback_skipsHapticFeedbackForNoHapticsConstant() {
+        View spyView = spy(mView);
+        ViewCompat.performHapticFeedback(spyView, NO_HAPTICS);
+        verify(spyView, never()).performHapticFeedback(anyInt(), anyInt());
+    }
+
+    @SdkSuppress(minSdkVersion = 34)
+    @Test
+    public void testPerformHapticFeedback_useSameInputFeedbackConstantOnSdk34() {
+        for (int constant = HapticFeedbackConstantsCompat.FIRST_CONSTANT_INT;
+                constant < HapticFeedbackConstantsCompat.LAST_CONSTANT_INT; constant++) {
+            assertHapticFeedbackPerformed(constant);
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = 30, maxSdkVersion = 33)
+    @Test
+    public void testPerformHapticFeedback_useFallbackForConstantsFromSdk34() {
+        // Maintain constants supported in SDK >= 30
+        assertHapticFeedbackPerformed(CONFIRM);
+        assertHapticFeedbackPerformed(REJECT);
+        assertHapticFeedbackPerformed(GESTURE_START);
+        assertHapticFeedbackPerformed(GESTURE_END);
+
+        // Fallbacks for constants from SDK >= 34
+        assertFallbackHapticFeedbackPerformed(LONG_PRESS, DRAG_START);
+        assertFallbackHapticFeedbackPerformed(CONTEXT_CLICK, TOGGLE_ON);
+        assertFallbackHapticFeedbackPerformed(CONTEXT_CLICK, SEGMENT_TICK);
+        assertFallbackHapticFeedbackPerformed(CONTEXT_CLICK, GESTURE_THRESHOLD_ACTIVATE);
+        assertFallbackHapticFeedbackPerformed(CLOCK_TICK, TOGGLE_OFF);
+        assertFallbackHapticFeedbackPerformed(CLOCK_TICK, SEGMENT_FREQUENT_TICK);
+        assertFallbackHapticFeedbackPerformed(CLOCK_TICK, GESTURE_THRESHOLD_DEACTIVATE);
+    }
+
+    @SdkSuppress(minSdkVersion = 27, maxSdkVersion = 29)
+    @Test
+    public void testPerformHapticFeedback_useFallbackForConstantsFromSdk30() {
+        // Maintain constants supported in SDK >= 27
+        assertHapticFeedbackPerformed(TEXT_HANDLE_MOVE);
+        assertHapticFeedbackPerformed(KEYBOARD_RELEASE);
+        assertHapticFeedbackPerformed(VIRTUAL_KEY_RELEASE);
+
+        // Fallbacks for constants from SDK >= 30
+        assertFallbackHapticFeedbackPerformed(LONG_PRESS, DRAG_START);
+        assertFallbackHapticFeedbackPerformed(LONG_PRESS, REJECT);
+        assertFallbackHapticFeedbackPerformed(VIRTUAL_KEY, CONFIRM);
+        assertFallbackHapticFeedbackPerformed(VIRTUAL_KEY, GESTURE_START);
+        assertFallbackHapticFeedbackPerformed(CONTEXT_CLICK, GESTURE_END);
+        assertFallbackHapticFeedbackPerformed(CONTEXT_CLICK, TOGGLE_ON);
+        assertFallbackHapticFeedbackPerformed(CONTEXT_CLICK, SEGMENT_TICK);
+        assertFallbackHapticFeedbackPerformed(CONTEXT_CLICK, GESTURE_THRESHOLD_ACTIVATE);
+        assertFallbackHapticFeedbackPerformed(CLOCK_TICK, TOGGLE_OFF);
+        assertFallbackHapticFeedbackPerformed(CLOCK_TICK, SEGMENT_FREQUENT_TICK);
+        assertFallbackHapticFeedbackPerformed(CLOCK_TICK, GESTURE_THRESHOLD_DEACTIVATE);
+    }
+
+    @SdkSuppress(minSdkVersion = 23, maxSdkVersion = 26)
+    @Test
+    public void testPerformHapticFeedback_useFallbackForConstantsFromSdk27() {
+        // Maintain constants supported in SDK >= 23
+        assertHapticFeedbackPerformed(CONTEXT_CLICK);
+
+        // Fallbacks for constants from SDK >= 27
+        assertFallbackHapticFeedbackPerformed(LONG_PRESS, DRAG_START);
+        assertFallbackHapticFeedbackPerformed(LONG_PRESS, REJECT);
+        assertFallbackHapticFeedbackPerformed(VIRTUAL_KEY, CONFIRM);
+        assertFallbackHapticFeedbackPerformed(VIRTUAL_KEY, GESTURE_START);
+        assertFallbackHapticFeedbackPerformed(CONTEXT_CLICK, GESTURE_END);
+        assertFallbackHapticFeedbackPerformed(CONTEXT_CLICK, TOGGLE_ON);
+        assertFallbackHapticFeedbackPerformed(CONTEXT_CLICK, SEGMENT_TICK);
+        assertFallbackHapticFeedbackPerformed(CONTEXT_CLICK, GESTURE_THRESHOLD_ACTIVATE);
+        assertFallbackHapticFeedbackPerformed(CLOCK_TICK, TOGGLE_OFF);
+        assertFallbackHapticFeedbackPerformed(CLOCK_TICK, SEGMENT_FREQUENT_TICK);
+        assertFallbackHapticFeedbackPerformed(CLOCK_TICK, GESTURE_THRESHOLD_DEACTIVATE);
+        assertNoHapticFeedbackPerformed(TEXT_HANDLE_MOVE);
+        assertNoHapticFeedbackPerformed(KEYBOARD_RELEASE);
+        assertNoHapticFeedbackPerformed(VIRTUAL_KEY_RELEASE);
+    }
+
+    @SdkSuppress(minSdkVersion = 21, maxSdkVersion = 22)
+    @Test
+    public void testPerformHapticFeedback_useFallbackForConstantsFromSdk23() {
+        // Maintain constants supported in SDK >= 21
+        assertHapticFeedbackPerformed(CLOCK_TICK);
+
+        // Fallbacks for constants from SDK >= 23
+        assertFallbackHapticFeedbackPerformed(LONG_PRESS, DRAG_START);
+        assertFallbackHapticFeedbackPerformed(LONG_PRESS, REJECT);
+        assertFallbackHapticFeedbackPerformed(VIRTUAL_KEY, CONFIRM);
+        assertFallbackHapticFeedbackPerformed(VIRTUAL_KEY, GESTURE_START);
+        assertFallbackHapticFeedbackPerformed(CLOCK_TICK, GESTURE_END);
+        assertFallbackHapticFeedbackPerformed(CLOCK_TICK, TOGGLE_ON);
+        assertFallbackHapticFeedbackPerformed(CLOCK_TICK, SEGMENT_TICK);
+        assertFallbackHapticFeedbackPerformed(CLOCK_TICK, GESTURE_THRESHOLD_ACTIVATE);
+        assertFallbackHapticFeedbackPerformed(CLOCK_TICK, TOGGLE_OFF);
+        assertFallbackHapticFeedbackPerformed(CLOCK_TICK, SEGMENT_FREQUENT_TICK);
+        assertFallbackHapticFeedbackPerformed(CLOCK_TICK, GESTURE_THRESHOLD_DEACTIVATE);
+        assertFallbackHapticFeedbackPerformed(CLOCK_TICK, CONTEXT_CLICK);
+        assertNoHapticFeedbackPerformed(TEXT_HANDLE_MOVE);
+        assertNoHapticFeedbackPerformed(KEYBOARD_RELEASE);
+        assertNoHapticFeedbackPerformed(VIRTUAL_KEY_RELEASE);
+    }
+
+    @SdkSuppress(maxSdkVersion = 20)
+    @Test
+    public void testPerformHapticFeedback_useFallbackForConstantsFromSdk21() {
+        // Maintain constants supported in SDK < 21
+        assertHapticFeedbackPerformed(KEYBOARD_TAP);
+
+        // Fallbacks for constants from SDK >= 21
+        assertFallbackHapticFeedbackPerformed(LONG_PRESS, DRAG_START);
+        assertFallbackHapticFeedbackPerformed(LONG_PRESS, REJECT);
+        assertFallbackHapticFeedbackPerformed(VIRTUAL_KEY, CONFIRM);
+        assertFallbackHapticFeedbackPerformed(VIRTUAL_KEY, GESTURE_START);
+        assertNoHapticFeedbackPerformed(GESTURE_END);
+        assertNoHapticFeedbackPerformed(TOGGLE_ON);
+        assertNoHapticFeedbackPerformed(SEGMENT_TICK);
+        assertNoHapticFeedbackPerformed(GESTURE_THRESHOLD_ACTIVATE);
+        assertNoHapticFeedbackPerformed(TOGGLE_OFF);
+        assertNoHapticFeedbackPerformed(SEGMENT_FREQUENT_TICK);
+        assertNoHapticFeedbackPerformed(GESTURE_THRESHOLD_DEACTIVATE);
+        assertNoHapticFeedbackPerformed(CONTEXT_CLICK);
+        assertNoHapticFeedbackPerformed(CLOCK_TICK);
+        assertNoHapticFeedbackPerformed(TEXT_HANDLE_MOVE);
+        assertNoHapticFeedbackPerformed(KEYBOARD_RELEASE);
+        assertNoHapticFeedbackPerformed(VIRTUAL_KEY_RELEASE);
+    }
+
+    private void assertHapticFeedbackPerformed(int feedbackConstant) {
+        View spyView = spy(mView);
+        int flags = HapticFeedbackConstantsCompat.FLAG_IGNORE_VIEW_SETTING;
+
+        ViewCompat.performHapticFeedback(spyView, feedbackConstant);
+        verify(spyView).performHapticFeedback(eq(feedbackConstant));
+
+        ViewCompat.performHapticFeedback(spyView, feedbackConstant, flags);
+        verify(spyView).performHapticFeedback(eq(feedbackConstant), eq(flags));
+    }
+
+    private void assertNoHapticFeedbackPerformed(int feedbackConstant) {
+        View spyView = spy(mView);
+        int flags = HapticFeedbackConstantsCompat.FLAG_IGNORE_VIEW_SETTING;
+
+        ViewCompat.performHapticFeedback(spyView, feedbackConstant);
+        verify(spyView, never()).performHapticFeedback(anyInt());
+
+        ViewCompat.performHapticFeedback(spyView, feedbackConstant, flags);
+        verify(spyView, never()).performHapticFeedback(anyInt(), anyInt());
+    }
+
+    private void assertFallbackHapticFeedbackPerformed(int expectedFallback, int feedbackConstant) {
+        View spyView = spy(mView);
+        int flags = HapticFeedbackConstantsCompat.FLAG_IGNORE_VIEW_SETTING;
+
+        ViewCompat.performHapticFeedback(spyView, feedbackConstant);
+        verify(spyView).performHapticFeedback(eq(expectedFallback));
+
+        ViewCompat.performHapticFeedback(spyView, feedbackConstant, flags);
+        verify(spyView).performHapticFeedback(eq(expectedFallback), eq(flags));
     }
 
     private static boolean isViewIdGenerated(int id) {

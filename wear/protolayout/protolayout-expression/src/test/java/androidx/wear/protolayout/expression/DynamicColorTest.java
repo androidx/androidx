@@ -58,7 +58,7 @@ public final class DynamicColorTest {
 
   @Test
   public void stateEntryValueColor() {
-    DynamicColor stateColor = DynamicColor.fromState(STATE_KEY);
+    DynamicColor stateColor = DynamicColor.from(new AppDataKey<>(STATE_KEY));
 
     assertThat(stateColor.toDynamicColorProto().getStateSource().getSourceKey())
         .isEqualTo(STATE_KEY);
@@ -66,8 +66,8 @@ public final class DynamicColorTest {
 
   @Test
   public void stateToString() {
-    assertThat(DynamicColor.fromState("key").toString())
-        .isEqualTo("StateColorSource{sourceKey=key}");
+    assertThat(DynamicColor.from(new AppDataKey<>("key")).toString())
+        .isEqualTo("StateColorSource{sourceKey=key, sourceNamespace=}");
   }
 
   @Test
@@ -104,10 +104,11 @@ public final class DynamicColorTest {
 
   @Test
   public void stateAnimatedColor() {
-    DynamicColor stateColor = DynamicColor.fromState(STATE_KEY);
+    AppDataKey<DynamicColor> source = new AppDataKey<>(STATE_KEY);
+    DynamicColor stateColor = DynamicColor.from(source);
 
-    DynamicColor animatedColor = DynamicColor.animate(STATE_KEY);
-    DynamicColor animatedColorWithSpec = DynamicColor.animate(STATE_KEY, SPEC);
+    DynamicColor animatedColor = DynamicColor.animate(source);
+    DynamicColor animatedColorWithSpec = DynamicColor.animate(source, SPEC);
 
     assertThat(animatedColor.toDynamicColorProto().getAnimatableDynamic().hasAnimationSpec())
         .isFalse();
@@ -124,7 +125,7 @@ public final class DynamicColorTest {
   public void stateAnimatedToString() {
     assertThat(
             DynamicColor.animate(
-                    /* stateKey= */ "key",
+                    /* stateKey= */ new AppDataKey<>("key"),
                     new AnimationSpec.Builder()
                             .setAnimationParameters(
                                     new AnimationParameters.Builder().setDelayMillis(1).build())
@@ -132,7 +133,8 @@ public final class DynamicColorTest {
                 .toString())
         .isEqualTo(
             "AnimatableDynamicColor{"
-                + "input=StateColorSource{sourceKey=key}, animationSpec=AnimationSpec{"
+                + "input=StateColorSource{sourceKey=key, sourceNamespace=}, "
+                + "animationSpec=AnimationSpec{"
                 + "animationParameters=AnimationParameters{durationMillis=0, easing=null, "
                 + "delayMillis=1}, repeatable=null}}");
   }

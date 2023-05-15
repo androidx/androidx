@@ -72,7 +72,7 @@ tasks.named("compileTestKotlin", KotlinCompile.class).configure {
 }
 
 androidx {
-    name = "AndroidX Room XProcessor Testing"
+    name = "Room XProcessor Testing"
     type = LibraryType.ANNOTATION_PROCESSOR_UTILS
     inceptionYear = "2020"
     description = "Testing helpers for Room XProcessing APIs"

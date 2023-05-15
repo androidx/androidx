@@ -16,12 +16,23 @@
 
 package androidx.appcompat.app;
 
+import static com.google.common.truth.Truth.assertThat;
+
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import android.content.Context;
+import android.os.Parcelable;
+import android.view.ViewGroup;
+
 import androidx.appcompat.view.menu.MenuBuilder;
+import androidx.appcompat.view.menu.MenuItemImpl;
+import androidx.appcompat.view.menu.MenuPresenter;
+import androidx.appcompat.view.menu.MenuView;
+import androidx.appcompat.view.menu.SubMenuBuilder;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
+import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -43,6 +54,129 @@ public class MenuBuilderTest {
                 .getMethod("setOptionalIconsVisible", boolean.class);
         assertNotNull(method);
         assertTrue(Modifier.isPublic(method.getModifiers()));
+    }
+
+    @Test
+    public void addMultipleMenuItems_withoutSuppression_updateMenuView_calledOncePerItem() {
+        MenuBuilder menuBuilder =
+                new MenuBuilder(InstrumentationRegistry.getInstrumentation().getContext());
+        CountingMenuPresenter presenter = new CountingMenuPresenter();
+        menuBuilder.addMenuPresenter(presenter);
+        menuBuilder.add("One");
+        menuBuilder.add("Two");
+        menuBuilder.add("Three");
+        assertThat(presenter.mUpdateMenuViewCalls).isEqualTo(3);
+    }
+
+    @Test
+    public void addMultipleMenuItems_withSuppression_updateMenuView_calledOnceAtEnd() {
+        MenuBuilder menuBuilder =
+                new MenuBuilder(InstrumentationRegistry.getInstrumentation().getContext());
+        CountingMenuPresenter presenter = new CountingMenuPresenter();
+        menuBuilder.addMenuPresenter(presenter);
+        menuBuilder.stopDispatchingItemsChanged();
+        menuBuilder.add("One");
+        menuBuilder.add("Two");
+        menuBuilder.add("Three");
+        assertThat(presenter.mUpdateMenuViewCalls).isEqualTo(0);
+        menuBuilder.startDispatchingItemsChanged();
+        assertThat(presenter.mUpdateMenuViewCalls).isEqualTo(1);
+    }
+
+    @Test
+    public void addMultipleMenuItems_withMultipleSuppressionCalls() {
+        MenuBuilder menuBuilder =
+                new MenuBuilder(InstrumentationRegistry.getInstrumentation().getContext());
+        CountingMenuPresenter presenter = new CountingMenuPresenter();
+        menuBuilder.addMenuPresenter(presenter);
+
+        assertThat(menuBuilder.isDispatchingItemsChanged()).isTrue();
+
+        menuBuilder.stopDispatchingItemsChanged();
+        menuBuilder.add("One");
+        assertThat(menuBuilder.isDispatchingItemsChanged()).isFalse();
+
+        // Should be a no-op
+        menuBuilder.stopDispatchingItemsChanged();
+        assertThat(menuBuilder.isDispatchingItemsChanged()).isFalse();
+
+        menuBuilder.add("Two");
+        assertThat(presenter.mUpdateMenuViewCalls).isEqualTo(0);
+
+        menuBuilder.startDispatchingItemsChanged();
+        assertThat(menuBuilder.isDispatchingItemsChanged()).isTrue();
+        assertThat(presenter.mUpdateMenuViewCalls).isEqualTo(1);
+
+        menuBuilder.add("Three");
+        assertThat(presenter.mUpdateMenuViewCalls).isEqualTo(2);
+
+        // Should be a no-op
+        menuBuilder.startDispatchingItemsChanged();
+        assertThat(presenter.mUpdateMenuViewCalls).isEqualTo(2);
+    }
+
+    private static class CountingMenuPresenter implements MenuPresenter {
+        int mUpdateMenuViewCalls = 0;
+
+        @Override
+        public void initForMenu(Context context, MenuBuilder menu) {
+
+        }
+
+        @Override
+        public MenuView getMenuView(ViewGroup root) {
+            return null;
+        }
+
+        @Override
+        public void updateMenuView(boolean cleared) {
+            mUpdateMenuViewCalls++;
+        }
+
+        @Override
+        public void setCallback(Callback cb) {
+
+        }
+
+        @Override
+        public boolean onSubMenuSelected(SubMenuBuilder subMenu) {
+            return false;
+        }
+
+        @Override
+        public void onCloseMenu(MenuBuilder menu, boolean allMenusAreClosing) {
+
+        }
+
+        @Override
+        public boolean flagActionItems() {
+            return false;
+        }
+
+        @Override
+        public boolean expandItemActionView(MenuBuilder menu, MenuItemImpl item) {
+            return false;
+        }
+
+        @Override
+        public boolean collapseItemActionView(MenuBuilder menu, MenuItemImpl item) {
+            return false;
+        }
+
+        @Override
+        public int getId() {
+            return 0;
+        }
+
+        @Override
+        public Parcelable onSaveInstanceState() {
+            return null;
+        }
+
+        @Override
+        public void onRestoreInstanceState(Parcelable state) {
+
+        }
     }
 }
 

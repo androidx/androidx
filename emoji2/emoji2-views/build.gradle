@@ -33,7 +33,7 @@ android {
 }
 
 androidx {
-    name = "Android Emoji2 Compat Views"
+    name = "Emoji2 Views"
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2017"
     description = "Support for using emoji2 directly with Android Views, for use in apps without " +

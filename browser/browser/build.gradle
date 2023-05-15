@@ -3,6 +3,7 @@ import androidx.build.Publish
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
+    id("androidx.stableaidl")
 }
 
 android {
@@ -11,6 +12,11 @@ android {
     }
     buildFeatures {
         aidl = true
+    }
+    buildTypes.all {
+        stableAidl {
+            version 1
+        }
     }
     testOptions.unitTests.includeAndroidResources = true
     namespace "androidx.browser"
@@ -45,8 +51,8 @@ dependencies {
 }
 
 androidx {
-    name = "Android Support Custom Tabs"
+    name = "Browser"
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2015"
-    description = "Android Support Custom Tabs"
+    description = "Provides support for embedding Custom Tabs in an app."
 }

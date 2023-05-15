@@ -16,11 +16,13 @@
 
 package androidx.appactions.interaction.capabilities.core
 
+import androidx.annotation.RestrictTo
 import androidx.appactions.interaction.capabilities.core.impl.concurrent.Futures
 import androidx.concurrent.futures.await
 import com.google.common.util.concurrent.ListenableFuture
 
 /** Provides a mechanism for the app to listen to argument updates from Assistant. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 interface ValueListener<T> {
     /**
      * Invoked when Assistant reports that an argument value has changed. This method should be

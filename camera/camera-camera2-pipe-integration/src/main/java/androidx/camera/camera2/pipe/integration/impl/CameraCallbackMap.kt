@@ -32,7 +32,6 @@ import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.RequestMetadata
 import androidx.camera.camera2.pipe.StreamId
-import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.integration.adapter.CameraUseCaseAdapter
 import androidx.camera.camera2.pipe.integration.adapter.CaptureResultAdapter
 import androidx.camera.camera2.pipe.integration.config.CameraScope
@@ -88,8 +87,6 @@ class CameraCallbackMap @Inject constructor() : Request.Listener {
                         )
                     }
                 }
-            } else {
-                Log.error { "Unhandled callback for onBufferLost()" }
             }
         }
     }
@@ -209,8 +206,6 @@ class CameraCallbackMap @Inject constructor() : Request.Listener {
                         )
                     }
                 }
-            } else {
-                Log.error { "Unhandled callback for onRequestSequenceCompleted()" }
             }
         }
     }
@@ -232,8 +227,6 @@ class CameraCallbackMap @Inject constructor() : Request.Listener {
                         )
                     }
                 }
-            } else {
-                Log.error { "Unhandled callback for onStarted()" }
             }
         }
     }

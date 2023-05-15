@@ -17,12 +17,12 @@
 package androidx.compose.foundation.layout
 
 import androidx.compose.runtime.Stable
-import androidx.compose.ui.layout.Measurable
-import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.IntrinsicMeasurable
 import androidx.compose.ui.layout.IntrinsicMeasureScope
+import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasureResult
+import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.node.LayoutModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.platform.InspectorInfo
@@ -83,10 +83,9 @@ private class AspectRatioElement(
         )
     }
 
-    override fun update(node: AspectRatioNode): AspectRatioNode {
+    override fun update(node: AspectRatioNode) {
         node.aspectRatio = aspectRatio
         node.matchHeightConstraintsFirst = matchHeightConstraintsFirst
-        return node
     }
 
     override fun InspectorInfo.inspectableProperties() { inspectorInfo() }

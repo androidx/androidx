@@ -22,6 +22,15 @@ plugins {
     id("java-gradle-plugin")
 }
 
+// This custom configuration ensures that dependencies used in tests with gradle test kit with
+// generated build.gradle are considered when determining which tests to run on CI due to a change.
+// For reference: b/281515796
+configurations {
+    neededForGradleTestKit {
+        canBeResolved = true
+    }
+}
+
 dependencies {
     implementation(gradleApi())
     implementation(libs.androidGradlePluginz)
@@ -35,6 +44,8 @@ dependencies {
     testImplementation(libs.junit)
     testImplementation(libs.kotlinTest)
     testImplementation(libs.truth)
+
+    neededForGradleTestKit(libs.androidGradlePluginz)
 }
 
 SdkResourceGenerator.generateForHostTest(project)
@@ -61,7 +72,7 @@ gradlePlugin {
 }
 
 androidx {
-    name = "Android Baseline Profile Gradle Plugin"
+    name = "Baseline Profile Gradle Plugin"
     publish = Publish.SNAPSHOT_AND_RELEASE
     type = LibraryType.GRADLE_PLUGIN
     inceptionYear = "2022"

@@ -7,7 +7,7 @@ cd "$(dirname $0)"
 
 # Must be run on Mac
 
-export ANDROIDX_PROJECTS=KMP
+export ANDROIDX_PROJECTS=INFRAROGUE   # TODO: Switch from `INFRAROGUE` to `KMP`
 
 # disable GCP cache, these machines don't have credentials.
 export USE_ANDROIDX_REMOTE_BUILD_CACHE=false

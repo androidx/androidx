@@ -32,8 +32,8 @@ import com.squareup.kotlinpoet.javapoet.KTypeName
 internal class KspPrimitiveType(
     env: KspProcessingEnv,
     ksType: KSType,
-    jvmTypeResolver: KspJvmTypeResolver?
-) : KspType(env, ksType, jvmTypeResolver) {
+    scope: KSTypeVarianceResolverScope?
+) : KspType(env, ksType, scope) {
     override fun resolveJTypeName(): JTypeName {
         return ksType.asJTypeName(env.resolver).tryUnbox()
     }
@@ -66,11 +66,11 @@ internal class KspPrimitiveType(
         }
     }
 
-    override fun copyWithJvmTypeResolver(jvmTypeResolver: KspJvmTypeResolver): KspType {
+    override fun copyWithScope(scope: KSTypeVarianceResolverScope): KspType {
         return KspPrimitiveType(
             env = env,
             ksType = ksType,
-            jvmTypeResolver = jvmTypeResolver
+            scope = scope
         )
     }
 }

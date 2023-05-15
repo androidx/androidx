@@ -17,9 +17,9 @@
 package androidx.datastore
 
 import androidx.datastore.core.DataStore
-import androidx.datastore.core.Storage
 import androidx.datastore.core.DataStoreFactory.create
 import androidx.datastore.core.InterProcessCoordinator
+import androidx.datastore.core.Storage
 import kotlin.reflect.KClass
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi

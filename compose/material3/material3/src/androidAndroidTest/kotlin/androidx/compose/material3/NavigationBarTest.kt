@@ -19,6 +19,7 @@ package androidx.compose.material3
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material3.tokens.NavigationBarTokens
@@ -266,42 +267,43 @@ class NavigationBarTest {
     @Test
     fun navigationBarItemContent_withLabel_sizeAndPosition() {
         rule.setMaterialContent(lightColorScheme()) {
-            Box {
-                NavigationBar {
-                    NavigationBarItem(
-                        modifier = Modifier.testTag("item"),
-                        icon = {
-                            Icon(Icons.Filled.Favorite, null, Modifier.testTag("icon"))
-                        },
-                        label = {
-                            Text("ItemText")
-                        },
-                        selected = true,
-                        onClick = {}
-                    )
-                }
+            NavigationBar {
+                NavigationBarItem(
+                    modifier = Modifier.testTag("item"),
+                    icon = {
+                        Icon(Icons.Filled.Favorite, null, Modifier.testTag("icon"))
+                    },
+                    label = {
+                        Text("ItemText")
+                    },
+                    selected = true,
+                    onClick = {}
+                )
             }
         }
 
         val itemBounds = rule.onNodeWithTag("item").getUnclippedBoundsInRoot()
         val iconBounds = rule.onNodeWithTag("icon", useUnmergedTree = true)
             .getUnclippedBoundsInRoot()
-        val textBounds = rule.onNodeWithText("ItemText", useUnmergedTree = true)
-            .getUnclippedBoundsInRoot()
 
-        // Distance from the bottom of the item to the text bottom, and from the top of the icon to
-        // the top of the item
-        val verticalPadding = NavigationBarItemVerticalPadding
-
-        val itemBottom = itemBounds.height + itemBounds.top
-        // Text bottom should be `verticalPadding` from the bottom of the item
-        textBounds.bottom.assertIsEqualTo(itemBottom - verticalPadding)
+        // Distance from the top of the item to the top of the icon for the default height
+        val verticalPadding = 16.dp
 
         rule.onNodeWithTag("icon", useUnmergedTree = true)
-            // The icon should be centered in the item
+            // The icon should be horizontally centered in the item
             .assertLeftPositionInRootIsEqualTo((itemBounds.width - iconBounds.width) / 2)
             // The top of the icon is `verticalPadding` below the top of the item
             .assertTopPositionInRootIsEqualTo(itemBounds.top + verticalPadding)
+
+        val iconBottom = iconBounds.top + iconBounds.height
+        // Text should be `IndicatorVerticalPadding + NavigationBarIndicatorToLabelPadding` from the
+        // bottom of the icon
+        rule.onNodeWithText("ItemText", useUnmergedTree = true)
+            .getUnclippedBoundsInRoot()
+            .top
+            .assertIsEqualTo(
+                iconBottom + IndicatorVerticalPadding + NavigationBarIndicatorToLabelPadding
+            )
     }
 
     @Test
@@ -364,6 +366,49 @@ class NavigationBarTest {
         rule.onNodeWithTag("icon", useUnmergedTree = true)
             .assertLeftPositionInRootIsEqualTo((itemBounds.width - iconBounds.width) / 2)
             .assertTopPositionInRootIsEqualTo((itemBounds.height - iconBounds.height) / 2)
+    }
+
+    @Test
+    fun navigationBarItemContent_customHeight_withLabel_sizeAndPosition() {
+        val defaultHeight = NavigationBarTokens.ContainerHeight
+        val customHeight = 64.dp
+
+        rule.setMaterialContent(lightColorScheme()) {
+            NavigationBar(Modifier.height(customHeight)) {
+                NavigationBarItem(
+                    modifier = Modifier.testTag("item"),
+                    icon = {
+                        Icon(Icons.Filled.Favorite, null, Modifier.testTag("icon"))
+                    },
+                    label = { Text("Label") },
+                    selected = true,
+                    onClick = {}
+                )
+            }
+        }
+
+        // Vertical padding is removed symmetrically from top and bottom for smaller heights
+        val verticalPadding = 16.dp - (defaultHeight - customHeight) / 2
+
+        val itemBounds = rule.onNodeWithTag("item").getUnclippedBoundsInRoot()
+        val iconBounds = rule.onNodeWithTag("icon", useUnmergedTree = true)
+            .getUnclippedBoundsInRoot()
+
+        rule.onNodeWithTag("icon", useUnmergedTree = true)
+            // The icon should be horizontally centered in the item
+            .assertLeftPositionInRootIsEqualTo((itemBounds.width - iconBounds.width) / 2)
+            // The top of the icon is `verticalPadding` below the top of the item
+            .assertTopPositionInRootIsEqualTo(itemBounds.top + verticalPadding)
+
+        val iconBottom = iconBounds.top + iconBounds.height
+        // Text should be `IndicatorVerticalPadding + NavigationBarIndicatorToLabelPadding` from the
+        // bottom of the item
+        rule.onNodeWithText("Label", useUnmergedTree = true)
+            .getUnclippedBoundsInRoot()
+            .top
+            .assertIsEqualTo(
+                iconBottom + IndicatorVerticalPadding + NavigationBarIndicatorToLabelPadding
+            )
     }
 
     @Test

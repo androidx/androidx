@@ -36,6 +36,7 @@ class ModelValidator private constructor(val api: ParsedApi) {
 
     private fun validate(): ValidationResult {
         validateSingleService()
+        validateServiceSupertypes()
         validateNonSuspendFunctionsReturnUnit()
         validateServiceAndInterfaceMethods()
         validateValuePropertyTypes()
@@ -49,6 +50,24 @@ class ModelValidator private constructor(val api: ParsedApi) {
                 "Multiple services are not supported. Found: " +
                     "${api.services.joinToString { it.type.qualifiedName }}."
             )
+        }
+    }
+
+    private fun validateServiceSupertypes() {
+        val superTypes = api.services.first().superTypes
+        if (superTypes.isNotEmpty()) {
+            if (superTypes.contains(Types.sandboxedUiAdapter)) {
+                errors.add(
+                    "Interfaces annotated with @PrivacySandboxService may not extend any other " +
+                        "interface. To define a SandboxedUiAdapter, use @PrivacySandboxInterface " +
+                        "and return it from this service."
+                )
+            } else {
+                errors.add(
+                    "Interfaces annotated with @PrivacySandboxService may not extend any other " +
+                        "interface. Found: ${superTypes.joinToString { it.qualifiedName }}."
+                )
+            }
         }
     }
 

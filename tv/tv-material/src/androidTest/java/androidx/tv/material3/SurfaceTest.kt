@@ -112,8 +112,8 @@ class SurfaceTest {
                     shape = ClickableSurfaceDefaults.shape(
                         shape = RectangleShape
                     ),
-                    color = ClickableSurfaceDefaults.color(
-                        color = Color.Yellow
+                    colors = ClickableSurfaceDefaults.colors(
+                        containerColor = Color.Yellow
                     )
                 ) {
                     Box(Modifier.fillMaxSize())
@@ -123,8 +123,8 @@ class SurfaceTest {
                     shape = ClickableSurfaceDefaults.shape(
                         shape = RectangleShape
                     ),
-                    color = ClickableSurfaceDefaults.color(
-                        color = Color.Green
+                    colors = ClickableSurfaceDefaults.colors(
+                        containerColor = Color.Green
                     )
                 ) {
                     Box(Modifier.fillMaxSize())
@@ -180,7 +180,7 @@ class SurfaceTest {
                     },
                     onClick = {},
                     tonalElevation = 2.toDp(),
-                    contentColor = ClickableSurfaceDefaults.color(color = expectedColor)
+                    colors = ClickableSurfaceDefaults.colors(contentColor = expectedColor)
                 ) {}
             }
         }
@@ -379,9 +379,9 @@ class SurfaceTest {
                     .testTag("surface")
                     .size(100.toDp()),
                 onClick = {},
-                color = ClickableSurfaceDefaults.color(
-                    color = Color.Transparent,
-                    focusedColor = Color.Transparent
+                colors = ClickableSurfaceDefaults.colors(
+                    containerColor = Color.Transparent,
+                    focusedContainerColor = Color.Transparent
                 ),
                 glow = ClickableSurfaceDefaults.glow(
                     glow = Glow(
@@ -447,9 +447,9 @@ class SurfaceTest {
                         border = BorderStroke(width = 5.toDp(), color = Color.Magenta)
                     )
                 ),
-                color = ClickableSurfaceDefaults.color(
-                    color = Color.Transparent,
-                    focusedColor = Color.Transparent
+                colors = ClickableSurfaceDefaults.colors(
+                    containerColor = Color.Transparent,
+                    focusedContainerColor = Color.Transparent
                 )
             ) {}
         }
@@ -661,9 +661,9 @@ class SurfaceTest {
                     .testTag("surface")
                     .size(100.toDp()),
                 onCheckedChange = { isChecked = it },
-                color = ToggleableSurfaceDefaults.color(
-                    color = Color.Transparent,
-                    selectedColor = Color.Transparent
+                colors = ToggleableSurfaceDefaults.colors(
+                    containerColor = Color.Transparent,
+                    selectedContainerColor = Color.Transparent
                 ),
                 glow = ToggleableSurfaceDefaults.glow(
                     glow = Glow(
@@ -746,9 +746,9 @@ class SurfaceTest {
                         border = BorderStroke(width = 5.toDp(), color = Color.Magenta)
                     )
                 ),
-                color = ToggleableSurfaceDefaults.color(
-                    color = Color.Transparent,
-                    selectedColor = Color.Transparent
+                colors = ToggleableSurfaceDefaults.colors(
+                    containerColor = Color.Transparent,
+                    selectedContainerColor = Color.Transparent
                 )
             ) {}
         }
@@ -779,9 +779,9 @@ class SurfaceTest {
                     .testTag("surface"),
                 onClick = {},
                 enabled = surfaceEnabled,
-                color = ClickableSurfaceDefaults.color(
-                    color = Color.Green,
-                    disabledColor = Color.Red
+                colors = ClickableSurfaceDefaults.colors(
+                    containerColor = Color.Green,
+                    disabledContainerColor = Color.Red
                 )
             ) {}
         }

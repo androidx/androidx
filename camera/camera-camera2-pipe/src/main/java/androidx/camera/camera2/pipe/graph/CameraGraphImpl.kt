@@ -104,6 +104,14 @@ constructor(
     override val graphState: StateFlow<GraphState>
         get() = graphProcessor.graphState
 
+    private var _isForeground = false
+    override var isForeground: Boolean
+        get() = _isForeground
+        set(value) {
+            _isForeground = value
+            cameraController.isForeground = value
+        }
+
     override fun start() {
         Debug.traceStart { "$this#start" }
         Log.info { "Starting $this" }
@@ -138,8 +146,8 @@ constructor(
 
     override fun setSurface(stream: StreamId, surface: Surface?) {
         Debug.traceStart { "$stream#setSurface" }
-        check(surface == null || surface.isValid) {
-            "Failed to set $surface to $stream: The surface was not valid."
+        if (surface != null && !surface.isValid) {
+            Log.warn { "$this#setSurface: $surface is invalid" }
         }
         surfaceGraph[stream] = surface
         Debug.traceStop()

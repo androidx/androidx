@@ -46,6 +46,8 @@ import androidx.compose.ui.unit.dp
  *
  * This Card handles click events, calling its [onClick] lambda.
  *
+ * @sample androidx.tv.samples.CardSample
+ *
  * @param onClick called when this card is clicked
  * @param modifier the [Modifier] to be applied to this card
  * @param shape [CardShape] defines the shape of this card's container in different interaction
@@ -80,8 +82,7 @@ fun Card(
         onClick = onClick,
         modifier = modifier,
         shape = shape.toClickableSurfaceShape(),
-        color = colors.toClickableSurfaceContainerColor(),
-        contentColor = colors.toClickableSurfaceContentColor(),
+        colors = colors.toClickableSurfaceColors(),
         scale = scale.toClickableSurfaceScale(),
         border = border.toClickableSurfaceBorder(),
         glow = glow.toClickableSurfaceGlow(),
@@ -99,6 +100,8 @@ fun Card(
  * slot at the top, followed by the title, subtitle, and description slots.
  *
  * This Card handles click events, calling its [onClick] lambda.
+ *
+ * @sample androidx.tv.samples.ClassicCardSample
  *
  * @param onClick called when this card is clicked
  * @param image defines the [Composable] image to be displayed on top of the Card.
@@ -175,6 +178,8 @@ fun ClassicCard(
  * placed over it.
  *
  * This Card handles click events, calling its [onClick] lambda.
+ *
+ * @sample androidx.tv.samples.CompactCardSample
  *
  * @param onClick called when this card is clicked
  * @param image defines the [Composable] image to be displayed on top of the Card.
@@ -256,6 +261,8 @@ fun CompactCard(
  * image slot at the start, followed by the title, subtitle, and description slots at the end.
  *
  * This Card handles click events, calling its [onClick] lambda.
+ *
+ * @sample androidx.tv.samples.WideClassicCardSample
  *
  * @param onClick called when this card is clicked
  * @param image defines the [Composable] image to be displayed on top of the Card.
@@ -526,21 +533,16 @@ private const val SubtitleAlpha = 0.6f
 private const val DescriptionAlpha = 0.8f
 
 @OptIn(ExperimentalTvMaterial3Api::class)
-private fun CardColors.toClickableSurfaceContainerColor() =
-    ClickableSurfaceColor(
-        color = containerColor,
-        focusedColor = focusedContainerColor,
-        pressedColor = pressedContainerColor,
-        disabledColor = containerColor
-    )
-
-@OptIn(ExperimentalTvMaterial3Api::class)
-private fun CardColors.toClickableSurfaceContentColor() =
-    ClickableSurfaceColor(
-        color = contentColor,
-        focusedColor = focusedContentColor,
-        pressedColor = pressedContentColor,
-        disabledColor = contentColor
+private fun CardColors.toClickableSurfaceColors() =
+    ClickableSurfaceColors(
+        containerColor = containerColor,
+        contentColor = contentColor,
+        focusedContainerColor = focusedContainerColor,
+        focusedContentColor = focusedContentColor,
+        pressedContainerColor = pressedContainerColor,
+        pressedContentColor = pressedContentColor,
+        disabledContainerColor = containerColor,
+        disabledContentColor = contentColor
     )
 
 @OptIn(ExperimentalTvMaterial3Api::class)

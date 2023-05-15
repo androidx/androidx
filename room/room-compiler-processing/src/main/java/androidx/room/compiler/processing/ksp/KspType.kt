@@ -52,7 +52,7 @@ internal abstract class KspType(
     /**
      * Type resolver to convert KSType into its JVM representation.
      */
-    protected val jvmTypeResolver: KspJvmTypeResolver?
+    val scope: KSTypeVarianceResolverScope?
 ) : KspAnnotated(env), XType, XEquality {
     override val rawType by lazy {
         KspRawType(this)
@@ -62,26 +62,29 @@ internal abstract class KspType(
         xTypeName.java
     }
 
-    private val xTypeName: XTypeName by lazy {
-        XTypeName(
-            jvmWildcardType?.asTypeName()?.java ?: resolveJTypeName(),
-            jvmWildcardType?.asTypeName()?.kotlin ?: resolveKTypeName(),
-            nullability
-        )
-    }
-
     override fun asTypeName() = xTypeName
 
     /**
-     * A Kotlin type might have a slightly different type in JVM due to wildcards.
-     * This fields holds onto that value which will be used when creating JVM types.
+     * A Kotlin type might have a slightly different type in JVM vs Kotlin due to wildcards.
+     * The [XTypeName] represents those differences as [JTypeName] and [KTypeName], respectively.
      */
-    private val jvmWildcardType by lazy {
-        jvmTypeResolver?.resolveJvmType(env)
+    private val xTypeName: XTypeName by lazy {
+        val jvmWildcardType = env.resolveWildcards(ksType, scope).let {
+            if (it == ksType) {
+                this
+            } else {
+                env.wrap(
+                    ksType = it,
+                    allowPrimitives = this is KspPrimitiveType
+                )
+            }
+        }
+        XTypeName(
+            jvmWildcardType.resolveJTypeName(),
+            resolveKTypeName(),
+            nullability
+        )
     }
-
-    internal val jvmWildcardTypeOrSelf
-        get() = jvmWildcardType ?: this
 
     protected abstract fun resolveJTypeName(): JTypeName
 
@@ -134,15 +137,12 @@ internal abstract class KspType(
                 if (argDeclaration is KSTypeParameter) {
                     // If this is a type parameter, replace it with the resolved type argument.
                     resolvedTypeArguments[argDeclaration.name.asString()] ?: argument
-                } else if (
-                    argument.type != null && argument.type?.resolve()?.arguments?.isEmpty() == false
-                ) {
+                } else if (argument.type?.resolve()?.arguments?.isEmpty() == false) {
                     // If this is a type with arguments, the arguments may contain a type parameter,
                     // e.g. Foo<T>, so try to resolve the type and then convert to a type argument.
                     env.resolver.getTypeArgument(
-                        env.resolver.createKSTypeReferenceFromKSType(
-                            resolveTypeArguments(argument.type!!.resolve(), resolvedTypeArguments)
-                        ),
+                        resolveTypeArguments(argument.type!!.resolve(), resolvedTypeArguments)
+                            .createTypeReference(),
                         variance = Variance.INVARIANT
                     )
                 } else {
@@ -266,20 +266,7 @@ internal abstract class KspType(
 
     abstract override fun boxed(): KspType
 
-    fun withJvmTypeResolver(
-        jvmTypeResolver: KspJvmTypeResolutionScope
-    ): KspType {
-        return copyWithJvmTypeResolver(
-            KspJvmTypeResolver(
-                scope = jvmTypeResolver,
-                delegate = this
-            )
-        )
-    }
-
-    abstract fun copyWithJvmTypeResolver(
-        jvmTypeResolver: KspJvmTypeResolver
-    ): KspType
+    abstract fun copyWithScope(scope: KSTypeVarianceResolverScope): KspType
 
     /**
      * Create a copy of this type with the given nullability.

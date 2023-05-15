@@ -41,6 +41,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -117,6 +118,8 @@ fun ModalBottomSheetSample() {
                     Text("Hide Bottom Sheet")
                 }
             }
+            var text by remember { mutableStateOf("") }
+            OutlinedTextField(value = text, onValueChange = { text = it })
             LazyColumn {
                 items(50) {
                     ListItem(

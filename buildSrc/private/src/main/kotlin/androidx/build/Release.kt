@@ -17,6 +17,9 @@ package androidx.build
 
 import androidx.build.uptodatedness.cacheEvenIfNoOutputs
 import com.android.build.gradle.LibraryExtension
+import java.io.File
+import java.io.FileNotFoundException
+import java.util.Locale
 import org.gradle.api.Action
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
@@ -30,9 +33,6 @@ import org.gradle.api.tasks.TaskProvider
 import org.gradle.api.tasks.bundling.Zip
 import org.gradle.plugin.devel.GradlePluginDevelopmentExtension
 import org.gradle.work.DisableCachingByDefault
-import java.io.File
-import java.io.FileNotFoundException
-import java.util.Locale
 
 /**
  * Simple description for an artifact that is released from this project.

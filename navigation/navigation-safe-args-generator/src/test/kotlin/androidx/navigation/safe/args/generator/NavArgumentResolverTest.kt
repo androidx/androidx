@@ -16,19 +16,19 @@
 
 package androidx.navigation.safe.args.generator
 
+import androidx.navigation.safe.args.generator.ext.capitalize
 import androidx.navigation.safe.args.generator.models.Action
 import androidx.navigation.safe.args.generator.models.Argument
 import androidx.navigation.safe.args.generator.models.Destination
 import androidx.navigation.safe.args.generator.models.ResReference
-import androidx.navigation.safe.args.generator.ext.capitalize
 import com.squareup.javapoet.ClassName
+import java.util.Locale
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Assert.fail
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import java.util.Locale
 
 @RunWith(JUnit4::class)
 class NavArgumentResolverTest {

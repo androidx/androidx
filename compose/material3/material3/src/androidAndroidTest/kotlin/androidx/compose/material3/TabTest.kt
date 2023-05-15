@@ -27,7 +27,7 @@ import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.samples.LeadingIconTabs
 import androidx.compose.material3.samples.ScrollingTextTabs
 import androidx.compose.material3.samples.TextTabs
-import androidx.compose.material3.tokens.PrimaryNavigationTabTokens
+import androidx.compose.material3.tokens.DividerTokens
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
@@ -326,9 +326,9 @@ class TabTest {
         rule.onNodeWithTag("divider", true)
             .assertPositionInRootIsEqualTo(
                 expectedLeft = 0.dp,
-                expectedTop = tabRowBounds.height - PrimaryNavigationTabTokens.DividerHeight
+                expectedTop = tabRowBounds.height - DividerTokens.Thickness
             )
-            .assertHeightIsEqualTo(PrimaryNavigationTabTokens.DividerHeight)
+            .assertHeightIsEqualTo(DividerTokens.Thickness)
     }
 
     @Test
@@ -435,7 +435,7 @@ class TabTest {
     }
 
     @Test
-    fun LeadingIconTab_textAndIconPosition() {
+    fun leadingIconTab_textAndIconPosition() {
         rule.setMaterialContent(lightColorScheme()) {
             Box {
                 TabRow(
@@ -564,9 +564,9 @@ class TabTest {
         rule.onNodeWithTag("divider", true)
             .assertPositionInRootIsEqualTo(
                 expectedLeft = 0.dp,
-                expectedTop = tabRowBounds.height - PrimaryNavigationTabTokens.DividerHeight,
+                expectedTop = tabRowBounds.height - DividerTokens.Thickness,
             )
-            .assertHeightIsEqualTo(PrimaryNavigationTabTokens.DividerHeight)
+            .assertHeightIsEqualTo(DividerTokens.Thickness)
     }
 
     @Test
@@ -593,8 +593,10 @@ class TabTest {
                 TextTabs()
             }
 
+        val nodes = rule.onAllNodes(isSelectable())
+
         // Only the first tab should be selected
-        rule.onAllNodes(isSelectable())
+        nodes
             .assertCountEquals(3)
             .apply {
                 get(0).assertIsSelected()
@@ -603,10 +605,10 @@ class TabTest {
             }
 
         // Click the last tab
-        rule.onAllNodes(isSelectable())[2].performClick()
+        nodes[2].performClick()
 
         // Now only the last tab should be selected
-        rule.onAllNodes(isSelectable())
+        nodes
             .assertCountEquals(3)
             .apply {
                 get(0).assertIsNotSelected()
@@ -747,7 +749,7 @@ class TabTest {
             val titles = listOf("TAB 1", "TAB 2", "TAB 3 WITH LOTS OF TEXT")
 
             val indicator = @Composable { tabPositions: List<TabPosition> ->
-                TabRowDefaults.Indicator(
+                TabRowDefaults.SecondaryIndicator(
                     Modifier
                         .tabIndicatorOffset(tabPositions[state])
                         .testTag("indicator")
@@ -791,7 +793,7 @@ class TabTest {
 
     @Test
     fun testInspectorValue() {
-        val pos = TabPosition(10.0.dp, 200.0.dp)
+        val pos = TabPosition(10.0.dp, 200.0.dp, 0.dp)
         rule.setContent {
             val modifier = Modifier.tabIndicatorOffset(pos) as InspectableValue
             assertThat(modifier.nameFallback).isEqualTo("tabIndicatorOffset")

@@ -17,6 +17,7 @@
 package androidx.camera.core.impl;
 
 import android.content.Context;
+import android.util.Pair;
 import android.util.Size;
 
 import androidx.annotation.NonNull;
@@ -42,8 +43,8 @@ public interface CameraDeviceSurfaceManager {
         /**
          * Creates a new, initialized instance of a CameraDeviceSurfaceManager.
          *
-         * @param context the android context
-         * @param cameraManager the camera manager object used to query the camera information.
+         * @param context            the android context
+         * @param cameraManager      the camera manager object used to query the camera information.
          * @param availableCameraIds current available camera ids.
          * @return the factory instance
          * @throws InitializationException if it fails to create the factory
@@ -90,7 +91,8 @@ public interface CameraDeviceSurfaceManager {
      *                                  is not a valid id.
      */
     @NonNull
-    Map<UseCaseConfig<?>, StreamSpec> getSuggestedStreamSpecs(
+    Pair<Map<UseCaseConfig<?>, StreamSpec>, Map<AttachedSurfaceInfo, StreamSpec>>
+            getSuggestedStreamSpecs(
             @CameraMode.Mode int cameraMode,
             @NonNull String cameraId,
             @NonNull List<AttachedSurfaceInfo> existingSurfaces,

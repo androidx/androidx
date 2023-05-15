@@ -16,20 +16,16 @@
 
 package androidx.wear.compose.material
 
-import androidx.wear.compose.foundation.lazy.ScalingLazyListState as ScalingLazyListState
-import androidx.wear.compose.foundation.lazy.ScalingLazyColumn as ScalingLazyColumn
-import androidx.wear.compose.foundation.lazy.ScalingLazyListItemInfo as ScalingLazyListItemInfo
-import androidx.wear.compose.foundation.lazy.ScalingLazyListAnchorType as ScalingLazyListAnchorType
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.AnimationVector
 import androidx.compose.animation.core.AnimationVector2D
 import androidx.compose.animation.core.CubicBezierEasing
+import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.TwoWayConverter
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
@@ -38,6 +34,7 @@ import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.Stable
@@ -50,6 +47,7 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.AbsoluteAlignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
@@ -72,6 +70,10 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.wear.compose.foundation.lazy.ScalingLazyColumn as ScalingLazyColumn
+import androidx.wear.compose.foundation.lazy.ScalingLazyListAnchorType as ScalingLazyListAnchorType
+import androidx.wear.compose.foundation.lazy.ScalingLazyListItemInfo as ScalingLazyListItemInfo
+import androidx.wear.compose.foundation.lazy.ScalingLazyListState as ScalingLazyListState
 import kotlin.math.PI
 import kotlin.math.asin
 import kotlin.math.max
@@ -488,27 +490,29 @@ public fun PositionIndicator(
         )
     }
 
-    AnimatedVisibility(
-        visible = actuallyVisible.value,
-        enter = fadeIn(),
-        exit = fadeOut()
+    // Using same animation spec as AnimatedVisibility's fadeIn and fadeOut
+    val positionIndicatorAlpha by animateFloatAsState(
+        targetValue = if (actuallyVisible.value) 1f else 0f,
+        spring(stiffness = Spring.StiffnessMediumLow)
+    )
+
+    BoundsLimiter(boundsOffset, boundsSize, modifier, onSizeChanged = {
+            containerSize = it
+        }
     ) {
-        BoundsLimiter(boundsOffset, boundsSize, modifier, onSizeChanged = {
-                containerSize = it
-            }
-        ) {
-            Box(
-                modifier = Modifier
+        Box(
+            modifier = Modifier
                 .fillMaxSize()
+                .alpha(positionIndicatorAlpha)
                 .drawWithContent {
                     // We need to invert reverseDirection when the screen is round and we are on
                     // the left.
-                        val actualReverseDirection =
-                            if (isScreenRound && !indicatorOnTheRight) {
-                        !reverseDirection
-                    } else {
-                        reverseDirection
-                    }
+                    val actualReverseDirection =
+                        if (isScreenRound && !indicatorOnTheRight) {
+                            !reverseDirection
+                        } else {
+                            reverseDirection
+                        }
 
                     val indicatorPosition = if (actualReverseDirection) {
                         1 - animatedDisplayState.value.position
@@ -520,12 +524,13 @@ public fun PositionIndicator(
 
                     // We want position = 0 be the indicator aligned at the top of its area and
                     // position = 1 be aligned at the bottom of the area.
-                        val indicatorStart =
-                            indicatorPosition * (1 - animatedDisplayState.value.size)
+                    val indicatorStart =
+                        indicatorPosition * (1 - animatedDisplayState.value.size)
 
-                        val diameter = max(containerSize.width, containerSize.height)
+                    val diameter = max(containerSize.width, containerSize.height)
 
                     val paddingHorizontalPx = paddingHorizontal.toPx()
+
                     if (isScreenRound) {
                         val usableHalf = diameter / 2f - paddingHorizontalPx
                         val sweepDegrees =
@@ -556,8 +561,7 @@ public fun PositionIndicator(
                         )
                     }
                 }
-            )
-        }
+        )
     }
 }
 
@@ -596,10 +600,30 @@ internal fun <T, V : AnimationVector> customAnimateValueAsState(
     return animatable.asState()
 }
 
+@Immutable
 internal class DisplayState(
     val position: Float,
     val size: Float
-)
+) {
+    override fun hashCode(): Int {
+        var result = position.hashCode()
+        result = 31 * result + size.hashCode()
+        return result
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null) return false
+        if (this::class != other::class) return false
+
+        other as DisplayState
+
+        if (position != other.position) return false
+        if (size != other.size) return false
+
+        return true
+    }
+}
 
 internal val DisplayStateTwoWayConverter: TwoWayConverter<DisplayState, AnimationVector2D> =
     TwoWayConverter(
@@ -619,7 +643,7 @@ internal val DisplayStateTwoWayConverter: TwoWayConverter<DisplayState, Animatio
  * maximum value. E.g. If displaying a volume value from 0..11 then the [fraction] will be
  * volume/11.
  *
- * @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+ * @VisibleForTesting
  */
 internal class FractionPositionIndicatorState(
     private val fraction: () -> Float
@@ -642,7 +666,7 @@ internal class FractionPositionIndicatorState(
  *
  * @param scrollState the [ScrollState] to adapt
  *
- * @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+ * @VisibleForTesting
  */
 internal class ScrollStateAdapter(private val scrollState: ScrollState) : PositionIndicatorState {
     override val positionFraction: Float
@@ -687,7 +711,7 @@ internal class ScrollStateAdapter(private val scrollState: ScrollState) : Positi
 
  * @param state the [ScalingLazyListState] to adapt.
  *
- * @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+ * @VisibleForTesting
  */
 internal class ScalingLazyColumnStateAdapter(
     private val state: ScalingLazyListState
@@ -908,7 +932,7 @@ internal abstract class BaseScalingLazyColumnStateAdapter : PositionIndicatorSta
  *
  * @param state the [LazyListState] to adapt.
  *
- * @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+ * @VisibleForTesting
  */
 internal class LazyColumnStateAdapter(
     private val state: LazyListState

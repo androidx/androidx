@@ -426,7 +426,7 @@ class XTypeElementTest(
             """.trimIndent()
         )
         val javaSrc = Source.java(
-            "Bar.java",
+            "Bar",
             """
             class JavaClass {}
             interface JavaInterface {}
@@ -728,7 +728,7 @@ class XTypeElementTest(
         runTest(
             listOf(
                 Source.java(
-                    "JavaSubject.java",
+                    "JavaSubject",
                     """
                     class JavaSubject {
                         int myField;
@@ -752,7 +752,7 @@ class XTypeElementTest(
                 )
             ),
         ) { invocation ->
-            listOf("JavaSubject", "KotlinSubject",).map {
+            listOf("JavaSubject", "KotlinSubject").map {
                 invocation.processingEnv.requireTypeElement(it)
             }.forEach { subject ->
                 val methods = subject.getDeclaredMethods()

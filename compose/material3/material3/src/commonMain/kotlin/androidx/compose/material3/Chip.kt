@@ -43,12 +43,14 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
@@ -1493,6 +1495,7 @@ class ChipElevation internal constructor(
         interactionSource: InteractionSource
     ): State<Dp> {
         val interactions = remember { mutableStateListOf<Interaction>() }
+        var lastInteraction by remember { mutableStateOf<Interaction?>(null) }
         LaunchedEffect(interactionSource) {
             interactionSource.interactions.collect { interaction ->
                 when (interaction) {
@@ -1546,22 +1549,16 @@ class ChipElevation internal constructor(
 
         val animatable = remember { Animatable(target, Dp.VectorConverter) }
 
-        if (!enabled) {
-            // No transition when moving to a disabled state
-            LaunchedEffect(target) { animatable.snapTo(target) }
-        } else {
-            LaunchedEffect(target) {
-                val lastInteraction = when (animatable.targetValue) {
-                    pressedElevation -> PressInteraction.Press(Offset.Zero)
-                    hoveredElevation -> HoverInteraction.Enter()
-                    focusedElevation -> FocusInteraction.Focus()
-                    draggedElevation -> DragInteraction.Start()
-                    else -> null
-                }
+        LaunchedEffect(target) {
+            if (!enabled) {
+                // No transition when moving to a disabled state
+                animatable.snapTo(target)
+            } else {
                 animatable.animateElevation(
                     from = lastInteraction, to = interaction, target = target
                 )
             }
+            lastInteraction = interaction
         }
 
         return animatable.asState()
@@ -1653,6 +1650,7 @@ class SelectableChipElevation internal constructor(
         interactionSource: InteractionSource
     ): State<Dp> {
         val interactions = remember { mutableStateListOf<Interaction>() }
+        var lastInteraction by remember { mutableStateOf<Interaction?>(null) }
         LaunchedEffect(interactionSource) {
             interactionSource.interactions.collect { interaction ->
                 when (interaction) {
@@ -1706,22 +1704,16 @@ class SelectableChipElevation internal constructor(
 
         val animatable = remember { Animatable(target, Dp.VectorConverter) }
 
-        if (!enabled) {
-            // No transition when moving to a disabled state
-            LaunchedEffect(target) { animatable.snapTo(target) }
-        } else {
-            LaunchedEffect(target) {
-                val lastInteraction = when (animatable.targetValue) {
-                    pressedElevation -> PressInteraction.Press(Offset.Zero)
-                    hoveredElevation -> HoverInteraction.Enter()
-                    focusedElevation -> FocusInteraction.Focus()
-                    draggedElevation -> DragInteraction.Start()
-                    else -> null
-                }
+        LaunchedEffect(target) {
+            if (!enabled) {
+                // No transition when moving to a disabled state
+                animatable.snapTo(target)
+            } else {
                 animatable.animateElevation(
                     from = lastInteraction, to = interaction, target = target
                 )
             }
+            lastInteraction = interaction
         }
 
         return animatable.asState()

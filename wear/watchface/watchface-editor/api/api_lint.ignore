@@ -7,3 +7,7 @@ BannedThrow: androidx.wear.watchface.editor.EditorSession#createOnWatchEditorSes
     Methods must not throw unchecked exceptions
 BannedThrow: androidx.wear.watchface.editor.EditorSession.Companion#createOnWatchEditorSession(androidx.activity.ComponentActivity, kotlin.coroutines.Continuation<? super androidx.wear.watchface.editor.EditorSession>):
     Methods must not throw unchecked exceptions
+
+
+GetterSetterNames: field EditorSession.commitChangesOnClose:
+    Invalid name for boolean property `commitChangesOnClose`. Should start with one of `has`, `can`, `should`, `is`.

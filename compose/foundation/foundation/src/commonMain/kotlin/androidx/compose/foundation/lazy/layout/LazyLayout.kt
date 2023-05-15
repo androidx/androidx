@@ -67,7 +67,11 @@ fun LazyLayout(
             modifier,
             remember(itemContentFactory, measurePolicy) {
                 { constraints ->
-                    with(LazyLayoutMeasureScopeImpl(itemContentFactory, this)) {
+                    with(LazyLayoutMeasureScopeImpl(
+                        itemContentFactory,
+                        this,
+                        prefetchState?.prefetcher?.timeTracker
+                    )) {
                         measurePolicy(constraints)
                     }
                 }

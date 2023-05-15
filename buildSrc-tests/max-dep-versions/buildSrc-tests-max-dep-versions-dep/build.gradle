@@ -11,7 +11,7 @@ android {
 }
 
 androidx {
-    name = "Sample Library"
+    name = "Sample"
     publish = Publish.SNAPSHOT_AND_RELEASE
     type = LibraryType.SAMPLES
     inceptionYear = "2020"

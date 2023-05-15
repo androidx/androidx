@@ -22,10 +22,12 @@ import androidx.room.compiler.processing.util.className
 import androidx.room.compiler.processing.util.getField
 import androidx.room.compiler.processing.util.getMethodByJvmName
 import androidx.room.compiler.processing.util.runKspTest
+import androidx.room.compiler.processing.util.runProcessorTest
 import com.google.common.truth.Truth.assertThat
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
+import com.squareup.javapoet.WildcardTypeName
 import org.junit.Test
 
 class KSAsMemberOfTest {
@@ -46,7 +48,7 @@ class KSAsMemberOfTest {
             """.trimIndent()
         )
 
-        runKspTest(sources = listOf(src)) { invocation ->
+        runProcessorTest(sources = listOf(src)) { invocation ->
             val base = invocation.processingEnv.requireTypeElement("BaseClass")
             val sub = invocation.processingEnv.requireType("SubClass")
             base.getField("normalInt").let { prop ->
@@ -77,7 +79,7 @@ class KSAsMemberOfTest {
             val listOfStringsTypeName =
                 ParameterizedTypeName.get(
                     List::class.className(),
-                    String::class.className()
+                    WildcardTypeName.subtypeOf(String::class.className())
                 )
             base.getField("mapOfStringToGeneric2").let { prop ->
                 assertThat(

@@ -115,14 +115,11 @@ BundleInsideHelper.forInsideJarKmp(
 )
 
 dependencies {
-    bundleInside(project(
-            path: ":datastore:datastore-preferences-proto",
-            configuration: "export"
-    ))
+    bundleInside(project(path: ":datastore:datastore-preferences-proto", configuration: "export"))
 }
 
 androidx {
-    name = "Android Preferences DataStore Core"
+    name = "Preferences DataStore Core"
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2020"
     description = "Android Preferences DataStore without the Android Dependencies"

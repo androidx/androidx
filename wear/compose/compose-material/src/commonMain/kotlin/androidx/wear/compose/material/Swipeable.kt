@@ -29,6 +29,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.Saver
@@ -116,12 +117,12 @@ open class SwipeableState<T>(
     @ExperimentalWearMaterialApi
     val overflow: State<Float> get() = overflowState
 
-    private val offsetState = mutableStateOf(0f)
-    private val overflowState = mutableStateOf(0f)
+    private val offsetState = mutableFloatStateOf(0f)
+    private val overflowState = mutableFloatStateOf(0f)
 
     // the source of truth for the "real"(non ui) position
     // basically position in bounds + overflow
-    private val absoluteOffset = mutableStateOf(0f)
+    private val absoluteOffset = mutableFloatStateOf(0f)
 
     private var initialOffset: Float = 0f
 
@@ -145,8 +146,8 @@ open class SwipeableState<T>(
             requireNotNull(offset) {
                 "The initial value must have an associated anchor."
             }
-            offsetState.value = offset
-            absoluteOffset.value = offset
+            offsetState.floatValue = offset
+            absoluteOffset.floatValue = offset
             initialOffset = offset
         }
     }
@@ -202,29 +203,29 @@ open class SwipeableState<T>(
 
     internal var thresholds: (Float, Float) -> Float by mutableStateOf({ _, _ -> 0f })
 
-    internal var velocityThreshold by mutableStateOf(0f)
+    internal var velocityThreshold by mutableFloatStateOf(0f)
 
     internal var resistance: ResistanceConfig? by mutableStateOf(null)
 
     internal val draggableState = DraggableState {
-        val newAbsolute = absoluteOffset.value + it
+        val newAbsolute = absoluteOffset.floatValue + it
         val clamped = newAbsolute.coerceIn(minBound, maxBound)
         val overflow = newAbsolute - clamped
         val resistanceDelta = resistance?.computeResistance(overflow) ?: 0f
-        offsetState.value = clamped + resistanceDelta
-        overflowState.value = overflow
-        absoluteOffset.value = newAbsolute
+        offsetState.floatValue = clamped + resistanceDelta
+        overflowState.floatValue = overflow
+        absoluteOffset.floatValue = newAbsolute
     }
 
     private suspend fun snapInternalToOffset(target: Float) {
         draggableState.drag {
-            dragBy(target - absoluteOffset.value)
+            dragBy(target - absoluteOffset.floatValue)
         }
     }
 
     private suspend fun animateInternalToOffset(target: Float, spec: AnimationSpec<Float>) {
         draggableState.drag {
-            var prevValue = absoluteOffset.value
+            var prevValue = absoluteOffset.floatValue
             animationTarget.value = target
             isAnimationRunning = true
             try {
@@ -342,7 +343,7 @@ open class SwipeableState<T>(
                 }
                 animateInternalToOffset(targetOffset, anim)
             } finally {
-                val endOffset = absoluteOffset.value
+                val endOffset = absoluteOffset.floatValue
                 val endValue = anchors
                     // fighting rounding error once again, anchor should be as close as 0.5 pixels
                     .filterKeys { anchorOffset -> abs(anchorOffset - endOffset) < 0.5f }
@@ -401,9 +402,9 @@ open class SwipeableState<T>(
      * @return the amount of [delta] consumed
      */
     internal fun performDrag(delta: Float): Float {
-        val potentiallyConsumed = absoluteOffset.value + delta
+        val potentiallyConsumed = absoluteOffset.floatValue + delta
         val clamped = potentiallyConsumed.coerceIn(minBound, maxBound)
-        val deltaToConsume = clamped - absoluteOffset.value
+        val deltaToConsume = clamped - absoluteOffset.floatValue
         if (abs(deltaToConsume) > 0) {
             draggableState.dispatchRawDelta(deltaToConsume)
         }

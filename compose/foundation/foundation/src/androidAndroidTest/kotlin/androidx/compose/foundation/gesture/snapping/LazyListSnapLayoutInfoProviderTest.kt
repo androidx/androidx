@@ -128,31 +128,6 @@ class LazyListSnapLayoutInfoProviderTest(orientation: Orientation) :
     }
 
     @Test
-    fun snappingOffsetBounds_shouldBeDifferentSignedBounds() {
-        var upperBound = 0f
-        var lowerBound = 0f
-        rule.setContent {
-            val density = LocalDensity.current
-            val state = rememberLazyListState()
-            val layoutInfoProvider = remember(state) { createLayoutInfo(state) }
-            val bounds = with(layoutInfoProvider) { density.calculateSnappingOffsetBounds() }
-            lowerBound = bounds.start
-            upperBound = bounds.endInclusive
-            MainLayout(
-                state = state,
-                layoutInfo = layoutInfoProvider,
-                items = 200,
-                itemSizeProvider = { FixedItemSize }
-            )
-        }
-
-        rule.runOnIdle {
-            assertEquals(sign(lowerBound), sign(-1f))
-            assertEquals(sign(upperBound), sign(1f))
-        }
-    }
-
-    @Test
     fun calculateApproachOffset_highVelocity_approachOffsetIsEqualToDecayMinusItemSize() {
         lateinit var layoutInfoProvider: SnapLayoutInfoProvider
         val decay = splineBasedDecay<Float>(rule.density)

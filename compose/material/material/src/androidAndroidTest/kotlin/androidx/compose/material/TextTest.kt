@@ -133,7 +133,6 @@ class TextTest {
 
     @Test
     fun settingParametersExplicitly() {
-        var textColor: Color? = null
         var textAlign: TextAlign? = null
         var fontSize: TextUnit? = null
         var fontStyle: FontStyle? = null
@@ -155,7 +154,6 @@ class TextTest {
                         fontStyle = expectedFontStyle,
                         letterSpacing = expectedLetterSpacing,
                         onTextLayout = {
-                            textColor = it.layoutInput.style.color
                             textAlign = it.layoutInput.style.textAlign
                             fontSize = it.layoutInput.style.fontSize
                             fontStyle = it.layoutInput.style.fontStyle
@@ -168,7 +166,6 @@ class TextTest {
 
         rule.runOnIdle {
             // explicit parameters should override values from the style.
-            Truth.assertThat(textColor).isEqualTo(expectedColor)
             Truth.assertThat(textAlign).isEqualTo(expectedTextAlign)
             Truth.assertThat(fontSize).isEqualTo(expectedFontSize)
             Truth.assertThat(fontStyle).isEqualTo(expectedFontStyle)
@@ -179,7 +176,6 @@ class TextTest {
     // Not really an expected use-case, but we should ensure the behavior here is consistent.
     @Test
     fun settingColorAndTextStyle() {
-        var textColor: Color? = null
         var textAlign: TextAlign? = null
         var fontSize: TextUnit? = null
         var fontStyle: FontStyle? = null
@@ -202,7 +198,6 @@ class TextTest {
                         letterSpacing = expectedLetterSpacing,
                         style = ExpectedTextStyle,
                         onTextLayout = {
-                            textColor = it.layoutInput.style.color
                             textAlign = it.layoutInput.style.textAlign
                             fontSize = it.layoutInput.style.fontSize
                             fontStyle = it.layoutInput.style.fontStyle
@@ -215,7 +210,6 @@ class TextTest {
 
         rule.runOnIdle {
             // explicit parameters should override values from the style.
-            Truth.assertThat(textColor).isEqualTo(expectedColor)
             Truth.assertThat(textAlign).isEqualTo(expectedTextAlign)
             Truth.assertThat(fontSize).isEqualTo(expectedFontSize)
             Truth.assertThat(fontStyle).isEqualTo(expectedFontStyle)

@@ -204,7 +204,8 @@ class AdvancedSessionProcessorTest {
     @Test
     fun canInvokeStartTrigger() = runBlocking {
         val fakeSessionProcessImpl = FakeSessionProcessImpl()
-        val advancedSessionProcessor = AdvancedSessionProcessor(fakeSessionProcessImpl, context)
+        val advancedSessionProcessor = AdvancedSessionProcessor(
+            fakeSessionProcessImpl, emptyList(), context)
 
         val parametersMap: MutableMap<CaptureRequest.Key<*>, Any> = mutableMapOf(
             CaptureRequest.CONTROL_AF_MODE to CaptureRequest.CONTROL_AF_MODE_AUTO,
@@ -375,7 +376,8 @@ class AdvancedSessionProcessorTest {
         imageCapture: ImageCapture,
         imageAnalysis: ImageAnalysis? = null
     ) {
-        val advancedSessionProcessor = AdvancedSessionProcessor(fakeSessionProcessImpl, context)
+        val advancedSessionProcessor = AdvancedSessionProcessor(fakeSessionProcessImpl,
+            emptyList(), context)
         val latchPreviewFrame = CountDownLatch(1)
         val latchAnalysis = CountDownLatch(1)
         val deferCapturedImage = CompletableDeferred<ImageProxy>()

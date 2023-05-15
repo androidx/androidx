@@ -25,9 +25,6 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
-import org.jetbrains.skia.Bitmap
-import org.jetbrains.skia.ColorAlphaType
-import org.jetbrains.skia.ImageInfo
 import java.awt.Graphics
 import java.awt.Image
 import java.awt.Point
@@ -42,6 +39,9 @@ import java.awt.image.MultiResolutionImage
 import java.awt.image.Raster
 import java.awt.image.SinglePixelPackedSampleModel
 import kotlin.math.roundToInt
+import org.jetbrains.skia.Bitmap
+import org.jetbrains.skia.ColorAlphaType
+import org.jetbrains.skia.ImageInfo
 
 /**
  * Convert AWT [BufferedImage] to Compose [Painter], so it would be possible to pass it to Compose
@@ -83,6 +83,8 @@ private class BufferedImagePainter(val image: BufferedImage) : Painter() {
  * [density] also will be used to rasterize the default image, which can be used by some implementations
  * (Tray icon on macOs, disabled icon for menu items)
  *
+ * @param density density will be used to convert [dp] units
+ * @param layoutDirection direction for layout when drawing
  * @param size the size of the [Image]
  */
 @Deprecated(
@@ -106,6 +108,8 @@ fun Painter.asAwtImage(
  * they don't use absolute '.dp' values to draw, they use values which are relative
  * to their viewport.
  *
+ * @param density density will be used to convert [dp] units when drawing
+ * @param layoutDirection direction for layout when drawing
  * @param size the size of the [Image]
  */
 fun Painter.toAwtImage(

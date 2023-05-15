@@ -208,13 +208,13 @@ package androidx.benchmark.perfetto {
 
   @androidx.benchmark.perfetto.ExperimentalPerfettoTraceProcessorApi public final class PerfettoTraceProcessor {
     ctor public PerfettoTraceProcessor();
-    method public <T> T! loadTrace(androidx.benchmark.perfetto.PerfettoTrace trace, kotlin.jvm.functions.Function1<? super androidx.benchmark.perfetto.PerfettoTraceProcessor.Session,? extends T> block);
-    method public static <T> T! runServer(kotlin.jvm.functions.Function1<? super androidx.benchmark.perfetto.PerfettoTraceProcessor,? extends T> block);
+    method public <T> T loadTrace(androidx.benchmark.perfetto.PerfettoTrace trace, kotlin.jvm.functions.Function1<? super androidx.benchmark.perfetto.PerfettoTraceProcessor.Session,? extends T> block);
+    method public static <T> T runServer(kotlin.jvm.functions.Function1<? super androidx.benchmark.perfetto.PerfettoTraceProcessor,? extends T> block);
     field public static final androidx.benchmark.perfetto.PerfettoTraceProcessor.Companion Companion;
   }
 
   public static final class PerfettoTraceProcessor.Companion {
-    method public <T> T! runServer(kotlin.jvm.functions.Function1<? super androidx.benchmark.perfetto.PerfettoTraceProcessor,? extends T> block);
+    method public <T> T runServer(kotlin.jvm.functions.Function1<? super androidx.benchmark.perfetto.PerfettoTraceProcessor,? extends T> block);
   }
 
   public static final class PerfettoTraceProcessor.Session {

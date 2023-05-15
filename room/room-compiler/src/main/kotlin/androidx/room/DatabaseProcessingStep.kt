@@ -107,6 +107,7 @@ class DatabaseProcessingStep : XProcessingStep {
                 val filename = "${db.version}.json"
                 val exportToResources =
                     Context.BooleanProcessorOptions.EXPORT_SCHEMA_RESOURCE.getValue(env)
+                val schemaInFolderPath = context.schemaInFolderPath
                 val schemaOutFolderPath = context.schemaOutFolderPath
                 if (exportToResources) {
                     context.logger.w(ProcessorErrors.EXPORTING_SCHEMA_TO_RESOURCES)
@@ -115,19 +116,24 @@ class DatabaseProcessingStep : XProcessingStep {
                         originatingElements = listOf(db.element)
                     )
                     db.exportSchema(schemaFileOutputStream)
-                } else if (schemaOutFolderPath != null) {
+                } else if (schemaInFolderPath != null && schemaOutFolderPath != null) {
+                    val schemaInFolder = SchemaFileResolver.RESOLVER.getFile(
+                        Path.of(schemaInFolderPath)
+                    )
                     val schemaOutFolder = SchemaFileResolver.RESOLVER.getFile(
                         Path.of(schemaOutFolderPath)
                     )
                     if (!schemaOutFolder.exists()) {
                         schemaOutFolder.mkdirs()
                     }
-                    val dbSchemaFolder = File(schemaOutFolder, qName)
-                    if (!dbSchemaFolder.exists()) {
-                        dbSchemaFolder.mkdirs()
+                    val dbSchemaInFolder = File(schemaInFolder, qName)
+                    val dbSchemaOutFolder = File(schemaOutFolder, qName)
+                    if (!dbSchemaOutFolder.exists()) {
+                        dbSchemaOutFolder.mkdirs()
                     }
                     db.exportSchema(
-                        File(dbSchemaFolder, "${db.version}.json")
+                        inputFile = File(dbSchemaInFolder, "${db.version}.json"),
+                        outputFile = File(dbSchemaOutFolder, "${db.version}.json")
                     )
                 } else {
                     context.logger.w(

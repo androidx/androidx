@@ -15,14 +15,14 @@
  */
 package androidx.camera.view
 
-import android.widget.FrameLayout
 import android.graphics.SurfaceTexture
 import android.os.Build
 import android.util.Size
-import androidx.camera.view.PreviewViewImplementation.OnSurfaceNotInUseListener
 import android.view.TextureView
+import android.widget.FrameLayout
 import androidx.camera.core.SurfaceRequest
 import androidx.camera.testing.fakes.FakeCamera
+import androidx.camera.view.PreviewViewImplementation.OnSurfaceNotInUseListener
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.MediumTest
@@ -30,14 +30,14 @@ import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth
-import org.junit.After
-import org.junit.Before
-import org.junit.Test
-import org.junit.runner.RunWith
 import java.lang.Exception
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
+import org.junit.After
+import org.junit.Before
+import org.junit.Test
+import org.junit.runner.RunWith
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)

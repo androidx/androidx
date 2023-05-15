@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+InvalidNullConversion: androidx.lifecycle.Observer#onChanged(T) parameter #0:
+    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter value in androidx.lifecycle.Observer.onChanged(T value)

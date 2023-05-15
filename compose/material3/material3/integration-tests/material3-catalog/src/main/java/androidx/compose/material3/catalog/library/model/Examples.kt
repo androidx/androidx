@@ -43,7 +43,7 @@ import androidx.compose.material3.samples.ClickableOutlinedCardSample
 import androidx.compose.material3.samples.DateInputSample
 import androidx.compose.material3.samples.DatePickerDialogSample
 import androidx.compose.material3.samples.DatePickerSample
-import androidx.compose.material3.samples.DatePickerWithDateValidatorSample
+import androidx.compose.material3.samples.DatePickerWithDateSelectableDatesSample
 import androidx.compose.material3.samples.DateRangePickerSample
 import androidx.compose.material3.samples.DismissibleNavigationDrawerSample
 import androidx.compose.material3.samples.DockedSearchBarSample
@@ -81,6 +81,7 @@ import androidx.compose.material3.samples.LargeFloatingActionButtonSample
 import androidx.compose.material3.samples.LeadingIconTabs
 import androidx.compose.material3.samples.LinearProgressIndicatorSample
 import androidx.compose.material3.samples.MenuSample
+import androidx.compose.material3.samples.MenuWithScrollStateSample
 import androidx.compose.material3.samples.ModalBottomSheetSample
 import androidx.compose.material3.samples.ModalNavigationDrawerSample
 import androidx.compose.material3.samples.NavigationBarItemWithBadge
@@ -100,6 +101,7 @@ import androidx.compose.material3.samples.PermanentNavigationDrawerSample
 import androidx.compose.material3.samples.PinnedTopAppBar
 import androidx.compose.material3.samples.PlainTooltipSample
 import androidx.compose.material3.samples.PlainTooltipWithManualInvocationSample
+import androidx.compose.material3.samples.PrimaryTabs
 import androidx.compose.material3.samples.RadioButtonSample
 import androidx.compose.material3.samples.RadioGroupSample
 import androidx.compose.material3.samples.RangeSliderSample
@@ -112,8 +114,11 @@ import androidx.compose.material3.samples.ScaffoldWithIndefiniteSnackbar
 import androidx.compose.material3.samples.ScaffoldWithMultilineSnackbar
 import androidx.compose.material3.samples.ScaffoldWithSimpleSnackbar
 import androidx.compose.material3.samples.ScrollingFancyIndicatorContainerTabs
+import androidx.compose.material3.samples.ScrollingPrimaryTabs
+import androidx.compose.material3.samples.ScrollingSecondaryTabs
 import androidx.compose.material3.samples.ScrollingTextTabs
 import androidx.compose.material3.samples.SearchBarSample
+import androidx.compose.material3.samples.SecondaryTabs
 import androidx.compose.material3.samples.SimpleBottomAppBar
 import androidx.compose.material3.samples.SimpleBottomSheetScaffoldSample
 import androidx.compose.material3.samples.SimpleCenterAlignedTopAppBar
@@ -398,11 +403,11 @@ val DatePickerExamples = listOf(
         DatePickerDialogSample()
     },
     Example(
-        name = ::DatePickerWithDateValidatorSample.name,
+        name = ::DatePickerWithDateSelectableDatesSample.name,
         description = DatePickerExampleDescription,
         sourceUrl = DatePickerExampleSourceUrl
     ) {
-        DatePickerWithDateValidatorSample()
+        DatePickerWithDateSelectableDatesSample()
     },
     Example(
         name = ::DateInputSample.name,
@@ -616,6 +621,13 @@ val MenusExamples = listOf(
         sourceUrl = MenusExampleSourceUrl
     ) {
         MenuSample()
+    },
+    Example(
+        name = ::MenuWithScrollStateSample.name,
+        description = MenusExampleDescription,
+        sourceUrl = MenusExampleSourceUrl
+    ) {
+        MenuWithScrollStateSample()
     },
     Example(
         name = ::ExposedDropdownMenuSample.name,
@@ -886,6 +898,20 @@ private const val TabsExampleDescription = "Tabs examples"
 private const val TabsExampleSourceUrl = "$SampleSourceUrl/TabSamples.kt"
 val TabsExamples = listOf(
     Example(
+        name = ::PrimaryTabs.name,
+        description = TabsExampleDescription,
+        sourceUrl = TabsExampleSourceUrl
+    ) {
+        PrimaryTabs()
+    },
+    Example(
+        name = ::SecondaryTabs.name,
+        description = TabsExampleDescription,
+        sourceUrl = TabsExampleSourceUrl
+    ) {
+        SecondaryTabs()
+    },
+    Example(
         name = ::TextTabs.name,
         description = TabsExampleDescription,
         sourceUrl = TabsExampleSourceUrl
@@ -912,6 +938,20 @@ val TabsExamples = listOf(
         sourceUrl = TabsExampleSourceUrl
     ) {
         LeadingIconTabs()
+    },
+    Example(
+        name = ::ScrollingPrimaryTabs.name,
+        description = TabsExampleDescription,
+        sourceUrl = TabsExampleSourceUrl
+    ) {
+        ScrollingPrimaryTabs()
+    },
+    Example(
+        name = ::ScrollingSecondaryTabs.name,
+        description = TabsExampleDescription,
+        sourceUrl = TabsExampleSourceUrl
+    ) {
+        ScrollingSecondaryTabs()
     },
     Example(
         name = ::ScrollingTextTabs.name,

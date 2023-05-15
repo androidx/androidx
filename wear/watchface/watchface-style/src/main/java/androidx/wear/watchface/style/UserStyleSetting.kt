@@ -242,7 +242,6 @@ private constructor(
      * used.
      *
      * Note this method can be slow.
-     *
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun estimateWireSizeInBytesAndValidateIconDimensions(
@@ -1028,6 +1027,7 @@ private constructor(
                 nameResourceId?.let { dos.writeInt(it) }
                 screenReaderNameResourceId?.let { dos.writeInt(it) }
             }
+
             /**
              * Constructs a [ComplicationSlotOverlay].Builder.
              *

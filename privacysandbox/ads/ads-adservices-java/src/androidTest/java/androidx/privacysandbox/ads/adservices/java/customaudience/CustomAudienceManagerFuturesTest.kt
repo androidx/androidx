@@ -26,10 +26,10 @@ import androidx.privacysandbox.ads.adservices.common.AdData
 import androidx.privacysandbox.ads.adservices.common.AdSelectionSignals
 import androidx.privacysandbox.ads.adservices.common.AdTechIdentifier
 import androidx.privacysandbox.ads.adservices.customaudience.CustomAudience
-import androidx.privacysandbox.ads.adservices.java.customaudience.CustomAudienceManagerFutures.Companion.from
 import androidx.privacysandbox.ads.adservices.customaudience.JoinCustomAudienceRequest
 import androidx.privacysandbox.ads.adservices.customaudience.LeaveCustomAudienceRequest
 import androidx.privacysandbox.ads.adservices.customaudience.TrustedBiddingData
+import androidx.privacysandbox.ads.adservices.java.customaudience.CustomAudienceManagerFutures.Companion.from
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress

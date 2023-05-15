@@ -1,0 +1,7 @@
+// Baseline format: 1.0
+ChangedValue: androidx.compose.ui.tooling.preview.Devices#DESKTOP:
+    Field androidx.compose.ui.tooling.preview.Devices.DESKTOP has changed value from spec:shape=Normal,width=1920,height=1080,unit=dp,dpi=420 to spec:id=reference_desktop,shape=Normal,width=1920,height=1080,unit=dp,dpi=160
+ChangedValue: androidx.compose.ui.tooling.preview.Devices#FOLDABLE:
+    Field androidx.compose.ui.tooling.preview.Devices.FOLDABLE has changed value from spec:shape=Normal,width=673,height=841,unit=dp,dpi=480 to spec:id=reference_foldable,shape=Normal,width=673,height=841,unit=dp,dpi=420
+ChangedValue: androidx.compose.ui.tooling.preview.Devices#TABLET:
+    Field androidx.compose.ui.tooling.preview.Devices.TABLET has changed value from spec:shape=Normal,width=1280,height=800,unit=dp,dpi=420 to spec:id=reference_tablet,shape=Normal,width=1280,height=800,unit=dp,dpi=240

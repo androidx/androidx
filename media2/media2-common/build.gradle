@@ -19,6 +19,7 @@ import androidx.build.Publish
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
+    id("androidx.stableaidl")
 }
 
 apply(from: "../constants.gradle")
@@ -28,7 +29,7 @@ dependencies {
     api("androidx.media:media:1.4.1")
     // TODO(b/177296655): Remove versionedparcelable dependency after the transitive dependency
     //  through media which depends on core is updated.
-    api("androidx.versionedparcelable:versionedparcelable:1.1.1")
+    api(project(":versionedparcelable:versionedparcelable"))
     api(libs.guavaListenableFuture)
     implementation("androidx.annotation:annotation:" + ANNOTATION_VERSION)
     implementation("androidx.collection:collection:" + COLLECTION_VERSION)
@@ -52,12 +53,16 @@ android {
     }
     buildTypes.all {
         consumerProguardFiles "proguard-rules.pro"
+
+        stableAidl {
+            version 1
+        }
     }
     namespace "androidx.media2.common"
 }
 
 androidx {
-    name = "AndroidX media2 common library"
+    name = "Media2 Common"
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2018"
     description = "Media2 Common"

@@ -16,6 +16,7 @@
 
 package androidx.camera.camera2.pipe.compat
 
+import android.os.Build
 import android.view.Surface
 import androidx.annotation.GuardedBy
 import androidx.annotation.RequiresApi
@@ -64,6 +65,15 @@ constructor(
 
     private val lock = Any()
 
+    override var isForeground: Boolean
+        get() = synchronized(lock) { _isForeground }
+        set(value) = synchronized(lock) {
+            _isForeground = value
+        }
+
+    @GuardedBy("lock")
+    private var _isForeground: Boolean = false
+
     @GuardedBy("lock")
     private var controllerState: ControllerState = ControllerState.STOPPED
 
@@ -88,8 +98,8 @@ constructor(
         val camera = virtualCameraManager.open(
             config.camera,
             config.flags.allowMultipleActiveCameras,
-            graphListener
-        )
+            graphListener,
+        ) { _ -> isForeground }
 
         check(currentCamera == null)
         check(currentSession == null)
@@ -101,6 +111,7 @@ constructor(
             captureSequenceProcessorFactory,
             cameraSurfaceManager,
             timeSource,
+            config.flags,
             scope
         )
         currentSession = session
@@ -112,6 +123,7 @@ constructor(
 
         controllerState = ControllerState.STARTED
         Log.debug { "Started Camera2CameraController" }
+        currentCameraStateJob?.cancel()
         currentCameraStateJob = scope.launch { bindSessionToCamera() }
     }
 
@@ -181,6 +193,9 @@ constructor(
         currentCamera = null
         currentSession = null
 
+        currentCameraStateJob?.cancel()
+        currentCameraStateJob = null
+
         scope.launch {
             session?.disconnect()
             camera?.disconnect()
@@ -239,6 +254,12 @@ constructor(
             ) {
                 controllerState = ControllerState.DISCONNECTED
                 Log.debug { "Camera2CameraController is disconnected" }
+                if (Build.VERSION.SDK_INT in (Build.VERSION_CODES.Q..Build.VERSION_CODES.S_V2) &&
+                    _isForeground
+                ) {
+                    Log.debug { "Quirk for multi-resume: Internal tryRestart()" }
+                    tryRestart(CameraStatus.CameraPrioritiesChanged)
+                }
             } else {
                 controllerState = ControllerState.ERROR
                 Log.debug {
@@ -250,7 +271,5 @@ constructor(
         } else {
             controllerState = ControllerState.STOPPED
         }
-        currentCameraStateJob?.cancel()
-        currentCameraStateJob = null
     }
 }

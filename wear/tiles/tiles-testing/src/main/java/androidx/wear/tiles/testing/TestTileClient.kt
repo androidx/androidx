@@ -22,17 +22,16 @@ import android.content.ComponentName
 import android.content.Intent
 import androidx.test.core.app.ApplicationProvider.getApplicationContext
 import androidx.wear.tiles.RequestBuilders
-import androidx.wear.tiles.ResourceBuilders
 import androidx.wear.tiles.TileBuilders
 import androidx.wear.tiles.TileService
 import androidx.wear.tiles.client.TileClient
 import androidx.wear.tiles.connection.DefaultTileClient
 import com.google.common.util.concurrent.ListenableFuture
+import java.util.concurrent.Executor
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.android.controller.ServiceController
-import java.util.concurrent.Executor
 
 /**
  * [TileClient] for testing purposes. This will pass calls through to the given instance of
@@ -114,9 +113,10 @@ public class TestTileClient<T : TileService> :
         return innerTileService.requestTile(requestParams)
     }
 
+    @Suppress("deprecation") // For backwards compatibility.
     override fun requestResources(
         requestParams: RequestBuilders.ResourcesRequest
-    ): ListenableFuture<ResourceBuilders.Resources> {
+    ): ListenableFuture<androidx.wear.tiles.ResourceBuilders.Resources> {
         maybeBind()
         return innerTileService.requestResources(requestParams)
     }

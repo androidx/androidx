@@ -31,6 +31,7 @@ import static androidx.camera.core.DynamicRange.FORMAT_HDR10_PLUS;
 import static androidx.camera.core.DynamicRange.FORMAT_HDR_UNSPECIFIED;
 import static androidx.camera.core.DynamicRange.FORMAT_HLG;
 import static androidx.camera.core.DynamicRange.FORMAT_SDR;
+import static androidx.camera.core.DynamicRange.FORMAT_UNSPECIFIED;
 import static androidx.camera.core.impl.EncoderProfilesProxy.VideoProfileProxy.BIT_DEPTH_10;
 import static androidx.camera.core.impl.EncoderProfilesProxy.VideoProfileProxy.BIT_DEPTH_8;
 
@@ -52,6 +53,7 @@ public class DynamicRangeUtil {
 
     public static final Map<Integer, Set<Integer>> DR_TO_VP_BIT_DEPTH_MAP = new HashMap<>();
     public static final Map<Integer, Set<Integer>> DR_TO_VP_FORMAT_MAP = new HashMap<>();
+    public static final Map<Integer, Integer> VP_TO_DR_FORMAT_MAP = new HashMap<>();
 
     private DynamicRangeUtil() {
     }
@@ -64,6 +66,8 @@ public class DynamicRangeUtil {
                 new HashSet<>(asList(BIT_DEPTH_8, BIT_DEPTH_10)));
 
         // DynamicRange format to VideoProfile HDR format.
+        DR_TO_VP_FORMAT_MAP.put(FORMAT_UNSPECIFIED, new HashSet<>(asList(HDR_NONE, HDR_HLG,
+                HDR_HDR10, HDR_HDR10PLUS, HDR_DOLBY_VISION)));
         DR_TO_VP_FORMAT_MAP.put(FORMAT_SDR, new HashSet<>(singletonList(HDR_NONE)));
         DR_TO_VP_FORMAT_MAP.put(FORMAT_HDR_UNSPECIFIED,
                 new HashSet<>(asList(HDR_HLG, HDR_HDR10, HDR_HDR10PLUS, HDR_DOLBY_VISION)));
@@ -72,5 +76,12 @@ public class DynamicRangeUtil {
         DR_TO_VP_FORMAT_MAP.put(FORMAT_HDR10_PLUS, new HashSet<>(singletonList(HDR_HDR10PLUS)));
         DR_TO_VP_FORMAT_MAP.put(FORMAT_DOLBY_VISION,
                 new HashSet<>(singletonList(HDR_DOLBY_VISION)));
+
+        // VideoProfile HDR format to DynamicRange format.
+        VP_TO_DR_FORMAT_MAP.put(HDR_NONE, FORMAT_SDR);
+        VP_TO_DR_FORMAT_MAP.put(HDR_HLG, FORMAT_HLG);
+        VP_TO_DR_FORMAT_MAP.put(HDR_HDR10, FORMAT_HDR10);
+        VP_TO_DR_FORMAT_MAP.put(HDR_HDR10PLUS, FORMAT_HDR10_PLUS);
+        VP_TO_DR_FORMAT_MAP.put(HDR_DOLBY_VISION, FORMAT_DOLBY_VISION);
     }
 }

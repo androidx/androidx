@@ -16,7 +16,7 @@
 
 package androidx.appactions.interaction.capabilities.core.entity
 
-import androidx.appactions.interaction.capabilities.core.values.SearchAction
+import androidx.appactions.interaction.capabilities.core.SearchAction
 import androidx.appactions.interaction.protobuf.ByteString
 
 /** The class for the request of the entity lookup. */

@@ -28,7 +28,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -43,22 +44,22 @@ import kotlin.random.Random
 @Composable
 fun AnimateBoundsModifierDemo() {
     var height by remember {
-        mutableStateOf(200)
+        mutableIntStateOf(200)
     }
     var left by remember {
-        mutableStateOf(0)
+        mutableIntStateOf(0)
     }
     var top by remember {
-        mutableStateOf(0)
+        mutableIntStateOf(0)
     }
     var right by remember {
-        mutableStateOf(0)
+        mutableIntStateOf(0)
     }
     var bottom by remember {
-        mutableStateOf(0)
+        mutableIntStateOf(0)
     }
     var weight by remember {
-        mutableStateOf(2f)
+        mutableFloatStateOf(2f)
     }
 
     LookaheadScope {

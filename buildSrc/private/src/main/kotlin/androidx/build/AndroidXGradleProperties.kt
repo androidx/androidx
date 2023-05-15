@@ -80,12 +80,6 @@ const val ENABLE_COMPOSE_COMPILER_REPORTS = "androidx.enableComposeCompilerRepor
 const val ENABLE_DOCUMENTATION = "androidx.enableDocumentation"
 
 /**
- * Adjusts the set of projects participating in this build.
- * See settings.gradle for more information
- */
-const val PROJECT_SUBSET = "androidx.projects"
-
-/**
  * Setting this property puts a summary of the relevant failure messages into standard error
  */
 const val SUMMARIZE_STANDARD_ERROR = "androidx.summarizeStderr"
@@ -152,6 +146,11 @@ const val XCODEGEN_DOWNLOAD_URI = "androidx.benchmark.darwin.xcodeGenDownloadUri
  */
 const val ALLOW_CUSTOM_COMPILE_SDK = "androidx.allowCustomCompileSdk"
 
+/**
+ * Whether to update gradle signature verification metadata
+ */
+const val UPDATE_SIGNATURES = "androidx.update.signatures"
+
 val ALL_ANDROIDX_PROPERTIES = setOf(
     ADD_GROUP_CONSTRAINTS,
     ALTERNATIVE_PROJECT_URL,
@@ -162,7 +161,6 @@ val ALL_ANDROIDX_PROPERTIES = setOf(
     ENABLE_COMPOSE_COMPILER_REPORTS,
     DISPLAY_TEST_OUTPUT,
     ENABLE_DOCUMENTATION,
-    PROJECT_SUBSET,
     STUDIO_TYPE,
     SUMMARIZE_STANDARD_ERROR,
     USE_MAX_DEP_VERSIONS,
@@ -179,7 +177,8 @@ val ALL_ANDROIDX_PROPERTIES = setOf(
     ENABLED_KMP_TARGET_PLATFORMS,
     ALLOW_MISSING_LINT_CHECKS_PROJECT,
     XCODEGEN_DOWNLOAD_URI,
-    ALLOW_CUSTOM_COMPILE_SDK
+    ALLOW_CUSTOM_COMPILE_SDK,
+    UPDATE_SIGNATURES
 )
 
 /**

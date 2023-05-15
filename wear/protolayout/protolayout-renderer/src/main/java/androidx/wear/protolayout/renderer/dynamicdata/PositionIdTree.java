@@ -166,7 +166,7 @@ final class PositionIdTree<T extends TreeNode> {
     }
 
     /** Returns all of the current tree nodes. This is intended to be used only in tests. */
-    @VisibleForTesting(otherwise = VisibleForTesting.NONE)
+    @VisibleForTesting
     @NonNull
     Collection<T> getAllNodes() {
         return Collections.unmodifiableCollection(mPosIdToTreeNode.values());

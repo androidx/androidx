@@ -16,12 +16,16 @@
 
 package androidx.window.embedding
 
+import android.content.ComponentName
 import androidx.window.core.ActivityComponentInfo
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
 
+@RunWith(RobolectricTestRunner::class)
 class ActivityRuleTest {
 
     @Test
@@ -60,7 +64,39 @@ class ActivityRuleTest {
         assertEquals(firstRule.hashCode(), secondRule.hashCode())
     }
 
+    /**
+     * Verifies that default params are set correctly when creating [ActivityRule] with a
+     * builder.
+     */
+    @Test
+    fun testDefaults_ActivityRule_Builder() {
+        val rule = ActivityRule.Builder(HashSet()).build()
+        assertFalse(rule.alwaysExpand)
+    }
+
+    /**
+     * Verifies that the params are set correctly when creating [ActivityRule] with a builder.
+     */
+    @Test
+    fun test_ActivityRule_Builder() {
+        val filters = HashSet<ActivityFilter>()
+        filters.add(
+            ActivityFilter(
+                ComponentName("a", "b"),
+                "ACTION"
+            )
+        )
+        val rule = ActivityRule.Builder(filters)
+            .setAlwaysExpand(true)
+            .setTag(TEST_TAG)
+            .build()
+        assertTrue(rule.alwaysExpand)
+        assertEquals(TEST_TAG, rule.tag)
+        assertEquals(filters, rule.filters)
+    }
+
     companion object {
+        private const val TEST_TAG = "test"
         val FILTER_WITH_ACTIVITY = ActivityFilter(
             ActivityComponentInfo("package", "className"),
             null

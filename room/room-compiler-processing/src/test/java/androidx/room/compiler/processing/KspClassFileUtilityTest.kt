@@ -66,8 +66,8 @@ class KspClassFileUtilityTest(
 
     @Test
     fun outOfOrderJava_fields() {
-        val libSource = Source.kotlin(
-            "JavaClass.java",
+        val libSource = Source.java(
+            "JavaClass",
             """
             class JavaClass {
                 String b;
@@ -116,8 +116,8 @@ class KspClassFileUtilityTest(
 
     @Test
     fun outOfOrderJava_methods() {
-        val libSource = Source.kotlin(
-            "JavaClass.java",
+        val libSource = Source.java(
+            "JavaClass",
             """
             class JavaClass {
                 String b() { return ""; }

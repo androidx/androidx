@@ -24,6 +24,7 @@ import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.core.Debug
 import androidx.camera.camera2.pipe.core.Log
+import androidx.camera.camera2.pipe.core.Threading
 import androidx.camera.camera2.pipe.core.Threads
 import java.util.concurrent.CountDownLatch
 import javax.inject.Inject
@@ -34,6 +35,7 @@ internal interface Camera2DeviceCloser {
     fun closeCamera(
         cameraDeviceWrapper: CameraDeviceWrapper? = null,
         cameraDevice: CameraDevice? = null,
+        closeUnderError: Boolean = false,
         androidCameraState: AndroidCameraState,
     )
 }
@@ -47,8 +49,10 @@ internal class Camera2DeviceCloserImpl @Inject constructor(
     override fun closeCamera(
         cameraDeviceWrapper: CameraDeviceWrapper?,
         cameraDevice: CameraDevice?,
+        closeUnderError: Boolean,
         androidCameraState: AndroidCameraState,
     ) {
+        Log.debug { "Closing $cameraDeviceWrapper and/or $cameraDevice" }
         val unwrappedCameraDevice = cameraDeviceWrapper?.unwrapAs(CameraDevice::class)
         if (unwrappedCameraDevice != null) {
             cameraDevice?.let {
@@ -57,22 +61,23 @@ internal class Camera2DeviceCloserImpl @Inject constructor(
                         "but the accompanied camera device has camera ID ${it.id}"
                 }
             }
-            closeCameraDevice(unwrappedCameraDevice, androidCameraState)
+            closeCameraDevice(unwrappedCameraDevice, closeUnderError, androidCameraState)
             cameraDeviceWrapper.onDeviceClosed()
 
             // We only need to close the device once (don't want to create another capture session).
             // Return here.
             return
         }
-        cameraDevice?.let { closeCameraDevice(it, androidCameraState) }
+        cameraDevice?.let { closeCameraDevice(it, closeUnderError, androidCameraState) }
     }
 
     private fun closeCameraDevice(
         cameraDevice: CameraDevice,
+        closeUnderError: Boolean,
         androidCameraState: AndroidCameraState,
     ) {
         val cameraId = CameraId.fromCamera2Id(cameraDevice.id)
-        if (camera2Quirks.shouldCreateCaptureSessionBeforeClosing(cameraId)) {
+        if (camera2Quirks.shouldCreateCaptureSessionBeforeClosing(cameraId) && !closeUnderError) {
             Debug.trace("Camera2DeviceCloserImpl#createCaptureSession") {
                 Log.debug { "Creating an empty capture session before closing camera $cameraId" }
                 createCaptureSession(cameraDevice)
@@ -80,13 +85,15 @@ internal class Camera2DeviceCloserImpl @Inject constructor(
             }
         }
         Log.debug { "Closing $cameraDevice" }
-        cameraDevice.closeWithTrace()
+        Threading.runBlockingWithTimeout(threads.backgroundDispatcher, 2000L) {
+            cameraDevice.closeWithTrace()
+        }
         if (camera2Quirks.shouldWaitForCameraDeviceOnClosed(cameraId)) {
             Log.debug { "Waiting for camera device to be completely closed" }
             if (androidCameraState.awaitCameraDeviceClosed(timeoutMillis = 2000)) {
                 Log.debug { "Camera device is closed" }
             } else {
-                Log.warn { "Failed to wait for camera device to close after 1500ms" }
+                Log.warn { "Failed to wait for camera device to close after 2000ms" }
             }
         }
     }

@@ -168,7 +168,7 @@ class GestureController {
                     action = MotionEvent.ACTION_POINTER_UP
                             + (index << MotionEvent.ACTION_POINTER_INDEX_SHIFT);
                 }
-                event = getMotionEvent(startTime, startTime + elapsedTime, action, properties,
+                event = getMotionEvent(startTime, SystemClock.uptimeMillis(), action, properties,
                         coordinates, gesture.displayId());
                 getDevice().getUiAutomation().injectInputEvent(event, false);
 
@@ -183,8 +183,9 @@ class GestureController {
 
             }
             if (!active.isEmpty()) {
-                event = getMotionEvent(startTime, startTime + elapsedTime, MotionEvent.ACTION_MOVE,
-                        properties, coordinates, active.peek().displayId());
+                event = getMotionEvent(startTime, SystemClock.uptimeMillis(),
+                        MotionEvent.ACTION_MOVE, properties, coordinates,
+                        active.peek().displayId());
                 getDevice().getUiAutomation().injectInputEvent(event, false);
             }
 
@@ -205,7 +206,7 @@ class GestureController {
                     action = MotionEvent.ACTION_POINTER_DOWN
                             + ((properties.size() - 1) << MotionEvent.ACTION_POINTER_INDEX_SHIFT);
                 }
-                event = getMotionEvent(startTime, startTime + elapsedTime, action, properties,
+                event = getMotionEvent(startTime, SystemClock.uptimeMillis(), action, properties,
                         coordinates, gesture.displayId());
                 getDevice().getUiAutomation().injectInputEvent(event, false);
 
@@ -218,8 +219,8 @@ class GestureController {
 
         long upTime = SystemClock.uptimeMillis() - startTime;
         if (upTime >= 2 * elapsedTime) {
-            Log.w(TAG, String.format("Gestures took longer than expected (%dms vs %dms), device "
-                    + "might be in a busy state.", upTime, 2 * elapsedTime));
+            Log.w(TAG, String.format("Gestures took longer than expected (%dms >> %dms), device "
+                    + "might be in a busy state.", upTime, elapsedTime));
         }
     }
 

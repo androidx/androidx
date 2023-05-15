@@ -16,10 +16,8 @@
 
 package androidx.tv.material3
 
-import android.view.KeyEvent.KEYCODE_BACK
-import android.view.KeyEvent.KEYCODE_DPAD_LEFT
-import android.view.KeyEvent.KEYCODE_DPAD_RIGHT
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedContentScope
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.ContentTransform
 import androidx.compose.animation.ExperimentalAnimationApi
@@ -40,6 +38,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
@@ -49,19 +48,25 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.focus.FocusDirection.Companion.Left
+import androidx.compose.ui.focus.FocusDirection.Companion.Right
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.FocusState
+import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType.Companion.KeyUp
 import androidx.compose.ui.input.key.key
-import androidx.compose.ui.input.key.nativeKeyCode
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.semantics.CollectionInfo
+import androidx.compose.ui.semantics.collectionInfo
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
@@ -110,7 +115,7 @@ fun Carousel(
                 .padding(16.dp),
         )
     },
-    content: @Composable CarouselScope.(index: Int) -> Unit
+    content: @Composable AnimatedContentScope.(index: Int) -> Unit
 ) {
     CarouselStateUpdater(carouselState, itemCount)
     var focusState: FocusState? by remember { mutableStateOf(null) }
@@ -127,11 +132,13 @@ fun Carousel(
         onAutoScrollChange = { isAutoScrollActive = it })
 
     Box(modifier = modifier
+        .semantics {
+            collectionInfo = CollectionInfo(rowCount = 1, columnCount = itemCount)
+        }
         .bringIntoViewIfChildrenAreFocused()
         .focusRequester(carouselOuterBoxFocusRequester)
         .onFocusChanged {
             focusState = it
-
             // When the carousel gains focus for the first time
             if (it.isFocused && isAutoScrollActive) {
                 focusManager.moveFocus(FocusDirection.Enter)
@@ -142,8 +149,8 @@ fun Carousel(
             outerBoxFocusRequester = carouselOuterBoxFocusRequester,
             focusManager = focusManager,
             itemCount = itemCount,
-            isLtr = isLtr,
-        )
+            isLtr = isLtr
+        ) { focusState }
         .focusable()
     ) {
         AnimatedContent(
@@ -154,7 +161,8 @@ fun Carousel(
                 } else {
                     contentTransformStartToEnd
                 }
-            }
+            },
+            label = "CarouselAnimation"
         ) { activeItemIndex ->
             LaunchedEffect(Unit) {
                 this@AnimatedContent.onAnimationCompletion {
@@ -170,8 +178,7 @@ fun Carousel(
             // IndexOutOfBoundsException. Guarding against this by checking against itemCount
             // before invoking.
             if (itemCount > 0) {
-                CarouselScope(carouselState = carouselState)
-                    .content(if (activeItemIndex < itemCount) activeItemIndex else 0)
+                content(if (activeItemIndex < itemCount) activeItemIndex else 0)
             }
         }
         this.carouselIndicator()
@@ -226,67 +233,91 @@ private fun Modifier.handleKeyEvents(
     outerBoxFocusRequester: FocusRequester,
     focusManager: FocusManager,
     itemCount: Int,
-    isLtr: Boolean
+    isLtr: Boolean,
+    currentCarouselBoxFocusState: () -> FocusState?
 ): Modifier = onKeyEvent {
-    // Ignore KeyUp action type
-    if (it.type == KeyUp) {
-        return@onKeyEvent KeyEventPropagation.ContinuePropagation
+    fun showPreviousItem() {
+        carouselState.moveToPreviousItem(itemCount)
+        outerBoxFocusRequester.requestFocus()
+    }
+    fun showNextItem() {
+        carouselState.moveToNextItem(itemCount)
+        outerBoxFocusRequester.requestFocus()
     }
 
-    val showPreviousItemAndGetKeyEventPropagation = {
-        if (carouselState.isFirstItem()) {
-            KeyEventPropagation.ContinuePropagation
-        } else {
-            carouselState.moveToPreviousItem(itemCount)
-            outerBoxFocusRequester.requestFocus()
-            KeyEventPropagation.StopPropagation
-        }
-    }
-    val showNextItemAndGetKeyEventPropagation = {
-        if (carouselState.isLastItem(itemCount)) {
-            KeyEventPropagation.ContinuePropagation
-        } else {
-            carouselState.moveToNextItem(itemCount)
-            outerBoxFocusRequester.requestFocus()
-            KeyEventPropagation.StopPropagation
+    fun updateItemBasedOnLayout(direction: FocusDirection, isLtr: Boolean) {
+        when (direction) {
+            Left -> if (isLtr) showPreviousItem() else showNextItem()
+            Right -> if (isLtr) showNextItem() else showPreviousItem()
         }
     }
 
-    when (it.key.nativeKeyCode) {
-        KEYCODE_BACK -> {
+    fun handledHorizontalFocusMove(direction: FocusDirection): Boolean =
+        when {
+            it.nativeKeyEvent.repeatCount > 0 ->
+                // Ignore long press key event for manual scrolling
+                KeyEventPropagation.StopPropagation
+
+            currentCarouselBoxFocusState()?.isFocused == true ->
+                // if carousel box has focus, do not trigger focus search as it can cause focus to
+                // move out of Carousel unintentionally.
+                if (shouldFocusExitCarousel(direction, carouselState, itemCount, isLtr)) {
+                    KeyEventPropagation.ContinuePropagation
+                } else {
+                    updateItemBasedOnLayout(direction, isLtr)
+                    KeyEventPropagation.StopPropagation
+                }
+
+            !focusManager.moveFocus(direction) -> {
+                // if focus search was unsuccessful, interpret as input for slide change
+                updateItemBasedOnLayout(direction, isLtr)
+                KeyEventPropagation.StopPropagation
+            }
+            else -> KeyEventPropagation.StopPropagation
+        }
+
+    when {
+        // Ignore KeyUp action type
+        it.type == KeyUp -> KeyEventPropagation.ContinuePropagation
+        it.key == Key.Back -> {
             focusManager.moveFocus(FocusDirection.Exit)
             KeyEventPropagation.ContinuePropagation
         }
 
-        KEYCODE_DPAD_LEFT -> {
-            // Ignore long press key event for manual scrolling
-            if (it.nativeKeyEvent.repeatCount > 0) {
-                return@onKeyEvent KeyEventPropagation.StopPropagation
-            }
-
-            if (isLtr) {
-                showPreviousItemAndGetKeyEventPropagation()
-            } else {
-                showNextItemAndGetKeyEventPropagation()
-            }
-        }
-
-        KEYCODE_DPAD_RIGHT -> {
-            // Ignore long press key event for manual scrolling
-            if (it.nativeKeyEvent.repeatCount > 0) {
-                return@onKeyEvent KeyEventPropagation.StopPropagation
-            }
-
-            if (isLtr) {
-                showNextItemAndGetKeyEventPropagation()
-            } else {
-                showPreviousItemAndGetKeyEventPropagation()
-            }
-        }
+        it.key == Key.DirectionLeft -> handledHorizontalFocusMove(Left)
+        it.key == Key.DirectionRight -> handledHorizontalFocusMove(Right)
 
         else -> KeyEventPropagation.ContinuePropagation
     }
+}.focusProperties {
+    // allow exit along horizontal axis only for first and last slide.
+    exit = {
+        when {
+            shouldFocusExitCarousel(it, carouselState, itemCount, isLtr) ->
+                FocusRequester.Default
+            else -> FocusRequester.Cancel
+        }
+    }
 }
+
+@OptIn(ExperimentalTvMaterial3Api::class)
+private fun shouldFocusExitCarousel(
+    focusDirection: FocusDirection,
+    carouselState: CarouselState,
+    itemCount: Int,
+    isLtr: Boolean
+): Boolean =
+    when {
+        // LTR: Don't exit if not first item
+        focusDirection == Left && isLtr && !carouselState.isFirstItem() -> false
+        // RTL: Don't exit if it is not the last item
+        focusDirection == Left && !isLtr && !carouselState.isLastItem(itemCount) -> false
+        // LTR: Don't exit if not last item
+        focusDirection == Right && isLtr && !carouselState.isLastItem(itemCount) -> false
+        // RTL: Don't exit if it is not the first item
+        focusDirection == Right && !isLtr && !carouselState.isFirstItem() -> false
+        else -> true
+    }
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
@@ -309,12 +340,12 @@ private fun CarouselStateUpdater(carouselState: CarouselState, itemCount: Int) {
 @Stable
 @ExperimentalTvMaterial3Api
 class CarouselState(initialActiveItemIndex: Int = 0) {
-    internal var activePauseHandlesCount by mutableStateOf(0)
+    internal var activePauseHandlesCount by mutableIntStateOf(0)
 
     /**
      * The index of the item that is currently displayed by the carousel
      */
-    var activeItemIndex by mutableStateOf(initialActiveItemIndex)
+    var activeItemIndex by mutableIntStateOf(initialActiveItemIndex)
         internal set
 
     /**

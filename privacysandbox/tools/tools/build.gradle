@@ -15,7 +15,6 @@
  */
 
 import androidx.build.LibraryType
-import androidx.build.RunApiTasks
 
 plugins {
     id("AndroidXPlugin")
@@ -32,5 +31,4 @@ androidx {
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2022"
     description = "Tools for communicating with SDKs running in the Privacy Sandbox."
-    runApiTasks = new RunApiTasks.No("API still under active development.")
 }

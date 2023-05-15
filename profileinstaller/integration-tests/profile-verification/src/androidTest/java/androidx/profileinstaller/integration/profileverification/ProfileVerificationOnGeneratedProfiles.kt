@@ -54,9 +54,6 @@ class ProfileVerificationOnGeneratedProfiles(
 
     @Before
     fun setUp() {
-        // TODO: to re-enable for api 34 (b/276970167)
-        Assume.assumeTrue(!isApi34)
-
         // Note that this test fails on emulator api 30 (b/251540646)
         Assume.assumeTrue(!isApi30)
         withPackageName(packageName) { uninstall() }
@@ -68,8 +65,7 @@ class ProfileVerificationOnGeneratedProfiles(
     }
 
     @Test
-    fun generatedBaselineProfile() =
-        withPackageName(packageName) {
+    fun profileInstallerInstallation() = withPackageName(packageName) {
 
             // Installs the apk
             install(apkName = apk, withProfile = false)
@@ -94,4 +90,17 @@ class ProfileVerificationOnGeneratedProfiles(
                 hasCurrentProfile(false)
             }
         }
+
+    @Test
+    fun packageManagerInstallation() = withPackageName(packageName) {
+
+        // Install with reference profile.
+        install(apkName = apk, withProfile = true)
+        start(ACTIVITY_NAME)
+        evaluateUI {
+            hasReferenceProfile(true)
+            hasCurrentProfile(true)
+            profileInstalled(RESULT_CODE_COMPILED_WITH_PROFILE)
+        }
+    }
 }

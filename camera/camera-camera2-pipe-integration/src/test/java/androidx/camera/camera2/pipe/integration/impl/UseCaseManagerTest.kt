@@ -22,6 +22,9 @@ import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.integration.adapter.CameraStateAdapter
 import androidx.camera.camera2.pipe.integration.adapter.RobolectricCameraPipeTestRunner
+import androidx.camera.camera2.pipe.integration.compat.StreamConfigurationMapCompat
+import androidx.camera.camera2.pipe.integration.compat.quirk.CameraQuirks
+import androidx.camera.camera2.pipe.integration.compat.workaround.OutputSizesCorrector
 import androidx.camera.camera2.pipe.integration.config.CameraConfig
 import androidx.camera.camera2.pipe.integration.impl.UseCaseCamera.RunningUseCasesChangeListener
 import androidx.camera.camera2.pipe.integration.interop.Camera2CameraControl
@@ -29,6 +32,7 @@ import androidx.camera.camera2.pipe.integration.interop.ExperimentalCamera2Inter
 import androidx.camera.camera2.pipe.integration.testing.FakeCamera2CameraControlCompat
 import androidx.camera.camera2.pipe.integration.testing.FakeCameraProperties
 import androidx.camera.camera2.pipe.integration.testing.FakeUseCaseCameraComponentBuilder
+import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.Preview
 import androidx.camera.core.UseCase
@@ -182,6 +186,28 @@ class UseCaseManagerTest {
     }
 
     @Test
+    fun onlyOneUseCaseCameraBuilt_whenAllUseCasesButImageCaptureDisabled() {
+        // Arrange
+        val useCaseCameraBuilder = FakeUseCaseCameraComponentBuilder()
+        val useCaseManager = createUseCaseManager(
+            useCaseCameraComponentBuilder = useCaseCameraBuilder
+        )
+
+        val preview = createPreview()
+        val imageCapture = createImageCapture()
+        useCaseManager.attach(listOf(preview, imageCapture))
+        useCaseManager.activate(preview)
+        useCaseManager.activate(imageCapture)
+        useCaseCameraBuilder.buildInvocationCount = 0
+
+        // Act
+        useCaseManager.deactivate(preview)
+
+        // Assert
+        assertThat(useCaseCameraBuilder.buildInvocationCount).isEqualTo(1)
+    }
+
+    @Test
     fun meteringRepeatingDisabled_whenAllUseCasesDisabled() {
         // Arrange
         val useCaseManager = createUseCaseManager()
@@ -195,6 +221,26 @@ class UseCaseManagerTest {
         // Assert
         val enabledUseCases = useCaseManager.camera?.runningUseCases
         assertThat(enabledUseCases).isEmpty()
+    }
+
+    @Test
+    fun onlyOneUseCaseCameraBuilt_whenAllUseCasesDisabled() {
+        // Arrange
+        val useCaseCameraBuilder = FakeUseCaseCameraComponentBuilder()
+        val useCaseManager = createUseCaseManager(
+            useCaseCameraComponentBuilder = useCaseCameraBuilder
+        )
+
+        val imageCapture = createImageCapture()
+        useCaseManager.attach(listOf(imageCapture))
+        useCaseManager.activate(imageCapture)
+        useCaseCameraBuilder.buildInvocationCount = 0
+
+        // Act
+        useCaseManager.deactivate(imageCapture)
+
+        // Assert
+        assertThat(useCaseCameraBuilder.buildInvocationCount).isEqualTo(1)
     }
 
     @Test
@@ -264,21 +310,31 @@ class UseCaseManagerTest {
     @Suppress("UNCHECKED_CAST", "PLATFORM_CLASS_MAPPED_TO_KOTLIN")
     private fun createUseCaseManager(
         controls: Set<UseCaseCameraControl> = emptySet(),
-    ) = UseCaseManager(
-        cameraConfig = CameraConfig(CameraId("0")),
-        builder = FakeUseCaseCameraComponentBuilder(),
-        controls = controls as java.util.Set<UseCaseCameraControl>,
-        cameraProperties = FakeCameraProperties(),
-        camera2CameraControl = Camera2CameraControl.create(
-            FakeCamera2CameraControlCompat(),
-            useCaseThreads,
-            ComboRequestListener()
-        ),
-        cameraStateAdapter = CameraStateAdapter(),
-        cameraGraphFlags = CameraGraph.Flags(),
-        displayInfoManager = DisplayInfoManager(ApplicationProvider.getApplicationContext()),
-    ).also {
-        useCaseManagerList.add(it)
+        useCaseCameraComponentBuilder: FakeUseCaseCameraComponentBuilder =
+            FakeUseCaseCameraComponentBuilder(),
+    ): UseCaseManager {
+        val fakeCamera = FakeCamera()
+        return UseCaseManager(
+            cameraConfig = CameraConfig(CameraId("0")),
+            builder = useCaseCameraComponentBuilder,
+            controls = controls as java.util.Set<UseCaseCameraControl>,
+            cameraProperties = FakeCameraProperties(),
+            camera2CameraControl = Camera2CameraControl.create(
+                FakeCamera2CameraControlCompat(),
+                useCaseThreads,
+                ComboRequestListener()
+            ),
+            cameraStateAdapter = CameraStateAdapter(),
+            cameraGraphFlags = CameraGraph.Flags(),
+            cameraInternal = { fakeCamera },
+            cameraQuirks = CameraQuirks(
+                FakeCameraMetadata(),
+                StreamConfigurationMapCompat(null, OutputSizesCorrector(FakeCameraMetadata(), null))
+            ),
+            displayInfoManager = DisplayInfoManager(ApplicationProvider.getApplicationContext()),
+        ).also {
+            useCaseManagerList.add(it)
+        }
     }
 
     private fun createImageCapture(): ImageCapture =

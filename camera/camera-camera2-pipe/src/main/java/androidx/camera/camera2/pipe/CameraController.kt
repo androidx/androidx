@@ -39,6 +39,12 @@ interface CameraController {
     val cameraId: CameraId
 
     /**
+     * Whether the camera is being used in a foreground setting, and thus should be kept open on a
+     * best-effort basis, for example continuously retrying on a longer timeout.
+     */
+    var isForeground: Boolean
+
+    /**
      * Connect and start the underlying camera. This may be called on the main thread and should not
      * make long blocking calls. This may be called opportunistically (eg, whenever a lifecycle
      * indicates the camera should be in a running state)

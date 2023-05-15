@@ -29,18 +29,18 @@ import androidx.paging.PagedList.Callback
 import androidx.paging.PagedList.Config
 import androidx.paging.PagingSource.LoadResult.Page
 import androidx.testutils.TestDispatcher
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
+import kotlin.test.assertSame
+import kotlin.test.assertTrue
+import kotlinx.coroutines.runBlocking
+import org.junit.runner.RunWith
+import org.junit.runners.Parameterized
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.reset
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoMoreInteractions
-import kotlinx.coroutines.runBlocking
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertSame
-import org.junit.Test
-import org.junit.runner.RunWith
-import org.junit.runners.Parameterized
-import kotlin.test.assertFailsWith
-import kotlin.test.assertTrue
 
 @RunWith(Parameterized::class)
 class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {

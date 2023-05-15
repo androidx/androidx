@@ -45,13 +45,8 @@ public fun Project.resolveProject(projectSpecification: String): Project {
  * in the build, to make project configuration run more quickly.
  */
 fun Project.getProjectSubset(): String? {
-    val prop = project.providers.gradleProperty("androidx.projects")
-    if (prop.isPresent()) {
-        return prop.get().uppercase()
-    }
-
     val envProp = project.providers.environmentVariable("ANDROIDX_PROJECTS")
-    if (envProp.isPresent()) {
+    if (envProp.isPresent) {
         return envProp.get().uppercase()
     }
     return null

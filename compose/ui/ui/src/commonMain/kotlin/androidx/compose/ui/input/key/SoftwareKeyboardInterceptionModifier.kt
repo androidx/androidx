@@ -72,9 +72,9 @@ private data class SoftKeyboardInterceptionElement(
         onPreEvent = onPreKeyEvent
     )
 
-    override fun update(node: InterceptedKeyInputModifierNodeImpl) = node.apply {
-        onEvent = onKeyEvent
-        onPreEvent = onPreKeyEvent
+    override fun update(node: InterceptedKeyInputModifierNodeImpl) {
+        node.onEvent = onKeyEvent
+        node.onPreEvent = onPreKeyEvent
     }
 
     override fun InspectorInfo.inspectableProperties() {

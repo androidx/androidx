@@ -60,7 +60,7 @@ darwinBenchmark {
 }
 
 androidx {
-    name = "AndroidX Benchmarks - Darwin Samples"
+    name = "Benchmarks - Darwin Samples"
     inceptionYear = "2022"
     description = "AndroidX Benchmarks - Darwin Samples"
 }

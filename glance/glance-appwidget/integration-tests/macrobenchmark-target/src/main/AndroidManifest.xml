@@ -36,18 +36,5 @@
                 android:name="android.appwidget.provider"
                 android:resource="@xml/default_app_widget_info" />
         </receiver>
-        <receiver
-            android:name="androidx.glance.appwidget.macrobenchmark.target.BasicAppWidgetWithSessionReceiver"
-            android:label="BasicAppWidget Receiver with sessions enabled"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-                <action android:name="androidx.glance.appwidget.action.DEBUG_UPDATE" />
-                <action android:name="android.intent.action.LOCALE_CHANGED" />
-            </intent-filter>
-            <meta-data
-                android:name="android.appwidget.provider"
-                android:resource="@xml/default_app_widget_info" />
-        </receiver>
     </application>
 </manifest>

@@ -23,6 +23,7 @@ import static androidx.camera.core.impl.ImageFormatConstants.INTERNAL_DEFINED_IM
 
 import static com.google.common.primitives.Ints.asList;
 
+import android.util.Pair;
 import android.util.Size;
 
 import androidx.annotation.NonNull;
@@ -84,8 +85,10 @@ public final class FakeCameraDeviceSurfaceManager implements CameraDeviceSurface
 
     @NonNull
     @Override
-    public Map<UseCaseConfig<?>, StreamSpec> getSuggestedStreamSpecs(
-            @CameraMode.Mode int cameraMode, @NonNull String cameraId,
+    public Pair<Map<UseCaseConfig<?>, StreamSpec>, Map<AttachedSurfaceInfo, StreamSpec>>
+            getSuggestedStreamSpecs(
+            @CameraMode.Mode int cameraMode,
+            @NonNull String cameraId,
             @NonNull List<AttachedSurfaceInfo> existingSurfaces,
             @NonNull Map<UseCaseConfig<?>, List<Size>> newUseCaseConfigsSupportedSizeMap) {
         List<UseCaseConfig<?>> newUseCaseConfigs =
@@ -106,7 +109,7 @@ public final class FakeCameraDeviceSurfaceManager implements CameraDeviceSurface
             suggestedStreamSpecs.put(useCaseConfig, streamSpec);
         }
 
-        return suggestedStreamSpecs;
+        return new Pair<>(suggestedStreamSpecs, new HashMap<>());
     }
 
     /**

@@ -36,6 +36,17 @@ public class RangingCapabilities implements android.os.Parcelable
     public boolean supportsAzimuthalAngle = false;
     @SuppressLint("MutableBareField")
     public boolean supportsElevationAngle = false;
+    @SuppressLint("MutableBareField")
+    public int minRangingInterval = 0;
+    @NonNull
+    @SuppressLint("MutableBareField")
+    public int[] supportedChannels;
+    @NonNull
+    @SuppressLint("MutableBareField")
+    public int[] supportedNtfConfigs;
+    @NonNull
+    @SuppressLint("MutableBareField")
+    public int[] supportedConfigIds;
     @NonNull
     public static final android.os.Parcelable.Creator<RangingCapabilities> CREATOR = new android.os.Parcelable.Creator<RangingCapabilities>() {
         @Override
@@ -56,6 +67,10 @@ public class RangingCapabilities implements android.os.Parcelable
         _aidl_parcel.writeBoolean(supportsDistance);
         _aidl_parcel.writeBoolean(supportsAzimuthalAngle);
         _aidl_parcel.writeBoolean(supportsElevationAngle);
+        _aidl_parcel.writeInt(minRangingInterval);
+        _aidl_parcel.writeIntArray(supportedChannels);
+        _aidl_parcel.writeIntArray(supportedNtfConfigs);
+        _aidl_parcel.writeIntArray(supportedConfigIds);
         int _aidl_end_pos = _aidl_parcel.dataPosition();
         _aidl_parcel.setDataPosition(_aidl_start_pos);
         _aidl_parcel.writeInt(_aidl_end_pos - _aidl_start_pos);
@@ -74,6 +89,14 @@ public class RangingCapabilities implements android.os.Parcelable
             supportsAzimuthalAngle = _aidl_parcel.readBoolean();
             if (_aidl_parcel.dataPosition() - _aidl_start_pos >= _aidl_parcelable_size) return;
             supportsElevationAngle = _aidl_parcel.readBoolean();
+            if (_aidl_parcel.dataPosition() - _aidl_start_pos >= _aidl_parcelable_size) return;
+            minRangingInterval = _aidl_parcel.readInt();
+            if (_aidl_parcel.dataPosition() - _aidl_start_pos >= _aidl_parcelable_size) return;
+            supportedChannels = _aidl_parcel.createIntArray();
+            if (_aidl_parcel.dataPosition() - _aidl_start_pos >= _aidl_parcelable_size) return;
+            supportedNtfConfigs = _aidl_parcel.createIntArray();
+            if (_aidl_parcel.dataPosition() - _aidl_start_pos >= _aidl_parcelable_size) return;
+            supportedConfigIds = _aidl_parcel.createIntArray();
         } finally {
             if (_aidl_start_pos > (Integer.MAX_VALUE - _aidl_parcelable_size)) {
                 throw new android.os.BadParcelableException("Overflow in the size of parcelable");

@@ -77,8 +77,6 @@ import androidx.compose.ui.unit.dp
  * [Interaction]s for this Button. You can create and pass in your own remembered
  * [MutableInteractionSource] if you want to observe [Interaction]s and customize the
  * appearance / behavior of this Button in different [Interaction]s.
- * @param role Role semantics that accessibility services can use to provide more
- * context to users.
  */
 @Composable
 fun Button(
@@ -90,7 +88,6 @@ fun Button(
     border: BorderStroke? = null,
     contentPadding: PaddingValues = ButtonDefaults.ContentPadding,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
-    role: Role? = Role.Button,
     content: @Composable RowScope.() -> Unit,
 ) {
     androidx.wear.compose.materialcore.Chip(
@@ -102,7 +99,7 @@ fun Button(
         contentPadding = contentPadding,
         shape = shape,
         interactionSource = interactionSource,
-        role = role,
+        role = Role.Button,
         content = provideScopeContent(
             colors.contentColor(enabled = enabled),
             MaterialTheme.typography.buttonMedium,
@@ -151,8 +148,6 @@ fun Button(
  * [Interaction]s for this Button. You can create and pass in your own remembered
  * [MutableInteractionSource] if you want to observe [Interaction]s and customize the
  * appearance / behavior of this Button in different [Interaction]s.
- * @param role Role semantics that accessibility services can use to provide more
- * context to users.
  */
 @Composable
 fun FilledTonalButton(
@@ -164,11 +159,9 @@ fun FilledTonalButton(
     border: BorderStroke? = null,
     contentPadding: PaddingValues = ButtonDefaults.ContentPadding,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
-    role: Role? = Role.Button,
     content: @Composable RowScope.() -> Unit,
 ) = Button(
-    onClick, modifier, enabled, shape, colors, border, contentPadding, interactionSource, role,
-    content
+    onClick, modifier, enabled, shape, colors, border, contentPadding, interactionSource, content
 )
 
 /**
@@ -210,8 +203,6 @@ fun FilledTonalButton(
  * [Interaction]s for this Button. You can create and pass in your own remembered
  * [MutableInteractionSource] if you want to observe [Interaction]s and customize the
  * appearance / behavior of this Button in different [Interaction]s.
- * @param role Role semantics that accessibility services can use to provide more
- * context to users.
  */
 @Composable
 fun OutlinedButton(
@@ -223,11 +214,9 @@ fun OutlinedButton(
     border: BorderStroke? = ButtonDefaults.outlinedButtonBorder(enabled),
     contentPadding: PaddingValues = ButtonDefaults.ContentPadding,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
-    role: Role? = Role.Button,
     content: @Composable RowScope.() -> Unit,
 ) = Button(
-    onClick, modifier, enabled, shape, colors, border, contentPadding, interactionSource, role,
-    content
+    onClick, modifier, enabled, shape, colors, border, contentPadding, interactionSource, content
 )
 
 /**
@@ -269,8 +258,6 @@ fun OutlinedButton(
  * [Interaction]s for this Button. You can create and pass in your own remembered
  * [MutableInteractionSource] if you want to observe [Interaction]s and customize the
  * appearance / behavior of this Button in different [Interaction]s.
- * @param role Role semantics that accessibility services can use to provide more
- * context to users.
  */
 @Composable
 fun ChildButton(
@@ -282,11 +269,9 @@ fun ChildButton(
     border: BorderStroke? = null,
     contentPadding: PaddingValues = ButtonDefaults.ContentPadding,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
-    role: Role? = Role.Button,
     content: @Composable RowScope.() -> Unit,
 ) = Button(
-    onClick, modifier, enabled, shape, colors, border, contentPadding, interactionSource, role,
-    content
+    onClick, modifier, enabled, shape, colors, border, contentPadding, interactionSource, content
 )
 
 /**
@@ -316,8 +301,6 @@ fun ChildButton(
  *
  * TODO(b/261838497) Add Material3 samples and UX guidance links
  *
- * @param label A slot for providing the button's main label. The contents are expected to be text
- * which is "start" aligned if there is an icon preset and "start" or "center" aligned if not.
  * @param onClick Will be called when the user clicks the button
  * @param modifier Modifier to be applied to the button
  * @param secondaryLabel A slot for providing the button's secondary label. The contents are
@@ -343,12 +326,11 @@ fun ChildButton(
  * [Interaction]s for this Button. You can create and pass in your own remembered
  * [MutableInteractionSource] if you want to observe [Interaction]s and customize the
  * appearance / behavior of this Button in different [Interaction]s.
- * @param role Role semantics that accessibility services can use to provide more
- * context to users.
+ * @param label A slot for providing the button's main label. The contents are expected to be text
+ * which is "start" aligned if there is an icon preset and "start" or "center" aligned if not.
  */
 @Composable
 fun Button(
-    label: @Composable RowScope.() -> Unit,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     secondaryLabel: (@Composable RowScope.() -> Unit)? = null,
@@ -359,7 +341,7 @@ fun Button(
     border: BorderStroke? = null,
     contentPadding: PaddingValues = ButtonDefaults.ContentPadding,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
-    role: Role? = Role.Button,
+    label: @Composable RowScope.() -> Unit,
 ) {
     androidx.wear.compose.materialcore.Chip(
         modifier = modifier.height(ButtonDefaults.Height),
@@ -381,10 +363,10 @@ fun Button(
             secondaryLabel
         ) },
         icon = icon?.let {
-            provideIcon(colors.iconColor(enabled), icon)
+            provideScopeContent(colors.iconColor(enabled), icon)
         },
         defaultIconSpacing = ButtonDefaults.IconSpacing,
-        role = role
+        role = Role.Button
     )
 }
 
@@ -418,8 +400,6 @@ fun Button(
  *
  * TODO(b/261838497) Add Material3 samples and UX guidance links
  *
- * @param label A slot for providing the button's main label. The contents are expected to be text
- * which is "start" aligned if there is an icon preset and "start" or "center" aligned if not.
  * @param onClick Will be called when the user clicks the button
  * @param modifier Modifier to be applied to the button
  * @param secondaryLabel A slot for providing the button's secondary label. The contents are
@@ -444,12 +424,11 @@ fun Button(
  * [Interaction]s for this Button. You can create and pass in your own remembered
  * [MutableInteractionSource] if you want to observe [Interaction]s and customize the
  * appearance / behavior of this Button in different [Interaction]s.
- * @param role Role semantics that accessibility services can use to provide more
- * context to users.
+ * @param label A slot for providing the button's main label. The contents are expected to be text
+ * which is "start" aligned if there is an icon preset and "start" or "center" aligned if not.
  */
 @Composable
 fun FilledTonalButton(
-    label: @Composable RowScope.() -> Unit,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     secondaryLabel: (@Composable RowScope.() -> Unit)? = null,
@@ -460,9 +439,8 @@ fun FilledTonalButton(
     border: BorderStroke? = null,
     contentPadding: PaddingValues = ButtonDefaults.ContentPadding,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
-    role: Role? = Role.Button,
+    label: @Composable RowScope.() -> Unit,
 ) = Button(
-    label,
     onClick,
     modifier,
     secondaryLabel,
@@ -473,7 +451,7 @@ fun FilledTonalButton(
     border,
     contentPadding,
     interactionSource,
-    role
+    label
 )
 
 /**
@@ -503,8 +481,6 @@ fun FilledTonalButton(
  *
  * TODO(b/261838497) Add Material3 samples and UX guidance links
  *
- * @param label A slot for providing the button's main label. The contents are expected to be text
- * which is "start" aligned if there is an icon preset and "start" or "center" aligned if not.
  * @param onClick Will be called when the user clicks the button
  * @param modifier Modifier to be applied to the button
  * @param secondaryLabel A slot for providing the button's secondary label. The contents are
@@ -529,12 +505,11 @@ fun FilledTonalButton(
  * [Interaction]s for this Button. You can create and pass in your own remembered
  * [MutableInteractionSource] if you want to observe [Interaction]s and customize the
  * appearance / behavior of this Button in different [Interaction]s.
- * @param role Role semantics that accessibility services can use to provide more
- * context to users.
+ * @param label A slot for providing the button's main label. The contents are expected to be text
+ * which is "start" aligned if there is an icon preset and "start" or "center" aligned if not.
  */
 @Composable
 fun OutlinedButton(
-    label: @Composable RowScope.() -> Unit,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     secondaryLabel: (@Composable RowScope.() -> Unit)? = null,
@@ -545,9 +520,8 @@ fun OutlinedButton(
     border: BorderStroke? = ButtonDefaults.outlinedButtonBorder(enabled),
     contentPadding: PaddingValues = ButtonDefaults.ContentPadding,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
-    role: Role? = Role.Button,
+    label: @Composable RowScope.() -> Unit,
 ) = Button(
-    label,
     onClick,
     modifier,
     secondaryLabel,
@@ -558,7 +532,7 @@ fun OutlinedButton(
     border,
     contentPadding,
     interactionSource,
-    role
+    label,
 )
 
 /**
@@ -587,8 +561,6 @@ fun OutlinedButton(
  *
  * TODO(b/261838497) Add Material3 samples and UX guidance links
  *
- * @param label A slot for providing the button's main label. The contents are expected to be text
- * which is "start" aligned if there is an icon preset and "start" or "center" aligned if not.
  * @param onClick Will be called when the user clicks the button
  * @param modifier Modifier to be applied to the button
  * @param secondaryLabel A slot for providing the button's secondary label. The contents are
@@ -613,12 +585,11 @@ fun OutlinedButton(
  * [Interaction]s for this Button. You can create and pass in your own remembered
  * [MutableInteractionSource] if you want to observe [Interaction]s and customize the
  * appearance / behavior of this Button in different [Interaction]s.
- * @param role Role semantics that accessibility services can use to provide more
- * context to users.
+ * @param label A slot for providing the button's main label. The contents are expected to be text
+ * which is "start" aligned if there is an icon preset and "start" or "center" aligned if not.
  */
 @Composable
 fun ChildButton(
-    label: @Composable RowScope.() -> Unit,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     secondaryLabel: (@Composable RowScope.() -> Unit)? = null,
@@ -629,9 +600,8 @@ fun ChildButton(
     border: BorderStroke? = null,
     contentPadding: PaddingValues = ButtonDefaults.ContentPadding,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
-    role: Role? = Role.Button,
+    label: @Composable RowScope.() -> Unit,
 ) = Button(
-    label,
     onClick,
     modifier,
     secondaryLabel,
@@ -642,7 +612,7 @@ fun ChildButton(
     border,
     contentPadding,
     interactionSource,
-    role
+    label,
 )
 
 /**
@@ -917,8 +887,6 @@ object ButtonDefaults {
      * [Button].
      */
     internal val IconSpacing = 6.dp
-
-    internal const val DisabledBorderAndContainerAlpha = 0.12f
 }
 
 /**
@@ -926,7 +894,7 @@ object ButtonDefaults {
  * in different states.
  */
 @Immutable
-class ButtonColors internal constructor(
+class ButtonColors constructor(
     private val containerPainter: Painter,
     private val contentColor: Color,
     private val secondaryContentColor: Color,
@@ -948,7 +916,7 @@ class ButtonColors internal constructor(
      * @param disabledSecondaryContentColor The content color of this [Button] when not enabled
      * @param disabledIconColor The content color of this [Button] when not enabled
      */
-    internal constructor(
+    constructor(
         containerColor: Color,
         contentColor: Color,
         secondaryContentColor: Color,

@@ -25,6 +25,7 @@ import androidx.test.filters.MediumTest
 import androidx.testutils.withActivity
 import com.google.common.truth.Truth.assertThat
 import leakcanary.DetectLeaksAfterTestSuccess
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -291,6 +292,7 @@ class OnBackStackChangedListenerTest {
         }
     }
 
+    @Ignore("b/277763818")
     @Test
     fun testOnBackChangeCommittedReplacePop() {
         with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
@@ -400,6 +402,47 @@ class OnBackStackChangedListenerTest {
 
             assertThat(startedCount).isEqualTo(0)
             assertThat(committedCount).isEqualTo(0)
+        }
+    }
+
+    @Test
+    fun testOnBackChangeNoAddToBackstackWithAddToBackStack() {
+        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+            val fragmentManager = withActivity { supportFragmentManager }
+
+            val fragment = StrictFragment()
+            val fragment2 = StrictFragment()
+            var startedCount = 0
+            var committedCount = 0
+            val listener = object : OnBackStackChangedListener {
+                override fun onBackStackChanged() { /* nothing */ }
+
+                override fun onBackStackChangeStarted(fragment: Fragment, pop: Boolean) {
+                    startedCount++
+                }
+
+                override fun onBackStackChangeCommitted(fragment: Fragment, pop: Boolean) {
+                    committedCount++
+                }
+            }
+            fragmentManager.addOnBackStackChangedListener(listener)
+
+            withActivity {
+                fragmentManager.beginTransaction()
+                    .setReorderingAllowed(true)
+                    .add(R.id.content, fragment)
+                    .commit()
+
+                fragmentManager.beginTransaction()
+                    .setReorderingAllowed(true)
+                    .add(R.id.content, fragment2)
+                    .addToBackStack(null)
+                    .commit()
+                executePendingTransactions()
+            }
+
+            assertThat(startedCount).isEqualTo(1)
+            assertThat(committedCount).isEqualTo(1)
         }
     }
 }

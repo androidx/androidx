@@ -17,10 +17,10 @@
 package androidx.tv.foundation.lazy.grid
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.tv.foundation.lazy.layout.LazyLayoutKeyIndexMap
 import androidx.compose.foundation.lazy.layout.LazyLayoutMeasureScope
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.unit.Constraints
+import androidx.tv.foundation.lazy.layout.LazyLayoutKeyIndexMap
 
 /**
  * Abstracts away the subcomposition from the measuring logic.

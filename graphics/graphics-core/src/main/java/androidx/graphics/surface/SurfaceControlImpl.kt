@@ -25,9 +25,9 @@ import android.view.Surface
 import android.view.SurfaceControl
 import android.view.SurfaceView
 import androidx.annotation.RequiresApi
+import androidx.graphics.surface.SurfaceControlCompat.TransactionCommittedListener
 import androidx.hardware.SyncFenceCompat
 import androidx.hardware.SyncFenceImpl
-import androidx.graphics.surface.SurfaceControlCompat.TransactionCommittedListener
 import java.util.concurrent.Executor
 
 /**
@@ -175,7 +175,7 @@ internal interface SurfaceControlImpl {
          */
         fun setBuffer(
             surfaceControl: SurfaceControlImpl,
-            buffer: HardwareBuffer,
+            buffer: HardwareBuffer?,
             fence: SyncFenceImpl? = null,
             releaseCallback: (() -> Unit)? = null
         ): Transaction

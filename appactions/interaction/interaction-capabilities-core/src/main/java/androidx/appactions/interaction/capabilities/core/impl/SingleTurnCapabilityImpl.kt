@@ -17,10 +17,11 @@
 package androidx.appactions.interaction.capabilities.core.impl
 
 import androidx.annotation.RestrictTo
-import androidx.appactions.interaction.capabilities.core.ActionExecutor
 import androidx.appactions.interaction.capabilities.core.Capability
+import androidx.appactions.interaction.capabilities.core.ExecutionCallback
 import androidx.appactions.interaction.capabilities.core.HostProperties
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpec
+import androidx.appactions.interaction.capabilities.core.properties.Property
 import androidx.appactions.interaction.proto.AppActionsContext.AppAction
 import androidx.appactions.interaction.proto.TaskInfo
 import kotlinx.coroutines.sync.Mutex
@@ -28,18 +29,17 @@ import kotlinx.coroutines.sync.Mutex
 /** @suppress */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 internal class SingleTurnCapabilityImpl<
-    PropertyT,
     ArgumentsT,
     OutputT,
     > constructor(
     id: String,
-    val actionSpec: ActionSpec<PropertyT, ArgumentsT, OutputT>,
-    val property: PropertyT,
-    val actionExecutor: ActionExecutor<ArgumentsT, OutputT>,
+    val actionSpec: ActionSpec<ArgumentsT, OutputT>,
+    val property: Map<String, Property<*>>,
+    val executionCallback: ExecutionCallback<ArgumentsT, OutputT>,
 ) : Capability(id) {
     private val mutex = Mutex()
 
-    override val appAction: AppAction =
+    override val appAction: AppAction get() =
         actionSpec.convertPropertyToProto(property).toBuilder()
             .setTaskInfo(TaskInfo.newBuilder().setSupportsPartialFulfillment(false))
             .setIdentifier(id)
@@ -52,7 +52,7 @@ internal class SingleTurnCapabilityImpl<
         return SingleTurnCapabilitySession(
             sessionId,
             actionSpec,
-            actionExecutor,
+            executionCallback,
             mutex,
         )
     }

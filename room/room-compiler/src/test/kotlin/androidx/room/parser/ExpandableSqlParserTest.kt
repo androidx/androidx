@@ -18,9 +18,9 @@ package androidx.room.parser
 
 import androidx.room.parser.expansion.ExpandableSection
 import androidx.room.parser.expansion.ExpandableSqlParser
-import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.CoreMatchers.instanceOf
+import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.CoreMatchers.not
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test

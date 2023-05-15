@@ -41,6 +41,7 @@ buildscript {
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
+    id("androidx.stableaidl")
 }
 
 dependencies {
@@ -88,13 +89,18 @@ android {
         resValue "string", "car_app_library_version", androidx.LibraryVersions.CAR_APP.toString()
         consumerProguardFiles "proguard-rules.pro"
     }
+    buildTypes.all {
+        stableAidl {
+            version 1
+        }
+    }
 
     testOptions.unitTests.includeAndroidResources = true
     namespace "androidx.car.app"
 }
 
 androidx {
-    name = "Android for Cars App Library"
+    name = "Android for Cars App"
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2020"
     description = "Build navigation, parking, and charging apps for Android Auto"

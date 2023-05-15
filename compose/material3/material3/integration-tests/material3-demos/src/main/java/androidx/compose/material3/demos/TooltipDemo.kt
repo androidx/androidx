@@ -16,6 +16,7 @@
 
 package androidx.compose.material3.demos
 
+import androidx.compose.foundation.MutatorMutex
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -35,6 +36,8 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.PlainTooltipBox
 import androidx.compose.material3.PlainTooltipState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TooltipDefaults
+import androidx.compose.material3.rememberPlainTooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
@@ -44,7 +47,10 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.CancellableContinuation
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withTimeout
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -61,8 +67,9 @@ fun TooltipDemo() {
         ) {
             var textFieldValue by remember { mutableStateOf("") }
             var textFieldTooltipText by remember { mutableStateOf("") }
-            val textFieldTooltipState = remember { PlainTooltipState() }
+            val textFieldTooltipState = rememberPlainTooltipState()
             val scope = rememberCoroutineScope()
+            val mutatorMutex = TooltipDefaults.GlobalMutatorMutex
             PlainTooltipBox(
                 tooltip = {
                     Text(textFieldTooltipText)
@@ -86,7 +93,7 @@ fun TooltipDemo() {
                             textFieldTooltipState.show()
                         }
                     } else {
-                        val listItem = ItemInfo(textFieldValue, PlainTooltipState())
+                        val listItem = ItemInfo(textFieldValue, DemoTooltipState(mutatorMutex))
                         listData.add(listItem)
                         textFieldValue = ""
                         scope.launch {
@@ -134,7 +141,7 @@ fun ListItemCard(
                 ) {
                     IconButton(
                         onClick = onDelete,
-                        modifier = Modifier.tooltipAnchor()
+                        modifier = Modifier.tooltipTrigger()
                     ) {
                         Icon(
                             imageVector = Icons.Filled.Delete,
@@ -152,3 +159,37 @@ class ItemInfo(
     val itemName: String,
     val addedTooltipState: PlainTooltipState
 )
+
+@OptIn(ExperimentalMaterial3Api::class)
+class DemoTooltipState(private val mutatorMutex: MutatorMutex) : PlainTooltipState {
+    override var isVisible by mutableStateOf(false)
+
+    private var job: (CancellableContinuation<Unit>)? = null
+
+    override suspend fun show() {
+        mutatorMutex.mutate {
+            try {
+                withTimeout(TOOLTIP_DURATION) {
+                    suspendCancellableCoroutine { continuation ->
+                        isVisible = true
+                        job = continuation
+                    }
+                }
+            } finally {
+                // timeout or cancellation has occurred
+                // and we close out the current tooltip.
+                isVisible = false
+            }
+        }
+    }
+
+    override fun dismiss() {
+        isVisible = false
+    }
+
+    override fun onDispose() {
+        job?.cancel()
+    }
+}
+
+private const val TOOLTIP_DURATION = 1000L

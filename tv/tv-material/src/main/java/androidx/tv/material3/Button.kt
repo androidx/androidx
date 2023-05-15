@@ -48,6 +48,10 @@ import androidx.tv.material3.tokens.Elevation
  *
  * The default text style for internal [Text] components will be set to [Typography.labelLarge].
  *
+ * Samples:
+ * @sample androidx.tv.samples.ButtonSample
+ * @sample androidx.tv.samples.LikeButtonSample
+ *
  * @param onClick called when this button is clicked
  * @param modifier the [Modifier] to be applied to this button
  * @param enabled controls the enabled state of this button. When `false`, this component will not
@@ -114,6 +118,9 @@ fun Button(
  * - See [OutlinedButton] for a medium-emphasis button with a border.
  *
  * The default text style for internal [Text] components will be set to [Typography.labelLarge].
+ *
+ * Samples:
+ * @sample androidx.tv.samples.OutlinedButtonSample
  *
  * @param onClick called when this button is clicked
  * @param modifier the [Modifier] to be applied to this button
@@ -190,8 +197,7 @@ private fun ButtonImpl(
         scale = scale.toClickableSurfaceScale(),
         glow = glow.toClickableSurfaceGlow(),
         shape = shape.toClickableSurfaceShape(),
-        color = colors.toClickableSurfaceContainerColor(),
-        contentColor = colors.toClickableSurfaceContentColor(),
+        colors = colors.toClickableSurfaceColors(),
         tonalElevation = tonalElevation,
         border = border.toClickableSurfaceBorder(),
         interactionSource = interactionSource

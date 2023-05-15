@@ -19,8 +19,8 @@ package androidx.privacysandbox.ads.adservices.adid
 import android.adservices.common.AdServicesPermissions
 import android.annotation.SuppressLint
 import android.content.Context
-import android.os.ext.SdkExtensions
 import android.os.LimitExceededException
+import android.os.ext.SdkExtensions
 import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresExtension
 import androidx.annotation.RequiresPermission

@@ -16,6 +16,7 @@
 
 package androidx.camera.camera2.internal.compat.params;
 
+import android.hardware.camera2.params.DynamicRangeProfiles;
 import android.hardware.camera2.params.OutputConfiguration;
 import android.view.Surface;
 
@@ -24,6 +25,8 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.core.util.Preconditions;
 
+import java.util.Objects;
+
 /**
  * Implementation of the OutputConfiguration compat methods for API 28 and above.
  */
@@ -31,11 +34,11 @@ import androidx.core.util.Preconditions;
 class OutputConfigurationCompatApi28Impl extends OutputConfigurationCompatApi26Impl {
 
     OutputConfigurationCompatApi28Impl(@NonNull Surface surface) {
-        super(new OutputConfiguration(surface));
+        this(new OutputConfigurationParamsApi28(new OutputConfiguration(surface)));
     }
 
     OutputConfigurationCompatApi28Impl(int surfaceGroupId, @NonNull Surface surface) {
-        this(new OutputConfiguration(surfaceGroupId, surface));
+        this(new OutputConfigurationParamsApi28(new OutputConfiguration(surfaceGroupId, surface)));
     }
 
     OutputConfigurationCompatApi28Impl(@NonNull Object outputConfiguration) {
@@ -45,7 +48,8 @@ class OutputConfigurationCompatApi28Impl extends OutputConfigurationCompatApi26I
     @RequiresApi(28)
     static OutputConfigurationCompatApi28Impl wrap(
             @NonNull OutputConfiguration outputConfiguration) {
-        return new OutputConfigurationCompatApi28Impl(outputConfiguration);
+        return new OutputConfigurationCompatApi28Impl(
+                new OutputConfigurationParamsApi28(outputConfiguration));
     }
 
     /**
@@ -79,11 +83,56 @@ class OutputConfigurationCompatApi28Impl extends OutputConfigurationCompatApi26I
         return null;
     }
 
+    @Override
+    public long getDynamicRangeProfile() {
+        return ((OutputConfigurationParamsApi28) mObject).mDynamicRangeProfile;
+    }
+
+    @Override
+    public void setDynamicRangeProfile(long profile) {
+        ((OutputConfigurationParamsApi28) mObject).mDynamicRangeProfile = profile;
+    }
+
     @NonNull
     @Override
     public Object getOutputConfiguration() {
-        Preconditions.checkArgument(mObject instanceof OutputConfiguration);
-        return mObject;
+        Preconditions.checkArgument(mObject instanceof OutputConfigurationParamsApi28);
+        return ((OutputConfigurationParamsApi28) mObject).mOutputConfiguration;
+    }
+
+    private static final class OutputConfigurationParamsApi28 {
+        @NonNull
+        final OutputConfiguration mOutputConfiguration;
+
+        long mDynamicRangeProfile = DynamicRangeProfiles.STANDARD;
+
+        OutputConfigurationParamsApi28(@NonNull OutputConfiguration configuration) {
+            mOutputConfiguration = configuration;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (!(obj instanceof OutputConfigurationParamsApi28)) {
+                return false;
+            }
+
+            OutputConfigurationParamsApi28 otherOutputConfig = (OutputConfigurationParamsApi28) obj;
+
+            return Objects.equals(mOutputConfiguration, otherOutputConfig.mOutputConfiguration)
+                    && mDynamicRangeProfile == otherOutputConfig.mDynamicRangeProfile;
+
+        }
+
+        @Override
+        public int hashCode() {
+            int h = 1;
+            // Strength reduction; in case the compiler has illusions about divisions being faster
+            // (h * 31) XOR mOutputConfiguration.hashCode()
+            h = ((h << 5) - h) ^ mOutputConfiguration.hashCode();
+            // (h * 31) XOR mDynamicRangeProfile
+            h = ((h << 5) - h) ^ Long.hashCode(mDynamicRangeProfile);
+            return h;
+        }
     }
 }
 

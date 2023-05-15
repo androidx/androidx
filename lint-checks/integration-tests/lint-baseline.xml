@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.0.0-beta03" type="baseline" client="gradle" dependencies="false" name="AGP (8.0.0-beta03)" variant="all" version="8.0.0-beta03">
+<issues format="6" by="lint 8.1.0-alpha11" type="baseline" client="gradle" dependencies="false" name="AGP (8.1.0-alpha11)" variant="all" version="8.1.0-alpha11">
 
     <issue
         id="MissingClass"
@@ -593,6 +593,177 @@
         errorLine2="        ^">
         <location
             file="src/main/AndroidManifest.xml"/>
+    </issue>
+
+    <issue
+        id="UsesNonDefaultVisibleForTesting"
+        message="Found non-default `otherwise` value for @VisibleForTesting"
+        errorLine1="    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/VisibleForTestingUsageJava.java"/>
+    </issue>
+
+    <issue
+        id="UsesNonDefaultVisibleForTesting"
+        message="Found non-default `otherwise` value for @VisibleForTesting"
+        errorLine1="    @VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/VisibleForTestingUsageJava.java"/>
+    </issue>
+
+    <issue
+        id="UsesNonDefaultVisibleForTesting"
+        message="Found non-default `otherwise` value for @VisibleForTesting"
+        errorLine1="    @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/VisibleForTestingUsageJava.java"/>
+    </issue>
+
+    <issue
+        id="UsesNonDefaultVisibleForTesting"
+        message="Found non-default `otherwise` value for @VisibleForTesting"
+        errorLine1="    @VisibleForTesting(otherwise = VisibleForTesting.NONE)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/VisibleForTestingUsageJava.java"/>
+    </issue>
+
+    <issue
+        id="UsesNonDefaultVisibleForTesting"
+        message="Found non-default `otherwise` value for @VisibleForTesting"
+        errorLine1="    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/VisibleForTestingUsageKotlin.kt"/>
+    </issue>
+
+    <issue
+        id="UsesNonDefaultVisibleForTesting"
+        message="Found non-default `otherwise` value for @VisibleForTesting"
+        errorLine1="    @VisibleForTesting(otherwise = VisibleForTesting.Companion.PRIVATE)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/VisibleForTestingUsageKotlin.kt"/>
+    </issue>
+
+    <issue
+        id="UsesNonDefaultVisibleForTesting"
+        message="Found non-default `otherwise` value for @VisibleForTesting"
+        errorLine1="    @VisibleForTesting(VisibleForTesting.PRIVATE)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/VisibleForTestingUsageKotlin.kt"/>
+    </issue>
+
+    <issue
+        id="UsesNonDefaultVisibleForTesting"
+        message="Found non-default `otherwise` value for @VisibleForTesting"
+        errorLine1="    @VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/VisibleForTestingUsageKotlin.kt"/>
+    </issue>
+
+    <issue
+        id="UsesNonDefaultVisibleForTesting"
+        message="Found non-default `otherwise` value for @VisibleForTesting"
+        errorLine1="    @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/VisibleForTestingUsageKotlin.kt"/>
+    </issue>
+
+    <issue
+        id="UsesNonDefaultVisibleForTesting"
+        message="Found non-default `otherwise` value for @VisibleForTesting"
+        errorLine1="    @VisibleForTesting(otherwise = VisibleForTesting.NONE)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/VisibleForTestingUsageKotlin.kt"/>
+    </issue>
+
+    <issue
+        id="UsesNonDefaultVisibleForTesting"
+        message="Found non-default `otherwise` value for @VisibleForTesting"
+        errorLine1="    @get:VisibleForTesting(NONE)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/VisibleForTestingUsageKotlin.kt"/>
+    </issue>
+
+    <issue
+        id="UsesRestrictToTestsScope"
+        message="Replace `@RestrictTo(TESTS)` with `@VisibleForTesting`"
+        errorLine1="    @RestrictTo(androidx.annotation.RestrictTo.Scope.TESTS)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/RestrictToTestsAnnotationUsageJava.java"/>
+    </issue>
+
+    <issue
+        id="UsesRestrictToTestsScope"
+        message="Replace `@RestrictTo(TESTS)` with `@VisibleForTesting`"
+        errorLine1="    @RestrictTo(RestrictTo.Scope.TESTS)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/RestrictToTestsAnnotationUsageJava.java"/>
+    </issue>
+
+    <issue
+        id="UsesRestrictToTestsScope"
+        message="Replace `@RestrictTo(TESTS)` with `@VisibleForTesting`"
+        errorLine1="    @RestrictTo(Scope.TESTS)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/RestrictToTestsAnnotationUsageJava.java"/>
+    </issue>
+
+    <issue
+        id="UsesRestrictToTestsScope"
+        message="Replace `@RestrictTo(TESTS)` with `@VisibleForTesting`"
+        errorLine1="    @RestrictTo(TESTS)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/RestrictToTestsAnnotationUsageJava.java"/>
+    </issue>
+
+    <issue
+        id="UsesRestrictToTestsScope"
+        message="Replace `@RestrictTo(TESTS)` with `@VisibleForTesting`"
+        errorLine1="    @RestrictTo({Scope.TESTS, Scope.LIBRARY})"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/RestrictToTestsAnnotationUsageJava.java"/>
+    </issue>
+
+    <issue
+        id="UsesRestrictToTestsScope"
+        message="Replace `@RestrictTo(TESTS)` with `@VisibleForTesting`"
+        errorLine1="    @RestrictTo(RestrictTo.Scope.TESTS)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/RestrictToTestsAnnotationUsageKotlin.kt"/>
+    </issue>
+
+    <issue
+        id="UsesRestrictToTestsScope"
+        message="Replace `@RestrictTo(TESTS)` with `@VisibleForTesting`"
+        errorLine1="    @RestrictTo(RestrictTo.Scope.TESTS, RestrictTo.Scope.LIBRARY)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/RestrictToTestsAnnotationUsageKotlin.kt"/>
+    </issue>
+
+    <issue
+        id="UsesRestrictToTestsScope"
+        message="Replace `@RestrictTo(TESTS)` with `@VisibleForTesting`"
+        errorLine1="    @get:RestrictTo(RestrictTo.Scope.TESTS)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/RestrictToTestsAnnotationUsageKotlin.kt"/>
     </issue>
 
     <issue

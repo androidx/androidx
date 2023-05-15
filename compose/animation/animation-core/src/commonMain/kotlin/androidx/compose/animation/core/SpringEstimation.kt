@@ -26,7 +26,6 @@ import kotlin.math.sqrt
  * Returns the estimated time that the spring will last be at [delta]
  * @suppress
  */
-/*@VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)*/
 fun estimateAnimationDurationMillis(
     stiffness: Float,
     dampingRatio: Float,
@@ -45,7 +44,6 @@ fun estimateAnimationDurationMillis(
  * Returns the estimated time that the spring will last be at [delta]
  * @suppress
  */
-/*@VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)*/
 fun estimateAnimationDurationMillis(
     stiffness: Double,
     dampingRatio: Double,
@@ -69,7 +67,6 @@ fun estimateAnimationDurationMillis(
  * Returns the estimated time that the spring will last be at [delta]
  * @suppress
  */
-/*@VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)*/
 fun estimateAnimationDurationMillis(
     springConstant: Double,
     dampingCoefficient: Double,

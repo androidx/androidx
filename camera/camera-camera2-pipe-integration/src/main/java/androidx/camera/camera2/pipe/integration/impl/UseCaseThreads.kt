@@ -18,11 +18,11 @@ package androidx.camera.camera2.pipe.integration.impl
 
 import androidx.annotation.RequiresApi
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
+import java.util.concurrent.Executor
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.asCoroutineDispatcher
-import java.util.concurrent.Executor
 
 /**
  * Collection of threads and scope(s) that have been configured and tuned.

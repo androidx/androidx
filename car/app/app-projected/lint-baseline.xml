@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 8.1.0-alpha11" type="baseline" client="gradle" dependencies="false" name="AGP (8.1.0-alpha11)" variant="all" version="8.1.0-alpha11">
+
+    <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="interface ICarHardwareHost {"
+        errorLine2="^">
+        <location
+            file="src/main/aidl/androidx/car/app/hardware/ICarHardwareHost.aidl"/>
+    </issue>
+
+    <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="oneway interface ICarHardwareResult {"
+        errorLine2="^">
+        <location
+            file="src/main/aidl/androidx/car/app/hardware/ICarHardwareResult.aidl"/>
+    </issue>
+
+    <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="oneway interface ICarHardwareResultTypes {"
+        errorLine2="^">
+        <location
+            file="src/main/aidl/androidx/car/app/hardware/ICarHardwareResultTypes.aidl"/>
+    </issue>
+
+</issues>

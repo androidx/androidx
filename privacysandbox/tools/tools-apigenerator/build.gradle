@@ -15,7 +15,6 @@
  */
 
 import androidx.build.LibraryType
-import androidx.build.RunApiTasks
 import androidx.build.SdkHelperKt
 import androidx.build.SupportConfig
 
@@ -78,5 +77,4 @@ androidx {
     type = LibraryType.OTHER_CODE_PROCESSOR
     inceptionYear = "2022"
     description = "Generate sources for communication with SDKs in the Privacy Sandbox."
-    runApiTasks = new RunApiTasks.No("API still under active development.")
 }

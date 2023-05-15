@@ -129,8 +129,8 @@ class PrintToStringTest {
                     |-Node #X at (l=X, t=X, r=X, b=X)px, Tag: 'box'
                     | [Disabled]
                     |  |-Node #X at (l=X, t=X, r=X, b=X)px
-                    |    Role = 'Button'
                     |    Focused = 'false'
+                    |    Role = 'Button'
                     |    Text = '[Button]'
                     |    Actions = [OnClick, RequestFocus, GetTextLayoutResult]
                     |    MergeDescendants = 'true'

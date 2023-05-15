@@ -54,10 +54,9 @@ internal class LazyGridAnimateScrollScope(
     }
 
     override fun expectedDistanceTo(index: Int, targetScrollOffset: Int): Float {
-        val visibleItems = state.layoutInfo.visibleItemsInfo
         val slotsPerLine = state.slotsPerLine
         val averageLineMainAxisSize = calculateLineAverageMainAxisSize(
-            visibleItems,
+            state.layoutInfo,
             state.isVertical
         )
         val before = index < firstVisibleItemIndex
@@ -74,9 +73,10 @@ internal class LazyGridAnimateScrollScope(
     override val numOfItemsForTeleport: Int get() = 100 * state.slotsPerLine
 
     private fun calculateLineAverageMainAxisSize(
-        visibleItems: List<LazyGridItemInfo>,
+        layoutInfo: LazyGridLayoutInfo,
         isVertical: Boolean
     ): Int {
+        val visibleItems = layoutInfo.visibleItemsInfo
         val lineOf: (Int) -> Int = {
             if (isVertical) visibleItems[it].row else visibleItems[it].column
         }
@@ -113,7 +113,7 @@ internal class LazyGridAnimateScrollScope(
             lineStartIndex = lineEndIndex
         }
 
-        return totalLinesMainAxisSize / linesCount
+        return totalLinesMainAxisSize / linesCount + layoutInfo.mainAxisItemSpacing
     }
 
     override suspend fun scroll(block: suspend ScrollScope.() -> Unit) {

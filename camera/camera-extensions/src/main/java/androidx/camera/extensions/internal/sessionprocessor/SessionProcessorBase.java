@@ -20,6 +20,7 @@ import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CaptureRequest;
 import android.media.Image;
 import android.media.ImageReader;
+import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
 
@@ -36,15 +37,20 @@ import androidx.camera.core.CameraXThreads;
 import androidx.camera.core.Logger;
 import androidx.camera.core.impl.DeferrableSurface;
 import androidx.camera.core.impl.OutputSurface;
+import androidx.camera.core.impl.RestrictedCameraControl;
+import androidx.camera.core.impl.RestrictedCameraControl.CameraOperation;
 import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.SessionProcessor;
 import androidx.camera.core.impl.SessionProcessorSurface;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Base class for SessionProcessor implementation. It is responsible for creating image readers and
@@ -65,6 +71,67 @@ abstract class SessionProcessorBase implements SessionProcessor {
     private List<DeferrableSurface> mSurfacesList = new ArrayList<>();
     private final Object mLock = new Object();
     private String mCameraId;
+
+    @NonNull
+
+    private final @CameraOperation Set<Integer> mSupportedCameraOperations;
+
+    SessionProcessorBase(@NonNull List<CaptureRequest.Key> supportedParameterKeys) {
+        mSupportedCameraOperations = getSupportedCameraOperations(supportedParameterKeys);
+    }
+
+    private @CameraOperation Set<Integer> getSupportedCameraOperations(
+            @NonNull List<CaptureRequest.Key> supportedParameterKeys) {
+        @CameraOperation Set<Integer> operations = new HashSet<>();
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            if (supportedParameterKeys.contains(CaptureRequest.CONTROL_ZOOM_RATIO)
+                    || supportedParameterKeys.contains(CaptureRequest.SCALER_CROP_REGION)) {
+                operations.add(RestrictedCameraControl.ZOOM);
+            }
+        } else {
+            if (supportedParameterKeys.contains(CaptureRequest.SCALER_CROP_REGION)) {
+                operations.add(RestrictedCameraControl.ZOOM);
+            }
+        }
+
+        if (supportedParameterKeys.containsAll(
+                Arrays.asList(
+                        CaptureRequest.CONTROL_AF_TRIGGER, CaptureRequest.CONTROL_AF_MODE))) {
+            operations.add(RestrictedCameraControl.AUTO_FOCUS);
+        }
+
+        if (supportedParameterKeys.contains(CaptureRequest.CONTROL_AF_REGIONS)) {
+            operations.add(RestrictedCameraControl.AF_REGION);
+        }
+
+        if (supportedParameterKeys.contains(CaptureRequest.CONTROL_AE_REGIONS)) {
+            operations.add(RestrictedCameraControl.AE_REGION);
+        }
+
+        if (supportedParameterKeys.contains(CaptureRequest.CONTROL_AWB_REGIONS)) {
+            operations.add(RestrictedCameraControl.AWB_REGION);
+        }
+
+        if (supportedParameterKeys.containsAll(
+                Arrays.asList(
+                        CaptureRequest.CONTROL_AE_MODE,
+                        CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER))) {
+            operations.add(RestrictedCameraControl.FLASH);
+        }
+
+        if (supportedParameterKeys.containsAll(
+                Arrays.asList(
+                        CaptureRequest.CONTROL_AE_MODE,
+                        CaptureRequest.FLASH_MODE))) {
+            operations.add(RestrictedCameraControl.TORCH);
+        }
+
+        if (supportedParameterKeys.contains(CaptureRequest.CONTROL_AE_EXPOSURE_COMPENSATION)) {
+            operations.add(RestrictedCameraControl.EXPOSURE_COMPENSATION);
+        }
+        return operations;
+    }
 
     @NonNull
     private static SessionProcessorSurface createOutputConfigSurface(
@@ -97,6 +164,7 @@ abstract class SessionProcessorBase implements SessionProcessor {
         }
         throw new UnsupportedOperationException("Unsupported Camera2OutputConfig:" + outputConfig);
     }
+
     @NonNull
     @Override
     @OptIn(markerClass = ExperimentalCamera2Interop.class)
@@ -160,6 +228,12 @@ abstract class SessionProcessorBase implements SessionProcessor {
         mCameraId = camera2CameraInfo.getCameraId();
         Logger.d(TAG, "initSession: cameraId=" + mCameraId);
         return sessionConfigBuilder.build();
+    }
+
+    @NonNull
+    @Override
+    public @CameraOperation Set<Integer> getSupportedCameraOperations() {
+        return mSupportedCameraOperations;
     }
 
     @NonNull

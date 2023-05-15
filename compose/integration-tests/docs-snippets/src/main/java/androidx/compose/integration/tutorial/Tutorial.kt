@@ -38,8 +38,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.integration.tutorial.Lesson2_Layouts.Snippet4.MessageCard
 import androidx.compose.integration.tutorial.Lesson2_Layouts.Snippet1.Message
+import androidx.compose.integration.tutorial.Lesson2_Layouts.Snippet4.MessageCard
 import androidx.compose.integration.tutorial.Lesson4_ListsAnimations.Snippet1.Conversation
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface

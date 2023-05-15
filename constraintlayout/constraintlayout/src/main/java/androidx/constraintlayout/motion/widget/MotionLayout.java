@@ -17,6 +17,7 @@
 package androidx.constraintlayout.motion.widget;
 
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
+
 import static androidx.constraintlayout.motion.widget.MotionScene.Transition.TRANSITION_FLAG_FIRST_DRAW;
 import static androidx.constraintlayout.motion.widget.MotionScene.Transition.TRANSITION_FLAG_INTERCEPT_TOUCH;
 import static androidx.constraintlayout.widget.ConstraintLayout.LayoutParams.PARENT_ID;
@@ -504,8 +505,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * <table summary="Variant attributes" >
  * <tr>
  * <td>[ConstraintLayout attributes]</td>
- * <td>see {@see androidx.constraintlayout.widget.
- * ConstraintLayout ConstraintLayout} for attributes</td>
+ * <td>Also see {@link ConstraintLayout.LayoutParams
+ * ConstraintLayout.LayoutParams} for attributes</td>
  * </tr>
  * </table>
  *

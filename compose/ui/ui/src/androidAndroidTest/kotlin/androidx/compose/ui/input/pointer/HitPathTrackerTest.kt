@@ -3529,7 +3529,7 @@ class HitPathTrackerTest {
     }
 
     private fun areEqual(actualNode: Node, expectedNode: Node): Boolean {
-        if (actualNode.pointerInputNode !== expectedNode.pointerInputNode) {
+        if (actualNode.modifierNode !== expectedNode.modifierNode) {
             return false
         }
 
@@ -3688,7 +3688,8 @@ private class MockOwner(
     override fun onRequestMeasure(
         layoutNode: LayoutNode,
         affectsLookahead: Boolean,
-        forceRequest: Boolean
+        forceRequest: Boolean,
+        scheduleMeasureAndLayout: Boolean
     ) {
         onRequestMeasureParams += layoutNode
         if (affectsLookahead) {

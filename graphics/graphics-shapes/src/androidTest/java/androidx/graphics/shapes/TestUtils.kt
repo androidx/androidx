@@ -45,8 +45,8 @@ fun assertPointLessish(expected: PointF, actual: PointF) {
     assertTrue(actual.y <= expected.y + Epsilon)
 }
 
-fun assertEqualish(expected: Float, actual: Float) {
-    assertEquals(expected, actual, Epsilon)
+fun assertEqualish(expected: Float, actual: Float, message: String? = null) {
+    assertEquals(message ?: "", expected, actual, Epsilon)
 }
 
 fun assertInBounds(shape: CubicShape, minPoint: PointF, maxPoint: PointF) {

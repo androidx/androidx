@@ -16,6 +16,7 @@
 
 package androidx.camera.video.internal
 
+import android.os.Build
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -35,6 +36,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
+import org.junit.Assume.assumeFalse
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -289,6 +291,11 @@ class SharedByteBufferTest {
     @Test
     @LargeTest
     fun finalizeClosesUnclosedInstances() = runBlocking {
+        assumeFalse(
+            "Ignore devices that get flaky result. See b/278842333",
+            isModel("moto c") || isModel("rne-l23")
+        )
+
         val buf = ByteBuffer.allocate(0)
         val closeActionDeferred = CompletableDeferred<Unit>()
         val origBuf = SharedByteBuffer.newSharedInstance(buf, CameraXExecutors.directExecutor()) {
@@ -327,4 +334,6 @@ class SharedByteBufferTest {
             phantomReferences.forEach { it.clear() }
         }
     }
+
+    private fun isModel(model: String) = model.equals(Build.MODEL, true)
 }

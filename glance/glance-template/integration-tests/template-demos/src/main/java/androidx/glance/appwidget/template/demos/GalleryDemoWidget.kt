@@ -22,11 +22,11 @@ import androidx.glance.ImageProvider
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
 import androidx.glance.appwidget.action.actionRunCallback
-import androidx.glance.template.GalleryTemplate
-import androidx.glance.template.GlanceTemplateAppWidget
 import androidx.glance.template.ActionBlock
 import androidx.glance.template.AspectRatio
+import androidx.glance.template.GalleryTemplate
 import androidx.glance.template.GalleryTemplateData
+import androidx.glance.template.GlanceTemplateAppWidget
 import androidx.glance.template.HeaderBlock
 import androidx.glance.template.ImageBlock
 import androidx.glance.template.ImageSize

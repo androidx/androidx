@@ -1,4 +1,10 @@
 // Baseline format: 1.0
+GetterSetterNames: field PerfettoTraceRule.enableAppTagTracing:
+    Invalid name for boolean property `enableAppTagTracing`. Should start with one of `has`, `can`, `should`, `is`.
+GetterSetterNames: field PerfettoTraceRule.enableUserspaceTracing:
+    Invalid name for boolean property `enableUserspaceTracing`. Should start with one of `has`, `can`, `should`, `is`.
+
+
 InvalidNullabilityOverride: androidx.benchmark.junit4.BenchmarkRule#apply(org.junit.runners.model.Statement, org.junit.runner.Description) parameter #0:
     Invalid nullability on parameter `base` in method `apply`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
 InvalidNullabilityOverride: androidx.benchmark.junit4.BenchmarkRule#apply(org.junit.runners.model.Statement, org.junit.runner.Description) parameter #1:

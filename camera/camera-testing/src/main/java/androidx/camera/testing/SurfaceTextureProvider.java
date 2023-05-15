@@ -35,7 +35,10 @@ import androidx.annotation.RequiresApi;
 import androidx.camera.core.Logger;
 import androidx.camera.core.Preview;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
+import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.os.HandlerCompat;
+
+import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.Objects;
 import java.util.concurrent.Executor;
@@ -107,7 +110,6 @@ public final class SurfaceTextureProvider {
      * a surface for preview.
      *
      * <p> The {@link SurfaceTexture} will be released when it is no longer needed.
-     *
      */
     @NonNull
     public static Preview.SurfaceProvider createSurfaceTextureProvider() {
@@ -154,72 +156,81 @@ public final class SurfaceTextureProvider {
             handlerThread.start();
             Handler handler = HandlerCompat.createAsync(handlerThread.getLooper());
             Executor glContextExecutor = CameraXExecutors.newHandlerExecutor(handler);
-            glContextExecutor.execute(() -> {
+            ListenableFuture<SurfaceTextureHolder> surfaceTextureFuture =
+                    createAutoDrainingSurfaceTextureAsync(glContextExecutor,
+                            surfaceRequest.getResolution().getWidth(),
+                            surfaceRequest.getResolution().getHeight(), frameAvailableListener,
+                            handlerThread::quitSafely);
+
+            surfaceTextureFuture.addListener(() -> {
+                try {
+                    SurfaceTextureHolder holder = surfaceTextureFuture.get();
+                    surfaceRequest.provideSurface(new Surface(holder.getSurfaceTexture()),
+                            glContextExecutor,
+                            (surfaceResponse) -> {
+                                try {
+                                    holder.close();
+                                } catch (Exception e) {
+                                    throw new AssertionError("SurfaceTextureHolder failed"
+                                            + " to close", e);
+                                }
+                            });
+                } catch (Exception e) {
+                    // Should never happen
+                    throw new AssertionError("Failed to create auto-draining surface "
+                            + "texture",
+                            e);
+                }
+            }, glContextExecutor);
+        };
+    }
+
+    /**
+     * Creates a {@link SurfaceTextureHolder} asynchronously that contains a {@link SurfaceTexture}
+     * which will automatically drain frames as new frames arrive.
+     *
+     * @param glExecutor             the executor where the GL codes will run.
+     * @param width                  the width of the SurfaceTexture size
+     * @param height                 the height of the SurfaceTexture size.
+     * @param frameAvailableListener listener to be invoked when there are new frames.
+     * @param onClosed               runnable which will be called after all resources managed by
+     *                               the SurfaceTextureHolder have been released.
+     */
+    @NonNull
+    public static ListenableFuture<SurfaceTextureHolder> createAutoDrainingSurfaceTextureAsync(
+            @NonNull Executor glExecutor,
+            int width,
+            int height,
+            @Nullable SurfaceTexture.OnFrameAvailableListener frameAvailableListener,
+            @Nullable Runnable onClosed) {
+        return CallbackToFutureAdapter.getFuture((completer) -> {
+            glExecutor.execute(() -> {
                 EGLContextParams contextParams = createDummyEGLContext();
                 EGL14.eglMakeCurrent(contextParams.display, contextParams.outputSurface,
                         contextParams.outputSurface, contextParams.context);
                 int[] textureIds = new int[1];
                 GLES20.glGenTextures(1, textureIds, 0);
                 SurfaceTexture surfaceTexture = new SurfaceTexture(textureIds[0]);
-                surfaceTexture.setDefaultBufferSize(surfaceRequest.getResolution().getWidth(),
-                        surfaceRequest.getResolution().getHeight());
-                surfaceTexture.setOnFrameAvailableListener((st) -> {
-                    st.updateTexImage();
-                    if (frameAvailableListener != null) {
-                        frameAvailableListener.onFrameAvailable(st);
-                    }
-                }, handler);
+                surfaceTexture.setDefaultBufferSize(width, height);
+                surfaceTexture.setOnFrameAvailableListener(it ->
+                        glExecutor.execute(() -> {
+                            it.updateTexImage();
+                            if (frameAvailableListener != null) {
+                                frameAvailableListener.onFrameAvailable(surfaceTexture);
+                            }
+                        }));
 
-                Surface surface = new Surface(surfaceTexture);
-                surfaceRequest.provideSurface(surface,
-                        glContextExecutor,
-                        (surfaceResponse) -> {
-                            surface.release();
+                completer.set(
+                        new SurfaceTextureHolder(surfaceTexture, () -> glExecutor.execute(() -> {
                             surfaceTexture.release();
                             GLES20.glDeleteTextures(1, textureIds, 0);
                             terminateEGLContext(contextParams);
-                            handlerThread.quitSafely();
-                        });
+                            if (onClosed != null) {
+                                onClosed.run();
+                            }
+                        })));
             });
-        };
-    }
-
-    /**
-     * Creates a {@link SurfaceTextureHolder} that contains a {@link SurfaceTexture} which will
-     * automatically drain frames as new frames arrive.
-     *
-     * @param glExecutor             the executor where the GL codes will run.
-     * @param width                  the width of the SurfaceTexture size
-     * @param height                 the height of the SurfaceTexture size.
-     * @param frameAvailableListener listener to be invoked when there are new frames.
-     */
-    @NonNull
-    public static SurfaceTextureHolder createAutoDrainingSurfaceTexture(
-            @NonNull Executor glExecutor,
-            int width,
-            int height,
-            @NonNull SurfaceTexture.OnFrameAvailableListener frameAvailableListener) {
-        int[] textureIds = new int[1];
-        SurfaceTexture surfaceTexture = new SurfaceTexture(textureIds[0]);
-        EGLContextParams contextParams = createDummyEGLContext();
-        glExecutor.execute(() -> {
-            EGL14.eglMakeCurrent(contextParams.display, contextParams.outputSurface,
-                    contextParams.outputSurface, contextParams.context);
-            GLES20.glGenTextures(1, textureIds, 0);
-            surfaceTexture.setDefaultBufferSize(width, height);
-            surfaceTexture.setOnFrameAvailableListener(it ->
-                    glExecutor.execute(() -> {
-                        it.updateTexImage();
-                        frameAvailableListener.onFrameAvailable(surfaceTexture);
-                    }));
-        });
-
-        return new SurfaceTextureHolder(surfaceTexture, () -> {
-            glExecutor.execute(() -> {
-                surfaceTexture.release();
-                GLES20.glDeleteTextures(1, textureIds, 0);
-                terminateEGLContext(contextParams);
-            });
+            return "createAutoDrainingSurfaceTexture";
         });
     }
 

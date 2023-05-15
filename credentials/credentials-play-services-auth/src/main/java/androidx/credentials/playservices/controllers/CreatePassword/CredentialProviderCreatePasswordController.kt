@@ -113,7 +113,7 @@ class CredentialProviderCreatePasswordController(private val activity: Activity)
                 "$CONTROLLER_REQUEST_CODE which does not match what was given $uniqueRequestCode")
             return
         }
-        if (maybeReportErrorResultCodeCreate(resultCode, TAG,
+        if (maybeReportErrorResultCodeCreate(resultCode,
                 { s, f -> cancelOrCallbackExceptionOrResult(s, f) }, { e -> this.executor.execute {
                     this.callback.onError(e) } }, cancellationSignal)) return
         val response: CreateCredentialResponse = convertResponseToCredentialManager(Unit)
@@ -138,7 +138,7 @@ class CredentialProviderCreatePasswordController(private val activity: Activity)
     companion object {
         private val TAG = CredentialProviderCreatePasswordController::class.java.name
         private var controller: CredentialProviderCreatePasswordController? = null
-        // TODO("Ensure this is tested for multiple calls")
+        // TODO(b/262924507) : Test multiple calls (re-instantiation validates but just in case)
         /**
          * This finds a past version of the
          * [CredentialProviderCreatePasswordController] if it exists, otherwise

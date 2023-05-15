@@ -91,7 +91,8 @@ public final class UseCaseGroup {
                 PREVIEW,
                 VIDEO_CAPTURE,
                 IMAGE_CAPTURE,
-                PREVIEW | VIDEO_CAPTURE);
+                PREVIEW | VIDEO_CAPTURE,
+                PREVIEW | VIDEO_CAPTURE | IMAGE_CAPTURE);
 
         private ViewPort mViewPort;
         private final List<UseCase> mUseCases;
@@ -122,6 +123,8 @@ public final class UseCaseGroup {
          * <li>{@link CameraEffect#VIDEO_CAPTURE}
          * <li>{@link CameraEffect#IMAGE_CAPTURE}
          * <li>{@link CameraEffect#VIDEO_CAPTURE} | {@link CameraEffect#PREVIEW}
+         * <li>{@link CameraEffect#VIDEO_CAPTURE} | {@link CameraEffect#PREVIEW} |
+         * {@link CameraEffect#IMAGE_CAPTURE}
          * </ul>
          *
          * <p>The targets must be mutually exclusive of each other, otherwise, the {@link #build()}

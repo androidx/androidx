@@ -48,6 +48,11 @@ import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
+import kotlin.math.max
+import kotlin.math.min
+import kotlin.math.roundToInt
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
@@ -56,15 +61,11 @@ import org.junit.Before
 import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
-import kotlin.math.max
-import kotlin.math.min
-import kotlin.math.roundToInt
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
 class RowColumnTest : LayoutTest() {
+
     @Before
     fun before() {
         isDebugInspectorInfoEnabled = true
@@ -2540,7 +2541,51 @@ class RowColumnTest : LayoutTest() {
     }
 
     @Test
-    fun testRow_withSpaceBetweenArrangement() = with(density) {
+    fun testRow_withSpaceBetweenArrangement_singleItem() = with(density) {
+        val sizeDp = 50.toDp()
+
+        val drawLatch = CountDownLatch(2)
+        val childPosition = arrayOf(Offset(-1f, -1f))
+        val childLayoutCoordinates = arrayOfNulls<LayoutCoordinates?>(childPosition.size)
+        var parentLayoutCoordinates: LayoutCoordinates? = null
+        show {
+            Center {
+                Row(
+                    Modifier.fillMaxWidth().onGloballyPositioned { coordinates ->
+                        parentLayoutCoordinates = coordinates
+                        drawLatch.countDown()
+                    },
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    for (i in 0 until childPosition.size) {
+                        Container(
+                            width = sizeDp,
+                            height = sizeDp,
+                            modifier = Modifier.onGloballyPositioned { coordinates ->
+                                childLayoutCoordinates[i] = coordinates
+                                drawLatch.countDown()
+                            }
+                        ) {
+                        }
+                    }
+                }
+            }
+        }
+        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
+
+        calculateChildPositions(childPosition, parentLayoutCoordinates, childLayoutCoordinates)
+
+        val root = findComposeView()
+        waitForDraw(root)
+
+        assertEquals(
+            Offset(0f, 0f),
+            childPosition[0]
+        )
+    }
+
+    @Test
+    fun testRow_withSpaceBetweenArrangement_multipleItems() = with(density) {
         val sizeDp = 50.toDp()
         val size = sizeDp.roundToPx()
 
@@ -2559,7 +2604,7 @@ class RowColumnTest : LayoutTest() {
                     },
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    for (i in 0 until childPosition.size) {
+                    for (i in childPosition.indices) {
                         Container(
                             width = sizeDp,
                             height = sizeDp,
@@ -4513,7 +4558,55 @@ class RowColumnTest : LayoutTest() {
     }
 
     @Test
-    fun testRow_Rtl_arrangementSpaceBetween() = with(density) {
+    fun testRow_Rtl_arrangementSpaceBetween_singleItem() = with(density) {
+        val size = 100
+        val sizeDp = size.toDp()
+
+        val drawLatch = CountDownLatch(2)
+        val childPosition = Array(1) { Offset.Zero }
+        val childLayoutCoordinates = arrayOfNulls<LayoutCoordinates?>(childPosition.size)
+        var parentLayoutCoordinates: LayoutCoordinates? = null
+        show {
+            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .onGloballyPositioned { coordinates ->
+                            parentLayoutCoordinates = coordinates
+                            drawLatch.countDown()
+                        },
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    for (i in childPosition.indices) {
+                        Container(
+                            width = sizeDp,
+                            height = sizeDp,
+                            modifier = Modifier.onGloballyPositioned { coordinates ->
+                                childLayoutCoordinates[i] = coordinates
+                                drawLatch.countDown()
+                            },
+                            content = {}
+                        )
+                    }
+                }
+            }
+        }
+        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
+
+        calculateChildPositions(childPosition, parentLayoutCoordinates, childLayoutCoordinates)
+
+        val root = findComposeView()
+        waitForDraw(root)
+
+        val gap = root.width - size.toFloat()
+        assertEquals(
+            Offset(gap, 0f),
+            childPosition[0]
+        )
+    }
+
+    @Test
+    fun testRow_Rtl_arrangementSpaceBetween_multipleItems() = with(density) {
         val size = 100
         val sizeDp = size.toDp()
 
@@ -5672,6 +5765,7 @@ class RowColumnTest : LayoutTest() {
             ValueElement("fill", false)
         )
     }
+
     @Test
     fun testColumn_AlignInspectableValue() {
         val modifier = with(ColumnScopeInstance) { Modifier.align(Alignment.Start) }
@@ -5701,9 +5795,7 @@ class RowColumnTest : LayoutTest() {
             ValueElement("fill", false)
         )
     }
-    // endregion
 }
-
 private val TestHorizontalLine = HorizontalAlignmentLine(::min)
 private val TestVerticalLine = VerticalAlignmentLine(::min)
 

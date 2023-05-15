@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+InvalidNullConversion: androidx.lifecycle.LiveDataScope#emit(T, kotlin.coroutines.Continuation<? super kotlin.Unit>) parameter #0:
+    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter value in androidx.lifecycle.LiveDataScope.emit(T value, kotlin.coroutines.Continuation<? super kotlin.Unit> arg2)

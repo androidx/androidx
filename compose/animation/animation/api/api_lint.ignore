@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+GetterSetterNames: field SizeTransform.clip:
+    Invalid name for boolean property `clip`. Should start with one of `has`, `can`, `should`, `is`.

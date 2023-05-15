@@ -36,55 +36,6 @@ import androidx.glance.unit.FixedColorProvider
 /** Set of colors to apply to a RadioButton depending on the checked state. */
 class RadioButtonColors internal constructor(internal val radio: CheckableColorProvider)
 
-/**
- * RadioButtonColors to tint the drawable of the [RadioButton] according to the checked state.
- *
- * None of the [ColorProvider] parameters to this function can be created from resource ids. To use
- * resources to tint the switch color, use `RadioButtonColors(Int, Int)` instead.
- *
- * @param checkedColor the tint to apply to the radio button when it is checked, or null
- * to use the default tint.
- * @param uncheckedColor the tint to apply to the radio button when it is not checked,
- * or null to use the default tint.
- */
-fun radioButtonColors(
-    checkedColor: ColorProvider,
-    uncheckedColor: ColorProvider,
-): RadioButtonColors {
-    return RadioButtonColors(
-        radio = createCheckableColorProvider(
-            source = "RadioButtonColors", checked = checkedColor, unchecked = uncheckedColor
-        )
-    )
-}
-
-/**
- * [radioButtonColors] that uses [checkedColor] or [uncheckedColor] depending on the checked state
- * of the RadioButton.
- *
- * @param checkedColor the [Color] to use when the RadioButton is checked
- * @param uncheckedColor the [Color] to use when the RadioButton is not checked
- */
-fun radioButtonColors(checkedColor: Color, uncheckedColor: Color): RadioButtonColors =
-    radioButtonColors(FixedColorProvider(checkedColor), FixedColorProvider(uncheckedColor))
-
-@Composable
-fun radioButtonColors(): RadioButtonColors {
-    val colorProvider = if (GlanceTheme.colors == DynamicThemeColorProviders) {
-        // If using the m3 dynamic color theme, we need to create a color provider from xml
-        // because resource backed ColorStateLists cannot be created programmatically
-        ResourceCheckableColorProvider(R.color.glance_default_radio_button)
-    } else {
-        createCheckableColorProvider(
-            source = "CheckBoxColors",
-            checked = GlanceTheme.colors.primary,
-            unchecked = GlanceTheme.colors.onSurfaceVariant
-        )
-    }
-
-    return RadioButtonColors(colorProvider)
-}
-
 internal class EmittableRadioButton(
     var colors: RadioButtonColors
 ) : Emittable {
@@ -141,7 +92,7 @@ fun RadioButton(
     enabled: Boolean = true,
     text: String = "",
     style: TextStyle? = null,
-    colors: RadioButtonColors = radioButtonColors(),
+    colors: RadioButtonColors = RadioButtonDefaults.colors(),
     maxLines: Int = Int.MAX_VALUE,
 ) = RadioButtonElement(checked, onClick, modifier, enabled, text, style, colors, maxLines)
 
@@ -170,7 +121,7 @@ fun RadioButton(
     enabled: Boolean = true,
     text: String = "",
     style: TextStyle? = null,
-    colors: RadioButtonColors = radioButtonColors(),
+    colors: RadioButtonColors = RadioButtonDefaults.colors(),
     maxLines: Int = Int.MAX_VALUE,
 ) = RadioButtonElement(
     checked,
@@ -183,6 +134,65 @@ fun RadioButton(
     maxLines
 )
 
+/**
+ * Contains the default values used by [RadioButton].
+ */
+object RadioButtonDefaults {
+    /**
+     * Creates a [RadioButtonColors] using [ColorProvider]s.
+     * @param checkedColor the tint to apply to the radio button when it is checked.
+     * @param uncheckedColor the tint to apply to the radio button when it is not checked.
+     * @return [RadioButtonColors] to tint the drawable of the [RadioButton] according to
+     * the checked state.
+     */
+    fun colors(
+        checkedColor: ColorProvider,
+        uncheckedColor: ColorProvider,
+    ): RadioButtonColors {
+        return RadioButtonColors(
+            radio = createCheckableColorProvider(
+                source = "RadioButtonColors", checked = checkedColor, unchecked = uncheckedColor
+            )
+        )
+    }
+
+    /**
+     * Creates a [RadioButtonColors] using [FixedColorProvider]s for the given colors.
+     * @param checkedColor the [Color] to use when the RadioButton is checked
+     * @param uncheckedColor the [Color] to use when the RadioButton is not checked
+     * @return [RadioButtonColors] to tint the drawable of the [RadioButton] according to
+     * the checked state.
+     */
+    fun colors(
+        checkedColor: Color,
+        uncheckedColor: Color
+    ): RadioButtonColors = colors(
+        checkedColor = FixedColorProvider(checkedColor),
+        uncheckedColor = FixedColorProvider(uncheckedColor)
+    )
+
+    /**
+     * Creates a default [RadioButtonColors]
+     * @return default [RadioButtonColors].
+     */
+    @Composable
+    fun colors(): RadioButtonColors {
+        val colorProvider = if (GlanceTheme.colors == DynamicThemeColorProviders) {
+            // If using the m3 dynamic color theme, we need to create a color provider from xml
+            // because resource backed ColorStateLists cannot be created programmatically
+            ResourceCheckableColorProvider(R.color.glance_default_radio_button)
+        } else {
+            createCheckableColorProvider(
+                source = "CheckBoxColors",
+                checked = GlanceTheme.colors.primary,
+                unchecked = GlanceTheme.colors.onSurfaceVariant
+            )
+        }
+
+        return RadioButtonColors(colorProvider)
+    }
+}
+
 @Composable
 private fun RadioButtonElement(
     checked: Boolean,
@@ -191,7 +201,7 @@ private fun RadioButtonElement(
     enabled: Boolean = true,
     text: String = "",
     style: TextStyle? = null,
-    colors: RadioButtonColors = radioButtonColors(),
+    colors: RadioButtonColors = RadioButtonDefaults.colors(),
     maxLines: Int = Int.MAX_VALUE,
 ) {
     val finalModifier = if (enabled && onClick != null) modifier.clickable(onClick) else modifier
@@ -205,6 +215,7 @@ private fun RadioButtonElement(
         this.set(maxLines) { this.maxLines = it }
     })
 }
+
 /**
  * Use this modifier to group a list of RadioButtons together for accessibility purposes.
  *

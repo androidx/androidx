@@ -16,12 +16,12 @@
 
 package androidx.compose.ui.test
 
-import androidx.test.espresso.matcher.ViewMatchers
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.layout.LayoutInfo
 import androidx.compose.ui.platform.ViewRootForTest
 import androidx.compose.ui.semantics.SemanticsNode
+import androidx.test.espresso.matcher.ViewMatchers
 
 internal actual fun SemanticsNodeInteraction.checkIsDisplayed(): Boolean {
     // hierarchy check - check layout nodes are visible

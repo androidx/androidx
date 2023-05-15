@@ -105,8 +105,9 @@ class ModalBottomSheetStateTest {
         density: Density
     ) = ModalBottomSheetState(
         initialValue,
+        density,
         animationSpec,
         confirmValueChange,
         isSkipHalfExpanded,
-    ).apply { swipeableState.density = density }
+    )
 }

@@ -18,7 +18,7 @@ package androidx.compose.foundation.pager
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.Snapshot
 
@@ -31,10 +31,10 @@ internal class PagerScrollPosition(
     initialPage: Int = 0,
     initialScrollOffset: Int = 0
 ) {
-    var firstVisiblePage by mutableStateOf(initialPage)
-    var currentPage by mutableStateOf(initialPage)
+    var firstVisiblePage by mutableIntStateOf(initialPage)
+    var currentPage by mutableIntStateOf(initialPage)
 
-    var scrollOffset by mutableStateOf(initialScrollOffset)
+    var scrollOffset by mutableIntStateOf(initialScrollOffset)
         private set
 
     private var hadFirstNotEmptyLayout = false

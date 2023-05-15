@@ -16,8 +16,6 @@
 
 package androidx.wear.tiles.material.layouts;
 
-import static androidx.wear.tiles.DimensionBuilders.dp;
-import static androidx.wear.tiles.DimensionBuilders.expand;
 import static androidx.wear.tiles.material.Helper.checkNotNull;
 import static androidx.wear.tiles.material.Helper.checkTag;
 import static androidx.wear.tiles.material.Helper.getMetadataTagBytes;
@@ -35,16 +33,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.wear.protolayout.proto.LayoutElementProto;
-import androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters;
-import androidx.wear.tiles.DimensionBuilders.DpProp;
-import androidx.wear.tiles.LayoutElementBuilders;
-import androidx.wear.tiles.LayoutElementBuilders.Box;
-import androidx.wear.tiles.LayoutElementBuilders.Column;
-import androidx.wear.tiles.LayoutElementBuilders.LayoutElement;
-import androidx.wear.tiles.LayoutElementBuilders.Spacer;
-import androidx.wear.tiles.ModifiersBuilders.ElementMetadata;
-import androidx.wear.tiles.ModifiersBuilders.Modifiers;
-import androidx.wear.tiles.ModifiersBuilders.Padding;
 import androidx.wear.tiles.material.CircularProgressIndicator;
 
 import java.lang.annotation.Retention;
@@ -81,16 +69,16 @@ import java.util.List;
  *   EdgeContentLayout.fromLayoutElement(box.getContents().get(0));
  * }</pre>
  *
- * @deprecated Use the new class
- *     {@link androidx.wear.protolayout.material.layouts.EdgeContentLayout} which provides the
- *     same API and functionality.
+ * @deprecated Use the new class {@link
+ *     androidx.wear.protolayout.material.layouts.EdgeContentLayout} which provides the same API and
+ *     functionality.
  */
 @Deprecated
 @SuppressWarnings("deprecation")
-public class EdgeContentLayout implements LayoutElement {
+public class EdgeContentLayout implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement {
     /**
-     * Prefix tool tag for Metadata in Modifiers, so we know that Box is actually a
-     * EdgeContentLayout.
+     * Prefix tool tag for Metadata in androidx.wear.tiles.ModifiersBuilders.Modifiers, so we know
+     * that androidx.wear.tiles.LayoutElementBuilders.Box is actually a EdgeContentLayout.
      */
     static final String METADATA_TAG_PREFIX = "ECL_";
 
@@ -101,8 +89,9 @@ public class EdgeContentLayout implements LayoutElement {
     static final int FLAG_INDEX = METADATA_TAG_PREFIX.length();
 
     /**
-     * Base tool tag for Metadata in Modifiers, so we know that Box is actually a EdgeContentLayout
-     * and what optional content is added.
+     * Base tool tag for Metadata in androidx.wear.tiles.ModifiersBuilders.Modifiers, so we know
+     * that androidx.wear.tiles.LayoutElementBuilders.Box is actually a EdgeContentLayout and what
+     * optional content is added.
      */
     static final byte[] METADATA_TAG_BASE =
             Arrays.copyOf(getTagBytes(METADATA_TAG_PREFIX), FLAG_INDEX + 1);
@@ -140,34 +129,53 @@ public class EdgeContentLayout implements LayoutElement {
             })
     @interface ContentBits {}
 
-    @NonNull private final Box mImpl;
+    @NonNull private final androidx.wear.tiles.LayoutElementBuilders.Box mImpl;
 
     // This contains inner columns and edge content.
-    @NonNull private final List<LayoutElement> mContents;
+    @NonNull private final List<androidx.wear.tiles.LayoutElementBuilders.LayoutElement> mContents;
 
     // This contains optional labels, spacers and main content.
-    @NonNull private final List<LayoutElement> mInnerColumn;
+    @NonNull
+    private final List<androidx.wear.tiles.LayoutElementBuilders.LayoutElement> mInnerColumn;
 
-    EdgeContentLayout(@NonNull Box layoutElement) {
+    EdgeContentLayout(@NonNull androidx.wear.tiles.LayoutElementBuilders.Box layoutElement) {
         this.mImpl = layoutElement;
         this.mContents = mImpl.getContents();
-        this.mInnerColumn = ((Column) ((Box) mContents.get(0)).getContents().get(0)).getContents();
+        this.mInnerColumn =
+                ((androidx.wear.tiles.LayoutElementBuilders.Column)
+                                ((androidx.wear.tiles.LayoutElementBuilders.Box) mContents.get(0))
+                                        .getContents()
+                                        .get(0))
+                        .getContents();
     }
 
     /** Builder class for {@link EdgeContentLayout}. */
-    public static final class Builder implements LayoutElement.Builder {
-        @NonNull private final DeviceParameters mDeviceParameters;
-        @Nullable private LayoutElement mEdgeContent = null;
-        @Nullable private LayoutElement mPrimaryLabelText = null;
-        @Nullable private LayoutElement mSecondaryLabelText = null;
-        @Nullable private LayoutElement mContent = null;
+    public static final class Builder
+            implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement.Builder {
+        @NonNull
+        private final androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters
+                mDeviceParameters;
+
+        @Nullable
+        private androidx.wear.tiles.LayoutElementBuilders.LayoutElement mEdgeContent = null;
+
+        @Nullable
+        private androidx.wear.tiles.LayoutElementBuilders.LayoutElement mPrimaryLabelText = null;
+
+        @Nullable
+        private androidx.wear.tiles.LayoutElementBuilders.LayoutElement mSecondaryLabelText = null;
+
+        @Nullable private androidx.wear.tiles.LayoutElementBuilders.LayoutElement mContent = null;
         private byte mMetadataContentByte = 0;
 
         /**
          * Creates a builder for the {@link EdgeContentLayout}t. Custom content inside of it can
          * later be set with ({@link #setContent}.
          */
-        public Builder(@NonNull DeviceParameters deviceParameters) {
+        public Builder(
+                @NonNull
+                        androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters
+                                deviceParameters) {
             this.mDeviceParameters = deviceParameters;
         }
 
@@ -175,7 +183,8 @@ public class EdgeContentLayout implements LayoutElement {
          * Sets the content to be around the edges. This can be {@link CircularProgressIndicator}.
          */
         @NonNull
-        public Builder setEdgeContent(@NonNull LayoutElement edgeContent) {
+        public Builder setEdgeContent(
+                @NonNull androidx.wear.tiles.LayoutElementBuilders.LayoutElement edgeContent) {
             this.mEdgeContent = edgeContent;
             mMetadataContentByte = (byte) (mMetadataContentByte | EDGE_CONTENT_PRESENT);
             return this;
@@ -183,7 +192,8 @@ public class EdgeContentLayout implements LayoutElement {
 
         /** Sets the content in the primary label slot which will be above the main content. */
         @NonNull
-        public Builder setPrimaryLabelTextContent(@NonNull LayoutElement primaryLabelText) {
+        public Builder setPrimaryLabelTextContent(
+                @NonNull androidx.wear.tiles.LayoutElementBuilders.LayoutElement primaryLabelText) {
             this.mPrimaryLabelText = primaryLabelText;
             mMetadataContentByte = (byte) (mMetadataContentByte | PRIMARY_LABEL_PRESENT);
             return this;
@@ -194,7 +204,10 @@ public class EdgeContentLayout implements LayoutElement {
          * highly recommended to have primary label set when having secondary label.
          */
         @NonNull
-        public Builder setSecondaryLabelTextContent(@NonNull LayoutElement secondaryLabelText) {
+        public Builder setSecondaryLabelTextContent(
+                @NonNull
+                        androidx.wear.tiles.LayoutElementBuilders.LayoutElement
+                                secondaryLabelText) {
             this.mSecondaryLabelText = secondaryLabelText;
             mMetadataContentByte = (byte) (mMetadataContentByte | SECONDARY_LABEL_PRESENT);
             return this;
@@ -202,7 +215,8 @@ public class EdgeContentLayout implements LayoutElement {
 
         /** Sets the additional content to this layout, inside of the screen. */
         @NonNull
-        public Builder setContent(@NonNull LayoutElement content) {
+        public Builder setContent(
+                @NonNull androidx.wear.tiles.LayoutElementBuilders.LayoutElement content) {
             this.mContent = content;
             mMetadataContentByte = (byte) (mMetadataContentByte | CONTENT_PRESENT);
             return this;
@@ -224,67 +238,91 @@ public class EdgeContentLayout implements LayoutElement {
             float mainContentHeightDp = mDeviceParameters.getScreenHeightDp() - indicatorWidth;
             float mainContentWidthDp = mDeviceParameters.getScreenWidthDp() - indicatorWidth;
 
-            DpProp mainContentHeight = dp(Math.min(mainContentHeightDp, mainContentWidthDp));
-            DpProp mainContentWidth = dp(Math.min(mainContentHeightDp, mainContentWidthDp));
+            androidx.wear.tiles.DimensionBuilders.DpProp mainContentHeight =
+                    androidx.wear.tiles.DimensionBuilders.dp(
+                            Math.min(mainContentHeightDp, mainContentWidthDp));
+            androidx.wear.tiles.DimensionBuilders.DpProp mainContentWidth =
+                    androidx.wear.tiles.DimensionBuilders.dp(
+                            Math.min(mainContentHeightDp, mainContentWidthDp));
 
-            Modifiers modifiers =
-                    new Modifiers.Builder()
+            androidx.wear.tiles.ModifiersBuilders.Modifiers modifiers =
+                    new androidx.wear.tiles.ModifiersBuilders.Modifiers.Builder()
                             .setPadding(
-                                    new Padding.Builder()
-                                            .setStart(dp(horizontalPaddingDp))
-                                            .setEnd(dp(horizontalPaddingDp))
+                                    new androidx.wear.tiles.ModifiersBuilders.Padding.Builder()
+                                            .setStart(
+                                                    androidx.wear.tiles.DimensionBuilders.dp(
+                                                            horizontalPaddingDp))
+                                            .setEnd(
+                                                    androidx.wear.tiles.DimensionBuilders.dp(
+                                                            horizontalPaddingDp))
                                             .build())
                             .build();
 
             byte[] metadata = METADATA_TAG_BASE.clone();
             metadata[FLAG_INDEX] = mMetadataContentByte;
-            Box.Builder mainBoxBuilder =
-                    new Box.Builder()
-                            .setWidth(expand())
-                            .setHeight(expand())
+            androidx.wear.tiles.LayoutElementBuilders.Box.Builder mainBoxBuilder =
+                    new androidx.wear.tiles.LayoutElementBuilders.Box.Builder()
+                            .setWidth(androidx.wear.tiles.DimensionBuilders.expand())
+                            .setHeight(androidx.wear.tiles.DimensionBuilders.expand())
                             .setModifiers(
-                                    new Modifiers.Builder()
+                                    new androidx.wear.tiles.ModifiersBuilders.Modifiers.Builder()
                                             .setMetadata(
-                                                    new ElementMetadata.Builder()
+                                                    new androidx.wear.tiles.ModifiersBuilders
+                                                                    .ElementMetadata.Builder()
                                                             .setTagData(metadata)
                                                             .build())
                                             .build())
-                            .setHorizontalAlignment(LayoutElementBuilders.HORIZONTAL_ALIGN_CENTER)
-                            .setVerticalAlignment(LayoutElementBuilders.VERTICAL_ALIGN_CENTER);
+                            .setHorizontalAlignment(
+                                    androidx.wear.tiles.LayoutElementBuilders
+                                            .HORIZONTAL_ALIGN_CENTER)
+                            .setVerticalAlignment(
+                                    androidx.wear.tiles.LayoutElementBuilders
+                                            .VERTICAL_ALIGN_CENTER);
 
-            Column.Builder innerContentBuilder =
-                    new Column.Builder()
-                            .setHorizontalAlignment(LayoutElementBuilders.HORIZONTAL_ALIGN_CENTER);
+            androidx.wear.tiles.LayoutElementBuilders.Column.Builder innerContentBuilder =
+                    new androidx.wear.tiles.LayoutElementBuilders.Column.Builder()
+                            .setHorizontalAlignment(
+                                    androidx.wear.tiles.LayoutElementBuilders
+                                            .HORIZONTAL_ALIGN_CENTER);
 
             if (mPrimaryLabelText != null) {
                 innerContentBuilder.addContent(mPrimaryLabelText);
                 innerContentBuilder.addContent(
-                        new Spacer.Builder()
-                                .setHeight(dp(EDGE_CONTENT_LAYOUT_PADDING_ABOVE_MAIN_CONTENT_DP))
+                        new androidx.wear.tiles.LayoutElementBuilders.Spacer.Builder()
+                                .setHeight(
+                                        androidx.wear.tiles.DimensionBuilders.dp(
+                                                EDGE_CONTENT_LAYOUT_PADDING_ABOVE_MAIN_CONTENT_DP))
                                 .build());
             }
 
             if (mContent != null) {
                 innerContentBuilder.addContent(
-                        new Box.Builder()
-                                .setVerticalAlignment(LayoutElementBuilders.VERTICAL_ALIGN_CENTER)
+                        new androidx.wear.tiles.LayoutElementBuilders.Box.Builder()
+                                .setVerticalAlignment(
+                                        androidx.wear.tiles.LayoutElementBuilders
+                                                .VERTICAL_ALIGN_CENTER)
                                 .addContent(mContent)
                                 .build());
             }
 
             if (mSecondaryLabelText != null) {
                 innerContentBuilder.addContent(
-                        new Spacer.Builder()
-                                .setHeight(dp(EDGE_CONTENT_LAYOUT_PADDING_BELOW_MAIN_CONTENT_DP))
+                        new androidx.wear.tiles.LayoutElementBuilders.Spacer.Builder()
+                                .setHeight(
+                                        androidx.wear.tiles.DimensionBuilders.dp(
+                                                EDGE_CONTENT_LAYOUT_PADDING_BELOW_MAIN_CONTENT_DP))
                                 .build());
                 innerContentBuilder.addContent(mSecondaryLabelText);
             }
 
             mainBoxBuilder.addContent(
-                    new Box.Builder()
+                    new androidx.wear.tiles.LayoutElementBuilders.Box.Builder()
                             .setModifiers(modifiers)
-                            .setVerticalAlignment(LayoutElementBuilders.VERTICAL_ALIGN_CENTER)
-                            .setHorizontalAlignment(LayoutElementBuilders.HORIZONTAL_ALIGN_CENTER)
+                            .setVerticalAlignment(
+                                    androidx.wear.tiles.LayoutElementBuilders.VERTICAL_ALIGN_CENTER)
+                            .setHorizontalAlignment(
+                                    androidx.wear.tiles.LayoutElementBuilders
+                                            .HORIZONTAL_ALIGN_CENTER)
                             .setHeight(mainContentHeight)
                             .setWidth(mainContentWidth)
                             .addContent(innerContentBuilder.build())
@@ -310,19 +348,21 @@ public class EdgeContentLayout implements LayoutElement {
 
     /** Returns the inner content from this layout. */
     @Nullable
-    public LayoutElement getContent() {
+    public androidx.wear.tiles.LayoutElementBuilders.LayoutElement getContent() {
         if (!areElementsPresent(CONTENT_PRESENT)) {
             return null;
         }
         // By tag we know that content exists. It will be at position 0 if there is no primary
         // label, or at position 2 (primary label, spacer - content) otherwise.
         int contentPosition = areElementsPresent(PRIMARY_LABEL_PRESENT) ? 2 : 0;
-        return ((Box) mInnerColumn.get(contentPosition)).getContents().get(0);
+        return ((androidx.wear.tiles.LayoutElementBuilders.Box) mInnerColumn.get(contentPosition))
+                .getContents()
+                .get(0);
     }
 
     /** Get the primary label content from this layout. */
     @Nullable
-    public LayoutElement getPrimaryLabelTextContent() {
+    public androidx.wear.tiles.LayoutElementBuilders.LayoutElement getPrimaryLabelTextContent() {
         if (!areElementsPresent(PRIMARY_LABEL_PRESENT)) {
             return null;
         }
@@ -332,7 +372,7 @@ public class EdgeContentLayout implements LayoutElement {
 
     /** Get the secondary label content from this layout. */
     @Nullable
-    public LayoutElement getSecondaryLabelTextContent() {
+    public androidx.wear.tiles.LayoutElementBuilders.LayoutElement getSecondaryLabelTextContent() {
         if (!areElementsPresent(SECONDARY_LABEL_PRESENT)) {
             return null;
         }
@@ -342,7 +382,7 @@ public class EdgeContentLayout implements LayoutElement {
 
     /** Returns the edge content from this layout. */
     @Nullable
-    public LayoutElement getEdgeContent() {
+    public androidx.wear.tiles.LayoutElementBuilders.LayoutElement getEdgeContent() {
         if (areElementsPresent(EDGE_CONTENT_PRESENT)) {
             return mContents.get(1);
         }
@@ -350,19 +390,22 @@ public class EdgeContentLayout implements LayoutElement {
     }
 
     /**
-     * Returns EdgeContentLayout object from the given LayoutElement (e.g. one retrieved from a
+     * Returns EdgeContentLayout object from the given
+     * androidx.wear.tiles.LayoutElementBuilders.LayoutElement (e.g. one retrieved from a
      * container's content with {@code container.getContents().get(index)}) if that element can be
      * converted to EdgeContentLayout. Otherwise, it will return null.
      */
     @Nullable
-    public static EdgeContentLayout fromLayoutElement(@NonNull LayoutElement element) {
+    public static EdgeContentLayout fromLayoutElement(
+            @NonNull androidx.wear.tiles.LayoutElementBuilders.LayoutElement element) {
         if (element instanceof EdgeContentLayout) {
             return (EdgeContentLayout) element;
         }
-        if (!(element instanceof Box)) {
+        if (!(element instanceof androidx.wear.tiles.LayoutElementBuilders.Box)) {
             return null;
         }
-        Box boxElement = (Box) element;
+        androidx.wear.tiles.LayoutElementBuilders.Box boxElement =
+                (androidx.wear.tiles.LayoutElementBuilders.Box) element;
         if (!checkTag(boxElement.getModifiers(), METADATA_TAG_PREFIX, METADATA_TAG_BASE)) {
             return null;
         }

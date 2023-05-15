@@ -20,7 +20,7 @@ dependencies {
 }
 
 androidx {
-    name = "Android Support Library Custom View"
+    name = "Custom View"
     publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.CUSTOMVIEW
     inceptionYear = "2018"

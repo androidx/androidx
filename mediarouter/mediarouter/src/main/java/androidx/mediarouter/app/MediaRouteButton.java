@@ -649,11 +649,6 @@ public class MediaRouteButton extends View {
         if (connectionState == CONNECTION_STATE_CONNECTING) {
             loadRemoteIndicatorIfNeeded();
         }
-
-        if (mAttachedToWindow) {
-            setEnabled(isRemote || mRouter.isRouteAvailable(mSelector,
-                    MediaRouter.AVAILABILITY_FLAG_IGNORE_DEFAULT_ROUTE));
-        }
     }
 
     private void updateContentDescription() {

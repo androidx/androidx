@@ -1,5 +1,7 @@
 package com.mysdk
 
+import kotlin.coroutines.cancellation.CancellationException
+
 public object PrivacySandboxThrowableParcelConverter {
     public fun toThrowableParcel(throwable: Throwable): PrivacySandboxThrowableParcel {
         val parcel = PrivacySandboxThrowableParcel()
@@ -20,6 +22,7 @@ public object PrivacySandboxThrowableParcelConverter {
             throwable.suppressedExceptions.map {
                 toThrowableParcel(it)
             }.toTypedArray()
+        parcel.isCancellationException = throwable is CancellationException
         return parcel
     }
 }

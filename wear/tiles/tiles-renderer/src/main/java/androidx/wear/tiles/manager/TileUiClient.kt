@@ -30,16 +30,16 @@ import android.widget.FrameLayout
 import androidx.annotation.MainThread
 import androidx.concurrent.futures.await
 import androidx.core.content.ContextCompat
-import androidx.wear.tiles.DeviceParametersBuilders
+import androidx.wear.protolayout.DeviceParametersBuilders
 import androidx.wear.protolayout.LayoutElementBuilders
 import androidx.wear.protolayout.ResourceBuilders
 import androidx.wear.protolayout.StateBuilders
 import androidx.wear.tiles.RequestBuilders
-import androidx.wear.tiles.TimelineBuilders
 import androidx.wear.tiles.checkers.TimelineChecker
 import androidx.wear.tiles.connection.DefaultTileClient
 import androidx.wear.tiles.renderer.TileRenderer
 import androidx.wear.tiles.timeline.TilesTimelineManager
+import java.util.concurrent.Executors
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -48,7 +48,6 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.util.concurrent.Executors
 
 /**
  * UI client for a single tile. This handles binding to a Tile Service, and inflating the given
@@ -81,6 +80,8 @@ public class TileUiClient(
     )
 
     private var timelineManager: TilesTimelineManager? = null
+
+    @Suppress("deprecation") // TODO(b/276343540): Use protolayout types
     private var tileResources: ResourceBuilders.Resources? = null
     private val updateScheduler = UpdateScheduler(
         context.getSystemService(AlarmManager::class.java),
@@ -134,14 +135,15 @@ public class TileUiClient(
         isRunning = false
     }
 
+    @Suppress("deprecation") // TODO(b/276343540): Use protolayout types
     private suspend fun requestTile(
         state: StateBuilders.State = StateBuilders.State.Builder().build()
     ) = coroutineScope {
         withContext(Dispatchers.Main) {
             val tileRequest = RequestBuilders.TileRequest
                 .Builder()
-                .setState(androidx.wear.tiles.StateBuilders.State.fromProto(state.toProto()))
-                .setDeviceParameters(buildDeviceParameters())
+                .setCurrentState(state)
+                .setDeviceConfiguration(buildDeviceParameters())
                 .build()
 
             val tile = tilesConnection.requestTile(tileRequest).await()
@@ -152,7 +154,7 @@ public class TileUiClient(
                 val resourcesRequest = RequestBuilders.ResourcesRequest
                     .Builder()
                     .setVersion(tile.resourcesVersion)
-                    .setDeviceParameters(buildDeviceParameters())
+                    .setDeviceConfiguration(buildDeviceParameters())
                     .build()
 
                 tileResources = ResourceBuilders.Resources.fromProto(
@@ -172,7 +174,7 @@ public class TileUiClient(
             val localTimelineManager = TilesTimelineManager(
                 context.getSystemService(AlarmManager::class.java),
                 System::currentTimeMillis,
-                tile.timeline ?: TimelineBuilders.Timeline.Builder().build(),
+                tile.timeline ?: androidx.wear.tiles.TimelineBuilders.Timeline.Builder().build(),
                 0,
                 ContextCompat.getMainExecutor(context),
                 { _, layout -> updateContents(layout) }
@@ -191,6 +193,7 @@ public class TileUiClient(
         }
     }
 
+    @Suppress("deprecation") // TODO(b/276343540): Use protolayout types
     private fun updateContents(layout: androidx.wear.tiles.LayoutElementBuilders.Layout) {
         parentView.removeAllViews()
 
@@ -199,13 +202,15 @@ public class TileUiClient(
             ContextCompat.getMainExecutor(context),
             { state -> coroutineScope.launch { requestTile(state) } }
         )
-        renderer.inflate(
+        val result = renderer.inflateAsync(
             LayoutElementBuilders.Layout.fromProto(layout.toProto()),
             tileResources!!,
             parentView
-        )?.apply {
-            (layoutParams as FrameLayout.LayoutParams).gravity = Gravity.CENTER
-        }
+        )
+        result.addListener(
+            { (result.get().layoutParams as FrameLayout.LayoutParams).gravity = Gravity.CENTER },
+            ContextCompat.getMainExecutor(context)
+        )
     }
 
     private fun registerBroadcastReceiver() {

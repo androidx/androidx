@@ -16,19 +16,30 @@
 
 package androidx.camera.video.internal.compat.quirk;
 
+import static android.media.MediaFormat.MIMETYPE_VIDEO_AVC;
+import static android.media.MediaFormat.MIMETYPE_VIDEO_MPEG4;
+
 import android.media.CamcorderProfile;
 import android.media.MediaCodecInfo;
 import android.media.MediaCodecList;
 import android.media.MediaFormat;
 import android.os.Build;
+import android.util.Size;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.Quirk;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
+import java.util.Set;
+
 /**
  * <p>QuirkSummary
- *     Bug Id: 192431846, 199582287, 218841498, 203481899, 216583006
+ *     Bug Id: 192431846, 199582287, 218841498, 203481899, 216583006, 278843124, 278855948
  *     Description: Quirk which denotes {@link MediaCodecInfo} queried by {@link MediaCodecList}
  *                  returns incorrect info.
  *                  On Nokia 1, {@link CamcorderProfile} indicates it can support resolutions
@@ -55,19 +66,18 @@ import androidx.camera.core.impl.Quirk;
  *                  experimental result, H.264 + 3840x2160 can be used to record video on this
  *                  device. Hence use quirk to workaround this case. See b/203481899#comment2.
  *                  @link MediaCodecInfo} searched by {@link MediaCodecList#getCodecInfos()}
- *                  shows the maximum supported resolution of the AVC encoder is 1920x1072 on
- *                  Redmi note 4 and LG K10 LTE K430. However, the 1920x1080 option can be
- *                  successfully configured properly. See b/216583006.
- *
+ *                  shows the maximum supported resolution of the AVC encoder is 1920x1072.
+ *                  However, the 1920x1080 option can be successfully configured properly.
+ *                  See b/216583006, b/278843124, b/278855948.
  *     Device(s): Nokia 1, Motc C, X650, LG-X230, Positivo Twist 2 Pro, Huawei Mate9, Redmi note 4
- *                , LG K10 LTE K430
+ *                , LG K10 LTE K430, Samsung Galaxy A03 Core, Vivo Y75, Realme C11 2021
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class MediaCodecInfoReportIncorrectInfoQuirk implements Quirk {
 
     static boolean load() {
         return isNokia1() || isMotoC() || isX650() || isX230() || isHuaweiMate9()
-                || isPositivoTwist2Pro() || isRedmiNote4() || isLGK430();
+                || isPositivoTwist2Pro() || isFHDProblematicDevice();
     }
 
     private static boolean isNokia1() {
@@ -96,39 +106,74 @@ public class MediaCodecInfoReportIncorrectInfoQuirk implements Quirk {
                 Build.MODEL);
     }
 
-    private static boolean isRedmiNote4() {
-        return "Xiaomi".equalsIgnoreCase(Build.BRAND) && "redmi note 4".equalsIgnoreCase(
-                Build.MODEL);
-    }
-
-    private static boolean isLGK430() {
-        return "lge".equalsIgnoreCase(Build.BRAND) && "lg-k430".equalsIgnoreCase(Build.MODEL);
-    }
+    public static final List<String> INCORRECT_FHD_PROFILE_MODEL_LIST = Arrays.asList(
+            "lg-k430",
+            "redmi note 4",
+            "rmx3231",
+            "v2117",
+            "sm-a032f",
+            "moto g(20)",
+            "sm-a035m"
+    );
 
     /** Check if problematic MediaFormat info for these candidate devices. */
     public boolean isUnSupportMediaCodecInfo(@NonNull MediaFormat mediaFormat) {
+        MediaFormatResolver formatResolver = new MediaFormatResolver(mediaFormat);
         if (isNokia1() || isMotoC() || isX650() || isX230() || isPositivoTwist2Pro()) {
-            /** Checks if the given mime type is a problematic mime type. */
-            String mimeType = mediaFormat.getString(MediaFormat.KEY_MIME);
-            return MediaFormat.MIMETYPE_VIDEO_MPEG4.equals(mimeType);
-        } else if (isHuaweiMate9() && isVideoFormat(mediaFormat)) {
-            /** Checks if this is an unsupported resolution for avc. */
-            int width = mediaFormat.getInteger(MediaFormat.KEY_WIDTH);
-            int height = mediaFormat.getInteger(MediaFormat.KEY_HEIGHT);
-            return (width == 3840 && height == 2160);
-        } else if (isRedmiNote4() || isLGK430()) {
-            if (MediaFormat.MIMETYPE_VIDEO_AVC.equals(
-                    mediaFormat.getString(MediaFormat.KEY_MIME))) {
-                int width = mediaFormat.getInteger(MediaFormat.KEY_WIDTH);
-                int height = mediaFormat.getInteger(MediaFormat.KEY_HEIGHT);
-                return width == 1920 && height == 1080;
-            }
+            return formatResolver.isMpeg4();
+        } else if (isHuaweiMate9()) {
+            return formatResolver.isVideo() && formatResolver.isSize(3840, 2160);
+        } else if (isFHDProblematicDevice()) {
+            return formatResolver.isAvc() && formatResolver.isSize(1920, 1080);
         }
         return false;
     }
 
-    private boolean isVideoFormat(@NonNull MediaFormat mediaFormat) {
-        String mimeType = mediaFormat.getString(MediaFormat.KEY_MIME);
-        return mimeType.contains("video/");
+    /**
+     * Returns the extra supported sizes for the problematic devices if any, otherwise returns an
+     * empty set.
+     */
+    @NonNull
+    public static Set<Size> getExtraSupportedSizes() {
+        if (isFHDProblematicDevice()) {
+            return Collections.singleton(new Size(1920, 1080));
+        }
+        return Collections.emptySet();
+    }
+
+    private static boolean isFHDProblematicDevice() {
+        return INCORRECT_FHD_PROFILE_MODEL_LIST.contains(Build.MODEL.toLowerCase(Locale.US));
+    }
+
+    private static class MediaFormatResolver {
+        private final MediaFormat mMediaFormat;
+
+        MediaFormatResolver(@NonNull MediaFormat mediaFormat) {
+            mMediaFormat = mediaFormat;
+        }
+
+        boolean isVideo() {
+            String mimeType = getMime();
+            return mimeType != null && mimeType.contains("video/");
+        }
+
+        boolean isAvc() {
+            return MIMETYPE_VIDEO_AVC.equalsIgnoreCase(getMime());
+        }
+
+        boolean isMpeg4() {
+            return MIMETYPE_VIDEO_MPEG4.equalsIgnoreCase(getMime());
+        }
+
+        boolean isSize(int width, int height) {
+            int formatWidth = mMediaFormat.getInteger(MediaFormat.KEY_WIDTH);
+            int formatHeight = mMediaFormat.getInteger(MediaFormat.KEY_HEIGHT);
+            return formatWidth == width && formatHeight == height;
+        }
+
+        @Nullable
+        private String getMime() {
+            return mMediaFormat.getString(MediaFormat.KEY_MIME);
+        }
     }
 }

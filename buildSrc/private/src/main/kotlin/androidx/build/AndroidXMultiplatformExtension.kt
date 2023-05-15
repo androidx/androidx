@@ -24,8 +24,8 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinMultiplatformPluginWrapper
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.plugin.KotlinTarget
-import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinAndroidTarget
 import org.jetbrains.kotlin.gradle.plugin.KotlinTargetPreset
+import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinAndroidTarget
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTargetWithHostTests
 import org.jetbrains.kotlin.gradle.targets.js.dsl.KotlinJsTargetDsl
@@ -81,6 +81,17 @@ open class AndroidXMultiplatformExtension(val project: Project) {
     ): KotlinAndroidTarget? {
         return if (project.enableJvm()) {
             kotlinExtension.android {
+                block?.execute(this)
+            }
+        } else { null }
+    }
+
+    @JvmOverloads
+    fun desktop(
+        block: Action<KotlinJvmTarget>? = null
+    ): KotlinJvmTarget? {
+        return if (project.enableDesktop()) {
+            kotlinExtension.jvm("desktop") {
                 block?.execute(this)
             }
         } else { null }
