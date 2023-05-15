@@ -223,7 +223,7 @@ internal class AnchoredDraggableState<T>(
 
     /**
      * The fraction of the progress going from [currentValue] to [closestValue], within [0f..1f]
-     * bounds.
+     * bounds, or 1f if the [AnchoredDraggableState] is in a settled state.
      */
     /*@FloatRange(from = 0f, to = 1f)*/
     val progress: Float by derivedStateOf(structuralEqualityPolicy()) {
