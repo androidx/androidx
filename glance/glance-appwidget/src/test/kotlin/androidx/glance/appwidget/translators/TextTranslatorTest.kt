@@ -309,11 +309,11 @@ class TextTranslatorTest {
         assertIs<TextView>(end)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            assertThat(center.gravity).isEqualTo(Gravity.CENTER)
-            assertThat(left.gravity).isEqualTo(Gravity.LEFT)
-            assertThat(right.gravity).isEqualTo(Gravity.RIGHT)
-            assertThat(start.gravity).isEqualTo(Gravity.START)
-            assertThat(end.gravity).isEqualTo(Gravity.END)
+            assertThat(center.horizontalGravity).isEqualTo(Gravity.CENTER_HORIZONTAL)
+            assertThat(left.horizontalGravity).isEqualTo(Gravity.LEFT)
+            assertThat(right.horizontalGravity).isEqualTo(Gravity.RIGHT)
+            assertThat(start.horizontalGravity).isEqualTo(Gravity.START)
+            assertThat(end.horizontalGravity).isEqualTo(Gravity.END)
         } else {
             assertIs<SpannedString>(center.text).checkSingleSpan<AlignmentSpan.Standard> {
                 assertThat(it.alignment).isEqualTo(Layout.Alignment.ALIGN_CENTER)
@@ -356,11 +356,11 @@ class TextTranslatorTest {
         assertIs<TextView>(end)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            assertThat(center.gravity).isEqualTo(Gravity.CENTER)
-            assertThat(left.gravity).isEqualTo(Gravity.LEFT)
-            assertThat(right.gravity).isEqualTo(Gravity.RIGHT)
-            assertThat(start.gravity).isEqualTo(Gravity.START)
-            assertThat(end.gravity).isEqualTo(Gravity.END)
+            assertThat(center.horizontalGravity).isEqualTo(Gravity.CENTER_HORIZONTAL)
+            assertThat(left.horizontalGravity).isEqualTo(Gravity.LEFT)
+            assertThat(right.horizontalGravity).isEqualTo(Gravity.RIGHT)
+            assertThat(start.horizontalGravity).isEqualTo(Gravity.START)
+            assertThat(end.horizontalGravity).isEqualTo(Gravity.END)
         } else {
             assertIs<SpannedString>(center.text).checkSingleSpan<AlignmentSpan.Standard> {
                 assertThat(it.alignment).isEqualTo(Layout.Alignment.ALIGN_CENTER)
@@ -481,6 +481,9 @@ class TextTranslatorTest {
         assertIs<TextView>(view)
         assertThat(view.contentDescription).isEqualTo("Custom text description")
     }
+
+    private val TextView.horizontalGravity
+        get() = this.gravity and Gravity.RELATIVE_HORIZONTAL_GRAVITY_MASK
 
     // Check there is a single span, that it's of the correct type and passes the [check].
     private inline fun <reified T> SpannedString.checkSingleSpan(check: (T) -> Unit) {
