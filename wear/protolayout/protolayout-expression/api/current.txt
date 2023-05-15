@@ -30,32 +30,13 @@ package androidx.wear.protolayout.expression {
     ctor public AnimationParameterBuilders.AnimationSpec.Builder();
     method public androidx.wear.protolayout.expression.AnimationParameterBuilders.AnimationSpec build();
     method public androidx.wear.protolayout.expression.AnimationParameterBuilders.AnimationSpec.Builder setAnimationParameters(androidx.wear.protolayout.expression.AnimationParameterBuilders.AnimationParameters);
-    method public androidx.wear.protolayout.expression.AnimationParameterBuilders.AnimationSpec.Builder setInfiniteRepeatable(int);
     method public androidx.wear.protolayout.expression.AnimationParameterBuilders.AnimationSpec.Builder setRepeatable(androidx.wear.protolayout.expression.AnimationParameterBuilders.Repeatable);
   }
 
-  public static final class AnimationParameterBuilders.CubicBezierEasing implements androidx.wear.protolayout.expression.AnimationParameterBuilders.Easing {
-    method public float getX1();
-    method public float getX2();
-    method public float getY1();
-    method public float getY2();
-  }
-
-  public static final class AnimationParameterBuilders.CubicBezierEasing.Builder {
-    ctor public AnimationParameterBuilders.CubicBezierEasing.Builder();
-    method public androidx.wear.protolayout.expression.AnimationParameterBuilders.CubicBezierEasing build();
-    method public androidx.wear.protolayout.expression.AnimationParameterBuilders.CubicBezierEasing.Builder setX1(float);
-    method public androidx.wear.protolayout.expression.AnimationParameterBuilders.CubicBezierEasing.Builder setX2(float);
-    method public androidx.wear.protolayout.expression.AnimationParameterBuilders.CubicBezierEasing.Builder setY1(float);
-    method public androidx.wear.protolayout.expression.AnimationParameterBuilders.CubicBezierEasing.Builder setY2(float);
-  }
-
   public static interface AnimationParameterBuilders.Easing {
+    method public static androidx.wear.protolayout.expression.AnimationParameterBuilders.Easing cubicBezier(float, float, float, float);
     method public static androidx.wear.protolayout.expression.AnimationParameterBuilders.Easing fromByteArray(byte[]);
     method public default byte[] toEasingByteArray();
-  }
-
-  public static class AnimationParameterBuilders.EasingFunctions {
     field public static final androidx.wear.protolayout.expression.AnimationParameterBuilders.Easing FAST_OUT_LINEAR_IN_EASING;
     field public static final androidx.wear.protolayout.expression.AnimationParameterBuilders.Easing FAST_OUT_SLOW_IN_EASING;
     field public static final androidx.wear.protolayout.expression.AnimationParameterBuilders.Easing LINEAR_OUT_SLOW_IN_EASING;
@@ -67,6 +48,8 @@ package androidx.wear.protolayout.expression {
     method public int getRepeatMode();
     method public androidx.wear.protolayout.expression.AnimationParameterBuilders.AnimationParameters? getReverseRepeatOverride();
     method public boolean hasInfiniteIteration();
+    field public static final androidx.wear.protolayout.expression.AnimationParameterBuilders.Repeatable INFINITE_REPEATABLE_WITH_RESTART;
+    field public static final androidx.wear.protolayout.expression.AnimationParameterBuilders.Repeatable INFINITE_REPEATABLE_WITH_REVERSE;
   }
 
   public static final class AnimationParameterBuilders.Repeatable.Builder {

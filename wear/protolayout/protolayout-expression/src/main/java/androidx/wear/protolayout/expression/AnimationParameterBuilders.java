@@ -35,49 +35,6 @@ import java.lang.annotation.RetentionPolicy;
 public final class AnimationParameterBuilders {
   private AnimationParameterBuilders() {}
 
-  /** Prebuilt easing functions with cubic polynomial easing. */
-  public static class EasingFunctions {
-    private static CubicBezierEasing buildCubicBezierEasing(
-        float x1, float y1, float x2, float y2) {
-      return new CubicBezierEasing.Builder().setX1(x1).setY1(y1).setX2(x2).setY2(y2).build();
-    }
-
-    private EasingFunctions() {}
-
-    /**
-     * Elements that begin and end at rest use this standard easing. They speed up quickly and slow
-     * down gradually, in order to emphasize the end of the transition.
-     *
-     * <p>Standard easing puts subtle attention at the end of an animation, by giving more time to
-     * deceleration than acceleration. It is the most common form of easing.
-     *
-     * <p>This is equivalent to the Compose {@code FastOutSlowInEasing}.
-     */
-    @NonNull
-    public static final Easing FAST_OUT_SLOW_IN_EASING =
-        buildCubicBezierEasing(0.4f, 0.0f, 0.2f, 1.0f);
-
-    /**
-     * Incoming elements are animated using deceleration easing, which starts a transition at peak
-     * velocity (the fastest point of an element’s movement) and ends at rest.
-     *
-     * <p>This is equivalent to the Compose {@code LinearOutSlowInEasing}.
-     */
-    @NonNull
-    public static final Easing LINEAR_OUT_SLOW_IN_EASING =
-        buildCubicBezierEasing(0.0f, 0.0f, 0.2f, 1.0f);
-
-    /**
-     * Elements exiting a screen use acceleration easing, where they start at rest and end at peak
-     * velocity.
-     *
-     * <p>This is equivalent to the Compose {@code FastOutLinearInEasing}.
-     */
-    @NonNull
-    public static final Easing FAST_OUT_LINEAR_IN_EASING =
-        buildCubicBezierEasing(0.4f, 0.0f, 1.0f, 1.0f);
-  }
-
   /**
    * The repeat mode to specify how animation will behave when repeated.
    *
@@ -237,15 +194,6 @@ public final class AnimationParameterBuilders {
         mFingerprint.recordPropertyUpdate(
             5, checkNotNull(repeatable.getFingerprint()).aggregateValueAsInt());
         return this;
-      }
-
-      /** Sets the animation to repeat indefinitely with the given repeat mode. */
-      @NonNull
-      @SuppressWarnings("MissingGetterMatchingBuilder")
-      public Builder setInfiniteRepeatable(@RepeatMode int mode) {
-        Repeatable repeatable =
-            new Repeatable.Builder().setRepeatMode(mode).build();
-        return this.setRepeatable(repeatable);
       }
 
       /** Builds an instance from accumulated values. */
@@ -413,6 +361,56 @@ public final class AnimationParameterBuilders {
    * @since 1.2
    */
   public interface Easing {
+        /**
+         * The cubic polynomial easing that implements third-order Bezier curves. This is equivalent
+         * to the Android PathInterpolator.
+         *
+         * @param x1 the x coordinate of the first control point. The line through the point (0,
+         *           0) and the first control point is tangent to the easing at the point (0, 0).
+         * @param y1 the y coordinate of the first control point. The line through the point (0,
+         *           0) and the first control point is tangent to the easing at the point (0, 0).
+         * @param x2 the x coordinate of the second control point. The line through the point (1,
+         *          1) and the second control point is tangent to the easing at the point (1, 1).
+         * @param y2 the y coordinate of the second control point. The line through the point (1,
+         *          1) and the second control point is tangent to the easing at the point (1, 1).
+         *
+         * @since 1.2
+         */
+        @NonNull
+        static Easing cubicBezier(float x1, float y1, float x2, float y2) {
+      return new CubicBezierEasing.Builder().setX1(x1).setY1(y1).setX2(x2).setY2(y2).build();
+    }
+
+    /**
+     * Elements that begin and end at rest use this standard easing. They speed up quickly and slow
+     * down gradually, in order to emphasize the end of the transition.
+     *
+     * <p>Standard easing puts subtle attention at the end of an animation, by giving more time to
+     * deceleration than acceleration. It is the most common form of easing.
+     *
+     * <p>This is equivalent to the Compose {@code FastOutSlowInEasing}.
+     */
+    @NonNull
+    Easing FAST_OUT_SLOW_IN_EASING = cubicBezier(0.4f, 0.0f, 0.2f, 1.0f);
+
+    /**
+     * Incoming elements are animated using deceleration easing, which starts a transition at peak
+     * velocity (the fastest point of an element’s movement) and ends at rest.
+     *
+     * <p>This is equivalent to the Compose {@code LinearOutSlowInEasing}.
+     */
+    @NonNull
+    Easing LINEAR_OUT_SLOW_IN_EASING = cubicBezier(0.0f, 0.0f, 0.2f, 1.0f);
+
+    /**
+     * Elements exiting a screen use acceleration easing, where they start at rest and end at peak
+     * velocity.
+     *
+     * <p>This is equivalent to the Compose {@code FastOutLinearInEasing}.
+     */
+    @NonNull
+    Easing FAST_OUT_LINEAR_IN_EASING = cubicBezier(0.4f, 0.0f, 1.0f, 1.0f);
+
     /**
      * Get the protocol buffer representation of this object.
      *
@@ -485,7 +483,7 @@ public final class AnimationParameterBuilders {
    *
    * @since 1.2
    */
-  public static final class CubicBezierEasing implements Easing {
+  static final class CubicBezierEasing implements Easing {
     private final AnimationParameterProto.CubicBezierEasing mImpl;
     @Nullable private final Fingerprint mFingerprint;
 
@@ -592,7 +590,7 @@ public final class AnimationParameterBuilders {
     }
 
     /** Builder for {@link CubicBezierEasing}. */
-    public static final class Builder implements Easing.Builder {
+    static final class Builder implements Easing.Builder {
       private final AnimationParameterProto.CubicBezierEasing.Builder mImpl =
           AnimationParameterProto.CubicBezierEasing.newBuilder();
       private final Fingerprint mFingerprint = new Fingerprint(856403705);
@@ -665,6 +663,17 @@ public final class AnimationParameterBuilders {
    * @since 1.2
    */
   public static final class Repeatable {
+
+    /**
+     * An infinite {@link Repeatable} where animation restarts from the beginning when repeated.
+     */
+    public static final Repeatable INFINITE_REPEATABLE_WITH_RESTART =
+            new Repeatable.Builder().setRepeatMode(REPEAT_MODE_RESTART).build();
+    /**
+     * An infinite {@link Repeatable} where animation is played in reverse when repeated.
+     */    public static final Repeatable INFINITE_REPEATABLE_WITH_REVERSE =
+            new Repeatable.Builder().setRepeatMode(REPEAT_MODE_REVERSE).build();
+
     private final AnimationParameterProto.Repeatable mImpl;
     @Nullable private final Fingerprint mFingerprint;
 
