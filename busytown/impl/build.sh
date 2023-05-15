@@ -106,15 +106,6 @@ else
     # more easily investigate further
     ./development/diagnose-build-failure/diagnose-build-failure.sh --timeout 600 "--ci $*"
   fi
-  if grep "/prefab" "$DIST_DIR/logs/gradle.log" >/dev/null 2>/dev/null; then
-    # error looks like it might have involved prefab, copy the prefab dir to DIST where we can find it
-    if [ -e "$OUT_DIR/androidx/external/libyuv/build" ]; then
-      cd "$OUT_DIR/androidx/external/libyuv/build"
-      echo "Zipping $PWD into $DIST_DIR/libyuv-build.zip"
-      zip -qr "$DIST_DIR/libyuv-build.zip" .
-      cd -
-    fi
-  fi
   BUILD_STATUS=1 # failure
 fi
 
