@@ -97,14 +97,22 @@ fi
 if run ./gradlew --ci "$@"; then
   echo build passed
 else
-  if [ "$DIAGNOSE" == "true" ]; then
-    # see if diagnose-build-failure.sh can identify the root cauase
-    echo "running diagnose-build-failure.sh, see build.log" >&2
-    # Specify a short timeout in case we're running on a remote server, so we don't take too long.
-    # We probably won't have enough time to fully diagnose the problem given this timeout, but
-    # we might be able to determine whether this problem is reproducible enough for a developer to
-    # more easily investigate further
-    ./development/diagnose-build-failure/diagnose-build-failure.sh --timeout 600 "--ci $*"
+  if grep "has several compatible actual declarations in modules" "$DIST_DIR/logs/gradle.log" >/dev/null 2>/dev/null; then
+    # try to copy the OUT_DIR into DIST where we can find it
+    cd "$OUT_DIR"
+    echo "zipping out into $DIST_DIR/out.zip"
+    zip --exclude out.zip -qr "$DIST_DIR/out.zip" .
+    cd -
+  else
+    if [ "$DIAGNOSE" == "true" ]; then
+     # see if diagnose-build-failure.sh can identify the root cauase
+      echo "running diagnose-build-failure.sh, see build.log" >&2
+      # Specify a short timeout in case we're running on a remote server, so we don't take too long.
+      # We probably won't have enough time to fully diagnose the problem given this timeout, but
+      # we might be able to determine whether this problem is reproducible enough for a developer to
+      # more easily investigate further
+      ./development/diagnose-build-failure/diagnose-build-failure.sh --timeout 600 "--ci $*"
+    fi
   fi
   BUILD_STATUS=1 # failure
 fi
