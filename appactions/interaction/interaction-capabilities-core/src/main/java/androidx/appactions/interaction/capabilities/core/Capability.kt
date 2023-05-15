@@ -38,8 +38,6 @@ abstract class Capability internal constructor(
 
     /**
      * Returns an app action proto describing how to fulfill this capability.
-     *
-     * @suppress
      */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     abstract val appAction: AppAction
@@ -47,8 +45,6 @@ abstract class Capability internal constructor(
     /**
      * Create a new capability session. The capability library doesn't maintain registry of
      * capabilities, so it's not going to assign any session id.
-     *
-     * @suppress
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     abstract fun createSession(
@@ -89,8 +85,6 @@ abstract class Capability internal constructor(
         /**
          * The SessionBridge object, which is used to normalize Session instances to TaskHandler.
          * see SessionBridge documentation for more information.
-         *
-         * @suppress
          */
         @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         protected open val sessionBridge: SessionBridge<

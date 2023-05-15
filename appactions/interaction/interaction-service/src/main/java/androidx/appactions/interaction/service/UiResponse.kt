@@ -26,10 +26,8 @@ import androidx.annotation.RestrictTo
  * directly, it must be built from a [UiResponse] Builder.
  */
 class UiResponse {
-    /** @suppress */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     val remoteViewsInternal: RemoteViewsInternal?
-    /** @suppress */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     val tileLayoutInternal: TileLayoutInternal?
     internal constructor(remoteViewsInternal: RemoteViewsInternal) {
