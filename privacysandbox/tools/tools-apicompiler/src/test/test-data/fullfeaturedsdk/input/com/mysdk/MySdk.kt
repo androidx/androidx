@@ -34,6 +34,8 @@ interface MySdk {
     fun acceptUiInterfaceParam(input: MyUiInterface)
 
     fun acceptSdkActivityLauncherParam(activityLauncher: SdkActivityLauncher)
+
+    suspend fun returnSdkActivityLauncher(): SdkActivityLauncher
 }
 
 @PrivacySandboxInterface
@@ -80,6 +82,7 @@ data class Request(
     val maybeValue: InnerValue?,
     val myInterface: MyInterface,
     val myUiInterface: MyUiInterface,
+    val activityLauncher: SdkActivityLauncher,
 )
 
 @PrivacySandboxValue

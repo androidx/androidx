@@ -300,6 +300,44 @@ class ApiStubParserTest {
     }
 
     @Test
+    fun sandboxedUiAdapter_correctlyDetectedInCallback() {
+        val source = Source.kotlin(
+            "com/mysdk/MySdk.kt", """
+                    import androidx.privacysandbox.tools.PrivacySandboxService
+                    import androidx.privacysandbox.tools.PrivacySandboxCallback
+                    import androidx.privacysandbox.ui.core.SdkActivityLauncher
+                    @PrivacySandboxService
+                    interface MySdk
+
+                    @PrivacySandboxCallback
+                    interface MyCallback {
+                        fun useLauncher(launcher: SdkActivityLauncher)
+                    }
+                """
+        )
+
+        assertThat(compileAndParseApi(source).containsSdkActivityLauncher()).isTrue()
+    }
+
+    @Test
+    fun sandboxedUiAdapter_correctlyDetectedInValue() {
+        val source = Source.kotlin(
+            "com/mysdk/MySdk.kt", """
+                    import androidx.privacysandbox.tools.PrivacySandboxService
+                    import androidx.privacysandbox.tools.PrivacySandboxValue
+                    import androidx.privacysandbox.ui.core.SdkActivityLauncher
+                    @PrivacySandboxService
+                    interface MySdk
+
+                    @PrivacySandboxValue
+                    data class MyValue(val launcher: SdkActivityLauncher)
+                """
+        )
+
+        assertThat(compileAndParseApi(source).containsSdkActivityLauncher()).isTrue()
+    }
+
+    @Test
     fun sandboxedUiAdapter_notDetectedWhenNotPresent() {
         val source = Source.kotlin(
             "com/mysdk/MySdk.kt", """

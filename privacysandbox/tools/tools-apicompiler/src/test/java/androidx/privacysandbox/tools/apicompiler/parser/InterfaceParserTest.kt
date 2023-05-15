@@ -366,9 +366,9 @@ class InterfaceParserTest {
         checkSourceFails(serviceMethod("suspend fun foo(x: MutableList<Int>)"))
             .containsExactlyErrors(
                 "Error in com.mysdk.MySdk.foo: only primitives, lists, data classes annotated " +
-                    "with @PrivacySandboxValue and interfaces annotated with " +
-                    "@PrivacySandboxCallback or @PrivacySandboxInterface are supported as " +
-                    "parameter types."
+                    "with @PrivacySandboxValue, interfaces annotated with " +
+                    "@PrivacySandboxCallback or @PrivacySandboxInterface, and " +
+                    "SdkActivityLaunchers are supported as parameter types."
             )
     }
 
@@ -385,9 +385,9 @@ class InterfaceParserTest {
         checkSourceFails(serviceMethod("suspend fun foo(x: (Int) -> Int)"))
             .containsExactlyErrors(
                 "Error in com.mysdk.MySdk.foo: only primitives, lists, data classes annotated " +
-                    "with @PrivacySandboxValue and interfaces annotated with " +
-                    "@PrivacySandboxCallback or @PrivacySandboxInterface are supported as " +
-                    "parameter types."
+                    "with @PrivacySandboxValue, interfaces annotated with " +
+                    "@PrivacySandboxCallback " + "or @PrivacySandboxInterface, and " +
+                    "SdkActivityLaunchers are supported as parameter types."
             )
     }
 
@@ -407,8 +407,8 @@ class InterfaceParserTest {
         )
         checkSourceFails(source).containsExactlyErrors(
             "Error in com.mysdk.MySdk.foo: only primitives, lists, data classes annotated with " +
-                "@PrivacySandboxValue and interfaces annotated with @PrivacySandboxInterface are " +
-                "supported as return types."
+                "@PrivacySandboxValue, interfaces annotated with @PrivacySandboxInterface, and " +
+                "SdkActivityLaunchers are supported as return types."
         )
     }
 

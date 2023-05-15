@@ -4,6 +4,7 @@ import androidx.privacysandbox.tools.PrivacySandboxInterface
 import androidx.privacysandbox.tools.PrivacySandboxService
 import androidx.privacysandbox.tools.PrivacySandboxValue
 import androidx.privacysandbox.ui.core.SandboxedUiAdapter
+import androidx.privacysandbox.ui.core.SdkActivityLauncher
 
 @PrivacySandboxService
 interface SdkInterface {
@@ -35,7 +36,8 @@ data class SdkRequest(
     val id: Long,
     val innerValue: InnerSdkValue,
     val maybeInnerValue: InnerSdkValue?,
-    val moreValues: List<InnerSdkValue>
+    val moreValues: List<InnerSdkValue>,
+    val activityLauncher: SdkActivityLauncher,
 )
 
 @PrivacySandboxValue

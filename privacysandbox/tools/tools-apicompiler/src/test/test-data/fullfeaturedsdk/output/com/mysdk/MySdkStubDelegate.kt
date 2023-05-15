@@ -179,4 +179,20 @@ public class MySdkStubDelegate internal constructor(
       delegate.acceptSdkActivityLauncherParam(SdkActivityLauncherAndBinderWrapper(activityLauncher))
     }
   }
+
+  public override
+      fun returnSdkActivityLauncher(transactionCallback: ISdkActivityLauncherTransactionCallback):
+      Unit {
+    val job = coroutineScope.launch {
+      try {
+        val result = delegate.returnSdkActivityLauncher()
+        transactionCallback.onSuccess((result as SdkActivityLauncherAndBinderWrapper).launcherInfo)
+      }
+      catch (t: Throwable) {
+        transactionCallback.onFailure(toThrowableParcel(t))
+      }
+    }
+    val cancellationSignal = TransportCancellationCallback() { job.cancel() }
+    transactionCallback.onCancellable(cancellationSignal)
+  }
 }
