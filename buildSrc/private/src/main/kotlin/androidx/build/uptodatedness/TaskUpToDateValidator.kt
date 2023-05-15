@@ -136,7 +136,6 @@ val ALLOW_RERUNNING_TASKS = setOf(
 // Additional tasks that are expected to be temporarily out-of-date after running once
 // Tasks in this set we don't even try to rerun, because they're known to be unnecessary
 val DONT_TRY_RERUNNING_TASKS = setOf(
-    ":buildSrc-tests:project-subsets:test",
     "listTaskOutputs",
     "tasks",
 
@@ -148,11 +147,6 @@ val DONT_TRY_RERUNNING_TASKS = setOf(
     "partiallyDejetifyArchive",
     "stripArchiveForPartialDejetification",
     "createArchive",
-
-    // b/275795136
-    ":room:integration-tests:room-testapp-kotlin:kspWithKspGenJavaDebugAndroidTestKotlin",
-    // b/275795136
-    ":room:integration-tests:room-testapp-kotlin:kspWithKspGenKotlinDebugAndroidTestKotlin"
 )
 
 val DONT_TRY_RERUNNING_TASK_TYPES = setOf(

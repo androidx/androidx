@@ -17,7 +17,7 @@
 package androidx.tv.integration.playground
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.focusable
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
@@ -37,6 +37,6 @@ fun Card(
             .width(200.dp)
             .height(150.dp)
             .drawBorderOnFocus()
-            .focusable()
+            .clickable { }
     )
 }

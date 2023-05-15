@@ -16,6 +16,9 @@
 
 package androidx.paging
 
+import kotlin.coroutines.EmptyCoroutineContext
+import kotlin.test.Ignore
+import kotlin.test.Test
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.cancel
@@ -25,11 +28,8 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.takeWhile
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import org.junit.Ignore
-import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import kotlin.coroutines.EmptyCoroutineContext
 
 /**
  * reproduces b/203594733

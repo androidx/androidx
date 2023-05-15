@@ -16,6 +16,9 @@
 
 package androidx.benchmark.gradle
 
+import java.nio.file.Files
+import java.nio.file.Paths
+import java.nio.file.StandardCopyOption
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.provider.Property
@@ -23,9 +26,6 @@ import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
 import org.gradle.kotlin.dsl.property
 import org.gradle.work.DisableCachingByDefault
-import java.nio.file.Files
-import java.nio.file.Paths
-import java.nio.file.StandardCopyOption
 
 @Suppress("UnstableApiUsage")
 @DisableCachingByDefault(

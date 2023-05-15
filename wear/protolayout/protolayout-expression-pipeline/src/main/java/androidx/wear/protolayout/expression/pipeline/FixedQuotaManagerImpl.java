@@ -60,9 +60,14 @@ public class FixedQuotaManagerImpl implements QuotaManager {
     }
 
     /** Returns true if all quota has been released. */
-    @VisibleForTesting(otherwise = VisibleForTesting.NONE)
-    @RestrictTo(Scope.TESTS)
+    @VisibleForTesting
     public boolean isAllQuotaReleased() {
         return mQuotaCounter == 0;
+    }
+
+    /** Returns the remaining quota. */
+    @VisibleForTesting
+    public int getRemainingQuota() {
+        return mQuotaCap - mQuotaCounter;
     }
 }

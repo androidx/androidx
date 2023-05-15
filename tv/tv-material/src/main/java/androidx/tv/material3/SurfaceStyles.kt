@@ -134,38 +134,56 @@ class ToggleableSurfaceShape internal constructor(
  */
 @ExperimentalTvMaterial3Api
 @Immutable
-class ClickableSurfaceColor internal constructor(
-    internal val color: Color,
-    internal val focusedColor: Color,
-    internal val pressedColor: Color,
-    internal val disabledColor: Color
+class ClickableSurfaceColors internal constructor(
+    internal val containerColor: Color,
+    internal val contentColor: Color,
+    internal val focusedContainerColor: Color,
+    internal val focusedContentColor: Color,
+    internal val pressedContainerColor: Color,
+    internal val pressedContentColor: Color,
+    internal val disabledContainerColor: Color,
+    internal val disabledContentColor: Color
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other == null || this::class != other::class) return false
 
-        other as ClickableSurfaceColor
+        other as ClickableSurfaceColors
 
-        if (color != other.color) return false
-        if (focusedColor != other.focusedColor) return false
-        if (pressedColor != other.pressedColor) return false
-        if (disabledColor != other.disabledColor) return false
+        if (containerColor != other.containerColor) return false
+        if (contentColor != other.contentColor) return false
+        if (focusedContainerColor != other.focusedContainerColor) return false
+        if (focusedContentColor != other.focusedContentColor) return false
+        if (pressedContainerColor != other.pressedContainerColor) return false
+        if (pressedContentColor != other.pressedContentColor) return false
+        if (disabledContainerColor != other.disabledContainerColor) return false
+        if (disabledContentColor != other.disabledContentColor) return false
 
         return true
     }
 
     override fun hashCode(): Int {
-        var result = color.hashCode()
-        result = 31 * result + focusedColor.hashCode()
-        result = 31 * result + pressedColor.hashCode()
-        result = 31 * result + disabledColor.hashCode()
-
+        var result = containerColor.hashCode()
+        result = 31 * result + contentColor.hashCode()
+        result = 31 * result + focusedContainerColor.hashCode()
+        result = 31 * result + focusedContentColor.hashCode()
+        result = 31 * result + pressedContainerColor.hashCode()
+        result = 31 * result + pressedContentColor.hashCode()
+        result = 31 * result + disabledContainerColor.hashCode()
+        result = 31 * result + disabledContentColor.hashCode()
         return result
     }
 
     override fun toString(): String {
-        return "ClickableSurfaceColor(color=$color, focusedColor=$focusedColor, " +
-            "pressedColor=$pressedColor, disabledColor=$disabledColor)"
+        return "ClickableSurfaceColors(" +
+            "containerColor=$containerColor, " +
+            "contentColor=$contentColor, " +
+            "focusedContainerColor=$focusedContainerColor, " +
+            "focusedContentColor=$focusedContentColor, " +
+            "pressedContainerColor=$pressedContainerColor, " +
+            "pressedContentColor=$pressedContentColor, " +
+            "disabledContainerColor=$disabledContainerColor, " +
+            "disabledContentColor=$disabledContentColor)"
     }
 }
 
@@ -174,49 +192,80 @@ class ClickableSurfaceColor internal constructor(
  */
 @ExperimentalTvMaterial3Api
 @Immutable
-class ToggleableSurfaceColor internal constructor(
-    internal val color: Color,
-    internal val focusedColor: Color,
-    internal val pressedColor: Color,
-    internal val selectedColor: Color,
-    internal val disabledColor: Color,
-    internal val focusedSelectedColor: Color,
-    internal val pressedSelectedColor: Color
+class ToggleableSurfaceColors internal constructor(
+    internal val containerColor: Color,
+    internal val contentColor: Color,
+    internal val focusedContainerColor: Color,
+    internal val focusedContentColor: Color,
+    internal val pressedContainerColor: Color,
+    internal val pressedContentColor: Color,
+    internal val selectedContainerColor: Color,
+    internal val selectedContentColor: Color,
+    internal val disabledContainerColor: Color,
+    internal val disabledContentColor: Color,
+    internal val focusedSelectedContainerColor: Color,
+    internal val focusedSelectedContentColor: Color,
+    internal val pressedSelectedContainerColor: Color,
+    internal val pressedSelectedContentColor: Color
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other == null || this::class != other::class) return false
 
-        other as ToggleableSurfaceColor
+        other as ToggleableSurfaceColors
 
-        if (color != other.color) return false
-        if (focusedColor != other.focusedColor) return false
-        if (pressedColor != other.pressedColor) return false
-        if (selectedColor != other.selectedColor) return false
-        if (disabledColor != other.disabledColor) return false
-        if (focusedSelectedColor != other.focusedSelectedColor) return false
-        if (pressedSelectedColor != other.pressedSelectedColor) return false
+        if (containerColor != other.containerColor) return false
+        if (contentColor != other.contentColor) return false
+        if (focusedContainerColor != other.focusedContainerColor) return false
+        if (focusedContentColor != other.focusedContentColor) return false
+        if (pressedContainerColor != other.pressedContainerColor) return false
+        if (pressedContentColor != other.pressedContentColor) return false
+        if (selectedContainerColor != other.selectedContainerColor) return false
+        if (selectedContentColor != other.selectedContentColor) return false
+        if (disabledContainerColor != other.disabledContainerColor) return false
+        if (disabledContentColor != other.disabledContentColor) return false
+        if (focusedSelectedContainerColor != other.focusedSelectedContainerColor) return false
+        if (focusedSelectedContentColor != other.focusedSelectedContentColor) return false
+        if (pressedSelectedContainerColor != other.pressedSelectedContainerColor) return false
+        if (pressedSelectedContentColor != other.pressedSelectedContentColor) return false
 
         return true
     }
 
     override fun hashCode(): Int {
-        var result = color.hashCode()
-        result = 31 * result + focusedColor.hashCode()
-        result = 31 * result + pressedColor.hashCode()
-        result = 31 * result + selectedColor.hashCode()
-        result = 31 * result + disabledColor.hashCode()
-        result = 31 * result + focusedSelectedColor.hashCode()
-        result = 31 * result + pressedSelectedColor.hashCode()
-
+        var result = containerColor.hashCode()
+        result = 31 * result + contentColor.hashCode()
+        result = 31 * result + focusedContainerColor.hashCode()
+        result = 31 * result + focusedContentColor.hashCode()
+        result = 31 * result + pressedContainerColor.hashCode()
+        result = 31 * result + pressedContentColor.hashCode()
+        result = 31 * result + selectedContainerColor.hashCode()
+        result = 31 * result + selectedContentColor.hashCode()
+        result = 31 * result + disabledContainerColor.hashCode()
+        result = 31 * result + disabledContentColor.hashCode()
+        result = 31 * result + focusedSelectedContainerColor.hashCode()
+        result = 31 * result + focusedSelectedContentColor.hashCode()
+        result = 31 * result + pressedSelectedContainerColor.hashCode()
+        result = 31 * result + pressedSelectedContentColor.hashCode()
         return result
     }
 
     override fun toString(): String {
-        return "ToggleableSurfaceColor(color=$color, focusedColor=$focusedColor," +
-            "pressedColor=$pressedColor, selectedColor=$selectedColor," +
-            "disabledColor=$disabledColor, focusedSelectedColor=$focusedSelectedColor, " +
-            "pressedSelectedColor=$pressedSelectedColor)"
+        return "ToggleableSurfaceColors(" +
+            "containerColor=$containerColor, " +
+            "contentColor=$contentColor, " +
+            "focusedContainerColor=$focusedContainerColor, " +
+            "focusedContentColor=$focusedContentColor, " +
+            "pressedContainerColor=$pressedContainerColor, " +
+            "pressedContentColor=$pressedContentColor, " +
+            "selectedContainerColor=$selectedContainerColor, " +
+            "selectedContentColor=$selectedContentColor, " +
+            "disabledContainerColor=$disabledContainerColor, " +
+            "disabledContentColor=$disabledContentColor, " +
+            "focusedSelectedContainerColor=$focusedSelectedContainerColor, " +
+            "focusedSelectedContentColor=$focusedSelectedContentColor, " +
+            "pressedSelectedContainerColor=$pressedSelectedContainerColor, " +
+            "pressedSelectedContentColor=$pressedSelectedContentColor)"
     }
 }
 
@@ -381,8 +430,10 @@ class ClickableSurfaceBorder internal constructor(
     }
 
     override fun toString(): String {
-        return "${this.javaClass.simpleName}(border=$border, focusedBorder=$focusedBorder, " +
-            "pressedBorder=$pressedBorder, disabledBorder=$disabledBorder, " +
+        return "ClickableSurfaceBorder(border=$border, " +
+            "focusedBorder=$focusedBorder, " +
+            "pressedBorder=$pressedBorder, " +
+            "disabledBorder=$disabledBorder, " +
             "focusedDisabledBorder=$focusedDisabledBorder)"
     }
 }
@@ -531,5 +582,38 @@ class ToggleableSurfaceGlow internal constructor(
         return "ToggleableSurfaceGlow(glow=$glow, focusedGlow=$focusedGlow," +
             "pressedGlow=$pressedGlow, selectedGlow=$selectedGlow," +
             "focusedSelectedGlow=$focusedSelectedGlow, pressedSelectedGlow=$pressedSelectedGlow)"
+    }
+}
+
+/**
+ * Defines the container & content color [Color] for a non interactive surface.
+ */
+@ExperimentalTvMaterial3Api
+@Immutable
+class NonInteractiveSurfaceColors internal constructor(
+    internal val containerColor: Color,
+    internal val contentColor: Color
+) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+
+        other as NonInteractiveSurfaceColors
+
+        if (containerColor != other.containerColor) return false
+        if (contentColor != other.contentColor) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = containerColor.hashCode()
+        result = 31 * result + contentColor.hashCode()
+        return result
+    }
+
+    override fun toString(): String {
+        return "NonInteractiveSurfaceColors(containerColor=$containerColor, " +
+            "contentColor=$contentColor)"
     }
 }

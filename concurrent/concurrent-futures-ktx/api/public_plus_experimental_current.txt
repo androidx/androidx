@@ -5,5 +5,10 @@ package androidx.concurrent.futures {
     method public static suspend <T> Object? await(com.google.common.util.concurrent.ListenableFuture<T>, kotlin.coroutines.Continuation<? super T>);
   }
 
+  public final class SuspendToFutureAdapter {
+    method public <T> com.google.common.util.concurrent.ListenableFuture<T> launchFuture(optional kotlin.coroutines.CoroutineContext context, optional boolean launchUndispatched, kotlin.jvm.functions.Function2<? super kotlinx.coroutines.CoroutineScope,? super kotlin.coroutines.Continuation<? super T>,?> block);
+    field public static final androidx.concurrent.futures.SuspendToFutureAdapter INSTANCE;
+  }
+
 }
 

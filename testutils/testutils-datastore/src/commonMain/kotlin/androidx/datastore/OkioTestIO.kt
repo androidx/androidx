@@ -22,8 +22,8 @@ import androidx.datastore.core.okio.OkioStorage
 import kotlin.random.Random
 import kotlin.reflect.KClass
 import okio.FileSystem
-import okio.Path
 import okio.IOException
+import okio.Path
 import okio.Path.Companion.toPath
 
 open class OkioTestIO(dirName: String = "test-dir") : TestIO<OkioPath, IOException>(dirName) {

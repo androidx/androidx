@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-@file:OptIn(ExperimentalComposeUiApi::class)
-
 package androidx.compose.foundation.benchmark.text.lazyhosted
 
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -30,7 +28,6 @@ import androidx.compose.testutils.benchmark.ComposeBenchmarkRule
 import androidx.compose.testutils.benchmark.toggleStateBenchmarkComposeMeasureLayout
 import androidx.compose.testutils.benchmark.toggleStateBenchmarkDraw
 import androidx.compose.testutils.benchmark.toggleStateBenchmarkRecompose
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
@@ -48,7 +45,9 @@ class TextLazyReuse(
     private var active = mutableStateOf(true)
     private var reuseKey = mutableStateOf(0)
 
-    private val style = TextStyle.Default.copy(fontFamily = FontFamily.Monospace)
+    private val style = TextStyle.Default.copy(
+        fontFamily = FontFamily.Monospace
+    )
 
     @Composable
     override fun MeasuredContent() {

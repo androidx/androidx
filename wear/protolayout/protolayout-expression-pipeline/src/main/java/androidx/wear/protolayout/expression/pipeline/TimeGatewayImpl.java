@@ -138,6 +138,7 @@ public final class TimeGatewayImpl implements TimeGateway, AutoCloseable {
     }
 
     @Override
+    @UiThread
     public void close() {
         setUpdatesEnabled(false);
         registeredCallbacks.clear();

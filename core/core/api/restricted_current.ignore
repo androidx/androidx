@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+InvalidNullConversion: androidx.core.app.PendingIntentCompat#getBroadcast(android.content.Context, int, android.content.Intent, int, boolean):
+    Attempted to change method return from @NonNull to @Nullable: incompatible change for method androidx.core.app.PendingIntentCompat.getBroadcast(android.content.Context,int,android.content.Intent,int,boolean)

@@ -24,8 +24,8 @@ import androidx.room.compiler.processing.util.compileFiles
 import androidx.room.compiler.processing.util.runKspTest
 import androidx.room.compiler.processing.util.runProcessorTest
 import androidx.room.ext.RoomTypeNames.ROOM_DB
-import androidx.room.processor.ProcessorErrors.nullableComponentInDaoMethodReturnType
 import androidx.room.processor.ProcessorErrors.nullableCollectionOrArrayReturnTypeInDaoMethod
+import androidx.room.processor.ProcessorErrors.nullableComponentInDaoMethodReturnType
 import androidx.room.testing.context
 import androidx.room.vo.Dao
 import androidx.room.vo.ReadQueryMethod

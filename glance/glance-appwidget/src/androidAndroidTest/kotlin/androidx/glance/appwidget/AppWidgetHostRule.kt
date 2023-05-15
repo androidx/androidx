@@ -38,6 +38,7 @@ import androidx.test.uiautomator.UiDevice
 import androidx.work.WorkManager
 import androidx.work.testing.WorkManagerTestInitHelper
 import com.google.common.truth.Truth.assertThat
+import java.lang.ref.WeakReference
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import kotlin.test.assertIs
@@ -82,15 +83,16 @@ class AppWidgetHostRule(
 
     private val mInnerRules = RuleChain.outerRule(mActivityRule).around(mOrientationRule)
 
+    private lateinit var mMaybeHostView: WeakReference<TestAppWidgetHostView?>
+
     private var mHostStarted = false
-    private var mMaybeHostView: TestAppWidgetHostView? = null
     private var mAppWidgetId = 0
     private val mScenario: ActivityScenario<AppWidgetHostTestActivity>
         get() = mActivityRule.scenario
     private val mContext = ApplicationProvider.getApplicationContext<Context>()
 
     val mHostView: TestAppWidgetHostView
-        get() = checkNotNull(mMaybeHostView) { "No app widget installed on the host" }
+        get() = checkNotNull(mMaybeHostView.get()) { "No app widget installed on the host" }
 
     val appWidgetId: Int get() = mAppWidgetId
 
@@ -118,14 +120,12 @@ class AppWidgetHostRule(
         mHostStarted = true
 
         mActivityRule.scenario.onActivity { activity ->
-            mMaybeHostView = activity.bindAppWidget(mPortraitSize, mLandscapeSize)
+            mMaybeHostView = WeakReference(activity.bindAppWidget(mPortraitSize, mLandscapeSize))
         }
 
-        val hostView = checkNotNull(mMaybeHostView) { "Host view wasn't successfully started" }
-
         runAndWaitForChildren {
-            mAppWidgetId = hostView.appWidgetId
-            hostView.waitForRemoteViews()
+            mAppWidgetId = mHostView.appWidgetId
+            mHostView.waitForRemoteViews()
         }
     }
 
@@ -136,8 +136,7 @@ class AppWidgetHostRule(
      * This should not be called from the main thread, i.e. in [onHostView] or [onHostActivity].
      */
     suspend fun runAndWaitForUpdate(block: suspend () -> Unit) {
-        val hostView = checkNotNull(mMaybeHostView) { "Host view wasn't successfully started" }
-        hostView.resetRemoteViewsLatch()
+        mHostView.resetRemoteViewsLatch()
         withContext(Dispatchers.Main) { block() }
 
         // b/267494219 these tests are currently flaking due to possible changes to the views after
@@ -147,7 +146,7 @@ class AppWidgetHostRule(
 
         // Do not wait on the main thread so that the UI handlers can run.
         runAndWaitForChildren {
-            hostView.waitForRemoteViews()
+            mHostView.waitForRemoteViews()
         }
     }
 
@@ -166,8 +165,7 @@ class AppWidgetHostRule(
 
     fun removeAppWidget() {
         mActivityRule.scenario.onActivity { activity ->
-            val hostView = checkNotNull(mMaybeHostView) { "No app widget to remove" }
-            activity.deleteAppWidget(hostView)
+            activity.deleteAppWidget(mHostView)
         }
     }
 
@@ -275,7 +273,7 @@ class AppWidgetHostRule(
         mPortraitSize = portrait
         if (!mHostStarted) return
 
-        val hostView = mMaybeHostView
+        val hostView = mMaybeHostView.get()
         if (hostView != null) {
             mScenario.onActivity {
                 hostView.setSizes(portrait, landscape)

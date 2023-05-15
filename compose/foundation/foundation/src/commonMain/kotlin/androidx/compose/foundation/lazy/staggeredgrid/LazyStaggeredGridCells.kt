@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.lazy.staggeredgrid
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.unit.Density
@@ -27,7 +26,6 @@ import androidx.compose.ui.unit.dp
  * This class describes the count and the sizes of columns in vertical staggered grids,
  * or rows in horizontal staggered grids.
  */
-@ExperimentalFoundationApi
 @Stable
 interface StaggeredGridCells {
     /**

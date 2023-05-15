@@ -19,9 +19,12 @@ package androidx.test.uiautomator {
     method public static androidx.test.uiautomator.BySelector enabled(boolean);
     method public static androidx.test.uiautomator.BySelector focusable(boolean);
     method public static androidx.test.uiautomator.BySelector focused(boolean);
+    method public static androidx.test.uiautomator.BySelector hasAncestor(androidx.test.uiautomator.BySelector);
+    method public static androidx.test.uiautomator.BySelector hasAncestor(androidx.test.uiautomator.BySelector, @IntRange(from=1) int);
     method public static androidx.test.uiautomator.BySelector hasChild(androidx.test.uiautomator.BySelector);
     method public static androidx.test.uiautomator.BySelector hasDescendant(androidx.test.uiautomator.BySelector);
     method public static androidx.test.uiautomator.BySelector hasDescendant(androidx.test.uiautomator.BySelector, int);
+    method public static androidx.test.uiautomator.BySelector hasParent(androidx.test.uiautomator.BySelector);
     method public static androidx.test.uiautomator.BySelector longClickable(boolean);
     method public static androidx.test.uiautomator.BySelector pkg(String);
     method public static androidx.test.uiautomator.BySelector pkg(java.util.regex.Pattern);
@@ -55,9 +58,12 @@ package androidx.test.uiautomator {
     method public androidx.test.uiautomator.BySelector enabled(boolean);
     method public androidx.test.uiautomator.BySelector focusable(boolean);
     method public androidx.test.uiautomator.BySelector focused(boolean);
+    method public androidx.test.uiautomator.BySelector hasAncestor(androidx.test.uiautomator.BySelector);
+    method public androidx.test.uiautomator.BySelector hasAncestor(androidx.test.uiautomator.BySelector, @IntRange(from=1) int);
     method public androidx.test.uiautomator.BySelector hasChild(androidx.test.uiautomator.BySelector);
     method public androidx.test.uiautomator.BySelector hasDescendant(androidx.test.uiautomator.BySelector);
     method public androidx.test.uiautomator.BySelector hasDescendant(androidx.test.uiautomator.BySelector, int);
+    method public androidx.test.uiautomator.BySelector hasParent(androidx.test.uiautomator.BySelector);
     method public androidx.test.uiautomator.BySelector longClickable(boolean);
     method public androidx.test.uiautomator.BySelector maxDepth(int);
     method public androidx.test.uiautomator.BySelector minDepth(int);

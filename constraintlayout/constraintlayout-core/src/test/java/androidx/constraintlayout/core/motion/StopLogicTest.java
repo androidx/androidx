@@ -40,6 +40,7 @@ public class StopLogicTest {
         float damping = 50f;
         float stopThreshold = 0f;
         int springBoundary = 0;
+        boolean expectStopped = false; // Doesn't make it to 1.0f in the given time
         stop.springConfig(position,
                 destination,
                 currentVelocity,
@@ -65,7 +66,7 @@ public class StopLogicTest {
                 + "|                                             *************  |\n"
                 + "|                                                           *| 0.885\n"
                 + "0.0                                                      0.885\n";
-        assertEquals(expect, verify(stop, position, maxTime));
+        assertEquals(expect, verify(stop, position, maxTime, expectStopped));
     }
 
     @Test
@@ -78,6 +79,7 @@ public class StopLogicTest {
         float maxTime = 0.9f;
         float maxAcceleration = 3.2f;
         float maxVelocity = 3.2f;
+        boolean expectStopped = true;
         stop.config(position, destination, currentVelocity, maxTime, maxAcceleration, maxVelocity);
         System.out.println(stop.debug("check1", 0));
         String expect = ""
@@ -97,7 +99,7 @@ public class StopLogicTest {
                 + "|          *************************                         |\n"
                 + "|                                   *********************** *| 1.0\n"
                 + "0.0                                                      0.885\n";
-        assertEquals(expect, verify(stop, position, maxTime));
+        assertEquals(expect, verify(stop, position, maxTime, expectStopped));
     }
 
     @Test
@@ -110,6 +112,7 @@ public class StopLogicTest {
         float maxTime = 0.9f;
         float maxAcceleration = 3.2f;
         float maxVelocity = 3.2f;
+        boolean expectStopped = true;
         stop.config(position, destination, currentVelocity, maxTime, maxAcceleration, maxVelocity);
         System.out.println(stop.debug("check1", 0));
         String expect = ""
@@ -129,7 +132,7 @@ public class StopLogicTest {
                 + "|              **************                                |\n"
                 + "|                            ****************************** *| 1.0\n"
                 + "0.0                                                      0.885\n";
-        assertEquals(expect, verify(stop, position, maxTime));
+        assertEquals(expect, verify(stop, position, maxTime, expectStopped));
     }
 
     @Test
@@ -141,6 +144,7 @@ public class StopLogicTest {
         float maxTime = 0.9f;
         float maxAcceleration = 3.2f;
         float maxVelocity = 3.2f;
+        boolean expectStopped = true;
         stop.config(position, destination, currentVelocity, maxTime, maxAcceleration, maxVelocity);
         System.out.println(stop.debug("check1", 0));
         String expect = ""
@@ -160,7 +164,7 @@ public class StopLogicTest {
                 + "|  ******                                                    |\n"
                 + "|        ************************************************** *| 1.0\n"
                 + "0.0                                                      0.885\n";
-        assertEquals(expect, verify(stop, position, maxTime));
+        assertEquals(expect, verify(stop, position, maxTime, expectStopped));
     }
 
     @Test
@@ -172,6 +176,7 @@ public class StopLogicTest {
         float maxTime = 0.9f;
         float maxAcceleration = 3.2f;
         float maxVelocity = 1.2f;
+        boolean expectStopped = false; // Doesn't make it to 1f in the given time
         stop.config(position, destination, currentVelocity, maxTime, maxAcceleration, maxVelocity);
         System.out.println(stop.debug("check1", 0));
         String expect = ""
@@ -191,7 +196,7 @@ public class StopLogicTest {
                 + "|                                               ***********  |\n"
                 + "|                                                           *| 0.997\n"
                 + "0.0                                                      0.885\n";
-        assertEquals(expect, verify(stop, position, maxTime));
+        assertEquals(expect, verify(stop, position, maxTime, expectStopped));
     }
 
     @Test
@@ -203,6 +208,7 @@ public class StopLogicTest {
         float maxTime = 0.9f;
         float maxAcceleration = 3.2f;
         float maxVelocity = 3.2f;
+        boolean expectStopped = true;
         stop.config(position, destination, currentVelocity, maxTime, maxAcceleration, maxVelocity);
         System.out.println(stop.debug("check1", 0));
         String expect = ""
@@ -222,7 +228,7 @@ public class StopLogicTest {
                 + "|                                            **************  |\n"
                 + "|                                                           *| 1.0\n"
                 + "0.0                                                      0.885\n";
-        assertEquals(expect, verify(stop, position, maxTime));
+        assertEquals(expect, verify(stop, position, maxTime, expectStopped));
     }
 
     @Test
@@ -234,6 +240,7 @@ public class StopLogicTest {
         float maxTime = 0.9f;
         float maxAcceleration = 5.2f;
         float maxVelocity = 1.2f;
+        boolean expectStopped = true;
         stop.config(position, destination, currentVelocity, maxTime, maxAcceleration, maxVelocity);
         System.out.println(stop.debug("check1", 0));
         String expect = ""
@@ -253,10 +260,13 @@ public class StopLogicTest {
                 + "|                                          **********        |\n"
                 + "|                                                    ****** *| 1.0\n"
                 + "0.0                                                      0.885\n";
-        assertEquals(expect, verify(stop, position, maxTime));
+        assertEquals(expect, verify(stop, position, maxTime, expectStopped));
     }
 
-    private static String verify(StopEngine stop, float position, float maxTime) {
+    private static String verify(StopEngine stop,
+            float position,
+            float maxTime,
+            boolean expectStopped) {
         float p = stop.getInterpolation(0);
         assertEquals(p, position, 0.0001);
         int count = 60;
@@ -272,6 +282,7 @@ public class StopLogicTest {
         }
         String ret = textDraw(count, count / 4, x, y, false);
         System.out.println(ret);
+        assertEquals(expectStopped, stop.isStopped());
         return ret;
     }
 

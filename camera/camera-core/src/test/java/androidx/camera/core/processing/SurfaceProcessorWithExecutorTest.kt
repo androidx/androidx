@@ -21,13 +21,14 @@ import android.os.Handler
 import android.os.HandlerThread
 import android.os.Looper.getMainLooper
 import android.util.Size
+import androidx.camera.core.CameraEffect
+import androidx.camera.core.ProcessingException
 import androidx.camera.core.SurfaceOutput
 import androidx.camera.core.SurfaceProcessor
 import androidx.camera.core.SurfaceRequest
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor
 import androidx.camera.testing.fakes.FakeCamera
-import androidx.camera.testing.fakes.FakeSurfaceProcessorInternal
 import com.google.common.truth.Truth.assertThat
 import java.lang.Thread.currentThread
 import java.util.concurrent.Executor
@@ -68,12 +69,36 @@ class SurfaceProcessorWithExecutorTest {
         executorThread.quitSafely()
     }
 
-    @Test(expected = IllegalStateException::class)
-    fun initWithSurfaceProcessorInternal_throwsException() {
-        SurfaceProcessorWithExecutor(
-            FakeSurfaceProcessorInternal(mainThreadExecutor()),
-            mainThreadExecutor()
-        )
+    @Test
+    fun processorThrowsException_receivedByCameraEffect() {
+        // Arrange: create a processor that throws an exception.
+        val processor = object : SurfaceProcessor {
+            override fun onInputSurface(surfaceRequest: SurfaceRequest) {
+                throw ProcessingException()
+            }
+
+            override fun onOutputSurface(surfaceOutput: SurfaceOutput) {
+                throw ProcessingException()
+            }
+        }
+        var errorReceived: Throwable? = null
+        val processorWithExecutor = SurfaceProcessorWithExecutor(object : CameraEffect(
+            PREVIEW,
+            mainThreadExecutor(),
+            processor,
+            {
+                errorReceived = it
+            }
+        ) {})
+
+        // Act: invoke the processor.
+        val fakeSurfaceRequest = SurfaceRequest(SIZE, FakeCamera()) {}
+        processorWithExecutor.onInputSurface(fakeSurfaceRequest)
+        shadowOf(getMainLooper()).idle()
+
+        // Assert: the exception is received by the CameraEffect.
+        assertThat(errorReceived).isInstanceOf(ProcessingException::class.java)
+        fakeSurfaceRequest.willNotProvideSurface()
     }
 
     @Test
@@ -81,17 +106,21 @@ class SurfaceProcessorWithExecutorTest {
         // Arrange: track which thread the methods are invoked on.
         var onInputSurfaceInvokedThread: Thread? = null
         var onOutputSurfaceInvokedThread: Thread? = null
-        val processorWithExecutor =
-            SurfaceProcessorWithExecutor(object :
-                SurfaceProcessor {
-                override fun onInputSurface(request: SurfaceRequest) {
-                    onInputSurfaceInvokedThread = currentThread()
-                }
+        val processor = object : SurfaceProcessor {
+            override fun onInputSurface(surfaceRequest: SurfaceRequest) {
+                onInputSurfaceInvokedThread = currentThread()
+            }
 
-                override fun onOutputSurface(surfaceOutput: SurfaceOutput) {
-                    onOutputSurfaceInvokedThread = currentThread()
-                }
-            }, executor)
+            override fun onOutputSurface(surfaceOutput: SurfaceOutput) {
+                onOutputSurfaceInvokedThread = currentThread()
+            }
+        }
+        val processorWithExecutor = SurfaceProcessorWithExecutor(object : CameraEffect(
+            PREVIEW,
+            executor,
+            processor,
+            {}
+        ) {})
         // Act: invoke methods.
         processorWithExecutor.onInputSurface(SurfaceRequest(SIZE, FakeCamera()) {})
         processorWithExecutor.onOutputSurface(mock(SurfaceOutput::class.java))

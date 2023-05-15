@@ -16,83 +16,40 @@
 
 package androidx.appactions.interaction.capabilities.fitness.fitness
 
-import androidx.appactions.interaction.capabilities.core.Capability
 import androidx.appactions.interaction.capabilities.core.BaseExecutionSession
+import androidx.appactions.interaction.capabilities.core.Capability
 import androidx.appactions.interaction.capabilities.core.CapabilityFactory
 import androidx.appactions.interaction.capabilities.core.impl.BuilderOf
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
 import androidx.appactions.interaction.capabilities.core.properties.Property
 import androidx.appactions.interaction.capabilities.core.properties.StringValue
-import java.util.Optional
 
-/** StopExercise.kt in interaction-capabilities-fitness */
-private const val CAPABILITY_NAME = "actions.intent.PAUSE_EXERCISE"
+private const val CAPABILITY_NAME = "actions.intent.STOP_EXERCISE"
 
-// TODO(b/273602015): Update to use Name property from builtintype library.
-private val ACTION_SPEC =
-    ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
-        .setDescriptor(StopExercise.Properties::class.java)
-        .setArguments(StopExercise.Arguments::class.java, StopExercise.Arguments::Builder)
-        .setOutput(StopExercise.Output::class.java)
-        .bindOptionalParameter(
-            "exercise.name",
-            { property -> Optional.ofNullable(property.name) },
-            StopExercise.Arguments.Builder::setName,
-            TypeConverters.STRING_PARAM_VALUE_CONVERTER,
-            TypeConverters.STRING_VALUE_ENTITY_CONVERTER
-        )
-        .build()
-
+/** A capability corresponding to actions.intent.STOP_EXERCISE */
 @CapabilityFactory(name = CAPABILITY_NAME)
 class StopExercise private constructor() {
-    class CapabilityBuilder :
-        Capability.Builder<
-            CapabilityBuilder, Properties, Arguments, Output, Confirmation, ExecutionSession
-            >(ACTION_SPEC) {
-        private var propertyBuilder: Properties.Builder = Properties.Builder()
-        fun setNameProperty(name: Property<StringValue>): CapabilityBuilder =
-            apply {
-                propertyBuilder.setName(name)
-            }
-
-        override fun build(): Capability {
-            // TODO(b/268369632): Clean this up after Property is removed
-            super.setProperty(propertyBuilder.build())
-            return super.build()
-        }
+    internal enum class PropertyMapStrings(val key: String) {
+        NAME("exercise.name")
     }
 
-    // TODO(b/268369632): Remove Property from public capability APIs.
-    class Properties internal constructor(
-        val name: Property<StringValue>?,
-    ) {
-        override fun toString(): String {
-            return "Property(name=$name)"
-        }
+    class CapabilityBuilder :
+        Capability.Builder<
+            CapabilityBuilder,
+            Arguments,
+            Output,
+            Confirmation,
+            ExecutionSession
+            >(ACTION_SPEC) {
+        private var properties = mutableMapOf<String, Property<*>>()
 
-        override fun equals(other: Any?): Boolean {
-            if (this === other) return true
-            if (javaClass !== other?.javaClass) return false
+        fun setName(name: Property<StringValue>): CapabilityBuilder =
+            apply { properties[PropertyMapStrings.NAME.key] = name }
 
-            other as Properties
-
-            if (name != other.name) return false
-
-            return true
-        }
-
-        override fun hashCode(): Int {
-            return name.hashCode()
-        }
-
-        class Builder {
-            private var name: Property<StringValue>? = null
-
-            fun setName(name: Property<StringValue>): Builder =
-                apply { this.name = name }
-
-            fun build(): Properties = Properties(name)
+        override fun build(): Capability {
+            super.setProperty(properties)
+            return super.build()
         }
     }
 
@@ -133,4 +90,23 @@ class StopExercise private constructor() {
     class Confirmation internal constructor()
 
     sealed interface ExecutionSession : BaseExecutionSession<Arguments, Output>
+
+    companion object {
+        // TODO(b/273602015): Update to use Name property from builtintype library.
+        @Suppress("UNCHECKED_CAST")
+        private val ACTION_SPEC =
+            ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
+                .setArguments(Arguments::class.java, Arguments::Builder)
+                .setOutput(Output::class.java)
+                .bindParameter(
+                    "exercise.name",
+                    { properties ->
+                        properties[PropertyMapStrings.NAME.key] as? Property<StringValue>
+                    },
+                    Arguments.Builder::setName,
+                    TypeConverters.STRING_PARAM_VALUE_CONVERTER,
+                    TypeConverters.STRING_VALUE_ENTITY_CONVERTER
+                )
+                .build()
+    }
 }

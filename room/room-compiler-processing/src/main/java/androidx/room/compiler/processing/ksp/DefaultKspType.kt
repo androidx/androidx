@@ -25,8 +25,8 @@ import com.squareup.kotlinpoet.javapoet.KTypeName
 internal class DefaultKspType(
     env: KspProcessingEnv,
     ksType: KSType,
-    jvmTypeResolver: KspJvmTypeResolver?
-) : KspType(env, ksType, jvmTypeResolver) {
+    scope: KSTypeVarianceResolverScope?
+) : KspType(env, ksType, scope) {
 
     override fun resolveJTypeName(): JTypeName {
         // always box these. For primitives, typeName might return the primitive type but if we
@@ -46,15 +46,15 @@ internal class DefaultKspType(
         return DefaultKspType(
             env = env,
             ksType = ksType.withNullability(nullability),
-            jvmTypeResolver = jvmTypeResolver
+            scope = scope
         )
     }
 
-    override fun copyWithJvmTypeResolver(jvmTypeResolver: KspJvmTypeResolver): KspType {
+    override fun copyWithScope(scope: KSTypeVarianceResolverScope): KspType {
         return DefaultKspType(
             env = env,
             ksType = ksType,
-            jvmTypeResolver = jvmTypeResolver
+            scope = scope
         )
     }
 }

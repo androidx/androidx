@@ -27,12 +27,8 @@ import com.squareup.kotlinpoet.javapoet.KTypeName
 internal class KspTypeVariableType(
     env: KspProcessingEnv,
     ksType: KSType,
-    jvmTypeResolver: KspJvmTypeResolver?
-) : KspType(
-    env = env,
-    ksType = ksType,
-    jvmTypeResolver = jvmTypeResolver
-), XTypeVariableType {
+    scope: KSTypeVarianceResolverScope?
+) : KspType(env, ksType, scope), XTypeVariableType {
     private val typeVariable: KSTypeParameter by lazy {
         // Note: This is a workaround for a bug in KSP where we may get ERROR_TYPE in the bounds
         // (https://github.com/google/ksp/issues/1250). To work around it we get the matching
@@ -60,15 +56,15 @@ internal class KspTypeVariableType(
         return KspTypeVariableType(
             env = env,
             ksType = ksType,
-            jvmTypeResolver = jvmTypeResolver
+            scope = scope
         )
     }
 
-    override fun copyWithJvmTypeResolver(jvmTypeResolver: KspJvmTypeResolver): KspType {
+    override fun copyWithScope(scope: KSTypeVarianceResolverScope): KspType {
         return KspTypeVariableType(
             env = env,
             ksType = ksType,
-            jvmTypeResolver = jvmTypeResolver
+            scope = scope
         )
     }
 }

@@ -16,7 +16,6 @@
 
 package androidx.compose.ui.text
 
-import java.util.Locale as JavaLocale
 import android.os.Build
 import android.text.Spannable
 import android.text.SpannableString
@@ -45,15 +44,15 @@ import androidx.compose.ui.text.android.LayoutCompat.BREAK_STRATEGY_BALANCED
 import androidx.compose.ui.text.android.LayoutCompat.BREAK_STRATEGY_HIGH_QUALITY
 import androidx.compose.ui.text.android.LayoutCompat.BREAK_STRATEGY_SIMPLE
 import androidx.compose.ui.text.android.LayoutCompat.DEFAULT_ALIGNMENT
-import androidx.compose.ui.text.android.LayoutCompat.DEFAULT_HYPHENATION_FREQUENCY
 import androidx.compose.ui.text.android.LayoutCompat.DEFAULT_BREAK_STRATEGY
+import androidx.compose.ui.text.android.LayoutCompat.DEFAULT_HYPHENATION_FREQUENCY
 import androidx.compose.ui.text.android.LayoutCompat.DEFAULT_JUSTIFICATION_MODE
 import androidx.compose.ui.text.android.LayoutCompat.DEFAULT_LINESPACING_MULTIPLIER
-import androidx.compose.ui.text.android.LayoutCompat.HYPHENATION_FREQUENCY_NONE
-import androidx.compose.ui.text.android.LayoutCompat.HYPHENATION_FREQUENCY_NORMAL
-import androidx.compose.ui.text.android.LayoutCompat.HYPHENATION_FREQUENCY_NORMAL_FAST
 import androidx.compose.ui.text.android.LayoutCompat.DEFAULT_LINE_BREAK_STYLE
 import androidx.compose.ui.text.android.LayoutCompat.DEFAULT_LINE_BREAK_WORD_STYLE
+import androidx.compose.ui.text.android.LayoutCompat.HYPHENATION_FREQUENCY_FULL
+import androidx.compose.ui.text.android.LayoutCompat.HYPHENATION_FREQUENCY_FULL_FAST
+import androidx.compose.ui.text.android.LayoutCompat.HYPHENATION_FREQUENCY_NONE
 import androidx.compose.ui.text.android.LayoutCompat.JUSTIFICATION_MODE_INTER_WORD
 import androidx.compose.ui.text.android.LayoutCompat.LINE_BREAK_STYLE_LOOSE
 import androidx.compose.ui.text.android.LayoutCompat.LINE_BREAK_STYLE_NONE
@@ -80,6 +79,7 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.sp
+import java.util.Locale as JavaLocale
 
 /**
  * Android specific implementation for [Paragraph]
@@ -459,7 +459,6 @@ internal class AndroidParagraph(
         paint(canvas)
     }
 
-    @OptIn(ExperimentalTextApi::class)
     override fun paint(
         canvas: Canvas,
         color: Color,
@@ -482,7 +481,6 @@ internal class AndroidParagraph(
         textPaint.blendMode = currBlendMode
     }
 
-    @OptIn(ExperimentalTextApi::class)
     override fun paint(
         canvas: Canvas,
         brush: Brush,
@@ -564,9 +562,9 @@ private fun toLayoutAlign(align: TextAlign?): Int = when (align) {
 @OptIn(InternalPlatformTextApi::class)
 private fun toLayoutHyphenationFrequency(hyphens: Hyphens?): Int = when (hyphens) {
     Hyphens.Auto -> if (Build.VERSION.SDK_INT <= 32) {
-        HYPHENATION_FREQUENCY_NORMAL
+        HYPHENATION_FREQUENCY_FULL
     } else {
-        HYPHENATION_FREQUENCY_NORMAL_FAST
+        HYPHENATION_FREQUENCY_FULL_FAST
     }
     Hyphens.None -> HYPHENATION_FREQUENCY_NONE
     else -> DEFAULT_HYPHENATION_FREQUENCY

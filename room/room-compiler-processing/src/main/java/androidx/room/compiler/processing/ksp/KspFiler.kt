@@ -75,6 +75,28 @@ internal class KspFiler(
         }
     }
 
+    override fun writeSource(
+        packageName: String,
+        fileNameWithoutExtension: String,
+        extension: String,
+        originatingElements: List<XElement>,
+        mode: XFiler.Mode
+    ): OutputStream {
+        require(extension == "java" || extension == "kt") {
+            "Source file extension must be either 'java' or 'kt', but was: $extension"
+        }
+        val kspFilerOriginatingElements = originatingElements
+            .mapNotNull { it.originatingElementForPoet() }
+            .toOriginatingElements()
+        return createNewFile(
+            originatingElements = kspFilerOriginatingElements,
+            packageName = packageName,
+            fileName = fileNameWithoutExtension,
+            extensionName = extension,
+            aggregating = mode == XFiler.Mode.Aggregating
+        )
+    }
+
     override fun writeResource(
         filePath: Path,
         originatingElements: List<XElement>,

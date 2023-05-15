@@ -31,7 +31,6 @@ private const val UNDEFINED_NAME_PREFIX = "androidx.constraintlayout"
  * @see TransitionScope
  * @see ConstraintSetScope
  */
-@ExperimentalMotionApi
 fun MotionScene(
     motionSceneContent: MotionSceneScope.() -> Unit
 ): MotionScene {
@@ -42,7 +41,6 @@ fun MotionScene(
     )
 }
 
-@ExperimentalMotionApi
 internal class MotionSceneDslImpl(
     private val constraintSetsByName: Map<String, ConstraintSet>,
     private val transitionsByName: Map<String, Transition>
@@ -118,7 +116,6 @@ internal class MotionSceneDslImpl(
  * The [defaultTransition] **should always be set**. It defines the initial state of the layout and
  * works as a fallback for undefined `from -> to` transitions.
  */
-@ExperimentalMotionApi
 class MotionSceneScope internal constructor() {
     /**
      * Count of generated ConstraintSet & Transition names.

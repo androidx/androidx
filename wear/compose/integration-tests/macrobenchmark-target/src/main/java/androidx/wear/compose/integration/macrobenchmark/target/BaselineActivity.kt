@@ -37,6 +37,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -527,7 +528,7 @@ fun Slider() {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         ListHeader { Text("Sliders") }
-        var value by remember { mutableStateOf(4.5f) }
+        var value by remember { mutableFloatStateOf(4.5f) }
         InlineSlider(
             value = value,
             onValueChange = { value = it },
@@ -552,7 +553,7 @@ fun Slider() {
 
 @Composable
 fun Stepper() {
-    var value by remember { mutableStateOf(2f) }
+    var value by remember { mutableFloatStateOf(2f) }
     Stepper(
         value = value,
         onValueChange = { value = it },

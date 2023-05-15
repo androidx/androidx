@@ -20,11 +20,11 @@ import androidx.paging.LoadType
 import androidx.paging.LoadType.APPEND
 import androidx.paging.LoadType.PREPEND
 import androidx.paging.LoadType.REFRESH
+import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingSource
 import androidx.paging.PagingSource.LoadParams
 import androidx.paging.PagingSource.LoadResult
-import androidx.paging.Pager
 import androidx.paging.PagingSource.LoadResult.Page.Companion.COUNT_UNDEFINED
 import androidx.paging.PagingState
 import java.util.concurrent.atomic.AtomicBoolean
@@ -41,12 +41,12 @@ import kotlinx.coroutines.sync.withLock
  * multi-generational Paging behavior, you must create a new [TestPager] by supplying a
  * new instance of [PagingSource].
  *
- * @param pagingSource the [PagingSource] to load data from.
  * @param config the [PagingConfig] to configure this TestPager's loading behavior.
+ * @param pagingSource the [PagingSource] to load data from.
  */
 public class TestPager<Key : Any, Value : Any>(
-    private val pagingSource: PagingSource<Key, Value>,
     private val config: PagingConfig,
+    private val pagingSource: PagingSource<Key, Value>,
 ) {
     private val hasRefreshed = AtomicBoolean(false)
 

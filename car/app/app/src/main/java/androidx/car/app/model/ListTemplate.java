@@ -381,9 +381,9 @@ public final class ListTemplate implements Template {
          * Adds a template scoped action outside the rows.
          *
          * @throws IllegalArgumentException if {@code action} contains unsupported Action types,
-         *                                  exceeds the maximum number of allowed actions or does
-         *                                  not contain a valid {@link CarIcon} and background
-         *                                  {@link CarColor}.
+         *                                  or does not contain a valid {@link CarIcon} and
+         *                                  background {@link CarColor}, or if exceeds the
+         *                                  maximum number of allowed actions (1) for the template.
          */
         @ExperimentalCarApi
         @NonNull

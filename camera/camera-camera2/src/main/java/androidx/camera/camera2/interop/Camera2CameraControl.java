@@ -25,6 +25,7 @@ import androidx.camera.camera2.impl.Camera2ImplConfig;
 import androidx.camera.camera2.internal.Camera2CameraControlImpl;
 import androidx.camera.camera2.internal.annotation.CameraExecutor;
 import androidx.camera.core.CameraControl;
+import androidx.camera.core.impl.CameraControlInternal;
 import androidx.camera.core.impl.Config;
 import androidx.camera.core.impl.TagBundle;
 import androidx.camera.core.impl.annotation.ExecutedBy;
@@ -125,9 +126,11 @@ public final class Camera2CameraControl {
      */
     @NonNull
     public static Camera2CameraControl from(@NonNull CameraControl cameraControl) {
-        Preconditions.checkArgument(cameraControl instanceof Camera2CameraControlImpl,
+        CameraControlInternal cameraControlImpl =
+                ((CameraControlInternal) cameraControl).getImplementation();
+        Preconditions.checkArgument(cameraControlImpl instanceof Camera2CameraControlImpl,
                 "CameraControl doesn't contain Camera2 implementation.");
-        return ((Camera2CameraControlImpl) cameraControl).getCamera2CameraControl();
+        return ((Camera2CameraControlImpl) cameraControlImpl).getCamera2CameraControl();
     }
 
     /**

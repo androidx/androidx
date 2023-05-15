@@ -18,14 +18,14 @@ package androidx.hilt
 
 import androidx.hilt.work.WorkerStep
 import com.google.auto.service.AutoService
-import net.ltgt.gradle.incap.IncrementalAnnotationProcessor
-import net.ltgt.gradle.incap.IncrementalAnnotationProcessorType.ISOLATING
 import javax.annotation.processing.AbstractProcessor
 import javax.annotation.processing.Processor
 import javax.annotation.processing.RoundEnvironment
 import javax.lang.model.SourceVersion
 import javax.lang.model.element.Element
 import javax.lang.model.element.TypeElement
+import net.ltgt.gradle.incap.IncrementalAnnotationProcessor
+import net.ltgt.gradle.incap.IncrementalAnnotationProcessorType.ISOLATING
 
 /**
  * Annotation processor for the various AndroidX Hilt extensions.

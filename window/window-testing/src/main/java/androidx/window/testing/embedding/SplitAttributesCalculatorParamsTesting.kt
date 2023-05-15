@@ -55,7 +55,7 @@ import java.util.Collections
  *
  * @see SplitAttributesCalculatorParams
  */
-@ExperimentalWindowApi
+@OptIn(ExperimentalWindowApi::class)
 @Suppress("FunctionName")
 @JvmName("createTestSplitAttributesCalculatorParams")
 @JvmOverloads

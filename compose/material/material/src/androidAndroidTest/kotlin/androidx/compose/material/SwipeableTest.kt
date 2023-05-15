@@ -51,6 +51,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
+import kotlin.math.sign
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
@@ -61,7 +62,6 @@ import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import kotlin.math.sign
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)

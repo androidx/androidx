@@ -21,6 +21,7 @@ import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.Transition
 import androidx.compose.animation.core.keyframes
+import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.background
@@ -59,6 +60,8 @@ import kotlin.math.roundToInt
 import kotlinx.coroutines.delay
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -435,6 +438,59 @@ class AnimatedContentTest {
             rule.mainClock.advanceTimeByFrame()
         }
         rule.onNodeWithTag("false").assertDoesNotExist()
+    }
+
+    @Test
+    fun AnimatedContentWithContentKey() {
+        var targetState by mutableStateOf(1)
+        var actualIncomingPosition: Offset? = null
+        var actualOutgoingPosition: Offset? = null
+        var targetPosition: Offset? = null
+        rule.setContent {
+            CompositionLocalProvider(LocalDensity provides Density(1f)) {
+                AnimatedContent(targetState,
+                    Modifier.onGloballyPositioned {
+                        targetPosition = it.positionInRoot()
+                    },
+                    transitionSpec = {
+                        slideInHorizontally { -200 } togetherWith
+                            slideOutHorizontally(snap()) { 200 } + fadeOut(tween(200))
+                    },
+                    contentKey = { it > 3 }) { target ->
+                    Box(
+                        Modifier
+                            .requiredSize(200.dp)
+                            .onGloballyPositioned {
+                                if (target == targetState) {
+                                    actualIncomingPosition = it.localToRoot(Offset.Zero)
+                                } else {
+                                    actualOutgoingPosition = it.localToRoot(Offset.Zero)
+                                }
+                            })
+                }
+            }
+        }
+        rule.waitForIdle()
+        rule.runOnIdle {
+            repeat(3) {
+                // Check that no animation happens until the content key changes
+                assertEquals(targetPosition, actualIncomingPosition)
+                assertNotNull(actualIncomingPosition)
+                assertNull(actualOutgoingPosition)
+                targetState++
+            }
+        }
+
+        rule.runOnIdle {
+            // Check that animation happened because targetState going from 3 to 4 caused the
+            // resulting key to change
+            assertEquals(targetPosition, actualIncomingPosition)
+            assertNotNull(actualIncomingPosition)
+            assertEquals(
+                targetPosition!!.copy(x = targetPosition!!.x + 200),
+                actualOutgoingPosition
+            )
+        }
     }
 
     @Test

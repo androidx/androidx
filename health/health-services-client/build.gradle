@@ -21,6 +21,7 @@ plugins {
     id("com.android.library")
     id("com.google.protobuf")
     id("org.jetbrains.kotlin.android")
+    id("androidx.stableaidl")
 }
 
 dependencies {
@@ -50,6 +51,11 @@ android {
     buildFeatures {
         aidl = true
     }
+    buildTypes.all {
+        stableAidl {
+            version 1
+        }
+    }
     namespace "androidx.health.services.client"
 }
 
@@ -73,7 +79,7 @@ protobuf {
 }
 
 androidx {
-    name = "AndroidX Health Services Client Library"
+    name = "Health Services Client"
     type = LibraryType.PUBLISHED_LIBRARY
     mavenVersion = LibraryVersions.HEALTH_SERVICES_CLIENT
     inceptionYear = "2021"

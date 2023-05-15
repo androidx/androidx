@@ -25,9 +25,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
@@ -43,6 +47,34 @@ import org.junit.runners.JUnit4
 class BasicTextPaparazziTest {
     @get:Rule
     val paparazzi = androidxPaparazzi()
+
+    @Test
+    fun colorChangingState_changesColor() {
+        paparazzi.snapshot {
+            var color = remember { mutableStateOf(Color.Red) }
+            BasicText(
+                "ABCD",
+                color = { color.value }
+            )
+            SideEffect {
+                color.value = Color.Yellow
+            }
+        }
+    }
+
+    @Test
+    fun colorChangingState_changesColor_annotatedString() {
+        paparazzi.snapshot {
+            var color = remember { mutableStateOf(Color.Red) }
+            BasicText(
+                AnnotatedString("ABCD"),
+                color = { color.value }
+            )
+            SideEffect {
+                color.value = Color.Yellow
+            }
+        }
+    }
 
     @Test
     fun overflowEllipsis_doesEllipsis_whenInPreferredWrapContent() {
@@ -99,16 +131,21 @@ class BasicTextPaparazziTest {
             CompositionLocalProvider(
                 LocalLayoutDirection provides LayoutDirection.Rtl
             ) {
-                ConstraintLayout(Modifier.fillMaxWidth().background(Color.Green)) {
+                ConstraintLayout(
+                    Modifier
+                        .fillMaxWidth()
+                        .background(Color.Green)) {
                     val (title, progressBar, expander) = createRefs()
                     BasicText(
                         text = "Locale-aware Text",
-                        modifier = Modifier.constrainAs(title) {
-                            top.linkTo(parent.top)
-                            start.linkTo(parent.start)
-                            end.linkTo(expander.start)
-                            width = Dimension.fillToConstraints
-                        }.border(2.dp, Color.Red)
+                        modifier = Modifier
+                            .constrainAs(title) {
+                                top.linkTo(parent.top)
+                                start.linkTo(parent.start)
+                                end.linkTo(expander.start)
+                                width = Dimension.fillToConstraints
+                            }
+                            .border(2.dp, Color.Red)
                     )
                     Box(
                         modifier = Modifier

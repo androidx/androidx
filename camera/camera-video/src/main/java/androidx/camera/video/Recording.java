@@ -19,6 +19,7 @@ package androidx.camera.video;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.camera.core.impl.utils.CloseGuardHelper;
@@ -193,11 +194,7 @@ public final class Recording implements AutoCloseable {
      */
     @Override
     public void close() {
-        mCloseGuard.close();
-        if (mIsClosed.getAndSet(true)) {
-            return;
-        }
-        mRecorder.stop(this);
+        stopWithError(VideoRecordEvent.Finalize.ERROR_NONE, /*errorCause=*/ null);
     }
 
     @Override
@@ -205,7 +202,8 @@ public final class Recording implements AutoCloseable {
     protected void finalize() throws Throwable {
         try {
             mCloseGuard.warnIfOpen();
-            stop();
+            stopWithError(VideoRecordEvent.Finalize.ERROR_RECORDING_GARBAGE_COLLECTED,
+                    new RuntimeException("Recording stopped due to being garbage collected."));
         } finally {
             super.finalize();
         }
@@ -230,5 +228,14 @@ public final class Recording implements AutoCloseable {
     @RestrictTo(LIBRARY_GROUP)
     public boolean isClosed() {
         return mIsClosed.get();
+    }
+
+    private void stopWithError(@VideoRecordEvent.Finalize.VideoRecordError int error,
+            @Nullable Throwable errorCause) {
+        mCloseGuard.close();
+        if (mIsClosed.getAndSet(true)) {
+            return;
+        }
+        mRecorder.stop(this, error, errorCause);
     }
 }

@@ -47,7 +47,9 @@ import java.io.PrintWriter;
  *     AmbientMode.AmbientController controller = AmbientMode.attachAmbientSupport(this);
  *     boolean isAmbient =  controller.isAmbient();
  * }</pre>
- * @deprecated please use {@link AmbientModeSupport} instead.
+ *
+ * @deprecated Use {@link AmbientLifecycleObserver} instead. These classes use lifecycle
+ * components instead, preventing the need to hook these events using fragments.
  */
 @SuppressWarnings("deprecation")
 @Deprecated

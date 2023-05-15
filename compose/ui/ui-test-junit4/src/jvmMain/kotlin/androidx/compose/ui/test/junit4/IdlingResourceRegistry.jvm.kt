@@ -27,7 +27,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 internal class IdlingResourceRegistry
-@VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+@VisibleForTesting
 @InternalTestApi
 internal constructor(
     private val pollScopeOverride: CoroutineScope?

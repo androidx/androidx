@@ -385,6 +385,10 @@ class MultiParagraph(
     }
 
     /** Paint the paragraphs to canvas. */
+    @Deprecated(
+        "Use the new paint function that takes canvas as the only required parameter.",
+        level = DeprecationLevel.HIDDEN
+    )
     fun paint(
         canvas: Canvas,
         color: Color = Color.Unspecified,
@@ -400,7 +404,6 @@ class MultiParagraph(
     }
 
     /** Paint the paragraphs to canvas. */
-    @ExperimentalTextApi
     fun paint(
         canvas: Canvas,
         color: Color = Color.Unspecified,
@@ -418,7 +421,6 @@ class MultiParagraph(
     }
 
     /** Paint the paragraphs to canvas. */
-    @ExperimentalTextApi
     fun paint(
         canvas: Canvas,
         brush: Brush,

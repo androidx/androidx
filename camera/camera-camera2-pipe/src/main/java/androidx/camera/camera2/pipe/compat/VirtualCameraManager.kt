@@ -42,7 +42,8 @@ internal sealed class CameraRequest
 internal data class RequestOpen(
     val virtualCamera: VirtualCameraState,
     val share: Boolean = false,
-    val graphListener: GraphListener
+    val graphListener: GraphListener,
+    val isForegroundObserver: (Unit) -> Boolean,
 ) : CameraRequest()
 
 internal data class RequestClose(val activeCamera: VirtualCameraManager.ActiveCamera) :
@@ -77,10 +78,11 @@ constructor(
     internal fun open(
         cameraId: CameraId,
         share: Boolean = false,
-        graphListener: GraphListener
+        graphListener: GraphListener,
+        isForegroundObserver: (Unit) -> Boolean,
     ): VirtualCamera {
         val result = VirtualCameraState(cameraId, graphListener)
-        offerChecked(RequestOpen(result, share, graphListener))
+        offerChecked(RequestOpen(result, share, graphListener, isForegroundObserver))
         return result
     }
 
@@ -186,7 +188,11 @@ constructor(
             var realCamera = activeCameras.firstOrNull { it.cameraId == cameraIdToOpen }
             if (realCamera == null) {
                 val openResult =
-                    openCameraWithRetry(cameraIdToOpen, scope = this)
+                    openCameraWithRetry(
+                        cameraIdToOpen,
+                        request.isForegroundObserver,
+                        scope = this
+                    )
                 if (openResult.activeCamera != null) {
                     realCamera = openResult.activeCamera
                     activeCameras.add(realCamera)
@@ -205,6 +211,7 @@ constructor(
 
     private suspend fun openCameraWithRetry(
         cameraId: CameraId,
+        isForegroundObserver: (Unit) -> Boolean,
         scope: CoroutineScope
     ): OpenVirtualCameraResult {
         // TODO: Figure out how 1-time permissions work, and see if they can be reset without
@@ -212,7 +219,7 @@ constructor(
         check(permissions.hasCameraPermission) { "Missing camera permissions!" }
 
         Log.debug { "Opening $cameraId with retries..." }
-        val result = retryingCameraStateOpener.openCameraWithRetry(cameraId)
+        val result = retryingCameraStateOpener.openCameraWithRetry(cameraId, isForegroundObserver)
         if (result.cameraState == null) {
             return OpenVirtualCameraResult(lastCameraError = result.errorCode)
         }

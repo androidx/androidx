@@ -19,6 +19,7 @@ package androidx.wear.protolayout.expression.pipeline;
 import android.util.Log;
 
 import androidx.annotation.UiThread;
+import androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool;
 import androidx.wear.protolayout.expression.proto.DynamicProto;
 import androidx.wear.protolayout.expression.proto.DynamicProto.ComparisonFloatOp;
 import androidx.wear.protolayout.expression.proto.DynamicProto.ComparisonInt32Op;
@@ -35,8 +36,7 @@ class BoolNodes {
         private final DynamicTypeValueReceiverWithPreUpdate<Boolean> mDownstream;
 
         FixedBoolNode(
-                FixedBool protoNode,
-                DynamicTypeValueReceiverWithPreUpdate<Boolean> downstream) {
+                FixedBool protoNode, DynamicTypeValueReceiverWithPreUpdate<Boolean> downstream) {
             mValue = protoNode.getValue();
             mDownstream = downstream;
         }
@@ -66,7 +66,8 @@ class BoolNodes {
                 DynamicTypeValueReceiverWithPreUpdate<Boolean> downstream) {
             super(
                     stateStore,
-                    protoNode.getSourceKey(),
+                    StateSourceNode.<DynamicBool>createKey(
+                            protoNode.getSourceNamespace(), protoNode.getSourceKey()),
                     se -> se.getBoolVal().getValue(),
                     downstream);
         }
@@ -171,6 +172,10 @@ class BoolNodes {
                                 return a && b;
                             case LOGICAL_OP_TYPE_OR:
                                 return a || b;
+                            case LOGICAL_OP_TYPE_EQUAL:
+                                return a.equals(b);
+                            case LOGICAL_OP_TYPE_NOT_EQUAL:
+                                return !a.equals(b);
                             default:
                                 Log.e(TAG, "Unknown operation type in LogicalBoolOp");
                                 return false;

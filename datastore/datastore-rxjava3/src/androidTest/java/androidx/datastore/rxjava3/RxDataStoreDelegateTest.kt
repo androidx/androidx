@@ -22,13 +22,13 @@ import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import io.reactivex.rxjava3.core.Single
+import java.io.File
+import java.io.FileOutputStream
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
-import java.io.File
-import java.io.FileOutputStream
 
 val Context.rxDataStore by rxDataStore("file1", TestingSerializer())
 

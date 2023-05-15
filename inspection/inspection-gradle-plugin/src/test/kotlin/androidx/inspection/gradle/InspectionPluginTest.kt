@@ -17,6 +17,11 @@
 package androidx.inspection.gradle
 
 import androidx.testutils.gradle.ProjectSetupRule
+import java.io.BufferedReader
+import java.io.File
+import java.io.InputStreamReader
+import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
 import org.junit.Before
@@ -25,11 +30,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import java.io.BufferedReader
-import java.io.File
-import java.io.InputStreamReader
-import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 
 @RunWith(JUnit4::class)
 class InspectionPluginTest {

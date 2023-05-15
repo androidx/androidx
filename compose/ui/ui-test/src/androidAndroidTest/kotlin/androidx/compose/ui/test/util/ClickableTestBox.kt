@@ -16,8 +16,8 @@
 
 package androidx.compose.ui.test.util
 
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier

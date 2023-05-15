@@ -630,19 +630,11 @@ public class Camera2CameraInfoImplTest {
         List<Size> resolutions = cameraInfo.getSupportedResolutions(
                 ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE);
 
-        if (Build.VERSION.SDK_INT == 21) {
-            // TargetAspectRatio workaround should be applied to the StreamConfigurationMapCompat
-            assertThat(resolutions).containsExactly(
-                    new Size(1920, 1080),
-                    new Size(1280, 720)
-            );
-        } else {
-            assertThat(resolutions).containsExactly(
-                    new Size(1920, 1080),
-                    new Size(1280, 720),
-                    new Size(640, 480)
-            );
-        }
+        assertThat(resolutions).containsExactly(
+                new Size(1920, 1080),
+                new Size(1280, 720),
+                new Size(640, 480)
+        );
     }
 
     @Test
@@ -666,8 +658,8 @@ public class Camera2CameraInfoImplTest {
         CameraInfo cameraInfo2 = new Camera2CameraInfoImpl(CAMERA2_ID,
                 mCameraManagerCompat);
 
-        List<Range<Integer>> resultFpsRanges0 = cameraInfo0.getSupportedFrameRateRanges();
-        List<Range<Integer>> resultFpsRanges2 = cameraInfo2.getSupportedFrameRateRanges();
+        Set<Range<Integer>> resultFpsRanges0 = cameraInfo0.getSupportedFrameRateRanges();
+        Set<Range<Integer>> resultFpsRanges2 = cameraInfo2.getSupportedFrameRateRanges();
 
         assertThat(resultFpsRanges0).containsExactly((Object[]) CAMERA0_AE_FPS_RANGES);
         assertThat(resultFpsRanges2).containsExactly((Object[]) CAMERA2_AE_FPS_RANGES);
@@ -681,7 +673,7 @@ public class Camera2CameraInfoImplTest {
         CameraInfo cameraInfo1 = new Camera2CameraInfoImpl(CAMERA1_ID,
                 mCameraManagerCompat);
 
-        List<Range<Integer>> resultFpsRanges1 = cameraInfo1.getSupportedFrameRateRanges();
+        Set<Range<Integer>> resultFpsRanges1 = cameraInfo1.getSupportedFrameRateRanges();
 
         assertThat(resultFpsRanges1).isEmpty();
     }

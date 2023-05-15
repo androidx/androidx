@@ -18,8 +18,10 @@ package androidx.tv.material3
 
 import android.os.SystemClock
 import android.view.KeyEvent
-import androidx.compose.animation.ContentTransform
+import androidx.compose.animation.AnimatedContentScope
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.focusable
@@ -67,6 +69,7 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
+import kotlin.math.abs
 import kotlinx.coroutines.delay
 import org.junit.Rule
 import org.junit.Test
@@ -74,7 +77,7 @@ import org.junit.Test
 private const val delayBetweenItems = 2500L
 private const val animationTime = 900L
 
-@OptIn(ExperimentalTvMaterial3Api::class)
+@OptIn(ExperimentalTvMaterial3Api::class, ExperimentalAnimationApi::class)
 class CarouselTest {
     @get:Rule
     val rule = createComposeRule()
@@ -275,7 +278,6 @@ class CarouselTest {
         rule.onNodeWithText("Text 2").assertIsDisplayed()
     }
 
-    @OptIn(ExperimentalAnimationApi::class)
     @Test
     fun carousel_pagerIndicatorDisplayed() {
         rule.setContent {
@@ -287,7 +289,6 @@ class CarouselTest {
         rule.onNodeWithTag("indicator").assertIsDisplayed()
     }
 
-    @OptIn(ExperimentalAnimationApi::class)
     @Test
     fun carousel_withAnimatedContent_successfulTransition() {
         rule.setContent {
@@ -308,7 +309,6 @@ class CarouselTest {
         rule.onNodeWithText("PLAY").assertIsDisplayed()
     }
 
-    @OptIn(ExperimentalAnimationApi::class)
     @Test
     fun carousel_withAnimatedContent_successfulFocusIn() {
         rule.setContent {
@@ -326,8 +326,9 @@ class CarouselTest {
         rule.mainClock.advanceTimeBy(animationTime, false)
         rule.mainClock.advanceTimeByFrame()
 
-        rule.onNodeWithText("Play 0").assertIsDisplayed()
-        rule.onNodeWithText("Play 0").assertIsFocused()
+        rule.onNodeWithText("Play 0", useUnmergedTree = true)
+            .assertIsDisplayed()
+            .assertIsFocused()
     }
 
     @Test
@@ -353,7 +354,7 @@ class CarouselTest {
         rule.waitForIdle()
 
         // Check if the overlay button is focused
-        rule.onNodeWithText("Button-1").assertIsFocused()
+        rule.onNodeWithText("Button-1", useUnmergedTree = true).assertIsFocused()
 
         // Trigger back press event to exit focus
         performKeyPress(NativeKeyEvent.KEYCODE_BACK)
@@ -361,13 +362,12 @@ class CarouselTest {
         rule.waitForIdle()
 
         // Check if carousel loses focus and parent container gains focus
-        rule.onNodeWithText("Button-1").assertIsNotFocused()
+        rule.onNodeWithText("Button-1", useUnmergedTree = true).assertIsNotFocused()
         rule.onNodeWithTag("box-container").assertIsFocused()
     }
 
-    @OptIn(ExperimentalAnimationApi::class)
     @Test
-    fun carousel_withCarouselItem_parentContainerGainsFocus_onBackPress() {
+    fun carousel_withCarouselItem_parentContainerGainsFocusOnBackPress() {
         rule.setContent {
             Box(modifier = Modifier
                 .testTag("box-container")
@@ -391,7 +391,7 @@ class CarouselTest {
         rule.waitForIdle()
 
         // Check if the overlay button is focused
-        rule.onNodeWithText("Play 0").assertIsFocused()
+        rule.onNodeWithText("Play 0", useUnmergedTree = true).assertIsFocused()
 
         // Trigger back press event to exit focus
         performKeyPress(NativeKeyEvent.KEYCODE_BACK)
@@ -399,11 +399,10 @@ class CarouselTest {
         rule.waitForIdle()
 
         // Check if carousel loses focus and parent container gains focus
-        rule.onNodeWithText("Play 0").assertIsNotFocused()
+        rule.onNodeWithText("Play 0", useUnmergedTree = true).assertIsNotFocused()
         rule.onNodeWithTag("box-container").assertIsFocused()
     }
 
-    @OptIn(ExperimentalAnimationApi::class)
     @Test
     fun carousel_scrollToRegainFocus_checkBringIntoView() {
         val focusRequester = FocusRequester()
@@ -436,7 +435,13 @@ class CarouselTest {
                         autoScrollDurationMillis = delayBetweenItems
                     ) {
                         SampleCarouselItem(index = it) {
-                            Box {
+                            Box(
+                                modifier = Modifier
+                                    .animateEnterExit(
+                                        enter = slideInHorizontally(),
+                                        exit = slideOutHorizontally()
+                                    )
+                            ) {
                                 Column(modifier = Modifier.align(Alignment.BottomStart)) {
                                     BasicText(text = "carousel-frame")
                                     Row {
@@ -491,7 +496,6 @@ class CarouselTest {
         assertThat(checkNodeCompletelyVisible(rule, "featured-carousel")).isTrue()
     }
 
-    @OptIn(ExperimentalAnimationApi::class)
     @Test
     fun carousel_zeroItemCount_shouldNotCrash() {
         val testTag = "emptyCarousel"
@@ -502,7 +506,6 @@ class CarouselTest {
         rule.onNodeWithTag(testTag).assertExists()
     }
 
-    @OptIn(ExperimentalAnimationApi::class)
     @Test
     fun carousel_oneItemCount_shouldNotCrash() {
         val testTag = "emptyCarousel"
@@ -514,7 +517,7 @@ class CarouselTest {
     }
 
     @Test
-    fun carousel_manualScrolling_withFocusableItemsOnTop() {
+    fun carousel_manualScrollingWithFocusableItemsOnTop_focusStaysWithinCarousel() {
         rule.setContent {
             Column {
                 Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -551,8 +554,7 @@ class CarouselTest {
 
         // Check that item 2 is in view and button 2 has focus
         rule.onNodeWithText("Button-2").assertIsDisplayed()
-        // TODO: Fix button 2 isn't gaining focus
-        // rule.onNodeWithText("Button-2").assertIsFocused()
+        rule.onNodeWithText("Button-2").assertIsFocused()
 
         // Check if the first focusable element in parent has focus
         rule.onNodeWithText("Row-button-1").assertIsNotFocused()
@@ -571,17 +573,24 @@ class CarouselTest {
         rule.onNodeWithText("Button-1").assertIsFocused()
     }
 
-    @OptIn(ExperimentalAnimationApi::class)
     @Test
-    fun carousel_manualScrolling_fastMultipleKeyPresses() {
+    fun carousel_manualScrollingFastMultipleKeyPresses_focusStaysWithinCarousel() {
         val carouselState = CarouselState()
         val tabs = listOf("Tab 1", "Tab 2", "Tab 3")
+        var numberOfTimesTabGainedFocus = 0
 
         rule.setContent {
             var selectedTabIndex by remember { mutableStateOf(0) }
 
             Column {
-                TabRow(selectedTabIndex = selectedTabIndex) {
+                TabRow(
+                    modifier = Modifier.onFocusChanged {
+                        if (it.hasFocus || it.isFocused) {
+                            numberOfTimesTabGainedFocus++
+                        }
+                    },
+                    selectedTabIndex = selectedTabIndex
+                ) {
                     tabs.forEachIndexed { index, tab ->
                         Tab(
                             selected = index == selectedTabIndex,
@@ -599,33 +608,36 @@ class CarouselTest {
         }
 
         rule.waitForIdle()
-        rule.onNodeWithTag("pager").performSemanticsAction(SemanticsActions.RequestFocus)
+        rule.onNodeWithText("Play 0").performSemanticsAction(SemanticsActions.RequestFocus)
         rule.waitForIdle()
 
         val itemProgression = listOf(6, 3, -4, 3, -6, 5, 3)
+        // reset the counter at test start.
+        numberOfTimesTabGainedFocus = 0
 
         itemProgression.forEach {
-            if (it < 0) {
-                performKeyPress(NativeKeyEvent.KEYCODE_DPAD_LEFT, it * -1)
-            } else {
-                performKeyPress(NativeKeyEvent.KEYCODE_DPAD_RIGHT, it)
-            }
+            performKeyPress(
+                if (it < 0) NativeKeyEvent.KEYCODE_DPAD_LEFT else NativeKeyEvent.KEYCODE_DPAD_RIGHT,
+                abs(it)
+            )
+            rule.waitForIdle()
         }
 
         rule.mainClock.advanceTimeBy(animationTime)
 
         val finalItem = itemProgression.sum()
-        rule.onNodeWithText("Play $finalItem").assertIsFocused()
+        assertThat(numberOfTimesTabGainedFocus).isEqualTo(0)
+        rule.onNodeWithText("Play $finalItem", useUnmergedTree = true).assertIsFocused()
 
         performKeyPress(NativeKeyEvent.KEYCODE_DPAD_RIGHT, 3)
 
         rule.mainClock.advanceTimeBy((animationTime) * 3)
 
-        rule.onNodeWithText("Play ${finalItem + 3}").assertIsFocused()
+        rule.onNodeWithText("Play ${finalItem + 3}", useUnmergedTree = true).assertIsFocused()
     }
 
     @Test
-    fun carousel_manualScrolling_onDpadLongPress() {
+    fun carousel_manualScrollingDpadLongPress_moveOnlyOneSlide() {
         rule.setContent {
             SampleCarousel(itemCount = 6) { index ->
                 SampleButton("Button ${index + 1}")
@@ -670,7 +682,7 @@ class CarouselTest {
     }
 
     @Test
-    fun carousel_manualScrolling_ltr() {
+    fun carousel_manualScrollingLtr_RightMovesToNextSlideLeftMovesToPrevSlide() {
         rule.setContent {
             SampleCarousel { index ->
                 SampleButton("Button ${index + 1}")
@@ -716,7 +728,7 @@ class CarouselTest {
     }
 
     @Test
-    fun carousel_manualScrolling_rtl() {
+    fun carousel_manualScrollingRtl_LeftMovesToNextSlideRightMovesToPrevSlide() {
         rule.setContent {
             CompositionLocalProvider(
                 LocalLayoutDirection provides LayoutDirection.Rtl
@@ -796,15 +808,36 @@ class CarouselTest {
 
         rule.waitUntil(timeoutMillis = 5000) { itemChanges > minSuccessfulItemChanges }
     }
+
+    @Test
+    fun carousel_slideWithTwoButtonsInARow_focusMovesWithinSlideAndChangesSlideOnlyOnFocusExit() {
+        rule.setContent {
+            // No AutoScrolling
+            SampleCarousel(timeToDisplayItemMillis = Long.MAX_VALUE) {
+                Row {
+                    SampleButton("Left Button ${it + 1}")
+                    SampleButton("Right Button ${it + 1}")
+                }
+            }
+        }
+
+        rule.onNodeWithText("Left Button 1").performSemanticsAction(SemanticsActions.RequestFocus)
+        performKeyPress(KeyEvent.KEYCODE_DPAD_RIGHT)
+        // focus should have moved from left to right button
+        rule.onNodeWithText("Right Button 1").assertIsFocused()
+        performKeyPress(KeyEvent.KEYCODE_DPAD_RIGHT)
+        // slide should have changed.
+        rule.onNodeWithText("Left Button 2").assertIsFocused()
+    }
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class, ExperimentalAnimationApi::class)
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 private fun SampleCarousel(
     carouselState: CarouselState = remember { CarouselState() },
     itemCount: Int = 3,
     timeToDisplayItemMillis: Long = delayBetweenItems,
-    content: @Composable CarouselScope.(index: Int) -> Unit
+    content: @Composable AnimatedContentScope.(index: Int) -> Unit
 ) {
     Carousel(
         modifier = Modifier
@@ -831,24 +864,16 @@ private fun SampleCarousel(
 
 @OptIn(ExperimentalTvMaterial3Api::class, ExperimentalAnimationApi::class)
 @Composable
-private fun CarouselScope.SampleCarouselItem(
+private fun AnimatedContentScope.SampleCarouselItem(
     index: Int,
     modifier: Modifier = Modifier,
-    contentTransformStartToEnd: ContentTransform =
-        CarouselItemDefaults.contentTransformStartToEnd,
-    content: (@Composable () -> Unit) = { SampleButton("Play $index") },
+    content: (@Composable AnimatedContentScope.() -> Unit) = { SampleButton("Play $index") },
 ) {
-    CarouselItem(
-        modifier = modifier,
-        contentTransformStartToEnd = contentTransformStartToEnd,
-        background = {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color.Red)
-                    .border(2.dp, Color.Blue)
-            )
-        }
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .background(Color.Red)
+            .border(2.dp, Color.Blue)
     ) {
         content()
     }

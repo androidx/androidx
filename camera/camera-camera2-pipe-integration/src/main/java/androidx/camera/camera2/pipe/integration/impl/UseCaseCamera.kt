@@ -72,6 +72,8 @@ interface UseCaseCamera {
         priority: Config.OptionPriority = defaultOptionPriority,
     ): Deferred<Unit>
 
+    fun setActiveResumeMode(enabled: Boolean) {}
+
     // Lifecycle
     fun close(): Job
 }
@@ -158,6 +160,10 @@ class UseCaseCameraImpl @Inject constructor(
         values = values,
         optionPriority = priority
     )
+
+    override fun setActiveResumeMode(enabled: Boolean) {
+        useCaseGraphConfig.graph.isForeground = enabled
+    }
 
     private fun UseCaseCameraRequestControl.setSessionConfigAsync(
         sessionConfig: SessionConfig

@@ -7,8 +7,8 @@ function echoAndDo() {
 
 # Get versions
 echo Getting Studio version and link
-AGP_VERSION=${1:-8.1.0-alpha11}
-STUDIO_VERSION_STRING=${2:-"Android Studio Giraffe | 2022.3.1 Canary 11"}
+AGP_VERSION=${1:-8.1.0-beta01}
+STUDIO_VERSION_STRING=${2:-"Android Studio Giraffe | 2022.3.1 Beta 1"}
 STUDIO_IFRAME_LINK=`curl "https://developer.android.com/studio/archive.html" | grep "<iframe " | sed "s/.* src=\"\([^\"]*\)\".*/\1/g"`
 echo iframe link $STUDIO_IFRAME_LINK
 STUDIO_IFRAME_REDIRECT=`curl -s $STUDIO_IFRAME_LINK | grep href | sed 's/.*href="\([^"]*\)".*/\1/g'`

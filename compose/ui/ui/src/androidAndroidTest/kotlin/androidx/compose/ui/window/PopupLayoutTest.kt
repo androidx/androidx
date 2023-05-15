@@ -34,10 +34,10 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
+import java.util.UUID
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.util.UUID
 
 /**
  * Tests for the internal [PopupLayout] view used by [Popup].

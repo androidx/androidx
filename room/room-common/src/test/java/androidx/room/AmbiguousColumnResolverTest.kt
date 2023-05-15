@@ -18,8 +18,8 @@ package androidx.room
 
 import androidx.kruth.assertThat
 import java.util.Locale
-import org.junit.Test
 import org.junit.Ignore
+import org.junit.Test
 
 class AmbiguousColumnResolverTest {
 

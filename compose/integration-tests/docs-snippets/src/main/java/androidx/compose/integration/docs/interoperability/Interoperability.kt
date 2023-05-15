@@ -48,7 +48,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
@@ -169,7 +169,7 @@ private object InteropSnippet4 {
 private object InteropSnippet5 {
     @Composable
     fun CustomView() {
-        val selectedItem = remember { mutableStateOf(0) }
+        val selectedItem = remember { mutableIntStateOf(0) }
 
         // Adds view to Compose
         AndroidView(

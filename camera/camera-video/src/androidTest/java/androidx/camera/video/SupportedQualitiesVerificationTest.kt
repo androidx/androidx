@@ -42,6 +42,7 @@ import androidx.camera.core.CameraEffect.VIDEO_CAPTURE
 import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraXConfig
+import androidx.camera.core.DynamicRange
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.core.processing.DefaultSurfaceProcessor
 import androidx.camera.core.processing.SurfaceProcessorInternal
@@ -136,6 +137,8 @@ class SupportedQualitiesVerificationTest(
     private val instrumentation = InstrumentationRegistry.getInstrumentation()
     private val context: Context = ApplicationProvider.getApplicationContext()
     private val surfaceProcessorsToRelease = mutableListOf<SurfaceProcessorInternal>()
+    // TODO(b/278168212): Only SDR is checked by now. Need to extend to HDR dynamic ranges.
+    private val dynamicRange = DynamicRange.SDR
     private lateinit var cameraProvider: ProcessCameraProvider
     private lateinit var lifecycleOwner: FakeLifecycleOwner
     private lateinit var cameraInfo: CameraInfo
@@ -164,9 +167,10 @@ class SupportedQualitiesVerificationTest(
         }
 
         // Ignore the unsupported Quality options
+        val videoCapabilities = Recorder.getVideoCapabilities(cameraInfo)
         Assume.assumeTrue(
             "Camera ${cameraSelector.lensFacing} not support $quality, skip this test item.",
-            QualitySelector.isQualitySupported(cameraInfo, quality)
+            videoCapabilities.isQualitySupported(quality, dynamicRange)
         )
     }
 

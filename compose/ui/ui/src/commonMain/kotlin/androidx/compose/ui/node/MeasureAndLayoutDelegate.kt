@@ -40,7 +40,7 @@ internal class MeasureAndLayoutDelegate(private val root: LayoutNode) {
     /**
      * LayoutNodes that need measure or layout.
      */
-    private val relayoutNodes = DepthSortedSet(Owner.enableExtraAssertions)
+    private val relayoutNodes = DepthSortedSetsForDifferentPasses(Owner.enableExtraAssertions)
 
     /**
      * Whether any LayoutNode needs measure or layout.
@@ -92,8 +92,11 @@ internal class MeasureAndLayoutDelegate(private val root: LayoutNode) {
         if (rootConstraints != constraints) {
             require(!duringMeasureLayout)
             rootConstraints = constraints
+            if (root.lookaheadRoot != null) {
+                root.markLookaheadMeasurePending()
+            }
             root.markMeasurePending()
-            relayoutNodes.add(root)
+            relayoutNodes.add(root, root.lookaheadRoot != null)
         }
     }
 
@@ -150,7 +153,7 @@ internal class MeasureAndLayoutDelegate(private val root: LayoutNode) {
                         layoutNode.canAffectParentInLookahead
                     ) {
                         if (layoutNode.parent?.lookaheadMeasurePending != true) {
-                            relayoutNodes.add(layoutNode)
+                            relayoutNodes.add(layoutNode, true)
                         }
                     }
                     !duringMeasureLayout
@@ -192,7 +195,7 @@ internal class MeasureAndLayoutDelegate(private val root: LayoutNode) {
                     layoutNode.markMeasurePending()
                     if (layoutNode.isPlaced || layoutNode.canAffectParent) {
                         if (layoutNode.parent?.measurePending != true) {
-                            relayoutNodes.add(layoutNode)
+                            relayoutNodes.add(layoutNode, false)
                         }
                     }
                     !duringMeasureLayout
@@ -235,7 +238,7 @@ internal class MeasureAndLayoutDelegate(private val root: LayoutNode) {
                         if (parent?.lookaheadMeasurePending != true &&
                             parent?.lookaheadLayoutPending != true
                         ) {
-                            relayoutNodes.add(layoutNode)
+                            relayoutNodes.add(layoutNode, true)
                         }
                     }
                     !duringMeasureLayout
@@ -269,7 +272,7 @@ internal class MeasureAndLayoutDelegate(private val root: LayoutNode) {
                     if (layoutNode.isPlaced) {
                         val parent = layoutNode.parent
                         if (parent?.layoutPending != true && parent?.measurePending != true) {
-                            relayoutNodes.add(layoutNode)
+                            relayoutNodes.add(layoutNode, false)
                         }
                     }
                     !duringMeasureLayout
@@ -332,8 +335,8 @@ internal class MeasureAndLayoutDelegate(private val root: LayoutNode) {
         var rootNodeResized = false
         performMeasureAndLayout {
             if (relayoutNodes.isNotEmpty()) {
-                relayoutNodes.popEach { layoutNode ->
-                    val sizeChanged = remeasureAndRelayoutIfNeeded(layoutNode)
+                relayoutNodes.popEach { layoutNode, affectsLookahead ->
+                    val sizeChanged = remeasureAndRelayoutIfNeeded(layoutNode, affectsLookahead)
                     if (layoutNode === root && sizeChanged) {
                         rootNodeResized = true
                     }
@@ -521,13 +524,10 @@ internal class MeasureAndLayoutDelegate(private val root: LayoutNode) {
         require(!pending(layoutNode))
 
         layoutNode.forEachChild { child ->
-            if (pending(child) && relayoutNodes.contains(child)) {
+            if (pending(child) && relayoutNodes.remove(child, affectsLookahead)) {
                 // If lookaheadMeasurePending && this forceMeasureSubtree call doesn't affect
                 // lookahead, we'll leave the node in the [relayoutNodes] for further lookahead
                 // remeasurement.
-                if (!(child.lookaheadMeasurePending && !affectsLookahead)) {
-                    relayoutNodes.remove(child)
-                }
                 remeasureAndRelayoutIfNeeded(child, affectsLookahead)
             }
 
@@ -543,7 +543,7 @@ internal class MeasureAndLayoutDelegate(private val root: LayoutNode) {
         // if the child was resized during the remeasurement it could request a remeasure on
         // the parent. we need to remeasure now as this function assumes the whole subtree is
         // fully measured as a result of the invocation.
-        if (pending(layoutNode) && relayoutNodes.remove(layoutNode)) {
+        if (pending(layoutNode) && relayoutNodes.remove(layoutNode, affectsLookahead)) {
             remeasureAndRelayoutIfNeeded(layoutNode)
         }
     }

@@ -64,7 +64,7 @@ android {
 }
 
 androidx {
-    name = "AndroidX Preference"
+    name = "Preference"
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2015"
     description = "AndroidX Preference"

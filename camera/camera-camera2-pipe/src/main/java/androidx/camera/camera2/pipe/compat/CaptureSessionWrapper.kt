@@ -128,7 +128,7 @@ internal interface CameraCaptureSessionWrapper : UnsafeWrapper, AutoCloseable {
     fun finalizeOutputConfigurations(outputConfigs: List<OutputConfigurationWrapper>): Boolean
 
     /** @see CameraCaptureSession.StateCallback */
-    interface StateCallback {
+    interface StateCallback : OnSessionFinalized {
         /** @see CameraCaptureSession.StateCallback.onActive */
         fun onActive(session: CameraCaptureSessionWrapper)
 
@@ -146,16 +146,6 @@ internal interface CameraCaptureSessionWrapper : UnsafeWrapper, AutoCloseable {
 
         /** @see CameraCaptureSession.StateCallback.onReady */
         fun onCaptureQueueEmpty(session: CameraCaptureSessionWrapper)
-
-        /**
-         * Artificial event indicating the session is no longer in use and may be called several
-         * times. [onClosed] and [onConfigureFailed] will call this method directly. This method
-         * should also be called whenever the underlying camera devices is closed, and whenever a
-         * subsequent capture session is configured on the same camera device.
-         *
-         * See b/249258992 for more details.
-         */
-        fun onSessionFinalized()
     }
 }
 
@@ -174,7 +164,7 @@ internal interface CameraConstrainedHighSpeedCaptureSessionWrapper : CameraCaptu
 internal class AndroidCaptureSessionStateCallback(
     private val device: CameraDeviceWrapper,
     private val stateCallback: CameraCaptureSessionWrapper.StateCallback,
-    lastStateCallback: CameraCaptureSessionWrapper.StateCallback?,
+    lastStateCallback: OnSessionFinalized?,
     private val cameraErrorListener: CameraErrorListener,
     private val interopSessionStateCallback: CameraCaptureSession.StateCallback? = null
 ) : CameraCaptureSession.StateCallback() {

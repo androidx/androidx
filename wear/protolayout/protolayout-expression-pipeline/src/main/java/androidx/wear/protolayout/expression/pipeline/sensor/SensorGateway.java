@@ -16,69 +16,22 @@
 
 package androidx.wear.protolayout.expression.pipeline.sensor;
 
-import android.Manifest;
-import android.os.Build.VERSION_CODES;
-
 import androidx.annotation.AnyThread;
-import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
-import androidx.annotation.RequiresPermission;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.annotation.UiThread;
+import androidx.wear.protolayout.expression.DynamicBuilders;
+import androidx.wear.protolayout.expression.PlatformDataKey;
+import androidx.wear.protolayout.expression.PlatformHealthSources;
 
-import java.io.Closeable;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
 import java.util.concurrent.Executor;
 
 /**
  * Gateway for proto layout expression library to be able to access sensor data, e.g. health data.
- *
- * <p>Implementations of this class should track a few things:
- *
- * <ul>
- *   <li>Surface lifecycle. Implementations should keep track of the surface provider, registered
- *       consumers, and deregister them all when the surface is not longer available.
- *   <li>Device state. Implementations should react to device state (i.e. ambient mode), and
- *       activity state (i.e. surface being in the foreground), and appropriately set the sampling
- *       rate of the sensor (e.g. high rate when surface is in the foreground, otherwise low-rate or
- *       off).
- * </ul>
  */
-public interface SensorGateway extends Closeable {
-
-    /** Sensor data types that can be subscribed to from {@link SensorGateway}. */
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    @Retention(RetentionPolicy.SOURCE)
-    @RequiresApi(VERSION_CODES.Q)
-    @IntDef({
-        SENSOR_DATA_TYPE_INVALID,
-        SENSOR_DATA_TYPE_HEART_RATE,
-        SENSOR_DATA_TYPE_DAILY_STEP_COUNT
-    })
-    public @interface SensorDataType {};
-
-    /** Invalid data type. Used to return error states. */
-    int SENSOR_DATA_TYPE_INVALID = -1;
-
-    /**
-     * The user's current heart rate. This is an instantaneous reading from the last time it was
-     * sampled. Note that this means that apps which subscribe to passive heart rate data may not
-     * receive exact heart rate data; it will be batched to a given period.
-     */
-    @RequiresPermission(Manifest.permission.BODY_SENSORS)
-    int SENSOR_DATA_TYPE_HEART_RATE = 0;
-
-    /**
-     * The user's current daily step count. Note that this data type will reset to zero at midnight.
-     * each day, and any subscriptions to this data type will log the number of steps the user has
-     * done since 12:00AM local time.
-     */
-    @RequiresApi(VERSION_CODES.Q)
-    @RequiresPermission(Manifest.permission.ACTIVITY_RECOGNITION)
-    int SENSOR_DATA_TYPE_DAILY_STEP_COUNT = 1;
+@RestrictTo(Scope.LIBRARY_GROUP_PREFIX)
+public interface SensorGateway {
 
     /**
      * Consumer for sensor data.
@@ -159,15 +112,15 @@ public interface SensorGateway extends Closeable {
      * type.
      *
      * <p>Note that the callback will be executed on the single background thread (implementation
-     * dependent). To specify the execution thread, use {@link #registerSensorGatewayConsumer(int,
-     * Executor, Consumer)}.
+     * dependent). To specify the execution thread, use {@link #registerSensorGatewayConsumer(
+     * PlatformDataKey, Executor, Consumer)}.
      *
      * @throws SecurityException if the provider does not have permission to provide requested data
      *     type.
      */
     @UiThread
     void registerSensorGatewayConsumer(
-            @SensorDataType int requestedDataType, @NonNull Consumer consumer);
+            @NonNull PlatformDataKey<?> key, @NonNull Consumer consumer);
 
     /**
      * Register for updates for the given data type. This may cause {@link Consumer} to immediately
@@ -184,16 +137,12 @@ public interface SensorGateway extends Closeable {
      */
     @UiThread
     void registerSensorGatewayConsumer(
-            @SensorDataType int requestedDataType,
+            @NonNull PlatformDataKey<?> key,
             @NonNull /* @CallbackExecutor */ Executor executor,
             @NonNull Consumer consumer);
 
     /** Unregister for updates for the given data type. */
     @UiThread
     void unregisterSensorGatewayConsumer(
-            @SensorDataType int requestedDataType, @NonNull Consumer consumer);
-
-    /** See {@link Closeable#close()}. */
-    @Override
-    void close();
+            @NonNull PlatformDataKey<?> key, @NonNull Consumer consumer);
 }

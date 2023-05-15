@@ -39,7 +39,7 @@ android {
 }
 
 androidx {
-    name = "Android Motion Prediction"
+    name = "Motion Prediction"
     type = LibraryType.PUBLISHED_LIBRARY
     mavenVersion = LibraryVersions.INPUT_MOTIONPREDICTION
     inceptionYear = "2022"

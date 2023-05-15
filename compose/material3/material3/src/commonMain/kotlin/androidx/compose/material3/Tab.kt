@@ -52,7 +52,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-
 import kotlin.math.max
 
 /**
@@ -315,7 +314,11 @@ private fun TabBaselineLayout(
                 ) { text() }
             }
             if (icon != null) {
-                Box(Modifier.layoutId("icon")) { icon() }
+                Box(
+                    Modifier
+                        .layoutId("icon")
+                        .padding(horizontal = HorizontalTextPadding)
+                ) { icon() }
             }
         }
     ) { measurables, constraints ->
@@ -430,7 +433,7 @@ private const val TabFadeInAnimationDelay = 100
 private const val TabFadeOutAnimationDuration = 100
 
 // The horizontal padding on the left and right of text
-private val HorizontalTextPadding = 16.dp
+internal val HorizontalTextPadding = 16.dp
 
 // Distance from the top of the indicator to the text baseline when there is one line of text and an
 // icon

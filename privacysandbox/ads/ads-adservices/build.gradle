@@ -50,7 +50,7 @@ android {
 }
 
 androidx {
-    name = "Androidx library for Privacy Preserving APIs."
+    name = "Privacy Sandbox for Ad Services"
     type = LibraryType.PUBLISHED_LIBRARY
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2022"

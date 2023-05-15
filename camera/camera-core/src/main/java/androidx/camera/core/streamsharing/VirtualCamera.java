@@ -227,7 +227,7 @@ class VirtualCamera implements CameraInternal {
         mChildrenActiveState.put(useCase, true);
         DeferrableSurface childSurface = getChildSurface(useCase);
         if (childSurface != null) {
-            forceSetProvider(getUseCaseEdge(useCase), childSurface);
+            forceSetProvider(getUseCaseEdge(useCase), childSurface, useCase.getSessionConfig());
         }
     }
 
@@ -255,7 +255,7 @@ class VirtualCamera implements CameraInternal {
         if (childSurface != null) {
             // If the child has a Surface, connect. VideoCapture uses this mechanism to
             // resume/start recording.
-            forceSetProvider(edge, childSurface);
+            forceSetProvider(edge, childSurface, useCase.getSessionConfig());
         } else {
             // If the child has no Surface, disconnect. VideoCapture uses this mechanism to
             // pause/stop recording.
@@ -275,7 +275,7 @@ class VirtualCamera implements CameraInternal {
         }
         DeferrableSurface childSurface = getChildSurface(useCase);
         if (childSurface != null) {
-            forceSetProvider(edge, childSurface);
+            forceSetProvider(edge, childSurface, useCase.getSessionConfig());
         }
     }
 
@@ -354,13 +354,19 @@ class VirtualCamera implements CameraInternal {
     }
 
     private void forceSetProvider(@NonNull SurfaceEdge edge,
-            @NonNull DeferrableSurface surface) {
+            @NonNull DeferrableSurface childSurface,
+            @NonNull SessionConfig childSessionConfig) {
         edge.invalidate();
         try {
-            edge.setProvider(surface);
+            edge.setProvider(childSurface);
         } catch (DeferrableSurface.SurfaceClosedException e) {
-            // Throws an exception when DeferrableSurface is closed, which should never happen.
-            throw new RuntimeException(e);
+            // The Surface is closed by the child. This will happen when e.g. the child is Preview
+            // with SurfaceView implementation.
+            // Invoke the error listener so it will recreate the pipeline.
+            for (SessionConfig.ErrorListener listener : childSessionConfig.getErrorListeners()) {
+                listener.onError(childSessionConfig,
+                        SessionConfig.SessionError.SESSION_ERROR_SURFACE_NEEDS_RESET);
+            }
         }
     }
 

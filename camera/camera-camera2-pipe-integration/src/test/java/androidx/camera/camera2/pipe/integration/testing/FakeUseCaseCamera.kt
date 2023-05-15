@@ -26,10 +26,14 @@ import androidx.camera.camera2.pipe.RequestTemplate
 import androidx.camera.camera2.pipe.Result3A
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.integration.adapter.CameraStateAdapter
+import androidx.camera.camera2.pipe.integration.compat.StreamConfigurationMapCompat
+import androidx.camera.camera2.pipe.integration.compat.quirk.CameraQuirks
+import androidx.camera.camera2.pipe.integration.compat.workaround.OutputSizesCorrector
 import androidx.camera.camera2.pipe.integration.config.UseCaseCameraComponent
 import androidx.camera.camera2.pipe.integration.config.UseCaseCameraConfig
 import androidx.camera.camera2.pipe.integration.impl.UseCaseCamera
 import androidx.camera.camera2.pipe.integration.impl.UseCaseCameraRequestControl
+import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
 import androidx.camera.core.UseCase
 import androidx.camera.core.impl.CaptureConfig
 import androidx.camera.core.impl.Config
@@ -40,8 +44,14 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.withTimeoutOrNull
 
 class FakeUseCaseCameraComponentBuilder : UseCaseCameraComponent.Builder {
+    var buildInvocationCount = 0
+
+    private val cameraQuirks = CameraQuirks(
+        FakeCameraMetadata(),
+        StreamConfigurationMapCompat(null, OutputSizesCorrector(FakeCameraMetadata(), null))
+    )
     private var config: UseCaseCameraConfig =
-        UseCaseCameraConfig(emptyList(), CameraStateAdapter(), CameraGraph.Flags())
+        UseCaseCameraConfig(emptyList(), CameraStateAdapter(), cameraQuirks, CameraGraph.Flags())
 
     override fun config(config: UseCaseCameraConfig): UseCaseCameraComponent.Builder {
         this.config = config
@@ -49,6 +59,7 @@ class FakeUseCaseCameraComponentBuilder : UseCaseCameraComponent.Builder {
     }
 
     override fun build(): UseCaseCameraComponent {
+        buildInvocationCount++
         return FakeUseCaseCameraComponent(config.provideUseCaseList())
     }
 }

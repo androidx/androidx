@@ -31,10 +31,10 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.tracing.perfetto.PerfettoHandshake
 import androidx.tracing.perfetto.PerfettoHandshake.ExternalLibraryProvider
 import androidx.tracing.perfetto.PerfettoHandshake.ResponseExitCodes.RESULT_CODE_ALREADY_ENABLED
-import androidx.tracing.perfetto.PerfettoHandshake.ResponseExitCodes.RESULT_CODE_ERROR_BINARY_MISSING
-import androidx.tracing.perfetto.PerfettoHandshake.ResponseExitCodes.RESULT_CODE_SUCCESS
 import androidx.tracing.perfetto.PerfettoHandshake.ResponseExitCodes.RESULT_CODE_CANCELLED
+import androidx.tracing.perfetto.PerfettoHandshake.ResponseExitCodes.RESULT_CODE_ERROR_BINARY_MISSING
 import androidx.tracing.perfetto.PerfettoHandshake.ResponseExitCodes.RESULT_CODE_ERROR_OTHER
+import androidx.tracing.perfetto.PerfettoHandshake.ResponseExitCodes.RESULT_CODE_SUCCESS
 import com.google.common.truth.Truth.assertThat
 import java.io.File
 import java.io.StringReader

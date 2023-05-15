@@ -25,17 +25,9 @@ apply plugin: "AndroidXPlugin"
 apply plugin: "com.android.library"
 apply plugin: "AndroidXComposePlugin"
 
-AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project)
 apply from: "${buildscript.sourceFile.parentFile}/shared-dependencies.gradle"
 
-if (!AndroidXComposePlugin.isMultiplatformEnabled(project)) {
-    // We're not sure how to merge icons jars when multiplatform is enabled
-    IconGenerationTask.registerExtendedIconThemeProject(
-            project,
-            android,
-            AndroidXComposePlugin.isMultiplatformEnabled(project)
-    )
-}
+IconGenerationTask.registerExtendedIconThemeProject(project, android)
 
 dependencies.attributesSchema {
     attribute(iconExportAttr)

@@ -91,7 +91,7 @@ internal interface FocusOwner : FocusManager {
     /**
      * Schedule a FocusTarget node to be invalidated after onApplyChanges.
      */
-    fun scheduleInvalidation(node: FocusTargetModifierNode)
+    fun scheduleInvalidation(node: FocusTargetNode)
 
     /**
      * Schedule a FocusEvent node to be invalidated after onApplyChanges.

@@ -24,6 +24,8 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavOptions
+import androidx.navigation.createGraph
+import androidx.navigation.fragment.test.EmptyFragment
 import androidx.navigation.fragment.test.NavigationActivity
 import androidx.navigation.fragment.test.R
 import androidx.navigation.navOptions
@@ -284,6 +286,74 @@ class NavControllerWithFragmentTest {
         assertThat(fm.fragments.size).isEqualTo(2) // start + last dialog fragment
     }
 
+    @Test
+    fun testPopEntryInFragmentResumed() = withNavigationActivity {
+        navController.graph = navController.createGraph("first") {
+            fragment<EmptyFragment>("first")
+            fragment<PopInOnResumeFragment>("second")
+        }
+        navController.navigate("second")
+
+        val fm = supportFragmentManager.findFragmentById(R.id.nav_host)?.childFragmentManager
+        fm?.executePendingTransactions()
+
+        assertThat(navController.currentBackStackEntry?.destination?.route).isEqualTo("first")
+    }
+
+    @LargeTest
+    @Test
+    fun testSystemBackPressAfterPopUpToStartDestinationOffBackStack() = withNavigationActivity {
+        navController.graph = navController.createGraph("first") {
+            fragment<EmptyFragment>("first")
+            fragment<EmptyFragment>("second")
+            fragment<EmptyFragment>("third")
+        }
+        navController.navigate("second")
+        val fm = supportFragmentManager.findFragmentById(R.id.nav_host)?.childFragmentManager
+        fm?.executePendingTransactions()
+
+        navController.navigate("third", navOptions {
+            popUpTo("first") { inclusive = true }
+        })
+        fm?.executePendingTransactions()
+
+        navController.navigate("first")
+        fm?.executePendingTransactions()
+
+        onBackPressedDispatcher.onBackPressed()
+
+        assertThat(navController.currentBackStackEntry?.destination?.route).isEqualTo("third")
+    }
+
+    @LargeTest
+    @Test
+    fun testSystemBackPressAfterPopUpToOffBackStack() = withNavigationActivity {
+        navController.graph = navController.createGraph("first") {
+            fragment<EmptyFragment>("first")
+            fragment<EmptyFragment>("second")
+            fragment<EmptyFragment>("third")
+            fragment<EmptyFragment>("fourth")
+        }
+        navController.navigate("second")
+        val fm = supportFragmentManager.findFragmentById(R.id.nav_host)?.childFragmentManager
+        fm?.executePendingTransactions()
+
+        navController.navigate("third")
+        fm?.executePendingTransactions()
+
+        navController.navigate("fourth", navOptions {
+            popUpTo("second") { inclusive = true }
+        })
+        fm?.executePendingTransactions()
+
+        navController.navigate("second")
+        fm?.executePendingTransactions()
+
+        onBackPressedDispatcher.onBackPressed()
+
+        assertThat(navController.currentBackStackEntry?.destination?.route).isEqualTo("fourth")
+    }
+
     private fun withNavigationActivity(
         block: NavigationActivity.() -> Unit
     ) {
@@ -291,6 +361,15 @@ class NavControllerWithFragmentTest {
             withActivity {
                 this.block()
             }
+        }
+    }
+}
+
+class PopInOnResumeFragment : Fragment(R.layout.strict_view_fragment) {
+    override fun onResume() {
+        super.onResume()
+        findNavController().navigate("first") {
+            popUpTo("first")
         }
     }
 }

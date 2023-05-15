@@ -161,6 +161,17 @@ fun View.isLoading(): Boolean {
         findViewById<View>(emptyLoadingViewID) != null
 }
 
+fun ListView.isItemLoaded(text: String): Boolean {
+    if (childCount > 0 && adapter != null) {
+        return children.any {
+             val matches = arrayListOf<View>()
+             it.findViewsWithText(matches, text, View.FIND_VIEWS_WITH_TEXT)
+             matches.isNotEmpty()
+         }
+    }
+    return false
+}
+
 /**
  * Returns true if list items are fully loaded (i.e. not in loading... state).
  */

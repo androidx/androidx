@@ -1,2 +1,3 @@
 # Bug component: 461355
 per-file AccessibilityDelegateCompat.java = file:accessibility/OWNERS
+per-file ViewCompat.java = file:accessibility/OWNERS

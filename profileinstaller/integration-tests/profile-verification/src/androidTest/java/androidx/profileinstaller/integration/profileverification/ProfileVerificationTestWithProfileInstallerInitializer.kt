@@ -17,6 +17,7 @@
 package androidx.profileinstaller.integration.profileverification
 
 import androidx.profileinstaller.ProfileVerifier.CompilationStatus.RESULT_CODE_COMPILED_WITH_PROFILE
+import androidx.profileinstaller.ProfileVerifier.CompilationStatus.RESULT_CODE_COMPILED_WITH_PROFILE_NON_MATCHING
 import androidx.profileinstaller.ProfileVerifier.CompilationStatus.RESULT_CODE_PROFILE_ENQUEUED_FOR_COMPILATION
 import androidx.profileinstaller.ProfileVersion
 import androidx.test.filters.LargeTest
@@ -47,9 +48,6 @@ class ProfileVerificationTestWithProfileInstallerInitializer {
 
     @Before
     fun setUp() = withPackageName(PACKAGE_NAME_WITH_INITIALIZER) {
-        // TODO: to re-enable for api 34 (b/276970167)
-        assumeTrue(!isApi34)
-
         // Note that this test fails on emulator api 30 (b/251540646)
         assumeTrue(!isApi30)
         uninstall()
@@ -171,7 +169,19 @@ class ProfileVerificationTestWithProfileInstallerInitializer {
             install(apkName = APK_WITH_INITIALIZER_V3, withProfile = true)
             start(ACTIVITY_NAME)
             evaluateUI {
-                profileInstalled(RESULT_CODE_COMPILED_WITH_PROFILE)
+
+                // Taimen Api 28 and Cuttlefish Api 29 behave differently and sometimes return
+                // profile non matching making this test flaky. Here we allow one of those 2
+                // results for these devices.
+                if ((isApi29 && isCuttlefish) || (isApi28 && !isCuttlefish)) {
+                    profileInstalled(
+                        RESULT_CODE_COMPILED_WITH_PROFILE,
+                        RESULT_CODE_COMPILED_WITH_PROFILE_NON_MATCHING
+                    )
+                } else {
+                    profileInstalled(RESULT_CODE_COMPILED_WITH_PROFILE)
+                }
+
                 hasReferenceProfile(true)
                 hasCurrentProfile(true)
             }
@@ -226,7 +236,18 @@ class ProfileVerificationTestWithProfileInstallerInitializer {
             install(apkName = APK_WITH_INITIALIZER_V3, withProfile = true)
             start(ACTIVITY_NAME)
             evaluateUI {
-                profileInstalled(RESULT_CODE_COMPILED_WITH_PROFILE)
+
+                // Taimen Api 28 and Cuttlefish Api 29 behave differently and sometimes return
+                // profile non matching making this test flaky. Here we allow one of those 2
+                // results for these devices.
+                if ((isApi29 && isCuttlefish) || (isApi28 && !isCuttlefish)) {
+                    profileInstalled(
+                        RESULT_CODE_COMPILED_WITH_PROFILE,
+                        RESULT_CODE_COMPILED_WITH_PROFILE_NON_MATCHING
+                    )
+                } else {
+                    profileInstalled(RESULT_CODE_COMPILED_WITH_PROFILE)
+                }
                 hasReferenceProfile(true)
                 hasCurrentProfile(true)
             }

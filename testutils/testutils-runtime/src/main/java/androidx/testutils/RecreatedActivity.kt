@@ -19,9 +19,9 @@ package androidx.testutils
 import android.os.Bundle
 import androidx.annotation.LayoutRes
 import androidx.fragment.app.FragmentActivity
-import org.junit.Assert
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import org.junit.Assert
 
 /**
  * Extension of [FragmentActivity] that keeps track of when it is recreated.

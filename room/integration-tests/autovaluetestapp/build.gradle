@@ -29,7 +29,7 @@ plugins {
 dependencies {
     implementation(project(":room:room-common"))
     implementation(project(":room:room-runtime"))
-    implementation(projectOrArtifact(":arch:core:core-runtime"))
+    implementation("androidx.arch.core:core-runtime:2.2.0")
 
     // depend on the shadowed version so that it tests with the shipped artifact
     androidTestAnnotationProcessor project(path: ":room:room-compiler",
@@ -37,9 +37,8 @@ dependencies {
     androidTestAnnotationProcessor(libs.autoValue)
     androidTestAnnotationProcessor(libs.autoValueParcel)
 
-    androidTestImplementation(projectOrArtifact(":arch:core:core-runtime")) // Added for b/155802460
     androidTestImplementation(project(":room:room-testing"))
-    androidTestImplementation("androidx.arch.core:core-testing:2.0.1")
+    androidTestImplementation("androidx.arch.core:core-testing:2.2.0")
     androidTestImplementation(libs.autoValueAnnotations)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)

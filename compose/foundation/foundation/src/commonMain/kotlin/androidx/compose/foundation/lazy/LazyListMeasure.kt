@@ -20,8 +20,6 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.fastFilter
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.lazy.layout.LazyLayoutPinnedItemList
-import androidx.compose.foundation.lazy.layout.findIndexByKey
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.unit.Constraints
@@ -31,7 +29,6 @@ import androidx.compose.ui.unit.constrainHeight
 import androidx.compose.ui.unit.constrainWidth
 import androidx.compose.ui.util.fastForEach
 import kotlin.math.abs
-import kotlin.math.min
 import kotlin.math.roundToInt
 import kotlin.math.sign
 
@@ -42,13 +39,12 @@ import kotlin.math.sign
 @OptIn(ExperimentalFoundationApi::class)
 internal fun measureLazyList(
     itemsCount: Int,
-    itemProvider: LazyListItemProvider,
     measuredItemProvider: LazyListMeasuredItemProvider,
     mainAxisAvailableSize: Int,
     beforeContentPadding: Int,
     afterContentPadding: Int,
     spaceBetweenItems: Int,
-    firstVisibleItemIndex: DataIndex,
+    firstVisibleItemIndex: Int,
     firstVisibleItemScrollOffset: Int,
     scrollToBeConsumed: Float,
     constraints: Constraints,
@@ -59,9 +55,8 @@ internal fun measureLazyList(
     reverseLayout: Boolean,
     density: Density,
     placementAnimator: LazyListItemPlacementAnimator,
-    beyondBoundsInfo: LazyListBeyondBoundsInfo,
     beyondBoundsItemCount: Int,
-    pinnedItems: LazyLayoutPinnedItemList,
+    pinnedItems: List<Int>,
     layout: (Int, Int, Placeable.PlacementScope.() -> Unit) -> MeasureResult
 ): LazyListMeasureResult {
     require(beforeContentPadding >= 0)
@@ -86,10 +81,10 @@ internal fun measureLazyList(
     } else {
         var currentFirstItemIndex = firstVisibleItemIndex
         var currentFirstItemScrollOffset = firstVisibleItemScrollOffset
-        if (currentFirstItemIndex.value >= itemsCount) {
+        if (currentFirstItemIndex >= itemsCount) {
             // the data set has been updated and now we have less items that we were
             // scrolled to before
-            currentFirstItemIndex = DataIndex(itemsCount - 1)
+            currentFirstItemIndex = itemsCount - 1
             currentFirstItemScrollOffset = 0
         }
 
@@ -101,7 +96,7 @@ internal fun measureLazyList(
         currentFirstItemScrollOffset -= scrollDelta
 
         // if the current scroll offset is less than minimally possible
-        if (currentFirstItemIndex == DataIndex(0) && currentFirstItemScrollOffset < 0) {
+        if (currentFirstItemIndex == 0 && currentFirstItemScrollOffset < 0) {
             scrollDelta += currentFirstItemScrollOffset
             currentFirstItemScrollOffset = 0
         }
@@ -124,8 +119,8 @@ internal fun measureLazyList(
         // we had scrolled backward or we compose items in the start padding area, which means
         // items before current firstItemScrollOffset should be visible. compose them and update
         // firstItemScrollOffset
-        while (currentFirstItemScrollOffset < 0 && currentFirstItemIndex > DataIndex(0)) {
-            val previous = DataIndex(currentFirstItemIndex.value - 1)
+        while (currentFirstItemScrollOffset < 0 && currentFirstItemIndex > 0) {
+            val previous = currentFirstItemIndex - 1
             val measuredItem = measuredItemProvider.getAndMeasure(previous)
             visibleItems.add(0, measuredItem)
             maxCrossAxis = maxOf(maxCrossAxis, measuredItem.crossAxisSize)
@@ -156,7 +151,7 @@ internal fun measureLazyList(
         // then composing visible items forward until we fill the whole viewport.
         // we want to have at least one item in visibleItems even if in fact all the items are
         // offscreen, this can happen if the content padding is larger than the available size.
-        while (index.value < itemsCount &&
+        while (index < itemsCount &&
             (currentMainAxisOffset < maxMainAxis ||
                 currentMainAxisOffset <= 0 || // filling beforeContentPadding area
                 visibleItems.isEmpty())
@@ -164,7 +159,7 @@ internal fun measureLazyList(
             val measuredItem = measuredItemProvider.getAndMeasure(index)
             currentMainAxisOffset += measuredItem.sizeWithSpacings
 
-            if (currentMainAxisOffset <= minOffset && index.value != itemsCount - 1) {
+            if (currentMainAxisOffset <= minOffset && index != itemsCount - 1) {
                 // this item is offscreen and will not be placed. advance firstVisibleItemIndex
                 currentFirstItemIndex = index + 1
                 currentFirstItemScrollOffset -= measuredItem.sizeWithSpacings
@@ -183,9 +178,9 @@ internal fun measureLazyList(
             currentFirstItemScrollOffset -= toScrollBack
             currentMainAxisOffset += toScrollBack
             while (currentFirstItemScrollOffset < beforeContentPadding &&
-                currentFirstItemIndex > DataIndex(0)
+                currentFirstItemIndex > 0
             ) {
-                val previousIndex = DataIndex(currentFirstItemIndex.value - 1)
+                val previousIndex = currentFirstItemIndex - 1
                 val measuredItem = measuredItemProvider.getAndMeasure(previousIndex)
                 visibleItems.add(0, measuredItem)
                 maxCrossAxis = maxOf(maxCrossAxis, measuredItem.crossAxisSize)
@@ -235,11 +230,8 @@ internal fun measureLazyList(
 
         // Compose extra items before
         val extraItemsBefore = createItemsBeforeList(
-            beyondBoundsInfo = beyondBoundsInfo,
             currentFirstItemIndex = currentFirstItemIndex,
             measuredItemProvider = measuredItemProvider,
-            itemProvider = itemProvider,
-            itemsCount = itemsCount,
             beyondBoundsItemCount = beyondBoundsItemCount,
             pinnedItems = pinnedItems
         )
@@ -251,10 +243,8 @@ internal fun measureLazyList(
 
         // Compose items after last item
         val extraItemsAfter = createItemsAfterList(
-            beyondBoundsInfo = beyondBoundsInfo,
             visibleItems = visibleItems,
             measuredItemProvider = measuredItemProvider,
-            itemProvider = itemProvider,
             itemsCount = itemsCount,
             beyondBoundsItemCount = beyondBoundsItemCount,
             pinnedItems = pinnedItems
@@ -295,7 +285,8 @@ internal fun measureLazyList(
             layoutWidth = layoutWidth,
             layoutHeight = layoutHeight,
             positionedItems = positionedItems,
-            itemProvider = measuredItemProvider
+            itemProvider = measuredItemProvider,
+            isVertical = isVertical
         )
 
         val headerItem = if (headerIndexes.isNotEmpty()) {
@@ -314,7 +305,7 @@ internal fun measureLazyList(
         return LazyListMeasureResult(
             firstVisibleItem = firstItem,
             firstVisibleItemScrollOffset = currentFirstItemScrollOffset,
-            canScrollForward = index.value < itemsCount || currentMainAxisOffset > maxOffset,
+            canScrollForward = index < itemsCount || currentMainAxisOffset > maxOffset,
             consumedScroll = consumedScroll,
             measureResult = layout(layoutWidth, layoutHeight) {
                 positionedItems.fastForEach {
@@ -340,18 +331,13 @@ internal fun measureLazyList(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 private fun createItemsAfterList(
-    beyondBoundsInfo: LazyListBeyondBoundsInfo,
     visibleItems: MutableList<LazyListMeasuredItem>,
     measuredItemProvider: LazyListMeasuredItemProvider,
-    itemProvider: LazyListItemProvider,
     itemsCount: Int,
     beyondBoundsItemCount: Int,
-    pinnedItems: LazyLayoutPinnedItemList
+    pinnedItems: List<Int>
 ): List<LazyListMeasuredItem> {
-    fun LazyListBeyondBoundsInfo.endIndex() = min(end, itemsCount - 1)
-
     var list: MutableList<LazyListMeasuredItem>? = null
 
     var end = visibleItems.last().index
@@ -359,12 +345,8 @@ private fun createItemsAfterList(
     fun addItem(index: Int) {
         if (list == null) list = mutableListOf()
         requireNotNull(list).add(
-            measuredItemProvider.getAndMeasure(DataIndex(index))
+            measuredItemProvider.getAndMeasure(index)
         )
-    }
-
-    if (beyondBoundsInfo.hasIntervals()) {
-        end = maxOf(beyondBoundsInfo.endIndex(), end)
     }
 
     end = minOf(end + beyondBoundsItemCount, itemsCount - 1)
@@ -373,9 +355,8 @@ private fun createItemsAfterList(
         addItem(i)
     }
 
-    pinnedItems.fastForEach { item ->
-        val index = itemProvider.findIndexByKey(item.key, item.index)
-        if (index > end && index < itemsCount) {
+    pinnedItems.fastForEach { index ->
+        if (index > end) {
             addItem(index)
         }
     }
@@ -383,41 +364,30 @@ private fun createItemsAfterList(
     return list ?: emptyList()
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 private fun createItemsBeforeList(
-    beyondBoundsInfo: LazyListBeyondBoundsInfo,
-    currentFirstItemIndex: DataIndex,
+    currentFirstItemIndex: Int,
     measuredItemProvider: LazyListMeasuredItemProvider,
-    itemProvider: LazyListItemProvider,
-    itemsCount: Int,
     beyondBoundsItemCount: Int,
-    pinnedItems: LazyLayoutPinnedItemList
+    pinnedItems: List<Int>
 ): List<LazyListMeasuredItem> {
-    fun LazyListBeyondBoundsInfo.startIndex() = min(start, itemsCount - 1)
-
     var list: MutableList<LazyListMeasuredItem>? = null
 
-    var start = currentFirstItemIndex.value
+    var start = currentFirstItemIndex
 
     fun addItem(index: Int) {
         if (list == null) list = mutableListOf()
         requireNotNull(list).add(
-            measuredItemProvider.getAndMeasure(DataIndex(index))
+            measuredItemProvider.getAndMeasure(index)
         )
-    }
-
-    if (beyondBoundsInfo.hasIntervals()) {
-        start = minOf(beyondBoundsInfo.startIndex(), start)
     }
 
     start = maxOf(0, start - beyondBoundsItemCount)
 
-    for (i in currentFirstItemIndex.value - 1 downTo start) {
+    for (i in currentFirstItemIndex - 1 downTo start) {
         addItem(i)
     }
 
-    pinnedItems.fastForEach { item ->
-        val index = itemProvider.findIndexByKey(item.key, item.index)
+    pinnedItems.fastForEach { index ->
         if (index < start) {
             addItem(index)
         }

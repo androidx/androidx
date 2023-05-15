@@ -130,11 +130,13 @@ class DateRangeInputTest {
             startDateRangeInputLabel = getString(string = Strings.DateRangePickerStartHeadline)
             endDateRangeInputLabel = getString(string = Strings.DateRangePickerEndHeadline)
             errorMessage = getString(string = Strings.DateInputInvalidNotAllowed)
-            state = rememberDateRangePickerState(initialDisplayMode = DisplayMode.Input)
-            DateRangePicker(state = state,
-                // All dates are invalid for the sake of this test.
-                dateValidator = { false }
-            )
+            state = rememberDateRangePickerState(
+                initialDisplayMode = DisplayMode.Input,
+                selectableDates = object : SelectableDates {
+                    // All dates are invalid for the sake of this test.
+                    override fun isSelectableDate(utcTimeMillis: Long): Boolean = false
+                })
+            DateRangePicker(state = state)
         }
 
         // Enter dates.

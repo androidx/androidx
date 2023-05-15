@@ -1,0 +1,17 @@
+// Baseline format: 1.0
+InvalidNullConversion: androidx.core.util.LongSparseArrayKt#containsValue(android.util.LongSparseArray<T>, T) parameter #1:
+    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter value in androidx.core.util.LongSparseArrayKt.containsValue(android.util.LongSparseArray<T> arg1, T value)
+InvalidNullConversion: androidx.core.util.LongSparseArrayKt#getOrDefault(android.util.LongSparseArray<T>, long, T) parameter #2:
+    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter defaultValue in androidx.core.util.LongSparseArrayKt.getOrDefault(android.util.LongSparseArray<T> arg1, long key, T defaultValue)
+InvalidNullConversion: androidx.core.util.LongSparseArrayKt#remove(android.util.LongSparseArray<T>, long, T) parameter #2:
+    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter value in androidx.core.util.LongSparseArrayKt.remove(android.util.LongSparseArray<T> arg1, long key, T value)
+InvalidNullConversion: androidx.core.util.LongSparseArrayKt#set(android.util.LongSparseArray<T>, long, T) parameter #2:
+    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter value in androidx.core.util.LongSparseArrayKt.set(android.util.LongSparseArray<T> arg1, long key, T value)
+InvalidNullConversion: androidx.core.util.SparseArrayKt#containsValue(android.util.SparseArray<T>, T) parameter #1:
+    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter value in androidx.core.util.SparseArrayKt.containsValue(android.util.SparseArray<T> arg1, T value)
+InvalidNullConversion: androidx.core.util.SparseArrayKt#getOrDefault(android.util.SparseArray<T>, int, T) parameter #2:
+    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter defaultValue in androidx.core.util.SparseArrayKt.getOrDefault(android.util.SparseArray<T> arg1, int key, T defaultValue)
+InvalidNullConversion: androidx.core.util.SparseArrayKt#remove(android.util.SparseArray<T>, int, T) parameter #2:
+    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter value in androidx.core.util.SparseArrayKt.remove(android.util.SparseArray<T> arg1, int key, T value)
+InvalidNullConversion: androidx.core.util.SparseArrayKt#set(android.util.SparseArray<T>, int, T) parameter #2:
+    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter value in androidx.core.util.SparseArrayKt.set(android.util.SparseArray<T> arg1, int key, T value)

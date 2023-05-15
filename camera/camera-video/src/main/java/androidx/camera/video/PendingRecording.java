@@ -157,7 +157,9 @@ public final class PendingRecording {
      *
      * <p>If the returned {@link Recording} is garbage collected, the recording will be
      * automatically stopped. A reference to the active recording must be maintained as long as
-     * the recording needs to be active.
+     * the recording needs to be active. If the recording is garbage collected, the
+     * {@link VideoRecordEvent.Finalize} event will contain error
+     * {@link VideoRecordEvent.Finalize#ERROR_RECORDING_GARBAGE_COLLECTED}.
      *
      * @throws IllegalStateException if the associated Recorder currently has an unfinished
      * active recording.

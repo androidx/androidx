@@ -39,14 +39,14 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.testutils.waitForExecution
 import androidx.testutils.withActivity
 import com.google.common.truth.Truth.assertThat
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.runner.RunWith
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import leakcanary.DetectLeaksAfterTestSuccess
+import org.junit.Before
+import org.junit.Rule
+import org.junit.Test
 import org.junit.rules.RuleChain
+import org.junit.runner.RunWith
 
 @LargeTest
 @RunWith(AndroidJUnit4::class)

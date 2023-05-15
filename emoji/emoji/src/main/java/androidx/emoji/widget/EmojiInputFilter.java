@@ -15,8 +15,10 @@
  */
 package androidx.emoji.widget;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
+import android.os.Handler;
 import android.text.Selection;
 import android.text.Spannable;
 import android.text.Spanned;
@@ -88,14 +90,16 @@ final class EmojiInputFilter implements android.text.InputFilter {
         }
     }
 
-    private InitCallback getInitCallback() {
+    @RestrictTo(LIBRARY)
+    InitCallback getInitCallback() {
         if (mInitCallback == null) {
             mInitCallback = new InitCallbackImpl(mTextView);
         }
         return mInitCallback;
     }
 
-    private static class InitCallbackImpl extends InitCallback {
+    @RestrictTo(LIBRARY)
+    static class InitCallbackImpl extends InitCallback implements Runnable {
         private final Reference<TextView> mViewRef;
 
         InitCallbackImpl(TextView textView) {
@@ -106,7 +110,23 @@ final class EmojiInputFilter implements android.text.InputFilter {
         public void onInitialized() {
             super.onInitialized();
             final TextView textView = mViewRef.get();
-            if (textView != null && textView.isAttachedToWindow()) {
+            if (textView == null) {
+                return;
+            }
+            // we need to move to the actual thread this view is using as main
+            Handler handler = textView.getHandler();
+            if (handler != null) {
+                handler.post(this);
+            }
+        }
+
+        @Override
+        public void run() {
+            final TextView textView = mViewRef.get();
+            if (textView == null) {
+                return;
+            }
+            if (textView.isAttachedToWindow()) {
                 final CharSequence result = EmojiCompat.get().process(textView.getText());
 
                 final int selectionStart = Selection.getSelectionStart(result);

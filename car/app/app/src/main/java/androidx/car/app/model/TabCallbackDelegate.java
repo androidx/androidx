@@ -21,7 +21,6 @@ import android.annotation.SuppressLint;
 import androidx.annotation.NonNull;
 import androidx.car.app.OnDoneCallback;
 import androidx.car.app.annotations.CarProtocol;
-import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.RequiresCarApi;
 
 /**
@@ -29,7 +28,6 @@ import androidx.car.app.annotations.RequiresCarApi;
  * {@link androidx.car.app.model.TabTemplate.TabCallback} events to the car app.
  */
 @CarProtocol
-@ExperimentalCarApi
 @RequiresCarApi(6)
 public interface TabCallbackDelegate {
     /**

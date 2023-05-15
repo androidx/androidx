@@ -1,7 +1,6 @@
 package androidx.glance.appwidget.demos
 
 import android.content.Context
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.glance.Button
@@ -14,6 +13,7 @@ import androidx.glance.appwidget.GlanceAppWidgetReceiver
 import androidx.glance.appwidget.action.ActionCallback
 import androidx.glance.appwidget.action.actionRunCallback
 import androidx.glance.appwidget.appWidgetBackground
+import androidx.glance.appwidget.provideContent
 import androidx.glance.appwidget.state.updateAppWidgetState
 import androidx.glance.background
 import androidx.glance.currentState
@@ -35,9 +35,7 @@ private val ClickValueKey = ActionParameters.Key<Int>("ClickValue")
 // the +/- clicks values.
 class DefaultStateAppWidget : GlanceAppWidget() {
 
-    @Composable
-    @Deprecated("")
-    override fun Content() {
+    override suspend fun provideGlance(context: Context, id: GlanceId) = provideContent {
         // Get the current stored value for the given Key.
         val count = currentState(CountClicksKey) ?: 0
 

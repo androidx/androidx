@@ -28,6 +28,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.RangeSlider
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
+import androidx.compose.material3.SliderState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -88,7 +89,7 @@ fun SliderWithCustomThumbSample() {
             value = sliderPosition,
             onValueChange = { sliderPosition = it },
             valueRange = 0f..5f,
-            steps = 4,
+            steps = 10,
             onValueChangeFinished = {
                 // launch some business logic update with the state you hold
                 // viewModel.updateSelectedSliderValue(sliderPosition)
@@ -110,20 +111,22 @@ fun SliderWithCustomThumbSample() {
 @Sampled
 @Composable
 fun SliderWithCustomTrackAndThumb() {
-    var sliderPosition by remember { mutableStateOf(0f) }
-    val interactionSource = MutableInteractionSource()
-    val colors = SliderDefaults.colors(thumbColor = Color.Red, activeTrackColor = Color.Red)
-    Column {
-        Text(text = sliderPosition.toString())
-        Slider(
-            modifier = Modifier.semantics { contentDescription = "Localized Description" },
-            value = sliderPosition,
-            onValueChange = { sliderPosition = it },
+    val sliderState = remember {
+        SliderState(
             valueRange = 0f..100f,
             onValueChangeFinished = {
                 // launch some business logic update with the state you hold
                 // viewModel.updateSelectedSliderValue(sliderPosition)
-            },
+            }
+        )
+    }
+    val interactionSource = MutableInteractionSource()
+    val colors = SliderDefaults.colors(thumbColor = Color.Red, activeTrackColor = Color.Red)
+    Column {
+        Text(text = sliderState.value.toString())
+        Slider(
+            state = sliderState,
+            modifier = Modifier.semantics { contentDescription = "Localized Description" },
             interactionSource = interactionSource,
             thumb = {
                 SliderDefaults.Thumb(
@@ -131,17 +134,16 @@ fun SliderWithCustomTrackAndThumb() {
                     colors = colors
                 )
             },
-            track = { sliderPositions ->
+            track = {
                 SliderDefaults.Track(
                     colors = colors,
-                    sliderPositions = sliderPositions
+                    sliderState = sliderState
                 )
             }
         )
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Sampled
 @Composable
@@ -162,7 +164,6 @@ fun RangeSliderSample() {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Sampled
 @Composable

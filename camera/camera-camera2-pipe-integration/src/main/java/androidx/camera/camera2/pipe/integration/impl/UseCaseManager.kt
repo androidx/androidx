@@ -23,6 +23,7 @@ import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.integration.adapter.CameraStateAdapter
+import androidx.camera.camera2.pipe.integration.compat.quirk.CameraQuirks
 import androidx.camera.camera2.pipe.integration.config.CameraConfig
 import androidx.camera.camera2.pipe.integration.config.CameraScope
 import androidx.camera.camera2.pipe.integration.config.UseCaseCameraComponent
@@ -30,9 +31,11 @@ import androidx.camera.camera2.pipe.integration.config.UseCaseCameraConfig
 import androidx.camera.camera2.pipe.integration.interop.Camera2CameraControl
 import androidx.camera.camera2.pipe.integration.interop.ExperimentalCamera2Interop
 import androidx.camera.core.UseCase
+import androidx.camera.core.impl.CameraInternal
 import androidx.camera.core.impl.DeferrableSurface
 import androidx.camera.core.impl.SessionConfig.ValidatingBuilder
 import javax.inject.Inject
+import javax.inject.Provider
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.joinAll
 
@@ -72,7 +75,9 @@ class UseCaseManager @Inject constructor(
     private val controls: java.util.Set<UseCaseCameraControl>,
     private val camera2CameraControl: Camera2CameraControl,
     private val cameraStateAdapter: CameraStateAdapter,
+    private val cameraQuirks: CameraQuirks,
     private val cameraGraphFlags: CameraGraph.Flags,
+    private val cameraInternal: Provider<CameraInternal>,
     cameraProperties: CameraProperties,
     displayInfoManager: DisplayInfoManager,
 ) {
@@ -83,6 +88,9 @@ class UseCaseManager @Inject constructor(
 
     @GuardedBy("lock")
     private val activeUseCases = mutableSetOf<UseCase>()
+
+    @GuardedBy("lock")
+    private var activeResumeEnabled = false
 
     private val meteringRepeating by lazy {
         MeteringRepeating.Builder(
@@ -122,9 +130,7 @@ class UseCaseManager @Inject constructor(
         }
 
         if (attachedUseCases.addAll(useCases)) {
-            if (shouldAddRepeatingUseCase(getRunningUseCases())) {
-                addRepeatingUseCase()
-            } else {
+            if (!addOrRemoveRepeatingUseCase(getRunningUseCases())) {
                 refreshAttachedUseCases(attachedUseCases)
             }
         }
@@ -162,8 +168,7 @@ class UseCaseManager @Inject constructor(
         // TODO: We might only want to tear down when the number of attached use cases goes to
         //  zero. If a single UseCase is removed, we could deactivate it?
         if (attachedUseCases.removeAll(useCases)) {
-            if (shouldRemoveRepeatingUseCase(getRunningUseCases())) {
-                removeRepeatingUseCase()
+            if (addOrRemoveRepeatingUseCase(getRunningUseCases())) {
                 return
             }
             refreshAttachedUseCases(attachedUseCases)
@@ -204,6 +209,11 @@ class UseCaseManager @Inject constructor(
         if (attachedUseCases.contains(useCase)) {
             refreshAttachedUseCases(attachedUseCases)
         }
+    }
+
+    fun setActiveResumeMode(enabled: Boolean) = synchronized(lock) {
+        activeResumeEnabled = enabled
+        camera?.setActiveResumeMode(enabled)
     }
 
     suspend fun close() {
@@ -257,11 +267,19 @@ class UseCaseManager @Inject constructor(
 
         // Create and configure the new camera component.
         _activeComponent =
-            builder.config(UseCaseCameraConfig(useCases, cameraStateAdapter, cameraGraphFlags))
+            builder.config(
+                UseCaseCameraConfig(
+                    useCases,
+                    cameraStateAdapter,
+                    cameraQuirks,
+                    cameraGraphFlags
+                )
+            )
                 .build()
         for (control in allControls) {
             control.useCaseCamera = camera
         }
+        camera?.setActiveResumeMode(activeResumeEnabled)
 
         refreshRunningUseCases()
     }
@@ -269,6 +287,25 @@ class UseCaseManager @Inject constructor(
     @GuardedBy("lock")
     private fun getRunningUseCases(): Set<UseCase> {
         return attachedUseCases.intersect(activeUseCases)
+    }
+
+    /**
+     * Adds or removes repeating use case if needed.
+     *
+     * @param runningUseCases the set of currently running use cases
+     * @return true if repeating use cases is added or removed, false otherwise
+     */
+    @GuardedBy("lock")
+    private fun addOrRemoveRepeatingUseCase(runningUseCases: Set<UseCase>): Boolean {
+        if (shouldAddRepeatingUseCase(runningUseCases)) {
+            addRepeatingUseCase()
+            return true
+        }
+        if (shouldRemoveRepeatingUseCase(runningUseCases)) {
+            removeRepeatingUseCase()
+            return true
+        }
+        return false
     }
 
     @GuardedBy("lock")
@@ -284,6 +321,7 @@ class UseCaseManager @Inject constructor(
 
     @GuardedBy("lock")
     private fun addRepeatingUseCase() {
+        meteringRepeating.bindToCamera(cameraInternal.get(), null, null)
         meteringRepeating.setupSession()
         attach(listOf(meteringRepeating))
         activate(meteringRepeating)
@@ -304,7 +342,7 @@ class UseCaseManager @Inject constructor(
     private fun removeRepeatingUseCase() {
         deactivate(meteringRepeating)
         detach(listOf(meteringRepeating))
-        meteringRepeating.onUnbind()
+        meteringRepeating.unbindFromCamera(cameraInternal.get())
     }
 
     private fun Collection<UseCase>.onlyVideoCapture(): Boolean {

@@ -17,7 +17,6 @@
 package androidx.camera.core.imagecapture
 
 import android.graphics.ImageFormat
-import android.graphics.Matrix
 import android.graphics.Rect
 import android.hardware.camera2.CameraDevice
 import android.os.Build
@@ -28,6 +27,7 @@ import androidx.camera.core.ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY
 import androidx.camera.core.ImageCapture.CaptureMode
 import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.ImageProxy
+import androidx.camera.core.ImageReaderProxyProvider
 import androidx.camera.core.SafeCloseImageReaderProxy
 import androidx.camera.core.imagecapture.CaptureNode.MAX_IMAGES
 import androidx.camera.core.imagecapture.ImagePipeline.JPEG_QUALITY_MAX_QUALITY
@@ -46,14 +46,14 @@ import androidx.camera.core.imagecapture.Utils.injectRotationOptionQuirk
 import androidx.camera.core.impl.CaptureConfig
 import androidx.camera.core.impl.CaptureConfig.OPTION_ROTATION
 import androidx.camera.core.impl.ImageCaptureConfig
+import androidx.camera.core.impl.ImageCaptureConfig.OPTION_BUFFER_FORMAT
 import androidx.camera.core.impl.ImageInputConfig
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor
 import androidx.camera.core.impl.utils.futures.Futures
 import androidx.camera.core.internal.IoConfig.OPTION_IO_EXECUTOR
-import androidx.camera.core.processing.Packet
 import androidx.camera.testing.TestImageUtil.createJpegBytes
 import androidx.camera.testing.TestImageUtil.createJpegFakeImageProxy
-import androidx.camera.testing.fakes.FakeCameraCaptureResult
+import androidx.camera.testing.TestImageUtil.createYuvFakeImageProxy
 import androidx.camera.testing.fakes.FakeImageInfo
 import androidx.camera.testing.fakes.FakeImageReaderProxy
 import androidx.camera.testing.fakes.GrayscaleImageEffect
@@ -89,9 +89,10 @@ class ImagePipelineTest {
     @Before
     fun setUp() {
         // Create ImageCaptureConfig.
-        val builder = ImageCapture.Builder().setCaptureOptionUnpacker { _, builder ->
-            builder.templateType = TEMPLATE_TYPE
-        }
+        val builder = ImageCapture.Builder()
+            .setCaptureOptionUnpacker { _, builder ->
+                builder.templateType = TEMPLATE_TYPE
+            }
         builder.mutableConfig.insertOption(OPTION_IO_EXECUTOR, mainThreadExecutor())
         builder.mutableConfig.insertOption(ImageInputConfig.OPTION_INPUT_FORMAT, ImageFormat.JPEG)
         imageCaptureConfig = builder.useCaseConfig
@@ -101,6 +102,31 @@ class ImagePipelineTest {
     @After
     fun tearDown() {
         imagePipeline.close()
+    }
+
+    @Test
+    fun createPipeline_captureNodeHasImageReaderProxyProvider() {
+        // Arrange.
+        val imageReaderProxyProvider = ImageReaderProxyProvider { _, _, _, _, _ ->
+            FakeImageReaderProxy(MAX_IMAGES)
+        }
+        val builder = ImageCapture.Builder()
+            .setImageReaderProxyProvider(imageReaderProxyProvider)
+            .setCaptureOptionUnpacker { _, builder ->
+                builder.templateType = TEMPLATE_TYPE
+            }
+        builder.mutableConfig.insertOption(ImageInputConfig.OPTION_INPUT_FORMAT, ImageFormat.JPEG)
+        // Act.
+        val pipeline = ImagePipeline(builder.useCaseConfig, SIZE)
+        // Assert.
+        assertThat(pipeline.captureNode.inputEdge.imageReaderProxyProvider).isEqualTo(
+            imageReaderProxyProvider
+        )
+    }
+
+    @Test
+    fun createPipelineWithoutImageReaderProxyProvider_isNull() {
+        assertThat(imagePipeline.captureNode.inputEdge.imageReaderProxyProvider).isNull()
     }
 
     @Test
@@ -129,37 +155,6 @@ class ImagePipelineTest {
                 false
             ).processingNode.mImageProcessor
         ).isNotNull()
-    }
-
-    @Test
-    fun createPipelineWithVirtualCamera_plumbedToProcessingInput2PacketOperation() {
-        // Arrange: create a pipeline with a virtual camera.
-        val pipeline = ImagePipeline(
-            imageCaptureConfig,
-            SIZE,
-            GrayscaleImageEffect(),
-            true
-        )
-        // Listen to the input to packet operation.
-        var isVirtualCamera = false
-        pipeline.processingNode.injectProcessingInput2Packet {
-            isVirtualCamera = it.isVirtualCamera
-            return@injectProcessingInput2Packet Packet.of(
-                it.imageProxy,
-                null,
-                it.imageProxy.cropRect,
-                it.imageProxy.format,
-                Matrix(),
-                FakeCameraCaptureResult()
-            )
-        }
-
-        // Act: send in-memory request.
-        sendInMemoryRequest(pipeline)
-
-        // Assert: the input packet is marked as from a virtual camera.
-        assertThat(isVirtualCamera).isTrue()
-        pipeline.close()
     }
 
     @Test
@@ -306,6 +301,34 @@ class ImagePipelineTest {
         val captureConfig = cameraRequest.captureConfigs.single()
         assertThat(captureConfig.tagBundle.getTag(processingRequest.tagBundleKey))
             .isEqualTo(processingRequest.stageIds.single())
+    }
+
+    @Test
+    fun createPipelineWithYuvOutput_getsYuvImage() {
+        val builder = ImageCapture.Builder().setCaptureOptionUnpacker { _, builder ->
+            builder.templateType = TEMPLATE_TYPE
+        }
+        builder.mutableConfig.insertOption(OPTION_BUFFER_FORMAT, ImageFormat.YUV_420_888)
+        builder.mutableConfig.insertOption(OPTION_IO_EXECUTOR, mainThreadExecutor())
+        builder.mutableConfig.insertOption(ImageInputConfig.OPTION_INPUT_FORMAT, ImageFormat.JPEG)
+        val pipeline = ImagePipeline(builder.useCaseConfig, SIZE)
+
+        // Arrange.
+        val processingRequest = imagePipeline.createRequests(
+            IN_MEMORY_REQUEST, CALLBACK, Futures.immediateFuture(null)
+        ).second!!
+        val imageInfo = createCameraCaptureResultImageInfo(
+            processingRequest.tagBundleKey,
+            processingRequest.stageIds.single()
+        )
+        val image = createYuvFakeImageProxy(imageInfo, WIDTH, HEIGHT)
+
+        // Act: send processing request and the image.
+        pipeline.submitProcessingRequest(processingRequest)
+        pipeline.captureNode.onImageProxyAvailable(image)
+        shadowOf(getMainLooper()).idle()
+
+        assertThat(CALLBACK.inMemoryResult!!.format).isEqualTo(ImageFormat.YUV_420_888)
     }
 
     @Test

@@ -35,11 +35,16 @@ import androidx.wear.protolayout.renderer.impl.ProtoLayoutViewInstance;
 import androidx.wear.tiles.TileService;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.util.concurrent.FluentFuture;
+import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
 
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 
 /**
@@ -80,8 +85,8 @@ public final class TileRenderer {
      * @param loadActionExecutor Executor for {@code loadActionListener}.
      * @param loadActionListener Listener for clicks that will cause the contents to be reloaded.
      * @deprecated Use {@link #TileRenderer(Context, Executor, Consumer)} which accepts Layout and
-     *     Resources in {@link #inflate(LayoutElementBuilders.Layout, ResourceBuilders.Resources,
-     *     ViewGroup)} method.
+     *     Resources in {@link #inflateAsync(LayoutElementBuilders.Layout,
+     *     ResourceBuilders.Resources, ViewGroup)} method.
      */
     @Deprecated
     public TileRenderer(
@@ -109,8 +114,8 @@ public final class TileRenderer {
      * @param loadActionExecutor Executor for {@code loadActionListener}.
      * @param loadActionListener Listener for clicks that will cause the contents to be reloaded.
      * @deprecated Use {@link #TileRenderer(Context, Executor, Consumer)} which accepts Layout and
-     *     Resources in {@link #inflate(LayoutElementBuilders.Layout, ResourceBuilders.Resources,
-     *     ViewGroup)} method.
+     *     Resources in {@link #inflateAsync(LayoutElementBuilders.Layout,
+     *     ResourceBuilders.Resources, ViewGroup)} method.
      */
     @Deprecated
     public TileRenderer(
@@ -173,6 +178,7 @@ public final class TileRenderer {
     }
 
     @NonNull
+    @SuppressWarnings("deprecation") // TODO(b/276343540): Use protolayout types
     private static Consumer<StateBuilders.State> toStateConsumer(
             @NonNull LoadActionListener loadActionListener) {
         return nextState ->
@@ -187,20 +193,30 @@ public final class TileRenderer {
      * @return The first child that was inflated. This may be null if the Layout is empty or the
      *     top-level LayoutElement has no inner set, or the top-level LayoutElement contains an
      *     unsupported inner type.
-     * @deprecated Use {@link #inflate(LayoutElementBuilders.Layout, ResourceBuilders.Resources,
-     *     ViewGroup)} instead. Note: This method only works with the deprecated constructors that
-     *     accept Layout and Resources.
+     * @deprecated Use {@link #inflateAsync(LayoutElementBuilders.Layout,
+     *     ResourceBuilders.Resources, ViewGroup)} instead. Note: This method only works with the
+     *     deprecated constructors that accept Layout and Resources.
      */
     @Deprecated
     @Nullable
     public View inflate(@NonNull ViewGroup parent) {
         String errorMessage =
                 "This method only works with the deprecated constructors that accept Layout and"
-                    + " Resources.";
-        return inflateLayout(
-                checkNotNull(mLayout, errorMessage),
-                checkNotNull(mResources, errorMessage),
-                parent);
+                        + " Resources.";
+        try {
+            // Waiting for the result from future for backwards compatibility.
+            return inflateLayout(
+                            checkNotNull(mLayout, errorMessage),
+                            checkNotNull(mResources, errorMessage),
+                            parent)
+                    .get(10, TimeUnit.SECONDS);
+        } catch (ExecutionException
+                | InterruptedException
+                | CancellationException
+                | TimeoutException e) {
+            // Wrap checked exceptions to avoid changing the method signature.
+            throw new RuntimeException("Rendering tile has not successfully finished.", e);
+        }
     }
 
     /**
@@ -209,32 +225,24 @@ public final class TileRenderer {
      * @param layout The portion of the Tile to render.
      * @param resources The resources for the Tile.
      * @param parent The view to attach the tile into.
-     * @return The first child that was inflated. This may be null if the Layout is empty or the
-     *     top-level LayoutElement has no inner set, or the top-level LayoutElement contains an
-     *     unsupported inner type.
+     * @return The future with the first child that was inflated. This may be null if the Layout is
+     *     empty or the top-level LayoutElement has no inner set, or the top-level LayoutElement
+     *     contains an unsupported inner type.
      */
-    @Nullable
-    public View inflate(
+    @NonNull
+    public ListenableFuture<View> inflateAsync(
             @NonNull LayoutElementBuilders.Layout layout,
             @NonNull ResourceBuilders.Resources resources,
             @NonNull ViewGroup parent) {
         return inflateLayout(layout.toProto(), resources.toProto(), parent);
     }
 
-    @Nullable
-    private View inflateLayout(
+    @NonNull
+    private ListenableFuture<View> inflateLayout(
             @NonNull LayoutElementProto.Layout layout,
             @NonNull ResourceProto.Resources resources,
             @NonNull ViewGroup parent) {
-        mInstance.renderAndAttach(layout, resources, parent);
-        boolean finished;
-        try {
-            mUiExecutor.shutdown();
-            finished = mUiExecutor.awaitTermination(30, TimeUnit.SECONDS);
-        } catch (InterruptedException e) {
-            throw new RuntimeException("Rendering tile has not successfully finished.");
-        }
-        // TODO(b/271076323): Update when renderAndAttach returns result.
-        return finished ? parent.getChildAt(0) : null;
+        ListenableFuture<Void> result = mInstance.renderAndAttach(layout, resources, parent);
+        return FluentFuture.from(result).transform(ignored -> parent.getChildAt(0), mUiExecutor);
     }
 }

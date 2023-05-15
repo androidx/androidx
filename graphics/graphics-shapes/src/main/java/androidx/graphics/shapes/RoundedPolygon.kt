@@ -22,10 +22,11 @@ import android.graphics.Paint
 import android.graphics.Path
 import android.graphics.PointF
 import android.graphics.RectF
+import androidx.annotation.IntRange
+import androidx.core.graphics.div
 import androidx.core.graphics.minus
 import androidx.core.graphics.plus
 import androidx.core.graphics.times
-import androidx.core.graphics.div
 import kotlin.math.abs
 import kotlin.math.min
 import kotlin.math.sqrt
@@ -74,12 +75,14 @@ class RoundedPolygon {
      */
     var bounds: RectF by cubicShape::bounds
 
+    companion object {}
+
     /**
      * Constructs a RoundedPolygon object from a given list of vertices, with optional
      * corner-rounding parameters for all corners or per-corner.
      *
-     * A RoundedPolygon without any rounding parameters is equivalent to a [RoundedPolygon] constructed
-     * with the same [vertices] and [center].
+     * A RoundedPolygon without any rounding parameters is equivalent to a [RoundedPolygon]
+     * constructed with the same [vertices] and [center].
      *
      * @param vertices The list of vertices in this polygon. This should be an ordered list
      * (with the outline of the shape going from each vertex to the next in order of this
@@ -97,6 +100,7 @@ class RoundedPolygon {
      *
      * @throws IllegalArgumentException If [perVertexRounding] is not null, it must be
      * the same size as the [vertices] list.
+     * @throws IllegalArgumentException [vertices] must have a size of at least three.
      */
     constructor(
         vertices: List<PointF>,
@@ -111,7 +115,11 @@ class RoundedPolygon {
     /**
      * This constructor takes the number of vertices in the resulting polygon. These vertices are
      * positioned on a virtual circle around a given center with each vertex positioned [radius]
-     * distance from that center, equally spaced (with equal angles between them).
+     * distance from that center, equally spaced (with equal angles between them). If no radius
+     * is supplied, the shape will be created with a default radius of 1, resulting in a shape
+     * whose vertices lie on a unit circle, with width/height of 2. That default polygon will
+     * probably need to be rescaled using [transform] into the appropriate size for the UI in
+     * which it will be drawn.
      *
      * The [rounding] and [perVertexRounding] parameters are optional. If not supplied, the result
      * will be a regular polygon with straight edges and unrounded corners.
@@ -133,9 +141,10 @@ class RoundedPolygon {
      *
      * @throws IllegalArgumentException If [perVertexRounding] is not null, it must have
      * [numVertices] elements.
+     * @throws IllegalArgumentException [numVertices] must be at least 3.
      */
     constructor(
-        numVertices: Int,
+        @IntRange(from = 3) numVertices: Int,
         radius: Float = 1f,
         center: PointF = PointF(0f, 0f),
         rounding: CornerRounding = CornerRounding.Unrounded,
@@ -187,6 +196,9 @@ class RoundedPolygon {
         rounding: CornerRounding = CornerRounding.Unrounded,
         perVertexRounding: List<CornerRounding>? = null
     ) {
+        if (vertices.size < 3) {
+            throw IllegalArgumentException("Polygons must have at least 3 vertices")
+        }
         if (perVertexRounding != null && perVertexRounding.size != vertices.size) {
             throw IllegalArgumentException("perVertexRounding list should be either null or " +
                     "the same size as the vertices list")
@@ -206,24 +218,45 @@ class RoundedPolygon {
                 )
             )
         }
+
+        // For each side, check if we have enough space to do the cuts needed, and if not split
+        // the available space, first for round cuts, then for smoothing if there is space left.
+        // Each element in this list is a pair, that represent how much we can do of the cut for
+        // the given side (side i goes from corner i to corner i+1), the elements of the pair are:
+        // first is how much we can use of expectedRoundCut, second how much of expectedCut
         val cutAdjusts = (0 until n).map { ix ->
-            // TODO: check expectedRoundCut first, and ensure we fulfill rounding needs first for
-            // both corners before using space for smoothing
+            val expectedRoundCut = roundedCorners[ix].expectedRoundCut +
+                roundedCorners[(ix + 1) % n].expectedRoundCut
             val expectedCut = roundedCorners[ix].expectedCut +
                     roundedCorners[(ix + 1) % n].expectedCut
             val sideSize = (vertices[ix] - vertices[(ix + 1) % n]).getDistance()
-            if (expectedCut > sideSize) {
-                sideSize / expectedCut
+
+            // Check expectedRoundCut first, and ensure we fulfill rounding needs first for
+            // both corners before using space for smoothing
+            if (expectedRoundCut > sideSize) {
+                // Not enough room for fully rounding, see how much we can actually do.
+                sideSize / expectedRoundCut to 0f
+            } else if (expectedCut > sideSize) {
+                // We can do full rounding, but not full smoothing.
+                1f to (sideSize - expectedRoundCut) / (expectedCut - expectedRoundCut)
             } else {
-                1f
+                // There is enough room for rounding & smoothing.
+                1f to 1f
             }
         }
         // Create and store list of beziers for each [potentially] rounded corner
         for (i in 0 until n) {
+            // allowedCuts[0] is for the side from the previous corner to this one,
+            // allowedCuts[1] is for the side from this corner to the next one.
+            val allowedCuts = (0..1).map { delta ->
+                val (roundCutRatio, cutRatio) = cutAdjusts[(i + n - 1 + delta) % n]
+                roundedCorners[i].expectedRoundCut * roundCutRatio +
+                    (roundedCorners[i].expectedCut - roundedCorners[i].expectedRoundCut) * cutRatio
+            }
             corners.add(
                 roundedCorners[i].getCubics(
-                    allowedCut0 = roundedCorners[i].expectedCut * cutAdjusts[(i + n - 1) % n],
-                    allowedCut1 = roundedCorners[i].expectedCut * cutAdjusts[i]
+                    allowedCut0 = allowedCuts[0],
+                    allowedCut1 = allowedCuts[1]
                 )
             )
         }
@@ -250,7 +283,22 @@ class RoundedPolygon {
         cubicShape.updateCubics(cubics)
     }
 
-    // Transforms as usual, plus the polygon's center
+    /**
+     * Transforms (scales, rotates, and translates) the polygon by the given matrix.
+     * Note that this operation alters the points in the polygon directly; the original
+     * points are not retained, nor is the matrix itself. Thus calling this function
+     * twice with the same matrix will composite the effect. For example, a matrix which
+     * scales by 2 will scale the polygon by 2. Calling transform twice with that matrix
+     * will have the effect os scaling the shape size by 4.
+     *
+     * Note that [RoundedPolygon] objects created with default radius and center values will
+     * probably need to be scaled and repositioned using [transform] to be displayed correctly
+     * in the UI. Polygons are created by default on the unit circle around a center
+     * of (0, 0), so the resulting geometry has a bounding box width and height of 2x2; It should
+     * be resized to fit where it will be displayed appropriately.
+     *
+     * @param matrix The matrix used to transform the polygon
+     */
     fun transform(matrix: Matrix) {
         cubicShape.transform(matrix)
         val point = scratchTransformPoint
@@ -367,7 +415,7 @@ class RoundedPolygon {
         if (this === other) return true
         if (other !is RoundedPolygon) return false
 
-        if (!cubicShape.equals(other.cubicShape)) return false
+        if (cubicShape != other.cubicShape) return false
 
         return true
     }
@@ -424,7 +472,7 @@ private class RoundedCorner(
         if (sinAngle > 1e-3) { cornerRadius * (cosAngle + 1) / sinAngle } else { 0f }
     // smoothing changes the actual cut. 0 is same as expectedRoundCut, 1 doubles it
     val expectedCut: Float
-        get() = ((1 + smoothing) * expectedRoundCut) // TODO: coerceAtMost(maxCut)?
+        get() = ((1 + smoothing) * expectedRoundCut)
     // the center of the circle approximated by the rounding curve (or the middle of the three
     // curves if smoothing is requested). The center is the same as p0 if there is no rounding.
     lateinit var center: PointF
@@ -458,16 +506,19 @@ private class RoundedCorner(
         center = p1 + ((d1 + d2) / 2f).getDirection() * centerDistance
         val circleIntersection0 = p1 + d1 * actualRoundCut
         val circleIntersection2 = p1 + d2 * actualRoundCut
-        val flanking0 = computeFlankingCurve(actualRoundCut, actualSmoothing0, p1, p0,
-            circleIntersection0, circleIntersection2, center, actualR)
-        val flanking2 = computeFlankingCurve(actualRoundCut, actualSmoothing1, p1, p2,
-            circleIntersection2, circleIntersection0, center, actualR).reverse()
-        val roundingCurves = listOf(
+        val flanking0 = computeFlankingCurve(
+            actualRoundCut, actualSmoothing0, p1, p0,
+            circleIntersection0, circleIntersection2, center, actualR
+        )
+        val flanking2 = computeFlankingCurve(
+            actualRoundCut, actualSmoothing1, p1, p2,
+            circleIntersection2, circleIntersection0, center, actualR
+        ).reverse()
+        return listOf(
             flanking0,
             Cubic.circularArc(center, flanking0.p3, flanking2.p0),
             flanking2
         )
-        return roundingCurves
     }
 
     /**

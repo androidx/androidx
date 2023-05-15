@@ -10,4 +10,31 @@
             file="src/main/java/androidx/privacysandbox/ui/core/SdkRuntimeUiLibVersions.kt"/>
     </issue>
 
+    <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="oneway interface IRemoteSessionClient {"
+        errorLine2="^">
+        <location
+            file="src/main/aidl/androidx/privacysandbox/ui/core/IRemoteSessionClient.aidl"/>
+    </issue>
+
+    <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="oneway interface IRemoteSessionController {"
+        errorLine2="^">
+        <location
+            file="src/main/aidl/androidx/privacysandbox/ui/core/IRemoteSessionController.aidl"/>
+    </issue>
+
+    <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="oneway interface ISandboxedUiAdapter {"
+        errorLine2="^">
+        <location
+            file="src/main/aidl/androidx/privacysandbox/ui/core/ISandboxedUiAdapter.aidl"/>
+    </issue>
+
 </issues>

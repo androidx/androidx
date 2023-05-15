@@ -36,6 +36,10 @@ import java.util.concurrent.Executor;
  * An interface for retrieving camera information.
  *
  * <p>Contains methods for retrieving characteristics for a specific camera.
+ *
+ * <p>{@link #getImplementation()} returns a {@link CameraInfoInternal} instance
+ * that contains the actual implementation and can be cast to an implementation specific class.
+ * If the instance itself is the implementation instance, then it should return <code>this</code>.
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public interface CameraInfoInternal extends CameraInfo {
@@ -100,6 +104,17 @@ public interface CameraInfoInternal extends CameraInfo {
      */
     @NonNull
     Set<DynamicRange> getSupportedDynamicRanges();
+
+    /**
+     * Gets the underlying implementation instance which could be cast into an implementation
+     * specific class for further use in implementation module. Returns <code>this</code> if this
+     * instance is the implementation instance.
+     */
+    @NonNull
+    default CameraInfoInternal getImplementation() {
+        return this;
+    }
+
 
     /** {@inheritDoc} */
     @NonNull

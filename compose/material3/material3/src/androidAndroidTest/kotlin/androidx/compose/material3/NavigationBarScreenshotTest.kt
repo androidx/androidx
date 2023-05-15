@@ -21,6 +21,7 @@ import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.height
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.runtime.Composable
@@ -33,6 +34,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
@@ -108,6 +110,25 @@ class NavigationBarScreenshotTest {
             interactionSource = interactionSource,
             interaction = null,
             goldenIdentifier = "navigationBar_lightTheme_defaultColors_disabled"
+        )
+    }
+
+    @Test
+    fun lightTheme_customHeight() {
+        val interactionSource = MutableInteractionSource()
+
+        var scope: CoroutineScope? = null
+
+        composeTestRule.setMaterialContent(lightColorScheme()) {
+            scope = rememberCoroutineScope()
+            DefaultNavigationBar(interactionSource, Modifier.height(64.dp))
+        }
+
+        assertNavigationBarMatches(
+            scope = scope!!,
+            interactionSource = interactionSource,
+            interaction = null,
+            goldenIdentifier = "navigationBar_lightTheme_customHeight"
         )
     }
 
@@ -211,14 +232,16 @@ class NavigationBarScreenshotTest {
  *
  * @param interactionSource the [MutableInteractionSource] for the first [NavigationBarItem], to
  * control its visual state.
+ * @param modifier the [Modifier] applied to the navigation bar
  * @param setUnselectedItemsAsDisabled when true, marks unselected items as disabled
  */
 @Composable
 private fun DefaultNavigationBar(
     interactionSource: MutableInteractionSource,
+    modifier: Modifier = Modifier,
     setUnselectedItemsAsDisabled: Boolean = false,
 ) {
-    Box(Modifier.semantics(mergeDescendants = true) {}.testTag(Tag)) {
+    Box(modifier.semantics(mergeDescendants = true) {}.testTag(Tag)) {
         NavigationBar {
             NavigationBarItem(
                 icon = { Icon(Icons.Filled.Favorite, null) },

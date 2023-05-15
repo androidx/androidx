@@ -9,6 +9,7 @@ public data class InnerSdkValue(
     public val floatingPoint: Float,
     public val hugeNumber: Double,
     public val myInterface: MyInterface,
+    public val myUiInterface: MyUiInterface,
     public val numbers: List<Int>,
     public val maybeNumber: Int?,
     public val maybeInterface: MyInterface?,

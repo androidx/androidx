@@ -139,23 +139,23 @@ class TextRangeTest {
 
     @Test
     fun constrain_updates_start_end_if_required() {
-        assertThat(TextRange(0, 4).constrain(1, 3)).isEqualTo(TextRange(1, 3))
+        assertThat(TextRange(0, 4).coerceIn(1, 3)).isEqualTo(TextRange(1, 3))
     }
 
     @Test
     fun constrain_with_collapsed_min_max_returns_collapsed_values() {
-        assertThat(TextRange(1, 2).constrain(2, 2)).isEqualTo(TextRange(2, 2))
-        assertThat(TextRange(2, 3).constrain(2, 2)).isEqualTo(TextRange(2, 2))
+        assertThat(TextRange(1, 2).coerceIn(2, 2)).isEqualTo(TextRange(2, 2))
+        assertThat(TextRange(2, 3).coerceIn(2, 2)).isEqualTo(TextRange(2, 2))
     }
 
     @Test
     fun constrain_min_max_greater_than_TextRange_values() {
-        assertThat(TextRange(0, 4).constrain(5, 6)).isEqualTo(TextRange(5, 5))
+        assertThat(TextRange(0, 4).coerceIn(5, 6)).isEqualTo(TextRange(5, 5))
     }
 
     @Test
     fun constrain_min_smaller_than_TextRange_values() {
-        assertThat(TextRange(5, 6).constrain(0, 4)).isEqualTo(TextRange(4, 4))
+        assertThat(TextRange(5, 6).coerceIn(0, 4)).isEqualTo(TextRange(4, 4))
     }
 
     @Test

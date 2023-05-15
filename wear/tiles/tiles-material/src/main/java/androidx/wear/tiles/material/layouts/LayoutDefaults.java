@@ -16,17 +16,14 @@
 
 package androidx.wear.tiles.material.layouts;
 
-import static androidx.wear.tiles.DimensionBuilders.dp;
-
-import androidx.wear.tiles.DimensionBuilders.DpProp;
+import androidx.annotation.NonNull;
 import androidx.wear.tiles.material.ButtonDefaults;
 
 /**
  * Contains the default values used by layout templates for Tiles.
  *
- * @deprecated Use the new class
- *     {@link androidx.wear.protolayout.material.layouts.LayoutDefaults} which provides the
- *     same API and functionality.
+ * @deprecated Use the new class {@link androidx.wear.protolayout.material.layouts.LayoutDefaults}
+ *     which provides the same API and functionality.
  */
 @Deprecated
 @SuppressWarnings("deprecation")
@@ -59,13 +56,17 @@ public class LayoutDefaults {
      * The default spacer above primary label in {@link PrimaryLayout} to make space for Tile icon
      * on round devices.
      */
-    static final DpProp PRIMARY_LAYOUT_PRIMARY_LABEL_SPACER_HEIGHT_ROUND_DP = dp(0);
+    static final androidx.wear.tiles.DimensionBuilders.DpProp
+            PRIMARY_LAYOUT_PRIMARY_LABEL_SPACER_HEIGHT_ROUND_DP =
+                    androidx.wear.tiles.DimensionBuilders.dp(0);
 
     /**
      * The default spacer above primary label in {@link PrimaryLayout} to make space for Tile icon
      * on square devices.
      */
-    static final DpProp PRIMARY_LAYOUT_PRIMARY_LABEL_SPACER_HEIGHT_SQUARE_DP = dp(4);
+    static final androidx.wear.tiles.DimensionBuilders.DpProp
+            PRIMARY_LAYOUT_PRIMARY_LABEL_SPACER_HEIGHT_SQUARE_DP =
+                    androidx.wear.tiles.DimensionBuilders.dp(4);
 
     /**
      * The default percentage for the horizontal margin for primary chip in the {@link
@@ -110,10 +111,14 @@ public class LayoutDefaults {
     public static final float EDGE_CONTENT_LAYOUT_PADDING_BELOW_MAIN_CONTENT_DP = 8;
 
     /** The default spacer width for slots in a {@link MultiSlotLayout}. */
-    public static final DpProp MULTI_SLOT_LAYOUT_HORIZONTAL_SPACER_WIDTH = dp(8);
+    @NonNull
+    public static final androidx.wear.tiles.DimensionBuilders.DpProp
+            MULTI_SLOT_LAYOUT_HORIZONTAL_SPACER_WIDTH = androidx.wear.tiles.DimensionBuilders.dp(8);
 
     /** The recommended space between the main content and additional labels in layouts. */
-    public static final DpProp DEFAULT_VERTICAL_SPACER_HEIGHT = dp(8);
+    @NonNull
+    public static final androidx.wear.tiles.DimensionBuilders.DpProp
+            DEFAULT_VERTICAL_SPACER_HEIGHT = androidx.wear.tiles.DimensionBuilders.dp(8);
 
     /** The maximum number of button that can be added to the {@link MultiButtonLayout}. */
     public static final int MULTI_BUTTON_MAX_NUMBER = 7;
@@ -122,21 +127,26 @@ public class LayoutDefaults {
      * The default size of button in case when there are 3 or more buttons in the {@link
      * MultiButtonLayout}.
      */
-    static final DpProp MULTI_BUTTON_3_PLUS_SIZE = ButtonDefaults.DEFAULT_SIZE;
+    static final androidx.wear.tiles.DimensionBuilders.DpProp MULTI_BUTTON_3_PLUS_SIZE =
+            ButtonDefaults.DEFAULT_SIZE;
 
     /** The default size of button in case when there 2 buttons in the {@link MultiButtonLayout}. */
-    static final DpProp MULTI_BUTTON_2_SIZE = ButtonDefaults.LARGE_SIZE;
+    static final androidx.wear.tiles.DimensionBuilders.DpProp MULTI_BUTTON_2_SIZE =
+            ButtonDefaults.LARGE_SIZE;
 
     /**
      * The default size of button in case when there is 1 button in the {@link MultiButtonLayout}.
      */
-    static final DpProp MULTI_BUTTON_1_SIZE = ButtonDefaults.EXTRA_LARGE_SIZE;
+    static final androidx.wear.tiles.DimensionBuilders.DpProp MULTI_BUTTON_1_SIZE =
+            ButtonDefaults.EXTRA_LARGE_SIZE;
 
     /** The default width for vertical spacer between buttons in the {@link MultiButtonLayout}. */
-    static final DpProp MULTI_BUTTON_SPACER_WIDTH = dp(6);
+    static final androidx.wear.tiles.DimensionBuilders.DpProp MULTI_BUTTON_SPACER_WIDTH =
+            androidx.wear.tiles.DimensionBuilders.dp(6);
 
     /**
      * The default height for horizontal spacer between buttons in the {@link MultiButtonLayout}.
      */
-    static final DpProp MULTI_BUTTON_SPACER_HEIGHT = dp(4);
+    static final androidx.wear.tiles.DimensionBuilders.DpProp MULTI_BUTTON_SPACER_HEIGHT =
+            androidx.wear.tiles.DimensionBuilders.dp(4);
 }

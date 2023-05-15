@@ -16,6 +16,7 @@
 
 package androidx.benchmark.macro.perfetto.server
 
+import android.annotation.SuppressLint
 import android.os.Build
 import android.security.NetworkSecurityPolicy
 import android.util.Log
@@ -60,6 +61,10 @@ internal class PerfettoHttpServer {
         private const val READ_TIMEOUT_SECONDS = 300000
         private const val SERVER_PROCESS_NAME = "trace_processor_shell"
 
+        // Note that trace processor http server has a hard limit of 64Mb for payload size.
+        // https://cs.android.com/android/platform/superproject/+/master:external/perfetto/src/base/http/http_server.cc;l=33
+        private const val PARSE_PAYLOAD_SIZE = 16 * 1024 * 1024 // 16Mb
+
         private var shellScript: ShellScript? = null
 
         /**
@@ -95,6 +100,7 @@ internal class PerfettoHttpServer {
      *
      * @throws IllegalStateException if the server is not running by the end of the timeout.
      */
+    @SuppressLint("BanThreadSleep")
     fun startServer() = userspaceTrace("PerfettoHttpServer#startServer") {
         if (processId != null) {
             Log.w(TAG, "Tried to start a trace shell processor that is already running.")
@@ -212,13 +218,21 @@ internal class PerfettoHttpServer {
      * Parses the trace file in chunks. Note that [notifyEof] should be called at the end to let
      * the processor know that no more chunks will be sent.
      */
-    fun parse(bytes: ByteArray): AppendTraceDataResult =
-        httpRequest(
-            method = METHOD_POST,
-            url = PATH_PARSE,
-            encodeBlock = { it.write(bytes) },
-            decodeBlock = { AppendTraceDataResult.ADAPTER.decode(it) }
-        )
+    fun parse(inputStream: InputStream): List<AppendTraceDataResult> {
+        val responses = mutableListOf<AppendTraceDataResult>()
+        while (true) {
+            val buffer = ByteArray(PARSE_PAYLOAD_SIZE)
+            val read = inputStream.read(buffer)
+            if (read <= 0) break
+            responses.add(httpRequest(
+                method = METHOD_POST,
+                url = PATH_PARSE,
+                encodeBlock = { it.write(buffer, 0, read) },
+                decodeBlock = { AppendTraceDataResult.ADAPTER.decode(it) }
+            ))
+        }
+        return responses
+    }
 
     /**
      * Notifies that the entire trace has been uploaded and no more chunks will be sent.

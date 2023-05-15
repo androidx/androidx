@@ -32,6 +32,7 @@ dependencies {
     androidTestImplementation(libs.testRules)
     androidTestImplementation("androidx.lifecycle:lifecycle-common:2.5.0-alpha01")
     androidTestImplementation("androidx.test:core:1.4.0@aar")
+    androidTestImplementation(project(":core:core"))
 }
 
 android {
@@ -60,7 +61,7 @@ android {
 }
 
 androidx {
-    name = "Android Graphics Core"
+    name = "Graphics Core"
     type = LibraryType.PUBLISHED_LIBRARY
     mavenVersion = LibraryVersions.GRAPHICS_CORE
     inceptionYear = "2021"

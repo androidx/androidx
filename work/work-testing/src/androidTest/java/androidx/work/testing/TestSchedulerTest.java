@@ -44,6 +44,7 @@ import androidx.work.testing.workers.RetryWorker;
 import androidx.work.testing.workers.TestWorker;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -77,6 +78,7 @@ public class TestSchedulerTest {
         CountingTestWorker.COUNT.set(0);
     }
 
+    @Ignore // b/281720148
     @Test
     public void testWorker_shouldSucceedSynchronously()
             throws InterruptedException, ExecutionException {

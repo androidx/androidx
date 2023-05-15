@@ -21,11 +21,11 @@ import com.google.testing.compile.Compilation
 import com.google.testing.compile.CompilationSubject.assertThat
 import com.google.testing.compile.Compiler.javac
 import com.google.testing.compile.JavaFileObjects
-import org.intellij.lang.annotations.Language
-import org.junit.Test
 import java.io.File
 import javax.lang.model.SourceVersion
 import javax.tools.JavaFileObject
+import org.intellij.lang.annotations.Language
+import org.junit.Test
 
 /** Integration and unit tests for [ResourceInspectionProcessor]. */
 class ResourceInspectionProcessorTest {

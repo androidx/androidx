@@ -38,14 +38,16 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-/** Builders for the resources for a layout. */
+/**
+ * Builders for the resources for a layout.
+ *
+ * @deprecated Use {@link androidx.wear.protolayout.ResourceBuilders} instead.
+ */
+@Deprecated
 public final class ResourceBuilders {
     private ResourceBuilders() {}
 
-    /**
-     * Format describing the contents of an image data byte array.
-     *
-     */
+    /** Format describing the contents of an image data byte array. */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef({IMAGE_FORMAT_UNDEFINED, IMAGE_FORMAT_RGB_565})
     @Retention(RetentionPolicy.SOURCE)

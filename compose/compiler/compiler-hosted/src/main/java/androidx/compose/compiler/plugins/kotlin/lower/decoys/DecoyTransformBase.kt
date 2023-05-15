@@ -16,6 +16,7 @@
 
 package androidx.compose.compiler.plugins.kotlin.lower.decoys
 
+import androidx.compose.compiler.plugins.kotlin.lower.DeepCopyPreservingMetadata
 import androidx.compose.compiler.plugins.kotlin.lower.hasAnnotationSafe
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContextImpl
@@ -40,9 +41,9 @@ import org.jetbrains.kotlin.ir.symbols.IrSymbol
 import org.jetbrains.kotlin.ir.types.IrType
 import org.jetbrains.kotlin.ir.types.IrTypeArgument
 import org.jetbrains.kotlin.ir.types.impl.IrSimpleTypeImpl
-import org.jetbrains.kotlin.ir.util.DeepCopyIrTreeWithSymbols
 import org.jetbrains.kotlin.ir.util.DeepCopyTypeRemapper
 import org.jetbrains.kotlin.ir.util.IdSignature
+import org.jetbrains.kotlin.ir.util.SymbolRenamer
 import org.jetbrains.kotlin.ir.util.TypeRemapper
 import org.jetbrains.kotlin.ir.util.deepCopyWithSymbols
 import org.jetbrains.kotlin.ir.util.getAnnotation
@@ -198,7 +199,7 @@ fun IrFunction.didDecoyHaveDefaultForValueParameter(paramIndex: Int): Boolean {
     } ?: false
 }
 
-inline fun <reified T : IrElement> T.copyWithNewTypeParams(
+internal inline fun <reified T : IrElement> T.copyWithNewTypeParams(
     source: IrFunction,
     target: IrFunction
 ): T {
@@ -208,8 +209,11 @@ inline fun <reified T : IrElement> T.copyWithNewTypeParams(
                 return typeRemapper.remapType(type.remapTypeParameters(source, target))
             }
         }
-
-        val deepCopy = DeepCopyIrTreeWithSymbols(symbolRemapper, typeParamRemapper)
+        val deepCopy = DeepCopyPreservingMetadata(
+            symbolRemapper,
+            typeParamRemapper,
+            SymbolRenamer.DEFAULT
+        )
         (typeRemapper as? DeepCopyTypeRemapper)?.deepCopy = deepCopy
         deepCopy
     }

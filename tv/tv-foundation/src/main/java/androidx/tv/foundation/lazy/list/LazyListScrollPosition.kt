@@ -19,6 +19,7 @@ package androidx.tv.foundation.lazy.list
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.lazy.layout.LazyLayoutItemProvider
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.Snapshot
@@ -34,7 +35,7 @@ internal class LazyListScrollPosition(
 ) {
     var index by mutableStateOf(DataIndex(initialIndex))
 
-    var scrollOffset by mutableStateOf(initialScrollOffset)
+    var scrollOffset by mutableIntStateOf(initialScrollOffset)
         private set
 
     private var hadFirstNotEmptyLayout = false

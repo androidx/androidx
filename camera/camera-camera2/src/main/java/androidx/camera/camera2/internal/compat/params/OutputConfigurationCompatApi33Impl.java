@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import android.view.Surface;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+import androidx.core.util.Preconditions;
 
 /**
  * Implementation of the OutputConfiguration compat methods for API 33 and above.
@@ -44,6 +45,23 @@ public class OutputConfigurationCompatApi33Impl extends OutputConfigurationCompa
     static OutputConfigurationCompatApi33Impl wrap(
             @NonNull OutputConfiguration outputConfiguration) {
         return new OutputConfigurationCompatApi33Impl(outputConfiguration);
+    }
+
+    @Override
+    public long getDynamicRangeProfile() {
+        return ((OutputConfiguration) getOutputConfiguration()).getDynamicRangeProfile();
+    }
+
+    @Override
+    public void setDynamicRangeProfile(long profile) {
+        ((OutputConfiguration) getOutputConfiguration()).setDynamicRangeProfile(profile);
+    }
+
+    @NonNull
+    @Override
+    public Object getOutputConfiguration() {
+        Preconditions.checkArgument(mObject instanceof OutputConfiguration);
+        return mObject;
     }
 
     @Override

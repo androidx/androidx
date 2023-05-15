@@ -32,7 +32,6 @@ import androidx.compose.ui.materializeWithCompositionLocalInjectionInternal
 import androidx.compose.ui.node.ComposeUiNode
 import androidx.compose.ui.node.LayoutNode
 import androidx.compose.ui.unit.Constraints
-import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
@@ -64,7 +63,8 @@ import androidx.compose.ui.util.fastForEach
  */
 @Suppress("ComposableLambdaParameterPosition")
 @UiComposable
-@Composable inline fun Layout(
+@Composable
+inline fun Layout(
     content: @Composable @UiComposable () -> Unit,
     modifier: Modifier = Modifier,
     measurePolicy: MeasurePolicy
@@ -322,6 +322,6 @@ internal class DefaultIntrinsicMeasurable(
  * call.
  */
 internal class IntrinsicsMeasureScope(
-    density: Density,
-    override val layoutDirection: LayoutDirection
-) : MeasureScope, Density by density
+    intrinsicMeasureScope: IntrinsicMeasureScope,
+    override val layoutDirection: LayoutDirection,
+) : MeasureScope, IntrinsicMeasureScope by intrinsicMeasureScope

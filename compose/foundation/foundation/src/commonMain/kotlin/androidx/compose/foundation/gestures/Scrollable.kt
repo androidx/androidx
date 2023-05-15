@@ -64,6 +64,7 @@ import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.util.fastAll
 import androidx.compose.ui.util.fastForEach
 import kotlin.math.abs
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -271,23 +272,28 @@ private fun Modifier.pointerScrollable(
     val draggableState = remember { ScrollDraggableState(scrollLogic) }
     val scrollConfig = platformScrollConfig()
 
-    return draggable(
-        draggableState,
-        orientation = orientation,
-        enabled = enabled,
-        interactionSource = interactionSource,
-        reverseDirection = false,
-        startDragImmediately = { scrollLogic.value.shouldScrollImmediately() },
-        onDragStopped = { velocity ->
-            nestedScrollDispatcher.value.coroutineScope.launch {
-                scrollLogic.value.onDragStopped(velocity)
-            }
-        },
-        canDrag = { down -> down.type != PointerType.Mouse }
-    )
+    return this
+        .then(DraggableElement(
+            state = draggableState,
+            orientation = orientation,
+            enabled = enabled,
+            interactionSource = interactionSource,
+            reverseDirection = false,
+            startDragImmediately = { scrollLogic.value.shouldScrollImmediately() },
+            onDragStarted = NoOpOnDragStarted,
+            onDragStopped = { velocity ->
+                nestedScrollDispatcher.value.coroutineScope.launch {
+                    scrollLogic.value.onDragStopped(velocity)
+                }
+            },
+            canDrag = { down -> down.type != PointerType.Mouse }
+        ))
         .then(MouseWheelScrollElement(scrollLogic, scrollConfig))
         .nestedScroll(nestedScrollConnection, nestedScrollDispatcher.value)
 }
+
+// {} isn't being memoized for us, so extract this to make sure we compare equally on recomposition.
+private val NoOpOnDragStarted: suspend CoroutineScope.(startedPosition: Offset) -> Unit = {}
 
 private class MouseWheelScrollElement(
     val scrollingLogicState: State<ScrollingLogic>,
@@ -297,9 +303,9 @@ private class MouseWheelScrollElement(
         return MouseWheelScrollNode(scrollingLogicState, mouseWheelScrollConfig)
     }
 
-    override fun update(node: MouseWheelScrollNode): MouseWheelScrollNode = node.also {
-        it.scrollingLogicState = scrollingLogicState
-        it.mouseWheelScrollConfig = mouseWheelScrollConfig
+    override fun update(node: MouseWheelScrollNode) {
+        node.scrollingLogicState = scrollingLogicState
+        node.mouseWheelScrollConfig = mouseWheelScrollConfig
     }
 
     override fun hashCode(): Int {
@@ -326,7 +332,7 @@ private class MouseWheelScrollNode(
     var mouseWheelScrollConfig: ScrollConfig
 ) : DelegatingNode(), PointerInputModifierNode {
 
-    private val pointerInputNode = SuspendingPointerInputModifierNode {
+    private val pointerInputNode = delegate(SuspendingPointerInputModifierNode {
         awaitPointerEventScope {
             while (true) {
                 val event = awaitScrollEvent()
@@ -344,10 +350,7 @@ private class MouseWheelScrollNode(
                 }
             }
         }
-    }
-        // TODO: remove `.node` after aosp/2462416 lands and merge everything into one delegated
-        //  block
-        .also { delegated { it.node } }
+    })
 
     override fun onPointerEvent(
         pointerEvent: PointerEvent,

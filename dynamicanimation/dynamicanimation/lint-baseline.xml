@@ -29,6 +29,114 @@
     </issue>
 
     <issue
+        id="VisibleForTests"
+        message="This method should only be accessed from tests or within private scope"
+        errorLine1="        if (!getAnimationHandler().isCurrentThread()) {"
+        errorLine2="                                   ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/dynamicanimation/animation/DynamicAnimation.java"/>
+    </issue>
+
+    <issue
+        id="VisibleForTests"
+        message="This method should only be accessed from tests or within private scope"
+        errorLine1="        if (!getAnimationHandler().isCurrentThread()) {"
+        errorLine2="                                   ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/dynamicanimation/animation/DynamicAnimation.java"/>
+    </issue>
+
+    <issue
+        id="VisibleForTests"
+        message="This method should only be accessed from tests or within private scope"
+        errorLine1="            getAnimationHandler().addAnimationFrameCallback(this, 0);"
+        errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/dynamicanimation/animation/DynamicAnimation.java"/>
+    </issue>
+
+    <issue
+        id="VisibleForTests"
+        message="This method should only be accessed from tests or within private scope"
+        errorLine1="        float durationScale = getAnimationHandler().getDurationScale();"
+        errorLine2="                                                    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/dynamicanimation/animation/DynamicAnimation.java"/>
+    </issue>
+
+    <issue
+        id="VisibleForTests"
+        message="This method should only be accessed from tests or within private scope"
+        errorLine1="        getAnimationHandler().removeCallback(this);"
+        errorLine2="                              ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/dynamicanimation/animation/DynamicAnimation.java"/>
+    </issue>
+
+    <issue
+        id="VisibleForTests"
+        message="This method should only be accessed from tests or within private scope"
+        errorLine1="        return mAnimationHandler != null ? mAnimationHandler.getScheduler()"
+        errorLine2="                                                             ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/dynamicanimation/animation/DynamicAnimation.java"/>
+    </issue>
+
+    <issue
+        id="VisibleForTests"
+        message="This method should only be accessed from tests or within private scope"
+        errorLine1="                : AnimationHandler.getInstance().getScheduler();"
+        errorLine2="                                   ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/dynamicanimation/animation/DynamicAnimation.java"/>
+    </issue>
+
+    <issue
+        id="VisibleForTests"
+        message="This method should only be accessed from tests or within private scope"
+        errorLine1="                : AnimationHandler.getInstance().getScheduler();"
+        errorLine2="                                                 ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/dynamicanimation/animation/DynamicAnimation.java"/>
+    </issue>
+
+    <issue
+        id="VisibleForTests"
+        message="This method should only be accessed from tests or within private scope"
+        errorLine1="        if (mAnimationHandler != null &amp;&amp; mAnimationHandler.getScheduler() == scheduler) {"
+        errorLine2="                                                           ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/dynamicanimation/animation/DynamicAnimation.java"/>
+    </issue>
+
+    <issue
+        id="VisibleForTests"
+        message="This method should only be accessed from tests or within private scope"
+        errorLine1="        mAnimationHandler = new AnimationHandler(scheduler);"
+        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/dynamicanimation/animation/DynamicAnimation.java"/>
+    </issue>
+
+    <issue
+        id="VisibleForTests"
+        message="This method should only be accessed from tests or within private scope"
+        errorLine1="        if (!getAnimationHandler().isCurrentThread()) {"
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/dynamicanimation/animation/SpringAnimation.java"/>
+    </issue>
+
+    <issue
+        id="VisibleForTests"
+        message="This method should only be accessed from tests or within private scope"
+        errorLine1="        if (!getAnimationHandler().isCurrentThread()) {"
+        errorLine2="                                   ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/dynamicanimation/animation/SpringAnimation.java"/>
+    </issue>
+
+    <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public T addEndListener(OnAnimationEndListener listener) {"

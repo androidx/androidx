@@ -18,10 +18,10 @@ package androidx.compose.foundation.pager
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.list.assertIsNotPlaced
 import androidx.compose.foundation.lazy.list.assertIsPlaced
 import androidx.compose.runtime.Composable
@@ -37,6 +37,7 @@ import androidx.compose.ui.layout.PinnableContainer
 import androidx.compose.ui.layout.PinnableContainer.PinnedHandle
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.assertIsNotDisplayed
+import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -44,18 +45,22 @@ import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.runBlocking
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 
 @OptIn(ExperimentalFoundationApi::class)
 @MediumTest
-class PagerPinnableContainerTest :
-    SingleOrientationPagerTest(orientation = Orientation.Horizontal) {
+class PagerPinnableContainerTest {
+
+    @get:Rule
+    val rule = createComposeRule()
 
     private var pinnableContainer: PinnableContainer? = null
 
     private var pageSizeDp = Dp.Unspecified
 
     private val composed = mutableSetOf<Int>()
+    private lateinit var pagerState: PagerState
 
     @Before
     fun setup() {
@@ -81,13 +86,11 @@ class PagerPinnableContainerTest :
 
     @Test
     fun pinnedPageIsComposedAndPlacedWhenScrolledOut() {
-        val state = PagerState()
         // Arrange.
         rule.setContent {
-            HorizontalOrVerticalPager(
-                state = state,
+            HorizontalPager(
+                state = rememberPagerState { 100 }.also { pagerState = it },
                 modifier = Modifier.size(pageSizeDp * 2),
-                pageCount = 100,
                 pageSize = PageSize.Fixed(pageSizeDp)
             ) { page ->
                 if (page == 1) {
@@ -104,7 +107,7 @@ class PagerPinnableContainerTest :
         rule.runOnIdle {
             assertThat(composed).contains(1)
             runBlocking {
-                state.scrollToPage(3)
+                pagerState.scrollToPage(3)
             }
         }
 
@@ -126,13 +129,11 @@ class PagerPinnableContainerTest :
 
     @Test
     fun pagesBetweenPinnedAndCurrentVisibleAreNotComposed() {
-        val state = PagerState()
         // Arrange.
         rule.setContent {
-            HorizontalOrVerticalPager(
-                state = state,
+            HorizontalPager(
+                state = rememberPagerState { 100 }.also { pagerState = it },
                 modifier = Modifier.size(pageSizeDp * 2),
-                pageCount = 100,
                 pageSize = PageSize.Fixed(pageSizeDp)
             ) { page ->
                 if (page == 1) {
@@ -148,7 +149,7 @@ class PagerPinnableContainerTest :
 
         rule.runOnIdle {
             runBlocking {
-                state.scrollToPage(4)
+                pagerState.scrollToPage(4)
             }
         }
 
@@ -168,13 +169,11 @@ class PagerPinnableContainerTest :
 
     @Test
     fun pinnedPageAfterVisibleOnesIsComposedAndPlacedWhenScrolledOut() {
-        val state = PagerState()
         // Arrange.
         rule.setContent {
-            HorizontalOrVerticalPager(
-                state = state,
+            HorizontalPager(
+                state = rememberPagerState { 100 }.also { pagerState = it },
                 modifier = Modifier.size(pageSizeDp * 2),
-                pageCount = 100,
                 pageSize = PageSize.Fixed(pageSizeDp)
             ) { page ->
                 if (page == 4) {
@@ -186,7 +185,7 @@ class PagerPinnableContainerTest :
 
         rule.runOnIdle {
             runBlocking {
-                state.scrollToPage(4)
+                pagerState.scrollToPage(4)
             }
         }
 
@@ -202,7 +201,7 @@ class PagerPinnableContainerTest :
 
         rule.runOnIdle {
             runBlocking {
-                state.scrollToPage(0)
+                pagerState.scrollToPage(0)
             }
         }
 
@@ -223,13 +222,11 @@ class PagerPinnableContainerTest :
 
     @Test
     fun pinnedPageCanBeUnpinned() {
-        val state = PagerState()
         // Arrange.
         rule.setContent {
-            HorizontalOrVerticalPager(
-                state = state,
+            HorizontalPager(
+                state = rememberPagerState { 100 }.also { pagerState = it },
                 modifier = Modifier.size(pageSizeDp * 2),
-                pageCount = 100,
                 pageSize = PageSize.Fixed(pageSizeDp)
             ) { page ->
                 if (page == 1) {
@@ -245,7 +242,7 @@ class PagerPinnableContainerTest :
 
         rule.runOnIdle {
             runBlocking {
-                state.scrollToPage(3)
+                pagerState.scrollToPage(3)
             }
         }
 
@@ -269,11 +266,10 @@ class PagerPinnableContainerTest :
 
     @Test
     fun pinnedPageIsStillPinnedWhenReorderedAndNotVisibleAnymore() {
-        val state = PagerState()
         var list by mutableStateOf(listOf(0, 1, 2, 3, 4))
         // Arrange.
         rule.setContent {
-            Pager(state, list, 2, 3)
+            Pager(list, 2, 3)
         }
 
         rule.runOnIdle {
@@ -299,11 +295,10 @@ class PagerPinnableContainerTest :
     }
 
     @Composable
-    fun Pager(state: PagerState, dataset: List<Int>, pinnedPage: Int, visiblePages: Int) {
-        HorizontalOrVerticalPager(
-            state = state,
-            modifier = Modifier.mainAxisSize(pageSizeDp * visiblePages),
-            pageCount = dataset.size,
+    fun Pager(dataset: List<Int>, pinnedPage: Int, visiblePages: Int) {
+        HorizontalPager(
+            state = rememberPagerState { dataset.size },
+            modifier = Modifier.width(pageSizeDp * visiblePages),
             pageSize = PageSize.Fixed(pageSizeDp),
             key = { dataset[it] }
         ) { page ->
@@ -316,13 +311,17 @@ class PagerPinnableContainerTest :
 
     @Test
     fun unpinnedWhenPagerStateChanges() {
-        var state by mutableStateOf(PagerState(initialPage = 2))
+        var state by mutableStateOf(
+            PagerStateImpl(
+                initialPage = 2,
+                initialPageOffsetFraction = 0f,
+                updatedPageCount = { 100 })
+        )
         // Arrange.
         rule.setContent {
-            HorizontalOrVerticalPager(
+            HorizontalPager(
                 state = state,
                 modifier = Modifier.size(pageSizeDp * 2),
-                pageCount = 100,
                 pageSize = PageSize.Fixed(pageSizeDp)
             ) { page ->
                 if (page == 2) {
@@ -350,7 +349,10 @@ class PagerPinnableContainerTest :
 
         rule.runOnIdle {
             assertThat(composed).contains(2)
-            state = PagerState()
+            state = PagerStateImpl(
+                initialPage = 0,
+                initialPageOffsetFraction = 0f,
+                updatedPageCount = { 100 })
         }
 
         rule.waitUntil {
@@ -364,13 +366,17 @@ class PagerPinnableContainerTest :
 
     @Test
     fun pinAfterPagerStateChange() {
-        var state by mutableStateOf(PagerState())
+        var state by mutableStateOf(
+            PagerStateImpl(
+                initialPage = 0,
+                initialPageOffsetFraction = 0f,
+                updatedPageCount = { 100 })
+        )
         // Arrange.
         rule.setContent {
-            HorizontalOrVerticalPager(
+            HorizontalPager(
                 state = state,
                 modifier = Modifier.size(pageSizeDp * 2),
-                pageCount = 100,
                 pageSize = PageSize.Fixed(pageSizeDp)
             ) { page ->
                 if (page == 0) {
@@ -381,7 +387,10 @@ class PagerPinnableContainerTest :
         }
 
         rule.runOnIdle {
-            state = PagerState()
+            state = PagerStateImpl(
+                initialPage = 0,
+                initialPageOffsetFraction = 0f,
+                updatedPageCount = { 100 })
         }
 
         rule.runOnIdle {
@@ -407,13 +416,12 @@ class PagerPinnableContainerTest :
 
     @Test
     fun pagesArePinnedBasedOnGlobalIndexes() {
-        val state = PagerState(initialPage = 3)
         // Arrange.
+        lateinit var state: PagerState
         rule.setContent {
-            HorizontalOrVerticalPager(
-                state = state,
+            HorizontalPager(
+                state = rememberPagerState(initialPage = 3) { 100 }.also { state = it },
                 modifier = Modifier.size(pageSizeDp * 2),
-                pageCount = 100,
                 pageSize = PageSize.Fixed(pageSizeDp)
             ) { page ->
                 if (page == 3) {
@@ -451,14 +459,13 @@ class PagerPinnableContainerTest :
 
     @Test
     fun pinnedPageIsRemovedWhenNotVisible() {
-        val state = PagerState(initialPage = 3)
+        lateinit var state: PagerState
         var pageCount by mutableStateOf(10)
         // Arrange.
         rule.setContent {
-            HorizontalOrVerticalPager(
-                state = state,
+            HorizontalPager(
+                state = rememberPagerState(initialPage = 3) { pageCount }.also { state = it },
                 modifier = Modifier.size(pageSizeDp * 2),
-                pageCount = pageCount,
                 pageSize = PageSize.Fixed(pageSizeDp)
             ) { page ->
                 if (page == 3) {
@@ -496,11 +503,10 @@ class PagerPinnableContainerTest :
 
     @Test
     fun pinnedPageIsRemovedWhenVisible() {
-        val state = PagerState()
         var pages by mutableStateOf(listOf(0, 1, 2))
         // Arrange.
         rule.setContent {
-            Pager(state = state, dataset = pages, pinnedPage = 1, visiblePages = 2)
+            Pager(dataset = pages, pinnedPage = 1, visiblePages = 2)
         }
 
         rule.runOnIdle {
@@ -522,13 +528,11 @@ class PagerPinnableContainerTest :
 
     @Test
     fun pinnedMultipleTimes() {
-        val state = PagerState(0)
         // Arrange.
         rule.setContent {
-            HorizontalOrVerticalPager(
-                state = state,
+            HorizontalPager(
+                state = rememberPagerState { 100 }.also { pagerState = it },
                 modifier = Modifier.size(pageSizeDp * 2),
-                pageCount = 100,
                 pageSize = PageSize.Fixed(pageSizeDp)
             ) { page ->
                 if (page == 1) {
@@ -549,7 +553,7 @@ class PagerPinnableContainerTest :
             handles.add(requireNotNull(pinnableContainer).pin())
             assertThat(composed).contains(0)
             runBlocking {
-                state.scrollToPage(3)
+                pagerState.scrollToPage(3)
             }
         }
 
@@ -583,8 +587,8 @@ class PagerPinnableContainerTest :
         // Arrange.
         rule.setContent {
             CompositionLocalProvider(LocalPinnableContainer provides parentContainer) {
-                HorizontalOrVerticalPager(
-                    pageCount = 1,
+                HorizontalPager(
+                    state = rememberPagerState { 1 },
                     pageSize = PageSize.Fixed(pageSizeDp)
                 ) {
                     pinnableContainer = LocalPinnableContainer.current
@@ -627,8 +631,8 @@ class PagerPinnableContainerTest :
         // Arrange.
         rule.setContent {
             CompositionLocalProvider(LocalPinnableContainer provides parentContainer) {
-                HorizontalOrVerticalPager(
-                    pageCount = 1,
+                HorizontalPager(
+                    state = rememberPagerState { 1 },
                     pageSize = PageSize.Fixed(pageSizeDp)
                 ) {
                     pinnableContainer = LocalPinnableContainer.current

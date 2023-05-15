@@ -34,7 +34,6 @@ import androidx.core.i18n.DateTimeFormatterSkeletonOptions.WeekDay;
 import androidx.core.i18n.DateTimeFormatterSkeletonOptions.Year;
 import androidx.core.os.BuildCompat;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 
@@ -86,12 +85,7 @@ public class CheckTheJavaApisTest {
     }
 
     @Test @SmallTest
-    @SdkSuppress(maxSdkVersion = 33) // b/262909049: Do not run this test on pre-release Android U.
     public void testSkeletonOptions() {
-        if (Build.VERSION.SDK_INT == 33 && !"REL".equals(Build.VERSION.CODENAME)) {
-            return; // b/262909049: Do not run this test on pre-release Android U.
-        }
-
         final DateTimeFormatterSkeletonOptions.Builder builder =
                 new DateTimeFormatterSkeletonOptions.Builder()
                         .setYear(Year.NUMERIC)

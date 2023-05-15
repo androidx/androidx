@@ -40,6 +40,45 @@ sidecars) that ship on-device and are referenced via the `<uses-library>` tag
 should follow the naming convention `com.android.extensions.<feature-name>` to
 avoid placing `androidx`-packaged code in the platform's boot classpath.
 
+#### Maven name and description
+
+The `name` and `description` fields of the `androidx` configuration block are
+used to generate Maven artifact metadata, which is displayed on the artifact's
+maven.google.com entry and d.android.com landing page.
+
+```
+androidx {
+    name = "WorkManager Kotlin Extensions"
+    description = "Kotlin-friendly extensions for WorkManager."
+}
+```
+
+The name should be a human-readable, title-cased representation of the
+artifact's Maven coordinate. All components of the name **must** appear in the
+artifact's Maven group or artifact ID, with some exceptions:
+
+-   Marketing names may be shortened when used in the Maven group or artifact
+    ID, ex. "WorkManager" as `work`, "Android for Cars" as `car`, or "Kotlin
+    Extensions" as `ktx`
+-   Long (>10 character) words may be truncated to a short (>5 character) prefix
+-   Pluralization may be changed, ex. "Views" as `view`
+-   The following descriptive terms may appear in the name:
+    -   "extension(s)"
+    -   "for"
+    -   "integration"
+    -   "with"
+
+**Do not** use the following terms in the name:
+
+-   "AndroidX"
+-   "Library"
+-   "Implementation"
+
+The description should be a single phrase that completes the sentence, "This
+library provides ...". This phrase should provide enough description that a
+developer can decide whether they might want to learn more about using your
+library. **Do not** simply repeat the name of the library.
+
 #### Project directory structure {#module-structure}
 
 Libraries developed in AndroidX follow a consistent project naming and directory
@@ -284,7 +323,7 @@ import androidx.build.KmpPlatformsKt
 ...
 
 androidx {
-    name = "Android Support Library collections"
+    name = "Collection"
     type = LibraryType.KMP_LIBRARY
     mavenGroup = LibraryGroups.COLLECTION
     mavenVersion = KmpPlatformsKt.enableNative(project) ? LibraryVersions.COLLECTION_KMP : LibraryVersions.KMP

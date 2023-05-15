@@ -16,21 +16,18 @@
 
 package androidx.recyclerview.widget
 
-import org.hamcrest.CoreMatchers.`is`
-import org.hamcrest.MatcherAssert.assertThat
-
 import android.content.Context
 import android.view.View
 import android.view.ViewGroup
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
-
+import java.util.ArrayList
+import org.hamcrest.CoreMatchers.`is`
+import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
-
-import java.util.ArrayList
 
 /**
  * Small integration test base that helps verify that [SnapHelper]s that implement "center"

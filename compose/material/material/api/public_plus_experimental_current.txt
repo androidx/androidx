@@ -7,7 +7,8 @@ package androidx.compose.material {
   }
 
   public final class AndroidMenu_androidKt {
-    method @androidx.compose.runtime.Composable public static void DropdownMenu(boolean expanded, kotlin.jvm.functions.Function0<kotlin.Unit> onDismissRequest, optional androidx.compose.ui.Modifier modifier, optional long offset, optional androidx.compose.ui.window.PopupProperties properties, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ColumnScope,kotlin.Unit> content);
+    method @androidx.compose.runtime.Composable public static void DropdownMenu(boolean expanded, kotlin.jvm.functions.Function0<kotlin.Unit> onDismissRequest, optional androidx.compose.ui.Modifier modifier, optional long offset, optional androidx.compose.foundation.ScrollState scrollState, optional androidx.compose.ui.window.PopupProperties properties, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ColumnScope,kotlin.Unit> content);
+    method @Deprecated @androidx.compose.runtime.Composable public static void DropdownMenu(boolean expanded, kotlin.jvm.functions.Function0<? extends kotlin.Unit> onDismissRequest, optional androidx.compose.ui.Modifier modifier, optional long offset, optional androidx.compose.ui.window.PopupProperties properties, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ColumnScope,? extends kotlin.Unit> content);
     method @androidx.compose.runtime.Composable public static void DropdownMenuItem(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional androidx.compose.foundation.layout.PaddingValues contentPadding, optional androidx.compose.foundation.interaction.MutableInteractionSource interactionSource, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit> content);
   }
 
@@ -76,11 +77,11 @@ package androidx.compose.material {
   }
 
   @androidx.compose.material.ExperimentalMaterialApi public final class BottomDrawerState {
-    ctor public BottomDrawerState(androidx.compose.material.BottomDrawerValue initialValue, optional kotlin.jvm.functions.Function1<? super androidx.compose.material.BottomDrawerValue,java.lang.Boolean> confirmStateChange);
+    ctor @Deprecated public BottomDrawerState(androidx.compose.material.BottomDrawerValue initialValue, optional kotlin.jvm.functions.Function1<? super androidx.compose.material.BottomDrawerValue,java.lang.Boolean> confirmStateChange);
     method public suspend Object? close(kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public suspend Object? expand(kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public androidx.compose.material.BottomDrawerValue getCurrentValue();
-    method public Float? getOffset();
+    method public float getOffset();
     method public androidx.compose.material.BottomDrawerValue getTargetValue();
     method public boolean isClosed();
     method public boolean isExpanded();
@@ -90,13 +91,14 @@ package androidx.compose.material {
     property public final boolean isClosed;
     property public final boolean isExpanded;
     property public final boolean isOpen;
-    property public final Float? offset;
+    property public final float offset;
     property public final androidx.compose.material.BottomDrawerValue targetValue;
     field public static final androidx.compose.material.BottomDrawerState.Companion Companion;
   }
 
   public static final class BottomDrawerState.Companion {
-    method public androidx.compose.runtime.saveable.Saver<androidx.compose.material.BottomDrawerState,androidx.compose.material.BottomDrawerValue> Saver(kotlin.jvm.functions.Function1<? super androidx.compose.material.BottomDrawerValue,java.lang.Boolean> confirmStateChange);
+    method public androidx.compose.runtime.saveable.Saver<androidx.compose.material.BottomDrawerState,androidx.compose.material.BottomDrawerValue> Saver(androidx.compose.ui.unit.Density density, kotlin.jvm.functions.Function1<? super androidx.compose.material.BottomDrawerValue,java.lang.Boolean> confirmStateChange);
+    method @Deprecated public androidx.compose.runtime.saveable.Saver<androidx.compose.material.BottomDrawerState,androidx.compose.material.BottomDrawerValue> Saver(kotlin.jvm.functions.Function1<? super androidx.compose.material.BottomDrawerValue,java.lang.Boolean> confirmStateChange);
   }
 
   @androidx.compose.material.ExperimentalMaterialApi public enum BottomDrawerValue {
@@ -129,6 +131,7 @@ package androidx.compose.material {
   public final class BottomSheetScaffoldKt {
     method @androidx.compose.material.ExperimentalMaterialApi @androidx.compose.runtime.Composable public static void BottomSheetScaffold(kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ColumnScope,kotlin.Unit> sheetContent, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.material.BottomSheetScaffoldState scaffoldState, optional kotlin.jvm.functions.Function0<kotlin.Unit>? topBar, optional kotlin.jvm.functions.Function1<? super androidx.compose.material.SnackbarHostState,kotlin.Unit> snackbarHost, optional kotlin.jvm.functions.Function0<kotlin.Unit>? floatingActionButton, optional int floatingActionButtonPosition, optional boolean sheetGesturesEnabled, optional androidx.compose.ui.graphics.Shape sheetShape, optional float sheetElevation, optional long sheetBackgroundColor, optional long sheetContentColor, optional float sheetPeekHeight, optional kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ColumnScope,kotlin.Unit>? drawerContent, optional boolean drawerGesturesEnabled, optional androidx.compose.ui.graphics.Shape drawerShape, optional float drawerElevation, optional long drawerBackgroundColor, optional long drawerContentColor, optional long drawerScrimColor, optional long backgroundColor, optional long contentColor, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.PaddingValues,kotlin.Unit> content);
     method @Deprecated @androidx.compose.material.ExperimentalMaterialApi public static androidx.compose.material.BottomSheetState BottomSheetScaffoldState(androidx.compose.material.BottomSheetValue initialValue, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, kotlin.jvm.functions.Function1<? super androidx.compose.material.BottomSheetValue,java.lang.Boolean> confirmStateChange);
+    method @androidx.compose.material.ExperimentalMaterialApi @androidx.compose.runtime.Stable public static androidx.compose.material.BottomSheetState BottomSheetState(androidx.compose.material.BottomSheetValue initialValue, androidx.compose.ui.unit.Density density, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, optional kotlin.jvm.functions.Function1<? super androidx.compose.material.BottomSheetValue,java.lang.Boolean> confirmValueChange);
     method @androidx.compose.material.ExperimentalMaterialApi @androidx.compose.runtime.Composable public static androidx.compose.material.BottomSheetScaffoldState rememberBottomSheetScaffoldState(optional androidx.compose.material.DrawerState drawerState, optional androidx.compose.material.BottomSheetState bottomSheetState, optional androidx.compose.material.SnackbarHostState snackbarHostState);
     method @androidx.compose.material.ExperimentalMaterialApi @androidx.compose.runtime.Composable public static androidx.compose.material.BottomSheetState rememberBottomSheetState(androidx.compose.material.BottomSheetValue initialValue, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, optional kotlin.jvm.functions.Function1<? super androidx.compose.material.BottomSheetValue,java.lang.Boolean> confirmStateChange);
   }
@@ -144,7 +147,7 @@ package androidx.compose.material {
   }
 
   @androidx.compose.material.ExperimentalMaterialApi @androidx.compose.runtime.Stable public final class BottomSheetState {
-    ctor public BottomSheetState(androidx.compose.material.BottomSheetValue initialValue, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, optional kotlin.jvm.functions.Function1<? super androidx.compose.material.BottomSheetValue,java.lang.Boolean> confirmValueChange);
+    ctor @Deprecated public BottomSheetState(androidx.compose.material.BottomSheetValue initialValue, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, optional kotlin.jvm.functions.Function1<? super androidx.compose.material.BottomSheetValue,java.lang.Boolean> confirmValueChange);
     method public suspend Object? collapse(kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public suspend Object? expand(kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public androidx.compose.material.BottomSheetValue getCurrentValue();
@@ -162,7 +165,8 @@ package androidx.compose.material {
   }
 
   public static final class BottomSheetState.Companion {
-    method public androidx.compose.runtime.saveable.Saver<androidx.compose.material.BottomSheetState,?> Saver(androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, kotlin.jvm.functions.Function1<? super androidx.compose.material.BottomSheetValue,java.lang.Boolean> confirmStateChange);
+    method public androidx.compose.runtime.saveable.Saver<androidx.compose.material.BottomSheetState,?> Saver(androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, kotlin.jvm.functions.Function1<? super androidx.compose.material.BottomSheetValue,java.lang.Boolean> confirmStateChange, androidx.compose.ui.unit.Density density);
+    method @Deprecated public androidx.compose.runtime.saveable.Saver<androidx.compose.material.BottomSheetState,?> Saver(androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, kotlin.jvm.functions.Function1<? super androidx.compose.material.BottomSheetValue,java.lang.Boolean> confirmStateChange);
   }
 
   @androidx.compose.material.ExperimentalMaterialApi public enum BottomSheetValue {
@@ -370,6 +374,7 @@ package androidx.compose.material {
 
   public final class DrawerKt {
     method @androidx.compose.material.ExperimentalMaterialApi @androidx.compose.runtime.Composable public static void BottomDrawer(kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ColumnScope,kotlin.Unit> drawerContent, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.material.BottomDrawerState drawerState, optional boolean gesturesEnabled, optional androidx.compose.ui.graphics.Shape drawerShape, optional float drawerElevation, optional long drawerBackgroundColor, optional long drawerContentColor, optional long scrimColor, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+    method @androidx.compose.material.ExperimentalMaterialApi public static androidx.compose.material.BottomDrawerState BottomDrawerState(androidx.compose.material.BottomDrawerValue initialValue, androidx.compose.ui.unit.Density density, optional kotlin.jvm.functions.Function1<? super androidx.compose.material.BottomDrawerValue,java.lang.Boolean> confirmStateChange);
     method @androidx.compose.runtime.Composable public static void ModalDrawer(kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ColumnScope,kotlin.Unit> drawerContent, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.material.DrawerState drawerState, optional boolean gesturesEnabled, optional androidx.compose.ui.graphics.Shape drawerShape, optional float drawerElevation, optional long drawerBackgroundColor, optional long drawerContentColor, optional long scrimColor, kotlin.jvm.functions.Function0<kotlin.Unit> content);
     method @androidx.compose.material.ExperimentalMaterialApi @androidx.compose.runtime.Composable public static androidx.compose.material.BottomDrawerState rememberBottomDrawerState(androidx.compose.material.BottomDrawerValue initialValue, optional kotlin.jvm.functions.Function1<? super androidx.compose.material.BottomDrawerValue,java.lang.Boolean> confirmStateChange);
     method @androidx.compose.runtime.Composable public static androidx.compose.material.DrawerState rememberDrawerState(androidx.compose.material.DrawerValue initialValue, optional kotlin.jvm.functions.Function1<? super androidx.compose.material.DrawerValue,java.lang.Boolean> confirmStateChange);
@@ -380,7 +385,7 @@ package androidx.compose.material {
     method @Deprecated @androidx.compose.material.ExperimentalMaterialApi public suspend Object? animateTo(androidx.compose.material.DrawerValue targetValue, androidx.compose.animation.core.AnimationSpec<java.lang.Float> anim, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public suspend Object? close(kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public androidx.compose.material.DrawerValue getCurrentValue();
-    method @androidx.compose.material.ExperimentalMaterialApi public Float? getOffset();
+    method @androidx.compose.material.ExperimentalMaterialApi public float getOffset();
     method @androidx.compose.material.ExperimentalMaterialApi public androidx.compose.material.DrawerValue getTargetValue();
     method public boolean isAnimationRunning();
     method public boolean isClosed();
@@ -391,7 +396,7 @@ package androidx.compose.material {
     property public final boolean isAnimationRunning;
     property public final boolean isClosed;
     property public final boolean isOpen;
-    property @androidx.compose.material.ExperimentalMaterialApi public final Float? offset;
+    property @androidx.compose.material.ExperimentalMaterialApi public final float offset;
     property @androidx.compose.material.ExperimentalMaterialApi public final androidx.compose.material.DrawerValue targetValue;
     field public static final androidx.compose.material.DrawerState.Companion Companion;
   }
@@ -422,7 +427,7 @@ package androidx.compose.material {
   }
 
   @androidx.compose.material.ExperimentalMaterialApi @kotlin.jvm.JvmDefaultWithCompatibility public interface ExposedDropdownMenuBoxScope {
-    method @androidx.compose.runtime.Composable public default void ExposedDropdownMenu(boolean expanded, kotlin.jvm.functions.Function0<kotlin.Unit> onDismissRequest, optional androidx.compose.ui.Modifier modifier, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ColumnScope,kotlin.Unit> content);
+    method @androidx.compose.runtime.Composable public default void ExposedDropdownMenu(boolean expanded, kotlin.jvm.functions.Function0<kotlin.Unit> onDismissRequest, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.foundation.ScrollState scrollState, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ColumnScope,kotlin.Unit> content);
     method public androidx.compose.ui.Modifier exposedDropdownSize(androidx.compose.ui.Modifier, optional boolean matchTextFieldWidth);
   }
 
@@ -527,8 +532,9 @@ package androidx.compose.material {
   }
 
   public final class ModalBottomSheetKt {
-    method @androidx.compose.material.ExperimentalMaterialApi @androidx.compose.runtime.Composable public static void ModalBottomSheetLayout(kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ColumnScope,kotlin.Unit> sheetContent, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.material.ModalBottomSheetState sheetState, optional androidx.compose.ui.graphics.Shape sheetShape, optional float sheetElevation, optional long sheetBackgroundColor, optional long sheetContentColor, optional long scrimColor, kotlin.jvm.functions.Function0<kotlin.Unit> content);
-    method @androidx.compose.material.ExperimentalMaterialApi public static androidx.compose.material.ModalBottomSheetState ModalBottomSheetState(androidx.compose.material.ModalBottomSheetValue initialValue, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, optional kotlin.jvm.functions.Function1<? super androidx.compose.material.ModalBottomSheetValue,java.lang.Boolean> confirmValueChange, optional boolean isSkipHalfExpanded);
+    method @androidx.compose.material.ExperimentalMaterialApi @androidx.compose.runtime.Composable public static void ModalBottomSheetLayout(kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ColumnScope,kotlin.Unit> sheetContent, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.material.ModalBottomSheetState sheetState, optional boolean sheetGesturesEnabled, optional androidx.compose.ui.graphics.Shape sheetShape, optional float sheetElevation, optional long sheetBackgroundColor, optional long sheetContentColor, optional long scrimColor, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+    method @androidx.compose.material.ExperimentalMaterialApi public static androidx.compose.material.ModalBottomSheetState ModalBottomSheetState(androidx.compose.material.ModalBottomSheetValue initialValue, androidx.compose.ui.unit.Density density, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, optional kotlin.jvm.functions.Function1<? super androidx.compose.material.ModalBottomSheetValue,java.lang.Boolean> confirmValueChange, optional boolean isSkipHalfExpanded);
+    method @Deprecated @androidx.compose.material.ExperimentalMaterialApi public static androidx.compose.material.ModalBottomSheetState ModalBottomSheetState(androidx.compose.material.ModalBottomSheetValue initialValue, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, optional kotlin.jvm.functions.Function1<? super androidx.compose.material.ModalBottomSheetValue,java.lang.Boolean> confirmValueChange, optional boolean isSkipHalfExpanded);
     method @androidx.compose.material.ExperimentalMaterialApi @androidx.compose.runtime.Composable public static androidx.compose.material.ModalBottomSheetState rememberModalBottomSheetState(androidx.compose.material.ModalBottomSheetValue initialValue, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, optional kotlin.jvm.functions.Function1<? super androidx.compose.material.ModalBottomSheetValue,java.lang.Boolean> confirmValueChange, optional boolean skipHalfExpanded);
     method @Deprecated @androidx.compose.material.ExperimentalMaterialApi @androidx.compose.runtime.Composable public static androidx.compose.material.ModalBottomSheetState rememberModalBottomSheetState(androidx.compose.material.ModalBottomSheetValue initialValue, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, boolean skipHalfExpanded, kotlin.jvm.functions.Function1<? super androidx.compose.material.ModalBottomSheetValue,java.lang.Boolean> confirmStateChange);
     method @Deprecated @androidx.compose.material.ExperimentalMaterialApi @androidx.compose.runtime.Composable public static androidx.compose.material.ModalBottomSheetState rememberModalBottomSheetState(androidx.compose.material.ModalBottomSheetValue initialValue, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, kotlin.jvm.functions.Function1<? super androidx.compose.material.ModalBottomSheetValue,java.lang.Boolean> confirmStateChange);
@@ -549,7 +555,8 @@ package androidx.compose.material {
   }
 
   public static final class ModalBottomSheetState.Companion {
-    method public androidx.compose.runtime.saveable.Saver<androidx.compose.material.ModalBottomSheetState,?> Saver(androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, kotlin.jvm.functions.Function1<? super androidx.compose.material.ModalBottomSheetValue,java.lang.Boolean> confirmValueChange, boolean skipHalfExpanded);
+    method public androidx.compose.runtime.saveable.Saver<androidx.compose.material.ModalBottomSheetState,?> Saver(androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, kotlin.jvm.functions.Function1<? super androidx.compose.material.ModalBottomSheetValue,java.lang.Boolean> confirmValueChange, boolean skipHalfExpanded, androidx.compose.ui.unit.Density density);
+    method @Deprecated public androidx.compose.runtime.saveable.Saver<androidx.compose.material.ModalBottomSheetState,?> Saver(androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, kotlin.jvm.functions.Function1<? super androidx.compose.material.ModalBottomSheetValue,java.lang.Boolean> confirmValueChange, boolean skipHalfExpanded);
     method @Deprecated public androidx.compose.runtime.saveable.Saver<androidx.compose.material.ModalBottomSheetState,?> Saver(androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, boolean skipHalfExpanded, kotlin.jvm.functions.Function1<? super androidx.compose.material.ModalBottomSheetValue,java.lang.Boolean> confirmStateChange);
   }
 
@@ -733,13 +740,13 @@ package androidx.compose.material {
   }
 
   @androidx.compose.material.ExperimentalMaterialApi @androidx.compose.runtime.Immutable public final class SwipeProgress<T> {
-    ctor public SwipeProgress(T? from, T? to, float fraction);
+    ctor public SwipeProgress(T from, T to, float fraction);
     method public float getFraction();
-    method public T! getFrom();
-    method public T! getTo();
+    method public T getFrom();
+    method public T getTo();
     property public final float fraction;
-    property public final T! from;
-    property public final T! to;
+    property public final T from;
+    property public final T to;
   }
 
   public final class SwipeToDismissKt {
@@ -764,25 +771,25 @@ package androidx.compose.material {
   }
 
   @androidx.compose.material.ExperimentalMaterialApi @androidx.compose.runtime.Stable public class SwipeableState<T> {
-    ctor public SwipeableState(T? initialValue, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, optional kotlin.jvm.functions.Function1<? super T,java.lang.Boolean> confirmStateChange);
-    method @androidx.compose.material.ExperimentalMaterialApi public final suspend Object? animateTo(T? targetValue, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> anim, optional kotlin.coroutines.Continuation<? super kotlin.Unit>);
-    method public final T! getCurrentValue();
+    ctor public SwipeableState(T initialValue, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, optional kotlin.jvm.functions.Function1<? super T,java.lang.Boolean> confirmStateChange);
+    method @androidx.compose.material.ExperimentalMaterialApi public final suspend Object? animateTo(T targetValue, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> anim, optional kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public final T getCurrentValue();
     method public final float getDirection();
     method public final androidx.compose.runtime.State<java.lang.Float> getOffset();
     method public final androidx.compose.runtime.State<java.lang.Float> getOverflow();
     method public final androidx.compose.material.SwipeProgress<T> getProgress();
-    method public final T! getTargetValue();
+    method public final T getTargetValue();
     method public final boolean isAnimationRunning();
     method public final float performDrag(float delta);
     method public final suspend Object? performFling(float velocity, kotlin.coroutines.Continuation<? super kotlin.Unit>);
-    method @androidx.compose.material.ExperimentalMaterialApi public final suspend Object? snapTo(T? targetValue, kotlin.coroutines.Continuation<? super kotlin.Unit>);
-    property public final T! currentValue;
+    method @androidx.compose.material.ExperimentalMaterialApi public final suspend Object? snapTo(T targetValue, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    property public final T currentValue;
     property @androidx.compose.material.ExperimentalMaterialApi public final float direction;
     property public final boolean isAnimationRunning;
     property public final androidx.compose.runtime.State<java.lang.Float> offset;
     property public final androidx.compose.runtime.State<java.lang.Float> overflow;
     property @androidx.compose.material.ExperimentalMaterialApi public final androidx.compose.material.SwipeProgress<T> progress;
-    property @androidx.compose.material.ExperimentalMaterialApi public final T! targetValue;
+    property @androidx.compose.material.ExperimentalMaterialApi public final T targetValue;
     field public static final androidx.compose.material.SwipeableState.Companion Companion;
   }
 
@@ -891,7 +898,7 @@ package androidx.compose.material {
 
   public final class TextKt {
     method @androidx.compose.runtime.Composable public static void ProvideTextStyle(androidx.compose.ui.text.TextStyle value, kotlin.jvm.functions.Function0<kotlin.Unit> content);
-    method @androidx.compose.runtime.Composable public static void Text(String text, optional androidx.compose.ui.Modifier modifier, optional long color, optional long fontSize, optional androidx.compose.ui.text.font.FontStyle? fontStyle, optional androidx.compose.ui.text.font.FontWeight? fontWeight, optional androidx.compose.ui.text.font.FontFamily? fontFamily, optional long letterSpacing, optional androidx.compose.ui.text.style.TextDecoration? textDecoration, optional androidx.compose.ui.text.style.TextAlign? textAlign, optional long lineHeight, optional int overflow, optional boolean softWrap, optional int maxLines, optional int minLines, optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.text.TextLayoutResult,kotlin.Unit> onTextLayout, optional androidx.compose.ui.text.TextStyle style);
+    method @androidx.compose.runtime.Composable public static void Text(String text, optional androidx.compose.ui.Modifier modifier, optional long color, optional long fontSize, optional androidx.compose.ui.text.font.FontStyle? fontStyle, optional androidx.compose.ui.text.font.FontWeight? fontWeight, optional androidx.compose.ui.text.font.FontFamily? fontFamily, optional long letterSpacing, optional androidx.compose.ui.text.style.TextDecoration? textDecoration, optional androidx.compose.ui.text.style.TextAlign? textAlign, optional long lineHeight, optional int overflow, optional boolean softWrap, optional int maxLines, optional int minLines, optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.text.TextLayoutResult,kotlin.Unit>? onTextLayout, optional androidx.compose.ui.text.TextStyle style);
     method @androidx.compose.runtime.Composable public static void Text(androidx.compose.ui.text.AnnotatedString text, optional androidx.compose.ui.Modifier modifier, optional long color, optional long fontSize, optional androidx.compose.ui.text.font.FontStyle? fontStyle, optional androidx.compose.ui.text.font.FontWeight? fontWeight, optional androidx.compose.ui.text.font.FontFamily? fontFamily, optional long letterSpacing, optional androidx.compose.ui.text.style.TextDecoration? textDecoration, optional androidx.compose.ui.text.style.TextAlign? textAlign, optional long lineHeight, optional int overflow, optional boolean softWrap, optional int maxLines, optional int minLines, optional java.util.Map<java.lang.String,androidx.compose.foundation.text.InlineTextContent> inlineContent, optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.text.TextLayoutResult,kotlin.Unit> onTextLayout, optional androidx.compose.ui.text.TextStyle style);
     method @Deprecated @androidx.compose.runtime.Composable public static void Text(String text, optional androidx.compose.ui.Modifier modifier, optional long color, optional long fontSize, optional androidx.compose.ui.text.font.FontStyle? fontStyle, optional androidx.compose.ui.text.font.FontWeight? fontWeight, optional androidx.compose.ui.text.font.FontFamily? fontFamily, optional long letterSpacing, optional androidx.compose.ui.text.style.TextDecoration? textDecoration, optional androidx.compose.ui.text.style.TextAlign? textAlign, optional long lineHeight, optional int overflow, optional boolean softWrap, optional int maxLines, optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.text.TextLayoutResult,? extends kotlin.Unit> onTextLayout, optional androidx.compose.ui.text.TextStyle style);
     method @Deprecated @androidx.compose.runtime.Composable public static void Text(androidx.compose.ui.text.AnnotatedString text, optional androidx.compose.ui.Modifier modifier, optional long color, optional long fontSize, optional androidx.compose.ui.text.font.FontStyle? fontStyle, optional androidx.compose.ui.text.font.FontWeight? fontWeight, optional androidx.compose.ui.text.font.FontFamily? fontFamily, optional long letterSpacing, optional androidx.compose.ui.text.style.TextDecoration? textDecoration, optional androidx.compose.ui.text.style.TextAlign? textAlign, optional long lineHeight, optional int overflow, optional boolean softWrap, optional int maxLines, optional java.util.Map<java.lang.String,? extends androidx.compose.foundation.text.InlineTextContent> inlineContent, optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.text.TextLayoutResult,? extends kotlin.Unit> onTextLayout, optional androidx.compose.ui.text.TextStyle style);

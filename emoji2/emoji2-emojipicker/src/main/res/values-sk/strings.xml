@@ -18,7 +18,7 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="emoji_category_recent" msgid="7142376595414250279">"NEDÁVNO POUŽITÉ"</string>
-    <string name="emoji_category_emotions" msgid="1570830970240985537">"SMAJLÍKY A EMOTIKONY"</string>
+    <string name="emoji_category_emotions" msgid="1570830970240985537">"SMAJLÍKY A EMÓCIE"</string>
     <string name="emoji_category_people" msgid="7968173366822927025">"ĽUDIA"</string>
     <string name="emoji_category_animals_nature" msgid="4640771324837307541">"ZVIERATÁ A PRÍRODA"</string>
     <string name="emoji_category_food_drink" msgid="1189971856721244395">"JEDLO A NÁPOJE"</string>

@@ -381,7 +381,7 @@ setprop ctl.interface_restart android.hardware.power@1.0::IPower/default || true
 
 function_lock_cpu
 
-if [ "$DEVICE" -ne "wembley" ]; then
+if [ ${DEVICE} != "wembley" ]; then
     function_lock_gpu_kgsl
 else
     echo "Unable to lock gpu clocks of $MODEL ($DEVICE)."

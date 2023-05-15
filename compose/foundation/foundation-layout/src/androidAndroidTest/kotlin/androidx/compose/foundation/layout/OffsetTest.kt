@@ -40,6 +40,7 @@ import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
+import kotlin.math.roundToInt
 import org.junit.After
 import org.junit.Assert
 import org.junit.Assert.assertEquals
@@ -48,7 +49,6 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import kotlin.math.roundToInt
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)

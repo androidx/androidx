@@ -42,14 +42,14 @@ import androidx.viewpager2.widget.ViewPager2
 import androidx.viewpager2.widget.ViewPager2.ORIENTATION_HORIZONTAL
 import androidx.viewpager2.widget.ViewPager2.ORIENTATION_VERTICAL
 import androidx.viewpager2.widget.ViewPager2.SCROLL_STATE_DRAGGING
+import java.lang.reflect.Field
+import kotlin.math.sign
 import org.hamcrest.CoreMatchers.equalTo
 import org.junit.Before
 import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
-import java.lang.reflect.Field
-import kotlin.math.sign
 
 @LargeTest
 @RunWith(Parameterized::class)

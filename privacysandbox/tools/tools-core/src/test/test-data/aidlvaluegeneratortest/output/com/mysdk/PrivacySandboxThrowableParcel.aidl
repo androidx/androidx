@@ -8,4 +8,5 @@ parcelable PrivacySandboxThrowableParcel {
     PrivacySandboxThrowableParcel[] suppressedExceptions;
     String errorMessage;
     String exceptionClass;
+    boolean isCancellationException;
 }

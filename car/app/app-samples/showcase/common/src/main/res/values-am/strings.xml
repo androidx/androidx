@@ -125,12 +125,12 @@
     <string name="package_not_found_error_msg" msgid="7525619456883627939">"ጥቅል አልተገኘም።"</string>
     <string name="permissions_granted_msg" msgid="2348556088141992714">"ሁሉም ፈቃዶች ተሰጥተዋል። እባክዎን ከቅንብሮች ፈቃዶችን ይሻሩ።"</string>
     <string name="needs_access_msg_prefix" msgid="2204136858798832382">"መተግበሪያው ለሚከተሉት ፈቃዶች መዳረሻ ያስፈልገዋል፦\n"</string>
-    <string name="phone_screen_permission_msg" msgid="3599815596923367256">"በስልኩ ማያ ገጽ ላይ ፈቃድ ይስጡ"</string>
+    <string name="phone_screen_permission_msg" msgid="3599815596923367256">"በስልኩ ማያ ገፅ ላይ ፈቃድ ይስጡ"</string>
     <string name="enable_location_permission_on_device_msg" msgid="472752487966156897">"በመሣሪያ ላይ የአካባቢ ፈቃዶችን አንቃ"</string>
-    <string name="enable_location_permission_on_phone_msg" msgid="5082615523959139121">"በስልኩ ማያ ገጽ ላይ አካባቢን አንቃ"</string>
+    <string name="enable_location_permission_on_phone_msg" msgid="5082615523959139121">"በስልኩ ማያ ገፅ ላይ አካባቢን አንቃ"</string>
     <string name="required_permissions_title" msgid="5351791879153568211">"የሚያስፈልጉ ፈቃዶች"</string>
     <string name="request_permissions_title" msgid="7456426341142412300">"የፈቃድ ቅንጭብ ማሳያን ጠይቅ"</string>
-    <string name="cancel_reservation_title" msgid="1374986823057959608">"የቦታ ማስያዣ ማይ ገጽ ይቅር"</string>
+    <string name="cancel_reservation_title" msgid="1374986823057959608">"የቦታ ማስያዣ ማይ ገፅ ይቅር"</string>
     <string name="reservation_cancelled_msg" msgid="6334213670275547875">"ቦታ ማስያዣ ተሰርዟል"</string>
     <string name="result_demo_title" msgid="3900525190662148290">"የውጤት ቅንጭብ ማሳያ"</string>
     <string name="not_started_for_result_msg" msgid="7498800528148447270">"ይህ መተግበሪያ ለውጤት አልተጀመረም"</string>
@@ -298,7 +298,7 @@
     <string name="some_additional_text" msgid="4009872495806318260">"አንዳንድ ተጨማሪ ጽሁፍ"</string>
     <string name="sample_additional_list" msgid="5085372891301576306">"የናሙና ሊመረጥ የሚችል ዝርዝር"</string>
     <string name="task_restriction_demo_title" msgid="2212084350718766941">"የተግባር ገደብ ቅንጭብ ማሳያ"</string>
-    <string name="task_limit_reached_msg" msgid="7162842196382260992">"ይህ የእርምጃ ቁጥር ፍሰቱ ከመጠን በላይ እንዲሆን ያደርገዋል እና ወደ አዲስ ማያ ገጽ ይመራዎታል።"</string>
+    <string name="task_limit_reached_msg" msgid="7162842196382260992">"ይህ የእርምጃ ቁጥር ፍሰቱ ከመጠን በላይ እንዲሆን ያደርገዋል እና ወደ አዲስ ማያ ገፅ ይመራዎታል።"</string>
     <string name="task_step_of_title" msgid="2791717962535723839">"የተግባር እርምጃ %1$d ከ%2$d"</string>
     <string name="task_step_of_text" msgid="4646729781462227219">"ወደፊት ለመሄድ ጠቅ ያድርጉ"</string>
     <string name="task_content_allowed" msgid="545061986612431190">"እባክዎ የተለያዩ የቅንብር ደንቦችን ይጎብኙ እና መኪናው የማሽከርከር ሁነታ ላይ እንደሆነ ያረጋግጡ"</string>
@@ -333,7 +333,7 @@
     <string name="showcase_demos_title" msgid="1542092687878113304">"የመሳያ ቅንጭብ ማሳያ"</string>
     <string name="template_layouts_demo_title" msgid="788249269446087847">"የቅንብር ደንብ አቀማመጥ ቅንጭብ ማሳያዎች"</string>
     <string name="grid_template_menu_demo_title" msgid="7096285873490705119">"የፍርግርግ ቅንብር ደንብ ቅንጭብ ማሳያዎች"</string>
-    <string name="voice_access_demo_title" msgid="3825223890895361496">"የድምጽ መዳረሻ ቅንጭብ ማሳያ ማያ ገጽ"</string>
+    <string name="voice_access_demo_title" msgid="3825223890895361496">"የድምጽ መዳረሻ ቅንጭብ ማሳያ ማያ ገፅ"</string>
     <string name="user_interactions_demo_title" msgid="1356952319161314986">"የተጠቃሚ መስተጋብሮች"</string>
     <string name="request_permission_menu_demo_title" msgid="4796486779527427017">"የቅንጭብ ማሳያ ፈቃዶችን ይጠይቁ"</string>
     <string name="application_overflow_title" msgid="396427940886169325">"የመተግበሪያ ትርፍ አረጋጋጭ"</string>

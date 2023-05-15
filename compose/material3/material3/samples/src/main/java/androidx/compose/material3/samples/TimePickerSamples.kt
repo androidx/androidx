@@ -184,7 +184,10 @@ fun TimePickerSwitchableSample() {
                     Box(
                         Modifier
                             .fillMaxSize()
-                            .semantics { isContainer = true }
+                        .semantics {
+                            @Suppress("DEPRECATION")
+                            isContainer = true
+                        }
                     ) {
                         IconButton(
                             modifier = Modifier

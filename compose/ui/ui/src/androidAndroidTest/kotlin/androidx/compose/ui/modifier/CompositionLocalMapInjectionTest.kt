@@ -41,7 +41,7 @@ import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
 import androidx.compose.ui.node.DrawModifierNode
 import androidx.compose.ui.node.LayoutModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
-import androidx.compose.ui.node.ObserverNode
+import androidx.compose.ui.node.ObserverModifierNode
 import androidx.compose.ui.node.currentValueOf
 import androidx.compose.ui.node.observeReads
 import androidx.compose.ui.platform.LocalDensity
@@ -229,7 +229,7 @@ inline fun <reified T : Modifier.Node> modifierOf(crossinline fn: () -> T) =
         override fun create() = fn()
         override fun hashCode() = System.identityHashCode(this)
         override fun equals(other: Any?) = other === this
-        override fun update(node: T) = node
+        override fun update(node: T) {}
     }
 
 class ConsumeInDrawNode : CompositionLocalConsumerModifierNode, DrawModifierNode, Modifier.Node() {
@@ -264,7 +264,8 @@ class ConsumeInLayoutNode :
     }
 }
 
-class ConsumeInAttachNode : CompositionLocalConsumerModifierNode, ObserverNode, Modifier.Node() {
+class ConsumeInAttachNode :
+    CompositionLocalConsumerModifierNode, ObserverModifierNode, Modifier.Node() {
     var view: View? = null
     var int: Int? = null
     private fun readLocals() {

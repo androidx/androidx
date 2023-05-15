@@ -18,10 +18,10 @@ package androidx.resourceinspection.processor
 
 import com.google.auto.common.BasicAnnotationProcessor
 import com.google.auto.service.AutoService
-import net.ltgt.gradle.incap.IncrementalAnnotationProcessor
-import net.ltgt.gradle.incap.IncrementalAnnotationProcessorType.ISOLATING
 import javax.annotation.processing.Processor
 import javax.lang.model.SourceVersion
+import net.ltgt.gradle.incap.IncrementalAnnotationProcessor
+import net.ltgt.gradle.incap.IncrementalAnnotationProcessorType.ISOLATING
 
 /** Annotation processor for resource inspection tools. */
 @AutoService(Processor::class)

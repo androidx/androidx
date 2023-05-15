@@ -40,6 +40,7 @@ import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.withContext
@@ -51,6 +52,11 @@ import kotlinx.coroutines.withContext
  * This instance can be used for Lazy foundations such as [LazyListScope.items] to display data
  * received from the [Flow] of [PagingData].
  *
+ * Previewing [LazyPagingItems] is supported on a list of mock data. See sample for how to preview
+ * mock data.
+ *
+ * @sample androidx.paging.compose.samples.PagingPreview
+ *
  * @param T the type of value used by [PagingData].
  */
 public class LazyPagingItems<T : Any> internal constructor(
@@ -60,22 +66,6 @@ public class LazyPagingItems<T : Any> internal constructor(
     private val flow: Flow<PagingData<T>>
 ) {
     private val mainDispatcher = Dispatchers.Main
-
-    /**
-     * Contains the immutable [ItemSnapshotList] of currently presented items, including any
-     * placeholders if they are enabled.
-     * Note that similarly to [peek] accessing the items in a list will not trigger any loads.
-     * Use [get] to achieve such behavior.
-     */
-    var itemSnapshotList by mutableStateOf(
-        ItemSnapshotList<T>(0, 0, emptyList())
-    )
-        private set
-
-    /**
-     * The number of items which can be accessed.
-     */
-    val itemCount: Int get() = itemSnapshotList.size
 
     private val differCallback: DifferCallback = object : DifferCallback {
         override fun onChanged(position: Int, count: Int) {
@@ -97,9 +87,17 @@ public class LazyPagingItems<T : Any> internal constructor(
         }
     }
 
+    /**
+     * If the [flow] is a SharedFlow, it is expected to be the flow returned by from
+     * pager.flow.cachedIn(scope) which could contain a cached PagingData. We pass the cached
+     * PagingData to the differ so that if the PagingData contains cached data, the differ can be
+     * initialized with the data prior to collection on pager.
+     */
     private val pagingDataDiffer = object : PagingDataDiffer<T>(
         differCallback = differCallback,
-        mainContext = mainDispatcher
+        mainContext = mainDispatcher,
+        cachedPagingData =
+            if (flow is SharedFlow<PagingData<T>>) flow.replayCache.firstOrNull() else null
     ) {
         override suspend fun presentNewList(
             previousList: NullPaddedList<T>,
@@ -112,6 +110,22 @@ public class LazyPagingItems<T : Any> internal constructor(
             return null
         }
     }
+
+    /**
+     * Contains the immutable [ItemSnapshotList] of currently presented items, including any
+     * placeholders if they are enabled.
+     * Note that similarly to [peek] accessing the items in a list will not trigger any loads.
+     * Use [get] to achieve such behavior.
+     */
+    var itemSnapshotList by mutableStateOf(
+        pagingDataDiffer.snapshot()
+    )
+        private set
+
+    /**
+     * The number of items which can be accessed.
+     */
+    val itemCount: Int get() = itemSnapshotList.size
 
     private fun updateItemSnapshotList() {
         itemSnapshotList = pagingDataDiffer.snapshot()
@@ -303,7 +317,7 @@ public fun <T : Any> Flow<PagingData<T>>.collectAsLazyPagingItems(
  * [itemContentType] helper functions.
  */
 @Deprecated(
-    message = "Call LazyListScope.items directly with LazyPagingItems #itemKey and" +
+    message = "Call LazyListScope.items directly with LazyPagingItems #itemKey and " +
         "#itemContentType helper functions.",
     replaceWith = ReplaceWith(
         expression = """items(
@@ -360,8 +374,8 @@ public fun <T : Any> LazyListScope.items(
  * with LazyPagingItems #itemKey and #itemContentType helper functions.
  */
 @Deprecated(
-    message = "Deprecating support for indexed keys on non-null items as it is susceptible to" +
-        "errors when items indices shift due to prepends. Call LazyListScope.items directly" +
+    message = "Deprecating support for indexed keys on non-null items as it is susceptible to " +
+        "errors when items indices shift due to prepends. Call LazyListScope.items directly " +
         "with LazyPagingItems #itemKey and #itemContentType helper functions.",
     replaceWith = ReplaceWith(
         expression = """items(

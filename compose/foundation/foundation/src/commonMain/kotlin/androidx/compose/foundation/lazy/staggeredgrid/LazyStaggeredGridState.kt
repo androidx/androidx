@@ -22,11 +22,13 @@ import androidx.compose.foundation.gestures.ScrollScope
 import androidx.compose.foundation.gestures.ScrollableState
 import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.lazy.layout.AwaitFirstLayoutModifier
 import androidx.compose.foundation.lazy.layout.LazyAnimateScrollScope
+import androidx.compose.foundation.lazy.layout.LazyLayoutBeyondBoundsInfo
 import androidx.compose.foundation.lazy.layout.LazyLayoutItemProvider
+import androidx.compose.foundation.lazy.layout.LazyLayoutPinnedItemList
 import androidx.compose.foundation.lazy.layout.LazyLayoutPrefetchState
 import androidx.compose.foundation.lazy.layout.LazyLayoutPrefetchState.PrefetchHandle
-import androidx.compose.foundation.lazy.layout.LazyLayoutPinnedItemList
 import androidx.compose.foundation.lazy.layout.animateScrollToItem
 import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridLaneInfo.Companion.Unset
 import androidx.compose.runtime.Composable
@@ -58,7 +60,6 @@ import kotlin.math.abs
  *  [LazyStaggeredGridState.firstVisibleItemScrollOffset]
  * @return created and memoized [LazyStaggeredGridState] with given parameters.
  */
-@ExperimentalFoundationApi
 @Composable
 fun rememberLazyStaggeredGridState(
     initialFirstVisibleItemIndex: Int = 0,
@@ -75,7 +76,7 @@ fun rememberLazyStaggeredGridState(
  * Hoisted state object controlling [LazyVerticalStaggeredGrid] or [LazyHorizontalStaggeredGrid].
  * In most cases, it should be created via [rememberLazyStaggeredGridState].
  */
-@ExperimentalFoundationApi
+@OptIn(ExperimentalFoundationApi::class)
 class LazyStaggeredGridState private constructor(
     initialFirstVisibleItems: IntArray,
     initialFirstVisibleOffsets: IntArray,
@@ -157,13 +158,22 @@ class LazyStaggeredGridState private constructor(
     /** implementation of [LazyAnimateScrollScope] scope required for [animateScrollToItem] **/
     private val animateScrollScope = LazyStaggeredGridAnimateScrollScope(this)
 
-    private var remeasurement: Remeasurement? = null
+    internal var remeasurement: Remeasurement? = null
+        private set
 
     internal val remeasurementModifier = object : RemeasurementModifier {
         override fun onRemeasurementAvailable(remeasurement: Remeasurement) {
             this@LazyStaggeredGridState.remeasurement = remeasurement
         }
     }
+
+    /**
+     * Provides a modifier which allows to delay some interactions (e.g. scroll)
+     * until layout is ready.
+     */
+    internal val awaitLayoutModifier = AwaitFirstLayoutModifier()
+
+    internal val beyondBoundsInfo = LazyLayoutBeyondBoundsInfo()
 
     /**
      * Only used for testing to disable prefetching when needed to test the main logic.
@@ -211,6 +221,8 @@ class LazyStaggeredGridState private constructor(
      */
     internal val pinnedItems = LazyLayoutPinnedItemList()
 
+    internal val placementAnimator = LazyStaggeredGridItemPlacementAnimator()
+
     /**
      * Call this function to take control of scrolling and gain the ability to send scroll events
      * via [ScrollScope.scrollBy]. All actions that change the logical scroll position must be
@@ -223,6 +235,7 @@ class LazyStaggeredGridState private constructor(
         scrollPriority: MutatePriority,
         block: suspend ScrollScope.() -> Unit
     ) {
+        awaitLayoutModifier.waitForFirstLayout()
         scrollableState.scroll(scrollPriority, block)
     }
 

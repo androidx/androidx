@@ -36,8 +36,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -113,13 +113,13 @@ private const val roundCornerSize = 16f
 
 @Composable
 private fun animateCorner(hasSharpCorner: Boolean): MutableState<Float> {
-    val state = remember { mutableStateOf(roundCornerSize) }
+    val state = remember { mutableFloatStateOf(roundCornerSize) }
     LaunchedEffect(hasSharpCorner) {
         animate(
-            initialValue = state.value,
+            initialValue = state.floatValue,
             targetValue = if (hasSharpCorner) 2f else roundCornerSize,
             animationSpec = spring(stiffness = 50f, dampingRatio = 0.6f)
-        ) { animationValue, _ -> state.value = animationValue }
+        ) { animationValue, _ -> state.floatValue = animationValue }
     }
     return state
 }

@@ -150,8 +150,10 @@ public final class TypeBuilders {
             return new StringProp(proto, null);
         }
 
+        /** Returns the internal proto instance. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
-        TypesProto.StringProp toProto() {
+        public TypesProto.StringProp toProto() {
             return mImpl;
         }
 
@@ -277,8 +279,8 @@ public final class TypeBuilders {
              * Creates a new builder for {@link StringLayoutConstraint}.
              *
              * @param patternForLayout Sets the text string to use as the pattern for the largest
-             *                        text that can be laid out. Used to ensure that the layout
-             *                        is of a known size during the layout pass.
+             *     text that can be laid out. Used to ensure that the layout is of a known size
+             *     during the layout pass.
              * @since 1.2
              */
             public Builder(@NonNull String patternForLayout) {
@@ -299,8 +301,8 @@ public final class TypeBuilders {
             }
 
             /**
-             * Sets alignment of the actual text within the space reserved by patternForLayout.
-             * If not specified, defaults to center alignment.
+             * Sets alignment of the actual text within the space reserved by patternForLayout. If
+             * not specified, defaults to center alignment.
              *
              * @since 1.2
              */

@@ -162,6 +162,7 @@ public interface JavaScriptConsoleCallback {
             return mTrace;
         }
 
+        @NonNull
         @Override
         public String toString() {
             return new StringBuilder()

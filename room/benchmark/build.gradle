@@ -30,7 +30,7 @@ dependencies {
     // depend on the shadowed version so that it tests with the shipped artifact
     kaptAndroidTest project(path: ":room:room-compiler", configuration: "shadowAndImplementation")
     androidTestImplementation(project(":room:room-rxjava2"))
-    androidTestImplementation("androidx.arch.core:core-runtime:2.0.1")
+    androidTestImplementation("androidx.arch.core:core-runtime:2.2.0")
     androidTestImplementation(projectOrArtifact(":benchmark:benchmark-junit4"))
     androidTestImplementation(libs.rxjava2)
     androidTestImplementation(libs.junit)

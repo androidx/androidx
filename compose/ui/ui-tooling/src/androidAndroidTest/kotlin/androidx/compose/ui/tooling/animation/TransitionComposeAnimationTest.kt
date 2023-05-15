@@ -47,7 +47,7 @@ class TransitionComposeAnimationTest {
 
     @Test
     fun parseNullableIntComposeAnimation() {
-        val targetState: MutableState<Int?> = mutableStateOf(1)
+        val targetState: MutableState<Int?> = mutableStateOf<Int?>(1)
         rule.setContent {
             val transition = updateTransition(targetState, label = "TestTransition")
             val composeAnimation = transition.parse()!!

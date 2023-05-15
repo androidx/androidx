@@ -1,8 +1,108 @@
 // Baseline format: 1.0
 AddedAbstractMethod: androidx.compose.runtime.Composer#getCurrentCompositionLocalMap():
     Added method androidx.compose.runtime.Composer.getCurrentCompositionLocalMap()
-AddedAbstractMethod: androidx.compose.runtime.CompositionContext#getEffectCoroutineContext():
-    Added method androidx.compose.runtime.CompositionContext.getEffectCoroutineContext()
+
+
+InvalidNullConversion: androidx.compose.runtime.AbstractApplier#AbstractApplier(T) parameter #0:
+    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter root in androidx.compose.runtime.AbstractApplier(T root)
+InvalidNullConversion: androidx.compose.runtime.AbstractApplier#down(T) parameter #0:
+    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter node in androidx.compose.runtime.AbstractApplier.down(T node)
+InvalidNullConversion: androidx.compose.runtime.Applier#down(N) parameter #0:
+    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter node in androidx.compose.runtime.Applier.down(N node)
+InvalidNullConversion: androidx.compose.runtime.Applier#insertBottomUp(int, N) parameter #1:
+    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter instance in androidx.compose.runtime.Applier.insertBottomUp(int index, N instance)
+InvalidNullConversion: androidx.compose.runtime.Applier#insertTopDown(int, N) parameter #1:
+    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter instance in androidx.compose.runtime.Applier.insertTopDown(int index, N instance)
+InvalidNullConversion: androidx.compose.runtime.Composer#apply(V, kotlin.jvm.functions.Function2<? super T,? super V,kotlin.Unit>) parameter #0:
+    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter value in androidx.compose.runtime.Composer.apply(V value, kotlin.jvm.functions.Function2<? super T,? super V,kotlin.Unit> block)
+InvalidNullConversion: androidx.compose.runtime.ProvidableCompositionLocal#provides(T) parameter #0:
+    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter value in androidx.compose.runtime.ProvidableCompositionLocal.provides(T value)
+InvalidNullConversion: androidx.compose.runtime.ProvidableCompositionLocal#providesDefault(T) parameter #0:
+    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter value in androidx.compose.runtime.ProvidableCompositionLocal.providesDefault(T value)
+InvalidNullConversion: androidx.compose.runtime.SnapshotMutationPolicy#equivalent(T, T) parameter #0:
+    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter a in androidx.compose.runtime.SnapshotMutationPolicy.equivalent(T a, T b)
+InvalidNullConversion: androidx.compose.runtime.SnapshotMutationPolicy#equivalent(T, T) parameter #1:
+    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter b in androidx.compose.runtime.SnapshotMutationPolicy.equivalent(T a, T b)
+InvalidNullConversion: androidx.compose.runtime.SnapshotMutationPolicy#merge(T, T, T) parameter #0:
+    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter previous in androidx.compose.runtime.SnapshotMutationPolicy.merge(T previous, T current, T applied)
+InvalidNullConversion: androidx.compose.runtime.SnapshotMutationPolicy#merge(T, T, T) parameter #1:
+    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter current in androidx.compose.runtime.SnapshotMutationPolicy.merge(T previous, T current, T applied)
+InvalidNullConversion: androidx.compose.runtime.SnapshotMutationPolicy#merge(T, T, T) parameter #2:
+    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter applied in androidx.compose.runtime.SnapshotMutationPolicy.merge(T previous, T current, T applied)
+InvalidNullConversion: androidx.compose.runtime.SnapshotStateKt#collectAsState(kotlinx.coroutines.flow.Flow<? extends T>, R, kotlin.coroutines.CoroutineContext) parameter #1:
+    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter initial in androidx.compose.runtime.SnapshotStateKt.collectAsState(kotlinx.coroutines.flow.Flow<? extends T> arg1, R initial, kotlin.coroutines.CoroutineContext context)
+InvalidNullConversion: androidx.compose.runtime.SnapshotStateKt#mutableStateOf(T, androidx.compose.runtime.SnapshotMutationPolicy<T>) parameter #0:
+    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter value in androidx.compose.runtime.SnapshotStateKt.mutableStateOf(T value, androidx.compose.runtime.SnapshotMutationPolicy<T> policy)
+InvalidNullConversion: androidx.compose.runtime.SnapshotStateKt#produceState(T, Object, Object, Object, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.ProduceStateScope<T>,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?>) parameter #0:
+    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter initialValue in androidx.compose.runtime.SnapshotStateKt.produceState(T initialValue, Object key1, Object key2, Object key3, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.ProduceStateScope<T>,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?> producer)
+InvalidNullConversion: androidx.compose.runtime.SnapshotStateKt#produceState(T, Object, Object, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.ProduceStateScope<T>,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?>) parameter #0:
+    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter initialValue in androidx.compose.runtime.SnapshotStateKt.produceState(T initialValue, Object key1, Object key2, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.ProduceStateScope<T>,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?> producer)
+InvalidNullConversion: androidx.compose.runtime.SnapshotStateKt#produceState(T, Object, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.ProduceStateScope<T>,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?>) parameter #0:
+    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter initialValue in androidx.compose.runtime.SnapshotStateKt.produceState(T initialValue, Object key1, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.ProduceStateScope<T>,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?> producer)
+InvalidNullConversion: androidx.compose.runtime.SnapshotStateKt#produceState(T, Object[], kotlin.jvm.functions.Function2<? super androidx.compose.runtime.ProduceStateScope<T>,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?>) parameter #0:
+    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter initialValue in androidx.compose.runtime.SnapshotStateKt.produceState(T initialValue, Object[] keys, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.ProduceStateScope<T>,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?> producer)
+InvalidNullConversion: androidx.compose.runtime.SnapshotStateKt#produceState(T, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.ProduceStateScope<T>,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?>) parameter #0:
+    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter initialValue in androidx.compose.runtime.SnapshotStateKt.produceState(T initialValue, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.ProduceStateScope<T>,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?> producer)
+InvalidNullConversion: androidx.compose.runtime.SnapshotStateKt#rememberUpdatedState(T) parameter #0:
+    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter newValue in androidx.compose.runtime.SnapshotStateKt.rememberUpdatedState(T newValue)
+InvalidNullConversion: androidx.compose.runtime.SnapshotStateKt#setValue(androidx.compose.runtime.MutableState<T>, Object, kotlin.reflect.KProperty<?>, T) parameter #3:
+    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter value in androidx.compose.runtime.SnapshotStateKt.setValue(androidx.compose.runtime.MutableState<T> arg1, Object thisObj, kotlin.reflect.KProperty<?> property, T value)
+InvalidNullConversion: androidx.compose.runtime.Updater#set(V, kotlin.jvm.functions.Function2<? super T,? super V,kotlin.Unit>) parameter #0:
+    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter value in androidx.compose.runtime.Updater.set(V value, kotlin.jvm.functions.Function2<? super T,? super V,kotlin.Unit> block)
+InvalidNullConversion: androidx.compose.runtime.Updater#update(V, kotlin.jvm.functions.Function2<? super T,? super V,kotlin.Unit>) parameter #0:
+    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter value in androidx.compose.runtime.Updater.update(V value, kotlin.jvm.functions.Function2<? super T,? super V,kotlin.Unit> block)
+InvalidNullConversion: androidx.compose.runtime.collection.MutableVector#add(T) parameter #0:
+    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter element in androidx.compose.runtime.collection.MutableVector.add(T element)
+InvalidNullConversion: androidx.compose.runtime.collection.MutableVector#add(int, T) parameter #1:
+    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter element in androidx.compose.runtime.collection.MutableVector.add(int index, T element)
+InvalidNullConversion: androidx.compose.runtime.collection.MutableVector#contains(T) parameter #0:
+    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter element in androidx.compose.runtime.collection.MutableVector.contains(T element)
+InvalidNullConversion: androidx.compose.runtime.collection.MutableVector#fold(R, kotlin.jvm.functions.Function2<? super R,? super T,? extends R>) parameter #0:
+    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter initial in androidx.compose.runtime.collection.MutableVector.fold(R initial, kotlin.jvm.functions.Function2<? super R,? super T,? extends R> operation)
+InvalidNullConversion: androidx.compose.runtime.collection.MutableVector#foldIndexed(R, kotlin.jvm.functions.Function3<? super java.lang.Integer,? super R,? super T,? extends R>) parameter #0:
+    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter initial in androidx.compose.runtime.collection.MutableVector.foldIndexed(R initial, kotlin.jvm.functions.Function3<? super java.lang.Integer,? super R,? super T,? extends R> operation)
+InvalidNullConversion: androidx.compose.runtime.collection.MutableVector#foldRight(R, kotlin.jvm.functions.Function2<? super T,? super R,? extends R>) parameter #0:
+    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter initial in androidx.compose.runtime.collection.MutableVector.foldRight(R initial, kotlin.jvm.functions.Function2<? super T,? super R,? extends R> operation)
+InvalidNullConversion: androidx.compose.runtime.collection.MutableVector#foldRightIndexed(R, kotlin.jvm.functions.Function3<? super java.lang.Integer,? super T,? super R,? extends R>) parameter #0:
+    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter initial in androidx.compose.runtime.collection.MutableVector.foldRightIndexed(R initial, kotlin.jvm.functions.Function3<? super java.lang.Integer,? super T,? super R,? extends R> operation)
+InvalidNullConversion: androidx.compose.runtime.collection.MutableVector#indexOf(T) parameter #0:
+    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter element in androidx.compose.runtime.collection.MutableVector.indexOf(T element)
+InvalidNullConversion: androidx.compose.runtime.collection.MutableVector#lastIndexOf(T) parameter #0:
+    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter element in androidx.compose.runtime.collection.MutableVector.lastIndexOf(T element)
+InvalidNullConversion: androidx.compose.runtime.collection.MutableVector#minusAssign(T) parameter #0:
+    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter element in androidx.compose.runtime.collection.MutableVector.minusAssign(T element)
+InvalidNullConversion: androidx.compose.runtime.collection.MutableVector#plusAssign(T) parameter #0:
+    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter element in androidx.compose.runtime.collection.MutableVector.plusAssign(T element)
+InvalidNullConversion: androidx.compose.runtime.collection.MutableVector#remove(T) parameter #0:
+    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter element in androidx.compose.runtime.collection.MutableVector.remove(T element)
+InvalidNullConversion: androidx.compose.runtime.collection.MutableVector#set(int, T) parameter #1:
+    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter element in androidx.compose.runtime.collection.MutableVector.set(int index, T element)
+InvalidNullConversion: androidx.compose.runtime.snapshots.SnapshotStateList#add(T) parameter #0:
+    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter element in androidx.compose.runtime.snapshots.SnapshotStateList.add(T element)
+InvalidNullConversion: androidx.compose.runtime.snapshots.SnapshotStateList#add(int, T) parameter #1:
+    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter element in androidx.compose.runtime.snapshots.SnapshotStateList.add(int index, T element)
+InvalidNullConversion: androidx.compose.runtime.snapshots.SnapshotStateList#contains(T) parameter #0:
+    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter element in androidx.compose.runtime.snapshots.SnapshotStateList.contains(T element)
+InvalidNullConversion: androidx.compose.runtime.snapshots.SnapshotStateList#indexOf(T) parameter #0:
+    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter element in androidx.compose.runtime.snapshots.SnapshotStateList.indexOf(T element)
+InvalidNullConversion: androidx.compose.runtime.snapshots.SnapshotStateList#lastIndexOf(T) parameter #0:
+    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter element in androidx.compose.runtime.snapshots.SnapshotStateList.lastIndexOf(T element)
+InvalidNullConversion: androidx.compose.runtime.snapshots.SnapshotStateList#remove(T) parameter #0:
+    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter element in androidx.compose.runtime.snapshots.SnapshotStateList.remove(T element)
+InvalidNullConversion: androidx.compose.runtime.snapshots.SnapshotStateList#set(int, T) parameter #1:
+    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter element in androidx.compose.runtime.snapshots.SnapshotStateList.set(int index, T element)
+InvalidNullConversion: androidx.compose.runtime.snapshots.SnapshotStateMap#containsKey(K) parameter #0:
+    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter key in androidx.compose.runtime.snapshots.SnapshotStateMap.containsKey(K key)
+InvalidNullConversion: androidx.compose.runtime.snapshots.SnapshotStateMap#containsValue(V) parameter #0:
+    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter value in androidx.compose.runtime.snapshots.SnapshotStateMap.containsValue(V value)
+InvalidNullConversion: androidx.compose.runtime.snapshots.SnapshotStateMap#get(Object) parameter #0:
+    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter key in androidx.compose.runtime.snapshots.SnapshotStateMap.get(Object key)
+InvalidNullConversion: androidx.compose.runtime.snapshots.SnapshotStateMap#put(K, V) parameter #0:
+    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter key in androidx.compose.runtime.snapshots.SnapshotStateMap.put(K key, V value)
+InvalidNullConversion: androidx.compose.runtime.snapshots.SnapshotStateMap#put(K, V) parameter #1:
+    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter value in androidx.compose.runtime.snapshots.SnapshotStateMap.put(K key, V value)
+InvalidNullConversion: androidx.compose.runtime.snapshots.SnapshotStateMap#remove(Object) parameter #0:
+    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter key in androidx.compose.runtime.snapshots.SnapshotStateMap.remove(Object key)
 
 
 RemovedClass: androidx.compose.runtime.SnapshotStateKt:

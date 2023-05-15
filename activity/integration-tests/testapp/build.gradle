@@ -29,8 +29,7 @@ android {
 
 dependencies {
     implementation(project(":activity:activity-ktx"))
-    implementation(projectOrArtifact(":lifecycle:lifecycle-runtime-ktx"))
-    androidTestImplementation(projectOrArtifact(":lifecycle:lifecycle-common"))
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.1")
     implementation("androidx.appcompat:appcompat:1.6.0")
     implementation("androidx.core:core-splashscreen:1.0.0")
     androidTestImplementation(libs.kotlinStdlib)

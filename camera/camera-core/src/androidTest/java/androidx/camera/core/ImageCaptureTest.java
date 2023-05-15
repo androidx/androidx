@@ -42,12 +42,14 @@ import androidx.annotation.NonNull;
 import androidx.camera.core.concurrent.CameraCoordinator;
 import androidx.camera.core.impl.CameraCaptureCallback;
 import androidx.camera.core.impl.CameraCaptureMetaData;
+import androidx.camera.core.impl.CameraControlInternal;
 import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.ImageCaptureConfig;
 import androidx.camera.core.impl.StreamSpec;
 import androidx.camera.core.impl.UseCaseConfigFactory;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.internal.CameraUseCaseAdapter;
+import androidx.camera.testing.CoreAppTestUtil;
 import androidx.camera.testing.fakes.FakeCamera;
 import androidx.camera.testing.fakes.FakeCameraCaptureResult;
 import androidx.camera.testing.fakes.FakeCameraControl;
@@ -99,6 +101,7 @@ public class ImageCaptureTest {
 
     @Before
     public void setup() {
+        CoreAppTestUtil.assumeCompatibleDevice();
         FakeCamera fakeCamera = new FakeCamera("fakeCameraId");
 
         FakeCameraDeviceSurfaceManager fakeCameraDeviceSurfaceManager =
@@ -142,7 +145,7 @@ public class ImageCaptureTest {
         ImageCapture.OnImageCapturedCallback callback = mock(
                 ImageCapture.OnImageCapturedCallback.class);
         FakeCameraControl fakeCameraControl =
-                ((FakeCameraControl) mCameraUseCaseAdapter.getCameraControl());
+                getCameraControlImplementation(mCameraUseCaseAdapter.getCameraControl());
 
         fakeCameraControl.setOnNewCaptureRequestListener(captureConfigs -> {
             // Notify the cancel after the capture request has been successfully submitted
@@ -173,7 +176,7 @@ public class ImageCaptureTest {
         ImageCapture.OnImageCapturedCallback callback = mock(
                 ImageCapture.OnImageCapturedCallback.class);
         FakeCameraControl fakeCameraControl =
-                ((FakeCameraControl) mCameraUseCaseAdapter.getCameraControl());
+                getCameraControlImplementation(mCameraUseCaseAdapter.getCameraControl());
         fakeCameraControl.setOnNewCaptureRequestListener(captureConfigs -> {
             // Notify the failure after the capture request has been successfully submitted
             fakeCameraControl.notifyAllRequestsOnCaptureFailed();
@@ -309,6 +312,11 @@ public class ImageCaptureTest {
         assertThat(hasJpegQuality(captureConfigs, jpegQuality)).isTrue();
     }
 
+    private FakeCameraControl getCameraControlImplementation(CameraControl cameraControl) {
+        CameraControlInternal impl = ((CameraControlInternal) cameraControl).getImplementation();
+        return (FakeCameraControl) impl;
+    }
+
     @NonNull
     private List<CaptureConfig> captureImage(@NonNull ImageCapture imageCapture,
             @NonNull Class<?> callbackClass) {
@@ -342,7 +350,7 @@ public class ImageCaptureTest {
         }
 
         FakeCameraControl fakeCameraControl =
-                ((FakeCameraControl) mCameraUseCaseAdapter.getCameraControl());
+                getCameraControlImplementation(mCameraUseCaseAdapter.getCameraControl());
         FakeCameraControl.OnNewCaptureRequestListener mockCaptureRequestListener =
                 mock(FakeCameraControl.OnNewCaptureRequestListener.class);
         fakeCameraControl.setOnNewCaptureRequestListener(mockCaptureRequestListener);
@@ -510,7 +518,7 @@ public class ImageCaptureTest {
         ImageCapture.OnImageCapturedCallback callback = mock(
                 ImageCapture.OnImageCapturedCallback.class);
         FakeCameraControl fakeCameraControl =
-                ((FakeCameraControl) mCameraUseCaseAdapter.getCameraControl());
+                getCameraControlImplementation(mCameraUseCaseAdapter.getCameraControl());
         CountDownLatch latch = new CountDownLatch(1);
         fakeCameraControl.setOnNewCaptureRequestListener(captureConfigs -> {
             latch.countDown();

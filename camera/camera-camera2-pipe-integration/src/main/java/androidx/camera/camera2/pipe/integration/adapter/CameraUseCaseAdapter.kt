@@ -88,7 +88,8 @@ class CameraUseCaseAdapter(context: Context) : UseCaseConfigFactory {
                 CameraDevice.TEMPLATE_PREVIEW
             )
 
-            CaptureType.VIDEO_CAPTURE -> sessionBuilder.setTemplateType(
+            CaptureType.VIDEO_CAPTURE,
+            CaptureType.STREAM_SHARING -> sessionBuilder.setTemplateType(
                 CameraDevice.TEMPLATE_RECORD
             )
         }
@@ -103,7 +104,8 @@ class CameraUseCaseAdapter(context: Context) : UseCaseConfigFactory {
 
             CaptureType.PREVIEW,
             CaptureType.IMAGE_ANALYSIS,
-            CaptureType.VIDEO_CAPTURE ->
+            CaptureType.VIDEO_CAPTURE,
+            CaptureType.STREAM_SHARING ->
                 captureBuilder.templateType = CameraDevice.TEMPLATE_RECORD
         }
         mutableConfig.insertOption(

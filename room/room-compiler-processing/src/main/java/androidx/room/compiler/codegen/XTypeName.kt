@@ -16,8 +16,6 @@
 
 package androidx.room.compiler.codegen
 
-import com.squareup.kotlinpoet.asClassName as asKClassName
-import com.squareup.kotlinpoet.asTypeName as asKTypeName
 import androidx.room.compiler.processing.XNullability
 import com.squareup.kotlinpoet.ARRAY
 import com.squareup.kotlinpoet.BOOLEAN_ARRAY
@@ -35,6 +33,8 @@ import com.squareup.kotlinpoet.MUTABLE_MAP_ENTRY
 import com.squareup.kotlinpoet.MUTABLE_SET
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.SHORT_ARRAY
+import com.squareup.kotlinpoet.asClassName as asKClassName
+import com.squareup.kotlinpoet.asTypeName as asKTypeName
 import com.squareup.kotlinpoet.javapoet.JClassName
 import com.squareup.kotlinpoet.javapoet.JParameterizedTypeName
 import com.squareup.kotlinpoet.javapoet.JTypeName

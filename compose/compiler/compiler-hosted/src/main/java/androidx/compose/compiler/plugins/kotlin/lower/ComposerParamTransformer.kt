@@ -34,7 +34,6 @@ import org.jetbrains.kotlin.ir.declarations.IrDeclarationOrigin
 import org.jetbrains.kotlin.ir.declarations.IrFunction
 import org.jetbrains.kotlin.ir.declarations.IrLocalDelegatedProperty
 import org.jetbrains.kotlin.ir.declarations.IrModuleFragment
-import org.jetbrains.kotlin.ir.declarations.IrProperty
 import org.jetbrains.kotlin.ir.declarations.IrSimpleFunction
 import org.jetbrains.kotlin.ir.declarations.IrValueParameter
 import org.jetbrains.kotlin.ir.declarations.copyAttributes
@@ -120,7 +119,7 @@ class ComposerParamTransformer(
         // for each declaration, we create a deepCopy transformer It is important here that we
         // use the "preserving metadata" variant since we are using this copy to *replace* the
         // originals, or else the module we would produce wouldn't have any metadata in it.
-        val transformer = DeepCopyIrTreeWithSymbolsPreservingMetadata(
+        val transformer = DeepCopyIrTreeWithRemappedComposableTypes(
             context,
             symbolRemapper,
             typeRemapper
@@ -172,18 +171,6 @@ class ComposerParamTransformer(
         }
 
         return super.visitLocalDelegatedProperty(declaration)
-    }
-
-    override fun visitProperty(declaration: IrProperty): IrStatement {
-        if (declaration.getter?.isComposableDelegatedAccessor() == true) {
-            declaration.getter!!.annotations += createComposableAnnotation()
-        }
-
-        if (declaration.setter?.isComposableDelegatedAccessor() == true) {
-            declaration.setter!!.annotations += createComposableAnnotation()
-        }
-
-        return super.visitProperty(declaration)
     }
 
     private fun createComposableAnnotation() =
@@ -629,9 +616,18 @@ class ComposerParamTransformer(
     private fun defaultParameterType(param: IrValueParameter): IrType {
         val type = param.type
         if (param.defaultValue == null) return type
+        val constructorAccessible = !type.isPrimitiveType() &&
+            type.classOrNull?.owner?.primaryConstructor != null
         return when {
             type.isPrimitiveType() -> type
-            type.isInlineClassType() -> type
+            type.isInlineClassType() -> if (context.platform.isJvm() || constructorAccessible) {
+                type
+            } else {
+                // k/js and k/native: private constructors of value classes can be not accessible.
+                // Therefore it won't be possible to create a "fake" default argument for calls.
+                // Making it nullable allows to pass null.
+                type.makeNullable()
+            }
             else -> type.makeNullable()
         }
     }

@@ -39,7 +39,8 @@ public class FakeSurfaceEffect extends CameraEffect {
     public FakeSurfaceEffect(
             @NonNull Executor processorExecutor,
             @NonNull SurfaceProcessor surfaceProcessor) {
-        super(PREVIEW, processorExecutor, surfaceProcessor);
+        super(PREVIEW, processorExecutor, surfaceProcessor, throwable -> {
+        });
     }
 
     /**
@@ -59,7 +60,8 @@ public class FakeSurfaceEffect extends CameraEffect {
      */
     public FakeSurfaceEffect(@Targets int targets,
             @NonNull SurfaceProcessorInternal surfaceProcessorInternal) {
-        super(targets, mainThreadExecutor(), surfaceProcessorInternal);
+        super(targets, mainThreadExecutor(), surfaceProcessorInternal, throwable -> {
+        });
         mSurfaceProcessorInternal = surfaceProcessorInternal;
     }
 

@@ -192,7 +192,7 @@ class FocusRequester {
      * associated with this [FocusRequester].
      */
     @ExperimentalComposeUiApi
-    private inline fun findFocusTarget(onFound: (FocusTargetModifierNode) -> Boolean): Boolean {
+    private inline fun findFocusTarget(onFound: (FocusTargetNode) -> Boolean): Boolean {
         check(this !== Default) { InvalidFocusRequesterInvocation }
         check(this !== Cancel) { InvalidFocusRequesterInvocation }
         check(focusRequesterNodes.isNotEmpty()) { FocusRequesterNotInitialized }

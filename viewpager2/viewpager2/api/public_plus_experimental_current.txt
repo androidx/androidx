@@ -19,12 +19,15 @@ package androidx.viewpager2.adapter {
     method public void unregisterFragmentTransactionCallback(androidx.viewpager2.adapter.FragmentStateAdapter.FragmentTransactionCallback);
   }
 
+  @RequiresOptIn(level=androidx.annotation.RequiresOptIn.Level.WARNING) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public static @interface FragmentStateAdapter.ExperimentalFragmentStateAdapterApi {
+  }
+
   public abstract static class FragmentStateAdapter.FragmentTransactionCallback {
     ctor public FragmentStateAdapter.FragmentTransactionCallback();
     method public androidx.viewpager2.adapter.FragmentStateAdapter.FragmentTransactionCallback.OnPostEventListener onFragmentMaxLifecyclePreUpdated(androidx.fragment.app.Fragment, androidx.lifecycle.Lifecycle.State);
     method public androidx.viewpager2.adapter.FragmentStateAdapter.FragmentTransactionCallback.OnPostEventListener onFragmentPreAdded(androidx.fragment.app.Fragment);
     method public androidx.viewpager2.adapter.FragmentStateAdapter.FragmentTransactionCallback.OnPostEventListener onFragmentPreRemoved(androidx.fragment.app.Fragment);
-    method public androidx.viewpager2.adapter.FragmentStateAdapter.FragmentTransactionCallback.OnPostEventListener onFragmentPreSavedInstanceState(androidx.fragment.app.Fragment);
+    method @androidx.viewpager2.adapter.FragmentStateAdapter.ExperimentalFragmentStateAdapterApi public androidx.viewpager2.adapter.FragmentStateAdapter.FragmentTransactionCallback.OnPostEventListener onFragmentPreSavedInstanceState(androidx.fragment.app.Fragment);
   }
 
   public static interface FragmentStateAdapter.FragmentTransactionCallback.OnPostEventListener {

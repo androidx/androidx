@@ -40,14 +40,17 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.movableContentOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.LookaheadScope
 import androidx.compose.ui.layout.intermediateLayout
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
@@ -206,6 +209,56 @@ fun LookaheadLayoutCoordinatesSample() {
             } else {
                 Row { items() }
             }
+        }
+    }
+}
+
+@Sampled
+@Composable
+fun animateContentSizeAfterLookaheadPass() {
+    var sizeAnim by remember {
+        mutableStateOf<Animatable<IntSize, AnimationVector2D>?>(null)
+    }
+    var lookaheadSize by remember {
+        mutableStateOf<IntSize?>(null)
+    }
+    val coroutineScope = rememberCoroutineScope()
+    LookaheadScope {
+        // The Box is in a LookaheadScope. This means there will be a lookahead measure pass
+        // before the main measure pass.
+        // Here we are creating something similar to the `animateContentSize` modifier.
+        Box(
+            Modifier
+                .clipToBounds()
+                .layout { measurable, constraints ->
+                    val placeable = measurable.measure(constraints)
+
+                    val measuredSize = IntSize(placeable.width, placeable.height)
+                    val (width, height) = if (isLookingAhead) {
+                        // Record lookahead size if we are in lookahead pass. This lookahead size
+                        // will be used for size animation, such that the main measure pass will
+                        // gradually change size until it reaches the lookahead size.
+                        lookaheadSize = measuredSize
+                        measuredSize
+                    } else {
+                        // Since we are in an explicit lookaheadScope, we know the lookahead pass
+                        // is guaranteed to happen, therefore the lookahead size that we recorded is
+                        // not null.
+                        val target = requireNotNull(lookaheadSize)
+                        val anim = sizeAnim?.also {
+                            coroutineScope.launch { it.animateTo(target) }
+                        } ?: Animatable(target, IntSize.VectorConverter)
+                        sizeAnim = anim
+                        // By returning the animated size only during main pass, we are allowing
+                        // lookahead pass to see the future layout past the animation.
+                        anim.value
+                    }
+
+                    layout(width, height) {
+                        placeable.place(0, 0)
+                    }
+                }) {
+            // Some content that changes size
         }
     }
 }

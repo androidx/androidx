@@ -1,1 +1,17 @@
 // Signature format: 4.0
+package androidx.window.extensions.core.util.function {
+
+  @java.lang.FunctionalInterface public interface Consumer<T> {
+    method public void accept(T!);
+  }
+
+  @java.lang.FunctionalInterface public interface Function<T, R> {
+    method public R! apply(T!);
+  }
+
+  @java.lang.FunctionalInterface public interface Predicate<T> {
+    method public boolean test(T!);
+  }
+
+}
+

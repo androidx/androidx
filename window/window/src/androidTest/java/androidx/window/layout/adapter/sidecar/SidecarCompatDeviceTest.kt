@@ -28,19 +28,13 @@ import androidx.window.WindowTestBase
 import androidx.window.core.VerificationMode.QUIET
 import androidx.window.core.Version
 import androidx.window.layout.HardwareFoldingFeature
-import androidx.window.layout.adapter.sidecar.ExtensionInterfaceCompat.ExtensionCallbackInterface
 import androidx.window.layout.HardwareFoldingFeature.Type
 import androidx.window.layout.HardwareFoldingFeature.Type.Companion.FOLD
 import androidx.window.layout.HardwareFoldingFeature.Type.Companion.HINGE
 import androidx.window.layout.WindowLayoutInfo
+import androidx.window.layout.adapter.sidecar.ExtensionInterfaceCompat.ExtensionCallbackInterface
 import androidx.window.sidecar.SidecarDisplayFeature
 import androidx.window.sidecar.SidecarWindowLayoutInfo
-import org.mockito.kotlin.any
-import org.mockito.kotlin.argThat
-import org.mockito.kotlin.atLeastOnce
-import org.mockito.kotlin.eq
-import org.mockito.kotlin.mock
-import org.mockito.kotlin.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -51,6 +45,12 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.ArgumentMatcher
+import org.mockito.kotlin.any
+import org.mockito.kotlin.argThat
+import org.mockito.kotlin.atLeastOnce
+import org.mockito.kotlin.eq
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.verify
 
 /**
  * Tests for [SidecarCompat] implementation of [ExtensionInterfaceCompat] that are

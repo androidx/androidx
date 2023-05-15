@@ -19,8 +19,8 @@ package androidx.compose.foundation
 import android.os.Build
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.requiredSize
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.GenericShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -54,13 +54,13 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
+import kotlin.math.floor
+import kotlin.math.roundToInt
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
-import kotlin.math.floor
-import kotlin.math.roundToInt
 
 @MediumTest
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)

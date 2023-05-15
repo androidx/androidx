@@ -19,13 +19,10 @@ package androidx.benchmark.macro
 import android.os.Build
 import androidx.benchmark.junit4.PerfettoTraceRule
 import androidx.benchmark.perfetto.ExperimentalPerfettoCaptureApi
-import androidx.core.os.BuildCompat
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import kotlin.test.assertNull
-import org.junit.Assume
-import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -36,12 +33,6 @@ class ProfileInstallBroadcastTest {
     @OptIn(ExperimentalPerfettoCaptureApi::class)
     @get:Rule
     val perfettoTraceRule = PerfettoTraceRule()
-
-    @Before
-    fun setUp() {
-        // TODO: to re-enable for api 34 (b/276970167)
-        Assume.assumeTrue(!BuildCompat.isAtLeastU())
-    }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.N)
     @Test

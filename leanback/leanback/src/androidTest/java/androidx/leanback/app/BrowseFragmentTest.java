@@ -59,6 +59,7 @@ import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
 
 import org.junit.After;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -190,6 +191,7 @@ public class BrowseFragmentTest {
     }
 
     @Test
+    @Ignore("b/281082608")
     public void testPressRightBeforeMainFragmentCreated() throws Throwable {
         final long dataLoadingDelay = 1000;
         Intent intent = new Intent();

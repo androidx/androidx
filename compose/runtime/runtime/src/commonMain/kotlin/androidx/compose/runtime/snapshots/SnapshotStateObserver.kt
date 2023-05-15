@@ -423,15 +423,18 @@ class SnapshotStateObserver(private val onChangedExecutor: (callback: () -> Unit
 
             val previousToken = recordedValues.add(value, currentToken)
             if (value is DerivedState<*> && previousToken != currentToken) {
-                val dependencyToDerivedStates = dependencyToDerivedStates
-                dependencyToDerivedStates.removeScope(value)
+                // re-read the value before removing dependencies, in case the new value wasn't read
+                recordedDerivedStateValues[value] = value.currentValue
+
                 val dependencies = value.dependencies
+                val dependencyToDerivedStates = dependencyToDerivedStates
+
+                dependencyToDerivedStates.removeScope(value)
                 for (dependency in dependencies) {
                     // skip over dependency array
                     if (dependency == null) break
                     dependencyToDerivedStates.add(dependency, value)
                 }
-                recordedDerivedStateValues[value] = value.currentValue
             }
 
             if (previousToken == -1) {

@@ -32,9 +32,9 @@ import com.android.tools.lint.detector.api.Scope
 import com.android.tools.lint.detector.api.Severity
 import com.android.tools.lint.detector.api.SourceCodeScanner
 import com.intellij.psi.PsiMethod
+import java.util.EnumSet
 import org.jetbrains.uast.USimpleNameReferenceExpression
 import org.jetbrains.uast.tryResolve
-import java.util.EnumSet
 
 /**
  * [Detector] that checks calls to StateFlow.value to make sure they don't happen inside the body

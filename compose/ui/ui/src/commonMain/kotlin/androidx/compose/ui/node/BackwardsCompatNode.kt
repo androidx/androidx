@@ -53,12 +53,13 @@ import androidx.compose.ui.modifier.BackwardsCompatLocalMap
 import androidx.compose.ui.modifier.ModifierLocal
 import androidx.compose.ui.modifier.ModifierLocalConsumer
 import androidx.compose.ui.modifier.ModifierLocalMap
-import androidx.compose.ui.modifier.ModifierLocalNode
+import androidx.compose.ui.modifier.ModifierLocalModifierNode
 import androidx.compose.ui.modifier.ModifierLocalProvider
 import androidx.compose.ui.modifier.ModifierLocalReadScope
 import androidx.compose.ui.modifier.modifierLocalMapOf
 import androidx.compose.ui.semantics.SemanticsConfiguration
 import androidx.compose.ui.semantics.SemanticsModifier
+import androidx.compose.ui.semantics.SemanticsPropertyReceiver
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
@@ -72,14 +73,13 @@ import androidx.compose.ui.unit.toSize
  * everything to the modifier instance, but those interfaces should only be called in the cases
  * where the modifier would have been previously.
  */
-@Suppress("NOTHING_TO_INLINE")
 @OptIn(ExperimentalComposeUiApi::class)
 internal class BackwardsCompatNode(element: Modifier.Element) :
     LayoutModifierNode,
     DrawModifierNode,
     SemanticsModifierNode,
     PointerInputModifierNode,
-    ModifierLocalNode,
+    ModifierLocalModifierNode,
     ModifierLocalReadScope,
     ParentDataModifierNode,
     LayoutAwareModifierNode,
@@ -167,7 +167,7 @@ internal class BackwardsCompatNode(element: Modifier.Element) :
             }
         }
         if (element is RemeasurementModifier) {
-            element.onRemeasurementAvailable(this)
+            element.onRemeasurementAvailable(requireLayoutNode())
         }
         if (isKind(Nodes.LayoutAware)) {
             if (element is OnRemeasuredModifier) {
@@ -353,8 +353,11 @@ internal class BackwardsCompatNode(element: Modifier.Element) :
         }
     }
 
-    override val semanticsConfiguration: SemanticsConfiguration
-        get() = (element as SemanticsModifier).semanticsConfiguration
+    override fun SemanticsPropertyReceiver.applySemantics() {
+        val config = (element as SemanticsModifier).semanticsConfiguration
+        val toMergeInto = (this as SemanticsConfiguration)
+        toMergeInto.collapsePeer(config)
+    }
 
     override fun onPointerEvent(
         pointerEvent: PointerEvent,
@@ -372,7 +375,6 @@ internal class BackwardsCompatNode(element: Modifier.Element) :
         }
     }
 
-    @OptIn(ExperimentalComposeUiApi::class)
     override fun sharePointerInputWithSiblings(): Boolean {
         return with(element as PointerInputModifier) {
             pointerInputFilter.shareWithSiblings
@@ -417,7 +419,7 @@ internal class BackwardsCompatNode(element: Modifier.Element) :
         focusEventModifier.onFocusEvent(focusState)
     }
 
-    override fun modifyFocusProperties(focusProperties: FocusProperties) {
+    override fun applyFocusProperties(focusProperties: FocusProperties) {
         val focusOrderModifier = element
         check(focusOrderModifier is FocusOrderModifier)
         focusProperties.apply(FocusOrderModifierToProperties(focusOrderModifier))

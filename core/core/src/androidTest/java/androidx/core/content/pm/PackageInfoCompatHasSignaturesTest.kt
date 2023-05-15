@@ -29,6 +29,7 @@ import androidx.test.filters.SdkSuppress
 import androidx.testutils.mockito.mockThrowOnUnmocked
 import androidx.testutils.mockito.whenever
 import com.google.common.truth.Truth.assertThat
+import java.security.MessageDigest
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -38,7 +39,6 @@ import org.mockito.Mockito.any
 import org.mockito.Mockito.anyInt
 import org.mockito.Mockito.eq
 import org.mockito.internal.util.reflection.FieldSetter
-import java.security.MessageDigest
 
 /**
  * Verifies [PackageInfoCompat.hasSignatures].

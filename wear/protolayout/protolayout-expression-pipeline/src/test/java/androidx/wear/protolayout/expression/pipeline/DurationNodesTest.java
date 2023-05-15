@@ -20,6 +20,8 @@ import static com.google.common.truth.Truth.assertThat;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.wear.protolayout.expression.pipeline.DurationNodes.BetweenInstancesNode;
+import androidx.wear.protolayout.expression.pipeline.DurationNodes.FixedDurationNode;
+import androidx.wear.protolayout.expression.proto.FixedProto.FixedDuration;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -31,6 +33,19 @@ import java.util.List;
 
 @RunWith(AndroidJUnit4.class)
 public class DurationNodesTest {
+
+    @Test
+    public void testFixedDuration() {
+        long seconds = 1234567L;
+        List<Duration> results = new ArrayList<>();
+        FixedDurationNode node =
+                new FixedDurationNode(
+                        FixedDuration.newBuilder().setSeconds(seconds).build(),
+                        new AddToListCallback<>(results));
+        node.preInit();
+        node.init();
+        assertThat(results).containsExactly(Duration.ofSeconds(seconds));
+    }
 
     @Test
     public void testBetweenDuration() {

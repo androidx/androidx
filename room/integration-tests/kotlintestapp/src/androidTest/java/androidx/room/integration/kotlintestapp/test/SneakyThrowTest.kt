@@ -18,12 +18,12 @@ package androidx.room.integration.kotlintestapp.test
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
+import java.util.concurrent.Callable
 import org.json.JSONException
 import org.json.JSONObject
 import org.junit.Assert.fail
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.util.concurrent.Callable
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)

@@ -656,3 +656,17 @@ inline val Color.isUnspecified: Boolean get() = value == Color.Unspecified.value
  * is returned.
  */
 inline fun Color.takeOrElse(block: () -> Color): Color = if (isSpecified) this else block()
+
+/**
+ * Alternative to `() -> Color` that's useful for avoiding boxing.
+ *
+ * Can be used as:
+ *
+ * fun nonBoxedArgs(color: ColorProducer?)
+ */
+fun interface ColorProducer {
+    /**
+     * Return the color
+     */
+    operator fun invoke(): Color
+}

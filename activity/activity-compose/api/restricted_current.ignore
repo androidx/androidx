@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+InvalidNullConversion: androidx.activity.compose.ManagedActivityResultLauncher#launch(I, androidx.core.app.ActivityOptionsCompat) parameter #0:
+    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter input in androidx.activity.compose.ManagedActivityResultLauncher.launch(I input, androidx.core.app.ActivityOptionsCompat options)

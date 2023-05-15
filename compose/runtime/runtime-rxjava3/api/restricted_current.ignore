@@ -1,0 +1,9 @@
+// Baseline format: 1.0
+InvalidNullConversion: androidx.compose.runtime.rxjava3.RxJava3AdapterKt#subscribeAsState(io.reactivex.rxjava3.core.Flowable<T>, R) parameter #1:
+    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter initial in androidx.compose.runtime.rxjava3.RxJava3AdapterKt.subscribeAsState(io.reactivex.rxjava3.core.Flowable<T> arg1, R initial)
+InvalidNullConversion: androidx.compose.runtime.rxjava3.RxJava3AdapterKt#subscribeAsState(io.reactivex.rxjava3.core.Maybe<T>, R) parameter #1:
+    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter initial in androidx.compose.runtime.rxjava3.RxJava3AdapterKt.subscribeAsState(io.reactivex.rxjava3.core.Maybe<T> arg1, R initial)
+InvalidNullConversion: androidx.compose.runtime.rxjava3.RxJava3AdapterKt#subscribeAsState(io.reactivex.rxjava3.core.Observable<T>, R) parameter #1:
+    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter initial in androidx.compose.runtime.rxjava3.RxJava3AdapterKt.subscribeAsState(io.reactivex.rxjava3.core.Observable<T> arg1, R initial)
+InvalidNullConversion: androidx.compose.runtime.rxjava3.RxJava3AdapterKt#subscribeAsState(io.reactivex.rxjava3.core.Single<T>, R) parameter #1:
+    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter initial in androidx.compose.runtime.rxjava3.RxJava3AdapterKt.subscribeAsState(io.reactivex.rxjava3.core.Single<T> arg1, R initial)

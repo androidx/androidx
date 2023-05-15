@@ -183,12 +183,12 @@ fun <T : View> AndroidView(
  * @sample androidx.compose.ui.samples.AndroidViewWithReleaseSample
  *
  * @param factory The block creating the [View] to be composed.
+ * @param modifier The modifier to be applied to the layout.
  * @param onReset A callback invoked as a signal that the view is about to be attached to the
  * composition hierarchy in a different context than its original creation. This callback is invoked
  * before [update] and should prepare the view for general reuse. If `null` or not specified, the
  * `AndroidView` instance will not support reuse, and the View instance will always be discarded
  * whenever the AndroidView is moved or removed from the composition hierarchy.
- * @param modifier The modifier to be applied to the layout.
  * @param onRelease A callback invoked as a signal that this view instance has exited the
  * composition hierarchy entirely and will not be reused again. Any additional resources used by the
  * View should be freed at this time.

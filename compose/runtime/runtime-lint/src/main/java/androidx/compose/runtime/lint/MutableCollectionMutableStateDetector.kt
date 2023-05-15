@@ -29,13 +29,13 @@ import com.android.tools.lint.detector.api.Scope
 import com.android.tools.lint.detector.api.Severity
 import com.android.tools.lint.detector.api.SourceCodeScanner
 import com.intellij.psi.PsiMethod
+import java.util.EnumSet
 import org.jetbrains.kotlin.descriptors.containingPackage
 import org.jetbrains.kotlin.psi.KtExpression
 import org.jetbrains.kotlin.types.KotlinType
 import org.jetbrains.kotlin.types.typeUtil.supertypes
 import org.jetbrains.uast.UCallExpression
 import org.jetbrains.uast.kotlin.KotlinUastResolveProviderService
-import java.util.EnumSet
 
 /**
  * [Detector] that checks `mutableStateOf` calls to warn if the type is a mutable collection, as

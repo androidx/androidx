@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-@file:OptIn(ExperimentalTextApi::class)
-
 package androidx.compose.ui.text
 
 import androidx.compose.ui.geometry.Offset

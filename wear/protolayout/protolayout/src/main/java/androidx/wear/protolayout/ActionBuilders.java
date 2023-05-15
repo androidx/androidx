@@ -26,9 +26,10 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.wear.protolayout.StateBuilders.State;
+import androidx.wear.protolayout.expression.AppDataKey;
+import androidx.wear.protolayout.expression.DynamicDataBuilders;
 import androidx.wear.protolayout.expression.Fingerprint;
-import androidx.wear.protolayout.expression.StateEntryBuilders;
-import androidx.wear.protolayout.expression.StateEntryBuilders.StateEntryValue;
+import androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue;
 import androidx.wear.protolayout.proto.ActionProto;
 import java.util.Collections;
 import java.util.HashMap;
@@ -923,8 +924,9 @@ public final class ActionBuilders {
      * @since 1.2
      */
     @NonNull
-    public String getTargetKey() {
-      return mImpl.getTargetKey();
+    public AppDataKey<?> getTargetKey() {
+
+      return new AppDataKey<>(mImpl.getTargetKey());
     }
 
     /**
@@ -933,9 +935,9 @@ public final class ActionBuilders {
      * @since 1.2
      */
     @Nullable
-    public StateEntryValue getValue() {
+    public DynamicDataValue getValue() {
       if (mImpl.hasValue()) {
-        return StateEntryBuilders.stateEntryValueFromProto(mImpl.getValue());
+        return DynamicDataBuilders.dynamicDataValueFromProto(mImpl.getValue());
       } else {
         return null;
       }
@@ -979,8 +981,8 @@ public final class ActionBuilders {
        * @since 1.2
        */
       @NonNull
-      public Builder setTargetKey(@NonNull String targetKey) {
-        mImpl.setTargetKey(targetKey);
+      public Builder setTargetKey(@NonNull AppDataKey<?> targetKey) {
+        mImpl.setTargetKey(targetKey.getKey());
         mFingerprint.recordPropertyUpdate(1, targetKey.hashCode());
         return this;
       }
@@ -991,8 +993,8 @@ public final class ActionBuilders {
        * @since 1.2
        */
       @NonNull
-      public Builder setValue(@NonNull StateEntryValue value) {
-        mImpl.setValue(value.toStateEntryValueProto());
+      public Builder setValue(@NonNull DynamicDataValue value) {
+        mImpl.setValue(value.toDynamicDataValueProto());
         mFingerprint.recordPropertyUpdate(
             2, checkNotNull(value.getFingerprint()).aggregateValueAsInt());
         return this;

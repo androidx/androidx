@@ -17,9 +17,9 @@
 package androidx.compose.ui.input.key
 
 import android.view.KeyEvent as AndroidKeyEvent
-import android.view.KeyEvent.KEYCODE_A as KeyCodeA
 import android.view.KeyEvent.ACTION_DOWN
 import android.view.KeyEvent.ACTION_UP
+import android.view.KeyEvent.KEYCODE_A as KeyCodeA
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.requiredSize

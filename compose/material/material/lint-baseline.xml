@@ -136,31 +136,4 @@
             file="src/androidAndroidTest/kotlin/androidx/compose/material/TabScreenshotTest.kt"/>
     </issue>
 
-    <issue
-        id="ExperimentalPropertyAnnotation"
-        message="This property does not have all required annotations to correctly mark it as experimental."
-        errorLine1="    @ExperimentalMaterialApi"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/material/SwipeableV2.kt"/>
-    </issue>
-
-    <issue
-        id="ExperimentalPropertyAnnotation"
-        message="This property does not have all required annotations to correctly mark it as experimental."
-        errorLine1="    @ExperimentalMaterialApi"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/material/SwipeableV2.kt"/>
-    </issue>
-
-    <issue
-        id="ExperimentalPropertyAnnotation"
-        message="This property does not have all required annotations to correctly mark it as experimental."
-        errorLine1="    @ExperimentalMaterialApi"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/material/SwipeableV2.kt"/>
-    </issue>
-
 </issues>

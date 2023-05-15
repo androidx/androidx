@@ -19,14 +19,13 @@ package androidx.compose.foundation
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.modifier.ModifierLocalMap
-import androidx.compose.ui.modifier.ModifierLocalNode
+import androidx.compose.ui.modifier.ModifierLocalModifierNode
 import androidx.compose.ui.modifier.modifierLocalMapOf
 import androidx.compose.ui.modifier.modifierLocalOf
 import androidx.compose.ui.node.GlobalPositionAwareModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.platform.InspectorInfo
 
-@OptIn(ExperimentalFoundationApi::class)
 internal val ModifierLocalFocusedBoundsObserver =
     modifierLocalOf<((LayoutCoordinates?) -> Unit)?> { null }
 
@@ -51,8 +50,8 @@ private class FocusedBoundsObserverElement(
 ) : ModifierNodeElement<FocusedBoundsObserverNode>() {
     override fun create(): FocusedBoundsObserverNode = FocusedBoundsObserverNode(onPositioned)
 
-    override fun update(node: FocusedBoundsObserverNode): FocusedBoundsObserverNode = node.also {
-        it.onPositioned = onPositioned
+    override fun update(node: FocusedBoundsObserverNode) {
+        node.onPositioned = onPositioned
     }
 
     override fun hashCode(): Int = onPositioned.hashCode()
@@ -71,12 +70,12 @@ private class FocusedBoundsObserverElement(
 
 private class FocusedBoundsObserverNode(
     var onPositioned: (LayoutCoordinates?) -> Unit
-) : Modifier.Node(), ModifierLocalNode, (LayoutCoordinates?) -> Unit {
+) : Modifier.Node(), ModifierLocalModifierNode, (LayoutCoordinates?) -> Unit {
     private val parent: ((LayoutCoordinates?) -> Unit)?
         get() = if (isAttached) ModifierLocalFocusedBoundsObserver.current else null
 
-    override val providedValues: ModifierLocalMap
-        get() = modifierLocalMapOf(ModifierLocalFocusedBoundsObserver to this)
+    override val providedValues: ModifierLocalMap =
+        modifierLocalMapOf(entry = ModifierLocalFocusedBoundsObserver to this)
 
     /** Called when a child gains/loses focus or is focused and changes position. */
     override fun invoke(focusedBounds: LayoutCoordinates?) {
@@ -89,10 +88,10 @@ private class FocusedBoundsObserverNode(
 /**
  * Modifier used by [Modifier.focusable] to publish the location of the focused element.
  * Should only be applied to the node when it is actually focused. Right now this will keep
- * this node around, but once the undelegate API lands we can remove this node entirely if it
+ * this node around, but once the un-delegate API lands we can remove this node entirely if it
  * is not focused. (b/276790428)
  */
-internal class FocusedBoundsNode : Modifier.Node(), ModifierLocalNode,
+internal class FocusedBoundsNode : Modifier.Node(), ModifierLocalModifierNode,
     GlobalPositionAwareModifierNode {
     private var isFocused: Boolean = false
 

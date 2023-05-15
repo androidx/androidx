@@ -85,11 +85,13 @@ class CameraPipeActivity : CameraPermissionActivity() {
     override fun onResume() {
         super.onResume()
         Log.i("CXCP-App", "Activity onResume")
+        currentCamera?.resume()
     }
 
     override fun onPause() {
         super.onPause()
         Log.i("CXCP-App", "Activity onPause")
+        currentCamera?.pause()
     }
 
     override fun onStop() {
@@ -139,7 +141,8 @@ class CameraPipeActivity : CameraPermissionActivity() {
             for (id in cameras) {
                 val metadata = cameraPipe.cameras().getCameraMetadata(id)
                 if (metadata != null && metadata[CameraCharacteristics.LENS_FACING] ==
-                    CameraCharacteristics.LENS_FACING_BACK) {
+                    CameraCharacteristics.LENS_FACING_BACK
+                ) {
                     return id
                 }
             }

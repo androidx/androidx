@@ -18,10 +18,10 @@ package androidx.compose.foundation
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.TweenSpec
+import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.detectTapAndPress
 import androidx.compose.foundation.gestures.drag
-import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.interaction.DragInteraction
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -59,11 +59,11 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.constrainHeight
 import androidx.compose.ui.unit.constrainWidth
 import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.runBlocking
 import kotlin.math.abs
 import kotlin.math.roundToInt
 import kotlin.math.sign
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
 
 /**
  * [CompositionLocal] used to pass [ScrollbarStyle] down the tree.

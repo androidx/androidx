@@ -7,8 +7,8 @@ import android.util.Log
 import android.widget.TextView
 import androidx.core.app.ComponentActivity
 import androidx.wear.ambient.AmbientLifecycleObserver
-import androidx.wear.ambient.AmbientLifecycleObserverInterface.AmbientDetails
-import androidx.wear.ambient.AmbientLifecycleObserverInterface.AmbientLifecycleCallback
+import androidx.wear.ambient.AmbientLifecycleObserver.AmbientDetails
+import androidx.wear.ambient.AmbientLifecycleObserver.AmbientLifecycleCallback
 import java.text.SimpleDateFormat
 import java.util.Date
 
@@ -55,7 +55,7 @@ class MainActivity :
     private val mActiveUpdatesRunnable: Runnable =
         Runnable {
             // If invoked in ambient mode, do nothing.
-            if (ambientObserver.isAmbient()) {
+            if (ambientObserver.isAmbient) {
                 return@Runnable
             }
             model.publishUpdate()

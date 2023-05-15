@@ -55,7 +55,7 @@ dependencies {
 }
 
 androidx {
-    name = 'AndroidX AppSearch'
+    name = "AppSearch"
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = '2019'
     description = 'AndroidX AppSearch - App Indexing'

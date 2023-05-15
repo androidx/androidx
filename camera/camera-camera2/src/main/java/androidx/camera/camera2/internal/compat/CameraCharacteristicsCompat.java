@@ -62,7 +62,7 @@ public class CameraCharacteristicsCompat {
      * Tests might need to create CameraCharacteristicsCompat directly for convenience. Elsewhere
      * we should get the CameraCharacteristicsCompat instance from {@link CameraManagerCompat}.
      */
-    @VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)
+    @VisibleForTesting
     @NonNull
     public static CameraCharacteristicsCompat toCameraCharacteristicsCompat(
             @NonNull CameraCharacteristics characteristics, @NonNull String cameraId) {
@@ -133,7 +133,7 @@ public class CameraCharacteristicsCompat {
             if (map == null) {
                 throw new IllegalArgumentException("StreamConfigurationMap is null!");
             }
-            OutputSizesCorrector outputSizesCorrector = new OutputSizesCorrector(mCameraId, this);
+            OutputSizesCorrector outputSizesCorrector = new OutputSizesCorrector(mCameraId);
             mStreamConfigurationMapCompat =
                     StreamConfigurationMapCompat.toStreamConfigurationMapCompat(map,
                             outputSizesCorrector);

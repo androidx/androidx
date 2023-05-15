@@ -41,6 +41,8 @@ class ClientProxyTypeGenerator(
 ) {
     private val cancellationSignalClassName = ClassName(basePackageName, "ICancellationSignal")
     private val sandboxedUiAdapterPropertyName = "sandboxedUiAdapter"
+    private val sandboxedUiAdapterFactoryClass =
+        ClassName("androidx.privacysandbox.ui.client", "SandboxedUiAdapterFactory")
 
     /**
      * Generates a ClientProxy for this interface.
@@ -70,15 +72,24 @@ class ClientProxyTypeGenerator(
                     )
                 }
                 if (inheritsUiAdapter) add(
-                    PropertySpec.builder(
-                        sandboxedUiAdapterPropertyName, Types.sandboxedUiAdapter.poetTypeName()
-                    ).addModifiers(KModifier.PUBLIC).build()
+                    PropertySpec.builder("coreLibInfo", SpecNames.bundleClass)
+                        .addModifiers(KModifier.PUBLIC).build()
                 )
             })
 
             addFunctions(annotatedInterface.methods.map(::toFunSpec))
 
             if (inheritsUiAdapter) {
+                addProperty(
+                    PropertySpec.builder(
+                        sandboxedUiAdapterPropertyName, Types.sandboxedUiAdapter.poetTypeName()
+                    ).addModifiers(KModifier.PUBLIC)
+                        .initializer(
+                            "%T.createFromCoreLibInfo(coreLibInfo)",
+                            sandboxedUiAdapterFactoryClass
+                        )
+                        .build()
+                )
                 addFunction(generateOpenSession())
             }
         }

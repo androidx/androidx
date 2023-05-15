@@ -163,7 +163,7 @@ public class AsWireComplicationDataTest {
                     "validTimeRange=TimeRange(startDateTimeMillis=-1000000000-01-01T00:00:00Z, " +
                     "endDateTimeMillis=+1000000000-12-31T23:59:59.999999999Z), " +
                     "dataSource=ComponentInfo{com.pkg_a/com.a}, persistencePolicy=1, " +
-                    "displayPolicy=1)"
+                    "displayPolicy=1, fallback=null)"
             )
     }
 
@@ -217,7 +217,7 @@ public class AsWireComplicationDataTest {
                     "validTimeRange=TimeRange(startDateTimeMillis=-1000000000-01-01T00:00:00Z, " +
                     "endDateTimeMillis=+1000000000-12-31T23:59:59.999999999Z), " +
                     "dataSource=ComponentInfo{com.pkg_a/com.a}, persistencePolicy=0, " +
-                    "displayPolicy=0)"
+                    "displayPolicy=0, fallback=null)"
             )
     }
 
@@ -261,7 +261,7 @@ public class AsWireComplicationDataTest {
                     "validTimeRange=TimeRange(startDateTimeMillis=-1000000000-01-01T00:00:00Z, " +
                     "endDateTimeMillis=+1000000000-12-31T23:59:59.999999999Z), " +
                     "dataSource=ComponentInfo{com.pkg_a/com.a}, persistencePolicy=0, " +
-                    "displayPolicy=0)"
+                    "displayPolicy=0, fallback=null)"
             )
     }
 
@@ -316,7 +316,7 @@ public class AsWireComplicationDataTest {
                     "validTimeRange=TimeRange(startDateTimeMillis=-1000000000-01-01T00:00:00Z, " +
                     "endDateTimeMillis=+1000000000-12-31T23:59:59.999999999Z), " +
                     "dataSource=ComponentInfo{com.pkg_a/com.a}, persistencePolicy=0, " +
-                    "displayPolicy=0)"
+                    "displayPolicy=0, fallback=null)"
             )
     }
 
@@ -367,7 +367,7 @@ public class AsWireComplicationDataTest {
                     "validTimeRange=TimeRange(startDateTimeMillis=-1000000000-01-01T00:00:00Z, " +
                     "endDateTimeMillis=+1000000000-12-31T23:59:59.999999999Z), " +
                     "dataSource=ComponentInfo{com.pkg_a/com.a}, colorRamp=null, " +
-                    "persistencePolicy=0, displayPolicy=0)"
+                    "persistencePolicy=0, displayPolicy=0, fallback=null)"
             )
     }
 
@@ -421,7 +421,7 @@ public class AsWireComplicationDataTest {
                     "validTimeRange=TimeRange(startDateTimeMillis=-1000000000-01-01T00:00:00Z, " +
                     "endDateTimeMillis=+1000000000-12-31T23:59:59.999999999Z), dataSource=" +
                     "ComponentInfo{com.pkg_a/com.a}, colorRamp=null, persistencePolicy=0, " +
-                    "displayPolicy=0)"
+                    "displayPolicy=0, fallback=null)"
             )
     }
 
@@ -471,7 +471,7 @@ public class AsWireComplicationDataTest {
                     "validTimeRange=TimeRange(startDateTimeMillis=-1000000000-01-01T00:00:00Z, " +
                     "endDateTimeMillis=+1000000000-12-31T23:59:59.999999999Z), " +
                     "dataSource=ComponentInfo{com.pkg_a/com.a}, colorRamp=null, " +
-                    "persistencePolicy=0, displayPolicy=0)"
+                    "persistencePolicy=0, displayPolicy=0, fallback=null)"
             )
     }
 
@@ -535,7 +535,7 @@ public class AsWireComplicationDataTest {
                     "validTimeRange=TimeRange(startDateTimeMillis=-1000000000-01-01T00:00:00Z, " +
                     "endDateTimeMillis=+1000000000-12-31T23:59:59.999999999Z), " +
                     "dataSource=ComponentInfo{com.pkg_a/com.a}, colorRamp=null, " +
-                    "persistencePolicy=0, displayPolicy=0)"
+                    "persistencePolicy=0, displayPolicy=0, fallback=null)"
             )
     }
 
@@ -582,7 +582,7 @@ public class AsWireComplicationDataTest {
                     "validTimeRange=TimeRange(startDateTimeMillis=-1000000000-01-01T00:00:00Z, " +
                     "endDateTimeMillis=+1000000000-12-31T23:59:59.999999999Z), " +
                     "dataSource=ComponentInfo{com.pkg_a/com.a}, colorRamp=null, " +
-                    "persistencePolicy=0, displayPolicy=0)"
+                    "persistencePolicy=0, displayPolicy=0, fallback=null)"
             )
     }
 
@@ -633,7 +633,7 @@ public class AsWireComplicationDataTest {
                     "startDateTimeMillis=-1000000000-01-01T00:00:00Z, " +
                     "endDateTimeMillis=+1000000000-12-31T23:59:59.999999999Z), " +
                     "dataSource=ComponentInfo{com.pkg_a/com.a}, colorRamp=null, " +
-                    "persistencePolicy=0, displayPolicy=0)"
+                    "persistencePolicy=0, displayPolicy=0, fallback=null)"
             )
     }
 
@@ -683,7 +683,7 @@ public class AsWireComplicationDataTest {
                     "endDateTimeMillis=+1000000000-12-31T23:59:59.999999999Z), " +
                     "dataSource=ComponentInfo{com.pkg_a/com.a}, " +
                     "colorRamp=ColorRamp(colors=[-65536, -16711936, -16776961], " +
-                    "interpolated=true), persistencePolicy=0, displayPolicy=0)"
+                    "interpolated=true), persistencePolicy=0, displayPolicy=0, fallback=null)"
             )
     }
 
@@ -746,7 +746,7 @@ public class AsWireComplicationDataTest {
                     "endDateTimeMillis=+1000000000-12-31T23:59:59.999999999Z), " +
                     "dataSource=ComponentInfo{com.pkg_a/com.a}, " +
                     "colorRamp=ColorRamp(colors=[-65536, -16711936, -16776961], " +
-                    "interpolated=true), persistencePolicy=0, displayPolicy=0)"
+                    "interpolated=true), persistencePolicy=0, displayPolicy=0, fallback=null)"
             )
     }
 
@@ -801,7 +801,7 @@ public class AsWireComplicationDataTest {
                     "endDateTimeMillis=+1000000000-12-31T23:59:59.999999999Z), " +
                     "dataSource=ComponentInfo{com.pkg_a/com.a}, " +
                     "colorRamp=ColorRamp(colors=[-65536, -16711936, -16776961], " +
-                    "interpolated=true), persistencePolicy=0, displayPolicy=0)"
+                    "interpolated=true), persistencePolicy=0, displayPolicy=0, fallback=null)"
             )
     }
 
@@ -874,7 +874,7 @@ public class AsWireComplicationDataTest {
                     "validTimeRange=TimeRange(startDateTimeMillis=-1000000000-01-01T00:00:00Z, " +
                     "endDateTimeMillis=+1000000000-12-31T23:59:59.999999999Z), " +
                     "dataSource=ComponentInfo{com.pkg_a/com.a}, persistencePolicy=0, " +
-                    "displayPolicy=0)"
+                    "displayPolicy=0, fallback=null)"
             )
     }
 
@@ -943,7 +943,7 @@ public class AsWireComplicationDataTest {
                     "validTimeRange=TimeRange(startDateTimeMillis=-1000000000-01-01T00:00:00Z, " +
                     "endDateTimeMillis=+1000000000-12-31T23:59:59.999999999Z), " +
                     "dataSource=ComponentInfo{com.pkg_a/com.a}, persistencePolicy=0, " +
-                    "displayPolicy=0)"
+                    "displayPolicy=0, fallback=null)"
             )
     }
 
@@ -983,7 +983,7 @@ public class AsWireComplicationDataTest {
                     "validTimeRange=TimeRange(startDateTimeMillis=-1000000000-01-01T00:00:00Z, " +
                     "endDateTimeMillis=+1000000000-12-31T23:59:59.999999999Z), " +
                     "dataSource=ComponentInfo{com.pkg_a/com.a}, persistencePolicy=0, " +
-                    "displayPolicy=0)"
+                    "displayPolicy=0, fallback=null)"
             )
     }
 
@@ -1023,7 +1023,7 @@ public class AsWireComplicationDataTest {
                     "validTimeRange=TimeRange(startDateTimeMillis=-1000000000-01-01T00:00:00Z, " +
                     "endDateTimeMillis=+1000000000-12-31T23:59:59.999999999Z), " +
                     "dataSource=ComponentInfo{com.pkg_a/com.a}, persistencePolicy=0, " +
-                    "displayPolicy=0)"
+                    "displayPolicy=0, fallback=null)"
             )
     }
 
@@ -1094,7 +1094,7 @@ public class AsWireComplicationDataTest {
                     "validTimeRange=TimeRange(startDateTimeMillis=-1000000000-01-01T00:00:00Z, " +
                     "endDateTimeMillis=+1000000000-12-31T23:59:59.999999999Z), " +
                     "dataSource=ComponentInfo{com.pkg_a/com.a}, persistencePolicy=0, " +
-                    "displayPolicy=0)"
+                    "displayPolicy=0, fallback=null)"
             )
     }
 
@@ -1227,7 +1227,8 @@ public class AsWireComplicationDataTest {
                     "validTimeRange=TimeRange(startDateTimeMillis=-1000000000-01-01T00:00:00Z, " +
                     "endDateTimeMillis=+1000000000-12-31T23:59:59.999999999Z), " +
                     "dataSource=ComponentInfo{com.pkg_a/com.a}, persistencePolicy=0, " +
-                    "displayPolicy=0), tapActionLostDueToSerialization=false, tapAction=null, " +
+                    "displayPolicy=0, fallback=null), " +
+                    "tapActionLostDueToSerialization=false, tapAction=null, " +
                     "validTimeRange=TimeRange(startDateTimeMillis=-1000000000-01-01T00:00:00Z, " +
                     "endDateTimeMillis=+1000000000-12-31T23:59:59.999999999Z), " +
                     "persistencePolicy=0, displayPolicy=0)"
@@ -1279,7 +1280,8 @@ public class AsWireComplicationDataTest {
                     "validTimeRange=TimeRange(startDateTimeMillis=-1000000000-01-01T00:00:00Z, " +
                     "endDateTimeMillis=+1000000000-12-31T23:59:59.999999999Z), " +
                     "dataSource=ComponentInfo{com.pkg_a/com.a}, persistencePolicy=0, " +
-                    "displayPolicy=0), tapActionLostDueToSerialization=false, tapAction=null, " +
+                    "displayPolicy=0, fallback=null), " +
+                    "tapActionLostDueToSerialization=false, tapAction=null, " +
                     "validTimeRange=TimeRange(startDateTimeMillis=-1000000000-01-01T00:00:00Z, " +
                     "endDateTimeMillis=+1000000000-12-31T23:59:59.999999999Z), " +
                     "persistencePolicy=0, displayPolicy=0)"
@@ -1340,7 +1342,8 @@ public class AsWireComplicationDataTest {
                     "endDateTimeMillis=+1000000000-12-31T23:59:59.999999999Z), " +
                     "dataSource=ComponentInfo{com.pkg_a/com.a}, colorRamp=null, " +
                     "persistencePolicy=0, " +
-                    "displayPolicy=0), tapActionLostDueToSerialization=false, tapAction=null, " +
+                    "displayPolicy=0, fallback=null), " +
+                    "tapActionLostDueToSerialization=false, tapAction=null, " +
                     "validTimeRange=TimeRange(startDateTimeMillis=-1000000000-01-01T00:00:00Z, " +
                     "endDateTimeMillis=+1000000000-12-31T23:59:59.999999999Z), " +
                     "persistencePolicy=0, displayPolicy=0)"
@@ -1401,7 +1404,7 @@ public class AsWireComplicationDataTest {
                     "endDateTimeMillis=+1000000000-12-31T23:59:59.999999999Z), " +
                     "dataSource=ComponentInfo{com.pkg_a/com.a}, " +
                     "colorRamp=ColorRamp(colors=[-65536, -16711936, -16776961], " +
-                    "interpolated=false), persistencePolicy=0, displayPolicy=0), " +
+                    "interpolated=false), persistencePolicy=0, displayPolicy=0, fallback=null), " +
                     "tapActionLostDueToSerialization=false, " +
                     "tapAction=null, validTimeRange=TimeRange(startDateTimeMillis=" +
                     "-1000000000-01-01T00:00:00Z, " +
@@ -1466,7 +1469,8 @@ public class AsWireComplicationDataTest {
                     "validTimeRange=TimeRange(startDateTimeMillis=-1000000000-01-01T00:00:00Z, " +
                     "endDateTimeMillis=+1000000000-12-31T23:59:59.999999999Z), " +
                     "dataSource=ComponentInfo{com.pkg_a/com.a}, persistencePolicy=0, " +
-                    "displayPolicy=0), tapActionLostDueToSerialization=false, tapAction=null, " +
+                    "displayPolicy=0, fallback=null), " +
+                    "tapActionLostDueToSerialization=false, tapAction=null, " +
                     "validTimeRange=TimeRange(startDateTimeMillis=-1000000000-01-01T00:00:00Z, " +
                     "endDateTimeMillis=+1000000000-12-31T23:59:59.999999999Z), " +
                     "persistencePolicy=0, displayPolicy=0)"
@@ -1532,7 +1536,8 @@ public class AsWireComplicationDataTest {
                     "dataSource=ComponentInfo{com.pkg_a/com.a}, " +
                     "colorRamp=ColorRamp(colors=[-65536, -16711936, -16776961], " +
                     "interpolated=true), persistencePolicy=0, " +
-                    "displayPolicy=0), tapActionLostDueToSerialization=false, tapAction=null, " +
+                    "displayPolicy=0, fallback=null), " +
+                    "tapActionLostDueToSerialization=false, tapAction=null, " +
                     "validTimeRange=TimeRange(startDateTimeMillis=-1000000000-01-01T00:00:00Z, " +
                     "endDateTimeMillis=+1000000000-12-31T23:59:59.999999999Z), " +
                     "persistencePolicy=0, displayPolicy=0)"
@@ -1583,7 +1588,8 @@ public class AsWireComplicationDataTest {
                     "validTimeRange=TimeRange(startDateTimeMillis=-1000000000-01-01T00:00:00Z, " +
                     "endDateTimeMillis=+1000000000-12-31T23:59:59.999999999Z), " +
                     "dataSource=ComponentInfo{com.pkg_a/com.a}, persistencePolicy=0, " +
-                    "displayPolicy=0), tapActionLostDueToSerialization=false, tapAction=null, " +
+                    "displayPolicy=0, fallback=null), " +
+                    "tapActionLostDueToSerialization=false, tapAction=null, " +
                     "validTimeRange=TimeRange(startDateTimeMillis=-1000000000-01-01T00:00:00Z, " +
                     "endDateTimeMillis=+1000000000-12-31T23:59:59.999999999Z), " +
                     "persistencePolicy=0, displayPolicy=0)"
@@ -1635,7 +1641,8 @@ public class AsWireComplicationDataTest {
                     "validTimeRange=TimeRange(startDateTimeMillis=-1000000000-01-01T00:00:00Z, " +
                     "endDateTimeMillis=+1000000000-12-31T23:59:59.999999999Z), " +
                     "dataSource=ComponentInfo{com.pkg_a/com.a}, persistencePolicy=0, " +
-                    "displayPolicy=0), tapActionLostDueToSerialization=false, tapAction=null, " +
+                    "displayPolicy=0, fallback=null), " +
+                    "tapActionLostDueToSerialization=false, tapAction=null, " +
                     "validTimeRange=TimeRange(startDateTimeMillis=-1000000000-01-01T00:00:00Z, " +
                     "endDateTimeMillis=+1000000000-12-31T23:59:59.999999999Z), " +
                     "persistencePolicy=0, displayPolicy=0)"
@@ -1686,7 +1693,8 @@ public class AsWireComplicationDataTest {
                     "validTimeRange=TimeRange(startDateTimeMillis=-1000000000-01-01T00:00:00Z, " +
                     "endDateTimeMillis=+1000000000-12-31T23:59:59.999999999Z), " +
                     "dataSource=ComponentInfo{com.pkg_a/com.a}, persistencePolicy=0, " +
-                    "displayPolicy=0), tapActionLostDueToSerialization=false, tapAction=null, " +
+                    "displayPolicy=0, fallback=null), " +
+                    "tapActionLostDueToSerialization=false, tapAction=null, " +
                     "validTimeRange=TimeRange(startDateTimeMillis=-1000000000-01-01T00:00:00Z, " +
                     "endDateTimeMillis=+1000000000-12-31T23:59:59.999999999Z), " +
                     "persistencePolicy=0, displayPolicy=0)"
@@ -2856,7 +2864,7 @@ public class RedactionTest {
                     "mSurroundingText=REDACTED, mTimeDependentText=null, mExpression=null}, " +
                     "tapActionLostDueToSerialization=false, tapAction=null, " +
                     "validTimeRange=TimeRange(REDACTED), dataSource=null, persistencePolicy=0, " +
-                    "displayPolicy=0)"
+                    "displayPolicy=0, fallback=null)"
             )
         assertThat(data.asWireComplicationData().toString())
             .isEqualTo("ComplicationData{mType=3, mFields=REDACTED}")
@@ -2882,7 +2890,7 @@ public class RedactionTest {
                     "mSurroundingText=REDACTED, mTimeDependentText=null, mExpression=null}), " +
                     "tapActionLostDueToSerialization=false, tapAction=null, " +
                     "validTimeRange=TimeRange(REDACTED), dataSource=null, persistencePolicy=0, " +
-                    "displayPolicy=0)"
+                    "displayPolicy=0, fallback=null)"
             )
         assertThat(data.asWireComplicationData().toString())
             .isEqualTo("ComplicationData{mType=4, mFields=REDACTED}")
@@ -2911,7 +2919,7 @@ public class RedactionTest {
                     "ComplicationText{mSurroundingText=REDACTED, mTimeDependentText=null, " +
                     "mExpression=null}), tapActionLostDueToSerialization=false, tapAction=null, " +
                     "validTimeRange=TimeRange(REDACTED), dataSource=null, colorRamp=null, " +
-                    "persistencePolicy=0, displayPolicy=0)"
+                    "persistencePolicy=0, displayPolicy=0, fallback=null)"
             )
         assertThat(data.asWireComplicationData().toString())
             .isEqualTo("ComplicationData{mType=5, mFields=REDACTED}")
@@ -2940,7 +2948,7 @@ public class RedactionTest {
                     "tapActionLostDueToSerialization=false, tapAction=null, validTimeRange=" +
                     "TimeRange(REDACTED), dataSource=null, colorRamp=ColorRamp(colors=[-65536, " +
                     "-16711936, -16776961], interpolated=true), persistencePolicy=0, " +
-                    "displayPolicy=0)"
+                    "displayPolicy=0, fallback=null)"
             )
         assertThat(data.asWireComplicationData().toString())
             .isEqualTo("ComplicationData{mType=13, mFields=REDACTED}")
@@ -2967,7 +2975,8 @@ public class RedactionTest {
                     "mTimeDependentText=null, mExpression=null}), " +
                     "tapActionLostDueToSerialization=false, tapAction=null, " +
                     "validTimeRange=TimeRange(REDACTED), dataSource=null, persistencePolicy=0, " +
-                    "displayPolicy=0), tapActionLostDueToSerialization=false, tapAction=null, " +
+                    "displayPolicy=0, fallback=null), " +
+                    "tapActionLostDueToSerialization=false, tapAction=null, " +
                     "validTimeRange=TimeRange(REDACTED), persistencePolicy=0, displayPolicy=0)"
             )
         assertThat(data.asWireComplicationData().toString())

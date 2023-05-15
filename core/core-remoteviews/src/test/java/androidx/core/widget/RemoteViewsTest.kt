@@ -28,7 +28,6 @@ import android.widget.LinearLayout
 import android.widget.RemoteViews
 import android.widget.TextView
 import androidx.annotation.RequiresApi
-import androidx.test.core.app.ApplicationProvider
 import androidx.core.remoteviews.test.R
 import androidx.core.widget.RemoteViewsCompat.setLinearLayoutWeightSum
 import androidx.core.widget.RemoteViewsCompat.setTextViewError
@@ -36,16 +35,17 @@ import androidx.core.widget.RemoteViewsCompat.setTextViewHint
 import androidx.core.widget.RemoteViewsCompat.setTextViewMaxLines
 import androidx.core.widget.RemoteViewsCompat.setViewBackgroundColorResource
 import androidx.core.widget.RemoteViewsCompat.setViewEnabled
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
+import java.util.Locale
+import kotlin.test.assertIs
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
-import java.util.Locale
-import kotlin.test.assertIs
 
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument

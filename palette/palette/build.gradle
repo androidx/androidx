@@ -17,7 +17,7 @@ dependencies {
 }
 
 androidx {
-    name = "Android Support Palette"
+    name = "Palette"
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2014"
     description = "Android Support Palette"

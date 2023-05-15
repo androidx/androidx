@@ -30,7 +30,7 @@ allprojects {
 
     tasks.withType(KotlinCompile).configureEach {
         kotlinOptions {
-            jvmTarget = "11"
+            jvmTarget = "17"
             freeCompilerArgs += [
                     "-Werror",
                     "-Xskip-metadata-version-check",

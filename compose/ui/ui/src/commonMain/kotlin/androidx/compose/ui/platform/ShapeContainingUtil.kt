@@ -17,9 +17,9 @@
 package androidx.compose.ui.platform
 
 import androidx.compose.ui.geometry.CornerRadius
-import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.RoundRect
+import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathOperation
 

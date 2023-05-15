@@ -16,7 +16,6 @@
 package androidx.appactions.interaction.capabilities.core
 
 import androidx.annotation.RestrictTo
-import androidx.appactions.interaction.capabilities.core.values.SearchAction
 import androidx.concurrent.futures.await
 import com.google.common.util.concurrent.ListenableFuture
 

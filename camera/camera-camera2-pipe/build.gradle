@@ -71,7 +71,7 @@ kapt {
 }
 
 androidx {
-    name = "Jetpack Camera Pipe"
+    name = "Camera2 Pipe"
     publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.CAMERA_PIPE
     runApiTasks = new RunApiTasks.No("CameraPipe is an implementation detail of other libraries.")

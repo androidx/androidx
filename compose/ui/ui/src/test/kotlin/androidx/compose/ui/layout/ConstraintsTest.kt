@@ -19,8 +19,8 @@ package androidx.compose.ui.layout
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.constrain
-import androidx.compose.ui.unit.offset
 import androidx.compose.ui.unit.isSatisfiedBy
+import androidx.compose.ui.unit.offset
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue

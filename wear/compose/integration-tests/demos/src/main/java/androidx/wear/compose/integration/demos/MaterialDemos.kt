@@ -36,9 +36,9 @@ import androidx.wear.compose.material.samples.AutoCenteringPickerGroup
 import androidx.wear.compose.material.samples.ButtonWithIcon
 import androidx.wear.compose.material.samples.ButtonWithText
 import androidx.wear.compose.material.samples.ChipWithIconAndLabel
-import androidx.wear.compose.material.samples.ChipWithIconAndLabelsAndOverlaidPlaceholder
 import androidx.wear.compose.material.samples.ChipWithIconAndLabelAndPlaceholders
 import androidx.wear.compose.material.samples.ChipWithIconAndLabels
+import androidx.wear.compose.material.samples.ChipWithIconAndLabelsAndOverlaidPlaceholder
 import androidx.wear.compose.material.samples.CircularProgressIndicatorFullscreenWithGap
 import androidx.wear.compose.material.samples.CircularProgressIndicatorWithAnimation
 import androidx.wear.compose.material.samples.CompactButtonWithIcon

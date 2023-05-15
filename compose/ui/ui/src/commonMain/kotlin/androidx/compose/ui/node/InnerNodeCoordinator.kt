@@ -160,10 +160,10 @@ internal class InnerNodeCoordinator(
     }
 
     @OptIn(ExperimentalComposeUiApi::class)
-    override fun <T : DelegatableNode> hitTestChild(
-        hitTestSource: HitTestSource<T>,
+    override fun hitTestChild(
+        hitTestSource: HitTestSource,
         pointerPosition: Offset,
-        hitTestResult: HitTestResult<T>,
+        hitTestResult: HitTestResult,
         isTouchEvent: Boolean,
         isInLayer: Boolean
     ) {

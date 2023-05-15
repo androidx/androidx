@@ -34,6 +34,7 @@ public class StopLogicEngine implements StopEngine {
     private boolean mBackwards = false;
     private float mStartPosition;
     private float mLastPosition;
+    private float mLastTime;
     @SuppressWarnings("unused")
     private boolean mDone = false;
     private static final float EPSILON = 0.00001f;
@@ -106,14 +107,14 @@ public class StopLogicEngine implements StopEngine {
             return mStage2Velocity + (mStage3Velocity - mStage2Velocity) * x / mStage2Duration;
         }
         if (mNumberOfStages == 2) {
-            return mStage2EndPosition;
+            return 0;
         }
         x -= mStage2Duration;
         if (x < mStage3Duration) {
 
             return mStage3Velocity - mStage3Velocity * x / mStage3Duration;
         }
-        return mStage3EndPosition;
+        return 0;
     }
 
     private float calcY(float time) {
@@ -162,13 +163,14 @@ public class StopLogicEngine implements StopEngine {
     @Override
     public float getInterpolation(float v) {
         float y = calcY(v);
-        mLastPosition = v;
+        mLastPosition = y;
+        mLastTime = v;
         return mBackwards ? mStartPosition - y : mStartPosition + y;
     }
 
     @Override
     public float getVelocity() {
-        return mBackwards ? -getVelocity(mLastPosition) : getVelocity(mLastPosition);
+        return mBackwards ? -getVelocity(mLastTime) : getVelocity(mLastTime);
     }
 
     @Override

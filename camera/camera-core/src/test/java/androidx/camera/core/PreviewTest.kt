@@ -23,6 +23,7 @@ import android.os.Build
 import android.os.Handler
 import android.os.HandlerThread
 import android.os.Looper.getMainLooper
+import android.util.Range
 import android.util.Rational
 import android.util.Size
 import android.view.Surface
@@ -34,6 +35,7 @@ import androidx.camera.core.MirrorMode.MIRROR_MODE_ON_FRONT_ONLY
 import androidx.camera.core.SurfaceRequest.TransformationInfo
 import androidx.camera.core.impl.CameraFactory
 import androidx.camera.core.impl.CameraThreadConfig
+import androidx.camera.core.impl.MutableOptionsBundle
 import androidx.camera.core.impl.OptionsBundle
 import androidx.camera.core.impl.PreviewConfig
 import androidx.camera.core.impl.SessionConfig
@@ -79,6 +81,8 @@ private val TEST_CAMERA_SELECTOR = CameraSelector.DEFAULT_BACK_CAMERA
 @Config(
     minSdk = Build.VERSION_CODES.LOLLIPOP
 )
+// Option Declarations:
+// *********************************************************************************************
 class PreviewTest {
 
     private var cameraUseCaseAdapter: CameraUseCaseAdapter? = null
@@ -94,6 +98,13 @@ class PreviewTest {
     private lateinit var effect: CameraEffect
 
     private val handlersToRelease = mutableListOf<Handler>()
+
+    private val testImplementationOption: androidx.camera.core.impl.Config.Option<Int> =
+        androidx.camera.core.impl.Config.Option.create(
+            "test.testOption",
+            Int::class.javaPrimitiveType!!
+        )
+    private val testImplementationOptionValue = 5
 
     @Before
     @Throws(ExecutionException::class, InterruptedException::class)
@@ -640,6 +651,30 @@ class PreviewTest {
         assertThat(receivedAfterAttach).isTrue()
     }
 
+    @Test
+    fun sessionConfigHasStreamSpecImplementationOptions_whenCreatePipeline() {
+        val preview = createPreview(effect)
+        assertThat(
+            preview.sessionConfig.implementationOptions.retrieveOption(
+                testImplementationOption
+            )
+        ).isEqualTo(testImplementationOptionValue)
+    }
+
+    @Test
+    fun sessionConfigHasStreamSpecImplementationOptions_whenUpdateStreamSpecImplOptions() {
+        val preview = createPreview(effect)
+        val newImplementationOptionValue = 6
+        val streamSpecOptions = MutableOptionsBundle.create()
+        streamSpecOptions.insertOption(testImplementationOption, newImplementationOptionValue)
+        preview.updateSuggestedStreamSpecImplementationOptions(streamSpecOptions)
+        assertThat(
+            preview.sessionConfig.implementationOptions.retrieveOption(
+                testImplementationOption
+            )
+        ).isEqualTo(newImplementationOptionValue)
+    }
+
     @Suppress("DEPRECATION") // test for legacy resolution API
     @Test
     fun throwException_whenSetBothTargetResolutionAndAspectRatio() {
@@ -667,6 +702,13 @@ class PreviewTest {
                 .setResolutionSelector(ResolutionSelector.Builder().build())
                 .build()
         }
+    }
+
+    @Test
+    fun canSetTargetFrameRate() {
+        val preview = Preview.Builder().setTargetFrameRate(Range(15, 30))
+            .build()
+        assertThat(preview.targetFrameRate).isEqualTo(Range(15, 30))
     }
 
     private fun bindToLifecycleAndGetSurfaceRequest(): SurfaceRequest {
@@ -726,8 +768,11 @@ class PreviewTest {
         )
         previewToDetach.bindToCamera(camera, null, previewConfig)
 
-        val streamSpec = StreamSpec.builder(Size(640, 480)).build()
-        previewToDetach.onSuggestedStreamSpecUpdated(streamSpec)
+        val streamSpecOptions = MutableOptionsBundle.create()
+        streamSpecOptions.insertOption(testImplementationOption, testImplementationOptionValue)
+        val streamSpec = StreamSpec.builder(Size(640, 480))
+            .setImplementationOptions(streamSpecOptions).build()
+        previewToDetach.updateSuggestedStreamSpec(streamSpec)
         return previewToDetach
     }
 

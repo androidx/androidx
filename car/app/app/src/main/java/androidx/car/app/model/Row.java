@@ -30,12 +30,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.annotations.CarProtocol;
-import androidx.car.app.annotations.ExperimentalCarApi;
+import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.constraints.ActionsConstraints;
 import androidx.car.app.model.constraints.CarIconConstraints;
 import androidx.car.app.model.constraints.CarTextConstraints;
-import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.utils.CollectionUtils;
 
 import java.lang.annotation.Retention;
@@ -155,7 +154,6 @@ public final class Row implements Item {
      *
      * @see Builder#addAction(Action)
      */
-    @ExperimentalCarApi
     @NonNull
     @RequiresCarApi(6)
     public List<Action> getActions() {
@@ -173,11 +171,12 @@ public final class Row implements Item {
      *
      * <p> Numeric decorations are displayed at the end of the row, but before any actions.
      *
+     * <p> Numeric decorations are only allowed in full-width lists.
+     *
      * <p> {@link Row#NO_DECORATION} will be returned if the row does not contain a decoration.
      *
      * @see Builder#setNumericDecoration(int)
      */
-    @ExperimentalCarApi
     @RequiresCarApi(6)
     public int getNumericDecoration() {
         return mNumericDecoration;
@@ -524,8 +523,7 @@ public final class Row implements Item {
         }
 
         /**
-         * Adds an additional action to the end of the row. Actions are not displayed in
-         * half-list templates.
+         * Adds an additional action to the end of the row.
          *
          * @throws NullPointerException     if {@code action} is {@code null}
          * @throws IllegalArgumentException if {@code action} contains unsupported Action types,
@@ -533,7 +531,6 @@ public final class Row implements Item {
          *                                  not contain a valid {@link CarIcon}.
          */
         //TODO(b/260557014): Update docs when half-list UX is defined
-        @ExperimentalCarApi
         @NonNull
         @RequiresCarApi(6)
         public Builder addAction(@NonNull Action action) {
@@ -559,7 +556,6 @@ public final class Row implements Item {
          * @throws IllegalArgumentException if {@code decoration} is invalid
          */
         //TODO(b/260557014): Update docs when half-list UX is defined
-        @ExperimentalCarApi
         @NonNull
         @RequiresCarApi(6)
         @IntRange(from = 0)

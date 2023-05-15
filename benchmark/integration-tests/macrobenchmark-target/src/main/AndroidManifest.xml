@@ -29,9 +29,13 @@
 
         <!--
         Activities need to be exported so the macrobenchmark can discover them.
+
+        Feel free to add the launcher intent filter to enable easier profiling,
+        just be sure to add a consistent label.
          -->
         <activity
             android:name=".TrivialStartupActivity"
+            android:label="B Trivial"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -63,7 +67,12 @@
 
         <activity
             android:name=".RecyclerViewActivity"
+            android:label="B RecyclerView"
             android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
             <intent-filter>
                 <action android:name="androidx.benchmark.integration.macrobenchmark.target.RECYCLER_VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />

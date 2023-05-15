@@ -43,7 +43,7 @@ dependencies {
 }
 
 androidx {
-    name = "Android Preferences KTX"
+    name = "Preferences KTX"
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2018"
     description = "Kotlin extensions for preferences"

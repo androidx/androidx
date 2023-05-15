@@ -129,6 +129,7 @@ fun Surface(
                     elevation = elevation
                 )
                 .semantics(mergeDescendants = false) {
+                    @Suppress("DEPRECATION")
                     isContainer = true
                 }
                 .pointerInput(Unit) {},

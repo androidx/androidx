@@ -422,6 +422,26 @@ class LazyCustomKeysTest {
         }
     }
 
+    @Test
+    fun keysLambdaIsCalledOnlyOnce() {
+        var keyCalls = 0
+
+        rule.setContent {
+            LazyVerticalGrid(GridCells.Fixed(1)) {
+                items(1, key = {
+                    keyCalls++
+                    0
+                }) {
+                    Item("item")
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            assertThat(keyCalls).isEqualTo(1)
+        }
+    }
+
     private fun testReordering(content: LazyGridScope.(List<MyClass>) -> Unit) {
         var list by mutableStateOf(listOf(MyClass(0), MyClass(1), MyClass(2)))
 

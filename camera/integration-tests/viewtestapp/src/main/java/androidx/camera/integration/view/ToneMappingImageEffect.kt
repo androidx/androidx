@@ -31,7 +31,7 @@ import androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecu
  * A image effect that applies the same tone mapping as [ToneMappingSurfaceProcessor].
  */
 class ToneMappingImageEffect : CameraEffect(
-    IMAGE_CAPTURE, mainThreadExecutor(), ToneMappingImageProcessor()
+    IMAGE_CAPTURE, mainThreadExecutor(), ToneMappingImageProcessor(), {}
 ) {
 
     fun isInvoked(): Boolean {

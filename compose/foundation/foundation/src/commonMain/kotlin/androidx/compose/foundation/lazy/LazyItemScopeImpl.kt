@@ -18,13 +18,14 @@ package androidx.compose.foundation.lazy
 
 import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.runtime.MutableState
+import androidx.compose.foundation.lazy.layout.LazyLayoutAnimateItemModifierNode
 import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.MeasureScope
+import androidx.compose.ui.node.DelegatingNode
 import androidx.compose.ui.node.LayoutModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.ParentDataModifierNode
@@ -36,12 +37,12 @@ import kotlin.math.roundToInt
 
 internal class LazyItemScopeImpl : LazyItemScope {
 
-    private var maxWidthState: MutableState<Int> = mutableStateOf(Int.MAX_VALUE)
-    private var maxHeightState: MutableState<Int> = mutableStateOf(Int.MAX_VALUE)
+    private var maxWidthState = mutableIntStateOf(Int.MAX_VALUE)
+    private var maxHeightState = mutableIntStateOf(Int.MAX_VALUE)
 
     fun setMaxSize(width: Int, height: Int) {
-        maxWidthState.value = width
-        maxHeightState.value = height
+        maxWidthState.intValue = width
+        maxHeightState.intValue = height
     }
 
     override fun Modifier.fillParentMaxSize(fraction: Float) = then(
@@ -88,10 +89,10 @@ private class ParentSizeElement(
         )
     }
 
-    override fun update(node: ParentSizeNode): ParentSizeNode = node.also {
-        it.fraction = fraction
-        it.widthState = widthState
-        it.heightState = heightState
+    override fun update(node: ParentSizeNode) {
+        node.fraction = fraction
+        node.widthState = widthState
+        node.heightState = heightState
     }
 
     override fun equals(other: Any?): Boolean {
@@ -156,10 +157,11 @@ private class ParentSizeNode(
 private class AnimateItemPlacementElement(
     val animationSpec: FiniteAnimationSpec<IntOffset>
 ) : ModifierNodeElement<AnimateItemPlacementNode>() {
+
     override fun create(): AnimateItemPlacementNode = AnimateItemPlacementNode(animationSpec)
 
-    override fun update(node: AnimateItemPlacementNode): AnimateItemPlacementNode = node.also {
-        it.animationSpec = animationSpec
+    override fun update(node: AnimateItemPlacementNode) {
+        node.delegatingNode.placementAnimationSpec = animationSpec
     }
 
     override fun equals(other: Any?): Boolean {
@@ -179,7 +181,10 @@ private class AnimateItemPlacementElement(
 }
 
 private class AnimateItemPlacementNode(
-    var animationSpec: FiniteAnimationSpec<IntOffset>
-) : Modifier.Node(), ParentDataModifierNode {
-    override fun Density.modifyParentData(parentData: Any?): Any = animationSpec
+    animationSpec: FiniteAnimationSpec<IntOffset>
+) : DelegatingNode(), ParentDataModifierNode {
+
+    val delegatingNode = delegate(LazyLayoutAnimateItemModifierNode(animationSpec))
+
+    override fun Density.modifyParentData(parentData: Any?): Any = delegatingNode
 }

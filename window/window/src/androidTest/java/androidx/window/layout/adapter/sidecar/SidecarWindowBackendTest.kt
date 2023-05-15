@@ -30,10 +30,6 @@ import androidx.window.layout.HardwareFoldingFeature
 import androidx.window.layout.HardwareFoldingFeature.Type.Companion.HINGE
 import androidx.window.layout.WindowLayoutInfo
 import com.google.common.util.concurrent.MoreExecutors
-import org.mockito.kotlin.eq
-import org.mockito.kotlin.mock
-import org.mockito.kotlin.times
-import org.mockito.kotlin.verify
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
@@ -41,6 +37,10 @@ import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.kotlin.eq
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.times
+import org.mockito.kotlin.verify
 
 /** Tests for [SidecarWindowBackend] class.  */
 @LargeTest

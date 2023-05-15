@@ -34,10 +34,10 @@ interface LazyLayoutItemProvider {
     val itemCount: Int
 
     /**
-     * The item for the given [index].
+     * The item for the given [index] and [key].
      */
     @Composable
-    fun Item(index: Int)
+    fun Item(index: Int, key: Any)
 
     /**
      * Returns the content type for the item on this index. It is used to improve the item

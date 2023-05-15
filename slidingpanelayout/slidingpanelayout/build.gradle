@@ -23,7 +23,7 @@ dependencies {
 }
 
 androidx {
-    name = "Android Support Library Sliding Pane Layout"
+    name = "Sliding Pane Layout"
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2018"
     description = "SlidingPaneLayout offers a responsive, two pane layout that automatically switches between overlapping panes on smaller devices to a side by side view on larger devices."

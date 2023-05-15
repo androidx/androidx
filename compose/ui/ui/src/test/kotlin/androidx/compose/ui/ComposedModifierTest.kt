@@ -20,12 +20,12 @@ import androidx.compose.runtime.Applier
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Composition
 import androidx.compose.runtime.InternalComposeApi
-import androidx.compose.runtime.Recomposer
+import androidx.compose.runtime.MonotonicFrameClock
 import androidx.compose.runtime.RecomposeScope
+import androidx.compose.runtime.Recomposer
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.currentComposer
 import androidx.compose.runtime.currentRecomposeScope
-import androidx.compose.runtime.MonotonicFrameClock
-import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.withRunningRecomposer
 import kotlinx.coroutines.channels.Channel

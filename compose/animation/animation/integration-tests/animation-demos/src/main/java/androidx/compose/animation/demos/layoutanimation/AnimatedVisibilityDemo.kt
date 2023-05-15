@@ -49,6 +49,7 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -73,7 +74,7 @@ fun AnimatedVisibilityDemo() {
 
 @Composable
 fun AnimatedItems(animateContentSize: Boolean) {
-    var itemNum by remember { mutableStateOf(0) }
+    var itemNum by remember { mutableIntStateOf(0) }
     Column {
         Row(
             Modifier.fillMaxWidth().padding(20.dp),

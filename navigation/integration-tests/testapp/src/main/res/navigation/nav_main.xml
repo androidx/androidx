@@ -23,31 +23,19 @@
                   android:name=".MainFragment"
                   android:label="@string/home">
             <argument android:name="myarg" android:defaultValue="Home" />
-            <action android:id="@+id/next" app:destination="@+id/first_screen"
-                app:enterAnim="@anim/nav_default_enter_anim"
-                app:exitAnim="@anim/nav_default_exit_anim"
-                app:popEnterAnim="@anim/nav_default_pop_enter_anim"
-                app:popExitAnim="@anim/nav_default_pop_exit_anim"/>
+            <action android:id="@+id/next" app:destination="@+id/first_screen"/>
         </fragment>
         <fragment android:id="@+id/first_screen"
             android:name="androidx.navigation.testapp.MainFragment"
             android:label="@string/first">
             <argument android:name="myarg" android:defaultValue="one" />
-            <action android:id="@+id/next" app:destination="@+id/next_fragment"
-                app:enterAnim="@anim/nav_default_enter_anim"
-                app:exitAnim="@anim/nav_default_exit_anim"
-                app:popEnterAnim="@anim/nav_default_pop_enter_anim"
-                app:popExitAnim="@anim/nav_default_pop_exit_anim"/>
+            <action android:id="@+id/next" app:destination="@+id/next_fragment"/>
         </fragment>
         <fragment android:id="@+id/next_fragment"
             android:name="androidx.navigation.testapp.MainFragment"
             android:label="@string/second">
             <argument android:name="myarg" android:defaultValue="two" />
-            <action android:id="@+id/next" app:destination="@+id/first_screen"
-                app:enterAnim="@anim/nav_default_enter_anim"
-                app:exitAnim="@anim/nav_default_exit_anim"
-                app:popEnterAnim="@anim/nav_default_pop_enter_anim"
-                app:popExitAnim="@anim/nav_default_pop_exit_anim"/>
+            <action android:id="@+id/next" app:destination="@+id/first_screen"/>
         </fragment>
     </navigation>
     <dialog

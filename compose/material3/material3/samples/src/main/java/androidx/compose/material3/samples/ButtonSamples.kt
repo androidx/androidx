@@ -17,8 +17,8 @@
 package androidx.compose.material3.samples
 
 import androidx.annotation.Sampled
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material3.Button

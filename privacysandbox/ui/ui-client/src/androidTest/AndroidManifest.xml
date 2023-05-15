@@ -15,7 +15,8 @@
   limitations under the License.
   -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-    <application android:supportsRtl="true">
+    <application android:supportsRtl="true"
+        android:theme="@style/Theme.AppCompat">
     <activity
         android:name="androidx.privacysandbox.ui.client.test.UiLibActivity"
         android:configChanges="orientation|screenSize"

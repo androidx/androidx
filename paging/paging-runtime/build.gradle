@@ -50,7 +50,7 @@ dependencies {
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testRunner)
-    androidTestImplementation("androidx.arch.core:core-testing:2.1.0")
+    androidTestImplementation("androidx.arch.core:core-testing:2.2.0")
     androidTestImplementation(libs.truth)
     androidTestImplementation(libs.kotlinTest)
     androidTestImplementation(libs.kotlinCoroutinesTest)
@@ -61,7 +61,7 @@ dependencies {
 }
 
 androidx {
-    name = "Android Paging-Runtime"
+    name = "Paging-Runtime"
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2017"
     description = "Android Paging-Runtime"

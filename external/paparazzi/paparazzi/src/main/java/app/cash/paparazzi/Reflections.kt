@@ -1,9 +1,9 @@
 package app.cash.paparazzi
 
-import sun.misc.Unsafe
 import java.lang.reflect.Field
 import java.lang.reflect.Modifier
 import java.security.PrivilegedAction
+import sun.misc.Unsafe
 
 /**
  * Inspired by and ported from:

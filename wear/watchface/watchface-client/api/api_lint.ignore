@@ -1,3 +1,7 @@
 // Baseline format: 1.0
-ListenerLast: androidx.wear.watchface.client.WatchFaceControlClient#getOrCreateInteractiveWatchFaceClient(String, androidx.wear.watchface.client.DeviceConfig, androidx.wear.watchface.client.WatchUiState, androidx.wear.watchface.style.UserStyleData, java.util.Map<java.lang.Integer,? extends androidx.wear.watchface.complications.data.ComplicationData>, java.util.concurrent.Executor, androidx.wear.watchface.client.WatchFaceControlClient.PreviewImageUpdateRequestedListener, kotlin.coroutines.Continuation<? super androidx.wear.watchface.client.InteractiveWatchFaceClient>) parameter #7:
-    Listeners should always be at end of argument list (method `getOrCreateInteractiveWatchFaceClient`)
+GetterSetterNames: field ComplicationSlotMetadata.fixedComplicationDataSource:
+    Invalid name for boolean property `fixedComplicationDataSource`. Should start with one of `has`, `can`, `should`, `is`.
+GetterSetterNames: field ComplicationSlotState.fixedComplicationDataSource:
+    Invalid name for boolean property `fixedComplicationDataSource`. Should start with one of `has`, `can`, `should`, `is`.
+GetterSetterNames: field WatchUiState.inAmbientMode:
+    Invalid name for boolean property `inAmbientMode`. Should start with one of `has`, `can`, `should`, `is`.

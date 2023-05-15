@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-import androidx.build.AndroidXComposePlugin
+import androidx.build.KmpPlatformsKt
 import androidx.build.LibraryType
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
@@ -24,77 +23,15 @@ plugins {
     id("AndroidXComposePlugin")
 }
 
-AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project)
+def desktopEnabled = KmpPlatformsKt.enableDesktop(project)
 
-if(!AndroidXComposePlugin.isMultiplatformEnabled(project)) {
-    dependencies {
-        /*
-         * When updating dependencies, make sure to make the an an analogous update in the
-         * corresponding block below
-         */
-        implementation(libs.kotlinStdlibCommon)
-        implementation(libs.kotlinCoroutinesCore)
+androidXMultiplatform {
+    android()
+    if (desktopEnabled) desktop()
 
-        api(project(":compose:ui:ui-graphics"))
-        api(project(":compose:ui:ui-unit"))
-        api("androidx.annotation:annotation:1.1.0")
-
-        // when updating the runtime version please also update the runtime-saveable version
-        implementation("androidx.compose.runtime:runtime:1.2.1")
-        implementation("androidx.compose.runtime:runtime-saveable:1.2.1")
-
-        implementation(project(":compose:ui:ui-util"))
-        implementation(libs.kotlinStdlib)
-        implementation("androidx.core:core:1.7.0")
-        implementation('androidx.collection:collection:1.0.0')
-        implementation("androidx.emoji2:emoji2:1.2.0")
-
-        testImplementation(libs.testRules)
-        testImplementation(libs.testRunner)
-        testImplementation(libs.junit)
-        testImplementation(libs.mockitoCore4)
-        testImplementation(libs.truth)
-        testImplementation(libs.kotlinReflect)
-        testImplementation(libs.kotlinTest)
-        testImplementation(libs.mockitoKotlin4)
-
-        androidTestImplementation(project(":internal-testutils-fonts"))
-        androidTestImplementation(project(":compose:ui:ui-test-junit4"))
-        androidTestImplementation(libs.testCore)
-        androidTestImplementation(libs.testRules)
-        androidTestImplementation(libs.testRunner)
-        androidTestImplementation(libs.espressoCore)
-        androidTestImplementation(libs.junit)
-        androidTestImplementation(libs.dexmakerMockito)
-        androidTestImplementation(libs.mockitoCore)
-        androidTestImplementation(libs.truth)
-        androidTestImplementation(libs.mockitoKotlin)
-
-        samples(projectOrArtifact(":compose:ui:ui-text:ui-text-samples"))
-    }
-
-    android {
-        sourceSets {
-            main {
-                java.srcDirs += "${supportRootFolder}/text/text/src/main/java"
-            }
-        }
-    }
-}
-
-if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
-    androidXComposeMultiplatform {
-        android()
-        desktop()
-    }
-
-    kotlin {
-        /*
-         * When updating dependencies, make sure to make the an an analogous update in the
-         * corresponding block below
-         */
-        sourceSets {
-            commonMain.dependencies {
+    sourceSets {
+        commonMain {
+            dependencies {
                 implementation(libs.kotlinStdlibCommon)
                 implementation(libs.kotlinCoroutinesCore)
 
@@ -107,53 +44,58 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
 
                 implementation(project(":compose:ui:ui-util"))
             }
+        }
 
-            jvmMain.dependencies {
-                implementation(libs.kotlinStdlib)
+        commonTest {
+            dependencies {
             }
+        }
 
+        if (desktopEnabled) {
             skikoMain {
                 dependsOn(commonMain)
                 dependencies {
                     api(libs.skikoCommon)
+                    implementation(project(":compose:runtime:runtime"))
+                    implementation(project(":compose:runtime:runtime-saveable"))
                 }
             }
+        }
 
-            desktopMain {
-                dependsOn(skikoMain)
-                dependsOn(jvmMain)
+        jvmMain {
+            dependsOn(commonMain)
+            dependencies {
+                implementation(libs.kotlinStdlib)
             }
+        }
 
-            androidMain {
-                dependsOn(commonMain)
-            }
 
-            androidMain.dependencies {
+        androidMain {
+            dependsOn(commonMain)
+            dependsOn(jvmMain)
+            dependencies {
                 api("androidx.annotation:annotation:1.1.0")
                 implementation("androidx.core:core:1.7.0")
                 implementation("androidx.emoji2:emoji2:1.2.0")
                 implementation('androidx.collection:collection:1.0.0')
             }
+        }
 
-            androidMain.kotlin.srcDirs("${supportRootFolder}/text/text/src/main/java")
-
-            // TODO(b/214407011): These dependencies leak into instrumented tests as well. If you
-            //  need to add Robolectric (which must be kept out of androidAndroidTest), use a top
-            //  level dependencies block instead:
-            //  `dependencies { testImplementation(libs.robolectric) }`
-            androidTest.dependencies {
-                implementation(project(":internal-testutils-fonts"))
-                implementation(libs.testRules)
-                implementation(libs.testRunner)
-                implementation(libs.junit)
-                implementation(libs.mockitoCore4)
-                implementation(libs.truth)
-                implementation(libs.kotlinReflect)
-                implementation(libs.kotlinTest)
-                implementation(libs.mockitoKotlin4)
+        if (desktopEnabled) {
+            desktopMain {
+                dependsOn(skikoMain)
+                dependsOn(jvmMain)
             }
+        }
 
-            androidAndroidTest.dependencies {
+        jvmTest {
+            dependencies {
+            }
+        }
+
+        androidAndroidTest {
+            dependsOn(jvmTest)
+            dependencies {
                 implementation(project(":compose:ui:ui-test-junit4"))
                 implementation(project(":internal-testutils-fonts"))
                 implementation(libs.testRules)
@@ -165,20 +107,50 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
                 implementation(libs.truth)
                 implementation(libs.mockitoKotlin)
             }
+        }
 
-            desktopTest.dependencies {
-                implementation(libs.truth)
+
+        // TODO(b/214407011): These dependencies leak into instrumented tests as well. If you
+        //  need to add Robolectric (which must be kept out of androidAndroidTest), use a top
+        //  level dependencies block instead:
+        //  `dependencies { testImplementation(libs.robolectric) }`
+        androidTest {
+            dependsOn(jvmTest)
+            dependencies {
+                implementation(project(":internal-testutils-fonts"))
+                implementation(libs.testRules)
+                implementation(libs.testRunner)
                 implementation(libs.junit)
+                implementation(libs.truth)
+                implementation(libs.kotlinReflect)
                 implementation(libs.kotlinTest)
-                implementation(libs.skikoCurrentOs)
-                implementation(project(":compose:foundation:foundation"))
-                implementation(project(":compose:ui:ui-test-junit4"))
             }
         }
+
+        if (desktopEnabled) {
+            desktopTest {
+                dependsOn(jvmTest)
+                dependencies {
+                    implementation(libs.truth)
+                    implementation(libs.junit)
+                    implementation(libs.kotlinTest)
+                    implementation(libs.skikoCurrentOs)
+                    implementation(project(":compose:foundation:foundation"))
+                    implementation(project(":compose:ui:ui-test-junit4"))
+                    implementation(project(":internal-testutils-fonts"))
+                }
+            }
+        }
+
+        androidMain.kotlin.srcDirs("${supportRootFolder}/text/text/src/main/java")
     }
-    dependencies {
-        samples(projectOrArtifact(":compose:ui:ui-text:ui-text-samples"))
-    }
+}
+
+dependencies {
+    // Can't declare this in kotlin { sourceSets { androidTest.dependencies { .. } } } as that
+    // leaks into instrumented tests (b/214407011)
+    testImplementation(libs.mockitoCore4)
+    testImplementation(libs.mockitoKotlin4)
 }
 
 androidx {

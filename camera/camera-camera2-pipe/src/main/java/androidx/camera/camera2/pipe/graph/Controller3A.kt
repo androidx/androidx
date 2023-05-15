@@ -187,7 +187,7 @@ internal class Controller3A(
         afRegions?.let { extra3AParams.put(CaptureRequest.CONTROL_AF_REGIONS, it.toTypedArray()) }
         awbRegions?.let { extra3AParams.put(CaptureRequest.CONTROL_AWB_REGIONS, it.toTypedArray()) }
 
-        if (!graphProcessor.submit(extra3AParams)) {
+        if (!graphProcessor.trySubmit(extra3AParams)) {
             graphListener3A.removeListener(listener)
             return CompletableDeferred(result3ASubmitFailed)
         }
@@ -245,7 +245,7 @@ internal class Controller3A(
         // a single request with TRIGGER = TRIGGER_CANCEL so that af can start a fresh scan.
         if (afLockBehaviorSanitized.shouldUnlockAf()) {
             debug { "lock3A - sending a request to unlock af first." }
-            if (!graphProcessor.submit(parameterForAfTriggerCancel)) {
+            if (!graphProcessor.trySubmit(parameterForAfTriggerCancel)) {
                 return CompletableDeferred(result3ASubmitFailed)
             }
         }
@@ -333,7 +333,7 @@ internal class Controller3A(
         // a single request with TRIGGER = TRIGGER_CANCEL so that af can start a fresh scan.
         if (afSanitized == true) {
             debug { "unlock3A - sending a request to unlock af first." }
-            if (!graphProcessor.submit(parameterForAfTriggerCancel)) {
+            if (!graphProcessor.trySubmit(parameterForAfTriggerCancel)) {
                 debug { "unlock3A - request to unlock af failed, returning early." }
                 return CompletableDeferred(result3ASubmitFailed)
             }
@@ -373,7 +373,7 @@ internal class Controller3A(
         graphListener3A.addListener(listener)
 
         debug { "lock3AForCapture - sending a request to trigger ae precapture metering and af." }
-        if (!graphProcessor.submit(parametersForAePrecaptureAndAfTrigger)) {
+        if (!graphProcessor.trySubmit(parametersForAePrecaptureAndAfTrigger)) {
             debug {
                 "lock3AForCapture - request to trigger ae precapture metering and af failed, " +
                     "returning early."
@@ -401,7 +401,7 @@ internal class Controller3A(
      */
     private suspend fun unlock3APostCaptureAndroidLAndBelow(): Deferred<Result3A> {
         debug { "unlock3AForCapture - sending a request to cancel af and turn on ae." }
-        if (!graphProcessor.submit(
+        if (!graphProcessor.trySubmit(
                 mapOf(CONTROL_AF_TRIGGER to CONTROL_AF_TRIGGER_CANCEL, CONTROL_AE_LOCK to true)
             )
         ) {
@@ -415,7 +415,10 @@ internal class Controller3A(
         graphListener3A.addListener(listener)
 
         debug { "unlock3AForCapture - sending a request to turn off ae." }
-        if (!graphProcessor.submit(mapOf<CaptureRequest.Key<*>, Any>(CONTROL_AE_LOCK to false))) {
+        if (!graphProcessor.trySubmit(
+                mapOf<CaptureRequest.Key<*>, Any>(CONTROL_AE_LOCK to false)
+            )
+        ) {
             debug { "unlock3AForCapture - request to unlock ae failed." }
             graphListener3A.removeListener(listener)
             return CompletableDeferred(result3ASubmitFailed)
@@ -438,7 +441,7 @@ internal class Controller3A(
                 CONTROL_AE_PRECAPTURE_TRIGGER to
                     CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER_CANCEL
             )
-        if (!graphProcessor.submit(parametersForAePrecaptureAndAfCancel)) {
+        if (!graphProcessor.trySubmit(parametersForAePrecaptureAndAfCancel)) {
             debug {
                 "unlock3APostCapture - request to reset af and ae precapture metering failed, " +
                     "returning early."
@@ -511,7 +514,7 @@ internal class Controller3A(
         }
 
         debug { "lock3A - submitting a request to lock af." }
-        val submitSuccess = graphProcessor.submit(parameterForAfTriggerStart)
+        val submitSuccess = graphProcessor.trySubmit(parameterForAfTriggerStart)
 
         lastAeMode?.let {
             graphState3A.update(aeMode = it)

@@ -16,13 +16,13 @@
 
 package androidx.wear.tiles.tooling
 
-import androidx.wear.tiles.ColorBuilders.argb
-import androidx.wear.tiles.LayoutElementBuilders
+import androidx.wear.protolayout.ColorBuilders.argb
+import androidx.wear.protolayout.LayoutElementBuilders
+import androidx.wear.protolayout.ResourceBuilders
+import androidx.wear.protolayout.TimelineBuilders
 import androidx.wear.tiles.RequestBuilders
-import androidx.wear.tiles.ResourceBuilders
 import androidx.wear.tiles.TileBuilders
 import androidx.wear.tiles.TileService
-import androidx.wear.tiles.TimelineBuilders
 import com.google.common.util.concurrent.Futures
 
 private val RESOURCES_VERSION = "1"
@@ -32,7 +32,7 @@ class TestTileService : TileService() {
         Futures.immediateFuture(
             TileBuilders.Tile.Builder()
             .setResourcesVersion(RESOURCES_VERSION)
-            .setTimeline(
+            .setTileTimeline(
                 TimelineBuilders.Timeline.Builder().addTimelineEntry(
                     TimelineBuilders.TimelineEntry.Builder().setLayout(
                         LayoutElementBuilders.Layout.Builder().setRoot(
@@ -49,7 +49,7 @@ class TestTileService : TileService() {
             ).build()
         )
 
-    override fun onResourcesRequest(requestParams: RequestBuilders.ResourcesRequest) =
+    override fun onTileResourcesRequest(requestParams: RequestBuilders.ResourcesRequest) =
         Futures.immediateFuture(
             ResourceBuilders.Resources.Builder()
             .setVersion(RESOURCES_VERSION)

@@ -18,8 +18,8 @@ package androidx.wear.watchface.complications.data
 
 import android.content.Context
 import android.icu.util.TimeZone
-import android.support.wearable.complications.ComplicationText as WireComplicationText
 import android.support.wearable.complications.ComplicationText
+import android.support.wearable.complications.ComplicationText as WireComplicationText
 import android.support.wearable.complications.ComplicationText.TimeDifferenceBuilder as WireTimeDifferenceBuilder
 import android.support.wearable.complications.ComplicationText.TimeFormatBuilder as WireTimeFormatBuilder
 import android.support.wearable.complications.TimeFormatText

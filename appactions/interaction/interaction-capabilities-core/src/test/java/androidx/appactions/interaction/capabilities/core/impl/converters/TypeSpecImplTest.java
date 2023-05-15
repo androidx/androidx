@@ -20,10 +20,11 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
 
-import androidx.appactions.builtintypes.properties.Name;
-import androidx.appactions.builtintypes.types.Thing;
+import androidx.appactions.builtintypes.experimental.properties.Name;
+import androidx.appactions.builtintypes.experimental.types.Thing;
 import androidx.appactions.interaction.capabilities.core.impl.exceptions.StructConversionException;
 import androidx.appactions.interaction.capabilities.core.testing.spec.TestEntity;
+import androidx.appactions.interaction.capabilities.core.testing.spec.TestEnum;
 import androidx.appactions.interaction.protobuf.Struct;
 import androidx.appactions.interaction.protobuf.Value;
 
@@ -45,27 +46,29 @@ public final class TypeSpecImplTest {
     @Test
     public void bindIdentifier_success() {
         TypeSpec<TestEntity> entityTypeSpec =
-                TypeSpecBuilder.newBuilder("TestEntity", TestEntity::newBuilder)
+                TypeSpecBuilder.newBuilder(
+                                "TestEntity", TestEntity.Builder::new, TestEntity.Builder::build)
                         .bindIdentifier(TestEntity::getId)
                         .build();
         assertThat(
                         entityTypeSpec.getIdentifier(
-                                TestEntity.newBuilder().setId("identifier1").build()))
+                                new TestEntity.Builder().setId("identifier1").build()))
                 .isEqualTo("identifier1");
-        assertThat(entityTypeSpec.getIdentifier(TestEntity.newBuilder().build())).isNull();
+        assertThat(entityTypeSpec.getIdentifier(new TestEntity.Builder().build())).isNull();
     }
 
     @Test
     public void bindEnumField_convertsSuccessfully() throws Exception {
         TypeSpec<TestEntity> entityTypeSpec =
-                TypeSpecBuilder.newBuilder("TestEntity", TestEntity::newBuilder)
+                TypeSpecBuilder.newBuilder(
+                                "TestEntity", TestEntity.Builder::new, TestEntity.Builder::build)
                         .bindEnumField(
                                 "enum",
                                 TestEntity::getEnum,
                                 TestEntity.Builder::setEnum,
-                                TestEntity.TestEnum.class)
+                                TestEnum.class)
                         .build();
-        TestEntity entity = TestEntity.newBuilder().setEnum(TestEntity.TestEnum.VALUE_1).build();
+        TestEntity entity = new TestEntity.Builder().setEnum(TestEnum.VALUE_1).build();
         Value entityValue =
                 structToValue(
                         Struct.newBuilder()
@@ -74,7 +77,7 @@ public final class TypeSpecImplTest {
                                         Value.newBuilder().setStringValue("TestEntity").build())
                                 .putFields(
                                         "enum",
-                                        Value.newBuilder().setStringValue("value_1").build())
+                                        Value.newBuilder().setStringValue("VALUE_1").build())
                                 .build());
 
         assertThat(entityTypeSpec.toValue(entity)).isEqualTo(entityValue);
@@ -84,12 +87,13 @@ public final class TypeSpecImplTest {
     @Test
     public void bindEnumField_throwsException() throws Exception {
         TypeSpec<TestEntity> entityTypeSpec =
-                TypeSpecBuilder.newBuilder("TestEntity", TestEntity::newBuilder)
+                TypeSpecBuilder.newBuilder(
+                                "TestEntity", TestEntity.Builder::new, TestEntity.Builder::build)
                         .bindEnumField(
                                 "enum",
                                 TestEntity::getEnum,
                                 TestEntity.Builder::setEnum,
-                                TestEntity.TestEnum.class)
+                                TestEnum.class)
                         .build();
         Value malformedValue =
                 structToValue(
@@ -109,13 +113,14 @@ public final class TypeSpecImplTest {
     @Test
     public void bindDurationField_convertsSuccessfully() throws Exception {
         TypeSpec<TestEntity> entityTypeSpec =
-                TypeSpecBuilder.newBuilder("TestEntity", TestEntity::newBuilder)
+                TypeSpecBuilder.newBuilder(
+                                "TestEntity", TestEntity.Builder::new, TestEntity.Builder::build)
                         .bindDurationField(
                                 "duration",
                                 TestEntity::getDuration,
                                 TestEntity.Builder::setDuration)
                         .build();
-        TestEntity entity = TestEntity.newBuilder().setDuration(Duration.ofMinutes(5)).build();
+        TestEntity entity = new TestEntity.Builder().setDuration(Duration.ofMinutes(5)).build();
         Value entityValue =
                 structToValue(
                         Struct.newBuilder()
@@ -134,14 +139,15 @@ public final class TypeSpecImplTest {
     @Test
     public void bindZonedDateTimeField_convertsSuccessfully() throws Exception {
         TypeSpec<TestEntity> entityTypeSpec =
-                TypeSpecBuilder.newBuilder("TestEntity", TestEntity::newBuilder)
+                TypeSpecBuilder.newBuilder(
+                                "TestEntity", TestEntity.Builder::new, TestEntity.Builder::build)
                         .bindZonedDateTimeField(
                                 "date",
                                 TestEntity::getZonedDateTime,
                                 TestEntity.Builder::setZonedDateTime)
                         .build();
         TestEntity entity =
-                TestEntity.newBuilder()
+                new TestEntity.Builder()
                         .setZonedDateTime(ZonedDateTime.of(2022, 1, 1, 8, 0, 0, 0, ZoneOffset.UTC))
                         .build();
         Value entityValue =
@@ -164,14 +170,15 @@ public final class TypeSpecImplTest {
     @Test
     public void bindZonedDateTimeField_zoneId_convertsSuccessfully() throws Exception {
         TypeSpec<TestEntity> entityTypeSpec =
-                TypeSpecBuilder.newBuilder("TestEntity", TestEntity::newBuilder)
+                TypeSpecBuilder.newBuilder(
+                                "TestEntity", TestEntity.Builder::new, TestEntity.Builder::build)
                         .bindZonedDateTimeField(
                                 "date",
                                 TestEntity::getZonedDateTime,
                                 TestEntity.Builder::setZonedDateTime)
                         .build();
         TestEntity entity =
-                TestEntity.newBuilder()
+                new TestEntity.Builder()
                         .setZonedDateTime(
                                 ZonedDateTime.of(2022, 1, 1, 8, 0, 0, 0, ZoneId.of("UTC+01:00")))
                         .build();
@@ -188,7 +195,7 @@ public final class TypeSpecImplTest {
                                                 .build())
                                 .build());
         TestEntity expectedEntity =
-                TestEntity.newBuilder()
+                new TestEntity.Builder()
                         .setZonedDateTime(
                                 ZonedDateTime.of(2022, 1, 1, 8, 0, 0, 0, ZoneOffset.of("+01:00")))
                         .build();
@@ -200,7 +207,8 @@ public final class TypeSpecImplTest {
     @Test
     public void bindZonedDateTimeField_throwsException() throws Exception {
         TypeSpec<TestEntity> entityTypeSpec =
-                TypeSpecBuilder.newBuilder("TestEntity", TestEntity::newBuilder)
+                TypeSpecBuilder.newBuilder(
+                                "TestEntity", TestEntity.Builder::new, TestEntity.Builder::build)
                         .bindZonedDateTimeField(
                                 "date",
                                 TestEntity::getZonedDateTime,
@@ -224,12 +232,16 @@ public final class TypeSpecImplTest {
     @Test
     public void bindSpecField_convertsSuccessfully() throws Exception {
         TypeSpec<TestEntity> entityTypeSpec =
-                TypeSpecBuilder.newBuilder("TestEntity", TestEntity::newBuilder)
+                TypeSpecBuilder.newBuilder(
+                                "TestEntity", TestEntity.Builder::new, TestEntity.Builder::build)
                         .bindSpecField(
                                 "entity",
                                 TestEntity::getEntity,
                                 TestEntity.Builder::setEntity,
-                                TypeSpecBuilder.newBuilder("TestEntity", TestEntity::newBuilder)
+                                TypeSpecBuilder.newBuilder(
+                                                "TestEntity",
+                                                TestEntity.Builder::new,
+                                                TestEntity.Builder::build)
                                         .bindStringField(
                                                 "name",
                                                 TestEntity::getName,
@@ -237,8 +249,8 @@ public final class TypeSpecImplTest {
                                         .build())
                         .build();
         TestEntity entity =
-                TestEntity.newBuilder()
-                        .setEntity(TestEntity.newBuilder().setName("entity name").build())
+                new TestEntity.Builder()
+                        .setEntity(new TestEntity.Builder().setName("entity name").build())
                         .build();
         Value entityValue = structToValue(
                 Struct.newBuilder()
@@ -274,12 +286,16 @@ public final class TypeSpecImplTest {
     @Test
     public void bindSpecField_throwsException() throws Exception {
         TypeSpec<TestEntity> entityTypeSpec =
-                TypeSpecBuilder.newBuilder("TestEntity", TestEntity::newBuilder)
+                TypeSpecBuilder.newBuilder(
+                                "TestEntity", TestEntity.Builder::new, TestEntity.Builder::build)
                         .bindSpecField(
                                 "entity",
                                 TestEntity::getEntity,
                                 TestEntity.Builder::setEntity,
-                                TypeSpecBuilder.newBuilder("TestEntity", TestEntity::newBuilder)
+                                TypeSpecBuilder.newBuilder(
+                                                "TestEntity",
+                                                TestEntity.Builder::new,
+                                                TestEntity.Builder::build)
                                         .bindStringField(
                                                 "name",
                                                 TestEntity::getName,

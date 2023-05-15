@@ -35,7 +35,7 @@ message AnimationSpec {
 message AnimationParameters {
   // The duration of the animation in milliseconds. If not set, defaults to
   // 300ms.
-  uint32 duration_millis = 1;
+  uint64 duration_millis = 1;
 
   // The easing to be used for adjusting an animation's fraction. If not set,
   // defaults to Linear Interpolator.
@@ -47,7 +47,7 @@ message AnimationParameters {
     // delay to start the animation in milliseconds. When set inside repeatable,
     // this is the delay before repeating animation in milliseconds. If not set,
     // no delay will be applied.
-    uint32 delay_millis = 3;
+    uint64 delay_millis = 3;
   }
 }
 

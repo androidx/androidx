@@ -3740,7 +3740,6 @@ class ParagraphIntegrationTest {
         }
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun testDefaultSpanStyle_setBrush() {
         with(defaultDensity) {
@@ -3770,7 +3769,6 @@ class ParagraphIntegrationTest {
         }
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun testDefaultSpanStyle_setBrushAlpha() {
         with(defaultDensity) {
@@ -3802,7 +3800,6 @@ class ParagraphIntegrationTest {
         }
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun testDefaultSpanStyle_overrideAlphaDuringDraw() {
         with(defaultDensity) {
@@ -4366,7 +4363,6 @@ class ParagraphIntegrationTest {
         )
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun testSolidBrushColorIsSameAsColor() {
         with(defaultDensity) {
@@ -4393,7 +4389,6 @@ class ParagraphIntegrationTest {
         }
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun testSpanBrush_overridesDefaultBrush() {
         with(defaultDensity) {
@@ -4435,7 +4430,6 @@ class ParagraphIntegrationTest {
         }
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun testBrush_notEffectedBy_TextDirection() {
         with(defaultDensity) {
@@ -4518,7 +4512,6 @@ class ParagraphIntegrationTest {
         }
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun paint_withBlendMode_changesVisual() {
         with(defaultDensity) {
@@ -4554,7 +4547,6 @@ class ParagraphIntegrationTest {
         }
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun paint_withBlendMode_sameResult() {
         with(defaultDensity) {

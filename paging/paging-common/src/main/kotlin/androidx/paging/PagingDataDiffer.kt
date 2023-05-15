@@ -43,12 +43,15 @@ import kotlinx.coroutines.yield
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public abstract class PagingDataDiffer<T : Any>(
     private val differCallback: DifferCallback,
-    private val mainContext: CoroutineContext = Dispatchers.Main
+    private val mainContext: CoroutineContext = Dispatchers.Main,
+    cachedPagingData: PagingData<T>? = null,
 ) {
-    private var presenter: PagePresenter<T> = PagePresenter.initial()
     private var hintReceiver: HintReceiver? = null
     private var uiReceiver: UiReceiver? = null
-    private val combinedLoadStatesCollection = MutableCombinedLoadStateCollection()
+    private var presenter: PagePresenter<T> = PagePresenter.initial(cachedPagingData?.cachedEvent())
+    private val combinedLoadStatesCollection = MutableCombinedLoadStateCollection().apply {
+        cachedPagingData?.cachedEvent()?.let { set(it.sourceLoadStates, it.mediatorLoadStates) }
+    }
     private val onPagesUpdatedListeners = CopyOnWriteArrayList<() -> Unit>()
 
     private val collectFromRunner = SingleRunner()

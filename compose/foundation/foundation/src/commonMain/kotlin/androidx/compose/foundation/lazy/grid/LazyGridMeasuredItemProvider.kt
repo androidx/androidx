@@ -37,12 +37,13 @@ internal class LazyGridMeasuredItemProvider @ExperimentalFoundationApi construct
      * with the provided [constraints] and wrapped into [LazyGridMeasuredItem].
      */
     fun getAndMeasure(
-        index: ItemIndex,
+        index: Int,
         mainAxisSpacing: Int = defaultMainAxisSpacing,
         constraints: Constraints
     ): LazyGridMeasuredItem {
-        val key = itemProvider.getKey(index.value)
-        val placeables = measureScope.measure(index.value, constraints)
+        val key = keyIndexMap.getKey(index) ?: itemProvider.getKey(index)
+        val contentType = itemProvider.getContentType(index)
+        val placeables = measureScope.measure(index, constraints)
         val crossAxisSize = if (constraints.hasFixedWidth) {
             constraints.minWidth
         } else {
@@ -52,6 +53,7 @@ internal class LazyGridMeasuredItemProvider @ExperimentalFoundationApi construct
         return measuredItemFactory.createItem(
             index,
             key,
+            contentType,
             crossAxisSize,
             mainAxisSpacing,
             placeables
@@ -62,14 +64,15 @@ internal class LazyGridMeasuredItemProvider @ExperimentalFoundationApi construct
      * Contains the mapping between the key and the index. It could contain not all the items of
      * the list as an optimization.
      **/
-    val keyToIndexMap: LazyLayoutKeyIndexMap get() = itemProvider.keyToIndexMap
+    val keyIndexMap: LazyLayoutKeyIndexMap = itemProvider.keyIndexMap
 }
 
 // This interface allows to avoid autoboxing on index param
 internal fun interface MeasuredItemFactory {
     fun createItem(
-        index: ItemIndex,
+        index: Int,
         key: Any,
+        contentType: Any?,
         crossAxisSize: Int,
         mainAxisSpacing: Int,
         placeables: List<Placeable>

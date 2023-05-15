@@ -76,6 +76,8 @@ import androidx.collection.SimpleArrayMap;
 import androidx.core.R;
 import androidx.core.util.Preconditions;
 import androidx.core.view.AccessibilityDelegateCompat.AccessibilityDelegateAdapter;
+import androidx.core.view.HapticFeedbackConstantsCompat.HapticFeedbackFlags;
+import androidx.core.view.HapticFeedbackConstantsCompat.HapticFeedbackType;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat;
 import androidx.core.view.accessibility.AccessibilityNodeProviderCompat;
@@ -1480,6 +1482,58 @@ public class ViewCompat {
             return Api16Impl.performAccessibilityAction(view, action, arguments);
         }
         return false;
+    }
+
+    /**
+     * Perform a haptic feedback to the user for the view.
+     *
+     * <p>The framework will provide haptic feedback for some built in actions, such as long
+     * presses, but you may wish to provide feedback for your own widget.
+     *
+     * <p>The feedback will only be performed if {@link android.view.View#isHapticFeedbackEnabled()}
+     * is true.
+     *
+     * <em>Note:</em> Check compatibility support for each feedback constant described at
+     * {@link HapticFeedbackConstantsCompat}.
+     *
+     * @param view             The view.
+     * @param feedbackConstant One of the constants defined in {@link HapticFeedbackConstantsCompat}
+     * @return Whether the feedback might be performed - generally this result should be ignored
+     */
+    public static boolean performHapticFeedback(@NonNull View view,
+            @HapticFeedbackType int feedbackConstant) {
+        feedbackConstant =
+                HapticFeedbackConstantsCompat.getFeedbackConstantOrFallback(feedbackConstant);
+        if (feedbackConstant == HapticFeedbackConstantsCompat.NO_HAPTICS) {
+            // This compat implementation is straightforward.
+            return false;
+        }
+        return view.performHapticFeedback(feedbackConstant);
+    }
+
+    /**
+     * Perform a haptic feedback to the user for the view.
+     *
+     * <p>This is similar to {@link #performHapticFeedback(android.view.View, int)}, with
+     * additional options.
+     *
+     * <em>Note:</em> Check compatibility support for each feedback constant described at
+     * {@link HapticFeedbackConstantsCompat}.
+     *
+     * @param view             The view.
+     * @param feedbackConstant One of the constants defined in {@link HapticFeedbackConstantsCompat}
+     * @param flags            Additional flags as per {@link HapticFeedbackConstantsCompat}
+     * @return Whether the feedback might be performed - generally this result should be ignored
+     */
+    public static boolean performHapticFeedback(@NonNull View view,
+            @HapticFeedbackType int feedbackConstant, @HapticFeedbackFlags int flags) {
+        feedbackConstant =
+                HapticFeedbackConstantsCompat.getFeedbackConstantOrFallback(feedbackConstant);
+        if (feedbackConstant == HapticFeedbackConstantsCompat.NO_HAPTICS) {
+            // This compat implementation is straightforward.
+            return false;
+        }
+        return view.performHapticFeedback(feedbackConstant, flags);
     }
 
     /**

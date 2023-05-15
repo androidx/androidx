@@ -117,8 +117,10 @@ internal fun <T, V : AnimationVector>
         )
         values[endTimeMs] = this.getValueFromNanos(millisToNanos(endTimeMs))
 
-        for (millis in startTimeMs..endTimeMs step stepMs) {
+        var millis = startTimeMs
+        while (millis <= endTimeMs) {
             values[millis] = this.getValueFromNanos(millisToNanos(millis))
+            millis += stepMs
         }
         values
     }
@@ -145,8 +147,10 @@ internal fun <T, V : AnimationVector>
         )
         values[endTimeMs] = this.animation.getValueFromNanos(millisToNanos(endTimeMs))
 
-        for (millis in startTimeMs..endTimeMs step stepMs) {
+        var millis = startTimeMs
+        while (millis <= endTimeMs) {
             values[millis] = this.animation.getValueFromNanos(millisToNanos(millis))
+            millis += stepMs
         }
         values
     }

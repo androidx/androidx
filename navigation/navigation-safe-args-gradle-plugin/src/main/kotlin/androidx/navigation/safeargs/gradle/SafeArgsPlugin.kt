@@ -23,6 +23,9 @@ import com.android.build.api.variant.LibraryVariant
 import com.android.build.gradle.AppExtension
 import com.android.build.gradle.BaseExtension
 import com.android.build.gradle.LibraryExtension
+import java.io.File
+import java.util.Locale
+import javax.inject.Inject
 import org.gradle.api.GradleException
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -30,9 +33,6 @@ import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.provider.Provider
 import org.gradle.api.provider.ProviderFactory
 import org.jetbrains.kotlin.gradle.dsl.KotlinProjectExtension
-import java.io.File
-import java.util.Locale
-import javax.inject.Inject
 
 private const val PLUGIN_DIRNAME = "navigation-args"
 internal const val GENERATED_PATH = "generated/source/$PLUGIN_DIRNAME"

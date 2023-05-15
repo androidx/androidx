@@ -42,6 +42,8 @@ import androidx.lifecycle.ViewModelStoreOwner
 import androidx.navigation.NavDestination.Companion.createRoute
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
+import java.util.concurrent.CopyOnWriteArrayList
+import java.util.concurrent.atomic.AtomicInteger
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -49,8 +51,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
-import java.util.concurrent.CopyOnWriteArrayList
-import java.util.concurrent.atomic.AtomicInteger
 
 /**
  * NavController manages app navigation within a [NavHost].
@@ -1605,7 +1605,7 @@ public open class NavController(
      * @param navOptions special options for this navigation operation
      * @param navigatorExtras extras to pass to the Navigator
      *
-     * @throws IllegalStateException if there is no current navigation node
+     * @throws IllegalStateException if navigation graph has not been set for this NavController
      * @throws IllegalArgumentException if the desired destination cannot be found from the
      *                                  current destination
      */
@@ -1622,7 +1622,10 @@ public open class NavController(
                 _graph
             else
                 backQueue.last().destination
-            ) ?: throw IllegalStateException("no current navigation node")
+            ) ?: throw IllegalStateException(
+                "No current destination found. Ensure a navigation graph has been set for " +
+                    "NavController $this."
+            )
 
         @IdRes
         var destId = resId
@@ -1772,6 +1775,10 @@ public open class NavController(
         navOptions: NavOptions?,
         navigatorExtras: Navigator.Extras?
     ) {
+        requireNotNull(_graph) {
+            "Cannot navigate to $request. Navigation graph has not been set for " +
+                "NavController $this."
+        }
         val deepLinkMatch = _graph!!.matchDeepLink(request)
         if (deepLinkMatch != null) {
             val destination = deepLinkMatch.destination

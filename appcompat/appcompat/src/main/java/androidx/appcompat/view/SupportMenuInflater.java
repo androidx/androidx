@@ -39,6 +39,7 @@ import android.view.View;
 import androidx.annotation.LayoutRes;
 import androidx.annotation.RestrictTo;
 import androidx.appcompat.R;
+import androidx.appcompat.view.menu.MenuBuilder;
 import androidx.appcompat.view.menu.MenuItemImpl;
 import androidx.appcompat.view.menu.MenuItemWrapperICS;
 import androidx.appcompat.widget.DrawableUtils;
@@ -121,16 +122,32 @@ public class SupportMenuInflater extends MenuInflater {
         }
 
         XmlResourceParser parser = null;
+        boolean wasDispatchingItemsChanged = false;
+
         try {
             parser = mContext.getResources().getLayout(menuRes);
             AttributeSet attrs = Xml.asAttributeSet(parser);
 
+            // We're going to be inflating multiple items, so we want to dispatch the item
+            // changed event *once* at the end, rather than for every item added.
+            // However, we should only stop dispatching (and thus restart afterward) if we were
+            // already dispatching.  Otherwise, we risk restarting dispatching when someone had
+            // intended for it to remain off.
+            MenuBuilder menuBuilder;
+            if (menu instanceof MenuBuilder
+                    && (menuBuilder = (MenuBuilder) menu).isDispatchingItemsChanged()) {
+                menuBuilder.stopDispatchingItemsChanged();
+                wasDispatchingItemsChanged = true;
+            }
             parseMenu(parser, attrs, menu);
         } catch (XmlPullParserException e) {
             throw new InflateException("Error inflating menu XML", e);
         } catch (IOException e) {
             throw new InflateException("Error inflating menu XML", e);
         } finally {
+            if (wasDispatchingItemsChanged) {
+                ((MenuBuilder) menu).startDispatchingItemsChanged();
+            }
             if (parser != null) parser.close();
         }
     }

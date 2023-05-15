@@ -39,7 +39,7 @@ class ContentUriValidator {
         this.mUriPermissionValidator = new UriPermissionValidator();
     }
 
-    @VisibleForTesting(otherwise = VisibleForTesting.NONE)
+    @VisibleForTesting
     ContentUriValidator(
             @NonNull Context appContext,
             @NonNull String allowedPackageName,

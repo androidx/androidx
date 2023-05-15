@@ -22,6 +22,7 @@ import static androidx.camera.core.impl.ImageAnalysisConfig.OPTION_IMAGE_READER_
 import static androidx.camera.core.impl.ImageAnalysisConfig.OPTION_ONE_PIXEL_SHIFT_ENABLED;
 import static androidx.camera.core.impl.ImageAnalysisConfig.OPTION_OUTPUT_IMAGE_FORMAT;
 import static androidx.camera.core.impl.ImageAnalysisConfig.OPTION_OUTPUT_IMAGE_ROTATION_ENABLED;
+import static androidx.camera.core.impl.ImageInputConfig.OPTION_INPUT_DYNAMIC_RANGE;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_CUSTOM_ORDERED_RESOLUTIONS;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_DEFAULT_RESOLUTION;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_MAX_RESOLUTION;
@@ -32,6 +33,7 @@ import static androidx.camera.core.impl.ImageOutputConfig.OPTION_TARGET_RESOLUTI
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_TARGET_ROTATION;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_CAMERA_SELECTOR;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_CAPTURE_CONFIG_UNPACKER;
+import static androidx.camera.core.impl.UseCaseConfig.OPTION_CAPTURE_TYPE;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_DEFAULT_CAPTURE_CONFIG;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_DEFAULT_SESSION_CONFIG;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_HIGH_RESOLUTION_DISABLED;
@@ -41,6 +43,7 @@ import static androidx.camera.core.impl.UseCaseConfig.OPTION_TARGET_CLASS;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_TARGET_NAME;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_USE_CASE_EVENT_CALLBACK;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_ZSL_DISABLED;
+import static androidx.camera.core.impl.utils.TransformUtils.within360;
 import static androidx.camera.core.internal.ThreadConfig.OPTION_BACKGROUND_EXECUTOR;
 
 import android.graphics.ImageFormat;
@@ -68,6 +71,7 @@ import androidx.camera.core.impl.Config;
 import androidx.camera.core.impl.ConfigProvider;
 import androidx.camera.core.impl.DeferrableSurface;
 import androidx.camera.core.impl.ImageAnalysisConfig;
+import androidx.camera.core.impl.ImageInputConfig;
 import androidx.camera.core.impl.ImageOutputConfig;
 import androidx.camera.core.impl.ImageOutputConfig.RotationValue;
 import androidx.camera.core.impl.ImmediateSurface;
@@ -93,6 +97,7 @@ import androidx.lifecycle.LifecycleOwner;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.Executor;
 
@@ -214,6 +219,9 @@ public final class ImageAnalysis extends UseCase {
     ////////////////////////////////////////////////////////////////////////////////////////////
     // [UseCase attached dynamic] - Can change but is only available when the UseCase is attached.
     ////////////////////////////////////////////////////////////////////////////////////////////
+
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    SessionConfig.Builder mSessionConfigBuilder;
 
     @Nullable
     private DeferrableSurface mDeferrableSurface;
@@ -368,6 +376,9 @@ public final class ImageAnalysis extends UseCase {
 
         SessionConfig.Builder sessionConfigBuilder = SessionConfig.Builder.createFrom(config,
                 streamSpec.getResolution());
+        if (streamSpec.getImplementationOptions() != null) {
+            sessionConfigBuilder.addImplementationOptions(streamSpec.getImplementationOptions());
+        }
 
         if (mDeferrableSurface != null) {
             mDeferrableSurface.close();
@@ -385,8 +396,7 @@ public final class ImageAnalysis extends UseCase {
 
         sessionConfigBuilder.setExpectedFrameRateRange(streamSpec.getExpectedFrameRateRange());
 
-        sessionConfigBuilder.addSurface(mDeferrableSurface);
-
+        sessionConfigBuilder.addSurface(mDeferrableSurface, streamSpec.getDynamicRange());
 
         sessionConfigBuilder.addErrorListener((sessionConfig, error) -> {
             clearPipeline();
@@ -441,8 +451,7 @@ public final class ImageAnalysis extends UseCase {
      * <p>
      * The rotation can be set when constructing an {@link ImageAnalysis} instance using
      * {@link ImageAnalysis.Builder#setTargetRotation(int)}, or dynamically by calling
-     * {@link ImageAnalysis#setTargetRotation(int)} or
-     * {@link ImageAnalysis#setTargetRotationDegrees(int)}. If not set, the target rotation
+     * {@link ImageAnalysis#setTargetRotation(int)}. If not set, the target rotation
      * defaults to the value of {@link Display#getRotation()} of the default display at the time
      * the use case is created. The use case is fully created once it has been attached to a camera.
      * </p>
@@ -471,10 +480,11 @@ public final class ImageAnalysis extends UseCase {
      * set the target rotation.  This way, the rotation output to the Analyzer will indicate
      * which way is down for a given image.  This is important since display orientation may be
      * locked by device default, user setting, or app configuration, and some devices may not
-     * transition to a reverse-portrait display orientation.  In these cases, use
-     * {@link ImageAnalysis#setTargetRotationDegrees(int)} to set target rotation dynamically
-     * according to the {@link android.view.OrientationEventListener}, without re-creating the
-     * use case. See {@link #setTargetRotationDegrees} for more information.
+     * transition to a reverse-portrait display orientation. In these cases, set target rotation
+     * dynamically according to the {@link android.view.OrientationEventListener}, without
+     * re-creating the use case. {@link UseCase#snapToSurfaceRotation(int)} is a helper function to
+     * convert the orientation of the {@link android.view.OrientationEventListener} to a rotation
+     * value. See {@link UseCase#snapToSurfaceRotation(int)} for more information and sample code.
      *
      * <p>When this function is called, value set by
      * {@link ImageAnalysis.Builder#setTargetResolution(Size)} will be updated automatically to
@@ -497,6 +507,7 @@ public final class ImageAnalysis extends UseCase {
         }
     }
 
+    // TODO(b/277999375): Remove API setTargetRotationDegrees.
     /**
      * Sets the target rotation in degrees.
      *
@@ -560,9 +571,12 @@ public final class ImageAnalysis extends UseCase {
      * @param degrees Desired rotation degree of the output image.
      * @see #setTargetRotation(int)
      * @see #getTargetRotation()
+     * @deprecated Use {@link UseCase#snapToSurfaceRotation(int)} and
+     * {@link #setTargetRotation(int)} to convert and set the rotation.
      */
+    @Deprecated // TODO(b/277999375): Remove API setTargetRotationDegrees.
     public void setTargetRotationDegrees(int degrees) {
-        setTargetRotation(orientationDegreesToSurfaceRotation(degrees));
+        setTargetRotation(snapToSurfaceRotation(within360(degrees)));
     }
 
     /**
@@ -724,9 +738,8 @@ public final class ImageAnalysis extends UseCase {
      * CameraSelector, UseCase...)} API, or null if the use case is not bound yet.
      */
     @Nullable
-    @Override
     public ResolutionInfo getResolutionInfo() {
-        return super.getResolutionInfo();
+        return getResolutionInfoInternal();
     }
 
     /**
@@ -767,7 +780,7 @@ public final class ImageAnalysis extends UseCase {
     public UseCaseConfig<?> getDefaultConfig(boolean applyDefaultConfig,
             @NonNull UseCaseConfigFactory factory) {
         Config captureConfig = factory.getConfig(
-                UseCaseConfigFactory.CaptureType.IMAGE_ANALYSIS,
+                DEFAULT_CONFIG.getConfig().getCaptureType(),
                 ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY);
 
         if (applyDefaultConfig) {
@@ -809,11 +822,23 @@ public final class ImageAnalysis extends UseCase {
     protected StreamSpec onSuggestedStreamSpecUpdated(@NonNull StreamSpec suggestedStreamSpec) {
         final ImageAnalysisConfig config = (ImageAnalysisConfig) getCurrentConfig();
 
-        SessionConfig.Builder sessionConfigBuilder = createPipeline(getCameraId(), config,
+        mSessionConfigBuilder = createPipeline(getCameraId(), config,
                 suggestedStreamSpec);
-        updateSessionConfig(sessionConfigBuilder.build());
+        updateSessionConfig(mSessionConfigBuilder.build());
 
         return suggestedStreamSpec;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @NonNull
+    @Override
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    protected StreamSpec onSuggestedStreamSpecImplementationOptionsUpdated(@NonNull Config config) {
+        mSessionConfigBuilder.addImplementationOptions(config);
+        updateSessionConfig(mSessionConfigBuilder.build());
+        return getAttachedStreamSpec().toBuilder().setImplementationOptions(config).build();
     }
 
     /**
@@ -1004,6 +1029,15 @@ public final class ImageAnalysis extends UseCase {
         private static final int DEFAULT_SURFACE_OCCUPANCY_PRIORITY = 1;
         private static final int DEFAULT_ASPECT_RATIO = AspectRatio.RATIO_4_3;
 
+        /**
+         * Explicitly setting the default dynamic range to SDR (rather than UNSPECIFIED) means
+         * ImageAnalysis won't inherit dynamic ranges from other use cases.
+         */
+        // TODO(b/258099919): ImageAnalysis currently can't support HDR, so we don't expose the
+        //  dynamic range setter and require SDR. We may want to get rid of this default once we
+        //  can support tone-mapping from HDR -> SDR
+        private static final DynamicRange DEFAULT_DYNAMIC_RANGE = DynamicRange.SDR;
+
         private static final ResolutionSelector DEFAULT_RESOLUTION_SELECTOR =
                 new ResolutionSelector.Builder().setAspectRatioStrategy(
                         AspectRatioStrategy.RATIO_4_3_FALLBACK_AUTO_STRATEGY).setResolutionStrategy(
@@ -1018,7 +1052,9 @@ public final class ImageAnalysis extends UseCase {
                     .setDefaultResolution(DEFAULT_TARGET_RESOLUTION)
                     .setSurfaceOccupancyPriority(DEFAULT_SURFACE_OCCUPANCY_PRIORITY)
                     .setTargetAspectRatio(DEFAULT_ASPECT_RATIO)
-                    .setResolutionSelector(DEFAULT_RESOLUTION_SELECTOR);
+                    .setResolutionSelector(DEFAULT_RESOLUTION_SELECTOR)
+                    .setCaptureType(UseCaseConfigFactory.CaptureType.IMAGE_ANALYSIS)
+                    .setDynamicRange(DEFAULT_DYNAMIC_RANGE);
 
             DEFAULT_CONFIG = builder.getUseCaseConfig();
         }
@@ -1035,7 +1071,8 @@ public final class ImageAnalysis extends UseCase {
     public static final class Builder
             implements ImageOutputConfig.Builder<Builder>,
             ThreadConfig.Builder<Builder>,
-            UseCaseConfig.Builder<ImageAnalysis, ImageAnalysisConfig, Builder> {
+            UseCaseConfig.Builder<ImageAnalysis, ImageAnalysisConfig, Builder>,
+            ImageInputConfig.Builder<Builder> {
 
         private final MutableOptionsBundle mMutableConfig;
 
@@ -1293,6 +1330,7 @@ public final class ImageAnalysis extends UseCase {
          */
         @NonNull
         @Override
+        @Deprecated
         public Builder setTargetAspectRatio(@AspectRatio.Ratio int aspectRatio) {
             if (aspectRatio == AspectRatio.RATIO_DEFAULT) {
                 aspectRatio = Defaults.DEFAULT_ASPECT_RATIO;
@@ -1314,9 +1352,8 @@ public final class ImageAnalysis extends UseCase {
          * Rotation values are relative to the "natural" rotation, {@link Surface#ROTATION_0}.
          *
          * <p>In general, it is best to additionally set the target rotation dynamically on the use
-         * case.  See
-         * {@link androidx.camera.core.ImageAnalysis#setTargetRotationDegrees(int)} for additional
-         * documentation.
+         * case. See {@link androidx.camera.core.ImageAnalysis#setTargetRotation(int)} for
+         * additional documentation.
          *
          * <p>If not set, the target rotation will default to the value of
          * {@link android.view.Display#getRotation()} of the default display at the time the
@@ -1325,7 +1362,6 @@ public final class ImageAnalysis extends UseCase {
          * @param rotation The rotation of the intended target.
          * @return The current Builder.
          * @see androidx.camera.core.ImageAnalysis#setTargetRotation(int)
-         * @see androidx.camera.core.ImageAnalysis#setTargetRotationDegrees(int)
          * @see android.view.OrientationEventListener
          */
         @NonNull
@@ -1398,6 +1434,7 @@ public final class ImageAnalysis extends UseCase {
          */
         @NonNull
         @Override
+        @Deprecated
         public Builder setTargetResolution(@NonNull Size resolution) {
             getMutableConfig()
                     .insertOption(ImageOutputConfig.OPTION_TARGET_RESOLUTION, resolution);
@@ -1594,6 +1631,38 @@ public final class ImageAnalysis extends UseCase {
         @Override
         public Builder setHighResolutionDisabled(boolean disabled) {
             getMutableConfig().insertOption(OPTION_HIGH_RESOLUTION_DISABLED, disabled);
+            return this;
+        }
+
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        @Override
+        public Builder setCaptureType(@NonNull UseCaseConfigFactory.CaptureType captureType) {
+            getMutableConfig().insertOption(OPTION_CAPTURE_TYPE, captureType);
+            return this;
+        }
+
+        // Implementations of ImageInputConfig.Builder default methods
+
+        /**
+         * Sets the {@link DynamicRange}.
+         *
+         * <p>This is currently only exposed to internally set the dynamic range to SDR.
+         * @return The current Builder.
+         * @see DynamicRange
+         */
+        @RestrictTo(Scope.LIBRARY)
+        @NonNull
+        @Override
+        public Builder setDynamicRange(@NonNull DynamicRange dynamicRange) {
+            // TODO(b/258099919): ImageAnalysis currently can't support HDR, so we require SDR.
+            //  It's possible to support other DynamicRanges through tone-mapping or by exposing
+            //  other ImageReader formats, such as YCBCR_P010.
+            if (!Objects.equals(DynamicRange.SDR, dynamicRange)) {
+                throw new UnsupportedOperationException(
+                        "ImageAnalysis currently only supports SDR");
+            }
+            getMutableConfig().insertOption(OPTION_INPUT_DYNAMIC_RANGE, dynamicRange);
             return this;
         }
     }

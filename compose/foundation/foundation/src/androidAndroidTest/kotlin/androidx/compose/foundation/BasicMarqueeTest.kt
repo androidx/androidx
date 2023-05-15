@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
@@ -40,15 +41,25 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.toPixelMap
+import androidx.compose.ui.layout.IntrinsicMeasurable
+import androidx.compose.ui.layout.IntrinsicMeasureScope
+import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.layout.Measurable
+import androidx.compose.ui.layout.MeasurePolicy
+import androidx.compose.ui.layout.MeasureResult
+import androidx.compose.ui.layout.MeasureScope
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onRoot
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
@@ -125,7 +136,8 @@ class BasicMarqueeTest {
 
     @Suppress("UnnecessaryOptInAnnotation")
     @OptIn(ExperimentalTestApi::class)
-    @Test fun animates_whenAnimationsDisabledBySystem() {
+    @Test
+    fun animates_whenAnimationsDisabledBySystem() {
         motionDurationScale.scaleFactor = 0f
 
         rule.setContent {
@@ -1038,6 +1050,112 @@ class BasicMarqueeTest {
         rule.runOnIdle {
             assertThat(outerDraws).isEqualTo(1)
             assertThat(innerDraws).isEqualTo(iterations + 1)
+        }
+    }
+
+    @Test
+    fun intrinsicsCalculations() {
+        val childMinIntrinsicWidth = 10
+        val childMaxIntrinsicWidth = 20
+        val childMinIntrinsicHeight = 30
+        val childMaxIntrinsicHeight = 40
+        val fixedIntrinsicsMeasurePolicy = object : MeasurePolicy {
+            override fun MeasureScope.measure(
+                measurables: List<Measurable>,
+                constraints: Constraints
+            ): MeasureResult = layout(0, 0) {}
+
+            override fun IntrinsicMeasureScope.minIntrinsicWidth(
+                measurables: List<IntrinsicMeasurable>,
+                height: Int
+            ): Int = childMinIntrinsicWidth
+
+            override fun IntrinsicMeasureScope.maxIntrinsicWidth(
+                measurables: List<IntrinsicMeasurable>,
+                height: Int
+            ): Int = childMaxIntrinsicWidth
+
+            override fun IntrinsicMeasureScope.minIntrinsicHeight(
+                measurables: List<IntrinsicMeasurable>,
+                width: Int
+            ): Int = childMinIntrinsicHeight
+
+            override fun IntrinsicMeasureScope.maxIntrinsicHeight(
+                measurables: List<IntrinsicMeasurable>,
+                width: Int
+            ): Int = childMaxIntrinsicHeight
+        }
+        var minIntrinsicWidth = -1
+        var maxIntrinsicWidth = -1
+        var minIntrinsicHeight = -1
+        var maxIntrinsicHeight = -1
+
+        rule.setContent {
+            Layout(
+                modifier = Modifier
+                    .layout { measurable, _ ->
+                        minIntrinsicWidth = measurable.minIntrinsicWidth(0)
+                        maxIntrinsicWidth = measurable.maxIntrinsicWidth(0)
+                        minIntrinsicHeight = measurable.minIntrinsicHeight(0)
+                        maxIntrinsicHeight = measurable.maxIntrinsicHeight(0)
+                        layout(0, 0) {}
+                    }
+                    .basicMarqueeWithTestParams(),
+                measurePolicy = fixedIntrinsicsMeasurePolicy
+            )
+        }
+
+        rule.runOnIdle {
+            assertThat(minIntrinsicWidth).isEqualTo(0)
+            assertThat(maxIntrinsicWidth).isEqualTo(childMaxIntrinsicWidth)
+            assertThat(minIntrinsicHeight).isEqualTo(childMinIntrinsicHeight)
+            assertThat(maxIntrinsicHeight).isEqualTo(childMaxIntrinsicHeight)
+        }
+    }
+
+    /** See b/278729564. */
+    @Test
+    fun readingIntrinsicsDoesntCauseMeasureLoop() {
+        var outerMeasures = 0
+
+        rule.setContent {
+            Box(
+                Modifier
+                    .width(10.dp)
+                    .layout { measurable, constraints ->
+                        outerMeasures++
+
+                        // Querying the intrinsics should _not_ cause measure to be invalidated on
+                        // the next frame.
+                        measurable.maxIntrinsicWidth(0)
+
+                        val placeable = measurable.measure(constraints)
+                        layout(placeable.width, placeable.height) {
+                            placeable.place(0, 0)
+                        }
+                    }
+                    .basicMarqueeWithTestParams(
+                        iterations = Int.MAX_VALUE,
+                        initialDelayMillis = 0,
+                        delayMillis = 0,
+                        animationMode = Immediately
+                    )
+            ) {
+                BasicText(text = "the quick brown fox jumped over the lazy dogs")
+            }
+        }
+
+        rule.runOnIdle {
+            assertThat(outerMeasures).isEqualTo(2)
+        }
+
+        // Let the animation run for a few frames.
+        repeat(10) {
+            rule.mainClock.advanceTimeByFrame()
+        }
+
+        rule.runOnIdle {
+            assertThat(outerMeasures).isEqualTo(2)
         }
     }
 

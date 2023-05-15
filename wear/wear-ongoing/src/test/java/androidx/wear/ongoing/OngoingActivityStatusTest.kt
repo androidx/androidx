@@ -3,6 +3,7 @@ package androidx.wear.ongoing
 import android.content.Context
 import android.os.Build
 import androidx.test.core.app.ApplicationProvider
+import java.lang.IllegalStateException
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Before
@@ -10,7 +11,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
-import java.lang.IllegalStateException
 
 @RunWith(PatchedRobolectricTestRunner::class)
 @DoNotInstrument

@@ -45,9 +45,11 @@ import java.util.UUID;
 public class FakeUseCaseConfig implements UseCaseConfig<FakeUseCase>, ImageOutputConfig {
 
     private final Config mConfig;
+    private final CaptureType mCaptureType;
 
-    FakeUseCaseConfig(Config config) {
+    FakeUseCaseConfig(Config config, CaptureType captureType) {
         mConfig = config;
+        mCaptureType = captureType;
     }
 
     @NonNull
@@ -60,6 +62,12 @@ public class FakeUseCaseConfig implements UseCaseConfig<FakeUseCase>, ImageOutpu
     public int getInputFormat() {
         return retrieveOption(OPTION_INPUT_FORMAT,
                 INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE);
+    }
+
+    @NonNull
+    @Override
+    public CaptureType getCaptureType() {
+        return mCaptureType;
     }
 
     /** Builder for an empty Config */
@@ -103,7 +111,7 @@ public class FakeUseCaseConfig implements UseCaseConfig<FakeUseCase>, ImageOutpu
         @NonNull
         @Override
         public FakeUseCaseConfig getUseCaseConfig() {
-            return new FakeUseCaseConfig(OptionsBundle.from(mOptionsBundle));
+            return new FakeUseCaseConfig(OptionsBundle.from(mOptionsBundle), mCaptureType);
         }
 
         @Override
@@ -272,6 +280,13 @@ public class FakeUseCaseConfig implements UseCaseConfig<FakeUseCase>, ImageOutpu
         @Override
         public Builder setHighResolutionDisabled(boolean disabled) {
             getMutableConfig().insertOption(OPTION_HIGH_RESOLUTION_DISABLED, disabled);
+            return this;
+        }
+
+        @NonNull
+        @Override
+        public Builder setCaptureType(@NonNull CaptureType captureType) {
+            getMutableConfig().insertOption(OPTION_CAPTURE_TYPE, captureType);
             return this;
         }
     }

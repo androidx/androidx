@@ -60,8 +60,16 @@ internal object Camera2CaptureSessionsModule {
         androidMHighSpeedProvider: Provider<AndroidMHighSpeedSessionFactory>,
         androidNProvider: Provider<AndroidNSessionFactory>,
         androidPProvider: Provider<AndroidPSessionFactory>,
+        androidExtensionProvider: Provider<AndroidExtensionSessionFactory>,
         graphConfig: CameraGraph.Config
     ): CaptureSessionFactory {
+        if (graphConfig.sessionMode == CameraGraph.OperatingMode.EXTENSION) {
+            check(Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                "Cannot use Extension sessions below Android S"
+            }
+            return androidExtensionProvider.get()
+        }
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             return androidPProvider.get()
         }
@@ -248,6 +256,8 @@ constructor(
             when (graphConfig.sessionMode) {
                 CameraGraph.OperatingMode.NORMAL -> SessionConfigData.SESSION_TYPE_REGULAR
                 CameraGraph.OperatingMode.HIGH_SPEED -> SessionConfigData.SESSION_TYPE_HIGH_SPEED
+                else -> throw IllegalArgumentException(
+                    "Unsupported session mode: ${graphConfig.sessionMode}")
             }
 
         val outputs = buildOutputConfigurations(
@@ -387,6 +397,65 @@ internal fun buildOutputConfigurations(
     }
 
     return OutputConfigurations(allOutputs, deferredOutputs)
+}
+
+@RequiresApi(Build.VERSION_CODES.S)
+internal class AndroidExtensionSessionFactory
+@Inject
+constructor(
+    private val threads: Threads,
+    private val graphConfig: CameraGraph.Config,
+    private val streamGraph: StreamGraphImpl,
+    private val camera2MetadataProvider: Camera2MetadataProvider
+) : CaptureSessionFactory {
+    override fun create(
+        cameraDevice: CameraDeviceWrapper,
+        surfaces: Map<StreamId, Surface>,
+        captureSessionState: CaptureSessionState,
+    ): Map<StreamId, OutputConfigurationWrapper> {
+        val operatingMode =
+            when (graphConfig.sessionMode) {
+                CameraGraph.OperatingMode.EXTENSION -> SessionConfigData.SESSION_TYPE_EXTENSION
+                else -> throw IllegalArgumentException(
+                    "Unsupported session mode: ${graphConfig.sessionMode}")
+            }
+
+        val outputs = buildOutputConfigurations(
+            graphConfig,
+            streamGraph,
+            surfaces,
+            camera2MetadataProvider,
+            cameraDevice.cameraId
+        )
+        if (outputs.all.isEmpty()) {
+            Log.warn { "Failed to create OutputConfigurations for $graphConfig" }
+            return emptyMap()
+        }
+
+        check(graphConfig.input == null) { "Reprocessing is not supported for Extensions" }
+
+        // TODO(b/276971147): get extensionMode from metadata and create extensionCaptureCallback
+        val sessionConfig =
+            SessionConfigData(
+                operatingMode,
+                graphConfig.input,
+                outputs.all,
+                threads.camera2Executor,
+                captureSessionState,
+                graphConfig.sessionTemplate.value,
+                graphConfig.sessionParameters
+            )
+
+        if (!cameraDevice.createExtensionSession(sessionConfig)) {
+            Log.warn {
+                "Failed to create ExtensionCaptureSession from $cameraDevice " +
+                    "for $captureSessionState!"
+            }
+            captureSessionState.disconnect()
+        }
+
+        return emptyMap()
+    }
 }
 
 internal data class OutputConfigurations(

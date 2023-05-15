@@ -37,4 +37,49 @@
             file="src/main/java/androidx/javascriptengine/common/Utils.java"/>
     </issue>
 
+    <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="interface IJsSandboxConsoleCallback {"
+        errorLine2="^">
+        <location
+            file="src/main/aidl/org/chromium/android_webview/js_sandbox/common/IJsSandboxConsoleCallback.aidl"/>
+    </issue>
+
+    <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="interface IJsSandboxIsolate {"
+        errorLine2="^">
+        <location
+            file="src/main/aidl/org/chromium/android_webview/js_sandbox/common/IJsSandboxIsolate.aidl"/>
+    </issue>
+
+    <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="oneway interface IJsSandboxIsolateCallback {"
+        errorLine2="^">
+        <location
+            file="src/main/aidl/org/chromium/android_webview/js_sandbox/common/IJsSandboxIsolateCallback.aidl"/>
+    </issue>
+
+    <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="interface IJsSandboxIsolateSyncCallback {"
+        errorLine2="^">
+        <location
+            file="src/main/aidl/org/chromium/android_webview/js_sandbox/common/IJsSandboxIsolateSyncCallback.aidl"/>
+    </issue>
+
+    <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="interface IJsSandboxService {"
+        errorLine2="^">
+        <location
+            file="src/main/aidl/org/chromium/android_webview/js_sandbox/common/IJsSandboxService.aidl"/>
+    </issue>
+
 </issues>

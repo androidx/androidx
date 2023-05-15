@@ -21,6 +21,7 @@ import androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP
 import androidx.benchmark.macro.perfetto.server.PerfettoHttpServer
 import androidx.benchmark.userspaceTrace
 import java.io.File
+import java.io.FileInputStream
 import java.io.InputStream
 import org.intellij.lang.annotations.Language
 import perfetto.protos.QueryResult
@@ -292,10 +293,8 @@ class PerfettoTraceProcessor {
                 clearTrace()
             }
 
-            val parseResult = perfettoHttpServer.parse(traceFile.readBytes())
-            if (parseResult.error != null) {
-                throw IllegalStateException(parseResult.error)
-            }
+            val parseResults = perfettoHttpServer.parse(FileInputStream(traceFile))
+            parseResults.forEach { if (it.error != null) throw IllegalStateException(it.error) }
 
             // Notifies the server that it won't receive any more trace parts
             perfettoHttpServer.notifyEof()

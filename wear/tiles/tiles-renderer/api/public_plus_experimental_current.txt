@@ -46,7 +46,7 @@ package androidx.wear.tiles.renderer {
     ctor @Deprecated public TileRenderer(android.content.Context, androidx.wear.tiles.LayoutElementBuilders.Layout, @StyleRes int, androidx.wear.tiles.ResourceBuilders.Resources, java.util.concurrent.Executor, androidx.wear.tiles.renderer.TileRenderer.LoadActionListener);
     ctor public TileRenderer(android.content.Context, java.util.concurrent.Executor, java.util.function.Consumer<androidx.wear.protolayout.StateBuilders.State!>);
     method @Deprecated public android.view.View? inflate(android.view.ViewGroup);
-    method public android.view.View? inflate(androidx.wear.protolayout.LayoutElementBuilders.Layout, androidx.wear.protolayout.ResourceBuilders.Resources, android.view.ViewGroup);
+    method public com.google.common.util.concurrent.ListenableFuture<android.view.View!> inflateAsync(androidx.wear.protolayout.LayoutElementBuilders.Layout, androidx.wear.protolayout.ResourceBuilders.Resources, android.view.ViewGroup);
   }
 
   @Deprecated public static interface TileRenderer.LoadActionListener {

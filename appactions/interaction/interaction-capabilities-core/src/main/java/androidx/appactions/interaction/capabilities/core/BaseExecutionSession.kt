@@ -27,7 +27,7 @@ interface BaseExecutionSession<ArgumentsT, OutputT> {
      *
      * This method is called once, before any other listeners are invoked.
      */
-    fun onCreate(sessionContext: SessionContext) {}
+    fun onCreate(sessionConfig: SessionConfig) {}
 
     /**
      * Called when all arguments are finalized.

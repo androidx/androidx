@@ -21,6 +21,7 @@ import androidx.core.graphics.minus
 import androidx.test.filters.SmallTest
 import kotlin.AssertionError
 import kotlin.math.sqrt
+import org.junit.Assert
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertThrows
 import org.junit.Test
@@ -90,14 +91,24 @@ class ShapesTest {
 
     @Test
     fun circleTest() {
-        val circle = Circle()
+        Assert.assertThrows(IllegalArgumentException::class.java) {
+            RoundedPolygon.circle(2)
+        }
+
+        val circle = RoundedPolygon.circle()
         assertCircleShape(circle.toCubicShape())
 
-        val bigCircle = Circle(radius = 3f)
+        val simpleCircle = RoundedPolygon.circle(3)
+        assertCircleShape(simpleCircle.toCubicShape())
+
+        val complexCircle = RoundedPolygon.circle(20)
+        assertCircleShape(complexCircle.toCubicShape())
+
+        val bigCircle = RoundedPolygon.circle(radius = 3f)
         assertCircleShape(bigCircle.toCubicShape(), radius = 3f)
 
         val center = PointF(1f, 2f)
-        val offsetCircle = Circle(center = center)
+        val offsetCircle = RoundedPolygon.circle(center = center)
         assertCircleShape(offsetCircle.toCubicShape(), center = center)
     }
 
@@ -108,7 +119,7 @@ class ShapesTest {
      */
     @Test
     fun starTest() {
-        var star = Star(4, innerRadius = .5f)
+        var star = RoundedPolygon.star(4, innerRadius = .5f)
         var shape = star.toCubicShape()
         var radius = 1f
         var innerRadius = .5f
@@ -117,7 +128,7 @@ class ShapesTest {
         }
 
         val center = PointF(1f, 2f)
-        star = Star(4, innerRadius = innerRadius, center = center)
+        star = RoundedPolygon.star(4, innerRadius = innerRadius, center = center)
         shape = star.toCubicShape()
         for (cubic in shape.cubics) {
             assertCubicOnRadii(cubic, radius, innerRadius, center)
@@ -125,7 +136,7 @@ class ShapesTest {
 
         radius = 4f
         innerRadius = 2f
-        star = Star(4, radius, innerRadius)
+        star = RoundedPolygon.star(4, radius, innerRadius)
         shape = star.toCubicShape()
         for (cubic in shape.cubics) {
             assertCubicOnRadii(cubic, radius, innerRadius)
@@ -139,25 +150,25 @@ class ShapesTest {
         val perVtxRounded = listOf<CornerRounding>(rounding, innerRounding, rounding, innerRounding,
             rounding, innerRounding, rounding, innerRounding)
 
-        var star = Star(4, innerRadius = .5f, rounding = rounding)
+        var star = RoundedPolygon.star(4, innerRadius = .5f, rounding = rounding)
         val min = PointF(-1f, -1f)
         val max = PointF(1f, 1f)
         assertInBounds(star.toCubicShape(), min, max)
 
-        star = Star(4, innerRadius = .5f, innerRounding = innerRounding)
+        star = RoundedPolygon.star(4, innerRadius = .5f, innerRounding = innerRounding)
         assertInBounds(star.toCubicShape(), min, max)
 
-        star = Star(
+        star = RoundedPolygon.star(
             4, innerRadius = .5f, rounding = rounding,
             innerRounding = innerRounding
         )
         assertInBounds(star.toCubicShape(), min, max)
 
-        star = Star(4, innerRadius = .5f, perVertexRounding = perVtxRounded)
+        star = RoundedPolygon.star(4, innerRadius = .5f, perVertexRounding = perVtxRounded)
         assertInBounds(star.toCubicShape(), min, max)
 
         assertThrows(IllegalArgumentException::class.java) {
-            star = Star(
+            star = RoundedPolygon.star(
                 6, innerRadius = .5f,
                 perVertexRounding = perVtxRounded
             )

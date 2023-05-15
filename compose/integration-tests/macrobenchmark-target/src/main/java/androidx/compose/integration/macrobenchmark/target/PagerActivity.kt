@@ -44,7 +44,7 @@ class PagerActivity : ComponentActivity() {
         val itemCount = intent.getIntExtra(ExtraItemCount, 3000)
 
         setContent {
-            val pagerState = rememberPagerState()
+            val pagerState = rememberPagerState { itemCount }
             Box(
                 modifier = Modifier
                     .fillMaxSize(),
@@ -56,8 +56,7 @@ class PagerActivity : ComponentActivity() {
                         .semantics { contentDescription = "Pager" }
                         .background(Color.White),
                     state = pagerState,
-                    pageSize = PageSize.Fill,
-                    pageCount = itemCount
+                    pageSize = PageSize.Fill
                 ) {
                     PagerItem(it)
                 }

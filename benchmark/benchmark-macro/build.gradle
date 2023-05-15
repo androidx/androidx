@@ -80,7 +80,7 @@ dependencies {
 }
 
 androidx {
-    name = "Android Benchmark - Macrobenchmark"
+    name = "Benchmark - Macrobenchmark"
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2020"
     description = "Android Benchmark - Macrobenchmark"
@@ -150,11 +150,18 @@ wire {
 // https://github.com/square/wire/issues/1947
 // Remove when we upgrade to fixed wire library
 afterEvaluate {
-    tasks.named("compileReleaseKotlin").configure {
+    tasks.named("compileDebugKotlin").configure {
         it.dependsOn("generateDebugProtos")
     }
-    tasks.named("compileDebugKotlin").configure {
+    tasks.named("compileReleaseKotlin").configure {
         it.dependsOn("generateReleaseProtos")
+    }
+}
+
+androidx {
+    deviceTests {
+        targetAppProject = project(":benchmark:integration-tests:macrobenchmark-target")
+        targetAppVariant = "release"
     }
 }
 

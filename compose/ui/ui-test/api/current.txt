@@ -305,7 +305,7 @@ package androidx.compose.ui.test {
   }
 
   public static final class SemanticsMatcher.Companion {
-    method public <T> androidx.compose.ui.test.SemanticsMatcher expectValue(androidx.compose.ui.semantics.SemanticsPropertyKey<T> key, T? expectedValue);
+    method public <T> androidx.compose.ui.test.SemanticsMatcher expectValue(androidx.compose.ui.semantics.SemanticsPropertyKey<T> key, T expectedValue);
     method public <T> androidx.compose.ui.test.SemanticsMatcher keyIsDefined(androidx.compose.ui.semantics.SemanticsPropertyKey<T> key);
     method public <T> androidx.compose.ui.test.SemanticsMatcher keyNotDefined(androidx.compose.ui.semantics.SemanticsPropertyKey<T> key);
   }

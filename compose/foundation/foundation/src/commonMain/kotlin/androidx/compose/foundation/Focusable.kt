@@ -40,7 +40,7 @@ import androidx.compose.ui.node.DelegatingNode
 import androidx.compose.ui.node.GlobalPositionAwareModifierNode
 import androidx.compose.ui.node.LayoutAwareModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
-import androidx.compose.ui.node.ObserverNode
+import androidx.compose.ui.node.ObserverModifierNode
 import androidx.compose.ui.node.SemanticsModifierNode
 import androidx.compose.ui.node.currentValueOf
 import androidx.compose.ui.node.invalidateSemantics
@@ -51,6 +51,7 @@ import androidx.compose.ui.platform.LocalInputModeManager
 import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.platform.inspectable
 import androidx.compose.ui.semantics.SemanticsConfiguration
+import androidx.compose.ui.semantics.SemanticsPropertyReceiver
 import androidx.compose.ui.semantics.focused
 import androidx.compose.ui.semantics.requestFocus
 import kotlinx.coroutines.launch
@@ -66,7 +67,6 @@ import kotlinx.coroutines.launch
  * @param interactionSource [MutableInteractionSource] that will be used to emit
  * [FocusInteraction.Focus] when this element is being focused.
  */
-@OptIn(ExperimentalFoundationApi::class)
 fun Modifier.focusable(
     enabled: Boolean = true,
     interactionSource: MutableInteractionSource? = null,
@@ -137,7 +137,7 @@ private val FocusableInNonTouchModeElement =
     object : ModifierNodeElement<FocusableInNonTouchMode>() {
         override fun create(): FocusableInNonTouchMode = FocusableInNonTouchMode()
 
-        override fun update(node: FocusableInNonTouchMode): FocusableInNonTouchMode = node
+        override fun update(node: FocusableInNonTouchMode) {}
 
         override fun hashCode(): Int = System.identityHashCode(this)
 
@@ -154,7 +154,7 @@ private class FocusableInNonTouchMode : Modifier.Node(), CompositionLocalConsume
     private val inputModeManager: InputModeManager
         get() = currentValueOf(LocalInputModeManager)
 
-    override fun modifyFocusProperties(focusProperties: FocusProperties) {
+    override fun applyFocusProperties(focusProperties: FocusProperties) {
         focusProperties.apply {
             canFocus = inputModeManager.inputMode != InputMode.Touch
         }
@@ -168,8 +168,8 @@ private class FocusableElement(
     override fun create(): FocusableNode =
         FocusableNode(interactionSource)
 
-    override fun update(node: FocusableNode) = node.also {
-        it.update(interactionSource)
+    override fun update(node: FocusableNode) {
+        node.update(interactionSource)
     }
 
     override fun equals(other: Any?): Boolean {
@@ -199,12 +199,11 @@ private class FocusableNode(
 
     private var focusState: FocusState? = null
 
-    private val focusableSemanticsNode = delegated { FocusableSemanticsNode() }
-
+    private val focusableSemanticsNode = delegate(FocusableSemanticsNode())
     // (lpf) could we remove this if interactionsource is null?
-    private val focusableInteractionNode = delegated { FocusableInteractionNode(interactionSource) }
-    private val focusablePinnableContainer = delegated { FocusablePinnableContainerNode() }
-    private val focusedBoundsNode = delegated { FocusedBoundsNode() }
+    private val focusableInteractionNode = delegate(FocusableInteractionNode(interactionSource))
+    private val focusablePinnableContainer = delegate(FocusablePinnableContainerNode())
+    private val focusedBoundsNode = delegate(FocusedBoundsNode())
 
     // Focusables have a few different cases where they need to make sure they stay visible:
     //
@@ -218,9 +217,9 @@ private class FocusableNode(
     //    See aosp/1964580.
     private val bringIntoViewRequester = BringIntoViewRequester()
 
-    private val bringIntoViewRequesterNode = delegated {
+    private val bringIntoViewRequesterNode = delegate(
         BringIntoViewRequesterNode(bringIntoViewRequester)
-    }
+    )
 
     // TODO(levima) Remove this once delegation can propagate this events on its own
     override fun onPlaced(coordinates: LayoutCoordinates) =
@@ -248,9 +247,9 @@ private class FocusableNode(
     }
 
     // TODO(levima) Remove this once delegation can propagate this events on its own
-    override val semanticsConfiguration: SemanticsConfiguration
-        get() = focusableSemanticsNode.semanticsConfiguration
-
+    override fun SemanticsPropertyReceiver.applySemantics() {
+        with(focusableSemanticsNode) { applySemantics() }
+    }
     // TODO(levima) Remove this once delegation can propagate this events on its own
     override fun onGloballyPositioned(coordinates: LayoutCoordinates) {
         focusedBoundsNode.onGloballyPositioned(coordinates)
@@ -317,7 +316,7 @@ private class FocusableInteractionNode(
 }
 
 private class FocusablePinnableContainerNode : Modifier.Node(),
-    CompositionLocalConsumerModifierNode, ObserverNode {
+    CompositionLocalConsumerModifierNode, ObserverModifierNode {
     private var pinnedHandle: PinnableContainer.PinnedHandle? = null
     private var isFocused: Boolean = false
 
@@ -364,11 +363,10 @@ private class FocusableSemanticsNode : Modifier.Node(), SemanticsModifierNode,
         this.isFocused = focused
     }
 
-    override val semanticsConfiguration: SemanticsConfiguration
-        get() = semanticsConfigurationCache.apply {
-            focused = isFocused
-            requestFocus {
-                this@FocusableSemanticsNode.requestFocus()
-            }
+    override fun SemanticsPropertyReceiver.applySemantics() {
+        focused = isFocused
+        requestFocus {
+            this@FocusableSemanticsNode.requestFocus()
         }
+    }
 }

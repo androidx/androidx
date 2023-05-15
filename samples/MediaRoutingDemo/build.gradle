@@ -4,14 +4,14 @@ plugins {
 }
 
 dependencies {
-    implementation("androidx.appcompat:appcompat:1.6.0")
+    implementation(project(":appcompat:appcompat"))
     implementation(project(":mediarouter:mediarouter"))
-    implementation("androidx.recyclerview:recyclerview:1.2.1")
-    implementation("androidx.concurrent:concurrent-futures:1.1.0")
-    implementation(libs.material)
+    implementation(project(":recyclerview:recyclerview"))
+    implementation(project(":concurrent:concurrent-futures"))
 
-    implementation ("androidx.multidex:multidex:2.0.1")
-    implementation("com.google.guava:guava:31.1-android")
+    implementation(libs.material)
+    implementation(libs.multidex)
+    implementation(libs.guava)
 }
 
 android {

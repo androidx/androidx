@@ -48,9 +48,9 @@ internal class LazyGridMeasuredLineProvider(
         }
     }
 
-    fun itemConstraints(itemIndex: ItemIndex): Constraints {
+    fun itemConstraints(itemIndex: Int): Constraints {
         val span = spanLayoutProvider.spanOf(
-            itemIndex.value,
+            itemIndex,
             spanLayoutProvider.slotsPerLine
         )
         return childConstraints(0, span)
@@ -60,8 +60,8 @@ internal class LazyGridMeasuredLineProvider(
      * Used to subcompose items on lines of lazy grids. Composed placeables will be measured
      * with the correct constraints and wrapped into [LazyGridMeasuredLine].
      */
-    fun getAndMeasure(lineIndex: LineIndex): LazyGridMeasuredLine {
-        val lineConfiguration = spanLayoutProvider.getLineConfiguration(lineIndex.value)
+    fun getAndMeasure(lineIndex: Int): LazyGridMeasuredLine {
+        val lineConfiguration = spanLayoutProvider.getLineConfiguration(lineIndex)
         val lineItemsCount = lineConfiguration.spans.size
 
         // we add space between lines as an extra spacing for all lines apart from the last one
@@ -78,7 +78,7 @@ internal class LazyGridMeasuredLineProvider(
             val span = lineConfiguration.spans[it].currentLineSpan
             val constraints = childConstraints(startSlot, span)
             measuredItemProvider.getAndMeasure(
-                ItemIndex(lineConfiguration.firstItemIndex + it),
+                lineConfiguration.firstItemIndex + it,
                 mainAxisSpacing,
                 constraints
             ).also { startSlot += span }
@@ -95,14 +95,14 @@ internal class LazyGridMeasuredLineProvider(
      * Contains the mapping between the key and the index. It could contain not all the items of
      * the list as an optimization.
      **/
-    val keyToIndexMap: LazyLayoutKeyIndexMap get() = measuredItemProvider.keyToIndexMap
+    val keyIndexMap: LazyLayoutKeyIndexMap get() = measuredItemProvider.keyIndexMap
 }
 
 // This interface allows to avoid autoboxing on index param
 @OptIn(ExperimentalFoundationApi::class)
 internal fun interface MeasuredLineFactory {
     fun createLine(
-        index: LineIndex,
+        index: Int,
         items: Array<LazyGridMeasuredItem>,
         spans: List<GridItemSpan>,
         mainAxisSpacing: Int

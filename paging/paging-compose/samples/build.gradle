@@ -29,12 +29,12 @@ dependencies {
     compileOnly(projectOrArtifact(":annotation:annotation-sampled"))
     implementation(projectOrArtifact(":compose:foundation:foundation"))
     implementation(projectOrArtifact(":compose:material:material"))
+    implementation projectOrArtifact(":compose:ui:ui-tooling")
     implementation(project(":paging:paging-compose"))
-    implementation(project(":internal-testutils-paging"))
 }
 
 androidx {
-    name = "AndroidX Paging Compose Samples"
+    name = "Paging Compose Samples"
     type = LibraryType.SAMPLES
     mavenVersion = LibraryVersions.PAGING_COMPOSE
     inceptionYear = "2020"

@@ -35,3 +35,7 @@ internal interface PagerLayoutInfo {
     val orientation: Orientation
     val reverseLayout: Boolean
 }
+
+@ExperimentalFoundationApi
+internal val PagerLayoutInfo.mainAxisViewportSize: Int
+    get() = if (orientation == Orientation.Vertical) viewportSize.height else viewportSize.width

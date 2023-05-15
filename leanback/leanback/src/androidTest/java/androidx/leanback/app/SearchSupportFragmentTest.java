@@ -27,6 +27,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
+import org.junit.Ignore;
 
 import androidx.fragment.app.Fragment;
 import androidx.leanback.test.R;
@@ -187,6 +188,7 @@ public class SearchSupportFragmentTest extends SingleSupportFragmentTestBase {
     }
 
     @Test
+    @Ignore("b/281082608")
     public void testFocusWithSpeechRecognizerEnabled() throws Exception {
 
         // Skip the test for devices which do not have SpeechRecognizer

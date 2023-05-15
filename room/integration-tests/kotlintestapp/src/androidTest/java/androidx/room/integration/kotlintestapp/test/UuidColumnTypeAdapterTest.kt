@@ -30,11 +30,11 @@ import androidx.room.TypeConverters
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
-import org.junit.Test
-import org.junit.runner.RunWith
 import java.nio.ByteBuffer
 import java.util.UUID
 import kotlin.reflect.KClass
+import org.junit.Test
+import org.junit.runner.RunWith
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)

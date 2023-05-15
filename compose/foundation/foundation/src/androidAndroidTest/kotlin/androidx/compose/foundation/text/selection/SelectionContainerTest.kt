@@ -79,15 +79,15 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
-import org.mockito.kotlin.mock
-import org.mockito.kotlin.times
-import org.mockito.kotlin.verify
 import java.util.concurrent.CountDownLatch
 import kotlin.math.max
 import kotlin.math.sign
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.times
+import org.mockito.kotlin.verify
 
 @LargeTest
 @RunWith(AndroidJUnit4::class)

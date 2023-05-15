@@ -34,34 +34,22 @@ import androidx.annotation.RestrictTo.Scope;
 @SuppressWarnings("deprecation")
 public class Colors {
 
-    /**
-     * The default color used for primary elements (i.e. background color).
-     *
-     */
+    /** The default color used for primary elements (i.e. background color). */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @ColorInt
     public static final int PRIMARY = 0xFFAECBFA;
 
-    /**
-     * The default color used on primary elements (i.e. content color).
-     *
-     */
+    /** The default color used on primary elements (i.e. content color). */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @ColorInt
     public static final int ON_PRIMARY = 0xFF303133;
 
-    /**
-     * The default color used for secondary elements (i.e. background color).
-     *
-     */
+    /** The default color used for secondary elements (i.e. background color). */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @ColorInt
     public static final int SURFACE = 0xFF303133;
 
-    /**
-     * The default color used on secondary elements (i.e. content color).
-     *
-     */
+    /** The default color used on secondary elements (i.e. content color). */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @ColorInt
     public static final int ON_SURFACE = 0xFFFFFFFF;

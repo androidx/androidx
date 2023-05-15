@@ -39,14 +39,14 @@ import androidx.work.impl.utils.SerialExecutorImpl
 import androidx.work.impl.utils.taskexecutor.TaskExecutor
 import androidx.work.multiprocess.RemoteListenableWorker.ARGUMENT_CLASS_NAME
 import androidx.work.multiprocess.RemoteListenableWorker.ARGUMENT_PACKAGE_NAME
+import java.util.concurrent.Executor
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.Mockito.`when`
 import org.mockito.Mockito.mock
-import java.util.concurrent.Executor
+import org.mockito.Mockito.`when`
 
 @RunWith(AndroidJUnit4::class)
 public class RemoteListenableWorkerTest {

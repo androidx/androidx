@@ -59,10 +59,7 @@ internal class ComplicationConfigFragment : Fragment() {
     }
 }
 
-/**
- * Configuration view for watch faces with multiple complicationSlots.
- *
- */
+/** Configuration view for watch faces with multiple complicationSlots. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @SuppressWarnings(
     "ViewConstructor", // Internal view, not intended for use by tools.
@@ -82,8 +79,8 @@ internal class ConfigView(
             // TODO(alexclarke): This button is a Rect which makes the tap animation look bad.
             if (
                 entry.value.fixedComplicationDataSource ||
-                !entry.value.isEnabled ||
-                entry.key == watchFaceConfigActivity.editorSession.backgroundComplicationSlotId
+                    !entry.value.isEnabled ||
+                    entry.key == watchFaceConfigActivity.editorSession.backgroundComplicationSlotId
             ) {
                 // Do not create a button for fixed complicationSlots, disabled complicationSlots,
                 // or background complicationSlots.

@@ -38,6 +38,7 @@ import androidx.camera.camera2.pipe.core.Threads
 import androidx.camera.camera2.pipe.formatForLogs
 import androidx.camera.camera2.pipe.putAllMetadata
 import javax.inject.Inject
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -55,7 +56,31 @@ internal interface GraphProcessor {
 
     fun submit(request: Request)
     fun submit(requests: List<Request>)
-    suspend fun submit(parameters: Map<*, Any?>): Boolean
+
+    /**
+     * This tries to submit a list of parameters — essentially a list of request settings usually
+     * from 3A methods. It does this by setting the given parameters onto the current repeating
+     * request on a best-effort basis.
+     *
+     * If the CameraGraph hasn't been started yet, or we haven't yet submitted a repeating request,
+     * the method will suspend until we've met the criteria and only then submits the parameters.
+     *
+     * This behavior is required if users call 3A methods immediately after start. For example:
+     *
+     * ```
+     * cameraGraph.start()
+     * cameraGraph.acquireSession().use {
+     *     it.startRepeating(request)
+     *     it.lock3A(...)
+     * }
+     * ```
+     *
+     * Under this scenario, developers should reasonably expect things to work, and therefore
+     * the implementation handles this on a best-effort basis for the developer.
+     *
+     * Please read b/263211462 for more context.
+     */
+    suspend fun trySubmit(parameters: Map<*, Any?>): Boolean
 
     fun startRepeating(request: Request)
     fun stopRepeating()
@@ -113,6 +138,12 @@ constructor(
 
     @GuardedBy("lock")
     private var closed = false
+
+    @GuardedBy("lock")
+    private var pendingParameters: Map<*, Any?>? = null
+
+    @GuardedBy("lock")
+    private var pendingParametersDeferred: CompletableDeferred<Boolean>? = null
 
     private val _graphState = MutableStateFlow<GraphState>(GraphStateStopped)
 
@@ -248,11 +279,12 @@ constructor(
     }
 
     /** Submit a request to the camera using only the current repeating request. */
-    override suspend fun submit(parameters: Map<*, Any?>): Boolean =
+    override suspend fun trySubmit(parameters: Map<*, Any?>): Boolean =
         withContext(threads.lightweightDispatcher) {
             val processor: GraphRequestProcessor?
             val request: Request?
             val requiredParameters: MutableMap<Any, Any?> = mutableMapOf()
+            var deferredResult: CompletableDeferred<Boolean>? = null
 
             synchronized(lock) {
                 if (closed) return@withContext false
@@ -262,10 +294,20 @@ constructor(
                 requiredParameters.putAllMetadata(parameters.toMutableMap())
                 graphState3A.writeTo(requiredParameters)
                 requiredParameters.putAllMetadata(cameraGraphConfig.requiredParameters)
+
+                if (processor == null || request == null) {
+                    // If a previous set of parameters haven't been submitted yet, consider it stale
+                    pendingParametersDeferred?.complete(false)
+
+                    debug { "Holding parameters to be submitted later" }
+                    deferredResult = CompletableDeferred<Boolean>()
+                    pendingParametersDeferred = deferredResult
+                    pendingParameters = requiredParameters
+                }
             }
 
             return@withContext when {
-                processor == null || request == null -> false
+                processor == null || request == null -> deferredResult?.await() == true
                 else ->
                     processor.submit(
                         isRepeating = false,
@@ -389,6 +431,7 @@ constructor(
                     synchronized(lock) {
                         if (processor === _requestProcessor) {
                             currentRepeatingRequest = request
+                            trySubmitPendingParameters(processor, request)
                         }
                     }
                     succeededIndex = index
@@ -408,6 +451,25 @@ constructor(
                 // should be placed in the front in order to preserve FIFO order.
                 repeatingQueue.addAll(0, requestsToRetry)
             }
+        }
+    }
+
+    @GuardedBy("lock")
+    private fun trySubmitPendingParameters(processor: GraphRequestProcessor, request: Request) {
+        val parameters = pendingParameters
+        val deferred = pendingParametersDeferred
+        if (parameters != null && deferred != null) {
+            val resubmitResult = processor.submit(
+                isRepeating = false,
+                requests = listOf(request),
+                defaultParameters = cameraGraphConfig.defaultParameters,
+                requiredParameters = parameters,
+                listeners = graphListeners
+            )
+            deferred.complete(resubmitResult)
+
+            pendingParameters = null
+            pendingParametersDeferred = null
         }
     }
 

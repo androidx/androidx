@@ -35,7 +35,7 @@ package androidx.credentials.playservices.controllers.BeginSignIn
 import androidx.credentials.GetCredentialRequest
 import androidx.credentials.GetPasswordOption
 import androidx.credentials.GetPublicKeyCredentialOption
-import androidx.credentials.playservices.controllers.CreatePublicKeyCredential.PublicKeyCredentialControllerUtility.Companion.convertToPlayAuthPasskeyRequest
+import androidx.credentials.playservices.controllers.CreatePublicKeyCredential.PublicKeyCredentialControllerUtility.Companion.convertToPlayAuthPasskeyJsonRequest
 import com.google.android.gms.auth.api.identity.BeginSignInRequest
 import com.google.android.gms.auth.api.identity.BeginSignInRequest.GoogleIdTokenRequestOptions
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
@@ -64,11 +64,12 @@ class BeginSignInControllerUtility {
                     )
                     autoSelect = autoSelect || option.isAutoSelectAllowed
                 } else if (option is GetPublicKeyCredentialOption && !isPublicKeyCredReqFound) {
-                    requestBuilder.setPasskeysSignInRequestOptions(
-                        convertToPlayAuthPasskeyRequest(option)
+                    requestBuilder.setPasskeyJsonSignInRequestOptions(
+                        convertToPlayAuthPasskeyJsonRequest(option)
                     )
                     isPublicKeyCredReqFound = true
-                    // TODO("Confirm logic for single vs multiple options of the same type")
+                    // TODO(b/262924507) : watch for GIS update on single vs multiple options of a
+                    // single type. Also make allow list update as GIS has done it.
                 } else if (option is GetGoogleIdOption) {
                     requestBuilder.setGoogleIdTokenRequestOptions(
                         convertToGoogleIdTokenOption(option))

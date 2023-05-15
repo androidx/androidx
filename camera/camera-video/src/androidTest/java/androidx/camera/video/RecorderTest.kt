@@ -16,7 +16,6 @@
 
 package androidx.camera.video
 
-import androidx.camera.testing.mocks.helpers.ArgumentCaptor as ArgumentCaptorCameraX
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.AppOpsManager
@@ -39,6 +38,7 @@ import androidx.camera.camera2.Camera2Config
 import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraXConfig
+import androidx.camera.core.DynamicRange
 import androidx.camera.core.Preview
 import androidx.camera.core.SurfaceRequest
 import androidx.camera.core.impl.ImageFormatConstants
@@ -55,6 +55,7 @@ import androidx.camera.testing.LabTestRule
 import androidx.camera.testing.SurfaceTextureProvider
 import androidx.camera.testing.asFlow
 import androidx.camera.testing.mocks.MockConsumer
+import androidx.camera.testing.mocks.helpers.ArgumentCaptor as ArgumentCaptorCameraX
 import androidx.camera.testing.mocks.helpers.CallTimes
 import androidx.camera.testing.mocks.helpers.CallTimesAtLeast
 import androidx.camera.video.VideoOutput.SourceState.ACTIVE_NON_STREAMING
@@ -67,6 +68,7 @@ import androidx.camera.video.VideoRecordEvent.Finalize.ERROR_INVALID_OUTPUT_OPTI
 import androidx.camera.video.VideoRecordEvent.Finalize.ERROR_NONE
 import androidx.camera.video.VideoRecordEvent.Finalize.ERROR_NO_VALID_DATA
 import androidx.camera.video.VideoRecordEvent.Finalize.ERROR_RECORDER_ERROR
+import androidx.camera.video.VideoRecordEvent.Finalize.ERROR_RECORDING_GARBAGE_COLLECTED
 import androidx.camera.video.VideoRecordEvent.Finalize.ERROR_SOURCE_INACTIVE
 import androidx.camera.video.VideoRecordEvent.Pause
 import androidx.camera.video.VideoRecordEvent.Resume
@@ -117,6 +119,7 @@ private const val DEFAULT_STATUS_COUNT = 5
 private const val GENERAL_TIMEOUT = 5000L
 private const val STATUS_TIMEOUT = 15000L
 private const val TEST_ATTRIBUTION_TAG = "testAttribution"
+
 // For the file size is small, the final file length possibly exceeds the file size limit
 // after adding the file header. We still add the buffer for the tolerance of comparing the
 // file length and file size limit.
@@ -169,6 +172,8 @@ class RecorderTest(
     private val instrumentation = InstrumentationRegistry.getInstrumentation()
     private val context: Context = ApplicationProvider.getApplicationContext()
     private val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
+    // TODO(b/278168212): Only SDR is checked by now. Need to extend to HDR dynamic ranges.
+    private val dynamicRange = DynamicRange.SDR
     private val recordingsToStop = mutableListOf<RecordingProcess>()
 
     private lateinit var cameraUseCaseAdapter: CameraUseCaseAdapter
@@ -201,17 +206,18 @@ class RecorderTest(
         // Using Preview so that the surface provider could be set to control when to issue the
         // surface request.
         val cameraInfo = cameraUseCaseAdapter.cameraInfo
+        val videoCapabilities = Recorder.getVideoCapabilities(cameraInfo)
         val candidates = mutableSetOf<Size>().apply {
             if (testName.methodName == "setFileSizeLimit") {
-                QualitySelector.getResolution(cameraInfo, Quality.FHD)
-                    ?.let { add(it) }
-                QualitySelector.getResolution(cameraInfo, Quality.HD)
-                    ?.let { add(it) }
-                QualitySelector.getResolution(cameraInfo, Quality.SD)
-                    ?.let { add(it) }
+                videoCapabilities.getProfiles(Quality.FHD, dynamicRange)?.defaultVideoProfile
+                    ?.let { add(Size(it.width, it.height)) }
+                videoCapabilities.getProfiles(Quality.HD, dynamicRange)?.defaultVideoProfile
+                    ?.let { add(Size(it.width, it.height)) }
+                videoCapabilities.getProfiles(Quality.SD, dynamicRange)?.defaultVideoProfile
+                    ?.let { add(Size(it.width, it.height)) }
             }
-            QualitySelector.getResolution(cameraInfo, Quality.LOWEST)
-                ?.let { add(it) }
+            videoCapabilities.getProfiles(Quality.LOWEST, dynamicRange)?.defaultVideoProfile
+                ?.let { add(Size(it.width, it.height)) }
         }
         assumeTrue(candidates.isNotEmpty())
 
@@ -474,7 +480,10 @@ class RecorderTest(
         val recording = createRecordingProcess(outputOptions = outputOptions)
 
         // Act.
-        recording.startAndVerify()
+        // To avoid long timeout of finalize, verify the start event to ensure the recording is
+        // started. But don't verify the status count since we don't know how many status will
+        // reach the file size limit.
+        recording.startAndVerify(statusCount = 0)
         recording.verifyFinalize(timeoutMs = 60_000L) { finalize ->
             // Assert.
             assertThat(finalize.error).isEqualTo(ERROR_FILE_SIZE_LIMIT_REACHED)
@@ -539,6 +548,7 @@ class RecorderTest(
     fun checkStreamState() {
         // Arrange.
         val recorder = createRecorder()
+
         @Suppress("UNCHECKED_CAST")
         val streamInfoObserver = mock(Observer::class.java) as Observer<StreamInfo>
         val inOrder = inOrder(streamInfoObserver)
@@ -759,7 +769,9 @@ class RecorderTest(
         // very overloaded here. This event means the recording has finished, but does not relate
         // to the finalizer that runs during garbage collection. However, that is what causes the
         // recording to finish.
-        listener.verifyFinalize()
+        listener.verifyFinalize { finalize ->
+            assertThat(finalize.error).isEqualTo(ERROR_RECORDING_GARBAGE_COLLECTED)
+        }
     }
 
     @Test
@@ -835,29 +847,6 @@ class RecorderTest(
     }
 
     @Test
-    fun mute_defaultToNotMuted() {
-        // Arrange.
-        val recorder = createRecorder()
-        val recording = createRecordingProcess(recorder = recorder)
-        val recording2 = createRecordingProcess(recorder = recorder)
-
-        // Act.
-        recording.startAndVerify()
-        recording.mute(true)
-        recording.stopAndVerify()
-
-        recording2.startAndVerify()
-        recording2.verifyStatus(5) { statusList ->
-            // Assert.
-            statusList.forEach {
-                assertThat(it.recordingStats.audioStats.audioState)
-                    .isEqualTo(AudioStats.AUDIO_STATE_ACTIVE)
-            }
-        }
-        recording2.stopAndVerify()
-    }
-
-    @Test
     fun optionsOverridesDefaults() {
         val qualitySelector = QualitySelector.from(Quality.HIGHEST)
         val recorder = createRecorder(qualitySelector = qualitySelector)
@@ -895,6 +884,46 @@ class RecorderTest(
     }
 
     @Test
+    fun audioAmplitudeIsNoneWhenAudioIsDisabled() {
+        // Arrange.
+        val recording = createRecordingProcess(withAudio = false)
+
+        // Act.
+        recording.startAndVerify { onStatus ->
+            val amplitude = onStatus[0].recordingStats.audioStats.audioAmplitude
+            assertThat(amplitude).isEqualTo(AudioStats.AUDIO_AMPLITUDE_NONE)
+        }
+
+        recording.stopAndVerify { finalize ->
+            // Assert.
+            val uri = finalize.outputResults.outputUri
+            checkFileHasAudioAndVideo(uri, hasAudio = false)
+            assertThat(finalize.recordingStats.audioStats.audioAmplitude)
+                .isEqualTo(AudioStats.AUDIO_AMPLITUDE_NONE)
+        }
+    }
+
+    @Test
+    fun canGetAudioStatsAmplitude() {
+        // Arrange.
+        val recording = createRecordingProcess()
+
+        // Act.
+        recording.startAndVerify { onStatus ->
+            val amplitude = onStatus[0].recordingStats.audioStats.audioAmplitude
+            assertThat(amplitude).isAtLeast(AudioStats.AUDIO_AMPLITUDE_NONE)
+        }
+
+        recording.stopAndVerify { finalize ->
+            // Assert.
+            val uri = finalize.outputResults.outputUri
+            checkFileHasAudioAndVideo(uri, hasAudio = true)
+            assertThat(finalize.recordingStats.audioStats.audioAmplitude)
+                .isAtLeast(AudioStats.AUDIO_AMPLITUDE_NONE)
+        }
+    }
+
+    @Test
     fun cannotStartMultiplePendingRecordingsWhileInitializing() {
         // Arrange: Prepare 1st recording and start.
         val recorder = createRecorder(sendSurfaceRequest = false)
@@ -915,13 +944,13 @@ class RecorderTest(
         var createEncoderRequestCount = 0
         val recorder = createRecorder(
             videoEncoderFactory = { executor, config ->
-            if (createEncoderRequestCount < 2) {
-                createEncoderRequestCount++
-                throw InvalidConfigException("Create video encoder fail on purpose.")
-            } else {
-                Recorder.DEFAULT_ENCODER_FACTORY.createEncoder(executor, config)
-            }
-        })
+                if (createEncoderRequestCount < 2) {
+                    createEncoderRequestCount++
+                    throw InvalidConfigException("Create video encoder fail on purpose.")
+                } else {
+                    Recorder.DEFAULT_ENCODER_FACTORY.createEncoder(executor, config)
+                }
+            })
         // Recorder initialization should fail by 1st encoder creation fail.
         // Wait STREAM_ID_ERROR which indicates Recorder enter the error state.
         withTimeoutOrNull(3000) {
@@ -1087,7 +1116,9 @@ class RecorderTest(
             recordingsToStop.add(this)
             if (verify) {
                 verifyStart()
-                verifyStatus(statusCount = statusCount, onStatus = onStatus)
+                if (statusCount > 0) {
+                    verifyStatus(statusCount = statusCount, onStatus = onStatus)
+                }
             }
         }
 
@@ -1185,8 +1216,10 @@ class RecorderTest(
             it.setDataSource(context, uri)
             // Only test on mp4 output format, others will be ignored.
             val mime = it.extractMetadata(MediaMetadataRetriever.METADATA_KEY_MIMETYPE)
-            assumeTrue("Unsupported mime = $mime",
-                "video/mp4".equals(mime, ignoreCase = true))
+            assumeTrue(
+                "Unsupported mime = $mime",
+                "video/mp4".equals(mime, ignoreCase = true)
+            )
             val value = it.extractMetadata(MediaMetadataRetriever.METADATA_KEY_LOCATION)
             assertThat(value).isNotNull()
             // ex: (90, 180) => "+90.0000+180.0000/" (ISO-6709 standard)

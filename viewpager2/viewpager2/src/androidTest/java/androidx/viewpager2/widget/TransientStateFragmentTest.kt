@@ -24,9 +24,9 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.viewpager2.widget.ViewPager2.ORIENTATION_HORIZONTAL
+import java.util.concurrent.TimeUnit.MILLISECONDS
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.util.concurrent.TimeUnit.MILLISECONDS
 
 /**
  * Verifies that [androidx.viewpager2.adapter.FragmentStateAdapter] can handle [Fragment]s

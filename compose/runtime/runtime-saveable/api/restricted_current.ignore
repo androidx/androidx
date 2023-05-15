@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+InvalidNullConversion: androidx.compose.runtime.saveable.Saver#save(androidx.compose.runtime.saveable.SaverScope, Original) parameter #1:
+    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter value in androidx.compose.runtime.saveable.Saver.save(androidx.compose.runtime.saveable.SaverScope arg1, Original value)

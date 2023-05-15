@@ -16,23 +16,10 @@
 
 package androidx.wear.tiles.material;
 
-import static androidx.wear.tiles.ColorBuilders.argb;
-import static androidx.wear.tiles.DimensionBuilders.dp;
-import static androidx.wear.tiles.LayoutElementBuilders.HORIZONTAL_ALIGN_CENTER;
-import static androidx.wear.tiles.LayoutElementBuilders.HORIZONTAL_ALIGN_END;
-import static androidx.wear.tiles.LayoutElementBuilders.HORIZONTAL_ALIGN_START;
-
 import android.content.Context;
 import android.graphics.Color;
 
 import androidx.annotation.NonNull;
-import androidx.wear.tiles.ActionBuilders.LaunchAction;
-import androidx.wear.tiles.DeviceParametersBuilders;
-import androidx.wear.tiles.LayoutElementBuilders;
-import androidx.wear.tiles.LayoutElementBuilders.Box;
-import androidx.wear.tiles.LayoutElementBuilders.LayoutElement;
-import androidx.wear.tiles.LayoutElementBuilders.Row;
-import androidx.wear.tiles.ModifiersBuilders.Clickable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -52,19 +39,22 @@ public class TestCasesGenerator {
      * as it should point on the same size independent image.
      */
     @NonNull
-    static Map<String, LayoutElement> generateTestCases(
+    static Map<String, androidx.wear.tiles.LayoutElementBuilders.LayoutElement> generateTestCases(
             @NonNull Context context,
-            @NonNull DeviceParametersBuilders.DeviceParameters deviceParameters,
+            @NonNull androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters deviceParameters,
             @NonNull String goldenSuffix) {
-        Clickable clickable =
-                new Clickable.Builder()
-                        .setOnClick(new LaunchAction.Builder().build())
+        androidx.wear.tiles.ModifiersBuilders.Clickable clickable =
+                new androidx.wear.tiles.ModifiersBuilders.Clickable.Builder()
+                        .setOnClick(
+                                new androidx.wear.tiles.ActionBuilders.LaunchAction.Builder()
+                                        .build())
                         .setId("action_id")
                         .build();
         String mainText = "Primary label";
         String labelText = "Secondary label";
         String largeChipText = "Action";
-        HashMap<String, LayoutElement> testCases = new HashMap<>();
+        HashMap<String, androidx.wear.tiles.LayoutElementBuilders.LayoutElement> testCases =
+                new HashMap<>();
 
         testCases.put(
                 "default_icon_button_golden" + NORMAL_SCALE_SUFFIX,
@@ -81,7 +71,7 @@ public class TestCasesGenerator {
                 new Button.Builder(context, clickable)
                         .setSize(ButtonDefaults.LARGE_SIZE)
                         .setButtonColors(ButtonDefaults.SECONDARY_COLORS)
-                        .setIconContent(ICON_ID, dp(40))
+                        .setIconContent(ICON_ID, androidx.wear.tiles.DimensionBuilders.dp(40))
                         .build());
         testCases.put(
                 "extralarge_custom_text_custom_sizefont_button_golden" + goldenSuffix,
@@ -92,7 +82,8 @@ public class TestCasesGenerator {
                                 new Text.Builder(context, "ABC")
                                         .setTypography(Typography.TYPOGRAPHY_DISPLAY1)
                                         .setItalic(true)
-                                        .setColor(argb(Color.GREEN))
+                                        .setColor(
+                                                androidx.wear.tiles.ColorBuilders.argb(Color.GREEN))
                                         .build())
                         .build());
         testCases.put(
@@ -112,7 +103,8 @@ public class TestCasesGenerator {
                 new Chip.Builder(context, clickable, deviceParameters)
                         .setPrimaryLabelContent(mainText)
                         .setSecondaryLabelContent(labelText)
-                        .setHorizontalAlignment(HORIZONTAL_ALIGN_START)
+                        .setHorizontalAlignment(
+                                androidx.wear.tiles.LayoutElementBuilders.HORIZONTAL_ALIGN_START)
                         .build());
         testCases.put(
                 "default_chip_maintexticon_golden" + goldenSuffix,
@@ -123,7 +115,8 @@ public class TestCasesGenerator {
         testCases.put(
                 "secondary_chip_maintext_centered_golden" + goldenSuffix,
                 new Chip.Builder(context, clickable, deviceParameters)
-                        .setHorizontalAlignment(HORIZONTAL_ALIGN_CENTER)
+                        .setHorizontalAlignment(
+                                androidx.wear.tiles.LayoutElementBuilders.HORIZONTAL_ALIGN_CENTER)
                         .setChipColors(ChipDefaults.SECONDARY_COLORS)
                         .setPrimaryLabelContent(mainText)
                         .build());
@@ -140,7 +133,8 @@ public class TestCasesGenerator {
         testCases.put(
                 "default_chip_all_centered_golden" + goldenSuffix,
                 new Chip.Builder(context, clickable, deviceParameters)
-                        .setHorizontalAlignment(HORIZONTAL_ALIGN_CENTER)
+                        .setHorizontalAlignment(
+                                androidx.wear.tiles.LayoutElementBuilders.HORIZONTAL_ALIGN_CENTER)
                         .setPrimaryLabelContent(mainText)
                         .setSecondaryLabelContent(labelText)
                         .setIconContent(ICON_ID)
@@ -148,7 +142,8 @@ public class TestCasesGenerator {
         testCases.put(
                 "default_chip_all_rigthalign_golden" + goldenSuffix,
                 new Chip.Builder(context, clickable, deviceParameters)
-                        .setHorizontalAlignment(HORIZONTAL_ALIGN_END)
+                        .setHorizontalAlignment(
+                                androidx.wear.tiles.LayoutElementBuilders.HORIZONTAL_ALIGN_END)
                         .setPrimaryLabelContent(mainText)
                         .setSecondaryLabelContent(labelText)
                         .setIconContent(ICON_ID)
@@ -159,16 +154,18 @@ public class TestCasesGenerator {
                         .setPrimaryLabelContent(mainText)
                         .setIconContent(ICON_ID)
                         .setWidth(150)
-                        .setHorizontalAlignment(HORIZONTAL_ALIGN_START)
+                        .setHorizontalAlignment(
+                                androidx.wear.tiles.LayoutElementBuilders.HORIZONTAL_ALIGN_START)
                         .setChipColors(
                                 new ChipColors(Color.YELLOW, Color.GREEN, Color.BLACK, Color.GRAY))
                         .build());
         testCases.put(
                 "chip_custom_content_centered_golden" + goldenSuffix,
                 new Chip.Builder(context, clickable, deviceParameters)
-                        .setHorizontalAlignment(HORIZONTAL_ALIGN_CENTER)
+                        .setHorizontalAlignment(
+                                androidx.wear.tiles.LayoutElementBuilders.HORIZONTAL_ALIGN_CENTER)
                         .setCustomContent(
-                                new Box.Builder()
+                                new androidx.wear.tiles.LayoutElementBuilders.Box.Builder()
                                         .addContent(
                                                 new Text.Builder(context, "random text")
                                                         .setTypography(Typography.TYPOGRAPHY_TITLE3)
@@ -180,19 +177,24 @@ public class TestCasesGenerator {
                 "chip_custom_content_leftaligned_golden" + goldenSuffix,
                 new Chip.Builder(context, clickable, deviceParameters)
                         .setChipColors(ChipDefaults.SECONDARY_COLORS)
-                        .setHorizontalAlignment(HORIZONTAL_ALIGN_START)
+                        .setHorizontalAlignment(
+                                androidx.wear.tiles.LayoutElementBuilders.HORIZONTAL_ALIGN_START)
                         .setCustomContent(
-                                new Row.Builder()
+                                new androidx.wear.tiles.LayoutElementBuilders.Row.Builder()
                                         .addContent(
                                                 new Text.Builder(context, "text1")
                                                         .setTypography(Typography.TYPOGRAPHY_TITLE3)
                                                         .setItalic(true)
-                                                        .setColor(argb(Color.WHITE))
+                                                        .setColor(
+                                                                androidx.wear.tiles.ColorBuilders
+                                                                        .argb(Color.WHITE))
                                                         .build())
                                         .addContent(
                                                 new Text.Builder(context, "text2")
                                                         .setTypography(Typography.TYPOGRAPHY_TITLE2)
-                                                        .setColor(argb(Color.YELLOW))
+                                                        .setColor(
+                                                                androidx.wear.tiles.ColorBuilders
+                                                                        .argb(Color.YELLOW))
                                                         .build())
                                         .build())
                         .setWidth(150)
@@ -235,13 +237,15 @@ public class TestCasesGenerator {
         testCases.put(
                 "titlechip_leftalign_secondary_default_golden" + goldenSuffix,
                 new TitleChip.Builder(context, largeChipText, clickable, deviceParameters)
-                        .setHorizontalAlignment(HORIZONTAL_ALIGN_START)
+                        .setHorizontalAlignment(
+                                androidx.wear.tiles.LayoutElementBuilders.HORIZONTAL_ALIGN_START)
                         .setChipColors(ChipDefaults.TITLE_SECONDARY_COLORS)
                         .build());
         testCases.put(
                 "titlechip_centered_custom_150_secondary_default_golden" + goldenSuffix,
                 new TitleChip.Builder(context, largeChipText, clickable, deviceParameters)
-                        .setHorizontalAlignment(HORIZONTAL_ALIGN_CENTER)
+                        .setHorizontalAlignment(
+                                androidx.wear.tiles.LayoutElementBuilders.HORIZONTAL_ALIGN_CENTER)
                         .setChipColors(new ChipColors(Color.YELLOW, Color.BLUE))
                         .setWidth(150)
                         .build());
@@ -282,8 +286,8 @@ public class TestCasesGenerator {
                 "custom_text_golden" + goldenSuffix,
                 new Text.Builder(context, "Testing text.")
                         .setItalic(true)
-                        .setColor(argb(Color.YELLOW))
-                        .setWeight(LayoutElementBuilders.FONT_WEIGHT_BOLD)
+                        .setColor(androidx.wear.tiles.ColorBuilders.argb(Color.YELLOW))
+                        .setWeight(androidx.wear.tiles.LayoutElementBuilders.FONT_WEIGHT_BOLD)
                         .setTypography(Typography.TYPOGRAPHY_BODY2)
                         .build());
         testCases.put(

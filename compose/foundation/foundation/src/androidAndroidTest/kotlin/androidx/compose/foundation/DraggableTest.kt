@@ -35,6 +35,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.InspectableValue
+import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.platform.isDebugInspectorInfoEnabled
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.ExperimentalTestApi
@@ -359,19 +360,14 @@ class DraggableTest {
 
     @Test
     fun draggable_callsDragStop_whenNewState() {
-        var total = 0f
         var dragStopped = 0f
-        val state = mutableStateOf(
-            DraggableState { total += it }
-        )
+        val state = mutableStateOf(DraggableState { })
         setDraggableContent {
-            if (total < 20f) {
-                Modifier.draggable(
-                    orientation = Orientation.Horizontal,
-                    onDragStopped = { dragStopped += 1 },
-                    state = state.value
-                )
-            } else Modifier
+            Modifier.draggable(
+                orientation = Orientation.Horizontal,
+                onDragStopped = { dragStopped += 1 },
+                state = state.value
+            )
         }
         rule.onNodeWithTag(draggableBoxTag).performTouchInput {
             down(center)
@@ -383,6 +379,180 @@ class DraggableTest {
         }
         rule.runOnIdle {
             assertThat(dragStopped).isEqualTo(1f)
+        }
+    }
+
+    @Test
+    fun draggable_callsDragStop_whenNewOrientation() {
+        var dragStopped = 0f
+        var orientation by mutableStateOf(Orientation.Horizontal)
+        setDraggableContent {
+            Modifier.draggable(
+                orientation = orientation,
+                onDragStopped = { dragStopped += 1 },
+                onDrag = {}
+            )
+        }
+        rule.onNodeWithTag(draggableBoxTag).performTouchInput {
+            down(center)
+            moveBy(Offset(100f, 100f))
+        }
+        rule.runOnIdle {
+            assertThat(dragStopped).isEqualTo(0f)
+            orientation = Orientation.Vertical
+        }
+        rule.runOnIdle {
+            assertThat(dragStopped).isEqualTo(1f)
+        }
+    }
+
+    @Test
+    fun draggable_callsDragStop_whenDisabled() {
+        var dragStopped = 0f
+        var enabled by mutableStateOf(true)
+        setDraggableContent {
+            Modifier.draggable(
+                orientation = Orientation.Horizontal,
+                onDragStopped = { dragStopped += 1 },
+                enabled = enabled,
+                onDrag = {}
+            )
+        }
+        rule.onNodeWithTag(draggableBoxTag).performTouchInput {
+            down(center)
+            moveBy(Offset(100f, 100f))
+        }
+        rule.runOnIdle {
+            assertThat(dragStopped).isEqualTo(0f)
+            enabled = false
+        }
+        rule.runOnIdle {
+            assertThat(dragStopped).isEqualTo(1f)
+        }
+    }
+
+    @Test
+    fun draggable_callsDragStop_whenNewReverseDirection() {
+        var dragStopped = 0f
+        var reverseDirection by mutableStateOf(false)
+        setDraggableContent {
+            Modifier.draggable(
+                orientation = Orientation.Horizontal,
+                onDragStopped = { dragStopped += 1 },
+                onDrag = {},
+                reverseDirection = reverseDirection
+            )
+        }
+        rule.onNodeWithTag(draggableBoxTag).performTouchInput {
+            down(center)
+            moveBy(Offset(100f, 100f))
+        }
+        rule.runOnIdle {
+            assertThat(dragStopped).isEqualTo(0f)
+            reverseDirection = true
+        }
+        rule.runOnIdle {
+            assertThat(dragStopped).isEqualTo(1f)
+        }
+    }
+
+    @Test
+    fun draggable_updates_startDragImmediately() {
+        var total = 0f
+        var startDragImmediately by mutableStateOf(false)
+        var touchSlop: Float? = null
+        setDraggableContent {
+            touchSlop = LocalViewConfiguration.current.touchSlop
+            Modifier.draggable(
+                orientation = Orientation.Horizontal,
+                onDrag = { total += it },
+                startDragImmediately = startDragImmediately
+            )
+        }
+        val delta = touchSlop!! / 2f
+        rule.onNodeWithTag(draggableBoxTag).performTouchInput {
+            down(center)
+            moveBy(Offset(delta, 0f))
+            up()
+        }
+        rule.runOnIdle {
+            assertThat(total).isEqualTo(0f)
+            startDragImmediately = true
+        }
+        rule.onNodeWithTag(draggableBoxTag).performTouchInput {
+            down(center)
+            moveBy(Offset(delta, 0f))
+            up()
+        }
+        rule.runOnIdle {
+            assertThat(total).isEqualTo(delta)
+        }
+    }
+
+    @Test
+    fun draggable_updates_onDragStarted() {
+        var total = 0f
+        var onDragStarted1Calls = 0
+        var onDragStarted2Calls = 0
+        var onDragStarted: (Offset) -> Unit by mutableStateOf({ onDragStarted1Calls += 1 })
+        setDraggableContent {
+            Modifier.draggable(
+                orientation = Orientation.Horizontal,
+                onDrag = { total += it },
+                onDragStarted = onDragStarted
+            )
+        }
+        rule.onNodeWithTag(draggableBoxTag).performTouchInput {
+            down(center)
+            moveBy(Offset(100f, 100f))
+            up()
+        }
+        rule.runOnIdle {
+            assertThat(onDragStarted1Calls).isEqualTo(1)
+            assertThat(onDragStarted2Calls).isEqualTo(0)
+            onDragStarted = { onDragStarted2Calls += 1 }
+        }
+        rule.onNodeWithTag(draggableBoxTag).performTouchInput {
+            down(center)
+            moveBy(Offset(100f, 100f))
+            up()
+        }
+        rule.runOnIdle {
+            assertThat(onDragStarted1Calls).isEqualTo(1)
+            assertThat(onDragStarted2Calls).isEqualTo(1)
+        }
+    }
+
+    @Test
+    fun draggable_updates_onDragStopped() {
+        var total = 0f
+        var onDragStopped1Calls = 0
+        var onDragStopped2Calls = 0
+        var onDragStopped: (Float) -> Unit by mutableStateOf({ onDragStopped1Calls += 1 })
+        setDraggableContent {
+            Modifier.draggable(
+                orientation = Orientation.Horizontal,
+                onDrag = { total += it },
+                onDragStopped = onDragStopped
+            )
+        }
+        rule.onNodeWithTag(draggableBoxTag).performTouchInput {
+            down(center)
+            moveBy(Offset(100f, 100f))
+        }
+        rule.runOnIdle {
+            assertThat(onDragStopped1Calls).isEqualTo(0)
+            assertThat(onDragStopped2Calls).isEqualTo(0)
+            onDragStopped = { onDragStopped2Calls += 1 }
+        }
+        rule.onNodeWithTag(draggableBoxTag).performTouchInput {
+            up()
+        }
+        rule.runOnIdle {
+            // We changed the lambda before we ever stopped dragging, so only the new one should be
+            // called
+            assertThat(onDragStopped1Calls).isEqualTo(0)
+            assertThat(onDragStopped2Calls).isEqualTo(1)
         }
     }
 
@@ -573,6 +743,112 @@ class DraggableTest {
             assertThat(interactions[1]).isInstanceOf(DragInteraction.Cancel::class.java)
             assertThat((interactions[1] as DragInteraction.Cancel).start)
                 .isEqualTo(interactions[0])
+        }
+    }
+
+    @Test
+    fun draggable_interactionSource_resetWhenEnabledChanged() {
+        val interactionSource = MutableInteractionSource()
+        val enabledState = mutableStateOf(true)
+
+        var scope: CoroutineScope? = null
+
+        setDraggableContent {
+            scope = rememberCoroutineScope()
+            Modifier.draggable(
+                Orientation.Horizontal,
+                enabled = enabledState.value,
+                interactionSource = interactionSource
+            ) {}
+        }
+
+        val interactions = mutableListOf<Interaction>()
+
+        scope!!.launch {
+            interactionSource.interactions.collect { interactions.add(it) }
+        }
+
+        rule.runOnIdle {
+            assertThat(interactions).isEmpty()
+        }
+
+        rule.onNodeWithTag(draggableBoxTag)
+            .performTouchInput {
+                down(Offset(visibleSize.width / 4f, visibleSize.height / 2f))
+                moveBy(Offset(visibleSize.width / 2f, 0f))
+            }
+
+        rule.runOnIdle {
+            assertThat(interactions).hasSize(1)
+            assertThat(interactions.first()).isInstanceOf(DragInteraction.Start::class.java)
+        }
+
+        rule.runOnIdle {
+            enabledState.value = false
+        }
+
+        rule.runOnIdle {
+            assertThat(interactions).hasSize(2)
+            assertThat(interactions.first()).isInstanceOf(DragInteraction.Start::class.java)
+            assertThat(interactions[1]).isInstanceOf(DragInteraction.Cancel::class.java)
+            assertThat((interactions[1] as DragInteraction.Cancel).start)
+                .isEqualTo(interactions[0])
+        }
+    }
+
+    @Test
+    fun draggable_interactionSource_resetWhenInteractionSourceChanged() {
+        val interactionSource1 = MutableInteractionSource()
+        val interactionSource2 = MutableInteractionSource()
+        val interactionSourceState = mutableStateOf(interactionSource1)
+
+        var scope: CoroutineScope? = null
+
+        setDraggableContent {
+            scope = rememberCoroutineScope()
+            Modifier.draggable(
+                Orientation.Horizontal,
+                interactionSource = interactionSourceState.value
+            ) {}
+        }
+
+        val interactions1 = mutableListOf<Interaction>()
+        val interactions2 = mutableListOf<Interaction>()
+
+        scope!!.launch {
+            interactionSource1.interactions.collect { interactions1.add(it) }
+        }
+
+        rule.runOnIdle {
+            assertThat(interactions1).isEmpty()
+            assertThat(interactions2).isEmpty()
+        }
+
+        rule.onNodeWithTag(draggableBoxTag)
+            .performTouchInput {
+                down(Offset(visibleSize.width / 4f, visibleSize.height / 2f))
+                moveBy(Offset(visibleSize.width / 2f, 0f))
+            }
+
+        rule.runOnIdle {
+            assertThat(interactions1).hasSize(1)
+            assertThat(interactions1.first()).isInstanceOf(DragInteraction.Start::class.java)
+            assertThat(interactions2).isEmpty()
+        }
+
+        rule.runOnIdle {
+            interactionSourceState.value = interactionSource2
+        }
+
+        rule.runOnIdle {
+            assertThat(interactions1).hasSize(2)
+            assertThat(interactions1.first()).isInstanceOf(DragInteraction.Start::class.java)
+            assertThat(interactions1[1]).isInstanceOf(DragInteraction.Cancel::class.java)
+            assertThat((interactions1[1] as DragInteraction.Cancel).start)
+                .isEqualTo(interactions1[0])
+            // Currently we don't emit drag start for an in progress drag, but this might change
+            // in the future.
+            assertThat(interactions2).isEmpty()
         }
     }
 

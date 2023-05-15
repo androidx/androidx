@@ -26,7 +26,7 @@ import androidx.compose.ui.layout.BeyondBoundsLayout.LayoutDirection.Companion.R
 import androidx.compose.ui.node.Nodes
 import androidx.compose.ui.node.nearestAncestor
 
-internal fun <T> FocusTargetModifierNode.searchBeyondBounds(
+internal fun <T> FocusTargetNode.searchBeyondBounds(
     direction: FocusDirection,
     block: BeyondBoundsScope.() -> T?
 ): T? {

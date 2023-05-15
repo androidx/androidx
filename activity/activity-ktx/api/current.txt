@@ -15,8 +15,8 @@ package androidx.activity {
 package androidx.activity.result {
 
   public final class ActivityResultCallerKt {
-    method public static <I, O> androidx.activity.result.ActivityResultLauncher<kotlin.Unit> registerForActivityResult(androidx.activity.result.ActivityResultCaller, androidx.activity.result.contract.ActivityResultContract<I,O> contract, I? input, androidx.activity.result.ActivityResultRegistry registry, kotlin.jvm.functions.Function1<? super O,kotlin.Unit> callback);
-    method public static <I, O> androidx.activity.result.ActivityResultLauncher<kotlin.Unit> registerForActivityResult(androidx.activity.result.ActivityResultCaller, androidx.activity.result.contract.ActivityResultContract<I,O> contract, I? input, kotlin.jvm.functions.Function1<? super O,kotlin.Unit> callback);
+    method public static <I, O> androidx.activity.result.ActivityResultLauncher<kotlin.Unit> registerForActivityResult(androidx.activity.result.ActivityResultCaller, androidx.activity.result.contract.ActivityResultContract<I,O> contract, I input, androidx.activity.result.ActivityResultRegistry registry, kotlin.jvm.functions.Function1<? super O,kotlin.Unit> callback);
+    method public static <I, O> androidx.activity.result.ActivityResultLauncher<kotlin.Unit> registerForActivityResult(androidx.activity.result.ActivityResultCaller, androidx.activity.result.contract.ActivityResultContract<I,O> contract, I input, kotlin.jvm.functions.Function1<? super O,kotlin.Unit> callback);
   }
 
   public final class ActivityResultKt {

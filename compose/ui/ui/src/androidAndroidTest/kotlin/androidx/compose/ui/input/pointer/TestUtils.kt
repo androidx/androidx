@@ -28,13 +28,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.layout.LayoutCoordinates
+import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.NodeCoordinator
 import androidx.compose.ui.node.PointerInputModifierNode
+import androidx.compose.ui.platform.InspectorInfo
+import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.unit.IntSize
 import com.google.common.truth.FailureMetadata
 import com.google.common.truth.Subject
 import com.google.common.truth.Subject.Factory
 import com.google.common.truth.Truth
+import org.junit.Assert
 
 @OptIn(ExperimentalComposeUiApi::class)
 internal fun PointerInputEventData(
@@ -555,3 +559,73 @@ internal fun PointerInputChange.deepCopy() = PointerInputChange(
     type = this.type,
     scrollDelta = this.scrollDelta
 )
+
+// SuspendingPointerInputFilter test utilities
+internal fun PointerInputChange.toPointerEvent() = PointerEvent(listOf(this))
+
+internal val PointerEvent.firstChange get() = changes.first()
+
+internal class PointerInputChangeEmitter(id: Int = 0) {
+    val pointerId = PointerId(id.toLong())
+    var previousTime = 0L
+    var previousPosition = Offset.Zero
+    var previousPressed = false
+
+    fun nextChange(
+        position: Offset = Offset.Zero,
+        down: Boolean = true,
+        time: Long = 0
+    ): PointerInputChange {
+        return PointerInputChange(
+            id = pointerId,
+            time,
+            position,
+            down,
+            previousTime,
+            previousPosition,
+            previousPressed,
+            isInitiallyConsumed = false
+        ).also {
+            previousTime = time
+            previousPosition = position
+            previousPressed = down
+        }
+    }
+}
+
+internal class TestCounter {
+    private var count = 0
+
+    fun expect(checkpoint: Int, message: String = "(no message)") {
+        val expected = count + 1
+        if (checkpoint != expected) {
+            Assert.fail("out of order event $checkpoint, expected $expected, $message")
+        }
+        count = expected
+    }
+}
+
+internal fun elementFor(
+    key1: Any? = null,
+    instance: Modifier.Node
+) = object : ModifierNodeElement<Modifier.Node>() {
+    override fun InspectorInfo.inspectableProperties() {
+        debugInspectorInfo {
+            name = "pointerInput"
+            properties["key1"] = key1
+            properties["instance"] = instance
+        }
+    }
+
+    override fun create() = instance
+    override fun update(node: Modifier.Node) {}
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is SuspendPointerInputElement) return false
+        if (key1 != other.key1) return false
+        return true
+    }
+    override fun hashCode(): Int {
+        return key1?.hashCode() ?: 0
+    }
+}

@@ -15,6 +15,11 @@ package androidx.compose.ui.graphics {
     method public static androidx.compose.ui.graphics.ColorFilter asComposeColorFilter(android.graphics.ColorFilter);
   }
 
+  public final class AndroidColorSpace_androidKt {
+    method @RequiresApi(android.os.Build.VERSION_CODES.O) public static android.graphics.ColorSpace toAndroidColorSpace(androidx.compose.ui.graphics.colorspace.ColorSpace);
+    method @RequiresApi(android.os.Build.VERSION_CODES.O) public static androidx.compose.ui.graphics.colorspace.ColorSpace toComposeColorSpace(android.graphics.ColorSpace);
+  }
+
   public final class AndroidImageBitmap_androidKt {
     method public static android.graphics.Bitmap asAndroidBitmap(androidx.compose.ui.graphics.ImageBitmap);
     method public static androidx.compose.ui.graphics.ImageBitmap asImageBitmap(android.graphics.Bitmap);
@@ -395,6 +400,10 @@ package androidx.compose.ui.graphics {
     property public final float[] values;
   }
 
+  public fun interface ColorProducer {
+    method public operator long invoke();
+  }
+
   @androidx.compose.runtime.Immutable @kotlin.jvm.JvmInline public final value class FilterQuality {
     method public int getValue();
     property public final int value;
@@ -623,7 +632,9 @@ package androidx.compose.ui.graphics {
     method public void relativeMoveTo(float dx, float dy);
     method public void relativeQuadraticBezierTo(float dx1, float dy1, float dx2, float dy2);
     method public void reset();
+    method public default void rewind();
     method public void setFillType(int);
+    method public default void transform(float[] matrix);
     method public void translate(long offset);
     property public abstract int fillType;
     property public abstract boolean isConvex;
@@ -1608,6 +1619,10 @@ package androidx.compose.ui.graphics.vector {
     method public androidx.compose.ui.graphics.vector.PathParser parsePathString(String pathData);
     method public java.util.List<androidx.compose.ui.graphics.vector.PathNode> toNodes();
     method public androidx.compose.ui.graphics.Path toPath(optional androidx.compose.ui.graphics.Path target);
+  }
+
+  public final class PathParserKt {
+    method public static androidx.compose.ui.graphics.Path toPath(java.util.List<? extends androidx.compose.ui.graphics.vector.PathNode>, optional androidx.compose.ui.graphics.Path target);
   }
 
 }

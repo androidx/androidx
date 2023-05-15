@@ -102,8 +102,8 @@ import java.util.Map;
  * Chip myChip = Chip.fromLayoutElement(box.getContents().get(0));
  * }</pre>
  *
- * @see  androidx.wear.protolayout.material.layouts.PrimaryLayout.Builder#setContent if this Chip is
- * used inside of {@link androidx.wear.protolayout.material.layouts.PrimaryLayout}.
+ * @see androidx.wear.protolayout.material.layouts.PrimaryLayout.Builder#setContent if this Chip is
+ *     used inside of {@link androidx.wear.protolayout.material.layouts.PrimaryLayout}.
  */
 public class Chip implements LayoutElement {
     /**
@@ -141,7 +141,7 @@ public class Chip implements LayoutElement {
         @Nullable private String mPrimaryLabel = null;
         @Nullable private String mSecondaryLabel = null;
         @NonNull private final Clickable mClickable;
-        @NonNull private CharSequence mContentDescription = "";
+        @Nullable private StringProp mContentDescription = null;
         @NonNull private ContainerDimension mWidth;
         @NonNull private DpProp mHeight = DEFAULT_HEIGHT;
         @NonNull private ChipColors mChipColors = PRIMARY_COLORS;
@@ -216,11 +216,25 @@ public class Chip implements LayoutElement {
         }
 
         /**
-         * Sets the content description for the {@link Chip}. It is highly recommended to provide
-         * this for chip containing icon.
+         * Sets the static content description for the {@link Chip}. It is highly recommended to
+         * provide this for chip containing icon.
          */
         @NonNull
         public Builder setContentDescription(@NonNull CharSequence contentDescription) {
+            this.mContentDescription =
+                    new StringProp.Builder(contentDescription.toString()).build();
+            return this;
+        }
+
+        /**
+         * Sets the content description for the {@link Chip}. It is highly recommended to provide
+         * this for chip containing icon.
+         *
+         * <p>While this field is statically accessible from 1.0, it's only bindable since version
+         * 1.2 and renderers supporting version 1.2 will use the dynamic value (if set).
+         */
+        @NonNull
+        public Builder setContentDescription(@NonNull StringProp contentDescription) {
             this.mContentDescription = contentDescription;
             return this;
         }
@@ -378,17 +392,20 @@ public class Chip implements LayoutElement {
         }
 
         @NonNull
-        private String getCorrectContentDescription() {
-            if (mContentDescription.length() == 0) {
-                mContentDescription = "";
+        private StringProp getCorrectContentDescription() {
+            if (mContentDescription == null) {
+                String staticValue = "";
                 if (mPrimaryLabel != null) {
-                    mContentDescription += mPrimaryLabel;
+                    staticValue += mPrimaryLabel;
                 }
                 if (mSecondaryLabel != null) {
-                    mContentDescription += "\n" + mSecondaryLabel;
+                    staticValue += "\n" + mSecondaryLabel;
+                }
+                if (!staticValue.isEmpty()) {
+                    mContentDescription = new StringProp.Builder(staticValue).build();
                 }
             }
-            return mContentDescription.toString();
+            return checkNotNull(mContentDescription);
         }
 
         @HorizontalAlignment
@@ -551,16 +568,12 @@ public class Chip implements LayoutElement {
 
     /** Returns content description of this Chip. */
     @Nullable
-    public CharSequence getContentDescription() {
+    public StringProp getContentDescription() {
         Semantics semantics = checkNotNull(mElement.getModifiers()).getSemantics();
         if (semantics == null) {
             return null;
         }
-        StringProp contentDescriptionProp = semantics.getContentDescription();
-        if (contentDescriptionProp == null) {
-            return null;
-        }
-        return contentDescriptionProp.getValue();
+        return semantics.getContentDescription();
     }
 
     /** Returns custom content from this Chip if it has been added. Otherwise, it returns null. */

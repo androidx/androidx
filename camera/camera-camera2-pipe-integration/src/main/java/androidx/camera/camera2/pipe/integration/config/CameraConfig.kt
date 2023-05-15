@@ -38,6 +38,7 @@ import androidx.camera.camera2.pipe.integration.compat.EvCompCompat
 import androidx.camera.camera2.pipe.integration.compat.ZoomCompat
 import androidx.camera.camera2.pipe.integration.compat.quirk.CameraQuirks
 import androidx.camera.camera2.pipe.integration.compat.quirk.CaptureSessionStuckQuirk
+import androidx.camera.camera2.pipe.integration.compat.quirk.FinalizeSessionOnCloseQuirk
 import androidx.camera.camera2.pipe.integration.impl.CameraPipeCameraProperties
 import androidx.camera.camera2.pipe.integration.impl.CameraProperties
 import androidx.camera.camera2.pipe.integration.impl.ComboRequestListener
@@ -156,7 +157,14 @@ abstract class CameraModule {
                 Log.debug { "CameraPipe should be enabling CaptureSessionStuckQuirk" }
             }
             // TODO(b/276354253): Set quirkWaitForRepeatingRequestOnDisconnect flag for overrides.
-            return CameraGraph.Flags()
+
+            // TODO(b/277310425): When creating a CameraGraph, this flag should be turned OFF when
+            //  this behavior is not needed based on the use case interaction and the device on
+            //  which the test is running.
+            val quirkFinalizeSessionOnCloseBehavior = FinalizeSessionOnCloseQuirk.getBehavior()
+            return CameraGraph.Flags(
+                quirkFinalizeSessionOnCloseBehavior = quirkFinalizeSessionOnCloseBehavior,
+            )
         }
     }
 

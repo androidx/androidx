@@ -16,7 +16,6 @@
 
 package androidx.glance.appwidget.preview
 
-import androidx.glance.appwidget.preview.test.R
 import android.app.Activity
 import android.os.Bundle
 import android.view.View
@@ -26,6 +25,7 @@ import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import android.widget.TextView
+import androidx.glance.appwidget.preview.test.R
 import androidx.test.filters.MediumTest
 import org.junit.Assert.assertNotNull
 import org.junit.Before

@@ -17,14 +17,14 @@
 package androidx.appactions.interaction.capabilities.core.entity
 
 import androidx.annotation.RestrictTo
-import androidx.appactions.interaction.capabilities.core.impl.converters.EntityConverter
+import androidx.appactions.builtintypes.experimental.types.Thing
+import androidx.appactions.interaction.capabilities.core.SearchAction
 import androidx.appactions.interaction.capabilities.core.impl.concurrent.Futures
+import androidx.appactions.interaction.capabilities.core.impl.converters.EntityConverter
 import androidx.appactions.interaction.capabilities.core.impl.converters.SearchActionConverter
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeSpec
 import androidx.appactions.interaction.capabilities.core.impl.exceptions.StructConversionException
-import androidx.appactions.interaction.capabilities.core.values.SearchAction
-import androidx.appactions.interaction.capabilities.core.values.Thing
 import androidx.appactions.interaction.proto.GroundingRequest
 import androidx.appactions.interaction.proto.GroundingResponse
 import androidx.concurrent.futures.await

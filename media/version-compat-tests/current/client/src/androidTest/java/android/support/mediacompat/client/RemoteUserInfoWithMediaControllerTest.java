@@ -62,7 +62,7 @@ import java.util.concurrent.atomic.AtomicReference;
  * {@link MediaController} methods.
  */
 @RunWith(AndroidJUnit4.class)
-@SdkSuppress(minSdkVersion = 21)
+@SdkSuppress(minSdkVersion = 22) // b/278620526
 @LargeTest
 public class RemoteUserInfoWithMediaControllerTest {
     private static final String TAG = "RemoteUserInfoFwk";

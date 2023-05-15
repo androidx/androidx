@@ -19,8 +19,6 @@ import static androidx.camera.core.impl.ImageFormatConstants.INTERNAL_DEFINED_IM
 import static androidx.camera.core.processing.TargetUtils.checkSupportedTargets;
 import static androidx.core.util.Preconditions.checkArgument;
 
-import static java.util.Objects.requireNonNull;
-
 import android.graphics.ImageFormat;
 
 import androidx.annotation.IntDef;
@@ -30,6 +28,7 @@ import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.camera.core.processing.SurfaceProcessorInternal;
 import androidx.camera.core.processing.SurfaceProcessorWithExecutor;
+import androidx.core.util.Consumer;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -56,8 +55,8 @@ import java.util.concurrent.Executor;
  * delivered to the app via error callbacks such as
  * {@link ImageCapture.OnImageCapturedCallback#onError}. If {@link CameraEffect} fails to
  * process and return the frames, for example, unable to allocate the resources for image
- * processing, it must throw {@link Exception} in the processor implementation. The
- * {@link Exception} will be caught and forwarded to the app via error callbacks. Please see the
+ * processing, it must throw {@link Throwable} in the processor implementation. The
+ * {@link Throwable} will be caught and forwarded to the app via error callbacks. Please see the
  * Javadoc of the processor interfaces for details.
  *
  * <p>Extend this class to create specific effects. The {@link Executor} provided in the
@@ -86,7 +85,6 @@ public abstract class CameraEffect {
 
     /**
      * Bitmask options for the effect targets.
-     *
      */
     @Retention(RetentionPolicy.SOURCE)
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -96,7 +94,6 @@ public abstract class CameraEffect {
 
     /**
      * Bitmask options for the effect targets.
-     *
      */
     @Retention(RetentionPolicy.SOURCE)
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -123,7 +120,8 @@ public abstract class CameraEffect {
     private static final List<Integer> SURFACE_PROCESSOR_TARGETS = Arrays.asList(
             PREVIEW,
             VIDEO_CAPTURE,
-            PREVIEW | VIDEO_CAPTURE);
+            PREVIEW | VIDEO_CAPTURE,
+            PREVIEW | VIDEO_CAPTURE | IMAGE_CAPTURE);
 
     @Targets
     private final int mTargets;
@@ -133,51 +131,70 @@ public abstract class CameraEffect {
     private final SurfaceProcessor mSurfaceProcessor;
     @Nullable
     private final ImageProcessor mImageProcessor;
+    @NonNull
+    private final Consumer<Throwable> mErrorListener;
 
     /**
      * @param targets        the target {@link UseCase} to which this effect should be applied.
      *                       Currently, {@link ImageProcessor} can only target
      *                       {@link #IMAGE_CAPTURE}. Targeting other {@link UseCase} will throw
      *                       {@link IllegalArgumentException}.
-     * @param executor       the {@link Executor} on which the {@param imageProcessor} will be
-     *                       invoked.
+     * @param executor       the {@link Executor} on which the {@param imageProcessor} and
+     *                       {@param errorListener} will be invoked.
      * @param imageProcessor a {@link ImageProcessor} implementation. Once the effect is active,
      *                       CameraX will send frames to the {@link ImageProcessor} on the
      *                       {@param executor}, and deliver the processed frames to the app.
+     * @param errorListener  invoked if the effect runs into unrecoverable errors. This is
+     *                       invoked on the provided {@param executor}.
      */
     protected CameraEffect(
             @Targets int targets,
             @NonNull Executor executor,
-            @NonNull ImageProcessor imageProcessor) {
+            @NonNull ImageProcessor imageProcessor,
+            @NonNull Consumer<Throwable> errorListener) {
         checkArgument(targets == IMAGE_CAPTURE,
                 "Currently ImageProcessor can only target IMAGE_CAPTURE.");
         mTargets = targets;
         mExecutor = executor;
         mSurfaceProcessor = null;
         mImageProcessor = imageProcessor;
+        mErrorListener = errorListener;
     }
 
     /**
      * @param targets          the target {@link UseCase} to which this effect should be applied.
-     *                         Currently {@link SurfaceProcessor} can only target {@link #PREVIEW}.
-     *                         Targeting other {@link UseCase} will throw
+     *                         Currently {@link SurfaceProcessor} can target the following
+     *                         combinations:
+     *                         <ul>
+     *                         <li>{@link #PREVIEW}
+     *                         <li>{@link #PREVIEW} | {@link #VIDEO_CAPTURE}
+     *                         <li>{@link #PREVIEW} | {@link #VIDEO_CAPTURE} |
+     *                         {@link #IMAGE_CAPTURE}
+     *                         </ul>
+     *                         Targeting other {@link UseCase} combinations will throw
      *                         {@link IllegalArgumentException}.
-     * @param executor         the {@link Executor} on which the {@param imageProcessor} will be
-     *                         invoked.
+     * @param executor         the {@link Executor} on which the {@param imageProcessor} and
+     *                         {@param errorListener} will be invoked.
      * @param surfaceProcessor a {@link SurfaceProcessor} implementation. Once the effect is
      *                         active, CameraX will send frames to the {@link SurfaceProcessor}
      *                         on the {@param executor}, and deliver the processed frames to the
      *                         app.
+     * @param errorListener    invoked if the effect runs into unrecoverable errors. The
+     *                         {@link Throwable} will be the error thrown by this
+     *                         {@link CameraEffect}. For example, {@link ProcessingException}.
+     *                         This is invoked on the provided {@param executor}.
      */
     protected CameraEffect(
             @Targets int targets,
             @NonNull Executor executor,
-            @NonNull SurfaceProcessor surfaceProcessor) {
+            @NonNull SurfaceProcessor surfaceProcessor,
+            @NonNull Consumer<Throwable> errorListener) {
         checkSupportedTargets(SURFACE_PROCESSOR_TARGETS, targets);
         mTargets = targets;
         mExecutor = executor;
         mSurfaceProcessor = surfaceProcessor;
         mImageProcessor = null;
+        mErrorListener = errorListener;
     }
 
     /**
@@ -199,6 +216,17 @@ public abstract class CameraEffect {
     }
 
     /**
+     * Gets the Error listener associated with this effect.
+     *
+     * <p>This method returns the value set in the constructor. The {@link Throwable} will be the
+     * error thrown by this {@link CameraEffect}. For example, {@link ProcessingException}.
+     */
+    @NonNull
+    public Consumer<Throwable> getErrorListener() {
+        return mErrorListener;
+    }
+
+    /**
      * Gets the {@link SurfaceProcessor} associated with this effect.
      */
     @Nullable
@@ -208,7 +236,6 @@ public abstract class CameraEffect {
 
     /**
      * Gets the {@link ImageProcessor} associated with this effect.
-     *
      */
     @Nullable
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -223,12 +250,10 @@ public abstract class CameraEffect {
      *
      * <p>Throws {@link IllegalArgumentException} if the effect does not contain a
      * {@link SurfaceProcessor}.
-     *
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @NonNull
     public SurfaceProcessorInternal createSurfaceProcessorInternal() {
-        return new SurfaceProcessorWithExecutor(requireNonNull(getSurfaceProcessor()),
-                getExecutor());
+        return new SurfaceProcessorWithExecutor(this);
     }
 }

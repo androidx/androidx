@@ -104,7 +104,7 @@ class WorkInfo @JvmOverloads constructor(
      * Even if this value is set, the work may not be registered with the system scheduler if
      * there are limited scheduling slots or other factors.
      */
-    val earliestPossibleRuntimeMillis: Long = Long.MAX_VALUE,
+    val nextScheduleTimeMillis: Long = Long.MAX_VALUE,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -118,7 +118,7 @@ class WorkInfo @JvmOverloads constructor(
         if (constraints != workInfo.constraints) return false
         if (initialDelayMillis != workInfo.initialDelayMillis) return false
         if (periodicityInfo != workInfo.periodicityInfo) return false
-        if (earliestPossibleRuntimeMillis != workInfo.earliestPossibleRuntimeMillis) return false
+        if (nextScheduleTimeMillis != workInfo.nextScheduleTimeMillis) return false
         return if (tags != workInfo.tags) false else progress == workInfo.progress
     }
 
@@ -133,7 +133,7 @@ class WorkInfo @JvmOverloads constructor(
         result = 31 * result + constraints.hashCode()
         result = 31 * result + initialDelayMillis.hashCode()
         result = 31 * result + periodicityInfo.hashCode()
-        result = 31 * result + earliestPossibleRuntimeMillis.hashCode()
+        result = 31 * result + nextScheduleTimeMillis.hashCode()
         return result
     }
 
@@ -143,7 +143,7 @@ class WorkInfo @JvmOverloads constructor(
             "runAttemptCount=$runAttemptCount, generation=$generation, " +
             "constraints=$constraints}, initialDelayMillis=$initialDelayMillis, " +
             "periodicityInfo=$periodicityInfo, " +
-            "earliestPossibleRunTimeMillis=$earliestPossibleRuntimeMillis")
+            "nextScheduleTimeMillis=$nextScheduleTimeMillis")
     }
 
     /**

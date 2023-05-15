@@ -26,13 +26,13 @@ import androidx.datastore.preferences.core.preferencesOf
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import io.reactivex.Single
+import java.io.File
+import java.io.FileOutputStream
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
-import java.io.File
-import java.io.FileOutputStream
 
 val intKey = intPreferencesKey("int_key")
 

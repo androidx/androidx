@@ -52,7 +52,7 @@ class TextUsingModifierMinMaxLinesTest {
                     Modifier
                         .onSizeChanged { sizes[i] = it }
                         .width(5.dp)) {
-                    TextUsingModifier(
+                    BasicText(
                         text,
                         style = textStyle,
                         maxLines = i + 1,
@@ -67,7 +67,7 @@ class TextUsingModifierMinMaxLinesTest {
                 Modifier
                     .onSizeChanged { unboundedTextSize = it }
                     .width(5.dp)) {
-                TextUsingModifier(
+                BasicText(
                     text,
                     style = textStyle,
                     maxLines = Int.MAX_VALUE
@@ -98,7 +98,7 @@ class TextUsingModifierMinMaxLinesTest {
                     Modifier
                         .onSizeChanged { sizes[i] = it }
                         .width(5.dp)) {
-                    TextUsingModifier(
+                    BasicText(
                         text,
                         style = textStyle,
                         minLines = i + 1,
@@ -113,7 +113,7 @@ class TextUsingModifierMinMaxLinesTest {
                 Modifier
                     .onSizeChanged { unboundedTextSize = it }
                     .width(5.dp)) {
-                TextUsingModifier(
+                BasicText(
                     text,
                     style = textStyle
                 )
@@ -132,21 +132,21 @@ class TextUsingModifierMinMaxLinesTest {
     @Test(expected = IllegalArgumentException::class)
     fun negativeMinLines_throws() {
         rule.setContent {
-            TextUsingModifier(text = "", minLines = -1)
+            BasicText(text = "", minLines = -1)
         }
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun negativeMaxLines_throws() {
         rule.setContent {
-            TextUsingModifier(text = "", maxLines = -1)
+            BasicText(text = "", maxLines = -1)
         }
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun crossedMinMaxLines_throws() {
         rule.setContent {
-            TextUsingModifier(text = "", minLines = 10, maxLines = 5)
+            BasicText(text = "", minLines = 10, maxLines = 5)
         }
     }
 }

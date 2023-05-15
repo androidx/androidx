@@ -1,4 +1,16 @@
 // Baseline format: 1.0
+GetterSetterNames: field ComplicationSlot.enabled:
+    Invalid name for boolean property `enabled`. Should start with one of `has`, `can`, `should`, `is`.
+GetterSetterNames: field ComplicationSlot.fixedComplicationDataSource:
+    Invalid name for boolean property `fixedComplicationDataSource`. Should start with one of `has`, `can`, `should`, `is`.
+GetterSetterNames: field ComplicationSlot.initiallyEnabled:
+    Invalid name for boolean property `initiallyEnabled`. Should start with one of `has`, `can`, `should`, `is`.
+GetterSetterNames: field Renderer.CanvasRenderer.clearWithBackgroundTintBeforeRenderingHighlightLayer:
+    Invalid name for boolean property `clearWithBackgroundTintBeforeRenderingHighlightLayer`. Should start with one of `has`, `can`, `should`, `is`.
+GetterSetterNames: field WatchFace.LegacyWatchFaceOverlayStyle.tapEventsAccepted:
+    Invalid name for boolean property `tapEventsAccepted`. Should start with one of `has`, `can`, `should`, `is`.
+
+
 InvalidNullabilityOverride: androidx.wear.watchface.WatchFaceService#dump(java.io.FileDescriptor, java.io.PrintWriter, String[]) parameter #0:
     Invalid nullability on parameter `fd` in method `dump`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
 InvalidNullabilityOverride: androidx.wear.watchface.WatchFaceService#dump(java.io.FileDescriptor, java.io.PrintWriter, String[]) parameter #1:

@@ -26,8 +26,10 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material.Slider
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.SpanStyle
@@ -55,13 +57,13 @@ private val presetNameStyle = SpanStyle(fontWeight = FontWeight.Bold, fontSize =
 
 @Composable
 fun TextLineBreakDemo() {
-    val selectedFontSize = remember { mutableStateOf(16f) }
+    var selectedFontSize by remember { mutableFloatStateOf(16f) }
 
     Column(modifier = Modifier.fillMaxSize()) {
-        Text("Font size: ${selectedFontSize.value}")
+        Text("Font size: $selectedFontSize")
         Slider(
-            value = selectedFontSize.value,
-            onValueChange = { value -> selectedFontSize.value = value },
+            value = selectedFontSize,
+            onValueChange = { value -> selectedFontSize = value },
             valueRange = 8f..48f
         )
 
@@ -82,7 +84,7 @@ fun TextLineBreakDemo() {
                     },
                     style = TextStyle(
                         lineBreak = preset,
-                        fontSize = selectedFontSize.value.sp
+                        fontSize = selectedFontSize.sp
                     ),
                     modifier = textModifier.weight(1f)
                 )

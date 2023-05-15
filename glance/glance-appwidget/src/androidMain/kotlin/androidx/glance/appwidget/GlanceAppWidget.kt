@@ -50,35 +50,19 @@ abstract class GlanceAppWidget(
     internal val errorUiLayout: Int = R.layout.glance_error_layout,
 ) {
     private val sessionManager: SessionManager = GlanceSessionManager
+
     /**
      * Override this function to provide the Glance Composable.
      *
      * This is a good place to load any data needed to render the Composable. Use
-     * [provideContent] to provide the Composable once it is ready.
+     * [provideContent] to provide the Composable once the data is ready.
+     *
+     * @sample androidx.glance.appwidget.samples.provideGlanceSample
      */
-    open suspend fun provideGlance(
+    abstract suspend fun provideGlance(
         context: Context,
         id: GlanceId,
-    ) {
-        provideContent { @Suppress("DEPRECATION") Content() }
-    }
-
-    /**
-     * Provide the Glance Composable.
-     */
-    @Composable
-    @GlanceComposable
-    @Deprecated(
-        message = "Override provideGlance to provide the Composable.",
-        replaceWith = ReplaceWith(
-            "override suspend fun provideGlance(context: Context, id: GlanceId) {" +
-            "    provideContent { /** Composable content **/ }" +
-            "}",
-            "androidx.glance.appwidget.provideContent",
-        ),
-        level = DeprecationLevel.WARNING,
     )
-    open fun Content() {}
 
     /**
      * Defines the handling of sizes.

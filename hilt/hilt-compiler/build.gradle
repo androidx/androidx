@@ -52,7 +52,7 @@ tasks.withType(Test).configureEach {
 }
 
 androidx {
-    name = "AndroidX Hilt Extension Compiler"
+    name = "Hilt Extension Compiler"
     type = LibraryType.ANNOTATION_PROCESSOR
     mavenVersion = LibraryVersions.HILT
     inceptionYear = "2020"

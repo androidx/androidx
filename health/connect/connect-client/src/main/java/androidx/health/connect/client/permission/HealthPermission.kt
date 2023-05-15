@@ -199,6 +199,7 @@ internal constructor(
         internal const val WRITE_ELEVATION_GAINED =
             "android.permission.health.WRITE_ELEVATION_GAINED"
         internal const val WRITE_EXERCISE = "android.permission.health.WRITE_EXERCISE"
+        internal const val WRITE_EXERCISE_ROUTE = "android.permission.health.WRITE_EXERCISE_ROUTE"
         internal const val WRITE_FLOORS_CLIMBED = "android.permission.health.WRITE_FLOORS_CLIMBED"
         internal const val WRITE_STEPS = "android.permission.health.WRITE_STEPS"
         internal const val WRITE_TOTAL_CALORIES_BURNED =

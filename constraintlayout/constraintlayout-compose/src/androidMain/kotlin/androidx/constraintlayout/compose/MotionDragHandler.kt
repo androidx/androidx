@@ -16,7 +16,6 @@
 
 package androidx.constraintlayout.compose
 
-import android.annotation.SuppressLint
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -25,6 +24,7 @@ import androidx.compose.ui.composed
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.util.VelocityTracker
+import androidx.compose.ui.input.pointer.util.addPointerInputChange
 import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.unit.Velocity
 import kotlinx.coroutines.channels.Channel
@@ -37,11 +37,7 @@ import kotlinx.coroutines.isActive
  * @see Modifier.pointerInput
  * @see TransitionHandler
  */
-@SuppressLint("UnnecessaryComposedModifier")
-@Suppress("NOTHING_TO_INLINE")
-@PublishedApi
-@ExperimentalMotionApi
-internal inline fun Modifier.motionPointerInput(
+internal fun Modifier.motionPointerInput(
     key: Any,
     motionProgress: MotionProgress,
     measurer: MotionMeasurer
@@ -109,7 +105,7 @@ internal inline fun Modifier.motionPointerInput(
                 )
             }
         ) { change, dragAmount ->
-            velocityTracker.addPosition(change.uptimeMillis, change.position)
+            velocityTracker.addPointerInputChange(change)
             // As dragging is done, pass the dragAmount to update the MotionLayout progress.
             dragChannel.trySend(MotionDragState.onDrag(dragAmount))
         }
@@ -119,7 +115,6 @@ internal inline fun Modifier.motionPointerInput(
 /**
  * Data class with the relevant values of a touch input event used for OnSwipe support.
  */
-@PublishedApi
 internal data class MotionDragState(
     val isDragging: Boolean,
     val dragAmount: Offset,

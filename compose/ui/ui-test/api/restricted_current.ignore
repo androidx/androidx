@@ -5,6 +5,10 @@ ChangedType: androidx.compose.ui.test.ActionsKt#performSemanticsAction(androidx.
     Method androidx.compose.ui.test.ActionsKt.performSemanticsAction has changed return type from androidx.compose.ui.test.SemanticsNodeInteraction to void
 
 
+InvalidNullConversion: androidx.compose.ui.test.SemanticsMatcher.Companion#expectValue(androidx.compose.ui.semantics.SemanticsPropertyKey<T>, T) parameter #1:
+    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter expectedValue in androidx.compose.ui.test.SemanticsMatcher.Companion.expectValue(androidx.compose.ui.semantics.SemanticsPropertyKey<T> key, T expectedValue)
+
+
 RemovedDeprecatedMethod: androidx.compose.ui.test.ActionsKt#performSemanticsActionUnit(androidx.compose.ui.test.SemanticsNodeInteraction, androidx.compose.ui.semantics.SemanticsPropertyKey<androidx.compose.ui.semantics.AccessibilityAction<T>>, kotlin.jvm.functions.Function1<? super T,? extends kotlin.Unit>):
     Removed deprecated method androidx.compose.ui.test.ActionsKt.performSemanticsActionUnit(androidx.compose.ui.test.SemanticsNodeInteraction,androidx.compose.ui.semantics.SemanticsPropertyKey<androidx.compose.ui.semantics.AccessibilityAction<T>>,kotlin.jvm.functions.Function1<? super T,? extends kotlin.Unit>)
 RemovedDeprecatedMethod: androidx.compose.ui.test.ActionsKt#performSemanticsActionUnit(androidx.compose.ui.test.SemanticsNodeInteraction, androidx.compose.ui.semantics.SemanticsPropertyKey<androidx.compose.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function0<? extends java.lang.Boolean>>>):

@@ -82,7 +82,7 @@ dependencies {
 }
 
 androidx {
-    name = "AndroidX Tracing: Perfetto SDK Native Dependencies"
+    name = "Tracing Perfetto Binary"
     publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.TRACING_PERFETTO
     inceptionYear = "2022"

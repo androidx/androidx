@@ -38,6 +38,7 @@ interface TypeSpec<T> {
     fun fromValue(value: Value): T
 
     companion object {
+        @JvmField
         val STRING_TYPE_SPEC = object : TypeSpec<String> {
             override fun getIdentifier(obj: String): String? = null
 
@@ -51,6 +52,7 @@ interface TypeSpec<T> {
             }
         }
 
+        @JvmField
         val BOOL_TYPE_SPEC = object : TypeSpec<Boolean> {
             override fun getIdentifier(obj: Boolean): String? = null
 
@@ -64,6 +66,7 @@ interface TypeSpec<T> {
             }
         }
 
+        @JvmField
         val NUMBER_TYPE_SPEC = object : TypeSpec<Double> {
             override fun getIdentifier(obj: Double): String? = null
 
@@ -77,6 +80,7 @@ interface TypeSpec<T> {
             }
         }
 
+        @JvmField
         val INTEGER_TYPE_SPEC = object : TypeSpec<Int> {
             override fun getIdentifier(obj: Int): String? = null
 

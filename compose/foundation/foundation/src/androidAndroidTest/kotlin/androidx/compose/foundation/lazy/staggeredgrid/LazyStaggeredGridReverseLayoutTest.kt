@@ -19,15 +19,15 @@ package androidx.compose.foundation.lazy.staggeredgrid
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.layout.Box
-import androidx.compose.ui.Modifier
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
@@ -397,9 +397,40 @@ class LazyStaggeredGridReverseLayoutTest(
 
         // bottom padding applies instead of the top
         rule.onNodeWithTag("0")
-            .assertMainAxisStartPositionInRootIsEqualTo(itemSize * 3)
+            .assertMainAxisStartPositionInRootIsEqualTo(itemSize * 2)
         rule.onNodeWithTag("1")
-            .assertMainAxisStartPositionInRootIsEqualTo(itemSize * 3)
+            .assertMainAxisStartPositionInRootIsEqualTo(itemSize * 2)
+    }
+
+    @Test
+    fun contentPadding_isPreserved() {
+        val state = LazyStaggeredGridState()
+        rule.setContent {
+            LazyStaggeredGrid(
+                lanes = 2,
+                modifier = Modifier
+                    .axisSize(itemSize * 2, itemSize * 5)
+                    .testTag(StaggeredGridTag),
+                contentPadding = PaddingValues(afterContent = itemSize * 2),
+                reverseLayout = true,
+                state = state
+            ) {
+                items(6) {
+                    Box(Modifier.size(itemSize).testTag("$it"))
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            assertThat(state.firstVisibleItemIndex).isEqualTo(0)
+            assertThat(state.firstVisibleItemScrollOffset).isEqualTo(0)
+        }
+
+        // bottom padding applies instead of the top
+        rule.onNodeWithTag("0")
+            .assertMainAxisStartPositionInRootIsEqualTo(itemSize * 2)
+        rule.onNodeWithTag("1")
+            .assertMainAxisStartPositionInRootIsEqualTo(itemSize * 2)
     }
 
     @Test

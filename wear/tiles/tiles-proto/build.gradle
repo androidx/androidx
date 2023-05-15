@@ -68,7 +68,7 @@ protobuf {
     }
     generateProtoTasks {
         ofSourceSet("main").each { task ->
-            sourceSets.main.java.srcDir(task)
+            project.sourceSets.main.java.srcDir(task)
         }
         all().each { task ->
             task.builtins {

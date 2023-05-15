@@ -27,7 +27,7 @@ import androidx.compose.material.ExtendedFloatingActionButton
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.runtime.currentComposer
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -107,7 +107,7 @@ class PreviewActivity : ComponentActivity() {
         // cycle through all the values.
         if (previewParameters.size > 1) {
             setContent {
-                val index = remember { mutableStateOf(0) }
+                val index = remember { mutableIntStateOf(0) }
 
                 Scaffold(
                     content = { padding ->
@@ -116,14 +116,16 @@ class PreviewActivity : ComponentActivity() {
                                 className,
                                 methodName,
                                 currentComposer,
-                                previewParameters[index.value]
+                                previewParameters[index.intValue]
                             )
                         }
                     },
                     floatingActionButton = {
                         ExtendedFloatingActionButton(
                             text = { Text("Next") },
-                            onClick = { index.value = (index.value + 1) % previewParameters.size }
+                            onClick = {
+                                index.intValue = (index.intValue + 1) % previewParameters.size
+                            }
                         )
                     }
                 )

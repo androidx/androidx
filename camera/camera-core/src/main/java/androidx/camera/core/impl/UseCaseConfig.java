@@ -94,6 +94,12 @@ public interface UseCaseConfig<T extends UseCase> extends TargetConfig<T>, UseCa
     Option<Boolean> OPTION_HIGH_RESOLUTION_DISABLED =
             Option.create("camerax.core.useCase.highResolutionDisabled", boolean.class);
 
+    /**
+     * Option: camerax.core.useCase.highResolutionDisabled
+     */
+    Option<UseCaseConfigFactory.CaptureType> OPTION_CAPTURE_TYPE = Option.create(
+            "camerax.core.useCase.captureType", UseCaseConfigFactory.CaptureType.class);
+
 
     // *********************************************************************************************
 
@@ -314,6 +320,14 @@ public interface UseCaseConfig<T extends UseCase> extends TargetConfig<T>, UseCa
     }
 
     /**
+     * @return The {@link UseCaseConfigFactory.CaptureType} of this UseCaseConfig.
+     */
+    @NonNull
+    default UseCaseConfigFactory.CaptureType getCaptureType() {
+        return retrieveOption(OPTION_CAPTURE_TYPE);
+    }
+
+    /**
      * Builder for a {@link UseCase}.
      *
      * @param <T> The type of the object which will be built by {@link #build()}.
@@ -418,6 +432,14 @@ public interface UseCaseConfig<T extends UseCase> extends TargetConfig<T>, UseCa
          */
         @NonNull
         B setHighResolutionDisabled(boolean disabled);
+
+        /**
+         * Sets the capture type for this configuration.
+         *
+         * @param captureType The capture type for this use case.
+         */
+        @NonNull
+        B setCaptureType(@NonNull UseCaseConfigFactory.CaptureType captureType);
 
         /**
          * Retrieves the configuration used by this builder.

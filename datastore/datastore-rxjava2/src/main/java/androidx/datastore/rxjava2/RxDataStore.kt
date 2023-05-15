@@ -21,16 +21,16 @@ import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Single
 import io.reactivex.disposables.Disposable
+import io.reactivex.functions.Function
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
+import kotlinx.coroutines.job
 import kotlinx.coroutines.rx2.asFlowable
 import kotlinx.coroutines.rx2.asSingle
 import kotlinx.coroutines.rx2.await
-import io.reactivex.functions.Function
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.job
 import kotlinx.coroutines.rx2.rxCompletable
 
 /**

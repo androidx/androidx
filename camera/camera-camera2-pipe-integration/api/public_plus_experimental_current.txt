@@ -28,7 +28,7 @@ package androidx.camera.camera2.pipe.integration.interop {
 
   @RequiresApi(21) public static final class Camera2Interop.Extender<T> {
     ctor public Camera2Interop.Extender(androidx.camera.core.ExtendableBuilder<T> baseBuilder);
-    method public <ValueT> androidx.camera.camera2.pipe.integration.interop.Camera2Interop.Extender<T> setCaptureRequestOption(android.hardware.camera2.CaptureRequest.Key<ValueT> key, ValueT? value);
+    method public <ValueT> androidx.camera.camera2.pipe.integration.interop.Camera2Interop.Extender<T> setCaptureRequestOption(android.hardware.camera2.CaptureRequest.Key<ValueT> key, ValueT value);
     method public androidx.camera.camera2.pipe.integration.interop.Camera2Interop.Extender<T> setDeviceStateCallback(android.hardware.camera2.CameraDevice.StateCallback stateCallback);
     method @RequiresApi(28) public androidx.camera.camera2.pipe.integration.interop.Camera2Interop.Extender<T> setPhysicalCameraId(String cameraId);
     method public androidx.camera.camera2.pipe.integration.interop.Camera2Interop.Extender<T> setSessionCaptureCallback(android.hardware.camera2.CameraCaptureSession.CaptureCallback captureCallback);
@@ -44,7 +44,7 @@ package androidx.camera.camera2.pipe.integration.interop {
     ctor public CaptureRequestOptions.Builder();
     method public androidx.camera.camera2.pipe.integration.interop.CaptureRequestOptions build();
     method public <ValueT> androidx.camera.camera2.pipe.integration.interop.CaptureRequestOptions.Builder clearCaptureRequestOption(android.hardware.camera2.CaptureRequest.Key<ValueT> key);
-    method public <ValueT> androidx.camera.camera2.pipe.integration.interop.CaptureRequestOptions.Builder setCaptureRequestOption(android.hardware.camera2.CaptureRequest.Key<ValueT> key, ValueT? value);
+    method public <ValueT> androidx.camera.camera2.pipe.integration.interop.CaptureRequestOptions.Builder setCaptureRequestOption(android.hardware.camera2.CaptureRequest.Key<ValueT> key, ValueT value);
   }
 
   @kotlin.RequiresOptIn @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalCamera2Interop {

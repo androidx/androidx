@@ -2482,4 +2482,60 @@ class FlowRowColumnTest {
         rule.waitForIdle()
         Truth.assertThat(height).isEqualTo(180)
     }
+
+    @Test
+    fun testFlowRow_constrainsOverflow() {
+        var width = 0
+        rule.setContent {
+            with(LocalDensity.current) {
+                Box(Modifier.size(200.toDp())) {
+                    FlowRow(
+                        Modifier
+                            .fillMaxWidth(1f)
+                            .onSizeChanged {
+                                width = it.width
+                            },
+                        verticalArrangement = Arrangement.spacedBy(20.toDp()),
+                    ) {
+                        repeat(2) {
+                            Box(
+                                Modifier
+                                    .size(250.toDp())
+                            )
+                        }
+                    }
+                }
+            }
+        }
+        rule.waitForIdle()
+        Truth.assertThat(width).isEqualTo(200)
+    }
+
+    @Test
+    fun testFlowColumn_constrainsOverflow() {
+        var height = 0
+        rule.setContent {
+            with(LocalDensity.current) {
+                Box(Modifier.size(200.toDp())) {
+                    FlowColumn(
+                        Modifier
+                            .fillMaxWidth(1f)
+                            .onSizeChanged {
+                                height = it.height
+                            },
+                        horizontalArrangement = Arrangement.spacedBy(20.toDp()),
+                    ) {
+                        repeat(2) {
+                            Box(
+                                Modifier
+                                    .size(250.toDp())
+                            )
+                        }
+                    }
+                }
+            }
+        }
+        rule.waitForIdle()
+        Truth.assertThat(height).isEqualTo(200)
+    }
 }

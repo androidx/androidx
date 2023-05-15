@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-import androidx.build.AndroidXComposePlugin
+import androidx.build.KmpPlatformsKt
 import androidx.build.LibraryType
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
@@ -24,57 +23,70 @@ plugins {
     id("AndroidXComposePlugin")
 }
 
-AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project)
+def desktopEnabled = KmpPlatformsKt.enableDesktop(project)
 
-if(!AndroidXComposePlugin.isMultiplatformEnabled(project)) {
-    dependencies {
-        /*
-         * When updating dependencies, make sure to make the an an analogous update in the
-         * corresponding block below
-         */
+androidXMultiplatform {
+    android()
+    if (desktopEnabled) desktop()
 
-        implementation(libs.kotlinStdlib)
-
-        testImplementation(libs.junit)
-        testImplementation(libs.truth)
-        testImplementation(libs.kotlinTest)
-    }
-}
-
-if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
-    androidXComposeMultiplatform {
-        android()
-        desktop()
-    }
-
-    kotlin {
-        /*
-         * When updating dependencies, make sure to make the an an analogous update in the
-         * corresponding block above
-         */
-        sourceSets {
-            commonMain.dependencies {
+    sourceSets {
+        commonMain {
+            dependencies {
                 implementation(libs.kotlinStdlibCommon)
             }
+        }
 
-            jvmMain.dependencies {
-                implementation(libs.kotlinStdlib)
-            }
-
-            androidMain.dependencies {
-                implementation(libs.kotlinStdlib)
-            }
-
-            commonTest.dependencies {
+        commonTest {
+            dependencies {
                 implementation(kotlin("test-junit"))
             }
+        }
 
-            // TODO(b/214407011): These dependencies leak into instrumented tests as well. If you
-            //  need to add Robolectric (which must be kept out of androidAndroidTest), use a top
-            //  level dependencies block instead:
-            //  `dependencies { testImplementation(libs.robolectric) }`
-            androidTest.dependencies {
+        jvmMain {
+            dependencies {
+                implementation(libs.kotlinStdlib)
+            }
+        }
+
+
+        androidMain {
+            dependsOn(jvmMain)
+            dependencies {
+                implementation(libs.kotlinStdlib)
+            }
+        }
+
+        if (desktopEnabled) {
+            desktopMain {
+                dependsOn(jvmMain)
+            }
+        }
+
+        jvmTest {
+            dependencies {
+            }
+        }
+
+        androidAndroidTest {
+            dependsOn(jvmTest)
+            dependencies {
+            }
+        }
+
+        // TODO(b/214407011): These dependencies leak into instrumented tests as well. If you
+        //  need to add Robolectric (which must be kept out of androidAndroidTest), use a top
+        //  level dependencies block instead:
+        //  `dependencies { testImplementation(libs.robolectric) }`
+        androidTest {
+            dependsOn(jvmTest)
+            dependencies {
                 implementation(libs.truth)
+            }
+        }
+
+        if (desktopEnabled) {
+            desktopTest {
+                dependsOn(jvmTest)
             }
         }
     }

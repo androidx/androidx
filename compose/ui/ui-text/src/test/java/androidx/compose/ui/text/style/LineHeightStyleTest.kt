@@ -18,8 +18,8 @@
 package androidx.compose.ui.text.style
 
 import androidx.compose.ui.text.ExperimentalTextApi
-import androidx.compose.ui.text.style.LineHeightStyle.Trim
 import androidx.compose.ui.text.style.LineHeightStyle.Alignment
+import androidx.compose.ui.text.style.LineHeightStyle.Trim
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith

@@ -18,11 +18,11 @@ package androidx.compose.ui.window
 
 import android.os.Build
 import android.view.View
-import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.BasicText
+import androidx.compose.foundation.text.ClickableText
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -41,13 +41,13 @@ import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
 import com.google.common.truth.Truth.assertThat
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 import org.junit.Assume
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
 
 @LargeTest
 @RunWith(Parameterized::class)

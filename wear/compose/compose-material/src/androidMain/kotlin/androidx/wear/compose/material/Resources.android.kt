@@ -20,13 +20,19 @@ import android.provider.Settings
 import android.text.format.DateFormat
 import android.view.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 
 @Composable
-internal actual fun isRoundDevice(): Boolean = LocalConfiguration.current.isScreenRound
+internal actual fun isRoundDevice(): Boolean {
+    val configuration = LocalConfiguration.current
+    return remember(configuration) {
+        configuration.isScreenRound
+    }
+}
 
 @Composable
 internal actual fun imageResource(image: ImageResources): Painter =
@@ -45,12 +51,16 @@ internal actual fun is24HourFormat(): Boolean = DateFormat.is24HourFormat(LocalC
 internal actual fun currentTimeMillis(): Long = System.currentTimeMillis()
 
 @Composable
-internal actual fun isLeftyModeEnabled() =
-    Settings.System.getInt(
-        LocalContext.current.contentResolver,
-        Settings.System.USER_ROTATION,
-        Surface.ROTATION_0
-    ) == Surface.ROTATION_180
+internal actual fun isLeftyModeEnabled(): Boolean {
+    val context = LocalContext.current
+    return remember(context) {
+        Settings.System.getInt(
+            context.contentResolver,
+            Settings.System.USER_ROTATION,
+            Surface.ROTATION_0
+        ) == Surface.ROTATION_180
+    }
+}
 
 @Composable
 internal actual fun screenHeightDp() = LocalContext.current.resources.configuration.screenHeightDp

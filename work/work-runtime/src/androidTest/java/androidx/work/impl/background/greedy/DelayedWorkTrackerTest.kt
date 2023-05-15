@@ -20,7 +20,9 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.work.OneTimeWorkRequest
 import androidx.work.RunnableScheduler
+import androidx.work.SystemClock
 import androidx.work.worker.TestWorker
+import java.util.concurrent.TimeUnit
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -28,7 +30,6 @@ import org.mockito.ArgumentMatchers.any
 import org.mockito.ArgumentMatchers.anyLong
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
-import java.util.concurrent.TimeUnit
 
 @RunWith(AndroidJUnit4::class)
 class DelayedWorkTrackerTest {
@@ -40,7 +41,7 @@ class DelayedWorkTrackerTest {
     fun setUp() {
         mScheduler = mock(GreedyScheduler::class.java)
         mRunnableScheduler = mock(RunnableScheduler::class.java)
-        mDelayedWorkTracker = DelayedWorkTracker(mScheduler, mRunnableScheduler)
+        mDelayedWorkTracker = DelayedWorkTracker(mScheduler, mRunnableScheduler, SystemClock())
     }
 
     @Test

@@ -395,6 +395,28 @@ class OutlinedTextFieldTest {
     }
 
     @Test
+    fun testOutlinedTextField_labelHeight_contributesToTextFieldMeasurements_whenUnfocused() {
+        val tfSize = Ref<IntSize>()
+        val labelHeight = 200.dp
+        rule.setMaterialContent(lightColorScheme()) {
+            OutlinedTextField(
+                value = "",
+                onValueChange = {},
+                modifier = Modifier.testTag(TextFieldTag).onGloballyPositioned {
+                    tfSize.value = it.size
+                },
+                label = {
+                    Box(Modifier.size(width = 50.dp, height = labelHeight))
+                },
+            )
+        }
+
+        rule.runOnIdleWithDensity {
+            assertThat(tfSize.value!!.height).isAtLeast(labelHeight.roundToPx())
+        }
+    }
+
+    @Test
     fun testOutlinedTextField_labelWidth_isNotAffectedByTrailingIcon_whenFocused() {
         val textFieldWidth = 100.dp
         val labelRequestedWidth = 65.dp
@@ -1135,6 +1157,34 @@ class OutlinedTextFieldTest {
     }
 
     @Test
+    fun testOutlinedTextField_supportingText_widthIsNotWiderThanTextField() {
+        val tfSize = Ref<IntSize>()
+        val supportingSize = Ref<IntSize>()
+        rule.setMaterialContent(lightColorScheme()) {
+            OutlinedTextField(
+                value = "",
+                onValueChange = {},
+                modifier = Modifier.onGloballyPositioned {
+                    tfSize.value = it.size
+                },
+                supportingText = {
+                    Text(
+                        text = "Long long long long long long long long long long long long " +
+                            "long long long long long long long long long long long long",
+                        modifier = Modifier.onGloballyPositioned {
+                            supportingSize.value = it.size
+                        }
+                    )
+                }
+            )
+        }
+
+        rule.runOnIdleWithDensity {
+            assertThat(supportingSize.value!!.width).isAtMost(tfSize.value!!.width)
+        }
+    }
+
+    @Test
     fun testOutlinedTextField_supportingText_contributesToTextFieldMeasurements() {
         val tfSize = Ref<IntSize>()
         rule.setMaterialContent(lightColorScheme()) {
@@ -1153,6 +1203,24 @@ class OutlinedTextFieldTest {
                 ExpectedMinimumTextFieldHeight.roundToPx()
             )
         }
+    }
+
+    @Test
+    fun testOutlinedTextField_supportingText_remainsVisibleWithTallInput() {
+        rule.setMaterialContent(lightColorScheme()) {
+            OutlinedTextField(
+                value = buildString {
+                    repeat(200) {
+                        append("line $it\n")
+                    }
+                },
+                onValueChange = {},
+                modifier = Modifier.size(width = ExpectedDefaultTextFieldWidth, height = 150.dp),
+                supportingText = { Text("Supporting", modifier = Modifier.testTag("Supporting")) }
+            )
+        }
+
+        rule.onNodeWithTag("Supporting", useUnmergedTree = true).assertIsDisplayed()
     }
 
     @Test

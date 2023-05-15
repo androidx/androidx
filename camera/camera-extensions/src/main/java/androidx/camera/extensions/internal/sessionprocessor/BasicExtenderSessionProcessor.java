@@ -96,7 +96,9 @@ public class BasicExtenderSessionProcessor extends SessionProcessorBase {
 
     public BasicExtenderSessionProcessor(@NonNull PreviewExtenderImpl previewExtenderImpl,
             @NonNull ImageCaptureExtenderImpl imageCaptureExtenderImpl,
+            @NonNull List<CaptureRequest.Key> supportedKeys,
             @NonNull Context context) {
+        super(supportedKeys);
         mPreviewExtenderImpl = previewExtenderImpl;
         mImageCaptureExtenderImpl = imageCaptureExtenderImpl;
         mContext = context;

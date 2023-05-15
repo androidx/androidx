@@ -69,6 +69,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertHeightIsEqualTo
+import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertWidthIsEqualTo
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.click
@@ -98,17 +99,17 @@ import androidx.test.filters.LargeTest
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
-import org.mockito.kotlin.any
-import org.mockito.kotlin.atLeastOnce
-import org.mockito.kotlin.eq
-import org.mockito.kotlin.mock
-import org.mockito.kotlin.verify
 import kotlin.math.roundToInt
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.kotlin.any
+import org.mockito.kotlin.atLeastOnce
+import org.mockito.kotlin.eq
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.verify
 
 @OptIn(ExperimentalMaterial3Api::class)
 @MediumTest
@@ -1121,6 +1122,34 @@ class TextFieldTest {
     }
 
     @Test
+    fun testTextField_supportingText_widthIsNotWiderThanTextField() {
+        val tfSize = Ref<IntSize>()
+        val supportingSize = Ref<IntSize>()
+        rule.setMaterialContent(lightColorScheme()) {
+            TextField(
+                value = "",
+                onValueChange = {},
+                modifier = Modifier.onGloballyPositioned {
+                    tfSize.value = it.size
+                },
+                supportingText = {
+                    Text(
+                        text = "Long long long long long long long long long long long long " +
+                            "long long long long long long long long long long long long",
+                        modifier = Modifier.onGloballyPositioned {
+                            supportingSize.value = it.size
+                        }
+                    )
+                }
+            )
+        }
+
+        rule.runOnIdleWithDensity {
+            assertThat(supportingSize.value!!.width).isAtMost(tfSize.value!!.width)
+        }
+    }
+
+    @Test
     fun testTextField_supportingText_contributesToTextFieldMeasurements() {
         val tfSize = Ref<IntSize>()
         rule.setMaterialContent(lightColorScheme()) {
@@ -1139,6 +1168,24 @@ class TextFieldTest {
                 ExpectedDefaultTextFieldHeight.roundToPx()
             )
         }
+    }
+
+    @Test
+    fun testTextField_supportingText_remainsVisibleWithTallInput() {
+        rule.setMaterialContent(lightColorScheme()) {
+            TextField(
+                value = buildString {
+                    repeat(200) {
+                        append("line $it\n")
+                    }
+                },
+                onValueChange = {},
+                modifier = Modifier.size(width = ExpectedDefaultTextFieldWidth, height = 150.dp),
+                supportingText = { Text("Supporting", modifier = Modifier.testTag("Supporting")) }
+            )
+        }
+
+        rule.onNodeWithTag("Supporting", useUnmergedTree = true).assertIsDisplayed()
     }
 
     @Test

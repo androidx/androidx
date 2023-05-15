@@ -29,14 +29,14 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.sp
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
+import com.google.common.truth.IntegerSubject
 import com.google.common.truth.Truth.assertThat
+import kotlin.math.floor
 import org.junit.Test
 import org.junit.runner.RunWith
-import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.google.common.truth.IntegerSubject
-import kotlin.math.floor
 
 @RunWith(AndroidJUnit4::class)
 @SmallTest

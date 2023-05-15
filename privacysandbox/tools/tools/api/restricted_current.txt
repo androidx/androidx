@@ -1,7 +1,16 @@
 // Signature format: 4.0
 package androidx.privacysandbox.tools {
 
-  @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.CLASS) public @interface PrivacySandboxService {
+  @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.RUNTIME) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.CLASS) public @interface PrivacySandboxCallback {
+  }
+
+  @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.RUNTIME) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.CLASS) public @interface PrivacySandboxInterface {
+  }
+
+  @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.RUNTIME) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.CLASS) public @interface PrivacySandboxService {
+  }
+
+  @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.RUNTIME) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.CLASS) public @interface PrivacySandboxValue {
   }
 
 }

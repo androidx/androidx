@@ -17,10 +17,14 @@
 package androidx.compose.ui.input.pointer
 
 import androidx.compose.runtime.collection.mutableVectorOf
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.fastMapNotNull
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.internal.JvmDefaultWithCompatibility
+import androidx.compose.ui.node.ModifierNodeElement
+import androidx.compose.ui.node.PointerInputModifierNode
+import androidx.compose.ui.node.requireLayoutNode
+import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.ViewConfiguration
 import androidx.compose.ui.platform.synchronized
@@ -38,22 +42,17 @@ import kotlin.coroutines.resumeWithException
 import kotlin.math.max
 import kotlinx.coroutines.CancellableContinuation
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
-import androidx.compose.ui.internal.JvmDefaultWithCompatibility
-import androidx.compose.ui.node.ModifierNodeElement
-import androidx.compose.ui.node.PointerInputModifierNode
-import androidx.compose.ui.node.requireLayoutNode
-import androidx.compose.ui.platform.InspectorInfo
-import kotlinx.coroutines.CoroutineStart
-import kotlinx.coroutines.Job
 
 /**
  * Receiver scope for awaiting pointer events in a call to
  * [PointerInputScope.awaitPointerEventScope].
  *
- * This is a restricted suspension scope. Code in this scope is always called undispatched and
+ * This is a restricted suspension scope. Code in this scope is always called un-dispatched and
  * may only suspend for calls to [awaitPointerEvent]. These functions
  * resume synchronously and the caller may mutate the result **before** the next await call to
  * affect the next stage of the input processing pipeline.
@@ -176,6 +175,7 @@ interface PointerInputScope : Density {
     ): R
 }
 
+@Suppress("ConstPropertyName")
 private const val PointerInputModifierNoParamError =
     "Modifier.pointerInput must provide one or more 'key' parameters that define the identity of " +
         "the modifier and determine when its previous input processing coroutine should be " +
@@ -189,9 +189,8 @@ private const val PointerInputModifierNoParamError =
 // This deprecated-error function shadows the varargs overload so that the varargs version
 // is not used without key parameters.
 @Suppress(
-    "DeprecatedCallableAddReplaceWith",
     "UNUSED_PARAMETER",
-    "unused",
+    "UnusedReceiverParameter",
     "ModifierFactoryUnreferencedReceiver"
 )
 @Deprecated(PointerInputModifierNoParamError, level = DeprecationLevel.ERROR)
@@ -227,7 +226,7 @@ fun Modifier.pointerInput(
 fun Modifier.pointerInput(
     key1: Any?,
     block: suspend PointerInputScope.() -> Unit
-): Modifier = this then SuspendPointerInputModifierNodeElement(
+): Modifier = this then SuspendPointerInputElement(
     key1 = key1,
     pointerInputHandler = block
 )
@@ -262,7 +261,7 @@ fun Modifier.pointerInput(
     key1: Any?,
     key2: Any?,
     block: suspend PointerInputScope.() -> Unit
-): Modifier = this then SuspendPointerInputModifierNodeElement(
+): Modifier = this then SuspendPointerInputElement(
     key1 = key1,
     key2 = key2,
     pointerInputHandler = block
@@ -296,12 +295,12 @@ fun Modifier.pointerInput(
 fun Modifier.pointerInput(
     vararg keys: Any?,
     block: suspend PointerInputScope.() -> Unit
-): Modifier = this then SuspendPointerInputModifierNodeElement(
+): Modifier = this then SuspendPointerInputElement(
     keys = keys,
     pointerInputHandler = block
 )
 
-internal class SuspendPointerInputModifierNodeElement(
+internal class SuspendPointerInputElement(
     val key1: Any? = null,
     val key2: Any? = null,
     val keys: Array<out Any?>? = null,
@@ -319,15 +318,13 @@ internal class SuspendPointerInputModifierNodeElement(
         return SuspendingPointerInputModifierNodeImpl(pointerInputHandler)
     }
 
-    override fun update(node: SuspendingPointerInputModifierNodeImpl):
-        SuspendingPointerInputModifierNodeImpl {
+    override fun update(node: SuspendingPointerInputModifierNodeImpl) {
         node.pointerInputHandler = pointerInputHandler
-        return node
     }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (other !is SuspendPointerInputModifierNodeElement) return false
+        if (other !is SuspendPointerInputElement) return false
 
         if (key1 != other.key1) return false
         if (key2 != other.key2) return false
@@ -399,7 +396,6 @@ sealed interface SuspendingPointerInputModifierNode : PointerInputModifierNode {
  * Note: The coroutine that executes the passed pointer event handler is launched lazily when the
  * first event is fired (making it more efficient) and is cancelled via resetPointerInputHandler().
  */
-@OptIn(ExperimentalComposeUiApi::class)
 internal class SuspendingPointerInputModifierNodeImpl(
     pointerInputHandler: suspend PointerInputScope.() -> Unit
 ) : Modifier.Node(),
@@ -501,7 +497,7 @@ internal class SuspendingPointerInputModifierNodeImpl(
     override fun resetPointerInputHandler() {
         val localJob = pointerInputJob
         if (localJob != null) {
-            localJob.cancel(CancellationException())
+            localJob.cancel(PointerInputResetException())
             pointerInputJob = null
         }
     }
@@ -606,9 +602,6 @@ internal class SuspendingPointerInputModifierNodeImpl(
         dispatchPointerEvent(cancelEvent, PointerEventPass.Final)
 
         lastPointerEvent = null
-
-        // Cancels existing coroutine (Job) handling events.
-        resetPointerInputHandler()
     }
 
     override suspend fun <R> awaitPointerEventScope(
@@ -627,7 +620,7 @@ internal class SuspendingPointerInputModifierNodeImpl(
             // We also create the coroutine with both a receiver and a completion continuation
             // of the handlerCoroutine itself; we don't use our currently available suspended
             // continuation as the resume point because handlerCoroutine needs to remove the
-            // ContinuationInterceptor from the supplied CoroutineContext to have undispatched
+            // ContinuationInterceptor from the supplied CoroutineContext to have un-dispatched
             // behavior in our restricted suspension scope. This is required so that we can
             // process event-awaits synchronously and affect the next stage in the pipeline
             // without running too late due to dispatch.
@@ -645,7 +638,7 @@ internal class SuspendingPointerInputModifierNodeImpl(
      *
      * [PointerEventHandlerCoroutine] implements [AwaitPointerEventScope] to provide the
      * input handler DSL, and [Continuation] so that it can wrap [completion] and remove the
-     * [ContinuationInterceptor] from the calling context and run undispatched.
+     * [ContinuationInterceptor] from the calling context and run un-dispatched.
      */
     private inner class PointerEventHandlerCoroutine<R>(
         private val completion: Continuation<R>,
@@ -734,7 +727,7 @@ internal class SuspendingPointerInputModifierNodeImpl(
             try {
                 return block()
             } finally {
-                job.cancel()
+                job.cancel(CancelTimeoutCancellationException)
             }
         }
     }
@@ -746,4 +739,36 @@ internal class SuspendingPointerInputModifierNodeImpl(
  */
 class PointerEventTimeoutCancellationException(
     time: Long
-) : CancellationException("Timed out waiting for $time ms")
+) : CancellationException("Timed out waiting for $time ms") {
+    override fun fillInStackTrace(): Throwable {
+        // Avoid null.clone() on Android <= 6.0 when accessing stackTrace
+        stackTrace = emptyArray()
+        return this
+    }
+}
+
+/**
+ * Used in place of the standard Job cancellation pathway to avoid reflective
+ * javaClass.simpleName lookups to build the exception message and stack trace collection.
+ * Remove if these are changed in kotlinx.coroutines.
+ */
+private class PointerInputResetException : CancellationException("Pointer input was reset") {
+    override fun fillInStackTrace(): Throwable {
+        // Avoid null.clone() on Android <= 6.0 when accessing stackTrace
+        stackTrace = emptyArray()
+        return this
+    }
+}
+
+/**
+ * Also used in place of standard Job cancellation pathway; since we control this code path
+ * we shouldn't need to worry about other code calling addSuppressed on this exception
+ * so a singleton instance is used
+ */
+private object CancelTimeoutCancellationException : CancellationException() {
+    override fun fillInStackTrace(): Throwable {
+        // Avoid null.clone() on Android <= 6.0 when accessing stackTrace
+        stackTrace = emptyArray()
+        return this
+    }
+}

@@ -28,6 +28,7 @@ import androidx.compose.ui.semantics.ScrollAxisRange
 import androidx.compose.ui.semantics.collectionInfo
 import androidx.compose.ui.semantics.horizontalScrollAxisRange
 import androidx.compose.ui.semantics.indexForKey
+import androidx.compose.ui.semantics.isTraversalGroup
 import androidx.compose.ui.semantics.scrollBy
 import androidx.compose.ui.semantics.scrollToIndex
 import androidx.compose.ui.semantics.semantics
@@ -120,6 +121,7 @@ internal fun Modifier.lazyLayoutSemantics(
             val collectionInfo = state.collectionInfo()
 
             Modifier.semantics {
+                isTraversalGroup = true
                 indexForKey(indexForKeyMapping)
 
                 if (isVertical) {

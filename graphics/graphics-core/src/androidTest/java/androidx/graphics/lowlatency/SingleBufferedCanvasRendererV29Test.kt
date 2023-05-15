@@ -41,7 +41,6 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
-import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -229,7 +228,11 @@ class SingleBufferedCanvasRendererV29Test {
                     bufferReadyLatch.countDown()
                     drawCancelledRequestLatch?.countDown()
                 }
-            })
+            }).apply {
+                // See: b/236394768 Workaround for ANGLE issue where FBOs with HardwareBuffer
+                // attachments are not executed until a glReadPixels call is made
+                forceFlush.set(true)
+            }
         try {
             renderer.render(Color.RED)
             assertTrue(initialDrawLatch.await(3000, TimeUnit.MILLISECONDS))
@@ -280,7 +283,11 @@ class SingleBufferedCanvasRendererV29Test {
                 ) {
                     // NO-OP
                 }
-            })
+            }).apply {
+                // See: b/236394768 Workaround for ANGLE issue where FBOs with HardwareBuffer
+                // attachments are not executed until a glReadPixels call is made
+                forceFlush.set(true)
+            }
         try {
             val latch = CountDownLatch(1)
             renderer.release(true) {
@@ -330,7 +337,11 @@ class SingleBufferedCanvasRendererV29Test {
                     syncFenceCompat?.awaitForever()
                     drawLatch?.countDown()
                 }
-            })
+            }).apply {
+                // See: b/236394768 Workaround for ANGLE issue where FBOs with HardwareBuffer
+                // attachments are not executed until a glReadPixels call is made
+                forceFlush.set(true)
+            }
         try {
             renderer.isVisible = false
             drawLatch = CountDownLatch(1)
@@ -353,7 +364,6 @@ class SingleBufferedCanvasRendererV29Test {
         }
     }
 
-    @Ignore("b/274099885")
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     @Test
     fun testBatchedRenders() {
@@ -378,7 +388,11 @@ class SingleBufferedCanvasRendererV29Test {
                 ) {
                     // NO-OP
                 }
-            })
+            }).apply {
+                // See: b/236394768 Workaround for ANGLE issue where FBOs with HardwareBuffer
+                // attachments are not executed until a glReadPixels call is made
+                forceFlush.set(true)
+            }
         try {
             renderer.render(Color.RED)
             renderer.render(Color.BLUE)
@@ -431,7 +445,11 @@ class SingleBufferedCanvasRendererV29Test {
                     buffer = hardwareBuffer
                     renderLatch.countDown()
                 }
-            })
+            }).apply {
+                // See: b/236394768 Workaround for ANGLE issue where FBOs with HardwareBuffer
+                // attachments are not executed until a glReadPixels call is made
+                forceFlush.set(true)
+            }
         try {
             renderer.render(0)
             assertTrue(renderLatch.await(3000, TimeUnit.MILLISECONDS))

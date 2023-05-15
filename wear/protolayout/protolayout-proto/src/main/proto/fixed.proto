@@ -43,3 +43,9 @@ message FixedInstant {
   // 1970.
   int64 epoch_seconds = 1;
 }
+
+// A fixed duration type.
+message FixedDuration {
+  // Duration in seconds
+  int64 seconds = 1;
+}

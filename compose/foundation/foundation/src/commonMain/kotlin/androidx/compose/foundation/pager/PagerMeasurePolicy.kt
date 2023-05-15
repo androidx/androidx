@@ -22,8 +22,8 @@ import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
-import androidx.compose.foundation.lazy.LazyListBeyondBoundsInfo
 import androidx.compose.foundation.lazy.layout.LazyLayoutMeasureScope
+import androidx.compose.foundation.lazy.layout.calculateLazyLayoutPinnedIndices
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshots.Snapshot
@@ -50,8 +50,7 @@ internal fun rememberPagerMeasurePolicy(
     pageSize: PageSize,
     horizontalAlignment: Alignment.Horizontal?,
     verticalAlignment: Alignment.Vertical?,
-    pageCount: Int,
-    beyondBoundsInfo: LazyListBeyondBoundsInfo
+    pageCount: () -> Int,
 ) = remember<LazyLayoutMeasureScope.(Constraints) -> MeasureResult>(
     contentPadding,
     pageSpacing,
@@ -63,7 +62,6 @@ internal fun rememberPagerMeasurePolicy(
     horizontalAlignment,
     verticalAlignment,
     pageCount,
-    beyondBoundsInfo
 ) {
     { containerConstraints ->
         val isVertical = orientation == Orientation.Vertical
@@ -152,11 +150,16 @@ internal fun rememberPagerMeasurePolicy(
             }
         }
 
+        val pinnedPages = itemProvider.calculateLazyLayoutPinnedIndices(
+            pinnedItemList = state.pinnedPages,
+            beyondBoundsInfo = state.beyondBoundsInfo
+        )
+
         measurePager(
             beforeContentPadding = beforeContentPadding,
             afterContentPadding = afterContentPadding,
             constraints = contentConstraints,
-            pageCount = pageCount,
+            pageCount = pageCount(),
             spaceBetweenPages = spaceBetweenPages,
             mainAxisAvailableSize = mainAxisAvailableSize,
             visualPageOffset = visualItemOffset,
@@ -170,8 +173,7 @@ internal fun rememberPagerMeasurePolicy(
             pagerItemProvider = itemProvider,
             reverseLayout = reverseLayout,
             scrollToBeConsumed = state.scrollToBeConsumed,
-            beyondBoundsInfo = beyondBoundsInfo,
-            pinnedPages = state.pinnedPages,
+            pinnedPages = pinnedPages,
             layout = { width, height, placement ->
                 layout(
                     containerConstraints.constrainWidth(width + totalHorizontalPadding),

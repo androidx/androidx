@@ -16,11 +16,11 @@
 
 package androidx.build
 
-import org.gradle.api.Project
 import java.io.File
 import java.util.Locale
 import java.util.regex.Matcher
 import java.util.regex.Pattern
+import org.gradle.api.Project
 
 /**
  * Utility class which represents a version

@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.lazy.grid
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.FlingBehavior
 import androidx.compose.foundation.gestures.ScrollableDefaults
 import androidx.compose.foundation.layout.Arrangement
@@ -327,7 +326,6 @@ interface GridCells {
      * If the screen is 88.dp wide tne there will be 4 columns 20.dp each with remaining 8.dp
      * distributed through [Arrangement.Horizontal].
      */
-    @ExperimentalFoundationApi
     class FixedSize(private val size: Dp) : GridCells {
         init {
             require(size > 0.dp) { "Provided size $size should be larger than zero." }

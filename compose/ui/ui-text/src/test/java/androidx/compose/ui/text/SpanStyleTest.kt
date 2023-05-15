@@ -44,7 +44,6 @@ import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
 class SpanStyleTest {
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun `constructor with default values`() {
         val style = SpanStyle()
@@ -62,7 +61,6 @@ class SpanStyleTest {
         assertThat(style.drawStyle).isNull()
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun `constructor with customized brush`() {
         val brush = Brush.linearGradient(colors = listOf(Color.Blue, Color.Red))
@@ -72,7 +70,6 @@ class SpanStyleTest {
         assertThat(style.brush).isEqualTo(brush)
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun `constructor with customized brush and alpha`() {
         val brush = Brush.linearGradient(colors = listOf(Color.Blue, Color.Red))
@@ -83,7 +80,6 @@ class SpanStyleTest {
         assertThat(style.alpha).isEqualTo(0.3f)
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun `constructor with gradient brush has unspecified color`() {
         val brush = Brush.linearGradient(colors = listOf(Color.Blue, Color.Red))
@@ -93,7 +89,6 @@ class SpanStyleTest {
         assertThat(style.color).isEqualTo(Color.Unspecified)
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun `constructor with SolidColor converts to regular color`() {
         val brush = SolidColor(Color.Red)
@@ -112,7 +107,6 @@ class SpanStyleTest {
         assertThat(style.color).isEqualTo(color)
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun `constructor with half-transparent color`() {
         val color = Color.Red.copy(alpha = 0.5f)
@@ -204,7 +198,6 @@ class SpanStyleTest {
         assertThat(style.fontFamily).isEqualTo(fontFamily)
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun `constructor with customized drawStyle`() {
         val stroke = Stroke(width = 4f)
@@ -461,7 +454,6 @@ class SpanStyleTest {
         assertThat(mergedStyle.platformStyle).isNull()
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun `merge with brush has other brush and no color`() {
         val brush = Brush.linearGradient(listOf(Color.Blue, Color.Red))
@@ -475,7 +467,6 @@ class SpanStyleTest {
         assertThat(mergedStyle.brush).isEqualTo(brush)
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun `merge with unspecified brush has original brush`() {
         val brush = Brush.linearGradient(listOf(Color.Blue, Color.Red))
@@ -489,7 +480,6 @@ class SpanStyleTest {
         assertThat(mergedStyle.brush).isEqualTo(brush)
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun `merge brush with brush uses other's alpha`() {
         val brush = Brush.linearGradient(listOf(Color.Blue, Color.Red))
@@ -504,7 +494,6 @@ class SpanStyleTest {
         assertThat(mergedStyle.alpha).isEqualTo(0.6f)
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun `merge brush with brush uses current alpha if other's is NaN`() {
         val brush = Brush.linearGradient(listOf(Color.Blue, Color.Red))
@@ -519,7 +508,6 @@ class SpanStyleTest {
         assertThat(mergedStyle.alpha).isEqualTo(0.3f)
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun `merge with other's drawStyle is null should use this' drawStyle`() {
         val drawStyle1 = Stroke(cap = StrokeCap.Butt)
@@ -530,7 +518,6 @@ class SpanStyleTest {
         assertThat(newSpanStyle.drawStyle).isEqualTo(drawStyle1)
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun `merge with other's drawStyle is set should use other's drawStyle`() {
         val drawStyle1 = Stroke(cap = StrokeCap.Butt)
@@ -890,7 +877,6 @@ class SpanStyleTest {
         assertThat(lerpedStyle.platformStyle).isNull()
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun `lerp brush with a specified, b specified and t is smaller than half`() {
         val brush = Brush.linearGradient(listOf(Color.Blue, Color.Red))
@@ -903,7 +889,6 @@ class SpanStyleTest {
         assertThat(newStyle.color).isEqualTo(Color.Unspecified)
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun `lerp brush with a specified, b specified and t is larger than half`() {
         val brush = Brush.linearGradient(listOf(Color.Blue, Color.Red))
@@ -916,7 +901,6 @@ class SpanStyleTest {
         assertThat(newStyle.color).isEqualTo(Color.Red)
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun `lerp brush with a specified, b not specified and t is larger than half`() {
         val brush = Brush.linearGradient(listOf(Color.Blue, Color.Red))

@@ -29,12 +29,12 @@ import com.android.tools.lint.detector.api.JavaContext
 import com.android.tools.lint.detector.api.Scope
 import com.android.tools.lint.detector.api.Severity
 import com.android.tools.lint.detector.api.SourceCodeScanner
+import java.util.EnumSet
 import org.jetbrains.kotlin.psi.KtParameter
 import org.jetbrains.kotlin.psi.KtProperty
 import org.jetbrains.uast.UElement
 import org.jetbrains.uast.UParameter
 import org.jetbrains.uast.UVariable
-import java.util.EnumSet
 
 /**
  * [Detector] that checks the naming of CompositionLocal properties for consistency with guidelines.

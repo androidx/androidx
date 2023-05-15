@@ -15,11 +15,6 @@
  */
 package androidx.wear.compose.material
 
-import androidx.wear.compose.foundation.lazy.ScalingLazyColumn as ScalingLazyColumn
-import androidx.wear.compose.foundation.lazy.ScalingParams as ScalingParams
-import androidx.wear.compose.foundation.lazy.ScalingLazyColumnDefaults as ScalingLazyColumnDefaults
-import androidx.wear.compose.foundation.lazy.AutoCenteringParams as AutoCenteringParams
-import androidx.wear.compose.foundation.lazy.ScalingLazyListState as ScalingLazyListState
 import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.DecayAnimationSpec
 import androidx.compose.animation.core.Easing
@@ -38,6 +33,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -63,6 +59,11 @@ import androidx.compose.ui.semantics.scrollToIndex
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.wear.compose.foundation.lazy.AutoCenteringParams as AutoCenteringParams
+import androidx.wear.compose.foundation.lazy.ScalingLazyColumn as ScalingLazyColumn
+import androidx.wear.compose.foundation.lazy.ScalingLazyColumnDefaults as ScalingLazyColumnDefaults
+import androidx.wear.compose.foundation.lazy.ScalingLazyListState as ScalingLazyListState
+import androidx.wear.compose.foundation.lazy.ScalingParams as ScalingParams
 import kotlinx.coroutines.launch
 
 /**
@@ -486,7 +487,7 @@ public class PickerState constructor(
         verifyNumberOfOptions(initialNumberOfOptions)
     }
 
-    private var _numberOfOptions by mutableStateOf(initialNumberOfOptions)
+    private var _numberOfOptions by mutableIntStateOf(initialNumberOfOptions)
 
     var numberOfOptions
         get() = _numberOfOptions

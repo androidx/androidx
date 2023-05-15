@@ -47,9 +47,9 @@ import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipe
 import androidx.compose.ui.test.swipeLeft
 import androidx.compose.ui.test.swipeRight
+import com.google.common.truth.Truth.assertThat
 import java.lang.Math.sin
 import org.junit.Assert.assertEquals
-import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
 

@@ -31,6 +31,9 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import androidx.testutils.TestExecutor
 import com.google.common.truth.Truth.assertThat
+import kotlin.coroutines.EmptyCoroutineContext
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.asCoroutineDispatcher
 import org.junit.Assert.assertEquals
@@ -39,9 +42,6 @@ import org.junit.Assert.assertNull
 import org.junit.Assert.fail
 import org.junit.Test
 import org.junit.runner.RunWith
-import kotlin.coroutines.EmptyCoroutineContext
-import kotlin.test.assertFalse
-import kotlin.test.assertTrue
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)

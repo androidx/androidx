@@ -24,15 +24,15 @@ import androidx.room.util.TableInfo
 import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.test.filters.MediumTest
 import androidx.test.platform.app.InstrumentationRegistry
-import org.hamcrest.CoreMatchers.`is`
+import java.io.FileNotFoundException
+import java.io.IOException
 import org.hamcrest.CoreMatchers.containsString
 import org.hamcrest.CoreMatchers.instanceOf
+import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.CoreMatchers.nullValue
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Rule
 import org.junit.Test
-import java.io.FileNotFoundException
-import java.io.IOException
 
 @MediumTest
 class MigrationKotlinTest {

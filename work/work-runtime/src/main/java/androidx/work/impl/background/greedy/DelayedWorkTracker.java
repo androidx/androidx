@@ -18,6 +18,7 @@ package androidx.work.impl.background.greedy;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
+import androidx.work.Clock;
 import androidx.work.Logger;
 import androidx.work.RunnableScheduler;
 import androidx.work.impl.model.WorkSpec;
@@ -43,14 +44,17 @@ public class DelayedWorkTracker {
     final GreedyScheduler mGreedyScheduler;
 
     private final RunnableScheduler mRunnableScheduler;
+    private final Clock mClock;
     private final Map<String, Runnable> mRunnables;
 
     public DelayedWorkTracker(
             @NonNull GreedyScheduler scheduler,
-            @NonNull RunnableScheduler runnableScheduler) {
+            @NonNull RunnableScheduler runnableScheduler,
+            @NonNull Clock clock) {
 
         mGreedyScheduler = scheduler;
         mRunnableScheduler = runnableScheduler;
+        mClock = clock;
         mRunnables = new HashMap<>();
     }
 
@@ -77,7 +81,7 @@ public class DelayedWorkTracker {
         };
 
         mRunnables.put(workSpec.id, runnable);
-        long now = System.currentTimeMillis();
+        long now = mClock.currentTimeMillis();
         long delay = nextRunTime - now;
         mRunnableScheduler.scheduleWithDelay(delay, runnable);
     }

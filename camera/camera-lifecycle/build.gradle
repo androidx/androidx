@@ -61,7 +61,7 @@ android {
 }
 
 androidx {
-    name = "Jetpack Camera Lifecycle Library"
+    name = "Camera Lifecycle"
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2019"
     description = "Lifecycle components for the Jetpack Camera Library, a library providing a " +

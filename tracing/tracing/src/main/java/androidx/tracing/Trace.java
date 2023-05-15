@@ -54,6 +54,7 @@ import java.lang.reflect.Method;
  */
 public final class Trace {
     static final String TAG = "Trace";
+    static final int MAX_TRACE_LABEL_LENGTH = 127;
 
     private static long sTraceTagApp;
     private static Method sIsTagEnabledMethod;
@@ -126,7 +127,7 @@ public final class Trace {
      */
     public static void beginSection(@NonNull String label) {
         if (Build.VERSION.SDK_INT >= 18) {
-            TraceApi18Impl.beginSection(label);
+            TraceApi18Impl.beginSection(truncatedTraceSectionLabel(label));
         }
     }
 
@@ -175,9 +176,9 @@ public final class Trace {
      */
     public static void beginAsyncSection(@NonNull String methodName, int cookie) {
         if (Build.VERSION.SDK_INT >= 29) {
-            TraceApi29Impl.beginAsyncSection(methodName, cookie);
+            TraceApi29Impl.beginAsyncSection(truncatedTraceSectionLabel(methodName), cookie);
         } else {
-            beginAsyncSectionFallback(methodName, cookie);
+            beginAsyncSectionFallback(truncatedTraceSectionLabel(methodName), cookie);
         }
     }
 
@@ -194,9 +195,9 @@ public final class Trace {
      */
     public static void endAsyncSection(@NonNull String methodName, int cookie) {
         if (Build.VERSION.SDK_INT >= 29) {
-            TraceApi29Impl.endAsyncSection(methodName, cookie);
+            TraceApi29Impl.endAsyncSection(truncatedTraceSectionLabel(methodName), cookie);
         } else {
-            endAsyncSectionFallback(methodName, cookie);
+            endAsyncSectionFallback(truncatedTraceSectionLabel(methodName), cookie);
         }
     }
 
@@ -208,9 +209,9 @@ public final class Trace {
      */
     public static void setCounter(@NonNull String counterName, int counterValue) {
         if (Build.VERSION.SDK_INT >= 29) {
-            TraceApi29Impl.setCounter(counterName, counterValue);
+            TraceApi29Impl.setCounter(truncatedTraceSectionLabel(counterName), counterValue);
         } else {
-            setCounterFallback(counterName, counterValue);
+            setCounterFallback(truncatedTraceSectionLabel(counterName), counterValue);
         }
     }
 
@@ -298,6 +299,14 @@ public final class Trace {
             }
         }
         Log.v(TAG, "Unable to call " + methodName + " via reflection", exception);
+    }
+
+    @NonNull
+    private static String truncatedTraceSectionLabel(@NonNull String labelName) {
+        if (labelName.length() <= MAX_TRACE_LABEL_LENGTH) {
+            return labelName;
+        }
+        return labelName.substring(0, MAX_TRACE_LABEL_LENGTH);
     }
 
     private Trace() {

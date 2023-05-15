@@ -19,12 +19,14 @@ package androidx.camera.video
 import android.content.Context
 import android.media.MediaCodec
 import android.media.MediaCodecInfo
+import android.os.Build
 import androidx.camera.camera2.Camera2Config
 import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraSelector.DEFAULT_BACK_CAMERA
 import androidx.camera.core.CameraSelector.DEFAULT_FRONT_CAMERA
 import androidx.camera.core.CameraXConfig
+import androidx.camera.core.DynamicRange
 import androidx.camera.core.impl.EncoderProfilesProxy.VideoProfileProxy
 import androidx.camera.testing.CameraPipeConfigTestRule
 import androidx.camera.testing.CameraUtil
@@ -64,6 +66,8 @@ class DeviceCompatibilityTest(
 ) {
 
     private val context: Context = ApplicationProvider.getApplicationContext()
+    // TODO(b/278168212): Only SDR is checked by now. Need to extend to HDR dynamic ranges.
+    private val dynamicRange = DynamicRange.SDR
     private val zeroRange by lazy { android.util.Range.create(0, 0) }
 
     @get:Rule
@@ -115,13 +119,19 @@ class DeviceCompatibilityTest(
 
             // Act.
             val (width, height) = videoProfile.width to videoProfile.height
+            // Pass if VideoCapabilities.isSizeSupported() is true
+            if (capabilities.isSizeSupported(width, height)) {
+                return@forEach
+            }
+
             val supportedWidths = capabilities.supportedWidths
             val supportedHeights = capabilities.supportedHeights
             val supportedWidthsForHeight = capabilities.getWidthsForHeightQuietly(height)
             val supportedHeightForWidth = capabilities.getHeightsForWidthQuietly(width)
 
             // Assert.
-            val msg = "mime: $mime, size: ${width}x$height is not in " +
+            val msg = "Build.BRAND: ${Build.BRAND}, Build.MODEL: ${Build.MODEL} " +
+                "mime: $mime, size: ${width}x$height is not in " +
                 "supported widths $supportedWidths/$supportedWidthsForHeight " +
                 "or heights $supportedHeights/$supportedHeightForWidth, " +
                 "the width/height alignment is " +
@@ -140,9 +150,10 @@ class DeviceCompatibilityTest(
             return emptyList()
         }
         val cameraInfo = CameraUtil.createCameraUseCaseAdapter(context, cameraSelector).cameraInfo
-        val videoCapabilities = LegacyVideoCapabilities.from(cameraInfo)
-        return videoCapabilities.supportedQualities
-            .mapNotNull { videoCapabilities.getProfiles(it) }
+        val videoCapabilities = Recorder.getVideoCapabilities(cameraInfo)
+        return videoCapabilities.getSupportedQualities(dynamicRange).mapNotNull { quality ->
+            videoCapabilities.getProfiles(quality, dynamicRange)
+        }
     }
 
     private fun android.util.Range<Int>.toClosed() = Range.closed(lower, upper)

@@ -130,7 +130,10 @@ public class DeviceProfileWriter {
             }
         } else {
             try {
-                mCurProfile.createNewFile();
+                if (!mCurProfile.createNewFile()) {
+                    result(ProfileInstaller.RESULT_NOT_WRITABLE, null);
+                    return false;
+                }
             } catch (IOException e) {
                 // If the file cannot be created it's the same of the profile file not being
                 // writeable
@@ -138,7 +141,6 @@ public class DeviceProfileWriter {
                 return false;
             }
         }
-
 
         mDeviceSupportsAotProfile = true;
         return true;
@@ -392,6 +394,7 @@ public class DeviceProfileWriter {
             case Build.VERSION_CODES.S:
             case Build.VERSION_CODES.S_V2:
             case Build.VERSION_CODES.TIRAMISU:
+            case 34:
                 return ProfileVersion.V015_S;
 
             default:
@@ -427,6 +430,7 @@ public class DeviceProfileWriter {
             case Build.VERSION_CODES.S:
             case Build.VERSION_CODES.S_V2:
             case Build.VERSION_CODES.TIRAMISU:
+            case 34:
                 return true;
 
             default:

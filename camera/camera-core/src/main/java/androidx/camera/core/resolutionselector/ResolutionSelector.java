@@ -46,7 +46,7 @@ import java.lang.annotation.RetentionPolicy;
  * <p>ResolutionSelector provides the following function for applications to adjust the candidate
  * resolution settings.
  * <ul>
- *     <li> {@link Builder#setHighResolutionEnabledFlag(int)}
+ *     <li> {@link Builder#setAllowedResolutionMode(int)}
  * </ul>
  *
  * <p>For the second step, ResolutionSelector provides the following three functions for
@@ -82,41 +82,48 @@ import java.lang.annotation.RetentionPolicy;
  * <p>When creating a ResolutionSelector instance, the
  * {@link AspectRatioStrategy#RATIO_4_3_FALLBACK_AUTO_STRATEGY} will be the default
  * {@link AspectRatioStrategy} if it is not set.
- * {@link ResolutionSelector#HIGH_RESOLUTION_FLAG_OFF} is the default value of high resolution
- * enabled flag. However, if neither the {@link ResolutionStrategy} nor the
- * {@link ResolutionFilter} are set, there will be no default value specified.
+ * {@link ResolutionSelector#ALLOWED_RESOLUTIONS_NORMAL} is the default allowed resolution
+ * mode. However, if neither the {@link ResolutionStrategy} nor the {@link ResolutionFilter} are
+ * set, there will be no default value specified.
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class ResolutionSelector {
     /**
-     * This flag disables high resolution support.
-     */
-    public static final int HIGH_RESOLUTION_FLAG_OFF = 0;
-    /**
-     * This flag enables high resolution in the default sensor pixel mode.
+     * This mode allows CameraX to select the normal output sizes on the camera device.
      *
-     * <p>This flag allows CameraX to select the highest resolution output sizes available on the
-     * camera device. The high resolution is retrieved via the
-     * {@link android.hardware.camera2.params.StreamConfigurationMap#getHighResolutionOutputSizes(int)}
+     * <p>The available resolutions for this mode are obtained from the
+     * {@link android.hardware.camera2.params.StreamConfigurationMap#getOutputSizes(int)} method
      * from the stream configuration map obtained with the
      * {@link android.hardware.camera2.CameraCharacteristics#SCALER_STREAM_CONFIGURATION_MAP}
-     * camera characteristics. However, please note that using a high resolution may result in
-     * slower capture times. Please see the javadoc of
+     * camera characteristics.
+     */
+    public static final int ALLOWED_RESOLUTIONS_NORMAL = 0;
+    /**
+     * This mode allows CameraX to select the output sizes which might result in slower capture
+     * times.
+     *
+     * <p>The available resolutions for this mode are obtained from the
+     * {@link android.hardware.camera2.params.StreamConfigurationMap#getOutputSizes(int)} and
+     * {@link android.hardware.camera2.params.StreamConfigurationMap#getHighResolutionOutputSizes(int)}
+     * methods from the stream configuration map obtained with the
+     * {@link android.hardware.camera2.CameraCharacteristics#SCALER_STREAM_CONFIGURATION_MAP}
+     * camera characteristics. However, please note that using a resolution obtained from the
+     * {@link android.hardware.camera2.params.StreamConfigurationMap#getHighResolutionOutputSizes(int)}
+     * may result in slower capture times. Please see the javadoc of
      * {@link android.hardware.camera2.params.StreamConfigurationMap#getHighResolutionOutputSizes(int)}
      * for more details.
      *
      * <p>Since Android 12, some devices might support a maximum resolution sensor pixel mode,
      * which allows them to capture additional ultra high resolutions retrieved from
      * {@link android.hardware.camera2.CameraCharacteristics#SCALER_STREAM_CONFIGURATION_MAP_MAXIMUM_RESOLUTION}
-     * . Enabling high resolution with this flag does not allow applications to select those
-     * ultra high resolutions.
+     * . This mode does not allow applications to select those ultra high resolutions.
      */
-    public static final int HIGH_RESOLUTION_FLAG_ON = 1;
+    public static final int ALLOWED_RESOLUTIONS_SLOW = 1;
 
-    @IntDef({HIGH_RESOLUTION_FLAG_OFF, HIGH_RESOLUTION_FLAG_ON})
+    @IntDef({ALLOWED_RESOLUTIONS_NORMAL, ALLOWED_RESOLUTIONS_SLOW})
     @Retention(RetentionPolicy.SOURCE)
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public @interface HighResolutionFlag {
+    public @interface AllowedResolutionMode {
     }
     @NonNull
     private final AspectRatioStrategy mAspectRatioStrategy;
@@ -124,18 +131,18 @@ public final class ResolutionSelector {
     private final ResolutionStrategy mResolutionStrategy;
     @Nullable
     private final ResolutionFilter mResolutionFilter;
-    @HighResolutionFlag
-    private final int mHighResolutionEnabledFlag;
+    @AllowedResolutionMode
+    private final int mAllowedResolutionMode;
 
     ResolutionSelector(
             @NonNull AspectRatioStrategy aspectRatioStrategy,
             @Nullable ResolutionStrategy resolutionStrategy,
             @Nullable ResolutionFilter resolutionFilter,
-            @HighResolutionFlag int highResolutionEnabledFlag) {
+            @AllowedResolutionMode int allowedResolutionMode) {
         mAspectRatioStrategy = aspectRatioStrategy;
         mResolutionStrategy = resolutionStrategy;
         mResolutionFilter = resolutionFilter;
-        mHighResolutionEnabledFlag = highResolutionEnabledFlag;
+        mAllowedResolutionMode = allowedResolutionMode;
     }
 
     /**
@@ -165,11 +172,11 @@ public final class ResolutionSelector {
     }
 
     /**
-     * Returns the specified high resolution enabled flag.
+     * Returns the specified allowed resolution mode.
      */
-    @HighResolutionFlag
-    public int getHighResolutionEnabledFlag() {
-        return mHighResolutionEnabledFlag;
+    @AllowedResolutionMode
+    public int getAllowedResolutionMode() {
+        return mAllowedResolutionMode;
     }
 
     /**
@@ -182,8 +189,8 @@ public final class ResolutionSelector {
         private ResolutionStrategy mResolutionStrategy = null;
         @Nullable
         private ResolutionFilter mResolutionFilter = null;
-        @HighResolutionFlag
-        private int mHighResolutionEnabledFlag = HIGH_RESOLUTION_FLAG_OFF;
+        @AllowedResolutionMode
+        private int mAllowedResolutionMode = ALLOWED_RESOLUTIONS_NORMAL;
 
         /**
          * Creates a Builder instance.
@@ -195,7 +202,7 @@ public final class ResolutionSelector {
             mAspectRatioStrategy = resolutionSelector.getAspectRatioStrategy();
             mResolutionStrategy = resolutionSelector.getResolutionStrategy();
             mResolutionFilter = resolutionSelector.getResolutionFilter();
-            mHighResolutionEnabledFlag = resolutionSelector.getHighResolutionEnabledFlag();
+            mAllowedResolutionMode = resolutionSelector.getAllowedResolutionMode();
         }
 
         /**
@@ -245,16 +252,14 @@ public final class ResolutionSelector {
         }
 
         /**
-         * Sets high resolutions enabled flag to allow the application to select high
-         * resolutions for the {@link UseCase}s. This will enable the application to choose high
-         * resolutions for the captured image, which may result in better quality images.
+         * Sets the allowed resolution mode.
          *
          * <p>If not specified, the default setting is
-         * {@link ResolutionSelector#HIGH_RESOLUTION_FLAG_OFF}.
+         * {@link ResolutionSelector#ALLOWED_RESOLUTIONS_NORMAL}.
          */
         @NonNull
-        public Builder setHighResolutionEnabledFlag(@HighResolutionFlag int flag) {
-            mHighResolutionEnabledFlag = flag;
+        public Builder setAllowedResolutionMode(@AllowedResolutionMode int mode) {
+            mAllowedResolutionMode = mode;
             return this;
         }
 
@@ -265,7 +270,7 @@ public final class ResolutionSelector {
         @NonNull
         public ResolutionSelector build() {
             return new ResolutionSelector(mAspectRatioStrategy, mResolutionStrategy,
-                    mResolutionFilter, mHighResolutionEnabledFlag);
+                    mResolutionFilter, mAllowedResolutionMode);
         }
     }
 }

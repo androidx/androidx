@@ -38,11 +38,11 @@ import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
+import java.util.concurrent.TimeUnit
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.util.concurrent.TimeUnit
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
@@ -109,8 +109,8 @@ class MeasureInPlacementTest {
     }
 
     /**
-     * Make sure that measurement in the layout modifier's placement block doesn't crash when
-     * LookaheadLayout is used.
+     * Make sure that measurement in the layout modifier's placement block doesn't crash in
+     * lookahead scope.
      */
     @OptIn(ExperimentalComposeUiApi::class)
     @Test
@@ -141,8 +141,8 @@ class MeasureInPlacementTest {
     }
 
     /**
-     * Make sure that measurement in the layout's placement block doesn't crash when
-     * LookaheadLayout is used.
+     * Make sure that measurement in the layout's placement block doesn't crash in
+     * lookahead scope.
      */
     @OptIn(ExperimentalComposeUiApi::class)
     @Test

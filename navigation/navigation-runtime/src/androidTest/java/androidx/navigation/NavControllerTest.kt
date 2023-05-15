@@ -54,8 +54,8 @@ import androidx.test.filters.LargeTest
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.testutils.TestNavigator
-import androidx.testutils.withActivity
 import androidx.testutils.test
+import androidx.testutils.withActivity
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import kotlin.test.assertFailsWith
@@ -606,6 +606,23 @@ class NavControllerTest {
         navController.navigate(R.id.second_test)
         assertThat(navController.currentDestination?.id ?: 0).isEqualTo(R.id.second_test)
         assertThat(navigator.backStack.size).isEqualTo(2)
+    }
+
+    @UiThreadTest
+    @Test
+    fun testNavigateNullGraph() {
+        val navController = createNavController()
+        val deepLinkRequest = NavDeepLinkRequest.Builder.fromUri(
+            Uri.parse("android-app://androidx.navigation.test/destination")
+        ).build()
+
+        val expected = assertFailsWith<IllegalArgumentException> {
+            navController.navigate(deepLinkRequest)
+        }
+        assertThat(expected.message).isEqualTo(
+            "Cannot navigate to $deepLinkRequest. Navigation graph has not " +
+                "been set for NavController $navController."
+        )
     }
 
     @UiThreadTest

@@ -17,8 +17,8 @@
 package androidx.compose.foundation.layout.samples
 
 import androidx.annotation.Sampled
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable

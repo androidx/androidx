@@ -16,7 +16,6 @@
 
 package androidx.compose.ui.platform
 
-import android.view.KeyEvent as AndroidKeyEvent
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.res.Configuration
@@ -26,7 +25,7 @@ import android.os.Looper
 import android.os.SystemClock
 import android.util.Log
 import android.util.SparseArray
-import android.view.InputDevice
+import android.view.KeyEvent as AndroidKeyEvent
 import android.view.MotionEvent
 import android.view.MotionEvent.ACTION_CANCEL
 import android.view.MotionEvent.ACTION_DOWN
@@ -119,15 +118,15 @@ import androidx.compose.ui.node.LayoutNode
 import androidx.compose.ui.node.LayoutNode.UsageByParent
 import androidx.compose.ui.node.LayoutNodeDrawScope
 import androidx.compose.ui.node.MeasureAndLayoutDelegate
+import androidx.compose.ui.node.Nodes
 import androidx.compose.ui.node.OwnedLayer
 import androidx.compose.ui.node.Owner
 import androidx.compose.ui.node.OwnerSnapshotObserver
 import androidx.compose.ui.node.RootForTest
 import androidx.compose.ui.platform.MotionEventVerifierApi29.isValidMotionEvent
-import androidx.compose.ui.semantics.EmptySemanticsModifierNodeElement
+import androidx.compose.ui.semantics.EmptySemanticsElement
 import androidx.compose.ui.semantics.SemanticsOwner
 import androidx.compose.ui.semantics.findClosestParentNode
-import androidx.compose.ui.semantics.outerSemantics
 import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.InternalTextApi
 import androidx.compose.ui.text.font.Font
@@ -139,6 +138,7 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.util.fastLastOrNull
 import androidx.compose.ui.util.trace
 import androidx.compose.ui.viewinterop.AndroidViewHolder
 import androidx.core.view.AccessibilityDelegateCompat
@@ -188,7 +188,7 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
     override var density = Density(context)
         private set
 
-    private val semanticsModifier = EmptySemanticsModifierNodeElement
+    private val semanticsModifier = EmptySemanticsElement
 
     override val focusOwner: FocusOwner = FocusOwnerImpl { registerOnEndApplyChangesListener(it) }
 
@@ -739,7 +739,7 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
                 ) {
                     super.onInitializeAccessibilityNodeInfo(host, info)
                     var parentId = layoutNode
-                        .findClosestParentNode { it.outerSemantics != null }
+                        .findClosestParentNode { it.nodes.has(Nodes.Semantics) }
                         ?.semanticsId
                     if (parentId == null ||
                         parentId == semanticsOwner.unmergedRootSemanticsNode.id
@@ -841,13 +841,18 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
     override fun onRequestMeasure(
         layoutNode: LayoutNode,
         affectsLookahead: Boolean,
-        forceRequest: Boolean
+        forceRequest: Boolean,
+        scheduleMeasureAndLayout: Boolean
     ) {
         if (affectsLookahead) {
-            if (measureAndLayoutDelegate.requestLookaheadRemeasure(layoutNode, forceRequest)) {
+            if (measureAndLayoutDelegate.requestLookaheadRemeasure(layoutNode, forceRequest) &&
+                scheduleMeasureAndLayout
+            ) {
                 scheduleMeasureAndLayout(layoutNode)
             }
-        } else if (measureAndLayoutDelegate.requestRemeasure(layoutNode, forceRequest)) {
+        } else if (measureAndLayoutDelegate.requestRemeasure(layoutNode, forceRequest) &&
+            scheduleMeasureAndLayout
+        ) {
             scheduleMeasureAndLayout(layoutNode)
         }
     }
@@ -907,13 +912,20 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
         }
     }
 
-    private fun convertMeasureSpec(measureSpec: Int): Pair<Int, Int> {
+    @Suppress("NOTHING_TO_INLINE")
+    private inline operator fun ULong.component1() = (this shr 32).toInt()
+    @Suppress("NOTHING_TO_INLINE")
+    private inline operator fun ULong.component2() = (this and 0xFFFFFFFFUL).toInt()
+
+    private fun pack(a: Int, b: Int) = (a.toULong() shl 32 or b.toULong())
+
+    private fun convertMeasureSpec(measureSpec: Int): ULong {
         val mode = MeasureSpec.getMode(measureSpec)
         val size = MeasureSpec.getSize(measureSpec)
         return when (mode) {
-            MeasureSpec.EXACTLY -> size to size
-            MeasureSpec.UNSPECIFIED -> 0 to Constraints.Infinity
-            MeasureSpec.AT_MOST -> 0 to size
+            MeasureSpec.EXACTLY -> pack(size, size)
+            MeasureSpec.UNSPECIFIED -> pack(0, Constraints.Infinity)
+            MeasureSpec.AT_MOST -> pack(0, size)
             else -> throw IllegalStateException()
         }
     }
@@ -1364,7 +1376,7 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
             // methods use semantics data, and because semantics coordinates are local to
             // this view, the pointer _position_, not _positionOnScreen_, is the offset that
             // needs to be cached.
-            pointerInputEvent.pointers.lastOrNull { it.down }?.position?.let {
+            pointerInputEvent.pointers.fastLastOrNull { it.down }?.position?.let {
                 lastDownPointerPosition = it
             }
 
@@ -1587,12 +1599,11 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
         if (isBadMotionEvent(event) || !isAttachedToWindow) {
             return false // Bad MotionEvent. Don't handle it.
         }
-        if (event.isFromSource(InputDevice.SOURCE_TOUCHSCREEN) &&
-            event.getToolType(0) == MotionEvent.TOOL_TYPE_FINGER
-        ) {
-            // Accessibility touch exploration
-            return accessibilityDelegate.dispatchHoverEvent(event)
-        }
+
+        // Always call accessibilityDelegate dispatchHoverEvent (since accessibilityDelegate's
+        // dispatchHoverEvent only runs if touch exploration is enabled)
+        accessibilityDelegate.dispatchHoverEvent(event)
+
         when (event.actionMasked) {
             ACTION_HOVER_EXIT -> {
                 if (isInBounds(event)) {

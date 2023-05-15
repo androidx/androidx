@@ -134,7 +134,7 @@ class CredentialProviderBeginSignInController(private val activity: Activity) :
             )
             return
         }
-        if (maybeReportErrorResultCodeGet(resultCode, TAG,
+        if (maybeReportErrorResultCodeGet(resultCode,
                 { s, f -> cancelOrCallbackExceptionOrResult(s, f) }, { e ->
                     this.executor.execute {
                         this.callback.onError(e)
@@ -170,6 +170,13 @@ class CredentialProviderBeginSignInController(private val activity: Activity) :
                     callback.onError(e)
                 }
             }
+        } catch (t: Throwable) {
+            val e = GetCredentialUnknownException(t.message)
+            cancelOrCallbackExceptionOrResult(cancellationSignal) {
+                executor.execute {
+                    callback.onError(e)
+                }
+            }
         }
     }
 
@@ -188,13 +195,9 @@ class CredentialProviderBeginSignInController(private val activity: Activity) :
         } else if (response.googleIdToken != null) {
             cred = createGoogleIdCredential(response)
         } else if (response.publicKeyCredential != null) {
-            try {
-                cred = PublicKeyCredential(
-                    PublicKeyCredentialControllerUtility.toAssertPasskeyResponse(response)
-                )
-            } catch (t: Throwable) {
-                throw GetCredentialUnknownException(t.message)
-            }
+            cred = PublicKeyCredential(
+                PublicKeyCredentialControllerUtility.toAssertPasskeyResponse(response)
+            )
         } else {
             Log.w(TAG, "Credential returned but no google Id or password or passkey found")
         }
@@ -237,6 +240,7 @@ class CredentialProviderBeginSignInController(private val activity: Activity) :
     companion object {
         private val TAG = CredentialProviderBeginSignInController::class.java.name
         private var controller: CredentialProviderBeginSignInController? = null
+        // TODO(b/262924507) : Test multiple calls (re-instantiation validates but just in case)
 
         /**
          * This finds a past version of the [CredentialProviderBeginSignInController] if it exists,

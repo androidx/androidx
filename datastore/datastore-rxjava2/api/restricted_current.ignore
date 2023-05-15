@@ -1,0 +1,5 @@
+// Baseline format: 1.0
+InvalidNullConversion: androidx.datastore.rxjava2.RxSharedPreferencesMigration#migrate(androidx.datastore.migrations.SharedPreferencesView, T) parameter #1:
+    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter currentData in androidx.datastore.rxjava2.RxSharedPreferencesMigration.migrate(androidx.datastore.migrations.SharedPreferencesView sharedPreferencesView, T currentData)
+InvalidNullConversion: androidx.datastore.rxjava2.RxSharedPreferencesMigration#shouldMigrate(T) parameter #0:
+    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter currentData in androidx.datastore.rxjava2.RxSharedPreferencesMigration.shouldMigrate(T currentData)

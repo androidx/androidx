@@ -103,9 +103,12 @@ class DateInputScreenshotTest(private val scheme: ColorSchemeWrapper) {
                 DatePicker(
                     state = rememberDatePickerState(
                         initialDisplayedMonthMillis = monthInUtcMillis,
-                        initialDisplayMode = DisplayMode.Input
+                        initialDisplayMode = DisplayMode.Input,
+                        selectableDates = object : SelectableDates {
+                            // All dates are invalid for the sake of this test.
+                            override fun isSelectableDate(utcTimeMillis: Long): Boolean = false
+                        }
                     ),
-                    dateValidator = { false },
                     showModeToggle = false
                 )
             }

@@ -17,10 +17,10 @@
 package androidx.glance.appwidget
 
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
 import androidx.glance.Emittable
 import androidx.glance.GlanceModifier
 import androidx.glance.GlanceNode
-import androidx.compose.ui.graphics.Color
 import androidx.glance.unit.ColorProvider
 
 /**

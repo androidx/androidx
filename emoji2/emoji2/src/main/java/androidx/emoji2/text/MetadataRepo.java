@@ -88,7 +88,7 @@ public final class MetadataRepo {
      * @hide
      */
     @NonNull
-    @RestrictTo(RestrictTo.Scope.TESTS)
+    @VisibleForTesting
     public static MetadataRepo create(@NonNull final Typeface typeface) {
         try {
             TraceCompat.beginSection(S_TRACE_CREATE_REPO);

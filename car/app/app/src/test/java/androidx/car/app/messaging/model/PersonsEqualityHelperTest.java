@@ -34,10 +34,8 @@ public class PersonsEqualityHelperTest {
 
     @Test
     public void equalsAndHashCode_minimalPersons_areEqual() {
-        Person person1 =
-                TestConversationFactory.createMinimalPersonBuilder().build();
-        Person person2 =
-                TestConversationFactory.createMinimalPersonBuilder().build();
+        Person person1 = createMinimalPerson();
+        Person person2 = createMinimalPerson();
 
         assertThat(PersonsEqualityHelper.arePersonsEqual(person1, person2)).isTrue();
         assertThat(PersonsEqualityHelper.getPersonHashCode(person1)).isEqualTo(
@@ -53,10 +51,8 @@ public class PersonsEqualityHelperTest {
 
     @Test
     public void equalsAndHashCode_differentName_areNotEqual() {
-        Person person1 =
-                TestConversationFactory.createMinimalPersonBuilder().setName("Person1").build();
-        Person person2 =
-                TestConversationFactory.createMinimalPersonBuilder().setName("Person2").build();
+        Person person1 = createMinimalPersonBuilder().setName("Person1").build();
+        Person person2 = createMinimalPersonBuilder().setName("Person2").build();
 
         assertThat(PersonsEqualityHelper.arePersonsEqual(person1, person2)).isFalse();
         assertThat(PersonsEqualityHelper.getPersonHashCode(person1)).isNotEqualTo(
@@ -65,10 +61,8 @@ public class PersonsEqualityHelperTest {
 
     @Test
     public void equalsAndHashCode_differentKey_areNotEqual() {
-        Person person1 =
-                TestConversationFactory.createMinimalPersonBuilder().setKey("Person1").build();
-        Person person2 =
-                TestConversationFactory.createMinimalPersonBuilder().setKey("Person2").build();
+        Person person1 = createMinimalPersonBuilder().setKey("Person1").build();
+        Person person2 = createMinimalPersonBuilder().setKey("Person2").build();
 
         assertThat(PersonsEqualityHelper.arePersonsEqual(person1, person2)).isFalse();
         assertThat(PersonsEqualityHelper.getPersonHashCode(person1)).isNotEqualTo(
@@ -81,11 +75,9 @@ public class PersonsEqualityHelperTest {
                 Uri.parse("http://foo.com/test/sender/uri1");
         Uri uri2 =
                 Uri.parse("http://foo.com/test/sender/uri2");
-        Person person1 =
-                TestConversationFactory.createMinimalPersonBuilder().setUri(
+        Person person1 = createMinimalPersonBuilder().setUri(
                         uri1.toString()).build();
-        Person person2 =
-                TestConversationFactory.createMinimalPersonBuilder().setName(
+        Person person2 = createMinimalPersonBuilder().setName(
                         uri2.toString()).build();
 
         assertThat(PersonsEqualityHelper.arePersonsEqual(person1, person2)).isFalse();
@@ -95,10 +87,8 @@ public class PersonsEqualityHelperTest {
 
     @Test
     public void equalsAndHashCode_differentBot_areNotEqual() {
-        Person person1 =
-                TestConversationFactory.createMinimalPersonBuilder().setBot(true).build();
-        Person person2 =
-                TestConversationFactory.createMinimalPersonBuilder().setBot(false).build();
+        Person person1 = createMinimalPersonBuilder().setBot(true).build();
+        Person person2 = createMinimalPersonBuilder().setBot(false).build();
 
         assertThat(PersonsEqualityHelper.arePersonsEqual(person1, person2)).isFalse();
         assertThat(PersonsEqualityHelper.getPersonHashCode(person1)).isNotEqualTo(
@@ -107,13 +97,19 @@ public class PersonsEqualityHelperTest {
 
     @Test
     public void equalsAndHashCode_differentImportant_areNotEqual() {
-        Person person1 =
-                TestConversationFactory.createMinimalPersonBuilder().setImportant(true).build();
-        Person person2 =
-                TestConversationFactory.createMinimalPersonBuilder().setImportant(false).build();
+        Person person1 = createMinimalPersonBuilder().setImportant(true).build();
+        Person person2 = createMinimalPersonBuilder().setImportant(false).build();
 
         assertThat(PersonsEqualityHelper.arePersonsEqual(person1, person2)).isFalse();
         assertThat(PersonsEqualityHelper.getPersonHashCode(person1)).isNotEqualTo(
                 PersonsEqualityHelper.getPersonHashCode(person2));
+    }
+
+    private Person.Builder createMinimalPersonBuilder() {
+        return new Person.Builder();
+    }
+
+    private Person createMinimalPerson() {
+        return createMinimalPersonBuilder().build();
     }
 }

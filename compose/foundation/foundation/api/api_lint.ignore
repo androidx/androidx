@@ -1,0 +1,33 @@
+// Baseline format: 1.0
+GetterSetterNames: androidx.compose.foundation.ScrollState#getCanScrollBackward():
+    Getter for boolean property `canScrollBackward` is named `getCanScrollBackward` but should match the property name. Use `@get:JvmName` to rename.
+GetterSetterNames: androidx.compose.foundation.ScrollState#getCanScrollForward():
+    Getter for boolean property `canScrollForward` is named `getCanScrollForward` but should match the property name. Use `@get:JvmName` to rename.
+GetterSetterNames: androidx.compose.foundation.gestures.ScrollableState#getCanScrollBackward():
+    Getter for boolean property `canScrollBackward` is named `getCanScrollBackward` but should match the property name. Use `@get:JvmName` to rename.
+GetterSetterNames: androidx.compose.foundation.gestures.ScrollableState#getCanScrollForward():
+    Getter for boolean property `canScrollForward` is named `getCanScrollForward` but should match the property name. Use `@get:JvmName` to rename.
+GetterSetterNames: androidx.compose.foundation.lazy.LazyListState#getCanScrollBackward():
+    Getter for boolean property `canScrollBackward` is named `getCanScrollBackward` but should match the property name. Use `@get:JvmName` to rename.
+GetterSetterNames: androidx.compose.foundation.lazy.LazyListState#getCanScrollForward():
+    Getter for boolean property `canScrollForward` is named `getCanScrollForward` but should match the property name. Use `@get:JvmName` to rename.
+GetterSetterNames: androidx.compose.foundation.lazy.grid.LazyGridState#getCanScrollBackward():
+    Getter for boolean property `canScrollBackward` is named `getCanScrollBackward` but should match the property name. Use `@get:JvmName` to rename.
+GetterSetterNames: androidx.compose.foundation.lazy.grid.LazyGridState#getCanScrollForward():
+    Getter for boolean property `canScrollForward` is named `getCanScrollForward` but should match the property name. Use `@get:JvmName` to rename.
+GetterSetterNames: androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridState#getCanScrollBackward():
+    Getter for boolean property `canScrollBackward` is named `getCanScrollBackward` but should match the property name. Use `@get:JvmName` to rename.
+GetterSetterNames: androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridState#getCanScrollForward():
+    Getter for boolean property `canScrollForward` is named `getCanScrollForward` but should match the property name. Use `@get:JvmName` to rename.
+GetterSetterNames: androidx.compose.foundation.pager.PagerState#getCanScrollBackward():
+    Getter for boolean property `canScrollBackward` is named `getCanScrollBackward` but should match the property name. Use `@get:JvmName` to rename.
+GetterSetterNames: androidx.compose.foundation.pager.PagerState#getCanScrollForward():
+    Getter for boolean property `canScrollForward` is named `getCanScrollForward` but should match the property name. Use `@get:JvmName` to rename.
+GetterSetterNames: androidx.compose.foundation.text2.input.TextFieldBufferWithSelection#getHasSelection():
+    Getter for boolean property `hasSelection` is named `getHasSelection` but should match the property name. Use `@get:JvmName` to rename.
+GetterSetterNames: field KeyboardOptions.autoCorrect:
+    Invalid name for boolean property `autoCorrect`. Should start with one of `has`, `can`, `should`, `is`.
+GetterSetterNames: field LazyGridLayoutInfo.reverseLayout:
+    Invalid name for boolean property `reverseLayout`. Should start with one of `has`, `can`, `should`, `is`.
+GetterSetterNames: field LazyListLayoutInfo.reverseLayout:
+    Invalid name for boolean property `reverseLayout`. Should start with one of `has`, `can`, `should`, `is`.

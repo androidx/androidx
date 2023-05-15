@@ -54,8 +54,7 @@ class PagerCrossAxisTest(val config: ParamConfig) : BasePagerTest(config) {
         rule.setContent {
             InfiniteAxisRootComposable {
                 HorizontalOrVerticalPager(
-                    pageCount = DefaultPageCount,
-                    state = rememberPagerState(),
+                    state = rememberPagerState(pageCount = { DefaultPageCount }),
                     modifier = Modifier
                         .fillMaxHeight()
                         .fillMaxWidth()

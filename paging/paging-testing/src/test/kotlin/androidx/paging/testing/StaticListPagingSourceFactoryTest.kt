@@ -17,8 +17,8 @@
 package androidx.paging.testing
 
 import androidx.paging.PagingConfig
-import androidx.paging.PagingSource
 import androidx.paging.PagingSource.LoadResult.Page
+import androidx.paging.PagingSourceFactory
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.cancel
@@ -47,10 +47,10 @@ class StaticListPagingSourceFactoryTest {
 
     @Test
     fun emptyFlow() {
-        val factory: () -> PagingSource<Int, Int> =
+        val factory: PagingSourceFactory<Int, Int> =
             flowOf<List<Int>>().asPagingSourceFactory(testScope)
         val pagingSource = factory()
-        val pager = TestPager(pagingSource, CONFIG)
+        val pager = TestPager(CONFIG, pagingSource)
 
         runTest {
             val result = pager.refresh() as Page
@@ -64,10 +64,10 @@ class StaticListPagingSourceFactoryTest {
             List(20) { it }
         )
 
-        val factory: () -> PagingSource<Int, Int> =
+        val factory: PagingSourceFactory<Int, Int> =
             flow.asPagingSourceFactory(testScope)
         val pagingSource = factory()
-        val pager = TestPager(pagingSource, CONFIG)
+        val pager = TestPager(CONFIG, pagingSource)
 
         runTest {
             val result = pager.refresh() as Page
@@ -85,14 +85,14 @@ class StaticListPagingSourceFactoryTest {
             emit(List(15) { it + 30 }) // second gen
         }
 
-        val factory: () -> PagingSource<Int, Int> =
+        val factory: PagingSourceFactory<Int, Int> =
             flow.asPagingSourceFactory(testScope)
 
         advanceTimeBy(1000)
 
         // first gen
         val pagingSource1 = factory()
-        val pager1 = TestPager(pagingSource1, CONFIG)
+        val pager1 = TestPager(CONFIG, pagingSource1)
         val result1 = pager1.refresh() as Page
         assertThat(result1.data).containsExactlyElementsIn(
             listOf(0, 1, 2, 3, 4)
@@ -105,7 +105,7 @@ class StaticListPagingSourceFactoryTest {
 
         // second gen
         val pagingSource2 = factory()
-        val pager2 = TestPager(pagingSource2, CONFIG)
+        val pager2 = TestPager(CONFIG, pagingSource2)
         val result2 = pager2.refresh() as Page
         assertThat(result2.data).containsExactlyElementsIn(
             listOf(30, 31, 32, 33, 34)
@@ -117,7 +117,7 @@ class StaticListPagingSourceFactoryTest {
         val mutableFlow = MutableSharedFlow<List<Int>>()
         val collectionScope = this.backgroundScope
 
-        val factory: () -> PagingSource<Int, Int> =
+        val factory: PagingSourceFactory<Int, Int> =
             mutableFlow.asPagingSourceFactory(collectionScope)
 
         mutableFlow.emit(List(10) { it })
@@ -125,7 +125,7 @@ class StaticListPagingSourceFactoryTest {
         advanceUntilIdle()
 
         val pagingSource = factory()
-        val pager = TestPager(pagingSource, CONFIG)
+        val pager = TestPager(CONFIG, pagingSource)
         val result = pager.refresh() as Page
         assertThat(result.data).containsExactlyElementsIn(
             listOf(0, 1, 2, 3, 4)
@@ -146,10 +146,10 @@ class StaticListPagingSourceFactoryTest {
     fun multipleFactories_fromSameFlow() = testScope.runTest {
         val mutableFlow = MutableSharedFlow<List<Int>>()
 
-        val factory1: () -> PagingSource<Int, Int> =
+        val factory1: PagingSourceFactory<Int, Int> =
             mutableFlow.asPagingSourceFactory(testScope.backgroundScope)
 
-        val factory2: () -> PagingSource<Int, Int> =
+        val factory2: PagingSourceFactory<Int, Int> =
             mutableFlow.asPagingSourceFactory(testScope.backgroundScope)
 
         mutableFlow.emit(List(10) { it })
@@ -158,7 +158,7 @@ class StaticListPagingSourceFactoryTest {
 
         // factory 1 first gen
         val pagingSource = factory1()
-        val pager = TestPager(pagingSource, CONFIG)
+        val pager = TestPager(CONFIG, pagingSource)
         val result = pager.refresh() as Page
         assertThat(result.data).containsExactlyElementsIn(
             listOf(0, 1, 2, 3, 4)
@@ -166,7 +166,7 @@ class StaticListPagingSourceFactoryTest {
 
         // factory 2 first gen
         val pagingSource2 = factory2()
-        val pager2 = TestPager(pagingSource2, CONFIG)
+        val pager2 = TestPager(CONFIG, pagingSource2)
         val result2 = pager2.refresh() as Page
         assertThat(result2.data).containsExactlyElementsIn(
             listOf(0, 1, 2, 3, 4)
@@ -182,7 +182,7 @@ class StaticListPagingSourceFactoryTest {
 
         // factory 1 second gen
         val pagingSource3 = factory1()
-        val pager3 = TestPager(pagingSource3, CONFIG)
+        val pager3 = TestPager(CONFIG, pagingSource3)
         val result3 = pager3.refresh() as Page
         assertThat(result3.data).containsExactlyElementsIn(
             listOf(30, 31, 32, 33, 34)
@@ -190,10 +190,84 @@ class StaticListPagingSourceFactoryTest {
 
         // factory 2 second gen
         val pagingSource4 = factory2()
-        val pager4 = TestPager(pagingSource4, CONFIG)
+        val pager4 = TestPager(CONFIG, pagingSource4)
         val result4 = pager4.refresh() as Page
         assertThat(result4.data).containsExactlyElementsIn(
             listOf(30, 31, 32, 33, 34)
+        )
+    }
+
+    @Test
+    fun singleListFactory_refresh() = testScope.runTest {
+        val data = List(20) { it }
+        val factory = data.asPagingSourceFactory()
+
+        val pagingSource1 = factory()
+        val pager1 = TestPager(CONFIG, pagingSource1)
+        val refresh1 = pager1.refresh() as Page
+        assertThat(refresh1.data).containsExactlyElementsIn(
+            listOf(0, 1, 2, 3, 4)
+        )
+
+        val pagingSource2 = factory()
+        val pager2 = TestPager(CONFIG, pagingSource2)
+        val refresh2 = pager2.refresh() as Page
+        assertThat(refresh2.data).containsExactlyElementsIn(
+            listOf(0, 1, 2, 3, 4)
+        )
+    }
+
+    @Test
+    fun singleListFactory_empty() = testScope.runTest {
+        val data = emptyList<Int>()
+        val factory = data.asPagingSourceFactory()
+
+        val pagingSource1 = factory()
+        val pager1 = TestPager(CONFIG, pagingSource1)
+        val refresh1 = pager1.refresh() as Page
+        assertThat(refresh1.data).isEmpty()
+
+        val pagingSource2 = factory()
+        val pager2 = TestPager(CONFIG, pagingSource2)
+        val refresh2 = pager2.refresh() as Page
+        assertThat(refresh2.data).isEmpty()
+    }
+
+    @Test
+    fun singleListFactory_append() = testScope.runTest {
+        val data = List(20) { it }
+        val factory = data.asPagingSourceFactory()
+        val pagingSource1 = factory()
+        val pager1 = TestPager(CONFIG, pagingSource1)
+
+        pager1.refresh() as Page
+        pager1.append()
+        assertThat(pager1.getPages().flatMap { it.data }).containsExactlyElementsIn(
+            listOf(0, 1, 2, 3, 4, 5, 6, 7)
+        )
+
+        pager1.append()
+        assertThat(pager1.getPages().flatMap { it.data }).containsExactlyElementsIn(
+            listOf(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+        )
+    }
+
+    @Test
+    fun singleListFactory_prepend() = testScope.runTest {
+        val data = List(20) { it }
+        val factory = data.asPagingSourceFactory()
+        val pagingSource1 = factory()
+        val pager1 = TestPager(CONFIG, pagingSource1)
+
+        pager1.refresh(initialKey = 10) as Page
+        pager1.prepend()
+        assertThat(pager1.getPages().flatMap { it.data }).containsExactlyElementsIn(
+            listOf(7, 8, 9, 10, 11, 12, 13, 14)
+        )
+
+        pager1.prepend()
+        assertThat(pager1.getPages().flatMap { it.data }).containsExactlyElementsIn(
+            listOf(4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14)
         )
     }
 }

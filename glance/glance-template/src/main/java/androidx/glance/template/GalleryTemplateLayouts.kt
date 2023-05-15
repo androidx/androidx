@@ -27,7 +27,6 @@ import androidx.glance.appwidget.cornerRadius
 import androidx.glance.appwidget.lazy.GridCells
 import androidx.glance.appwidget.lazy.LazyVerticalGrid
 import androidx.glance.appwidget.lazy.itemsIndexed
-import androidx.glance.template.GlanceTemplateAppWidget.Companion.sizeMin
 import androidx.glance.background
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.Column
@@ -40,6 +39,7 @@ import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.height
 import androidx.glance.layout.padding
 import androidx.glance.layout.width
+import androidx.glance.template.GlanceTemplateAppWidget.Companion.sizeMin
 import kotlin.math.ceil
 import kotlin.math.pow
 import kotlin.math.roundToInt

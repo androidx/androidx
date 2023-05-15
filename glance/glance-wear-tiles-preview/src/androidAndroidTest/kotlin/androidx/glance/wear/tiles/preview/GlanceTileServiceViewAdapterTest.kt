@@ -16,13 +16,13 @@
 
 package androidx.glance.wear.tiles.preview
 
-import androidx.glance.wear.tiles.preview.test.R
 import android.app.Activity
 import android.os.Bundle
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.glance.wear.tiles.preview.test.R
 import androidx.test.filters.MediumTest
 import org.junit.Assert
 import org.junit.Before

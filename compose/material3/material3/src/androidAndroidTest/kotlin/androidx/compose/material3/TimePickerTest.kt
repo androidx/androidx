@@ -607,11 +607,11 @@ class TimePickerTest {
     ): String {
 
         val id = if (selection == Selection.Minute) {
-            R.string.time_picker_minute_suffix
+            R.string.m3c_time_picker_minute_suffix
         } else if (is24Hour) {
-            R.string.time_picker_hour_24h_suffix
+            R.string.m3c_time_picker_hour_24h_suffix
         } else {
-            R.string.time_picker_hour_suffix
+            R.string.m3c_time_picker_hour_suffix
         }
 
         return resources.getString(id, number)

@@ -18,11 +18,11 @@ package androidx.benchmark.junit4
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import java.util.concurrent.TimeUnit
 import org.junit.Assert
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.util.concurrent.TimeUnit
 
 @LargeTest
 @RunWith(AndroidJUnit4::class)

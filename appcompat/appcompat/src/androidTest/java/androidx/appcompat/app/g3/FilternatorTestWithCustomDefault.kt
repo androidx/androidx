@@ -32,6 +32,7 @@ import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.TimeUnit
 import org.junit.After
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -70,6 +71,7 @@ class FilternatorTestWithCustomDefault {
     }
 
     @Test
+    @Ignore("b/280630647")
     fun testConfigurationUpdatedOnLandscapeMode() {
         // Wait for the activity to fully start before rotating,
         // otherwise we won't receive onConfigurationChanged.

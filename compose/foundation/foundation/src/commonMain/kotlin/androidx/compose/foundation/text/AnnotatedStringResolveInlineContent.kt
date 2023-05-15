@@ -23,6 +23,9 @@ import androidx.compose.ui.text.Placeholder
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastMap
 
+internal typealias PlaceholderRange = AnnotatedString.Range<Placeholder>
+internal typealias InlineContentRange = AnnotatedString.Range<@Composable (String) -> Unit>
+
 /**
  * Attempts to match AnnotatedString placeholders with passed [InlineTextContent]
  *

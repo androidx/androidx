@@ -26,8 +26,8 @@ import androidx.wear.watchface.complications.ComplicationSlotBounds
 import androidx.wear.watchface.style.UserStyleSetting.BooleanUserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.CustomValueUserStyleSetting
-import androidx.wear.watchface.style.UserStyleSetting.LargeCustomValueUserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.DoubleRangeUserStyleSetting
+import androidx.wear.watchface.style.UserStyleSetting.LargeCustomValueUserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.ListUserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.ListUserStyleSetting.ListOption
 import androidx.wear.watchface.style.UserStyleSetting.LongRangeUserStyleSetting
@@ -194,10 +194,11 @@ public class StyleParcelableTest {
                 listOf(WatchFaceLayer.BASE),
                 true
             )
-        val styleSetting4 = LargeCustomValueUserStyleSetting(
-            listOf(WatchFaceLayer.BASE),
-            "default".encodeToByteArray()
-        )
+        val styleSetting4 =
+            LargeCustomValueUserStyleSetting(
+                listOf(WatchFaceLayer.BASE),
+                "default".encodeToByteArray()
+            )
         val srcSchema =
             UserStyleSchema(listOf(styleSetting1, styleSetting2, styleSetting3, styleSetting4))
 

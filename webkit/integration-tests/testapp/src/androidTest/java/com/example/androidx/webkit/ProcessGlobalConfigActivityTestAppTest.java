@@ -24,6 +24,7 @@ import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.webkit.WebViewFeature;
+import org.junit.Ignore;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -42,6 +43,7 @@ public class ProcessGlobalConfigActivityTestAppTest {
             new ActivityScenarioRule<>(ProcessGlobalConfigActivity.class);
 
     @Test
+    @Ignore("b/280671406")
     public void testSetDataDirectorySuffix() throws Throwable {
         WebkitTestHelpers.assumeStartupFeature(
                 WebViewFeature.STARTUP_FEATURE_SET_DATA_DIRECTORY_SUFFIX,

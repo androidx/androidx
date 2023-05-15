@@ -1,9 +1,9 @@
 // Baseline format: 1.0
-InvalidNullabilityOverride: androidx.window.testing.layout.StubWindowMetricsCalculatorRule#apply(org.junit.runners.model.Statement, org.junit.runner.Description) parameter #0:
-    Invalid nullability on parameter `base` in method `apply`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
-InvalidNullabilityOverride: androidx.window.testing.layout.StubWindowMetricsCalculatorRule#apply(org.junit.runners.model.Statement, org.junit.runner.Description) parameter #1:
-    Invalid nullability on parameter `description` in method `apply`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
 InvalidNullabilityOverride: androidx.window.testing.layout.WindowLayoutInfoPublisherRule#apply(org.junit.runners.model.Statement, org.junit.runner.Description) parameter #0:
     Invalid nullability on parameter `base` in method `apply`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
 InvalidNullabilityOverride: androidx.window.testing.layout.WindowLayoutInfoPublisherRule#apply(org.junit.runners.model.Statement, org.junit.runner.Description) parameter #1:
+    Invalid nullability on parameter `description` in method `apply`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullabilityOverride: androidx.window.testing.layout.WindowMetricsCalculatorRule#apply(org.junit.runners.model.Statement, org.junit.runner.Description) parameter #0:
+    Invalid nullability on parameter `base` in method `apply`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullabilityOverride: androidx.window.testing.layout.WindowMetricsCalculatorRule#apply(org.junit.runners.model.Statement, org.junit.runner.Description) parameter #1:
     Invalid nullability on parameter `description` in method `apply`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.

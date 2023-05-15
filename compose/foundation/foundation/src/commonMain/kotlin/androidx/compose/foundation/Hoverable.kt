@@ -47,8 +47,8 @@ private class HoverableElement(
 ) : ModifierNodeElement<HoverableNode>() {
     override fun create() = HoverableNode(interactionSource)
 
-    override fun update(node: HoverableNode) = node.apply {
-        updateInteractionSource(interactionSource)
+    override fun update(node: HoverableNode) {
+        node.updateInteractionSource(interactionSource)
     }
 
     override fun hashCode(): Int {

@@ -25,10 +25,10 @@ import androidx.compose.ui.platform.TestComposeWindow
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import com.google.common.truth.Truth.assertThat
+import java.awt.Cursor
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import java.awt.Cursor
 
 @RunWith(JUnit4::class)
 class PointerIconTest {

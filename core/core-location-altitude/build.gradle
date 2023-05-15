@@ -41,7 +41,7 @@ dependencies {
 }
 
 androidx {
-    name = "Location Altitude Compatibility Library"
+    name = "Location Altitude"
     type = LibraryType.PUBLISHED_LIBRARY
     mavenVersion = LibraryVersions.CORE_LOCATION_ALTITUDE
     inceptionYear = "2022"

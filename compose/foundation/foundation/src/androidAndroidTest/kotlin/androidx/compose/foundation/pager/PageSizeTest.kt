@@ -36,10 +36,9 @@ class PageSizeTest(val config: ParamConfig) : BasePagerTest(config) {
     @Test
     fun pageSizeFill_onlySnappedItemIsDisplayed() {
         // Arrange
-        val state = PagerState(5)
 
         // Act
-        createPager(state = state, modifier = Modifier.fillMaxSize())
+        createPager(initialPage = 5, modifier = Modifier.fillMaxSize())
 
         // Assert
         rule.onNodeWithTag("4").assertDoesNotExist()
@@ -51,7 +50,6 @@ class PageSizeTest(val config: ParamConfig) : BasePagerTest(config) {
     @Test
     fun pagerSizeCustom_visibleItemsAreWithinViewport() {
         // Arrange
-        val state = PagerState(5)
         val pagerMode = object : PageSize {
             override fun Density.calculateMainAxisPageSize(
                 availableSpace: Int,
@@ -63,7 +61,7 @@ class PageSizeTest(val config: ParamConfig) : BasePagerTest(config) {
 
         // Act
         createPager(
-            state = state,
+            initialPage = 5,
             modifier = Modifier.crossAxisSize(200.dp),
             offscreenPageLimit = 0,
             pageSize = { pagerMode }
@@ -71,14 +69,14 @@ class PageSizeTest(val config: ParamConfig) : BasePagerTest(config) {
 
         // Assert
         rule.runOnIdle {
-            val visibleItems = state.layoutInfo.visiblePagesInfo.size
+            val visibleItems = pagerState.layoutInfo.visiblePagesInfo.size
             val pageCount = with(rule.density) {
                 (pagerSize / (pageSize + config.pageSpacing.roundToPx()))
             } + 1
             Truth.assertThat(visibleItems).isEqualTo(pageCount)
         }
 
-        for (pageIndex in 5 until state.layoutInfo.visiblePagesInfo.size + 4) {
+        for (pageIndex in 5 until pagerState.layoutInfo.visiblePagesInfo.size + 4) {
             confirmPageIsInCorrectPosition(5, pageIndex)
         }
     }

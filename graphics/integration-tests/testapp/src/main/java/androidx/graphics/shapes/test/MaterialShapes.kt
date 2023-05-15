@@ -20,7 +20,7 @@ import android.graphics.PointF
 import androidx.core.graphics.plus
 import androidx.graphics.shapes.CornerRounding
 import androidx.graphics.shapes.RoundedPolygon
-import androidx.graphics.shapes.Star
+import androidx.graphics.shapes.star
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -104,7 +104,8 @@ class MaterialShapes {
 
         @JvmStatic
         fun scallop(): RoundedPolygon {
-            return Star(12, innerRadius = .928f, rounding = CornerRounding(radius = .928f))
+            return RoundedPolygon.star(12, innerRadius = .928f,
+                rounding = CornerRounding(radius = .928f))
         }
 
         @JvmOverloads
@@ -115,7 +116,7 @@ class MaterialShapes {
             innerRounding: CornerRounding? = null,
             scale: Float = 1f
         ): RoundedPolygon {
-            val poly = Star(4, innerRadius = innerRadius,
+            val poly = RoundedPolygon.star(4, innerRadius = innerRadius,
                 rounding = CornerRounding(rounding * scale),
                 innerRounding = innerRounding)
             return poly
@@ -128,12 +129,12 @@ class MaterialShapes {
 
         @JvmStatic
         fun wiggleStar(): RoundedPolygon {
-            return Star(8, .784f, rounding = CornerRounding(.82f))
+            return RoundedPolygon.star(8, .784f, rounding = CornerRounding(.82f))
         }
 
         @JvmStatic
         fun wovel(): RoundedPolygon {
-            return Star(15, .892f, rounding = CornerRounding(1f))
+            return RoundedPolygon.star(15, .892f, rounding = CornerRounding(1f))
         }
 
         @JvmStatic

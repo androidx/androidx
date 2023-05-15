@@ -75,6 +75,9 @@ message ArithmeticInt32Op {
 message StateInt32Source {
   // The key in the state to bind to.
   string source_key = 1;
+
+  // The namespace for the state key.
+  string source_namespace = 2;
 }
 
 // A conditional operator which yields an integer depending on the boolean
@@ -214,6 +217,9 @@ message Int32FormatOp {
 message StateStringSource {
   // The key in the state to bind to.
   string source_key = 1;
+
+  // The namespace for the state key.
+  string source_namespace = 2;
 }
 
 // A conditional operator which yields an string depending on the boolean
@@ -299,6 +305,9 @@ message ArithmeticFloatOp {
 message StateFloatSource {
   // The key in the state to bind to.
   string source_key = 1;
+
+  // The namespace for the state key.
+  string source_namespace = 2;
 }
 
 // An operation to convert a Int32 value in the dynamic data pipeline to a Float
@@ -373,6 +382,9 @@ message DynamicFloat {
 message StateBoolSource {
   // The key in the state to bind to.
   string source_key = 1;
+
+  // The namespace for the state key.
+  string source_namespace = 2;
 }
 
 // The type of comparison used in ComparisonInt32Op and ComparisonFloatOp.
@@ -446,6 +458,12 @@ enum LogicalOpType {
 
   // Logical OR.
   LOGICAL_OP_TYPE_OR = 2;
+
+  // Equal check
+  LOGICAL_OP_TYPE_EQUAL = 3;
+
+  // Not Equal check.
+  LOGICAL_OP_TYPE_NOT_EQUAL = 4;
 }
 
 // A logical boolean operator, implementing "boolean result = LHS <op> RHS",
@@ -477,6 +495,9 @@ message DynamicBool {
 message StateColorSource {
   // The key in the state to bind to.
   string source_key = 1;
+
+  // The namespace for the state key.
+  string source_namespace = 2;
 }
 
 // A static interpolation node, between two fixed color values.
@@ -535,11 +556,26 @@ message DynamicColor {
 // A dynamic time instant that sources its value from the platform.
 message PlatformTimeSource {}
 
+// A conditional operator which yields a instant depending on the boolean
+// operand. This implements:
+// ```instant result = condition ? value_if_true : value_if_false```
+message ConditionalInstantOp {
+  // The condition to use.
+  DynamicBool condition = 1;
+
+  // The instant to yield if condition is true.
+  DynamicInstant value_if_true = 2;
+
+  // The instant to yield if condition is false.
+  DynamicInstant value_if_false = 3;
+}
+
 // A dynamic time instant type.
 message DynamicInstant {
   oneof inner {
     FixedInstant fixed = 1;
     PlatformTimeSource platform_source = 2;
+    ConditionalInstantOp conditional_op = 3;
   }
 }
 
@@ -553,10 +589,26 @@ message BetweenDuration {
   DynamicInstant end_exclusive = 2;
 }
 
+// A conditional operator which yields a duration depending on the boolean
+// operand. This implements:
+// ```duration result = condition ? value_if_true : value_if_false```
+message ConditionalDurationOp {
+  // The condition to use.
+  DynamicBool condition = 1;
+
+  // The duration to yield if condition is true.
+  DynamicDuration value_if_true = 2;
+
+  // The duration to yield if condition is false.
+  DynamicDuration value_if_false = 3;
+}
+
 // A dynamic duration type.
 message DynamicDuration {
   oneof inner {
     BetweenDuration between = 1;
+    FixedDuration fixed = 2;
+    ConditionalDurationOp conditional_op = 3;
   }
 }
 

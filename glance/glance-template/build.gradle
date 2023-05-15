@@ -42,7 +42,6 @@ dependencies {
     implementation("androidx.work:work-runtime:2.7.1")
     implementation("androidx.work:work-runtime-ktx:2.7.1")
     implementation(libs.kotlinStdlib)
-    implementation(project(":compose:runtime:runtime"))
 
     // Force upgrade since 1.2.0 is not compatible with latest lint.
     implementation("androidx.annotation:annotation-experimental:1.3.0")
@@ -74,8 +73,9 @@ android {
 }
 
 androidx {
-    name = "Glance Templates Library"
+    name = "Glance Templates"
     type = LibraryType.PUBLISHED_LIBRARY
+    mavenVersion = LibraryVersions.GLANCE_TEMPLATE
     inceptionYear = "2021"
     description = "Glance allows developers to build layouts for remote surfaces using a Jetpack " +
             "Compose-style API."

@@ -226,7 +226,7 @@
     <string name="title_prefix" msgid="3991742709199357049">"標題"</string>
     <string name="list_template_demo_title" msgid="1740208242737246151">"「清單範本」示範"</string>
     <string name="long_msg_template_demo_title" msgid="1793748562161438131">"「長訊息範本」示範"</string>
-    <string name="long_msg_template_not_supported_text" msgid="3641559637317672505">"您的主機不支援「長訊息」範本"</string>
+    <string name="long_msg_template_not_supported_text" msgid="3641559637317672505">"你的主機不支援「長訊息」範本"</string>
     <string name="long_msg_template_not_supported_title" msgid="8600719470226274925">"主機不兼容"</string>
     <string name="msg_template_demo_title" msgid="3895210951340409473">"「訊息範本」示範"</string>
     <string name="msg_template_demo_text" msgid="2275291617716161409">"訊息會在這裡顯示。\n其他文字會在第二行顯示。"</string>
@@ -240,7 +240,7 @@
     <string name="google_sign_in" msgid="6556259799319701727">"Google 登入"</string>
     <string name="use_pin" msgid="7850893299484337431">"使用 PIN"</string>
     <string name="qr_code" msgid="5487041647280777397">"QR 碼"</string>
-    <string name="sign_in_template_not_supported_text" msgid="7184733753948837646">"您的主機不支援登入範本"</string>
+    <string name="sign_in_template_not_supported_text" msgid="7184733753948837646">"你的主機不支援登入範本"</string>
     <string name="sign_in_template_not_supported_title" msgid="4892883228898541764">"主機不兼容"</string>
     <string name="email_hint" msgid="7205549445477319606">"電郵"</string>
     <string name="sign_in_title" msgid="4551967308262681703">"登入"</string>
@@ -254,7 +254,7 @@
     <string name="qr_code_sign_in_title" msgid="8137070561006464518">"掃瞄 QR 碼即登入"</string>
     <string name="sign_in_with_google_title" msgid="8043752000786977249">"使用 Google 帳戶登入"</string>
     <string name="provider_sign_in_instruction" msgid="7586815688292506743">"使用這個按鈕可完成 Google 登入程序"</string>
-    <string name="sign_in_complete_text" msgid="8423984266325680606">"您已登入！"</string>
+    <string name="sign_in_complete_text" msgid="8423984266325680606">"你已登入！"</string>
     <string name="sign_in_complete_title" msgid="8919868148773983428">"已完成登入"</string>
     <string name="sign_in_template_demo_title" msgid="6052035424941410249">"「登入範本」示範"</string>
     <string name="tab_template_layouts_demo_title" msgid="6529681462424538165">"分頁範本示範"</string>
@@ -298,7 +298,7 @@
     <string name="some_additional_text" msgid="4009872495806318260">"一些其他文字"</string>
     <string name="sample_additional_list" msgid="5085372891301576306">"可選取的清單範本"</string>
     <string name="task_restriction_demo_title" msgid="2212084350718766941">"「工作限制」示範"</string>
-    <string name="task_limit_reached_msg" msgid="7162842196382260992">"這會導致步數超過上限，並將您向到新畫面。"</string>
+    <string name="task_limit_reached_msg" msgid="7162842196382260992">"這會導致步數超過上限，並將你向到新畫面。"</string>
     <string name="task_step_of_title" msgid="2791717962535723839">"工作步驟 %1$d，共 %2$d 個步驟"</string>
     <string name="task_step_of_text" msgid="4646729781462227219">"點擊即可繼續使用"</string>
     <string name="task_content_allowed" msgid="545061986612431190">"請查看各種範本，並確保汽車處於駕駛模式"</string>

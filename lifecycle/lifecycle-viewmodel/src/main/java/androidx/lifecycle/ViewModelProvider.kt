@@ -22,9 +22,9 @@ import androidx.annotation.MainThread
 import androidx.annotation.RestrictTo
 import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.DEFAULT_KEY
 import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.defaultFactory
-import androidx.lifecycle.viewmodel.CreationExtras.Key
 import androidx.lifecycle.ViewModelProvider.NewInstanceFactory.Companion.VIEW_MODEL_KEY
 import androidx.lifecycle.viewmodel.CreationExtras
+import androidx.lifecycle.viewmodel.CreationExtras.Key
 import androidx.lifecycle.viewmodel.InitializerViewModelFactory
 import androidx.lifecycle.viewmodel.MutableCreationExtras
 import androidx.lifecycle.viewmodel.ViewModelInitializer

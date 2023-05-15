@@ -47,8 +47,8 @@ enum FontVariant {
   // Font variant suited for body text.
   FONT_VARIANT_BODY = 2;
 
-  // Font variant suited for Vendor specified use.
-  FONT_VARIANT_VENDOR_1 = 3;
+  // Placeholder for a custom font variant in the renderer.
+  FONT_VARIANT_CUSTOM_1 = 3;
 }
 
 // An extensible FontVariant property.
@@ -96,6 +96,10 @@ message FontStyle {
   BoolProp underline = 3;
 
   // The text color. If not defined, defaults to white.
+  //
+  // While this field is statically accessible from 1.0, it's only bindable
+  // since version 1.2 and renderers supporting version 1.2 will use the dynamic
+  // value (if set).
   ColorProp color = 4;
 
   // The weight of the font. If the provided value is not supported on a
@@ -162,6 +166,15 @@ message AndroidTextStyle {
 // A text string.
 message Text {
   // The text to render.
+  //
+  // While this field is statically accessible from 1.0, it's only bindable
+  // since version 1.2 and renderers supporting version 1.2 will use the dynamic
+  // value (if set).
+  //
+  // When using a dynamic value, make sure to specify the bounding constraints
+  // for the affected layout element through {@code
+  // setLayoutConstraintsForDynamicText(StringLayoutConstraint)} otherwise
+  // {@code build()} fails.
   StringProp text = 1;
 
   // The style of font to use (size, bold etc). If not specified, defaults to
@@ -244,6 +257,10 @@ message ColorFilter {
   //
   // Note that only Android image resources can be tinted; Inline images will
   // not be tinted, and this property will have no effect.
+  //
+  // While this field is statically accessible from 1.0, it's only bindable
+  // since version 1.2 and renderers supporting version 1.2 will use the dynamic
+  // value (if set).
   ColorProp tint = 1;
 }
 
@@ -282,9 +299,27 @@ message Spacer {
   // The width of this Spacer. When this is added as the direct child of an Arc,
   // this must be specified as an angular dimension, otherwise a linear
   // dimension must be used. If not defined, defaults to 0.
+  //
+  // While this field is statically accessible from 1.0, it's only bindable
+  // since version 1.2 and renderers supporting version 1.2 will use the dynamic
+  // value (if set).
+  //
+  // When using a dynamic value, make sure to specify the bounding constraints
+  // for the affected layout element through {@code
+  // setLayoutConstraintsForDynamicWidth(HorizontalLayoutConstraint)} otherwise
+  // {@code build()} fails.
   SpacerDimension width = 1;
 
   // The height of this spacer. If not defined, defaults to 0.
+  //
+  // While this field is statically accessible from 1.0, it's only bindable
+  // since version 1.2 and renderers supporting version 1.2 will use the dynamic
+  // value (if set).
+  //
+  // When using a dynamic value, make sure to specify the bounding constraints
+  // for the affected layout element through {@code
+  // setLayoutConstraintsForDynamicWidth(HorizontalLayoutConstraint)} otherwise
+  // {@code build()} fails.
   SpacerDimension height = 2;
 
   // Modifiers for this element.
@@ -490,6 +525,15 @@ message Arc {
   // Values do not have to be clamped to the range 0-360; values less than 0
   // degrees will sweep anti-clockwise (i.e. -90 degrees is equivalent to 270
   // degrees), and values >360 will be be placed at X mod 360 degrees.
+  //
+  // While this field is statically accessible from 1.0, it's only bindable
+  // since version 1.2 and renderers supporting version 1.2 will use the dynamic
+  // value (if set).
+  //
+  // When using a dynamic value, make sure to specify the bounding constraints
+  // for the affected layout element through {@code
+  // setLayoutConstraintsForDynamicAnchorAngle(AngularLayoutConstraint)}
+  // otherwise {@code build()} fails.
   DegreesProp anchor_angle = 2;
 
   // How to align the contents of this container relative to anchor_angle. If
@@ -529,12 +573,25 @@ message ArcText {
 // A line that can be used in an Arc and renders as a round progress bar.
 message ArcLine {
   // The length of this line, in degrees. If not defined, defaults to 0.
+  //
+  // While this field is statically accessible from 1.0, it's only bindable
+  // since version 1.2 and renderers supporting version 1.2 will use the dynamic
+  // value (if set).
+  //
+  // When using a dynamic value, make sure to specify the bounding constraints
+  // for the affected layout element through {@code
+  // setLayoutConstraintsForDynamicLength(AngularLayoutConstraint)} otherwise
+  // {@code build()} fails.
   DegreesProp length = 1;
 
   // The thickness of this line. If not defined, defaults to 0.
   DpProp thickness = 2;
 
   // The color of this line.
+  //
+  // While this field is statically accessible from 1.0, it's only bindable
+  // since version 1.2 and renderers supporting version 1.2 will use the dynamic
+  // value (if set).
   ColorProp color = 3;
 
   // Modifiers for this element.
@@ -558,6 +615,10 @@ enum StrokeCap {
   // Begin and end contours with a semi-circle extension. The extension size is
   // proportional to the thickness on the path.
   STROKE_CAP_ROUND = 2;
+
+  // Begin and end contours with a half square extension. The extension size is
+  // proportional to the thickness of the path.
+  STROKE_CAP_SQUARE = 3;
 }
 
 // An extensible StrokeCap property.
@@ -596,28 +657,30 @@ message ArcAdapter {
   BoolProp rotate_contents = 2;
 }
 
-// A layout element which can be defined by a vendor renderer extension. The
-// payload in this message will be passed verbatim to any registered vendor
-// extension in the layout renderer. It is then expected that the extension can
+// A layout element which can be defined by a renderer extension. The
+// payload in this message will be passed verbatim to any registered renderer
+// extension in the renderer. It is then expected that the extension can
 // parse this message, and emit the relevant element.
 //
-// If a vendor extension is not installed, this resource will not render
+// If a renderer extension is not installed, this resource will not render
 // any element, although the specified space will still be occupied. If the
-// payload cannot be parsed by the vendor extension, then still nothing should
-// be rendered, although this behaviour is defined by the vendor extension.
-message VendorExtension {
-  // The content of the vendor extension. This can be any data; it is expected
-  // that the vendor extension knows how to parse this field.
+// payload cannot be parsed by the renderer extension, then still nothing should
+// be rendered, although this behaviour is defined by the renderer extension.
+message ExtensionLayoutElement {
+
+    // The content of the renderer extension element. This can be any data; it is
+  // expected that the renderer extension knows how to parse this field.
   bytes payload = 1;
 
-  // The Vendor ID that this extension is for.
-  string vendor_id = 2;
+  // The ID of the renderer extension that should be used for rendering this
+  // layout element.
+  string extension_id = 2;
 
   // The width of this element.
-  VendorExtensionDimension width = 3;
+  ExtensionDimension width = 3;
 
   // The height of this element.
-  VendorExtensionDimension height = 4;
+  ExtensionDimension height = 4;
 }
 
 // The root of all layout elements. This exists to act as a holder for all of
@@ -632,7 +695,8 @@ message LayoutElement {
     Image image = 6;
     Arc arc = 7;
     Spannable spannable = 8;
-    VendorExtension vendor_extension = 1000;
+
+    ExtensionLayoutElement extension = 1000;
   }
 }
 

@@ -155,6 +155,114 @@
     </issue>
 
     <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="interface IExerciseApiService {"
+        errorLine2="^">
+        <location
+            file="src/main/aidl/androidx/health/services/client/impl/IExerciseApiService.aidl"/>
+    </issue>
+
+    <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="oneway interface IExerciseInfoCallback {"
+        errorLine2="^">
+        <location
+            file="src/main/aidl/androidx/health/services/client/impl/internal/IExerciseInfoCallback.aidl"/>
+    </issue>
+
+    <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="oneway interface IExerciseUpdateListener {"
+        errorLine2="^">
+        <location
+            file="src/main/aidl/androidx/health/services/client/impl/IExerciseUpdateListener.aidl"/>
+    </issue>
+
+    <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="interface IHealthServicesApiService {"
+        errorLine2="^">
+        <location
+            file="src/main/aidl/androidx/health/services/client/impl/IHealthServicesApiService.aidl"/>
+    </issue>
+
+    <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="interface IMeasureApiService {"
+        errorLine2="^">
+        <location
+            file="src/main/aidl/androidx/health/services/client/impl/IMeasureApiService.aidl"/>
+    </issue>
+
+    <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="oneway interface IMeasureCallback {"
+        errorLine2="^">
+        <location
+            file="src/main/aidl/androidx/health/services/client/impl/IMeasureCallback.aidl"/>
+    </issue>
+
+    <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="oneway interface IPassiveListenerCallback {"
+        errorLine2="^">
+        <location
+            file="src/main/aidl/androidx/health/services/client/impl/IPassiveListenerCallback.aidl"/>
+    </issue>
+
+    <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="interface IPassiveListenerService {"
+        errorLine2="^">
+        <location
+            file="src/main/aidl/androidx/health/services/client/impl/IPassiveListenerService.aidl"/>
+    </issue>
+
+    <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="interface IPassiveMonitoringApiService {"
+        errorLine2="^">
+        <location
+            file="src/main/aidl/androidx/health/services/client/impl/IPassiveMonitoringApiService.aidl"/>
+    </issue>
+
+    <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="oneway interface IPassiveMonitoringCallback {"
+        errorLine2="^">
+        <location
+            file="src/main/aidl/androidx/health/services/client/impl/IPassiveMonitoringCallback.aidl"/>
+    </issue>
+
+    <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="oneway interface IStatusCallback {"
+        errorLine2="^">
+        <location
+            file="src/main/aidl/androidx/health/services/client/impl/internal/IStatusCallback.aidl"/>
+    </issue>
+
+    <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="interface IVersionApiService {"
+        errorLine2="^">
+        <location
+            file="src/main/aidl/androidx/health/services/client/impl/IVersionApiService.aidl"/>
+    </issue>
+
+    <issue
         id="SyntheticAccessor"
         message="Access to `private` field `mCurrentVersion` of class `Client` requires synthetic accessor"
         errorLine1="                        mCurrentVersion ="

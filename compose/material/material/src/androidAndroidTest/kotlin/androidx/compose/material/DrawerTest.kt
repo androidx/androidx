@@ -1397,7 +1397,7 @@ class DrawerTest {
     fun bottomDrawer_shortSheet_sizeChanges_snapsToNewTarget() {
         var size by mutableStateOf(56.dp)
 
-        val state = BottomDrawerState(BottomDrawerValue.Expanded)
+        val state = BottomDrawerState(BottomDrawerValue.Expanded, density = rule.density)
         rule.setMaterialContent {
             BottomDrawer(
                 drawerState = state,
@@ -1425,7 +1425,7 @@ class DrawerTest {
     @OptIn(ExperimentalMaterialApi::class)
     @Test
     fun bottomDrawer_shortDrawer_anchorChangeHandler_previousTargetNotInAnchors_reconciles() {
-        val drawerState = BottomDrawerState(BottomDrawerValue.Closed)
+        val drawerState = BottomDrawerState(BottomDrawerValue.Closed, density = rule.density)
         var hasDrawerContent by mutableStateOf(false) // Start out with empty drawer content
         lateinit var scope: CoroutineScope
         rule.setMaterialContent {
@@ -1442,9 +1442,9 @@ class DrawerTest {
         }
 
         assertThat(drawerState.currentValue).isEqualTo(BottomDrawerValue.Closed)
-        assertThat(drawerState.swipeableState.hasAnchorForValue(BottomDrawerValue.Open))
+        assertThat(drawerState.anchoredDraggableState.hasAnchorForValue(BottomDrawerValue.Open))
             .isFalse()
-        assertThat(drawerState.swipeableState.hasAnchorForValue(BottomDrawerValue.Expanded))
+        assertThat(drawerState.anchoredDraggableState.hasAnchorForValue(BottomDrawerValue.Expanded))
             .isFalse()
 
         scope.launch { drawerState.open() }
@@ -1461,7 +1461,7 @@ class DrawerTest {
     @OptIn(ExperimentalMaterialApi::class)
     @Test
     fun bottomDrawer_tallDrawer_anchorChangeHandler_previousTargetNotInAnchors_reconciles() {
-        val drawerState = BottomDrawerState(BottomDrawerValue.Closed)
+        val drawerState = BottomDrawerState(BottomDrawerValue.Closed, density = rule.density)
         var hasDrawerContent by mutableStateOf(false) // Start out with empty drawer content
         lateinit var scope: CoroutineScope
         rule.setContent {
@@ -1478,9 +1478,9 @@ class DrawerTest {
         }
 
         assertThat(drawerState.currentValue).isEqualTo(BottomDrawerValue.Closed)
-        assertThat(drawerState.swipeableState.hasAnchorForValue(BottomDrawerValue.Open))
+        assertThat(drawerState.anchoredDraggableState.hasAnchorForValue(BottomDrawerValue.Open))
             .isFalse()
-        assertThat(drawerState.swipeableState.hasAnchorForValue(BottomDrawerValue.Expanded))
+        assertThat(drawerState.anchoredDraggableState.hasAnchorForValue(BottomDrawerValue.Expanded))
             .isFalse()
 
         scope.launch { drawerState.open() }
