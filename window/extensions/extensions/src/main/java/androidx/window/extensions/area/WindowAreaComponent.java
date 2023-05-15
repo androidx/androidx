@@ -82,7 +82,6 @@ public interface WindowAreaComponent {
      */
     int STATUS_ACTIVE = 3;
 
-    /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Retention(RetentionPolicy.SOURCE)
     @Target({ElementType.TYPE_PARAMETER, ElementType.TYPE_USE})
@@ -116,7 +115,6 @@ public interface WindowAreaComponent {
      */
     int SESSION_STATE_CONTENT_VISIBLE = 2;
 
-    /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Retention(RetentionPolicy.SOURCE)
     @Target({ElementType.TYPE_PARAMETER, ElementType.TYPE_USE})
@@ -129,7 +127,6 @@ public interface WindowAreaComponent {
 
     // TODO(b/264546746): Remove deprecated Window Extensions APIs after apps in g3 is updated to
     // the latest library.
-    /** @hide */
     @SuppressLint({"NewApi", "ClassVerificationFailure"})
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     ArrayMap<java.util.function.Consumer<Integer>, Consumer<Integer>> JAVA_TO_EXTENSIONS_MAP =
@@ -155,7 +152,6 @@ public interface WindowAreaComponent {
      * @deprecated Use {@link #addRearDisplayStatusListener(Consumer)}.
      *
      * Since {@link WindowExtensions#VENDOR_API_LEVEL_2}
-     * @hide
      */
     @Deprecated
     @SuppressLint("ClassVerificationFailure")
@@ -184,7 +180,6 @@ public interface WindowAreaComponent {
      * @deprecated Use {@link #removeRearDisplayStatusListener(Consumer)}.
      *
      * Since {@link WindowExtensions#VENDOR_API_LEVEL_2}
-     * @hide
      */
     @Deprecated
     @SuppressLint("ClassVerificationFailure")
@@ -228,7 +223,6 @@ public interface WindowAreaComponent {
      * @deprecated Use {@link #startRearDisplaySession(Activity, Consumer)}.
      *
      * Since {@link WindowExtensions#VENDOR_API_LEVEL_2}
-     * @hide
      */
     @Deprecated
     @SuppressLint("ClassVerificationFailure")

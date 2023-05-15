@@ -44,7 +44,6 @@ public interface WindowExtensions {
     // TODO(b/241323716) Removed after we have annotation to check API level
     /**
      * An invalid {@link #getVendorApiLevel vendor API level}
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
     int INVALID_VENDOR_API_LEVEL = -1;
@@ -67,7 +66,6 @@ public interface WindowExtensions {
      *     <li>{@link androidx.window.extensions.area.WindowAreaComponent} APIs</li>
      * </ul>
      * </p>
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
     int VENDOR_API_LEVEL_1 = 1;
@@ -83,7 +81,6 @@ public interface WindowExtensions {
      *     <li>{@link ActivityEmbeddingComponent#setSplitAttributesCalculator(
      *      androidx.window.extensions.core.util.function.Function)}</li>
      * </ul>
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
     int VENDOR_API_LEVEL_2 = 2;
@@ -105,7 +102,6 @@ public interface WindowExtensions {
      *     <li>{@link ActivityEmbeddingComponent#finishActivityStacks(Set)}</li>
      * </ul>
      * </p>
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
     int VENDOR_API_LEVEL_3 = 3;

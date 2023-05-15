@@ -31,8 +31,6 @@ import androidx.window.extensions.layout.WindowLayoutInfo;
 /**
  * @deprecated Use {@link androidx.window.extensions.core.util.function.Function} instead unless
  * {@link androidx.window.extensions.core.util.function.Function} cannot be used.
- *
- * @hide
  */
 @Deprecated
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
