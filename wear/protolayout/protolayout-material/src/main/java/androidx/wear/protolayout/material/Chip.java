@@ -589,14 +589,14 @@ public class Chip implements LayoutElement {
     @Nullable
     public String getPrimaryLabelContent() {
         Text primaryLabel = getPrimaryLabelContentObject();
-        return primaryLabel != null ? primaryLabel.getText() : null;
+        return primaryLabel != null ? primaryLabel.getText().getValue() : null;
     }
 
     /** Returns secondary label from this Chip if it has been added. Otherwise, it returns null. */
     @Nullable
     public String getSecondaryLabelContent() {
         Text label = getSecondaryLabelContentObject();
-        return label != null ? label.getText() : null;
+        return label != null ? label.getText().getValue() : null;
     }
 
     /** Returns icon id from this Chip if it has been added. Otherwise, it returns null. */
