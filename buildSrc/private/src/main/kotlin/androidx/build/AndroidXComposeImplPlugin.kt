@@ -28,7 +28,6 @@ import com.android.build.gradle.internal.lint.AndroidLintTask
 import com.android.build.gradle.internal.lint.LintModelWriterTask
 import com.android.build.gradle.internal.lint.VariantInputs
 import java.io.File
-import kotlin.reflect.KFunction
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.type.ArtifactTypeDefinition
@@ -36,7 +35,6 @@ import org.gradle.api.attributes.Attribute
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.plugins.ExtraPropertiesExtension
 import org.gradle.api.tasks.ClasspathNormalizer
-import org.gradle.kotlin.dsl.apply
 import org.gradle.kotlin.dsl.create
 import org.gradle.kotlin.dsl.findByType
 import org.gradle.kotlin.dsl.withType
@@ -61,8 +59,6 @@ const val enableReportsArg = "androidx.enableComposeCompilerReports"
  */
 class AndroidXComposeImplPlugin : Plugin<Project> {
     override fun apply(project: Project) {
-        val f: KFunction<Unit> = Companion::applyAndConfigureKotlinPlugin
-        project.extensions.add("applyAndConfigureKotlinPlugin", f)
         val extension = project.extensions.create<AndroidXComposeExtension>(
             "androidxCompose",
             project
@@ -93,40 +89,6 @@ class AndroidXComposeImplPlugin : Plugin<Project> {
     }
 
     companion object {
-
-        /**
-         * @param isMultiplatformEnabled whether this module has a corresponding
-         * multiplatform configuration, or whether it is Android only
-         */
-        fun applyAndConfigureKotlinPlugin(
-            project: Project,
-            isMultiplatformEnabled: Boolean
-        ) {
-            if (isMultiplatformEnabled) {
-                project.apply(plugin = "kotlin-multiplatform")
-
-                project.extensions.create(
-                    AndroidXComposeMultiplatformExtension::class.java,
-                    "androidXComposeMultiplatform",
-                    AndroidXComposeMultiplatformExtensionImpl::class.java
-                )
-            } else {
-                project.apply(plugin = "org.jetbrains.kotlin.android")
-            }
-
-            project.configureManifests()
-            if (isMultiplatformEnabled) {
-                project.configureForMultiplatform()
-            } else {
-                project.configureForKotlinMultiplatformSourceStructure()
-            }
-
-            project.tasks.withType(KotlinCompile::class.java).configureEach { compile ->
-                // Needed to enable `expect` and `actual` keywords
-                compile.kotlinOptions.freeCompilerArgs += "-Xmulti-platform"
-            }
-        }
-
         private fun Project.androidxExtension(): AndroidXExtension? {
             return extensions.findByType(AndroidXExtension::class.java)
         }
@@ -134,7 +96,6 @@ class AndroidXComposeImplPlugin : Plugin<Project> {
         private fun Project.configureAndroidCommonOptions(testedExtension: TestedExtension) {
             testedExtension.defaultConfig.minSdk = 21
 
-            @Suppress("UnstableApiUsage")
             extensions.findByType(AndroidComponentsExtension::class.java)!!.finalizeDsl {
                 val isPublished = androidxExtension()?.shouldPublish() ?: false
 
@@ -192,65 +153,6 @@ class AndroidXComposeImplPlugin : Plugin<Project> {
                         )
                     )
                 )
-            }
-        }
-
-        private fun Project.configureManifests() {
-            val libraryExtension = project.extensions.findByType<LibraryExtension>() ?: return
-            libraryExtension.apply {
-                sourceSets.findByName("main")!!.manifest
-                    .srcFile("src/androidMain/AndroidManifest.xml")
-                sourceSets.findByName("androidTest")!!.manifest
-                    .srcFile("src/androidAndroidTest/AndroidManifest.xml")
-            }
-        }
-
-        /**
-         * General configuration for MPP projects. In the future, these workarounds should either be
-         * generified and added to AndroidXPlugin, or removed as/when the underlying issues have been
-         * resolved.
-         */
-        private fun Project.configureForKotlinMultiplatformSourceStructure() {
-            val libraryExtension = project.extensions.findByType<LibraryExtension>() ?: return
-
-            // TODO: b/148416113: AGP doesn't know about Kotlin-MPP's sourcesets yet, so add
-            // them to its source directories (this fixes lint, and code completion in
-            // Android Studio on versions >= 4.0canary8)
-            libraryExtension.apply {
-                sourceSets.findByName("main")?.apply {
-                    java.srcDirs(
-                        "src/commonMain/kotlin", "src/jvmMain/kotlin",
-                        "src/androidMain/kotlin"
-                    )
-                    res.srcDirs(
-                        "src/commonMain/resources",
-                        "src/androidMain/res"
-                    )
-                    assets.srcDirs("src/androidMain/assets")
-
-                    // Keep Kotlin files in java source sets so the source set is not empty when
-                    // running unit tests which would prevent the tests from running in CI.
-                    java.includes.add("**/*.kt")
-                }
-                sourceSets.findByName("test")?.apply {
-                    java.srcDirs(
-                        "src/commonTest/kotlin", "src/jvmTest/kotlin"
-                    )
-                    res.srcDirs("src/commonTest/res", "src/jvmTest/res")
-
-                    // Keep Kotlin files in java source sets so the source set is not empty when
-                    // running unit tests which would prevent the tests from running in CI.
-                    java.includes.add("**/*.kt")
-                }
-                sourceSets.findByName("androidTest")?.apply {
-                    java.srcDirs("src/androidAndroidTest/kotlin")
-                    res.srcDirs("src/androidAndroidTest/res")
-                    assets.srcDirs("src/androidAndroidTest/assets")
-
-                    // Keep Kotlin files in java source sets so the source set is not empty when
-                    // running unit tests which would prevent the tests from running in CI.
-                    java.includes.add("**/*.kt")
-                }
             }
         }
 
@@ -457,37 +359,4 @@ private fun ConfigurableFileCollection.withChangesAllowed(
     disallowChanges.set(this, false)
     block()
     disallowChanges.set(this, true)
-}
-
-/**
- * General purpose implementation of a transitive closure
- * - Recursion free
- * - Predictable amount of allocations
- * - Handles loops and self references gracefully
- * @param edges: Producer function from one node to all its children. This implementation can handle loops and self references gracefully.
- * @return Note: No guarantees given about the order ot this [Set]
- */
-public inline fun <reified T> transitiveClosure(seed: T, edges: T.() -> Iterable<T>): Set<T> {
-    // Fast path when initial edges are empty
-    val initialEdges = seed.edges()
-    if (initialEdges is Collection && initialEdges.isEmpty()) return emptySet()
-
-    val queue = deque<T>(initialEdges.count() * 2)
-    val results = mutableSetOf<T>()
-    queue.addAll(initialEdges)
-    while (queue.isNotEmpty()) {
-        // ArrayDeque implementation will optimize this call to 'removeFirst'
-        val resolved = queue.removeAt(0)
-        if (resolved != seed && results.add(resolved)) {
-            queue.addAll(resolved.edges())
-        }
-    }
-
-    return results.toSet()
-}
-
-@PublishedApi
-internal inline fun <reified T> deque(initialSize: Int): MutableList<T> {
-    return if (KotlinVersion.CURRENT.isAtLeast(1, 4)) ArrayDeque(initialSize)
-    else ArrayList(initialSize)
 }
