@@ -183,7 +183,7 @@ class SearchSessionImpl implements AppSearchSession {
             @NonNull SearchSuggestionSpec searchSuggestionSpec) {
         Preconditions.checkNotNull(suggestionQueryExpression);
         Preconditions.checkNotNull(searchSuggestionSpec);
-        if (Build.VERSION.SDK_INT >= 34) {
+        if (BuildCompat.isAtLeastU()) {
             ResolvableFuture<List<SearchSuggestionResult>> future = ResolvableFuture.create();
             ApiHelperForU.searchSuggestion(
                     mPlatformSession,
