@@ -30,9 +30,17 @@ import androidx.appsearch.app.SearchSpec;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.observer.ObserverCallback;
 import androidx.appsearch.observer.ObserverSpec;
+import androidx.appsearch.playservicesstorage.converter.AppSearchResultToGmsConverter;
+import androidx.appsearch.playservicesstorage.converter.GenericDocumentToGmsConverter;
+import androidx.appsearch.playservicesstorage.converter.GetSchemaResponseToGmsConverter;
+import androidx.appsearch.playservicesstorage.converter.RequestToGmsConverter;
+import androidx.appsearch.playservicesstorage.converter.SearchSpecToGmsConverter;
+import androidx.appsearch.playservicesstorage.util.AppSearchTaskFutures;
 import androidx.core.util.Preconditions;
 
 import com.google.android.gms.appsearch.GlobalSearchClient;
+import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.Tasks;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.concurrent.Executor;
@@ -58,35 +66,37 @@ class GlobalSearchSessionImpl implements GlobalSearchSession {
     public ListenableFuture<AppSearchBatchResult<String, GenericDocument>> getByDocumentIdAsync(
             @NonNull String packageName, @NonNull String databaseName,
             @NonNull GetByDocumentIdRequest request) {
-        // TODO(b/274986359): Implement getByDocumentIdAsync for PlayServicesStorage.
-        throw new UnsupportedOperationException(
-                "getByDocumentIdAsync is not yet supported on this AppSearch implementation.");
+        return AppSearchTaskFutures.toListenableFuture(
+                mGmsClient.getByDocumentId(packageName, databaseName,
+                        RequestToGmsConverter.toGmsGetByDocumentIdRequest(request)),
+                result -> AppSearchResultToGmsConverter.gmsAppSearchBatchResultToJetpack(
+                        result, GenericDocumentToGmsConverter::toJetpackGenericDocument));
     }
 
     @NonNull
     @Override
     public SearchResults search(@NonNull String queryExpression, @NonNull SearchSpec searchSpec) {
-        // TODO(b/274986359): Implement search for PlayServicesStorage.
-        throw new UnsupportedOperationException(
-                "search is not yet supported on this AppSearch implementation.");
+        com.google.android.gms.appsearch.SearchResults searchResults =
+                mGmsClient.search(queryExpression,
+                        SearchSpecToGmsConverter.toGmsSearchSpec(searchSpec));
+        return new SearchResultsImpl(searchResults, searchSpec);
     }
 
     @NonNull
     @Override
     public ListenableFuture<Void> reportSystemUsageAsync(
             @NonNull ReportSystemUsageRequest request) {
-        // TODO(b/274986359): Implement reportSystemUsageAsync for PlayServicesStorage.
-        throw new UnsupportedOperationException(
-                "reportSystemUsageAsync is not yet supported on this AppSearch implementation.");
+        Task<Void> flushTask = Tasks.forResult(null);
+        return AppSearchTaskFutures.toListenableFuture(flushTask, /* valueMapper= */ i-> i);
     }
 
     @NonNull
     @Override
     public ListenableFuture<GetSchemaResponse> getSchemaAsync(@NonNull String packageName,
             @NonNull String databaseName) {
-        // TODO(b/274986359): Implement getSchemaAsync for PlayServicesStorage.
-        throw new UnsupportedOperationException(
-                "getSchemaAsync is not yet supported on this AppSearch implementation.");
+        return AppSearchTaskFutures.toListenableFuture(
+                mGmsClient.getSchema(packageName, databaseName),
+                GetSchemaResponseToGmsConverter::toJetpackGetSchemaResponse);
     }
 
     @NonNull

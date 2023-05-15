@@ -21,6 +21,7 @@ import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.appsearch.app.AppSearchSession;
+import androidx.appsearch.app.GlobalSearchSession;
 import androidx.appsearch.playservicesstorage.PlayServicesStorage;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.SdkSuppress;
@@ -28,37 +29,42 @@ import androidx.test.filters.SdkSuppress;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import org.junit.Assume;
-import org.junit.Test;
-
-import java.util.concurrent.ExecutorService;
+import org.junit.Ignore;
 
 // TODO(b/237116468): Remove SdkSuppress once AppSearchAttributionSource available for lower API
 //  levels.
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
-public class AppSearchSessionGmsCtsTest extends AppSearchSessionCtsTestBase {
-
+public class GlobalSearchSessionGmsCtsTest extends GlobalSearchSessionCtsTestBase {
+    private final Context mContext = ApplicationProvider.getApplicationContext();
     private boolean mIsGmsAvailable;
     @Override
     protected ListenableFuture<AppSearchSession> createSearchSessionAsync(@NonNull String dbName)
             throws Exception {
-        Context context = ApplicationProvider.getApplicationContext();
-        ListenableFuture<AppSearchSession> appSearchSessionListenableFuture =
+        ListenableFuture<AppSearchSession> searchSessionAsync =
                 PlayServicesStorage.createSearchSessionAsync(
-                        new PlayServicesStorage.SearchContext.Builder(context, dbName).build());
-        mIsGmsAvailable = GmsTestUtil.isGmsAvailable(appSearchSessionListenableFuture);
+                        new PlayServicesStorage.SearchContext.Builder(mContext, dbName).build());
+        mIsGmsAvailable = GmsTestUtil.isGmsAvailable(searchSessionAsync);
 
         // isGmsAvailable returns false when GMSCore or GMSCore AppSearch module are unavailable on
         // device. In this case we will not run the tests as they are expected to fail as the
         // service they are calling is unavailable.
         Assume.assumeTrue(mIsGmsAvailable);
-        return appSearchSessionListenableFuture;
+        return searchSessionAsync;
     }
 
     @Override
-    protected ListenableFuture<AppSearchSession> createSearchSessionAsync(@NonNull String dbName,
-            @NonNull ExecutorService unused) throws Exception {
-        // Executor is not required for PlayServicesAppSearch.
-        return createSearchSessionAsync(dbName);
+    protected ListenableFuture<GlobalSearchSession> createGlobalSearchSessionAsync()
+            throws Exception {
+        ListenableFuture<GlobalSearchSession> globalSearchSessionAsync =
+                PlayServicesStorage.createGlobalSearchSessionAsync(
+                        new PlayServicesStorage.GlobalSearchContext.Builder(mContext).build());
+        mIsGmsAvailable = GmsTestUtil.isGmsAvailable(globalSearchSessionAsync);
+
+        // isGmsAvailable returns false when GMSCore or GMSCore AppSearch module are unavailable on
+        // device. In this case we will not run the tests as they are expected to fail as the
+        // service they are calling is unavailable.
+        Assume.assumeTrue(mIsGmsAvailable);
+        return globalSearchSessionAsync;
     }
 
     @Override
@@ -69,11 +75,9 @@ public class AppSearchSessionGmsCtsTest extends AppSearchSessionCtsTestBase {
     }
 
     @Override
-    @Test
-    public void testRfc822_unsupportedFeature_throwsException() {
-        // TODO(b/280463238): // TODO(b/280463238): KNOWN_ISSUE will be fixed in next
-        //  play-services-appsearch drop.
-        // expected: tokenizerType is out of range of [0, 1] (too high)
-        // but was : tokenizerType is out of range of [%d, %d] (too high) [0, 1]
+    @Ignore
+    public void testReportSystemUsage_ForbiddenFromNonSystem() {
+        // TODO(b/208654892) : ReportSystemUsage is not yet needed by any clients of GMSCore
+        //  AppSearch, once there is a requirement by any of the clients this will be added.
     }
 }

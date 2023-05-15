@@ -84,9 +84,10 @@ public abstract class GlobalSearchSessionCtsTestBase {
     protected GlobalSearchSession mGlobalSearchSession;
 
     protected abstract ListenableFuture<AppSearchSession> createSearchSessionAsync(
-            @NonNull String dbName);
+            @NonNull String dbName) throws Exception;
 
-    protected abstract ListenableFuture<GlobalSearchSession> createGlobalSearchSessionAsync();
+    protected abstract ListenableFuture<GlobalSearchSession> createGlobalSearchSessionAsync()
+            throws Exception;
 
     @Before
     public void setUp() throws Exception {
