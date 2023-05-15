@@ -2436,6 +2436,13 @@ public final class AppSearchImpl implements Closeable {
                 }
             }
 
+            // Rewrite SchemaProto.types.parent_types
+            for (int parentTypeIdx = 0; parentTypeIdx < typeConfigBuilder.getParentTypesCount();
+                    parentTypeIdx++) {
+                String newParentType = prefix + typeConfigBuilder.getParentTypes(parentTypeIdx);
+                typeConfigBuilder.setParentTypes(parentTypeIdx, newParentType);
+            }
+
             newTypesToProto.put(newSchemaType, typeConfigBuilder.build());
         }
 

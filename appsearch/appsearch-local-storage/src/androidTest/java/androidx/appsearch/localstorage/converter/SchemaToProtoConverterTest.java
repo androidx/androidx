@@ -159,4 +159,32 @@ public class SchemaToProtoConverterTest {
         assertThat(SchemaToProtoConverter.toAppSearchSchema(expectedAlbumProto))
                 .isEqualTo(albumSchema);
     }
+
+    @Test
+    public void testGetProto_ParentTypes() {
+        AppSearchSchema schema = new AppSearchSchema.Builder("EmailMessage")
+                .addParentType("Email")
+                .addParentType("Message")
+                .build();
+
+        SchemaTypeConfigProto expectedSchemaProto = SchemaTypeConfigProto.newBuilder()
+                .setSchemaType("EmailMessage")
+                .setVersion(12345)
+                .addParentTypes("Email")
+                .addParentTypes("Message")
+                .build();
+        SchemaTypeConfigProto alternativeExpectedSchemaProto = SchemaTypeConfigProto.newBuilder()
+                .setSchemaType("EmailMessage")
+                .setVersion(12345)
+                .addParentTypes("Message")
+                .addParentTypes("Email")
+                .build();
+
+        assertThat(SchemaToProtoConverter.toSchemaTypeConfigProto(schema, /*version=*/12345))
+                .isAnyOf(expectedSchemaProto, alternativeExpectedSchemaProto);
+        assertThat(SchemaToProtoConverter.toAppSearchSchema(expectedSchemaProto))
+                .isEqualTo(schema);
+        assertThat(SchemaToProtoConverter.toAppSearchSchema(alternativeExpectedSchemaProto))
+                .isEqualTo(schema);
+    }
 }

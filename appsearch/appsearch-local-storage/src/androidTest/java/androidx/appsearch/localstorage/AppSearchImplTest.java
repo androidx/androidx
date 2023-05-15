@@ -160,7 +160,9 @@ public class AppSearchImplTest {
                         .build()
                 ).build();
         SchemaTypeConfigProto schemaTypeConfigProto3 = SchemaTypeConfigProto.newBuilder()
-                .setSchemaType("RefType").build();
+                .setSchemaType("RefType")
+                .addParentTypes("Foo")
+                .build();
         SchemaProto newSchema = SchemaProto.newBuilder()
                 .addTypes(schemaTypeConfigProto1)
                 .addTypes(schemaTypeConfigProto2)
@@ -209,7 +211,9 @@ public class AppSearchImplTest {
                                 .build()
                         ).build())
                 .addTypes(SchemaTypeConfigProto.newBuilder()
-                        .setSchemaType("package$newDatabase/RefType").build())
+                        .setSchemaType("package$newDatabase/RefType")
+                        .addParentTypes("package$newDatabase/Foo")
+                        .build())
                 .build();
 
         existingTypes.addAll(expectedSchema.getTypesList());

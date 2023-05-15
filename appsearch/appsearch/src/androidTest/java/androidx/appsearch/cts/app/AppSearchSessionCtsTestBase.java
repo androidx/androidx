@@ -741,6 +741,190 @@ public abstract class AppSearchSessionCtsTestBase {
     }
 
     @Test
+    public void testGetSchema_parentTypes() throws Exception {
+        assumeTrue(mDb1.getFeatures().isFeatureSupported(Features.SCHEMA_ADD_PARENT_TYPE));
+        AppSearchSchema emailSchema =
+                new AppSearchSchema.Builder("Email").build();
+        AppSearchSchema messageSchema =
+                new AppSearchSchema.Builder("Message").build();
+        AppSearchSchema emailMessageSchema = new AppSearchSchema.Builder("EmailMessage")
+                .addProperty(
+                        new StringPropertyConfig.Builder("sender").setCardinality(
+                                PropertyConfig.CARDINALITY_REQUIRED).build())
+                .addProperty(
+                        new StringPropertyConfig.Builder("email").setCardinality(
+                                PropertyConfig.CARDINALITY_REQUIRED).build())
+                .addProperty(
+                        new StringPropertyConfig.Builder("content").setCardinality(
+                                PropertyConfig.CARDINALITY_REQUIRED).build())
+                .addParentType("Email")
+                .addParentType("Message")
+                .build();
+
+        SetSchemaRequest request = new SetSchemaRequest.Builder()
+                .addSchemas(emailMessageSchema)
+                .addSchemas(emailSchema)
+                .addSchemas(messageSchema)
+                .build();
+
+        mDb1.setSchemaAsync(request).get();
+
+        Set<AppSearchSchema> actual = mDb1.getSchemaAsync().get().getSchemas();
+        assertThat(actual).hasSize(3);
+        assertThat(actual).isEqualTo(request.getSchemas());
+    }
+
+    @Test
+    public void testGetSchema_parentTypes_notSupported() throws Exception {
+        assumeFalse(mDb1.getFeatures().isFeatureSupported(Features.SCHEMA_ADD_PARENT_TYPE));
+        AppSearchSchema emailSchema =
+                new AppSearchSchema.Builder("Email").build();
+        AppSearchSchema messageSchema =
+                new AppSearchSchema.Builder("Message").build();
+        AppSearchSchema emailMessageSchema = new AppSearchSchema.Builder("EmailMessage")
+                .addParentType("Email")
+                .addParentType("Message")
+                .build();
+
+        SetSchemaRequest request = new SetSchemaRequest.Builder()
+                .addSchemas(emailMessageSchema)
+                .addSchemas(emailSchema)
+                .addSchemas(messageSchema)
+                .build();
+
+        UnsupportedOperationException e = assertThrows(UnsupportedOperationException.class, () ->
+                mDb1.setSchemaAsync(request).get());
+        assertThat(e).hasMessageThat().contains(Features.SCHEMA_ADD_PARENT_TYPE
+                + " is not available on this AppSearch implementation.");
+    }
+
+    @Test
+    public void testSetSchema_dataTypeIncompatibleWithParentTypes() throws Exception {
+        assumeTrue(mDb1.getFeatures().isFeatureSupported(Features.SCHEMA_ADD_PARENT_TYPE));
+        AppSearchSchema messageSchema =
+                new AppSearchSchema.Builder("Message")
+                        .addProperty(
+                                new LongPropertyConfig.Builder("sender").setCardinality(
+                                        PropertyConfig.CARDINALITY_REQUIRED).build())
+                        .build();
+        AppSearchSchema emailSchema =
+                new AppSearchSchema.Builder("Email")
+                        .addParentType("Message")
+                        .addProperty(
+                                new StringPropertyConfig.Builder("sender").setCardinality(
+                                        PropertyConfig.CARDINALITY_REQUIRED).build())
+                        .build();
+
+        SetSchemaRequest request = new SetSchemaRequest.Builder()
+                .addSchemas(messageSchema)
+                .addSchemas(emailSchema)
+                .build();
+
+        ExecutionException executionException = assertThrows(ExecutionException.class,
+                () -> mDb1.setSchemaAsync(request).get());
+        assertThat(executionException).hasCauseThat().isInstanceOf(AppSearchException.class);
+        AppSearchException exception = (AppSearchException) executionException.getCause();
+        assertThat(exception.getResultCode()).isEqualTo(RESULT_INVALID_ARGUMENT);
+        assertThat(exception).hasMessageThat().contains(
+                "Property sender from child type androidx.appsearch.test$/Email is not compatible"
+                        + " to the parent type androidx.appsearch.test$/Message.");
+    }
+
+    @Test
+    public void testSetSchema_documentTypeIncompatibleWithParentTypes() throws Exception {
+        assumeTrue(mDb1.getFeatures().isFeatureSupported(Features.SCHEMA_ADD_PARENT_TYPE));
+        AppSearchSchema personSchema = new AppSearchSchema.Builder("Person")
+                .build();
+        AppSearchSchema artistSchema = new AppSearchSchema.Builder("Artist")
+                .addParentType("Person")
+                .build();
+        AppSearchSchema messageSchema =
+                new AppSearchSchema.Builder("Message")
+                        .addProperty(
+                                new DocumentPropertyConfig.Builder("sender",
+                                        "Artist").setCardinality(
+                                        PropertyConfig.CARDINALITY_REQUIRED).build())
+                        .build();
+        AppSearchSchema emailSchema =
+                new AppSearchSchema.Builder("Email")
+                        .addParentType("Message")
+                        // "sender" is defined as an Artist in the parent type Message, which
+                        // requires "sender"'s type here to be a subtype of Artist. Thus, this is
+                        // incompatible because Person is not a subtype of Artist.
+                        .addProperty(
+                                new DocumentPropertyConfig.Builder("sender",
+                                        "Person").setCardinality(
+                                        PropertyConfig.CARDINALITY_REQUIRED).build())
+                        .build();
+
+        SetSchemaRequest request = new SetSchemaRequest.Builder()
+                .addSchemas(personSchema)
+                .addSchemas(artistSchema)
+                .addSchemas(messageSchema)
+                .addSchemas(emailSchema)
+                .build();
+
+        ExecutionException executionException = assertThrows(ExecutionException.class,
+                () -> mDb1.setSchemaAsync(request).get());
+        assertThat(executionException).hasCauseThat().isInstanceOf(AppSearchException.class);
+        AppSearchException exception = (AppSearchException) executionException.getCause();
+        assertThat(exception.getResultCode()).isEqualTo(RESULT_INVALID_ARGUMENT);
+        assertThat(exception).hasMessageThat().contains(
+                "Property sender from child type androidx.appsearch.test$/Email is not compatible"
+                        + " to the parent type androidx.appsearch.test$/Message.");
+    }
+
+    @Test
+    public void testSetSchema_compatibleWithParentTypes() throws Exception {
+        assumeTrue(mDb1.getFeatures().isFeatureSupported(Features.SCHEMA_ADD_PARENT_TYPE));
+        AppSearchSchema personSchema = new AppSearchSchema.Builder("Person")
+                .build();
+        AppSearchSchema artistSchema = new AppSearchSchema.Builder("Artist")
+                .addParentType("Person")
+                .build();
+        AppSearchSchema messageSchema =
+                new AppSearchSchema.Builder("Message")
+                        .addProperty(
+                                new DocumentPropertyConfig.Builder("sender",
+                                        "Person").setCardinality(
+                                        PropertyConfig.CARDINALITY_REQUIRED).build())
+                        .addProperty(new StringPropertyConfig.Builder("note")
+                                .setCardinality(PropertyConfig.CARDINALITY_REQUIRED)
+                                .setIndexingType(StringPropertyConfig.INDEXING_TYPE_PREFIXES)
+                                .setTokenizerType(StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                                .build())
+                        .build();
+        AppSearchSchema emailSchema =
+                new AppSearchSchema.Builder("Email")
+                        .addParentType("Message")
+                        .addProperty(
+                                // Artist is a subtype of Person, so compatible
+                                new DocumentPropertyConfig.Builder("sender",
+                                        "Artist").setCardinality(
+                                        PropertyConfig.CARDINALITY_REQUIRED).build())
+                        .addProperty(new StringPropertyConfig.Builder("note")
+                                .setCardinality(PropertyConfig.CARDINALITY_REQUIRED)
+                                // A different indexing or tokenizer type is ok.
+                                .setIndexingType(StringPropertyConfig.INDEXING_TYPE_EXACT_TERMS)
+                                .setTokenizerType(StringPropertyConfig.TOKENIZER_TYPE_VERBATIM)
+                                .build())
+                        .build();
+
+        SetSchemaRequest request = new SetSchemaRequest.Builder()
+                .addSchemas(personSchema)
+                .addSchemas(artistSchema)
+                .addSchemas(messageSchema)
+                .addSchemas(emailSchema)
+                .build();
+
+        mDb1.setSchemaAsync(request).get();
+
+        Set<AppSearchSchema> actual = mDb1.getSchemaAsync().get().getSchemas();
+        assertThat(actual).hasSize(4);
+        assertThat(actual).isEqualTo(request.getSchemas());
+    }
+
+    @Test
     public void testGetNamespaces() throws Exception {
         // Schema registration
         mDb1.setSchemaAsync(
@@ -2142,6 +2326,78 @@ public abstract class AppSearchSessionCtsTestBase {
     }
 
     @Test
+    public void testQuery_typeFilterWithPolymorphism() throws Exception {
+        assumeTrue(mDb1.getFeatures().isFeatureSupported(Features.SCHEMA_ADD_PARENT_TYPE));
+
+        // Schema registration
+        AppSearchSchema personSchema = new AppSearchSchema.Builder("Person")
+                .addProperty(new StringPropertyConfig.Builder("name")
+                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setTokenizerType(StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                        .setIndexingType(StringPropertyConfig.INDEXING_TYPE_PREFIXES)
+                        .build()
+                ).build();
+        AppSearchSchema artistSchema = new AppSearchSchema.Builder("Artist")
+                .addParentType("Person")
+                .addProperty(new StringPropertyConfig.Builder("name")
+                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setTokenizerType(StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                        .setIndexingType(StringPropertyConfig.INDEXING_TYPE_PREFIXES)
+                        .build()
+                ).build();
+        mDb1.setSchemaAsync(
+                new SetSchemaRequest.Builder()
+                        .addSchemas(personSchema)
+                        .addSchemas(artistSchema)
+                        .addSchemas(AppSearchEmail.SCHEMA)
+                        .build()).get();
+
+        // Index some documents
+        GenericDocument personDoc = new GenericDocument.Builder<>("namespace", "id1", "Person")
+                .setPropertyString("name", "Foo")
+                .build();
+        GenericDocument artistDoc = new GenericDocument.Builder<>("namespace", "id2", "Artist")
+                .setPropertyString("name", "Foo")
+                .build();
+        AppSearchEmail emailDoc =
+                new AppSearchEmail.Builder("namespace", "id3")
+                        .setFrom("from@example.com")
+                        .setTo("to1@example.com", "to2@example.com")
+                        .setSubject("testPut example")
+                        .setBody("Foo")
+                        .build();
+        checkIsBatchResultSuccess(mDb1.putAsync(
+                new PutDocumentsRequest.Builder().addGenericDocuments(personDoc, artistDoc,
+                        emailDoc).build()));
+
+        // Query for the documents
+        SearchResults searchResults = mDb1.search("Foo", new SearchSpec.Builder()
+                .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                .build());
+        List<GenericDocument> documents = convertSearchResultsToDocuments(searchResults);
+        assertThat(documents).hasSize(3);
+        assertThat(documents).containsExactly(personDoc, artistDoc, emailDoc);
+
+        // Query with a filter for the "Person" type should also include the "Artist" type.
+        searchResults = mDb1.search("Foo", new SearchSpec.Builder()
+                .addFilterSchemas("Person")
+                .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                .build());
+        documents = convertSearchResultsToDocuments(searchResults);
+        assertThat(documents).hasSize(2);
+        assertThat(documents).containsExactly(personDoc, artistDoc);
+
+        // Query with a filters for the "Artist" type should not include the "Person" type.
+        searchResults = mDb1.search("Foo", new SearchSpec.Builder()
+                .addFilterSchemas("Artist")
+                .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                .build());
+        documents = convertSearchResultsToDocuments(searchResults);
+        assertThat(documents).hasSize(1);
+        assertThat(documents).containsExactly(artistDoc);
+    }
+
+    @Test
     public void testQuery_packageFilter() throws Exception {
         // Schema registration
         mDb1.setSchemaAsync(
@@ -2388,6 +2644,92 @@ public abstract class AppSearchSessionCtsTestBase {
                         .setPropertyString("title", "Note title")
                         .setPropertyString("body", "Note body").build();
         assertThat(documents).containsExactly(expectedNote, expectedEmail);
+    }
+
+    @Test
+    public void testQuery_projectionWithPolymorphism() throws Exception {
+        assumeTrue(mDb1.getFeatures().isFeatureSupported(Features.SCHEMA_ADD_PARENT_TYPE));
+
+        // Schema registration
+        AppSearchSchema personSchema = new AppSearchSchema.Builder("Person")
+                .addProperty(new StringPropertyConfig.Builder("name")
+                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setTokenizerType(StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                        .setIndexingType(StringPropertyConfig.INDEXING_TYPE_PREFIXES)
+                        .build()
+                )
+                .addProperty(new StringPropertyConfig.Builder("emailAddress")
+                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setTokenizerType(StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                        .setIndexingType(StringPropertyConfig.INDEXING_TYPE_PREFIXES)
+                        .build()
+                ).build();
+        AppSearchSchema artistSchema = new AppSearchSchema.Builder("Artist")
+                .addParentType("Person")
+                .addProperty(new StringPropertyConfig.Builder("name")
+                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setTokenizerType(StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                        .setIndexingType(StringPropertyConfig.INDEXING_TYPE_PREFIXES)
+                        .build()
+                )
+                .addProperty(new StringPropertyConfig.Builder("emailAddress")
+                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setTokenizerType(StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                        .setIndexingType(StringPropertyConfig.INDEXING_TYPE_PREFIXES)
+                        .build()
+                )
+                .addProperty(new StringPropertyConfig.Builder("company")
+                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setTokenizerType(StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                        .setIndexingType(StringPropertyConfig.INDEXING_TYPE_PREFIXES)
+                        .build()
+                ).build();
+        mDb1.setSchemaAsync(
+                new SetSchemaRequest.Builder()
+                        .addSchemas(personSchema)
+                        .addSchemas(artistSchema)
+                        .build()).get();
+
+        // Index two documents
+        GenericDocument personDoc = new GenericDocument.Builder<>("namespace", "id1", "Person")
+                .setCreationTimestampMillis(1000)
+                .setPropertyString("name", "Foo Person")
+                .setPropertyString("emailAddress", "person@gmail.com")
+                .build();
+        GenericDocument artistDoc = new GenericDocument.Builder<>("namespace", "id2", "Artist")
+                .setCreationTimestampMillis(1000)
+                .setPropertyString("name", "Foo Artist")
+                .setPropertyString("emailAddress", "artist@gmail.com")
+                .setPropertyString("company", "Company")
+                .build();
+        checkIsBatchResultSuccess(mDb1.putAsync(
+                new PutDocumentsRequest.Builder()
+                        .addGenericDocuments(personDoc, artistDoc).build()));
+
+        // Query with type property paths {"Person", ["name"]}, {"Artist", ["emailAddress"]}
+        // This will be expanded to paths {"Person", ["name"]}, {"Artist", ["name", "emailAddress"]}
+        // via polymorphism.
+        SearchResults searchResults = mDb1.search("Foo", new SearchSpec.Builder()
+                .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                .addProjection("Person", ImmutableList.of("name"))
+                .addProjection("Artist", ImmutableList.of("emailAddress"))
+                .build());
+        List<GenericDocument> documents = convertSearchResultsToDocuments(searchResults);
+
+        // The person document should have been returned with only the "name" property. The artist
+        // document should have been returned with all of its properties.
+        GenericDocument expectedPerson =
+                new GenericDocument.Builder<>("namespace", "id1", "Person")
+                        .setCreationTimestampMillis(1000)
+                        .setPropertyString("name", "Foo Person")
+                        .build();
+        GenericDocument expectedArtist =
+                new GenericDocument.Builder<>("namespace", "id2", "Artist")
+                        .setCreationTimestampMillis(1000)
+                        .setPropertyString("name", "Foo Artist")
+                        .setPropertyString("emailAddress", "artist@gmail.com")
+                        .build();
+        assertThat(documents).containsExactly(expectedPerson, expectedArtist);
     }
 
     @Test
@@ -2751,6 +3093,78 @@ public abstract class AppSearchSessionCtsTestBase {
         documents = convertSearchResultsToDocuments(searchResults);
         assertThat(documents).hasSize(1);
         assertThat(documents).containsExactly(inEmail2);
+    }
+
+    @Test
+    public void testQuery_indexBasedOnParentTypePolymorphism() throws Exception {
+        assumeTrue(mDb1.getFeatures().isFeatureSupported(Features.SCHEMA_ADD_PARENT_TYPE));
+
+        // Schema registration
+        AppSearchSchema personSchema = new AppSearchSchema.Builder("Person")
+                .addProperty(new StringPropertyConfig.Builder("name")
+                        .setCardinality(PropertyConfig.CARDINALITY_REQUIRED)
+                        .setTokenizerType(StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                        .setIndexingType(StringPropertyConfig.INDEXING_TYPE_PREFIXES)
+                        .build())
+                .build();
+        AppSearchSchema artistSchema = new AppSearchSchema.Builder("Artist")
+                .addParentType("Person")
+                .addProperty(new StringPropertyConfig.Builder("name")
+                        .setCardinality(PropertyConfig.CARDINALITY_REQUIRED)
+                        .setTokenizerType(StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                        .setIndexingType(StringPropertyConfig.INDEXING_TYPE_PREFIXES)
+                        .build())
+                .addProperty(new StringPropertyConfig.Builder("company")
+                        .setCardinality(PropertyConfig.CARDINALITY_REQUIRED)
+                        .setTokenizerType(StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                        .setIndexingType(StringPropertyConfig.INDEXING_TYPE_PREFIXES)
+                        .build())
+                .build();
+        AppSearchSchema messageSchema =
+                new AppSearchSchema.Builder("Message")
+                        .addProperty(
+                                new DocumentPropertyConfig.Builder("sender", "Person")
+                                        .setCardinality(PropertyConfig.CARDINALITY_REQUIRED)
+                                        .setShouldIndexNestedProperties(true)
+                                        .build())
+                        .build();
+        mDb1.setSchemaAsync(
+                new SetSchemaRequest.Builder()
+                        .addSchemas(personSchema)
+                        .addSchemas(artistSchema)
+                        .addSchemas(messageSchema)
+                        .build()).get();
+
+        // Index some an artistDoc and a messageDoc
+        GenericDocument artistDoc = new GenericDocument.Builder<>("namespace", "id1", "Artist")
+                .setPropertyString("name", "Foo")
+                .setPropertyString("company", "Bar")
+                .build();
+        GenericDocument messageDoc = new GenericDocument.Builder<>("namespace", "id2", "Message")
+                // sender is defined as a Person, which accepts an Artist because Artist <: Person.
+                // However, indexing will be based on what's defined in Person, so the "company"
+                // property in artistDoc cannot be used to search this messageDoc.
+                .setPropertyDocument("sender", artistDoc)
+                .build();
+        checkIsBatchResultSuccess(mDb1.putAsync(
+                new PutDocumentsRequest.Builder().addGenericDocuments(artistDoc,
+                        messageDoc).build()));
+
+        // Query for the documents
+        SearchResults searchResults = mDb1.search("Foo", new SearchSpec.Builder()
+                .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                .build());
+        List<GenericDocument> documents = convertSearchResultsToDocuments(searchResults);
+        assertThat(documents).hasSize(2);
+        assertThat(documents).containsExactly(artistDoc, messageDoc);
+
+        // The "company" property in artistDoc cannot be used to search messageDoc.
+        searchResults = mDb1.search("Bar", new SearchSpec.Builder()
+                .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                .build());
+        documents = convertSearchResultsToDocuments(searchResults);
+        assertThat(documents).hasSize(1);
+        assertThat(documents).containsExactly(artistDoc);
     }
 
     @Test
