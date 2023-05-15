@@ -1121,6 +1121,7 @@ package androidx.wear.protolayout {
   public final class ResourceBuilders {
     field public static final int ANIMATED_IMAGE_FORMAT_AVD = 1; // 0x1
     field public static final int ANIMATED_IMAGE_FORMAT_UNDEFINED = 0; // 0x0
+    field public static final int IMAGE_FORMAT_ARGB_8888 = 2; // 0x2
     field public static final int IMAGE_FORMAT_RGB_565 = 1; // 0x1
     field public static final int IMAGE_FORMAT_UNDEFINED = 0; // 0x0
   }
