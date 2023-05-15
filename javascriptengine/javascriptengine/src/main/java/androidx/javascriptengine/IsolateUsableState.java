@@ -19,6 +19,7 @@ package androidx.javascriptengine;
 import android.content.res.AssetFileDescriptor;
 import android.os.Binder;
 import android.os.DeadObjectException;
+import android.os.ParcelFileDescriptor;
 import android.os.RemoteException;
 import android.util.Log;
 
@@ -265,6 +266,37 @@ final class IsolateUsableState implements IsolateState {
         });
     }
 
+    @NonNull
+    @Override
+    public ListenableFuture<String> evaluateJavaScriptAsync(@NonNull AssetFileDescriptor afd) {
+        return CallbackToFutureAdapter.getFuture(completer -> {
+            final String futureDebugMessage = "evaluateJavascript Future";
+            IJsSandboxIsolateSyncCallbackStubWrapper callbackStub =
+                    new IJsSandboxIsolateSyncCallbackStubWrapper(completer);
+            try {
+                mJsIsolateStub.evaluateJavascriptWithFd(afd, callbackStub);
+                addPending(completer);
+            } catch (DeadObjectException e) {
+                // The sandbox process has died.
+                mJsIsolate.maybeSetSandboxDead();
+                completer.setException(new SandboxDeadException());
+            } catch (RemoteException e) {
+                completer.setException(new RuntimeException(e));
+            }
+            // Debug string.
+            return futureDebugMessage;
+        });
+    }
+
+    @NonNull
+    @Override
+    public ListenableFuture<String> evaluateJavaScriptAsync(@NonNull ParcelFileDescriptor pfd) {
+        long length = pfd.getStatSize() >= 0 ? pfd.getStatSize() :
+                AssetFileDescriptor.UNKNOWN_LENGTH;
+        AssetFileDescriptor wrapperAfd = new AssetFileDescriptor(pfd, 0, length);
+        return evaluateJavaScriptAsync(wrapperAfd);
+    }
+
     @Override
     public void setConsoleCallback(@NonNull Executor executor,
             @NonNull JavaScriptConsoleCallback callback) {
@@ -357,6 +389,9 @@ final class IsolateUsableState implements IsolateState {
                 // a death or close before we called maybeSetIsolateDead above, but that requires
                 // the app to have already set up a race condition.
                 completer.setException(terminationInfo.toJavaScriptException());
+                break;
+            case IJsSandboxIsolateSyncCallback.FILE_DESCRIPTOR_IO_ERROR:
+                completer.setException(new FileDescriptorIOException(error));
                 break;
             default:
                 completer.setException(new JavaScriptException(

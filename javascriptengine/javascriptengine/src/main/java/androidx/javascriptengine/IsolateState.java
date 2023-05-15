@@ -16,6 +16,9 @@
 
 package androidx.javascriptengine;
 
+import android.content.res.AssetFileDescriptor;
+import android.os.ParcelFileDescriptor;
+
 import androidx.annotation.NonNull;
 import androidx.core.util.Consumer;
 
@@ -37,6 +40,12 @@ import java.util.concurrent.Executor;
 interface IsolateState {
     @NonNull
     ListenableFuture<String> evaluateJavaScriptAsync(@NonNull String code);
+
+    @NonNull
+    ListenableFuture<String> evaluateJavaScriptAsync(@NonNull AssetFileDescriptor afd);
+
+    @NonNull
+    ListenableFuture<String> evaluateJavaScriptAsync(@NonNull ParcelFileDescriptor pfd);
 
     void setConsoleCallback(@NonNull Executor executor,
             @NonNull JavaScriptConsoleCallback callback);
