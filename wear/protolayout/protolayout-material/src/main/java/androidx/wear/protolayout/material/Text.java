@@ -20,6 +20,7 @@ import static androidx.wear.protolayout.ColorBuilders.argb;
 import static androidx.wear.protolayout.LayoutElementBuilders.TEXT_ALIGN_CENTER;
 import static androidx.wear.protolayout.LayoutElementBuilders.TEXT_OVERFLOW_ELLIPSIZE_END;
 import static androidx.wear.protolayout.material.Helper.checkNotNull;
+import static androidx.wear.protolayout.material.Helper.staticString;
 import static androidx.wear.protolayout.material.Typography.TYPOGRAPHY_DISPLAY1;
 import static androidx.wear.protolayout.material.Typography.getFontStyleBuilder;
 import static androidx.wear.protolayout.material.Typography.getLineHeightForTypography;
@@ -40,6 +41,8 @@ import androidx.wear.protolayout.LayoutElementBuilders.LayoutElement;
 import androidx.wear.protolayout.LayoutElementBuilders.TextAlignment;
 import androidx.wear.protolayout.LayoutElementBuilders.TextOverflow;
 import androidx.wear.protolayout.ModifiersBuilders.Modifiers;
+import androidx.wear.protolayout.TypeBuilders.StringLayoutConstraint;
+import androidx.wear.protolayout.TypeBuilders.StringProp;
 import androidx.wear.protolayout.expression.Fingerprint;
 import androidx.wear.protolayout.expression.ProtoLayoutExperimental;
 import androidx.wear.protolayout.material.Typography.TypographyName;
@@ -96,14 +99,34 @@ public class Text implements LayoutElement {
                         .setOverflow(TEXT_OVERFLOW_ELLIPSIZE_END);
 
         /**
-         * Creates a builder for {@link Text}.
+         * Creates a builder for a {@link Text} component with static text.
          *
          * @param context The application's context.
          * @param text The text content for this component.
          */
         public Builder(@NonNull Context context, @NonNull String text) {
             mContext = context;
+            mElementBuilder.setText(staticString(text));
+        }
+
+        /**
+         * Creates a builder for a {@link Text}.
+         *
+         * <p>While this component is statically accessible from 1.0, it's only bindable since
+         * version 1.2 and renderers supporting version 1.2 will use the dynamic value (if set).
+         *
+         * @param context The application's context.
+         * @param text The text content for this component.
+         * @param stringLayoutConstraint Layout constraints used to correctly measure Text view
+         *                               size and align text when {@code text} has dynamic value.
+         */
+        public Builder(
+                @NonNull Context context,
+                @NonNull StringProp text,
+                @NonNull StringLayoutConstraint stringLayoutConstraint) {
+            mContext = context;
             mElementBuilder.setText(text);
+            mElementBuilder.setLayoutConstraintsForDynamicText(stringLayoutConstraint);
         }
 
         /**
@@ -238,8 +261,8 @@ public class Text implements LayoutElement {
 
     /** Returns the text of this Text element. */
     @NonNull
-    public String getText() {
-        return checkNotNull(checkNotNull(mText.getText()).getValue());
+    public StringProp getText() {
+        return checkNotNull(mText.getText());
     }
 
     /** Returns the color of this Text element. */

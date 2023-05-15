@@ -27,6 +27,7 @@ import androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters;
 import androidx.wear.protolayout.DimensionBuilders.DpProp;
 import androidx.wear.protolayout.ModifiersBuilders.ElementMetadata;
 import androidx.wear.protolayout.ModifiersBuilders.Modifiers;
+import androidx.wear.protolayout.TypeBuilders.StringProp;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -130,5 +131,13 @@ public class Helper {
         byte[] metadataTag = getMetadataTagBytes(modifiers.getMetadata());
         byte[] tag = Arrays.copyOf(metadataTag, validPrefix.length());
         return metadataTag.length == validBase.length && validPrefix.equals(getTagName(tag));
+    }
+
+    /**
+     * Returns a {@link StringProp} for the given string value.
+     */
+    @NonNull
+    public static StringProp staticString(@NonNull String value) {
+        return new StringProp.Builder(value).build();
     }
 }

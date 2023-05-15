@@ -168,7 +168,7 @@ package androidx.wear.protolayout.material {
     method public androidx.wear.protolayout.ModifiersBuilders.Modifiers getModifiers();
     method public int getMultilineAlignment();
     method public int getOverflow();
-    method public String getText();
+    method public androidx.wear.protolayout.TypeBuilders.StringProp getText();
     method public int getWeight();
     method public boolean isItalic();
     method public boolean isUnderline();
@@ -176,6 +176,7 @@ package androidx.wear.protolayout.material {
 
   public static final class Text.Builder implements androidx.wear.protolayout.LayoutElementBuilders.LayoutElement.Builder {
     ctor public Text.Builder(android.content.Context, String);
+    ctor public Text.Builder(android.content.Context, androidx.wear.protolayout.TypeBuilders.StringProp, androidx.wear.protolayout.TypeBuilders.StringLayoutConstraint);
     method public androidx.wear.protolayout.material.Text build();
     method public androidx.wear.protolayout.material.Text.Builder setColor(androidx.wear.protolayout.ColorBuilders.ColorProp);
     method public androidx.wear.protolayout.material.Text.Builder setItalic(boolean);
