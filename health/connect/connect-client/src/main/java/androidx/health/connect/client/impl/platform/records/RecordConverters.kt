@@ -34,6 +34,7 @@ import androidx.health.connect.client.records.CervicalMucusRecord
 import androidx.health.connect.client.records.CyclingPedalingCadenceRecord
 import androidx.health.connect.client.records.DistanceRecord
 import androidx.health.connect.client.records.ElevationGainedRecord
+import androidx.health.connect.client.records.ExerciseRoute
 import androidx.health.connect.client.records.ExerciseSessionRecord
 import androidx.health.connect.client.records.FloorsClimbedRecord
 import androidx.health.connect.client.records.HeartRateRecord
@@ -991,3 +992,18 @@ private fun PlatformStepsCadenceSample.toSdkStepsCadenceSample() =
 
 private fun PlatformSleepSessionStage.toSdkSleepSessionStage() =
     SleepSessionRecord.Stage(startTime, endTime, type.toSdkSleepStageType())
+
+internal fun PlatformExerciseRoute.toSdkExerciseRoute(): ExerciseRoute {
+    return ExerciseRoute(
+        routeLocations.map { value ->
+            ExerciseRoute.Location(
+                time = value.time,
+                latitude = value.latitude,
+                longitude = value.longitude,
+                horizontalAccuracy = value.horizontalAccuracy?.toSdkLength(),
+                verticalAccuracy = value.verticalAccuracy?.toSdkLength(),
+                altitude = value.altitude?.toSdkLength()
+            )
+        }
+    )
+}
