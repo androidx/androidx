@@ -15,6 +15,9 @@ package androidx.glance.wear.tiles {
     property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.glance.wear.tiles.TimeInterval> LocalTimeInterval;
   }
 
+  @kotlin.RequiresOptIn(message="This API is experimental and is likely to change in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalGlanceWearTilesApi {
+  }
+
   public abstract class GlanceTileService extends androidx.wear.tiles.TileService {
     ctor public GlanceTileService(optional androidx.wear.tiles.LayoutElementBuilders.LayoutElement? errorUiLayout);
     method @androidx.compose.runtime.Composable @androidx.glance.GlanceComposable public abstract void Content();
@@ -27,6 +30,10 @@ package androidx.glance.wear.tiles {
     method public final suspend <T> Object? updateTileState(kotlin.jvm.functions.Function2<? super T,? super kotlin.coroutines.Continuation<? super T>,?> updateState, kotlin.coroutines.Continuation<? super T>);
     property public androidx.glance.state.GlanceStateDefinition<?>? stateDefinition;
     property public androidx.glance.wear.tiles.TimelineMode timelineMode;
+  }
+
+  public final class GlanceWearTilesKt {
+    method @androidx.glance.wear.tiles.ExperimentalGlanceWearTilesApi public static suspend Object? compose(android.content.Context context, long size, optional Object? state, kotlin.jvm.functions.Function0<kotlin.Unit> content, kotlin.coroutines.Continuation<? super androidx.glance.wear.tiles.WearTilesCompositionResult>);
   }
 
   public final class TimeInterval {
@@ -51,6 +58,14 @@ package androidx.glance.wear.tiles {
     ctor public TimelineMode.TimeBoundEntries(java.util.Set<androidx.glance.wear.tiles.TimeInterval> timeIntervals);
     method public java.util.Set<androidx.glance.wear.tiles.TimeInterval> getTimeIntervals();
     property public final java.util.Set<androidx.glance.wear.tiles.TimeInterval> timeIntervals;
+  }
+
+  @androidx.glance.wear.tiles.ExperimentalGlanceWearTilesApi public final class WearTilesCompositionResult {
+    ctor public WearTilesCompositionResult(androidx.wear.tiles.LayoutElementBuilders.LayoutElement layout, androidx.wear.tiles.ResourceBuilders.Resources resources);
+    method public androidx.wear.tiles.LayoutElementBuilders.LayoutElement getLayout();
+    method public androidx.wear.tiles.ResourceBuilders.Resources getResources();
+    property public final androidx.wear.tiles.LayoutElementBuilders.LayoutElement layout;
+    property public final androidx.wear.tiles.ResourceBuilders.Resources resources;
   }
 
 }
