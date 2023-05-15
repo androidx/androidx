@@ -115,7 +115,6 @@ class SearchResultsImpl implements SearchResults {
                 searchResultPage = mAppSearchImpl.getNextPage(mPackageName, mNextPageToken,
                         sStatsBuilder);
                 if (mLogger != null && sStatsBuilder != null) {
-                    // TODO(b/276349029): Log different join types when they get added.
                     if (mSearchSpec.getJoinSpec() != null
                             && !mSearchSpec.getJoinSpec().getChildPropertyExpression().isEmpty()) {
                         sStatsBuilder.setJoinType(AppSearchSchema.StringPropertyConfig

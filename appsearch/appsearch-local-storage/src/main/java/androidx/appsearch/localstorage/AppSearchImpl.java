@@ -1504,7 +1504,6 @@ public final class AppSearchImpl implements Closeable {
         if (sStatsBuilder != null) {
             sStatsBuilder.setStatusCode(statusProtoToResultCode(searchResultProto.getStatus()));
             if (searchSpec.hasJoinSpec()) {
-                // TODO(b/276349029): Log different join types when they get added.
                 sStatsBuilder.setJoinType(AppSearchSchema.StringPropertyConfig
                         .JOINABLE_VALUE_TYPE_QUALIFIED_ID);
             }
