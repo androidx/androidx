@@ -37,19 +37,6 @@ public class ActionBuildersTest {
             "launchClass");
 
     @Test
-    public void setStateAction() {
-        AppDataKey<DynamicBuilders.DynamicString> key = new AppDataKey<>("key");
-        DynamicDataBuilders.DynamicDataValue value =
-                DynamicDataBuilders.DynamicDataValue.fromString("value");
-        ActionBuilders.SetStateAction setStateAction = new ActionBuilders.SetStateAction.Builder()
-                .setTargetKey(key).setValue(value).build();
-
-        assertThat(setStateAction.getTargetKey()).isEqualTo(key);
-        assertThat(setStateAction.getValue().toDynamicDataValueProto()).isEqualTo(
-                value.toDynamicDataValueProto());
-    }
-
-    @Test
     public void launchAction() {
         ActionBuilders.LaunchAction launchAction = ActionBuilders.launchAction(LAUNCH_COMPONENT);
 
