@@ -73,8 +73,21 @@ internal class Controller3ALock3ATest {
         val graphProcessor2 = FakeGraphProcessor()
         val controller3A =
             Controller3A(graphProcessor2, fakeMetadata, graphProcessor2.graphState3A, listener3A)
-        val result = controller3A.lock3A(afLockBehavior = Lock3ABehavior.IMMEDIATE)
+        val result = controller3A.lock3A(
+            afLockBehavior = Lock3ABehavior.IMMEDIATE,
+            aeRegions = listOf(MeteringRectangle(0, 0, 100, 200, 10))
+        )
         assertThat(result.await().status).isEqualTo(Result3A.Status.SUBMIT_FAILED)
+        assertThat(graphProcessor2.graphState3A.aeRegions).isNotNull()
+        assertThat(graphProcessor2.graphState3A.aeRegions).containsExactly(
+            MeteringRectangle(
+                0,
+                0,
+                100,
+                200,
+                10
+            )
+        )
     }
 
     @Test
