@@ -140,9 +140,16 @@ data class MultiGitClient(
     // Map from the root of the git repository to a GitClient for that repository
     // In AndroidX this directory could be frameworks/support, external/noto-fonts, or others
     @Transient // We don't want Gradle to persist GitClient in the configuration cache
-    val cache: MutableMap<File, GitClient> = ConcurrentHashMap()
+    var cache: MutableMap<File, GitClient>? = null
 
     fun getGitClient(projectDir: File): GitClient {
+        // If this object was restored from the Configuration cache, this value will be null
+        // So, if it is null we have to reinitialize it
+        var cache = this.cache
+        if (cache == null) {
+            cache = ConcurrentHashMap()
+            this.cache = cache
+        }
         return cache.getOrPut(
             key = projectDir
         ) {
