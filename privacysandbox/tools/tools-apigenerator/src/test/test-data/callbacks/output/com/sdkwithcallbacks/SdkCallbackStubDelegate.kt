@@ -1,6 +1,8 @@
 package com.sdkwithcallbacks
 
+import android.os.Bundle
 import com.sdkwithcallbacks.ResponseConverter.fromParcelable
+import com.sdkwithcallbacks.SdkActivityLauncherConverter.getLocalOrProxyLauncher
 import kotlin.Int
 import kotlin.Unit
 import kotlinx.coroutines.CoroutineScope
@@ -27,6 +29,12 @@ public class SdkCallbackStubDelegate internal constructor(
   public override fun onPrimitivesReceived(x: Int, y: Int): Unit {
     coroutineScope.launch {
       delegate.onPrimitivesReceived(x, y)
+    }
+  }
+
+  public override fun onSdkActivityLauncherReceived(myLauncher: Bundle): Unit {
+    coroutineScope.launch {
+      delegate.onSdkActivityLauncherReceived(getLocalOrProxyLauncher(myLauncher))
     }
   }
 

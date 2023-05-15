@@ -26,7 +26,6 @@ import androidx.privacysandbox.tools.core.model.Types
 import androidx.privacysandbox.tools.core.model.Types.asNonNull
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.CodeBlock
-import com.squareup.kotlinpoet.MemberName
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.TypeName
 
@@ -83,7 +82,7 @@ abstract class BinderCodeConverter(private val api: ParsedApi) {
             )
         }
         if (type.qualifiedName == Types.sdkActivityLauncher.qualifiedName) {
-            return CodeBlock.of("SdkActivityLauncherAndBinderWrapper(%L)", expression)
+            return convertToActivityLauncherModelCode(expression)
         }
         if (type == Types.short) {
             return CodeBlock.of("%L.toShort()", expression)
@@ -146,11 +145,7 @@ abstract class BinderCodeConverter(private val api: ParsedApi) {
             )
         }
         if (type.qualifiedName == Types.sdkActivityLauncher.qualifiedName) {
-            return CodeBlock.of(
-                "%L.%M()",
-                expression,
-                MemberName("androidx.privacysandbox.ui.client", "toLauncherInfo"),
-            )
+            return convertToActivityLauncherBinderCode(expression)
         }
         if (type == Types.short) {
             return CodeBlock.of("%L.toInt()", expression)
@@ -177,6 +172,10 @@ abstract class BinderCodeConverter(private val api: ParsedApi) {
         value: AnnotatedValue,
         expression: String
     ): CodeBlock
+
+    protected abstract fun convertToActivityLauncherBinderCode(expression: String): CodeBlock
+
+    protected abstract fun convertToActivityLauncherModelCode(expression: String): CodeBlock
 
     protected abstract fun convertToInterfaceBinderType(
         annotatedInterface: AnnotatedInterface
