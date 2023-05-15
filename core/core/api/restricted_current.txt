@@ -3975,6 +3975,7 @@ package androidx.core.view.accessibility {
     method public boolean isEnabled();
     method public boolean isFocusable();
     method public boolean isFocused();
+    method public boolean isGranularScrollingSupported();
     method public boolean isHeading();
     method public boolean isImportantForAccessibility();
     method public boolean isLongClickable();
@@ -4019,6 +4020,7 @@ package androidx.core.view.accessibility {
     method public void setError(CharSequence!);
     method public void setFocusable(boolean);
     method public void setFocused(boolean);
+    method public void setGranularScrollingSupported(boolean);
     method public void setHeading(boolean);
     method public void setHintText(CharSequence?);
     method public void setImportantForAccessibility(boolean);
@@ -4074,6 +4076,7 @@ package androidx.core.view.accessibility {
     field public static final String ACTION_ARGUMENT_PRESS_AND_HOLD_DURATION_MILLIS_INT = "android.view.accessibility.action.ARGUMENT_PRESS_AND_HOLD_DURATION_MILLIS_INT";
     field public static final String ACTION_ARGUMENT_PROGRESS_VALUE = "android.view.accessibility.action.ARGUMENT_PROGRESS_VALUE";
     field public static final String ACTION_ARGUMENT_ROW_INT = "android.view.accessibility.action.ARGUMENT_ROW_INT";
+    field public static final String ACTION_ARGUMENT_SCROLL_AMOUNT_FLOAT = "androidx.core.view.accessibility.action.ARGUMENT_SCROLL_AMOUNT_FLOAT";
     field public static final String ACTION_ARGUMENT_SELECTION_END_INT = "ACTION_ARGUMENT_SELECTION_END_INT";
     field public static final String ACTION_ARGUMENT_SELECTION_START_INT = "ACTION_ARGUMENT_SELECTION_START_INT";
     field public static final String ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE = "ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE";

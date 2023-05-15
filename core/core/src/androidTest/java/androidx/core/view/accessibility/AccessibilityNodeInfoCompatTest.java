@@ -119,6 +119,15 @@ public class AccessibilityNodeInfoCompatTest {
 
     @SdkSuppress(minSdkVersion = 19)
     @Test
+    public void testisGranularScrollingSupported() {
+        AccessibilityNodeInfoCompat nodeCompat = obtainedWrappedNodeCompat();
+        assertThat(nodeCompat.isGranularScrollingSupported(), is(false));
+        nodeCompat.setGranularScrollingSupported(true);
+        assertThat(nodeCompat.isGranularScrollingSupported(), is(true));
+    }
+
+    @SdkSuppress(minSdkVersion = 19)
+    @Test
     public void testGetSetHeading() {
         AccessibilityNodeInfoCompat nodeCompat = obtainedWrappedNodeCompat();
         nodeCompat.setHeading(true);
