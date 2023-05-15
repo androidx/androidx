@@ -689,6 +689,132 @@ public final class GuaranteedConfigurationsUtil {
     }
 
     /**
+     * Returns the entire supported stream combinations for devices with Stream Use Case capability
+     */
+    @NonNull
+    public static List<SurfaceCombination> getStreamUseCaseSupportedCombinationList() {
+        List<SurfaceCombination> combinationList = new ArrayList<>();
+
+        // (PRIV, s1440p)
+        SurfaceCombination surfaceCombination1 = new SurfaceCombination();
+        surfaceCombination1.addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.PRIV, ConfigSize.s1440p));
+        combinationList.add(surfaceCombination1);
+
+        // (YUV, s1440p)
+        SurfaceCombination surfaceCombination2 = new SurfaceCombination();
+        surfaceCombination2.addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.YUV, ConfigSize.s1440p));
+        combinationList.add(surfaceCombination2);
+
+        // (PRIV, RECORD)
+        SurfaceCombination surfaceCombination3 = new SurfaceCombination();
+        surfaceCombination3.addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.PRIV, ConfigSize.RECORD));
+        combinationList.add(surfaceCombination3);
+
+        // (YUV, RECORD)
+        SurfaceCombination surfaceCombination4 = new SurfaceCombination();
+        surfaceCombination4.addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.YUV, ConfigSize.RECORD));
+        combinationList.add(surfaceCombination4);
+
+        // (JPEG, MAXIMUM)
+        SurfaceCombination surfaceCombination5 = new SurfaceCombination();
+        surfaceCombination5.addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.JPEG, ConfigSize.MAXIMUM));
+        combinationList.add(surfaceCombination5);
+
+        // (YUV, MAXIMUM)
+        SurfaceCombination surfaceCombination6 = new SurfaceCombination();
+        surfaceCombination6.addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.YUV, ConfigSize.MAXIMUM));
+        combinationList.add(surfaceCombination6);
+
+        // (PRIV, PREVIEW) + (JPEG, MAXIMUM)
+        SurfaceCombination surfaceCombination7 = new SurfaceCombination();
+        surfaceCombination7.addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.PRIV, ConfigSize.PREVIEW));
+        surfaceCombination7.addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.JPEG, ConfigSize.MAXIMUM));
+        combinationList.add(surfaceCombination7);
+
+        // (PRIV, PREVIEW) + (YUV, MAXIMUM)
+        SurfaceCombination surfaceCombination8 = new SurfaceCombination();
+        surfaceCombination8.addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.PRIV, ConfigSize.PREVIEW));
+        surfaceCombination8.addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.YUV, ConfigSize.MAXIMUM));
+        combinationList.add(surfaceCombination8);
+
+        // (PRIV, PREVIEW) + (PRIV, RECORD)
+        SurfaceCombination surfaceCombination9 = new SurfaceCombination();
+        surfaceCombination9.addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.PRIV, ConfigSize.PREVIEW));
+        surfaceCombination9.addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.PRIV, ConfigSize.RECORD));
+        combinationList.add(surfaceCombination9);
+
+        // (PRIV, PREVIEW) + (YUV, RECORD)
+        SurfaceCombination surfaceCombination10 = new SurfaceCombination();
+        surfaceCombination10.addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.PRIV, ConfigSize.PREVIEW));
+        surfaceCombination10.addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.YUV, ConfigSize.RECORD));
+        combinationList.add(surfaceCombination10);
+
+        // (PRIV, PREVIEW) + (YUV, PREVIEW)
+        SurfaceCombination surfaceCombination11 = new SurfaceCombination();
+        surfaceCombination11.addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.PRIV, ConfigSize.PREVIEW));
+        surfaceCombination11.addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.YUV, ConfigSize.PREVIEW));
+        combinationList.add(surfaceCombination11);
+
+        // (PRIV, PREVIEW) + (PRIV, RECORD) + (JPEG, RECORD)
+        SurfaceCombination surfaceCombination12 = new SurfaceCombination();
+        surfaceCombination12.addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.PRIV, ConfigSize.PREVIEW));
+        surfaceCombination12.addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.PRIV, ConfigSize.RECORD));
+        surfaceCombination12.addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.JPEG, ConfigSize.RECORD));
+        combinationList.add(surfaceCombination12);
+
+        // (PRIV, PREVIEW) + (PRIV, RECORD) + (JPEG, RECORD)
+        SurfaceCombination surfaceCombination13 = new SurfaceCombination();
+        surfaceCombination13.addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.PRIV, ConfigSize.PREVIEW));
+        surfaceCombination13.addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.PRIV, ConfigSize.RECORD));
+        surfaceCombination13.addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.JPEG, ConfigSize.RECORD));
+        combinationList.add(surfaceCombination13);
+
+        // (PRIV, PREVIEW) + (YUV, RECORD) + (JPEG, RECORD)
+        SurfaceCombination surfaceCombination14 = new SurfaceCombination();
+        surfaceCombination14.addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.PRIV, ConfigSize.PREVIEW));
+        surfaceCombination14.addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.YUV, ConfigSize.RECORD));
+        surfaceCombination14.addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.JPEG, ConfigSize.RECORD));
+        combinationList.add(surfaceCombination14);
+
+        // (PRIV, PREVIEW) + (YUV, PREVIEW) + (JPEG, MAXIMUM)
+        SurfaceCombination surfaceCombination15 = new SurfaceCombination();
+        surfaceCombination15.addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.PRIV, ConfigSize.PREVIEW));
+        surfaceCombination15.addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.YUV, ConfigSize.PREVIEW));
+        surfaceCombination15.addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.JPEG, ConfigSize.MAXIMUM));
+        combinationList.add(surfaceCombination14);
+
+        return combinationList;
+    }
+
+    /**
      * Returns the supported stream combinations based on the hardware level and capabilities of
      * the device.
      */
