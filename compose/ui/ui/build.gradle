@@ -37,7 +37,7 @@ androidXMultiplatform {
             dependencies {
                 implementation(libs.kotlinStdlibCommon)
                 implementation(libs.kotlinCoroutinesCore)
-
+                api("androidx.annotation:annotation:1.6.0")
                 // when updating the runtime version please also update the runtime-saveable version
                 implementation(project(":compose:runtime:runtime"))
                 api(project(":compose:runtime:runtime-saveable"))
@@ -79,7 +79,6 @@ androidXMultiplatform {
                 // This has stub APIs for access to legacy Android APIs, so we don't want
                 // any dependency on this module.
                 compileOnly(project(":compose:ui:ui-android-stubs"))
-                api("androidx.annotation:annotation:1.5.0")
                 implementation("androidx.autofill:autofill:1.0.0")
                 implementation(libs.kotlinCoroutinesAndroid)
 
