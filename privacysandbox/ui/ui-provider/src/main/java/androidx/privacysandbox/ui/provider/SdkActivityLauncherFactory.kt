@@ -14,11 +14,15 @@
  * limitations under the License.
  */
 
+// TODO(b/282918396): Stop using app.BundleCompat and change it to os.BundleCompat when permission
+// issue is fixed.
+@file:Suppress("DEPRECATION")
+
 package androidx.privacysandbox.ui.provider
 
 import android.os.Bundle
 import android.os.IBinder
-import androidx.core.os.BundleCompat
+import androidx.core.app.BundleCompat
 import androidx.privacysandbox.ui.core.ISdkActivityLauncher
 import androidx.privacysandbox.ui.core.ISdkActivityLauncherCallback
 import androidx.privacysandbox.ui.core.ProtocolConstants.sdkActivityLauncherBinderKey
