@@ -62,6 +62,8 @@ final class FeaturesImpl implements Features {
             case Features.TOKENIZER_TYPE_RFC822:
                 // fall through
             case Features.VERBATIM_SEARCH:
+                // fall through
+            case Features.SET_SCHEMA_CIRCULAR_REFERENCES:
                 return BuildCompat.isAtLeastU();
 
             // Beyond Android U features

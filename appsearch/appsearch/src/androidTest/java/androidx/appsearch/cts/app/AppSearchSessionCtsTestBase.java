@@ -36,6 +36,7 @@ import androidx.annotation.NonNull;
 import androidx.appsearch.app.AppSearchBatchResult;
 import androidx.appsearch.app.AppSearchResult;
 import androidx.appsearch.app.AppSearchSchema;
+import androidx.appsearch.app.AppSearchSchema.DocumentPropertyConfig;
 import androidx.appsearch.app.AppSearchSchema.LongPropertyConfig;
 import androidx.appsearch.app.AppSearchSchema.PropertyConfig;
 import androidx.appsearch.app.AppSearchSchema.StringPropertyConfig;
@@ -228,6 +229,118 @@ public abstract class AppSearchSessionCtsTestBase {
         getSchemaResponse = mDb2.getSchemaAsync().get();
         assertThat(getSchemaResponse.getSchemas()).containsExactly(schema);
         assertThat(getSchemaResponse.getVersion()).isEqualTo(246);
+    }
+
+    @Test
+    public void testSetSchemaWithValidCycle_allowCircularReferences() throws Exception {
+        assumeTrue(mDb1.getFeatures().isFeatureSupported(Features.SET_SCHEMA_CIRCULAR_REFERENCES));
+
+        // Create schema with valid cycle: Person -> Organization -> Person...
+        AppSearchSchema personSchema = new AppSearchSchema.Builder("Person")
+                .addProperty(new StringPropertyConfig.Builder("name")
+                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setIndexingType(StringPropertyConfig.INDEXING_TYPE_PREFIXES)
+                        .setTokenizerType(StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                        .build())
+                .addProperty(new DocumentPropertyConfig.Builder("worksFor", "Organization")
+                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setShouldIndexNestedProperties(true)
+                        .build())
+                .build();
+        AppSearchSchema organizationSchema = new AppSearchSchema.Builder("Organization")
+                .addProperty(new StringPropertyConfig.Builder("name")
+                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setIndexingType(StringPropertyConfig.INDEXING_TYPE_EXACT_TERMS)
+                        .setTokenizerType(StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                        .build())
+                .addProperty(new DocumentPropertyConfig.Builder("funder", "Person")
+                        .setCardinality(PropertyConfig.CARDINALITY_REPEATED)
+                        .setShouldIndexNestedProperties(false)
+                        .build())
+                .build();
+        mDb1.setSchemaAsync(
+                new SetSchemaRequest.Builder().addSchemas(personSchema, organizationSchema)
+                        .build()).get();
+
+        // Test that documents following the circular schema are indexable, and that its sections
+        // are searchable
+        GenericDocument person = new GenericDocument.Builder<>("namespace", "person1", "Person")
+                .setPropertyString("name", "John")
+                .setPropertyDocument("worksFor")
+                .build();
+        GenericDocument org = new GenericDocument.Builder<>("namespace", "org1", "Organization")
+                .setPropertyString("name", "Org")
+                .setPropertyDocument("funder", person)
+                .build();
+        GenericDocument person2 = new GenericDocument.Builder<>("namespace", "person2", "Person")
+                .setPropertyString("name", "Jane")
+                .setPropertyDocument("worksFor", org)
+                .build();
+
+        AppSearchBatchResult<String, Void> putResult =
+                checkIsBatchResultSuccess(mDb1.putAsync(
+                        new PutDocumentsRequest.Builder().addGenericDocuments(person, org,
+                                person2).build()));
+        assertThat(putResult.getSuccesses()).containsExactly("person1", null, "org1", null,
+                "person2", null);
+        assertThat(putResult.getFailures()).isEmpty();
+
+        GetByDocumentIdRequest getByDocumentIdRequest =
+                new GetByDocumentIdRequest.Builder("namespace")
+                        .addIds("person1", "person2", "org1")
+                        .build();
+        List<GenericDocument> outDocuments = doGet(mDb1, getByDocumentIdRequest);
+        assertThat(outDocuments).hasSize(3);
+        assertThat(outDocuments).containsExactly(person, person2, org);
+
+        // Both org1 and person2 should be returned for query "Org"
+        // For org1 this matches the 'name' property and for person2 this matches the
+        // 'worksFor.name' property.
+        SearchResults searchResults = mDb1.search("Org", new SearchSpec.Builder()
+                .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                .build());
+        outDocuments = convertSearchResultsToDocuments(searchResults);
+        assertThat(outDocuments).hasSize(2);
+        assertThat(outDocuments).containsExactly(person2, org);
+    }
+
+    @Test
+    public void testSetSchemaWithValidCycle_circularReferencesNotSupported() {
+        assumeFalse(mDb1.getFeatures().isFeatureSupported(Features.SET_SCHEMA_CIRCULAR_REFERENCES));
+
+        // Create schema with valid cycle: Person -> Organization -> Person...
+        AppSearchSchema personSchema = new AppSearchSchema.Builder("Person")
+                .addProperty(new StringPropertyConfig.Builder("name")
+                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setIndexingType(StringPropertyConfig.INDEXING_TYPE_PREFIXES)
+                        .setTokenizerType(StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                        .build())
+                .addProperty(new DocumentPropertyConfig.Builder("worksFor", "Organization")
+                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setShouldIndexNestedProperties(true)
+                        .build())
+                .build();
+        AppSearchSchema organizationSchema = new AppSearchSchema.Builder("Organization")
+                .addProperty(new StringPropertyConfig.Builder("name")
+                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setIndexingType(StringPropertyConfig.INDEXING_TYPE_EXACT_TERMS)
+                        .setTokenizerType(StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                        .build())
+                .addProperty(new DocumentPropertyConfig.Builder("funder", "Person")
+                        .setCardinality(PropertyConfig.CARDINALITY_REPEATED)
+                        .setShouldIndexNestedProperties(false)
+                        .build())
+                .build();
+
+        SetSchemaRequest setSchemaRequest =
+                new SetSchemaRequest.Builder().addSchemas(personSchema, organizationSchema).build();
+        ExecutionException executionException =
+                assertThrows(ExecutionException.class,
+                        () -> mDb1.setSchemaAsync(setSchemaRequest).get());
+        assertThat(executionException).hasCauseThat().isInstanceOf(AppSearchException.class);
+        AppSearchException exception = (AppSearchException) executionException.getCause();
+        assertThat(exception.getResultCode()).isEqualTo(RESULT_INVALID_ARGUMENT);
+        assertThat(exception).hasMessageThat().containsMatch("Invalid cycle|Infinite loop");
     }
 
 // @exportToFramework:startStrip()
