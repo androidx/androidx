@@ -72,6 +72,7 @@ public class MeasurementManagerTest {
         // We need to turn the Consent Manager into debug mode
         mTestUtil.overrideConsentManagerDebugMode(true);
         mTestUtil.overrideMeasurementKillSwitches(true);
+        mTestUtil.overrideAdIdKillSwitch(true);
         mTestUtil.overrideDisableMeasurementEnrollmentCheck("1");
         mMeasurementManager =
                 MeasurementManagerFutures.from(ApplicationProvider.getApplicationContext());
@@ -87,6 +88,7 @@ public class MeasurementManagerTest {
         mTestUtil.overrideConsentManagerDebugMode(false);
         mTestUtil.resetOverrideDisableMeasurementEnrollmentCheck();
         mTestUtil.overrideMeasurementKillSwitches(false);
+        mTestUtil.overrideAdIdKillSwitch(false);
         mTestUtil.overrideDisableMeasurementEnrollmentCheck("0");
         // Cool-off rate limiter
         TimeUnit.SECONDS.sleep(1);
