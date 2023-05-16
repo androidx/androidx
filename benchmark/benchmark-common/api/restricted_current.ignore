@@ -7,6 +7,8 @@ RemovedClass: androidx.benchmark.Api27Kt:
     Removed class androidx.benchmark.Api27Kt
 RemovedClass: androidx.benchmark.Api29Kt:
     Removed class androidx.benchmark.Api29Kt
+RemovedClass: androidx.benchmark.ArgumentsKt:
+    Removed class androidx.benchmark.ArgumentsKt
 RemovedClass: androidx.benchmark.ConfigurationErrorKt:
     Removed class androidx.benchmark.ConfigurationErrorKt
 RemovedClass: androidx.benchmark.MetricNameUtilsKt:
