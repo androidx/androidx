@@ -559,7 +559,7 @@ package androidx.wear.protolayout {
     method public androidx.wear.protolayout.LayoutElementBuilders.FontStyle.Builder setWeight(int);
   }
 
-  @Deprecated public static class LayoutElementBuilders.FontStyles {
+  @Deprecated public static final class LayoutElementBuilders.FontStyles {
     method @Deprecated public static androidx.wear.protolayout.LayoutElementBuilders.FontStyle.Builder body1(androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters);
     method @Deprecated public static androidx.wear.protolayout.LayoutElementBuilders.FontStyle.Builder body2(androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters);
     method @Deprecated public static androidx.wear.protolayout.LayoutElementBuilders.FontStyle.Builder button(androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters);

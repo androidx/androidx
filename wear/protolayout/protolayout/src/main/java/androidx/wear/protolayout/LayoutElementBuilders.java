@@ -5134,10 +5134,8 @@ public final class LayoutElementBuilders {
      *     {@link FontStyle}.
      */
     @Deprecated
-    public static class FontStyles {
+    public static final class FontStyles {
         private static final int LARGE_SCREEN_WIDTH_DP = 210;
-
-        private FontStyles() {}
 
         private static boolean isLargeScreen(@NonNull DeviceParameters deviceParameters) {
             return deviceParameters.getScreenWidthDp() >= LARGE_SCREEN_WIDTH_DP;
@@ -5292,5 +5290,7 @@ public final class LayoutElementBuilders {
             return new FontStyle.Builder()
                     .setSize(DimensionBuilders.sp(isLargeScreen(deviceParameters) ? 14 : 12));
         }
+
+        private FontStyles() {}
     }
 }
