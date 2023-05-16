@@ -84,7 +84,6 @@ import androidx.camera.video.VideoCapture;
 import androidx.camera.video.VideoRecordEvent;
 import androidx.camera.view.transform.OutputTransform;
 import androidx.camera.view.video.AudioConfig;
-import androidx.camera.view.video.ExperimentalVideo;
 import androidx.core.content.PermissionChecker;
 import androidx.core.util.Consumer;
 import androidx.core.util.Preconditions;
@@ -192,7 +191,6 @@ public abstract class CameraController {
     /**
      * Bitmask options to enable/disable use cases.
      */
-    @OptIn(markerClass = ExperimentalVideo.class)
     @Retention(RetentionPolicy.SOURCE)
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef(flag = true, value = {IMAGE_CAPTURE, IMAGE_ANALYSIS, VIDEO_CAPTURE})
@@ -213,7 +211,6 @@ public abstract class CameraController {
      * Bitmask option to enable video capture use case. In {@link #setEnabledUseCases}, if
      * (enabledUseCases & VIDEO_CAPTURE) != 0, then controller will enable video capture features.
      */
-    @ExperimentalVideo
     public static final int VIDEO_CAPTURE = 1 << 2;
 
     CameraSelector mCameraSelector = CameraSelector.DEFAULT_BACK_CAMERA;
@@ -472,7 +469,6 @@ public abstract class CameraController {
      * @see ImageAnalysis
      */
     @MainThread
-    @OptIn(markerClass = ExperimentalVideo.class)
     public void setEnabledUseCases(@UseCases int enabledUseCases) {
         checkMainThread();
         if (enabledUseCases == mEnabledUseCases) {
@@ -1135,7 +1131,6 @@ public abstract class CameraController {
      * <p> Video capture is disabled by default. It has to be enabled before
      * {@link #startRecording} can be called.
      */
-    @ExperimentalVideo
     @MainThread
     public boolean isVideoCaptureEnabled() {
         checkMainThread();
@@ -1169,7 +1164,6 @@ public abstract class CameraController {
      *                               is denied.
      */
     @SuppressLint("MissingPermission")
-    @ExperimentalVideo
     @MainThread
     @NonNull
     public Recording startRecording(
@@ -1210,7 +1204,6 @@ public abstract class CameraController {
      *                               is denied.
      */
     @SuppressLint("MissingPermission")
-    @ExperimentalVideo
     @RequiresApi(26)
     @MainThread
     @NonNull
@@ -1249,7 +1242,6 @@ public abstract class CameraController {
      *                               is denied.
      */
     @SuppressLint("MissingPermission")
-    @ExperimentalVideo
     @MainThread
     @NonNull
     public Recording startRecording(
@@ -1261,7 +1253,6 @@ public abstract class CameraController {
     }
 
     @RequiresPermission(Manifest.permission.RECORD_AUDIO)
-    @ExperimentalVideo
     @MainThread
     private Recording startRecordingInternal(
             @NonNull OutputOptions outputOptions,
@@ -1307,7 +1298,6 @@ public abstract class CameraController {
      * hand, the public {@code startRecording()} is overloaded with subclasses. The reason is to
      * enforce compile-time check for API levels.
      */
-    @ExperimentalVideo
     @MainThread
     private PendingRecording prepareRecording(@NonNull OutputOptions options) {
         Recorder recorder = mVideoCapture.getOutput();
@@ -1327,7 +1317,6 @@ public abstract class CameraController {
         }
     }
 
-    @ExperimentalVideo
     private Consumer<VideoRecordEvent> wrapListenerToDeactivateRecordingOnFinalized(
             @NonNull final Consumer<VideoRecordEvent> listener) {
         final Executor mainExecutor = getMainExecutor(mAppContext);
@@ -1348,7 +1337,6 @@ public abstract class CameraController {
         };
     }
 
-    @ExperimentalVideo
     @MainThread
     void deactivateRecordingByListener(@NonNull Consumer<VideoRecordEvent> listener) {
         Recording recording = mRecordingMap.remove(listener);
@@ -1360,7 +1348,6 @@ public abstract class CameraController {
     /**
      * Clears the active video recording reference if the recording to be deactivated matches.
      */
-    @ExperimentalVideo
     @MainThread
     private void deactivateRecording(@NonNull Recording recording) {
         if (mActiveRecording == recording) {
@@ -1368,7 +1355,6 @@ public abstract class CameraController {
         }
     }
 
-    @ExperimentalVideo
     @MainThread
     private void setActiveRecording(
             @NonNull Recording recording,
@@ -1385,7 +1371,6 @@ public abstract class CameraController {
      * <p> If the recording completes successfully, a {@link VideoRecordEvent.Finalize} event with
      * {@link VideoRecordEvent.Finalize#ERROR_NONE} will be sent to the provided listener.
      */
-    @ExperimentalVideo
     @MainThread
     private void stopRecording() {
         checkMainThread();
@@ -1399,7 +1384,6 @@ public abstract class CameraController {
     /**
      * Returns whether there is an in-progress video recording.
      */
-    @ExperimentalVideo
     @MainThread
     public boolean isRecording() {
         checkMainThread();
@@ -1423,7 +1407,6 @@ public abstract class CameraController {
      *
      * @param targetQuality the intended video quality for {@code VideoCapture}.
      */
-    @ExperimentalVideo
     @MainThread
     public void setVideoCaptureTargetQuality(@Nullable Quality targetQuality) {
         checkMainThread();
@@ -1439,7 +1422,6 @@ public abstract class CameraController {
      * Returns the intended quality for {@code VideoCapture} set by
      * {@link #setVideoCaptureTargetQuality(Quality)}, or null if not set.
      */
-    @ExperimentalVideo
     @MainThread
     @Nullable
     public Quality getVideoCaptureTargetQuality() {
@@ -1990,7 +1972,6 @@ public abstract class CameraController {
      */
     @Nullable
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @OptIn(markerClass = {ExperimentalVideo.class})
     protected UseCaseGroup createUseCaseGroup() {
         if (!isCameraInitialized()) {
             Logger.d(TAG, CAMERA_NOT_INITIALIZED);
