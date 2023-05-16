@@ -16,6 +16,6 @@
 
 package androidx.health.services.client.impl.request;
 
-/** @hide */
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 @JavaOnlyStableParcelable parcelable FlushRequest;
 

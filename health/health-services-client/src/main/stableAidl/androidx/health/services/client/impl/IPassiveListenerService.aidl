@@ -18,9 +18,7 @@ package androidx.health.services.client.impl;
 
 import androidx.health.services.client.impl.event.PassiveListenerEvent;
 
-/**
- * @hide
- */
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 interface IPassiveListenerService {
     /**
      * API version of the AIDL interface. Should be incremented every time a new
