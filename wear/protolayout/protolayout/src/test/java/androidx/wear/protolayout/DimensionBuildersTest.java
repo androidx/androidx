@@ -91,7 +91,7 @@ public class DimensionBuildersTest {
     @Test
     public void expandedLayoutWeight() {
         TypeBuilders.FloatProp layoutWeight =
-                new TypeBuilders.FloatProp.Builder().setValue(3.14f).build();
+                new TypeBuilders.FloatProp.Builder(3.14f).build();
         DimensionBuilders.ContainerDimension dimensionProp =
                 new DimensionBuilders.ExpandedDimensionProp.Builder()
                         .setLayoutWeight(layoutWeight)
