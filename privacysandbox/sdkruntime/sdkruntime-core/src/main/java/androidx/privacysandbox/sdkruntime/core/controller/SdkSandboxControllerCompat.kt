@@ -18,6 +18,7 @@ package androidx.privacysandbox.sdkruntime.core.controller
 
 import android.app.sdksandbox.sdkprovider.SdkSandboxController
 import android.content.Context
+import android.os.Build
 import android.os.IBinder
 import androidx.annotation.Keep
 import androidx.annotation.OptIn
@@ -156,7 +157,8 @@ class SdkSandboxControllerCompat internal constructor(
         @OptIn(markerClass = [BuildCompat.PrereleaseSdkCheck::class])
         fun create(context: Context): SandboxControllerImpl {
             if (AdServicesInfo.isAtLeastV5()) {
-                if (BuildCompat.isAtLeastU()) {
+                // Temporary workaround until we could update androidx.core dependency version
+                if (Build.VERSION.SDK_INT >= 34 || BuildCompat.isAtLeastU()) {
                     return PlatformUDCImpl.from(context)
                 }
                 return PlatformImpl.from(context)
