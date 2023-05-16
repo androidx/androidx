@@ -176,12 +176,10 @@ abstract class AndroidXExtension(val project: Project) : ExtensionAware {
         explanationBuilder: MutableList<String>? = null
     ): LibraryGroup? {
         val overridden = overrideLibraryGroupsByProjectPath.get(projectPath)
-        if (explanationBuilder != null) {
-            explanationBuilder.add(
-                "Library group (in libraryversions.toml) having" +
+        explanationBuilder?.add(
+            "Library group (in libraryversions.toml) having" +
                 " overrideInclude=[\"$projectPath\"] is $overridden"
-            )
-        }
+        )
         if (overridden != null)
             return overridden
 
@@ -206,8 +204,7 @@ abstract class AndroidXExtension(val project: Project) : ExtensionAware {
         val parentPath = substringBeforeLastColon(projectPath)
 
         if (parentPath == "") {
-            if (explanationBuilder != null)
-                explanationBuilder.add("Parent path for $projectPath is empty")
+            explanationBuilder?.add("Parent path for $projectPath is empty")
             return null
         }
         // convert parent project path to groupId
@@ -218,12 +215,10 @@ abstract class AndroidXExtension(val project: Project) : ExtensionAware {
         }
 
         // get the library group having that text
-        val result = libraryGroupsByGroupId.get(groupIdText)
-        if (explanationBuilder != null) {
-            explanationBuilder.add(
-                "Library group (in libraryversions.toml) having group=\"$groupIdText\" is $result"
-            )
-        }
+        val result = libraryGroupsByGroupId[groupIdText]
+        explanationBuilder?.add(
+            "Library group (in libraryversions.toml) having group=\"$groupIdText\" is $result"
+        )
         return result
     }
 

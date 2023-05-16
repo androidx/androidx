@@ -46,7 +46,7 @@ abstract class ListTaskOutputsTask : DefaultTask() {
         group = "Help"
         // compute the output text when the taskgraph is ready so that the output text can be
         // saved in the configuration cache and not generate a configuration cache violation
-        project.gradle.taskGraph.whenReady({ outputText.toString() })
+        project.gradle.taskGraph.whenReady { outputText }
     }
 
     fun setOutput(f: File) {

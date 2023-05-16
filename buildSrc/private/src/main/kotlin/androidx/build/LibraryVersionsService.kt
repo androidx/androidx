@@ -39,9 +39,9 @@ abstract class LibraryVersionsService : BuildService<LibraryVersionsService.Para
     private val parsedTomlFile: TomlParseResult by lazy {
         val result = Toml.parse(parameters.tomlFileContents.get())
         if (result.hasErrors()) {
-            val issues = result.errors().map {
+            val issues = result.errors().joinToString(separator = "\n") {
                 "${parameters.tomlFileName}:${it.position()}: ${it.message}"
-            }.joinToString(separator = "\n")
+            }
             throw Exception("${parameters.tomlFileName} file has issues.\n$issues")
         }
         result
@@ -78,7 +78,7 @@ abstract class LibraryVersionsService : BuildService<LibraryVersionsService.Para
     val libraryGroups: Map<String, LibraryGroup> by lazy {
         val result = mutableMapOf<String, LibraryGroup>()
         for (association in libraryGroupAssociations) {
-          result.put(association.declarationName, association.libraryGroup)
+            result[association.declarationName] = association.libraryGroup
         }
         result
     }
@@ -89,9 +89,9 @@ abstract class LibraryVersionsService : BuildService<LibraryVersionsService.Para
         for (association in libraryGroupAssociations) {
             // Check for duplicate groups
             val groupId = association.libraryGroup.group
-            val existingAssociation = result.get(groupId)
+            val existingAssociation = result[groupId]
             if (existingAssociation != null) {
-                if (association.overrideIncludeInProjectPaths.size < 1) {
+                if (association.overrideIncludeInProjectPaths.isEmpty()) {
                     throw GradleException(
                         "Duplicate library group $groupId defined in " +
                         "${association.declarationName} does not set overrideInclude. " +
@@ -99,7 +99,7 @@ abstract class LibraryVersionsService : BuildService<LibraryVersionsService.Para
                         "overrideInclude")
                 }
             } else {
-                result.put(groupId, association.libraryGroup)
+                result[groupId] = association.libraryGroup
             }
         }
         result
@@ -110,7 +110,7 @@ abstract class LibraryVersionsService : BuildService<LibraryVersionsService.Para
        val result = mutableMapOf<String, LibraryGroup>()
        for (association in libraryGroupAssociations) {
            for (overridePath in association.overrideIncludeInProjectPaths) {
-               result.put(overridePath, association.libraryGroup)
+               result[overridePath] = association.libraryGroup
            }
        }
        result
@@ -172,7 +172,7 @@ abstract class LibraryVersionsService : BuildService<LibraryVersionsService.Para
 
             val overrideApplyToProjects = (
                 groupDefinition.getArray("overrideInclude")?.toList() ?: listOf()
-            ).map({ it -> it as String })
+            ).map { it -> it as String }
 
             val group = LibraryGroup(finalGroupName, groupVersion)
             val association = LibraryGroupAssociation(name, group, overrideApplyToProjects)

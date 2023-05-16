@@ -432,7 +432,6 @@ abstract class AndroidXDocsImplPlugin : Plugin<Project> {
             GenerateMetadataTask::class.java
         ) { task ->
 
-            @Suppress("UnstableApiUsage") // getResolvedArtifacts() is marked @Incubating
             val artifacts = docsConfiguration.incoming.artifacts.resolvedArtifacts
             task.getArtifactIds().set(
                 artifacts.map { result -> result.map { it.id } }

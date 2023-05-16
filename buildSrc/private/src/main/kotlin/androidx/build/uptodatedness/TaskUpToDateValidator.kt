@@ -167,7 +167,6 @@ val DONT_TRY_RERUNNING_TASK_TYPES = setOf(
     "androidx.build.license.CheckExternalDependencyLicensesTask_Decorated",
 )
 
-@Suppress("UnstableApiUsage") // usage of BuildService that's incubating
 abstract class TaskUpToDateValidator :
     BuildService<TaskUpToDateValidator.Parameters>, OperationCompletionListener {
     interface Parameters : BuildServiceParameters {
