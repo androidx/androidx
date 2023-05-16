@@ -17,8 +17,8 @@
 package androidx.tv.integration.playground
 
 import android.annotation.SuppressLint
-import android.util.Log
-import androidx.compose.foundation.focusable
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.focusGroup
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -34,6 +34,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.platform.LocalFocusManager
@@ -47,14 +48,13 @@ import androidx.tv.foundation.ExperimentalTvFoundationApi
  * @param content the content that is present within the group and can use focus-group modifier
  * extensions.
  */
-@OptIn(ExperimentalComposeUiApi::class)
+@OptIn(ExperimentalComposeUiApi::class, ExperimentalFoundationApi::class)
 @ExperimentalTvFoundationApi
 @Composable
 fun FocusGroup(
     modifier: Modifier = Modifier,
     content: @Composable FocusGroupScope.() -> Unit
 ) {
-    val focusManager = LocalFocusManager.current
     val focusGroupKeyHash = currentCompositeKeyHash
 
     // TODO: Is this the intended way to call rememberSaveable
@@ -69,26 +69,19 @@ fun FocusGroup(
 
     Box(
         modifier = modifier
-            .onFocusChanged {
-                if (it.isFocused) {
-                    if (state.noRecordedState()) {
-                        focusManager.moveFocus(FocusDirection.Enter)
+            .focusProperties {
+                enter = {
+                    if (state.hasRecordedState()) {
+                        state.focusRequester
                     } else {
-                        if (state.focusRequester != FocusRequester.Default) {
-                            try {
-                                state.focusRequester.requestFocus()
-                            } catch (e: Exception) {
-                                Log.w("TvFocusGroup", "TvFocusGroup: Failed to request focus", e)
-                            }
-                        } else {
-                            focusManager.moveFocus(FocusDirection.Enter)
-                        }
+                        FocusRequester.Default
                     }
                 }
             }
-            .focusable(),
-        content = { FocusGroupScope(state).content() }
-    )
+            .focusGroup()
+    ) {
+        FocusGroupScope(state).content()
+    }
 }
 
 /**
@@ -177,6 +170,8 @@ internal class FocusGroupState(
             this.focusRequester = focusRequester
         }
     }
+
+    internal fun hasRecordedState(): Boolean = !noRecordedState()
 
     internal fun noRecordedState(): Boolean =
         previousFocusedItemHash.value == null && focusRequester == FocusRequester.Default
