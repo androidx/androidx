@@ -34,7 +34,6 @@ import java.lang.annotation.Retention;
 
 /** Helper for accessing features in {@link VelocityTracker}. */
 public final class VelocityTrackerCompat {
-    /** @hide */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Retention(SOURCE)
     @IntDef(value = {

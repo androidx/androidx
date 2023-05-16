@@ -61,7 +61,6 @@ public final class LocalePreferences {
         /** Default hour cycle for the locale */
         public static final String DEFAULT = "";
 
-        /** @hide */
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @StringDef({
                 H11,
@@ -188,7 +187,6 @@ public final class LocalePreferences {
         /** Default calendar for the locale */
         public static final String DEFAULT = "";
 
-        /** @hide */
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @StringDef({
                 CHINESE,
@@ -306,7 +304,6 @@ public final class LocalePreferences {
         /** Default Temperature for the locale */
         public static final String DEFAULT = "";
 
-        /** @hide */
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @StringDef({
                 CELSIUS,
@@ -425,7 +422,6 @@ public final class LocalePreferences {
         /** Default first day of week for the locale */
         public static final String DEFAULT = "";
 
-        /** @hide */
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @StringDef({
                 SUNDAY,

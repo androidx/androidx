@@ -25,6 +25,7 @@ import android.service.quicksettings.TileService;
 import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+import androidx.annotation.RestrictTo;
 
 /**
  * A helper for accessing {@link TileService} API methods.
@@ -54,16 +55,12 @@ public class TileServiceCompat {
         }
     }
 
-    /**
-     * @hide
-     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     public static void setTileServiceWrapper(@NonNull TileServiceWrapper serviceWrapper) {
         sTileServiceWrapper = serviceWrapper;
     }
 
-    /**
-     * @hide
-     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     public static void clearTileServiceWrapper() {
         sTileServiceWrapper = null;
     }
