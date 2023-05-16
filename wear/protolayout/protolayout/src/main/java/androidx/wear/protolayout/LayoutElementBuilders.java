@@ -5064,7 +5064,14 @@ public final class LayoutElementBuilders {
         }
     }
 
-    /** Font styles, currently set up to match Wear's font styling. */
+    /**
+     * Font styles, currently set up to match Wear's font styling.
+     *
+     * @deprecated Use {@link androidx.wear.protolayout.material.Typography} on Material {@link
+     *     androidx.wear.protolayout.material.Text} (highly recommended) or make your own
+     *     {@link FontStyle}.
+     */
+    @Deprecated
     public static class FontStyles {
         private static final int LARGE_SCREEN_WIDTH_DP = 210;
 
@@ -5074,85 +5081,151 @@ public final class LayoutElementBuilders {
             return deviceParameters.getScreenWidthDp() >= LARGE_SCREEN_WIDTH_DP;
         }
 
-        /** Font style for large display text. */
+        /**
+         * Font style for large display text.
+         *
+         * @deprecated Use {@link androidx.wear.protolayout.material.Typography#TYPOGRAPHY_DISPLAY1}
+         *     on Material {@link androidx.wear.protolayout.material.Text}.
+         */
         @NonNull
+        @Deprecated
         public static FontStyle.Builder display1(@NonNull DeviceParameters deviceParameters) {
             return new FontStyle.Builder()
                     .setWeight(FONT_WEIGHT_BOLD)
                     .setSize(DimensionBuilders.sp(isLargeScreen(deviceParameters) ? 54 : 50));
         }
 
-        /** Font style for medium display text. */
+        /**
+         * Font style for medium display text.
+         *
+         * @deprecated Use {@link androidx.wear.protolayout.material.Typography#TYPOGRAPHY_DISPLAY2}
+         *     on Material {@link androidx.wear.protolayout.material.Text}.
+         */
         @NonNull
+        @Deprecated
         public static FontStyle.Builder display2(@NonNull DeviceParameters deviceParameters) {
             return new FontStyle.Builder()
                     .setWeight(FONT_WEIGHT_BOLD)
                     .setSize(DimensionBuilders.sp(isLargeScreen(deviceParameters) ? 44 : 40));
         }
 
-        /** Font style for small display text. */
+        /**
+         * Font style for small display text.
+         *
+         * @deprecated Use {@link androidx.wear.protolayout.material.Typography#TYPOGRAPHY_DISPLAY3}
+         *     on Material {@link androidx.wear.protolayout.material.Text}.
+         */
         @NonNull
+        @Deprecated
         public static FontStyle.Builder display3(@NonNull DeviceParameters deviceParameters) {
             return new FontStyle.Builder()
                     .setWeight(FONT_WEIGHT_BOLD)
                     .setSize(DimensionBuilders.sp(isLargeScreen(deviceParameters) ? 34 : 30));
         }
 
-        /** Font style for large title text. */
+        /**
+         * Font style for large title text.
+         *
+         * @deprecated Use {@link androidx.wear.protolayout.material.Typography#TYPOGRAPHY_TITLE1}
+         *     on Material {@link androidx.wear.protolayout.material.Text}.
+         */
         @NonNull
+        @Deprecated
         public static FontStyle.Builder title1(@NonNull DeviceParameters deviceParameters) {
             return new FontStyle.Builder()
                     .setWeight(FONT_WEIGHT_BOLD)
                     .setSize(DimensionBuilders.sp(isLargeScreen(deviceParameters) ? 26 : 24));
         }
 
-        /** Font style for medium title text. */
+        /**
+         * Font style for medium title text.
+         *
+         * @deprecated Use {@link androidx.wear.protolayout.material.Typography#TYPOGRAPHY_TITLE2}
+         *     on Material {@link androidx.wear.protolayout.material.Text}.
+         */
         @NonNull
+        @Deprecated
         public static FontStyle.Builder title2(@NonNull DeviceParameters deviceParameters) {
             return new FontStyle.Builder()
                     .setWeight(FONT_WEIGHT_BOLD)
                     .setSize(DimensionBuilders.sp(isLargeScreen(deviceParameters) ? 22 : 20));
         }
 
-        /** Font style for small title text. */
+        /**
+         * Font style for small title text.
+         *
+         * @deprecated Use {@link androidx.wear.protolayout.material.Typography#TYPOGRAPHY_TITLE3}
+         *     on Material {@link androidx.wear.protolayout.material.Text}.
+         */
         @NonNull
+        @Deprecated
         public static FontStyle.Builder title3(@NonNull DeviceParameters deviceParameters) {
             return new FontStyle.Builder()
                     .setWeight(FONT_WEIGHT_BOLD)
                     .setSize(DimensionBuilders.sp(isLargeScreen(deviceParameters) ? 18 : 16));
         }
 
-        /** Font style for large body text. */
+        /**
+         * Font style for large body text.
+         *
+         * @deprecated Use {@link androidx.wear.protolayout.material.Typography#TYPOGRAPHY_BODY1} on
+         *     Material {@link androidx.wear.protolayout.material.Text}.
+         */
         @NonNull
+        @Deprecated
         public static FontStyle.Builder body1(@NonNull DeviceParameters deviceParameters) {
             return new FontStyle.Builder()
                     .setSize(DimensionBuilders.sp(isLargeScreen(deviceParameters) ? 18 : 16));
         }
 
-        /** Font style for medium body text. */
+        /**
+         * Font style for medium body text.
+         *
+         * @deprecated Use {@link androidx.wear.protolayout.material.Typography#TYPOGRAPHY_BODY2}
+         *     on Material {@link androidx.wear.protolayout.material.Text}.
+         */
         @NonNull
+        @Deprecated
         public static FontStyle.Builder body2(@NonNull DeviceParameters deviceParameters) {
             return new FontStyle.Builder()
                     .setSize(DimensionBuilders.sp(isLargeScreen(deviceParameters) ? 16 : 14));
         }
 
-        /** Font style for button text. */
+        /**
+         * Font style for button text.
+         *
+         * @deprecated Use {@link androidx.wear.protolayout.material.Typography#TYPOGRAPHY_BUTTON}
+         *     on Material {@link androidx.wear.protolayout.material.Text}.
+         */
         @NonNull
+        @Deprecated
         public static FontStyle.Builder button(@NonNull DeviceParameters deviceParameters) {
             return new FontStyle.Builder()
                     .setWeight(FONT_WEIGHT_BOLD)
                     .setSize(DimensionBuilders.sp(isLargeScreen(deviceParameters) ? 16 : 14));
         }
 
-        /** Font style for large caption text. */
+        /**
+         * Font style for large caption text.
+         *
+         * @deprecated Use {@link androidx.wear.protolayout.material.Typography#TYPOGRAPHY_CAPTION1}
+         *     on Material {@link androidx.wear.protolayout.material.Text}.
+         */
         @NonNull
+        @Deprecated
         public static FontStyle.Builder caption1(@NonNull DeviceParameters deviceParameters) {
             return new FontStyle.Builder()
                     .setSize(DimensionBuilders.sp(isLargeScreen(deviceParameters) ? 16 : 14));
         }
 
-        /** Font style for medium caption text. */
+        /**
+         * Font style for medium caption text.
+         *
+         * @deprecated Use {@link androidx.wear.protolayout.material.Typography#TYPOGRAPHY_CAPTION2}
+         *     on Material {@link androidx.wear.protolayout.material.Text}.
+         */
         @NonNull
+        @Deprecated
         public static FontStyle.Builder caption2(@NonNull DeviceParameters deviceParameters) {
             return new FontStyle.Builder()
                     .setSize(DimensionBuilders.sp(isLargeScreen(deviceParameters) ? 14 : 12));
