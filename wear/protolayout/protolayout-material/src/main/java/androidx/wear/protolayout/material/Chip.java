@@ -26,6 +26,8 @@ import static androidx.wear.protolayout.material.ChipDefaults.DEFAULT_MARGIN_PER
 import static androidx.wear.protolayout.material.ChipDefaults.HORIZONTAL_PADDING;
 import static androidx.wear.protolayout.material.ChipDefaults.ICON_SIZE;
 import static androidx.wear.protolayout.material.ChipDefaults.ICON_SPACER_WIDTH;
+import static androidx.wear.protolayout.material.ChipDefaults.MIN_TAPPABLE_HEIGHT;
+import static androidx.wear.protolayout.material.ChipDefaults.MIN_TAPPABLE_WIDTH;
 import static androidx.wear.protolayout.material.ChipDefaults.PRIMARY_COLORS;
 import static androidx.wear.protolayout.material.Helper.checkNotNull;
 import static androidx.wear.protolayout.material.Helper.checkTag;
@@ -33,18 +35,22 @@ import static androidx.wear.protolayout.material.Helper.getMetadataTagName;
 import static androidx.wear.protolayout.material.Helper.getTagBytes;
 import static androidx.wear.protolayout.material.Helper.radiusOf;
 
+import static java.lang.Math.max;
+
 import android.content.Context;
 
 import androidx.annotation.Dimension;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.wear.protolayout.ColorBuilders.ColorProp;
 import androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters;
 import androidx.wear.protolayout.DimensionBuilders.ContainerDimension;
 import androidx.wear.protolayout.DimensionBuilders.DpProp;
+import androidx.wear.protolayout.DimensionBuilders.WrappedDimensionProp;
 import androidx.wear.protolayout.LayoutElementBuilders;
 import androidx.wear.protolayout.LayoutElementBuilders.Box;
 import androidx.wear.protolayout.LayoutElementBuilders.ColorFilter;
@@ -63,6 +69,7 @@ import androidx.wear.protolayout.ModifiersBuilders.Padding;
 import androidx.wear.protolayout.ModifiersBuilders.Semantics;
 import androidx.wear.protolayout.TypeBuilders.StringProp;
 import androidx.wear.protolayout.expression.Fingerprint;
+import androidx.wear.protolayout.expression.ProtoLayoutExperimental;
 import androidx.wear.protolayout.material.Typography.TypographyName;
 import androidx.wear.protolayout.proto.LayoutElementProto;
 
@@ -75,10 +82,11 @@ import java.util.Map;
  * ProtoLayout component {@link Chip} that represents clickable object with the text, optional label
  * and optional icon or with custom content.
  *
- * <p>The Chip is Stadium shape and has a max height designed to take no more than two lines of text
- * of {@link Typography#TYPOGRAPHY_BUTTON} style. The {@link Chip} can have an icon horizontally
- * parallel to the two lines of text. Width of chip can very, and the recommended size is screen
- * dependent with the recommended margin being applied.
+ * <p>The Chip is Stadium shape that has a max height designed to take no more than two lines of
+ * text of {@link Typography#TYPOGRAPHY_BUTTON} style and with minimum tap target to meet
+ * accessibility requirements. The {@link Chip} can have an icon horizontally parallel to the two
+ * lines of text. Width of chip can very, and the recommended size is screen dependent with the
+ * recommended margin being applied.
  *
  * <p>The recommended set of {@link ChipColors} styles can be obtained from {@link ChipDefaults}.,
  * e.g. {@link ChipDefaults#PRIMARY_COLORS} to get a color scheme for a primary {@link Chip}.
@@ -118,11 +126,17 @@ public class Chip implements LayoutElement {
      */
     static final String METADATA_TAG_CUSTOM_CONTENT = "CSTCHP";
 
+    /** Outer tappable Box. */
+    @NonNull private final Box mImpl;
+
+    /** Inner visible Box with all Chip elements. */
     @NonNull private final Box mElement;
 
-    Chip(@NonNull Box element) {
-        mElement = element;
+    Chip(@NonNull Box impl) {
+        mImpl = impl;
+        mElement = (Box) impl.getContents().get(0);
     }
+
     /** Builder class for {@link androidx.wear.protolayout.material.Chip}. */
     public static final class Builder implements LayoutElement.Builder {
         private static final int NOT_SET = 0;
@@ -149,6 +163,7 @@ public class Chip implements LayoutElement {
         @TypographyName private int mPrimaryLabelTypography;
         @NonNull private DpProp mHorizontalPadding = HORIZONTAL_PADDING;
         private boolean mIsScalable = true;
+        private boolean mIsFontPaddingExcluded = false;
         private int mMaxLines = 0; // 0 indicates that is not set.
         @NonNull private String mMetadataTag = "";
 
@@ -274,6 +289,22 @@ public class Chip implements LayoutElement {
         }
 
         /**
+         * Sets whether the font padding for the primary label is excluded.
+         *
+         * <p>It should be used for creating CompactChip and TitleChip to make the label vertically
+         * aligned. Shouldn't be used if there is anything else in chip besides primary label.
+         *
+         * @see Text.Builder#setExcludeFontPadding
+         */
+        @NonNull
+        @ProtoLayoutExperimental
+        @SuppressWarnings("MissingGetterMatchingBuilder")
+        Builder setPrimaryLabelExcludeFontPadding(boolean excluded) {
+            this.mIsFontPaddingExcluded = excluded;
+            return this;
+        }
+
+        /**
          * Sets the secondary label for the {@link Chip}. Any previously added custom content will
          * be overridden. If secondary label is set, primary label must be set too with {@link
          * #setPrimaryLabelContent}.
@@ -357,7 +388,6 @@ public class Chip implements LayoutElement {
         public Chip build() {
             Modifiers.Builder modifiers =
                     new Modifiers.Builder()
-                            .setClickable(mClickable)
                             .setPadding(
                                     new Padding.Builder()
                                             .setStart(mHorizontalPadding)
@@ -370,25 +400,56 @@ public class Chip implements LayoutElement {
                                                     new Corner.Builder()
                                                             .setRadius(radiusOf(mHeight))
                                                             .build())
-                                            .build())
-                            .setMetadata(
-                                    new ElementMetadata.Builder()
-                                            .setTagData(getTagBytes(getCorrectMetadataTag()))
-                                            .build())
-                            .setSemantics(
-                                    new Semantics.Builder()
-                                            .setContentDescription(getCorrectContentDescription())
                                             .build());
 
-            Box.Builder element =
+            Box.Builder visible =
                     new Box.Builder()
-                            .setWidth(mWidth)
                             .setHeight(mHeight)
+                            .setWidth(mWidth)
                             .setHorizontalAlignment(getCorrectHorizontalAlignment())
                             .addContent(getCorrectContent())
                             .setModifiers(modifiers.build());
 
-            return new Chip(element.build());
+            Box tappable =
+                    new Box.Builder()
+                            .setWidth(resolveMinTappableWidth())
+                            .setHeight(dp(resolveMinTappableHeight()))
+                            .setModifiers(
+                                    new Modifiers.Builder()
+                                            .setClickable(mClickable)
+                                            .setMetadata(
+                                                    new ElementMetadata.Builder()
+                                                            .setTagData(
+                                                                    getTagBytes(
+                                                                            getCorrectMetadataTag())
+                                                            )
+                                                            .build())
+                                            .setSemantics(
+                                                    new Semantics.Builder()
+                                                            .setContentDescription(
+                                                                    getCorrectContentDescription())
+                                                            .build())
+                                            .build())
+                            .addContent(visible.build())
+                            .build();
+
+            return new Chip(tappable);
+        }
+
+        private ContainerDimension resolveMinTappableWidth() {
+            if (mWidth instanceof DpProp) {
+                return dp(max(((DpProp) mWidth).getValue(), MIN_TAPPABLE_WIDTH.getValue()));
+            } else if (mWidth instanceof WrappedDimensionProp) {
+                return new WrappedDimensionProp.Builder()
+                        .setMinimumSize(MIN_TAPPABLE_WIDTH)
+                        .build();
+            } else {
+                return mWidth;
+            }
+        }
+
+        private float resolveMinTappableHeight() {
+            return max(mHeight.getValue(), MIN_TAPPABLE_HEIGHT.getValue());
         }
 
         @NonNull
@@ -434,6 +495,7 @@ public class Chip implements LayoutElement {
         }
 
         @NonNull
+        @OptIn(markerClass = ProtoLayoutExperimental.class)
         private LayoutElement getCorrectContent() {
             if (mCustomContent != null) {
                 return mCustomContent;
@@ -447,6 +509,7 @@ public class Chip implements LayoutElement {
                             .setOverflow(LayoutElementBuilders.TEXT_OVERFLOW_ELLIPSIZE_END)
                             .setMultilineAlignment(LayoutElementBuilders.TEXT_ALIGN_START)
                             .setIsScalable(mIsScalable)
+                            .setExcludeFontPadding(mIsFontPaddingExcluded)
                             .build();
 
             // Placeholder for text.
@@ -506,7 +569,7 @@ public class Chip implements LayoutElement {
         }
     }
 
-    /** Returns height of this Chip. */
+    /** Returns the visible height of this Chip. */
     @NonNull
     public ContainerDimension getHeight() {
         return checkNotNull(mElement.getHeight());
@@ -521,7 +584,7 @@ public class Chip implements LayoutElement {
     /** Returns click event action associated with this Chip. */
     @NonNull
     public Clickable getClickable() {
-        return checkNotNull(checkNotNull(mElement.getModifiers()).getClickable());
+        return checkNotNull(checkNotNull(mImpl.getModifiers()).getClickable());
     }
 
     /** Returns background color of this Chip. */
@@ -569,7 +632,7 @@ public class Chip implements LayoutElement {
     /** Returns content description of this Chip. */
     @Nullable
     public StringProp getContentDescription() {
-        Semantics semantics = checkNotNull(mElement.getModifiers()).getSemantics();
+        Semantics semantics = checkNotNull(mImpl.getModifiers()).getSemantics();
         if (semantics == null) {
             return null;
         }
@@ -659,8 +722,16 @@ public class Chip implements LayoutElement {
     /** Returns metadata tag set to this Chip. */
     @NonNull
     String getMetadataTag() {
-        return getMetadataTagName(
-                checkNotNull(checkNotNull(mElement.getModifiers()).getMetadata()));
+        return getMetadataTagName(checkNotNull(checkNotNull(mImpl.getModifiers()).getMetadata()));
+    }
+
+    /**
+     *  Returns whether the font padding for the primary label is excluded.
+     */
+    @ProtoLayoutExperimental
+    boolean hasPrimaryLabelExcludeFontPadding() {
+        Text primaryLabel = getPrimaryLabelContentObject();
+        return primaryLabel != null && primaryLabel.getExcludeFontPadding();
     }
 
     /**
@@ -688,13 +759,13 @@ public class Chip implements LayoutElement {
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     public LayoutElementProto.LayoutElement toLayoutElementProto() {
-        return mElement.toLayoutElementProto();
+        return mImpl.toLayoutElementProto();
     }
 
     @Nullable
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     public Fingerprint getFingerprint() {
-        return mElement.getFingerprint();
+        return mImpl.getFingerprint();
     }
 }

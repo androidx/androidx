@@ -30,6 +30,7 @@ import android.content.Context;
 import androidx.annotation.Dimension;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters;
@@ -39,6 +40,7 @@ import androidx.wear.protolayout.LayoutElementBuilders.HorizontalAlignment;
 import androidx.wear.protolayout.LayoutElementBuilders.LayoutElement;
 import androidx.wear.protolayout.ModifiersBuilders.Clickable;
 import androidx.wear.protolayout.expression.Fingerprint;
+import androidx.wear.protolayout.expression.ProtoLayoutExperimental;
 import androidx.wear.protolayout.proto.LayoutElementProto;
 
 /**
@@ -95,6 +97,7 @@ public class TitleChip implements LayoutElement {
         // Indicates that the width isn't set, so it will be automatically set by Chip.Builder
         // constructor.
         @Nullable private ContainerDimension mWidth = null;
+        private boolean mIsFontPaddingExcluded = false;
 
         /**
          * Creates a builder for the {@link TitleChip} with associated action and the given text
@@ -156,9 +159,24 @@ public class TitleChip implements LayoutElement {
             return this;
         }
 
+        /**
+         * Sets whether the font padding is excluded or not. If not set, default to false, meaning
+         * that text will have font padding included.
+         *
+         * <p>Setting this to {@code true} will perfectly align the text label.
+         */
+        @NonNull
+        @ProtoLayoutExperimental
+        @SuppressWarnings("MissingGetterMatchingBuilder")
+        public Builder setExcludeFontPadding(boolean excluded) {
+            this.mIsFontPaddingExcluded = excluded;
+            return this;
+        }
+
         /** Constructs and returns {@link TitleChip} with the provided content and look. */
         @NonNull
         @Override
+        @OptIn(markerClass = ProtoLayoutExperimental.class)
         public TitleChip build() {
             Chip.Builder chipBuilder =
                     new Chip.Builder(mContext, mClickable, mDeviceParameters)
@@ -171,6 +189,7 @@ public class TitleChip implements LayoutElement {
                             .setHorizontalPadding(TITLE_HORIZONTAL_PADDING)
                             .setPrimaryLabelContent(mText)
                             .setPrimaryLabelTypography(Typography.TYPOGRAPHY_TITLE2)
+                            .setPrimaryLabelExcludeFontPadding(mIsFontPaddingExcluded)
                             .setIsPrimaryLabelScalable(false);
 
             if (mWidth != null) {
@@ -236,6 +255,14 @@ public class TitleChip implements LayoutElement {
         }
         // Now we are sure that this element is a TitleChip.
         return new TitleChip(new Chip(boxElement));
+    }
+
+    /**
+     *  Returns whether the font padding for the primary label is excluded.
+     */
+    @ProtoLayoutExperimental
+    public boolean hasExcludeFontPadding() {
+        return mElement.hasPrimaryLabelExcludeFontPadding();
     }
 
     @RestrictTo(Scope.LIBRARY_GROUP)
