@@ -34,7 +34,9 @@ import androidx.wear.protolayout.LayoutElementBuilders.Box;
 import androidx.wear.protolayout.LayoutElementBuilders.Column;
 import androidx.wear.protolayout.ModifiersBuilders.ElementMetadata;
 import androidx.wear.protolayout.ModifiersBuilders.Modifiers;
+import androidx.wear.protolayout.TypeBuilders;
 import androidx.wear.protolayout.TypeBuilders.StringProp;
+import androidx.wear.protolayout.expression.DynamicBuilders;
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicString;
 
 import org.junit.Test;
@@ -59,6 +61,24 @@ public class CircularProgressIndicatorTest {
                 null);
     }
 
+    @Test
+    public void testProgressIndicatorWithDynamicProgress() {
+        TypeBuilders.FloatProp floatProp = new TypeBuilders.FloatProp.Builder(0)
+                .setDynamicValue(DynamicBuilders.DynamicFloat.constant(0.5f)).build();
+        CircularProgressIndicator circularProgressIndicator =
+                new CircularProgressIndicator.Builder()
+                        .setProgress(floatProp)
+                        .build();
+
+        Box box = new Box.Builder().addContent(circularProgressIndicator).build();
+
+        CircularProgressIndicator newCpi =
+                CircularProgressIndicator.fromLayoutElement(box.getContents().get(0));
+
+        assertThat(newCpi).isNotNull();
+        assertThat(newCpi.getProgress().toProto().hasDynamicValue()).isTrue();
+        assertThat(newCpi.getProgress().toProto().hasValueForLayout()).isTrue();
+    }
     @Test
     public void testProgressIndicatorCustom() {
         float progress = 0.25f;
