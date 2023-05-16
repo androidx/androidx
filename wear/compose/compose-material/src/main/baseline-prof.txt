@@ -70,6 +70,7 @@ Landroidx/wear/compose/material/PositionIndicatorState;
 HSPLandroidx/wear/compose/material/PositionIndicatorVisibility;->**(**)**
 PLandroidx/wear/compose/material/ProgressIndicatorDefaults;->**(**)**
 HPLandroidx/wear/compose/material/ProgressIndicatorKt**->**(**)**
+HSPLandroidx/wear/compose/material/ProvidersKt**->**(**)**
 Landroidx/wear/compose/material/R;
 Landroidx/wear/compose/material/RadioButtonColors;
 HSPLandroidx/wear/compose/material/RadioButtonDefaults;->**(**)**
@@ -77,7 +78,7 @@ SPLandroidx/wear/compose/material/RangeDefaults;->**(**)**
 SPLandroidx/wear/compose/material/RangeDefaultsKt**->**(**)**
 SPLandroidx/wear/compose/material/RangeIcons;->**(**)**
 HSPLandroidx/wear/compose/material/ResistanceConfig;->**(**)**
-HSPLandroidx/wear/compose/material/Resources_androidKt**->**(**)**
+HSPLandroidx/wear/compose/material/ResourcesKt**->**(**)**
 HSPLandroidx/wear/compose/material/ScaffoldKt**->**(**)**
 HSPLandroidx/wear/compose/material/ScaleAndAlpha;->**(**)**
 HSPLandroidx/wear/compose/material/ScalingLazyColumnDefaults;->**(**)**
@@ -96,6 +97,7 @@ HSPLandroidx/wear/compose/material/ScalingLazyListState;->**(**)**
 HSPLandroidx/wear/compose/material/ScalingLazyListStateKt**->**(**)**
 Landroidx/wear/compose/material/ScalingParams;
 SPLandroidx/wear/compose/material/ScrollAwayKt**->**(**)**
+SPLandroidx/wear/compose/material/ScrollParams;->**(**)**
 HSPLandroidx/wear/compose/material/ScrollStateAdapter;->**(**)**
 HSPLandroidx/wear/compose/material/Shapes;->**(**)**
 HSPLandroidx/wear/compose/material/ShapesKt**->**(**)**
@@ -134,3 +136,8 @@ HSPLandroidx/wear/compose/material/VignetteKt**->**(**)**
 SPLandroidx/wear/compose/material/VignettePosition;->**(**)**
 HPLandroidx/wear/compose/material/dialog/DialogDefaults;->**(**)**
 HPLandroidx/wear/compose/material/dialog/DialogKt**->**(**)**
+HSPLandroidx/wear/compose/materialcore/ButtonKt**->**(**)**
+HSPLandroidx/wear/compose/materialcore/CardKt**->**(**)**
+HSPLandroidx/wear/compose/materialcore/ChipKt**->**(**)**
+HSPLandroidx/wear/compose/materialcore/IconKt**->**(**)**
+HSPLandroidx/wear/compose/materialcore/TextKt**->**(**)**
