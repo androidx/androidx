@@ -16,6 +16,7 @@
 
 package androidx.build.gitclient
 
+import androidx.build.getCheckoutRoot
 import androidx.build.releasenotes.getBuganizerLink
 import androidx.build.releasenotes.getChangeIdAOSPLink
 import java.io.File
@@ -36,17 +37,14 @@ interface GitClient {
     fun getGitLog(
         gitCommitRange: GitCommitRange,
         keepMerges: Boolean,
-        fullProjectDir: File
+        projectDir: File?
     ): List<Commit>
 
     /**
-     * Returns the full commit sha for the HEAD of the given git root directory.
-     *
-     * @param projectDir Root directory of the git project
+     * Returns the full commit sha for the HEAD of the git repository
      */
-    fun getHeadSha(
-        projectDir: File
-    ): String {
+    fun getHeadSha(): String {
+        val projectDir = null
         val commitList: List<Commit> =
             getGitLog(
                 GitCommitRange(
@@ -55,7 +53,7 @@ interface GitClient {
                     n = 1
                 ),
                 keepMerges = true,
-                fullProjectDir = projectDir
+                projectDir = projectDir
             )
         if (commitList.isEmpty()) {
             throw RuntimeException("Failed to find git commit for HEAD!")
@@ -87,6 +85,7 @@ interface GitClient {
         fun forProject(project: Project): GitClient {
             return create(
                 project.projectDir,
+                project.getCheckoutRoot(),
                 project.logger,
                 GitClient.getChangeInfoPath(project).get(),
                 GitClient.getManifestPath(project).get()
@@ -94,6 +93,7 @@ interface GitClient {
         }
         fun create(
             projectDir: File,
+            checkoutRoot: File,
             logger: Logger,
             changeInfoPath: String,
             manifestPath: String
@@ -112,9 +112,14 @@ interface GitClient {
                 }
                 val changeInfoText = changeInfoFile.readText()
                 val manifestText = manifestFile.readText()
+                val projectDirRelativeToRoot = projectDir.relativeTo(checkoutRoot).toString()
                 logger.info("Using ChangeInfoGitClient with change info path $changeInfoPath, " +
-                    "manifest $manifestPath")
-                return ChangeInfoGitClient(changeInfoText, manifestText)
+                    "manifest $manifestPath project dir $projectDirRelativeToRoot")
+                return ChangeInfoGitClient(
+                    changeInfoText,
+                    manifestText,
+                    projectDirRelativeToRoot
+                )
             }
             val gitRoot = findGitDirInParentFilepath(projectDir)
             check(gitRoot != null) {
@@ -127,6 +132,7 @@ interface GitClient {
 }
 
 data class MultiGitClient(
+    val checkoutRoot: File,
     val logger: Logger,
     val changeInfoPath: String,
     val manifestPath: String
@@ -134,19 +140,27 @@ data class MultiGitClient(
     // Map from the root of the git repository to a GitClient for that repository
     // In AndroidX this directory could be frameworks/support, external/noto-fonts, or others
     @Transient // We don't want Gradle to persist GitClient in the configuration cache
-    val cache: MutableMap<File, GitClient> = ConcurrentHashMap()
+    var cache: MutableMap<File, GitClient>? = null
 
     fun getGitClient(projectDir: File): GitClient {
+        // If this object was restored from the Configuration cache, this value will be null
+        // So, if it is null we have to reinitialize it
+        var cache = this.cache
+        if (cache == null) {
+            cache = ConcurrentHashMap()
+            this.cache = cache
+        }
         return cache.getOrPut(
             key = projectDir
         ) {
-            GitClient.create(projectDir, logger, changeInfoPath, manifestPath)
+            GitClient.create(projectDir, checkoutRoot, logger, changeInfoPath, manifestPath)
         }
     }
 
     companion object {
         fun create(project: Project): MultiGitClient {
             return MultiGitClient(
+                project.getCheckoutRoot(),
                 project.logger,
                 GitClient.getChangeInfoPath(project).get(),
                 GitClient.getManifestPath(project).get()
