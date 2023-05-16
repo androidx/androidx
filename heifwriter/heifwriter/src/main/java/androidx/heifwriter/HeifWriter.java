@@ -34,6 +34,7 @@ import android.view.Surface;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
 
 import java.io.FileDescriptor;
 import java.io.IOException;
@@ -134,7 +135,7 @@ public final class HeifWriter implements AutoCloseable {
      */
     public static final int INPUT_MODE_BITMAP = 2;
 
-    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef({
             INPUT_MODE_BUFFER, INPUT_MODE_SURFACE, INPUT_MODE_BITMAP,
     })
