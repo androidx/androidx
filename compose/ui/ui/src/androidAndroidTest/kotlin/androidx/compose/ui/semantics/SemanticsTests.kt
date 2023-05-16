@@ -161,6 +161,33 @@ class SemanticsTests {
     }
 
     @Test
+    @Suppress("DEPRECATION")
+    fun isContainerPropertyDeprecated() {
+        rule.setContent {
+            Surface {
+                Box(Modifier
+                    .testTag(TestTag)
+                    .semantics { isContainer = true }
+                ) {
+                    Text("Hello World", modifier = Modifier.padding(8.dp))
+                }
+            }
+        }
+
+        // Since `isContainer` has been deprecated, setting that property will actually set
+        // `isTraversalGroup` instead, but `IsContainer` can still be used to retrieve the value
+        rule.onNodeWithTag(TestTag)
+            .assert(
+                SemanticsMatcher("container property") {
+                    it.config.getOrNull(SemanticsProperties.IsContainer) == true
+                }
+            )
+        rule.onNodeWithTag(TestTag)
+            .assert(SemanticsMatcher.expectValue(
+                SemanticsProperties.IsTraversalGroup, true))
+    }
+
+    @Test
     fun depthFirstPropertyConcat() {
         val root = "root"
         val child1 = "child1"
