@@ -1258,7 +1258,6 @@ internal class ComposerImpl(
     private var reusing = false
     private var reusingGroup = -1
     private var childrenComposing: Int = 0
-    private var snapshot = currentSnapshot()
     private var compositionToken: Int = 0
     private var sourceInformationEnabled = true
     private val derivedStateObserver = object : DerivedStateObserver {
@@ -3313,8 +3312,7 @@ internal class ComposerImpl(
     ) {
         runtimeCheck(!isComposing) { "Reentrant composition is not supported" }
         trace("Compose:recompose") {
-            snapshot = currentSnapshot()
-            compositionToken = snapshot.id
+            compositionToken = currentSnapshot().id
             providerUpdates.clear()
             invalidationsRequested.forEach { scope, set ->
                 val location = scope.anchor?.location ?: return
