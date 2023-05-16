@@ -55,7 +55,6 @@ public final class CarConnection {
     /**
      * Represents the types of connections that exist to a car head unit.
      *
-     * @hide
      */
     @IntDef({CONNECTION_TYPE_NOT_CONNECTED, CONNECTION_TYPE_NATIVE, CONNECTION_TYPE_PROJECTION})
     @Retention(RetentionPolicy.SOURCE)

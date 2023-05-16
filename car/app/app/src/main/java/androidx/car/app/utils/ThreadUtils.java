@@ -27,7 +27,6 @@ import androidx.annotation.RestrictTo;
 /**
  * Utility functions to handle running functions on the main thread.
  *
- * @hide
  */
 @RestrictTo(LIBRARY_GROUP)
 public final class ThreadUtils {

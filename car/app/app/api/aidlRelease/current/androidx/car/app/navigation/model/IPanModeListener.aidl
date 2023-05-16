@@ -32,7 +32,7 @@
 // later when a module using the interface is updated, e.g., Mainline modules.
 
 package androidx.car.app.navigation.model;
-/* @hide */
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 interface IPanModeListener {
   oneway void onPanModeChanged(boolean isInPanMode, androidx.car.app.IOnDoneCallback callback) = 1;
 }

@@ -32,7 +32,7 @@
 // later when a module using the interface is updated, e.g., Mainline modules.
 
 package androidx.car.app.activity.renderer.surface;
-/* @hide */
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 interface ISurfaceListener {
   oneway void onSurfaceAvailable(in androidx.car.app.serialization.Bundleable surfaceWrapper) = 1;
   oneway void onSurfaceChanged(in androidx.car.app.serialization.Bundleable surfaceWrapper) = 2;

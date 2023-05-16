@@ -80,7 +80,6 @@ public final class AppInfo {
     /**
      * Creates an instance of {@link AppInfo} based on the input {@link Context}.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY)
     @NonNull
@@ -123,7 +122,6 @@ public final class AppInfo {
         mLatestCarAppApiLevel = UNKNOWN;
     }
 
-    /** @hide */
     @RestrictTo(Scope.LIBRARY)
     @VisibleForTesting
     @CarAppApiLevel

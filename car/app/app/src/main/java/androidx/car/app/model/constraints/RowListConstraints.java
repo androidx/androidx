@@ -39,7 +39,6 @@ import java.util.List;
 /**
  * Encapsulates the constraints to apply when rendering a row list under different contexts.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public final class RowListConstraints {

@@ -48,7 +48,6 @@ public final class GridItem implements Item {
     /**
      * The type of images supported within grid items.
      *
-     * @hide
      */
     @RestrictTo(LIBRARY)
     @IntDef(value = {IMAGE_TYPE_ICON, IMAGE_TYPE_LARGE})

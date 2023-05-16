@@ -18,7 +18,7 @@ package androidx.car.app.navigation;
 
 import androidx.car.app.serialization.Bundleable;
 
-/** @hide */
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 interface INavigationHost {
  /**
   * Update the host when active navigation in the app has started.

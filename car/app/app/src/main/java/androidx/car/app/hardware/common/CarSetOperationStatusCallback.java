@@ -40,7 +40,6 @@ public interface CarSetOperationStatusCallback {
     /**
      * Defines the possible status code for the set operation.
      *
-     * @hide
      */
     @IntDef({
             OPERATION_STATUS_SUCCESS,

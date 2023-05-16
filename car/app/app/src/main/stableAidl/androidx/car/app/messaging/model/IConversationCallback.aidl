@@ -19,9 +19,8 @@ import androidx.car.app.IOnDoneCallback;
 
 /**
  * Handles Host -> Client IPC calls for a conversation.
- *
- * @hide
  */
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 oneway interface IConversationCallback {
   /**
    * Notifies the app that it should mark all messages in the current conversation as read
