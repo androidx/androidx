@@ -25,7 +25,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -42,103 +41,96 @@ import androidx.tv.material3.ModalNavigationDrawer
 
 val pageColor = Color(0xff18171a)
 
-@OptIn(ExperimentalTvMaterial3Api::class, ExperimentalComposeUiApi::class)
+enum class Tabs(val displayName: String, val action: @Composable () -> Unit) {
+    Home("Home",
+        {
+            TvLazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .focusRequester(Home.fr)
+                    .background(pageColor)
+            ) {
+                item {
+                    FeaturedCarousel()
+                    AppSpacer(height = 50.dp)
+                }
+                movieCollections.forEach { movieCollection ->
+                    item {
+                        AppLazyRow(
+                            title = movieCollection.label,
+                            items = movieCollection.items,
+                            drawItem = { movie, _, modifier ->
+                                ImageCard(
+                                    movie,
+                                    aspectRatio = 2f / 3,
+                                    modifier = modifier
+                                )
+                            }
+                        )
+                        AppSpacer(height = 35.dp)
+                    }
+                }
+            }
+        }),
+    Movies("Movies",
+        {
+            TvLazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(pageColor)
+            ) {
+                item {
+                    AppImmersiveList(Modifier.focusRequester(Movies.fr))
+                }
+            }
+        }),
+    Shows("Shows", {
+        TvLazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(pageColor)
+        ) {
+            item {
+                ShowsGrid(
+                    Modifier.focusRequester(
+                        Shows.fr
+                    )
+                )
+            }
+        }
+    });
+
+    val fr: FocusRequester = FocusRequester()
+}
+
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun App() {
-    val tabs = listOf("Home", "Movies", "Shows")
+    val tabs = remember { Tabs.values() }
     var selectedTabIndex by remember { mutableStateOf(0) }
-    val homePageFr = remember { FocusRequester() }
-    val moviesPageFr = remember { FocusRequester() }
-    val showsPageFr = remember { FocusRequester() }
+    val activeTab = remember(selectedTabIndex) {
+        tabs[selectedTabIndex]
+    }
 
     val tabRow = @Composable {
         AppTabRow(
-            tabs = tabs,
+            tabs = tabs.map { it.displayName },
             selectedTabIndex = selectedTabIndex,
             onSelectedTabIndexChange = { selectedTabIndex = it },
             modifier = Modifier
                 .zIndex(100f)
                 .onKeyEvent {
                     if (it.key.nativeKeyCode == Key.DirectionDown.nativeKeyCode) {
-                        val fr = when (selectedTabIndex) {
-                            0 -> homePageFr
-                            1 -> moviesPageFr
-                            2 -> showsPageFr
-                            else -> null
-                        }
-                        fr?.requestFocus()
+                        activeTab.fr.requestFocus()
                         true
                     } else
-                    false
+                        false
                 }
         )
-    }
-
-    val homepage = @Composable {
-        TvLazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .focusRequester(homePageFr)
-                .background(pageColor)
-        ) {
-            item {
-                FeaturedCarousel(
-//                    modifier = Modifier.focusRequester(homePageFr)
-                )
-                AppSpacer(height = 50.dp)
-            }
-            movieCollections.forEach { movieCollection ->
-                item {
-                    AppLazyRow(
-                        title = movieCollection.label,
-                        items = movieCollection.items,
-                        drawItem = { movie, _, modifier ->
-                            ImageCard(
-                                movie,
-                                aspectRatio = 2f / 3,
-                                modifier = modifier
-                            )
-                        }
-                    )
-                    AppSpacer(height = 35.dp)
-                }
-            }
-        }
-    }
-
-    val moviesPage = @Composable {
-        TvLazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(pageColor)
-        ) {
-            item {
-                AppImmersiveList(Modifier.focusRequester(moviesPageFr))
-            }
-        }
-    }
-
-    val showsPage = @Composable {
-        TvLazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(pageColor)
-        ) {
-            item {
-                ShowsGrid(Modifier.focusRequester(showsPageFr))
-            }
-        }
     }
 
     val activePage: MutableState<(@Composable () -> Unit)> = remember(selectedTabIndex) {
-        mutableStateOf(
-            when (selectedTabIndex) {
-                0 -> homepage
-                1 -> moviesPage
-                2 -> showsPage
-                else -> homepage
-            }
-        )
+        mutableStateOf(activeTab.action)
     }
 
     ModalNavigationDrawer(
