@@ -62,7 +62,6 @@ public interface WindowAreaComponent {
      */
     int STATUS_AVAILABLE = 2;
 
-    /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Retention(RetentionPolicy.SOURCE)
     @Target({ElementType.TYPE_PARAMETER, ElementType.TYPE_USE})
@@ -88,7 +87,6 @@ public interface WindowAreaComponent {
      */
     int SESSION_STATE_ACTIVE = 1;
 
-    /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Retention(RetentionPolicy.SOURCE)
     @Target({ElementType.TYPE_PARAMETER, ElementType.TYPE_USE})
