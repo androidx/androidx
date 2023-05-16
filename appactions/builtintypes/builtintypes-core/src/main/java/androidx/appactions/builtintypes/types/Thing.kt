@@ -35,23 +35,31 @@ import kotlin.jvm.JvmStatic
  * See http://schema.org/Thing for context.
  *
  * Should not be directly implemented. More properties may be added over time. Instead consider
- * using [Companion.Builder] or see [GenericThing] if you need to extend this type.
+ * using [Companion.Builder] or see [AbstractThing] if you need to extend this type.
  */
 public interface Thing {
   /**
    * A sub property of description. A short description of the item used to disambiguate from other,
    * similar items. Information from other properties (in particular, name) may be necessary for the
    * description to be useful for disambiguation.
+   *
+   * See http://schema.org/disambiguatingDescription for more context.
    */
   public val disambiguatingDescription: DisambiguatingDescription?
 
   /**
    * The identifier property represents any kind of identifier for any kind of Thing, such as ISBNs,
    * GTIN codes, UUIDs etc.
+   *
+   * See http://schema.org/identifier for more context.
    */
   public val identifier: String?
 
-  /** The name of the item. */
+  /**
+   * The name of the item.
+   *
+   * See http://schema.org/name for more context.
+   */
   public val name: Name?
 
   /** Converts this [Thing] to its builder with all the properties copied over. */
@@ -66,7 +74,7 @@ public interface Thing {
    * Builder for [Thing].
    *
    * Should not be directly implemented. More methods may be added over time. See
-   * [GenericThing.Builder] if you need to extend this builder.
+   * [AbstractThing.Builder] if you need to extend this builder.
    */
   @Suppress("StaticFinalBuilder")
   public interface Builder<Self : Builder<Self>> {
@@ -94,7 +102,7 @@ public interface Thing {
 }
 
 /**
- * A generic implementation of [Thing].
+ * An abstract implementation of [Thing].
  *
  * Allows for extension like:
  * ```kt
@@ -102,7 +110,7 @@ public interface Thing {
  *   thing: Thing,
  *   val foo: String,
  *   val bars: List<Int>,
- * ) : GenericThing<
+ * ) : AbstractThing<
  *   MyThing,
  *   MyThing.Builder
  * >(thing) {
@@ -120,17 +128,17 @@ public interface Thing {
  *   }
  *
  *   class Builder :
- *     GenericThing.Builder<
+ *     AbstractThing.Builder<
  *       Builder,
  *       MyThing> {...}
  * }
  * ```
  *
- * Also see [GenericThing.Builder].
+ * Also see [AbstractThing.Builder].
  */
 @Suppress("UNCHECKED_CAST")
-public abstract class GenericThing<
-  Self : GenericThing<Self, Builder>, Builder : GenericThing.Builder<Builder, Self>>
+public abstract class AbstractThing<
+  Self : AbstractThing<Self, Builder>, Builder : AbstractThing.Builder<Builder, Self>>
 internal constructor(
   public final override val disambiguatingDescription: DisambiguatingDescription?,
   public final override val identifier: String?,
@@ -196,12 +204,12 @@ internal constructor(
   }
 
   /**
-   * A generic implementation of [Thing.Builder].
+   * An abstract implementation of [Thing.Builder].
    *
    * Allows for extension like:
    * ```kt
    * class MyThing :
-   *   : GenericThing<
+   *   : AbstractThing<
    *     MyThing,
    *     MyThing.Builder>(...) {
    *
@@ -244,10 +252,10 @@ internal constructor(
    * }
    * ```
    *
-   * Also see [GenericThing].
+   * Also see [AbstractThing].
    */
   @Suppress("StaticFinalBuilder")
-  public abstract class Builder<Self : Builder<Self, Built>, Built : GenericThing<Built, Self>> :
+  public abstract class Builder<Self : Builder<Self, Built>, Built : AbstractThing<Built, Self>> :
     Thing.Builder<Self> {
     /**
      * Human readable name for the concrete [Self] class.
@@ -336,7 +344,7 @@ internal constructor(
   }
 }
 
-internal class ThingImpl : GenericThing<ThingImpl, ThingImpl.Builder> {
+internal class ThingImpl : AbstractThing<ThingImpl, ThingImpl.Builder> {
   protected override val selfTypeName: String
     get() = "Thing"
 
@@ -353,7 +361,7 @@ internal class ThingImpl : GenericThing<ThingImpl, ThingImpl.Builder> {
 
   protected override fun toBuilderWithAdditionalPropertiesOnly(): Builder = Builder()
 
-  internal class Builder : GenericThing.Builder<Builder, ThingImpl>() {
+  internal class Builder : AbstractThing.Builder<Builder, ThingImpl>() {
     protected override val selfTypeName: String
       get() = "Thing.Builder"
 

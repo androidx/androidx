@@ -36,10 +36,14 @@ import kotlin.jvm.JvmStatic
  * See http://schema.googleapis.com/Timer for context.
  *
  * Should not be directly implemented. More properties may be added over time. Instead consider
- * using [Companion.Builder] or see [GenericTimer] if you need to extend this type.
+ * using [Companion.Builder] or see [AbstractTimer] if you need to extend this type.
  */
 public interface Timer : Thing {
-  /** The duration of the item (movie, audio recording, event, etc.). */
+  /**
+   * The duration of the item (movie, audio recording, event, etc.).
+   *
+   * See http://schema.org/duration for more context.
+   */
   public val duration: Duration?
 
   /** Converts this [Timer] to its builder with all the properties copied over. */
@@ -54,7 +58,7 @@ public interface Timer : Thing {
    * Builder for [Timer].
    *
    * Should not be directly implemented. More methods may be added over time. See
-   * [GenericTimer.Builder] if you need to extend this builder.
+   * [AbstractTimer.Builder] if you need to extend this builder.
    */
   public interface Builder<Self : Builder<Self>> : Thing.Builder<Self> {
     /** Returns a built [Timer]. */
@@ -66,7 +70,7 @@ public interface Timer : Thing {
 }
 
 /**
- * A generic implementation of [Timer].
+ * An abstract implementation of [Timer].
  *
  * Allows for extension like:
  * ```kt
@@ -74,7 +78,7 @@ public interface Timer : Thing {
  *   timer: Timer,
  *   val foo: String,
  *   val bars: List<Int>,
- * ) : GenericTimer<
+ * ) : AbstractTimer<
  *   MyTimer,
  *   MyTimer.Builder
  * >(timer) {
@@ -92,17 +96,17 @@ public interface Timer : Thing {
  *   }
  *
  *   class Builder :
- *     GenericTimer.Builder<
+ *     AbstractTimer.Builder<
  *       Builder,
  *       MyTimer> {...}
  * }
  * ```
  *
- * Also see [GenericTimer.Builder].
+ * Also see [AbstractTimer.Builder].
  */
 @Suppress("UNCHECKED_CAST")
-public abstract class GenericTimer<
-  Self : GenericTimer<Self, Builder>, Builder : GenericTimer.Builder<Builder, Self>>
+public abstract class AbstractTimer<
+  Self : AbstractTimer<Self, Builder>, Builder : AbstractTimer.Builder<Builder, Self>>
 internal constructor(
   public final override val duration: Duration?,
   public final override val disambiguatingDescription: DisambiguatingDescription?,
@@ -174,12 +178,12 @@ internal constructor(
   }
 
   /**
-   * A generic implementation of [Timer.Builder].
+   * An abstract implementation of [Timer.Builder].
    *
    * Allows for extension like:
    * ```kt
    * class MyTimer :
-   *   : GenericTimer<
+   *   : AbstractTimer<
    *     MyTimer,
    *     MyTimer.Builder>(...) {
    *
@@ -222,10 +226,10 @@ internal constructor(
    * }
    * ```
    *
-   * Also see [GenericTimer].
+   * Also see [AbstractTimer].
    */
   @Suppress("StaticFinalBuilder")
-  public abstract class Builder<Self : Builder<Self, Built>, Built : GenericTimer<Built, Self>> :
+  public abstract class Builder<Self : Builder<Self, Built>, Built : AbstractTimer<Built, Self>> :
     Timer.Builder<Self> {
     /**
      * Human readable name for the concrete [Self] class.
@@ -325,7 +329,7 @@ internal constructor(
   }
 }
 
-internal class TimerImpl : GenericTimer<TimerImpl, TimerImpl.Builder> {
+internal class TimerImpl : AbstractTimer<TimerImpl, TimerImpl.Builder> {
   protected override val selfTypeName: String
     get() = "Timer"
 
@@ -343,7 +347,7 @@ internal class TimerImpl : GenericTimer<TimerImpl, TimerImpl.Builder> {
 
   protected override fun toBuilderWithAdditionalPropertiesOnly(): Builder = Builder()
 
-  internal class Builder : GenericTimer.Builder<Builder, TimerImpl>() {
+  internal class Builder : AbstractTimer.Builder<Builder, TimerImpl>() {
     protected override val selfTypeName: String
       get() = "Timer.Builder"
 
