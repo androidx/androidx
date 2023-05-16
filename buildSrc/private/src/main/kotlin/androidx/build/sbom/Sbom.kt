@@ -18,6 +18,7 @@ package androidx.build.sbom
 
 import androidx.build.BundleInsideHelper
 import androidx.build.GMavenZipTask
+import androidx.build.addToBuildOnServer
 import androidx.build.getPrebuiltsRoot
 import androidx.build.getSupportRootFolder
 import androidx.build.gitclient.MultiGitClient
@@ -279,6 +280,7 @@ fun Project.configureSbomPublishing() {
 
             target.getConfigurations().set(sbomConfigurations)
         }
+        project.addToBuildOnServer(tasks.named("spdxSbomForRelease"))
     }
 }
 

@@ -1308,3 +1308,5 @@ Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\
 Info: Unexpected error while reading androidx\.compose\.ui\.inspection\.compose\.ComposeExtensionsKt\$flatten\$[0-9]+'s kotlin\.Metadata: null
 Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.KClassImpl\$Data\$qualifiedName\$[0-9]+'s kotlin\.Metadata: null
 Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.KCallableImpl's kotlin\.Metadata: null
+# b/271306193 remove after aosp/2589888 :emoji:emoji:spdxSbomForRelease
+spdx sboms require a version but project: noto\-emoji\-compat\-flatbuffers has no specified version
