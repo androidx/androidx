@@ -16,14 +16,15 @@
 
 package androidx.kruth
 
-import kotlin.test.fail
-
 /**
  * Propositions for [Comparable] typed subjects.
  *
  * @param T the type of the object being tested by this [ComparableSubject]
  */
-open class ComparableSubject<T : Comparable<T>> constructor(actual: T?) : Subject<T>(actual) {
+open class ComparableSubject<T : Comparable<T>> internal constructor(
+    actual: T?,
+    metadata: FailureMetadata = FailureMetadata(),
+) : Subject<T>(actual = actual, metadata = metadata) {
 
     /**
      * Checks that the subject is less than [other].
@@ -31,10 +32,11 @@ open class ComparableSubject<T : Comparable<T>> constructor(actual: T?) : Subjec
      * @throws NullPointerException if [actual] or [other] is `null`.
      */
     fun isLessThan(other: T?) {
-        if (actual == null || other == null) {
-            throw NullPointerException("Expected to be less than $other, but was $actual")
-        } else if (actual >= other) {
-            fail("Expected to be less than $other, but was $actual")
+        requireNonNull(actual) { "Expected to be less than $other, but was $actual" }
+        requireNonNull(other) { "Expected to be less than $other, but was $actual" }
+
+        if (actual >= other) {
+            asserter.fail("Expected to be less than $other, but was $actual")
         }
     }
 
@@ -47,7 +49,7 @@ open class ComparableSubject<T : Comparable<T>> constructor(actual: T?) : Subjec
         requireNonNull(actual) { "Expected to be at least $other, but was $actual" }
         requireNonNull(other) { "Expected to be at least $other, but was $actual" }
         if (actual < other) {
-            fail("Expected to be at least $other, but was $actual")
+            asserter.fail("Expected to be at least $other, but was $actual")
         }
     }
 }

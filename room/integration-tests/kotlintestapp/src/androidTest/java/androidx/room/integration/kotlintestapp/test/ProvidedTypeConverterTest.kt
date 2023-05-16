@@ -16,6 +16,8 @@
 package androidx.room.integration.kotlintestapp.test
 
 import android.content.Context
+import androidx.kruth.assertThat
+import androidx.kruth.assertWithMessage
 import androidx.room.Database
 import androidx.room.Entity
 import androidx.room.Insert
@@ -38,12 +40,10 @@ import androidx.room.integration.kotlintestapp.vo.Toy
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
-import com.google.common.truth.Truth.assertThat
 import java.nio.ByteBuffer
 import java.util.Date
 import java.util.Objects
 import java.util.UUID
-import org.junit.Assert
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -75,9 +75,9 @@ class ProvidedTypeConverterTest {
             val pet: Pet = TestUtil.createPet(3)
             pet.mName = "pet"
             db.petDao().insertOrReplace(pet)
-            Assert.fail("Show have thrown an IllegalArgumentException")
+            assertWithMessage("Show have thrown an IllegalArgumentException").fail()
         } catch (throwable: Throwable) {
-            assertThat(throwable).isInstanceOf(IllegalArgumentException::class.java)
+            assertThat(throwable).isInstanceOf<IllegalArgumentException>()
         }
     }
 
@@ -91,9 +91,9 @@ class ProvidedTypeConverterTest {
             val pet: Pet = TestUtil.createPet(3)
             pet.mName = "pet"
             db.petDao().insertOrReplace(pet)
-            Assert.fail("Show have thrown an IllegalArgumentException")
+            assertWithMessage("Show have thrown an IllegalArgumentException").fail()
         } catch (throwable: Throwable) {
-            assertThat(throwable).isInstanceOf(IllegalArgumentException::class.java)
+            assertThat(throwable).isInstanceOf<IllegalArgumentException>()
         }
     }
 
