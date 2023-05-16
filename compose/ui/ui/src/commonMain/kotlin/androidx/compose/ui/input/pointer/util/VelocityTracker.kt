@@ -16,10 +16,14 @@
 
 package androidx.compose.ui.input.pointer.util
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.changedToDownIgnoreConsumed
+import androidx.compose.ui.input.pointer.changedToUpIgnoreConsumed
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.util.fastForEach
 import kotlin.math.abs
@@ -49,6 +53,7 @@ class VelocityTracker {
     private val yVelocityTracker = VelocityTracker1D() // non-differential, Lsq2 1D velocity tracker
 
     internal var currentPointerPositionAccumulator = Offset.Zero
+    internal var lastMoveEventTimeStamp = 0L
 
     /**
      * Adds a position at the given time to the tracker.
@@ -152,6 +157,7 @@ class VelocityTracker1D internal constructor(
          */
         Impulse,
     }
+
     // Circular buffer; current sample at index.
     private val samples: Array<DataPointAtTime?> = arrayOfNulls(HistorySize)
     private var index: Int = 0
@@ -223,6 +229,7 @@ class VelocityTracker1D internal constructor(
                 Strategy.Impulse -> {
                     calculateImpulseVelocity(dataPoints, time, sampleCount, isDataDifferential)
                 }
+
                 Strategy.Lsq2 -> {
                     calculateLeastSquaresVelocity(dataPoints, time, sampleCount)
                 }
@@ -300,7 +307,16 @@ private fun Array<DataPointAtTime?>.set(index: Int, time: Long, dataPoint: Float
  *
  * @param event Pointer change to track.
  */
+@OptIn(ExperimentalComposeUiApi::class)
 fun VelocityTracker.addPointerInputChange(event: PointerInputChange) {
+    if (VelocityTrackerAddPointsFix) {
+        addPointerInputChangeWithFix(event)
+    } else {
+        addPointerInputChangeLegacy(event)
+    }
+}
+
+private fun VelocityTracker.addPointerInputChangeLegacy(event: PointerInputChange) {
 
     // Register down event as the starting point for the accumulator
     if (event.changedToDownIgnoreConsumed()) {
@@ -333,6 +349,48 @@ fun VelocityTracker.addPointerInputChange(event: PointerInputChange) {
     val delta = event.position - previousPointerPosition
     currentPointerPositionAccumulator += delta
     addPosition(event.uptimeMillis, currentPointerPositionAccumulator)
+}
+
+private fun VelocityTracker.addPointerInputChangeWithFix(event: PointerInputChange) {
+    // If this is ACTION_DOWN: Register down event as the starting point for the accumulator
+    // Since compose uses relative positions, for a more accurate velocity calculation we'll need
+    // to transform all events positions. We use the start of the movement signaled by the DOWN
+    // event as the start point. Any subsequent event will be accumulated into
+    // [currentPointerPositionAccumulator] and used to update the tracker.
+    // We also use this to reset [lastMoveEventTimeStamp].
+    if (event.changedToDownIgnoreConsumed()) {
+        lastMoveEventTimeStamp = 0L
+        currentPointerPositionAccumulator = event.position
+        resetTracking()
+        return
+    }
+
+    // If this is a ACTION_MOVE event: Add events to the tracker as per the platform implementation.
+    // ACTION_MOVE may or may not have a historical array. If they do have a historical array, use
+    // the data provided by the array only, if they do not have historical data, use the data
+    // provided by the event itself. This is in line with the platform implementation.
+    @OptIn(ExperimentalComposeUiApi::class)
+    if (!event.changedToUpIgnoreConsumed() && !event.changedToDownIgnoreConsumed()) {
+        lastMoveEventTimeStamp = event.uptimeMillis
+        if (event.historical.isEmpty()) {
+            val delta = event.position - currentPointerPositionAccumulator
+            currentPointerPositionAccumulator += delta
+            addPosition(event.uptimeMillis, currentPointerPositionAccumulator)
+        } else {
+            event.historical.fastForEach {
+                val historicalDelta = it.position - currentPointerPositionAccumulator
+                // Update the current position with the historical delta and add it to the tracker
+                currentPointerPositionAccumulator += historicalDelta
+                addPosition(it.uptimeMillis, currentPointerPositionAccumulator)
+            }
+        }
+    }
+
+    // If this is ACTION_UP. Fix for b/238654963. If there's been enough time after the last MOVE
+    // event, reset the tracker.
+    if (event.changedToUpIgnoreConsumed() && (event.uptimeMillis - lastMoveEventTimeStamp) > 40L) {
+        resetTracking()
+    }
 }
 
 internal data class DataPointAtTime(var time: Long, var dataPoint: Float)
@@ -555,8 +613,8 @@ private fun calculateImpulseVelocity(
             return 0f
         }
         val dataPointsDelta =
-            // For differential data ponits, each measurement reflects the amount of change in the
-            // subject's position. However, the first sample is discarded in computation because we
+        // For differential data ponits, each measurement reflects the amount of change in the
+        // subject's position. However, the first sample is discarded in computation because we
             // don't know the time duration over which this change has occurred.
             if (isDataDifferential) dataPoints[0]
             else dataPoints[0] - dataPoints[1]
@@ -615,3 +673,16 @@ private inline operator fun Matrix.get(row: Int, col: Int): Float = this[row][co
 private inline operator fun Matrix.set(row: Int, col: Int, value: Float) {
     this[row][col] = value
 }
+
+/**
+ * A flag to indicate that we'll use the fix of how we add points to the velocity tracker.
+ *
+ * This flag will be removed by 1.6 beta01. If you find any issues with the new fix, flip this
+ * flag to false to confirm they are newly introduced then file a bug.
+ */
+@Suppress("GetterSetterNames", "OPT_IN_MARKER_ON_WRONG_TARGET")
+@get:Suppress("GetterSetterNames")
+@get:ExperimentalComposeUiApi
+@set:ExperimentalComposeUiApi
+@ExperimentalComposeUiApi
+var VelocityTrackerAddPointsFix: Boolean by mutableStateOf(false)
