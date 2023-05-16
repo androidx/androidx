@@ -116,6 +116,7 @@ package androidx.wear.protolayout.material {
     method public androidx.wear.protolayout.material.CircularProgressIndicator.Builder setContentDescription(androidx.wear.protolayout.TypeBuilders.StringProp);
     method public androidx.wear.protolayout.material.CircularProgressIndicator.Builder setContentDescription(CharSequence);
     method public androidx.wear.protolayout.material.CircularProgressIndicator.Builder setEndAngle(float);
+    method public androidx.wear.protolayout.material.CircularProgressIndicator.Builder setProgress(androidx.wear.protolayout.TypeBuilders.FloatProp);
     method public androidx.wear.protolayout.material.CircularProgressIndicator.Builder setProgress(@FloatRange(from=0, to=1) float);
     method public androidx.wear.protolayout.material.CircularProgressIndicator.Builder setStartAngle(float);
     method public androidx.wear.protolayout.material.CircularProgressIndicator.Builder setStrokeWidth(androidx.wear.protolayout.DimensionBuilders.DpProp);
