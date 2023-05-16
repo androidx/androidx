@@ -34,6 +34,9 @@ dependencies {
 
 android {
     namespace "androidx.appactions.builtintypes.core"
+    defaultConfig {
+        minSdkVersion 26
+    }
 }
 
 tasks.withType(KotlinCompile).configureEach {

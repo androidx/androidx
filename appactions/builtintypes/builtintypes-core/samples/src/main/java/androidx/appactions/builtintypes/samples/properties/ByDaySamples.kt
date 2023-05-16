@@ -14,18 +14,19 @@
 package androidx.appactions.builtintypes.samples.properties
 
 import androidx.`annotation`.Sampled
-import androidx.appactions.builtintypes.properties.Description
+import androidx.appactions.builtintypes.properties.ByDay
+import androidx.appactions.builtintypes.types.DayOfWeek
 import kotlin.String
 
 @Sampled
-public fun descriptionMapWhenUsage(description: Description) =
-  description.mapWhen(
-    object : Description.Mapper<String> {
+public fun byDayMapWhenUsage(byDay: ByDay) =
+  byDay.mapWhen(
+    object : ByDay.Mapper<String> {
       public override fun text(instance: String): String = """Got String: $instance"""
 
-      public override fun canonicalValue(instance: Description.CanonicalValue): String =
-        """Got a canonical value for Description: $instance"""
+      public override fun dayOfWeek(instance: DayOfWeek): String =
+        """Got enum DayOfWeek: $instance"""
 
-      public override fun orElse(): String = """Got some unrecognized variant: $description"""
+      public override fun orElse(): String = """Got some unrecognized variant: $byDay"""
     }
   )

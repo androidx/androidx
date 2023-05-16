@@ -47,7 +47,9 @@ class ExtensionTest {
       }
 
       fun setFoo(foo: String?) = apply { this.foo = foo }
+
       fun addBar(bar: Int) = apply { bars += bar }
+
       fun addBars(values: Iterable<Int>) = apply { bars += values }
     }
   }
