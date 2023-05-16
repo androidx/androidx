@@ -18,7 +18,7 @@ package androidx.car.app.model;
 
 import androidx.car.app.IOnDoneCallback;
 
-/** @hide */
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 oneway interface ISearchCallback {
   void onSearchTextChanged(String text, IOnDoneCallback callback) = 1;
   void onSearchSubmitted(String text, IOnDoneCallback callback) = 2;

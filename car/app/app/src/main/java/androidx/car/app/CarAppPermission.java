@@ -25,6 +25,7 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
 import androidx.annotation.StringDef;
 
 import java.lang.annotation.Retention;
@@ -37,8 +38,8 @@ public final class CarAppPermission {
     /**
      * Defines which permissions are ones defined by the car app library.
      *
-     * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     @StringDef(value = {ACCESS_SURFACE, NAVIGATION_TEMPLATES})
     @Retention(RetentionPolicy.SOURCE)
     public @interface LibraryPermission {

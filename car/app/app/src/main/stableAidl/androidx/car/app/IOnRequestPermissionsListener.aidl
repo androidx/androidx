@@ -21,9 +21,8 @@ package androidx.car.app;
  *
  * <p>This listener is sent between the {@link CarAppService} and {@link CarAppPermissionActivity}
  * and therefore runs entirely on the client process.
- *
- * @hide
  */
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 interface IOnRequestPermissionsListener {
     /**
      * Provides the permission request's results to the caller.

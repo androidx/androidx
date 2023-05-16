@@ -37,7 +37,6 @@ public final class Distance {
     /**
      * Possible units used to display {@link Distance}
      *
-     * @hide
      */
     @IntDef({
             UNIT_METERS,

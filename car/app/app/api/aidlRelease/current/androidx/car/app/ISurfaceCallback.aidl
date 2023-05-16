@@ -32,7 +32,7 @@
 // later when a module using the interface is updated, e.g., Mainline modules.
 
 package androidx.car.app;
-/* @hide */
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 interface ISurfaceCallback {
   oneway void onSurfaceAvailable(in androidx.car.app.serialization.Bundleable surfaceContainer, androidx.car.app.IOnDoneCallback callback) = 1;
   oneway void onVisibleAreaChanged(in android.graphics.Rect visibleArea, androidx.car.app.IOnDoneCallback callback) = 2;

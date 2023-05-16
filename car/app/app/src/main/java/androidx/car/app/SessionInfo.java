@@ -20,6 +20,7 @@ import static java.lang.annotation.RetentionPolicy.SOURCE;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.Template;
@@ -54,9 +55,7 @@ public class SessionInfo {
     private static final ImmutableSet<Class<? extends Template>>
             CLUSTER_SUPPORTED_TEMPLATES_LESS_THAN_API_6 = ImmutableSet.of();
 
-    /**
-     * @hide
-     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef({DISPLAY_TYPE_MAIN, DISPLAY_TYPE_CLUSTER})
     @Retention(SOURCE)
     public @interface DisplayType {

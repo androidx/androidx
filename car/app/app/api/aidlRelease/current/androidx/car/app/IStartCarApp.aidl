@@ -32,7 +32,7 @@
 // later when a module using the interface is updated, e.g., Mainline modules.
 
 package androidx.car.app;
-/* @hide */
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 interface IStartCarApp {
   void startCarApp(in android.content.Intent startCarAppIntent) = 1;
 }

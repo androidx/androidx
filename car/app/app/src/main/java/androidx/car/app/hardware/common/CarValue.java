@@ -47,7 +47,6 @@ public final class CarValue<T> {
      * Defines the possible status codes when trying to access car hardware properties, sensors,
      * and actions.
      *
-     * @hide
      */
     @IntDef({
             STATUS_UNKNOWN,
@@ -106,35 +105,27 @@ public final class CarValue<T> {
         return new CarValue<>(null, 0, CarValue.STATUS_UNKNOWN);
     }
 
-    /** @hide */
     @RestrictTo(LIBRARY)
     public static final CarValue<Integer> UNIMPLEMENTED_INTEGER = unimplemented();
 
-    /** @hide */
     @RestrictTo(LIBRARY)
     public static final CarValue<Integer> UNKNOWN_INTEGER = unknown();
 
-    /** @hide */
     @RestrictTo(LIBRARY)
     public static final CarValue<Boolean> UNKNOWN_BOOLEAN = unknown();
 
-    /** @hide */
     @RestrictTo(LIBRARY)
     public static final CarValue<Float> UNKNOWN_FLOAT = unknown();
 
-    /** @hide */
     @RestrictTo(LIBRARY)
     public static final CarValue<String> UNKNOWN_STRING = unknown();
 
-    /** @hide */
     @RestrictTo(LIBRARY)
     public static final CarValue<List<Float>> UNIMPLEMENTED_FLOAT_LIST = unimplemented();
 
-    /** @hide */
     @RestrictTo(LIBRARY)
     public static final CarValue<List<Float>> UNKNOWN_FLOAT_LIST = unknown();
 
-    /** @hide */
     @RestrictTo(LIBRARY)
     public static final CarValue<List<Integer>> UNKNOWN_INTEGER_LIST = unknown();
 

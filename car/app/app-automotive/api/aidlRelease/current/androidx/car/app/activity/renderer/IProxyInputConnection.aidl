@@ -32,7 +32,7 @@
 // later when a module using the interface is updated, e.g., Mainline modules.
 
 package androidx.car.app.activity.renderer;
-/* @hide */
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 interface IProxyInputConnection {
   CharSequence getTextBeforeCursor(int length, int flags) = 1;
   CharSequence getTextAfterCursor(int length, int flags) = 2;

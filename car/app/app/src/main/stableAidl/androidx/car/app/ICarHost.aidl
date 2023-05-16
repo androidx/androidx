@@ -18,7 +18,7 @@ package androidx.car.app;
 
 import android.content.Intent;
 
-/** @hide */
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 interface ICarHost {
   /**
    * Starts a car app on the car screen.

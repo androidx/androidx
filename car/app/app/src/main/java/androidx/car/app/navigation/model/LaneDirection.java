@@ -44,7 +44,6 @@ public final class LaneDirection{
     /**
      * Turn amount and direction.
      *
-     * @hide
      */
     @IntDef({
             SHAPE_UNKNOWN,
