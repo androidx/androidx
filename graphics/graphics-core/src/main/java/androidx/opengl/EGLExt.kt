@@ -20,6 +20,7 @@ import android.opengl.EGLDisplay
 import android.os.Build
 import androidx.annotation.IntDef
 import androidx.annotation.RequiresApi
+import androidx.annotation.RestrictTo
 import androidx.graphics.opengl.egl.EGLConfigAttributes
 import androidx.hardware.SyncFenceCompat
 import androidx.hardware.SyncFenceV19
@@ -204,9 +205,8 @@ class EGLExt private constructor() {
 
         /**
          * Specifies the types of attributes that can be queried in [eglGetSyncAttribKHR]
-         *
-         * @hide
          */
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
         @Suppress("AcronymName")
         @IntDef(value = [EGL_SYNC_TYPE_KHR, EGL_SYNC_STATUS_KHR, EGL_SYNC_CONDITION_KHR])
         annotation class EGLSyncAttribute
@@ -263,9 +263,8 @@ class EGLExt private constructor() {
 
         /**
          * Specifies the type of fence to create in [eglCreateSyncKHR]
-         *
-         * @hide
          */
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
         @Suppress("AcronymName")
         @IntDef(value = [EGL_SYNC_FENCE_KHR, EGL_SYNC_NATIVE_FENCE_ANDROID])
         annotation class EGLFenceType
@@ -311,9 +310,8 @@ class EGLExt private constructor() {
 
         /**
          * Specifies various return values for the [eglClientWaitSyncKHR] method
-         *
-         * @hide
          */
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
         @Target(AnnotationTarget.TYPE)
         @Suppress("AcronymName")
         @IntDef(value = [EGL_CONDITION_SATISFIED_KHR, EGL_TIMEOUT_EXPIRED_KHR, EGL_FALSE])
