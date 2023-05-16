@@ -20,4 +20,13 @@
         <attr name="startViewId" format="reference" />
         <attr name="endViewId" format="reference" />
     </declare-styleable>
+
+    <declare-styleable name="WindowStateView">
+        <attr name="title" format="string" />
+        <attr name="hidePrevConfig" format="boolean" />
+    </declare-styleable>
+
+    <declare-styleable name="WindowStateConfigView">
+        <attr name="configName" format="string" />
+    </declare-styleable>
 </resources>

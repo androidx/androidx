@@ -248,6 +248,20 @@
             android:taskAffinity="androidx.window.demo.split_ime">
         </activity>
 
+        <!-- The demo app to show display configuration from different system callbacks. -->
+
+        <activity
+            android:name=".coresdk.WindowStateCallbackActivity"
+            android:exported="true"
+            android:label="Window State Callbacks"
+            android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout|colorMode|density|touchscreen"
+            android:taskAffinity="androidx.window.demo.window_state_callback">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
         <!-- Activity embedding initializer -->
 
         <provider android:name="androidx.startup.InitializationProvider"
