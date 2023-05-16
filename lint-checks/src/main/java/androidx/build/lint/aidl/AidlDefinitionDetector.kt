@@ -31,7 +31,6 @@ import com.android.tools.lint.detector.api.OtherFileScanner
 import com.android.tools.lint.detector.api.Scope
 import com.intellij.core.CoreFileTypeRegistry
 import com.intellij.lang.LanguageParserDefinitions
-import com.intellij.openapi.fileTypes.UnknownFileType
 import com.intellij.openapi.vfs.local.CoreLocalFileSystem
 import com.intellij.psi.PsiManager
 import com.intellij.psi.SingleRootFileViewProvider
@@ -45,26 +44,31 @@ abstract class AidlDefinitionDetector : Detector(), OtherFileScanner {
     override fun getApplicableFiles() = Scope.OTHER_SCOPE
 
     override fun beforeCheckEachProject(context: Context) {
-        val aidlFileType = AidlFileType.INSTANCE
+        // Neither LanguageParserDefinitions nor CoreFileTypeRegistry are thread-safe, so this is a
+        // best-effort to avoid a race condition during our own access across multiple lint worker
+        // threads.
+        synchronized(intellijCoreLock) {
+            val aidlFileType = AidlFileType.INSTANCE
 
-        // We only need to register the language parser once per daemon process...
-        LanguageParserDefinitions.INSTANCE.apply {
-            synchronized(this) {
-                val existingParsers = forLanguage(aidlFileType.language)
-                if (existingParsers == null) {
-                    addExplicitExtension(aidlFileType.language, AidlParserDefinition())
+            // When we run from CLI, the IntelliJ parser (which does not support lexing AIDL) will
+            // already be set. Only the first parser will be used, so we need to remove that parser
+            // before we add our own.
+            val languageParserDefinitions = LanguageParserDefinitions.INSTANCE
+            languageParserDefinitions.apply {
+                allForLanguage(aidlFileType.language).forEach { parser ->
+                    removeExplicitExtension(aidlFileType.language, parser)
                 }
+                addExplicitExtension(aidlFileType.language, AidlParserDefinition())
             }
-        }
 
-        // ...but we need to register the file type every time we run Gradle.
-        (CoreFileTypeRegistry.getInstance() as CoreFileTypeRegistry).apply {
-            synchronized(this) {
-                val existingFileType = getFileTypeByExtension(aidlFileType.defaultExtension)
-                if (existingFileType == UnknownFileType.INSTANCE) {
-                    registerFileType(aidlFileType, aidlFileType.defaultExtension)
-                }
-            }
+            // Register our parser for the AIDL file type. Files may be registered more than once to
+            // overwrite the associated extension, but only the first call to `registerFileType`
+            // will associate the file with the name returned by `FileType.getName()`.
+            val coreFileTypeRegistry = CoreFileTypeRegistry.getInstance() as CoreFileTypeRegistry
+            coreFileTypeRegistry.registerFileType(
+                aidlFileType,
+                aidlFileType.defaultExtension
+            )
         }
     }
 
@@ -135,3 +139,9 @@ fun AidlDeclaration.getLocation() = Location.create(
     textRange.startOffset,
     textRange.endOffset
 )
+
+/**
+ * Lock object used to synchronize access to IntelliJ registries which are not thread-safe,
+ * including [LanguageParserDefinitions] and [CoreFileTypeRegistry].
+ */
+private val intellijCoreLock = Any()
