@@ -23,15 +23,8 @@ import com.google.gson.JsonObject
 import com.google.gson.stream.JsonWriter
 import groovy.util.Node
 import java.io.File
-import java.io.StringReader
 import java.io.StringWriter
-import java.util.StringTokenizer
-import org.apache.xerces.jaxp.SAXParserImpl.JAXPSAXParser
-import org.dom4j.Document
-import org.dom4j.DocumentException
-import org.dom4j.DocumentFactory
 import org.dom4j.Element
-import org.dom4j.io.SAXReader
 import org.dom4j.io.XMLWriter
 import org.gradle.api.GradleException
 import org.gradle.api.Project
@@ -56,8 +49,6 @@ import org.gradle.kotlin.dsl.findByType
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinMultiplatformPluginWrapper
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinAndroidTarget
-import org.xml.sax.InputSource
-import org.xml.sax.XMLReader
 
 fun Project.configureMavenArtifactUpload(
     extension: AndroidXExtension,
@@ -213,11 +204,7 @@ private fun Project.configureComponentPublishing(
 fun sortPomDependencies(pom: String): String {
     // Workaround for using the default namespace in dom4j.
     val namespaceUris = mapOf("ns" to "http://maven.apache.org/POM/4.0.0")
-    val docFactory = DocumentFactory()
-    docFactory.xPathNamespaceURIs = namespaceUris
-    // Ensure that we're consistently using JAXP parser.
-    val xmlReader = JAXPSAXParser()
-    val document = parseText(docFactory, xmlReader, pom)
+    val document = parseXml(pom, namespaceUris)
 
     // For each <dependencies> element, sort the contained elements in-place.
     document.rootElement
@@ -251,47 +238,6 @@ fun sortPomDependencies(pom: String): String {
     }
 
     return stringWriter.toString()
-}
-
-// Coped from org.dom4j.DocumentHelper with modifications to allow SAXReader configuration.
-@Throws(DocumentException::class)
-fun parseText(
-    documentFactory: DocumentFactory,
-    xmlReader: XMLReader,
-    text: String,
-): Document {
-    val reader = SAXReader.createDefault()
-    reader.documentFactory = documentFactory
-    reader.xmlReader = xmlReader
-    val encoding = getEncoding(text)
-    val source = InputSource(StringReader(text))
-    source.encoding = encoding
-    val result = reader.read(source)
-    if (result.xmlEncoding == null) {
-        result.xmlEncoding = encoding
-    }
-    return result
-}
-
-// Coped from org.dom4j.DocumentHelper.
-private fun getEncoding(text: String): String? {
-    var result: String? = null
-    val xml = text.trim { it <= ' ' }
-    if (xml.startsWith("<?xml")) {
-        val end = xml.indexOf("?>")
-        val sub = xml.substring(0, end)
-        val tokens = StringTokenizer(sub, " =\"'")
-        while (tokens.hasMoreTokens()) {
-            val token = tokens.nextToken()
-            if ("encoding" == token) {
-                if (tokens.hasMoreTokens()) {
-                    result = tokens.nextToken()
-                }
-                break
-            }
-        }
-    }
-    return result
 }
 
 /**

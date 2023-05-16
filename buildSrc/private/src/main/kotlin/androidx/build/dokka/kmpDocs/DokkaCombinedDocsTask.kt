@@ -20,7 +20,6 @@ import androidx.build.dokka.kmpDocs.DokkaInputModels.MergeDocsInputs
 import androidx.build.dokka.kmpDocs.DokkaInputModels.Module
 import androidx.build.dokka.kmpDocs.DokkaInputModels.PluginsConfiguration
 import androidx.build.dokka.kmpDocs.DokkaUtils.COMBINE_PLUGIN_LIBRARIES
-import androidx.build.getSupportRootFolder
 import androidx.build.gitclient.GitClient
 import javax.inject.Inject
 import org.gradle.api.DefaultTask
@@ -207,7 +206,7 @@ internal abstract class DokkaCombinedDocsTask @Inject constructor(
                 val gitClient = GitClient.forProject(project)
                 it.replacementUrl.set(
                     DokkaUtils.createCsAndroidUrl(
-                        gitClient.getHeadSha(project.getSupportRootFolder())
+                        gitClient.getHeadSha()
                     )
                 )
             }
