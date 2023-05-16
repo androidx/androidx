@@ -59,6 +59,12 @@ class ScannerViewModel : ViewModel() {
         return NEW_DEVICE
     }
 
+    fun remove(scanResult: ScanResult) {
+        val deviceConnection = _devices.find { it.scanResult == scanResult }
+
+        _devices.remove(deviceConnection)
+    }
+
     fun deviceConnection(position: Int): DeviceConnection {
         // Index 0 is Results page; Tabs for devices start from 1.
         return devices.elementAt(position - 1)
