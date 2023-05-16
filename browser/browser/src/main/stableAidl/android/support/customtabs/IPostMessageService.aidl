@@ -22,8 +22,8 @@ import android.support.customtabs.ICustomTabsCallback;
 
 /**
  * Interface to a PostMessageService.
- * @hide
  */
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 interface IPostMessageService {
     void onMessageChannelReady(in ICustomTabsCallback callback, in Bundle extras) = 1;
     void onPostMessage(in ICustomTabsCallback callback, String message, in Bundle extras) = 2;
