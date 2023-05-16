@@ -70,9 +70,6 @@ abstract class AndroidXExtension(val project: Project) : ExtensionAware {
             spec.parameters.tomlFileContents = toml
             spec.parameters.composeCustomVersion = composeCustomVersion
             spec.parameters.composeCustomGroup = composeCustomGroup
-            spec.parameters.useMultiplatformGroupVersions = project.provider {
-                Multiplatform.isKotlinNativeEnabled(project)
-            }
         }.get()
         AllLibraryGroups = versionService.libraryGroups.values.toList()
         LibraryVersions = versionService.libraryVersions
@@ -101,28 +98,8 @@ abstract class AndroidXExtension(val project: Project) : ExtensionAware {
      * Maven version of the library.
      *
      * Note that, setting this is an error if the library group sets an atomic version.
-     * If the build is a multiplatform build, this value will be overridden by
-     * the [mavenMultiplatformVersion] property when it is provided.
-     *
-     * @see mavenMultiplatformVersion
      */
     var mavenVersion: Version? = null
-        set(value) {
-            field = value
-            chooseProjectVersion()
-        }
-        get() = if (versionService.useMultiplatformGroupVersions) {
-            mavenMultiplatformVersion ?: field
-        } else {
-            field
-        }
-
-    /**
-     * If set, this will override the [mavenVersion] property in multiplatform builds.
-     *
-     * @see mavenVersion
-     */
-    var mavenMultiplatformVersion: Version? = null
         set(value) {
             field = value
             chooseProjectVersion()
