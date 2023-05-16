@@ -37,6 +37,9 @@ package androidx.wear.watchface.complications.data {
     field public static final androidx.wear.watchface.complications.data.ComplicationDisplayPolicies INSTANCE;
   }
 
+  @kotlin.RequiresOptIn(message="This is an experimental API that may change or be removed without warning.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ComplicationExperimental {
+  }
+
   public final class ComplicationPersistencePolicies {
     field public static final int CACHING_ALLOWED = 0; // 0x0
     field public static final int DO_NOT_PERSIST = 1; // 0x1
