@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+ChangedType: androidx.hilt.navigation.fragment.HiltNavGraphViewModelLazyKt#hiltNavGraphViewModels(androidx.fragment.app.Fragment, int):
+    Method androidx.hilt.navigation.fragment.HiltNavGraphViewModelLazyKt.hiltNavGraphViewModels has changed return type from kotlin.Lazy<? extends VM> to kotlin.Lazy<VM>
