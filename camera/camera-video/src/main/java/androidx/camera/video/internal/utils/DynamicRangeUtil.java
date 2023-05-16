@@ -38,8 +38,11 @@ import static androidx.camera.core.impl.EncoderProfilesProxy.VideoProfileProxy.B
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+import androidx.camera.core.DynamicRange;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -83,5 +86,44 @@ public class DynamicRangeUtil {
         VP_TO_DR_FORMAT_MAP.put(HDR_HDR10, ENCODING_HDR10);
         VP_TO_DR_FORMAT_MAP.put(HDR_HDR10PLUS, ENCODING_HDR10_PLUS);
         VP_TO_DR_FORMAT_MAP.put(HDR_DOLBY_VISION, ENCODING_DOLBY_VISION);
+    }
+
+    /**
+     * Returns a set of possible HDR formats for the given {@link DynamicRange}.
+     *
+     * <p>The returned HDR formats are those defined in
+     * {@link android.media.EncoderProfiles.VideoProfile} prefixed with {@code HDR_}, such as
+     * {@link android.media.EncoderProfiles.VideoProfile#HDR_HLG}.
+     *
+     * <p>Returns an empty set if no HDR formats are supported for the provided dynamic range.
+     */
+    @NonNull
+    public static Set<Integer> dynamicRangeToVideoProfileHdrFormats(
+            @NonNull DynamicRange dynamicRange) {
+        Set<Integer> hdrFormats = DR_TO_VP_FORMAT_MAP.get(dynamicRange.getEncoding());
+        if (hdrFormats == null) {
+            hdrFormats = Collections.emptySet();
+        }
+        return hdrFormats;
+    }
+
+    /**
+     * Returns a set of possible bit depths for the given {@link DynamicRange}.
+     *
+     * <p>The returned bit depths are the defined in
+     * {@link androidx.camera.core.impl.EncoderProfilesProxy.VideoProfileProxy} prefixed with {@code
+     * BIT_DEPTH_}, such as
+     * {@link androidx.camera.core.impl.EncoderProfilesProxy.VideoProfileProxy#BIT_DEPTH_10}.
+     *
+     * <p>Returns an empty set if no bit depths are supported for the provided dynamic range.
+     */
+    @NonNull
+    public static Set<Integer> dynamicRangeToVideoProfileBitDepth(
+            @NonNull DynamicRange dynamicRange) {
+        Set<Integer> bitDepths = DR_TO_VP_BIT_DEPTH_MAP.get(dynamicRange.getBitDepth());
+        if (bitDepths == null) {
+            bitDepths = Collections.emptySet();
+        }
+        return bitDepths;
     }
 }
