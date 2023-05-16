@@ -44,6 +44,7 @@ import androidx.glance.appwidget.applyModifiers
 import androidx.glance.appwidget.insertView
 import androidx.glance.color.DayNightColorProvider
 import androidx.glance.findModifier
+import androidx.glance.isDecorative
 import androidx.glance.layout.ContentScale
 import androidx.glance.layout.HeightModifier
 import androidx.glance.layout.WidthModifier
@@ -55,15 +56,7 @@ internal fun RemoteViews.translateEmittableImage(
     translationContext: TranslationContext,
     element: EmittableImage
 ) {
-    val selector = when (element.contentScale) {
-        ContentScale.Crop -> LayoutType.ImageCrop
-        ContentScale.Fit -> LayoutType.ImageFit
-        ContentScale.FillBounds -> LayoutType.ImageFillBounds
-        else -> {
-            Log.w(GlanceAppWidgetTag, "Unsupported ContentScale user: ${element.contentScale}")
-            LayoutType.ImageFit
-        }
-    }
+    val selector = element.getLayoutSelector()
     val viewDef = insertView(translationContext, selector, element.modifier)
     when (val provider = element.provider) {
         is AndroidResourceImageProvider -> setImageViewResource(
@@ -87,6 +80,36 @@ internal fun RemoteViews.translateEmittableImage(
         (element.modifier.findModifier<WidthModifier>()?.width == Dimension.Wrap ||
             element.modifier.findModifier<HeightModifier>()?.height == Dimension.Wrap)
     setImageViewAdjustViewBounds(viewDef.mainViewId, shouldAdjustViewBounds)
+}
+
+private fun EmittableImage.getLayoutSelector(): LayoutType {
+    // Defaults to "decorative" if semantics / contentDescription is not set or contentDescription
+    // is null or empty.
+    val isDecorative = isDecorative()
+    return when (contentScale) {
+        ContentScale.Crop -> if (isDecorative) {
+            LayoutType.ImageCropDecorative
+        } else {
+            LayoutType.ImageCrop
+        }
+
+        ContentScale.Fit -> if (isDecorative) {
+            LayoutType.ImageFitDecorative
+        } else {
+            LayoutType.ImageFit
+        }
+
+        ContentScale.FillBounds -> if (isDecorative) {
+            LayoutType.ImageFillBoundsDecorative
+        } else {
+            LayoutType.ImageFillBounds
+        }
+
+        else -> {
+            Log.w(GlanceAppWidgetTag, "Unsupported ContentScale user: $contentScale")
+            LayoutType.ImageFit
+        }
+    }
 }
 
 private fun applyColorFilter(
