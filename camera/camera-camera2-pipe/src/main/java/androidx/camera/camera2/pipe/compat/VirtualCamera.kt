@@ -31,6 +31,7 @@ import androidx.camera.camera2.pipe.core.Debug
 import androidx.camera.camera2.pipe.core.DurationNs
 import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.core.SystemTimeSource
+import androidx.camera.camera2.pipe.core.Threads
 import androidx.camera.camera2.pipe.core.TimeSource
 import androidx.camera.camera2.pipe.core.TimestampNs
 import androidx.camera.camera2.pipe.core.Timestamps
@@ -248,6 +249,7 @@ internal class AndroidCameraState(
     private val timeSource: TimeSource,
     private val cameraErrorListener: CameraErrorListener,
     private val camera2DeviceCloser: Camera2DeviceCloser,
+    private val threads: Threads,
     private val interopDeviceStateCallback: CameraDevice.StateCallback? = null,
     private val interopSessionStateCallback: StateCallback? = null,
     private val interopExtensionSessionStateCallback: CameraExtensionSession.StateCallback? = null
@@ -347,7 +349,8 @@ internal class AndroidCameraState(
                     cameraId,
                     cameraErrorListener,
                     interopSessionStateCallback,
-                    interopExtensionSessionStateCallback
+                    interopExtensionSessionStateCallback,
+                    threads
                 )
             )
 

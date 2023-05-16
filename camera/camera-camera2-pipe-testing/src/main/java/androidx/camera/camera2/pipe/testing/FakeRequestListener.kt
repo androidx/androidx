@@ -37,7 +37,7 @@ import kotlinx.coroutines.flow.asSharedFlow
  * to be sent.
  */
 @Suppress("ListenerInterface")
-public class FakeRequestListener(private val replayBuffer: Int = 10) : Request.Listener {
+class FakeRequestListener(private val replayBuffer: Int = 10) : Request.Listener {
 
     private val _onStartedFlow = MutableSharedFlow<OnStarted>(replay = replayBuffer)
     val onStartedFlow = _onStartedFlow.asSharedFlow()
@@ -148,6 +148,10 @@ public class FakeRequestListener(private val replayBuffer: Int = 10) : Request.L
             "($replayBuffer) may need to be increased."
     }
 
+    @Deprecated(
+        message = "Migrating to using RequestFailureWrapper instead of CaptureFailure",
+        level = DeprecationLevel.WARNING
+    )
     override fun onFailed(
         requestMetadata: RequestMetadata,
         frameNumber: FrameNumber,
