@@ -18,6 +18,7 @@ package androidx.car.app.sample.navigation.common.car;
 
 import android.content.ComponentName;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -364,8 +365,13 @@ public final class NavigationScreen extends Screen {
         suggestionList.add(getSuggestion(R.string.suggestion_card_work_title,
                 R.string.suggestion_card_work_subtitle, workIcon));
 
-        getCarContext().getCarService(SuggestionManager.class)
-                .updateSuggestions(suggestionList);
+        // TODO(b/282958325): SuggestionManager is currently only on AAP. Remove conditional once
+        // SuggestionManager is available on AAOS.
+        if (!getCarContext().getPackageManager().hasSystemFeature(
+                PackageManager.FEATURE_AUTOMOTIVE)) {
+            getCarContext().getCarService(SuggestionManager.class)
+                    .updateSuggestions(suggestionList);
+        }
     }
 
     private Suggestion getSuggestion(int title, int subtitle, CarIcon icon) {
