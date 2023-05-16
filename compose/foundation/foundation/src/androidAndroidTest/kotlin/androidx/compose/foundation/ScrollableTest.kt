@@ -65,10 +65,12 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollDispatcher
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.PointerInputScope
 import androidx.compose.ui.input.pointer.changedToUpIgnoreConsumed
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.util.VelocityTracker
+import androidx.compose.ui.input.pointer.util.VelocityTrackerAddPointsFix
 import androidx.compose.ui.materialize
 import androidx.compose.ui.modifier.ModifierLocalConsumer
 import androidx.compose.ui.modifier.ModifierLocalReadScope
@@ -2585,6 +2587,53 @@ internal val VelocityTrackerCalculationThreshold = 1
 
 @OptIn(ExperimentalComposeUiApi::class)
 internal suspend fun savePointerInputEvents(
+    tracker: VelocityTracker,
+    pointerInputScope: PointerInputScope
+) {
+    if (VelocityTrackerAddPointsFix) {
+        savePointerInputEventsWithFix(tracker, pointerInputScope)
+    } else {
+        savePointerInputEventsLegacy(tracker, pointerInputScope)
+    }
+}
+
+@OptIn(ExperimentalComposeUiApi::class)
+internal suspend fun savePointerInputEventsWithFix(
+    tracker: VelocityTracker,
+    pointerInputScope: PointerInputScope
+) {
+    with(pointerInputScope) {
+        coroutineScope {
+            awaitPointerEventScope {
+                while (true) {
+                    var event: PointerInputChange? = awaitFirstDown()
+                    while (event != null && !event.changedToUpIgnoreConsumed()) {
+                        val currentEvent = awaitPointerEvent().changes
+                            .firstOrNull()
+
+                        if (currentEvent != null && !currentEvent.changedToUpIgnoreConsumed()) {
+                            if (currentEvent.historical.isEmpty()) {
+                                tracker.addPosition(
+                                    currentEvent.uptimeMillis,
+                                    currentEvent.position
+                                )
+                            } else {
+                                currentEvent.historical.fastForEach {
+                                    tracker.addPosition(it.uptimeMillis, it.position)
+                                }
+                            }
+                        }
+
+                        event = currentEvent
+                    }
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalComposeUiApi::class)
+internal suspend fun savePointerInputEventsLegacy(
     tracker: VelocityTracker,
     pointerInputScope: PointerInputScope
 ) {
