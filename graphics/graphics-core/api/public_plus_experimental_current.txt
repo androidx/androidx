@@ -164,7 +164,7 @@ package androidx.graphics.opengl.egl {
   }
 
   public final class EGLConfigAttributesKt {
-    method @kotlin.jvm.JvmSynthetic public static inline androidx.graphics.opengl.egl.EGLConfigAttributes EGLConfigAttributes(kotlin.jvm.functions.Function1<? super androidx.graphics.opengl.egl.EGLConfigAttributes.Builder,? extends kotlin.Unit> block);
+    method @kotlin.jvm.JvmSynthetic public static inline androidx.graphics.opengl.egl.EGLConfigAttributes EGLConfigAttributes(kotlin.jvm.functions.Function1<? super androidx.graphics.opengl.egl.EGLConfigAttributes.Builder,kotlin.Unit> block);
   }
 
   public final class EGLException extends java.lang.RuntimeException {
