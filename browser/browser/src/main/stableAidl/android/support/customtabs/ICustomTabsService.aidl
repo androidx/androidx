@@ -26,8 +26,8 @@ import java.util.List;
 
 /**
  * Interface to a CustomTabsService.
- * @hide
  */
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 interface ICustomTabsService {
     boolean warmup(long flags) = 1;
     boolean newSession(in ICustomTabsCallback callback) = 2;

@@ -32,7 +32,7 @@
 // later when a module using the interface is updated, e.g., Mainline modules.
 
 package android.support.customtabs;
-/* @hide */
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 interface ICustomTabsCallback {
   oneway void onNavigationEvent(int navigationEvent, in android.os.Bundle extras) = 1;
   oneway void extraCallback(String callbackName, in android.os.Bundle args) = 2;

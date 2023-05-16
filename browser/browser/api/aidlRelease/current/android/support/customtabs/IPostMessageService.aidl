@@ -32,7 +32,7 @@
 // later when a module using the interface is updated, e.g., Mainline modules.
 
 package android.support.customtabs;
-/* @hide */
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 interface IPostMessageService {
   void onMessageChannelReady(in android.support.customtabs.ICustomTabsCallback callback, in android.os.Bundle extras) = 1;
   void onPostMessage(in android.support.customtabs.ICustomTabsCallback callback, String message, in android.os.Bundle extras) = 2;

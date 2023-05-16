@@ -20,8 +20,8 @@ import android.os.Bundle;
 
 /**
  * Interface to a TrustedWebActivityCallback.
- * @hide
  */
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 interface ITrustedWebActivityCallback {
     void onExtraCallback(String callbackName, in Bundle bundle) = 1;
 }
