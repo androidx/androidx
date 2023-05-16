@@ -1207,6 +1207,7 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
         _inputModeManager.inputMode = if (isInTouchMode) Touch else Keyboard
 
         viewTreeOwners!!.lifecycleOwner.lifecycle.addObserver(this)
+        viewTreeOwners!!.lifecycleOwner.lifecycle.addObserver(accessibilityDelegate)
         viewTreeObserver.addOnGlobalLayoutListener(globalLayoutListener)
         viewTreeObserver.addOnScrollChangedListener(scrollChangedListener)
         viewTreeObserver.addOnTouchModeChangeListener(touchModeChangeListener)
@@ -1216,6 +1217,7 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
         super.onDetachedFromWindow()
         snapshotObserver.stopObserving()
         viewTreeOwners?.lifecycleOwner?.lifecycle?.removeObserver(this)
+        viewTreeOwners?.lifecycleOwner?.lifecycle?.removeObserver(accessibilityDelegate)
         ifDebug {
             if (autofillSupported()) {
                 _autofill?.let { AutofillCallback.unregister(it) }
