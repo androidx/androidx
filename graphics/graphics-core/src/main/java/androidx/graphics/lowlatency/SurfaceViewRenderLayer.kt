@@ -199,12 +199,18 @@ internal class SurfaceViewRenderLayer<T>(
         mRenderTarget?.requestRender()
     }
 
-    override fun release(transaction: SurfaceControlCompat.Transaction) {
-        surfaceView.holder.removeCallback(mHolderCallback)
+    override fun detach(transaction: SurfaceControlCompat.Transaction) {
         mParentSurfaceControl?.let {
             transaction.reparent(it, null)
             it.release()
         }
+        mParentSurfaceControl = null
+    }
+
+    override fun release() {
+        surfaceView.holder.removeCallback(mHolderCallback)
+        // Release the parent surface control if it was not released previously
+        mParentSurfaceControl?.release()
         mParentSurfaceControl = null
     }
 
