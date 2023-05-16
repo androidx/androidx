@@ -17,6 +17,7 @@
 package androidx.room.integration.kotlintestapp.test
 
 import androidx.kruth.assertThat
+import androidx.kruth.assertWithMessage
 import androidx.paging.Pager
 import androidx.paging.PagingState
 import androidx.paging.rxjava2.RxPagingSource
@@ -28,7 +29,6 @@ import androidx.room.integration.kotlintestapp.testutil.PagingEntity
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
-import com.google.common.truth.Truth.assertWithMessage
 import io.reactivex.Single
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue

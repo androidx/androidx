@@ -16,34 +16,41 @@
 
 package androidx.kruth
 
-import kotlin.test.assertContains
-import kotlin.test.assertNotNull
-import kotlin.test.fail
-
 /**
  * Propositions for string subjects.
  */
-class StringSubject(actual: String?) : ComparableSubject<String>(actual) {
+class StringSubject internal constructor(
+    actual: String?,
+    metadata: FailureMetadata = FailureMetadata(),
+) : ComparableSubject<String>(actual = actual, metadata = metadata) {
 
     /**
      * Fails if the string does not contain the given sequence.
      */
     fun contains(charSequence: CharSequence) {
-        assertNotNull(actual)
-        assertContains(actual, charSequence)
+        asserter.assertNotNull(actual)
+
+        asserter.assertTrue(
+            message = "Expected to contain \"$charSequence\", but was: \"$actual\"",
+            actual = actual.contains(charSequence),
+        )
     }
 
     /** Fails if the string does not have the given length.  */
     fun hasLength(expectedLength: Int) {
-        assertNotNull(actual)
-        assertThat(actual.length).isEqualTo(expectedLength)
+        asserter.assertNotNull(actual)
+
+        asserter.assertTrue(
+            message = "Expected to have length $expectedLength, but was: \"$actual\"",
+            actual = actual.length == expectedLength,
+        )
     }
 
     /** Fails if the string is not equal to the zero-length "empty string."  */
     fun isEmpty() {
-        assertNotNull(actual)
+        asserter.assertNotNull(actual)
         if (actual.isNotEmpty()) {
-            fail(
+            asserter.fail(
                 """
                     expected to be empty
                     | but was $actual
@@ -54,18 +61,18 @@ class StringSubject(actual: String?) : ComparableSubject<String>(actual) {
 
     /** Fails if the string is equal to the zero-length "empty string."  */
     fun isNotEmpty() {
-        assertNotNull(actual)
+        asserter.assertNotNull(actual)
         if (actual.isEmpty()) {
-            fail("expected not to be empty")
+            asserter.fail("expected not to be empty")
         }
     }
 
     /** Fails if the string contains the given sequence.  */
     fun doesNotContain(string: CharSequence) {
-        assertNotNull(actual, "expected a string that does not contain $string")
+        asserter.assertNotNull(actual, "expected a string that does not contain $string")
 
         if (actual.contains(string)) {
-            fail(
+            asserter.fail(
                 """
                     expected not to contain $string
                     | but was $actual
@@ -76,10 +83,10 @@ class StringSubject(actual: String?) : ComparableSubject<String>(actual) {
 
     /** Fails if the string does not start with the given string.  */
     fun startsWith(string: String) {
-        assertNotNull(actual, "expected a string that starts with $string")
+        asserter.assertNotNull(actual, "expected a string that starts with $string")
 
         if (!actual.startsWith(string)) {
-            fail(
+            asserter.fail(
                 """
                     expected to start with $string
                     | but was $actual
@@ -90,10 +97,10 @@ class StringSubject(actual: String?) : ComparableSubject<String>(actual) {
 
     /** Fails if the string does not end with the given string.  */
     fun endsWith(string: String) {
-        assertNotNull(actual, "expected a string that ends with $string")
+        asserter.assertNotNull(actual, "expected a string that ends with $string")
 
         if (!actual.endsWith(string)) {
-            fail(
+            asserter.fail(
                 """
                     expected to end with $string
                     | but was $actual
@@ -125,13 +132,17 @@ class StringSubject(actual: String?) : ComparableSubject<String>(actual) {
         fun isEqualTo(expected: String?) {
             when {
                 (actual == null) && (expected != null) ->
-                    fail("Expected a string equal to \"$expected\" (case is ignored), but was null")
+                    asserter.fail(
+                        "Expected a string equal to \"$expected\" (case is ignored), but was null"
+                    )
 
                 (expected == null) && (actual != null) ->
-                    fail("Expected a string that is null (null reference), but was \"$actual\"")
+                    asserter.fail(
+                        "Expected a string that is null (null reference), but was \"$actual\""
+                    )
 
                 !actual.equals(expected, ignoreCase = true) ->
-                    fail(
+                    asserter.fail(
                         "Expected a string equal to \"$expected\" (case is ignored), " +
                             "but was \"$actual\""
                     )
@@ -145,10 +156,12 @@ class StringSubject(actual: String?) : ComparableSubject<String>(actual) {
         fun isNotEqualTo(unexpected: String?) {
             when {
                 (actual == null) && (unexpected == null) ->
-                    fail("Expected a string not equal to null (null reference), but it was null")
+                    asserter.fail(
+                        "Expected a string not equal to null (null reference), but it was null"
+                    )
 
                 actual.equals(unexpected, ignoreCase = true) ->
-                    fail(
+                    asserter.fail(
                         "Expected a string not equal to \"$unexpected\" (case is ignored), " +
                             "but it was equal. Actual string: \"$actual\"."
                     )
@@ -161,29 +174,31 @@ class StringSubject(actual: String?) : ComparableSubject<String>(actual) {
 
             when {
                 actual == null ->
-                    fail(
+                    asserter.fail(
                         "Expected a string that contains \"$expected\" (case is ignored), " +
                             "but was null"
                     )
 
                 !actual.contains(expected, ignoreCase = true) ->
-                    fail("Expected to contain \"$expected\" (case is ignored), but was \"$actual\"")
+                    asserter.fail(
+                        "Expected to contain \"$expected\" (case is ignored), but was \"$actual\""
+                    )
             }
         }
 
         /** Fails if the string contains the given sequence (while ignoring case).  */
         fun doesNotContain(expected: CharSequence?) {
-            checkNotNull(expected)
+            requireNonNull(expected)
 
             when {
                 actual == null ->
-                    fail(
+                    asserter.fail(
                         "Expected a string that does not contain \"$expected\" " +
                             "(case is ignored), but was null"
                     )
 
                 actual.contains(expected, ignoreCase = true) ->
-                    fail(
+                    asserter.fail(
                         "Expected a string that does not contain \"$expected\" " +
                             "(case is ignored), but it was. Actual string: \"$actual\"."
                     )

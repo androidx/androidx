@@ -16,15 +16,20 @@
 
 package androidx.kruth
 
-/**
- * Always fails with the provided error message.
- */
-internal class FailingOrdered(
-    private val asserter: KruthAsserter,
-    private val message: () -> String,
-) : Ordered {
+internal data class FailureMetadata(
+    val messagesToPrepend: List<String> = emptyList(),
+) {
 
-    override fun inOrder() {
-        asserter.fail(message())
+    fun withMessage(messageToPrepend: String): FailureMetadata =
+        copy(messagesToPrepend = messagesToPrepend + messageToPrepend)
+
+    fun formatMessage(message: String? = null): String {
+        val messages = if (message == null) messagesToPrepend else messagesToPrepend + message
+
+        return when {
+            messages.isEmpty() -> message ?: ""
+            messages.size == 1 -> messages.single()
+            else -> messages.joinToString(separator = ". ", postfix = ".")
+        }
     }
 }

@@ -16,16 +16,14 @@
 
 package androidx.kruth
 
-import kotlin.test.fail
-
-class MapSubject<K, V>(actual: Map<K, V>?) : Subject<Map<K, V>>(actual) {
+class MapSubject<K, V> internal constructor(actual: Map<K, V>?) : Subject<Map<K, V>>(actual) {
 
     /** Fails if the map is not empty. */
     fun isEmpty() {
         requireNonNull(actual) { "Expected to be empty, but was null" }
 
         if (actual.isNotEmpty()) {
-            fail("Expected to be empty, but was $actual")
+            asserter.fail("Expected to be empty, but was $actual")
         }
     }
 
@@ -34,7 +32,7 @@ class MapSubject<K, V>(actual: Map<K, V>?) : Subject<Map<K, V>>(actual) {
         requireNonNull(actual) { "Expected to contain $key, but was null" }
 
         if (!actual.containsKey(key)) {
-            fail("Expected to contain $key, but was ${actual.keys}")
+            asserter.fail("Expected to contain $key, but was ${actual.keys}")
         }
     }
 }

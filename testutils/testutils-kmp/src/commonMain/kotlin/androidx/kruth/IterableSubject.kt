@@ -16,9 +16,6 @@
 
 package androidx.kruth
 
-import kotlin.test.assertEquals
-import kotlin.test.fail
-
 /**
  * Propositions for [Iterable] subjects.
  *
@@ -31,7 +28,10 @@ import kotlin.test.fail
  * - Assertions may also require that the elements in the given [Iterable] implement
  * [Any.hashCode] correctly.
  */
-open class IterableSubject<T>(actual: Iterable<T>?) : Subject<Iterable<T>>(actual) {
+open class IterableSubject<T> internal constructor(
+    actual: Iterable<T>?,
+    metadata: FailureMetadata = FailureMetadata(),
+) : Subject<Iterable<T>>(actual = actual, metadata = metadata) {
 
     override fun isEqualTo(expected: Any?) {
         // method contract requires testing iterables for equality
@@ -57,7 +57,7 @@ open class IterableSubject<T>(actual: Iterable<T>?) : Subject<Iterable<T>>(actua
         requireNonNull(actual) { "Expected to be empty, but was null" }
 
         if (!actual.isEmpty()) {
-            fail("Expected to be empty")
+            asserter.fail("Expected to be empty")
         }
     }
 
@@ -66,7 +66,7 @@ open class IterableSubject<T>(actual: Iterable<T>?) : Subject<Iterable<T>>(actua
         requireNonNull(actual) { "Expected not to be empty, but was null" }
 
         if (actual.isEmpty()) {
-            fail("Expected to be not empty")
+            asserter.fail("Expected to be not empty")
         }
     }
 
@@ -75,7 +75,7 @@ open class IterableSubject<T>(actual: Iterable<T>?) : Subject<Iterable<T>>(actua
         require(expectedSize >= 0) { "expectedSize must be >= 0, but was $expectedSize" }
         requireNonNull(actual) { "Expected to have size $expectedSize, but was null" }
 
-        assertEquals(expectedSize, actual.count())
+        asserter.assertEquals(expectedSize, actual.count())
     }
 
     /** Checks (with a side-effect failure) that the subject contains the supplied item. */
@@ -85,12 +85,12 @@ open class IterableSubject<T>(actual: Iterable<T>?) : Subject<Iterable<T>>(actua
         if (element !in actual) {
             val matchingItems = actual.retainMatchingToString(listOf(element))
             if (matchingItems.isNotEmpty()) {
-                fail(
+                asserter.fail(
                     "Expected to contain $element, but did not. " +
                         "Though it did contain $matchingItems"
                 )
             } else {
-                fail("Expected to contain $element, but did not")
+                asserter.fail("Expected to contain $element, but did not")
             }
         }
     }
@@ -100,7 +100,7 @@ open class IterableSubject<T>(actual: Iterable<T>?) : Subject<Iterable<T>>(actua
         requireNonNull(actual) { "Expected not to contain $element, but was null" }
 
         if (element in actual) {
-            fail("Expected not to contain $element")
+            asserter.fail("Expected not to contain $element")
         }
     }
 
@@ -111,7 +111,7 @@ open class IterableSubject<T>(actual: Iterable<T>?) : Subject<Iterable<T>>(actua
         val duplicates = actual.groupBy { it }.values.filter { it.size > 1 }
 
         if (duplicates.isNotEmpty()) {
-            fail("Expected not to contain duplicates, but contained $duplicates")
+            asserter.fail("Expected not to contain duplicates, but contained $duplicates")
         }
     }
 
@@ -134,12 +134,12 @@ open class IterableSubject<T>(actual: Iterable<T>?) : Subject<Iterable<T>>(actua
 
         val matchingItems = actual.retainMatchingToString(expected)
         if (matchingItems.isNotEmpty()) {
-            fail(
+            asserter.fail(
                 "Expected to contain any of $expected, but did not. " +
                     "Though it did contain $matchingItems"
             )
         } else {
-            fail("Expected to contain any of $expected, but did not")
+            asserter.fail("Expected to contain any of $expected, but did not")
         }
     }
 
@@ -192,7 +192,7 @@ open class IterableSubject<T>(actual: Iterable<T>?) : Subject<Iterable<T>>(actua
         if (missing.isNotEmpty()) {
             val nearMissing = actualList.retainMatchingToString(missing)
 
-            fail(
+            asserter.fail(
                 """
                     Expected to contain at least $expected, but did not.
                     Missing $missing, though it did contain $nearMissing.
@@ -204,7 +204,7 @@ open class IterableSubject<T>(actual: Iterable<T>?) : Subject<Iterable<T>>(actua
             return NoopOrdered
         }
 
-        return FailingOrdered {
+        return FailingOrdered(asserter) {
             buildString {
                 append("Required elements were all found, but order was wrong.")
                 append("Expected order: $expected.")
@@ -295,7 +295,9 @@ open class IterableSubject<T>(actual: Iterable<T>?) : Subject<Iterable<T>>(actua
                      * values had multiple elements. Granted, Fuzzy Truth already does this, so maybe it's OK?
                      * But Fuzzy Truth doesn't (yet) make the mismatched value so prominent.
                      */
-                    fail("Expected $actualElement to be equal to $requiredElement, but was not")
+                    asserter.fail(
+                        "Expected $actualElement to be equal to $requiredElement, but was not"
+                    )
                 }
 
                 // Missing elements; elements that are not missing will be removed as we iterate.
@@ -328,7 +330,7 @@ open class IterableSubject<T>(actual: Iterable<T>?) : Subject<Iterable<T>>(actua
                      * so return an object that will fail the test if the user calls inOrder().
                      */
 
-                    return FailingOrdered {
+                    return FailingOrdered(asserter) {
                         """
                              Contents match. Expected the order to also match, but was not.
                              Expected: $required.
@@ -337,7 +339,7 @@ open class IterableSubject<T>(actual: Iterable<T>?) : Subject<Iterable<T>>(actua
                     }
                 }
 
-                fail(
+                asserter.fail(
                     """
                         Contents do not match.
                         Expected: $required.
@@ -356,7 +358,7 @@ open class IterableSubject<T>(actual: Iterable<T>?) : Subject<Iterable<T>>(actua
         // extras. If the required iterator has elements, they're missing elements.
 
         if (actualIter.hasNext()) {
-            fail(
+            asserter.fail(
                 """
                     Contents do not match.
                     Expected: $required.
@@ -367,7 +369,7 @@ open class IterableSubject<T>(actual: Iterable<T>?) : Subject<Iterable<T>>(actua
         }
 
         if (requiredIter.hasNext()) {
-            fail(
+            asserter.fail(
                 """
                     Contents do not match.
                     Expected: $required.
@@ -419,7 +421,7 @@ open class IterableSubject<T>(actual: Iterable<T>?) : Subject<Iterable<T>>(actua
         val present = excluded.intersect(actual)
 
         if (present.isNotEmpty()) {
-            fail(
+            asserter.fail(
                 """
                     Expected not to contain any of $excluded but contained $present.
                     Actual: $actual.
@@ -515,7 +517,7 @@ open class IterableSubject<T>(actual: Iterable<T>?) : Subject<Iterable<T>>(actua
             .zipWithNext(::Pair)
             .forEach { (a, b) ->
                 if (!predicate(a, b)) {
-                    fail(message(a, b))
+                    asserter.fail(message(a, b))
                 }
             }
     }
@@ -542,7 +544,7 @@ open class IterableSubject<T>(actual: Iterable<T>?) : Subject<Iterable<T>>(actua
 
         val nonIterables = iterable.filterNot { it is Iterable<*> }
         if (nonIterables.isNotEmpty()) {
-            fail(
+            asserter.fail(
                 "The actual value is an Iterable, and you've written a test that compares it to " +
                     "some objects that are not Iterables. Did you instead mean to check " +
                     "whether its *contents* match any of the *contents* of the given values? " +
