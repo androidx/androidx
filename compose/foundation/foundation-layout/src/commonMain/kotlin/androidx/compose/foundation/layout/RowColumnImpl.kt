@@ -557,6 +557,7 @@ private fun intrinsicMainAxisSize(
     crossAxisAvailable: Int,
     mainAxisSpacing: Int
 ): Int {
+    if (children.isEmpty()) return 0
     var weightUnitSpace = 0
     var fixedSpace = 0
     var totalWeight = 0f
@@ -581,6 +582,7 @@ private fun intrinsicCrossAxisSize(
     mainAxisAvailable: Int,
     mainAxisSpacing: Int
 ): Int {
+    if (children.isEmpty()) return 0
     var fixedSpace = min((children.size - 1) * mainAxisSpacing, mainAxisAvailable)
     var crossAxisMax = 0
     var totalWeight = 0f
