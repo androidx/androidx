@@ -967,10 +967,16 @@ public final class DimensionBuilders {
              * children have equal weight. Where applicable, the width or height of the element is
              * proportional to the sum of the weights of its siblings.
              *
+             * <p>Note that this field only supports static values.
+             *
              * @since 1.2
              */
             @NonNull
             public Builder setLayoutWeight(@NonNull FloatProp layoutWeight) {
+                if (layoutWeight.getDynamicValue() != null) {
+                    throw new IllegalArgumentException(
+                            "setLayoutWeight doesn't support dynamic values.");
+                }
                 mImpl.setLayoutWeight(layoutWeight.toProto());
                 mFingerprint.recordPropertyUpdate(
                         1, checkNotNull(layoutWeight.getFingerprint()).aggregateValueAsInt());
