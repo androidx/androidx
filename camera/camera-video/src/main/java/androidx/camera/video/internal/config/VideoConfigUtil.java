@@ -16,6 +16,7 @@
 
 package androidx.camera.video.internal.config;
 
+import android.media.MediaFormat;
 import android.util.Range;
 import android.util.Rational;
 import android.util.Size;
@@ -23,6 +24,7 @@ import android.util.Size;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.camera.core.DynamicRange;
 import androidx.camera.core.Logger;
 import androidx.camera.core.impl.EncoderProfilesProxy.VideoProfileProxy;
 import androidx.camera.core.impl.Timebase;
@@ -30,9 +32,12 @@ import androidx.camera.video.MediaSpec;
 import androidx.camera.video.VideoSpec;
 import androidx.camera.video.internal.VideoValidatedEncoderProfilesProxy;
 import androidx.camera.video.internal.encoder.VideoEncoderConfig;
+import androidx.camera.video.internal.utils.DynamicRangeUtil;
+import androidx.core.util.Preconditions;
 import androidx.core.util.Supplier;
 
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * A collection of utilities used for resolving and debugging video configurations.
@@ -46,57 +51,111 @@ public final class VideoConfigUtil {
     }
 
     /**
-     * Resolves the video mime information into a {@link MimeInfo}.
+     * Resolves the video mime information into a {@link VideoMimeInfo}.
      *
      * @param mediaSpec        the media spec to resolve the mime info.
+     * @param dynamicRange     a fully specified dynamic range.
      * @param encoderProfiles  the encoder profiles to resolve the mime info. It can be null if
      *                         there is no relevant encoder profiles.
      * @return the video MimeInfo.
      */
     @NonNull
-    public static MimeInfo resolveVideoMimeInfo(@NonNull MediaSpec mediaSpec,
+    public static VideoMimeInfo resolveVideoMimeInfo(@NonNull MediaSpec mediaSpec,
+            @NonNull DynamicRange dynamicRange,
             @Nullable VideoValidatedEncoderProfilesProxy encoderProfiles) {
+        Preconditions.checkState(dynamicRange.isFullySpecified(), "Dynamic range must be a fully "
+                + "specified dynamic range [provided dynamic range: " + dynamicRange + "]");
         String mediaSpecVideoMime = MediaSpec.outputFormatToVideoMime(mediaSpec.getOutputFormat());
         String resolvedVideoMime = mediaSpecVideoMime;
-        boolean encoderProfilesIsCompatible = false;
+        VideoProfileProxy compatibleVideoProfile = null;
         if (encoderProfiles != null) {
-            VideoProfileProxy videoProfile = encoderProfiles.getDefaultVideoProfile();
-            String encoderProfilesVideoMime = videoProfile.getMediaType();
-            // Use EncoderProfiles settings if the media spec's output format is set to auto or
-            // happens to match the EncoderProfiles' output format.
-            if (Objects.equals(encoderProfilesVideoMime, VideoProfileProxy.MEDIA_TYPE_NONE)) {
-                Logger.d(TAG, "EncoderProfiles contains undefined VIDEO mime type so cannot be "
-                        + "used. May rely on fallback defaults to derive settings [chosen mime "
-                        + "type: " + resolvedVideoMime + "]");
-            } else if (mediaSpec.getOutputFormat() == MediaSpec.OUTPUT_FORMAT_AUTO) {
-                encoderProfilesIsCompatible = true;
-                resolvedVideoMime = encoderProfilesVideoMime;
-                Logger.d(TAG, "MediaSpec contains OUTPUT_FORMAT_AUTO. Using EncoderProfiles "
-                        + "to derive VIDEO settings [mime type: " + resolvedVideoMime + "]");
-            } else if (Objects.equals(mediaSpecVideoMime, encoderProfilesVideoMime)) {
-                encoderProfilesIsCompatible = true;
-                resolvedVideoMime = encoderProfilesVideoMime;
-                Logger.d(TAG, "MediaSpec video mime matches EncoderProfiles. Using "
-                        + "EncoderProfiles to derive VIDEO settings [mime type: "
-                        + resolvedVideoMime + "]");
-            } else {
-                Logger.d(TAG, "MediaSpec video mime does not match EncoderProfiles, so "
-                        + "EncoderProfiles settings cannot be used. May rely on fallback "
-                        + "defaults to derive VIDEO settings [EncoderProfiles mime type: "
-                        + encoderProfilesVideoMime + ", chosen mime type: "
-                        + resolvedVideoMime + "]");
+            Set<Integer> encoderHdrFormats =
+                    DynamicRangeUtil.dynamicRangeToVideoProfileHdrFormats(dynamicRange);
+            Set<Integer> encoderBitDepths =
+                    DynamicRangeUtil.dynamicRangeToVideoProfileBitDepth(dynamicRange);
+            // Loop through EncoderProfile's VideoProfiles to search for one that supports the
+            // provided dynamic range.
+            for (VideoProfileProxy videoProfile : encoderProfiles.getVideoProfiles()) {
+                // Skip if the dynamic range is not compatible
+                if (!encoderHdrFormats.contains(videoProfile.getHdrFormat())
+                        || !encoderBitDepths.contains(videoProfile.getBitDepth())) {
+                    continue;
+                }
+
+                // Dynamic range is compatible. Use EncoderProfiles settings if the media spec's
+                // output format is set to auto or happens to match the EncoderProfiles' output
+                // format.
+                String videoProfileMime = videoProfile.getMediaType();
+                if (Objects.equals(mediaSpecVideoMime, videoProfileMime)) {
+                    Logger.d(TAG, "MediaSpec video mime matches EncoderProfiles. Using "
+                            + "EncoderProfiles to derive VIDEO settings [mime type: "
+                            + resolvedVideoMime + "]");
+                } else if (mediaSpec.getOutputFormat() == MediaSpec.OUTPUT_FORMAT_AUTO) {
+                    Logger.d(TAG, "MediaSpec contains OUTPUT_FORMAT_AUTO. Using CamcorderProfile "
+                            + "to derive VIDEO settings [mime type: " + resolvedVideoMime + ", "
+                            + "dynamic range: " + dynamicRange + "]");
+                } else {
+                    continue;
+                }
+
+                compatibleVideoProfile = videoProfile;
+                resolvedVideoMime = videoProfileMime;
+                break;
             }
-        } else {
-            Logger.d(TAG, "No EncoderProfiles present. May rely on fallback defaults to derive "
-                    + "VIDEO settings [chosen mime type: " + resolvedVideoMime + "]");
         }
 
-        MimeInfo.Builder mimeInfoBuilder = MimeInfo.builder(resolvedVideoMime);
-        if (encoderProfilesIsCompatible) {
-            mimeInfoBuilder.setCompatibleEncoderProfiles(encoderProfiles);
+        if (compatibleVideoProfile == null) {
+            if (mediaSpec.getOutputFormat() == MediaSpec.OUTPUT_FORMAT_AUTO) {
+                // If output format is AUTO, use the dynamic range to get the mime. Otherwise we
+                // fall back to the default mime type from MediaSpec
+                resolvedVideoMime = getDynamicRangeDefaultMime(dynamicRange);
+            }
+
+            if (encoderProfiles == null) {
+                Logger.d(TAG, "No EncoderProfiles present. May rely on fallback defaults to derive "
+                        + "VIDEO settings [chosen mime type: " + resolvedVideoMime + ", "
+                        + "dynamic range: " + dynamicRange + "]");
+            } else {
+                Logger.d(TAG, "No video EncoderProfile is compatible with requested output format"
+                        + " and dynamic range. May rely on fallback defaults to derive VIDEO "
+                        + "settings [chosen mime type: " + resolvedVideoMime + ", "
+                        + "dynamic range: " + dynamicRange + "]");
+            }
+        }
+
+        VideoMimeInfo.Builder mimeInfoBuilder = VideoMimeInfo.builder(resolvedVideoMime);
+        if (compatibleVideoProfile != null) {
+            mimeInfoBuilder.setCompatibleVideoProfile(compatibleVideoProfile);
         }
 
         return mimeInfoBuilder.build();
+    }
+
+    /**
+     * Returns a list of mimes required for the given dynamic range.
+     *
+     * <p>If the dynamic range is not supported, an {@link UnsupportedOperationException} will be
+     * thrown.
+     */
+    @NonNull
+    private static String getDynamicRangeDefaultMime(@NonNull DynamicRange dynamicRange) {
+        switch (dynamicRange.getEncoding()) {
+            case DynamicRange.ENCODING_DOLBY_VISION:
+                // Dolby vision only supports dolby vision encoders
+                return MediaFormat.MIMETYPE_VIDEO_DOLBY_VISION;
+            case DynamicRange.ENCODING_HLG:
+            case DynamicRange.ENCODING_HDR10:
+            case DynamicRange.ENCODING_HDR10_PLUS:
+                // For now most hdr formats default to h265 (HEVC), though VP9 or AV1 may also be
+                // supported.
+                return MediaFormat.MIMETYPE_VIDEO_HEVC;
+            case DynamicRange.ENCODING_SDR:
+                // For SDR, default to h264 (AVC)
+                return MediaFormat.MIMETYPE_VIDEO_AVC;
+            default:
+                throw new UnsupportedOperationException("Unsupported dynamic range: " + dynamicRange
+                        + "\nNo supported default mime type available.");
+        }
     }
 
     /**
@@ -110,15 +169,15 @@ public final class VideoConfigUtil {
      * @return a VideoEncoderConfig.
      */
     @NonNull
-    public static VideoEncoderConfig resolveVideoEncoderConfig(@NonNull MimeInfo videoMimeInfo,
+    public static VideoEncoderConfig resolveVideoEncoderConfig(@NonNull VideoMimeInfo videoMimeInfo,
             @NonNull Timebase inputTimebase, @NonNull VideoSpec videoSpec,
             @NonNull Size surfaceSize, @NonNull Range<Integer> expectedFrameRateRange) {
         Supplier<VideoEncoderConfig> configSupplier;
-        VideoValidatedEncoderProfilesProxy profiles = videoMimeInfo.getCompatibleEncoderProfiles();
-        if (profiles != null) {
+        VideoProfileProxy videoProfile = videoMimeInfo.getCompatibleVideoProfile();
+        if (videoProfile != null) {
             configSupplier = new VideoEncoderConfigVideoProfileResolver(
                     videoMimeInfo.getMimeType(), inputTimebase, videoSpec, surfaceSize,
-                    profiles.getDefaultVideoProfile(), expectedFrameRateRange);
+                    videoProfile, expectedFrameRateRange);
         } else {
             configSupplier = new VideoEncoderConfigDefaultResolver(videoMimeInfo.getMimeType(),
                     inputTimebase, videoSpec, surfaceSize, expectedFrameRateRange);

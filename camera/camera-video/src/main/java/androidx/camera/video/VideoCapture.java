@@ -122,7 +122,7 @@ import androidx.camera.video.internal.compat.quirk.ImageCaptureFailedWhenVideoCa
 import androidx.camera.video.internal.compat.quirk.PreviewDelayWhenVideoCaptureIsBoundQuirk;
 import androidx.camera.video.internal.compat.quirk.PreviewStretchWhenVideoCaptureIsBoundQuirk;
 import androidx.camera.video.internal.compat.quirk.VideoQualityQuirk;
-import androidx.camera.video.internal.config.MimeInfo;
+import androidx.camera.video.internal.config.VideoMimeInfo;
 import androidx.camera.video.internal.encoder.InvalidConfigException;
 import androidx.camera.video.internal.encoder.VideoEncoderConfig;
 import androidx.camera.video.internal.encoder.VideoEncoderInfo;
@@ -1140,7 +1140,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         VideoValidatedEncoderProfilesProxy encoderProfiles =
                 videoCapabilities.findHighestSupportedEncoderProfilesFor(resolution, dynamicRange);
         VideoEncoderInfo videoEncoderInfo = resolveVideoEncoderInfo(videoEncoderInfoFinder,
-                encoderProfiles, mediaSpec, resolution, expectedFrameRate);
+                encoderProfiles, mediaSpec, resolution, dynamicRange, expectedFrameRate);
         if (videoEncoderInfo == null) {
             // If VideoCapture cannot find videoEncoderInfo, it means that VideoOutput should
             // also not be able to find the encoder. VideoCapture will not handle this situation
@@ -1168,9 +1168,11 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
             @Nullable VideoValidatedEncoderProfilesProxy encoderProfiles,
             @NonNull MediaSpec mediaSpec,
             @NonNull Size resolution,
+            @NonNull DynamicRange dynamicRange,
             @NonNull Range<Integer> expectedFrameRate) {
         // Resolve the VideoEncoderConfig
-        MimeInfo videoMimeInfo = resolveVideoMimeInfo(mediaSpec, encoderProfiles);
+        VideoMimeInfo videoMimeInfo = resolveVideoMimeInfo(mediaSpec, dynamicRange,
+                encoderProfiles);
         VideoEncoderConfig videoEncoderConfig = resolveVideoEncoderConfig(
                 videoMimeInfo,
                 // Timebase won't affect the found EncoderInfo so give a arbitrary one.
