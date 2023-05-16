@@ -302,10 +302,12 @@ interface OutputStream {
             )
     }
 
-    enum class OutputType {
-        SURFACE,
-        SURFACE_VIEW,
-        SURFACE_TEXTURE,
+    class OutputType private constructor() {
+        companion object {
+            val SURFACE = OutputType()
+            val SURFACE_VIEW = OutputType()
+            val SURFACE_TEXTURE = OutputType()
+        }
     }
 
     /**

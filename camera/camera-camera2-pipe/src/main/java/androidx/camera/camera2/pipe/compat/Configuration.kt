@@ -188,8 +188,7 @@ internal class AndroidOutputConfiguration(
                     when (outputType) {
                         OutputType.SURFACE_TEXTURE -> SurfaceTexture::class.java
                         OutputType.SURFACE_VIEW -> SurfaceHolder::class.java
-                        OutputType.SURFACE ->
-                            throw IllegalStateException("Unsupported OutputType: $outputType")
+                        else -> throw IllegalStateException("Unsupported OutputType: $outputType")
                     }
                 configuration = Api26Compat.newOutputConfiguration(size, outputKlass)
             }
