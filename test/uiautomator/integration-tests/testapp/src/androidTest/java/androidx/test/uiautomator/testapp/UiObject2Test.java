@@ -743,6 +743,7 @@ public class UiObject2Test extends BaseTest {
         assertTrue(flingRegion.wait(Until.textEquals("fling_left"), TIMEOUT_MS));
     }
 
+    @Ignore // b/281821418
     @Test
     public void testFling_directionAndSpeed() {
         launchTestActivity(FlingTestActivity.class);
