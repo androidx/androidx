@@ -49,8 +49,8 @@ package androidx.wear.protolayout.expression.pipeline {
   }
 
   public interface PlatformDataProvider {
-    method public void registerForData(java.util.concurrent.Executor, androidx.wear.protolayout.expression.pipeline.PlatformDataReceiver);
-    method public void unregisterForData();
+    method public void clearReceiver();
+    method public void setReceiver(java.util.concurrent.Executor, androidx.wear.protolayout.expression.pipeline.PlatformDataReceiver);
   }
 
   public interface PlatformDataReceiver {
