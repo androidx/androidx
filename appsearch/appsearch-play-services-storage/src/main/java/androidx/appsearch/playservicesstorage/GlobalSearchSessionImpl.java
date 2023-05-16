@@ -44,13 +44,13 @@ import java.util.concurrent.Executor;
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class GlobalSearchSessionImpl implements GlobalSearchSession {
 
-    private final GlobalSearchClient mPlayServicesClient;
+    private final GlobalSearchClient mGmsClient;
     private final Features mFeatures;
 
     GlobalSearchSessionImpl(
-            @NonNull GlobalSearchClient playServicesClient,
+            @NonNull GlobalSearchClient gmsClient,
             @NonNull Features features) {
-        mPlayServicesClient = Preconditions.checkNotNull(playServicesClient);
+        mGmsClient = Preconditions.checkNotNull(gmsClient);
         mFeatures = Preconditions.checkNotNull(features);
     }
     @NonNull
@@ -115,6 +115,6 @@ class GlobalSearchSessionImpl implements GlobalSearchSession {
 
     @Override
     public void close() {
-        mPlayServicesClient.close();
+        mGmsClient.close();
     }
 }
