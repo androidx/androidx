@@ -157,6 +157,7 @@ import org.mockito.kotlin.never
 import org.mockito.kotlin.spy
 import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
+import org.mockito.kotlin.verifyNoMoreInteractions
 import org.mockito.kotlin.whenever
 
 @MediumTest
@@ -1449,6 +1450,35 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
         accessibilityDelegate.contentCaptureSession = contentCaptureSessionCompat
         accessibilityDelegate.currentSemanticsNodes
         accessibilityDelegate.contentCaptureForceEnabledForTesting = true
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 29)
+    fun testInitContentCaptureSemanticsStructureChangeEvents_onStart() {
+        setUpContentCapture()
+
+        accessibilityDelegate.initContentCaptureSemanticsStructureChangeEvents(true)
+
+        // verify the root node appeared
+        verify(contentCaptureSessionCompat).newVirtualViewStructure(any(), any())
+        verify(contentCaptureSessionCompat).notifyViewsAppeared(any())
+        verify(viewStructureCompat).setDimens(any(), any(), any(), any(), any(), any())
+        verify(viewStructureCompat).toViewStructure()
+        verifyNoMoreInteractions(contentCaptureSessionCompat)
+        verifyNoMoreInteractions(viewStructureCompat)
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 29)
+    fun testInitContentCaptureSemanticsStructureChangeEvents_onStop() {
+        setUpContentCapture()
+
+        accessibilityDelegate.initContentCaptureSemanticsStructureChangeEvents(false)
+
+        // verify the root node disappeared
+        verify(contentCaptureSessionCompat).notifyViewsDisappeared(any())
+        verifyNoMoreInteractions(contentCaptureSessionCompat)
+        verifyNoMoreInteractions(viewStructureCompat)
     }
 
     @Test

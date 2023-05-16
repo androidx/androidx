@@ -41,6 +41,7 @@ import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.node.DelegatingNode
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.platform.InspectableValue
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.ValueElement
 import androidx.compose.ui.platform.isDebugInspectorInfoEnabled
 import androidx.compose.ui.platform.testTag
@@ -983,6 +984,69 @@ class SemanticsTests {
             .onNodeWithTag(TestTag)
             .assertContentDescriptionEquals("hello world")
             .assertTestPropertyEquals("bar")
+    }
+
+    @Test
+    fun testBoundInParent() {
+        rule.setContent {
+            with(LocalDensity.current) {
+                Box(
+                    Modifier
+                        .size(100.toDp())
+                        .padding(10.toDp(), 20.toDp())
+                        .semantics {}
+                ) {
+                    Box(
+                        Modifier
+                            .size(10.toDp())
+                            .offset(20.toDp(), 30.toDp())
+                    ) {
+                        Box(Modifier
+                            .size(1.toDp())
+                            .testTag(TestTag)) {}
+                    }
+                }
+            }
+        }
+
+        rule.waitForIdle()
+
+        val bounds = rule.onNodeWithTag(TestTag, true).fetchSemanticsNode().boundsInParent
+        assertEquals(
+            Rect(20.0f, 30.0f, 21.0f, 31.0f),
+            bounds
+        )
+    }
+
+    @Test
+    fun testBoundInParent_boundInRootWhenNoParent() {
+        rule.setContent {
+            with(LocalDensity.current) {
+                Box(
+                    Modifier
+                        .size(100.toDp())
+                        .padding(10.toDp(), 20.toDp())
+                ) {
+                    Box(
+                        Modifier
+                            .size(10.toDp())
+                            .offset(20.toDp(), 30.toDp())
+                    ) {
+                        Box(Modifier
+                            .size(1.toDp())
+                            .testTag(TestTag)) {}
+                    }
+                }
+            }
+        }
+
+        rule.waitForIdle()
+
+        val bounds = rule.onNodeWithTag(TestTag, true).fetchSemanticsNode().boundsInParent
+        assertEquals(
+            Rect(30.0f, 50.0f, 31.0f, 51.0f),
+            bounds
+        )
     }
 
     @Test
