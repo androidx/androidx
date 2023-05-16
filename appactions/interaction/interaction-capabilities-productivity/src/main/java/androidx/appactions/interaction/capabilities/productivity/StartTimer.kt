@@ -41,7 +41,6 @@ private const val CAPABILITY_NAME = "actions.intent.START_TIMER"
 @CapabilityFactory(name = CAPABILITY_NAME)
 class StartTimer private constructor() {
     internal enum class PropertyMapStrings(val key: String) {
-        TIMER_LIST("timer.timerList"),
         IDENTIFIER("timer.identifier"),
         NAME("timer.name"),
         DURATION("timer.duration")
@@ -55,8 +54,6 @@ class StartTimer private constructor() {
             Confirmation,
             ExecutionSession
             >(ACTION_SPEC) {
-        private var properties = mutableMapOf<String, Property<*>>()
-
         override val sessionBridge: SessionBridge<
             ExecutionSession,
             Arguments,
@@ -67,26 +64,25 @@ class StartTimer private constructor() {
             sessionFactory: (hostProperties: HostProperties?) -> ExecutionSession
         ): CapabilityBuilder = super.setExecutionSessionFactory(sessionFactory)
 
-        fun setTimerListProperty(timerList: Property<TimerValue>): CapabilityBuilder = apply {
-            properties[PropertyMapStrings.TIMER_LIST.key] = timerList
-        }
+        fun setIdentifierProperty(
+            identifier: Property<StringValue>
+        ): CapabilityBuilder = setProperty(
+            PropertyMapStrings.IDENTIFIER.key,
+            identifier,
+            TypeConverters.STRING_VALUE_ENTITY_CONVERTER
+        )
 
-        fun setIdentifierProperty(identifier: Property<StringValue>): CapabilityBuilder = apply {
-            properties[PropertyMapStrings.IDENTIFIER.key] = identifier
-        }
+        fun setNameProperty(name: Property<StringValue>): CapabilityBuilder = setProperty(
+            PropertyMapStrings.NAME.key,
+            name,
+            TypeConverters.STRING_VALUE_ENTITY_CONVERTER
+        )
 
-        fun setNameProperty(name: Property<StringValue>): CapabilityBuilder = apply {
-            properties[PropertyMapStrings.NAME.key] = name
-        }
-
-        fun setDurationProperty(duration: Property<Duration>): CapabilityBuilder = apply {
-            properties[PropertyMapStrings.DURATION.key] = duration
-        }
-
-        override fun build(): Capability {
-            super.setProperty(properties)
-            return super.build()
-        }
+        fun setDurationProperty(duration: Property<Duration>): CapabilityBuilder = setProperty(
+            PropertyMapStrings.DURATION.key,
+            duration,
+            TypeConverters.DURATION_ENTITY_CONVERTER
+        )
     }
 
     interface ExecutionSession : BaseExecutionSession<Arguments, Output> {
@@ -203,37 +199,24 @@ class StartTimer private constructor() {
     class Confirmation internal constructor()
 
     companion object {
-        @Suppress("UNCHECKED_CAST")
         private val ACTION_SPEC =
             ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
                 .setArguments(Arguments::class.java, Arguments::Builder)
                 .setOutput(Output::class.java)
                 .bindParameter(
                     "timer.identifier",
-                    { properties ->
-                        properties[PropertyMapStrings.IDENTIFIER.key] as? Property<StringValue>
-                    },
                     Arguments.Builder::setIdentifier,
-                    TypeConverters.STRING_PARAM_VALUE_CONVERTER,
-                    TypeConverters.STRING_VALUE_ENTITY_CONVERTER
+                    TypeConverters.STRING_PARAM_VALUE_CONVERTER
                 )
                 .bindParameter(
                     "timer.name",
-                    { properties ->
-                        properties[PropertyMapStrings.NAME.key] as? Property<StringValue>
-                    },
                     Arguments.Builder::setName,
-                    TypeConverters.STRING_PARAM_VALUE_CONVERTER,
-                    TypeConverters.STRING_VALUE_ENTITY_CONVERTER
+                    TypeConverters.STRING_PARAM_VALUE_CONVERTER
                 )
                 .bindParameter(
                     "timer.duration",
-                    { properties ->
-                        properties[PropertyMapStrings.DURATION.key] as? Property<Duration>
-                    },
                     Arguments.Builder::setDuration,
-                    TypeConverters.DURATION_PARAM_VALUE_CONVERTER,
-                    TypeConverters.DURATION_ENTITY_CONVERTER
+                    TypeConverters.DURATION_PARAM_VALUE_CONVERTER
                 )
                 .bindOutput(
                     "executionStatus",

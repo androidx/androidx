@@ -18,10 +18,12 @@ package androidx.appactions.interaction.capabilities.productivity
 
 import androidx.appactions.builtintypes.experimental.types.GenericErrorStatus
 import androidx.appactions.builtintypes.experimental.types.SuccessStatus
+import androidx.appactions.builtintypes.experimental.types.Timer
 import androidx.appactions.interaction.capabilities.core.BaseExecutionSession
 import androidx.appactions.interaction.capabilities.core.Capability
 import androidx.appactions.interaction.capabilities.core.CapabilityFactory
 import androidx.appactions.interaction.capabilities.core.impl.BuilderOf
+import androidx.appactions.interaction.capabilities.core.impl.converters.EntityConverter
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
 import androidx.appactions.interaction.capabilities.core.properties.Property
@@ -35,7 +37,7 @@ private const val CAPABILITY_NAME = "actions.intent.RESUME_TIMER"
 @CapabilityFactory(name = CAPABILITY_NAME)
 class ResumeTimer private constructor() {
     internal enum class PropertyMapStrings(val key: String) {
-        TIMER_LIST("timer.timerList")
+        TIMER("timer")
     }
 
     class CapabilityBuilder :
@@ -46,15 +48,11 @@ class ResumeTimer private constructor() {
             Confirmation,
             ExecutionSession
             >(ACTION_SPEC) {
-        private var properties = mutableMapOf<String, Property<*>>()
-
-        fun setTimerListProperty(timerList: Property<TimerValue>): CapabilityBuilder =
-            apply { properties[PropertyMapStrings.TIMER_LIST.key] = timerList }
-
-        override fun build(): Capability {
-            super.setProperty(properties)
-            return super.build()
-        }
+        fun setTimerProperty(timer: Property<Timer>): CapabilityBuilder = setProperty(
+            PropertyMapStrings.TIMER.key,
+            timer,
+            EntityConverter.of(TypeConverters.TIMER_TYPE_SPEC)
+        )
     }
 
     class Arguments internal constructor(val timerList: List<TimerValue>?) {
@@ -153,19 +151,14 @@ class ResumeTimer private constructor() {
     sealed interface ExecutionSession : BaseExecutionSession<Arguments, Output>
 
     companion object {
-        @Suppress("UNCHECKED_CAST")
         private val ACTION_SPEC =
             ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
                 .setArguments(Arguments::class.java, Arguments::Builder)
                 .setOutput(Output::class.java)
                 .bindRepeatedParameter(
                     "timer",
-                    { properties ->
-                        properties[PropertyMapStrings.TIMER_LIST.key] as? Property<TimerValue>
-                    },
                     Arguments.Builder::setTimerList,
-                    TimerValue.PARAM_VALUE_CONVERTER,
-                    TimerValue.ENTITY_CONVERTER
+                    TimerValue.PARAM_VALUE_CONVERTER
                 )
                 .bindOutput(
                     "executionStatus",

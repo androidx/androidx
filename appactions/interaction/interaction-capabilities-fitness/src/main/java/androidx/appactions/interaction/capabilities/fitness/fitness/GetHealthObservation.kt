@@ -44,18 +44,17 @@ class GetHealthObservation private constructor() {
             Confirmation,
             ExecutionSession
             >(ACTION_SPEC) {
-        private var properties = mutableMapOf<String, Property<*>>()
+        fun setStartTimeProperty(startTime: Property<LocalTime>): CapabilityBuilder = setProperty(
+            PropertyMapStrings.START_TIME.key,
+            startTime,
+            TypeConverters.LOCAL_TIME_ENTITY_CONVERTER
+        )
 
-        fun setStartTime(startTime: Property<LocalTime>): CapabilityBuilder =
-            apply { properties[PropertyMapStrings.START_TIME.key] = startTime }
-
-        fun setEndTime(endTime: Property<LocalTime>): CapabilityBuilder =
-            apply { properties[PropertyMapStrings.END_TIME.key] = endTime }
-
-        override fun build(): Capability {
-            super.setProperty(properties)
-            return super.build()
-        }
+        fun setEndTimeProperty(endTime: Property<LocalTime>): CapabilityBuilder = setProperty(
+            PropertyMapStrings.END_TIME.key,
+            endTime,
+            TypeConverters.LOCAL_TIME_ENTITY_CONVERTER
+        )
     }
 
     class Arguments internal constructor(
@@ -106,7 +105,6 @@ class GetHealthObservation private constructor() {
 
     companion object {
         // TODO(b/273602015): Update to use Name property from builtintype library.
-        @Suppress("UNCHECKED_CAST")
         private val ACTION_SPEC =
             ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
                 .setArguments(
@@ -116,21 +114,13 @@ class GetHealthObservation private constructor() {
                 .setOutput(Output::class.java)
                 .bindParameter(
                     "healthObservation.startTime",
-                    { properties ->
-                        properties[PropertyMapStrings.START_TIME.key] as? Property<LocalTime>
-                    },
                     Arguments.Builder::setStartTime,
-                    TypeConverters.LOCAL_TIME_PARAM_VALUE_CONVERTER,
-                    TypeConverters.LOCAL_TIME_ENTITY_CONVERTER
+                    TypeConverters.LOCAL_TIME_PARAM_VALUE_CONVERTER
                 )
                 .bindParameter(
                     "healthObservation.endTime",
-                    { properties ->
-                        properties[PropertyMapStrings.END_TIME.key] as? Property<LocalTime>
-                    },
                     Arguments.Builder::setEndTime,
-                    TypeConverters.LOCAL_TIME_PARAM_VALUE_CONVERTER,
-                    TypeConverters.LOCAL_TIME_ENTITY_CONVERTER
+                    TypeConverters.LOCAL_TIME_PARAM_VALUE_CONVERTER
                 )
                 .build()
     }

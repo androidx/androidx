@@ -30,10 +30,6 @@ import androidx.appactions.interaction.capabilities.core.properties.StringValue
 private const val CAPABILITY_NAME = "actions.intent.FAKE_CAPABILITY"
 
 class FakeCapability private constructor() {
-    class Properties(
-        val fieldOne: Property<StringValue>? = null,
-    )
-
     class Arguments internal constructor(
         val fieldOne: String?,
     ) {
@@ -75,35 +71,21 @@ class FakeCapability private constructor() {
             builder.build()
         }
 
-        private var fieldOne: Property<StringValue>? = null
-
-        fun setFieldOne(fieldOne: Property<StringValue>) = apply {
-            this.fieldOne = fieldOne
-        }
-
-        override fun build(): Capability {
-            super.setProperty(
-                mutableMapOf(
-                    "fieldOne" to (
-                        fieldOne ?: Property.Builder<StringValue>().build()
-                        )
-                )
-            )
-            return super.build()
-        }
+        fun setFieldOne(fieldOne: Property<StringValue>) = setProperty(
+            "fieldOne",
+            fieldOne,
+            TypeConverters.STRING_VALUE_ENTITY_CONVERTER
+        )
     }
 
     companion object {
-        @Suppress("UNCHECKED_CAST")
         private val ACTION_SPEC = ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
             .setArguments(Arguments::class.java, Arguments::Builder)
             .setOutput(Output::class.java)
             .bindParameter(
                 "fieldOne",
-                { properties -> properties["fieldOne"] as? Property<StringValue> },
                 Arguments.Builder::setFieldOne,
-                TypeConverters.STRING_PARAM_VALUE_CONVERTER,
-                TypeConverters.STRING_VALUE_ENTITY_CONVERTER,
+                TypeConverters.STRING_PARAM_VALUE_CONVERTER
             )
             .build()
     }

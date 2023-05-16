@@ -21,8 +21,6 @@ import androidx.appactions.interaction.capabilities.core.CapabilityFactory
 import androidx.appactions.interaction.capabilities.core.impl.BuilderOf
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
-import androidx.appactions.interaction.capabilities.core.properties.Property
-import androidx.appactions.interaction.capabilities.core.properties.StringValue
 
 private const val CAPABILITY_NAME = "actions.intent.TEST"
 
@@ -76,27 +74,18 @@ class CapabilityTwoStrings {
     interface ExecutionSession : BaseExecutionSession<Arguments, Output>
 
     companion object {
-        @Suppress("UNCHECKED_CAST")
         val ACTION_SPEC = ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
             .setArguments(Arguments::class.java, Arguments::Builder)
             .setOutput(Output::class.java)
             .bindParameter(
                 "stringSlotA",
-                { properties ->
-                    properties["stringSlotA"] as? Property<StringValue>
-                },
                 Arguments.Builder::setStringSlotA,
-                TypeConverters.STRING_PARAM_VALUE_CONVERTER,
-                TypeConverters.STRING_VALUE_ENTITY_CONVERTER
+                TypeConverters.STRING_PARAM_VALUE_CONVERTER
             )
             .bindParameter(
                 "stringSlotB",
-                { properties ->
-                    properties["stringSlotB"] as? Property<StringValue>
-                },
                 Arguments.Builder::setStringSlotB,
-                TypeConverters.STRING_PARAM_VALUE_CONVERTER,
-                TypeConverters.STRING_VALUE_ENTITY_CONVERTER
+                TypeConverters.STRING_PARAM_VALUE_CONVERTER
             )
             .build()
     }

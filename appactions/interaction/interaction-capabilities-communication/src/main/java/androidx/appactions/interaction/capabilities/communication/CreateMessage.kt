@@ -50,21 +50,19 @@ class CreateMessage private constructor() {
         Capability.Builder<
             CapabilityBuilder, Arguments, Output, Confirmation, ExecutionSession
             >(ACTION_SPEC) {
+        fun setMessageTextProperty(
+            messageText: Property<StringValue>
+        ): CapabilityBuilder = setProperty(
+            PropertyMapStrings.MESSAGE_TEXT.key,
+            messageText,
+            TypeConverters.STRING_VALUE_ENTITY_CONVERTER
+        )
 
-        private var properties = mutableMapOf<String, Property<*>>()
-
-        fun setMessageText(messageText: Property<StringValue>): CapabilityBuilder = apply {
-            properties[PropertyMapStrings.MESSAGE_TEXT.key] = messageText
-        }
-
-        fun setRecipient(recipient: Property<Recipient>): CapabilityBuilder = apply {
-            properties[PropertyMapStrings.RECIPIENT.key] = recipient
-        }
-
-        override fun build(): Capability {
-            super.setProperty(properties)
-            return super.build()
-        }
+        fun setRecipientProperty(recipient: Property<Recipient>): CapabilityBuilder = setProperty(
+            PropertyMapStrings.RECIPIENT.key,
+            recipient,
+            EntityConverter.of(TypeConverters.RECIPIENT_TYPE_SPEC)
+        )
     }
 
     class Arguments
@@ -179,28 +177,19 @@ class CreateMessage private constructor() {
     sealed interface ExecutionSession : BaseExecutionSession<Arguments, Output>
 
     companion object {
-        @Suppress("UNCHECKED_CAST")
         private val ACTION_SPEC =
             ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
                 .setArguments(Arguments::class.java, Arguments::Builder)
                 .setOutput(Output::class.java)
                 .bindRepeatedParameter(
                     "message.recipient",
-                    { properties ->
-                        properties[PropertyMapStrings.RECIPIENT.key] as? Property<Recipient>
-                    },
                     Arguments.Builder::setRecipientList,
                     RecipientValue.PARAM_VALUE_CONVERTER,
-                    EntityConverter.of(RECIPIENT_TYPE_SPEC)
                 )
                 .bindParameter(
                     "message.text",
-                    { properties ->
-                        properties[PropertyMapStrings.MESSAGE_TEXT.key] as? Property<StringValue>
-                    },
                     Arguments.Builder::setMessageText,
                     TypeConverters.STRING_PARAM_VALUE_CONVERTER,
-                    TypeConverters.STRING_VALUE_ENTITY_CONVERTER
                 )
                 .bindOutput(
                     "message",

@@ -18,7 +18,6 @@ package androidx.appactions.interaction.capabilities.productivity
 
 import androidx.appactions.builtintypes.experimental.types.Timer
 import androidx.appactions.interaction.capabilities.core.SearchAction
-import androidx.appactions.interaction.capabilities.core.impl.converters.EntityConverter
 import androidx.appactions.interaction.capabilities.core.impl.converters.ParamValueConverter
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
 import androidx.appactions.interaction.capabilities.core.impl.converters.UnionTypeSpec
@@ -66,7 +65,5 @@ private constructor(
                 .build()
 
         internal val PARAM_VALUE_CONVERTER = ParamValueConverter.of(TYPE_SPEC)
-
-        internal val ENTITY_CONVERTER = EntityConverter.of(TYPE_SPEC)
     }
 }
