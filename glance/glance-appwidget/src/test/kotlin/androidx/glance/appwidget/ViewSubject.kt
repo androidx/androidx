@@ -181,6 +181,16 @@ internal open class LinearLayoutSubject(
 ) : ViewSubject(metaData, actual) {
     fun hasContentAlignment(alignment: Alignment.Vertical) {
         assertNotNull(actual)
+
+        // On S+ the ViewStub child views aren't used for rows and columns, so the alignment is set
+        // only on the outer layout.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            check("getGravity()")
+                .that(actual.gravity and Gravity.VERTICAL_GRAVITY_MASK)
+                .isEqualTo(alignment.toGravity())
+            return
+        }
+
         if (actual.orientation == LinearLayout.VERTICAL) {
             // LinearLayout.getGravity was introduced on Android N, prior to that, you could set the
             // gravity, but not read it back.
@@ -194,12 +204,23 @@ internal open class LinearLayoutSubject(
             return
         }
         check("children.getLayoutParams().gravity").that(actual.children.map { view ->
-            assertIs<LinearLayout.LayoutParams>(view.layoutParams).gravity
+            assertIs<LinearLayout.LayoutParams>(
+                view.layoutParams).gravity and Gravity.VERTICAL_GRAVITY_MASK
         }.toSet()).containsExactly(alignment.toGravity())
     }
 
     fun hasContentAlignment(alignment: Alignment.Horizontal) {
         assertNotNull(actual)
+
+        // On S+ the ViewStub child views aren't used for rows and columns, so the alignment is set
+        // only on the outer layout.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            check("getGravity()")
+                .that(actual.gravity and Gravity.RELATIVE_HORIZONTAL_GRAVITY_MASK)
+                .isEqualTo(alignment.toGravity())
+            return
+        }
+
         if (actual.orientation == LinearLayout.HORIZONTAL) {
             // LinearLayout.getGravity was introduced on Android N, prior to that, you could set the
             // gravity, but not read it back.
@@ -214,7 +235,8 @@ internal open class LinearLayoutSubject(
             return
         }
         check("children.getLayoutParams().gravity").that(actual.children.map { view ->
-            assertIs<LinearLayout.LayoutParams>(view.layoutParams).gravity
+            assertIs<LinearLayout.LayoutParams>(
+                view.layoutParams).gravity and Gravity.RELATIVE_HORIZONTAL_GRAVITY_MASK
         }.toSet()).containsExactly(alignment.toGravity())
     }
 
