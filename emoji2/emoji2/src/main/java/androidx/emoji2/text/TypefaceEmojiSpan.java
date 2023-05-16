@@ -31,7 +31,6 @@ import androidx.annotation.RestrictTo;
 /**
  * EmojiSpan subclass used to render emojis using Typeface.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RequiresApi(19)

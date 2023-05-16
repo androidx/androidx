@@ -68,7 +68,6 @@ public abstract class EmojiSpan extends ReplacementSpan {
      *
      * @param rasterizer information about the emoji, cannot be {@code null}
      *
-     * @hide
      */
     @RestrictTo(LIBRARY)
     EmojiSpan(@NonNull final TypefaceEmojiRasterizer rasterizer) {
@@ -113,7 +112,6 @@ public abstract class EmojiSpan extends ReplacementSpan {
     /**
      * @return width of the span
      *
-     * @hide
      */
     @RestrictTo(LIBRARY)
     final int getWidth() {
@@ -123,15 +121,14 @@ public abstract class EmojiSpan extends ReplacementSpan {
     /**
      * @return height of the span
      *
-     * @hide
      */
+    @RestrictTo(LIBRARY)
     @VisibleForTesting
     public final int getHeight() {
         return mHeight;
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     final float getRatio() {
@@ -141,8 +138,8 @@ public abstract class EmojiSpan extends ReplacementSpan {
     /**
      * @return unique id for the emoji that this EmojiSpan is used for
      *
-     * @hide
      */
+    @RestrictTo(LIBRARY)
     @VisibleForTesting
     public final int getId() {
         return getTypefaceRasterizer().getId();
