@@ -8461,11 +8461,9 @@ public class NotificationCompat {
     public static final class TvExtender implements Extender {
         private static final String TAG = "TvExtender";
 
-        /** @hide **/
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         static final String EXTRA_TV_EXTENDER = "android.tv.EXTENSIONS";
 
-        /** @hide **/
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         private static final String EXTRA_FLAGS = "flags";
 
