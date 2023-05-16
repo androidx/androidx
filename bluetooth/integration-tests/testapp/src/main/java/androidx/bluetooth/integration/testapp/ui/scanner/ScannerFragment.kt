@@ -25,6 +25,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.TextView
 import androidx.bluetooth.integration.testapp.R
 import androidx.bluetooth.integration.testapp.databinding.FragmentScannerBinding
@@ -216,6 +217,10 @@ class ScannerFragment : Fragment() {
         val textViewName = customView?.findViewById<TextView>(R.id.text_view_name)
         textViewName?.text = deviceName
         textViewName?.isVisible = deviceName.isNullOrEmpty().not()
+        customView?.findViewById<Button>(R.id.image_button_remove)?.setOnClickListener {
+            scannerViewModel.remove(scanResult)
+            binding.tabLayout.removeTab(newTab)
+        }
 
         binding.tabLayout.addTab(newTab)
         return newTab
