@@ -18,17 +18,16 @@ package androidx.tracing.perfetto
 import android.content.Context
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.tracing.perfetto.PerfettoHandshake.EnableTracingResponse
-import androidx.tracing.perfetto.PerfettoHandshake.ResponseExitCodes.RESULT_CODE_ALREADY_ENABLED
-import androidx.tracing.perfetto.PerfettoHandshake.ResponseExitCodes.RESULT_CODE_ERROR_BINARY_MISSING
-import androidx.tracing.perfetto.PerfettoHandshake.ResponseExitCodes.RESULT_CODE_ERROR_BINARY_VERIFICATION_ERROR
-import androidx.tracing.perfetto.PerfettoHandshake.ResponseExitCodes.RESULT_CODE_ERROR_BINARY_VERSION_MISMATCH
-import androidx.tracing.perfetto.PerfettoHandshake.ResponseExitCodes.RESULT_CODE_ERROR_OTHER
-import androidx.tracing.perfetto.PerfettoHandshake.ResponseExitCodes.RESULT_CODE_SUCCESS
+import androidx.tracing.perfetto.PerfettoSdkHandshake.EnableTracingResponse
+import androidx.tracing.perfetto.PerfettoSdkHandshake.ResponseExitCodes.RESULT_CODE_ALREADY_ENABLED
+import androidx.tracing.perfetto.PerfettoSdkHandshake.ResponseExitCodes.RESULT_CODE_ERROR_BINARY_MISSING
+import androidx.tracing.perfetto.PerfettoSdkHandshake.ResponseExitCodes.RESULT_CODE_ERROR_BINARY_VERIFICATION_ERROR
+import androidx.tracing.perfetto.PerfettoSdkHandshake.ResponseExitCodes.RESULT_CODE_ERROR_BINARY_VERSION_MISMATCH
+import androidx.tracing.perfetto.PerfettoSdkHandshake.ResponseExitCodes.RESULT_CODE_ERROR_OTHER
+import androidx.tracing.perfetto.PerfettoSdkHandshake.ResponseExitCodes.RESULT_CODE_SUCCESS
 import androidx.tracing.perfetto.jni.PerfettoNative
 import androidx.tracing.perfetto.security.IncorrectChecksumException
 import androidx.tracing.perfetto.security.SafeLibLoader
-import androidx.tracing.perfetto.security.UnapprovedLocationException
 import java.io.File
 import java.util.concurrent.locks.ReentrantReadWriteLock
 import kotlin.concurrent.withLock
@@ -86,7 +85,7 @@ object Tracing {
             }
         } catch (t: Throwable) {
             return when (t) {
-                is IncorrectChecksumException, is UnapprovedLocationException ->
+                is IncorrectChecksumException ->
                     EnableTracingResponse(RESULT_CODE_ERROR_BINARY_VERIFICATION_ERROR, t)
                 is UnsatisfiedLinkError ->
                     EnableTracingResponse(RESULT_CODE_ERROR_BINARY_MISSING, t)

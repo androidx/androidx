@@ -20,7 +20,7 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
-import androidx.tracing.perfetto.PerfettoHandshake.RequestKeys.RECEIVER_CLASS_NAME
+import androidx.tracing.perfetto.PerfettoSdkHandshake.RequestKeys.RECEIVER_CLASS_NAME
 import androidx.tracing.perfetto.Tracing
 import androidx.tracing.perfetto.TracingReceiver
 import com.google.common.truth.Truth.assertThat
