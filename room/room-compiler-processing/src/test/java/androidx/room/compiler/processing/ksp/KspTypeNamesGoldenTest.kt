@@ -184,6 +184,7 @@ class KspTypeNamesGoldenTest {
                 typealias JSW = JvmSuppressWildcards
                 typealias JW = JvmWildcard
                 typealias MyLambdaTypeAlias = (@JvmWildcard MyType) -> @JvmWildcard MyType
+                @JvmInline value class MyInlineType(val value: MyType)
                 enum class MyEnum {
                     VAL1,
                     VAL2;
@@ -364,6 +365,10 @@ class KspTypeNamesGoldenTest {
                         fun method52(
                             param: MyGenericIn<MyGeneric2ParametersAlias<MyGenericOut<MyType>, MyGenericIn<MyType>>>
                         ): MyGenericIn<MyGeneric2ParametersAlias<MyGenericOut<MyType>, MyGenericIn<MyType>>> = TODO()
+                        @JvmName("method53") // Needed to prevent obfuscation due to inline type.
+                        fun method53(param: MyInlineType): MyInlineType = TODO()
+                        fun method54(param: MyGenericOut<MyInlineType>): MyGenericOut<MyInlineType> = TODO()
+                        fun method55(param: MyGenericIn<MyInlineType>): MyGenericIn<MyInlineType> = TODO()
                     }
                 """.trimIndent()
             ), listOf("Subject")
