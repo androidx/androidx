@@ -1,18 +1,422 @@
 // Signature format: 4.0
 package androidx.tv.material3 {
 
+  @androidx.compose.runtime.Immutable @androidx.tv.material3.ExperimentalTvMaterial3Api public final class Border {
+    ctor public Border(androidx.compose.foundation.BorderStroke border, optional float inset, optional androidx.compose.ui.graphics.Shape shape);
+    method public androidx.tv.material3.Border copy(optional androidx.compose.foundation.BorderStroke? border, optional androidx.compose.ui.unit.Dp? inset, optional androidx.compose.ui.graphics.Shape? shape);
+    method public androidx.compose.foundation.BorderStroke getBorder();
+    method public float getInset();
+    method public androidx.compose.ui.graphics.Shape getShape();
+    property public final androidx.compose.foundation.BorderStroke border;
+    property public final float inset;
+    property public final androidx.compose.ui.graphics.Shape shape;
+    field public static final androidx.tv.material3.Border.Companion Companion;
+  }
+
+  public static final class Border.Companion {
+    method public androidx.tv.material3.Border getNone();
+    property public final androidx.tv.material3.Border None;
+  }
+
+  @androidx.compose.runtime.Immutable @androidx.tv.material3.ExperimentalTvMaterial3Api public final class ButtonBorder {
+  }
+
+  @androidx.compose.runtime.Immutable @androidx.tv.material3.ExperimentalTvMaterial3Api public final class ButtonColors {
+  }
+
+  @androidx.tv.material3.ExperimentalTvMaterial3Api public final class ButtonDefaults {
+    method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.tv.material3.ButtonBorder border(optional androidx.tv.material3.Border border, optional androidx.tv.material3.Border focusedBorder, optional androidx.tv.material3.Border pressedBorder, optional androidx.tv.material3.Border disabledBorder, optional androidx.tv.material3.Border focusedDisabledBorder);
+    method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.tv.material3.ButtonColors colors(optional long containerColor, optional long contentColor, optional long focusedContainerColor, optional long focusedContentColor, optional long pressedContainerColor, optional long pressedContentColor, optional long disabledContainerColor, optional long disabledContentColor);
+    method public androidx.compose.foundation.layout.PaddingValues getButtonWithIconContentPadding();
+    method public androidx.compose.foundation.layout.PaddingValues getContentPadding();
+    method public float getIconSize();
+    method public float getIconSpacing();
+    method public androidx.tv.material3.ButtonGlow glow(optional androidx.tv.material3.Glow glow, optional androidx.tv.material3.Glow focusedGlow, optional androidx.tv.material3.Glow pressedGlow);
+    method public androidx.tv.material3.ButtonScale scale(optional @FloatRange(from=0.0) float scale, optional @FloatRange(from=0.0) float focusedScale, optional @FloatRange(from=0.0) float pressedScale, optional @FloatRange(from=0.0) float disabledScale, optional @FloatRange(from=0.0) float focusedDisabledScale);
+    method public androidx.tv.material3.ButtonShape shape(optional androidx.compose.ui.graphics.Shape shape, optional androidx.compose.ui.graphics.Shape focusedShape, optional androidx.compose.ui.graphics.Shape pressedShape, optional androidx.compose.ui.graphics.Shape disabledShape, optional androidx.compose.ui.graphics.Shape focusedDisabledShape);
+    property public final androidx.compose.foundation.layout.PaddingValues ButtonWithIconContentPadding;
+    property public final androidx.compose.foundation.layout.PaddingValues ContentPadding;
+    property public final float IconSize;
+    property public final float IconSpacing;
+    field public static final androidx.tv.material3.ButtonDefaults INSTANCE;
+  }
+
+  @androidx.compose.runtime.Immutable @androidx.tv.material3.ExperimentalTvMaterial3Api public final class ButtonGlow {
+  }
+
+  public final class ButtonKt {
+    method @androidx.compose.runtime.Composable @androidx.compose.runtime.NonRestartableComposable @androidx.tv.material3.ExperimentalTvMaterial3Api public static void Button(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional androidx.tv.material3.ButtonScale scale, optional androidx.tv.material3.ButtonGlow glow, optional androidx.tv.material3.ButtonShape shape, optional androidx.tv.material3.ButtonColors colors, optional float tonalElevation, optional androidx.tv.material3.ButtonBorder border, optional androidx.compose.foundation.layout.PaddingValues contentPadding, optional androidx.compose.foundation.interaction.MutableInteractionSource interactionSource, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit> content);
+    method @androidx.compose.runtime.Composable @androidx.compose.runtime.NonRestartableComposable @androidx.tv.material3.ExperimentalTvMaterial3Api public static void OutlinedButton(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional androidx.tv.material3.ButtonScale scale, optional androidx.tv.material3.ButtonGlow glow, optional androidx.tv.material3.ButtonShape shape, optional androidx.tv.material3.ButtonColors colors, optional float tonalElevation, optional androidx.tv.material3.ButtonBorder border, optional androidx.compose.foundation.layout.PaddingValues contentPadding, optional androidx.compose.foundation.interaction.MutableInteractionSource interactionSource, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit> content);
+  }
+
+  @androidx.compose.runtime.Immutable @androidx.tv.material3.ExperimentalTvMaterial3Api public final class ButtonScale {
+  }
+
+  @androidx.compose.runtime.Immutable @androidx.tv.material3.ExperimentalTvMaterial3Api public final class ButtonShape {
+  }
+
+  @androidx.compose.runtime.Immutable @androidx.tv.material3.ExperimentalTvMaterial3Api public final class CardBorder {
+  }
+
+  @androidx.compose.runtime.Immutable @androidx.tv.material3.ExperimentalTvMaterial3Api public final class CardColors {
+  }
+
+  @androidx.tv.material3.ExperimentalTvMaterial3Api public final class CardDefaults {
+    method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.tv.material3.CardBorder border(optional androidx.tv.material3.Border border, optional androidx.tv.material3.Border focusedBorder, optional androidx.tv.material3.Border pressedBorder);
+    method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.tv.material3.CardColors colors(optional long containerColor, optional long contentColor, optional long focusedContainerColor, optional long focusedContentColor, optional long pressedContainerColor, optional long pressedContentColor);
+    method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.tv.material3.CardColors compactCardColors(optional long containerColor, optional long contentColor, optional long focusedContainerColor, optional long focusedContentColor, optional long pressedContainerColor, optional long pressedContentColor);
+    method public androidx.compose.ui.graphics.Brush getContainerGradient();
+    method public androidx.tv.material3.CardGlow glow(optional androidx.tv.material3.Glow glow, optional androidx.tv.material3.Glow focusedGlow, optional androidx.tv.material3.Glow pressedGlow);
+    method public androidx.tv.material3.CardScale scale(optional @FloatRange(from=0.0) float scale, optional @FloatRange(from=0.0) float focusedScale, optional @FloatRange(from=0.0) float pressedScale);
+    method public androidx.tv.material3.CardShape shape(optional androidx.compose.ui.graphics.Shape shape, optional androidx.compose.ui.graphics.Shape focusedShape, optional androidx.compose.ui.graphics.Shape pressedShape);
+    property public final androidx.compose.ui.graphics.Brush ContainerGradient;
+    field public static final float HorizontalImageAspectRatio = 1.7777778f;
+    field public static final androidx.tv.material3.CardDefaults INSTANCE;
+    field public static final float SquareImageAspectRatio = 1.0f;
+    field public static final float VerticalImageAspectRatio = 0.6666667f;
+  }
+
+  @androidx.compose.runtime.Immutable @androidx.tv.material3.ExperimentalTvMaterial3Api public final class CardGlow {
+  }
+
+  public final class CardKt {
+    method @androidx.compose.runtime.Composable @androidx.tv.material3.ExperimentalTvMaterial3Api public static void Card(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, optional androidx.compose.ui.Modifier modifier, optional androidx.tv.material3.CardShape shape, optional androidx.tv.material3.CardColors colors, optional androidx.tv.material3.CardScale scale, optional androidx.tv.material3.CardBorder border, optional androidx.tv.material3.CardGlow glow, optional androidx.compose.foundation.interaction.MutableInteractionSource interactionSource, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ColumnScope,kotlin.Unit> content);
+    method @androidx.compose.runtime.Composable @androidx.tv.material3.ExperimentalTvMaterial3Api public static void ClassicCard(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit> image, kotlin.jvm.functions.Function0<kotlin.Unit> title, optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function0<kotlin.Unit> subtitle, optional kotlin.jvm.functions.Function0<kotlin.Unit> description, optional androidx.tv.material3.CardShape shape, optional androidx.tv.material3.CardColors colors, optional androidx.tv.material3.CardScale scale, optional androidx.tv.material3.CardBorder border, optional androidx.tv.material3.CardGlow glow, optional androidx.compose.foundation.layout.PaddingValues contentPadding, optional androidx.compose.foundation.interaction.MutableInteractionSource interactionSource);
+    method @androidx.compose.runtime.Composable @androidx.tv.material3.ExperimentalTvMaterial3Api public static void CompactCard(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit> image, kotlin.jvm.functions.Function0<kotlin.Unit> title, optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function0<kotlin.Unit> subtitle, optional kotlin.jvm.functions.Function0<kotlin.Unit> description, optional androidx.tv.material3.CardShape shape, optional androidx.tv.material3.CardColors colors, optional androidx.tv.material3.CardScale scale, optional androidx.tv.material3.CardBorder border, optional androidx.tv.material3.CardGlow glow, optional androidx.compose.ui.graphics.Brush scrimBrush, optional androidx.compose.foundation.interaction.MutableInteractionSource interactionSource);
+    method @androidx.compose.runtime.Composable @androidx.tv.material3.ExperimentalTvMaterial3Api public static void WideClassicCard(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit> image, kotlin.jvm.functions.Function0<kotlin.Unit> title, optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function0<kotlin.Unit> subtitle, optional kotlin.jvm.functions.Function0<kotlin.Unit> description, optional androidx.tv.material3.CardShape shape, optional androidx.tv.material3.CardColors colors, optional androidx.tv.material3.CardScale scale, optional androidx.tv.material3.CardBorder border, optional androidx.tv.material3.CardGlow glow, optional androidx.compose.foundation.layout.PaddingValues contentPadding, optional androidx.compose.foundation.interaction.MutableInteractionSource interactionSource);
+  }
+
+  @androidx.compose.runtime.Immutable @androidx.tv.material3.ExperimentalTvMaterial3Api public final class CardLayoutColors {
+  }
+
+  @androidx.tv.material3.ExperimentalTvMaterial3Api public final class CardLayoutDefaults {
+    method @androidx.compose.runtime.Composable public void ImageCard(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, androidx.compose.foundation.interaction.MutableInteractionSource interactionSource, optional androidx.compose.ui.Modifier modifier, optional androidx.tv.material3.CardShape shape, optional androidx.tv.material3.CardColors colors, optional androidx.tv.material3.CardScale scale, optional androidx.tv.material3.CardBorder border, optional androidx.tv.material3.CardGlow glow, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+    method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.tv.material3.CardLayoutColors contentColor(optional long contentColor, optional long focusedContentColor, optional long pressedContentColor);
+    field public static final androidx.tv.material3.CardLayoutDefaults INSTANCE;
+  }
+
+  public final class CardLayoutKt {
+    method @androidx.compose.runtime.Composable @androidx.tv.material3.ExperimentalTvMaterial3Api public static void StandardCardLayout(kotlin.jvm.functions.Function1<? super androidx.compose.foundation.interaction.MutableInteractionSource,kotlin.Unit> imageCard, kotlin.jvm.functions.Function0<kotlin.Unit> title, optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function0<kotlin.Unit> subtitle, optional kotlin.jvm.functions.Function0<kotlin.Unit> description, optional androidx.tv.material3.CardLayoutColors contentColor, optional androidx.compose.foundation.interaction.MutableInteractionSource interactionSource);
+    method @androidx.compose.runtime.Composable @androidx.tv.material3.ExperimentalTvMaterial3Api public static void WideCardLayout(kotlin.jvm.functions.Function1<? super androidx.compose.foundation.interaction.MutableInteractionSource,kotlin.Unit> imageCard, kotlin.jvm.functions.Function0<kotlin.Unit> title, optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function0<kotlin.Unit> subtitle, optional kotlin.jvm.functions.Function0<kotlin.Unit> description, optional androidx.tv.material3.CardLayoutColors contentColor, optional androidx.compose.foundation.interaction.MutableInteractionSource interactionSource);
+  }
+
+  @androidx.compose.runtime.Immutable @androidx.tv.material3.ExperimentalTvMaterial3Api public final class CardScale {
+  }
+
+  @androidx.compose.runtime.Immutable @androidx.tv.material3.ExperimentalTvMaterial3Api public final class CardShape {
+  }
+
+  @androidx.tv.material3.ExperimentalTvMaterial3Api public final class CarouselDefaults {
+    method @androidx.compose.runtime.Composable @androidx.tv.material3.ExperimentalTvMaterial3Api public void IndicatorRow(int itemCount, int activeItemIndex, optional androidx.compose.ui.Modifier modifier, optional float spacing, optional kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit> indicator);
+    method @androidx.compose.runtime.Composable public androidx.compose.animation.ContentTransform getContentTransform();
+    property @androidx.compose.runtime.Composable public final androidx.compose.animation.ContentTransform contentTransform;
+    field public static final androidx.tv.material3.CarouselDefaults INSTANCE;
+    field public static final long TimeToDisplayItemMillis = 5000L; // 0x1388L
+  }
+
+  public final class CarouselKt {
+    method @androidx.compose.runtime.Composable @androidx.tv.material3.ExperimentalTvMaterial3Api public static void Carousel(int itemCount, optional androidx.compose.ui.Modifier modifier, optional androidx.tv.material3.CarouselState carouselState, optional long autoScrollDurationMillis, optional androidx.compose.animation.ContentTransform contentTransformStartToEnd, optional androidx.compose.animation.ContentTransform contentTransformEndToStart, optional kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit> carouselIndicator, kotlin.jvm.functions.Function2<? super androidx.compose.animation.AnimatedContentScope,? super java.lang.Integer,kotlin.Unit> content);
+  }
+
+  @androidx.compose.runtime.Stable @androidx.tv.material3.ExperimentalTvMaterial3Api public final class CarouselState {
+    ctor public CarouselState(optional int initialActiveItemIndex);
+    method public int getActiveItemIndex();
+    method public androidx.tv.material3.ScrollPauseHandle pauseAutoScroll(int itemIndex);
+    property public final int activeItemIndex;
+  }
+
+  @androidx.compose.runtime.Immutable @androidx.tv.material3.ExperimentalTvMaterial3Api public final class CheckboxColors {
+  }
+
+  @androidx.tv.material3.ExperimentalTvMaterial3Api public final class CheckboxDefaults {
+    method @androidx.compose.runtime.Composable public androidx.tv.material3.CheckboxColors colors(optional long checkedColor, optional long uncheckedColor, optional long checkmarkColor, optional long disabledCheckedColor, optional long disabledUncheckedColor, optional long disabledIndeterminateColor);
+    field public static final androidx.tv.material3.CheckboxDefaults INSTANCE;
+  }
+
+  public final class CheckboxKt {
+    method @androidx.compose.runtime.Composable @androidx.tv.material3.ExperimentalTvMaterial3Api public static void Checkbox(boolean checked, kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit>? onCheckedChange, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional androidx.tv.material3.CheckboxColors colors, optional androidx.compose.foundation.interaction.MutableInteractionSource interactionSource);
+    method @androidx.compose.runtime.Composable @androidx.tv.material3.ExperimentalTvMaterial3Api public static void TriStateCheckbox(androidx.compose.ui.state.ToggleableState state, kotlin.jvm.functions.Function0<kotlin.Unit>? onClick, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional androidx.tv.material3.CheckboxColors colors, optional androidx.compose.foundation.interaction.MutableInteractionSource interactionSource);
+  }
+
+  @androidx.compose.runtime.Immutable @androidx.tv.material3.ExperimentalTvMaterial3Api public final class ClickableSurfaceBorder {
+  }
+
+  @androidx.compose.runtime.Immutable @androidx.tv.material3.ExperimentalTvMaterial3Api public final class ClickableSurfaceColors {
+  }
+
+  @androidx.tv.material3.ExperimentalTvMaterial3Api public final class ClickableSurfaceDefaults {
+    method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.tv.material3.ClickableSurfaceBorder border(optional androidx.tv.material3.Border border, optional androidx.tv.material3.Border focusedBorder, optional androidx.tv.material3.Border pressedBorder, optional androidx.tv.material3.Border disabledBorder, optional androidx.tv.material3.Border focusedDisabledBorder);
+    method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.tv.material3.ClickableSurfaceColors colors(optional long containerColor, optional long contentColor, optional long focusedContainerColor, optional long focusedContentColor, optional long pressedContainerColor, optional long pressedContentColor, optional long disabledContainerColor, optional long disabledContentColor);
+    method public androidx.tv.material3.ClickableSurfaceGlow glow(optional androidx.tv.material3.Glow glow, optional androidx.tv.material3.Glow focusedGlow, optional androidx.tv.material3.Glow pressedGlow);
+    method public androidx.tv.material3.ClickableSurfaceScale scale(optional @FloatRange(from=0.0) float scale, optional @FloatRange(from=0.0) float focusedScale, optional @FloatRange(from=0.0) float pressedScale, optional @FloatRange(from=0.0) float disabledScale, optional @FloatRange(from=0.0) float focusedDisabledScale);
+    method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.tv.material3.ClickableSurfaceShape shape(optional androidx.compose.ui.graphics.Shape shape, optional androidx.compose.ui.graphics.Shape focusedShape, optional androidx.compose.ui.graphics.Shape pressedShape, optional androidx.compose.ui.graphics.Shape disabledShape, optional androidx.compose.ui.graphics.Shape focusedDisabledShape);
+    field public static final androidx.tv.material3.ClickableSurfaceDefaults INSTANCE;
+  }
+
+  @androidx.compose.runtime.Immutable @androidx.tv.material3.ExperimentalTvMaterial3Api public final class ClickableSurfaceGlow {
+  }
+
+  @androidx.compose.runtime.Immutable @androidx.tv.material3.ExperimentalTvMaterial3Api public final class ClickableSurfaceScale {
+    field public static final androidx.tv.material3.ClickableSurfaceScale.Companion Companion;
+  }
+
+  public static final class ClickableSurfaceScale.Companion {
+    method public androidx.tv.material3.ClickableSurfaceScale getNone();
+    property public final androidx.tv.material3.ClickableSurfaceScale None;
+  }
+
+  @androidx.compose.runtime.Immutable @androidx.tv.material3.ExperimentalTvMaterial3Api public final class ClickableSurfaceShape {
+  }
+
+  @androidx.compose.runtime.Stable @androidx.tv.material3.ExperimentalTvMaterial3Api public final class ColorScheme {
+    ctor public ColorScheme(long primary, long onPrimary, long primaryContainer, long onPrimaryContainer, long inversePrimary, long secondary, long onSecondary, long secondaryContainer, long onSecondaryContainer, long tertiary, long onTertiary, long tertiaryContainer, long onTertiaryContainer, long background, long onBackground, long surface, long onSurface, long surfaceVariant, long onSurfaceVariant, long surfaceTint, long inverseSurface, long inverseOnSurface, long error, long onError, long errorContainer, long onErrorContainer, long border, long borderVariant, long scrim);
+    method public androidx.tv.material3.ColorScheme copy(optional long primary, optional long onPrimary, optional long primaryContainer, optional long onPrimaryContainer, optional long inversePrimary, optional long secondary, optional long onSecondary, optional long secondaryContainer, optional long onSecondaryContainer, optional long tertiary, optional long onTertiary, optional long tertiaryContainer, optional long onTertiaryContainer, optional long background, optional long onBackground, optional long surface, optional long onSurface, optional long surfaceVariant, optional long onSurfaceVariant, optional long surfaceTint, optional long inverseSurface, optional long inverseOnSurface, optional long error, optional long onError, optional long errorContainer, optional long onErrorContainer, optional long border, optional long borderVariant, optional long scrim);
+    method public long getBackground();
+    method public long getBorder();
+    method public long getBorderVariant();
+    method public long getError();
+    method public long getErrorContainer();
+    method public long getInverseOnSurface();
+    method public long getInversePrimary();
+    method public long getInverseSurface();
+    method public long getOnBackground();
+    method public long getOnError();
+    method public long getOnErrorContainer();
+    method public long getOnPrimary();
+    method public long getOnPrimaryContainer();
+    method public long getOnSecondary();
+    method public long getOnSecondaryContainer();
+    method public long getOnSurface();
+    method public long getOnSurfaceVariant();
+    method public long getOnTertiary();
+    method public long getOnTertiaryContainer();
+    method public long getPrimary();
+    method public long getPrimaryContainer();
+    method public long getScrim();
+    method public long getSecondary();
+    method public long getSecondaryContainer();
+    method public long getSurface();
+    method public long getSurfaceTint();
+    method public long getSurfaceVariant();
+    method public long getTertiary();
+    method public long getTertiaryContainer();
+    property public final long background;
+    property public final long border;
+    property public final long borderVariant;
+    property public final long error;
+    property public final long errorContainer;
+    property public final long inverseOnSurface;
+    property public final long inversePrimary;
+    property public final long inverseSurface;
+    property public final long onBackground;
+    property public final long onError;
+    property public final long onErrorContainer;
+    property public final long onPrimary;
+    property public final long onPrimaryContainer;
+    property public final long onSecondary;
+    property public final long onSecondaryContainer;
+    property public final long onSurface;
+    property public final long onSurfaceVariant;
+    property public final long onTertiary;
+    property public final long onTertiaryContainer;
+    property public final long primary;
+    property public final long primaryContainer;
+    property public final long scrim;
+    property public final long secondary;
+    property public final long secondaryContainer;
+    property public final long surface;
+    property public final long surfaceTint;
+    property public final long surfaceVariant;
+    property public final long tertiary;
+    property public final long tertiaryContainer;
+  }
+
+  public final class ColorSchemeKt {
+    method @androidx.tv.material3.ExperimentalTvMaterial3Api public static long contentColorFor(androidx.tv.material3.ColorScheme, long backgroundColor);
+    method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable @androidx.tv.material3.ExperimentalTvMaterial3Api public static long contentColorFor(long backgroundColor);
+    method @androidx.tv.material3.ExperimentalTvMaterial3Api public static androidx.tv.material3.ColorScheme darkColorScheme(optional long primary, optional long onPrimary, optional long primaryContainer, optional long onPrimaryContainer, optional long inversePrimary, optional long secondary, optional long onSecondary, optional long secondaryContainer, optional long onSecondaryContainer, optional long tertiary, optional long onTertiary, optional long tertiaryContainer, optional long onTertiaryContainer, optional long background, optional long onBackground, optional long surface, optional long onSurface, optional long surfaceVariant, optional long onSurfaceVariant, optional long surfaceTint, optional long inverseSurface, optional long inverseOnSurface, optional long error, optional long onError, optional long errorContainer, optional long onErrorContainer, optional long border, optional long borderVariant, optional long scrim);
+    method @androidx.tv.material3.ExperimentalTvMaterial3Api public static androidx.tv.material3.ColorScheme lightColorScheme(optional long primary, optional long onPrimary, optional long primaryContainer, optional long onPrimaryContainer, optional long inversePrimary, optional long secondary, optional long onSecondary, optional long secondaryContainer, optional long onSecondaryContainer, optional long tertiary, optional long onTertiary, optional long tertiaryContainer, optional long onTertiaryContainer, optional long background, optional long onBackground, optional long surface, optional long onSurface, optional long surfaceVariant, optional long onSurfaceVariant, optional long surfaceTint, optional long inverseSurface, optional long inverseOnSurface, optional long error, optional long onError, optional long errorContainer, optional long onErrorContainer, optional long border, optional long borderVariant, optional long scrim);
+    method @androidx.tv.material3.ExperimentalTvMaterial3Api public static long surfaceColorAtElevation(androidx.tv.material3.ColorScheme, float elevation);
+  }
+
   public final class ContentColorKt {
     method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.graphics.Color> getLocalContentColor();
     property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.graphics.Color> LocalContentColor;
+  }
+
+  @androidx.tv.material3.ExperimentalTvMaterial3Api public final class DrawerState {
+    ctor public DrawerState(optional androidx.tv.material3.DrawerValue initialValue);
+    method public androidx.tv.material3.DrawerValue getCurrentValue();
+    method public void setValue(androidx.tv.material3.DrawerValue drawerValue);
+    property public final androidx.tv.material3.DrawerValue currentValue;
+    field public static final androidx.tv.material3.DrawerState.Companion Companion;
+  }
+
+  public static final class DrawerState.Companion {
+    method public androidx.compose.runtime.saveable.Saver<androidx.tv.material3.DrawerState,androidx.tv.material3.DrawerValue> getSaver();
+    property public final androidx.compose.runtime.saveable.Saver<androidx.tv.material3.DrawerState,androidx.tv.material3.DrawerValue> Saver;
+  }
+
+  @androidx.tv.material3.ExperimentalTvMaterial3Api public enum DrawerValue {
+    method public static androidx.tv.material3.DrawerValue valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
+    method public static androidx.tv.material3.DrawerValue[] values();
+    enum_constant public static final androidx.tv.material3.DrawerValue Closed;
+    enum_constant public static final androidx.tv.material3.DrawerValue Open;
+  }
+
+  @kotlin.RequiresOptIn(message="This tv-material API is experimental and likely to change or be removed in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalTvMaterial3Api {
+  }
+
+  @androidx.compose.runtime.Immutable @androidx.tv.material3.ExperimentalTvMaterial3Api public final class Glow {
+    ctor public Glow(long elevationColor, float elevation);
+    method public androidx.tv.material3.Glow copy(optional androidx.compose.ui.graphics.Color? glowColor, optional androidx.compose.ui.unit.Dp? glowElevation);
+    method public float getElevation();
+    method public long getElevationColor();
+    property public final float elevation;
+    property public final long elevationColor;
+    field public static final androidx.tv.material3.Glow.Companion Companion;
+  }
+
+  public static final class Glow.Companion {
+    method public androidx.tv.material3.Glow getNone();
+    property public final androidx.tv.material3.Glow None;
+  }
+
+  @androidx.tv.material3.ExperimentalTvMaterial3Api public final class IconButtonDefaults {
+    method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.tv.material3.ButtonBorder border(optional androidx.tv.material3.Border border, optional androidx.tv.material3.Border focusedBorder, optional androidx.tv.material3.Border pressedBorder, optional androidx.tv.material3.Border disabledBorder, optional androidx.tv.material3.Border focusedDisabledBorder);
+    method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.tv.material3.ButtonColors colors(optional long containerColor, optional long contentColor, optional long focusedContainerColor, optional long focusedContentColor, optional long pressedContainerColor, optional long pressedContentColor, optional long disabledContainerColor, optional long disabledContentColor);
+    method public float getLargeButtonSize();
+    method public float getLargeIconSize();
+    method public float getMediumButtonSize();
+    method public float getMediumIconSize();
+    method public float getSmallButtonSize();
+    method public float getSmallIconSize();
+    method public androidx.tv.material3.ButtonGlow glow(optional androidx.tv.material3.Glow glow, optional androidx.tv.material3.Glow focusedGlow, optional androidx.tv.material3.Glow pressedGlow);
+    method public androidx.tv.material3.ButtonScale scale(optional @FloatRange(from=0.0) float scale, optional @FloatRange(from=0.0) float focusedScale, optional @FloatRange(from=0.0) float pressedScale, optional @FloatRange(from=0.0) float disabledScale, optional @FloatRange(from=0.0) float focusedDisabledScale);
+    method public androidx.tv.material3.ButtonShape shape(optional androidx.compose.ui.graphics.Shape shape, optional androidx.compose.ui.graphics.Shape focusedShape, optional androidx.compose.ui.graphics.Shape pressedShape, optional androidx.compose.ui.graphics.Shape disabledShape, optional androidx.compose.ui.graphics.Shape focusedDisabledShape);
+    property public final float LargeButtonSize;
+    property public final float LargeIconSize;
+    property public final float MediumButtonSize;
+    property public final float MediumIconSize;
+    property public final float SmallButtonSize;
+    property public final float SmallIconSize;
+    field public static final androidx.tv.material3.IconButtonDefaults INSTANCE;
+  }
+
+  public final class IconButtonKt {
+    method @androidx.compose.runtime.Composable @androidx.compose.runtime.NonRestartableComposable @androidx.tv.material3.ExperimentalTvMaterial3Api public static void IconButton(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional androidx.tv.material3.ButtonScale scale, optional androidx.tv.material3.ButtonGlow glow, optional androidx.tv.material3.ButtonShape shape, optional androidx.tv.material3.ButtonColors colors, optional androidx.tv.material3.ButtonBorder border, optional androidx.compose.foundation.interaction.MutableInteractionSource interactionSource, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit> content);
+    method @androidx.compose.runtime.Composable @androidx.compose.runtime.NonRestartableComposable @androidx.tv.material3.ExperimentalTvMaterial3Api public static void OutlinedIconButton(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional androidx.tv.material3.ButtonScale scale, optional androidx.tv.material3.ButtonGlow glow, optional androidx.tv.material3.ButtonShape shape, optional androidx.tv.material3.ButtonColors colors, optional androidx.tv.material3.ButtonBorder border, optional androidx.compose.foundation.interaction.MutableInteractionSource interactionSource, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit> content);
+  }
+
+  public final class IconKt {
+    method @androidx.compose.runtime.Composable @androidx.tv.material3.ExperimentalTvMaterial3Api public static void Icon(androidx.compose.ui.graphics.ImageBitmap bitmap, String? contentDescription, optional androidx.compose.ui.Modifier modifier, optional long tint);
+    method @androidx.compose.runtime.Composable @androidx.tv.material3.ExperimentalTvMaterial3Api public static void Icon(androidx.compose.ui.graphics.painter.Painter painter, String? contentDescription, optional androidx.compose.ui.Modifier modifier, optional long tint);
+    method @androidx.compose.runtime.Composable @androidx.tv.material3.ExperimentalTvMaterial3Api public static void Icon(androidx.compose.ui.graphics.vector.ImageVector imageVector, String? contentDescription, optional androidx.compose.ui.Modifier modifier, optional long tint);
+  }
+
+  @androidx.compose.runtime.Immutable @androidx.tv.material3.ExperimentalTvMaterial3Api public final class ImmersiveListBackgroundScope implements androidx.compose.foundation.layout.BoxScope {
+    method @androidx.compose.runtime.Composable public void AnimatedContent(int targetState, optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function1<? super androidx.compose.animation.AnimatedContentTransitionScope<java.lang.Integer>,androidx.compose.animation.ContentTransform> transitionSpec, optional androidx.compose.ui.Alignment contentAlignment, kotlin.jvm.functions.Function2<? super androidx.compose.animation.AnimatedVisibilityScope,? super java.lang.Integer,kotlin.Unit> content);
+    method @androidx.compose.runtime.Composable public void AnimatedVisibility(boolean visible, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.animation.EnterTransition enter, optional androidx.compose.animation.ExitTransition exit, optional String label, kotlin.jvm.functions.Function1<? super androidx.compose.animation.AnimatedVisibilityScope,kotlin.Unit> content);
+  }
+
+  @androidx.tv.material3.ExperimentalTvMaterial3Api public final class ImmersiveListDefaults {
+    method public androidx.compose.animation.EnterTransition getEnterTransition();
+    method public androidx.compose.animation.ExitTransition getExitTransition();
+    property public final androidx.compose.animation.EnterTransition EnterTransition;
+    property public final androidx.compose.animation.ExitTransition ExitTransition;
+    field public static final androidx.tv.material3.ImmersiveListDefaults INSTANCE;
+  }
+
+  public final class ImmersiveListKt {
+    method @androidx.compose.runtime.Composable @androidx.tv.material3.ExperimentalTvMaterial3Api public static void ImmersiveList(kotlin.jvm.functions.Function3<? super androidx.tv.material3.ImmersiveListBackgroundScope,? super java.lang.Integer,? super java.lang.Boolean,kotlin.Unit> background, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.ui.Alignment listAlignment, kotlin.jvm.functions.Function1<? super androidx.tv.material3.ImmersiveListScope,kotlin.Unit> list);
+  }
+
+  @androidx.compose.runtime.Immutable @androidx.tv.material3.ExperimentalTvMaterial3Api public final class ImmersiveListScope {
+    method public androidx.compose.ui.Modifier immersiveListItem(androidx.compose.ui.Modifier, int index);
   }
 
   public final class MaterialTheme {
     method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.tv.material3.ColorScheme getColorScheme();
     method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.tv.material3.Shapes getShapes();
     method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.tv.material3.Typography getTypography();
+    property @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable @androidx.tv.material3.ExperimentalTvMaterial3Api public final androidx.tv.material3.ColorScheme colorScheme;
     property @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public final androidx.tv.material3.Shapes shapes;
     property @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public final androidx.tv.material3.Typography typography;
     field public static final androidx.tv.material3.MaterialTheme INSTANCE;
+  }
+
+  public final class MaterialThemeKt {
+    method @androidx.compose.runtime.Composable @androidx.tv.material3.ExperimentalTvMaterial3Api public static void MaterialTheme(optional androidx.tv.material3.ColorScheme colorScheme, optional androidx.tv.material3.Shapes shapes, optional androidx.tv.material3.Typography typography, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+  }
+
+  public final class NavigationDrawerKt {
+    method @androidx.compose.runtime.Composable @androidx.tv.material3.ExperimentalTvMaterial3Api public static void ModalNavigationDrawer(kotlin.jvm.functions.Function1<? super androidx.tv.material3.DrawerValue,kotlin.Unit> drawerContent, optional androidx.compose.ui.Modifier modifier, optional androidx.tv.material3.DrawerState drawerState, optional long scrimColor, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+    method @androidx.compose.runtime.Composable @androidx.tv.material3.ExperimentalTvMaterial3Api public static void NavigationDrawer(kotlin.jvm.functions.Function1<? super androidx.tv.material3.DrawerValue,kotlin.Unit> drawerContent, optional androidx.compose.ui.Modifier modifier, optional androidx.tv.material3.DrawerState drawerState, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+    method @androidx.compose.runtime.Composable @androidx.tv.material3.ExperimentalTvMaterial3Api public static androidx.tv.material3.DrawerState rememberDrawerState(androidx.tv.material3.DrawerValue initialValue);
+  }
+
+  @androidx.compose.runtime.Immutable @androidx.tv.material3.ExperimentalTvMaterial3Api public final class NonInteractiveSurfaceColors {
+  }
+
+  @androidx.tv.material3.ExperimentalTvMaterial3Api public final class NonInteractiveSurfaceDefaults {
+    method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.tv.material3.NonInteractiveSurfaceColors colors(optional long containerColor, optional long contentColor);
+    method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.compose.ui.graphics.Shape getShape();
+    property @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public final androidx.compose.ui.graphics.Shape shape;
+    field public static final androidx.tv.material3.NonInteractiveSurfaceDefaults INSTANCE;
+  }
+
+  @androidx.tv.material3.ExperimentalTvMaterial3Api public final class OutlinedButtonDefaults {
+    method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.tv.material3.ButtonBorder border(optional androidx.tv.material3.Border border, optional androidx.tv.material3.Border focusedBorder, optional androidx.tv.material3.Border pressedBorder, optional androidx.tv.material3.Border disabledBorder, optional androidx.tv.material3.Border focusedDisabledBorder);
+    method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.tv.material3.ButtonColors colors(optional long containerColor, optional long contentColor, optional long focusedContainerColor, optional long focusedContentColor, optional long pressedContainerColor, optional long pressedContentColor, optional long disabledContainerColor, optional long disabledContentColor);
+    method public androidx.compose.foundation.layout.PaddingValues getButtonWithIconContentPadding();
+    method public androidx.compose.foundation.layout.PaddingValues getContentPadding();
+    method public float getIconSize();
+    method public float getIconSpacing();
+    method public androidx.tv.material3.ButtonGlow glow(optional androidx.tv.material3.Glow glow, optional androidx.tv.material3.Glow focusedGlow, optional androidx.tv.material3.Glow pressedGlow);
+    method public androidx.tv.material3.ButtonScale scale(optional @FloatRange(from=0.0) float scale, optional @FloatRange(from=0.0) float focusedScale, optional @FloatRange(from=0.0) float pressedScale, optional @FloatRange(from=0.0) float disabledScale, optional @FloatRange(from=0.0) float focusedDisabledScale);
+    method public androidx.tv.material3.ButtonShape shape(optional androidx.compose.ui.graphics.Shape shape, optional androidx.compose.ui.graphics.Shape focusedShape, optional androidx.compose.ui.graphics.Shape pressedShape, optional androidx.compose.ui.graphics.Shape disabledShape, optional androidx.compose.ui.graphics.Shape focusedDisabledShape);
+    property public final androidx.compose.foundation.layout.PaddingValues ButtonWithIconContentPadding;
+    property public final androidx.compose.foundation.layout.PaddingValues ContentPadding;
+    property public final float IconSize;
+    property public final float IconSpacing;
+    field public static final androidx.tv.material3.OutlinedButtonDefaults INSTANCE;
+  }
+
+  @androidx.tv.material3.ExperimentalTvMaterial3Api public final class OutlinedIconButtonDefaults {
+    method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.tv.material3.ButtonBorder border(optional androidx.tv.material3.Border border, optional androidx.tv.material3.Border focusedBorder, optional androidx.tv.material3.Border pressedBorder, optional androidx.tv.material3.Border disabledBorder, optional androidx.tv.material3.Border focusedDisabledBorder);
+    method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.tv.material3.ButtonColors colors(optional long containerColor, optional long contentColor, optional long focusedContainerColor, optional long focusedContentColor, optional long pressedContainerColor, optional long pressedContentColor, optional long disabledContainerColor, optional long disabledContentColor);
+    method public float getLargeButtonSize();
+    method public float getLargeIconSize();
+    method public float getMediumButtonSize();
+    method public float getMediumIconSize();
+    method public float getSmallButtonSize();
+    method public float getSmallIconSize();
+    method public androidx.tv.material3.ButtonGlow glow(optional androidx.tv.material3.Glow glow, optional androidx.tv.material3.Glow focusedGlow, optional androidx.tv.material3.Glow pressedGlow);
+    method public androidx.tv.material3.ButtonScale scale(optional @FloatRange(from=0.0) float scale, optional @FloatRange(from=0.0) float focusedScale, optional @FloatRange(from=0.0) float pressedScale, optional @FloatRange(from=0.0) float disabledScale, optional @FloatRange(from=0.0) float focusedDisabledScale);
+    method public androidx.tv.material3.ButtonShape shape(optional androidx.compose.ui.graphics.Shape shape, optional androidx.compose.ui.graphics.Shape focusedShape, optional androidx.compose.ui.graphics.Shape pressedShape, optional androidx.compose.ui.graphics.Shape disabledShape, optional androidx.compose.ui.graphics.Shape focusedDisabledShape);
+    property public final float LargeButtonSize;
+    property public final float LargeIconSize;
+    property public final float MediumButtonSize;
+    property public final float MediumIconSize;
+    property public final float SmallButtonSize;
+    property public final float SmallIconSize;
+    field public static final androidx.tv.material3.OutlinedIconButtonDefaults INSTANCE;
+  }
+
+  @androidx.compose.runtime.Immutable @androidx.tv.material3.ExperimentalTvMaterial3Api public final class RadioButtonColors {
+  }
+
+  @androidx.tv.material3.ExperimentalTvMaterial3Api public final class RadioButtonDefaults {
+    method @androidx.compose.runtime.Composable public androidx.tv.material3.RadioButtonColors colors(optional long selectedColor, optional long unselectedColor, optional long disabledSelectedColor, optional long disabledUnselectedColor);
+    field public static final androidx.tv.material3.RadioButtonDefaults INSTANCE;
+  }
+
+  public final class RadioButtonKt {
+    method @androidx.compose.runtime.Composable @androidx.tv.material3.ExperimentalTvMaterial3Api public static void RadioButton(boolean selected, kotlin.jvm.functions.Function0<kotlin.Unit>? onClick, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional androidx.tv.material3.RadioButtonColors colors, optional androidx.compose.foundation.interaction.MutableInteractionSource interactionSource);
+  }
+
+  @androidx.tv.material3.ExperimentalTvMaterial3Api public sealed interface ScrollPauseHandle {
+    method public void resumeAutoScroll();
   }
 
   public final class ShapeDefaults {
@@ -45,8 +449,52 @@ package androidx.tv.material3 {
   }
 
   public final class SurfaceKt {
+    method @androidx.compose.runtime.Composable @androidx.compose.runtime.NonRestartableComposable @androidx.tv.material3.ExperimentalTvMaterial3Api public static void Surface(optional androidx.compose.ui.Modifier modifier, optional float tonalElevation, optional androidx.compose.ui.graphics.Shape shape, optional androidx.tv.material3.NonInteractiveSurfaceColors colors, optional androidx.tv.material3.Border border, optional androidx.tv.material3.Glow glow, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit> content);
+    method @androidx.compose.runtime.Composable @androidx.tv.material3.ExperimentalTvMaterial3Api public static void Surface(boolean checked, kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit> onCheckedChange, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional float tonalElevation, optional androidx.tv.material3.ToggleableSurfaceShape shape, optional androidx.tv.material3.ToggleableSurfaceColors colors, optional androidx.tv.material3.ToggleableSurfaceScale scale, optional androidx.tv.material3.ToggleableSurfaceBorder border, optional androidx.tv.material3.ToggleableSurfaceGlow glow, optional androidx.compose.foundation.interaction.MutableInteractionSource interactionSource, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit> content);
+    method @androidx.compose.runtime.Composable @androidx.tv.material3.ExperimentalTvMaterial3Api public static void Surface(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional float tonalElevation, optional androidx.tv.material3.ClickableSurfaceShape shape, optional androidx.tv.material3.ClickableSurfaceColors colors, optional androidx.tv.material3.ClickableSurfaceScale scale, optional androidx.tv.material3.ClickableSurfaceBorder border, optional androidx.tv.material3.ClickableSurfaceGlow glow, optional androidx.compose.foundation.interaction.MutableInteractionSource interactionSource, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit> content);
     method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.unit.Dp> getLocalAbsoluteTonalElevation();
     property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.unit.Dp> LocalAbsoluteTonalElevation;
+  }
+
+  @androidx.compose.runtime.Immutable @androidx.tv.material3.ExperimentalTvMaterial3Api public final class SwitchColors {
+  }
+
+  @androidx.tv.material3.ExperimentalTvMaterial3Api public final class SwitchDefaults {
+    method @androidx.compose.runtime.Composable public androidx.tv.material3.SwitchColors colors(optional long checkedThumbColor, optional long checkedTrackColor, optional long checkedBorderColor, optional long checkedIconColor, optional long uncheckedThumbColor, optional long uncheckedTrackColor, optional long uncheckedBorderColor, optional long uncheckedIconColor, optional long disabledCheckedThumbColor, optional long disabledCheckedTrackColor, optional long disabledCheckedBorderColor, optional long disabledCheckedIconColor, optional long disabledUncheckedThumbColor, optional long disabledUncheckedTrackColor, optional long disabledUncheckedBorderColor, optional long disabledUncheckedIconColor);
+    method public float getIconSize();
+    property public final float IconSize;
+    field public static final androidx.tv.material3.SwitchDefaults INSTANCE;
+  }
+
+  public final class SwitchKt {
+    method @androidx.compose.runtime.Composable @androidx.tv.material3.ExperimentalTvMaterial3Api public static void Switch(boolean checked, kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit>? onCheckedChange, optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function0<kotlin.Unit>? thumbContent, optional boolean enabled, optional androidx.tv.material3.SwitchColors colors, optional androidx.compose.foundation.interaction.MutableInteractionSource interactionSource);
+  }
+
+  @androidx.tv.material3.ExperimentalTvMaterial3Api public final class TabColors {
+  }
+
+  @androidx.tv.material3.ExperimentalTvMaterial3Api public final class TabDefaults {
+    method @androidx.compose.runtime.Composable public androidx.tv.material3.TabColors pillIndicatorTabColors(optional long activeContentColor, optional long contentColor, optional long selectedContentColor, optional long focusedContentColor, optional long focusedSelectedContentColor, optional long disabledActiveContentColor, optional long disabledContentColor, optional long disabledSelectedContentColor);
+    method @androidx.compose.runtime.Composable public androidx.tv.material3.TabColors underlinedIndicatorTabColors(optional long activeContentColor, optional long contentColor, optional long selectedContentColor, optional long focusedContentColor, optional long focusedSelectedContentColor, optional long disabledActiveContentColor, optional long disabledContentColor, optional long disabledSelectedContentColor);
+    field public static final androidx.tv.material3.TabDefaults INSTANCE;
+  }
+
+  public final class TabKt {
+    method @androidx.compose.runtime.Composable @androidx.tv.material3.ExperimentalTvMaterial3Api public static void Tab(boolean selected, kotlin.jvm.functions.Function0<kotlin.Unit> onFocus, optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function0<kotlin.Unit> onClick, optional boolean enabled, optional androidx.tv.material3.TabColors colors, optional androidx.compose.foundation.interaction.MutableInteractionSource interactionSource, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit> content);
+  }
+
+  @androidx.tv.material3.ExperimentalTvMaterial3Api public final class TabRowDefaults {
+    method @androidx.compose.runtime.Composable public void PillIndicator(androidx.compose.ui.unit.DpRect currentTabPosition, optional androidx.compose.ui.Modifier modifier, optional long activeColor, optional long inactiveColor);
+    method @androidx.compose.runtime.Composable public void TabSeparator();
+    method @androidx.compose.runtime.Composable public void UnderlinedIndicator(androidx.compose.ui.unit.DpRect currentTabPosition, optional androidx.compose.ui.Modifier modifier, optional long activeColor, optional long inactiveColor);
+    method @androidx.compose.runtime.Composable public long contentColor();
+    method public long getContainerColor();
+    property public final long ContainerColor;
+    field public static final androidx.tv.material3.TabRowDefaults INSTANCE;
+  }
+
+  public final class TabRowKt {
+    method @androidx.compose.runtime.Composable @androidx.tv.material3.ExperimentalTvMaterial3Api public static void TabRow(int selectedTabIndex, optional androidx.compose.ui.Modifier modifier, optional long containerColor, optional long contentColor, optional kotlin.jvm.functions.Function0<kotlin.Unit> separator, optional kotlin.jvm.functions.Function1<? super java.util.List<androidx.compose.ui.unit.DpRect>,kotlin.Unit> indicator, kotlin.jvm.functions.Function0<kotlin.Unit> tabs);
   }
 
   public final class TextKt {
@@ -55,6 +503,30 @@ package androidx.tv.material3 {
     method @androidx.compose.runtime.Composable public static void Text(String text, optional androidx.compose.ui.Modifier modifier, optional long color, optional long fontSize, optional androidx.compose.ui.text.font.FontStyle? fontStyle, optional androidx.compose.ui.text.font.FontWeight? fontWeight, optional androidx.compose.ui.text.font.FontFamily? fontFamily, optional long letterSpacing, optional androidx.compose.ui.text.style.TextDecoration? textDecoration, optional androidx.compose.ui.text.style.TextAlign? textAlign, optional long lineHeight, optional int overflow, optional boolean softWrap, optional int maxLines, optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.text.TextLayoutResult,kotlin.Unit> onTextLayout, optional androidx.compose.ui.text.TextStyle style);
     method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.text.TextStyle> getLocalTextStyle();
     property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.text.TextStyle> LocalTextStyle;
+  }
+
+  @androidx.compose.runtime.Immutable @androidx.tv.material3.ExperimentalTvMaterial3Api public final class ToggleableSurfaceBorder {
+  }
+
+  @androidx.compose.runtime.Immutable @androidx.tv.material3.ExperimentalTvMaterial3Api public final class ToggleableSurfaceColors {
+  }
+
+  @androidx.tv.material3.ExperimentalTvMaterial3Api public final class ToggleableSurfaceDefaults {
+    method public androidx.tv.material3.ToggleableSurfaceBorder border(optional androidx.tv.material3.Border border, optional androidx.tv.material3.Border focusedBorder, optional androidx.tv.material3.Border pressedBorder, optional androidx.tv.material3.Border selectedBorder, optional androidx.tv.material3.Border disabledBorder, optional androidx.tv.material3.Border focusedSelectedBorder, optional androidx.tv.material3.Border focusedDisabledBorder, optional androidx.tv.material3.Border pressedSelectedBorder, optional androidx.tv.material3.Border selectedDisabledBorder, optional androidx.tv.material3.Border focusedSelectedDisabledBorder);
+    method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.tv.material3.ToggleableSurfaceColors colors(optional long containerColor, optional long contentColor, optional long focusedContainerColor, optional long focusedContentColor, optional long pressedContainerColor, optional long pressedContentColor, optional long selectedContainerColor, optional long selectedContentColor, optional long disabledContainerColor, optional long disabledContentColor, optional long focusedSelectedContainerColor, optional long focusedSelectedContentColor, optional long pressedSelectedContainerColor, optional long pressedSelectedContentColor);
+    method public androidx.tv.material3.ToggleableSurfaceGlow glow(optional androidx.tv.material3.Glow glow, optional androidx.tv.material3.Glow focusedGlow, optional androidx.tv.material3.Glow pressedGlow, optional androidx.tv.material3.Glow selectedGlow, optional androidx.tv.material3.Glow focusedSelectedGlow, optional androidx.tv.material3.Glow pressedSelectedGlow);
+    method public androidx.tv.material3.ToggleableSurfaceScale scale(optional float scale, optional float focusedScale, optional float pressedScale, optional float selectedScale, optional float disabledScale, optional float focusedSelectedScale, optional float focusedDisabledScale, optional float pressedSelectedScale, optional float selectedDisabledScale, optional float focusedSelectedDisabledScale);
+    method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.tv.material3.ToggleableSurfaceShape shape(optional androidx.compose.ui.graphics.Shape shape, optional androidx.compose.ui.graphics.Shape focusedShape, optional androidx.compose.ui.graphics.Shape pressedShape, optional androidx.compose.ui.graphics.Shape selectedShape, optional androidx.compose.ui.graphics.Shape disabledShape, optional androidx.compose.ui.graphics.Shape focusedSelectedShape, optional androidx.compose.ui.graphics.Shape focusedDisabledShape, optional androidx.compose.ui.graphics.Shape pressedSelectedShape, optional androidx.compose.ui.graphics.Shape selectedDisabledShape, optional androidx.compose.ui.graphics.Shape focusedSelectedDisabledShape);
+    field public static final androidx.tv.material3.ToggleableSurfaceDefaults INSTANCE;
+  }
+
+  @androidx.compose.runtime.Immutable @androidx.tv.material3.ExperimentalTvMaterial3Api public final class ToggleableSurfaceGlow {
+  }
+
+  @androidx.compose.runtime.Immutable @androidx.tv.material3.ExperimentalTvMaterial3Api public final class ToggleableSurfaceScale {
+  }
+
+  @androidx.compose.runtime.Immutable @androidx.tv.material3.ExperimentalTvMaterial3Api public final class ToggleableSurfaceShape {
   }
 
   @androidx.compose.runtime.Immutable public final class Typography {
@@ -90,6 +562,24 @@ package androidx.tv.material3 {
     property public final androidx.compose.ui.text.TextStyle titleLarge;
     property public final androidx.compose.ui.text.TextStyle titleMedium;
     property public final androidx.compose.ui.text.TextStyle titleSmall;
+  }
+
+  @androidx.compose.runtime.Immutable @androidx.tv.material3.ExperimentalTvMaterial3Api public final class WideButtonContentColor {
+  }
+
+  @androidx.tv.material3.ExperimentalTvMaterial3Api public final class WideButtonDefaults {
+    method @androidx.compose.runtime.Composable public void Background(boolean enabled, androidx.compose.foundation.interaction.MutableInteractionSource interactionSource);
+    method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.tv.material3.ButtonBorder border(optional androidx.tv.material3.Border border, optional androidx.tv.material3.Border focusedBorder, optional androidx.tv.material3.Border pressedBorder, optional androidx.tv.material3.Border disabledBorder, optional androidx.tv.material3.Border focusedDisabledBorder);
+    method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.tv.material3.WideButtonContentColor contentColor(optional long color, optional long focusedColor, optional long pressedColor, optional long disabledColor);
+    method public androidx.tv.material3.ButtonGlow glow(optional androidx.tv.material3.Glow glow, optional androidx.tv.material3.Glow focusedGlow, optional androidx.tv.material3.Glow pressedGlow);
+    method public androidx.tv.material3.ButtonScale scale(optional @FloatRange(from=0.0) float scale, optional @FloatRange(from=0.0) float focusedScale, optional @FloatRange(from=0.0) float pressedScale, optional @FloatRange(from=0.0) float disabledScale, optional @FloatRange(from=0.0) float focusedDisabledScale);
+    method public androidx.tv.material3.ButtonShape shape(optional androidx.compose.ui.graphics.Shape shape, optional androidx.compose.ui.graphics.Shape focusedShape, optional androidx.compose.ui.graphics.Shape pressedShape, optional androidx.compose.ui.graphics.Shape disabledShape, optional androidx.compose.ui.graphics.Shape focusedDisabledShape);
+    field public static final androidx.tv.material3.WideButtonDefaults INSTANCE;
+  }
+
+  public final class WideButtonKt {
+    method @androidx.compose.runtime.Composable @androidx.compose.runtime.NonRestartableComposable @androidx.tv.material3.ExperimentalTvMaterial3Api public static void WideButton(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional androidx.compose.foundation.interaction.MutableInteractionSource interactionSource, optional kotlin.jvm.functions.Function0<kotlin.Unit> background, optional androidx.tv.material3.ButtonScale scale, optional androidx.tv.material3.ButtonGlow glow, optional androidx.tv.material3.ButtonShape shape, optional androidx.tv.material3.WideButtonContentColor contentColor, optional float tonalElevation, optional androidx.tv.material3.ButtonBorder border, optional androidx.compose.foundation.layout.PaddingValues contentPadding, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit> content);
+    method @androidx.compose.runtime.Composable @androidx.compose.runtime.NonRestartableComposable @androidx.tv.material3.ExperimentalTvMaterial3Api public static void WideButton(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, kotlin.jvm.functions.Function0<kotlin.Unit> title, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional kotlin.jvm.functions.Function0<kotlin.Unit>? icon, optional kotlin.jvm.functions.Function0<kotlin.Unit>? subtitle, optional androidx.compose.foundation.interaction.MutableInteractionSource interactionSource, optional kotlin.jvm.functions.Function0<kotlin.Unit> background, optional androidx.tv.material3.ButtonScale scale, optional androidx.tv.material3.ButtonGlow glow, optional androidx.tv.material3.ButtonShape shape, optional androidx.tv.material3.WideButtonContentColor contentColor, optional float tonalElevation, optional androidx.tv.material3.ButtonBorder border, optional androidx.compose.foundation.layout.PaddingValues contentPadding);
   }
 
 }
