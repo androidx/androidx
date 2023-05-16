@@ -213,10 +213,22 @@ interface CameraGraph : AutoCloseable {
         }
     }
 
-    enum class OperatingMode {
-        NORMAL,
-        HIGH_SPEED,
-        EXTENSION,
+    /**
+     * Operating mode defines the major categories of how a CameraGraph instance will operate when
+     * not operating a [NORMAL] camera graph.
+     *
+     * @property NORMAL represents standard camera operation and behavior.
+     * @property HIGH_SPEED represents a camera operating at high frame rate, usually used to
+     *   produce slow motion videos.
+     * @property EXTENSION represents device-specific modes that may operate differently or have
+     *   significant limitations in order to produce specific kinds of camera results.
+     */
+    class OperatingMode private constructor() {
+        companion object {
+            val NORMAL = OperatingMode()
+            val HIGH_SPEED = OperatingMode()
+            val EXTENSION = OperatingMode()
+        }
     }
 
     @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
