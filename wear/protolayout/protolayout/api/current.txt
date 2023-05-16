@@ -1047,12 +1047,15 @@ package androidx.wear.protolayout {
   }
 
   public static final class TypeBuilders.FloatProp {
+    method public androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat? getDynamicValue();
     method public float getValue();
   }
 
   public static final class TypeBuilders.FloatProp.Builder {
-    ctor public TypeBuilders.FloatProp.Builder();
+    ctor @Deprecated public TypeBuilders.FloatProp.Builder();
+    ctor public TypeBuilders.FloatProp.Builder(float);
     method public androidx.wear.protolayout.TypeBuilders.FloatProp build();
+    method public androidx.wear.protolayout.TypeBuilders.FloatProp.Builder setDynamicValue(androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat);
     method public androidx.wear.protolayout.TypeBuilders.FloatProp.Builder setValue(float);
   }
 
