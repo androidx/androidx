@@ -515,11 +515,14 @@ fun Record.toProto(): DataProto.DataPoint =
         is SleepSessionRecord ->
             intervalProto()
                 .setDataType(protoDataType("SleepSession"))
-                .putSubTypeDataLists("stages",
-                    DataProto.DataPoint.SubTypeDataList.newBuilder()
-                        .addAllValues(stages.map { it.toProto() }).build()
-                )
                 .apply {
+                    if (stages.isNotEmpty()) {
+                        putSubTypeDataLists(
+                            "stages",
+                            DataProto.DataPoint.SubTypeDataList.newBuilder()
+                                .addAllValues(stages.map { it.toProto() }).build()
+                        )
+                    }
                     title?.let { putValues("title", stringVal(it)) }
                     notes?.let { putValues("notes", stringVal(it)) }
                 }
