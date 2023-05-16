@@ -33,6 +33,9 @@ import androidx.health.connect.client.records.CervicalMucusRecord
 import androidx.health.connect.client.records.CyclingPedalingCadenceRecord
 import androidx.health.connect.client.records.DistanceRecord
 import androidx.health.connect.client.records.ElevationGainedRecord
+import androidx.health.connect.client.records.ExerciseLap
+import androidx.health.connect.client.records.ExerciseRoute
+import androidx.health.connect.client.records.ExerciseSegment
 import androidx.health.connect.client.records.ExerciseSessionRecord
 import androidx.health.connect.client.records.FloorsClimbedRecord
 import androidx.health.connect.client.records.HeartRateRecord
@@ -378,17 +381,87 @@ class RecordConvertersTest {
                     endTime = END_TIME,
                     endZoneOffset = END_ZONE_OFFSET,
                     metadata = METADATA,
-                    exerciseType = ExerciseSessionRecord.EXERCISE_TYPE_BASKETBALL,
-                    title = "NBA finals",
-                    notes = "Best team won",
+                    exerciseType =
+                        ExerciseSessionRecord.EXERCISE_TYPE_HIGH_INTENSITY_INTERVAL_TRAINING,
+                    title = "HIIT training",
+                    notes = "Hard workout",
+                    laps =
+                        listOf(
+                            ExerciseLap(
+                                START_TIME.plusMillis(6),
+                                START_TIME.plusMillis(10),
+                                Length.meters(1.0)
+                            ),
+                            ExerciseLap(
+                                START_TIME.plusMillis(11),
+                                START_TIME.plusMillis(15),
+                                Length.meters(1.5)
+                            )
+                        ),
+                    segments =
+                        listOf(
+                            ExerciseSegment(
+                                START_TIME.plusMillis(1),
+                                START_TIME.plusMillis(10),
+                                ExerciseSegment.EXERCISE_SEGMENT_TYPE_BARBELL_SHOULDER_PRESS,
+                                10
+                            )
+                        ),
+                    route =
+                        ExerciseRoute(
+                            listOf(
+                                ExerciseRoute.Location(
+                                    START_TIME,
+                                    latitude = 23.5,
+                                    longitude = -23.6,
+                                    altitude = Length.meters(20.0),
+                                    horizontalAccuracy = Length.meters(2.0),
+                                    verticalAccuracy = Length.meters(3.0)
+                                )
+                            )
+                        )
                 )
                 .toPlatformRecord() as PlatformExerciseSessionRecord
 
         assertPlatformRecord(platformExerciseSession) {
-            assertThat(title).isEqualTo("NBA finals")
-            assertThat(notes).isEqualTo("Best team won")
+            assertThat(title).isEqualTo("HIIT training")
+            assertThat(notes).isEqualTo("Hard workout")
             assertThat(exerciseType)
-                .isEqualTo(PlatformExerciseSessionType.EXERCISE_SESSION_TYPE_BASKETBALL)
+                .isEqualTo(
+                    PlatformExerciseSessionType
+                        .EXERCISE_SESSION_TYPE_HIGH_INTENSITY_INTERVAL_TRAINING
+                )
+            assertThat(laps)
+                .containsExactly(
+                    PlatformExerciseLapBuilder(START_TIME.plusMillis(6), START_TIME.plusMillis(10))
+                        .setLength(PlatformLength.fromMeters(1.0))
+                        .build(),
+                    PlatformExerciseLapBuilder(START_TIME.plusMillis(11), START_TIME.plusMillis(15))
+                        .setLength(PlatformLength.fromMeters(1.5))
+                        .build()
+                )
+            assertThat(segments)
+                .containsExactly(
+                    PlatformExerciseSegmentBuilder(
+                            START_TIME.plusMillis(1),
+                            START_TIME.plusMillis(10),
+                            PlatformExerciseSegmentType.EXERCISE_SEGMENT_TYPE_BARBELL_SHOULDER_PRESS
+                        )
+                        .setRepetitionsCount(10)
+                        .build()
+                )
+            assertThat(route)
+                .isEqualTo(
+                    PlatformExerciseRoute(
+                        listOf(
+                            PlatformExerciseRouteLocationBuilder(START_TIME, 23.5, -23.6)
+                                .setAltitude(PlatformLength.fromMeters(20.0))
+                                .setHorizontalAccuracy(PlatformLength.fromMeters(2.0))
+                                .setVerticalAccuracy(PlatformLength.fromMeters(3.0))
+                                .build()
+                        )
+                    )
+                )
         }
     }
 
@@ -1111,19 +1184,97 @@ class RecordConvertersTest {
                     PLATFORM_METADATA,
                     START_TIME,
                     END_TIME,
-                    PlatformExerciseSessionType.EXERCISE_SESSION_TYPE_VOLLEYBALL
+                    PlatformExerciseSessionType
+                        .EXERCISE_SESSION_TYPE_HIGH_INTENSITY_INTERVAL_TRAINING
                 )
-                .setTitle("Training game")
+                .setTitle("Training")
                 .setNotes("Improve jump serve")
                 .setStartZoneOffset(START_ZONE_OFFSET)
                 .setEndZoneOffset(END_ZONE_OFFSET)
+                .setLaps(
+                    listOf(
+                        PlatformExerciseLapBuilder(
+                                START_TIME.plusMillis(6),
+                                START_TIME.plusMillis(10)
+                            )
+                            .setLength(PlatformLength.fromMeters(1.0))
+                            .build(),
+                        PlatformExerciseLapBuilder(
+                                START_TIME.plusMillis(11),
+                                START_TIME.plusMillis(15)
+                            )
+                            .setLength(PlatformLength.fromMeters(1.5))
+                            .build()
+                    )
+                )
+                .setSegments(
+                    listOf(
+                        PlatformExerciseSegmentBuilder(
+                                START_TIME.plusMillis(1),
+                                START_TIME.plusMillis(10),
+                                PlatformExerciseSegmentType
+                                    .EXERCISE_SEGMENT_TYPE_BARBELL_SHOULDER_PRESS
+                            )
+                            .setRepetitionsCount(10)
+                            .build()
+                    )
+                )
+                .setRoute(
+                    PlatformExerciseRoute(
+                        listOf(
+                            PlatformExerciseRouteLocationBuilder(START_TIME, 23.4, -23.4)
+                                .setAltitude(PlatformLength.fromMeters(10.0))
+                                .setHorizontalAccuracy(PlatformLength.fromMeters(2.0))
+                                .setVerticalAccuracy(PlatformLength.fromMeters(3.0))
+                                .build()
+                        )
+                    )
+                )
                 .build()
                 .toSdkRecord() as ExerciseSessionRecord
 
         assertSdkRecord(sdkExerciseSession) {
-            assertThat(title).isEqualTo("Training game")
+            assertThat(title).isEqualTo("Training")
             assertThat(notes).isEqualTo("Improve jump serve")
-            assertThat(exerciseType).isEqualTo(ExerciseSessionRecord.EXERCISE_TYPE_VOLLEYBALL)
+            assertThat(exerciseType)
+                .isEqualTo(ExerciseSessionRecord.EXERCISE_TYPE_HIGH_INTENSITY_INTERVAL_TRAINING)
+            assertThat(laps)
+                .containsExactly(
+                    ExerciseLap(
+                        START_TIME.plusMillis(6),
+                        START_TIME.plusMillis(10),
+                        Length.meters(1.0)
+                    ),
+                    ExerciseLap(
+                        START_TIME.plusMillis(11),
+                        START_TIME.plusMillis(15),
+                        Length.meters(1.5)
+                    )
+                )
+            assertThat(segments)
+                .containsExactly(
+                    ExerciseSegment(
+                        START_TIME.plusMillis(1),
+                        START_TIME.plusMillis(10),
+                        ExerciseSegment.EXERCISE_SEGMENT_TYPE_BARBELL_SHOULDER_PRESS,
+                        10
+                    )
+                )
+            assertThat(route)
+                .isEqualTo(
+                    ExerciseRoute(
+                        listOf(
+                            ExerciseRoute.Location(
+                                time = START_TIME,
+                                latitude = 23.4,
+                                longitude = -23.4,
+                                altitude = Length.meters(10.0),
+                                horizontalAccuracy = Length.meters(2.0),
+                                verticalAccuracy = Length.meters(3.0)
+                            )
+                        )
+                    )
+                )
         }
     }
 
