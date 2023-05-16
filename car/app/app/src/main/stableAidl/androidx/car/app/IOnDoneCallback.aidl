@@ -21,9 +21,8 @@ import androidx.car.app.serialization.Bundleable;
 /**
  * A generic callback to allow the host to wait for the client to complete processing a request
  * before continuing.
- *
- * @hide
  */
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 interface IOnDoneCallback {
   /**
    * Notifies that the client has successfully processed the request, and provides its response.

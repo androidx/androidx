@@ -27,7 +27,6 @@ import androidx.annotation.RestrictTo;
 /**
  * Defines calls to make to host services
  *
- * @hide
  */
 @RestrictTo(LIBRARY)
 public interface HostCall<ServiceT, ReturnT> {

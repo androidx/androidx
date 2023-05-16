@@ -39,7 +39,6 @@ import java.util.Set;
 /**
  * Encapsulates the constraints to apply when rendering a list of {@link Action}s on a template.
  *
- * @hide
  */
 @RestrictTo(Scope.LIBRARY)
 public final class ActionsConstraints {

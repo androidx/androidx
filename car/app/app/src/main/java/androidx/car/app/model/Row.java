@@ -60,7 +60,6 @@ public final class Row implements Item {
     /**
      * The type of images supported within rows.
      *
-     * @hide
      */
     @RestrictTo(LIBRARY)
     @IntDef(value = {IMAGE_TYPE_SMALL, IMAGE_TYPE_ICON, IMAGE_TYPE_LARGE})

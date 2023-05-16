@@ -32,7 +32,7 @@
 // later when a module using the interface is updated, e.g., Mainline modules.
 
 package androidx.car.app.model;
-/* @hide */
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 interface IOnItemVisibilityChangedListener {
   oneway void onItemVisibilityChanged(int startIndexInclusive, int endIndexExclusive, androidx.car.app.IOnDoneCallback callback) = 1;
 }

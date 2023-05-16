@@ -32,7 +32,7 @@
 // later when a module using the interface is updated, e.g., Mainline modules.
 
 package androidx.car.app.hardware;
-/* @hide */
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 interface ICarHardwareHost {
   void getCarHardwareResult(in int resultType, in @nullable androidx.car.app.serialization.Bundleable params, in androidx.car.app.hardware.ICarHardwareResult callback) = 1;
   void subscribeCarHardwareResult(in int resultType, in @nullable androidx.car.app.serialization.Bundleable params, in androidx.car.app.hardware.ICarHardwareResult callback) = 2;

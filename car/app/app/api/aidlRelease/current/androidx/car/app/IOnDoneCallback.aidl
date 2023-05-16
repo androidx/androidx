@@ -32,7 +32,7 @@
 // later when a module using the interface is updated, e.g., Mainline modules.
 
 package androidx.car.app;
-/* @hide */
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 interface IOnDoneCallback {
   void onSuccess(in @nullable androidx.car.app.serialization.Bundleable response) = 1;
   void onFailure(in androidx.car.app.serialization.Bundleable failureResponse) = 2;

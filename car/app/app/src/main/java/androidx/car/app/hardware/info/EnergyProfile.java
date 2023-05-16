@@ -44,7 +44,6 @@ public final class EnergyProfile {
     /**
      * Possible EV Connector types.
      *
-     * @hide
      */
     @IntDef({
             EVCONNECTOR_TYPE_UNKNOWN,
@@ -124,7 +123,6 @@ public final class EnergyProfile {
     /**
      * Possible Fual types.
      *
-     * @hide
      */
     @IntDef({
             FUEL_TYPE_UNKNOWN,

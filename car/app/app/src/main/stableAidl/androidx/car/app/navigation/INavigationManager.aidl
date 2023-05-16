@@ -18,9 +18,7 @@ package androidx.car.app.navigation;
 
 import androidx.car.app.IOnDoneCallback;
 
-/**
- * @hide
- */
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 oneway interface INavigationManager {
  /**
   * Notifies the app that it should stop the active navigation right away.

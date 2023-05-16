@@ -34,7 +34,6 @@ import java.util.List;
 /**
  * Encapsulates the constraints to apply when creating {@link TabContents}.
  *
- * @hide
  */
 @RequiresCarApi(6)
 @RestrictTo(RestrictTo.Scope.LIBRARY)

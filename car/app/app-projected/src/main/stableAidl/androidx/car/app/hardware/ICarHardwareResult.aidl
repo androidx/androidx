@@ -20,9 +20,7 @@ import android.os.IBinder;
 
 import androidx.car.app.serialization.Bundleable;
 
-/**
- * @hide
- */
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 oneway interface ICarHardwareResult {
    /** Notifies the app of car hardware result. */
    void onCarHardwareResult(in int resultType, in boolean isSupported,

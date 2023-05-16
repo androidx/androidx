@@ -34,7 +34,6 @@ import androidx.car.app.utils.RemoteUtils;
 /**
  * Implementation class for {@link AlertCallbackDelegate} to allow IPC for cancel events.
  *
- * @hide
  */
 @RestrictTo(LIBRARY)
 @KeepFields

@@ -42,7 +42,6 @@ public final class Maneuver {
     /**
      * Possible maneuver types.
      *
-     * @hide
      */
     @IntDef({
             TYPE_UNKNOWN,

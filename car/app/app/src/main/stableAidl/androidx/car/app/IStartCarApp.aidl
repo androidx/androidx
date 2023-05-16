@@ -20,7 +20,7 @@ import android.content.Intent;
 
 import androidx.car.app.IOnDoneCallback;
 
-/** @hide */
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 interface IStartCarApp {
    /**
    * Starts the car app on the car screen.

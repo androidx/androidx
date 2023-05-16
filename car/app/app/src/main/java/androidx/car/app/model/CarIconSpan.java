@@ -65,7 +65,6 @@ public final class CarIconSpan extends CarSpan {
     /**
      * Indicates how to align a car icon span with its surrounding text.
      *
-     * @hide
      */
     @IntDef(
             value = {

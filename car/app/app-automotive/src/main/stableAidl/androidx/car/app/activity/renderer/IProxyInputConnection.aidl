@@ -28,9 +28,8 @@ import androidx.car.app.serialization.Bundleable;
 /**
  * Proxies the {@link InputConnection} method invocations from {@link CarAppActivity} across a
  * binder interface to the host renderer.
- *
- * @hide
  */
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 interface IProxyInputConnection {
     /** Proxies a call to {@link InputConnection#getTextBeforeCursor}. */
     CharSequence getTextBeforeCursor(int length, int flags) = 1;

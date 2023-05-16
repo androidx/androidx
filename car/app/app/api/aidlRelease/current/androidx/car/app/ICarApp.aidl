@@ -32,7 +32,7 @@
 // later when a module using the interface is updated, e.g., Mainline modules.
 
 package androidx.car.app;
-/* @hide */
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 interface ICarApp {
   oneway void onAppCreate(androidx.car.app.ICarHost host, in android.content.Intent intent, in android.content.res.Configuration configuration, androidx.car.app.IOnDoneCallback callback) = 1;
   oneway void onAppStart(androidx.car.app.IOnDoneCallback callback) = 2;

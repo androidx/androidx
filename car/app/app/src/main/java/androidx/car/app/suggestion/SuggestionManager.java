@@ -83,7 +83,6 @@ public class SuggestionManager implements Manager {
     /**
      * Creates an instance of {@link SuggestionManager}.
      *
-     * @hide
      */
     @RestrictTo(LIBRARY)
     @NonNull
@@ -96,7 +95,6 @@ public class SuggestionManager implements Manager {
         return new SuggestionManager(carContext, hostDispatcher, lifecycle);
     }
 
-    /** @hide */
     @RestrictTo(LIBRARY_GROUP) // Restrict to testing library
     @SuppressWarnings({"methodref.receiver.bound.invalid"})
     protected SuggestionManager(@NonNull CarContext carContext,
