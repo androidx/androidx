@@ -17,6 +17,7 @@
 package androidx.bluetooth.integration.testapp.ui.scanner
 
 import android.annotation.SuppressLint
+import android.bluetooth.BluetoothDevice
 import android.bluetooth.le.ScanResult
 import android.view.LayoutInflater
 import android.view.View
@@ -29,7 +30,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 
-class ScannerAdapter(private val onClick: (ScanResult) -> Unit) :
+class ScannerAdapter(private val onClick: (BluetoothDevice) -> Unit) :
     ListAdapter<ScanResult, ScannerAdapter.ViewHolder>(ScannerDiffCallback) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -40,10 +41,10 @@ class ScannerAdapter(private val onClick: (ScanResult) -> Unit) :
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val scanResult = getItem(position)
-        holder.bind(scanResult)
+        holder.bind(scanResult.device)
     }
 
-    inner class ViewHolder(itemView: View, private val onClick: (ScanResult) -> Unit) :
+    inner class ViewHolder(itemView: View, private val onClick: (BluetoothDevice) -> Unit) :
         RecyclerView.ViewHolder(itemView) {
 
         private val textViewDeviceName: TextView = itemView.findViewById(R.id.text_view_device_name)
@@ -51,20 +52,20 @@ class ScannerAdapter(private val onClick: (ScanResult) -> Unit) :
             itemView.findViewById(R.id.text_view_device_address)
         private val buttonConnect: Button = itemView.findViewById(R.id.button_connect)
 
-        private var currentScanResult: ScanResult? = null
+        private var currentBluetoothDevice: BluetoothDevice? = null
 
         init {
             buttonConnect.setOnClickListener {
-                currentScanResult?.let(onClick)
+                currentBluetoothDevice?.let(onClick)
             }
         }
 
         @SuppressLint("MissingPermission")
-        fun bind(scanResult: ScanResult) {
-            currentScanResult = scanResult
-            textViewDeviceAddress.text = scanResult.device.address
-            textViewDeviceName.text = scanResult.device.name
-            textViewDeviceName.isVisible = scanResult.device.name.isNullOrEmpty().not()
+        fun bind(bluetoothDevice: BluetoothDevice) {
+            currentBluetoothDevice = bluetoothDevice
+            textViewDeviceAddress.text = bluetoothDevice.address
+            textViewDeviceName.text = bluetoothDevice.name
+            textViewDeviceName.isVisible = bluetoothDevice.name.isNullOrEmpty().not()
         }
     }
 }

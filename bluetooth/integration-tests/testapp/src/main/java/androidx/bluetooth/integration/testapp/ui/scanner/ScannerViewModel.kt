@@ -17,6 +17,7 @@
 package androidx.bluetooth.integration.testapp.ui.scanner
 
 // TODO(ofy) Migrate to androidx.bluetooth.ScanResult once in place
+import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothGattService
 import android.bluetooth.le.ScanResult
 import androidx.lifecycle.ViewModel
@@ -29,49 +30,51 @@ class ScannerViewModel : ViewModel() {
         internal const val NEW_DEVICE = -1
     }
 
-    internal val results: List<ScanResult> get() = _results.values.toList()
-    private val _results = mutableMapOf<String, ScanResult>()
+    internal val scanResults: List<ScanResult> get() = _scanResults.values.toList()
+    private val _scanResults = mutableMapOf<String, ScanResult>()
 
-    internal val devices: Set<DeviceConnection> get() = _devices
-    private val _devices = mutableSetOf<DeviceConnection>()
+    internal val deviceConnections: Set<DeviceConnection> get() = _deviceConnections
+    private val _deviceConnections = mutableSetOf<DeviceConnection>()
 
     fun addScanResultIfNew(scanResult: ScanResult): Boolean {
         val deviceAddress = scanResult.device.address
 
-        if (_results.containsKey(deviceAddress)) {
+        if (_scanResults.containsKey(deviceAddress)) {
             return false
         }
 
-        _results[deviceAddress] = scanResult
+        _scanResults[deviceAddress] = scanResult
         return true
     }
 
-    fun addDeviceConnectionIfNew(scanResult: ScanResult): Int {
-        val deviceConnection = DeviceConnection(scanResult)
+    fun addDeviceConnectionIfNew(bluetoothDevice: BluetoothDevice): Int {
+        val deviceConnection = DeviceConnection(bluetoothDevice)
 
-        val indexOf = _devices.map { it.scanResult }.indexOf(scanResult)
+        val indexOf = _deviceConnections.map { it.bluetoothDevice }.indexOf(bluetoothDevice)
         if (indexOf != -1) {
             // Index 0 is Results page; Tabs for devices start from 1.
             return indexOf + 1
         }
 
-        _devices.add(deviceConnection)
+        _deviceConnections.add(deviceConnection)
         return NEW_DEVICE
     }
 
-    fun remove(scanResult: ScanResult) {
-        val deviceConnection = _devices.find { it.scanResult == scanResult }
+    fun remove(bluetoothDevice: BluetoothDevice) {
+        val deviceConnection = _deviceConnections.find { it.bluetoothDevice == bluetoothDevice }
 
-        _devices.remove(deviceConnection)
+        _deviceConnections.remove(deviceConnection)
     }
 
     fun deviceConnection(position: Int): DeviceConnection {
         // Index 0 is Results page; Tabs for devices start from 1.
-        return devices.elementAt(position - 1)
+        return deviceConnections.elementAt(position - 1)
     }
 }
 
-class DeviceConnection(val scanResult: ScanResult) {
+class DeviceConnection(
+    val bluetoothDevice: BluetoothDevice
+) {
     var status = Status.NOT_CONNECTED
     var services = emptyList<BluetoothGattService>()
 }
