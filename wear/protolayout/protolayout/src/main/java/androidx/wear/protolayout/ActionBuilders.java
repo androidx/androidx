@@ -844,6 +844,7 @@ public final class ActionBuilders {
 
     /** Builder to create {@link Action} objects. */
     @SuppressLint("StaticFinalBuilder")
+    @RestrictTo(Scope.LIBRARY_GROUP)
     interface Builder {
 
       /** Builds an instance with values accumulated in this Builder. */
