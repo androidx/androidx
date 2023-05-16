@@ -30,85 +30,51 @@ import kotlin.collections.plusAssign
 import kotlin.jvm.JvmStatic
 
 /**
- * The most generic type of item.
+ * A utility class that serves as the umbrella for a number of 'intangible' things such as
+ * quantities, structured values, etc.
  *
- * See http://schema.org/Thing for context.
+ * See http://schema.org/Intangible for context.
  *
  * Should not be directly implemented. More properties may be added over time. Instead consider
- * using [Companion.Builder] or see [GenericThing] if you need to extend this type.
+ * using [Companion.Builder] or see [GenericIntangible] if you need to extend this type.
  */
-public interface Thing {
-  /**
-   * A sub property of description. A short description of the item used to disambiguate from other,
-   * similar items. Information from other properties (in particular, name) may be necessary for the
-   * description to be useful for disambiguation.
-   */
-  public val disambiguatingDescription: DisambiguatingDescription?
-
-  /**
-   * The identifier property represents any kind of identifier for any kind of Thing, such as ISBNs,
-   * GTIN codes, UUIDs etc.
-   */
-  public val identifier: String?
-
-  /** The name of the item. */
-  public val name: Name?
-
-  /** Converts this [Thing] to its builder with all the properties copied over. */
-  public fun toBuilder(): Builder<*>
+public interface Intangible : Thing {
+  /** Converts this [Intangible] to its builder with all the properties copied over. */
+  public override fun toBuilder(): Builder<*>
 
   public companion object {
     /** Returns a default implementation of [Builder] with no properties set. */
-    @JvmStatic public fun Builder(): Builder<*> = ThingImpl.Builder()
+    @JvmStatic public fun Builder(): Builder<*> = IntangibleImpl.Builder()
   }
 
   /**
-   * Builder for [Thing].
+   * Builder for [Intangible].
    *
    * Should not be directly implemented. More methods may be added over time. See
-   * [GenericThing.Builder] if you need to extend this builder.
+   * [GenericIntangible.Builder] if you need to extend this builder.
    */
-  @Suppress("StaticFinalBuilder")
-  public interface Builder<Self : Builder<Self>> {
-    /** Returns a built [Thing]. */
-    public fun build(): Thing
-
-    /** Sets the `disambiguatingDescription` to [String]. */
-    public fun setDisambiguatingDescription(text: String): Self =
-      setDisambiguatingDescription(DisambiguatingDescription(text))
-
-    /** Sets the `disambiguatingDescription`. */
-    public fun setDisambiguatingDescription(
-      disambiguatingDescription: DisambiguatingDescription?
-    ): Self
-
-    /** Sets the `identifier`. */
-    public fun setIdentifier(text: String?): Self
-
-    /** Sets the `name` to [String]. */
-    public fun setName(text: String): Self = setName(Name(text))
-
-    /** Sets the `name`. */
-    public fun setName(name: Name?): Self
+  public interface Builder<Self : Builder<Self>> : Thing.Builder<Self> {
+    /** Returns a built [Intangible]. */
+    public override fun build(): Intangible
   }
 }
 
 /**
- * A generic implementation of [Thing].
+ * A generic implementation of [Intangible].
  *
  * Allows for extension like:
  * ```kt
- * class MyThing internal constructor(
- *   thing: Thing,
+ * class MyIntangible internal constructor(
+ *   intangible: Intangible,
  *   val foo: String,
  *   val bars: List<Int>,
- * ) : GenericThing<
- *   MyThing,
- *   MyThing.Builder
- * >(thing) {
+ * ) : GenericIntangible<
+ *   MyIntangible,
+ *   MyIntangible.Builder
+ * >(intangible) {
  *
  *   override val selfTypeName =
- *     "MyThing"
+ *     "MyIntangible"
  *
  *   override val additionalProperties: Map<String, Any?>
  *     get() = mapOf("foo" to foo, "bars" to bars)
@@ -120,22 +86,22 @@ public interface Thing {
  *   }
  *
  *   class Builder :
- *     GenericThing.Builder<
+ *     GenericIntangible.Builder<
  *       Builder,
- *       MyThing> {...}
+ *       MyIntangible> {...}
  * }
  * ```
  *
- * Also see [GenericThing.Builder].
+ * Also see [GenericIntangible.Builder].
  */
 @Suppress("UNCHECKED_CAST")
-public abstract class GenericThing<
-  Self : GenericThing<Self, Builder>, Builder : GenericThing.Builder<Builder, Self>>
+public abstract class GenericIntangible<
+  Self : GenericIntangible<Self, Builder>, Builder : GenericIntangible.Builder<Builder, Self>>
 internal constructor(
   public final override val disambiguatingDescription: DisambiguatingDescription?,
   public final override val identifier: String?,
   public final override val name: Name?,
-) : Thing {
+) : Intangible {
   /**
    * Human readable name for the concrete [Self] class.
    *
@@ -150,12 +116,12 @@ internal constructor(
    */
   protected abstract val additionalProperties: Map<String, Any?>
 
-  /** A copy-constructor that copies over properties from another [Thing] instance. */
+  /** A copy-constructor that copies over properties from another [Intangible] instance. */
   public constructor(
-    thing: Thing
-  ) : this(thing.disambiguatingDescription, thing.identifier, thing.name)
+    intangible: Intangible
+  ) : this(intangible.disambiguatingDescription, intangible.identifier, intangible.name)
 
-  /** Returns a concrete [Builder] with the additional, non-[Thing] properties copied over. */
+  /** Returns a concrete [Builder] with the additional, non-[Intangible] properties copied over. */
   protected abstract fun toBuilderWithAdditionalPropertiesOnly(): Builder
 
   public final override fun toBuilder(): Builder =
@@ -196,34 +162,34 @@ internal constructor(
   }
 
   /**
-   * A generic implementation of [Thing.Builder].
+   * A generic implementation of [Intangible.Builder].
    *
    * Allows for extension like:
    * ```kt
-   * class MyThing :
-   *   : GenericThing<
-   *     MyThing,
-   *     MyThing.Builder>(...) {
+   * class MyIntangible :
+   *   : GenericIntangible<
+   *     MyIntangible,
+   *     MyIntangible.Builder>(...) {
    *
    *   class Builder
    *   : Builder<
    *       Builder,
-   *       MyThing
+   *       MyIntangible
    *   >() {
    *     private var foo: String? = null
    *     private val bars = mutableListOf<Int>()
    *
    *     override val selfTypeName =
-   *       "MyThing.Builder"
+   *       "MyIntangible.Builder"
    *
    *     override val additionalProperties: Map<String, Any?>
    *       get() = mapOf("foo" to foo, "bars" to bars)
    *
-   *     override fun buildFromThing(
-   *       thing: Thing
-   *     ): MyThing {
-   *       return MyThing(
-   *         thing,
+   *     override fun buildFromIntangible(
+   *       intangible: Intangible
+   *     ): MyIntangible {
+   *       return MyIntangible(
+   *         intangible,
    *         foo,
    *         bars.toList()
    *       )
@@ -244,11 +210,12 @@ internal constructor(
    * }
    * ```
    *
-   * Also see [GenericThing].
+   * Also see [GenericIntangible].
    */
   @Suppress("StaticFinalBuilder")
-  public abstract class Builder<Self : Builder<Self, Built>, Built : GenericThing<Built, Self>> :
-    Thing.Builder<Self> {
+  public abstract class Builder<
+    Self : Builder<Self, Built>, Built : GenericIntangible<Built, Self>> :
+    Intangible.Builder<Self> {
     /**
      * Human readable name for the concrete [Self] class.
      *
@@ -270,17 +237,18 @@ internal constructor(
     private var name: Name? = null
 
     /**
-     * Builds a concrete [Built] instance, given a built [Thing].
+     * Builds a concrete [Built] instance, given a built [Intangible].
      *
      * Subclasses should override this method to build a concrete [Built] instance that holds both
-     * the [Thing]-specific properties and the subclass specific [additionalProperties].
+     * the [Intangible]-specific properties and the subclass specific [additionalProperties].
      *
      * See the sample code in the documentation of this class for more context.
      */
-    @Suppress("BuilderSetStyle") protected abstract fun buildFromThing(thing: Thing): Built
+    @Suppress("BuilderSetStyle")
+    protected abstract fun buildFromIntangible(intangible: Intangible): Built
 
     public final override fun build(): Built =
-      buildFromThing(ThingImpl(disambiguatingDescription, identifier, name))
+      buildFromIntangible(IntangibleImpl(disambiguatingDescription, identifier, name))
 
     public final override fun setDisambiguatingDescription(
       disambiguatingDescription: DisambiguatingDescription?
@@ -336,9 +304,9 @@ internal constructor(
   }
 }
 
-internal class ThingImpl : GenericThing<ThingImpl, ThingImpl.Builder> {
+internal class IntangibleImpl : GenericIntangible<IntangibleImpl, IntangibleImpl.Builder> {
   protected override val selfTypeName: String
-    get() = "Thing"
+    get() = "Intangible"
 
   protected override val additionalProperties: Map<String, Any?>
     get() = emptyMap()
@@ -349,18 +317,18 @@ internal class ThingImpl : GenericThing<ThingImpl, ThingImpl.Builder> {
     name: Name?,
   ) : super(disambiguatingDescription, identifier, name)
 
-  public constructor(thing: Thing) : super(thing)
+  public constructor(intangible: Intangible) : super(intangible)
 
   protected override fun toBuilderWithAdditionalPropertiesOnly(): Builder = Builder()
 
-  internal class Builder : GenericThing.Builder<Builder, ThingImpl>() {
+  internal class Builder : GenericIntangible.Builder<Builder, IntangibleImpl>() {
     protected override val selfTypeName: String
-      get() = "Thing.Builder"
+      get() = "Intangible.Builder"
 
     protected override val additionalProperties: Map<String, Any?>
       get() = emptyMap()
 
-    protected override fun buildFromThing(thing: Thing): ThingImpl =
-      thing as? ThingImpl ?: ThingImpl(thing)
+    protected override fun buildFromIntangible(intangible: Intangible): IntangibleImpl =
+      intangible as? IntangibleImpl ?: IntangibleImpl(intangible)
   }
 }

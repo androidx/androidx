@@ -15,6 +15,7 @@ package androidx.appactions.builtintypes.types
 
 import androidx.appactions.builtintypes.properties.DisambiguatingDescription
 import androidx.appactions.builtintypes.properties.Name
+import java.time.Duration
 import java.util.Objects
 import kotlin.Any
 import kotlin.Boolean
@@ -30,85 +31,56 @@ import kotlin.collections.plusAssign
 import kotlin.jvm.JvmStatic
 
 /**
- * The most generic type of item.
+ * A timer to go off at a particular time.
  *
- * See http://schema.org/Thing for context.
+ * See http://schema.googleapis.com/Timer for context.
  *
  * Should not be directly implemented. More properties may be added over time. Instead consider
- * using [Companion.Builder] or see [GenericThing] if you need to extend this type.
+ * using [Companion.Builder] or see [GenericTimer] if you need to extend this type.
  */
-public interface Thing {
-  /**
-   * A sub property of description. A short description of the item used to disambiguate from other,
-   * similar items. Information from other properties (in particular, name) may be necessary for the
-   * description to be useful for disambiguation.
-   */
-  public val disambiguatingDescription: DisambiguatingDescription?
+public interface Timer : Thing {
+  /** The duration of the item (movie, audio recording, event, etc.). */
+  public val duration: Duration?
 
-  /**
-   * The identifier property represents any kind of identifier for any kind of Thing, such as ISBNs,
-   * GTIN codes, UUIDs etc.
-   */
-  public val identifier: String?
-
-  /** The name of the item. */
-  public val name: Name?
-
-  /** Converts this [Thing] to its builder with all the properties copied over. */
-  public fun toBuilder(): Builder<*>
+  /** Converts this [Timer] to its builder with all the properties copied over. */
+  public override fun toBuilder(): Builder<*>
 
   public companion object {
     /** Returns a default implementation of [Builder] with no properties set. */
-    @JvmStatic public fun Builder(): Builder<*> = ThingImpl.Builder()
+    @JvmStatic public fun Builder(): Builder<*> = TimerImpl.Builder()
   }
 
   /**
-   * Builder for [Thing].
+   * Builder for [Timer].
    *
    * Should not be directly implemented. More methods may be added over time. See
-   * [GenericThing.Builder] if you need to extend this builder.
+   * [GenericTimer.Builder] if you need to extend this builder.
    */
-  @Suppress("StaticFinalBuilder")
-  public interface Builder<Self : Builder<Self>> {
-    /** Returns a built [Thing]. */
-    public fun build(): Thing
+  public interface Builder<Self : Builder<Self>> : Thing.Builder<Self> {
+    /** Returns a built [Timer]. */
+    public override fun build(): Timer
 
-    /** Sets the `disambiguatingDescription` to [String]. */
-    public fun setDisambiguatingDescription(text: String): Self =
-      setDisambiguatingDescription(DisambiguatingDescription(text))
-
-    /** Sets the `disambiguatingDescription`. */
-    public fun setDisambiguatingDescription(
-      disambiguatingDescription: DisambiguatingDescription?
-    ): Self
-
-    /** Sets the `identifier`. */
-    public fun setIdentifier(text: String?): Self
-
-    /** Sets the `name` to [String]. */
-    public fun setName(text: String): Self = setName(Name(text))
-
-    /** Sets the `name`. */
-    public fun setName(name: Name?): Self
+    /** Sets the `duration`. */
+    public fun setDuration(duration: Duration?): Self
   }
 }
 
 /**
- * A generic implementation of [Thing].
+ * A generic implementation of [Timer].
  *
  * Allows for extension like:
  * ```kt
- * class MyThing internal constructor(
- *   thing: Thing,
+ * class MyTimer internal constructor(
+ *   timer: Timer,
  *   val foo: String,
  *   val bars: List<Int>,
- * ) : GenericThing<
- *   MyThing,
- *   MyThing.Builder
- * >(thing) {
+ * ) : GenericTimer<
+ *   MyTimer,
+ *   MyTimer.Builder
+ * >(timer) {
  *
  *   override val selfTypeName =
- *     "MyThing"
+ *     "MyTimer"
  *
  *   override val additionalProperties: Map<String, Any?>
  *     get() = mapOf("foo" to foo, "bars" to bars)
@@ -120,22 +92,23 @@ public interface Thing {
  *   }
  *
  *   class Builder :
- *     GenericThing.Builder<
+ *     GenericTimer.Builder<
  *       Builder,
- *       MyThing> {...}
+ *       MyTimer> {...}
  * }
  * ```
  *
- * Also see [GenericThing.Builder].
+ * Also see [GenericTimer.Builder].
  */
 @Suppress("UNCHECKED_CAST")
-public abstract class GenericThing<
-  Self : GenericThing<Self, Builder>, Builder : GenericThing.Builder<Builder, Self>>
+public abstract class GenericTimer<
+  Self : GenericTimer<Self, Builder>, Builder : GenericTimer.Builder<Builder, Self>>
 internal constructor(
+  public final override val duration: Duration?,
   public final override val disambiguatingDescription: DisambiguatingDescription?,
   public final override val identifier: String?,
   public final override val name: Name?,
-) : Thing {
+) : Timer {
   /**
    * Human readable name for the concrete [Self] class.
    *
@@ -150,16 +123,17 @@ internal constructor(
    */
   protected abstract val additionalProperties: Map<String, Any?>
 
-  /** A copy-constructor that copies over properties from another [Thing] instance. */
+  /** A copy-constructor that copies over properties from another [Timer] instance. */
   public constructor(
-    thing: Thing
-  ) : this(thing.disambiguatingDescription, thing.identifier, thing.name)
+    timer: Timer
+  ) : this(timer.duration, timer.disambiguatingDescription, timer.identifier, timer.name)
 
-  /** Returns a concrete [Builder] with the additional, non-[Thing] properties copied over. */
+  /** Returns a concrete [Builder] with the additional, non-[Timer] properties copied over. */
   protected abstract fun toBuilderWithAdditionalPropertiesOnly(): Builder
 
   public final override fun toBuilder(): Builder =
     toBuilderWithAdditionalPropertiesOnly()
+      .setDuration(duration)
       .setDisambiguatingDescription(disambiguatingDescription)
       .setIdentifier(identifier)
       .setName(name)
@@ -168,6 +142,7 @@ internal constructor(
     if (this === other) return true
     if (other == null || this::class.java != other::class.java) return false
     other as Self
+    if (duration != other.duration) return false
     if (disambiguatingDescription != other.disambiguatingDescription) return false
     if (identifier != other.identifier) return false
     if (name != other.name) return false
@@ -176,10 +151,13 @@ internal constructor(
   }
 
   public final override fun hashCode(): Int =
-    Objects.hash(disambiguatingDescription, identifier, name, additionalProperties)
+    Objects.hash(duration, disambiguatingDescription, identifier, name, additionalProperties)
 
   public final override fun toString(): String {
     val attributes = mutableMapOf<String, String>()
+    if (duration != null) {
+      attributes["duration"] = duration.toString()
+    }
     if (disambiguatingDescription != null) {
       attributes["disambiguatingDescription"] =
         disambiguatingDescription.toString(includeWrapperName = false)
@@ -196,34 +174,34 @@ internal constructor(
   }
 
   /**
-   * A generic implementation of [Thing.Builder].
+   * A generic implementation of [Timer.Builder].
    *
    * Allows for extension like:
    * ```kt
-   * class MyThing :
-   *   : GenericThing<
-   *     MyThing,
-   *     MyThing.Builder>(...) {
+   * class MyTimer :
+   *   : GenericTimer<
+   *     MyTimer,
+   *     MyTimer.Builder>(...) {
    *
    *   class Builder
    *   : Builder<
    *       Builder,
-   *       MyThing
+   *       MyTimer
    *   >() {
    *     private var foo: String? = null
    *     private val bars = mutableListOf<Int>()
    *
    *     override val selfTypeName =
-   *       "MyThing.Builder"
+   *       "MyTimer.Builder"
    *
    *     override val additionalProperties: Map<String, Any?>
    *       get() = mapOf("foo" to foo, "bars" to bars)
    *
-   *     override fun buildFromThing(
-   *       thing: Thing
-   *     ): MyThing {
-   *       return MyThing(
-   *         thing,
+   *     override fun buildFromTimer(
+   *       timer: Timer
+   *     ): MyTimer {
+   *       return MyTimer(
+   *         timer,
    *         foo,
    *         bars.toList()
    *       )
@@ -244,11 +222,11 @@ internal constructor(
    * }
    * ```
    *
-   * Also see [GenericThing].
+   * Also see [GenericTimer].
    */
   @Suppress("StaticFinalBuilder")
-  public abstract class Builder<Self : Builder<Self, Built>, Built : GenericThing<Built, Self>> :
-    Thing.Builder<Self> {
+  public abstract class Builder<Self : Builder<Self, Built>, Built : GenericTimer<Built, Self>> :
+    Timer.Builder<Self> {
     /**
      * Human readable name for the concrete [Self] class.
      *
@@ -263,6 +241,8 @@ internal constructor(
      */
     @get:Suppress("GetterOnBuilder") protected abstract val additionalProperties: Map<String, Any?>
 
+    private var duration: Duration? = null
+
     private var disambiguatingDescription: DisambiguatingDescription? = null
 
     private var identifier: String? = null
@@ -270,17 +250,22 @@ internal constructor(
     private var name: Name? = null
 
     /**
-     * Builds a concrete [Built] instance, given a built [Thing].
+     * Builds a concrete [Built] instance, given a built [Timer].
      *
      * Subclasses should override this method to build a concrete [Built] instance that holds both
-     * the [Thing]-specific properties and the subclass specific [additionalProperties].
+     * the [Timer]-specific properties and the subclass specific [additionalProperties].
      *
      * See the sample code in the documentation of this class for more context.
      */
-    @Suppress("BuilderSetStyle") protected abstract fun buildFromThing(thing: Thing): Built
+    @Suppress("BuilderSetStyle") protected abstract fun buildFromTimer(timer: Timer): Built
 
     public final override fun build(): Built =
-      buildFromThing(ThingImpl(disambiguatingDescription, identifier, name))
+      buildFromTimer(TimerImpl(duration, disambiguatingDescription, identifier, name))
+
+    public final override fun setDuration(duration: Duration?): Self {
+      this.duration = duration
+      return this as Self
+    }
 
     public final override fun setDisambiguatingDescription(
       disambiguatingDescription: DisambiguatingDescription?
@@ -304,6 +289,7 @@ internal constructor(
       if (this === other) return true
       if (other == null || this::class.java != other::class.java) return false
       other as Self
+      if (duration != other.duration) return false
       if (disambiguatingDescription != other.disambiguatingDescription) return false
       if (identifier != other.identifier) return false
       if (name != other.name) return false
@@ -313,11 +299,14 @@ internal constructor(
 
     @Suppress("BuilderSetStyle")
     public final override fun hashCode(): Int =
-      Objects.hash(disambiguatingDescription, identifier, name, additionalProperties)
+      Objects.hash(duration, disambiguatingDescription, identifier, name, additionalProperties)
 
     @Suppress("BuilderSetStyle")
     public final override fun toString(): String {
       val attributes = mutableMapOf<String, String>()
+      if (duration != null) {
+        attributes["duration"] = duration!!.toString()
+      }
       if (disambiguatingDescription != null) {
         attributes["disambiguatingDescription"] =
           disambiguatingDescription!!.toString(includeWrapperName = false)
@@ -336,31 +325,32 @@ internal constructor(
   }
 }
 
-internal class ThingImpl : GenericThing<ThingImpl, ThingImpl.Builder> {
+internal class TimerImpl : GenericTimer<TimerImpl, TimerImpl.Builder> {
   protected override val selfTypeName: String
-    get() = "Thing"
+    get() = "Timer"
 
   protected override val additionalProperties: Map<String, Any?>
     get() = emptyMap()
 
   public constructor(
+    duration: Duration?,
     disambiguatingDescription: DisambiguatingDescription?,
     identifier: String?,
     name: Name?,
-  ) : super(disambiguatingDescription, identifier, name)
+  ) : super(duration, disambiguatingDescription, identifier, name)
 
-  public constructor(thing: Thing) : super(thing)
+  public constructor(timer: Timer) : super(timer)
 
   protected override fun toBuilderWithAdditionalPropertiesOnly(): Builder = Builder()
 
-  internal class Builder : GenericThing.Builder<Builder, ThingImpl>() {
+  internal class Builder : GenericTimer.Builder<Builder, TimerImpl>() {
     protected override val selfTypeName: String
-      get() = "Thing.Builder"
+      get() = "Timer.Builder"
 
     protected override val additionalProperties: Map<String, Any?>
       get() = emptyMap()
 
-    protected override fun buildFromThing(thing: Thing): ThingImpl =
-      thing as? ThingImpl ?: ThingImpl(thing)
+    protected override fun buildFromTimer(timer: Timer): TimerImpl =
+      timer as? TimerImpl ?: TimerImpl(timer)
   }
 }

@@ -27,88 +27,84 @@ import kotlin.collections.joinToString
 import kotlin.collections.map
 import kotlin.collections.mutableMapOf
 import kotlin.collections.plusAssign
+import kotlin.jvm.JvmField
 import kotlin.jvm.JvmStatic
 
 /**
- * The most generic type of item.
+ * An alarm set to go off at a specified schedule.
  *
- * See http://schema.org/Thing for context.
+ * See http://schema.googleapis.com/Alarm for context.
  *
  * Should not be directly implemented. More properties may be added over time. Instead consider
- * using [Companion.Builder] or see [GenericThing] if you need to extend this type.
+ * using [Companion.Builder] or see [GenericAlarm] if you need to extend this type.
  */
-public interface Thing {
-  /**
-   * A sub property of description. A short description of the item used to disambiguate from other,
-   * similar items. Information from other properties (in particular, name) may be necessary for the
-   * description to be useful for disambiguation.
-   */
-  public val disambiguatingDescription: DisambiguatingDescription?
+public interface Alarm : Thing {
+  /** Associates an Alarm with a Schedule. */
+  public val alarmSchedule: Schedule?
 
-  /**
-   * The identifier property represents any kind of identifier for any kind of Thing, such as ISBNs,
-   * GTIN codes, UUIDs etc.
-   */
-  public val identifier: String?
-
-  /** The name of the item. */
-  public val name: Name?
-
-  /** Converts this [Thing] to its builder with all the properties copied over. */
-  public fun toBuilder(): Builder<*>
+  /** Converts this [Alarm] to its builder with all the properties copied over. */
+  public override fun toBuilder(): Builder<*>
 
   public companion object {
     /** Returns a default implementation of [Builder] with no properties set. */
-    @JvmStatic public fun Builder(): Builder<*> = ThingImpl.Builder()
+    @JvmStatic public fun Builder(): Builder<*> = AlarmImpl.Builder()
   }
 
   /**
-   * Builder for [Thing].
+   * Builder for [Alarm].
    *
    * Should not be directly implemented. More methods may be added over time. See
-   * [GenericThing.Builder] if you need to extend this builder.
+   * [GenericAlarm.Builder] if you need to extend this builder.
    */
-  @Suppress("StaticFinalBuilder")
-  public interface Builder<Self : Builder<Self>> {
-    /** Returns a built [Thing]. */
-    public fun build(): Thing
+  public interface Builder<Self : Builder<Self>> : Thing.Builder<Self> {
+    /** Returns a built [Alarm]. */
+    public override fun build(): Alarm
 
-    /** Sets the `disambiguatingDescription` to [String]. */
-    public fun setDisambiguatingDescription(text: String): Self =
-      setDisambiguatingDescription(DisambiguatingDescription(text))
+    /** Sets the `alarmSchedule`. */
+    public fun setAlarmSchedule(schedule: Schedule?): Self
 
-    /** Sets the `disambiguatingDescription`. */
-    public fun setDisambiguatingDescription(
-      disambiguatingDescription: DisambiguatingDescription?
-    ): Self
+    /** Sets the `disambiguatingDescription` to a canonical [DisambiguatingDescriptionValue]. */
+    public fun setDisambiguatingDescription(canonicalValue: DisambiguatingDescriptionValue): Self =
+      setDisambiguatingDescription(DisambiguatingDescription(canonicalValue))
+  }
 
-    /** Sets the `identifier`. */
-    public fun setIdentifier(text: String?): Self
+  /**
+   * A canonical value that may be assigned to [DisambiguatingDescription] properties in the context
+   * of [Alarm].
+   *
+   * Represents an open enum. See [Companion] for the different possible variants. More variants may
+   * be added over time.
+   */
+  public class DisambiguatingDescriptionValue
+  private constructor(
+    public override val textValue: String,
+  ) : DisambiguatingDescription.CanonicalValue() {
+    public override fun toString(): String = """Alarm.DisambiguatingDescriptionValue($textValue)"""
 
-    /** Sets the `name` to [String]. */
-    public fun setName(text: String): Self = setName(Name(text))
-
-    /** Sets the `name`. */
-    public fun setName(name: Name?): Self
+    public companion object {
+      @JvmField
+      public val FAMILY_BELL: DisambiguatingDescriptionValue =
+        DisambiguatingDescriptionValue("FamilyBell")
+    }
   }
 }
 
 /**
- * A generic implementation of [Thing].
+ * A generic implementation of [Alarm].
  *
  * Allows for extension like:
  * ```kt
- * class MyThing internal constructor(
- *   thing: Thing,
+ * class MyAlarm internal constructor(
+ *   alarm: Alarm,
  *   val foo: String,
  *   val bars: List<Int>,
- * ) : GenericThing<
- *   MyThing,
- *   MyThing.Builder
- * >(thing) {
+ * ) : GenericAlarm<
+ *   MyAlarm,
+ *   MyAlarm.Builder
+ * >(alarm) {
  *
  *   override val selfTypeName =
- *     "MyThing"
+ *     "MyAlarm"
  *
  *   override val additionalProperties: Map<String, Any?>
  *     get() = mapOf("foo" to foo, "bars" to bars)
@@ -120,22 +116,23 @@ public interface Thing {
  *   }
  *
  *   class Builder :
- *     GenericThing.Builder<
+ *     GenericAlarm.Builder<
  *       Builder,
- *       MyThing> {...}
+ *       MyAlarm> {...}
  * }
  * ```
  *
- * Also see [GenericThing.Builder].
+ * Also see [GenericAlarm.Builder].
  */
 @Suppress("UNCHECKED_CAST")
-public abstract class GenericThing<
-  Self : GenericThing<Self, Builder>, Builder : GenericThing.Builder<Builder, Self>>
+public abstract class GenericAlarm<
+  Self : GenericAlarm<Self, Builder>, Builder : GenericAlarm.Builder<Builder, Self>>
 internal constructor(
+  public final override val alarmSchedule: Schedule?,
   public final override val disambiguatingDescription: DisambiguatingDescription?,
   public final override val identifier: String?,
   public final override val name: Name?,
-) : Thing {
+) : Alarm {
   /**
    * Human readable name for the concrete [Self] class.
    *
@@ -150,16 +147,17 @@ internal constructor(
    */
   protected abstract val additionalProperties: Map<String, Any?>
 
-  /** A copy-constructor that copies over properties from another [Thing] instance. */
+  /** A copy-constructor that copies over properties from another [Alarm] instance. */
   public constructor(
-    thing: Thing
-  ) : this(thing.disambiguatingDescription, thing.identifier, thing.name)
+    alarm: Alarm
+  ) : this(alarm.alarmSchedule, alarm.disambiguatingDescription, alarm.identifier, alarm.name)
 
-  /** Returns a concrete [Builder] with the additional, non-[Thing] properties copied over. */
+  /** Returns a concrete [Builder] with the additional, non-[Alarm] properties copied over. */
   protected abstract fun toBuilderWithAdditionalPropertiesOnly(): Builder
 
   public final override fun toBuilder(): Builder =
     toBuilderWithAdditionalPropertiesOnly()
+      .setAlarmSchedule(alarmSchedule)
       .setDisambiguatingDescription(disambiguatingDescription)
       .setIdentifier(identifier)
       .setName(name)
@@ -168,6 +166,7 @@ internal constructor(
     if (this === other) return true
     if (other == null || this::class.java != other::class.java) return false
     other as Self
+    if (alarmSchedule != other.alarmSchedule) return false
     if (disambiguatingDescription != other.disambiguatingDescription) return false
     if (identifier != other.identifier) return false
     if (name != other.name) return false
@@ -176,10 +175,13 @@ internal constructor(
   }
 
   public final override fun hashCode(): Int =
-    Objects.hash(disambiguatingDescription, identifier, name, additionalProperties)
+    Objects.hash(alarmSchedule, disambiguatingDescription, identifier, name, additionalProperties)
 
   public final override fun toString(): String {
     val attributes = mutableMapOf<String, String>()
+    if (alarmSchedule != null) {
+      attributes["alarmSchedule"] = alarmSchedule.toString()
+    }
     if (disambiguatingDescription != null) {
       attributes["disambiguatingDescription"] =
         disambiguatingDescription.toString(includeWrapperName = false)
@@ -196,34 +198,34 @@ internal constructor(
   }
 
   /**
-   * A generic implementation of [Thing.Builder].
+   * A generic implementation of [Alarm.Builder].
    *
    * Allows for extension like:
    * ```kt
-   * class MyThing :
-   *   : GenericThing<
-   *     MyThing,
-   *     MyThing.Builder>(...) {
+   * class MyAlarm :
+   *   : GenericAlarm<
+   *     MyAlarm,
+   *     MyAlarm.Builder>(...) {
    *
    *   class Builder
    *   : Builder<
    *       Builder,
-   *       MyThing
+   *       MyAlarm
    *   >() {
    *     private var foo: String? = null
    *     private val bars = mutableListOf<Int>()
    *
    *     override val selfTypeName =
-   *       "MyThing.Builder"
+   *       "MyAlarm.Builder"
    *
    *     override val additionalProperties: Map<String, Any?>
    *       get() = mapOf("foo" to foo, "bars" to bars)
    *
-   *     override fun buildFromThing(
-   *       thing: Thing
-   *     ): MyThing {
-   *       return MyThing(
-   *         thing,
+   *     override fun buildFromAlarm(
+   *       alarm: Alarm
+   *     ): MyAlarm {
+   *       return MyAlarm(
+   *         alarm,
    *         foo,
    *         bars.toList()
    *       )
@@ -244,11 +246,11 @@ internal constructor(
    * }
    * ```
    *
-   * Also see [GenericThing].
+   * Also see [GenericAlarm].
    */
   @Suppress("StaticFinalBuilder")
-  public abstract class Builder<Self : Builder<Self, Built>, Built : GenericThing<Built, Self>> :
-    Thing.Builder<Self> {
+  public abstract class Builder<Self : Builder<Self, Built>, Built : GenericAlarm<Built, Self>> :
+    Alarm.Builder<Self> {
     /**
      * Human readable name for the concrete [Self] class.
      *
@@ -263,6 +265,8 @@ internal constructor(
      */
     @get:Suppress("GetterOnBuilder") protected abstract val additionalProperties: Map<String, Any?>
 
+    private var alarmSchedule: Schedule? = null
+
     private var disambiguatingDescription: DisambiguatingDescription? = null
 
     private var identifier: String? = null
@@ -270,17 +274,22 @@ internal constructor(
     private var name: Name? = null
 
     /**
-     * Builds a concrete [Built] instance, given a built [Thing].
+     * Builds a concrete [Built] instance, given a built [Alarm].
      *
      * Subclasses should override this method to build a concrete [Built] instance that holds both
-     * the [Thing]-specific properties and the subclass specific [additionalProperties].
+     * the [Alarm]-specific properties and the subclass specific [additionalProperties].
      *
      * See the sample code in the documentation of this class for more context.
      */
-    @Suppress("BuilderSetStyle") protected abstract fun buildFromThing(thing: Thing): Built
+    @Suppress("BuilderSetStyle") protected abstract fun buildFromAlarm(alarm: Alarm): Built
 
     public final override fun build(): Built =
-      buildFromThing(ThingImpl(disambiguatingDescription, identifier, name))
+      buildFromAlarm(AlarmImpl(alarmSchedule, disambiguatingDescription, identifier, name))
+
+    public final override fun setAlarmSchedule(schedule: Schedule?): Self {
+      this.alarmSchedule = schedule
+      return this as Self
+    }
 
     public final override fun setDisambiguatingDescription(
       disambiguatingDescription: DisambiguatingDescription?
@@ -304,6 +313,7 @@ internal constructor(
       if (this === other) return true
       if (other == null || this::class.java != other::class.java) return false
       other as Self
+      if (alarmSchedule != other.alarmSchedule) return false
       if (disambiguatingDescription != other.disambiguatingDescription) return false
       if (identifier != other.identifier) return false
       if (name != other.name) return false
@@ -313,11 +323,14 @@ internal constructor(
 
     @Suppress("BuilderSetStyle")
     public final override fun hashCode(): Int =
-      Objects.hash(disambiguatingDescription, identifier, name, additionalProperties)
+      Objects.hash(alarmSchedule, disambiguatingDescription, identifier, name, additionalProperties)
 
     @Suppress("BuilderSetStyle")
     public final override fun toString(): String {
       val attributes = mutableMapOf<String, String>()
+      if (alarmSchedule != null) {
+        attributes["alarmSchedule"] = alarmSchedule!!.toString()
+      }
       if (disambiguatingDescription != null) {
         attributes["disambiguatingDescription"] =
           disambiguatingDescription!!.toString(includeWrapperName = false)
@@ -336,31 +349,32 @@ internal constructor(
   }
 }
 
-internal class ThingImpl : GenericThing<ThingImpl, ThingImpl.Builder> {
+internal class AlarmImpl : GenericAlarm<AlarmImpl, AlarmImpl.Builder> {
   protected override val selfTypeName: String
-    get() = "Thing"
+    get() = "Alarm"
 
   protected override val additionalProperties: Map<String, Any?>
     get() = emptyMap()
 
   public constructor(
+    alarmSchedule: Schedule?,
     disambiguatingDescription: DisambiguatingDescription?,
     identifier: String?,
     name: Name?,
-  ) : super(disambiguatingDescription, identifier, name)
+  ) : super(alarmSchedule, disambiguatingDescription, identifier, name)
 
-  public constructor(thing: Thing) : super(thing)
+  public constructor(alarm: Alarm) : super(alarm)
 
   protected override fun toBuilderWithAdditionalPropertiesOnly(): Builder = Builder()
 
-  internal class Builder : GenericThing.Builder<Builder, ThingImpl>() {
+  internal class Builder : GenericAlarm.Builder<Builder, AlarmImpl>() {
     protected override val selfTypeName: String
-      get() = "Thing.Builder"
+      get() = "Alarm.Builder"
 
     protected override val additionalProperties: Map<String, Any?>
       get() = emptyMap()
 
-    protected override fun buildFromThing(thing: Thing): ThingImpl =
-      thing as? ThingImpl ?: ThingImpl(thing)
+    protected override fun buildFromAlarm(alarm: Alarm): AlarmImpl =
+      alarm as? AlarmImpl ?: AlarmImpl(alarm)
   }
 }

@@ -14,18 +14,24 @@
 package androidx.appactions.builtintypes.samples.properties
 
 import androidx.`annotation`.Sampled
-import androidx.appactions.builtintypes.properties.Name
+import androidx.appactions.builtintypes.properties.StartDate
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.ZonedDateTime
 import kotlin.String
 
 @Sampled
-public fun nameMapWhenUsage(name: Name) =
-  name.mapWhen(
-    object : Name.Mapper<String> {
-      public override fun text(instance: String): String = """Got String: $instance"""
+public fun startDateMapWhenUsage(startDate: StartDate) =
+  startDate.mapWhen(
+    object : StartDate.Mapper<String> {
+      public override fun date(instance: LocalDate): String = """Got LocalDate: $instance"""
 
-      public override fun canonicalValue(instance: Name.CanonicalValue): String =
-        """Got a canonical value for Name: $instance"""
+      public override fun localDateTime(instance: LocalDateTime): String =
+        """Got a local DateTime: $instance"""
 
-      public override fun orElse(): String = """Got some unrecognized variant: $name"""
+      public override fun zonedDateTime(instance: ZonedDateTime): String =
+        """Got a zoned/absolute DateTime: $instance"""
+
+      public override fun orElse(): String = """Got some unrecognized variant: $startDate"""
     }
   )

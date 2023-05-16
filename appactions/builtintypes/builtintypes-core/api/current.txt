@@ -1,23 +1,18 @@
 // Signature format: 4.0
 package androidx.appactions.builtintypes.properties {
 
-  public final class Description {
-    ctor public Description(androidx.appactions.builtintypes.properties.Description.CanonicalValue canonicalValue);
-    ctor public Description(String text);
-    method public androidx.appactions.builtintypes.properties.Description.CanonicalValue? getAsCanonicalValue();
+  public final class ByDay {
+    ctor public ByDay(androidx.appactions.builtintypes.types.DayOfWeek dayOfWeek);
+    ctor public ByDay(String text);
+    method public androidx.appactions.builtintypes.types.DayOfWeek? getAsDayOfWeek();
     method public String? getAsText();
-    method public <R> R mapWhen(androidx.appactions.builtintypes.properties.Description.Mapper<R> mapper);
-    property public final androidx.appactions.builtintypes.properties.Description.CanonicalValue? asCanonicalValue;
+    method public <R> R mapWhen(androidx.appactions.builtintypes.properties.ByDay.Mapper<R> mapper);
+    property public final androidx.appactions.builtintypes.types.DayOfWeek? asDayOfWeek;
     property public final String? asText;
   }
 
-  public abstract static class Description.CanonicalValue {
-    method public abstract String getTextValue();
-    property public abstract String textValue;
-  }
-
-  public static interface Description.Mapper<R> {
-    method public default R canonicalValue(androidx.appactions.builtintypes.properties.Description.CanonicalValue instance);
+  public static interface ByDay.Mapper<R> {
+    method public default R dayOfWeek(androidx.appactions.builtintypes.types.DayOfWeek instance);
     method public R orElse();
     method public default R text(String instance);
   }
@@ -43,53 +38,125 @@ package androidx.appactions.builtintypes.properties {
     method public default R text(String instance);
   }
 
-  public final class Name {
-    ctor public Name(androidx.appactions.builtintypes.properties.Name.CanonicalValue canonicalValue);
-    ctor public Name(String text);
-    method public androidx.appactions.builtintypes.properties.Name.CanonicalValue? getAsCanonicalValue();
-    method public String? getAsText();
-    method public <R> R mapWhen(androidx.appactions.builtintypes.properties.Name.Mapper<R> mapper);
-    property public final androidx.appactions.builtintypes.properties.Name.CanonicalValue? asCanonicalValue;
-    property public final String? asText;
-  }
-
-  public abstract static class Name.CanonicalValue {
-    method public abstract String getTextValue();
-    property public abstract String textValue;
-  }
-
-  public static interface Name.Mapper<R> {
-    method public default R canonicalValue(androidx.appactions.builtintypes.properties.Name.CanonicalValue instance);
-    method public R orElse();
-    method public default R text(String instance);
-  }
-
-  public final class Temporal {
-    ctor public Temporal(androidx.appactions.builtintypes.properties.Temporal.CanonicalValue canonicalValue);
-    ctor public Temporal(String text);
-    ctor public Temporal(java.time.LocalDateTime localDateTime);
-    ctor public Temporal(java.time.ZonedDateTime zonedDateTime);
-    method public androidx.appactions.builtintypes.properties.Temporal.CanonicalValue? getAsCanonicalValue();
+  public final class EndDate {
+    ctor public EndDate(java.time.LocalDate date);
+    ctor public EndDate(java.time.LocalDateTime localDateTime);
+    ctor public EndDate(java.time.ZonedDateTime zonedDateTime);
+    method public java.time.LocalDate? getAsDate();
     method public java.time.LocalDateTime? getAsLocalDateTime();
-    method public String? getAsText();
     method public java.time.ZonedDateTime? getAsZonedDateTime();
-    method public <R> R mapWhen(androidx.appactions.builtintypes.properties.Temporal.Mapper<R> mapper);
-    property public final androidx.appactions.builtintypes.properties.Temporal.CanonicalValue? asCanonicalValue;
+    method public <R> R mapWhen(androidx.appactions.builtintypes.properties.EndDate.Mapper<R> mapper);
+    property public final java.time.LocalDate? asDate;
     property public final java.time.LocalDateTime? asLocalDateTime;
-    property public final String? asText;
     property public final java.time.ZonedDateTime? asZonedDateTime;
   }
 
-  public abstract static class Temporal.CanonicalValue {
-    method public abstract String getTextValue();
-    property public abstract String textValue;
-  }
-
-  public static interface Temporal.Mapper<R> {
-    method public default R canonicalValue(androidx.appactions.builtintypes.properties.Temporal.CanonicalValue instance);
+  public static interface EndDate.Mapper<R> {
+    method public default R date(java.time.LocalDate instance);
     method public default R localDateTime(java.time.LocalDateTime instance);
     method public R orElse();
+    method public default R zonedDateTime(java.time.ZonedDateTime instance);
+  }
+
+  public final class EndTime {
+    ctor public EndTime(java.time.LocalDateTime localDateTime);
+    ctor public EndTime(java.time.LocalTime time);
+    ctor public EndTime(java.time.ZonedDateTime zonedDateTime);
+    method public java.time.LocalDateTime? getAsLocalDateTime();
+    method public java.time.LocalTime? getAsTime();
+    method public java.time.ZonedDateTime? getAsZonedDateTime();
+    method public <R> R mapWhen(androidx.appactions.builtintypes.properties.EndTime.Mapper<R> mapper);
+    property public final java.time.LocalDateTime? asLocalDateTime;
+    property public final java.time.LocalTime? asTime;
+    property public final java.time.ZonedDateTime? asZonedDateTime;
+  }
+
+  public static interface EndTime.Mapper<R> {
+    method public default R localDateTime(java.time.LocalDateTime instance);
+    method public R orElse();
+    method public default R time(java.time.LocalTime instance);
+    method public default R zonedDateTime(java.time.ZonedDateTime instance);
+  }
+
+  public final class ExceptDate {
+    ctor public ExceptDate(java.time.LocalDate date);
+    ctor public ExceptDate(java.time.LocalDateTime localDateTime);
+    ctor public ExceptDate(java.time.ZonedDateTime zonedDateTime);
+    method public java.time.LocalDate? getAsDate();
+    method public java.time.LocalDateTime? getAsLocalDateTime();
+    method public java.time.ZonedDateTime? getAsZonedDateTime();
+    method public <R> R mapWhen(androidx.appactions.builtintypes.properties.ExceptDate.Mapper<R> mapper);
+    property public final java.time.LocalDate? asDate;
+    property public final java.time.LocalDateTime? asLocalDateTime;
+    property public final java.time.ZonedDateTime? asZonedDateTime;
+  }
+
+  public static interface ExceptDate.Mapper<R> {
+    method public default R date(java.time.LocalDate instance);
+    method public default R localDateTime(java.time.LocalDateTime instance);
+    method public R orElse();
+    method public default R zonedDateTime(java.time.ZonedDateTime instance);
+  }
+
+  public final class Name {
+    ctor public Name(String text);
+    method public String? getAsText();
+    property public final String? asText;
+  }
+
+  public final class RepeatFrequency {
+    ctor public RepeatFrequency(String text);
+    ctor public RepeatFrequency(java.time.Duration duration);
+    method public java.time.Duration? getAsDuration();
+    method public String? getAsText();
+    method public <R> R mapWhen(androidx.appactions.builtintypes.properties.RepeatFrequency.Mapper<R> mapper);
+    property public final java.time.Duration? asDuration;
+    property public final String? asText;
+  }
+
+  public static interface RepeatFrequency.Mapper<R> {
+    method public default R duration(java.time.Duration instance);
+    method public R orElse();
     method public default R text(String instance);
+  }
+
+  public final class StartDate {
+    ctor public StartDate(java.time.LocalDate date);
+    ctor public StartDate(java.time.LocalDateTime localDateTime);
+    ctor public StartDate(java.time.ZonedDateTime zonedDateTime);
+    method public java.time.LocalDate? getAsDate();
+    method public java.time.LocalDateTime? getAsLocalDateTime();
+    method public java.time.ZonedDateTime? getAsZonedDateTime();
+    method public <R> R mapWhen(androidx.appactions.builtintypes.properties.StartDate.Mapper<R> mapper);
+    property public final java.time.LocalDate? asDate;
+    property public final java.time.LocalDateTime? asLocalDateTime;
+    property public final java.time.ZonedDateTime? asZonedDateTime;
+  }
+
+  public static interface StartDate.Mapper<R> {
+    method public default R date(java.time.LocalDate instance);
+    method public default R localDateTime(java.time.LocalDateTime instance);
+    method public R orElse();
+    method public default R zonedDateTime(java.time.ZonedDateTime instance);
+  }
+
+  public final class StartTime {
+    ctor public StartTime(java.time.LocalDateTime localDateTime);
+    ctor public StartTime(java.time.LocalTime time);
+    ctor public StartTime(java.time.ZonedDateTime zonedDateTime);
+    method public java.time.LocalDateTime? getAsLocalDateTime();
+    method public java.time.LocalTime? getAsTime();
+    method public java.time.ZonedDateTime? getAsZonedDateTime();
+    method public <R> R mapWhen(androidx.appactions.builtintypes.properties.StartTime.Mapper<R> mapper);
+    property public final java.time.LocalDateTime? asLocalDateTime;
+    property public final java.time.LocalTime? asTime;
+    property public final java.time.ZonedDateTime? asZonedDateTime;
+  }
+
+  public static interface StartTime.Mapper<R> {
+    method public default R localDateTime(java.time.LocalDateTime instance);
+    method public R orElse();
+    method public default R time(java.time.LocalTime instance);
     method public default R zonedDateTime(java.time.ZonedDateTime instance);
   }
 
@@ -97,27 +164,271 @@ package androidx.appactions.builtintypes.properties {
 
 package androidx.appactions.builtintypes.types {
 
-  public abstract class GenericThing<Self extends androidx.appactions.builtintypes.types.GenericThing<Self, Builder>, Builder extends androidx.appactions.builtintypes.types.GenericThing.Builder<Builder, Self>> implements androidx.appactions.builtintypes.types.Thing {
-    ctor public GenericThing(androidx.appactions.builtintypes.types.Thing thing);
+  public interface Alarm extends androidx.appactions.builtintypes.types.Thing {
+    method public default static androidx.appactions.builtintypes.types.Alarm.Builder<?> Builder();
+    method public androidx.appactions.builtintypes.types.Schedule? getAlarmSchedule();
+    method public androidx.appactions.builtintypes.types.Alarm.Builder<?> toBuilder();
+    property public abstract androidx.appactions.builtintypes.types.Schedule? alarmSchedule;
+    field public static final androidx.appactions.builtintypes.types.Alarm.Companion Companion;
+  }
+
+  public static interface Alarm.Builder<Self extends androidx.appactions.builtintypes.types.Alarm.Builder<Self>> extends androidx.appactions.builtintypes.types.Thing.Builder<Self> {
+    method public androidx.appactions.builtintypes.types.Alarm build();
+    method public Self setAlarmSchedule(androidx.appactions.builtintypes.types.Schedule? schedule);
+    method public default Self setDisambiguatingDescription(androidx.appactions.builtintypes.types.Alarm.DisambiguatingDescriptionValue canonicalValue);
+  }
+
+  public static final class Alarm.Companion {
+    method public androidx.appactions.builtintypes.types.Alarm.Builder<?> Builder();
+  }
+
+  public static final class Alarm.DisambiguatingDescriptionValue extends androidx.appactions.builtintypes.properties.DisambiguatingDescription.CanonicalValue {
+    method public String getTextValue();
+    property public String textValue;
+    field public static final androidx.appactions.builtintypes.types.Alarm.DisambiguatingDescriptionValue.Companion Companion;
+    field public static final androidx.appactions.builtintypes.types.Alarm.DisambiguatingDescriptionValue FAMILY_BELL;
+  }
+
+  public static final class Alarm.DisambiguatingDescriptionValue.Companion {
+  }
+
+  public final class DayOfWeek {
+    method public String getCanonicalUrl();
+    method public <R> R mapWhen(androidx.appactions.builtintypes.types.DayOfWeek.Mapper<R> mapper);
+    property public final String canonicalUrl;
+    field public static final androidx.appactions.builtintypes.types.DayOfWeek.Companion Companion;
+    field public static final androidx.appactions.builtintypes.types.DayOfWeek FRIDAY;
+    field public static final androidx.appactions.builtintypes.types.DayOfWeek MONDAY;
+    field public static final androidx.appactions.builtintypes.types.DayOfWeek PUBLIC_HOLIDAYS;
+    field public static final androidx.appactions.builtintypes.types.DayOfWeek SATURDAY;
+    field public static final androidx.appactions.builtintypes.types.DayOfWeek SUNDAY;
+    field public static final androidx.appactions.builtintypes.types.DayOfWeek THURSDAY;
+    field public static final androidx.appactions.builtintypes.types.DayOfWeek TUESDAY;
+    field public static final androidx.appactions.builtintypes.types.DayOfWeek WEDNESDAY;
+  }
+
+  public static final class DayOfWeek.Companion {
+  }
+
+  public static interface DayOfWeek.Mapper<R> {
+    method public default R friday();
+    method public default R monday();
+    method public R orElse();
+    method public default R publicHolidays();
+    method public default R saturday();
+    method public default R sunday();
+    method public default R thursday();
+    method public default R tuesday();
+    method public default R wednesday();
+  }
+
+  public abstract class GenericAlarm<Self extends androidx.appactions.builtintypes.types.GenericAlarm<Self, Builder>, Builder extends androidx.appactions.builtintypes.types.GenericAlarm.Builder<Builder, Self>> implements androidx.appactions.builtintypes.types.Alarm {
+    ctor public GenericAlarm(androidx.appactions.builtintypes.types.Alarm alarm);
     method public final boolean equals(Object? other);
     method protected abstract java.util.Map<java.lang.String,java.lang.Object> getAdditionalProperties();
-    method public final androidx.appactions.builtintypes.properties.Description? getDescription();
+    method public final androidx.appactions.builtintypes.types.Schedule? getAlarmSchedule();
     method public final androidx.appactions.builtintypes.properties.DisambiguatingDescription? getDisambiguatingDescription();
     method public final String? getIdentifier();
     method public final androidx.appactions.builtintypes.properties.Name? getName();
     method protected abstract String getSelfTypeName();
-    method public final androidx.appactions.builtintypes.properties.Temporal? getTemporal();
     method public final int hashCode();
     method public final Builder toBuilder();
     method protected abstract Builder toBuilderWithAdditionalPropertiesOnly();
     method public final String toString();
     property protected abstract java.util.Map<java.lang.String,java.lang.Object> additionalProperties;
-    property public final androidx.appactions.builtintypes.properties.Description? description;
+    property public final androidx.appactions.builtintypes.types.Schedule? alarmSchedule;
     property public final androidx.appactions.builtintypes.properties.DisambiguatingDescription? disambiguatingDescription;
     property public final String? identifier;
     property public final androidx.appactions.builtintypes.properties.Name? name;
     property protected abstract String selfTypeName;
-    property public final androidx.appactions.builtintypes.properties.Temporal? temporal;
+  }
+
+  public abstract static class GenericAlarm.Builder<Self extends androidx.appactions.builtintypes.types.GenericAlarm.Builder<Self, Built>, Built extends androidx.appactions.builtintypes.types.GenericAlarm<Built, Self>> implements androidx.appactions.builtintypes.types.Alarm.Builder<Self> {
+    ctor public GenericAlarm.Builder();
+    method public final Built build();
+    method protected abstract Built buildFromAlarm(androidx.appactions.builtintypes.types.Alarm alarm);
+    method public final boolean equals(Object? other);
+    method protected abstract java.util.Map<java.lang.String,java.lang.Object> getAdditionalProperties();
+    method protected abstract String getSelfTypeName();
+    method public final int hashCode();
+    method public final Self setAlarmSchedule(androidx.appactions.builtintypes.types.Schedule? schedule);
+    method public final Self setDisambiguatingDescription(androidx.appactions.builtintypes.properties.DisambiguatingDescription? disambiguatingDescription);
+    method public final Self setIdentifier(String? text);
+    method public final Self setName(androidx.appactions.builtintypes.properties.Name? name);
+    method public final String toString();
+    property protected abstract java.util.Map<java.lang.String,java.lang.Object> additionalProperties;
+    property protected abstract String selfTypeName;
+  }
+
+  public abstract class GenericIntangible<Self extends androidx.appactions.builtintypes.types.GenericIntangible<Self, Builder>, Builder extends androidx.appactions.builtintypes.types.GenericIntangible.Builder<Builder, Self>> implements androidx.appactions.builtintypes.types.Intangible {
+    ctor public GenericIntangible(androidx.appactions.builtintypes.types.Intangible intangible);
+    method public final boolean equals(Object? other);
+    method protected abstract java.util.Map<java.lang.String,java.lang.Object> getAdditionalProperties();
+    method public final androidx.appactions.builtintypes.properties.DisambiguatingDescription? getDisambiguatingDescription();
+    method public final String? getIdentifier();
+    method public final androidx.appactions.builtintypes.properties.Name? getName();
+    method protected abstract String getSelfTypeName();
+    method public final int hashCode();
+    method public final Builder toBuilder();
+    method protected abstract Builder toBuilderWithAdditionalPropertiesOnly();
+    method public final String toString();
+    property protected abstract java.util.Map<java.lang.String,java.lang.Object> additionalProperties;
+    property public final androidx.appactions.builtintypes.properties.DisambiguatingDescription? disambiguatingDescription;
+    property public final String? identifier;
+    property public final androidx.appactions.builtintypes.properties.Name? name;
+    property protected abstract String selfTypeName;
+  }
+
+  public abstract static class GenericIntangible.Builder<Self extends androidx.appactions.builtintypes.types.GenericIntangible.Builder<Self, Built>, Built extends androidx.appactions.builtintypes.types.GenericIntangible<Built, Self>> implements androidx.appactions.builtintypes.types.Intangible.Builder<Self> {
+    ctor public GenericIntangible.Builder();
+    method public final Built build();
+    method protected abstract Built buildFromIntangible(androidx.appactions.builtintypes.types.Intangible intangible);
+    method public final boolean equals(Object? other);
+    method protected abstract java.util.Map<java.lang.String,java.lang.Object> getAdditionalProperties();
+    method protected abstract String getSelfTypeName();
+    method public final int hashCode();
+    method public final Self setDisambiguatingDescription(androidx.appactions.builtintypes.properties.DisambiguatingDescription? disambiguatingDescription);
+    method public final Self setIdentifier(String? text);
+    method public final Self setName(androidx.appactions.builtintypes.properties.Name? name);
+    method public final String toString();
+    property protected abstract java.util.Map<java.lang.String,java.lang.Object> additionalProperties;
+    property protected abstract String selfTypeName;
+  }
+
+  public abstract class GenericPerson<Self extends androidx.appactions.builtintypes.types.GenericPerson<Self, Builder>, Builder extends androidx.appactions.builtintypes.types.GenericPerson.Builder<Builder, Self>> implements androidx.appactions.builtintypes.types.Person {
+    ctor public GenericPerson(androidx.appactions.builtintypes.types.Person person);
+    method public final boolean equals(Object? other);
+    method protected abstract java.util.Map<java.lang.String,java.lang.Object> getAdditionalProperties();
+    method public final androidx.appactions.builtintypes.properties.DisambiguatingDescription? getDisambiguatingDescription();
+    method public final String? getEmail();
+    method public final String? getIdentifier();
+    method public final androidx.appactions.builtintypes.properties.Name? getName();
+    method protected abstract String getSelfTypeName();
+    method public final int hashCode();
+    method public final Builder toBuilder();
+    method protected abstract Builder toBuilderWithAdditionalPropertiesOnly();
+    method public final String toString();
+    property protected abstract java.util.Map<java.lang.String,java.lang.Object> additionalProperties;
+    property public final androidx.appactions.builtintypes.properties.DisambiguatingDescription? disambiguatingDescription;
+    property public final String? email;
+    property public final String? identifier;
+    property public final androidx.appactions.builtintypes.properties.Name? name;
+    property protected abstract String selfTypeName;
+  }
+
+  public abstract static class GenericPerson.Builder<Self extends androidx.appactions.builtintypes.types.GenericPerson.Builder<Self, Built>, Built extends androidx.appactions.builtintypes.types.GenericPerson<Built, Self>> implements androidx.appactions.builtintypes.types.Person.Builder<Self> {
+    ctor public GenericPerson.Builder();
+    method public final Built build();
+    method protected abstract Built buildFromPerson(androidx.appactions.builtintypes.types.Person person);
+    method public final boolean equals(Object? other);
+    method protected abstract java.util.Map<java.lang.String,java.lang.Object> getAdditionalProperties();
+    method protected abstract String getSelfTypeName();
+    method public final int hashCode();
+    method public final Self setDisambiguatingDescription(androidx.appactions.builtintypes.properties.DisambiguatingDescription? disambiguatingDescription);
+    method public final Self setEmail(String? text);
+    method public final Self setIdentifier(String? text);
+    method public final Self setName(androidx.appactions.builtintypes.properties.Name? name);
+    method public final String toString();
+    property protected abstract java.util.Map<java.lang.String,java.lang.Object> additionalProperties;
+    property protected abstract String selfTypeName;
+  }
+
+  public abstract class GenericSchedule<Self extends androidx.appactions.builtintypes.types.GenericSchedule<Self, Builder>, Builder extends androidx.appactions.builtintypes.types.GenericSchedule.Builder<Builder, Self>> implements androidx.appactions.builtintypes.types.Schedule {
+    ctor public GenericSchedule(androidx.appactions.builtintypes.types.Schedule schedule);
+    method public final boolean equals(Object? other);
+    method protected abstract java.util.Map<java.lang.String,java.lang.Object> getAdditionalProperties();
+    method public final java.util.List<androidx.appactions.builtintypes.properties.ByDay> getByDays();
+    method public final java.util.List<java.lang.Long> getByMonthDays();
+    method public final java.util.List<java.lang.Long> getByMonthWeeks();
+    method public final java.util.List<java.lang.Long> getByMonths();
+    method public final androidx.appactions.builtintypes.properties.DisambiguatingDescription? getDisambiguatingDescription();
+    method public final androidx.appactions.builtintypes.properties.EndDate? getEndDate();
+    method public final androidx.appactions.builtintypes.properties.EndTime? getEndTime();
+    method public final androidx.appactions.builtintypes.properties.ExceptDate? getExceptDate();
+    method public final String? getIdentifier();
+    method public final androidx.appactions.builtintypes.properties.Name? getName();
+    method public final Long? getRepeatCount();
+    method public final androidx.appactions.builtintypes.properties.RepeatFrequency? getRepeatFrequency();
+    method public final String? getScheduleTimezone();
+    method protected abstract String getSelfTypeName();
+    method public final androidx.appactions.builtintypes.properties.StartDate? getStartDate();
+    method public final androidx.appactions.builtintypes.properties.StartTime? getStartTime();
+    method public final int hashCode();
+    method public final Builder toBuilder();
+    method protected abstract Builder toBuilderWithAdditionalPropertiesOnly();
+    method public final String toString();
+    property protected abstract java.util.Map<java.lang.String,java.lang.Object> additionalProperties;
+    property public final java.util.List<androidx.appactions.builtintypes.properties.ByDay> byDays;
+    property public final java.util.List<java.lang.Long> byMonthDays;
+    property public final java.util.List<java.lang.Long> byMonthWeeks;
+    property public final java.util.List<java.lang.Long> byMonths;
+    property public final androidx.appactions.builtintypes.properties.DisambiguatingDescription? disambiguatingDescription;
+    property public final androidx.appactions.builtintypes.properties.EndDate? endDate;
+    property public final androidx.appactions.builtintypes.properties.EndTime? endTime;
+    property public final androidx.appactions.builtintypes.properties.ExceptDate? exceptDate;
+    property public final String? identifier;
+    property public final androidx.appactions.builtintypes.properties.Name? name;
+    property public final Long? repeatCount;
+    property public final androidx.appactions.builtintypes.properties.RepeatFrequency? repeatFrequency;
+    property public final String? scheduleTimezone;
+    property protected abstract String selfTypeName;
+    property public final androidx.appactions.builtintypes.properties.StartDate? startDate;
+    property public final androidx.appactions.builtintypes.properties.StartTime? startTime;
+  }
+
+  public abstract static class GenericSchedule.Builder<Self extends androidx.appactions.builtintypes.types.GenericSchedule.Builder<Self, Built>, Built extends androidx.appactions.builtintypes.types.GenericSchedule<Built, Self>> implements androidx.appactions.builtintypes.types.Schedule.Builder<Self> {
+    ctor public GenericSchedule.Builder();
+    method public final Self addByDay(androidx.appactions.builtintypes.properties.ByDay byDay);
+    method public final Self addByDays(Iterable<androidx.appactions.builtintypes.properties.ByDay> values);
+    method public final Self addByMonth(long integer);
+    method public final Self addByMonthDay(long integer);
+    method public final Self addByMonthDays(Iterable<java.lang.Long> values);
+    method public final Self addByMonthWeek(long integer);
+    method public final Self addByMonthWeeks(Iterable<java.lang.Long> values);
+    method public final Self addByMonths(Iterable<java.lang.Long> values);
+    method public final Built build();
+    method protected abstract Built buildFromSchedule(androidx.appactions.builtintypes.types.Schedule schedule);
+    method public final Self clearByDays();
+    method public final Self clearByMonthDays();
+    method public final Self clearByMonthWeeks();
+    method public final Self clearByMonths();
+    method public final boolean equals(Object? other);
+    method protected abstract java.util.Map<java.lang.String,java.lang.Object> getAdditionalProperties();
+    method protected abstract String getSelfTypeName();
+    method public final int hashCode();
+    method public final Self setDisambiguatingDescription(androidx.appactions.builtintypes.properties.DisambiguatingDescription? disambiguatingDescription);
+    method public final Self setEndDate(androidx.appactions.builtintypes.properties.EndDate? endDate);
+    method public final Self setEndTime(androidx.appactions.builtintypes.properties.EndTime? endTime);
+    method public final Self setExceptDate(androidx.appactions.builtintypes.properties.ExceptDate? exceptDate);
+    method public final Self setIdentifier(String? text);
+    method public final Self setName(androidx.appactions.builtintypes.properties.Name? name);
+    method public final Self setRepeatCount(Long? integer);
+    method public final Self setRepeatFrequency(androidx.appactions.builtintypes.properties.RepeatFrequency? repeatFrequency);
+    method public final Self setScheduleTimezone(String? text);
+    method public final Self setStartDate(androidx.appactions.builtintypes.properties.StartDate? startDate);
+    method public final Self setStartTime(androidx.appactions.builtintypes.properties.StartTime? startTime);
+    method public final String toString();
+    property protected abstract java.util.Map<java.lang.String,java.lang.Object> additionalProperties;
+    property protected abstract String selfTypeName;
+  }
+
+  public abstract class GenericThing<Self extends androidx.appactions.builtintypes.types.GenericThing<Self, Builder>, Builder extends androidx.appactions.builtintypes.types.GenericThing.Builder<Builder, Self>> implements androidx.appactions.builtintypes.types.Thing {
+    ctor public GenericThing(androidx.appactions.builtintypes.types.Thing thing);
+    method public final boolean equals(Object? other);
+    method protected abstract java.util.Map<java.lang.String,java.lang.Object> getAdditionalProperties();
+    method public final androidx.appactions.builtintypes.properties.DisambiguatingDescription? getDisambiguatingDescription();
+    method public final String? getIdentifier();
+    method public final androidx.appactions.builtintypes.properties.Name? getName();
+    method protected abstract String getSelfTypeName();
+    method public final int hashCode();
+    method public final Builder toBuilder();
+    method protected abstract Builder toBuilderWithAdditionalPropertiesOnly();
+    method public final String toString();
+    property protected abstract java.util.Map<java.lang.String,java.lang.Object> additionalProperties;
+    property public final androidx.appactions.builtintypes.properties.DisambiguatingDescription? disambiguatingDescription;
+    property public final String? identifier;
+    property public final androidx.appactions.builtintypes.properties.Name? name;
+    property protected abstract String selfTypeName;
   }
 
   public abstract static class GenericThing.Builder<Self extends androidx.appactions.builtintypes.types.GenericThing.Builder<Self, Built>, Built extends androidx.appactions.builtintypes.types.GenericThing<Built, Self>> implements androidx.appactions.builtintypes.types.Thing.Builder<Self> {
@@ -128,74 +439,200 @@ package androidx.appactions.builtintypes.types {
     method protected abstract java.util.Map<java.lang.String,java.lang.Object> getAdditionalProperties();
     method protected abstract String getSelfTypeName();
     method public final int hashCode();
-    method public final Self setDescription(androidx.appactions.builtintypes.properties.Description? description);
     method public final Self setDisambiguatingDescription(androidx.appactions.builtintypes.properties.DisambiguatingDescription? disambiguatingDescription);
     method public final Self setIdentifier(String? text);
     method public final Self setName(androidx.appactions.builtintypes.properties.Name? name);
-    method public final Self setTemporal(androidx.appactions.builtintypes.properties.Temporal? temporal);
     method public final String toString();
     property protected abstract java.util.Map<java.lang.String,java.lang.Object> additionalProperties;
     property protected abstract String selfTypeName;
   }
 
+  public abstract class GenericTimer<Self extends androidx.appactions.builtintypes.types.GenericTimer<Self, Builder>, Builder extends androidx.appactions.builtintypes.types.GenericTimer.Builder<Builder, Self>> implements androidx.appactions.builtintypes.types.Timer {
+    ctor public GenericTimer(androidx.appactions.builtintypes.types.Timer timer);
+    method public final boolean equals(Object? other);
+    method protected abstract java.util.Map<java.lang.String,java.lang.Object> getAdditionalProperties();
+    method public final androidx.appactions.builtintypes.properties.DisambiguatingDescription? getDisambiguatingDescription();
+    method public final java.time.Duration? getDuration();
+    method public final String? getIdentifier();
+    method public final androidx.appactions.builtintypes.properties.Name? getName();
+    method protected abstract String getSelfTypeName();
+    method public final int hashCode();
+    method public final Builder toBuilder();
+    method protected abstract Builder toBuilderWithAdditionalPropertiesOnly();
+    method public final String toString();
+    property protected abstract java.util.Map<java.lang.String,java.lang.Object> additionalProperties;
+    property public final androidx.appactions.builtintypes.properties.DisambiguatingDescription? disambiguatingDescription;
+    property public final java.time.Duration? duration;
+    property public final String? identifier;
+    property public final androidx.appactions.builtintypes.properties.Name? name;
+    property protected abstract String selfTypeName;
+  }
+
+  public abstract static class GenericTimer.Builder<Self extends androidx.appactions.builtintypes.types.GenericTimer.Builder<Self, Built>, Built extends androidx.appactions.builtintypes.types.GenericTimer<Built, Self>> implements androidx.appactions.builtintypes.types.Timer.Builder<Self> {
+    ctor public GenericTimer.Builder();
+    method public final Built build();
+    method protected abstract Built buildFromTimer(androidx.appactions.builtintypes.types.Timer timer);
+    method public final boolean equals(Object? other);
+    method protected abstract java.util.Map<java.lang.String,java.lang.Object> getAdditionalProperties();
+    method protected abstract String getSelfTypeName();
+    method public final int hashCode();
+    method public final Self setDisambiguatingDescription(androidx.appactions.builtintypes.properties.DisambiguatingDescription? disambiguatingDescription);
+    method public final Self setDuration(java.time.Duration? duration);
+    method public final Self setIdentifier(String? text);
+    method public final Self setName(androidx.appactions.builtintypes.properties.Name? name);
+    method public final String toString();
+    property protected abstract java.util.Map<java.lang.String,java.lang.Object> additionalProperties;
+    property protected abstract String selfTypeName;
+  }
+
+  public interface Intangible extends androidx.appactions.builtintypes.types.Thing {
+    method public default static androidx.appactions.builtintypes.types.Intangible.Builder<?> Builder();
+    method public androidx.appactions.builtintypes.types.Intangible.Builder<?> toBuilder();
+    field public static final androidx.appactions.builtintypes.types.Intangible.Companion Companion;
+  }
+
+  public static interface Intangible.Builder<Self extends androidx.appactions.builtintypes.types.Intangible.Builder<Self>> extends androidx.appactions.builtintypes.types.Thing.Builder<Self> {
+    method public androidx.appactions.builtintypes.types.Intangible build();
+  }
+
+  public static final class Intangible.Companion {
+    method public androidx.appactions.builtintypes.types.Intangible.Builder<?> Builder();
+  }
+
+  public interface Person extends androidx.appactions.builtintypes.types.Thing {
+    method public default static androidx.appactions.builtintypes.types.Person.Builder<?> Builder();
+    method public String? getEmail();
+    method public androidx.appactions.builtintypes.types.Person.Builder<?> toBuilder();
+    property public abstract String? email;
+    field public static final androidx.appactions.builtintypes.types.Person.Companion Companion;
+  }
+
+  public static interface Person.Builder<Self extends androidx.appactions.builtintypes.types.Person.Builder<Self>> extends androidx.appactions.builtintypes.types.Thing.Builder<Self> {
+    method public androidx.appactions.builtintypes.types.Person build();
+    method public Self setEmail(String? text);
+  }
+
+  public static final class Person.Companion {
+    method public androidx.appactions.builtintypes.types.Person.Builder<?> Builder();
+  }
+
+  public interface Schedule extends androidx.appactions.builtintypes.types.Intangible {
+    method public default static androidx.appactions.builtintypes.types.Schedule.Builder<?> Builder();
+    method public java.util.List<androidx.appactions.builtintypes.properties.ByDay> getByDays();
+    method public java.util.List<java.lang.Long> getByMonthDays();
+    method public java.util.List<java.lang.Long> getByMonthWeeks();
+    method public java.util.List<java.lang.Long> getByMonths();
+    method public androidx.appactions.builtintypes.properties.EndDate? getEndDate();
+    method public androidx.appactions.builtintypes.properties.EndTime? getEndTime();
+    method public androidx.appactions.builtintypes.properties.ExceptDate? getExceptDate();
+    method public Long? getRepeatCount();
+    method public androidx.appactions.builtintypes.properties.RepeatFrequency? getRepeatFrequency();
+    method public String? getScheduleTimezone();
+    method public androidx.appactions.builtintypes.properties.StartDate? getStartDate();
+    method public androidx.appactions.builtintypes.properties.StartTime? getStartTime();
+    method public androidx.appactions.builtintypes.types.Schedule.Builder<?> toBuilder();
+    property public abstract java.util.List<androidx.appactions.builtintypes.properties.ByDay> byDays;
+    property public abstract java.util.List<java.lang.Long> byMonthDays;
+    property public abstract java.util.List<java.lang.Long> byMonthWeeks;
+    property public abstract java.util.List<java.lang.Long> byMonths;
+    property public abstract androidx.appactions.builtintypes.properties.EndDate? endDate;
+    property public abstract androidx.appactions.builtintypes.properties.EndTime? endTime;
+    property public abstract androidx.appactions.builtintypes.properties.ExceptDate? exceptDate;
+    property public abstract Long? repeatCount;
+    property public abstract androidx.appactions.builtintypes.properties.RepeatFrequency? repeatFrequency;
+    property public abstract String? scheduleTimezone;
+    property public abstract androidx.appactions.builtintypes.properties.StartDate? startDate;
+    property public abstract androidx.appactions.builtintypes.properties.StartTime? startTime;
+    field public static final androidx.appactions.builtintypes.types.Schedule.Companion Companion;
+  }
+
+  public static interface Schedule.Builder<Self extends androidx.appactions.builtintypes.types.Schedule.Builder<Self>> extends androidx.appactions.builtintypes.types.Intangible.Builder<Self> {
+    method public Self addByDay(androidx.appactions.builtintypes.properties.ByDay byDay);
+    method public default Self addByDay(androidx.appactions.builtintypes.types.DayOfWeek dayOfWeek);
+    method public default Self addByDay(String text);
+    method public Self addByDays(Iterable<androidx.appactions.builtintypes.properties.ByDay> values);
+    method public Self addByMonth(long integer);
+    method public Self addByMonthDay(long integer);
+    method public Self addByMonthDays(Iterable<java.lang.Long> values);
+    method public Self addByMonthWeek(long integer);
+    method public Self addByMonthWeeks(Iterable<java.lang.Long> values);
+    method public Self addByMonths(Iterable<java.lang.Long> values);
+    method public androidx.appactions.builtintypes.types.Schedule build();
+    method public Self clearByDays();
+    method public Self clearByMonthDays();
+    method public Self clearByMonthWeeks();
+    method public Self clearByMonths();
+    method public Self setEndDate(androidx.appactions.builtintypes.properties.EndDate? endDate);
+    method public default Self setEndDate(java.time.LocalDate date);
+    method public default Self setEndDate(java.time.LocalDateTime localDateTime);
+    method public default Self setEndDate(java.time.ZonedDateTime zonedDateTime);
+    method public Self setEndTime(androidx.appactions.builtintypes.properties.EndTime? endTime);
+    method public default Self setEndTime(java.time.LocalDateTime localDateTime);
+    method public default Self setEndTime(java.time.LocalTime time);
+    method public default Self setEndTime(java.time.ZonedDateTime zonedDateTime);
+    method public Self setExceptDate(androidx.appactions.builtintypes.properties.ExceptDate? exceptDate);
+    method public default Self setExceptDate(java.time.LocalDate date);
+    method public default Self setExceptDate(java.time.LocalDateTime localDateTime);
+    method public default Self setExceptDate(java.time.ZonedDateTime zonedDateTime);
+    method public Self setRepeatCount(Long? integer);
+    method public Self setRepeatFrequency(androidx.appactions.builtintypes.properties.RepeatFrequency? repeatFrequency);
+    method public default Self setRepeatFrequency(String text);
+    method public default Self setRepeatFrequency(java.time.Duration duration);
+    method public Self setScheduleTimezone(String? text);
+    method public Self setStartDate(androidx.appactions.builtintypes.properties.StartDate? startDate);
+    method public default Self setStartDate(java.time.LocalDate date);
+    method public default Self setStartDate(java.time.LocalDateTime localDateTime);
+    method public default Self setStartDate(java.time.ZonedDateTime zonedDateTime);
+    method public Self setStartTime(androidx.appactions.builtintypes.properties.StartTime? startTime);
+    method public default Self setStartTime(java.time.LocalDateTime localDateTime);
+    method public default Self setStartTime(java.time.LocalTime time);
+    method public default Self setStartTime(java.time.ZonedDateTime zonedDateTime);
+  }
+
+  public static final class Schedule.Companion {
+    method public androidx.appactions.builtintypes.types.Schedule.Builder<?> Builder();
+  }
+
   public interface Thing {
     method public default static androidx.appactions.builtintypes.types.Thing.Builder<?> Builder();
-    method public androidx.appactions.builtintypes.properties.Description? getDescription();
     method public androidx.appactions.builtintypes.properties.DisambiguatingDescription? getDisambiguatingDescription();
     method public String? getIdentifier();
     method public androidx.appactions.builtintypes.properties.Name? getName();
-    method public androidx.appactions.builtintypes.properties.Temporal? getTemporal();
     method public androidx.appactions.builtintypes.types.Thing.Builder<?> toBuilder();
-    property public abstract androidx.appactions.builtintypes.properties.Description? description;
     property public abstract androidx.appactions.builtintypes.properties.DisambiguatingDescription? disambiguatingDescription;
     property public abstract String? identifier;
     property public abstract androidx.appactions.builtintypes.properties.Name? name;
-    property public abstract androidx.appactions.builtintypes.properties.Temporal? temporal;
     field public static final androidx.appactions.builtintypes.types.Thing.Companion Companion;
   }
 
   public static interface Thing.Builder<Self extends androidx.appactions.builtintypes.types.Thing.Builder<Self>> {
     method public androidx.appactions.builtintypes.types.Thing build();
-    method public Self setDescription(androidx.appactions.builtintypes.properties.Description? description);
-    method public default Self setDescription(String text);
     method public Self setDisambiguatingDescription(androidx.appactions.builtintypes.properties.DisambiguatingDescription? disambiguatingDescription);
-    method public default Self setDisambiguatingDescription(androidx.appactions.builtintypes.types.Thing.DisambiguatingDescriptionValue canonicalValue);
     method public default Self setDisambiguatingDescription(String text);
     method public Self setIdentifier(String? text);
     method public Self setName(androidx.appactions.builtintypes.properties.Name? name);
     method public default Self setName(String text);
-    method public Self setTemporal(androidx.appactions.builtintypes.properties.Temporal? temporal);
-    method public default Self setTemporal(String text);
-    method public default Self setTemporal(java.time.LocalDateTime localDateTime);
-    method public default Self setTemporal(java.time.ZonedDateTime zonedDateTime);
   }
 
   public static final class Thing.Companion {
     method public androidx.appactions.builtintypes.types.Thing.Builder<?> Builder();
   }
 
-  public static final class Thing.DisambiguatingDescriptionValue extends androidx.appactions.builtintypes.properties.DisambiguatingDescription.CanonicalValue {
-    method public String getTextValue();
-    property public String textValue;
-    field public static final androidx.appactions.builtintypes.types.Thing.DisambiguatingDescriptionValue ALBUM;
-    field public static final androidx.appactions.builtintypes.types.Thing.DisambiguatingDescriptionValue AUDIOBOOK;
-    field public static final androidx.appactions.builtintypes.types.Thing.DisambiguatingDescriptionValue.Companion Companion;
-    field public static final androidx.appactions.builtintypes.types.Thing.DisambiguatingDescriptionValue EPISODE;
-    field public static final androidx.appactions.builtintypes.types.Thing.DisambiguatingDescriptionValue MOVIE;
-    field public static final androidx.appactions.builtintypes.types.Thing.DisambiguatingDescriptionValue MUSIC;
-    field public static final androidx.appactions.builtintypes.types.Thing.DisambiguatingDescriptionValue OTHER;
-    field public static final androidx.appactions.builtintypes.types.Thing.DisambiguatingDescriptionValue PHOTOGRAPH;
-    field public static final androidx.appactions.builtintypes.types.Thing.DisambiguatingDescriptionValue PODCAST;
-    field public static final androidx.appactions.builtintypes.types.Thing.DisambiguatingDescriptionValue SONG;
-    field public static final androidx.appactions.builtintypes.types.Thing.DisambiguatingDescriptionValue SOUNDTRACK;
-    field public static final androidx.appactions.builtintypes.types.Thing.DisambiguatingDescriptionValue TELEVISION_CHANNEL;
-    field public static final androidx.appactions.builtintypes.types.Thing.DisambiguatingDescriptionValue TELEVISION_SHOW;
-    field public static final androidx.appactions.builtintypes.types.Thing.DisambiguatingDescriptionValue TRAILER;
-    field public static final androidx.appactions.builtintypes.types.Thing.DisambiguatingDescriptionValue VIDEO;
-    field public static final androidx.appactions.builtintypes.types.Thing.DisambiguatingDescriptionValue VIDEO_GAME;
+  public interface Timer extends androidx.appactions.builtintypes.types.Thing {
+    method public default static androidx.appactions.builtintypes.types.Timer.Builder<?> Builder();
+    method public java.time.Duration? getDuration();
+    method public androidx.appactions.builtintypes.types.Timer.Builder<?> toBuilder();
+    property public abstract java.time.Duration? duration;
+    field public static final androidx.appactions.builtintypes.types.Timer.Companion Companion;
   }
 
-  public static final class Thing.DisambiguatingDescriptionValue.Companion {
+  public static interface Timer.Builder<Self extends androidx.appactions.builtintypes.types.Timer.Builder<Self>> extends androidx.appactions.builtintypes.types.Thing.Builder<Self> {
+    method public androidx.appactions.builtintypes.types.Timer build();
+    method public Self setDuration(java.time.Duration? duration);
+  }
+
+  public static final class Timer.Companion {
+    method public androidx.appactions.builtintypes.types.Timer.Builder<?> Builder();
   }
 
 }

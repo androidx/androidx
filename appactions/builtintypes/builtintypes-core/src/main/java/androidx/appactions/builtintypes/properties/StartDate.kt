@@ -13,6 +13,7 @@
 // limitations under the License.
 package androidx.appactions.builtintypes.properties
 
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZonedDateTime
 import java.util.Objects
@@ -24,29 +25,25 @@ import kotlin.error
 import kotlin.jvm.JvmName
 
 /**
- * Can be used in cases where more specific properties (e.g. temporalCoverage, dateCreated,
- * dateModified, datePublished) are not known to be appropriate.
+ * The start date and time of the item.
  *
- * See http://schema.googleapis.com/temporal for context.
+ * See http://schema.org/startDate for context.
  *
  * Holds one of:
+ * * Date i.e. [LocalDate]
  * * [LocalDateTime]
  * * [ZonedDateTime]
- * * Text i.e. [String]
- * * [Temporal.CanonicalValue]
  *
  * May hold more types over time.
  */
-public class Temporal
+public class StartDate
 internal constructor(
+  /** The [LocalDate] variant, or null if constructed using a different variant. */
+  @get:JvmName("asDate") public val asDate: LocalDate? = null,
   /** The [LocalDateTime] variant, or null if constructed using a different variant. */
   @get:JvmName("asLocalDateTime") public val asLocalDateTime: LocalDateTime? = null,
   /** The [ZonedDateTime] variant, or null if constructed using a different variant. */
   @get:JvmName("asZonedDateTime") public val asZonedDateTime: ZonedDateTime? = null,
-  /** The [String] variant, or null if constructed using a different variant. */
-  @get:JvmName("asText") public val asText: String? = null,
-  /** The [CanonicalValue] variant, or null if constructed using a different variant. */
-  @get:JvmName("asCanonicalValue") public val asCanonicalValue: CanonicalValue? = null,
   /**
    * The AppSearch document's identifier.
    *
@@ -55,17 +52,14 @@ internal constructor(
    */
   internal val identifier: String = "",
 ) {
+  /** Constructor for the [LocalDate] variant. */
+  public constructor(date: LocalDate) : this(asDate = date)
+
   /** Constructor for the [LocalDateTime] variant. */
   public constructor(localDateTime: LocalDateTime) : this(asLocalDateTime = localDateTime)
 
   /** Constructor for the [ZonedDateTime] variant. */
   public constructor(zonedDateTime: ZonedDateTime) : this(asZonedDateTime = zonedDateTime)
-
-  /** Constructor for the [String] variant. */
-  public constructor(text: String) : this(asText = text)
-
-  /** Constructor for the [CanonicalValue] variant. */
-  public constructor(canonicalValue: CanonicalValue) : this(asCanonicalValue = canonicalValue)
 
   /**
    * Maps each of the possible underlying variants to some [R].
@@ -73,80 +67,64 @@ internal constructor(
    * A visitor can be provided to handle the possible variants. A catch-all default case must be
    * provided in case a new type is added in a future release of this library.
    *
-   * @sample [androidx.appactions.builtintypes.samples.properties.temporalMapWhenUsage]
+   * @sample [androidx.appactions.builtintypes.samples.properties.startDateMapWhenUsage]
    */
   public fun <R> mapWhen(mapper: Mapper<R>): R =
     when {
+      asDate != null -> mapper.date(asDate)
       asLocalDateTime != null -> mapper.localDateTime(asLocalDateTime)
       asZonedDateTime != null -> mapper.zonedDateTime(asZonedDateTime)
-      asText != null -> mapper.text(asText)
-      asCanonicalValue != null -> mapper.canonicalValue(asCanonicalValue)
-      else -> error("No variant present in Temporal")
+      else -> error("No variant present in StartDate")
     }
 
   public override fun toString(): String = toString(includeWrapperName = true)
 
   internal fun toString(includeWrapperName: Boolean): String =
     when {
+      asDate != null ->
+        if (includeWrapperName) {
+          """StartDate($asDate)"""
+        } else {
+          asDate.toString()
+        }
       asLocalDateTime != null ->
         if (includeWrapperName) {
-          """Temporal($asLocalDateTime)"""
+          """StartDate($asLocalDateTime)"""
         } else {
           asLocalDateTime.toString()
         }
       asZonedDateTime != null ->
         if (includeWrapperName) {
-          """Temporal($asZonedDateTime)"""
+          """StartDate($asZonedDateTime)"""
         } else {
           asZonedDateTime.toString()
         }
-      asText != null ->
-        if (includeWrapperName) {
-          """Temporal($asText)"""
-        } else {
-          asText
-        }
-      asCanonicalValue != null ->
-        if (includeWrapperName) {
-          """Temporal($asCanonicalValue)"""
-        } else {
-          asCanonicalValue.toString()
-        }
-      else -> error("No variant present in Temporal")
+      else -> error("No variant present in StartDate")
     }
 
   public override fun equals(other: Any?): Boolean {
     if (this === other) return true
-    if (other !is Temporal) return false
+    if (other !is StartDate) return false
+    if (asDate != other.asDate) return false
     if (asLocalDateTime != other.asLocalDateTime) return false
     if (asZonedDateTime != other.asZonedDateTime) return false
-    if (asText != other.asText) return false
-    if (asCanonicalValue != other.asCanonicalValue) return false
     return true
   }
 
-  public override fun hashCode(): Int =
-    Objects.hash(asLocalDateTime, asZonedDateTime, asText, asCanonicalValue)
+  public override fun hashCode(): Int = Objects.hash(asDate, asLocalDateTime, asZonedDateTime)
 
-  /** Maps each of the possible variants of [Temporal] to some [R]. */
+  /** Maps each of the possible variants of [StartDate] to some [R]. */
   public interface Mapper<R> {
-    /** Returns some [R] when the [Temporal] holds some [LocalDateTime] instance. */
+    /** Returns some [R] when the [StartDate] holds some [LocalDate] instance. */
+    public fun date(instance: LocalDate): R = orElse()
+
+    /** Returns some [R] when the [StartDate] holds some [LocalDateTime] instance. */
     public fun localDateTime(instance: LocalDateTime): R = orElse()
 
-    /** Returns some [R] when the [Temporal] holds some [ZonedDateTime] instance. */
+    /** Returns some [R] when the [StartDate] holds some [ZonedDateTime] instance. */
     public fun zonedDateTime(instance: ZonedDateTime): R = orElse()
-
-    /** Returns some [R] when the [Temporal] holds some [String] instance. */
-    public fun text(instance: String): R = orElse()
-
-    /** Returns some [R] when the [Temporal] holds some [CanonicalValue] instance. */
-    public fun canonicalValue(instance: CanonicalValue): R = orElse()
 
     /** The catch-all handler that is invoked when a particular variant isn't explicitly handled. */
     public fun orElse(): R
-  }
-
-  public abstract class CanonicalValue internal constructor() {
-    public abstract val textValue: String
   }
 }

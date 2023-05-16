@@ -13,6 +13,7 @@
 // limitations under the License.
 package androidx.appactions.builtintypes.properties
 
+import androidx.appactions.builtintypes.types.DayOfWeek
 import java.util.Objects
 import kotlin.Any
 import kotlin.Boolean
@@ -22,22 +23,22 @@ import kotlin.error
 import kotlin.jvm.JvmName
 
 /**
- * A description of the item.
+ * Defines the day(s) of the week on which a recurring Event takes place.
  *
- * See http://schema.org/description for context.
+ * See http://schema.org/byDay for context.
  *
  * Holds one of:
  * * Text i.e. [String]
- * * [Description.CanonicalValue]
+ * * [DayOfWeek]
  *
  * May hold more types over time.
  */
-public class Description
+public class ByDay
 internal constructor(
   /** The [String] variant, or null if constructed using a different variant. */
   @get:JvmName("asText") public val asText: String? = null,
-  /** The [CanonicalValue] variant, or null if constructed using a different variant. */
-  @get:JvmName("asCanonicalValue") public val asCanonicalValue: CanonicalValue? = null,
+  /** The [DayOfWeek] variant, or null if constructed using a different variant. */
+  @get:JvmName("asDayOfWeek") public val asDayOfWeek: DayOfWeek? = null,
   /**
    * The AppSearch document's identifier.
    *
@@ -49,8 +50,8 @@ internal constructor(
   /** Constructor for the [String] variant. */
   public constructor(text: String) : this(asText = text)
 
-  /** Constructor for the [CanonicalValue] variant. */
-  public constructor(canonicalValue: CanonicalValue) : this(asCanonicalValue = canonicalValue)
+  /** Constructor for the [DayOfWeek] variant. */
+  public constructor(dayOfWeek: DayOfWeek) : this(asDayOfWeek = dayOfWeek)
 
   /**
    * Maps each of the possible underlying variants to some [R].
@@ -58,13 +59,13 @@ internal constructor(
    * A visitor can be provided to handle the possible variants. A catch-all default case must be
    * provided in case a new type is added in a future release of this library.
    *
-   * @sample [androidx.appactions.builtintypes.samples.properties.descriptionMapWhenUsage]
+   * @sample [androidx.appactions.builtintypes.samples.properties.byDayMapWhenUsage]
    */
   public fun <R> mapWhen(mapper: Mapper<R>): R =
     when {
       asText != null -> mapper.text(asText)
-      asCanonicalValue != null -> mapper.canonicalValue(asCanonicalValue)
-      else -> error("No variant present in Description")
+      asDayOfWeek != null -> mapper.dayOfWeek(asDayOfWeek)
+      else -> error("No variant present in ByDay")
     }
 
   public override fun toString(): String = toString(includeWrapperName = true)
@@ -73,42 +74,38 @@ internal constructor(
     when {
       asText != null ->
         if (includeWrapperName) {
-          """Description($asText)"""
+          """ByDay($asText)"""
         } else {
           asText
         }
-      asCanonicalValue != null ->
+      asDayOfWeek != null ->
         if (includeWrapperName) {
-          """Description($asCanonicalValue)"""
+          """ByDay($asDayOfWeek)"""
         } else {
-          asCanonicalValue.toString()
+          asDayOfWeek.toString()
         }
-      else -> error("No variant present in Description")
+      else -> error("No variant present in ByDay")
     }
 
   public override fun equals(other: Any?): Boolean {
     if (this === other) return true
-    if (other !is Description) return false
+    if (other !is ByDay) return false
     if (asText != other.asText) return false
-    if (asCanonicalValue != other.asCanonicalValue) return false
+    if (asDayOfWeek != other.asDayOfWeek) return false
     return true
   }
 
-  public override fun hashCode(): Int = Objects.hash(asText, asCanonicalValue)
+  public override fun hashCode(): Int = Objects.hash(asText, asDayOfWeek)
 
-  /** Maps each of the possible variants of [Description] to some [R]. */
+  /** Maps each of the possible variants of [ByDay] to some [R]. */
   public interface Mapper<R> {
-    /** Returns some [R] when the [Description] holds some [String] instance. */
+    /** Returns some [R] when the [ByDay] holds some [String] instance. */
     public fun text(instance: String): R = orElse()
 
-    /** Returns some [R] when the [Description] holds some [CanonicalValue] instance. */
-    public fun canonicalValue(instance: CanonicalValue): R = orElse()
+    /** Returns some [R] when the [ByDay] holds some [DayOfWeek] instance. */
+    public fun dayOfWeek(instance: DayOfWeek): R = orElse()
 
     /** The catch-all handler that is invoked when a particular variant isn't explicitly handled. */
     public fun orElse(): R
-  }
-
-  public abstract class CanonicalValue internal constructor() {
-    public abstract val textValue: String
   }
 }

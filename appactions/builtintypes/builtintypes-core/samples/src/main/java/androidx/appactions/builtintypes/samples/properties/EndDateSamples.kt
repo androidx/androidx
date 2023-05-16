@@ -14,26 +14,24 @@
 package androidx.appactions.builtintypes.samples.properties
 
 import androidx.`annotation`.Sampled
-import androidx.appactions.builtintypes.properties.Temporal
+import androidx.appactions.builtintypes.properties.EndDate
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZonedDateTime
 import kotlin.String
 
 @Sampled
-public fun temporalMapWhenUsage(temporal: Temporal) =
-  temporal.mapWhen(
-    object : Temporal.Mapper<String> {
+public fun endDateMapWhenUsage(endDate: EndDate) =
+  endDate.mapWhen(
+    object : EndDate.Mapper<String> {
+      public override fun date(instance: LocalDate): String = """Got LocalDate: $instance"""
+
       public override fun localDateTime(instance: LocalDateTime): String =
         """Got a local DateTime: $instance"""
 
       public override fun zonedDateTime(instance: ZonedDateTime): String =
         """Got a zoned/absolute DateTime: $instance"""
 
-      public override fun text(instance: String): String = """Got String: $instance"""
-
-      public override fun canonicalValue(instance: Temporal.CanonicalValue): String =
-        """Got a canonical value for Temporal: $instance"""
-
-      public override fun orElse(): String = """Got some unrecognized variant: $temporal"""
+      public override fun orElse(): String = """Got some unrecognized variant: $endDate"""
     }
   )
