@@ -22,7 +22,6 @@ import android.support.wearable.complications.ComplicationData as WireComplicati
 import android.support.wearable.complications.ComplicationText as WireComplicationText
 import android.support.wearable.complications.ComplicationText.TimeDifferenceBuilder as WireComplicationTextTimeDifferenceBuilder
 import android.support.wearable.complications.ComplicationText.TimeFormatBuilder as WireComplicationTextTimeFormatBuilder
-import android.support.wearable.complications.TimeDependentText
 import android.support.wearable.complications.TimeDependentText as WireTimeDependentText
 import android.support.wearable.complications.TimeDifferenceText
 import android.text.style.ForegroundColorSpan
@@ -69,7 +68,8 @@ public interface ComplicationText {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public fun isPlaceholder(): Boolean = false
 
     /** @hide */
-    @RestrictTo(RestrictTo.Scope.SUBCLASSES) public fun getTimeDependentText(): TimeDependentText
+    @RestrictTo(RestrictTo.Scope.SUBCLASSES)
+    public fun getTimeDependentText(): WireTimeDependentText
 
     /** Converts this value to [WireComplicationText] object used for serialization. */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -517,7 +517,7 @@ private class DelegatingComplicationText(private val delegate: WireComplicationT
 
     override fun isAlwaysEmpty() = delegate.isAlwaysEmpty
 
-    override fun getTimeDependentText(): TimeDependentText = delegate.timeDependentText
+    override fun getTimeDependentText(): WireTimeDependentText = delegate.timeDependentText
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) override fun toWireComplicationText() = delegate
 
@@ -578,7 +578,7 @@ private class DelegatingTimeDependentText(private val delegate: WireTimeDependen
 
     override fun isAlwaysEmpty() = false
 
-    override fun getTimeDependentText(): TimeDependentText = delegate
+    override fun getTimeDependentText(): WireTimeDependentText = delegate
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun toWireComplicationText(): WireComplicationText {
@@ -608,14 +608,22 @@ public fun WireTimeDependentText.toApiComplicationText(): ComplicationText =
     DelegatingTimeDependentText(this)
 
 /**
- * A [ComplicationText] where the system evaluates a [DynamicString] on behalf of the watch face. By
- * the time this reaches the watch face's Renderer, it'll have been converted to a plain
- * ComplicationText.
+ * A [ComplicationText] where the system evaluates a [DynamicString]. By the time this reaches the
+ * watch face's Renderer, it'll have been converted to a plain ComplicationText.
+ *
+ * @param dynamicValue The [DynamicString] which will be evaluated into a value dynamically.
+ * @param fallbackValue Used when the system does not support dynamic values.
+ *
+ *   IMPORTANT: This is only used when the system does not support dynamic values _at all_. See
+ *   [ComplicationData.BaseBuilder.setDynamicValueInvalidationFallback] for the situation where the
+ *   dynamic value has been invalidated.
  */
-// TODO(b/269414040): Unhide complication expression APIs.
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class ComplicationTextExpression(public val expression: DynamicString) : ComplicationText {
-    private val delegate = DelegatingComplicationText(WireComplicationText(expression))
+public class DynamicComplicationText(
+    public val dynamicValue: DynamicString,
+    public val fallbackValue: String,
+) : ComplicationText {
+    private val delegate =
+        DelegatingComplicationText(WireComplicationText(fallbackValue, dynamicValue))
 
     override fun getTextAt(resources: Resources, instant: Instant) =
         delegate.getTextAt(resources, instant)
@@ -631,7 +639,7 @@ public class ComplicationTextExpression(public val expression: DynamicString) : 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun isPlaceholder(): Boolean = delegate.isPlaceholder()
 
-    @RestrictTo(RestrictTo.Scope.SUBCLASSES)
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     override fun getTimeDependentText() = delegate.getTimeDependentText()
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -641,7 +649,7 @@ public class ComplicationTextExpression(public val expression: DynamicString) : 
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
 
-        other as ComplicationTextExpression
+        other as DynamicComplicationText
 
         if (delegate != other.delegate) return false
 
