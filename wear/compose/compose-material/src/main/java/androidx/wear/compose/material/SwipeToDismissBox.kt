@@ -38,7 +38,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
@@ -258,7 +257,7 @@ public fun SwipeToDismissBox(
     modifier: Modifier = Modifier,
     state: SwipeToDismissBoxState = rememberSwipeToDismissBoxState(),
     backgroundScrimColor: Color = MaterialTheme.colors.background,
-    contentScrimColor: Color = contentColorFor(backgroundScrimColor),
+    contentScrimColor: Color = MaterialTheme.colors.background,
     backgroundKey: Any = SwipeToDismissKeys.Background,
     contentKey: Any = SwipeToDismissKeys.Content,
     hasBackground: Boolean = true,

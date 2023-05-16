@@ -18,7 +18,9 @@ package androidx.wear.compose.material
 
 import android.os.Build
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.size
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.testutils.assertAgainstGolden
 import androidx.compose.ui.Alignment
@@ -78,25 +80,57 @@ class SwipeToDismissBoxScreenshotTest {
         verifySwipedScreenshot(LayoutDirection.Rtl, 0.5f)
     }
 
+    @Test
+    fun on_dismiss_overload_swiped_to_right_25_percent_ltr() {
+        verifySwipedScreenshot(LayoutDirection.Ltr, 0.25f, true,
+            "swiped_to_right_25_percent_ltr")
+    }
+
+    @Test
+    fun on_dismiss_overload_swiped_to_right_25_percent_rtl() {
+        verifySwipedScreenshot(LayoutDirection.Rtl, 0.25f, true,
+            "swiped_to_right_25_percent_rtl")
+    }
+
+    @Test
+    fun on_dismiss_overload_swiped_to_right_50_percent_ltr() {
+        verifySwipedScreenshot(LayoutDirection.Ltr, 0.5f, true,
+            "swiped_to_right_50_percent_ltr")
+    }
+
+    @Test
+    fun on_dismiss_overload_swiped_to_right_50_percent_rtl() {
+        verifySwipedScreenshot(LayoutDirection.Rtl, 0.5f, true,
+            "swiped_to_right_50_percent_rtl")
+    }
+
     private fun verifySwipedScreenshot(
         layoutDirection: LayoutDirection,
         swipedPercentage: Float,
+        isOnDismissOverload: Boolean = false,
+        goldenIdentifier: String = testName.methodName
     ) {
         rule.setContentWithTheme {
             CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
                 val state = rememberSwipeToDismissBoxState()
-                SwipeToDismissBox(
-                    modifier = Modifier.testTag(TEST_TAG).size(106.dp),
-                    state = state
-                ) { isBackground ->
-                    if (isBackground) {
-                        Box(modifier = Modifier.align(Alignment.Center)) {
-                            Text(color = Color.White, text = "Background")
-                        }
-                    } else {
-                        Box(modifier = Modifier.align(Alignment.Center)) {
-                            Text(color = Color.White, text = "Foreground")
-                        }
+                if (isOnDismissOverload) {
+                    SwipeToDismissBox(
+                        onDismissed = {},
+                        modifier = Modifier
+                            .testTag(TEST_TAG)
+                            .size(106.dp),
+                        state = state
+                    ) { isBackground ->
+                        boxContent(isBackground = isBackground)
+                    }
+                } else {
+                    SwipeToDismissBox(
+                        modifier = Modifier
+                            .testTag(TEST_TAG)
+                            .size(106.dp),
+                        state = state
+                    ) { isBackground ->
+                        boxContent(isBackground = isBackground)
                     }
                 }
             }
@@ -108,6 +142,19 @@ class SwipeToDismissBoxScreenshotTest {
 
         rule.onNodeWithTag(TEST_TAG)
             .captureToImage()
-            .assertAgainstGolden(screenshotRule, testName.methodName)
+            .assertAgainstGolden(screenshotRule, goldenIdentifier)
+    }
+
+    @Composable
+    private fun BoxScope.boxContent(isBackground: Boolean) {
+        if (isBackground) {
+            Box(modifier = Modifier.align(Alignment.Center)) {
+                Text(color = Color.White, text = "Background")
+            }
+        } else {
+            Box(modifier = Modifier.align(Alignment.Center)) {
+                Text(color = Color.White, text = "Foreground")
+            }
+        }
     }
 }
