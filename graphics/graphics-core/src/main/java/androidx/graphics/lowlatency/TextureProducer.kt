@@ -22,11 +22,11 @@ import android.graphics.SurfaceTexture
 import android.os.Build
 import android.os.Handler
 import android.os.HandlerThread
-import android.os.Message
 import androidx.annotation.AnyThread
 import androidx.annotation.RequiresApi
 import androidx.annotation.WorkerThread
 import androidx.graphics.SurfaceTextureRenderer
+import androidx.graphics.utils.post
 
 /**
  * Class responsible for the producing side of SurfaceTextures that are rendered with content
@@ -47,45 +47,18 @@ internal class TextureProducer<T>(
     }
 
     private var mIsReleasing = false
-    private var mReleaseCallback: (() -> Unit)? = null
     private val mParams = ArrayList<T>()
     private var mPendingRenders = 0
     private val mProducerThread = HandlerThread("producerThread").apply { start() }
-    @Suppress("UNCHECKED_CAST")
-    private val mProducerHandler = Handler(mProducerThread.looper) { message ->
-        when (message.what) {
-            RENDER -> {
-                if (!mIsReleasing) {
-                    val param = message.obj as T
-                    mParams.add(param)
-                    doRender()
-                }
-            }
-            TEXTURE_CONSUMED -> {
-                mPendingRenders--
-                if (mIsReleasing && !isPendingRendering()) {
-                    teardown()
-                } else {
-                    doRender()
-                }
-            }
-            CANCEL_PENDING -> {
-                mParams.clear()
-            }
-            RELEASE -> {
-                mIsReleasing = true
-                mReleaseCallback = message.obj as (() -> Unit)?
-                if (!isPendingRendering()) {
-                    teardown()
-                }
-            }
-        }
-        true
+    private val mProducerHandler = Handler(mProducerThread.looper)
+
+    private val mCancelPendingRunnable = Runnable {
+        mParams.clear()
     }
 
     @WorkerThread // ProducerThread
-    private fun teardown() {
-        mReleaseCallback?.invoke()
+    private fun teardown(releaseCallback: (() -> Unit)? = null) {
+        releaseCallback?.invoke()
         mSurfaceTextureRenderer.release()
         mProducerThread.quit()
     }
@@ -135,18 +108,30 @@ internal class TextureProducer<T>(
 
     @AnyThread
     fun requestRender(param: T) {
-        mProducerHandler.sendMessage(Message.obtain(mProducerHandler, RENDER, param))
+        mProducerHandler.post(RENDER) {
+            if (!mIsReleasing) {
+                mParams.add(param)
+                doRender()
+            }
+        }
     }
 
     @AnyThread
     fun cancelPending() {
-        mProducerHandler.removeMessages(RENDER)
-        mProducerHandler.sendMessage(Message.obtain(mProducerHandler, CANCEL_PENDING))
+        mProducerHandler.removeCallbacksAndMessages(RENDER)
+        mProducerHandler.post(CANCEL_PENDING, mCancelPendingRunnable)
     }
 
     @AnyThread
     fun markTextureConsumed() {
-        mProducerHandler.sendMessage(Message.obtain(mProducerHandler, TEXTURE_CONSUMED))
+        mProducerHandler.post(TEXTURE_CONSUMED) {
+            mPendingRenders--
+            if (mIsReleasing && !isPendingRendering()) {
+                teardown()
+            } else {
+                doRender()
+            }
+        }
     }
 
     @AnyThread
@@ -164,7 +149,12 @@ internal class TextureProducer<T>(
         if (cancelPending) {
             cancelPending()
         }
-        mProducerHandler.sendMessage(Message.obtain(mProducerHandler, RELEASE, onReleaseComplete))
+        mProducerHandler.post(RELEASE) {
+            mIsReleasing = true
+            if (!isPendingRendering()) {
+                teardown(onReleaseComplete)
+            }
+        }
     }
 
     private companion object {
