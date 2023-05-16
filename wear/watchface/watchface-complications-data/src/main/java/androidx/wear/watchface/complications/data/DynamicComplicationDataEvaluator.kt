@@ -60,17 +60,17 @@ import kotlinx.coroutines.launch
  * [androidx.wear.protolayout.expression.DynamicBuilders.DynamicType] within its fields.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-class ComplicationDataExpressionEvaluator(
+class DynamicComplicationDataEvaluator(
     private val stateStore: StateStore? = StateStore(emptyMap()),
     private val timeGateway: TimeGateway? = null,
     // TODO(b/281664278): remove the SensorGateway usage, implement PlatformDataProvider instead.
     private val sensorGateway: SensorGateway? = null,
-    private val keepExpression: Boolean = false,
+    private val keepDynamicValues: Boolean = false,
 ) {
     /**
      * Returns a [Flow] that provides the evaluated [WireComplicationData].
      *
-     * The expression is evaluated _separately_ on each flow collection.
+     * The dynamic values are evaluated _separately_ on each flow collection.
      */
     fun evaluate(unevaluatedData: WireComplicationData): Flow<WireComplicationData> =
         evaluateTopLevelFields(unevaluatedData)
@@ -141,7 +141,7 @@ class ComplicationDataExpressionEvaluator(
 
     /**
      * Same as [combineWithDataList], but sets the evaluated placeholder ONLY when the receiver
-     * [Flow] emits [TYPE_NO_DATA], or [keepExpression] is true, otherwise clears it and does not
+     * [Flow] emits [TYPE_NO_DATA], or [keepDynamicValues] is true, otherwise clears it and does not
      * wait for the placeholder to finish evaluating.
      *
      * If the placeholder is not required (per the above paragraph), this doesn't wait for it.
@@ -154,9 +154,9 @@ class ComplicationDataExpressionEvaluator(
 
         return this.combine(evaluatedPlaceholderFlow).map {
             (data: WireComplicationData, evaluatedPlaceholder: WireComplicationData?) ->
-            if (!keepExpression && data.type != TYPE_NO_DATA) {
+            if (!keepDynamicValues && data.type != TYPE_NO_DATA) {
                 // Clearing the placeholder when data is not TYPE_NO_DATA (it was meant as an
-                // expression fallback).
+                // dynamic value fallback).
                 return@map WireComplicationData.Builder(data).setPlaceholder(null).build()
             }
             // Placeholder required but invalid, emitting invalid.
@@ -170,10 +170,10 @@ class ComplicationDataExpressionEvaluator(
 
     private suspend fun WireComplicationData.buildState() =
         MutableStateFlow(State(this)).apply {
-            if (hasRangedValueExpression()) {
+            if (hasRangedDynamicValue()) {
                 addReceiver(
-                    rangedValueExpression,
-                    expressionTrimmer = { setRangedValueExpression(null) },
+                    rangedDynamicValue,
+                    dynamicValueTrimmer = { setRangedDynamicValue(null) },
                     setter = { setRangedValue(it) },
                 )
             }
@@ -191,24 +191,24 @@ class ComplicationDataExpressionEvaluator(
         }
 
     private suspend fun MutableStateFlow<State>.addReceiver(
-        expression: DynamicFloat?,
-        expressionTrimmer: WireComplicationData.Builder.() -> WireComplicationData.Builder,
+        dynamicValue: DynamicFloat?,
+        dynamicValueTrimmer: WireComplicationData.Builder.() -> WireComplicationData.Builder,
         setter: WireComplicationData.Builder.(Float) -> WireComplicationData.Builder,
     ) {
-        expression ?: return
+        dynamicValue ?: return
         val executor = currentCoroutineContext().asExecutor()
         update { state ->
             state.withPendingReceiver(
                 ComplicationEvaluationResultReceiver<Float>(
                     this,
                     setter = { value ->
-                        if (!keepExpression) expressionTrimmer(this)
+                        if (!keepDynamicValues) dynamicValueTrimmer(this)
                         setter(this, value)
                     },
                     binder = { receiver ->
                         value.evaluator.bind(
                             DynamicTypeBindingRequest.forDynamicFloat(
-                                expression,
+                                dynamicValue,
                                 executor,
                                 receiver
                             )
@@ -223,7 +223,7 @@ class ComplicationDataExpressionEvaluator(
         text: WireComplicationText?,
         setter: WireComplicationData.Builder.(WireComplicationText) -> WireComplicationData.Builder,
     ) {
-        val expression = text?.expression ?: return
+        val dynamicValue = text?.dynamicValue ?: return
         val executor = currentCoroutineContext().asExecutor()
         update {
             it.withPendingReceiver(
@@ -231,8 +231,8 @@ class ComplicationDataExpressionEvaluator(
                     this,
                     setter = { value ->
                         setter(
-                            if (keepExpression) {
-                                WireComplicationText(value, expression)
+                            if (keepDynamicValues) {
+                                WireComplicationText(value, dynamicValue)
                             } else {
                                 WireComplicationText(value)
                             }
@@ -241,7 +241,7 @@ class ComplicationDataExpressionEvaluator(
                     binder = { receiver ->
                         value.evaluator.bind(
                             DynamicTypeBindingRequest.forDynamicString(
-                                expression,
+                                dynamicValue,
                                 ULocale.getDefault(),
                                 executor,
                                 receiver

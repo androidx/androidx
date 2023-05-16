@@ -28,7 +28,7 @@ import androidx.wear.protolayout.expression.DynamicBuilders.DynamicString
 import androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue
 import androidx.wear.protolayout.expression.pipeline.StateStore
 import androidx.wear.protolayout.expression.pipeline.TimeGateway
-import androidx.wear.watchface.complications.data.ComplicationDataExpressionEvaluator.Companion.INVALID_DATA
+import androidx.wear.watchface.complications.data.DynamicComplicationDataEvaluator.Companion.INVALID_DATA
 import com.google.common.truth.Expect
 import com.google.common.truth.Truth.assertThat
 import java.time.Instant
@@ -51,7 +51,7 @@ import org.mockito.kotlin.verifyNoMoreInteractions
 import org.robolectric.shadows.ShadowLog
 
 @RunWith(SharedRobolectricTestRunner::class)
-class ComplicationDataExpressionEvaluatorTest {
+class DynamicComplicationDataEvaluatorTest {
     @get:Rule val expect = Expect.create()
 
     @Before
@@ -63,7 +63,7 @@ class ComplicationDataExpressionEvaluatorTest {
     fun evaluate_noExpression_returnsUnevaluated() = runBlocking {
         val data = WireComplicationData.Builder(TYPE_NO_DATA).setRangedValue(10f).build()
 
-        val evaluator = ComplicationDataExpressionEvaluator()
+        val evaluator = DynamicComplicationDataEvaluator()
 
         assertThat(evaluator.evaluate(data).firstOrNull()).isEqualTo(data)
     }
@@ -82,7 +82,7 @@ class ComplicationDataExpressionEvaluatorTest {
         SET_IMMEDIATELY_WHEN_ALL_DATA_AVAILABLE(
             expressed =
                 WireComplicationData.Builder(TYPE_NO_DATA)
-                    .setRangedValueExpression(DynamicFloat.constant(1f))
+                    .setRangedDynamicValue(DynamicFloat.constant(1f))
                     .setLongText(WireComplicationText(DynamicString.constant("Long Text")))
                     .setLongTitle(WireComplicationText(DynamicString.constant("Long Title")))
                     .setShortText(WireComplicationText(DynamicString.constant("Short Text")))
@@ -113,7 +113,7 @@ class ComplicationDataExpressionEvaluatorTest {
         SET_ONLY_AFTER_ALL_FIELDS_EVALUATED(
             expressed =
                 WireComplicationData.Builder(TYPE_NO_DATA)
-                    .setRangedValueExpression(DynamicFloat.from(AppDataKey("ranged_value")))
+                    .setRangedDynamicValue(DynamicFloat.from(AppDataKey("ranged_value")))
                     .setLongText(WireComplicationText(DynamicString.from(AppDataKey("long_text"))))
                     .setLongTitle(
                         WireComplicationText(DynamicString.from(AppDataKey("long_title")))
@@ -295,7 +295,7 @@ class ComplicationDataExpressionEvaluatorTest {
             // Defensive copy due to in-place evaluation.
             val expressed = WireComplicationData.Builder(scenario.expressed).build()
             val stateStore = StateStore(mapOf())
-            val evaluator = ComplicationDataExpressionEvaluator(stateStore)
+            val evaluator = DynamicComplicationDataEvaluator(stateStore)
             val allEvaluations =
                 evaluator
                     .evaluate(expressed)
@@ -320,7 +320,7 @@ class ComplicationDataExpressionEvaluatorTest {
     fun evaluate_cancelled_cleansUp() = runBlocking {
         val expressed =
             WireComplicationData.Builder(TYPE_NO_DATA)
-                .setRangedValueExpression(
+                .setRangedDynamicValue(
                     // Uses TimeGateway, which needs cleaning up.
                     DynamicInstant.withSecondsPrecision(Instant.EPOCH)
                         .durationUntil(DynamicInstant.platformTimeWithSecondsPrecision())
@@ -329,7 +329,7 @@ class ComplicationDataExpressionEvaluatorTest {
                 )
                 .build()
         val timeGateway = mock<TimeGateway>()
-        val evaluator = ComplicationDataExpressionEvaluator(timeGateway = timeGateway)
+        val evaluator = DynamicComplicationDataEvaluator(timeGateway = timeGateway)
         val flow = evaluator.evaluate(expressed)
 
         // Validity check - TimeGateway not used until Flow collection.
@@ -351,7 +351,7 @@ class ComplicationDataExpressionEvaluatorTest {
     fun evaluate_keepExpression_doesNotTrimUnevaluatedExpression() = runBlocking {
         val expressed =
             WireComplicationData.Builder(TYPE_NO_DATA)
-                .setRangedValueExpression(DynamicFloat.constant(1f))
+                .setRangedDynamicValue(DynamicFloat.constant(1f))
                 .setLongText(WireComplicationText(DynamicString.constant("Long Text")))
                 .setLongTitle(WireComplicationText(DynamicString.constant("Long Title")))
                 .setShortText(WireComplicationText(DynamicString.constant("Short Text")))
@@ -361,13 +361,13 @@ class ComplicationDataExpressionEvaluatorTest {
                 .setListEntryCollection(listOf(constantData("List")))
                 .build()
                 .also { it.setTimelineEntryCollection(listOf(constantData("Timeline"))) }
-        val evaluator = ComplicationDataExpressionEvaluator(keepExpression = true)
+        val evaluator = DynamicComplicationDataEvaluator(keepDynamicValues = true)
 
         assertThat(evaluator.evaluate(expressed).firstOrNull())
             .isEqualTo(
                 WireComplicationData.Builder(TYPE_NO_DATA)
                     .setRangedValue(1f)
-                    .setRangedValueExpression(DynamicFloat.constant(1f))
+                    .setRangedDynamicValue(DynamicFloat.constant(1f))
                     .setLongText(
                         WireComplicationText("Long Text", DynamicString.constant("Long Text"))
                     )
@@ -399,7 +399,7 @@ class ComplicationDataExpressionEvaluatorTest {
                 .setShortText(WireComplicationText("Text"))
                 .setPlaceholder(evaluatedData("Placeholder"))
                 .build()
-        val evaluator = ComplicationDataExpressionEvaluator(keepExpression = true)
+        val evaluator = DynamicComplicationDataEvaluator(keepDynamicValues = true)
 
         assertThat(evaluator.evaluate(expressed).firstOrNull())
             .isEqualTo(

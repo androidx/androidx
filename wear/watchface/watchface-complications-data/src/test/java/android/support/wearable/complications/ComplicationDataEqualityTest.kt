@@ -89,8 +89,8 @@ class ComplicationDataEqualityTest {
             { setRangedValue(2f) },
         ),
         RANGED_VALUE_EXPRESSION(
-            { setRangedValueExpression(DynamicFloat.constant(1.2f)) },
-            { setRangedValueExpression(DynamicFloat.constant(3.4f)) },
+            { setRangedDynamicValue(DynamicFloat.constant(1.2f)) },
+            { setRangedDynamicValue(DynamicFloat.constant(3.4f)) },
         ),
         RANGED_VALUE_TYPE(
             { setRangedValueType(1) },
@@ -309,11 +309,11 @@ class ComplicationDataEqualityTest {
         RANGED_VALUE_EXPRESSION(
             {
                 setRangedValue(Random.nextFloat()) // Ignored when there's an expression.
-                    .setRangedValueExpression(DynamicFloat.constant(1.2f))
+                    .setRangedDynamicValue(DynamicFloat.constant(1.2f))
             },
             {
                 setRangedValue(Random.nextFloat()) // Ignored when there's an expression.
-                    .setRangedValueExpression(DynamicFloat.constant(3.4f))
+                    .setRangedDynamicValue(DynamicFloat.constant(3.4f))
             },
         ),
         RANGED_VALUE_NO_EXPRESSION(
