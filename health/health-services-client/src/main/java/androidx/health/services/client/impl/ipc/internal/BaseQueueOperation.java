@@ -28,7 +28,6 @@ import androidx.annotation.RestrictTo.Scope;
  * Abstract implementation of QueueOperation that accepts {@link ConnectionConfiguration} describing
  * the service where it will be executed.
  *
- * @hide
  */
 @RestrictTo(Scope.LIBRARY)
 public class BaseQueueOperation implements QueueOperation {

@@ -19,8 +19,8 @@ package androidx.health.services.client.impl;
 /**
  * Interface to make ipc calls for health services api.
  *
- * @hide
  */
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 interface IHealthServicesApiService {
     /**
      * API version of the AIDL interface. Should be incremented every time a new

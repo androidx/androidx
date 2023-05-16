@@ -24,7 +24,6 @@ import java.util.concurrent.ExecutionException;
 /**
  * Exception that is thrown when API version requirements are not met.
  *
- * @hide
  */
 @RestrictTo(Scope.LIBRARY)
 public class ApiVersionException extends ExecutionException {

@@ -32,7 +32,7 @@
 // later when a module using the interface is updated, e.g., Mainline modules.
 
 package androidx.health.services.client.impl;
-/* @hide */
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 interface IPassiveListenerService {
   int getApiVersion() = 0;
   void onPassiveListenerEvent(in androidx.health.services.client.impl.event.PassiveListenerEvent event) = 1;

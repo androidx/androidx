@@ -47,7 +47,6 @@ import javax.annotation.concurrent.NotThreadSafe;
  *
  * <p>Note: this class is not thread safe and should be called always from the same thread.
  *
- * @hide
  */
 @NotThreadSafe
 @RestrictTo(Scope.LIBRARY)

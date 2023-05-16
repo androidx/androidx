@@ -21,7 +21,6 @@ import androidx.annotation.RestrictTo;
 /**
  * Class to hold common constants for AHP.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public final class HealthDataServiceConstants {

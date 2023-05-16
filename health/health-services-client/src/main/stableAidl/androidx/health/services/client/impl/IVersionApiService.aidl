@@ -25,9 +25,8 @@ import androidx.health.services.client.impl.response.MeasureCapabilitiesResponse
 
 /**
  * Interface to make ipc calls to query version information.
- *
- * @hide
  */
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 interface IVersionApiService {
     /**
      * API version of _this_ AIDL interface. Should be incremented every time a

@@ -30,7 +30,6 @@ import com.google.common.util.concurrent.SettableFuture;
  * result value.
  *
  * @param <R> Type of the returned value.
- * @hide
  */
 @RestrictTo(Scope.LIBRARY)
 public interface ServiceOperation<R> {
