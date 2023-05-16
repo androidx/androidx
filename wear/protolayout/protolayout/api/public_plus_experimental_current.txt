@@ -559,18 +559,18 @@ package androidx.wear.protolayout {
     method public androidx.wear.protolayout.LayoutElementBuilders.FontStyle.Builder setWeight(int);
   }
 
-  public static class LayoutElementBuilders.FontStyles {
-    method public static androidx.wear.protolayout.LayoutElementBuilders.FontStyle.Builder body1(androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters);
-    method public static androidx.wear.protolayout.LayoutElementBuilders.FontStyle.Builder body2(androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters);
-    method public static androidx.wear.protolayout.LayoutElementBuilders.FontStyle.Builder button(androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters);
-    method public static androidx.wear.protolayout.LayoutElementBuilders.FontStyle.Builder caption1(androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters);
-    method public static androidx.wear.protolayout.LayoutElementBuilders.FontStyle.Builder caption2(androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters);
-    method public static androidx.wear.protolayout.LayoutElementBuilders.FontStyle.Builder display1(androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters);
-    method public static androidx.wear.protolayout.LayoutElementBuilders.FontStyle.Builder display2(androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters);
-    method public static androidx.wear.protolayout.LayoutElementBuilders.FontStyle.Builder display3(androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters);
-    method public static androidx.wear.protolayout.LayoutElementBuilders.FontStyle.Builder title1(androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters);
-    method public static androidx.wear.protolayout.LayoutElementBuilders.FontStyle.Builder title2(androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters);
-    method public static androidx.wear.protolayout.LayoutElementBuilders.FontStyle.Builder title3(androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters);
+  @Deprecated public static class LayoutElementBuilders.FontStyles {
+    method @Deprecated public static androidx.wear.protolayout.LayoutElementBuilders.FontStyle.Builder body1(androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters);
+    method @Deprecated public static androidx.wear.protolayout.LayoutElementBuilders.FontStyle.Builder body2(androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters);
+    method @Deprecated public static androidx.wear.protolayout.LayoutElementBuilders.FontStyle.Builder button(androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters);
+    method @Deprecated public static androidx.wear.protolayout.LayoutElementBuilders.FontStyle.Builder caption1(androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters);
+    method @Deprecated public static androidx.wear.protolayout.LayoutElementBuilders.FontStyle.Builder caption2(androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters);
+    method @Deprecated public static androidx.wear.protolayout.LayoutElementBuilders.FontStyle.Builder display1(androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters);
+    method @Deprecated public static androidx.wear.protolayout.LayoutElementBuilders.FontStyle.Builder display2(androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters);
+    method @Deprecated public static androidx.wear.protolayout.LayoutElementBuilders.FontStyle.Builder display3(androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters);
+    method @Deprecated public static androidx.wear.protolayout.LayoutElementBuilders.FontStyle.Builder title1(androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters);
+    method @Deprecated public static androidx.wear.protolayout.LayoutElementBuilders.FontStyle.Builder title2(androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters);
+    method @Deprecated public static androidx.wear.protolayout.LayoutElementBuilders.FontStyle.Builder title3(androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters);
   }
 
   @androidx.wear.protolayout.expression.ProtoLayoutExperimental public static final class LayoutElementBuilders.FontVariantProp {
