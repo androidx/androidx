@@ -191,10 +191,13 @@ val ALL_ANDROIDX_PROPERTIES = setOf(
     XCODEGEN_DOWNLOAD_URI,
     ALLOW_CUSTOM_COMPILE_SDK,
     UPDATE_SIGNATURES,
-    SUPPRESS_COMPATIBILITY_OPT_OUT,
-    SUPPRESS_COMPATIBILITY_OPT_IN,
     FilteredAnchorTask.PROP_TASK_NAME,
     FilteredAnchorTask.PROP_PATH_PREFIX,
+)
+
+val PREFIXED_ANDROIDX_PROPERTIES = setOf(
+    SUPPRESS_COMPATIBILITY_OPT_OUT,
+    SUPPRESS_COMPATIBILITY_OPT_IN,
 )
 
 /**
@@ -231,7 +234,8 @@ fun Project.isValidateProjectStructureEnabled(): Boolean =
 fun Project.validateAllAndroidxArgumentsAreRecognized() {
     for (propertyName in project.properties.keys) {
         if (propertyName.startsWith("androidx")) {
-            if (!ALL_ANDROIDX_PROPERTIES.contains(propertyName)) {
+            if (!ALL_ANDROIDX_PROPERTIES.contains(propertyName) &&
+                PREFIXED_ANDROIDX_PROPERTIES.none { propertyName.startsWith(it) }) {
                 val message = "Unrecognized Androidx property '$propertyName'.\n" +
                     "\n" +
                     "Is this a misspelling? All recognized Androidx properties:\n" +
@@ -306,10 +310,19 @@ fun Project.booleanPropertyProvider(propName: String): Provider<Boolean> {
  * List of project path prefixes which have been opted-in to the Suppress Compatibility migration.
  */
 fun Project.getSuppressCompatibilityOptInPathPrefixes(): List<String> =
-    (findProperty(SUPPRESS_COMPATIBILITY_OPT_IN) as? String)?.split(",") ?: emptyList()
+    aggregatePropertyPrefix(SUPPRESS_COMPATIBILITY_OPT_IN)
 
 /**
  * List of project path prefixes which have been opted out of the Suppress Compatibility migration.
  */
 fun Project.getSuppressCompatibilityOptOutPathPrefixes(): List<String> =
-    (findProperty(SUPPRESS_COMPATIBILITY_OPT_OUT) as? String)?.split(",") ?: emptyList()
+    aggregatePropertyPrefix(SUPPRESS_COMPATIBILITY_OPT_OUT)
+
+internal fun Project.aggregatePropertyPrefix(prefix: String): List<String> =
+    properties.flatMap { (name, value) ->
+        if (name.startsWith(prefix)) {
+            (value as? String)?.split(",") ?: emptyList()
+        } else {
+            emptyList()
+        }
+    }
