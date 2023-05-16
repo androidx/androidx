@@ -15,6 +15,8 @@
  */
 package androidx.emoji2.text;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
+
 import android.content.res.AssetManager;
 import android.graphics.Typeface;
 import android.util.SparseArray;
@@ -85,8 +87,8 @@ public final class MetadataRepo {
      * Construct MetadataRepo with empty metadata.
      *
      * This should only be used from tests.
-     * @hide
      */
+    @RestrictTo(LIBRARY)
     @NonNull
     @VisibleForTesting
     public static MetadataRepo create(@NonNull final Typeface typeface) {
@@ -170,7 +172,6 @@ public final class MetadataRepo {
     }
 
     /**
-     * @hide
      */
     @NonNull
     @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -179,7 +180,6 @@ public final class MetadataRepo {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     int getMetadataVersion() {
@@ -187,7 +187,6 @@ public final class MetadataRepo {
     }
 
     /**
-     * @hide
      */
     @NonNull
     @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -196,7 +195,6 @@ public final class MetadataRepo {
     }
 
     /**
-     * @hide
      */
     @NonNull
     @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -205,7 +203,6 @@ public final class MetadataRepo {
     }
 
     /**
-     * @hide
      */
     @NonNull
     @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -216,7 +213,6 @@ public final class MetadataRepo {
     /**
      * Add a TypefaceEmojiRasterizer to the index.
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @VisibleForTesting
@@ -233,7 +229,6 @@ public final class MetadataRepo {
      *
      * A single codepoint emoji is represented by a child of the root node.
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     static class Node {
