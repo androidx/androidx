@@ -95,6 +95,11 @@ class SandboxedSdkViewTest {
         var isSessionOpened = false
         var internalClient: SandboxedUiAdapter.SessionClient? = null
         var testSession: TestSession? = null
+        var isZOrderOnTop = true
+
+        // When set to true, the onSessionOpened callback will only be invoked when specified
+        // by the test. This is to test race conditions when the session is being loaded.
+        var delayOpenSessionCallback = false
 
         override fun openSession(
             context: Context,
@@ -107,9 +112,16 @@ class SandboxedSdkViewTest {
             internalClient = client
             testSession =
                 TestSession(context, initialWidth, initialHeight, resizeLatch, configChangedLatch)
-            client.onSessionOpened(testSession!!)
+            if (!delayOpenSessionCallback) {
+                client.onSessionOpened(testSession!!)
+            }
             isSessionOpened = true
+            this.isZOrderOnTop = isZOrderOnTop
             openSessionLatch?.countDown()
+        }
+
+        internal fun sendOnSessionOpened() {
+            internalClient?.onSessionOpened(testSession!!)
         }
 
         inner class TestSession(
@@ -120,7 +132,7 @@ class SandboxedSdkViewTest {
             private var configChangedLatch: CountDownLatch?
         ) : SandboxedUiAdapter.Session {
 
-            var isZOrderChanged = false
+            var zOrderChangedLatch: CountDownLatch = CountDownLatch(1)
 
             override val view: View = View(context)
 
@@ -137,7 +149,8 @@ class SandboxedSdkViewTest {
             }
 
             override fun notifyZOrderChanged(isZOrderOnTop: Boolean) {
-                isZOrderChanged = true
+                this@TestSandboxedUiAdapter.isZOrderOnTop = isZOrderOnTop
+                zOrderChangedLatch.countDown()
             }
 
             override fun notifyConfigurationChanged(configuration: Configuration) {
@@ -225,11 +238,7 @@ class SandboxedSdkViewTest {
 
     @Test
     fun onAttachedToWindowTest() {
-        activity.runOnUiThread(Runnable {
-            activity.findViewById<LinearLayout>(
-                R.id.mainlayout
-            ).addView(view)
-        })
+        addViewToLayout()
         openSessionLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)
         assertTrue(testSandboxedUiAdapter.isSessionOpened)
         assertTrue(view.childCount == 1)
@@ -240,11 +249,7 @@ class SandboxedSdkViewTest {
     fun childViewRemovedOnErrorTest() {
         assertTrue(view.childCount == 0)
 
-        activity.runOnUiThread(Runnable {
-            activity.findViewById<LinearLayout>(
-                R.id.mainlayout
-            ).addView(view)
-        })
+        addViewToLayout()
 
         openSessionLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)
         assertTrue(openSessionLatch.count == 0.toLong())
@@ -259,32 +264,78 @@ class SandboxedSdkViewTest {
 
     @Test
     fun onZOrderChangedTest() {
-        val layout = activity.findViewById<LinearLayout>(
-            R.id.mainlayout
-        )
+        addViewToLayout()
 
-        view.setZOrderOnTopAndEnableUserInteraction(true)
-        resizeLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)
-        testSandboxedUiAdapter.testSession?.let { assertFalse(it.isZOrderChanged) }
+        // When session is opened, the provider should not receive a Z-order notification.
+        assertThat(openSessionLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
+        val session = testSandboxedUiAdapter.testSession!!
+        val adapter = testSandboxedUiAdapter
+        assertThat(session.zOrderChangedLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isFalse()
+        assertThat(adapter.isZOrderOnTop).isTrue()
 
-        activity.runOnUiThread(Runnable {
-            layout.addView(view)
-        })
+        // When state changes to false, the provider should be notified.
         view.setZOrderOnTopAndEnableUserInteraction(false)
+        assertThat(session.zOrderChangedLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
+        assertThat(adapter.isZOrderOnTop).isFalse()
 
-        resizeLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)
-        testSandboxedUiAdapter.testSession?.let { assertTrue(it.isZOrderChanged) }
-        assertTrue(resizeLatch.count == 0.toLong())
+        // When state changes back to true, the provider should be notified.
+        session.zOrderChangedLatch = CountDownLatch(1)
+        view.setZOrderOnTopAndEnableUserInteraction(true)
+        assertThat(session.zOrderChangedLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
+        assertThat(adapter.isZOrderOnTop).isTrue()
+    }
+
+    @Test
+    fun onZOrderUnchangedTest() {
+        addViewToLayout()
+
+        // When session is opened, the provider should not receive a Z-order notification.
+        assertThat(openSessionLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
+        val session = testSandboxedUiAdapter.testSession!!
+        val adapter = testSandboxedUiAdapter
+        assertThat(adapter.isZOrderOnTop).isTrue()
+
+        // When Z-order state is unchanged, the provider should not be notified.
+        session.zOrderChangedLatch = CountDownLatch(1)
+        view.setZOrderOnTopAndEnableUserInteraction(true)
+        assertThat(session.zOrderChangedLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isFalse()
+        assertThat(adapter.isZOrderOnTop).isTrue()
+    }
+
+    @Test
+    fun setZOrderNotOnTopBeforeOpeningSession() {
+        view.setZOrderOnTopAndEnableUserInteraction(false)
+        addViewToLayout()
+        assertThat(openSessionLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
+        val session = testSandboxedUiAdapter.testSession!!
+
+        // The initial Z-order state is passed to the session, but notifyZOrderChanged is not called
+        assertThat(session.zOrderChangedLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isFalse()
+        assertThat(testSandboxedUiAdapter.isZOrderOnTop).isFalse()
+    }
+
+    @Test
+    fun setZOrderNotOnTopWhileSessionLoading() {
+        testSandboxedUiAdapter.delayOpenSessionCallback = true
+        addViewToLayout()
+        assertThat(openSessionLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
+        view.setZOrderOnTopAndEnableUserInteraction(false)
+        val session = testSandboxedUiAdapter.testSession!!
+        assertThat(session.zOrderChangedLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isFalse()
+        activity.runOnUiThread {
+            testSandboxedUiAdapter.sendOnSessionOpened()
+        }
+
+        // After session has opened, the pending Z order changed made while loading is notified
+        // th the session.
+        assertThat(session.zOrderChangedLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
+        assertThat(testSandboxedUiAdapter.isZOrderOnTop).isFalse()
     }
 
     @Test
     @Ignore("b/272324246")
     fun onConfigurationChangedTest() {
-        val layout = activity.findViewById<LinearLayout>(R.id.mainlayout)
-
-        activity.runOnUiThread(Runnable {
-            layout.addView(view)
-        })
+        addViewToLayout()
 
         openSessionLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)
         assertTrue(openSessionLatch.count == 0.toLong())
@@ -297,16 +348,12 @@ class SandboxedSdkViewTest {
 
     @Test
     fun onSizeChangedTest() {
-        val layout = activity.findViewById<LinearLayout>(
-            R.id.mainlayout
-        )
-
-        activity.runOnUiThread(Runnable {
-            layout.addView(view)
+        addViewToLayout()
+        assertThat(openSessionLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
+        activity.runOnUiThread {
             view.layoutParams = LinearLayout.LayoutParams(100, 200)
-        })
-        resizeLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)
-        assertTrue(resizeLatch.count == 0.toLong())
+        }
+        assertThat(resizeLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
         assertTrue(view.width == 100 && view.height == 200)
     }
 
@@ -355,5 +402,13 @@ class SandboxedSdkViewTest {
         assertFalse(
             "XML overrides SandboxedSdkView.isTransitionGroup", view.isTransitionGroup
         )
+    }
+
+    private fun addViewToLayout() {
+        activity.runOnUiThread {
+            activity.findViewById<LinearLayout>(
+                R.id.mainlayout
+            ).addView(view)
+        }
     }
 }
