@@ -243,7 +243,7 @@
     <string name="sign_in_template_not_supported_text" msgid="7184733753948837646">"Votre hôte ne prend pas en charge le modèle de connexion"</string>
     <string name="sign_in_template_not_supported_title" msgid="4892883228898541764">"Hôte incompatible"</string>
     <string name="email_hint" msgid="7205549445477319606">"Courriel"</string>
-    <string name="sign_in_title" msgid="4551967308262681703">"Connexion"</string>
+    <string name="sign_in_title" msgid="4551967308262681703">"Se connecter"</string>
     <string name="sign_in_instructions" msgid="9044850228284294762">"Entrez vos authentifiants"</string>
     <string name="invalid_email_error_msg" msgid="5261362663718987167">"Le nom d\'utilisateur doit être une adresse de courriel valide"</string>
     <string name="invalid_length_error_msg" msgid="8238905276326976425">"Le nom d\'utilisateur doit comporter au moins %s caractères"</string>
