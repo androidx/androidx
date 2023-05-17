@@ -55,4 +55,8 @@
 
     <string name="delete_route_alert_dialog_title">Delete this route?</string>
     <string name="delete_route_alert_dialog_message">Are you sure you want to delete this route?</string>
+
+    <string name="settings_activity_show_system_routes">Show system routes</string>
+
+    <string name="system_routing_activity_bluetooth_denied">Bluetooth sources will not be shown without access to Bluetooth</string>
 </resources>
