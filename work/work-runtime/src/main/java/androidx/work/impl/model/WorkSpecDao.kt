@@ -141,6 +141,16 @@ interface WorkSpecDao {
     fun resetWorkSpecRunAttemptCount(id: String): Int
 
     /**
+     * Resets the next schedule time override of a [WorkSpec] if the override generation has not
+     * changed.
+     *
+     * @param id The identifier for the [WorkSpec]
+     */
+    @Query("UPDATE workspec SET next_schedule_time_override=${Long.MAX_VALUE} WHERE " +
+        "(id=:id AND next_schedule_time_override_generation=:overrideGeneration)")
+    fun resetWorkSpecNextScheduleTimeOverride(id: String, overrideGeneration: Int)
+
+    /**
      * Retrieves the state of a [WorkSpec].
      *
      * @param id The identifier for the [WorkSpec]
@@ -464,7 +474,7 @@ internal fun Flow<List<WorkSpec.WorkInfoPojo>>.dedup(
 
 private const val WORK_INFO_COLUMNS = "id, state, output, run_attempt_count, generation" +
     ", $CONSTRAINTS_COLUMNS, initial_delay, interval_duration, flex_duration, backoff_policy" +
-    ", backoff_delay_duration, last_enqueue_time, period_count"
+    ", backoff_delay_duration, last_enqueue_time, period_count, next_schedule_time_override"
 
 @Language("sql")
 private const val WORK_INFO_BY_IDS = "SELECT $WORK_INFO_COLUMNS FROM workspec WHERE id IN (:ids)"
