@@ -54,6 +54,8 @@
     <string name="m3c_date_range_picker_day_in_range" msgid="2138321128465719402">"범위 내"</string>
     <string name="m3c_date_range_input_title" msgid="3148384720560189467">"날짜 입력"</string>
     <string name="m3c_date_range_input_invalid_range_input" msgid="3190049423327661366">"잘못된 기간 입력"</string>
+    <!-- no translation found for m3c_bottom_sheet_pane_title (3010635850035863127) -->
+    <skip />
     <string name="m3c_bottom_sheet_drag_handle_description" msgid="8403354765404029791">"드래그 핸들"</string>
     <string name="m3c_bottom_sheet_collapse_description" msgid="2988463736136100848">"하단 시트 접기"</string>
     <string name="m3c_bottom_sheet_dismiss_description" msgid="1555567894577437024">"하단 시트 닫기"</string>
