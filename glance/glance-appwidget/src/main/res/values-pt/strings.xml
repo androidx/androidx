@@ -17,6 +17,6 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="glance_error_layout_title" msgid="2896109737634971880"><b>"Erro no widget do app Glance"</b></string>
-    <string name="glance_error_layout_text" msgid="8513923302775602854">"Pesquise "<b><tt>"GlanceAppWidget"</tt></b>" no "<b><tt>"adb logcat"</tt></b>" para ver o erro exato"</string>
+    <string name="glance_error_layout_title" msgid="3631961919234443531"><b>"Erro no widget do app Glance"</b></string>
+    <string name="glance_error_layout_text" msgid="2863935784364843033">"Pesquise "<b><tt>"GlanceAppWidget"</tt></b>" no "<b><tt>"adb logcat"</tt></b>" para consultar o erro exato"</string>
 </resources>
