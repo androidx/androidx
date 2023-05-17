@@ -59,10 +59,7 @@ import androidx.compose.ui.unit.dp
  *
  * Button can be enabled or disabled. A disabled button will not respond to click events.
  *
- * TODO(b/261838497) Add Material3 UX guidance links
- *
- * Example of a [Button]:
- * @sample androidx.wear.compose.material3.samples.SimpleButtonSample
+ * TODO(b/261838497) Add Material3 samples and UX guidance links
  *
  * @param onClick Will be called when the user clicks the button
  * @param modifier Modifier to be applied to the button
@@ -133,10 +130,7 @@ fun Button(
  *
  * Button can be enabled or disabled. A disabled button will not respond to click events.
  *
- * TODO(b/261838497) Add Material3 UX guidance links
- *
- * Example of a [FilledTonalButton]:
- * @sample androidx.wear.compose.material3.samples.SimpleFilledTonalButtonSample
+ * TODO(b/261838497) Add Material3 samples and UX guidance links
  *
  * @param onClick Will be called when the user clicks the button
  * @param modifier Modifier to be applied to the button
@@ -191,10 +185,7 @@ fun FilledTonalButton(
  *
  * Button can be enabled or disabled. A disabled button will not respond to click events.
  *
- * TODO(b/261838497) Add Material3 UX guidance links
- *
- * Example of an [OutlinedButton]:
- * @sample androidx.wear.compose.material3.samples.SimpleOutlinedButtonSample
+ * TODO(b/261838497) Add Material3 samples and UX guidance links
  *
  * @param onClick Will be called when the user clicks the button
  * @param modifier Modifier to be applied to the button
@@ -249,10 +240,7 @@ fun OutlinedButton(
  *
  * Button can be enabled or disabled. A disabled button will not respond to click events.
  *
- * TODO(b/261838497) Add Material3 UX guidance links
- *
- * Example of a [ChildButton]:
- * @sample androidx.wear.compose.material3.samples.SimpleChildButtonSample
+ * TODO(b/261838497) Add Material3 samples and UX guidance links
  *
  * @param onClick Will be called when the user clicks the button
  * @param modifier Modifier to be applied to the button
@@ -311,10 +299,7 @@ fun ChildButton(
  *
  * [Button] can be enabled or disabled. A disabled button will not respond to click events.
  *
- * TODO(b/261838497) Add Material3 UX guidance links
- *
- * Example of a [Button] with an icon and secondary label:
- * @sample androidx.wear.compose.material3.samples.ButtonSample
+ * TODO(b/261838497) Add Material3 samples and UX guidance links
  *
  * @param onClick Will be called when the user clicks the button
  * @param modifier Modifier to be applied to the button
@@ -413,10 +398,7 @@ fun Button(
  * [FilledTonalButton] can be enabled or disabled. A disabled button will not respond to
  * click events.
  *
- * TODO(b/261838497) Add Material3 UX guidance links
- *
- * Example of a [FilledTonalButton] with an icon and secondary label:
- * @sample androidx.wear.compose.material3.samples.FilledTonalButtonSample
+ * TODO(b/261838497) Add Material3 samples and UX guidance links
  *
  * @param onClick Will be called when the user clicks the button
  * @param modifier Modifier to be applied to the button
@@ -497,10 +479,7 @@ fun FilledTonalButton(
  *
  * [OutlinedButton] can be enabled or disabled. A disabled button will not respond to click events.
  *
- * TODO(b/261838497) Add Material3 UX guidance links
- *
- * Example of an [OutlinedButton] with an icon and secondary label:
- * @sample androidx.wear.compose.material3.samples.OutlinedButtonSample
+ * TODO(b/261838497) Add Material3 samples and UX guidance links
  *
  * @param onClick Will be called when the user clicks the button
  * @param modifier Modifier to be applied to the button
@@ -580,10 +559,7 @@ fun OutlinedButton(
  *
  * [Button] can be enabled or disabled. A disabled button will not respond to click events.
  *
- * TODO(b/261838497) Add Material3 UX guidance links
- *
- * Example of a [ChildButton] with an icon and secondary label:
- * @sample androidx.wear.compose.material3.samples.ChildButtonSample
+ * TODO(b/261838497) Add Material3 samples and UX guidance links
  *
  * @param onClick Will be called when the user clicks the button
  * @param modifier Modifier to be applied to the button
