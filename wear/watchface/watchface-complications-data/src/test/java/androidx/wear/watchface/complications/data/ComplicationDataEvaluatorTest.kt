@@ -28,7 +28,7 @@ import androidx.wear.protolayout.expression.DynamicBuilders.DynamicString
 import androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue
 import androidx.wear.protolayout.expression.pipeline.StateStore
 import androidx.wear.protolayout.expression.pipeline.TimeGateway
-import androidx.wear.watchface.complications.data.DynamicComplicationDataEvaluator.Companion.INVALID_DATA
+import androidx.wear.watchface.complications.data.ComplicationDataEvaluator.Companion.INVALID_DATA
 import com.google.common.truth.Expect
 import com.google.common.truth.Truth.assertThat
 import java.time.Instant
@@ -51,7 +51,7 @@ import org.mockito.kotlin.verifyNoMoreInteractions
 import org.robolectric.shadows.ShadowLog
 
 @RunWith(SharedRobolectricTestRunner::class)
-class DynamicComplicationDataEvaluatorTest {
+class ComplicationDataEvaluatorTest {
     @get:Rule val expect = Expect.create()
 
     @Before
@@ -63,7 +63,7 @@ class DynamicComplicationDataEvaluatorTest {
     fun evaluate_noExpression_returnsUnevaluated() = runBlocking {
         val data = WireComplicationData.Builder(TYPE_NO_DATA).setRangedValue(10f).build()
 
-        val evaluator = DynamicComplicationDataEvaluator()
+        val evaluator = ComplicationDataEvaluator()
 
         assertThat(evaluator.evaluate(data).firstOrNull()).isEqualTo(data)
     }
@@ -295,7 +295,7 @@ class DynamicComplicationDataEvaluatorTest {
             // Defensive copy due to in-place evaluation.
             val expressed = WireComplicationData.Builder(scenario.expressed).build()
             val stateStore = StateStore(mapOf())
-            val evaluator = DynamicComplicationDataEvaluator(stateStore)
+            val evaluator = ComplicationDataEvaluator(stateStore)
             val allEvaluations =
                 evaluator
                     .evaluate(expressed)
@@ -329,7 +329,7 @@ class DynamicComplicationDataEvaluatorTest {
                 )
                 .build()
         val timeGateway = mock<TimeGateway>()
-        val evaluator = DynamicComplicationDataEvaluator(timeGateway = timeGateway)
+        val evaluator = ComplicationDataEvaluator(timeGateway = timeGateway)
         val flow = evaluator.evaluate(expressed)
 
         // Validity check - TimeGateway not used until Flow collection.
@@ -361,7 +361,7 @@ class DynamicComplicationDataEvaluatorTest {
                 .setListEntryCollection(listOf(constantData("List")))
                 .build()
                 .also { it.setTimelineEntryCollection(listOf(constantData("Timeline"))) }
-        val evaluator = DynamicComplicationDataEvaluator(keepDynamicValues = true)
+        val evaluator = ComplicationDataEvaluator(keepDynamicValues = true)
 
         assertThat(evaluator.evaluate(expressed).firstOrNull())
             .isEqualTo(
@@ -399,7 +399,7 @@ class DynamicComplicationDataEvaluatorTest {
                 .setShortText(WireComplicationText("Text"))
                 .setPlaceholder(evaluatedData("Placeholder"))
                 .build()
-        val evaluator = DynamicComplicationDataEvaluator(keepDynamicValues = true)
+        val evaluator = ComplicationDataEvaluator(keepDynamicValues = true)
 
         assertThat(evaluator.evaluate(expressed).firstOrNull())
             .isEqualTo(
