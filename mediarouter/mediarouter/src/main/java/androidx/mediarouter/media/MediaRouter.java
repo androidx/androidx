@@ -1151,9 +1151,23 @@ public final class MediaRouter {
          */
         public static final int PLAYBACK_TYPE_REMOTE = 1;
 
-        @IntDef({DEVICE_TYPE_UNKNOWN, DEVICE_TYPE_TV, DEVICE_TYPE_SPEAKER, DEVICE_TYPE_BLUETOOTH})
+        @RestrictTo(LIBRARY)
+        @IntDef({
+            DEVICE_TYPE_UNKNOWN,
+            DEVICE_TYPE_TV,
+            DEVICE_TYPE_SPEAKER,
+            DEVICE_TYPE_BLUETOOTH,
+            DEVICE_TYPE_AUDIO_VIDEO_RECEIVER,
+            DEVICE_TYPE_TABLET,
+            DEVICE_TYPE_TABLET_DOCKED,
+            DEVICE_TYPE_COMPUTER,
+            DEVICE_TYPE_GAME_CONSOLE,
+            DEVICE_TYPE_CAR,
+            DEVICE_TYPE_SMARTWATCH,
+            DEVICE_TYPE_GROUP
+        })
         @Retention(RetentionPolicy.SOURCE)
-        private @interface DeviceType {}
+        public @interface DeviceType {}
 
         /**
          * The default receiver device type of the route indicating the type is unknown.
@@ -1187,6 +1201,63 @@ public final class MediaRouter {
          */
         @RestrictTo(LIBRARY)
         public static final int DEVICE_TYPE_BLUETOOTH = 3;
+
+        /**
+         * A receiver device type indicating that the presentation of the media is happening on an
+         * Audio/Video receiver (AVR).
+         *
+         * @see #getDeviceType
+         */
+        public static final int DEVICE_TYPE_AUDIO_VIDEO_RECEIVER = 4;
+        /**
+         * A receiver device type indicating that the presentation of the media is happening on a
+         * tablet.
+         *
+         * @see #getDeviceType
+         */
+        public static final int DEVICE_TYPE_TABLET = 5;
+        /**
+         * A receiver device type indicating that the presentation of the media is happening on a
+         * docked tablet.
+         *
+         * @see #getDeviceType
+         */
+        public static final int DEVICE_TYPE_TABLET_DOCKED = 6;
+        /**
+         * A receiver device type indicating that the presentation of the media is happening on a
+         * computer.
+         *
+         * @see #getDeviceType
+         */
+        public static final int DEVICE_TYPE_COMPUTER = 7;
+        /**
+         * A receiver device type indicating that the presentation of the media is happening on a
+         * gaming console.
+         *
+         * @see #getDeviceType
+         */
+        public static final int DEVICE_TYPE_GAME_CONSOLE = 8;
+        /**
+         * A receiver device type indicating that the presentation of the media is happening on a
+         * car.
+         *
+         * @see #getDeviceType
+         */
+        public static final int DEVICE_TYPE_CAR = 9;
+        /**
+         * A receiver device type indicating that the presentation of the media is happening on a
+         * smartwatch.
+         *
+         * @see #getDeviceType
+         */
+        public static final int DEVICE_TYPE_SMARTWATCH = 10;
+        /**
+         * A receiver device type indicating that the presentation of the media is happening on a
+         * group of devices.
+         *
+         * @see #getDeviceType
+         */
+        public static final int DEVICE_TYPE_GROUP = 1000;
 
         @IntDef({PLAYBACK_VOLUME_FIXED,PLAYBACK_VOLUME_VARIABLE})
         @Retention(RetentionPolicy.SOURCE)
@@ -1589,9 +1660,9 @@ public final class MediaRouter {
         /**
          * Gets the type of the receiver device associated with this route.
          *
-         * @return The type of the receiver device associated with this route:
-         * {@link #DEVICE_TYPE_TV} or {@link #DEVICE_TYPE_SPEAKER}.
+         * @return The type of the receiver device associated with this route.
          */
+        @DeviceType
         public int getDeviceType() {
             return mDeviceType;
         }

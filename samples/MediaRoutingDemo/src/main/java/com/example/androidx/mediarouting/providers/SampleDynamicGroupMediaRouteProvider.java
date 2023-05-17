@@ -339,7 +339,7 @@ public final class SampleDynamicGroupMediaRouteProvider extends SampleMediaRoute
 
             mDynamicRouteDescriptors.put(routeId, builder.build());
 
-            if (routeDescriptor.getDeviceType() == MediaRouter.RouteInfo.DEVICE_TYPE_TV) {
+            if (routeDescriptor.getDeviceType() == RouteInfo.DEVICE_TYPE_TV) {
                 mTvSelectedCount++;
             }
             return true;
@@ -359,7 +359,7 @@ public final class SampleDynamicGroupMediaRouteProvider extends SampleMediaRoute
 
             MediaRouteDescriptor routeDescriptor =
                     mRouteDescriptors.get(dynamicDescriptor.getRouteDescriptor().getId());
-            if (routeDescriptor.getDeviceType() == MediaRouter.RouteInfo.DEVICE_TYPE_TV) {
+            if (routeDescriptor.getDeviceType() == RouteInfo.DEVICE_TYPE_TV) {
                 mTvSelectedCount--;
             }
             return true;
@@ -526,7 +526,7 @@ public final class SampleDynamicGroupMediaRouteProvider extends SampleMediaRoute
 
         private int countTvFromRoute(MediaRouteDescriptor routeDescriptor) {
             if (routeDescriptor.getGroupMemberIds().isEmpty()) {
-                return (routeDescriptor.getDeviceType() == MediaRouter.RouteInfo.DEVICE_TYPE_TV)
+                return (routeDescriptor.getDeviceType() == RouteInfo.DEVICE_TYPE_TV)
                         ? 1 : 0;
             }
             int count = 0;

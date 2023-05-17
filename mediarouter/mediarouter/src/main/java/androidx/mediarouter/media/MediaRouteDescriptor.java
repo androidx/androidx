@@ -263,10 +263,9 @@ public final class MediaRouteDescriptor {
     /**
      * Gets the type of the receiver device associated with this route.
      *
-     * @return The type of the receiver device associated with this route:
-     * {@link MediaRouter.RouteInfo#DEVICE_TYPE_TV} or
-     * {@link MediaRouter.RouteInfo#DEVICE_TYPE_SPEAKER}.
+     * @return The type of the receiver device associated with this route.
      */
+    @MediaRouter.RouteInfo.DeviceType
     public int getDeviceType() {
         return mBundle.getInt(KEY_DEVICE_TYPE);
     }
@@ -718,12 +717,10 @@ public final class MediaRouteDescriptor {
         /**
          * Sets the route's receiver device type.
          *
-         * @param deviceType The receive device type of the route:
-         * {@link MediaRouter.RouteInfo#DEVICE_TYPE_TV} or
-         * {@link MediaRouter.RouteInfo#DEVICE_TYPE_SPEAKER}.
+         * @param deviceType The type of the receiver device.
          */
         @NonNull
-        public Builder setDeviceType(int deviceType) {
+        public Builder setDeviceType(@MediaRouter.RouteInfo.DeviceType int deviceType) {
             mBundle.putInt(KEY_DEVICE_TYPE, deviceType);
             return this;
         }
