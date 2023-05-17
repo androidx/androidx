@@ -188,6 +188,25 @@ class WidgetLayoutTest {
     }
 
     @Test
+    fun testChange_imageDescription() = fakeCoroutineScope.runTest {
+        val appId = 999
+        val root = runTestingComposition {
+            Column {
+                Image(ImageProvider(R.drawable.oval), null, contentScale = ContentScale.Crop)
+            }
+        }
+        val root2 = runTestingComposition {
+            Column {
+                Image(ImageProvider(R.drawable.oval), "test", contentScale = ContentScale.Crop)
+            }
+        }
+
+        val layoutConfig = LayoutConfiguration.create(context, appId)
+        assertThat(layoutConfig.addLayout(root)).isEqualTo(0)
+        assertThat(layoutConfig.addLayout(root2)).isEqualTo(1)
+    }
+
+    @Test
     fun testChange_columnAlignment() = fakeCoroutineScope.runTest {
         val appId = 999
         val root = runTestingComposition {
