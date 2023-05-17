@@ -24,7 +24,6 @@ import androidx.compose.foundation.indication
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.height
@@ -178,27 +177,13 @@ private fun BoxScope.SwitchImpl(
     maxBound: Dp,
 ) {
     val trackColor by colors.trackColor(enabled, checked)
-    val isPressed by interactionSource.collectIsPressedAsState()
 
     val thumbValueDp = with(LocalDensity.current) { thumbValue.value.toDp() }
-    val thumbSizeDp = if (isPressed) {
-        SwitchTokens.PressedHandleWidth
-    } else {
-        uncheckedThumbDiameter + (ThumbDiameter - uncheckedThumbDiameter) *
-            ((thumbValueDp - minBound) / (maxBound - minBound))
-    }
 
-    val thumbOffset = if (isPressed) {
-        with(LocalDensity.current) {
-            if (checked) {
-                ThumbPathLength - SwitchTokens.TrackOutlineWidth
-            } else {
-                SwitchTokens.TrackOutlineWidth
-            }.toPx()
-        }
-    } else {
-        thumbValue.value
-    }
+    val thumbSizeDp = uncheckedThumbDiameter + (ThumbDiameter - uncheckedThumbDiameter) *
+        ((thumbValueDp - minBound) / (maxBound - minBound))
+
+    val thumbOffset = thumbValue.value
 
     val trackShape = SwitchTokens.TrackShape.toShape()
     val modifier = Modifier
@@ -328,7 +313,7 @@ object SwitchDefaults {
     /**
      * Icon size to use for `thumbContent`
      */
-    val IconSize = 16.dp
+    val IconSize = 12.dp
 }
 
 /**
