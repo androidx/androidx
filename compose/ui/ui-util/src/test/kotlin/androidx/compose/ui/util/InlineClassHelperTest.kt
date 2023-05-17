@@ -34,9 +34,63 @@ class InlineClassHelperTest {
     }
 
     @Test
+    fun packAndUnpackNegativeAndPositiveFloats() {
+        val first = -50f
+        val second = 100f
+        val packed = packFloats(first, second)
+        assertEquals(first, unpackFloat1(packed))
+        assertEquals(second, unpackFloat2(packed))
+    }
+
+    @Test
+    fun packAndUnpackPositiveAndNegativeFloats() {
+        val first = 50f
+        val second = -100f
+        val packed = packFloats(first, second)
+        assertEquals(first, unpackFloat1(packed))
+        assertEquals(second, unpackFloat2(packed))
+    }
+
+    @Test
+    fun packAndUnpackNegativeFloats() {
+        val first = -50f
+        val second = -100f
+        val packed = packFloats(first, second)
+        assertEquals(first, unpackFloat1(packed))
+        assertEquals(second, unpackFloat2(packed))
+    }
+
+    @Test
     fun packAndUnpackInts() {
         val first = Int.MAX_VALUE
         val second = Int.MIN_VALUE
+        val packed = packInts(first, second)
+        assertEquals(first, unpackInt1(packed))
+        assertEquals(second, unpackInt2(packed))
+    }
+
+    @Test
+    fun packAndUnpackNegativeAndPositiveInts() {
+        val first = -50
+        val second = 100
+        val packed = packInts(first, second)
+        assertEquals(first, unpackInt1(packed))
+        assertEquals(second, unpackInt2(packed))
+    }
+
+    @Test
+    fun packAndUnpackPositiveAndNegativeInts() {
+        val first = 50
+        val second = -100
+        val packed = packInts(first, second)
+        assertEquals(first, unpackInt1(packed))
+        assertEquals(second, unpackInt2(packed))
+    }
+
+    @Test
+    fun packAndUnpackNegativeInts() {
+        val first = -50
+        val second = -100
         val packed = packInts(first, second)
         assertEquals(first, unpackInt1(packed))
         assertEquals(second, unpackInt2(packed))
