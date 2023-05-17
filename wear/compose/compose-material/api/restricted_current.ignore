@@ -15,8 +15,6 @@ RemovedClass: androidx.wear.compose.material.DefaultTimeSourceKt:
     Removed class androidx.wear.compose.material.DefaultTimeSourceKt
 RemovedClass: androidx.wear.compose.material.MaterialTextSelectionColorsKt:
     Removed class androidx.wear.compose.material.MaterialTextSelectionColorsKt
-RemovedClass: androidx.wear.compose.material.PlaceholderKt:
-    Removed class androidx.wear.compose.material.PlaceholderKt
 RemovedClass: androidx.wear.compose.material.RangeDefaultsKt:
     Removed class androidx.wear.compose.material.RangeDefaultsKt
 RemovedClass: androidx.wear.compose.material.Resources_androidKt:
@@ -25,7 +23,5 @@ RemovedClass: androidx.wear.compose.material.ScalingLazyColumnMeasureKt:
     Removed class androidx.wear.compose.material.ScalingLazyColumnMeasureKt
 RemovedClass: androidx.wear.compose.material.ShapesKt:
     Removed class androidx.wear.compose.material.ShapesKt
-RemovedClass: androidx.wear.compose.material.SwipeableKt:
-    Removed class androidx.wear.compose.material.SwipeableKt
 RemovedClass: androidx.wear.compose.material.TypographyKt:
     Removed class androidx.wear.compose.material.TypographyKt
