@@ -16,6 +16,8 @@
 
 package androidx.tv.integration.playground
 
+import android.content.Context
+import android.view.accessibility.AccessibilityManager
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -25,6 +27,7 @@ import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -45,9 +48,15 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.semantics.CollectionItemInfo
+import androidx.compose.ui.semantics.collectionItemInfo
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
@@ -134,7 +143,7 @@ internal fun FeaturedCarousel(modifier: Modifier = Modifier) {
             modifier = Modifier
                 .background(backgrounds[itemIndex])
                 .fillMaxSize()
-                .semantics { contentDescription = "Featured Content" }
+                .carouselItemSemantics(itemIndex, contentDescription = "Featured Content")
         ) {
             Column(
                 modifier = Modifier
@@ -153,6 +162,41 @@ internal fun FeaturedCarousel(modifier: Modifier = Modifier) {
             }
         }
     }
+}
+
+@OptIn(ExperimentalComposeUiApi::class)
+@Suppress("ComposableModifierFactory")
+@Composable
+internal fun Modifier.carouselItemSemantics(
+    itemIndex: Int,
+    contentDescription: String?
+): Modifier {
+    val focusManager = LocalFocusManager.current
+    val context = LocalContext.current
+    val accessibilityManager = remember {
+        context.getSystemService(Context.ACCESSIBILITY_SERVICE) as AccessibilityManager
+    }
+
+    return this
+        .semantics(mergeDescendants = true) {
+            contentDescription?.let {
+                this.contentDescription = it
+            }
+            collectionItemInfo =
+                CollectionItemInfo(
+                    rowIndex = 0,
+                    rowSpan = 1,
+                    columnIndex = itemIndex,
+                    columnSpan = 1
+                )
+        }
+        .then(
+            if (accessibilityManager.isEnabled) {
+                Modifier.clickable {
+                    focusManager.moveFocus(FocusDirection.Enter)
+                }
+            } else Modifier
+        )
 }
 
 @Composable
