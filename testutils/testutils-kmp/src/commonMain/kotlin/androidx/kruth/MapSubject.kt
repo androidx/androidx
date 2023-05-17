@@ -35,4 +35,17 @@ class MapSubject<K, V> internal constructor(actual: Map<K, V>?) : Subject<Map<K,
             asserter.fail("Expected to contain $key, but was ${actual.keys}")
         }
     }
+
+    /** Fails if the map does not contain exactly the given set of entries in the given map. */
+    fun containsExactlyEntriesIn(expectedMap: Map<K, V>): Ordered {
+        requireNonNull(actual) { "Expected $expectedMap, but was null" }
+
+        if (expectedMap.isEmpty()) {
+            isEmpty()
+        } else if ((expectedMap.entries - actual.entries).isNotEmpty()) {
+            asserter.fail("Expected $expectedMap, but was $actual")
+        }
+
+        return NoopOrdered
+    }
 }
