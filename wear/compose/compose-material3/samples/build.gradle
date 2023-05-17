@@ -24,12 +24,6 @@ plugins {
 }
 
 dependencies {
-    compileOnly(project(":annotation:annotation-sampled"))
-
-    implementation("androidx.compose.material:material-icons-core:1.4.2")
-    implementation(project(":compose:runtime:runtime"))
-    implementation(project(":wear:compose:compose-foundation"))
-    implementation(project(":wear:compose:compose-material3"))
 }
 
 android {
