@@ -87,8 +87,7 @@ public class UiObject2 implements Searchable {
             DEFAULT_GESTURE_MARGIN_PERCENT,
             DEFAULT_GESTURE_MARGIN_PERCENT);
 
-    /** Package-private constructor. Used by {@link UiDevice#findObject(BySelector)}. */
-    UiObject2(UiDevice device, BySelector selector, AccessibilityNodeInfo cachedNode) {
+    private UiObject2(UiDevice device, BySelector selector, AccessibilityNodeInfo cachedNode) {
         mDevice = device;
         mSelector = selector;
         mCachedNode = cachedNode;
@@ -105,6 +104,17 @@ public class UiObject2 implements Searchable {
         Context uiContext = device.getUiContext(mDisplayId);
         int densityDpi = uiContext.getResources().getConfiguration().densityDpi;
         mDisplayDensity = (float) densityDpi / DisplayMetrics.DENSITY_DEFAULT;
+    }
+
+    @Nullable
+    static UiObject2 create(@NonNull UiDevice device, @NonNull BySelector selector,
+            @NonNull AccessibilityNodeInfo cachedNode) {
+        try {
+            return new UiObject2(device, selector, cachedNode);
+        } catch (RuntimeException e) {
+            Log.w(TAG, String.format("Failed to create UiObject2 for node %s.", cachedNode), e);
+            return null;
+        }
     }
 
     @Override
@@ -197,7 +207,7 @@ public class UiObject2 implements Searchable {
     @SuppressLint("UnknownNullness") // Avoid unnecessary null checks from nullable testing APIs.
     public UiObject2 getParent() {
         AccessibilityNodeInfo parent = getAccessibilityNodeInfo().getParent();
-        return parent != null ? new UiObject2(getDevice(), mSelector, parent) : null;
+        return parent != null ? UiObject2.create(getDevice(), mSelector, parent) : null;
     }
 
     /** Returns the number of child elements directly under this object. */
@@ -238,7 +248,7 @@ public class UiObject2 implements Searchable {
             Log.d(TAG, String.format("Node not found with selector: %s.", selector));
             return null;
         }
-        return new UiObject2(getDevice(), selector, node);
+        return UiObject2.create(getDevice(), selector, node);
     }
 
     /**
@@ -251,7 +261,10 @@ public class UiObject2 implements Searchable {
         List<UiObject2> ret = new ArrayList<>();
         for (AccessibilityNodeInfo node :
                 ByMatcher.findMatches(getDevice(), selector, getAccessibilityNodeInfo())) {
-            ret.add(new UiObject2(getDevice(), selector, node));
+            UiObject2 object = UiObject2.create(getDevice(), selector, node);
+            if (object != null) {
+                ret.add(object);
+            }
         }
         return ret;
     }
