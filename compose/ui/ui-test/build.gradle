@@ -65,8 +65,8 @@ androidXMultiplatform {
                 implementation("androidx.annotation:annotation:1.1.0")
                 implementation("androidx.core:core-ktx:1.2.0")
                 implementation("androidx.test.espresso:espresso-core:3.5.0")
-                implementation(libs.testMonitor)
-            }
+            	implementation("androidx.test:monitor:1.6.1")
+	    }
         }
 
         if (desktopEnabled) {
