@@ -2214,7 +2214,7 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
     }
 
     @Test
-    fun valueClassConverter() {
+    fun pojoRowAdapter_valueClassConverter() {
         val testName = object {}.javaClass.enclosingMethod!!.name
         val src = Source.kotlin(
             "MyDao.kt",
@@ -2235,6 +2235,9 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
             value class LongValueClass(val data: Long)
 
             @JvmInline
+            value class NullableLongValueClass(val data: Long?)
+
+            @JvmInline
             value class UUIDValueClass(val data: UUID)
 
             @JvmInline
@@ -2245,6 +2248,9 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                 @PrimaryKey
                 val pk: LongValueClass,
                 val uuidData: UUIDValueClass,
+                val nullableUuidData: UUIDValueClass?,
+                val nullableLongData: NullableLongValueClass,
+                val doubleNullableLongData: NullableLongValueClass?,
                 val genericData: GenericValueClass<String>
             )
             """.trimIndent()
