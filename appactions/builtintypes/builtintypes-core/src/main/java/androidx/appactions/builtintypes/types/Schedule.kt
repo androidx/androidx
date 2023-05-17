@@ -59,21 +59,29 @@ import kotlin.jvm.JvmStatic
  * See http://schema.org/Schedule for context.
  *
  * Should not be directly implemented. More properties may be added over time. Instead consider
- * using [Companion.Builder] or see [GenericSchedule] if you need to extend this type.
+ * using [Companion.Builder] or see [AbstractSchedule] if you need to extend this type.
  */
 public interface Schedule : Intangible {
-  /** Defines the day(s) of the week on which a recurring Event takes place. */
+  /**
+   * Defines the day(s) of the week on which a recurring Event takes place.
+   *
+   * See http://schema.org/byDay for more context.
+   */
   public val byDays: List<ByDay>
 
   /**
    * Defines the month(s) of the year on which a recurring Event takes place. Specified as an
    * Integer between 1-12. January is 1.
+   *
+   * See http://schema.org/byMonth for more context.
    */
   public val byMonths: List<Long>
 
   /**
    * Defines the day(s) of the month on which a recurring Event takes place. Specified as an Integer
    * between 1-31.
+   *
+   * See http://schema.org/byMonthDay for more context.
    */
   public val byMonthDays: List<Long>
 
@@ -81,10 +89,16 @@ public interface Schedule : Intangible {
    * Defines the week(s) of the month on which a recurring Event takes place. Specified as an
    * Integer between 1-5. For clarity, byMonthWeek is best used in conjunction with byDay to
    * indicate concepts like the first and third Mondays of a month.
+   *
+   * See http://schema.org/byMonthWeek for more context.
    */
   public val byMonthWeeks: List<Long>
 
-  /** The end date and time of the item. */
+  /**
+   * The end date and time of the item.
+   *
+   * See http://schema.org/endDate for more context.
+   */
   public val endDate: EndDate?
 
   /**
@@ -94,6 +108,8 @@ public interface Schedule : Intangible {
    * expected to end. For actions that span a period of time, when the action was performed. E.g.
    * John wrote a book from January to *December*. For media, including audio and video, it's the
    * time offset of the end of a clip within a larger file.
+   *
+   * See http://schema.org/endTime for more context.
    */
   public val endTime: EndTime?
 
@@ -104,25 +120,39 @@ public interface Schedule : Intangible {
    * excluded from the schedule. If an exception is specified as a `Date` then any event that is
    * scheduled for that 24 hour period should be excluded from the schedule. This allows a whole day
    * to be excluded from the schedule without having to itemise every scheduled event.
+   *
+   * See http://schema.org/exceptDate for more context.
    */
   public val exceptDate: ExceptDate?
 
-  /** Defines the number of times a recurring `Event` will take place. */
+  /**
+   * Defines the number of times a recurring `Event` will take place.
+   *
+   * See http://schema.org/repeatCount for more context.
+   */
   @get:Suppress("AutoBoxing") public val repeatCount: Long?
 
   /**
    * Defines the frequency at which `Event`s will occur according to a schedule `Schedule`. The
    * intervals between events should be defined as a `Duration` of time.
+   *
+   * See http://schema.org/repeatFrequency for more context.
    */
   public val repeatFrequency: RepeatFrequency?
 
   /**
    * Indicates the timezone for which the time(s) indicated in the `Schedule` are given. The value
    * provided should be among those listed in the IANA Time Zone Database.
+   *
+   * See http://schema.org/scheduleTimezone for more context.
    */
   public val scheduleTimezone: String?
 
-  /** The start date and time of the item. */
+  /**
+   * The start date and time of the item.
+   *
+   * See http://schema.org/startDate for more context.
+   */
   public val startDate: StartDate?
 
   /**
@@ -132,6 +162,8 @@ public interface Schedule : Intangible {
    * expected to start. For actions that span a period of time, when the action was performed. E.g.
    * John wrote a book from *January* to December. For media, including audio and video, it's the
    * time offset of the start of a clip within a larger file.
+   *
+   * See http://schema.org/startTime for more context.
    */
   public val startTime: StartTime?
 
@@ -147,7 +179,7 @@ public interface Schedule : Intangible {
    * Builder for [Schedule].
    *
    * Should not be directly implemented. More methods may be added over time. See
-   * [GenericSchedule.Builder] if you need to extend this builder.
+   * [AbstractSchedule.Builder] if you need to extend this builder.
    */
   public interface Builder<Self : Builder<Self>> : Intangible.Builder<Self> {
     /** Returns a built [Schedule]. */
@@ -280,7 +312,7 @@ public interface Schedule : Intangible {
 }
 
 /**
- * A generic implementation of [Schedule].
+ * An abstract implementation of [Schedule].
  *
  * Allows for extension like:
  * ```kt
@@ -288,7 +320,7 @@ public interface Schedule : Intangible {
  *   schedule: Schedule,
  *   val foo: String,
  *   val bars: List<Int>,
- * ) : GenericSchedule<
+ * ) : AbstractSchedule<
  *   MySchedule,
  *   MySchedule.Builder
  * >(schedule) {
@@ -306,17 +338,17 @@ public interface Schedule : Intangible {
  *   }
  *
  *   class Builder :
- *     GenericSchedule.Builder<
+ *     AbstractSchedule.Builder<
  *       Builder,
  *       MySchedule> {...}
  * }
  * ```
  *
- * Also see [GenericSchedule.Builder].
+ * Also see [AbstractSchedule.Builder].
  */
 @Suppress("UNCHECKED_CAST")
-public abstract class GenericSchedule<
-  Self : GenericSchedule<Self, Builder>, Builder : GenericSchedule.Builder<Builder, Self>>
+public abstract class AbstractSchedule<
+  Self : AbstractSchedule<Self, Builder>, Builder : AbstractSchedule.Builder<Builder, Self>>
 internal constructor(
   public final override val byDays: List<ByDay>,
   public final override val byMonths: List<Long>,
@@ -487,12 +519,12 @@ internal constructor(
   }
 
   /**
-   * A generic implementation of [Schedule.Builder].
+   * An abstract implementation of [Schedule.Builder].
    *
    * Allows for extension like:
    * ```kt
    * class MySchedule :
-   *   : GenericSchedule<
+   *   : AbstractSchedule<
    *     MySchedule,
    *     MySchedule.Builder>(...) {
    *
@@ -535,11 +567,11 @@ internal constructor(
    * }
    * ```
    *
-   * Also see [GenericSchedule].
+   * Also see [AbstractSchedule].
    */
   @Suppress("StaticFinalBuilder")
-  public abstract class Builder<Self : Builder<Self, Built>, Built : GenericSchedule<Built, Self>> :
-    Schedule.Builder<Self> {
+  public abstract class Builder<
+    Self : Builder<Self, Built>, Built : AbstractSchedule<Built, Self>> : Schedule.Builder<Self> {
     /**
      * Human readable name for the concrete [Self] class.
      *
@@ -834,7 +866,7 @@ internal constructor(
   }
 }
 
-internal class ScheduleImpl : GenericSchedule<ScheduleImpl, ScheduleImpl.Builder> {
+internal class ScheduleImpl : AbstractSchedule<ScheduleImpl, ScheduleImpl.Builder> {
   protected override val selfTypeName: String
     get() = "Schedule"
 
@@ -879,7 +911,7 @@ internal class ScheduleImpl : GenericSchedule<ScheduleImpl, ScheduleImpl.Builder
 
   protected override fun toBuilderWithAdditionalPropertiesOnly(): Builder = Builder()
 
-  internal class Builder : GenericSchedule.Builder<Builder, ScheduleImpl>() {
+  internal class Builder : AbstractSchedule.Builder<Builder, ScheduleImpl>() {
     protected override val selfTypeName: String
       get() = "Schedule.Builder"
 

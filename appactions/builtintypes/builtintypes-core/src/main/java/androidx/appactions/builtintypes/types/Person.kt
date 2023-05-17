@@ -35,10 +35,14 @@ import kotlin.jvm.JvmStatic
  * See http://schema.org/Person for context.
  *
  * Should not be directly implemented. More properties may be added over time. Instead consider
- * using [Companion.Builder] or see [GenericPerson] if you need to extend this type.
+ * using [Companion.Builder] or see [AbstractPerson] if you need to extend this type.
  */
 public interface Person : Thing {
-  /** Email address. */
+  /**
+   * Email address.
+   *
+   * See http://schema.org/email for more context.
+   */
   public val email: String?
 
   /** Converts this [Person] to its builder with all the properties copied over. */
@@ -53,7 +57,7 @@ public interface Person : Thing {
    * Builder for [Person].
    *
    * Should not be directly implemented. More methods may be added over time. See
-   * [GenericPerson.Builder] if you need to extend this builder.
+   * [AbstractPerson.Builder] if you need to extend this builder.
    */
   public interface Builder<Self : Builder<Self>> : Thing.Builder<Self> {
     /** Returns a built [Person]. */
@@ -65,7 +69,7 @@ public interface Person : Thing {
 }
 
 /**
- * A generic implementation of [Person].
+ * An abstract implementation of [Person].
  *
  * Allows for extension like:
  * ```kt
@@ -73,7 +77,7 @@ public interface Person : Thing {
  *   person: Person,
  *   val foo: String,
  *   val bars: List<Int>,
- * ) : GenericPerson<
+ * ) : AbstractPerson<
  *   MyPerson,
  *   MyPerson.Builder
  * >(person) {
@@ -91,17 +95,17 @@ public interface Person : Thing {
  *   }
  *
  *   class Builder :
- *     GenericPerson.Builder<
+ *     AbstractPerson.Builder<
  *       Builder,
  *       MyPerson> {...}
  * }
  * ```
  *
- * Also see [GenericPerson.Builder].
+ * Also see [AbstractPerson.Builder].
  */
 @Suppress("UNCHECKED_CAST")
-public abstract class GenericPerson<
-  Self : GenericPerson<Self, Builder>, Builder : GenericPerson.Builder<Builder, Self>>
+public abstract class AbstractPerson<
+  Self : AbstractPerson<Self, Builder>, Builder : AbstractPerson.Builder<Builder, Self>>
 internal constructor(
   public final override val email: String?,
   public final override val disambiguatingDescription: DisambiguatingDescription?,
@@ -173,12 +177,12 @@ internal constructor(
   }
 
   /**
-   * A generic implementation of [Person.Builder].
+   * An abstract implementation of [Person.Builder].
    *
    * Allows for extension like:
    * ```kt
    * class MyPerson :
-   *   : GenericPerson<
+   *   : AbstractPerson<
    *     MyPerson,
    *     MyPerson.Builder>(...) {
    *
@@ -221,10 +225,10 @@ internal constructor(
    * }
    * ```
    *
-   * Also see [GenericPerson].
+   * Also see [AbstractPerson].
    */
   @Suppress("StaticFinalBuilder")
-  public abstract class Builder<Self : Builder<Self, Built>, Built : GenericPerson<Built, Self>> :
+  public abstract class Builder<Self : Builder<Self, Built>, Built : AbstractPerson<Built, Self>> :
     Person.Builder<Self> {
     /**
      * Human readable name for the concrete [Self] class.
@@ -324,7 +328,7 @@ internal constructor(
   }
 }
 
-internal class PersonImpl : GenericPerson<PersonImpl, PersonImpl.Builder> {
+internal class PersonImpl : AbstractPerson<PersonImpl, PersonImpl.Builder> {
   protected override val selfTypeName: String
     get() = "Person"
 
@@ -342,7 +346,7 @@ internal class PersonImpl : GenericPerson<PersonImpl, PersonImpl.Builder> {
 
   protected override fun toBuilderWithAdditionalPropertiesOnly(): Builder = Builder()
 
-  internal class Builder : GenericPerson.Builder<Builder, PersonImpl>() {
+  internal class Builder : AbstractPerson.Builder<Builder, PersonImpl>() {
     protected override val selfTypeName: String
       get() = "Person.Builder"
 

@@ -25,7 +25,7 @@ import org.junit.runners.JUnit4
 class ExtensionTest {
 
   class MyThing internal constructor(thing: Thing, val foo: String?, val bars: List<Int>) :
-    GenericThing<MyThing, MyThing.Builder>(thing) {
+    AbstractThing<MyThing, MyThing.Builder>(thing) {
     override val selfTypeName = "MyThing"
     override val additionalProperties: Map<String, Any?>
       get() = mapOf("foo" to foo, "bars" to bars)
@@ -34,7 +34,7 @@ class ExtensionTest {
       return Builder().setFoo(foo).addBars(bars)
     }
 
-    class Builder : GenericThing.Builder<Builder, MyThing>() {
+    class Builder : AbstractThing.Builder<Builder, MyThing>() {
       private var foo: String? = null
       private val bars: MutableList<Int> = mutableListOf()
 
