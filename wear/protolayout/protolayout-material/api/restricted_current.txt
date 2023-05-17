@@ -163,6 +163,7 @@ package androidx.wear.protolayout.material {
   public class Text implements androidx.wear.protolayout.LayoutElementBuilders.LayoutElement {
     method public static androidx.wear.protolayout.material.Text? fromLayoutElement(androidx.wear.protolayout.LayoutElementBuilders.LayoutElement);
     method public androidx.wear.protolayout.ColorBuilders.ColorProp getColor();
+    method @androidx.wear.protolayout.expression.ProtoLayoutExperimental public boolean getExcludeFontPadding();
     method public androidx.wear.protolayout.LayoutElementBuilders.FontStyle getFontStyle();
     method public float getLineHeight();
     method public int getMaxLines();
@@ -180,6 +181,7 @@ package androidx.wear.protolayout.material {
     ctor public Text.Builder(android.content.Context, String);
     method public androidx.wear.protolayout.material.Text build();
     method public androidx.wear.protolayout.material.Text.Builder setColor(androidx.wear.protolayout.ColorBuilders.ColorProp);
+    method @androidx.wear.protolayout.expression.ProtoLayoutExperimental public androidx.wear.protolayout.material.Text.Builder setExcludeFontPadding(boolean);
     method public androidx.wear.protolayout.material.Text.Builder setItalic(boolean);
     method public androidx.wear.protolayout.material.Text.Builder setMaxLines(@IntRange(from=1) int);
     method public androidx.wear.protolayout.material.Text.Builder setModifiers(androidx.wear.protolayout.ModifiersBuilders.Modifiers);
