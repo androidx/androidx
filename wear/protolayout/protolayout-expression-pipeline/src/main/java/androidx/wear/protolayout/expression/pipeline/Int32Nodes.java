@@ -91,11 +91,11 @@ class Int32Nodes {
         @NonNull
         private static DynamicDataKey<?> getDataKey(PlatformInt32SourceType type) {
             if (type == PlatformInt32SourceType.PLATFORM_INT32_SOURCE_TYPE_CURRENT_HEART_RATE) {
-                return PlatformHealthSources.HEART_RATE_BPM;
+                return PlatformHealthSources.Keys.HEART_RATE_BPM;
             }
 
             if (type == PlatformInt32SourceType.PLATFORM_INT32_SOURCE_TYPE_DAILY_STEP_COUNT) {
-                return PlatformHealthSources.DAILY_STEPS;
+                return PlatformHealthSources.Keys.DAILY_STEPS;
             }
 
             throw new IllegalArgumentException(

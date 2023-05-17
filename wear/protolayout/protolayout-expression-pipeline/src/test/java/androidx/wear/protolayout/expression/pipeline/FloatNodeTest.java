@@ -135,13 +135,14 @@ public class FloatNodeTest {
         StateStore stateStore = new StateStore(new ArrayMap<>());
         stateStore.putAllPlatformProviders(
                 Collections.singletonMap(
-                        PlatformHealthSources.HEART_RATE_BPM,
+                        PlatformHealthSources.Keys.HEART_RATE_BPM,
                         new SensorGatewaySingleDataProvider(
-                                fakeSensorGateway, PlatformHealthSources.HEART_RATE_BPM)));
+                                fakeSensorGateway, PlatformHealthSources.Keys.HEART_RATE_BPM)));
         StateFloatSource dailyStepsSource =
                 StateFloatSource.newBuilder()
-                        .setSourceKey(PlatformHealthSources.HEART_RATE_BPM.getKey())
-                        .setSourceNamespace(PlatformHealthSources.HEART_RATE_BPM.getNamespace())
+                        .setSourceKey(PlatformHealthSources.Keys.HEART_RATE_BPM.getKey())
+                        .setSourceNamespace(
+                                PlatformHealthSources.Keys.HEART_RATE_BPM.getNamespace())
                         .build();
         List<Float> results = new ArrayList<>();
         StateFloatSourceNode dailyStepsSourceNode =
