@@ -124,11 +124,14 @@ class SandboxedSdkView @JvmOverloads constructor(
         checkClientOpenSession()
     }
 
+    /**
+     * Sets the Z-ordering of the [SandboxedSdkView]'s surface, relative to its window.
+     */
     fun setZOrderOnTopAndEnableUserInteraction(setOnTop: Boolean) {
         if (setOnTop == isZOrderOnTop) return
-        this.isZOrderOnTop = setOnTop
-        checkClientOpenSession()
         client?.notifyZOrderChanged(setOnTop)
+        isZOrderOnTop = setOnTop
+        checkClientOpenSession()
     }
 
     private fun checkClientOpenSession() {
@@ -251,16 +254,16 @@ class SandboxedSdkView @JvmOverloads constructor(
         oldHeight: Int
     ) {
         super.onSizeChanged(width, height, oldWidth, oldHeight)
-        checkClientOpenSession()
         client?.notifyResized(width, height)
+        checkClientOpenSession()
     }
 
     // TODO(b/270971893) Compare to old configuration before notifying of configuration change.
     override fun onConfigurationChanged(config: Configuration?) {
         requireNotNull(config) { "Config cannot be null" }
         super.onConfigurationChanged(config)
-        checkClientOpenSession()
         client?.notifyConfigurationChanged(config)
+        checkClientOpenSession()
     }
 
     /**
@@ -330,9 +333,7 @@ class SandboxedSdkView @JvmOverloads constructor(
         private var pendingWidth: Int? = null
         private var pendingHeight: Int? = null
 
-        // pendingZOrderOnTop ensures visible and interactive provider UI as long as the UI is
-        // unobstructed to the user.
-        private var pendingZOrderOnTop: Boolean? = true
+        private var pendingZOrderOnTop: Boolean? = null
         private var pendingConfiguration: Configuration? = null
 
         fun notifyConfigurationChanged(configuration: Configuration) {
@@ -390,6 +391,7 @@ class SandboxedSdkView @JvmOverloads constructor(
             pendingZOrderOnTop?.let {
                 session.notifyZOrderChanged(it)
             }
+            pendingZOrderOnTop = null
         }
 
         override fun onSessionError(throwable: Throwable) {
