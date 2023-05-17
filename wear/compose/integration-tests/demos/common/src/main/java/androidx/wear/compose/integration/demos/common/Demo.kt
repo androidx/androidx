@@ -18,13 +18,7 @@ package androidx.wear.compose.integration.demos.common
 
 import android.app.Activity
 import androidx.activity.ComponentActivity
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
 import androidx.wear.compose.material.SwipeToDismissBoxState
 import kotlin.reflect.KClass
 
@@ -71,13 +65,3 @@ class ComposableDemo(
     description: String? = null,
     val content: @Composable (params: DemoParameters) -> Unit,
 ) : Demo(title, description)
-
-@Composable
-fun Centralize(modifier: Modifier = Modifier, content: @Composable ColumnScope.() -> Unit) {
-    Column(
-        modifier = modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally,
-        content = content
-    )
-}
