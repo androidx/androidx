@@ -54,6 +54,7 @@
     <string name="m3c_date_range_picker_day_in_range" msgid="2138321128465719402">"ຢູ່ໃນໄລຍະວັນທີທີ່ເລືອກ"</string>
     <string name="m3c_date_range_input_title" msgid="3148384720560189467">"ໃສ່ວັນທີ"</string>
     <string name="m3c_date_range_input_invalid_range_input" msgid="3190049423327661366">"ອິນພຸດໄລຍະວັນທີບໍ່ຖືກຕ້ອງ"</string>
+    <string name="m3c_bottom_sheet_pane_title" msgid="3010635850035863127">"ຊີດລຸ່ມສຸດ"</string>
     <string name="m3c_bottom_sheet_drag_handle_description" msgid="8403354765404029791">"ບ່ອນຈັບລາກ"</string>
     <string name="m3c_bottom_sheet_collapse_description" msgid="2988463736136100848">"ຫຍໍ້ຊີດລຸ່ມສຸດລົງ"</string>
     <string name="m3c_bottom_sheet_dismiss_description" msgid="1555567894577437024">"ປິດຊີດລຸ່ມສຸດໄວ້"</string>
