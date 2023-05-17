@@ -4,7 +4,10 @@ package androidx.compose.ui.test {
   public final class ActionsKt {
     method public static androidx.compose.ui.test.SemanticsNodeInteraction performClick(androidx.compose.ui.test.SemanticsNodeInteraction);
     method @Deprecated public static androidx.compose.ui.test.SemanticsNodeInteraction performGesture(androidx.compose.ui.test.SemanticsNodeInteraction, kotlin.jvm.functions.Function1<? super androidx.compose.ui.test.GestureScope,kotlin.Unit> block);
+    method @androidx.compose.ui.test.ExperimentalTestApi public static androidx.compose.ui.test.SemanticsNodeInteraction performKeyInput(androidx.compose.ui.test.SemanticsNodeInteraction, kotlin.jvm.functions.Function1<? super androidx.compose.ui.test.KeyInjectionScope,kotlin.Unit> block);
+    method @androidx.compose.ui.test.ExperimentalTestApi public static androidx.compose.ui.test.SemanticsNodeInteraction performMouseInput(androidx.compose.ui.test.SemanticsNodeInteraction, kotlin.jvm.functions.Function1<? super androidx.compose.ui.test.MouseInjectionScope,kotlin.Unit> block);
     method public static androidx.compose.ui.test.SemanticsNodeInteraction performMultiModalInput(androidx.compose.ui.test.SemanticsNodeInteraction, kotlin.jvm.functions.Function1<? super androidx.compose.ui.test.MultiModalInjectionScope,kotlin.Unit> block);
+    method @androidx.compose.ui.test.ExperimentalTestApi public static androidx.compose.ui.test.SemanticsNodeInteraction performRotaryScrollInput(androidx.compose.ui.test.SemanticsNodeInteraction, kotlin.jvm.functions.Function1<? super androidx.compose.ui.test.RotaryInjectionScope,kotlin.Unit> block);
     method public static androidx.compose.ui.test.SemanticsNodeInteraction performScrollTo(androidx.compose.ui.test.SemanticsNodeInteraction);
     method public static androidx.compose.ui.test.SemanticsNodeInteraction performScrollToIndex(androidx.compose.ui.test.SemanticsNodeInteraction, int index);
     method public static androidx.compose.ui.test.SemanticsNodeInteraction performScrollToKey(androidx.compose.ui.test.SemanticsNodeInteraction, Object key);
@@ -65,6 +68,9 @@ package androidx.compose.ui.test {
 
   public final class ComposeTimeoutException extends java.lang.Throwable {
     ctor public ComposeTimeoutException(String? message);
+  }
+
+  @kotlin.RequiresOptIn(message="This testing API is experimental and is likely to be changed or removed entirely") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalTestApi {
   }
 
   public final class FiltersKt {
@@ -128,6 +134,7 @@ package androidx.compose.ui.test {
   }
 
   public final class GestureScopeKt {
+    method @Deprecated @androidx.compose.ui.test.ExperimentalTestApi public static void advanceEventTime(androidx.compose.ui.test.GestureScope, long durationMillis);
     method @Deprecated public static void cancel(androidx.compose.ui.test.GestureScope);
     method @Deprecated public static void click(androidx.compose.ui.test.GestureScope, optional long position);
     method @Deprecated public static void doubleClick(androidx.compose.ui.test.GestureScope, optional long position, optional long delayMillis);
@@ -162,9 +169,13 @@ package androidx.compose.ui.test {
     method @Deprecated public static void pinch(androidx.compose.ui.test.GestureScope, long start0, long end0, long start1, long end1, optional long durationMillis);
     method @Deprecated public static void swipe(androidx.compose.ui.test.GestureScope, long start, long end, optional long durationMillis);
     method @Deprecated public static void swipeDown(androidx.compose.ui.test.GestureScope);
+    method @Deprecated @androidx.compose.ui.test.ExperimentalTestApi public static void swipeDown(androidx.compose.ui.test.GestureScope, optional float startY, optional float endY, optional long durationMillis);
     method @Deprecated public static void swipeLeft(androidx.compose.ui.test.GestureScope);
+    method @Deprecated @androidx.compose.ui.test.ExperimentalTestApi public static void swipeLeft(androidx.compose.ui.test.GestureScope, optional float startX, optional float endX, optional long durationMillis);
     method @Deprecated public static void swipeRight(androidx.compose.ui.test.GestureScope);
+    method @Deprecated @androidx.compose.ui.test.ExperimentalTestApi public static void swipeRight(androidx.compose.ui.test.GestureScope, optional float startX, optional float endX, optional long durationMillis);
     method @Deprecated public static void swipeUp(androidx.compose.ui.test.GestureScope);
+    method @Deprecated @androidx.compose.ui.test.ExperimentalTestApi public static void swipeUp(androidx.compose.ui.test.GestureScope, optional float startY, optional float endY, optional long durationMillis);
     method @Deprecated public static void swipeWithVelocity(androidx.compose.ui.test.GestureScope, long start, long end, float endVelocity, optional long durationMillis);
     method @Deprecated public static void up(androidx.compose.ui.test.GestureScope, optional int pointerId);
   }
@@ -220,6 +231,9 @@ package androidx.compose.ui.test {
     property public default int width;
   }
 
+  @kotlin.RequiresOptIn(message="This is internal API for Compose modules that may change frequently and without warning.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface InternalTestApi {
+  }
+
   @kotlin.jvm.JvmDefaultWithCompatibility public interface KeyInjectionScope extends androidx.compose.ui.test.InjectionScope {
     method public boolean isCapsLockOn();
     method public boolean isKeyDown(long key);
@@ -260,7 +274,54 @@ package androidx.compose.ui.test {
     property public abstract long currentTime;
   }
 
+  @androidx.compose.ui.test.ExperimentalTestApi @kotlin.jvm.JvmInline public final value class MouseButton {
+    ctor public MouseButton(int buttonId);
+    method public int getButtonId();
+    property public final int buttonId;
+    field public static final androidx.compose.ui.test.MouseButton.Companion Companion;
+  }
+
+  @androidx.compose.ui.test.ExperimentalTestApi public static final class MouseButton.Companion {
+    method public int getPrimary();
+    method public int getSecondary();
+    method public int getTertiary();
+    property public final int Primary;
+    property public final int Secondary;
+    property public final int Tertiary;
+  }
+
+  @androidx.compose.ui.test.ExperimentalTestApi public interface MouseInjectionScope extends androidx.compose.ui.test.InjectionScope {
+    method public void cancel(optional long delayMillis);
+    method public void enter(optional long position, optional long delayMillis);
+    method public void exit(optional long position, optional long delayMillis);
+    method public long getCurrentPosition();
+    method public default void moveBy(long delta, optional long delayMillis);
+    method public void moveTo(long position, optional long delayMillis);
+    method public void press(optional int button);
+    method public void release(optional int button);
+    method public void scroll(float delta, optional int scrollWheel);
+    method public default void updatePointerBy(long delta);
+    method public void updatePointerTo(long position);
+    property public abstract long currentPosition;
+  }
+
+  public final class MouseInjectionScopeKt {
+    method @androidx.compose.ui.test.ExperimentalTestApi public static void animateAlong(androidx.compose.ui.test.MouseInjectionScope, kotlin.jvm.functions.Function1<? super java.lang.Long,androidx.compose.ui.geometry.Offset> curve, optional long durationMillis);
+    method @androidx.compose.ui.test.ExperimentalTestApi public static void animateBy(androidx.compose.ui.test.MouseInjectionScope, long delta, optional long durationMillis);
+    method @androidx.compose.ui.test.ExperimentalTestApi public static void animateTo(androidx.compose.ui.test.MouseInjectionScope, long position, optional long durationMillis);
+    method @androidx.compose.ui.test.ExperimentalTestApi public static void click(androidx.compose.ui.test.MouseInjectionScope, optional long position);
+    method @androidx.compose.ui.test.ExperimentalTestApi public static void doubleClick(androidx.compose.ui.test.MouseInjectionScope, optional long position);
+    method @androidx.compose.ui.test.ExperimentalTestApi public static void dragAndDrop(androidx.compose.ui.test.MouseInjectionScope, long start, long end, optional long durationMillis);
+    method @androidx.compose.ui.test.ExperimentalTestApi public static void longClick(androidx.compose.ui.test.MouseInjectionScope, optional long position);
+    method @androidx.compose.ui.test.ExperimentalTestApi public static void rightClick(androidx.compose.ui.test.MouseInjectionScope, optional long position);
+    method @androidx.compose.ui.test.ExperimentalTestApi public static void smoothScroll(androidx.compose.ui.test.MouseInjectionScope, float scrollAmount, optional long durationMillis, optional int scrollWheel);
+    method @androidx.compose.ui.test.ExperimentalTestApi public static void tripleClick(androidx.compose.ui.test.MouseInjectionScope, optional long position);
+  }
+
   public sealed interface MultiModalInjectionScope extends androidx.compose.ui.test.InjectionScope {
+    method @androidx.compose.ui.test.ExperimentalTestApi public void key(kotlin.jvm.functions.Function1<? super androidx.compose.ui.test.KeyInjectionScope,kotlin.Unit> block);
+    method @androidx.compose.ui.test.ExperimentalTestApi public void mouse(kotlin.jvm.functions.Function1<? super androidx.compose.ui.test.MouseInjectionScope,kotlin.Unit> block);
+    method @androidx.compose.ui.test.ExperimentalTestApi public void rotary(kotlin.jvm.functions.Function1<? super androidx.compose.ui.test.RotaryInjectionScope,kotlin.Unit> block);
     method public void touch(kotlin.jvm.functions.Function1<? super androidx.compose.ui.test.TouchInjectionScope,kotlin.Unit> block);
   }
 
@@ -269,6 +330,24 @@ package androidx.compose.ui.test {
     method public static void printToLog(androidx.compose.ui.test.SemanticsNodeInteractionCollection, String tag, optional int maxDepth);
     method public static String printToString(androidx.compose.ui.test.SemanticsNodeInteraction, optional int maxDepth);
     method public static String printToString(androidx.compose.ui.test.SemanticsNodeInteractionCollection, optional int maxDepth);
+  }
+
+  @androidx.compose.ui.test.ExperimentalTestApi public interface RotaryInjectionScope extends androidx.compose.ui.test.InjectionScope {
+    method public void rotateToScrollHorizontally(float horizontalScrollPixels);
+    method public void rotateToScrollVertically(float verticalScrollPixels);
+  }
+
+  @androidx.compose.ui.test.ExperimentalTestApi @kotlin.jvm.JvmInline public final value class ScrollWheel {
+    method public int getValue();
+    property public final int value;
+    field public static final androidx.compose.ui.test.ScrollWheel.Companion Companion;
+  }
+
+  @androidx.compose.ui.test.ExperimentalTestApi public static final class ScrollWheel.Companion {
+    method public int getHorizontal();
+    method public int getVertical();
+    property public final int Horizontal;
+    property public final int Vertical;
   }
 
   public final class SelectionResult {
@@ -341,10 +420,37 @@ package androidx.compose.ui.test {
   public final class TestContext {
   }
 
+  @androidx.compose.ui.test.ExperimentalTestApi @kotlinx.coroutines.ExperimentalCoroutinesApi public final class TestMonotonicFrameClock implements androidx.compose.runtime.MonotonicFrameClock {
+    ctor public TestMonotonicFrameClock(kotlinx.coroutines.CoroutineScope coroutineScope, optional long frameDelayNanos, optional kotlin.jvm.functions.Function1<? super java.lang.Long,kotlin.Unit> onPerformTraversals);
+    method @androidx.compose.ui.test.ExperimentalTestApi public kotlin.coroutines.ContinuationInterceptor getContinuationInterceptor();
+    method public long getFrameDelayNanos();
+    method public boolean getHasAwaiters();
+    method public suspend <R> Object? withFrameNanos(kotlin.jvm.functions.Function1<? super java.lang.Long,? extends R> onFrame, kotlin.coroutines.Continuation<? super R>);
+    property @androidx.compose.ui.test.ExperimentalTestApi public final kotlin.coroutines.ContinuationInterceptor continuationInterceptor;
+    property public final long frameDelayNanos;
+    property public final boolean hasAwaiters;
+  }
+
+  public final class TestMonotonicFrameClock_jvmKt {
+    method @androidx.compose.ui.test.ExperimentalTestApi public static long getFrameDelayMillis(androidx.compose.ui.test.TestMonotonicFrameClock);
+  }
+
+  @androidx.compose.ui.test.InternalTestApi public interface TestOwner {
+    method public androidx.compose.ui.test.MainTestClock getMainClock();
+    method public java.util.Set<androidx.compose.ui.node.RootForTest> getRoots(boolean atLeastOneRootExpected);
+    method public <T> T runOnUiThread(kotlin.jvm.functions.Function0<? extends T> action);
+    property public abstract androidx.compose.ui.test.MainTestClock mainClock;
+  }
+
+  public final class TestOwnerKt {
+    method @androidx.compose.ui.test.InternalTestApi public static androidx.compose.ui.test.TestContext createTestContext(androidx.compose.ui.test.TestOwner owner);
+  }
+
   public final class TextActionsKt {
     method public static void performImeAction(androidx.compose.ui.test.SemanticsNodeInteraction);
     method public static void performTextClearance(androidx.compose.ui.test.SemanticsNodeInteraction);
     method public static void performTextInput(androidx.compose.ui.test.SemanticsNodeInteraction, String text);
+    method @androidx.compose.ui.test.ExperimentalTestApi public static void performTextInputSelection(androidx.compose.ui.test.SemanticsNodeInteraction, long selection);
     method public static void performTextReplacement(androidx.compose.ui.test.SemanticsNodeInteraction, String text);
   }
 
@@ -358,6 +464,8 @@ package androidx.compose.ui.test {
     method public default void moveBy(long delta, optional long delayMillis);
     method public default void moveTo(int pointerId, long position, optional long delayMillis);
     method public default void moveTo(long position, optional long delayMillis);
+    method @androidx.compose.ui.test.ExperimentalTestApi public default void moveWithHistory(java.util.List<java.lang.Long> relativeHistoricalTimes, java.util.List<androidx.compose.ui.geometry.Offset> historicalCoordinates, optional long delayMillis);
+    method @androidx.compose.ui.test.ExperimentalTestApi public void moveWithHistoryMultiPointer(java.util.List<java.lang.Long> relativeHistoricalTimes, java.util.List<? extends java.util.List<androidx.compose.ui.geometry.Offset>> historicalCoordinates, optional long delayMillis);
     method public void up(optional int pointerId);
     method public default void updatePointerBy(int pointerId, long delta);
     method public void updatePointerTo(int pointerId, long position);
@@ -367,6 +475,7 @@ package androidx.compose.ui.test {
     method public static void click(androidx.compose.ui.test.TouchInjectionScope, optional long position);
     method public static void doubleClick(androidx.compose.ui.test.TouchInjectionScope, optional long position, optional long delayMillis);
     method public static void longClick(androidx.compose.ui.test.TouchInjectionScope, optional long position, optional long durationMillis);
+    method @androidx.compose.ui.test.ExperimentalTestApi public static void multiTouchSwipe(androidx.compose.ui.test.TouchInjectionScope, java.util.List<? extends kotlin.jvm.functions.Function1<? super java.lang.Long,androidx.compose.ui.geometry.Offset>> curves, long durationMillis, optional java.util.List<java.lang.Long> keyTimes);
     method public static void pinch(androidx.compose.ui.test.TouchInjectionScope, long start0, long end0, long start1, long end1, optional long durationMillis);
     method public static void swipe(androidx.compose.ui.test.TouchInjectionScope, kotlin.jvm.functions.Function1<? super java.lang.Long,androidx.compose.ui.geometry.Offset> curve, long durationMillis, optional java.util.List<java.lang.Long> keyTimes);
     method public static void swipe(androidx.compose.ui.test.TouchInjectionScope, long start, long end, optional long durationMillis);
@@ -375,6 +484,14 @@ package androidx.compose.ui.test {
     method public static void swipeRight(androidx.compose.ui.test.TouchInjectionScope, optional float startX, optional float endX, optional long durationMillis);
     method public static void swipeUp(androidx.compose.ui.test.TouchInjectionScope, optional float startY, optional float endY, optional long durationMillis);
     method public static void swipeWithVelocity(androidx.compose.ui.test.TouchInjectionScope, long start, long end, float endVelocity, optional long durationMillis);
+  }
+
+}
+
+package androidx.compose.ui.test.internal {
+
+  @androidx.compose.ui.test.InternalTestApi public abstract class DelayPropagatingContinuationInterceptorWrapper extends kotlin.coroutines.AbstractCoroutineContextElement implements kotlin.coroutines.ContinuationInterceptor kotlinx.coroutines.Delay {
+    ctor public DelayPropagatingContinuationInterceptorWrapper(kotlin.coroutines.ContinuationInterceptor? wrappedInterceptor);
   }
 
 }
