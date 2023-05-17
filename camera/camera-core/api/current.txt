@@ -560,8 +560,8 @@ package androidx.camera.core.resolutionselector {
     method public androidx.camera.core.resolutionselector.AspectRatioStrategy getAspectRatioStrategy();
     method public androidx.camera.core.resolutionselector.ResolutionFilter? getResolutionFilter();
     method public androidx.camera.core.resolutionselector.ResolutionStrategy? getResolutionStrategy();
-    field public static final int ALLOWED_RESOLUTIONS_NORMAL = 0; // 0x0
-    field public static final int ALLOWED_RESOLUTIONS_SLOW = 1; // 0x1
+    field public static final int PREFER_CAPTURE_RATE_OVER_HIGHER_RESOLUTION = 0; // 0x0
+    field public static final int PREFER_HIGHER_RESOLUTION_OVER_CAPTURE_RATE = 1; // 0x1
   }
 
   public static final class ResolutionSelector.Builder {
