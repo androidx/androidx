@@ -36,9 +36,12 @@ android {
         }
     }
     productFlavors {
-        flavorDimensions = ["version"]
+        flavorDimensions = ["version", "color"]
         free { dimension "version" }
         paid { dimension "version" }
+        red { dimension "color" }
+        // Note that the consumer has an additional `blue` flavor for dimension `color`. This is
+        // not in this producer to test baseline profile matching fallback.
     }
     targetProjectPath = ":benchmark:integration-tests:baselineprofile-flavors-consumer"
     namespace "androidx.benchmark.integration.baselineprofile.flavors.producer"

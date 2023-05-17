@@ -186,12 +186,29 @@ class BaselineProfileProjectSetupRule(
 }
 
 data class VariantProfile(
-    val flavor: String?,
-    val buildType: String = "release",
-    val profileFileLines: Map<String, List<String>> = mapOf(),
-    val startupFileLines: Map<String, List<String>> = mapOf()
+    val flavorDimensions: Map<String, String>,
+    val buildType: String,
+    val profileFileLines: Map<String, List<String>>,
+    val startupFileLines: Map<String, List<String>>
 ) {
-    val nonMinifiedVariant = "${flavor ?: ""}NonMinified${buildType.capitalized()}"
+
+    val nonMinifiedVariant = camelCase(
+        *flavorDimensions.map { it.value }.toTypedArray(),
+        "nonMinified",
+        buildType
+    )
+
+    constructor(
+        flavor: String?,
+        buildType: String = "release",
+        profileFileLines: Map<String, List<String>> = mapOf(),
+        startupFileLines: Map<String, List<String>> = mapOf()
+    ) : this(
+        flavorDimensions = if (flavor != null) mapOf("version" to flavor) else mapOf(),
+        buildType = buildType,
+        profileFileLines = profileFileLines,
+        startupFileLines = startupFileLines
+    )
 }
 
 interface Module {
@@ -362,14 +379,21 @@ class ProducerModule(
             }
         """.trimIndent()
 
+        val flavors = variantProfiles.flatMap { it.flavorDimensions.toList() }
+        val flavorDimensionNames = flavors
+            .map { it.first }
+            .toSet()
+            .joinToString { """ "$it"""" }
+        val flavorBlocks = flavors
+            .groupBy { it.second }
+            .toList()
+            .map { it.second }
+            .flatten()
+            .joinToString("\n") { """ ${it.second} { dimension "${it.first}" } """ }
         val flavorsBlock = """
             productFlavors {
-                flavorDimensions = ["version"]
-                ${
-            variantProfiles
-                .filter { !it.flavor.isNullOrBlank() }
-                .joinToString("\n") { " ${it.flavor} { dimension \"version\" } " }
-        }
+                flavorDimensions = [$flavorDimensionNames]
+                $flavorBlocks
             }
         """.trimIndent()
 
@@ -511,23 +535,31 @@ class ConsumerModule(
         addAppTargetPlugin: Boolean = androidPlugin == ANDROID_APPLICATION_PLUGIN,
         baselineProfileBlock: String = "",
         additionalGradleCodeBlock: String = "",
-    ) {
-        val flavorsBlock = """
-            productFlavors {
+    ) = setupWithBlocks(
+        androidPlugin = androidPlugin,
+        flavorsBlock = if (flavors) """
                 flavorDimensions = ["version"]
                 free { dimension "version" }
                 paid { dimension "version" }
-            }
-
-        """.trimIndent()
-
-        val buildTypeAnotherReleaseBlock = """
-            buildTypes {
+            """.trimIndent() else "",
+        dependencyOnProducerProject = dependencyOnProducerProject,
+        buildTypesBlock = if (buildTypeAnotherRelease) """
                 anotherRelease { initWith(release) }
-            }
+        """.trimIndent() else "",
+        addAppTargetPlugin = addAppTargetPlugin,
+        baselineProfileBlock = baselineProfileBlock,
+        additionalGradleCodeBlock = additionalGradleCodeBlock
+    )
 
-        """.trimIndent()
-
+    fun setupWithBlocks(
+        androidPlugin: String,
+        flavorsBlock: String,
+        buildTypesBlock: String,
+        dependencyOnProducerProject: Boolean = true,
+        addAppTargetPlugin: Boolean = androidPlugin == ANDROID_APPLICATION_PLUGIN,
+        baselineProfileBlock: String = "",
+        additionalGradleCodeBlock: String = "",
+    ) {
         val dependencyOnProducerProjectBlock = """
             dependencies {
                 baselineProfile(project(":$producerName"))
@@ -544,8 +576,20 @@ class ConsumerModule(
                 }
                 android {
                     namespace 'com.example.namespace'
-                    ${if (flavors) flavorsBlock else ""}
-                    ${if (buildTypeAnotherRelease) buildTypeAnotherReleaseBlock else ""}
+                    ${
+                """
+                    productFlavors {
+                        $flavorsBlock
+                    }
+                    """.trimIndent()
+            }
+                    ${
+                """
+                    buildTypes {
+                        $buildTypesBlock
+                    }
+                    """.trimIndent()
+            }
                 }
 
                ${if (dependencyOnProducerProject) dependencyOnProducerProjectBlock else ""}
