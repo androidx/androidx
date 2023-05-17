@@ -61,25 +61,25 @@ class StartTimer private constructor() {
             ExecutionSession,
             Arguments,
             Confirmation
-        > = SESSION_BRIDGE
+            > = SESSION_BRIDGE
 
         override fun setExecutionSessionFactory(
             sessionFactory: (hostProperties: HostProperties?) -> ExecutionSession
         ): CapabilityBuilder = super.setExecutionSessionFactory(sessionFactory)
 
-        fun setTimerList(timerList: Property<TimerValue>): CapabilityBuilder = apply {
+        fun setTimerListProperty(timerList: Property<TimerValue>): CapabilityBuilder = apply {
             properties[PropertyMapStrings.TIMER_LIST.key] = timerList
         }
 
-        fun setIdentifier(identifier: Property<StringValue>): CapabilityBuilder = apply {
+        fun setIdentifierProperty(identifier: Property<StringValue>): CapabilityBuilder = apply {
             properties[PropertyMapStrings.IDENTIFIER.key] = identifier
         }
 
-        fun setName(name: Property<StringValue>): CapabilityBuilder = apply {
+        fun setNameProperty(name: Property<StringValue>): CapabilityBuilder = apply {
             properties[PropertyMapStrings.NAME.key] = name
         }
 
-        fun setDuration(duration: Property<Duration>): CapabilityBuilder = apply {
+        fun setDurationProperty(duration: Property<Duration>): CapabilityBuilder = apply {
             properties[PropertyMapStrings.DURATION.key] = duration
         }
 
@@ -242,24 +242,24 @@ class StartTimer private constructor() {
                 )
                 .build()
 
-        private val SESSION_BRIDGE = SessionBridge<ExecutionSession, Arguments, Confirmation> {
-                session ->
-            val taskHandlerBuilder = TaskHandler.Builder<Arguments, Confirmation>()
-            session.nameListener?.let {
-                taskHandlerBuilder.registerValueTaskParam(
-                    "timer.name",
-                    it,
-                    TypeConverters.STRING_PARAM_VALUE_CONVERTER
-                )
+        private val SESSION_BRIDGE =
+            SessionBridge<ExecutionSession, Arguments, Confirmation> { session ->
+                val taskHandlerBuilder = TaskHandler.Builder<Arguments, Confirmation>()
+                session.nameListener?.let {
+                    taskHandlerBuilder.registerValueTaskParam(
+                        "timer.name",
+                        it,
+                        TypeConverters.STRING_PARAM_VALUE_CONVERTER
+                    )
+                }
+                session.durationListener?.let {
+                    taskHandlerBuilder.registerValueTaskParam(
+                        "timer.duration",
+                        it,
+                        TypeConverters.DURATION_PARAM_VALUE_CONVERTER
+                    )
+                }
+                taskHandlerBuilder.build()
             }
-            session.durationListener?.let {
-                taskHandlerBuilder.registerValueTaskParam(
-                    "timer.duration",
-                    it,
-                    TypeConverters.DURATION_PARAM_VALUE_CONVERTER
-                )
-            }
-            taskHandlerBuilder.build()
-        }
     }
 }

@@ -26,6 +26,11 @@ dependencies {
     api(libs.kotlinStdlib)
     implementation("androidx.annotation:annotation:1.1.0")
     implementation(project(":appactions:interaction:interaction-capabilities-core"))
+
+    testImplementation(project(":appactions:interaction:interaction-capabilities-testing"))
+    testImplementation(libs.kotlinCoroutinesCore)
+    testImplementation(libs.junit)
+    testImplementation(libs.truth)
 }
 
 android {
