@@ -22,6 +22,7 @@ import android.view.MotionEvent.ACTION_DOWN
 import android.view.MotionEvent.ACTION_HOVER_MOVE
 import android.view.MotionEvent.ACTION_UP
 import android.view.View
+import androidx.collection.LongSparseArray
 import androidx.compose.runtime.remember
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -252,23 +253,35 @@ internal fun pointerEventOf(
     motionEvent: MotionEvent = MotionEventDouble
 ) = PointerEvent(
     changes.toList(),
-    InternalPointerEvent(changes.map { it.id to it }.toMap(), motionEvent)
+    InternalPointerEvent(changes.toLongSparseArray(), motionEvent)
 )
 
+fun Array<out PointerInputChange>.toLongSparseArray(): LongSparseArray<PointerInputChange> {
+    val returnArray = LongSparseArray<PointerInputChange>(this.count())
+    for (change in this) {
+        returnArray.put(change.id.value, change)
+    }
+    return returnArray
+}
+
 internal fun InternalPointerEvent(
-    changes: Map<PointerId, PointerInputChange>,
+    changes: LongSparseArray<PointerInputChange>,
     motionEvent: MotionEvent
 ): InternalPointerEvent {
-    val pointers = changes.values.map {
-        @OptIn(ExperimentalComposeUiApi::class)
-        PointerInputEventData(
-            id = it.id,
-            uptime = it.uptimeMillis,
-            positionOnScreen = it.position,
-            position = it.position,
-            down = it.pressed,
-            pressure = it.pressure,
-            type = it.type
+    val pointers = mutableListOf<PointerInputEventData>()
+    for (i in 0 until changes.size()) {
+        val data = changes.valueAt(i)
+        pointers.add(
+            @OptIn(ExperimentalComposeUiApi::class)
+            PointerInputEventData(
+                id = data.id,
+                uptime = data.uptimeMillis,
+                positionOnScreen = data.position,
+                position = data.position,
+                down = data.pressed,
+                pressure = data.pressure,
+                type = data.type
+            )
         )
     }
     val pointer = PointerInputEvent(pointers[0].uptime, pointers, motionEvent)
@@ -407,7 +420,7 @@ internal fun internalPointerEventOf(vararg changes: PointerInputChange): Interna
         )
     }
     val pointerEvent = PointerInputEvent(0L, pointers, event)
-    return InternalPointerEvent(changes.toList().associateBy { it.id }.toMutableMap(), pointerEvent)
+    return InternalPointerEvent(changes.toLongSparseArray(), pointerEvent)
 }
 
 internal fun hoverInternalPointerEvent(
@@ -441,8 +454,10 @@ internal fun hoverInternalPointerEvent(
     )
     val pointerEvent = PointerInputEvent(0L, listOf(pointer), createHoverMotionEvent(action, x, y))
 
+    val pointerArray = LongSparseArray<PointerInputChange>(1)
+    pointerArray.put(change.id.value, change)
     return InternalPointerEvent(
-        mutableMapOf(change.id to change),
+        pointerArray,
         pointerEvent
     )
 }
