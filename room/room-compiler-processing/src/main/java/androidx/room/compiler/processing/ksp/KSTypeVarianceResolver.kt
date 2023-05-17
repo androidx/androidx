@@ -51,7 +51,9 @@ internal class KSTypeVarianceResolver(private val resolver: Resolver) {
      */
     @OptIn(KspExperimental::class)
     fun applyTypeVariance(type: KSType, scope: KSTypeVarianceResolverScope?): KSType {
-        if (type.isError || scope?.needsWildcardResolution == false) {
+        if (type.isError ||
+            resolver.isJavaRawType(type) ||
+            scope?.needsWildcardResolution == false) {
             // There's nothing to resolve in this case, so just return the original type.
             return type
         }

@@ -67,9 +67,11 @@ class XTypeTest {
             package foo.bar;
             import java.io.InputStream;
             import java.util.Set;
+            import java.util.List;
             class Parent<InputStreamType extends InputStream> {
                 public void wildcardParam(Set<?> param1) {}
-                public void rawTypeParam(Set param1) {}
+                public void rawParamType(Set param1) {}
+                public void rawParamTypeArgument(List<Set> param1) {}
             }
             """.trimIndent()
         )
@@ -145,9 +147,42 @@ class XTypeTest {
                         )
                 }
             }
-            type.typeElement!!.getMethodByJvmName("rawTypeParam").let { method ->
-                val rawTypeParam = method.parameters.first()
-                assertThat(rawTypeParam.type.typeArguments).isEmpty()
+            type.typeElement!!.getMethodByJvmName("rawParamType").let { method ->
+                val rawParamType = method.parameters.first()
+                assertThat(rawParamType.type.typeArguments).isEmpty()
+                assertThat(rawParamType.type.asTypeName().java).isEqualTo(
+                    JClassName.get("java.util", "Set")
+                )
+                if (it.isKsp) {
+                    assertThat(rawParamType.type.asTypeName().kotlin).isEqualTo(
+                        KClassName("kotlin.collections", "MutableSet")
+                    )
+                }
+            }
+            type.typeElement!!.getMethodByJvmName("rawParamTypeArgument").let { method ->
+                val rawParamTypeArgument = method.parameters.first()
+                assertThat(rawParamTypeArgument.type.asTypeName().java).isEqualTo(
+                    JParameterizedTypeName.get(
+                        JClassName.get("java.util", "List"),
+                        JClassName.get("java.util", "Set"),
+                    )
+                )
+                if (it.isKsp) {
+                    assertThat(rawParamTypeArgument.type.asTypeName().kotlin).isEqualTo(
+                        KClassName("kotlin.collections", "MutableList").parameterizedBy(
+                            KClassName("kotlin.collections", "MutableSet")
+                        )
+                    )
+                }
+                val rawTypeArgument = rawParamTypeArgument.type.typeArguments.single()
+                assertThat(rawTypeArgument.asTypeName().java).isEqualTo(
+                    JClassName.get("java.util", "Set")
+                )
+                if (it.isKsp) {
+                    assertThat(rawTypeArgument.asTypeName().kotlin).isEqualTo(
+                        KClassName("kotlin.collections", "MutableSet")
+                    )
+                }
             }
         }
     }
