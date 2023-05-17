@@ -302,16 +302,16 @@ class DynamicComplicationDataEvaluator(
                         .apply { sensorGateway?.let {
                             addPlatformDataProvider(
                                 SensorGatewaySingleDataProvider(
-                                    sensorGateway, PlatformHealthSources.HEART_RATE_BPM
+                                    sensorGateway, PlatformHealthSources.Keys.HEART_RATE_BPM
                                 ),
-                                Collections.singleton(PlatformHealthSources.HEART_RATE_BPM)
+                                Collections.singleton(PlatformHealthSources.Keys.HEART_RATE_BPM)
                                     as Set<PlatformDataKey<*>>
                             )
                             addPlatformDataProvider(
                                 SensorGatewaySingleDataProvider(
-                                    sensorGateway, PlatformHealthSources.DAILY_STEPS
+                                    sensorGateway, PlatformHealthSources.Keys.DAILY_STEPS
                                 ),
-                                Collections.singleton(PlatformHealthSources.DAILY_STEPS)
+                                Collections.singleton(PlatformHealthSources.Keys.DAILY_STEPS)
                                     as Set<PlatformDataKey<*>>
                             )
                         } }

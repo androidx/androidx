@@ -46,10 +46,10 @@ public class SensorGatewaySingleDataProvider implements PlatformDataProvider {
         this.mSensorGateway = sensorGateway;
         this.mSupportedKey = supportedKey;
 
-        if (mSupportedKey.equals(PlatformHealthSources.HEART_RATE_BPM)) {
-            mConvertFunc = value -> DynamicDataValue.fromFloat(value.floatValue());
-        } else { // mSupportedKey.equals(PlatformHealthSources.DAILY_STEPS)
+        if (mSupportedKey.equals(PlatformHealthSources.Keys.DAILY_STEPS)) {
             mConvertFunc = value -> DynamicDataValue.fromInt(value.intValue());
+        } else {
+            mConvertFunc = value -> DynamicDataValue.fromFloat(value.floatValue());
         }
     }
 
