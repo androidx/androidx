@@ -63,7 +63,7 @@ import androidx.camera.core.impl.utils.CameraOrientationUtil
 import androidx.camera.core.impl.utils.Exif
 import androidx.camera.core.internal.compat.workaround.ExifRotationAvailability
 import androidx.camera.core.resolutionselector.ResolutionSelector
-import androidx.camera.core.resolutionselector.ResolutionSelector.ALLOWED_RESOLUTIONS_SLOW
+import androidx.camera.core.resolutionselector.ResolutionSelector.PREFER_HIGHER_RESOLUTION_OVER_CAPTURE_RATE
 import androidx.camera.integration.core.util.CameraPipeUtil
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.CameraPipeConfigTestRule
@@ -1659,7 +1659,7 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
         assumeTrue(maxHighResolutionOutputSize != null)
 
         val resolutionSelector = ResolutionSelector.Builder()
-            .setAllowedResolutionMode(ALLOWED_RESOLUTIONS_SLOW)
+            .setAllowedResolutionMode(PREFER_HIGHER_RESOLUTION_OVER_CAPTURE_RATE)
             .setResolutionFilter { _, _ ->
                 listOf(maxHighResolutionOutputSize)
             }

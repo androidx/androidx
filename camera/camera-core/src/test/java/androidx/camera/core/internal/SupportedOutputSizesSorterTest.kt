@@ -27,7 +27,7 @@ import androidx.camera.core.impl.utils.AspectRatioUtil
 import androidx.camera.core.resolutionselector.AspectRatioStrategy
 import androidx.camera.core.resolutionselector.ResolutionFilter
 import androidx.camera.core.resolutionselector.ResolutionSelector
-import androidx.camera.core.resolutionselector.ResolutionSelector.ALLOWED_RESOLUTIONS_SLOW
+import androidx.camera.core.resolutionselector.ResolutionSelector.PREFER_HIGHER_RESOLUTION_OVER_CAPTURE_RATE
 import androidx.camera.core.resolutionselector.ResolutionStrategy
 import androidx.camera.core.resolutionselector.ResolutionStrategy.FALLBACK_RULE_CLOSEST_HIGHER
 import androidx.camera.core.resolutionselector.ResolutionStrategy.FALLBACK_RULE_CLOSEST_HIGHER_THEN_LOWER
@@ -399,7 +399,7 @@ class SupportedOutputSizesSorterTest {
     fun getSupportedOutputSizes_whenHighResolutionIsEnabled_aspectRatio16x9() {
         verifySupportedOutputSizesWithResolutionSelectorSettings(
             preferredAspectRatio = AspectRatio.RATIO_16_9,
-            allowedResolutionMode = ALLOWED_RESOLUTIONS_SLOW,
+            allowedResolutionMode = PREFER_HIGHER_RESOLUTION_OVER_CAPTURE_RATE,
             expectedList = listOf(
                 // Matched preferred AspectRatio items, sorted by area size.
                 Size(8000, 4500), // 16:9 high resolution size
@@ -427,7 +427,7 @@ class SupportedOutputSizesSorterTest {
     fun highResolutionCanNotBeSelected_whenHighResolutionForceDisabled() {
         verifySupportedOutputSizesWithResolutionSelectorSettings(
             preferredAspectRatio = AspectRatio.RATIO_16_9,
-            allowedResolutionMode = ALLOWED_RESOLUTIONS_SLOW,
+            allowedResolutionMode = PREFER_HIGHER_RESOLUTION_OVER_CAPTURE_RATE,
             highResolutionForceDisabled = true,
             expectedList = listOf(
                 // Matched preferred AspectRatio items, sorted by area size.
@@ -546,7 +546,7 @@ class SupportedOutputSizesSorterTest {
         boundSize: Size? = null,
         resolutionFallbackRule: Int = FALLBACK_RULE_CLOSEST_HIGHER_THEN_LOWER,
         resolutionFilter: ResolutionFilter? = null,
-        allowedResolutionMode: Int = ResolutionSelector.ALLOWED_RESOLUTIONS_NORMAL,
+        allowedResolutionMode: Int = ResolutionSelector.PREFER_CAPTURE_RATE_OVER_HIGHER_RESOLUTION,
         highResolutionForceDisabled: Boolean = false,
         expectedList: List<Size> = Collections.emptyList(),
     ) {
@@ -573,7 +573,7 @@ class SupportedOutputSizesSorterTest {
         boundSize: Size? = null,
         resolutionFallbackRule: Int = FALLBACK_RULE_CLOSEST_HIGHER_THEN_LOWER,
         resolutionFilter: ResolutionFilter? = null,
-        allowedResolutionMode: Int = ResolutionSelector.ALLOWED_RESOLUTIONS_NORMAL,
+        allowedResolutionMode: Int = ResolutionSelector.PREFER_CAPTURE_RATE_OVER_HIGHER_RESOLUTION,
         highResolutionForceDisabled: Boolean = false,
     ): UseCaseConfig<*> {
         val useCaseConfigBuilder = FakeUseCaseConfig.Builder(captureType, ImageFormat.JPEG)

@@ -64,7 +64,7 @@ public class ResolutionSelectorUtil {
         }
 
         if (resolutionSelectorToOverride.getAllowedResolutionMode()
-                != ResolutionSelector.ALLOWED_RESOLUTIONS_NORMAL) {
+                != ResolutionSelector.PREFER_CAPTURE_RATE_OVER_HIGHER_RESOLUTION) {
             builder.setAllowedResolutionMode(
                     resolutionSelectorToOverride.getAllowedResolutionMode());
         }
