@@ -20,9 +20,8 @@ import androidx.room.IMultiInstanceInvalidationCallback;
 
 /**
  * RPC Service that controls interaction about multi-instance invalidation.
- *
- * @hide
  */
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 interface IMultiInstanceInvalidationService {
 
     /**
