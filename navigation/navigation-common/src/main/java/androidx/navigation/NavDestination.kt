@@ -232,11 +232,8 @@ public open class NavDestination(
             field = route
         }
 
-    /**
-     * @hide
-     */
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public open val displayName: String
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         get() = idName ?: id.toString()
 
     /**
@@ -793,7 +790,6 @@ public open class NavDestination(
          * @param id The id to get a display name for
          * @return The resource's name if it is a valid id or just the id itself if it is not
          * a valid resource
-         * @hide
          */
         @JvmStatic
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -809,9 +805,6 @@ public open class NavDestination(
             }
         }
 
-        /**
-         * @hide
-         */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public fun createRoute(route: String?): String =
             if (route != null) "android-app://androidx.navigation/$route" else ""
