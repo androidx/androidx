@@ -370,23 +370,18 @@ public abstract class WatchFaceService : WallpaperService() {
                     return null
                 }
                 runBlocking {
-                    try {
-                        withTimeout(AWAIT_DEFERRED_TIMEOUT) {
-                            val deferredValue = waitDeferred(engine)
-                            when (executionThread) {
-                                ExecutionThread.UI -> {
-                                    withContext(engine.uiThreadCoroutineScope.coroutineContext) {
-                                        task(deferredValue)
-                                    }
-                                }
-                                ExecutionThread.CURRENT -> {
+                    withTimeout(AWAIT_DEFERRED_TIMEOUT) {
+                        val deferredValue = waitDeferred(engine)
+                        when (executionThread) {
+                            ExecutionThread.UI -> {
+                                withContext(engine.uiThreadCoroutineScope.coroutineContext) {
                                     task(deferredValue)
                                 }
                             }
+                            ExecutionThread.CURRENT -> {
+                                task(deferredValue)
+                            }
                         }
-                    } catch (e: Exception) {
-                        Log.e(TAG, "Operation $traceName failed", e)
-                        throw e
                     }
                 }
             }
@@ -1518,15 +1513,10 @@ public abstract class WatchFaceService : WallpaperService() {
         fun setUserStyle(userStyle: UserStyleWireFormat): Unit =
             TraceEvent("EngineWrapper.setUserStyle").use {
                 uiThreadCoroutineScope.launch {
-                    try {
-                        setUserStyleImpl(
-                            deferredEarlyInitDetails.await().userStyleRepository,
-                            userStyle
-                        )
-                    } catch (e: Exception) {
-                        Log.e(TAG, "setUserStyle failed", e)
-                        throw e
-                    }
+                    setUserStyleImpl(
+                        deferredEarlyInitDetails.await().userStyleRepository,
+                        userStyle
+                    )
                 }
             }
 
@@ -2854,14 +2844,9 @@ internal fun <R> CoroutineScope.runBlockingWithTracing(
     task: suspend () -> R
 ): R =
     TraceEvent(traceEventName).use {
-        try {
-            // Inside runBlocking, coroutineContext has a different value.
-            val desiredContext = coroutineContext
-            return runBlocking { withContext(desiredContext) { task() } }
-        } catch (e: Exception) {
-            Log.e("CoroutineScope", "Exception in traceEventName", e)
-            throw e
-        }
+        // Inside runBlocking, coroutineContext has a different value.
+        val desiredContext = coroutineContext
+        return runBlocking { withContext(desiredContext) { task() } }
     }
 
 /**

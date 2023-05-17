@@ -47,9 +47,9 @@ import androidx.wear.watchface.complications.data.SmallImageComplicationData
 import androidx.wear.watchface.complications.data.SmallImageType
 import androidx.wear.watchface.complications.data.toApiComplicationData
 import androidx.wear.watchface.utility.TraceEvent
+import androidx.wear.watchface.utility.aidlMethod
 import androidx.wear.watchface.utility.iconEquals
 import androidx.wear.watchface.utility.iconHashCode
-import java.lang.IllegalArgumentException
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlinx.coroutines.CancellableContinuation
@@ -227,13 +227,14 @@ public class ComplicationDataSourceInfoRetriever : AutoCloseable {
 
         override fun updateComplicationData(
             data: android.support.wearable.complications.ComplicationData?
-        ) {
-            safeUnlinkToDeath()
-            continuation!!.resume(data?.toApiComplicationData())
+        ) =
+            aidlMethod(TAG, "updateComplicationData") {
+                safeUnlinkToDeath()
+                continuation!!.resume(data?.toApiComplicationData())
 
-            // Re http://b/249121838 this is important, it prevents a memory leak.
-            continuation = null
-        }
+                // Re http://b/249121838 this is important, it prevents a memory leak.
+                continuation = null
+            }
 
         internal fun safeUnlinkToDeath() {
             try {
