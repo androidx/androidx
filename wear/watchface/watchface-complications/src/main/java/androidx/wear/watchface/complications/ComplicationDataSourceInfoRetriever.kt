@@ -105,9 +105,10 @@ public class ComplicationDataSourceInfoRetriever : AutoCloseable {
     private val deferredService = CompletableDeferred<IProviderInfoService>()
     private val lock = Any()
 
-    /** @hide */
     @VisibleForTesting
     @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY)
+    @set:RestrictTo(RestrictTo.Scope.LIBRARY)
     public var closed: Boolean = false
         private set
 

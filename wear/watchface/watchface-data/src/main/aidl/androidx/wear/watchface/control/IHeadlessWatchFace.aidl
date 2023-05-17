@@ -25,9 +25,8 @@ import androidx.wear.watchface.style.data.UserStyleFlavorsWireFormat;
 
 /**
  * Interface for interacting with a stateless headless instance of a watch face.
- *
- * @hide
  */
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 interface IHeadlessWatchFace {
     // IMPORTANT NOTE: All methods must be given an explicit transaction id that must never change
     // in the future to remain binary backwards compatible.

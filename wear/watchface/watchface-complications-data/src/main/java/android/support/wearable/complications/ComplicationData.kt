@@ -60,12 +60,10 @@ import java.util.Objects
  * [isActiveAt] to determine whether the data is valid at that time. See the documentation for each
  * of the complication types below for details of which fields are expected to be displayed.
  *
- * @hide
  */
 @SuppressLint("BanParcelableUsage")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class ComplicationData : Parcelable, Serializable {
-    /** @hide */
     @IntDef(
         TYPE_EMPTY,
         TYPE_NOT_CONFIGURED,
@@ -86,7 +84,6 @@ class ComplicationData : Parcelable, Serializable {
     @Retention(AnnotationRetention.SOURCE)
     annotation class ComplicationType
 
-    /** @hide */
     @IntDef(IMAGE_STYLE_PHOTO, IMAGE_STYLE_ICON)
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @Retention(AnnotationRetention.SOURCE)
@@ -1170,7 +1167,6 @@ class ComplicationData : Parcelable, Serializable {
             toStringNoRedaction()
         }
 
-    /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     fun toStringNoRedaction() = "ComplicationData{mType=$type, mFields=$fields}"
 

@@ -433,7 +433,6 @@ public final class DynamicBuilders {
             return mImpl.getSourceType().getNumber();
         }
 
-        /** @hide */
         @Override
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Nullable
@@ -443,7 +442,6 @@ public final class DynamicBuilders {
         /**
          * Creates a new wrapper instance from the proto.
          *
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -461,7 +459,6 @@ public final class DynamicBuilders {
         /**
          * Returns the internal proto instance.
          *
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -469,7 +466,6 @@ public final class DynamicBuilders {
             return mImpl;
         }
 
-        /** @hide */
         @Override
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull

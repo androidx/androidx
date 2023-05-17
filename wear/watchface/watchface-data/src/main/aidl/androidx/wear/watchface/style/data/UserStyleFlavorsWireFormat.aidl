@@ -16,5 +16,5 @@
 
 package androidx.wear.watchface.style.data;
 
-/** @hide */
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 parcelable UserStyleFlavorsWireFormat;
