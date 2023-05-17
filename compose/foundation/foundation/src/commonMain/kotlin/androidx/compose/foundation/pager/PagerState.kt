@@ -447,7 +447,9 @@ abstract class PagerState(
         pageOffsetFraction: Float = 0f,
         animationSpec: AnimationSpec<Float> = spring(stiffness = Spring.StiffnessMediumLow)
     ) {
-        if (page == currentPage && currentPageOffsetFraction == pageOffsetFraction) return
+        if (page == currentPage && currentPageOffsetFraction == pageOffsetFraction ||
+            pageCount == 0
+        ) return
         awaitScrollDependencies()
         require(pageOffsetFraction in -0.5..0.5) {
             "pageOffsetFraction $pageOffsetFraction is not within the range -0.5 to 0.5"
