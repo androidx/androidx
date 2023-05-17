@@ -291,10 +291,6 @@ package androidx.compose.ui.draw {
     property public abstract long size;
   }
 
-  public sealed interface CacheDrawModifierNode extends androidx.compose.ui.node.DrawModifierNode {
-    method public void invalidateDrawCache();
-  }
-
   public final class CacheDrawScope implements androidx.compose.ui.unit.Density {
     method public float getDensity();
     method public float getFontScale();
@@ -322,7 +318,7 @@ package androidx.compose.ui.draw {
   }
 
   public final class DrawModifierKt {
-    method public static androidx.compose.ui.draw.CacheDrawModifierNode CacheDrawModifierNode(kotlin.jvm.functions.Function1<? super androidx.compose.ui.draw.CacheDrawScope,androidx.compose.ui.draw.DrawResult> onBuildDrawCache);
+    method public static androidx.compose.ui.node.CacheDrawModifierNode CacheDrawModifierNode(kotlin.jvm.functions.Function1<? super androidx.compose.ui.draw.CacheDrawScope,androidx.compose.ui.draw.DrawResult> onBuildDrawCache);
     method public static androidx.compose.ui.Modifier drawBehind(androidx.compose.ui.Modifier, kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.drawscope.DrawScope,kotlin.Unit> onDraw);
     method public static androidx.compose.ui.Modifier drawWithCache(androidx.compose.ui.Modifier, kotlin.jvm.functions.Function1<? super androidx.compose.ui.draw.CacheDrawScope,androidx.compose.ui.draw.DrawResult> onBuildDrawCache);
     method public static androidx.compose.ui.Modifier drawWithContent(androidx.compose.ui.Modifier, kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.drawscope.ContentDrawScope,kotlin.Unit> onDraw);
@@ -2457,6 +2453,10 @@ package androidx.compose.ui.modifier {
 }
 
 package androidx.compose.ui.node {
+
+  public interface CacheDrawModifierNode extends androidx.compose.ui.node.DrawModifierNode {
+    method public void invalidateDrawCache();
+  }
 
   public interface CompositionLocalConsumerModifierNode extends androidx.compose.ui.node.DelegatableNode {
   }
