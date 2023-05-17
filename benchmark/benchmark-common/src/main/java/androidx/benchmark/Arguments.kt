@@ -64,6 +64,7 @@ object Arguments {
     val killProcessDelayMillis: Long
     val enableStartupProfiles: Boolean
     val strictStartupProfiles: Boolean
+    val methodTracingOptions: String
     val dryRunMode: Boolean
 
     // internal properties are microbenchmark only
@@ -196,6 +197,9 @@ object Arguments {
 
         strictStartupProfiles =
             arguments.getBenchmarkArgument("startupProfiles.strict")?.toBoolean() ?: false
+
+        methodTracingOptions =
+            arguments.getBenchmarkArgument("methodTracing.options") ?: ""
     }
 
     fun throwIfError() {
