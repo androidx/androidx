@@ -23,10 +23,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
-import androidx.wear.compose.integration.demos.common.ComposableDemo
-import androidx.wear.compose.integration.demos.common.DemoCategory
 import androidx.wear.compose.material.Text
-import androidx.wear.compose.material3.demos.WearMaterial3Demos
 
 val Info = DemoCategory(
     "App Info",
@@ -59,7 +56,6 @@ val WearComposeDemos = DemoCategory(
     listOf(
         WearFoundationDemos,
         WearMaterialDemos,
-        WearMaterial3Demos,
         Info
     )
 )
