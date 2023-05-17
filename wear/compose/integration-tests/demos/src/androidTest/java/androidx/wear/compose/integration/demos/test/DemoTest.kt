@@ -28,10 +28,10 @@ import androidx.compose.ui.test.performScrollToNode
 import androidx.test.espresso.Espresso
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import androidx.wear.compose.integration.demos.Demo
 import androidx.wear.compose.integration.demos.DemoActivity
+import androidx.wear.compose.integration.demos.DemoCategory
 import androidx.wear.compose.integration.demos.WearComposeDemos
-import androidx.wear.compose.integration.demos.common.Demo
-import androidx.wear.compose.integration.demos.common.DemoCategory
 import com.google.common.truth.Truth.assertThat
 import org.junit.Ignore
 import org.junit.Rule

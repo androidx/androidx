@@ -34,8 +34,6 @@ import androidx.wear.compose.foundation.samples.SimpleScalingLazyColumn
 import androidx.wear.compose.foundation.samples.SimpleScalingLazyColumnWithContentPadding
 import androidx.wear.compose.foundation.samples.SimpleScalingLazyColumnWithSnap
 import androidx.wear.compose.foundation.samples.SwipeToRevealWithExpandables
-import androidx.wear.compose.integration.demos.common.ComposableDemo
-import androidx.wear.compose.integration.demos.common.DemoCategory
 
 val WearFoundationDemos = DemoCategory(
     "Foundation",
