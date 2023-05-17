@@ -63,8 +63,6 @@ dependencies {
     implementation(project(":wear:compose:compose-foundation-samples"))
     implementation(project(':wear:compose:compose-material'))
     implementation(project(":wear:compose:compose-material-samples"))
-    implementation(project(':wear:compose:integration-tests:demos:common'))
-    implementation(project(":wear:compose:compose-material3-integration-tests"))
 
     androidTestImplementation(project(":compose:ui:ui-test-junit4"))
     androidTestImplementation(project(":emoji2:emoji2"))

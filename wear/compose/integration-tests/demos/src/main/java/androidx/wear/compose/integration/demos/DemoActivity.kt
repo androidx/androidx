@@ -36,9 +36,6 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalView
 import androidx.core.app.ActivityCompat
-import androidx.wear.compose.integration.demos.common.ActivityDemo
-import androidx.wear.compose.integration.demos.common.Demo
-import androidx.wear.compose.integration.demos.common.DemoCategory
 import androidx.wear.compose.material.MaterialTheme
 
 /**
