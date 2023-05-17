@@ -60,7 +60,7 @@ import kotlinx.coroutines.launch
  * [androidx.wear.protolayout.expression.DynamicBuilders.DynamicType] within its fields.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-class DynamicComplicationDataEvaluator(
+class ComplicationDataEvaluator(
     private val stateStore: StateStore? = StateStore(emptyMap()),
     private val timeGateway: TimeGateway? = null,
     // TODO(b/281664278): remove the SensorGateway usage, implement PlatformDataProvider instead.
