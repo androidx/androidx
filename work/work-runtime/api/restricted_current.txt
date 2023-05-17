@@ -304,6 +304,8 @@ package androidx.work {
     ctor @RequiresApi(26) public PeriodicWorkRequest.Builder(Class<? extends androidx.work.ListenableWorker> workerClass, java.time.Duration repeatInterval, java.time.Duration flexInterval);
     ctor public PeriodicWorkRequest.Builder(Class<? extends androidx.work.ListenableWorker> workerClass, long repeatInterval, java.util.concurrent.TimeUnit repeatIntervalTimeUnit);
     ctor public PeriodicWorkRequest.Builder(Class<? extends androidx.work.ListenableWorker> workerClass, long repeatInterval, java.util.concurrent.TimeUnit repeatIntervalTimeUnit, long flexInterval, java.util.concurrent.TimeUnit flexIntervalTimeUnit);
+    method public androidx.work.PeriodicWorkRequest.Builder clearNextScheduleTimeOverride();
+    method public androidx.work.PeriodicWorkRequest.Builder setNextScheduleTimeOverride(long nextScheduleTimeOverrideMillis);
   }
 
   public static final class PeriodicWorkRequest.Companion {

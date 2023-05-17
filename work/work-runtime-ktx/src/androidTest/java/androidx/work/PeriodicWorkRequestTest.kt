@@ -22,7 +22,10 @@ import androidx.test.filters.SmallTest
 import androidx.work.workers.TestWorker
 import java.time.Duration
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.TimeUnit.HOURS
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotEquals
+import org.junit.Assert.assertThrows
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -82,5 +85,51 @@ class PeriodicWorkRequestTest {
         assertEquals(workRequest.workSpec.isPeriodic, true)
         assertEquals(workRequest.workSpec.intervalDuration, repeatInterval.toMillis())
         assertEquals(workRequest.workSpec.flexDuration, flexInterval.toMillis())
+    }
+
+    @Test
+    fun testPeriodicWorkRequestBuilder_noNextScheduleTimeOverride_noGeneration() {
+        val builder = PeriodicWorkRequestBuilder<TestWorker>(
+            HOURS.toMillis(15L), HOURS
+        )
+        assertEquals(builder.build().workSpec.nextScheduleTimeOverride, Long.MAX_VALUE)
+        assertEquals(builder.build().workSpec.nextScheduleTimeOverrideGeneration, 0)
+    }
+
+    @Test
+    fun testPeriodicWorkRequestBuilder_nextScheduleTimeOverride_setsGeneration() {
+        val builder = PeriodicWorkRequestBuilder<TestWorker>(
+            HOURS.toMillis(15L), HOURS
+        )
+        builder.setNextScheduleTimeOverride(123456)
+        assertEquals(builder.build().workSpec.nextScheduleTimeOverride, 123456L)
+        assertEquals(builder.build().workSpec.nextScheduleTimeOverrideGeneration, 1)
+    }
+
+    @Test
+    fun testPeriodicWorkRequestBuilder_nextScheduleTimeOverride_maxLongNotAllowed() {
+        val builder = PeriodicWorkRequestBuilder<TestWorker>(
+            HOURS.toMillis(15L), HOURS
+        )
+        assertThrows(IllegalArgumentException::class.java) {
+            builder.setNextScheduleTimeOverride(Long.MAX_VALUE)
+        }
+    }
+
+    @Test
+    fun testPeriodicWorkRequest_clearNextScheduleTimeOverride_setsGeneration() {
+        val plainRequest = PeriodicWorkRequestBuilder<TestWorker>(
+            HOURS.toMillis(15L), HOURS
+        ).build()
+
+        val clearedRequest = PeriodicWorkRequestBuilder<TestWorker>(
+            HOURS.toMillis(15L), HOURS
+        )
+            .setNextScheduleTimeOverride(123456)
+            .clearNextScheduleTimeOverride().build()
+
+        // The generation should stay incremented, since the request still has to clear any override
+        // that has been already set in the database.
+        assertNotEquals(plainRequest, clearedRequest)
     }
 }
