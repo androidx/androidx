@@ -38,7 +38,7 @@ abstract class ProjectParser : BuildService<BuildServiceParameters.None> {
     private fun parseProject(fileLines: List<String>): ParsedProject {
         var libraryType: String? = null
         var publish: String? = null
-        var specifiesVersion: Boolean = false
+        var specifiesVersion = false
         fileLines.forEach { line ->
             if (libraryType == null)
                 libraryType = line.extractVariableValue(" type = LibraryType.")

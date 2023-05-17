@@ -21,7 +21,7 @@ import org.gradle.api.UnknownProjectException
 
 // Resolves the given project, and if it is not found,
 // throws an exception that mentions the active project subset, if any (MAIN, COMPOSE, ...)
-public fun Project.resolveProject(projectSpecification: String): Project {
+fun Project.resolveProject(projectSpecification: String): Project {
     try {
         return project.project(projectSpecification)
     } catch (e: UnknownProjectException) {

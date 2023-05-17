@@ -40,8 +40,6 @@ import androidx.build.testConfiguration.TestModule
 import androidx.build.testConfiguration.addAppApkToTestConfigGeneration
 import androidx.build.testConfiguration.configureTestConfigGeneration
 import com.android.build.api.artifact.SingleArtifact
-import com.android.build.api.dsl.ManagedVirtualDevice
-import com.android.build.api.dsl.TestOptions
 import com.android.build.api.variant.ApplicationAndroidComponentsExtension
 import com.android.build.api.variant.HasAndroidTest
 import com.android.build.api.variant.LibraryAndroidComponentsExtension
@@ -100,8 +98,9 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinNativeCompile
  * This plugin reacts to other plugins being added and adds required and optional functionality.
  */
 
-class AndroidXImplPlugin @Inject constructor(val componentFactory: SoftwareComponentFactory) :
-    Plugin<Project> {
+class AndroidXImplPlugin @Inject constructor(
+    private val componentFactory: SoftwareComponentFactory
+) : Plugin<Project> {
     override fun apply(project: Project) {
         if (project.isRoot)
             throw Exception("Root project should use AndroidXRootImplPlugin instead")
@@ -333,7 +332,6 @@ class AndroidXImplPlugin @Inject constructor(val componentFactory: SoftwareCompo
         }
     }
 
-    @Suppress("UnstableApiUsage") // AGP DSL APIs
     private fun configureWithAppPlugin(project: Project, androidXExtension: AndroidXExtension) {
         project.extensions.getByType<AppExtension>().apply {
             configureAndroidBaseOptions(project, androidXExtension)
@@ -374,6 +372,7 @@ class AndroidXImplPlugin @Inject constructor(val componentFactory: SoftwareCompo
         excludeVersionFilesFromTestApks()
     }
 
+    @Suppress("UnstableApiUsage") // usage of experimentalProperties
     private fun Variant.artRewritingWorkaround() {
         // b/279234807
         experimentalProperties.put(
@@ -404,7 +403,7 @@ class AndroidXImplPlugin @Inject constructor(val componentFactory: SoftwareCompo
         }
     }
 
-    fun Project.configureKotlinStdlibVersion() {
+    private fun Project.configureKotlinStdlibVersion() {
         project.configurations.all { configuration ->
             configuration.resolutionStrategy { strategy ->
                 strategy.eachDependency { details ->
@@ -418,7 +417,7 @@ class AndroidXImplPlugin @Inject constructor(val componentFactory: SoftwareCompo
         }
     }
 
-    @Suppress("UnstableApiUsage", "DEPRECATION") // AGP DSL APIs
+    @Suppress("DEPRECATION") // AGP DSL APIs
     private fun configureWithLibraryPlugin(
         project: Project,
         androidXExtension: AndroidXExtension
@@ -600,25 +599,6 @@ class AndroidXImplPlugin @Inject constructor(val componentFactory: SoftwareCompo
         }
     }
 
-    @Suppress("UnstableApiUsage") // Usage of ManagedVirtualDevice
-    private fun TestOptions.configureVirtualDevices() {
-        managedDevices.devices.register<ManagedVirtualDevice>("pixel2api29") {
-            device = "Pixel 2"
-            apiLevel = 29
-            systemImageSource = "aosp"
-        }
-        managedDevices.devices.register<ManagedVirtualDevice>("pixel2api30") {
-            device = "Pixel 2"
-            apiLevel = 30
-            systemImageSource = "aosp"
-        }
-        managedDevices.devices.register<ManagedVirtualDevice>("pixel2api31") {
-            device = "Pixel 2"
-            apiLevel = 31
-            systemImageSource = "aosp"
-        }
-    }
-
     private fun BaseExtension.configureAndroidBaseOptions(
         project: Project,
         androidXExtension: AndroidXExtension
@@ -647,7 +627,6 @@ class AndroidXImplPlugin @Inject constructor(val componentFactory: SoftwareCompo
             // Robolectric 1.7 increased heap size requirements, see b/207169653.
             task.maxHeapSize = "3g"
         }
-        testOptions.configureVirtualDevices()
 
         // Include resources in Robolectric tests as a workaround for b/184641296 and
         // ensure the build directory exists as a workaround for b/187970292.
@@ -869,13 +848,9 @@ class AndroidXImplPlugin @Inject constructor(val componentFactory: SoftwareCompo
             }
 
             // make sure that the project has a group
-            val projectGroup = extension.mavenGroup
-            if (projectGroup == null)
-                return@afterEvaluate
+            val projectGroup = extension.mavenGroup ?: return@afterEvaluate
             // make sure that this group is configured to use a single version
-            val requiredVersion = projectGroup.atomicGroupVersion
-            if (requiredVersion == null)
-                return@afterEvaluate
+            projectGroup.atomicGroupVersion ?: return@afterEvaluate
 
             // We don't want to emit the same constraint into our .module file more than once,
             // and we don't want to try to apply a constraint to a configuration that doesn't accept them,

@@ -47,7 +47,6 @@ import org.gradle.build.event.BuildEventsListenerRegistry
 import org.gradle.kotlin.dsl.extra
 
 abstract class AndroidXRootImplPlugin : Plugin<Project> {
-    @Suppress("UnstableApiUsage")
     @get:javax.inject.Inject
     abstract val registry: BuildEventsListenerRegistry
 

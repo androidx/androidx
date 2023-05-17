@@ -20,6 +20,7 @@ import groovy.lang.Closure
 import org.gradle.api.Action
 import org.gradle.api.NamedDomainObjectCollection
 import org.gradle.api.Project
+import org.gradle.api.provider.Provider
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinMultiplatformPluginWrapper
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
@@ -220,6 +221,6 @@ open class AndroidXMultiplatformExtension(val project: Project) {
  * Returns a provider that is set to true if and only if this project has at least 1 kotlin native
  * target (mac, linux, ios).
  */
-internal fun Project.hasKotlinNativeTarget() = project.provider {
+internal fun Project.hasKotlinNativeTarget(): Provider<Boolean> = project.provider {
     project.extensions.getByType(AndroidXMultiplatformExtension::class.java).hasNativeTarget()
 }

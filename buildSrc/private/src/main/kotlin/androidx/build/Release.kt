@@ -244,7 +244,7 @@ object Release {
             zipTask.dependsOn(verifyInputs)
             zipTask.finalizedBy(verifyOutputs)
             val verifyOutputsTask = verifyOutputs.get()
-            verifyOutputsTask.addFile(zipTask.archiveFile.get().getAsFile())
+            verifyOutputsTask.addFile(zipTask.archiveFile.get().asFile)
         }
     }
 
@@ -371,21 +371,19 @@ object Release {
     private fun getVerifyProjectZipInputsTask(
         project: Project
     ): TaskProvider<VerifyGMavenZipTask> {
-        val taskProvider = project.tasks.register(
-            "verifyInputs" + PROJECT_ARCHIVE_ZIP_TASK_NAME,
+        return project.tasks.register(
+            "verifyInputs$PROJECT_ARCHIVE_ZIP_TASK_NAME",
             VerifyGMavenZipTask::class.java
         )
-        return taskProvider
     }
 
     private fun getVerifyProjectZipOutputsTask(
         project: Project
     ): TaskProvider<VerifyGMavenZipTask> {
-        val taskProvider = project.tasks.register(
-            "verifyOutputs" + PROJECT_ARCHIVE_ZIP_TASK_NAME,
+        return project.tasks.register(
+            "verifyOutputs$PROJECT_ARCHIVE_ZIP_TASK_NAME",
             VerifyGMavenZipTask::class.java
         )
-        return taskProvider
     }
 }
 
@@ -417,7 +415,7 @@ open class VerifyGMavenZipTask : DefaultTask() {
         val projectSubdir = File("$groupSubdir/${artifact.projectName}")
         val androidxRepoOut = project.getRepositoryDirectory()
         val fromDir = project.file("$androidxRepoOut/$projectSubdir")
-        addFile(File(fromDir, "${artifact.version}"))
+        addFile(File(fromDir, artifact.version))
     }
 
     @TaskAction
@@ -426,7 +424,7 @@ open class VerifyGMavenZipTask : DefaultTask() {
         verifyFiles()
     }
 
-    fun verifySettings() {
+    private fun verifySettings() {
         if (!shouldAddGroupConstraints.get() && !isSnapshotBuild()) {
             throw GradleException(
                 """
