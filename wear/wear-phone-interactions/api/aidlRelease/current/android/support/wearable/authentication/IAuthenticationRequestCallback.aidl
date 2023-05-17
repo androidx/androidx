@@ -17,7 +17,7 @@
 // later when a module using the interface is updated, e.g., Mainline modules.
 
 package android.support.wearable.authentication;
-/* @hide */
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 interface IAuthenticationRequestCallback {
   void onResult(in android.os.Bundle result) = 0;
   int getApiVersion() = 1;
