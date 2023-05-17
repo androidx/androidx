@@ -1280,6 +1280,81 @@ class GLFrontBufferedRendererTest {
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     @Test
+    fun testSurfaceCallbackPreservedAfterResume() {
+        val callbacks = object : GLFrontBufferedRenderer.Callback<Any> {
+            override fun onDrawFrontBufferedLayer(
+                eglManager: EGLManager,
+                bufferInfo: BufferInfo,
+                transform: FloatArray,
+                param: Any
+            ) {
+                // NO-OP
+            }
+
+            override fun onDrawMultiBufferedLayer(
+                eglManager: EGLManager,
+                bufferInfo: BufferInfo,
+                transform: FloatArray,
+                params: Collection<Any>
+            ) {
+                // NO-OP
+            }
+        }
+        var renderer: GLFrontBufferedRenderer<Any>? = null
+        var surfaceView: FrontBufferedRendererTestActivity.TestSurfaceView? = null
+        val createLatch = CountDownLatch(1)
+        val scenario = ActivityScenario.launch(FrontBufferedRendererTestActivity::class.java)
+            .moveToState(Lifecycle.State.CREATED)
+            .onActivity {
+                surfaceView = it.getSurfaceView()
+                renderer = GLFrontBufferedRenderer(surfaceView!!, callbacks)
+                createLatch.countDown()
+            }
+        assertTrue(createLatch.await(3000, TimeUnit.MILLISECONDS))
+
+        val resumeLatch = CountDownLatch(1)
+        var callbackCount = 0
+        scenario.moveToState(Lifecycle.State.RESUMED).onActivity {
+            callbackCount = it.getSurfaceView().getCallbackCount()
+            resumeLatch.countDown()
+        }
+        assertTrue(resumeLatch.await(3000, TimeUnit.MILLISECONDS))
+
+        val pauseLatch = CountDownLatch(1)
+        scenario.moveToState(Lifecycle.State.CREATED).onActivity {
+            pauseLatch.countDown()
+        }
+
+        val returnToResumeLatch = CountDownLatch(1)
+        scenario.moveToState(Lifecycle.State.RESUMED).onActivity {
+            returnToResumeLatch.countDown()
+        }
+        assertTrue(returnToResumeLatch.await(3000, TimeUnit.MILLISECONDS))
+
+        // Capture surfaceView with local val to avoid Kotlin warnings regarding the surfaceView
+        // parameter changing potentially
+        val resolvedSurfaceView = surfaceView
+        try {
+            if (resolvedSurfaceView != null) {
+
+                assertEquals(callbackCount, resolvedSurfaceView.getCallbackCount())
+                val releaseLatch = CountDownLatch(1)
+                renderer!!.release(true) {
+                    releaseLatch.countDown()
+                }
+                assertTrue(releaseLatch.await(3000, TimeUnit.MILLISECONDS))
+                assertEquals(0, resolvedSurfaceView.getCallbackCount())
+                renderer = null
+            } else {
+                fail("Unable to resolve SurfaceView, was the test Activity created?")
+            }
+        } finally {
+            renderer?.blockingRelease()
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
+    @Test
     fun testGLFrontBufferedRendererCreationFromUnstartedGLRenderer() {
         val callbacks = object : GLFrontBufferedRenderer.Callback<Any> {
             override fun onDrawFrontBufferedLayer(
