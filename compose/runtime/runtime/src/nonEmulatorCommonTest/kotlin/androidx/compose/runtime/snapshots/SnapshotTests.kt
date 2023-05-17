@@ -913,6 +913,52 @@ class SnapshotTests {
     }
 
     @Test
+    fun cannotApplyASnapshotTwice() {
+        var state by mutableStateOf("initial")
+        val snapshot = takeMutableSnapshot()
+        try {
+            snapshot.enter { state = "mutated" }
+            snapshot.apply().check()
+            snapshot.apply().check()
+            fail("An exception should have been thrown by second apply()")
+        } catch (ise: IllegalStateException) {
+            // Expected exception
+            assertTrue(
+                ise.message?.let {
+                    it.contains("Snapshot is not open") &&
+                        it.contains("applied=")
+                } == true,
+                "Incorrect message: ${ise.message}"
+            )
+        } finally {
+            snapshot.dispose()
+        }
+    }
+
+    @Test
+    fun cannotApplyAfterADispose() {
+        var state by mutableStateOf("initial")
+        val snapshot = takeMutableSnapshot()
+        try {
+            snapshot.enter { state = "mutated" }
+            snapshot.dispose()
+            snapshot.apply().check()
+            fail("An exception should have been thrown by the apply()")
+        } catch (ise: IllegalStateException) {
+            // Expected exception
+            assertTrue(
+                ise.message?.let {
+                    it.contains("Snapshot is not open") &&
+                        it.contains("applied=")
+                } == true,
+                "Incorrect message: ${ise.message}"
+            )
+        } finally {
+            snapshot.dispose()
+        }
+    }
+
+    @Test
     fun testRecordsAreReusedCorrectly() {
         val value = mutableStateOf<Int>(0)
         Snapshot.withMutableSnapshot { value.value++ }
