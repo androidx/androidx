@@ -76,7 +76,7 @@ public class WebMessageCompat {
      * @param arrayBuffer the array buffer data of the message.
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @RequiresFeature(name = WebViewFeature.WEB_MESSAGE_GET_MESSAGE_PAYLOAD,
+    @RequiresFeature(name = WebViewFeature.WEB_MESSAGE_ARRAY_BUFFER,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public WebMessageCompat(@NonNull byte[] arrayBuffer) {
         this(arrayBuffer, null);
@@ -89,7 +89,7 @@ public class WebMessageCompat {
      * @param ports       the ports that are sent with the message.
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @RequiresFeature(name = WebViewFeature.WEB_MESSAGE_GET_MESSAGE_PAYLOAD,
+    @RequiresFeature(name = WebViewFeature.WEB_MESSAGE_ARRAY_BUFFER,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public WebMessageCompat(@NonNull byte[] arrayBuffer,
             @Nullable WebMessagePortCompat[] ports) {

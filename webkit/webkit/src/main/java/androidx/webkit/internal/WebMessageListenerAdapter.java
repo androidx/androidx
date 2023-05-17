@@ -63,6 +63,6 @@ public class WebMessageListenerAdapter implements WebMessageListenerBoundaryInte
      */
     @Override
     public @NonNull String[] getSupportedFeatures() {
-        return new String[] {Features.WEB_MESSAGE_LISTENER};
+        return new String[] {Features.WEB_MESSAGE_LISTENER, Features.WEB_MESSAGE_ARRAY_BUFFER};
     }
 }

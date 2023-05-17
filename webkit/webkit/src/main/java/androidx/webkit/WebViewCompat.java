@@ -601,18 +601,19 @@ public class WebViewCompat {
      * methods on that object once it is available to use:
      * <pre class="prettyprint">
      * // Web page (in JavaScript)
-     * // message needs to be a JavaScript String, MessagePorts is an optional parameter.
+     * // message needs to be a JavaScript String or ArrayBuffer, MessagePorts is an optional
+     * // parameter.
      * myObject.postMessage(message[, MessagePorts])
      *
      * // To receive messages posted from the app side, assign a function to the "onmessage"
      * // property. This function should accept a single "event" argument. "event" has a "data"
-     * // property, which is the message string from the app side.
+     * // property, which is the message String or ArrayBuffer from the app side.
      * myObject.onmessage = function(event) { ... }
      *
      * // To be compatible with DOM EventTarget's addEventListener, it accepts type and listener
      * // parameters, where type can be only "message" type and listener can only be a JavaScript
      * // function for myObject. An event object will be passed to listener with a "data" property,
-     * // which is the message string from the app side.
+     * // which is the message String or ArrayBuffer from the app side.
      * myObject.addEventListener(type, listener)
      *
      * // To be compatible with DOM EventTarget's removeEventListener, it accepts type and listener
@@ -646,6 +647,63 @@ public class WebViewCompat {
      * if (WebViewFeature.isFeatureSupported(WebViewFeature.WEB_MESSAGE_LISTENER)) {
      *   WebViewCompat.addWebMessageListener(webView, "myObject", rules, myListener);
      * }
+     * </pre>
+     *
+     * <p>
+     * Suppose the communication is already setup, to send ArrayBuffer from the app to web, it
+     * needs to check feature flag({@link WebViewFeature#WEB_MESSAGE_ARRAY_BUFFER}). Here is a
+     * example to send file content from app to web:
+     * <pre class="prettyprint">
+     * // App (in Java)
+     * WebMessageListener myListener = new WebMessageListener() {
+     *   &#064;Override
+     *   public void onPostMessage(WebView view, WebMessageCompat message, Uri sourceOrigin,
+     *            boolean isMainFrame, JavaScriptReplyProxy replyProxy) {
+     *     // Communication is setup, send file data to web.
+     *     if (WebViewFeature.isFeatureSupported(WebViewFeature.WEB_MESSAGE_ARRAY_BUFFER)) {
+     *       // Suppose readFileData method is to read content from file.
+     *       byte[] fileData = readFileData("myFile.dat");
+     *       replyProxy.postMessage(fileData);
+     *     }
+     *   }
+     * }
+     * </pre>
+     * <pre class="prettyprint">
+     * // Web page (in JavaScript)
+     * myObject.onmessage = function(event) {
+     *   if (event.data instanceof ArrayBuffer) {
+     *     const data = event.data;  // Received file content from app.
+     *     const dataView = new DataView(data);
+     *     // Consume file content by using JavaScript DataView to access ArrayBuffer.
+     *   }
+     * }
+     * myObject.postMessage("Setup!");
+     * </pre>
+     *
+     * <p>
+     * Suppose the communication is already setup, and feature flag
+     * {@link WebViewFeature#WEB_MESSAGE_ARRAY_BUFFER} is check. Here is a example to download
+     * image in WebView, and send to app:
+     * <pre class="prettyprint">
+     * // Web page (in JavaScript)
+     * const response = await fetch('example.jpg');
+     * if (response.ok) {
+     *     const imageData = await response.arrayBuffer();
+     *     myObject.postMessage(imageData);
+     * }
+     * </pre>
+     * <pre class="prettyprint">
+     * // App (in Java)
+     * WebMessageListener myListener = new WebMessageListener() {
+     *   &#064;Override
+     *   public void onPostMessage(WebView view, WebMessageCompat message, Uri sourceOrigin,
+     *            boolean isMainFrame, JavaScriptReplyProxy replyProxy) {
+     *     if (message.getType() == WebMessageCompat.TYPE_ARRAY_BUFFER) {
+     *       byte[] imageData = message.getArrayBuffer();
+     *       // do something like draw image on ImageView.
+     *     }
+     *   }
+     * };
      * </pre>
      *
      * <p>

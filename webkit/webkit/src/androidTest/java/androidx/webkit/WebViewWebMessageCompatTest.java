@@ -122,7 +122,7 @@ public class WebViewWebMessageCompatTest {
     @Test
     public void testArrayBufferOverPort() throws Exception {
         WebkitUtils.checkFeature(WebViewFeature.POST_WEB_MESSAGE);
-        WebkitUtils.checkFeature(WebViewFeature.WEB_MESSAGE_GET_MESSAGE_PAYLOAD);
+        WebkitUtils.checkFeature(WebViewFeature.WEB_MESSAGE_ARRAY_BUFFER);
         loadHtmlSync(ECHO_MESSAGE);
         final WebMessagePortCompat port = preparePort();
         port.postMessage(new WebMessageCompat(mBytes));
@@ -132,7 +132,7 @@ public class WebViewWebMessageCompatTest {
     @Test
     public void testArrayBufferToMainFrame() throws Exception {
         WebkitUtils.checkFeature(WebViewFeature.POST_WEB_MESSAGE);
-        WebkitUtils.checkFeature(WebViewFeature.WEB_MESSAGE_GET_MESSAGE_PAYLOAD);
+        WebkitUtils.checkFeature(WebViewFeature.WEB_MESSAGE_ARRAY_BUFFER);
         loadHtmlSync(ECHO_MESSAGE);
         preparePort();
         mWebViewOnUiThread.postWebMessageCompat(new WebMessageCompat(mBytes), Uri.EMPTY);
