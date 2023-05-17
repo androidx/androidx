@@ -867,12 +867,7 @@ internal fun calculateSelectionMagnifierCenterAndroid(
     // If the text hasn't been laid out yet, don't show the modifier.
     val offsetCenter = layoutResult.getBoundingBox(textOffset).center
 
-    val containerCoordinates = manager.state?.layoutCoordinates ?: return Offset.Unspecified
-    val fieldCoordinates =
-        manager.state?.layoutResult?.innerTextFieldCoordinates ?: return Offset.Unspecified
-    val localDragPosition = manager.currentDragPosition?.let {
-        fieldCoordinates.localPositionOf(containerCoordinates, it)
-    } ?: return Offset.Unspecified
+    val localDragPosition = manager.currentDragPosition ?: return Offset.Unspecified
     val dragX = localDragPosition.x
     val line = layoutResult.getLineForOffset(textOffset)
     val lineStartOffset = layoutResult.getLineStart(line)
@@ -899,8 +894,5 @@ internal fun calculateSelectionMagnifierCenterAndroid(
         return Offset.Unspecified
     }
 
-    return containerCoordinates.localPositionOf(
-        fieldCoordinates,
-        Offset(centerX, offsetCenter.y)
-    )
+    return Offset(centerX, offsetCenter.y)
 }
