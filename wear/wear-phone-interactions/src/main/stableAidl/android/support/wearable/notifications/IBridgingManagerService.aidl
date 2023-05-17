@@ -20,9 +20,8 @@ import android.os.Bundle;
 
 /**
  * Interface of a service that allows setting the notification bridging configuration
- *
- * @hide
  */
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 interface IBridgingManagerService {
     // IMPORTANT NOTE: All methods must be given an explicit transaction id that must never change
     // in the future to remain binary backwards compatible.

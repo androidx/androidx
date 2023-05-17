@@ -25,8 +25,8 @@ import androidx.wear.tiles.ResourcesData;
   * by standard proto version compatibility in the underlying payload. Any significant changes to
   * this interface will be handled by instead adding new calls into TileProvider.
   *
-  * @hide
   */
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 interface ResourcesCallback {
     /**
       * Pass a new resource bundle to the system. This should be called in

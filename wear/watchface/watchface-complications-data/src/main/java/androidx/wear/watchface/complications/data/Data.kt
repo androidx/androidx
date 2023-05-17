@@ -190,8 +190,8 @@ constructor(
     /**
      * Similar to [equals], but avoids comparing evaluated fields (if dynamic values exist).
      *
-     * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     infix fun equalsUnevaluated(other: ComplicationData): Boolean =
         asWireComplicationData() equalsUnevaluated other.asWireComplicationData()
 
