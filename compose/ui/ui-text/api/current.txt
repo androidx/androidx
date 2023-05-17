@@ -16,6 +16,7 @@ package androidx.compose.ui.text {
     method public java.util.List<androidx.compose.ui.text.AnnotatedString.Range<java.lang.String>> getStringAnnotations(String tag, int start, int end);
     method public String getText();
     method public java.util.List<androidx.compose.ui.text.AnnotatedString.Range<androidx.compose.ui.text.TtsAnnotation>> getTtsAnnotations(int start, int end);
+    method @androidx.compose.ui.text.ExperimentalTextApi public java.util.List<androidx.compose.ui.text.AnnotatedString.Range<androidx.compose.ui.text.UrlAnnotation>> getUrlAnnotations(int start, int end);
     method public boolean hasStringAnnotations(String tag, int start, int end);
     method @androidx.compose.runtime.Stable public operator androidx.compose.ui.text.AnnotatedString plus(androidx.compose.ui.text.AnnotatedString other);
     method public androidx.compose.ui.text.AnnotatedString subSequence(int startIndex, int endIndex);
@@ -33,6 +34,8 @@ package androidx.compose.ui.text {
     method public void addStringAnnotation(String tag, String annotation, int start, int end);
     method public void addStyle(androidx.compose.ui.text.ParagraphStyle style, int start, int end);
     method public void addStyle(androidx.compose.ui.text.SpanStyle style, int start, int end);
+    method @androidx.compose.ui.text.ExperimentalTextApi public void addTtsAnnotation(androidx.compose.ui.text.TtsAnnotation ttsAnnotation, int start, int end);
+    method @androidx.compose.ui.text.ExperimentalTextApi public void addUrlAnnotation(androidx.compose.ui.text.UrlAnnotation urlAnnotation, int start, int end);
     method public void append(androidx.compose.ui.text.AnnotatedString text);
     method public void append(androidx.compose.ui.text.AnnotatedString text, int start, int end);
     method public androidx.compose.ui.text.AnnotatedString.Builder append(char char);
@@ -47,6 +50,7 @@ package androidx.compose.ui.text {
     method public int pushStyle(androidx.compose.ui.text.ParagraphStyle style);
     method public int pushStyle(androidx.compose.ui.text.SpanStyle style);
     method public int pushTtsAnnotation(androidx.compose.ui.text.TtsAnnotation ttsAnnotation);
+    method @androidx.compose.ui.text.ExperimentalTextApi public int pushUrlAnnotation(androidx.compose.ui.text.UrlAnnotation urlAnnotation);
     method public androidx.compose.ui.text.AnnotatedString toAnnotatedString();
     property public final int length;
   }
@@ -77,6 +81,9 @@ package androidx.compose.ui.text {
     method public static androidx.compose.ui.text.AnnotatedString decapitalize(androidx.compose.ui.text.AnnotatedString, optional androidx.compose.ui.text.intl.LocaleList localeList);
     method public static androidx.compose.ui.text.AnnotatedString toLowerCase(androidx.compose.ui.text.AnnotatedString, optional androidx.compose.ui.text.intl.LocaleList localeList);
     method public static androidx.compose.ui.text.AnnotatedString toUpperCase(androidx.compose.ui.text.AnnotatedString, optional androidx.compose.ui.text.intl.LocaleList localeList);
+    method @androidx.compose.ui.text.ExperimentalTextApi public static inline <R> R withAnnotation(androidx.compose.ui.text.AnnotatedString.Builder, androidx.compose.ui.text.TtsAnnotation ttsAnnotation, kotlin.jvm.functions.Function1<? super androidx.compose.ui.text.AnnotatedString.Builder,? extends R> block);
+    method @androidx.compose.ui.text.ExperimentalTextApi public static inline <R> R withAnnotation(androidx.compose.ui.text.AnnotatedString.Builder, androidx.compose.ui.text.UrlAnnotation urlAnnotation, kotlin.jvm.functions.Function1<? super androidx.compose.ui.text.AnnotatedString.Builder,? extends R> block);
+    method @androidx.compose.ui.text.ExperimentalTextApi public static inline <R> R withAnnotation(androidx.compose.ui.text.AnnotatedString.Builder, String tag, String annotation, kotlin.jvm.functions.Function1<? super androidx.compose.ui.text.AnnotatedString.Builder,? extends R> block);
     method public static inline <R> R withStyle(androidx.compose.ui.text.AnnotatedString.Builder, androidx.compose.ui.text.ParagraphStyle style, kotlin.jvm.functions.Function1<? super androidx.compose.ui.text.AnnotatedString.Builder,? extends R> block);
     method public static inline <R> R withStyle(androidx.compose.ui.text.AnnotatedString.Builder, androidx.compose.ui.text.SpanStyle style, kotlin.jvm.functions.Function1<? super androidx.compose.ui.text.AnnotatedString.Builder,? extends R> block);
   }
@@ -90,6 +97,12 @@ package androidx.compose.ui.text {
     method public int getNone();
     property public final int Default;
     property public final int None;
+  }
+
+  @kotlin.RequiresOptIn(message="This API is experimental and is likely to change in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalTextApi {
+  }
+
+  @kotlin.RequiresOptIn(level=kotlin.RequiresOptIn.Level.ERROR, message="This is internal API that may change frequently and without warning.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.CLASS, kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.PROPERTY}) public @interface InternalTextApi {
   }
 
   public final class MultiParagraph {
@@ -603,10 +616,23 @@ package androidx.compose.ui.text {
   public abstract sealed class TtsAnnotation {
   }
 
+  @androidx.compose.ui.text.ExperimentalTextApi public final class UrlAnnotation {
+    ctor public UrlAnnotation(String url);
+    method public String getUrl();
+    property public final String url;
+  }
+
   public final class VerbatimTtsAnnotation extends androidx.compose.ui.text.TtsAnnotation {
     ctor public VerbatimTtsAnnotation(String verbatim);
     method public String getVerbatim();
     property public final String verbatim;
+  }
+
+}
+
+package androidx.compose.ui.text.android {
+
+  @kotlin.RequiresOptIn(level=kotlin.RequiresOptIn.Level.ERROR, message="This is internal API that may change frequently and without warning.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.CLASS, kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.PROPERTY}) public @interface InternalPlatformTextApi {
   }
 
 }
@@ -716,6 +742,7 @@ package androidx.compose.ui.text.font {
   public final class FontKt {
     method @Deprecated @androidx.compose.runtime.Stable public static androidx.compose.ui.text.font.Font Font(int resId, optional androidx.compose.ui.text.font.FontWeight weight, optional int style);
     method @androidx.compose.runtime.Stable public static androidx.compose.ui.text.font.Font Font(int resId, optional androidx.compose.ui.text.font.FontWeight weight, optional int style, optional int loadingStrategy);
+    method @androidx.compose.ui.text.ExperimentalTextApi public static androidx.compose.ui.text.font.Font Font(int resId, optional androidx.compose.ui.text.font.FontWeight weight, optional int style, optional int loadingStrategy, optional androidx.compose.ui.text.font.FontVariation.Settings variationSettings);
     method @androidx.compose.runtime.Stable public static androidx.compose.ui.text.font.FontFamily toFontFamily(androidx.compose.ui.text.font.Font);
   }
 
@@ -858,11 +885,15 @@ package androidx.compose.ui.text.font {
 
   public final class ResourceFont implements androidx.compose.ui.text.font.Font {
     method public androidx.compose.ui.text.font.ResourceFont copy(optional int resId, optional androidx.compose.ui.text.font.FontWeight weight, optional int style);
+    method @androidx.compose.ui.text.ExperimentalTextApi public androidx.compose.ui.text.font.ResourceFont copy(optional int resId, optional androidx.compose.ui.text.font.FontWeight weight, optional int style, optional int loadingStrategy, optional androidx.compose.ui.text.font.FontVariation.Settings variationSettings);
     method public int getResId();
     method public int getStyle();
+    method @androidx.compose.ui.text.ExperimentalTextApi public androidx.compose.ui.text.font.FontVariation.Settings getVariationSettings();
     method public androidx.compose.ui.text.font.FontWeight getWeight();
+    property @androidx.compose.ui.text.ExperimentalTextApi public int loadingStrategy;
     property public final int resId;
     property public int style;
+    property @androidx.compose.ui.text.ExperimentalTextApi public final androidx.compose.ui.text.font.FontVariation.Settings variationSettings;
     property public androidx.compose.ui.text.font.FontWeight weight;
   }
 
@@ -1052,6 +1083,39 @@ package androidx.compose.ui.text.input {
     property public final char mask;
   }
 
+  @androidx.compose.ui.text.ExperimentalTextApi public sealed interface PlatformTextInput {
+    method public void releaseInputFocus();
+    method public void requestInputFocus();
+  }
+
+  @androidx.compose.ui.text.ExperimentalTextApi public interface PlatformTextInputAdapter {
+    method public android.view.inputmethod.InputConnection? createInputConnection(android.view.inputmethod.EditorInfo outAttrs);
+    method public default void onDisposed();
+  }
+
+  @androidx.compose.runtime.Immutable @androidx.compose.ui.text.ExperimentalTextApi public fun interface PlatformTextInputPlugin<T extends androidx.compose.ui.text.input.PlatformTextInputAdapter> {
+    method public T createAdapter(androidx.compose.ui.text.input.PlatformTextInput platformTextInput, android.view.View view);
+  }
+
+  @androidx.compose.runtime.Stable @androidx.compose.ui.text.ExperimentalTextApi public sealed interface PlatformTextInputPluginRegistry {
+    method @androidx.compose.runtime.Composable public <T extends androidx.compose.ui.text.input.PlatformTextInputAdapter> T rememberAdapter(androidx.compose.ui.text.input.PlatformTextInputPlugin<T> plugin);
+  }
+
+  @androidx.compose.ui.text.InternalTextApi public final class PlatformTextInputPluginRegistryImpl implements androidx.compose.ui.text.input.PlatformTextInputPluginRegistry {
+    ctor public PlatformTextInputPluginRegistryImpl(kotlin.jvm.functions.Function2<? super androidx.compose.ui.text.input.PlatformTextInputPlugin<?>,? super androidx.compose.ui.text.input.PlatformTextInput,? extends androidx.compose.ui.text.input.PlatformTextInputAdapter> factory);
+    method public androidx.compose.ui.text.input.PlatformTextInputAdapter? getFocusedAdapter();
+    method @androidx.compose.ui.text.InternalTextApi public <T extends androidx.compose.ui.text.input.PlatformTextInputAdapter> androidx.compose.ui.text.input.PlatformTextInputPluginRegistryImpl.AdapterHandle<T> getOrCreateAdapter(androidx.compose.ui.text.input.PlatformTextInputPlugin<T> plugin);
+    method @androidx.compose.runtime.Composable public <T extends androidx.compose.ui.text.input.PlatformTextInputAdapter> T rememberAdapter(androidx.compose.ui.text.input.PlatformTextInputPlugin<T> plugin);
+    property public final androidx.compose.ui.text.input.PlatformTextInputAdapter? focusedAdapter;
+  }
+
+  @androidx.compose.ui.text.InternalTextApi public static final class PlatformTextInputPluginRegistryImpl.AdapterHandle<T extends androidx.compose.ui.text.input.PlatformTextInputAdapter> {
+    ctor public PlatformTextInputPluginRegistryImpl.AdapterHandle(T adapter, kotlin.jvm.functions.Function0<java.lang.Boolean> onDispose);
+    method public boolean dispose();
+    method public T getAdapter();
+    property public final T adapter;
+  }
+
   public interface PlatformTextInputService {
     method public void hideSoftwareKeyboard();
     method public default void notifyFocusedRect(androidx.compose.ui.geometry.Rect rect);
@@ -1195,6 +1259,15 @@ package androidx.compose.ui.text.intl {
   public static final class LocaleList.Companion {
     method public androidx.compose.ui.text.intl.LocaleList getCurrent();
     property public final androidx.compose.ui.text.intl.LocaleList current;
+  }
+
+}
+
+package androidx.compose.ui.text.platform {
+
+  @androidx.compose.ui.text.InternalTextApi public final class URLSpanCache {
+    ctor public URLSpanCache();
+    method public android.text.style.URLSpan toURLSpan(androidx.compose.ui.text.UrlAnnotation urlAnnotation);
   }
 
 }
