@@ -42,7 +42,6 @@ import androidx.slice.builders.SliceAction;
 import java.util.List;
 
 /**
- * @hide
  */
 @RestrictTo(LIBRARY)
 @RequiresApi(19)
@@ -229,7 +228,6 @@ public class GridRowBuilderListV1Impl extends TemplateBuilderImpl {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         @Override

@@ -100,7 +100,6 @@ public final class SliceItem extends CustomVersionedParcelable {
     private static final String SLICE_CONTENT_SENSITIVE = "sensitive";
 
     /**
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY)
     @StringDef({FORMAT_SLICE, FORMAT_TEXT, FORMAT_IMAGE, FORMAT_ACTION, FORMAT_INT,
@@ -110,7 +109,6 @@ public final class SliceItem extends CustomVersionedParcelable {
     }
 
     /**
-     * @hide
      */
     @NonNull
     @RestrictTo(Scope.LIBRARY)
@@ -137,7 +135,6 @@ public final class SliceItem extends CustomVersionedParcelable {
     SliceItemHolder mHolder;
 
     /**
-     * @hide
      */
     @SuppressWarnings("NullableProblems")
     @SuppressLint("UnknownNullness") // obj cannot be correctly annotated
@@ -151,7 +148,6 @@ public final class SliceItem extends CustomVersionedParcelable {
     }
 
     /**
-     * @hide
      */
     @SuppressLint("UnknownNullness") // obj cannot be correctly annotated
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -162,14 +158,12 @@ public final class SliceItem extends CustomVersionedParcelable {
 
     /**
      * Used by VersionedParcelable.
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     public SliceItem() {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     public SliceItem(@NonNull PendingIntent intent, @Nullable Slice slice,
@@ -179,7 +173,6 @@ public final class SliceItem extends CustomVersionedParcelable {
     }
 
     /**
-     * @hide
      */
     @SuppressLint("LambdaLast")
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -199,7 +192,6 @@ public final class SliceItem extends CustomVersionedParcelable {
     }
 
     /**
-     * @hide
      */
     @SuppressWarnings("unused")
     @RestrictTo(Scope.LIBRARY)
@@ -208,7 +200,6 @@ public final class SliceItem extends CustomVersionedParcelable {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     public void addHint(@Slice.SliceHint @NonNull String hint) {
@@ -258,7 +249,6 @@ public final class SliceItem extends CustomVersionedParcelable {
     }
 
     /**
-     * @hide
      * @return The text held by this {@link android.app.slice.SliceItem#FORMAT_TEXT} SliceItem with
      * ony spans that are unsupported by the androidx Slice renderer removed.
      */
@@ -314,7 +304,6 @@ public final class SliceItem extends CustomVersionedParcelable {
     }
 
     /**
-     * @hide
      */
     @SuppressWarnings("unchecked")
     @RestrictTo(Scope.LIBRARY_GROUP_PREFIX)
@@ -334,7 +323,6 @@ public final class SliceItem extends CustomVersionedParcelable {
     /**
      * @return The remote input held by this {@link android.app.slice.SliceItem#FORMAT_REMOTE_INPUT}
      * SliceItem
-     * @hide
      */
     @Nullable
     @RequiresApi(20)
@@ -383,7 +371,6 @@ public final class SliceItem extends CustomVersionedParcelable {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY)
     public SliceItem(@NonNull Bundle in) {
@@ -394,7 +381,6 @@ public final class SliceItem extends CustomVersionedParcelable {
     }
 
     /**
-     * @hide
      */
     @NonNull
     @RestrictTo(Scope.LIBRARY)
@@ -408,7 +394,6 @@ public final class SliceItem extends CustomVersionedParcelable {
     }
 
     /**
-     * @hide
      */
     @SuppressWarnings("unused")
     @RestrictTo(Scope.LIBRARY)
@@ -423,7 +408,6 @@ public final class SliceItem extends CustomVersionedParcelable {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     public boolean hasAnyHints(@Nullable @Slice.SliceHint String... hints) {
@@ -494,7 +478,6 @@ public final class SliceItem extends CustomVersionedParcelable {
     }
 
     /**
-     * @hide
      */
     @NonNull
     @RestrictTo(Scope.LIBRARY)
@@ -529,7 +512,6 @@ public final class SliceItem extends CustomVersionedParcelable {
 
     /**
      * @return A string representation of this slice item.
-     * @hide
      */
     @NonNull
     @RestrictTo(Scope.LIBRARY)
@@ -754,7 +736,6 @@ public final class SliceItem extends CustomVersionedParcelable {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP_PREFIX)
     public interface ActionHandler {

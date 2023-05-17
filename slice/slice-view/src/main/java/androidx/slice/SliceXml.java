@@ -56,7 +56,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 /**
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @RequiresApi(19)

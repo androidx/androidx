@@ -24,7 +24,6 @@ import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 
 /**
- * @hide
  */
 @RestrictTo(LIBRARY)
 @RequiresApi(19)

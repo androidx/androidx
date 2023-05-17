@@ -37,7 +37,6 @@ import java.util.List;
 
 /**
  * Utilities for finding content within a Slice.
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 @RequiresApi(19)

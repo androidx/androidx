@@ -33,7 +33,6 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @RequiresApi(api = 28)
