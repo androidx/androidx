@@ -181,7 +181,6 @@ fun copy(
             throw GradleException(message)
         }
         if (source.exists()) {
-            @Suppress("UnstableApiUsage")
             Files.copy(source, dest)
             logger?.lifecycle("Copied $source to $dest")
         } else {

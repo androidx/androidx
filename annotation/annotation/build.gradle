@@ -69,7 +69,6 @@ androidx {
     name = "Annotation"
     type = LibraryType.PUBLISHED_LIBRARY
     mavenVersion = LibraryVersions.ANNOTATION
-    mavenMultiplatformVersion = LibraryVersions.ANNOTATION_KMP
     inceptionYear = "2013"
     description = "Provides source annotations for tooling and readability."
 }

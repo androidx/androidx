@@ -70,9 +70,6 @@ abstract class AndroidXExtension(val project: Project) : ExtensionAware {
             spec.parameters.tomlFileContents = toml
             spec.parameters.composeCustomVersion = composeCustomVersion
             spec.parameters.composeCustomGroup = composeCustomGroup
-            spec.parameters.useMultiplatformGroupVersions = project.provider {
-                Multiplatform.isKotlinNativeEnabled(project)
-            }
         }.get()
         AllLibraryGroups = versionService.libraryGroups.values.toList()
         LibraryVersions = versionService.libraryVersions
@@ -101,28 +98,8 @@ abstract class AndroidXExtension(val project: Project) : ExtensionAware {
      * Maven version of the library.
      *
      * Note that, setting this is an error if the library group sets an atomic version.
-     * If the build is a multiplatform build, this value will be overridden by
-     * the [mavenMultiplatformVersion] property when it is provided.
-     *
-     * @see mavenMultiplatformVersion
      */
     var mavenVersion: Version? = null
-        set(value) {
-            field = value
-            chooseProjectVersion()
-        }
-        get() = if (versionService.useMultiplatformGroupVersions) {
-            mavenMultiplatformVersion ?: field
-        } else {
-            field
-        }
-
-    /**
-     * If set, this will override the [mavenVersion] property in multiplatform builds.
-     *
-     * @see mavenVersion
-     */
-    var mavenMultiplatformVersion: Version? = null
         set(value) {
             field = value
             chooseProjectVersion()
@@ -176,12 +153,10 @@ abstract class AndroidXExtension(val project: Project) : ExtensionAware {
         explanationBuilder: MutableList<String>? = null
     ): LibraryGroup? {
         val overridden = overrideLibraryGroupsByProjectPath.get(projectPath)
-        if (explanationBuilder != null) {
-            explanationBuilder.add(
-                "Library group (in libraryversions.toml) having" +
+        explanationBuilder?.add(
+            "Library group (in libraryversions.toml) having" +
                 " overrideInclude=[\"$projectPath\"] is $overridden"
-            )
-        }
+        )
         if (overridden != null)
             return overridden
 
@@ -206,8 +181,7 @@ abstract class AndroidXExtension(val project: Project) : ExtensionAware {
         val parentPath = substringBeforeLastColon(projectPath)
 
         if (parentPath == "") {
-            if (explanationBuilder != null)
-                explanationBuilder.add("Parent path for $projectPath is empty")
+            explanationBuilder?.add("Parent path for $projectPath is empty")
             return null
         }
         // convert parent project path to groupId
@@ -218,12 +192,10 @@ abstract class AndroidXExtension(val project: Project) : ExtensionAware {
         }
 
         // get the library group having that text
-        val result = libraryGroupsByGroupId.get(groupIdText)
-        if (explanationBuilder != null) {
-            explanationBuilder.add(
-                "Library group (in libraryversions.toml) having group=\"$groupIdText\" is $result"
-            )
-        }
+        val result = libraryGroupsByGroupId[groupIdText]
+        explanationBuilder?.add(
+            "Library group (in libraryversions.toml) having group=\"$groupIdText\" is $result"
+        )
         return result
     }
 

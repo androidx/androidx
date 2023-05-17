@@ -178,7 +178,7 @@ abstract class BaseKtlintTask : DefaultTask() {
 
         overrideDirectory?.let {
             val subdirectories = overrideSubdirectories
-            if (subdirectories == null || subdirectories.isEmpty()) return@let
+            if (subdirectories.isNullOrEmpty()) return@let
             subdirectories.map { arguments.add("$it/$InputDir/$IncludedFiles") }
         } ?: arguments.add("$InputDir/$IncludedFiles")
 
