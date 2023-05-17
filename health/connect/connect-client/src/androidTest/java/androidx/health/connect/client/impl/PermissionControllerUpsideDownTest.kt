@@ -20,7 +20,6 @@ import android.annotation.TargetApi
 import android.health.connect.HealthPermissions
 import android.os.Build
 import androidx.health.connect.client.PermissionController
-import androidx.health.connect.client.impl.platform.time.SystemDefaultTimeSource
 import androidx.health.connect.client.permission.HealthPermission.Companion.PERMISSION_PREFIX
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -60,11 +59,10 @@ class PermissionControllerUpsideDownTest {
     fun revokeAllPermissions_revokesHealthPermissions() = runTest {
         val revokedPermissions: MutableList<String> = mutableListOf()
         val permissionController: PermissionController =
-            HealthConnectClientUpsideDownImpl(
-                ApplicationProvider.getApplicationContext(), SystemDefaultTimeSource) {
-                    permissionsToRevoke ->
-                    revokedPermissions.addAll(permissionsToRevoke)
-                }
+            HealthConnectClientUpsideDownImpl(ApplicationProvider.getApplicationContext()) {
+                permissionsToRevoke ->
+                revokedPermissions.addAll(permissionsToRevoke)
+            }
         permissionController.revokeAllPermissions()
         assertThat(revokedPermissions.all { it.startsWith(PERMISSION_PREFIX) }).isTrue()
     }

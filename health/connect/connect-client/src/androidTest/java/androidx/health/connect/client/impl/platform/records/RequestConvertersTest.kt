@@ -25,8 +25,6 @@ import android.health.connect.datatypes.NutritionRecord as PlatformNutritionReco
 import android.health.connect.datatypes.StepsRecord as PlatformStepsRecord
 import android.health.connect.datatypes.WheelchairPushesRecord as PlatformWheelchairPushesRecord
 import android.os.Build
-import androidx.health.connect.client.impl.platform.time.FakeTimeSource
-import androidx.health.connect.client.impl.platform.time.SystemDefaultTimeSource
 import androidx.health.connect.client.records.HeartRateRecord
 import androidx.health.connect.client.records.NutritionRecord
 import androidx.health.connect.client.records.StepsRecord
@@ -67,7 +65,7 @@ class RequestConvertersTest {
                 setOf(DataOrigin("package1"), DataOrigin("package2"))
             )
 
-        with(sdkRequest.toPlatformRequest(SystemDefaultTimeSource)) {
+        with(sdkRequest.toPlatformRequest()) {
             assertThat(recordType).isAssignableTo(PlatformStepsRecord::class.java)
             assertThat(isAscending).isTrue() // Default Order
             assertThat(dataOrigins)
@@ -89,7 +87,7 @@ class RequestConvertersTest {
                 pageToken = "123"
             )
 
-        with(sdkRequest.toPlatformRequest(SystemDefaultTimeSource)) {
+        with(sdkRequest.toPlatformRequest()) {
             assertThat(recordType).isAssignableTo(PlatformStepsRecord::class.java)
             assertThat(pageToken).isEqualTo(123)
             assertThat(dataOrigins)
@@ -105,9 +103,7 @@ class RequestConvertersTest {
         val sdkFilter =
             TimeRangeFilter.between(Instant.ofEpochMilli(123L), Instant.ofEpochMilli(456L))
 
-        with(
-            sdkFilter.toPlatformTimeRangeFilter(SystemDefaultTimeSource) as TimeInstantRangeFilter
-        ) {
+        with(sdkFilter.toPlatformTimeRangeFilter() as TimeInstantRangeFilter) {
             assertThat(endTime).isEqualTo(Instant.ofEpochMilli(456L))
         }
     }
@@ -116,7 +112,7 @@ class RequestConvertersTest {
     fun timeRangeFilter_localDateTime_fromSdkToPlatform() {
         val sdkFilter = TimeRangeFilter.before(LocalDateTime.of(2023, Month.MARCH, 10, 17, 30))
 
-        with(sdkFilter.toPlatformTimeRangeFilter(SystemDefaultTimeSource) as LocalTimeRangeFilter) {
+        with(sdkFilter.toPlatformTimeRangeFilter() as LocalTimeRangeFilter) {
             assertThat(endTime).isEqualTo(LocalDateTime.of(2023, Month.MARCH, 10, 17, 30))
         }
     }
@@ -125,12 +121,9 @@ class RequestConvertersTest {
     fun timeRangeFilter_fromSdkToPlatform_none() {
 
         val sdkFilter = TimeRangeFilter.none()
-        val fakeTimeSource = FakeTimeSource()
-        fakeTimeSource.now = Instant.ofEpochMilli(123L)
 
-        with(sdkFilter.toPlatformTimeRangeFilter(fakeTimeSource) as TimeInstantRangeFilter) {
+        with(sdkFilter.toPlatformTimeRangeFilter() as TimeInstantRangeFilter) {
             assertThat(startTime).isEqualTo(Instant.EPOCH)
-            assertThat(endTime).isEqualTo(fakeTimeSource.now)
         }
     }
 
@@ -165,7 +158,7 @@ class RequestConvertersTest {
                 setOf(DataOrigin("package1"))
             )
 
-        with(sdkRequest.toPlatformRequest(SystemDefaultTimeSource)) {
+        with(sdkRequest.toPlatformRequest()) {
             with(timeRangeFilter as TimeInstantRangeFilter) {
                 assertThat(startTime).isEqualTo(Instant.ofEpochMilli(123L))
                 assertThat(endTime).isEqualTo(Instant.ofEpochMilli(456L))
@@ -190,7 +183,7 @@ class RequestConvertersTest {
                 setOf(DataOrigin("package1"), DataOrigin("package2"))
             )
 
-        with(sdkRequest.toPlatformRequest(SystemDefaultTimeSource)) {
+        with(sdkRequest.toPlatformRequest()) {
             with(timeRangeFilter as TimeInstantRangeFilter) {
                 assertThat(startTime).isEqualTo(Instant.ofEpochMilli(123L))
                 assertThat(endTime).isEqualTo(Instant.ofEpochMilli(456L))
@@ -214,7 +207,7 @@ class RequestConvertersTest {
                 setOf(DataOrigin("package1"), DataOrigin("package2"), DataOrigin("package3"))
             )
 
-        with(sdkRequest.toPlatformRequest(SystemDefaultTimeSource)) {
+        with(sdkRequest.toPlatformRequest()) {
             with(timeRangeFilter as TimeInstantRangeFilter) {
                 assertThat(startTime).isEqualTo(Instant.ofEpochMilli(123L))
                 assertThat(endTime).isEqualTo(Instant.ofEpochMilli(456L))

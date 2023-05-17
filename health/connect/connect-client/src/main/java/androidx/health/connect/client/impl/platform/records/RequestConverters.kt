@@ -30,7 +30,6 @@ import android.health.connect.datatypes.Record as PlatformRecord
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.health.connect.client.aggregate.AggregateMetric
-import androidx.health.connect.client.impl.platform.time.TimeSource
 import androidx.health.connect.client.records.Record
 import androidx.health.connect.client.request.AggregateGroupByDurationRequest
 import androidx.health.connect.client.request.AggregateGroupByPeriodRequest
@@ -39,14 +38,11 @@ import androidx.health.connect.client.request.ChangesTokenRequest
 import androidx.health.connect.client.request.ReadRecordsRequest
 import androidx.health.connect.client.time.TimeRangeFilter
 import java.time.Instant
-import java.time.LocalDateTime
-import java.time.ZoneOffset
 
-fun ReadRecordsRequest<out Record>.toPlatformRequest(
-    timeSource: TimeSource
-): ReadRecordsRequestUsingFilters<out PlatformRecord> {
+fun ReadRecordsRequest<out Record>.toPlatformRequest():
+    ReadRecordsRequestUsingFilters<out PlatformRecord> {
     return ReadRecordsRequestUsingFilters.Builder(recordType.toPlatformRecordClass())
-        .setTimeRangeFilter(timeRangeFilter.toPlatformTimeRangeFilter(timeSource))
+        .setTimeRangeFilter(timeRangeFilter.toPlatformTimeRangeFilter())
         .setPageSize(pageSize)
         .apply {
             dataOriginFilter.forEach { addDataOrigins(it.toPlatformDataOrigin()) }
@@ -59,24 +55,14 @@ fun ReadRecordsRequest<out Record>.toPlatformRequest(
         .build()
 }
 
-fun TimeRangeFilter.toPlatformTimeRangeFilter(timeSource: TimeSource): PlatformTimeRangeFilter {
-    // TODO(b/272760519): Remove handling for nullable fields in the first two branches. Needed as
-    // the values used in the underlining implementation cause long overflow
+fun TimeRangeFilter.toPlatformTimeRangeFilter(): PlatformTimeRangeFilter {
     return if (startTime != null || endTime != null) {
-        TimeInstantRangeFilter.Builder()
-            .setStartTime(startTime ?: Instant.EPOCH)
-            .setEndTime(endTime ?: timeSource.now)
-            .build()
+        TimeInstantRangeFilter.Builder().setStartTime(startTime).setEndTime(endTime).build()
     } else if (localStartTime != null || localEndTime != null) {
-        LocalTimeRangeFilter.Builder()
-            .setStartTime(localStartTime ?: LocalDateTime.ofEpochSecond(0, 0, ZoneOffset.MIN))
-            .setEndTime(localEndTime ?: LocalDateTime.ofInstant(timeSource.now, ZoneOffset.MAX))
-            .build()
+        LocalTimeRangeFilter.Builder().setStartTime(localStartTime).setEndTime(localEndTime).build()
     } else {
-        TimeInstantRangeFilter.Builder()
-            .setStartTime(Instant.EPOCH)
-            .setEndTime(timeSource.now)
-            .build()
+        // Platform doesn't allow both startTime and endTime to be null
+        TimeInstantRangeFilter.Builder().setStartTime(Instant.EPOCH).build()
     }
 }
 
@@ -89,10 +75,8 @@ fun ChangesTokenRequest.toPlatformRequest(): ChangeLogTokenRequest {
         .build()
 }
 
-fun AggregateRequest.toPlatformRequest(timeSource: TimeSource): AggregateRecordsRequest<Any> {
-    return AggregateRecordsRequest.Builder<Any>(
-            timeRangeFilter.toPlatformTimeRangeFilter(timeSource)
-        )
+fun AggregateRequest.toPlatformRequest(): AggregateRecordsRequest<Any> {
+    return AggregateRecordsRequest.Builder<Any>(timeRangeFilter.toPlatformTimeRangeFilter())
         .apply {
             dataOriginFilter.forEach { addDataOriginsFilter(it.toPlatformDataOrigin()) }
             metrics.forEach { addAggregationType(it.toAggregationType()) }
@@ -100,12 +84,8 @@ fun AggregateRequest.toPlatformRequest(timeSource: TimeSource): AggregateRecords
         .build()
 }
 
-fun AggregateGroupByDurationRequest.toPlatformRequest(
-    timeSource: TimeSource
-): AggregateRecordsRequest<Any> {
-    return AggregateRecordsRequest.Builder<Any>(
-            timeRangeFilter.toPlatformTimeRangeFilter(timeSource)
-        )
+fun AggregateGroupByDurationRequest.toPlatformRequest(): AggregateRecordsRequest<Any> {
+    return AggregateRecordsRequest.Builder<Any>(timeRangeFilter.toPlatformTimeRangeFilter())
         .apply {
             dataOriginFilter.forEach { addDataOriginsFilter(it.toPlatformDataOrigin()) }
             metrics.forEach { addAggregationType(it.toAggregationType()) }
@@ -113,12 +93,8 @@ fun AggregateGroupByDurationRequest.toPlatformRequest(
         .build()
 }
 
-fun AggregateGroupByPeriodRequest.toPlatformRequest(
-    timeSource: TimeSource
-): AggregateRecordsRequest<Any> {
-    return AggregateRecordsRequest.Builder<Any>(
-            timeRangeFilter.toPlatformTimeRangeFilter(timeSource)
-        )
+fun AggregateGroupByPeriodRequest.toPlatformRequest(): AggregateRecordsRequest<Any> {
+    return AggregateRecordsRequest.Builder<Any>(timeRangeFilter.toPlatformTimeRangeFilter())
         .apply {
             dataOriginFilter.forEach { addDataOriginsFilter(it.toPlatformDataOrigin()) }
             metrics.forEach { addAggregationType(it.toAggregationType()) }
