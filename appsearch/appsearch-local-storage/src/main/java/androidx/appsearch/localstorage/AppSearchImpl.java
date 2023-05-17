@@ -182,6 +182,7 @@ public final class AppSearchImpl implements Closeable {
     private final ReadWriteLock mReadWriteLock = new ReentrantReadWriteLock();
     private final OptimizeStrategy mOptimizeStrategy;
     private final LimitConfig mLimitConfig;
+    private final IcingOptionsConfig mIcingOptionsConfig;
 
     @GuardedBy("mReadWriteLock")
     @VisibleForTesting
@@ -289,8 +290,8 @@ public final class AppSearchImpl implements Closeable {
             @Nullable VisibilityChecker visibilityChecker)
             throws AppSearchException {
         Preconditions.checkNotNull(icingDir);
-        Preconditions.checkNotNull(icingOptionsConfig);
         mLimitConfig = Preconditions.checkNotNull(limitConfig);
+        mIcingOptionsConfig = Preconditions.checkNotNull(icingOptionsConfig);
         mOptimizeStrategy = Preconditions.checkNotNull(optimizeStrategy);
         mVisibilityCheckerLocked = visibilityChecker;
 
@@ -1340,7 +1341,8 @@ public final class AppSearchImpl implements Closeable {
             String prefix = createPrefix(packageName, databaseName);
             SearchSpecToProtoConverter searchSpecToProtoConverter =
                     new SearchSpecToProtoConverter(queryExpression, searchSpec,
-                            Collections.singleton(prefix), mNamespaceMapLocked, mSchemaMapLocked);
+                            Collections.singleton(prefix), mNamespaceMapLocked, mSchemaMapLocked,
+                            mIcingOptionsConfig);
             if (searchSpecToProtoConverter.hasNothingToSearch()) {
                 // there is nothing to search over given their search filters, so we can return an
                 // empty SearchResult and skip sending request to Icing.
@@ -1422,7 +1424,7 @@ public final class AppSearchImpl implements Closeable {
             }
             SearchSpecToProtoConverter searchSpecToProtoConverter =
                     new SearchSpecToProtoConverter(queryExpression, searchSpec, prefixFilters,
-                            mNamespaceMapLocked, mSchemaMapLocked);
+                            mNamespaceMapLocked, mSchemaMapLocked, mIcingOptionsConfig);
             // Remove those inaccessible schemas.
             searchSpecToProtoConverter.removeInaccessibleSchemaFilter(
                     callerAccess, mVisibilityStoreLocked, mVisibilityCheckerLocked);
@@ -1887,7 +1889,8 @@ public final class AppSearchImpl implements Closeable {
 
             SearchSpecToProtoConverter searchSpecToProtoConverter =
                     new SearchSpecToProtoConverter(queryExpression, searchSpec,
-                            Collections.singleton(prefix), mNamespaceMapLocked, mSchemaMapLocked);
+                            Collections.singleton(prefix), mNamespaceMapLocked, mSchemaMapLocked,
+                            mIcingOptionsConfig);
             if (searchSpecToProtoConverter.hasNothingToSearch()) {
                 // there is nothing to search over given their search filters, so we can return
                 // early and skip sending request to Icing.

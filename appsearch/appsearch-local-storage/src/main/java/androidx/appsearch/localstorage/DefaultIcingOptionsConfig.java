@@ -53,4 +53,9 @@ public class DefaultIcingOptionsConfig implements IcingOptionsConfig {
     public boolean getAllowCircularSchemaDefinitions() {
         return true;
     }
+
+    @Override
+    public boolean getUseReadOnlySearch() {
+        return true;
+    }
 }
