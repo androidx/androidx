@@ -25,9 +25,11 @@ import static androidx.core.view.InputDeviceCompat.SOURCE_TOUCHSCREEN;
 import static androidx.core.view.MotionEventCompat.AXIS_SCROLL;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.hardware.input.InputManager;
 import android.view.InputDevice;
 import android.view.ViewConfiguration;
@@ -49,6 +51,7 @@ import java.util.List;
 @SmallTest
 @RunWith(AndroidJUnit4.class)
 public class ViewConfigurationCompatTest {
+    @Mock Resources mResourcesMock;
     @Mock ViewConfiguration mViewConfigMock;
     private Context mContext;
 
@@ -96,6 +99,80 @@ public class ViewConfigurationCompatTest {
                 SOURCE_TOUCHSCREEN,
                 vc.getScaledMinimumFlingVelocity(),
                 vc.getScaledMaximumFlingVelocity());
+    }
+
+    @Test
+    @SdkSuppress(maxSdkVersion = 33)
+    public void scaledFlingThresholds_rotaryEncoderDevice_hasNoAndroidResForFling_apiPre34() {
+        when(mViewConfigMock.getScaledMinimumFlingVelocity()).thenReturn(10);
+        when(mViewConfigMock.getScaledMaximumFlingVelocity()).thenReturn(20);
+        mockAndroidResource("config_viewMinRotaryEncoderFlingVelocity", "dimen", /* resId= */ 0);
+        mContext = spy(mContext);
+        when(mContext.getResources()).thenReturn(mResourcesMock);
+
+        assertFlingThresholds(
+                mViewConfigMock,
+                1,
+                AXIS_SCROLL,
+                SOURCE_ROTARY_ENCODER,
+                /* minVel= */ 10,
+                /* maxVel= */ 20);
+    }
+
+    @Test
+    @SdkSuppress(maxSdkVersion = 33)
+    public void scaledMinFlingVelocity_rotaryEncoderDevice_hasAndroidResForFling_apiPre34() {
+        mockAndroidResource("config_viewMinRotaryEncoderFlingVelocity", "dimen", /* resId= */ 1);
+        when(mResourcesMock.getDimensionPixelSize(1)).thenReturn(100);
+        mContext = spy(mContext);
+        when(mContext.getResources()).thenReturn(mResourcesMock);
+
+        assertEquals(
+                100,
+                ViewConfigurationCompat.getScaledMinimumFlingVelocity(
+                        mContext, mViewConfigMock, 1, AXIS_SCROLL, SOURCE_ROTARY_ENCODER));
+    }
+
+    @Test
+    @SdkSuppress(maxSdkVersion = 33)
+    public void scaledMinFlingVelocity_rotaryEncoderDevice_hasAndroidResForNoFling_apiPre34() {
+        mockAndroidResource("config_viewMinRotaryEncoderFlingVelocity", "dimen", /* resId= */ 1);
+        when(mResourcesMock.getDimensionPixelSize(1)).thenReturn(-1);
+        mContext = spy(mContext);
+        when(mContext.getResources()).thenReturn(mResourcesMock);
+
+        assertEquals(
+                Integer.MAX_VALUE,
+                ViewConfigurationCompat.getScaledMinimumFlingVelocity(
+                        mContext, mViewConfigMock, 1, AXIS_SCROLL, SOURCE_ROTARY_ENCODER));
+    }
+
+    @Test
+    @SdkSuppress(maxSdkVersion = 33)
+    public void scaledMaxFlingVelocity_hasAndroidResForFling_rotaryEncoderDevice_apiPre34() {
+        mockAndroidResource("config_viewMaxRotaryEncoderFlingVelocity", "dimen", /* resId= */ 1);
+        when(mResourcesMock.getDimensionPixelSize(1)).thenReturn(100);
+        mContext = spy(mContext);
+        when(mContext.getResources()).thenReturn(mResourcesMock);
+
+        assertEquals(
+                100,
+                ViewConfigurationCompat.getScaledMaximumFlingVelocity(
+                        mContext, mViewConfigMock, 1, AXIS_SCROLL, SOURCE_ROTARY_ENCODER));
+    }
+
+    @Test
+    @SdkSuppress(maxSdkVersion = 33)
+    public void scaledMaxFlingVelocity_hasAndroidResForNoFling_rotaryEncoderDevice_apiPre34() {
+        mockAndroidResource("config_viewMaxRotaryEncoderFlingVelocity", "dimen", 1);
+        when(mResourcesMock.getDimensionPixelSize(1)).thenReturn(-1);
+        mContext = spy(mContext);
+        when(mContext.getResources()).thenReturn(mResourcesMock);
+
+        assertEquals(
+                Integer.MIN_VALUE,
+                ViewConfigurationCompat.getScaledMaximumFlingVelocity(
+                        mContext, mViewConfigMock, 1, AXIS_SCROLL, SOURCE_ROTARY_ENCODER));
     }
 
     @Test
@@ -192,5 +269,10 @@ public class ViewConfigurationCompatTest {
             }
         }
         return null;
+    }
+
+    private void mockAndroidResource(String name, String defType, int resId) {
+        when(mResourcesMock.getIdentifier(name, defType, /* defPackage= */ "android"))
+                .thenReturn(resId);
     }
 }

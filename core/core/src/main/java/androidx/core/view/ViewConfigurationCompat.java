@@ -22,6 +22,7 @@ import android.os.Build;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.InputDevice;
+import android.view.MotionEvent;
 import android.view.ViewConfiguration;
 
 import androidx.annotation.DoNotInline;
@@ -148,8 +149,8 @@ public final class ViewConfigurationCompat {
             return Api28Impl.shouldShowMenuShortcutsWhenKeyboardPresent(config);
         }
         final Resources res = context.getResources();
-        final int platformResId = res.getIdentifier(
-                "config_showMenuShortcutsWhenKeyboardPresent", "bool", "android");
+        final int platformResId =
+                getPlatformResId(res, "config_showMenuShortcutsWhenKeyboardPresent", "bool");
         return platformResId != 0 && res.getBoolean(platformResId);
     }
 
@@ -171,6 +172,13 @@ public final class ViewConfigurationCompat {
             return Api34Impl.getScaledMinimumFlingVelocity(config, inputDeviceId, axis, source);
         }
 
+        Resources res = context.getResources();
+        int platformResId = getPreApi34MinimumFlingVelocityResId(res, source, axis);
+        if (platformResId != 0) {
+            int minFlingVelocity = res.getDimensionPixelSize(platformResId);
+            return minFlingVelocity < 0 ? Integer.MAX_VALUE : minFlingVelocity;
+        }
+
         return config.getScaledMinimumFlingVelocity();
     }
 
@@ -190,6 +198,13 @@ public final class ViewConfigurationCompat {
             int source) {
         if (Build.VERSION.SDK_INT >= 34) {
             return Api34Impl.getScaledMaximumFlingVelocity(config, inputDeviceId, axis, source);
+        }
+
+        Resources res = context.getResources();
+        int platformResId = getMaximumFlingVelocityResId(res, source, axis);
+        if (platformResId != 0) {
+            int maxFlingVelocity = res.getDimensionPixelSize(platformResId);
+            return maxFlingVelocity < 0 ? Integer.MIN_VALUE : maxFlingVelocity;
         }
 
         return config.getScaledMaximumFlingVelocity();
@@ -256,5 +271,23 @@ public final class ViewConfigurationCompat {
                 int source) {
             return viewConfiguration.getScaledMinimumFlingVelocity(inputDeviceId, axis, source);
         }
+    }
+
+    private static int getMaximumFlingVelocityResId(Resources res, int source, int axis) {
+        if (source == InputDeviceCompat.SOURCE_ROTARY_ENCODER && axis == MotionEvent.AXIS_SCROLL) {
+            return getPlatformResId(res, "config_viewMaxRotaryEncoderFlingVelocity", "dimen");
+        }
+        return 0;
+    }
+
+    private static int getPreApi34MinimumFlingVelocityResId(Resources res, int source, int axis) {
+        if (source == InputDeviceCompat.SOURCE_ROTARY_ENCODER && axis == MotionEvent.AXIS_SCROLL) {
+            return getPlatformResId(res, "config_viewMinRotaryEncoderFlingVelocity", "dimen");
+        }
+        return 0;
+    }
+
+    private static int getPlatformResId(Resources res, String name, String defType) {
+        return res.getIdentifier(name, defType, /* defPackage= */ "android");
     }
 }
