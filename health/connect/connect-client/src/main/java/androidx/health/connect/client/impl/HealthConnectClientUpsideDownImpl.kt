@@ -43,8 +43,6 @@ import androidx.health.connect.client.impl.platform.records.toPlatformTimeRangeF
 import androidx.health.connect.client.impl.platform.records.toSdkRecord
 import androidx.health.connect.client.impl.platform.records.toSdkResponse
 import androidx.health.connect.client.impl.platform.response.toKtResponse
-import androidx.health.connect.client.impl.platform.time.SystemDefaultTimeSource
-import androidx.health.connect.client.impl.platform.time.TimeSource
 import androidx.health.connect.client.impl.platform.toKtException
 import androidx.health.connect.client.permission.HealthPermission.Companion.PERMISSION_PREFIX
 import androidx.health.connect.client.records.Record
@@ -74,22 +72,17 @@ class HealthConnectClientUpsideDownImpl : HealthConnectClient, PermissionControl
     private val executor = Dispatchers.Default.asExecutor()
 
     private val context: Context
-    private val timeSource: TimeSource
     private val healthConnectManager: HealthConnectManager
     private val revokePermissionsFunction: (Collection<String>) -> Unit
 
-    constructor(
-        context: Context
-    ) : this(context, SystemDefaultTimeSource, context::revokeSelfPermissionsOnKill)
+    constructor(context: Context) : this(context, context::revokeSelfPermissionsOnKill)
 
     @VisibleForTesting
     internal constructor(
         context: Context,
-        timeSource: TimeSource,
         revokePermissionsFunction: (Collection<String>) -> Unit
     ) {
         this.context = context
-        this.timeSource = timeSource
         this.healthConnectManager =
             context.getSystemService(Context.HEALTHCONNECT_SERVICE) as HealthConnectManager
         this.revokePermissionsFunction = revokePermissionsFunction
@@ -159,7 +152,7 @@ class HealthConnectClientUpsideDownImpl : HealthConnectClient, PermissionControl
             suspendCancellableCoroutine { continuation ->
                 healthConnectManager.deleteRecords(
                     recordType.toPlatformRecordClass(),
-                    timeRangeFilter.toPlatformTimeRangeFilter(timeSource),
+                    timeRangeFilter.toPlatformTimeRangeFilter(),
                     executor,
                     continuation.asOutcomeReceiver()
                 )
@@ -196,7 +189,7 @@ class HealthConnectClientUpsideDownImpl : HealthConnectClient, PermissionControl
         val response = wrapPlatformException {
             suspendCancellableCoroutine { continuation ->
                 healthConnectManager.readRecords(
-                    request.toPlatformRequest(timeSource),
+                    request.toPlatformRequest(),
                     executor,
                     continuation.asOutcomeReceiver()
                 )
@@ -212,7 +205,7 @@ class HealthConnectClientUpsideDownImpl : HealthConnectClient, PermissionControl
         return wrapPlatformException {
                 suspendCancellableCoroutine { continuation ->
                     healthConnectManager.aggregate(
-                        request.toPlatformRequest(timeSource),
+                        request.toPlatformRequest(),
                         executor,
                         continuation.asOutcomeReceiver()
                     )
@@ -227,7 +220,7 @@ class HealthConnectClientUpsideDownImpl : HealthConnectClient, PermissionControl
         return wrapPlatformException {
                 suspendCancellableCoroutine { continuation ->
                     healthConnectManager.aggregateGroupByDuration(
-                        request.toPlatformRequest(timeSource),
+                        request.toPlatformRequest(),
                         request.timeRangeSlicer,
                         executor,
                         continuation.asOutcomeReceiver()
@@ -243,7 +236,7 @@ class HealthConnectClientUpsideDownImpl : HealthConnectClient, PermissionControl
         return wrapPlatformException {
                 suspendCancellableCoroutine { continuation ->
                     healthConnectManager.aggregateGroupByPeriod(
-                        request.toPlatformRequest(timeSource),
+                        request.toPlatformRequest(),
                         request.timeRangeSlicer,
                         executor,
                         continuation.asOutcomeReceiver()
