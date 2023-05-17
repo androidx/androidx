@@ -33,5 +33,7 @@ InvalidNullConversion: androidx.compose.ui.semantics.SemanticsPropertyReceiver#s
     Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter value in androidx.compose.ui.semantics.SemanticsPropertyReceiver.set(androidx.compose.ui.semantics.SemanticsPropertyKey<T> key, T value)
 
 
+RemovedClass: androidx.compose.ui.layout.TestModifierUpdaterKt:
+    Removed class androidx.compose.ui.layout.TestModifierUpdaterKt
 RemovedClass: androidx.compose.ui.platform.AndroidComposeView_androidKt:
     Removed class androidx.compose.ui.platform.AndroidComposeView_androidKt
