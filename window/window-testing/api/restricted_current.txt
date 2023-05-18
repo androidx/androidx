@@ -48,6 +48,11 @@ package androidx.window.testing.layout {
     method public static androidx.window.layout.FoldingFeature createFoldingFeature(android.graphics.Rect windowBounds, optional @IntRange(from=-1L) int center, optional int size, optional androidx.window.layout.FoldingFeature.State state, optional androidx.window.layout.FoldingFeature.Orientation orientation);
   }
 
+  public final class FoldingFeatureTestingConstants {
+    field public static final int FOLDING_FEATURE_CENTER_DEFAULT = -1; // 0xffffffff
+    field public static final androidx.window.testing.layout.FoldingFeatureTestingConstants INSTANCE;
+  }
+
   public final class WindowLayoutInfoPublisherRule implements org.junit.rules.TestRule {
     ctor public WindowLayoutInfoPublisherRule();
     method public org.junit.runners.model.Statement apply(org.junit.runners.model.Statement base, org.junit.runner.Description description);
