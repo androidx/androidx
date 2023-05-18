@@ -293,7 +293,8 @@ private fun PlatformExerciseSessionRecord.toSdkExerciseSessionRecord() =
         route = route?.toSdkExerciseRoute(),
         laps = laps.map { it.toSdkExerciseLap() },
         segments = segments.map { it.toSdkExerciseSegment() },
-        metadata = metadata.toSdkMetadata()
+        hasRoute = hasRoute(),
+        metadata = metadata.toSdkMetadata(),
     )
 
 private fun PlatformFloorsClimbedRecord.toSdkFloorsClimbedRecord() =
