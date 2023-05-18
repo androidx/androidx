@@ -46,8 +46,13 @@ package androidx.work.testing {
     method public static androidx.work.testing.TestDriver? getTestDriver(android.content.Context);
     method public static void initializeTestWorkManager(android.content.Context);
     method public static void initializeTestWorkManager(android.content.Context, androidx.work.Configuration);
-    method public static void initializeTestWorkManagerWithRealExecutors(android.content.Context);
-    method public static void initializeTestWorkManagerWithRealExecutors(android.content.Context, androidx.work.Configuration);
+    method public static void initializeTestWorkManager(android.content.Context, androidx.work.Configuration, androidx.work.testing.WorkManagerTestInitHelper.ExecutorsMode);
+    method public static void initializeTestWorkManager(android.content.Context, androidx.work.testing.WorkManagerTestInitHelper.ExecutorsMode);
+  }
+
+  public enum WorkManagerTestInitHelper.ExecutorsMode {
+    enum_constant public static final androidx.work.testing.WorkManagerTestInitHelper.ExecutorsMode LEGACY_OVERRIDE_WITH_SYNCHRONOUS_EXECUTORS;
+    enum_constant public static final androidx.work.testing.WorkManagerTestInitHelper.ExecutorsMode PRESERVE_EXECUTORS;
   }
 
 }
