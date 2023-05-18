@@ -79,6 +79,7 @@ class ColorSchemeScreenshotTest(private val scheme: ColorSchemeWrapper) {
     // This makes sure that the default method name and the initial Scuba image generated
     // name is as expected.
     companion object {
+        // TODO: Expand custom color schemes to define new roles.
         private val LightCustomColorScheme = lightColorScheme(
             primary = Color(0xFF984816),
             onPrimary = Color(0xFFFFFFFF),

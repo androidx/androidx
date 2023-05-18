@@ -33,16 +33,38 @@ internal fun dynamicTonalPalette(context: Context): TonalPalette = TonalPalette(
     // The neutral tonal range from the generated dynamic color palette.
     neutral100 = ColorResourceHelper.getColor(context, android.R.color.system_neutral1_0),
     neutral99 = ColorResourceHelper.getColor(context, android.R.color.system_neutral1_10),
+    neutral98 = ColorResourceHelper.getColor(context, android.R.color.system_neutral1_600)
+        .setLuminance(98f),
+    neutral96 = ColorResourceHelper.getColor(context, android.R.color.system_neutral1_600)
+        .setLuminance(96f),
     neutral95 = ColorResourceHelper.getColor(context, android.R.color.system_neutral1_50),
+    neutral94 = ColorResourceHelper.getColor(context, android.R.color.system_neutral1_600)
+        .setLuminance(94f),
+    neutral92 = ColorResourceHelper.getColor(context, android.R.color.system_neutral1_600)
+        .setLuminance(92f),
     neutral90 = ColorResourceHelper.getColor(context, android.R.color.system_neutral1_100),
+    neutral87 = ColorResourceHelper.getColor(context, android.R.color.system_neutral1_600)
+        .setLuminance(87f),
     neutral80 = ColorResourceHelper.getColor(context, android.R.color.system_neutral1_200),
     neutral70 = ColorResourceHelper.getColor(context, android.R.color.system_neutral1_300),
     neutral60 = ColorResourceHelper.getColor(context, android.R.color.system_neutral1_400),
     neutral50 = ColorResourceHelper.getColor(context, android.R.color.system_neutral1_500),
     neutral40 = ColorResourceHelper.getColor(context, android.R.color.system_neutral1_600),
     neutral30 = ColorResourceHelper.getColor(context, android.R.color.system_neutral1_700),
+    neutral24 = ColorResourceHelper.getColor(context, android.R.color.system_neutral1_600)
+        .setLuminance(24f),
+    neutral22 = ColorResourceHelper.getColor(context, android.R.color.system_neutral1_600)
+        .setLuminance(22f),
     neutral20 = ColorResourceHelper.getColor(context, android.R.color.system_neutral1_800),
+    neutral17 = ColorResourceHelper.getColor(context, android.R.color.system_neutral1_600)
+        .setLuminance(17f),
+    neutral12 = ColorResourceHelper.getColor(context, android.R.color.system_neutral1_600)
+        .setLuminance(12f),
     neutral10 = ColorResourceHelper.getColor(context, android.R.color.system_neutral1_900),
+    neutral6 = ColorResourceHelper.getColor(context, android.R.color.system_neutral1_600)
+        .setLuminance(6f),
+    neutral4 = ColorResourceHelper.getColor(context, android.R.color.system_neutral1_600)
+        .setLuminance(4f),
     neutral0 = ColorResourceHelper.getColor(context, android.R.color.system_neutral1_1000),
 
     // The neutral variant tonal range, sometimes called "neutral 2",  from the
@@ -142,6 +164,16 @@ fun dynamicLightColorScheme(context: Context): ColorScheme {
         inverseSurface = tonalPalette.neutral20,
         inverseOnSurface = tonalPalette.neutral95,
         outline = tonalPalette.neutralVariant50,
+        outlineVariant = tonalPalette.neutralVariant80,
+        scrim = tonalPalette.neutral0,
+        surfaceBright = tonalPalette.neutral98,
+        surfaceDim = tonalPalette.neutral87,
+        surfaceContainer = tonalPalette.neutral94,
+        surfaceContainerHigh = tonalPalette.neutral92,
+        surfaceContainerHighest = tonalPalette.neutral90,
+        surfaceContainerLow = tonalPalette.neutral96,
+        surfaceContainerLowest = tonalPalette.neutral100,
+        surfaceTint = tonalPalette.primary40,
     )
 }
 
@@ -180,6 +212,16 @@ fun dynamicDarkColorScheme(context: Context): ColorScheme {
         inverseSurface = tonalPalette.neutral90,
         inverseOnSurface = tonalPalette.neutral20,
         outline = tonalPalette.neutralVariant60,
+        outlineVariant = tonalPalette.neutral30,
+        scrim = tonalPalette.neutral0,
+        surfaceBright = tonalPalette.neutral24,
+        surfaceDim = tonalPalette.neutral6,
+        surfaceContainer = tonalPalette.neutral12,
+        surfaceContainerHigh = tonalPalette.neutral17,
+        surfaceContainerHighest = tonalPalette.neutral22,
+        surfaceContainerLow = tonalPalette.neutral10,
+        surfaceContainerLowest = tonalPalette.neutral4,
+        surfaceTint = tonalPalette.primary80,
     )
 }
 

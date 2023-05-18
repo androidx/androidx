@@ -129,6 +129,7 @@ fun colorSchemeFromThemeMode(
     }
 }
 
+// TODO: Expand custom color schemes to define new roles.
 private val LightCustomColorScheme = lightColorScheme(
     primary = Color(0xFF984816),
     onPrimary = Color(0xFFFFFFFF),
