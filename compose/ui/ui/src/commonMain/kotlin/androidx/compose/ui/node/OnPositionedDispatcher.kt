@@ -24,6 +24,7 @@ import androidx.compose.runtime.collection.mutableVectorOf
  */
 internal class OnPositionedDispatcher {
     private val layoutNodes = mutableVectorOf<LayoutNode>()
+    private var cachedNodes: Array<LayoutNode?>? = null
 
     fun onNodePositioned(node: LayoutNode) {
         layoutNodes += node
@@ -39,12 +40,28 @@ internal class OnPositionedDispatcher {
     fun dispatch() {
         // sort layoutNodes so that the root is at the end and leaves are at the front
         layoutNodes.sortWith(DepthComparator)
-        layoutNodes.forEachReversed { layoutNode ->
+        val cache: Array<LayoutNode?>
+        val size = layoutNodes.size
+        val cachedNodes = this.cachedNodes
+        if (cachedNodes == null || cachedNodes.size < size) {
+            cache = arrayOfNulls(maxOf(MinArraySize, layoutNodes.size))
+        } else {
+            cache = cachedNodes
+        }
+        this.cachedNodes = null
+
+        // copy to cache to prevent reentrancy being a problem
+        for (i in 0 until size) {
+            cache[i] = layoutNodes[i]
+        }
+        layoutNodes.clear()
+        for (i in size - 1 downTo 0) {
+            val layoutNode = cache[i]!!
             if (layoutNode.needsOnPositionedDispatch) {
                 dispatchHierarchy(layoutNode)
             }
         }
-        layoutNodes.clear()
+        this.cachedNodes = cache
     }
 
     private fun dispatchHierarchy(layoutNode: LayoutNode) {
@@ -59,6 +76,8 @@ internal class OnPositionedDispatcher {
     }
 
     internal companion object {
+        private const val MinArraySize = 16
+
         private object DepthComparator : Comparator<LayoutNode> {
             override fun compare(a: LayoutNode, b: LayoutNode): Int {
                 val depthDiff = b.depth.compareTo(a.depth)
