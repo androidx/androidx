@@ -15,6 +15,8 @@
  */
 package androidx.camera.extensions;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.content.Context;
 import android.hardware.camera2.CameraMetadata;
 import android.hardware.camera2.params.StreamConfigurationMap;
@@ -24,6 +26,7 @@ import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.CameraProvider;
 import androidx.camera.core.CameraSelector;
@@ -272,12 +275,11 @@ public final class ExtensionsManager {
      * complete. Then, tests can call the
      * {@link ExtensionsManager#getInstanceAsync(Context, CameraProvider)} function again to
      * initialize a new {@link ExtensionsManager} instance.
-     *
-     * @hide
      */
     // TODO: Will need to be rewritten to be threadsafe with use in conjunction with
     //  ExtensionsManager.init(...) if this is to be released for use outside of testing.
     @VisibleForTesting
+    @RestrictTo(LIBRARY_GROUP)
     @NonNull
     public ListenableFuture<Void> shutdown() {
         synchronized (EXTENSIONS_LOCK) {
