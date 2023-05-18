@@ -16,19 +16,19 @@
 
 package androidx.bluetooth.integration.testapp.ui.scanner
 
-// TODO(ofy) Migrate to androidx.bluetooth.BluetoothGattService once in place
-import android.bluetooth.BluetoothGattService
+// TODO(ofy) Migrate to androidx.bluetooth.BluetoothGattCharacteristic once in place
+import android.bluetooth.BluetoothGattCharacteristic
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.bluetooth.integration.testapp.R
-import androidx.recyclerview.widget.DividerItemDecoration
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 
-class DeviceServicesAdapter(var services: List<BluetoothGattService>) :
-    RecyclerView.Adapter<DeviceServicesAdapter.ViewHolder>() {
+class DeviceServiceCharacteristicsAdapter(
+    private val characteristics: List<BluetoothGattCharacteristic>
+) :
+    RecyclerView.Adapter<DeviceServiceCharacteristicsAdapter.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context)
@@ -37,29 +37,34 @@ class DeviceServicesAdapter(var services: List<BluetoothGattService>) :
     }
 
     override fun getItemCount(): Int {
-        return services.size
+        return characteristics.size
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val service = services[position]
-        holder.bind(service)
+        val characteristic = characteristics[position]
+        holder.bind(characteristic)
     }
 
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
         private val textViewUuid: TextView = itemView.findViewById(R.id.text_view_uuid)
+        private val textViewProperties: TextView = itemView.findViewById(R.id.text_view_properties)
 
-        private val recyclerViewServiceCharacteristic: RecyclerView =
-            itemView.findViewById(R.id.recycler_view_service_characteristic)
+        fun bind(characteristic: BluetoothGattCharacteristic) {
+            textViewUuid.text = characteristic.uuid.toString()
+            /*
+                TODO(ofy) Display property type correctly
+                int	PROPERTY_BROADCAST
+                int	PROPERTY_EXTENDED_PROPS
+                int	PROPERTY_INDICATE
+                int	PROPERTY_NOTIFY
+                int	PROPERTY_READ
+                int	PROPERTY_SIGNED_WRITE
+                int	PROPERTY_WRITE
+                int	PROPERTY_WRITE_NO_RESPONSE
 
-        fun bind(service: BluetoothGattService) {
-            textViewUuid.text = service.uuid.toString()
-
-            recyclerViewServiceCharacteristic.adapter =
-                DeviceServiceCharacteristicsAdapter(service.characteristics)
-            recyclerViewServiceCharacteristic.addItemDecoration(
-                DividerItemDecoration(itemView.context, LinearLayoutManager.VERTICAL)
-            )
+                textViewProperties.text = characteristic.properties
+             */
         }
     }
 }

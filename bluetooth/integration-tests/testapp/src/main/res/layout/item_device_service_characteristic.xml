@@ -15,18 +15,11 @@
   limitations under the License.
   -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:padding="8dp">
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/generic_attribute"
-        android:textColor="#000000" />
 
     <LinearLayout
         android:layout_width="wrap_content"
@@ -49,19 +42,25 @@
 
     </LinearLayout>
 
-    <TextView
-        android:layout_width="match_parent"
+    <LinearLayout
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/primary_service"
-        android:textAllCaps="true" />
+        android:orientation="horizontal">
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recycler_view_service_characteristic"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        app:layoutManager="LinearLayoutManager"
-        tools:itemCount="3"
-        tools:listitem="@layout/item_device_service_characteristic" />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/properties" />
+
+        <TextView
+            android:id="@+id/text_view_properties"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:textAllCaps="true"
+            android:textColor="@color/black"
+            tools:text="@string/read" />
+
+    </LinearLayout>
 
 </LinearLayout>
