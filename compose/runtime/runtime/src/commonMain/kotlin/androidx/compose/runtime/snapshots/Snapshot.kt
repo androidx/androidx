@@ -715,17 +715,20 @@ open class MutableSnapshot internal constructor(
             this,
             openSnapshots.clear(currentGlobalSnapshot.get().id)
         ) else null
-        val (observers, globalModified) = sync {
+
+        var observers = emptyList<(Set<Any>, Snapshot) -> Unit>()
+        var globalModified: IdentityArraySet<StateObject>? = null
+        sync {
             validateOpen(this)
             if (modified == null || modified.size == 0) {
                 closeLocked()
                 val previousGlobalSnapshot = currentGlobalSnapshot.get()
                 takeNewGlobalSnapshot(previousGlobalSnapshot, emptyLambda)
-                val globalModified = previousGlobalSnapshot.modified
-                if (!globalModified.isNullOrEmpty())
-                    applyObservers.toMutableList() to globalModified
-                else
-                    emptyList<(Set<Any>, Snapshot) -> Unit>() to null
+                val previousModified = previousGlobalSnapshot.modified
+                if (!previousModified.isNullOrEmpty()) {
+                    observers = applyObservers.toMutableList()
+                    globalModified = previousModified
+                }
             } else {
                 val previousGlobalSnapshot = currentGlobalSnapshot.get()
                 val result = innerApplyLocked(
@@ -739,11 +742,12 @@ open class MutableSnapshot internal constructor(
 
                 // Take a new global snapshot that includes this one.
                 takeNewGlobalSnapshot(previousGlobalSnapshot, emptyLambda)
-                val globalModified = previousGlobalSnapshot.modified
+                val previousModified = previousGlobalSnapshot.modified
                 this.modified = null
                 previousGlobalSnapshot.modified = null
 
-                applyObservers.toMutableList() to globalModified
+                observers = applyObservers.toMutableList()
+                globalModified = previousModified
             }
         }
 
@@ -752,8 +756,9 @@ open class MutableSnapshot internal constructor(
 
         // Notify any apply observers that changes applied were seen
         if (!globalModified.isNullOrEmpty()) {
+            val nonNullGlobalModified = globalModified!!
             observers.fastForEach {
-                it(globalModified, this)
+                it(nonNullGlobalModified, this)
             }
         }
 

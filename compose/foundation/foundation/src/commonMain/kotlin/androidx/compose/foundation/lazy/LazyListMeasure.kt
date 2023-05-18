@@ -342,22 +342,17 @@ private fun createItemsAfterList(
 
     var end = visibleItems.last().index
 
-    fun addItem(index: Int) {
-        if (list == null) list = mutableListOf()
-        requireNotNull(list).add(
-            measuredItemProvider.getAndMeasure(index)
-        )
-    }
-
     end = minOf(end + beyondBoundsItemCount, itemsCount - 1)
 
     for (i in visibleItems.last().index + 1..end) {
-        addItem(i)
+        if (list == null) list = mutableListOf()
+        list.add(measuredItemProvider.getAndMeasure(i))
     }
 
     pinnedItems.fastForEach { index ->
         if (index > end) {
-            addItem(index)
+            if (list == null) list = mutableListOf()
+            list?.add(measuredItemProvider.getAndMeasure(index))
         }
     }
 
@@ -374,22 +369,17 @@ private fun createItemsBeforeList(
 
     var start = currentFirstItemIndex
 
-    fun addItem(index: Int) {
-        if (list == null) list = mutableListOf()
-        requireNotNull(list).add(
-            measuredItemProvider.getAndMeasure(index)
-        )
-    }
-
     start = maxOf(0, start - beyondBoundsItemCount)
 
     for (i in currentFirstItemIndex - 1 downTo start) {
-        addItem(i)
+        if (list == null) list = mutableListOf()
+        list.add(measuredItemProvider.getAndMeasure(i))
     }
 
     pinnedItems.fastForEach { index ->
         if (index < start) {
-            addItem(index)
+            if (list == null) list = mutableListOf()
+            list?.add(measuredItemProvider.getAndMeasure(index))
         }
     }
 
