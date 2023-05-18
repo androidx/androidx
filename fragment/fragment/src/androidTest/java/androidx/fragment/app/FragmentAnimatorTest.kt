@@ -22,6 +22,7 @@ import android.animation.AnimatorListenerAdapter
 import android.animation.ValueAnimator
 import android.content.res.Resources
 import android.os.Build
+import android.view.Choreographer
 import android.view.View
 import androidx.annotation.AnimatorRes
 import androidx.annotation.LayoutRes
@@ -143,6 +144,7 @@ class FragmentAnimatorTest {
 
     // Ensure that showing and popping a Fragment uses the enter and popExit animators
     // This tests reordered transactions
+    @RequiresApi(16)
     @Test
     fun showAnimatorsReordered() {
         val fm = activityRule.activity.supportFragmentManager
@@ -169,22 +171,24 @@ class FragmentAnimatorTest {
 
         assertEnterPopExit(fragment)
 
-        val view = fragment.requireView()
         val layoutCountDownLatch = CountDownLatch(1)
-        // We need to wait for the View to change its visibility before asserting
-        view.viewTreeObserver.addOnGlobalLayoutListener {
-            layoutCountDownLatch.countDown()
+
+        activityRule.runOnUiThread {
+            Choreographer.getInstance().postFrameCallback {
+                layoutCountDownLatch.countDown()
+            }
         }
 
         assertThat(layoutCountDownLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
 
         activityRule.runOnUiThread {
-            assertThat(view.visibility).isEqualTo(View.GONE)
+            assertThat(fragment.requireView().visibility).isEqualTo(View.GONE)
         }
     }
 
     // Ensure that showing and popping a Fragment uses the enter and popExit animators
     // This tests ordered transactions
+    @RequiresApi(16)
     @Test
     fun showAnimatorsOrdered() {
         val fm = activityRule.activity.supportFragmentManager
@@ -215,17 +219,18 @@ class FragmentAnimatorTest {
         }
 
         assertEnterPopExit(fragment)
+        val postFrameCountDownLatch = CountDownLatch(1)
 
-        val view = fragment.requireView()
-        val layoutCountDownLatch = CountDownLatch(1)
-        // We need to wait for the View to change its visibility before asserting
-        view.viewTreeObserver.addOnGlobalLayoutListener {
-            layoutCountDownLatch.countDown()
+        activityRule.runOnUiThread {
+            Choreographer.getInstance().postFrameCallback {
+                postFrameCountDownLatch.countDown()
+            }
         }
 
-        assertThat(layoutCountDownLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
+        assertThat(postFrameCountDownLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
+
         activityRule.runOnUiThread {
-            assertThat(view.visibility).isEqualTo(View.GONE)
+            assertThat(fragment.requireView().visibility).isEqualTo(View.GONE)
         }
     }
 
