@@ -18,6 +18,7 @@ package androidx.baselineprofile.gradle.utils
 
 import com.google.common.truth.StringSubject
 import com.google.common.truth.Truth.assertThat
+import org.gradle.configurationcache.extensions.capitalized
 import org.gradle.testkit.runner.GradleRunner
 
 internal val GRADLE_CODE_PRINT_TASK = """
@@ -94,4 +95,15 @@ internal fun List<String>.require(
         }
     }
     return remaining
+}
+
+fun camelCase(vararg strings: String): String {
+    if (strings.isEmpty()) return ""
+    return StringBuilder().apply {
+        var shouldCapitalize = false
+        for (str in strings.filter { it.isNotBlank() }) {
+            append(if (shouldCapitalize) str.capitalized() else str)
+            shouldCapitalize = true
+        }
+    }.toString()
 }

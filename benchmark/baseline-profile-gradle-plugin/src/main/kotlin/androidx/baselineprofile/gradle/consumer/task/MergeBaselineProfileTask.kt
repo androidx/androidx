@@ -151,10 +151,10 @@ abstract class MergeBaselineProfileTask : DefaultTask() {
             throw GradleException(
                 """
                 The baseline profile consumer plugin is applied to this module but no dependency
-                has been set. Please review the configuration of build.gradle for the module
-                `${project.path}` making sure that a `baselineProfile` dependency exists and
-                points to a valid `com.android.test` module that has the `androidx.baselineprofile`
-                or `androidx.baselineprofile.producer` plugin applied.
+                has been set. Please review the configuration of build.gradle for this module
+                making sure that a `baselineProfile` dependency exists and points to a valid
+                `com.android.test` module that has the `androidx.baselineprofile` or
+                `androidx.baselineprofile.producer` plugin applied.
                 """.trimIndent()
             )
         }

@@ -28,6 +28,7 @@ import androidx.baselineprofile.gradle.utils.VariantProfile
 import androidx.baselineprofile.gradle.utils.build
 import androidx.baselineprofile.gradle.utils.buildAndAssertThatOutput
 import androidx.baselineprofile.gradle.utils.buildAndFailAndAssertThatOutput
+import androidx.baselineprofile.gradle.utils.camelCase
 import androidx.baselineprofile.gradle.utils.require
 import androidx.baselineprofile.gradle.utils.requireInOrder
 import com.google.common.truth.Truth.assertThat
@@ -794,49 +795,6 @@ class BaselineProfileConsumerPluginTest(agpVersion: String?) {
     }
 
     @Test
-    fun testVariantDependenciesWithVariantsAndDirectConfiguration() {
-        projectSetup.producer.setupWithFreeAndPaidFlavors(
-            freeReleaseProfileLines = listOf(Fixtures.CLASS_1_METHOD_1, Fixtures.CLASS_1),
-            paidReleaseProfileLines = listOf(Fixtures.CLASS_2_METHOD_1, Fixtures.CLASS_2),
-        )
-
-        // In this setup no dependency is being added through the dependency block.
-        // Instead dependencies are being added through per-variant configuration block.
-        projectSetup.consumer.setup(
-            androidPlugin = ANDROID_APPLICATION_PLUGIN,
-            flavors = true,
-            dependencyOnProducerProject = false,
-            baselineProfileBlock = """
-                variants {
-                    freeRelease {
-                        from(project(":${projectSetup.producer.name}"))
-                    }
-                    paidRelease {
-                        from(project(":${projectSetup.producer.name}"), "freeRelease")
-                    }
-                }
-
-            """.trimIndent()
-        )
-        gradleRunner
-            .withArguments("generateReleaseBaselineProfile", "--stacktrace")
-            .build()
-
-        assertThat(readBaselineProfileFileContent("freeRelease"))
-            .containsExactly(
-                Fixtures.CLASS_1,
-                Fixtures.CLASS_1_METHOD_1,
-            )
-
-        // This output should be the same of free release
-        assertThat(readBaselineProfileFileContent("paidRelease"))
-            .containsExactly(
-                Fixtures.CLASS_1,
-                Fixtures.CLASS_1_METHOD_1,
-            )
-    }
-
-    @Test
     fun testPartialResults() {
         projectSetup.consumer.setup(
             androidPlugin = ANDROID_APPLICATION_PLUGIN
@@ -976,6 +934,76 @@ class BaselineProfileConsumerPluginTest(agpVersion: String?) {
                 .readLines()
                 .require(*(it.profile).toTypedArray())
             assertThat(notFound).isEmpty()
+        }
+    }
+
+    @Test
+    fun testMultidimensionalFlavorsAndMatchingFallbacks() {
+        projectSetup.consumer.setupWithBlocks(
+            androidPlugin = ANDROID_APPLICATION_PLUGIN,
+            flavorsBlock = """
+                flavorDimensions = ["tier", "color"]
+                free { dimension "tier" }
+                red { dimension "color" }
+                paid {
+                    dimension "tier"
+                    matchingFallbacks += "free"
+                }
+                blue {
+                    dimension "color"
+                    matchingFallbacks += "red"
+                }
+            """.trimIndent(),
+            buildTypesBlock = "",
+            dependencyOnProducerProject = false,
+            baselineProfileBlock = """
+                variants {
+                    free { from(project(":${projectSetup.producer.name}")) }
+                    red { from(project(":${projectSetup.producer.name}")) }
+                    paid { from(project(":${projectSetup.producer.name}")) }
+                    // blue is already covered by the intersection of the other dimensions so no
+                    // need to specify it.
+                }
+
+            """.trimIndent()
+        )
+        projectSetup.producer.setup(
+            variantProfiles = listOf(
+                VariantProfile(
+                    flavorDimensions = mapOf(
+                        "tier" to "free",
+                        "color" to "red",
+                    ),
+                    buildType = "release",
+                    profileFileLines = mapOf(
+                        "some-test-output" to listOf(
+                            Fixtures.CLASS_1_METHOD_1,
+                            Fixtures.CLASS_1
+                        )
+                    ),
+                    startupFileLines = mapOf(
+                        "some-startup-test-output" to listOf(
+                            Fixtures.CLASS_1_METHOD_1,
+                            Fixtures.CLASS_1
+                        )
+                    ),
+                )
+            )
+        )
+
+        arrayOf(
+            "freeRedRelease",
+            "freeBlueRelease",
+            "paidRedRelease",
+            "paidBlueRelease"
+        ).forEach { variantName ->
+            gradleRunner.build(camelCase("generate", variantName, "baselineProfile")) {
+                assertThat(readBaselineProfileFileContent(variantName))
+                    .containsExactly(
+                        Fixtures.CLASS_1_METHOD_1,
+                        Fixtures.CLASS_1
+                    )
+            }
         }
     }
 }

@@ -191,29 +191,13 @@ private class BaselineProfileConsumerAgpPlugin(private val project: Project) : A
         // Creates the configuration to carry the specific variant artifact
         val baselineProfileConfiguration = createConfigurationForVariant(
             variant = variant,
-            mainConfiguration = mainBaselineProfileConfiguration,
-            hasDirectConfiguration = variantDependencies.any { it.second != null }
+            mainConfiguration = mainBaselineProfileConfiguration
         )
 
         // Adds the custom dependencies for baseline profiles. Note that dependencies
         // for global, build type, flavor and variant specific are all merged.
         variantDependencies.forEach {
-            val targetProject = it.first
-            val variantName = it.second
-            val targetProjectDependency = if (variantName != null) {
-                val configurationName = camelCase(
-                    variantName,
-                    CONFIGURATION_NAME_BASELINE_PROFILES
-                )
-                project.dependencies.project(
-                    mutableMapOf(
-                        "path" to targetProject.path,
-                        "configuration" to configurationName
-                    )
-                )
-            } else {
-                project.dependencyFactory.create(targetProject)
-            }
+            val targetProjectDependency = project.dependencyFactory.create(it)
             baselineProfileConfiguration.dependencies.add(targetProjectDependency)
         }
 
@@ -436,16 +420,26 @@ private class BaselineProfileConsumerAgpPlugin(private val project: Project) : A
 
         if (supportsFeature(AgpFeature.TEST_MODULE_SUPPORTS_MULTIPLE_BUILD_TYPES)) {
 
-            // Generate a flavor task, such as `generateFreeBaselineProfile`
-            if (!mergeIntoMain &&
-                !variant.flavorName.isNullOrBlank() &&
-                variant.flavorName != variant.name
-            ) {
-                maybeCreateGenerateTask<Task>(
-                    project = project,
-                    variantName = variant.flavorName!!,
-                    lastTaskProvider = lastTaskProvider
+            // Generate a flavor task for the assembled flavor name and each flavor dimension.
+            // For example for variant `freeRelease` (build type `release`, flavor `free`):
+            // `generateFreeBaselineProfile`.
+            // For example for variant `freeRedRelease` (build type `release`, flavor dimensions
+            // `free` and `red`): `generateFreeBaselineProfile`, `generateRedBaselineProfile` and
+            // `generateFreeRedBaselineProfile`.
+            if (!mergeIntoMain) {
+                listOfNotNull(
+                    variant.flavorName,
+                    *variant.productFlavors.map { it.second }.toTypedArray()
                 )
+                    .filter { it != variant.name && it.isNotBlank() }
+                    .toSet()
+                    .forEach {
+                        maybeCreateGenerateTask<Task>(
+                            project = project,
+                            variantName = it,
+                            lastTaskProvider = lastTaskProvider
+                        )
+                    }
             }
 
             // Generate the main global tasks `generateBaselineProfile
@@ -474,69 +468,13 @@ private class BaselineProfileConsumerAgpPlugin(private val project: Project) : A
 
     private fun createConfigurationForVariant(
         variant: Variant,
-        mainConfiguration: Configuration?,
-        hasDirectConfiguration: Boolean
-    ): Configuration {
-
-        val variantName = variant.name
-        val productFlavors = variant.productFlavors
-        val flavorName = variant.flavorName ?: ""
-        val buildTypeName = variant.buildType ?: ""
-
-        val buildTypeConfiguration =
-            if (buildTypeName.isNotBlank() && buildTypeName != variantName) {
-                configurationManager.maybeCreate(
-                    nameParts = listOf(buildTypeName, CONFIGURATION_NAME_BASELINE_PROFILES),
-                    canBeResolved = true,
-                    canBeConsumed = false,
-                    buildType = null,
-                    productFlavors = null,
-                    extendFromConfigurations = listOfNotNull(mainConfiguration)
-                )
-            } else null
-
-        val flavorConfiguration =
-            if (flavorName.isNotBlank() && flavorName != variantName) {
-                configurationManager.maybeCreate(
-                    nameParts = listOf(flavorName, CONFIGURATION_NAME_BASELINE_PROFILES),
-                    canBeResolved = true,
-                    canBeConsumed = false,
-                    buildType = null,
-                    productFlavors = null,
-                    extendFromConfigurations = listOfNotNull(mainConfiguration)
-                )
-            } else null
-
-        // When there is direct configuration for the dependency the matching through attributes
-        // is bypassed, because most likely the user meant to match a configuration that does not
-        // have the same tags (for example to a different flavor or build type).
-
-        return if (hasDirectConfiguration) {
-            configurationManager.maybeCreate(
-                nameParts = listOf(variantName, CONFIGURATION_NAME_BASELINE_PROFILES),
-                canBeResolved = true,
-                canBeConsumed = false,
-                extendFromConfigurations = listOfNotNull(
-                    mainConfiguration,
-                    flavorConfiguration,
-                    buildTypeConfiguration
-                ),
-                buildType = null,
-                productFlavors = null
-            )
-        } else {
-            configurationManager.maybeCreate(
-                nameParts = listOf(variantName, CONFIGURATION_NAME_BASELINE_PROFILES),
-                canBeResolved = true,
-                canBeConsumed = false,
-                extendFromConfigurations = listOfNotNull(
-                    mainConfiguration,
-                    flavorConfiguration,
-                    buildTypeConfiguration
-                ),
-                buildType = buildTypeName,
-                productFlavors = productFlavors
-            )
-        }
-    }
+        mainConfiguration: Configuration
+    ) = configurationManager.maybeCreate(
+        nameParts = listOf(variant.name, CONFIGURATION_NAME_BASELINE_PROFILES),
+        canBeResolved = true,
+        canBeConsumed = false,
+        extendFromConfigurations = listOf(mainConfiguration),
+        buildType = variant.buildType ?: "",
+        productFlavors = variant.productFlavors
+    )
 }
