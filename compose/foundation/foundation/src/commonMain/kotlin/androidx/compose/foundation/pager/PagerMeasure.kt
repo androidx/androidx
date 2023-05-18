@@ -429,18 +429,15 @@ private fun createPagesAfterList(
 
     val end = minOf(currentLastPage + beyondBoundsPageCount, pagesCount - 1)
 
-    fun addPage(index: Int) {
-        if (list == null) list = mutableListOf()
-        requireNotNull(list).add(getAndMeasure(index))
-    }
-
     for (i in currentLastPage + 1..end) {
-        addPage(i)
+        if (list == null) list = mutableListOf()
+        list.add(getAndMeasure(i))
     }
 
     pinnedPages.fastForEach { pageIndex ->
         if (pageIndex in (end + 1) until pagesCount) {
-            addPage(pageIndex)
+            if (list == null) list = mutableListOf()
+            list?.add(getAndMeasure(pageIndex))
         }
     }
 
@@ -457,20 +454,15 @@ private fun createPagesBeforeList(
 
     val start = maxOf(0, currentFirstPage - beyondBoundsPageCount)
 
-    fun addPage(index: Int) {
-        if (list == null) list = mutableListOf()
-        requireNotNull(list).add(
-            getAndMeasure(index)
-        )
-    }
-
     for (i in currentFirstPage - 1 downTo start) {
-        addPage(i)
+        if (list == null) list = mutableListOf()
+        list.add(getAndMeasure(i))
     }
 
     pinnedPages.fastForEach { pageIndex ->
         if (pageIndex < start) {
-            addPage(pageIndex)
+            if (list == null) list = mutableListOf()
+            list?.add(getAndMeasure(pageIndex))
         }
     }
 
