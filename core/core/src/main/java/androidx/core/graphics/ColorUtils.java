@@ -25,6 +25,7 @@ import androidx.annotation.FloatRange;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+import androidx.annotation.Size;
 import androidx.annotation.VisibleForTesting;
 import androidx.core.content.res.CamColor;
 
@@ -692,7 +693,9 @@ public final class ColorUtils {
      */
     @SuppressWarnings("AcronymName")
     @ColorInt
-    public static int M3HCTtoColor(float hue, float chroma, float tone) {
+    public static int M3HCTToColor(@FloatRange(from = 0.0, to = 360, toInclusive = false) float hue,
+            @FloatRange(from = 0.0, to = Double.POSITIVE_INFINITY, toInclusive = false)
+            float chroma, @FloatRange(from = 0.0, to = 100) float tone) {
         return CamColor.toColor(hue, chroma, tone);
     }
 
@@ -711,7 +714,7 @@ public final class ColorUtils {
      *                 Tone).
      */
     @SuppressWarnings("AcronymName")
-    public static void colorToM3HCT(@ColorInt int color, @NonNull float[] outM3HCT) {
+    public static void colorToM3HCT(@ColorInt int color, @NonNull @Size(3) float[] outM3HCT) {
         CamColor.getM3HCTfromColor(color, outM3HCT);
     }
 
