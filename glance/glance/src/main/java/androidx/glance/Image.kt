@@ -24,6 +24,8 @@ import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.compose.runtime.Composable
 import androidx.glance.layout.ContentScale
+import androidx.glance.semantics.SemanticsModifier
+import androidx.glance.semantics.SemanticsProperties
 import androidx.glance.semantics.contentDescription
 import androidx.glance.semantics.semantics
 import androidx.glance.unit.ColorProvider
@@ -122,6 +124,14 @@ class EmittableImage : Emittable {
         "colorFilterParams=$colorFilterParams, " +
         "contentScale=$contentScale" +
         ")"
+}
+
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+/** @suppress */
+fun EmittableImage.isDecorative(): Boolean {
+    val semanticsConfiguration = modifier.findModifier<SemanticsModifier>()?.configuration
+    return semanticsConfiguration?.getOrNull(SemanticsProperties.ContentDescription)?.get(0)
+        .isNullOrEmpty()
 }
 
 /**

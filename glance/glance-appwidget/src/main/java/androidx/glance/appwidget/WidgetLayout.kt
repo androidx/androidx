@@ -38,13 +38,13 @@ import androidx.glance.appwidget.lazy.EmittableLazyListItem
 import androidx.glance.appwidget.lazy.EmittableLazyVerticalGrid
 import androidx.glance.appwidget.lazy.EmittableLazyVerticalGridListItem
 import androidx.glance.appwidget.proto.LayoutProto
-import androidx.glance.appwidget.proto.LayoutProto.LayoutConfig
 import androidx.glance.appwidget.proto.LayoutProto.LayoutDefinition
 import androidx.glance.appwidget.proto.LayoutProto.LayoutNode
 import androidx.glance.appwidget.proto.LayoutProto.LayoutType
 import androidx.glance.appwidget.proto.LayoutProto.NodeIdentity
 import androidx.glance.appwidget.proto.LayoutProtoSerializer
 import androidx.glance.findModifier
+import androidx.glance.isDecorative
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.EmittableBox
 import androidx.glance.layout.EmittableColumn
@@ -252,6 +252,7 @@ private fun LayoutNode.Builder.setImageNode(element: EmittableImage) {
         androidx.glance.layout.ContentScale.FillBounds -> LayoutProto.ContentScale.FILL_BOUNDS
         else -> error("Unknown content scale ${element.contentScale}")
     }
+    hasImageDescription = !element.isDecorative()
 }
 
 private fun LayoutNode.Builder.setColumnNode(element: EmittableColumn) {
