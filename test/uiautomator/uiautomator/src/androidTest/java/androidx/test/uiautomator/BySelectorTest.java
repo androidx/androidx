@@ -170,6 +170,13 @@ public class BySelectorTest {
         By.depth(-1);
     }
 
+    @Test
+    @SdkSuppress(minSdkVersion = 30)
+    public void testDisplayId_alreadyDefined() {
+        assertThrows(IllegalStateException.class,
+                () -> By.displayId(0).displayId(1));
+    }
+
     @Test(expected = NullPointerException.class)
     public void testHasParent_nullValue() {
         By.hasParent(null);

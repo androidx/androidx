@@ -17,6 +17,7 @@
 package androidx.test.uiautomator.testapp;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeTrue;
 
@@ -31,6 +32,7 @@ import androidx.annotation.NonNull;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.uiautomator.By;
+import androidx.test.uiautomator.BySelector;
 import androidx.test.uiautomator.UiObject2;
 import androidx.test.uiautomator.Until;
 
@@ -38,14 +40,12 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 @SdkSuppress(minSdkVersion = 30)
 public class MultiDisplayTest extends BaseTest {
-    private static final int MULTI_DISPLAY_FLAGS =
-            Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_MULTIPLE_TASK;
-
     @Before
     public void assumeMultiDisplay() {
         // Tests need to run with multiple displays.
@@ -53,20 +53,67 @@ public class MultiDisplayTest extends BaseTest {
     }
 
     @Test
-    public void testMultiDisplay_click() {
-        int selectedDisplayId = getSecondaryDisplayId();
-        launchTestActivityOnDisplay(ClickTestActivity.class, selectedDisplayId);
+    public void testMultiDisplay_selector() {
+        int secondaryDisplayId = getSecondaryDisplayId();
+        launchTestActivity(MainActivity.class);
+        launchTestActivityOnDisplay(IsFocusedTestActivity.class, secondaryDisplayId);
 
-        UiObject2 button = mDevice.findObject(By.res(TEST_APP, "button1"));
+        // Found when display ID not specified.
+        assertEquals(2, mDevice.findObjects(By.res(TEST_APP, "button")).size());
+
+        // Not found with wrong display ID.
+        assertFalse(mDevice.hasObject(
+                By.res(TEST_APP, "nested_elements").displayId(secondaryDisplayId)));
+        assertFalse(
+                mDevice.hasObject(By.res(TEST_APP, "focusable_text_view").displayId(
+                        Display.DEFAULT_DISPLAY)));
+
+        // Found with correct display ID.
+        assertTrue(
+                mDevice.hasObject(
+                        By.res(TEST_APP, "nested_elements").displayId(Display.DEFAULT_DISPLAY)));
+        assertTrue(mDevice.hasObject(
+                By.res(TEST_APP, "focusable_text_view").displayId(secondaryDisplayId)));
+    }
+
+    @Test
+    public void testMultiDisplay_click() {
+        int secondaryDisplayId = getSecondaryDisplayId();
+        launchTestActivityOnDisplay(ClickTestActivity.class, secondaryDisplayId);
+
+        UiObject2 button = mDevice.findObject(
+                By.res(TEST_APP, "button1").displayId(secondaryDisplayId));
         button.click();
-        assertEquals(selectedDisplayId, button.getDisplayId());
+        assertEquals(secondaryDisplayId, button.getDisplayId());
         assertTrue(button.wait(Until.textEquals("text1_clicked"), TIMEOUT_MS));
+    }
+
+    @Test
+    public void testMultiDisplay_treeRelationship() {
+        int secondaryDisplayId = getSecondaryDisplayId();
+        launchTestActivityOnDisplay(ParentChildTestActivity.class, secondaryDisplayId);
+
+        // Different display IDs between parent and child.
+        BySelector invalidChildSelector = By.res(TEST_APP, "tree_N3").displayId(
+                Display.DEFAULT_DISPLAY);
+        List<UiObject2> invalidParent =
+                mDevice.findObjects(
+                        By.hasChild(invalidChildSelector).displayId(secondaryDisplayId));
+        assertEquals(0, invalidParent.size());
+
+        // Same display ID between ancestor and descendant.
+        BySelector validAncestorSelector =
+                By.res(TEST_APP, "tree_N1").displayId(secondaryDisplayId);
+        UiObject2 validDescendant =
+                mDevice.findObject(By.hasAncestor(validAncestorSelector).displayId(
+                        secondaryDisplayId).textContains("4"));
+        assertEquals("tree_N4", validDescendant.getText());
     }
 
     // Helper to launch an activity on a specific display.
     private void launchTestActivityOnDisplay(@NonNull Class<? extends Activity> activity,
             int displayId) {
-        launchTestActivity(activity, new Intent().setFlags(MULTI_DISPLAY_FLAGS),
+        launchTestActivity(activity, new Intent().setFlags(DEFAULT_FLAGS),
                 ActivityOptions.makeBasic().setLaunchDisplayId(displayId).toBundle());
     }
 
@@ -80,13 +127,7 @@ public class MultiDisplayTest extends BaseTest {
 
     // Helper to get the ID of the first non-default display.
     private static int getSecondaryDisplayId() {
-        int selectedDisplayId = 0;
-        for (int displayId : getDisplayIds()) {
-            if (displayId != Display.DEFAULT_DISPLAY) {
-                selectedDisplayId = displayId;
-                break;
-            }
-        }
-        return selectedDisplayId;
+        return getDisplayIds().stream().filter(
+                id -> id != Display.DEFAULT_DISPLAY).findFirst().orElse(-1);
     }
 }
