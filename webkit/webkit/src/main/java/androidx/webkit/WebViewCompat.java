@@ -796,13 +796,13 @@ public class WebViewCompat {
      * @throws IllegalArgumentException If one of the {@code allowedOriginRules} is invalid.
      * @see #addWebMessageListener(WebView, String, Set, WebMessageListener)
      * @see ScriptHandler
-     *
-     * TODO(swestphal): unhide when ready.
+     * @deprecated unreleased API will be removed in 1.9.0
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @RequiresFeature(
             name = WebViewFeature.DOCUMENT_START_SCRIPT,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
+    @Deprecated
     public static @NonNull ScriptHandler addDocumentStartJavaScript(
             @NonNull WebView webview,
             @NonNull String script,
