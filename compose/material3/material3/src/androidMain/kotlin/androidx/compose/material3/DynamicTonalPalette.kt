@@ -22,6 +22,10 @@ import androidx.annotation.ColorRes
 import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.colorspace.ColorSpaces
+import androidx.core.math.MathUtils
+import kotlin.math.pow
+import kotlin.math.roundToInt
 
 /** Dynamic colors in Material. */
 @RequiresApi(Build.VERSION_CODES.S)
@@ -185,4 +189,67 @@ private object ColorResourceHelper {
     fun getColor(context: Context, @ColorRes id: Int): Color {
         return Color(context.resources.getColor(id, context.theme))
     }
+}
+
+/**
+ * Set the luminance(tone) of this color. Chroma may decrease because chroma has a different maximum
+ * for any given hue and luminance.
+ *
+ * @param newLuminance 0 <= newLuminance <= 100; invalid values are corrected.
+ */
+internal fun Color.setLuminance(
+    /*@FloatRange(from = 0.0, to = 100.0)*/
+    newLuminance: Float
+): Color {
+    if ((newLuminance < 0.0001) or (newLuminance > 99.9999)) {
+        // aRGBFromLstar() from monet ColorUtil.java
+        val y = 100 * labInvf((newLuminance + 16) / 116)
+        println("y: $y")
+        val component = delinearized(y)
+        println("component: $component")
+
+        return Color(
+            /* red = */component,
+            /* green = */component,
+            /* blue = */component,
+        )
+    }
+
+    val sLAB = this.convert(ColorSpaces.CieLab)
+    return Color(
+        /* luminance = */newLuminance,
+        /* a = */sLAB.component2(),
+        /* b = */sLAB.component3(),
+        colorSpace = ColorSpaces.CieLab
+    ).convert(ColorSpaces.Srgb)
+}
+
+/** Helper method from monet ColorUtils.java */
+private fun labInvf(ft: Float): Float {
+    val e = 216f / 24389f
+    val kappa = 24389f / 27f
+    val ft3 = ft * ft * ft
+    return if (ft3 > e) {
+        ft3
+    } else {
+        (116 * ft - 16) / kappa
+    }
+}
+
+/**
+ * Helper method from monet ColorUtils.java
+ *
+ * Delinearizes an RGB component.
+ *
+ * @param rgbComponent 0.0 <= rgb_component <= 100.0, represents linear R/G/B channel
+ * @return 0 <= output <= 255, color channel converted to regular RGB space
+ */
+private fun delinearized(rgbComponent: Float): Int {
+    val normalized = rgbComponent / 100
+    val delinearized = if (normalized <= 0.0031308) {
+        normalized * 12.92
+    } else {
+        1.055 * normalized.toDouble().pow(1.0 / 2.4) - 0.055
+    }
+    return MathUtils.clamp((delinearized * 255.0).roundToInt(), 0, 255)
 }
