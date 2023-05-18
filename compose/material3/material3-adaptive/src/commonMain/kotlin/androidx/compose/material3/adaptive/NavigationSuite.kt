@@ -21,6 +21,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.Layout
@@ -87,4 +88,97 @@ private fun NavigationSuiteLayout(
     }
 }
 
-/* TODO: Add NavigationLayoutType class and NavigationSuiteFeature. */
+/**
+ * A feature that describes characteristics of the navigation component of the [NavigationSuite].
+ *
+ * TODO: Remove "internal".
+ */
+@ExperimentalMaterial3AdaptiveApi
+internal interface NavigationSuiteFeature {
+    /**
+     * Represents the orientation of the navigation component of the [NavigationSuite].
+     */
+    enum class Orientation {
+        /**
+         * The navigation component of the [NavigationSuite] is horizontal, such as the
+         * Navigation Bar.
+         */
+        Horizontal,
+        /**
+         * The navigation component of the [NavigationSuite] is vertical, such as the
+         * Navigation Rail or Navigation Drawer.
+         */
+        Vertical
+    }
+}
+
+/**
+ * Class that describes the different navigation layout types of the [NavigationSuite].
+ *
+ * The [NavigationLayoutType] informs the [NavigationSuite] of what navigation component to expect
+ * and how to properly place it on the screen in relation to the [NavigationSuite]'s content.
+ *
+ * @param description the description of the [NavigationLayoutType]
+ * @param alignment the [Alignment] of the [NavigationLayoutType] that helps inform how the
+ * navigation component will be positioned on the screen. The current supported alignments are:
+ * [Alignment.TopStart], [Alignment.BottomStart], and [Alignment.TopEnd]
+ * @param orientation the [NavigationSuiteFeature.Orientation] of the [NavigationLayoutType] that
+ * helps inform how the navigation component will be positioned on the screen in relation to the
+ * content
+ *
+ * TODO: Make class open instead of internal.
+ */
+@ExperimentalMaterial3AdaptiveApi
+internal class NavigationLayoutType constructor(
+    private val description: String,
+    // TODO: Make this an internal open val.
+    internal val alignment: Alignment,
+    // TODO: Make this an internal open val.
+    internal val orientation: NavigationSuiteFeature.Orientation
+) {
+    override fun toString(): String {
+        return description
+    }
+
+    companion object {
+        /**
+         * A navigation layout type that instructs the [NavigationSuite] to expect a
+         * [androidx.compose.material3.NavigationBar] and properly place it on the screen.
+         *
+         * @see androidx.compose.material3.NavigationBar
+         */
+        @JvmField
+        val NavigationBar =
+            NavigationLayoutType(
+                description = "NavigationBar",
+                alignment = Alignment.BottomStart,
+                orientation = NavigationSuiteFeature.Orientation.Horizontal,
+            )
+        /**
+         * A navigation layout type that instructs the [NavigationSuite] to expect a
+         * [androidx.compose.material3.NavigationRail] and properly place it on the screen.
+         *
+         * @see androidx.compose.material3.NavigationRail
+         */
+        @JvmField
+        val NavigationRail =
+            NavigationLayoutType(
+                description = "NavigationRail",
+                alignment = Alignment.TopStart,
+                orientation = NavigationSuiteFeature.Orientation.Vertical,
+            )
+        /**
+         * A navigation layout type that instructs the [NavigationSuite] to expect a
+         * [androidx.compose.material3.PermanentDrawerSheet] and properly place it on the screen.
+         *
+         * @see androidx.compose.material3.PermanentDrawerSheet
+         */
+        @JvmField
+        val NavigationDrawer =
+            NavigationLayoutType(
+                description = "NavigationDrawer",
+                alignment = Alignment.TopStart,
+                orientation = NavigationSuiteFeature.Orientation.Vertical,
+            )
+    }
+}
