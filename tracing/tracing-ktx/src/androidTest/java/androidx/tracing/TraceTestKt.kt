@@ -37,6 +37,13 @@ class TraceTestKt {
     }
 
     @Test
+    fun testNoCrossInline() {
+        trace("Test") {
+            return
+        }
+    }
+
+    @Test
     fun traceLazyTest() {
         assertFalse(
             "This test expects to be run without tracing enabled in this process",

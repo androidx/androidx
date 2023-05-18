@@ -23,7 +23,7 @@ package androidx.tracing
  * @param label A name of the code section to appear in the trace.
  * @param block A block of code which is being traced.
  */
-public inline fun <T> trace(label: String, crossinline block: () -> T): T {
+public inline fun <T> trace(label: String, block: () -> T): T {
     Trace.beginSection(label)
     try {
         return block()
