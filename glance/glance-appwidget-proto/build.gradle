@@ -77,7 +77,6 @@ androidx {
     name = "Glance AppWidget Protos"
     publish = Publish.NONE
     inceptionYear = "2021"
-    runApiTasks = new RunApiTasks.No("No public API required for internal use with app widgets.")
     description = "Protos for use with glance app widgets."
 }
 
