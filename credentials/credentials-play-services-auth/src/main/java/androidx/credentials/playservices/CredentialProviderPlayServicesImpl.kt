@@ -103,8 +103,9 @@ class CredentialProviderPlayServicesImpl(private val context: Context) : Credent
     }
 
     // https://developers.google.com/android/reference/com/google/android/gms/common/ConnectionResult
-    // TODO(b/262924507): Most codes indicate failure, but two indicate retry-ability -
-    //  look into handling.
+    // There is one error code that supports retry API_DISABLED_FOR_CONNECTION but it would not
+    // be useful to retry that one because our connection to GMSCore is a static variable
+    // (see GoogleApiAvailability.getInstance()) so we cannot recreate the connection to retry.
     private fun isGooglePlayServicesAvailable(context: Context): Int {
         return googleApiAvailability.isGooglePlayServicesAvailable(context)
     }
