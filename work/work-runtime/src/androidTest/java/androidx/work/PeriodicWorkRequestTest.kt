@@ -19,7 +19,7 @@ package androidx.work
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
-import androidx.work.workers.TestWorker
+import androidx.work.worker.TestWorker
 import java.time.Duration
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeUnit.HOURS

@@ -29,7 +29,7 @@ import androidx.work.impl.utils.SerialExecutorImpl
 import androidx.work.impl.utils.WorkProgressUpdater
 import androidx.work.impl.utils.futures.SettableFuture
 import androidx.work.impl.utils.taskexecutor.TaskExecutor
-import androidx.work.workers.ProgressUpdatingWorker
+import androidx.work.worker.ProgressUpdatingWorker
 import java.util.UUID
 import java.util.concurrent.Executor
 import kotlinx.coroutines.asCoroutineDispatcher
