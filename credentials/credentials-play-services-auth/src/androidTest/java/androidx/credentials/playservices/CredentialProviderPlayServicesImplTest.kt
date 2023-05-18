@@ -54,7 +54,6 @@ class CredentialProviderPlayServicesImplTest {
 
     @Test
     fun isAvailableOnDevice_apiNotSuccess_returnsFalse() {
-        // TODO("If retryables are accounted for, add a third test")
         val activityScenario = ActivityScenario.launch(
             TestCredentialsActivity::class.java
         )
