@@ -38,18 +38,21 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayout.Tab
-import java.lang.Exception
+import kotlin.coroutines.cancellation.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 
 class ScannerFragment : Fragment() {
 
-    private companion object {
+    internal companion object {
         private const val TAG = "ScannerFragment"
 
         private const val TAB_RESULTS_POSITION = 0
+
+        internal const val MANUAL_DISCONNECT = "MANUAL_DISCONNECT"
     }
 
     private lateinit var scannerViewModel: ScannerViewModel
@@ -65,7 +68,6 @@ class ScannerFragment : Fragment() {
     private var scanJob: Job? = null
 
     private val connectScope = CoroutineScope(Dispatchers.Default + Job())
-    private var connectJob: Job? = null
 
     private var isScanning: Boolean = false
         set(value) {
@@ -143,6 +145,10 @@ class ScannerFragment : Fragment() {
 
         binding.buttonReconnect.setOnClickListener {
             connectTo(scannerViewModel.deviceConnection(binding.tabLayout.selectedTabPosition))
+        }
+
+        binding.buttonDisconnect.setOnClickListener {
+            disconnect(scannerViewModel.deviceConnection(binding.tabLayout.selectedTabPosition))
         }
 
         initData()
@@ -229,7 +235,7 @@ class ScannerFragment : Fragment() {
     private fun connectTo(deviceConnection: DeviceConnection) {
         Log.d(TAG, "connectTo() called with: deviceConnection = $deviceConnection")
 
-        connectJob = connectScope.launch {
+        deviceConnection.job = connectScope.launch {
             deviceConnection.status = Status.CONNECTING
             launch(Dispatchers.Main) {
                 updateDeviceUI(deviceConnection)
@@ -237,7 +243,7 @@ class ScannerFragment : Fragment() {
 
             try {
                 bluetoothLe.connectGatt(requireContext(), deviceConnection.bluetoothDevice) {
-                    Log.d(TAG, "connectGatt result. getServices() = ${getServices()}")
+                    Log.d(TAG, "connectGatt result: getServices() = ${getServices()}")
 
                     deviceConnection.status = Status.CONNECTED
                     deviceConnection.services = getServices()
@@ -246,25 +252,40 @@ class ScannerFragment : Fragment() {
                     }
                 }
             } catch (exception: Exception) {
-                Log.e(TAG, "connectTo: exception", exception)
+                Log.e(TAG, "connectGatt() exception", exception)
 
-                deviceConnection.status = Status.CONNECTION_FAILED
-                launch(Dispatchers.Main) {
-                    updateDeviceUI(deviceConnection)
+                if (exception is CancellationException) {
+                    Log.d(TAG, "connectGatt() CancellationException")
+                } else {
+                    deviceConnection.status = Status.CONNECTION_FAILED
+                    launch(Dispatchers.Main) {
+                        updateDeviceUI(deviceConnection)
+                    }
                 }
             }
         }
+    }
+
+    private fun disconnect(deviceConnection: DeviceConnection) {
+        Log.d(TAG, "disconnect() called with: deviceConnection = $deviceConnection")
+
+        deviceConnection.job?.cancel(MANUAL_DISCONNECT)
+        deviceConnection.job = null
+        deviceConnection.status = Status.NOT_CONNECTED
+        updateDeviceUI(deviceConnection)
     }
 
     @SuppressLint("NotifyDataSetChanged")
     private fun updateDeviceUI(deviceConnection: DeviceConnection) {
         binding.progressIndicatorDeviceConnection.isVisible = false
         binding.buttonReconnect.isVisible = false
+        binding.buttonDisconnect.isVisible = false
 
         when (deviceConnection.status) {
             Status.NOT_CONNECTED -> {
                 binding.textViewDeviceConnectionStatus.text = getString(R.string.not_connected)
                 binding.textViewDeviceConnectionStatus.setTextColor(getColor(R.color.green_500))
+                binding.buttonReconnect.isVisible = true
             }
             Status.CONNECTING -> {
                 binding.progressIndicatorDeviceConnection.isVisible = true
@@ -274,6 +295,7 @@ class ScannerFragment : Fragment() {
             Status.CONNECTED -> {
                 binding.textViewDeviceConnectionStatus.text = getString(R.string.connected)
                 binding.textViewDeviceConnectionStatus.setTextColor(getColor(R.color.indigo_500))
+                binding.buttonDisconnect.isVisible = true
             }
             Status.CONNECTION_FAILED -> {
                 binding.textViewDeviceConnectionStatus.text = getString(R.string.connection_failed)

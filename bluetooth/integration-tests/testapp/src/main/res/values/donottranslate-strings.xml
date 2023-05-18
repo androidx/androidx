@@ -27,6 +27,7 @@
     <string name="scan_result_icon">Scan Result Icon</string>
     <string name="connect">Connect</string>
     <string name="reconnect">Reconnect</string>
+    <string name="disconnect">Disconnect</string>
     <string name="scan_results">Scan Results</string>
     <string name="not_connected">Not Connected</string>
     <string name="connecting">Connecting…</string>

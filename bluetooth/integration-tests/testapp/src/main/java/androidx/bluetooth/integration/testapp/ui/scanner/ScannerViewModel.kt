@@ -21,6 +21,8 @@ import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothGattService
 import android.bluetooth.le.ScanResult
 import androidx.lifecycle.ViewModel
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
 
 class ScannerViewModel : ViewModel() {
 
@@ -35,6 +37,12 @@ class ScannerViewModel : ViewModel() {
 
     internal val deviceConnections: Set<DeviceConnection> get() = _deviceConnections
     private val _deviceConnections = mutableSetOf<DeviceConnection>()
+
+    override fun onCleared() {
+        super.onCleared()
+
+        _deviceConnections.forEach { it.job?.cancel() }
+    }
 
     fun addScanResultIfNew(scanResult: ScanResult): Boolean {
         val deviceAddress = scanResult.device.address
@@ -62,6 +70,8 @@ class ScannerViewModel : ViewModel() {
 
     fun remove(bluetoothDevice: BluetoothDevice) {
         val deviceConnection = _deviceConnections.find { it.bluetoothDevice == bluetoothDevice }
+        deviceConnection?.job?.cancel(ScannerFragment.MANUAL_DISCONNECT)
+        deviceConnection?.job = null
 
         _deviceConnections.remove(deviceConnection)
     }
@@ -75,6 +85,7 @@ class ScannerViewModel : ViewModel() {
 class DeviceConnection(
     val bluetoothDevice: BluetoothDevice
 ) {
+    var job: Job? = null
     var status = Status.NOT_CONNECTED
     var services = emptyList<BluetoothGattService>()
 }
