@@ -3580,6 +3580,8 @@ package androidx.core.view {
   public final class ViewConfigurationCompat {
     method public static float getScaledHorizontalScrollFactor(android.view.ViewConfiguration, android.content.Context);
     method public static int getScaledHoverSlop(android.view.ViewConfiguration);
+    method public static int getScaledMaximumFlingVelocity(android.content.Context, android.view.ViewConfiguration, int, int, int);
+    method public static int getScaledMinimumFlingVelocity(android.content.Context, android.view.ViewConfiguration, int, int, int);
     method @Deprecated public static int getScaledPagingTouchSlop(android.view.ViewConfiguration!);
     method public static float getScaledVerticalScrollFactor(android.view.ViewConfiguration, android.content.Context);
     method @Deprecated public static boolean hasPermanentMenuKey(android.view.ViewConfiguration!);
