@@ -133,24 +133,14 @@ internal class BorderModifierNode(
 
     var width = widthParameter
         set(value) {
-            if (field != value) {
-                field = value
-                drawWithCacheModifierNode.invalidateDrawCache()
-            }
+            field = value
+            drawWithCacheModifierNode.invalidateDrawCache()
         }
     var brush = brushParameter
-        set(value) {
-            if (field != value) {
-                field = value
-                drawWithCacheModifierNode.invalidateDrawCache()
-            }
-        }
     var shape = shapeParameter
         set(value) {
-            if (field != value) {
-                field = value
-                drawWithCacheModifierNode.invalidateDrawCache()
-            }
+            field = value
+            drawWithCacheModifierNode.invalidateDrawCache()
         }
 
     private val drawWithCacheModifierNode = delegate(
