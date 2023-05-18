@@ -34,6 +34,7 @@ import androidx.camera.video.Quality
 import androidx.camera.video.Recorder
 import androidx.camera.video.VideoCapabilities
 import androidx.camera.video.VideoSpec
+import androidx.camera.video.internal.encoder.VideoEncoderDataSpace
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
@@ -345,6 +346,40 @@ class VideoEncoderConfigVideoProfileResolverTest(
                 ).get().profile
 
                 assertThat(resolvedProfile).isEqualTo(videoProfile.profile)
+            }
+        }
+    }
+
+    @Test
+    fun supportedHdrDynamicRanges_mapToSpecifiedVideoEncoderDataSpace() {
+        dynamicRanges.forEach { dynamicRange ->
+            val supportedProfiles = videoCapabilities.getSupportedQualities(dynamicRange).flatMap {
+                videoCapabilities.getProfiles(it, dynamicRange)!!.videoProfiles
+            }.toSet()
+
+            supportedProfiles.forEach { videoProfile ->
+                val surfaceSize = Size(videoProfile.width, videoProfile.height)
+
+                val resolvedDataSpace = VideoEncoderConfigVideoProfileResolver(
+                    videoProfile.mediaType,
+                    timebase,
+                    defaultVideoSpec,
+                    surfaceSize,
+                    videoProfile,
+                    dynamicRange,
+                    Range(videoProfile.frameRate, videoProfile.frameRate)
+                ).get().dataSpace
+
+                // SDR should always map to UNSPECIFIED, while others should not
+                if (dynamicRange == DynamicRange.SDR) {
+                    assertThat(resolvedDataSpace).isEqualTo(
+                        VideoEncoderDataSpace.ENCODER_DATA_SPACE_UNSPECIFIED
+                    )
+                } else {
+                    assertThat(resolvedDataSpace).isNotEqualTo(
+                        VideoEncoderDataSpace.ENCODER_DATA_SPACE_UNSPECIFIED
+                    )
+                }
             }
         }
     }

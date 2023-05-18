@@ -16,6 +16,30 @@
 
 package androidx.camera.video.internal.config;
 
+import static android.media.MediaCodecInfo.CodecProfileLevel.AV1ProfileMain10;
+import static android.media.MediaCodecInfo.CodecProfileLevel.AV1ProfileMain10HDR10;
+import static android.media.MediaCodecInfo.CodecProfileLevel.AV1ProfileMain10HDR10Plus;
+import static android.media.MediaCodecInfo.CodecProfileLevel.AV1ProfileMain8;
+import static android.media.MediaCodecInfo.CodecProfileLevel.DolbyVisionProfileDvavSe;
+import static android.media.MediaCodecInfo.CodecProfileLevel.DolbyVisionProfileDvheSt;
+import static android.media.MediaCodecInfo.CodecProfileLevel.HEVCProfileMain;
+import static android.media.MediaCodecInfo.CodecProfileLevel.HEVCProfileMain10;
+import static android.media.MediaCodecInfo.CodecProfileLevel.HEVCProfileMain10HDR10;
+import static android.media.MediaCodecInfo.CodecProfileLevel.HEVCProfileMain10HDR10Plus;
+import static android.media.MediaCodecInfo.CodecProfileLevel.VP9Profile0;
+import static android.media.MediaCodecInfo.CodecProfileLevel.VP9Profile1;
+import static android.media.MediaCodecInfo.CodecProfileLevel.VP9Profile2;
+import static android.media.MediaCodecInfo.CodecProfileLevel.VP9Profile2HDR;
+import static android.media.MediaCodecInfo.CodecProfileLevel.VP9Profile2HDR10Plus;
+import static android.media.MediaCodecInfo.CodecProfileLevel.VP9Profile3;
+import static android.media.MediaCodecInfo.CodecProfileLevel.VP9Profile3HDR;
+import static android.media.MediaCodecInfo.CodecProfileLevel.VP9Profile3HDR10Plus;
+
+import static androidx.camera.video.internal.encoder.VideoEncoderDataSpace.ENCODER_DATA_SPACE_BT2020_HLG;
+import static androidx.camera.video.internal.encoder.VideoEncoderDataSpace.ENCODER_DATA_SPACE_BT2020_PQ;
+import static androidx.camera.video.internal.encoder.VideoEncoderDataSpace.ENCODER_DATA_SPACE_BT709;
+import static androidx.camera.video.internal.encoder.VideoEncoderDataSpace.ENCODER_DATA_SPACE_UNSPECIFIED;
+
 import android.media.MediaFormat;
 import android.util.Range;
 import android.util.Rational;
@@ -32,10 +56,13 @@ import androidx.camera.video.MediaSpec;
 import androidx.camera.video.VideoSpec;
 import androidx.camera.video.internal.VideoValidatedEncoderProfilesProxy;
 import androidx.camera.video.internal.encoder.VideoEncoderConfig;
+import androidx.camera.video.internal.encoder.VideoEncoderDataSpace;
 import androidx.camera.video.internal.utils.DynamicRangeUtil;
 import androidx.core.util.Preconditions;
 import androidx.core.util.Supplier;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
@@ -46,8 +73,56 @@ import java.util.Set;
 public final class VideoConfigUtil {
     private static final String TAG = "VideoConfigUtil";
 
+    private static final Map<String, Map<Integer, VideoEncoderDataSpace>> MIME_TO_DATA_SPACE_MAP =
+            new HashMap<>();
+
     // Should not be instantiated.
     private VideoConfigUtil() {
+    }
+
+    static {
+        //--------------------------------------------------------------------------------------//
+        // Mime and profile level to encoder data space map                                     //
+        //--------------------------------------------------------------------------------------//
+        Map<Integer, VideoEncoderDataSpace> profHevcMap = new HashMap<>();
+        // We treat SDR (main profile) as unspecified. Allow the encoder to use default data space.
+        profHevcMap.put(HEVCProfileMain, ENCODER_DATA_SPACE_UNSPECIFIED);
+        profHevcMap.put(HEVCProfileMain10, ENCODER_DATA_SPACE_BT2020_HLG);
+        profHevcMap.put(HEVCProfileMain10HDR10, ENCODER_DATA_SPACE_BT2020_PQ);
+        profHevcMap.put(HEVCProfileMain10HDR10Plus, ENCODER_DATA_SPACE_BT2020_PQ);
+
+        Map<Integer, VideoEncoderDataSpace> profAv1Map = new HashMap<>();
+        // We treat SDR (main 8 profile) as unspecified. Allow the encoder to use default data
+        // space.
+        profAv1Map.put(AV1ProfileMain8, ENCODER_DATA_SPACE_UNSPECIFIED);
+        profAv1Map.put(AV1ProfileMain10, ENCODER_DATA_SPACE_BT2020_HLG);
+        profAv1Map.put(AV1ProfileMain10HDR10, ENCODER_DATA_SPACE_BT2020_PQ);
+        profAv1Map.put(AV1ProfileMain10HDR10Plus, ENCODER_DATA_SPACE_BT2020_PQ);
+
+        Map<Integer, VideoEncoderDataSpace> profVp9Map = new HashMap<>();
+        // We treat SDR (profile 0) as unspecified. Allow the encoder to use default data space.
+        profVp9Map.put(VP9Profile0, ENCODER_DATA_SPACE_UNSPECIFIED);
+        profVp9Map.put(VP9Profile2, ENCODER_DATA_SPACE_BT2020_HLG);
+        profVp9Map.put(VP9Profile2HDR, ENCODER_DATA_SPACE_BT2020_PQ);
+        profVp9Map.put(VP9Profile2HDR10Plus, ENCODER_DATA_SPACE_BT2020_PQ);
+        // Vp9 4:2:2 profiles
+        profVp9Map.put(VP9Profile1, ENCODER_DATA_SPACE_UNSPECIFIED);
+        profVp9Map.put(VP9Profile3, ENCODER_DATA_SPACE_BT2020_HLG);
+        profVp9Map.put(VP9Profile3HDR, ENCODER_DATA_SPACE_BT2020_PQ);
+        profVp9Map.put(VP9Profile3HDR10Plus, ENCODER_DATA_SPACE_BT2020_PQ);
+
+        Map<Integer, VideoEncoderDataSpace> profDvMap = new HashMap<>();
+        // For Dolby Vision profile 8, we only support 8.4 (10-bit HEVC HLG)
+        profDvMap.put(DolbyVisionProfileDvheSt, ENCODER_DATA_SPACE_BT2020_HLG);
+        // For Dolby Vision profile 9, we only support 9.2 (8-bit AVC SDR BT.709)
+        profDvMap.put(DolbyVisionProfileDvavSe, ENCODER_DATA_SPACE_BT709);
+
+        // Combine all mime type maps
+        MIME_TO_DATA_SPACE_MAP.put(MediaFormat.MIMETYPE_VIDEO_HEVC, profHevcMap);
+        MIME_TO_DATA_SPACE_MAP.put(MediaFormat.MIMETYPE_VIDEO_AV1, profAv1Map);
+        MIME_TO_DATA_SPACE_MAP.put(MediaFormat.MIMETYPE_VIDEO_VP9, profVp9Map);
+        MIME_TO_DATA_SPACE_MAP.put(MediaFormat.MIMETYPE_VIDEO_DOLBY_VISION, profDvMap);
+        //--------------------------------------------------------------------------------------//
     }
 
     /**
@@ -229,5 +304,28 @@ public final class VideoConfigUtil {
         }
         Logger.d(TAG, debugString);
         return resolvedBitrate;
+    }
+
+    /**
+     * Returns the encoder data space for the given mime and profile.
+     *
+     * @return The data space for the given mime type and profile, or
+     * {@link VideoEncoderDataSpace#ENCODER_DATA_SPACE_UNSPECIFIED} if the profile represents SDR or is unsupported.
+     */
+    @NonNull
+    public static VideoEncoderDataSpace mimeAndProfileToEncoderDataSpace(@NonNull String mimeType,
+            int codecProfileLevel) {
+        Map<Integer, VideoEncoderDataSpace> profileToDataSpaceMap =
+                MIME_TO_DATA_SPACE_MAP.get(mimeType);
+        if (profileToDataSpaceMap != null) {
+            VideoEncoderDataSpace dataSpace = profileToDataSpaceMap.get(codecProfileLevel);
+            if (dataSpace != null) {
+                return dataSpace;
+            }
+        }
+
+        Logger.w(TAG, String.format("Unsupported mime type %s or profile level %d. Data space is "
+                + "unspecified.", mimeType, codecProfileLevel));
+        return ENCODER_DATA_SPACE_UNSPECIFIED;
     }
 }
