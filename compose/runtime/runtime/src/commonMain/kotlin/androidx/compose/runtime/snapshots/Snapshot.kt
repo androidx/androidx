@@ -1833,7 +1833,20 @@ private fun <T : Snapshot> takeNewSnapshot(block: (invalid: SnapshotIdSet) -> T)
     }
 
 private fun validateOpen(snapshot: Snapshot) {
-    if (!openSnapshots.get(snapshot.id)) error("Snapshot is not open")
+    val openSnapshots = openSnapshots
+    if (!openSnapshots.get(snapshot.id)) {
+        error(
+            "Snapshot is not open: id=${
+                snapshot.id
+            }, disposed=${
+                snapshot.disposed
+            }, applied=${
+                (snapshot as? MutableSnapshot)?.applied ?: "read-only"
+            }, lowestPin=${
+                sync { pinningTable.lowestOrDefault(-1) }
+            }"
+        )
+    }
 }
 
 /**
