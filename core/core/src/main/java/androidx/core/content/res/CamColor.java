@@ -171,6 +171,10 @@ public class CamColor {
      *
      * Get the values for M3HCT color from ARGB color.
      *
+     * HCT color space is a new color space proposed in Material Design 3
+     * @see
+     * <a href="https://developer.android.com/design/ui/mobile/guides/styles/color#about-color-spaces">About Color Spaces</a>
+     *
      *<ul>
      *<li>outM3HCT[0] is Hue in M3HCT [0, 360); invalid values are corrected.</li>
      *<li>outM3HCT[1] is Chroma in M3HCT [0, ?); Chroma may decrease because chroma has a
