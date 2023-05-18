@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.layout
 
+import androidx.annotation.RestrictTo
 import androidx.compose.runtime.Applier
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ComposeNode
@@ -23,7 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.node.ComposeUiNode
 import androidx.compose.ui.node.LayoutNode
 
-/** @hide */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 @Deprecated(
     "It is a test API, do not use it in the real applications",
     level = DeprecationLevel.ERROR
@@ -35,7 +36,7 @@ class TestModifierUpdater internal constructor(private val node: LayoutNode) {
     }
 }
 
-/** @hide */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 @Deprecated(
     "It is a test API, do not use it in the real applications",
     level = DeprecationLevel.ERROR

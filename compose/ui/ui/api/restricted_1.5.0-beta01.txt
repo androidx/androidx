@@ -2209,9 +2209,6 @@ package androidx.compose.ui.layout {
     method public boolean retainAll(kotlin.jvm.functions.Function1<java.lang.Object,java.lang.Boolean> predicate);
   }
 
-  public final class TestModifierUpdaterKt {
-  }
-
   public final class VerticalAlignmentLine extends androidx.compose.ui.layout.AlignmentLine {
     ctor public VerticalAlignmentLine(kotlin.jvm.functions.Function2<? super java.lang.Integer,? super java.lang.Integer,java.lang.Integer> merger);
   }
