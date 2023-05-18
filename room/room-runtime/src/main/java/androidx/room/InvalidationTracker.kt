@@ -111,7 +111,6 @@ open class InvalidationTracker @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX
     /**
      * Used by the generated code.
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     constructor(database: RoomDatabase, vararg tableNames: String) :
@@ -302,7 +301,6 @@ open class InvalidationTracker @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX
      * when the observer is GC'ed.
      *
      * @param observer The observer to which InvalidationTracker will keep a weak reference.
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     open fun addWeakObserver(observer: Observer) {
@@ -445,7 +443,6 @@ open class InvalidationTracker @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX
     /**
      * Check versions for tables, and run observers synchronously if tables have been updated.
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     @WorkerThread
@@ -463,7 +460,6 @@ open class InvalidationTracker @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX
      * [InvalidationTracker], for example, invalidation from another process.
      *
      * @param tables The invalidated tables.
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     fun notifyObserversByTableNames(vararg tables: String) {
@@ -542,7 +538,6 @@ open class InvalidationTracker @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX
      * @param T             The return type
      * @return A new LiveData that computes the given function when the given list of tables
      * invalidates.
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     @Deprecated("Use [createLiveData(String[], boolean, Callable)]")
@@ -566,7 +561,6 @@ open class InvalidationTracker @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX
      * @param T             The return type
      * @return A new LiveData that computes the given function when the given list of tables
      * invalidates.
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     open fun <T> createLiveData(

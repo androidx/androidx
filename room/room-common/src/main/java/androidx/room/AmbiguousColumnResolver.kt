@@ -46,7 +46,6 @@ import java.util.Locale
  * is the current best. The algorithms prefers a solution whose matches ranges don't overlap and
  * are continuous.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public object AmbiguousColumnResolver {
