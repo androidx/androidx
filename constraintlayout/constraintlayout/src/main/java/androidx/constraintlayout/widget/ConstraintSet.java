@@ -2833,8 +2833,8 @@ public class ConstraintSet {
 
     /**
      * Center widget between the other two widgets.
-     * (for sides see: {@link #TOP, {@link #BOTTOM}, {@link #START,
-     * {@link #END}, {@link #LEFT, {@link #RIGHT})
+     * (for sides see: {@link #TOP}, {@link #BOTTOM}, {@link #START},
+     * {@link #END}, {@link #LEFT}, {@link #RIGHT})
      * Note, sides must be all vertical or horizontal sides.
      *
      * @param centerID     ID of the widget to be centered
@@ -2888,7 +2888,7 @@ public class ConstraintSet {
 
     /**
      * Centers the widget horizontally to the left and right side on another widgets sides.
-     * (for sides see: {@link #START, {@link #END}, {@link #LEFT, {@link #RIGHT})
+     * (for sides see: {@link #START}, {@link #END}, {@link #LEFT}, {@link #RIGHT})
      *
      * @param centerID    ID of widget to be centered
      * @param leftId      The Id of the widget on the left side
@@ -2942,7 +2942,7 @@ public class ConstraintSet {
 
     /**
      * Centers the widgets vertically to the top and bottom side on another widgets sides.
-     * (for sides see: {@link #TOP, {@link #BOTTOM})
+     * (for sides see: {@link #TOP}, {@link #BOTTOM})
      *
      * @param centerID     ID of widget to be centered
      * @param topId        The Id of the widget on the top side
@@ -2969,7 +2969,7 @@ public class ConstraintSet {
      * Widgets can be spaced with weights.
      * This operation sets all the related margins to 0.
      * <p>
-     * (for sides see: {@link #TOP, {@link #BOTTOM})
+     * (for sides see: {@link #TOP}, {@link #BOTTOM})
      *
      * @param topId      The id of the widget to connect to or PARENT_ID
      * @param topSide    the side of the start to connect to
@@ -3013,8 +3013,8 @@ public class ConstraintSet {
      * Widgets can be spaced with weights.
      * This operation sets all the related margins to 0.
      * <p>
-     * (for sides see: {@link #START, {@link #END},
-     * {@link #LEFT, {@link #RIGHT}
+     * (for sides see: {@link #START}, {@link #END},
+     * {@link #LEFT}, {@link #RIGHT})
      *
      * @param leftId    The id of the widget to connect to or PARENT_ID
      * @param leftSide  the side of the start to connect to
@@ -3038,8 +3038,8 @@ public class ConstraintSet {
     /**
      * Spaces a set of widgets horizontal between the view startID and endId.
      * Widgets can be spaced with weights.
-     * (for sides see: {@link #START, {@link #END},
-     * {@link #LEFT, {@link #RIGHT})
+     * (for sides see: {@link #START}, {@link #END},
+     * {@link #LEFT}, {@link #RIGHT})
      *
      * @param startId   The id of the widget to connect to or PARENT_ID
      * @param startSide the side of the start to connect to
@@ -3094,8 +3094,8 @@ public class ConstraintSet {
 
     /**
      * Create a constraint between two widgets.
-     * (for sides see: {@link #TOP, {@link #BOTTOM}, {@link #START, {@link #END},
-     * {@link #LEFT, {@link #RIGHT}, {@link #BASELINE})
+     * (for sides see: {@link #TOP}, {@link #BOTTOM}, {@link #START}, {@link #END},
+     * {@link #LEFT}, {@link #RIGHT}, {@link #BASELINE})
      *
      * @param startID   the ID of the widget to be constrained
      * @param startSide the side of the widget to constrain
@@ -3237,8 +3237,8 @@ public class ConstraintSet {
 
     /**
      * Create a constraint between two widgets.
-     * (for sides see: {@link #TOP, {@link #BOTTOM}, {@link #START,
-     * {@link #END}, {@link #LEFT, {@link #RIGHT}, {@link #BASELINE})
+     * (for sides see: {@link #TOP}, {@link #BOTTOM}, {@link #START},
+     * {@link #END}, {@link #LEFT}, {@link #RIGHT}, {@link #BASELINE})
      *
      * @param startID   the ID of the widget to be constrained
      * @param startSide the side of the widget to constrain
