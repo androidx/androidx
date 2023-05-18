@@ -11,8 +11,11 @@ option java_outer_classname = "TypesProto";
 
 // An int32 type.
 message Int32Prop {
-  // The value.
-  int32 value = 1;
+
+  oneof optional_value {
+    // The static value.
+    int32 value = 1;
+  }
 
   // The dynamic value.
   androidx.wear.protolayout.expression.proto.DynamicInt32 dynamic_value = 2;
@@ -62,8 +65,11 @@ message FloatProp {
 
 // A boolean type.
 message BoolProp {
-  // The value.
-  bool value = 1;
+
+  oneof optional_value {
+    // The static value.
+    bool value = 1;
+  }
 
   // The dynamic value.
   androidx.wear.protolayout.expression.proto.DynamicBool dynamic_value = 2;
