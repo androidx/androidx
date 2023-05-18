@@ -31,7 +31,8 @@ import com.google.devtools.ksp.symbol.Modifier
 
 internal sealed class KspMethodElement(
     env: KspProcessingEnv,
-    declaration: KSFunctionDeclaration
+    declaration: KSFunctionDeclaration,
+    val isSyntheticStatic: Boolean
 ) : KspExecutableElement(env, declaration), XMethodElement {
 
     override val name: String
@@ -70,6 +71,18 @@ internal sealed class KspMethodElement(
                 }
             )
         }
+    }
+
+    override val enclosingElement: KspMemberContainer by lazy {
+        if (isSyntheticStatic) {
+            actualEnclosingElement.declaration!!.requireEnclosingMemberContainer(env)
+        } else {
+            actualEnclosingElement
+        }
+    }
+
+    private val actualEnclosingElement: KspMemberContainer by lazy {
+        declaration.requireEnclosingMemberContainer(env)
     }
 
     override val executableType: XMethodType by lazy {
@@ -116,8 +129,9 @@ internal sealed class KspMethodElement(
 
     private class KspNormalMethodElement(
         env: KspProcessingEnv,
-        declaration: KSFunctionDeclaration
-    ) : KspMethodElement(env, declaration) {
+        declaration: KSFunctionDeclaration,
+        isSyntheticStatic: Boolean
+    ) : KspMethodElement(env, declaration, isSyntheticStatic) {
         override val returnType: KspType by lazy {
             declaration.returnKspType(
                 env = env,
@@ -134,8 +148,9 @@ internal sealed class KspMethodElement(
 
     private class KspSuspendMethodElement(
         env: KspProcessingEnv,
-        declaration: KSFunctionDeclaration
-    ) : KspMethodElement(env, declaration) {
+        declaration: KSFunctionDeclaration,
+        isSyntheticStatic: Boolean
+    ) : KspMethodElement(env, declaration, isSyntheticStatic) {
         override fun isSuspendFunction() = true
 
         override val returnType: KspType by lazy {
@@ -160,12 +175,13 @@ internal sealed class KspMethodElement(
     companion object {
         fun create(
             env: KspProcessingEnv,
-            declaration: KSFunctionDeclaration
+            declaration: KSFunctionDeclaration,
+            isSyntheticStatic: Boolean = false
         ): KspMethodElement {
             return if (declaration.modifiers.contains(Modifier.SUSPEND)) {
-                KspSuspendMethodElement(env, declaration)
+                KspSuspendMethodElement(env, declaration, isSyntheticStatic)
             } else {
-                KspNormalMethodElement(env, declaration)
+                KspNormalMethodElement(env, declaration, isSyntheticStatic)
             }
         }
     }

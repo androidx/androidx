@@ -110,7 +110,7 @@ internal class KspExecutableParameterElement(
                     )
                 }
                 is KSPropertySetter -> KspSyntheticPropertyMethodElement.create(
-                    env, parent
+                    env, parent, isSyntheticStatic = false
                 ).parameters.single()
                 else -> error(
                     "Don't know how to create a parameter element whose parent is a " +

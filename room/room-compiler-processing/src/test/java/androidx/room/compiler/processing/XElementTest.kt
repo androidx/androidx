@@ -854,11 +854,7 @@ class XElementTest {
                     "companionObjectFunctionJvmStatic"
                 )
                 methods.forEach {
-                    if (invocation.isKsp && it.name.lowercase().contains("companion")) {
-                        assertThat(it.enclosingElement).isEqualTo(companionObj)
-                    } else {
-                        assertThat(it.enclosingElement).isEqualTo(enclosingElement)
-                    }
+                    assertThat(it.enclosingElement).isEqualTo(enclosingElement)
                 }
             }
 
