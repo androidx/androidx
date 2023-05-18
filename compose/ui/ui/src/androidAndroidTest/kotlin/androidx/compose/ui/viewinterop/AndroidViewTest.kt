@@ -155,6 +155,45 @@ class AndroidViewTest {
     }
 
     @Test
+    fun androidViewInvalidatingDuringDrawTest() {
+        var drawCount = 0
+        val timesToInvalidate = 10
+        var customView: InvalidatedTextView? = null
+        rule.setContent {
+            AndroidView(
+                factory = {
+                    val view: View = LayoutInflater.from(it)
+                        .inflate(R.layout.test_multiple_invalidation_layout, null)
+                    customView = view.findViewById<InvalidatedTextView>(R.id.custom_draw_view)
+                    customView!!.timesToInvalidate = timesToInvalidate
+                    view.viewTreeObserver?.addOnPreDrawListener {
+                        ++drawCount
+                        true
+                    }
+                    view
+                })
+        }
+        // the first drawn was not caused by invalidation, thus add it to expected draw count.
+        var expectedDraws = timesToInvalidate + 1
+        repeat(expectedDraws) {
+            rule.mainClock.advanceTimeByFrame()
+        }
+
+        // Ensure we wait until the time advancement actually happened as sometimes we can race if
+        // we use runOnIdle directly making the test fail, so providing a big enough timeout to
+        // give plenty of time for the frame advancement to happen.
+        rule.waitUntil(3000) {
+            drawCount == expectedDraws
+        }
+
+        rule.runOnIdle {
+            // Verify that we only drew once per invalidation
+            assertThat(drawCount).isEqualTo(expectedDraws)
+            assertThat(drawCount).isEqualTo(customView!!.timesDrawn)
+        }
+    }
+
+    @Test
     fun androidViewWithViewTest() {
         lateinit var frameLayout: FrameLayout
         rule.activityRule.scenario.onActivity { activity ->
