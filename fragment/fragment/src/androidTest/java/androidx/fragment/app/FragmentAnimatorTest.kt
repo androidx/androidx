@@ -22,6 +22,7 @@ import android.animation.AnimatorListenerAdapter
 import android.animation.ValueAnimator
 import android.content.res.Resources
 import android.os.Build
+import android.util.Log
 import android.view.View
 import androidx.annotation.AnimatorRes
 import androidx.annotation.LayoutRes
@@ -169,8 +170,17 @@ class FragmentAnimatorTest {
 
         assertEnterPopExit(fragment)
 
+        val view = fragment.requireView()
+        val layoutCountDownLatch = CountDownLatch(1)
+        // We need to wait for the View to change its visibility before asserting
+        view.viewTreeObserver.addOnGlobalLayoutListener {
+            layoutCountDownLatch.countDown()
+        }
+
+        assertThat(layoutCountDownLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
+
         activityRule.runOnUiThread {
-            assertThat(fragment.requireView().visibility).isEqualTo(View.GONE)
+            assertThat(view.visibility).isEqualTo(View.GONE)
         }
     }
 
@@ -207,8 +217,16 @@ class FragmentAnimatorTest {
 
         assertEnterPopExit(fragment)
 
+        val view = fragment.requireView()
+        val layoutCountDownLatch = CountDownLatch(1)
+        // We need to wait for the View to change its visibility before asserting
+        view.viewTreeObserver.addOnGlobalLayoutListener {
+            layoutCountDownLatch.countDown()
+        }
+
+        assertThat(layoutCountDownLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
         activityRule.runOnUiThread {
-            assertThat(fragment.requireView().visibility).isEqualTo(View.GONE)
+            assertThat(view.visibility).isEqualTo(View.GONE)
         }
     }
 
@@ -720,18 +738,22 @@ class FragmentAnimatorTest {
             }
 
             return animator?.apply {
+                Log.v("FragmentManager", "Adding test listener")
                 addListener(object : AnimatorListenerAdapter() {
                     override fun onAnimationStart(animation: Animator) {
                         wasStarted = true
                     }
 
                     override fun onAnimationEnd(animation: Animator) {
+                        Log.d("FragmentManager", "Counting down endLatch")
                         endLatch.countDown()
                     }
                 })
                 numAnimators++
                 wasStarted = false
+                Log.d("FragmentManager", "Initializing EndLatch")
                 endLatch = CountDownLatch(1)
+                resumeLatch = CountDownLatch(1)
                 resourceId = nextAnim
                 baseEnter = enter
                 baseAnimator = this
