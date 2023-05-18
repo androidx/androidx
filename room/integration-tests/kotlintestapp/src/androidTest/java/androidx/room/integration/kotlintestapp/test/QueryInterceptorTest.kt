@@ -82,12 +82,10 @@ class QueryInterceptorTest {
             ApplicationProvider.getApplicationContext(),
             QueryInterceptorTestDatabase::class.java
         ).setQueryCallback(
-            object : RoomDatabase.QueryCallback {
-                override fun onQuery(sqlQuery: String, bindArgs: List<Any?>) {
-                    val argTrace = ArrayList<Any?>()
-                    argTrace.addAll(bindArgs)
-                    queryAndArgs.add(Pair(sqlQuery, argTrace))
-                }
+            { sqlQuery, bindArgs ->
+                val argTrace = ArrayList<Any?>()
+                argTrace.addAll(bindArgs)
+                queryAndArgs.add(Pair(sqlQuery, argTrace))
             },
             MoreExecutors.directExecutor()
         ).build()
@@ -190,12 +188,10 @@ class QueryInterceptorTest {
             ApplicationProvider.getApplicationContext(),
             QueryInterceptorTestDatabase::class.java
         ).setQueryCallback(
-            object : RoomDatabase.QueryCallback {
-                override fun onQuery(sqlQuery: String, bindArgs: List<Any?>) {
-                    val argTrace = ArrayList<Any?>()
-                    argTrace.addAll(bindArgs)
-                    queryAndArgs.add(Pair(sqlQuery, argTrace))
-                }
+            { sqlQuery, bindArgs ->
+                val argTrace = ArrayList<Any?>()
+                argTrace.addAll(bindArgs)
+                queryAndArgs.add(Pair(sqlQuery, argTrace))
             },
             MoreExecutors.directExecutor()
         )
