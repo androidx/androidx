@@ -32,13 +32,17 @@ import androidx.wear.watchface.complications.data.ComplicationDataEvaluator.Comp
 import com.google.common.truth.Expect
 import com.google.common.truth.Truth.assertThat
 import java.time.Instant
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.TestDispatcher
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -53,6 +57,9 @@ import org.robolectric.shadows.ShadowLog
 @RunWith(SharedRobolectricTestRunner::class)
 class ComplicationDataEvaluatorTest {
     @get:Rule val expect = Expect.create()
+
+    @OptIn(ExperimentalCoroutinesApi::class) // StandardTestDispatcher no longer experimental.
+    private val dispatcher: CoroutineDispatcher = StandardTestDispatcher()
 
     @Before
     fun setup() {
@@ -300,13 +307,15 @@ class ComplicationDataEvaluatorTest {
                 evaluator
                     .evaluate(expressed)
                     .shareIn(
-                        CoroutineScope(Dispatchers.Main.immediate),
+                        CoroutineScope(dispatcher),
                         SharingStarted.Eagerly,
                         replay = 10,
                     )
 
+            advanceUntilIdle()
             for (state in scenario.states) {
                 stateStore.setAppStateEntryValues(state)
+                advanceUntilIdle()
             }
 
             expect
@@ -408,6 +417,11 @@ class ComplicationDataEvaluatorTest {
                     .setPlaceholder(evaluatedData("Placeholder"))
                     .build()
             )
+    }
+
+    private fun advanceUntilIdle() {
+        @OptIn(ExperimentalCoroutinesApi::class) // StandardTestDispatcher no longer experimental.
+        (dispatcher as TestDispatcher).scheduler.advanceUntilIdle()
     }
 
     private companion object {

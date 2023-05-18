@@ -43,15 +43,12 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.emitAll
-import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
-import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.flow.updateAndGet
 import kotlinx.coroutines.invoke
 import kotlinx.coroutines.launch
 
@@ -125,17 +122,21 @@ class ComplicationDataEvaluator(
             ) -> WireComplicationData.Builder,
     ): Flow<WireComplicationData> {
         if (unevaluatedEntries.isNullOrEmpty()) return this
-        val evaluatedEntriesFlow: Flow<List<WireComplicationData>> =
-            combine(unevaluatedEntries.map { evaluate(it) })
+        val evaluatedEntriesFlow: Flow<Array<WireComplicationData>> =
+            combine(unevaluatedEntries.map { evaluate(it) }) { it }
 
-        return this.combine(evaluatedEntriesFlow).map {
-            (data: WireComplicationData, evaluatedEntries: List<WireComplicationData>?) ->
+        return this.combine(evaluatedEntriesFlow) {
+            data: WireComplicationData,
+            evaluatedEntries: Array<WireComplicationData> ->
+
             // Not mutating if invalid.
-            if (data === INVALID_DATA) return@map data
+            if (data === INVALID_DATA) return@combine data
             // An entry is invalid, emitting invalid.
-            if (evaluatedEntries.any { it === INVALID_DATA }) return@map INVALID_DATA
+            if (evaluatedEntries.any { it === INVALID_DATA }) return@combine INVALID_DATA
             // All is well, mutating the input.
-            return@map WireComplicationData.Builder(data).setter(evaluatedEntries).build()
+            return@combine WireComplicationData.Builder(data)
+                .setter(evaluatedEntries.toList())
+                .build()
         }
     }
 
@@ -152,17 +153,18 @@ class ComplicationDataEvaluator(
         if (unevaluatedPlaceholder == null) return this
         val evaluatedPlaceholderFlow: Flow<WireComplicationData> = evaluate(unevaluatedPlaceholder)
 
-        return this.combine(evaluatedPlaceholderFlow).map {
-            (data: WireComplicationData, evaluatedPlaceholder: WireComplicationData?) ->
+        return this.combine(evaluatedPlaceholderFlow) {
+            data: WireComplicationData,
+            evaluatedPlaceholder: WireComplicationData ->
             if (!keepDynamicValues && data.type != TYPE_NO_DATA) {
                 // Clearing the placeholder when data is not TYPE_NO_DATA (it was meant as an
                 // dynamic value fallback).
-                return@map WireComplicationData.Builder(data).setPlaceholder(null).build()
+                return@combine WireComplicationData.Builder(data).setPlaceholder(null).build()
             }
             // Placeholder required but invalid, emitting invalid.
-            if (evaluatedPlaceholder === INVALID_DATA) return@map INVALID_DATA
+            if (evaluatedPlaceholder === INVALID_DATA) return@combine INVALID_DATA
             // All is well, mutating the input.
-            return@map WireComplicationData.Builder(data)
+            return@combine WireComplicationData.Builder(data)
                 .setPlaceholder(evaluatedPlaceholder)
                 .build()
         }
@@ -299,22 +301,26 @@ class ComplicationDataEvaluator(
                     DynamicTypeEvaluator.Config.Builder()
                         .apply { stateStore?.let { setStateStore(it) } }
                         .apply { timeGateway?.let { setTimeGateway(it) } }
-                        .apply { sensorGateway?.let {
-                            addPlatformDataProvider(
-                                SensorGatewaySingleDataProvider(
-                                    sensorGateway, PlatformHealthSources.Keys.HEART_RATE_BPM
-                                ),
-                                Collections.singleton(PlatformHealthSources.Keys.HEART_RATE_BPM)
-                                    as Set<PlatformDataKey<*>>
-                            )
-                            addPlatformDataProvider(
-                                SensorGatewaySingleDataProvider(
-                                    sensorGateway, PlatformHealthSources.Keys.DAILY_STEPS
-                                ),
-                                Collections.singleton(PlatformHealthSources.Keys.DAILY_STEPS)
-                                    as Set<PlatformDataKey<*>>
-                            )
-                        } }
+                        .apply {
+                            sensorGateway?.let {
+                                addPlatformDataProvider(
+                                    SensorGatewaySingleDataProvider(
+                                        sensorGateway,
+                                        PlatformHealthSources.Keys.HEART_RATE_BPM
+                                    ),
+                                    Collections.singleton(PlatformHealthSources.Keys.HEART_RATE_BPM)
+                                        as Set<PlatformDataKey<*>>
+                                )
+                                addPlatformDataProvider(
+                                    SensorGatewaySingleDataProvider(
+                                        sensorGateway,
+                                        PlatformHealthSources.Keys.DAILY_STEPS
+                                    ),
+                                    Collections.singleton(PlatformHealthSources.Keys.DAILY_STEPS)
+                                        as Set<PlatformDataKey<*>>
+                                )
+                            }
+                        }
                         .build()
                 )
             try {
@@ -413,35 +419,3 @@ internal fun CoroutineContext.asExecutor() = Executor { runnable ->
         runnable.run()
     }
 }
-
-/** Replacement of [kotlinx.coroutines.flow.combine], which doesn't seem to work. */
-internal fun <T> combine(flows: List<Flow<T>>): Flow<List<T>> = flow {
-    data class ValueExists(val value: T?, val exists: Boolean)
-    val latest = MutableStateFlow(List(flows.size) { ValueExists(null, false) })
-    @Suppress("UNCHECKED_CAST") // Flow<List<T?>> -> Flow<List<T>> safe after filtering exists.
-    emitAll(
-        flows
-            .mapIndexed { i, flow -> flow.map { i to it } } // List<Flow<Int, T>> (indexed flows)
-            .merge() // Flow<Int, T>
-            .map { (i, value) ->
-                // Updating latest and returning the current latest.
-                latest.updateAndGet {
-                    val newLatest = it.toMutableList()
-                    newLatest[i] = ValueExists(value, true)
-                    newLatest
-                }
-            } // Flow<List<ValueExists>>
-            // Filtering emissions until we have all values.
-            .filter { values -> values.all { it.exists } }
-            // Flow<List<T>> + defensive copy.
-            .map { values -> values.map { it.value } } as Flow<List<T>>
-    )
-}
-
-/**
- * Another replacement of [kotlinx.coroutines.flow.combine] which is similar to
- * `combine(List<Flow<T>>)` but allows different types for each flow.
- */
-@Suppress("UNCHECKED_CAST")
-internal fun <T1, T2> Flow<T1>.combine(other: Flow<T2>): Flow<Pair<T1, T2>> =
-    combine(listOf(this as Flow<*>, other as Flow<*>)).map { (a, b) -> (a as T1) to (b as T2) }
