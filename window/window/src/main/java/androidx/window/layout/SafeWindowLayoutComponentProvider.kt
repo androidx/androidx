@@ -27,6 +27,7 @@ import androidx.window.extensions.WindowExtensions
 import androidx.window.extensions.WindowExtensionsProvider
 import androidx.window.extensions.core.util.function.Consumer
 import androidx.window.extensions.layout.WindowLayoutComponent
+import androidx.window.layout.adapter.extensions.WindowLayoutComponentWrapper
 import androidx.window.reflection.ReflectionUtils.doesReturn
 import androidx.window.reflection.ReflectionUtils.isPublic
 import androidx.window.reflection.ReflectionUtils.validateReflection
@@ -46,11 +47,12 @@ internal class SafeWindowLayoutComponentProvider(
 ) {
     private val safeWindowExtensionsProvider = SafeWindowExtensionsProvider(loader)
 
-    val windowLayoutComponent: WindowLayoutComponent?
+    val windowLayoutComponent: WindowLayoutComponentWrapper?
         get() {
             return if (canUseWindowLayoutComponent()) {
                 try {
                     WindowExtensionsProvider.getWindowExtensions().windowLayoutComponent
+                        ?.let(WindowLayoutComponentWrapper.Companion::getInstance)
                 } catch (e: UnsupportedOperationException) {
                     null
                 }
