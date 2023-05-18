@@ -28,6 +28,7 @@ import androidx.compose.runtime.ComposeNodeLifecycleCallback
 import androidx.compose.runtime.CompositionContext
 import androidx.compose.runtime.snapshots.SnapshotStateObserver
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
@@ -73,6 +74,7 @@ import kotlinx.coroutines.launch
 internal open class AndroidViewHolder(
     context: Context,
     parentContext: CompositionContext?,
+    private val compositeKeyHash: Int,
     private val dispatcher: NestedScrollDispatcher,
     /**
      * The view hosted by this holder.
@@ -323,6 +325,7 @@ internal open class AndroidViewHolder(
     val layoutNode: LayoutNode = run {
         // Prepare layout node that proxies measure and layout passes to the View.
         val layoutNode = LayoutNode()
+        @OptIn(InternalComposeUiApi::class)
         layoutNode.interopViewFactoryHolder = this@AndroidViewHolder
 
         val coreModifier = Modifier
@@ -341,6 +344,7 @@ internal open class AndroidViewHolder(
                 // these cases, we need to inform the View.
                 layoutAccordingTo(layoutNode)
             }
+        layoutNode.compositeKeyHash = compositeKeyHash
         layoutNode.modifier = modifier.then(coreModifier)
         onModifierChanged = { layoutNode.modifier = it.then(coreModifier) }
 
