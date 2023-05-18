@@ -1049,7 +1049,7 @@ class BasicMarqueeTest {
 
         rule.runOnIdle {
             assertThat(outerDraws).isEqualTo(1)
-            assertThat(innerDraws).isEqualTo(iterations + 1)
+            assertThat(innerDraws).isEqualTo(iterations)
         }
     }
 

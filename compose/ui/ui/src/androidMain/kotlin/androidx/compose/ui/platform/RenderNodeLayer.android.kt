@@ -291,7 +291,6 @@ internal class RenderNodeLayer(
 
     override fun updateDisplayList() {
         if (isDirty || !renderNode.hasDisplayList) {
-            isDirty = false
             val clipPath = if (renderNode.clipToOutline && !outlineResolver.outlineClipSupported) {
                 outlineResolver.clipPath
             } else {
@@ -300,6 +299,7 @@ internal class RenderNodeLayer(
             drawBlock?.let {
                 renderNode.record(canvasHolder, clipPath, it)
             }
+            isDirty = false
         }
     }
 

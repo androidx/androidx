@@ -94,4 +94,9 @@ internal class AndroidViewsHandler(context: Context) : ViewGroup(context) {
     }
 
     override fun shouldDelayChildPressedState(): Boolean = false
+
+    // We don't want the AndroidComposeView drawing the holder and its children. All draw
+    // calls should come through AndroidViewHolder or ViewLayer.
+    override fun dispatchDraw(canvas: Canvas) {
+    }
 }
