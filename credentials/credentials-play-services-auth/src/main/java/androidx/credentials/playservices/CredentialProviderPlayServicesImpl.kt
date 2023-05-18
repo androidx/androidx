@@ -116,33 +116,23 @@ class CredentialProviderPlayServicesImpl(private val context: Context) : Credent
         executor: Executor,
         callback: CredentialManagerCallback<Void?, ClearCredentialException>
     ) {
-        if (cancellationReviewer(cancellationSignal)) {
-            return
-        }
+        if (cancellationReviewer(cancellationSignal)) { return }
         Identity.getSignInClient(context)
             .signOut()
             .addOnSuccessListener {
-                var isCanceled = false
-                cancellationSignal?.let {
-                    isCanceled = cancellationSignal.isCanceled
-                }
-                if (!isCanceled) {
+                cancellationReviewerWithCallback(cancellationSignal, {
                     Log.i(TAG, "During clear credential, signed out successfully!")
                     executor.execute { callback.onResult(null) }
-                }
+                })
             }
             .addOnFailureListener { e ->
                 run {
-                    var isCanceled = false
-                    cancellationSignal?.let {
-                        isCanceled = cancellationSignal.isCanceled
-                    }
-                    if (!isCanceled) {
+                    cancellationReviewerWithCallback(cancellationSignal, {
                         Log.w(TAG, "During clear credential sign out failed with $e")
                         executor.execute {
                             callback.onError(ClearCredentialUnknownException(e.message))
                         }
-                    }
+                    })
                 }
             }
     }
@@ -150,14 +140,21 @@ class CredentialProviderPlayServicesImpl(private val context: Context) : Credent
     companion object {
         private val TAG = CredentialProviderPlayServicesImpl::class.java.name
 
+        internal fun cancellationReviewerWithCallback(
+            cancellationSignal: CancellationSignal?,
+            callback: () -> Unit,
+        ) {
+            if (!cancellationReviewer(cancellationSignal)) {
+                callback()
+            }
+        }
+
         internal fun cancellationReviewer(
             cancellationSignal: CancellationSignal?
         ): Boolean {
             if (cancellationSignal != null) {
                 if (cancellationSignal.isCanceled) {
                     Log.i(TAG, "the flow has been canceled")
-                    // TODO(b/262924507): See if there's a better way to message pass to avoid
-                    //  if statements and to use a single listener instead
                     return true
                 }
             } else {
