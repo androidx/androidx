@@ -41,7 +41,6 @@ import java.util.Collection;
 import java.util.Set;
 
 /**
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class SliceProviderWrapperContainer {

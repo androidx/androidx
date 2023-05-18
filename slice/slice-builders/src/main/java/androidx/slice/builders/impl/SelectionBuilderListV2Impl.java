@@ -38,7 +38,6 @@ import androidx.slice.builders.SelectionBuilder;
 import java.util.List;
 
 /**
- * @hide
  */
 @RestrictTo(LIBRARY)
 @RequiresApi(19)

@@ -23,7 +23,6 @@ import java.util.List;
 /**
  * The slice items we can render on the available space.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 class DisplayedListItems {

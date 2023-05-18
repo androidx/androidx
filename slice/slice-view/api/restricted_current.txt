@@ -210,8 +210,8 @@ package androidx.slice.widget {
     method public androidx.slice.widget.GridRowView getGridRowView();
     method public int getItemCount();
     method public androidx.slice.widget.RowView getRowView();
-    method public void onBindViewHolder(androidx.slice.widget.SliceAdapter.SliceViewHolder, int);
-    method public androidx.slice.widget.SliceAdapter.SliceViewHolder onCreateViewHolder(android.view.ViewGroup, int);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY) public void onBindViewHolder(androidx.slice.widget.SliceAdapter.SliceViewHolder, int);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY) public androidx.slice.widget.SliceAdapter.SliceViewHolder onCreateViewHolder(android.view.ViewGroup, int);
   }
 
   @RequiresApi(19) public abstract class SliceChildView extends android.widget.FrameLayout {

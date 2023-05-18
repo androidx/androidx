@@ -45,7 +45,6 @@ import androidx.versionedparcelable.VersionedParcelize;
 import java.util.ArrayList;
 
 /**
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @VersionedParcelize(allowSerialization = true, ignoreParcelables = true,
