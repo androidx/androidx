@@ -50,6 +50,7 @@ import java.util.concurrent.Executor;
  */
 public final class CustomTabsSession {
     private static final String TAG = "CustomTabsSession";
+    static final String TARGET_ORIGIN_KEY = "target_origin";
     private final Object mLock = new Object();
     private final ICustomTabsService mService;
     private final ICustomTabsCallback mCallback;
@@ -63,7 +64,8 @@ public final class CustomTabsSession {
      *
      * {@see Intent#filterEquals()}
      */
-    @Nullable private final PendingIntent mId;
+    @Nullable
+    private final PendingIntent mId;
 
     /**
      * Provides browsers a way to generate a mock {@link CustomTabsSession} for testing
@@ -104,7 +106,7 @@ public final class CustomTabsSession {
      *                           likelihood order. Inside each Bundle, the client should provide a
      *                           {@link Uri} using {@link CustomTabsService#KEY_URL} with
      *                           {@link Bundle#putParcelable(String, android.os.Parcelable)}.
-     * @return                   true for success.
+     * @return true for success.
      */
     @SuppressWarnings("NullAway")  // TODO: b/142938599
     public boolean mayLaunchUrl(@Nullable Uri url, @Nullable Bundle extras,
@@ -121,9 +123,8 @@ public final class CustomTabsSession {
      * This sets the action button on the toolbar with ID
      * {@link CustomTabsIntent#TOOLBAR_ACTION_BUTTON_ID}.
      *
-     * @param icon          The new icon of the action button.
-     * @param description   Content description of the action button.
-     *
+     * @param icon        The new icon of the action button.
+     * @param description Content description of the action button.
      * @see CustomTabsSession#setToolbarItem(int, Bitmap, String)
      */
     public boolean setActionButton(@NonNull Bitmap icon, @NonNull String description) {
@@ -143,6 +144,7 @@ public final class CustomTabsSession {
 
     /**
      * Updates the {@link RemoteViews} of the secondary toolbar in an existing custom tab session.
+     *
      * @param remoteViews   The updated {@link RemoteViews} that will be shown in secondary toolbar.
      *                      If null, the current secondary toolbar will be dismissed.
      * @param clickableIDs  The ids of clickable views. The onClick event of these views will be
@@ -167,10 +169,11 @@ public final class CustomTabsSession {
     /**
      * Updates the visuals for toolbar items. Will only succeed if a custom tab created using this
      * session is in the foreground in browser and the given id is valid.
-     * @param id            The id for the item to update.
-     * @param icon          The new icon of the toolbar item.
-     * @param description   Content description of the toolbar item.
-     * @return              Whether the update succeeded.
+     *
+     * @param id          The id for the item to update.
+     * @param icon        The new icon of the toolbar item.
+     * @param description Content description of the toolbar item.
+     * @return Whether the update succeeded.
      * @deprecated Use
      * CustomTabsSession#setSecondaryToolbarViews(RemoteViews, int[], PendingIntent)
      */
@@ -194,26 +197,41 @@ public final class CustomTabsSession {
     /**
      * Sends a request to create a two way postMessage channel between the client and the browser.
      *
-     * @param postMessageOrigin      A origin that the client is requesting to be identified as
-     *                               during the postMessage communication.
+     * @param postMessageOrigin A origin that the client is requesting to be identified as
+     *                          during the postMessage communication.
      * @return Whether the implementation accepted the request. Note that returning true
-     *         here doesn't mean an origin has already been assigned as the validation is
-     *         asynchronous.
+     * here doesn't mean an origin has already been assigned as the validation is
+     * asynchronous.
      */
     public boolean requestPostMessageChannel(@NonNull Uri postMessageOrigin) {
+        return requestPostMessageChannel(postMessageOrigin, null, new Bundle());
+    }
+
+    /**
+     * Sends a request to create a two way postMessage channel between the client and the browser
+     * with specifying the target origin to communicate with.
+     *
+     * @param postMessageOrigin       A origin that the client is requesting to be identified as
+     *                                during the postMessage communication.
+     * @param postMessageTargetOrigin The target Origin to establish the postMessage communication
+     *                                with.
+     * @param extras  Reserved for future use.
+     * @return Whether the implementation accepted the request. Note that returning true
+     * here doesn't mean an origin has already been assigned as the validation is
+     * asynchronous.
+     */
+    public boolean requestPostMessageChannel(@NonNull Uri postMessageOrigin,
+            @Nullable Uri postMessageTargetOrigin, @NonNull Bundle extras) {
         try {
-            // If mId is not null we know that the CustomTabsService supports
-            // requestPostMessageChannelWithExtras. That is because non-null mId means that
-            // CustomTabsSession was created with CustomTabsClient#newSession(Callback int), which
-            // can succeed only when browsers supporting CustomTabsService#newSessionWithExtras.
-            // This was added at the same time as requestPostMessageChannelWithExtras.
-            if (mId != null) {
+            Bundle targetOriginWithIdBundle =
+                    createPostMessageExtraBundle(postMessageTargetOrigin);
+            if (targetOriginWithIdBundle != null) {
+                extras.putAll(targetOriginWithIdBundle);
                 return mService.requestPostMessageChannelWithExtras(
-                        mCallback, postMessageOrigin, createBundleWithId(null));
+                        mCallback, postMessageOrigin, extras);
             } else {
                 return mService.requestPostMessageChannel(mCallback, postMessageOrigin);
             }
-
         } catch (RemoteException e) {
             return false;
         }
@@ -222,14 +240,14 @@ public final class CustomTabsSession {
     /**
      * Sends a postMessage request using the origin communicated via
      * {@link CustomTabsService#requestPostMessageChannel(
-     * CustomTabsSessionToken, Uri)}. Fails when called before
+     *CustomTabsSessionToken, Uri)}. Fails when called before
      * {@link PostMessageServiceConnection#notifyMessageChannelReady(Bundle)} is received on
      * the client side.
      *
      * @param message The message that is being sent.
-     * @param extras Reserved for future use.
+     * @param extras  Reserved for future use.
      * @return An integer constant about the postMessage request result. Will return
-     *        {@link CustomTabsService#RESULT_SUCCESS} if successful.
+     * {@link CustomTabsService#RESULT_SUCCESS} if successful.
      */
     @Result
     public int postMessage(@NonNull String message, @Nullable Bundle extras) {
@@ -259,8 +277,8 @@ public final class CustomTabsSession {
      *
      * @param relation Relation to check, must be one of the {@code CustomTabsService#RELATION_* }
      *                 constants.
-     * @param origin Origin.
-     * @param extras Reserved for future use.
+     * @param origin   Origin.
+     * @param extras   Reserved for future use.
      * @return {@code true} if the request has been submitted successfully.
      */
     public boolean validateRelationship(@Relation int relation, @NonNull Uri origin,
@@ -287,10 +305,10 @@ public final class CustomTabsSession {
      * The file is read and processed (where applicable) synchronously, therefore it's recommended
      * to call this method on a background thread.
      *
-     * @param uri {@link Uri} of the file.
+     * @param uri     {@link Uri} of the file.
      * @param purpose Purpose of transferring this file, one of the constants enumerated in
      *                {@code CustomTabsService#FilePurpose}.
-     * @param extras Reserved for future use.
+     * @param extras  Reserved for future use.
      * @return {@code true} if the file was received successfully.
      */
     public boolean receiveFile(@NonNull Uri uri, @CustomTabsService.FilePurpose int purpose,
@@ -311,12 +329,12 @@ public final class CustomTabsSession {
      *
      * @param extras Reserved for future use.
      * @return Whether the Engagement Signals API is available. A false value means
-     *         {@link #getGreatestScrollPercentage} will throw an
-     *         {@link UnsupportedOperationException} if called, and
-     *         {@link #setEngagementSignalsCallback} will return false and not set the callback.
-     * @throws RemoteException If the Service dies while responding to the request.
+     * {@link #getGreatestScrollPercentage} will throw an
+     * {@link UnsupportedOperationException} if called, and
+     * {@link #setEngagementSignalsCallback} will return false and not set the callback.
+     * @throws RemoteException               If the Service dies while responding to the request.
      * @throws UnsupportedOperationException If this method isn't supported by the Custom Tabs
-     *         implementation.
+     *                                       implementation.
      */
     public boolean isEngagementSignalsApiAvailable(@NonNull Bundle extras) throws RemoteException {
         try {
@@ -336,12 +354,12 @@ public final class CustomTabsSession {
      * {@link #setEngagementSignalsCallback(Executor, EngagementSignalsCallback, Bundle)}.
      *
      * @param callback The {@link EngagementSignalsCallback} to receive the user engagement signals.
-     * @param extras Reserved for future use.
+     * @param extras   Reserved for future use.
      * @return Whether the callback connection is allowed. If false, no callbacks will be called for
-     *         this session.
-     * @throws RemoteException If the Service dies while responding to the request.
+     * this session.
+     * @throws RemoteException               If the Service dies while responding to the request.
      * @throws UnsupportedOperationException If this method isn't supported by the Custom Tabs
-     *         implementation.
+     *                                       implementation.
      */
     @RequiresFeature(name = CustomTabsFeatures.ENGAGEMENT_SIGNALS, enforcement =
             "androidx.browser.customtabs.CustomTabsSession#isEngagementSignalsApiAvailable")
@@ -385,12 +403,12 @@ public final class CustomTabsSession {
      *
      * @param executor The {@link Executor} to be used to execute the callbacks.
      * @param callback The {@link EngagementSignalsCallback} to receive the user engagement signals.
-     * @param extras Reserved for future use.
+     * @param extras   Reserved for future use.
      * @return Whether the callback connection is allowed. If false, no callbacks will be called for
-     *         this session.
-     * @throws RemoteException If the Service dies while responding to the request.
+     * this session.
+     * @throws RemoteException               If the Service dies while responding to the request.
      * @throws UnsupportedOperationException If this method isn't supported by the Custom Tabs
-     *         implementation.
+     *                                       implementation.
      */
     @RequiresFeature(name = CustomTabsFeatures.ENGAGEMENT_SIGNALS, enforcement =
             "androidx.browser.customtabs.CustomTabsSession#isEngagementSignalsApiAvailable")
@@ -403,7 +421,7 @@ public final class CustomTabsSession {
             return mService.setEngagementSignalsCallback(mCallback, wrapper.asBinder(), extras);
         } catch (SecurityException e) {
             throw new UnsupportedOperationException("This method isn't supported by the "
-                        + "Custom Tabs implementation.", e);
+                    + "Custom Tabs implementation.", e);
         }
     }
 
@@ -457,12 +475,13 @@ public final class CustomTabsSession {
      *
      * @param extras Reserved for future use.
      * @return An integer in the range of [0, 100] indicating the amount that the user has
-     *         scrolled the page with 0 indicating the user has never scrolled the page and 100
-     *         indicating they have scrolled to the very bottom.
-     * @throws RemoteException If the Service dies while responding to the request.
+     * scrolled the page with 0 indicating the user has never scrolled the page and 100
+     * indicating they have scrolled to the very bottom.
+     * @throws RemoteException               If the Service dies while responding to the request.
      * @throws UnsupportedOperationException If the Engagement Signals API isn't available, i.e.
-     *         {@link #isEngagementSignalsApiAvailable} returns false, or the method isn't supported
-     *         by the Custom Tabs implementation.
+     *                                       {@link #isEngagementSignalsApiAvailable} returns
+     *                                       false, or the method isn't supported
+     *                                       by the Custom Tabs implementation.
      */
     @RequiresFeature(name = CustomTabsFeatures.ENGAGEMENT_SIGNALS, enforcement =
             "androidx.browser.customtabs.CustomTabsSession#isEngagementSignalsApiAvailable")
@@ -474,6 +493,22 @@ public final class CustomTabsSession {
             throw new UnsupportedOperationException("This method isn't supported by the "
                     + "Custom Tabs implementation.", e);
         }
+    }
+
+    private @Nullable Bundle createPostMessageExtraBundle(@Nullable Uri targetOrigin) {
+        Bundle toReturn = new Bundle();
+        if (targetOrigin != null) {
+            toReturn.putParcelable(CustomTabsSession.TARGET_ORIGIN_KEY, targetOrigin);
+        }
+        // If mId is not null we know that the CustomTabsService supports
+        // requestPostMessageChannelWithExtras. That is because non-null mId means that
+        // CustomTabsSession was created with CustomTabsClient#newSession(Callback int), which
+        // can succeed only when browsers supporting CustomTabsService#newSessionWithExtras.
+        // This was added at the same time as requestPostMessageChannelWithExtras.
+        if (mId != null) {
+            addIdToBundle(toReturn);
+        }
+        return toReturn.isEmpty() ? null : toReturn;
     }
 
     private Bundle createBundleWithId(@Nullable Bundle bundle) {
@@ -496,7 +531,7 @@ public final class CustomTabsSession {
     }
 
     @Nullable
-    /* package */ PendingIntent getId() {
+        /* package */ PendingIntent getId() {
         return mId;
     }
 
@@ -505,12 +540,13 @@ public final class CustomTabsSession {
      * {@link CustomTabsService}.
      *
      * Use {@link CustomTabsClient#attachSession(PendingSession)} to get {@link CustomTabsSession}.
-     *
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public static class PendingSession {
-        @Nullable private final CustomTabsCallback mCallback;
-        @Nullable private final PendingIntent mId;
+        @Nullable
+        private final CustomTabsCallback mCallback;
+        @Nullable
+        private final PendingIntent mId;
 
         /* package */ PendingSession(
                 @Nullable CustomTabsCallback callback, @Nullable PendingIntent sessionId) {
@@ -519,12 +555,12 @@ public final class CustomTabsSession {
         }
 
         @Nullable
-        /* package */ PendingIntent getId() {
+            /* package */ PendingIntent getId() {
             return mId;
         }
 
         @Nullable
-        /* package */ CustomTabsCallback getCallback() {
+            /* package */ CustomTabsCallback getCallback() {
             return mCallback;
         }
     }
