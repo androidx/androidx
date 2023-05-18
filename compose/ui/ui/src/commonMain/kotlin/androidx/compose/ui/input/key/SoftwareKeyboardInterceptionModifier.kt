@@ -23,7 +23,9 @@ import androidx.compose.ui.platform.InspectorInfo
 
 /**
  * Adding this [modifier][Modifier] to the [modifier][Modifier] parameter of a component will
- * allow it to intercept hardware key events before they are sent to the software keyboard.
+ * allow it to intercept hardware key events before they are sent to the software keyboard. This
+ * can be used to intercept key input from a DPad, or physical keyboard connected to the device and
+ * is not applicable to input that is sent to the soft keyboard via spell check or autocomplete.
  *
  * @param onInterceptKeyBeforeSoftKeyboard This callback is invoked when the user interacts with
  * the hardware keyboard. While implementing this callback, return true to stop propagation of this
@@ -43,8 +45,10 @@ fun Modifier.onInterceptKeyBeforeSoftKeyboard(
 /**
  * Adding this [modifier][Modifier] to the [modifier][Modifier] parameter of a component will
  * allow it to intercept hardware key events before they are sent to the software keyboard. This
- * modifier is similar to [onInterceptKeyBeforeSoftKeyboard], but allows a parent composable to
- * intercept the hardware key event before any child.
+ * can be used to intercept key input from a DPad, or physical keyboard connected to the device and
+ * is not applicable to input that is sent to the soft keyboard via spell check or autocomplete.
+ * This modifier is similar to [onInterceptKeyBeforeSoftKeyboard], but allows a parent composable
+ * to intercept the hardware key event before any child.
  *
  * @param onPreInterceptKeyBeforeSoftKeyboard This callback is invoked when the user interacts
  * with the hardware keyboard. It gives ancestors of a focused component the chance to intercept a
@@ -66,13 +70,13 @@ fun Modifier.onPreInterceptKeyBeforeSoftKeyboard(
 private data class SoftKeyboardInterceptionElement(
     val onKeyEvent: ((KeyEvent) -> Boolean)?,
     val onPreKeyEvent: ((KeyEvent) -> Boolean)?
-) : ModifierNodeElement<InterceptedKeyInputModifierNodeImpl>() {
-    override fun create() = InterceptedKeyInputModifierNodeImpl(
+) : ModifierNodeElement<InterceptedKeyInputNode>() {
+    override fun create() = InterceptedKeyInputNode(
         onEvent = onKeyEvent,
         onPreEvent = onPreKeyEvent
     )
 
-    override fun update(node: InterceptedKeyInputModifierNodeImpl) {
+    override fun update(node: InterceptedKeyInputNode) {
         node.onEvent = onKeyEvent
         node.onPreEvent = onPreKeyEvent
     }
@@ -90,7 +94,7 @@ private data class SoftKeyboardInterceptionElement(
 }
 
 @OptIn(ExperimentalComposeUiApi::class)
-private class InterceptedKeyInputModifierNodeImpl(
+private class InterceptedKeyInputNode(
     var onEvent: ((KeyEvent) -> Boolean)?,
     var onPreEvent: ((KeyEvent) -> Boolean)?
 ) : SoftKeyboardInterceptionModifierNode, Modifier.Node() {
