@@ -1179,6 +1179,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
                 Timebase.UPTIME,
                 mediaSpec.getVideoSpec(),
                 resolution,
+                dynamicRange,
                 expectedFrameRate);
 
         return videoEncoderInfoFinder.apply(videoEncoderConfig);
