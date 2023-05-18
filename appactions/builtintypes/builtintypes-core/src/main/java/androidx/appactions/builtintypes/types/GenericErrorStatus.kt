@@ -15,7 +15,6 @@ package androidx.appactions.builtintypes.types
 
 import androidx.appactions.builtintypes.properties.DisambiguatingDescription
 import androidx.appactions.builtintypes.properties.Name
-import java.time.Duration
 import java.util.Objects
 import kotlin.Any
 import kotlin.Boolean
@@ -31,60 +30,50 @@ import kotlin.collections.plusAssign
 import kotlin.jvm.JvmStatic
 
 /**
- * A timer to go off at a particular time.
+ * Status indicating that the task was not executed successfully.
  *
- * See http://schema.googleapis.com/Timer for context.
+ * See http://schema.googleapis.com/GenericErrorStatus for context.
  *
  * Should not be directly implemented. More properties may be added over time. Instead consider
- * using [Companion.Builder] or see [AbstractTimer] if you need to extend this type.
+ * using [Companion.Builder] or see [AbstractGenericErrorStatus] if you need to extend this type.
  */
-public interface Timer : Thing {
-  /**
-   * The duration of the item (movie, audio recording, event, etc.).
-   *
-   * See http://schema.org/duration for more context.
-   */
-  public val duration: Duration?
-
-  /** Converts this [Timer] to its builder with all the properties copied over. */
+public interface GenericErrorStatus : ExecutionStatus {
+  /** Converts this [GenericErrorStatus] to its builder with all the properties copied over. */
   public override fun toBuilder(): Builder<*>
 
   public companion object {
     /** Returns a default implementation of [Builder] with no properties set. */
-    @JvmStatic public fun Builder(): Builder<*> = TimerImpl.Builder()
+    @JvmStatic public fun Builder(): Builder<*> = GenericErrorStatusImpl.Builder()
   }
 
   /**
-   * Builder for [Timer].
+   * Builder for [GenericErrorStatus].
    *
    * Should not be directly implemented. More methods may be added over time. See
-   * [AbstractTimer.Builder] if you need to extend this builder.
+   * [AbstractGenericErrorStatus.Builder] if you need to extend this builder.
    */
-  public interface Builder<Self : Builder<Self>> : Thing.Builder<Self> {
-    /** Returns a built [Timer]. */
-    public override fun build(): Timer
-
-    /** Sets the `duration`. */
-    public fun setDuration(duration: Duration?): Self
+  public interface Builder<Self : Builder<Self>> : ExecutionStatus.Builder<Self> {
+    /** Returns a built [GenericErrorStatus]. */
+    public override fun build(): GenericErrorStatus
   }
 }
 
 /**
- * An abstract implementation of [Timer].
+ * An abstract implementation of [GenericErrorStatus].
  *
  * Allows for extension like:
  * ```kt
- * class MyTimer internal constructor(
- *   timer: Timer,
+ * class MyGenericErrorStatus internal constructor(
+ *   genericErrorStatus: GenericErrorStatus,
  *   val foo: String,
  *   val bars: List<Int>,
- * ) : AbstractTimer<
- *   MyTimer,
- *   MyTimer.Builder
- * >(timer) {
+ * ) : AbstractGenericErrorStatus<
+ *   MyGenericErrorStatus,
+ *   MyGenericErrorStatus.Builder
+ * >(genericErrorStatus) {
  *
  *   override val selfTypeName =
- *     "MyTimer"
+ *     "MyGenericErrorStatus"
  *
  *   override val additionalProperties: Map<String, Any?>
  *     get() = mapOf("foo" to foo, "bars" to bars)
@@ -96,23 +85,23 @@ public interface Timer : Thing {
  *   }
  *
  *   class Builder :
- *     AbstractTimer.Builder<
+ *     AbstractGenericErrorStatus.Builder<
  *       Builder,
- *       MyTimer> {...}
+ *       MyGenericErrorStatus> {...}
  * }
  * ```
  *
- * Also see [AbstractTimer.Builder].
+ * Also see [AbstractGenericErrorStatus.Builder].
  */
 @Suppress("UNCHECKED_CAST")
-public abstract class AbstractTimer<
-  Self : AbstractTimer<Self, Builder>, Builder : AbstractTimer.Builder<Builder, Self>>
+public abstract class AbstractGenericErrorStatus<
+  Self : AbstractGenericErrorStatus<Self, Builder>,
+  Builder : AbstractGenericErrorStatus.Builder<Builder, Self>>
 internal constructor(
-  public final override val duration: Duration?,
   public final override val disambiguatingDescription: DisambiguatingDescription?,
   public final override val identifier: String?,
   public final override val name: Name?,
-) : Timer {
+) : GenericErrorStatus {
   /**
    * Human readable name for the concrete [Self] class.
    *
@@ -127,17 +116,23 @@ internal constructor(
    */
   protected abstract val additionalProperties: Map<String, Any?>
 
-  /** A copy-constructor that copies over properties from another [Timer] instance. */
+  /** A copy-constructor that copies over properties from another [GenericErrorStatus] instance. */
   public constructor(
-    timer: Timer
-  ) : this(timer.duration, timer.disambiguatingDescription, timer.identifier, timer.name)
+    genericErrorStatus: GenericErrorStatus
+  ) : this(
+    genericErrorStatus.disambiguatingDescription,
+    genericErrorStatus.identifier,
+    genericErrorStatus.name
+  )
 
-  /** Returns a concrete [Builder] with the additional, non-[Timer] properties copied over. */
+  /**
+   * Returns a concrete [Builder] with the additional, non-[GenericErrorStatus] properties copied
+   * over.
+   */
   protected abstract fun toBuilderWithAdditionalPropertiesOnly(): Builder
 
   public final override fun toBuilder(): Builder =
     toBuilderWithAdditionalPropertiesOnly()
-      .setDuration(duration)
       .setDisambiguatingDescription(disambiguatingDescription)
       .setIdentifier(identifier)
       .setName(name)
@@ -146,7 +141,6 @@ internal constructor(
     if (this === other) return true
     if (other == null || this::class.java != other::class.java) return false
     other as Self
-    if (duration != other.duration) return false
     if (disambiguatingDescription != other.disambiguatingDescription) return false
     if (identifier != other.identifier) return false
     if (name != other.name) return false
@@ -155,13 +149,10 @@ internal constructor(
   }
 
   public final override fun hashCode(): Int =
-    Objects.hash(duration, disambiguatingDescription, identifier, name, additionalProperties)
+    Objects.hash(disambiguatingDescription, identifier, name, additionalProperties)
 
   public final override fun toString(): String {
     val attributes = mutableMapOf<String, String>()
-    if (duration != null) {
-      attributes["duration"] = duration.toString()
-    }
     if (disambiguatingDescription != null) {
       attributes["disambiguatingDescription"] =
         disambiguatingDescription.toString(includeWrapperName = false)
@@ -178,34 +169,34 @@ internal constructor(
   }
 
   /**
-   * An abstract implementation of [Timer.Builder].
+   * An abstract implementation of [GenericErrorStatus.Builder].
    *
    * Allows for extension like:
    * ```kt
-   * class MyTimer :
-   *   : AbstractTimer<
-   *     MyTimer,
-   *     MyTimer.Builder>(...) {
+   * class MyGenericErrorStatus :
+   *   : AbstractGenericErrorStatus<
+   *     MyGenericErrorStatus,
+   *     MyGenericErrorStatus.Builder>(...) {
    *
    *   class Builder
    *   : Builder<
    *       Builder,
-   *       MyTimer
+   *       MyGenericErrorStatus
    *   >() {
    *     private var foo: String? = null
    *     private val bars = mutableListOf<Int>()
    *
    *     override val selfTypeName =
-   *       "MyTimer.Builder"
+   *       "MyGenericErrorStatus.Builder"
    *
    *     override val additionalProperties: Map<String, Any?>
    *       get() = mapOf("foo" to foo, "bars" to bars)
    *
-   *     override fun buildFromTimer(
-   *       timer: Timer
-   *     ): MyTimer {
-   *       return MyTimer(
-   *         timer,
+   *     override fun buildFromGenericErrorStatus(
+   *       genericErrorStatus: GenericErrorStatus
+   *     ): MyGenericErrorStatus {
+   *       return MyGenericErrorStatus(
+   *         genericErrorStatus,
    *         foo,
    *         bars.toList()
    *       )
@@ -226,11 +217,12 @@ internal constructor(
    * }
    * ```
    *
-   * Also see [AbstractTimer].
+   * Also see [AbstractGenericErrorStatus].
    */
   @Suppress("StaticFinalBuilder")
-  public abstract class Builder<Self : Builder<Self, Built>, Built : AbstractTimer<Built, Self>> :
-    Timer.Builder<Self> {
+  public abstract class Builder<
+    Self : Builder<Self, Built>, Built : AbstractGenericErrorStatus<Built, Self>> :
+    GenericErrorStatus.Builder<Self> {
     /**
      * Human readable name for the concrete [Self] class.
      *
@@ -245,8 +237,6 @@ internal constructor(
      */
     @get:Suppress("GetterOnBuilder") protected abstract val additionalProperties: Map<String, Any?>
 
-    private var duration: Duration? = null
-
     private var disambiguatingDescription: DisambiguatingDescription? = null
 
     private var identifier: String? = null
@@ -254,22 +244,23 @@ internal constructor(
     private var name: Name? = null
 
     /**
-     * Builds a concrete [Built] instance, given a built [Timer].
+     * Builds a concrete [Built] instance, given a built [GenericErrorStatus].
      *
      * Subclasses should override this method to build a concrete [Built] instance that holds both
-     * the [Timer]-specific properties and the subclass specific [additionalProperties].
+     * the [GenericErrorStatus]-specific properties and the subclass specific
+     * [additionalProperties].
      *
      * See the sample code in the documentation of this class for more context.
      */
-    @Suppress("BuilderSetStyle") protected abstract fun buildFromTimer(timer: Timer): Built
+    @Suppress("BuilderSetStyle")
+    protected abstract fun buildFromGenericErrorStatus(
+      genericErrorStatus: GenericErrorStatus
+    ): Built
 
     public final override fun build(): Built =
-      buildFromTimer(TimerImpl(duration, disambiguatingDescription, identifier, name))
-
-    public final override fun setDuration(duration: Duration?): Self {
-      this.duration = duration
-      return this as Self
-    }
+      buildFromGenericErrorStatus(
+        GenericErrorStatusImpl(disambiguatingDescription, identifier, name)
+      )
 
     public final override fun setDisambiguatingDescription(
       disambiguatingDescription: DisambiguatingDescription?
@@ -293,7 +284,6 @@ internal constructor(
       if (this === other) return true
       if (other == null || this::class.java != other::class.java) return false
       other as Self
-      if (duration != other.duration) return false
       if (disambiguatingDescription != other.disambiguatingDescription) return false
       if (identifier != other.identifier) return false
       if (name != other.name) return false
@@ -303,14 +293,11 @@ internal constructor(
 
     @Suppress("BuilderSetStyle")
     public final override fun hashCode(): Int =
-      Objects.hash(duration, disambiguatingDescription, identifier, name, additionalProperties)
+      Objects.hash(disambiguatingDescription, identifier, name, additionalProperties)
 
     @Suppress("BuilderSetStyle")
     public final override fun toString(): String {
       val attributes = mutableMapOf<String, String>()
-      if (duration != null) {
-        attributes["duration"] = duration!!.toString()
-      }
       if (disambiguatingDescription != null) {
         attributes["disambiguatingDescription"] =
           disambiguatingDescription!!.toString(includeWrapperName = false)
@@ -329,32 +316,34 @@ internal constructor(
   }
 }
 
-internal class TimerImpl : AbstractTimer<TimerImpl, TimerImpl.Builder> {
+internal class GenericErrorStatusImpl :
+  AbstractGenericErrorStatus<GenericErrorStatusImpl, GenericErrorStatusImpl.Builder> {
   protected override val selfTypeName: String
-    get() = "Timer"
+    get() = "GenericErrorStatus"
 
   protected override val additionalProperties: Map<String, Any?>
     get() = emptyMap()
 
   public constructor(
-    duration: Duration?,
     disambiguatingDescription: DisambiguatingDescription?,
     identifier: String?,
     name: Name?,
-  ) : super(duration, disambiguatingDescription, identifier, name)
+  ) : super(disambiguatingDescription, identifier, name)
 
-  public constructor(timer: Timer) : super(timer)
+  public constructor(genericErrorStatus: GenericErrorStatus) : super(genericErrorStatus)
 
   protected override fun toBuilderWithAdditionalPropertiesOnly(): Builder = Builder()
 
-  internal class Builder : AbstractTimer.Builder<Builder, TimerImpl>() {
+  internal class Builder : AbstractGenericErrorStatus.Builder<Builder, GenericErrorStatusImpl>() {
     protected override val selfTypeName: String
-      get() = "Timer.Builder"
+      get() = "GenericErrorStatus.Builder"
 
     protected override val additionalProperties: Map<String, Any?>
       get() = emptyMap()
 
-    protected override fun buildFromTimer(timer: Timer): TimerImpl =
-      timer as? TimerImpl ?: TimerImpl(timer)
+    protected override fun buildFromGenericErrorStatus(
+      genericErrorStatus: GenericErrorStatus
+    ): GenericErrorStatusImpl =
+      genericErrorStatus as? GenericErrorStatusImpl ?: GenericErrorStatusImpl(genericErrorStatus)
   }
 }

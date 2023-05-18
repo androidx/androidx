@@ -36,7 +36,7 @@ import kotlin.jvm.JvmStatic
  * See http://schema.org/Intangible for context.
  *
  * Should not be directly implemented. More properties may be added over time. Instead consider
- * using [Companion.Builder] or see [GenericIntangible] if you need to extend this type.
+ * using [Companion.Builder] or see [AbstractIntangible] if you need to extend this type.
  */
 public interface Intangible : Thing {
   /** Converts this [Intangible] to its builder with all the properties copied over. */
@@ -51,7 +51,7 @@ public interface Intangible : Thing {
    * Builder for [Intangible].
    *
    * Should not be directly implemented. More methods may be added over time. See
-   * [GenericIntangible.Builder] if you need to extend this builder.
+   * [AbstractIntangible.Builder] if you need to extend this builder.
    */
   public interface Builder<Self : Builder<Self>> : Thing.Builder<Self> {
     /** Returns a built [Intangible]. */
@@ -60,7 +60,7 @@ public interface Intangible : Thing {
 }
 
 /**
- * A generic implementation of [Intangible].
+ * An abstract implementation of [Intangible].
  *
  * Allows for extension like:
  * ```kt
@@ -68,7 +68,7 @@ public interface Intangible : Thing {
  *   intangible: Intangible,
  *   val foo: String,
  *   val bars: List<Int>,
- * ) : GenericIntangible<
+ * ) : AbstractIntangible<
  *   MyIntangible,
  *   MyIntangible.Builder
  * >(intangible) {
@@ -86,17 +86,17 @@ public interface Intangible : Thing {
  *   }
  *
  *   class Builder :
- *     GenericIntangible.Builder<
+ *     AbstractIntangible.Builder<
  *       Builder,
  *       MyIntangible> {...}
  * }
  * ```
  *
- * Also see [GenericIntangible.Builder].
+ * Also see [AbstractIntangible.Builder].
  */
 @Suppress("UNCHECKED_CAST")
-public abstract class GenericIntangible<
-  Self : GenericIntangible<Self, Builder>, Builder : GenericIntangible.Builder<Builder, Self>>
+public abstract class AbstractIntangible<
+  Self : AbstractIntangible<Self, Builder>, Builder : AbstractIntangible.Builder<Builder, Self>>
 internal constructor(
   public final override val disambiguatingDescription: DisambiguatingDescription?,
   public final override val identifier: String?,
@@ -162,12 +162,12 @@ internal constructor(
   }
 
   /**
-   * A generic implementation of [Intangible.Builder].
+   * An abstract implementation of [Intangible.Builder].
    *
    * Allows for extension like:
    * ```kt
    * class MyIntangible :
-   *   : GenericIntangible<
+   *   : AbstractIntangible<
    *     MyIntangible,
    *     MyIntangible.Builder>(...) {
    *
@@ -210,11 +210,11 @@ internal constructor(
    * }
    * ```
    *
-   * Also see [GenericIntangible].
+   * Also see [AbstractIntangible].
    */
   @Suppress("StaticFinalBuilder")
   public abstract class Builder<
-    Self : Builder<Self, Built>, Built : GenericIntangible<Built, Self>> :
+    Self : Builder<Self, Built>, Built : AbstractIntangible<Built, Self>> :
     Intangible.Builder<Self> {
     /**
      * Human readable name for the concrete [Self] class.
@@ -304,7 +304,7 @@ internal constructor(
   }
 }
 
-internal class IntangibleImpl : GenericIntangible<IntangibleImpl, IntangibleImpl.Builder> {
+internal class IntangibleImpl : AbstractIntangible<IntangibleImpl, IntangibleImpl.Builder> {
   protected override val selfTypeName: String
     get() = "Intangible"
 
@@ -321,7 +321,7 @@ internal class IntangibleImpl : GenericIntangible<IntangibleImpl, IntangibleImpl
 
   protected override fun toBuilderWithAdditionalPropertiesOnly(): Builder = Builder()
 
-  internal class Builder : GenericIntangible.Builder<Builder, IntangibleImpl>() {
+  internal class Builder : AbstractIntangible.Builder<Builder, IntangibleImpl>() {
     protected override val selfTypeName: String
       get() = "Intangible.Builder"
 

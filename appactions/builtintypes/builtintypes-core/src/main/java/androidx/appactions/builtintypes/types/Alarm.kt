@@ -36,10 +36,14 @@ import kotlin.jvm.JvmStatic
  * See http://schema.googleapis.com/Alarm for context.
  *
  * Should not be directly implemented. More properties may be added over time. Instead consider
- * using [Companion.Builder] or see [GenericAlarm] if you need to extend this type.
+ * using [Companion.Builder] or see [AbstractAlarm] if you need to extend this type.
  */
 public interface Alarm : Thing {
-  /** Associates an Alarm with a Schedule. */
+  /**
+   * Associates an Alarm with a Schedule.
+   *
+   * See http://schema.googleapis.com/alarmSchedule for more context.
+   */
   public val alarmSchedule: Schedule?
 
   /** Converts this [Alarm] to its builder with all the properties copied over. */
@@ -54,7 +58,7 @@ public interface Alarm : Thing {
    * Builder for [Alarm].
    *
    * Should not be directly implemented. More methods may be added over time. See
-   * [GenericAlarm.Builder] if you need to extend this builder.
+   * [AbstractAlarm.Builder] if you need to extend this builder.
    */
   public interface Builder<Self : Builder<Self>> : Thing.Builder<Self> {
     /** Returns a built [Alarm]. */
@@ -90,7 +94,7 @@ public interface Alarm : Thing {
 }
 
 /**
- * A generic implementation of [Alarm].
+ * An abstract implementation of [Alarm].
  *
  * Allows for extension like:
  * ```kt
@@ -98,7 +102,7 @@ public interface Alarm : Thing {
  *   alarm: Alarm,
  *   val foo: String,
  *   val bars: List<Int>,
- * ) : GenericAlarm<
+ * ) : AbstractAlarm<
  *   MyAlarm,
  *   MyAlarm.Builder
  * >(alarm) {
@@ -116,17 +120,17 @@ public interface Alarm : Thing {
  *   }
  *
  *   class Builder :
- *     GenericAlarm.Builder<
+ *     AbstractAlarm.Builder<
  *       Builder,
  *       MyAlarm> {...}
  * }
  * ```
  *
- * Also see [GenericAlarm.Builder].
+ * Also see [AbstractAlarm.Builder].
  */
 @Suppress("UNCHECKED_CAST")
-public abstract class GenericAlarm<
-  Self : GenericAlarm<Self, Builder>, Builder : GenericAlarm.Builder<Builder, Self>>
+public abstract class AbstractAlarm<
+  Self : AbstractAlarm<Self, Builder>, Builder : AbstractAlarm.Builder<Builder, Self>>
 internal constructor(
   public final override val alarmSchedule: Schedule?,
   public final override val disambiguatingDescription: DisambiguatingDescription?,
@@ -198,12 +202,12 @@ internal constructor(
   }
 
   /**
-   * A generic implementation of [Alarm.Builder].
+   * An abstract implementation of [Alarm.Builder].
    *
    * Allows for extension like:
    * ```kt
    * class MyAlarm :
-   *   : GenericAlarm<
+   *   : AbstractAlarm<
    *     MyAlarm,
    *     MyAlarm.Builder>(...) {
    *
@@ -246,10 +250,10 @@ internal constructor(
    * }
    * ```
    *
-   * Also see [GenericAlarm].
+   * Also see [AbstractAlarm].
    */
   @Suppress("StaticFinalBuilder")
-  public abstract class Builder<Self : Builder<Self, Built>, Built : GenericAlarm<Built, Self>> :
+  public abstract class Builder<Self : Builder<Self, Built>, Built : AbstractAlarm<Built, Self>> :
     Alarm.Builder<Self> {
     /**
      * Human readable name for the concrete [Self] class.
@@ -349,7 +353,7 @@ internal constructor(
   }
 }
 
-internal class AlarmImpl : GenericAlarm<AlarmImpl, AlarmImpl.Builder> {
+internal class AlarmImpl : AbstractAlarm<AlarmImpl, AlarmImpl.Builder> {
   protected override val selfTypeName: String
     get() = "Alarm"
 
@@ -367,7 +371,7 @@ internal class AlarmImpl : GenericAlarm<AlarmImpl, AlarmImpl.Builder> {
 
   protected override fun toBuilderWithAdditionalPropertiesOnly(): Builder = Builder()
 
-  internal class Builder : GenericAlarm.Builder<Builder, AlarmImpl>() {
+  internal class Builder : AbstractAlarm.Builder<Builder, AlarmImpl>() {
     protected override val selfTypeName: String
       get() = "Alarm.Builder"
 
