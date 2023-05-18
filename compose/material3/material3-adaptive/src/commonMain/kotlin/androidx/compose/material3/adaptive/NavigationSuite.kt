@@ -29,9 +29,9 @@ import androidx.compose.ui.layout.layoutId
 
 /**
  * The Navigation Suite wraps the provided content and places the adequate provided navigation
- * component on the screen according to the current NavigationLayoutType.
+ * component on the screen according to the current [NavigationLayoutType].
  *
- * TODO: Add the navigationLayoutType param
+ * @param navigationLayoutType the current [NavigationLayoutType]
  * @param modifier the [Modifier] to be applied to the navigation suite
  * @param navigationComponent the navigation component to be displayed
  * @param containerColor the color used for the background of the navigation suite. Use
@@ -46,6 +46,7 @@ import androidx.compose.ui.layout.layoutId
 @ExperimentalMaterial3AdaptiveApi
 @Composable
 internal fun NavigationSuite(
+    navigationLayoutType: NavigationLayoutType,
     modifier: Modifier = Modifier,
     navigationComponent: @Composable () -> Unit,
     containerColor: Color = MaterialTheme.colorScheme.background,
@@ -54,6 +55,7 @@ internal fun NavigationSuite(
 ) {
     Surface(modifier = modifier, color = containerColor, contentColor = contentColor) {
         NavigationSuiteLayout(
+            navigationLayoutType = navigationLayoutType,
             navigationComponent = navigationComponent,
             content = content
         )
@@ -63,13 +65,14 @@ internal fun NavigationSuite(
 /**
  * Layout for a [NavigationSuite]'s content.
  *
- * TODO: Add the navigationLayoutType param.
+ * @param navigationLayoutType the current [NavigationLayoutType] of the [NavigationSuite]
  * @param navigationComponent the navigation component of the [NavigationSuite]
  * @param content the main body of the [NavigationSuite]
  */
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @Composable
 private fun NavigationSuiteLayout(
+    navigationLayoutType: NavigationLayoutType,
     navigationComponent: @Composable () -> Unit,
     content: @Composable () -> Unit = {}
 ) {
@@ -78,12 +81,63 @@ private fun NavigationSuiteLayout(
             Box(modifier = Modifier.layoutId("navigation")) { navigationComponent() }
             Box(modifier = Modifier.layoutId("content")) { content() }
         }
-    ) { _, constraints ->
+    ) { measurables, constraints ->
+        val navigationPlaceable =
+            measurables.first { it.layoutId == "navigation" }.measure(constraints)
         val layoutHeight = constraints.maxHeight
         val layoutWidth = constraints.maxWidth
+        val contentPlaceable = measurables.first { it.layoutId == "content" }.measure(
+            if (navigationLayoutType.orientation
+                == NavigationSuiteFeature.Orientation.Horizontal) {
+                constraints.copy(
+                    minHeight = layoutHeight - navigationPlaceable.height,
+                    maxHeight = layoutHeight - navigationPlaceable.height
+                )
+            } else {
+                constraints.copy(
+                    minWidth = layoutWidth - navigationPlaceable.width,
+                    maxWidth = layoutWidth - navigationPlaceable.width
+                )
+            }
+        )
 
         layout(layoutWidth, layoutHeight) {
-            // TODO: Add the placement logic based on the NavigationLayoutType.
+            when (navigationLayoutType.alignment) {
+                // The navigation component can be vertical or horizontal.
+                Alignment.TopStart -> {
+                    // Place the navigation component at the start of the screen.
+                    navigationPlaceable.placeRelative(0, 0)
+
+                    if (navigationLayoutType.orientation
+                        == NavigationSuiteFeature.Orientation.Horizontal
+                    ) {
+                        // Place content below the navigation component.
+                        contentPlaceable.placeRelative(0, navigationPlaceable.height)
+                    } else {
+                        // Place content to the side of the navigation component.
+                        contentPlaceable.placeRelative(navigationPlaceable.width, 0)
+                    }
+                }
+
+                // The navigation component can only be vertical.
+                Alignment.TopEnd -> {
+                    navigationPlaceable.placeRelative(layoutWidth - navigationPlaceable.width, 0)
+                    // Place content at the start of the screen.
+                    contentPlaceable.placeRelative(0, 0)
+                }
+
+                // The navigation component can only be horizontal.
+                Alignment.BottomStart -> {
+                    // Place content above the navigation component.
+                    contentPlaceable.placeRelative(0, 0)
+                    // Place the navigation component at the bottom of the screen.
+                    navigationPlaceable.placeRelative(0, layoutHeight - navigationPlaceable.height)
+                }
+
+                else -> {
+                    // Do nothing if it's not a supported [Alignment].
+                }
+            }
         }
     }
 }
