@@ -28,7 +28,6 @@ import androidx.slice.Slice;
 import androidx.slice.SliceSpec;
 
 /**
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @RequiresApi(19)

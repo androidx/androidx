@@ -34,7 +34,6 @@ import androidx.annotation.RestrictTo;
 import java.util.concurrent.Executor;
 
 /**
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @RequiresApi(19)

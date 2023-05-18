@@ -30,7 +30,6 @@ import androidx.annotation.RestrictTo;
  * A wrapper for Drawables that uses a path to add mask for corners around the drawable,
  * to match the radius of the underlying shape.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class CornerDrawable extends InsetDrawable {
