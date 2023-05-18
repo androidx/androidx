@@ -43,7 +43,6 @@ import com.google.common.util.concurrent.SettableFuture;
  * interface. For user instruction see: go/wear-dd-wcs-sdk
  *
  * @param <S> type of the service interface
- * @hide
  */
 @RestrictTo(Scope.LIBRARY)
 public abstract class Client<S extends IInterface> {

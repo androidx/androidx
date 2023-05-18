@@ -35,8 +35,8 @@ import androidx.health.services.client.impl.response.ExerciseCapabilitiesRespons
  * The next method added to the interface should use ID: 18
  * (this id needs to be incremented for each added method)
  *
- * @hide
  */
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 interface IExerciseApiService {
     /**
      * API version of the AIDL interface. Should be incremented every time a new

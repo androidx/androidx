@@ -20,7 +20,6 @@ import androidx.annotation.RestrictTo;
 /**
  * SDK Configurations
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public final class SdkConfig {

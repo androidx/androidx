@@ -32,7 +32,7 @@
 // later when a module using the interface is updated, e.g., Mainline modules.
 
 package androidx.health.services.client.impl.internal;
-/* @hide */
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 interface IStatusCallback {
   oneway void onSuccess() = 0;
   oneway void onFailure(String msg) = 1;

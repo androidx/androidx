@@ -19,8 +19,8 @@ package androidx.health.services.client.impl.internal;
 /**
  * Generic callback for an operation that returns a status on completion.
  *
- * @hide
  */
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 oneway interface IStatusCallback {
     /**
      * Method invoked when the operation is a success.

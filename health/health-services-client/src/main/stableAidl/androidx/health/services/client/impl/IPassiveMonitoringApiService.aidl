@@ -24,7 +24,7 @@ import androidx.health.services.client.impl.request.PassiveListenerCallbackRegis
 import androidx.health.services.client.impl.request.PassiveListenerServiceRegistrationRequest;
 import androidx.health.services.client.impl.response.PassiveMonitoringCapabilitiesResponse;
 
-/** @hide */
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 interface IPassiveMonitoringApiService {
     /**
      * API version of the AIDL interface. Should be incremented every time a new

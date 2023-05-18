@@ -26,7 +26,6 @@ import androidx.annotation.RestrictTo.Scope;
  * A wrapper for SDK operation that will be executed on a connected binder. It is intended for
  * scheduling in execution queue.
  *
- * @hide
  */
 @RestrictTo(Scope.LIBRARY)
 public interface QueueOperation {

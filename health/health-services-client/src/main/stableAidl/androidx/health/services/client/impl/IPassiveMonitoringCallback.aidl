@@ -21,8 +21,8 @@ import androidx.health.services.client.impl.event.PassiveCallbackEvent;
 /**
  * Interface to get passive monitoring updates.
  *
- * @hide
  */
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 oneway interface IPassiveMonitoringCallback {
     void onPassiveCallbackEvent(in PassiveCallbackEvent event) = 0;
 }
