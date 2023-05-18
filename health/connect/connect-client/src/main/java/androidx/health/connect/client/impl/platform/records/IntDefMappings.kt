@@ -25,6 +25,7 @@ import androidx.health.connect.client.records.BloodGlucoseRecord
 import androidx.health.connect.client.records.BloodPressureRecord
 import androidx.health.connect.client.records.BodyTemperatureMeasurementLocation
 import androidx.health.connect.client.records.CervicalMucusRecord
+import androidx.health.connect.client.records.ExerciseSegment
 import androidx.health.connect.client.records.ExerciseSessionRecord
 import androidx.health.connect.client.records.MealType
 import androidx.health.connect.client.records.MenstruationFlowRecord
@@ -354,6 +355,147 @@ internal val SDK_TO_PLATFORM_SLEEP_STAGE_TYPE: Map<Int, Int> =
 
 internal val PLATFORM_TO_SDK_SLEEP_STAGE_TYPE = SDK_TO_PLATFORM_SLEEP_STAGE_TYPE.reversed()
 
+internal val SDK_TO_PLATFORM_EXERCISE_SEGMENT_TYPE: Map<Int, Int> =
+    mapOf(
+        ExerciseSegment.EXERCISE_SEGMENT_TYPE_ARM_CURL to
+            PlatformExerciseSegmentType.EXERCISE_SEGMENT_TYPE_ARM_CURL,
+        ExerciseSegment.EXERCISE_SEGMENT_TYPE_BACK_EXTENSION to
+            PlatformExerciseSegmentType.EXERCISE_SEGMENT_TYPE_BACK_EXTENSION,
+        ExerciseSegment.EXERCISE_SEGMENT_TYPE_BALL_SLAM to
+            PlatformExerciseSegmentType.EXERCISE_SEGMENT_TYPE_BALL_SLAM,
+        ExerciseSegment.EXERCISE_SEGMENT_TYPE_BARBELL_SHOULDER_PRESS to
+            PlatformExerciseSegmentType.EXERCISE_SEGMENT_TYPE_BARBELL_SHOULDER_PRESS,
+        ExerciseSegment.EXERCISE_SEGMENT_TYPE_BENCH_PRESS to
+            PlatformExerciseSegmentType.EXERCISE_SEGMENT_TYPE_BENCH_PRESS,
+        ExerciseSegment.EXERCISE_SEGMENT_TYPE_BENCH_SIT_UP to
+            PlatformExerciseSegmentType.EXERCISE_SEGMENT_TYPE_BENCH_SIT_UP,
+        ExerciseSegment.EXERCISE_SEGMENT_TYPE_BIKING to
+            PlatformExerciseSegmentType.EXERCISE_SEGMENT_TYPE_BIKING,
+        ExerciseSegment.EXERCISE_SEGMENT_TYPE_BIKING_STATIONARY to
+            PlatformExerciseSegmentType.EXERCISE_SEGMENT_TYPE_BIKING_STATIONARY,
+        ExerciseSegment.EXERCISE_SEGMENT_TYPE_BURPEE to
+            PlatformExerciseSegmentType.EXERCISE_SEGMENT_TYPE_BURPEE,
+        ExerciseSegment.EXERCISE_SEGMENT_TYPE_CRUNCH to
+            PlatformExerciseSegmentType.EXERCISE_SEGMENT_TYPE_CRUNCH,
+        ExerciseSegment.EXERCISE_SEGMENT_TYPE_DEADLIFT to
+            PlatformExerciseSegmentType.EXERCISE_SEGMENT_TYPE_DEADLIFT,
+        ExerciseSegment.EXERCISE_SEGMENT_TYPE_DOUBLE_ARM_TRICEPS_EXTENSION to
+            PlatformExerciseSegmentType.EXERCISE_SEGMENT_TYPE_DOUBLE_ARM_TRICEPS_EXTENSION,
+        ExerciseSegment.EXERCISE_SEGMENT_TYPE_DUMBBELL_CURL_LEFT_ARM to
+            PlatformExerciseSegmentType.EXERCISE_SEGMENT_TYPE_DUMBBELL_CURL_LEFT_ARM,
+        ExerciseSegment.EXERCISE_SEGMENT_TYPE_DUMBBELL_CURL_RIGHT_ARM to
+            PlatformExerciseSegmentType.EXERCISE_SEGMENT_TYPE_DUMBBELL_CURL_RIGHT_ARM,
+        ExerciseSegment.EXERCISE_SEGMENT_TYPE_DUMBBELL_FRONT_RAISE to
+            PlatformExerciseSegmentType.EXERCISE_SEGMENT_TYPE_DUMBBELL_FRONT_RAISE,
+        ExerciseSegment.EXERCISE_SEGMENT_TYPE_DUMBBELL_LATERAL_RAISE to
+            PlatformExerciseSegmentType.EXERCISE_SEGMENT_TYPE_DUMBBELL_LATERAL_RAISE,
+        ExerciseSegment.EXERCISE_SEGMENT_TYPE_DUMBBELL_ROW to
+            PlatformExerciseSegmentType.EXERCISE_SEGMENT_TYPE_DUMBBELL_ROW,
+        ExerciseSegment.EXERCISE_SEGMENT_TYPE_DUMBBELL_TRICEPS_EXTENSION_LEFT_ARM to
+            PlatformExerciseSegmentType.EXERCISE_SEGMENT_TYPE_DUMBBELL_TRICEPS_EXTENSION_LEFT_ARM,
+        ExerciseSegment.EXERCISE_SEGMENT_TYPE_DUMBBELL_TRICEPS_EXTENSION_RIGHT_ARM to
+            PlatformExerciseSegmentType.EXERCISE_SEGMENT_TYPE_DUMBBELL_TRICEPS_EXTENSION_RIGHT_ARM,
+        ExerciseSegment.EXERCISE_SEGMENT_TYPE_DUMBBELL_TRICEPS_EXTENSION_TWO_ARM to
+            PlatformExerciseSegmentType.EXERCISE_SEGMENT_TYPE_DUMBBELL_TRICEPS_EXTENSION_TWO_ARM,
+        ExerciseSegment.EXERCISE_SEGMENT_TYPE_ELLIPTICAL to
+            PlatformExerciseSegmentType.EXERCISE_SEGMENT_TYPE_ELLIPTICAL,
+        ExerciseSegment.EXERCISE_SEGMENT_TYPE_FORWARD_TWIST to
+            PlatformExerciseSegmentType.EXERCISE_SEGMENT_TYPE_FORWARD_TWIST,
+        ExerciseSegment.EXERCISE_SEGMENT_TYPE_FRONT_RAISE to
+            PlatformExerciseSegmentType.EXERCISE_SEGMENT_TYPE_FRONT_RAISE,
+        ExerciseSegment.EXERCISE_SEGMENT_TYPE_HIGH_INTENSITY_INTERVAL_TRAINING to
+            PlatformExerciseSegmentType.EXERCISE_SEGMENT_TYPE_HIGH_INTENSITY_INTERVAL_TRAINING,
+        ExerciseSegment.EXERCISE_SEGMENT_TYPE_HIP_THRUST to
+            PlatformExerciseSegmentType.EXERCISE_SEGMENT_TYPE_HIP_THRUST,
+        ExerciseSegment.EXERCISE_SEGMENT_TYPE_HULA_HOOP to
+            PlatformExerciseSegmentType.EXERCISE_SEGMENT_TYPE_HULA_HOOP,
+        ExerciseSegment.EXERCISE_SEGMENT_TYPE_JUMPING_JACK to
+            PlatformExerciseSegmentType.EXERCISE_SEGMENT_TYPE_JUMPING_JACK,
+        ExerciseSegment.EXERCISE_SEGMENT_TYPE_JUMP_ROPE to
+            PlatformExerciseSegmentType.EXERCISE_SEGMENT_TYPE_JUMP_ROPE,
+        ExerciseSegment.EXERCISE_SEGMENT_TYPE_KETTLEBELL_SWING to
+            PlatformExerciseSegmentType.EXERCISE_SEGMENT_TYPE_KETTLEBELL_SWING,
+        ExerciseSegment.EXERCISE_SEGMENT_TYPE_LATERAL_RAISE to
+            PlatformExerciseSegmentType.EXERCISE_SEGMENT_TYPE_LATERAL_RAISE,
+        ExerciseSegment.EXERCISE_SEGMENT_TYPE_LAT_PULL_DOWN to
+            PlatformExerciseSegmentType.EXERCISE_SEGMENT_TYPE_LAT_PULL_DOWN,
+        ExerciseSegment.EXERCISE_SEGMENT_TYPE_LEG_CURL to
+            PlatformExerciseSegmentType.EXERCISE_SEGMENT_TYPE_LEG_CURL,
+        ExerciseSegment.EXERCISE_SEGMENT_TYPE_LEG_EXTENSION to
+            PlatformExerciseSegmentType.EXERCISE_SEGMENT_TYPE_LEG_EXTENSION,
+        ExerciseSegment.EXERCISE_SEGMENT_TYPE_LEG_PRESS to
+            PlatformExerciseSegmentType.EXERCISE_SEGMENT_TYPE_LEG_PRESS,
+        ExerciseSegment.EXERCISE_SEGMENT_TYPE_LEG_RAISE to
+            PlatformExerciseSegmentType.EXERCISE_SEGMENT_TYPE_LEG_RAISE,
+        ExerciseSegment.EXERCISE_SEGMENT_TYPE_LUNGE to
+            PlatformExerciseSegmentType.EXERCISE_SEGMENT_TYPE_LUNGE,
+        ExerciseSegment.EXERCISE_SEGMENT_TYPE_MOUNTAIN_CLIMBER to
+            PlatformExerciseSegmentType.EXERCISE_SEGMENT_TYPE_MOUNTAIN_CLIMBER,
+        ExerciseSegment.EXERCISE_SEGMENT_TYPE_OTHER_WORKOUT to
+            PlatformExerciseSegmentType.EXERCISE_SEGMENT_TYPE_OTHER_WORKOUT,
+        ExerciseSegment.EXERCISE_SEGMENT_TYPE_PAUSE to
+            PlatformExerciseSegmentType.EXERCISE_SEGMENT_TYPE_PAUSE,
+        ExerciseSegment.EXERCISE_SEGMENT_TYPE_PILATES to
+            PlatformExerciseSegmentType.EXERCISE_SEGMENT_TYPE_PILATES,
+        ExerciseSegment.EXERCISE_SEGMENT_TYPE_PLANK to
+            PlatformExerciseSegmentType.EXERCISE_SEGMENT_TYPE_PLANK,
+        ExerciseSegment.EXERCISE_SEGMENT_TYPE_PULL_UP to
+            PlatformExerciseSegmentType.EXERCISE_SEGMENT_TYPE_PULL_UP,
+        ExerciseSegment.EXERCISE_SEGMENT_TYPE_PUNCH to
+            PlatformExerciseSegmentType.EXERCISE_SEGMENT_TYPE_PUNCH,
+        ExerciseSegment.EXERCISE_SEGMENT_TYPE_REST to
+            PlatformExerciseSegmentType.EXERCISE_SEGMENT_TYPE_REST,
+        ExerciseSegment.EXERCISE_SEGMENT_TYPE_ROWING_MACHINE to
+            PlatformExerciseSegmentType.EXERCISE_SEGMENT_TYPE_ROWING_MACHINE,
+        ExerciseSegment.EXERCISE_SEGMENT_TYPE_RUNNING to
+            PlatformExerciseSegmentType.EXERCISE_SEGMENT_TYPE_RUNNING,
+        ExerciseSegment.EXERCISE_SEGMENT_TYPE_RUNNING_TREADMILL to
+            PlatformExerciseSegmentType.EXERCISE_SEGMENT_TYPE_RUNNING_TREADMILL,
+        ExerciseSegment.EXERCISE_SEGMENT_TYPE_SHOULDER_PRESS to
+            PlatformExerciseSegmentType.EXERCISE_SEGMENT_TYPE_SHOULDER_PRESS,
+        ExerciseSegment.EXERCISE_SEGMENT_TYPE_SINGLE_ARM_TRICEPS_EXTENSION to
+            PlatformExerciseSegmentType.EXERCISE_SEGMENT_TYPE_SINGLE_ARM_TRICEPS_EXTENSION,
+        ExerciseSegment.EXERCISE_SEGMENT_TYPE_SIT_UP to
+            PlatformExerciseSegmentType.EXERCISE_SEGMENT_TYPE_SIT_UP,
+        ExerciseSegment.EXERCISE_SEGMENT_TYPE_SQUAT to
+            PlatformExerciseSegmentType.EXERCISE_SEGMENT_TYPE_SQUAT,
+        ExerciseSegment.EXERCISE_SEGMENT_TYPE_STAIR_CLIMBING to
+            PlatformExerciseSegmentType.EXERCISE_SEGMENT_TYPE_STAIR_CLIMBING,
+        ExerciseSegment.EXERCISE_SEGMENT_TYPE_STAIR_CLIMBING_MACHINE to
+            PlatformExerciseSegmentType.EXERCISE_SEGMENT_TYPE_STAIR_CLIMBING_MACHINE,
+        ExerciseSegment.EXERCISE_SEGMENT_TYPE_STRETCHING to
+            PlatformExerciseSegmentType.EXERCISE_SEGMENT_TYPE_STRETCHING,
+        ExerciseSegment.EXERCISE_SEGMENT_TYPE_SWIMMING_BACKSTROKE to
+            PlatformExerciseSegmentType.EXERCISE_SEGMENT_TYPE_SWIMMING_BACKSTROKE,
+        ExerciseSegment.EXERCISE_SEGMENT_TYPE_SWIMMING_BREASTSTROKE to
+            PlatformExerciseSegmentType.EXERCISE_SEGMENT_TYPE_SWIMMING_BREASTSTROKE,
+        ExerciseSegment.EXERCISE_SEGMENT_TYPE_SWIMMING_BUTTERFLY to
+            PlatformExerciseSegmentType.EXERCISE_SEGMENT_TYPE_SWIMMING_BUTTERFLY,
+        ExerciseSegment.EXERCISE_SEGMENT_TYPE_SWIMMING_FREESTYLE to
+            PlatformExerciseSegmentType.EXERCISE_SEGMENT_TYPE_SWIMMING_FREESTYLE,
+        ExerciseSegment.EXERCISE_SEGMENT_TYPE_SWIMMING_MIXED to
+            PlatformExerciseSegmentType.EXERCISE_SEGMENT_TYPE_SWIMMING_MIXED,
+        ExerciseSegment.EXERCISE_SEGMENT_TYPE_SWIMMING_OPEN_WATER to
+            PlatformExerciseSegmentType.EXERCISE_SEGMENT_TYPE_SWIMMING_OPEN_WATER,
+        ExerciseSegment.EXERCISE_SEGMENT_TYPE_SWIMMING_OTHER to
+            PlatformExerciseSegmentType.EXERCISE_SEGMENT_TYPE_SWIMMING_OTHER,
+        ExerciseSegment.EXERCISE_SEGMENT_TYPE_SWIMMING_POOL to
+            PlatformExerciseSegmentType.EXERCISE_SEGMENT_TYPE_SWIMMING_POOL,
+        ExerciseSegment.EXERCISE_SEGMENT_TYPE_UPPER_TWIST to
+            PlatformExerciseSegmentType.EXERCISE_SEGMENT_TYPE_UPPER_TWIST,
+        ExerciseSegment.EXERCISE_SEGMENT_TYPE_WALKING to
+            PlatformExerciseSegmentType.EXERCISE_SEGMENT_TYPE_WALKING,
+        ExerciseSegment.EXERCISE_SEGMENT_TYPE_WEIGHTLIFTING to
+            PlatformExerciseSegmentType.EXERCISE_SEGMENT_TYPE_WEIGHTLIFTING,
+        ExerciseSegment.EXERCISE_SEGMENT_TYPE_WHEELCHAIR to
+            PlatformExerciseSegmentType.EXERCISE_SEGMENT_TYPE_WHEELCHAIR,
+        ExerciseSegment.EXERCISE_SEGMENT_TYPE_YOGA to
+            PlatformExerciseSegmentType.EXERCISE_SEGMENT_TYPE_YOGA,
+    )
+
+internal val PLATFORM_TO_SDK_EXERCISE_SEGMENT_TYPE =
+    SDK_TO_PLATFORM_EXERCISE_SEGMENT_TYPE.reversed()
+
 internal fun Int.toPlatformCervicalMucusAppearance(): Int {
     return SDK_TO_PLATFORM_CERVICAL_MUCUS_APPEARANCE[this]
         ?: PlatformCervicalMucusAppearance.APPEARANCE_UNKNOWN
@@ -367,6 +509,11 @@ internal fun Int.toPlatformBloodPressureBodyPosition(): Int {
 internal fun Int.toPlatformExerciseSessionType(): Int {
     return SDK_TO_PLATFORM_EXERCISE_SESSION_TYPE[this]
         ?: PlatformExerciseSessionType.EXERCISE_SESSION_TYPE_UNKNOWN
+}
+
+internal fun Int.toPlatformExerciseSegmentType(): Int {
+    return SDK_TO_PLATFORM_EXERCISE_SEGMENT_TYPE[this]
+        ?: PlatformExerciseSegmentType.EXERCISE_SEGMENT_TYPE_UNKNOWN
 }
 
 internal fun Int.toPlatformMealType(): Int {
@@ -434,6 +581,11 @@ internal fun Int.toSdkBloodPressureMeasurementLocation(): Int {
 internal fun Int.toSdkExerciseSessionType(): Int {
     return PLATFORM_TO_SDK_EXERCISE_SESSION_TYPE[this]
         ?: ExerciseSessionRecord.EXERCISE_TYPE_OTHER_WORKOUT
+}
+
+internal fun Int.toSdkExerciseSegmentType(): Int {
+    return PLATFORM_TO_SDK_EXERCISE_SEGMENT_TYPE[this]
+        ?: ExerciseSegment.EXERCISE_SEGMENT_TYPE_UNKNOWN
 }
 
 internal fun Int.toSdkVo2MaxMeasurementMethod(): Int {

@@ -34,7 +34,9 @@ import androidx.health.connect.client.records.CervicalMucusRecord
 import androidx.health.connect.client.records.CyclingPedalingCadenceRecord
 import androidx.health.connect.client.records.DistanceRecord
 import androidx.health.connect.client.records.ElevationGainedRecord
+import androidx.health.connect.client.records.ExerciseLap
 import androidx.health.connect.client.records.ExerciseRoute
+import androidx.health.connect.client.records.ExerciseSegment
 import androidx.health.connect.client.records.ExerciseSessionRecord
 import androidx.health.connect.client.records.FloorsClimbedRecord
 import androidx.health.connect.client.records.HeartRateRecord
@@ -288,6 +290,9 @@ private fun PlatformExerciseSessionRecord.toSdkExerciseSessionRecord() =
         exerciseType = exerciseType.toSdkExerciseSessionType(),
         title = title?.toString(),
         notes = notes?.toString(),
+        route = route?.toSdkExerciseRoute(),
+        laps = laps.map { it.toSdkExerciseLap() },
+        segments = segments.map { it.toSdkExerciseSegment() },
         metadata = metadata.toSdkMetadata()
     )
 
@@ -700,7 +705,39 @@ private fun ExerciseSessionRecord.toPlatformExerciseSessionRecord() =
             endZoneOffset?.let { setEndZoneOffset(it) }
             notes?.let { setNotes(it) }
             title?.let { setTitle(it) }
+            route?.let { setRoute(it.toPlatformExerciseRoute()) }
+            setLaps(laps.map { it.toPlatformExerciseLap() })
+            setSegments(segments.map { it.toPlatformExerciseSegment() })
         }
+        .build()
+
+private fun ExerciseLap.toPlatformExerciseLap() =
+    PlatformExerciseLapBuilder(startTime, endTime)
+        .apply { length?.let { setLength(it.toPlatformLength()) } }
+        .build()
+
+private fun ExerciseRoute.toPlatformExerciseRoute() =
+    PlatformExerciseRoute(
+        route.map { location ->
+            PlatformExerciseRouteLocationBuilder(
+                    location.time,
+                    location.latitude,
+                    location.longitude
+                )
+                .apply {
+                    location.horizontalAccuracy?.let {
+                        setHorizontalAccuracy(it.toPlatformLength())
+                    }
+                    location.verticalAccuracy?.let { setVerticalAccuracy(it.toPlatformLength()) }
+                    location.altitude?.let { setAltitude(it.toPlatformLength()) }
+                }
+                .build()
+        }
+    )
+
+private fun ExerciseSegment.toPlatformExerciseSegment() =
+    PlatformExerciseSegmentBuilder(startTime, endTime, segmentType.toPlatformExerciseSegmentType())
+        .setRepetitionsCount(repetitions)
         .build()
 
 private fun FloorsClimbedRecord.toPlatformFloorsClimbedRecord() =
@@ -993,8 +1030,8 @@ private fun PlatformStepsCadenceSample.toSdkStepsCadenceSample() =
 private fun PlatformSleepSessionStage.toSdkSleepSessionStage() =
     SleepSessionRecord.Stage(startTime, endTime, type.toSdkSleepStageType())
 
-internal fun PlatformExerciseRoute.toSdkExerciseRoute(): ExerciseRoute {
-    return ExerciseRoute(
+internal fun PlatformExerciseRoute.toSdkExerciseRoute() =
+    ExerciseRoute(
         routeLocations.map { value ->
             ExerciseRoute.Location(
                 time = value.time,
@@ -1006,4 +1043,9 @@ internal fun PlatformExerciseRoute.toSdkExerciseRoute(): ExerciseRoute {
             )
         }
     )
-}
+
+internal fun PlatformExerciseLap.toSdkExerciseLap() =
+    ExerciseLap(startTime, endTime, length?.toSdkLength())
+
+internal fun PlatformExerciseSegment.toSdkExerciseSegment() =
+    ExerciseSegment(startTime, endTime, segmentType.toSdkExerciseSegmentType(), repetitionsCount)

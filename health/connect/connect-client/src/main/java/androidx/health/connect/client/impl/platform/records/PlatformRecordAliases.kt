@@ -130,6 +130,18 @@ internal typealias PlatformElevationGainedRecord =
 internal typealias PlatformElevationGainedRecordBuilder =
     android.health.connect.datatypes.ElevationGainedRecord.Builder
 
+internal typealias PlatformExerciseLap = android.health.connect.datatypes.ExerciseLap
+
+internal typealias PlatformExerciseLapBuilder = android.health.connect.datatypes.ExerciseLap.Builder
+
+internal typealias PlatformExerciseSegment = android.health.connect.datatypes.ExerciseSegment
+
+internal typealias PlatformExerciseSegmentBuilder =
+    android.health.connect.datatypes.ExerciseSegment.Builder
+
+internal typealias PlatformExerciseSegmentType =
+    android.health.connect.datatypes.ExerciseSegmentType
+
 internal typealias PlatformExerciseSessionRecord =
     android.health.connect.datatypes.ExerciseSessionRecord
 
