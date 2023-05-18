@@ -15,6 +15,12 @@
   -->
 
 <resources>
+    <!-- The title of a ui area that is shown to a developer when there is an error in their App
+         Widget that has been made with the Glance framework. [CHAR_LIMIT=NONE] -->
     <string name="glance_error_layout_title"><b>Glance App Widget Error</b></string>
+    <!-- The body of an error message shown to a developer when there has been an error with their
+         App Widget that has been made with the Glance framework. "adb logcat" is a technical
+         command and should not be translated. "GlanceAppWidget" is the exact term the developer
+         needs to search for and should not be translated. [CHAR_LIMIT=NONE]. -->
     <string name="glance_error_layout_text">Check the exact error using <b><tt>adb logcat</tt></b>, searching for <b><tt>GlanceAppWidget</tt></b></string>
 </resources>
