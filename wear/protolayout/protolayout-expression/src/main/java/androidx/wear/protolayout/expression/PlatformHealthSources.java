@@ -58,7 +58,7 @@ public class PlatformHealthSources {
          */
         @NonNull
         @RequiresPermission(Manifest.permission.ACTIVITY_RECOGNITION)
-        public static final PlatformDataKey<DynamicFloat> DAILY_DISTANCE_M =
+        public static final PlatformDataKey<DynamicFloat> DAILY_DISTANCE_METERS =
                 new PlatformDataKey<>("Daily Distance");
 
         /**
@@ -153,7 +153,7 @@ public class PlatformHealthSources {
      */
     @RequiresPermission(Manifest.permission.ACTIVITY_RECOGNITION)
     @NonNull
-    public static DynamicFloat dailyDistanceM() {
-        return DynamicFloat.from(Keys.DAILY_DISTANCE_M);
+    public static DynamicFloat dailyDistanceMeters() {
+        return DynamicFloat.from(Keys.DAILY_DISTANCE_METERS);
     }
 }

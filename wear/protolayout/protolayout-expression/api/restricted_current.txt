@@ -315,7 +315,7 @@ package androidx.wear.protolayout.expression {
 
   public class PlatformHealthSources {
     method @RequiresPermission(android.Manifest.permission.ACTIVITY_RECOGNITION) public static androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat dailyCalories();
-    method @RequiresPermission(android.Manifest.permission.ACTIVITY_RECOGNITION) public static androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat dailyDistanceM();
+    method @RequiresPermission(android.Manifest.permission.ACTIVITY_RECOGNITION) public static androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat dailyDistanceMeters();
     method @RequiresPermission(android.Manifest.permission.ACTIVITY_RECOGNITION) public static androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat dailyFloors();
     method @RequiresPermission(android.Manifest.permission.ACTIVITY_RECOGNITION) public static androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32 dailySteps();
     method @RequiresPermission(android.Manifest.permission.BODY_SENSORS) public static androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat heartRateBpm();
@@ -323,7 +323,7 @@ package androidx.wear.protolayout.expression {
 
   public static class PlatformHealthSources.Keys {
     field @RequiresPermission(android.Manifest.permission.ACTIVITY_RECOGNITION) public static final androidx.wear.protolayout.expression.PlatformDataKey<androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat!> DAILY_CALORIES;
-    field @RequiresPermission(android.Manifest.permission.ACTIVITY_RECOGNITION) public static final androidx.wear.protolayout.expression.PlatformDataKey<androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat!> DAILY_DISTANCE_M;
+    field @RequiresPermission(android.Manifest.permission.ACTIVITY_RECOGNITION) public static final androidx.wear.protolayout.expression.PlatformDataKey<androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat!> DAILY_DISTANCE_METERS;
     field @RequiresPermission(android.Manifest.permission.ACTIVITY_RECOGNITION) public static final androidx.wear.protolayout.expression.PlatformDataKey<androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat!> DAILY_FLOORS;
     field @RequiresPermission(android.Manifest.permission.ACTIVITY_RECOGNITION) public static final androidx.wear.protolayout.expression.PlatformDataKey<androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32!> DAILY_STEPS;
     field @RequiresPermission(android.Manifest.permission.BODY_SENSORS) public static final androidx.wear.protolayout.expression.PlatformDataKey<androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat!> HEART_RATE_BPM;
