@@ -180,14 +180,8 @@ public class DynamicGraphNavigator(
      * The [NavGraph] for dynamic features.
      */
     public class DynamicNavGraph(
-        /**
-         * @hide
-         */
         @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         internal val navGraphNavigator: DynamicGraphNavigator,
-        /**
-         * @hide
-         */
         @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         internal val navigatorProvider: NavigatorProvider
     ) : NavGraph(navGraphNavigator) {
