@@ -16,6 +16,7 @@
 
 package androidx.paging.testing
 
+import androidx.annotation.VisibleForTesting
 import androidx.paging.DifferCallback
 import androidx.paging.LoadType.APPEND
 import androidx.paging.LoadType.PREPEND
@@ -38,6 +39,7 @@ import kotlinx.coroutines.flow.map
  * Tracks generational information and provides the listener to [DifferCallback] on
  * [PagingDataDiffer] operations.
  */
+@VisibleForTesting
 public class SnapshotLoader<Value : Any> internal constructor(
     private val differ: PagingDataDiffer<Value>,
     private val errorHandler: LoadErrorHandler,
