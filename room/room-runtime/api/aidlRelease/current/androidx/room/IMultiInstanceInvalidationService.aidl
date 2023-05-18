@@ -32,7 +32,7 @@
 // later when a module using the interface is updated, e.g., Mainline modules.
 
 package androidx.room;
-/* @hide */
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 interface IMultiInstanceInvalidationService {
   int registerCallback(androidx.room.IMultiInstanceInvalidationCallback callback, String name);
   void unregisterCallback(androidx.room.IMultiInstanceInvalidationCallback callback, int clientId);

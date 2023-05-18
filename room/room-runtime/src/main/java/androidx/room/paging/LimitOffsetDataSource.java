@@ -46,7 +46,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
  *
  * @param <T> Data type returned by the data source.
  *
- * @hide
  */
 @SuppressWarnings("deprecation")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
@@ -117,8 +116,8 @@ public abstract class LimitOffsetDataSource<T> extends androidx.paging.Positiona
     /**
      * Count number of rows query can return
      *
-     * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     @SuppressWarnings("WeakerAccess")
     public int countItems() {
         registerObserverIfNecessary();
@@ -194,8 +193,8 @@ public abstract class LimitOffsetDataSource<T> extends androidx.paging.Positiona
     /**
      * Return the rows from startPos to startPos + loadCount
      *
-     * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     @SuppressWarnings("deprecation")
     @NonNull
     public List<T> loadRange(int startPosition, int loadCount) {
