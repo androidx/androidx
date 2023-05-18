@@ -24,8 +24,6 @@ import static java.lang.Math.min;
 import android.annotation.SuppressLint;
 import android.graphics.drawable.AnimatedVectorDrawable;
 import android.icu.util.ULocale;
-import android.os.Handler;
-import android.os.Looper;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -47,10 +45,10 @@ import androidx.wear.protolayout.expression.pipeline.DynamicTypeEvaluator;
 import androidx.wear.protolayout.expression.pipeline.DynamicTypeEvaluator.EvaluationException;
 import androidx.wear.protolayout.expression.pipeline.DynamicTypeValueReceiver;
 import androidx.wear.protolayout.expression.pipeline.FixedQuotaManagerImpl;
+import androidx.wear.protolayout.expression.pipeline.PlatformTimeUpdateNotifierImpl;
 import androidx.wear.protolayout.expression.pipeline.QuotaManager;
 import androidx.wear.protolayout.expression.pipeline.SensorGatewaySingleDataProvider;
 import androidx.wear.protolayout.expression.pipeline.StateStore;
-import androidx.wear.protolayout.expression.pipeline.TimeGatewayImpl;
 import androidx.wear.protolayout.expression.pipeline.sensor.SensorGateway;
 import androidx.wear.protolayout.expression.proto.DynamicProto.DynamicBool;
 import androidx.wear.protolayout.expression.proto.DynamicProto.DynamicColor;
@@ -98,7 +96,7 @@ public class ProtoLayoutDynamicDataPipeline {
     boolean mFullyVisible;
     @NonNull final QuotaManager mAnimationQuotaManager;
     @NonNull private final DynamicTypeEvaluator mEvaluator;
-    @NonNull private final TimeGatewayImpl mTimeGateway;
+    @NonNull private final PlatformTimeUpdateNotifierImpl mTimeNotifier;
 
     /** Creates a {@link ProtoLayoutDynamicDataPipeline} without animation support. */
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -141,12 +139,12 @@ public class ProtoLayoutDynamicDataPipeline {
             @NonNull QuotaManager dynamicNodeQuotaManager) {
         this.mEnableAnimations = enableAnimations;
         this.mAnimationQuotaManager = animationQuotaManager;
-        this.mTimeGateway = new TimeGatewayImpl(new Handler(Looper.getMainLooper()));
         DynamicTypeEvaluator.Config.Builder evaluatorConfigBuilder =
                 new DynamicTypeEvaluator.Config.Builder()
-                        .setTimeGateway(mTimeGateway)
                         .setStateStore(stateStore);
         evaluatorConfigBuilder.setDynamicTypesQuotaManager(dynamicNodeQuotaManager);
+        this.mTimeNotifier = new PlatformTimeUpdateNotifierImpl();
+        evaluatorConfigBuilder.setPlatformTimeUpdateNotifier(this.mTimeNotifier);
         if (sensorGateway != null) {
             evaluatorConfigBuilder.addPlatformDataProvider(
                     new SensorGatewaySingleDataProvider(
@@ -162,8 +160,7 @@ public class ProtoLayoutDynamicDataPipeline {
         if (enableAnimations) {
             evaluatorConfigBuilder.setAnimationQuotaManager(animationQuotaManager);
         }
-        DynamicTypeEvaluator.Config evaluatorConfig = evaluatorConfigBuilder.build();
-        this.mEvaluator = new DynamicTypeEvaluator(evaluatorConfig);
+        this.mEvaluator = new DynamicTypeEvaluator(evaluatorConfigBuilder.build());
     }
 
     /** Returns the number of active dynamic types in this pipeline. */
@@ -214,11 +211,7 @@ public class ProtoLayoutDynamicDataPipeline {
     public void setUpdatesEnabled(boolean canUpdate) {
         // SensorGateway is not owned by ProtoLayoutDynamicDataPipeline, so the callers who create
         // it are responsible for updates.
-        if (canUpdate) {
-            mTimeGateway.enableUpdates();
-        } else {
-            mTimeGateway.disableUpdates();
-        }
+        mTimeNotifier.setUpdatesEnabled(canUpdate);
     }
 
     /** Closes existing gateways. */
@@ -226,7 +219,7 @@ public class ProtoLayoutDynamicDataPipeline {
     @SuppressWarnings("RestrictTo")
     public void close() {
         mPositionIdTree.clear();
-        mTimeGateway.close();
+        mTimeNotifier.setUpdatesEnabled(false);
     }
 
     /**

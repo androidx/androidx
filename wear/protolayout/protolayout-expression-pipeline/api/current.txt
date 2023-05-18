@@ -25,8 +25,8 @@ package androidx.wear.protolayout.expression.pipeline {
     method public androidx.wear.protolayout.expression.pipeline.QuotaManager? getAnimationQuotaManager();
     method public androidx.wear.protolayout.expression.pipeline.QuotaManager? getDynamicTypesQuotaManager();
     method public java.util.Map<androidx.wear.protolayout.expression.PlatformDataKey<?>!,androidx.wear.protolayout.expression.pipeline.PlatformDataProvider!> getPlatformDataProviders();
+    method public androidx.wear.protolayout.expression.pipeline.PlatformTimeUpdateNotifier? getPlatformTimeUpdateNotifier();
     method public androidx.wear.protolayout.expression.pipeline.StateStore? getStateStore();
-    method public androidx.wear.protolayout.expression.pipeline.TimeGateway? getTimeGateway();
   }
 
   public static final class DynamicTypeEvaluator.Config.Builder {
@@ -35,8 +35,8 @@ package androidx.wear.protolayout.expression.pipeline {
     method public androidx.wear.protolayout.expression.pipeline.DynamicTypeEvaluator.Config build();
     method public androidx.wear.protolayout.expression.pipeline.DynamicTypeEvaluator.Config.Builder setAnimationQuotaManager(androidx.wear.protolayout.expression.pipeline.QuotaManager);
     method public androidx.wear.protolayout.expression.pipeline.DynamicTypeEvaluator.Config.Builder setDynamicTypesQuotaManager(androidx.wear.protolayout.expression.pipeline.QuotaManager);
+    method public androidx.wear.protolayout.expression.pipeline.DynamicTypeEvaluator.Config.Builder setPlatformTimeUpdateNotifier(androidx.wear.protolayout.expression.pipeline.PlatformTimeUpdateNotifier);
     method public androidx.wear.protolayout.expression.pipeline.DynamicTypeEvaluator.Config.Builder setStateStore(androidx.wear.protolayout.expression.pipeline.StateStore);
-    method public androidx.wear.protolayout.expression.pipeline.DynamicTypeEvaluator.Config.Builder setTimeGateway(androidx.wear.protolayout.expression.pipeline.TimeGateway);
   }
 
   public static class DynamicTypeEvaluator.EvaluationException extends java.lang.Exception {
@@ -58,6 +58,11 @@ package androidx.wear.protolayout.expression.pipeline {
     method public void onInvalidated(java.util.Set<androidx.wear.protolayout.expression.PlatformDataKey<?>!>);
   }
 
+  public interface PlatformTimeUpdateNotifier {
+    method public void clearReceiver();
+    method public void setReceiver(java.util.concurrent.Callable<com.google.common.util.concurrent.ListenableFuture<java.lang.Void!>!>);
+  }
+
   public interface QuotaManager {
     method public void releaseQuota(int);
     method public boolean tryAcquireQuota(int);
@@ -67,16 +72,6 @@ package androidx.wear.protolayout.expression.pipeline {
     method public static androidx.wear.protolayout.expression.pipeline.StateStore create(java.util.Map<androidx.wear.protolayout.expression.AppDataKey<?>!,androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue!>);
     method public static int getMaxStateEntryCount();
     method @UiThread public void setAppStateEntryValues(java.util.Map<androidx.wear.protolayout.expression.AppDataKey<?>!,androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue!>);
-  }
-
-  public interface TimeGateway {
-    method public void registerForUpdates(java.util.concurrent.Executor, androidx.wear.protolayout.expression.pipeline.TimeGateway.TimeCallback);
-    method public void unregisterForUpdates(androidx.wear.protolayout.expression.pipeline.TimeGateway.TimeCallback);
-  }
-
-  public static interface TimeGateway.TimeCallback {
-    method public void onData();
-    method public void onPreUpdate();
   }
 
 }

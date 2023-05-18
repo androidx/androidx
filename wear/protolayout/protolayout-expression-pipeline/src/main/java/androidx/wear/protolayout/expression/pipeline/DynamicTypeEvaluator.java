@@ -20,8 +20,6 @@ import static java.util.Collections.emptyMap;
 
 import android.annotation.SuppressLint;
 import android.icu.util.ULocale;
-import android.os.Handler;
-import android.os.Looper;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -63,7 +61,6 @@ import androidx.wear.protolayout.expression.pipeline.StringNodes.FloatFormatNode
 import androidx.wear.protolayout.expression.pipeline.StringNodes.Int32FormatNode;
 import androidx.wear.protolayout.expression.pipeline.StringNodes.StateStringNode;
 import androidx.wear.protolayout.expression.pipeline.StringNodes.StringConcatOpNode;
-import androidx.wear.protolayout.expression.pipeline.sensor.SensorGateway;
 import androidx.wear.protolayout.expression.proto.DynamicProto;
 import androidx.wear.protolayout.expression.proto.DynamicProto.AnimatableDynamicColor;
 import androidx.wear.protolayout.expression.proto.DynamicProto.AnimatableDynamicFloat;
@@ -145,23 +142,23 @@ public class DynamicTypeEvaluator {
     public static final class Config {
         @Nullable private final StateStore mStateStore;
         @Nullable private final QuotaManager mAnimationQuotaManager;
-        @Nullable private final TimeGateway mTimeGateway;
         @Nullable private final QuotaManager mDynamicTypesQuotaManager;
         @NonNull private final Map<PlatformDataKey<?>, PlatformDataProvider>
                 mSourceKeyToDataProviders = new ArrayMap<>();
+        @Nullable private final PlatformTimeUpdateNotifier mPlatformTimeUpdateNotifier;
 
         Config(
                 @Nullable StateStore stateStore,
                 @Nullable QuotaManager animationQuotaManager,
                 @Nullable QuotaManager dynamicTypesQuotaManager,
-                @Nullable TimeGateway timeGateway,
                 @NonNull Map<PlatformDataKey<?>, PlatformDataProvider>
-                        sourceKeyToDataProviders) {
+                        sourceKeyToDataProviders,
+                @Nullable PlatformTimeUpdateNotifier platformTimeUpdateNotifier) {
             this.mStateStore = stateStore;
             this.mAnimationQuotaManager = animationQuotaManager;
-            this.mTimeGateway = timeGateway;
             this.mDynamicTypesQuotaManager = dynamicTypesQuotaManager;
             this.mSourceKeyToDataProviders.putAll(sourceKeyToDataProviders);
+            this.mPlatformTimeUpdateNotifier = platformTimeUpdateNotifier;
         }
 
         /** Builds a {@link DynamicTypeEvaluator.Config}. */
@@ -169,9 +166,9 @@ public class DynamicTypeEvaluator {
             @Nullable private StateStore mStateStore = null;
             @Nullable private QuotaManager mAnimationQuotaManager = null;
             @Nullable private QuotaManager mDynamicTypesQuotaManager;
-            @Nullable private TimeGateway mTimeGateway = null;
             @NonNull private final Map<PlatformDataKey<?>, PlatformDataProvider>
                     mSourceKeyToDataProviders = new ArrayMap<>();
+            @Nullable private PlatformTimeUpdateNotifier mPlatformTimeUpdateNotifier;
 
             /**
              * Sets the state store that will be used for dereferencing the state keys in the
@@ -183,18 +180,6 @@ public class DynamicTypeEvaluator {
             @NonNull
             public Builder setStateStore(@NonNull StateStore value) {
                 mStateStore = value;
-                return this;
-            }
-
-            /**
-             * Sets the quota manager used for limiting the total size of dynamic types in the
-             * pipeline.
-             *
-             * <p>If not set, number of dynamic types will not be restricted.
-             */
-            @NonNull
-            public Builder setDynamicTypesQuotaManager(@NonNull QuotaManager value) {
-                mDynamicTypesQuotaManager = value;
                 return this;
             }
 
@@ -212,14 +197,14 @@ public class DynamicTypeEvaluator {
             }
 
             /**
-             * Sets the gateway used for time data.
+             * Sets the quota manager used for limiting the total size of dynamic types in the
+             * pipeline.
              *
-             * <p>If not set, a default 1hz {@link TimeGateway} implementation that utilizes a
-             * main-thread {@code Handler} to trigger is used.
+             * <p>If not set, number of dynamic types will not be restricted.
              */
             @NonNull
-            public Builder setTimeGateway(@NonNull TimeGateway value) {
-                mTimeGateway = value;
+            public Builder setDynamicTypesQuotaManager(@NonNull QuotaManager value) {
+                mDynamicTypesQuotaManager = value;
                 return this;
             }
 
@@ -255,14 +240,25 @@ public class DynamicTypeEvaluator {
                 return this;
             }
 
+            /**
+             * Sets the notifier used for updating the platform time data. If not set, by default
+             * platform time will be updated at 1Hz using a {@code Handler} on the main thread.
+             */
+            @NonNull
+            public Builder setPlatformTimeUpdateNotifier(
+                    @NonNull PlatformTimeUpdateNotifier notifier) {
+                this.mPlatformTimeUpdateNotifier = notifier;
+                return this;
+            }
+
             @NonNull
             public Config build() {
                 return new Config(
                         mStateStore,
                         mAnimationQuotaManager,
                         mDynamicTypesQuotaManager,
-                        mTimeGateway,
-                        mSourceKeyToDataProviders);
+                        mSourceKeyToDataProviders,
+                        mPlatformTimeUpdateNotifier);
             }
         }
 
@@ -277,16 +273,6 @@ public class DynamicTypeEvaluator {
         }
 
         /**
-         * Gets the quota manager used for limiting the total number of dynamic types in the
-         * pipeline, or {@code null} if there are no restriction on the number of dynamic types. If
-         * present, the quota manager is used to prevent unreasonably expensive expressions.
-         */
-        @Nullable
-        public QuotaManager getDynamicTypesQuotaManager() {
-            return mDynamicTypesQuotaManager;
-        }
-
-        /**
          * Gets the quota manager used for limiting the number of concurrently running animations,
          * or {@code null} if animations are disabled, causing non-infinite animations to have to
          * the end value immediately.
@@ -297,12 +283,13 @@ public class DynamicTypeEvaluator {
         }
 
         /**
-         * Gets the gateway used for time data, or {@code null} if a default 1hz {@link TimeGateway}
-         * that utilizes a main-thread {@code Handler} to trigger is used.
+         * Gets the quota manager used for limiting the total number of dynamic types in the
+         * pipeline, or {@code null} if there are no restriction on the number of dynamic types. If
+         * present, the quota manager is used to prevent unreasonably expensive expressions.
          */
         @Nullable
-        public TimeGateway getTimeGateway() {
-            return mTimeGateway;
+        public QuotaManager getDynamicTypesQuotaManager() {
+            return mDynamicTypesQuotaManager;
         }
 
         /**
@@ -312,6 +299,12 @@ public class DynamicTypeEvaluator {
         public Map<PlatformDataKey<?>, PlatformDataProvider> getPlatformDataProviders() {
             return new ArrayMap<>(
                     (ArrayMap<PlatformDataKey<?>, PlatformDataProvider>) mSourceKeyToDataProviders);
+        }
+
+        /** Gets the notifier used for updating the platform time data. */
+        @Nullable
+        public PlatformTimeUpdateNotifier getPlatformTimeUpdateNotifier() {
+            return mPlatformTimeUpdateNotifier;
         }
     }
 
@@ -327,16 +320,14 @@ public class DynamicTypeEvaluator {
                 config.getDynamicTypesQuotaManager() != null
                         ? config.getDynamicTypesQuotaManager()
                         : NO_OP_QUOTA_MANAGER;
-        Handler uiHandler = new Handler(Looper.getMainLooper());
-        MainThreadExecutor uiExecutor = new MainThreadExecutor(uiHandler);
-        TimeGateway timeGateway = config.getTimeGateway();
-        if (timeGateway == null) {
-            timeGateway = new TimeGatewayImpl(uiHandler);
-            ((TimeGatewayImpl) timeGateway).enableUpdates();
-        }
-        this.mTimeDataSource = new EpochTimePlatformDataSource(uiExecutor, timeGateway);
-
         this.mPlatformDataStore = new PlatformDataStore(config.getPlatformDataProviders());
+        PlatformTimeUpdateNotifier notifier =
+                config.getPlatformTimeUpdateNotifier();
+        if (notifier == null) {
+            notifier = new PlatformTimeUpdateNotifierImpl();
+            ((PlatformTimeUpdateNotifierImpl) notifier).setUpdatesEnabled(true);
+        }
+        this.mTimeDataSource = new EpochTimePlatformDataSource(notifier);
     }
 
     /**
