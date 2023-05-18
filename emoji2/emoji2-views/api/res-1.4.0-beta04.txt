@@ -1,0 +1,2 @@
+attr emojiReplaceStrategy
+attr maxEmojiCount
