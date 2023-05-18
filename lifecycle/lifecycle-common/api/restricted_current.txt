@@ -94,6 +94,7 @@ package androidx.lifecycle {
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class Lifecycling {
     method public static String getAdapterName(String className);
     method public static androidx.lifecycle.LifecycleEventObserver lifecycleEventObserver(Object object);
+    field public static final androidx.lifecycle.Lifecycling INSTANCE;
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class MethodCallsLogger {

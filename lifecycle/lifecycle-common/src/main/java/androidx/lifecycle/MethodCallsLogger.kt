@@ -17,16 +17,10 @@ package androidx.lifecycle
 
 import androidx.annotation.RestrictTo
 
-/**
- * @hide
- */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-public open class MethodCallsLogger() {
+public open class MethodCallsLogger {
     private val calledMethods: MutableMap<String, Int> = HashMap()
 
-    /**
-     * @hide
-     */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     public open fun approveCall(name: String, type: Int): Boolean {
         val nullableMask = calledMethods[name]
