@@ -1532,7 +1532,7 @@ abstract class RoomDatabase {
      *
      * Can be set using [RoomDatabase.Builder.setQueryCallback].
      */
-    interface QueryCallback {
+    fun interface QueryCallback {
         /**
          * Called when a SQL query is executed.
          *

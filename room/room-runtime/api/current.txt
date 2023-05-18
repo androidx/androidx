@@ -146,7 +146,7 @@ package androidx.room {
     method public void onOpenPrepackagedDatabase(androidx.sqlite.db.SupportSQLiteDatabase db);
   }
 
-  public static interface RoomDatabase.QueryCallback {
+  public static fun interface RoomDatabase.QueryCallback {
     method public void onQuery(String sqlQuery, java.util.List<?> bindArgs);
   }
 
