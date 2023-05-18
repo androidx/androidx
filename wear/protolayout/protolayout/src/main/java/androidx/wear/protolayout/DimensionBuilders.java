@@ -229,7 +229,7 @@ public final class DimensionBuilders {
             /**
              * Sets the static value, in dp. If a dynamic value is also set and the renderer
              * supports dynamic values for the corresponding field, this static value will be
-             * ignored.
+             * ignored. If the static value is not specified, zero will be used instead.
              *
              * @since 1.0
              */
@@ -243,6 +243,8 @@ public final class DimensionBuilders {
             /**
              * Sets the dynamic value, in dp. Note that when setting this value, the static value is
              * still required to be set to support older renderers that only read the static value.
+             * If {@code dynamicValue} has an invalid result, the provided static value will be used
+             * instead.
              *
              * @since 1.2
              */
@@ -254,6 +256,13 @@ public final class DimensionBuilders {
                 return this;
             }
 
+            /**
+             * Builds an instance from accumulated values.
+             *
+             * @throws IllegalStateException if a dynamic value is set using {@link
+             *     #setDynamicValue(DynamicFloat)} but neither {@link #Builder(float)} nor {@link
+             *     #setValue(float)} is used to provide a static value.
+             */
             @Override
             @NonNull
             public DpProp build() {
@@ -525,8 +534,7 @@ public final class DimensionBuilders {
             public Builder() {}
 
             /**
-             * Sets the value, in sp. If a dynamic value is also set and the renderer supports
-             * dynamic values for the corresponding field, this static value will be ignored.
+             * Sets the value, in sp.
              *
              * @since 1.0
              */
@@ -727,7 +735,7 @@ public final class DimensionBuilders {
             /**
              * Sets the static value, in degrees. If a dynamic value is also set and the renderer
              * supports dynamic values for the corresponding field, this static value will be
-             * ignored.
+             * ignored. If the static value is not specified, zero will be used instead.
              *
              * @since 1.0
              */
@@ -741,7 +749,8 @@ public final class DimensionBuilders {
             /**
              * Sets the dynamic value, in degrees. Note that when setting this value, the static
              * value is still required to be set to support older renderers that only read the
-             * static value.
+             * static value. If {@code dynamicValue} has an invalid result, the provided static
+             * value will be used instead.
              *
              * @since 1.2
              */
@@ -753,7 +762,13 @@ public final class DimensionBuilders {
                 return this;
             }
 
-            /** Builds an instance from accumulated values. */
+            /**
+             * Builds an instance from accumulated values.
+             *
+             * @throws IllegalStateException if a dynamic value is set using {@link
+             *     #setDynamicValue(DynamicFloat)} but neither {@link #Builder(float)} nor {@link
+             *     #setValue(float)} is used to provide a static value.
+             */
             @NonNull
             public DegreesProp build() {
                 if (mImpl.hasDynamicValue() && !mImpl.hasValue()) {

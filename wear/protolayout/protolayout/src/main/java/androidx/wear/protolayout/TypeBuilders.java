@@ -182,7 +182,8 @@ public final class TypeBuilders {
 
             /**
              * Sets the static value. If a dynamic value is also set and the renderer supports
-             * dynamic values for the corresponding field, this static value will be ignored.
+             * dynamic values for the corresponding field, this static value will be ignored. If the
+             * static value is not specified, {@code null} will be used instead.
              *
              * @since 1.0
              */
@@ -195,7 +196,9 @@ public final class TypeBuilders {
 
             /**
              * Sets the dynamic value. Note that when setting this value, the static value is still
-             * required to be set to support older renderers that only read the static value.
+             * required to be set to support older renderers that only read the static value. If
+             * {@code dynamicValue} has an invalid result, the provided static value will be used
+             * instead.
              *
              * @since 1.2
              */
@@ -207,7 +210,14 @@ public final class TypeBuilders {
                 return this;
             }
 
-            /** Builds an instance from accumulated values. */
+            /**
+             * Builds an instance from accumulated values.
+             *
+             * @throws IllegalStateException if a dynamic value is set using {@link
+             *     #setDynamicValue(DynamicBuilders.DynamicString)} but neither {@link
+             *     #Builder(String)} nor {@link #setValue(String)} is used to provide a static
+             *     value.
+             */
             @NonNull
             public StringProp build() {
                 if (mImpl.hasDynamicValue() && !mImpl.hasValue()) {
@@ -400,8 +410,8 @@ public final class TypeBuilders {
 
             /**
              * Sets the static value. If a dynamic value is also set and the renderer supports
-             * dynamic values for the corresponding field, this static value will be ignored.
-             * If the static value is not specified, Zero will be used instead. 
+             * dynamic values for the corresponding field, this static value will be ignored. If the
+             * static value is not specified, zero will be used instead.
              *
              * @since 1.0
              */
@@ -415,9 +425,8 @@ public final class TypeBuilders {
             /**
              * Sets the dynamic value. Note that when setting this value, the static value is still
              * required to be set (with either {@link #Builder(float)} or {@link #setValue(float)})
-             * to support older renderers that only read the static value. If {@code dynamicValue
-             * } has an invalid result, the provided static value will be used
-             * instead.
+             * to support older renderers that only read the static value. If {@code dynamicValue }
+             * has an invalid result, the provided static value will be used instead.
              *
              * @since 1.2
              */
@@ -432,15 +441,13 @@ public final class TypeBuilders {
             /**
              * Builds an instance from accumulated values.
              *
-             * @throws IllegalStateException if a dynamic value is set using
-             *                               {@link #setDynamicValue(DynamicFloat)} but neither
-             *                               {@link #Builder(float)} nor
-             *                               {@link #setValue(float)} is used to provide a static
-             *                               value.
+             * @throws IllegalStateException if a dynamic value is set using {@link
+             *     #setDynamicValue(DynamicFloat)} but neither {@link #Builder(float)} nor {@link
+             *     #setValue(float)} is used to provide a static value.
              */
             @NonNull
             public FloatProp build() {
-                if(mImpl.hasDynamicValue() && !mImpl.hasValue()){
+                if (mImpl.hasDynamicValue() && !mImpl.hasValue()) {
                     throw new IllegalStateException("Static value is missing.");
                 }
                 return new FloatProp(mImpl.build(), mFingerprint);
