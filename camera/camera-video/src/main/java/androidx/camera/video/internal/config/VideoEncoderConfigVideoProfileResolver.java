@@ -21,6 +21,7 @@ import android.util.Size;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+import androidx.camera.core.DynamicRange;
 import androidx.camera.core.Logger;
 import androidx.camera.core.SurfaceRequest;
 import androidx.camera.core.impl.EncoderProfilesProxy.VideoProfileProxy;
@@ -38,7 +39,6 @@ import java.util.Objects;
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class VideoEncoderConfigVideoProfileResolver implements Supplier<VideoEncoderConfig> {
-
     private static final String TAG = "VidEncVdPrflRslvr";
 
     private final String mMimeType;
@@ -46,6 +46,7 @@ public class VideoEncoderConfigVideoProfileResolver implements Supplier<VideoEnc
     private final VideoSpec mVideoSpec;
     private final Size mSurfaceSize;
     private final VideoProfileProxy mVideoProfile;
+    private final DynamicRange mDynamicRange;
     private final Range<Integer> mExpectedFrameRateRange;
 
     /**
@@ -58,6 +59,7 @@ public class VideoEncoderConfigVideoProfileResolver implements Supplier<VideoEnc
      * @param surfaceSize      The size of the surface required by the camera for the video encoder.
      * @param videoProfile     The {@link VideoProfileProxy} used to resolve automatic and range
      *                         settings.
+     * @param dynamicRange     The dynamic range of input frames.
      * @param expectedFrameRateRange The expected source frame rate range. This should act as an
      *                               envelope for any frame rate calculated from {@code videoSpec}
      *                               and {@code videoProfile} since the source should not
@@ -71,12 +73,14 @@ public class VideoEncoderConfigVideoProfileResolver implements Supplier<VideoEnc
             @NonNull VideoSpec videoSpec,
             @NonNull Size surfaceSize,
             @NonNull VideoProfileProxy videoProfile,
+            @NonNull DynamicRange dynamicRange,
             @NonNull Range<Integer> expectedFrameRateRange) {
         mMimeType = mimeType;
         mInputTimebase = inputTimebase;
         mVideoSpec = videoSpec;
         mSurfaceSize = surfaceSize;
         mVideoProfile = videoProfile;
+        mDynamicRange = dynamicRange;
         mExpectedFrameRateRange = expectedFrameRateRange;
     }
 
@@ -90,10 +94,13 @@ public class VideoEncoderConfigVideoProfileResolver implements Supplier<VideoEnc
         Logger.d(TAG, "Using resolved VIDEO bitrate from EncoderProfiles");
         int resolvedBitrate = VideoConfigUtil.scaleAndClampBitrate(
                 mVideoProfile.getBitrate(),
+                mDynamicRange.getBitDepth(), mVideoProfile.getBitDepth(),
                 resolvedFrameRate, mVideoProfile.getFrameRate(),
                 mSurfaceSize.getWidth(), mVideoProfile.getWidth(),
                 mSurfaceSize.getHeight(), mVideoProfile.getHeight(),
                 videoSpecBitrateRange);
+
+        int resolvedProfile = mVideoProfile.getProfile();
 
         return VideoEncoderConfig.builder()
                 .setMimeType(mMimeType)
@@ -101,6 +108,7 @@ public class VideoEncoderConfigVideoProfileResolver implements Supplier<VideoEnc
                 .setResolution(mSurfaceSize)
                 .setBitrate(resolvedBitrate)
                 .setFrameRate(resolvedFrameRate)
+                .setProfile(resolvedProfile)
                 .build();
     }
 

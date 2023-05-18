@@ -21,10 +21,26 @@ import static android.media.EncoderProfiles.VideoProfile.HDR_HDR10;
 import static android.media.EncoderProfiles.VideoProfile.HDR_HDR10PLUS;
 import static android.media.EncoderProfiles.VideoProfile.HDR_HLG;
 import static android.media.EncoderProfiles.VideoProfile.HDR_NONE;
+import static android.media.MediaCodecInfo.CodecProfileLevel.AV1ProfileMain10;
+import static android.media.MediaCodecInfo.CodecProfileLevel.AV1ProfileMain10HDR10;
+import static android.media.MediaCodecInfo.CodecProfileLevel.AV1ProfileMain10HDR10Plus;
+import static android.media.MediaCodecInfo.CodecProfileLevel.AV1ProfileMain8;
+import static android.media.MediaCodecInfo.CodecProfileLevel.DolbyVisionProfileDvavSe;
+import static android.media.MediaCodecInfo.CodecProfileLevel.DolbyVisionProfileDvheSt;
+import static android.media.MediaCodecInfo.CodecProfileLevel.HEVCProfileMain;
+import static android.media.MediaCodecInfo.CodecProfileLevel.HEVCProfileMain10;
+import static android.media.MediaCodecInfo.CodecProfileLevel.HEVCProfileMain10HDR10;
+import static android.media.MediaCodecInfo.CodecProfileLevel.HEVCProfileMain10HDR10Plus;
+import static android.media.MediaCodecInfo.CodecProfileLevel.VP9Profile0;
+import static android.media.MediaCodecInfo.CodecProfileLevel.VP9Profile2;
+import static android.media.MediaCodecInfo.CodecProfileLevel.VP9Profile2HDR;
+import static android.media.MediaCodecInfo.CodecProfileLevel.VP9Profile2HDR10Plus;
 
 import static androidx.camera.core.DynamicRange.BIT_DEPTH_10_BIT;
 import static androidx.camera.core.DynamicRange.BIT_DEPTH_8_BIT;
 import static androidx.camera.core.DynamicRange.BIT_DEPTH_UNSPECIFIED;
+import static androidx.camera.core.DynamicRange.DOLBY_VISION_10_BIT;
+import static androidx.camera.core.DynamicRange.DOLBY_VISION_8_BIT;
 import static androidx.camera.core.DynamicRange.ENCODING_DOLBY_VISION;
 import static androidx.camera.core.DynamicRange.ENCODING_HDR10;
 import static androidx.camera.core.DynamicRange.ENCODING_HDR10_PLUS;
@@ -32,15 +48,22 @@ import static androidx.camera.core.DynamicRange.ENCODING_HDR_UNSPECIFIED;
 import static androidx.camera.core.DynamicRange.ENCODING_HLG;
 import static androidx.camera.core.DynamicRange.ENCODING_SDR;
 import static androidx.camera.core.DynamicRange.ENCODING_UNSPECIFIED;
+import static androidx.camera.core.DynamicRange.HDR10_10_BIT;
+import static androidx.camera.core.DynamicRange.HDR10_PLUS_10_BIT;
+import static androidx.camera.core.DynamicRange.HLG_10_BIT;
+import static androidx.camera.core.DynamicRange.SDR;
 import static androidx.camera.core.impl.EncoderProfilesProxy.VideoProfileProxy.BIT_DEPTH_10;
 import static androidx.camera.core.impl.EncoderProfilesProxy.VideoProfileProxy.BIT_DEPTH_8;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 
+import android.media.MediaFormat;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.DynamicRange;
+import androidx.camera.core.impl.EncoderProfilesProxy;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -53,10 +76,11 @@ import java.util.Set;
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class DynamicRangeUtil {
-
     public static final Map<Integer, Set<Integer>> DR_TO_VP_BIT_DEPTH_MAP = new HashMap<>();
     public static final Map<Integer, Set<Integer>> DR_TO_VP_FORMAT_MAP = new HashMap<>();
     public static final Map<Integer, Integer> VP_TO_DR_FORMAT_MAP = new HashMap<>();
+    private static final Map<String, Map<DynamicRange, Integer>> MIME_TO_DEFAULT_PROFILE_LEVEL_MAP =
+            new HashMap<>();
 
     private DynamicRangeUtil() {
     }
@@ -86,6 +110,46 @@ public class DynamicRangeUtil {
         VP_TO_DR_FORMAT_MAP.put(HDR_HDR10, ENCODING_HDR10);
         VP_TO_DR_FORMAT_MAP.put(HDR_HDR10PLUS, ENCODING_HDR10_PLUS);
         VP_TO_DR_FORMAT_MAP.put(HDR_DOLBY_VISION, ENCODING_DOLBY_VISION);
+
+        //--------------------------------------------------------------------------------------//
+        // Default CodecProfileLevel mappings from                                              //
+        // frameworks/av/media/codec2/sfplugin/utils/Codec2Mapper.cpp                           //
+        //--------------------------------------------------------------------------------------//
+        // DynamicRange encodings to HEVC profiles
+        Map<DynamicRange, Integer> hevcMap = new HashMap<>();
+        hevcMap.put(SDR, HEVCProfileMain);
+        hevcMap.put(HLG_10_BIT, HEVCProfileMain10);
+        hevcMap.put(HDR10_10_BIT, HEVCProfileMain10HDR10);
+        hevcMap.put(HDR10_PLUS_10_BIT, HEVCProfileMain10HDR10Plus);
+
+        // DynamicRange encodings to AV1 profiles for YUV 4:2:0 chroma subsampling
+        Map<DynamicRange, Integer> av1420Map = new HashMap<>();
+        av1420Map.put(SDR, AV1ProfileMain8);
+        av1420Map.put(HLG_10_BIT, AV1ProfileMain10);
+        av1420Map.put(HDR10_10_BIT, AV1ProfileMain10HDR10);
+        av1420Map.put(HDR10_PLUS_10_BIT, AV1ProfileMain10HDR10Plus);
+
+        // DynamicRange encodings to VP9 profile for YUV 4:2:0 chroma subsampling
+        Map<DynamicRange, Integer> vp9420Map = new HashMap<>();
+        vp9420Map.put(SDR, VP9Profile0);
+        vp9420Map.put(HLG_10_BIT, VP9Profile2);
+        vp9420Map.put(HDR10_10_BIT, VP9Profile2HDR);
+        vp9420Map.put(HDR10_PLUS_10_BIT, VP9Profile2HDR10Plus);
+
+        // Dolby vision encodings to dolby vision profiles
+        Map<DynamicRange, Integer> dvMap = new HashMap<>();
+        // Taken from the (now deprecated) Dolby Vision Profile Specification 1.3.3
+        // DV Profile 8 (10-bit HEVC)
+        dvMap.put(DOLBY_VISION_10_BIT, DolbyVisionProfileDvheSt);
+        // DV Profile 9 (8-bit AVC)
+        dvMap.put(DOLBY_VISION_8_BIT, DolbyVisionProfileDvavSe);
+
+        // Combine all mime type maps
+        MIME_TO_DEFAULT_PROFILE_LEVEL_MAP.put(MediaFormat.MIMETYPE_VIDEO_HEVC, hevcMap);
+        MIME_TO_DEFAULT_PROFILE_LEVEL_MAP.put(MediaFormat.MIMETYPE_VIDEO_AV1, av1420Map);
+        MIME_TO_DEFAULT_PROFILE_LEVEL_MAP.put(MediaFormat.MIMETYPE_VIDEO_VP9, vp9420Map);
+        MIME_TO_DEFAULT_PROFILE_LEVEL_MAP.put(MediaFormat.MIMETYPE_VIDEO_DOLBY_VISION, dvMap);
+        //--------------------------------------------------------------------------------------//
     }
 
     /**
@@ -125,5 +189,27 @@ public class DynamicRangeUtil {
             bitDepths = Collections.emptySet();
         }
         return bitDepths;
+    }
+
+    /**
+     * Returns a codec profile level for a given mime type and dynamic range.
+     *
+     * <p>If the mime type or dynamic range is not supported, returns
+     * {@link EncoderProfilesProxy#CODEC_PROFILE_NONE}.
+     *
+     * <p>Only fully-specified dynamic ranges are supported. All other dynamic ranges will return
+     * {@link EncoderProfilesProxy#CODEC_PROFILE_NONE}.
+     */
+    public static int dynamicRangeToCodecProfileLevelForMime(@NonNull String mimeType,
+            @NonNull DynamicRange dynamicRange) {
+        Map<DynamicRange, Integer> hdrToProfile = MIME_TO_DEFAULT_PROFILE_LEVEL_MAP.get(mimeType);
+        if (hdrToProfile != null) {
+            Integer profile = hdrToProfile.get(dynamicRange);
+            if (profile != null) {
+                return profile;
+            }
+        }
+
+        return EncoderProfilesProxy.CODEC_PROFILE_NONE;
     }
 }

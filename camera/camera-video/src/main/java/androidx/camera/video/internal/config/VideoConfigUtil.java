@@ -171,16 +171,18 @@ public final class VideoConfigUtil {
     @NonNull
     public static VideoEncoderConfig resolveVideoEncoderConfig(@NonNull VideoMimeInfo videoMimeInfo,
             @NonNull Timebase inputTimebase, @NonNull VideoSpec videoSpec,
-            @NonNull Size surfaceSize, @NonNull Range<Integer> expectedFrameRateRange) {
+            @NonNull Size surfaceSize, @NonNull DynamicRange dynamicRange,
+            @NonNull Range<Integer> expectedFrameRateRange
+    ) {
         Supplier<VideoEncoderConfig> configSupplier;
         VideoProfileProxy videoProfile = videoMimeInfo.getCompatibleVideoProfile();
         if (videoProfile != null) {
             configSupplier = new VideoEncoderConfigVideoProfileResolver(
                     videoMimeInfo.getMimeType(), inputTimebase, videoSpec, surfaceSize,
-                    videoProfile, expectedFrameRateRange);
+                    videoProfile, dynamicRange, expectedFrameRateRange);
         } else {
             configSupplier = new VideoEncoderConfigDefaultResolver(videoMimeInfo.getMimeType(),
-                    inputTimebase, videoSpec, surfaceSize, expectedFrameRateRange);
+                    inputTimebase, videoSpec, surfaceSize, dynamicRange, expectedFrameRateRange);
         }
 
         return configSupplier.get();
@@ -188,10 +190,13 @@ public final class VideoConfigUtil {
 
     static int scaleAndClampBitrate(
             int baseBitrate,
+            int actualBitDepth, int baseBitDepth,
             int actualFrameRate, int baseFrameRate,
             int actualWidth, int baseWidth,
             int actualHeight, int baseHeight,
             @NonNull Range<Integer> clampedRange) {
+        //  Scale bit depth to match new bit depth
+        Rational bitDepthRatio = new Rational(actualBitDepth, baseBitDepth);
         // Scale bitrate to match current frame rate
         Rational frameRateRatio = new Rational(actualFrameRate, baseFrameRate);
         // Scale bitrate depending on number of actual pixels relative to profile's
@@ -201,14 +206,15 @@ public final class VideoConfigUtil {
         Rational widthRatio = new Rational(actualWidth, baseWidth);
         Rational heightRatio = new Rational(actualHeight, baseHeight);
         int resolvedBitrate =
-                (int) (baseBitrate * frameRateRatio.doubleValue() * widthRatio.doubleValue()
-                        * heightRatio.doubleValue());
+                (int) (baseBitrate * bitDepthRatio.doubleValue() * frameRateRatio.doubleValue()
+                        * widthRatio.doubleValue() * heightRatio.doubleValue());
 
         String debugString = "";
         if (Logger.isDebugEnabled(TAG)) {
-            debugString = String.format("Base Bitrate(%dbps) * Frame Rate Ratio(%d / %d) * Width "
-                            + "Ratio(%d / %d) * Height Ratio(%d / %d) = %d", baseBitrate,
-                    actualFrameRate,
+            debugString = String.format("Base Bitrate(%dbps) * Bit Depth Ratio (%d / %d) * "
+                            + "Frame Rate Ratio(%d / %d) * Width Ratio(%d / %d) * "
+                            + "Height Ratio(%d / %d) = %d", baseBitrate,
+                    actualBitDepth, baseBitDepth, actualFrameRate,
                     baseFrameRate, actualWidth, baseWidth, actualHeight, baseHeight,
                     resolvedBitrate);
         }
