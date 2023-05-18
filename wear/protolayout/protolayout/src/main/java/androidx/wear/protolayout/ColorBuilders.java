@@ -18,6 +18,8 @@ package androidx.wear.protolayout;
 
 import static androidx.wear.protolayout.expression.Preconditions.checkNotNull;
 
+import android.graphics.Color;
+
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -115,9 +117,10 @@ public final class ColorBuilders {
             }
 
             /**
-             * Sets the color value, in ARGB format.
-             * If a dynamic value is also set and the renderer supports dynamic values for the
-             * corresponding field, this static value will be ignored.
+             * Sets the static  color value, in ARGB format. If a dynamic value is also set and the
+             * renderer supports dynamic values for the corresponding field, this static value
+             * will be ignored. If the static value is not specified, zero (equivalent to {@link
+             * Color#TRANSPARENT}) will be used instead.
              *
              * @since 1.0
              */
@@ -130,7 +133,9 @@ public final class ColorBuilders {
 
             /**
              * Sets the dynamic value. Note that when setting this value, the static value is still
-             * required to be set to support older renderers that only read the static value.
+             * required to be set to support older renderers that only read the static value. If
+             * {@code dynamicValue} has an invalid result, the provided static value will be used
+             * instead.
              *
              * @since 1.2
              */
@@ -142,7 +147,13 @@ public final class ColorBuilders {
                 return this;
             }
 
-            /** Builds an instance from accumulated values. */
+            /**
+             * Builds an instance from accumulated values.
+             *
+             * @throws IllegalStateException if a dynamic value is set using {@link
+             *     #setDynamicValue(DynamicColor)} but neither {@link #Builder(int)} nor {@link
+             *     #setArgb(int)} is used to provide a static value.
+             */
             @NonNull
             public ColorProp build() {
                 if (mImpl.hasDynamicValue() && !mImpl.hasArgb()) {
