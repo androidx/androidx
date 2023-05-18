@@ -22,7 +22,6 @@ import android.animation.AnimatorListenerAdapter
 import android.animation.ValueAnimator
 import android.content.res.Resources
 import android.os.Build
-import android.util.Log
 import android.view.View
 import androidx.annotation.AnimatorRes
 import androidx.annotation.LayoutRes
@@ -738,22 +737,18 @@ class FragmentAnimatorTest {
             }
 
             return animator?.apply {
-                Log.v("FragmentManager", "Adding test listener")
                 addListener(object : AnimatorListenerAdapter() {
                     override fun onAnimationStart(animation: Animator) {
                         wasStarted = true
                     }
 
                     override fun onAnimationEnd(animation: Animator) {
-                        Log.d("FragmentManager", "Counting down endLatch")
                         endLatch.countDown()
                     }
                 })
                 numAnimators++
                 wasStarted = false
-                Log.d("FragmentManager", "Initializing EndLatch")
                 endLatch = CountDownLatch(1)
-                resumeLatch = CountDownLatch(1)
                 resourceId = nextAnim
                 baseEnter = enter
                 baseAnimator = this
