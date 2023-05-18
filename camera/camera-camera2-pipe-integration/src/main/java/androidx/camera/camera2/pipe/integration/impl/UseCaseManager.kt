@@ -16,6 +16,7 @@
 
 package androidx.camera.camera2.pipe.integration.impl
 
+import android.content.Context
 import android.media.MediaCodec
 import android.os.Build
 import androidx.annotation.GuardedBy
@@ -23,6 +24,8 @@ import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.integration.adapter.CameraStateAdapter
+import androidx.camera.camera2.pipe.integration.adapter.EncoderProfilesProviderAdapter
+import androidx.camera.camera2.pipe.integration.adapter.SupportedSurfaceCombination
 import androidx.camera.camera2.pipe.integration.compat.quirk.CameraQuirks
 import androidx.camera.camera2.pipe.integration.config.CameraConfig
 import androidx.camera.camera2.pipe.integration.config.CameraScope
@@ -32,6 +35,7 @@ import androidx.camera.camera2.pipe.integration.interop.Camera2CameraControl
 import androidx.camera.camera2.pipe.integration.interop.ExperimentalCamera2Interop
 import androidx.camera.core.UseCase
 import androidx.camera.core.impl.CameraInternal
+import androidx.camera.core.impl.CameraMode
 import androidx.camera.core.impl.DeferrableSurface
 import androidx.camera.core.impl.SessionConfig.ValidatingBuilder
 import javax.inject.Inject
@@ -78,6 +82,7 @@ class UseCaseManager @Inject constructor(
     private val cameraQuirks: CameraQuirks,
     private val cameraGraphFlags: CameraGraph.Flags,
     private val cameraInternal: Provider<CameraInternal>,
+    context: Context,
     cameraProperties: CameraProperties,
     displayInfoManager: DisplayInfoManager,
 ) {
@@ -97,6 +102,14 @@ class UseCaseManager @Inject constructor(
             cameraProperties,
             displayInfoManager
         ).build()
+    }
+
+    private val supportedSurfaceCombination by lazy {
+        SupportedSurfaceCombination(
+            context,
+            cameraProperties.metadata,
+            EncoderProfilesProviderAdapter(cameraConfig.cameraId.value)
+        )
     }
 
     @Volatile
@@ -311,12 +324,13 @@ class UseCaseManager @Inject constructor(
     @GuardedBy("lock")
     private fun shouldAddRepeatingUseCase(runningUseCases: Set<UseCase>): Boolean {
         val meteringRepeatingEnabled = attachedUseCases.contains(meteringRepeating)
-
-        val coreLibraryUseCases = runningUseCases.filterNot { it is MeteringRepeating }
-        val onlyVideoCapture = coreLibraryUseCases.onlyVideoCapture()
-        val requireMeteringRepeating = coreLibraryUseCases.requireMeteringRepeating()
-
-        return !meteringRepeatingEnabled && (onlyVideoCapture || requireMeteringRepeating)
+        if (!meteringRepeatingEnabled) {
+            val activeSurfaces = runningUseCases.withoutMetering().surfaceCount()
+            return activeSurfaces > 0 && with(attachedUseCases.withoutMetering()) {
+                (onlyVideoCapture() || requireMeteringRepeating()) && supportMeteringCombination()
+            }
+        }
+        return false
     }
 
     @GuardedBy("lock")
@@ -330,12 +344,13 @@ class UseCaseManager @Inject constructor(
     @GuardedBy("lock")
     private fun shouldRemoveRepeatingUseCase(runningUseCases: Set<UseCase>): Boolean {
         val meteringRepeatingEnabled = runningUseCases.contains(meteringRepeating)
-
-        val coreLibraryUseCases = runningUseCases.filterNot { it is MeteringRepeating }
-        val onlyVideoCapture = coreLibraryUseCases.onlyVideoCapture()
-        val requireMeteringRepeating = coreLibraryUseCases.requireMeteringRepeating()
-
-        return meteringRepeatingEnabled && !onlyVideoCapture && !requireMeteringRepeating
+        if (meteringRepeatingEnabled) {
+            val activeSurfaces = runningUseCases.withoutMetering().surfaceCount()
+            return activeSurfaces == 0 || with(attachedUseCases.withoutMetering()) {
+                !(onlyVideoCapture() || requireMeteringRepeating()) || !supportMeteringCombination()
+            }
+        }
+        return false
     }
 
     @GuardedBy("lock")
@@ -352,6 +367,39 @@ class UseCaseManager @Inject constructor(
             }
         }
     }
+
+    private fun Collection<UseCase>.supportMeteringCombination(): Boolean {
+        val useCases = this.toMutableList().apply { add(meteringRepeating) }
+        if (meteringRepeating.attachedSurfaceResolution == null) {
+            meteringRepeating.setupSession()
+        }
+        return isCombinationSupported(useCases).also {
+            Log.debug { "Combination of $useCases is supported: $it" }
+        }
+    }
+
+    private fun isCombinationSupported(currentUseCases: Collection<UseCase>): Boolean {
+        val surfaceConfigs = currentUseCases.map { useCase ->
+            // TODO: Test with correct Camera Mode when concurrent mode / ultra high resolution is
+            //  implemented.
+            supportedSurfaceCombination.transformSurfaceConfig(
+                CameraMode.DEFAULT,
+                useCase.imageFormat,
+                useCase.attachedSurfaceResolution!!
+            )
+        }
+
+        return supportedSurfaceCombination.checkSupported(CameraMode.DEFAULT, surfaceConfigs)
+    }
+
+    private fun Collection<UseCase>.surfaceCount(): Int =
+        ValidatingBuilder().let { validatingBuilder ->
+            forEach { useCase -> validatingBuilder.add(useCase.sessionConfig) }
+            return validatingBuilder.build().surfaces.size
+        }
+
+    private fun Collection<UseCase>.withoutMetering(): Collection<UseCase> =
+        filterNot { it is MeteringRepeating }
 
     private fun Collection<UseCase>.requireMeteringRepeating(): Boolean {
         return isNotEmpty() && checkSurfaces { repeatingSurfaces, sessionSurfaces ->
