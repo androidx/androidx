@@ -96,6 +96,7 @@ import androidx.core.view.accessibility.AccessibilityEventCompat
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat
 import androidx.core.view.accessibility.AccessibilityNodeProviderCompat
+import androidx.core.view.children
 import androidx.core.view.contentcapture.ContentCaptureSessionCompat
 import androidx.lifecycle.Lifecycle
 import kotlin.math.abs
@@ -386,11 +387,12 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
             return field
         }
     private var paneDisplayed = ArraySet<Int>()
-    private var idToBeforeMap = HashMap<Int, Int>()
-    private var idToAfterMap = HashMap<Int, Int>()
-    private val EXTRA_DATA_TEST_TRAVERSALBEFORE_VAL =
+
+    internal var idToBeforeMap = HashMap<Int, Int>()
+    internal var idToAfterMap = HashMap<Int, Int>()
+    internal val EXTRA_DATA_TEST_TRAVERSALBEFORE_VAL =
         "android.view.accessibility.extra.EXTRA_DATA_TEST_TRAVERSALBEFORE_VAL"
-    private val EXTRA_DATA_TEST_TRAVERSALAFTER_VAL =
+    internal val EXTRA_DATA_TEST_TRAVERSALAFTER_VAL =
         "android.view.accessibility.extra.EXTRA_DATA_TEST_TRAVERSALAFTER_VAL"
 
     private val urlSpanCache = URLSpanCache()
@@ -1227,15 +1229,31 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
 
         info.isScreenReaderFocusable = isScreenReaderFocusable(semanticsNode)
 
-        if (idToBeforeMap[virtualViewId] != null) {
-            idToBeforeMap[virtualViewId]?.let { info.setTraversalBefore(view, it) }
+        // `beforeId` refers to the semanticsId that should be read before this `virtualViewId`.
+        val beforeId = idToBeforeMap[virtualViewId]
+        beforeId?.let {
+            val beforeView = view.androidViewsHandler.semanticsIdToView(beforeId)
+            if (beforeView != null) {
+                // If the node that should come before this one is a view, we want to pass in the
+                // "before" view itself, which is retrieved from our `idToViewMap`.
+                info.setTraversalBefore(beforeView)
+            } else {
+                // Otherwise, we'll set the "before" value by passing in the semanticsId.
+                info.setTraversalBefore(view, beforeId)
+            }
             addExtraDataToAccessibilityNodeInfoHelper(
                 virtualViewId, info.unwrap(), EXTRA_DATA_TEST_TRAVERSALBEFORE_VAL, null
             )
         }
 
-        if (idToAfterMap[virtualViewId] != null) {
-            idToAfterMap[virtualViewId]?.let { info.setTraversalAfter(view, it) }
+        val afterId = idToAfterMap[virtualViewId]
+        afterId?.let {
+            val afterView = view.androidViewsHandler.semanticsIdToView(afterId)
+            if (afterView != null) {
+                info.setTraversalAfter(afterView)
+            } else {
+                info.setTraversalAfter(view, afterId)
+            }
             addExtraDataToAccessibilityNodeInfoHelper(
                 virtualViewId, info.unwrap(), EXTRA_DATA_TEST_TRAVERSALAFTER_VAL, null
             )
@@ -3284,7 +3302,6 @@ private val SemanticsNode.getTraversalIndex: Float
         // If the traversal index has not been set, default to zero
         return 0f
     }
-
 private val SemanticsNode.infoContentDescriptionOrNull get() = this.unmergedConfig.getOrNull(
     SemanticsProperties.ContentDescription)?.firstOrNull()
 
@@ -3460,3 +3477,9 @@ private fun Role.toLegacyClassName(): String? =
         Role.DropdownList -> "android.widget.Spinner"
         else -> null
     }
+
+/**
+ * This function retrieves the View corresponding to a semanticsId, if it exists.
+ */
+internal fun AndroidViewsHandler.semanticsIdToView(id: Int): View? =
+    layoutNodeToHolder.entries.firstOrNull { it.key.semanticsId == id }?.value

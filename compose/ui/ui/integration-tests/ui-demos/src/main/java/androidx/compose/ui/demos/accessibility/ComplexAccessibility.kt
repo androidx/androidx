@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.demos
 
+import android.widget.TextView
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -27,6 +28,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.BottomAppBar
+import androidx.compose.material.Button
 import androidx.compose.material.DrawerValue
 import androidx.compose.material.FabPosition
 import androidx.compose.material.FloatingActionButton
@@ -44,6 +46,7 @@ import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.demos.databinding.TestLayoutBinding
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.clearAndSetSemantics
@@ -52,6 +55,8 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.traversalIndex
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
+import androidx.compose.ui.viewinterop.AndroidViewBinding
 
 @Composable
 fun LastElementOverLaidColumn(
@@ -397,5 +402,116 @@ fun IconsInScaffoldWithListDemo() {
                 }
             }
         }
+    )
+}
+
+@Composable
+fun InteropColumn(padding: PaddingValues) {
+    Column(
+        Modifier
+            .verticalScroll(rememberScrollState())
+            .padding(padding)
+            .testTag("Test Tag")
+    ) {
+        Button(onClick = { }) {
+            Text("Button that comes before an AndroidViewBinding")
+        }
+
+        AndroidViewBinding(TestLayoutBinding::inflate) {
+            text1.text = "AndroidViewBinding text"
+        }
+
+        Button(onClick = { }) {
+            Text("Button that comes after an AndroidViewBinding and before another TextView")
+        }
+
+        AndroidView(::TextView) {
+            it.text = "This is a text in a TextView"
+        }
+
+        Button(onClick = { }) {
+            Text("Last text button")
+        }
+    }
+}
+
+@Preview
+@Composable
+fun InteropSample() {
+    val scaffoldState = rememberScaffoldState(rememberDrawerState(DrawerValue.Closed))
+    Scaffold(
+        scaffoldState = scaffoldState,
+        topBar = { TopAppBar() },
+        floatingActionButtonPosition = FabPosition.End,
+        floatingActionButton = { FloatingActionButton(onClick = {}) {
+            Icon(imageVector = Icons.Default.Add, contentDescription = "fab icon")
+        } },
+        drawerContent = { Text(text = "Drawer Menu 1") },
+        content = { padding -> InteropColumn(padding) },
+        bottomBar = { BottomAppBar(backgroundColor = MaterialTheme.colors.primary) {
+            Text("Bottom App Bar") } }
+    )
+}
+
+@Composable
+fun InteropColumnBackwards(padding: PaddingValues) {
+    Column(
+        Modifier
+            .verticalScroll(rememberScrollState())
+            .padding(padding)
+            .testTag("Test Tag")
+    ) {
+        Button(
+            modifier = Modifier.semantics { traversalIndex = 4f },
+            onClick = { }
+        ) {
+            Text("Last button after AndroidViewBinding")
+        }
+
+        AndroidViewBinding(
+            TestLayoutBinding::inflate,
+            modifier = Modifier.semantics { traversalIndex = 3f }
+        ) {
+            text1.text = "Fourth — AndroidViewBinding"
+        }
+
+        Button(
+            modifier = Modifier.semantics { traversalIndex = 2f },
+            onClick = { }
+        ) {
+            Text("Third — Compose button")
+        }
+
+        AndroidView(
+            ::TextView,
+            modifier = Modifier.semantics { traversalIndex = 1f }
+        ) {
+            it.text = "Second is a text in a TextView"
+        }
+
+        Button(
+            modifier = Modifier.semantics { traversalIndex = 0f },
+            onClick = { }
+        ) {
+            Text("First button")
+        }
+    }
+}
+
+@Preview
+@Composable
+fun InteropSampleBackwards() {
+    val scaffoldState = rememberScaffoldState(rememberDrawerState(DrawerValue.Closed))
+    Scaffold(
+        scaffoldState = scaffoldState,
+        topBar = { TopAppBar() },
+        floatingActionButtonPosition = FabPosition.End,
+        floatingActionButton = { FloatingActionButton(onClick = {}) {
+            Icon(imageVector = Icons.Default.Add, contentDescription = "fab icon")
+        } },
+        drawerContent = { Text(text = "Drawer Menu 1") },
+        content = { padding -> InteropColumnBackwards(padding) },
+        bottomBar = { BottomAppBar(backgroundColor = MaterialTheme.colors.primary) {
+            Text("Bottom App Bar") } }
     )
 }
