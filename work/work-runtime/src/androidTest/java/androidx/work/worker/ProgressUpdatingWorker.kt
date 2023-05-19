@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.work.workers
+package androidx.work.worker
 
 import android.content.Context
 import androidx.work.CoroutineWorker
