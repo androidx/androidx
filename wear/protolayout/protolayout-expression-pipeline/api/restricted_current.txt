@@ -49,8 +49,8 @@ package androidx.wear.protolayout.expression.pipeline {
   }
 
   public interface PlatformDataProvider {
-    method public void registerForData(java.util.concurrent.Executor, androidx.wear.protolayout.expression.pipeline.PlatformDataReceiver);
-    method public void unregisterForData();
+    method public void clearReceiver();
+    method public void setReceiver(java.util.concurrent.Executor, androidx.wear.protolayout.expression.pipeline.PlatformDataReceiver);
   }
 
   public interface PlatformDataReceiver {
@@ -65,8 +65,8 @@ package androidx.wear.protolayout.expression.pipeline {
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class SensorGatewaySingleDataProvider implements androidx.wear.protolayout.expression.pipeline.PlatformDataProvider {
     ctor public SensorGatewaySingleDataProvider(androidx.wear.protolayout.expression.pipeline.sensor.SensorGateway, androidx.wear.protolayout.expression.PlatformDataKey<?>);
-    method public void registerForData(java.util.concurrent.Executor, androidx.wear.protolayout.expression.pipeline.PlatformDataReceiver);
-    method public void unregisterForData();
+    method public void clearReceiver();
+    method public void setReceiver(java.util.concurrent.Executor, androidx.wear.protolayout.expression.pipeline.PlatformDataReceiver);
   }
 
   public class StateStore {

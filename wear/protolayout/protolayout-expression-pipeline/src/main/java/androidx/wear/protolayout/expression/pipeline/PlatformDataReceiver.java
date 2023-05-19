@@ -27,11 +27,20 @@ import java.util.Set;
  * Callback for receiving a PlatformDataProvider's new data.
  */
 public interface PlatformDataReceiver {
+
     /**
-     * Called when the registered data provider is sending new values.
+     * Called by the registered {@ilnk PlatformDataProvider} to send new values.
+     *
+     * @param newData The new values for the registered keys.
      */
     void onData(@NonNull Map<PlatformDataKey<?>, DynamicDataValue> newData);
 
-    /** Called when the data provider has an invalid result. */
+    /**
+     * Called by the registered {@ilnk PlatformDataProvider} to notify that the current data has
+     * been invalidated. Typically, this invalidated status is transient and subsequent onData
+     * call can be followed to sent new values.
+     *
+     * @param keys The set of keys with current data been invalidated.
+     */
     void onInvalidated(@NonNull Set<PlatformDataKey<?>> keys);
 }

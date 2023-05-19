@@ -33,11 +33,15 @@ import java.util.function.Function;
 /** This provider provides sensor data as state value. */
 @RestrictTo(Scope.LIBRARY_GROUP_PREFIX)
 public class SensorGatewaySingleDataProvider implements PlatformDataProvider {
-    @NonNull private final SensorGateway mSensorGateway;
-    @NonNull final PlatformDataKey<?> mSupportedKey;
-    @Nullable private SensorGateway.Consumer mSensorGatewayConsumer = null;
+    @NonNull
+    private final SensorGateway mSensorGateway;
+    @NonNull
+    final PlatformDataKey<?> mSupportedKey;
+    @Nullable
+    private SensorGateway.Consumer mSensorGatewayConsumer = null;
 
-    @NonNull Function<Double, DynamicDataValue> mConvertFunc;
+    @NonNull
+    Function<Double, DynamicDataValue> mConvertFunc;
 
     public SensorGatewaySingleDataProvider(
             @NonNull SensorGateway sensorGateway,
@@ -55,8 +59,12 @@ public class SensorGatewaySingleDataProvider implements PlatformDataProvider {
 
     @Override
     @SuppressWarnings("HiddenTypeParameters")
-    public void registerForData(
+    public void setReceiver(
             @NonNull Executor executor, @NonNull PlatformDataReceiver callback) {
+        if (mSensorGatewayConsumer != null) {
+            throw new RuntimeException("There is already a receiver been set.");
+        }
+
         SensorGateway.Consumer sensorConsumer =
                 new SensorGateway.Consumer() {
                     @Override
@@ -77,7 +85,7 @@ public class SensorGatewaySingleDataProvider implements PlatformDataProvider {
     }
 
     @Override
-    public void unregisterForData() {
+    public void clearReceiver() {
         if (mSensorGatewayConsumer != null) {
             mSensorGateway.unregisterSensorGatewayConsumer(mSupportedKey, mSensorGatewayConsumer);
             mSensorGatewayConsumer = null;
