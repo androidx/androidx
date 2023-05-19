@@ -146,7 +146,7 @@ class ConstraintTrackingWorker(
     override fun onConstraintsStateChanged(workSpec: WorkSpec, state: ConstraintsState) {
         // If at any point, constraints are not met mark it so we can retry the work.
         Logger.get().debug(TAG, "Constraints changed for $workSpec")
-        if (state == ConstraintsNotMet) {
+        if (state is ConstraintsNotMet) {
             synchronized(lock) { areConstraintsUnmet = true }
         }
     }

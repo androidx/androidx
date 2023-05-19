@@ -18,6 +18,7 @@ package androidx.work.impl.background.greedy;
 
 import static androidx.work.WorkRequest.DEFAULT_BACKOFF_DELAY_MILLIS;
 import static androidx.work.impl.model.WorkSpecKt.generationalId;
+import static androidx.work.impl.testutils.TestConstraintsKt.getConstraintsNotMet;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -43,7 +44,6 @@ import androidx.work.impl.Processor;
 import androidx.work.impl.StartStopToken;
 import androidx.work.impl.WorkLauncher;
 import androidx.work.impl.constraints.ConstraintsState.ConstraintsMet;
-import androidx.work.impl.constraints.ConstraintsState.ConstraintsNotMet;
 import androidx.work.impl.constraints.trackers.Trackers;
 import androidx.work.impl.model.WorkSpec;
 import androidx.work.impl.testutils.TestConstraintTracker;
@@ -164,7 +164,7 @@ public class GreedySchedulerTest extends WorkManagerTest {
         // in order to stop the work, we should start it first.
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class).build();
         mGreedyScheduler.onConstraintsStateChanged(work.getWorkSpec(), ConstraintsMet.INSTANCE);
-        mGreedyScheduler.onConstraintsStateChanged(work.getWorkSpec(), ConstraintsNotMet.INSTANCE);
+        mGreedyScheduler.onConstraintsStateChanged(work.getWorkSpec(), getConstraintsNotMet());
         ArgumentCaptor<StartStopToken> captor = ArgumentCaptor.forClass(StartStopToken.class);
         verify(mWorkLauncher).stopWork(captor.capture());
         assertThat(captor.getValue().getId().getWorkSpecId()).isEqualTo(work.getWorkSpec().id);
