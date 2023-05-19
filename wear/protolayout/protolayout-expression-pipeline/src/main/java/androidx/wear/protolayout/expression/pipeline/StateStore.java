@@ -21,6 +21,7 @@ import static java.util.stream.Collectors.toMap;
 import android.annotation.SuppressLint;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -51,6 +52,8 @@ import java.util.stream.Stream;
 public class StateStore {
     @SuppressLint("MinMaxConstant")
     private static final int MAX_STATE_ENTRY_COUNT = 30;
+
+    private static final String TAG = "ProtoLayoutStateStore";
 
     private final Executor mUiExecutor;
     @NonNull private final Map<AppDataKey<?>, DynamicDataValue> mCurrentAppState
@@ -295,8 +298,7 @@ public class StateStore {
 
             mProviderToRegisteredKeyCount.put(platformDataProvider, registeredKeyCount + 1);
         } else {
-            throw new IllegalArgumentException(
-                    String.format("No platform data provider for %s", key));
+            Log.w(TAG, String.format("No platform data provider for %s.", key));
         }
     }
 
@@ -324,8 +326,7 @@ public class StateStore {
                 }
                 mProviderToRegisteredKeyCount.put(platformDataProvider, registeredKeyCount - 1);
             } else {
-                throw new IllegalArgumentException(
-                        String.format("No platform data provider for %s", key));
+                Log.w(TAG, String.format("No platform data provider for %s", key));
             }
         }
     }
