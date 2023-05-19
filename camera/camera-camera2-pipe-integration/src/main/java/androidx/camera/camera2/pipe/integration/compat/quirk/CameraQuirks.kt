@@ -107,7 +107,7 @@ class CameraQuirks @Inject constructor(
 
     companion object {
         fun isImmediateSurfaceReleaseAllowed(): Boolean {
-            return Build.BRAND == "google"
+            return Build.BRAND == "google" && Build.VERSION.SDK_INT > Build.VERSION_CODES.O_MR1
         }
     }
 }
