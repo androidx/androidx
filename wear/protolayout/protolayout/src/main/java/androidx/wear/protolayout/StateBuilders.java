@@ -57,7 +57,7 @@ public final class StateBuilders {
 
     /**
      * Returns the maximum number for state entries that can be added to the {@link State} using
-     * {@link Builder#addIdToValueMapping(String, StateEntryValue)}.
+     * {@link Builder#addKeyToValueMapping(AppDataKey<?>, StateEntryValue)}.
      *
      * <p>The ProtoLayout state model is not designed to handle large volumes of layout provided
      * state. So we limit the number of state entries to keep the on-the-wire size and state
