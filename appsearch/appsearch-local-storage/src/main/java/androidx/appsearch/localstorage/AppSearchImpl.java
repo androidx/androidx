@@ -310,6 +310,8 @@ public final class AppSearchImpl implements Closeable {
                     .setCompressionLevel(icingOptionsConfig.getCompressionLevel())
                     .setAllowCircularSchemaDefinitions(
                             icingOptionsConfig.getAllowCircularSchemaDefinitions())
+                    .setPreMappingFbv(icingOptionsConfig.getUsePreMappingWithFileBackedVector())
+                    .setUsePersistentHashMap(icingOptionsConfig.getUsePersistentHashMap())
                     .build();
             LogUtil.piiTrace(TAG, "Constructing IcingSearchEngine, request", options);
             mIcingSearchEngineLocked = new IcingSearchEngine(options);

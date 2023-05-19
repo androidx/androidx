@@ -58,4 +58,14 @@ public class DefaultIcingOptionsConfig implements IcingOptionsConfig {
     public boolean getUseReadOnlySearch() {
         return true;
     }
+
+    @Override
+    public boolean getUsePreMappingWithFileBackedVector() {
+        return true;
+    }
+
+    @Override
+    public boolean getUsePersistentHashMap() {
+        return true;
+    }
 }
