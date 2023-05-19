@@ -44,7 +44,7 @@ constructor(
     id: String,
     private val actionSpec: ActionSpec<ArgumentsT, OutputT>,
     private val boundProperties: List<BoundProperty<*>>,
-    private val sessionFactory: (hostProperties: HostProperties?) -> ExecutionSessionT?,
+    private val sessionFactory: (hostProperties: HostProperties?) -> ExecutionSessionT,
     private val sessionBridge: SessionBridge<ExecutionSessionT, ArgumentsT, ConfirmationT>,
     private val sessionUpdaterSupplier: Supplier<SessionUpdaterT>
 ) : Capability(id) {
@@ -59,7 +59,7 @@ constructor(
         sessionId: String,
         hostProperties: HostProperties
     ): CapabilitySession {
-        val externalSession = sessionFactory.invoke(hostProperties)!!
+        val externalSession = sessionFactory.invoke(hostProperties)
         return TaskCapabilitySession(
             sessionId,
             actionSpec,

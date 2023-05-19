@@ -76,7 +76,7 @@ abstract class Capability internal constructor(
         private val boundPropertyMap = mutableMapOf<String, BoundProperty<*>>()
         private var executionCallback: ExecutionCallback<ArgumentsT, OutputT>? = null
         private var sessionFactory:
-            (hostProperties: HostProperties?) -> ExecutionSessionT? = { _ -> null }
+            ((hostProperties: HostProperties?) -> ExecutionSessionT)? = null
         private var actionSpec: ActionSpec<ArgumentsT, OutputT>? = null
 
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -158,15 +158,21 @@ abstract class Capability internal constructor(
          * calling one will nullify the other.
          */
         @SuppressLint("MissingGetterMatchingBuilder")
-        open fun setExecutionSessionFactory(
+        protected open fun setExecutionSessionFactory(
             sessionFactory: (hostProperties: HostProperties?) -> ExecutionSessionT
         ): BuilderT = asBuilder().apply {
             this.sessionFactory = sessionFactory
         }
 
-        /** Builds and returns this Capability. */
+        /**
+         * Builds and returns this Capability.
+         * [setId] must be called before [build].
+         * either [setExecutionCabllack] or [setSessionFactory] must be called before [build].
+         * child classes may enforce additional required properties to be set before [build].
+         * An [IllegalStateException] will be thrown if above requirements are not met.
+         */
         open fun build(): Capability {
-            val checkedId = requireNotNull(id) { "setId must be called before build" }
+            val checkedId = id ?: throw IllegalStateException("setId must be called before build")
             val boundProperties = boundPropertyMap.values.toList()
             if (executionCallback != null) {
                 return SingleTurnCapabilityImpl(
@@ -175,14 +181,19 @@ abstract class Capability internal constructor(
                     boundProperties,
                     executionCallback!!
                 )
-            } else {
+            } else if (sessionFactory != null) {
                 return TaskCapabilityImpl(
                     checkedId,
                     actionSpec!!,
                     boundProperties,
-                    sessionFactory,
+                    sessionFactory!!,
                     sessionBridge!!,
                     ::EmptyTaskUpdater
+                )
+            } else {
+                throw IllegalStateException(
+                    """either setExecutionCallback or setExecutionSessionFactory must be called
+                    before capability '$id' can be built"""
                 )
             }
         }
