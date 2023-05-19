@@ -275,7 +275,7 @@ public class StateStore {
                     mProviderToRegisteredKeyCount.getOrDefault(platformDataProvider, 0);
 
             if (registeredKeyCount == 0) {
-                platformDataProvider.registerForData(
+                platformDataProvider.setReceiver(
                         mUiExecutor,
                         new PlatformDataReceiver() {
                             @Override
@@ -320,7 +320,7 @@ public class StateStore {
                 int registeredKeyCount =
                         mProviderToRegisteredKeyCount.getOrDefault(platformDataProvider, 0);
                 if (registeredKeyCount == 1) {
-                    platformDataProvider.unregisterForData();
+                    platformDataProvider.clearReceiver();
                 }
                 mProviderToRegisteredKeyCount.put(platformDataProvider, registeredKeyCount - 1);
             } else {

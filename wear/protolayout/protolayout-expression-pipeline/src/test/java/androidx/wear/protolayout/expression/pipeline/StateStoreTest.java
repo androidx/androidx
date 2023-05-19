@@ -366,7 +366,7 @@ public class StateStoreTest {
         }
 
         @Override
-        public void registerForData(
+        public void setReceiver(
                 @NonNull Executor executor,
                 @NonNull PlatformDataReceiver callback) {
                 mRegisterCount++;
@@ -375,7 +375,7 @@ public class StateStoreTest {
         }
 
         @Override
-        public void unregisterForData() {
+        public void clearReceiver() {
             if (mRegisteredCallback != null) {
                 mRegisteredCallback.onInvalidated(mSupportedKeys);
                 mRegisterCount--;
