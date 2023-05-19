@@ -94,6 +94,7 @@ private fun getPendingIntentForAction(
                     }
                 },
                 PendingIntent.FLAG_MUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
+                action.activityOptions,
             )
         }
         is StartServiceAction -> {
