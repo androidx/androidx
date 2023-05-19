@@ -108,6 +108,7 @@ import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import kotlin.math.abs
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.coroutineScope
@@ -1314,6 +1315,61 @@ class ScrollableTest {
             // but allow nested scroll to propagate up correctly
             assertThat(parentValue).isGreaterThan(0f)
         }
+    }
+
+    @Test
+    fun scrollable_nestedFlingCancellation_shouldPreventDeltasFromPropagating() {
+        var childDeltas = 0f
+        var touchSlop = 0f
+        val childController = ScrollableState {
+            childDeltas += it
+            it
+        }
+        val flingCancellationParent = object : NestedScrollConnection {
+            override fun onPostScroll(
+                consumed: Offset,
+                available: Offset,
+                source: NestedScrollSource
+            ): Offset {
+                if (source == NestedScrollSource.Fling && available != Offset.Zero) {
+                    throw CancellationException()
+                }
+                return Offset.Zero
+            }
+        }
+
+        rule.setContent {
+            touchSlop = LocalViewConfiguration.current.touchSlop
+            Box(modifier = Modifier.nestedScroll(flingCancellationParent)) {
+                Box(
+                    modifier = Modifier
+                        .size(600.dp)
+                        .testTag("childScrollable")
+                        .scrollable(childController, Orientation.Horizontal)
+                )
+            }
+        }
+
+        // First drag, this won't trigger the cancelation flow.
+        rule.onNodeWithTag("childScrollable").performTouchInput {
+            down(centerLeft)
+            moveBy(Offset(100f, 0f))
+            up()
+        }
+
+        rule.runOnIdle {
+            assertThat(childDeltas).isEqualTo(100f - touchSlop)
+        }
+
+        childDeltas = 0f
+        var dragged = 0f
+        rule.onNodeWithTag("childScrollable").performTouchInput {
+            swipeWithVelocity(centerLeft, centerRight, 200f)
+            dragged = centerRight.x - centerLeft.x
+        }
+
+        // child didn't receive more deltas after drag, because fling was cancelled by the parent
+        assertThat(childDeltas).isEqualTo(dragged - touchSlop)
     }
 
     @Test
