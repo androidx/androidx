@@ -1026,7 +1026,7 @@ internal abstract class LazyStaggeredGridMeasureProvider(
     }
 
     fun getAndMeasure(index: Int, span: SpanRange): LazyStaggeredGridMeasuredItem {
-        val key = keyIndexMap.getKey(index) ?: itemProvider.getKey(index)
+        val key = itemProvider.getKey(index)
         val contentType = itemProvider.getContentType(index)
         val placeables = measureScope.measure(index, childConstraints(span.start, span.size))
         return createItem(
@@ -1039,7 +1039,7 @@ internal abstract class LazyStaggeredGridMeasureProvider(
         )
     }
 
-    val keyIndexMap: LazyLayoutKeyIndexMap = itemProvider.keyIndexMap
+    val keyIndexMap: LazyLayoutKeyIndexMap get() = itemProvider.keyIndexMap
 
     abstract fun createItem(
         index: Int,
