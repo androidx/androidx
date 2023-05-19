@@ -72,6 +72,9 @@ private class DerivedSnapshotState<T>(
             val Unset = Any()
         }
 
+        var validSnapshotId: Int = 0
+        var validSnapshotWriteCount: Int = 0
+
         var dependencies: IdentityArrayMap<StateObject, Int>? = null
         var result: Any? = Unset
         var resultHash: Int = 0
@@ -86,8 +89,22 @@ private class DerivedSnapshotState<T>(
 
         override fun create(): StateRecord = ResultRecord<T>()
 
-        fun isValid(derivedState: DerivedState<*>, snapshot: Snapshot): Boolean =
-            result !== Unset && resultHash == readableHash(derivedState, snapshot)
+        fun isValid(derivedState: DerivedState<*>, snapshot: Snapshot): Boolean {
+            val snapshotChanged = sync {
+                validSnapshotId != snapshot.id || validSnapshotWriteCount != snapshot.writeCount
+            }
+            val isValid = result !== Unset &&
+                (!snapshotChanged || resultHash == readableHash(derivedState, snapshot))
+
+            if (isValid && snapshotChanged) {
+                sync {
+                    validSnapshotId = snapshot.id
+                    validSnapshotWriteCount = snapshot.writeCount
+                }
+            }
+
+            return isValid
+        }
 
         fun readableHash(derivedState: DerivedState<*>, snapshot: Snapshot): Int {
             var hash = 7
@@ -186,11 +203,15 @@ private class DerivedSnapshotState<T>(
             ) {
                 readable.dependencies = newDependencies
                 readable.resultHash = readable.readableHash(this, currentSnapshot)
+                readable.validSnapshotId = snapshot.id
+                readable.validSnapshotWriteCount = snapshot.writeCount
                 readable
             } else {
                 val writable = first.newWritableRecord(this, currentSnapshot)
                 writable.dependencies = newDependencies
                 writable.resultHash = writable.readableHash(this, currentSnapshot)
+                writable.validSnapshotId = snapshot.id
+                writable.validSnapshotWriteCount = snapshot.writeCount
                 writable.result = result
                 writable
             }
