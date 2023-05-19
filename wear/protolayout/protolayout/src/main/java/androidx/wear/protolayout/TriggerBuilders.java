@@ -95,6 +95,12 @@ public final class TriggerBuilders {
       return TriggerProto.Trigger.newBuilder().setOnLoadTrigger(mImpl).build();
     }
 
+    @Override
+    @NonNull
+    public String toString() {
+      return "OnLoadTrigger";
+    }
+
     /** Builder for {@link OnLoadTrigger}. */
     public static final class Builder implements Trigger.Builder {
       private final TriggerProto.OnLoadTrigger.Builder mImpl =
@@ -173,6 +179,12 @@ public final class TriggerBuilders {
     @NonNull
       public TriggerProto.Trigger toTriggerProto() {
       return TriggerProto.Trigger.newBuilder().setOnConditionMetTrigger(mImpl).build();
+    }
+
+    @Override
+    @NonNull
+    public String toString() {
+      return "OnConditionMetTrigger{" + "condition=" + getCondition() + "}";
     }
 
     /** Builder for {@link OnConditionMetTrigger}. */

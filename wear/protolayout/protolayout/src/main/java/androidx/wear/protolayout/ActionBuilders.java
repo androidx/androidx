@@ -158,6 +158,12 @@ public final class ActionBuilders {
       return ActionProto.AndroidExtra.newBuilder().setStringVal(mImpl).build();
     }
 
+    @Override
+    @NonNull
+    public String toString() {
+      return "AndroidStringExtra{" + "value=" + getValue() + "}";
+    }
+
     /** Builder for {@link AndroidStringExtra}. */
     public static final class Builder implements AndroidExtra.Builder {
       private final ActionProto.AndroidStringExtra.Builder mImpl =
@@ -220,7 +226,7 @@ public final class ActionBuilders {
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     public static AndroidIntExtra fromProto(
-            @NonNull ActionProto.AndroidIntExtra proto, @Nullable Fingerprint fingerprint) {
+        @NonNull ActionProto.AndroidIntExtra proto, @Nullable Fingerprint fingerprint) {
       return new AndroidIntExtra(proto, fingerprint);
     }
 
@@ -241,6 +247,12 @@ public final class ActionBuilders {
     @NonNull
     public ActionProto.AndroidExtra toAndroidExtraProto() {
       return ActionProto.AndroidExtra.newBuilder().setIntVal(mImpl).build();
+    }
+
+    @Override
+    @NonNull
+    public String toString() {
+      return "AndroidIntExtra{" + "value=" + getValue() + "}";
     }
 
     /** Builder for {@link AndroidIntExtra}. */
@@ -328,6 +340,12 @@ public final class ActionBuilders {
       return ActionProto.AndroidExtra.newBuilder().setLongVal(mImpl).build();
     }
 
+    @Override
+    @NonNull
+    public String toString() {
+      return "AndroidLongExtra{" + "value=" + getValue() + "}";
+    }
+
     /** Builder for {@link AndroidLongExtra}. */
     public static final class Builder implements AndroidExtra.Builder {
       private final ActionProto.AndroidLongExtra.Builder mImpl =
@@ -413,6 +431,12 @@ public final class ActionBuilders {
       return ActionProto.AndroidExtra.newBuilder().setDoubleVal(mImpl).build();
     }
 
+    @Override
+    @NonNull
+    public String toString() {
+      return "AndroidDoubleExtra{" + "value=" + getValue() + "}";
+    }
+
     /** Builder for {@link AndroidDoubleExtra}. */
     public static final class Builder implements AndroidExtra.Builder {
       private final ActionProto.AndroidDoubleExtra.Builder mImpl =
@@ -475,7 +499,7 @@ public final class ActionBuilders {
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     public static AndroidBooleanExtra fromProto(
-            @NonNull ActionProto.AndroidBooleanExtra proto, @Nullable Fingerprint fingerprint) {
+        @NonNull ActionProto.AndroidBooleanExtra proto, @Nullable Fingerprint fingerprint) {
       return new AndroidBooleanExtra(proto, fingerprint);
     }
 
@@ -496,6 +520,12 @@ public final class ActionBuilders {
     @NonNull
     public ActionProto.AndroidExtra toAndroidExtraProto() {
       return ActionProto.AndroidExtra.newBuilder().setBooleanVal(mImpl).build();
+    }
+
+    @Override
+    @NonNull
+    public String toString() {
+      return "AndroidBooleanExtra{" + "value=" + getValue() + "}";
     }
 
     /** Builder for {@link AndroidBooleanExtra}. */
@@ -667,6 +697,19 @@ public final class ActionBuilders {
       return mImpl;
     }
 
+    @Override
+    @NonNull
+    public String toString() {
+      return "AndroidActivity{"
+          + "packageName="
+          + getPackageName()
+          + ", className="
+          + getClassName()
+          + ", keyToExtraMapping="
+          + getKeyToExtraMapping()
+          + "}";
+    }
+
     /** Builder for {@link AndroidActivity} */
     public static final class Builder {
       private final ActionProto.AndroidActivity.Builder mImpl =
@@ -786,6 +829,12 @@ public final class ActionBuilders {
       return ActionProto.Action.newBuilder().setLaunchAction(mImpl).build();
     }
 
+    @Override
+    @NonNull
+    public String toString() {
+      return "LaunchAction{" + "androidActivity=" + getAndroidActivity() + "}";
+    }
+
     /** Builder for {@link LaunchAction}. */
     public static final class Builder implements Action.Builder {
       private final ActionProto.LaunchAction.Builder mImpl = ActionProto.LaunchAction.newBuilder();
@@ -876,6 +925,12 @@ public final class ActionBuilders {
     @NonNull
     public ActionProto.Action toActionProto() {
       return ActionProto.Action.newBuilder().setLoadAction(mImpl).build();
+    }
+
+    @Override
+    @NonNull
+    public String toString() {
+      return "LoadAction{" + "requestState=" + getRequestState() + "}";
     }
 
     /** Builder for {@link LoadAction}. */

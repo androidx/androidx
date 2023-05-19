@@ -84,6 +84,15 @@ public final class TypeBuilders {
             return mImpl;
         }
 
+        @Override
+        @NonNull
+        public String toString() {
+            return "Int32Prop{"
+                    + "value="
+                    + getValue()
+                    + "}";
+        }
+
         /** Builder for {@link Int32Prop} */
         public static final class Builder {
             private final TypesProto.Int32Prop.Builder mImpl = TypesProto.Int32Prop.newBuilder();
@@ -174,6 +183,17 @@ public final class TypeBuilders {
         @NonNull
         public TypesProto.StringProp toProto() {
             return mImpl;
+        }
+
+        @Override
+        @NonNull
+        public String toString() {
+            return "StringProp{"
+                    + "value="
+                    + getValue()
+                    + ", dynamicValue="
+                    + getDynamicValue()
+                    + "}";
         }
 
         /** Builder for {@link StringProp} */
@@ -414,6 +434,17 @@ public final class TypeBuilders {
             return mImpl;
         }
 
+        @Override
+        @NonNull
+        public String toString() {
+            return "FloatProp{"
+                    + "value="
+                    + getValue()
+                    + ", dynamicValue="
+                    + getDynamicValue()
+                    + "}";
+        }
+
         /** Builder for {@link FloatProp} */
         public static final class Builder {
             private final TypesProto.FloatProp.Builder mImpl = TypesProto.FloatProp.newBuilder();
@@ -536,7 +567,10 @@ public final class TypeBuilders {
         @Override
         @NonNull
         public String toString() {
-            return "BoolProp{" + "value=" + getValue() + "}";
+            return "BoolProp{"
+                    + "value="
+                    + getValue()
+                    + "}";
         }
 
         /** Builder for {@link BoolProp} */
