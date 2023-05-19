@@ -178,12 +178,10 @@ object TextButtonDefaults {
     fun textButtonColors(
         containerColor: Color = Color.Transparent,
         contentColor: Color = MaterialTheme.colorScheme.onBackground,
-        disabledContainerColor: Color = MaterialTheme.colorScheme.onSurface.copy(
-            alpha = DisabledBorderAndContainerAlpha
+        disabledContainerColor: Color = MaterialTheme.colorScheme.onSurface.toDisabledColor(
+            disabledAlpha = DisabledBorderAndContainerAlpha
         ),
-        disabledContentColor: Color = MaterialTheme.colorScheme.onSurface.copy(
-            alpha = ContentAlpha.disabled
-        )
+        disabledContentColor: Color = MaterialTheme.colorScheme.onSurface.toDisabledColor()
     ): TextButtonColors = TextButtonColors(
         containerColor = containerColor,
         contentColor = contentColor,
