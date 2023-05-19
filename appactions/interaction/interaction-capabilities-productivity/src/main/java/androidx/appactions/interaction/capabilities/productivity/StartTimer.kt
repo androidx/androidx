@@ -21,13 +21,9 @@ import androidx.appactions.builtintypes.experimental.types.SuccessStatus
 import androidx.appactions.interaction.capabilities.core.BaseExecutionSession
 import androidx.appactions.interaction.capabilities.core.Capability
 import androidx.appactions.interaction.capabilities.core.CapabilityFactory
-import androidx.appactions.interaction.capabilities.core.HostProperties
-import androidx.appactions.interaction.capabilities.core.ValueListener
 import androidx.appactions.interaction.capabilities.core.impl.BuilderOf
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
-import androidx.appactions.interaction.capabilities.core.impl.task.SessionBridge
-import androidx.appactions.interaction.capabilities.core.impl.task.TaskHandler
 import androidx.appactions.interaction.capabilities.core.properties.Property
 import androidx.appactions.interaction.capabilities.core.properties.StringValue
 import androidx.appactions.interaction.proto.ParamValue
@@ -54,16 +50,6 @@ class StartTimer private constructor() {
             Confirmation,
             ExecutionSession
             >(ACTION_SPEC) {
-        override val sessionBridge: SessionBridge<
-            ExecutionSession,
-            Arguments,
-            Confirmation
-            > = SESSION_BRIDGE
-
-        override fun setExecutionSessionFactory(
-            sessionFactory: (hostProperties: HostProperties?) -> ExecutionSession
-        ): CapabilityBuilder = super.setExecutionSessionFactory(sessionFactory)
-
         fun setIdentifierProperty(
             identifier: Property<StringValue>
         ): CapabilityBuilder = setProperty(
@@ -83,13 +69,6 @@ class StartTimer private constructor() {
             duration,
             TypeConverters.DURATION_ENTITY_CONVERTER
         )
-    }
-
-    interface ExecutionSession : BaseExecutionSession<Arguments, Output> {
-        val nameListener: ValueListener<String>?
-            get() = null
-        val durationListener: ValueListener<Duration>?
-            get() = null
     }
 
     class Arguments internal constructor(
@@ -135,7 +114,6 @@ class StartTimer private constructor() {
             override fun build(): Arguments = Arguments(identifier, name, duration)
         }
     }
-
     class Output internal constructor(val executionStatus: ExecutionStatus?) {
         override fun toString(): String {
             return "Output(executionStatus=$executionStatus)"
@@ -196,6 +174,7 @@ class StartTimer private constructor() {
         }
     }
 
+    sealed interface ExecutionSession : BaseExecutionSession<Arguments, Output>
     class Confirmation internal constructor()
 
     companion object {
@@ -224,25 +203,5 @@ class StartTimer private constructor() {
                     ExecutionStatus::toParamValue
                 )
                 .build()
-
-        private val SESSION_BRIDGE =
-            SessionBridge<ExecutionSession, Arguments, Confirmation> { session ->
-                val taskHandlerBuilder = TaskHandler.Builder<Arguments, Confirmation>()
-                session.nameListener?.let {
-                    taskHandlerBuilder.registerValueTaskParam(
-                        "timer.name",
-                        it,
-                        TypeConverters.STRING_PARAM_VALUE_CONVERTER
-                    )
-                }
-                session.durationListener?.let {
-                    taskHandlerBuilder.registerValueTaskParam(
-                        "timer.duration",
-                        it,
-                        TypeConverters.DURATION_PARAM_VALUE_CONVERTER
-                    )
-                }
-                taskHandlerBuilder.build()
-            }
     }
 }
