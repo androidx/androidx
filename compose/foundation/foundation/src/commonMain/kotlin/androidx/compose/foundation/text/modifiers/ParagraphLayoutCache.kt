@@ -18,6 +18,7 @@ package androidx.compose.foundation.text.modifiers
 
 import androidx.compose.foundation.text.DefaultMinLines
 import androidx.compose.foundation.text.ceilToIntPx
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.MultiParagraph
 import androidx.compose.ui.text.MultiParagraphIntrinsics
@@ -330,7 +331,7 @@ internal class ParagraphLayoutCache(
      *
      * Exposed for semantics GetTextLayoutResult
      */
-    fun slowCreateTextLayoutResultOrNull(): TextLayoutResult? {
+    fun slowCreateTextLayoutResultOrNull(color: Color = Color.Unspecified): TextLayoutResult? {
         // make sure we're in a valid place
         val localLayoutDirection = intrinsicsLayoutDirection ?: return null
         val localDensity = density ?: return null
@@ -343,7 +344,7 @@ internal class ParagraphLayoutCache(
         return TextLayoutResult(
             TextLayoutInput(
                 annotatedString,
-                style,
+                style.merge(color),
                 emptyList(),
                 maxLines,
                 softWrap,

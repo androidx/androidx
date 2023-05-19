@@ -48,6 +48,7 @@ import androidx.compose.ui.semantics.getTextLayoutResult
 import androidx.compose.ui.semantics.text
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.Placeholder
+import androidx.compose.ui.text.TextLayoutInput
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
@@ -206,7 +207,7 @@ internal class TextAnnotatedStringNode(
         layoutChanged: Boolean,
         callbacksChanged: Boolean
     ) {
-        if (textChanged) {
+        if (textChanged || (drawChanged && semanticsTextLayoutResult != null)) {
             invalidateSemantics()
         }
 
@@ -236,6 +237,22 @@ internal class TextAnnotatedStringNode(
         if (localSemanticsTextLayoutResult == null) {
             localSemanticsTextLayoutResult = { textLayoutResult ->
                 val layout = layoutCache.layoutOrNull?.also {
+                    it.copy(
+                        layoutInput = TextLayoutInput(
+                            text = it.layoutInput.text,
+                            style = it.layoutInput.style.merge(
+                                color = overrideColor?.invoke() ?: Color.Unspecified
+                            ),
+                            placeholders = it.layoutInput.placeholders,
+                            maxLines = it.layoutInput.maxLines,
+                            softWrap = it.layoutInput.softWrap,
+                            overflow = it.layoutInput.overflow,
+                            density = it.layoutInput.density,
+                            layoutDirection = it.layoutInput.layoutDirection,
+                            fontFamilyResolver = it.layoutInput.fontFamilyResolver,
+                            constraints = it.layoutInput.constraints
+                        )
+                    )
                     textLayoutResult.add(it)
                 }
                 layout != null
