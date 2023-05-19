@@ -70,6 +70,7 @@ import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.util.fastAll
 import androidx.compose.ui.util.fastForEach
 import kotlin.math.abs
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -625,7 +626,13 @@ private class ScrollingLogic(
             val preConsumedByParent = nestedScrollDispatcher
                 .dispatchPreFling(velocity)
             val available = velocity - preConsumedByParent
-            val velocityLeft = doFlingAnimation(available)
+
+            val velocityLeft = try {
+                doFlingAnimation(available)
+            } catch (exception: CancellationException) {
+                available
+            }
+
             val consumedPost =
                 nestedScrollDispatcher.dispatchPostFling(
                     (available - velocityLeft),

@@ -16,7 +16,11 @@
 
 package androidx.compose.foundation.pager
 
+import androidx.compose.animation.splineBasedDecay
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.gestures.DefaultFlingBehavior
+import androidx.compose.foundation.gestures.FlingBehavior
+import androidx.compose.foundation.gestures.ScrollScope
 import androidx.compose.foundation.gestures.ScrollableDefaults
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -85,6 +89,58 @@ class PagerNestedScrollContentTest(
         // Assert: Fling was not propagated, so we didn't move pages
         assertThat(pagerState.currentPage).isEqualTo(0)
         assertEquals(pagerState.currentPageOffsetFraction, 0f, 0.01f)
+    }
+
+    @OptIn(ExperimentalFoundationApi::class)
+    @Test
+    fun nestedScrollContent_shouldCancelFlingIfOnEdge() {
+        // Arrange
+        rule.mainClock.autoAdvance = false
+        val defaultFlingBehavior = DefaultFlingBehavior(splineBasedDecay(rule.density))
+        var flingTriggered = false
+        val flingInspector = object : FlingBehavior {
+            override suspend fun ScrollScope.performFling(initialVelocity: Float): Float {
+                flingTriggered = true
+                return with(defaultFlingBehavior) {
+                    performFling(initialVelocity)
+                }
+            }
+        }
+        createPager(pageCount = { DefaultPageCount }) {
+            LazyList(
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(0.dp),
+                isVertical = vertical, // scrollable content on the same direction as pager
+                reverseLayout = false,
+                flingBehavior = flingInspector,
+                state = rememberLazyListState(initialFirstVisibleItemIndex = 8),
+                userScrollEnabled = true,
+                verticalArrangement = Arrangement.Top,
+                horizontalArrangement = Arrangement.Start,
+                verticalAlignment = Alignment.Top,
+                horizontalAlignment = Alignment.Start
+            ) {
+                items(10) {
+                    Box(modifier = Modifier.size(100.dp)) {
+                        BasicText(text = it.toString())
+                    }
+                }
+            }
+        }
+
+        // Act: High velocity swipe should fling inner list to edge
+        val forwardDelta = pagerSize * 0.5f * scrollForwardSign.toFloat()
+        rule.onNodeWithTag(TestTag).performTouchInput {
+            swipeWithVelocityAcrossMainAxis(10000f, forwardDelta)
+        }
+
+        rule.mainClock.advanceTimeUntil { flingTriggered } // wait for drag to finish
+
+        val previousOffset = pagerState.currentPageOffsetFraction
+        rule.mainClock.advanceTimeBy(1_000L) // advance time
+
+        // should've moved by then.
+        assertThat(pagerState.currentPageOffsetFraction).isNotEqualTo(previousOffset)
     }
 
     @OptIn(ExperimentalFoundationApi::class)
