@@ -106,6 +106,7 @@ public class WebViewDocumentStartJavaScriptTest {
     }
 
     @Test
+    @SuppressWarnings("deprecation") // To be removed in 1.9.0
     public void testAddDocumentStartJavaScriptBasicUsage() throws Exception {
         mWebViewOnUiThread.addWebMessageListener(JS_OBJECT_NAME, MATCH_EXAMPLE_COM, mListener);
         mWebViewOnUiThread.addDocumentStartJavaScript(BASIC_SCRIPT, MATCH_EXAMPLE_COM);
@@ -118,6 +119,7 @@ public class WebViewDocumentStartJavaScriptTest {
     }
 
     @Test
+    @SuppressWarnings("deprecation") // To be removed in 1.9.0
     public void testAddDocumentStartJavaScriptRemoveScript() throws Exception {
         mWebViewOnUiThread.addWebMessageListener(JS_OBJECT_NAME, MATCH_EXAMPLE_COM, mListener);
         ScriptHandler scriptHandler =

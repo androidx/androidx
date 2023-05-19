@@ -121,6 +121,7 @@ public class WebSettingsCompatTest {
      * be reflected in that test as necessary. See http://go/modifying-webview-cts.
      */
     @Test
+    @SuppressWarnings("deprecation")
     public void testSuppressedErrorPage() throws Throwable {
         WebkitUtils.checkFeature(WebViewFeature.SUPPRESS_ERROR_PAGE);
 
