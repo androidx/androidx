@@ -30,7 +30,7 @@ private const val CAPABILITY_NAME = "actions.intent.GET_EXERCISE_OBSERVATION"
 /** A capability corresponding to actions.intent.GET_EXERCISE_OBSERVATION */
 @CapabilityFactory(name = CAPABILITY_NAME)
 class GetExerciseObservation private constructor() {
-    internal enum class PropertyMapStrings(val key: String) {
+    internal enum class SlotMetadata(val path: String) {
         START_TIME("exerciseObservation.startTime"),
         END_TIME("exerciseObservation.endTime")
     }
@@ -40,13 +40,13 @@ class GetExerciseObservation private constructor() {
             CapabilityBuilder, Arguments, Output, Confirmation, ExecutionSession
             >(ACTION_SPEC) {
         fun setStartTimeProperty(startTime: Property<LocalTime>): CapabilityBuilder = setProperty(
-            PropertyMapStrings.START_TIME.key,
+            SlotMetadata.START_TIME.path,
             startTime,
             TypeConverters.LOCAL_TIME_ENTITY_CONVERTER
         )
 
         fun setEndTimeProperty(endTime: Property<LocalTime>): CapabilityBuilder = setProperty(
-            PropertyMapStrings.END_TIME.key,
+            SlotMetadata.END_TIME.path,
             endTime,
             TypeConverters.LOCAL_TIME_ENTITY_CONVERTER
         )
@@ -108,12 +108,12 @@ class GetExerciseObservation private constructor() {
                 )
                 .setOutput(Output::class.java)
                 .bindParameter(
-                    "exerciseObservation.startTime",
+                    SlotMetadata.START_TIME.path,
                     Arguments.Builder::setStartTime,
                     TypeConverters.LOCAL_TIME_PARAM_VALUE_CONVERTER
                 )
                 .bindParameter(
-                    "exerciseObservation.endTime",
+                    SlotMetadata.END_TIME.path,
                     Arguments.Builder::setEndTime,
                     TypeConverters.LOCAL_TIME_PARAM_VALUE_CONVERTER
                 )

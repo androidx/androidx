@@ -44,7 +44,7 @@ private const val CAPABILITY_NAME = "actions.intent.START_SAFETY_CHECK"
 /** A capability corresponding to actions.intent.START_SAFETY_CHECK */
 @CapabilityFactory(name = CAPABILITY_NAME)
 class StartSafetyCheck private constructor() {
-    internal enum class PropertyMapStrings(val key: String) {
+    internal enum class SlotMetadata(val path: String) {
         DURATION("safetycheck.duration"),
         CHECK_IN_TIME("safetycheck.checkInTime")
     }
@@ -54,7 +54,7 @@ class StartSafetyCheck private constructor() {
             CapabilityBuilder, Arguments, Output, Confirmation, ExecutionSession
             >(ACTION_SPEC) {
         fun setDurationProperty(duration: Property<Duration>): CapabilityBuilder = setProperty(
-            PropertyMapStrings.DURATION.key,
+            SlotMetadata.DURATION.path,
             duration,
             TypeConverters.DURATION_ENTITY_CONVERTER
         )
@@ -62,7 +62,7 @@ class StartSafetyCheck private constructor() {
         fun setCheckInTimeProperty(
             checkInTime: Property<ZonedDateTime>
         ): CapabilityBuilder = setProperty(
-            PropertyMapStrings.CHECK_IN_TIME.key,
+            SlotMetadata.CHECK_IN_TIME.path,
             checkInTime,
             TypeConverters.ZONED_DATETIME_ENTITY_CONVERTER
         )
@@ -231,12 +231,12 @@ class StartSafetyCheck private constructor() {
                 .setArguments(Arguments::class.java, Arguments::Builder)
                 .setOutput(Output::class.java)
                 .bindParameter(
-                    "safetyCheck.duration",
+                    SlotMetadata.DURATION.path,
                     Arguments.Builder::setDuration,
                     TypeConverters.DURATION_PARAM_VALUE_CONVERTER
                 )
                 .bindParameter(
-                    "safetyCheck.checkInTime",
+                    SlotMetadata.CHECK_IN_TIME.path,
                     Arguments.Builder::setCheckInTime,
                     TypeConverters.ZONED_DATETIME_PARAM_VALUE_CONVERTER
                 )

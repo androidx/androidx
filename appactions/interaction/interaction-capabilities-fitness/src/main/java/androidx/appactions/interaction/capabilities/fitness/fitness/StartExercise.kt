@@ -31,7 +31,7 @@ private const val CAPABILITY_NAME = "actions.intent.START_EXERCISE"
 /** A capability corresponding to actions.intent.START_EXERCISE */
 @CapabilityFactory(name = CAPABILITY_NAME)
 class StartExercise private constructor() {
-    internal enum class PropertyMapStrings(val key: String) {
+    internal enum class SlotMetadata(val path: String) {
         NAME("exercise.name"),
         DURATION("exercise.duration")
     }
@@ -45,13 +45,13 @@ class StartExercise private constructor() {
             ExecutionSession
             >(ACTION_SPEC) {
         fun setNameProperty(name: Property<StringValue>): CapabilityBuilder = setProperty(
-            PropertyMapStrings.NAME.key,
+            SlotMetadata.NAME.path,
             name,
             TypeConverters.STRING_VALUE_ENTITY_CONVERTER
         )
 
         fun setDurationProperty(duration: Property<Duration>): CapabilityBuilder = setProperty(
-            PropertyMapStrings.DURATION.key,
+            SlotMetadata.DURATION.path,
             duration,
             TypeConverters.DURATION_ENTITY_CONVERTER
         )
@@ -110,12 +110,12 @@ class StartExercise private constructor() {
                 .setArguments(Arguments::class.java, Arguments::Builder)
                 .setOutput(Output::class.java)
                 .bindParameter(
-                    "exercise.duration",
+                    SlotMetadata.DURATION.path,
                     Arguments.Builder::setDuration,
                     TypeConverters.DURATION_PARAM_VALUE_CONVERTER
                 )
                 .bindParameter(
-                    "exercise.name",
+                    SlotMetadata.NAME.path,
                     Arguments.Builder::setName,
                     TypeConverters.STRING_PARAM_VALUE_CONVERTER
                 )

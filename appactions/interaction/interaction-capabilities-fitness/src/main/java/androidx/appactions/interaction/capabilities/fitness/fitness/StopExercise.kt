@@ -30,7 +30,7 @@ private const val CAPABILITY_NAME = "actions.intent.STOP_EXERCISE"
 /** A capability corresponding to actions.intent.STOP_EXERCISE */
 @CapabilityFactory(name = CAPABILITY_NAME)
 class StopExercise private constructor() {
-    internal enum class PropertyMapStrings(val key: String) {
+    internal enum class SlotMetadata(val path: String) {
         NAME("exercise.name")
     }
 
@@ -43,7 +43,7 @@ class StopExercise private constructor() {
             ExecutionSession
             >(ACTION_SPEC) {
         fun setNameProperty(name: Property<StringValue>): CapabilityBuilder = setProperty(
-            PropertyMapStrings.NAME.key,
+            SlotMetadata.NAME.path,
             name,
             TypeConverters.STRING_VALUE_ENTITY_CONVERTER
         )
@@ -94,7 +94,7 @@ class StopExercise private constructor() {
                 .setArguments(Arguments::class.java, Arguments::Builder)
                 .setOutput(Output::class.java)
                 .bindParameter(
-                    "exercise.name",
+                    SlotMetadata.NAME.path,
                     Arguments.Builder::setName,
                     TypeConverters.STRING_PARAM_VALUE_CONVERTER
                 )
