@@ -19,7 +19,6 @@ package androidx.core.view;
 import static android.view.MotionEvent.AXIS_X;
 import static android.view.MotionEvent.AXIS_Y;
 
-import static androidx.core.view.InputDeviceCompat.SOURCE_MOUSE;
 import static androidx.core.view.InputDeviceCompat.SOURCE_ROTARY_ENCODER;
 import static androidx.core.view.InputDeviceCompat.SOURCE_TOUCHSCREEN;
 import static androidx.core.view.MotionEventCompat.AXIS_SCROLL;
@@ -62,18 +61,29 @@ public class ViewConfigurationCompatTest {
     }
 
     @Test
-    @SdkSuppress(maxSdkVersion = 33)
+    @SdkSuppress(minSdkVersion = 16, maxSdkVersion = 33)
     public void scaledFlingThresholds_withDeviceParams_apiPre34() {
+        InputDevice device = findInputDevice(SOURCE_TOUCHSCREEN);
+        if (device == null) {
+            return;
+        }
         when(mViewConfigMock.getScaledMinimumFlingVelocity()).thenReturn(10);
         when(mViewConfigMock.getScaledMaximumFlingVelocity()).thenReturn(20);
 
         assertFlingThresholds(
-                mViewConfigMock, 1, AXIS_X, SOURCE_TOUCHSCREEN, /* minVel= */ 10, /* maxVel= */ 20);
+                mViewConfigMock,
+                device.getId(),
+                AXIS_X,
+                SOURCE_TOUCHSCREEN,
+                /* minVel= */ 10,
+                /* maxVel= */ 20);
         assertFlingThresholds(
-                mViewConfigMock, 1, AXIS_Y, SOURCE_TOUCHSCREEN, /* minVel= */ 10, /* maxVel= */ 20);
-        assertFlingThresholds(
-                mViewConfigMock, 1, AXIS_SCROLL, SOURCE_MOUSE, /* minVel= */ 10, /* maxVel= */ 20);
-
+                mViewConfigMock,
+                device.getId(),
+                AXIS_Y,
+                SOURCE_TOUCHSCREEN,
+                /* minVel= */ 10,
+                /* maxVel= */ 20);
     }
 
     @Test
@@ -102,8 +112,12 @@ public class ViewConfigurationCompatTest {
     }
 
     @Test
-    @SdkSuppress(maxSdkVersion = 33)
-    public void scaledFlingThresholds_rotaryEncoderDevice_hasNoAndroidResForFling_apiPre34() {
+    @SdkSuppress(minSdkVersion = 16, maxSdkVersion = 33)
+    public void scaledFlingThresholds_realRotaryEncoderDevice_hasNoAndroidResForFling_apiPre34() {
+        InputDevice rotaryEncoderDevice = findInputDevice(SOURCE_ROTARY_ENCODER);
+        if (rotaryEncoderDevice == null) {
+            return;
+        }
         when(mViewConfigMock.getScaledMinimumFlingVelocity()).thenReturn(10);
         when(mViewConfigMock.getScaledMaximumFlingVelocity()).thenReturn(20);
         mockAndroidResource("config_viewMinRotaryEncoderFlingVelocity", "dimen", /* resId= */ 0);
@@ -112,7 +126,7 @@ public class ViewConfigurationCompatTest {
 
         assertFlingThresholds(
                 mViewConfigMock,
-                1,
+                rotaryEncoderDevice.getId(),
                 AXIS_SCROLL,
                 SOURCE_ROTARY_ENCODER,
                 /* minVel= */ 10,
@@ -120,8 +134,13 @@ public class ViewConfigurationCompatTest {
     }
 
     @Test
-    @SdkSuppress(maxSdkVersion = 33)
-    public void scaledMinFlingVelocity_rotaryEncoderDevice_hasAndroidResForFling_apiPre34() {
+    @SdkSuppress(minSdkVersion = 16, maxSdkVersion = 33)
+    public void scaledMinFlingVelocity_realRotaryEncoderDevice_hasAndroidResForFling_apiPre34() {
+        InputDevice rotaryEncoderDevice = findInputDevice(SOURCE_ROTARY_ENCODER);
+        if (rotaryEncoderDevice == null) {
+            return;
+        }
+        int deviceId = rotaryEncoderDevice.getId();
         mockAndroidResource("config_viewMinRotaryEncoderFlingVelocity", "dimen", /* resId= */ 1);
         when(mResourcesMock.getDimensionPixelSize(1)).thenReturn(100);
         mContext = spy(mContext);
@@ -130,12 +149,17 @@ public class ViewConfigurationCompatTest {
         assertEquals(
                 100,
                 ViewConfigurationCompat.getScaledMinimumFlingVelocity(
-                        mContext, mViewConfigMock, 1, AXIS_SCROLL, SOURCE_ROTARY_ENCODER));
+                        mContext, mViewConfigMock, deviceId, AXIS_SCROLL, SOURCE_ROTARY_ENCODER));
     }
 
     @Test
-    @SdkSuppress(maxSdkVersion = 33)
-    public void scaledMinFlingVelocity_rotaryEncoderDevice_hasAndroidResForNoFling_apiPre34() {
+    @SdkSuppress(minSdkVersion = 16, maxSdkVersion = 33)
+    public void scaledMinFlingVelocity_realRotaryEncoderDevice_hasAndroidResForNoFling_apiPre34() {
+        InputDevice rotaryEncoderDevice = findInputDevice(SOURCE_ROTARY_ENCODER);
+        if (rotaryEncoderDevice == null) {
+            return;
+        }
+        int deviceId = rotaryEncoderDevice.getId();
         mockAndroidResource("config_viewMinRotaryEncoderFlingVelocity", "dimen", /* resId= */ 1);
         when(mResourcesMock.getDimensionPixelSize(1)).thenReturn(-1);
         mContext = spy(mContext);
@@ -144,12 +168,17 @@ public class ViewConfigurationCompatTest {
         assertEquals(
                 Integer.MAX_VALUE,
                 ViewConfigurationCompat.getScaledMinimumFlingVelocity(
-                        mContext, mViewConfigMock, 1, AXIS_SCROLL, SOURCE_ROTARY_ENCODER));
+                        mContext, mViewConfigMock, deviceId, AXIS_SCROLL, SOURCE_ROTARY_ENCODER));
     }
 
     @Test
-    @SdkSuppress(maxSdkVersion = 33)
-    public void scaledMaxFlingVelocity_hasAndroidResForFling_rotaryEncoderDevice_apiPre34() {
+    @SdkSuppress(minSdkVersion = 16, maxSdkVersion = 33)
+    public void scaledMaxFlingVelocity_hasAndroidResForFling_realRotaryEncoderDevice_apiPre34() {
+        InputDevice rotaryEncoderDevice = findInputDevice(SOURCE_ROTARY_ENCODER);
+        if (rotaryEncoderDevice == null) {
+            return;
+        }
+        int deviceId = rotaryEncoderDevice.getId();
         mockAndroidResource("config_viewMaxRotaryEncoderFlingVelocity", "dimen", /* resId= */ 1);
         when(mResourcesMock.getDimensionPixelSize(1)).thenReturn(100);
         mContext = spy(mContext);
@@ -158,12 +187,17 @@ public class ViewConfigurationCompatTest {
         assertEquals(
                 100,
                 ViewConfigurationCompat.getScaledMaximumFlingVelocity(
-                        mContext, mViewConfigMock, 1, AXIS_SCROLL, SOURCE_ROTARY_ENCODER));
+                        mContext, mViewConfigMock, deviceId, AXIS_SCROLL, SOURCE_ROTARY_ENCODER));
     }
 
     @Test
-    @SdkSuppress(maxSdkVersion = 33)
-    public void scaledMaxFlingVelocity_hasAndroidResForNoFling_rotaryEncoderDevice_apiPre34() {
+    @SdkSuppress(minSdkVersion = 16, maxSdkVersion = 33)
+    public void scaledMaxFlingVelocity_hasAndroidResForNoFling_realRotaryEncoderDevice_apiPre34() {
+        InputDevice rotaryEncoderDevice = findInputDevice(SOURCE_ROTARY_ENCODER);
+        if (rotaryEncoderDevice == null) {
+            return;
+        }
+        int deviceId = rotaryEncoderDevice.getId();
         mockAndroidResource("config_viewMaxRotaryEncoderFlingVelocity", "dimen", 1);
         when(mResourcesMock.getDimensionPixelSize(1)).thenReturn(-1);
         mContext = spy(mContext);
@@ -172,7 +206,53 @@ public class ViewConfigurationCompatTest {
         assertEquals(
                 Integer.MIN_VALUE,
                 ViewConfigurationCompat.getScaledMaximumFlingVelocity(
-                        mContext, mViewConfigMock, 1, AXIS_SCROLL, SOURCE_ROTARY_ENCODER));
+                        mContext, mViewConfigMock, deviceId, AXIS_SCROLL, SOURCE_ROTARY_ENCODER));
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 16, maxSdkVersion = 33)
+    public void scaledFlingThresholds_invalidInputDeviceParameters_apiPre34() {
+        assertFlingThresholds(
+                mViewConfigMock,
+                -10, // Bad InputDevice ID.
+                AXIS_X,
+                SOURCE_TOUCHSCREEN,
+                Integer.MAX_VALUE,
+                Integer.MIN_VALUE);
+
+        InputDevice touchScreenDevice = findInputDevice(SOURCE_TOUCHSCREEN);
+        if (touchScreenDevice == null) {
+            return;
+        }
+
+        assertFlingThresholds(
+                mViewConfigMock,
+                touchScreenDevice.getId(),
+                /* axis= */ -1, // Axis cannot be a negative value.
+                SOURCE_TOUCHSCREEN,
+                Integer.MAX_VALUE,
+                Integer.MIN_VALUE);
+        assertFlingThresholds(
+                mViewConfigMock,
+                touchScreenDevice.getId(),
+                AXIS_SCROLL, // Touch does not report on AXIS_SCROLL.
+                SOURCE_TOUCHSCREEN,
+                Integer.MAX_VALUE,
+                Integer.MIN_VALUE);
+        assertFlingThresholds(
+                mViewConfigMock,
+                touchScreenDevice.getId(),
+                AXIS_X,
+                /* source = */ -1, // Source cannot be a negative value.
+                Integer.MAX_VALUE,
+                Integer.MIN_VALUE);
+        assertFlingThresholds(
+                mViewConfigMock,
+                touchScreenDevice.getId(),
+                AXIS_X,
+                SOURCE_ROTARY_ENCODER, // Touch does not have rotary encoder source.
+                Integer.MAX_VALUE,
+                Integer.MIN_VALUE);
     }
 
     @Test
