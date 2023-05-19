@@ -32,10 +32,12 @@ import androidx.core.os.BuildCompat
 import androidx.core.os.asOutcomeReceiver
 import androidx.privacysandbox.sdkruntime.client.activity.LocalSdkActivityStarter
 import androidx.privacysandbox.sdkruntime.client.config.LocalSdkConfigsHolder
+import androidx.privacysandbox.sdkruntime.client.controller.AppOwnedSdkRegistry
 import androidx.privacysandbox.sdkruntime.client.controller.LocalController
 import androidx.privacysandbox.sdkruntime.client.controller.LocallyLoadedSdks
 import androidx.privacysandbox.sdkruntime.client.loader.SdkLoader
 import androidx.privacysandbox.sdkruntime.core.AdServicesInfo
+import androidx.privacysandbox.sdkruntime.core.AppOwnedSdkSandboxInterfaceCompat
 import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException
 import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException.Companion.LOAD_SDK_ALREADY_LOADED
 import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException.Companion.LOAD_SDK_NOT_FOUND
@@ -93,6 +95,7 @@ class SdkSandboxManagerCompat private constructor(
     private val platformApi: PlatformApi,
     private val configHolder: LocalSdkConfigsHolder,
     private val localLocallyLoadedSdks: LocallyLoadedSdks,
+    private val appOwnedSdkRegistry: AppOwnedSdkRegistry,
     private val sdkLoader: SdkLoader
 ) {
     /**
@@ -208,6 +211,37 @@ class SdkSandboxManagerCompat private constructor(
         val localResult = localLocallyLoadedSdks.getLoadedSdks()
         return platformResult + localResult
     }
+
+    /**
+     * Registers [AppOwnedSdkSandboxInterfaceCompat] for an app process.
+     *
+     * Registering an [AppOwnedSdkSandboxInterfaceCompat] that has same name as a previously
+     * registered interface will result in [IllegalStateException].
+     *
+     * [AppOwnedSdkSandboxInterfaceCompat.name] refers to the name of the interface.
+     *
+     * @param appOwnedSdk the [AppOwnedSdkSandboxInterfaceCompat] to be registered
+     */
+    fun registerAppOwnedSdkSandboxInterface(appOwnedSdk: AppOwnedSdkSandboxInterfaceCompat) {
+        appOwnedSdkRegistry.registerAppOwnedSdkSandboxInterface(appOwnedSdk)
+    }
+
+    /**
+     * Unregisters [AppOwnedSdkSandboxInterfaceCompat] for an app process.
+     *
+     * @param sdkName the name under which [AppOwnedSdkSandboxInterfaceCompat] was registered.
+     */
+    fun unregisterAppOwnedSdkSandboxInterface(sdkName: String) {
+        appOwnedSdkRegistry.unregisterAppOwnedSdkSandboxInterface(sdkName)
+    }
+
+    /**
+     * Fetches all [AppOwnedSdkSandboxInterfaceCompat] that are registered by the app.
+     *
+     * @return List of all currently registered [AppOwnedSdkSandboxInterfaceCompat]
+     */
+    fun getAppOwnedSdkSandboxInterfaces(): List<AppOwnedSdkSandboxInterfaceCompat> =
+        appOwnedSdkRegistry.getAppOwnedSdkSandboxInterfaces()
 
     /**
      * Starts an [Activity] in the SDK sandbox.
@@ -417,6 +451,7 @@ class SdkSandboxManagerCompat private constructor(
                         platformApi,
                         configHolder,
                         localSdks,
+                        AppOwnedSdkRegistry.create(context),
                         sdkLoader
                     )
                     sInstances[context] = WeakReference(instance)
@@ -437,7 +472,7 @@ class SdkSandboxManagerCompat private constructor(
         @SuppressLint("NewApi", "ClassVerificationFailure")
         @OptIn(markerClass = [BuildCompat.PrereleaseSdkCheck::class])
         fun create(context: Context): PlatformApi {
-            return if (BuildCompat.isAtLeastU()) {
+            return if (BuildCompat.isAtLeastU() || AdServicesInfo.isDeveloperPreview()) {
                 ApiAdServicesUDCImpl(context)
             } else if (AdServicesInfo.isAtLeastV5()) {
                 ApiAdServicesV5Impl(context)

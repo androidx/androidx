@@ -27,6 +27,7 @@ import androidx.privacysandbox.sdkruntime.client.config.LocalSdkConfig
 import androidx.privacysandbox.sdkruntime.client.loader.impl.SandboxedSdkContextCompat
 import androidx.privacysandbox.sdkruntime.client.loader.storage.TestLocalSdkStorage
 import androidx.privacysandbox.sdkruntime.client.loader.storage.toClassPathString
+import androidx.privacysandbox.sdkruntime.core.AppOwnedSdkSandboxInterfaceCompat
 import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException
 import androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat
 import androidx.privacysandbox.sdkruntime.core.SandboxedSdkInfo
@@ -388,6 +389,10 @@ internal class LocalSdkProviderTest(
 
         override fun getSandboxedSdks(): List<SandboxedSdkCompat> {
             return sandboxedSdksResult
+        }
+
+        override fun getAppOwnedSdkSandboxInterfaces(): List<AppOwnedSdkSandboxInterfaceCompat> {
+            throw IllegalStateException("Should not be called in this test")
         }
 
         override fun registerSdkSandboxActivityHandler(
