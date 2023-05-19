@@ -256,7 +256,15 @@ public final class JoinSpec {
         }
 
         /**
-         * Further filters the documents being joined.
+         * Sets the query and the SearchSpec for the documents being joined. This will score and
+         * rank the joined documents as well as filter the joined documents.
+         *
+         * <p>If {@link SearchSpec.RankingStrategy#RANKING_STRATEGY_JOIN_AGGREGATE_SCORE} is set in
+         * the outer {@link SearchSpec}, the resulting signals will be used to rank the parent
+         * documents. Note that the aggregation strategy also needs to be set with
+         * {@link JoinSpec.Builder#setAggregationScoringStrategy}, otherwise the default will be
+         * {@link JoinSpec#AGGREGATION_SCORING_OUTER_RESULT_RANKING_SIGNAL}, which will just use
+         * the parent documents ranking signal.
          *
          * <p> If this method is never called, {@link JoinSpec#getNestedQuery} will return an empty
          * string, meaning we will join with every possible document that matches the equality
