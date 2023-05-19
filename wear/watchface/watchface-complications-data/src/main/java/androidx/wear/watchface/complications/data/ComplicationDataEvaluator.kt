@@ -24,16 +24,13 @@ import androidx.annotation.MainThread
 import androidx.annotation.RestrictTo
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat
 import androidx.wear.protolayout.expression.PlatformDataKey
-import androidx.wear.protolayout.expression.PlatformHealthSources
 import androidx.wear.protolayout.expression.pipeline.BoundDynamicType
 import androidx.wear.protolayout.expression.pipeline.DynamicTypeBindingRequest
 import androidx.wear.protolayout.expression.pipeline.DynamicTypeEvaluator
 import androidx.wear.protolayout.expression.pipeline.DynamicTypeValueReceiver
-import androidx.wear.protolayout.expression.pipeline.SensorGatewaySingleDataProvider
+import androidx.wear.protolayout.expression.pipeline.PlatformDataProvider
 import androidx.wear.protolayout.expression.pipeline.StateStore
 import androidx.wear.protolayout.expression.pipeline.TimeGateway
-import androidx.wear.protolayout.expression.pipeline.sensor.SensorGateway
-import java.util.Collections
 import java.util.concurrent.Executor
 import kotlin.coroutines.ContinuationInterceptor
 import kotlin.coroutines.CoroutineContext
@@ -60,8 +57,7 @@ import kotlinx.coroutines.launch
 class ComplicationDataEvaluator(
     private val stateStore: StateStore? = StateStore(emptyMap()),
     private val timeGateway: TimeGateway? = null,
-    // TODO(b/281664278): remove the SensorGateway usage, implement PlatformDataProvider instead.
-    private val sensorGateway: SensorGateway? = null,
+    private val platformDataProviders: Map<PlatformDataProvider, Set<PlatformDataKey<*>>> = mapOf(),
     private val keepDynamicValues: Boolean = false,
 ) {
     /**
@@ -302,23 +298,8 @@ class ComplicationDataEvaluator(
                         .apply { stateStore?.let { setStateStore(it) } }
                         .apply { timeGateway?.let { setTimeGateway(it) } }
                         .apply {
-                            sensorGateway?.let {
-                                addPlatformDataProvider(
-                                    SensorGatewaySingleDataProvider(
-                                        sensorGateway,
-                                        PlatformHealthSources.Keys.HEART_RATE_BPM
-                                    ),
-                                    Collections.singleton(PlatformHealthSources.Keys.HEART_RATE_BPM)
-                                        as Set<PlatformDataKey<*>>
-                                )
-                                addPlatformDataProvider(
-                                    SensorGatewaySingleDataProvider(
-                                        sensorGateway,
-                                        PlatformHealthSources.Keys.DAILY_STEPS
-                                    ),
-                                    Collections.singleton(PlatformHealthSources.Keys.DAILY_STEPS)
-                                        as Set<PlatformDataKey<*>>
-                                )
+                            for ((platformDataProvider, dataKeys) in platformDataProviders) {
+                                addPlatformDataProvider(platformDataProvider, dataKeys)
                             }
                         }
                         .build()
