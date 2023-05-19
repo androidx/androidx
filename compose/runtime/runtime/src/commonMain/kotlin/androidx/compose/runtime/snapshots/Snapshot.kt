@@ -63,6 +63,13 @@ sealed class Snapshot(
     open var id: Int = id
         internal set
 
+    internal open var writeCount: Int
+        get() = 0
+        @Suppress("UNUSED_PARAMETER")
+        set(value) {
+            error("Updating write count is not supported for this snapshot")
+        }
+
     /**
      * The root snapshot for this snapshot. For non-nested snapshots this is always `this`. For
      * nested snapshot it is the parent's [root].
@@ -1021,6 +1028,8 @@ open class MutableSnapshot internal constructor(
         (modified ?: IdentityArraySet<StateObject>().also { modified = it }).add(state)
     }
 
+    override var writeCount: Int = 0
+
     override var modified: IdentityArraySet<StateObject>? = null
 
     internal var merged: List<StateObject>? = null
@@ -1500,6 +1509,12 @@ internal class TransparentObserverMutableSnapshot(
         get() = currentSnapshot.modified
         @Suppress("UNUSED_PARAMETER")
         set(value) = unsupported()
+
+    override var writeCount: Int
+        get() = currentSnapshot.writeCount
+        set(value) {
+            currentSnapshot.writeCount = value
+        }
 
     override val readOnly: Boolean
         get() = currentSnapshot.readOnly
@@ -2132,6 +2147,7 @@ internal fun <T : StateRecord> T.newOverwritableRecordLocked(state: StateObject)
 
 @PublishedApi
 internal fun notifyWrite(snapshot: Snapshot, state: StateObject) {
+    snapshot.writeCount += 1
     snapshot.writeObserver?.invoke(state)
 }
 
