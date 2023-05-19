@@ -16,6 +16,7 @@
 
 package androidx.wear.compose.material
 
+import android.os.Build
 import android.text.format.DateFormat
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
@@ -32,8 +33,10 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.sp
+import androidx.test.filters.SdkSuppress
 import androidx.wear.compose.foundation.curvedComposable
 import java.util.Calendar
+import java.util.Locale
 import java.util.TimeZone
 import org.junit.Assert.assertEquals
 import org.junit.Rule
@@ -503,7 +506,8 @@ class TimeTextTest {
         rule.setContent {
             MaterialTheme(
                 typography = MaterialTheme.typography.copy(
-                    caption1 = testTextStyle)
+                    caption1 = testTextStyle
+                )
             ) {
                 ConfiguredShapeScreen(false) {
                     TimeText(
@@ -555,6 +559,23 @@ class TimeSourceTest {
                 { currentTimeInMillis },
                 TimeTextDefaults.TimeFormat12Hours
             ).value
+        }
+        assertEquals(expectedTime, actualTime)
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.R)
+    @Test
+    fun formats_current_time_12H_french_locale() {
+        val currentTimeInMillis = 1631544258000L // 2021-09-13 14:44:18
+        val expectedTime = "2 h 44"
+        TimeZone.setDefault(TimeZone.getTimeZone("UTC"))
+
+        var actualTime: String? = null
+        Locale.setDefault(Locale.CANADA_FRENCH)
+
+        rule.setContentWithTheme {
+            val format = TimeTextDefaults.timeFormat()
+            actualTime = currentTime({ currentTimeInMillis }, format).value
         }
         assertEquals(expectedTime, actualTime)
     }
