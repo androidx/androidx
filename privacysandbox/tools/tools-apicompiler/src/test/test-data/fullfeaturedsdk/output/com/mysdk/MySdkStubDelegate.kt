@@ -186,7 +186,7 @@ public class MySdkStubDelegate internal constructor(
     val job = coroutineScope.launch {
       try {
         val result = delegate.returnSdkActivityLauncher()
-        transactionCallback.onSuccess((result as SdkActivityLauncherAndBinderWrapper).launcherInfo)
+        transactionCallback.onSuccess(SdkActivityLauncherAndBinderWrapper.getLauncherInfo(result))
       }
       catch (t: Throwable) {
         transactionCallback.onFailure(toThrowableParcel(t))

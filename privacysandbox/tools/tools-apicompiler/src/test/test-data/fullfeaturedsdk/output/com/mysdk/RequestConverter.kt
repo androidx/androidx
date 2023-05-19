@@ -31,8 +31,8 @@ public class RequestConverter(
         parcelable.myUiInterface =
                 IMyUiInterfaceCoreLibInfoAndBinderWrapperConverter.toParcelable(annotatedValue.myUiInterface.toCoreLibInfo(context),
                 MyUiInterfaceStubDelegate(annotatedValue.myUiInterface, context))
-        parcelable.activityLauncher = (annotatedValue.activityLauncher as
-                SdkActivityLauncherAndBinderWrapper).launcherInfo
+        parcelable.activityLauncher =
+                SdkActivityLauncherAndBinderWrapper.getLauncherInfo(annotatedValue.activityLauncher)
         return parcelable
     }
 }
