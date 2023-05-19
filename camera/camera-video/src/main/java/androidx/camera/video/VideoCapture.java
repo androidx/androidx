@@ -443,7 +443,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
     // that will be sent to the VideoOutput. That should always be retrieved from the StreamSpec
     // since that will be the final DynamicRange chosen by the camera based on other use case
     // combinations.
-    @RestrictTo(Scope.LIBRARY)
     @NonNull
     public DynamicRange getDynamicRange() {
         return getCurrentConfig().hasDynamicRange() ? getCurrentConfig().getDynamicRange() :
@@ -1682,7 +1681,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
          * @return The current Builder.
          * @see DynamicRange
          */
-        @RestrictTo(Scope.LIBRARY)
         @NonNull
         @Override
         public Builder<T> setDynamicRange(@NonNull DynamicRange dynamicRange) {

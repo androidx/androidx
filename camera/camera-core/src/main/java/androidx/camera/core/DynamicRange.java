@@ -47,7 +47,6 @@ import java.lang.annotation.RetentionPolicy;
  * @see androidx.camera.video.VideoCapture.Builder#setDynamicRange(DynamicRange)
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class DynamicRange {
     /**
      * An unspecified dynamic range encoding which allows the device to determine the underlying

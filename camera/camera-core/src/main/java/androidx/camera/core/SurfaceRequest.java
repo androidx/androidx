@@ -338,7 +338,6 @@ public final class SurfaceRequest {
      * {@link android.graphics.ImageFormat#PRIVATE} or
      * {@link android.graphics.ImageFormat#YCBCR_P010}.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @NonNull
     public DynamicRange getDynamicRange() {
         return mDynamicRange;
