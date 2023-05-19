@@ -526,7 +526,8 @@ class SupportedSurfaceCombinationTest {
     @Test
     fun checkConcurrentSurfaceCombinationSupportedInConcurrentCameraMode() {
         shadowOf(context.packageManager).setSystemFeature(
-            FEATURE_CAMERA_CONCURRENT, true)
+            FEATURE_CAMERA_CONCURRENT, true
+        )
         setupCameraAndInitCameraX(
             hardwareLevel = CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_3
         )
@@ -546,7 +547,8 @@ class SupportedSurfaceCombinationTest {
     @Test
     fun checkConcurrentSurfaceCombinationSubListSupportedInConcurrentCameraMode() {
         shadowOf(context.packageManager).setSystemFeature(
-            FEATURE_CAMERA_CONCURRENT, true)
+            FEATURE_CAMERA_CONCURRENT, true
+        )
         setupCameraAndInitCameraX(
             hardwareLevel = CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_3
         )
@@ -554,8 +556,11 @@ class SupportedSurfaceCombinationTest {
             context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
         )
         GuaranteedConfigurationsUtil.getConcurrentSupportedCombinationList().also {
-            assertThat(isAllSubConfigListSupported(
-                CameraMode.CONCURRENT_CAMERA, supportedSurfaceCombination, it)).isTrue()
+            assertThat(
+                isAllSubConfigListSupported(
+                    CameraMode.CONCURRENT_CAMERA, supportedSurfaceCombination, it
+                )
+            ).isTrue()
         }
     }
 
@@ -600,8 +605,11 @@ class SupportedSurfaceCombinationTest {
             context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
         )
         GuaranteedConfigurationsUtil.getUltraHighResolutionSupportedCombinationList().also {
-            assertThat(isAllSubConfigListSupported(
-                CameraMode.ULTRA_HIGH_RESOLUTION_CAMERA, supportedSurfaceCombination, it)).isTrue()
+            assertThat(
+                isAllSubConfigListSupported(
+                    CameraMode.ULTRA_HIGH_RESOLUTION_CAMERA, supportedSurfaceCombination, it
+                )
+            ).isTrue()
         }
     }
 
@@ -2749,7 +2757,8 @@ class SupportedSurfaceCombinationTest {
     @Test
     fun generateCorrectSurfaceDefinition() {
         shadowOf(context.packageManager).setSystemFeature(
-            FEATURE_CAMERA_CONCURRENT, true)
+            FEATURE_CAMERA_CONCURRENT, true
+        )
         setupCameraAndInitCameraX()
         val supportedSurfaceCombination = SupportedSurfaceCombination(
             context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
@@ -2790,7 +2799,8 @@ class SupportedSurfaceCombinationTest {
     @Test
     fun correctS720pSize_withSmallerOutputSizes() {
         shadowOf(context.packageManager).setSystemFeature(
-            FEATURE_CAMERA_CONCURRENT, true)
+            FEATURE_CAMERA_CONCURRENT, true
+        )
         setupCameraAndInitCameraX(
             supportedSizes = arrayOf(RESOLUTION_VGA)
         )
@@ -2810,7 +2820,8 @@ class SupportedSurfaceCombinationTest {
     @Test
     fun correctS1440pSize_withSmallerOutputSizes() {
         shadowOf(context.packageManager).setSystemFeature(
-            FEATURE_CAMERA_CONCURRENT, true)
+            FEATURE_CAMERA_CONCURRENT, true
+        )
         setupCameraAndInitCameraX(
             supportedSizes = arrayOf(RESOLUTION_VGA)
         )
@@ -3083,6 +3094,107 @@ class SupportedSurfaceCombinationTest {
         ).isFalse()
     }
 
+    @Config(minSdk = Build.VERSION_CODES.TIRAMISU)
+    @Test
+    fun populateStreamUseCaseStreamSpecOptionWithSupportedSurfaceConfigs_differentMaxSize() {
+        val useCase1 =
+            createUseCase(CaptureType.PREVIEW) // VIDEO
+        val useCaseExpectedResultMap = mutableMapOf<UseCase, Size>().apply {
+            put(useCase1, MAXIMUM_SIZE)
+        }
+        val resultPair = getSuggestedSpecsAndVerify(
+            useCaseExpectedResultMap, hardwareLevel = INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED
+        )
+        // In this case, the stream use case path and limited path would produce two different max
+        // sizes, resulting in the stream use case path being dropped.
+        assertThat(
+            resultPair.first[useCase1.currentConfig]!!.implementationOptions!!.containsOption(
+                StreamUseCaseUtil.STREAM_USE_CASE_STREAM_SPEC_OPTION
+            )
+        ).isFalse()
+    }
+
+    @Config(minSdk = Build.VERSION_CODES.TIRAMISU)
+    @Test
+    fun populateStreamUseCaseStreamSpecOptionWithSupportedSurfaceConfigs_success() {
+        val useCase1 =
+            createUseCase(CaptureType.VIDEO_CAPTURE) // VIDEO
+        val useCase2 =
+            createUseCase(CaptureType.PREVIEW) // PREVIEW
+        val useCaseExpectedResultMap = mutableMapOf<UseCase, Size>().apply {
+            put(useCase1, RECORD_SIZE)
+            put(useCase2, PREVIEW_SIZE)
+        }
+        val resultPair = getSuggestedSpecsAndVerify(
+            useCaseExpectedResultMap,
+            hardwareLevel = INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED
+        )
+        assertThat(
+            resultPair.first[useCase1.currentConfig]!!.implementationOptions!!.retrieveOption(
+                StreamUseCaseUtil.STREAM_USE_CASE_STREAM_SPEC_OPTION
+            )
+        ).isEqualTo(CameraMetadata.SCALER_AVAILABLE_STREAM_USE_CASES_VIDEO_RECORD)
+        assertThat(
+            resultPair.first[useCase2.currentConfig]!!.implementationOptions!!.retrieveOption(
+                StreamUseCaseUtil.STREAM_USE_CASE_STREAM_SPEC_OPTION
+            )
+        ).isEqualTo(CameraMetadata.SCALER_AVAILABLE_STREAM_USE_CASES_PREVIEW)
+    }
+
+    @Config(minSdk = Build.VERSION_CODES.TIRAMISU)
+    @Test
+    fun populateStreamUseCaseStreamSpecOptionWithSupportedSurfaceConfigs_wrongImageFormat() {
+        val useCase1 =
+            createUseCase(CaptureType.VIDEO_CAPTURE) // VIDEO
+        val useCase2 =
+            createUseCase(CaptureType.PREVIEW, imageFormat = ImageFormat.JPEG) // PREVIEW
+        val useCaseExpectedResultMap = mutableMapOf<UseCase, Size>().apply {
+            put(useCase1, RECORD_SIZE)
+            put(useCase2, RECORD_SIZE)
+        }
+        val resultPair = getSuggestedSpecsAndVerify(
+            useCaseExpectedResultMap,
+            hardwareLevel = INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED
+        )
+        assertThat(
+            resultPair.first[useCase1.currentConfig]!!.implementationOptions!!.containsOption(
+                StreamUseCaseUtil.STREAM_USE_CASE_STREAM_SPEC_OPTION
+            )
+        ).isFalse()
+        assertThat(
+            resultPair.first[useCase1.currentConfig]!!.implementationOptions!!.containsOption(
+                StreamUseCaseUtil.STREAM_USE_CASE_STREAM_SPEC_OPTION
+            )
+        ).isFalse()
+    }
+
+    @Config(minSdk = Build.VERSION_CODES.TIRAMISU)
+    @Test
+    fun populateStreamUseCaseStreamSpecOptionWithSupportedSurfaceConfigs_wrongCaptureType() {
+        val useCase1 =
+            createUseCase(CaptureType.PREVIEW) // PREVIEW
+        val useCase2 =
+            createUseCase(CaptureType.PREVIEW) // PREVIEW
+        val useCaseExpectedResultMap = mutableMapOf<UseCase, Size>().apply {
+            put(useCase1, RECORD_SIZE)
+            put(useCase2, PREVIEW_SIZE)
+        }
+        val resultPair = getSuggestedSpecsAndVerify(
+            useCaseExpectedResultMap,
+            hardwareLevel = INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED
+        )
+        assertThat(
+            resultPair.first[useCase1.currentConfig]!!.implementationOptions!!.containsOption(
+                StreamUseCaseUtil.STREAM_USE_CASE_STREAM_SPEC_OPTION
+            )
+        ).isFalse()
+        assertThat(
+            resultPair.first[useCase1.currentConfig]!!.implementationOptions!!.containsOption(
+                StreamUseCaseUtil.STREAM_USE_CASE_STREAM_SPEC_OPTION
+            )
+        ).isFalse()
+    }
+
     /**
      * Sets up camera according to the specified settings and initialize [CameraX].
      *
@@ -3205,58 +3317,76 @@ class SupportedSurfaceCombinationTest {
 
             // setup to return different minimum frame durations depending on resolution
             // minimum frame durations were designated only for the purpose of testing
-            Mockito.`when`(map.getOutputMinFrameDuration(
-                ArgumentMatchers.anyInt(),
-                ArgumentMatchers.eq(Size(4032, 3024))
-            ))
+            Mockito.`when`(
+                map.getOutputMinFrameDuration(
+                    ArgumentMatchers.anyInt(),
+                    ArgumentMatchers.eq(Size(4032, 3024))
+                )
+            )
                 .thenReturn(50000000L) // 20 fps, size maximum
 
-            Mockito.`when`(map.getOutputMinFrameDuration(
-                ArgumentMatchers.anyInt(),
-                ArgumentMatchers.eq(Size(3840, 2160))
-            ))
+            Mockito.`when`(
+                map.getOutputMinFrameDuration(
+                    ArgumentMatchers.anyInt(),
+                    ArgumentMatchers.eq(Size(3840, 2160))
+                )
+            )
                 .thenReturn(40000000L) // 25, size record
 
-            Mockito.`when`(map.getOutputMinFrameDuration(
-                ArgumentMatchers.anyInt(),
-                ArgumentMatchers.eq(Size(1920, 1440))
-            ))
+            Mockito.`when`(
+                map.getOutputMinFrameDuration(
+                    ArgumentMatchers.anyInt(),
+                    ArgumentMatchers.eq(Size(1920, 1440))
+                )
+            )
                 .thenReturn(33333333L) // 30
 
-            Mockito.`when`(map.getOutputMinFrameDuration(
-                ArgumentMatchers.anyInt(),
-                ArgumentMatchers.eq(Size(1920, 1080))
-            ))
+            Mockito.`when`(
+                map.getOutputMinFrameDuration(
+                    ArgumentMatchers.anyInt(),
+                    ArgumentMatchers.eq(Size(1920, 1080))
+                )
+            )
                 .thenReturn(28571428L) // 35
 
-            Mockito.`when`(map.getOutputMinFrameDuration(
-                ArgumentMatchers.anyInt(),
-                ArgumentMatchers.eq(Size(1280, 960))
-            ))
+            Mockito.`when`(
+                map.getOutputMinFrameDuration(
+                    ArgumentMatchers.anyInt(),
+                    ArgumentMatchers.eq(Size(1280, 960))
+                )
+            )
                 .thenReturn(25000000L) // 40
 
-            Mockito.`when`(map.getOutputMinFrameDuration(
-                ArgumentMatchers.anyInt(),
-                ArgumentMatchers.eq(Size(1280, 720))
-            ))
+            Mockito.`when`(
+                map.getOutputMinFrameDuration(
+                    ArgumentMatchers.anyInt(),
+                    ArgumentMatchers.eq(Size(1280, 720))
+                )
+            )
                 .thenReturn(22222222L) // 45, size preview/display
 
-            Mockito.`when`(map.getOutputMinFrameDuration(
-                ArgumentMatchers.anyInt(),
-                ArgumentMatchers.eq(Size(960, 544))
-            ))
+            Mockito.`when`(
+                map.getOutputMinFrameDuration(
+                    ArgumentMatchers.anyInt(),
+                    ArgumentMatchers.eq(Size(960, 544))
+                )
+            )
                 .thenReturn(20000000L) // 50
 
-            Mockito.`when`(map.getOutputMinFrameDuration(
-                ArgumentMatchers.anyInt(),
-                ArgumentMatchers.eq(Size(800, 450))
-            ))
+            Mockito.`when`(
+                map.getOutputMinFrameDuration(
+                    ArgumentMatchers.anyInt(),
+                    ArgumentMatchers.eq(Size(800, 450))
+                )
+            )
                 .thenReturn(16666666L) // 60fps
 
-            Mockito.`when`(map.getOutputMinFrameDuration(
-                ArgumentMatchers.anyInt(),
-                ArgumentMatchers.eq(Size(640, 480))
-            ))
+            Mockito.`when`(
+                map.getOutputMinFrameDuration(
+                    ArgumentMatchers.anyInt(),
+                    ArgumentMatchers.eq(Size(640, 480))
+                )
+            )
                 .thenReturn(16666666L) // 60fps
 
             // Sets up the supported high resolution sizes
@@ -3268,7 +3398,8 @@ class SupportedSurfaceCombinationTest {
 
         val maximumResolutionMap = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S &&
             (maximumResolutionSupportedSizes != null ||
-                maximumResolutionHighResolutionSupportedSizes != null)) {
+                maximumResolutionHighResolutionSupportedSizes != null)
+        ) {
             Mockito.mock(StreamConfigurationMap::class.java).also {
                 Mockito.`when`(it.getOutputSizes(ArgumentMatchers.anyInt()))
                     .thenReturn(maximumResolutionSupportedSizes)
@@ -3289,7 +3420,8 @@ class SupportedSurfaceCombinationTest {
             Range(30, 40),
             Range(30, 60),
             Range(50, 60),
-            Range(60, 60))
+            Range(60, 60)
+        )
 
         val characteristics = ShadowCameraCharacteristics.newCameraCharacteristics()
         Shadow.extract<ShadowCameraCharacteristics>(characteristics).apply {
@@ -3413,15 +3545,18 @@ class SupportedSurfaceCombinationTest {
         captureType: CaptureType,
         targetFrameRate: Range<Int>? = null,
         dynamicRange: DynamicRange = DynamicRange.UNSPECIFIED,
-        streamUseCaseOverride: Boolean
+        streamUseCaseOverride: Boolean = false,
+        imageFormat: Int? = null
     ): UseCase {
         val builder = FakeUseCaseConfig.Builder(
-            captureType, when (captureType) {
-                CaptureType.PREVIEW -> ImageFormat.PRIVATE
-                CaptureType.IMAGE_CAPTURE -> ImageFormat.JPEG
-                CaptureType.IMAGE_ANALYSIS -> ImageFormat.YUV_420_888
-                else -> INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE
-            }
+            captureType, imageFormat
+                ?: when (captureType) {
+                    CaptureType.PREVIEW -> ImageFormat.PRIVATE
+                    CaptureType.IMAGE_CAPTURE -> ImageFormat.JPEG
+                    CaptureType.IMAGE_ANALYSIS -> ImageFormat.YUV_420_888
+                    CaptureType.VIDEO_CAPTURE -> ImageFormat.PRIVATE
+                    else -> INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE
+                }
         )
         targetFrameRate?.let {
             builder.mutableConfig.insertOption(UseCaseConfig.OPTION_TARGET_FRAME_RATE, it)

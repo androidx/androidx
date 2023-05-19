@@ -131,7 +131,9 @@ class SupportedSurfaceCombination(
         // TODO(b/262772650): camera-pipe support for concurrent camera
         val targetSurfaceCombinations = getSurfaceCombinationsByCameraMode(cameraMode)
         for (surfaceCombination in targetSurfaceCombinations) {
-            if (surfaceCombination.isSupported(surfaceConfigList)) {
+            if (surfaceCombination
+                    .getOrderedSupportedSurfaceConfigList(surfaceConfigList) != null
+            ) {
                 return true
             }
         }
