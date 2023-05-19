@@ -30,6 +30,7 @@ import android.content.Context;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters;
@@ -40,6 +41,7 @@ import androidx.wear.protolayout.ModifiersBuilders.Clickable;
 import androidx.wear.protolayout.ModifiersBuilders.ElementMetadata;
 import androidx.wear.protolayout.ModifiersBuilders.Modifiers;
 import androidx.wear.protolayout.expression.Fingerprint;
+import androidx.wear.protolayout.expression.ProtoLayoutExperimental;
 import androidx.wear.protolayout.proto.LayoutElementProto;
 
 /**
@@ -92,6 +94,7 @@ public class CompactChip implements LayoutElement {
         @NonNull private final Clickable mClickable;
         @NonNull private final DeviceParameters mDeviceParameters;
         @NonNull private ChipColors mChipColors = COMPACT_PRIMARY_COLORS;
+        private boolean mIsFontPaddingExcluded = false;
 
         /**
          * Creates a builder for the {@link CompactChip} with associated action and the given text
@@ -125,9 +128,24 @@ public class CompactChip implements LayoutElement {
             return this;
         }
 
+        /**
+         * Sets whether the font padding is excluded or not. If not set, default to false, meaning
+         * that text will have font padding included.
+         *
+         * <p>Setting this to {@code true} will perfectly align the text label.
+         */
+        @NonNull
+        @ProtoLayoutExperimental
+        @SuppressWarnings("MissingGetterMatchingBuilder")
+        public Builder setExcludeFontPadding(boolean excluded) {
+            this.mIsFontPaddingExcluded = excluded;
+            return this;
+        }
+
         /** Constructs and returns {@link CompactChip} with the provided content and look. */
         @NonNull
         @Override
+        @OptIn(markerClass = ProtoLayoutExperimental.class)
         public CompactChip build() {
             Chip.Builder chipBuilder =
                     new Chip.Builder(mContext, mClickable, mDeviceParameters)
@@ -141,6 +159,7 @@ public class CompactChip implements LayoutElement {
                             .setHorizontalPadding(COMPACT_HORIZONTAL_PADDING)
                             .setPrimaryLabelContent(mText)
                             .setPrimaryLabelTypography(Typography.TYPOGRAPHY_CAPTION1)
+                            .setPrimaryLabelExcludeFontPadding(mIsFontPaddingExcluded)
                             .setIsPrimaryLabelScalable(false);
 
             Box tappableChip =
@@ -216,6 +235,14 @@ public class CompactChip implements LayoutElement {
 
         // Now we are sure that this element is a CompactChip.
         return new CompactChip(boxElement);
+    }
+
+    /**
+     *  Returns whether the font padding for the primary label is excluded.
+     */
+    @ProtoLayoutExperimental
+    public boolean hasExcludeFontPadding() {
+        return mElement.hasPrimaryLabelExcludeFontPadding();
     }
 
     @RestrictTo(Scope.LIBRARY_GROUP)

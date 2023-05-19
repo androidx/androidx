@@ -215,7 +215,7 @@ public class TextTest {
         assertThat(actualText.getMaxLines()).isEqualTo(2);
         assertThat(actualText.getLineHeight())
                 .isEqualTo(getLineHeightForTypography(TYPOGRAPHY_TITLE1).getValue());
-        assertThat(actualText.getExcludeFontPadding()).isTrue();
+        assertThat(actualText.hasExcludeFontPadding()).isTrue();
     }
 
     private void assertFontStyle(

@@ -75,9 +75,12 @@ public class TestCasesGenerator {
         HashMap<String, LayoutElement> testCases = new HashMap<>();
 
         TitleChip content =
-                new TitleChip.Builder(context, "Action", clickable, deviceParameters).build();
+                new TitleChip.Builder(context, "Action", clickable, deviceParameters)
+                        .setExcludeFontPadding(true)
+                        .build();
         CompactChip.Builder primaryChipBuilder =
-                new CompactChip.Builder(context, "Action", clickable, deviceParameters);
+                new CompactChip.Builder(context, "Action", clickable, deviceParameters)
+                        .setExcludeFontPadding(true);
 
         testCases.put(
                 "default_empty_primarychiplayout_golden" + goldenSuffix,
@@ -93,6 +96,7 @@ public class TestCasesGenerator {
                                                 "Too_long_textToo_long_textToo_long_text",
                                                 clickable,
                                                 deviceParameters)
+                                        .setExcludeFontPadding(true)
                                         .build())
                         .build());
         testCases.put(
@@ -162,7 +166,8 @@ public class TestCasesGenerator {
                         .build());
 
         primaryChipBuilder =
-                new CompactChip.Builder(context, "Action", clickable, deviceParameters);
+                new CompactChip.Builder(context, "Action", clickable, deviceParameters)
+                        .setExcludeFontPadding(true);
         testCases.put(
                 "coloredbox_1_chip_columnslayout_golden" + goldenSuffix,
                 new PrimaryLayout.Builder(deviceParameters)
