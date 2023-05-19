@@ -38,6 +38,7 @@ import androidx.appactions.interaction.capabilities.core.impl.converters.TypeCon
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeSpec
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpec
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
+import androidx.appactions.interaction.capabilities.core.impl.spec.BoundProperty
 import androidx.appactions.interaction.capabilities.core.properties.Property
 import androidx.appactions.interaction.capabilities.core.properties.StringValue
 import androidx.appactions.interaction.capabilities.core.testing.spec.Arguments
@@ -80,11 +81,10 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
-@Suppress("UNCHECKED_CAST")
 class TaskCapabilityImplTest {
     private val capability: Capability =
         createCapability<EmptyTaskUpdater>(
-            SINGLE_REQUIRED_FIELD_PROPERTY,
+            SINGLE_REQUIRED_FIELD_BOUND_PROPERTIES,
             sessionFactory =
             { _ ->
                 object : ExecutionSession {
@@ -124,12 +124,15 @@ class TaskCapabilityImplTest {
     fun appAction_computedProperty() {
         val mutableEntityList = mutableListOf<StringValue>()
         val capability = createCapability<EmptyTaskUpdater>(
-            mutableMapOf(
-                "required" to Property
-                    .Builder<StringValue>()
-                    .setPossibleValueSupplier(
-                        mutableEntityList::toList
-                    ).build()
+            listOf(
+                BoundProperty(
+                    "required",
+                    Property.Builder<StringValue>()
+                        .setPossibleValueSupplier(
+                            mutableEntityList::toList
+                        ).build(),
+                    TypeConverters.STRING_VALUE_ENTITY_CONVERTER
+                )
             ),
             sessionFactory =
             {
@@ -183,7 +186,7 @@ class TaskCapabilityImplTest {
         val externalSession = object : ExecutionSession {}
         val capability =
             createCapability(
-                SINGLE_REQUIRED_FIELD_PROPERTY,
+                SINGLE_REQUIRED_FIELD_BOUND_PROPERTIES,
                 { externalSession },
                 { TaskHandler.Builder<Arguments, Confirmation>().build() },
                 ::EmptyTaskUpdater
@@ -198,7 +201,7 @@ class TaskCapabilityImplTest {
         val onCreateInvocationCount = AtomicInteger(0)
         val capability: Capability =
             createCapability(
-                SINGLE_REQUIRED_FIELD_PROPERTY,
+                SINGLE_REQUIRED_FIELD_BOUND_PROPERTIES,
                 sessionFactory =
                 { _ ->
                     object : ExecutionSession {
@@ -289,7 +292,7 @@ class TaskCapabilityImplTest {
             }
         }
         val capability: Capability = createCapability(
-            SINGLE_REQUIRED_FIELD_PROPERTY,
+            SINGLE_REQUIRED_FIELD_BOUND_PROPERTIES,
             sessionFactory = { _ -> externalSession },
             sessionBridge = SessionBridge {
                 TaskHandler.Builder<Arguments, Confirmation>().build()
@@ -321,7 +324,7 @@ class TaskCapabilityImplTest {
     fun fulfillmentType_unknown_errorReported() {
         val capability: Capability =
             createCapability(
-                SINGLE_REQUIRED_FIELD_PROPERTY,
+                SINGLE_REQUIRED_FIELD_BOUND_PROPERTIES,
                 sessionFactory =
                 { _ ->
                     object : ExecutionSession {
@@ -361,13 +364,21 @@ class TaskCapabilityImplTest {
 
     @Test
     fun slotFilling_isActive_smokeTest() {
-        val property = mapOf(
-            "stringSlotA" to Property.Builder<StringValue>()
-                .setRequired(true)
-                .build(),
-            "stringSlotB" to Property.Builder<StringValue>()
-                .setRequired(true)
-                .build()
+        val boundProperties = listOf(
+            BoundProperty(
+                "stringSlotA",
+                Property.Builder<StringValue>()
+                    .setRequired(true)
+                    .build(),
+                TypeConverters.STRING_VALUE_ENTITY_CONVERTER
+            ),
+            BoundProperty(
+                "stringSlotB",
+                Property.Builder<StringValue>()
+                    .setRequired(true)
+                    .build(),
+                TypeConverters.STRING_VALUE_ENTITY_CONVERTER
+            )
         )
         val sessionFactory:
             (hostProperties: HostProperties?) -> CapabilityTwoStrings.ExecutionSession =
@@ -404,7 +415,7 @@ class TaskCapabilityImplTest {
             TaskCapabilityImpl(
                 "fakeId",
                 CapabilityTwoStrings.ACTION_SPEC,
-                property,
+                boundProperties,
                 sessionFactory,
                 sessionBridge,
                 ::EmptyTaskUpdater
@@ -454,13 +465,21 @@ class TaskCapabilityImplTest {
     @kotlin.Throws(Exception::class)
     fun slotFilling_optionalButRejectedParam_onFinishNotInvoked() {
         val onExecuteInvocationCount = AtomicInteger(0)
-        val property = mapOf(
-            "stringSlotA" to Property.Builder<StringValue>()
-                .setRequired(true)
-                .build(),
-            "stringSlotB" to Property.Builder<StringValue>()
-                .setRequired(false)
-                .build()
+        val boundProperties = listOf(
+            BoundProperty(
+                "stringSlotA",
+                Property.Builder<StringValue>()
+                    .setRequired(true)
+                    .build(),
+                TypeConverters.STRING_VALUE_ENTITY_CONVERTER
+            ),
+            BoundProperty(
+                "stringSlotB",
+                Property.Builder<StringValue>()
+                    .setRequired(false)
+                    .build(),
+                TypeConverters.STRING_VALUE_ENTITY_CONVERTER
+            )
         )
         val sessionFactory:
             (hostProperties: HostProperties?) -> CapabilityTwoStrings.ExecutionSession =
@@ -499,7 +518,7 @@ class TaskCapabilityImplTest {
             TaskCapabilityImpl(
                 "fakeId",
                 CapabilityTwoStrings.ACTION_SPEC,
-                property,
+                boundProperties,
                 sessionFactory,
                 sessionBridge,
                 ::EmptyTaskUpdater
@@ -543,19 +562,26 @@ class TaskCapabilityImplTest {
     @Test
     @kotlin.Throws(Exception::class)
     fun slotFilling_assistantRemovedParam_clearInSdkState() {
-        val property = mapOf(
-            "required" to
+        val boundProperties = listOf(
+            BoundProperty(
+                "required",
                 Property.Builder<StringValue>()
                     .setRequired(true)
                     .build(),
-            "optionalEnum" to Property.Builder<TestEnum>()
-                .setPossibleValues(TestEnum.VALUE_1, TestEnum.VALUE_2)
-                .setRequired(true)
-                .build()
+                TypeConverters.STRING_VALUE_ENTITY_CONVERTER
+            ),
+            BoundProperty(
+                "optionalEnum",
+                Property.Builder<TestEnum>()
+                    .setPossibleValues(TestEnum.VALUE_1, TestEnum.VALUE_2)
+                    .setRequired(true)
+                    .build(),
+                { Entity.newBuilder().setIdentifier(it.toString()).build() }
+            )
         )
         val capability: Capability =
             createCapability(
-                property,
+                boundProperties,
                 sessionFactory = { _ -> ExecutionSession.DEFAULT },
                 sessionBridge = SessionBridge {
                     TaskHandler.Builder<Arguments, Confirmation>().build()
@@ -609,7 +635,7 @@ class TaskCapabilityImplTest {
     fun disambig_singleParam_disambigEntitiesInContext() {
         val capability: Capability =
             createCapability(
-                SINGLE_REQUIRED_FIELD_PROPERTY,
+                SINGLE_REQUIRED_FIELD_BOUND_PROPERTIES,
                 sessionFactory = {
                     object : ExecutionSession {
                         override suspend fun onExecute(arguments: Arguments) =
@@ -740,15 +766,21 @@ class TaskCapabilityImplTest {
     @kotlin.Throws(Exception::class)
     @Suppress("DEPRECATION")
     fun identifierOnly_refillsStruct() = runBlocking<Unit> {
-        val property = mapOf(
-            "listItem" to Property.Builder<
-                ListItem
-                >()
-                .setRequired(true)
-                .build(),
-            "anyString" to Property.Builder<StringValue>()
-                .setRequired(true)
-                .build()
+        val boundProperties = listOf(
+            BoundProperty(
+                "listItem",
+                Property.Builder<ListItem>()
+                    .setRequired(true)
+                    .build(),
+                EntityConverter.of(TypeConverters.LIST_ITEM_TYPE_SPEC)
+            ),
+            BoundProperty(
+                "string",
+                Property.Builder<StringValue>()
+                    .setRequired(true)
+                    .build(),
+                TypeConverters.STRING_VALUE_ENTITY_CONVERTER
+            )
         )
         val item1: ListItem = ListItem.Builder().setName("red apple").setIdentifier("item1").build()
         val item2: ListItem =
@@ -765,7 +797,7 @@ class TaskCapabilityImplTest {
                         arguments: CapabilityStructFill.Arguments
                     ): ExecutionResult<CapabilityStructFill.Output> {
                         arguments.listItem?.let { onExecuteListItemDeferred.complete(it) }
-                        arguments.anyString?.let { onExecuteStringDeferred.complete(it) }
+                        arguments.string?.let { onExecuteStringDeferred.complete(it) }
                         return ExecutionResult.Builder<CapabilityStructFill.Output>().build()
                     }
 
@@ -813,7 +845,7 @@ class TaskCapabilityImplTest {
             TaskCapabilityImpl(
                 "selectListItem",
                 CapabilityStructFill.ACTION_SPEC,
-                property,
+                boundProperties,
                 sessionFactory,
                 sessionBridge,
                 ::EmptyTaskUpdater
@@ -996,12 +1028,9 @@ class TaskCapabilityImplTest {
                         ExecutionResult.Builder<Output>().build()
                 }
             }
-        val property = mapOf(
-            "required" to Property.Builder<StringValue>().setRequired(true).build()
-        )
         val capability: Capability =
             createCapability(
-                property,
+                SINGLE_REQUIRED_FIELD_BOUND_PROPERTIES,
                 sessionFactory = sessionFactory,
                 sessionBridge = SessionBridge {
                     TaskHandler.Builder<Arguments, Confirmation>().build()
@@ -1056,12 +1085,9 @@ class TaskCapabilityImplTest {
                         .build()
                 }
             }
-        val property = mapOf(
-            "required" to Property.Builder<StringValue>().setRequired(true).build()
-        )
         val capability: Capability =
             createCapability(
-                property,
+                SINGLE_REQUIRED_FIELD_BOUND_PROPERTIES,
                 sessionFactory = sessionFactory,
                 sessionBridge = SessionBridge {
                     TaskHandler.Builder<Arguments, Confirmation>()
@@ -1106,12 +1132,9 @@ class TaskCapabilityImplTest {
                         ExecutionResult.Builder<Output>().build()
                 }
             }
-        val property = mapOf(
-            "required" to Property.Builder<StringValue>().setRequired(true).build()
-        )
         val capability: Capability =
             createCapability(
-                property,
+                SINGLE_REQUIRED_FIELD_BOUND_PROPERTIES,
                 sessionFactory = sessionFactory,
                 sessionBridge = SessionBridge {
                     TaskHandler.Builder<Arguments, Confirmation>().build()
@@ -1152,7 +1175,7 @@ class TaskCapabilityImplTest {
     fun syncStatus_unknown_errorReported() {
         val capability: Capability =
             createCapability(
-                SINGLE_REQUIRED_FIELD_PROPERTY,
+                SINGLE_REQUIRED_FIELD_BOUND_PROPERTIES,
                 sessionFactory =
                     { _ ->
                         object : ExecutionSession {
@@ -1198,9 +1221,6 @@ class TaskCapabilityImplTest {
     @Test
     @kotlin.Throws(Exception::class)
     fun syncStatus_slotsIncomplete_taskNotExecuted() {
-        val property = mapOf(
-            "required" to Property.Builder<StringValue>().setRequired(true).build()
-        )
         val onExecuteInvocationCount = AtomicInteger(0)
         val sessionFactory: (hostProperties: HostProperties?) -> ExecutionSession =
             { _ ->
@@ -1213,7 +1233,7 @@ class TaskCapabilityImplTest {
             }
         val capability: Capability =
             createCapability(
-                property,
+                SINGLE_REQUIRED_FIELD_BOUND_PROPERTIES,
                 sessionFactory = sessionFactory,
                 sessionBridge = SessionBridge { TaskHandler.Builder<Arguments, Confirmation>()
                     .build() },
@@ -1288,9 +1308,6 @@ class TaskCapabilityImplTest {
                         .build()
                 }
             }
-        val property = mapOf(
-            "required" to Property.Builder<StringValue>().setRequired(true).build()
-        )
         val onExecuteInvocationCount = AtomicInteger(0)
         val sessionFactory: (hostProperties: HostProperties?) -> ExecutionSession =
             { _ ->
@@ -1309,7 +1326,7 @@ class TaskCapabilityImplTest {
             }
         val capability: Capability =
             createCapability(
-                property,
+                SINGLE_REQUIRED_FIELD_BOUND_PROPERTIES,
                 sessionFactory = sessionFactory,
                 sessionBridge = {
                                     TaskHandler.Builder<Arguments, Confirmation>()
@@ -1508,7 +1525,13 @@ class TaskCapabilityImplTest {
             >(ACTION_SPEC) {
 
         init {
-            setProperty(SINGLE_REQUIRED_FIELD_PROPERTY)
+            setProperty(
+                "required",
+                Property.Builder<StringValue>()
+                    .setRequired(true)
+                    .build(),
+                TypeConverters.STRING_VALUE_ENTITY_CONVERTER
+            )
         }
 
         override val sessionBridge: SessionBridge<
@@ -1594,39 +1617,23 @@ class TaskCapabilityImplTest {
                 .setOutput(Output::class.java)
                 .bindParameter(
                     "required",
-                    { properties ->
-                        properties["required"] as Property<StringValue>
-                    },
                     Arguments.Builder::setRequiredStringField,
-                    TypeConverters.STRING_PARAM_VALUE_CONVERTER,
-                    TypeConverters.STRING_VALUE_ENTITY_CONVERTER
+                    TypeConverters.STRING_PARAM_VALUE_CONVERTER
                 )
                 .bindParameter(
                     "optional",
-                    { properties ->
-                        properties["optional"] as? Property<StringValue>
-                    },
                     Arguments.Builder::setOptionalStringField,
-                    TypeConverters.STRING_PARAM_VALUE_CONVERTER,
-                    TypeConverters.STRING_VALUE_ENTITY_CONVERTER
+                    TypeConverters.STRING_PARAM_VALUE_CONVERTER
                 )
                 .bindParameter(
                     "optionalEnum",
-                    { properties ->
-                        properties["optionalEnum"] as? Property<TestEnum>
-                    },
                     Arguments.Builder::setEnumField,
-                    ENUM_CONVERTER,
-                    { Entity.newBuilder().setIdentifier(it.toString()).build() }
+                    ENUM_CONVERTER
                 )
                 .bindRepeatedParameter(
                     "repeated",
-                    { properties ->
-                        properties["repeated"] as? Property<StringValue>
-                    },
                     Arguments.Builder::setRepeatedStringField,
-                    TypeConverters.STRING_PARAM_VALUE_CONVERTER,
-                    TypeConverters.STRING_VALUE_ENTITY_CONVERTER
+                    TypeConverters.STRING_PARAM_VALUE_CONVERTER
                 )
                 .bindOutput(
                     "optionalStringOutput",
@@ -1640,10 +1647,13 @@ class TaskCapabilityImplTest {
                 )
                 .build()
 
-        private val SINGLE_REQUIRED_FIELD_PROPERTY = mapOf(
-            "required" to Property.Builder<StringValue>()
-                .setRequired(true)
-                .build()
+        private val SINGLE_REQUIRED_FIELD_BOUND_PROPERTIES = listOf(
+            BoundProperty(
+                "required",
+                Property.Builder<StringValue>()
+                    .setRequired(true)
+                    .build(),
+                TypeConverters.STRING_VALUE_ENTITY_CONVERTER)
         )
 
         private fun getCurrentValues(
@@ -1664,7 +1674,7 @@ class TaskCapabilityImplTest {
          * etc., defined under ../../testing/spec
          */
         private fun <SessionUpdaterT : AbstractTaskUpdater> createCapability(
-            property: Map<String, Property<*>>,
+            boundProperties: List<BoundProperty<*>>,
             sessionFactory: (hostProperties: HostProperties?) -> ExecutionSession,
             sessionBridge: SessionBridge<ExecutionSession, Arguments, Confirmation>,
             sessionUpdaterSupplier: Supplier<SessionUpdaterT>
@@ -1678,7 +1688,7 @@ class TaskCapabilityImplTest {
             return TaskCapabilityImpl(
                 "id",
                 ACTION_SPEC,
-                property,
+                boundProperties,
                 sessionFactory,
                 sessionBridge,
                 sessionUpdaterSupplier

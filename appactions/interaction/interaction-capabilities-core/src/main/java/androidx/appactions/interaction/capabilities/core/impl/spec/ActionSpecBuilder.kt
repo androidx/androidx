@@ -17,14 +17,10 @@
 package androidx.appactions.interaction.capabilities.core.impl.spec
 
 import androidx.appactions.interaction.capabilities.core.impl.BuilderOf
-import androidx.appactions.interaction.capabilities.core.impl.converters.EntityConverter
 import androidx.appactions.interaction.capabilities.core.impl.converters.ParamValueConverter
 import androidx.appactions.interaction.capabilities.core.impl.converters.SlotTypeConverter
 import androidx.appactions.interaction.capabilities.core.impl.spec.ParamBinding.ArgumentSetter
-import androidx.appactions.interaction.capabilities.core.impl.spec.ParamBinding.Companion.create
 import androidx.appactions.interaction.capabilities.core.impl.utils.ImmutableCollectors
-import androidx.appactions.interaction.capabilities.core.properties.Property
-import androidx.appactions.interaction.proto.AppActionsContext
 import androidx.appactions.interaction.proto.ParamValue
 import java.util.function.BiConsumer
 import java.util.function.Function
@@ -69,41 +65,30 @@ private constructor(
      */
     private fun bindParameterInternal(
         paramName: String,
-        paramGetter: Function<Map<String, Property<*>>, AppActionsContext.IntentParameter?>,
         argumentSetter: ArgumentSetter<ArgumentsBuilderT>
     ): ActionSpecBuilder<ArgumentsT, ArgumentsBuilderT, OutputT> {
-        paramBindingList.add(create(paramName, paramGetter, argumentSetter))
+        paramBindingList.add(ParamBinding(paramName, argumentSetter))
         return this
     }
 
     /**
-     * Binds the parameter name, getter, and setter for a [Property].
+     * Binds the parameter name, and corresponding method references for setting Argument value.
      *
      * If the Property getter returns a null value, this parameter will not exist in the parameter
      * definition of the capability.
      *
      * @param paramName the name of this action' parameter.
-     * @param propertyGetter a getter of the Property from the property, which must be able to
-     * fetch a non-null `Property` from `PropertyT`.
      * @param paramConsumer a setter to set the string value in the argument builder.
      * @param paramValueConverter converter FROM assistant ParamValue proto
-     * @param entityConverter converter TO assistant Entity proto
      * @return the builder itself.
      */
-    fun <T, PossibleValueT> bindParameter(
+    fun <T> bindParameter(
         paramName: String,
-        propertyGetter: Function<Map<String, Property<*>>, Property<PossibleValueT>?>,
         paramConsumer: BiConsumer<in ArgumentsBuilderT, T>,
         paramValueConverter: ParamValueConverter<T>,
-        entityConverter: EntityConverter<PossibleValueT>
     ): ActionSpecBuilder<ArgumentsT, ArgumentsBuilderT, OutputT> {
         return bindParameterInternal(
             paramName,
-            { propertyMap ->
-                propertyGetter.apply(propertyMap)?.let {
-                    buildIntentParameter(paramName, it, entityConverter)
-                }
-            },
             { argBuilder: ArgumentsBuilderT, paramList: List<ParamValue> ->
                 if (paramList.isNotEmpty()) {
                     paramConsumer.accept(
@@ -122,20 +107,13 @@ private constructor(
      * If the Property getter returns a null value, this parameter will not exist in the parameter
      * definition of the capability.
      */
-    fun <T, PossibleValueT> bindRepeatedParameter(
+    fun <T> bindRepeatedParameter(
         paramName: String,
-        propertyGetter: Function<Map<String, Property<*>>, Property<PossibleValueT>?>,
         paramConsumer: BiConsumer<in ArgumentsBuilderT, List<T>>,
-        paramValueConverter: ParamValueConverter<T>,
-        entityConverter: EntityConverter<PossibleValueT>
+        paramValueConverter: ParamValueConverter<T>
     ): ActionSpecBuilder<ArgumentsT, ArgumentsBuilderT, OutputT> {
         return bindParameterInternal(
             paramName,
-            { propertyMap ->
-                propertyGetter.apply(propertyMap)?.let {
-                    buildIntentParameter(paramName, it, entityConverter)
-                }
-            },
             { argBuilder: ArgumentsBuilderT, paramList: List<ParamValue?>? ->
                 paramConsumer.accept(
                     argBuilder,
@@ -208,27 +186,6 @@ private constructor(
             capabilityName: String
         ): ActionSpecBuilder<Any, BuilderOf<Any>, Any> {
             return ActionSpecBuilder(capabilityName) { BuilderOf { Object() } }
-        }
-
-        /** Create IntentParameter proto from a Property.  */
-        internal fun <T> buildIntentParameter(
-            paramName: String,
-            property: Property<T>,
-            entityConverter: EntityConverter<T>
-        ): AppActionsContext.IntentParameter {
-            val builder = AppActionsContext.IntentParameter.newBuilder()
-                .setName(paramName)
-                .setIsRequired(property.isRequired)
-                .setEntityMatchRequired(property.isValueMatchRequired)
-                .setIsProhibited(property.isProhibited)
-            property.possibleValues.stream()
-                .map { possibleValue ->
-                    entityConverter.convert(possibleValue)
-                }
-                .forEach { entityProto ->
-                    builder.addPossibleEntities(entityProto)
-                }
-            return builder.build()
         }
     }
 }

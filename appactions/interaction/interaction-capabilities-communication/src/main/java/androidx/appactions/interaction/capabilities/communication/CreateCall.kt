@@ -50,17 +50,19 @@ class CreateCall private constructor() {
             CapabilityBuilder, Arguments, Output, Confirmation, ExecutionSession
             >(ACTION_SPEC) {
 
-        private var properties = mutableMapOf<String, Property<*>>()
+        fun setCallFormatProperty(
+            callFormat: Property<Call.CanonicalValue.CallFormat>
+        ): CapabilityBuilder =
+            setProperty(
+                PropertyMapStrings.CALL_FORMAT.key,
+                callFormat,
+                TypeConverters.CALL_FORMAT_ENTITY_CONVERTER)
 
-        fun setCallFormat(callFormat: Property<Call.CanonicalValue.CallFormat>): CapabilityBuilder =
-            apply {
-                properties[PropertyMapStrings.CALL_FORMAT.key] = callFormat
-            }
-
-        override fun build(): Capability {
-            super.setProperty(properties)
-            return super.build()
-        }
+        fun setParticipantProperty(participant: Property<Participant>): CapabilityBuilder =
+            setProperty(
+            PropertyMapStrings.PARTICIPANT.key,
+            participant,
+            EntityConverter.of(PARTICIPANT_TYPE_SPEC))
     }
 
     class Arguments
@@ -177,29 +179,19 @@ class CreateCall private constructor() {
     sealed interface ExecutionSession : BaseExecutionSession<Arguments, Output>
 
     companion object {
-        @Suppress("UNCHECKED_CAST")
         private val ACTION_SPEC =
             ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
                 .setArguments(Arguments::class.java, Arguments::Builder)
                 .setOutput(Output::class.java)
                 .bindParameter(
                     "call.callFormat",
-                    { properties ->
-                        properties[PropertyMapStrings.CALL_FORMAT.key]
-                            as? Property<Call.CanonicalValue.CallFormat>
-                    },
                     Arguments.Builder::setCallFormat,
-                    TypeConverters.CALL_FORMAT_PARAM_VALUE_CONVERTER,
-                    TypeConverters.CALL_FORMAT_ENTITY_CONVERTER
+                    TypeConverters.CALL_FORMAT_PARAM_VALUE_CONVERTER
                 )
                 .bindRepeatedParameter(
                     "call.participant",
-                    { properties ->
-                        properties[PropertyMapStrings.PARTICIPANT.key] as? Property<Participant>
-                    },
                     Arguments.Builder::setParticipantList,
                     ParticipantValue.PARAM_VALUE_CONVERTER,
-                    EntityConverter.of(PARTICIPANT_TYPE_SPEC)
                 )
                 .bindOutput(
                     "call",

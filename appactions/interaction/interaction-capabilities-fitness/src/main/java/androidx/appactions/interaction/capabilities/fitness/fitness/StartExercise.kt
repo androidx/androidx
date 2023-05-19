@@ -44,18 +44,17 @@ class StartExercise private constructor() {
             Confirmation,
             ExecutionSession
             >(ACTION_SPEC) {
-        private var properties = mutableMapOf<String, Property<*>>()
+        fun setNameProperty(name: Property<StringValue>): CapabilityBuilder = setProperty(
+            PropertyMapStrings.NAME.key,
+            name,
+            TypeConverters.STRING_VALUE_ENTITY_CONVERTER
+        )
 
-        fun setName(name: Property<StringValue>): CapabilityBuilder =
-            apply { properties[PropertyMapStrings.NAME.key] = name }
-
-        fun setDuration(duration: Property<Duration>): CapabilityBuilder =
-            apply { properties[PropertyMapStrings.DURATION.key] = duration }
-
-        override fun build(): Capability {
-            super.setProperty(properties)
-            return super.build()
-        }
+        fun setDurationProperty(duration: Property<Duration>): CapabilityBuilder = setProperty(
+            PropertyMapStrings.DURATION.key,
+            duration,
+            TypeConverters.DURATION_ENTITY_CONVERTER
+        )
     }
 
     class Arguments internal constructor(
@@ -106,28 +105,19 @@ class StartExercise private constructor() {
 
     companion object {
         // TODO(b/273602015): Update to use Name property from builtintype library.
-        @Suppress("UNCHECKED_CAST")
         private val ACTION_SPEC =
             ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
                 .setArguments(Arguments::class.java, Arguments::Builder)
                 .setOutput(Output::class.java)
                 .bindParameter(
                     "exercise.duration",
-                    { properties ->
-                        properties[PropertyMapStrings.DURATION.key] as? Property<Duration>
-                    },
                     Arguments.Builder::setDuration,
-                    TypeConverters.DURATION_PARAM_VALUE_CONVERTER,
-                    TypeConverters.DURATION_ENTITY_CONVERTER
+                    TypeConverters.DURATION_PARAM_VALUE_CONVERTER
                 )
                 .bindParameter(
                     "exercise.name",
-                    { properties ->
-                        properties[PropertyMapStrings.NAME.key] as? Property<StringValue>
-                    },
                     Arguments.Builder::setName,
-                    TypeConverters.STRING_PARAM_VALUE_CONVERTER,
-                    TypeConverters.STRING_VALUE_ENTITY_CONVERTER
+                    TypeConverters.STRING_PARAM_VALUE_CONVERTER
                 )
                 .build()
     }

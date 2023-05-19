@@ -18,15 +18,11 @@ package androidx.appactions.interaction.capabilities.core.impl.spec
 
 import androidx.appactions.interaction.capabilities.core.impl.BuilderOf
 import androidx.appactions.interaction.capabilities.core.impl.exceptions.StructConversionException
-import androidx.appactions.interaction.capabilities.core.properties.Property
-import androidx.appactions.interaction.proto.AppActionsContext.IntentParameter
 import androidx.appactions.interaction.proto.ParamValue
-import java.util.function.Function
 
 data class ParamBinding<ArgumentsT, ArgumentsBuilderT : BuilderOf<ArgumentsT>>
 internal constructor(
     val name: String,
-    val propertyConverter: Function<Map<String, Property<*>>, IntentParameter?>,
     val argumentSetter: ArgumentSetter<ArgumentsBuilderT>
 ) {
     /**
@@ -37,16 +33,5 @@ internal constructor(
         /** Conversion from protos to user-visible type.  */
         @Throws(StructConversionException::class)
         fun setArguments(builder: ArgumentsBuilderT, paramValues: List<ParamValue>)
-    }
-
-    companion object {
-        @JvmStatic
-        fun <ArgumentsT, ArgumentsBuilderT : BuilderOf<ArgumentsT>> create(
-            name: String,
-            paramGetter: Function<Map<String, Property<*>>, IntentParameter?>,
-            argumentSetter: ArgumentSetter<ArgumentsBuilderT>
-        ): ParamBinding<ArgumentsT, ArgumentsBuilderT> {
-            return ParamBinding(name, paramGetter, argumentSetter)
-        }
     }
 }

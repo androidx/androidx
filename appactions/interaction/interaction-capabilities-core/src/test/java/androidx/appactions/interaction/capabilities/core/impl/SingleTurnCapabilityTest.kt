@@ -25,6 +25,7 @@ import androidx.appactions.interaction.capabilities.core.impl.concurrent.Futures
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpec
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
+import androidx.appactions.interaction.capabilities.core.impl.spec.BoundProperty
 import androidx.appactions.interaction.capabilities.core.properties.Property
 import androidx.appactions.interaction.capabilities.core.properties.StringValue
 import androidx.appactions.interaction.capabilities.core.testing.spec.Arguments
@@ -50,7 +51,6 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
-@Suppress("UNCHECKED_CAST")
 class SingleTurnCapabilityTest {
     private val hostProperties =
         HostProperties.Builder().setMaxHostSizeDp(SizeF(300f, 500f)).build()
@@ -59,15 +59,19 @@ class SingleTurnCapabilityTest {
     @Test
     fun appAction_computedProperty() {
         val mutableEntityList = mutableListOf<StringValue>()
+        val dynamicStringProperty = Property.Builder<StringValue>()
+            .setPossibleValueSupplier(
+                mutableEntityList::toList
+            ).build()
         val capability = SingleTurnCapabilityImpl(
             id = "capabilityId",
             actionSpec = ACTION_SPEC,
-            property = mutableMapOf(
-                "requiredEntity" to Property
-                    .Builder<StringValue>()
-                    .setPossibleValueSupplier(
-                        mutableEntityList::toList
-                    ).build()
+            boundProperties = listOf(
+                BoundProperty(
+                    "requiredString",
+                    dynamicStringProperty,
+                    TypeConverters.STRING_VALUE_ENTITY_CONVERTER
+                )
             ),
             executionCallback = ExecutionCallback<Arguments, Output> {
                 ExecutionResult.Builder<Output>().build()
@@ -126,17 +130,22 @@ class SingleTurnCapabilityTest {
                     )
                     .build()
             }
-        val property = mutableMapOf<String, Property<*>>()
-        property.put(
-            "requiredString",
-            Property.Builder<StringValue>().build()
-        )
-        property.put("optionalString", Property.prohibited<StringValue>())
         val capability =
             SingleTurnCapabilityImpl(
                 id = "capabilityId",
                 actionSpec = ACTION_SPEC,
-                property = property,
+                boundProperties = listOf(
+                    BoundProperty(
+                        "requiredString",
+                        Property.Builder<StringValue>().build(),
+                        TypeConverters.STRING_VALUE_ENTITY_CONVERTER
+                    ),
+                    BoundProperty(
+                        "optionalString",
+                        Property.prohibited<StringValue>(),
+                        TypeConverters.STRING_VALUE_ENTITY_CONVERTER
+                    )
+                ),
                 executionCallback = executionCallback
             )
 
@@ -184,17 +193,22 @@ class SingleTurnCapabilityTest {
     fun oneShotCapability_exceptionInExecutionCallback() {
         val executionCallback =
             ExecutionCallback<Arguments, Output> { throw IllegalStateException("") }
-        val property = mutableMapOf<String, Property<*>>()
-        property.put(
-            "requiredString",
-            Property.Builder<StringValue>().build()
-        )
-        property.put("optionalString", Property.prohibited<StringValue>())
         val capability =
             SingleTurnCapabilityImpl(
                 id = "capabilityId",
                 actionSpec = ACTION_SPEC,
-                property = property,
+                boundProperties = listOf(
+                    BoundProperty(
+                        "requiredString",
+                        Property.Builder<StringValue>().build(),
+                        TypeConverters.STRING_VALUE_ENTITY_CONVERTER
+                    ),
+                    BoundProperty(
+                        "optionalString",
+                        Property.prohibited<StringValue>(),
+                        TypeConverters.STRING_VALUE_ENTITY_CONVERTER
+                    )
+                ),
                 executionCallback = executionCallback
             )
 
@@ -219,16 +233,17 @@ class SingleTurnCapabilityTest {
     fun oneShotSession_uiHandle_withExecutionCallback() {
         val executionCallback =
             ExecutionCallback<Arguments, Output> { ExecutionResult.Builder<Output>().build() }
-        val property = mutableMapOf<String, Property<*>>()
-        property.put(
-            "requiredString",
-            Property.Builder<StringValue>().build()
-        )
         val capability =
             SingleTurnCapabilityImpl(
                 id = "capabilityId",
                 actionSpec = ACTION_SPEC,
-                property = property,
+                boundProperties = listOf(
+                    BoundProperty(
+                        "requiredString",
+                        Property.Builder<StringValue>().build(),
+                        TypeConverters.STRING_VALUE_ENTITY_CONVERTER
+                    ),
+                ),
                 executionCallback = executionCallback
             )
         val session = capability.createSession(fakeSessionId, hostProperties)
@@ -241,16 +256,17 @@ class SingleTurnCapabilityTest {
             ExecutionCallbackAsync<Arguments, Output> {
                 Futures.immediateFuture(ExecutionResult.Builder<Output>().build())
             }
-        val property = mutableMapOf<String, Property<*>>()
-        property.put(
-            "requiredString",
-            Property.Builder<StringValue>().build()
-        )
         val capability =
             SingleTurnCapabilityImpl(
                 id = "capabilityId",
                 actionSpec = ACTION_SPEC,
-                property = property,
+                boundProperties = listOf(
+                    BoundProperty(
+                        "requiredString",
+                        Property.Builder<StringValue>().build(),
+                        TypeConverters.STRING_VALUE_ENTITY_CONVERTER
+                    )
+                ),
                 executionCallback = executionCallbackAsync.toExecutionCallback()
             )
         val session = capability.createSession(fakeSessionId, hostProperties)
@@ -266,15 +282,16 @@ class SingleTurnCapabilityTest {
             argumentChannel.send(it)
             executionResultChannel.receive()
         }
-        val property = mutableMapOf<String, Property<*>>()
-        property.put(
-            "requiredString",
-            Property.Builder<StringValue>().build()
-        )
         val capability = SingleTurnCapabilityImpl(
             id = "capabilityId",
             actionSpec = ACTION_SPEC,
-            property = property,
+            boundProperties = listOf(
+                BoundProperty(
+                    "requiredString",
+                    Property.Builder<StringValue>().build(),
+                    TypeConverters.STRING_VALUE_ENTITY_CONVERTER
+                )
+            ),
             executionCallback = executionCallback
         )
         val session1 = capability.createSession("session1", hostProperties)
@@ -331,19 +348,13 @@ class SingleTurnCapabilityTest {
                 .setOutput(Output::class.java)
                 .bindParameter(
                     "requiredString",
-                    { properties -> properties["requiredEntity"] as Property<StringValue> },
                     Arguments.Builder::setRequiredStringField,
                     TypeConverters.STRING_PARAM_VALUE_CONVERTER,
-                    TypeConverters.STRING_VALUE_ENTITY_CONVERTER
                 )
                 .bindParameter(
                     "optionalString",
-                    { properties ->
-                        properties["optionalString"] as? Property<StringValue>
-                    },
                     Arguments.Builder::setOptionalStringField,
                     TypeConverters.STRING_PARAM_VALUE_CONVERTER,
-                    TypeConverters.STRING_VALUE_ENTITY_CONVERTER
                 )
                 .bindOutput(
                     "optionalStringOutput",

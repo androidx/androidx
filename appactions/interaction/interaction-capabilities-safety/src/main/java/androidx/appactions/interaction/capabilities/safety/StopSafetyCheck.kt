@@ -26,7 +26,6 @@ import androidx.appactions.interaction.capabilities.core.CapabilityFactory
 import androidx.appactions.interaction.capabilities.core.impl.BuilderOf
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
-import androidx.appactions.interaction.capabilities.core.properties.Property
 import androidx.appactions.interaction.capabilities.safety.executionstatus.SafetyAccountNotLoggedIn
 import androidx.appactions.interaction.capabilities.safety.executionstatus.SafetyFeatureNotOnboarded
 import androidx.appactions.interaction.proto.ParamValue
@@ -41,14 +40,7 @@ class StopSafetyCheck private constructor() {
     class CapabilityBuilder :
         Capability.Builder<
             CapabilityBuilder, Arguments, Output, Confirmation, ExecutionSession
-            >(ACTION_SPEC) {
-
-        private var properties = mutableMapOf<String, Property<*>>()
-        override fun build(): Capability {
-            super.setProperty(properties)
-            return super.build()
-        }
-    }
+            >(ACTION_SPEC)
 
     class Arguments internal constructor() {
         class Builder : BuilderOf<Arguments> {
