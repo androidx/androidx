@@ -54,6 +54,9 @@ package androidx.glance {
     property public static final androidx.compose.runtime.ProvidableCompositionLocal<java.lang.Object> LocalState;
   }
 
+  @kotlin.RequiresOptIn(message="This API is experimental and is likely to change in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalGlanceApi {
+  }
+
   @androidx.compose.runtime.ComposableTargetMarker(description="Glance Composable") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.FILE, kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.PROPERTY_GETTER, kotlin.annotation.AnnotationTarget.TYPE, kotlin.annotation.AnnotationTarget.TYPE_PARAMETER}) public @interface GlanceComposable {
   }
 
@@ -170,8 +173,11 @@ package androidx.glance.action {
 
   public final class StartActivityActionKt {
     method public static androidx.glance.action.Action actionStartActivity(android.content.ComponentName componentName, optional androidx.glance.action.ActionParameters parameters);
+    method @androidx.glance.ExperimentalGlanceApi public static androidx.glance.action.Action actionStartActivity(android.content.ComponentName componentName, optional androidx.glance.action.ActionParameters parameters, optional android.os.Bundle? activityOptions);
     method public static inline <reified T extends android.app.Activity> androidx.glance.action.Action actionStartActivity(optional androidx.glance.action.ActionParameters parameters);
+    method @androidx.glance.ExperimentalGlanceApi public static inline <reified T extends android.app.Activity> androidx.glance.action.Action actionStartActivity(optional androidx.glance.action.ActionParameters parameters, optional android.os.Bundle? activityOptions);
     method public static <T extends android.app.Activity> androidx.glance.action.Action actionStartActivity(Class<T> activity, optional androidx.glance.action.ActionParameters parameters);
+    method @androidx.glance.ExperimentalGlanceApi public static <T extends android.app.Activity> androidx.glance.action.Action actionStartActivity(Class<T> activity, optional androidx.glance.action.ActionParameters parameters, optional android.os.Bundle? activityOptions);
   }
 
 }
