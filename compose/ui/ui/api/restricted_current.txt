@@ -2324,24 +2324,6 @@ package androidx.compose.ui.layout {
     property protected abstract int parentWidth;
   }
 
-  @Deprecated @androidx.compose.ui.ExperimentalComposeUiApi @kotlin.jvm.JvmDefaultWithCompatibility public interface RelocationModifier extends androidx.compose.ui.Modifier.Element {
-    method @Deprecated public androidx.compose.ui.geometry.Rect computeDestination(androidx.compose.ui.geometry.Rect source, androidx.compose.ui.layout.LayoutCoordinates layoutCoordinates);
-    method @Deprecated public suspend Object? performRelocation(androidx.compose.ui.geometry.Rect source, androidx.compose.ui.geometry.Rect destination, kotlin.coroutines.Continuation<? super kotlin.Unit>);
-  }
-
-  public final class RelocationModifierKt {
-    method @Deprecated @androidx.compose.ui.ExperimentalComposeUiApi public static androidx.compose.ui.Modifier onRelocationRequest(androidx.compose.ui.Modifier, kotlin.jvm.functions.Function2<? super androidx.compose.ui.geometry.Rect,? super androidx.compose.ui.layout.LayoutCoordinates,androidx.compose.ui.geometry.Rect> onProvideDestination, kotlin.jvm.functions.Function3<? super androidx.compose.ui.geometry.Rect,? super androidx.compose.ui.geometry.Rect,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?> onPerformRelocation);
-  }
-
-  @Deprecated @androidx.compose.ui.ExperimentalComposeUiApi public final class RelocationRequester {
-    ctor @Deprecated public RelocationRequester();
-    method @Deprecated public suspend Object? bringIntoView(optional androidx.compose.ui.geometry.Rect? rect, optional kotlin.coroutines.Continuation<? super kotlin.Unit>);
-  }
-
-  public final class RelocationRequesterModifierKt {
-    method @Deprecated @androidx.compose.ui.ExperimentalComposeUiApi public static androidx.compose.ui.Modifier relocationRequester(androidx.compose.ui.Modifier, Object relocationRequester);
-  }
-
   public interface Remeasurement {
     method public void forceRemeasure();
   }
