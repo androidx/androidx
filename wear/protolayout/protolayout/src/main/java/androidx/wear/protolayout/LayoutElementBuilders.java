@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2022 The Android Open Source Project
+ * Copyright 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -299,13 +299,24 @@ public final class LayoutElementBuilders {
             return mFingerprint;
         }
 
+        /** Creates a new wrapper instance from the proto. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
-        static FontWeightProp fromProto(@NonNull LayoutElementProto.FontWeightProp proto) {
-            return new FontWeightProp(proto, null);
+        public static FontWeightProp fromProto(
+                @NonNull LayoutElementProto.FontWeightProp proto,
+                @Nullable Fingerprint fingerprint) {
+            return new FontWeightProp(proto, fingerprint);
         }
 
         @NonNull
-        LayoutElementProto.FontWeightProp toProto() {
+        static FontWeightProp fromProto(@NonNull LayoutElementProto.FontWeightProp proto) {
+            return fromProto(proto, null);
+        }
+
+        /** Returns the internal proto instance. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public LayoutElementProto.FontWeightProp toProto() {
             return mImpl;
         }
 
@@ -313,7 +324,7 @@ public final class LayoutElementBuilders {
         public static final class Builder {
             private final LayoutElementProto.FontWeightProp.Builder mImpl =
                     LayoutElementProto.FontWeightProp.newBuilder();
-            private final Fingerprint mFingerprint = new Fingerprint(1793388920);
+            private final Fingerprint mFingerprint = new Fingerprint(-1485961687);
 
             public Builder() {}
 
@@ -358,13 +369,24 @@ public final class LayoutElementBuilders {
             return mFingerprint;
         }
 
+        /** Creates a new wrapper instance from the proto. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
-        static FontVariantProp fromProto(@NonNull LayoutElementProto.FontVariantProp proto) {
-            return new FontVariantProp(proto, null);
+        public static FontVariantProp fromProto(
+                @NonNull LayoutElementProto.FontVariantProp proto,
+                @Nullable Fingerprint fingerprint) {
+            return new FontVariantProp(proto, fingerprint);
         }
 
         @NonNull
-        LayoutElementProto.FontVariantProp toProto() {
+        static FontVariantProp fromProto(@NonNull LayoutElementProto.FontVariantProp proto) {
+            return fromProto(proto, null);
+        }
+
+        /** Returns the internal proto instance. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public LayoutElementProto.FontVariantProp toProto() {
             return mImpl;
         }
 
@@ -372,7 +394,7 @@ public final class LayoutElementBuilders {
         public static final class Builder {
             private final LayoutElementProto.FontVariantProp.Builder mImpl =
                     LayoutElementProto.FontVariantProp.newBuilder();
-            private final Fingerprint mFingerprint = new Fingerprint(-293831500);
+            private final Fingerprint mFingerprint = new Fingerprint(-295272526);
 
             public Builder() {}
 
@@ -417,14 +439,25 @@ public final class LayoutElementBuilders {
             return mFingerprint;
         }
 
+        /** Creates a new wrapper instance from the proto. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
-        static SpanVerticalAlignmentProp fromProto(
-                @NonNull LayoutElementProto.SpanVerticalAlignmentProp proto) {
-            return new SpanVerticalAlignmentProp(proto, null);
+        public static SpanVerticalAlignmentProp fromProto(
+                @NonNull LayoutElementProto.SpanVerticalAlignmentProp proto,
+                @Nullable Fingerprint fingerprint) {
+            return new SpanVerticalAlignmentProp(proto, fingerprint);
         }
 
         @NonNull
-        LayoutElementProto.SpanVerticalAlignmentProp toProto() {
+        static SpanVerticalAlignmentProp fromProto(
+                @NonNull LayoutElementProto.SpanVerticalAlignmentProp proto) {
+            return fromProto(proto, null);
+        }
+
+        /** Returns the internal proto instance. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public LayoutElementProto.SpanVerticalAlignmentProp toProto() {
             return mImpl;
         }
 
@@ -432,7 +465,7 @@ public final class LayoutElementBuilders {
         public static final class Builder {
             private final LayoutElementProto.SpanVerticalAlignmentProp.Builder mImpl =
                     LayoutElementProto.SpanVerticalAlignmentProp.newBuilder();
-            private final Fingerprint mFingerprint = new Fingerprint(1008812329);
+            private final Fingerprint mFingerprint = new Fingerprint(-1822193880);
 
             public Builder() {}
 
@@ -565,9 +598,17 @@ public final class LayoutElementBuilders {
             return mFingerprint;
         }
 
+        /** Creates a new wrapper instance from the proto. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public static FontStyle fromProto(
+                @NonNull LayoutElementProto.FontStyle proto, @Nullable Fingerprint fingerprint) {
+            return new FontStyle(proto, fingerprint);
+        }
+
         @NonNull
         static FontStyle fromProto(@NonNull LayoutElementProto.FontStyle proto) {
-            return new FontStyle(proto, null);
+            return fromProto(proto, null);
         }
 
         /** Returns the internal proto instance. */
@@ -581,7 +622,7 @@ public final class LayoutElementBuilders {
         public static final class Builder {
             private final LayoutElementProto.FontStyle.Builder mImpl =
                     LayoutElementProto.FontStyle.newBuilder();
-            private final Fingerprint mFingerprint = new Fingerprint(181264306);
+            private final Fingerprint mFingerprint = new Fingerprint(-374492482);
 
             public Builder() {}
 
@@ -668,6 +709,7 @@ public final class LayoutElementBuilders {
                         5, checkNotNull(weight.getFingerprint()).aggregateValueAsInt());
                 return this;
             }
+
             /**
              * Sets the weight of the font. If the provided value is not supported on a platform,
              * the nearest supported value will be used. If not defined, or when set to an invalid
@@ -703,6 +745,7 @@ public final class LayoutElementBuilders {
                 mImpl.setVariant(variant.toProto());
                 return this;
             }
+
             /**
              * Sets the variant of a font. Some renderers may use different fonts for title and body
              * text, which can be selected using this field. If not specified, defaults to "body".
@@ -1152,11 +1195,21 @@ public final class LayoutElementBuilders {
             return mFingerprint;
         }
 
+        /** Creates a new wrapper instance from the proto. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
-        static Text fromProto(@NonNull LayoutElementProto.Text proto) {
-            return new Text(proto, null);
+        public static Text fromProto(
+                @NonNull LayoutElementProto.Text proto, @Nullable Fingerprint fingerprint) {
+            return new Text(proto, fingerprint);
         }
 
+        @NonNull
+        static Text fromProto(@NonNull LayoutElementProto.Text proto) {
+            return fromProto(proto, null);
+        }
+
+        /** Returns the internal proto instance. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         LayoutElementProto.Text toProto() {
             return mImpl;
@@ -1173,7 +1226,7 @@ public final class LayoutElementBuilders {
         public static final class Builder implements LayoutElement.Builder {
             private final LayoutElementProto.Text.Builder mImpl =
                     LayoutElementProto.Text.newBuilder();
-            private final Fingerprint mFingerprint = new Fingerprint(1976530157);
+            private final Fingerprint mFingerprint = new Fingerprint(814133697);
 
             public Builder() {}
 
@@ -1284,6 +1337,7 @@ public final class LayoutElementBuilders {
                         5, checkNotNull(multilineAlignment.getFingerprint()).aggregateValueAsInt());
                 return this;
             }
+
             /**
              * Sets alignment of the text within its bounds. Note that a {@link Text} element will
              * size itself to wrap its contents, so this option is meaningless for single-line text
@@ -1315,6 +1369,7 @@ public final class LayoutElementBuilders {
                         6, checkNotNull(overflow.getFingerprint()).aggregateValueAsInt());
                 return this;
             }
+
             /**
              * Sets how to handle text which overflows the bound of the {@link Text} element. A
              * {@link Text} element will grow as large as possible inside its parent container
@@ -1413,14 +1468,25 @@ public final class LayoutElementBuilders {
             return mFingerprint;
         }
 
+        /** Creates a new wrapper instance from the proto. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
-        static ContentScaleModeProp fromProto(
-                @NonNull LayoutElementProto.ContentScaleModeProp proto) {
-            return new ContentScaleModeProp(proto, null);
+        public static ContentScaleModeProp fromProto(
+                @NonNull LayoutElementProto.ContentScaleModeProp proto,
+                @Nullable Fingerprint fingerprint) {
+            return new ContentScaleModeProp(proto, fingerprint);
         }
 
         @NonNull
-        LayoutElementProto.ContentScaleModeProp toProto() {
+        static ContentScaleModeProp fromProto(
+                @NonNull LayoutElementProto.ContentScaleModeProp proto) {
+            return fromProto(proto, null);
+        }
+
+        /** Returns the internal proto instance. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public LayoutElementProto.ContentScaleModeProp toProto() {
             return mImpl;
         }
 
@@ -1428,7 +1494,7 @@ public final class LayoutElementBuilders {
         public static final class Builder {
             private final LayoutElementProto.ContentScaleModeProp.Builder mImpl =
                     LayoutElementProto.ContentScaleModeProp.newBuilder();
-            private final Fingerprint mFingerprint = new Fingerprint(-893830536);
+            private final Fingerprint mFingerprint = new Fingerprint(1200564005);
 
             public Builder() {}
 
@@ -1484,13 +1550,23 @@ public final class LayoutElementBuilders {
             return mFingerprint;
         }
 
+        /** Creates a new wrapper instance from the proto. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
-        static ColorFilter fromProto(@NonNull LayoutElementProto.ColorFilter proto) {
-            return new ColorFilter(proto, null);
+        public static ColorFilter fromProto(
+                @NonNull LayoutElementProto.ColorFilter proto, @Nullable Fingerprint fingerprint) {
+            return new ColorFilter(proto, fingerprint);
         }
 
         @NonNull
-        LayoutElementProto.ColorFilter toProto() {
+        static ColorFilter fromProto(@NonNull LayoutElementProto.ColorFilter proto) {
+            return fromProto(proto, null);
+        }
+
+        /** Returns the internal proto instance. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public LayoutElementProto.ColorFilter toProto() {
             return mImpl;
         }
 
@@ -1498,7 +1574,7 @@ public final class LayoutElementBuilders {
         public static final class Builder {
             private final LayoutElementProto.ColorFilter.Builder mImpl =
                     LayoutElementProto.ColorFilter.newBuilder();
-            private final Fingerprint mFingerprint = new Fingerprint(181311326);
+            private final Fingerprint mFingerprint = new Fingerprint(1912021459);
 
             public Builder() {}
 
@@ -1633,11 +1709,21 @@ public final class LayoutElementBuilders {
             return mFingerprint;
         }
 
+        /** Creates a new wrapper instance from the proto. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
-        static Image fromProto(@NonNull LayoutElementProto.Image proto) {
-            return new Image(proto, null);
+        public static Image fromProto(
+                @NonNull LayoutElementProto.Image proto, @Nullable Fingerprint fingerprint) {
+            return new Image(proto, fingerprint);
         }
 
+        @NonNull
+        static Image fromProto(@NonNull LayoutElementProto.Image proto) {
+            return fromProto(proto, null);
+        }
+
+        /** Returns the internal proto instance. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         LayoutElementProto.Image toProto() {
             return mImpl;
@@ -1654,7 +1740,7 @@ public final class LayoutElementBuilders {
         public static final class Builder implements LayoutElement.Builder {
             private final LayoutElementProto.Image.Builder mImpl =
                     LayoutElementProto.Image.newBuilder();
-            private final Fingerprint mFingerprint = new Fingerprint(-543078544);
+            private final Fingerprint mFingerprint = new Fingerprint(-48009959);
 
             public Builder() {}
 
@@ -1677,6 +1763,7 @@ public final class LayoutElementBuilders {
                         1, checkNotNull(resourceId.getFingerprint()).aggregateValueAsInt());
                 return this;
             }
+
             /**
              * Sets the resource_id of the image to render. This must exist in the supplied resource
              * bundle.
@@ -1716,6 +1803,7 @@ public final class LayoutElementBuilders {
                         4, checkNotNull(contentScaleMode.getFingerprint()).aggregateValueAsInt());
                 return this;
             }
+
             /**
              * Sets how to scale the image resource inside the bounds specified by width/height if
              * its size does not match those bounds. Defaults to CONTENT_SCALE_MODE_FIT.
@@ -1850,11 +1938,21 @@ public final class LayoutElementBuilders {
             return mFingerprint;
         }
 
+        /** Creates a new wrapper instance from the proto. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
-        static Spacer fromProto(@NonNull LayoutElementProto.Spacer proto) {
-            return new Spacer(proto, null);
+        public static Spacer fromProto(
+                @NonNull LayoutElementProto.Spacer proto, @Nullable Fingerprint fingerprint) {
+            return new Spacer(proto, fingerprint);
         }
 
+        @NonNull
+        static Spacer fromProto(@NonNull LayoutElementProto.Spacer proto) {
+            return fromProto(proto, null);
+        }
+
+        /** Returns the internal proto instance. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         LayoutElementProto.Spacer toProto() {
             return mImpl;
@@ -1871,7 +1969,7 @@ public final class LayoutElementBuilders {
         public static final class Builder implements LayoutElement.Builder {
             private final LayoutElementProto.Spacer.Builder mImpl =
                     LayoutElementProto.Spacer.newBuilder();
-            private final Fingerprint mFingerprint = new Fingerprint(-1748084575);
+            private final Fingerprint mFingerprint = new Fingerprint(-156449821);
 
             public Builder() {}
 
@@ -2093,11 +2191,21 @@ public final class LayoutElementBuilders {
             return mFingerprint;
         }
 
+        /** Creates a new wrapper instance from the proto. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
-        static Box fromProto(@NonNull LayoutElementProto.Box proto) {
-            return new Box(proto, null);
+        public static Box fromProto(
+                @NonNull LayoutElementProto.Box proto, @Nullable Fingerprint fingerprint) {
+            return new Box(proto, fingerprint);
         }
 
+        @NonNull
+        static Box fromProto(@NonNull LayoutElementProto.Box proto) {
+            return fromProto(proto, null);
+        }
+
+        /** Returns the internal proto instance. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         LayoutElementProto.Box toProto() {
             return mImpl;
@@ -2114,7 +2222,7 @@ public final class LayoutElementBuilders {
         public static final class Builder implements LayoutElement.Builder {
             private final LayoutElementProto.Box.Builder mImpl =
                     LayoutElementProto.Box.newBuilder();
-            private final Fingerprint mFingerprint = new Fingerprint(-1881256071);
+            private final Fingerprint mFingerprint = new Fingerprint(-2113485818);
 
             public Builder() {}
 
@@ -2189,6 +2297,7 @@ public final class LayoutElementBuilders {
                         5, checkNotNull(verticalAlignment.getFingerprint()).aggregateValueAsInt());
                 return this;
             }
+
             /**
              * Sets the vertical alignment of the element inside this {@link Box}. If not defined,
              * defaults to VERTICAL_ALIGN_CENTER.
@@ -2295,11 +2404,21 @@ public final class LayoutElementBuilders {
             return mFingerprint;
         }
 
+        /** Creates a new wrapper instance from the proto. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
-        static SpanText fromProto(@NonNull LayoutElementProto.SpanText proto) {
-            return new SpanText(proto, null);
+        public static SpanText fromProto(
+                @NonNull LayoutElementProto.SpanText proto, @Nullable Fingerprint fingerprint) {
+            return new SpanText(proto, fingerprint);
         }
 
+        @NonNull
+        static SpanText fromProto(@NonNull LayoutElementProto.SpanText proto) {
+            return fromProto(proto, null);
+        }
+
+        /** Returns the internal proto instance. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         LayoutElementProto.SpanText toProto() {
             return mImpl;
@@ -2316,7 +2435,7 @@ public final class LayoutElementBuilders {
         public static final class Builder implements Span.Builder {
             private final LayoutElementProto.SpanText.Builder mImpl =
                     LayoutElementProto.SpanText.newBuilder();
-            private final Fingerprint mFingerprint = new Fingerprint(-221774557);
+            private final Fingerprint mFingerprint = new Fingerprint(266451531);
 
             public Builder() {}
 
@@ -2473,11 +2592,21 @@ public final class LayoutElementBuilders {
             return mFingerprint;
         }
 
+        /** Creates a new wrapper instance from the proto. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
-        static SpanImage fromProto(@NonNull LayoutElementProto.SpanImage proto) {
-            return new SpanImage(proto, null);
+        public static SpanImage fromProto(
+                @NonNull LayoutElementProto.SpanImage proto, @Nullable Fingerprint fingerprint) {
+            return new SpanImage(proto, fingerprint);
         }
 
+        @NonNull
+        static SpanImage fromProto(@NonNull LayoutElementProto.SpanImage proto) {
+            return fromProto(proto, null);
+        }
+
+        /** Returns the internal proto instance. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         LayoutElementProto.SpanImage toProto() {
             return mImpl;
@@ -2494,7 +2623,7 @@ public final class LayoutElementBuilders {
         public static final class Builder implements Span.Builder {
             private final LayoutElementProto.SpanImage.Builder mImpl =
                     LayoutElementProto.SpanImage.newBuilder();
-            private final Fingerprint mFingerprint = new Fingerprint(502289772);
+            private final Fingerprint mFingerprint = new Fingerprint(920832637);
 
             public Builder() {}
 
@@ -2585,6 +2714,7 @@ public final class LayoutElementBuilders {
                         5, checkNotNull(alignment.getFingerprint()).aggregateValueAsInt());
                 return this;
             }
+
             /**
              * Sets alignment of this image within the line height of the surrounding {@link
              * Spannable}. If undefined, defaults to SPAN_VERTICAL_ALIGN_BOTTOM.
@@ -2633,15 +2763,23 @@ public final class LayoutElementBuilders {
         }
     }
 
+    /** Creates a new wrapper instance from the proto. */
+    @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
-    static Span spanFromProto(@NonNull LayoutElementProto.Span proto) {
+    public static Span spanFromProto(
+            @NonNull LayoutElementProto.Span proto, @Nullable Fingerprint fingerprint) {
         if (proto.hasText()) {
-            return SpanText.fromProto(proto.getText());
+            return SpanText.fromProto(proto.getText(), fingerprint);
         }
         if (proto.hasImage()) {
-            return SpanImage.fromProto(proto.getImage());
+            return SpanImage.fromProto(proto.getImage(), fingerprint);
         }
         throw new IllegalStateException("Proto was not a recognised instance of Span");
+    }
+
+    @NonNull
+    static Span spanFromProto(@NonNull LayoutElementProto.Span proto) {
+        return spanFromProto(proto, null);
     }
 
     /**
@@ -2765,11 +2903,21 @@ public final class LayoutElementBuilders {
             return mFingerprint;
         }
 
+        /** Creates a new wrapper instance from the proto. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
-        static Spannable fromProto(@NonNull LayoutElementProto.Spannable proto) {
-            return new Spannable(proto, null);
+        public static Spannable fromProto(
+                @NonNull LayoutElementProto.Spannable proto, @Nullable Fingerprint fingerprint) {
+            return new Spannable(proto, fingerprint);
         }
 
+        @NonNull
+        static Spannable fromProto(@NonNull LayoutElementProto.Spannable proto) {
+            return fromProto(proto, null);
+        }
+
+        /** Returns the internal proto instance. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         LayoutElementProto.Spannable toProto() {
             return mImpl;
@@ -2786,7 +2934,7 @@ public final class LayoutElementBuilders {
         public static final class Builder implements LayoutElement.Builder {
             private final LayoutElementProto.Spannable.Builder mImpl =
                     LayoutElementProto.Spannable.newBuilder();
-            private final Fingerprint mFingerprint = new Fingerprint(-1690284372);
+            private final Fingerprint mFingerprint = new Fingerprint(-1111684471);
 
             public Builder() {}
 
@@ -2848,6 +2996,7 @@ public final class LayoutElementBuilders {
                         4, checkNotNull(multilineAlignment.getFingerprint()).aggregateValueAsInt());
                 return this;
             }
+
             /**
              * Sets alignment of the {@link Spannable} content within its bounds. Note that a {@link
              * Spannable} element will size itself to wrap its contents, so this option is
@@ -2879,6 +3028,7 @@ public final class LayoutElementBuilders {
                         5, checkNotNull(overflow.getFingerprint()).aggregateValueAsInt());
                 return this;
             }
+
             /**
              * Sets how to handle content which overflows the bound of the {@link Spannable}
              * element. A {@link Spannable} element will grow as large as possible inside its parent
@@ -3024,11 +3174,21 @@ public final class LayoutElementBuilders {
             return mFingerprint;
         }
 
+        /** Creates a new wrapper instance from the proto. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
-        static Column fromProto(@NonNull LayoutElementProto.Column proto) {
-            return new Column(proto, null);
+        public static Column fromProto(
+                @NonNull LayoutElementProto.Column proto, @Nullable Fingerprint fingerprint) {
+            return new Column(proto, fingerprint);
         }
 
+        @NonNull
+        static Column fromProto(@NonNull LayoutElementProto.Column proto) {
+            return fromProto(proto, null);
+        }
+
+        /** Returns the internal proto instance. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         LayoutElementProto.Column toProto() {
             return mImpl;
@@ -3045,7 +3205,7 @@ public final class LayoutElementBuilders {
         public static final class Builder implements LayoutElement.Builder {
             private final LayoutElementProto.Column.Builder mImpl =
                     LayoutElementProto.Column.newBuilder();
-            private final Fingerprint mFingerprint = new Fingerprint(-1411218529);
+            private final Fingerprint mFingerprint = new Fingerprint(1676323158);
 
             public Builder() {}
 
@@ -3222,11 +3382,21 @@ public final class LayoutElementBuilders {
             return mFingerprint;
         }
 
+        /** Creates a new wrapper instance from the proto. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
-        static Row fromProto(@NonNull LayoutElementProto.Row proto) {
-            return new Row(proto, null);
+        public static Row fromProto(
+                @NonNull LayoutElementProto.Row proto, @Nullable Fingerprint fingerprint) {
+            return new Row(proto, fingerprint);
         }
 
+        @NonNull
+        static Row fromProto(@NonNull LayoutElementProto.Row proto) {
+            return fromProto(proto, null);
+        }
+
+        /** Returns the internal proto instance. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         LayoutElementProto.Row toProto() {
             return mImpl;
@@ -3243,7 +3413,7 @@ public final class LayoutElementBuilders {
         public static final class Builder implements LayoutElement.Builder {
             private final LayoutElementProto.Row.Builder mImpl =
                     LayoutElementProto.Row.newBuilder();
-            private final Fingerprint mFingerprint = new Fingerprint(1537205448);
+            private final Fingerprint mFingerprint = new Fingerprint(1279502255);
 
             public Builder() {}
 
@@ -3431,11 +3601,21 @@ public final class LayoutElementBuilders {
             return mFingerprint;
         }
 
+        /** Creates a new wrapper instance from the proto. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
-        static Arc fromProto(@NonNull LayoutElementProto.Arc proto) {
-            return new Arc(proto, null);
+        public static Arc fromProto(
+                @NonNull LayoutElementProto.Arc proto, @Nullable Fingerprint fingerprint) {
+            return new Arc(proto, fingerprint);
         }
 
+        @NonNull
+        static Arc fromProto(@NonNull LayoutElementProto.Arc proto) {
+            return fromProto(proto, null);
+        }
+
+        /** Returns the internal proto instance. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         LayoutElementProto.Arc toProto() {
             return mImpl;
@@ -3452,7 +3632,7 @@ public final class LayoutElementBuilders {
         public static final class Builder implements LayoutElement.Builder {
             private final LayoutElementProto.Arc.Builder mImpl =
                     LayoutElementProto.Arc.newBuilder();
-            private final Fingerprint mFingerprint = new Fingerprint(299028337);
+            private final Fingerprint mFingerprint = new Fingerprint(-257261663);
 
             public Builder() {}
 
@@ -3545,6 +3725,7 @@ public final class LayoutElementBuilders {
                         4, checkNotNull(verticalAlign.getFingerprint()).aggregateValueAsInt());
                 return this;
             }
+
             /**
              * Sets vertical alignment of elements within the arc. If the {@link Arc}'s thickness is
              * larger than the thickness of the element being drawn, this controls whether the
@@ -3638,11 +3819,21 @@ public final class LayoutElementBuilders {
             return mFingerprint;
         }
 
+        /** Creates a new wrapper instance from the proto. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
-        static ArcText fromProto(@NonNull LayoutElementProto.ArcText proto) {
-            return new ArcText(proto, null);
+        public static ArcText fromProto(
+                @NonNull LayoutElementProto.ArcText proto, @Nullable Fingerprint fingerprint) {
+            return new ArcText(proto, fingerprint);
         }
 
+        @NonNull
+        static ArcText fromProto(@NonNull LayoutElementProto.ArcText proto) {
+            return fromProto(proto, null);
+        }
+
+        /** Returns the internal proto instance. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         LayoutElementProto.ArcText toProto() {
             return mImpl;
@@ -3659,7 +3850,7 @@ public final class LayoutElementBuilders {
         public static final class Builder implements ArcLayoutElement.Builder {
             private final LayoutElementProto.ArcText.Builder mImpl =
                     LayoutElementProto.ArcText.newBuilder();
-            private final Fingerprint mFingerprint = new Fingerprint(434391973);
+            private final Fingerprint mFingerprint = new Fingerprint(-132896327);
 
             public Builder() {}
 
@@ -3819,11 +4010,21 @@ public final class LayoutElementBuilders {
             return mFingerprint;
         }
 
+        /** Creates a new wrapper instance from the proto. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
-        static ArcLine fromProto(@NonNull LayoutElementProto.ArcLine proto) {
-            return new ArcLine(proto, null);
+        public static ArcLine fromProto(
+                @NonNull LayoutElementProto.ArcLine proto, @Nullable Fingerprint fingerprint) {
+            return new ArcLine(proto, fingerprint);
         }
 
+        @NonNull
+        static ArcLine fromProto(@NonNull LayoutElementProto.ArcLine proto) {
+            return fromProto(proto, null);
+        }
+
+        /** Returns the internal proto instance. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         LayoutElementProto.ArcLine toProto() {
             return mImpl;
@@ -4105,11 +4306,21 @@ public final class LayoutElementBuilders {
             return mFingerprint;
         }
 
+        /** Creates a new wrapper instance from the proto. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
-        static ArcSpacer fromProto(@NonNull LayoutElementProto.ArcSpacer proto) {
-            return new ArcSpacer(proto, null);
+        public static ArcSpacer fromProto(
+                @NonNull LayoutElementProto.ArcSpacer proto, @Nullable Fingerprint fingerprint) {
+            return new ArcSpacer(proto, fingerprint);
         }
 
+        @NonNull
+        static ArcSpacer fromProto(@NonNull LayoutElementProto.ArcSpacer proto) {
+            return fromProto(proto, null);
+        }
+
+        /** Returns the internal proto instance. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         LayoutElementProto.ArcSpacer toProto() {
             return mImpl;
@@ -4126,7 +4337,7 @@ public final class LayoutElementBuilders {
         public static final class Builder implements ArcLayoutElement.Builder {
             private final LayoutElementProto.ArcSpacer.Builder mImpl =
                     LayoutElementProto.ArcSpacer.newBuilder();
-            private final Fingerprint mFingerprint = new Fingerprint(-179760535);
+            private final Fingerprint mFingerprint = new Fingerprint(-1076667423);
 
             public Builder() {}
 
@@ -4231,11 +4442,21 @@ public final class LayoutElementBuilders {
             return mFingerprint;
         }
 
+        /** Creates a new wrapper instance from the proto. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
-        static ArcAdapter fromProto(@NonNull LayoutElementProto.ArcAdapter proto) {
-            return new ArcAdapter(proto, null);
+        public static ArcAdapter fromProto(
+                @NonNull LayoutElementProto.ArcAdapter proto, @Nullable Fingerprint fingerprint) {
+            return new ArcAdapter(proto, fingerprint);
         }
 
+        @NonNull
+        static ArcAdapter fromProto(@NonNull LayoutElementProto.ArcAdapter proto) {
+            return fromProto(proto, null);
+        }
+
+        /** Returns the internal proto instance. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         LayoutElementProto.ArcAdapter toProto() {
             return mImpl;
@@ -4252,7 +4473,7 @@ public final class LayoutElementBuilders {
         public static final class Builder implements ArcLayoutElement.Builder {
             private final LayoutElementProto.ArcAdapter.Builder mImpl =
                     LayoutElementProto.ArcAdapter.newBuilder();
-            private final Fingerprint mFingerprint = new Fingerprint(1696473935);
+            private final Fingerprint mFingerprint = new Fingerprint(-176086106);
 
             public Builder() {}
 
@@ -4529,35 +4750,40 @@ public final class LayoutElementBuilders {
     @NonNull
     @OptIn(markerClass = ExperimentalProtoLayoutExtensionApi.class)
     public static LayoutElement layoutElementFromProto(
-            @NonNull LayoutElementProto.LayoutElement proto) {
+            @NonNull LayoutElementProto.LayoutElement proto, @Nullable Fingerprint fingerprint) {
         if (proto.hasColumn()) {
-            return Column.fromProto(proto.getColumn());
+            return Column.fromProto(proto.getColumn(), fingerprint);
         }
         if (proto.hasRow()) {
-            return Row.fromProto(proto.getRow());
+            return Row.fromProto(proto.getRow(), fingerprint);
         }
         if (proto.hasBox()) {
-            return Box.fromProto(proto.getBox());
+            return Box.fromProto(proto.getBox(), fingerprint);
         }
         if (proto.hasSpacer()) {
-            return Spacer.fromProto(proto.getSpacer());
+            return Spacer.fromProto(proto.getSpacer(), fingerprint);
         }
         if (proto.hasText()) {
-            return Text.fromProto(proto.getText());
+            return Text.fromProto(proto.getText(), fingerprint);
         }
         if (proto.hasImage()) {
-            return Image.fromProto(proto.getImage());
+            return Image.fromProto(proto.getImage(), fingerprint);
         }
         if (proto.hasArc()) {
-            return Arc.fromProto(proto.getArc());
+            return Arc.fromProto(proto.getArc(), fingerprint);
         }
         if (proto.hasSpannable()) {
-            return Spannable.fromProto(proto.getSpannable());
+            return Spannable.fromProto(proto.getSpannable(), fingerprint);
         }
         if (proto.hasExtension()) {
-            return ExtensionLayoutElement.fromProto(proto.getExtension());
+            return ExtensionLayoutElement.fromProto(proto.getExtension(), fingerprint);
         }
         throw new IllegalStateException("Proto was not a recognised instance of LayoutElement");
+    }
+
+    @NonNull
+    static LayoutElement layoutElementFromProto(@NonNull LayoutElementProto.LayoutElement proto) {
+        return layoutElementFromProto(proto, null);
     }
 
     /**
@@ -4585,22 +4811,30 @@ public final class LayoutElementBuilders {
         }
     }
 
+    /** Creates a new wrapper instance from the proto. */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @NonNull
+    public static ArcLayoutElement arcLayoutElementFromProto(
+            @NonNull LayoutElementProto.ArcLayoutElement proto, @Nullable Fingerprint fingerprint) {
+        if (proto.hasText()) {
+            return ArcText.fromProto(proto.getText(), fingerprint);
+        }
+        if (proto.hasLine()) {
+            return ArcLine.fromProto(proto.getLine(), fingerprint);
+        }
+        if (proto.hasSpacer()) {
+            return ArcSpacer.fromProto(proto.getSpacer(), fingerprint);
+        }
+        if (proto.hasAdapter()) {
+            return ArcAdapter.fromProto(proto.getAdapter(), fingerprint);
+        }
+        throw new IllegalStateException("Proto was not a recognised instance of ArcLayoutElement");
+    }
+
     @NonNull
     static ArcLayoutElement arcLayoutElementFromProto(
             @NonNull LayoutElementProto.ArcLayoutElement proto) {
-        if (proto.hasText()) {
-            return ArcText.fromProto(proto.getText());
-        }
-        if (proto.hasLine()) {
-            return ArcLine.fromProto(proto.getLine());
-        }
-        if (proto.hasSpacer()) {
-            return ArcSpacer.fromProto(proto.getSpacer());
-        }
-        if (proto.hasAdapter()) {
-            return ArcAdapter.fromProto(proto.getAdapter());
-        }
-        throw new IllegalStateException("Proto was not a recognised instance of ArcLayoutElement");
+        return arcLayoutElementFromProto(proto, null);
     }
 
     /** A complete layout. */
@@ -4916,14 +5150,25 @@ public final class LayoutElementBuilders {
             return mFingerprint;
         }
 
+        /** Creates a new wrapper instance from the proto. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
-        static HorizontalAlignmentProp fromProto(
-                @NonNull AlignmentProto.HorizontalAlignmentProp proto) {
-            return new HorizontalAlignmentProp(proto, null);
+        public static HorizontalAlignmentProp fromProto(
+                @NonNull AlignmentProto.HorizontalAlignmentProp proto,
+                @Nullable Fingerprint fingerprint) {
+            return new HorizontalAlignmentProp(proto, fingerprint);
         }
 
         @NonNull
-        AlignmentProto.HorizontalAlignmentProp toProto() {
+        static HorizontalAlignmentProp fromProto(
+                @NonNull AlignmentProto.HorizontalAlignmentProp proto) {
+            return fromProto(proto, null);
+        }
+
+        /** Returns the internal proto instance. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public AlignmentProto.HorizontalAlignmentProp toProto() {
             return mImpl;
         }
 
@@ -4931,7 +5176,7 @@ public final class LayoutElementBuilders {
         public static final class Builder {
             private final AlignmentProto.HorizontalAlignmentProp.Builder mImpl =
                     AlignmentProto.HorizontalAlignmentProp.newBuilder();
-            private final Fingerprint mFingerprint = new Fingerprint(-384830516);
+            private final Fingerprint mFingerprint = new Fingerprint(1412659592);
 
             public Builder() {}
 
@@ -4975,14 +5220,25 @@ public final class LayoutElementBuilders {
             return mFingerprint;
         }
 
+        /** Creates a new wrapper instance from the proto. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
-        static VerticalAlignmentProp fromProto(
-                @NonNull AlignmentProto.VerticalAlignmentProp proto) {
-            return new VerticalAlignmentProp(proto, null);
+        public static VerticalAlignmentProp fromProto(
+                @NonNull AlignmentProto.VerticalAlignmentProp proto,
+                @Nullable Fingerprint fingerprint) {
+            return new VerticalAlignmentProp(proto, fingerprint);
         }
 
         @NonNull
-        AlignmentProto.VerticalAlignmentProp toProto() {
+        static VerticalAlignmentProp fromProto(
+                @NonNull AlignmentProto.VerticalAlignmentProp proto) {
+            return fromProto(proto, null);
+        }
+
+        /** Returns the internal proto instance. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public AlignmentProto.VerticalAlignmentProp toProto() {
             return mImpl;
         }
 
@@ -4990,7 +5246,7 @@ public final class LayoutElementBuilders {
         public static final class Builder {
             private final AlignmentProto.VerticalAlignmentProp.Builder mImpl =
                     AlignmentProto.VerticalAlignmentProp.newBuilder();
-            private final Fingerprint mFingerprint = new Fingerprint(1443510393);
+            private final Fingerprint mFingerprint = new Fingerprint(1488177384);
 
             public Builder() {}
 
@@ -5034,13 +5290,24 @@ public final class LayoutElementBuilders {
             return mFingerprint;
         }
 
+        /** Creates a new wrapper instance from the proto. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
-        static TextAlignmentProp fromProto(@NonNull AlignmentProto.TextAlignmentProp proto) {
-            return new TextAlignmentProp(proto, null);
+        public static TextAlignmentProp fromProto(
+                @NonNull AlignmentProto.TextAlignmentProp proto,
+                @Nullable Fingerprint fingerprint) {
+            return new TextAlignmentProp(proto, fingerprint);
         }
 
         @NonNull
-        AlignmentProto.TextAlignmentProp toProto() {
+        static TextAlignmentProp fromProto(@NonNull AlignmentProto.TextAlignmentProp proto) {
+            return fromProto(proto, null);
+        }
+
+        /** Returns the internal proto instance. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public AlignmentProto.TextAlignmentProp toProto() {
             return mImpl;
         }
 
@@ -5048,7 +5315,7 @@ public final class LayoutElementBuilders {
         public static final class Builder {
             private final AlignmentProto.TextAlignmentProp.Builder mImpl =
                     AlignmentProto.TextAlignmentProp.newBuilder();
-            private final Fingerprint mFingerprint = new Fingerprint(797507251);
+            private final Fingerprint mFingerprint = new Fingerprint(1800500598);
 
             public Builder() {}
 
@@ -5092,13 +5359,24 @@ public final class LayoutElementBuilders {
             return mFingerprint;
         }
 
+        /** Creates a new wrapper instance from the proto. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
-        static ArcAnchorTypeProp fromProto(@NonNull AlignmentProto.ArcAnchorTypeProp proto) {
-            return new ArcAnchorTypeProp(proto, null);
+        public static ArcAnchorTypeProp fromProto(
+                @NonNull AlignmentProto.ArcAnchorTypeProp proto,
+                @Nullable Fingerprint fingerprint) {
+            return new ArcAnchorTypeProp(proto, fingerprint);
         }
 
         @NonNull
-        AlignmentProto.ArcAnchorTypeProp toProto() {
+        static ArcAnchorTypeProp fromProto(@NonNull AlignmentProto.ArcAnchorTypeProp proto) {
+            return fromProto(proto, null);
+        }
+
+        /** Returns the internal proto instance. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public AlignmentProto.ArcAnchorTypeProp toProto() {
             return mImpl;
         }
 

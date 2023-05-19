@@ -355,13 +355,17 @@ public final class DeviceParametersBuilders {
       return mImpl.getMinimumFreshnessLimitMillis();
     }
 
+    /** Creates a new wrapper instance from the proto. */
+    @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
-    static Capabilities fromProto(@NonNull DeviceParametersProto.Capabilities proto) {
+    public static Capabilities fromProto(@NonNull DeviceParametersProto.Capabilities proto) {
       return new Capabilities(proto);
     }
 
+    /** Returns the internal proto instance. */
+    @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
-    DeviceParametersProto.Capabilities toProto() {
+    public DeviceParametersProto.Capabilities toProto() {
       return mImpl;
     }
 
