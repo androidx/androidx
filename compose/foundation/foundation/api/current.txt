@@ -48,6 +48,7 @@ package androidx.compose.foundation {
   }
 
   public final class ClickableKt {
+    method @androidx.compose.foundation.ExperimentalFoundationApi public static androidx.compose.foundation.CombinedClickableNode CombinedClickableNode(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, String? onLongClickLabel, kotlin.jvm.functions.Function0<kotlin.Unit>? onLongClick, kotlin.jvm.functions.Function0<kotlin.Unit>? onDoubleClick, androidx.compose.foundation.interaction.MutableInteractionSource interactionSource, boolean enabled, String? onClickLabel, androidx.compose.ui.semantics.Role? role);
     method public static androidx.compose.ui.Modifier clickable(androidx.compose.ui.Modifier, androidx.compose.foundation.interaction.MutableInteractionSource interactionSource, androidx.compose.foundation.Indication? indication, optional boolean enabled, optional String? onClickLabel, optional androidx.compose.ui.semantics.Role? role, kotlin.jvm.functions.Function0<kotlin.Unit> onClick);
     method public static androidx.compose.ui.Modifier clickable(androidx.compose.ui.Modifier, optional boolean enabled, optional String? onClickLabel, optional androidx.compose.ui.semantics.Role? role, kotlin.jvm.functions.Function0<kotlin.Unit> onClick);
     method @androidx.compose.foundation.ExperimentalFoundationApi public static androidx.compose.ui.Modifier combinedClickable(androidx.compose.ui.Modifier, androidx.compose.foundation.interaction.MutableInteractionSource interactionSource, androidx.compose.foundation.Indication? indication, optional boolean enabled, optional String? onClickLabel, optional androidx.compose.ui.semantics.Role? role, optional String? onLongClickLabel, optional kotlin.jvm.functions.Function0<kotlin.Unit>? onLongClick, optional kotlin.jvm.functions.Function0<kotlin.Unit>? onDoubleClick, kotlin.jvm.functions.Function0<kotlin.Unit> onClick);
@@ -56,6 +57,10 @@ package androidx.compose.foundation {
 
   public final class ClipScrollableContainerKt {
     method public static androidx.compose.ui.Modifier clipScrollableContainer(androidx.compose.ui.Modifier, androidx.compose.foundation.gestures.Orientation orientation);
+  }
+
+  @androidx.compose.foundation.ExperimentalFoundationApi public sealed interface CombinedClickableNode extends androidx.compose.ui.node.PointerInputModifierNode {
+    method public void update(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, String? onLongClickLabel, kotlin.jvm.functions.Function0<kotlin.Unit>? onLongClick, kotlin.jvm.functions.Function0<kotlin.Unit>? onDoubleClick, androidx.compose.foundation.interaction.MutableInteractionSource interactionSource, boolean enabled, String? onClickLabel, androidx.compose.ui.semantics.Role? role);
   }
 
   public final class DarkThemeKt {
