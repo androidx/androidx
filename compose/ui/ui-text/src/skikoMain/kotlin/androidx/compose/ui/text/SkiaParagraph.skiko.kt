@@ -279,6 +279,14 @@ internal class SkiaParagraph(
         return box.rect.toComposeRect()
     }
 
+    override fun fillBoundingBoxes(
+        range: TextRange,
+        array: FloatArray,
+        arrayStart: Int
+    ) {
+        // TODO(siyamed) needs fillBoundingBoxes
+    }
+
     override fun getWordBoundary(offset: Int): TextRange {
         return when {
             (text[offset].isLetterOrDigit()) -> para.getWordBoundary(offset).let {

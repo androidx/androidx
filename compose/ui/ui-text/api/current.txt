@@ -111,6 +111,7 @@ package androidx.compose.ui.text {
     ctor public MultiParagraph(androidx.compose.ui.text.AnnotatedString annotatedString, androidx.compose.ui.text.TextStyle style, long constraints, androidx.compose.ui.unit.Density density, androidx.compose.ui.text.font.FontFamily.Resolver fontFamilyResolver, optional java.util.List<androidx.compose.ui.text.AnnotatedString.Range<androidx.compose.ui.text.Placeholder>> placeholders, optional int maxLines, optional boolean ellipsis);
     ctor @Deprecated public MultiParagraph(androidx.compose.ui.text.MultiParagraphIntrinsics intrinsics, optional int maxLines, optional boolean ellipsis, float width);
     ctor public MultiParagraph(androidx.compose.ui.text.MultiParagraphIntrinsics intrinsics, long constraints, optional int maxLines, optional boolean ellipsis);
+    method public float[] fillBoundingBoxes(long range, float[] array, int arrayStart);
     method public androidx.compose.ui.text.style.ResolvedTextDirection getBidiRunDirection(int offset);
     method public androidx.compose.ui.geometry.Rect getBoundingBox(int offset);
     method public androidx.compose.ui.geometry.Rect getCursorRect(int offset);
@@ -172,6 +173,7 @@ package androidx.compose.ui.text {
   }
 
   public sealed interface Paragraph {
+    method public void fillBoundingBoxes(long range, float[] array, int arrayStart);
     method public androidx.compose.ui.text.style.ResolvedTextDirection getBidiRunDirection(int offset);
     method public androidx.compose.ui.geometry.Rect getBoundingBox(int offset);
     method public androidx.compose.ui.geometry.Rect getCursorRect(int offset);

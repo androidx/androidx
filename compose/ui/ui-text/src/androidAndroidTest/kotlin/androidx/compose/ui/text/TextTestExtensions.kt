@@ -167,6 +167,17 @@ internal fun UncachedFontFamilyResolver(
     PlatformFontFamilyTypefaceAdapter()
 )
 
+fun MultiParagraph.bitmap(): Bitmap {
+    val bitmap = Bitmap.createBitmap(
+        width.toIntPx(),
+        height.toIntPx(),
+        Bitmap.Config.ARGB_8888
+    )
+    val canvas = androidx.compose.ui.graphics.Canvas(Canvas(bitmap))
+    this.paint(canvas)
+    return bitmap
+}
+
 fun Float.toIntPx(): Int = ceil(this).roundToInt()
 
 internal fun FloatArray.asRectArray(): Array<Rect> {

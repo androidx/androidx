@@ -442,14 +442,9 @@ class MultiParagraph(
 
         if (start == end) return Path()
 
-        val paragraphIndex = findParagraphByIndex(paragraphInfoList, start)
         val path = Path()
-
-        for (i in paragraphIndex until paragraphInfoList.size) {
-            val p = paragraphInfoList[i]
-            if (p.startIndex >= end) break
-            if (p.startIndex == p.endIndex) continue
-            with(p) {
+        findParagraphsByRange(paragraphInfoList, TextRange(start, end)) { paragraphInfo ->
+            with(paragraphInfo) {
                 path.addPath(
                     path = paragraph.getPathForRange(
                         start = start.toLocalIndex(),
@@ -458,6 +453,7 @@ class MultiParagraph(
                 )
             }
         }
+
         return path
     }
 
@@ -510,6 +506,64 @@ class MultiParagraph(
         return with(paragraphInfoList[paragraphIndex]) {
             paragraph.getBoundingBox(offset.toLocalIndex()).toGlobal()
         }
+    }
+
+    /**
+     * Fills the bounding boxes for characters provided in the [range] into [array]. The array is
+     * filled starting from [arrayStart] (inclusive). The coordinates are in local text layout
+     * coordinates.
+     *
+     * The returned information consists of left/right of a character; line top and bottom for the
+     * same character.
+     *
+     * For the grapheme consists of multiple code points, e.g. ligatures, combining marks, the first
+     * character has the total width and the remaining are returned as zero-width.
+     *
+     * The array divided into segments of four where each index in that segment represents left,
+     * top, right, bottom of the character.
+     *
+     * The size of the provided [array] should be greater or equal than the four times * [TextRange]
+     * length.
+     *
+     * The final order of characters in the [array] is from [TextRange.min] to [TextRange.max].
+     *
+     * @param range the [TextRange] representing the start and end indices in the [Paragraph].
+     * @param array the array to fill in the values. The array divided into segments of four where
+     * each index in that segment represents left, top, right, bottom of the character.
+     * @param arrayStart the inclusive start index in the array where the function will start
+     * filling in the values from
+     */
+    fun fillBoundingBoxes(
+        range: TextRange,
+        array: FloatArray,
+        arrayStart: Int
+    ): FloatArray {
+        requireIndexInRange(range.min)
+        requireIndexInRangeInclusiveEnd(range.max)
+
+        var currentArrayStart = arrayStart
+        var currentHeight = 0f
+        findParagraphsByRange(paragraphInfoList, range) { paragraphInfo ->
+            with(paragraphInfo) {
+                val paragraphStart = if (startIndex > range.min) startIndex else range.min
+                val paragraphEnd = if (endIndex < range.max) endIndex else range.max
+                val finalRange = TextRange(
+                    paragraphStart.toLocalIndex(),
+                    paragraphEnd.toLocalIndex()
+                )
+                paragraph.fillBoundingBoxes(finalRange, array, currentArrayStart)
+                val currentArrayEnd = currentArrayStart + finalRange.length * 4
+                for (arrayIndex in currentArrayStart until currentArrayEnd step 4) {
+                    // update top and bottom
+                    array[arrayIndex + 1] += currentHeight
+                    array[arrayIndex + 3] += currentHeight
+                }
+                currentArrayStart = currentArrayEnd
+                currentHeight += paragraphInfo.paragraph.height
+            }
+        }
+
+        return array
     }
 
     /**
@@ -825,6 +879,20 @@ internal fun findParagraphByY(paragraphInfoList: List<ParagraphInfo>, y: Float):
             paragraphInfo.bottom <= y -> -1
             else -> 0
         }
+    }
+}
+
+internal fun findParagraphsByRange(
+    paragraphInfoList: List<ParagraphInfo>,
+    range: TextRange,
+    action: (ParagraphInfo) -> Unit
+) {
+    val paragraphIndex = findParagraphByIndex(paragraphInfoList, range.min)
+    for (i in paragraphIndex until paragraphInfoList.size) {
+        val paragraph = paragraphInfoList[i]
+        if (paragraph.startIndex >= range.max) break
+        if (paragraph.startIndex == paragraph.endIndex) continue
+        action(paragraph)
     }
 }
 

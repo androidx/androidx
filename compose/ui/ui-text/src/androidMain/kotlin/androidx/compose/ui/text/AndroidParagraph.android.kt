@@ -342,7 +342,7 @@ internal class AndroidParagraph(
      * @param arrayStart the inclusive start index in the array where the function will start
      * filling in the values from
      */
-    fun fillBoundingBoxes(
+    override fun fillBoundingBoxes(
         range: TextRange,
         array: FloatArray,
         arrayStart: Int
