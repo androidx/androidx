@@ -53,18 +53,19 @@ class StartSafetyCheck private constructor() {
         Capability.Builder<
             CapabilityBuilder, Arguments, Output, Confirmation, ExecutionSession
             >(ACTION_SPEC) {
-        private var properties = mutableMapOf<String, Property<*>>()
+        fun setDurationProperty(duration: Property<Duration>): CapabilityBuilder = setProperty(
+            PropertyMapStrings.DURATION.key,
+            duration,
+            TypeConverters.DURATION_ENTITY_CONVERTER
+        )
 
-        fun setDuration(duration: Property<Duration>): CapabilityBuilder =
-            apply { properties[PropertyMapStrings.DURATION.key] = duration }
-
-        fun setCheckInTime(checkInTime: Property<ZonedDateTime>): CapabilityBuilder =
-            apply { properties[PropertyMapStrings.CHECK_IN_TIME.key] = checkInTime }
-
-        override fun build(): Capability {
-            super.setProperty(properties)
-            return super.build()
-        }
+        fun setCheckInTimeProperty(
+            checkInTime: Property<ZonedDateTime>
+        ): CapabilityBuilder = setProperty(
+            PropertyMapStrings.CHECK_IN_TIME.key,
+            checkInTime,
+            TypeConverters.ZONED_DATETIME_ENTITY_CONVERTER
+        )
     }
 
     class Arguments internal constructor(
@@ -225,28 +226,19 @@ class StartSafetyCheck private constructor() {
     sealed interface ExecutionSession : BaseExecutionSession<Arguments, Output>
 
     companion object {
-        @Suppress("UNCHECKED_CAST")
         private val ACTION_SPEC =
             ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
                 .setArguments(Arguments::class.java, Arguments::Builder)
                 .setOutput(Output::class.java)
                 .bindParameter(
                     "safetyCheck.duration",
-                    { properties ->
-                        properties[PropertyMapStrings.DURATION.key] as? Property<Duration>
-                    },
                     Arguments.Builder::setDuration,
-                    TypeConverters.DURATION_PARAM_VALUE_CONVERTER,
-                    TypeConverters.DURATION_ENTITY_CONVERTER
+                    TypeConverters.DURATION_PARAM_VALUE_CONVERTER
                 )
                 .bindParameter(
                     "safetyCheck.checkInTime",
-                    { properties ->
-                        properties[PropertyMapStrings.CHECK_IN_TIME.key] as? Property<ZonedDateTime>
-                    },
                     Arguments.Builder::setCheckInTime,
-                    TypeConverters.ZONED_DATETIME_PARAM_VALUE_CONVERTER,
-                    TypeConverters.ZONED_DATETIME_ENTITY_CONVERTER
+                    TypeConverters.ZONED_DATETIME_PARAM_VALUE_CONVERTER
                 )
                 .bindOutput(
                     "safetyCheck",

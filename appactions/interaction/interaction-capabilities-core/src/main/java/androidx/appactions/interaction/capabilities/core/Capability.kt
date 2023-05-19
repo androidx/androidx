@@ -20,7 +20,9 @@ import android.annotation.SuppressLint
 import androidx.annotation.RestrictTo
 import androidx.appactions.interaction.capabilities.core.impl.CapabilitySession
 import androidx.appactions.interaction.capabilities.core.impl.SingleTurnCapabilityImpl
+import androidx.appactions.interaction.capabilities.core.impl.converters.EntityConverter
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpec
+import androidx.appactions.interaction.capabilities.core.impl.spec.BoundProperty
 import androidx.appactions.interaction.capabilities.core.impl.task.EmptyTaskUpdater
 import androidx.appactions.interaction.capabilities.core.impl.task.SessionBridge
 import androidx.appactions.interaction.capabilities.core.impl.task.TaskCapabilityImpl
@@ -71,7 +73,7 @@ abstract class Capability internal constructor(
         ExecutionSessionT : BaseExecutionSession<ArgumentsT, OutputT>
         > private constructor() {
         private var id: String? = null
-        private var property: Map<String, Property<*>>? = null
+        private val boundPropertyMap = mutableMapOf<String, BoundProperty<*>>()
         private var executionCallback: ExecutionCallback<ArgumentsT, OutputT>? = null
         private var sessionFactory:
             (hostProperties: HostProperties?) -> ExecutionSessionT? = { _ -> null }
@@ -107,11 +109,14 @@ abstract class Capability internal constructor(
         }
 
         /**
-         * Sets the Property instance for this capability.
-         */
+         * Sets a single slot property for this capability, and associated entity converter. */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        fun setProperty(property: Map<String, Property<*>>) = asBuilder().apply {
-            this.property = property
+        protected fun <T> setProperty(
+            slotName: String,
+            property: Property<T>,
+            entityConverter: EntityConverter<T>,
+        ) = asBuilder().apply {
+            this.boundPropertyMap[slotName] = BoundProperty(slotName, property, entityConverter)
         }
 
         /**
@@ -162,19 +167,19 @@ abstract class Capability internal constructor(
         /** Builds and returns this Capability. */
         open fun build(): Capability {
             val checkedId = requireNotNull(id) { "setId must be called before build" }
-            val checkedProperty = requireNotNull(property) { "property must not be null." }
+            val boundProperties = boundPropertyMap.values.toList()
             if (executionCallback != null) {
                 return SingleTurnCapabilityImpl(
                     checkedId,
                     actionSpec!!,
-                    checkedProperty,
+                    boundProperties,
                     executionCallback!!
                 )
             } else {
                 return TaskCapabilityImpl(
                     checkedId,
                     actionSpec!!,
-                    checkedProperty,
+                    boundProperties,
                     sessionFactory,
                     sessionBridge!!,
                     ::EmptyTaskUpdater

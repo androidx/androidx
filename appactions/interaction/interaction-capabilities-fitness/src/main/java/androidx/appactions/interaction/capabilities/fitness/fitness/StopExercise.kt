@@ -42,15 +42,11 @@ class StopExercise private constructor() {
             Confirmation,
             ExecutionSession
             >(ACTION_SPEC) {
-        private var properties = mutableMapOf<String, Property<*>>()
-
-        fun setName(name: Property<StringValue>): CapabilityBuilder =
-            apply { properties[PropertyMapStrings.NAME.key] = name }
-
-        override fun build(): Capability {
-            super.setProperty(properties)
-            return super.build()
-        }
+        fun setNameProperty(name: Property<StringValue>): CapabilityBuilder = setProperty(
+            PropertyMapStrings.NAME.key,
+            name,
+            TypeConverters.STRING_VALUE_ENTITY_CONVERTER
+        )
     }
 
     class Arguments internal constructor(
@@ -93,19 +89,14 @@ class StopExercise private constructor() {
 
     companion object {
         // TODO(b/273602015): Update to use Name property from builtintype library.
-        @Suppress("UNCHECKED_CAST")
         private val ACTION_SPEC =
             ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
                 .setArguments(Arguments::class.java, Arguments::Builder)
                 .setOutput(Output::class.java)
                 .bindParameter(
                     "exercise.name",
-                    { properties ->
-                        properties[PropertyMapStrings.NAME.key] as? Property<StringValue>
-                    },
                     Arguments.Builder::setName,
-                    TypeConverters.STRING_PARAM_VALUE_CONVERTER,
-                    TypeConverters.STRING_VALUE_ENTITY_CONVERTER
+                    TypeConverters.STRING_PARAM_VALUE_CONVERTER
                 )
                 .build()
     }

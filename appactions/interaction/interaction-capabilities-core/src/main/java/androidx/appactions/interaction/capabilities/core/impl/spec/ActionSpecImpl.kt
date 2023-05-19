@@ -18,11 +18,10 @@ package androidx.appactions.interaction.capabilities.core.impl.spec
 
 import androidx.appactions.interaction.capabilities.core.impl.BuilderOf
 import androidx.appactions.interaction.capabilities.core.impl.exceptions.StructConversionException
-import androidx.appactions.interaction.capabilities.core.impl.utils.ImmutableCollectors
-import androidx.appactions.interaction.capabilities.core.properties.Property
-import androidx.appactions.interaction.proto.AppActionsContext
+import androidx.appactions.interaction.proto.AppActionsContext.AppAction
 import androidx.appactions.interaction.proto.FulfillmentResponse
 import androidx.appactions.interaction.proto.ParamValue
+import androidx.appactions.interaction.proto.TaskInfo
 import java.util.function.Function
 import java.util.function.Supplier
 
@@ -33,20 +32,20 @@ internal class ActionSpecImpl<ArgumentsT, ArgumentsBuilderT : BuilderOf<Argument
     private val paramBindingList: List<ParamBinding<ArgumentsT, ArgumentsBuilderT>>,
     private val outputBindings: Map<String, Function<OutputT, List<ParamValue>>>
 ) : ActionSpec<ArgumentsT, OutputT> {
-
-    override fun convertPropertyToProto(
-        property: Map<String, Property<*>>
-    ): AppActionsContext.AppAction {
-        return AppActionsContext.AppAction.newBuilder()
+    override fun createAppAction(
+        identifier: String,
+        boundProperties: List<BoundProperty<*>>,
+        supportsPartialFulfillment: Boolean
+    ): AppAction = AppAction.newBuilder()
             .setName(capabilityName)
+            .setIdentifier(identifier)
             .addAllParams(
-                paramBindingList.stream()
-                    .map { binding -> binding.propertyConverter.apply(property) }
-                    .filter { intentParam -> intentParam != null }
-                    .collect(ImmutableCollectors.toImmutableList())
+                boundProperties.map(BoundProperty<*>::convertToProto)
+            )
+            .setTaskInfo(
+                TaskInfo.newBuilder().setSupportsPartialFulfillment(supportsPartialFulfillment)
             )
             .build()
-    }
 
     @Throws(StructConversionException::class)
     override fun buildArguments(args: Map<String, List<ParamValue>>): ArgumentsT {
