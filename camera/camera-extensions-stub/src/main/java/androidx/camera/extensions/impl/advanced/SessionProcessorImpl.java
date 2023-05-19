@@ -375,6 +375,7 @@ public interface SessionProcessorImpl {
          *                             as part of this callback. Both Camera2 and CameraX guarantee
          *                             that those two settings and results are always supported and
          *                             applied by the corresponding framework.
+         * @since 1.3
          */
         void onCaptureCompleted(long timestamp, int captureSequenceId,
                 @NonNull Map<CaptureResult.Key, Object> result);
