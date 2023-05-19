@@ -731,7 +731,7 @@ public class Chip implements LayoutElement {
     @ProtoLayoutExperimental
     boolean hasPrimaryLabelExcludeFontPadding() {
         Text primaryLabel = getPrimaryLabelContentObject();
-        return primaryLabel != null && primaryLabel.getExcludeFontPadding();
+        return primaryLabel != null && primaryLabel.hasExcludeFontPadding();
     }
 
     /**

@@ -25,7 +25,6 @@ import static androidx.wear.protolayout.material.Typography.TYPOGRAPHY_DISPLAY1;
 import static androidx.wear.protolayout.material.Typography.getFontStyleBuilder;
 import static androidx.wear.protolayout.material.Typography.getLineHeightForTypography;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 
 import androidx.annotation.IntRange;
@@ -230,8 +229,8 @@ public class Text implements LayoutElement {
         // other impacted UI Libraries - needs care as will have an impact on layout and needs to be
         // communicated clearly.
         @NonNull
-        @SuppressLint("MissingGetterMatchingBuilder")
         @ProtoLayoutExperimental
+        @SuppressWarnings("MissingGetterMatchingBuilder")
         public Builder setExcludeFontPadding(boolean excludeFontPadding) {
             this.mElementBuilder.setAndroidTextStyle(
                     new LayoutElementBuilders.AndroidTextStyle.Builder()
@@ -326,7 +325,7 @@ public class Text implements LayoutElement {
      * excluded.
      */
     @ProtoLayoutExperimental
-    public boolean getExcludeFontPadding() {
+    public boolean hasExcludeFontPadding() {
         return checkNotNull(mText.getAndroidTextStyle()).getExcludeFontPadding();
     }
 
