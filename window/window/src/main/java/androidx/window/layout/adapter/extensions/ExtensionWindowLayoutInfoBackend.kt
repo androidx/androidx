@@ -42,7 +42,7 @@ import kotlin.concurrent.withLock
  * [Context#createWindowContext] or InputMethodService.
  */
 internal class ExtensionWindowLayoutInfoBackend(
-    private val component: WindowLayoutComponent,
+    private val component: WindowLayoutComponentWrapper,
     private val consumerAdapter: ConsumerAdapter
 ) : WindowBackend {
 
