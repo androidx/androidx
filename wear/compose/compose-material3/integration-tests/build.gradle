@@ -35,6 +35,7 @@ dependencies {
 
     implementation(project(':wear:compose:compose-foundation'))
     implementation(project(':wear:compose:compose-material3'))
+    implementation(project(':wear:compose:compose-material3-samples'))
     implementation(project(':wear:compose:integration-tests:demos:common'))
 }
 

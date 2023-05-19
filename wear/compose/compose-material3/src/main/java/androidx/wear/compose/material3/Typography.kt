@@ -29,8 +29,8 @@ import androidx.compose.ui.unit.sp
  * The text styles in this typography are scaled according to the user's preferred font size in
  * the system settings. Larger font sizes can be fixed if necessary in order to avoid pressure on
  * screen space, because they are already sufficiently accessible.
- * Here is an example of fixing the font size for Display1:
- * @sample androidx.wear.compose.material.samples.FixedFontSize
+ * Here is an example of fixing the font size for DisplayLarge:
+ * @sample androidx.wear.compose.material3.samples.FixedFontSize
  *
  * TODO(b/273526150) Review documentation for typography, add examples for each size.
  * @property displayExtraLarge DisplayExtraLarge is the largest headline. Displays are the

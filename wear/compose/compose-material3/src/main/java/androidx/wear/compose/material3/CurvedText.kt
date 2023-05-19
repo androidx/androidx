@@ -59,10 +59,10 @@ import androidx.wear.compose.foundation.curvedRow
  * still maintain contrast and accessibility.
  *
  * For samples explicitly specifying style see:
- * @sample androidx.wear.compose.material.samples.CurvedTextDemo
+ * TODO(b/283777480): Add CurvedText samples
  *
  * For examples using CompositionLocal to specify the style, see:
- * @sample androidx.wear.compose.material.samples.CurvedTextProviderDemo
+ * TODO(b/283777480): Add CurvedText samples
  *
  * For more information, see the
  * [Curved Text](https://developer.android.com/training/wearables/compose/curved-text)
