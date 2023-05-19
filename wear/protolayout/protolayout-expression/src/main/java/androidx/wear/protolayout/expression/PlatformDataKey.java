@@ -22,19 +22,18 @@ import androidx.annotation.RestrictTo;
 /**
  * Represent a {@link DynamicDataKey} that references real-time data from the platform.
  *
- * <p> The [namespace, key] tuple creates the actual reference, so that a single key can refer to
- * two different sources in two different namespaces.
+ * <p>The [namespace, key] tuple creates the actual reference, so that a single key can refer to two
+ * different sources in two different namespaces.
  *
- * <p> The namespace must not be empty. Additionally, the "protolayout" namespace (and its
- * lowercase and uppercase variations) are reserved for the default platform data sources and
- * should not be used for any custom OEM data source. To choose the namespace that does not
- * conflict with an existing one, use a unique prefix for your namespace, for example, company
- * name or product name.
+ * <p>The namespace must not be empty. Additionally, the "protolayout" namespace (and its lowercase
+ * and uppercase variations) are reserved for the default platform data sources and should not be
+ * used for any custom OEM data source. To make sure namespaces are unique, any custom namespace is
+ * expected to follow Java style naming {@code com.company.foo}.
  *
  * @param <T> The data type of the dynamic values that this key is bound to.
  */
-public final class PlatformDataKey<T extends DynamicBuilders.DynamicType> extends DynamicDataKey<T>
-{
+public final class PlatformDataKey<T extends DynamicBuilders.DynamicType>
+        extends DynamicDataKey<T> {
     @NonNull private static final String RESERVED_NAMESPACE = "protolayout";
 
     /**
@@ -50,15 +49,16 @@ public final class PlatformDataKey<T extends DynamicBuilders.DynamicType> extend
         }
 
         if (RESERVED_NAMESPACE.equalsIgnoreCase(namespace)) {
-            throw new IllegalArgumentException(String.format(
-                    "Custom data source must not use the reserved namespace:%s",
-                    RESERVED_NAMESPACE));
+            throw new IllegalArgumentException(
+                    String.format(
+                            "Custom data source must not use the reserved namespace:%s",
+                            RESERVED_NAMESPACE));
         }
     }
 
     /**
-     * Create a {@link PlatformDataKey} with the specified key in the reserved namespace.
-     * This should only be used by protolayout library internally for default platform data sources.
+     * Create a {@link PlatformDataKey} with the specified key in the reserved namespace. This
+     * should only be used by protolayout library internally for default platform data sources.
      *
      * @param key The key that references the platform data source
      */
@@ -67,4 +67,3 @@ public final class PlatformDataKey<T extends DynamicBuilders.DynamicType> extend
         super(RESERVED_NAMESPACE, key);
     }
 }
-
