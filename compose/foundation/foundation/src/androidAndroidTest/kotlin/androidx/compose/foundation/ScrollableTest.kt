@@ -804,17 +804,19 @@ class ScrollableTest {
 
     @OptIn(ExperimentalTestApi::class)
     @Test
-    fun scrollable_nestedScroll_disabledForMouseWheel() {
+    fun scrollable_nestedScroll_childPartialConsumptionForMouseWheel() {
         var innerDrag = 0f
         var outerDrag = 0f
         val outerState = ScrollableState(
             consumeScrollDelta = {
+                // Since the child has already consumed half, the parent will consume the rest.
                 outerDrag += it
                 it
             }
         )
         val innerState = ScrollableState(
             consumeScrollDelta = {
+                // Child consumes half, leaving the rest for the parent to consume.
                 innerDrag += it / 2
                 it / 2
             }
@@ -848,7 +850,10 @@ class ScrollableTest {
         }
         rule.runOnIdle {
             assertThat(innerDrag).isGreaterThan(0f)
-            assertThat(outerDrag).isZero()
+            assertThat(outerDrag).isGreaterThan(0f)
+            // Since child (inner) consumes half of the scroll, the parent (outer) consumes the
+            // remainder (which is half as well), so they will be equal.
+            assertThat(innerDrag).isEqualTo(outerDrag)
             innerDrag
         }
     }

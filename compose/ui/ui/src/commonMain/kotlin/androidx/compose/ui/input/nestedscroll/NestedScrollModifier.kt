@@ -236,7 +236,7 @@ value class NestedScrollSource internal constructor(
             Fling -> "Fling"
             @OptIn(ExperimentalComposeUiApi::class)
             Relocate -> "Relocate"
-
+            Wheel -> "Wheel"
             else -> "Invalid"
         }
     }
@@ -260,6 +260,11 @@ value class NestedScrollSource internal constructor(
         @ExperimentalComposeUiApi
         @Deprecated("Do not use. Will be removed in the future.")
         val Relocate: NestedScrollSource = NestedScrollSource(3)
+
+        /**
+         * Scrolling via mouse wheel.
+         */
+        val Wheel: NestedScrollSource = NestedScrollSource(4)
     }
 }
 

@@ -43,6 +43,7 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollDispatcher
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource.Companion.Drag
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource.Companion.Fling
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource.Companion.Wheel
 import androidx.compose.ui.input.nestedscroll.nestedScrollModifierNode
 import androidx.compose.ui.input.pointer.AwaitPointerEventScope
 import androidx.compose.ui.input.pointer.PointerEvent
@@ -497,7 +498,6 @@ private class MouseWheelScrollNode(
     private val scrollingLogic: ScrollingLogic,
     private var mouseWheelScrollConfig: ScrollConfig
 ) : DelegatingNode() {
-
     private val pointerInputNode = delegate(SuspendingPointerInputModifierNode {
         awaitPointerEventScope {
             while (true) {
@@ -505,12 +505,20 @@ private class MouseWheelScrollNode(
                 if (event.changes.fastAll { !it.isConsumed }) {
                     with(mouseWheelScrollConfig) {
                         val scrollAmount = calculateMouseWheelScroll(event, size)
+
                         with(scrollingLogic) {
-                            val delta = scrollAmount.toFloat().reverseIfNeeded()
-                            val consumedDelta = scrollableState.dispatchRawDelta(delta)
-                            if (consumedDelta != 0f) {
-                                event.changes.fastForEach { it.consume() }
+                            // A coroutine is launched for every individual scroll event in the
+                            // larger scroll gesture. If we see degradation in the future (that is,
+                            // a fast scroll gesture on a slow device causes UI jank [not seen up to
+                            // this point), we can switch to a more efficient solution where we
+                            // lazily launch one coroutine (with the first event) and use a Channel
+                            // to communicate the scroll amount to the UI thread.
+                            coroutineScope.launch {
+                                scrollableState.scroll(MutatePriority.UserInput) {
+                                    dispatchScroll(scrollAmount, Wheel)
+                                }
                             }
+                            event.changes.fastForEach { it.consume() }
                         }
                     }
                 }
@@ -578,8 +586,7 @@ private class ScrollingLogic(
         val scrollDelta = availableDelta.singleAxisOffset()
 
         val performScroll: (Offset) -> Offset = { delta ->
-            val preConsumedByParent = nestedScrollDispatcher
-                .dispatchPreScroll(delta, source)
+            val preConsumedByParent = nestedScrollDispatcher.dispatchPreScroll(delta, source)
 
             val scrollAvailable = delta - preConsumedByParent
             // Consume on a single axis
@@ -592,12 +599,14 @@ private class ScrollingLogic(
                 leftForParent,
                 source
             )
-
             preConsumedByParent + axisConsumed + parentConsumed
         }
 
         val overscroll = overscrollEffect
-        return if (overscroll != null && shouldDispatchOverscroll) {
+
+        return if (source == Wheel) {
+            performScroll(scrollDelta)
+        } else if (overscroll != null && shouldDispatchOverscroll) {
             overscroll.applyToScroll(scrollDelta, source, performScroll)
         } else {
             performScroll(scrollDelta)

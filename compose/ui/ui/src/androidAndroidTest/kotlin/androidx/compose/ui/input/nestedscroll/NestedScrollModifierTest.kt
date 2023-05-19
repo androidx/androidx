@@ -38,8 +38,10 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performMouseInput
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeDown
 import androidx.compose.ui.test.swipeUp
@@ -53,6 +55,8 @@ import kotlin.math.abs
 import kotlin.math.sign
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.runBlocking
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
@@ -63,6 +67,8 @@ import org.junit.runner.RunWith
 class NestedScrollModifierTest {
     @get:Rule
     val rule = createComposeRule()
+
+    private val mainLayoutTag = "mainLayout"
 
     private val preScrollOffset = Offset(120f, 120f)
     private val scrollOffset = Offset(125f, 125f)
@@ -1032,7 +1038,7 @@ class NestedScrollModifierTest {
                 }
             }
 
-            Column(modifier = Modifier.fillMaxSize().testTag("mainLayout")) {
+            Column(modifier = Modifier.fillMaxSize().testTag(mainLayoutTag)) {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -1062,17 +1068,17 @@ class NestedScrollModifierTest {
             }
         }
 
-        rule.onNodeWithTag("mainLayout").performTouchInput { swipeUp(bottom, centerY) }
+        rule.onNodeWithTag(mainLayoutTag).performTouchInput { swipeUp(bottom, centerY) }
         rule.runOnIdle {
             // swipe ups provide negative signed velocities
             assertThat(sign(lastVelocity.y)).isEqualTo(-1)
         }
-        rule.onNodeWithTag("mainLayout").performTouchInput { swipeDown(centerY, bottom) }
+        rule.onNodeWithTag(mainLayoutTag).performTouchInput { swipeDown(centerY, bottom) }
         rule.runOnIdle {
             // swipe downs provide positive signed velocities
             assertThat(sign(lastVelocity.y)).isEqualTo(1)
         }
-        rule.onNodeWithTag("mainLayout").performTouchInput { swipeDown(centerY, bottom) }
+        rule.onNodeWithTag(mainLayoutTag).performTouchInput { swipeDown(centerY, bottom) }
         rule.runOnIdle {
             // swipe downs provide positive signed velocities
             assertThat(sign(lastVelocity.y)).isEqualTo(1)
@@ -1173,5 +1179,458 @@ class NestedScrollModifierTest {
             val res = childDispatcher.dispatchPreScroll(preScrollOffset, NestedScrollSource.Drag)
             assertThat(res).isEqualTo(preScrollReturn)
         }
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @MediumTest
+    @Test
+    fun testPreScrollConsumption_verticalScrollMouse_postScrollAvailableIsZero() {
+        var preScrollCount = 0
+        var preScrollAvailableOffset = Offset.Zero
+
+        var postScrollCount = 0
+        var postScrollConsumedOffset = Offset.Zero
+        var postScrollAvailableOffset = Offset.Zero
+
+        val nestedScrollConnection = object : NestedScrollConnection {
+            override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
+                preScrollCount++
+                preScrollAvailableOffset = available
+
+                return available
+            }
+
+            override fun onPostScroll(
+                consumed: Offset,
+                available: Offset,
+                source: NestedScrollSource
+            ): Offset {
+                postScrollCount++
+                postScrollConsumedOffset = consumed
+                postScrollAvailableOffset = available
+
+                return super.onPostScroll(consumed, available, source)
+            }
+        }
+
+        rule.setContent {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .nestedScroll(connection = nestedScrollConnection)
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(80.dp)
+                )
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .testTag(mainLayoutTag)
+                        .weight(1f)
+                ) {
+                    items(100) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(60.dp)
+                                .background(Color.Gray)
+                        ) {
+                            BasicText(text = it.toString())
+                        }
+                        Spacer(modifier = Modifier.height(8.dp))
+                    }
+                }
+            }
+        }
+
+        // For the mouse scroll to work, you need to
+        // - 1. place the test tag directly on the LazyColumn
+        // - 2. Call moveTo() before scroll()
+        rule.onNodeWithTag(mainLayoutTag).performMouseInput {
+            moveTo(Offset.Zero)
+            scroll(100f)
+        }
+
+        rule.runOnIdle {
+            // Pre-Scroll checks
+            assertThat(preScrollCount).isGreaterThan(0)
+            assertFalse(preScrollAvailableOffset.customEquals(Offset.Zero))
+
+            // Post-Scroll checks
+            assertThat(postScrollCount).isGreaterThan(0)
+            assertTrue(postScrollConsumedOffset.customEquals(Offset.Zero))
+            assertTrue(postScrollAvailableOffset.customEquals(Offset.Zero))
+        }
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @MediumTest
+    @Test
+    fun testNoPreScrollConsumption_verticalScrollMouse_postScrollAvailableNotZero() {
+        var preScrollCount = 0
+        var preScrollAvailableOffset = Offset.Zero
+
+        var postScrollCount = 0
+        var postScrollConsumedOffset = Offset.Zero
+        var postScrollAvailableOffset = Offset.Zero
+
+        val nestedScrollConnection = object : NestedScrollConnection {
+            override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
+                preScrollCount++
+                preScrollAvailableOffset = available
+
+                return Offset.Zero
+            }
+
+            override fun onPostScroll(
+                consumed: Offset,
+                available: Offset,
+                source: NestedScrollSource
+            ): Offset {
+                postScrollCount++
+                postScrollConsumedOffset = consumed
+                postScrollAvailableOffset = available
+
+                return super.onPostScroll(consumed, available, source)
+            }
+        }
+
+        rule.setContent {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .nestedScroll(connection = nestedScrollConnection)
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(80.dp)
+                )
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .testTag(mainLayoutTag)
+                        .weight(1f)
+                ) {
+                    items(100) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(60.dp)
+                                .background(Color.Gray)
+                        ) {
+                            BasicText(text = it.toString())
+                        }
+                        Spacer(modifier = Modifier.height(8.dp))
+                    }
+                }
+            }
+        }
+
+        // For the mouse scroll to work, you need to
+        // - 1. place the test tag directly on the LazyColumn
+        // - 2. Call moveTo() before scroll()
+        rule.onNodeWithTag(mainLayoutTag).performMouseInput {
+            moveTo(Offset.Zero)
+            scroll(100f)
+        }
+
+        rule.runOnIdle {
+            // Pre-Scroll checks
+            assertThat(preScrollCount).isGreaterThan(0)
+            assertFalse(preScrollAvailableOffset.customEquals(Offset.Zero))
+
+            // Post-Scroll checks
+            assertThat(postScrollCount).isGreaterThan(0)
+            assertFalse(postScrollConsumedOffset.customEquals(Offset.Zero))
+            assertFalse(postScrollAvailableOffset.customEquals(Offset.Zero))
+        }
+    }
+
+    @MediumTest
+    @Test
+    fun testPreScrollConsumption_verticalSwipeUp_postScrollAvailableIsZero() {
+        var preScrollCount = 0
+        var preScrollAvailableOffset = Offset.Zero
+
+        var postScrollCount = 0
+        var postScrollConsumedOffset = Offset.Zero
+        var postScrollAvailableOffset = Offset.Zero
+
+        val nestedScrollConnection = object : NestedScrollConnection {
+            override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
+                preScrollCount++
+                preScrollAvailableOffset = available
+                // Pre-roll consumes full amount
+                return available
+            }
+
+            override fun onPostScroll(
+                consumed: Offset,
+                available: Offset,
+                source: NestedScrollSource
+            ): Offset {
+                postScrollCount++
+                postScrollConsumedOffset = consumed
+                postScrollAvailableOffset = available
+
+                return super.onPostScroll(consumed, available, source)
+            }
+        }
+
+        rule.setContent {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .nestedScroll(connection = nestedScrollConnection)
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(80.dp)
+                )
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .testTag(mainLayoutTag)
+                        .weight(1f)
+                ) {
+                    items(100) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(60.dp)
+                                .background(Color.Gray)
+                        ) {
+                            BasicText(text = it.toString())
+                        }
+                        Spacer(modifier = Modifier.height(8.dp))
+                    }
+                }
+            }
+        }
+
+        rule.onNodeWithTag(mainLayoutTag).performTouchInput { swipeUp(bottom, centerY) }
+
+        rule.runOnIdle {
+            // Pre-Scroll checks
+            assertThat(preScrollCount).isGreaterThan(0)
+            assertFalse(preScrollAvailableOffset.customEquals(Offset.Zero))
+
+            // Post-Scroll checks
+            assertThat(postScrollCount).isGreaterThan(0)
+            assertTrue(postScrollConsumedOffset.customEquals(Offset.Zero))
+            assertTrue(postScrollAvailableOffset.customEquals(Offset.Zero))
+        }
+    }
+
+    @MediumTest
+    @Test
+    fun testNoPreScrollConsumption_verticalSwipeUp_postScrollAvailableNotZero() {
+        var preScrollCount = 0
+        var preScrollAvailableOffset = Offset.Zero
+
+        var postScrollCount = 0
+        var postScrollConsumedOffset = Offset.Zero
+        var postScrollAvailableOffset = Offset.Zero
+
+        val nestedScrollConnection = object : NestedScrollConnection {
+            override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
+                preScrollCount++
+                preScrollAvailableOffset = available
+
+                return Offset.Zero
+            }
+
+            override fun onPostScroll(
+                consumed: Offset,
+                available: Offset,
+                source: NestedScrollSource
+            ): Offset {
+                postScrollCount++
+                postScrollConsumedOffset = consumed
+                postScrollAvailableOffset = available
+
+                return super.onPostScroll(consumed, available, source)
+            }
+        }
+
+        rule.setContent {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .nestedScroll(connection = nestedScrollConnection)
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(80.dp)
+                )
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .testTag(mainLayoutTag)
+                        .weight(1f)
+                ) {
+                    items(100) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(60.dp)
+                                .background(Color.Gray)
+                        ) {
+                            BasicText(text = it.toString())
+                        }
+                        Spacer(modifier = Modifier.height(8.dp))
+                    }
+                }
+            }
+        }
+
+        rule.onNodeWithTag(mainLayoutTag).performTouchInput { swipeUp(bottom, centerY) }
+
+        rule.runOnIdle {
+            // Pre-Scroll checks
+            assertThat(preScrollCount).isGreaterThan(0)
+            assertFalse(preScrollAvailableOffset.customEquals(Offset.Zero))
+
+            // Post-Scroll checks
+            assertThat(postScrollCount).isGreaterThan(0)
+            assertFalse(postScrollConsumedOffset.customEquals(Offset.Zero))
+            assertTrue(postScrollAvailableOffset.customEquals(Offset.Zero))
+        }
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @MediumTest
+    @Test
+    fun testFlingCallbacks_verticalScrollMouse_shouldNotTriggerCallbacks() {
+        var preFlingCount = 0
+        var postFlingCount = 0
+
+        val nestedScrollConnection = object : NestedScrollConnection {
+            override suspend fun onPreFling(available: Velocity): Velocity {
+                preFlingCount++
+                return super.onPreFling(available)
+            }
+
+            override suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity {
+                postFlingCount++
+                return super.onPostFling(consumed, available)
+            }
+        }
+
+        rule.setContent {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .nestedScroll(connection = nestedScrollConnection)
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(80.dp)
+                )
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .testTag(mainLayoutTag)
+                        .weight(1f)
+                ) {
+                    items(100) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(60.dp)
+                                .background(Color.Gray)
+                        ) {
+                            BasicText(text = it.toString())
+                        }
+                        Spacer(modifier = Modifier.height(8.dp))
+                    }
+                }
+            }
+        }
+
+        // For the mouse scroll to work, you need to
+        // - 1. place the test tag directly on the LazyColumn
+        // - 2. Call moveTo() before scroll()
+        rule.onNodeWithTag(mainLayoutTag).performMouseInput {
+            moveTo(Offset.Zero)
+            scroll(100f)
+        }
+
+        rule.runOnIdle {
+            assertThat(preFlingCount).isEqualTo(0)
+            assertThat(postFlingCount).isEqualTo(0)
+        }
+    }
+
+    @MediumTest
+    @Test
+    fun testFlingCallbacks_verticalSwipeUp_shouldTriggerCallbacks() {
+        var preFlingCount = 0
+        var postFlingCount = 0
+
+        val nestedScrollConnection = object : NestedScrollConnection {
+            override suspend fun onPreFling(available: Velocity): Velocity {
+                preFlingCount++
+                return super.onPreFling(available)
+            }
+
+            override suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity {
+                postFlingCount++
+                return super.onPostFling(consumed, available)
+            }
+        }
+
+        rule.setContent {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .nestedScroll(connection = nestedScrollConnection)
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(80.dp)
+                )
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .testTag(mainLayoutTag)
+                        .weight(1f)
+                ) {
+                    items(100) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(60.dp)
+                                .background(Color.Gray)
+                        ) {
+                            BasicText(text = it.toString())
+                        }
+                        Spacer(modifier = Modifier.height(8.dp))
+                    }
+                }
+            }
+        }
+
+        rule.onNodeWithTag(mainLayoutTag).performTouchInput { swipeUp(bottom, centerY) }
+
+        rule.runOnIdle {
+            assertThat(preFlingCount).isGreaterThan(0)
+            assertThat(postFlingCount).isGreaterThan(0)
+        }
+    }
+}
+
+private fun Offset.customEquals(other: Offset): Boolean {
+    return if (other == Offset.Zero || this == Offset.Zero) {
+        abs(this.x) == abs(other.x) && abs(this.y) == abs(other.y)
+    } else {
+        this == other
     }
 }
