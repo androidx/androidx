@@ -208,36 +208,53 @@ public class TestCasesGenerator {
         // more than 9, the rest will be deleted.
         testCases.put(
                 "compactchip_default_len2_golden" + goldenSuffix,
-                new CompactChip.Builder(context, "Ab", clickable, deviceParameters).build());
+                new CompactChip.Builder(context, "Ab", clickable, deviceParameters)
+                        .setExcludeFontPadding(true)
+                        .build());
         testCases.put(
                 "compactchip_default_len5_golden" + goldenSuffix,
-                new CompactChip.Builder(context, "Abcde", clickable, deviceParameters).build());
+                new CompactChip.Builder(context, "Abcde", clickable, deviceParameters)
+                        .setExcludeFontPadding(true)
+                        .build());
         testCases.put(
                 "compactchip_default_len9_golden" + goldenSuffix,
-                new CompactChip.Builder(context, "Abcdefghi", clickable, deviceParameters).build());
+                new CompactChip.Builder(context, "Abcdefghi", clickable, deviceParameters)
+                        .setExcludeFontPadding(true)
+                        .build());
         testCases.put(
                 "compactchip_default_toolong_golden" + goldenSuffix,
                 new CompactChip.Builder(
                                 context, "AbcdefghiEXTRAEXTRAEXTRA", clickable, deviceParameters)
+                        .setExcludeFontPadding(true)
                         .build());
         testCases.put(
                 "compactchip_custom_default_golden" + goldenSuffix,
                 new CompactChip.Builder(context, "Action", clickable, deviceParameters)
                         .setChipColors(new ChipColors(Color.YELLOW, Color.BLACK))
+                        .setExcludeFontPadding(true)
+                        .build());
+        testCases.put(
+                "compactchip_includepadding_default_golden" + goldenSuffix,
+                new CompactChip.Builder(context, "Action", clickable, deviceParameters)
+                        .setExcludeFontPadding(false)
                         .build());
 
         testCases.put(
                 "titlechip_default_golden" + goldenSuffix,
-                new TitleChip.Builder(context, largeChipText, clickable, deviceParameters).build());
+                new TitleChip.Builder(context, largeChipText, clickable, deviceParameters)
+                        .setExcludeFontPadding(true)
+                        .build());
         testCases.put(
                 "titlechip_default_texttoolong_golden" + goldenSuffix,
                 new TitleChip.Builder(context, "abcdeabcdeabcdeEXTRA", clickable, deviceParameters)
+                        .setExcludeFontPadding(true)
                         .build());
         testCases.put(
                 "titlechip_leftalign_secondary_default_golden" + goldenSuffix,
                 new TitleChip.Builder(context, largeChipText, clickable, deviceParameters)
                         .setHorizontalAlignment(HORIZONTAL_ALIGN_START)
                         .setChipColors(ChipDefaults.TITLE_SECONDARY_COLORS)
+                        .setExcludeFontPadding(true)
                         .build());
         testCases.put(
                 "titlechip_centered_custom_150_secondary_default_golden" + goldenSuffix,
@@ -245,6 +262,12 @@ public class TestCasesGenerator {
                         .setHorizontalAlignment(HORIZONTAL_ALIGN_CENTER)
                         .setChipColors(new ChipColors(Color.YELLOW, Color.BLUE))
                         .setWidth(150)
+                        .setExcludeFontPadding(true)
+                        .build());
+        testCases.put(
+                "titlechip_includepadding_default_golden" + goldenSuffix,
+                new TitleChip.Builder(context, largeChipText, clickable, deviceParameters)
+                        .setExcludeFontPadding(false)
                         .build());
 
         testCases.put(

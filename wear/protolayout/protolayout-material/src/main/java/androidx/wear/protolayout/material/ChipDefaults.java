@@ -44,6 +44,20 @@ public class ChipDefaults {
     public static final DpProp COMPACT_HEIGHT = dp(32);
 
     /**
+     * The minimum width of tappable target area.
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @NonNull
+    public static final DpProp MIN_TAPPABLE_WIDTH = dp(48);
+
+    /**
+     * The minimum height of tappable target area.
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @NonNull
+    public static final DpProp MIN_TAPPABLE_HEIGHT = dp(48);
+
+    /**
      * The default height of tappable area for standard {@link CompactChip}
      *
      */
