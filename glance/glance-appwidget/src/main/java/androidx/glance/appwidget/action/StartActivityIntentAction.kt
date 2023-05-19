@@ -18,6 +18,8 @@ package androidx.glance.appwidget.action
 
 import android.app.Activity
 import android.content.Intent
+import android.os.Bundle
+import androidx.glance.ExperimentalGlanceApi
 import androidx.glance.action.Action
 import androidx.glance.action.ActionParameters
 import androidx.glance.action.StartActivityAction
@@ -25,7 +27,8 @@ import androidx.glance.action.actionParametersOf
 
 internal class StartActivityIntentAction(
     val intent: Intent,
-    override val parameters: ActionParameters = actionParametersOf()
+    override val parameters: ActionParameters = actionParametersOf(),
+    override val activityOptions: Bundle?,
 ) : StartActivityAction
 
 /**
@@ -34,15 +37,15 @@ internal class StartActivityIntentAction(
  *
  * This action is supported by app widgets only.
  *
- * The given intent will be wrapped in a [PendingIntent]. This means that if you create multiple
- * actions with this function, they will be conflated unless the underlying intents are
+ * The given intent will be wrapped in a [android.app.PendingIntent]. This means that if you create
+ * multiple actions with this function, they will be conflated unless the underlying intents are
  * distinct from one another, as defined by [Intent.filterEquals]. For example, if you create two
  * [Intent]s that target the same Activity but only differ by parameters, they will get conflated
  * (the PendingIntent created by the first call to actionStartActivity will be overwritten by the
  * second). A simple way to avoid this is to set a unique data URI on these intents, so that they
  * are distinct as defined by [Intent.filterEquals]. There is more information in the class
- * documentation for [PendingIntent]. If you do not set one, the library will add a unique URI on
- * the intent you provide here.
+ * documentation for [android.app.PendingIntent]. If you do not set one, the library will add a
+ * unique URI on the intent you provide here.
  *
  * @param intent the intent used to launch the activity
  * @param parameters the parameters associated with the action. Parameter values will be added to
@@ -50,5 +53,34 @@ internal class StartActivityIntentAction(
  */
 fun actionStartActivity(
     intent: Intent,
-    parameters: ActionParameters = actionParametersOf()
-): Action = StartActivityIntentAction(intent, parameters)
+    parameters: ActionParameters = actionParametersOf(),
+): Action = StartActivityIntentAction(intent, parameters, null)
+
+/**
+ * Creates an [Action] that launches an [Activity] from the given [Intent] when triggered. The
+ * intent should specify a component with [Intent.setClass] or [Intent.setComponent].
+ *
+ * This action is supported by app widgets only.
+ *
+ * The given intent will be wrapped in a [android.app.PendingIntent]. This means that if you create
+ * multiple actions with this function, they will be conflated unless the underlying intents are
+ * distinct from one another, as defined by [Intent.filterEquals]. For example, if you create two
+ * [Intent]s that target the same Activity but only differ by parameters, they will get conflated
+ * (the PendingIntent created by the first call to actionStartActivity will be overwritten by the
+ * second). A simple way to avoid this is to set a unique data URI on these intents, so that they
+ * are distinct as defined by [Intent.filterEquals]. There is more information in the class
+ * documentation for [android.app.PendingIntent]. If you do not set one, the library will add a
+ * unique URI on the intent you provide here.
+ *
+ * @param intent the intent used to launch the activity
+ * @param parameters the parameters associated with the action. Parameter values will be added to
+ * the activity intent, keyed by the parameter key name string.
+ * @param activityOptions Additional options built from an [android.app.ActivityOptions] to apply to
+ * an activity start.
+ */
+@ExperimentalGlanceApi
+fun actionStartActivity(
+    intent: Intent,
+    parameters: ActionParameters = actionParametersOf(),
+    activityOptions: Bundle? = null,
+): Action = StartActivityIntentAction(intent, parameters, activityOptions)

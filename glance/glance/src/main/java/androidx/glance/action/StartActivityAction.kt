@@ -18,26 +18,31 @@ package androidx.glance.action
 
 import android.app.Activity
 import android.content.ComponentName
+import android.os.Bundle
 import androidx.annotation.RestrictTo
+import androidx.glance.ExperimentalGlanceApi
 
 /** @suppress */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 interface StartActivityAction : Action {
     val parameters: ActionParameters
+    val activityOptions: Bundle?
 }
 
 /** @suppress */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class StartActivityComponentAction(
     val componentName: ComponentName,
-    override val parameters: ActionParameters
+    override val parameters: ActionParameters,
+    override val activityOptions: Bundle?,
 ) : StartActivityAction
 
 /** @suppress */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class StartActivityClassAction(
     val activityClass: Class<out Activity>,
-    override val parameters: ActionParameters
+    override val parameters: ActionParameters,
+    override val activityOptions: Bundle?,
 ) : StartActivityAction
 
 /**
@@ -49,8 +54,24 @@ class StartActivityClassAction(
  */
 fun actionStartActivity(
     componentName: ComponentName,
-    parameters: ActionParameters = actionParametersOf()
-): Action = StartActivityComponentAction(componentName, parameters)
+    parameters: ActionParameters = actionParametersOf(),
+): Action = StartActivityComponentAction(componentName, parameters, null)
+
+/**
+ * Creates an [Action] that launches the [Activity] specified by the given [ComponentName].
+ *
+ * @param componentName component of the activity to launch
+ * @param parameters the parameters associated with the action. Parameter values will be added to
+ * the activity intent, keyed by the parameter key name string.
+ * @param activityOptions Additional options built from an [android.app.ActivityOptions] to apply to
+ * an activity start.
+ */
+@ExperimentalGlanceApi
+fun actionStartActivity(
+    componentName: ComponentName,
+    parameters: ActionParameters = actionParametersOf(),
+    activityOptions: Bundle? = null,
+): Action = StartActivityComponentAction(componentName, parameters, activityOptions)
 
 /**
  * Creates an [Action] that launches the specified [Activity] when triggered.
@@ -61,8 +82,24 @@ fun actionStartActivity(
  */
 fun <T : Activity> actionStartActivity(
     activity: Class<T>,
-    parameters: ActionParameters = actionParametersOf()
-): Action = StartActivityClassAction(activity, parameters)
+    parameters: ActionParameters = actionParametersOf(),
+): Action = StartActivityClassAction(activity, parameters, null)
+
+/**
+ * Creates an [Action] that launches the specified [Activity] when triggered.
+ *
+ * @param activity class of the activity to launch
+ * @param parameters the parameters associated with the action. Parameter values will be added to
+ * the activity intent, keyed by the parameter key name string.
+ * @param activityOptions Additional options built from an [android.app.ActivityOptions] to apply to
+ * an activity start.
+ */
+@ExperimentalGlanceApi
+fun <T : Activity> actionStartActivity(
+    activity: Class<T>,
+    parameters: ActionParameters = actionParametersOf(),
+    activityOptions: Bundle? = null,
+): Action = StartActivityClassAction(activity, parameters, activityOptions)
 
 @Suppress("MissingNullability")
 /* Shouldn't need to specify @NonNull. b/199284086 */
@@ -73,5 +110,21 @@ fun <T : Activity> actionStartActivity(
  * the activity intent, keyed by the parameter key name string.
  */
 inline fun <reified T : Activity> actionStartActivity(
-    parameters: ActionParameters = actionParametersOf()
+    parameters: ActionParameters = actionParametersOf(),
 ): Action = actionStartActivity(T::class.java, parameters)
+
+@Suppress("MissingNullability")
+/* Shouldn't need to specify @NonNull. b/199284086 */
+/**
+ * Creates an [Action] that launches the specified [Activity] when triggered.
+ *
+ * @param parameters the parameters associated with the action. Parameter values will be added to
+ * the activity intent, keyed by the parameter key name string.
+ * @param activityOptions Additional options built from an [android.app.ActivityOptions] to apply to
+ * an activity start.
+ */
+@ExperimentalGlanceApi
+inline fun <reified T : Activity> actionStartActivity(
+    parameters: ActionParameters = actionParametersOf(),
+    activityOptions: Bundle? = null,
+): Action = actionStartActivity(T::class.java, parameters, activityOptions)

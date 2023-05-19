@@ -186,6 +186,7 @@ package androidx.glance.appwidget.action {
 
   public final class StartActivityIntentActionKt {
     method public static androidx.glance.action.Action actionStartActivity(android.content.Intent intent, optional androidx.glance.action.ActionParameters parameters);
+    method @androidx.glance.ExperimentalGlanceApi public static androidx.glance.action.Action actionStartActivity(android.content.Intent intent, optional androidx.glance.action.ActionParameters parameters, optional android.os.Bundle? activityOptions);
   }
 
   public final class StartServiceActionKt {
