@@ -255,10 +255,10 @@ package androidx.wear.protolayout.material.layouts {
   }
 
   public static final class LayoutDefaults.MultiButtonLayoutDefaults {
-    field public static final int BUTTON_MAX_NUMBER = 7; // 0x7
     field public static final androidx.wear.protolayout.DimensionBuilders.DpProp BUTTON_SIZE_FOR_1_BUTTON;
     field public static final androidx.wear.protolayout.DimensionBuilders.DpProp BUTTON_SIZE_FOR_2_BUTTONS;
     field public static final androidx.wear.protolayout.DimensionBuilders.DpProp BUTTON_SIZE_FOR_3_PLUS_BUTTONS;
+    field public static final int MAX_BUTTONS = 7; // 0x7
   }
 
   public class MultiButtonLayout implements androidx.wear.protolayout.LayoutElementBuilders.LayoutElement {

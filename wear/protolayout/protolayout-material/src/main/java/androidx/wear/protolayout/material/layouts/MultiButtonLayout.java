@@ -21,10 +21,10 @@ import static androidx.wear.protolayout.material.Helper.checkNotNull;
 import static androidx.wear.protolayout.material.Helper.checkTag;
 import static androidx.wear.protolayout.material.Helper.getMetadataTagName;
 import static androidx.wear.protolayout.material.Helper.getTagBytes;
-import static androidx.wear.protolayout.material.layouts.LayoutDefaults.MultiButtonLayoutDefaults.BUTTON_MAX_NUMBER;
 import static androidx.wear.protolayout.material.layouts.LayoutDefaults.MultiButtonLayoutDefaults.BUTTON_SIZE_FOR_1_BUTTON;
 import static androidx.wear.protolayout.material.layouts.LayoutDefaults.MultiButtonLayoutDefaults.BUTTON_SIZE_FOR_2_BUTTONS;
 import static androidx.wear.protolayout.material.layouts.LayoutDefaults.MultiButtonLayoutDefaults.BUTTON_SIZE_FOR_3_PLUS_BUTTONS;
+import static androidx.wear.protolayout.material.layouts.LayoutDefaults.MultiButtonLayoutDefaults.MAX_BUTTONS;
 import static androidx.wear.protolayout.material.layouts.LayoutDefaults.MultiButtonLayoutDefaults.SPACER_HEIGHT;
 import static androidx.wear.protolayout.material.layouts.LayoutDefaults.MultiButtonLayoutDefaults.SPACER_WIDTH;
 
@@ -52,10 +52,10 @@ import java.util.List;
 
 /**
  * Opinionated ProtoLayout layout, that can contain between 1 and {@link
- * LayoutDefaults.MultiButtonLayoutDefaults#BUTTON_MAX_NUMBER} number of buttons arranged
+ * LayoutDefaults.MultiButtonLayoutDefaults#MAX_BUTTONS} number of buttons arranged
  * inline with the Material
  * guidelines. Can be used as a content passed in to the {@link PrimaryLayout}, but if there is
- * {@link LayoutDefaults.MultiButtonLayoutDefaults#BUTTON_MAX_NUMBER} buttons it should be used
+ * {@link LayoutDefaults.MultiButtonLayoutDefaults#MAX_BUTTONS} buttons it should be used
  * on its own.
  *
  * <p>When accessing the contents of a container for testing, note that this element can't be simply
@@ -115,7 +115,7 @@ public class MultiButtonLayout implements LayoutElement {
          * Add one new button to the layout. Note that it is accepted to pass in any {@link
          * LayoutElement}, but it is strongly recommended to add a {@link Button} as the layout is
          * optimized for it. Any button added after
-         * {@link LayoutDefaults.MultiButtonLayoutDefaults#BUTTON_MAX_NUMBER} is reached will be
+         * {@link LayoutDefaults.MultiButtonLayoutDefaults#MAX_BUTTONS} is reached will be
          * discarded.
          */
         @NonNull
@@ -143,10 +143,10 @@ public class MultiButtonLayout implements LayoutElement {
         @Override
         public MultiButtonLayout build() {
             int buttonNum = mButtonsContent.size();
-            if (buttonNum > BUTTON_MAX_NUMBER) {
+            if (buttonNum > MAX_BUTTONS) {
                 throw new IllegalArgumentException(
                         "Too many buttons are added. Maximum number is "
-                                + BUTTON_MAX_NUMBER
+                                + MAX_BUTTONS
                                 + ".");
             }
 
@@ -249,10 +249,10 @@ public class MultiButtonLayout implements LayoutElement {
                                             mButtonsContent.get(6),
                                             BUTTON_SIZE_FOR_3_PLUS_BUTTONS))
                             .build();
+                default:
+                    throw new IllegalArgumentException(
+                            "Too many buttons are added. Maximum number is " + MAX_BUTTONS + ".");
             }
-            // This shouldn't happen, but return an empty Box instead of having this method nullable
-            // and checks above.
-            return new Box.Builder().build();
         }
 
         @NonNull

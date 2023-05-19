@@ -110,7 +110,7 @@ public class LayoutDefaults {
     /**
      * The maximum number of button that can be added to the {@link MultiButtonLayout}.
      *
-     * @deprecated Use {@link MultiButtonLayoutDefaults#BUTTON_MAX_NUMBER} instead.
+     * @deprecated Use {@link MultiButtonLayoutDefaults#MAX_BUTTONS} instead.
      */
     @Deprecated public static final int MULTI_BUTTON_MAX_NUMBER = 7;
 
@@ -120,7 +120,8 @@ public class LayoutDefaults {
         }
 
         /** The maximum number of button that can be added to the {@link MultiButtonLayout}. */
-        public static final int BUTTON_MAX_NUMBER = 7;
+        @SuppressWarnings("MinMaxConstant")
+        public static final int MAX_BUTTONS = 7;
 
         /**
          * The default size of button in case when there are 3 or more buttons in the {@link
