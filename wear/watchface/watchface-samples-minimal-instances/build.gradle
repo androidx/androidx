@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryType
-
 plugins {
     id("AndroidXPlugin")
     id("com.android.application")
@@ -33,17 +31,10 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.3.1")
 }
 
-androidx {
-    name = "Wear Watchface Minimal Style Sample"
-    type = LibraryType.SAMPLES
-    inceptionYear = "2021"
-    description = "Contains the sample code for the Androidx Wear Watchface library"
-}
-
 android {
     defaultConfig {
         applicationId "androidx.wear.watchface.samples.minimal.instances"
-        minSdkVersion 26
+        minSdkVersion 30
     }
 
     buildTypes {
