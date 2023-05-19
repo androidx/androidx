@@ -54,6 +54,7 @@ import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastFirstOrNull
 import androidx.compose.ui.util.fastForEach
+import kotlin.math.abs
 import kotlin.math.absoluteValue
 import kotlin.math.ceil
 import kotlin.math.floor
@@ -116,9 +117,9 @@ fun HorizontalPager(
     userScrollEnabled: Boolean = true,
     reverseLayout: Boolean = false,
     key: ((index: Int) -> Any)? = null,
-    pageNestedScrollConnection: NestedScrollConnection = PagerDefaults.pageNestedScrollConnection(
-        Orientation.Horizontal
-    ),
+    pageNestedScrollConnection: NestedScrollConnection = remember(state) {
+        PagerDefaults.pageNestedScrollConnection(state, Orientation.Horizontal)
+    },
     pageContent: @Composable PagerScope.(page: Int) -> Unit
 ) {
     Pager(
@@ -224,9 +225,9 @@ fun HorizontalPager(
     userScrollEnabled: Boolean = true,
     reverseLayout: Boolean = false,
     key: ((index: Int) -> Any)? = null,
-    pageNestedScrollConnection: NestedScrollConnection = PagerDefaults.pageNestedScrollConnection(
-        Orientation.Horizontal
-    ),
+    pageNestedScrollConnection: NestedScrollConnection = remember(state) {
+        PagerDefaults.pageNestedScrollConnection(state, Orientation.Horizontal)
+    },
     pageContent: @Composable PagerScope.(page: Int) -> Unit
 ) {
     Pager(
@@ -302,9 +303,9 @@ fun VerticalPager(
     userScrollEnabled: Boolean = true,
     reverseLayout: Boolean = false,
     key: ((index: Int) -> Any)? = null,
-    pageNestedScrollConnection: NestedScrollConnection = PagerDefaults.pageNestedScrollConnection(
-        Orientation.Vertical
-    ),
+    pageNestedScrollConnection: NestedScrollConnection = remember(state) {
+        PagerDefaults.pageNestedScrollConnection(state, Orientation.Vertical)
+    },
     pageContent: @Composable PagerScope.(page: Int) -> Unit
 ) {
     Pager(
@@ -409,9 +410,9 @@ fun VerticalPager(
     userScrollEnabled: Boolean = true,
     reverseLayout: Boolean = false,
     key: ((index: Int) -> Any)? = null,
-    pageNestedScrollConnection: NestedScrollConnection = PagerDefaults.pageNestedScrollConnection(
-        Orientation.Vertical
-    ),
+    pageNestedScrollConnection: NestedScrollConnection = remember(state) {
+        PagerDefaults.pageNestedScrollConnection(state, Orientation.Vertical)
+    },
     pageContent: @Composable PagerScope.(page: Int) -> Unit
 ) {
     Pager(
@@ -566,18 +567,17 @@ object PagerDefaults {
     }
 
     /**
-     * The default implementation of Pager's pageNestedScrollConnection. All fling scroll deltas
-     * will be consumed by the Pager.
+     * The default implementation of Pager's pageNestedScrollConnection.
      *
+     * @param state state of the pager
      * @param orientation The orientation of the pager. This will be used to determine which
-     * direction it will consume everything. The other direction will not be consumed.
+     * direction the nested scroll connection will operate and react on.
      */
-    fun pageNestedScrollConnection(orientation: Orientation): NestedScrollConnection {
-        return if (orientation == Orientation.Horizontal) {
-            ConsumeHorizontalFlingNestedScrollConnection
-        } else {
-            ConsumeVerticalFlingNestedScrollConnection
-        }
+    fun pageNestedScrollConnection(
+        state: PagerState,
+        orientation: Orientation
+    ): NestedScrollConnection {
+        return DefaultPagerNestedScrollConnection(state, orientation)
     }
 }
 
@@ -799,12 +799,11 @@ internal class PagerWrapperFlingBehavior(
     }
 }
 
-private val ConsumeHorizontalFlingNestedScrollConnection =
-    ConsumeAllFlingOnDirection(Orientation.Horizontal)
-private val ConsumeVerticalFlingNestedScrollConnection =
-    ConsumeAllFlingOnDirection(Orientation.Vertical)
-
-private class ConsumeAllFlingOnDirection(val orientation: Orientation) : NestedScrollConnection {
+@OptIn(ExperimentalFoundationApi::class)
+private class DefaultPagerNestedScrollConnection(
+    val state: PagerState,
+    val orientation: Orientation
+) : NestedScrollConnection {
 
     fun Velocity.consumeOnOrientation(orientation: Orientation): Velocity {
         return if (orientation == Orientation.Vertical) {
@@ -819,6 +818,41 @@ private class ConsumeAllFlingOnDirection(val orientation: Orientation) : NestedS
             copy(x = 0f)
         } else {
             copy(y = 0f)
+        }
+    }
+
+    override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
+        return if (
+        // rounding error and drag only
+            source == NestedScrollSource.Drag && abs(state.currentPageOffsetFraction) > 0e-6
+        ) {
+            // find the current and next page (in the direction of dragging)
+            val currentPageOffset = state.currentPageOffsetFraction * state.pageSize
+            val pageAvailableSpace = state.layoutInfo.pageSize + state.layoutInfo.pageSpacing
+            val nextClosestPageOffset =
+                currentPageOffset + pageAvailableSpace * -sign(state.currentPageOffsetFraction)
+
+            val minBound: Float
+            val maxBound: Float
+            // build min and max bounds in absolute coordinates for nested scroll
+            if (state.currentPageOffsetFraction > 0f) {
+                minBound = nextClosestPageOffset
+                maxBound = currentPageOffset
+            } else {
+                minBound = currentPageOffset
+                maxBound = nextClosestPageOffset
+            }
+
+            val delta = if (orientation == Orientation.Horizontal) available.x else available.y
+            val coerced = delta.coerceIn(minBound, maxBound)
+            // dispatch and return reversed as usual
+            val consumed = -state.dispatchRawDelta(-coerced)
+            available.copy(
+                x = if (orientation == Orientation.Horizontal) consumed else available.x,
+                y = if (orientation == Orientation.Vertical) consumed else available.y,
+            )
+        } else {
+            Offset.Zero
         }
     }
 
