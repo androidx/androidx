@@ -272,6 +272,8 @@ public class WebViewOnUiThread implements AutoCloseable{
     }
 
     @NonNull
+    @Deprecated
+    @SuppressWarnings("deprecation") // To be removed in 1.9.0
     public ScriptHandler addDocumentStartJavaScript(
             @NonNull String script, @NonNull Set<String> allowedOriginRules) {
         return WebkitUtils.onMainThreadSync(() -> WebViewCompat.addDocumentStartJavaScript(
