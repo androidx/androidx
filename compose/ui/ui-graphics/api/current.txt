@@ -77,7 +77,7 @@ package androidx.compose.ui.graphics {
 
   public final class AndroidPaint_androidKt {
     method public static androidx.compose.ui.graphics.Paint Paint();
-    method public static androidx.compose.ui.graphics.Paint toComposePaint(android.graphics.Paint);
+    method public static androidx.compose.ui.graphics.Paint asComposePaint(android.graphics.Paint);
   }
 
   public final class AndroidPath implements androidx.compose.ui.graphics.Path {
