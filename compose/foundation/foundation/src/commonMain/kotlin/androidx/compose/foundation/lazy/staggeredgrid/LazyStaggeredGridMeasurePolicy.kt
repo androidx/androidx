@@ -38,7 +38,7 @@ import androidx.compose.ui.unit.constrainWidth
 @Composable
 internal fun rememberStaggeredGridMeasurePolicy(
     state: LazyStaggeredGridState,
-    itemProvider: LazyStaggeredGridItemProvider,
+    itemProviderLambda: () -> LazyStaggeredGridItemProvider,
     contentPadding: PaddingValues,
     reverseLayout: Boolean,
     orientation: Orientation,
@@ -47,7 +47,7 @@ internal fun rememberStaggeredGridMeasurePolicy(
     slots: Density.(Constraints) -> LazyStaggeredGridSlots
 ): LazyLayoutMeasureScope.(Constraints) -> LazyStaggeredGridMeasureResult = remember(
     state,
-    itemProvider,
+    itemProviderLambda,
     contentPadding,
     reverseLayout,
     orientation,
@@ -62,6 +62,7 @@ internal fun rememberStaggeredGridMeasurePolicy(
         )
         val resolvedSlots = slots(this, constraints)
         val isVertical = orientation == Orientation.Vertical
+        val itemProvider = itemProviderLambda()
 
         // setup information for prefetch
         state.slots = resolvedSlots

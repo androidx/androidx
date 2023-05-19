@@ -40,7 +40,7 @@ internal abstract class LazyGridMeasuredItemProvider @ExperimentalFoundationApi 
         mainAxisSpacing: Int = defaultMainAxisSpacing,
         constraints: Constraints
     ): LazyGridMeasuredItem {
-        val key = keyIndexMap.getKey(index) ?: itemProvider.getKey(index)
+        val key = itemProvider.getKey(index)
         val contentType = itemProvider.getContentType(index)
         val placeables = measureScope.measure(index, constraints)
         val crossAxisSize = if (constraints.hasFixedWidth) {
@@ -63,7 +63,7 @@ internal abstract class LazyGridMeasuredItemProvider @ExperimentalFoundationApi 
      * Contains the mapping between the key and the index. It could contain not all the items of
      * the list as an optimization.
      **/
-    val keyIndexMap: LazyLayoutKeyIndexMap = itemProvider.keyIndexMap
+    val keyIndexMap: LazyLayoutKeyIndexMap get() = itemProvider.keyIndexMap
 
     abstract fun createItem(
         index: Int,

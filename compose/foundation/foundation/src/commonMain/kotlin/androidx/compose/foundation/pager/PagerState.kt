@@ -404,6 +404,8 @@ abstract class PagerState(
      */
     internal val pinnedPages = LazyLayoutPinnedItemList()
 
+    internal val nearestRange: IntRange by scrollPosition.nearestRangeState
+
     /**
      * Scroll (jump immediately) to a given [page].
      *

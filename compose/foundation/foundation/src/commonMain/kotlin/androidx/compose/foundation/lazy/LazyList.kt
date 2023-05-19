@@ -76,12 +76,12 @@ internal fun LazyList(
     /** The content of the list */
     content: LazyListScope.() -> Unit
 ) {
-    val itemProvider = rememberLazyListItemProvider(state, content)
+    val itemProviderLambda = rememberLazyListItemProviderLambda(state, content)
 
     val semanticState = rememberLazyListSemanticState(state, isVertical)
 
     val measurePolicy = rememberLazyListMeasurePolicy(
-        itemProvider,
+        itemProviderLambda,
         state,
         contentPadding,
         reverseLayout,
@@ -93,7 +93,7 @@ internal fun LazyList(
         verticalArrangement
     )
 
-    ScrollPositionUpdater(itemProvider, state)
+    ScrollPositionUpdater(itemProviderLambda, state)
 
     val overscrollEffect = ScrollableDefaults.overscrollEffect()
     val orientation = if (isVertical) Orientation.Vertical else Orientation.Horizontal
@@ -102,7 +102,7 @@ internal fun LazyList(
             .then(state.remeasurementModifier)
             .then(state.awaitLayoutModifier)
             .lazyLayoutSemantics(
-                itemProvider = itemProvider,
+                itemProviderLambda = itemProviderLambda,
                 state = semanticState,
                 orientation = orientation,
                 userScrollEnabled = userScrollEnabled,
@@ -131,7 +131,7 @@ internal fun LazyList(
             ),
         prefetchState = state.prefetchState,
         measurePolicy = measurePolicy,
-        itemProvider = itemProvider
+        itemProvider = itemProviderLambda
     )
 }
 
@@ -139,9 +139,10 @@ internal fun LazyList(
 @ExperimentalFoundationApi
 @Composable
 private fun ScrollPositionUpdater(
-    itemProvider: LazyListItemProvider,
+    itemProviderLambda: () -> LazyListItemProvider,
     state: LazyListState
 ) {
+    val itemProvider = itemProviderLambda()
     if (itemProvider.itemCount > 0) {
         state.updateScrollPositionIfTheFirstItemWasMoved(itemProvider)
     }
@@ -151,7 +152,7 @@ private fun ScrollPositionUpdater(
 @Composable
 private fun rememberLazyListMeasurePolicy(
     /** Items provider of the list. */
-    itemProvider: LazyListItemProvider,
+    itemProviderLambda: () -> LazyListItemProvider,
     /** The state of the list. */
     state: LazyListState,
     /** The inner padding to be added for the whole content(nor for each individual item) */
@@ -220,6 +221,7 @@ private fun rememberLazyListMeasurePolicy(
         // Update the state's cached Density
         state.density = this
 
+        val itemProvider = itemProviderLambda()
         // this will update the scope used by the item composables
         itemProvider.itemScope.setMaxSize(
             width = contentConstraints.maxWidth,
