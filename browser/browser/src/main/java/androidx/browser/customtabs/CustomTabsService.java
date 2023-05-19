@@ -29,7 +29,6 @@ import android.support.customtabs.ICustomTabsCallback;
 import android.support.customtabs.ICustomTabsService;
 
 import androidx.annotation.IntDef;
-import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
@@ -283,13 +282,6 @@ public abstract class CustomTabsService extends Service {
                     remote, extras);
         }
 
-        @Override
-        public int getGreatestScrollPercentage(@NonNull ICustomTabsCallback callback,
-                @NonNull Bundle extras) throws RemoteException {
-            return CustomTabsService.this.getGreatestScrollPercentage(
-                    new CustomTabsSessionToken(callback, getSessionIdFromBundle(extras)), extras);
-        }
-
         @SuppressWarnings("deprecation")
         private @Nullable PendingIntent getSessionIdFromBundle(@Nullable Bundle bundle) {
             if (bundle == null) return null;
@@ -528,8 +520,6 @@ public abstract class CustomTabsService extends Service {
      * @param sessionToken The unique identifier for the session.
      * @param extras Reserved for future use.
      * @return Whether the Engagement Signals API is available. A false value means
-     *         {@link #getGreatestScrollPercentage} will throw an
-     *         {@link UnsupportedOperationException} if called, and
      *         {@link #setEngagementSignalsCallback} will return false and not set the callback.
      */
     protected boolean isEngagementSignalsApiAvailable(@NonNull CustomTabsSessionToken sessionToken,
@@ -554,29 +544,5 @@ public abstract class CustomTabsService extends Service {
             @NonNull CustomTabsSessionToken sessionToken,
             @NonNull EngagementSignalsCallback callback, @NonNull Bundle extras) {
         return false;
-    }
-
-    /**
-     * Returns the greatest scroll percentage the user has reached on the page based on the page
-     * height at the moment the percentage was reached. This method only returns values that have
-     * been or would have been reported by
-     * {@link EngagementSignalsCallback#onGreatestScrollPercentageIncreased}, and the percentage
-     * is not updated if the page height changes after the last scroll event that caused the
-     * greatest scroll percentage to change. The greatest scroll percentage is reset when the user
-     * navigates to a different page. Note that an {@link EngagementSignalsCallback} does not need
-     * to be registered before calling this method.
-     *
-     * @param sessionToken The unique identifier for the session.
-     * @param extras Reserved for future use.
-     * @return An integer in the range of [0, 100] indicating the amount that the user has
-     *         scrolled the page with 0 indicating the user has never scrolled the page and 100
-     *         indicating they have scrolled to the very bottom.
-     * @throws UnsupportedOperationException If this method isn't supported, i.e.
-     *         {@link #isEngagementSignalsApiAvailable} returns false.
-     */
-    @IntRange(from = 0, to = 100)
-    protected int getGreatestScrollPercentage(
-            @NonNull CustomTabsSessionToken sessionToken, @NonNull Bundle extras) {
-        throw new UnsupportedOperationException("Engagement Signals API is not available.");
     }
 }

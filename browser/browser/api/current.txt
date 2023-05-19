@@ -195,7 +195,6 @@ package androidx.browser.customtabs {
     ctor public CustomTabsService();
     method protected boolean cleanUpSession(androidx.browser.customtabs.CustomTabsSessionToken);
     method protected abstract android.os.Bundle? extraCommand(String, android.os.Bundle?);
-    method @IntRange(from=0, to=100) protected int getGreatestScrollPercentage(androidx.browser.customtabs.CustomTabsSessionToken, android.os.Bundle);
     method protected boolean isEngagementSignalsApiAvailable(androidx.browser.customtabs.CustomTabsSessionToken, android.os.Bundle);
     method protected abstract boolean mayLaunchUrl(androidx.browser.customtabs.CustomTabsSessionToken, android.net.Uri?, android.os.Bundle?, java.util.List<android.os.Bundle!>?);
     method protected abstract boolean newSession(androidx.browser.customtabs.CustomTabsSessionToken);
@@ -239,7 +238,6 @@ package androidx.browser.customtabs {
 
   public final class CustomTabsSession {
     method @VisibleForTesting public static androidx.browser.customtabs.CustomTabsSession createMockSessionForTesting(android.content.ComponentName);
-    method @IntRange(from=0, to=100) @RequiresFeature(name=androidx.browser.customtabs.CustomTabsFeatures.ENGAGEMENT_SIGNALS, enforcement="androidx.browser.customtabs.CustomTabsSession#isEngagementSignalsApiAvailable") public int getGreatestScrollPercentage(android.os.Bundle) throws android.os.RemoteException;
     method public boolean isEngagementSignalsApiAvailable(android.os.Bundle) throws android.os.RemoteException;
     method public boolean mayLaunchUrl(android.net.Uri?, android.os.Bundle?, java.util.List<android.os.Bundle!>?);
     method @androidx.browser.customtabs.CustomTabsService.Result public int postMessage(String, android.os.Bundle?);
