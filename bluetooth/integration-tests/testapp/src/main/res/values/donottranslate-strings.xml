@@ -40,6 +40,7 @@
     <string name="indicate">Indicate</string>
     <string name="read">Read</string>
     <string name="write">Write</string>
+    <string name="read_characteristic">Read Characteristic</string>
 
     <!-- Advertiser -->
     <string name="configure_advertising_packet">Configure Advertising Packet</string>

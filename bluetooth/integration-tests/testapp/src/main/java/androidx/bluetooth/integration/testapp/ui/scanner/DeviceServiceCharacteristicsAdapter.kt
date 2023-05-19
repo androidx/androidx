@@ -21,19 +21,22 @@ import android.bluetooth.BluetoothGattCharacteristic
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.TextView
 import androidx.bluetooth.integration.testapp.R
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 
 class DeviceServiceCharacteristicsAdapter(
-    private val characteristics: List<BluetoothGattCharacteristic>
-) :
-    RecyclerView.Adapter<DeviceServiceCharacteristicsAdapter.ViewHolder>() {
+    private val deviceConnection: DeviceConnection,
+    private val characteristics: List<BluetoothGattCharacteristic>,
+    private val onClickReadCharacteristic: OnClickReadCharacteristic
+) : RecyclerView.Adapter<DeviceServiceCharacteristicsAdapter.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.item_device_service, parent, false)
-        return ViewHolder(view)
+            .inflate(R.layout.item_device_service_characteristic, parent, false)
+        return ViewHolder(view, onClickReadCharacteristic)
     }
 
     override fun getItemCount(): Int {
@@ -42,16 +45,39 @@ class DeviceServiceCharacteristicsAdapter(
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val characteristic = characteristics[position]
-        holder.bind(characteristic)
+        holder.bind(deviceConnection, characteristic)
     }
 
-    inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    inner class ViewHolder(
+        itemView: View,
+        private val onClickReadCharacteristic: OnClickReadCharacteristic
+    ) : RecyclerView.ViewHolder(itemView) {
 
         private val textViewUuid: TextView = itemView.findViewById(R.id.text_view_uuid)
         private val textViewProperties: TextView = itemView.findViewById(R.id.text_view_properties)
 
-        fun bind(characteristic: BluetoothGattCharacteristic) {
+        private val buttonReadCharacteristic: Button =
+            itemView.findViewById(R.id.button_read_characteristic)
+
+        private var currentDeviceConnection: DeviceConnection? = null
+        private var currentCharacteristic: BluetoothGattCharacteristic? = null
+
+        init {
+            buttonReadCharacteristic.setOnClickListener {
+                currentDeviceConnection?.let { deviceConnection ->
+                    currentCharacteristic?.let { characteristic ->
+                        onClickReadCharacteristic.onClick(deviceConnection, characteristic)
+                    }
+                }
+            }
+        }
+
+        fun bind(deviceConnection: DeviceConnection, characteristic: BluetoothGattCharacteristic) {
+            currentDeviceConnection = deviceConnection
+            currentCharacteristic = characteristic
+
             textViewUuid.text = characteristic.uuid.toString()
+
             /*
                 TODO(ofy) Display property type correctly
                 int	PROPERTY_BROADCAST
@@ -65,6 +91,10 @@ class DeviceServiceCharacteristicsAdapter(
 
                 textViewProperties.text = characteristic.properties
              */
+
+            val isNotReadable =
+                characteristic.properties.and(BluetoothGattCharacteristic.PROPERTY_READ) == 0
+            buttonReadCharacteristic.isVisible = isNotReadable.not()
         }
     }
 }

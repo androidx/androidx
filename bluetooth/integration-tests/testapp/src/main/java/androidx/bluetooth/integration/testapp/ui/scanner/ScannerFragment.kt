@@ -19,6 +19,7 @@ package androidx.bluetooth.integration.testapp.ui.scanner
 // TODO(ofy) Migrate to androidx.bluetooth.BluetoothLe once scan API is in place
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothDevice
+import android.bluetooth.BluetoothGattCharacteristic
 import android.bluetooth.le.ScanSettings
 import android.os.Bundle
 import android.util.Log
@@ -105,6 +106,15 @@ class ScannerFragment : Fragment() {
         }
     }
 
+    private val onClickReadCharacteristic = object : OnClickReadCharacteristic {
+        override fun onClick(
+            deviceConnection: DeviceConnection,
+            characteristic: BluetoothGattCharacteristic
+        ) {
+            deviceConnection.onClickReadCharacteristic?.onClick(deviceConnection, characteristic)
+        }
+    }
+
     private var _binding: FragmentScannerBinding? = null
 
     // This property is only valid between onCreateView and onDestroyView.
@@ -129,7 +139,7 @@ class ScannerFragment : Fragment() {
             DividerItemDecoration(context, LinearLayoutManager.VERTICAL)
         )
 
-        deviceServicesAdapter = DeviceServicesAdapter(emptyList())
+        deviceServicesAdapter = DeviceServicesAdapter(null, onClickReadCharacteristic)
         binding.recyclerViewDeviceServices.adapter = deviceServicesAdapter
         binding.recyclerViewDeviceServices.addItemDecoration(
             DividerItemDecoration(context, LinearLayoutManager.VERTICAL)
@@ -250,13 +260,27 @@ class ScannerFragment : Fragment() {
                     launch(Dispatchers.Main) {
                         updateDeviceUI(deviceConnection)
                     }
+
+                    // TODO(ofy) Improve this. Remove OnClickReadCharacteristic as it's not ideal
+                    // to hold so many OnClickReadCharacteristic and difficult to use with Compose.
+                    deviceConnection.onClickReadCharacteristic =
+                        object : OnClickReadCharacteristic {
+                        override fun onClick(
+                            deviceConnection: DeviceConnection,
+                            characteristic: BluetoothGattCharacteristic
+                        ) {
+                            connectScope.launch {
+                                val result = readCharacteristic(characteristic)
+                                Log.d(TAG, "readCharacteristic() called with: result = $result")
+                            }
+                        }
+                    }
                 }
             } catch (exception: Exception) {
-                Log.e(TAG, "connectGatt() exception", exception)
-
                 if (exception is CancellationException) {
                     Log.d(TAG, "connectGatt() CancellationException")
                 } else {
+                    Log.e(TAG, "connectGatt() exception", exception)
                     deviceConnection.status = Status.CONNECTION_FAILED
                     launch(Dispatchers.Main) {
                         updateDeviceUI(deviceConnection)
@@ -303,7 +327,7 @@ class ScannerFragment : Fragment() {
                 binding.buttonReconnect.isVisible = true
             }
         }
-        deviceServicesAdapter?.services = deviceConnection.services
+        deviceServicesAdapter?.deviceConnection = deviceConnection
         deviceServicesAdapter?.notifyDataSetChanged()
     }
 }
