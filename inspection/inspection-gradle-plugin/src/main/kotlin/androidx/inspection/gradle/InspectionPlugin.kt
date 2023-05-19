@@ -63,7 +63,7 @@ class InspectionPlugin : Plugin<Project> {
             // to allow including these dependencies in an SBOM
             it.description = "Re-publishes dependencies of the inspector"
             it.isCanBeConsumed = true
-            it.isCanBeResolved = false
+            it.isCanBeResolved = true
             it.extendsFrom(project.configurations.getByName("implementation"))
             it.setupReleaseAttribute()
         }

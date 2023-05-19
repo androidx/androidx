@@ -147,6 +147,9 @@ val DONT_TRY_RERUNNING_TASKS = setOf(
     "partiallyDejetifyArchive",
     "stripArchiveForPartialDejetification",
     "createArchive",
+
+    // https://github.com/spdx/spdx-gradle-plugin/issues/18
+    "spdxSbomForRelease",
 )
 
 val DONT_TRY_RERUNNING_TASK_TYPES = setOf(

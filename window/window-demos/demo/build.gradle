@@ -84,6 +84,7 @@ tasks.withType(KotlinCompile).configureEach {
 androidx {
     name = "WM Samples"
     type = LibraryType.SAMPLES
+    mavenVersion = LibraryVersions.WINDOW
     inceptionYear = "2023"
     description = "Samples for the WM Jetpack Library"
 }
