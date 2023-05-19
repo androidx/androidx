@@ -318,7 +318,27 @@ package androidx.wear.protolayout.expression {
     method @RequiresPermission(android.Manifest.permission.ACTIVITY_RECOGNITION) public static androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat dailyDistanceMeters();
     method @RequiresPermission(android.Manifest.permission.ACTIVITY_RECOGNITION) public static androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat dailyFloors();
     method @RequiresPermission(android.Manifest.permission.ACTIVITY_RECOGNITION) public static androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32 dailySteps();
+    method @RequiresPermission(android.Manifest.permission.BODY_SENSORS) public static androidx.wear.protolayout.expression.PlatformHealthSources.DynamicHeartRateAccuracy heartRateAccuracy();
     method @RequiresPermission(android.Manifest.permission.BODY_SENSORS) public static androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat heartRateBpm();
+  }
+
+  public static class PlatformHealthSources.Constants {
+    ctor public PlatformHealthSources.Constants();
+    field public static final androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue HEART_RATE_ACCURACY_HIGH;
+    field public static final androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue HEART_RATE_ACCURACY_LOW;
+    field public static final androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue HEART_RATE_ACCURACY_MEDIUM;
+    field public static final androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue HEART_RATE_ACCURACY_NO_CONTACT;
+    field public static final androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue HEART_RATE_ACCURACY_UNKNOWN;
+    field public static final androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue HEART_RATE_ACCURACY_UNRELIABLE;
+  }
+
+  public static final class PlatformHealthSources.DynamicHeartRateAccuracy implements androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32 {
+    field public static final androidx.wear.protolayout.expression.PlatformHealthSources.DynamicHeartRateAccuracy HIGH;
+    field public static final androidx.wear.protolayout.expression.PlatformHealthSources.DynamicHeartRateAccuracy LOW;
+    field public static final androidx.wear.protolayout.expression.PlatformHealthSources.DynamicHeartRateAccuracy MEDIUM;
+    field public static final androidx.wear.protolayout.expression.PlatformHealthSources.DynamicHeartRateAccuracy NO_CONTACT;
+    field public static final androidx.wear.protolayout.expression.PlatformHealthSources.DynamicHeartRateAccuracy UNKNOWN;
+    field public static final androidx.wear.protolayout.expression.PlatformHealthSources.DynamicHeartRateAccuracy UNRELIABLE;
   }
 
   public static class PlatformHealthSources.Keys {
@@ -326,6 +346,7 @@ package androidx.wear.protolayout.expression {
     field @RequiresPermission(android.Manifest.permission.ACTIVITY_RECOGNITION) public static final androidx.wear.protolayout.expression.PlatformDataKey<androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat!> DAILY_DISTANCE_METERS;
     field @RequiresPermission(android.Manifest.permission.ACTIVITY_RECOGNITION) public static final androidx.wear.protolayout.expression.PlatformDataKey<androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat!> DAILY_FLOORS;
     field @RequiresPermission(android.Manifest.permission.ACTIVITY_RECOGNITION) public static final androidx.wear.protolayout.expression.PlatformDataKey<androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32!> DAILY_STEPS;
+    field @RequiresPermission(android.Manifest.permission.BODY_SENSORS) public static final androidx.wear.protolayout.expression.PlatformDataKey<androidx.wear.protolayout.expression.PlatformHealthSources.DynamicHeartRateAccuracy!> HEART_RATE_ACCURACY;
     field @RequiresPermission(android.Manifest.permission.BODY_SENSORS) public static final androidx.wear.protolayout.expression.PlatformDataKey<androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat!> HEART_RATE_BPM;
   }
 
