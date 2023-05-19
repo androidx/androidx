@@ -18,6 +18,12 @@ limitations under the License.
     <string name="app_name">CameraX Views Demo</string>
     <string name="effects">Effects</string>
     <string name="preview">Preview</string>
+    <string name="preview_and_video">Preview &amp; Video</string>
+    <string name="surface_effect">Surface effect</string>
+    <string name="no_effect">No effect</string>
+    <string name="image_effect">Image effect</string>
+    <string name="image_capture">ImageCapture</string>
+    <string name="flip">flip</string>
     <string name="btn_capture">Capture</string>
     <string name="btn_video_record">Record</string>
     <string name="btn_video_stop_recording">Stop recording</string>
