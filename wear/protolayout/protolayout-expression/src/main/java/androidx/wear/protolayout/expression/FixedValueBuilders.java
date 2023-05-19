@@ -77,6 +77,8 @@ final class FixedValueBuilders {
       return fromProto(proto, null);
     }
 
+    /** Returns the internal proto instance. */
+    @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     FixedProto.FixedInt32 toProto() {
       return mImpl;
@@ -176,6 +178,8 @@ final class FixedValueBuilders {
       return fromProto(proto, null);
     }
 
+    /** Returns the internal proto instance. */
+    @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     FixedProto.FixedString toProto() {
       return mImpl;
@@ -275,6 +279,8 @@ final class FixedValueBuilders {
       return fromProto(proto, null);
     }
 
+    /** Returns the internal proto instance. */
+    @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     FixedProto.FixedFloat toProto() {
       return mImpl;
@@ -376,6 +382,8 @@ final class FixedValueBuilders {
       return fromProto(proto, null);
     }
 
+    /** Returns the internal proto instance. */
+    @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     FixedProto.FixedBool toProto() {
       return mImpl;
@@ -476,6 +484,8 @@ final class FixedValueBuilders {
       return fromProto(proto, null);
     }
 
+    /** Returns the internal proto instance. */
+    @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     FixedProto.FixedColor toProto() {
       return mImpl;
@@ -573,6 +583,8 @@ final class FixedValueBuilders {
       return fromProto(proto, null);
     }
 
+    /** Returns the internal proto instance. */
+    @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     FixedProto.FixedInstant toProto() {
       return mImpl;

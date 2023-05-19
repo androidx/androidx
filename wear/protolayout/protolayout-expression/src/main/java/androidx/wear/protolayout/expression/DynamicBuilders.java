@@ -460,7 +460,6 @@ public final class DynamicBuilders {
          * Returns the internal proto instance.
          *
          */
-        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         DynamicProto.PlatformInt32Source toProto() {
             return mImpl;
@@ -583,6 +582,7 @@ public final class DynamicBuilders {
             return fromProto(proto, null);
         }
 
+        /** Returns the internal proto instance. */
         @NonNull
         DynamicProto.ArithmeticInt32Op toProto() {
             return mImpl;
@@ -705,6 +705,7 @@ public final class DynamicBuilders {
             return fromProto(proto, null);
         }
 
+        /** Returns the internal proto instance. */
         @NonNull
         DynamicProto.StateInt32Source toProto() {
             return mImpl;
@@ -848,6 +849,7 @@ public final class DynamicBuilders {
             return fromProto(proto, null);
         }
 
+        /** Returns the internal proto instance. */
         @NonNull
         DynamicProto.ConditionalInt32Op toProto() {
             return mImpl;
@@ -997,6 +999,7 @@ public final class DynamicBuilders {
             return fromProto(proto, null);
         }
 
+        /** Returns the internal proto instance. */
         @NonNull
         DynamicProto.ConditionalFloatOp toProto() {
             return mImpl;
@@ -1124,6 +1127,7 @@ public final class DynamicBuilders {
             return fromProto(proto, null);
         }
 
+        /** Returns the internal proto instance. */
         @NonNull
         DynamicProto.FloatToInt32Op toProto() {
             return mImpl;
@@ -1241,6 +1245,7 @@ public final class DynamicBuilders {
         public Fingerprint getFingerprint() {
             return mFingerprint;
         }
+
         /** Creates a new wrapper instance from the proto. */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -1256,7 +1261,6 @@ public final class DynamicBuilders {
         }
 
         /** Returns the internal proto instance. */
-        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         DynamicProto.AnimatableFixedInt32 toProto() {
             return mImpl;
@@ -1390,6 +1394,7 @@ public final class DynamicBuilders {
         public Fingerprint getFingerprint() {
             return mFingerprint;
         }
+
         /** Creates a new wrapper instance from the proto. */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -1406,7 +1411,6 @@ public final class DynamicBuilders {
         }
 
         /** Returns the internal proto instance. */
-        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         DynamicProto.AnimatableDynamicInt32 toProto() {
             return mImpl;
@@ -2611,6 +2615,7 @@ public final class DynamicBuilders {
             return fromProto(proto, null);
         }
 
+        /** Returns the internal proto instance. */
         @NonNull
         DynamicProto.Int32FormatOp toProto() {
             return mImpl;
@@ -2749,6 +2754,7 @@ public final class DynamicBuilders {
             return fromProto(proto, null);
         }
 
+        /** Returns the internal proto instance. */
         @NonNull
         DynamicProto.StateStringSource toProto() {
             return mImpl;
@@ -2890,6 +2896,7 @@ public final class DynamicBuilders {
             return fromProto(proto, null);
         }
 
+        /** Returns the internal proto instance. */
         @NonNull
         DynamicProto.ConditionalStringOp toProto() {
             return mImpl;
@@ -3033,6 +3040,7 @@ public final class DynamicBuilders {
             return fromProto(proto, null);
         }
 
+        /** Returns the internal proto instance. */
         @NonNull
         DynamicProto.ConcatStringOp toProto() {
             return mImpl;
@@ -3195,6 +3203,7 @@ public final class DynamicBuilders {
             return fromProto(proto, null);
         }
 
+        /** Returns the internal proto instance. */
         @NonNull
         DynamicProto.FloatFormatOp toProto() {
             return mImpl;
@@ -3579,6 +3588,7 @@ public final class DynamicBuilders {
             return fromProto(proto, null);
         }
 
+        /** Returns the internal proto instance. */
         @NonNull
         DynamicProto.ArithmeticFloatOp toProto() {
             return mImpl;
@@ -3702,6 +3712,7 @@ public final class DynamicBuilders {
             return fromProto(proto, null);
         }
 
+        /** Returns the internal proto instance. */
         @NonNull
         DynamicProto.StateFloatSource toProto() {
             return mImpl;
@@ -3812,6 +3823,7 @@ public final class DynamicBuilders {
             return fromProto(proto, null);
         }
 
+        /** Returns the internal proto instance. */
         @NonNull
         DynamicProto.Int32ToFloatOp toProto() {
             return mImpl;
@@ -3927,6 +3939,7 @@ public final class DynamicBuilders {
             return fromProto(proto, null);
         }
 
+        /** Returns the internal proto instance. */
         @NonNull
         DynamicProto.AnimatableFixedFloat toProto() {
             return mImpl;
@@ -4076,6 +4089,7 @@ public final class DynamicBuilders {
             return fromProto(proto, null);
         }
 
+        /** Returns the internal proto instance. */
         @NonNull
         DynamicProto.AnimatableDynamicFloat toProto() {
             return mImpl;
@@ -5194,6 +5208,7 @@ public final class DynamicBuilders {
             return fromProto(proto, null);
         }
 
+        /** Returns the internal proto instance. */
         @NonNull
         DynamicProto.StateBoolSource toProto() {
             return mImpl;
@@ -5334,6 +5349,7 @@ public final class DynamicBuilders {
             return fromProto(proto, null);
         }
 
+        /** Returns the internal proto instance. */
         @NonNull
         DynamicProto.ComparisonInt32Op toProto() {
             return mImpl;
@@ -5478,6 +5494,7 @@ public final class DynamicBuilders {
             return fromProto(proto, null);
         }
 
+        /** Returns the internal proto instance. */
         @NonNull
         DynamicProto.ComparisonFloatOp toProto() {
             return mImpl;
@@ -5594,6 +5611,7 @@ public final class DynamicBuilders {
             return fromProto(proto, null);
         }
 
+        /** Returns the internal proto instance. */
         @NonNull
         DynamicProto.NotBoolOp toProto() {
             return mImpl;
@@ -5714,6 +5732,7 @@ public final class DynamicBuilders {
             return fromProto(proto, null);
         }
 
+        /** Returns the internal proto instance. */
         @NonNull
         DynamicProto.LogicalBoolOp toProto() {
             return mImpl;
@@ -6062,6 +6081,7 @@ public final class DynamicBuilders {
             return fromProto(proto, null);
         }
 
+        /** Returns the internal proto instance. */
         @NonNull
         DynamicProto.StateColorSource toProto() {
             return mImpl;
@@ -6195,6 +6215,7 @@ public final class DynamicBuilders {
             return fromProto(proto, null);
         }
 
+        /** Returns the internal proto instance. */
         @NonNull
         DynamicProto.AnimatableFixedColor toProto() {
             return mImpl;
@@ -6344,6 +6365,7 @@ public final class DynamicBuilders {
             return fromProto(proto, null);
         }
 
+        /** Returns the internal proto instance. */
         @NonNull
         DynamicProto.AnimatableDynamicColor toProto() {
             return mImpl;
@@ -6492,7 +6514,6 @@ public final class DynamicBuilders {
         }
 
         /** Returns the internal proto instance. */
-        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         DynamicProto.ConditionalColorOp toProto() {
             return mImpl;
@@ -6809,6 +6830,9 @@ public final class DynamicBuilders {
         if (proto.hasAnimatableDynamic()) {
             return AnimatableDynamicColor.fromProto(proto.getAnimatableDynamic(), fingerprint);
         }
+        if (proto.hasConditionalOp()) {
+            return ConditionalColorOp.fromProto(proto.getConditionalOp(), fingerprint);
+        }
         throw new IllegalStateException("Proto was not a recognised instance of DynamicColor");
     }
 
@@ -6857,6 +6881,7 @@ public final class DynamicBuilders {
             return fromProto(proto, null);
         }
 
+        /** Returns the internal proto instance. */
         @NonNull
         DynamicProto.PlatformTimeSource toProto() {
             return mImpl;
@@ -6975,7 +7000,6 @@ public final class DynamicBuilders {
         }
 
         /** Returns the internal proto instance. */
-        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         DynamicProto.ConditionalInstantOp toProto() {
             return mImpl;
@@ -7302,6 +7326,7 @@ public final class DynamicBuilders {
             return fromProto(proto, null);
         }
 
+        /** Returns the internal proto instance. */
         @NonNull
         DynamicProto.BetweenDuration toProto() {
             return mImpl;
@@ -7451,7 +7476,6 @@ public final class DynamicBuilders {
         }
 
         /** Returns the internal proto instance. */
-        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         DynamicProto.ConditionalDurationOp toProto() {
             return mImpl;
@@ -7851,7 +7875,7 @@ public final class DynamicBuilders {
             return FixedDuration.fromProto(proto.getFixed(), fingerprint);
         }
         if (proto.hasConditionalOp()) {
-            return ConditionalDurationOp.fromProto(proto.getConditionalOp());
+            return ConditionalDurationOp.fromProto(proto.getConditionalOp(), fingerprint);
         }
         throw new IllegalStateException("Proto was not a recognised instance of DynamicDuration");
     }
@@ -7926,6 +7950,7 @@ public final class DynamicBuilders {
             return fromProto(proto, null);
         }
 
+        /** Returns the internal proto instance. */
         @NonNull
         DynamicProto.GetDurationPartOp toProto() {
             return mImpl;

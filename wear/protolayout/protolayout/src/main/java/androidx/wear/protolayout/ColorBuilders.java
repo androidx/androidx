@@ -85,13 +85,23 @@ public final class ColorBuilders {
             return mFingerprint;
         }
 
+        /** Creates a new wrapper instance from the proto. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
-        static ColorProp fromProto(@NonNull ColorProto.ColorProp proto) {
-            return new ColorProp(proto, null);
+        public static ColorProp fromProto(
+                @NonNull ColorProto.ColorProp proto, @Nullable Fingerprint fingerprint) {
+            return new ColorProp(proto, fingerprint);
         }
 
         @NonNull
-        ColorProto.ColorProp toProto() {
+        static ColorProp fromProto(@NonNull ColorProto.ColorProp proto) {
+            return fromProto(proto, null);
+        }
+
+        /** Returns the internal proto instance. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public ColorProto.ColorProp toProto() {
             return mImpl;
         }
 

@@ -64,13 +64,23 @@ public final class TypeBuilders {
             return mFingerprint;
         }
 
+        /** Creates a new wrapper instance from the proto. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
-        static Int32Prop fromProto(@NonNull TypesProto.Int32Prop proto) {
-            return new Int32Prop(proto, null);
+        public static Int32Prop fromProto(
+            @NonNull TypesProto.Int32Prop proto, @Nullable Fingerprint fingerprint) {
+            return new Int32Prop(proto, fingerprint);
         }
 
         @NonNull
-        TypesProto.Int32Prop toProto() {
+        static Int32Prop fromProto(@NonNull TypesProto.Int32Prop proto) {
+            return fromProto(proto, null);
+        }
+
+        /** Returns the internal proto instance. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public TypesProto.Int32Prop toProto() {
             return mImpl;
         }
 
@@ -146,9 +156,17 @@ public final class TypeBuilders {
             return mFingerprint;
         }
 
+        /** Creates a new wrapper instance from the proto. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public static StringProp fromProto(
+            @NonNull TypesProto.StringProp proto, @Nullable Fingerprint fingerprint) {
+            return new StringProp(proto, fingerprint);
+        }
+
         @NonNull
         static StringProp fromProto(@NonNull TypesProto.StringProp proto) {
-            return new StringProp(proto, null);
+            return fromProto(proto, null);
         }
 
         /** Returns the internal proto instance. */
@@ -376,13 +394,23 @@ public final class TypeBuilders {
             return mFingerprint;
         }
 
+        /** Creates a new wrapper instance from the proto. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
-        static FloatProp fromProto(@NonNull TypesProto.FloatProp proto) {
-            return new FloatProp(proto, null);
+        public static FloatProp fromProto(
+            @NonNull TypesProto.FloatProp proto, @Nullable Fingerprint fingerprint) {
+            return new FloatProp(proto, fingerprint);
         }
 
         @NonNull
-        TypesProto.FloatProp toProto() {
+        static FloatProp fromProto(@NonNull TypesProto.FloatProp proto) {
+            return fromProto(proto, null);
+        }
+
+        /** Returns the internal proto instance. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public TypesProto.FloatProp toProto() {
             return mImpl;
         }
 
@@ -485,13 +513,23 @@ public final class TypeBuilders {
             return mFingerprint;
         }
 
+        /** Creates a new wrapper instance from the proto. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
-        static BoolProp fromProto(@NonNull TypesProto.BoolProp proto) {
-            return new BoolProp(proto, null);
+        public static BoolProp fromProto(
+            @NonNull TypesProto.BoolProp proto, @Nullable Fingerprint fingerprint) {
+            return new BoolProp(proto, fingerprint);
         }
 
         @NonNull
-        TypesProto.BoolProp toProto() {
+        static BoolProp fromProto(@NonNull TypesProto.BoolProp proto) {
+            return fromProto(proto, null);
+        }
+
+        /** Returns the internal proto instance. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public TypesProto.BoolProp toProto() {
             return mImpl;
         }
 
