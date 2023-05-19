@@ -20,8 +20,10 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.text.Spannable;
 import android.text.SpannableString;
+import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.style.BackgroundColorSpan;
+import android.text.style.RelativeSizeSpan;
 import android.text.style.StrikethroughSpan;
 import android.text.style.UnderlineSpan;
 import android.view.LayoutInflater;
@@ -75,6 +77,7 @@ public class MainFragment extends Fragment {
     private AppCompatRadioButton mAppCompatRadioButton;
     AppCompatAutoCompleteTextView mAppCompatAutoCompleteTextView;
     AppCompatMultiAutoCompleteTextView mAppCompatMultiAutoCompleteTextView;
+    private TextView mRelative;
 
     final Config.Listener mConfigListener = new Config.Listener() {
         @Override
@@ -118,6 +121,8 @@ public class MainFragment extends Fragment {
         mAppCompatAutoCompleteTextView = view.findViewById(R.id.appcompat_autocomplete_textview);
         mAppCompatMultiAutoCompleteTextView =
                 view.findViewById(R.id.appcompat_multiautocomplete_textview);
+
+        mRelative = view.findViewById(R.id.relative);
 
         final TextView emojiListButton = view.findViewById(R.id.emoji_list_button);
         emojiListButton.setOnClickListener(new View.OnClickListener() {
@@ -197,5 +202,17 @@ public class MainFragment extends Fragment {
             }
         });
         mCustomTextView.setText(getString(R.string.custom_text_view, EMOJI));
+        mRelative.setText(relativeText());
+        mRelative.setTextSize(10);
+    }
+
+    private Spannable relativeText() {
+        SpannableStringBuilder builder = new SpannableStringBuilder();
+        builder.append(EMOJI);
+        RelativeSizeSpan sizeSpan = new RelativeSizeSpan(4F);
+        builder.setSpan(sizeSpan, 0, EMOJI.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        builder.append("<-- Relative Size 4.0 ||||  regular size ->");
+        builder.append(EMOJI);
+        return builder;
     }
 }

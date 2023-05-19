@@ -21,6 +21,7 @@ import android.graphics.Paint;
 import android.text.Spanned;
 import android.text.TextPaint;
 import android.text.style.CharacterStyle;
+import android.text.style.MetricAffectingSpan;
 
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
@@ -122,7 +123,10 @@ public final class TypefaceEmojiSpan extends EmojiSpan {
             wp.set(paint);
             //noinspection ForLoopReplaceableByForEach
             for (int pos = 0; pos < spans.length; pos++) {
-                spans[pos].updateDrawState(wp);
+                if (!(spans[pos] instanceof MetricAffectingSpan)) {
+                    // we're in draw, so at this point we can't do anything to metrics don't try
+                    spans[pos].updateDrawState(wp);
+                }
             }
             return wp;
         } else {
