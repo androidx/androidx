@@ -138,6 +138,11 @@
                 android:textSize="@dimen/text_size"
                 android:text="Show all emojis"/>
 
+            <TextView
+                android:id="@+id/relative"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
         </LinearLayout>
 
     </ScrollView>
