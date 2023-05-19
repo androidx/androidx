@@ -167,7 +167,7 @@ internal class TextStringSimpleNode(
         textChanged: Boolean,
         layoutChanged: Boolean
     ) {
-        if (textChanged) {
+        if (textChanged || (drawChanged && semanticsTextLayoutResult != null)) {
             invalidateSemantics()
         }
 
@@ -195,11 +195,12 @@ internal class TextStringSimpleNode(
         var localSemanticsTextLayoutResult = semanticsTextLayoutResult
         if (localSemanticsTextLayoutResult == null) {
             localSemanticsTextLayoutResult = { textLayoutResult ->
-                val layout = layoutCache.slowCreateTextLayoutResultOrNull()?.also {
+                val layout = layoutCache.slowCreateTextLayoutResultOrNull(
+                    color = overrideColor?.invoke() ?: Color.Unspecified
+                )?.also {
                     textLayoutResult.add(it)
                 }
                 layout != null
-                false
             }
             semanticsTextLayoutResult = localSemanticsTextLayoutResult
         }
