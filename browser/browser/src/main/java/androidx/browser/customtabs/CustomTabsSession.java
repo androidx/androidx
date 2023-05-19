@@ -32,7 +32,6 @@ import android.support.customtabs.IEngagementSignalsCallback;
 import android.view.View;
 import android.widget.RemoteViews;
 
-import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresFeature;
@@ -329,10 +328,8 @@ public final class CustomTabsSession {
      *
      * @param extras Reserved for future use.
      * @return Whether the Engagement Signals API is available. A false value means
-     * {@link #getGreatestScrollPercentage} will throw an
-     * {@link UnsupportedOperationException} if called, and
-     * {@link #setEngagementSignalsCallback} will return false and not set the callback.
-     * @throws RemoteException               If the Service dies while responding to the request.
+     *         {@link #setEngagementSignalsCallback} will return false and not set the callback.
+     * @throws RemoteException If the Service dies while responding to the request.
      * @throws UnsupportedOperationException If this method isn't supported by the Custom Tabs
      *                                       implementation.
      */
@@ -461,38 +458,6 @@ public final class CustomTabsSession {
                 }
             }
         };
-    }
-
-    /**
-     * Returns the greatest scroll percentage the user has reached on the page based on the page
-     * height at the moment the percentage was reached. This method only returns values that have
-     * been or would have been reported by
-     * {@link EngagementSignalsCallback#onGreatestScrollPercentageIncreased}, and the percentage
-     * is not updated if the page height changes after the last scroll event that caused the
-     * greatest scroll percentage to change. The greatest scroll percentage is reset when the user
-     * navigates to a different page. Note that an {@link EngagementSignalsCallback} does not need
-     * to be registered before calling this method.
-     *
-     * @param extras Reserved for future use.
-     * @return An integer in the range of [0, 100] indicating the amount that the user has
-     * scrolled the page with 0 indicating the user has never scrolled the page and 100
-     * indicating they have scrolled to the very bottom.
-     * @throws RemoteException               If the Service dies while responding to the request.
-     * @throws UnsupportedOperationException If the Engagement Signals API isn't available, i.e.
-     *                                       {@link #isEngagementSignalsApiAvailable} returns
-     *                                       false, or the method isn't supported
-     *                                       by the Custom Tabs implementation.
-     */
-    @RequiresFeature(name = CustomTabsFeatures.ENGAGEMENT_SIGNALS, enforcement =
-            "androidx.browser.customtabs.CustomTabsSession#isEngagementSignalsApiAvailable")
-    public @IntRange(from = 0, to = 100) int getGreatestScrollPercentage(@NonNull Bundle extras)
-            throws RemoteException {
-        try {
-            return mService.getGreatestScrollPercentage(mCallback, extras);
-        } catch (SecurityException e) {
-            throw new UnsupportedOperationException("This method isn't supported by the "
-                    + "Custom Tabs implementation.", e);
-        }
     }
 
     private @Nullable Bundle createPostMessageExtraBundle(@Nullable Uri targetOrigin) {
@@ -641,12 +606,6 @@ public final class CustomTabsSession {
         public boolean setEngagementSignalsCallback(ICustomTabsCallback customTabsCallback,
                 IBinder callback, Bundle extras) throws RemoteException {
             return false;
-        }
-
-        @Override
-        public int getGreatestScrollPercentage(ICustomTabsCallback callback, Bundle extras)
-                throws RemoteException {
-            return 0;
         }
     }
 }

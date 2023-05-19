@@ -135,12 +135,6 @@ public class TestCustomTabsService extends CustomTabsService {
                 IBinder callback, Bundle extras) throws RemoteException {
             return mMock.setEngagementSignalsCallback(customTabsCallback, callback, extras);
         }
-
-        @Override
-        public int getGreatestScrollPercentage(ICustomTabsCallback customTabsCallback,
-                Bundle extras) throws RemoteException {
-            return mMock.getGreatestScrollPercentage(customTabsCallback, extras);
-        }
     };
 
     @NonNull
