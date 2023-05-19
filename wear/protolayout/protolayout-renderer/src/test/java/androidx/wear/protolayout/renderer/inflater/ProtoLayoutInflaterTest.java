@@ -1828,6 +1828,31 @@ public class ProtoLayoutInflaterTest {
     }
 
     @Test
+    public void inflate_textView_marquee_animationsDisabled() {
+        String textContents = "Marquee Animation";
+        LayoutElement root =
+                LayoutElement.newBuilder()
+                        .setText(
+                                Text.newBuilder()
+                                        .setText(string(textContents))
+                                        .setMaxLines(Int32Prop.newBuilder().setValue(1))
+                                        .setOverflow(
+                                                TextOverflowProp.newBuilder()
+                                                        .setValue(
+                                                                TextOverflow.TEXT_OVERFLOW_MARQUEE)
+                                                        .build()))
+                        .build();
+
+        FrameLayout rootLayout =
+                renderer(
+                                newRendererConfigBuilder(fingerprintedLayout(root))
+                                        .setAnimationEnabled(false))
+                        .inflate();
+        TextView tv = (TextView) rootLayout.getChildAt(0);
+        expect.that(tv.getEllipsize()).isNull();
+    }
+
+    @Test
     public void inflate_textView_marqueeAnimationInMultiLine() {
         String textContents = "Marquee Animation";
         LayoutElement root =
