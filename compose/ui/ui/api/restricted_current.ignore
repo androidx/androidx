@@ -1,39 +1,7 @@
 // Baseline format: 1.0
-BecameUnchecked: Field NestedScrollSource.Companion.Relocate:
-    Removed Field NestedScrollSource.Companion.Relocate from compatibility checked API surface
-BecameUnchecked: androidx.compose.ui.input.nestedscroll.NestedScrollSource.Companion#getRelocate():
-    Removed method androidx.compose.ui.input.nestedscroll.NestedScrollSource.Companion.getRelocate() from compatibility checked API surface
+ChangedType: androidx.compose.ui.draw.DrawModifierKt#CacheDrawModifierNode(kotlin.jvm.functions.Function1<? super androidx.compose.ui.draw.CacheDrawScope,androidx.compose.ui.draw.DrawResult>):
+    Method androidx.compose.ui.draw.DrawModifierKt.CacheDrawModifierNode has changed return type from androidx.compose.ui.node.CacheDrawModifierNode to androidx.compose.ui.draw.CacheDrawModifierNode
 
 
-InvalidNullConversion: androidx.compose.ui.CombinedModifier#foldIn(R, kotlin.jvm.functions.Function2<? super R,? super androidx.compose.ui.Modifier.Element,? extends R>) parameter #0:
-    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter initial in androidx.compose.ui.CombinedModifier.foldIn(R initial, kotlin.jvm.functions.Function2<? super R,? super androidx.compose.ui.Modifier.Element,? extends R> operation)
-InvalidNullConversion: androidx.compose.ui.CombinedModifier#foldOut(R, kotlin.jvm.functions.Function2<? super androidx.compose.ui.Modifier.Element,? super R,? extends R>) parameter #0:
-    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter initial in androidx.compose.ui.CombinedModifier.foldOut(R initial, kotlin.jvm.functions.Function2<? super androidx.compose.ui.Modifier.Element,? super R,? extends R> operation)
-InvalidNullConversion: androidx.compose.ui.Modifier#foldIn(R, kotlin.jvm.functions.Function2<? super R,? super androidx.compose.ui.Modifier.Element,? extends R>) parameter #0:
-    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter initial in androidx.compose.ui.Modifier.foldIn(R initial, kotlin.jvm.functions.Function2<? super R,? super androidx.compose.ui.Modifier.Element,? extends R> operation)
-InvalidNullConversion: androidx.compose.ui.Modifier#foldOut(R, kotlin.jvm.functions.Function2<? super androidx.compose.ui.Modifier.Element,? super R,? extends R>) parameter #0:
-    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter initial in androidx.compose.ui.Modifier.foldOut(R initial, kotlin.jvm.functions.Function2<? super androidx.compose.ui.Modifier.Element,? super R,? extends R> operation)
-InvalidNullConversion: androidx.compose.ui.Modifier.Companion#foldIn(R, kotlin.jvm.functions.Function2<? super R,? super androidx.compose.ui.Modifier.Element,? extends R>) parameter #0:
-    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter initial in androidx.compose.ui.Modifier.Companion.foldIn(R initial, kotlin.jvm.functions.Function2<? super R,? super androidx.compose.ui.Modifier.Element,? extends R> operation)
-InvalidNullConversion: androidx.compose.ui.Modifier.Companion#foldOut(R, kotlin.jvm.functions.Function2<? super androidx.compose.ui.Modifier.Element,? super R,? extends R>) parameter #0:
-    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter initial in androidx.compose.ui.Modifier.Companion.foldOut(R initial, kotlin.jvm.functions.Function2<? super androidx.compose.ui.Modifier.Element,? super R,? extends R> operation)
-InvalidNullConversion: androidx.compose.ui.Modifier.Element#foldIn(R, kotlin.jvm.functions.Function2<? super R,? super androidx.compose.ui.Modifier.Element,? extends R>) parameter #0:
-    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter initial in androidx.compose.ui.Modifier.Element.foldIn(R initial, kotlin.jvm.functions.Function2<? super R,? super androidx.compose.ui.Modifier.Element,? extends R> operation)
-InvalidNullConversion: androidx.compose.ui.Modifier.Element#foldOut(R, kotlin.jvm.functions.Function2<? super androidx.compose.ui.Modifier.Element,? super R,? extends R>) parameter #0:
-    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter initial in androidx.compose.ui.Modifier.Element.foldOut(R initial, kotlin.jvm.functions.Function2<? super androidx.compose.ui.Modifier.Element,? super R,? extends R> operation)
-InvalidNullConversion: androidx.compose.ui.graphics.vector.VectorConfig#getOrDefault(androidx.compose.ui.graphics.vector.VectorProperty<T>, T) parameter #1:
-    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter defaultValue in androidx.compose.ui.graphics.vector.VectorConfig.getOrDefault(androidx.compose.ui.graphics.vector.VectorProperty<T> property, T defaultValue)
-InvalidNullConversion: androidx.compose.ui.semantics.SemanticsConfiguration#set(androidx.compose.ui.semantics.SemanticsPropertyKey<T>, T) parameter #1:
-    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter value in androidx.compose.ui.semantics.SemanticsConfiguration.set(androidx.compose.ui.semantics.SemanticsPropertyKey<T> key, T value)
-InvalidNullConversion: androidx.compose.ui.semantics.SemanticsPropertyKey#merge(T, T) parameter #1:
-    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter childValue in androidx.compose.ui.semantics.SemanticsPropertyKey.merge(T parentValue, T childValue)
-InvalidNullConversion: androidx.compose.ui.semantics.SemanticsPropertyKey#setValue(androidx.compose.ui.semantics.SemanticsPropertyReceiver, kotlin.reflect.KProperty<?>, T) parameter #2:
-    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter value in androidx.compose.ui.semantics.SemanticsPropertyKey.setValue(androidx.compose.ui.semantics.SemanticsPropertyReceiver thisRef, kotlin.reflect.KProperty<?> property, T value)
-InvalidNullConversion: androidx.compose.ui.semantics.SemanticsPropertyReceiver#set(androidx.compose.ui.semantics.SemanticsPropertyKey<T>, T) parameter #1:
-    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter value in androidx.compose.ui.semantics.SemanticsPropertyReceiver.set(androidx.compose.ui.semantics.SemanticsPropertyKey<T> key, T value)
-
-
-RemovedClass: androidx.compose.ui.layout.TestModifierUpdaterKt:
-    Removed class androidx.compose.ui.layout.TestModifierUpdaterKt
-RemovedClass: androidx.compose.ui.platform.AndroidComposeView_androidKt:
-    Removed class androidx.compose.ui.platform.AndroidComposeView_androidKt
+RemovedInterface: androidx.compose.ui.node.CacheDrawModifierNode:
+    Removed class androidx.compose.ui.node.CacheDrawModifierNode
