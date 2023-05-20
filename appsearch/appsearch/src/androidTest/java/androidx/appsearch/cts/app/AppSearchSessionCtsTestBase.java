@@ -1847,9 +1847,9 @@ public abstract class AppSearchSessionCtsTestBase {
                 .build();
 
         SearchResults searchResults = mDb1.search("body email", new SearchSpec.Builder()
-                // this.childrenScores() evaluates to the list {1 * 2, 2 * 2}.
-                // Thus, sum(this.childrenScores()) evaluates to 6.
-                .setRankingStrategy("sum(this.childrenScores())")
+                // this.childrenRankingSignals() evaluates to the list {1 * 2, 2 * 2}.
+                // Thus, sum(this.childrenRankingSignals()) evaluates to 6.
+                .setRankingStrategy("sum(this.childrenRankingSignals())")
                 .setJoinSpec(js)
                 .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
                 .build());
@@ -1901,7 +1901,7 @@ public abstract class AppSearchSessionCtsTestBase {
     }
 
     @Test
-    public void testQuery_invalidAdvancedRankingWithChildrenScores() throws Exception {
+    public void testQuery_invalidAdvancedRankingWithChildrenRankingSignals() throws Exception {
         assumeTrue(mDb1.getFeatures().isFeatureSupported(
                 Features.SEARCH_SPEC_ADVANCED_RANKING_EXPRESSION));
         assumeTrue(mDb1.getFeatures()
@@ -1926,8 +1926,8 @@ public abstract class AppSearchSessionCtsTestBase {
 
         SearchResults searchResults = mDb1.search("body", new SearchSpec.Builder()
                 .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
-                // Using this.childrenScores() without the context of a join is invalid.
-                .setRankingStrategy("sum(this.childrenScores())")
+                // Using this.childrenRankingSignals() without the context of a join is invalid.
+                .setRankingStrategy("sum(this.childrenRankingSignals())")
                 .build());
         ExecutionException executionException = assertThrows(ExecutionException.class,
                 () -> searchResults.getNextPageAsync().get());
@@ -1935,7 +1935,7 @@ public abstract class AppSearchSessionCtsTestBase {
         AppSearchException exception = (AppSearchException) executionException.getCause();
         assertThat(exception.getResultCode()).isEqualTo(RESULT_INVALID_ARGUMENT);
         assertThat(exception).hasMessageThat().contains(
-                "childrenScores must only be used with join");
+                "childrenRankingSignals must only be used with join");
     }
 
     @Test
