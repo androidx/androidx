@@ -42,6 +42,11 @@ public interface IcingOptionsConfig {
      */
     int DEFAULT_COMPRESSION_LEVEL = 3;
 
+    boolean DEFAULT_USE_PREMAPPING_WITH_FILE_BACKED_VECTOR = false;
+
+    boolean DEFAULT_USE_PERSISTENT_HASH_MAP = false;
+
+
     /**
      * The maximum allowable token length. All tokens in excess of this size will be truncated to
      * max_token_length before being indexed.
@@ -114,4 +119,21 @@ public interface IcingOptionsConfig {
      * implemented around code paths that write changes to Icing during Search.
      */
     boolean getUseReadOnlySearch();
+
+    /**
+     * Flag for {@link com.google.android.icing.proto.IcingSearchEngineOptions}.
+     *
+     * <p>Whether or not to pre-map the potential memory region used by the PersistentHashMap.
+     * This will avoid the need to re-map the mmapping used by PersistentHashMap whenever the
+     * underlying storage grows.
+     */
+    boolean getUsePreMappingWithFileBackedVector();
+
+    /**
+     * Flag for {@link com.google.android.icing.proto.IcingSearchEngineOptions}.
+     *
+     * <p>Whether or not to use the PersistentHashMap in the QualifiedIdTypeJoinableIndex. If false,
+     * we will use the old IcingDynamicTrie to store key value pairs.
+     */
+    boolean getUsePersistentHashMap();
 }
