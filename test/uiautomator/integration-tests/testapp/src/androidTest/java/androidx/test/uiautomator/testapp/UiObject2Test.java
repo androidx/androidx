@@ -16,6 +16,8 @@
 
 package androidx.test.uiautomator.testapp;
 
+import static android.os.Build.VERSION.SDK_INT;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
@@ -39,6 +41,7 @@ import androidx.test.uiautomator.EventCondition;
 import androidx.test.uiautomator.UiObject2;
 import androidx.test.uiautomator.Until;
 
+import org.junit.Assume;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -651,6 +654,7 @@ public class UiObject2Test extends BaseTest {
 
     @Test
     public void testScrollUntil_conditionSatisfied() {
+        Assume.assumeFalse(SDK_INT == 26); // b/272346700
         launchTestActivity(VerticalScrollTestActivity.class);
         assertTrue(mDevice.hasObject(By.res(TEST_APP, "top_text"))); // Initially at top.
         assertFalse(mDevice.hasObject(By.res(TEST_APP, "bottom_text")));
