@@ -269,4 +269,17 @@ public class AppSearchSessionPlatformCtsTest extends AppSearchSessionCtsTestBase
         assertThat(sr.get(1).getRankingSignal()).isEqualTo(0.0);
         assertThat(sr.get(1).getJoinedResults()).isEmpty();
     }
+
+    // TODO(b/256022027) Remove this overridden test once the change to rename
+    //  `this.childrenScores()` to `this.childrenRankingSignals()` is synced to udc-dev.
+    @Override
+    @Test
+    public void testQuery_invalidAdvancedRankingWithChildrenRankingSignals() throws Exception { }
+
+    // TODO(b/256022027) Remove this overridden test once the change to rename
+    //  `this.childrenScores()` to `this.childrenRankingSignals()` is synced to udc-dev.
+    @Override
+    @Test
+    public void testQuery_advancedRankingWithJoin() throws Exception { }
+
 }
