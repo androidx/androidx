@@ -48,7 +48,6 @@ import org.jetbrains.kotlin.kdoc.psi.impl.KDocSection
 import org.jetbrains.kotlin.psi.KtDeclaration
 import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.psi.KtModifierListOwner
-import org.jetbrains.kotlin.psi.KtPropertyAccessor
 import org.jetbrains.kotlin.psi.psiUtil.hasActualModifier
 import org.jetbrains.uast.UDeclaration
 import org.jetbrains.uast.UMethod
@@ -236,27 +235,22 @@ class SampledAnnotationDetector : Detector(), SourceCodeScanner {
 private class KDocSampleLinkHandler(private val context: JavaContext) {
     fun visitDeclaration(node: UDeclaration) {
         val source = node.sourcePsi
-        // TODO: remove workaround when https://youtrack.jetbrains.com/issue/KTIJ-19043 is fixed
-        if (source is KtPropertyAccessor) {
-            source.property.docComment?.let { handleSampleLink(it) }
-        } else {
-            node.comments
-                .mapNotNull {
-                    it.sourcePsi as? KDoc
-                }
-                .forEach {
+        node.comments
+            .mapNotNull {
+                it.sourcePsi as? KDoc
+            }
+            .forEach {
+                handleSampleLink(it)
+            }
+        // Expect declarations are not visible in UAST, but they may have sample links on them.
+        // If we are looking at an actual declaration, also manually find the corresponding
+        // expect declaration for analysis.
+        if ((source as? KtModifierListOwner)?.hasActualModifier() == true) {
+            analyze(source) {
+                val member = (source as? KtDeclaration)?.getSymbol() ?: return
+                val expect = member.getExpectForActual() ?: return
+                (expect.psi as? KtDeclaration)?.docComment?.let {
                     handleSampleLink(it)
-                }
-            // Expect declarations are not visible in UAST, but they may have sample links on them.
-            // If we are looking at an actual declaration, also manually find the corresponding
-            // expect declaration for analysis.
-            if ((source as? KtModifierListOwner)?.hasActualModifier() == true) {
-                analyze(source) {
-                    val member = (source as? KtDeclaration)?.getSymbol() ?: return
-                    val expect = member.getExpectForActual() ?: return
-                    (expect.psi as? KtDeclaration)?.docComment?.let {
-                        handleSampleLink(it)
-                    }
                 }
             }
         }
