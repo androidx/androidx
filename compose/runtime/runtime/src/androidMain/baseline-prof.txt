@@ -42,6 +42,7 @@ HSPLandroidx/compose/runtime/OpaqueKey;->**(**)**
 HSPLandroidx/compose/runtime/ParcelableSnapshotMutableState**->**(**)**
 HSPLandroidx/compose/runtime/PausableMonotonicFrameClock;->**(**)**
 HSPLandroidx/compose/runtime/Pending**->**(**)**
+HSPLandroidx/compose/runtime/PrimitiveSnapshotStateKt**->**(**)**
 HSPLandroidx/compose/runtime/ProvidableCompositionLocal;->**(**)**
 HSPLandroidx/compose/runtime/ProvidedValue;->**(**)**
 HSPLandroidx/compose/runtime/RecomposeScopeImpl;->**(**)**
@@ -53,6 +54,9 @@ HSPLandroidx/compose/runtime/SlotTable;->**(**)**
 HSPLandroidx/compose/runtime/SlotTableKt;->**(**)**
 HSPLandroidx/compose/runtime/SlotWriter;->**(**)**
 HSPLandroidx/compose/runtime/SnapshotMutableStateImpl**->**(**)**
+HSPLandroidx/compose/runtime/SnapshotDoubleStateKt**->**(**)**
+HSPLandroidx/compose/runtime/SnapshotIntStateKt**->**(**)**
+HSPLandroidx/compose/runtime/SnapshotLongStateKt**->**(**)**
 HSPLandroidx/compose/runtime/SnapshotStateKt**->**(**)**
 HSPLandroidx/compose/runtime/SnapshotThreadLocal;->**(**)**
 HSPLandroidx/compose/runtime/StaticProvidableCompositionLocal;->**(**)**
