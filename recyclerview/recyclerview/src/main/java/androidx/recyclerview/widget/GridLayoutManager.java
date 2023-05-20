@@ -232,6 +232,10 @@ public class GridLayoutManager extends LinearLayoutManager {
         // and list via CollectionInfos, but an almost empty grid may be incorrectly identified
         // as a list.
         info.setClassName(GridView.class.getName());
+
+        if (mRecyclerView.mAdapter != null && mRecyclerView.mAdapter.getItemCount() > 1) {
+            info.addAction(AccessibilityActionCompat.ACTION_SCROLL_IN_DIRECTION);
+        }
     }
 
     @Override
