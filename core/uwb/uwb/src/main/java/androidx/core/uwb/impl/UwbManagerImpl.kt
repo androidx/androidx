@@ -73,8 +73,8 @@ internal class UwbManagerImpl(private val context: Context) : UwbManager {
 
     private suspend fun createClientSessionScope(isController: Boolean): UwbClientSessionScope {
         checkSystemFeature(context)
-        val hasGmsCore = GoogleApiAvailability.getInstance()
-            .isGooglePlayServicesAvailable(context) == ConnectionResult.SUCCESS
+        val hasGmsCore = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(
+            context, /* minApkVersion */230100000) == ConnectionResult.SUCCESS
         return if (hasGmsCore) createGmsClientSessionScope(isController)
         else createAospClientSessionScope(isController)
     }
