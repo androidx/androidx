@@ -18,9 +18,11 @@ package androidx.bluetooth.integration.testapp.ui.scanner
 
 // TODO(ofy) Migrate to androidx.bluetooth.ScanResult once in place
 import android.bluetooth.BluetoothDevice
+import android.bluetooth.BluetoothGattCharacteristic
 import android.bluetooth.BluetoothGattService
 import android.bluetooth.le.ScanResult
 import androidx.lifecycle.ViewModel
+import java.util.UUID
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 
@@ -89,6 +91,16 @@ class DeviceConnection(
     var onClickReadCharacteristic: OnClickReadCharacteristic? = null
     var status = Status.NOT_CONNECTED
     var services = emptyList<BluetoothGattService>()
+
+    private val values = mutableMapOf<UUID, ByteArray?>()
+
+    fun storeValueFor(characteristic: BluetoothGattCharacteristic, value: ByteArray?) {
+        values[characteristic.uuid] = value
+    }
+
+    fun valueFor(characteristic: BluetoothGattCharacteristic): ByteArray? {
+        return values[characteristic.uuid]
+    }
 }
 
 enum class Status {

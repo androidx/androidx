@@ -272,6 +272,11 @@ class ScannerFragment : Fragment() {
                             connectScope.launch {
                                 val result = readCharacteristic(characteristic)
                                 Log.d(TAG, "readCharacteristic() called with: result = $result")
+
+                                deviceConnection.storeValueFor(characteristic, result.getOrNull())
+                                launch(Dispatchers.Main) {
+                                    updateDeviceUI(deviceConnection)
+                                }
                             }
                         }
                     }

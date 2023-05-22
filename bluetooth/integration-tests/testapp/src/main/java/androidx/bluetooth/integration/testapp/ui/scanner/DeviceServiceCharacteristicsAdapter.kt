@@ -22,8 +22,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.bluetooth.integration.testapp.R
+import androidx.bluetooth.integration.testapp.ui.common.toHexString
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 
@@ -55,6 +57,9 @@ class DeviceServiceCharacteristicsAdapter(
 
         private val textViewUuid: TextView = itemView.findViewById(R.id.text_view_uuid)
         private val textViewProperties: TextView = itemView.findViewById(R.id.text_view_properties)
+
+        private val layoutValue: LinearLayout = itemView.findViewById(R.id.layout_value)
+        private val textViewValue: TextView = itemView.findViewById(R.id.text_view_value)
 
         private val buttonReadCharacteristic: Button =
             itemView.findViewById(R.id.button_read_characteristic)
@@ -91,6 +96,13 @@ class DeviceServiceCharacteristicsAdapter(
 
                 textViewProperties.text = characteristic.properties
              */
+
+            val value = deviceConnection.valueFor(characteristic)
+            layoutValue.isVisible = value != null
+            textViewValue.text = buildString {
+                append("toHexString: " + value?.toHexString() + "\n")
+                append("decodeToString: " + value?.decodeToString())
+            }
 
             val isNotReadable =
                 characteristic.properties.and(BluetoothGattCharacteristic.PROPERTY_READ) == 0
