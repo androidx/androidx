@@ -40,7 +40,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
-import androidx.core.os.BuildCompat;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -92,7 +91,7 @@ class MediaRouter2Utils {
                 //.setClientPackageName(clientMap.get(device.getDeviceId()))
                 ;
 
-        if (BuildCompat.isAtLeastU()) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
             Api34Impl.setDeduplicationIds(builder, descriptor.getDeduplicationIds());
             Api34Impl.copyDescriptorVisibilityToBuilder(builder, descriptor);
         }
@@ -145,7 +144,7 @@ class MediaRouter2Utils {
                 .setEnabled(true)
                 .setCanDisconnect(false);
 
-        if (BuildCompat.isAtLeastU()) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
             builder.setDeduplicationIds(Api34Impl.getDeduplicationIds(fwkMediaRoute2Info));
         }
 
