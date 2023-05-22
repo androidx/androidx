@@ -39,13 +39,13 @@ internal constructor(val packageName: String, val signatures: List<ByteArray>) {
     /** Builder for constructing an AppVerificationInfo instance. */
     class Builder {
         private var packageName: String? = null
-        private var signatures: List<ByteArray> = emptyList()
+        private var signatures: List<ByteArray> = mutableListOf()
 
         /** Set the packageName that will be part of the [AppVerificationInfo] */
         fun setPackageName(packageName: String) = apply { this.packageName = packageName }
 
         /** Set the packageName that will be part of the [AppVerificationInfo] */
-        fun addSignature(signatures: List<ByteArray>) = apply { this.signatures = signatures }
+        fun addSignature(signatures: ByteArray) = apply { this.signatures = listOf(signatures) }
 
         /**
          * Creates a new instance of [AppVerificationInfo]

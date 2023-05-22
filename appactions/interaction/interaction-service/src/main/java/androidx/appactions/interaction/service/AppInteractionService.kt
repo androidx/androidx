@@ -52,7 +52,7 @@ abstract class AppInteractionService : Service() {
      *
      * @return the list of EntityProvider that this service supports.
      */
-    abstract val registeredEntityProviders: List<EntityProvider<*>>
+    open val registeredEntityProviders: List<EntityProvider<*>> = listOf()
 
     /**
      * A list of [AppVerificationInfo] which define who is allowed to interact with the app's bound
