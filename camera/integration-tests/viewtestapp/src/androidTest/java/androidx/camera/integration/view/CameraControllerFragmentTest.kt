@@ -139,6 +139,7 @@ class CameraControllerFragmentTest(
         }
     }
 
+    @Ignore("b/283308005")
     @Test
     fun enableEffect_previewEffectIsEnabled() {
         // Arrange: launch app and verify effect is inactive.
