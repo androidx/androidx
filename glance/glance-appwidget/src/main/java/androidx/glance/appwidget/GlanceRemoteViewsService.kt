@@ -140,14 +140,25 @@ class GlanceRemoteViewsService : RemoteViewsService() {
         }
 
         override fun getViewAt(position: Int): RemoteViews {
-            return items().getItemView(position)
+            return try {
+                items().getItemView(position)
+            } catch (e: ArrayIndexOutOfBoundsException) {
+                // RemoteViewsAdapter may sometimes request an index that is out of bounds. Return
+                // an error view in this case. See b/242730601, b/254682488 for more details.
+                RemoteViews(context.packageName, R.layout.glance_invalid_list_item)
+            }
         }
 
         override fun getLoadingView() = null
 
         override fun getViewTypeCount(): Int = items().viewTypeCount
 
-        override fun getItemId(position: Int): Long = items().getItemId(position)
+        override fun getItemId(position: Int): Long =
+            try {
+                items().getItemId(position)
+            } catch (e: ArrayIndexOutOfBoundsException) {
+                -1
+            }
 
         override fun hasStableIds(): Boolean = items().hasStableIds()
     }
