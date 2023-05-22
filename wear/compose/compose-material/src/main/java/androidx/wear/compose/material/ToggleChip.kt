@@ -93,7 +93,7 @@ import androidx.compose.ui.unit.dp
  * guide.
  *
  * @param checked Boolean flag indicating whether this button is currently checked.
- * @param onCheckedChange Callback to be invoked when this buttons checked/selected status is
+ * @param onCheckedChange Callback to be invoked when this buttons checked/selected status changes
  * @param label A slot for providing the chip's main label. The contents are expected to be text
  * which is "start" aligned.
  * @param toggleControl A slot for providing the chip's toggle controls(s). The contents are
