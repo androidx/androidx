@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-@file:JvmName("PrimitiveSnapshotStateKt")
+@file:JvmName("SnapshotFloatStateKt")
 @file:JvmMultifileClass
 package androidx.compose.runtime
 
