@@ -36,7 +36,7 @@ private const val CAPABILITY_NAME = "actions.intent.RESET_TIMER"
 /** A capability corresponding to actions.intent.RESET_TIMER */
 @CapabilityFactory(name = CAPABILITY_NAME)
 class ResetTimer private constructor() {
-    internal enum class PropertyMapStrings(val key: String) {
+    internal enum class SlotMetadata(val path: String) {
         TIMER("timer")
     }
 
@@ -49,7 +49,7 @@ class ResetTimer private constructor() {
             ExecutionSession
             >(ACTION_SPEC) {
         fun setTimerProperty(timer: Property<Timer>): CapabilityBuilder = setProperty(
-            PropertyMapStrings.TIMER.key,
+            SlotMetadata.TIMER.path,
             timer,
             EntityConverter.of(TypeConverters.TIMER_TYPE_SPEC)
         )
@@ -156,7 +156,7 @@ class ResetTimer private constructor() {
                 .setArguments(Arguments::class.java, Arguments::Builder)
                 .setOutput(Output::class.java)
                 .bindRepeatedParameter(
-                    "timer",
+                    SlotMetadata.TIMER.path,
                     Arguments.Builder::setTimerList,
                     TimerValue.PARAM_VALUE_CONVERTER
                 )

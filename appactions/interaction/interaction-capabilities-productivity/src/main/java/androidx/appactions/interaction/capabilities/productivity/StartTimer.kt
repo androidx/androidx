@@ -36,7 +36,7 @@ private const val CAPABILITY_NAME = "actions.intent.START_TIMER"
 /** A capability corresponding to actions.intent.START_TIMER */
 @CapabilityFactory(name = CAPABILITY_NAME)
 class StartTimer private constructor() {
-    internal enum class PropertyMapStrings(val key: String) {
+    internal enum class SlotMetadata(val path: String) {
         IDENTIFIER("timer.identifier"),
         NAME("timer.name"),
         DURATION("timer.duration")
@@ -53,19 +53,19 @@ class StartTimer private constructor() {
         fun setIdentifierProperty(
             identifier: Property<StringValue>
         ): CapabilityBuilder = setProperty(
-            PropertyMapStrings.IDENTIFIER.key,
+            SlotMetadata.IDENTIFIER.path,
             identifier,
             TypeConverters.STRING_VALUE_ENTITY_CONVERTER
         )
 
         fun setNameProperty(name: Property<StringValue>): CapabilityBuilder = setProperty(
-            PropertyMapStrings.NAME.key,
+            SlotMetadata.NAME.path,
             name,
             TypeConverters.STRING_VALUE_ENTITY_CONVERTER
         )
 
         fun setDurationProperty(duration: Property<Duration>): CapabilityBuilder = setProperty(
-            PropertyMapStrings.DURATION.key,
+            SlotMetadata.DURATION.path,
             duration,
             TypeConverters.DURATION_ENTITY_CONVERTER
         )
@@ -183,17 +183,17 @@ class StartTimer private constructor() {
                 .setArguments(Arguments::class.java, Arguments::Builder)
                 .setOutput(Output::class.java)
                 .bindParameter(
-                    "timer.identifier",
+                    SlotMetadata.IDENTIFIER.path,
                     Arguments.Builder::setIdentifier,
                     TypeConverters.STRING_PARAM_VALUE_CONVERTER
                 )
                 .bindParameter(
-                    "timer.name",
+                    SlotMetadata.NAME.path,
                     Arguments.Builder::setName,
                     TypeConverters.STRING_PARAM_VALUE_CONVERTER
                 )
                 .bindParameter(
-                    "timer.duration",
+                    SlotMetadata.DURATION.path,
                     Arguments.Builder::setDuration,
                     TypeConverters.DURATION_PARAM_VALUE_CONVERTER
                 )

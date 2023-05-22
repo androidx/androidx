@@ -40,7 +40,7 @@ private const val CAPABILITY_NAME: String = "actions.intent.CREATE_CALL"
 /** A capability corresponding to actions.intent.CREATE_CALL */
 @CapabilityFactory(name = CAPABILITY_NAME)
 class CreateCall private constructor() {
-    internal enum class PropertyMapStrings(val key: String) {
+    internal enum class SlotMetadata(val path: String) {
         CALL_FORMAT("call.callFormat"),
         PARTICIPANT("call.participant")
     }
@@ -54,13 +54,13 @@ class CreateCall private constructor() {
             callFormat: Property<Call.CanonicalValue.CallFormat>
         ): CapabilityBuilder =
             setProperty(
-                PropertyMapStrings.CALL_FORMAT.key,
+                SlotMetadata.CALL_FORMAT.path,
                 callFormat,
                 TypeConverters.CALL_FORMAT_ENTITY_CONVERTER)
 
         fun setParticipantProperty(participant: Property<Participant>): CapabilityBuilder =
             setProperty(
-            PropertyMapStrings.PARTICIPANT.key,
+            SlotMetadata.PARTICIPANT.path,
             participant,
             EntityConverter.of(PARTICIPANT_TYPE_SPEC))
     }
@@ -184,12 +184,12 @@ class CreateCall private constructor() {
                 .setArguments(Arguments::class.java, Arguments::Builder)
                 .setOutput(Output::class.java)
                 .bindParameter(
-                    "call.callFormat",
+                    SlotMetadata.CALL_FORMAT.path,
                     Arguments.Builder::setCallFormat,
                     TypeConverters.CALL_FORMAT_PARAM_VALUE_CONVERTER
                 )
                 .bindRepeatedParameter(
-                    "call.participant",
+                    SlotMetadata.PARTICIPANT.path,
                     Arguments.Builder::setParticipantList,
                     ParticipantValue.PARAM_VALUE_CONVERTER,
                 )

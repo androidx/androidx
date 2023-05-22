@@ -41,8 +41,8 @@ private const val CAPABILITY_NAME: String = "actions.intent.CREATE_MESSAGE"
 /** A capability corresponding to actions.intent.CREATE_MESSAGE */
 @CapabilityFactory(name = CAPABILITY_NAME)
 class CreateMessage private constructor() {
-    internal enum class PropertyMapStrings(val key: String) {
-        MESSAGE_TEXT("message.text"),
+    internal enum class SlotMetadata(val path: String) {
+        TEXT("message.text"),
         RECIPIENT("message.recipient")
     }
 
@@ -53,13 +53,13 @@ class CreateMessage private constructor() {
         fun setMessageTextProperty(
             messageText: Property<StringValue>
         ): CapabilityBuilder = setProperty(
-            PropertyMapStrings.MESSAGE_TEXT.key,
+            SlotMetadata.TEXT.path,
             messageText,
             TypeConverters.STRING_VALUE_ENTITY_CONVERTER
         )
 
         fun setRecipientProperty(recipient: Property<Recipient>): CapabilityBuilder = setProperty(
-            PropertyMapStrings.RECIPIENT.key,
+            SlotMetadata.RECIPIENT.path,
             recipient,
             EntityConverter.of(TypeConverters.RECIPIENT_TYPE_SPEC)
         )
@@ -182,12 +182,12 @@ class CreateMessage private constructor() {
                 .setArguments(Arguments::class.java, Arguments::Builder)
                 .setOutput(Output::class.java)
                 .bindRepeatedParameter(
-                    "message.recipient",
+                    SlotMetadata.RECIPIENT.path,
                     Arguments.Builder::setRecipientList,
                     RecipientValue.PARAM_VALUE_CONVERTER,
                 )
                 .bindParameter(
-                    "message.text",
+                    SlotMetadata.TEXT.path,
                     Arguments.Builder::setMessageText,
                     TypeConverters.STRING_PARAM_VALUE_CONVERTER,
                 )
