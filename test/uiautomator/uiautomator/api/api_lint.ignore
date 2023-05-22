@@ -39,12 +39,6 @@ PercentageInt: androidx.test.uiautomator.UiScrollable#getSwipeDeadZonePercentage
     Percentage must use ints, was `double` in `getSwipeDeadZonePercentage`
 
 
-ReferencesDeprecated: androidx.test.uiautomator.UiAutomatorInstrumentationTestRunner#getAndroidTestRunner():
-    Return type of deprecated type android.test.AndroidTestRunner in androidx.test.uiautomator.UiAutomatorInstrumentationTestRunner.getAndroidTestRunner(): this method should also be deprecated
-ReferencesDeprecated: androidx.test.uiautomator.UiAutomatorInstrumentationTestRunner#initializeUiAutomatorTest(androidx.test.uiautomator.UiAutomatorTestCase):
-    Parameter of deprecated type androidx.test.uiautomator.UiAutomatorTestCase in androidx.test.uiautomator.UiAutomatorInstrumentationTestRunner.initializeUiAutomatorTest(): this method should also be deprecated
-
-
 StreamFiles: androidx.test.uiautomator.UiDevice#takeScreenshot(java.io.File):
     Methods accepting `File` should also accept `FileDescriptor` or streams: method androidx.test.uiautomator.UiDevice.takeScreenshot(java.io.File)
 StreamFiles: androidx.test.uiautomator.UiDevice#takeScreenshot(java.io.File, float, int):

@@ -1087,7 +1087,7 @@ public class UiDevice implements Searchable {
      * @param cmd the command to run
      * @return the standard output of the command
      * @throws IOException
-     * @hide
+     * @hide legacy hidden method, kept for compatibility with existing tests.
      */
     @RequiresApi(21)
     @NonNull

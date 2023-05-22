@@ -29,10 +29,6 @@ import org.xmlpull.v1.XmlSerializer;
 import java.io.IOException;
 import java.io.OutputStream;
 
-/**
- *
- * @hide
- */
 class AccessibilityNodeInfoDumper {
     private AccessibilityNodeInfoDumper() { }
 
