@@ -965,6 +965,12 @@ public final class DimensionBuilders {
             return DimensionProto.ImageDimension.newBuilder().setExpandedDimension(mImpl).build();
         }
 
+        @Override
+        @NonNull
+        public String toString() {
+            return "ExpandedDimensionProp{" + "layoutWeight=" + getLayoutWeight() + "}";
+        }
+
         /** Builder for {@link ExpandedDimensionProp}. */
         public static final class Builder
                 implements ContainerDimension.Builder, ImageDimension.Builder {
