@@ -880,20 +880,30 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
     }
 
     override fun measureAndLayout(sendPointerUpdate: Boolean) {
-        trace("AndroidOwner:measureAndLayout") {
-            val resend = if (sendPointerUpdate) resendMotionEventOnLayout else null
-            val rootNodeResized = measureAndLayoutDelegate.measureAndLayout(resend)
-            if (rootNodeResized) {
-                requestLayout()
+        // only run the logic when we have something pending
+        if (measureAndLayoutDelegate.hasPendingMeasureOrLayout ||
+            measureAndLayoutDelegate.hasPendingOnPositionedCallbacks
+        ) {
+            trace("AndroidOwner:measureAndLayout") {
+                val resend = if (sendPointerUpdate) resendMotionEventOnLayout else null
+                val rootNodeResized = measureAndLayoutDelegate.measureAndLayout(resend)
+                if (rootNodeResized) {
+                    requestLayout()
+                }
+                measureAndLayoutDelegate.dispatchOnPositionedCallbacks()
             }
-            measureAndLayoutDelegate.dispatchOnPositionedCallbacks()
         }
     }
 
     override fun measureAndLayout(layoutNode: LayoutNode, constraints: Constraints) {
         trace("AndroidOwner:measureAndLayout") {
             measureAndLayoutDelegate.measureAndLayout(layoutNode, constraints)
-            measureAndLayoutDelegate.dispatchOnPositionedCallbacks()
+            // only dispatch the callbacks if we don't have other nodes to process as otherwise
+            // we will have one more measureAndLayout() pass anyway in the same frame.
+            // it allows us to not traverse the hierarchy twice.
+            if (!measureAndLayoutDelegate.hasPendingMeasureOrLayout) {
+                measureAndLayoutDelegate.dispatchOnPositionedCallbacks()
+            }
         }
     }
 
