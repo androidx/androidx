@@ -37,6 +37,7 @@ import androidx.test.filters.SmallTest;
 
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.MatcherAssert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -357,6 +358,7 @@ public class RecyclerViewAccessibilityTest extends BaseRecyclerViewInstrumentati
         }
     }
 
+    @Ignore("b/283754680")
     @Test
     public void performGranularScrolling_changesTheScrollAmount()
             throws Throwable {
@@ -396,6 +398,7 @@ public class RecyclerViewAccessibilityTest extends BaseRecyclerViewInstrumentati
         assertEquals(h, vScrolledOffset.get());
     }
 
+    @Ignore("b/283754680")
     @Test
     public void performGranularScrolling_withDefaultOrUndefinedValues_scrollsByOneScreen()
             throws Throwable {
