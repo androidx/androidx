@@ -221,14 +221,24 @@ private class BaselineProfileConsumerAgpPlugin(private val project: Project) : A
         // calling `generateReleaseBaselineProfiles`. On Agp 8.1 instead, it works as intended and
         // we can merge all the variants with `mergeIntoMain` true, independently from the build
         // type.
+        data class TaskAndFolderName(val taskVariantName: String, val folderVariantName: String)
         val (mergeAwareVariantName, mergeAwareVariantOutput) = if (mergeIntoMain) {
             if (supportsFeature(AgpFeature.TEST_MODULE_SUPPORTS_MULTIPLE_BUILD_TYPES)) {
-                listOf("", "main")
+                TaskAndFolderName(
+                    taskVariantName = "",
+                    folderVariantName = "main"
+                )
             } else {
-                listOf(variant.buildType ?: "", "main")
+                // Note that the exception here cannot happen because all the variants have a build
+                // type in Android.
+                TaskAndFolderName(
+                    taskVariantName = variant.buildType
+                        ?: throw IllegalStateException("Found variant without build type."),
+                    folderVariantName = "main"
+                )
             }
         } else {
-            listOf(variant.name, variant.name)
+            TaskAndFolderName(taskVariantName = variant.name, folderVariantName = variant.name)
         }
 
         // Creates the task to merge the baseline profile artifacts coming from

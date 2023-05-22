@@ -22,6 +22,13 @@ import org.gradle.configurationcache.extensions.capitalized
 import org.gradle.testkit.runner.GradleRunner
 
 internal val GRADLE_CODE_PRINT_TASK = """
+    abstract class DisplaySourceSets extends DefaultTask {
+        @Input abstract ListProperty<Directory> getSrcs()
+        @TaskAction void exec() {
+            srcs.get().forEach { directory -> println(directory) }
+        }
+    }
+
     abstract class PrintTask extends DefaultTask {
         @Input abstract Property<String> getText()
         @TaskAction void exec() { println(getText().get()) }
@@ -37,21 +44,17 @@ internal val GRADLE_CODE_PRINT_TASK = """
 
     """.trimIndent()
 
-internal fun GradleRunner.build(vararg arguments: String, block: (String) -> (Unit)) {
-    this
-        .withArguments(*arguments, "--stacktrace")
-        .build()
-        .output
-        .let(block)
-}
+internal fun GradleRunner.build(vararg arguments: String, block: (String) -> (Unit)) = this
+    .withArguments(*arguments, "--stacktrace")
+    .build()
+    .output
+    .also(block)
 
-internal fun GradleRunner.buildAndFail(vararg arguments: String, block: (String) -> (Unit)) {
-    this
-        .withArguments(*arguments, "--stacktrace")
-        .buildAndFail()
-        .output
-        .let(block)
-}
+internal fun GradleRunner.buildAndFail(vararg arguments: String, block: (String) -> (Unit)) = this
+    .withArguments(*arguments, "--stacktrace")
+    .buildAndFail()
+    .output
+    .also(block)
 
 internal fun GradleRunner.buildAndAssertThatOutput(
     vararg arguments: String,

@@ -319,7 +319,7 @@ class ProducerModule(
     }
 
     fun setupWithoutFlavors(
-        releaseProfileLines: List<String>,
+        releaseProfileLines: List<String> = listOf(),
         releaseStartupProfileLines: List<String> = listOf(),
     ) {
         setup(
@@ -537,6 +537,7 @@ class ConsumerModule(
         additionalGradleCodeBlock: String = "",
     ) = setupWithBlocks(
         androidPlugin = androidPlugin,
+        otherPluginsBlock = "",
         flavorsBlock = if (flavors) """
                 flavorDimensions = ["version"]
                 free { dimension "version" }
@@ -553,8 +554,9 @@ class ConsumerModule(
 
     fun setupWithBlocks(
         androidPlugin: String,
-        flavorsBlock: String,
-        buildTypesBlock: String,
+        otherPluginsBlock: String = "",
+        flavorsBlock: String = "",
+        buildTypesBlock: String = "",
         dependencyOnProducerProject: Boolean = true,
         addAppTargetPlugin: Boolean = androidPlugin == ANDROID_APPLICATION_PLUGIN,
         baselineProfileBlock: String = "",
@@ -573,6 +575,7 @@ class ConsumerModule(
                     id("$androidPlugin")
                     id("androidx.baselineprofile.consumer")
                     ${if (addAppTargetPlugin) "id(\"androidx.baselineprofile.apptarget\")" else ""}
+                    $otherPluginsBlock
                 }
                 android {
                     namespace 'com.example.namespace'
