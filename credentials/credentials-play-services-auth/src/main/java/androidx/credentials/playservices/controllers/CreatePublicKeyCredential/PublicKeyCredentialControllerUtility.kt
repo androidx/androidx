@@ -241,12 +241,37 @@ class PublicKeyCredentialControllerUtility {
          * Converts from the Credential Manager public key credential option to the Play Auth
          * Module passkey json option.
          *
+         * @return the current auth module passkey request
          */
         fun convertToPlayAuthPasskeyJsonRequest(option: GetPublicKeyCredentialOption):
             BeginSignInRequest.PasskeyJsonRequestOptions {
             return BeginSignInRequest.PasskeyJsonRequestOptions.Builder()
                 .setSupported(true)
                 .setRequestJson(option.requestJson)
+                .build()
+        }
+
+        /**
+         * Converts from the Credential Manager public key credential option to the Play Auth
+         * Module passkey option, used in a backwards compatible flow for the auth dependency.
+         *
+         * @return the backwards compatible auth module passkey request
+         */
+        @Deprecated("Upgrade GMS version so 'convertToPlayAuthPasskeyJsoNRequest' is used")
+        @Suppress("deprecation")
+        fun convertToPlayAuthPasskeyRequest(option: GetPublicKeyCredentialOption):
+            BeginSignInRequest.PasskeysRequestOptions {
+            val json = JSONObject(option.requestJson)
+            val rpId = json.optString("rpId", "")
+            if (rpId.isEmpty()) {
+                throw JSONException("GetPublicKeyCredentialOption - rpId not specified in the " +
+                    "request or is unexpectedly empty")
+            }
+            val challenge = getChallenge(json)
+            return BeginSignInRequest.PasskeysRequestOptions.Builder()
+                .setSupported(true)
+                .setRpId(rpId)
+                .setChallenge(challenge)
                 .build()
         }
 

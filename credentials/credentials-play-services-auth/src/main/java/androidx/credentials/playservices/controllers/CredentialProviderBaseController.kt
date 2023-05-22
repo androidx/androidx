@@ -16,6 +16,7 @@
 
 package androidx.credentials.playservices.controllers
 
+import android.content.Context
 import android.content.Intent
 import android.os.Parcel
 import android.os.ResultReceiver
@@ -34,7 +35,7 @@ import com.google.android.gms.common.api.CommonStatusCodes
  * Holds all non type specific details shared by the controllers.
  * @hide
  */
-open class CredentialProviderBaseController(private val activity: android.app.Activity) {
+open class CredentialProviderBaseController(private val context: Context) {
     companion object {
 
         // Common retryable status codes from the play modules found
