@@ -270,51 +270,6 @@ public class UiScrollable extends UiCollection {
     }
 
     /**
-     * Scrolls forward until the UiObject is fully visible in the scrollable container.
-     * Use this method to make sure that the child item's edges are not offscreen.
-     *
-     * @param childObject {@link UiObject} representing the child element
-     * @return true if the child element is already fully visible, or 
-     * if the method scrolled successfully until the child became fully visible; 
-     * otherwise, false if the attempt to scroll failed.
-     * @throws UiObjectNotFoundException
-     * @hide
-     */
-    public boolean ensureFullyVisible(@NonNull UiObject childObject)
-            throws UiObjectNotFoundException {
-        Log.d(TAG, String.format("Ensuring %s is fully visible.", childObject.getSelector()));
-        Rect actual = childObject.getBounds();
-        Rect visible = childObject.getVisibleBounds();
-        if (visible.width() * visible.height() == actual.width() * actual.height()) {
-            // area match, item fully visible
-            return true;
-        }
-        boolean shouldSwipeForward = false;
-        if (mIsVerticalList) {
-            // if list is vertical, matching top edge implies obscured bottom edge
-            // so we need to scroll list forward
-            shouldSwipeForward = actual.top == visible.top;
-        } else {
-            // if list is horizontal, matching left edge implies obscured right edge,
-            // so we need to scroll list forward
-            shouldSwipeForward = actual.left == visible.left;
-        }
-        if (mIsVerticalList) {
-            if (shouldSwipeForward) {
-                return swipeUp(10);
-            } else {
-                return swipeDown(10);
-            }
-        } else {
-            if (shouldSwipeForward) {
-                return swipeLeft(10);
-            } else {
-                return swipeRight(10);
-            }
-        }
-    }
-
-    /**
      * Performs a forward scroll action on the scrollable layout element until
      * the text you provided is visible, or until swipe attempts have been exhausted.
      * See {@link #setMaxSearchSwipes(int)}

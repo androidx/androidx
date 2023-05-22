@@ -24,7 +24,6 @@ import android.graphics.Rect;
 import android.hardware.display.DisplayManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.SystemClock;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
@@ -831,40 +830,6 @@ public class UiObject2 implements Searchable {
                 direction.name().toLowerCase(), bounds, speed));
         return !mGestureController.performGestureAndWait(
                 Until.scrollFinished(direction), FLING_TIMEOUT, swipe);
-    }
-
-    /**
-     * Set the text content by sending individual key codes.
-     *
-     * @hide
-     */
-    public void legacySetText(@Nullable String text) {
-        AccessibilityNodeInfo node = getAccessibilityNodeInfo();
-
-        // Per framework convention, setText(null) means clearing it
-        if (text == null) {
-            text = "";
-        }
-
-        Log.d(TAG, String.format("Setting text to '%s'.", text));
-        CharSequence currentText = node.getText();
-        if (currentText == null || !text.contentEquals(currentText)) {
-            InteractionController ic = getDevice().getInteractionController();
-
-            // Long click left + center
-            Rect rect = getVisibleBounds();
-            ic.longTapNoSync(rect.left + 20, rect.centerY());
-
-            // Select existing text
-            getDevice().wait(Until.findObject(By.descContains("Select all")), 50).click();
-            // Wait for the selection
-            SystemClock.sleep(250);
-            // Delete it
-            ic.sendKey(KeyEvent.KEYCODE_DEL, 0);
-
-            // Send new text
-            ic.sendText(text);
-        }
     }
 
     /** Sets this object's text content if it is an editable field. */
