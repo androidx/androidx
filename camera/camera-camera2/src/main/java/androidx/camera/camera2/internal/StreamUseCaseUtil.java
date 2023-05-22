@@ -42,10 +42,12 @@ import androidx.camera.core.impl.StreamSpec;
 import androidx.camera.core.impl.SurfaceConfig;
 import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.UseCaseConfigFactory;
+import androidx.camera.core.streamsharing.StreamSharingConfig;
 import androidx.core.util.Preconditions;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -64,33 +66,49 @@ public final class StreamUseCaseUtil {
             Config.Option.create("camera2.streamSpec.streamUseCase", long.class);
 
     private static final Map<Long, Set<UseCaseConfigFactory.CaptureType>>
-            sStreamUseCaseToEligibleCaptureTypesMap = new HashMap<>();
+            STREAM_USE_CASE_TO_ELIGIBLE_CAPTURE_TYPES_MAP = new HashMap<>();
+
+    private static final Map<Long, Set<UseCaseConfigFactory.CaptureType>>
+            STREAM_USE_CASE_TO_ELIGIBLE_STREAM_SHARING_CHILDREN_TYPES_MAP = new HashMap<>();
 
     static {
         if (Build.VERSION.SDK_INT >= 33) {
             Set<UseCaseConfigFactory.CaptureType> captureTypes = new HashSet<>();
             captureTypes.add(UseCaseConfigFactory.CaptureType.PREVIEW);
-            sStreamUseCaseToEligibleCaptureTypesMap.put(
+            STREAM_USE_CASE_TO_ELIGIBLE_CAPTURE_TYPES_MAP.put(
                     Long.valueOf(
                             CameraMetadata.SCALER_AVAILABLE_STREAM_USE_CASES_PREVIEW_VIDEO_STILL),
                     captureTypes);
             captureTypes = new HashSet<>();
             captureTypes.add(UseCaseConfigFactory.CaptureType.PREVIEW);
             captureTypes.add(UseCaseConfigFactory.CaptureType.IMAGE_ANALYSIS);
-            sStreamUseCaseToEligibleCaptureTypesMap.put(
+            STREAM_USE_CASE_TO_ELIGIBLE_CAPTURE_TYPES_MAP.put(
                     Long.valueOf(CameraMetadata.SCALER_AVAILABLE_STREAM_USE_CASES_PREVIEW),
                     captureTypes);
             captureTypes = new HashSet<>();
             captureTypes.add(UseCaseConfigFactory.CaptureType.IMAGE_CAPTURE);
-            sStreamUseCaseToEligibleCaptureTypesMap.put(
+            STREAM_USE_CASE_TO_ELIGIBLE_CAPTURE_TYPES_MAP.put(
                     Long.valueOf(CameraMetadata.SCALER_AVAILABLE_STREAM_USE_CASES_STILL_CAPTURE),
                     captureTypes);
             captureTypes = new HashSet<>();
             captureTypes.add(UseCaseConfigFactory.CaptureType.VIDEO_CAPTURE);
-            sStreamUseCaseToEligibleCaptureTypesMap.put(
+            STREAM_USE_CASE_TO_ELIGIBLE_CAPTURE_TYPES_MAP.put(
                     Long.valueOf(CameraMetadata.SCALER_AVAILABLE_STREAM_USE_CASES_VIDEO_RECORD),
                     captureTypes);
-            // TODO(b/200306659): 280335572 Handle StreamSharing
+
+            captureTypes = new HashSet<>();
+            captureTypes.add(UseCaseConfigFactory.CaptureType.PREVIEW);
+            captureTypes.add(UseCaseConfigFactory.CaptureType.IMAGE_CAPTURE);
+            captureTypes.add(UseCaseConfigFactory.CaptureType.VIDEO_CAPTURE);
+            STREAM_USE_CASE_TO_ELIGIBLE_STREAM_SHARING_CHILDREN_TYPES_MAP.put(Long.valueOf(
+                            CameraMetadata.SCALER_AVAILABLE_STREAM_USE_CASES_PREVIEW_VIDEO_STILL),
+                    captureTypes);
+            captureTypes = new HashSet<>();
+            captureTypes.add(UseCaseConfigFactory.CaptureType.PREVIEW);
+            captureTypes.add(UseCaseConfigFactory.CaptureType.VIDEO_CAPTURE);
+            STREAM_USE_CASE_TO_ELIGIBLE_STREAM_SHARING_CHILDREN_TYPES_MAP.put(Long.valueOf(
+                            CameraMetadata.SCALER_AVAILABLE_STREAM_USE_CASES_VIDEO_RECORD),
+                    captureTypes);
         }
     }
 
@@ -317,16 +335,37 @@ public final class StreamUseCaseUtil {
     }
 
     /**
-     * Return true if the given capture type and stream use case are a eligible pair.
+     * Return true if the given capture type and stream use case are a eligible pair. If the
+     * given captureType is STREAM_SHARING, checks the streamSharingTypes, which are the capture
+     * types of the children, are eligible with the stream use case.
      */
     private static boolean isEligibleCaptureType(UseCaseConfigFactory.CaptureType captureType,
-            long streamUseCase) {
+            long streamUseCase, List<UseCaseConfigFactory.CaptureType> streamSharingTypes) {
         if (Build.VERSION.SDK_INT < 33) {
             return false;
         }
-        return sStreamUseCaseToEligibleCaptureTypesMap.containsKey(streamUseCase)
-                && sStreamUseCaseToEligibleCaptureTypesMap.get(streamUseCase).contains(
-                captureType);
+        if (captureType == UseCaseConfigFactory.CaptureType.STREAM_SHARING) {
+            if (!STREAM_USE_CASE_TO_ELIGIBLE_STREAM_SHARING_CHILDREN_TYPES_MAP.containsKey(
+                    streamUseCase)) {
+                return false;
+            }
+            Set<UseCaseConfigFactory.CaptureType> captureTypes =
+                    STREAM_USE_CASE_TO_ELIGIBLE_STREAM_SHARING_CHILDREN_TYPES_MAP.get(
+                            streamUseCase);
+            if (streamSharingTypes.size() != captureTypes.size()) {
+                return false;
+            }
+            for (UseCaseConfigFactory.CaptureType childType : streamSharingTypes) {
+                if (!captureTypes.contains(childType)) {
+                    return false;
+                }
+            }
+            return true;
+        } else {
+            return STREAM_USE_CASE_TO_ELIGIBLE_CAPTURE_TYPES_MAP.containsKey(streamUseCase)
+                    && STREAM_USE_CASE_TO_ELIGIBLE_CAPTURE_TYPES_MAP.get(streamUseCase).contains(
+                    captureType);
+        }
     }
 
     /**
@@ -354,14 +393,19 @@ public final class StreamUseCaseUtil {
                 AttachedSurfaceInfo attachedSurfaceInfo =
                         surfaceConfigIndexAttachedSurfaceInfoMap.get(i);
                 if (!isEligibleCaptureType(attachedSurfaceInfo.getCaptureTypes().size() == 1
-                        ? attachedSurfaceInfo.getCaptureTypes().get(0) :
-                        UseCaseConfigFactory.CaptureType.STREAM_SHARING, streamUseCase)) {
+                                ? attachedSurfaceInfo.getCaptureTypes().get(0) :
+                                UseCaseConfigFactory.CaptureType.STREAM_SHARING, streamUseCase,
+                        attachedSurfaceInfo.getCaptureTypes())) {
                     return false;
                 }
             } else if (surfaceConfigIndexUseCaseConfigMap.containsKey(i)) {
                 UseCaseConfig<?> newUseCaseConfig =
                         surfaceConfigIndexUseCaseConfigMap.get(i);
-                if (!isEligibleCaptureType(newUseCaseConfig.getCaptureType(), streamUseCase)) {
+                if (!isEligibleCaptureType(newUseCaseConfig.getCaptureType(), streamUseCase,
+                        newUseCaseConfig.getCaptureType()
+                                == UseCaseConfigFactory.CaptureType.STREAM_SHARING
+                                ? ((StreamSharingConfig) newUseCaseConfig).getCaptureTypes()
+                                : Collections.emptyList())) {
                     return false;
                 }
             } else {
