@@ -58,8 +58,10 @@ import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastMap
 import androidx.compose.ui.zIndex
@@ -1144,6 +1146,39 @@ class SemanticsTests {
             .containsExactly(AnnotatedString("bonjour"))
         assertEquals(
             AnnotatedString("hello"), newConfig.getOrNull(SemanticsProperties.OriginalText))
+    }
+
+    @Test
+    fun testGetTextSizeFromTextLayoutResult() {
+        var density = Float.NaN
+        rule.setContent {
+            with(LocalDensity.current) {
+                density = 1.sp.toPx()
+            }
+            Surface {
+                Text(
+                    AnnotatedString("hello"),
+                    Modifier
+                        .testTag(TestTag),
+                    fontSize = 14.sp,
+                )
+            }
+        }
+
+        val config = rule.onNodeWithTag(TestTag, true).fetchSemanticsNode().config
+
+        val textLayoutResult: TextLayoutResult
+        val textLayoutResults = mutableListOf<TextLayoutResult>()
+        val getLayoutResult = config[SemanticsActions.GetTextLayoutResult]
+            .action?.invoke(textLayoutResults)
+
+        assertEquals(true, getLayoutResult)
+
+        textLayoutResult = textLayoutResults[0]
+        val result = textLayoutResult.layoutInput
+
+        assertEquals(density, result.density.density)
+        assertEquals(14.0f, result.style.fontSize.value)
     }
 }
 
