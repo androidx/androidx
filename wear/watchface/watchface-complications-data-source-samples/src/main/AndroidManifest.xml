@@ -236,7 +236,67 @@
             </intent-filter>
         </service>
 
-        <service android:name=".dynamic.HeartRateDataSourceService"
+        <service android:name=".dynamic.HealthDataSourceServices$Calories"
+            android:label="@string/dynamic_calories_data_source_name"
+            android:exported="true"
+            android:icon="@drawable/circle"
+            android:permission="com.google.android.wearable.permission.BIND_COMPLICATION_PROVIDER">
+            <meta-data
+                android:name="android.support.wearable.complications.SUPPORTED_TYPES"
+                android:value="RANGED_VALUE"/>
+            <meta-data
+                android:name="android.support.wearable.complications.UPDATE_PERIOD_SECONDS"
+                android:value="0"/>
+            <meta-data
+                android:name="android.support.wearable.complications.PROVIDER_CONFIG_ACTION"
+                android:value="androidx.wear.watchface.complications.datasource.samples.dynamic.REQUEST_ACTIVITY_RECOGNITION_PERMISSION"/>
+            <intent-filter>
+                <action android:name=
+                    "android.support.wearable.complications.ACTION_COMPLICATION_UPDATE_REQUEST"/>
+            </intent-filter>
+        </service>
+
+        <service android:name=".dynamic.HealthDataSourceServices$Distance"
+            android:label="@string/dynamic_distance_data_source_name"
+            android:exported="true"
+            android:icon="@drawable/circle"
+            android:permission="com.google.android.wearable.permission.BIND_COMPLICATION_PROVIDER">
+            <meta-data
+                android:name="android.support.wearable.complications.SUPPORTED_TYPES"
+                android:value="RANGED_VALUE"/>
+            <meta-data
+                android:name="android.support.wearable.complications.UPDATE_PERIOD_SECONDS"
+                android:value="0"/>
+            <meta-data
+                android:name="android.support.wearable.complications.PROVIDER_CONFIG_ACTION"
+                android:value="androidx.wear.watchface.complications.datasource.samples.dynamic.REQUEST_ACTIVITY_RECOGNITION_PERMISSION"/>
+            <intent-filter>
+                <action android:name=
+                    "android.support.wearable.complications.ACTION_COMPLICATION_UPDATE_REQUEST"/>
+            </intent-filter>
+        </service>
+
+        <service android:name=".dynamic.HealthDataSourceServices$Floors"
+            android:label="@string/dynamic_floors_data_source_name"
+            android:exported="true"
+            android:icon="@drawable/circle"
+            android:permission="com.google.android.wearable.permission.BIND_COMPLICATION_PROVIDER">
+            <meta-data
+                android:name="android.support.wearable.complications.SUPPORTED_TYPES"
+                android:value="RANGED_VALUE"/>
+            <meta-data
+                android:name="android.support.wearable.complications.UPDATE_PERIOD_SECONDS"
+                android:value="0"/>
+            <meta-data
+                android:name="android.support.wearable.complications.PROVIDER_CONFIG_ACTION"
+                android:value="androidx.wear.watchface.complications.datasource.samples.dynamic.REQUEST_ACTIVITY_RECOGNITION_PERMISSION"/>
+            <intent-filter>
+                <action android:name=
+                    "android.support.wearable.complications.ACTION_COMPLICATION_UPDATE_REQUEST"/>
+            </intent-filter>
+        </service>
+
+        <service android:name=".dynamic.HealthDataSourceServices$HeartRate"
             android:label="@string/dynamic_heart_rate_data_source_name"
             android:exported="true"
             android:icon="@drawable/circle"
@@ -256,7 +316,7 @@
             </intent-filter>
         </service>
 
-        <service android:name=".dynamic.StepsDataSourceService"
+        <service android:name=".dynamic.HealthDataSourceServices$Steps"
             android:label="@string/dynamic_steps_data_source_name"
             android:exported="true"
             android:icon="@drawable/circle"
