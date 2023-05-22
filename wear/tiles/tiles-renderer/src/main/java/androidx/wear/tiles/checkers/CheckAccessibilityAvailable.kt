@@ -16,6 +16,8 @@
 
 package androidx.wear.tiles.checkers
 
+import androidx.wear.protolayout.LayoutElementBuilders
+import androidx.wear.protolayout.TimelineBuilders
 import kotlin.jvm.Throws
 
 /**
@@ -30,8 +32,7 @@ internal class CheckAccessibilityAvailable : TimelineEntryChecker {
         get() = "CheckAccessibilityAvailable"
 
     @Throws(CheckerException::class)
-    @Suppress("deprecation") // TODO(b/276343540): Use protolayout types.
-    override fun check(entry: androidx.wear.tiles.TimelineBuilders.TimelineEntry) {
+    override fun check(entry: TimelineBuilders.TimelineEntry) {
         // Do a descent through the tile, checking that at least one element has an a11y tag.
         if (entry.layout?.root?.let(this::checkElement) == false) {
             throw CheckerException(
@@ -42,20 +43,19 @@ internal class CheckAccessibilityAvailable : TimelineEntryChecker {
         }
     }
 
-    @Suppress("deprecation") // TODO(b/276343540): Use protolayout types.
     private fun checkElement(
-        element: androidx.wear.tiles.LayoutElementBuilders.LayoutElement
+        element: LayoutElementBuilders.LayoutElement
     ): Boolean {
         val modifiers =
             when (element) {
-                is androidx.wear.tiles.LayoutElementBuilders.Row -> element.modifiers
-                is androidx.wear.tiles.LayoutElementBuilders.Column -> element.modifiers
-                is androidx.wear.tiles.LayoutElementBuilders.Box -> element.modifiers
-                is androidx.wear.tiles.LayoutElementBuilders.Arc -> element.modifiers
-                is androidx.wear.tiles.LayoutElementBuilders.Spacer -> element.modifiers
-                is androidx.wear.tiles.LayoutElementBuilders.Image -> element.modifiers
-                is androidx.wear.tiles.LayoutElementBuilders.Text -> element.modifiers
-                is androidx.wear.tiles.LayoutElementBuilders.Spannable -> element.modifiers
+                is LayoutElementBuilders.Row -> element.modifiers
+                is LayoutElementBuilders.Column -> element.modifiers
+                is LayoutElementBuilders.Box -> element.modifiers
+                is LayoutElementBuilders.Arc -> element.modifiers
+                is LayoutElementBuilders.Spacer -> element.modifiers
+                is LayoutElementBuilders.Image -> element.modifiers
+                is LayoutElementBuilders.Text -> element.modifiers
+                is LayoutElementBuilders.Spannable -> element.modifiers
                 else -> null
             }
 
@@ -67,29 +67,28 @@ internal class CheckAccessibilityAvailable : TimelineEntryChecker {
         // Note that individual Spannable elements cannot have semantics; the parent should have
         // these.
         return when (element) {
-            is androidx.wear.tiles.LayoutElementBuilders.Row ->
+            is LayoutElementBuilders.Row ->
                 element.contents.any(this::checkElement)
-            is androidx.wear.tiles.LayoutElementBuilders.Column ->
+            is LayoutElementBuilders.Column ->
                 element.contents.any(this::checkElement)
-            is androidx.wear.tiles.LayoutElementBuilders.Box ->
+            is LayoutElementBuilders.Box ->
                 element.contents.any(this::checkElement)
-            is androidx.wear.tiles.LayoutElementBuilders.Arc ->
+            is LayoutElementBuilders.Arc ->
                 element.contents.any(this::checkArcLayoutElement)
             else -> false
         }
     }
 
-    @Suppress("deprecation") // TODO(b/276343540): Use protolayout types.
     private fun checkArcLayoutElement(
-        element: androidx.wear.tiles.LayoutElementBuilders.ArcLayoutElement
+        element: LayoutElementBuilders.ArcLayoutElement
     ): Boolean {
         val modifiers =
             when (element) {
                 // Note that ArcAdapter should be handled by taking the modifiers from the inner
                 // element instead.
-                is androidx.wear.tiles.LayoutElementBuilders.ArcText -> element.modifiers
-                is androidx.wear.tiles.LayoutElementBuilders.ArcLine -> element.modifiers
-                is androidx.wear.tiles.LayoutElementBuilders.ArcSpacer -> element.modifiers
+                is LayoutElementBuilders.ArcText -> element.modifiers
+                is LayoutElementBuilders.ArcLine -> element.modifiers
+                is LayoutElementBuilders.ArcSpacer -> element.modifiers
                 else -> null
             }
 
@@ -97,7 +96,7 @@ internal class CheckAccessibilityAvailable : TimelineEntryChecker {
             return true
         }
 
-        return if (element is androidx.wear.tiles.LayoutElementBuilders.ArcAdapter) {
+        return if (element is LayoutElementBuilders.ArcAdapter) {
             element.content?.let(this::checkElement) ?: false
         } else {
             false

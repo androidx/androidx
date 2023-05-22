@@ -178,7 +178,7 @@ public final class TileRenderer {
     }
 
     @NonNull
-    @SuppressWarnings("deprecation") // TODO(b/276343540): Use protolayout types
+    @SuppressWarnings("deprecation") // For backward compatibility
     private static Consumer<StateBuilders.State> toStateConsumer(
             @NonNull LoadActionListener loadActionListener) {
         return nextState ->
