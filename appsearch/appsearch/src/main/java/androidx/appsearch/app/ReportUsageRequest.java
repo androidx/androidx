@@ -71,9 +71,9 @@ public final class ReportUsageRequest {
         /**
          * Creates a new {@link ReportUsageRequest.Builder} instance.
          *
-         * @param namespace    The namespace of the document that was used (e.g. from
+         * @param namespace    The namespace of the document that was used (such as from
          *                     {@link GenericDocument#getNamespace}.
-         * @param documentId   The ID of document that was used (e.g. from
+         * @param documentId   The ID of document that was used (such as from
          *                     {@link GenericDocument#getId}.
          */
         public Builder(@NonNull String namespace, @NonNull String documentId) {

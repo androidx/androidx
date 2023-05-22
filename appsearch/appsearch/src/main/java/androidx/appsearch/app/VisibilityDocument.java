@@ -37,7 +37,7 @@ import java.util.Set;
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class VisibilityDocument extends GenericDocument {
     /**
-     * The Schema type for documents that hold AppSearch's metadata, e.g. visibility settings.
+     * The Schema type for documents that hold AppSearch's metadata, such as visibility settings.
      */
     public static final String SCHEMA_TYPE = "VisibilityType";
     /** Namespace of documents that contain visibility settings */
@@ -189,7 +189,7 @@ public class VisibilityDocument extends GenericDocument {
         }
 
         /**
-         * Set required permission sets for a package needs to hold to the schema this
+         * Sets required permission sets for a package needs to hold to the schema this
          * {@link VisibilityDocument} represents.
          *
          * <p> The querier could have access if they holds ALL required permissions of ANY of the

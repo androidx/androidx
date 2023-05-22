@@ -203,7 +203,7 @@ public class SetSchemaResponse {
             return this;
         }
 
-        /**  Adds deletedTypes to the list of deleted schema types. */
+        /**  Adds {@code deletedTypes} to the list of deleted schema types. */
         @CanIgnoreReturnValue
         @NonNull
         public Builder addDeletedTypes(@NonNull Collection<String> deletedTypes) {
@@ -213,7 +213,7 @@ public class SetSchemaResponse {
             return this;
         }
 
-        /**  Adds one deletedType to the list of deleted schema types. */
+        /**  Adds one {@code deletedType} to the list of deleted schema types. */
         @CanIgnoreReturnValue
         @NonNull
         public Builder addDeletedType(@NonNull String deletedType) {
@@ -223,7 +223,7 @@ public class SetSchemaResponse {
             return this;
         }
 
-        /**  Adds incompatibleTypes to the list of incompatible schema types. */
+        /**  Adds {@code incompatibleTypes} to the list of incompatible schema types. */
         @CanIgnoreReturnValue
         @NonNull
         public Builder addIncompatibleTypes(@NonNull Collection<String> incompatibleTypes) {
@@ -233,7 +233,7 @@ public class SetSchemaResponse {
             return this;
         }
 
-        /**  Adds one incompatibleType to the list of incompatible schema types. */
+        /**  Adds one {@code incompatibleType} to the list of incompatible schema types. */
         @CanIgnoreReturnValue
         @NonNull
         public Builder addIncompatibleType(@NonNull String incompatibleType) {
@@ -243,7 +243,7 @@ public class SetSchemaResponse {
             return this;
         }
 
-        /**  Adds migratedTypes to the list of migrated schema types. */
+        /**  Adds {@code migratedTypes} to the list of migrated schema types. */
         @CanIgnoreReturnValue
         @NonNull
         public Builder addMigratedTypes(@NonNull Collection<String> migratedTypes) {
@@ -253,7 +253,7 @@ public class SetSchemaResponse {
             return this;
         }
 
-        /**  Adds one migratedType to the list of migrated schema types. */
+        /**  Adds one {@code migratedType} to the list of migrated schema types. */
         @CanIgnoreReturnValue
         @NonNull
         public Builder addMigratedType(@NonNull String migratedType) {
