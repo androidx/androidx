@@ -57,9 +57,9 @@ import androidx.fragment.app.Fragment
 class EffectsFragment : Fragment() {
 
     private lateinit var cameraController: LifecycleCameraController
-    private lateinit var previewView: PreviewView
+    lateinit var previewView: PreviewView
     private lateinit var surfaceEffectForPreviewVideo: RadioButton
-    private lateinit var surfaceEffectForImageCapture: RadioButton
+    lateinit var surfaceEffectForImageCapture: RadioButton
     private lateinit var imageEffectForImageCapture: RadioButton
     private lateinit var previewVideoGroup: RadioGroup
     private lateinit var imageGroup: RadioGroup
@@ -174,7 +174,7 @@ class EffectsFragment : Fragment() {
         )
     }
 
-    private fun takePicture(onImageSavedCallback: ImageCapture.OnImageSavedCallback) {
+    fun takePicture(onImageSavedCallback: ImageCapture.OnImageSavedCallback) {
         createDefaultPictureFolderIfNotExist()
         val contentValues = ContentValues()
         contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg")
