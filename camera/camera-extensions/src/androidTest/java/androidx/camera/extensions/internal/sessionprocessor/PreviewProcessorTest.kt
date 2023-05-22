@@ -18,6 +18,7 @@ package androidx.camera.extensions.internal.sessionprocessor
 
 import android.content.Context
 import android.graphics.ImageFormat
+import android.graphics.PixelFormat.RGBA_8888
 import android.graphics.SurfaceTexture
 import android.hardware.camera2.CameraManager
 import android.hardware.camera2.TotalCaptureResult
@@ -148,6 +149,9 @@ class PreviewProcessorTest {
         withTimeout(3000) {
             assertTrue(previewUpdateDeferred.await())
         }
+
+        session.close()
+        cameraDevice.close()
     }
 
     @Test
@@ -187,6 +191,9 @@ class PreviewProcessorTest {
 
         // Delay a little while to see if the close() causes any issue.
         delay(1000)
+
+        session.close()
+        cameraDevice.close()
     }
 
     private fun createImageReference(image: Image): ImageReference {
@@ -231,7 +238,7 @@ class PreviewProcessorTest {
         }
 
         override fun onOutputSurface(surface: Surface, imageFormat: Int) {
-            imageWriter = ImageWriter.newInstance(surface, 2)
+            imageWriter = ImageWriter.newInstance(surface, 2, RGBA_8888)
         }
 
         override fun onResolutionUpdate(size: Size) {
