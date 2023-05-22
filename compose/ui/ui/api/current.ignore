@@ -5,3 +5,9 @@ ChangedType: androidx.compose.ui.draw.DrawModifierKt#CacheDrawModifierNode(kotli
 
 RemovedInterface: androidx.compose.ui.node.CacheDrawModifierNode:
     Removed class androidx.compose.ui.node.CacheDrawModifierNode
+
+
+RemovedMethod: androidx.compose.ui.semantics.SemanticsActions#getPerformImeAction():
+    Removed method androidx.compose.ui.semantics.SemanticsActions.getPerformImeAction()
+RemovedMethod: androidx.compose.ui.semantics.SemanticsPropertiesKt#performImeAction(androidx.compose.ui.semantics.SemanticsPropertyReceiver, int, String, kotlin.jvm.functions.Function0<java.lang.Boolean>):
+    Removed method androidx.compose.ui.semantics.SemanticsPropertiesKt.performImeAction(androidx.compose.ui.semantics.SemanticsPropertyReceiver,int,String,kotlin.jvm.functions.Function0<java.lang.Boolean>)

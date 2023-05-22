@@ -397,9 +397,9 @@ fun hasInsertTextAtCursorAction() =
  * Returns whether the node defines a semantics action to perform the
  * [IME action][SemanticsProperties.ImeAction] on it.
  *
- * @see SemanticsActions.PerformImeAction
+ * @see SemanticsActions.OnImeAction
  */
-fun hasPerformImeAction() = hasKey(SemanticsActions.PerformImeAction)
+fun hasPerformImeAction() = hasKey(SemanticsActions.OnImeAction)
 
 /**
  * Returns whether the node defines a semantics action to request focus.

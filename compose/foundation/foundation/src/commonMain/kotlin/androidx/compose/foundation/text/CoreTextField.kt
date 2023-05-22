@@ -83,10 +83,10 @@ import androidx.compose.ui.semantics.editableText
 import androidx.compose.ui.semantics.getTextLayoutResult
 import androidx.compose.ui.semantics.insertTextAtCursor
 import androidx.compose.ui.semantics.onClick
+import androidx.compose.ui.semantics.onImeAction
 import androidx.compose.ui.semantics.onLongClick
 import androidx.compose.ui.semantics.password
 import androidx.compose.ui.semantics.pasteText
-import androidx.compose.ui.semantics.performImeAction
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.setSelection
 import androidx.compose.ui.semantics.setText
@@ -501,7 +501,7 @@ internal fun CoreTextField(
                 false
             }
         }
-        performImeAction(imeOptions.imeAction) {
+        onImeAction(imeOptions.imeAction) {
             // This will perform the appropriate default action if no handler has been specified, so
             // as far as the platform is concerned, we always handle the action and never want to
             // defer to the default _platform_ implementation.
