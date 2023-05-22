@@ -1893,16 +1893,6 @@ private fun customScrollActions(
     )
 }
 
-/**
- * Returns a string representation of an integer at the current Locale.
- */
-internal fun Int.toLocalString(): String {
-    val formatter = NumberFormat.getIntegerInstance()
-    // Eliminate any use of delimiters when formatting the integer.
-    formatter.isGroupingUsed = false
-    return formatter.format(this)
-}
-
 internal val RecommendedSizeForAccessibility = 48.dp
 internal val MonthYearHeight = 56.dp
 internal val DatePickerHorizontalPadding = 12.dp
