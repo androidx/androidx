@@ -183,7 +183,7 @@ class CredentialProviderBeginSignInController(private val context: Context) :
     @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)
     public override fun convertRequestToPlayServices(request: GetCredentialRequest):
         BeginSignInRequest {
-        return constructBeginSignInRequest(request)
+        return constructBeginSignInRequest(request, context)
     }
 
     @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)
