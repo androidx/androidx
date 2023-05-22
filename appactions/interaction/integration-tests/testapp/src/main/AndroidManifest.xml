@@ -32,15 +32,22 @@
         android:name=".MainActivity"
         android:exported="true">
       <intent-filter>
-        <action android:name="android.intent.action.MAIN"/>
+        <action android:name="android.intent.action.MAIN" />
 
-        <category android:name="android.intent.category.LAUNCHER"/>
+        <category android:name="android.intent.category.LAUNCHER" />
       </intent-filter>
-
-      <meta-data
-          android:name="android.app.lib_name"
-          android:value=""/>
     </activity>
+    <!-- Register as Android Service -->
+    <service
+        android:name=".ClockInteractionService"
+        android:exported="true">
+      <!-- Link shortcuts.xml to register capabilities -->
+      <meta-data
+          android:name="android.app.shortcuts"
+          android:resource="@xml/shortcuts" />
+      <intent-filter>
+        <action android:name="grpc.io.action.BIND" />
+      </intent-filter>
+    </service>
   </application>
-
 </manifest>
