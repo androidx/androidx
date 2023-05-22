@@ -371,7 +371,6 @@ dependencies {
     docs("androidx.wear.protolayout:protolayout:1.0.0-alpha09")
     docs("androidx.wear.protolayout:protolayout-expression:1.0.0-alpha09")
     docs("androidx.wear.protolayout:protolayout-material:1.0.0-alpha09")
-    docs("androidx.wear.protolayout:protolayout-proto:1.0.0-alpha09")
     docs("androidx.wear.protolayout:protolayout-renderer:1.0.0-alpha09")
     docs("androidx.wear.tiles:tiles:1.2.0-alpha05")
     docs("androidx.wear.tiles:tiles-material:1.2.0-alpha05")

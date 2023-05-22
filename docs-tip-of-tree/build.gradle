@@ -329,7 +329,6 @@ dependencies {
     docs(project(":wear:protolayout:protolayout-expression"))
     docs(project(":wear:protolayout:protolayout-expression-pipeline"))
     docs(project(":wear:protolayout:protolayout-material"))
-    docs(project(":wear:protolayout:protolayout-proto"))
     docs(project(":wear:protolayout:protolayout-renderer"))
     docs(project(":wear:wear"))
     stubs(fileTree(dir: "../wear/wear_stubs/", include: ["com.google.android.wearable-stubs.jar"]))
