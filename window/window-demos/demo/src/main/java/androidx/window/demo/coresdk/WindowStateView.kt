@@ -20,12 +20,14 @@ import android.content.Context
 import android.graphics.Rect
 import android.hardware.display.DisplayManager
 import android.util.AttributeSet
+import android.util.Log
 import android.view.Display.DEFAULT_DISPLAY
 import android.view.LayoutInflater
 import android.view.WindowManager
 import android.widget.LinearLayout
 import androidx.window.demo.R
 import androidx.window.demo.databinding.WindowStateViewBinding
+import androidx.window.layout.WindowMetricsCalculator
 import java.text.SimpleDateFormat
 import java.util.Date
 
@@ -37,29 +39,48 @@ class WindowStateView @JvmOverloads constructor(
     defStyleRes: Int = 0
 ) : LinearLayout(context, attrs, defStyleAttr, defStyleRes) {
 
-    private val displayManager: DisplayManager
-    private val windowManager: WindowManager
+    private var title: String = "N/A"
+
+    /**
+     * [DisplayManager]s and [WindowManager]s from `Activity` and `Application` are updated from
+     * different resource configurations, so we show config from them separately.
+     */
+    private val applicationDisplayManager: DisplayManager
+    private val activityDisplayManager: DisplayManager
+    private val windowMetricsCalculator: WindowMetricsCalculator
 
     private val timestampView: WindowStateConfigView
-    private val displayRotationView: WindowStateConfigView
-    private val displayBoundsView: WindowStateConfigView
-    private val prevDisplayRotationView: WindowStateConfigView
-    private val prevDisplayBoundsView: WindowStateConfigView
+    private val applicationDisplayRotationView: WindowStateConfigView
+    private val activityDisplayRotationView: WindowStateConfigView
+    private val applicationDisplayBoundsView: WindowStateConfigView
+    private val activityDisplayBoundsView: WindowStateConfigView
+    private val prevApplicationDisplayRotationView: WindowStateConfigView
+    private val prevActivityDisplayRotationView: WindowStateConfigView
+    private val prevApplicationDisplayBoundsView: WindowStateConfigView
+    private val prevActivityDisplayBoundsView: WindowStateConfigView
 
     private val shouldHidePrevConfig: Boolean
-    private var lastDisplayRotation = -1
-    private val lastDisplayBounds = Rect()
+    private var lastApplicationDisplayRotation = -1
+    private var lastActivityDisplayRotation = -1
+    private val lastApplicationDisplayBounds = Rect()
+    private val lastActivityDisplayBounds = Rect()
 
     init {
-        displayManager = context.getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
-        windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+        applicationDisplayManager =
+            context.applicationContext.getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
+        activityDisplayManager = context.getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
+        windowMetricsCalculator = WindowMetricsCalculator.getOrCreate()
 
         val viewBinding = WindowStateViewBinding.inflate(LayoutInflater.from(context), this, true)
         timestampView = viewBinding.timestampView
-        displayRotationView = viewBinding.displayRotationView
-        displayBoundsView = viewBinding.displayBoundsView
-        prevDisplayRotationView = viewBinding.prevDisplayRotationView
-        prevDisplayBoundsView = viewBinding.prevDisplayBoundsView
+        applicationDisplayRotationView = viewBinding.applicationDisplayRotationView
+        activityDisplayRotationView = viewBinding.activityDisplayRotationView
+        applicationDisplayBoundsView = viewBinding.applicationDisplayBoundsView
+        activityDisplayBoundsView = viewBinding.activityDisplayBoundsView
+        prevApplicationDisplayRotationView = viewBinding.prevApplicationDisplayRotationView
+        prevActivityDisplayRotationView = viewBinding.prevActivityDisplayRotationView
+        prevApplicationDisplayBoundsView = viewBinding.prevApplicationDisplayBoundsView
+        prevActivityDisplayBoundsView = viewBinding.prevActivityDisplayBoundsView
 
         context.theme.obtainStyledAttributes(
             attrs,
@@ -68,19 +89,26 @@ class WindowStateView @JvmOverloads constructor(
             try {
                 getString(R.styleable.WindowStateView_title)?.let {
                     viewBinding.callbackTitle.text = it
+                    title = it
                 }
                 shouldHidePrevConfig = getBoolean(
                     R.styleable.WindowStateView_hidePrevConfig,
                     false)
                 if (shouldHidePrevConfig) {
                     timestampView.visibility = GONE
-                    displayRotationView.shouldHighlightChange = false
-                    displayBoundsView.shouldHighlightChange = false
-                    prevDisplayRotationView.visibility = GONE
-                    prevDisplayBoundsView.visibility = GONE
+                    applicationDisplayRotationView.shouldHighlightChange = false
+                    activityDisplayRotationView.shouldHighlightChange = false
+                    applicationDisplayBoundsView.shouldHighlightChange = false
+                    activityDisplayBoundsView.shouldHighlightChange = false
+                    prevApplicationDisplayRotationView.visibility = GONE
+                    prevActivityDisplayRotationView.visibility = GONE
+                    prevApplicationDisplayBoundsView.visibility = GONE
+                    prevActivityDisplayBoundsView.visibility = GONE
                 } else {
-                    displayRotationView.shouldHighlightChange = true
-                    displayBoundsView.shouldHighlightChange = true
+                    applicationDisplayRotationView.shouldHighlightChange = true
+                    activityDisplayRotationView.shouldHighlightChange = true
+                    applicationDisplayBoundsView.shouldHighlightChange = true
+                    activityDisplayBoundsView.shouldHighlightChange = true
                 }
             } finally {
                 recycle()
@@ -90,28 +118,50 @@ class WindowStateView @JvmOverloads constructor(
 
     /** Called when the corresponding system callback is invoked. */
     fun onWindowStateCallbackInvoked() {
-        val displayRotation = displayManager.getDisplay(DEFAULT_DISPLAY).rotation
-        val displayBounds = windowManager.maximumWindowMetrics.bounds
+        val applicationDisplayRotation =
+            applicationDisplayManager.getDisplay(DEFAULT_DISPLAY).rotation
+        val activityDisplayRotation =
+            activityDisplayManager.getDisplay(DEFAULT_DISPLAY).rotation
+        val applicationDisplayBounds = windowMetricsCalculator
+            .computeMaximumWindowMetrics(context.applicationContext)
+            .bounds
+        val activityDisplayBounds = windowMetricsCalculator
+            .computeMaximumWindowMetrics(context)
+            .bounds
 
         if (shouldHidePrevConfig &&
-            displayRotation == lastDisplayRotation &&
-            displayBounds == lastDisplayBounds) {
+            applicationDisplayRotation == lastApplicationDisplayRotation &&
+            activityDisplayRotation == lastActivityDisplayRotation &&
+            applicationDisplayBounds == lastApplicationDisplayBounds &&
+            activityDisplayBounds == lastActivityDisplayBounds) {
             // Skip if the state is unchanged.
             return
         }
 
-        timestampView.updateValue(TIME_FORMAT.format(Date()))
-        displayRotationView.updateValue(displayRotation.toString())
-        displayBoundsView.updateValue(displayBounds.toString())
-
-        if (!shouldHidePrevConfig && lastDisplayRotation != -1) {
-            // Skip if there is no previous value.
-            prevDisplayRotationView.updateValue(lastDisplayRotation.toString())
-            prevDisplayBoundsView.updateValue(lastDisplayBounds.toString())
+        if (!shouldHidePrevConfig) {
+            // Debug log for the change title.
+            Log.d(WindowStateCallbackActivity.TAG, title)
         }
 
-        lastDisplayRotation = displayRotation
-        lastDisplayBounds.set(displayBounds)
+        timestampView.updateValue(TIME_FORMAT.format(Date()))
+        applicationDisplayRotationView.updateValue(applicationDisplayRotation.toString())
+        activityDisplayRotationView.updateValue(activityDisplayRotation.toString())
+        applicationDisplayBoundsView.updateValue(applicationDisplayBounds.toString())
+        activityDisplayBoundsView.updateValue(activityDisplayBounds.toString())
+
+        if (!shouldHidePrevConfig && lastApplicationDisplayRotation != -1) {
+            // Skip if there is no previous value.
+            prevApplicationDisplayRotationView.updateValue(
+                lastApplicationDisplayRotation.toString())
+            prevActivityDisplayRotationView.updateValue(lastActivityDisplayRotation.toString())
+            prevApplicationDisplayBoundsView.updateValue(lastApplicationDisplayBounds.toString())
+            prevActivityDisplayBoundsView.updateValue(lastActivityDisplayBounds.toString())
+        }
+
+        lastApplicationDisplayRotation = applicationDisplayRotation
+        lastActivityDisplayRotation = activityDisplayRotation
+        lastApplicationDisplayBounds.set(applicationDisplayBounds)
+        lastActivityDisplayBounds.set(activityDisplayBounds)
     }
 
     companion object {
