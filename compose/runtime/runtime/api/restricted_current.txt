@@ -463,12 +463,6 @@ package androidx.compose.runtime {
     property public final boolean isPaused;
   }
 
-  public final class PrimitiveSnapshotStateKt {
-    method public static inline operator float getValue(androidx.compose.runtime.FloatState, Object? thisObj, kotlin.reflect.KProperty<?> property);
-    method @androidx.compose.runtime.snapshots.StateFactoryMarker public static androidx.compose.runtime.MutableFloatState mutableFloatStateOf(float value);
-    method public static inline operator void setValue(androidx.compose.runtime.MutableFloatState, Object? thisObj, kotlin.reflect.KProperty<?> property, float value);
-  }
-
   public interface ProduceStateScope<T> extends androidx.compose.runtime.MutableState<T> kotlinx.coroutines.CoroutineScope {
     method public suspend Object? awaitDispose(kotlin.jvm.functions.Function0<kotlin.Unit> onDispose, kotlin.coroutines.Continuation<?>);
   }
@@ -570,6 +564,12 @@ package androidx.compose.runtime {
     method public static inline operator double getValue(androidx.compose.runtime.DoubleState, Object? thisObj, kotlin.reflect.KProperty<?> property);
     method @androidx.compose.runtime.snapshots.StateFactoryMarker public static androidx.compose.runtime.MutableDoubleState mutableDoubleStateOf(double value);
     method public static inline operator void setValue(androidx.compose.runtime.MutableDoubleState, Object? thisObj, kotlin.reflect.KProperty<?> property, double value);
+  }
+
+  public final class SnapshotFloatStateKt {
+    method public static inline operator float getValue(androidx.compose.runtime.FloatState, Object? thisObj, kotlin.reflect.KProperty<?> property);
+    method @androidx.compose.runtime.snapshots.StateFactoryMarker public static androidx.compose.runtime.MutableFloatState mutableFloatStateOf(float value);
+    method public static inline operator void setValue(androidx.compose.runtime.MutableFloatState, Object? thisObj, kotlin.reflect.KProperty<?> property, float value);
   }
 
   public final class SnapshotIntStateKt {
