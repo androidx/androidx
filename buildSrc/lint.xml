@@ -40,8 +40,10 @@
     <issue id="WrongThread" severity="fatal" />
     <issue id="MissingTestSizeAnnotation" severity="fatal" />
     <issue id="IgnoreClassLevelDetector" severity="fatal" />
-    <!-- Disable all lint checks on transformed classes by default. -->
+    <!-- Disable all lint checks on transformed classes by default. b/283812176 -->
     <issue id="all">
         <ignore path="**/.transforms/**" />
+        <!-- playground builds have dependency files in "transformed" instead of ".transforms" -->
+        <ignore path="**/.gradle/**/transforms*/**/transformed/**" />
     </issue>
 </lint>
