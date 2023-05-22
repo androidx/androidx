@@ -70,6 +70,16 @@ interface CameraBackend {
     fun awaitCameraIds(): List<CameraId>?
 
     /**
+     * Read out a set of [CameraId] sets that can be operated concurrently. When multiple cameras
+     * are open, the number of configurable streams, as well as their sizes, might be considerably
+     * limited.
+     */
+    suspend fun getConcurrentCameraIds(): Set<Set<CameraId>>? = awaitConcurrentCameraIds()
+
+    /** Thread-blocking version of [getConcurrentCameraIds] for compatibility. */
+    fun awaitConcurrentCameraIds(): Set<Set<CameraId>>?
+
+    /**
      * Retrieve [CameraMetadata] for this backend. Backends may cache the results of these calls.
      *
      * This call should should always succeed if the [CameraId] is in the list of ids returned by
