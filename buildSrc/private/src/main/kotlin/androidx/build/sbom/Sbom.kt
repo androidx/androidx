@@ -22,6 +22,7 @@ import androidx.build.addToBuildOnServer
 import androidx.build.getPrebuiltsRoot
 import androidx.build.getSupportRootFolder
 import androidx.build.gitclient.MultiGitClient
+import androidx.build.ProjectLayoutType
 import androidx.inspection.gradle.EXPORT_INSPECTOR_DEPENDENCIES
 import androidx.inspection.gradle.IMPORT_INSPECTOR_DEPENDENCIES
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
@@ -212,7 +213,11 @@ fun Project.configureSbomPublishing() {
 
     project.configurations.create(sbomEmptyConfiguration)
     project.apply(plugin = "org.spdx.sbom")
-    val repos = getRepoPublicUrls()
+    val repos = if (ProjectLayoutType.isPlayground(this)) {
+        emptyMap()
+    }  else {
+        getRepoPublicUrls()
+    }
     val gitsClient = MultiGitClient.create(project)
     val supportRootDir = getSupportRootFolder()
 
