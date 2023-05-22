@@ -27,7 +27,7 @@ plugins {
 dependencies {
 
     implementation(libs.kotlinStdlib)
-    implementation(projectOrArtifact(":compose:foundation:foundation-layout"))
+    implementation("androidx.compose.foundation:foundation-layout:1.5.0-beta01")
     api("androidx.activity:activity-compose:1.7.0")
     api("androidx.compose.animation:animation:1.5.0-beta01")
     api("androidx.compose.runtime:runtime:1.5.0-beta01")
