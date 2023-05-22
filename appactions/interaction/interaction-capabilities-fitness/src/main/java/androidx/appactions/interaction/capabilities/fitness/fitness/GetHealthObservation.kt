@@ -31,7 +31,7 @@ private const val CAPABILITY_NAME = "actions.intent.GET_HEALTH_OBSERVATION"
 @CapabilityFactory(name = CAPABILITY_NAME)
 class GetHealthObservation private constructor() {
 
-    internal enum class PropertyMapStrings(val key: String) {
+    internal enum class SlotMetadata(val path: String) {
         START_TIME("healthObservation.startTime"),
         END_TIME("healthObservation.endTime")
     }
@@ -45,13 +45,13 @@ class GetHealthObservation private constructor() {
             ExecutionSession
             >(ACTION_SPEC) {
         fun setStartTimeProperty(startTime: Property<LocalTime>): CapabilityBuilder = setProperty(
-            PropertyMapStrings.START_TIME.key,
+            SlotMetadata.START_TIME.path,
             startTime,
             TypeConverters.LOCAL_TIME_ENTITY_CONVERTER
         )
 
         fun setEndTimeProperty(endTime: Property<LocalTime>): CapabilityBuilder = setProperty(
-            PropertyMapStrings.END_TIME.key,
+            SlotMetadata.END_TIME.path,
             endTime,
             TypeConverters.LOCAL_TIME_ENTITY_CONVERTER
         )
@@ -113,12 +113,12 @@ class GetHealthObservation private constructor() {
                 )
                 .setOutput(Output::class.java)
                 .bindParameter(
-                    "healthObservation.startTime",
+                    SlotMetadata.START_TIME.path,
                     Arguments.Builder::setStartTime,
                     TypeConverters.LOCAL_TIME_PARAM_VALUE_CONVERTER
                 )
                 .bindParameter(
-                    "healthObservation.endTime",
+                    SlotMetadata.END_TIME.path,
                     Arguments.Builder::setEndTime,
                     TypeConverters.LOCAL_TIME_PARAM_VALUE_CONVERTER
                 )
