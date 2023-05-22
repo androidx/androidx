@@ -25,11 +25,9 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class BloodGlucoseTest {
 
-    @Rule
-    @JvmField
-    val expect = Expect.create()
+    @Rule @JvmField val expect = Expect.create()
 
-    private val tests: List<Triple<Double, Double, String>> =
+    private val conversions: List<Triple<Double, Double, String>> =
         listOf(
             Triple(
                 BloodGlucose.millimolesPerLiter(5.0).inMilligramsPerDeciliter,
@@ -54,9 +52,47 @@ class BloodGlucoseTest {
         )
 
     @Test
-    fun testAll() {
-        for (test in tests) {
-            expect.withMessage(test.third).that(test.first).isWithin(0.00001).of(test.second)
+    fun conversion() {
+        for (conversion in conversions) {
+            expect
+                .withMessage(conversion.third)
+                .that(conversion.first)
+                .isWithin(0.00001)
+                .of(conversion.second)
         }
+    }
+
+    @Test
+    fun equals_sameValues_areEqual() {
+        expect
+            .that(BloodGlucose.millimolesPerLiter(5.0))
+            .isEqualTo(BloodGlucose.millimolesPerLiter(5.0))
+        expect
+            .that(BloodGlucose.millimolesPerLiter(5.0))
+            .isEqualTo(BloodGlucose.milligramsPerDeciliter(5.0 * 18.0))
+    }
+
+    @Test
+    fun equals_differentValues_areNotEqual() {
+        expect
+            .that(BloodGlucose.millimolesPerLiter(5.01))
+            .isNotEqualTo(BloodGlucose.millimolesPerLiter(5.0))
+        expect
+            .that(BloodGlucose.millimolesPerLiter(5.01))
+            .isNotEqualTo(BloodGlucose.milligramsPerDeciliter(5.0 * 18.0))
+    }
+
+    @Test
+    fun hashCode_sameValues_areEqual() {
+        expect
+            .that(BloodGlucose.millimolesPerLiter(5.0).hashCode())
+            .isEqualTo(BloodGlucose.milligramsPerDeciliter(5.0 * 18.0).hashCode())
+    }
+
+    @Test
+    fun hashCode_differentValues_areNotEqual() {
+        expect
+            .that(BloodGlucose.millimolesPerLiter(5.01).hashCode())
+            .isNotEqualTo(BloodGlucose.milligramsPerDeciliter(5.0 * 18.0).hashCode())
     }
 }
