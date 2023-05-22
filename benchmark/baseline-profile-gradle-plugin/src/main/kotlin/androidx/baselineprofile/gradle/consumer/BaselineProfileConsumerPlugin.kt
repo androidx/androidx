@@ -42,6 +42,8 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.artifacts.Configuration
+import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 
 /**
  * This is the consumer plugin for baseline profile generation. In order to generate baseline
@@ -212,6 +214,15 @@ private class BaselineProfileConsumerAgpPlugin(private val project: Project) : A
         // for apps.
         val mergeIntoMain = variantConfiguration.mergeIntoMain ?: isLibraryModule()
 
+        // Determines the target name for android in kmp projects.
+        val androidTargetName = project
+            .extensions
+            .findByType(KotlinMultiplatformExtension::class.java)
+            ?.targets
+            ?.firstOrNull { it.platformType == KotlinPlatformType.androidJvm }
+            ?.name
+            ?: ""
+
         // This part changes according to the AGP version of the module. `mergeIntoMain` merges
         // the profile of the generated profile for this variant into the main one. This can be
         // applied to the `main` configuration or to single variants. On Agp 8.0, since it's not
@@ -226,7 +237,7 @@ private class BaselineProfileConsumerAgpPlugin(private val project: Project) : A
             if (supportsFeature(AgpFeature.TEST_MODULE_SUPPORTS_MULTIPLE_BUILD_TYPES)) {
                 TaskAndFolderName(
                     taskVariantName = "",
-                    folderVariantName = "main"
+                    folderVariantName = camelCase(androidTargetName, "main")
                 )
             } else {
                 // Note that the exception here cannot happen because all the variants have a build
@@ -234,11 +245,14 @@ private class BaselineProfileConsumerAgpPlugin(private val project: Project) : A
                 TaskAndFolderName(
                     taskVariantName = variant.buildType
                         ?: throw IllegalStateException("Found variant without build type."),
-                    folderVariantName = "main"
+                    folderVariantName = camelCase(androidTargetName, "main")
                 )
             }
         } else {
-            TaskAndFolderName(taskVariantName = variant.name, folderVariantName = variant.name)
+            TaskAndFolderName(
+                taskVariantName = variant.name,
+                folderVariantName = camelCase(androidTargetName, variant.name)
+            )
         }
 
         // Creates the task to merge the baseline profile artifacts coming from
