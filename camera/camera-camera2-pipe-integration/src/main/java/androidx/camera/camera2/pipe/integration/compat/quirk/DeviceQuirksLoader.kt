@@ -34,18 +34,18 @@ object DeviceQuirksLoader {
         val quirks: MutableList<Quirk> = mutableListOf()
 
         // Load all device specific quirks, preferably in lexicographical order
+        if (CloseCaptureSessionOnDisconnectQuirk.isEnabled()) {
+            quirks.add(CloseCaptureSessionOnDisconnectQuirk())
+        }
         if (CrashWhenTakingPhotoWithAutoFlashAEModeQuirk.isEnabled()) {
             quirks.add(CrashWhenTakingPhotoWithAutoFlashAEModeQuirk())
         }
-
         if (ControlZoomRatioRangeAssertionErrorQuirk.isEnabled()) {
             quirks.add(ControlZoomRatioRangeAssertionErrorQuirk())
         }
-
         if (FlashAvailabilityBufferUnderflowQuirk.isEnabled()) {
             quirks.add(FlashAvailabilityBufferUnderflowQuirk())
         }
-
         if (ImageCapturePixelHDRPlusQuirk.isEnabled()) {
             quirks.add(ImageCapturePixelHDRPlusQuirk())
         }
