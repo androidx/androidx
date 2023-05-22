@@ -33,6 +33,7 @@ import androidx.health.connect.client.records.OvulationTestRecord
 import androidx.health.connect.client.records.SexualActivityRecord
 import androidx.health.connect.client.records.SleepSessionRecord
 import androidx.health.connect.client.records.Vo2MaxRecord
+import androidx.health.connect.client.records.metadata.Metadata
 
 internal val SDK_TO_PLATFORM_CERVICAL_MUCUS_APPEARANCE: Map<Int, Int> =
     mapOf(
@@ -496,6 +497,18 @@ internal val SDK_TO_PLATFORM_EXERCISE_SEGMENT_TYPE: Map<Int, Int> =
 internal val PLATFORM_TO_SDK_EXERCISE_SEGMENT_TYPE =
     SDK_TO_PLATFORM_EXERCISE_SEGMENT_TYPE.reversed()
 
+internal val SDK_TO_PLATFORM_RECORDING_METHOD: Map<Int, Int> =
+    mapOf(
+        Metadata.RECORDING_METHOD_ACTIVELY_RECORDED to
+            PlatformMetadata.RECORDING_METHOD_ACTIVELY_RECORDED,
+        Metadata.RECORDING_METHOD_AUTOMATICALLY_RECORDED to
+            PlatformMetadata.RECORDING_METHOD_AUTOMATICALLY_RECORDED,
+        Metadata.RECORDING_METHOD_MANUAL_ENTRY to PlatformMetadata.RECORDING_METHOD_MANUAL_ENTRY
+    )
+
+internal val PLATFORM_TO_SDK_RECORDING_METHOD: Map<Int, Int> =
+    SDK_TO_PLATFORM_RECORDING_METHOD.reversed()
+
 internal fun Int.toPlatformCervicalMucusAppearance(): Int {
     return SDK_TO_PLATFORM_CERVICAL_MUCUS_APPEARANCE[this]
         ?: PlatformCervicalMucusAppearance.APPEARANCE_UNKNOWN
@@ -568,6 +581,10 @@ internal fun Int.toPlatformSleepStageType(): Int {
     return SDK_TO_PLATFORM_SLEEP_STAGE_TYPE[this] ?: PlatformSleepStageType.STAGE_TYPE_UNKNOWN
 }
 
+internal fun Int.toPlatformRecordingMethod(): Int {
+    return SDK_TO_PLATFORM_RECORDING_METHOD[this] ?: PlatformMetadata.RECORDING_METHOD_UNKNOWN
+}
+
 internal fun Int.toSdkBloodPressureBodyPosition(): Int {
     return PLATFORM_TO_SDK_BLOOD_PRESSURE_BODY_POSITION[this]
         ?: BloodPressureRecord.BODY_POSITION_UNKNOWN
@@ -634,6 +651,10 @@ internal fun Int.toSdkCervicalMucusAppearance(): Int {
 
 internal fun Int.toSdkSleepStageType(): Int {
     return PLATFORM_TO_SDK_SLEEP_STAGE_TYPE[this] ?: SleepSessionRecord.STAGE_TYPE_UNKNOWN
+}
+
+internal fun Int.toSdkRecordingMethod(): Int {
+    return PLATFORM_TO_SDK_RECORDING_METHOD[this] ?: Metadata.RECORDING_METHOD_UNKNOWN
 }
 
 private fun Map<Int, Int>.reversed(): Map<Int, Int> {

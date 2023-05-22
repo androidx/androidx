@@ -45,26 +45,33 @@ class MetadataConvertersTest {
                 lastModifiedTime = Instant.ofEpochMilli(6666L),
                 clientRecordId = "clientId",
                 clientRecordVersion = 2L,
+                recordingMethod = Metadata.RECORDING_METHOD_AUTOMATICALLY_RECORDED,
                 device =
                     Device(
                         manufacturer = "Awesome-watches",
                         model = "AwesomeOne",
-                        type = Device.TYPE_WATCH))
+                        type = Device.TYPE_WATCH
+                    )
+            )
 
         with(metadata.toPlatformMetadata()) {
             assertThat(id).isEqualTo("someId")
             assertThat(dataOrigin)
                 .isEqualTo(
-                    PlatformDataOriginBuilder().setPackageName("origin package name").build())
+                    PlatformDataOriginBuilder().setPackageName("origin package name").build()
+                )
             assertThat(clientRecordId).isEqualTo("clientId")
             assertThat(clientRecordVersion).isEqualTo(2L)
+            assertThat(recordingMethod)
+                .isEqualTo(PlatformMetadata.RECORDING_METHOD_AUTOMATICALLY_RECORDED)
             assertThat(device)
                 .isEqualTo(
                     PlatformDeviceBuilder()
                         .setManufacturer("Awesome-watches")
                         .setModel("AwesomeOne")
                         .setType(PlatformDevice.DEVICE_TYPE_WATCH)
-                        .build())
+                        .build()
+                )
         }
     }
 
@@ -76,13 +83,15 @@ class MetadataConvertersTest {
                 dataOrigin = DataOrigin("origin package name"),
                 lastModifiedTime = Instant.ofEpochMilli(6666L),
                 clientRecordId = "clientId",
-                clientRecordVersion = 2L)
+                clientRecordVersion = 2L
+            )
 
         with(metadata.toPlatformMetadata()) {
             assertThat(id).isEqualTo("someId")
             assertThat(dataOrigin)
                 .isEqualTo(
-                    PlatformDataOriginBuilder().setPackageName("origin package name").build())
+                    PlatformDataOriginBuilder().setPackageName("origin package name").build()
+                )
             assertThat(clientRecordId).isEqualTo("clientId")
             assertThat(clientRecordVersion).isEqualTo(2L)
             assertThat(device).isEqualTo(PlatformDeviceBuilder().build())
@@ -96,16 +105,19 @@ class MetadataConvertersTest {
                 .apply {
                     setId("someId")
                     setDataOrigin(
-                        PlatformDataOriginBuilder().setPackageName("origin package name").build())
+                        PlatformDataOriginBuilder().setPackageName("origin package name").build()
+                    )
                     setLastModifiedTime(Instant.ofEpochMilli(6666L))
                     setClientRecordId("clientId")
                     setClientRecordVersion(2L)
+                    setRecordingMethod(PlatformMetadata.RECORDING_METHOD_MANUAL_ENTRY)
                     setDevice(
                         PlatformDeviceBuilder()
                             .setManufacturer("AwesomeTech")
                             .setModel("AwesomeTwo")
                             .setType(PlatformDevice.DEVICE_TYPE_WATCH)
-                            .build())
+                            .build()
+                    )
                 }
                 .build()
 
@@ -115,12 +127,15 @@ class MetadataConvertersTest {
             assertThat(lastModifiedTime).isEqualTo(Instant.ofEpochMilli(6666L))
             assertThat(clientRecordId).isEqualTo("clientId")
             assertThat(clientRecordVersion).isEqualTo(2L)
+            assertThat(recordingMethod).isEqualTo(Metadata.RECORDING_METHOD_MANUAL_ENTRY)
             assertThat(device)
                 .isEqualTo(
                     Device(
                         manufacturer = "AwesomeTech",
                         model = "AwesomeTwo",
-                        type = Device.TYPE_WATCH))
+                        type = Device.TYPE_WATCH
+                    )
+                )
         }
     }
 }

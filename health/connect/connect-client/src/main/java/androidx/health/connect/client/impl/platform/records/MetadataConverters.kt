@@ -33,7 +33,9 @@ internal fun PlatformMetadata.toSdkMetadata(): Metadata {
         lastModifiedTime = lastModifiedTime,
         clientRecordId = clientRecordId,
         clientRecordVersion = clientRecordVersion,
-        device = device.toSdkDevice())
+        recordingMethod = recordingMethod.toSdkRecordingMethod(),
+        device = device.toSdkDevice()
+    )
 }
 
 internal fun PlatformDevice.toSdkDevice(): Device {
@@ -54,6 +56,7 @@ internal fun Metadata.toPlatformMetadata(): PlatformMetadata {
             setDataOrigin(dataOrigin.toPlatformDataOrigin())
             setClientRecordId(clientRecordId)
             setClientRecordVersion(clientRecordVersion)
+            setRecordingMethod(recordingMethod.toPlatformRecordingMethod())
         }
         .build()
 }
