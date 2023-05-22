@@ -18,6 +18,7 @@ package androidx.compose.integration.demos
 
 import androidx.compose.animation.demos.AnimationDemos
 import androidx.compose.foundation.demos.FoundationDemos
+import androidx.compose.foundation.demos.performance.PerformanceDemos
 import androidx.compose.foundation.demos.text.TextDemos
 import androidx.compose.foundation.layout.demos.LayoutDemos
 import androidx.compose.integration.demos.common.DemoCategory
@@ -43,6 +44,7 @@ val AllDemosCategory = DemoCategory(
         NavigationDemos,
         PagingFoundationDemos,
         TextDemos,
-        AccessibilityDemos
+        AccessibilityDemos,
+        PerformanceDemos
     )
 )
