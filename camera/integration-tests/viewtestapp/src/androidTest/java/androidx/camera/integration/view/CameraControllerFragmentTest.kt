@@ -156,7 +156,6 @@ class CameraControllerFragmentTest(
         assertThat(processor.isSurfaceRequestedAndProvided()).isTrue()
     }
 
-    @Ignore // b/283308005
     @Test
     fun enableEffect_imageCaptureEffectIsEnabled() {
         // Arrange: launch app and verify effect is inactive.
