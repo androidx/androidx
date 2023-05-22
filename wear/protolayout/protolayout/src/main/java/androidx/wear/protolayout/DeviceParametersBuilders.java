@@ -23,6 +23,7 @@ import androidx.annotation.FloatRange;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.wear.protolayout.expression.ProtoLayoutExperimental;
@@ -218,6 +219,30 @@ public final class DeviceParametersBuilders {
       return mImpl;
     }
 
+    @Override
+    @OptIn(markerClass = ProtoLayoutExperimental.class)
+    @NonNull
+    public String toString() {
+      return "DeviceParameters{"
+          + "screenWidthDp="
+          + getScreenWidthDp()
+          + ", screenHeightDp="
+          + getScreenHeightDp()
+          + ", screenDensity="
+          + getScreenDensity()
+          + ", fontScale="
+          + getFontScale()
+          + ", devicePlatform="
+          + getDevicePlatform()
+          + ", screenShape="
+          + getScreenShape()
+          + ", rendererSchemaVersion="
+          + getRendererSchemaVersion()
+          + ", capabilities="
+          + getCapabilities()
+          + "}";
+    }
+
     /** Builder for {@link DeviceParameters} */
     public static final class Builder {
       private final DeviceParametersProto.DeviceParameters.Builder mImpl =
@@ -367,6 +392,15 @@ public final class DeviceParametersBuilders {
     @NonNull
     public DeviceParametersProto.Capabilities toProto() {
       return mImpl;
+    }
+
+    @Override
+    @NonNull
+    public String toString() {
+      return "Capabilities{"
+          + "minimumFreshnessLimitMillis="
+          + getMinimumFreshnessLimitMillis()
+          + "}";
     }
 
     /** Builder for {@link Capabilities} */

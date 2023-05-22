@@ -320,6 +320,12 @@ public final class LayoutElementBuilders {
             return mImpl;
         }
 
+        @Override
+        @NonNull
+        public String toString() {
+            return "FontWeightProp{" + "value=" + getValue() + "}";
+        }
+
         /** Builder for {@link FontWeightProp} */
         public static final class Builder {
             private final LayoutElementProto.FontWeightProp.Builder mImpl =
@@ -388,6 +394,12 @@ public final class LayoutElementBuilders {
         @NonNull
         public LayoutElementProto.FontVariantProp toProto() {
             return mImpl;
+        }
+
+        @Override
+        @NonNull
+        public String toString() {
+            return "FontVariantProp{" + "value=" + getValue() + "}";
         }
 
         /** Builder for {@link FontVariantProp} */
@@ -459,6 +471,12 @@ public final class LayoutElementBuilders {
         @NonNull
         public LayoutElementProto.SpanVerticalAlignmentProp toProto() {
             return mImpl;
+        }
+
+        @Override
+        @NonNull
+        public String toString() {
+            return "SpanVerticalAlignmentProp{" + "value=" + getValue() + "}";
         }
 
         /** Builder for {@link SpanVerticalAlignmentProp} */
@@ -616,6 +634,28 @@ public final class LayoutElementBuilders {
         @NonNull
         public LayoutElementProto.FontStyle toProto() {
             return mImpl;
+        }
+
+        @Override
+        @OptIn(markerClass = ProtoLayoutExperimental.class)
+        @NonNull
+        public String toString() {
+            return "FontStyle{"
+                    + "size="
+                    + getSize()
+                    + ", italic="
+                    + getItalic()
+                    + ", underline="
+                    + getUnderline()
+                    + ", color="
+                    + getColor()
+                    + ", weight="
+                    + getWeight()
+                    + ", letterSpacing="
+                    + getLetterSpacing()
+                    + ", variant="
+                    + getVariant()
+                    + "}";
         }
 
         /** Builder for {@link FontStyle} */
@@ -1222,6 +1262,30 @@ public final class LayoutElementBuilders {
             return LayoutElementProto.LayoutElement.newBuilder().setText(mImpl).build();
         }
 
+        @Override
+        @OptIn(markerClass = ProtoLayoutExperimental.class)
+        @NonNull
+        public String toString() {
+            return "Text{"
+                    + "text="
+                    + getText()
+                    + ", fontStyle="
+                    + getFontStyle()
+                    + ", modifiers="
+                    + getModifiers()
+                    + ", maxLines="
+                    + getMaxLines()
+                    + ", multilineAlignment="
+                    + getMultilineAlignment()
+                    + ", overflow="
+                    + getOverflow()
+                    + ", lineHeight="
+                    + getLineHeight()
+                    + ", androidTextStyle="
+                    + getAndroidTextStyle()
+                    + "}";
+        }
+
         /** Builder for {@link Text}. */
         public static final class Builder implements LayoutElement.Builder {
             private final LayoutElementProto.Text.Builder mImpl =
@@ -1490,6 +1554,12 @@ public final class LayoutElementBuilders {
             return mImpl;
         }
 
+        @Override
+        @NonNull
+        public String toString() {
+            return "ContentScaleModeProp{" + "value=" + getValue() + "}";
+        }
+
         /** Builder for {@link ContentScaleModeProp} */
         public static final class Builder {
             private final LayoutElementProto.ContentScaleModeProp.Builder mImpl =
@@ -1568,6 +1638,12 @@ public final class LayoutElementBuilders {
         @NonNull
         public LayoutElementProto.ColorFilter toProto() {
             return mImpl;
+        }
+
+        @Override
+        @NonNull
+        public String toString() {
+            return "ColorFilter{" + "tint=" + getTint() + "}";
         }
 
         /** Builder for {@link ColorFilter} */
@@ -1734,6 +1810,25 @@ public final class LayoutElementBuilders {
         @NonNull
         public LayoutElementProto.LayoutElement toLayoutElementProto() {
             return LayoutElementProto.LayoutElement.newBuilder().setImage(mImpl).build();
+        }
+
+        @Override
+        @NonNull
+        public String toString() {
+            return "Image{"
+                    + "resourceId="
+                    + getResourceId()
+                    + ", width="
+                    + getWidth()
+                    + ", height="
+                    + getHeight()
+                    + ", contentScaleMode="
+                    + getContentScaleMode()
+                    + ", modifiers="
+                    + getModifiers()
+                    + ", colorFilter="
+                    + getColorFilter()
+                    + "}";
         }
 
         /** Builder for {@link Image}. */
@@ -1963,6 +2058,19 @@ public final class LayoutElementBuilders {
         @NonNull
         public LayoutElementProto.LayoutElement toLayoutElementProto() {
             return LayoutElementProto.LayoutElement.newBuilder().setSpacer(mImpl).build();
+        }
+
+        @Override
+        @NonNull
+        public String toString() {
+            return "Spacer{"
+                    + "width="
+                    + getWidth()
+                    + ", height="
+                    + getHeight()
+                    + ", modifiers="
+                    + getModifiers()
+                    + "}";
         }
 
         /** Builder for {@link Spacer}. */
@@ -2218,6 +2326,25 @@ public final class LayoutElementBuilders {
             return LayoutElementProto.LayoutElement.newBuilder().setBox(mImpl).build();
         }
 
+        @Override
+        @NonNull
+        public String toString() {
+            return "Box{"
+                    + "contents="
+                    + getContents()
+                    + ", height="
+                    + getHeight()
+                    + ", width="
+                    + getWidth()
+                    + ", horizontalAlignment="
+                    + getHorizontalAlignment()
+                    + ", verticalAlignment="
+                    + getVerticalAlignment()
+                    + ", modifiers="
+                    + getModifiers()
+                    + "}";
+        }
+
         /** Builder for {@link Box}. */
         public static final class Builder implements LayoutElement.Builder {
             private final LayoutElementProto.Box.Builder mImpl =
@@ -2431,6 +2558,22 @@ public final class LayoutElementBuilders {
             return LayoutElementProto.Span.newBuilder().setText(mImpl).build();
         }
 
+        @Override
+        @OptIn(markerClass = ProtoLayoutExperimental.class)
+        @NonNull
+        public String toString() {
+            return "SpanText{"
+                    + "text="
+                    + getText()
+                    + ", fontStyle="
+                    + getFontStyle()
+                    + ", modifiers="
+                    + getModifiers()
+                    + ", androidTextStyle="
+                    + getAndroidTextStyle()
+                    + "}";
+        }
+
         /** Builder for {@link SpanText}. */
         public static final class Builder implements Span.Builder {
             private final LayoutElementProto.SpanText.Builder mImpl =
@@ -2617,6 +2760,23 @@ public final class LayoutElementBuilders {
         @NonNull
         public LayoutElementProto.Span toSpanProto() {
             return LayoutElementProto.Span.newBuilder().setImage(mImpl).build();
+        }
+
+        @Override
+        @NonNull
+        public String toString() {
+            return "SpanImage{"
+                    + "resourceId="
+                    + getResourceId()
+                    + ", width="
+                    + getWidth()
+                    + ", height="
+                    + getHeight()
+                    + ", modifiers="
+                    + getModifiers()
+                    + ", alignment="
+                    + getAlignment()
+                    + "}";
         }
 
         /** Builder for {@link SpanImage}. */
@@ -2930,6 +3090,25 @@ public final class LayoutElementBuilders {
             return LayoutElementProto.LayoutElement.newBuilder().setSpannable(mImpl).build();
         }
 
+        @Override
+        @NonNull
+        public String toString() {
+            return "Spannable{"
+                    + "spans="
+                    + getSpans()
+                    + ", modifiers="
+                    + getModifiers()
+                    + ", maxLines="
+                    + getMaxLines()
+                    + ", multilineAlignment="
+                    + getMultilineAlignment()
+                    + ", overflow="
+                    + getOverflow()
+                    + ", lineHeight="
+                    + getLineHeight()
+                    + "}";
+        }
+
         /** Builder for {@link Spannable}. */
         public static final class Builder implements LayoutElement.Builder {
             private final LayoutElementProto.Spannable.Builder mImpl =
@@ -3201,6 +3380,23 @@ public final class LayoutElementBuilders {
             return LayoutElementProto.LayoutElement.newBuilder().setColumn(mImpl).build();
         }
 
+        @Override
+        @NonNull
+        public String toString() {
+            return "Column{"
+                    + "contents="
+                    + getContents()
+                    + ", horizontalAlignment="
+                    + getHorizontalAlignment()
+                    + ", width="
+                    + getWidth()
+                    + ", height="
+                    + getHeight()
+                    + ", modifiers="
+                    + getModifiers()
+                    + "}";
+        }
+
         /** Builder for {@link Column}. */
         public static final class Builder implements LayoutElement.Builder {
             private final LayoutElementProto.Column.Builder mImpl =
@@ -3407,6 +3603,23 @@ public final class LayoutElementBuilders {
         @NonNull
         public LayoutElementProto.LayoutElement toLayoutElementProto() {
             return LayoutElementProto.LayoutElement.newBuilder().setRow(mImpl).build();
+        }
+
+        @Override
+        @NonNull
+        public String toString() {
+            return "Row{"
+                    + "contents="
+                    + getContents()
+                    + ", verticalAlignment="
+                    + getVerticalAlignment()
+                    + ", width="
+                    + getWidth()
+                    + ", height="
+                    + getHeight()
+                    + ", modifiers="
+                    + getModifiers()
+                    + "}";
         }
 
         /** Builder for {@link Row}. */
@@ -3628,6 +3841,23 @@ public final class LayoutElementBuilders {
             return LayoutElementProto.LayoutElement.newBuilder().setArc(mImpl).build();
         }
 
+        @Override
+        @NonNull
+        public String toString() {
+            return "Arc{"
+                    + "contents="
+                    + getContents()
+                    + ", anchorAngle="
+                    + getAnchorAngle()
+                    + ", anchorType="
+                    + getAnchorType()
+                    + ", verticalAlign="
+                    + getVerticalAlign()
+                    + ", modifiers="
+                    + getModifiers()
+                    + "}";
+        }
+
         /** Builder for {@link Arc}. */
         public static final class Builder implements LayoutElement.Builder {
             private final LayoutElementProto.Arc.Builder mImpl =
@@ -3846,6 +4076,19 @@ public final class LayoutElementBuilders {
             return LayoutElementProto.ArcLayoutElement.newBuilder().setText(mImpl).build();
         }
 
+        @Override
+        @NonNull
+        public String toString() {
+            return "ArcText{"
+                    + "text="
+                    + getText()
+                    + ", fontStyle="
+                    + getFontStyle()
+                    + ", modifiers="
+                    + getModifiers()
+                    + "}";
+        }
+
         /** Builder for {@link ArcText}. */
         public static final class Builder implements ArcLayoutElement.Builder {
             private final LayoutElementProto.ArcText.Builder mImpl =
@@ -4037,6 +4280,23 @@ public final class LayoutElementBuilders {
             return LayoutElementProto.ArcLayoutElement.newBuilder().setLine(mImpl).build();
         }
 
+        @Override
+        @NonNull
+        public String toString() {
+            return "ArcLine{"
+                    + "length="
+                    + getLength()
+                    + ", thickness="
+                    + getThickness()
+                    + ", color="
+                    + getColor()
+                    + ", modifiers="
+                    + getModifiers()
+                    + ", strokeCap="
+                    + getStrokeCap()
+                    + "}";
+        }
+
         /** Builder for {@link ArcLine}. */
         public static final class Builder implements ArcLayoutElement.Builder {
             private final LayoutElementProto.ArcLine.Builder mImpl =
@@ -4222,6 +4482,12 @@ public final class LayoutElementBuilders {
             return mImpl;
         }
 
+        @Override
+        @NonNull
+        public String toString() {
+            return "StrokeCapProp{" + "value=" + getValue() + "}";
+        }
+
         /** Builder for {@link StrokeCapProp} */
         public static final class Builder {
             private final LayoutElementProto.StrokeCapProp.Builder mImpl =
@@ -4331,6 +4597,19 @@ public final class LayoutElementBuilders {
         @NonNull
         public LayoutElementProto.ArcLayoutElement toArcLayoutElementProto() {
             return LayoutElementProto.ArcLayoutElement.newBuilder().setSpacer(mImpl).build();
+        }
+
+        @Override
+        @NonNull
+        public String toString() {
+            return "ArcSpacer{"
+                    + "length="
+                    + getLength()
+                    + ", thickness="
+                    + getThickness()
+                    + ", modifiers="
+                    + getModifiers()
+                    + "}";
         }
 
         /** Builder for {@link ArcSpacer}. */
@@ -4467,6 +4746,17 @@ public final class LayoutElementBuilders {
         @NonNull
         public LayoutElementProto.ArcLayoutElement toArcLayoutElementProto() {
             return LayoutElementProto.ArcLayoutElement.newBuilder().setAdapter(mImpl).build();
+        }
+
+        @Override
+        @NonNull
+        public String toString() {
+            return "ArcAdapter{"
+                    + "content="
+                    + getContent()
+                    + ", rotateContents="
+                    + getRotateContents()
+                    + "}";
         }
 
         /** Builder for {@link ArcAdapter}. */
@@ -4894,6 +5184,12 @@ public final class LayoutElementBuilders {
             return mImpl;
         }
 
+        @Override
+        @NonNull
+        public String toString() {
+            return "Layout{" + "root=" + getRoot() + "}";
+        }
+
         /** Builder for {@link Layout} */
         public static final class Builder {
             private final LayoutElementProto.Layout.Builder mImpl =
@@ -5172,6 +5468,12 @@ public final class LayoutElementBuilders {
             return mImpl;
         }
 
+        @Override
+        @NonNull
+        public String toString() {
+            return "HorizontalAlignmentProp{" + "value=" + getValue() + "}";
+        }
+
         /** Builder for {@link HorizontalAlignmentProp} */
         public static final class Builder {
             private final AlignmentProto.HorizontalAlignmentProp.Builder mImpl =
@@ -5240,6 +5542,12 @@ public final class LayoutElementBuilders {
         @NonNull
         public AlignmentProto.VerticalAlignmentProp toProto() {
             return mImpl;
+        }
+
+        @Override
+        @NonNull
+        public String toString() {
+            return "VerticalAlignmentProp{" + "value=" + getValue() + "}";
         }
 
         /** Builder for {@link VerticalAlignmentProp} */
@@ -5311,6 +5619,12 @@ public final class LayoutElementBuilders {
             return mImpl;
         }
 
+        @Override
+        @NonNull
+        public String toString() {
+            return "TextAlignmentProp{" + "value=" + getValue() + "}";
+        }
+
         /** Builder for {@link TextAlignmentProp} */
         public static final class Builder {
             private final AlignmentProto.TextAlignmentProp.Builder mImpl =
@@ -5378,6 +5692,12 @@ public final class LayoutElementBuilders {
         @NonNull
         public AlignmentProto.ArcAnchorTypeProp toProto() {
             return mImpl;
+        }
+
+        @Override
+        @NonNull
+        public String toString() {
+            return "ArcAnchorTypeProp{" + "value=" + getValue() + "}";
         }
 
         /** Builder for {@link ArcAnchorTypeProp} */

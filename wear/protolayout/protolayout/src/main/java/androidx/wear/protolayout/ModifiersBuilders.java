@@ -24,6 +24,7 @@ import androidx.annotation.FloatRange;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.wear.protolayout.ActionBuilders.Action;
@@ -388,6 +389,12 @@ public final class ModifiersBuilders {
             return mImpl;
         }
 
+        @Override
+        @NonNull
+        public String toString() {
+            return "Clickable{" + "id=" + getId() + ", onClick=" + getOnClick() + "}";
+        }
+
         /** Builder for {@link Clickable} */
         public static final class Builder {
             private final ModifiersProto.Clickable.Builder mImpl =
@@ -513,6 +520,19 @@ public final class ModifiersBuilders {
         @NonNull
         public ModifiersProto.Semantics toProto() {
             return mImpl;
+        }
+
+        @Override
+        @NonNull
+        public String toString() {
+            return "Semantics{"
+                    + "contentDescription="
+                    + getContentDescription()
+                    + ", role="
+                    + getRole()
+                    + ", stateDescription="
+                    + getStateDescription()
+                    + "}";
         }
 
         /** Builder for {@link Semantics} */
@@ -711,6 +731,23 @@ public final class ModifiersBuilders {
         @NonNull
         public ModifiersProto.Padding toProto() {
             return mImpl;
+        }
+
+        @Override
+        @NonNull
+        public String toString() {
+            return "Padding{"
+                    + "end="
+                    + getEnd()
+                    + ", start="
+                    + getStart()
+                    + ", top="
+                    + getTop()
+                    + ", bottom="
+                    + getBottom()
+                    + ", rtlAware="
+                    + getRtlAware()
+                    + "}";
         }
 
         /** Builder for {@link Padding} */
@@ -915,6 +952,12 @@ public final class ModifiersBuilders {
             return mImpl;
         }
 
+        @Override
+        @NonNull
+        public String toString() {
+            return "Border{" + "width=" + getWidth() + ", color=" + getColor() + "}";
+        }
+
         /** Builder for {@link Border} */
         public static final class Builder {
             private final ModifiersProto.Border.Builder mImpl = ModifiersProto.Border.newBuilder();
@@ -1017,6 +1060,12 @@ public final class ModifiersBuilders {
         @NonNull
         public ModifiersProto.Corner toProto() {
             return mImpl;
+        }
+
+        @Override
+        @NonNull
+        public String toString() {
+            return "Corner{" + "radius=" + getRadius() + "}";
         }
 
         /** Builder for {@link Corner} */
@@ -1124,6 +1173,12 @@ public final class ModifiersBuilders {
             return mImpl;
         }
 
+        @Override
+        @NonNull
+        public String toString() {
+            return "Background{" + "color=" + getColor() + ", corner=" + getCorner() + "}";
+        }
+
         /** Builder for {@link Background} */
         public static final class Builder {
             private final ModifiersProto.Background.Builder mImpl =
@@ -1223,6 +1278,12 @@ public final class ModifiersBuilders {
         @NonNull
         public ModifiersProto.ElementMetadata toProto() {
             return mImpl;
+        }
+
+        @Override
+        @NonNull
+        public String toString() {
+            return "ElementMetadata{" + "tagData=" + Arrays.toString(getTagData()) + "}";
         }
 
         /** Builder for {@link ElementMetadata} */
@@ -1404,6 +1465,28 @@ public final class ModifiersBuilders {
         @NonNull
         public ModifiersProto.Modifiers toProto() {
             return mImpl;
+        }
+
+        @Override
+        @OptIn(markerClass = ProtoLayoutExperimental.class)
+        @NonNull
+        public String toString() {
+            return "Modifiers{"
+                    + "clickable="
+                    + getClickable()
+                    + ", semantics="
+                    + getSemantics()
+                    + ", padding="
+                    + getPadding()
+                    + ", border="
+                    + getBorder()
+                    + ", background="
+                    + getBackground()
+                    + ", metadata="
+                    + getMetadata()
+                    + ", contentUpdateAnimation="
+                    + getContentUpdateAnimation()
+                    + "}";
         }
 
         /** Builder for {@link Modifiers} */
@@ -2673,6 +2756,17 @@ public final class ModifiersBuilders {
             return mImpl;
         }
 
+        @Override
+        @NonNull
+        public String toString() {
+            return "ArcModifiers{"
+                    + "clickable="
+                    + getClickable()
+                    + ", semantics="
+                    + getSemantics()
+                    + "}";
+        }
+
         /** Builder for {@link ArcModifiers} */
         public static final class Builder {
             private final ModifiersProto.ArcModifiers.Builder mImpl =
@@ -2773,6 +2867,12 @@ public final class ModifiersBuilders {
         @NonNull
         public ModifiersProto.SpanModifiers toProto() {
             return mImpl;
+        }
+
+        @Override
+        @NonNull
+        public String toString() {
+            return "SpanModifiers{" + "clickable=" + getClickable() + "}";
         }
 
         /** Builder for {@link SpanModifiers} */

@@ -82,6 +82,17 @@ public final class TimelineBuilders {
       return mImpl;
     }
 
+    @Override
+    @NonNull
+    public String toString() {
+      return "TimeInterval{"
+          + "startMillis="
+          + getStartMillis()
+          + ", endMillis="
+          + getEndMillis()
+          + "}";
+    }
+
     /** Builder for {@link TimeInterval} */
     public static final class Builder {
       private final TimelineProto.TimeInterval.Builder mImpl =
@@ -184,6 +195,12 @@ public final class TimelineBuilders {
     @NonNull
     public TimelineProto.TimelineEntry toProto() {
       return mImpl;
+    }
+
+    @Override
+    @NonNull
+    public String toString() {
+      return "TimelineEntry{" + "validity=" + getValidity() + ", layout=" + getLayout() + "}";
     }
 
     /** Builder for {@link TimelineEntry} */

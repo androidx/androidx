@@ -596,6 +596,19 @@ public final class DynamicBuilders {
             return DynamicProto.DynamicInt32.newBuilder().setArithmeticOperation(mImpl).build();
         }
 
+        @Override
+        @NonNull
+        public String toString() {
+            return "ArithmeticInt32Op{"
+                    + "inputLhs="
+                    + getInputLhs()
+                    + ", inputRhs="
+                    + getInputRhs()
+                    + ", operationType="
+                    + getOperationType()
+                    + "}";
+        }
+
         /** Builder for {@link ArithmeticInt32Op}. */
         public static final class Builder implements DynamicInt32.Builder {
 
@@ -863,6 +876,19 @@ public final class DynamicBuilders {
             return DynamicProto.DynamicInt32.newBuilder().setConditionalOp(mImpl).build();
         }
 
+        @Override
+        @NonNull
+        public String toString() {
+            return "ConditionalInt32Op{"
+                    + "condition="
+                    + getCondition()
+                    + ", valueIfTrue="
+                    + getValueIfTrue()
+                    + ", valueIfFalse="
+                    + getValueIfFalse()
+                    + "}";
+        }
+
         /** Builder for {@link ConditionalInt32Op}. */
         public static final class Builder implements DynamicInt32.Builder {
 
@@ -1011,6 +1037,19 @@ public final class DynamicBuilders {
         @NonNull
         public DynamicProto.DynamicFloat toDynamicFloatProto() {
             return DynamicProto.DynamicFloat.newBuilder().setConditionalOp(mImpl).build();
+        }
+
+        @Override
+        @NonNull
+        public String toString() {
+            return "ConditionalFloatOp{"
+                    + "condition="
+                    + getCondition()
+                    + ", valueIfTrue="
+                    + getValueIfTrue()
+                    + ", valueIfFalse="
+                    + getValueIfFalse()
+                    + "}";
         }
 
         /** Builder for {@link ConditionalFloatOp}. */
@@ -2770,7 +2809,8 @@ public final class DynamicBuilders {
         @Override
         @NonNull
         public String toString() {
-            return "StateStringSource{"+ "sourceKey="
+            return "StateStringSource{"
+                    + "sourceKey="
                     + getSourceKey()
                     + ", sourceNamespace="
                     + getSourceNamespace()
@@ -3602,6 +3642,19 @@ public final class DynamicBuilders {
             return DynamicProto.DynamicFloat.newBuilder().setArithmeticOperation(mImpl).build();
         }
 
+        @Override
+        @NonNull
+        public String toString() {
+            return "ArithmeticFloatOp{"
+                    + "inputLhs="
+                    + getInputLhs()
+                    + ", inputRhs="
+                    + getInputRhs()
+                    + ", operationType="
+                    + getOperationType()
+                    + "}";
+        }
+
         /** Builder for {@link ArithmeticFloatOp}. */
         public static final class Builder implements DynamicFloat.Builder {
 
@@ -3728,7 +3781,8 @@ public final class DynamicBuilders {
         @Override
         @NonNull
         public String toString() {
-            return "StateFloatSource{"+ "sourceKey="
+            return "StateFloatSource{"
+                    + "sourceKey="
                     + getSourceKey()
                     + ", sourceNamespace="
                     + getSourceNamespace()
@@ -5363,6 +5417,19 @@ public final class DynamicBuilders {
             return DynamicProto.DynamicBool.newBuilder().setInt32Comparison(mImpl).build();
         }
 
+        @Override
+        @NonNull
+        public String toString() {
+            return "ComparisonInt32Op{"
+                    + "inputLhs="
+                    + getInputLhs()
+                    + ", inputRhs="
+                    + getInputRhs()
+                    + ", operationType="
+                    + getOperationType()
+                    + "}";
+        }
+
         /** Builder for {@link ComparisonInt32Op}. */
         public static final class Builder implements DynamicBool.Builder {
 
@@ -5506,6 +5573,19 @@ public final class DynamicBuilders {
         @NonNull
         public DynamicProto.DynamicBool toDynamicBoolProto() {
             return DynamicProto.DynamicBool.newBuilder().setFloatComparison(mImpl).build();
+        }
+
+        @Override
+        @NonNull
+        public String toString() {
+            return "ComparisonFloatOp{"
+                    + "inputLhs="
+                    + getInputLhs()
+                    + ", inputRhs="
+                    + getInputRhs()
+                    + ", operationType="
+                    + getOperationType()
+                    + "}";
         }
 
         /** Builder for {@link ComparisonFloatOp}. */
