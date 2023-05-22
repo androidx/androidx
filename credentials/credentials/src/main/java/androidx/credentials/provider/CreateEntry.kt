@@ -41,13 +41,15 @@ import java.util.Collections
  *
  * @throws IllegalArgumentException If [accountName] is empty
  */
+@RequiresApi(28)
 class CreateEntry internal constructor(
     val accountName: CharSequence,
     val pendingIntent: PendingIntent,
     val icon: Icon?,
     val description: CharSequence?,
     val lastUsedTime: Instant?,
-    private val credentialCountInformationMap: MutableMap<String, Int?>
+    private val credentialCountInformationMap: MutableMap<String, Int?>,
+    val isAutoSelectAllowed: Boolean
 ) {
 
     /**
@@ -61,6 +63,8 @@ class CreateEntry internal constructor(
      * @param passwordCredentialCount the no. of password credentials saved by the provider
      * @param publicKeyCredentialCount the no. of public key credentials saved by the provider
      * @param totalCredentialCount the total no. of credentials saved by the provider
+     * @param isAutoSelectAllowed whether the entry should be auto selected if it is the only
+     * entry on the selector
      *
      * @throws IllegalArgumentException If [accountName] is empty, or if [description] is longer
      * than 300 characters (important: make sure your descriptions across all locales are within
@@ -78,7 +82,8 @@ class CreateEntry internal constructor(
         @Suppress("AutoBoxing")
         publicKeyCredentialCount: Int? = null,
         @Suppress("AutoBoxing")
-        totalCredentialCount: Int? = null
+        totalCredentialCount: Int? = null,
+        isAutoSelectAllowed: Boolean = false
     ) : this(
         accountName,
         pendingIntent,
@@ -89,7 +94,8 @@ class CreateEntry internal constructor(
             PasswordCredential.TYPE_PASSWORD_CREDENTIAL to passwordCredentialCount,
             PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL to publicKeyCredentialCount,
             TYPE_TOTAL_CREDENTIAL to totalCredentialCount
-        )
+        ),
+        isAutoSelectAllowed
     )
 
     init {
@@ -144,6 +150,17 @@ class CreateEntry internal constructor(
         private var passwordCredentialCount: Int? = null
         private var publicKeyCredentialCount: Int? = null
         private var totalCredentialCount: Int? = null
+        private var autoSelectAllowed: Boolean = false
+
+        /**
+         * Sets whether the entry should be auto-selected.
+         * The value is false by default.
+         */
+        @Suppress("MissingGetterMatchingBuilder")
+        fun setAutoSelectAllowed(autoSelectAllowed: Boolean): Builder {
+            this.autoSelectAllowed = autoSelectAllowed
+            return this
+        }
 
         /** Sets the password credential count, denoting how many credentials of type
          * [PasswordCredential.TYPE_PASSWORD_CREDENTIAL] does the provider have stored.
@@ -223,7 +240,7 @@ class CreateEntry internal constructor(
         fun build(): CreateEntry {
             return CreateEntry(
                 accountName, pendingIntent, icon, description, lastUsedTime,
-                credentialCountInformationMap
+                credentialCountInformationMap, autoSelectAllowed
             )
         }
     }
@@ -261,8 +278,14 @@ class CreateEntry internal constructor(
         internal const val SLICE_HINT_PENDING_INTENT =
             "androidx.credentials.provider.createEntry.SLICE_HINT_PENDING_INTENT"
 
+        private const val SLICE_HINT_AUTO_SELECT_ALLOWED =
+            "androidx.credentials.provider.createEntry.SLICE_HINT_AUTO_SELECT_ALLOWED"
+
+        private const val AUTO_SELECT_TRUE_STRING = "true"
+
+        private const val AUTO_SELECT_FALSE_STRING = "false"
+
         /** @hide **/
-        @RequiresApi(28)
         @JvmStatic
         fun toSlice(
             createEntry: CreateEntry
@@ -273,8 +296,16 @@ class CreateEntry internal constructor(
             val lastUsedTime = createEntry.lastUsedTime
             val credentialCountInformationMap = createEntry.credentialCountInformationMap
             val pendingIntent = createEntry.pendingIntent
+
             // TODO("Use the right type and revision")
             val sliceBuilder = Slice.Builder(Uri.EMPTY, SliceSpec("type", 1))
+
+            val autoSelectAllowed = if (createEntry.isAutoSelectAllowed) {
+                AUTO_SELECT_TRUE_STRING
+            } else {
+                AUTO_SELECT_FALSE_STRING
+            }
+
             sliceBuilder.addText(
                 accountName, /*subType=*/null,
                 listOf(SLICE_HINT_ACCOUNT_NAME)
@@ -316,6 +347,9 @@ class CreateEntry internal constructor(
                     .addHints(Collections.singletonList(SLICE_HINT_PENDING_INTENT))
                     .build(),
                 /*subType=*/null
+            ).addText(
+                autoSelectAllowed, /*subType=*/null,
+                listOf(SLICE_HINT_AUTO_SELECT_ALLOWED)
             )
             return sliceBuilder.build()
         }
@@ -338,6 +372,7 @@ class CreateEntry internal constructor(
             var credentialCountInfo: MutableMap<String, Int?> = mutableMapOf()
             var description: CharSequence? = null
             var lastUsedTime: Instant? = null
+            var autoSelectAllowed = false
             slice.items.forEach {
                 if (it.hasHint(SLICE_HINT_ACCOUNT_NAME)) {
                     accountName = it.text
@@ -352,12 +387,19 @@ class CreateEntry internal constructor(
                     lastUsedTime = Instant.ofEpochMilli(it.long)
                 } else if (it.hasHint(SLICE_HINT_NOTE)) {
                     description = it.text
+                } else if (it.hasHint(SLICE_HINT_LAST_USED_TIME_MILLIS)) {
+                    lastUsedTime = Instant.ofEpochMilli(it.long)
+                } else if (it.hasHint(SLICE_HINT_AUTO_SELECT_ALLOWED)) {
+                    val autoSelectValue = it.text
+                    if (autoSelectValue == AUTO_SELECT_TRUE_STRING) {
+                        autoSelectAllowed = true
+                    }
                 }
             }
             return try {
                 CreateEntry(
                     accountName!!, pendingIntent!!, icon, description,
-                    lastUsedTime, credentialCountInfo
+                    lastUsedTime, credentialCountInfo, autoSelectAllowed
                 )
             } catch (e: Exception) {
                 Log.i(TAG, "fromSlice failed with: " + e.message)

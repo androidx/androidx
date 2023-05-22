@@ -30,6 +30,7 @@ import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth
 import java.time.Instant
 import org.junit.Assert
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Test
@@ -45,6 +46,23 @@ class CreateEntryTest {
         mContext, 0, mIntent,
         PendingIntent.FLAG_IMMUTABLE
     )
+
+    @Test
+    fun constructor_success_autoSelectDefaultFalse() {
+        if (!BuildCompat.isAtLeastU()) {
+            return
+        }
+        val entry = constructEntryWithRequiredParams()
+
+        assertNotNull(entry)
+        assertEntryWithRequiredParams(entry)
+        assertNull(entry.icon)
+        assertNull(entry.lastUsedTime)
+        assertNull(entry.getPasswordCredentialCount())
+        assertNull(entry.getPublicKeyCredentialCount())
+        assertNull(entry.getTotalCredentialCount())
+        assertFalse(entry.isAutoSelectAllowed)
+    }
 
     @Test
     fun constructor_requiredParameters_success() {
@@ -139,7 +157,8 @@ class CreateEntryTest {
             ICON,
             PASSWORD_COUNT,
             PUBLIC_KEY_CREDENTIAL_COUNT,
-            TOTAL_COUNT
+            TOTAL_COUNT,
+            AUTO_SELECT_BIT
         )
     }
 
@@ -163,6 +182,7 @@ class CreateEntryTest {
         Truth.assertThat(TOTAL_COUNT).isEqualTo(
             entry.getTotalCredentialCount()
         )
+        Truth.assertThat(AUTO_SELECT_BIT).isTrue()
     }
 
     companion object {
@@ -171,6 +191,7 @@ class CreateEntryTest {
         private const val PASSWORD_COUNT = 10
         private const val PUBLIC_KEY_CREDENTIAL_COUNT = 10
         private const val TOTAL_COUNT = 10
+        private const val AUTO_SELECT_BIT = true
         private const val LAST_USED_TIME = 10L
         private val ICON = Icon.createWithBitmap(
             Bitmap.createBitmap(
