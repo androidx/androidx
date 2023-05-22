@@ -28,6 +28,7 @@ import androidx.annotation.RestrictTo
 import androidx.annotation.UiContext
 import androidx.core.view.WindowInsetsCompat
 import androidx.window.core.Bounds
+import androidx.window.layout.util.WindowMetricsCompatHelper
 
 /**
  * An interface to calculate the [WindowMetrics] for an [Activity] or a [UiContext].
@@ -126,10 +127,11 @@ interface WindowMetricsCalculator {
 
         private var decorator: (WindowMetricsCalculator) -> WindowMetricsCalculator =
             { it }
+        private val windowMetricsCalculatorCompat = WindowMetricsCalculatorCompat()
 
         @JvmStatic
         fun getOrCreate(): WindowMetricsCalculator {
-            return decorator(WindowMetricsCalculatorCompat)
+            return decorator(windowMetricsCalculatorCompat)
         }
 
         @JvmStatic
@@ -148,18 +150,20 @@ interface WindowMetricsCalculator {
          * Converts [Android API WindowMetrics][AndroidWindowMetrics] to
          * [Jetpack version WindowMetrics][WindowMetrics]
          */
-        @Suppress("ClassVerificationFailure")
         @RequiresApi(Build.VERSION_CODES.R)
-        internal fun translateWindowMetrics(windowMetrics: AndroidWindowMetrics): WindowMetrics =
-            WindowMetrics(
-                windowMetrics.bounds,
-                WindowInsetsCompat.toWindowInsetsCompat(windowMetrics.windowInsets)
-            )
+        internal fun translateWindowMetrics(
+            windowMetrics: AndroidWindowMetrics,
+            density: Float
+        ): WindowMetrics {
+            return WindowMetricsCompatHelper.getInstance()
+                .translateWindowMetrics(windowMetrics, density)
+        }
 
         internal fun fromDisplayMetrics(displayMetrics: DisplayMetrics): WindowMetrics {
             return WindowMetrics(
                     Bounds(0, 0, displayMetrics.widthPixels, displayMetrics.heightPixels),
-                    WindowInsetsCompat.Builder().build()
+                    WindowInsetsCompat.Builder().build(),
+                    displayMetrics.density
                 )
         }
     }

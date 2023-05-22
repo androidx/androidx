@@ -91,7 +91,8 @@ internal class MockWindowMetricsCalculator(
 ) : WindowMetricsCalculator {
     override fun computeCurrentWindowMetrics(activity: Activity): WindowMetrics {
         return WindowMetrics(
-            Rect(0, 0, mockWindowSize.value.width, mockWindowSize.value.height)
+            Rect(0, 0, mockWindowSize.value.width, mockWindowSize.value.height),
+            density = 1f
         )
     }
 
@@ -101,7 +102,8 @@ internal class MockWindowMetricsCalculator(
 
     override fun computeCurrentWindowMetrics(@UiContext context: Context): WindowMetrics {
         return WindowMetrics(
-            Rect(0, 0, mockWindowSize.value.width, mockWindowSize.value.height)
+            Rect(0, 0, mockWindowSize.value.width, mockWindowSize.value.height),
+            density = 1f
         )
     }
 }

@@ -715,7 +715,8 @@ class ExtensionWindowBackendTest {
 
     internal companion object {
         private fun newTestOEMWindowLayoutInfo(activity: Activity): OEMWindowLayoutInfo {
-            val bounds = WindowMetricsCalculatorCompat.computeCurrentWindowMetrics(activity).bounds
+            val bounds = WindowMetricsCalculatorCompat()
+                .computeCurrentWindowMetrics(activity).bounds
             val featureBounds = Rect(0, bounds.centerY(), bounds.width(), bounds.centerY())
             val feature = OEMFoldingFeature(featureBounds, TYPE_HINGE, STATE_FLAT)
             val displayFeatures = listOf(feature)
@@ -729,7 +730,7 @@ class ExtensionWindowBackendTest {
          */
         @RequiresApi(Build.VERSION_CODES.R)
         private fun newTestOEMWindowLayoutInfo(@UiContext context: Context): OEMWindowLayoutInfo {
-            val bounds = WindowMetricsCalculatorCompat.computeCurrentWindowMetrics(context).bounds
+            val bounds = WindowMetricsCalculatorCompat().computeCurrentWindowMetrics(context).bounds
             val featureBounds = Rect(0, bounds.centerY(), bounds.width(), bounds.centerY())
             val feature = OEMFoldingFeature(featureBounds, TYPE_HINGE, STATE_FLAT)
             val displayFeatures = listOf(feature)

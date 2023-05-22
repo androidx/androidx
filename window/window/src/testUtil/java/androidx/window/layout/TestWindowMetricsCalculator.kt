@@ -72,7 +72,7 @@ internal class TestWindowMetricsCalculator : WindowMetricsCalculator {
 
     override fun computeCurrentWindowMetrics(@UiContext context: Context): WindowMetrics {
         val bounds = overrideBounds ?: currentBounds[context] ?: Rect()
-        return WindowMetrics(bounds)
+        return WindowMetrics(bounds, density = 1f)
     }
 
     override fun computeMaximumWindowMetrics(activity: Activity): WindowMetrics {
@@ -81,7 +81,7 @@ internal class TestWindowMetricsCalculator : WindowMetricsCalculator {
 
     override fun computeMaximumWindowMetrics(@UiContext context: Context): WindowMetrics {
         val bounds = overrideMaxBounds ?: maxBounds[context] ?: Rect()
-        return WindowMetrics(bounds)
+        return WindowMetrics(bounds, density = 1f)
     }
 
     /**

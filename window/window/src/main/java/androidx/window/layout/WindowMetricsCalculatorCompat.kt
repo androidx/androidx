@@ -37,18 +37,21 @@ import androidx.window.layout.util.ActivityCompatHelperApi24.isInMultiWindowMode
 import androidx.window.layout.util.ContextCompatHelper.unwrapUiContext
 import androidx.window.layout.util.ContextCompatHelperApi30.currentWindowBounds
 import androidx.window.layout.util.ContextCompatHelperApi30.currentWindowInsets
-import androidx.window.layout.util.ContextCompatHelperApi30.currentWindowMetrics
 import androidx.window.layout.util.ContextCompatHelperApi30.maximumWindowBounds
+import androidx.window.layout.util.DensityCompatHelper
 import androidx.window.layout.util.DisplayCompatHelperApi28.safeInsetBottom
 import androidx.window.layout.util.DisplayCompatHelperApi28.safeInsetLeft
 import androidx.window.layout.util.DisplayCompatHelperApi28.safeInsetRight
 import androidx.window.layout.util.DisplayCompatHelperApi28.safeInsetTop
+import androidx.window.layout.util.WindowMetricsCompatHelper
 import java.lang.reflect.InvocationTargetException
 
 /**
  * Helper class used to compute window metrics across Android versions.
  */
-internal object WindowMetricsCalculatorCompat : WindowMetricsCalculator {
+internal class WindowMetricsCalculatorCompat(
+    private val densityCompatHelper: DensityCompatHelper = DensityCompatHelper.getInstance()
+) : WindowMetricsCalculator {
 
     private val TAG: String = WindowMetricsCalculatorCompat::class.java.simpleName
 
@@ -61,12 +64,13 @@ internal object WindowMetricsCalculatorCompat : WindowMetricsCalculator {
     override fun computeCurrentWindowMetrics(@UiContext context: Context): WindowMetrics {
         // TODO(b/259148796): Make WindowMetricsCalculatorCompat more testable
         if (Build.VERSION.SDK_INT >= VERSION_CODES.R) {
-            return currentWindowMetrics(context)
+            return WindowMetricsCompatHelper.getInstance().currentWindowMetrics(context)
         } else {
             when (val unwrappedContext = unwrapUiContext(context)) {
                 is Activity -> {
                     return computeCurrentWindowMetrics(unwrappedContext)
                 }
+
                 is InputMethodService -> {
                     val wm = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
 
@@ -79,8 +83,12 @@ internal object WindowMetricsCalculatorCompat : WindowMetricsCalculator {
 
                     // IME occupies the whole display bounds.
                     val imeBounds = Rect(0, 0, displaySize.x, displaySize.y)
-                    return WindowMetrics(imeBounds)
+                    return WindowMetrics(
+                        imeBounds,
+                        density = densityCompatHelper.density(context)
+                    )
                 }
+
                 else -> {
                     throw IllegalArgumentException("$context is not a UiContext")
                 }
@@ -110,7 +118,10 @@ internal object WindowMetricsCalculatorCompat : WindowMetricsCalculator {
         } else {
             WindowInsetsCompat.Builder().build()
         }
-        return WindowMetrics(Bounds(bounds), windowInsetsCompat)
+        return WindowMetrics(
+            Bounds(bounds), windowInsetsCompat,
+            densityCompatHelper.density(activity)
+        )
     }
 
     /**
@@ -145,7 +156,10 @@ internal object WindowMetricsCalculatorCompat : WindowMetricsCalculator {
         } else {
             WindowInsetsCompat.Builder().build()
         }
-        return WindowMetrics(Bounds(bounds), windowInsetsCompat)
+        return WindowMetrics(
+            Bounds(bounds), windowInsetsCompat,
+            densityCompatHelper.density(context)
+        )
     }
 
     /** Computes the window bounds for [Build.VERSION_CODES.Q].  */

@@ -21,11 +21,9 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.os.Binder
-import android.os.Build
-import android.util.DisplayMetrics
 import android.util.LayoutDirection
 import android.util.Pair as AndroidPair
-import android.view.WindowMetrics
+import android.view.WindowMetrics as AndroidWindowMetrics
 import androidx.window.RequiresWindowSdkExtension
 import androidx.window.WindowSdkExtensions
 import androidx.window.core.Bounds
@@ -68,6 +66,7 @@ import androidx.window.extensions.embedding.WindowAttributes
 import androidx.window.extensions.embedding.WindowAttributes as OEMWindowAttributes
 import androidx.window.layout.WindowMetricsCalculator
 import androidx.window.layout.adapter.extensions.ExtensionsWindowLayoutInfoAdapter
+import androidx.window.layout.util.DensityCompatHelper
 
 /**
  * Adapter class that translates data classes between Extension and Jetpack interfaces.
@@ -151,10 +150,15 @@ internal class EmbeddingAdapter(
     @RequiresWindowSdkExtension(6)
     @OptIn(ExperimentalWindowApi::class)
     @SuppressLint("NewApi", "ClassVerificationFailure")
-    internal fun translate(parentContainerInfo: OEMParentContainerInfo): ParentContainerInfo {
-        val windowMetrics = WindowMetricsCalculator
-            .translateWindowMetrics(parentContainerInfo.windowMetrics)
+    internal fun translate(
+        parentContainerInfo: OEMParentContainerInfo,
+    ): ParentContainerInfo {
         val configuration = parentContainerInfo.configuration
+        val density = DensityCompatHelper.getInstance()
+            .density(parentContainerInfo.configuration, parentContainerInfo.windowMetrics)
+        val windowMetrics = WindowMetricsCalculator
+            .translateWindowMetrics(parentContainerInfo.windowMetrics, density)
+
         return ParentContainerInfo(
             Bounds(windowMetrics.bounds),
             ExtensionsWindowLayoutInfoAdapter.translate(
@@ -163,11 +167,7 @@ internal class EmbeddingAdapter(
             ),
             windowMetrics.getWindowInsets(),
             configuration,
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-                parentContainerInfo.windowMetrics.density
-            } else {
-                configuration.densityDpi.toFloat() / DisplayMetrics.DENSITY_DEFAULT
-            }
+            density
         )
     }
 
@@ -179,7 +179,7 @@ internal class EmbeddingAdapter(
 
     @SuppressLint("NewApi")
     fun translate(
-        params: OEMSplitAttributesCalculatorParams
+        params: OEMSplitAttributesCalculatorParams,
     ): SplitAttributesCalculatorParams = let {
         val taskWindowMetrics = params.parentWindowMetrics
         val taskConfiguration = params.parentConfiguration
@@ -187,8 +187,10 @@ internal class EmbeddingAdapter(
         val defaultSplitAttributes = params.defaultSplitAttributes
         val areDefaultConstraintsSatisfied = params.areDefaultConstraintsSatisfied()
         val splitRuleTag = params.splitRuleTag
-        val windowMetrics = WindowMetricsCalculator.translateWindowMetrics(taskWindowMetrics)
-
+        val density = DensityCompatHelper.getInstance()
+            .density(taskConfiguration, taskWindowMetrics)
+        val windowMetrics = WindowMetricsCalculator
+            .translateWindowMetrics(taskWindowMetrics, density)
         SplitAttributesCalculatorParams(
             windowMetrics,
             taskConfiguration,
@@ -222,7 +224,7 @@ internal class EmbeddingAdapter(
                         )
                     }
                 }
-            val windowMetricsPredicate = Predicate<WindowMetrics> { windowMetrics ->
+            val windowMetricsPredicate = Predicate<AndroidWindowMetrics> { windowMetrics ->
                 rule.checkParentMetrics(context, windowMetrics)
             }
             val tag = rule.tag
@@ -248,7 +250,7 @@ internal class EmbeddingAdapter(
     @OptIn(ExperimentalWindowApi::class)
     fun translateSplitPinRule(context: Context, splitPinRule: SplitPinRule): OEMSplitPinRule {
         WindowSdkExtensions.getInstance().requireExtensionVersion(5)
-        val windowMetricsPredicate = Predicate<WindowMetrics> { windowMetrics ->
+        val windowMetricsPredicate = Predicate<AndroidWindowMetrics> { windowMetrics ->
             splitPinRule.checkParentMetrics(context, windowMetrics)
         }
         val builder = SplitPinRuleBuilder(
@@ -340,7 +342,7 @@ internal class EmbeddingAdapter(
             val intentPredicate = Predicate<Intent> { intent ->
                 rule.filters.any { filter -> filter.matchesIntent(intent) }
             }
-            val windowMetricsPredicate = Predicate<WindowMetrics> { windowMetrics ->
+            val windowMetricsPredicate = Predicate<AndroidWindowMetrics> { windowMetrics ->
                 rule.checkParentMetrics(context, windowMetrics)
             }
             val tag = rule.tag
@@ -590,7 +592,7 @@ internal class EmbeddingAdapter(
 
         @SuppressLint("ClassVerificationFailure", "NewApi")
         private fun translateParentMetricsPredicate(context: Context, splitRule: SplitRule): Any =
-            predicateAdapter.buildPredicate(WindowMetrics::class) { windowMetrics ->
+            predicateAdapter.buildPredicate(AndroidWindowMetrics::class) { windowMetrics ->
                 splitRule.checkParentMetrics(context, windowMetrics)
             }
 
