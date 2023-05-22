@@ -38,7 +38,6 @@ import static androidx.camera.core.impl.UseCaseConfig.OPTION_TARGET_FRAME_RATE;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_ZSL_DISABLED;
 import static androidx.camera.core.impl.utils.Threads.isMainThread;
 import static androidx.camera.core.impl.utils.TransformUtils.rectToString;
-import static androidx.camera.core.impl.utils.TransformUtils.within360;
 import static androidx.camera.core.internal.TargetConfig.OPTION_TARGET_CLASS;
 import static androidx.camera.core.internal.TargetConfig.OPTION_TARGET_NAME;
 import static androidx.camera.core.internal.ThreadConfig.OPTION_BACKGROUND_EXECUTOR;
@@ -321,79 +320,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         if (setTargetRotationInternal(rotation)) {
             sendTransformationInfoIfReady();
         }
-    }
-
-    /**
-     * Sets the desired rotation of the output video in degrees.
-     *
-     * <p>In general, it is best to use an {@link  android.view.OrientationEventListener} to set
-     * the target rotation. This way, the rotation output will indicate which way is down for a
-     * given video. This is important since display orientation may be locked by device default,
-     * user setting, or app configuration, and some devices may not transition to a
-     * reverse-portrait display orientation. In these cases, use
-     * {@code setTargetRotationDegrees()} to set target rotation dynamically according
-     * to the {@link  android.view.OrientationEventListener}, without re-creating the use case.
-     * The sample code is as below:
-     * <pre>{@code
-     * public class CameraXActivity extends AppCompatActivity {
-     *
-     *     private OrientationEventListener mOrientationEventListener;
-     *
-     *     @Override
-     *     protected void onStart() {
-     *         super.onStart();
-     *         if (mOrientationEventListener == null) {
-     *             mOrientationEventListener = new OrientationEventListener(this) {
-     *                 @Override
-     *                 public void onOrientationChanged(int orientation) {
-     *                     if (orientation == OrientationEventListener.ORIENTATION_UNKNOWN) {
-     *                         return;
-     *                     }
-     *                     mVideoCapture.setTargetRotationDegrees(orientation);
-     *                 }
-     *             };
-     *         }
-     *         mOrientationEventListener.enable();
-     *     }
-     *
-     *     @Override
-     *     protected void onStop() {
-     *         super.onStop();
-     *         mOrientationEventListener.disable();
-     *     }
-     * }
-     * }</pre>
-     *
-     * <p>{@code setTargetRotationDegrees()} cannot rotate the camera image to an arbitrary angle,
-     * instead it maps the angle to one of {@link Surface#ROTATION_0},
-     * {@link Surface#ROTATION_90}, {@link Surface#ROTATION_180} and {@link Surface#ROTATION_270}
-     * as the input of {@link #setTargetRotation(int)}. The rule is as follows:
-     * <p>If the input degrees is not in the range [0..359], it will be converted to the equivalent
-     * degrees in the range [0..359]. And then take the following mapping based on the input
-     * degrees.
-     * <p>degrees >= 315 || degrees < 45 -> {@link Surface#ROTATION_0}
-     * <p>degrees >= 225 && degrees < 315 -> {@link Surface#ROTATION_90}
-     * <p>degrees >= 135 && degrees < 225 -> {@link Surface#ROTATION_180}
-     * <p>degrees >= 45 && degrees < 135 -> {@link Surface#ROTATION_270}
-     * <p>The rotation value can be obtained by {@link #getTargetRotation()}. This means the
-     * rotation previously set by {@link #setTargetRotation(int)} will be overridden by
-     * {@code setTargetRotationDegrees(int)}, and vice versa.
-     *
-     * <p>For a {@link Recorder} output, calling this method has no effect on the ongoing
-     * recording, but will affect recordings started after calling this method. The final
-     * rotation degrees of the video, including the degrees set by this method and the orientation
-     * of the camera sensor, will be reflected by several possibilities, 1) the rotation degrees is
-     * written into the video metadata, 2) the video content is directly rotated, 3) both, i.e.
-     * rotation metadata and rotated video content which combines to the target rotation. CameraX
-     * will choose a strategy according to the use case.
-     *
-     * @param degrees Desired rotation degree of the output video.
-     * @deprecated Use {@link UseCase#snapToSurfaceRotation(int)} and
-     * {@link #setTargetRotation(int)} to convert and set the rotation.
-     */
-    @Deprecated // TODO(b/277999375): Remove API setTargetRotationDegrees.
-    public void setTargetRotationDegrees(int degrees) {
-        setTargetRotation(snapToSurfaceRotation(within360(degrees)));
     }
 
     /**
