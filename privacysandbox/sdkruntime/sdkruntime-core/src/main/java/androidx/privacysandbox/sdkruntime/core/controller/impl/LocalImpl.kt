@@ -17,6 +17,7 @@
 package androidx.privacysandbox.sdkruntime.core.controller.impl
 
 import android.os.IBinder
+import androidx.privacysandbox.sdkruntime.core.AppOwnedSdkSandboxInterfaceCompat
 import androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat
 import androidx.privacysandbox.sdkruntime.core.activity.SdkSandboxActivityHandlerCompat
 import androidx.privacysandbox.sdkruntime.core.controller.SdkSandboxControllerCompat
@@ -32,6 +33,9 @@ internal class LocalImpl(
     override fun getSandboxedSdks(): List<SandboxedSdkCompat> {
         return implFromClient.getSandboxedSdks()
     }
+
+    override fun getAppOwnedSdkSandboxInterfaces(): List<AppOwnedSdkSandboxInterfaceCompat> =
+        emptyList()
 
     override fun registerSdkSandboxActivityHandler(
         handlerCompat: SdkSandboxActivityHandlerCompat

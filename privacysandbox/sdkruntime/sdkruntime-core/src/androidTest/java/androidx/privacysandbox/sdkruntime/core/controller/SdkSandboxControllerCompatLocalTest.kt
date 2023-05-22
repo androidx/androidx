@@ -19,6 +19,7 @@ package androidx.privacysandbox.sdkruntime.core.controller
 import android.content.Context
 import android.os.Binder
 import android.os.IBinder
+import androidx.privacysandbox.sdkruntime.core.AppOwnedSdkSandboxInterfaceCompat
 import androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat
 import androidx.privacysandbox.sdkruntime.core.Versions
 import androidx.privacysandbox.sdkruntime.core.activity.ActivityHolder
@@ -73,6 +74,24 @@ class SdkSandboxControllerCompatLocalTest {
         val controllerCompat = SdkSandboxControllerCompat.from(context)
         val sandboxedSdks = controllerCompat.getSandboxedSdks()
         assertThat(sandboxedSdks).isEqualTo(expectedResult)
+    }
+
+    @Test
+    fun getAppOwnedSdkSandboxInterfaces_withoutLocalImpl_returnsEmptyList() {
+        val controllerCompat = SdkSandboxControllerCompat.from(context)
+        val appOwnedInterfaces = controllerCompat.getAppOwnedSdkSandboxInterfaces()
+        assertThat(appOwnedInterfaces).isEmpty()
+    }
+
+    @Test
+    fun getAppOwnedSdkSandboxInterfaces_withLocalImpl_returnsEmptyList() {
+        SdkSandboxControllerCompat.injectLocalImpl(
+            TestStubImpl()
+        )
+
+        val controllerCompat = SdkSandboxControllerCompat.from(context)
+        val appOwnedInterfaces = controllerCompat.getAppOwnedSdkSandboxInterfaces()
+        assertThat(appOwnedInterfaces).isEmpty()
     }
 
     @Test
@@ -143,6 +162,10 @@ class SdkSandboxControllerCompatLocalTest {
     ) : SdkSandboxControllerCompat.SandboxControllerImpl {
         var token: IBinder? = null
         override fun getSandboxedSdks() = sandboxedSdks
+        override fun getAppOwnedSdkSandboxInterfaces(): List<AppOwnedSdkSandboxInterfaceCompat> {
+            throw IllegalStateException("Must return result without calling method")
+        }
+
         override fun registerSdkSandboxActivityHandler(
             handlerCompat: SdkSandboxActivityHandlerCompat
         ): IBinder {

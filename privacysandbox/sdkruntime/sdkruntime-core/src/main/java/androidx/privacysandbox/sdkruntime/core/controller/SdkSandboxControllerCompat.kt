@@ -18,7 +18,6 @@ package androidx.privacysandbox.sdkruntime.core.controller
 
 import android.app.sdksandbox.sdkprovider.SdkSandboxController
 import android.content.Context
-import android.os.Build
 import android.os.IBinder
 import androidx.annotation.Keep
 import androidx.annotation.OptIn
@@ -26,6 +25,7 @@ import androidx.annotation.RestrictTo
 import androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP
 import androidx.core.os.BuildCompat
 import androidx.privacysandbox.sdkruntime.core.AdServicesInfo
+import androidx.privacysandbox.sdkruntime.core.AppOwnedSdkSandboxInterfaceCompat
 import androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat
 import androidx.privacysandbox.sdkruntime.core.SandboxedSdkProviderCompat
 import androidx.privacysandbox.sdkruntime.core.Versions
@@ -65,6 +65,14 @@ class SdkSandboxControllerCompat internal constructor(
         controllerImpl.getSandboxedSdks()
 
     /**
+     * Fetches all [AppOwnedSdkSandboxInterfaceCompat] that are registered by the app.
+     *
+     * @return List of all currently registered [AppOwnedSdkSandboxInterfaceCompat]
+     */
+    fun getAppOwnedSdkSandboxInterfaces(): List<AppOwnedSdkSandboxInterfaceCompat> =
+        controllerImpl.getAppOwnedSdkSandboxInterfaces()
+
+    /**
      * Returns an identifier for a [SdkSandboxActivityHandlerCompat] after registering it.
      *
      * This function registers an implementation of [SdkSandboxActivityHandlerCompat] created by
@@ -97,6 +105,8 @@ class SdkSandboxControllerCompat internal constructor(
     @RestrictTo(LIBRARY_GROUP)
     interface SandboxControllerImpl {
         fun getSandboxedSdks(): List<SandboxedSdkCompat>
+
+        fun getAppOwnedSdkSandboxInterfaces(): List<AppOwnedSdkSandboxInterfaceCompat>
 
         fun registerSdkSandboxActivityHandler(handlerCompat: SdkSandboxActivityHandlerCompat):
             IBinder
@@ -157,8 +167,7 @@ class SdkSandboxControllerCompat internal constructor(
         @OptIn(markerClass = [BuildCompat.PrereleaseSdkCheck::class])
         fun create(context: Context): SandboxControllerImpl {
             if (AdServicesInfo.isAtLeastV5()) {
-                // Temporary workaround until we could update androidx.core dependency version
-                if (Build.VERSION.SDK_INT >= 34 || BuildCompat.isAtLeastU()) {
+                if (BuildCompat.isAtLeastU() || AdServicesInfo.isDeveloperPreview()) {
                     return PlatformUDCImpl.from(context)
                 }
                 return PlatformImpl.from(context)

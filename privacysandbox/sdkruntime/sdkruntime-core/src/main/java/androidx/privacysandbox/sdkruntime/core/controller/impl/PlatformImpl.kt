@@ -22,6 +22,7 @@ import android.os.IBinder
 import android.os.ext.SdkExtensions.AD_SERVICES
 import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresExtension
+import androidx.privacysandbox.sdkruntime.core.AppOwnedSdkSandboxInterfaceCompat
 import androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat
 import androidx.privacysandbox.sdkruntime.core.activity.SdkSandboxActivityHandlerCompat
 import androidx.privacysandbox.sdkruntime.core.controller.SdkSandboxControllerCompat
@@ -35,11 +36,16 @@ internal open class PlatformImpl(
     private val controller: SdkSandboxController
 ) : SdkSandboxControllerCompat.SandboxControllerImpl {
 
+    private val appOwnedSdkProvider = AppOwnedSdkProvider.create(controller)
+
     override fun getSandboxedSdks(): List<SandboxedSdkCompat> {
         return controller
             .sandboxedSdks
             .map { platformSdk -> SandboxedSdkCompat(platformSdk) }
     }
+
+    override fun getAppOwnedSdkSandboxInterfaces(): List<AppOwnedSdkSandboxInterfaceCompat> =
+        appOwnedSdkProvider.getAppOwnedSdkSandboxInterfaces()
 
     override fun registerSdkSandboxActivityHandler(
         handlerCompat: SdkSandboxActivityHandlerCompat

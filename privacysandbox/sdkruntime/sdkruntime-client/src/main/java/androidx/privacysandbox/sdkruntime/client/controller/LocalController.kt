@@ -18,6 +18,7 @@ package androidx.privacysandbox.sdkruntime.client.controller
 
 import android.os.IBinder
 import androidx.privacysandbox.sdkruntime.client.activity.LocalSdkActivityHandlerRegistry
+import androidx.privacysandbox.sdkruntime.core.AppOwnedSdkSandboxInterfaceCompat
 import androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat
 import androidx.privacysandbox.sdkruntime.core.activity.SdkSandboxActivityHandlerCompat
 import androidx.privacysandbox.sdkruntime.core.controller.SdkSandboxControllerCompat
@@ -31,6 +32,10 @@ internal class LocalController(
 
     override fun getSandboxedSdks(): List<SandboxedSdkCompat> {
         return locallyLoadedSdks.getLoadedSdks()
+    }
+
+    override fun getAppOwnedSdkSandboxInterfaces(): List<AppOwnedSdkSandboxInterfaceCompat> {
+        throw IllegalStateException("Should not be called")
     }
 
     override fun registerSdkSandboxActivityHandler(
