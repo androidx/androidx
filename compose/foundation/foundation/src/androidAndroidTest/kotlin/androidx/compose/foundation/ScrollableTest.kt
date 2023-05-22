@@ -1355,7 +1355,7 @@ class ScrollableTest {
             }
         }
 
-        // First drag, this won't trigger the cancelation flow.
+        // First drag, this won't trigger the cancellation flow.
         rule.onNodeWithTag("childScrollable").performTouchInput {
             down(centerLeft)
             moveBy(Offset(100f, 0f))
@@ -1369,7 +1369,7 @@ class ScrollableTest {
         childDeltas = 0f
         var dragged = 0f
         rule.onNodeWithTag("childScrollable").performTouchInput {
-            swipeWithVelocity(centerLeft, centerRight, 200f)
+            swipeWithVelocity(centerLeft, centerRight, 2000f)
             dragged = centerRight.x - centerLeft.x
         }
 
