@@ -43,5 +43,7 @@
     <!-- Disable all lint checks on transformed classes by default. -->
     <issue id="all">
         <ignore path="**/.transforms/**" />
+        <!-- playground builds have dependency files in "transformed" instead of ".transforms" -->
+        <ignore path="**/.gradle/**/transforms*/**/transformed/**" />
     </issue>
 </lint>
