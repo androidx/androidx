@@ -107,9 +107,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import java.lang.Integer.max
-import java.text.NumberFormat
-import java.util.Locale
+import kotlin.math.max
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -747,7 +745,7 @@ class DatePickerFormatter constructor(
     internal fun formatMonthYear(
         month: CalendarMonth?,
         calendarModel: CalendarModel,
-        locale: Locale
+        locale: CalendarLocale
     ): String? {
         if (month == null) return null
         return calendarModel.formatWithSkeleton(month, yearSelectionSkeleton, locale)
@@ -756,7 +754,7 @@ class DatePickerFormatter constructor(
     internal fun formatDate(
         date: CalendarDate?,
         calendarModel: CalendarModel,
-        locale: Locale,
+        locale: CalendarLocale,
         forContentDescription: Boolean = false
     ): String? {
         if (date == null) return null

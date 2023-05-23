@@ -1,5 +1,3 @@
-// ktlint-disable filename
-
 /*
  * Copyright 2023 The Android Open Source Project
  *
@@ -18,19 +16,19 @@
 
 package androidx.compose.material3
 
-/* Copy of androidx.compose.material.ActualJvm, mirrored from Foundation. This is used for the
-   M2/M3-internal copy of MutatorMutex.
- */
-internal actual typealias InternalAtomicReference<V> =
-    java.util.concurrent.atomic.AtomicReference<V>
-
 /**
  * Represents a Locale for the calendar. This locale will be used when formatting dates, determining
  * the input format, and more.
+ *
+ * Note: For JVM based platforms, this would be equivalent to [java.util.Locale].
  */
-actual typealias CalendarLocale = java.util.Locale
+@ExperimentalMaterial3Api
+expect class CalendarLocale
 
 /**
  * Returns the default [CalendarLocale].
+ *
+ * Note: For JVM based platforms, this would be equivalent to [java.util.Locale.getDefault].
  */
-internal actual fun defaultLocale(): CalendarLocale = java.util.Locale.getDefault()
+@OptIn(ExperimentalMaterial3Api::class)
+internal expect fun defaultLocale(): CalendarLocale
