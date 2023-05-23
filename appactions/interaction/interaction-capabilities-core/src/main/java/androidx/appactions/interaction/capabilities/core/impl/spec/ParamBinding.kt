@@ -16,11 +16,10 @@
 
 package androidx.appactions.interaction.capabilities.core.impl.spec
 
-import androidx.appactions.interaction.capabilities.core.impl.BuilderOf
 import androidx.appactions.interaction.capabilities.core.impl.exceptions.StructConversionException
 import androidx.appactions.interaction.proto.ParamValue
 
-data class ParamBinding<ArgumentsT, ArgumentsBuilderT : BuilderOf<ArgumentsT>>
+data class ParamBinding<ArgumentsT, ArgumentsBuilderT>
 internal constructor(
     val name: String,
     val argumentSetter: ArgumentSetter<ArgumentsBuilderT>

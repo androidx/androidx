@@ -1642,7 +1642,7 @@ class TaskCapabilityImplTest {
             ActionSpecBuilder.ofCapabilityNamed(
                 CAPABILITY_NAME
             )
-                .setArguments(Arguments::class.java, Arguments::Builder)
+                .setArguments(Arguments::class.java, Arguments::Builder, Arguments.Builder::build)
                 .setOutput(Output::class.java)
                 .bindParameter(
                     "required",

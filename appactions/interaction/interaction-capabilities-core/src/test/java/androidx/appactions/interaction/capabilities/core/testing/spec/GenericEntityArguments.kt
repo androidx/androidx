@@ -16,8 +16,6 @@
 
 package androidx.appactions.interaction.capabilities.core.testing.spec
 
-import androidx.appactions.interaction.capabilities.core.impl.BuilderOf
-
 class GenericEntityArguments internal constructor(
     val singularField: TestEntity?,
     val optionalField: TestEntity?,
@@ -49,7 +47,7 @@ class GenericEntityArguments internal constructor(
         return result
     }
 
-    class Builder : BuilderOf<GenericEntityArguments> {
+    class Builder {
         private var singularField: TestEntity? = null
         private var optionalField: TestEntity? = null
         private var repeatedField: List<TestEntity> = listOf()
@@ -63,7 +61,7 @@ class GenericEntityArguments internal constructor(
         fun setRepeatedField(repeatedField: List<TestEntity>): Builder =
             apply { this.repeatedField = repeatedField }
 
-        override fun build(): GenericEntityArguments =
+        fun build(): GenericEntityArguments =
             GenericEntityArguments(singularField, optionalField, repeatedField)
     }
 }

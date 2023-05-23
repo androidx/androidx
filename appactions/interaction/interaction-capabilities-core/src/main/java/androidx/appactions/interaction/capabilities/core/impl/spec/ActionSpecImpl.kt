@@ -16,7 +16,6 @@
 
 package androidx.appactions.interaction.capabilities.core.impl.spec
 
-import androidx.appactions.interaction.capabilities.core.impl.BuilderOf
 import androidx.appactions.interaction.capabilities.core.impl.exceptions.StructConversionException
 import androidx.appactions.interaction.proto.AppActionsContext.AppAction
 import androidx.appactions.interaction.proto.FulfillmentResponse
@@ -26,11 +25,12 @@ import java.util.function.Function
 import java.util.function.Supplier
 
 /** The implementation of `ActionSpec` interface.  */
-internal class ActionSpecImpl<ArgumentsT, ArgumentsBuilderT : BuilderOf<ArgumentsT>, OutputT>(
+internal class ActionSpecImpl<ArgumentsT, ArgumentsBuilderT, OutputT>(
     private val capabilityName: String,
     private val argumentBuilderSupplier: Supplier<ArgumentsBuilderT>,
     private val paramBindingList: List<ParamBinding<ArgumentsT, ArgumentsBuilderT>>,
-    private val outputBindings: Map<String, Function<OutputT, List<ParamValue>>>
+    private val outputBindings: Map<String, Function<OutputT, List<ParamValue>>>,
+    private val builderFinalizer: Function<ArgumentsBuilderT, ArgumentsT>
 ) : ActionSpec<ArgumentsT, OutputT> {
     override fun createAppAction(
         identifier: String,
@@ -62,7 +62,7 @@ internal class ActionSpecImpl<ArgumentsT, ArgumentsBuilderT : BuilderOf<Argument
                 )
             }
         }
-        return argumentBuilder.build()
+        return builderFinalizer.apply(argumentBuilder)
     }
 
     override fun convertOutputToProto(output: OutputT): FulfillmentResponse.StructuredOutput {
