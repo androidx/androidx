@@ -54,8 +54,7 @@
     <string name="m3c_date_range_picker_day_in_range" msgid="2138321128465719402">"Dentro do intervalo"</string>
     <string name="m3c_date_range_input_title" msgid="3148384720560189467">"Indica as datas"</string>
     <string name="m3c_date_range_input_invalid_range_input" msgid="3190049423327661366">"Indicouse un intervalo de datas que non é válido"</string>
-    <!-- no translation found for m3c_bottom_sheet_pane_title (3010635850035863127) -->
-    <skip />
+    <string name="m3c_bottom_sheet_pane_title" msgid="3010635850035863127">"Panel inferior"</string>
     <string name="m3c_bottom_sheet_drag_handle_description" msgid="8403354765404029791">"Controlador de arrastre"</string>
     <string name="m3c_bottom_sheet_collapse_description" msgid="2988463736136100848">"Contrae o panel inferior"</string>
     <string name="m3c_bottom_sheet_dismiss_description" msgid="1555567894577437024">"Pecha o panel inferior"</string>
