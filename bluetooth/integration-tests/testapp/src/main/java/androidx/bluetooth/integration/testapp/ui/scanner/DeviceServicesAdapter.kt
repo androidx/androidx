@@ -24,8 +24,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.bluetooth.integration.testapp.R
-import androidx.recyclerview.widget.DividerItemDecoration
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 
 interface OnClickReadCharacteristic {
@@ -69,9 +67,6 @@ class DeviceServicesAdapter(
 
             recyclerViewServiceCharacteristic.adapter = DeviceServiceCharacteristicsAdapter(
                 deviceConnection, service.characteristics, onClickReadCharacteristic
-            )
-            recyclerViewServiceCharacteristic.addItemDecoration(
-                DividerItemDecoration(itemView.context, LinearLayoutManager.VERTICAL)
             )
         }
     }

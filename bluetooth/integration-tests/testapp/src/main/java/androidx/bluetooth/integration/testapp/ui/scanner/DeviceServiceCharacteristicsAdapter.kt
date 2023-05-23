@@ -64,6 +64,9 @@ class DeviceServiceCharacteristicsAdapter(
         private val buttonReadCharacteristic: Button =
             itemView.findViewById(R.id.button_read_characteristic)
 
+        private val buttonWriteCharacteristic: Button =
+            itemView.findViewById(R.id.button_write_characteristic)
+
         private var currentDeviceConnection: DeviceConnection? = null
         private var currentCharacteristic: BluetoothGattCharacteristic? = null
 
@@ -83,19 +86,31 @@ class DeviceServiceCharacteristicsAdapter(
 
             textViewUuid.text = characteristic.uuid.toString()
 
-            /*
-                TODO(ofy) Display property type correctly
-                int	PROPERTY_BROADCAST
-                int	PROPERTY_EXTENDED_PROPS
-                int	PROPERTY_INDICATE
-                int	PROPERTY_NOTIFY
-                int	PROPERTY_READ
-                int	PROPERTY_SIGNED_WRITE
-                int	PROPERTY_WRITE
-                int	PROPERTY_WRITE_NO_RESPONSE
+            val properties = characteristic.properties
+            val context = itemView.context
 
-                textViewProperties.text = characteristic.properties
-             */
+            val propertiesList = mutableListOf<String>()
+            // TODO(ofy) Update these with BluetoothGattCharacteristic.isReadable, isWriteable, ...
+            if (properties.and(BluetoothGattCharacteristic.PROPERTY_INDICATE) != 0) {
+                propertiesList.add(context.getString(R.string.indicate))
+            }
+            if (properties.and(BluetoothGattCharacteristic.PROPERTY_NOTIFY) != 0) {
+                propertiesList.add(context.getString(R.string.notify))
+            }
+            val isReadable = properties.and(BluetoothGattCharacteristic.PROPERTY_READ) != 0
+            if (isReadable) {
+                propertiesList.add(context.getString(R.string.read))
+            }
+            val isWriteable = (properties.and(BluetoothGattCharacteristic.PROPERTY_WRITE) != 0 ||
+                properties.and(BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE) != 0 ||
+                properties.and(BluetoothGattCharacteristic.PROPERTY_SIGNED_WRITE) != 0)
+            if (isWriteable) {
+                propertiesList.add(context.getString(R.string.write))
+            }
+            textViewProperties.text = propertiesList.joinToString()
+
+            buttonReadCharacteristic.isVisible = isReadable
+            buttonWriteCharacteristic.isVisible = isWriteable
 
             val value = deviceConnection.valueFor(characteristic)
             layoutValue.isVisible = value != null
@@ -103,10 +118,6 @@ class DeviceServiceCharacteristicsAdapter(
                 append("toHexString: " + value?.toHexString() + "\n")
                 append("decodeToString: " + value?.decodeToString())
             }
-
-            val isNotReadable =
-                characteristic.properties.and(BluetoothGattCharacteristic.PROPERTY_READ) == 0
-            buttonReadCharacteristic.isVisible = isNotReadable.not()
         }
     }
 }

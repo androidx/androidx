@@ -38,6 +38,7 @@
     <string name="properties">Properties</string>
     <string name="primary_service">Primary Service</string>
     <string name="indicate">Indicate</string>
+    <string name="notify">Notify</string>
     <string name="read">Read</string>
     <string name="write">Write</string>
     <string name="value">Value</string>
