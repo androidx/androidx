@@ -111,7 +111,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import java.util.Locale
 import kotlin.math.max
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -285,22 +284,29 @@ interface DatePickerFormatter {
      * January 2023).
      *
      * @param monthMillis timestamp in _UTC_ milliseconds from the epoch that represents the month
-     * @param locale a [Locale] to use when formatting the month and year
+     * @param locale a [CalendarLocale] to use when formatting the month and year
+     *
+     * @see defaultLocale
      */
-    fun formatMonthYear(@Suppress("AutoBoxing") monthMillis: Long?, locale: Locale): String?
+    fun formatMonthYear(
+        @Suppress("AutoBoxing") monthMillis: Long?,
+        locale: CalendarLocale
+    ): String?
 
     /**
      * Format a given [dateMillis] to a string representation of the date (i.e. Mar 27, 2021).
      *
      * @param dateMillis timestamp in _UTC_ milliseconds from the epoch that represents the date
-     * @param locale a [Locale] to use when formatting the date
+     * @param locale a [CalendarLocale] to use when formatting the date
      * @param forContentDescription indicates that the requested formatting is for content
      * description. In these cases, the output may include a more descriptive wording that will be
      * passed to a screen readers.
+     *
+     * @see defaultLocale
      */
     fun formatDate(
         @Suppress("AutoBoxing") dateMillis: Long?,
-        locale: Locale,
+        locale: CalendarLocale,
         forContentDescription: Boolean = false
     ): String?
 }
@@ -1024,7 +1030,7 @@ private class DatePickerFormatterImpl constructor(
 
     override fun formatMonthYear(
         monthMillis: Long?,
-        locale: Locale
+        locale: CalendarLocale
     ): String? {
         if (monthMillis == null) return null
         return formatWithSkeleton(monthMillis, yearSelectionSkeleton, locale)
@@ -1032,7 +1038,7 @@ private class DatePickerFormatterImpl constructor(
 
     override fun formatDate(
         dateMillis: Long?,
-        locale: Locale,
+        locale: CalendarLocale,
         forContentDescription: Boolean
     ): String? {
         if (dateMillis == null) return null
