@@ -41,7 +41,7 @@
     <string name="ok_action_title" msgid="7128494973966098611">"确定"</string>
     <string name="throw_action_title" msgid="7163710562670220163">"抛出"</string>
     <string name="commute_action_title" msgid="2585755255290185096">"通勤"</string>
-    <string name="sign_out_action_title" msgid="1653943000866713010">"退出"</string>
+    <string name="sign_out_action_title" msgid="1653943000866713010">"退出帐号"</string>
     <string name="try_anyway_action_title" msgid="7384500054249311718">"仍然尝试"</string>
     <string name="yes_action_title" msgid="5507096013762092189">"是"</string>
     <string name="no_action_title" msgid="1452124604210014010">"否"</string>

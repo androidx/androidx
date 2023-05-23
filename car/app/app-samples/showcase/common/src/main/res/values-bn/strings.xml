@@ -38,7 +38,7 @@
     <string name="settings_action_title" msgid="8616900063253887861">"সেটিংস"</string>
     <string name="accept_action_title" msgid="4899660585470647578">"সম্মতি দিন"</string>
     <string name="reject_action_title" msgid="6730366705938402668">"বাতিল করুন"</string>
-    <string name="ok_action_title" msgid="7128494973966098611">"ওকে"</string>
+    <string name="ok_action_title" msgid="7128494973966098611">"ঠিক আছে"</string>
     <string name="throw_action_title" msgid="7163710562670220163">"থ্রো"</string>
     <string name="commute_action_title" msgid="2585755255290185096">"যাতায়াত করুন"</string>
     <string name="sign_out_action_title" msgid="1653943000866713010">"সাইন-আউট করুন"</string>
