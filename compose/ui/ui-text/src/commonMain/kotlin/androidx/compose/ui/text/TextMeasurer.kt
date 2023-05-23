@@ -64,13 +64,13 @@ private val DefaultCacheSize = 8
  *
  * [FontFamily.Resolver], [LayoutDirection], and [Density] are required parameters to construct a
  * text layout but they have no safe fallbacks outside of composition. These parameters must be
- * provided during the construction of a [TextMeasurer] to be used as default values when they
+ * provided during the construction of a TextMeasurer to be used as default values when they
  * are skipped in [TextMeasurer.measure] call.
  *
- * @param fallbackFontFamilyResolver to be used to load fonts given in [TextStyle] and [SpanStyle]s
+ * @param defaultFontFamilyResolver to be used to load fonts given in [TextStyle] and [SpanStyle]s
  * in [AnnotatedString].
- * @param fallbackLayoutDirection layout direction of the measurement environment.
- * @param fallbackDensity density of the measurement environment. Density controls the scaling
+ * @param defaultLayoutDirection layout direction of the measurement environment.
+ * @param defaultDensity density of the measurement environment. Density controls the scaling
  * factor for fonts.
  * @param cacheSize Capacity of internal cache inside TextMeasurer. Size unit is the number of
  * unique text layout inputs that are measured. Value of this parameter highly depends on the
@@ -81,9 +81,9 @@ private val DefaultCacheSize = 8
  */
 @Immutable
 class TextMeasurer constructor(
-    private val fallbackFontFamilyResolver: FontFamily.Resolver,
-    private val fallbackDensity: Density,
-    private val fallbackLayoutDirection: LayoutDirection,
+    private val defaultFontFamilyResolver: FontFamily.Resolver,
+    private val defaultDensity: Density,
+    private val defaultLayoutDirection: LayoutDirection,
     private val cacheSize: Int = DefaultCacheSize
 ) {
     private val textLayoutCache: TextLayoutCache? = if (cacheSize > 0) {
@@ -145,9 +145,9 @@ class TextMeasurer constructor(
         maxLines: Int = Int.MAX_VALUE,
         placeholders: List<AnnotatedString.Range<Placeholder>> = emptyList(),
         constraints: Constraints = Constraints(),
-        layoutDirection: LayoutDirection = this.fallbackLayoutDirection,
-        density: Density = this.fallbackDensity,
-        fontFamilyResolver: FontFamily.Resolver = this.fallbackFontFamilyResolver,
+        layoutDirection: LayoutDirection = this.defaultLayoutDirection,
+        density: Density = this.defaultDensity,
+        fontFamilyResolver: FontFamily.Resolver = this.defaultFontFamilyResolver,
         skipCache: Boolean = false
     ): TextLayoutResult {
         val requestedTextLayoutInput = TextLayoutInput(
@@ -234,9 +234,9 @@ class TextMeasurer constructor(
         softWrap: Boolean = true,
         maxLines: Int = Int.MAX_VALUE,
         constraints: Constraints = Constraints(),
-        layoutDirection: LayoutDirection = this.fallbackLayoutDirection,
-        density: Density = this.fallbackDensity,
-        fontFamilyResolver: FontFamily.Resolver = this.fallbackFontFamilyResolver,
+        layoutDirection: LayoutDirection = this.defaultLayoutDirection,
+        density: Density = this.defaultDensity,
+        fontFamilyResolver: FontFamily.Resolver = this.defaultFontFamilyResolver,
         skipCache: Boolean = false
     ): TextLayoutResult {
         return measure(
