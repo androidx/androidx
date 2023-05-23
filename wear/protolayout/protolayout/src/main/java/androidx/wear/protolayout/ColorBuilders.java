@@ -34,7 +34,11 @@ import androidx.wear.protolayout.proto.ColorProto;
 public final class ColorBuilders {
     private ColorBuilders() {}
 
-    /** Shortcut for building a {@link ColorProp} using an ARGB value. */
+    /**
+     * Shortcut for building a {@link ColorProp} using an ARGB value.
+     *
+     * @since 1.0
+     */
     @NonNull
     public static ColorProp argb(@ColorInt int colorArgb) {
         return new ColorProp.Builder().setArgb(colorArgb).build();
