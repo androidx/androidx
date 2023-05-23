@@ -54,8 +54,7 @@
     <string name="m3c_date_range_picker_day_in_range" msgid="2138321128465719402">"રેન્જમાં છે"</string>
     <string name="m3c_date_range_input_title" msgid="3148384720560189467">"તારીખો દાખલ કરો"</string>
     <string name="m3c_date_range_input_invalid_range_input" msgid="3190049423327661366">"તારીખની શ્રેણીનું અમાન્ય ઇનપુટ"</string>
-    <!-- no translation found for m3c_bottom_sheet_pane_title (3010635850035863127) -->
-    <skip />
+    <string name="m3c_bottom_sheet_pane_title" msgid="3010635850035863127">"બોટમ શીટ"</string>
     <string name="m3c_bottom_sheet_drag_handle_description" msgid="8403354765404029791">"ઑબ્જેક્ટ ખેંચવાનું હૅન્ડલ"</string>
     <string name="m3c_bottom_sheet_collapse_description" msgid="2988463736136100848">"બોટમ શીટ નાની કરો"</string>
     <string name="m3c_bottom_sheet_dismiss_description" msgid="1555567894577437024">"બોટમ શીટ છોડી દો"</string>
