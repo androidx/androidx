@@ -67,6 +67,7 @@ public class SinglePointerPredictor implements KalmanPredictor {
 
     private final DVector2 mLastPosition = new DVector2();
     private long mPrevEventTime;
+    private long mDownEventTime;
     private List<Float> mReportRates = new LinkedList<>();
     private int mExpectedPredictionSampleSize = -1;
     private float mReportRateMs = 0;
@@ -97,11 +98,13 @@ public class SinglePointerPredictor implements KalmanPredictor {
     public SinglePointerPredictor() {
         mKalman.reset();
         mPrevEventTime = 0;
+        mDownEventTime = 0;
     }
 
     void initStrokePrediction(int pointerId, int toolType) {
         mKalman.reset();
         mPrevEventTime = 0;
+        mDownEventTime = 0;
         mPointerId = pointerId;
         mToolType = toolType;
     }
@@ -173,6 +176,9 @@ public class SinglePointerPredictor implements KalmanPredictor {
                             event));
             return false;
         }
+
+        mDownEventTime = event.getDownTime();
+
         for (BatchedMotionEvent ev : BatchedMotionEvent.iterate(event)) {
             MotionEvent.PointerCoords pointerCoords = ev.coords[pointerIndex];
             update(pointerCoords.x, pointerCoords.y, pointerCoords.pressure,
@@ -226,6 +232,7 @@ public class SinglePointerPredictor implements KalmanPredictor {
             predictionTargetInSamples = mExpectedPredictionSampleSize;
         }
 
+        long nextPredictedEventTime = mPrevEventTime + Math.round(mReportRateMs);
         int i = 0;
         for (; i < predictionTargetInSamples; i++) {
             mAcceleration.a1 += mJank.a1 * JANK_INFLUENCE;
@@ -252,8 +259,8 @@ public class SinglePointerPredictor implements KalmanPredictor {
             if (predictedEvent == null) {
                 predictedEvent =
                         MotionEvent.obtain(
-                                0 /* downTime */,
-                                0 /* eventTime */,
+                                mDownEventTime /* downTime */,
+                                nextPredictedEventTime /* eventTime */,
                                 MotionEvent.ACTION_MOVE /* action */,
                                 1 /* pointerCount */,
                                 pointerProperties /* pointer properties */,
@@ -267,8 +274,9 @@ public class SinglePointerPredictor implements KalmanPredictor {
                                 0 /* source */,
                                 0 /* flags */);
             } else {
-                predictedEvent.addBatch(0, coords, 0);
+                predictedEvent.addBatch(nextPredictedEventTime, coords, 0);
             }
+            nextPredictedEventTime += Math.round(mReportRateMs);
         }
 
         return predictedEvent;
