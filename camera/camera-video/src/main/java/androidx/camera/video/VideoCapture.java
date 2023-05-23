@@ -377,7 +377,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
 
     /**
      * {@inheritDoc}
-     *
      */
     @SuppressWarnings("unchecked")
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -405,7 +404,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
 
     /**
      * {@inheritDoc}
-     *
      */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -416,7 +414,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
 
     /**
      * {@inheritDoc}
-     *
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
@@ -455,7 +452,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
 
     /**
      * {@inheritDoc}
-     *
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
@@ -476,7 +472,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
 
     /**
      * {@inheritDoc}
-     *
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -491,7 +486,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
 
     /**
      * {@inheritDoc}
-     *
      */
     @NonNull
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -504,17 +498,12 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         CameraInternal cameraInternal = getCamera();
         SurfaceRequest surfaceRequest = mSurfaceRequest;
         Rect cropRect = mCropRect;
-        if (cameraInternal != null && surfaceRequest != null && cropRect != null) {
+        SurfaceEdge cameraEdge = mCameraEdge;
+        if (cameraInternal != null && surfaceRequest != null && cropRect != null
+                && cameraEdge != null) {
             int relativeRotation = getRelativeRotation(cameraInternal,
                     isMirroringRequired(cameraInternal));
-            int targetRotation = getAppTargetRotation();
-            if (mCameraEdge != null) {
-                mCameraEdge.setRotationDegrees(relativeRotation);
-            } else {
-                surfaceRequest.updateTransformationInfo(
-                        SurfaceRequest.TransformationInfo.of(cropRect, relativeRotation,
-                                targetRotation, cameraInternal.getHasTransform()));
-            }
+            cameraEdge.setRotationDegrees(relativeRotation);
         }
     }
 
@@ -588,34 +577,33 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
             // UPTIME when encoder surface is directly sent to camera.
             timebase = Timebase.UPTIME;
         }
+        StreamSpec updatedStreamSpec =
+                streamSpec.toBuilder().setExpectedFrameRateRange(expectedFrameRate).build();
+        // Make sure the previously created camera edge is cleared before creating a new one.
+        checkState(mCameraEdge == null);
+        mCameraEdge = new SurfaceEdge(
+                VIDEO_CAPTURE,
+                INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE,
+                updatedStreamSpec,
+                getSensorToBufferTransformMatrix(),
+                camera.getHasTransform(),
+                mCropRect,
+                getRelativeRotation(camera, isMirroringRequired(camera)),
+                shouldMirror(camera));
+        mCameraEdge.addOnInvalidatedListener(onSurfaceInvalidated);
         if (mNode != null) {
-            // Make sure the previously created camera edge is cleared before creating a new one.
-            checkState(mCameraEdge == null);
             // Update the StreamSpec to use the frame rate range that is not unspecified.
-            StreamSpec updatedStreamSpec =
-                    streamSpec.toBuilder().setExpectedFrameRateRange(expectedFrameRate).build();
-            SurfaceEdge cameraEdge = new SurfaceEdge(
-                    VIDEO_CAPTURE,
-                    INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE,
-                    updatedStreamSpec,
-                    getSensorToBufferTransformMatrix(),
-                    camera.getHasTransform(),
-                    mCropRect,
-                    getRelativeRotation(camera, isMirroringRequired(camera)),
-                    shouldMirror(camera));
-            cameraEdge.addOnInvalidatedListener(onSurfaceInvalidated);
-            mCameraEdge = cameraEdge;
             SurfaceProcessorNode.OutConfig outConfig =
-                    SurfaceProcessorNode.OutConfig.of(cameraEdge);
+                    SurfaceProcessorNode.OutConfig.of(mCameraEdge);
             SurfaceProcessorNode.In nodeInput = SurfaceProcessorNode.In.of(
-                    cameraEdge,
+                    mCameraEdge,
                     singletonList(outConfig));
             SurfaceProcessorNode.Out nodeOutput = mNode.transform(nodeInput);
             SurfaceEdge appEdge = requireNonNull(nodeOutput.get(outConfig));
             appEdge.addOnInvalidatedListener(
                     () -> onAppEdgeInvalidated(appEdge, camera, config, timebase));
             mSurfaceRequest = appEdge.createSurfaceRequest(camera);
-            mDeferrableSurface = cameraEdge.getDeferrableSurface();
+            mDeferrableSurface = mCameraEdge.getDeferrableSurface();
             DeferrableSurface latestDeferrableSurface = mDeferrableSurface;
             mDeferrableSurface.getTerminationFuture().addListener(() -> {
                 // If camera surface is the latest one, it means this pipeline can be abandoned.
@@ -625,12 +613,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
                 }
             }, CameraXExecutors.mainThreadExecutor());
         } else {
-            mSurfaceRequest = new SurfaceRequest(
-                    resolution,
-                    camera,
-                    dynamicRange,
-                    expectedFrameRate,
-                    onSurfaceInvalidated);
+            mSurfaceRequest = mCameraEdge.createSurfaceRequest(camera);
             mDeferrableSurface = mSurfaceRequest.getDeferrableSurface();
         }
 
@@ -725,7 +708,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
      *
      * <p>These values may be overridden by the implementation. They only provide a minimum set of
      * defaults that are implementation independent.
-     *
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     public static final class Defaults implements ConfigProvider<VideoCaptureConfig<?>> {
@@ -1373,7 +1355,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
 
         /**
          * {@inheritDoc}
-         *
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
@@ -1384,7 +1365,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
 
         /**
          * {@inheritDoc}
-         *
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -1456,7 +1436,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
          * setTargetAspectRatio is not supported on VideoCapture
          *
          * <p>To set aspect ratio, see {@link Recorder.Builder#setAspectRatio(int)}.
-         *
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -1524,7 +1503,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
          * setTargetResolution is not supported on VideoCapture
          *
          * <p>To set resolution, see {@link Recorder.Builder#setQualitySelector(QualitySelector)}.
-         *
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
