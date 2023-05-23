@@ -212,7 +212,7 @@ object SemanticsProperties {
     val TextSelectionRange = SemanticsPropertyKey<TextRange>("TextSelectionRange")
 
     /**
-     * @see SemanticsPropertyReceiver.performImeAction
+     * @see SemanticsPropertyReceiver.onImeAction
      */
     val ImeAction = SemanticsPropertyKey<ImeAction>("ImeAction")
 
@@ -298,9 +298,9 @@ object SemanticsActions {
     val InsertTextAtCursor = ActionPropertyKey<(AnnotatedString) -> Boolean>("InsertTextAtCursor")
 
     /**
-     * @see SemanticsPropertyReceiver.performImeAction
+     * @see SemanticsPropertyReceiver.onImeAction
      */
-    val PerformImeAction = ActionPropertyKey<() -> Boolean>("PerformImeAction")
+    val OnImeAction = ActionPropertyKey<() -> Boolean>("PerformImeAction")
 
     /**
      * @see SemanticsPropertyReceiver.copyText
@@ -928,11 +928,11 @@ var SemanticsPropertyReceiver.textSelectionRange by SemanticsProperties.TextSele
  * For example, "go to next form field" or "submit".
  *
  * A node that specifies an action should also specify a callback to perform the action via
- * [performImeAction].
+ * [onImeAction].
  */
-@Deprecated("Pass the ImeAction to performImeAction instead.")
-@get:Deprecated("Pass the ImeAction to performImeAction instead.")
-@set:Deprecated("Pass the ImeAction to performImeAction instead.")
+@Deprecated("Pass the ImeAction to onImeAction instead.")
+@get:Deprecated("Pass the ImeAction to onImeAction instead.")
+@set:Deprecated("Pass the ImeAction to onImeAction instead.")
 var SemanticsPropertyReceiver.imeAction by SemanticsProperties.ImeAction
 
 /**
@@ -1119,18 +1119,18 @@ fun SemanticsPropertyReceiver.insertTextAtCursor(
  *
  * @param imeActionType The IME type, such as [ImeAction.Next] or [ImeAction.Search]
  * @param label Optional label for this action.
- * @param action Action to be performed when [SemanticsActions.PerformImeAction] is called.
+ * @param action Action to be performed when [SemanticsActions.OnImeAction] is called.
  *
  * @see SemanticsProperties.ImeAction
- * @see SemanticsActions.PerformImeAction
+ * @see SemanticsActions.OnImeAction
  */
-fun SemanticsPropertyReceiver.performImeAction(
+fun SemanticsPropertyReceiver.onImeAction(
     imeActionType: ImeAction,
     label: String? = null,
     action: (() -> Boolean)?
 ) {
     this[SemanticsProperties.ImeAction] = imeActionType
-    this[SemanticsActions.PerformImeAction] = AccessibilityAction(label, action)
+    this[SemanticsActions.OnImeAction] = AccessibilityAction(label, action)
 }
 
 /**
