@@ -760,6 +760,7 @@ public final class LayoutElementBuilders {
                 mImpl.setWeight(
                         LayoutElementProto.FontWeightProp.newBuilder()
                                 .setValue(LayoutElementProto.FontWeight.forNumber(weight)));
+                mFingerprint.recordPropertyUpdate(5, weight);
                 return this;
             }
 
@@ -783,6 +784,8 @@ public final class LayoutElementBuilders {
             @NonNull
             public Builder setVariant(@NonNull FontVariantProp variant) {
                 mImpl.setVariant(variant.toProto());
+                mFingerprint.recordPropertyUpdate(
+                        7, checkNotNull(variant.getFingerprint()).aggregateValueAsInt());
                 return this;
             }
 
@@ -796,6 +799,7 @@ public final class LayoutElementBuilders {
                 mImpl.setVariant(
                         LayoutElementProto.FontVariantProp.newBuilder()
                                 .setValue(LayoutElementProto.FontVariant.forNumber(variant)));
+                mFingerprint.recordPropertyUpdate(7, variant);
                 return this;
             }
 
@@ -1910,6 +1914,7 @@ public final class LayoutElementBuilders {
                                 .setValue(
                                         LayoutElementProto.ContentScaleMode.forNumber(
                                                 contentScaleMode)));
+                mFingerprint.recordPropertyUpdate(4, contentScaleMode);
                 return this;
             }
 
@@ -2410,6 +2415,7 @@ public final class LayoutElementBuilders {
                                 .setValue(
                                         AlignmentProto.HorizontalAlignment.forNumber(
                                                 horizontalAlignment)));
+                mFingerprint.recordPropertyUpdate(4, horizontalAlignment);
                 return this;
             }
 
@@ -2436,6 +2442,7 @@ public final class LayoutElementBuilders {
                                 .setValue(
                                         AlignmentProto.VerticalAlignment.forNumber(
                                                 verticalAlignment)));
+                mFingerprint.recordPropertyUpdate(5, verticalAlignment);
                 return this;
             }
 
@@ -2886,6 +2893,7 @@ public final class LayoutElementBuilders {
                                 .setValue(
                                         LayoutElementProto.SpanVerticalAlignment.forNumber(
                                                 alignment)));
+                mFingerprint.recordPropertyUpdate(5, alignment);
                 return this;
             }
 
@@ -3190,6 +3198,7 @@ public final class LayoutElementBuilders {
                                 .setValue(
                                         AlignmentProto.HorizontalAlignment.forNumber(
                                                 multilineAlignment)));
+                mFingerprint.recordPropertyUpdate(4, multilineAlignment);
                 return this;
             }
 
@@ -3220,6 +3229,7 @@ public final class LayoutElementBuilders {
                 mImpl.setOverflow(
                         LayoutElementProto.TextOverflowProp.newBuilder()
                                 .setValue(LayoutElementProto.TextOverflow.forNumber(overflow)));
+                mFingerprint.recordPropertyUpdate(5, overflow);
                 return this;
             }
 
@@ -3440,6 +3450,7 @@ public final class LayoutElementBuilders {
                                 .setValue(
                                         AlignmentProto.HorizontalAlignment.forNumber(
                                                 horizontalAlignment)));
+                mFingerprint.recordPropertyUpdate(2, horizontalAlignment);
                 return this;
             }
 
@@ -3661,6 +3672,7 @@ public final class LayoutElementBuilders {
                                 .setValue(
                                         AlignmentProto.VerticalAlignment.forNumber(
                                                 verticalAlignment)));
+                mFingerprint.recordPropertyUpdate(2, verticalAlignment);
                 return this;
             }
 
@@ -3939,6 +3951,7 @@ public final class LayoutElementBuilders {
                 mImpl.setAnchorType(
                         AlignmentProto.ArcAnchorTypeProp.newBuilder()
                                 .setValue(AlignmentProto.ArcAnchorType.forNumber(anchorType)));
+                mFingerprint.recordPropertyUpdate(3, anchorType);
                 return this;
             }
 
@@ -3968,6 +3981,7 @@ public final class LayoutElementBuilders {
                         AlignmentProto.VerticalAlignmentProp.newBuilder()
                                 .setValue(
                                         AlignmentProto.VerticalAlignment.forNumber(verticalAlign)));
+                mFingerprint.recordPropertyUpdate(4, verticalAlign);
                 return this;
             }
 
@@ -5704,7 +5718,7 @@ public final class LayoutElementBuilders {
         public static final class Builder {
             private final AlignmentProto.ArcAnchorTypeProp.Builder mImpl =
                     AlignmentProto.ArcAnchorTypeProp.newBuilder();
-            private final Fingerprint mFingerprint = new Fingerprint(1193249074);
+            private final Fingerprint mFingerprint = new Fingerprint(-496387006);
 
             public Builder() {}
 
