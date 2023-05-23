@@ -18,10 +18,10 @@ package androidx.wear.protolayout.expression.pipeline;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.UiThread;
+import androidx.wear.protolayout.expression.AppDataKey;
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicType;
 import androidx.wear.protolayout.expression.DynamicDataKey;
 import androidx.wear.protolayout.expression.PlatformDataKey;
-import androidx.wear.protolayout.expression.AppDataKey;
 import androidx.wear.protolayout.expression.proto.DynamicDataProto.DynamicDataValue;
 
 import java.util.function.Function;
@@ -30,17 +30,17 @@ class StateSourceNode<T>
         implements DynamicDataSourceNode<T>,
         DynamicTypeValueReceiverWithPreUpdate<DynamicDataValue> {
     @NonNull private static final String RESERVED_NAMESPACE = "protolayout";
-    private final StateStore mStateStore;
+    private final DataStore mDataStore;
     private final DynamicDataKey<?> mKey;
     private final Function<DynamicDataValue, T> mStateExtractor;
     private final DynamicTypeValueReceiverWithPreUpdate<T> mDownstream;
 
     StateSourceNode(
-            StateStore stateStore,
+            DataStore dataStore,
             DynamicDataKey<?> key,
             Function<DynamicDataValue, T> stateExtractor,
             DynamicTypeValueReceiverWithPreUpdate<T> downstream) {
-        this.mStateStore = stateStore;
+        this.mDataStore = dataStore;
         this.mKey = key;
         this.mStateExtractor = stateExtractor;
         this.mDownstream = downstream;
@@ -55,8 +55,8 @@ class StateSourceNode<T>
     @Override
     @UiThread
     public void init() {
-        mStateStore.registerCallback(mKey, this);
-        DynamicDataValue item = mStateStore.getDynamicDataValuesProto(mKey);
+        mDataStore.registerCallback(mKey, this);
+        DynamicDataValue item = mDataStore.getDynamicDataValuesProto(mKey);
 
         if (item != null) {
             this.onData(item);
@@ -68,7 +68,7 @@ class StateSourceNode<T>
     @Override
     @UiThread
     public void destroy() {
-        mStateStore.unregisterCallback(mKey, this);
+        mDataStore.unregisterCallback(mKey, this);
     }
 
     @Override

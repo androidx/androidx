@@ -100,11 +100,11 @@ class StringNodes {
     /** Dynamic string node that gets a value from the state. */
     static class StateStringNode extends StateSourceNode<String> {
         StateStringNode(
-                StateStore stateStore,
+                DataStore dataStore,
                 StateStringSource protoNode,
                 DynamicTypeValueReceiverWithPreUpdate<String> downstream) {
             super(
-                    stateStore,
+                    dataStore,
                     StateSourceNode.<DynamicString>createKey(
                             protoNode.getSourceNamespace(), protoNode.getSourceKey()),
                     se -> truncate(se.getStringVal().getValue()),

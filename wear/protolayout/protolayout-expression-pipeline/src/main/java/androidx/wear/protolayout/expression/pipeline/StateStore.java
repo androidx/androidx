@@ -19,9 +19,6 @@ package androidx.wear.protolayout.expression.pipeline;
 import static java.util.stream.Collectors.toMap;
 
 import android.annotation.SuppressLint;
-import android.os.Handler;
-import android.os.Looper;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -33,13 +30,11 @@ import androidx.wear.protolayout.expression.AppDataKey;
 import androidx.wear.protolayout.expression.DynamicDataBuilders;
 import androidx.wear.protolayout.expression.DynamicDataKey;
 import androidx.wear.protolayout.expression.proto.DynamicDataProto.DynamicDataValue;
-import androidx.wear.protolayout.expression.PlatformDataKey;
 
 import java.util.Collections;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.concurrent.Executor;
 import java.util.stream.Stream;
 
 /**
@@ -49,18 +44,13 @@ import java.util.stream.Stream;
  * the main thread, and because updates will eventually affect the main thread, this whole class
  * must only be used from the UI thread.
  */
-public class StateStore {
+public class StateStore extends DataStore {
     @SuppressLint("MinMaxConstant")
     private static final int MAX_STATE_ENTRY_COUNT = 30;
 
     private static final String TAG = "ProtoLayoutStateStore";
 
-    private final Executor mUiExecutor;
     @NonNull private final Map<AppDataKey<?>, DynamicDataValue> mCurrentAppState
-            = new ArrayMap<>();
-
-    @NonNull
-    private final Map<PlatformDataKey<?>, DynamicDataValue> mCurrentPlatformData
             = new ArrayMap<>();
 
     @NonNull
@@ -68,14 +58,6 @@ public class StateStore {
     Map<DynamicDataKey<?>,
             Set<DynamicTypeValueReceiverWithPreUpdate<DynamicDataValue>>>
             mRegisteredCallbacks = new ArrayMap<>();
-
-    @NonNull
-    private final Map<PlatformDataKey<?>, PlatformDataProvider>
-            mSourceKeyToDataProviders = new ArrayMap<>();
-
-    @NonNull
-    private final Map<PlatformDataProvider, Integer> mProviderToRegisteredKeyCount
-            = new ArrayMap<>();
 
     /**
      * Creates a {@link StateStore}.
@@ -97,12 +79,6 @@ public class StateStore {
             throw stateTooLargeException(initialState.size());
         }
         mCurrentAppState.putAll(initialState);
-        mUiExecutor = new MainThreadExecutor(new Handler(Looper.getMainLooper()));
-    }
-
-    void putAllPlatformProviders(
-            @NonNull Map<PlatformDataKey<?>, PlatformDataProvider> sourceKeyToDataProviders) {
-        mSourceKeyToDataProviders.putAll(sourceKeyToDataProviders);
     }
 
     /**
@@ -169,90 +145,13 @@ public class StateStore {
         }
     }
 
-    /**
-     * Update the given platform data item.
-     *
-     * <p>Informs registered listeners of changed values.
-     */
-    void updatePlatformDataEntries(
-            @NonNull Map<PlatformDataKey<?>, DynamicDataBuilders.DynamicDataValue> newData) {
-        updatePlatformDataEntryProto(
-                newData.entrySet().stream().collect(
-                        toMap(Entry::getKey, entry -> entry.getValue().toDynamicDataValueProto()))
-        );
-    }
-
-    /**
-     * Update the given platform data item.
-     *
-     * <p>Informs registered listeners of changed values.
-     */
-    void updatePlatformDataEntryProto(
-            @NonNull Map<PlatformDataKey<?>, DynamicDataValue> newData) {
-        Map<PlatformDataKey<?>, DynamicDataValue> changedEntries = new ArrayMap<>();
-        for (Entry<PlatformDataKey<?>, DynamicDataValue> newEntry : newData.entrySet()) {
-            DynamicDataValue currentEntry = mCurrentPlatformData.get(newEntry.getKey());
-            if (currentEntry == null || !currentEntry.equals(newEntry.getValue())) {
-                changedEntries.put(newEntry.getKey(), newEntry.getValue());
-            }
-        }
-
-        for (Entry<PlatformDataKey<?>, DynamicDataValue> entry : changedEntries.entrySet()) {
-            for (DynamicTypeValueReceiverWithPreUpdate<DynamicDataValue> callback :
-                    mRegisteredCallbacks.getOrDefault(entry.getKey(), Collections.emptySet())) {
-                callback.onPreUpdate();
-            }
-        }
-
-        for (Entry<PlatformDataKey<?>, DynamicDataValue> entry : changedEntries.entrySet()) {
-            for (DynamicTypeValueReceiverWithPreUpdate<DynamicDataValue> callback :
-                    mRegisteredCallbacks.getOrDefault(entry.getKey(), Collections.emptySet())) {
-                callback.onData(entry.getValue());
-            }
-            mCurrentPlatformData.put(entry.getKey(), entry.getValue());
-        }
-    }
-
-    /**
-     * Remove the platform data item with the given key.
-     *
-     * <p>Informs registered listeners by invalidating removed values.
-     */
-    void removePlatformDataEntry(@NonNull Set<PlatformDataKey<?>> keys) {
-        for (PlatformDataKey<?> key : keys) {
-            if (mCurrentPlatformData.get(key) != null) {
-                for (DynamicTypeValueReceiverWithPreUpdate<DynamicDataValue> callback :
-                        mRegisteredCallbacks.getOrDefault(key, Collections.emptySet())) {
-                    callback.onPreUpdate();
-                }
-            }
-        }
-
-        for (PlatformDataKey<?> key : keys) {
-            if (mCurrentPlatformData.get(key) != null) {
-                for (DynamicTypeValueReceiverWithPreUpdate<DynamicDataValue> callback :
-                        mRegisteredCallbacks.getOrDefault(key, Collections.emptySet())) {
-                    callback.onInvalidated();
-                }
-                mCurrentPlatformData.remove(key);
-            }
-        }
-    }
-
     /** Gets dynamic value with the given {@code key}. */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @UiThread
     @Nullable
+    @Override
     public DynamicDataValue getDynamicDataValuesProto(@NonNull DynamicDataKey<?> key) {
-        if (key instanceof AppDataKey) {
-            return mCurrentAppState.get(key);
-        }
-
-        if (key instanceof PlatformDataKey) {
-            return mCurrentPlatformData.get(key);
-        }
-
-        return null;
+        return mCurrentAppState.get(key);
     }
 
     /**
@@ -261,49 +160,16 @@ public class StateStore {
      * <p>Note that the callback will be executed on the UI thread.
      */
     @UiThread
+    @Override
     void registerCallback(
             @NonNull DynamicDataKey<?> key,
             @NonNull DynamicTypeValueReceiverWithPreUpdate<DynamicDataValue> callback) {
         mRegisteredCallbacks.computeIfAbsent(key, k -> new ArraySet<>()).add(callback);
-
-        if (!(key instanceof PlatformDataKey) ||
-                (mRegisteredCallbacks.containsKey(key) && mRegisteredCallbacks.get(key).size() > 1)
-        ) {
-            return;
-        }
-
-        PlatformDataProvider platformDataProvider = mSourceKeyToDataProviders.get(key);
-        if (platformDataProvider != null) {
-            int registeredKeyCount =
-                    mProviderToRegisteredKeyCount.getOrDefault(platformDataProvider, 0);
-
-            if (registeredKeyCount == 0) {
-                platformDataProvider.setReceiver(
-                        mUiExecutor,
-                        new PlatformDataReceiver() {
-                            @Override
-                            public void onData(
-                                    @NonNull
-                                    Map<PlatformDataKey<?>, DynamicDataBuilders.DynamicDataValue>
-                                            newData) {
-                                updatePlatformDataEntries(newData);
-                            }
-
-                            @Override
-                            public void onInvalidated(@NonNull Set<PlatformDataKey<?>> keys) {
-                                removePlatformDataEntry(keys);
-                            }
-                        });
-            }
-
-            mProviderToRegisteredKeyCount.put(platformDataProvider, registeredKeyCount + 1);
-        } else {
-            Log.w(TAG, String.format("No platform data provider for %s.", key));
-        }
     }
 
     /** Unregisters the callback for the given {@code key} from receiving the updates. */
     @UiThread
+    @Override
     void unregisterCallback(
             @NonNull DynamicDataKey<?> key,
             @NonNull DynamicTypeValueReceiverWithPreUpdate<DynamicDataValue> callback) {
@@ -312,22 +178,6 @@ public class StateStore {
                 mRegisteredCallbacks.get(key);
         if (callbackSet != null) {
             callbackSet.remove(callback);
-
-            if (!(key instanceof PlatformDataKey) || !callbackSet.isEmpty()) {
-                return;
-            }
-
-            PlatformDataProvider platformDataProvider = mSourceKeyToDataProviders.get(key);
-            if (platformDataProvider != null) {
-                int registeredKeyCount =
-                        mProviderToRegisteredKeyCount.getOrDefault(platformDataProvider, 0);
-                if (registeredKeyCount == 1) {
-                    platformDataProvider.clearReceiver();
-                }
-                mProviderToRegisteredKeyCount.put(platformDataProvider, registeredKeyCount - 1);
-            } else {
-                Log.w(TAG, String.format("No platform data provider for %s", key));
-            }
         }
     }
 
