@@ -33,6 +33,7 @@
         </receiver>
 
         <!-- TODO(245426369): enable when feature complete (i.e. after measuring perf impact) -->
+        <!--
         <provider
             android:name="androidx.startup.InitializationProvider"
             android:authorities="${applicationId}.androidx-startup"
@@ -42,5 +43,6 @@
                 android:name="androidx.tracing.perfetto.StartupTracingInitializer"
                 android:value="androidx.startup" />
         </provider>
+        -->
     </application>
 </manifest>

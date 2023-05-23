@@ -41,6 +41,7 @@ import java.util.regex.Pattern
 import org.junit.After
 import org.junit.Assume.assumeTrue
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
@@ -205,6 +206,8 @@ class PerfettoSdkHandshakeTest(private val testConfig: TestConfig) {
         }
     }
 
+    // TODO(283953019): enable alongside StartupTracingInitializer (pending performance testing)
+    @Ignore
     @Test
     fun test_handshake_framework_cold_start() {
         assumeTrue(isAbiSupported())
