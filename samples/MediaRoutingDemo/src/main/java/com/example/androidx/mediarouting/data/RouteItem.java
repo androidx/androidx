@@ -17,9 +17,9 @@
 package com.example.androidx.mediarouting.data;
 
 import android.media.AudioManager;
-import android.media.MediaRouter;
 
 import androidx.annotation.NonNull;
+import androidx.mediarouter.media.MediaRouter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -155,6 +155,14 @@ public final class RouteItem {
         TV(MediaRouter.RouteInfo.DEVICE_TYPE_TV),
         SPEAKER(MediaRouter.RouteInfo.DEVICE_TYPE_SPEAKER),
         BLUETOOTH(MediaRouter.RouteInfo.DEVICE_TYPE_BLUETOOTH),
+        AUDIO_VIDEO_RECEIVER(MediaRouter.RouteInfo.DEVICE_TYPE_AUDIO_VIDEO_RECEIVER),
+        TABLET(MediaRouter.RouteInfo.DEVICE_TYPE_TABLET),
+        TABLET_DOCKED(MediaRouter.RouteInfo.DEVICE_TYPE_TABLET_DOCKED),
+        COMPUTER(MediaRouter.RouteInfo.DEVICE_TYPE_COMPUTER),
+        GAME_CONSOLE(MediaRouter.RouteInfo.DEVICE_TYPE_GAME_CONSOLE),
+        CAR(MediaRouter.RouteInfo.DEVICE_TYPE_CAR),
+        SMARTWATCH(MediaRouter.RouteInfo.DEVICE_TYPE_SMARTWATCH),
+        GROUP(MediaRouter.RouteInfo.DEVICE_TYPE_GROUP),
         UNKNOWN(MediaRouter.RouteInfo.DEVICE_TYPE_UNKNOWN);
 
         public final int mIntConstant;
