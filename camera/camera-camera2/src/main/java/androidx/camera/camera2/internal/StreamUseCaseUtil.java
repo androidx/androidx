@@ -19,7 +19,6 @@ package androidx.camera.camera2.internal;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CameraMetadata;
-import android.media.MediaCodec;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
@@ -30,9 +29,8 @@ import androidx.camera.camera2.impl.Camera2ImplConfig;
 import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
 import androidx.camera.core.DynamicRange;
-import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageCapture;
-import androidx.camera.core.Preview;
+import androidx.camera.core.Logger;
 import androidx.camera.core.impl.AttachedSurfaceInfo;
 import androidx.camera.core.impl.CameraMode;
 import androidx.camera.core.impl.Config;
@@ -44,7 +42,6 @@ import androidx.camera.core.impl.StreamSpec;
 import androidx.camera.core.impl.SurfaceConfig;
 import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.UseCaseConfigFactory;
-import androidx.camera.core.streamsharing.StreamSharing;
 import androidx.core.util.Preconditions;
 
 import java.util.ArrayList;
@@ -61,13 +58,13 @@ import java.util.Set;
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class StreamUseCaseUtil {
 
+    private static final String TAG = "Camera2CameraImpl";
+
     public static final Config.Option<Long> STREAM_USE_CASE_STREAM_SPEC_OPTION =
             Config.Option.create("camera2.streamSpec.streamUseCase", long.class);
 
     private static final Map<Long, Set<UseCaseConfigFactory.CaptureType>>
             sStreamUseCaseToEligibleCaptureTypesMap = new HashMap<>();
-
-    private static Map<Class<?>, Long> sUseCaseToStreamUseCaseMapping;
 
     static {
         if (Build.VERSION.SDK_INT >= 33) {
@@ -110,96 +107,46 @@ public final class StreamUseCaseUtil {
     @OptIn(markerClass = ExperimentalCamera2Interop.class)
     public static void populateSurfaceToStreamUseCaseMapping(
             @NonNull Collection<SessionConfig> sessionConfigs,
-            @NonNull Map<DeferrableSurface, Long> streamUseCaseMap,
-            @NonNull CameraCharacteristicsCompat cameraCharacteristicsCompat,
-            boolean shouldSetStreamUseCaseByDefault) {
-        if (Build.VERSION.SDK_INT < 33) {
-            return;
-        }
-
-        if (cameraCharacteristicsCompat.get(
-                CameraCharacteristics.SCALER_AVAILABLE_STREAM_USE_CASES) == null) {
-            return;
-        }
-
-        Set<Long> supportedStreamUseCases = new HashSet<>();
-        for (long useCase : cameraCharacteristicsCompat.get(
-                CameraCharacteristics.SCALER_AVAILABLE_STREAM_USE_CASES)) {
-            supportedStreamUseCases.add(useCase);
-        }
-
+            @NonNull Collection<UseCaseConfig<?>> useCaseConfigs,
+            @NonNull Map<DeferrableSurface, Long> streamUseCaseMap) {
+        int position = 0;
+        boolean hasStreamUseCase = false;
+        ArrayList<UseCaseConfig<?>> useCaseConfigArrayList = new ArrayList<>(useCaseConfigs);
         for (SessionConfig sessionConfig : sessionConfigs) {
-            if (sessionConfig.getTemplateType()
-                    == CameraDevice.TEMPLATE_ZERO_SHUTTER_LAG
-            ) {
-                // If is ZSL, do not populate anything.
-                streamUseCaseMap.clear();
+            if (sessionConfig.getImplementationOptions().containsOption(
+                    STREAM_USE_CASE_STREAM_SPEC_OPTION)
+                    && sessionConfig.getSurfaces().size() != 1) {
+                Logger.e(TAG, String.format("SessionConfig has stream use case but also contains "
+                                + "%d surfaces, abort populateSurfaceToStreamUseCaseMapping().",
+                        sessionConfig.getSurfaces().size()));
                 return;
             }
-            for (DeferrableSurface surface : sessionConfig.getSurfaces()) {
-                if (sessionConfig.getImplementationOptions().containsOption(
-                        Camera2ImplConfig.STREAM_USE_CASE_OPTION)
-                        && putStreamUseCaseToMappingIfAvailable(
-                        streamUseCaseMap,
-                        surface,
-                        sessionConfig.getImplementationOptions().retrieveOption(
-                                Camera2ImplConfig.STREAM_USE_CASE_OPTION),
-                        supportedStreamUseCases)) {
-                    continue;
-                }
-
-                if (shouldSetStreamUseCaseByDefault) {
-                    // TODO(b/266879290) This is currently gated out because of camera device
-                    // crashing due to unsupported stream useCase combinations.
-                    Long streamUseCase = getUseCaseToStreamUseCaseMapping()
-                            .get(surface.getContainerClass());
-                    putStreamUseCaseToMappingIfAvailable(streamUseCaseMap,
-                            surface,
-                            streamUseCase,
-                            supportedStreamUseCases);
-                }
+            if (sessionConfig.getImplementationOptions().containsOption(
+                    STREAM_USE_CASE_STREAM_SPEC_OPTION)) {
+                hasStreamUseCase = true;
+                break;
             }
         }
-    }
 
-    private static boolean putStreamUseCaseToMappingIfAvailable(
-            Map<DeferrableSurface, Long> streamUseCaseMap,
-            DeferrableSurface surface,
-            @Nullable Long streamUseCase,
-            Set<Long> availableStreamUseCases) {
-        if (streamUseCase == null) {
-            return false;
+        if (hasStreamUseCase) {
+            for (SessionConfig sessionConfig : sessionConfigs) {
+                if (useCaseConfigArrayList.get(position).getCaptureType()
+                        == UseCaseConfigFactory.CaptureType.METERING_REPEATING) {
+                    // MeteringRepeating is attached after the StreamUseCase population logic and
+                    // therefore won't have the StreamUseCase option. It should always have
+                    // SCALER_AVAILABLE_STREAM_USE_CASES_PREVIEW
+                    streamUseCaseMap.put(sessionConfig.getSurfaces().get(0),
+                            Long.valueOf(CameraMetadata.SCALER_AVAILABLE_STREAM_USE_CASES_PREVIEW));
+
+                } else if (sessionConfig.getImplementationOptions().containsOption(
+                        STREAM_USE_CASE_STREAM_SPEC_OPTION)) {
+                    streamUseCaseMap.put(sessionConfig.getSurfaces().get(0),
+                            sessionConfig.getImplementationOptions().retrieveOption(
+                                    STREAM_USE_CASE_STREAM_SPEC_OPTION));
+                }
+                position++;
+            }
         }
-
-        if (!availableStreamUseCases.contains(streamUseCase)) {
-            return false;
-        }
-
-        streamUseCaseMap.put(surface, streamUseCase);
-        return true;
-    }
-
-    /**
-     * Returns the mapping between the container class of a surface and the StreamUseCase
-     * associated with that class. Refer to {@link UseCase} for the potential UseCase as the
-     * container class for a given surface.
-     */
-    @RequiresApi(api = Build.VERSION_CODES.TIRAMISU)
-    private static Map<Class<?>, Long> getUseCaseToStreamUseCaseMapping() {
-        if (sUseCaseToStreamUseCaseMapping == null) {
-            sUseCaseToStreamUseCaseMapping = new HashMap<>();
-            sUseCaseToStreamUseCaseMapping.put(ImageAnalysis.class,
-                    Long.valueOf(CameraMetadata.SCALER_AVAILABLE_STREAM_USE_CASES_PREVIEW));
-            sUseCaseToStreamUseCaseMapping.put(Preview.class,
-                    Long.valueOf(CameraMetadata.SCALER_AVAILABLE_STREAM_USE_CASES_PREVIEW));
-            sUseCaseToStreamUseCaseMapping.put(ImageCapture.class,
-                    Long.valueOf(CameraMetadata.SCALER_AVAILABLE_STREAM_USE_CASES_STILL_CAPTURE));
-            sUseCaseToStreamUseCaseMapping.put(MediaCodec.class,
-                    Long.valueOf(CameraMetadata.SCALER_AVAILABLE_STREAM_USE_CASES_VIDEO_RECORD));
-            sUseCaseToStreamUseCaseMapping.put(StreamSharing.class,
-                    Long.valueOf(CameraMetadata.SCALER_AVAILABLE_STREAM_USE_CASES_VIDEO_RECORD));
-        }
-        return sUseCaseToStreamUseCaseMapping;
     }
 
     /**

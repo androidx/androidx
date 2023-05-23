@@ -51,11 +51,15 @@ public interface UseCaseConfigFactory {
          * Capture type for video capture. A use case of this type is consuming a stream of frames.
          */
         VIDEO_CAPTURE,
-
         /**
          * Capture type for stream sharing. A use case of this type is consuming a stream of frames.
          */
-        STREAM_SHARING
+        STREAM_SHARING,
+        /**
+         * Capture type for metering repeating. A use case of this type is consuming a stream of
+         * frames.
+         */
+        METERING_REPEATING
     }
 
     /**
