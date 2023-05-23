@@ -88,6 +88,7 @@ class PreviewTest(
     companion object {
         private const val ANY_THREAD_NAME = "any-thread-name"
         private val DEFAULT_RESOLUTION: Size by lazy { Size(640, 480) }
+
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
         fun data() = listOf(
@@ -143,20 +144,22 @@ class PreviewTest(
 
         // TODO(b/160261462) move off of main thread when setSurfaceProvider does not need to be
         //  done on the main thread
-        instrumentation.runOnMainSync { preview.setSurfaceProvider { request ->
-            val surfaceTexture = SurfaceTexture(0)
-            surfaceTexture.setDefaultBufferSize(
-                request.resolution.width,
-                request.resolution.height
-            )
-            surfaceTexture.detachFromGLContext()
-            val surface = Surface(surfaceTexture)
-            request.provideSurface(surface, CameraXExecutors.directExecutor()) {
-                surface.release()
-                surfaceTexture.release()
+        instrumentation.runOnMainSync {
+            preview.setSurfaceProvider { request ->
+                val surfaceTexture = SurfaceTexture(0)
+                surfaceTexture.setDefaultBufferSize(
+                    request.resolution.width,
+                    request.resolution.height
+                )
+                surfaceTexture.detachFromGLContext()
+                val surface = Surface(surfaceTexture)
+                request.provideSurface(surface, CameraXExecutors.directExecutor()) {
+                    surface.release()
+                    surfaceTexture.release()
+                }
+                completableDeferred.complete(Unit)
             }
-            completableDeferred.complete(Unit)
-        } }
+        }
         camera = CameraUtil.createCameraAndAttachUseCase(context!!, cameraSelector, preview)
         withTimeout(3_000) {
             completableDeferred.await()
@@ -184,7 +187,9 @@ class PreviewTest(
         Truth.assertThat(surfaceFutureSemaphore!!.tryAcquire(5, TimeUnit.SECONDS)).isTrue()
 
         // Remove the UseCase from the camera
-        camera!!.removeUseCases(setOf<UseCase>(preview))
+        instrumentation.runOnMainSync {
+            camera!!.removeUseCases(setOf<UseCase>(preview))
+        }
 
         // Assert.
         Truth.assertThat(safeToReleaseSemaphore!!.tryAcquire(5, TimeUnit.SECONDS)).isTrue()

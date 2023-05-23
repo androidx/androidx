@@ -388,7 +388,7 @@ public class CameraControllerFragment extends Fragment {
 
             @Override
             public void onFailure(@NonNull Throwable t) {
-                toast(t.getMessage());
+                toast(t.toString());
             }
         }, mainThreadExecutor());
     }

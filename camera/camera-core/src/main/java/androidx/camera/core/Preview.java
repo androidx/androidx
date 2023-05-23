@@ -214,45 +214,6 @@ public final class Preview extends UseCase {
         super(config);
     }
 
-    @MainThread
-    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    SessionConfig.Builder createPipeline(@NonNull String cameraId, @NonNull PreviewConfig config,
-            @NonNull StreamSpec streamSpec) {
-        // Build pipeline with node if processor is set. Eventually we will move all the code to
-        // createPipelineWithNode.
-        if (getEffect() != null) {
-            return createPipelineWithNode(cameraId, config, streamSpec);
-        }
-
-        checkMainThread();
-        SessionConfig.Builder sessionConfigBuilder = SessionConfig.Builder.createFrom(config,
-                streamSpec.getResolution());
-
-        // Close previous session's deferrable surface before creating new one
-        clearPipeline();
-
-        final SurfaceRequest surfaceRequest = new SurfaceRequest(
-                streamSpec.getResolution(),
-                getCamera(),
-                streamSpec.getDynamicRange(),
-                streamSpec.getExpectedFrameRateRange(),
-                this::notifyReset);
-        mCurrentSurfaceRequest = surfaceRequest;
-
-        if (mSurfaceProvider != null) {
-            // Only send surface request if the provider is set.
-            sendSurfaceRequest();
-        }
-
-        mSessionDeferrableSurface = surfaceRequest.getDeferrableSurface();
-        addCameraSurfaceAndErrorListener(sessionConfigBuilder, cameraId, config, streamSpec);
-        sessionConfigBuilder.setExpectedFrameRateRange(streamSpec.getExpectedFrameRateRange());
-        if (streamSpec.getImplementationOptions() != null) {
-            sessionConfigBuilder.addImplementationOptions(streamSpec.getImplementationOptions());
-        }
-        return sessionConfigBuilder;
-    }
-
     /**
      * Creates the post-processing pipeline with the {@link Node} pattern.
      *
@@ -261,19 +222,16 @@ public final class Preview extends UseCase {
      */
     @NonNull
     @MainThread
-    private SessionConfig.Builder createPipelineWithNode(
+    private SessionConfig.Builder createPipeline(
             @NonNull String cameraId,
             @NonNull PreviewConfig config,
             @NonNull StreamSpec streamSpec) {
         // Check arguments
         checkMainThread();
-        CameraEffect effect = requireNonNull(getEffect());
-        CameraInternal camera = requireNonNull(getCamera());
 
+        CameraInternal camera = requireNonNull(getCamera());
         clearPipeline();
 
-        // Create nodes and edges.
-        mNode = new SurfaceProcessorNode(camera, effect.createSurfaceProcessorInternal());
         // Make sure the previously created camera edge is cleared before creating a new one.
         checkState(mCameraEdge == null);
         mCameraEdge = new SurfaceEdge(
@@ -285,17 +243,26 @@ public final class Preview extends UseCase {
                 requireNonNull(getCropRect(streamSpec.getResolution())),
                 getRelativeRotation(camera, isMirroringRequired(camera)),
                 shouldMirror(camera));
-        mCameraEdge.addOnInvalidatedListener(this::notifyReset);
-        SurfaceProcessorNode.OutConfig outConfig = SurfaceProcessorNode.OutConfig.of(mCameraEdge);
-        SurfaceProcessorNode.In nodeInput = SurfaceProcessorNode.In.of(mCameraEdge,
-                singletonList(outConfig));
-        SurfaceProcessorNode.Out nodeOutput = mNode.transform(nodeInput);
-        SurfaceEdge appEdge = requireNonNull(nodeOutput.get(outConfig));
-        appEdge.addOnInvalidatedListener(() -> onAppEdgeInvalidated(appEdge, camera));
 
+        CameraEffect effect = getEffect();
+        if (effect != null) {
+            // Create nodes and edges.
+            mNode = new SurfaceProcessorNode(camera, effect.createSurfaceProcessorInternal());
+            mCameraEdge.addOnInvalidatedListener(this::notifyReset);
+            SurfaceProcessorNode.OutConfig outConfig = SurfaceProcessorNode.OutConfig.of(
+                    mCameraEdge);
+            SurfaceProcessorNode.In nodeInput = SurfaceProcessorNode.In.of(mCameraEdge,
+                    singletonList(outConfig));
+            SurfaceProcessorNode.Out nodeOutput = mNode.transform(nodeInput);
+            SurfaceEdge appEdge = requireNonNull(nodeOutput.get(outConfig));
+            appEdge.addOnInvalidatedListener(() -> onAppEdgeInvalidated(appEdge, camera));
+            mCurrentSurfaceRequest = appEdge.createSurfaceRequest(camera);
+        } else {
+            mCameraEdge.addOnInvalidatedListener(this::notifyReset);
+            mCurrentSurfaceRequest = mCameraEdge.createSurfaceRequest(camera);
+        }
         // Send the app Surface to the app.
         mSessionDeferrableSurface = mCameraEdge.getDeferrableSurface();
-        mCurrentSurfaceRequest = appEdge.createSurfaceRequest(camera);
         if (mSurfaceProvider != null) {
             // Only send surface request if the provider is set.
             sendSurfaceRequest();
