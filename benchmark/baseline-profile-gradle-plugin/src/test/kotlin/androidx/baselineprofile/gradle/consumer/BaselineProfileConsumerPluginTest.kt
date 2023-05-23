@@ -42,7 +42,7 @@ import org.junit.runners.Parameterized
 private const val EXPECTED_PROFILE_FOLDER = "generated/baselineProfiles"
 
 @RunWith(Parameterized::class)
-class BaselineProfileConsumerPluginTest(agpVersion: String?) {
+class BaselineProfileConsumerPluginTest(private val agpVersion: String?) {
 
     companion object {
         @Parameterized.Parameters(name = "agpVersion={0}")
@@ -243,45 +243,196 @@ class BaselineProfileConsumerPluginTest(agpVersion: String?) {
     }
 
     @Test
-    fun testSrcSetAreAddedToVariants() {
-        projectSetup.producer.setupWithFreeAndPaidFlavors(
-            freeReleaseProfileLines = listOf(Fixtures.CLASS_1_METHOD_1, Fixtures.CLASS_1),
-            paidReleaseProfileLines = listOf(Fixtures.CLASS_2_METHOD_1, Fixtures.CLASS_2)
-        )
+    fun testSrcSetAreAddedToVariantsForApplications() {
+        projectSetup.producer.setupWithFreeAndPaidFlavors()
         projectSetup.consumer.setup(
             androidPlugin = ANDROID_APPLICATION_PLUGIN,
             flavors = true,
-            dependencyOnProducerProject = true,
             additionalGradleCodeBlock = """
                 androidComponents {
                     onVariants(selector()) { variant ->
-                        tasks.register(variant.name + "Print", PrintTask) { t ->
-                            t.text.set(variant.sources.baselineProfiles?.all?.get().toString())
+                        tasks.register(variant.name + "Sources", DisplaySourceSets) { t ->
+                            t.srcs.set(variant.sources.baselineProfiles.all)
                         }
                     }
                 }
             """.trimIndent()
         )
 
-        arrayOf("freeRelease", "paidRelease")
+        data class VariantExpectedSrcSets(val variantName: String, val expectedDirs: List<String>)
+
+        arrayOf(
+            VariantExpectedSrcSets(
+                variantName = "freeRelease",
+                expectedDirs = listOf(
+                    "src/main/baselineProfiles",
+                    "src/free/baselineProfiles",
+                    "src/release/baselineProfiles",
+                    "src/freeRelease/generated/baselineProfiles",
+
+                    // In AGP 8.0 there seems to be a bug where the default baselineProfiles folder
+                    // is instead `src/freeRelease/resources`. This is fixed in AGP 8.1.
+                    *(if (agpVersion == TEST_AGP_VERSION_8_1_0) {
+                        listOf("src/freeRelease/baselineProfiles")
+                    } else {
+                        listOf()
+                    }).toTypedArray()
+                )
+            ),
+            VariantExpectedSrcSets(
+                variantName = "paidRelease",
+                expectedDirs = listOf(
+                    "src/main/baselineProfiles",
+                    "src/paid/baselineProfiles",
+                    "src/release/baselineProfiles",
+                    "src/paidRelease/generated/baselineProfiles",
+
+                    // In AGP 8.0 there seems to be a bug where the default baselineProfiles folder
+                    // is instead `src/paidRelease/resources`. This is fixed in AGP 8.1.
+                    *(if (agpVersion == TEST_AGP_VERSION_8_1_0) {
+                        listOf("src/paidRelease/baselineProfiles")
+                    } else {
+                        listOf()
+                    }).toTypedArray()
+                )
+            )
+        )
             .forEach {
 
-                // Expected src set location. Note that src sets are not added if the folder does
-                // not exist so we need to create it.
-                val expected =
-                    File(
-                        projectSetup.consumer.rootDir,
-                        "src/$it/$EXPECTED_PROFILE_FOLDER"
-                    )
-                        .apply {
-                            mkdirs()
-                            deleteOnExit()
-                        }
+                val expected = it.expectedDirs
+                    .map { dir -> File(projectSetup.consumer.rootDir, dir) }
+                    .onEach { f ->
+                        // Expected src set location. Note that src sets are not added if the folder does
+                        // not exist so we need to create it.
+                        f.mkdirs()
+                        f.deleteOnExit()
+                    }
 
-                gradleRunner.buildAndAssertThatOutput("${it}Print") {
-                    contains(expected.absolutePath)
+                gradleRunner.buildAndAssertThatOutput("${it.variantName}Sources") {
+                    expected.forEach { e -> contains(e.absolutePath) }
                 }
             }
+    }
+
+    @Test
+    fun testSrcSetAreAddedToVariantsForLibraries() {
+        projectSetup.producer.setupWithoutFlavors()
+        projectSetup.consumer.setup(
+            androidPlugin = ANDROID_LIBRARY_PLUGIN,
+            additionalGradleCodeBlock = """
+                androidComponents {
+                    onVariants(selector()) { variant ->
+                        tasks.register(variant.name + "Sources", DisplaySourceSets) { t ->
+                            t.srcs.set(variant.sources.baselineProfiles.all)
+                        }
+                    }
+                }
+            """.trimIndent()
+        )
+
+        val expected = listOf(
+            "src/main/baselineProfiles",
+            "src/main/generated/baselineProfiles",
+            "src/release/baselineProfiles",
+        )
+            .map { dir -> File(projectSetup.consumer.rootDir, dir) }
+            .onEach { f ->
+                // Expected src set location. Note that src sets are not added if the folder does
+                // not exist so we need to create it.
+                f.mkdirs()
+                f.deleteOnExit()
+            }
+
+        gradleRunner.buildAndAssertThatOutput("releaseSources") {
+            expected.forEach { e -> contains(e.absolutePath) }
+        }
+    }
+
+    @Test
+    fun testSrcSetAreAddedToVariantsForApplicationsWithKmp() {
+        projectSetup.producer.setupWithoutFlavors(releaseProfileLines = listOf())
+        projectSetup.consumer.setupWithBlocks(
+            androidPlugin = ANDROID_APPLICATION_PLUGIN,
+            otherPluginsBlock = """
+                id("org.jetbrains.kotlin.multiplatform")
+            """.trimIndent(),
+            additionalGradleCodeBlock = """
+                kotlin {
+                    jvm { }
+                    android { }
+                    sourceSets {
+                        androidMain { }
+                    }
+                }
+
+                androidComponents {
+                    onVariants(selector()) { variant ->
+                        tasks.register(variant.name + "Sources", DisplaySourceSets) { t ->
+                            t.srcs.set(variant.sources.baselineProfiles.all)
+                        }
+                    }
+                }
+            """.trimIndent()
+        )
+
+        val expected = listOf(
+            "src/main/baselineProfiles",
+            "src/release/baselineProfiles",
+            "src/androidRelease/generated/baselineProfiles",
+        )
+            .map { dir -> File(projectSetup.consumer.rootDir, dir) }
+            .onEach { f ->
+                // Expected src set location. Note that src sets are not added if the folder does
+                // not exist so we need to create it.
+                f.mkdirs()
+                f.deleteOnExit()
+            }
+
+        gradleRunner.buildAndAssertThatOutput("releaseSources") {
+            expected.forEach { e -> contains(e.absolutePath) }
+        }
+    }
+
+    @Test
+    fun testSrcSetAreAddedToVariantsForLibrariesWithKmp() {
+        projectSetup.producer.setupWithoutFlavors(releaseProfileLines = listOf())
+        projectSetup.consumer.setupWithBlocks(
+            androidPlugin = ANDROID_LIBRARY_PLUGIN,
+            otherPluginsBlock = """
+                id("org.jetbrains.kotlin.multiplatform")
+            """.trimIndent(),
+            additionalGradleCodeBlock = """
+                kotlin {
+                    jvm { }
+                    android("androidTarget") { }
+                }
+
+                androidComponents {
+                    onVariants(selector()) { variant ->
+                        tasks.register(variant.name + "Sources", DisplaySourceSets) { t ->
+                            t.srcs.set(variant.sources.baselineProfiles.all)
+                        }
+                    }
+                }
+            """.trimIndent()
+        )
+
+        val expected = listOf(
+            "src/main/baselineProfiles",
+            "src/release/baselineProfiles",
+            "src/androidTargetMain/generated/baselineProfiles",
+        )
+            .map { dir -> File(projectSetup.consumer.rootDir, dir) }
+            .onEach { f ->
+                // Expected src set location. Note that src sets are not added if the folder does
+                // not exist so we need to create it.
+                f.mkdirs()
+                f.deleteOnExit()
+            }
+
+        gradleRunner.buildAndAssertThatOutput("releaseSources") {
+            expected.forEach { e -> contains(e.absolutePath) }
+        }
     }
 
     @Test
