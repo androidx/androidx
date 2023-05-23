@@ -16,7 +16,10 @@
 
 package androidx.wear.compose.foundation
 
+import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.AnimationSpec
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -42,6 +45,16 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import kotlin.math.abs
 import kotlin.math.roundToInt
+
+/**
+ * Standard animation length in milliseconds.
+ */
+internal const val STANDARD_ANIMATION = 300
+
+/**
+ * Quick animation length in milliseconds.
+ */
+internal const val QUICK_ANIMATION = 250
 
 /**
  * Different values which the swipeable modifier can be configured to.
@@ -267,14 +280,13 @@ public fun SwipeToReveal(
     undoAction: (@Composable RevealScope.() -> Unit)? = null,
     content: @Composable () -> Unit
 ) {
-    // Initialise to zero, updated when the size changes
     val revealScope = remember(state) { RevealScopeImpl(state) }
     Box(
         modifier = modifier
             .swipeableV2(
                 state = state.swipeableState,
                 orientation = Orientation.Horizontal,
-                enabled = true,
+                enabled = state.currentValue != RevealValue.Revealed,
             )
             .swipeAnchors(
                 state = state.swipeableState,
@@ -296,29 +308,53 @@ public fun SwipeToReveal(
         val availableWidth = if (state.offset.isNaN()) 0.dp
         else with(density) { abs(state.offset).toDp() }
 
+        // Determines whether the additional action will be visible based on the current
+        // reveal offset
+        val showAdditionalAction by remember {
+            derivedStateOf {
+                abs(state.offset) <= revealScope.revealOffset
+            }
+        }
+        // Animate weight for additional action slot.
+        val additionalActionWeight = animateFloatAsState(
+            targetValue = if (showAdditionalAction) 1f else 0f,
+            animationSpec = tween(durationMillis = QUICK_ANIMATION),
+            label = "AdditionalActionAnimationSpec"
+        )
+
         Row(
             modifier = Modifier.matchParentSize(),
             horizontalArrangement = Arrangement.Absolute.Right
         ) {
-            if (swipeCompleted && undoAction != null) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Center
-                ) {
-                    ActionSlot(revealScope, content = undoAction)
-                }
-            } else {
-                Row(
-                    modifier = Modifier.width(availableWidth),
-                    horizontalArrangement = Arrangement.Absolute.Right
-                ) {
-                    if (additionalAction != null &&
-                        abs(state.offset) <= revealScope.revealOffset) {
-                        Spacer(Modifier.size(SwipeToRevealDefaults.padding))
-                        ActionSlot(revealScope, content = additionalAction)
+            Crossfade(
+                targetState = swipeCompleted && undoAction != null,
+                animationSpec = tween(durationMillis = STANDARD_ANIMATION),
+                label = "CrossFadeS2R"
+            ) { displayUndo ->
+                if (displayUndo) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        ActionSlot(revealScope, content = undoAction!!)
                     }
-                    Spacer(Modifier.size(SwipeToRevealDefaults.padding))
-                    ActionSlot(revealScope, content = action)
+                } else {
+                    Row(
+                        modifier = Modifier.width(availableWidth),
+                        horizontalArrangement = Arrangement.Absolute.Right
+                    ) {
+                        // weight cannot be 0 so remove the composable when weight becomes 0
+                        if (additionalAction != null && additionalActionWeight.value > 0) {
+                            Spacer(Modifier.size(SwipeToRevealDefaults.padding))
+                            ActionSlot(
+                                revealScope,
+                                content = additionalAction,
+                                weight = additionalActionWeight.value
+                            )
+                        }
+                        Spacer(Modifier.size(SwipeToRevealDefaults.padding))
+                        ActionSlot(revealScope, content = action)
+                    }
                 }
             }
         }
@@ -358,7 +394,8 @@ private class RevealScopeImpl constructor(
 ) : RevealScope {
 
     /**
-     * The total width of the overlay content in float.
+     * The total width of the overlay content in pixels. Initialise to zero,
+     * updated when the width changes.
      */
     val width = mutableFloatStateOf(0.0f)
 
@@ -386,10 +423,11 @@ internal object SwipeToRevealDefaults {
 private fun RowScope.ActionSlot(
     revealScope: RevealScope,
     modifier: Modifier = Modifier,
+    weight: Float = 1f,
     content: @Composable RevealScope.() -> Unit
 ) {
     Box(
-        modifier = modifier.fillMaxHeight().weight(1f),
+        modifier = modifier.fillMaxHeight().weight(weight),
         contentAlignment = Alignment.Center
     ) {
         with(revealScope) {
