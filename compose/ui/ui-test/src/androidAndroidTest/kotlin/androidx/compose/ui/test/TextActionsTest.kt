@@ -27,7 +27,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.insertTextAtCursor
-import androidx.compose.ui.semantics.performImeAction
+import androidx.compose.ui.semantics.onImeAction
 import androidx.compose.ui.semantics.requestFocus
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.setText
@@ -280,7 +280,7 @@ class TextActionsTest {
                 setText { true }
                 requestFocus { true }
                 insertTextAtCursor { true }
-                performImeAction(ImeAction.Done) { false }
+                onImeAction(ImeAction.Done) { false }
             })
         }
 
@@ -314,7 +314,7 @@ class TextActionsTest {
         rule.setContent {
             BoundaryNode(testTag = "node", Modifier.semantics {
                 setText { true }
-                performImeAction(ImeAction.Done) { true }
+                onImeAction(ImeAction.Done) { true }
             })
         }
 

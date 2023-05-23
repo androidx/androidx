@@ -96,7 +96,6 @@ import androidx.core.view.accessibility.AccessibilityEventCompat
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat
 import androidx.core.view.accessibility.AccessibilityNodeProviderCompat
-import androidx.core.view.children
 import androidx.core.view.contentcapture.ContentCaptureSessionCompat
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.Lifecycle
@@ -960,7 +959,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
                 )
             }
 
-            semanticsNode.unmergedConfig.getOrNull(SemanticsActions.PerformImeAction)?.let {
+            semanticsNode.unmergedConfig.getOrNull(SemanticsActions.OnImeAction)?.let {
                 info.addAction(
                     AccessibilityActionCompat(
                         android.R.id.accessibilityActionImeEnter,
@@ -1820,7 +1819,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
             }
 
             android.R.id.accessibilityActionImeEnter -> {
-                return node.unmergedConfig.getOrNull(SemanticsActions.PerformImeAction)
+                return node.unmergedConfig.getOrNull(SemanticsActions.OnImeAction)
                     ?.action?.invoke() ?: false
             }
 
