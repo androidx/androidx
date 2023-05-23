@@ -806,6 +806,53 @@ class AnchoredDraggableStateTest {
     }
 
     @Test
+    fun anchoredDraggable_customDrag_doesntCallConfirm() = runBlocking {
+
+        var counter: Int = 0
+
+        val state = AnchoredDraggableState(
+            initialValue = A,
+            positionalThreshold = defaultPositionalThreshold,
+            velocityThreshold = defaultVelocityThreshold,
+            confirmValueChange = {
+                counter++
+                false
+            }
+        )
+        state.updateAnchors(mapOf(A to 0f, B to 200f, C to 300f))
+        state.anchoredDrag {
+            // should be B
+            dragTo(200f)
+        }
+
+        assertThat(counter).isEqualTo(0)
+        assertThat(state.currentValue).isEqualTo(B)
+    }
+
+    @Test
+    fun anchoredDraggable_customDrag_noAnchor_doesntCallConfirm() = runBlocking {
+
+        var counter: Int = 0
+
+        val state = AnchoredDraggableState(
+            initialValue = A,
+            positionalThreshold = defaultPositionalThreshold,
+            velocityThreshold = defaultVelocityThreshold,
+            confirmValueChange = {
+                counter++
+                false
+            }
+        )
+        state.updateAnchors(mapOf(A to 0f, B to 200f))
+        state.anchoredDrag(targetValue = C) {
+            // no op, doesn't matter
+        }
+
+        assertThat(counter).isEqualTo(0)
+        assertThat(state.currentValue).isEqualTo(C)
+    }
+
+    @Test
     fun anchoredDraggable_updateAnchors_ongoingOffsetMutation_shouldNotUpdate() = runBlocking {
         val clock = HandPumpTestFrameClock()
         val animationScope = CoroutineScope(clock)

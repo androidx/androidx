@@ -418,11 +418,11 @@ internal class AnchoredDraggableState<T>(
                         .firstOrNull { (_, anchorOffset) -> abs(anchorOffset - offset) < 0.5f }
                         ?.key
 
-                if (endState != null && confirmValueChange.invoke(endState)) {
+                if (endState != null) {
                     currentValue = endState
                 }
             }
-        } else if (confirmValueChange(targetValue)) {
+        } else {
             currentValue = targetValue
         }
     }
