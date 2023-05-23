@@ -704,6 +704,8 @@ public final class AppSearchSchema {
              *
              * <p>If this method is not called, the default joinable value type is
              * {@link StringPropertyConfig#JOINABLE_VALUE_TYPE_NONE}, so that it is not joinable.
+             *
+             * <p>At most, 64 properties can be set as joinable per schema.
              */
             @CanIgnoreReturnValue
             @NonNull
