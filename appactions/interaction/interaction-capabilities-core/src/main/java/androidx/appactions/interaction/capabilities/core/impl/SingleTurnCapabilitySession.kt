@@ -67,7 +67,7 @@ internal class SingleTurnCapabilitySession<
         callback: CallbackInternal,
     ) {
         if (!isActiveAtomic.getAndSet(false)) {
-            callback.onError(ErrorStatusInternal.CANCELLED)
+            callback.onError(ErrorStatusInternal.SESSION_NOT_FOUND)
             return
         }
         val paramValuesMap: Map<String, List<ParamValue>> =

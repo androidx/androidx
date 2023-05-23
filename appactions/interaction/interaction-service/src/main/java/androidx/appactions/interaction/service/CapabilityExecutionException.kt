@@ -14,21 +14,12 @@
  * limitations under the License.
  */
 
-package androidx.appactions.interaction.service;
+package androidx.appactions.interaction.service
 
-import androidx.appactions.interaction.capabilities.core.impl.ErrorStatusInternal;
+import androidx.appactions.interaction.capabilities.core.impl.ErrorStatusInternal
 
-/** Exception that occurs from failure to execute capability when sending fulfillment request. */
-final class CapabilityExecutionException extends RuntimeException {
-
-    private final ErrorStatusInternal mErrorStatus;
-
-    CapabilityExecutionException(ErrorStatusInternal mErrorStatus, String message) {
-        super(message);
-        this.mErrorStatus = mErrorStatus;
-    }
-
-    ErrorStatusInternal getErrorStatus() {
-        return this.mErrorStatus;
-    }
-}
+/** Exception that occurs from failure to execute capability when sending fulfillment request.  */
+internal class CapabilityExecutionException(
+    val errorStatus: ErrorStatusInternal,
+    message: String?
+) : RuntimeException(message)
