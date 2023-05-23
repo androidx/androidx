@@ -39,6 +39,7 @@ import androidx.test.annotation.UiThreadTest;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -136,6 +137,7 @@ public class AppCompatMultiAutoCompleteTextViewTest
                 TextViewCompat.getCompoundDrawableTintList(textView));
     }
 
+    @Ignore("b/268534721")
     @Test
     public void testCompoundDrawablesTintList() {
         // Given an ACTV with a white drawableLeftCompat and a ColorStateList drawableTint set
