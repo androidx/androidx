@@ -56,6 +56,7 @@ androidXMultiplatform {
             dependsOn(jvmMain)
             dependencies {
                 api("androidx.annotation:annotation:1.1.0")
+                implementation(project(":window:window"))
             }
         }
 
@@ -78,8 +79,16 @@ androidXMultiplatform {
             }
         }
 
-        androidTest {
+        androidAndroidTest {
             dependsOn(jvmTest)
+            dependsOn(androidMain)
+            dependencies {
+                implementation(project(":compose:test-utils"))
+                implementation(project(":window:window-testing"))
+                implementation(libs.junit)
+                implementation(libs.testRunner)
+                implementation(libs.truth)
+            }
         }
     }
 }
