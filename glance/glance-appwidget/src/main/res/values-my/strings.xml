@@ -17,6 +17,6 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="glance_error_layout_title" msgid="3631961919234443531"><b>"Greška vidžeta aplikacije Glance"</b></string>
-    <string name="glance_error_layout_text" msgid="2863935784364843033">"Provjerite konkretnu grešku koristeći "<b><tt>"adb logcat"</tt></b>" i pretraživanjem "<b><tt>"GlanceAppWidget"</tt></b></string>
+    <string name="glance_error_layout_title" msgid="3631961919234443531"><b>"Glance အက်ပ်ဝိဂျက်အမှား"</b></string>
+    <string name="glance_error_layout_text" msgid="2863935784364843033"><b><tt>"GlanceAppWidget"</tt></b>" ရှာဖွေရာတွင် "<b><tt>"adb logcat"</tt></b>" သုံးပြီး အမှားအတိအကျကို ရှာနိုင်သည်"</string>
 </resources>
