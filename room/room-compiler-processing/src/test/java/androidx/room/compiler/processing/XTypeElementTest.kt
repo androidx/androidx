@@ -339,7 +339,7 @@ class XTypeElementTest(
                 val result = mutableSetOf<String>()
                 if (element.isAbstract()) result.add("abstract")
                 if (element.isFinal()) result.add("final")
-                if (element.isPrivate()) result.add("private")
+                if (element.isPrivate() || element.isKtPrivate()) result.add("private")
                 if (element.isProtected()) result.add("protected")
                 if (element.isPublic()) result.add("public")
                 if (element.isKotlinObject()) result.add("object")
@@ -371,14 +371,7 @@ class XTypeElementTest(
             assertThat(getModifiers("Final"))
                 .containsExactly("final", "public", "class")
             assertThat(getModifiers("PrivateClass"))
-                .containsExactlyElementsIn(
-                    if (invocation.isKsp) {
-                        listOf("private", "final", "class")
-                    } else {
-                        // java does not support top level private classes.
-                        listOf("final", "class")
-                    }
-                )
+                .containsExactly("private", "final", "class")
             assertThat(getModifiers("OuterKotlinClass.InnerKotlinClass"))
                 .containsExactly("final", "public", "class")
             assertThat(getModifiers("OuterKotlinClass.NestedKotlinClass"))
