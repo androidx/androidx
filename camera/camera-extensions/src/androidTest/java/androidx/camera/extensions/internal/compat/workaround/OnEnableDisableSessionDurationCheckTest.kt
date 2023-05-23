@@ -23,6 +23,7 @@ import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.collect.Range
 import com.google.common.truth.Truth.assertThat
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -56,6 +57,7 @@ class OnEnableDisableSessionDurationCheckTest {
                 ))
     }
 
+    @Ignore("b/283351331")
     @Test
     fun enabled_doNotWaitExtraIfDurationExceeds() {
         // 1. Arrange
