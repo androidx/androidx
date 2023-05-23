@@ -67,6 +67,8 @@ class OutlinedTextFieldScreenshotTest {
             "fugiat nulla pariatur."
     )
 
+    private val platformTextStyle = defaultPlatformTextStyle()
+
     @get:Rule
     val rule = createComposeRule()
 
@@ -494,7 +496,10 @@ class OutlinedTextFieldScreenshotTest {
                 value = TextFieldValue(text = text, selection = TextRange(text.length)),
                 onValueChange = {},
                 modifier = Modifier.width(300.dp).testTag(TextFieldTag),
-                textStyle = TextStyle(textAlign = TextAlign.Center),
+                textStyle = TextStyle(
+                    textAlign = TextAlign.Center,
+                    platformStyle = platformTextStyle
+                ),
                 singleLine = true
             )
         }
@@ -510,7 +515,7 @@ class OutlinedTextFieldScreenshotTest {
                 value = TextFieldValue(text = text, selection = TextRange(text.length)),
                 onValueChange = {},
                 modifier = Modifier.fillMaxWidth().testTag(TextFieldTag),
-                textStyle = TextStyle(textAlign = TextAlign.End),
+                textStyle = TextStyle(textAlign = TextAlign.End, platformStyle = platformTextStyle),
                 singleLine = true
             )
         }
