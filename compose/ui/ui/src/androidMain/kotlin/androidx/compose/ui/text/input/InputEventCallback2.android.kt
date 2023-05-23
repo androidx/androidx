@@ -42,6 +42,19 @@ internal interface InputEventCallback2 {
     fun onKeyEvent(event: KeyEvent)
 
     /**
+     * Called when IME requests cursor information updates.
+     *
+     * @see CursorAnchorInfoController.requestUpdate
+     */
+    fun onRequestCursorAnchorInfo(
+        immediate: Boolean,
+        monitor: Boolean,
+        includeInsertionMarker: Boolean,
+        includeCharacterBounds: Boolean,
+        includeEditorBounds: Boolean
+    )
+
+    /**
      * Called when IME closed the input connection.
      *
      * @param ic a closed input connection
