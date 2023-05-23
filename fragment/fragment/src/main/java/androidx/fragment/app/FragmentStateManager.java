@@ -18,6 +18,7 @@ package androidx.fragment.app;
 
 import android.app.Activity;
 import android.content.res.Resources;
+import android.os.BadParcelableException;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.util.Log;
@@ -431,8 +432,14 @@ class FragmentStateManager {
                     new Bundle());
         }
 
-        mFragment.mSavedViewState = mFragment.mSavedFragmentState.getSparseParcelableArray(
-                VIEW_STATE_KEY);
+        try {
+            mFragment.mSavedViewState = mFragment.mSavedFragmentState.getSparseParcelableArray(
+                    VIEW_STATE_KEY);
+        } catch (BadParcelableException e) {
+            throw new IllegalStateException(
+                    "Failed to restore view hierarchy state for fragment " + getFragment(), e
+            );
+        }
         mFragment.mSavedViewRegistryState = mFragment.mSavedFragmentState.getBundle(
                 VIEW_REGISTRY_STATE_KEY);
 
