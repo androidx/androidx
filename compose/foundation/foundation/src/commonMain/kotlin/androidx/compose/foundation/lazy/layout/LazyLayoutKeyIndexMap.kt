@@ -101,9 +101,8 @@ private class NearestRangeKeyIndexMap(
     private val keysStartIndex: Int
 
     init {
-        // Traverses the interval [list] in order to create a mapping from the key to the index for all
-        // the indexes in the passed [range].
-        // The returned map will not contain the values for intervals with no key mapping provided.
+        // Traverses the interval [list] in order to create a mapping from the key to the index for
+        // all the indexes in the passed [range].
         val list = content.intervals
         val first = nearestRange.first
         check(first >= 0)
@@ -113,31 +112,24 @@ private class NearestRangeKeyIndexMap(
             keys = emptyArray()
             keysStartIndex = 0
         } else {
-            var tmpKeys = emptyArray<Any?>()
-            var tmpKeysStartIndex = 0
+            keys = arrayOfNulls<Any?>(last - first + 1)
+            keysStartIndex = first
             map = hashMapOf<Any, Int>().also { map ->
                 list.forEach(
                     fromIndex = first,
                     toIndex = last,
                 ) {
-                    if (it.value.key != null) {
-                        val keyFactory = requireNotNull(it.value.key)
-                        val start = maxOf(first, it.startIndex)
-                        if (tmpKeys.isEmpty()) {
-                            tmpKeysStartIndex = start
-                            tmpKeys = Array(last - start + 1) { null }
-                        }
-                        val end = minOf(last, it.startIndex + it.size - 1)
-                        for (i in start..end) {
-                            val key = keyFactory(i - it.startIndex)
-                            map[key] = i
-                            tmpKeys[i - tmpKeysStartIndex] = key
-                        }
+                    val keyFactory = it.value.key
+                    val start = maxOf(first, it.startIndex)
+                    val end = minOf(last, it.startIndex + it.size - 1)
+                    for (i in start..end) {
+                        val key =
+                            keyFactory?.invoke(i - it.startIndex) ?: getDefaultLazyLayoutKey(i)
+                        map[key] = i
+                        keys[i - keysStartIndex] = key
                     }
                 }
             }
-            keys = tmpKeys
-            keysStartIndex = tmpKeysStartIndex
         }
     }
 
