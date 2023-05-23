@@ -23,8 +23,9 @@ import androidx.annotation.NonNull;
 
 /**
  * A callback class for custom tabs clients to get messages regarding the user's engagement with the
- * webpage within their custom tabs. In the implementation, all callbacks are sent to the UI thread
- * for the client.
+ * webpage within their custom tabs. These methods may not be called for some webpages. In the
+ * implementation, all callbacks are sent to the
+ * {@link Executor} provided by the client or its UI thread if one is not provided.
  */
 public interface EngagementSignalsCallback {
     /**
