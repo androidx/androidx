@@ -101,12 +101,14 @@ public final class SearchSpec {
 
     /**
      * Query terms will only match exact tokens in the index.
-     * <p>Ex. A query term "foo" will only match indexed token "foo", and not "foot" or "football".
+     * <p>For example, a query term "foo" will only match indexed token "foo", and not "foot" or
+     * "football".
      */
     public static final int TERM_MATCH_EXACT_ONLY = 1;
     /**
      * Query terms will match indexed tokens when the query term is a prefix of the token.
-     * <p>Ex. A query term "foo" will match indexed tokens like "foo", "foot", and "football".
+     * <p>For example, a query term "foo" will match indexed tokens like "foo", "foot", and
+     * "football".
      */
     public static final int TERM_MATCH_PREFIX = 2;
 
@@ -521,7 +523,7 @@ public final class SearchSpec {
         private boolean mBuilt = false;
 
         /**
-         * Indicates how the query terms should match {@code TermMatchCode} in the index.
+         * Sets how the query terms should match {@code TermMatchCode} in the index.
          *
          * <p>If this method is not called, the default term match type is
          * {@link SearchSpec#TERM_MATCH_PREFIX}.
@@ -839,7 +841,7 @@ public final class SearchSpec {
         }
 
         /**
-         * Indicates the order of returned search results, the default is
+         * Sets the order of returned search results, the default is
          * {@link #ORDER_DESCENDING}, meaning that results with higher scores come first.
          *
          * <p>This order field will be ignored if RankingStrategy = {@code RANKING_STRATEGY_NONE}.
@@ -855,8 +857,8 @@ public final class SearchSpec {
         }
 
         /**
-         * Only the first {@code snippetCount} documents based on the ranking strategy
-         * will have snippet information provided.
+         * Sets the {@code snippetCount} such that the first {@code snippetCount} documents based
+         * on the ranking strategy will have snippet information provided.
          *
          * <p>The list returned from {@link SearchResult#getMatchInfos} will contain at most this
          * many entries.
@@ -903,11 +905,11 @@ public final class SearchSpec {
          * {@code maxSnippetSize/2} bytes after the middle of the matching token. It respects
          * token boundaries, therefore the returned window may be smaller than requested.
          *
-         * <p> Setting {@code maxSnippetSize} to 0 will disable windowing and an empty string will
+         * <p> Setting {@code maxSnippetSize} to 0 will disable windowing and an empty String will
          * be returned. If matches enabled is also set to false, then snippeting is disabled.
          *
-         * <p>Ex. {@code maxSnippetSize} = 16. "foo bar baz bat rat" with a query of "baz" will
-         * return a window of "bar baz bat" which is only 11 bytes long.
+         * <p>For example, {@code maxSnippetSize} = 16. "foo bar baz bat rat" with a query of "baz"
+         * will return a window of "bar baz bat" which is only 11 bytes long.
          */
         @CanIgnoreReturnValue
         @NonNull
@@ -1077,13 +1079,13 @@ public final class SearchSpec {
          * Sets the maximum number of results to return for each group, where groups are defined
          * by grouping type.
          *
-         * <p>Calling this method will override any previous calls. So calling
-         * setResultGrouping(GROUPING_TYPE_PER_PACKAGE, 7) and then calling
-         * setResultGrouping(GROUPING_TYPE_PER_PACKAGE, 2) will result in only the latter, a
-         * limit of two results per package, being applied. Or calling setResultGrouping
-         * (GROUPING_TYPE_PER_PACKAGE, 1) and then calling setResultGrouping
-         * (GROUPING_TYPE_PER_PACKAGE | GROUPING_PER_NAMESPACE, 5) will result in five results
-         * per package per namespace.
+         * <p>Calling this method will override any previous calls. So calling {@code
+         * setResultGrouping(GROUPING_TYPE_PER_PACKAGE, 7)} and then calling {@code
+         * setResultGrouping(GROUPING_TYPE_PER_PACKAGE, 2)} will result in only the latter, a limit
+         * of two results per package, being applied. Or calling {@code setResultGrouping
+         * (GROUPING_TYPE_PER_PACKAGE, 1)} and then calling {@code setResultGrouping
+         * (GROUPING_TYPE_PER_PACKAGE | GROUPING_PER_NAMESPACE, 5)} will result in five results per
+         * package per namespace.
          *
          * @param groupingTypeFlags One or more combination of grouping types.
          * @param limit             Number of results to return per {@code groupingTypeFlags}.
@@ -1363,8 +1365,8 @@ public final class SearchSpec {
          * verbatim search features within the query language that allows clients to search
          * using the verbatim string operator.
          *
-         * <p>Ex. The verbatim string operator '"foo/bar" OR baz' will ensure that 'foo/bar' is
-         * treated as a single 'verbatim' token.
+         * <p>For example, The verbatim string operator '"foo/bar" OR baz' will ensure that
+         * 'foo/bar' is treated as a single 'verbatim' token.
          */
         // @exportToFramework:startStrip()
         @RequiresFeature(

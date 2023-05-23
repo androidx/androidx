@@ -322,8 +322,8 @@ public final class SearchResult {
     }
 
     /**
-     * This class represents match objects for any Snippets that might be present in
-     * {@link SearchResults} from a query. Using this class, the user can get:
+     * This class represents match objects for any snippets that might be present in
+     * {@link SearchResults} from a query. Using this class, you can get:
      * <ul>
      *     <li>the full text - all of the text in that String property</li>
      *     <li>the exact term match - the 'term' (full word) that matched the query</li>
@@ -641,7 +641,7 @@ public final class SearchResult {
              * property in the document these snippets correspond to.
              *
              * <p>Example properties: 'body', 'sender.name', 'sender.emailaddress', etc.
-             * For class example 1 this returns "subject".
+             * For class example 1, this returns "subject".
              *
              * @param propertyPath A dot-delimited sequence of property names indicating which
              *                     property in the document these snippets correspond to.
@@ -706,7 +706,7 @@ public final class SearchResult {
      * <p> All ranges are finite, and the left side of the range is always {@code <=} the right
      * side of the range.
      *
-     * <p> Example: MatchRange(0, 100) represent a hundred ints from 0 to 99."
+     * <p> Example: MatchRange(0, 100) represents hundred ints from 0 to 99."
      */
     public static final class MatchRange {
         private final int mEnd;

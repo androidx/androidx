@@ -49,14 +49,14 @@ public final class GetSchemaResponse {
     /**
      * This Set contains all schemas that are not displayed by the system. All values in the set are
      * prefixed with the package-database prefix. We do lazy fetch, the object will be created
-     * when the user first time fetch it.
+     * when you first time fetch it.
      */
     @Nullable
     private Set<String> mSchemasNotDisplayedBySystem;
     /**
      * This map contains all schemas and {@link PackageIdentifier} that has access to the schema.
      * All keys in the map are prefixed with the package-database prefix. We do lazy fetch, the
-     * object will be created when the user first time fetch it.
+     * object will be created when you first time fetch it.
      */
     @Nullable
     private Map<String, Set<PackageIdentifier>> mSchemasVisibleToPackages;
@@ -64,7 +64,7 @@ public final class GetSchemaResponse {
     /**
      * This map contains all schemas and Android Permissions combinations that are required to
      * access the schema. All keys in the map are prefixed with the package-database prefix. We
-     * do lazy fetch, the object will be created when the user first time fetch it.
+     * do lazy fetch, the object will be created when you first time fetch it.
      * The Map is constructed in ANY-ALL cases. The querier could read the {@link GenericDocument}
      * objects under the {@code schemaType} if they holds ALL required permissions of ANY
      * combinations.

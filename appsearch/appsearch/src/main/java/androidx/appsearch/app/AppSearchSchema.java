@@ -113,7 +113,7 @@ public final class AppSearchSchema {
         builder.append("}");
     }
 
-    /** Returns the name of this schema type, e.g. Email. */
+    /** Returns the name of this schema type, such as Email. */
     @NonNull
     public String getSchemaType() {
         return mBundle.getString(SCHEMA_TYPE_FIELD, "");
@@ -377,7 +377,7 @@ public final class AppSearchSchema {
         }
 
         /**
-         * Returns the type of data the property contains (e.g. string, int, bytes, etc).
+         * Returns the type of data the property contains (such as string, int, bytes, etc).
          *
          * @hide
          */
@@ -475,7 +475,7 @@ public final class AppSearchSchema {
          * Content in this property should only be returned for queries matching the exact tokens
          * appearing in this property.
          *
-         * <p>Ex. A property with "fool" should NOT match a query for "foo".
+         * <p>For example, a property with "fool" should NOT match a query for "foo".
          */
         public static final int INDEXING_TYPE_EXACT_TERMS = 1;
 
@@ -483,7 +483,7 @@ public final class AppSearchSchema {
          * Content in this property should be returned for queries that are either exact matches or
          * query matches of the tokens appearing in this property.
          *
-         * <p>Ex. A property with "fool" <b>should</b> match a query for "foo".
+         * <p>For example, a property with "fool" <b>should</b> match a query for "foo".
          */
         public static final int INDEXING_TYPE_PREFIXES = 2;
 
@@ -517,8 +517,8 @@ public final class AppSearchSchema {
          * this property based on word breaks. Segments of whitespace and punctuation are not
          * considered tokens.
          *
-         * <p>Ex. A property with "foo bar. baz." will produce tokens for "foo", "bar" and "baz".
-         * The segments " " and "." will not be considered tokens.
+         * <p>For example, a property with "foo bar. baz." will produce tokens for "foo", "bar" and
+         * "baz". The segments " " and "." will not be considered tokens.
          *
          * <p>It is only valid for tokenizer_type to be 'PLAIN' if {@link #getIndexingType} is
          * {@link #INDEXING_TYPE_EXACT_TERMS} or {@link #INDEXING_TYPE_PREFIXES}.
@@ -530,7 +530,7 @@ public final class AppSearchSchema {
          * values that are tokenized using this type. Therefore, the output token is equivalent
          * to the raw string value.
          *
-         * <p>Ex. A property with "Hello, world!" will produce the token "Hello, world!",
+         * <p>For example, a property with "Hello, world!" will produce the token "Hello, world!",
          * preserving punctuation and capitalization, and not creating separate tokens between the
          * space.
          *
@@ -548,8 +548,8 @@ public final class AppSearchSchema {
          * Tokenization for emails. This value indicates that tokens should be extracted from
          * this property based on email structure.
          *
-         * <p>Ex. A property with "alex.sav@google.com" will produce tokens for "alex", "sav",
-         * "alex.sav", "google", "com", and "alexsav@google.com"
+         * <p>For example, a property with "alex.sav@google.com" will produce tokens for "alex",
+         * "sav", "alex.sav", "google", "com", and "alexsav@google.com"
          *
          * <p>It is only valid for tokenizer_type to be 'RFC822' if {@link #getIndexingType} is
          * {@link #INDEXING_TYPE_EXACT_TERMS} or {@link #INDEXING_TYPE_PREFIXES}.
@@ -648,7 +648,7 @@ public final class AppSearchSchema {
             }
 
             /**
-             * The cardinality of the property (whether it is optional, required or repeated).
+             * Sets the cardinality of the property (whether it is optional, required or repeated).
              *
              * <p>If this method is not called, the default cardinality is
              * {@link PropertyConfig#CARDINALITY_OPTIONAL}.
@@ -686,7 +686,7 @@ public final class AppSearchSchema {
              * {@link StringPropertyConfig#TOKENIZER_TYPE_NONE}, so that it is not tokenized.
              *
              * <p>This method must be called with a value other than
-             * {@link StringPropertyConfig#TOKENIZER_TYPE_NONE} if the property is indexed (i.e.
+             * {@link StringPropertyConfig#TOKENIZER_TYPE_NONE} if the property is indexed (that is,
              * if {@link #setIndexingType} has been called with a value other than
              * {@link StringPropertyConfig#INDEXING_TYPE_NONE}).
              */
@@ -848,7 +848,7 @@ public final class AppSearchSchema {
          * Content in this property will be indexed and can be fetched via numeric search range
          * query.
          *
-         * <p>Ex. A property with 1024 should match numeric search range query [0, 2000].
+         * <p>For example, a property with 1024 should match numeric search range query [0, 2000].
          */
         // @exportToFramework:startStrip()
         @RequiresFeature(
@@ -879,7 +879,7 @@ public final class AppSearchSchema {
             }
 
             /**
-             * The cardinality of the property (whether it is optional, required or repeated).
+             * Sets the cardinality of the property (whether it is optional, required or repeated).
              *
              * <p>If this method is not called, the default cardinality is
              * {@link PropertyConfig#CARDINALITY_OPTIONAL}.
@@ -961,7 +961,7 @@ public final class AppSearchSchema {
             }
 
             /**
-             * The cardinality of the property (whether it is optional, required or repeated).
+             * Sets the cardinality of the property (whether it is optional, required or repeated).
              *
              * <p>If this method is not called, the default cardinality is
              * {@link PropertyConfig#CARDINALITY_OPTIONAL}.
@@ -1005,7 +1005,7 @@ public final class AppSearchSchema {
             }
 
             /**
-             * The cardinality of the property (whether it is optional, required or repeated).
+             * Sets the cardinality of the property (whether it is optional, required or repeated).
              *
              * <p>If this method is not called, the default cardinality is
              * {@link PropertyConfig#CARDINALITY_OPTIONAL}.
@@ -1049,7 +1049,7 @@ public final class AppSearchSchema {
             }
 
             /**
-             * The cardinality of the property (whether it is optional, required or repeated).
+             * Sets the cardinality of the property (whether it is optional, required or repeated).
              *
              * <p>If this method is not called, the default cardinality is
              * {@link PropertyConfig#CARDINALITY_OPTIONAL}.
@@ -1127,7 +1127,7 @@ public final class AppSearchSchema {
             }
 
             /**
-             * The cardinality of the property (whether it is optional, required or repeated).
+             * Sets the cardinality of the property (whether it is optional, required or repeated).
              *
              * <p>If this method is not called, the default cardinality is
              * {@link PropertyConfig#CARDINALITY_OPTIONAL}.
