@@ -1,3 +1,11 @@
 // Baseline format: 1.0
 AddedAbstractMethod: androidx.compose.ui.text.Paragraph#fillBoundingBoxes(long, float[], int):
     Added method androidx.compose.ui.text.Paragraph.fillBoundingBoxes(long,float[],int)
+
+
+ParameterNameChange: androidx.compose.ui.text.TextMeasurer#TextMeasurer(androidx.compose.ui.text.font.FontFamily.Resolver, androidx.compose.ui.unit.Density, androidx.compose.ui.unit.LayoutDirection, int) parameter #0:
+    Attempted to change parameter name from fallbackFontFamilyResolver to defaultFontFamilyResolver in constructor androidx.compose.ui.text.TextMeasurer
+ParameterNameChange: androidx.compose.ui.text.TextMeasurer#TextMeasurer(androidx.compose.ui.text.font.FontFamily.Resolver, androidx.compose.ui.unit.Density, androidx.compose.ui.unit.LayoutDirection, int) parameter #1:
+    Attempted to change parameter name from fallbackDensity to defaultDensity in constructor androidx.compose.ui.text.TextMeasurer
+ParameterNameChange: androidx.compose.ui.text.TextMeasurer#TextMeasurer(androidx.compose.ui.text.font.FontFamily.Resolver, androidx.compose.ui.unit.Density, androidx.compose.ui.unit.LayoutDirection, int) parameter #2:
+    Attempted to change parameter name from fallbackLayoutDirection to defaultLayoutDirection in constructor androidx.compose.ui.text.TextMeasurer
