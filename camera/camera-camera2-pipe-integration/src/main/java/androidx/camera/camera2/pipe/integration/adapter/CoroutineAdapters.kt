@@ -78,18 +78,25 @@ fun <T> Deferred<T>.asListenableFuture(
     return CallbackToFutureAdapter.getFuture(resolver)
 }
 
-@OptIn(ExperimentalCoroutinesApi::class)
 fun <T> Deferred<T>.propagateTo(destination: CompletableDeferred<T>) {
     invokeOnCompletion {
-        if (it != null) {
-            if (it is CancellationException) {
-                destination.cancel(it)
-            } else {
-                destination.completeExceptionally(it)
-            }
+        propagateOnceTo(destination, it)
+    }
+}
+
+@OptIn(ExperimentalCoroutinesApi::class)
+fun <T> Deferred<T>.propagateOnceTo(
+    destination: CompletableDeferred<T>,
+    throwable: Throwable?,
+) {
+    if (throwable != null) {
+        if (throwable is CancellationException) {
+            destination.cancel(throwable)
         } else {
-            // Ignore exceptions - This should never throw in this situation.
-            destination.complete(getCompleted())
+            destination.completeExceptionally(throwable)
         }
+    } else {
+        // Ignore exceptions - This should never throw in this situation.
+        destination.complete(getCompleted())
     }
 }

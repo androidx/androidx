@@ -38,6 +38,8 @@ import androidx.camera.camera2.pipe.core.Log.debug
 import androidx.camera.camera2.pipe.integration.adapter.CaptureConfigAdapter
 import androidx.camera.camera2.pipe.integration.config.UseCaseCameraScope
 import androidx.camera.camera2.pipe.integration.config.UseCaseGraphConfig
+import androidx.camera.core.ImageCapture
+import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.impl.CaptureConfig
 import androidx.camera.core.impl.CaptureConfig.TEMPLATE_TYPE_NONE
 import androidx.camera.core.impl.Config
@@ -46,6 +48,7 @@ import androidx.camera.core.impl.TagBundle
 import dagger.Binds
 import dagger.Module
 import javax.inject.Inject
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
 
@@ -265,6 +268,20 @@ class UseCaseCameraRequestControlImpl @Inject constructor(
         flashType: Int,
         flashMode: Int,
     ): List<Deferred<Void?>> {
+        if (captureSequence.hasInvalidSurface()) {
+            return List(captureSequence.size) {
+                CompletableDeferred<Void?>().apply {
+                    completeExceptionally(
+                        ImageCaptureException(
+                            ImageCapture.ERROR_CAPTURE_FAILED,
+                            "Capture request failed due to invalid surface",
+                            null
+                        )
+                    )
+                }
+            }
+        }
+
         return synchronized(lock) {
             infoBundleMap.merge()
         }.let { infoBundle ->
@@ -281,6 +298,20 @@ class UseCaseCameraRequestControlImpl @Inject constructor(
                 flashMode = flashMode,
             )
         }
+    }
+
+    private fun List<CaptureConfig>.hasInvalidSurface(): Boolean {
+        forEach { captureConfig ->
+            if (captureConfig.surfaces.isEmpty()) {
+                return true
+            }
+            captureConfig.surfaces.forEach {
+                if (useCaseGraphConfig.surfaceToStreamMap[it] == null) {
+                    return true
+                }
+            }
+        }
+        return false
     }
 
     /**
