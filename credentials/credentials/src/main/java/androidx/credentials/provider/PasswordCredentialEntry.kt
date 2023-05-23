@@ -45,7 +45,9 @@ import java.util.Collections
  *
  * @property username the username of the account holding the password credential
  * @property displayName the displayName of the account holding the password credential
- * @property lastUsedTime the last used time of this entry
+ * @property lastUsedTime the last used time of this entry. Note that this value will only be
+ * distinguishable up to the milli second mark. If two entries have the same millisecond precision,
+ * they will be considered to have been used at the same time
  * @property icon the icon to be displayed with this entry on the selector. If not set, a
  * default icon representing a password credential type is set by the library
  * @property pendingIntent the [PendingIntent] to be invoked when user selects
