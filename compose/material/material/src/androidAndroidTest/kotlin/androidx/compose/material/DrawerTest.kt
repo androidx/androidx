@@ -976,7 +976,6 @@ class DrawerTest {
     @Test
     @LargeTest
     fun bottomDrawer_respectsConfirmStateChange(): Unit = runBlocking(AutoTestFrameClock()) {
-        val contentTag = "contentTestTag"
         lateinit var drawerState: BottomDrawerState
         rule.setMaterialContent {
             drawerState = rememberBottomDrawerState(
@@ -998,7 +997,6 @@ class DrawerTest {
                     Box(
                         Modifier
                             .fillMaxSize()
-                            .testTag(contentTag)
                     )
                 }
             )
@@ -1008,7 +1006,7 @@ class DrawerTest {
             assertThat(drawerState.currentValue).isEqualTo(BottomDrawerValue.Expanded)
         }
 
-        rule.onNodeWithTag(contentTag)
+        rule.onNodeWithTag(bottomDrawerTag)
             .performTouchInput { swipeDown() }
 
         advanceClock()
