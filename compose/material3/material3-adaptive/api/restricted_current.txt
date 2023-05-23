@@ -2,6 +2,7 @@
 package androidx.compose.material3.adaptive {
 
   public final class AndroidWindowInfo_androidKt {
+    method @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi @androidx.compose.runtime.Composable public static androidx.compose.runtime.State<java.util.List<androidx.window.layout.FoldingFeature>> foldingFeaturesAsState(optional @UiContext android.content.Context context);
     method @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi @androidx.compose.runtime.Composable public static androidx.compose.runtime.State<androidx.compose.ui.unit.IntSize> windowSizeAsState(optional @UiContext android.content.Context context);
   }
 

@@ -16,16 +16,21 @@
 
 package androidx.compose.material3.adaptive
 
+import android.app.Activity
 import android.content.Context
 import androidx.annotation.UiContext
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.IntSize
+import androidx.window.layout.FoldingFeature
+import androidx.window.layout.WindowInfoTracker
 import androidx.window.layout.WindowMetricsCalculator
+import kotlinx.coroutines.flow.map
 
 /**
  * Collects the current window size from [WindowMetricsCalculator] in to a [State].
@@ -54,4 +59,29 @@ fun windowSizeAsState(@UiContext context: Context = LocalContext.current): State
     }
 
     return size
+}
+
+/**
+ * Collects the current window folding features from [WindowInfoTracker] in to a [State].
+ *
+ * @param context Optional [UiContext] of the window, defaulted to [LocalContext]'s current value.
+ * @return a [State] of a [FoldingFeature] list.
+ */
+@ExperimentalMaterial3AdaptiveApi
+@Composable
+fun foldingFeaturesAsState(
+    @UiContext context: Context = LocalContext.current
+): State<List<FoldingFeature>> {
+    return remember(context) {
+        if (context is Activity) {
+            // TODO(b/284347941) remove the instance check after the test bug is fixed.
+            WindowInfoTracker
+                .getOrCreate(context)
+                .windowLayoutInfo(context)
+        } else {
+            WindowInfoTracker
+                .getOrCreate(context)
+                .windowLayoutInfo(context)
+        }.map { it.displayFeatures.filterIsInstance<FoldingFeature>() }
+    }.collectAsState(emptyList())
 }

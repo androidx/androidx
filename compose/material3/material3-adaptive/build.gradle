@@ -57,6 +57,7 @@ androidXMultiplatform {
             dependsOn(jvmMain)
             dependencies {
                 api("androidx.annotation:annotation:1.1.0")
+                implementation(project(":lifecycle:lifecycle-runtime-compose"))
                 implementation(project(":window:window"))
             }
         }
