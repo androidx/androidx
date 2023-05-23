@@ -34,7 +34,7 @@ import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
-import com.google.common.truth.Truth
+import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -55,6 +55,26 @@ class TextTest {
     )
 
     private val TestText = "TestText"
+
+    @Test
+    fun testDefaultIncludeFontPadding() {
+        var localTextStyle: TextStyle? = null
+        var displayMediumTextStyle: TextStyle? = null
+        rule.setContent {
+            MaterialTheme {
+                localTextStyle = LocalTextStyle.current
+                displayMediumTextStyle = LocalTypography.current.displayMedium
+            }
+        }
+
+        assertThat(
+            localTextStyle?.platformStyle?.paragraphStyle?.includeFontPadding
+        ).isEqualTo(true)
+
+        assertThat(
+            displayMediumTextStyle?.platformStyle?.paragraphStyle?.includeFontPadding
+        ).isEqualTo(true)
+    }
 
     @Test
     fun inheritsThemeTextStyle() {
@@ -81,11 +101,11 @@ class TextTest {
         }
 
         rule.runOnIdle {
-            Truth.assertThat(textColor).isEqualTo(ExpectedTextStyle.color)
-            Truth.assertThat(textAlign).isEqualTo(ExpectedTextStyle.textAlign)
-            Truth.assertThat(fontSize).isEqualTo(ExpectedTextStyle.fontSize)
-            Truth.assertThat(fontStyle).isEqualTo(ExpectedTextStyle.fontStyle)
-            Truth.assertThat(letterSpacing).isEqualTo(ExpectedTextStyle.letterSpacing)
+            assertThat(textColor).isEqualTo(ExpectedTextStyle.color)
+            assertThat(textAlign).isEqualTo(ExpectedTextStyle.textAlign)
+            assertThat(fontSize).isEqualTo(ExpectedTextStyle.fontSize)
+            assertThat(fontStyle).isEqualTo(ExpectedTextStyle.fontStyle)
+            assertThat(letterSpacing).isEqualTo(ExpectedTextStyle.letterSpacing)
         }
     }
 
@@ -122,11 +142,11 @@ class TextTest {
         }
 
         rule.runOnIdle {
-            Truth.assertThat(textColor).isEqualTo(testStyle.color)
-            Truth.assertThat(textAlign).isEqualTo(testStyle.textAlign)
-            Truth.assertThat(fontSize).isEqualTo(testStyle.fontSize)
-            Truth.assertThat(fontStyle).isEqualTo(testStyle.fontStyle)
-            Truth.assertThat(letterSpacing).isEqualTo(testStyle.letterSpacing)
+            assertThat(textColor).isEqualTo(testStyle.color)
+            assertThat(textAlign).isEqualTo(testStyle.textAlign)
+            assertThat(fontSize).isEqualTo(testStyle.fontSize)
+            assertThat(fontStyle).isEqualTo(testStyle.fontStyle)
+            assertThat(letterSpacing).isEqualTo(testStyle.letterSpacing)
         }
     }
 
@@ -167,11 +187,11 @@ class TextTest {
 
         rule.runOnIdle {
             // explicit parameters should override values from the style.
-            Truth.assertThat(textColor).isEqualTo(expectedColor)
-            Truth.assertThat(textAlign).isEqualTo(expectedTextAlign)
-            Truth.assertThat(fontSize).isEqualTo(expectedFontSize)
-            Truth.assertThat(fontStyle).isEqualTo(expectedFontStyle)
-            Truth.assertThat(letterSpacing).isEqualTo(expectedLetterSpacing)
+            assertThat(textColor).isEqualTo(expectedColor)
+            assertThat(textAlign).isEqualTo(expectedTextAlign)
+            assertThat(fontSize).isEqualTo(expectedFontSize)
+            assertThat(fontStyle).isEqualTo(expectedFontStyle)
+            assertThat(letterSpacing).isEqualTo(expectedLetterSpacing)
         }
     }
 
@@ -214,11 +234,11 @@ class TextTest {
 
         rule.runOnIdle {
             // explicit parameters should override values from the style.
-            Truth.assertThat(textColor).isEqualTo(expectedColor)
-            Truth.assertThat(textAlign).isEqualTo(expectedTextAlign)
-            Truth.assertThat(fontSize).isEqualTo(expectedFontSize)
-            Truth.assertThat(fontStyle).isEqualTo(expectedFontStyle)
-            Truth.assertThat(letterSpacing).isEqualTo(expectedLetterSpacing)
+            assertThat(textColor).isEqualTo(expectedColor)
+            assertThat(textAlign).isEqualTo(expectedTextAlign)
+            assertThat(fontSize).isEqualTo(expectedFontSize)
+            assertThat(fontStyle).isEqualTo(expectedFontStyle)
+            assertThat(letterSpacing).isEqualTo(expectedLetterSpacing)
         }
     }
 
