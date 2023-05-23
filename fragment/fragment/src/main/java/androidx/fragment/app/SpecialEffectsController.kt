@@ -485,6 +485,9 @@ internal abstract class SpecialEffectsController(val container: ViewGroup) {
         var isComplete = false
             private set
 
+        var isStarted = false
+            private set
+
         init {
             // Connect the CancellationSignal to our own
             cancellationSignal.setOnCancelListener { cancel() }
@@ -499,6 +502,7 @@ internal abstract class SpecialEffectsController(val container: ViewGroup) {
         }
 
         fun cancel() {
+            isStarted = false
             if (isCanceled) {
                 return
             }
@@ -563,7 +567,10 @@ internal abstract class SpecialEffectsController(val container: ViewGroup) {
         /**
          * Callback for when the operation is about to start.
          */
-        open fun onStart() {}
+        @CallSuper
+        open fun onStart() {
+            isStarted = true
+        }
 
         /**
          * Add new [CancellationSignal] for special effects.
@@ -594,6 +601,7 @@ internal abstract class SpecialEffectsController(val container: ViewGroup) {
          */
         @CallSuper
         open fun complete() {
+            isStarted = false
             if (isComplete) {
                 return
             }
@@ -620,6 +628,10 @@ internal abstract class SpecialEffectsController(val container: ViewGroup) {
         cancellationSignal
     ) {
         override fun onStart() {
+            if (isStarted) {
+                return
+            }
+            super.onStart()
             if (lifecycleImpact == LifecycleImpact.ADDING) {
                 val fragment = fragmentStateManager.fragment
                 val focusedView = fragment.mView.findFocus()
