@@ -51,7 +51,6 @@ class Configuration internal constructor(builder: Builder) {
     /**
      * The [Clock] used by [WorkManager] to calculate schedules and perform book-keeping.
      */
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     val clock: Clock
 
     /**
@@ -266,10 +265,12 @@ class Configuration internal constructor(builder: Builder) {
         /**
          * Sets a [Clock] for WorkManager to calculate schedules and perform book-keeping.
          *
+         * This should only be overridden for testing. It must return the same value as
+         * [System.currentTimeMillis] in production code.
+         *
          * @param clock The [Clock] to use
          * @return This [Builder] instance
          */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         fun setClock(clock: Clock): Builder {
             this.clock = clock
             return this
