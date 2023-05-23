@@ -15,6 +15,7 @@
  */
 package androidx.camera.camera2.pipe.integration.compat.quirk
 
+import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.integration.compat.quirk.DeviceQuirksLoader.loadQuirks
 import androidx.camera.core.impl.Quirk
 
@@ -29,6 +30,7 @@ import androidx.camera.core.impl.Quirk
  * quirks in every test that uses a device workaround, this class internally reloads the quirks
  * every time a device workaround is needed.
  */
+@RequiresApi(21)
 object DeviceQuirks {
     /**
      * Retrieves a specific device [Quirk] instance given its type.

@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:RequiresApi(21)
+
 package androidx.camera.camera2.pipe.integration.adapter
 
 import android.graphics.SurfaceTexture
@@ -21,6 +23,7 @@ import android.hardware.camera2.CameraDevice
 import android.media.MediaCodec
 import android.os.Build
 import android.view.Surface
+import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.integration.impl.STREAM_USE_CASE_OPTION
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageCapture

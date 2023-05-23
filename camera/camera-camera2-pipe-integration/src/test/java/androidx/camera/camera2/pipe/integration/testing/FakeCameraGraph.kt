@@ -17,6 +17,7 @@
 package androidx.camera.camera2.pipe.integration.testing
 
 import android.view.Surface
+import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.GraphState
 import androidx.camera.camera2.pipe.StreamGraph
@@ -24,6 +25,7 @@ import androidx.camera.camera2.pipe.StreamId
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.StateFlow
 
+@RequiresApi(21)
 class FakeCameraGraph(
     val fakeCameraGraphSession: FakeCameraGraphSession = FakeCameraGraphSession()
 ) : CameraGraph {
