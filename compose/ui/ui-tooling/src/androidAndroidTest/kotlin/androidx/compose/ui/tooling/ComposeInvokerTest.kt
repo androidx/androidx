@@ -20,6 +20,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.currentComposer
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import java.lang.reflect.InvocationTargetException
 import org.junit.Assert.fail
 import org.junit.Rule
@@ -38,6 +41,28 @@ class ComposeInvokerTest {
             ComposableInvoker.invokeComposable(
                 "androidx.compose.ui.tooling.MyTestComposables",
                 "MyWorkingComposable",
+                currentComposer
+            )
+        }
+    }
+
+    @Test
+    fun composableWithBooleanPreviewParams() {
+        rule.setContent {
+            ComposableInvoker.invokeComposable(
+                "androidx.compose.ui.tooling.MyTestComposableWithBooleanPreviewParams",
+                "TestContent",
+                currentComposer
+            )
+        }
+    }
+
+    @Test
+    fun composableWithIntPreviewParams() {
+        rule.setContent {
+            ComposableInvoker.invokeComposable(
+                "androidx.compose.ui.tooling.MyTestComposableWithIntPreviewParams",
+                "TestContent",
                 currentComposer
             )
         }
@@ -95,10 +120,51 @@ class ComposeInvokerTest {
 class MyTestComposables {
 
     @Composable
-    fun MyWorkingComposable() {}
+    fun MyWorkingComposable() {
+    }
 
     @Composable
     fun MyThrowExceptionComposable() {
         throw Exception("An Exception")
+    }
+}
+
+class MyTestComposableWithBooleanPreviewParams {
+
+    @Composable
+    fun TestContent() {
+    }
+
+    @Preview
+    @Composable
+    private fun TestContent(
+        @PreviewParameter(TestContentParameterProviderBoolean::class)
+        @Suppress("UNUSED_PARAMETER")
+        valueParameter: Boolean
+    ) {
+    }
+
+    private class TestContentParameterProviderBoolean : PreviewParameterProvider<Boolean> {
+        override val values = sequenceOf(true, false)
+    }
+}
+
+class MyTestComposableWithIntPreviewParams {
+
+    @Composable
+    fun TestContent() {
+    }
+
+    @Preview
+    @Composable
+    private fun TestContent(
+        @PreviewParameter(TestContentParameterProviderBoolean::class)
+        @Suppress("UNUSED_PARAMETER")
+        valueParameter: Boolean
+    ) {
+    }
+
+    private class TestContentParameterProviderBoolean : PreviewParameterProvider<Int> {
+        override val values = sequenceOf(42, 45, 92)
     }
 }
