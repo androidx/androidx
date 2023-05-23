@@ -32,13 +32,14 @@ import androidx.recyclerview.widget.RecyclerView
 class DeviceServiceCharacteristicsAdapter(
     private val deviceConnection: DeviceConnection,
     private val characteristics: List<BluetoothGattCharacteristic>,
-    private val onClickReadCharacteristic: OnClickReadCharacteristic
+    private val onClickReadCharacteristic: OnClickCharacteristic,
+    private val onClickWriteCharacteristic: OnClickCharacteristic
 ) : RecyclerView.Adapter<DeviceServiceCharacteristicsAdapter.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.item_device_service_characteristic, parent, false)
-        return ViewHolder(view, onClickReadCharacteristic)
+        return ViewHolder(view, onClickReadCharacteristic, onClickWriteCharacteristic)
     }
 
     override fun getItemCount(): Int {
@@ -52,7 +53,8 @@ class DeviceServiceCharacteristicsAdapter(
 
     inner class ViewHolder(
         itemView: View,
-        private val onClickReadCharacteristic: OnClickReadCharacteristic
+        private val onClickReadCharacteristic: OnClickCharacteristic,
+        private val onClickWriteCharacteristic: OnClickCharacteristic
     ) : RecyclerView.ViewHolder(itemView) {
 
         private val textViewUuid: TextView = itemView.findViewById(R.id.text_view_uuid)
@@ -75,6 +77,14 @@ class DeviceServiceCharacteristicsAdapter(
                 currentDeviceConnection?.let { deviceConnection ->
                     currentCharacteristic?.let { characteristic ->
                         onClickReadCharacteristic.onClick(deviceConnection, characteristic)
+                    }
+                }
+            }
+
+            buttonWriteCharacteristic.setOnClickListener {
+                currentDeviceConnection?.let { deviceConnection ->
+                    currentCharacteristic?.let { characteristic ->
+                        onClickWriteCharacteristic.onClick(deviceConnection, characteristic)
                     }
                 }
             }
