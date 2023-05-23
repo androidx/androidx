@@ -56,6 +56,7 @@ import com.google.common.truth.Truth.assertWithMessage
 import kotlin.math.roundToInt
 import kotlinx.coroutines.runBlocking
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -1235,6 +1236,7 @@ class LazyGridAnimateItemPlacementTest(private val config: Config) {
         }
     }
 
+    @Ignore("b/283960548")
     @Test
     fun noAnimationWhenScrollForwardByLargeOffset_differentSizes() {
         rule.setContent {

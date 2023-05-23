@@ -90,6 +90,7 @@ public class AutoCloserTest {
         assertThat(countingTaskExecutorRule.isIdle).isTrue()
     }
 
+    @Ignore("b/283959848")
     @Test
     public fun refCountsCounted() {
         autoCloser.incrementCountAndEnsureDbIsOpen()

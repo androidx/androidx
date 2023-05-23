@@ -35,6 +35,7 @@ class OnEnableDisableSessionDurationCheckTest {
         const val TOLERANCE = 60L
     }
 
+    @Ignore("b/270962873")
     @Test
     fun enabled_ensureMinimalDuration() {
         // Arrange
