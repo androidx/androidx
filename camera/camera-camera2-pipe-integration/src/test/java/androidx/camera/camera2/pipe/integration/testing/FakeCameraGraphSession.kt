@@ -41,7 +41,7 @@ open class FakeCameraGraphSession : CameraGraph.Session {
 
     val repeatingRequests = mutableListOf<Request>()
     var repeatingRequestSemaphore = Semaphore(0)
-    val stopRepeatingSemaphore = Semaphore(0)
+    var stopRepeatingSemaphore = Semaphore(0)
 
     enum class RequestStatus {
         TOTAL_CAPTURE_DONE,
@@ -49,6 +49,8 @@ open class FakeCameraGraphSession : CameraGraph.Session {
         ABORTED
     }
     var startRepeatingSignal = CompletableDeferred(TOTAL_CAPTURE_DONE) // already completed
+
+    val submittedRequests = mutableListOf<Request>()
 
     override fun abort() {
         // No-op
@@ -101,11 +103,11 @@ open class FakeCameraGraphSession : CameraGraph.Session {
     }
 
     override fun submit(request: Request) {
-        throw NotImplementedError("Not used in testing")
+        submittedRequests.add(request)
     }
 
     override fun submit(requests: List<Request>) {
-        // No-op
+        submittedRequests.addAll(requests)
     }
 
     override suspend fun submit3A(
