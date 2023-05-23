@@ -828,7 +828,6 @@ final class SupportedSurfaceCombination {
                 }
             }
         }
-
         return new Pair<>(suggestedStreamSpecMap, attachedSurfaceStreamSpecMap);
     }
 
