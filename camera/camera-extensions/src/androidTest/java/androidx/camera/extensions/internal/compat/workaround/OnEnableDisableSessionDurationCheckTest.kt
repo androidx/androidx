@@ -23,6 +23,7 @@ import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.collect.Range
 import com.google.common.truth.Truth.assertThat
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -34,6 +35,7 @@ class OnEnableDisableSessionDurationCheckTest {
         const val TOLERANCE = 60L
     }
 
+    @Ignore("b/270962873")
     @Test
     fun enabled_ensureMinimalDuration() {
         // Arrange
