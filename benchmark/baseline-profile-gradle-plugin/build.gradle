@@ -32,8 +32,9 @@ configurations {
 }
 
 dependencies {
+    compileOnly(libs.androidGradlePluginz)
+
     implementation(gradleApi())
-    implementation(libs.androidGradlePluginz)
     implementation(libs.kotlinGradlePluginz)
     implementation(libs.kotlinStdlib)
     implementation(libs.protobuf)
