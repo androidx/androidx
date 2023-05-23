@@ -111,9 +111,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import java.lang.Integer.max
-import java.text.NumberFormat
 import java.util.Locale
+import kotlin.math.max
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -2027,16 +2026,6 @@ private fun customScrollActions(
             action = scrollDownAction
         )
     )
-}
-
-/**
- * Returns a string representation of an integer at the current Locale.
- */
-internal fun Int.toLocalString(): String {
-    val formatter = NumberFormat.getIntegerInstance()
-    // Eliminate any use of delimiters when formatting the integer.
-    formatter.isGroupingUsed = false
-    return formatter.format(this)
 }
 
 internal val RecommendedSizeForAccessibility = 48.dp

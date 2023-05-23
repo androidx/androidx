@@ -151,7 +151,6 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.center
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
-import java.text.NumberFormat
 import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.atan2
@@ -702,10 +701,10 @@ private fun TimeInputImpl(
     state: TimePickerState,
 ) {
     var hourValue by rememberSaveable(stateSaver = TextFieldValue.Saver) {
-        mutableStateOf(TextFieldValue(text = state.hourForDisplay.toLocalString(2)))
+        mutableStateOf(TextFieldValue(text = state.hourForDisplay.toLocalString(minDigits = 2)))
     }
     var minuteValue by rememberSaveable(stateSaver = TextFieldValue.Saver) {
-        mutableStateOf(TextFieldValue(text = state.minute.toLocalString(2)))
+        mutableStateOf(TextFieldValue(text = state.minute.toLocalString(minDigits = 2)))
     }
 
     Row(
@@ -1306,11 +1305,11 @@ private fun ClockText(state: TimePickerState, value: Int, autoSwitchToMinute: Bo
             number = value
         )
 
-    val text = value.toLocalString(minDigits = 1)
+    val text = value.toLocalString()
     val selected = if (state.selection == Selection.Minute) {
-        state.minute.toLocalString(minDigits = 1) == text
+        state.minute.toLocalString() == text
     } else {
-        state.hour.toLocalString(minDigits = 1) == text
+        state.hour.toLocalString() == text
     }
 
     Box(
@@ -1668,12 +1667,4 @@ private class VisibleModifier(
         val otherModifier = other as? VisibleModifier ?: return false
         return visible == otherModifier.visible
     }
-}
-
-private fun Int.toLocalString(minDigits: Int): String {
-    val formatter = NumberFormat.getIntegerInstance()
-    // Eliminate any use of delimiters when formatting the integer.
-    formatter.isGroupingUsed = false
-    formatter.minimumIntegerDigits = minDigits
-    return formatter.format(this)
 }

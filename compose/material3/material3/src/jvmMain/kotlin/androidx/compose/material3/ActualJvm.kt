@@ -18,8 +18,25 @@
 
 package androidx.compose.material3
 
+import java.text.NumberFormat
+
 /* Copy of androidx.compose.material.ActualJvm, mirrored from Foundation. This is used for the
    M2/M3-internal copy of MutatorMutex.
  */
 internal actual typealias InternalAtomicReference<V> =
     java.util.concurrent.atomic.AtomicReference<V>
+
+/**
+ * Returns a string representation of an integer for the current Locale.
+ */
+internal actual fun Int.toLocalString(
+    minDigits: Int,
+    maxDigits: Int,
+    isGroupingUsed: Boolean
+): String {
+    val formatter = NumberFormat.getIntegerInstance()
+    formatter.isGroupingUsed = isGroupingUsed
+    formatter.minimumIntegerDigits = minDigits
+    formatter.maximumIntegerDigits = maxDigits
+    return formatter.format(this)
+}
