@@ -855,6 +855,8 @@ public final class ModifiersBuilders {
              * start/end will follow the layout direction (i.e. start will refer to the right hand
              * side of the container if the device is using an RTL locale). If false, start/end will
              * always map to left/right, accordingly.
+             *
+             * @since 1.0
              */
             @SuppressLint("MissingGetterMatchingBuilder")
             @NonNull

@@ -170,7 +170,11 @@ public final class TimelineBuilders {
       }
     }
 
-    /** Returns the {@link TimelineEntry} object containing the given layout element. */
+    /**
+     * Returns the {@link TimelineEntry} object containing the given layout element.
+     *
+     * @since 1.0
+     */
     @NonNull
     public static TimelineEntry fromLayoutElement(
         @NonNull LayoutElementBuilders.LayoutElement layoutElement) {
@@ -276,7 +280,11 @@ public final class TimelineBuilders {
       return Collections.unmodifiableList(list);
     }
 
-    /** Returns the {@link Timeline} object containing the given layout element. */
+    /**
+     * Returns the {@link Timeline} object containing the given layout element.
+     *
+     * @since 1.0
+     */
     @NonNull
     public static Timeline fromLayoutElement(
         @NonNull LayoutElementBuilders.LayoutElement layoutElement) {
