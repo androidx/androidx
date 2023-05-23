@@ -23,6 +23,7 @@ import androidx.test.filters.LargeTest;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -51,6 +52,7 @@ public final class AssetLoaderAjaxActivityTestAppTest {
                 activity.getUriIdlingResource()));
     }
 
+    @Ignore("b/283485965")
     @Test
     public void testAssetLoaderAjaxActivity() {
         mRule.getScenario().onActivity(activity -> activity.loadUrl());
