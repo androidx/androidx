@@ -78,6 +78,15 @@ class MapSubjectTest {
     }
 
     @Test
+    fun containsExactlyInOrderWithReversedMap_fails() {
+        assertFailsWith<AssertionError> {
+            assertThat(mutableMapOf("jan" to 1, "feb" to 2, "march" to 3))
+                .containsExactlyEntriesIn(mutableMapOf("march" to 3, "feb" to 2, "jan" to 1))
+                .inOrder()
+        }
+    }
+
+    @Test
     fun isEmpty() {
         assertThat(mapOf<Any, Any>()).isEmpty()
     }
