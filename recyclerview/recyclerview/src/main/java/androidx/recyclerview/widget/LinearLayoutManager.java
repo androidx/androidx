@@ -376,6 +376,11 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
         return mOrientation == VERTICAL;
     }
 
+    @Override
+    public boolean isLayoutReversed() {
+        return mReverseLayout;
+    }
+
     /**
      * Compatibility support for {@link android.widget.AbsListView#setStackFromBottom(boolean)}
      */

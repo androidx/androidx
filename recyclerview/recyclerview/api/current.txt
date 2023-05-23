@@ -722,6 +722,7 @@ package androidx.recyclerview.widget {
     method public boolean isFocused();
     method public final boolean isItemPrefetchEnabled();
     method public boolean isLayoutHierarchical(androidx.recyclerview.widget.RecyclerView.Recycler, androidx.recyclerview.widget.RecyclerView.State);
+    method public boolean isLayoutReversed();
     method public boolean isMeasurementCacheEnabled();
     method public boolean isSmoothScrolling();
     method public boolean isViewPartiallyVisible(android.view.View, boolean, boolean);
