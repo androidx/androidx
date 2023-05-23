@@ -109,9 +109,9 @@ class ServerBinderCodeConverter(private val api: ParsedApi) : BinderCodeConverte
 
     override fun convertToActivityLauncherBinderCode(expression: String): CodeBlock =
         CodeBlock.of(
-            "(%L as %T).launcherInfo",
-            expression,
+            "%T.getLauncherInfo(%L)",
             activityLauncherWrapperClass,
+            expression,
         )
 
     override fun convertToActivityLauncherModelCode(expression: String): CodeBlock =
