@@ -16,7 +16,9 @@
 
 package androidx.bluetooth.integration.testapp.ui.scanner
 
-// TODO(ofy) Migrate to androidx.bluetooth.BluetoothLe once scan API is in place
+// TODO(ofy) Migrate to androidx.bluetooth.AdvertiseParams
+// TODO(ofy) Migrate to androidx.bluetooth.BluetoothDevice
+// TODO(ofy) Migrate to androidx.bluetooth.BluetoothGattCharacteristic
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothGattCharacteristic
@@ -31,6 +33,9 @@ import android.widget.EditText
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.bluetooth.integration.testapp.R
+import androidx.bluetooth.integration.testapp.data.connection.DeviceConnection
+import androidx.bluetooth.integration.testapp.data.connection.OnClickCharacteristic
+import androidx.bluetooth.integration.testapp.data.connection.Status
 import androidx.bluetooth.integration.testapp.databinding.FragmentScannerBinding
 import androidx.bluetooth.integration.testapp.experimental.BluetoothLe
 import androidx.bluetooth.integration.testapp.ui.common.getColor

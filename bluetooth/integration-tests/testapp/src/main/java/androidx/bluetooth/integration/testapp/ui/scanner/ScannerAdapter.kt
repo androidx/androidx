@@ -16,6 +16,8 @@
 
 package androidx.bluetooth.integration.testapp.ui.scanner
 
+// TODO(ofy) Migrate to androidx.bluetooth.BluetoothDevice
+// TODO(ofy) Migrate to androidx.bluetooth.ScanResult
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.le.ScanResult

@@ -16,19 +16,16 @@
 
 package androidx.bluetooth.integration.testapp.ui.scanner
 
-// TODO(ofy) Migrate to androidx.bluetooth.BluetoothGattService once in place
-import android.bluetooth.BluetoothGattCharacteristic
+// TODO(ofy) Migrate to androidx.bluetooth.BluetoothGattService
 import android.bluetooth.BluetoothGattService
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.bluetooth.integration.testapp.R
+import androidx.bluetooth.integration.testapp.data.connection.DeviceConnection
+import androidx.bluetooth.integration.testapp.data.connection.OnClickCharacteristic
 import androidx.recyclerview.widget.RecyclerView
-
-interface OnClickCharacteristic {
-    fun onClick(deviceConnection: DeviceConnection, characteristic: BluetoothGattCharacteristic)
-}
 
 class DeviceServicesAdapter(
     var deviceConnection: DeviceConnection? = null,

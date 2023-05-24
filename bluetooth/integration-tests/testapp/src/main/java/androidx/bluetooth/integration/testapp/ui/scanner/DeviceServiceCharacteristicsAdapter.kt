@@ -16,7 +16,7 @@
 
 package androidx.bluetooth.integration.testapp.ui.scanner
 
-// TODO(ofy) Migrate to androidx.bluetooth.BluetoothGattCharacteristic once in place
+// TODO(ofy) Migrate to androidx.bluetooth.BluetoothGattCharacteristic
 import android.bluetooth.BluetoothGattCharacteristic
 import android.view.LayoutInflater
 import android.view.View
@@ -25,6 +25,8 @@ import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.bluetooth.integration.testapp.R
+import androidx.bluetooth.integration.testapp.data.connection.DeviceConnection
+import androidx.bluetooth.integration.testapp.data.connection.OnClickCharacteristic
 import androidx.bluetooth.integration.testapp.ui.common.toHexString
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
