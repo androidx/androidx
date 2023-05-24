@@ -49,7 +49,7 @@ class ResumeTimerTest {
         val argsDeferred = CompletableDeferred<Arguments>()
         val capability = ResumeTimer.CapabilityBuilder()
             .setId("resume timer")
-            .setTimerProperty(Property.Builder<Timer>().setRequired(true).build())
+            .setTimerProperty(Property<Timer>(isRequiredForExecution = true))
             .setExecutionCallback(
                 ExecutionCallback {
                     argsDeferred.complete(it)

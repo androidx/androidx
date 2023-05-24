@@ -20,7 +20,8 @@ import java.util.Objects
 
 /**
  * Representation of a client's verified package with a corresponding list of Sha256 signatures.
- * Used as part of the {@link SecurityPolicy} creation for the grpc service.
+ * [AppVerificationInfo] provides a convenient way to build a valid {@link SecurityPolicy} for the
+ * grpc service.
  */
 class AppVerificationInfo
 internal constructor(val packageName: String, val signatures: List<ByteArray>) {

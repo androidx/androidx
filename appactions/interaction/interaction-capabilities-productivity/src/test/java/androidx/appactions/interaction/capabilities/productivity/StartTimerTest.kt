@@ -47,7 +47,7 @@ class StartTimerTest {
         val capability =
             StartTimer.CapabilityBuilder()
                 .setId("start timer")
-                .setDurationProperty(Property.Builder<Duration>().build())
+                .setDurationProperty(Property<Duration>())
                 .setExecutionCallback(
                     ExecutionCallback {
                         argsDeferred.complete(it)

@@ -49,7 +49,7 @@ class StopTimerTest {
         val argsDeferred = CompletableDeferred<Arguments>()
         val capability = StopTimer.CapabilityBuilder()
             .setId("stop timer")
-            .setTimerProperty(Property.Builder<Timer>().setRequired(true).build())
+            .setTimerProperty(Property<Timer>(isRequiredForExecution = true))
             .setExecutionCallback(
                 ExecutionCallback {
                     argsDeferred.complete(it)

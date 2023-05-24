@@ -33,9 +33,9 @@ data class BoundProperty<T> internal constructor(
     fun convertToProto(): IntentParameter {
         val builder = IntentParameter.newBuilder()
             .setName(slotName)
-            .setIsRequired(property.isRequired)
-            .setEntityMatchRequired(property.isValueMatchRequired)
-            .setIsProhibited(property.isProhibited)
+            .setIsRequired(property.isRequiredForExecution)
+            .setEntityMatchRequired(property.shouldMatchPossibleValues)
+            .setIsProhibited(!property.isSupported)
         invokeExternalBlock("retrieving possibleValues for $slotName property") {
             property.possibleValues
         }.map {
