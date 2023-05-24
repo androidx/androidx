@@ -19,6 +19,7 @@
     app:glance_isTopLevelLayout="true"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
+    android:listSelector="@android:color/transparent"
     android:divider="@null"
     android:theme="@style/Glance.AppWidget.Theme.ListChildren"
     style="@style/Glance.AppWidget.List"/>
