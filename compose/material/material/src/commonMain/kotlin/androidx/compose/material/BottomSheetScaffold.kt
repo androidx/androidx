@@ -158,8 +158,18 @@ class BottomSheetState @Deprecated(
         }
     )
 
+    /**
+     * The current value of the [BottomSheetState].
+     */
     val currentValue: BottomSheetValue
         get() = anchoredDraggableState.currentValue
+
+    /**
+     * The target value the state will settle at once the current interaction ends, or the
+     * [currentValue] if there is no interaction in progress.
+     */
+    val targetValue: BottomSheetValue
+        get() = anchoredDraggableState.targetValue
 
     /**
      * Whether the bottom sheet is expanded.
@@ -174,10 +184,11 @@ class BottomSheetState @Deprecated(
         get() = anchoredDraggableState.currentValue == Collapsed
 
     /**
-     * The fraction of the progress going from [currentValue] to the targetValue, within [0f..1f]
-     * bounds, or 1f if the sheet is in a settled state.
+     * The fraction of the progress, within [0f..1f] bounds, or 1f if the [AnchoredDraggableState]
+     * is in a settled state.
      */
     /*@FloatRange(from = 0f, to = 1f)*/
+    @ExperimentalMaterialApi
     val progress: Float
         get() = anchoredDraggableState.progress
 
