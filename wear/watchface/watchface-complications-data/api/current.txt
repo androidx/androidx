@@ -89,15 +89,15 @@ package androidx.wear.watchface.complications.data {
   }
 
   public final class DynamicComplicationText implements androidx.wear.watchface.complications.data.ComplicationText {
-    ctor public DynamicComplicationText(androidx.wear.protolayout.expression.DynamicBuilders.DynamicString dynamicValue, String fallbackValue);
+    ctor public DynamicComplicationText(androidx.wear.protolayout.expression.DynamicBuilders.DynamicString dynamicValue, CharSequence fallbackValue);
     method public androidx.wear.protolayout.expression.DynamicBuilders.DynamicString getDynamicValue();
-    method public String getFallbackValue();
+    method public CharSequence getFallbackValue();
     method public java.time.Instant getNextChangeTime(java.time.Instant afterInstant);
     method public CharSequence getTextAt(android.content.res.Resources resources, java.time.Instant instant);
     method public boolean isAlwaysEmpty();
     method public boolean returnsSameText(java.time.Instant firstInstant, java.time.Instant secondInstant);
     property public final androidx.wear.protolayout.expression.DynamicBuilders.DynamicString dynamicValue;
-    property public final String fallbackValue;
+    property public final CharSequence fallbackValue;
   }
 
   public final class EmptyComplicationData extends androidx.wear.watchface.complications.data.ComplicationData {
