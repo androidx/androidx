@@ -192,6 +192,31 @@ public class UiObject2 implements Searchable {
     /**
      * Waits for a {@code condition} to be met.
      *
+     * @param condition The {@link UiObject2Condition} to wait for.
+     * @param timeout   The maximum time in milliseconds to wait for.
+     * @return The final result returned by the {@code condition}, or {@code null} if the {@code
+     * condition} was not met before the {@code timeout}.
+     */
+    public <U> U wait(@NonNull UiObject2Condition<U> condition, long timeout) {
+        return wait((Condition<? super UiObject2, U>) condition, timeout);
+    }
+
+    /**
+     * Waits for a {@code condition} to be met.
+     *
+     * @param condition The {@link SearchCondition} to evaluate.
+     * @param timeout   The maximum time in milliseconds to wait for.
+     * @return The final result returned by the {@code condition}, or {@code null} if the {@code
+     * condition} was not met before the {@code timeout}.
+     */
+    public <U> U wait(@NonNull SearchCondition<U> condition, long timeout) {
+        return wait((Condition<? super UiObject2, U>) condition, timeout);
+    }
+
+
+    /**
+     * Waits for a {@code condition} to be met.
+     *
      * @param condition The {@link Condition} to evaluate.
      * @param timeout   The maximum time in milliseconds to wait for.
      * @return The final result returned by the {@code condition}, or {@code null} if the {@code
