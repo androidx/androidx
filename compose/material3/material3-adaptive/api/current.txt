@@ -18,5 +18,13 @@ package androidx.compose.material3.adaptive {
     property public final boolean isTabletop;
   }
 
+  @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi public final class WindowAdaptiveInfo {
+    ctor public WindowAdaptiveInfo(androidx.compose.material3.windowsizeclass.WindowSizeClass windowSizeClass, androidx.compose.material3.adaptive.Posture posture);
+    method public androidx.compose.material3.adaptive.Posture getPosture();
+    method public androidx.compose.material3.windowsizeclass.WindowSizeClass getWindowSizeClass();
+    property public final androidx.compose.material3.adaptive.Posture posture;
+    property public final androidx.compose.material3.windowsizeclass.WindowSizeClass windowSizeClass;
+  }
+
 }
 
