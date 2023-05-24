@@ -28,6 +28,7 @@ import androidx.build.getSuppressCompatibilityOptOutPathPrefixes
 import androidx.build.java.JavaCompileInputs
 import androidx.build.relativePathForFiltering
 import androidx.build.uptodatedness.cacheEvenIfNoOutputs
+import androidx.build.version
 import com.android.build.gradle.tasks.ProcessLibraryManifest
 import org.gradle.api.Project
 import org.gradle.api.tasks.TaskProvider
@@ -44,6 +45,7 @@ object MetalavaTasks {
         outputApiLocations: List<ApiLocation>
     ) {
         val metalavaClasspath = project.getMetalavaClasspath()
+        val version = project.version()
 
         // Policy: If the artifact belongs to an atomic (e.g. same-version) group, we don't enforce
         // binary compatibility for APIs annotated with @RestrictTo(LIBRARY_GROUP). This is
@@ -86,6 +88,7 @@ object MetalavaTasks {
                 task.referenceApi.set(lastReleasedApiFile)
                 task.baselines.set(baselinesApiLocation)
                 task.api.set(builtApiLocation)
+                task.version.set(version)
                 task.dependencyClasspath = javaCompileInputs.dependencyClasspath
                 task.bootClasspath = javaCompileInputs.bootClasspath
                 task.k2UastEnabled.set(extension.metalavaK2UastEnabled)
