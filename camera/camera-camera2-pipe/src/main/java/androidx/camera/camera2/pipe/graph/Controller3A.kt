@@ -36,13 +36,13 @@ import androidx.camera.camera2.pipe.AwbMode
 import androidx.camera.camera2.pipe.CameraGraph.Constants3A.DEFAULT_FRAME_LIMIT
 import androidx.camera.camera2.pipe.CameraGraph.Constants3A.DEFAULT_TIME_LIMIT_NS
 import androidx.camera.camera2.pipe.CameraMetadata
+import androidx.camera.camera2.pipe.CameraMetadata.Companion.supportsAutoFocusTrigger
 import androidx.camera.camera2.pipe.FlashMode
 import androidx.camera.camera2.pipe.Lock3ABehavior
 import androidx.camera.camera2.pipe.Result3A
 import androidx.camera.camera2.pipe.Result3A.Status
 import androidx.camera.camera2.pipe.TorchState
 import androidx.camera.camera2.pipe.core.Log.debug
-import androidx.camera.camera2.pipe.supportsAutoFocusTrigger
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.cancel

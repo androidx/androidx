@@ -19,11 +19,10 @@ package androidx.camera.camera2.pipe
 import android.view.Surface
 import androidx.annotation.GuardedBy
 import androidx.annotation.RequiresApi
+import androidx.annotation.RestrictTo
 import androidx.camera.camera2.pipe.CameraSurfaceManager.SurfaceListener
 import androidx.camera.camera2.pipe.CameraSurfaceManager.SurfaceToken
 import androidx.camera.camera2.pipe.core.Log
-import javax.inject.Inject
-import javax.inject.Singleton
 import kotlinx.atomicfu.atomic
 
 /**
@@ -43,9 +42,9 @@ import kotlinx.atomicfu.atomic
  * If the same [Surface] is used in a subsequent [CameraGraph], it will be issued a different token.
  * Essentially each token means a single use on a [Surface].
  */
-@Singleton
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-class CameraSurfaceManager @Inject constructor() {
+class CameraSurfaceManager {
 
     private val lock = Any()
 

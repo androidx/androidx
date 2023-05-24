@@ -21,6 +21,7 @@ package androidx.camera.camera2.pipe
 import android.hardware.camera2.params.OutputConfiguration
 import android.util.Size
 import androidx.annotation.RequiresApi
+import androidx.annotation.RestrictTo
 import androidx.camera.camera2.pipe.OutputStream.DynamicRangeProfile.Companion.STANDARD
 import androidx.camera.camera2.pipe.OutputStream.MirrorMode.Companion.MIRROR_MODE_AUTO
 import androidx.camera.camera2.pipe.OutputStream.StreamUseCase.Companion.DEFAULT
@@ -66,6 +67,7 @@ import androidx.camera.camera2.pipe.compat.Api33Compat
  *                 \-> OutputConfig-2 -> OutputStream-2
  *   ```
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class CameraStream
 internal constructor(val id: StreamId, val outputs: List<OutputStream>) {
     override fun toString(): String = id.toString()
@@ -118,6 +120,7 @@ internal constructor(val id: StreamId, val outputs: List<OutputStream>) {
 /**
  * This identifies a single surface that is used to tell the camera to produce one or more outputs.
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @JvmInline
 value class StreamId(val value: Int) {
     override fun toString(): String = "Stream-$value"
@@ -129,6 +132,7 @@ value class StreamId(val value: Int) {
  * the underlying HAL on the device may produce different sized images for the same request. This
  * represents one of those potential outputs.
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 interface OutputStream {
     // Every output comes from one, and exactly one, CameraStream
     val stream: CameraStream
@@ -408,12 +412,14 @@ interface OutputStream {
 }
 
 /** This identifies a single output. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @JvmInline
 value class OutputId(val value: Int) {
     override fun toString(): String = "Output-$value"
 }
 
 /** Configuration for defining the properties of a Camera2 InputStream for reprocessing requests. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 interface InputStream {
     val id: InputId
     val format: StreamFormat
@@ -423,6 +429,7 @@ interface InputStream {
 }
 
 /** This identifies a single input. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @JvmInline
 value class InputId(val value: Int) {
     override fun toString(): String = "Input-$value"

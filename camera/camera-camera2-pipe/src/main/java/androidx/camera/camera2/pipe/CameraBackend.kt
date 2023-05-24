@@ -15,11 +15,13 @@
  */
 package androidx.camera.camera2.pipe
 
+import androidx.annotation.RestrictTo
 import androidx.camera.camera2.pipe.graph.GraphListener
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.flow.Flow
 
 /** This is used to uniquely identify a specific backend implementation. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @JvmInline
 value class CameraBackendId(val value: String)
 
@@ -28,6 +30,7 @@ value class CameraBackendId(val value: String)
  * cameras changes, for instance when the camera access priorities have changed or when a particular
  * camera has become available.
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 interface CameraStatusMonitor {
     val cameraStatus: Flow<CameraStatus>
 
@@ -50,6 +53,7 @@ interface CameraStatusMonitor {
  * The lifecycle of an individual camera is managed by [CameraController]s, which may be created via
  * [CameraBackend.createCameraController].
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 interface CameraBackend {
     val id: CameraBackendId
 
@@ -133,6 +137,7 @@ interface CameraBackend {
  * returned instances is managed by [CameraPipe] unless the application asks [CameraPipe] to close
  * and release previously created [CameraBackend]s.
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 fun interface CameraBackendFactory {
     /** Create a new [CameraBackend] instance based on the provided [CameraContext]. */
     fun create(cameraContext: CameraContext): CameraBackend
@@ -142,6 +147,7 @@ fun interface CameraBackendFactory {
  * Api for requesting and interacting with [CameraBackend] that are available in the current
  * [CameraPipe] instance.
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 interface CameraBackends {
     /**
      * This provides access to the default [CameraBackend]. Accessing this property will create the

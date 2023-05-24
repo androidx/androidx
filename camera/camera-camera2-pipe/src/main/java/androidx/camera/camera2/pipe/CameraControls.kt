@@ -22,11 +22,13 @@ import android.hardware.camera2.CameraMetadata
 import android.hardware.camera2.CaptureResult
 import android.hardware.camera2.TotalCaptureResult
 import androidx.annotation.RequiresApi
+import androidx.annotation.RestrictTo
 import androidx.camera.camera2.pipe.Result3A.Status
 
 // Public controls and enums used to interact with a CameraGraph.
 
 /** An enum to match the CameraMetadata.CONTROL_AF_MODE_* constants. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @JvmInline
 value class AfMode(val value: Int) {
     companion object {
@@ -45,6 +47,7 @@ value class AfMode(val value: Int) {
 }
 
 /** An enum to match the CameraMetadata.CONTROL_AE_MODE_* constants. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @JvmInline
 value class AeMode(val value: Int) {
     companion object {
@@ -64,6 +67,7 @@ value class AeMode(val value: Int) {
 }
 
 /** An enum to match the CameraMetadata.CONTROL_AWB_MODE_* constants. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @JvmInline
 value class AwbMode(val value: Int) {
     companion object {
@@ -85,6 +89,7 @@ value class AwbMode(val value: Int) {
 }
 
 /** An enum to match the CameraMetadata.FLASH_MODE_* constants. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @JvmInline
 value class FlashMode(val value: Int) {
     companion object {
@@ -109,6 +114,7 @@ value class FlashMode(val value: Int) {
  *
  * #CONTROL_AE_MODE_ON
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class TorchState private constructor() {
     companion object {
         val ON = TorchState()
@@ -117,6 +123,7 @@ class TorchState private constructor() {
 }
 
 /** Requirement to consider prior to locking auto-exposure, auto-focus and auto-whitebalance. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @JvmInline
 value class Lock3ABehavior private constructor(val value: Int) {
     companion object {
@@ -154,6 +161,7 @@ value class Lock3ABehavior private constructor(val value: Int) {
  *   completion of the method, in that case this frameMetadata may not contain all the kay value
  *   pairs associated with the final result i.e. [TotalCaptureResult] of this frame.
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 data class Result3A(val status: Status, val frameMetadata: FrameMetadata? = null) {
     /**
      * Enum to know the status of 3A operation in case the method returns before the desired

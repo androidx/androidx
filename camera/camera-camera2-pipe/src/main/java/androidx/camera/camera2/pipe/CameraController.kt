@@ -17,6 +17,7 @@
 package androidx.camera.camera2.pipe
 
 import android.view.Surface
+import androidx.annotation.RestrictTo
 import androidx.camera.camera2.pipe.CameraController.ControllerState.CLOSED
 import androidx.camera.camera2.pipe.graph.GraphListener
 
@@ -35,6 +36,7 @@ import androidx.camera.camera2.pipe.graph.GraphListener
  *
  * Once [close] is invoked, this instance should not respond to any additional events.
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 interface CameraController {
     val cameraId: CameraId
 

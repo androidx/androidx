@@ -20,9 +20,11 @@
 package androidx.camera.camera2.pipe
 
 import androidx.annotation.RequiresApi
+import androidx.annotation.RestrictTo
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 /** Methods for querying, iterating, and selecting the Cameras that are available on the device. */
 interface CameraDevices {
     /**
@@ -123,6 +125,7 @@ interface CameraDevices {
 /**
  * CameraId represents a typed identifier for a camera represented as a non-blank String.
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @JvmInline
 value class CameraId(val value: String) {
     init {
@@ -150,6 +153,7 @@ value class CameraId(val value: String) {
  * metadata of cameras that are otherwise hidden. Metadata for hidden cameras are always returned
  * last.
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 fun CameraDevices.find(
     cameraBackendId: CameraBackendId? = null,
     includePhysicalCameraMetadata: Boolean = false
