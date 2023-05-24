@@ -23,6 +23,7 @@ import android.hardware.camera2.params.InputConfiguration
 import android.os.Build
 import android.os.Handler
 import android.view.Surface
+import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.RequestTemplate
 import androidx.camera.camera2.pipe.compat.Api23Compat
@@ -35,6 +36,7 @@ import androidx.camera.camera2.pipe.compat.SessionConfigData
 import kotlin.reflect.KClass
 
 /** Fake implementation of [CameraDeviceWrapper] for tests. */
+@RequiresApi(21)
 internal class FakeCameraDeviceWrapper(val fakeCamera: RobolectricCameras.FakeCamera) :
     CameraDeviceWrapper {
     override val cameraId: CameraId
