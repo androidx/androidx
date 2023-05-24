@@ -257,7 +257,7 @@ private fun PlatformCyclingPedalingCadenceRecord.toSdkCyclingPedalingCadenceReco
         startZoneOffset = startZoneOffset,
         endTime = endTime,
         endZoneOffset = endZoneOffset,
-        samples = samples.map { it.toSdkCyclingPedalingCadenceSample() },
+        samples = samples.map { it.toSdkCyclingPedalingCadenceSample() }.sortedBy { it.time },
         metadata = metadata.toSdkMetadata()
     )
 
@@ -291,8 +291,8 @@ private fun PlatformExerciseSessionRecord.toSdkExerciseSessionRecord() =
         title = title?.toString(),
         notes = notes?.toString(),
         route = route?.toSdkExerciseRoute(),
-        laps = laps.map { it.toSdkExerciseLap() },
-        segments = segments.map { it.toSdkExerciseSegment() },
+        laps = laps.map { it.toSdkExerciseLap() }.sortedBy { it.startTime },
+        segments = segments.map { it.toSdkExerciseSegment() }.sortedBy { it.startTime },
         hasRoute = hasRoute(),
         metadata = metadata.toSdkMetadata(),
     )
@@ -313,7 +313,7 @@ private fun PlatformHeartRateRecord.toSdkHeartRateRecord() =
         startZoneOffset = startZoneOffset,
         endTime = endTime,
         endZoneOffset = endZoneOffset,
-        samples = samples.map { it.toSdkHeartRateSample() },
+        samples = samples.map { it.toSdkHeartRateSample() }.sortedBy { it.time },
         metadata = metadata.toSdkMetadata()
     )
 
@@ -450,7 +450,7 @@ private fun PlatformPowerRecord.toSdkPowerRecord() =
         startZoneOffset = startZoneOffset,
         endTime = endTime,
         endZoneOffset = endZoneOffset,
-        samples = samples.map { it.toSdkPowerRecordSample() },
+        samples = samples.map { it.toSdkPowerRecordSample() }.sortedBy { it.time },
         metadata = metadata.toSdkMetadata()
     )
 
@@ -487,7 +487,7 @@ private fun PlatformSleepSessionRecord.toSdkSleepSessionRecord() =
         metadata = metadata.toSdkMetadata(),
         title = title?.toString(),
         notes = notes?.toString(),
-        stages = stages.map { it.toSdkSleepSessionStage() },
+        stages = stages.map { it.toSdkSleepSessionStage() }.sortedBy { it.startTime },
     )
 
 private fun PlatformSpeedRecord.toSdkSpeedRecord() =
@@ -496,7 +496,7 @@ private fun PlatformSpeedRecord.toSdkSpeedRecord() =
         startZoneOffset = startZoneOffset,
         endTime = endTime,
         endZoneOffset = endZoneOffset,
-        samples = samples.map { it.toSdkSpeedSample() },
+        samples = samples.map { it.toSdkSpeedSample() }.sortedBy { it.time },
         metadata = metadata.toSdkMetadata()
     )
 
@@ -506,7 +506,7 @@ private fun PlatformStepsCadenceRecord.toSdkStepsCadenceRecord() =
         startZoneOffset = startZoneOffset,
         endTime = endTime,
         endZoneOffset = endZoneOffset,
-        samples = samples.map { it.toSdkStepsCadenceSample() },
+        samples = samples.map { it.toSdkStepsCadenceSample() }.sortedBy { it.time },
         metadata = metadata.toSdkMetadata()
     )
 
