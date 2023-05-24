@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:RequiresApi(21)
+
 package androidx.camera.view
 
 import android.graphics.Rect
@@ -22,6 +24,7 @@ import android.util.LayoutDirection
 import android.util.Size
 import android.view.Surface
 import android.view.View
+import androidx.annotation.RequiresApi
 import androidx.camera.core.SurfaceRequest
 import androidx.camera.core.impl.ImageOutputConfig.ROTATION_NOT_SPECIFIED
 import androidx.camera.core.impl.ImageOutputConfig.RotationValue
