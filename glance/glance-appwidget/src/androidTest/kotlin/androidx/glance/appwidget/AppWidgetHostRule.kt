@@ -102,6 +102,8 @@ class AppWidgetHostRule(
 
         override fun evaluate() {
             WorkManagerTestInitHelper.initializeTestWorkManager(mContext)
+            waitForBroadcastIdle()
+
             mInnerRules.apply(base, description).evaluate()
             stopHost()
         }
