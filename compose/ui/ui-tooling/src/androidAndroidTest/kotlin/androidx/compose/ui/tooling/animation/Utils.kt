@@ -84,9 +84,10 @@ object Utils {
                 content()
             }
         }
-        this.runOnUiThread {
-            val groups = slotTableRecord.store.map { it.asTree() }
-                .flatMap { tree -> tree.findAll { it.location != null } }
+        this.runOnIdle {
+            val groups = slotTableRecord.store.map {
+                it.asTree()
+            }.flatMap { tree -> tree.findAll { true } }
             search.addAnimations(groups)
             additionalSearch?.addAnimations(groups)
         }

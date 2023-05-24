@@ -20,18 +20,20 @@ package androidx.compose.animation.demos.lookahead
 
 import android.annotation.SuppressLint
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.VectorConverter
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -47,54 +49,62 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.LookaheadScope
 import androidx.compose.ui.layout.intermediateLayout
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.round
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
 
+@Preview
 @Composable
 fun LookaheadWithDisappearingMovableContentDemo() {
-    Box(
-        Modifier
-            .fillMaxSize()
-            .padding(start = 50.dp, top = 200.dp)
-    ) {
-        LookaheadScope {
-            val icon = remember {
-                movableContentOf<Boolean> {
-                    MyIcon(it, Modifier.animatePosition())
-                }
+    LookaheadScope {
+        val isCompact by produceState(initialValue = false) {
+            while (true) {
+                delay(3000)
+                value = !value
             }
-            val title = remember {
-                movableContentOf<Boolean> {
-                    Title(visible = it, Modifier.animatePosition())
-                }
-            }
-            val details = remember {
-                movableContentOf<Boolean> {
-                    Details(visible = it, Modifier.animatePosition())
-                }
-            }
+        }
+        Column {
 
-            val isCompact by produceState(initialValue = false) {
-                while (true) {
-                    delay(2000)
-                    value = !value
-                }
-            }
-            Row(Modifier.background(Color.Yellow), verticalAlignment = Alignment.CenterVertically) {
-                if (isCompact) {
-                    icon(true)
-                    Column {
-                        title(true)
-                        details(true)
+            Box(
+                Modifier
+                    .padding(start = 50.dp, top = 200.dp, bottom = 100.dp)
+            ) {
+                val icon = remember {
+                    movableContentOf<Boolean> {
+                        MyIcon(it)
                     }
-                } else {
-                    icon(false)
-                    Column {
-                        title(true)
-                        details(false)
+                }
+                val title = remember {
+                    movableContentOf<Boolean> {
+                        Title(visible = it, Modifier.animatePosition())
+                    }
+                }
+                val details = remember {
+                    movableContentOf<Boolean> {
+                        Details(visible = it)
+                    }
+                }
+
+                Row(
+                    Modifier
+                        .background(Color.Yellow)
+                        .animateContentSize(), verticalAlignment = Alignment.CenterVertically
+                ) {
+                    if (isCompact) {
+                        icon(true)
+                        Column {
+                            title(true)
+                            details(true)
+                        }
+                    } else {
+                        icon(false)
+                        Column {
+                            title(true)
+                            details(false)
+                        }
                     }
                 }
             }
@@ -104,7 +114,12 @@ fun LookaheadWithDisappearingMovableContentDemo() {
 
 @Composable
 fun MyIcon(visible: Boolean, modifier: Modifier = Modifier) {
-    AV2(visible, modifier) {
+    AnimatedVisibility(
+        visible,
+        enter = fadeIn(),
+        exit = fadeOut() + slideOutHorizontally { -it },
+        modifier = modifier
+    ) {
         Box(
             modifier
                 .size(40.dp)
@@ -115,33 +130,24 @@ fun MyIcon(visible: Boolean, modifier: Modifier = Modifier) {
 
 @Composable
 fun Title(visible: Boolean, modifier: Modifier = Modifier) {
-    AV2(visible, modifier) {
+    AnimatedVisibility(visible, enter = fadeIn(), exit = fadeOut(), modifier = modifier) {
         Text("Text", modifier, fontSize = 30.sp)
     }
 }
 
 @Composable
 fun Details(visible: Boolean, modifier: Modifier = Modifier) {
-    AV2(visible, modifier) {
+    AnimatedVisibility(
+        visible, enter = fadeIn(),
+        exit = fadeOut() + slideOutVertically { it },
+        modifier = modifier
+    ) {
         Text("Detailed Text", fontSize = 18.sp)
     }
 }
 
-@Composable
-fun AV2(visible: Boolean, modifier: Modifier = Modifier, content: @Composable () -> Unit) {
-    AnimatedVisibility(
-        visible, enter = fadeIn(), exit = fadeOut(), modifier = modifier.then(
-            if (!visible) Modifier
-                .size(0.dp)
-                .wrapContentSize() else Modifier
-        )
-    ) {
-        content()
-    }
-}
-
 context(LookaheadScope)
-    @SuppressLint("UnnecessaryComposedModifier")
+@SuppressLint("UnnecessaryComposedModifier")
 fun Modifier.animatePosition(): Modifier = composed {
     val offsetAnimation = remember {
         DeferredAnimation(IntOffset.VectorConverter)
@@ -151,15 +157,16 @@ fun Modifier.animatePosition(): Modifier = composed {
             layout(width, height) {
                 val (x, y) =
                     coordinates?.let { coordinates ->
+                        val origin = this.lookaheadScopeCoordinates
                         offsetAnimation.updateTarget(
-                            lookaheadScopeCoordinates.localLookaheadPositionOf(
+                            origin.localLookaheadPositionOf(
                                 coordinates
                             )
                                 .round(),
-                            spring(),
+                            spring(stiffness = Spring.StiffnessMediumLow),
                         )
                         val currentOffset =
-                            lookaheadScopeCoordinates.localPositionOf(
+                            origin.localPositionOf(
                                 coordinates,
                                 Offset.Zero
                             )

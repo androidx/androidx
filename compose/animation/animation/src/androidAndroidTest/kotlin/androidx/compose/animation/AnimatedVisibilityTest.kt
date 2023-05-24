@@ -39,9 +39,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.LookaheadScope
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
@@ -495,7 +498,6 @@ class AnimatedVisibilityTest {
         }
     }
 
-    @OptIn(ExperimentalAnimationApi::class)
     @Test
     fun testEnterTransitionNoneAndExitTransitionNone() {
         val testModifier by mutableStateOf(TestModifier())
@@ -677,6 +679,48 @@ class AnimatedVisibilityTest {
                 assertEquals(IntSize(200 - playTimeMs, 200), shrink)
             }
             playTimeMs += 20
+        }
+    }
+
+    @OptIn(ExperimentalComposeUiApi::class)
+    @Test
+    fun testAnimatedVisibilityInLookaheadScope() {
+        val lookaheadSizes = mutableListOf<IntSize>()
+        var visible by mutableStateOf(true)
+        rule.setContent {
+            CompositionLocalProvider(LocalDensity provides Density(1f)) {
+                LookaheadScope {
+                    Box(Modifier.layout { measurable, constraints ->
+                        measurable.measure(constraints).run {
+                            if (isLookingAhead) {
+                                lookaheadSizes.add(IntSize(width, height))
+                            }
+                            layout(width, height) { place(0, 0) }
+                        }
+                    }) {
+                        AnimatedVisibility(visible = visible) {
+                            Box(Modifier.size(200.dp, 100.dp))
+                        }
+                    }
+                }
+            }
+        }
+        rule.runOnIdle {
+            assertTrue(visible)
+            assertTrue(lookaheadSizes.isNotEmpty())
+            lookaheadSizes.forEach {
+                assertEquals(IntSize(200, 100), it)
+            }
+            lookaheadSizes.clear()
+            visible = !visible
+        }
+        rule.runOnIdle {
+            assertFalse(visible)
+            assertTrue(lookaheadSizes.isNotEmpty())
+            lookaheadSizes.forEach {
+                assertEquals(IntSize.Zero, it)
+            }
+            lookaheadSizes.clear()
         }
     }
 }

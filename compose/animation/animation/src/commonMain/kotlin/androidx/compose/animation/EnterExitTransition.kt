@@ -33,27 +33,26 @@ import androidx.compose.animation.core.spring
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
-import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.composed
 import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.graphics.GraphicsLayerScope
 import androidx.compose.ui.graphics.TransformOrigin
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.MeasureScope
+import androidx.compose.ui.node.ModifierNodeElement
+import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.constrain
 
 @RequiresOptIn(message = "This is an experimental animation API.")
 @Target(
@@ -815,6 +814,7 @@ internal data class TransitionData(
     val scale: Scale? = null
 )
 
+@OptIn(ExperimentalAnimationApi::class, InternalAnimationApi::class)
 @Suppress("ModifierFactoryExtensionFunction", "ComposableModifierFactory")
 @Composable
 internal fun Transition<EnterExitState>.createModifier(
@@ -823,47 +823,77 @@ internal fun Transition<EnterExitState>.createModifier(
     label: String
 ): Modifier {
 
-    // Generates up to 3 modifiers, one for each type of enter/exit transition in the order:
-    // slide then shrink/expand then alpha.
-    var modifier: Modifier = Modifier
+    var shouldAnimateSlide by remember(this) { mutableStateOf(false) }
+    var shouldAnimateSizeChange by remember(this) { mutableStateOf(false) }
+    // Animate if the enter or exit transition for the type is defined. Once the shouldAnimateFoo
+    // is set, it'll stay true until the transition is complete.  This would ensure the removal of
+    // any of type animation in the enter/exit amid a transition doesn't result in a
+    // jump. Reset shouldAnimateFoo to false when the transition is finished.
+    val isTransitioning = currentState != targetState || isSeeking
+    shouldAnimateSlide = isTransitioning &&
+        (shouldAnimateSlide || enter.data.slide != null || exit.data.slide != null)
+    shouldAnimateSizeChange = isTransitioning &&
+        (shouldAnimateSizeChange || enter.data.changeSize != null || exit.data.changeSize != null)
 
-    modifier = modifier.slideInOut(
-        this,
-        rememberUpdatedState(enter.data.slide),
-        rememberUpdatedState(exit.data.slide),
-        label
-    ).shrinkExpand(
-        this,
-        rememberUpdatedState(enter.data.changeSize),
-        rememberUpdatedState(exit.data.changeSize),
-        label
-    )
+    val slideAnimation = if (shouldAnimateSlide) {
+        createDeferredAnimation(IntOffset.VectorConverter, remember { "$label slide" })
+    } else {
+        null
+    }
+    val sizeAnimation = if (shouldAnimateSizeChange) {
+        createDeferredAnimation(IntSize.VectorConverter, remember { "$label shrink/expand" })
+    } else null
+
+    val offsetAnimation = if (shouldAnimateSizeChange) {
+        createDeferredAnimation(
+            IntOffset.VectorConverter,
+            remember { "$label InterruptionHandlingOffset" }
+        )
+    } else null
+
+    val disableClip = (enter.data.changeSize?.clip == false ||
+        exit.data.changeSize?.clip == false) || !shouldAnimateSizeChange
+
+    val graphicsLayerBlock = createGraphicsLayerBlock(enter, exit, label)
+
+    return (if (disableClip) Modifier else Modifier.clipToBounds())
+        .then(
+            EnterExitTransitionElement(
+                this, sizeAnimation, offsetAnimation, slideAnimation,
+                enter, exit, graphicsLayerBlock
+            )
+        )
+}
+
+@Composable
+private fun Transition<EnterExitState>.createGraphicsLayerBlock(
+    enter: EnterTransition,
+    exit: ExitTransition,
+    label: String
+): GraphicsLayerScope.() -> Unit {
+
+    var shouldAnimateAlpha by remember(this) { mutableStateOf(false) }
+    var shouldAnimateScale by remember(this) { mutableStateOf(false) }
+
+    val isTransitioning = currentState != targetState || isSeeking
+    shouldAnimateAlpha = isTransitioning &&
+        (shouldAnimateAlpha || enter.data.fade != null || exit.data.fade != null)
+    shouldAnimateScale = isTransitioning &&
+        (shouldAnimateScale || enter.data.scale != null || exit.data.scale != null)
 
     // Fade - it's important to put fade in the end. Otherwise fade will clip slide.
     // We'll animate if at any point during the transition fadeIn/fadeOut becomes non-null. This
     // would ensure the removal of fadeIn/Out amid a fade animation doesn't result in a jump.
-    var shouldAnimateAlpha by remember(this) { mutableStateOf(false) }
-    var shouldAnimateScale by remember(this) { mutableStateOf(false) }
-    if (currentState == targetState && !isSeeking) {
-        shouldAnimateAlpha = false
-        shouldAnimateScale = false
-    } else {
-        if (enter.data.fade != null || exit.data.fade != null) {
-            shouldAnimateAlpha = true
-        }
-        if (enter.data.scale != null || exit.data.scale != null) {
-            shouldAnimateScale = true
-        }
-    }
-
     val alpha by if (shouldAnimateAlpha) {
         animateFloat(
             transitionSpec = {
                 when {
                     EnterExitState.PreEnter isTransitioningTo EnterExitState.Visible ->
                         enter.data.fade?.animationSpec ?: DefaultAlphaAndScaleSpring
+
                     EnterExitState.Visible isTransitioningTo EnterExitState.PostExit ->
                         exit.data.fade?.animationSpec ?: DefaultAlphaAndScaleSpring
+
                     else -> DefaultAlphaAndScaleSpring
                 }
             },
@@ -879,14 +909,16 @@ internal fun Transition<EnterExitState>.createModifier(
         DefaultAlpha
     }
 
-    if (shouldAnimateScale) {
+    return if (shouldAnimateScale) {
         val scale by animateFloat(
             transitionSpec = {
                 when {
                     EnterExitState.PreEnter isTransitioningTo EnterExitState.Visible ->
                         enter.data.scale?.animationSpec ?: DefaultAlphaAndScaleSpring
+
                     EnterExitState.Visible isTransitioningTo EnterExitState.PostExit ->
                         exit.data.scale?.animationSpec ?: DefaultAlphaAndScaleSpring
+
                     else -> DefaultAlphaAndScaleSpring
                 }
             },
@@ -914,23 +946,24 @@ internal fun Transition<EnterExitState>.createModifier(
                 EnterExitState.Visible -> transformOriginWhenVisible
                 EnterExitState.PreEnter ->
                     enter.data.scale?.transformOrigin ?: exit.data.scale?.transformOrigin
+
                 EnterExitState.PostExit ->
                     exit.data.scale?.transformOrigin ?: enter.data.scale?.transformOrigin
             } ?: TransformOrigin.Center
         }
 
-        modifier = modifier.graphicsLayer {
+        val block: GraphicsLayerScope.() -> Unit = {
             this.alpha = alpha
             this.scaleX = scale
             this.scaleY = scale
             this.transformOrigin = transformOrigin
         }
+        block
     } else if (shouldAnimateAlpha) {
-        modifier = modifier.graphicsLayer {
-            this.alpha = alpha
-        }
+        { this.alpha = alpha }
+    } else {
+        {}
     }
-    return modifier
 }
 
 private val TransformOriginVectorConverter =
@@ -942,184 +975,64 @@ private val TransformOriginVectorConverter =
 private val DefaultAlpha = mutableFloatStateOf(1f)
 private val DefaultAlphaAndScaleSpring = spring<Float>(stiffness = Spring.StiffnessMediumLow)
 
-private fun Modifier.slideInOut(
-    transition: Transition<EnterExitState>,
-    slideIn: State<Slide?>,
-    slideOut: State<Slide?>,
-    labelPrefix: String
-): Modifier = composed {
-    // We'll animate if at any point during the transition slideIn/slideOut becomes non-null. This
-    // would ensure the removal of slideIn/Out amid a slide animation doesn't result in a jump.
-    var shouldAnimate by remember(transition) { mutableStateOf(false) }
-    if (transition.currentState == transition.targetState && !transition.isSeeking) {
-        shouldAnimate = false
-    } else {
-        if (slideIn.value != null || slideOut.value != null) {
-            shouldAnimate = true
-        }
-    }
-
-    if (shouldAnimate) {
-        val animation = transition.createDeferredAnimation(
-            IntOffset.VectorConverter,
-            remember { "$labelPrefix slide" }
-        )
-        val modifier = remember(transition) {
-            SlideModifier(animation, slideIn, slideOut)
-        }
-        this.then(modifier)
-    } else {
-        this
-    }
-}
-
 private val DefaultOffsetAnimationSpec = spring(
     stiffness = Spring.StiffnessMediumLow, visibilityThreshold = IntOffset.VisibilityThreshold
 )
 
-private class SlideModifier(
-    val lazyAnimation: Transition<EnterExitState>.DeferredAnimation<IntOffset, AnimationVector2D>,
-    val slideIn: State<Slide?>,
-    val slideOut: State<Slide?>
-) : LayoutModifierWithPassThroughIntrinsics() {
-    val transitionSpec: Transition.Segment<EnterExitState>.() -> FiniteAnimationSpec<IntOffset> =
-        {
-            when {
-                EnterExitState.PreEnter isTransitioningTo EnterExitState.Visible -> {
-                    slideIn.value?.animationSpec ?: DefaultOffsetAnimationSpec
-                }
-                EnterExitState.Visible isTransitioningTo EnterExitState.PostExit -> {
-                    slideOut.value?.animationSpec ?: DefaultOffsetAnimationSpec
-                }
-                else -> DefaultOffsetAnimationSpec
-            }
+private class EnterExitTransitionModifierNode(
+    var transition: Transition<EnterExitState>,
+    var sizeAnimation: Transition<EnterExitState>.DeferredAnimation<IntSize, AnimationVector2D>?,
+    var offsetAnimation:
+    Transition<EnterExitState>.DeferredAnimation<IntOffset, AnimationVector2D>?,
+    var slideAnimation: Transition<EnterExitState>.DeferredAnimation<IntOffset, AnimationVector2D>?,
+    var enter: EnterTransition,
+    var exit: ExitTransition,
+    var graphicsLayerBlock: GraphicsLayerScope.() -> Unit
+) : LayoutModifierNodeWithPassThroughIntrinsics() {
+
+    private var lookaheadConstraintsAvailable = false
+    private var lookaheadSize: IntSize = InvalidSize
+    private var lookaheadConstraints: Constraints = Constraints()
+        set(value) {
+            lookaheadConstraintsAvailable = true
+            field = value
         }
-
-    fun targetValueByState(targetState: EnterExitState, fullSize: IntSize): IntOffset {
-        val preEnter = slideIn.value?.slideOffset?.invoke(fullSize) ?: IntOffset.Zero
-        val postExit = slideOut.value?.slideOffset?.invoke(fullSize) ?: IntOffset.Zero
-        return when (targetState) {
-            EnterExitState.Visible -> IntOffset.Zero
-            EnterExitState.PreEnter -> preEnter
-            EnterExitState.PostExit -> postExit
-        }
-    }
-
-    override fun MeasureScope.measure(
-        measurable: Measurable,
-        constraints: Constraints
-    ): MeasureResult {
-        val placeable = measurable.measure(constraints)
-
-        val measuredSize = IntSize(placeable.width, placeable.height)
-        return layout(placeable.width, placeable.height) {
-            val slideOffset = lazyAnimation.animate(
-                transitionSpec
-            ) {
-                targetValueByState(it, measuredSize)
-            }
-            placeable.placeWithLayer(slideOffset.value)
-        }
-    }
-}
-
-private fun Modifier.shrinkExpand(
-    transition: Transition<EnterExitState>,
-    expand: State<ChangeSize?>,
-    shrink: State<ChangeSize?>,
-    labelPrefix: String
-): Modifier = composed {
-    // We'll animate if at any point during the transition shrink/expand becomes non-null. This
-    // would ensure the removal of shrink/expand amid a size change animation doesn't result in a
-    // jump.
-    var shouldAnimate by remember(transition) { mutableStateOf(false) }
-    if (transition.currentState == transition.targetState && !transition.isSeeking) {
-        shouldAnimate = false
-    } else {
-        if (expand.value != null || shrink.value != null) {
-            shouldAnimate = true
-        }
-    }
-
-    if (shouldAnimate) {
-        val alignment: State<Alignment?> = rememberUpdatedState(
-            with(transition.segment) {
-                EnterExitState.PreEnter isTransitioningTo EnterExitState.Visible
-            }.let {
-                if (it) {
-                    expand.value?.alignment ?: shrink.value?.alignment
-                } else {
-                    shrink.value?.alignment ?: expand.value?.alignment
-                }
-            }
-        )
-        val sizeAnimation = transition.createDeferredAnimation(
-            IntSize.VectorConverter,
-            remember { "$labelPrefix shrink/expand" }
-        )
-        val offsetAnimation = key(transition.currentState == transition.targetState) {
-            transition.createDeferredAnimation(
-                IntOffset.VectorConverter,
-                remember { "$labelPrefix InterruptionHandlingOffset" }
-            )
-        }
-
-        val expandShrinkModifier = remember(transition) {
-            ExpandShrinkModifier(
-                sizeAnimation,
-                offsetAnimation,
-                expand,
-                shrink,
-                alignment
-            )
-        }
-
-        if (transition.currentState == transition.targetState) {
-            expandShrinkModifier.currentAlignment = null
-        } else if (expandShrinkModifier.currentAlignment == null) {
-            expandShrinkModifier.currentAlignment = alignment.value ?: Alignment.TopStart
-        }
-        val disableClip = expand.value?.clip == false || shrink.value?.clip == false
-        this.then(if (disableClip) Modifier else Modifier.clipToBounds())
-            .then(expandShrinkModifier)
-    } else {
-        this
-    }
-}
-
-private val DefaultSizeAnimationSpec = spring(
-    stiffness = Spring.StiffnessMediumLow, visibilityThreshold = IntSize.VisibilityThreshold
-)
-
-private class ExpandShrinkModifier(
-    val sizeAnimation: Transition<EnterExitState>.DeferredAnimation<IntSize, AnimationVector2D>,
-    val offsetAnimation: Transition<EnterExitState>.DeferredAnimation<IntOffset,
-        AnimationVector2D>,
-    val expand: State<ChangeSize?>,
-    val shrink: State<ChangeSize?>,
-    val alignment: State<Alignment?>
-) : LayoutModifierWithPassThroughIntrinsics() {
     var currentAlignment: Alignment? = null
+    val alignment: Alignment?
+        get() = with(transition.segment) {
+            if (EnterExitState.PreEnter isTransitioningTo EnterExitState.Visible) {
+                enter.data.changeSize?.alignment ?: exit.data.changeSize?.alignment
+            } else {
+                exit.data.changeSize?.alignment ?: enter.data.changeSize?.alignment
+            }
+        }
+
+    private fun targetConstraints(default: Constraints) =
+        if (lookaheadConstraintsAvailable) lookaheadConstraints else default
+
     val sizeTransitionSpec: Transition.Segment<EnterExitState>.() -> FiniteAnimationSpec<IntSize> =
         {
             when {
                 EnterExitState.PreEnter isTransitioningTo EnterExitState.Visible ->
-                    expand.value?.animationSpec
+                    enter.data.changeSize?.animationSpec
+
                 EnterExitState.Visible isTransitioningTo EnterExitState.PostExit ->
-                    shrink.value?.animationSpec
+                    exit.data.changeSize?.animationSpec
+
                 else -> DefaultSizeAnimationSpec
             } ?: DefaultSizeAnimationSpec
         }
 
-    fun sizeByState(targetState: EnterExitState, fullSize: IntSize): IntSize {
-        val preEnterSize = expand.value?.let { it.size(fullSize) } ?: fullSize
-        val postExitSize = shrink.value?.let { it.size(fullSize) } ?: fullSize
+    fun sizeByState(targetState: EnterExitState, fullSize: IntSize): IntSize = when (targetState) {
+        EnterExitState.Visible -> fullSize
+        EnterExitState.PreEnter -> enter.data.changeSize?.size?.invoke(fullSize) ?: fullSize
+        EnterExitState.PostExit -> exit.data.changeSize?.size?.invoke(fullSize) ?: fullSize
+    }
 
-        return when (targetState) {
-            EnterExitState.Visible -> fullSize
-            EnterExitState.PreEnter -> preEnterSize
-            EnterExitState.PostExit -> postExitSize
-        }
+    override fun onAttach() {
+        super.onAttach()
+        lookaheadConstraintsAvailable = false
+        lookaheadSize = InvalidSize
     }
 
     // This offset is only needed when the alignment value changes during the shrink/expand
@@ -1129,14 +1042,14 @@ private class ExpandShrinkModifier(
     fun targetOffsetByState(targetState: EnterExitState, fullSize: IntSize): IntOffset =
         when {
             currentAlignment == null -> IntOffset.Zero
-            alignment.value == null -> IntOffset.Zero
-            currentAlignment == alignment.value -> IntOffset.Zero
+            alignment == null -> IntOffset.Zero
+            currentAlignment == alignment -> IntOffset.Zero
             else -> when (targetState) {
                 EnterExitState.Visible -> IntOffset.Zero
                 EnterExitState.PreEnter -> IntOffset.Zero
-                EnterExitState.PostExit -> shrink.value?.let {
+                EnterExitState.PostExit -> exit.data.changeSize?.let {
                     val endSize = it.size(fullSize)
-                    val targetOffset = alignment.value!!.align(
+                    val targetOffset = alignment!!.align(
                         fullSize,
                         endSize,
                         LayoutDirection.Ltr
@@ -1155,22 +1068,111 @@ private class ExpandShrinkModifier(
         measurable: Measurable,
         constraints: Constraints
     ): MeasureResult {
-        val placeable = measurable.measure(constraints)
-
-        val measuredSize = IntSize(placeable.width, placeable.height)
-        val currentSize = sizeAnimation.animate(sizeTransitionSpec) {
-            sizeByState(it, measuredSize)
-        }.value
-
-        val offsetDelta = offsetAnimation.animate({ DefaultOffsetAnimationSpec }) {
-            targetOffsetByState(it, measuredSize)
-        }.value
-
-        val offset =
-            currentAlignment?.align(measuredSize, currentSize, LayoutDirection.Ltr)
-                ?: IntOffset.Zero
-        return layout(currentSize.width, currentSize.height) {
-            placeable.place(offset.x + offsetDelta.x, offset.y + offsetDelta.y)
+        if (transition.currentState == transition.targetState) {
+            currentAlignment = null
+        } else if (currentAlignment == null) {
+            currentAlignment = alignment ?: Alignment.TopStart
         }
+        if (isLookingAhead) {
+            val placeable = measurable.measure(constraints)
+            val measuredSize = IntSize(placeable.width, placeable.height)
+            lookaheadSize = measuredSize
+            lookaheadConstraints = constraints
+            val sizeToReport = if (transition.targetState == EnterExitState.Visible)
+                measuredSize
+            else
+                IntSize.Zero
+            return layout(sizeToReport.width, sizeToReport.height) {
+                placeable.place(0, 0)
+            }
+        } else {
+            val placeable = measurable.measure(targetConstraints(constraints))
+            val measuredSize = IntSize(placeable.width, placeable.height)
+            val target = if (lookaheadSize.isValid) lookaheadSize else measuredSize
+            val animSize = sizeAnimation?.animate(sizeTransitionSpec) { sizeByState(it, target) }
+            // Since we measure with lookahead constraints when available, the size needs to
+            // be constrained by incoming constraints so that we know how to position content
+            // in the constrained rect based on alignment.
+            val currentSize = constraints.constrain(animSize?.value ?: measuredSize)
+            val offsetDelta = offsetAnimation?.animate({ DefaultOffsetAnimationSpec }) {
+                targetOffsetByState(it, target)
+            }?.value ?: IntOffset.Zero
+            val slideOffset = slideAnimation?.animate(slideSpec) {
+                slideTargetValueByState(it, target)
+            }?.value ?: IntOffset.Zero
+            val offset = (currentAlignment?.align(target, currentSize, LayoutDirection.Ltr)
+                ?: IntOffset.Zero) + slideOffset
+            return layout(currentSize.width, currentSize.height) {
+                placeable.placeWithLayer(
+                    offset.x + offsetDelta.x, offset.y + offsetDelta.y, 0f, graphicsLayerBlock
+                )
+            }
+        }
+    }
+
+    val slideSpec: Transition.Segment<EnterExitState>.() -> FiniteAnimationSpec<IntOffset> = {
+        when {
+            EnterExitState.PreEnter isTransitioningTo EnterExitState.Visible -> {
+                enter.data.slide?.animationSpec ?: DefaultOffsetAnimationSpec
+            }
+
+            EnterExitState.Visible isTransitioningTo EnterExitState.PostExit -> {
+                exit.data.slide?.animationSpec ?: DefaultOffsetAnimationSpec
+            }
+
+            else -> DefaultOffsetAnimationSpec
+        }
+    }
+
+    fun slideTargetValueByState(targetState: EnterExitState, fullSize: IntSize): IntOffset {
+        val preEnter = enter.data.slide?.slideOffset?.invoke(fullSize) ?: IntOffset.Zero
+        val postExit = exit.data.slide?.slideOffset?.invoke(fullSize) ?: IntOffset.Zero
+        return when (targetState) {
+            EnterExitState.Visible -> IntOffset.Zero
+            EnterExitState.PreEnter -> preEnter
+            EnterExitState.PostExit -> postExit
+        }
+    }
+}
+
+private val DefaultSizeAnimationSpec = spring(
+    stiffness = Spring.StiffnessMediumLow, visibilityThreshold = IntSize.VisibilityThreshold
+)
+
+private data class EnterExitTransitionElement(
+    val transition: Transition<EnterExitState>,
+    var sizeAnimation: Transition<EnterExitState>.DeferredAnimation<IntSize, AnimationVector2D>?,
+    var offsetAnimation:
+    Transition<EnterExitState>.DeferredAnimation<IntOffset, AnimationVector2D>?,
+    var slideAnimation: Transition<EnterExitState>.DeferredAnimation<IntOffset, AnimationVector2D>?,
+    var enter: EnterTransition,
+    var exit: ExitTransition,
+    var graphicsLayerBlock: GraphicsLayerScope.() -> Unit
+) : ModifierNodeElement<EnterExitTransitionModifierNode>() {
+    override fun create(): EnterExitTransitionModifierNode =
+        EnterExitTransitionModifierNode(
+            transition, sizeAnimation, offsetAnimation, slideAnimation, enter, exit,
+            graphicsLayerBlock
+        )
+
+    override fun update(node: EnterExitTransitionModifierNode) {
+        node.transition = transition
+        node.sizeAnimation = sizeAnimation
+        node.offsetAnimation = offsetAnimation
+        node.slideAnimation = slideAnimation
+        node.enter = enter
+        node.exit = exit
+        node.graphicsLayerBlock = graphicsLayerBlock
+    }
+
+    override fun InspectorInfo.inspectableProperties() {
+        name = "enterExitTransition"
+        properties["transition"] = transition
+        properties["sizeAnimation"] = sizeAnimation
+        properties["offsetAnimation"] = offsetAnimation
+        properties["slideAnimation"] = slideAnimation
+        properties["enter"] = enter
+        properties["exit"] = exit
+        properties["graphicsLayerBlock"] = graphicsLayerBlock
     }
 }
