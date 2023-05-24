@@ -44,6 +44,7 @@ import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.Config;
 import androidx.camera.core.impl.ImageFormatConstants;
+import androidx.camera.core.impl.ImageOutputConfig;
 import androidx.camera.core.impl.MutableConfig;
 import androidx.camera.core.impl.MutableOptionsBundle;
 import androidx.camera.core.impl.OptionsBundle;
@@ -87,7 +88,7 @@ public class StreamSharing extends UseCase {
     @Nullable
     private SurfaceEdge mSharingInputEdge;
 
-    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    @SuppressWarnings("WeakerAccess") // Synthetic access
     SessionConfig.Builder mSessionConfigBuilder;
 
     static {
@@ -230,6 +231,8 @@ public class StreamSharing extends UseCase {
                 camera.getHasTransform(),
                 requireNonNull(getCropRect(streamSpec.getResolution())),
                 /*rotationDegrees=*/0, // Rotation are handled by each child.
+                // Once copied, the target rotation will no longer be useful.
+                ImageOutputConfig.ROTATION_NOT_SPECIFIED,
                 /*mirroring=*/false); // Mirroring will be decided by each child.
         mSharingInputEdge = getSharingInputEdge(mCameraEdge, camera);
 

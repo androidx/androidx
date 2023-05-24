@@ -31,6 +31,8 @@ import androidx.camera.core.CameraEffect.VIDEO_CAPTURE
 import androidx.camera.core.SurfaceRequest
 import androidx.camera.core.SurfaceRequest.TransformationInfo
 import androidx.camera.core.impl.ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE
+import androidx.camera.core.impl.ImageOutputConfig
+import androidx.camera.core.impl.ImageOutputConfig.ROTATION_NOT_SPECIFIED
 import androidx.camera.core.impl.ImmediateSurface
 import androidx.camera.core.impl.StreamSpec
 import androidx.camera.core.impl.utils.TransformUtils
@@ -128,6 +130,7 @@ class SurfaceProcessorNodeTest {
                 false,
                 PREVIEW_CROP_RECT,
                 0,
+                ImageOutputConfig.ROTATION_NOT_SPECIFIED,
                 false
             )
         )
@@ -157,6 +160,7 @@ class SurfaceProcessorNodeTest {
             true,
             PREVIEW_CROP_RECT,
             0,
+            ImageOutputConfig.ROTATION_NOT_SPECIFIED,
             false
         )
         val outConfig = OutConfig.of(
@@ -207,6 +211,7 @@ class SurfaceProcessorNodeTest {
             true,
             PREVIEW_CROP_RECT,
             0,
+            ROTATION_NOT_SPECIFIED,
             false
         )
         val outConfig1 = OutConfig.of(inputEdge)
@@ -343,7 +348,7 @@ class SurfaceProcessorNodeTest {
         shadowOf(getMainLooper()).idle()
 
         // Act: update rotation degrees
-        inputSurface.rotationDegrees = 270
+        inputSurface.updateTransformation(270)
         shadowOf(getMainLooper()).idle()
 
         // Assert: surfaceOutput of SurfaceProcessor will consume the initial rotation degrees and
@@ -362,7 +367,7 @@ class SurfaceProcessorNodeTest {
         assertThat(videoSurfaceOutput.mirroring).isTrue()
 
         // Act: update rotation degrees
-        inputSurface.rotationDegrees = 180
+        inputSurface.updateTransformation(180)
         shadowOf(getMainLooper()).idle()
         // Assert: video rotation degrees is opposite of preview because it's not mirrored.
         assertThat(previewTransformInfo.rotationDegrees).isEqualTo(90)
@@ -380,7 +385,7 @@ class SurfaceProcessorNodeTest {
         shadowOf(getMainLooper()).idle()
 
         // Act: update rotation degrees
-        inputSurface.rotationDegrees = 270
+        inputSurface.updateTransformation(270)
         shadowOf(getMainLooper()).idle()
 
         // Assert: surfaceOutput of SurfaceProcessor will consume the initial rotation degrees and
@@ -399,7 +404,7 @@ class SurfaceProcessorNodeTest {
         assertThat(videoSurfaceOutput.mirroring).isTrue()
 
         // Act: update rotation degrees
-        inputSurface.rotationDegrees = 180
+        inputSurface.updateTransformation(180)
         shadowOf(getMainLooper()).idle()
         // Assert: video rotation is the same as preview and are compensated by mirroring.
         assertThat(previewTransformInfo.rotationDegrees).isEqualTo(270)
@@ -462,6 +467,7 @@ class SurfaceProcessorNodeTest {
             hasCameraTransform,
             previewCropRect,
             inputRotationDegrees,
+            ROTATION_NOT_SPECIFIED,
             mirroring,
         ),
     ) {
