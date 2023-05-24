@@ -16,6 +16,7 @@
 
 package androidx.camera.core.impl
 
+import android.os.Build
 import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraSelector
 import androidx.camera.testing.fakes.FakeCameraInfoInternal
@@ -24,6 +25,7 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
 
 /**
@@ -31,6 +33,7 @@ import org.robolectric.annotation.internal.DoNotInstrument
  */
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
+@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 class CameraFiltersTest {
     private val mCameraInfos: ArrayList<CameraInfo> = arrayListOf()
 

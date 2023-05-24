@@ -14,12 +14,15 @@
  * limitations under the License.
  */
 
+@file:RequiresApi(21)
+
 package androidx.camera.core.internal
 
 import android.graphics.ImageFormat
 import android.os.Build
 import android.util.Pair
 import android.util.Size
+import androidx.annotation.RequiresApi
 import androidx.camera.core.AspectRatio
 import androidx.camera.core.impl.UseCaseConfig
 import androidx.camera.core.impl.UseCaseConfigFactory.CaptureType

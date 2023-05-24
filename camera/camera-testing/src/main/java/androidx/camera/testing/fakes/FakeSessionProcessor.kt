@@ -45,7 +45,7 @@ import kotlinx.coroutines.withTimeoutOrNull
 
 const val FAKE_CAPTURE_SEQUENCE_ID = 1
 
-@RequiresApi(28) // writing to PRIVATE surface requires API 28+
+@RequiresApi(23) // ImageWriter requires API 23+
 class FakeSessionProcessor(
     val inputFormatPreview: Int? = null,
     val inputFormatCapture: Int? = null

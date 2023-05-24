@@ -24,6 +24,7 @@ import android.util.Range
 import android.util.Rational
 import android.util.Size
 import android.view.Surface
+import androidx.annotation.RequiresApi
 import androidx.camera.core.CameraEffect
 import androidx.camera.core.CameraEffect.PREVIEW
 import androidx.camera.core.CameraEffect.VIDEO_CAPTURE
@@ -927,6 +928,7 @@ class CameraUseCaseAdapterTest {
         assertThat(video.effect).isNull()
     }
 
+    @RequiresApi(23)
     private fun createAdapterWithSupportedCameraOperations(
         @RestrictedCameraControl.CameraOperation supportedOps: Set<Int>
     ): CameraUseCaseAdapter {
@@ -945,6 +947,7 @@ class CameraUseCaseAdapterTest {
         return cameraUseCaseAdapter
     }
 
+    @RequiresApi(23)
     @Test
     fun cameraControlFailed_whenNoCameraOperationsSupported(): Unit = runBlocking {
         // 1. Arrange
@@ -980,6 +983,7 @@ class CameraUseCaseAdapterTest {
             .build()
     }
 
+    @RequiresApi(23)
     @Test
     fun zoomEnabled_whenZoomOperationsSupported(): Unit = runBlocking {
         // 1. Arrange
@@ -994,6 +998,7 @@ class CameraUseCaseAdapterTest {
         assertThat(fakeCameraControl.linearZoom).isEqualTo(1.0f)
     }
 
+    @RequiresApi(23)
     @Test
     fun torchEnabled_whenTorchOperationSupported(): Unit = runBlocking {
         // 1. Arrange
@@ -1008,6 +1013,7 @@ class CameraUseCaseAdapterTest {
         assertThat(fakeCameraControl.torchEnabled).isEqualTo(true)
     }
 
+    @RequiresApi(23)
     @Test
     fun focusMetering_afEnabled_whenAfOperationSupported(): Unit = runBlocking {
         // 1. Arrange
@@ -1033,6 +1039,7 @@ class CameraUseCaseAdapterTest {
             .isEmpty()
     }
 
+    @RequiresApi(23)
     @Test
     fun focusMetering_aeEnabled_whenAeOperationsSupported(): Unit = runBlocking {
         // 1. Arrange
@@ -1057,6 +1064,7 @@ class CameraUseCaseAdapterTest {
             .isEmpty()
     }
 
+    @RequiresApi(23)
     @Test
     fun focusMetering_awbEnabled_whenAwbOperationsSupported(): Unit = runBlocking {
         // 1. Arrange
@@ -1081,6 +1089,7 @@ class CameraUseCaseAdapterTest {
             .isEmpty()
     }
 
+    @RequiresApi(23)
     @Test
     fun focusMetering_disabled_whenNoneIsSupported(): Unit = runBlocking {
         // 1. Arrange
@@ -1099,6 +1108,7 @@ class CameraUseCaseAdapterTest {
         assertThat(fakeCameraControl.lastSubmittedFocusMeteringAction).isNull()
     }
 
+    @RequiresApi(23)
     @Test
     fun exposureEnabled_whenExposureOperationSupported(): Unit = runBlocking {
         // 1. Arrange
@@ -1113,6 +1123,7 @@ class CameraUseCaseAdapterTest {
         assertThat(fakeCameraControl.exposureCompensationIndex).isEqualTo(0)
     }
 
+    @RequiresApi(23)
     @Test
     fun cameraInfo_returnsDisabledState_AllOpsDisabled(): Unit = runBlocking {
         // 1. Arrange
@@ -1150,6 +1161,7 @@ class CameraUseCaseAdapterTest {
             .isEqualTo(0)
     }
 
+    @RequiresApi(23)
     @Test
     fun cameraInfo_zoomEnabled(): Unit = runBlocking {
         // 1. Arrange
@@ -1170,6 +1182,7 @@ class CameraUseCaseAdapterTest {
         assertThat(zoomState.linearZoom).isEqualTo(fakeZoomState.linearZoom)
     }
 
+    @RequiresApi(23)
     @Test
     fun cameraInfo_torchEnabled(): Unit = runBlocking {
         // 1. Arrange
@@ -1184,6 +1197,7 @@ class CameraUseCaseAdapterTest {
             .isEqualTo(fakeCameraInfo.torchState.value)
     }
 
+    @RequiresApi(23)
     @Test
     fun cameraInfo_afEnabled(): Unit = runBlocking {
         // 1. Arrange
@@ -1202,6 +1216,7 @@ class CameraUseCaseAdapterTest {
         )).isTrue()
     }
 
+    @RequiresApi(23)
     @Test
     fun cameraInfo_exposureExposureEnabled(): Unit = runBlocking {
         // 1. Arrange
@@ -1224,6 +1239,7 @@ class CameraUseCaseAdapterTest {
             .isEqualTo(fakeCameraInfo.exposureState.isExposureCompensationSupported)
     }
 
+    @RequiresApi(23)
     @Test
     fun cameraInfo_flashEnabled(): Unit = runBlocking {
         // 1. Arrange
