@@ -27,6 +27,7 @@ import androidx.wear.protolayout.proto.ColorProto;
  *
  * @deprecated Use {@link androidx.wear.protolayout.ColorBuilders} instead.
  */
+@Deprecated
 public final class ColorBuilders {
     private ColorBuilders() {}
 
