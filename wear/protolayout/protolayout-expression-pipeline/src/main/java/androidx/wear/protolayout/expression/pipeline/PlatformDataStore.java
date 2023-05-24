@@ -33,6 +33,7 @@ import androidx.wear.protolayout.expression.proto.DynamicDataProto.DynamicDataVa
 
 import java.util.Collections;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.Executor;
 
@@ -44,7 +45,7 @@ import java.util.concurrent.Executor;
  * the main thread, and because updates will eventually affect the main thread, this whole class
  * must only be used from the UI thread.
  */
-class PlatformDataStore extends DataStore {
+final class PlatformDataStore extends DataStore {
     private static final String TAG = "ProtoLayoutPlatformDataStore";
 
     private final Executor mUiExecutor;
@@ -61,10 +62,6 @@ class PlatformDataStore extends DataStore {
     @NonNull
     private final Map<PlatformDataKey<?>, PlatformDataProvider>
             mSourceKeyToDataProviders = new ArrayMap<>();
-
-    @NonNull
-    private final Map<PlatformDataProvider, Integer> mProviderToRegisteredKeyCount =
-            new ArrayMap<>();
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     PlatformDataStore(
@@ -162,42 +159,47 @@ class PlatformDataStore extends DataStore {
     void registerCallback(
             @NonNull DynamicDataKey<?> key,
             @NonNull DynamicTypeValueReceiverWithPreUpdate<DynamicDataValue> callback) {
-        mRegisteredCallbacks.computeIfAbsent(key, k -> new ArraySet<>()).add(callback);
+        if (!(key instanceof PlatformDataKey)) {
+            return;
+        }
 
-        if (!(key instanceof PlatformDataKey) ||
-                (mRegisteredCallbacks.containsKey(key) && mRegisteredCallbacks.get(key).size() > 1)
-        ) {
+        // The key has callback previously, then the provider receiver already set.
+        if (mRegisteredCallbacks.containsKey(key) && !mRegisteredCallbacks.get(key).isEmpty()) {
+            mRegisteredCallbacks.get(key).add(callback);
             return;
         }
 
         PlatformDataProvider platformDataProvider = mSourceKeyToDataProviders.get(key);
-        if (platformDataProvider != null) {
-            int registeredKeyCount =
-                    mProviderToRegisteredKeyCount.getOrDefault(platformDataProvider, 0);
-
-            if (registeredKeyCount == 0) {
-                platformDataProvider.setReceiver(
-                        mUiExecutor,
-                        new PlatformDataReceiver() {
-                            @Override
-                            public void onData(
-                                    @NonNull
-                                    Map<PlatformDataKey<?>, DynamicDataBuilders.DynamicDataValue>
-                                            newData) {
-                                updatePlatformDataEntries(newData);
-                            }
-
-                            @Override
-                            public void onInvalidated(@NonNull Set<PlatformDataKey<?>> keys) {
-                                removePlatformDataEntries(keys);
-                            }
-                        });
-            }
-
-            mProviderToRegisteredKeyCount.put(platformDataProvider, registeredKeyCount + 1);
-        } else {
+        if (platformDataProvider == null) {
             Log.w(TAG, String.format("No platform data provider for %s.", key));
+            return;
         }
+
+        // There is other key from the provider has callback registered, so the provider receiver
+        // already set
+        if (hasRegisteredCallback(platformDataProvider)) {
+            mRegisteredCallbacks.computeIfAbsent(key, k -> new ArraySet<>()).add(callback);
+            return;
+        }
+
+        mRegisteredCallbacks.computeIfAbsent(key, k -> new ArraySet<>()).add(callback);
+        // Set receiver to the provider
+        platformDataProvider.setReceiver(
+                mUiExecutor,
+                new PlatformDataReceiver() {
+                    @Override
+                    public void onData(
+                            @NonNull
+                            Map<PlatformDataKey<?>, DynamicDataBuilders.DynamicDataValue>
+                                    newData) {
+                        updatePlatformDataEntries(newData);
+                    }
+
+                    @Override
+                    public void onInvalidated(@NonNull Set<PlatformDataKey<?>> keys) {
+                        removePlatformDataEntries(keys);
+                    }
+                });
     }
 
     /** Unregisters the callback for the given {@code key} from receiving the updates. */
@@ -208,24 +210,33 @@ class PlatformDataStore extends DataStore {
             @NonNull DynamicTypeValueReceiverWithPreUpdate<DynamicDataValue> callback) {
         Set<DynamicTypeValueReceiverWithPreUpdate<DynamicDataValue>> callbackSet =
                 mRegisteredCallbacks.get(key);
-        if (callbackSet != null) {
-            callbackSet.remove(callback);
 
-            if (!(key instanceof PlatformDataKey) || !callbackSet.isEmpty()) {
-                return;
-            }
-
-            PlatformDataProvider platformDataProvider = mSourceKeyToDataProviders.get(key);
-            if (platformDataProvider != null) {
-                int registeredKeyCount =
-                        mProviderToRegisteredKeyCount.getOrDefault(platformDataProvider, 0);
-                if (registeredKeyCount == 1) {
-                    platformDataProvider.clearReceiver();
-                }
-                mProviderToRegisteredKeyCount.put(platformDataProvider, registeredKeyCount - 1);
-            } else {
-                Log.w(TAG, String.format("No platform data provider for %s", key));
-            }
+        if (callbackSet == null) {
+            return;
         }
+
+        callbackSet.remove(callback);
+
+        if (!(key instanceof PlatformDataKey) || !callbackSet.isEmpty()) {
+            return;
+        }
+
+        PlatformDataProvider platformDataProvider = mSourceKeyToDataProviders.get(key);
+        if (platformDataProvider == null) {
+            Log.w(TAG, String.format("No platform data provider for %s", key));
+            return;
+        }
+
+        if (!hasRegisteredCallback(platformDataProvider)) {
+            platformDataProvider.clearReceiver();
+        }
+    }
+
+    // check whether any key from the provider has registered callback
+    private boolean hasRegisteredCallback(PlatformDataProvider provider) {
+        return mSourceKeyToDataProviders.entrySet().stream().anyMatch(
+                entry -> Objects.equals(entry.getValue(), provider)
+                        && !mRegisteredCallbacks.getOrDefault(
+                        entry.getKey(), Collections.emptySet()).isEmpty());
     }
 }
