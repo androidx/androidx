@@ -161,8 +161,7 @@ public interface InteractiveWatchFaceClient : AutoCloseable {
     ): Bitmap
 
     /** Whether or not the watch face supports [RemoteWatchFaceViewHost]. */
-    public val isRemoteWatchFaceViewHostSupported: Boolean
-        @get:JvmName("isRemoteWatchFaceViewHostSupported") get() = false
+    public val isRemoteWatchFaceViewHostSupported: Boolean get() = false
 
     /**
      * Constructs a [RemoteWatchFaceViewHost] whose [RemoteWatchFaceViewHost.surfacePackage] can be
