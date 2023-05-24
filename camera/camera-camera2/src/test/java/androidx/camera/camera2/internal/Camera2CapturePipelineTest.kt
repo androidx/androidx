@@ -30,6 +30,7 @@ import android.media.Image
 import android.media.ImageWriter
 import android.os.Build
 import android.view.Surface
+import androidx.annotation.RequiresApi
 import androidx.camera.camera2.impl.Camera2ImplConfig
 import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat
 import androidx.camera.camera2.internal.compat.quirk.AutoFlashUnderExposedQuirk
@@ -561,6 +562,7 @@ class Camera2CapturePipelineTest {
         }
     }
 
+    @RequiresApi(23)
     @Test
     fun submitZslCaptureRequests_withZslTemplate_templateZeroShutterLagSent(): Unit = runBlocking {
         // Arrange.
@@ -595,6 +597,7 @@ class Camera2CapturePipelineTest {
         }
     }
 
+    @RequiresApi(23)
     @Test
     fun submitZslCaptureRequests_withZslDisabledByFlashMode_templateStillPictureSent():
         Unit = runBlocking {
@@ -626,6 +629,7 @@ class Camera2CapturePipelineTest {
         }
     }
 
+    @RequiresApi(23)
     @Test
     fun submitZslCaptureRequests_withZslDisabledByUseCaseConfig_templateStillPictureSent():
         Unit = runBlocking {
@@ -657,6 +661,7 @@ class Camera2CapturePipelineTest {
         }
     }
 
+    @RequiresApi(23)
     @Test
     fun submitZslCaptureRequests_withNoTemplate_templateStillPictureSent(): Unit = runBlocking {
         // Arrange.
@@ -1230,6 +1235,7 @@ class Camera2CapturePipelineTest {
         )
     }
 
+    @RequiresApi(23)
     private fun initCameraControlWithZsl(
         isZslDisabledByFlashMode: Boolean,
         isZslDisabledByUserCaseConfig: Boolean
