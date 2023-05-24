@@ -16,6 +16,7 @@
 
 package androidx.camera.video.internal.audio
 
+import androidx.annotation.RequiresApi
 import androidx.camera.testing.mocks.MockConsumer
 import androidx.camera.testing.mocks.helpers.CallTimes
 import androidx.camera.video.internal.audio.AudioStream.PacketInfo
@@ -23,6 +24,7 @@ import androidx.core.util.Preconditions.checkArgument
 import java.nio.ByteBuffer
 import java.util.concurrent.Executor
 
+@RequiresApi(21)
 class FakeAudioStream(
     private val audioDataProvider: (index: Int) -> AudioData,
     isSilenced: Boolean = false,
