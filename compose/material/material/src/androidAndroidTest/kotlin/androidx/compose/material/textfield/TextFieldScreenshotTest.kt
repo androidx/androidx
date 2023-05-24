@@ -27,6 +27,7 @@ import androidx.compose.material.Icon
 import androidx.compose.material.LocalContentColor
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
+import androidx.compose.material.defaultPlatformTextStyle
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Call
 import androidx.compose.material.icons.filled.Clear
@@ -73,6 +74,8 @@ class TextFieldScreenshotTest {
 
     @get:Rule
     val rule = createComposeRule()
+
+    private val platformTextStyle = defaultPlatformTextStyle()
 
     @get:Rule
     val screenshotRule = AndroidXScreenshotTestRule(GOLDEN_MATERIAL)
@@ -483,7 +486,10 @@ class TextFieldScreenshotTest {
                 value = TextFieldValue(text = text, selection = TextRange(text.length)),
                 onValueChange = {},
                 modifier = Modifier.width(300.dp).testTag(TextFieldTag),
-                textStyle = TextStyle(textAlign = TextAlign.Center),
+                textStyle = TextStyle(
+                    textAlign = TextAlign.Center,
+                    platformStyle = platformTextStyle
+                ),
                 singleLine = true
             )
         }
@@ -499,7 +505,7 @@ class TextFieldScreenshotTest {
                 value = TextFieldValue(text = text, selection = TextRange(text.length)),
                 onValueChange = {},
                 modifier = Modifier.fillMaxWidth().testTag(TextFieldTag),
-                textStyle = TextStyle(textAlign = TextAlign.End),
+                textStyle = TextStyle(textAlign = TextAlign.End, platformStyle = platformTextStyle),
                 singleLine = true
             )
         }
