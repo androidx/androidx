@@ -36,6 +36,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.structuralEqualityPolicy
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
@@ -162,8 +163,8 @@ internal class AnchoredDraggableState<T>(
         private set
 
     /**
-     * The target value. This is the closest value to the current offset (taking into account
-     * positional thresholds). If no interactions like animations or drags are in progress, this
+     * The target value. This is the closest value to the current offset, taking into account
+     * positional thresholds. If no interactions like animations or drags are in progress, this
      * will be the current value.
      */
     val targetValue: T by derivedStateOf {
@@ -171,6 +172,20 @@ internal class AnchoredDraggableState<T>(
             val currentOffset = offset
             if (!currentOffset.isNaN()) {
                 computeTarget(currentOffset, currentValue, velocity = 0f)
+            } else currentValue
+        }
+    }
+
+    /**
+     * The closest value in the swipe direction from the current offset, not considering thresholds.
+     * If an [anchoredDrag] is in progress, this will be the target of that anchoredDrag (if
+     * specified).
+     */
+    internal val closestValue: T by derivedStateOf {
+        animationTarget ?: run {
+            val currentOffset = offset
+            if (!currentOffset.isNaN()) {
+                computeTargetWithoutThresholds(currentOffset, currentValue)
             } else currentValue
         }
     }
@@ -207,20 +222,20 @@ internal class AnchoredDraggableState<T>(
     val isAnimationRunning: Boolean get() = animationTarget != null
 
     /**
-     * The fraction of the progress going from [currentValue] to [targetValue], within [0f..1f]
+     * The fraction of the progress going from [currentValue] to [closestValue], within [0f..1f]
      * bounds.
      */
     /*@FloatRange(from = 0f, to = 1f)*/
-    val progress: Float by derivedStateOf {
-        val a = anchors[currentValue] ?: 0f
-        val b = anchors[targetValue] ?: 0f
-        val distance = abs(b - a)
-        if (distance > 1e-6f) {
-            val progress = (this.requireOffset() - a) / (b - a)
-            // If we are very close to 0f or 1f, we round to the closest
-            if (progress < 1e-6f) 0f else if (progress > 1 - 1e-6f) 1f else progress
-        } else 1f
-    }
+    val progress: Float by derivedStateOf(structuralEqualityPolicy()) {
+            val a = anchors[currentValue] ?: 0f
+            val b = anchors[closestValue] ?: 0f
+            val distance = abs(b - a)
+            if (distance > 1e-6f) {
+                val progress = (this.requireOffset() - a) / (b - a)
+                // If we are very close to 0f or 1f, we round to the closest
+                if (progress < 1e-6f) 0f else if (progress > 1 - 1e-6f) 1f else progress
+            } else 1f
+        }
 
     /**
      * The velocity of the last known animation. Gets reset to 0f when an animation completes
@@ -347,6 +362,21 @@ internal class AnchoredDraggableState<T>(
                     if (offset > absoluteThreshold) currentValue else lower
                 }
             }
+        }
+    }
+
+    private fun computeTargetWithoutThresholds(
+        offset: Float,
+        currentValue: T,
+    ): T {
+        val currentAnchors = anchors
+        val currentAnchor = currentAnchors[currentValue]
+        return if (currentAnchor == offset || currentAnchor == null) {
+            currentValue
+        } else if (currentAnchor < offset) {
+            currentAnchors.closestAnchor(offset, true)
+        } else {
+            currentAnchors.closestAnchor(offset, false)
         }
     }
 
