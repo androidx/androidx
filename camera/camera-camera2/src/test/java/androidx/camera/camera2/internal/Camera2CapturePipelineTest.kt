@@ -562,7 +562,7 @@ class Camera2CapturePipelineTest {
         }
     }
 
-    @RequiresApi(23)
+    @Config(minSdk = 23)
     @Test
     fun submitZslCaptureRequests_withZslTemplate_templateZeroShutterLagSent(): Unit = runBlocking {
         // Arrange.
@@ -597,7 +597,7 @@ class Camera2CapturePipelineTest {
         }
     }
 
-    @RequiresApi(23)
+    @Config(minSdk = 23)
     @Test
     fun submitZslCaptureRequests_withZslDisabledByFlashMode_templateStillPictureSent():
         Unit = runBlocking {
@@ -629,7 +629,7 @@ class Camera2CapturePipelineTest {
         }
     }
 
-    @RequiresApi(23)
+    @Config(minSdk = 23)
     @Test
     fun submitZslCaptureRequests_withZslDisabledByUseCaseConfig_templateStillPictureSent():
         Unit = runBlocking {
@@ -661,7 +661,7 @@ class Camera2CapturePipelineTest {
         }
     }
 
-    @RequiresApi(23)
+    @Config(minSdk = 23)
     @Test
     fun submitZslCaptureRequests_withNoTemplate_templateStillPictureSent(): Unit = runBlocking {
         // Arrange.
