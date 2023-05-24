@@ -29,6 +29,7 @@ dependencies {
     api("androidx.annotation:annotation:1.1.0")
 
     // Classes and types that are only needed at runtime
+    implementation(libs.atomicFu)
     implementation(libs.kotlinStdlib)
     implementation(libs.kotlinCoroutinesGuava)
     implementation(libs.kotlinCoroutinesTest)

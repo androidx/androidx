@@ -24,14 +24,13 @@ plugins {
     id("kotlin-kapt")
 }
 
-apply from: "dependencies.gradle"
-
 dependencies {
-    // NOTE: API and IMPLEMENTATION dependencies are defined in dependencies.gradle to export for
-    // other modules depending on the jarjar variant of CameraPipe. All dependencies should be
-    // added there rather than directly here.
-    api(CAMERA_PIPE_DEPS.API)
-    implementation(CAMERA_PIPE_DEPS.IMPLEMENTATION)
+    api("androidx.annotation:annotation:1.2.0")
+    api(libs.kotlinStdlib)
+    api(libs.kotlinCoroutinesAndroid)
+
+    implementation(libs.atomicFu)
+    implementation(libs.dagger)
 
     kapt(libs.daggerCompiler)
 
