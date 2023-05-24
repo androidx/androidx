@@ -772,9 +772,11 @@ public final class SearchSpec {
          *     usages reported by {@link AppSearchSession#reportUsageAsync}, and type 2 refers to
          *     usages reported by {@link GlobalSearchSession#reportSystemUsageAsync}.
          *     <li>this.childrenRankingSignals()
-         *     <p>Returns a list of children document scores. Currently, a document can only be a
-         *     child of another document in the context of joins. If this function is called
-         *     without the Join API enabled, a type error will be raised.
+         *     <p>Returns a list of children ranking signals calculated by scoring the joined
+         *     documents using the ranking strategy specified in the nested {@link SearchSpec}.
+         *     Currently, a document can only be a child of another document in the context of
+         *     joins. If this function is called without the Join API enabled, a type error will
+         *     be raised.
          *     <li>this.propertyWeights()
          *     <p>Returns a list of the normalized weights of the matched properties for the
          *     current document being scored. Property weights come from what's specified in
