@@ -236,23 +236,23 @@ internal class TextAnnotatedStringNode(
         var localSemanticsTextLayoutResult = semanticsTextLayoutResult
         if (localSemanticsTextLayoutResult == null) {
             localSemanticsTextLayoutResult = { textLayoutResult ->
-                val layout = layoutCache.layoutOrNull?.also {
-                    it.copy(
-                        layoutInput = TextLayoutInput(
-                            text = it.layoutInput.text,
-                            style = it.layoutInput.style.merge(
-                                color = overrideColor?.invoke() ?: Color.Unspecified
-                            ),
-                            placeholders = it.layoutInput.placeholders,
-                            maxLines = it.layoutInput.maxLines,
-                            softWrap = it.layoutInput.softWrap,
-                            overflow = it.layoutInput.overflow,
-                            density = it.layoutInput.density,
-                            layoutDirection = it.layoutInput.layoutDirection,
-                            fontFamilyResolver = it.layoutInput.fontFamilyResolver,
-                            constraints = it.layoutInput.constraints
-                        )
+                val inputLayout = layoutCache.layoutOrNull
+                val layout = inputLayout?.copy(
+                    layoutInput = TextLayoutInput(
+                        text = inputLayout.layoutInput.text,
+                        style = this@TextAnnotatedStringNode.style.merge(
+                            color = overrideColor?.invoke() ?: Color.Unspecified
+                        ),
+                        placeholders = inputLayout.layoutInput.placeholders,
+                        maxLines = inputLayout.layoutInput.maxLines,
+                        softWrap = inputLayout.layoutInput.softWrap,
+                        overflow = inputLayout.layoutInput.overflow,
+                        density = inputLayout.layoutInput.density,
+                        layoutDirection = inputLayout.layoutInput.layoutDirection,
+                        fontFamilyResolver = inputLayout.layoutInput.fontFamilyResolver,
+                        constraints = inputLayout.layoutInput.constraints
                     )
+                )?.also {
                     textLayoutResult.add(it)
                 }
                 layout != null
