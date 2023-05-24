@@ -38,6 +38,7 @@ dependencies {
     testImplementation(libs.testCore)
     testImplementation(libs.mockitoCore)
     testImplementation(libs.mockitoKotlin4)
+    testImplementation(libs.kotlinCoroutinesTest)
     testImplementation(libs.kotlinStdlib)
     testImplementation(libs.androidLint)
     testImplementation(libs.androidLintTests)

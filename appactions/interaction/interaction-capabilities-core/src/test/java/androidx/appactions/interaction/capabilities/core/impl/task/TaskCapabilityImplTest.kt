@@ -75,7 +75,10 @@ import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicReference
 import java.util.function.Supplier
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.advanceTimeBy
+import kotlinx.coroutines.test.runTest
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -1508,6 +1511,62 @@ class TaskCapabilityImplTest {
 
         assertThat(
             callback.receiveResponse().errorStatus
+        ).isEqualTo(ErrorStatusInternal.EXTERNAL_EXCEPTION)
+    }
+
+    @kotlinx.coroutines.ExperimentalCoroutinesApi
+    @Test
+    fun slotListenerTimeout_returnsCorrectErrorStatus() = runTest {
+        val externalSession = object : ExecutionSession {
+            override val requiredStringListener = object : AppEntityListener<String> {
+                override suspend fun lookupAndRender(
+                    searchAction: SearchAction<String>
+                ): EntitySearchResult<String> {
+                    return EntitySearchResult.Builder<String>().build()
+                }
+
+                override suspend fun onReceived(
+                    value: String
+                ): ValidationResult {
+                    delay(4000) // will throw TimeoutCancellationException due to 3s timeout
+                    return ValidationResult.newAccepted()
+                }
+            }
+        }
+        val session = TaskCapabilitySession(
+            "sessionId",
+            ACTION_SPEC,
+            ACTION_SPEC.createAppAction(
+                "fakeCapabilityId",
+                SINGLE_REQUIRED_FIELD_BOUND_PROPERTIES,
+                supportsPartialFulfillment = true
+            ),
+            TaskHandler.Builder<Arguments, Confirmation>()
+            .registerAppEntityTaskParam(
+                "required",
+                externalSession.requiredStringListener,
+                TypeConverters.STRING_PARAM_VALUE_CONVERTER,
+                EntityConverter.of(TypeSpec.STRING_TYPE_SPEC),
+                getTrivialSearchActionConverter()
+            ).build(),
+            externalSession,
+            scope = this,
+        )
+        val callback = FakeCallbackInternal(timeoutMs = 5000L)
+
+        session.execute(
+            buildRequestArgs(
+                SYNC, /* args...= */
+                "required",
+                ParamValue.newBuilder().setIdentifier("foo").setStringValue("foo").build()
+            ),
+            callback
+        )
+
+        advanceTimeBy(5000L)
+        val response = callback.receiveResponse()
+        assertThat(
+            response.errorStatus
         ).isEqualTo(ErrorStatusInternal.EXTERNAL_EXCEPTION)
     }
 

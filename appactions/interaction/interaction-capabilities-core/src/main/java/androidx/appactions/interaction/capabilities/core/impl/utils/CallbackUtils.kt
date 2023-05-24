@@ -23,6 +23,8 @@ import androidx.appactions.interaction.capabilities.core.impl.exceptions.StructC
 import androidx.appactions.interaction.capabilities.core.impl.task.exceptions.DisambigStateException
 import androidx.appactions.interaction.capabilities.core.impl.task.exceptions.InvalidResolverException
 import kotlin.reflect.KClass
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.withTimeout
 
 private const val LOG_TAG = "CallbackUtils"
@@ -83,6 +85,7 @@ private fun Throwable.toErrorStatusInternal(): ErrorStatusInternal {
         this.isCausedBy(
             InvalidRequestException::class
         ) -> ErrorStatusInternal.INVALID_REQUEST
+        this is TimeoutCancellationException -> ErrorStatusInternal.TIMEOUT
         else -> ErrorStatusInternal.CANCELLED
     }
 }
@@ -102,13 +105,21 @@ internal fun handleExceptionFromRequestProcessing(
         t
     )
     errorCallback.invoke(t.toErrorStatusInternal())
-    if (!t.isCausedBy(InvalidRequestException::class)) {
-        LoggerInternal.log(
-            CapabilityLogger.LogLevel.ERROR,
-            LOG_TAG,
-            "Rethrowing exception because it is not caused by InvalidRequestException.",
-            t
-        )
-        throw t
+    when {
+        t.isCausedBy(
+            InvalidRequestException::class
+        ) || t.isCausedBy(
+            CancellationException::class
+        ) -> Unit
+        else -> {
+            LoggerInternal.log(
+                CapabilityLogger.LogLevel.ERROR,
+                LOG_TAG,
+                """Rethrowing exception because it was likely thrown from an app-implemented
+                callback.""",
+                t
+            )
+            throw t
+        }
     }
 }
