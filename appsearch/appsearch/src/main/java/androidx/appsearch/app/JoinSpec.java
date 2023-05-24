@@ -36,6 +36,12 @@ import java.lang.annotation.RetentionPolicy;
  * expression. One such property expression is "this.qualifiedId()", which refers to the
  * document's combined package, database, namespace, and id.
  *
+ * <p>Note that in order for perform the join, the property referred to by
+ * {@link #getChildPropertyExpression} has to be a property with
+ * {@link AppSearchSchema.StringPropertyConfig#getJoinableValueType} set to
+ * {@link AppSearchSchema.StringPropertyConfig#JOINABLE_VALUE_TYPE_QUALIFIED_ID}. Otherwise no
+ * documents will be joined to any {@link SearchResult}.
+ *
  * <p> Take these outer query and subquery results for example:
  *
  * <pre>{@code
@@ -70,19 +76,47 @@ import java.lang.annotation.RetentionPolicy;
  * does not equal the qualified id of the outer query result. As such, subquery result 1 will not be
  * joined to the outer query result.
  *
+ * <p> It's possible to define an advanced ranking strategy in the nested {@link SearchSpec} and
+ * also use {@link SearchSpec#RANKING_STRATEGY_JOIN_AGGREGATE_SCORE} in the outer
+ * {@link SearchSpec}. In this case, the parents will be ranked based on an aggregation, such as
+ * the sum, of the signals calculated by scoring the joined documents with the advanced ranking
+ * strategy.
+ *
  * <p> In terms of scoring, if {@link SearchSpec#RANKING_STRATEGY_JOIN_AGGREGATE_SCORE} is set in
  * {@link SearchSpec#getRankingStrategy}, the scores of the outer SearchResults can be influenced
  * by the ranking signals of the subquery results. For example, if the
- * {@link JoinSpec#getAggregationScoringStrategy} is set to
+ * {@link JoinSpec#getAggregationScoringStrategy} is set to:
+ * <ul><li>
  * {@link JoinSpec#AGGREGATION_SCORING_MIN_RANKING_SIGNAL}, the ranking signal of the outer
  * {@link SearchResult} will be set to the minimum of the ranking signals of the subquery results.
- * In this case, it will be the minimum of 2 and 3, which is 2. If the
- * {@link JoinSpec#getAggregationScoringStrategy} is set to
+ * In this case, it will be the minimum of 2 and 3, which is 2.
+ * </li>
+ * <li>
+ * {@link JoinSpec#AGGREGATION_SCORING_MAX_RANKING_SIGNAL}, the ranking signal of the outer
+ * {@link SearchResult} will be 3.
+ * </li>
+ * <li>
+ * {@link JoinSpec#AGGREGATION_SCORING_AVG_RANKING_SIGNAL}, the ranking signal of the outer
+ * {@link SearchResult} will be 2.5.
+ * </li>
+ * <li>
+ * {@link JoinSpec#AGGREGATION_SCORING_RESULT_COUNT}, the ranking signal of the outer
+ * {@link SearchResult} will be 2 as there are two joined results.
+ * </li>
+ * <li>
+ * {@link JoinSpec#AGGREGATION_SCORING_SUM_RANKING_SIGNAL}, the ranking signal of the outer
+ * {@link SearchResult} will be 5, the sum of 2 and 3.
+ * </li>
+ * <li>
  * {@link JoinSpec#AGGREGATION_SCORING_OUTER_RESULT_RANKING_SIGNAL}, the ranking signal of the outer
  * {@link SearchResult} will stay as it is.
+ * </li>
+ * </ul>
+ *
+ * <p> Referring to "this.childrenRankingSignals()" in the ranking signal of the outer query will
+ * return the signals calculated by scoring the joined documents using the scoring strategy in the
+ * nested {@link SearchSpec}, as in {@link SearchResult#getRankingSignal}.
  */
-// TODO(b/256022027): Update javadoc once "Joinable"/"qualifiedId" type is added to reflect the
-//  fact that childPropertyExpression has to point to property of that type.
 public final class JoinSpec {
     static final String NESTED_QUERY = "nestedQuery";
     static final String NESTED_SEARCH_SPEC = "nestedSearchSpec";
