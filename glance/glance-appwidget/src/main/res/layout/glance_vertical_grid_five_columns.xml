@@ -21,5 +21,6 @@
     android:layout_height="wrap_content"
     android:divider="@null"
     android:numColumns="5"
+    android:listSelector="@android:color/transparent"
     android:theme="@style/Glance.AppWidget.Theme.GridChildren"
     style="@style/Glance.AppWidget.VerticalGrid"/>
