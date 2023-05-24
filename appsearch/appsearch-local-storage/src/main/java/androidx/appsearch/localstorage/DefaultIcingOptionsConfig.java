@@ -68,4 +68,10 @@ public class DefaultIcingOptionsConfig implements IcingOptionsConfig {
     public boolean getUsePersistentHashMap() {
         return true;
     }
+
+    @Override
+    public int getMaxPageBytesLimit() {
+        return DEFAULT_MAX_PAGE_BYTES_LIMIT;
+    }
+
 }
