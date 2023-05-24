@@ -85,7 +85,6 @@ class UseCaseCameraTest {
         capturePipeline = FakeCapturePipeline(),
         configAdapter = fakeConfigAdapter,
         state = fakeUseCaseCameraState,
-        threads = useCaseThreads,
         useCaseGraphConfig = fakeUseCaseGraphConfig,
     )
 

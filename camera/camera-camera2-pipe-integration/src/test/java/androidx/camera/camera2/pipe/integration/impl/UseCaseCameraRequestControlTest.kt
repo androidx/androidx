@@ -90,7 +90,6 @@ class UseCaseCameraRequestControlTest {
         capturePipeline = FakeCapturePipeline(),
         configAdapter = fakeConfigAdapter,
         state = fakeUseCaseCameraState,
-        threads = useCaseThreads,
         useCaseGraphConfig = fakeUseCaseGraphConfig,
     )
 

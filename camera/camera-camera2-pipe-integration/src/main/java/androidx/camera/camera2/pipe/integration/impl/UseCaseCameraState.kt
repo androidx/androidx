@@ -22,6 +22,10 @@ import android.hardware.camera2.CaptureFailure
 import android.hardware.camera2.CaptureRequest
 import androidx.annotation.GuardedBy
 import androidx.annotation.RequiresApi
+import androidx.camera.camera2.pipe.AeMode
+import androidx.camera.camera2.pipe.AfMode
+import androidx.camera.camera2.pipe.AwbMode
+import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.FrameInfo
 import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.Metadata
@@ -37,7 +41,6 @@ import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 
 /**
@@ -213,7 +216,6 @@ class UseCaseCameraState @Inject constructor(
      */
     fun tryStartRepeating() = submitLatest()
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     private fun submitLatest() {
         // Update the cameraGraph with the most recent set of values.
         // Since acquireSession is a suspending function, it's possible that subsequent updates
@@ -252,6 +254,8 @@ class UseCaseCameraState @Inject constructor(
                 if (request == null) {
                     it.stopRepeating()
                 } else {
+                    it.update3A(request.parameters)
+
                     result?.let { result ->
                         updateSignals.add(RequestSignal(submittedRequestCounter.value, result))
                     }
@@ -269,6 +273,26 @@ class UseCaseCameraState @Inject constructor(
             }
         }
     }
+
+    private suspend fun CameraGraph.Session.update3A(parameters: Map<CaptureRequest.Key<*>, Any>?) {
+        val aeMode = parameters.getIntOrNull(CaptureRequest.CONTROL_AE_MODE)?.let {
+            AeMode.fromIntOrNull(it)
+        }
+        val afMode = parameters.getIntOrNull(CaptureRequest.CONTROL_AF_MODE)?.let {
+            AfMode.fromIntOrNull(it)
+        }
+        val awbMode = parameters.getIntOrNull(CaptureRequest.CONTROL_AWB_MODE)?.let {
+            AwbMode.fromIntOrNull(it)
+        }
+
+        if (aeMode != null || afMode != null || awbMode != null) {
+            update3A(aeMode = aeMode, afMode = afMode, awbMode = awbMode).join()
+        }
+    }
+
+    private fun Map<CaptureRequest.Key<*>, Any>?.getIntOrNull(
+        key: CaptureRequest.Key<*>
+    ): Int? = this?.get(key) as? Int
 
     inner class RequestListener() : Request.Listener {
         override fun onTotalCaptureResult(
