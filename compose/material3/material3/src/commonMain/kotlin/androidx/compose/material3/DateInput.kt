@@ -42,7 +42,6 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
-import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -113,7 +112,7 @@ internal fun DateInputTextField(
     inputIdentifier: InputIdentifier,
     dateInputValidator: DateInputValidator,
     dateInputFormat: DateInputFormat,
-    locale: Locale,
+    locale: CalendarLocale,
     colors: DatePickerColors
 ) {
     val errorText = rememberSaveable { mutableStateOf("") }
@@ -241,12 +240,12 @@ internal class DateInputValidator(
      * @param dateToValidate a [CalendarDate] input to validate
      * @param inputIdentifier an [InputIdentifier] that provides information about the input field
      * that is supposed to hold the date.
-     * @param locale the current [Locale]
+     * @param locale the current [CalendarLocale]
      */
     fun validate(
         dateToValidate: CalendarDate?,
         inputIdentifier: InputIdentifier,
-        locale: Locale
+        locale: CalendarLocale
     ): String {
         if (dateToValidate == null) {
             return errorDatePattern.format(dateInputFormat.patternWithDelimiters.uppercase())

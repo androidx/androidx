@@ -167,7 +167,7 @@ package androidx.compose.material3 {
   }
 
   public final class CalendarModelKt {
-    method @androidx.compose.material3.ExperimentalMaterial3Api public static String formatWithSkeleton(long utcTimeMillis, String skeleton, optional java.util.Locale locale);
+    method @androidx.compose.material3.ExperimentalMaterial3Api public static String formatWithSkeleton(long utcTimeMillis, String skeleton, java.util.Locale locale);
   }
 
   public final class CalendarModel_androidKt {

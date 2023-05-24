@@ -17,6 +17,23 @@
 package androidx.compose.material3
 
 /**
+ * Represents a Locale for the calendar. This locale will be used when formatting dates, determining
+ * the input format, and more.
+ *
+ * Note: For JVM based platforms, this would be equivalent to [java.util.Locale].
+ */
+@ExperimentalMaterial3Api
+expect class CalendarLocale
+
+/**
+ * Returns the default [CalendarLocale].
+ *
+ * Note: For JVM based platforms, this would be equivalent to [java.util.Locale.getDefault].
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+internal expect fun defaultLocale(): CalendarLocale
+
+/**
  * Returns a string representation of an integer for the current Locale.
  *
  * @param minDigits sets the minimum number of digits allowed in the integer portion of a number.
