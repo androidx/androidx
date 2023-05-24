@@ -84,14 +84,45 @@ class SdkSandboxControllerCompatLocalTest {
     }
 
     @Test
-    fun getAppOwnedSdkSandboxInterfaces_withLocalImpl_returnsEmptyList() {
+    fun getAppOwnedSdkSandboxInterfaces_clientApiBelow4_returnsEmptyList() {
+        // Emulate loading via client lib with version below 4
+        Versions.handShake(3)
+
         SdkSandboxControllerCompat.injectLocalImpl(
-            TestStubImpl()
+            TestStubImpl(
+                appOwnedSdks = listOf(
+                    AppOwnedSdkSandboxInterfaceCompat(
+                        name = "TestSdk",
+                        version = 42,
+                        binder = Binder(),
+                    )
+                )
+            )
         )
 
         val controllerCompat = SdkSandboxControllerCompat.from(context)
         val appOwnedInterfaces = controllerCompat.getAppOwnedSdkSandboxInterfaces()
         assertThat(appOwnedInterfaces).isEmpty()
+    }
+
+    @Test
+    fun getAppOwnedSdkSandboxInterfaces_withLocalImpl_returnsListFromLocalImpl() {
+        val expectedResult = listOf(
+            AppOwnedSdkSandboxInterfaceCompat(
+                name = "TestSdk",
+                version = 42,
+                binder = Binder(),
+            )
+        )
+        SdkSandboxControllerCompat.injectLocalImpl(
+            TestStubImpl(
+                appOwnedSdks = expectedResult
+            )
+        )
+
+        val controllerCompat = SdkSandboxControllerCompat.from(context)
+        val appOwnedInterfaces = controllerCompat.getAppOwnedSdkSandboxInterfaces()
+        assertThat(appOwnedInterfaces).isEqualTo(expectedResult)
     }
 
     @Test
@@ -158,13 +189,13 @@ class SdkSandboxControllerCompatLocalTest {
     }
 
     internal class TestStubImpl(
-        private val sandboxedSdks: List<SandboxedSdkCompat> = emptyList()
+        private val sandboxedSdks: List<SandboxedSdkCompat> = emptyList(),
+        private val appOwnedSdks: List<AppOwnedSdkSandboxInterfaceCompat> = emptyList()
     ) : SdkSandboxControllerCompat.SandboxControllerImpl {
         var token: IBinder? = null
         override fun getSandboxedSdks() = sandboxedSdks
-        override fun getAppOwnedSdkSandboxInterfaces(): List<AppOwnedSdkSandboxInterfaceCompat> {
-            throw IllegalStateException("Must return result without calling method")
-        }
+        override fun getAppOwnedSdkSandboxInterfaces(): List<AppOwnedSdkSandboxInterfaceCompat> =
+            appOwnedSdks
 
         override fun registerSdkSandboxActivityHandler(
             handlerCompat: SdkSandboxActivityHandlerCompat

@@ -34,8 +34,13 @@ internal class LocalImpl(
         return implFromClient.getSandboxedSdks()
     }
 
-    override fun getAppOwnedSdkSandboxInterfaces(): List<AppOwnedSdkSandboxInterfaceCompat> =
-        emptyList()
+    override fun getAppOwnedSdkSandboxInterfaces(): List<AppOwnedSdkSandboxInterfaceCompat> {
+        return if (clientVersion >= 4) {
+            implFromClient.getAppOwnedSdkSandboxInterfaces()
+        } else {
+            emptyList()
+        }
+    }
 
     override fun registerSdkSandboxActivityHandler(
         handlerCompat: SdkSandboxActivityHandlerCompat

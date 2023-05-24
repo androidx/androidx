@@ -20,6 +20,7 @@ import android.os.Binder
 import android.os.Bundle
 import androidx.privacysandbox.sdkruntime.client.activity.LocalSdkActivityHandlerRegistry
 import androidx.privacysandbox.sdkruntime.client.loader.LocalSdkProvider
+import androidx.privacysandbox.sdkruntime.core.AppOwnedSdkSandboxInterfaceCompat
 import androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat
 import androidx.privacysandbox.sdkruntime.core.activity.ActivityHolder
 import androidx.privacysandbox.sdkruntime.core.activity.SdkSandboxActivityHandlerCompat
@@ -35,12 +36,14 @@ import org.junit.runner.RunWith
 class LocalControllerTest {
 
     private lateinit var locallyLoadedSdks: LocallyLoadedSdks
+    private lateinit var appOwnedSdkRegistry: StubAppOwnedSdkInterfaceRegistry
     private lateinit var controller: LocalController
 
     @Before
     fun setUp() {
         locallyLoadedSdks = LocallyLoadedSdks()
-        controller = LocalController(locallyLoadedSdks)
+        appOwnedSdkRegistry = StubAppOwnedSdkInterfaceRegistry()
+        controller = LocalController(locallyLoadedSdks, appOwnedSdkRegistry)
     }
 
     @Test
@@ -55,6 +58,19 @@ class LocalControllerTest {
 
         val result = controller.getSandboxedSdks()
         assertThat(result).containsExactly(sandboxedSdk)
+    }
+
+    @Test
+    fun getAppOwnedSdkSandboxInterfaces_returnsResultsFromAppOwnedSdkRegistry() {
+        val appOwnedInterface = AppOwnedSdkSandboxInterfaceCompat(
+            name = "TestSDK",
+            version = 1,
+            binder = Binder()
+        )
+        appOwnedSdkRegistry.appOwnedSdks = listOf(appOwnedInterface)
+
+        val result = controller.getAppOwnedSdkSandboxInterfaces()
+        assertThat(result).containsExactly(appOwnedInterface)
     }
 
     @Test
@@ -94,5 +110,23 @@ class LocalControllerTest {
         override fun beforeUnloadSdk() {
             throw IllegalStateException("Unexpected call")
         }
+    }
+
+    private class StubAppOwnedSdkInterfaceRegistry : AppOwnedSdkRegistry {
+
+        var appOwnedSdks: List<AppOwnedSdkSandboxInterfaceCompat> = emptyList()
+
+        override fun registerAppOwnedSdkSandboxInterface(
+            appOwnedSdk: AppOwnedSdkSandboxInterfaceCompat
+        ) {
+            throw IllegalStateException("Unexpected call")
+        }
+
+        override fun unregisterAppOwnedSdkSandboxInterface(sdkName: String) {
+            throw IllegalStateException("Unexpected call")
+        }
+
+        override fun getAppOwnedSdkSandboxInterfaces(): List<AppOwnedSdkSandboxInterfaceCompat> =
+            appOwnedSdks
     }
 }

@@ -27,16 +27,16 @@ import androidx.privacysandbox.sdkruntime.core.controller.SdkSandboxControllerCo
  * Local implementation that will be injected to locally loaded SDKs.
  */
 internal class LocalController(
-    private val locallyLoadedSdks: LocallyLoadedSdks
+    private val locallyLoadedSdks: LocallyLoadedSdks,
+    private val appOwnedSdkRegistry: AppOwnedSdkRegistry
 ) : SdkSandboxControllerCompat.SandboxControllerImpl {
 
     override fun getSandboxedSdks(): List<SandboxedSdkCompat> {
         return locallyLoadedSdks.getLoadedSdks()
     }
 
-    override fun getAppOwnedSdkSandboxInterfaces(): List<AppOwnedSdkSandboxInterfaceCompat> {
-        throw IllegalStateException("Should not be called")
-    }
+    override fun getAppOwnedSdkSandboxInterfaces(): List<AppOwnedSdkSandboxInterfaceCompat> =
+        appOwnedSdkRegistry.getAppOwnedSdkSandboxInterfaces()
 
     override fun registerSdkSandboxActivityHandler(
         handlerCompat: SdkSandboxActivityHandlerCompat

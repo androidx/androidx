@@ -19,39 +19,38 @@ package androidx.privacysandbox.sdkruntime.client
 import android.app.sdksandbox.SdkSandboxManager
 import android.content.Context
 import android.os.Binder
-import android.os.Build
-import android.os.ext.SdkExtensions.AD_SERVICES
-import androidx.annotation.RequiresExtension
+import android.os.Bundle
 import androidx.core.content.getSystemService
+import androidx.privacysandbox.sdkruntime.client.loader.asTestSdk
 import androidx.privacysandbox.sdkruntime.core.AdServicesInfo
 import androidx.privacysandbox.sdkruntime.core.AppOwnedInterfaceConverter
 import androidx.privacysandbox.sdkruntime.core.AppOwnedSdkSandboxInterfaceCompat
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.runBlocking
 import org.junit.After
-import org.junit.Assert.assertThrows
-import org.junit.Assume.assumeFalse
 import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 
+/**
+ * Tests related to AppOwnedInterfaces support in SdkSandboxManagerCompat.
+ * Later most of them will be extracted to E2E test with separate test app/sdk.
+ */
 @SmallTest
 @RunWith(AndroidJUnit4::class)
-// TODO(b/262577044) Remove RequiresExtension after extensions support in @SdkSuppress
-@RequiresExtension(extension = AD_SERVICES, version = 4)
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.TIRAMISU)
 class SdkSandboxManagerAppOwnedInterfacesTest {
 
-    private lateinit var mContext: Context
+    private lateinit var context: Context
+    private lateinit var sandboxManagerCompat: SdkSandboxManagerCompat
 
     @Before
     fun setUp() {
-        assumeTrue("Requires Sandbox API available", AdServicesInfo.isAtLeastV4())
-        mContext = ApplicationProvider.getApplicationContext()
+        context = ApplicationProvider.getApplicationContext()
+        sandboxManagerCompat = SdkSandboxManagerCompat.from(context)
     }
 
     @After
@@ -64,42 +63,16 @@ class SdkSandboxManagerAppOwnedInterfacesTest {
     }
 
     @Test
-    fun registerAppOwnedSdkSandboxInterface_whenApiNotAvailable_throwsException() {
-        assumeFalse(
-            "Requires AppOwnedInterfacesApi API not available",
-            isAppOwnedInterfacesApiAvailable()
-        )
-
-        val managerCompat = SdkSandboxManagerCompat.from(mContext)
-
-        assertThrows(UnsupportedOperationException::class.java) {
-            managerCompat.registerAppOwnedSdkSandboxInterface(
-                AppOwnedSdkSandboxInterfaceCompat(
-                    name = "TestSDK",
-                    version = 1,
-                    binder = Binder()
-                )
-            )
-        }
-    }
-
-    @Test
-    fun registerAppOwnedSdkSandboxInterface_whenApiAvailable_delegateToPlatform() {
-        assumeTrue(
-            "Requires AppOwnedInterfacesApi API available",
-            isAppOwnedInterfacesApiAvailable()
-        )
-
-        val managerCompat = SdkSandboxManagerCompat.from(mContext)
+    fun registerAppOwnedSdkSandboxInterfaceTest() {
         val appOwnedInterface = AppOwnedSdkSandboxInterfaceCompat(
             name = "TestSDK",
             version = 1,
             binder = Binder()
         )
 
-        managerCompat.registerAppOwnedSdkSandboxInterface(appOwnedInterface)
+        sandboxManagerCompat.registerAppOwnedSdkSandboxInterface(appOwnedInterface)
 
-        val registeredInterfaces = getRegisteredInterfaces()
+        val registeredInterfaces = sandboxManagerCompat.getAppOwnedSdkSandboxInterfaces()
         assertThat(registeredInterfaces).hasSize(1)
         val result = registeredInterfaces[0]
 
@@ -109,82 +82,90 @@ class SdkSandboxManagerAppOwnedInterfacesTest {
     }
 
     @Test
-    fun unregisterAppOwnedSdkSandboxInterface_whenApiNotAvailable_throwsException() {
-        assumeFalse(
-            "Requires AppOwnedInterfacesApi API not available",
-            isAppOwnedInterfacesApiAvailable()
-        )
-
-        val managerCompat = SdkSandboxManagerCompat.from(mContext)
-
-        assertThrows(UnsupportedOperationException::class.java) {
-            managerCompat.unregisterAppOwnedSdkSandboxInterface("TestSDK")
-        }
-    }
-
-    @Test
-    fun unregisterAppOwnedSdkSandboxInterface_whenApiAvailable_delegateToPlatform() {
+    fun registerAppOwnedSdkSandboxInterface_whenApiAvailable_registerInPlatform() {
         assumeTrue(
             "Requires AppOwnedInterfacesApi API available",
             isAppOwnedInterfacesApiAvailable()
         )
 
-        val managerCompat = SdkSandboxManagerCompat.from(mContext)
         val appOwnedInterface = AppOwnedSdkSandboxInterfaceCompat(
             name = "TestSDK",
             version = 1,
             binder = Binder()
         )
 
-        managerCompat.registerAppOwnedSdkSandboxInterface(appOwnedInterface)
-        managerCompat.unregisterAppOwnedSdkSandboxInterface(appOwnedInterface.getName())
+        sandboxManagerCompat.registerAppOwnedSdkSandboxInterface(appOwnedInterface)
+        val platformRegisteredInterfaces = getRegisteredInterfaces()
+        assertThat(platformRegisteredInterfaces).hasSize(1)
+        assertThat(platformRegisteredInterfaces[0].getName()).isEqualTo(appOwnedInterface.getName())
+    }
 
-        val registeredInterfaces = getRegisteredInterfaces()
+    @Test
+    fun unregisterAppOwnedSdkSandboxInterfaceTest() {
+        val appOwnedInterface = AppOwnedSdkSandboxInterfaceCompat(
+            name = "TestSDK",
+            version = 1,
+            binder = Binder()
+        )
+
+        sandboxManagerCompat.registerAppOwnedSdkSandboxInterface(appOwnedInterface)
+        sandboxManagerCompat.unregisterAppOwnedSdkSandboxInterface(appOwnedInterface.getName())
+
+        val registeredInterfaces = sandboxManagerCompat.getAppOwnedSdkSandboxInterfaces()
         assertThat(registeredInterfaces).isEmpty()
     }
 
     @Test
-    fun getAppOwnedSdkSandboxInterfaces_whenApiNotAvailable_throwsException() {
-        assumeFalse(
-            "Requires AppOwnedInterfacesApi API not available",
-            isAppOwnedInterfacesApiAvailable()
-        )
-
-        val managerCompat = SdkSandboxManagerCompat.from(mContext)
-
-        assertThrows(UnsupportedOperationException::class.java) {
-            managerCompat.getAppOwnedSdkSandboxInterfaces()
-        }
-    }
-
-    @Test
-    fun getAppOwnedSdkSandboxInterfaces_whenApiAvailable_delegateToPlatform() {
+    fun unregisterAppOwnedSdkSandboxInterface_whenApiAvailable_unregisterFromPlatform() {
         assumeTrue(
             "Requires AppOwnedInterfacesApi API available",
             isAppOwnedInterfacesApiAvailable()
         )
 
-        val managerCompat = SdkSandboxManagerCompat.from(mContext)
         val appOwnedInterface = AppOwnedSdkSandboxInterfaceCompat(
             name = "TestSDK",
             version = 1,
             binder = Binder()
         )
-        managerCompat.registerAppOwnedSdkSandboxInterface(appOwnedInterface)
 
-        val results = managerCompat.getAppOwnedSdkSandboxInterfaces()
-        assertThat(results).hasSize(1)
-        val result = results[0]
+        sandboxManagerCompat.registerAppOwnedSdkSandboxInterface(appOwnedInterface)
+        sandboxManagerCompat.unregisterAppOwnedSdkSandboxInterface(appOwnedInterface.getName())
 
-        assertThat(result.getName()).isEqualTo(appOwnedInterface.getName())
-        assertThat(result.getVersion()).isEqualTo(appOwnedInterface.getVersion())
-        assertThat(result.getInterface()).isEqualTo(appOwnedInterface.getInterface())
+        val platformRegisteredInterfaces = getRegisteredInterfaces()
+        assertThat(platformRegisteredInterfaces).isEmpty()
+    }
+
+    @Test
+    fun sdkController_getAppOwnedSdkSandboxInterfaces_returnsRegisteredAppOwnedInterfaces() {
+        val localSdk = runBlocking {
+            sandboxManagerCompat.loadSdk(
+                "androidx.privacysandbox.sdkruntime.test.v4",
+                Bundle()
+            )
+        }
+
+        val registeredAppOwnedSdk = AppOwnedSdkSandboxInterfaceCompat(
+            name = "TestSDK",
+            version = 1,
+            binder = Binder()
+        )
+        sandboxManagerCompat.registerAppOwnedSdkSandboxInterface(registeredAppOwnedSdk)
+
+        val testSdk = localSdk.asTestSdk()
+
+        val apiResult = testSdk.getAppOwnedSdkSandboxInterfaces()
+        assertThat(apiResult).hasSize(1)
+        val appOwnedSdkResult = apiResult[0]
+
+        assertThat(appOwnedSdkResult.getName()).isEqualTo(registeredAppOwnedSdk.getName())
+        assertThat(appOwnedSdkResult.getVersion()).isEqualTo(registeredAppOwnedSdk.getVersion())
+        assertThat(appOwnedSdkResult.getInterface()).isEqualTo(registeredAppOwnedSdk.getInterface())
     }
 
     private fun getRegisteredInterfaces(): List<AppOwnedSdkSandboxInterfaceCompat> {
         val converter = AppOwnedInterfaceConverter()
 
-        val sandboxManager = mContext.getSystemService<SdkSandboxManager>()!!
+        val sandboxManager = context.getSystemService<SdkSandboxManager>()!!
         val getInterfacesMethod = sandboxManager.javaClass.getMethod(
             "getAppOwnedSdkSandboxInterfaces"
         )
@@ -194,7 +175,7 @@ class SdkSandboxManagerAppOwnedInterfacesTest {
     }
 
     private fun unregisterInterfaces(appOwnedInterfaces: List<AppOwnedSdkSandboxInterfaceCompat>) {
-        val sandboxManager = mContext.getSystemService<SdkSandboxManager>()!!
+        val sandboxManager = context.getSystemService<SdkSandboxManager>()!!
         val unregisterMethod = sandboxManager.javaClass.getMethod(
             "unregisterAppOwnedSdkSandboxInterface",
             /* parameter1 */ String::class.java
