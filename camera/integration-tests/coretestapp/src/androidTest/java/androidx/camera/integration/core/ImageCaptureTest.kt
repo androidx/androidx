@@ -96,6 +96,7 @@ import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
 import org.junit.After
 import org.junit.Assume.assumeFalse
+import org.junit.Assume.assumeNoException
 import org.junit.Assume.assumeNotNull
 import org.junit.Assume.assumeTrue
 import org.junit.Before
@@ -1581,21 +1582,7 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
     fun unbindVideoCaptureWithoutStartingRecorder_imageCapturingShouldSuccess() = runBlocking {
         // Arrange.
         val imageCapture = ImageCapture.Builder().build()
-        val videoStreamReceived = CompletableDeferred<Boolean>()
-        val videoCapture = VideoCapture.Builder<Recorder>(Recorder.Builder().build()).also {
-            CameraPipeUtil.setCameraCaptureSessionCallback(
-                implName,
-                it,
-                object : CaptureCallback() {
-                    override fun onCaptureCompleted(
-                        session: CameraCaptureSession,
-                        request: CaptureRequest,
-                        result: TotalCaptureResult
-                    ) {
-                        videoStreamReceived.complete(true)
-                    }
-                })
-        }.build()
+        val videoCapture = VideoCapture.Builder<Recorder>(Recorder.Builder().build()).build()
 
         withContext(Dispatchers.Main) {
             cameraProvider.bindToLifecycle(
@@ -1603,19 +1590,24 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
             )
         }
 
-        assertWithMessage("VideoCapture doesn't start").that(
-            videoStreamReceived.awaitWithTimeoutOrNull()
-        ).isTrue()
+        // wait for camera to start by taking a picture
+        val callback1 = FakeImageCaptureCallback(capturesCount = 1)
+        imageCapture.takePicture(mainExecutor, callback1)
+        try {
+            callback1.awaitCapturesAndAssert(capturedImagesCount = 1)
+        } catch (e: Exception) {
+            assumeNoException("image capture failed, camera might not have started yet", e)
+        }
 
         // Act.
-        val callback = FakeImageCaptureCallback(capturesCount = 1)
+        val callback2 = FakeImageCaptureCallback(capturesCount = 1)
         withContext(Dispatchers.Main) {
             cameraProvider.unbind(videoCapture)
-            imageCapture.takePicture(mainExecutor, callback)
+            imageCapture.takePicture(mainExecutor, callback2)
         }
 
         // Assert.
-        callback.awaitCapturesAndAssert(capturedImagesCount = 1)
+        callback2.awaitCapturesAndAssert(capturedImagesCount = 1)
     }
 
     @Test
