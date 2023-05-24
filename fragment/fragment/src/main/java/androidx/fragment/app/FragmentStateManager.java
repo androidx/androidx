@@ -652,6 +652,7 @@ class FragmentStateManager {
         mFragment.setFocusedView(null);
         mFragment.performResume();
         mDispatcher.dispatchOnFragmentResumed(mFragment, false);
+        mFragmentStore.setSavedState(mFragment.mWho, null);
         mFragment.mSavedFragmentState = null;
         mFragment.mSavedViewState = null;
         mFragment.mSavedViewRegistryState = null;
