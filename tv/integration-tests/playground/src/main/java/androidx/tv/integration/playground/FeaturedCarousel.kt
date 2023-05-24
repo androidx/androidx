@@ -43,6 +43,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -51,8 +52,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.onPlaced
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.semantics.CollectionItemInfo
@@ -119,12 +123,14 @@ internal fun FeaturedCarousel(modifier: Modifier = Modifier) {
     )
 
     val carouselState = remember { CarouselState() }
+    var carouselFocused by remember { mutableStateOf(false) }
     Carousel(
         itemCount = backgrounds.size,
         carouselState = carouselState,
         modifier = modifier
             .height(300.dp)
-            .fillMaxWidth(),
+            .fillMaxWidth()
+            .onFocusChanged { carouselFocused = it.isFocused },
         carouselIndicator = {
             CarouselDefaults.IndicatorRow(
                 itemCount = backgrounds.size,
@@ -155,8 +161,15 @@ internal fun FeaturedCarousel(modifier: Modifier = Modifier) {
             ) {
                 Text(text = "This is sample text content.", color = Color.Yellow)
                 Text(text = "Sample description of slide ${itemIndex + 1}.", color = Color.Yellow)
+                val playButtonModifier =
+                    if (carouselFocused) {
+                        Modifier.requestFocusOnFirstGainingVisibility()
+                    } else {
+                        Modifier
+                    }
+
                 Row {
-                    OverlayButton(text = "Play")
+                    OverlayButton(modifier = playButtonModifier, text = "Play")
                     OverlayButton(text = "Add to Watchlist")
                 }
             }
@@ -219,4 +232,21 @@ private fun OverlayButton(modifier: Modifier = Modifier, text: String = "Play") 
     ) {
         Text(text = text)
     }
+}
+
+@Composable
+fun Modifier.onFirstGainingVisibility(onGainingVisibility: () -> Unit): Modifier {
+    var isVisible by remember { mutableStateOf(false) }
+    LaunchedEffect(isVisible) {
+        if (isVisible) onGainingVisibility()
+    }
+
+    return onPlaced { isVisible = true }
+}
+
+@Composable
+fun Modifier.requestFocusOnFirstGainingVisibility(): Modifier {
+    val focusRequester = remember { FocusRequester() }
+    return focusRequester(focusRequester)
+        .onFirstGainingVisibility { focusRequester.requestFocus() }
 }
