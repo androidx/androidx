@@ -43,10 +43,7 @@ public final class DynamicDataBuilders {
    * @since 1.2
    */
   public interface DynamicDataValue {
-    /**
-     * Get the protocol buffer representation of this object.
-     *
-     */
+    /** Get the protocol buffer representation of this object. */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     DynamicDataProto.DynamicDataValue toDynamicDataValueProto();
@@ -150,17 +147,12 @@ public final class DynamicDataBuilders {
       return new FixedString.Builder().setValue(constant).build();
     }
 
-    /**
-     * Get the fingerprint for this object or null if unknown.
-     *
-     */
+    /** Get the fingerprint for this object or null if unknown. */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
     Fingerprint getFingerprint();
 
-    /** Builder to create {@link DynamicDataValue} objects.
-     *
-     */
+    /** Builder to create {@link DynamicDataValue} objects. */
     @RestrictTo(Scope.LIBRARY_GROUP)
     interface Builder {
 
@@ -173,27 +165,35 @@ public final class DynamicDataBuilders {
   /**
    * Creates a new wrapper instance from the proto. Intended for testing purposes only. An object
    * created using this method can't be added to any other wrapper.
-   *
    */
   @RestrictTo(Scope.LIBRARY_GROUP)
   @NonNull
   public static DynamicDataValue dynamicDataValueFromProto(
       @NonNull DynamicDataProto.DynamicDataValue proto) {
+    return dynamicDataValueFromProto(proto, null);
+  }
+
+  /** Creates a new wrapper instance from the proto. */
+  @RestrictTo(Scope.LIBRARY_GROUP)
+  @NonNull
+  public static DynamicDataValue dynamicDataValueFromProto(
+          @NonNull DynamicDataProto.DynamicDataValue proto, @Nullable Fingerprint fingerprint) {
     if (proto.hasStringVal()) {
-      return FixedString.fromProto(proto.getStringVal());
+      return FixedString.fromProto(proto.getStringVal(), fingerprint);
     }
     if (proto.hasInt32Val()) {
-      return FixedInt32.fromProto(proto.getInt32Val());
+      return FixedInt32.fromProto(proto.getInt32Val(), fingerprint);
     }
     if (proto.hasFloatVal()) {
-      return FixedFloat.fromProto(proto.getFloatVal());
+      return FixedFloat.fromProto(proto.getFloatVal(), fingerprint);
     }
     if (proto.hasBoolVal()) {
-      return FixedBool.fromProto(proto.getBoolVal());
+      return FixedBool.fromProto(proto.getBoolVal(), fingerprint);
     }
     if (proto.hasColorVal()) {
-      return FixedColor.fromProto(proto.getColorVal());
+      return FixedColor.fromProto(proto.getColorVal(), fingerprint);
     }
     throw new IllegalStateException("Proto was not a recognised instance of DynamicDataValue");
   }
+
 }

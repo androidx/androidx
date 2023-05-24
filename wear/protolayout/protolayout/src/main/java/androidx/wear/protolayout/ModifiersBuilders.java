@@ -456,6 +456,9 @@ public final class ModifiersBuilders {
          * Gets the content description associated with this element. This will be dictated when the
          * element is focused by the screen reader.
          *
+         * <p>While this field is statically accessible from 1.0, it's only bindable since version
+         * 1.2 and renderers supporting version 1.2 will use the dynamic value (if set).
+         *
          * @since 1.0
          */
         @Nullable
@@ -916,6 +919,9 @@ public final class ModifiersBuilders {
         /**
          * Gets the color of the border.
          *
+         * <p>While this field is statically accessible from 1.0, it's only bindable since version
+         * 1.2 and renderers supporting version 1.2 will use the dynamic value (if set).
+         *
          * @since 1.0
          */
         @Nullable
@@ -1120,6 +1126,9 @@ public final class ModifiersBuilders {
         /**
          * Gets the background color for this element. If not defined, defaults to being
          * transparent.
+         *
+         * <p>While this field is statically accessible from 1.0, it's only bindable since version
+         * 1.2 and renderers supporting version 1.2 will use the dynamic value (if set).
          *
          * @since 1.0
          */

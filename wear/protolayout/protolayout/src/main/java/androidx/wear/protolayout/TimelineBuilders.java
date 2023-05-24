@@ -62,20 +62,15 @@ public final class TimelineBuilders {
     public long getEndMillis() {
       return mImpl.getEndMillis();
     }
-    /**
-     * Creates a new wrapper instance from the proto.
-     *
-     */
+
+    /** Creates a new wrapper instance from the proto. */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     public static TimeInterval fromProto(@NonNull TimelineProto.TimeInterval proto) {
       return new TimeInterval(proto);
     }
 
-    /**
-     * Returns the internal proto instance.
-     *
-     */
+    /** Returns the internal proto instance. */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     public TimelineProto.TimeInterval toProto() {
@@ -181,20 +176,14 @@ public final class TimelineBuilders {
       return new Builder().setLayout(Layout.fromLayoutElement(layoutElement)).build();
     }
 
-    /**
-     * Creates a new wrapper instance from the proto.
-     *
-     */
+    /** Creates a new wrapper instance from the proto. */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     public static TimelineEntry fromProto(@NonNull TimelineProto.TimelineEntry proto) {
       return new TimelineEntry(proto);
     }
 
-    /**
-     * Returns the internal proto instance.
-     *
-     */
+    /** Returns the internal proto instance. */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     public TimelineProto.TimelineEntry toProto() {
@@ -291,20 +280,14 @@ public final class TimelineBuilders {
       return new Builder().addTimelineEntry(TimelineEntry.fromLayoutElement(layoutElement)).build();
     }
 
-    /**
-     * Creates a new wrapper instance from the proto.
-     *
-     */
+    /** Creates a new wrapper instance from the proto. */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     public static Timeline fromProto(@NonNull TimelineProto.Timeline proto) {
       return new Timeline(proto);
     }
 
-    /**
-     * Returns the internal proto instance.
-     *
-     */
+    /** Returns the internal proto instance. */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     public TimelineProto.Timeline toProto() {

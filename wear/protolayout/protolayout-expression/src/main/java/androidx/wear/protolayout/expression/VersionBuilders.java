@@ -61,19 +61,14 @@ public final class VersionBuilders {
       return mImpl.getMinor();
     }
 
-    /**
-     * Get the fingerprint for this object, or null if unknown.
-     *
-     */
+    /** Get the fingerprint for this object, or null if unknown. */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
     public Fingerprint getFingerprint() {
       return mFingerprint;
     }
-    /**
-     * Creates a new wrapper instance from the proto.
-     *
-     */
+
+    /** Creates a new wrapper instance from the proto. */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     public static VersionInfo fromProto(
@@ -84,7 +79,6 @@ public final class VersionBuilders {
     /**
      * Creates a new wrapper instance from the proto. Intended for testing purposes only. An object
      * created using this method can't be added to any other wrapper.
-     *
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -92,10 +86,7 @@ public final class VersionBuilders {
       return fromProto(proto, null);
     }
 
-    /**
-     * Returns the internal proto instance.
-     *
-     */
+    /** Returns the internal proto instance. */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     public VersionProto.VersionInfo toProto() {
