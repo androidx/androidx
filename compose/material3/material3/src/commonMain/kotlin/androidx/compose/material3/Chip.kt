@@ -1550,15 +1550,17 @@ class ChipElevation internal constructor(
         val animatable = remember { Animatable(target, Dp.VectorConverter) }
 
         LaunchedEffect(target) {
-            if (!enabled) {
-                // No transition when moving to a disabled state
-                animatable.snapTo(target)
-            } else {
-                animatable.animateElevation(
-                    from = lastInteraction, to = interaction, target = target
-                )
+            if (animatable.targetValue != target) {
+                if (!enabled) {
+                    // No transition when moving to a disabled state
+                    animatable.snapTo(target)
+                } else {
+                    animatable.animateElevation(
+                        from = lastInteraction, to = interaction, target = target
+                    )
+                }
+                lastInteraction = interaction
             }
-            lastInteraction = interaction
         }
 
         return animatable.asState()
@@ -1705,15 +1707,17 @@ class SelectableChipElevation internal constructor(
         val animatable = remember { Animatable(target, Dp.VectorConverter) }
 
         LaunchedEffect(target) {
-            if (!enabled) {
-                // No transition when moving to a disabled state
-                animatable.snapTo(target)
-            } else {
-                animatable.animateElevation(
-                    from = lastInteraction, to = interaction, target = target
-                )
+            if (animatable.targetValue != target) {
+                if (!enabled) {
+                    // No transition when moving to a disabled state
+                    animatable.snapTo(target)
+                } else {
+                    animatable.animateElevation(
+                        from = lastInteraction, to = interaction, target = target
+                    )
+                }
+                lastInteraction = interaction
             }
-            lastInteraction = interaction
         }
 
         return animatable.asState()
