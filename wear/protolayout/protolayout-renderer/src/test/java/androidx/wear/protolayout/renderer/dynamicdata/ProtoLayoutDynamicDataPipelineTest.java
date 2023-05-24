@@ -51,6 +51,7 @@ import androidx.wear.protolayout.expression.proto.AnimationParameterProto.Animat
 import androidx.wear.protolayout.expression.proto.AnimationParameterProto.AnimationSpec;
 import androidx.wear.protolayout.expression.proto.AnimationParameterProto.RepeatMode;
 import androidx.wear.protolayout.expression.proto.AnimationParameterProto.Repeatable;
+import androidx.wear.protolayout.expression.proto.DynamicDataProto.DynamicDataValue;
 import androidx.wear.protolayout.expression.proto.DynamicProto.AnimatableDynamicColor;
 import androidx.wear.protolayout.expression.proto.DynamicProto.AnimatableDynamicFloat;
 import androidx.wear.protolayout.expression.proto.DynamicProto.AnimatableFixedColor;
@@ -72,7 +73,6 @@ import androidx.wear.protolayout.expression.proto.FixedProto.FixedColor;
 import androidx.wear.protolayout.expression.proto.FixedProto.FixedFloat;
 import androidx.wear.protolayout.expression.proto.FixedProto.FixedInt32;
 import androidx.wear.protolayout.expression.proto.FixedProto.FixedString;
-import androidx.wear.protolayout.expression.proto.DynamicDataProto.DynamicDataValue;
 import androidx.wear.protolayout.proto.ColorProto.ColorProp;
 import androidx.wear.protolayout.proto.DimensionProto.DegreesProp;
 import androidx.wear.protolayout.proto.DimensionProto.DpProp;
@@ -1981,56 +1981,6 @@ public class ProtoLayoutDynamicDataPipelineTest {
                             .build());
         } catch (NotFoundException | ResourceAccessException ex) {
             return null;
-        }
-    }
-
-    private static class TestAnimatedVectorDrawable extends AnimatedVectorDrawable {
-        public boolean started = false;
-        public boolean reset = false;
-
-        // We need to intercept callbacks and save it in this test class as shadow drawable doesn't
-        // seem to call onEnd listener, meaning that quota won't be freed and we would get failing
-        // test.
-        private final List<AnimationCallback> mAnimationCallbacks = new ArrayList<>();
-
-        @Override
-        public void start() {
-            super.start();
-            started = true;
-            reset = false;
-        }
-
-        @Override
-        public void registerAnimationCallback(@NonNull AnimationCallback callback) {
-            super.registerAnimationCallback(callback);
-            mAnimationCallbacks.add(callback);
-        }
-
-        @Override
-        public boolean unregisterAnimationCallback(@NonNull AnimationCallback callback) {
-            mAnimationCallbacks.remove(callback);
-            return super.unregisterAnimationCallback(callback);
-        }
-
-        @Override
-        public void stop() {
-            super.stop();
-            started = false;
-            mAnimationCallbacks.forEach(c -> c.onAnimationEnd(this));
-        }
-
-        @Override
-        public void reset() {
-            super.reset();
-            started = false;
-            reset = true;
-            mAnimationCallbacks.forEach(c -> c.onAnimationEnd(this));
-        }
-
-        @Override
-        public boolean isRunning() {
-            super.isRunning();
-            return started;
         }
     }
 }
