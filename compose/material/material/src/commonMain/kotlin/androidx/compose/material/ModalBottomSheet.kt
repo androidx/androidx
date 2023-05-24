@@ -211,11 +211,27 @@ class ModalBottomSheetState @Deprecated(
         velocityThreshold = { with(requireDensity()) { ModalBottomSheetVelocityThreshold.toPx() } }
     )
 
+    /**
+     * The current value of the [ModalBottomSheetState].
+     */
     val currentValue: ModalBottomSheetValue
         get() = anchoredDraggableState.currentValue
 
+    /**
+     * The target value the state will settle at once the current interaction ends, or the
+     * [currentValue] if there is no interaction in progress.
+     */
     val targetValue: ModalBottomSheetValue
         get() = anchoredDraggableState.targetValue
+
+    /**
+     * The fraction of the progress, within [0f..1f] bounds, or 1f if the [AnchoredDraggableState]
+     * is in a settled state.
+     */
+    /*@FloatRange(from = 0f, to = 1f)*/
+    @ExperimentalMaterialApi
+    val progress: Float
+        get() = anchoredDraggableState.progress
 
     /**
      * Whether the bottom sheet is visible.
