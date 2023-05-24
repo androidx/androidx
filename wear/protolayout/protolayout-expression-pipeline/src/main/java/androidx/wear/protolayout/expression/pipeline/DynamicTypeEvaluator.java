@@ -64,6 +64,7 @@ import androidx.wear.protolayout.expression.pipeline.StringNodes.Int32FormatNode
 import androidx.wear.protolayout.expression.pipeline.StringNodes.StateStringNode;
 import androidx.wear.protolayout.expression.pipeline.StringNodes.StringConcatOpNode;
 import androidx.wear.protolayout.expression.pipeline.sensor.SensorGateway;
+import androidx.wear.protolayout.expression.proto.DynamicProto;
 import androidx.wear.protolayout.expression.proto.DynamicProto.AnimatableDynamicColor;
 import androidx.wear.protolayout.expression.proto.DynamicProto.AnimatableDynamicFloat;
 import androidx.wear.protolayout.expression.proto.DynamicProto.AnimatableDynamicInt32;
@@ -135,6 +136,7 @@ public class DynamicTypeEvaluator {
     @NonNull private static final StateStore EMPTY_STATE_STORE = new StateStore(emptyMap());
 
     @NonNull private final StateStore mStateStore;
+    @NonNull private final PlatformDataStore mPlatformDataStore;
     @NonNull private final QuotaManager mAnimationQuotaManager;
     @NonNull private final QuotaManager mDynamicTypesQuotaManager;
     @NonNull private final EpochTimePlatformDataSource mTimeDataSource;
@@ -334,7 +336,7 @@ public class DynamicTypeEvaluator {
         }
         this.mTimeDataSource = new EpochTimePlatformDataSource(uiExecutor, timeGateway);
 
-        this.mStateStore.putAllPlatformProviders(config.getPlatformDataProviders());
+        this.mPlatformDataStore = new PlatformDataStore(config.getPlatformDataProviders());
     }
 
     /**
@@ -550,8 +552,14 @@ public class DynamicTypeEvaluator {
                 }
             case STATE_SOURCE:
                 {
-                   node = new StateStringNode(mStateStore, stringSource.getStateSource(), consumer);
-                   break;
+                    DynamicProto.StateStringSource stateSource = stringSource.getStateSource();
+                    node =
+                           new StateStringNode(
+                                   stateSource.getSourceNamespace().isEmpty()
+                                           ? mStateStore : mPlatformDataStore,
+                                   stateSource,
+                                   consumer);
+                    break;
                 }
             case CONDITIONAL_OP:
                 {
@@ -641,8 +649,12 @@ public class DynamicTypeEvaluator {
                 }
             case STATE_SOURCE:
                 {
+                    DynamicProto.StateInt32Source stateSource = int32Source.getStateSource();
                     node = new StateInt32SourceNode(
-                            mStateStore, int32Source.getStateSource(), consumer);
+                            stateSource.getSourceNamespace().isEmpty()
+                                    ? mStateStore : mPlatformDataStore,
+                            stateSource,
+                            consumer);
                     break;
                 }
             case CONDITIONAL_OP:
@@ -838,9 +850,15 @@ public class DynamicTypeEvaluator {
                 node = new FixedFloatNode(floatSource.getFixed(), consumer);
                 break;
             case STATE_SOURCE:
-                node = new StateFloatSourceNode(
-                        mStateStore, floatSource.getStateSource(), consumer);
-                break;
+                {
+                    DynamicProto.StateFloatSource stateSource = floatSource.getStateSource();
+                    node = new StateFloatSourceNode(
+                            stateSource.getSourceNamespace().isEmpty()
+                                    ? mStateStore : mPlatformDataStore,
+                            stateSource,
+                            consumer);
+                    break;
+                }
             case ARITHMETIC_OPERATION:
                 {
                     ArithmeticFloatNode arithmeticNode =
@@ -938,8 +956,12 @@ public class DynamicTypeEvaluator {
                 node = new FixedColorNode(colorSource.getFixed(), consumer);
                 break;
             case STATE_SOURCE:
+                DynamicProto.StateColorSource stateSource = colorSource.getStateSource();
                 node = new StateColorSourceNode(
-                        mStateStore, colorSource.getStateSource(), consumer);
+                        stateSource.getSourceNamespace().isEmpty()
+                                ? mStateStore : mPlatformDataStore,
+                        stateSource,
+                        consumer);
                 break;
             case ANIMATABLE_FIXED:
                 // We don't have to check if enableAnimations is true, because if it's false and
@@ -1007,8 +1029,15 @@ public class DynamicTypeEvaluator {
                 node = new FixedBoolNode(boolSource.getFixed(), consumer);
                 break;
             case STATE_SOURCE:
-                node = new StateBoolNode(mStateStore, boolSource.getStateSource(), consumer);
-                break;
+                {
+                    DynamicProto.StateBoolSource stateSource = boolSource.getStateSource();
+                    node = new StateBoolNode(
+                            stateSource.getSourceNamespace().isEmpty()
+                                    ? mStateStore : mPlatformDataStore,
+                            stateSource,
+                            consumer);
+                    break;
+                }
             case INT32_COMPARISON:
                 {
                     ComparisonInt32Node compNode =
