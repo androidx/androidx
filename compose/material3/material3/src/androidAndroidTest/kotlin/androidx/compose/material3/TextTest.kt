@@ -17,14 +17,17 @@
 package androidx.compose.material3
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsActions
-import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performSemanticsAction
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
@@ -255,10 +258,72 @@ class TextTest {
             }
         }
 
+        val textLayoutResults = getTextLayoutResults("text")
+        assert(textLayoutResults != null) { "TextLayoutResult is null" }
+    }
+
+    @Test
+    fun testContentColorChangeVisibleInSemantics() {
+        var switchColor by mutableStateOf(false)
+        rule.setContent {
+            MaterialTheme {
+                val color = if (switchColor) {
+                    MaterialTheme.colorScheme.surface
+                } else {
+                    MaterialTheme.colorScheme.secondary
+                }
+                Surface(color = color) {
+                    Text(
+                        TestText,
+                        modifier = Modifier.testTag("text")
+                    )
+                }
+            }
+        }
+
+        val textLayoutResults = getTextLayoutResults("text")
+        switchColor = true
+        rule.waitForIdle()
+        val textLayoutResults2 = getTextLayoutResults("text")
+
+        assertThat(textLayoutResults2?.layoutInput?.style?.color).isNotNull()
+        assertThat(textLayoutResults2?.layoutInput?.style?.color)
+            .isNotEqualTo(textLayoutResults?.layoutInput?.style?.color)
+    }
+
+    @Test
+    fun testContentColorChangeVisibleInSemantics_annotatedString() {
+        var switchColor by mutableStateOf(false)
+        rule.setContent {
+            MaterialTheme {
+                val color = if (switchColor) {
+                    MaterialTheme.colorScheme.surface
+                } else {
+                    MaterialTheme.colorScheme.secondary
+                }
+                Surface(color = color) {
+                    Text(
+                        AnnotatedString(TestText),
+                        modifier = Modifier.testTag("text")
+                    )
+                }
+            }
+        }
+
+        val textLayoutResults = getTextLayoutResults("text")
+        switchColor = true
+        rule.waitForIdle()
+        val textLayoutResults2 = getTextLayoutResults("text")
+
+        assertThat(textLayoutResults2?.layoutInput?.style?.color).isNotNull()
+        assertThat(textLayoutResults2?.layoutInput?.style?.color)
+            .isNotEqualTo(textLayoutResults?.layoutInput?.style?.color)
+    }
+
+    private fun getTextLayoutResults(tag: String): TextLayoutResult? {
         val textLayoutResults = mutableListOf<TextLayoutResult>()
-        rule.onNodeWithTag("text")
-            .assertTextEquals(TestText)
+        rule.onNodeWithTag(tag)
             .performSemanticsAction(SemanticsActions.GetTextLayoutResult) { it(textLayoutResults) }
-        assert(textLayoutResults.size == 1) { "TextLayoutResult is null" }
+        return textLayoutResults.firstOrNull()
     }
 }
