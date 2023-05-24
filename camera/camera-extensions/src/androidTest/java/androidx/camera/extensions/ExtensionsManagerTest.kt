@@ -280,6 +280,11 @@ class ExtensionsManagerTest(
             extensionsManager.extensionsAvailability
                 == ExtensionsManager.ExtensionsAvailability.LIBRARY_AVAILABLE
         )
+        // Skips the test when the extension version is 1.1 or below. It is the case that the
+        // device has its own implementation and ExtensionsInfo will directly return null to impact
+        // the test result.
+        assumeTrue(ExtensionVersion.getRuntimeVersion()!! >= Version.VERSION_1_2)
+
         val estimatedCaptureLatency = Range(100L, 1000L)
 
         val fakeVendorExtender = object : VendorExtender {
