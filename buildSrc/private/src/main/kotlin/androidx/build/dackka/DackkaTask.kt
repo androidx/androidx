@@ -237,7 +237,23 @@ abstract class DackkaTask @Inject constructor(
             "guava" to "https://guava.dev/releases/18.0/api/docs/",
             "kotlin" to "https://kotlinlang.org/api/latest/jvm/stdlib/",
             "junit" to "https://junit.org/junit4/javadoc/4.12/",
-            "okio" to "https://square.github.io/okio/3.x/okio/"
+            "okio" to "https://square.github.io/okio/3.x/okio/",
+            "protobuf" to "https://protobuf.dev/reference/java/api-docs/",
+            "kotlinpoet" to "https://square.github.io/kotlinpoet/1.x/kotlinpoet/",
+            "skiko" to "https://jetbrains.github.io/skiko/",
+            "reactivex" to "https://reactivex.io/RxJava/2.x/javadoc/",
+            "reactivex-rxjava3" to "http://reactivex.io/RxJava/3.x/javadoc/",
+            "grpc" to "https://grpc.github.io/grpc-java/javadoc/",
+            // From developer.android.com/reference/com/google/android/play/core/package-list
+            "play" to "https://developer.android.com/reference/",
+            // From developer.android.com/reference/com/google/android/material/package-list
+            "material" to "https://developer.android.com/reference",
+            // All package-lists below were created manually
+            "mlkit" to "https://developers.google.com/android/reference/",
+            "dagger" to "https://dagger.dev/api/latest/",
+            "reactivestreams" to "https://www.reactive-streams.org/reactive-streams-1.0.4-javadoc/",
+            "jetbrains-annotations" to "https://javadoc.io/doc/org.jetbrains/annotations/latest/",
+            "auto-value" to "https://www.javadoc.io/doc/com.google.auto.value/auto-value/latest/",
         )
     }
 }
