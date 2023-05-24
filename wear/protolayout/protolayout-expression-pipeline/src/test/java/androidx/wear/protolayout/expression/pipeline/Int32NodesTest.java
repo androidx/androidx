@@ -25,7 +25,6 @@ import static java.lang.Integer.MAX_VALUE;
 
 import android.os.Looper;
 
-import androidx.collection.ArrayMap;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.wear.protolayout.expression.AppDataKey;
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32;
@@ -228,8 +227,7 @@ public class Int32NodesTest {
     @Test
     public void stateInt32Source_canSubscribeToDailyStepsUpdates() {
         FakeSensorGateway fakeSensorGateway = new FakeSensorGateway();
-        StateStore stateStore = new StateStore(new ArrayMap<>());
-        stateStore.putAllPlatformProviders(
+        PlatformDataStore platformDataStore = new PlatformDataStore(
                 Collections.singletonMap(
                         PlatformHealthSources.Keys.DAILY_STEPS,
                         new SensorGatewaySingleDataProvider(
@@ -242,7 +240,7 @@ public class Int32NodesTest {
         List<Integer> results = new ArrayList<>();
         StateInt32SourceNode dailyStepsSourceNode =
                 new StateInt32SourceNode(
-                        stateStore,
+                        platformDataStore,
                         dailyStepsSource,
                         new AddToListCallback<>(results));
 
@@ -395,8 +393,7 @@ public class Int32NodesTest {
     @Test
     public void platformInt32Source_canSubscribeToHeartRateUpdates() {
         FakeSensorGateway fakeSensorGateway = new FakeSensorGateway();
-        StateStore stateStore = new StateStore(new ArrayMap<>());
-        stateStore.putAllPlatformProviders(
+        PlatformDataStore platformDataStore = new PlatformDataStore(
                 Collections.singletonMap(
                         PlatformHealthSources.Keys.HEART_RATE_BPM,
                         new SensorGatewaySingleDataProvider(
@@ -410,7 +407,7 @@ public class Int32NodesTest {
         List<Integer> results = new ArrayList<>();
         LegacyPlatformInt32SourceNode platformSourceNode =
                 new LegacyPlatformInt32SourceNode(
-                        stateStore,
+                        platformDataStore,
                         platformSource,
                         new AddToListCallback<>(results));
 
@@ -430,8 +427,7 @@ public class Int32NodesTest {
     @Test
     public void platformInt32Source_canSubscribeToDailyStepsUpdates() {
         FakeSensorGateway fakeSensorGateway = new FakeSensorGateway();
-        StateStore stateStore = new StateStore(new ArrayMap<>());
-        stateStore.putAllPlatformProviders(
+        PlatformDataStore platformDataStore = new PlatformDataStore(
                 Collections.singletonMap(
                         PlatformHealthSources.Keys.DAILY_STEPS,
                         new SensorGatewaySingleDataProvider(
@@ -445,7 +441,7 @@ public class Int32NodesTest {
         List<Integer> results = new ArrayList<>();
         LegacyPlatformInt32SourceNode platformSourceNode =
                 new LegacyPlatformInt32SourceNode(
-                        stateStore,
+                        platformDataStore,
                         platformSource,
                         new AddToListCallback<>(results));
 
@@ -465,8 +461,7 @@ public class Int32NodesTest {
     @Test
     public void platformInt32Source_propagatesInvalidatedSignal() {
         FakeSensorGateway fakeSensorGateway = new FakeSensorGateway();
-        StateStore stateStore = new StateStore(new ArrayMap<>());
-        stateStore.putAllPlatformProviders(
+        PlatformDataStore platformDataStore = new PlatformDataStore(
                 Collections.singletonMap(
                         PlatformHealthSources.Keys.HEART_RATE_BPM,
                         new SensorGatewaySingleDataProvider(
@@ -479,7 +474,7 @@ public class Int32NodesTest {
                         .build();
         LegacyPlatformInt32SourceNode platformSourceNode =
                 new LegacyPlatformInt32SourceNode(
-                        stateStore,
+                        platformDataStore,
                         platformSource,
                         mMockValueReceiver);
 

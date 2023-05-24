@@ -24,10 +24,9 @@ import static java.lang.Integer.MAX_VALUE;
 
 import android.os.Looper;
 
-import androidx.collection.ArrayMap;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat;
 import androidx.wear.protolayout.expression.AppDataKey;
+import androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat;
 import androidx.wear.protolayout.expression.PlatformHealthSources;
 import androidx.wear.protolayout.expression.pipeline.FloatNodes.AnimatableFixedFloatNode;
 import androidx.wear.protolayout.expression.pipeline.FloatNodes.ArithmeticFloatNode;
@@ -37,6 +36,7 @@ import androidx.wear.protolayout.expression.pipeline.FloatNodes.Int32ToFloatNode
 import androidx.wear.protolayout.expression.pipeline.FloatNodes.StateFloatSourceNode;
 import androidx.wear.protolayout.expression.pipeline.Int32Nodes.StateInt32SourceNode;
 import androidx.wear.protolayout.expression.proto.AnimationParameterProto.AnimationSpec;
+import androidx.wear.protolayout.expression.proto.DynamicDataProto.DynamicDataValue;
 import androidx.wear.protolayout.expression.proto.DynamicProto.AnimatableFixedFloat;
 import androidx.wear.protolayout.expression.proto.DynamicProto.ArithmeticFloatOp;
 import androidx.wear.protolayout.expression.proto.DynamicProto.ArithmeticOpType;
@@ -44,7 +44,6 @@ import androidx.wear.protolayout.expression.proto.DynamicProto.StateFloatSource;
 import androidx.wear.protolayout.expression.proto.DynamicProto.StateInt32Source;
 import androidx.wear.protolayout.expression.proto.FixedProto.FixedFloat;
 import androidx.wear.protolayout.expression.proto.FixedProto.FixedInt32;
-import androidx.wear.protolayout.expression.proto.DynamicDataProto.DynamicDataValue;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
@@ -132,8 +131,7 @@ public class FloatNodeTest {
     @Test
     public void stateFloatSource_canSubscribeToHeartRateUpdates() {
         FakeSensorGateway fakeSensorGateway = new FakeSensorGateway();
-        StateStore stateStore = new StateStore(new ArrayMap<>());
-        stateStore.putAllPlatformProviders(
+        PlatformDataStore platformDataStore = new PlatformDataStore(
                 Collections.singletonMap(
                         PlatformHealthSources.Keys.HEART_RATE_BPM,
                         new SensorGatewaySingleDataProvider(
@@ -147,7 +145,7 @@ public class FloatNodeTest {
         List<Float> results = new ArrayList<>();
         StateFloatSourceNode dailyStepsSourceNode =
                 new StateFloatSourceNode(
-                        stateStore,
+                        platformDataStore,
                         dailyStepsSource,
                         new AddToListCallback<>(results));
 

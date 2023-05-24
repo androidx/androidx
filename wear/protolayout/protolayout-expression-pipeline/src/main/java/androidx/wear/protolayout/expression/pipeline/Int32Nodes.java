@@ -78,11 +78,11 @@ class Int32Nodes {
     static class LegacyPlatformInt32SourceNode extends StateSourceNode<Integer> {
 
         LegacyPlatformInt32SourceNode(
-                StateStore stateStore,
+                DataStore dataStore,
                 PlatformInt32Source protoNode,
                 DynamicTypeValueReceiverWithPreUpdate<Integer> downstream) {
             super(
-                    stateStore,
+                    dataStore,
                     getDataKey(protoNode.getSourceType()),
                     getStateExtractor(protoNode.getSourceType()),
                     downstream);
@@ -160,11 +160,11 @@ class Int32Nodes {
     static class StateInt32SourceNode extends StateSourceNode<Integer> {
 
         StateInt32SourceNode(
-                StateStore stateStore,
+                DataStore dataStore,
                 StateInt32Source protoNode,
                 DynamicTypeValueReceiverWithPreUpdate<Integer> downstream) {
             super(
-                    stateStore,
+                    dataStore,
                     StateSourceNode.<DynamicInt32>createKey(
                             protoNode.getSourceNamespace(), protoNode.getSourceKey()),
                     se -> se.getInt32Val().getValue(),
