@@ -47,6 +47,7 @@ import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.ElementFilter;
+import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
 
 /**
@@ -66,12 +67,16 @@ class DocumentModel {
     /** Determines how the annotation processor has decided to write the value of a field. */
     enum WriteKind {FIELD, SETTER, CREATION_METHOD}
 
+    private static final String CLASS_SUFFIX = ".class";
+
     private final IntrospectionHelper mHelper;
     private final TypeElement mClass;
     private final Types mTypeUtil;
+    private final Elements mElementUtil;
     // The name of the original class annotated with @Document
     private final String mQualifiedDocumentClassName;
     private String mSchemaName;
+    private Set<TypeElement> mParentTypes = new LinkedHashSet<>();
     // Warning: if you change this to a HashSet, we may choose different getters or setters from
     // run to run, causing the generated code to bounce.
     private final Set<ExecutableElement> mAllMethods = new LinkedHashSet<>();
@@ -111,6 +116,7 @@ class DocumentModel {
         mHelper = new IntrospectionHelper(env);
         mClass = clazz;
         mTypeUtil = env.getTypeUtils();
+        mElementUtil = env.getElementUtils();
 
         if (generatedAutoValueElement != null) {
             mIsAutoValueDocument = true;
@@ -211,6 +217,14 @@ class DocumentModel {
     @NonNull
     public String getSchemaName() {
         return mSchemaName;
+    }
+
+    /**
+     * Returns the set of parent classes specified in @Document via the "parent" parameter.
+     */
+    @NonNull
+    public Set<TypeElement> getParentTypes() {
+        return mParentTypes;
     }
 
     @NonNull
@@ -390,11 +404,26 @@ class DocumentModel {
                 default:
                     PropertyClass propertyClass = getPropertyClass(annotationFq);
                     if (propertyClass != null) {
+                        // A property must either:
+                        //   1. be unique
+                        //   2. override a property from the Java parent while maintaining the same
+                        //      AppSearch property name
                         checkFieldTypeForPropertyAnnotation(child, propertyClass);
-                        if (mPropertyFields.containsKey(fieldName)) {
-                            throw new ProcessingException(
-                                    "Class hierarchy contains multiple annotated fields named: "
-                                            + fieldName, child);
+                        // It's assumed that parent types, in the context of Java's type system,
+                        // are always visited before child types, so existingProperty must come
+                        // from the parent type. To make this assumption valid, the result
+                        // returned by generateClassHierarchy must put parent types before child
+                        // types.
+                        VariableElement existingProperty = mPropertyFields.get(fieldName);
+                        if (existingProperty != null) {
+                            if (!mTypeUtil.isSameType(existingProperty.asType(), child.asType())) {
+                                throw new ProcessingException(
+                                        "Cannot override a property with a different type", child);
+                            }
+                            if (!getPropertyName(existingProperty).equals(getPropertyName(child))) {
+                                throw new ProcessingException(
+                                        "Cannot override a property with a different name", child);
+                            }
                         }
                         mPropertyFields.put(fieldName, child);
                     }
@@ -411,6 +440,25 @@ class DocumentModel {
      * @param element the class to scan
      */
     private void scanFields(@NonNull TypeElement element) throws ProcessingException {
+        AnnotationMirror documentAnnotation = getDocumentAnnotation(element);
+        if (documentAnnotation != null) {
+            Map<String, Object> params = mHelper.getAnnotationParams(documentAnnotation);
+            Object parents = params.get("parent");
+            if (parents instanceof List) {
+                for (Object parent : (List<?>) parents) {
+                    String parentClassName = parent.toString();
+                    parentClassName = parentClassName.substring(0,
+                            parentClassName.length() - CLASS_SUFFIX.length());
+                    mParentTypes.add(mElementUtil.getTypeElement(parentClassName));
+                }
+            }
+            if (!mParentTypes.isEmpty() && params.get("name").toString().isEmpty()) {
+                throw new ProcessingException(
+                        "All @Document classes with a parent must explicitly provide a name",
+                        mClass);
+            }
+        }
+
         List<TypeElement> hierarchy = generateClassHierarchy(element, mIsAutoValueDocument);
 
         for (TypeElement clazz : hierarchy) {

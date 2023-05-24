@@ -41,11 +41,11 @@ public interface DocumentClassFactory<T> {
     AppSearchSchema getSchema() throws AppSearchException;
 
     /**
-     * Returns dependent document classes used in this document class. This is useful as we can set
-     * dependent schemas without requiring clients to explicitly set all dependent schemas.
+     * Returns document classes that this document class depends on. This is useful so clients
+     * are not required to explicitly set all dependencies.
      */
     @NonNull
-    List<Class<?>> getNestedDocumentClasses() throws AppSearchException;
+    List<Class<?>> getDependencyDocumentClasses() throws AppSearchException;
 
     /**
      * Converts an instance of the class annotated with

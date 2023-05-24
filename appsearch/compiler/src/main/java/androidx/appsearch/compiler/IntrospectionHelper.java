@@ -207,7 +207,9 @@ class IntrospectionHelper {
 
     /**
      * Get a list of super classes of element annotated with @Document, in order starting with the
-     * class at the top of the hierarchy and descending down the class hierarchy
+     * class at the top of the hierarchy and descending down the class hierarchy. Note that this
+     * ordering is important because super classes must appear first in the list than child classes
+     * to make property overrides work.
      */
     @NonNull
     public static List<TypeElement> generateClassHierarchy(

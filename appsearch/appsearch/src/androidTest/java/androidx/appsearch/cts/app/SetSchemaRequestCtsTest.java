@@ -915,5 +915,78 @@ public class SetSchemaRequestCtsTest {
         assertThat(schemas).contains(registry.getOrCreateFactory(Parent.class).getSchema());
     }
 
+    @Document
+    static class ArtType {
+        @Document.Id String mId;
+        @Document.Namespace String mNamespace;
+        @Document.StringProperty String mType;
+    }
+
+    @Document(name = "Artist", parent = {Person.class})
+    static class Artist extends Person {
+        @Document.StringProperty String mCompany;
+        @Document.DocumentProperty ArtType mArtType;
+    }
+
+    @Test
+    public void testSchemaPolymorphism() throws AppSearchException {
+        SetSchemaRequest request = new SetSchemaRequest.Builder().addDocumentClasses(Artist.class)
+                .setForceOverride(true).build();
+        DocumentClassFactoryRegistry registry = DocumentClassFactoryRegistry.getInstance();
+
+        Set<AppSearchSchema> schemas = request.getSchemas();
+        // Artist's dependencies should be automatically added.
+        assertThat(schemas).containsExactly(
+                registry.getOrCreateFactory(Common.class).getSchema(),
+                registry.getOrCreateFactory(Person.class).getSchema(),
+                registry.getOrCreateFactory(ArtType.class).getSchema(),
+                registry.getOrCreateFactory(Artist.class).getSchema()
+        );
+    }
+
+    @Document
+    static class Thing {
+        @Document.Id String mId;
+        @Document.Namespace String mNamespace;
+        @Document.StringProperty String mHash;
+    }
+
+    @Document(name = "Email", parent = Thing.class)
+    static class Email extends Thing {
+        @Document.StringProperty String mSender;
+    }
+
+    @Document(name = "Message", parent = Thing.class)
+    static class Message extends Thing {
+        @Document.StringProperty String mContent;
+    }
+
+    // EmailMessage can choose any class to "extends" from, since Java's type relationship is
+    // independent on AppSearch's. In this case, EmailMessage extends Thing to avoid redefining
+    // mId, mNamespace and mHash, but it still needs to specify mSender and mContent coming from
+    // Email and Message.
+    @Document(name = "EmailMessage", parent = {Email.class, Message.class})
+    static class EmailMessage extends Thing {
+        @Document.StringProperty String mSender;
+        @Document.StringProperty String mContent;
+    }
+
+    @Test
+    public void testSchemaDiamondPolymorphism() throws AppSearchException {
+        SetSchemaRequest request = new SetSchemaRequest.Builder().addDocumentClasses(
+                        EmailMessage.class)
+                .setForceOverride(true).build();
+        DocumentClassFactoryRegistry registry = DocumentClassFactoryRegistry.getInstance();
+
+        Set<AppSearchSchema> schemas = request.getSchemas();
+        // EmailMessage's dependencies should be automatically added.
+        assertThat(schemas).containsExactly(
+                registry.getOrCreateFactory(Thing.class).getSchema(),
+                registry.getOrCreateFactory(Email.class).getSchema(),
+                registry.getOrCreateFactory(Message.class).getSchema(),
+                registry.getOrCreateFactory(EmailMessage.class).getSchema()
+        );
+    }
+
 // @exportToFramework:endStrip()
 }

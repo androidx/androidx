@@ -199,28 +199,6 @@ public class AppSearchCompilerTest {
         assertThat(nonAnnotatedFieldHasSameName).hadErrorContaining(
                 "Non-annotated field overriding special annotated fields named: id");
 
-        Compilation propertyCollision = compile(
-                "@Document\n"
-                        + "public class Gift {\n"
-                        + "  @Document.Namespace String namespace;\n"
-                        + "  @Document.Id String id;\n"
-                        + "  @Document.StringProperty String prop;\n"
-                        + "  Gift(String id, String namespace, String prop) {\n"
-                        + "    this.id = id;\n"
-                        + "    this.namespace = namespace;\n"
-                        + "    this.prop = prop;\n"
-                        + "  }\n"
-                        + "}\n"
-                        + "@Document\n"
-                        + "class CoolGift extends Gift {\n"
-                        + "  @Document.BooleanProperty Boolean prop;\n"
-                        + "  CoolGift(String id, String namespace, String prop) {\n"
-                        + "    super(id, namespace, prop);\n"
-                        + "  }\n"
-                        + "}\n");
-        assertThat(propertyCollision).hadErrorContaining(
-                "Class hierarchy contains multiple annotated fields named: prop");
-
         //error on collision
         Compilation idCollision = compile(
                 "@Document\n"
@@ -1572,6 +1550,199 @@ public class AppSearchCompilerTest {
                 /* content= */ "classSet.add(Inner.class);\n    return classSet;");
         checkResultContains(/* className= */ "Inner.java",
                 /* content= */ "return Collections.emptyList();");
+    }
+
+    @Test
+    public void testPolymorphism() throws Exception {
+        // Gift should automatically get "note2" via Java's "extends" semantics, but "note1" need
+        // to be manually provided so that Parent1 can be a parent of Gift.
+        Compilation compilation = compile(
+                "@Document\n"
+                        + "class Parent1 {\n"
+                        + "  @Document.Namespace String namespace;\n"
+                        + "  @Document.Id String id;\n"
+                        + "  @Document.StringProperty String note1;\n"
+                        + "}\n"
+                        + "@Document\n"
+                        + "class Parent2 {\n"
+                        + "  @Document.Namespace String namespace;\n"
+                        + "  @Document.Id String id;\n"
+                        + "  @Document.StringProperty String note2;\n"
+                        + "}\n"
+                        + "@Document(name = \"Gift\", parent = {Parent1.class, Parent2.class})\n"
+                        + "class Gift extends Parent2 {\n"
+                        + "  @Document.StringProperty String sender;\n"
+                        + "  @Document.StringProperty String note1;\n"
+                        + "}\n");
+        assertThat(compilation).succeededWithoutWarnings();
+
+        checkResultContains("Gift.java", "addParentType($$__AppSearch__Parent1.SCHEMA_NAME)");
+        checkResultContains("Gift.java", "addParentType($$__AppSearch__Parent2.SCHEMA_NAME)");
+
+        checkEqualsGolden("Gift.java");
+    }
+
+    @Test
+    public void testPolymorphismOverrideExtendedProperty() throws Exception {
+        Compilation compilation = compile(
+                "@Document\n"
+                        + "class Parent1 {\n"
+                        + "  @Document.Namespace String namespace;\n"
+                        + "  @Document.Id String id;\n"
+                        + "  @Document.StringProperty String note1;\n"
+                        + "}\n"
+                        + "@Document\n"
+                        + "class Parent2 {\n"
+                        + "  @Document.Namespace String namespace;\n"
+                        + "  @Document.Id String id;\n"
+                        + "  @Document.StringProperty(indexingType=2) String note2;\n"
+                        + "}\n"
+                        + "@Document(name = \"Gift\", parent = {Parent1.class, Parent2.class})\n"
+                        + "class Gift extends Parent2 {\n"
+                        + "  @Document.StringProperty String sender;\n"
+                        + "  @Document.StringProperty String note1;\n"
+                        + "  @Document.StringProperty(indexingType=1) String note2;\n"
+                        + "}\n");
+        assertThat(compilation).succeededWithoutWarnings();
+
+        // Should expect the indexingType of note2 from Gift is 1, which is
+        // INDEXING_TYPE_EXACT_TERMS, instead of 2.
+        checkResultContains("Gift.java",
+                "setIndexingType(AppSearchSchema.StringPropertyConfig.INDEXING_TYPE_EXACT_TERMS)");
+
+        checkEqualsGolden("Gift.java");
+    }
+
+    @Test
+    public void testPolymorphismOverrideExtendedPropertyInvalid() throws Exception {
+        // Overridden properties cannot change the names.
+        Compilation compilation = compile(
+                "@Document\n"
+                        + "class Parent1 {\n"
+                        + "  @Document.Namespace String namespace;\n"
+                        + "  @Document.Id String id;\n"
+                        + "  @Document.StringProperty String note1;\n"
+                        + "}\n"
+                        + "@Document\n"
+                        + "class Parent2 {\n"
+                        + "  @Document.Namespace String namespace;\n"
+                        + "  @Document.Id String id;\n"
+                        + "  @Document.StringProperty(name=\"note2\", indexingType=2) String "
+                        + "note2;\n"
+                        + "}\n"
+                        + "@Document(name = \"Gift\", parent = {Parent1.class, Parent2.class})\n"
+                        + "class Gift extends Parent2 {\n"
+                        + "  @Document.StringProperty String sender;\n"
+                        + "  @Document.StringProperty String note1;\n"
+                        + "  @Document.StringProperty(name=\"note2_new\", indexingType=1) String "
+                        + "note2;\n"
+                        + "}\n");
+        assertThat(compilation).hadErrorContaining(
+                "Cannot override a property with a different name");
+
+        // Overridden properties cannot change the types.
+        compilation = compile(
+                "@Document\n"
+                        + "class Parent1 {\n"
+                        + "  @Document.Namespace String namespace;\n"
+                        + "  @Document.Id String id;\n"
+                        + "  @Document.StringProperty String note1;\n"
+                        + "}\n"
+                        + "@Document\n"
+                        + "class Parent2 {\n"
+                        + "  @Document.Namespace String namespace;\n"
+                        + "  @Document.Id String id;\n"
+                        + "  @Document.StringProperty String note2;\n"
+                        + "}\n"
+                        + "@Document(name = \"Gift\", parent = {Parent1.class, Parent2.class})\n"
+                        + "class Gift extends Parent2 {\n"
+                        + "  @Document.StringProperty String sender;\n"
+                        + "  @Document.StringProperty String note1;\n"
+                        + "  @LongProperty Long note2;\n"
+                        + "}\n");
+        assertThat(compilation).hadErrorContaining(
+                "Cannot override a property with a different type");
+    }
+
+    @Test
+    public void testPolymorphismWithNestedType() throws Exception {
+        Compilation compilation = compile(
+                "@Document\n"
+                        + "class Parent1 {\n"
+                        + "  @Document.Namespace String namespace;\n"
+                        + "  @Document.Id String id;\n"
+                        + "  @Document.StringProperty String note1;\n"
+                        + "}\n"
+                        + "@Document\n"
+                        + "class Parent2 {\n"
+                        + "  @Document.Namespace String namespace;\n"
+                        + "  @Document.Id String id;\n"
+                        + "  @Document.StringProperty String note2;\n"
+                        + "}\n"
+                        + "@Document(name = \"Gift\", parent = {Parent1.class, Parent2.class})\n"
+                        + "class Gift extends Parent2 {\n"
+                        + "  @Document.StringProperty String sender;\n"
+                        + "  @Document.StringProperty String note1;\n"
+                        + "  @Document.DocumentProperty Inner innerContent;\n"
+                        + "}\n"
+                        + "@Document\n"
+                        + "class Inner {\n"
+                        + "  @Document.Id String id;\n"
+                        + "  @Document.Namespace String namespace;\n"
+                        + "  @Document.StringProperty String contents;\n"
+                        + "}\n");
+        assertThat(compilation).succeededWithoutWarnings();
+
+        // Should see that both the parent types and nested types are added to the generated
+        // getDependencyDocumentClasses method in Gift.
+        checkResultContains("Gift.java", "classSet.add(Parent1.class)");
+        checkResultContains("Gift.java", "classSet.add(Parent2.class)");
+        checkResultContains("Gift.java", "classSet.add(Inner.class)");
+
+        checkEqualsGolden("Gift.java");
+    }
+
+    @Test
+    public void testPolymorphismDuplicatedParents() throws Exception {
+        // Should see that every parent can only be added once.
+        Compilation compilation = compile(
+                "@Document\n"
+                        + "class Parent1 {\n"
+                        + "  @Document.Namespace String namespace;\n"
+                        + "  @Document.Id String id;\n"
+                        + "  @Document.StringProperty String note1;\n"
+                        + "}\n"
+                        + "@Document\n"
+                        + "class Parent2 {\n"
+                        + "  @Document.Namespace String namespace;\n"
+                        + "  @Document.Id String id;\n"
+                        + "  @Document.StringProperty String note2;\n"
+                        + "}\n"
+                        + "@Document(name = \"Gift\", parent = {Parent1.class, Parent2.class, "
+                        + "Parent1.class})\n"
+                        + "class Gift extends Parent2 {\n"
+                        + "  @Document.StringProperty String sender;\n"
+                        + "  @Document.StringProperty String note1;\n"
+                        + "}\n");
+        assertThat(compilation).succeededWithoutWarnings();
+        checkEqualsGolden("Gift.java");
+    }
+
+    @Test
+    public void testPolymorphismChildTypeWithoutName() throws Exception {
+        Compilation compilation = compile(
+                "@Document\n"
+                        + "class Parent {\n"
+                        + "  @Document.Namespace String namespace;\n"
+                        + "  @Document.Id String id;\n"
+                        + "  @Document.StringProperty String note;\n"
+                        + "}\n"
+                        + "@Document(parent = Parent.class)\n"
+                        + "class Gift extends Parent {\n"
+                        + "  @Document.StringProperty String sender;\n"
+                        + "}\n");
+        assertThat(compilation).hadErrorContaining(
+                "All @Document classes with a parent must explicitly provide a name");
     }
 
     private Compilation compile(String classBody) {

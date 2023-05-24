@@ -33,7 +33,7 @@ public final class $$__AppSearch__AutoValue_Gift implements DocumentClassFactory
   }
 
   @Override
-  public List<Class<?>> getNestedDocumentClasses() throws AppSearchException {
+  public List<Class<?>> getDependencyDocumentClasses() throws AppSearchException {
     return Collections.emptyList();
   }
 

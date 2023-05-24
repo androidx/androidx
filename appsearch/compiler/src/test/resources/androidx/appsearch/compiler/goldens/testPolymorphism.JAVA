@@ -7,7 +7,7 @@ import androidx.appsearch.exceptions.AppSearchException;
 import java.lang.Class;
 import java.lang.Override;
 import java.lang.String;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.processing.Generated;
 
@@ -23,22 +23,24 @@ public final class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
   @Override
   public AppSearchSchema getSchema() throws AppSearchException {
     return new AppSearchSchema.Builder(SCHEMA_NAME)
-          .addProperty(new AppSearchSchema.StringPropertyConfig.Builder("indexNone")
+          .addParentType($$__AppSearch__Parent1.SCHEMA_NAME)
+          .addParentType($$__AppSearch__Parent2.SCHEMA_NAME)
+          .addProperty(new AppSearchSchema.StringPropertyConfig.Builder("note2")
             .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
             .setTokenizerType(AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_NONE)
             .setIndexingType(AppSearchSchema.StringPropertyConfig.INDEXING_TYPE_NONE)
             .setJoinableValueType(AppSearchSchema.StringPropertyConfig.JOINABLE_VALUE_TYPE_NONE)
             .build())
-          .addProperty(new AppSearchSchema.StringPropertyConfig.Builder("indexExact")
+          .addProperty(new AppSearchSchema.StringPropertyConfig.Builder("sender")
             .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
-            .setTokenizerType(AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
-            .setIndexingType(AppSearchSchema.StringPropertyConfig.INDEXING_TYPE_EXACT_TERMS)
+            .setTokenizerType(AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_NONE)
+            .setIndexingType(AppSearchSchema.StringPropertyConfig.INDEXING_TYPE_NONE)
             .setJoinableValueType(AppSearchSchema.StringPropertyConfig.JOINABLE_VALUE_TYPE_NONE)
             .build())
-          .addProperty(new AppSearchSchema.StringPropertyConfig.Builder("indexPrefix")
+          .addProperty(new AppSearchSchema.StringPropertyConfig.Builder("note1")
             .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
-            .setTokenizerType(AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
-            .setIndexingType(AppSearchSchema.StringPropertyConfig.INDEXING_TYPE_PREFIXES)
+            .setTokenizerType(AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_NONE)
+            .setIndexingType(AppSearchSchema.StringPropertyConfig.INDEXING_TYPE_NONE)
             .setJoinableValueType(AppSearchSchema.StringPropertyConfig.JOINABLE_VALUE_TYPE_NONE)
             .build())
           .build();
@@ -46,24 +48,27 @@ public final class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
 
   @Override
   public List<Class<?>> getDependencyDocumentClasses() throws AppSearchException {
-    return Collections.emptyList();
+    List<Class<?>> classSet = new ArrayList<Class<?>>();
+    classSet.add(Parent1.class);
+    classSet.add(Parent2.class);
+    return classSet;
   }
 
   @Override
   public GenericDocument toGenericDocument(Gift document) throws AppSearchException {
     GenericDocument.Builder<?> builder =
         new GenericDocument.Builder<>(document.namespace, document.id, SCHEMA_NAME);
-    String indexNoneCopy = document.indexNone;
-    if (indexNoneCopy != null) {
-      builder.setPropertyString("indexNone", indexNoneCopy);
+    String note2Copy = document.note2;
+    if (note2Copy != null) {
+      builder.setPropertyString("note2", note2Copy);
     }
-    String indexExactCopy = document.indexExact;
-    if (indexExactCopy != null) {
-      builder.setPropertyString("indexExact", indexExactCopy);
+    String senderCopy = document.sender;
+    if (senderCopy != null) {
+      builder.setPropertyString("sender", senderCopy);
     }
-    String indexPrefixCopy = document.indexPrefix;
-    if (indexPrefixCopy != null) {
-      builder.setPropertyString("indexPrefix", indexPrefixCopy);
+    String note1Copy = document.note1;
+    if (note1Copy != null) {
+      builder.setPropertyString("note1", note1Copy);
     }
     return builder.build();
   }
@@ -72,27 +77,27 @@ public final class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
   public Gift fromGenericDocument(GenericDocument genericDoc) throws AppSearchException {
     String idConv = genericDoc.getId();
     String namespaceConv = genericDoc.getNamespace();
-    String[] indexNoneCopy = genericDoc.getPropertyStringArray("indexNone");
-    String indexNoneConv = null;
-    if (indexNoneCopy != null && indexNoneCopy.length != 0) {
-      indexNoneConv = indexNoneCopy[0];
+    String[] note2Copy = genericDoc.getPropertyStringArray("note2");
+    String note2Conv = null;
+    if (note2Copy != null && note2Copy.length != 0) {
+      note2Conv = note2Copy[0];
     }
-    String[] indexExactCopy = genericDoc.getPropertyStringArray("indexExact");
-    String indexExactConv = null;
-    if (indexExactCopy != null && indexExactCopy.length != 0) {
-      indexExactConv = indexExactCopy[0];
+    String[] senderCopy = genericDoc.getPropertyStringArray("sender");
+    String senderConv = null;
+    if (senderCopy != null && senderCopy.length != 0) {
+      senderConv = senderCopy[0];
     }
-    String[] indexPrefixCopy = genericDoc.getPropertyStringArray("indexPrefix");
-    String indexPrefixConv = null;
-    if (indexPrefixCopy != null && indexPrefixCopy.length != 0) {
-      indexPrefixConv = indexPrefixCopy[0];
+    String[] note1Copy = genericDoc.getPropertyStringArray("note1");
+    String note1Conv = null;
+    if (note1Copy != null && note1Copy.length != 0) {
+      note1Conv = note1Copy[0];
     }
     Gift document = new Gift();
     document.namespace = namespaceConv;
     document.id = idConv;
-    document.indexNone = indexNoneConv;
-    document.indexExact = indexExactConv;
-    document.indexPrefix = indexPrefixConv;
+    document.note2 = note2Conv;
+    document.sender = senderConv;
+    document.note1 = note1Conv;
     return document;
   }
 }

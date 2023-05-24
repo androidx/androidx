@@ -686,4 +686,117 @@ public abstract class AnnotationProcessorTestBase {
         mSession.setSchemaAsync(request).get();
         assertThat(mSession.getSchemaAsync().get().getSchemas()).hasSize(3);
     }
+
+    @Document
+    static class Root {
+        @Document.Id String mId;
+        @Document.Namespace String mNamespace;
+    }
+
+    @Document(name = "Email", parent = Root.class)
+    static class Email extends Root {
+        @Document.StringProperty String mSender;
+    }
+
+    @Document(name = "Message", parent = Root.class)
+    static class Message extends Root {
+        @Document.StringProperty String mContent;
+    }
+
+    // EmailMessage can choose any class to "extends" from, since Java's type relationship is
+    // independent on AppSearch's. In this case, EmailMessage extends Root to avoid redefining
+    // mId and mNamespace, but it still needs to specify mSender and mContent coming from
+    // Email and Message.
+    @Document(name = "EmailMessage", parent = {Email.class, Message.class})
+    static class EmailMessage extends Root {
+        @Document.StringProperty String mSender;
+        @Document.StringProperty String mContent;
+    }
+
+    @Test
+    public void testPolymorphism() throws Exception {
+        assumeTrue(mSession.getFeatures().isFeatureSupported(Features.SCHEMA_ADD_PARENT_TYPE));
+
+        mSession.setSchemaAsync(new SetSchemaRequest.Builder()
+                // EmailMessage's dependencies should be automatically added.
+                .addDocumentClasses(EmailMessage.class)
+                // Add some other class
+                .addDocumentClasses(Gift.class)
+                .build()).get();
+
+        // Create documents
+        Root root = new Root();
+        root.mNamespace = "namespace";
+        root.mId = "id1";
+
+        Email email = new Email();
+        email.mNamespace = "namespace";
+        email.mId = "id2";
+        email.mSender = "test@test.com";
+
+        Message message = new Message();
+        message.mNamespace = "namespace";
+        message.mId = "id3";
+        message.mContent = "hello";
+
+        EmailMessage emailMessage = new EmailMessage();
+        emailMessage.mNamespace = "namespace";
+        emailMessage.mId = "id4";
+        emailMessage.mSender = "test@test.com";
+        emailMessage.mContent = "hello";
+
+        Gift gift = new Gift();
+        gift.mNamespace = "namespace";
+        gift.mId = "id5";
+
+        checkIsBatchResultSuccess(mSession.putAsync(
+                new PutDocumentsRequest.Builder()
+                        .addDocuments(root, email, message, emailMessage, gift)
+                        .build()));
+
+        // Query for all documents
+        SearchResults searchResults = mSession.search("",
+                new SearchSpec.Builder()
+                        .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                        .build());
+        List<GenericDocument> documents = convertSearchResultsToDocuments(searchResults);
+        assertThat(documents).hasSize(5);
+
+        // A query with a filter for the "Root" type should also include "Email", "Message" and
+        // "EmailMessage".
+        searchResults = mSession.search("",
+                new SearchSpec.Builder()
+                        .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                        .addFilterDocumentClasses(Root.class)
+                        .build());
+        documents = convertSearchResultsToDocuments(searchResults);
+        assertThat(documents).hasSize(4);
+
+        // A query with a filter for the "Email" type should also include "EmailMessage".
+        searchResults = mSession.search("",
+                new SearchSpec.Builder()
+                        .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                        .addFilterDocumentClasses(Email.class)
+                        .build());
+        documents = convertSearchResultsToDocuments(searchResults);
+        assertThat(documents).hasSize(2);
+
+        // A query with a filter for the "Message" type should also include "EmailMessage".
+        searchResults = mSession.search("",
+                new SearchSpec.Builder()
+                        .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                        .addFilterDocumentClasses(Message.class)
+                        .build());
+        documents = convertSearchResultsToDocuments(searchResults);
+        assertThat(documents).hasSize(2);
+
+        // Query with a filter for the "EmailMessage" type.
+        searchResults = mSession.search("",
+                new SearchSpec.Builder()
+                        .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                        .addFilterDocumentClasses(EmailMessage.class)
+                        .build());
+        documents = convertSearchResultsToDocuments(searchResults);
+        assertThat(documents).hasSize(1);
+    }
 }
