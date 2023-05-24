@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:RequiresApi(33)
+
 package androidx.camera.camera2.internal
 
 import android.hardware.camera2.params.DynamicRangeProfiles
@@ -23,6 +25,7 @@ import android.hardware.camera2.params.DynamicRangeProfiles.HDR10
 import android.hardware.camera2.params.DynamicRangeProfiles.HDR10_PLUS
 import android.hardware.camera2.params.DynamicRangeProfiles.HLG10
 import android.hardware.camera2.params.DynamicRangeProfiles.STANDARD
+import androidx.annotation.RequiresApi
 
 val HLG10_UNCONSTRAINED by lazy {
     DynamicRangeProfiles(longArrayOf(HLG10, 0, 0))

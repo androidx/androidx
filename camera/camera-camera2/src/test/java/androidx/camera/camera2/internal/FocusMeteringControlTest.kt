@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:RequiresApi(21)
+
 package androidx.camera.camera2.internal
 
 import android.content.Context
@@ -28,6 +30,7 @@ import android.os.Build
 import android.util.Pair
 import android.util.Rational
 import android.util.Size
+import androidx.annotation.RequiresApi
 import androidx.camera.camera2.impl.Camera2ImplConfig
 import androidx.camera.camera2.internal.Camera2CameraControlImpl.CaptureResultListener
 import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat

@@ -118,6 +118,8 @@ public class Camera2CameraInfoImplTest {
             new Range<>(30, 30),
             new Range<>(60, 60)
     };
+
+    @RequiresApi(33)
     private static final DynamicRangeProfiles CAMERA0_DYNAMIC_RANGE_PROFILES =
             new DynamicRangeProfiles(new long[]{DynamicRangeProfiles.HLG10, 0, 0});
 
