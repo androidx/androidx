@@ -904,6 +904,7 @@ fun AnnotatedString.decapitalize(localeList: LocaleList = LocaleList.current): A
  * @return newly allocated transformed AnnotatedString
  */
 internal expect fun AnnotatedString.transform(
+    @Suppress("PrimitiveInLambda")
     transform: (String, Int, Int) -> String
 ): AnnotatedString
 

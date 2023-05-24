@@ -53,6 +53,7 @@ fun SemanticsNodeInteraction.performTextInput(text: String) {
 @ExperimentalTestApi
 fun SemanticsNodeInteraction.performTextInputSelection(selection: TextRange) {
     getNodeAndFocus()
+    @Suppress("PrimitiveInLambda")
     performSemanticsAction(SemanticsActions.SetSelection) {
         // Pass true as the last parameter since this range is relative to the text before any
         // VisualTransformation is applied.

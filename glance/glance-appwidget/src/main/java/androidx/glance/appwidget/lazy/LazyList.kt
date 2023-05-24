@@ -195,7 +195,9 @@ interface LazyListScope {
      */
     fun items(
         count: Int,
+        @Suppress("PrimitiveInLambda")
         itemId: ((index: Int) -> Long) = { UnspecifiedItemId },
+        @Suppress("PrimitiveInLambda")
         itemContent: @Composable LazyItemScope.(index: Int) -> Unit
     )
 
@@ -253,6 +255,7 @@ inline fun <T> LazyListScope.itemsIndexed(
  */
 inline fun <T> LazyListScope.items(
     items: Array<T>,
+    @Suppress("PrimitiveInLambda")
     noinline itemId: ((item: T) -> Long) = { LazyListScope.UnspecifiedItemId },
     crossinline itemContent: @Composable LazyItemScope.(item: T) -> Unit
 ) = items(items.size, { index: Int -> itemId(items[index]) }) {
@@ -271,6 +274,7 @@ inline fun <T> LazyListScope.items(
  */
 inline fun <T> LazyListScope.itemsIndexed(
     items: Array<T>,
+    @Suppress("PrimitiveInLambda")
     noinline itemId: ((index: Int, item: T) -> Long) = { _, _ -> LazyListScope.UnspecifiedItemId },
     crossinline itemContent: @Composable LazyItemScope.(index: Int, item: T) -> Unit
 ) = items(items.size, { index: Int -> itemId(index, items[index]) }) {

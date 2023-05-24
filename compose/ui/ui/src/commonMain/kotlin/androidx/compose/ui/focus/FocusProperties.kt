@@ -129,7 +129,9 @@ interface FocusProperties {
     @set:ExperimentalComposeUiApi
     @ExperimentalComposeUiApi
     var enter: (FocusDirection) -> FocusRequester
+        @Suppress("PrimitiveInLambda")
         get() = { FocusRequester.Default }
+        @Suppress("PrimitiveInLambda")
         set(_) {}
 
     /**
@@ -151,7 +153,9 @@ interface FocusProperties {
     @set:ExperimentalComposeUiApi
     @ExperimentalComposeUiApi
     var exit: (FocusDirection) -> FocusRequester
+        @Suppress("PrimitiveInLambda")
         get() = { FocusRequester.Default }
+        @Suppress("PrimitiveInLambda")
         set(_) {}
 }
 

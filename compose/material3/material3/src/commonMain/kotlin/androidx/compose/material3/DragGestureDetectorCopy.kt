@@ -37,6 +37,7 @@ import kotlin.math.sign
 internal suspend fun AwaitPointerEventScope.awaitHorizontalPointerSlopOrCancellation(
     pointerId: PointerId,
     pointerType: PointerType,
+    @Suppress("PrimitiveInLambda")
     onPointerSlopReached: (change: PointerInputChange, overSlop: Float) -> Unit
 ) = awaitPointerSlopOrCancellation(
     pointerId = pointerId,

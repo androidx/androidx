@@ -349,6 +349,7 @@ sealed interface AnimatedContentTransitionScope<S> : Transition.Segment<S> {
         animationSpec: FiniteAnimationSpec<IntOffset> = spring(
             visibilityThreshold = IntOffset.VisibilityThreshold
         ),
+        @Suppress("PrimitiveInLambda")
         initialOffset: (offsetForFullSlide: Int) -> Int = { it }
     ): EnterTransition
 
@@ -378,6 +379,7 @@ sealed interface AnimatedContentTransitionScope<S> : Transition.Segment<S> {
         animationSpec: FiniteAnimationSpec<IntOffset> = spring(
             visibilityThreshold = IntOffset.VisibilityThreshold
         ),
+        @Suppress("PrimitiveInLambda")
         targetOffset: (offsetForFullSlide: Int) -> Int = { it }
     ): ExitTransition
 }
@@ -438,6 +440,7 @@ internal class AnimatedContentTransitionScopeImpl<S> internal constructor(
     override fun slideIntoContainer(
         towards: AnimatedContentTransitionScope.SlideDirection,
         animationSpec: FiniteAnimationSpec<IntOffset>,
+        @Suppress("PrimitiveInLambda")
         initialOffset: (offsetForFullSlide: Int) -> Int
     ): EnterTransition =
         when {
@@ -507,6 +510,7 @@ internal class AnimatedContentTransitionScopeImpl<S> internal constructor(
     override fun slideOutOfContainer(
         towards: AnimatedContentTransitionScope.SlideDirection,
         animationSpec: FiniteAnimationSpec<IntOffset>,
+        @Suppress("PrimitiveInLambda")
         targetOffset: (offsetForFullSlide: Int) -> Int
     ): ExitTransition {
         return when {

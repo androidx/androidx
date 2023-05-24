@@ -866,11 +866,15 @@ internal class TrieNode<K, V>(
     }
 
     // For testing trie structure
-    internal fun accept(visitor: (node: TrieNode<K, V>, shift: Int, hash: Int, dataMap: Int, nodeMap: Int) -> Unit) {
+    internal fun accept(
+        @Suppress("PrimitiveInLambda")
+        visitor: (node: TrieNode<K, V>, shift: Int, hash: Int, dataMap: Int, nodeMap: Int) -> Unit
+    ) {
         accept(visitor, 0, 0)
     }
 
     private fun accept(
+        @Suppress("PrimitiveInLambda")
             visitor: (node: TrieNode<K, V>, shift: Int, hash: Int, dataMap: Int, nodeMap: Int) -> Unit,
             hash: Int,
             shift: Int

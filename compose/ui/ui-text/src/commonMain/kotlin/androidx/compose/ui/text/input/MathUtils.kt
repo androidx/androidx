@@ -28,7 +28,10 @@ internal inline fun Int.addExactOrElse(right: Int, defaultValue: () -> Int): Int
 /**
  * Subtracts [right] from [this], and if an overflow occurs returns result of [defaultValue].
  */
-internal fun Int.subtractExactOrElse(right: Int, defaultValue: () -> Int): Int {
+internal inline fun Int.subtractExactOrElse(
+    right: Int,
+    defaultValue: () -> Int
+): Int {
     val result = this - right
     // HD 2-12 Overflow iff the arguments have different signs and
     // the sign of the result is different from the sign of x

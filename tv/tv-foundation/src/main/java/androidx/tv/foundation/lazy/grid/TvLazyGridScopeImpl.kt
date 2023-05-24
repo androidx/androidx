@@ -36,8 +36,10 @@ internal class LazyGridIntervalContent(
         apply(content)
     }
 
+    @Suppress("PrimitiveInLambda")
     override fun item(
         key: Any?,
+        @Suppress("PrimitiveInLambda")
         span: (TvLazyGridItemSpanScope.() -> TvGridItemSpan)?,
         contentType: Any?,
         content: @Composable TvLazyGridItemScope.() -> Unit
@@ -61,6 +63,7 @@ internal class LazyGridIntervalContent(
         contentType: (index: Int) -> Any?,
         itemContent: @Composable TvLazyGridItemScope.(index: Int) -> Unit
     ) {
+        @Suppress("PrimitiveInLambda")
         intervals.addInterval(
             count,
             LazyGridInterval(
@@ -74,14 +77,19 @@ internal class LazyGridIntervalContent(
     }
 
     private companion object {
+        @Suppress("PrimitiveInLambda")
         val DefaultSpan: TvLazyGridItemSpanScope.(Int) -> TvGridItemSpan = { TvGridItemSpan(1) }
     }
 }
 
 @OptIn(ExperimentalFoundationApi::class)
 internal class LazyGridInterval(
+    @Suppress("PrimitiveInLambda")
     override val key: ((index: Int) -> Any)?,
+    @Suppress("PrimitiveInLambda")
     val span: TvLazyGridItemSpanScope.(Int) -> TvGridItemSpan,
+    @Suppress("PrimitiveInLambda")
     override val type: ((index: Int) -> Any?),
+    @Suppress("PrimitiveInLambda")
     val item: @Composable TvLazyGridItemScope.(Int) -> Unit
 ) : LazyLayoutIntervalContent.Interval

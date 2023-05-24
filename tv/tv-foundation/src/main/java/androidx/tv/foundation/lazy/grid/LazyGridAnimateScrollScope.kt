@@ -77,6 +77,7 @@ internal class LazyGridAnimateScrollScope(
         visibleItems: List<TvLazyGridItemInfo>,
         isVertical: Boolean
     ): Int {
+        @Suppress("PrimitiveInLambda")
         val lineOf: (Int) -> Int = {
             if (isVertical) visibleItems[it].row else visibleItems[it].column
         }

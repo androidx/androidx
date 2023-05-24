@@ -27,6 +27,7 @@ import java.util.SortedSet
  * @return newly allocated transformed AnnotatedString
  */
 internal actual fun AnnotatedString.transform(
+    @Suppress("PrimitiveInLambda")
     transform: (String, Int, Int) -> String
 ): AnnotatedString {
     val transitions = sortedSetOf(0, text.length)

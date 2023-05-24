@@ -63,6 +63,7 @@ internal fun measureLazyList(
     beyondBoundsInfo: LazyListBeyondBoundsInfo,
     beyondBoundsItemCount: Int,
     pinnedItems: LazyLayoutPinnedItemList,
+    @Suppress("PrimitiveInLambda")
     layout: (Int, Int, Placeable.PlacementScope.() -> Unit) -> MeasureResult
 ): LazyListMeasureResult {
     require(beforeContentPadding >= 0)

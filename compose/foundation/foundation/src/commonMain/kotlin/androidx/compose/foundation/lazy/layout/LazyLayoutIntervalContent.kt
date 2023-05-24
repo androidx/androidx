@@ -67,11 +67,15 @@ abstract class LazyLayoutIntervalContent<Interval : LazyLayoutIntervalContent.In
         /**
          * Returns item key based on a local index for the current interval.
          */
-        val key: ((index: Int) -> Any)? get() = null
+        val key: ((index: Int) -> Any)?
+            @Suppress("PrimitiveInLambda")
+            get() = null
 
         /**
          * Returns item type based on a local index for the current interval.
          */
-        val type: ((index: Int) -> Any?) get() = { null }
+        val type: ((index: Int) -> Any?)
+            @Suppress("PrimitiveInLambda")
+            get() = { null }
     }
 }

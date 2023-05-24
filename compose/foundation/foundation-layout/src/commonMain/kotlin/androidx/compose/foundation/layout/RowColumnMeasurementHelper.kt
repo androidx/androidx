@@ -48,6 +48,7 @@ internal class RowColumnMeasureHelperResult(
  */
 internal class RowColumnMeasurementHelper(
     val orientation: LayoutOrientation,
+    @Suppress("PrimitiveInLambda")
     val arrangement: (Int, IntArray, LayoutDirection, Density, IntArray) -> Unit,
     val arrangementSpacing: Dp,
     val crossAxisSize: SizeMode,

@@ -1081,6 +1081,7 @@ internal interface MotionProgress {
 
         fun fromState(
             progressState: State<Float>,
+            @Suppress("PrimitiveInLambda")
             onUpdate: (newProgress: Float) -> Unit
         ): MotionProgress =
             object : MotionProgress {

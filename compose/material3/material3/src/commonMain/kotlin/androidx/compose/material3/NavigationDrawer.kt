@@ -843,6 +843,7 @@ private fun calculateFraction(a: Float, b: Float, pos: Float) =
 private fun Scrim(
     open: Boolean,
     onClose: () -> Unit,
+    @Suppress("PrimitiveInLambda")
     fraction: () -> Float,
     color: Color
 ) {

@@ -32,6 +32,7 @@ class ComposeIssueRegistry : IssueRegistry() {
             SteppedForLoopDetector.ISSUE,
             UnnecessaryLambdaCreationDetector.ISSUE,
             PlatformImportInCommonModuleDetector.ISSUE,
+            PrimitiveInLambdaDetector.ISSUE,
         )
     }
     override val vendor = Vendor(

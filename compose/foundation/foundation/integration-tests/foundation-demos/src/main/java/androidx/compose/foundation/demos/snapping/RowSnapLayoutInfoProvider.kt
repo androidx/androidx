@@ -29,7 +29,9 @@ import kotlin.math.sign
 @OptIn(ExperimentalFoundationApi::class)
 fun SnapLayoutInfoProvider(
     scrollState: ScrollState,
+    @Suppress("PrimitiveInLambda")
     itemSize: Density.() -> Float,
+    @Suppress("PrimitiveInLambda")
     layoutSize: Density.() -> Float
 ) = object : SnapLayoutInfoProvider {
 

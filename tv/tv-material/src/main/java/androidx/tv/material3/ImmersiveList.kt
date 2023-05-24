@@ -61,6 +61,7 @@ import androidx.compose.ui.platform.LocalFocusManager
 @ExperimentalTvMaterial3Api
 @Composable
 fun ImmersiveList(
+    @Suppress("PrimitiveInLambda")
     background:
     @Composable ImmersiveListBackgroundScope.(index: Int, listHasFocus: Boolean) -> Unit,
     modifier: Modifier = Modifier,
@@ -166,6 +167,7 @@ by boxScope {
             ImmersiveListDefaults.EnterTransition.togetherWith(ImmersiveListDefaults.ExitTransition)
         },
         contentAlignment: Alignment = Alignment.TopStart,
+        @Suppress("PrimitiveInLambda")
         content: @Composable AnimatedVisibilityScope.(targetState: Int) -> Unit
     ) {
         androidx.compose.animation.AnimatedContent(
@@ -180,7 +182,10 @@ by boxScope {
 
 @Immutable
 @ExperimentalTvMaterial3Api
-public class ImmersiveListScope internal constructor(private val onFocused: (Int) -> Unit) {
+public class ImmersiveListScope internal constructor(
+    @Suppress("PrimitiveInLambda")
+    private val onFocused: (Int) -> Unit
+) {
     /**
      * Modifier to be added to each of the items of the list within ImmersiveList to inform the
      * ImmersiveList of the index of the item in focus

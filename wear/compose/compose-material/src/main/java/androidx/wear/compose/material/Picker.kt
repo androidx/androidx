@@ -125,6 +125,7 @@ public fun Picker(
     gradientColor: Color = MaterialTheme.colors.background,
     flingBehavior: FlingBehavior = PickerDefaults.flingBehavior(state),
     userScrollEnabled: Boolean = true,
+    @Suppress("PrimitiveInLambda")
     option: @Composable PickerScope.(optionIndex: Int) -> Unit
 ) {
     require(gradientRatio in 0f..0.5f) { "gradientRatio should be between 0.0 and 0.5" }
@@ -250,6 +251,7 @@ public fun Picker(
     gradientColor: Color = MaterialTheme.colors.background,
     flingBehavior: FlingBehavior = PickerDefaults.flingBehavior(state),
     userScrollEnabled: Boolean = true,
+    @Suppress("PrimitiveInLambda")
     option: @Composable PickerScope.(optionIndex: Int) -> Unit
 ) = Picker(
     state = state,
@@ -326,6 +328,7 @@ public fun Picker(
     gradientRatio: Float = PickerDefaults.DefaultGradientRatio,
     gradientColor: Color = MaterialTheme.colors.background,
     flingBehavior: FlingBehavior = PickerDefaults.flingBehavior(state),
+    @Suppress("PrimitiveInLambda")
     option: @Composable PickerScope.(optionIndex: Int) -> Unit
 ) = Picker(
     state = state,
@@ -393,6 +396,7 @@ public fun Picker(
     gradientRatio: Float = PickerDefaults.DefaultGradientRatio,
     gradientColor: Color = MaterialTheme.colors.background,
     flingBehavior: FlingBehavior = PickerDefaults.flingBehavior(state),
+    @Suppress("PrimitiveInLambda")
     option: @Composable PickerScope.(optionIndex: Int) -> Unit
 ) = Picker(
     state = state,
@@ -657,6 +661,7 @@ public object PickerDefaults {
         minTransitionArea: Float = 0.45f,
         maxTransitionArea: Float = 0.45f,
         scaleInterpolator: Easing = CubicBezierEasing(0.25f, 0.00f, 0.75f, 1.00f),
+        @Suppress("PrimitiveInLambda")
         viewportVerticalOffsetResolver: (Constraints) -> Int = { (it.maxHeight / 5f).toInt() }
     ): androidx.wear.compose.material.ScalingParams =
         androidx.wear.compose.material.ScalingLazyColumnDefaults.scalingParams(
@@ -682,6 +687,7 @@ public object PickerDefaults {
         minTransitionArea: Float = 0.45f,
         maxTransitionArea: Float = 0.45f,
         scaleInterpolator: Easing = CubicBezierEasing(0.25f, 0.00f, 0.75f, 1.00f),
+        @Suppress("PrimitiveInLambda")
         viewportVerticalOffsetResolver: (Constraints) -> Int = { (it.maxHeight / 5f).toInt() }
     ): ScalingParams =
         ScalingLazyColumnDefaults.scalingParams(

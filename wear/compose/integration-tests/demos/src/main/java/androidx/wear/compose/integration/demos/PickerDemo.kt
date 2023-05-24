@@ -137,6 +137,7 @@ public fun TimePicker(
         }
         val textStyle = MaterialTheme.typography.display3
         val optionColor = MaterialTheme.colors.secondary
+        @Suppress("PrimitiveInLambda")
         val pickerOption = pickerTextOption(textStyle) { "%02d".format(it) }
         val focusRequesterConfirmButton = remember { FocusRequester() }
 
@@ -808,6 +809,7 @@ fun pickerGroupItemWithRSB(
     contentDescription: String?,
     onSelected: () -> Unit,
     readOnlyLabel: @Composable (BoxScope.() -> Unit)? = null,
+    @Suppress("PrimitiveInLambda")
     option: @Composable PickerScope.(optionIndex: Int, pickerSelected: Boolean) -> Unit
 ) = PickerGroupItem(
     pickerState = pickerState,
@@ -844,8 +846,12 @@ fun PickerWithoutGradient() {
     }
 }
 
-private fun pickerTextOption(textStyle: TextStyle, indexToText: (Int) -> String):
-    (@Composable PickerScope.(optionIndex: Int, pickerSelected: Boolean) -> Unit) = {
+@Suppress("PrimitiveInLambda")
+private fun pickerTextOption(
+    textStyle: TextStyle,
+    @Suppress("PrimitiveInLambda")
+    indexToText: (Int) -> String
+): (@Composable PickerScope.(optionIndex: Int, pickerSelected: Boolean) -> Unit) = {
         value: Int, pickerSelected: Boolean ->
     Box(modifier = Modifier.fillMaxSize()) {
         Text(
