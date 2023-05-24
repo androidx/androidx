@@ -23,10 +23,10 @@ import androidx.appactions.builtintypes.properties.RepeatFrequency
 import androidx.appactions.builtintypes.properties.StartDate
 import androidx.appactions.builtintypes.properties.StartTime
 import java.time.Duration
+import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
-import java.time.ZonedDateTime
 import java.util.Objects
 import kotlin.Any
 import kotlin.Boolean
@@ -233,8 +233,8 @@ public interface Schedule : Intangible {
     /** Sets the `endDate` to [LocalDateTime]. */
     public fun setEndDate(localDateTime: LocalDateTime): Self = setEndDate(EndDate(localDateTime))
 
-    /** Sets the `endDate` to [ZonedDateTime]. */
-    public fun setEndDate(zonedDateTime: ZonedDateTime): Self = setEndDate(EndDate(zonedDateTime))
+    /** Sets the `endDate` to [Instant]. */
+    public fun setEndDate(instant: Instant): Self = setEndDate(EndDate(instant))
 
     /** Sets the `endDate`. */
     public fun setEndDate(endDate: EndDate?): Self
@@ -245,8 +245,8 @@ public interface Schedule : Intangible {
     /** Sets the `endTime` to [LocalDateTime]. */
     public fun setEndTime(localDateTime: LocalDateTime): Self = setEndTime(EndTime(localDateTime))
 
-    /** Sets the `endTime` to [ZonedDateTime]. */
-    public fun setEndTime(zonedDateTime: ZonedDateTime): Self = setEndTime(EndTime(zonedDateTime))
+    /** Sets the `endTime` to [Instant]. */
+    public fun setEndTime(instant: Instant): Self = setEndTime(EndTime(instant))
 
     /** Sets the `endTime`. */
     public fun setEndTime(endTime: EndTime?): Self
@@ -258,9 +258,8 @@ public interface Schedule : Intangible {
     public fun setExceptDate(localDateTime: LocalDateTime): Self =
       setExceptDate(ExceptDate(localDateTime))
 
-    /** Sets the `exceptDate` to [ZonedDateTime]. */
-    public fun setExceptDate(zonedDateTime: ZonedDateTime): Self =
-      setExceptDate(ExceptDate(zonedDateTime))
+    /** Sets the `exceptDate` to [Instant]. */
+    public fun setExceptDate(instant: Instant): Self = setExceptDate(ExceptDate(instant))
 
     /** Sets the `exceptDate`. */
     public fun setExceptDate(exceptDate: ExceptDate?): Self
@@ -288,9 +287,8 @@ public interface Schedule : Intangible {
     public fun setStartDate(localDateTime: LocalDateTime): Self =
       setStartDate(StartDate(localDateTime))
 
-    /** Sets the `startDate` to [ZonedDateTime]. */
-    public fun setStartDate(zonedDateTime: ZonedDateTime): Self =
-      setStartDate(StartDate(zonedDateTime))
+    /** Sets the `startDate` to [Instant]. */
+    public fun setStartDate(instant: Instant): Self = setStartDate(StartDate(instant))
 
     /** Sets the `startDate`. */
     public fun setStartDate(startDate: StartDate?): Self
@@ -302,9 +300,8 @@ public interface Schedule : Intangible {
     public fun setStartTime(localDateTime: LocalDateTime): Self =
       setStartTime(StartTime(localDateTime))
 
-    /** Sets the `startTime` to [ZonedDateTime]. */
-    public fun setStartTime(zonedDateTime: ZonedDateTime): Self =
-      setStartTime(StartTime(zonedDateTime))
+    /** Sets the `startTime` to [Instant]. */
+    public fun setStartTime(instant: Instant): Self = setStartTime(StartTime(instant))
 
     /** Sets the `startTime`. */
     public fun setStartTime(startTime: StartTime?): Self
