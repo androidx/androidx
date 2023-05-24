@@ -8,5 +8,15 @@ package androidx.compose.material3.adaptive {
   @kotlin.RequiresOptIn(message="This material3-adaptive API is experimental and is likely to change or to be" + "removed in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalMaterial3AdaptiveApi {
   }
 
+  @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi public final class Posture {
+    ctor public Posture(optional boolean hasVerticalHinge, optional boolean isTabletop, optional boolean hasSeparatingHinge);
+    method public boolean getHasSeparatingHinge();
+    method public boolean getHasVerticalHinge();
+    method public boolean isTabletop();
+    property public final boolean hasSeparatingHinge;
+    property public final boolean hasVerticalHinge;
+    property public final boolean isTabletop;
+  }
+
 }
 
