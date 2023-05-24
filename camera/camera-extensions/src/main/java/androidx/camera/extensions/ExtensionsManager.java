@@ -39,9 +39,9 @@ import androidx.camera.core.impl.utils.ContextUtil;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.camera.extensions.impl.InitializerImpl;
+import androidx.camera.extensions.internal.ClientVersion;
 import androidx.camera.extensions.internal.ExtensionVersion;
 import androidx.camera.extensions.internal.Version;
-import androidx.camera.extensions.internal.VersionName;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.lifecycle.LifecycleOwner;
 
@@ -191,11 +191,41 @@ public final class ExtensionsManager {
     @NonNull
     public static ListenableFuture<ExtensionsManager> getInstanceAsync(@NonNull Context context,
             @NonNull CameraProvider cameraProvider) {
-        return getInstanceAsync(context, cameraProvider, VersionName.getCurrentVersion());
+        return getInstanceAsync(context, cameraProvider, ClientVersion.getCurrentVersion());
     }
 
+
+    /**
+     * Retrieves the {@link ExtensionsManager} associated with the current process and
+     * initializes with the given client extensions-interface version.
+     *
+     * <p>This is for testing purpose. Since CameraX uses the latest extensions-interface
+     * version, we need a way to emulate the earlier version to see if OEM implementation can be
+     * compatible. For example, CameraX uses 1.3.0 and OEM implements 1.3.0 as well. We can use
+     * this API to emulate the situation that CameraX uses 1.2.0 and invokes the older version of
+     * API.
+     *
+     * @param context The context to initialize the extensions library.
+     * @param cameraProvider     A {@link CameraProvider} will be used to query the information
+     *                           of cameras on the device. The {@link CameraProvider} can be the
+     *                           {@link androidx.camera.lifecycle.ProcessCameraProvider}
+     *                           which is obtained by*
+     *                 {@link androidx.camera.lifecycle.ProcessCameraProvider#getInstance(Context)}.
+     * @param clientVersionStr the extensions-interface version used to initialize the extensions.
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    @VisibleForTesting
+    @NonNull
+    public static ListenableFuture<ExtensionsManager> getInstanceAsync(@NonNull Context context,
+            @NonNull CameraProvider cameraProvider, @NonNull String clientVersionStr) {
+        ClientVersion clientVersion = new ClientVersion(clientVersionStr);
+        ClientVersion.setCurrentVersion(clientVersion);
+        return getInstanceAsync(context, cameraProvider, clientVersion);
+    }
+
+    @NonNull
     static ListenableFuture<ExtensionsManager> getInstanceAsync(@NonNull Context context,
-            @NonNull CameraProvider cameraProvider, @NonNull VersionName versionName) {
+            @NonNull CameraProvider cameraProvider, @NonNull ClientVersion clientVersion) {
         synchronized (EXTENSIONS_LOCK) {
             if (sDeinitializeFuture != null && !sDeinitializeFuture.isDone()) {
                 throw new IllegalStateException("Not yet done deinitializing extensions");
@@ -219,7 +249,7 @@ public final class ExtensionsManager {
             if (sInitializeFuture == null) {
                 sInitializeFuture = CallbackToFutureAdapter.getFuture(completer -> {
                     try {
-                        InitializerImpl.init(versionName.toVersionString(),
+                        InitializerImpl.init(clientVersion.toVersionString(),
                                 ContextUtil.getApplicationContext(context),
                                 new InitializerImpl.OnExtensionsInitializedCallback() {
                                     @Override
@@ -288,6 +318,9 @@ public final class ExtensionsManager {
                 sExtensionsManager = null;
                 return Futures.immediateFuture(null);
             }
+
+            // Reset the ExtensionsVersion.
+            ExtensionVersion.injectInstance(null);
 
             // If initialization not yet attempted then deinit should succeed immediately.
             if (sInitializeFuture == null) {

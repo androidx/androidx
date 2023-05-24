@@ -27,10 +27,10 @@ import androidx.camera.core.CameraSelector
 import androidx.camera.core.SurfaceRequest
 import androidx.camera.core.impl.CameraInfoInternal
 import androidx.camera.core.impl.MutableStateObservable
+import androidx.camera.extensions.internal.ClientVersion
 import androidx.camera.extensions.internal.ExtensionVersion
 import androidx.camera.extensions.internal.VendorExtender
 import androidx.camera.extensions.internal.Version
-import androidx.camera.extensions.internal.VersionName
 import androidx.camera.extensions.util.ExtensionsTestUtil
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.CameraUtil
@@ -117,7 +117,7 @@ class ExtensionsManagerTest(
         extensionsManager = ExtensionsManager.getInstanceAsync(
             context,
             cameraProvider,
-            VersionName("99.0.0")
+            ClientVersion("99.0.0")
         )[10000, TimeUnit.MILLISECONDS]
 
         assumeTrue(
@@ -132,7 +132,7 @@ class ExtensionsManagerTest(
         extensionsManager = ExtensionsManager.getInstanceAsync(
             context,
             cameraProvider,
-            VersionName("99.0.0")
+            ClientVersion("99.0.0")
         )[10000, TimeUnit.MILLISECONDS]
 
         assumeTrue(
@@ -314,7 +314,7 @@ class ExtensionsManagerTest(
         extensionsManager = ExtensionsManager.getInstanceAsync(
             context,
             cameraProvider,
-            VersionName("99.0.0")
+            ClientVersion("99.0.0")
         )[10000, TimeUnit.MILLISECONDS]
 
         assumeTrue(
@@ -537,7 +537,7 @@ class ExtensionsManagerTest(
         extensionsManager = ExtensionsManager.getInstanceAsync(
             context,
             cameraProvider,
-            VersionName("99.0.0")
+            ClientVersion("99.0.0")
         )[10000, TimeUnit.MILLISECONDS]
 
         assumeTrue(

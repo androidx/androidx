@@ -70,9 +70,7 @@ class SupportedCameraOperationsTest(
         }
     }
     private fun setCameraXExtensionsVersion(version: String) {
-        val field = VersionName::class.java.getDeclaredField("CURRENT")
-        field.isAccessible = true
-        field[null] = VersionName(version)
+        ClientVersion.setCurrentVersion(ClientVersion(version))
     }
 
     private fun setExtensionRuntimeVersion(version: String) {
