@@ -63,7 +63,12 @@ class HealthConnectClientTest {
     @Config(sdk = [Build.VERSION_CODES.P])
     @Suppress("Deprecation")
     fun backingImplementation_notEnabled_unavailable() {
-        installPackage(context, PROVIDER_PACKAGE_NAME, versionCode = 35001, enabled = false)
+        installPackage(
+            context,
+            PROVIDER_PACKAGE_NAME,
+            versionCode = HealthConnectClient.DEFAULT_PROVIDER_MIN_VERSION_CODE,
+            enabled = false
+        )
         assertThat(HealthConnectClient.getSdkStatus(context, PROVIDER_PACKAGE_NAME))
             .isEqualTo(HealthConnectClient.SDK_UNAVAILABLE_PROVIDER_UPDATE_REQUIRED)
         assertThrows(IllegalStateException::class.java) {
@@ -75,7 +80,12 @@ class HealthConnectClientTest {
     @Config(sdk = [Build.VERSION_CODES.P])
     @Suppress("Deprecation")
     fun backingImplementation_enabledNoService_unavailable() {
-        installPackage(context, PROVIDER_PACKAGE_NAME, versionCode = 35001, enabled = true)
+        installPackage(
+            context,
+            PROVIDER_PACKAGE_NAME,
+            versionCode = HealthConnectClient.DEFAULT_PROVIDER_MIN_VERSION_CODE,
+            enabled = true
+        )
         assertThat(HealthConnectClient.getSdkStatus(context, PROVIDER_PACKAGE_NAME))
             .isEqualTo(HealthConnectClient.SDK_UNAVAILABLE_PROVIDER_UPDATE_REQUIRED)
         assertThrows(IllegalStateException::class.java) {

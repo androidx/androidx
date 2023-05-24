@@ -313,7 +313,7 @@ interface HealthConnectClient {
         internal const val DEFAULT_PROVIDER_PACKAGE_NAME = "com.google.android.apps.healthdata"
 
         @RestrictTo(RestrictTo.Scope.LIBRARY)
-        internal const val DEFAULT_PROVIDER_MIN_VERSION_CODE = 35000
+        internal const val DEFAULT_PROVIDER_MIN_VERSION_CODE = 68623
 
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         const val ACTION_HEALTH_CONNECT_SETTINGS_LEGACY =
