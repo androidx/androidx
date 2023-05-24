@@ -549,10 +549,10 @@ private class DelegatingComplicationText(private val delegate: WireComplicationT
 internal fun WireComplicationText.toApiComplicationText(
     placeholderAware: Boolean = false
 ): ComplicationText =
-    if (placeholderAware && isPlaceholder) {
-        ComplicationText.PLACEHOLDER
-    } else {
-        DelegatingComplicationText(this)
+    when {
+        placeholderAware && isPlaceholder -> ComplicationText.PLACEHOLDER
+        dynamicValue != null -> DynamicComplicationText(dynamicValue!!, surroundingText ?: "")
+        else -> DelegatingComplicationText(this)
     }
 
 /** Converts a [TimeZone] into an equivalent [java.util.TimeZone]. */
@@ -620,7 +620,7 @@ public fun WireTimeDependentText.toApiComplicationText(): ComplicationText =
  */
 public class DynamicComplicationText(
     public val dynamicValue: DynamicString,
-    public val fallbackValue: String,
+    public val fallbackValue: CharSequence,
 ) : ComplicationText {
     private val delegate =
         DelegatingComplicationText(WireComplicationText(fallbackValue, dynamicValue))
