@@ -26,9 +26,9 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.UiThread;
 import androidx.collection.ArrayMap;
 import androidx.collection.ArraySet;
-import androidx.wear.protolayout.expression.DynamicDataBuilders;
 import androidx.wear.protolayout.expression.DynamicDataKey;
 import androidx.wear.protolayout.expression.PlatformDataKey;
+import androidx.wear.protolayout.expression.PlatformDataValues;
 import androidx.wear.protolayout.expression.proto.DynamicDataProto.DynamicDataValue;
 
 import java.util.Collections;
@@ -75,11 +75,11 @@ final class PlatformDataStore extends DataStore {
      *
      * <p>Informs registered listeners of changed values.
      */
-    void updatePlatformDataEntries(
-            @NonNull Map<PlatformDataKey<?>, DynamicDataBuilders.DynamicDataValue> newData) {
+    void updatePlatformDataEntries(@NonNull PlatformDataValues newData) {
         updatePlatformDataEntriesProto(
-                newData.entrySet().stream().collect(toMap(
-                        Map.Entry::getKey, entry -> entry.getValue().toDynamicDataValueProto()))
+                newData.getAll().entrySet().stream().collect(toMap(
+                        entry -> (PlatformDataKey<?>)entry.getKey(),
+                        entry -> entry.getValue().toDynamicDataValueProto()))
         );
     }
 
@@ -188,10 +188,7 @@ final class PlatformDataStore extends DataStore {
                 mUiExecutor,
                 new PlatformDataReceiver() {
                     @Override
-                    public void onData(
-                            @NonNull
-                            Map<PlatformDataKey<?>, DynamicDataBuilders.DynamicDataValue>
-                                    newData) {
+                    public void onData(@NonNull PlatformDataValues newData) {
                         updatePlatformDataEntries(newData);
                     }
 

@@ -17,28 +17,25 @@
 package androidx.wear.protolayout.expression.pipeline;
 
 import androidx.annotation.NonNull;
-import androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue;
+import androidx.wear.protolayout.expression.PlatformDataValues;
 import androidx.wear.protolayout.expression.PlatformDataKey;
 
-import java.util.Map;
 import java.util.Set;
 
-/**
- * Callback for receiving a PlatformDataProvider's new data.
- */
+/** Callback for receiving a PlatformDataProvider's new data. */
 public interface PlatformDataReceiver {
 
     /**
-     * Called by the registered {@ilnk PlatformDataProvider} to send new values.
+     * Called by the registered {@link PlatformDataProvider} to send new values.
      *
      * @param newData The new values for the registered keys.
      */
-    void onData(@NonNull Map<PlatformDataKey<?>, DynamicDataValue> newData);
+    void onData(@NonNull PlatformDataValues newData);
 
     /**
-     * Called by the registered {@ilnk PlatformDataProvider} to notify that the current data has
-     * been invalidated. Typically, this invalidated status is transient and subsequent onData
-     * call can be followed to sent new values.
+     * Called by the registered {@link PlatformDataProvider} to notify that the current data has
+     * been invalidated. Typically, this invalidated status is transient and subsequent onData call
+     * can be followed to sent new values.
      *
      * @param keys The set of keys with current data been invalidated.
      */

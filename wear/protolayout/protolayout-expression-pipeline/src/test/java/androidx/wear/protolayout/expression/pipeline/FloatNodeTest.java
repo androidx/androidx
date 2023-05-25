@@ -32,6 +32,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.wear.protolayout.expression.AppDataKey;
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat;
 import androidx.wear.protolayout.expression.DynamicDataBuilders;
+import androidx.wear.protolayout.expression.PlatformDataValues;
 import androidx.wear.protolayout.expression.pipeline.FloatNodes.AnimatableFixedFloatNode;
 import androidx.wear.protolayout.expression.pipeline.FloatNodes.ArithmeticFloatNode;
 import androidx.wear.protolayout.expression.pipeline.FloatNodes.DynamicAnimatedFloatNode;
@@ -164,14 +165,16 @@ public class FloatNodeTest {
         verify(mMockDataProvider).setReceiver(any(), receiverCaptor.capture());
 
         PlatformDataReceiver receiver = receiverCaptor.getValue();
-        receiver.onData(ImmutableMap.of(HEART_RATE_BPM,
-                DynamicDataBuilders.DynamicDataValue.fromFloat(70.0f)));
+        receiver.onData(
+                PlatformDataValues.of(
+                        HEART_RATE_BPM, DynamicDataBuilders.DynamicDataValue.fromFloat(70.0f)));
 
         assertThat(results).hasSize(1);
         assertThat(results).containsExactly(70.0f);
 
-        receiver.onData(ImmutableMap.of(HEART_RATE_BPM,
-                DynamicDataBuilders.DynamicDataValue.fromFloat(80.0f)));
+        receiver.onData(
+                PlatformDataValues.of(
+                        HEART_RATE_BPM, DynamicDataBuilders.DynamicDataValue.fromFloat(80.0f)));
 
         assertThat(results).hasSize(2);
         assertThat(results).containsExactly(70.0f, 80.0f);
