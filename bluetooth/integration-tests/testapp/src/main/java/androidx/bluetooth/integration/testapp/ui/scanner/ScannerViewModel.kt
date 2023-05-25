@@ -16,12 +16,12 @@
 
 package androidx.bluetooth.integration.testapp.ui.scanner
 
+// TODO(ofy) Migrate to androidx.bluetooth.BluetoothDevice
 // TODO(ofy) Migrate to androidx.bluetooth.ScanResult once in place
 import android.bluetooth.BluetoothDevice
-import android.bluetooth.BluetoothGattService
 import android.bluetooth.le.ScanResult
+import androidx.bluetooth.integration.testapp.data.connection.DeviceConnection
 import androidx.lifecycle.ViewModel
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 
 class ScannerViewModel : ViewModel() {
@@ -80,16 +80,4 @@ class ScannerViewModel : ViewModel() {
         // Index 0 is Results page; Tabs for devices start from 1.
         return deviceConnections.elementAt(position - 1)
     }
-}
-
-class DeviceConnection(
-    val bluetoothDevice: BluetoothDevice
-) {
-    var job: Job? = null
-    var status = Status.NOT_CONNECTED
-    var services = emptyList<BluetoothGattService>()
-}
-
-enum class Status {
-    NOT_CONNECTED, CONNECTING, CONNECTED, CONNECTION_FAILED
 }
