@@ -95,11 +95,11 @@ class TopicsManagerTest {
     }
 
     @Test
-    @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 4)
+    @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 5)
     fun testTopicsAsyncPreviewSupported() {
         val sdkExtVersion = SdkExtensions.getExtensionVersion(SdkExtensions.AD_SERVICES)
 
-        Assume.assumeTrue("minSdkVersion = API 33 ext 4", sdkExtVersion >= 4)
+        Assume.assumeTrue("minSdkVersion = API 33 ext 5", sdkExtVersion >= 5)
         val topicsManager = mockTopicsManager(mContext)
         setupTopicsResponse(topicsManager)
         val managerCompat = obtain(mContext)
@@ -156,8 +156,9 @@ class TopicsManagerTest {
         private fun verifyRequest(topicsRequest: android.adservices.topics.GetTopicsRequest) {
             // Set up the request that we expect the compat code to invoke.
             val expectedRequest =
-                android.adservices.topics.GetTopicsRequest.Builder().setAdsSdkName(mSdkName)
-                    .setShouldRecordObservation(true).build()
+                android.adservices.topics.GetTopicsRequest.Builder()
+                    .setAdsSdkName(mSdkName)
+                    .build()
 
             Assert.assertEquals(expectedRequest.adsSdkName, topicsRequest.adsSdkName)
         }
