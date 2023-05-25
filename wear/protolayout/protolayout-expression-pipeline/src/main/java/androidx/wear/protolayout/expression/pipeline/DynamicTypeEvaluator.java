@@ -625,7 +625,7 @@ public class DynamicTypeEvaluator {
                 break;
             case PLATFORM_SOURCE: {
                 node = new LegacyPlatformInt32SourceNode(
-                        mStateStore,
+                        mPlatformDataStore,
                         int32Source.getPlatformSource(),
                         consumer);
                 break;
