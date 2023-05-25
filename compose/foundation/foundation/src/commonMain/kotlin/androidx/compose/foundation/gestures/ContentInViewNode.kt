@@ -29,7 +29,6 @@ import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.node.LayoutAwareModifierNode
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.toSize
-import kotlin.math.abs
 import kotlinx.coroutines.CancellableContinuation
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineName
@@ -57,7 +56,8 @@ private const val TAG = "ContentInViewModifier"
 internal class ContentInViewNode(
     private var orientation: Orientation,
     private var scrollState: ScrollableState,
-    private var reverseDirection: Boolean
+    private var reverseDirection: Boolean,
+    private var bringIntoViewCalculator: BringIntoViewCalculator
 ) : Modifier.Node(), BringIntoViewResponder, LayoutAwareModifierNode {
 
     /**
@@ -291,15 +291,15 @@ internal class ContentInViewNode(
 
         val size = viewportSize.toSize()
         return when (orientation) {
-            Vertical -> relocationDistance(
+            Vertical -> bringIntoViewCalculator.calculateScrollDistance(
                 rectangleToMakeVisible.top,
-                rectangleToMakeVisible.bottom,
+                rectangleToMakeVisible.bottom - rectangleToMakeVisible.top,
                 size.height
             )
 
-            Horizontal -> relocationDistance(
+            Horizontal -> bringIntoViewCalculator.calculateScrollDistance(
                 rectangleToMakeVisible.left,
-                rectangleToMakeVisible.right,
+                rectangleToMakeVisible.right - rectangleToMakeVisible.left,
                 size.width
             )
         }
@@ -350,35 +350,23 @@ internal class ContentInViewNode(
         return when (orientation) {
             Vertical -> Offset(
                 x = 0f,
-                y = relocationDistance(childBounds.top, childBounds.bottom, size.height)
+                y = bringIntoViewCalculator.calculateScrollDistance(
+                    childBounds.top,
+                    childBounds.bottom - childBounds.top,
+                    size.height
+                )
             )
 
             Horizontal -> Offset(
-                x = relocationDistance(childBounds.left, childBounds.right, size.width),
+                x = bringIntoViewCalculator.calculateScrollDistance(
+                    childBounds.left,
+                    childBounds.right - childBounds.left,
+                    size.width
+                ),
                 y = 0f
             )
         }
     }
-
-    /**
-     * Calculate the offset needed to bring one of the edges into view. The leadingEdge is the side
-     * closest to the origin (For the x-axis this is 'left', for the y-axis this is 'top').
-     * The trailing edge is the other side (For the x-axis this is 'right', for the y-axis this is
-     * 'bottom').
-     */
-    private fun relocationDistance(leadingEdge: Float, trailingEdge: Float, containerSize: Float) =
-        when {
-            // If the item is already visible, no need to scroll.
-            leadingEdge >= 0 && trailingEdge <= containerSize -> 0f
-
-            // If the item is visible but larger than the parent, we don't scroll.
-            leadingEdge < 0 && trailingEdge > containerSize -> 0f
-
-            // Find the minimum scroll needed to make one of the edges coincide with the parent's
-            // edge.
-            abs(leadingEdge) < abs(trailingEdge - containerSize) -> leadingEdge
-            else -> trailingEdge - containerSize
-        }
 
     private operator fun IntSize.compareTo(other: IntSize): Int = when (orientation) {
         Horizontal -> width.compareTo(other.width)
@@ -390,10 +378,16 @@ internal class ContentInViewNode(
         Vertical -> height.compareTo(other.height)
     }
 
-    fun update(orientation: Orientation, state: ScrollableState, reverseDirection: Boolean) {
+    fun update(
+        orientation: Orientation,
+        state: ScrollableState,
+        reverseDirection: Boolean,
+        bringIntoViewCalculator: BringIntoViewCalculator
+    ) {
         this.orientation = orientation
         this.scrollState = state
         this.reverseDirection = reverseDirection
+        this.bringIntoViewCalculator = bringIntoViewCalculator
     }
 
     /**
