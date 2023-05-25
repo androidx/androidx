@@ -37,6 +37,7 @@ import androidx.camera.camera2.impl.Camera2ImplConfig;
 import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
 import androidx.camera.core.DynamicRange;
 import androidx.camera.core.ImageCapture;
+import androidx.camera.core.UseCase;
 import androidx.camera.core.impl.AttachedSurfaceInfo;
 import androidx.camera.core.impl.CameraMode;
 import androidx.camera.core.impl.DeferrableSurface;
@@ -49,7 +50,11 @@ import androidx.camera.core.impl.SurfaceConfig;
 import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.UseCaseConfigFactory;
 import androidx.camera.core.internal.utils.SizeUtil;
+import androidx.camera.core.streamsharing.StreamSharing;
+import androidx.camera.testing.fakes.FakeCamera;
+import androidx.camera.testing.fakes.FakeUseCase;
 import androidx.camera.testing.fakes.FakeUseCaseConfig;
+import androidx.camera.testing.fakes.FakeUseCaseConfigFactory;
 import androidx.concurrent.futures.ResolvableFuture;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -66,8 +71,10 @@ import org.robolectric.shadows.ShadowCameraCharacteristics;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @Config(minSdk = 33)
 @RunWith(RobolectricTestRunner.class)
@@ -409,6 +416,92 @@ public class StreamUseCaseTest {
 
         StreamUseCaseUtil.areCaptureTypesEligible(surfaceConfigAttachedSurfaceInfoMap,
                 surfaceConfigUseCaseConfigMap, surfaceConfigsWithStreamUseCase);
+    }
+
+    @Test
+    public void areCaptureTypesEligible_streamSharing_previewVideoStill_success() {
+        List<SurfaceConfig> surfaceConfigsWithStreamUseCase = new ArrayList<>();
+        surfaceConfigsWithStreamUseCase.add(SurfaceConfig.create(
+                SurfaceConfig.ConfigType.PRIV, SurfaceConfig.ConfigSize.PREVIEW,
+                CameraMetadata.SCALER_AVAILABLE_STREAM_USE_CASES_PREVIEW_VIDEO_STILL));
+        UseCaseConfigFactory useCaseConfigFactory = new FakeUseCaseConfigFactory();
+        Set<UseCase> children = new HashSet<>();
+        children.add(new FakeUseCase(new FakeUseCaseConfig.Builder().getUseCaseConfig(),
+                UseCaseConfigFactory.CaptureType.PREVIEW));
+        children.add(new FakeUseCase(new FakeUseCaseConfig.Builder().getUseCaseConfig(),
+                UseCaseConfigFactory.CaptureType.IMAGE_CAPTURE));
+        children.add(new FakeUseCase(new FakeUseCaseConfig.Builder().getUseCaseConfig(),
+                UseCaseConfigFactory.CaptureType.VIDEO_CAPTURE));
+        StreamSharing streamSharing = new StreamSharing(new FakeCamera(), children,
+                useCaseConfigFactory);
+        Map<Integer, AttachedSurfaceInfo> surfaceConfigAttachedSurfaceInfoMap =
+                new HashMap<>();
+        @NonNull Map<Integer, UseCaseConfig<?>> surfaceConfigUseCaseConfigMap =
+                new HashMap<>();
+        surfaceConfigUseCaseConfigMap.put(0,
+                streamSharing.getDefaultConfig(true, useCaseConfigFactory));
+
+        assertTrue(StreamUseCaseUtil.areCaptureTypesEligible(surfaceConfigAttachedSurfaceInfoMap,
+                surfaceConfigUseCaseConfigMap, surfaceConfigsWithStreamUseCase));
+    }
+
+    @Test
+    public void areCaptureTypesEligible_streamSharing_videoRecord_success() {
+        List<SurfaceConfig> surfaceConfigsWithStreamUseCase = new ArrayList<>();
+        surfaceConfigsWithStreamUseCase.add(SurfaceConfig.create(
+                SurfaceConfig.ConfigType.PRIV, SurfaceConfig.ConfigSize.PREVIEW,
+                CameraMetadata.SCALER_AVAILABLE_STREAM_USE_CASES_VIDEO_RECORD));
+        Map<Integer, AttachedSurfaceInfo> surfaceConfigAttachedSurfaceInfoMap =
+                new HashMap<>();
+        @NonNull Map<Integer, UseCaseConfig<?>> surfaceConfigUseCaseConfigMap =
+                new HashMap<>();
+        List<UseCaseConfigFactory.CaptureType> captureTypes = new ArrayList<>();
+        captureTypes.add(UseCaseConfigFactory.CaptureType.PREVIEW);
+        captureTypes.add(UseCaseConfigFactory.CaptureType.VIDEO_CAPTURE);
+        surfaceConfigAttachedSurfaceInfoMap.put(0,
+                AttachedSurfaceInfo.create(SurfaceConfig.create(
+                                SurfaceConfig.ConfigType.PRIV,
+                                SurfaceConfig.ConfigSize.PREVIEW
+                        ),
+                        ImageFormat.PRIVATE,
+                        SizeUtil.RESOLUTION_720P,
+                        DynamicRange.SDR,
+                        captureTypes,
+                        /*implementationOptions=*/null,
+                        /*targetFrameRate=*/null));
+
+        assertTrue(StreamUseCaseUtil.areCaptureTypesEligible(surfaceConfigAttachedSurfaceInfoMap,
+                surfaceConfigUseCaseConfigMap, surfaceConfigsWithStreamUseCase));
+    }
+
+    @Test
+    public void areCaptureTypesEligible_streamSharing_fail() {
+        List<SurfaceConfig> surfaceConfigsWithStreamUseCase = new ArrayList<>();
+        surfaceConfigsWithStreamUseCase.add(SurfaceConfig.create(
+                SurfaceConfig.ConfigType.PRIV, SurfaceConfig.ConfigSize.PREVIEW,
+                CameraMetadata.SCALER_AVAILABLE_STREAM_USE_CASES_VIDEO_RECORD));
+        Map<Integer, AttachedSurfaceInfo> surfaceConfigAttachedSurfaceInfoMap =
+                new HashMap<>();
+        @NonNull Map<Integer, UseCaseConfig<?>> surfaceConfigUseCaseConfigMap =
+                new HashMap<>();
+        List<UseCaseConfigFactory.CaptureType> captureTypes = new ArrayList<>();
+        captureTypes.add(UseCaseConfigFactory.CaptureType.PREVIEW);
+        captureTypes.add(UseCaseConfigFactory.CaptureType.IMAGE_CAPTURE);
+        captureTypes.add(UseCaseConfigFactory.CaptureType.VIDEO_CAPTURE);
+        surfaceConfigAttachedSurfaceInfoMap.put(0,
+                AttachedSurfaceInfo.create(SurfaceConfig.create(
+                                SurfaceConfig.ConfigType.PRIV,
+                                SurfaceConfig.ConfigSize.PREVIEW
+                        ),
+                        ImageFormat.PRIVATE,
+                        SizeUtil.RESOLUTION_720P,
+                        DynamicRange.SDR,
+                        captureTypes,
+                        /*implementationOptions=*/null,
+                        /*targetFrameRate=*/null));
+
+        assertFalse(StreamUseCaseUtil.areCaptureTypesEligible(surfaceConfigAttachedSurfaceInfoMap,
+                surfaceConfigUseCaseConfigMap, surfaceConfigsWithStreamUseCase));
     }
 
     @Test

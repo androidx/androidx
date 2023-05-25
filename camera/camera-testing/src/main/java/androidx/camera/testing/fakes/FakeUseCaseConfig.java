@@ -45,11 +45,9 @@ import java.util.UUID;
 public class FakeUseCaseConfig implements UseCaseConfig<FakeUseCase>, ImageOutputConfig {
 
     private final Config mConfig;
-    private final CaptureType mCaptureType;
 
-    FakeUseCaseConfig(Config config, CaptureType captureType) {
+    FakeUseCaseConfig(Config config) {
         mConfig = config;
-        mCaptureType = captureType;
     }
 
     @NonNull
@@ -67,7 +65,7 @@ public class FakeUseCaseConfig implements UseCaseConfig<FakeUseCase>, ImageOutpu
     @NonNull
     @Override
     public CaptureType getCaptureType() {
-        return mCaptureType;
+        return retrieveOption(OPTION_CAPTURE_TYPE);
     }
 
     /** Builder for an empty Config */
@@ -77,7 +75,6 @@ public class FakeUseCaseConfig implements UseCaseConfig<FakeUseCase>, ImageOutpu
             ImageOutputConfig.Builder<FakeUseCaseConfig.Builder> {
 
         private final MutableOptionsBundle mOptionsBundle;
-        private final CaptureType mCaptureType;
 
         public Builder() {
             this(MutableOptionsBundle.create(), CaptureType.PREVIEW);
@@ -99,7 +96,7 @@ public class FakeUseCaseConfig implements UseCaseConfig<FakeUseCase>, ImageOutpu
         public Builder(@NonNull Config config, @NonNull CaptureType captureType) {
             mOptionsBundle = MutableOptionsBundle.from(config);
             setTargetClass(FakeUseCase.class);
-            mCaptureType = captureType;
+            mOptionsBundle.insertOption(OPTION_CAPTURE_TYPE, captureType);
         }
 
         @Override
@@ -111,13 +108,13 @@ public class FakeUseCaseConfig implements UseCaseConfig<FakeUseCase>, ImageOutpu
         @NonNull
         @Override
         public FakeUseCaseConfig getUseCaseConfig() {
-            return new FakeUseCaseConfig(OptionsBundle.from(mOptionsBundle), mCaptureType);
+            return new FakeUseCaseConfig(OptionsBundle.from(mOptionsBundle));
         }
 
         @Override
         @NonNull
         public FakeUseCase build() {
-            return new FakeUseCase(getUseCaseConfig(), mCaptureType);
+            return new FakeUseCase(getUseCaseConfig());
         }
 
         // Implementations of TargetConfig.Builder default methods
