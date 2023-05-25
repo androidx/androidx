@@ -58,7 +58,6 @@ import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import org.junit.Assert.assertFalse
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -713,7 +712,6 @@ class LazyPagingItemsTest {
             .assertTopPositionInRootIsEqualTo(itemSize * 2)
     }
 
-    @Ignore // b/229089541
     @Test
     fun removingItem() {
         val items = mutableListOf(1, 2, 3)
@@ -735,7 +733,10 @@ class LazyPagingItemsTest {
         rule.setContent {
             lazyPagingItems = pager.flow.collectAsLazyPagingItems()
             LazyColumn(Modifier.height(itemSize * 3)) {
-                items(count = lazyPagingItems.itemCount) { index ->
+                items(
+                    count = lazyPagingItems.itemCount,
+                    key = lazyPagingItems.itemKey { it }
+                ) { index ->
                     val item = lazyPagingItems[index]
                     Spacer(Modifier.height(itemSize).fillParentMaxWidth().testTag("$item"))
                 }
@@ -755,7 +756,7 @@ class LazyPagingItemsTest {
             .assertTopPositionInRootIsEqualTo(itemSize)
 
         rule.onNodeWithTag("1")
-            .assertDoesNotExist()
+            .assertIsNotDisplayed()
     }
 
     @Test
