@@ -202,37 +202,6 @@ class LazyPagingItemsTest {
             .assertDoesNotExist()
     }
 
-    @Suppress("DEPRECATION")
-    @Test
-    fun lazyPagingColumnShowsIndexedItems() {
-        val pager = createPager()
-        rule.setContent {
-            val lazyPagingItems = pager.flow.collectAsLazyPagingItems()
-            LazyColumn(Modifier.height(200.dp)) {
-                itemsIndexed(lazyPagingItems) { index, item ->
-                    Spacer(
-                        Modifier.height(101.dp).fillParentMaxWidth()
-                            .testTag("$index-$item")
-                    )
-                }
-            }
-        }
-
-        rule.waitForIdle()
-
-        rule.onNodeWithTag("0-1")
-            .assertIsDisplayed()
-
-        rule.onNodeWithTag("1-2")
-            .assertIsDisplayed()
-
-        rule.onNodeWithTag("2-3")
-            .assertDoesNotExist()
-
-        rule.onNodeWithTag("3-4")
-            .assertDoesNotExist()
-    }
-
     @Test
     fun lazyPagingRowShowsItems() {
         val pager = createPager()
@@ -258,37 +227,6 @@ class LazyPagingItemsTest {
             .assertDoesNotExist()
 
         rule.onNodeWithTag("4")
-            .assertDoesNotExist()
-    }
-
-    @Suppress("DEPRECATION")
-    @Test
-    fun lazyPagingRowShowsIndexedItems() {
-        val pager = createPager()
-        rule.setContent {
-            val lazyPagingItems = pager.flow.collectAsLazyPagingItems()
-            LazyRow(Modifier.width(200.dp)) {
-                itemsIndexed(lazyPagingItems) { index, item ->
-                    Spacer(
-                        Modifier.width(101.dp).fillParentMaxHeight()
-                            .testTag("$index-$item")
-                    )
-                }
-            }
-        }
-
-        rule.waitForIdle()
-
-        rule.onNodeWithTag("0-1")
-            .assertIsDisplayed()
-
-        rule.onNodeWithTag("1-2")
-            .assertIsDisplayed()
-
-        rule.onNodeWithTag("2-3")
-            .assertDoesNotExist()
-
-        rule.onNodeWithTag("3-4")
             .assertDoesNotExist()
     }
 
@@ -854,39 +792,6 @@ class LazyPagingItemsTest {
             .assertExists()
 
         rule.onNodeWithText("Item=1. counter=0")
-            .assertExists()
-    }
-
-    @Suppress("DEPRECATION")
-    @Test
-    fun stateIsMovedWithItemWithCustomKey_itemsIndexed() {
-        val items = mutableListOf(1)
-        val pager = createPager {
-            TestPagingSource(items = items, loadDelay = 0)
-        }
-
-        lateinit var lazyPagingItems: LazyPagingItems<Int>
-        rule.setContent {
-            lazyPagingItems = pager.flow.collectAsLazyPagingItems()
-            LazyColumn {
-                itemsIndexed(lazyPagingItems, key = { _, item -> item }) { index, item ->
-                    BasicText(
-                        "Item=$item. index=$index. remembered index=${remember { index }}"
-                    )
-                }
-            }
-        }
-
-        rule.runOnIdle {
-            items.clear()
-            items.addAll(listOf(0, 1))
-            lazyPagingItems.refresh()
-        }
-
-        rule.onNodeWithText("Item=0. index=0. remembered index=0")
-            .assertExists()
-
-        rule.onNodeWithText("Item=1. index=1. remembered index=0")
             .assertExists()
     }
 
