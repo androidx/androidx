@@ -16,6 +16,7 @@
 
 package androidx.window.testing.layout
 
+import android.content.Context
 import android.graphics.Rect
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.rules.ActivityScenarioRule
@@ -45,7 +46,7 @@ import org.junit.runners.model.Statement
 
 @LargeTest
 @RunWith(AndroidJUnit4::class)
-public class WindowLayoutInfoPublisherRuleTest {
+class WindowLayoutInfoPublisherRuleTest {
 
     private val activityRule = ActivityScenarioRule(TestActivity::class.java)
     private val publisherRule = WindowLayoutInfoPublisherRule()
@@ -53,7 +54,7 @@ public class WindowLayoutInfoPublisherRuleTest {
     private val testScope = TestScope(UnconfinedTestDispatcher())
 
     @get:Rule
-    public val testRule: TestRule
+    val testRule: TestRule
 
     init {
         testRule = RuleChain.outerRule(publisherRule).around(activityRule)
@@ -61,7 +62,7 @@ public class WindowLayoutInfoPublisherRuleTest {
 
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
-    public fun testWindowLayoutInfo_relayValue(): Unit = testScope.runTest {
+    fun testWindowLayoutInfo_relayValue(): Unit = testScope.runTest {
         val expected = WindowLayoutInfo(emptyList())
         activityRule.scenario.onActivity { activity ->
             val value = testScope.async {
@@ -77,7 +78,26 @@ public class WindowLayoutInfoPublisherRuleTest {
 
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
-    public fun testException_resetsFactoryMethod() {
+    fun testWindowLayoutInfo_fromContext_relayValue(): Unit = testScope.runTest {
+        val expected = WindowLayoutInfo(emptyList())
+        activityRule.scenario.onActivity { activity ->
+            val context: Context = activity
+            val value = testScope.async {
+                WindowInfoTracker.getOrCreate(context)
+                    .windowLayoutInfo(context)
+                    .first()
+            }
+            publisherRule.overrideWindowLayoutInfo(expected)
+            runTest(UnconfinedTestDispatcher(testScheduler)) {
+                val actual = value.await()
+                assertEquals(expected, actual)
+            }
+        }
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun testException_resetsFactoryMethod() {
         ActivityScenario.launch(TestActivity::class.java).onActivity { activity ->
             WindowInfoTracker.reset()
             try {
@@ -98,7 +118,7 @@ public class WindowLayoutInfoPublisherRuleTest {
 
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
-    public fun testWindowLayoutInfo_multipleValues(): Unit = testScope.runTest {
+    fun testWindowLayoutInfo_multipleValues(): Unit = testScope.runTest {
         val feature1 = object : DisplayFeature {
             override val bounds: Rect
                 get() = Rect()
@@ -113,6 +133,39 @@ public class WindowLayoutInfoPublisherRuleTest {
             val values = mutableListOf<WindowLayoutInfo>()
             val value = testScope.async {
                 WindowInfoTracker.getOrCreate(activity).windowLayoutInfo(activity).take(4)
+                    .toCollection(values)
+            }
+            publisherRule.overrideWindowLayoutInfo(expected1)
+            publisherRule.overrideWindowLayoutInfo(expected2)
+            publisherRule.overrideWindowLayoutInfo(expected1)
+            publisherRule.overrideWindowLayoutInfo(expected2)
+            runTest(UnconfinedTestDispatcher(testScheduler)) {
+                assertEquals(
+                    listOf(expected1, expected2, expected1, expected2),
+                    value.await().toList()
+                )
+            }
+        }
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun testWindowLayoutInfo_fromContext_multipleValues(): Unit = testScope.runTest {
+        val feature1 = object : DisplayFeature {
+            override val bounds: Rect
+                get() = Rect()
+        }
+        val feature2 = object : DisplayFeature {
+            override val bounds: Rect
+                get() = Rect()
+        }
+        val expected1 = WindowLayoutInfo(listOf(feature1))
+        val expected2 = WindowLayoutInfo(listOf(feature2))
+        activityRule.scenario.onActivity { activity ->
+            val context: Context = activity
+            val values = mutableListOf<WindowLayoutInfo>()
+            val value = testScope.async {
+                WindowInfoTracker.getOrCreate(context).windowLayoutInfo(context).take(4)
                     .toCollection(values)
             }
             publisherRule.overrideWindowLayoutInfo(expected1)
