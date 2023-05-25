@@ -92,10 +92,16 @@ object Outputs {
             ?: dirUsableByAppAndShell
 
         Log.d(BenchmarkState.TAG, "Output Directory: $outputDirectory")
-        outputDirectory.mkdirs()
 
         // Clear all the existing files in the output directories
-        deleteFiles { true }
+        listOf(outputDirectory, dirUsableByAppAndShell).forEach {
+            it.listFiles()?.forEach { file ->
+                if (file.isFile) file.delete()
+            }
+        }
+
+        // Ensure output dir is created
+        outputDirectory.mkdirs()
     }
 
     /**
@@ -161,11 +167,5 @@ object Outputs {
             "$relativePath == $path"
         }
         return relativePath
-    }
-
-    fun deleteFiles(filterBlock: (File) -> (Boolean)) {
-        listOf(outputDirectory, dirUsableByAppAndShell)
-            .flatMap { it.listFiles(filterBlock)?.asList() ?: emptyList() }
-            .forEach { it.delete() }
     }
 }
