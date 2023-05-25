@@ -16,6 +16,8 @@
 
 package androidx.appsearch.localstorage;
 
+import android.app.appsearch.SearchSpec;
+
 import androidx.annotation.RestrictTo;
 
 import com.google.android.icing.proto.IcingSearchEngineOptions;
@@ -46,6 +48,7 @@ public interface IcingOptionsConfig {
 
     boolean DEFAULT_USE_PERSISTENT_HASH_MAP = false;
 
+    int DEFAULT_MAX_PAGE_BYTES_LIMIT = Integer.MAX_VALUE;
 
     /**
      * The maximum allowable token length. All tokens in excess of this size will be truncated to
@@ -136,4 +139,15 @@ public interface IcingOptionsConfig {
      * we will use the old IcingDynamicTrie to store key value pairs.
      */
     boolean getUsePersistentHashMap();
+
+    /**
+     * Flag for {@link com.google.android.icing.proto.ResultSpecProto}.
+     *
+     * <p>The maximum byte size to allow in a single page. This limit is only loosely binding.
+     * AppSearch will add results to the page until either 1) AppSearch has retrieved
+     * {@link SearchSpec#getResultCountPerPage()} results or 2) total size of the page exceeds this
+     * value. Therefore, AppSearch will always retrieve at least a single result, even if that
+     * result exceeds this limit.
+     */
+    int getMaxPageBytesLimit();
 }
