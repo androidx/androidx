@@ -18,20 +18,30 @@ package androidx.compose.foundation.pager
 
 import androidx.compose.animation.splineBasedDecay
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.gestures.DefaultFlingBehavior
 import androidx.compose.foundation.gestures.FlingBehavior
 import androidx.compose.foundation.gestures.ScrollScope
 import androidx.compose.foundation.gestures.ScrollableDefaults
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyList
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.BasicText
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.platform.LocalViewConfiguration
@@ -43,6 +53,7 @@ import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
 import kotlin.math.abs
 import kotlin.math.absoluteValue
+import kotlin.test.assertTrue
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -310,6 +321,115 @@ class PagerNestedScrollContentTest(
 
         rule.onNodeWithTag(TestTag).performTouchInput {
             up()
+        }
+    }
+
+    @Test
+    fun nestedScrollContent_focusShouldMoveAndSnapPages() {
+        // Arrange
+        lateinit var innerListFocusRequester: FocusRequester
+        lateinit var pagerFocusRequester: FocusRequester
+        val focusItems = mutableSetOf<String>()
+        val rowColumnContent: @Composable (Int) -> Unit = { page ->
+            repeat(DefaultPageCount) { item ->
+                val columnFocusRequester = FocusRequester().apply {
+                    if (item == 3 && page == 5) innerListFocusRequester = this
+                }
+                Box(
+                    modifier = Modifier
+                        .focusRequester(columnFocusRequester)
+                        .onFocusChanged {
+                            if (it.isFocused) {
+                                focusItems.add("page=$page-item=$item")
+                            }
+                        }
+                        .size(150.dp)
+                        .focusable(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    BasicText(text = "page=$page-item=$item")
+                }
+            }
+        }
+        createPager(
+            modifier = Modifier.fillMaxSize(),
+            pageCount = { DefaultPageCount },
+            initialPage = 3,
+            pageSize = { PageSize.Fixed(100.dp) }) { page ->
+            val focusRequester = FocusRequester().apply {
+                if (page == 5) pagerFocusRequester = this
+            }
+            val rowColumnModifier =
+                Modifier
+                    .focusRequester(focusRequester)
+                    .verticalScroll(rememberScrollState())
+
+            if (vertical) {
+                Row(
+                    modifier = rowColumnModifier
+                ) {
+                    rowColumnContent(page)
+                }
+            } else {
+                Column(
+                    modifier = rowColumnModifier
+                ) {
+                    rowColumnContent(page)
+                }
+            }
+        }
+
+        // Act: Request first page to focus.
+        rule.runOnIdle { pagerFocusRequester.requestFocus() }
+
+        // Assert: Check we're settled.
+        rule.runOnIdle {
+            assertThat(pagerState.currentPage).isEqualTo(5)
+            assertThat(pagerState.currentPageOffsetFraction).isEqualTo(0.0f)
+        }
+
+        // Act: Focus scroll inner scrollable
+        rule.runOnIdle { innerListFocusRequester.requestFocus() }
+
+        // Assert: Check we actually scrolled.
+        rule.runOnIdle { assertThat(focusItems).contains("page=5-item=3") }
+
+        // Act: Move focus in inner scrollable
+        rule.runOnIdle {
+            assertTrue {
+                if (vertical) {
+                    focusManager.moveFocus(FocusDirection.Next)
+                } else {
+                    focusManager.moveFocus(FocusDirection.Down)
+                }
+            }
+        }
+
+        // Assert: Check we actually scrolled, but didn't move pages.
+        rule.runOnIdle {
+            assertThat(focusItems).contains("page=5-item=4")
+            assertThat(pagerState.currentPage).isEqualTo(5)
+            assertThat(pagerState.currentPageOffsetFraction).isEqualTo(0.0f)
+        }
+
+        // Act: Reset.
+        rule.runOnIdle { pagerFocusRequester.requestFocus() }
+
+        // Act: Move focus in pager.
+        rule.runOnIdle {
+            assertTrue {
+                if (vertical) {
+                    focusManager.moveFocus(FocusDirection.Down)
+                } else {
+                    focusManager.moveFocus(FocusDirection.Right)
+                }
+            }
+        }
+
+        // Assert: Check we moved pages.
+        rule.runOnIdle {
+            assertThat(pagerState.currentPage).isEqualTo(6)
+            assertThat(pagerState.currentPageOffsetFraction).isEqualTo(0.0f)
         }
     }
 
