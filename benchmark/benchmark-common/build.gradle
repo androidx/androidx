@@ -84,10 +84,7 @@ tasks.withType(KotlinCompile).configureEach {
 // https://github.com/square/wire/issues/1947
 // Remove when we upgrade to fixed wire library
 afterEvaluate {
-    tasks.named("compileReleaseKotlin").configure {
-        it.dependsOn("generateDebugProtos")
-    }
-    tasks.named("compileDebugKotlin").configure {
-        it.dependsOn("generateReleaseProtos")
-    }
+    tasks.named("compileReleaseKotlin").configure {it.dependsOn("generateDebugProtos")}
+    tasks.named("compileDebugKotlin").configure {it.dependsOn("generateReleaseProtos")}
+    tasks.named("generateKmpDocs").configure {it.dependsOn("generateDebugProtos", "generateReleaseProtos")}
 }
