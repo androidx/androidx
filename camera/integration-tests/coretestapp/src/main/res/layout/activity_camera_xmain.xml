@@ -323,6 +323,21 @@ limitations under the License.
         app:layout_constraintRight_toRightOf="parent"
         />
 
+    <Button
+        android:id="@+id/video_dynamic_range"
+        android:layout_width="46dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="1dp"
+        android:layout_marginRight="5dp"
+        android:background="@drawable/round_button"
+        android:scaleType="fitXY"
+        android:textColor="#EEEEEE"
+        android:textSize="14dp"
+        android:visibility="invisible"
+        app:layout_constraintTop_toBottomOf="@id/video_persistent"
+        app:layout_constraintRight_toRightOf="parent"
+        />
+
     <SeekBar
         android:id="@+id/seekBar"
         android:layout_width="250dp"

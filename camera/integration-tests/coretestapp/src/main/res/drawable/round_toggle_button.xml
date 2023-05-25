@@ -15,6 +15,11 @@
   -->
 
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_enabled="false">
+        <shape android:shape="oval">
+            <solid android:color="#66888888"/>
+        </shape>
+    </item>
     <item android:state_checked="true">
         <shape android:shape="oval">
             <solid android:color="#41ABFF"/>
