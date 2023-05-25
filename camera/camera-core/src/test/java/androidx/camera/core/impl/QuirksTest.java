@@ -18,7 +18,7 @@ package androidx.camera.core.impl;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import androidx.annotation.RequiresApi;
+import androidx.test.filters.SdkSuppress;
 
 import org.junit.Test;
 
@@ -26,7 +26,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-@RequiresApi(21)
+@SdkSuppress(minSdkVersion = 21)
 public class QuirksTest {
 
     @Test
