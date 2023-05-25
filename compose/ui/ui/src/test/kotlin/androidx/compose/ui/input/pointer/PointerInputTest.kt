@@ -17,11 +17,15 @@
 package androidx.compose.ui.input.pointer
 
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.pointer.util.PointerIdArray
 import com.google.common.truth.FailureMetadata
 import com.google.common.truth.Subject
 import com.google.common.truth.Subject.Factory
 import com.google.common.truth.Truth
 import com.google.common.truth.Truth.assertThat
+import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.core.IsEqual.equalTo
@@ -485,6 +489,48 @@ class PointerInputTest {
         PointerInputChangeSubject.assertThat(actual1).positionChangeConsumed()
         PointerInputChangeSubject.assertThat(actual2).downConsumed()
         PointerInputChangeSubject.assertThat(actual2).positionChangeConsumed()
+    }
+
+    @Test
+    fun pointerIdArrayTest() {
+        val pointerIdArray = PointerIdArray()
+
+        assertEquals(0, pointerIdArray.size)
+
+        // These should not only set the values in the array, but also cause it to be resized
+        // to hold more than the initial default number of items (currently 2)
+        pointerIdArray[0] = PointerId(10)
+        pointerIdArray[1] = 11
+        pointerIdArray[2] = 12
+
+        assertEquals(3, pointerIdArray.size)
+        assertEquals(PointerId(10), pointerIdArray[0])
+        assertEquals(PointerId(11), pointerIdArray[1])
+        assertEquals(PointerId(12), pointerIdArray[2])
+
+        pointerIdArray.removeAt(0)
+        assertEquals(2, pointerIdArray.size)
+        assertEquals(PointerId(11), pointerIdArray[0])
+        assertEquals(PointerId(12), pointerIdArray[1])
+
+        pointerIdArray.clear()
+        assertEquals(0, pointerIdArray.size)
+
+        pointerIdArray.add(20)
+        pointerIdArray.add(21)
+        pointerIdArray.add(22)
+        pointerIdArray.add(23)
+        assertEquals(4, pointerIdArray.size)
+        pointerIdArray.remove(PointerId(21))
+        pointerIdArray.remove(22)
+        assertEquals(2, pointerIdArray.size)
+        assertEquals(PointerId(20), pointerIdArray[0])
+        assertEquals(PointerId(23), pointerIdArray[1])
+
+        assertTrue { pointerIdArray.contains(20) }
+        assertTrue { pointerIdArray.contains(PointerId(23)) }
+        assertFalse { pointerIdArray.contains(21) }
+        assertFalse { pointerIdArray.contains(PointerId(21)) }
     }
 
     // Private Helper
