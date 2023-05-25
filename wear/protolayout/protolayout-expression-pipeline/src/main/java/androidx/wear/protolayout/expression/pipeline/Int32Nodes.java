@@ -78,7 +78,7 @@ class Int32Nodes {
     static class LegacyPlatformInt32SourceNode extends StateSourceNode<Integer> {
 
         LegacyPlatformInt32SourceNode(
-                DataStore dataStore,
+                PlatformDataStore dataStore,
                 PlatformInt32Source protoNode,
                 DynamicTypeValueReceiverWithPreUpdate<Integer> downstream) {
             super(
