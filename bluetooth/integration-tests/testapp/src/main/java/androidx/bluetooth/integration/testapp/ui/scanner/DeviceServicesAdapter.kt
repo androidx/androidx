@@ -16,49 +16,59 @@
 
 package androidx.bluetooth.integration.testapp.ui.scanner
 
-// TODO(ofy) Migrate to androidx.bluetooth.BluetoothGattService once in place
+// TODO(ofy) Migrate to androidx.bluetooth.BluetoothGattService
 import android.bluetooth.BluetoothGattService
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.bluetooth.integration.testapp.R
-import androidx.recyclerview.widget.DividerItemDecoration
-import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.bluetooth.integration.testapp.data.connection.DeviceConnection
+import androidx.bluetooth.integration.testapp.data.connection.OnClickCharacteristic
 import androidx.recyclerview.widget.RecyclerView
 
-class DeviceServicesAdapter(var services: List<BluetoothGattService>) :
-    RecyclerView.Adapter<DeviceServicesAdapter.ViewHolder>() {
+class DeviceServicesAdapter(
+    var deviceConnection: DeviceConnection? = null,
+    private val onClickReadCharacteristic: OnClickCharacteristic,
+    private val onClickWriteCharacteristic: OnClickCharacteristic
+) : RecyclerView.Adapter<DeviceServicesAdapter.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.item_device_service, parent, false)
-        return ViewHolder(view)
+        return ViewHolder(view, onClickReadCharacteristic, onClickWriteCharacteristic)
     }
 
     override fun getItemCount(): Int {
-        return services.size
+        return deviceConnection?.services.orEmpty().size
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val service = services[position]
-        holder.bind(service)
+        deviceConnection?.let {
+            val service = it.services[position]
+            holder.bind(it, service)
+        }
     }
 
-    inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    inner class ViewHolder(
+        itemView: View,
+        private val onClickReadCharacteristic: OnClickCharacteristic,
+        private val onClickWriteCharacteristic: OnClickCharacteristic
+    ) : RecyclerView.ViewHolder(itemView) {
 
         private val textViewUuid: TextView = itemView.findViewById(R.id.text_view_uuid)
 
         private val recyclerViewServiceCharacteristic: RecyclerView =
             itemView.findViewById(R.id.recycler_view_service_characteristic)
 
-        fun bind(service: BluetoothGattService) {
+        fun bind(deviceConnection: DeviceConnection, service: BluetoothGattService) {
             textViewUuid.text = service.uuid.toString()
 
-            recyclerViewServiceCharacteristic.adapter =
-                DeviceServiceCharacteristicsAdapter(service.characteristics)
-            recyclerViewServiceCharacteristic.addItemDecoration(
-                DividerItemDecoration(itemView.context, LinearLayoutManager.VERTICAL)
+            recyclerViewServiceCharacteristic.adapter = DeviceServiceCharacteristicsAdapter(
+                deviceConnection,
+                service.characteristics,
+                onClickReadCharacteristic,
+                onClickWriteCharacteristic
             )
         }
     }
