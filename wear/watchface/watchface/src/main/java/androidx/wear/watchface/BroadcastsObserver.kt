@@ -19,6 +19,7 @@ package androidx.wear.watchface
 import android.app.KeyguardManager
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import androidx.annotation.RestrictTo
 import androidx.annotation.UiThread
 import kotlinx.coroutines.CoroutineScope
@@ -69,6 +70,13 @@ public class BroadcastsObserver(
     override fun onActionPowerConnected() {
         charging = true
         updateBatteryLowAndNotChargingStatus(false)
+
+        // From T onwards the watch shouldn't go ambient if we are charging because the ambient
+        // events don't get sent.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            val isAmbient = watchState.isAmbient as MutableStateFlow
+            isAmbient.value = false
+        }
     }
 
     override fun onActionPowerDisconnected() {
@@ -108,6 +116,13 @@ public class BroadcastsObserver(
 
     override fun onActionAmbientStarted() {
         if (sysUiHasSentWatchUiState) {
+            return
+        }
+
+        // From T onwards we don't expect onActionAmbientStarted when charging, but just in case we
+        // bail out here because otherwise the watch face could get stuck in ambient since when its
+        // charging onActionAmbientStopped won't get called.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && charging == true) {
             return
         }
 
