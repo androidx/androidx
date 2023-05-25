@@ -18,18 +18,24 @@ package androidx.wear.protolayout.expression.pipeline;
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 import static java.lang.Integer.MAX_VALUE;
 
 import androidx.annotation.NonNull;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool;
+import androidx.wear.protolayout.expression.PlatformDataKey;
+import androidx.wear.protolayout.expression.PlatformHealthSources;
 import androidx.wear.protolayout.expression.pipeline.DynamicTypeEvaluator.EvaluationException;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 
 @RunWith(AndroidJUnit4.class)
@@ -74,6 +80,26 @@ public class DynamicTypeEvaluatorTest {
         assertThat(boundDynamicType2.getDynamicNodeCount()).isEqualTo(1);
     }
 
+    @Test
+    public void platformDataProvider_correctlySet() throws EvaluationException {
+        AddToListCallback<Integer> results = new AddToListCallback<>(new ArrayList<>());
+        DynamicTypeBindingRequest request =
+                DynamicTypeBindingRequest.forDynamicInt32(
+                        PlatformHealthSources.dailySteps(),
+                        new MainThreadExecutor(), results);
+        PlatformDataProvider provider = mock(PlatformDataProvider.class);
+        DynamicTypeEvaluator evaluator = createEvaluatorWithProvider(provider,
+                PlatformHealthSources.Keys.DAILY_STEPS);
+
+        BoundDynamicType boundDynamicType = evaluator.bind(request);
+        boundDynamicType.startEvaluation();
+
+        verify(provider).setReceiver(any(), any());
+
+        boundDynamicType.close();
+        verify(provider).clearReceiver();
+    }
+
     @NonNull
     private static DynamicTypeBindingRequest createSingleNodeDynamicBoolRequest(
             ArrayList<Boolean> results) {
@@ -85,6 +111,16 @@ public class DynamicTypeEvaluatorTest {
 
     private static DynamicTypeEvaluator createEvaluator() {
         return createEvaluatorWithQuota(unlimitedQuota(), unlimitedQuota());
+    }
+
+    private static DynamicTypeEvaluator createEvaluatorWithProvider(PlatformDataProvider provider
+            , PlatformDataKey<?> key) {
+        return new DynamicTypeEvaluator(
+                new DynamicTypeEvaluator.Config.Builder()
+                        .setAnimationQuotaManager(unlimitedQuota())
+                        .setDynamicTypesQuotaManager(unlimitedQuota())
+                        .addPlatformDataProvider(provider, Collections.singleton(key))
+                        .build());
     }
 
     private static DynamicTypeEvaluator createEvaluatorWithQuota(
