@@ -143,7 +143,7 @@ internal object TypographyTokens {
         )
 }
 
-private const val DefaultIncludeFontPadding = true
+private const val DefaultIncludeFontPadding = false
 
 @Suppress("DEPRECATION")
 internal val DefaultTextStyle = TextStyle.Default.copy(
