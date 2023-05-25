@@ -1593,6 +1593,10 @@ class TaskCapabilityImplTest {
             )
         }
 
+        public override fun setExecutionSessionFactory(
+            sessionFactory: (hostProperties: HostProperties?) -> ExecutionSession
+        ) = super.setExecutionSessionFactory(sessionFactory)
+
         override val sessionBridge: SessionBridge<
             ExecutionSession,
             Arguments,

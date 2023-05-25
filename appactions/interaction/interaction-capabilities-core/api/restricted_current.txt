@@ -17,7 +17,7 @@ package androidx.appactions.interaction.capabilities.core {
     method public androidx.appactions.interaction.capabilities.core.Capability build();
     method public final BuilderT setExecutionCallback(androidx.appactions.interaction.capabilities.core.ExecutionCallback<ArgumentsT,OutputT> executionCallback);
     method public final BuilderT setExecutionCallback(androidx.appactions.interaction.capabilities.core.ExecutionCallbackAsync<ArgumentsT,OutputT> executionCallbackAsync);
-    method public BuilderT setExecutionSessionFactory(kotlin.jvm.functions.Function1<? super androidx.appactions.interaction.capabilities.core.HostProperties,? extends ExecutionSessionT> sessionFactory);
+    method protected BuilderT setExecutionSessionFactory(kotlin.jvm.functions.Function1<? super androidx.appactions.interaction.capabilities.core.HostProperties,? extends ExecutionSessionT> sessionFactory);
     method public final BuilderT setId(String id);
   }
 
