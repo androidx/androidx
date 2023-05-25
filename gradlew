@@ -26,7 +26,6 @@ ORG_GRADLE_JVMARGS="$(cd $SCRIPT_PATH && grep org.gradle.jvmargs gradle.properti
 if [ -n "$DIST_DIR" ]; then
     mkdir -p "$DIST_DIR"
     DIST_DIR="$(cd $DIST_DIR && pwd -P)"
-    export LINT_PRINT_STACKTRACE=true
 
     #Set the initial heap size to match the max heap size,
     #by replacing a string like "-Xmx1g" with one like "-Xms1g -Xmx1g"
