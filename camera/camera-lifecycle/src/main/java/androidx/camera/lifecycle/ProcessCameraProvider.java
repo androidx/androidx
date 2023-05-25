@@ -303,7 +303,6 @@ public final class ProcessCameraProvider implements LifecycleCameraProvider {
      * @return A {@link ListenableFuture} representing the shutdown status. Cancellation of this
      * future is a no-op.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @VisibleForTesting
     @NonNull
     public ListenableFuture<Void> shutdownAsync() {
