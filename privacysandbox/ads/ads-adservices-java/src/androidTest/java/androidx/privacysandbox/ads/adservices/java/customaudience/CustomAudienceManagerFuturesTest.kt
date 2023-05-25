@@ -52,7 +52,6 @@ import org.mockito.invocation.InvocationOnMock
 @SmallTest
 @SuppressWarnings("NewApi")
 @RunWith(AndroidJUnit4::class)
-@SdkSuppress(minSdkVersion = 30)
 class CustomAudienceManagerFuturesTest {
 
     @Before
@@ -61,7 +60,7 @@ class CustomAudienceManagerFuturesTest {
     }
 
     @Test
-    @SdkSuppress(maxSdkVersion = 33, minSdkVersion = 30)
+    @SdkSuppress(maxSdkVersion = 33)
     fun testOlderVersions() {
         val sdkExtVersion = SdkExtensions.getExtensionVersion(SdkExtensions.AD_SERVICES)
 
@@ -123,7 +122,6 @@ class CustomAudienceManagerFuturesTest {
         verifyLeaveCustomAudienceRequest(captor.value)
     }
 
-    @SdkSuppress(minSdkVersion = 30)
     @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 4)
     companion object {
         private lateinit var mContext: Context

@@ -42,7 +42,6 @@ import org.mockito.invocation.InvocationOnMock
 @SmallTest
 @SuppressWarnings("NewApi")
 @RunWith(AndroidJUnit4::class)
-@SdkSuppress(minSdkVersion = 30)
 class AdIdManagerTest {
 
     @Before
@@ -51,7 +50,7 @@ class AdIdManagerTest {
     }
 
     @Test
-    @SdkSuppress(maxSdkVersion = 33, minSdkVersion = 30)
+    @SdkSuppress(maxSdkVersion = 33)
     fun testAdIdOlderVersions() {
         val sdkExtVersion = SdkExtensions.getExtensionVersion(SdkExtensions.AD_SERVICES)
         assumeTrue("maxSdkVersion = API 33 ext 3", sdkExtVersion < 4)
@@ -80,7 +79,6 @@ class AdIdManagerTest {
         verifyResponse(result)
     }
 
-    @SdkSuppress(minSdkVersion = 30)
     @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 4)
     companion object {
         private lateinit var mContext: Context

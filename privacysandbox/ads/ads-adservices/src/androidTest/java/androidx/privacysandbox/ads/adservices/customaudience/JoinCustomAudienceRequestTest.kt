@@ -21,7 +21,6 @@ import androidx.privacysandbox.ads.adservices.common.AdData
 import androidx.privacysandbox.ads.adservices.common.AdSelectionSignals
 import androidx.privacysandbox.ads.adservices.common.AdTechIdentifier
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth
 import java.time.Instant
@@ -30,7 +29,6 @@ import org.junit.runner.RunWith
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
-@SdkSuppress(minSdkVersion = 26)
 class JoinCustomAudienceRequestTest {
     private val uri: Uri = Uri.parse("abc.com")
     private val buyer: AdTechIdentifier = AdTechIdentifier("1234")
