@@ -22,6 +22,7 @@ import android.os.Handler
 import android.os.HandlerThread
 import android.view.Surface
 import androidx.annotation.VisibleForTesting
+import androidx.camera.core.DynamicRange
 import androidx.camera.core.SurfaceOutput
 import androidx.camera.core.SurfaceProcessor
 import androidx.camera.core.SurfaceRequest
@@ -82,7 +83,7 @@ class ToneMappingSurfaceProcessor : SurfaceProcessor, OnFrameAvailableListener {
         glHandler = Handler(glThread.looper)
         glExecutor = newHandlerExecutor(glHandler)
         glExecutor.execute {
-            glRenderer.init(TONE_MAPPING_SHADER_PROVIDER)
+            glRenderer.init(DynamicRange.SDR, TONE_MAPPING_SHADER_PROVIDER)
         }
     }
 
