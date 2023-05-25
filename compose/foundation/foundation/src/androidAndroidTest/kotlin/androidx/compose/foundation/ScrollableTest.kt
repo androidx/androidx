@@ -2237,6 +2237,7 @@ class ScrollableTest {
                 "reverseDirection",
                 "flingBehavior",
                 "interactionSource",
+                "scrollableBringIntoViewConfig",
             )
         }
     }
