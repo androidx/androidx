@@ -237,45 +237,48 @@ class ParagraphLayoutCacheTest {
     @Test
     fun slowCreate_null_beforeLayout() {
         val text = "hello"
+        val style = createTextStyle(fontSize = 1.sp)
         val subject = ParagraphLayoutCache(
             text,
-            createTextStyle(fontSize = 1.sp),
+            style,
             fontFamilyResolver
         ).also {
             it.density = density
         }
 
-        assertThat(subject.slowCreateTextLayoutResultOrNull()).isNull()
+        assertThat(subject.slowCreateTextLayoutResultOrNull(style = style)).isNull()
     }
 
     @Test
     fun slowCreate_not_null_afterLayout() {
         val text = "hello"
+        val style = createTextStyle(fontSize = 1.sp)
         val subject = ParagraphLayoutCache(
             text,
-            createTextStyle(fontSize = 1.sp),
+            style,
             fontFamilyResolver
         ).also {
             it.density = density
         }
 
         subject.layoutWithConstraints(Constraints(), LayoutDirection.Ltr)
-        assertThat(subject.slowCreateTextLayoutResultOrNull()).isNotNull()
+        assertThat(subject.slowCreateTextLayoutResultOrNull(style = style)).isNotNull()
     }
 
     @Test
     fun slowCreate_not_null_afterLayout_minWidthMinHeight() {
         val text = "hello"
+        val style = createTextStyle(fontSize = 1.sp)
         val subject = ParagraphLayoutCache(
             text,
-            createTextStyle(fontSize = 1.sp),
+            style,
             fontFamilyResolver
         ).also {
             it.density = density
         }
 
         subject.layoutWithConstraints(Constraints(minWidth = 5, minHeight = 5), LayoutDirection.Ltr)
-        assertThat(subject.slowCreateTextLayoutResultOrNull()).isNotNull()
+        assertThat(subject.slowCreateTextLayoutResultOrNull(style = style)).isNotNull()
     }
 
     private fun createTextStyle(
