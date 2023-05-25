@@ -73,6 +73,7 @@ import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import java.util.concurrent.Executors
 import kotlin.coroutines.CoroutineContext
+import kotlin.test.assertEquals
 import kotlinx.coroutines.asCoroutineDispatcher
 import org.junit.Before
 import org.junit.Test
@@ -501,7 +502,7 @@ class HitPathTrackerTest {
         hitPathTracker.dispatchChanges(internalPointerEvent)
 
         PointerInputChangeSubject
-            .assertThat(internalPointerEvent.changes.values.first())
+            .assertThat(internalPointerEvent.changes.valueAt(0))
             .isStructurallyEqualTo(down(5))
     }
 
@@ -523,7 +524,7 @@ class HitPathTrackerTest {
         hitPathTracker.dispatchChanges(internalPointerEvent)
 
         PointerInputChangeSubject
-            .assertThat(internalPointerEvent.changes.values.first())
+            .assertThat(internalPointerEvent.changes.valueAt(0))
             .isStructurallyEqualTo(down(13).apply { if (pressed != previousPressed) consume() })
     }
 
@@ -629,7 +630,7 @@ class HitPathTrackerTest {
         assertThat(log1[5].pass).isEqualTo(PointerEventPass.Main)
 
         PointerInputChangeSubject
-            .assertThat(internalPointerEvent.changes.values.first())
+            .assertThat(internalPointerEvent.changes.valueAt(0))
             .isStructurallyEqualTo(
                 consumedExpectedChange
             )
@@ -771,14 +772,14 @@ class HitPathTrackerTest {
             )
         assertThat(log2[3].pass).isEqualTo(PointerEventPass.Main)
 
-        assertThat(internalPointerEvent.changes).hasSize(2)
+        assertEquals(2, internalPointerEvent.changes.size())
         PointerInputChangeSubject
-            .assertThat(internalPointerEvent.changes[actualEvent1.id])
+            .assertThat(internalPointerEvent.changes[actualEvent1.id.value])
             .isStructurallyEqualTo(
                 consumedExpectedEvent1
             )
         PointerInputChangeSubject
-            .assertThat(internalPointerEvent.changes[actualEvent2.id])
+            .assertThat(internalPointerEvent.changes[actualEvent2.id.value])
             .isStructurallyEqualTo(
                 consumedExpectedEvent2
             )
@@ -882,13 +883,13 @@ class HitPathTrackerTest {
             )
         assertThat(log1[5].pass).isEqualTo(PointerEventPass.Main)
 
-        assertThat(internalPointerEvent.changes).hasSize(2)
+        assertEquals(2, internalPointerEvent.changes.size())
         PointerInputChangeSubject
-            .assertThat(internalPointerEvent.changes[actualEvent1.id])
+            .assertThat(internalPointerEvent.changes[actualEvent1.id.value])
             .isStructurallyEqualTo(consumedEvent1)
 
         PointerInputChangeSubject
-            .assertThat(internalPointerEvent.changes[actualEvent2.id])
+            .assertThat(internalPointerEvent.changes[actualEvent2.id.value])
             .isStructurallyEqualTo(consumedEvent2)
     }
 
@@ -971,14 +972,14 @@ class HitPathTrackerTest {
             )
         assertThat(log1[3].pass).isEqualTo(PointerEventPass.Main)
 
-        assertThat(internalPointerEvent.changes).hasSize(2)
+        assertEquals(2, internalPointerEvent.changes.size())
         PointerInputChangeSubject
-            .assertThat(internalPointerEvent.changes[actualEvent1.id])
+            .assertThat(internalPointerEvent.changes[actualEvent1.id.value])
             .isStructurallyEqualTo(
                 consumedEvent1
             )
         PointerInputChangeSubject
-            .assertThat(internalPointerEvent.changes[actualEvent2.id])
+            .assertThat(internalPointerEvent.changes[actualEvent2.id.value])
             .isStructurallyEqualTo(
                 consumedEvent2
             )
@@ -3537,8 +3538,8 @@ class HitPathTrackerTest {
             return false
         }
         var check = true
-        actualNode.pointerIds.forEach {
-            check = check && expectedNode.pointerIds.contains(it)
+        for (i in 0 until actualNode.pointerIds.size) {
+            check = check && expectedNode.pointerIds.contains(actualNode.pointerIds[i])
         }
         if (!check) {
             return false
