@@ -45,6 +45,9 @@ android {
             signingConfig signingConfigs.config
         }
     }
+    compileOptions {
+        coreLibraryDesugaringEnabled = true
+    }
 }
 
 dependencies {
@@ -72,6 +75,8 @@ dependencies {
     androidTestImplementation(libs.espressoCore, excludes.espresso)
     androidTestImplementation(project(":window:window-testing"))
     androidTestImplementation(project(":window:window-demos:demo-common"))
+
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:1.2.2")
 }
 
 // Allow usage of Kotlin's @OptIn.
