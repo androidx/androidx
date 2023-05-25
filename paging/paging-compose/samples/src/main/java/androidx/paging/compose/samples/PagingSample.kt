@@ -81,7 +81,6 @@ fun PagingBackendSample() {
     }
 }
 
-@Sampled
 @Composable
 fun ItemsDemo(flow: Flow<PagingData<String>>) {
     val lazyPagingItems = flow.collectAsLazyPagingItems()
@@ -96,7 +95,6 @@ fun ItemsDemo(flow: Flow<PagingData<String>>) {
     }
 }
 
-@Sampled
 @Composable
 fun ItemsIndexedDemo(flow: Flow<PagingData<String>>) {
     val lazyPagingItems = flow.collectAsLazyPagingItems()
