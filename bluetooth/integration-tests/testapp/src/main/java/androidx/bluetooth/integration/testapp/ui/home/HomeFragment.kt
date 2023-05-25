@@ -36,7 +36,7 @@ import androidx.bluetooth.integration.testapp.experimental.BluetoothLe
 import androidx.bluetooth.integration.testapp.experimental.GattServerCallback
 import androidx.bluetooth.integration.testapp.ui.common.ScanResultAdapter
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.viewModels
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -54,11 +54,9 @@ class HomeFragment : Fragment() {
 
     private lateinit var bluetoothLe: BluetoothLe
 
-    private lateinit var mHomeViewModel: HomeViewModel
+    private val viewModel: HomeViewModel by viewModels()
 
     private var _binding: FragmentHomeBinding? = null
-
-    // This property is only valid between onCreateView and onDestroyView.
     private val binding get() = _binding!!
 
     override fun onCreateView(
@@ -66,8 +64,6 @@ class HomeFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        mHomeViewModel = ViewModelProvider(this)[HomeViewModel::class.java]
-
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -132,9 +128,9 @@ class HomeFragment : Fragment() {
                     Log.d(TAG, "ScanResult collected: $it")
 
                     if (it.scanRecord?.serviceUuids?.isEmpty() == false)
-                        mHomeViewModel.scanResults[it.device.address] = it
-                    scanResultAdapter?.submitList(mHomeViewModel.scanResults.values.toMutableList())
-                    scanResultAdapter?.notifyItemInserted(mHomeViewModel.scanResults.size)
+                        viewModel.scanResults[it.device.address] = it
+                    scanResultAdapter?.submitList(viewModel.scanResults.values.toMutableList())
+                    scanResultAdapter?.notifyItemInserted(viewModel.scanResults.size)
                 }
         }
     }
