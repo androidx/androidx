@@ -25,7 +25,6 @@ import androidx.privacysandbox.ads.adservices.topics.GetTopicsRequest;
 import androidx.privacysandbox.ads.adservices.topics.GetTopicsResponse;
 import androidx.privacysandbox.ads.adservices.topics.Topic;
 import androidx.test.core.app.ApplicationProvider;
-import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.junit.After;
@@ -38,7 +37,6 @@ import org.junit.runners.JUnit4;
 import java.util.Arrays;
 
 @RunWith(JUnit4.class)
-@SdkSuppress(minSdkVersion = 28) // API 28 required for device_config used by this test
 // TODO: Consider refactoring so that we're not duplicating code.
 public class TopicsManagerTest {
     private static final String TAG = "TopicsManagerTest";
