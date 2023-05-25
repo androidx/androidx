@@ -48,7 +48,6 @@ import org.mockito.invocation.InvocationOnMock
 @SmallTest
 @SuppressWarnings("NewApi")
 @RunWith(AndroidJUnit4::class)
-@SdkSuppress(minSdkVersion = 30)
 class TopicsManagerFuturesTest {
 
     @Before
@@ -57,7 +56,7 @@ class TopicsManagerFuturesTest {
     }
 
     @Test
-    @SdkSuppress(maxSdkVersion = 33, minSdkVersion = 30)
+    @SdkSuppress(maxSdkVersion = 33)
     fun testTopicsOlderVersions() {
         val sdkExtVersion = SdkExtensions.getExtensionVersion(SdkExtensions.AD_SERVICES)
 

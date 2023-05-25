@@ -40,7 +40,6 @@ import androidx.privacysandbox.ads.adservices.internal.AdServicesInfo;
 import androidx.privacysandbox.ads.adservices.java.adselection.AdSelectionManagerFutures;
 import androidx.privacysandbox.ads.adservices.java.customaudience.CustomAudienceManagerFutures;
 import androidx.test.core.app.ApplicationProvider;
-import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
 
 import com.google.common.collect.ImmutableList;
@@ -67,7 +66,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-@SdkSuppress(minSdkVersion = 28) // API 28 is the lowest level supporting device_config used by this test
 public class FledgeCtsDebuggableTest {
     protected static final Context sContext = ApplicationProvider.getApplicationContext();
     private static final String TAG = "FledgeCtsDebuggableTest";
