@@ -36,7 +36,6 @@ dependencies {
 androidx {
     name = "Paging Compose Samples"
     type = LibraryType.SAMPLES
-    mavenVersion = LibraryVersions.PAGING_COMPOSE
     inceptionYear = "2020"
     description = "Contains the sample code for the Androidx Paging library compose interop"
 }
