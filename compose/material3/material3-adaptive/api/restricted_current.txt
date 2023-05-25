@@ -40,6 +40,17 @@ package androidx.compose.material3.adaptive {
     property public final float outerVertical;
   }
 
+  @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi @kotlin.jvm.JvmInline public final value class PaneAdaptedState {
+    field public static final androidx.compose.material3.adaptive.PaneAdaptedState.Companion Companion;
+  }
+
+  public static final class PaneAdaptedState.Companion {
+    method public String getExpanded();
+    method public String getHidden();
+    property public final String Expanded;
+    property public final String Hidden;
+  }
+
   @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi public interface PaneScaffoldScope {
     method public androidx.compose.ui.Modifier preferredWidth(androidx.compose.ui.Modifier, float width);
   }
@@ -70,6 +81,16 @@ package androidx.compose.material3.adaptive {
     enum_constant public static final androidx.compose.material3.adaptive.ThreePaneScaffoldRole Primary;
     enum_constant public static final androidx.compose.material3.adaptive.ThreePaneScaffoldRole Secondary;
     enum_constant public static final androidx.compose.material3.adaptive.ThreePaneScaffoldRole Tertiary;
+  }
+
+  @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi public final class ThreePaneScaffoldState {
+    ctor public ThreePaneScaffoldState(String primaryPaneAdaptedState, String secondaryPaneAdaptedState, String tertiaryPaneAdaptedState);
+    method public String getPrimaryPaneAdaptedState();
+    method public String getSecondaryPaneAdaptedState();
+    method public String getTertiaryPaneAdaptedState();
+    property public final String primaryPaneAdaptedState;
+    property public final String secondaryPaneAdaptedState;
+    property public final String tertiaryPaneAdaptedState;
   }
 
   @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi public final class WindowAdaptiveInfo {
