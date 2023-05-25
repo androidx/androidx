@@ -18,6 +18,7 @@ package androidx.appactions.interaction.service.testing.internal
 
 import androidx.appactions.interaction.capabilities.core.BaseExecutionSession
 import androidx.appactions.interaction.capabilities.core.Capability
+import androidx.appactions.interaction.capabilities.core.HostProperties
 import androidx.appactions.interaction.capabilities.core.ValueListener
 import androidx.appactions.interaction.capabilities.core.impl.BuilderOf
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
@@ -70,6 +71,10 @@ class FakeCapability private constructor() {
             }
             builder.build()
         }
+
+        public override fun setExecutionSessionFactory(
+            sessionFactory: (hostProperties: HostProperties?) -> ExecutionSession
+        ) = super.setExecutionSessionFactory(sessionFactory)
 
         fun setFieldOne(fieldOne: Property<StringValue>) = setProperty(
             "fieldOne",
