@@ -21,6 +21,10 @@
     <string name="title_scanner">Scanner</string>
     <string name="title_advertiser">Advertiser</string>
 
+    <!-- Main -->
+    <string name="bluetooth_is_disabled">Bluetooth is disabled</string>
+    <string name="enable">Enable</string>
+
     <!-- Scanner -->
     <string name="start_scanning">Start Scanning</string>
     <string name="stop_scanning">Stop scanning</string>
