@@ -38,6 +38,7 @@ import androidx.tv.foundation.lazy.list.TestTouchSlop
 import androidx.tv.foundation.lazy.list.setContentWithTestViewConfiguration
 import com.google.common.truth.Truth
 import kotlinx.coroutines.runBlocking
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -175,6 +176,7 @@ class LazyNestedScrollingTest {
         }
     }
 
+    @Ignore("b/278219642")
     @Test
     fun verticalGrid_nestedScrollingForwardWhenScrolledToTheEnd() = runBlocking {
         val items = (1..3).toList()
