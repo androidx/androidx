@@ -25,6 +25,7 @@ import androidx.camera.camera2.pipe.FrameInfo
 import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.MetadataTransform
 import androidx.camera.camera2.pipe.Request
+import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -32,6 +33,7 @@ import org.junit.runners.JUnit4
 import org.robolectric.annotation.Config
 
 @RunWith(JUnit4::class)
+@SdkSuppress(minSdkVersion = 21)
 public class MetadataTest {
     @Test
     public fun testMetadataCanRetrieveValues() {
