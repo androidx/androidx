@@ -50,6 +50,9 @@ application@android:debuggable was tagged at .*\.xml:[0-9]+ to replace other dec
 \$OUT_DIR/androidx/benchmark/integration\-tests/dry\-run\-benchmark/build/intermediates/tmp/manifest/androidTest/release/tempFile[0-9]+ProcessTestManifest[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 # > Task :compose:runtime:runtime-saveable:processDebugAndroidTestManifest
 \$SUPPORT/compose/runtime/runtime\-saveable/src/androidAndroidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+# Usage of android.overrideVersionCheck
+Minimum supported Gradle version is [0-9]+\.[0-9]+\. Current version is [0-9]+\.[0-9]+\. If using the gradle wrapper\, try editing the distributionUrl in \$SUPPORT\/gradle\/wrapper\/gradle\-wrapper\.properties to gradle.*
+As android\.overrideVersionCheck is set, continuing anyway\.
 # > Task :buildOnServer
 [0-9]+ actionable tasks: [0-9]+ executed, [0-9]+ up\-to\-date
 Configuration cache entry reused with [0-9]+ problems\.
