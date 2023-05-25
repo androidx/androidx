@@ -5560,61 +5560,70 @@ public class WatchFaceServiceTest {
     public fun onActionScreenOff_preR() {
         Settings.Global.putInt(context.contentResolver, BroadcastsObserver.AMBIENT_ENABLED_PATH, 1)
 
-        testWatchFaceService =
-            TestWatchFaceService(
-                WatchFaceType.DIGITAL,
-                emptyList(),
-                { _, currentUserStyleRepository, watchState ->
-                    TestRenderer(
-                        surfaceHolder,
-                        currentUserStyleRepository,
-                        watchState,
-                        INTERACTIVE_UPDATE_RATE_MS
-                    )
-                },
-                UserStyleSchema(emptyList()),
-                watchState,
-                handler,
+        initWallpaperInteractiveWatchFaceInstance(
+            WatchFaceType.ANALOG,
+            emptyList(),
+            UserStyleSchema(emptyList()),
+            WallpaperInteractiveWatchFaceInstanceParams(
+                INTERACTIVE_INSTANCE_ID,
+                DeviceConfig(false, false, 0, 0),
+                WatchUiState(false, 0),
+                UserStyle(emptyMap()).toWireFormat(),
                 null,
                 null,
-                choreographer
+                null
             )
-
-        InteractiveInstanceManager
-            .getExistingInstanceOrSetPendingWallpaperInteractiveWatchFaceInstance(
-                InteractiveInstanceManager.PendingWallpaperInteractiveWatchFaceInstance(
-                    WallpaperInteractiveWatchFaceInstanceParams(
-                        "TestID",
-                        DeviceConfig(false, false, 0, 0),
-                        WatchUiState(false, 0),
-                        UserStyle(emptyMap()).toWireFormat(),
-                        emptyList(),
-                        null,
-                        null
-                    ),
-                    object : IPendingInteractiveWatchFace.Stub() {
-                        override fun getApiVersion() = IPendingInteractiveWatchFace.API_VERSION
-
-                        override fun onInteractiveWatchFaceCreated(
-                            iInteractiveWatchFace: IInteractiveWatchFace
-                        ) {
-                            interactiveWatchFaceInstance = iInteractiveWatchFace
-                        }
-
-                        override fun onInteractiveWatchFaceCrashed(exception: CrashInfoParcel?) {
-                            fail("WatchFace crashed: $exception")
-                        }
-                    }
-                )
-            )
-
-        engineWrapper = testWatchFaceService.onCreateEngine() as WatchFaceService.EngineWrapper
-        engineWrapper.onCreate(surfaceHolder)
-        engineWrapper.onSurfaceChanged(surfaceHolder, 0, 100, 100)
-
-        watchFaceImpl = engineWrapper.getWatchFaceImplOrNull()!!
+        )
 
         watchFaceImpl.broadcastsObserver.onActionScreenOff()
+        assertThat(watchState.isAmbient.value).isFalse()
+    }
+
+    @Test
+    @Config(sdk = [Build.VERSION_CODES.TIRAMISU])
+    public fun ambient_powerConnected() {
+        initWallpaperInteractiveWatchFaceInstance(
+            WatchFaceType.ANALOG,
+            emptyList(),
+            UserStyleSchema(emptyList()),
+            WallpaperInteractiveWatchFaceInstanceParams(
+                INTERACTIVE_INSTANCE_ID,
+                DeviceConfig(false, false, 0, 0),
+                WatchUiState(false, 0),
+                UserStyle(emptyMap()).toWireFormat(),
+                null,
+                null,
+                null
+            )
+        )
+
+        watchFaceImpl.broadcastsObserver.onActionAmbientStarted()
+        assertThat(watchState.isAmbient.value).isTrue()
+
+        watchFaceImpl.broadcastsObserver.onActionPowerConnected()
+        assertThat(watchState.isAmbient.value).isFalse()
+    }
+
+    @Test
+    @Config(sdk = [Build.VERSION_CODES.TIRAMISU])
+    public fun onActionAmbientStarted_whileCharging() {
+        initWallpaperInteractiveWatchFaceInstance(
+            WatchFaceType.ANALOG,
+            emptyList(),
+            UserStyleSchema(emptyList()),
+            WallpaperInteractiveWatchFaceInstanceParams(
+                INTERACTIVE_INSTANCE_ID,
+                DeviceConfig(false, false, 0, 0),
+                WatchUiState(false, 0),
+                UserStyle(emptyMap()).toWireFormat(),
+                null,
+                null,
+                null
+            )
+        )
+
+        watchFaceImpl.broadcastsObserver.onActionPowerConnected()
+        watchFaceImpl.broadcastsObserver.onActionAmbientStarted()
         assertThat(watchState.isAmbient.value).isFalse()
     }
 
@@ -5623,59 +5632,20 @@ public class WatchFaceServiceTest {
     public fun onActionScreenOff_ambientNotEnabled() {
         Settings.Global.putInt(context.contentResolver, BroadcastsObserver.AMBIENT_ENABLED_PATH, 0)
 
-        testWatchFaceService =
-            TestWatchFaceService(
-                WatchFaceType.DIGITAL,
-                emptyList(),
-                { _, currentUserStyleRepository, watchState ->
-                    TestRenderer(
-                        surfaceHolder,
-                        currentUserStyleRepository,
-                        watchState,
-                        INTERACTIVE_UPDATE_RATE_MS
-                    )
-                },
-                UserStyleSchema(emptyList()),
-                watchState,
-                handler,
+        initWallpaperInteractiveWatchFaceInstance(
+            WatchFaceType.ANALOG,
+            emptyList(),
+            UserStyleSchema(emptyList()),
+            WallpaperInteractiveWatchFaceInstanceParams(
+                INTERACTIVE_INSTANCE_ID,
+                DeviceConfig(false, false, 0, 0),
+                WatchUiState(false, 0),
+                UserStyle(emptyMap()).toWireFormat(),
                 null,
                 null,
-                choreographer
+                null
             )
-
-        InteractiveInstanceManager
-            .getExistingInstanceOrSetPendingWallpaperInteractiveWatchFaceInstance(
-                InteractiveInstanceManager.PendingWallpaperInteractiveWatchFaceInstance(
-                    WallpaperInteractiveWatchFaceInstanceParams(
-                        "TestID",
-                        DeviceConfig(false, false, 0, 0),
-                        WatchUiState(false, 0),
-                        UserStyle(emptyMap()).toWireFormat(),
-                        emptyList(),
-                        null,
-                        null
-                    ),
-                    object : IPendingInteractiveWatchFace.Stub() {
-                        override fun getApiVersion() = IPendingInteractiveWatchFace.API_VERSION
-
-                        override fun onInteractiveWatchFaceCreated(
-                            iInteractiveWatchFace: IInteractiveWatchFace
-                        ) {
-                            interactiveWatchFaceInstance = iInteractiveWatchFace
-                        }
-
-                        override fun onInteractiveWatchFaceCrashed(exception: CrashInfoParcel?) {
-                            fail("WatchFace crashed: $exception")
-                        }
-                    }
-                )
-            )
-
-        engineWrapper = testWatchFaceService.onCreateEngine() as WatchFaceService.EngineWrapper
-        engineWrapper.onCreate(surfaceHolder)
-        engineWrapper.onSurfaceChanged(surfaceHolder, 0, 100, 100)
-
-        watchFaceImpl = engineWrapper.getWatchFaceImplOrNull()!!
+        )
 
         watchFaceImpl.broadcastsObserver.onActionScreenOff()
         assertThat(watchState.isAmbient.value).isFalse()
@@ -5684,59 +5654,20 @@ public class WatchFaceServiceTest {
     @Test
     @Config(sdk = [Build.VERSION_CODES.R])
     public fun onActionAmbientStarted_onActionAmbientStopped_ambientEnabled() {
-        testWatchFaceService =
-            TestWatchFaceService(
-                WatchFaceType.DIGITAL,
-                emptyList(),
-                { _, currentUserStyleRepository, watchState ->
-                    TestRenderer(
-                        surfaceHolder,
-                        currentUserStyleRepository,
-                        watchState,
-                        INTERACTIVE_UPDATE_RATE_MS
-                    )
-                },
-                UserStyleSchema(emptyList()),
-                watchState,
-                handler,
+        initWallpaperInteractiveWatchFaceInstance(
+            WatchFaceType.ANALOG,
+            emptyList(),
+            UserStyleSchema(emptyList()),
+            WallpaperInteractiveWatchFaceInstanceParams(
+                INTERACTIVE_INSTANCE_ID,
+                DeviceConfig(false, false, 0, 0),
+                WatchUiState(false, 0),
+                UserStyle(emptyMap()).toWireFormat(),
                 null,
                 null,
-                choreographer
+                null
             )
-
-        InteractiveInstanceManager
-            .getExistingInstanceOrSetPendingWallpaperInteractiveWatchFaceInstance(
-                InteractiveInstanceManager.PendingWallpaperInteractiveWatchFaceInstance(
-                    WallpaperInteractiveWatchFaceInstanceParams(
-                        "TestID",
-                        DeviceConfig(false, false, 0, 0),
-                        WatchUiState(false, 0),
-                        UserStyle(emptyMap()).toWireFormat(),
-                        emptyList(),
-                        null,
-                        null
-                    ),
-                    object : IPendingInteractiveWatchFace.Stub() {
-                        override fun getApiVersion() = IPendingInteractiveWatchFace.API_VERSION
-
-                        override fun onInteractiveWatchFaceCreated(
-                            iInteractiveWatchFace: IInteractiveWatchFace
-                        ) {
-                            interactiveWatchFaceInstance = iInteractiveWatchFace
-                        }
-
-                        override fun onInteractiveWatchFaceCrashed(exception: CrashInfoParcel?) {
-                            fail("WatchFace crashed: $exception")
-                        }
-                    }
-                )
-            )
-
-        engineWrapper = testWatchFaceService.onCreateEngine() as WatchFaceService.EngineWrapper
-        engineWrapper.onCreate(surfaceHolder)
-        engineWrapper.onSurfaceChanged(surfaceHolder, 0, 100, 100)
-
-        watchFaceImpl = engineWrapper.getWatchFaceImplOrNull()!!
+        )
 
         watchFaceImpl.broadcastsObserver.onActionAmbientStarted()
         assertThat(watchState.isAmbient.value).isTrue()
@@ -5759,60 +5690,21 @@ public class WatchFaceServiceTest {
     @Test
     @Config(sdk = [Build.VERSION_CODES.R])
     public fun onActionTimeTick() {
-        testWatchFaceService =
-            TestWatchFaceService(
-                WatchFaceType.DIGITAL,
-                emptyList(),
-                { _, currentUserStyleRepository, watchState ->
-                    TestRenderer(
-                        surfaceHolder,
-                        currentUserStyleRepository,
-                        watchState,
-                        INTERACTIVE_UPDATE_RATE_MS
-                    )
-                },
-                UserStyleSchema(emptyList()),
-                watchState,
-                handler,
+        initWallpaperInteractiveWatchFaceInstance(
+            WatchFaceType.ANALOG,
+            emptyList(),
+            UserStyleSchema(emptyList()),
+            WallpaperInteractiveWatchFaceInstanceParams(
+                INTERACTIVE_INSTANCE_ID,
+                DeviceConfig(false, false, 0, 0),
+                WatchUiState(false, 0),
+                UserStyle(emptyMap()).toWireFormat(),
                 null,
                 null,
-                choreographer
+                null
             )
+        )
 
-        InteractiveInstanceManager
-            .getExistingInstanceOrSetPendingWallpaperInteractiveWatchFaceInstance(
-                InteractiveInstanceManager.PendingWallpaperInteractiveWatchFaceInstance(
-                    WallpaperInteractiveWatchFaceInstanceParams(
-                        "TestID",
-                        DeviceConfig(false, false, 0, 0),
-                        WatchUiState(false, 0),
-                        UserStyle(emptyMap()).toWireFormat(),
-                        emptyList(),
-                        null,
-                        null
-                    ),
-                    object : IPendingInteractiveWatchFace.Stub() {
-                        override fun getApiVersion() = IPendingInteractiveWatchFace.API_VERSION
-
-                        override fun onInteractiveWatchFaceCreated(
-                            iInteractiveWatchFace: IInteractiveWatchFace
-                        ) {
-                            interactiveWatchFaceInstance = iInteractiveWatchFace
-                        }
-
-                        override fun onInteractiveWatchFaceCrashed(exception: CrashInfoParcel?) {
-                            fail("WatchFace crashed: $exception")
-                        }
-                    }
-                )
-            )
-
-        engineWrapper = testWatchFaceService.onCreateEngine() as WatchFaceService.EngineWrapper
-        engineWrapper.onCreate(surfaceHolder)
-        engineWrapper.onSurfaceChanged(surfaceHolder, 0, 100, 100)
-        engineWrapper.onVisibilityChanged(true)
-
-        watchFaceImpl = engineWrapper.getWatchFaceImplOrNull()!!
         watchState.isAmbient.value = true
 
         val renderer = watchFaceImpl.renderer as TestRenderer
