@@ -85,8 +85,8 @@ public class TopicsManagerTest {
 
     @Test
     public void testTopicsManager_runClassifier() throws Exception {
-        // Skip the test if SDK extension 5 is not present.
-        Assume.assumeTrue(AdServicesInfo.INSTANCE.version() >= 5);
+        // Skip the test if SDK extension 4 is not present.
+        Assume.assumeTrue(AdServicesInfo.INSTANCE.version() >= 4);
 
         TopicsManagerFutures topicsManager =
                 TopicsManagerFutures.from(ApplicationProvider.getApplicationContext());
