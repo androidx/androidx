@@ -75,6 +75,7 @@ public class DimensionBuildersTest {
         assertThrows(IllegalStateException.class, DP_PROP_WITHOUT_STATIC_VALUE::build);
     }
 
+    @Test
     public void degreesPropSupportsDynamicValue() {
         DimensionProto.DegreesProp degreesPropProto = DEGREES_PROP.toProto();
 
