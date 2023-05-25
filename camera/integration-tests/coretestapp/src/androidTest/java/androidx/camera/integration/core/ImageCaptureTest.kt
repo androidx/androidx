@@ -1595,7 +1595,7 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
         imageCapture.takePicture(mainExecutor, callback1)
         try {
             callback1.awaitCapturesAndAssert(capturedImagesCount = 1)
-        } catch (e: Exception) {
+        } catch (e: AssertionError) {
             assumeNoException("image capture failed, camera might not have started yet", e)
         }
 
