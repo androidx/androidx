@@ -97,7 +97,7 @@ constructor(
         lastCameraError = null
         val camera = virtualCameraManager.open(
             config.camera,
-            config.flags.allowMultipleActiveCameras,
+            config.sharedCameraIds,
             graphListener,
         ) { _ -> isForeground }
 

@@ -15,7 +15,6 @@ limitations under the License.
 
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:background="@color/cameraPipeThemeBgDark100"
@@ -60,16 +59,6 @@ limitations under the License.
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <androidx.camera.integration.camera2.pipe.Viewfinder
-            android:id="@+id/viewfinder"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="#FFFFFF"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
         <ImageButton
             android:id="@+id/capture_button"
             android:layout_width="150dp"
@@ -80,6 +69,7 @@ limitations under the License.
             android:layout_marginTop="16dp"
             android:adjustViewBounds="false"
             android:background="@drawable/theme_round_button"
+            android:elevation="5dp"
             android:src="@drawable/ic_baseline_photo_camera_24"
             android:visibility="visible"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -92,6 +82,7 @@ limitations under the License.
             android:layout_height="48dp"
             android:layout_marginEnd="8dp"
             android:background="@drawable/theme_round_button"
+            android:elevation="5dp"
             android:src="@drawable/ic_baseline_flip_camera_android_24"
             app:layout_constraintEnd_toStartOf="@+id/capture_button"
             app:layout_constraintTop_toTopOf="@+id/capture_button" />
@@ -102,6 +93,7 @@ limitations under the License.
             android:layout_height="48dp"
             android:layout_marginStart="8dp"
             android:background="@drawable/theme_round_button"
+            android:elevation="5dp"
             android:src="@drawable/ic_outline_info_24"
             app:layout_constraintStart_toEndOf="@+id/capture_button"
             app:layout_constraintTop_toTopOf="@+id/capture_button" />
@@ -116,6 +108,7 @@ limitations under the License.
             android:layout_marginTop="8dp"
             android:background="@drawable/theme_info_panel"
             android:clipToPadding="true"
+            android:elevation="5dp"
             android:fillViewport="true"
             android:scrollbarStyle="insideOverlay"
             android:visibility="invisible"
@@ -141,6 +134,7 @@ limitations under the License.
                     android:textColor="@color/cameraPipeThemeFgLight800"
                     android:textSize="10sp"
                     android:typeface="monospace" />
+
             </LinearLayout>
         </ScrollView>
 
@@ -149,6 +143,7 @@ limitations under the License.
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:background="@color/cameraPipeThemeFgOverlay"
+            android:elevation="3dp"
             android:fontFamily="sans-serif-condensed"
             android:padding="8dp"
             android:textColor="@color/cameraPipeThemeFgLight800"
@@ -157,6 +152,41 @@ limitations under the License.
             app:layout_constraintEnd_toEndOf="@id/viewfinder"
             app:layout_constraintStart_toStartOf="@id/viewfinder"
             app:layout_constraintTop_toTopOf="@id/viewfinder" />
+
+        <TextView
+            android:id="@+id/viewfinder_secondary_text"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:background="@color/cameraPipeThemeFgOverlay"
+            android:elevation="3dp"
+            android:fontFamily="sans-serif-condensed"
+            android:padding="8dp"
+            android:textColor="@color/cameraPipeThemeFgLight800"
+            android:typeface="monospace"
+            android:visibility="invisible"
+            app:layout_constraintEnd_toEndOf="@id/viewfinder_secondary"
+            app:layout_constraintStart_toStartOf="@id/viewfinder_secondary"
+            app:layout_constraintTop_toTopOf="@id/viewfinder_secondary" />
+
+        <androidx.camera.integration.camera2.pipe.Viewfinder
+            android:id="@+id/viewfinder"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="#FFFFFF"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <androidx.camera.integration.camera2.pipe.Viewfinder
+            android:id="@+id/viewfinder_secondary"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="400dp"
+            android:background="#FFFFFF"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

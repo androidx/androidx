@@ -27,6 +27,9 @@ import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraGraph.Constants3A.DEFAULT_FRAME_LIMIT
 import androidx.camera.camera2.pipe.CameraGraph.Constants3A.DEFAULT_TIME_LIMIT_NS
 import androidx.camera.camera2.pipe.CameraGraph.Flags.FinalizeSessionOnCloseBehavior.Companion.OFF
+import androidx.camera.camera2.pipe.CameraGraph.OperatingMode.Companion.EXTENSION
+import androidx.camera.camera2.pipe.CameraGraph.OperatingMode.Companion.HIGH_SPEED
+import androidx.camera.camera2.pipe.CameraGraph.OperatingMode.Companion.NORMAL
 import androidx.camera.camera2.pipe.GraphState.GraphStateStarting
 import androidx.camera.camera2.pipe.GraphState.GraphStateStopped
 import androidx.camera.camera2.pipe.GraphState.GraphStateStopping
@@ -117,7 +120,7 @@ interface CameraGraph : AutoCloseable {
         val input: InputStream.Config? = null,
         val sessionTemplate: RequestTemplate = RequestTemplate(1),
         val sessionParameters: Map<*, Any?> = emptyMap<Any, Any?>(),
-        val sessionMode: OperatingMode = OperatingMode.NORMAL,
+        val sessionMode: OperatingMode = NORMAL,
         val defaultTemplate: RequestTemplate = RequestTemplate(1),
         val defaultParameters: Map<*, Any?> = emptyMap<Any, Any?>(),
         val defaultListeners: List<Request.Listener> = listOf(),
@@ -125,9 +128,11 @@ interface CameraGraph : AutoCloseable {
         val cameraBackendId: CameraBackendId? = null,
         val customCameraBackend: CameraBackendFactory? = null,
         val metadataTransform: MetadataTransform = MetadataTransform(),
-        val flags: Flags = Flags()
+        val flags: Flags = Flags(),
         // TODO: Internal error handling. May be better at the CameraPipe level.
     ) {
+        internal var sharedCameraIds: List<CameraId> = emptyList()
+
         init {
             check(cameraBackendId == null || customCameraBackend == null) {
                 "Setting both cameraBackendId and customCameraBackend is not supported."
@@ -143,7 +148,6 @@ interface CameraGraph : AutoCloseable {
     data class Flags(
         val configureBlankSessionOnStop: Boolean = false,
         val abortCapturesOnStop: Boolean = false,
-        val allowMultipleActiveCameras: Boolean = false,
 
         /**
          * A quirk that waits for the last repeating capture request to start before stopping the
