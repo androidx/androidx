@@ -21,6 +21,8 @@ package androidx.bluetooth.integration.testapp.ui.scanner
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.le.ScanResult
 import androidx.bluetooth.integration.testapp.data.connection.DeviceConnection
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.cancel
 
@@ -32,8 +34,10 @@ class ScannerViewModel : ViewModel() {
         internal const val NEW_DEVICE = -1
     }
 
-    internal val scanResults: List<ScanResult> get() = _scanResults.values.toList()
-    private val _scanResults = mutableMapOf<String, ScanResult>()
+    val scanResults: LiveData<List<ScanResult>>
+        get() = _scanResults
+    private val _scanResults = MutableLiveData<List<ScanResult>>()
+    private val _scanResultsMap = mutableMapOf<String, ScanResult>()
 
     internal val deviceConnections: Set<DeviceConnection> get() = _deviceConnections
     private val _deviceConnections = mutableSetOf<DeviceConnection>()
@@ -44,15 +48,13 @@ class ScannerViewModel : ViewModel() {
         _deviceConnections.forEach { it.job?.cancel() }
     }
 
-    fun addScanResultIfNew(scanResult: ScanResult): Boolean {
+    fun addScanResultIfNew(scanResult: ScanResult) {
         val deviceAddress = scanResult.device.address
 
-        if (_scanResults.containsKey(deviceAddress)) {
-            return false
+        if (_scanResultsMap.containsKey(deviceAddress).not()) {
+            _scanResultsMap[deviceAddress] = scanResult
+            _scanResults.value = _scanResultsMap.values.toList()
         }
-
-        _scanResults[deviceAddress] = scanResult
-        return true
     }
 
     fun addDeviceConnectionIfNew(bluetoothDevice: BluetoothDevice): Int {

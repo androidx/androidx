@@ -67,8 +67,6 @@ class ScannerFragment : Fragment() {
     // TODO(ofy) Migrate to androidx.bluetooth.BluetoothLe once scan API is in place
     private lateinit var bluetoothLe: BluetoothLe
 
-    private var scannerAdapter: ScannerAdapter? = null
-
     private var deviceServicesAdapter: DeviceServicesAdapter? = null
 
     private val scanScope = CoroutineScope(Dispatchers.Main + Job())
@@ -140,13 +138,18 @@ class ScannerFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        bluetoothLe = BluetoothLe(requireContext())
-
         _binding = FragmentScannerBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        bluetoothLe = BluetoothLe(requireContext())
 
         binding.tabLayout.addOnTabSelectedListener(onTabSelectedListener)
 
-        scannerAdapter = ScannerAdapter { bluetoothDevice -> onClickScanResult(bluetoothDevice) }
+        val scannerAdapter = ScannerAdapter(::onClickScanResult)
         binding.recyclerViewScanResults.adapter = scannerAdapter
         binding.recyclerViewScanResults.addItemDecoration(
             DividerItemDecoration(context, LinearLayoutManager.VERTICAL)
@@ -175,9 +178,10 @@ class ScannerFragment : Fragment() {
             disconnect(viewModel.deviceConnection(binding.tabLayout.selectedTabPosition))
         }
 
-        initData()
+        viewModel.scanResults
+            .observe(viewLifecycleOwner) { scannerAdapter.submitList(it) }
 
-        return binding.root
+        initData()
     }
 
     override fun onDestroyView() {
@@ -187,9 +191,6 @@ class ScannerFragment : Fragment() {
     }
 
     private fun initData() {
-        scannerAdapter?.submitList(viewModel.scanResults)
-        scannerAdapter?.notifyItemRangeChanged(0, viewModel.scanResults.size)
-
         viewModel.deviceConnections.map { it.bluetoothDevice }.forEach(::addNewTab)
     }
 
@@ -205,10 +206,7 @@ class ScannerFragment : Fragment() {
                 .collect {
                     Log.d(TAG, "ScanResult collected: $it")
 
-                    if (viewModel.addScanResultIfNew(it)) {
-                        scannerAdapter?.submitList(viewModel.scanResults)
-                        scannerAdapter?.notifyItemInserted(viewModel.scanResults.size)
-                    }
+                    viewModel.addScanResultIfNew(it)
                 }
         }
     }
